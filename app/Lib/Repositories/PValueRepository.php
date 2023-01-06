@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\DB;
 use tcCore\Attainment;
 use tcCore\BaseSubject;
 use tcCore\EducationLevel;
+use tcCore\Period;
 use tcCore\PValue;
 use tcCore\Scopes\AttainmentScope;
 use tcCore\Subject;
@@ -381,7 +382,7 @@ class PValueRepository
                 $join->on('p_values.test_participant_id', '=', 'test_participants.id')
                     ->where('test_participants.user_id', '=', $user->getKey());
             })
-            ->filter($periods, $educationLevelYears, $teachers)
+            ->filter($user, $periods, $educationLevelYears, $teachers)
             ->groupBy('subject_id');
 
         return Subject::filterForStudentCurrentSchoolYear($user)
@@ -395,8 +396,10 @@ class PValueRepository
 
     public static function getPValueForStudentBySubjectDayDateTimeSeries(User $user, $periods, $educationLevelYears, $teachers)
     {
+        $dates = self::convertPeriodsToStartAndEndDate($periods);
+
         return Subject::filterForStudentCurrentSchoolYear($user)
-            ->crossJoinSub(self::getDayDateTimeSeriesQueryBuilder('2022-10-28', '2022-11-30'), 'dates')
+            ->crossJoinSub(self::getDayDateTimeSeriesQueryBuilder($dates->start_date, $dates->end_date), 'dates')
             ->leftJoinSub(self::getPValueScoresByDayDateWithSubjectId($user, $periods, $educationLevelYears, $teachers), 'p_value_query', function ($join) {
                 $join->on('gen_date', '=', 'p_value_created_at')
                     ->on('subjects.id', '=', 'p_value_query.subject_id');
@@ -415,7 +418,7 @@ class PValueRepository
                 $join->on('p_values.test_participant_id', '=', 'test_participants.id')
                     ->where('test_participants.user_id', '=', $user->getKey());
             })
-            ->filter($periods, $educationLevelYears, $teachers)
+            ->filter($user, $periods, $educationLevelYears, $teachers)
             ->groupBy('attainment_id');
 
         return Attainment::withoutGlobalScope(AttainmentScope::class)
@@ -440,7 +443,7 @@ class PValueRepository
                 $join->on('p_values.test_participant_id', '=', 'test_participants.id')
                     ->where('test_participants.user_id', '=', $user->getKey());
             })
-            ->filter($periods, $educationLevelYears, $teachers)
+            ->filter($user, $periods, $educationLevelYears, $teachers)
             ->whereIn('p_value_attainments.attainment_id', Attainment::withoutGlobalScope(AttainmentScope::class)->where('attainment_id', $attainment->getKey())->pluck('id'))
             ->groupBy('attainment_id');
 //            ->orderByRaw('is_learning_goal, education_level_id, attainments.code, attainments.subcode')
@@ -469,7 +472,8 @@ class PValueRepository
         )->whereBetween('gen_date', [$startDate, $endDate]);
     }
 
-    private static function getPValueScoresByDayDateWithSubjectId(User $user, $periods, $educationLevelYears, $teachers){
+    private static function getPValueScoresByDayDateWithSubjectId(User $user, $periods, $educationLevelYears, $teachers)
+    {
         return PValue::SelectRaw('avg(score/max_score) as score')
             ->selectRaw('date(p_values.created_at) as p_value_created_at')
             ->addSelect([
@@ -479,10 +483,22 @@ class PValueRepository
                 $join->on('p_values.test_participant_id', '=', 'test_participants.id')
                     ->where('test_participants.user_id', '=', $user->getKey());
             })
-            ->filter($periods, $educationLevelYears, $teachers)
+            ->filter($user, $periods, $educationLevelYears, $teachers)
             ->groupBy([
                 'subject_id',
                 DB::raw('date(p_values.created_at)')
             ]);
+    }
+
+    private static function convertPeriodsToStartAndEndDate($periods)
+    {
+        if ($periods->isNotEmpty()) {
+            return Period::whereIn('id', $periods->pluck('id'))->selectRaw('max(end_date) as end_date, min(start_date) as start_date')->first();
+        }
+
+        return (object)[
+            'start_date' => '2018-01-01',
+            'end_date'   => '2023-01-01',
+        ];
     }
 }
