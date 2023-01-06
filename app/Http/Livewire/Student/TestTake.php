@@ -182,7 +182,7 @@ class TestTake extends Component
                 ] + $parameters;
         }
 
-        if (session()->get('TLCOs', null) == 'iOS') {
+        if (session()->get('TLCPlatform', null) == 'iOS') {
             $parameters['device'] = 'ipad';
         }
 

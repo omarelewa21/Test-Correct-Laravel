@@ -49,7 +49,6 @@ class Dashboard extends Component
 
     public function logout()
     {
-        $device = session()->get('TLCOs') == 'iOS' ? 'ipad' : '';
         UserHelper::logout();
         return redirect(
             BaseHelper::getLogoutUrl()

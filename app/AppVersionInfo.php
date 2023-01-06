@@ -1,4 +1,6 @@
-<?php namespace tcCore;
+<?php
+
+namespace tcCore;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -36,9 +38,9 @@ class AppVersionInfo extends BaseModel
         'id',
         'user_id',
         'version',
-        'os',
-        'user_os',
-        'user_os_version',
+        'platform',
+        'platform_version',
+        'platform_type',
         'headers',
         'version_check_result'
     ];
@@ -68,9 +70,9 @@ class AppVersionInfo extends BaseModel
     {
         self::create([
             'version'              => session()->get('TLCVersion'),
-            'os'                   => session()->get('TLCOs'),
-            'user_os'              => session()->get('UserOsPlatform'),
-            'user_os_version'      => session()->get('UserOsVersion'),
+            'platform'             => session()->get('TLCPlatform'),
+            'platform_version'     => session()->get('TLCPlatformVersion'),
+            'platform_type'        => session()->get('TLCPlatformType'),
             'headers'              => json_encode(session()->get('headers')),
             'version_check_result' => session()->get('TLCVersioncheckResult'),
         ]);
