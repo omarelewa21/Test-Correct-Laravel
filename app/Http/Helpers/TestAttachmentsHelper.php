@@ -13,6 +13,7 @@ class TestAttachmentsHelper extends BaseHelper
     protected string $filePath;
     protected \ZipArchive $zip;
     protected $linkAttachments;
+    protected $filesInArchive;
 
     public static function createZipDownload(Test $test)
     {
@@ -82,12 +83,14 @@ class TestAttachmentsHelper extends BaseHelper
 
         $this->linkAttachments = collect();
 
+        $this->filesInArchive = collect();
+
         $this->test->attachments->each(function ($attachment) {
             if ($attachment->link !== null) {
                 $this->linkAttachments[] = $attachment;
                 return;
             }
-            $this->zip->addFile($attachment->getCurrentPath(), $attachment->title);
+            $this->addFileToZip($attachment->title, $attachment->getCurrentPath());
         });
 
         if ($this->linkAttachments->isNotEmpty()) {
@@ -99,5 +102,24 @@ class TestAttachmentsHelper extends BaseHelper
         }
 
         $this->zip->close();
+    }
+
+    protected function addFileToZip($fileName, $filePath, $counter = 0)
+    {
+        if($counter > 10) {
+            return false;
+        }
+
+        if($this->filesInArchive->doesntContain($fileName)) {
+            $this->zip->addFile($filePath, $fileName);
+            $this->filesInArchive->add($fileName);
+            return;
+        }
+
+        $pathInfo = pathinfo(($fileName));
+
+        $fileName = sprintf('%s(%d).%s', $pathInfo['filename'], ++$counter , $pathInfo['extension']);
+
+        return $this->addFileToZip($fileName, $filePath, $counter);
     }
 }
