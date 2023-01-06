@@ -14,19 +14,54 @@ use Tests\TestCase;
 class ScheduleMailToUsersOneYearInactiveTest extends TestCase
 {
 
-    private $schoolLocation;
+    private $schoolLocationActive;
+    private $schoolLocationInActive;
+    private Carbon $createdAt7MonthsAgo;
+    private Carbon $createdAt13MonthsAgo;
+    private Carbon $createdAt23MonthsAgo;
+    private Carbon $createdAt25MonthsAgo;
+
 
     public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
         parent::__construct($name, $data, $dataName);
 
-        $this->schoolLocation = SchoolLocation::create([
+        $this->createdAt7MonthsAgo = \Carbon\Carbon::now()->subMonths(7);
+        $this->createdAt13MonthsAgo = \Carbon\Carbon::now()->subMonths(13);
+        $this->createdAt23MonthsAgo = \Carbon\Carbon::now()->subMonths(23);
+        $this->createdAt25MonthsAgo = \Carbon\Carbon::now()->subMonths(25);
+
+        $this->schoolLocationActive = $this->make_school_location(true);
+
+        $this->schoolLocationInActive = $this->make_school_location(false);
+    }
+
+    // link to tutorial for this feature https://www.csrhymes.com/2021/01/31/testing-a-laravel-console-command.html
+
+    public function test_teachers_created_seven_months_ago_login_last_seven_months_ago_active_school_false()
+    {
+
+        $this->createTeacherFromUser($user, $schoolClass=null);
+
+        $this->artisan('users_one_year_inactive:scheduled_mail');
+
+    }
+
+    public function test_teachers_created_seven_months_ago_login_last_seven_months_ago_active_school_true()
+    {
+
+    }
+
+    public function make_school_location(bool $active = true)
+    {
+
+        $schoolLocation = SchoolLocation::create([
             "name" => "test schoollocatie",
             "customer_code" => "OV",
             "user_id" => 520,
             "school_id" => School::first()->getKey(),
             "grading_scale_id" => "1",
-            "activated" => "1",
+            "activated" => $active,
             "number_of_students" => "10",
             "number_of_teachers" => "10",
             "external_main_code" => "06SS",
@@ -49,34 +84,26 @@ class ScheduleMailToUsersOneYearInactiveTest extends TestCase
             "lvs_active" => true,
             "lvs_type" => \tcCore\SchoolLocation::LVS_SOMTODAY,
         ]);
+
+        return $schoolLocation;
     }
 
-    // link to tutorial for this feature https://www.csrhymes.com/2021/01/31/testing-a-laravel-console-command.html
-
-    public function test_teachers_created_seven_months_ago_login_last_seven_months_ago_active_school_false()
+    public function make_user_custom_created_date_school_location_username($createdAt, $schoolLocation, $userName = 'teacher')
     {
-        $createdAt= \Carbon\Carbon::now();
         $password = 'password';
 
         $user = User::create([
-            'school_location_id' => $this->schoolLocation->getKey(),
-            'username'           => sprintf('%s-teacher@example.com', \Hash::make($this->schoolLocation->name)),
+            'school_location_id' => $schoolLocation,
+            'username'           => sprintf('%s-%s@example.com', \Hash::make($this->schoolLocation->name), $userName),
             'password'           => \Hash::make($password),
             'name_first'         => $this->schoolLocation->name,
             'name'               => sprintf('teacher'),
             'api_key'            => sha1(time()),
             'send_welcome_email' => 1,
-            'created_at'       => '',
+            'created_at'       => $createdAt,
         ]);
 
-        $this->expectException(RuntimeException::class);
-        $this->artisan('import:products');
-
-        $this->createTeacherFromUser($user, $schoolClass=null);
-    }
-
-    public function test_teachers_created_seven_months_ago_login_last_seven_months_ago_active_school_true()
-    {
-
+        return $user;
     }
 }
+
