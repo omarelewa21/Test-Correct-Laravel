@@ -14,6 +14,8 @@ use Tests\TestCase;
 class ScheduleMailToUsersOneYearInactiveTest extends TestCase
 {
 
+    private $schoolLocation;
+
     public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
         parent::__construct($name, $data, $dataName);
@@ -49,20 +51,26 @@ class ScheduleMailToUsersOneYearInactiveTest extends TestCase
         ]);
     }
 
+    // link to tutorial for this feature https://www.csrhymes.com/2021/01/31/testing-a-laravel-console-command.html
+
     public function test_teachers_created_seven_months_ago_login_last_seven_months_ago_active_school_false()
     {
-        $createdAt=
+        $createdAt= \Carbon\Carbon::now();
+        $password = 'password';
 
         $user = User::create([
             'school_location_id' => $this->schoolLocation->getKey(),
-            'username'           => sprintf('info+%s-teacher@test-correct.nl', $schoolLocation->name),
+            'username'           => sprintf('%s-teacher@example.com', \Hash::make($this->schoolLocation->name)),
             'password'           => \Hash::make($password),
-            'name_first'         => $schoolLocation->name,
+            'name_first'         => $this->schoolLocation->name,
             'name'               => sprintf('teacher'),
             'api_key'            => sha1(time()),
             'send_welcome_email' => 1,
-            'created_at'       => ,
+            'created_at'       => '',
         ]);
+
+        $this->expectException(RuntimeException::class);
+        $this->artisan('import:products');
 
         $this->createTeacherFromUser($user, $schoolClass=null);
     }
