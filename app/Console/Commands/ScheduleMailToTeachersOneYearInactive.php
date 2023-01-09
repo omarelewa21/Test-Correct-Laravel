@@ -10,14 +10,14 @@ use mysql_xdevapi\Statement;
 use tcCore\Jobs\FailedJob;
 use tcCore\Jobs\SendInactiveUserMail;
 
-class ScheduleMailToUsersOneYearInactive extends Command
+class ScheduleMailToTeachersOneYearInactive extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'users_one_year_inactive:scheduled_mail';
+    protected $signature = 'teachers_one_year_inactive:scheduled_mail';
 
     /**
      * The console command description.
@@ -36,15 +36,9 @@ class ScheduleMailToUsersOneYearInactive extends Command
         parent::__construct();
     }
 
-    /**
-     * Execute the console command.
-     *
-     * @return mixed
-     */
-    public function handle()
+    public function getListOfInactiveTeachers ()
     {
-
-        $arrayOfInactiveUsers = DB::select("
+        return DB::select("
         SELECT us.id, us.username, sl.id as school, sl.activated
         FROM users AS us
         LEFT JOIN user_roles AS ur ON (us.id=ur.user_id)
@@ -75,21 +69,31 @@ class ScheduleMailToUsersOneYearInactive extends Command
         AND (
                 us.username NOT LIKE '%teachandlearncompany.com'
                 AND us.username NOT LIKE '%test-correct.nl'
-            )
+            ) 
         AND (
                 ms.mailable = '".SendInactiveUserMail::class."' 
                 OR ms.created_at IS NULL
              )
              ");
 
+    }
 
-        if (count($arrayOfInactiveUsers) === 0){
+    /**
+     * Execute the console command.
+     *
+     * @return mixed
+     */
+    public function handle()
+    {
+        $arrayOfInactiveTeachers = $this->getListOfInactiveTeachers();
+
+        if (count($arrayOfInactiveTeachers) === 0){
             return $this->info('success: No year long inactive users found.');
         }
 
-        foreach ($arrayOfInactiveUsers as $inactiveUser){
+        foreach ($arrayOfInactiveTeachers as $inactiveTeacher){
             try {
-                Mail::to($inactiveUser->username)->queue(new SendInactiveUserMail($inactiveUser->id));
+                Mail::to($inactiveTeacher->username)->queue(new SendInactiveUserMail($inactiveTeacher->id));
             } catch (\Throwable $th) {
                 Bugsnag::notifyException($th);
                 logger('failed'.$th);
@@ -97,7 +101,6 @@ class ScheduleMailToUsersOneYearInactive extends Command
             }
         }
 
-        return $this->info('success: this many users were being inactive at least a year: '.count($arrayOfInactiveUsers). ', they have been notified.' );
-
+        return $this->info('success: this many users were being inactive at least a year: '.count($arrayOfInactiveTeachers). ', they have been notified.' );
     }
 }

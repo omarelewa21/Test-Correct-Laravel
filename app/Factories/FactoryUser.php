@@ -66,7 +66,6 @@ class FactoryUser
     public static function createTeacher(SchoolLocation $schoolLocation, bool $numericName = true, array $userProperties = []): FactoryUser
     {
         $factory = new static;
-
         $schoolLocationId = $schoolLocation->getKey();
         if(!isset(static::$teacherIterator[$schoolLocationId])){
             static::$teacherIterator[$schoolLocationId] = 0;
@@ -159,6 +158,10 @@ class FactoryUser
     {
         $userFactory = new Factory(new User());
         $this->user = $userFactory->generate($this->userProperties);
+        if(key_exists('created_at',$this->userProperties)){
+            $this->user->created_at = $this->userProperties['created_at'];
+            $this->user->save();
+        }
     }
 
     protected function definition(): array
@@ -173,6 +176,7 @@ class FactoryUser
             'username'           => 'Name-LastName@factory.test',
             'password'           => 'TCSoBit500',
             'user_roles'         => [1],
+            'created_at'         => \Carbon\Carbon::now()->subMonths(7),
             'gender'             => 'Male',
         ];
         //roles:
