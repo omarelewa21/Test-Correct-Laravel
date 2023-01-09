@@ -6237,9 +6237,8 @@ document.addEventListener('alpine:init', function () {
                   _this20.showEmptyState = _yield$_this20$$wire$2[0];
                   _this20.data = _yield$_this20$$wire$2[1];
                   _this20.subjects = _yield$_this20$$wire$2[2];
-                  debugger;
                   _this20.renderGraph();
-                case 9:
+                case 8:
                 case "end":
                   return _context4.stop();
               }
@@ -6249,6 +6248,11 @@ document.addEventListener('alpine:init', function () {
       },
       renderGraph: function renderGraph() {
         var _this21 = this;
+        var cssSelector = '#' + this.modelId + '>div:not(.empty-state)';
+        console.log(cssSelector);
+        this.$root.querySelectorAll(cssSelector).forEach(function (node) {
+          return node.remove();
+        });
         // set the data
         var table = anychart.data.table();
         table.addData(this.data);
@@ -6296,9 +6300,12 @@ document.addEventListener('alpine:init', function () {
           mapping.addField('value', cnt);
           var series = chart.plot(0).line(mapping);
           series.name(el);
+          series.legendItem().useHtml(true);
+          series.legendItem().format("{%seriesName}");
           series.stroke(_this21.colors[index]);
         });
         chart.title('');
+        chart.plot(0).legend().titleFormat('');
         chart.container(this.modelId);
         chart.draw();
       }

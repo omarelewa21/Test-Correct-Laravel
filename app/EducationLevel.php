@@ -196,7 +196,7 @@ class EducationLevel extends BaseModel
         }
         return [
             'education_level_id'    => $latestSchoolClassForStudent->education_level_id,
-            'education_level_years' => range($min, $latestSchoolClassForStudent->education_level_year),
+            'education_level_years' => collect(range($min, $latestSchoolClassForStudent->education_level_year)),
         ];
     }
 

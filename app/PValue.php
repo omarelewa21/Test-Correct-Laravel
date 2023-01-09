@@ -163,7 +163,7 @@ class PValue extends BaseModel
                     'attainment_id' => $attainment, 'p_value_id' => $pValue->getKey()
                 ]);
                 if (is_null($existingPValueAttainment)) {
-                    $body = 'Error in PValue.php: The PValueUser could not be created but the PValueUser with attainment_id "'.$attainment.'" and p_value_id "'.$pValue->getKey().'" could not be created!';
+                    $body = 'Error in PValue.php: The PValueUser could not be created but the PValueUser with attainment_id "' . $attainment . '" and p_value_id "' . $pValue->getKey() . '" could not be created!';
 
                     Bugsnag::notifyException(new \LogicException($body));
 
@@ -214,20 +214,21 @@ class PValue extends BaseModel
         }
     }
 
-    public function scopeFilter($query, $user, $periods, $educationLevelYears, $teachers, $isLearningGoal = null){
+    public function scopeFilter($query, $user, $periods, $educationLevelYears, $teachers, $isLearningGoal = null)
+    {
         if ($periods->isEmpty() && $educationLevelYears->isEmpty() && $teachers->isEmpty()) {
-            dd(EducationLevel::getLatestEducationLevelAndEducationLevelYearForStudent($user));
+            $levelAndYears = educationlevel::getlatesteducationlevelandeducationlevelyearforstudent($user);
 
             $query
-                ->educationLevelYearFilter($educationLevelYears)
-                ->where('eduction_level_id', [1]);
+                ->educationLevelYearFilter($levelAndYears['education_level_years'])
+                ->where('p_values.education_level_id', $levelAndYears ['education_level_id']);
         } else {
             $query
                 ->periodFilter($periods)
                 ->educationLevelYearFilter($educationLevelYears)
                 ->teacherFilter($teachers);
         }
-         $query->learningGoalOrAttainmentFilter($isLearningGoal);
+        $query->learningGoalOrAttainmentFilter($isLearningGoal);
     }
 
 
@@ -239,7 +240,8 @@ class PValue extends BaseModel
         );
     }
 
-    public function scopeLearningGoalOrAttainmentFilter($query, $isLearningGoal = null) {
+    public function scopeLearningGoalOrAttainmentFilter($query, $isLearningGoal = null)
+    {
         if (!is_null($isLearningGoal)) {
             $query->where('attainments.is_learning_goal', $isLearningGoal);
         }
@@ -249,7 +251,7 @@ class PValue extends BaseModel
     {
         $query->when(
             $educationLevelYears->isNotEmpty(),
-            fn($q) => $q->whereIn('p_values.education_level_year', $educationLevelYears->pluck('id'))
+            fn($q) => $q->whereIn('p_values.education_level_year', $educationLevelYears)
         );
     }
 

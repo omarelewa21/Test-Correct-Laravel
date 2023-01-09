@@ -913,12 +913,14 @@ document.addEventListener('alpine:init', () => {
             },
             async updateGraph() {
                 [this.showEmptyState, this.data, this.subjects] = await this.$wire.call('getDataForSubjectTimeSeriesGraph');
-                debugger;
-
                 this.renderGraph();
             },
             renderGraph() {
-                    // set the data
+
+                var cssSelector = '#' + this.modelId + '>div:not(.empty-state)';
+                console.log(cssSelector);
+                this.$root.querySelectorAll(cssSelector).forEach(node => node.remove())
+                // set the data
                 let table = anychart.data.table();
                 table.addData(this.data);
 
@@ -950,7 +952,7 @@ document.addEventListener('alpine:init', () => {
                 labels.fontWeight('bold');
 
 // set minor labels text format
-                minorLabels.format(function() {
+                minorLabels.format(function () {
                     return anychart.format.dateTime(this.tickValue, 'MMM');
                 });
 
@@ -962,18 +964,20 @@ document.addEventListener('alpine:init', () => {
                 chart.scroller().outlineStroke("var(--system-base)", 2);
                 chart.scroller().outline
 
-                this.subjects.forEach((el, index) =>{
-                    let cnt = index+1;
+                this.subjects.forEach((el, index) => {
+                    let cnt = index + 1;
                     let mapping = table.mapAs();
                     mapping.addField('value', cnt);
 
                     let series = chart.plot(0).line(mapping);
                     series.name(el);
+                    series.legendItem().useHtml(true)
+                    series.legendItem().format("{%seriesName}")
                     series.stroke(this.colors[index]);
                 })
 
-
                 chart.title('');
+                chart.plot(0).legend().titleFormat('');
 
                 chart.container(this.modelId);
                 chart.draw();
@@ -1430,12 +1434,12 @@ document.addEventListener('alpine:init', () => {
             this.isUploading = true
             let dummyContainer = this.$root.querySelector('#upload-dummies');
             Array.from(files).forEach((file, key) => {
-                if(!this.fileHasAllowedExtension(file)) {
+                if (!this.fileHasAllowedExtension(file)) {
                     this.handleIncorrectFileUpload(file);
                     return;
                 }
 
-                if(this.fileTooLarge(file)) {
+                if (this.fileTooLarge(file)) {
                     this.handleTooLargeOfAfile(file);
                     return;
                 }

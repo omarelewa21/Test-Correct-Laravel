@@ -97,7 +97,7 @@ abstract class PValueTaxonomyRepository
                     ->where('test_participants.user_id', '=', $user->getKey());
             })
             ->join('questions', 'p_values.question_id', 'questions.id')
-            ->filter($periods, $educationLevelYears, $teachers, null)
+            ->filter($user, $periods, $educationLevelYears, $teachers, null)
             ->where(function ($query) use ($taxonomy) {
                 $query->where(sprintf('questions.%s', $taxonomy), '<>', '')
                     ->WhereNotNull(sprintf('questions.%s', $taxonomy));
