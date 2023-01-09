@@ -154,23 +154,24 @@ class TestsOverview extends Component
 
     protected function setFilters()
     {
-        if (session()->has('tests-overview-filters'))
-            $this->filters = session()->get('tests-overview-filters');
-        else {
-            collect($this->allowedTabs)->each(function ($tab) {
-                $this->filters[$tab] = [
-                    'name'                 => '',
-                    'education_level_year' => [],
-                    'education_level_id'   => [],
-                    'subject_id'           => [],
-                    'author_id'            => [],
-                    'base_subject_id'      => [],
-                ];
-                if ($this->tabNeedsDefaultFilters($tab)) {
-                    $this->mergeFiltersWithDefaults($tab);
-                }
-            });
-        }
+//        if (session()->has('tests-overview-filters'))
+//            $this->filters = session()->get('tests-overview-filters');
+//        else {
+        collect($this->allowedTabs)->each(function ($tab) {
+            $this->filters[$tab] = [
+                'name'                 => '',
+                'education_level_year' => [],
+                'education_level_id'   => [],
+                'subject_id'           => [],
+                'author_id'            => [],
+                'base_subject_id'      => [],
+                'taxonomy'             => [],
+            ];
+            if ($this->tabNeedsDefaultFilters($tab)) {
+                $this->mergeFiltersWithDefaults($tab);
+            }
+        });
+//        }
     }
 
 
@@ -349,5 +350,22 @@ class TestsOverview extends Component
     protected function mergeFiltersWithDefaults($tab): void
     {
         $this->filters[$tab] = array_merge($this->filters[$tab], auth()->user()->getSearchFilterDefaultsTeacher());
+    }
+
+    public function getTaxonomiesProperty()
+    {
+        $taxonomies = collect(['RTTI', 'Miller', 'Bloom']);
+        return $taxonomies->map(function ($taxonomy) {
+            $repository = sprintf('tcCore\Lib\Repositories\PValueTaxonomy%sRepository', $taxonomy);
+            $options = collect($repository::OPTIONS)->map(function ($option) {
+                return ['value' => $option, 'label' => __('cms.' . $option)];
+            })->toArray();
+            return [
+                'label'    => $taxonomy,
+                'id'       => $repository::DATABASE_FIELD,
+                'disabled' => false,
+                'choices'  => $options,
+            ];
+        });
     }
 }

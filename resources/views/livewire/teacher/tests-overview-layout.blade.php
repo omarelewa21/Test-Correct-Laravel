@@ -73,6 +73,17 @@
                         wire:model="filters.{{ $this->openTab }}.education_level_id"
                         filterContainer="testbank-{{ $this->openTab }}-active-filters"
                 />
+                    <x-input.choices-select
+                        wire:key="taxonomy_{{ $this->openTab }}"
+                        :multiple="true"
+                        :options="$this->taxonomies"
+                        :withSearch="true"
+                        placeholderText="{{ __('cms.Taxonomie') }}"
+                        wire:model="filters.{{ $this->openTab }}.taxonomy"
+                        filterContainer="testbank-{{ $this->openTab }}-active-filters"
+                        :groups="true"
+                />
+
                 @if ($this->canFilterOnAuthors())
                     <x-input.choices-select
                             wire:key="authors_{{ $this->openTab }}"
