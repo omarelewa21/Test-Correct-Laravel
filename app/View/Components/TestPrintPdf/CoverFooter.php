@@ -18,9 +18,7 @@ class CoverFooter extends Component
         $this->test = $test;
         $this->testTake = $testTake;
 
-        $amountOfQuestions = collect($test->getAmountOfQuestions())->reduce(function ($carry, $item) {
-            return $carry + $item;
-        }, 0);
+        $amountOfQuestions = $test->getAmountOfQuestions()['regular'];
 
         $this->data = [
             'amountOfQuestions' => $amountOfQuestions,
