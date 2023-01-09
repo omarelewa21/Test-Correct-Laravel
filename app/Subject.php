@@ -243,11 +243,7 @@ class Subject extends BaseModel implements AccessCheckable
 
         }
 
-
-
         return $query->whereIn('id', $subQuery);
-
-
     }
 
     public function scopeCitoFiltered($query, $filters = [], $sorting = [])

@@ -5,9 +5,12 @@ use tcCore\Jobs\SendExceptionMail;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Mail;
+use tcCore\Traits\TimeSerieTrait;
 
 class PValue extends BaseModel
 {
+
+    use TimeSerieTrait;
 
     use SoftDeletes;
 
@@ -131,28 +134,13 @@ class PValue extends BaseModel
                         $user,
                         $pValue->getKey()
                     );
-
-//                } else { // first errors mailed show that this is only the case probably because of this->users not being unique or calling this method twice. So therefor no problem trying to add them twice
-//                    $error = sprintf(
-//                        'Failed to create a pValueUser while it was already there, with values for user_id %s and p_value_id %s',
-//                        $user,
-//                        $pValue->getKey()
-//                    );
-
                 }
                 if (null !== $error) {
                     Bugsnag::notifyException(new \LogicException($error));
 
                     dispatch_now(new SendExceptionMail($error, __FILE__, $line, [], 'PValueUser error'));
-
-//                    Mail::raw($error, function ($message) {
-//                        $message->to(env("MAIL_DEV_ADDRESS"), 'Auto Error Mailer');
-//                        $message->subject('PValueUser error');
-//                    });
-
                 }
             }
-
         });
 
         $this->users = null;
@@ -175,7 +163,7 @@ class PValue extends BaseModel
                     'attainment_id' => $attainment, 'p_value_id' => $pValue->getKey()
                 ]);
                 if (is_null($existingPValueAttainment)) {
-                    $body = 'Error in PValue.php: The PValueUser could not be created but the PValueUser with attainment_id "'.$attainment.'" and p_value_id "'.$pValue->getKey().'" could not be created!';
+                    $body = 'Error in PValue.php: The PValueUser could not be created but the PValueUser with attainment_id "' . $attainment . '" and p_value_id "' . $pValue->getKey() . '" could not be created!';
 
                     Bugsnag::notifyException(new \LogicException($body));
 
@@ -226,21 +214,34 @@ class PValue extends BaseModel
         }
     }
 
-    public function scopeFilter($query, $periods, $educationLevelYears, $teachers, $isLearningGoal = null){
-        $query
-            ->periodFilter($periods)
-            ->educationLevelYearFilter($educationLevelYears)
-            ->teacherFilter($teachers)
-            ->learningGoalOrAttainmentFilter($isLearningGoal);
+    public function scopeFilter($query, $user, $periods, $educationLevelYears, $teachers, $isLearningGoal = null)
+    {
+        if ($periods->isEmpty() && $educationLevelYears->isEmpty() && $teachers->isEmpty()) {
+            $levelAndYears = educationlevel::getlatesteducationlevelandeducationlevelyearforstudent($user);
+
+            $query
+                ->educationLevelYearFilter($levelAndYears['education_level_years'])
+                ->where('p_values.education_level_id', $levelAndYears ['education_level_id']);
+        } else {
+            $query
+                ->periodFilter($periods)
+                ->educationLevelYearFilter($educationLevelYears)
+                ->teacherFilter($teachers);
+        }
+        $query->learningGoalOrAttainmentFilter($isLearningGoal);
     }
 
 
     public function scopePeriodFilter($query, $periods)
     {
-        $query->when($periods->isNotEmpty(), fn($q) => $q->whereIn('p_values.period_id', $periods->pluck('id')));
+        $query->when(
+            $periods->isNotEmpty(),
+            fn($q) => $q->whereIn('p_values.period_id', $periods->pluck('id'))
+        );
     }
 
-    public function scopeLearningGoalOrAttainmentFilter($query, $isLearningGoal = null) {
+    public function scopeLearningGoalOrAttainmentFilter($query, $isLearningGoal = null)
+    {
         if (!is_null($isLearningGoal)) {
             $query->where('attainments.is_learning_goal', $isLearningGoal);
         }
@@ -250,7 +251,7 @@ class PValue extends BaseModel
     {
         $query->when(
             $educationLevelYears->isNotEmpty(),
-            fn($q) => $q->whereIn('p_values.education_level_year', $educationLevelYears->pluck('id'))
+            fn($q) => $q->whereIn('p_values.education_level_year', $educationLevelYears)
         );
     }
 

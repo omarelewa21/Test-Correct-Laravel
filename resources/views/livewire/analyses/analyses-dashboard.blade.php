@@ -77,6 +77,7 @@
             @yield('analyses.attainment.description')
             @yield('analyses.general-data')
             @yield('analyses.p-values-graph')
+            @yield('analyses.p-values-time-series-graph')
             <BR/>
             @if ($this->displayRankingPanel)
                 <x-content-section class="w-full">

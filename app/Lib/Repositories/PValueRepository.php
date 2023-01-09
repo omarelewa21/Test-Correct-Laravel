@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\DB;
 use tcCore\Attainment;
 use tcCore\BaseSubject;
 use tcCore\EducationLevel;
+use tcCore\Period;
 use tcCore\PValue;
 use tcCore\Scopes\AttainmentScope;
 use tcCore\Subject;
@@ -381,7 +382,7 @@ class PValueRepository
                 $join->on('p_values.test_participant_id', '=', 'test_participants.id')
                     ->where('test_participants.user_id', '=', $user->getKey());
             })
-            ->filter($periods, $educationLevelYears, $teachers)
+            ->filter($user, $periods, $educationLevelYears, $teachers)
             ->groupBy('subject_id');
 
         return Subject::filterForStudentCurrentSchoolYear($user)
@@ -391,6 +392,19 @@ class PValueRepository
             })
             ->orderByRaw('subjects.name')
             ->get();
+    }
+
+    public static function getPValueForStudentBySubjectDayDateTimeSeries(User $user, $periods, $educationLevelYears, $teachers)
+    {
+        $dates = self::convertPeriodsToStartAndEndDate($periods);
+
+        return Subject::filterForStudentCurrentSchoolYear($user)
+            ->crossJoinSub(self::getDayDateTimeSeriesQueryBuilder($dates->start_date, $dates->end_date), 'dates')
+            ->leftJoinSub(self::getPValueScoresByDayDateWithSubjectId($user, $periods, $educationLevelYears, $teachers), 'p_value_query', function ($join) {
+                $join->on('gen_date', '=', 'p_value_created_at')
+                    ->on('subjects.id', '=', 'p_value_query.subject_id');
+            })->orderByRaw('name, gen_date')
+            ->get(['name', 'gen_date', 'score']);
     }
 
     public static function getPValuePerAttainmentForStudent(User $user, $periods, $educationLevelYears, $teachers, Subject $subject, $isLearningGoal = false)
@@ -404,7 +418,7 @@ class PValueRepository
                 $join->on('p_values.test_participant_id', '=', 'test_participants.id')
                     ->where('test_participants.user_id', '=', $user->getKey());
             })
-            ->filter($periods, $educationLevelYears, $teachers)
+            ->filter($user, $periods, $educationLevelYears, $teachers)
             ->groupBy('attainment_id');
 
         return Attainment::withoutGlobalScope(AttainmentScope::class)
@@ -429,7 +443,7 @@ class PValueRepository
                 $join->on('p_values.test_participant_id', '=', 'test_participants.id')
                     ->where('test_participants.user_id', '=', $user->getKey());
             })
-            ->filter($periods, $educationLevelYears, $teachers)
+            ->filter($user, $periods, $educationLevelYears, $teachers)
             ->whereIn('p_value_attainments.attainment_id', Attainment::withoutGlobalScope(AttainmentScope::class)->where('attainment_id', $attainment->getKey())->pluck('id'))
             ->groupBy('attainment_id');
 //            ->orderByRaw('is_learning_goal, education_level_id, attainments.code, attainments.subcode')
@@ -443,5 +457,48 @@ class PValueRepository
             ->where('attainments.attainment_id', $attainment->id)
             ->orderByRaw('is_learning_goal, education_level_id, attainments.code, attainments.subcode')
             ->get();
+    }
+
+    private static function getDayDateTimeSeriesQueryBuilder($startDate, $endDate)
+    {
+        return DB::table(
+            DB::raw("           
+                        (select adddate('2018-01-01',t3*1000 + t2*100 + t1*10 + t0) gen_date from
+                        (select 0 t0 union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t0,
+                        (select 0 t1 union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t1,
+                        (select 0 t2 union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t2,
+                        (select 0 t3 union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t3
+                    ) p")
+        )->whereBetween('gen_date', [$startDate, $endDate]);
+    }
+
+    private static function getPValueScoresByDayDateWithSubjectId(User $user, $periods, $educationLevelYears, $teachers)
+    {
+        return PValue::SelectRaw('avg(score/max_score) as score')
+            ->selectRaw('date(p_values.created_at) as p_value_created_at')
+            ->addSelect([
+                'subject_id' => 'p_values.subject_id',
+            ])
+            ->join('test_participants', function ($join) use ($user) {
+                $join->on('p_values.test_participant_id', '=', 'test_participants.id')
+                    ->where('test_participants.user_id', '=', $user->getKey());
+            })
+            ->filter($user, $periods, $educationLevelYears, $teachers)
+            ->groupBy([
+                'subject_id',
+                DB::raw('date(p_values.created_at)')
+            ]);
+    }
+
+    private static function convertPeriodsToStartAndEndDate($periods)
+    {
+        if ($periods->isNotEmpty()) {
+            return Period::whereIn('id', $periods->pluck('id'))->selectRaw('max(end_date) as end_date, min(start_date) as start_date')->first();
+        }
+
+        return (object)[
+            'start_date' => '2018-01-01',
+            'end_date'   => '2023-01-01',
+        ];
     }
 }
