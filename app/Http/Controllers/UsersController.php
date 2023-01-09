@@ -230,7 +230,7 @@ class UsersController extends Controller
     public function confirmEmail(Request $request, EmailConfirmation $emailConfirmation)
     {
         // indien emailConfirmation === null => doorverwijzen naar login pagina
-        if ($emailConfirmation === null) {
+        if ($emailConfirmation === null || null == $emailConfirmation->user) {
             return Response::redirectTo(BaseHelper::getLoginUrl());
         }
 
