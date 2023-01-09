@@ -15,7 +15,7 @@ class Cover extends Component
      *
      * @return void
      */
-    public function __construct(Test $test)
+    public function __construct(Test $test, public $explanationText = true)
     {
         $this->test = $test;
 
@@ -48,6 +48,7 @@ class Cover extends Component
             ->with([
                 'test'            => $this->test,
                 'attachmentsText' => $this->attachmentsText,
+                'explanationText' => $this->explanationText,
             ]);
     }
 }

@@ -1068,6 +1068,18 @@ class Test extends BaseModel
         });
         return $attachments;
     }
+    public function getAttachmentsAttribute()
+    {
+        $attachments = collect();
+
+        $this->testQuestions->sortBy('order')->each(function ($testQuestion) use (&$attachments) {
+            $testQuestion->question->loadRelated();
+            $testQuestion->question->attachments->each(function ($attachment) use (&$attachments) {
+                $attachments->add($attachment);
+            });
+        });
+        return $attachments;
+    }
 
 
     public function isNationalItem(): bool
