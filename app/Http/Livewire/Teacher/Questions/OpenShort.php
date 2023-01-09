@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Livewire\Teacher\Questions;
 
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -358,6 +359,10 @@ class OpenShort extends Component implements QuestionCms
             return $this->$newName($arguments);
         }
 
+        if(!method_exists(get_parent_class($this), $method)){
+            $errorMessage = sprintf('Method (%s) not found on parent, type is `%s` (%s) on file %s:%d',$method,$this->question['type'],$this->question['subtype'],__FILE__,__LINE__);
+            Bugsnag::notifyException(new \Exception($errorMessage));
+        }
         return parent::__call($method, $arguments);
     }
 
