@@ -12,10 +12,8 @@
     <div id="login-body" class="flex justify-center items-center flex-grow"
          x-data="{ openTab: @entangle('login_tab'), showPassword: false, hoverPassword: false, initialPreviewIconState: true, showEntreePassword: false, active_overlay: @entangle('active_overlay'), device: @entangle('device')}"
          x-init="
-            /*addRelativePaddingToBody('login-body', 10);*/
             setTimeout(() => {$wire.checkLoginFieldsForInput()}, 250);
             "
-{{--         x-on:resize.window.debounce.200ms="addRelativePaddingToBody('login-body')"--}}
          wire:ignore.self
     >
         <div class="w-full max-w-[540px] mx-4 py-4">

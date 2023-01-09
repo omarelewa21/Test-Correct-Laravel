@@ -8,9 +8,7 @@
     <div id="dashboard-body"
          class="px-10 relative w-full pb-10"
          x-data="{}"
-         x-init="addRelativePaddingToBody('dashboard-body'); makeHeaderMenuActive('student-header-analysis');"
          x-cloak
-         x-on:resize.window.debounce.200ms="addRelativePaddingToBody('dashboard-body')"
          wire:ignore.self
     >
         @yield('analyses.page.title')
