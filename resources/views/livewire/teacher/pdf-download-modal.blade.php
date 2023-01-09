@@ -36,32 +36,32 @@
                     }
                 },
                 export_test_pdf: function () {
-                    var windowReference = window.open();
-                    windowReference.document.write(this.waitingScreenHtml);
-                    windowReference.location = '{{ route('teacher.preview.test_pdf', ['test' => $test->uuid]) }}';
+                    this.export_now('{{ route('teacher.preview.test_pdf', ['test' => $test->uuid]) }}');
                 },
                 export_test_opgaven_pdf: function () {
-                    var windowReference = window.open();
-                    windowReference.document.write(this.waitingScreenHtml);
-                    windowReference.location = '{{ route('teacher.preview.test_opgaven_pdf', ['test' => $test->uuid]) }}';
+                    this.export_now('{{ route('teacher.preview.test_opgaven_pdf', ['test' => $test->uuid]) }}');
                 },
                 export_test_attachments: function () {
                     window.open('{{ route('teacher.preview.test_attachments', ['test' => $test->uuid]) }}', '_blank');
                 },
                 export_test_take_pdf: function () {
-                    var windowReference = window.open();
-                    windowReference.document.write(this.waitingScreenHtml);
-                    windowReference.location = '{{ isset($testTake->uuid) ? route('teacher.preview.test_take_pdf', ['test_take' => $testTake->uuid]) : ''}}';
+                    this.export_now('{{ isset($testTake->uuid) ? route('teacher.preview.test_take_pdf', ['test_take' => $testTake->uuid]) : ''}}');
                 },
                 export_answer_model_pdf: function () {
-                    var windowReference = window.open();
-                    windowReference.document.write(this.waitingScreenHtml);
-                    windowReference.location = '{{ route('teacher.test-answer-model', ['test' => $test->uuid]) }}';
+                    this.export_now('{{ route('teacher.test-answer-model', ['test' => $test->uuid]) }}');
                 },
                 export_test_take_student_answers_pdf: function () {
+                    this.export_now('{{ isset($testTake->uuid) ? route('teacher.preview.test_take', ['test_take' => $testTake->uuid ?? ''] ) : ''}}');
+                },
+                export_now: function(url) {
+                    var isSafari = navigator.userAgent.indexOf('Safari') > -1 && navigator.userAgent.indexOf('Chrome') <= -1
+                    if(isSafari){
+                        window.open(url);
+                        return;
+                    }
                     var windowReference = window.open();
                     windowReference.document.write(this.waitingScreenHtml);
-                    windowReference.location = '{{ isset($testTake->uuid) ? route('teacher.preview.test_take', ['test_take' => $testTake->uuid ?? ''] ) : ''}}';
+                    windowReference.location = url;
                 },
 
 }">
