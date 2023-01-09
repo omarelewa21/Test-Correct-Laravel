@@ -173,7 +173,7 @@ class PrintTestController extends Controller
         $test->load('testQuestions', 'testQuestions.question', 'testQuestions.question.attachments');
         return $test->testQuestions
             ->sortBy('order')
-            ->when($test->shuffle, fn($testQuestions) => $testQuestions->shuffle()) //todo add ->shuffle() if test->shuffle == true?
+            //->when($test->shuffle, fn($testQuestions) => $testQuestions->shuffle()) //23-01-09: removed shuffling of testQuestions by request of business
             ->flatMap(function ($testQuestion) {
                 $testQuestion->question->loadRelated();
                 if ($testQuestion->question->type === 'GroupQuestion') {
