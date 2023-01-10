@@ -13,6 +13,7 @@ use tcCore\Lib\Repositories\PValueTaxonomyBloomRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyMillerRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyRTTIRepository;
 use tcCore\Lib\Repositories\TaxonomyRankingRepostitory;
+use tcCore\Scopes\AttainmentScope;
 use tcCore\Subject;
 
 class AnalysesSubjectDashboard extends AnalysesDashboard
@@ -99,7 +100,7 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
             $this->getTeachersByFilterValues(),
             $this->subject,
             $this->attainmentModeIsLearningGoal(),
-        );
+        )->get();
 
         $this->showEmptyStateForPValueGraph = $result->filter(fn($item) => !is_null($item['score']))->isEmpty();
 
@@ -176,5 +177,40 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
         return redirect(
             $this->getHelper()->getRouteForShowGrades()
         );
+    }
+
+    public function getDataForSubjectTimeSeriesGraph()
+    {
+        $results =
+            // PValueRepository::getPValueForStudentBySubjectDayDateTimeSeries(
+             PValueRepository::getPValueForStudentForSubjectByAttainmentDayDateTimeSeries(
+            $this->getHelper()->getForUser(),
+             $this->subject,
+            $this->getPeriodsByFilterValues(),
+            $this->getEducationLevelYearsByFilterValues(),
+            $this->getTeachersByFilterValues(),
+             $this->getIsLearningGoalFilter()
+        );
+
+        $set = [];
+        $names = [];
+        foreach($results as $result) {
+            if (!in_array($result->id, $names)) {
+                $names[] = $result->id;
+                $prevScore = $result->score ?? 0;
+            }
+            $set[$result->gen_date][] = $prevScore = $result->score ?? $prevScore;
+        }
+
+        $newSet = collect($set)->map(function($arr, $key) {
+            return [$key, ...$arr];
+        })->values()->toArray();
+
+        $eindtermen = collect($names)->map(function ($id) {
+            return Attainment::withoutGlobalScope(AttainmentScope::class)->find($id)->name;
+        })->toArray();
+
+
+        return [false, $newSet, $eindtermen];
     }
 }
