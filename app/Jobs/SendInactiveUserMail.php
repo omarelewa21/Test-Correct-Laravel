@@ -19,7 +19,7 @@ class SendInactiveUserMail extends Mailable
 
     public User $user;
 
-    protected int $userId;
+    protected string $userId;
 
     /**
      * Create a new job instance.

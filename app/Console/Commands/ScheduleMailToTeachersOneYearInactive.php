@@ -4,11 +4,13 @@ namespace tcCore\Console\Commands;
 
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Console\Command;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use mysql_xdevapi\Statement;
 use tcCore\Jobs\FailedJob;
 use tcCore\Jobs\SendInactiveUserMail;
+use tcCore\User;
 
 class ScheduleMailToTeachersOneYearInactive extends Command
 {
@@ -38,8 +40,8 @@ class ScheduleMailToTeachersOneYearInactive extends Command
 
     public function getListOfInactiveTeachers ()
     {
-        return DB::select("
-        SELECT us.id, us.username, sl.id as school, sl.activated
+        return collect(DB::select("
+        SELECT us.id,us,username
         FROM users AS us
         LEFT JOIN user_roles AS ur ON (us.id=ur.user_id)
         LEFT JOIN (
@@ -74,8 +76,7 @@ class ScheduleMailToTeachersOneYearInactive extends Command
                 ms.mailable = '".SendInactiveUserMail::class."' 
                 OR ms.created_at IS NULL
              )
-             ");
-
+             "));
     }
 
     /**
@@ -85,13 +86,13 @@ class ScheduleMailToTeachersOneYearInactive extends Command
      */
     public function handle()
     {
-        $arrayOfInactiveTeachers = $this->getListOfInactiveTeachers();
+        $listOfInactiveTeachers = $this->getListOfInactiveTeachers();
 
-        if (count($arrayOfInactiveTeachers) === 0){
+        if (count($listOfInactiveTeachers) === 0){
             return $this->info('success: No year long inactive users found.');
         }
 
-        foreach ($arrayOfInactiveTeachers as $inactiveTeacher){
+        foreach ($listOfInactiveTeachers as $inactiveTeacher){
             try {
                 Mail::to($inactiveTeacher->username)->queue(new SendInactiveUserMail($inactiveTeacher->id));
             } catch (\Throwable $th) {
@@ -101,6 +102,6 @@ class ScheduleMailToTeachersOneYearInactive extends Command
             }
         }
 
-        return $this->info('success: this many users were being inactive at least a year: '.count($arrayOfInactiveTeachers). ', they have been notified.' );
+        return $this->info('success: this many users were being inactive at least a year: '.count($listOfInactiveTeachers). ', they have been notified.' );
     }
 }

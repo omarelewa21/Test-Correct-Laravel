@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class LoginLog extends Model
 {
+    public mixed $user_id;
     /**
      * The attributes that should be mutated to dates.
      *
