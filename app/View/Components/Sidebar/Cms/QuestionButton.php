@@ -3,7 +3,6 @@
 namespace tcCore\View\Components\Sidebar\Cms;
 
 use Illuminate\View\Component;
-use tcCore\Http\Livewire\Teacher\Questions\CmsFactory;
 
 class QuestionButton extends Component
 {
@@ -13,7 +12,6 @@ class QuestionButton extends Component
     public $testQuestion;
     public $active = false;
     public $double;
-    public string $title;
 
     public function __construct($question, $loop, $subQuestion, $testQuestion, $activeTestQuestion, $activeGQQ, $double)
     {
@@ -22,7 +20,6 @@ class QuestionButton extends Component
         $this->subQuestion = $subQuestion;
         $this->testQuestion = $testQuestion;
         $this->double = $double;
-        $this->title = CmsFactory::findQuestionNameByTypes($question->type, $question->subtype);
 
         $this->active = $this->isActiveCheck($activeTestQuestion, $activeGQQ);
     }
