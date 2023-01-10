@@ -31,9 +31,9 @@
                         <x-icon.search class="absolute right-0 -top-2"/>
                     </x-input.group>
                 </div>
+                @dump($this->filters)
             </div>
             <div class="flex flex-wrap w-full gap-2 mt-2">
-
                 @if ($this->isExternalContentTab())
                     <x-input.choices-select
                             wire:key="base_subject_{{ $this->openTab }}"
@@ -78,10 +78,10 @@
                         :multiple="true"
                         :options="$this->taxonomies"
                         :withSearch="true"
+                        :sortOptions="false"
                         placeholderText="{{ __('cms.Taxonomie') }}"
                         wire:model="filters.{{ $this->openTab }}.taxonomy"
                         filterContainer="testbank-{{ $this->openTab }}-active-filters"
-                        :groups="true"
                 />
 
                 @if ($this->canFilterOnAuthors())

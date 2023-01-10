@@ -6,6 +6,7 @@
     'filterContainer' => '',
     'hasErrors' => false,
     'searchPlaceholder' => __('cms.Search...'),
+    'sortOptions' => true,
  ])
 <div class="{{ $hasErrors ? 'has-error' : ''  }}">
     <div wire:ignore x-cloak
@@ -24,7 +25,8 @@
                         resetScrollPosition: false,
                         fuseOptions:{
                             treshold:0.3
-                        }
+                        },
+                        shouldSort: @js($sortOptions)
                     },
                     '{{ $filterContainer }}'
              )"

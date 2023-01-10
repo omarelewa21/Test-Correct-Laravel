@@ -578,7 +578,10 @@ document.addEventListener('alpine:init', () => {
             this.activeFiltersContainer = document.getElementById(filterContainer);
             this.multiple = multiple === 1;
             this.$nextTick(() => {
-                let choices = new Choices(this.$refs.select, this.config);
+                let choices = new Choices(
+                    this.$refs.select,
+                    this.getChoicesConfig()
+                );
 
                 let refreshChoices = () => {
                     let selection = this.multiple ? this.value : [this.value]
@@ -590,11 +593,13 @@ document.addEventListener('alpine:init', () => {
                         choices.itemList.append(placeholderItem);
                     }
                     let options = typeof this.options === 'object' ? Object.values(this.options) : this.options;
-                    choices.setChoices(options.map(({value, label}) => ({
+                    options = options.map(({value, label, customProperties}) => ({
                         value,
                         label,
+                        customProperties,
                         selected: selection.includes(value)
-                    })))
+                    }))
+                    choices.setChoices(options)
 
                     this.handleActiveFilters(choices.getValue());
                 }
@@ -611,6 +616,7 @@ document.addEventListener('alpine:init', () => {
                     if (this.value.includes(eventValue)) {
                         this.removeFilterItem(choices.getValue().find(value => value.value === event.detail.choice.value));
                     }
+                    this.handleGroupItemsOnChoice(event.detail.choice)
                 })
                 this.$refs.select.addEventListener('change', () => {
                     if (!Array.isArray(this.value)) return;
@@ -688,6 +694,32 @@ document.addEventListener('alpine:init', () => {
             }
             return eventValue;
         },
+        getChoicesConfig: function () {
+            return {
+                ...this.config,
+                callbackOnCreateTemplates: () => {
+                    return {
+                        choice(classes, attr) {
+                            const el = Choices.defaults.templates.choice.call(this, classes, attr, '');
+                            if (attr.customProperties?.parent === false) {
+                                el.classList.add('child');
+                            }
+                            return el;
+                        }
+                    }
+                }
+            };
+        },
+        handleGroupItemsOnChoice(choice) {
+            if(choice.customProperties?.parent === true) {
+                let parentId = choice.customProperties.parentId;
+                let values = this.options.filter(option => {
+                    return option.customProperties.parent === false && parentId === option.customProperties.parentId;
+                })
+                    .map(value => value.value)
+                this.value = _.union(this.value, values, [choice.value])
+            }
+        }
     }));
 
     Alpine.data('analysesSubjectsGraph', (modelId) => ({
@@ -1339,12 +1371,12 @@ document.addEventListener('alpine:init', () => {
             this.isUploading = true
             let dummyContainer = this.$root.querySelector('#upload-dummies');
             Array.from(files).forEach((file, key) => {
-                if(!this.fileHasAllowedExtension(file)) {
+                if (!this.fileHasAllowedExtension(file)) {
                     this.handleIncorrectFileUpload(file);
                     return;
                 }
 
-                if(this.fileTooLarge(file)) {
+                if (this.fileTooLarge(file)) {
                     this.handleTooLargeOfAfile(file);
                     return;
                 }
