@@ -217,7 +217,7 @@ class PValue extends BaseModel
     public function scopeFilter($query, $user, $periods, $educationLevelYears, $teachers, $isLearningGoal = null)
     {
         if ($periods->isEmpty() && $educationLevelYears->isEmpty() && $teachers->isEmpty()) {
-            $levelAndYears = Educationlevel::getlatesteducationlevelandeducationlevelyearforstudent($user);
+            $levelAndYears = EducationLevel::getlatesteducationlevelandeducationlevelyearforstudent($user);
 
             $query
                 ->educationLevelYearFilter($levelAndYears['education_level_years'])
