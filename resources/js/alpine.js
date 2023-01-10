@@ -1159,8 +1159,8 @@ document.addEventListener('alpine:init', () => {
 
                         const iconElement = document.createElement('img');
                         iconElement.src = '/svg/icons/arrow-small.svg';
-                        iconElement.style.display = 'inline-block'
-                        detailElement.appendChild(iconElement)
+                        iconElement.style.display = 'inline-block';
+                        detailElement.appendChild(iconElement);
                         contentElement.appendChild(detailElement);
                     }
 

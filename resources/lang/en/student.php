@@ -132,6 +132,7 @@ return [
     'description'                                              => 'Description',
     'eindterm'                                                 => 'attainment',
     'p waarde subsubleerdoelen'                                => 'P Value sub sub learning goals',
+    'ontwikkeling p-waarde over tijd'                          => 'Timeseries p value',
     'obv count questions'                                      => "{0}No relevante data available|{1}based on 1 question|[2,*]based on :count questions",
     'Algemeen'                                                 => 'General',
     'aantal tests gemaakt'                                     => 'Total tests',
