@@ -26,7 +26,7 @@ class ScheduleMailToTeachersOneYearInactive extends Command
      *
      * @var string
      */
-    protected $description = 'Checks and sends email to user who haven\'t been active for a year.' ;
+    protected $description = 'Checks and sends email to user who haven\'t been active for a year.';
 
     /**
      * Create a new command instance.
@@ -38,10 +38,10 @@ class ScheduleMailToTeachersOneYearInactive extends Command
         parent::__construct();
     }
 
-    public function getListOfInactiveTeachers ()
+    public function getListOfInactiveTeachers()
     {
-        return collect(DB::select("
-        SELECT us.id,us,username
+        return DB::select("
+        SELECT us.id,us.username
         FROM users AS us
         LEFT JOIN user_roles AS ur ON (us.id=ur.user_id)
         LEFT JOIN (
@@ -60,11 +60,14 @@ class ScheduleMailToTeachersOneYearInactive extends Command
              FROM school_locations AS sl
         ) AS sl
         ON (us.school_location_id=sl.id)
-        WHERE us.created_at > NOW() - INTERVAL 2 YEAR
-        AND (
-              ll.date_created < NOW() - INTERVAL 1 YEAR
-              OR ( ll.date_created IS NULL 
-                AND us.created_at < NOW() - INTERVAL 1 YEAR)
+        WHERE 
+            (us.created_at > NOW() - INTERVAL 2 YEAR
+        AND us.created_at < NOW() - INTERVAL 1 YEAR)
+        AND  
+            (
+                  (ll.date_created < NOW() - INTERVAL 1 YEAR
+            AND    ll.date_created > NOW() - INTERVAL 2 YEAR)
+            OR  ll.date_created IS NULL 
             )
         AND ur.role_id = 1
         AND sl.activated = 1
@@ -73,10 +76,10 @@ class ScheduleMailToTeachersOneYearInactive extends Command
                 AND us.username NOT LIKE '%test-correct.nl'
             ) 
         AND (
-                ms.mailable = '".SendInactiveUserMail::class."' 
+                ms.mailable = '" . SendInactiveUserMail::class . "' 
                 OR ms.created_at IS NULL
              )
-             "));
+             ");
     }
 
     /**
@@ -88,20 +91,22 @@ class ScheduleMailToTeachersOneYearInactive extends Command
     {
         $listOfInactiveTeachers = $this->getListOfInactiveTeachers();
 
-        if (count($listOfInactiveTeachers) === 0){
+        if (count($listOfInactiveTeachers) === 0) {
             return $this->info('success: No year long inactive users found.');
         }
 
-        foreach ($listOfInactiveTeachers as $inactiveTeacher){
+        foreach ($listOfInactiveTeachers as $inactiveTeacher) {
             try {
                 Mail::to($inactiveTeacher->username)->queue(new SendInactiveUserMail($inactiveTeacher->id));
             } catch (\Throwable $th) {
                 Bugsnag::notifyException($th);
-                logger('failed'.$th);
+                logger('failed' . $th);
                 return $this->error($th->getMessage());
             }
         }
 
-        return $this->info('success: this many users were being inactive at least a year: '.count($listOfInactiveTeachers). ', they have been notified.' );
+        return $this->info('success: this many users were being inactive at least a year: ' . count($listOfInactiveTeachers) . ', they have been notified.');
     }
+
+
 }
