@@ -426,6 +426,23 @@ class PValueRepository
             ->get(['attainments.id', 'gen_date', 'score']);
     }
 
+    public static function getPValueForStudentForAttainmentByAttainmentDayDateTimeSeries(User $user, Attainment $attainment, $subjectId, $periods, $educationLevelYears, $teachers, $isLearningGoal)
+    {
+        $dates = self::convertPeriodsToStartAndEndDate($periods, $user);
+        $subject = Subject::whereUuid($subjectId)->first();
+
+        return Attainment::withoutGlobalScope(AttainmentScope::class)
+//            ->whereIn('base_subject_id', Subject::select('base_subject_id')->where('id', $subject->id))
+            ->where('attainments.attainment_id', $attainment->id)
+            ->where('attainments.education_level_id', EducationLevel::getLatestForStudentWithSubject($user, $subject)->id)
+            ->crossJoinSub(self::getDayDateTimeSeriesQueryBuilder($dates->start_date, $dates->end_date), 'dates')
+            ->leftJoinSub(self::getPValueScoresByDayWithAttainmentId($user, $periods, $educationLevelYears, $teachers), 'p_value_query', function ($join) {
+                $join->on('gen_date', '=', 'p_value_created_at')
+                    ->on('attainments.id', '=', 'p_value_query.attainment_id');
+            })->orderByRaw('attainments.id , gen_date')
+            ->get(['attainments.id', 'gen_date', 'score']);
+    }
+
     public static function getPValuePerAttainmentForStudent(User $user, $periods, $educationLevelYears, $teachers, Subject $subject, $isLearningGoal = false)
     {
         $forSubject = $subject->id;
