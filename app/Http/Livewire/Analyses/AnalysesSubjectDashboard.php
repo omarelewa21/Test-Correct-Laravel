@@ -172,12 +172,6 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
         );
     }
 
-    public function showGrades()
-    {
-        return redirect(
-            $this->getHelper()->getRouteForShowGrades()
-        );
-    }
 
     public function getDataForSubjectTimeSeriesGraph()
     {
