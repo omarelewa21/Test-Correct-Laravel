@@ -173,6 +173,7 @@ return [
     'eindterm'                                                 => 'eindterm',
     'p waarde subsubeindtermen'                                => 'P Waarde subsubeindtermen',
     'p waarde subsubleerdoelen'                                => 'P Waarde subsubleerdoelen',
+    'ontwikkeling p-waarde over tijd'                          => 'Ontwikkeling p waarde over tijd',
     'obv count questions'                                      => "{0}Geen relevante data|{1}o.b.v 1 vraag|[2,*]obv :count vragen",
     'Algemeen'                                                 => 'Algemeen',
     'aantal tests gemaakt'                                     => 'Aantal toetsen gemaakt',

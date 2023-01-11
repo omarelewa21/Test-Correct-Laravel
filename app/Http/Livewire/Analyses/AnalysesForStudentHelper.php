@@ -49,7 +49,7 @@ class AnalysesForStudentHelper
 
     public function getRouteForShowGrades()
     {
-        route('student.test-takes', ['tab' => 'graded']);
+        return route('student.test-takes', ['tab' => 'graded']);
     }
     public function getLayout(){
         return 'layouts.student';

@@ -1,5 +1,6 @@
 <?php namespace tcCore\Lib\Repositories;
 
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use tcCore\Attainment;
@@ -396,7 +397,8 @@ class PValueRepository
 
     public static function getPValueForStudentBySubjectDayDateTimeSeries(User $user, $periods, $educationLevelYears, $teachers)
     {
-        $dates = self::convertPeriodsToStartAndEndDate($periods);
+        $dates = self::convertPeriodsToStartAndEndDate($periods, $user);
+
 
         return Subject::filterForStudentCurrentSchoolYear($user)
             ->crossJoinSub(self::getDayDateTimeSeriesQueryBuilder($dates->start_date, $dates->end_date), 'dates')
@@ -405,6 +407,23 @@ class PValueRepository
                     ->on('subjects.id', '=', 'p_value_query.subject_id');
             })->orderByRaw('name, gen_date')
             ->get(['name', 'gen_date', 'score']);
+    }
+
+    public static function getPValueForStudentForSubjectByAttainmentDayDateTimeSeries(User $user, Subject $subject, $periods, $educationLevelYears, $teachers, $isLearningGoal)
+    {
+        $dates = self::convertPeriodsToStartAndEndDate($periods, $user);
+
+        return Attainment::withoutGlobalScope(AttainmentScope::class)
+            ->whereIn('base_subject_id', Subject::select('base_subject_id')->where('id', $subject->id))
+            ->whereNull('attainments.attainment_id')
+            ->where('is_learning_goal', $isLearningGoal)
+            ->where('attainments.education_level_id', EducationLevel::getLatestForStudentWithSubject($user, $subject)->id)
+            ->crossJoinSub(self::getDayDateTimeSeriesQueryBuilder($dates->start_date, $dates->end_date), 'dates')
+            ->leftJoinSub(self::getPValueScoresByDayWithAttainmentId($user, $periods, $educationLevelYears, $teachers), 'p_value_query', function ($join) {
+                $join->on('gen_date', '=', 'p_value_created_at')
+                    ->on('attainments.id', '=', 'p_value_query.attainment_id');
+            })->orderByRaw('attainments.id , gen_date')
+            ->get(['attainments.id', 'gen_date', 'score']);
     }
 
     public static function getPValuePerAttainmentForStudent(User $user, $periods, $educationLevelYears, $teachers, Subject $subject, $isLearningGoal = false)
@@ -429,8 +448,8 @@ class PValueRepository
             ->whereNull('attainments.attainment_id')
             ->where('is_learning_goal', $isLearningGoal)
             ->where('attainments.education_level_id', EducationLevel::getLatestForStudentWithSubject($user, $subject)->id)
-            ->orderByRaw('is_learning_goal, education_level_id, attainments.code, attainments.subcode')
-            ->get();
+            ->orderByRaw('is_learning_goal, education_level_id, attainments.code, attainments.subcode');
+
     }
 
     public static function getPValuePerSubAttainmentForStudentAndAttainment(User $user, Attainment $attainment, $periods, $educationLevelYears, $teachers)
@@ -490,15 +509,37 @@ class PValueRepository
             ]);
     }
 
-    private static function convertPeriodsToStartAndEndDate($periods)
+    private static function getPValueScoresByDayWithAttainmentId(User $user, $periods, $educationLevelYears, $teachers)
+    {
+        return PValue::SelectRaw('avg(score/max_score) as score')
+            ->selectRaw('date(p_values.created_at) as p_value_created_at')
+            ->addSelect([
+                'attainment_id' => 'p_value_attainments.attainment_id',
+            ])
+            ->join('p_value_attainments', 'p_value_attainments.p_value_id', 'p_values.id')
+            ->join('test_participants', function ($join) use ($user) {
+                $join->on('p_values.test_participant_id', '=', 'test_participants.id')
+                    ->where('test_participants.user_id', '=', $user->getKey());
+            })
+            ->filter($user, $periods, $educationLevelYears, $teachers)
+            ->groupBy([
+                'attainment_id',
+                DB::raw('date(p_values.created_at)')
+            ]);
+    }
+
+
+    private static function convertPeriodsToStartAndEndDate($periods, $user)
     {
         if ($periods->isNotEmpty()) {
             return Period::whereIn('id', $periods->pluck('id'))->selectRaw('max(end_date) as end_date, min(start_date) as start_date')->first();
         }
 
-        return (object)[
-            'start_date' => '2018-01-01',
-            'end_date'   => '2023-01-01',
-        ];
+        $startAndEndDate = EducationLevel::getStartAndEndDateForLatestEducationLevelForStudent($user);
+
+        if (Carbon::parse($startAndEndDate['end_date'])->greaterThan(now())) {
+            $startAndEndDate['end_date'] = now()->format('Y-m-d');
+        }
+        return (object) $startAndEndDate;
     }
 }
