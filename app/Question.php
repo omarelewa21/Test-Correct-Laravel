@@ -1083,6 +1083,10 @@ class Question extends MtiBaseModel
             $this->handleDuplication($request);
             return;
         }
+        if ($this->questionAttachmentOptionsNeedSaving($request)) {
+            $this->handleAttachmentOptionsSaving($request);
+        }
+
         $this->saveBothBaseModelAndQuestion();
     }
 
@@ -1095,6 +1099,10 @@ class Question extends MtiBaseModel
             $this->handleDuplication($request);
             return;
         }
+        if ($this->questionAttachmentOptionsNeedSaving($request)) {
+            $this->handleAttachmentOptionsSaving($request);
+        }
+
         $this->saveBothBaseModelAndQuestion();
 
     }
@@ -1102,11 +1110,27 @@ class Question extends MtiBaseModel
     protected function saveBothBaseModelAndQuestion()
     {
         $baseModel = $this->getQuestionInstance();
+
         $var = $baseModel->save();
         if (!$var) {
             throw new QuestionException('Failed to save question');
         }
         $this->save();
+    }
+
+    protected function handleAttachmentOptionsSaving($request)
+    {
+        $this->questionAttachments->each(function ($questionAttachment) use ($request) {
+            if(isset($request['questionAttachmentOptions'][$questionAttachment->attachment_id])){
+                $questionAttachment->options = json_encode($request['questionAttachmentOptions'][$questionAttachment->attachment_id]);
+            }
+        });
+        $this->questionAttachments->each->save();
+    }
+
+    protected function questionAttachmentOptionsNeedSaving($request)
+    {
+        return isset($request['questionAttachmentOptions']);
     }
 
     public function getKeyAfterPossibleDuplicate()
