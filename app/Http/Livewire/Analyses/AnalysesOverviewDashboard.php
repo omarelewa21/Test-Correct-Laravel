@@ -7,14 +7,14 @@ use tcCore\Lib\Repositories\PValueRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyBloomRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyMillerRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyRTTIRepository;
-use tcCore\Lib\Repositories\TaxonomyRankingRepostitory;
+use tcCore\Lib\Repositories\TaxonomyRankingRepository;
 use tcCore\Subject;
 
 class AnalysesOverviewDashboard extends AnalysesDashboard
 {
     public function getTopItemsProperty()
     {
-        return TaxonomyRankingRepostitory::getForSubjects(
+        return TaxonomyRankingRepository::getForSubjects(
             $this->getHelper()->getForUser(),
             [
                 'periods'               => $this->getPeriodsByFilterValues(),

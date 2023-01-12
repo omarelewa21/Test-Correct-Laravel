@@ -9,7 +9,7 @@ use tcCore\Subject;
 use tcCore\User;
 use function Symfony\Component\String\s;
 
-class TaxonomyRankingRepostitory
+class TaxonomyRankingRepository
 {
     /**
      *  QUERY FOR SELECTING AND RANKING SUBJECTS TOP 3

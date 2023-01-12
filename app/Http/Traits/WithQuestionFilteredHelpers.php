@@ -8,6 +8,7 @@ use tcCore\BaseSubject;
 use tcCore\CompletionQuestion;
 use tcCore\Exceptions\QuestionException;
 use tcCore\GroupQuestion;
+use tcCore\Lib\Repositories\TaxonomyRepository;
 use tcCore\MatchingQuestion;
 use tcCore\MultipleChoiceQuestion;
 use tcCore\OpenQuestion;
@@ -175,6 +176,11 @@ trait WithQuestionFilteredHelpers
                     break;
                 case 'draft':
                     $query->where('questions.draft', '=', $value);
+                    break;
+                case 'taxonomy':
+                    $taxonomyColumnsWithSearchValues = TaxonomyRepository::filterValuesPerTaxonomyGroup($value);
+
+                    $query->taxonomies($taxonomyColumnsWithSearchValues);
                     break;
             }
         }

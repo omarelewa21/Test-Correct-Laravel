@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Livewire\Teacher;
 
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use tcCore\BaseSubject;
@@ -15,6 +16,7 @@ use tcCore\Http\Requests\CreateTestQuestionRequest;
 use tcCore\Http\Traits\WithQueryStringSyncing;
 use tcCore\Http\Traits\WithTestAwarenessProperties;
 use tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager;
+use tcCore\Lib\Repositories\TaxonomyRepository;
 use tcCore\Question;
 use tcCore\Subject;
 use tcCore\Test;
@@ -77,7 +79,7 @@ class QuestionBank extends Component
     private function getFilters()
     {
         return collect($this->filters[$this->openTab])->reject(function ($filter) {
-            return empty($filter);
+            return $filter instanceof Collection ? $filter->isEmpty() : empty($filter);
         })
             ->when($this->openTab === 'personal', function ($filters) {
                 return $filters->merge(['source' => 'me']);
@@ -269,7 +271,8 @@ class QuestionBank extends Component
                     'education_level_year' => [$this->test->education_level_year],
                     'education_level_id'   => [$this->test->education_level_id],
                     'without_groups'       => '',
-                    'author_id'            => []
+                    'author_id'            => [],
+                    'taxonomy'             => [],
                 ];
         });
     }
@@ -285,6 +288,7 @@ class QuestionBank extends Component
                 'subject_id'           => [],
                 'base_subject_id'      => [],
                 'author_id'            => [],
+                'taxonomy'             => [],
             ];
         });
     }
@@ -374,5 +378,10 @@ class QuestionBank extends Component
     {
         $this->skipRender();
         return $this->inGroup = false;
+    }
+
+    public function getTaxonomiesProperty()
+    {
+        return TaxonomyRepository::choicesOptions();
     }
 }

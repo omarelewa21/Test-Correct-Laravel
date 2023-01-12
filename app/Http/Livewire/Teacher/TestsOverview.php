@@ -8,11 +8,13 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use tcCore\BaseSubject;
 use tcCore\EducationLevel;
+use tcCore\Http\Helpers\Choices\Choice;
+use tcCore\Lib\Repositories\TaxonomyRepository;
 use tcCore\Subject;
-use tcCore\Test;
-use tcCore\TestTake;
 use tcCore\TemporaryLogin;
+use tcCore\Test;
 use tcCore\TestAuthor;
+use tcCore\TestTake;
 use tcCore\Traits\ContentSourceTabsTrait;
 
 class TestsOverview extends Component
@@ -180,7 +182,7 @@ class TestsOverview extends Component
         return EducationLevel::filtered(['user_id' => auth()->id()], ['name' => 'desc'])
             ->get(['id', 'name'])
             ->map(function ($educationLevel) {
-                return ['value' => (int)$educationLevel->id, 'label' => $educationLevel->name];
+                return Choice::build((int)$educationLevel->id, $educationLevel->name);
             });
     }
 
@@ -355,28 +357,6 @@ class TestsOverview extends Component
 
     public function getTaxonomiesProperty()
     {
-        $taxonomies = collect(['RTTI', 'Miller', 'Bloom']);
-        return $taxonomies->flatMap(function ($taxonomy) {
-            $repository = sprintf('tcCore\Lib\Repositories\PValueTaxonomy%sRepository', $taxonomy);
-            return collect($repository::OPTIONS)
-                ->map(function ($option) use ($repository) {
-                    return [
-                        'value'            => $option,
-                        'label'            => __('cms.' . $option),
-                        'customProperties' => [
-                            'parent'     => false,
-                            'parentId' => $repository::DATABASE_FIELD
-                        ]
-                    ];
-                })
-                ->prepend([
-                    'value'            => $repository::DATABASE_FIELD,
-                    'label'            => $taxonomy,
-                    'customProperties' => [
-                        'parent'    => true,
-                        'parentId' => $repository::DATABASE_FIELD
-                    ]])
-                ->toArray();
-        });
+        return TaxonomyRepository::choicesOptions();
     }
 }

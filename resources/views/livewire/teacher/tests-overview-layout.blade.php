@@ -31,7 +31,6 @@
                         <x-icon.search class="absolute right-0 -top-2"/>
                     </x-input.group>
                 </div>
-                @dump($this->filters)
             </div>
             <div class="flex flex-wrap w-full gap-2 mt-2">
                 @if ($this->isExternalContentTab())
@@ -73,7 +72,7 @@
                         wire:model="filters.{{ $this->openTab }}.education_level_id"
                         filterContainer="testbank-{{ $this->openTab }}-active-filters"
                 />
-                    <x-input.choices-select
+                <x-input.choices-select
                         wire:key="taxonomy_{{ $this->openTab }}"
                         :multiple="true"
                         :options="$this->taxonomies"
@@ -119,9 +118,9 @@
             </div>
             <div id="testbank-{{ $this->openTab }}-active-filters"
                  wire:ignore
+                 wire:key="tb-filters-container-{{ $this->openTab }}"
                  x-data=""
-                 :class="{'mt-2': $el.childElementCount > 0}"
-                 class="flex flex-wrap gap-2"
+                 class="flex flex-wrap gap-2 mt-2 relative"
             >
             </div>
         </div>

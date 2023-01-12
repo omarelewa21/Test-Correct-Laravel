@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use tcCore\Lib\Question\QuestionGatherer;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Ramsey\Uuid\Uuid;
+use tcCore\Lib\Repositories\TaxonomyRepository;
 use tcCore\Traits\PublishesTestsTrait;
 use tcCore\Traits\UserPublishing;
 use tcCore\Traits\UuidTrait;
@@ -714,6 +715,17 @@ class Test extends BaseModel
                     break;
                 case 'draft':
                     $query->where('tests.draft', '=', $value);
+                    break;
+                case 'taxonomy':
+                    $taxonomyColumnsWithSearchValues = TaxonomyRepository::filterValuesPerTaxonomyGroup($value);
+
+                    $query->whereIn(
+                        'tests.id',
+                        Question::selectRaw('test_questions.test_id')
+                            ->join('test_questions', 'test_questions.question_id', '=', 'questions.id')
+                            ->whereRaw('test_questions.test_id = tests.id')
+                            ->taxonomies($taxonomyColumnsWithSearchValues)
+                    );
                     break;
             }
         }
