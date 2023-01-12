@@ -393,8 +393,14 @@ class Question extends MtiBaseModel
             if ($ignore instanceof QuestionAttachment && $ignore->getAttribute('attachment_id') == $questionAttachment->getAttribute('attachment_id') && $ignore->getAttribute('question_id') == $questionAttachment->getAttribute('question_id')) {
                 continue;
             }
+            $options = [];
+            if(isset($attributes['questionAttachmentOptions'][$questionAttachment->attachment_id])){
+                $options = [
+                    'options' => json_encode($attributes['questionAttachmentOptions'][$questionAttachment->attachment_id])
+                ];
+            }
 
-            if (($newAttachment = $questionAttachment->duplicate($question, [])) === false) {
+            if (($newAttachment = $questionAttachment->duplicate($question, $options)) === false) {
                 return false;
             }
         }
@@ -572,13 +578,10 @@ class Question extends MtiBaseModel
         }
     }
 
-    public function isDirtyAttachmentOptions() : bool
+    public function isDirtyAttachmentOptions($request) : bool
     {
-//        dd($this->getOriginal('attachments'));
-
-        //todo write logic to determine if attachment options are dirty
-        if(true) {
-            return false;
+        if(isset($request->all()['questionAttachmentOptions'])) {
+            return true;
         }
 
         return false;
@@ -1187,7 +1190,7 @@ class Question extends MtiBaseModel
         if ($baseModel->isDirtyTags()) {
             return true;
         }
-        if ($baseModel->isDirtyAttachmentOptions()) {
+        if ($baseModel->isDirtyAttachmentOptions($request)) {
             return true;
         }
         return false;
