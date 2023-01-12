@@ -1106,7 +1106,7 @@ class Test extends BaseModel
             $this->isFromAllowedTestPublisher($user) ||
             $this->isFromSharedSchoolAndAllowedBaseSubject($user) ||
             $this->canBeAccessedByExamCoordinator($user) ||
-            $user->isToetsenbakker();
+            ($user->isToetsenbakker() && $this->isStillInTheOven());
     }
 
     private function isFromSharedSchoolAndAllowedBaseSubject(User $user): bool
@@ -1229,5 +1229,10 @@ class Test extends BaseModel
     public function scopePublished($query)
     {
         return $query->where('draft', false);
+    }
+
+    public function isStillInTheOven(): bool
+    {
+        return $this->owner_id === SchoolLocation::where('customer_code', config('custom.TB_customer_code'))->value('id');
     }
 }
