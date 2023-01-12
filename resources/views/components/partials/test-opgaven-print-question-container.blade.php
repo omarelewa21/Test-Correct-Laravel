@@ -4,7 +4,7 @@
 'pdf_type' => 'test_print',
 ])
 
-<div class="test-print-pdf p-8 sm:p-10 content-section rs_readable page-no-break">
+<div class="test-print-pdf p-8 sm:p-10 content-section rs_readable page-no-break{{-- text-black--}}">
     <div class="tp-question-title justify-between items-center question-indicator border-bottom mb-2 question-indicator-no-break"
          style="position:relative;">
         <div class="flex-pdf flex-wrap-pdf">

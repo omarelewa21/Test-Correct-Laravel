@@ -705,3 +705,80 @@
     border:none;
     border-color: #ffffff;
 }
+
+/* change color to black */
+.different-pdf-version-colors {
+    /* pdf compiler cant use css variables */
+    --test-print-color: #041f74;
+    --test-opgaven-print-color: #000000;
+}
+
+.test-print-pdf .test-print-opgaven-pdf .tp-question-title {
+    border-bottom: 2px solid #000000; /*#041f74;*/
+    border-top: 2px solid #000000; /*#041f74;*/
+}
+
+.test-print-pdf .test-print-opgaven-pdf .question-indicator .question-number.complete {
+    border-color: #000000; /*#041f74;*/
+    background: #000000; /*#041f74;*/
+}
+
+.test-print-pdf .test-print-opgaven-pdf .group-question-name-container {
+    background-color: #000000; /*#041f74;*/
+    border: 1px solid #000000; /*#041f74;*/
+}
+
+.test-print-pdf.test-print-opgaven-pdf .footer-icon-continue {
+    color: #000000 !important; /*#041f74 */
+    stroke: #000000 !important; /*#041f74 */
+    -webkit-text-stroke-color: #000000 !important; /*#041f74 */
+}
+
+.test-print-pdf.test-print-opgaven-pdf .footer-icon-end {
+    border: 1px solid #000000; /*#041f74;*/
+    background-color: #000000; /*#041f74;*/
+}
+
+.test-print-pdf.test-print-opgaven-pdf .header-line,
+.test-print-pdf.test-print-opgaven-pdf .footer-line {
+    border: 2px solid #000000; /*#041f74;*/
+    background-color: #000000
+}
+
+body.test-print-opgaven-pdf {
+    color: #000000;
+}
+body#body .test-print-opgaven-pdf {
+    color: #000000;
+}
+.test-print-opgaven-pdf .header-table {
+    color: #000000;
+}
+
+.test-print-opgaven-pdf .footer-table {
+    color: #000000;
+}
+
+.test-print-opgaven-pdf .matching-table {
+    color: #000000;
+}
+
+.test-print-opgaven-pdf .base {
+    color: #000000;
+}
+
+.test-print-opgaven-pdf .divider {
+    background: #000000;
+}
+
+.test-print-opgaven-pdf h1 {
+    color: #000000;
+}
+
+.test-print-opgaven-pdf h4 {
+    color: #000000;
+}
+
+.test-print-opgaven-pdf .question-title {
+    border-bottom: 3px solid #000000;
+}

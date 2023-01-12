@@ -1,5 +1,5 @@
 <div style="padding-left: 32px; padding-right: 32px;">
-    <div class="group-question-container">
+    <div class="group-question-container page-no-break">
         @if($groupStart)
             <div class="group-question-name-container">
                 <div class="group-question-icon1" >
