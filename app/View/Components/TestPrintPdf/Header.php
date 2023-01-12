@@ -6,7 +6,8 @@ use Illuminate\View\Component;
 
 class Header extends Component
 {
-    public $test;
+    use HasTestPrintPdfTypes;
+
     public $testType = 'test';
 
     /**
@@ -14,10 +15,11 @@ class Header extends Component
      *
      * @return void
      */
-    public function __construct($test)
+    public function __construct(
+        public $test,
+        public $testPrintPdfType = 'toets',
+    )
     {
-        $this->test = $test;
-
         if ($this->test->scope == 'exam') {
             $this->testType = 'exam';
         }
@@ -33,9 +35,12 @@ class Header extends Component
      */
     public function render()
     {
+        $this->setExtraTestPrintPdfClass();
+
         return view('components.test-print-pdf.header')->with([
-            'test'     => $this->test,
-            'testType' => $this->testType,
+            'test'          => $this->test,
+            'testType'      => $this->testType,
+            'extraCssClass' => $this->extraTestPrintPdfCssClass,
         ]);
     }
 }

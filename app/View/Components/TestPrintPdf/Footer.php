@@ -6,16 +6,23 @@ use Illuminate\View\Component;
 
 class Footer extends Component
 {
-    public $test;
+    use HasTestPrintPdfTypes;
 
-    public function __construct($test)
+    public function __construct(
+        public $test,
+        public $testPrintPdfType = 'toets',
+    )
     {
-        $this->test = $test;
     }
 
     public function render()
     {
+        $this->setExtraTestPrintPdfClass();
+
         return view('components.test-print-pdf.footer')
-            ->with(['test' => $this->test]);
+            ->with([
+                'test' => $this->test,
+                'extraCssClass' => $this->extraTestPrintPdfCssClass,
+            ]);
     }
 }

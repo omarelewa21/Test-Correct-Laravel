@@ -133,9 +133,9 @@ class PrintTestController extends Controller
     {
         $showCoverExplanationText = !$this->testOpgavenPdf;
 
-        $cover = (new Cover($this->test, $showCoverExplanationText))->render();
-        $header = (new CoverHeader($this->test, $this->testTake))->render();
-        $footer = (new CoverFooter($this->test, $this->testTake))->render();
+        $cover = (new Cover($this->test, $showCoverExplanationText, $this->testOpgavenPdf ? 'opgaven' : 'toets'))->render();
+        $header = (new CoverHeader($this->test, $this->testTake, $this->testOpgavenPdf ? 'opgaven' : 'toets'))->render();
+        $footer = (new CoverFooter($this->test, $this->testTake, $this->testOpgavenPdf ? 'opgaven' : 'toets'))->render();
 
         return PdfController::createTestPrintPdf($cover, $header, $footer);
     }
@@ -147,8 +147,8 @@ class PrintTestController extends Controller
         $attachment_counters = $this->createAttachmentCountersFromData($data);
         $answers = [];
 
-        $footer = (new Footer($this->test))->render();
-        $header = (new Header($this->test))->render();
+        $footer = (new Footer($this->test, $this->testOpgavenPdf ? 'opgaven' : 'toets'))->render();
+        $header = (new Header($this->test, $this->testOpgavenPdf ? 'opgaven' : 'toets'))->render();
 
         $nav = $this->getNavigationData($data, $answers);
         $uuid = '';

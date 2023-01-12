@@ -6,25 +6,28 @@ use Illuminate\View\Component;
 
 class CoverFooter extends Component
 {
-    public $test;
+    use HasTestPrintPdfTypes;
+
+    public $data;
 
     /**
      * Create a new component instance.
      *
      * @return void
      */
-    public function __construct($test, $testTake = null)
+    public function __construct(
+        public $test,
+        public $testTake = null,
+        public $testPrintPdfType = 'toets',
+    )
     {
-        $this->test = $test;
-        $this->testTake = $testTake;
-
         $amountOfQuestions = $test->getAmountOfQuestions()['regular'];
 
         $this->data = [
             'amountOfQuestions' => $amountOfQuestions,
-            'maxScore' => $this->test->maxScore(),
-            'weight' => $this->testTake->weight ?? 0,
-            'teacher' => $this->testTake->user->name ?? $this->test->author->name,
+            'maxScore'          => $this->test->maxScore(),
+            'weight'            => $this->testTake->weight ?? 0,
+            'teacher'           => $this->testTake->user->name ?? $this->test->author->name,
         ];
     }
 
@@ -35,10 +38,13 @@ class CoverFooter extends Component
      */
     public function render()
     {
+        $this->setExtraTestPrintPdfClass();
+
         return view('components.test-print-pdf.cover-footer')
             ->with([
                 'test' => $this->test,
                 'data' => $this->data,
+                'extraCssClass' => $this->extraTestPrintPdfCssClass,
             ]);
     }
 }

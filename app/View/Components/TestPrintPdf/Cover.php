@@ -7,7 +7,8 @@ use tcCore\Test;
 
 class Cover extends Component
 {
-    public $test;
+    use HasTestPrintPdfTypes;
+
     public $attachmentsText = null;
 
     /**
@@ -15,10 +16,12 @@ class Cover extends Component
      *
      * @return void
      */
-    public function __construct(Test $test, public $explanationText = true)
+    public function __construct(
+        public Test $test,
+        public bool $explanationText = true,
+        public      $testPrintPdfType = 'toets',
+    )
     {
-        $this->test = $test;
-
         $pdfAttachmentsCount = $this->test->pdfAttachments->count();
 
         if ($pdfAttachmentsCount < 1) {
@@ -44,11 +47,14 @@ class Cover extends Component
      */
     public function render()
     {
+        $this->setExtraTestPrintPdfClass();
+
         return view('components.test-print-pdf.cover')
             ->with([
                 'test'            => $this->test,
                 'attachmentsText' => $this->attachmentsText,
                 'explanationText' => $this->explanationText,
+                'extraCssClass'   => $this->extraTestPrintPdfCssClass,
             ]);
     }
 }
