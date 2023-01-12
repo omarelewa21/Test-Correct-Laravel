@@ -13,10 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('app_version_infos', function (Blueprint $table) {
-            $table->string('user_os')->nullable();
-            $table->string('user_os_version')->nullable();
-        });
+        if (!Schema::hasColumn('app_version_infos', 'user_os')) {
+            Schema::table('app_version_infos', function (Blueprint $table) {
+                $table->string('user_os')->nullable();
+                $table->string('user_os_version')->nullable();
+            });
+        }
     }
 
     /**
