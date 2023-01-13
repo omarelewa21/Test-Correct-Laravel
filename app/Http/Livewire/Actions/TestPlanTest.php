@@ -24,8 +24,7 @@ class TestPlanTest extends TestAction
 
     protected function getDisabledValue()
     {
-        $isInToetsenbakkerSchoolLocation = SchoolLocation::where('customer_code', config('custom.TB_customer_code'))->where('id',auth()->user()->school_location_id)->exists();
-        if(Auth::user()->isToetsenbakker() && $isInToetsenbakkerSchoolLocation) {
+        if(Auth::user()->isToetsenbakker() && Auth::user()->isInToetsenbakkerij()) {
             return true;
         }
 
