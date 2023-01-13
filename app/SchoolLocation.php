@@ -40,7 +40,7 @@ use tcCore\Mail\SendSamlNoMailAddressInRequestDetectedMail;
 use tcCore\Traits\UuidTrait;
 use tcCore\Traits\FeatureSettings;
 
-class SchoolLocation extends BaseModel implements AccessCheckable
+class       SchoolLocation extends BaseModel implements AccessCheckable
 {
 
     use SoftDeletes;
