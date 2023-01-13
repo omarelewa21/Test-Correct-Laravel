@@ -97,6 +97,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/test_takes/{stage}', \tcCore\Http\Livewire\Teacher\TestTakeOverview::class)->name('test-takes');
         Route::get('/upload_test', \tcCore\Http\Livewire\Teacher\UploadTest::class)->name('upload-tests');
         Route::get('/file-management/testuploads', \tcCore\Http\Livewire\FileManagement\ToetsenbakkerUploadsOverview::class)->name('file-management.testuploads');
+
+        Route::get('/co-learning/{test_take}', \tcCore\Http\Livewire\Teacher\CoLearning::class)->name('co-learning');
+
     });
 
     Route::middleware(['dll', 'student'])->prefix('appapi')->name('appapi')->group(function () {

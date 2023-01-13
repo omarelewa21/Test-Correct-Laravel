@@ -97,7 +97,7 @@ class CoLearning extends Component
         $this->waitForTeacherNotificationEnabled = $this->shouldShowWaitForTeacherNotification();
 
         return view('livewire.student.co-learning')
-            ->layout('layouts.co-learning');
+            ->layout('layouts.co-learning-student');
     }
 
     public function booted()
