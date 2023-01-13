@@ -9,6 +9,7 @@ use Livewire\WithPagination;
 use Ramsey\Uuid\Uuid;
 use tcCore\BaseSubject;
 use tcCore\EducationLevel;
+use tcCore\Http\Livewire\OverviewComponent;
 use tcCore\Subject;
 use tcCore\Test;
 use tcCore\TestTake;
@@ -17,12 +18,11 @@ use tcCore\TestAuthor;
 use tcCore\Traits\ContentSourceTabsTrait;
 use tcCore\Traits\UuidTrait;
 
-class TestsOverview extends Component
+class TestsOverview extends OverviewComponent
 {
-    use WithPagination, ContentSourceTabsTrait;
+    use ContentSourceTabsTrait;
 
     const ACTIVE_TAB_SESSION_KEY = 'tests-overview-active-tab';
-    const PER_PAGE = 12;
 
     private $sorting = ['id' => 'desc'];
     protected $queryString = [
@@ -31,7 +31,6 @@ class TestsOverview extends Component
         'file'           => ['except' => ''],
     ];
 
-    public $filters = [];
     public $referrerAction = '';
     public $file = '';
     public $selected = [];
@@ -59,16 +58,16 @@ class TestsOverview extends Component
 
         return view('livewire.teacher.tests-overview')->layout('layouts.app-teacher')->with(compact(['results']));
     }
-
-    public function updatingFilters($value, $filter)
-    {
-        $this->resetPage();
-    }
-
-    public function updatedFilters($value, $filter)
-    {
-        session(['tests-overview-filters' => $this->filters]);
-    }
+//
+//    public function updatingFilters($value, $filter)
+//    {
+//        $this->resetPage();
+//    }
+//
+//    public function updatedFilters($value, $filter)
+//    {
+//        session(['tests-overview-filters' => $this->filters]);
+//    }
 
     protected function getDatasource()
     {
@@ -156,7 +155,7 @@ class TestsOverview extends Component
         );
     }
 
-    protected function setFilters()
+    protected function setFilters(array $filters = null): void
     {
         if (session()->has('tests-overview-filters'))
             $this->filters = session()->get('tests-overview-filters');
@@ -253,10 +252,9 @@ class TestsOverview extends Component
         redirect()->to(route('teacher.test-detail', ['uuid' => $testUuid]));
     }
 
-    public function clearFilters($tab = null)
+    public function clearFilters(): void
     {
-        $tabs = $tab ? [$tab] : $this->allowedTabs;
-        collect($tabs)->each(function ($tab) {
+        collect($this->allowedTabs)->each(function ($tab) {
             $this->filters[$tab] = [
                 'name'                 => '',
                 'education_level_year' => [],
