@@ -16,6 +16,13 @@ trait ToetsenbakkerTestActions
 {
     public function getAllowedSubjects()
     {
+        if (!$this->fileManagement) {
+            return Subject::select('subjects.*')
+                ->join('school_location_sections', 'school_location_sections.section_id', '=', 'subjects.section_id')
+                ->where('school_location_sections.school_location_id', Auth::user()->school_location_id)
+                ->get(['id', 'name'])
+                ->keyBy('id');
+        }
         if (filled($this->fileManagement->subject_id)) {
             return Subject::where('id', $this->fileManagement->subject_id)->get(['id', 'name'])->keyBy('id');
         }
@@ -31,18 +38,20 @@ trait ToetsenbakkerTestActions
 
     public function getAllowedPeriods()
     {
+        $schoolLocation = $this->fileManagement?->schoolLocation ?? Auth::user()->schoolLocation;
         return Period::currentlyActive()
-            ->forSchoolLocation($this->fileManagement->schoolLocation)
+            ->forSchoolLocation($schoolLocation)
             ->get(['id', 'name', 'start_date', 'end_date'])
             ->keyBy('id');
     }
 
     public function getAllowedEducationLevels()
     {
+        $schoolLocationId = $this->fileManagement?->school_location_id ?? Auth::user()->school_location_id;
         return EducationLevel::whereIn(
             'id',
             SchoolLocationEducationLevel::select('education_level_id')
-                ->where('school_location_id', $this->fileManagement->school_location_id)
+                ->where('school_location_id', $schoolLocationId)
         )
             ->get(['id', 'name', 'max_years', 'uuid'])->keyBy('id');
     }
