@@ -4,6 +4,7 @@ namespace tcCore\Http\Livewire\Actions;
 
 use Illuminate\Support\Facades\Auth;
 use tcCore\Http\Traits\Actions\WithPlanButtonFeatures;
+use tcCore\SchoolLocation;
 
 class TestPlanTest extends TestAction
 {
@@ -23,7 +24,8 @@ class TestPlanTest extends TestAction
 
     protected function getDisabledValue()
     {
-        if(Auth::user()->isToetsenbakker()) {
+        $isInToetsenbakkerSchoolLocation = SchoolLocation::where('customer_code', config('custom.TB_customer_code'))->where('id',auth()->user()->school_location_id)->exists();
+        if(Auth::user()->isToetsenbakker() && $isInToetsenbakkerSchoolLocation) {
             return true;
         }
 
