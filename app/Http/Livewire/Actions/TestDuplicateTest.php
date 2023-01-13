@@ -42,7 +42,7 @@ class TestDuplicateTest extends TestAction
         if (auth()->user()->isValidExamCoordinator()) {
             return true;
         }
-        if (auth()->user()->isToetsenbakker() && Auth::user()->isInToetsenbakkerij()) {
+        if (auth()->user()->isToetsenbakker() && Auth::user()->isCurrentlyInToetsenbakkerij()) {
             return true;
         }
 

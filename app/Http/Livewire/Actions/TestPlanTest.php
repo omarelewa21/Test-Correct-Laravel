@@ -24,7 +24,7 @@ class TestPlanTest extends TestAction
 
     protected function getDisabledValue()
     {
-        if(Auth::user()->isToetsenbakker() && Auth::user()->isInToetsenbakkerij()) {
+        if(Auth::user()->isToetsenbakker() && Auth::user()->isCurrentlyInToetsenbakkerij()) {
             return true;
         }
 
