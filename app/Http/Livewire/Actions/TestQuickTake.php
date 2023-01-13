@@ -23,7 +23,7 @@ class TestQuickTake extends TestAction
 
     protected function getDisabledValue()
     {
-        if(Auth::user()->isToetsenbakker()) {
+        if(Auth::user()->isToetsenbakker() && Auth::user()->isCurrentlyInToetsenbakkerij()) {
             return true;
         }
 
