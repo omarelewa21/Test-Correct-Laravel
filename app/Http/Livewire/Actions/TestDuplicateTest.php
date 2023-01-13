@@ -3,6 +3,7 @@
 namespace tcCore\Http\Livewire\Actions;
 
 use Illuminate\Support\Facades\Auth;
+use tcCore\SchoolLocation;
 use tcCore\Test;
 
 class TestDuplicateTest extends TestAction
@@ -41,7 +42,8 @@ class TestDuplicateTest extends TestAction
         if (auth()->user()->isValidExamCoordinator()) {
             return true;
         }
-        if (auth()->user()->isToetsenbakker()) {
+        $isInToetsenbakkerSchoolLocation = SchoolLocation::where('customer_code', config('custom.TB_customer_code'))->where('id',auth()->user()->school_location_id)->exists();
+        if (auth()->user()->isToetsenbakker() && $isInToetsenbakkerSchoolLocation) {
             return true;
         }
 
