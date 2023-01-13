@@ -1354,6 +1354,11 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return $isToetsenbakker;
     }
 
+    public function isInToetsenbakkerij()
+    {
+        return (bool) SchoolLocation::where('customer_code', config('custom.TB_customer_code'))->where('id',$this->school_location_id)->exists();
+    }
+
     public function isTestCorrectUser()
     {
         if (stristr($this->username, '@test-correct.nl')) {

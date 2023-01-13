@@ -42,8 +42,7 @@ class TestDuplicateTest extends TestAction
         if (auth()->user()->isValidExamCoordinator()) {
             return true;
         }
-        $isInToetsenbakkerSchoolLocation = SchoolLocation::where('customer_code', config('custom.TB_customer_code'))->where('id',auth()->user()->school_location_id)->exists();
-        if (auth()->user()->isToetsenbakker() && $isInToetsenbakkerSchoolLocation) {
+        if (auth()->user()->isToetsenbakker() && Auth::user()->isInToetsenbakkerij()) {
             return true;
         }
 
