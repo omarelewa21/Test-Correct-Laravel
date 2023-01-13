@@ -1354,9 +1354,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return $isToetsenbakker;
     }
 
-    public function isInToetsenbakkerij()
+    public function isCurrentlyInToetsenbakkerij() : bool
     {
-        return (bool) SchoolLocation::where('customer_code', config('custom.TB_customer_code'))->where('id',$this->school_location_id)->exists();
+        return SchoolLocation::where('customer_code', config('custom.TB_customer_code'))->where('id',$this->school_location_id)->exists();
     }
 
     public function isTestCorrectUser()
