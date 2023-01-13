@@ -4,8 +4,6 @@ namespace tcCore\Http\Livewire\Teacher;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
-use Livewire\Component;
-use Livewire\WithPagination;
 use Ramsey\Uuid\Uuid;
 use tcCore\BaseSubject;
 use tcCore\EducationLevel;
@@ -23,6 +21,7 @@ class TestsOverview extends OverviewComponent
     use ContentSourceTabsTrait;
 
     const ACTIVE_TAB_SESSION_KEY = 'tests-overview-active-tab';
+    protected string $sessionKey = 'tests-overview';
 
     private $sorting = ['id' => 'desc'];
     protected $queryString = [
@@ -58,16 +57,6 @@ class TestsOverview extends OverviewComponent
 
         return view('livewire.teacher.tests-overview')->layout('layouts.app-teacher')->with(compact(['results']));
     }
-//
-//    public function updatingFilters($value, $filter)
-//    {
-//        $this->resetPage();
-//    }
-//
-//    public function updatedFilters($value, $filter)
-//    {
-//        session(['tests-overview-filters' => $this->filters]);
-//    }
 
     protected function getDatasource()
     {
@@ -157,9 +146,9 @@ class TestsOverview extends OverviewComponent
 
     protected function setFilters(array $filters = null): void
     {
-        if (session()->has('tests-overview-filters'))
-            $this->filters = session()->get('tests-overview-filters');
-        else {
+        if (session()->has($this->getFilterSessionKey())) {
+            $this->filters = session()->get($this->getFilterSessionKey());
+        } else {
             collect($this->allowedTabs)->each(function ($tab) {
                 $this->filters[$tab] = [
                     'name'                 => '',
@@ -264,7 +253,7 @@ class TestsOverview extends OverviewComponent
                 'base_subject_id'      => []
             ];
         });
-        session(['tests-overview-filters' => $this->filters]);
+        session([$this->getFilterSessionKey() => $this->filters]);
     }
 
     public function hasActiveFilters(): bool

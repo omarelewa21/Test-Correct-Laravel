@@ -64,10 +64,15 @@ abstract class OverviewComponent extends Component
         return sprintf('%s-session', Str::kebab(class_basename(get_called_class())));
     }
 
+    protected function getFilterSessionKey(): string
+    {
+        return $this->getSessionKey() . '-filters';
+    }
+
     private function updateFiltersInSession(array $filters)
     {
         if ($this->storeFiltersInSession) {
-            session()->put($this->getSessionKey() . '-filters', $filters);
+            session()->put($this->getFilterSessionKey(), $filters);
         }
     }
 
@@ -80,7 +85,7 @@ abstract class OverviewComponent extends Component
 
     private function restoreFiltersFromSession()
     {
-        $sessionFilters = session()->get($this->getSessionKey() . '-filters', null);
+        $sessionFilters = session()->get($this->getFilterSessionKey(), null);
         $this->setFilters($sessionFilters);
         if ($page = session()->get($this->getSessionKey() . '-page', null)) {
             $this->setPage($page);
