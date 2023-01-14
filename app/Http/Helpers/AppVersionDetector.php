@@ -355,10 +355,15 @@ class AppVersionDetector
             'headers' => $headers,
             'TLCVersion' => $version['app_version'], // don't specify an alternative value since this value is used in the code for app checking
             'TLCPlatform' => $platform,
-            'TLCPlatformVersion' => $version['os_release'] != "" ? $version['os_release'] : Browser::platformVersion(),
+            'TLCPlatformVersion' => $version['os_release'], // as reported by Electron
+            'TLCPlatformVersionMajor' => Browser::platformVersionMajor(),
+            'TLCPlatformVersionMinor' => Browser::platformVersionMinor(),
+            'TLCPlatformVersionPatch' => Browser::platformVersionPatch(),
             'TLCPlatformType' => $version['app_type'],
             'TLCBrowserType' => Browser::browserFamily(),
-            'TLCBrowserVersion' => Browser::browserVersion(),
+            'TLCBrowserVersionMajor' => Browser::browserVersionMajor(),
+            'TLCBrowserVersionMinor' => Browser::browserVersionMinor(),
+            'TLCBrowserVersionPatch' => Browser::browserVersionPatch(),
             'TLCIsIos12' => (Str::lower($version['os']) === 'ios') ? AppVersionDetector::isIos12($headers) : false,
         ]);
 

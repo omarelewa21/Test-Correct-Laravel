@@ -40,9 +40,14 @@ class AppVersionInfo extends BaseModel
         'version',
         'platform',
         'platform_version',
+        'platform_version_major',
+        'platform_version_minor',
+        'platform_version_patch',
         'platform_type',
         'browser_type',
-        'browser_version',
+        'browser_version_major',
+        'browser_version_minor',
+        'browser_version_patch',
         'headers',
         'version_check_result'
     ];
@@ -71,14 +76,19 @@ class AppVersionInfo extends BaseModel
     public static function createFromSession()
     {
         self::create([
-            'version'              => session()->get('TLCVersion'),
-            'platform'             => session()->get('TLCPlatform'),
-            'platform_version'     => session()->get('TLCPlatformVersion'),
-            'platform_type'        => session()->get('TLCPlatformType'),
-            'browser_type'         => session()->get('TLCBrowserType', null),
-            'browser_version'      => session()->get('TLCBrowserVersion', null),
-            'headers'              => json_encode(session()->get('headers')),
-            'version_check_result' => session()->get('TLCVersioncheckResult'),
+            'version'                => session()->get('TLCVersion'),
+            'platform'               => session()->get('TLCPlatform'),
+            'platform_version'       => session()->get('TLCPlatformVersion'),
+            'platform_version_major' => session()->get('TLCPlatformVersionMajor', null),
+            'platform_version_minor' => session()->get('TLCPlatformVersionMinor', null),
+            'platform_version_patch' => session()->get('TLCPlatformVersionPatch', null),
+            'platform_type'          => session()->get('TLCPlatformType'),
+            'browser_type'           => session()->get('TLCBrowserType', null),
+            'browser_version_major'  => session()->get('TLCBrowserVersionMajor', null),
+            'browser_version_minor'  => session()->get('TLCBrowserVersionMinor', null),
+            'browser_version_patch'  => session()->get('TLCBrowserVersionPatch', null),
+            'headers'                => json_encode(session()->get('headers')),
+            'version_check_result'   => session()->get('TLCVersioncheckResult'),
         ]);
     }
 }
