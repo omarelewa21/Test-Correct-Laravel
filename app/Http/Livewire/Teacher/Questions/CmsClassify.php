@@ -73,8 +73,9 @@ class CmsClassify extends CmsBase
         return self::MIN_ANSWER_COUNT < count($this->instance->cmsPropertyBag['answerStruct']);
     }
 
-    public function canDeleteSubItem($key)
+    public function canDeleteSubItem($key = null)
     {
+        if(null === $key) return false;
         $obj = (object)$this->instance->cmsPropertyBag['answerStruct'][$key];
         return self::MIN_ANSWER_SUB_COUNT < count($obj->rights);
     }

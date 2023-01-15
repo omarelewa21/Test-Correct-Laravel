@@ -4,6 +4,7 @@ use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
+use tcCore\Http\Enums\TestPackages;
 use tcCore\Http\Requests\CreateSchoolLocationRequest;
 use tcCore\Http\Requests\SchoolLocationAddDefaultSubjectsAndSectionsRequest;
 use tcCore\Http\Requests\UpdateSchoolLocationRequest;
@@ -87,6 +88,7 @@ class SchoolLocationsController extends Controller {
             $schoolLocation['sso_options'] = $schoolLocation->getSsoOptions();
             $schoolLocation['has_run_manual_import'] = $schoolLocation->hasRunManualImport();
             $schoolLocation['license_types'] = SchoolLocation::getAvailableLicenseTypes();
+            $schoolLocation['test_packages'] = TestPackages::values();
         }
         $schoolLocation->append('feature_settings');
         return Response::make($schoolLocation, 200);

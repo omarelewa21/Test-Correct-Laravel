@@ -8,8 +8,8 @@ use tcCore\Lib\Repositories\PeriodRepository;
 
 class CoverHeader extends Component
 {
-    public $test;
-    public $testTake;
+    use HasTestPrintPdfTypes;
+
     public $testType = 'test';
     public $date = null;
 
@@ -18,11 +18,12 @@ class CoverHeader extends Component
      *
      * @return void
      */
-    public function __construct($test, $testTake = null)
+    public function __construct(
+        public $test,
+        public $testTake = null,
+        public $testPrintPdfType = 'toets',
+    )
     {
-        $this->test = $test;
-        $this->testTake = $testTake;
-
         if ($this->test->scope == 'exam') {
             $this->testType = 'exam';
         }
@@ -31,7 +32,7 @@ class CoverHeader extends Component
         }
 
         //todo change date to date of testTake
-        if($this->testTake){
+        if ($this->testTake) {
             Carbon::setlocale(config('app.locale'));
             $this->date = $this->testTake->time_start->translatedFormat('l j F');
         }
@@ -45,12 +46,15 @@ class CoverHeader extends Component
      */
     public function render()
     {
+        $this->setExtraTestPrintPdfClass();
+
         return view('components.test-print-pdf.cover-header')
             ->with([
                 'test'     => $this->test,
                 'testType' => $this->testType,
                 'date'     => $this->date,
                 'period'   => PeriodRepository::getCurrentPeriod()->name ?? '',
+                'extraCssClass' => $this->extraTestPrintPdfCssClass,
             ]);
     }
 }

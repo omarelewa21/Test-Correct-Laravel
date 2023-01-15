@@ -69,6 +69,11 @@ class BaseHelper
         return request()->getHost() === 'welcome.test-correct.nl';
     }
 
+    public static function getLivewireOriginalPath($request)
+    {
+        return json_decode($request->getContent())->fingerprint->path;
+    }
+
     public function addError($error)
     {
         $this->errors[] = $error;
@@ -99,6 +104,11 @@ class BaseHelper
     public static function notOnLocal()
     {
         return !(str_contains(config('app.url_login'),'testportal') && (str_ends_with(config('app.url_login'),'.test') || str_ends_with(config('app.url_login'),'.test/')));
+    }
+
+        public static function onLocal()
+    {
+        return str_contains(config('app.url_login'),'testportal') && (str_ends_with(config('app.url_login'),'.test') || str_ends_with(config('app.url_login'),'.test/'));
     }
 
     public static function isRunningTestRefreshDb() {

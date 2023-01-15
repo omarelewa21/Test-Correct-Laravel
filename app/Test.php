@@ -104,6 +104,7 @@ class Test extends BaseModel
         });
 
         static::deleted(function (Test $test) {
+            FileManagement::removeTestRelation($test);
             Queue::push(new CountTeacherTests($test->author));
         });
     }
@@ -192,6 +193,11 @@ class Test extends BaseModel
     public function period()
     {
         return $this->belongsTo('tcCore\Period');
+    }
+
+    public function fileManagement()
+    {
+        return $this->hasOne(FileManagement::class);
     }
 
     public function reorder($movedTestQuestion = null)
@@ -373,8 +379,8 @@ class Test extends BaseModel
         $query->select();
 
         if (in_array('Teacher', $roles)) {
-            if ($user->isValidExamCoordinator()) {
-                $this->handleExamCoordinatorFilter($query, $user);
+            if ($user->isValidExamCoordinator() || $user->isToetsenbakker()) {
+                $query->owner($user->schoolLocation);
             } else {
                 $subject = (new DemoHelper())->getDemoSectionForSchoolLocation($user->getAttribute('school_location_id'));
                 $query->join($this->switchScopeFilteredSubQueryForDifferentScenarios($user, $subject), function ($join) {
@@ -1068,6 +1074,18 @@ class Test extends BaseModel
         });
         return $attachments;
     }
+    public function getAttachmentsAttribute()
+    {
+        $attachments = collect();
+
+        $this->testQuestions->sortBy('order')->each(function ($testQuestion) use (&$attachments) {
+            $testQuestion->question->loadRelated();
+            $testQuestion->question->attachments->each(function ($attachment) use (&$attachments) {
+                $attachments->add($attachment);
+            });
+        });
+        return $attachments;
+    }
 
 
     public function isNationalItem(): bool
@@ -1087,7 +1105,8 @@ class Test extends BaseModel
             ($user->schoolLocation->show_national_item_bank && $this->isNationalItemForAllowedBaseSubject()) ||
             $this->isFromAllowedTestPublisher($user) ||
             $this->isFromSharedSchoolAndAllowedBaseSubject($user) ||
-            $this->canBeAccessedByExamCoordinator($user);
+            $this->canBeAccessedByExamCoordinator($user) ||
+            ($user->isToetsenbakker() && $this->isStillInTheOven());
     }
 
     private function isFromSharedSchoolAndAllowedBaseSubject(User $user): bool
@@ -1135,9 +1154,9 @@ class Test extends BaseModel
             ->contains($this->scope);
     }
 
-    private function handleExamCoordinatorFilter(&$query, $user)
+    public function scopeOwner($query, SchoolLocation $schoolLocation)
     {
-        return $query->where('owner_id', $user->school_location_id);
+        return $query->where('owner_id', $schoolLocation->getKey());
     }
 
     public function canPlan(User $user): bool
@@ -1210,5 +1229,10 @@ class Test extends BaseModel
     public function scopePublished($query)
     {
         return $query->where('draft', false);
+    }
+
+    public function isStillInTheOven(): bool
+    {
+        return $this->owner_id === SchoolLocation::where('customer_code', config('custom.TB_customer_code'))->value('id');
     }
 }

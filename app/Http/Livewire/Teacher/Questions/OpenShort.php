@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Livewire\Teacher\Questions;
 
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -20,6 +21,7 @@ use tcCore\Http\Controllers\TemporaryLoginController;
 use tcCore\Http\Controllers\TestQuestions\AttachmentsController;
 use tcCore\Http\Controllers\TestQuestionsController;
 use tcCore\Http\Controllers\TestsController;
+use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Http\Interfaces\QuestionCms;
 use tcCore\Http\Requests\CreateAttachmentRequest;
@@ -357,6 +359,10 @@ class OpenShort extends Component implements QuestionCms
             return $this->$newName($arguments);
         }
 
+            if(!method_exists(get_parent_class($this), $method) && !str_contains($method,'hydrate')){
+            $errorMessage = sprintf('Method (%s) not found on parent, type is `%s` (%s) on file %s:%d',$method,$this->question['type'],$this->question['subtype'],__FILE__,__LINE__);
+            Bugsnag::notifyException(new \Exception($errorMessage));
+        }
         return parent::__call($method, $arguments);
     }
 
@@ -570,6 +576,10 @@ class OpenShort extends Component implements QuestionCms
             }
             if ($this->referrer === 'teacher.test-detail') {
                 return redirect()->to(route($this->referrer, $this->testId));
+            }
+            if ($this->referrer === 'cake.filemanagement') {
+                $fileManagementUuid = Test::whereUuid($this->testId)->first()->fileManagement->uuid;
+                return CakeRedirectHelper::redirectToCake('files.view_testupload', $fileManagementUuid );
             }
         }
         $url = sprintf("tests/view/%s", $this->testId);

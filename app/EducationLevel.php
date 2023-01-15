@@ -1,6 +1,7 @@
 <?php namespace tcCore;
 
 use iio\libmergepdf\Exception;
+use Illuminate\Support\Facades\DB;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Dyrynda\Database\Casts\EfficientUuid;
@@ -176,6 +177,43 @@ class EducationLevel extends BaseModel
     public static function yearsForStudent(User $student)
     {
         return $student->studentSchoolClasses()->pluck('education_level_year')->unique();
+    }
+
+    public static function getLatestEducationLevelAndEducationLevelYearForStudent(User $student)
+    {
+        $latestSchoolClassForStudent = $student->studentSchoolClasses()
+            ->whereId(
+                DB::table('students')
+                    ->where('user_id', $student->id)
+                    ->orderByDesc('created_at')
+                    ->whereNull('deleted_at')
+                    ->value('class_id')
+            )->with('educationLevel')
+            ->first();
+        $min = 1;
+        if ($latestSchoolClassForStudent->educationLevel->min_attainment_year <= $latestSchoolClassForStudent->education_level_year) {
+            $min = $latestSchoolClassForStudent->educationLevel->min_attainment_year;
+        }
+        return [
+            'education_level_id'    => $latestSchoolClassForStudent->education_level_id,
+            'education_level_years' => collect(range($min, $latestSchoolClassForStudent->education_level_year)),
+        ];
+    }
+
+    public static function getStartAndEndDateForLatestEducationLevelForStudent(User $student)
+    {
+        $result = $student->studentSchoolClasses()->where(
+            'education_level_id',
+            self::getLatestEducationLevelAndEducationLevelYearForStudent($student)['education_level_id']
+        )->join('periods', 'school_classes.school_year_id', 'periods.school_year_id')
+            ->selectRaw('min(periods.start_date) as start_date, max(periods.end_date) as end_date')
+            ->first()
+            ->toArray();
+
+        return [
+            'start_date' => $result['start_date'],
+            'end_date'   => $result['end_date'],
+        ];
     }
 
 

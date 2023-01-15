@@ -41,4 +41,5 @@ return [
     'printversion_test'                    => 'Printversie toets:',
     'printversion_test_attachments'        => 'Printversie toets pdf-bijlagen:',
     'pdf_download_wait_text'               => 'Wacht alstublieft tot de pdf geladen is, het kan even duren.',
+    'test_attachments_zip'                 => 'toets-bijlagen',
 ];

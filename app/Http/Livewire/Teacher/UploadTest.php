@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Livewire\Teacher;
 
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -13,6 +14,7 @@ use Ramsey\Uuid\Uuid;
 use tcCore\EducationLevel;
 use tcCore\Exceptions\UploadTestException;
 use tcCore\FileManagement;
+use tcCore\FileManagementStatus;
 use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Subject;
@@ -91,13 +93,16 @@ class UploadTest extends Component
 
     public function back()
     {
-        if (blank($this->referrer)) {
+        if (blank($this->referrer) || blank($this->referrer['page'])) {
             return CakeRedirectHelper::redirectToCake();
         }
 
         if ($this->referrer['type'] === 'cake') {
             $routeName = CakeRedirectHelper::getRouteNameByUrl($this->referrer['page']);
-            return CakeRedirectHelper::redirectToCake($routeName);
+            if($routeName){
+                return CakeRedirectHelper::redirectToCake($routeName);
+            }
+            Bugsnag::notifyException(new \Exception(sprintf('No route name found for referrer page `%s` in file %s line %d',$this->referrer['page'],__FILE__,__LINE__)));
         }
 
         if ($this->referrer['type'] === 'laravel') {
@@ -277,22 +282,22 @@ class UploadTest extends Component
     private function createParentFileManagementModel(Collection $typedetails): FileManagement
     {
         return FileManagement::create([
-            'id'                         => $this->formUuid,
-            'uuid'                       => Uuid::uuid4(),
-            'school_location_id'         => Auth::user()->school_location_id,
-            'user_id'                    => Auth::id(),
-            'origname'                   => $this->testInfo['name'],
-            'name'                       => $this->testInfo['name'],
-            'test_name'                  => $this->testInfo['name'],
-            'education_level_year'       => $this->testInfo['education_level_year'],
-            'type'                       => FileManagement::TYPE_TEST_UPLOAD,
-            'typedetails'                => $typedetails,
-            'file_management_status_id'  => 1,
-            'planned_at'                 => $this->plannedAt,
-            'subject_id'                 => $typedetails['subject_id'],
-            'education_level_id'         => $typedetails['education_level_id'],
-            'test_kind_id'               => $typedetails['test_kind_id'],
-            'form_id'                    => $this->formUuid,
+            'id'                        => $this->formUuid,
+            'uuid'                      => Uuid::uuid4(),
+            'school_location_id'        => Auth::user()->school_location_id,
+            'user_id'                   => Auth::id(),
+            'origname'                  => $this->testInfo['name'],
+            'name'                      => $this->testInfo['name'],
+            'test_name'                 => $this->testInfo['name'],
+            'education_level_year'      => $this->testInfo['education_level_year'],
+            'type'                      => FileManagement::TYPE_TEST_UPLOAD,
+            'typedetails'               => $typedetails,
+            'file_management_status_id' => FileManagementStatus::STATUS_PROVIDED,
+            'planned_at'                => $this->plannedAt,
+            'subject_id'                => $typedetails['subject_id'],
+            'education_level_id'        => $typedetails['education_level_id'],
+            'test_kind_id'              => $typedetails['test_kind_id'],
+            'form_id'                   => $this->formUuid,
             'contains_publisher_content' => $typedetails['contains_publisher_content'],
         ]);
     }

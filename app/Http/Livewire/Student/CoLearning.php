@@ -37,12 +37,12 @@ class CoLearning extends Component
     public bool $finishCoLearningButtonEnabled = false;
     public bool $coLearningFinished = false;
 
-    public bool $scoreHasBeenManuallyChanged = false;
-
     public $answerRating = null;
     public $answerRatingId;
     protected $answerRatings = null;
     public $answeredAnswerRatingIds;
+
+    public $discussingQuestionId;
 
     protected $queryString = [
         'answerRatingId'     => ['as' => 'e'],
@@ -63,9 +63,9 @@ class CoLearning extends Component
     protected function getListeners()
     {
         return [
-            CoLearningForceTakenAway::channelSignature($this->testParticipant->uuid) => 'redirectToTestTakesInReview',
-            CoLearningNextQuestion::channelSignature($this->testParticipant->uuid)   => 'goToNextQuestion',
-            CoLearningPresence::channelSignature($this->testTake->uuid)              => 'updateHeartbeat',
+//            CoLearningForceTakenAway::channelSignature($this->testParticipant->uuid) => 'redirectToTestTakesInReview',
+//            CoLearningNextQuestion::channelSignature($this->testParticipant->uuid)   => 'goToActiveQuestion',
+//            CoLearningPresence::channelSignature($this->testTake->uuid)              => 'updateHeartbeat',
             'UpdateAnswerRating'                                                     => 'updateAnswerRating',
         ];
     }
@@ -73,6 +73,7 @@ class CoLearning extends Component
     public function mount(TestTake $test_take)
     {
         $this->testTake = $test_take;
+        $this->discussingQuestionId = $this->testTake->discussing_question_id;
         $this->questionOrderList = $this->testTake->test->getQuestionOrderList();
 
         $this->redirectIfNotStatusDiscussing();
@@ -99,6 +100,13 @@ class CoLearning extends Component
             ->layout('layouts.co-learning');
     }
 
+    public function booted()
+    {
+        if($this->testTake->test_take_status_id > 7){
+            return $this->redirectToTestTakesInReview();
+        }
+    }
+
     public function redirectToTestTakesInReview()
     {
         return redirect()->route('student.test-takes', ['tab' => 'review']);
@@ -110,12 +118,7 @@ class CoLearning extends Component
             return true;
         }
 
-        switch ($this->answerRating->answer->question->type) {
-            case 'CompletionQuestion':
-                return $this->completionQuestionShouldEnableNextQuestionButton();
-            default:
-                return isset($this->rating);
-        }
+        return isset($this->answerRating->rating);
     }
 
     public function goToFinishedCoLearningPage(): void
@@ -142,7 +145,7 @@ class CoLearning extends Component
         $this->getAnswerRatings('next');
     }
 
-    public function goToNextQuestion(): void
+    public function goToActiveQuestion(): void
     {
         $this->waitForTeacherNotificationEnabled = false;
 
@@ -150,33 +153,34 @@ class CoLearning extends Component
     }
 
     /**
+     * Rating update coming from score-slider
      * Updated Rating WireModel Lifecycle Hook
-     * @return void
      */
     public function updatedRating(): void
     {
         $this->handleUpdatingRating();
-
-        $this->writeToSessionThatScoreHasBeenManuallyChanged();
     }
 
     /**
+     * Rating update coming from ColearningQuestion Component
      * Update Rating from emit of child livewire Question component
      */
     public function updateAnswerRating($answerOptions): void
     {
+        $questionIsFullyRated = $answerOptions['amountChecked'] === $answerOptions['amountCheckable'];
+
         if ($this->allowRatingWithHalfPoints) {
             $this->rating = round($this->maxRating / $answerOptions['maxScore'] * $answerOptions['score'] * 2)/2;
         } else {
             $this->rating = round($this->maxRating / $answerOptions['maxScore'] * $answerOptions['score']);
         }
 
-        $this->handleUpdatingRating();
+        $this->handleUpdatingRating($questionIsFullyRated);
 
         $this->dispatchBrowserEvent('updated-score', ['score' => $this->rating]);
     }
 
-    private function handleUpdatingRating()
+    private function handleUpdatingRating($updateAnswerRatingRating = true)
     {
         if ((int)$this->rating < 0) {
             $this->rating = 0;
@@ -184,7 +188,11 @@ class CoLearning extends Component
         if ((int)$this->rating >= $this->maxRating) {
             $this->rating = $this->maxRating;
         }
-        AnswerRating::whereId($this->answerRatingId)->update(['rating' => $this->rating]);
+
+        if($updateAnswerRatingRating){
+            $this->answerRating->rating = $this->rating;
+            $this->answerRating->save();
+        }
 
         $this->checkIfStudentCanFinishCoLearning();
     }
@@ -273,10 +281,12 @@ class CoLearning extends Component
 
             $this->setQuestionRatingProperties();
 
+            $this->discussingQuestionId = $this->answerRating->answer->question_id;
+
             if ($this->answerRating->rating === null) {
                 $this->rating = null;
             } else {
-                $this->rating = $this->allowRatingWithHalfPoints ? $this->answerRating->rating : (int)$this->answerRating->rating;
+                $this->rating = $this->allowRatingWithHalfPoints ? $this->answerRating->rating : round($this->answerRating->rating);
             }
 
             $this->previousAnswerAvailable = $this->answerRatings->filter(fn($ar) => $ar->getKey() < $this->answerRatingId)->count() > 0;
@@ -338,10 +348,6 @@ class CoLearning extends Component
             return true;
         }
 
-        if ($this->answerRating?->answer->question->type === 'CompletionQuestion') {
-            return $this->allAnswerOptionsRatedOrManuallyOverridden();
-        }
-
         if (isset($this->answerRatings)) {
             return $this->answerRatings->reduce(function ($carry, $answerRating) {
                 if ($answerRating->rating === null && $answerRating->answer->isAnswered) {
@@ -351,7 +357,7 @@ class CoLearning extends Component
             }, true);
         }
 
-        return (!$this->nextAnswerAvailable && isset($this->rating));
+        return (!$this->nextAnswerAvailable && isset($this->answerRating->rating));
     }
 
     private function redirectIfNotStatusDiscussing()
@@ -363,6 +369,10 @@ class CoLearning extends Component
 
     public function updateHeartbeat($skipRender = true)
     {
+        if($this->testTake->discussing_question_id !== $this->discussingQuestionId) {
+            return $this->goToActiveQuestion();
+        }
+
         if ($skipRender) {
             $this->skipRender();
         }
@@ -389,81 +399,6 @@ class CoLearning extends Component
         if (session()->has(CompletionQuestion::SESSION_KEY)) {
             session()->forget(CompletionQuestion::SESSION_KEY);
         }
-    }
-
-    private function getAnswerOptionsFromSession($onlyCurrentAnswerRating = false): array|false
-    {
-        if (!session()->has(static::SESSION_KEY)) {
-            return false;
-        }
-        if ($onlyCurrentAnswerRating && !isset(session()->get(static::SESSION_KEY)[$this->answerRatingId])) {
-            return false;
-        }
-        if ($onlyCurrentAnswerRating) {
-            return session()->get(static::SESSION_KEY)[$this->answerRatingId];
-        }
-
-        return collect(session()->get(static::SESSION_KEY))
-            ->filter(fn($i, $answerRatingId) => collect($this->answeredAnswerRatingIds)->contains($answerRatingId))
-            ->toArray();
-    }
-
-    private function writeToSessionThatScoreHasBeenManuallyChanged()
-    {
-        if (!session()->has(static::SESSION_KEY)) {
-            return false;
-        }
-
-        if (!isset(session()->get(static::SESSION_KEY)[$this->answerRatingId])) {
-            return false;
-        }
-
-        $sessionData = session()->get(static::SESSION_KEY);
-        $sessionData[$this->answerRatingId]['scoreManuallyChanged'] = true;
-
-        session([static::SESSION_KEY => $sessionData]);
-        return true;
-    }
-
-    private function completionQuestionShouldEnableNextQuestionButton(): bool
-    {
-        $data = $this->getAnswerOptionsFromSession(true) ?: false;
-
-        if (!$data) {
-            return isset($this->rating);
-        }
-        if (isset($data['scoreManuallyChanged'])) {
-            return true;
-        }
-        if (isset($data['counts'])) {
-            $allAvailableAnswerOptionsRated = $data['counts']['amountCheckable'] === $data['counts']['amountChecked'];
-
-            return ($allAvailableAnswerOptionsRated);
-        }
-
-        return isset($this->rating);
-    }
-
-    private function allAnswerOptionsRatedOrManuallyOverridden(): bool
-    {
-        if(collect($this->answeredAnswerRatingIds)->count() !== collect($this->getAnswerOptionsFromSession())->count()) {
-            return false;
-        }
-
-        return collect($this->getAnswerOptionsFromSession())
-            ->reduce(function ($carry, $data, $answerRatingId) {
-                if (isset($data['scoreManuallyChanged'])) {
-                    return $carry;
-                }
-                if (!isset($data['counts'])) {
-                    $carry = false;
-                    return $carry;
-                }
-                if ($data['counts']['amountCheckable'] !== $data['counts']['amountChecked']) {
-                    $carry = false;
-                }
-                return $carry;
-            }, true);
     }
 
 }

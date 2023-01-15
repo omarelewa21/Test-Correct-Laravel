@@ -41,4 +41,5 @@ return [
     'printversion_test'                    => 'Printversion test:',
     'printversion_test_attachments'        => 'Printversion test pdf-attachments:',
     'pdf_download_wait_text'               => 'Please wait for the pdf to load, it may take a while.',
+    'test_attachments_zip'                 => 'test-attachments',
 ];

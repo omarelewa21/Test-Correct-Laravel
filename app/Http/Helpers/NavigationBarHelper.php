@@ -17,10 +17,10 @@ class NavigationBarHelper
         $lookUpTable = [ //todo replace route names with correct routes (in laravel, comment out others)
             'dashboard' => ['main' => 'dashboard', 'sub' => ''],
 
-            'tests.create-test'   => ['main' => 'tests', 'sub' => 'create-test'],
-            'teacher.tests'       => ['main' => 'tests', 'sub' => 'test-bank'],
-            'tests.question-bank' => ['main' => 'tests', 'sub' => 'question-bank'],
-            'tests.my-uploads'    => ['main' => 'tests', 'sub' => 'my-uploads'],
+            'tests.create-test'                   => ['main' => 'tests', 'sub' => 'create-test'],
+            'teacher.tests'                       => ['main' => 'tests', 'sub' => 'test-bank'],
+            'tests.question-bank'                 => ['main' => 'tests', 'sub' => 'question-bank'],
+            'teacher.file-management.testuploads' => ['main' => 'tests', 'sub' => 'my-uploads'],
 
             'planned.planned-tests'       => ['main' => 'planned', 'sub' => 'planned-tests'],
             'planned.invigilating'        => ['main' => 'planned', 'sub' => 'invigilating'],
