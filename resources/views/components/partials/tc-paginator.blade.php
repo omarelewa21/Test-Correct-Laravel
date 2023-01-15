@@ -40,7 +40,7 @@
                     </p>
                 </div>
 
-                <div class="justify-center flex w-full">
+                <div class="justify-center flex w-full" x-data>
                     <span class="relative z-0 inline-flex items-center">
                         <span class="mr-4">
                             {{-- Previous Page Link --}}
