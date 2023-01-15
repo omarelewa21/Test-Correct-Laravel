@@ -30,11 +30,11 @@
     <link rel="stylesheet" href="file://{{ public_path('/css/app_pdf.css') }}">
     <link rel="stylesheet" href="file://{{ public_path('/css/print-test-pdf.css') }}">
 </head>
-<body class="test-print-pdf" style="border:0; margin: 0;" onload="subst()">
+<body class="test-print-pdf {{ $extraCssClass }}" style="border:0; margin: 0;" onload="subst()">
 
 <span style="font-size: 7px">&nbsp;</span>
 <div class="footer-line"></div>
-<table style="border:0; width: 100%;height: 20px; border-color: #ffffff">
+<table class="footer-table" style="border:0; width: 100%;height: 20px; border-color: #ffffff">
     <tr>
         <td colspan="3" style="width: 10em">
         </td>
@@ -50,7 +50,7 @@
             <span class="hidden" id="continue-reading">
                 {{ __('test-pdf.continue-reading') }}
                 <svg class="footer-icon-continue" width="9" height="13" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke="#041f74" stroke-width="3" d="M1.5 1.5l5 5-5 5" fill="none" fill-rule="evenodd"
+                    <path stroke="currentColor" stroke-width="3" d="M1.5 1.5l5 5-5 5" fill="none" fill-rule="evenodd"
                           stroke-linecap="round"/>
                 </svg>
             </span>

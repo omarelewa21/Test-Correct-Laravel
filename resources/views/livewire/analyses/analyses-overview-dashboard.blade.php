@@ -44,3 +44,24 @@
 @section('analyses.top-items.title')
         {{ trans_choice('student.top vakken om aan te werken', count($this->topItems)) }}
 @endsection
+
+@section('analyses.p-values-time-series-graph')
+    <BR>
+    <x-content-section>
+        <x-slot name="title">
+            {{ __('student.ontwikkeling p-waarde over tijd') }}
+        </x-slot>
+
+
+        <div x-data="analysesSubjectsTimeSeriesGraph('pValueTimeSeriesChart')"
+             x-on:filters-updated.window="updateGraph();"
+        >            <div id="pValueTimeSeriesChart" style="height: 400px;" class="relative" wire:ignore>
+                <x-empty-graph x-show="showEmptyState" :show="true"></x-empty-graph>
+            </div>
+        </div>
+    </x-content-section>
+
+
+@endsection
+
+

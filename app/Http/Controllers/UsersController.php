@@ -230,7 +230,7 @@ class UsersController extends Controller
     public function confirmEmail(Request $request, EmailConfirmation $emailConfirmation)
     {
         // indien emailConfirmation === null => doorverwijzen naar login pagina
-        if ($emailConfirmation === null) {
+        if ($emailConfirmation === null || null == $emailConfirmation->user) {
             return Response::redirectTo(BaseHelper::getLoginUrl());
         }
 
@@ -620,5 +620,14 @@ class UsersController extends Controller
         }
 
         return Response::make($user, 200);
+    }
+
+    public function toetsenbakkers(Request $request)
+    {
+        $toetsenbakkers = Auth::user()->isA('Account manager')
+            ? User::toetsenbakkers()->notDemo()->get()->each->append('name_full')
+            : [];
+
+        return Response::make($toetsenbakkers, 200);
     }
 }

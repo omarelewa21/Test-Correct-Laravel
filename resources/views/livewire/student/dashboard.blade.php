@@ -1,9 +1,8 @@
 <div id="dashboard-body"
      class="px-4 lg:px-8 xl:px-24 relative w-full pb-10"
      x-data="{showKnowledgebankAppNotificationModal: @entangle('showKnowledgebankAppNotificationModal')}"
-     x-init="addRelativePaddingToBody('dashboard-body'); makeHeaderMenuActive('student-header-dashboard');"
+     x-init="makeHeaderMenuActive('student-header-dashboard');"
      x-cloak
-     x-on:resize.window.debounce.200ms="addRelativePaddingToBody('dashboard-body')"
      wire:ignore.self
 >
     <div class="flex my-10">

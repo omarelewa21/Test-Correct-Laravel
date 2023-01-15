@@ -1,6 +1,6 @@
 <div id="co-learning-page"
      class="flex flex-col w-full pt-12"
-     wire:poll.keep-alive.15000ms="updateHeartbeat()"
+     wire:poll.keep-alive.5000ms="updateHeartbeat()"
 >
 
     @if($this->coLearningFinished)

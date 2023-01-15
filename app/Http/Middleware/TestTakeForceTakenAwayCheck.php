@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Livewire\Livewire;
 use Ramsey\Uuid\Uuid;
+use tcCore\Http\Helpers\BaseHelper;
 use tcCore\TestParticipant;
 use tcCore\TestTake;
 use tcCore\TestTakeStatus;
@@ -52,6 +53,6 @@ class TestTakeForceTakenAwayCheck
 
     private function extractTestTakeUuidFromRequestContent($request)
     {
-        return collect(explode('/', json_decode($request->getContent())->fingerprint->path))->last();
+        return collect(explode('/', BaseHelper::getLivewireOriginalPath($request)))->last();
     }
 }

@@ -9,7 +9,7 @@
 
     <x-menu.context-menu.button x-on:click="$wire.emit('openModal', 'teacher.question-detail-modal', {questionUuid: uuid, inTest: contextData.inTest})">
         <x-slot name="icon"><x-icon.settings/></x-slot>
-        <x-slot name="text">{{ __('cms.Instellingen') }}</x-slot>
+        <x-slot name="text">{{ __('cms.Information') }}</x-slot>
     </x-menu.context-menu.button>
 
     <x-menu.context-menu.button x-on:click="$wire.emit('openModal', 'teacher.question-cms-preview-modal', {uuid: uuid, inTest: contextData.inTest})">

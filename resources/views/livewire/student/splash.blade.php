@@ -1,9 +1,5 @@
 <div id="login-body" class="flex justify-center items-center min-h-screen"
-     x-init="setTimeout(function() {$wire.handleDataAndRedirect();},2500);
-            addRelativePaddingToBody('login-body', 10);
-
-            "
-     x-on:resize.window.debounce.200ms="addRelativePaddingToBody('login-body')"
+     x-init="setTimeout(function() {$wire.handleDataAndRedirect();},2500);"
      wire:ignore.self
 >
     <div class="w-full max-w-[800px] mx-4 py-4">

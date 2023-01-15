@@ -3,6 +3,7 @@
 namespace tcCore\Http\Livewire\Actions;
 
 use Illuminate\Support\Facades\Auth;
+use tcCore\SchoolLocation;
 use tcCore\Test;
 
 class TestDuplicateTest extends TestAction
@@ -39,6 +40,9 @@ class TestDuplicateTest extends TestAction
     protected function getDisabledValue(): bool
     {
         if (auth()->user()->isValidExamCoordinator()) {
+            return true;
+        }
+        if (auth()->user()->isToetsenbakker() && Auth::user()->isCurrentlyInToetsenbakkerij()) {
             return true;
         }
 

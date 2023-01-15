@@ -746,3 +746,7 @@ ul ul ul {
     color: var(--mid-grey)!important;
     border-color: var(--mid-grey)!important;
 }
+
+.anychart-credits {
+    display: none;
+}

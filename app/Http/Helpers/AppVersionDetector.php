@@ -55,10 +55,8 @@ class AppVersionDetector
                 "3.1.0",
             ],
             "needsUpdate" => [
-                "2.4.2"
             ],
             "needsUpdateDeadline" => [
-                "2.4.2" => "29 November 2022",
             ],
         ],
         "ChromeOS" => [
@@ -79,24 +77,6 @@ class AppVersionDetector
         ],
         "windowsElectron" => [
             "ok" => [
-                "3.2.3",
-                "3.2.3-beta.1",
-                "3.2.3-beta.2",
-                "3.2.3-beta.3",
-                "3.2.3-beta.4",
-                "3.2.3-beta.5",
-                "3.2.4",
-                "3.2.4-beta.1",
-                "3.2.4-beta.2",
-                "3.2.4-beta.3",
-                "3.2.4-beta.4",
-                "3.2.4-beta.5",
-                "3.2.5",
-                "3.2.5-beta.1",
-                "3.2.5-beta.2",
-                "3.2.5-beta.3",
-                "3.2.5-beta.4",
-                "3.2.5-beta.5",
                 "3.3.0",
                 "3.3.0-beta.1",
                 "3.3.0-beta.2",
@@ -105,30 +85,14 @@ class AppVersionDetector
                 "3.3.0-beta.5",
             ],
             "needsUpdate" => [
+                "3.2.3"
             ],
             "needsUpdateDeadline" => [
+                "3.2.3" => "2 maart 2023"
             ],
         ],
         "macosElectron" => [
             "ok" => [
-                "3.2.3",
-                "3.2.3-beta.1",
-                "3.2.3-beta.2",
-                "3.2.3-beta.3",
-                "3.2.3-beta.4",
-                "3.2.3-beta.5",
-                "3.2.4",
-                "3.2.4-beta.1",
-                "3.2.4-beta.2",
-                "3.2.4-beta.3",
-                "3.2.4-beta.4",
-                "3.2.4-beta.5",
-                "3.2.5",
-                "3.2.5-beta.1",
-                "3.2.5-beta.2",
-                "3.2.5-beta.3",
-                "3.2.5-beta.4",
-                "3.2.5-beta.5",
                 "3.3.0",
                 "3.3.0-beta.1",
                 "3.3.0-beta.2",
@@ -137,8 +101,10 @@ class AppVersionDetector
                 "3.3.0-beta.5",
             ],
             "needsUpdate" => [
+                "3.2.3"
             ],
             "needsUpdateDeadline" => [
+                "3.2.3" => "2 maart 2023"
             ],
         ]
     ];
@@ -341,6 +307,8 @@ class AppVersionDetector
 
         session([
             'headers' => $headers,
+            'UserOsVersion' => self::getUserOSVersion(),
+            'UserOsPlatform' => self::getUserOSPlatform(),
             'TLCVersion' => $version['app_version'],
             'TLCOs' => $version['os'],
             'TLCIsIos12' => (Str::lower($version['os']) === 'ios') ? AppVersionDetector::isIos12($headers) : false,
@@ -354,6 +322,64 @@ class AppVersionDetector
 
         session(['TLCVersioncheckResult' => $versionCheckResult]);
 //        $this->Session->write('TLCVersionCheckResult', $versionCheckResult);
+    }
+
+    public static function getUserOSPlatform()
+    {
+        $headers = self::getAllHeaders();
+        $user_agent = $headers['user-agent'];
+        $os_platform  = "Unknown OS Platform";
+        $os_array     = array(
+                              '/windows nt 10/i'      =>  'Windows 10',
+                              '/windows nt 6.3/i'     =>  'Windows 8.1',
+                              '/windows nt 6.2/i'     =>  'Windows 8',
+                              '/windows nt 6.1/i'     =>  'Windows 7',
+                              '/windows nt 6.0/i'     =>  'Windows Vista',
+                              '/windows nt 5.2/i'     =>  'Windows Server 2003/XP x64',
+                              '/windows nt 5.1/i'     =>  'Windows XP',
+                              '/windows xp/i'         =>  'Windows XP',
+                              '/windows nt 5.0/i'     =>  'Windows 2000',
+                              '/windows me/i'         =>  'Windows ME',
+                              '/win98/i'              =>  'Windows 98',
+                              '/win95/i'              =>  'Windows 95',
+                              '/win16/i'              =>  'Windows 3.11',
+                              '/macintosh|mac os x/i' =>  'Mac OS X',
+                              '/mac_powerpc/i'        =>  'Mac OS 9',
+                              '/linux/i'              =>  'Linux',
+                              '/ubuntu/i'             =>  'Ubuntu',
+                              '/iphone/i'             =>  'iPhone',
+                              '/ipod/i'               =>  'iPod',
+                              '/ipad/i'               =>  'iPad',
+                              '/android/i'            =>  'Android',
+                              '/blackberry/i'         =>  'BlackBerry',
+                              '/webos/i'              =>  'Mobile'
+                        );
+
+        foreach ($os_array as $regex => $value)
+            if (preg_match($regex, $user_agent))
+                $os_platform = $value;
+
+        return $os_platform;
+    }
+
+    public static function getUserOSVersion()
+    {
+        $headers = self::getAllHeaders();
+        $version = null;
+        $iosRegularExpression = '/ip(?:hone|[ao]d) os \K[\d_]+/i';
+        $androidRegularExpression = '/Android ((\d+|\.)+[^,;]+)/';
+        $widowsRegularExpression = '/windows nt \K[\d_]+/i';
+        $user_agent = $headers['user-agent'];
+
+        if(preg_match($iosRegularExpression, $user_agent, $matches, PREG_OFFSET_CAPTURE, 0)) {
+            $version = $matches[0][0];
+        } elseif(preg_match($androidRegularExpression, $user_agent, $matches)) {
+            $version = $matches[1];
+        } elseif(preg_match($widowsRegularExpression, $user_agent, $matches, PREG_OFFSET_CAPTURE, 0)) {
+            $version = $matches[0][0];
+        }
+
+        return $version;
     }
 
     public function getAppVersion(){

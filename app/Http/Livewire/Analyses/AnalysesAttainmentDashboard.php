@@ -2,10 +2,12 @@
 
 namespace tcCore\Http\Livewire\Analyses;
 
+use tcCore\Attainment;
 use tcCore\BaseAttainment;
 use tcCore\Http\Traits\WithAnalysesGeneralData;
 use tcCore\Lib\Repositories\PValueRepository;
 use tcCore\Lib\Repositories\TaxonomyRankingRepostitory;
+use tcCore\Scopes\AttainmentScope;
 use tcCore\Subject;
 
 class AnalysesAttainmentDashboard extends AnalysesDashboard
@@ -95,5 +97,41 @@ class AnalysesAttainmentDashboard extends AnalysesDashboard
                 Subject::whereUuid($this->subject)->first()
             )
         );
+    }
+
+    public function getDataForSubjectTimeSeriesGraph()
+    {
+        $results =
+            // PValueRepository::getPValueForStudentBySubjectDayDateTimeSeries(
+            PValueRepository::getPValueForStudentForAttainmentByAttainmentDayDateTimeSeries(
+                $this->getHelper()->getForUser(),
+                $this->attainment,
+                $this->subject,
+                $this->getPeriodsByFilterValues(),
+                $this->getEducationLevelYearsByFilterValues(),
+                $this->getTeachersByFilterValues(),
+                $this->getIsLearningGoalFilter()
+            );
+
+        $set = [];
+        $names = [];
+        foreach($results as $result) {
+            if (!in_array($result->id, $names)) {
+                $names[] = $result->id;
+                $prevScore = $result->score ?? 0;
+            }
+            $set[$result->gen_date][] = $prevScore = $result->score ?? $prevScore;
+        }
+
+        $newSet = collect($set)->map(function($arr, $key) {
+            return [$key, ...$arr];
+        })->values()->toArray();
+
+        $eindtermen = collect($names)->map(function ($id) {
+            return Attainment::withoutGlobalScope(AttainmentScope::class)->find($id)->name;
+        })->toArray();
+
+
+        return [false, $newSet, $eindtermen];
     }
 }

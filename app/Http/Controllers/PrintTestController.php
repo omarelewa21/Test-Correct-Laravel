@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use tcCore\GroupQuestionQuestion;
+use tcCore\Http\Helpers\TestAttachmentsHelper;
 use tcCore\Http\Traits\TestTakeNavigationForController;
 use tcCore\Question;
 use tcCore\Test;
@@ -29,11 +30,25 @@ class PrintTestController extends Controller
     private $test = null;
     private $testTake = null;
 
+    private $testOpgavenPdf = false;
+
     public function showTest(Test $test, Request $request)
     {
         $this->test = $test;
 
         return $this->createPdfDownload();
+    }
+
+    public function downloadTestAttachments(Test $test, Request $request)
+    {
+        return TestAttachmentsHelper::createZipDownload($test);
+    }
+
+    public function showTestOpgaven(Test $test, Request $request)
+    {
+        $this->testOpgavenPdf = true;
+
+        return $this->showTest($test, $request);
     }
 
     public function showTestTake(TestTake $testTake, Request $request)
@@ -46,6 +61,8 @@ class PrintTestController extends Controller
 
     public function showTestPdfAttachments(Test $test)
     {
+        //this method breaks on pdf files with encryption or new pdf file versions
+
         $this->test = $test;
 
         return $this->createPdfAttachmentsDownload();
@@ -114,9 +131,11 @@ class PrintTestController extends Controller
 
     private function generateCoverPdf()
     {
-        $cover = (new Cover($this->test))->render();
-        $header = (new CoverHeader($this->test, $this->testTake))->render();
-        $footer = (new CoverFooter($this->test, $this->testTake))->render();
+        $showCoverExplanationText = !$this->testOpgavenPdf;
+
+        $cover = (new Cover($this->test, $showCoverExplanationText, $this->testOpgavenPdf ? 'opgaven' : 'toets'))->render();
+        $header = (new CoverHeader($this->test, $this->testTake, $this->testOpgavenPdf ? 'opgaven' : 'toets'))->render();
+        $footer = (new CoverFooter($this->test, $this->testTake, $this->testOpgavenPdf ? 'opgaven' : 'toets'))->render();
 
         return PdfController::createTestPrintPdf($cover, $header, $footer);
     }
@@ -128,8 +147,8 @@ class PrintTestController extends Controller
         $attachment_counters = $this->createAttachmentCountersFromData($data);
         $answers = [];
 
-        $footer = (new Footer($this->test))->render();
-        $header = (new Header($this->test))->render();
+        $footer = (new Footer($this->test, $this->testOpgavenPdf ? 'opgaven' : 'toets'))->render();
+        $header = (new Header($this->test, $this->testOpgavenPdf ? 'opgaven' : 'toets'))->render();
 
         $nav = $this->getNavigationData($data, $answers);
         $uuid = '';
@@ -139,7 +158,12 @@ class PrintTestController extends Controller
         $titleForPdfPage = __('test-pdf.printversion_test') . ' ' . $this->test->name . ' ' . Carbon::now()->format('d-m-Y H:i');
         view()->share('titleForPdfPage', $titleForPdfPage);
         ini_set('max_execution_time', '90');
-        $html = view('test-print', compact(['data', 'nav', 'styling', 'test', 'attachment_counters']))->render();
+
+        if (!$this->testOpgavenPdf) {
+            $html = view('test-print', compact(['data', 'nav', 'styling', 'test', 'attachment_counters']))->render();
+        } else {
+            $html = view('test-opgaven-print', compact(['data', 'nav', 'styling', 'test', 'attachment_counters']))->render();
+        }
 
         return PdfController::createTestPrintPdf($html, $header, $footer);
     }
@@ -149,7 +173,7 @@ class PrintTestController extends Controller
         $test->load('testQuestions', 'testQuestions.question', 'testQuestions.question.attachments');
         return $test->testQuestions
             ->sortBy('order')
-            ->when($test->shuffle, fn($testQuestions) => $testQuestions->shuffle()) //todo add ->shuffle() if test->shuffle == true?
+            //->when($test->shuffle, fn($testQuestions) => $testQuestions->shuffle()) //23-01-09: removed shuffling of testQuestions by request of business
             ->flatMap(function ($testQuestion) {
                 $testQuestion->question->loadRelated();
                 if ($testQuestion->question->type === 'GroupQuestion') {

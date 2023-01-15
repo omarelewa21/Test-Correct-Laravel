@@ -179,5 +179,18 @@ class Period extends BaseModel implements AccessCheckable {
         throw new AccessDeniedHttpException('Access to period denied');
     }
 
+    public function scopeCurrentlyActive($query)
+    {
+        return $query->where('start_date', '<=', Carbon::today())
+            ->where('end_date', '>=', Carbon::today());
+    }
 
+    public function scopeForSchoolLocation($query, SchoolLocation $schoolLocation)
+    {
+        return $query->whereIn(
+            'school_year_id',
+            SchoolLocationSchoolYear::select('school_year_id')
+                ->where('school_location_id', $schoolLocation->getKey())
+        );
+    }
 }
