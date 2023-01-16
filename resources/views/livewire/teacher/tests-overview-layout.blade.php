@@ -33,7 +33,6 @@
                 </div>
             </div>
             <div class="flex flex-wrap w-full gap-2 mt-2">
-
                 @if ($this->isExternalContentTab())
                     <x-input.choices-select
                             wire:key="base_subject_{{ $this->openTab }}"
@@ -73,6 +72,17 @@
                         wire:model="filters.{{ $this->openTab }}.education_level_id"
                         filterContainer="testbank-{{ $this->openTab }}-active-filters"
                 />
+                <x-input.choices-select
+                        wire:key="taxonomy_{{ $this->openTab }}"
+                        :multiple="true"
+                        :options="$this->taxonomies"
+                        :withSearch="true"
+                        :sortOptions="false"
+                        placeholderText="{{ __('cms.Taxonomie') }}"
+                        wire:model="filters.{{ $this->openTab }}.taxonomy"
+                        filterContainer="testbank-{{ $this->openTab }}-active-filters"
+                />
+
                 @if ($this->canFilterOnAuthors())
                     <x-input.choices-select
                             wire:key="authors_{{ $this->openTab }}"
@@ -108,9 +118,9 @@
             </div>
             <div id="testbank-{{ $this->openTab }}-active-filters"
                  wire:ignore
+                 wire:key="tb-filters-container-{{ $this->openTab }}"
                  x-data=""
-                 :class="{'mt-2': $el.childElementCount > 0}"
-                 class="flex flex-wrap gap-2"
+                 class="flex flex-wrap gap-2 mt-2 relative"
             >
             </div>
         </div>

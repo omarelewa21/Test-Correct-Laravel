@@ -1,16 +1,14 @@
 {
-    "/js/app.js": "/js/app.js?id=fe336134446848b748939398c37ec56d",
-    "/css/app.css": "/css/app.css?id=a2c8b5eb4652da53110633d0697e9450",
-    "/css/app_pdf.css": "/css/app_pdf.css?id=14a17ace2ca4eebe63c84772e1dad537",
-    "/css/print-test-pdf.css": "/css/print-test-pdf.css?id=8bb14a62ef91ff3ce61711f7ad41c302",
-    "/ckeditor/plugins/ckeditor_wiris/plugin.js": "/ckeditor/plugins/ckeditor_wiris/plugin.js?id=7d8e3d0318185ed5232bebadacfb7739",
-    "/ckeditor/plugins/ckeditor_wiris/icons/cas.png": "/ckeditor/plugins/ckeditor_wiris/icons/cas.png?id=e01e3ce6400951998bfd15e249c8b9d1",
-    "/ckeditor/plugins/ckeditor_wiris/icons/chem.png": "/ckeditor/plugins/ckeditor_wiris/icons/chem.png?id=1979fc1931ffd6b65bfaed18e42992e1",
-    "/ckeditor/plugins/ckeditor_wiris/icons/formula.png": "/ckeditor/plugins/ckeditor_wiris/icons/formula.png?id=628f5910e82d3e4a28b3471e2f570eaa",
-    "/js/ckeditor.js": "/js/ckeditor.js?id=2f8bae3d72d4bf7de672046f8ace4471",
-    "/js/ckeditor_teacher.js": "/js/ckeditor_teacher.js?id=672ac38fe0bfa7e49a0c84fd5eaa4478",
-    "/js/ckeditor_teacher_wsc.js": "/js/ckeditor_teacher_wsc.js?id=ff7783fcc24bf8673822cd308b4df62f",
-    "/js/readspeaker_tlc.js": "/js/readspeaker_tlc.js?id=f226cbc2b9b71ed0b870c523bd82eaf1",
-    "/css/rs_tlc.css": "/css/rs_tlc.css?id=4fd16ff4391e17a3505364b9171cab3a",
-    "/css/rs_tlc_pdf.css": "/css/rs_tlc_pdf.css?id=283c8e099b8252c0a4637f83bf28322e"
+    "/js/app.js": "/js/app.js",
+    "/css/app.css": "/css/app.css",
+    "/ckeditor/plugins/ckeditor_wiris/plugin.js": "/ckeditor/plugins/ckeditor_wiris/plugin.js",
+    "/ckeditor/plugins/ckeditor_wiris/icons/cas.png": "/ckeditor/plugins/ckeditor_wiris/icons/cas.png",
+    "/ckeditor/plugins/ckeditor_wiris/icons/chem.png": "/ckeditor/plugins/ckeditor_wiris/icons/chem.png",
+    "/ckeditor/plugins/ckeditor_wiris/icons/formula.png": "/ckeditor/plugins/ckeditor_wiris/icons/formula.png",
+    "/js/ckeditor.js": "/js/ckeditor.js",
+    "/js/ckeditor_teacher.js": "/js/ckeditor_teacher.js",
+    "/js/ckeditor_teacher_wsc.js": "/js/ckeditor_teacher_wsc.js",
+    "/js/readspeaker_tlc.js": "/js/readspeaker_tlc.js",
+    "/css/rs_tlc.css": "/css/rs_tlc.css",
+    "/css/rs_tlc_pdf.css": "/css/rs_tlc_pdf.css"
 }

@@ -1,6 +1,5 @@
 const mix = require('laravel-mix');
-const fs = require('fs');
-const { execSync } = require('child_process');
+const autoprefixer = require('autoprefixer');
 
 /*
  |--------------------------------------------------------------------------
@@ -13,25 +12,31 @@ const { execSync } = require('child_process');
  |
  */
 
-// mix.js('resources/js/app.js', 'public/js')
-//     .sass('resources/sass/app.scss', 'public/css');
-const autoprefixer = require('autoprefixer');
+// const SpeedMeasurePlugin = require("speed-measure-webpack-plugin");
+// const smp = new SpeedMeasurePlugin();
+// const webpack = smp.wrap({});
 
-// mix.webpackConfig({
-//     stats: {
-//         children: true,
-//     }
-// })
+const webpack = {};
+const prefixerPlugin = autoprefixer({
+    overrideBrowserslist: [
+        "chrome 6", "safari 5.1"
+    ]
+});
+const mixOptions = {
+    postCss: [require('tailwindcss')]
+}
 
-mix.postCss("resources/css/app.css", "public/css", [
-    require("tailwindcss"),
-]).postCss("resources/css/app_pdf.css", "public/css/", [
-    require("tailwindcss"),
-]).postCss("resources/css/print-test-pdf.css", "public/css/", [
-    require("tailwindcss"), autoprefixer({overrideBrowserslist: [
-            "chrome 6", "safari 5.1"
-        ]})
-]).js('resources/js/app.js', 'public/js');
+
+mix.webpackConfig(webpack);
+mix.options(mixOptions);
+
+mix.postCss("resources/css/app.css", "public/css")
+    .js('resources/js/app.js', 'public/js');
+
+// if (mix.inProduction()) {
+    mix.postCss("resources/css/app_pdf.css", "public/css/")
+        .postCss("resources/css/print-test-pdf.css", "public/css/", [prefixerPlugin])
+// }
 
 const wirisPath = "node_modules/@wiris/mathtype-ckeditor4";
 mix.copy(wirisPath + "/plugin.js", "public/ckeditor/plugins/ckeditor_wiris/plugin.js")

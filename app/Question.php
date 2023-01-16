@@ -1589,4 +1589,17 @@ class Question extends MtiBaseModel
     {
         return $query->where('owner_id', $schoolLocation->getKey());
     }
+
+    public function scopeTaxonomies($query, array $valuesPerTaxonomy)
+    {
+        return $query->where(function ($query) use ($valuesPerTaxonomy) {
+            collect($valuesPerTaxonomy)->each(function ($values, $column) use ($query, $valuesPerTaxonomy) {
+                $whereMethod = array_key_first($valuesPerTaxonomy) === $column ? 'whereIn' : 'orWhereIn';
+                $query->$whereMethod(
+                    'questions.'.$column,
+                    $values
+                );
+            });
+        });
+    }
 }

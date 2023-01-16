@@ -9,11 +9,13 @@ use Livewire\WithPagination;
 use Ramsey\Uuid\Uuid;
 use tcCore\BaseSubject;
 use tcCore\EducationLevel;
+use tcCore\Http\Helpers\Choices\Choice;
+use tcCore\Lib\Repositories\TaxonomyRepository;
 use tcCore\Subject;
-use tcCore\Test;
-use tcCore\TestTake;
 use tcCore\TemporaryLogin;
+use tcCore\Test;
 use tcCore\TestAuthor;
+use tcCore\TestTake;
 use tcCore\Traits\ContentSourceTabsTrait;
 use tcCore\Traits\UuidTrait;
 
@@ -168,6 +170,7 @@ class TestsOverview extends Component
                     'subject_id'           => [],
                     'author_id'            => [],
                     'base_subject_id'      => [],
+                    'taxonomy'             => [],
                 ];
                 if ($this->tabNeedsDefaultFilters($tab)) {
                     $this->mergeFiltersWithDefaults($tab);
@@ -182,7 +185,7 @@ class TestsOverview extends Component
         return EducationLevel::filtered(['user_id' => auth()->id()], ['name' => 'desc'])
             ->get(['id', 'name'])
             ->map(function ($educationLevel) {
-                return ['value' => (int)$educationLevel->id, 'label' => $educationLevel->name];
+                return Choice::build((int)$educationLevel->id, $educationLevel->name);
             });
     }
 
@@ -262,7 +265,8 @@ class TestsOverview extends Component
                 'education_level_id'   => [],
                 'subject_id'           => [],
                 'author_id'            => [],
-                'base_subject_id'      => []
+                'base_subject_id'      => [],
+                'taxonomy'             => [],
             ];
         });
         session(['tests-overview-filters' => $this->filters]);
@@ -360,5 +364,10 @@ class TestsOverview extends Component
     protected function mergeFiltersWithDefaults($tab): void
     {
         $this->filters[$tab] = array_merge($this->filters[$tab], auth()->user()->getSearchFilterDefaultsTeacher());
+    }
+
+    public function getTaxonomiesProperty()
+    {
+        return TaxonomyRepository::choicesOptions();
     }
 }
