@@ -7,24 +7,29 @@ use tcCore\Http\Controllers\TemporaryLoginController;
 
 class CakeRedirectHelper
 {
-    protected function __construct(
-        protected string  $searchValue,
-        protected ?string $uuid = null)
-    {
-    }
+    protected string $routeName;
+    protected ?string $uuid = null;
+    protected ?string $page = null;
 
-    public static function redirectToCake(string $routeName = 'dashboard', ?string $uuid = null)
+    public static function redirectToCake(string $routeName = 'dashboard', ?string $uuid = null, ?string $page = null)
     {
-        $helper = new self($routeName, $uuid);
+        $helper = new self($routeName, $uuid, $page);
 
         return redirect($helper->createCakeUrl());
     }
 
-    public static function getCakeUrl(string $routeName, ?string $uuid = null): string
+    public static function getCakeUrl(string $routeName, ?string $uuid = null, ?string $page = null) : string
     {
-        $helper = new self($routeName, $uuid);
+        $helper = new self($routeName, $uuid, $page);
 
         return $helper->createCakeUrl();
+    }
+
+    protected function __construct(string $routeName, ?string $uuid = null, ?string $page = null)
+    {
+        $this->routeName = $routeName;
+        $this->uuid = $uuid;
+        $this->page = $page;
     }
 
     protected function getCakeUrlAndFollowupActionData()
@@ -133,6 +138,7 @@ class CakeRedirectHelper
             ],
             'school_location.view'   => [
                 'page'        => '/',
+                'page_number' => $this->page,
                 'page_action' => sprintf("Navigation.load('/school_locations/view/%s')", $this->uuid)
             ],
             'school_location.edit'   => [
@@ -150,6 +156,7 @@ class CakeRedirectHelper
             ],
             'school.view'   => [
                 'page'        => '/',
+                'page_number' => $this->page,
                 'page_action' => sprintf("Navigation.load('/schools/view/%s')", $this->uuid)
             ],
             'school.edit'   => [

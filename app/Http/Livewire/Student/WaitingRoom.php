@@ -64,6 +64,7 @@ class WaitingRoom extends Component
     public $appNeedsUpdateDeadline;
     public $appStatus;
     public $showGrades=true;
+    public $previousURL;
 
     public function mount()
     {
@@ -83,10 +84,10 @@ class WaitingRoom extends Component
 
         $this->testTakeStatusStage = $this->waitingTestTake->determineTestTakeStage();
         $this->participatingClasses = $this->getParticipatingClasses($this->waitingTestTake);
-
         $this->participantAppCheck();
 
         $this->showGrades = $this->checkShowGrades();
+        $this->previousURL =  url()->previous();
     }
 
     public function render()
@@ -255,6 +256,11 @@ class WaitingRoom extends Component
         return __('student.wait_for_test_take');
     }
 
+    public function returnToTestTake()
+    {
+        redirect($this->previousURL);
+    }
+
     /**
      * @param $showResults
      * @return bool
@@ -268,7 +274,7 @@ class WaitingRoom extends Component
     {
         return $showResults != null && $showResults->gt(Carbon::now()) && $this->testParticipant->hasRating();
     }
-    
+
     private function checkShowGrades()
     {
         if($this->testTakeStatusStage == 'graded'){

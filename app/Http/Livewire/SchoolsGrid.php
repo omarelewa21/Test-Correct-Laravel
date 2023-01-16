@@ -101,7 +101,7 @@ class SchoolsGrid extends Component
 
     public function viewSchool($uuid)
     {
-        return CakeRedirectHelper::redirectToCake('school.view', $uuid);
+        return CakeRedirectHelper::redirectToCake('school.view', $uuid, $this->page);
     }
 
     public function editSchool($uuid)

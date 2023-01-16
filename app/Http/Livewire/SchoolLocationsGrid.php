@@ -119,7 +119,7 @@ class SchoolLocationsGrid extends Component
 
     public function viewSchoolLocation($uuid)
     {
-        return CakeRedirectHelper::redirectToCake('school_location.view', $uuid);
+        return CakeRedirectHelper::redirectToCake('school_location.view', $uuid, $this->page);
     }
 
     public function editSchoolLocation($uuid)

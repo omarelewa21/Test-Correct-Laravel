@@ -32,7 +32,7 @@ class Discuss extends Component
         $this->sortField = 'test_takes.time_start';
         $this->sortDirection = 'DESC';
     }
-
+    
     public function render()
     {
         return view('livewire.student.discuss', [

@@ -19,16 +19,17 @@ class TestTakeOverview extends Component
         'norm'    => [TestTakeStatus::STATUS_DISCUSSED],
         'review'  => [TestTakeStatus::STATUS_RATED],
     ];
+    
     const TABS = ['taken', 'norm'];
     const PER_PAGE = 12;
     const ACTIVE_TAB_SESSION_KEY = 'test-take-overview-open-tab';
+    const PAGE_NUMBER_SESSION_KEY = 'test-take-overview-open-page';
     const FILTERS_SESSION_KEY = 'test-take-overview-filters';
     const DEFAULT_OPEN_TAB = 'taken';
 
     public string $stage;
     public $openTab = self::DEFAULT_OPEN_TAB;
     public $filters = [];
-
     protected $queryString = ['openTab'];
     protected $listeners = ['update-test-take-overview' => '$refresh'];
 
@@ -39,6 +40,12 @@ class TestTakeOverview extends Component
         $this->setOpenTab();
         $this->setFilters();
         $this->stage = $stage;
+        $this->setPageNumber();
+    }
+
+    public function updatedPage()
+    {
+        session([self::PAGE_NUMBER_SESSION_KEY => $this->page]);
     }
 
     public function render()
@@ -197,5 +204,11 @@ class TestTakeOverview extends Component
     {
         $this->openTab = session(self::ACTIVE_TAB_SESSION_KEY, self::DEFAULT_OPEN_TAB);
     }
+
+    private function setPageNumber()
+    {
+        session()->put(self::PAGE_NUMBER_SESSION_KEY, request()->get('page'));
+    }
+
     /* End Helper methods */
 }

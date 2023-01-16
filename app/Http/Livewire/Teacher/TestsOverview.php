@@ -49,10 +49,9 @@ class TestsOverview extends Component
         $this->isExamCoordinator = Auth::user()->isValidExamCoordinator();
         $this->abortIfNewTestBankNotAllowed();
         $this->initialiseContentSourceTabs();
-
         $this->setFilters();
     }
-
+    
     public function render()
     {
         $results = $this->getDatasource();
