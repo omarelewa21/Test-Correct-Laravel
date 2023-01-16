@@ -143,6 +143,12 @@ class UsersController extends Controller
             // we can always get the old user by checking the creation date of the new user and use that to see the vervallenDATETIME of the old user
             $user->username = sprintf('vervallen-%d-%s-%s', $newUser->created_at->format('YmdHis'),$newUser->getKey(), explode('@', $user->username)[1]);
             $user->save();
+
+            // if there are email confirmations waiting, move them to the new user
+            if(EmailConfirmation::where('user_id',$user->getKey())->count()){
+                EmailConfirmation::where('user_id',$user->getKey())->update(['user_id' => $newUser->getKey()]);
+            }
+
             $user->delete();
 
             DB::table('onboarding_wizard_user_steps')->where('user_id', $user->getKey())->update(['user_id' => $newUser->getKey()]);
