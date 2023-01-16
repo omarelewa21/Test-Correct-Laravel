@@ -3,6 +3,8 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Ramsey\Uuid\Uuid;
+use tcCore\TestKind;
 
 class AddOpdrachtToTestKindsTable extends Migration
 {
@@ -13,15 +15,32 @@ class AddOpdrachtToTestKindsTable extends Migration
      */
     public function up()
     {
-//        Schema::table('test_kinds', function (Blueprint $table) {
-//            //
-//        });
-        DB::statement('ALTER TABLE test_kinds ADD uuid binary(16)');
+        if (!Schema::hasColumn('test_kinds', 'uuid')) {
+            Schema::table('test_kinds', function (Blueprint $table) {
+                $table->efficientUuid('uuid')->nullable();
+            });
 
-        \tcCore\TestKind::create([
-            'name'       => 'Opdracht',
-            'has_weight' => 0,
-        ]);
+            TestKind::whereNull('uuid')->get()->each(function($testKind){
+                $testKind->uuid = $testKind->resolveUuid();
+                $testKind->save();
+            });
+
+//            Schema::table('test_kinds', function (Blueprint $table) {
+//                $table->string('uuid')->nullable(false)->index()->change();;
+//            });
+
+        }
+
+
+        \tcCore\TestKind::updateOrCreate(
+            ['name' => 'Opdracht'],
+            [
+                'name'       => 'Opdracht',
+                'has_weight' => 0,
+                'uuid' =>  (new TestKind)->resolveUuid(),
+            ],
+
+        );
     }
 
     /**

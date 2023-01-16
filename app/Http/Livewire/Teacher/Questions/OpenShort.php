@@ -61,6 +61,8 @@ class OpenShort extends Component implements QuestionCms
 
     public $audioUploadOptions = [];
 
+    public $audioAttachmentOptions = [];
+
     public $uploads = [];
 
     public $attachments = [];
@@ -122,6 +124,7 @@ class OpenShort extends Component implements QuestionCms
 
     public $questionIndex;
 
+    public $question;
 
     /**
      * @var CmsInfoScreen|CmsMultipleChoice|CmsOpen|CmsRanking|CmsTrueFalse|null
@@ -684,12 +687,15 @@ class OpenShort extends Component implements QuestionCms
         $attachment = $this->attachments->where('uuid', $attachmentUuid)->first();
         $questionAttachment = $attachment->questionAttachments->where('question_id', $this->questionId)->first();
 
-        $currentJson = json_decode($questionAttachment->options, true);
-        $json = array_merge($currentJson ?? [], $data);
+        $currentJson = $this->audioAttachmentOptions[$attachmentUuid]
+            ?? json_decode($questionAttachment->options, true);
 
-        $questionAttachment->update(['options' => json_encode($json)]);
+        $updatedJson = array_merge($currentJson ?? [], $data);
 
-        $attachment->load(['questionAttachments']);
+        $this->audioAttachmentOptions[$attachmentUuid] = $updatedJson;
+        $this->question['questionAttachmentOptions'][$attachment->getKey()] = $updatedJson;
+
+        $this->dirty = true;
     }
 
     public function handleUploadSettingChange($setting, $value, $attachmentName)
