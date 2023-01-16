@@ -66,6 +66,7 @@ class FactoryUser
     public static function createTeacher(SchoolLocation $schoolLocation, bool $numericName = true, array $userProperties = []): FactoryUser
     {
         $factory = new static;
+
         $schoolLocationId = $schoolLocation->getKey();
         if(!isset(static::$teacherIterator[$schoolLocationId])){
             static::$teacherIterator[$schoolLocationId] = 0;
@@ -176,7 +177,7 @@ class FactoryUser
             'username'           => 'Name-LastName@factory.test',
             'password'           => 'TCSoBit500',
             'user_roles'         => [1],
-            'created_at'         => \Carbon\Carbon::now()->subMonths(7),
+            'created_at'         => \Carbon\Carbon::now(),
             'gender'             => 'Male',
         ];
         //roles:
