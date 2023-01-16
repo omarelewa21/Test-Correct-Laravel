@@ -1,10 +1,10 @@
 <?php
 
-namespace tcCore\View\Components\CoLearningTeacher;
+namespace tcCore\View\Components\Partials\Header;
 
 use Illuminate\View\Component;
 
-class Header extends Component
+class CoLearningTeacher extends Component
 {
     /**
      * Create a new component instance.
@@ -13,7 +13,8 @@ class Header extends Component
      */
     public function __construct(
         public string $testName,
-        public string $discussionType
+        public string $discussionType,
+        public bool $coLearningAtLastQuestion,
     ) {}
 
     /**
@@ -23,6 +24,6 @@ class Header extends Component
      */
     public function render()
     {
-        return view('components.co-learning-teacher.header');
+        return view('components.partials.header.co-learning-teacher');
     }
 }

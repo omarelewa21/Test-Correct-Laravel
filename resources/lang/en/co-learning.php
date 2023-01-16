@@ -30,6 +30,8 @@ return [
     'questions_being_discussed'     => 'questions being discussed:',
     'open_questions'                => 'open only',
     'all_questions'                 => 'all questions',
+    'next'                          => 'Next',
+    'previous'                      => 'Previous',
 
 
 ];

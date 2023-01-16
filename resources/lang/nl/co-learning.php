@@ -29,5 +29,7 @@ return [
     'questions_being_discussed'     => 'vragen in behandeling:',
     'open_questions'                => 'alleen open',
     'all_questions'                 => 'alle vragen',
+    'next'                          => 'Volgende',
+    'previous'                      => 'Vorige',
 
 ];

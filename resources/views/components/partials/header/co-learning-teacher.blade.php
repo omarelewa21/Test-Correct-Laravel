@@ -19,7 +19,10 @@
                     }}
             </div>
             <div class="flex items-center">
-                <x-button.cta>
+                <x-button.cta :disabled="!$coLearningAtLastQuestion"
+                        @class(['opacity-40' => !$coLearningAtLastQuestion])
+                        wire:click.prevent="finishCoLearning"
+                >
                     {{ __('co-learning.complete') }}
                     <x-icon.checkmark class="ml-2"/>
                 </x-button.cta>

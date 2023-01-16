@@ -28,7 +28,7 @@ mix.postCss("resources/css/app.css", "public/css", [
 ]).postCss("resources/css/app_pdf.css", "public/css/", [
     require("tailwindcss"),
 ]).postCss("resources/css/print-test-pdf.css", "public/css/", [
-    require("tailwindcss"), autoprefixer({overrideBrowserslist: [
+    autoprefixer({overrideBrowserslist: [
             "chrome 6", "safari 5.1"
         ]})
 ]).js('resources/js/app.js', 'public/js');

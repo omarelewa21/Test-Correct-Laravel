@@ -20,8 +20,29 @@ class CoLearning extends Component
             ->layout('layouts.co-learning-teacher');
     }
 
+    /* start header methods */
     public function redirectBack()
     {
         return redirect()->route('teacher.test-takes', ['stage' => 'taken']);
     }
+
+    public function getAtLastQuestionProperty()
+    {
+        /*TODO A ‘Finish’ (Afronden) button; disabled until last question.
+         * Clicking it will bring the test and teacher screen to ‘Scoring’ (Nakijken en Normeren)
+         */
+        return true;
+    }
+
+    public function finishCoLearning()
+    {
+        //todo
+        // $this->handleFinishingCoLearning();
+        //
+
+        return redirect()->route('teacher.test-takes', ['stage' => 'taken', 'tab' => 'norm']);
+    }
+    /* end header methods */
+
+
 }
