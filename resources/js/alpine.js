@@ -614,7 +614,6 @@ document.addEventListener('alpine:init', () => {
                         this.value = eventValue;
                         return;
                     }
-
                     if (this.isAParentChoice(choice)) {
                         this.handleGroupItemChoice(choice);
                     }
@@ -632,7 +631,7 @@ document.addEventListener('alpine:init', () => {
                     refreshChoices();
 
                     function isUnselectedRegularOrChildChoice() {
-                        return this.value.includes(eventValue) && this.isAChildChoice(choice);
+                        return this.value.includes(eventValue) && (this.isAChildChoice(choice) || this.isARegularChoice(choice));
                     }
                 })
                 this.$refs.select.addEventListener('change', () => {
@@ -703,6 +702,9 @@ document.addEventListener('alpine:init', () => {
         },
         isAChildChoice(choice) {
             return choice.customProperties?.parentId !== undefined && choice.customProperties?.parent === false;
+        },
+        isARegularChoice(choice) {
+            return choice.customProperties.parent === undefined;
         },
         removeFilterItem(item) {
             if (!Array.isArray(this.value)) return;
