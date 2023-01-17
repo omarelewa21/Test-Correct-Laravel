@@ -1340,8 +1340,13 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function isToetsenbakker()
     {
-        if (is_bool($this->hasUserSetting('isToetsenbakker'))) {
-            return $this->hasUserSetting('isToetsenbakker');
+        if (!$this->isA('Teacher')) {
+            return false;
+        }
+
+        $isToetsenbakker = UserSystemSetting::getSettingFromSession($this, 'isToetsenbakker');
+        if (is_bool($isToetsenbakker)) {
+            return $isToetsenbakker;
         }
 
         $isToetsenbakker = FileManagement::testUploads()->handledBy($this)->exists()
@@ -1349,7 +1354,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 ->whereIn('school_location_id', SchoolLocation::select('id')->where('customer_code', config('custom.TB_customer_code')))
                 ->exists();
 
-        $this->putUserSetting('isToetsenbakker', $isToetsenbakker);
+        UserSystemSetting::setSetting($this, 'isToetsenbakker', $isToetsenbakker);
 
         return $isToetsenbakker;
     }
@@ -2764,15 +2769,5 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                     SchoolLocation::select('id')->where('customer_code', config('custom.TB_customer_code'))
                 )
         );
-    }
-
-    public function hasUserSetting(string $setting)
-    {
-        $userSettings = session()->get(self::USER_SETTINGS_SESSION_KEY, []);
-        return $userSettings[$setting] ?? null;
-    }
-    public function putUserSetting(string $setting, $value): void
-    {
-        session()->put(self::USER_SETTINGS_SESSION_KEY, [$setting => $value]);
     }
 }
