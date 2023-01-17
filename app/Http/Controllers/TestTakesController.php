@@ -200,9 +200,8 @@ class TestTakesController extends Controller
      * Display the specified test take.
      *
      * @param TestTake $testTake
-     * @return Response
      */
-    public function show(TestTake $testTake, Request $request)
+    private function showGeneric(TestTake $testTake, Request $request, $returnTestTakeAsArray = true)
     {
         $testTake->load([
             'test',
@@ -225,7 +224,7 @@ class TestTakesController extends Controller
         if (in_array('Teacher', $roles) || in_array('Invigilator', $roles)) {
             $isInvigilator = $testTake->isAllowedToView(Auth::user());
             if (!$isInvigilator) {
-                return Response::make([], 403);
+                return []; //17-1-23: returning [] gets translated to a 403 response.
             }
         }
 
@@ -241,7 +240,6 @@ class TestTakesController extends Controller
         if (filled($testTake->scheduled_by)) {
             $testTake->append('scheduled_by_user_name');
         }
-
         // Dit 335 regelige (!!!) bakbeest wordt geskipt met request voor nakijken per student
         if ($isInvigilator && is_array($request->get('with')) && in_array('participantStatus', $request->get('with'))) {
             if ($testTake->testTakeStatus->name == 'Taking test') {
@@ -351,7 +349,7 @@ class TestTakesController extends Controller
 
                 $testTake['school_classes'] = array_values($schoolClasses);
 
-                return Response::make($testTake, 200);
+                return $testTake;
             } elseif ($testTake->testTakeStatus->name == 'Discussing') {
                 $testTake->load(['discussingParentQuestions'                                                                                                                    => function ($query) {
                     $query->orderBy('level');
@@ -490,9 +488,13 @@ class TestTakesController extends Controller
                     }
                 }
 
-                $testTake = $testTake->toArray();
+                if($returnTestTakeAsArray) {
+                    $testTake = $testTake->toArray();
+                    $testTake['school_classes'] = array_values($schoolClasses);
+                    return $testTake;
+                }
                 $testTake['school_classes'] = array_values($schoolClasses);
-                return Response::make($testTake, 200);
+                return $testTake;
             }
         } elseif ($isInvigilator && is_array($request->get('with')) && in_array('scores', $request->get('with'))) {
             $ratings = [];
@@ -517,7 +519,7 @@ class TestTakesController extends Controller
                 $query->select(['id', 'created_at', 'updated_at', 'deleted_at', 'user_id', 'rating', 'retake_rating']);
             }]);
 
-            return Response::make($testTake, 200);
+            return $testTake;
         } elseif ($isInvigilator && is_array($request->get('with')) && in_array('averages', $request->get('with'))) {
             $testTake->load(['testParticipants.answers', 'testParticipants.answers.answerRatings', 'testParticipants.answers.answerParentQuestions' => function ($query) {
                 $query->orderBy('level');
@@ -572,7 +574,7 @@ class TestTakesController extends Controller
             unset($testTake['test_participants']);
             $testTake['questions'] = $questions;
 
-            return Response::make($testTake, 200);
+            return $testTake;
         } elseif ($isInvigilator && $testTake->testTakeStatus->name == 'Discussing') {
             $testTake->load(['discussingParentQuestions' => function ($query) {
                 $query->orderBy('level');
@@ -598,7 +600,41 @@ class TestTakesController extends Controller
 
         $testTake['writing_assignments_count'] = $test->getWritingAssignmentsCount();
 
-        return Response::make($testTake, 200);
+        return $testTake;
+    }
+
+    /**
+     * Get the specified test take from within laravel
+     *
+     * @param TestTake $testTake
+     * @return TestTake|[]
+     */
+    public function showFromWithin(TestTake $testTake, Request $request) {
+        //17-1-23: 'returnTestTakeAsArray only implemented for: testTake discussing && 'with' => 'participantStatus'
+        return $this->showGeneric($testTake, $request, false);
+    }
+
+    /**
+     * Display the specified test take.
+     *
+     * @param TestTake $testTake
+     * @return Response
+     */
+    public function show(TestTake $testTake, Request $request) {
+
+        $testTakeResponse = $this->showGeneric($testTake, $request);
+
+        if($testTakeResponse === []) {
+            return Response::make(
+                content: [],
+                status:403,
+            );
+        }
+
+        return Response::make(
+            content: $testTakeResponse,
+            status:200,
+        );
     }
 
     public function nextQuestion(TestTake $testTake)

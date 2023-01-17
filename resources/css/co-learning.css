@@ -2,3 +2,71 @@
 #co-learning-page .cke .cke_bottom {
     display: none !important;
 }
+
+#co-learning-teacher-page .drawer-width {
+    width: 300px;
+}
+
+#co-learning-teacher-page .drawer-footer {
+    height: 70px;
+    width: 300px;
+    padding-top: 15px;
+    padding-bottom: 15px;
+    padding: 15px 1.5rem; /*top, right, bottom, left or top+bottom, right+left*/
+    background-color: white;
+}
+
+#co-learning-teacher-page .drawer-content-head {
+    margin-top: 10px;
+    padding: 10px 1.5rem 0.5rem; /*top, left+right, bottom */
+    width: 300px;
+}
+
+#co-learning-teacher-page .drawer-content {
+    max-height: calc(100vh - 190px);
+    height: calc(100vh - 190px);
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    background-color: white;
+}
+
+#co-learning-teacher-page #student-info-container .student-name {
+    display: inline-block;
+    width: 186px;
+    max-width: 186px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#co-learning-teacher-page #student-info-container .show-on-smartboard {
+    position: relative;
+    width: 18px;
+    height: 16px;
+}
+#co-learning-teacher-page #student-info-container .show-on-smartboard svg{
+    position: absolute;
+}
+
+#co-learning-teacher-page #student-info-container .show-on-smartboard:hover::before {
+    content: '';
+    width: 32px !important;
+    height: 32px !important;
+    border: 1px solid blue !important;
+    background-color: var(--primary) !important;
+    position: absolute;
+    transform: translate(-6px,-8px);
+    border-radius: 9999px;
+}
+#co-learning-teacher-page #student-info-container .show-on-smartboard:hover {
+    color: white;
+}
+
+/* height:
+ *  Footer = 70px
+ *  content-head = 50px
+ *  header = 70px
+ * total = 190px
+*/

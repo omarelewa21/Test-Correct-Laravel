@@ -1,10 +1,10 @@
 <?php
 
-namespace tcCore\View\Components\Sidebar;
+namespace tcCore\View\Components\Partials\Sidebar\CoLearningTeacher;
 
 use Illuminate\View\Component;
 
-class CoLearningTeacher extends Component
+class Drawer extends Component
 {
     /**
      * Create a new component instance.
@@ -23,6 +23,6 @@ class CoLearningTeacher extends Component
      */
     public function render()
     {
-        return view('components.partials.sidebar.co-learning-teacher');
+        return view('components.partials.sidebar.co-learning-teacher.drawer');
     }
 }
