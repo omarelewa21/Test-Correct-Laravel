@@ -193,12 +193,14 @@ class BaseHelper
         return $answer;
     }
 
-    public static function transformHtmlCharsReverse($answer)
+    public static function transformHtmlCharsReverse($answer, $doHtmlEntities = true)
     {
         $answer = str_replace('&lt;','<',$answer);
         $answer = str_replace('&gt;','>',$answer);
         $answer = str_replace('&amp;','&',$answer);
-        $answer = htmlentities($answer, null, 'utf-8');
+        if($doHtmlEntities) {
+            $answer = htmlentities($answer, null, 'utf-8');
+        }
         $answer = str_replace("&nbsp;", ' ', $answer);
 
         return $answer;
