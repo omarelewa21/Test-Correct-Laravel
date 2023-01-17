@@ -1,7 +1,8 @@
 module.exports = {
     content: [
         './vendor/wire-elements/modal/resources/views/*.blade.php',
-        './resources/**/*.{blade.php,js}',
+        './resources/js/**/*.js',
+        './resources/views/**/*.blade.php',
     ],
     safelist: [
         'sm:w-full',
