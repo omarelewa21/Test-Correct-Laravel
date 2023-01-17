@@ -36,7 +36,7 @@ class CakeRedirectHelper
     {
         $lookUpArray = $this->getLookupArray();
 
-        return $lookUpArray[$this->searchValue] ?? false;
+        return $lookUpArray[$this->routeName] ?? false;
     }
 
     protected function createCakeUrl(): string
