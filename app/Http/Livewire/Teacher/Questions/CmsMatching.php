@@ -123,8 +123,8 @@ class CmsMatching extends CmsBase
             $answer = $answer instanceof \stdClass ? (array)$answer : $answer;
             return [
                 'order' => $answer['order'],
-                'left'  => BaseHelper::transformHtmlChars($answer['left'],false),
-                'right' => BaseHelper::transformHtmlChars($answer['right'],false),
+                'left'  => BaseHelper::transformHtmlChars($answer['left']),
+                'right' => BaseHelper::transformHtmlChars($answer['right']),
             ];
         })->toArray());
         unset($this->instance->question['answer']);
@@ -156,8 +156,8 @@ class CmsMatching extends CmsBase
                     return [
                         'id'    => Uuid::uuid4(),
                         'order' => $key + 1,
-                        'left'  => BaseHelper::transformHtmlCharsReverse($corresponding->answer),
-                        'right' => BaseHelper::transformHtmlCharsReverse($answer->answer),
+                        'left'  => BaseHelper::transformHtmlCharsReverse($corresponding->answer,false),
+                        'right' => BaseHelper::transformHtmlCharsReverse($answer->answer,false),
                     ];
                 } else {
                     throw new \Exception('Mismatch in the answer details, get in contact with the Test-Correct Helpdesk and notify them about this error with question ID ' . $this->instance->questionId);
