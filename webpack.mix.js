@@ -19,11 +19,11 @@ mix.postCss("resources/css/app.css", "public/css/", [
     require("tailwindcss"),
 ]).js('resources/js/app.js', 'public/js/');
 
-if(typeof process.env.MIX_DEVELOPMENT_BUILD !== undefined && process.env.MIX_DEVELOPMENT_BUILD === 'true') {
+if(typeof process.env.MIX_DEVELOPMENT_BUILD !== 'undefined' && process.env.MIX_DEVELOPMENT_BUILD === 'true') {
     console.info('Asset building in development mode.');
 }
 
-if(typeof process.env.MIX_DEVELOPMENT_BUILD === undefined || process.env.MIX_DEVELOPMENT_BUILD === 'false') {
+if(typeof process.env.MIX_DEVELOPMENT_BUILD === 'undefined' || process.env.MIX_DEVELOPMENT_BUILD === 'false') {
     console.info('Asset building in production mode.');
     mix.postCss("resources/css/app_pdf.css", "public/css/", [
         require("tailwindcss"),
