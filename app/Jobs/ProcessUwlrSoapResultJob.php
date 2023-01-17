@@ -25,16 +25,18 @@ class ProcessUwlrSoapResultJob extends Job implements ShouldQueue
     public $timeout = 7200; // 60 minutes
     public $tries = 1;
     public $queue = 'import';
+    public $autoNext = false;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($uwlrSoapResultId)
+    public function __construct($uwlrSoapResultId, $autoNext = false)
     {
         //
         $this->uwlrSoapResultId = $uwlrSoapResultId;
+        $this->autoNext = $autoNext;
     }
 
     /**
