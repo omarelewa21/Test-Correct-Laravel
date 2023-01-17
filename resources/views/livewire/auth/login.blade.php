@@ -3,8 +3,8 @@
         <x-button.close onclick="Core.closeElectronApp();" electron/>
         <x-button.close onclick="Core.closeChromebookApp('{{ \tcCore\Http\Helpers\BaseHelper::getLoginUrl() }}')" size="sm" chromebook/>
     </div>
-    <div class="flex w-full items-start justify-center pt-7 pb-9">
-        <a class="flex  w-36 md:w-44" href="https://test-correct.nl">
+    <div class="flex w-full items-start justify-center pt-7 pb-9" wire:ignore>
+        <a class="flex  w-36 md:w-44" id="logo">
             <img class="" src="{{ asset('svg/logos/Logo-Test-Correct-2.svg') }}" alt="Test-Correct">
         </a>
     </div>
@@ -776,3 +776,9 @@
     </div>
     <x-login-notification />
 </div>
+
+<script>
+    window.onload = () => {
+        document.getElementById('logo').href = Core.inApp ? '#' : 'https://test-correct.nl'
+    }
+</script>
