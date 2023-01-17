@@ -9,7 +9,6 @@ use tcCore\Http\Livewire\Teacher\TestTakeOverview;
 use tcCore\TestTake;
 use Illuminate\Http\Request;
 
-
 trait WithTestTakeInteractions
 {
     public function openTestTakeDetail($testTakeUuid)
