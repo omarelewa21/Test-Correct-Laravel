@@ -5,9 +5,10 @@ namespace tcCore\Http\Traits;
 
 use Illuminate\Support\Str;
 use Livewire\Livewire;
+use tcCore\Http\Livewire\Teacher\TestTakeOverview;
 use tcCore\TestTake;
 use Illuminate\Http\Request;
-use App\Http\Livewire\Teacher\TestTakeOverview;
+
 
 trait WithTestTakeInteractions
 {
