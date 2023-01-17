@@ -125,7 +125,7 @@ class CmsRanking extends CmsBase
             $answer = $answer instanceof \stdClass ? (array)$answer : $answer;
             return [
                 'order'  => $answer['order'],
-                'answer' => BaseHelper::transformHtmlChars($answer['answer']),
+                'answer' => BaseHelper::transformHtmlChars($answer['answer'],false),
             ];
         })->toArray());
         unset($this->instance->question['answer']);

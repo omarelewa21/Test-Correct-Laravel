@@ -123,8 +123,8 @@ class CmsMatching extends CmsBase
             $answer = $answer instanceof \stdClass ? (array)$answer : $answer;
             return [
                 'order' => $answer['order'],
-                'left'  => BaseHelper::transformHtmlChars($answer['left']),
-                'right' => BaseHelper::transformHtmlChars($answer['right']),
+                'left'  => BaseHelper::transformHtmlChars($answer['left'],false),
+                'right' => BaseHelper::transformHtmlChars($answer['right'],false),
             ];
         })->toArray());
         unset($this->instance->question['answer']);
