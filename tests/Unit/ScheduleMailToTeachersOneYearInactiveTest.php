@@ -53,12 +53,6 @@ class ScheduleMailToTeachersOneYearInactiveTest extends TestCase
         )->schoolLocation;
     }
 
-    public function tearDown():void
-    {
-        DB::rollback();
-        parent::tearDown();
-    }
-
     /**
      * created today(now) section, in this section will only the login log change
      *  - no login log
