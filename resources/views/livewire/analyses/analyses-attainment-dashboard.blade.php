@@ -88,7 +88,7 @@
     <BR>
     <x-content-section>
         <x-slot name="title">
-            {{ __('student.ontwikkeling p-waarde over tijd') }}
+            {{ __('student.ontwikkeling percentage over tijd') }}
         </x-slot>
 
 
