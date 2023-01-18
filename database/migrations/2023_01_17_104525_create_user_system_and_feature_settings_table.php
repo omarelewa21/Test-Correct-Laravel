@@ -19,7 +19,7 @@ return new class extends Migration {
                 $table->softDeletes();
                 $table->unsignedBigInteger('user_id');
                 $table->string('title');
-                $table->string('value');
+                $table->text('value');
             });
         }
         if (!Schema::hasTable('user_feature_settings')) {
@@ -29,7 +29,7 @@ return new class extends Migration {
                 $table->softDeletes();
                 $table->unsignedBigInteger('user_id');
                 $table->string('title');
-                $table->string('value');
+                $table->text('value');
             });
         }
     }

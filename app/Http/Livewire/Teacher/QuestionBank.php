@@ -12,6 +12,7 @@ use tcCore\Http\Controllers\GroupQuestionQuestionsController;
 use tcCore\Http\Controllers\TestQuestionsController;
 use tcCore\Http\Requests\CreateGroupQuestionQuestionRequest;
 use tcCore\Http\Requests\CreateTestQuestionRequest;
+use tcCore\Http\Traits\WithAddExistingQuestionFilterSync;
 use tcCore\Http\Traits\WithQueryStringSyncing;
 use tcCore\Http\Traits\WithTestAwarenessProperties;
 use tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager;
@@ -20,34 +21,36 @@ use tcCore\Subject;
 use tcCore\Test;
 use tcCore\TestQuestion;
 use tcCore\Traits\ContentSourceTabsTrait;
+use tcCore\UserSystemSetting;
 
 class QuestionBank extends Component
 {
-    use ContentSourceTabsTrait, WithQueryStringSyncing, WithTestAwarenessProperties;
+    use ContentSourceTabsTrait, WithQueryStringSyncing, WithTestAwarenessProperties, WithAddExistingQuestionFilterSync;
 
     const ACTIVE_TAB_SESSION_KEY = 'question-bank-active-tab';
 
     const ITEM_INCREMENT = 16;
 
-    const SOURCE_PERSONAL = 'me';
-    const SOURCE_SCHOOL = '';
-
     protected $queryString = ['testId', 'testQuestionId', 'openTab' => ['as' => 'qb_ot']];
+    protected $test;
 
     public $testId;
     public $testQuestionId;
-
     public $filters = [];
-
     public $itemsPerPage;
-
     public $inGroup = false;
-
-    protected $test;
-
     public $active;
-
     public $groupQuestionDetail;
+
+    protected string $filterIdentifyingAttribute = 'testId';
+    protected array $filterableAttributes = [
+        'name'                 => '',
+        'education_level_year' => [],
+        'education_level_id'   => [],
+        'subject_id'           => [],
+        'author_id'            => [],
+        'base_subject_id'      => []
+    ];
 
     protected function getListeners()
     {
@@ -56,6 +59,7 @@ class QuestionBank extends Component
             'addQuestionFromDetail' => 'handleCheckboxClick',
             'questionDeleted'       => 'questionDeletedFromExternalComponent',
             'newGroupId'            => 'newGroupId',
+            'shared-filter-updated' => 'loadSharedFilters'
         ];
     }
 
@@ -76,24 +80,19 @@ class QuestionBank extends Component
 
     private function getFilters()
     {
-        return collect($this->filters[$this->openTab])->reject(function ($filter) {
+        $needsIdSearch = (isset($this->filters['search']) && is_numeric($this->filters['search']));
+        $filters = collect($this->filters)->diffKeys(array_flip($this->getNotAllowedFilterProperties()));
+
+        return $filters->reject(function ($filter) {
             return empty($filter);
         })
-            ->when($this->openTab === 'personal', function ($filters) {
-                return $filters->merge(['source' => 'me']);
-            })
-            ->when($this->openTab === 'school_location', function ($filters) {
-                return $filters->merge(['source' => 'schoolLocation', 'draft' => false]);
-            })
-            ->when($this->openTab === 'national', function ($filters) {
-                return $filters->merge(['source' => 'national']);
-            })
-            ->when($this->openTab === 'creathlon', function ($filters) {
-                return $filters->merge(['source' => 'creathlon']);
-            })
-            ->when((isset($this->filters[$this->openTab]['search']) && is_numeric($this->filters[$this->openTab]['search'])), function ($filters) {
+            ->when($this->openTab === 'personal', fn($filters) => $filters->merge(['source' => 'me']))
+            ->when($this->openTab === 'school_location', fn($filters) => $filters->merge(['source' => 'schoolLocation', 'draft' => false]))
+            ->when($this->openTab === 'national', fn($filters) => $filters->merge(['source' => 'national']))
+            ->when($this->openTab === 'creathlon', fn($filters) => $filters->merge(['source' => 'creathlon']))
+            ->when($needsIdSearch, function ($filters) {
                 unset($filters['search']);
-                return $filters->merge(['id' => $this->filters[$this->openTab]['search']]);
+                return $filters->merge(['id' => $this->filters['search']]);
             })
             ->toArray();
     }
@@ -187,6 +186,7 @@ class QuestionBank extends Component
     public function updatedFilters($name, $value)
     {
         $this->resetItemsPerPage();
+        UserSystemSetting::setSetting(auth()->user(), $this->getFilterSessionKey(), $this->filters);
     }
 
     public function updatedInGroup($value)
@@ -263,30 +263,33 @@ class QuestionBank extends Component
 
     private function setFilters()
     {
-        collect($this->allowedTabs)->each(function ($tab) {
-            $this->filters[$tab] = $this->subjectFilterForTab($tab) + [
-                    'search'               => '',
-                    'education_level_year' => [$this->test->education_level_year],
-                    'education_level_id'   => [$this->test->education_level_id],
-                    'without_groups'       => '',
-                    'author_id'            => []
-                ];
-        });
+        $storedFilters = UserSystemSetting::getSetting(
+            user: auth()->user(),
+            title: $this->getFilterSessionKey(),
+            sessionStore: true
+        );
+        if ($storedFilters) {
+            $this->filters = array_merge($this->filterableAttributes, $storedFilters);
+            return;
+        }
+
+        $this->filters = $this->defaultFilters();
+    }
+
+    private function defaultFilters(): array
+    {
+        return array_merge($this->filterableAttributes, [
+            'education_level_year' => [$this->test->education_level_year],
+            'education_level_id'   => [$this->test->education_level_id],
+            'subject_id'           => [$this->test->subject_id],
+            'base_subject_id'      => $this->test->subject()->pluck('base_subject_id')
+        ]);
     }
 
     public function clearFilters($tab = null)
     {
-        $tabs = $tab ? [$tab] : $this->allowedTabs;
-        return collect($tabs)->each(function ($tab) {
-            $this->filters[$tab] = [
-                'search'               => '',
-                'education_level_year' => [],
-                'education_level_id'   => [],
-                'subject_id'           => [],
-                'base_subject_id'      => [],
-                'author_id'            => [],
-            ];
-        });
+        $this->filters = $this->filterableAttributes;
+        UserSystemSetting::setSetting(auth()->user(), $this->getFilterSessionKey(), $this->filters);
     }
 
     public function openDetail($questionUuid, $inTest)
@@ -327,7 +330,7 @@ class QuestionBank extends Component
 
     public function hasActiveFilters()
     {
-        return collect($this->filters[$this->openTab])->filter(function ($filter) {
+        return collect($this->filters)->filter(function ($filter) {
             return filled($filter);
         })->isNotEmpty();
     }
@@ -349,14 +352,6 @@ class QuestionBank extends Component
         $this->updatedInGroup($uuid);
     }
 
-    private function subjectFilterForTab($tab): array
-    {
-        if ($this->isExternalContentTab($tab)) {
-            return ['base_subject_id' => $this->test->subject()->pluck('base_subject_id')];
-        }
-        return ['subject_id' => [$this->test->subject_id]];
-    }
-
     public function hasAuthorFilter($tab = null): bool
     {
         return collect(['school_location'])->contains($tab ?? $this->openTab);
@@ -374,5 +369,29 @@ class QuestionBank extends Component
     {
         $this->skipRender();
         return $this->inGroup = false;
+    }
+
+    /**
+     * @param string $source
+     * @return array|string[]
+     */
+    private function getNotAllowedFilterProperties(): array
+    {
+        $source = $this->getSourceForFilterNotAllowed($this->openTab);
+
+        $notAllowed = [
+            'personal'        => ['base_subject_id', 'author_id'],
+            'school_location' => ['base_subject_id'],
+            'external'        => ['subject_id', 'author_id'],
+        ];
+
+        return $notAllowed[$source];
+    }
+
+    private function getSourceForFilterNotAllowed($tab): string
+    {
+        if ($tab === 'personal') return $tab;
+        if ($tab === 'school_location') return $tab;
+        return 'external';
     }
 }

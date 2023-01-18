@@ -5,6 +5,7 @@ namespace tcCore\Http\Livewire;
 use Illuminate\Support\Str;
 use Livewire\Component;
 use Livewire\WithPagination;
+use tcCore\UserSystemSetting;
 
 abstract class OverviewComponent extends Component
 {
@@ -72,7 +73,7 @@ abstract class OverviewComponent extends Component
     private function updateFiltersInSession(array $filters)
     {
         if ($this->storeFiltersInSession) {
-            session()->put($this->getFilterSessionKey(), $filters);
+            UserSystemSetting::setSetting(auth()->user(), $this->getFilterSessionKey(), $filters);
         }
     }
 
@@ -85,7 +86,11 @@ abstract class OverviewComponent extends Component
 
     private function restoreFiltersFromSession()
     {
-        $sessionFilters = session()->get($this->getFilterSessionKey(), null);
+        $sessionFilters = UserSystemSetting::getSetting(
+            user: auth()->user(),
+            title: $this->getFilterSessionKey(),
+            sessionStore: true
+        );
         $this->setFilters($sessionFilters);
         if ($page = session()->get($this->getSessionKey() . '-page', null)) {
             $this->setPage($page);

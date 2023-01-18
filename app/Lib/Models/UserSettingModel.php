@@ -18,18 +18,41 @@ abstract class UserSettingModel extends Model
 
     abstract protected static function sessionKey(User $user): string;
 
-    static public function getAll(User $user, bool $sessionOnly): array
+    static public function getAll(User $user,
+                                  bool $sessionOnly = false,
+                                  bool $sessionStore = false
+    ): array
     {
-        return static::retrieveSettings($user, $sessionOnly);
+        return static::retrieveSettings($user, $sessionOnly, $sessionStore);
     }
 
     static public function getSettingFromSession(User $user, string $title): mixed
     {
         return static::getSetting($user, $title, true);
     }
-    static public function getSetting(User $user, string $title, $sessionOnly = false): mixed
+
+    static public function getSetting(User   $user,
+                                      string $title,
+                                      bool   $sessionOnly = false,
+                                      bool   $sessionStore = false,
+    ): mixed
     {
-        return static::retrieveSetting($user, $title, $sessionOnly);
+        return static::retrieveSetting($user, $title, $sessionOnly, $sessionStore);
+    }
+
+    static public function hasSetting(User $user, string $title): bool
+    {
+        return static::hasSettingInSession($user, $title) || static::hasSettingInDatabase($user, $title);
+    }
+
+    static public function hasSettingInSession(User $user, string $title): bool
+    {
+        return !is_null(static::retrieveSettingFromSession($user, $title));
+    }
+
+    static public function hasSettingInDatabase(User $user, string $title): bool
+    {
+        return !is_null(static::retrieveSettingFromDatabase($user, $title));
     }
 
     static public function setSetting(User $user, string $title, mixed $value)
@@ -54,7 +77,8 @@ abstract class UserSettingModel extends Model
         static::updateOrCreate([
             'user_id' => $user->getKey(),
             'title'   => $title,
-            'value'   => $value
+        ], [
+            'value' => is_array($value) ? json_encode($value) : $value
         ]);
     }
 
@@ -64,14 +88,23 @@ abstract class UserSettingModel extends Model
      * @param bool $sessionOnly
      * @return array
      */
-    static private function retrieveSettings(User $user, bool $sessionOnly): array
+    static private function retrieveSettings(User $user,
+                                             bool $sessionOnly = false,
+                                             bool $sessionStore = false
+    ): array
     {
         $settings = static::retrieveSettingsFromSession($user);
         if ($sessionOnly || !empty($settings)) {
             return $settings;
         }
 
-        return self::retrieveSettingsFromDatabase($user) ?? [];
+        $databaseSettings = static::retrieveSettingsFromDatabase($user);
+        if ($databaseSettings && $sessionStore) {
+            foreach ($databaseSettings as $title => $value) {
+                static::writeSettingToSession($user, $title, $value);
+            }
+        }
+        return $databaseSettings ?? [];
     }
 
     /**
@@ -81,14 +114,20 @@ abstract class UserSettingModel extends Model
      * @param bool $sessionOnly
      * @return mixed
      */
-    static private function retrieveSetting(User $user, string $title, bool $sessionOnly): mixed
+    static private function retrieveSetting(User   $user,
+                                            string $title,
+                                            bool   $sessionOnly = false,
+                                                   $sessionStore = false): mixed
     {
         $setting = static::retrieveSettingFromSession($user, $title);
         if ($sessionOnly || !is_null($setting)) {
             return $setting;
         }
-
-        return self::retrieveSettingFromDatabase($user, $title);
+        $databaseSetting = static::retrieveSettingFromDatabase($user, $title);
+        if ($databaseSetting && $sessionStore) {
+            static::writeSettingToSession($user, $title, $databaseSetting);
+        }
+        return $databaseSetting;
     }
 
     /**
@@ -123,7 +162,7 @@ abstract class UserSettingModel extends Model
     {
         return static::whereUserId($user->getKey())
             ->get()
-            ->mapWithKeys(fn($setting) => [$setting->title => $setting->value])
+            ->mapWithKeys(fn($setting) => [$setting->title => static::validValue($setting->value)])
             ->toArray() ?? [];
     }
 
@@ -135,9 +174,21 @@ abstract class UserSettingModel extends Model
      */
     static private function retrieveSettingFromDatabase(User $user, string $title): mixed
     {
-        return static::whereUserId($user->getKey())
+        $value = static::whereUserId($user->getKey())
             ->whereTitle($title)
-            ->where('updated_at', Carbon::now()->subMinutes(5))
-            ->value('title');
+            ->value('value');
+
+        return static::validValue($value);
+    }
+
+    static private function validValue($value): mixed
+    {
+        return static::isJson($value) ? json_decode($value, true) : $value;
+    }
+
+    static private function isJson($value): bool
+    {
+        json_decode($value);
+        return json_last_error() === JSON_ERROR_NONE;
     }
 }
