@@ -37,9 +37,9 @@
 
         <x-slot name="title">
             @if ($attainment->is_learning_goal == 1)
-                {{__('student.Percentage per subleerdoel') }}
+                {{__('student.percentage per subleerdoel') }}
             @else
-                {{__('student.Percentage per subeindterm') }}
+                {{__('student.percentage per subeindterm') }}
             @endif
         </x-slot>
         <div x-data="analysesAttainmentsGraph( 'pValueChart' )"

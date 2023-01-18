@@ -27,7 +27,7 @@
 
     <x-content-section>
         <x-slot name="title">
-            {{ __('student.Percentage per vak') }}
+            {{ __('student.percentage per vak') }}
         </x-slot>
 
 

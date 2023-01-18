@@ -38,9 +38,9 @@
         <x-slot name="title">
             <div class="hidden">{{ $this->data }}</div>
             @if ($attainment->is_learning_goal == 1)
-            {{ __('student.Percentage per subsubleerdoel') }}
+            {{ __('student.percentage per subsubleerdoel') }}
                 @else
-                {{ __('student.Percentage per subsubeindterm') }}
+                {{ __('student.percentage per subsubeindterm') }}
             @endif
         </x-slot>
 

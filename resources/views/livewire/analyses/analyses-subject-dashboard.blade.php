@@ -57,9 +57,9 @@
         <x-slot name="title">
             {{--            <div class="hidden">{{ $this->data }}</div>--}}
             @if($this->attainmentMode === \tcCore\Attainment::TYPE)
-                {{ __('student.Percentage per eindterm') }}
+                {{ __('student.percentage per eindterm') }}
             @else
-            {{ __('student.Percentage per leerdoel') }}
+            {{ __('student.percentage per leerdoel') }}
             @endif
         </x-slot>
         <div x-data="analysesAttainmentsGraph('pValueChart')"
