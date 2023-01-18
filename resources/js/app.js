@@ -229,15 +229,9 @@ dragElement = function (element) {
         if(rightEdge < 150){newLeft = 0}                              // Check if the right edge is within window width boundaries
         else if(rightEdge > windowWidth-10){newLeft = 0}
 
-        // stop moving when mouse button is released:
-        window.dispatchEvent(new CustomEvent('set-new-position', {
-                'detail': {
-                    'uuid': uuid,
-                    'x': newTop,
-                    'y': newLeft
-                }
-            }
-        ));
+        element.style.top  = newTop  + "px";
+        element.style.left = newLeft + "px";
+
         document.onmouseup = null;
         document.ontouchend = null;
         document.onmousemove = null;

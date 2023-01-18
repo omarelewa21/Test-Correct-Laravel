@@ -7099,15 +7099,8 @@ dragElement = function dragElement(element) {
     else if (rightEdge > windowWidth - 10) {
       newLeft = 0;
     }
-
-    // stop moving when mouse button is released:
-    window.dispatchEvent(new CustomEvent('set-new-position', {
-      'detail': {
-        'uuid': uuid,
-        'x': newTop,
-        'y': newLeft
-      }
-    }));
+    element.style.top = newTop + "px";
+    element.style.left = newLeft + "px";
     document.onmouseup = null;
     document.ontouchend = null;
     document.onmousemove = null;
