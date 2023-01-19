@@ -6,14 +6,14 @@ use Illuminate\Http\Request;
 use Livewire\Component;
 use tcCore\Http\Controllers\TestTakesController;
 use tcCore\Http\Enums\CoLearning\AbnormalitiesStatus;
-use tcCore\Http\Enums\CoLearning\ScoringStatus;
+use tcCore\Http\Enums\CoLearning\RatingStatus;
 use tcCore\TestTake;
 
 class CoLearning extends Component
 {
     public int|TestTake $testTake;
-    public $testTakeParticipantStatusses;
-    public bool $allCurrentAnswerRatingsDiscussed;
+    public $testParticipantStatusses;
+    public float $testParticipantsFinishedWithRatingPercentage; //if 100.0, all possible answers have been rated //todo float or int?
 
     /*TODO
      * atFirstQuestionProperty
@@ -23,21 +23,60 @@ class CoLearning extends Component
 
     public function mount(TestTake $test_take)
     {
+        //TODO
+        // First 'start_discussion'
+        //   set $test_take['test_take_status_id'] = 7;
+        //        $test_take['discussion_type'] = $type; (can be done in the CO-Learning choice screen)
+        // .
+        // .
+        //   AND if discussion_question_id == null, 'nextDiscussionQuestion'
+        //  next question => TestTakesControlle->nextQuestion()
+        //  nextQuestion returns a TestTake, but it misses all testParticipant Status data...
+
+        $testTakesController = (new TestTakesController);
+
+        if($test_take->discussing_question_id === null){
+            //gets a testTake, but misses TestParticipants Status data.
+            // also creates AnswerRatings for students.
+            $testTakesController->nextQuestion($test_take);
+        }
+
         $request = new Request([
             'with' => ['participantStatus'],
         ]);
 
         //get testTake from TestTakesController, also sets testParticipant 'abnormalities'
-        $this->testTake = (new TestTakesController)->showFromWithin($test_take, $request, false);
+        $this->testTake = $testTakesController->showFromWithin($test_take, $request, false);
 
+//        dd($this->testTake);
 
-        $this->handleTestParticipantStatusses();
+        //temp: sets all testParticipants on active todo remove
+        $this->testTake->testParticipants->each(fn($tp) => $tp->active = true);
+//        $this->testTake->testParticipants->each(fn($tp) => $tp->answer_to_rate = 2);
+//        $this->testTake->testParticipants->each(fn($tp) => $tp->answer_rated = rand(0,2));
+//
+//        $this->testTake->testParticipants->each(fn($tp) => $tp->abnormalities = rand(0,5));
+////        $this->testTake->testParticipants->each(fn($tp) => $tp->answer_rated = 2);
     }
 
     public function render()
     {
+        $this->handleTestParticipantStatusses(); //todo move to polling method
+
         return view('livewire.teacher.co-learning')
             ->layout('layouts.co-learning-teacher');
+    }
+
+    public function nextDiscussionQuestion()
+    {
+        //todo check if all students have rated their AnswerRatings?
+        if($this->testParticipantsFinishedWithRatingPercentage === 100) {
+            //ask for confirmation
+        }
+
+        //do i have to refresh/fresh the TestTake before passing it to the controller?
+        (new TestTakesController)->nextQuestion($this->testTake);
+
     }
 
     /* start header methods */
@@ -46,13 +85,6 @@ class CoLearning extends Component
         return redirect()->route('teacher.test-takes', ['stage' => 'taken']);
     }
 
-    public function getAtLastQuestionProperty()
-    {
-        /*TODO A ‘Finish’ (Afronden) button; disabled until last question.
-         * Clicking it will bring the test and teacher screen to ‘Scoring’ (Nakijken en Normeren)
-         */
-        return false;
-    }
 
     public function finishCoLearning()
     {
@@ -78,6 +110,20 @@ class CoLearning extends Component
          */
     }
 
+    public function showStudentAnswer($uuidOrId)
+    {
+        //TODO show the answer, the student is now rating, on the teacher screen.
+    }
+    /* end sidebar methods */
+
+    public function getAtLastQuestionProperty()
+    {
+        /*TODO A ‘Finish’ (Afronden) button; disabled until last question.
+         * Clicking it will bring the test and teacher screen to ‘Scoring’ (Nakijken en Normeren)
+         */
+        return false;
+    }
+
     public function getAtFirstQuestionProperty()
     {
         /*TODO Previous question 'Text Button M - icon left':
@@ -86,91 +132,109 @@ class CoLearning extends Component
         return true;
     }
 
-    public function showStudentAnswer($uuidOrId)
-    {
-        //TODO show the answer, the student is now rating, on the teacher screen.
-    }
-
-    /* end sidebar methods */
-
     private function handleFinishingCoLearning()
     {
-        //TODO change test_take_status_id (to Discussed?) before redirecting to 'nakijken en normeren'
+        $this->testTake->update([
+            'test_take_status_id' => 8,
+            'skipped_discussion' => false,
+        ]);
+
     }
 
-    private function handleTestParticipantStatusses()
+    private function handleTestParticipantStatusses(): void
     {
-
-        $this->testTakeParticipantStatusses = collect();
-        $this->allCurrentAnswerRatingsDiscussed = true;
-
-        $totalAbnormalities = 0;
-        $countAbnormalities = 0;
-        $averageOfAbnormalities = 0;
+        //reset values
+        $this->testParticipantStatusses = collect();
 
 
-        $this->testTake->testParticipants->each(function ($testParticipant) use (&$totalAbnormalities, &$countAbnormalities) {
-            $percentageScored = ($testParticipant->answer_rated / $testParticipant->answer_to_rate) * 100;
+        $testParticipantsCount = $this->testTake->testParticipants->sum(fn($tp) => $tp->active === true);
+        $testParticipantsFinishedWithRatingCount = $this->testTake->testParticipants->sum(fn($tp) => ($tp->answer_to_rate === $tp->answer_rated) && $tp->active);
 
-            if ($testParticipant->active || true) { //todo remove true
-//            if (isset($testParticipant->answer_rated)) {
-                if ($testParticipant->answer_rated == $testParticipant->answer_to_rate) {
-                    //first check 100% green,
-                    $this->testTakeParticipantStatusses[$testParticipant->uuid] = ['scoringStatus' => ScoringStatus::Green];
-                } elseif ($testParticipant->answer_rated == 'IMPLEMENT RED LOGIC') {
-                    //then check red
-
-                    // todo implement calculation for red
+        $this->testParticipantsFinishedWithRatingPercentage = $testParticipantsCount > 0
+            ? $testParticipantsFinishedWithRatingCount / $testParticipantsCount * 100
+            : 0;
 
 
-                    $this->testTakeParticipantStatusses[$testParticipant->uuid] = ['scoringStatus' => ScoringStatus::Red];
-                    $this->allCurrentAnswerRatingsDiscussed = false;
-                } elseif ($percentageScored > 0 && $percentageScored < 100) {
-                    //then less than 100% but not 0% === orange
-                    $this->testTakeParticipantStatusses[$testParticipant->uuid] = ['scoringStatus' => ScoringStatus::Orange];
-                    $this->allCurrentAnswerRatingsDiscussed = false;
-                } else {
-                    //default: (if not other colors, it is 0% but not red, for example at the start)
-                    $this->testTakeParticipantStatusses[$testParticipant->uuid] = ['scoringStatus' => ScoringStatus::Grey];
-                    $this->allCurrentAnswerRatingsDiscussed = false;
-                }
-//            }
-            } else {
-                // testParticipant is not active...
-                // todo set color Grey anyway?
+        $this->testTake->testParticipants->each(function ($testParticipant) {
+            if (!$testParticipant->active) {
+                return;
             }
 
+            $testParticipantPercentageRated = ($testParticipant->answer_rated / $testParticipant->answer_to_rate) * 100;
 
-            if(isset($testParticipant->abnormalities)) {
-                $totalAbnormalities += $testParticipant->abnormalities;
-                $countAbnormalities++;
-            }
-
-
-            AbnormalitiesStatus::Happy;
-            AbnormalitiesStatus::Neutral;
-            AbnormalitiesStatus::Sad;
-            AbnormalitiesStatus::Default;
-
-
-
-
-            return $testParticipant;
+            $this->testParticipantStatusses[$testParticipant->uuid] = [
+                'ratingStatus' => $this->getRatingStatusForTestParticipant($testParticipantPercentageRated)
+            ];
         });
 
-        //abnormalities
-        if($countAbnormalities > 0) {
-            $averageOfAbnormalities = $totalAbnormalities / $countAbnormalities;
+
+        //todo check if testParticipant is active?
+        $abnormalitiesTotal = $this->testTake->testParticipants->sum(fn($tp) => isset($tp->abnormalities) ? $tp->abnormalities : 0);
+        $abnormalitiesCount = $this->testTake->testParticipants->sum(fn($tp) => isset($tp->abnormalities));
+        $abnormalitiesAverage = ($abnormalitiesCount === 0) ? 0 : $abnormalitiesTotal / $abnormalitiesCount;
+
+//temp
+//        $abnormalitiesTotal = 10;
+//        $abnormalitiesCount = 5;
+//        $abnormalitiesAverage = ($abnormalitiesCount === 0) ? 0 : $abnormalitiesTotal / $abnormalitiesCount; //average = 2 abnormalities
+
+        $this->testTake->testParticipants->each(function ($testParticipant) use (&$abnormalitiesAverage) {
+            if (!$testParticipant->active) {
+                return;
+            }
+
+            $testParticipantAbnormalitiesAverageDeltaPercentage = null;
+
+            if ($testParticipant->answer_rated > 0 && $abnormalitiesAverage == 0 && $testParticipant->active) {
+                $testParticipantAbnormalitiesAverageDeltaPercentage = 100;
+            }
+
+            if ($abnormalitiesAverage != 0 && $testParticipant->active) {
+                $testParticipantAbnormalitiesAverageDeltaPercentage = (100 / $abnormalitiesAverage) * $testParticipant->abnormalities;
+            }
+
+            $this->testParticipantStatusses = $this->testParticipantStatusses->mergeRecursive([
+                $testParticipant->uuid => [
+                    'abnormalitiesStatus' => $this->getAbnormalitiesStatusForTestParticipant($testParticipantAbnormalitiesAverageDeltaPercentage)
+                ]
+            ]);
+
+        });
+    }
+
+    function getAbnormalitiesStatusForTestParticipant($averageDeltaPercentage): AbnormalitiesStatus
+    {
+        if ($averageDeltaPercentage === null) {
+            return AbnormalitiesStatus::Default;
         }
-        dd($averageOfAbnormalities);
 
+        if ($averageDeltaPercentage < 95) {
+            return AbnormalitiesStatus::Happy;
+        }
+        if ($averageDeltaPercentage < 115) {
+            return AbnormalitiesStatus::Neutral;
+        }
+        return AbnormalitiesStatus::Sad;
+    }
 
-        $this->testTake->testParticipants->each(function ($testParticipant) use (&$totalAbnormalities, &$countAbnormalities, &$averageOfAbnormalities) {
+    function getRatingStatusForTestParticipant($percentageRated): RatingStatus
+    {
+        if ($percentageRated === 100) {
+            return RatingStatus::Green;
+        }
+        if (
+            $percentageRated < 50 &&
+            $this->testParticipantsFinishedWithRatingPercentage > 50
+        ) {
+            return RatingStatus::Red;
+        }
+        if (
+            $percentageRated > 0 &&
+            $percentageRated < 100
+        ) {
+            return RatingStatus::Orange;
+        }
 
-            //todo determine smiley with the average.
-            
-
-        });
-
+        return RatingStatus::Grey;
     }
 }

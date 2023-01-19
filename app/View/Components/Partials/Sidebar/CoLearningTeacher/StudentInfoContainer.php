@@ -5,7 +5,7 @@ namespace tcCore\View\Components\Partials\Sidebar\CoLearningTeacher;
 use Illuminate\Support\Str;
 use Illuminate\View\Component;
 use tcCore\Http\Enums\CoLearning\AbnormalitiesStatus;
-use tcCore\Http\Enums\CoLearning\ScoringStatus;
+use tcCore\Http\Enums\CoLearning\RatingStatus;
 use tcCore\TestParticipant;
 
 class StudentInfoContainer extends Component
@@ -29,7 +29,6 @@ class StudentInfoContainer extends Component
             subject: sprintf('%s %s %s', $user->name_first, $user->name_suffix, $user->name)
         );
 
-        $this->handleTestParticipantStatusses();
     }
 
     /**
@@ -42,24 +41,4 @@ class StudentInfoContainer extends Component
         return view('components.partials.sidebar.co-learning-teacher.student-info-container');
     }
 
-    private function handleTestParticipantStatusses()
-    {
-
-        // color status
-
-        ScoringStatus::class;
-        ScoringStatus::Green;
-        ScoringStatus::Orange;
-        ScoringStatus::Red;
-        ScoringStatus::Grey;
-
-        // smiley status
-
-        AbnormalitiesStatus::class;
-        AbnormalitiesStatus::Happy;
-        AbnormalitiesStatus::Neutral;
-        AbnormalitiesStatus::Sad;
-        AbnormalitiesStatus::Default;
-
-    }
 }

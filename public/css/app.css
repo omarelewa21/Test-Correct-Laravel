@@ -5109,13 +5109,12 @@ input.datepicker {
     display: none !important;
 }
 
-#co-learning-teacher-page .drawer-width {
-    width: 300px;
+#co-learning-teacher-page {
+    --drawer-width: 300px;
 }
 
 #co-learning-teacher-page .drawer-footer {
     height: 70px;
-    width: 300px;
     padding-top: 15px;
     padding-bottom: 15px;
     padding: 15px 1.5rem; /*top, right, bottom, left or top+bottom, right+left*/
@@ -5125,13 +5124,17 @@ input.datepicker {
 #co-learning-teacher-page .drawer-content-head {
     margin-top: 10px;
     padding: 10px 1.5rem 0.5rem; /*top, left+right, bottom */
-    width: 300px;
+    /*width: var(--drawer-width);*/
+}
+
+#co-learning-teacher-page .drawer-content-head div {
+    white-space: nowrap;
 }
 
 #co-learning-teacher-page .drawer-content {
     max-height: calc(100vh - 190px);
     height: calc(100vh - 190px);
-    width: 300px;
+    /*width: var(--drawer-width);*/
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -5151,6 +5154,7 @@ input.datepicker {
     position: relative;
     width: 18px;
     height: 16px;
+    transition: 1s ease-out;
 }
 #co-learning-teacher-page #student-info-container .show-on-smartboard svg{
     position: absolute;
@@ -5177,6 +5181,15 @@ input.datepicker {
  * total = 190px
 */
 
+#co-learning-teacher-page #main-content-container {
+    top: 70px;
+    display: flex;
+    width: 100%;
+    min-height: calc(100vh - 70px);
+    position: relative;
+    margin-bottom: 70px;
+    overflow: auto;
+}
 
 @font-face {
     font-family: hl-icons;
@@ -8468,13 +8481,13 @@ video {
   margin-left: 0.625rem;
   margin-right: 0.625rem;
 }
-.mx-6{
-  margin-left: 1.5rem;
-  margin-right: 1.5rem;
-}
 .my-5{
   margin-top: 1.25rem;
   margin-bottom: 1.25rem;
+}
+.mx-6{
+  margin-left: 1.5rem;
+  margin-right: 1.5rem;
 }
 .mb-4{
   margin-bottom: 1rem;
@@ -9012,9 +9025,6 @@ video {
 }
 .w-2{
   width: 0.5rem;
-}
-.w-\[186px\]{
-  width: 186px;
 }
 .min-w-\[32px\]{
   min-width: 32px;
@@ -10503,10 +10513,6 @@ video {
   --tw-text-opacity: 1;
   color: rgb(37 99 235 / var(--tw-text-opacity));
 }
-.text-orange{
-  --tw-text-opacity: 1;
-  color: rgb(255 157 35 / var(--tw-text-opacity));
-}
 .\!text-note{
   --tw-text-opacity: 1 !important;
   color: rgb(107 119 137 / var(--tw-text-opacity)) !important;
@@ -10514,6 +10520,10 @@ video {
 .text-allred{
   --tw-text-opacity: 1;
   color: rgb(207 27 4 / var(--tw-text-opacity));
+}
+.text-orange{
+  --tw-text-opacity: 1;
+  color: rgb(255 157 35 / var(--tw-text-opacity));
 }
 .underline{
   -webkit-text-decoration-line: underline;

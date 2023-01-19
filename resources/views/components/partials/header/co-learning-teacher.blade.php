@@ -1,6 +1,6 @@
 <header id="header"
-        class="h-[var(--header-height)] fixed top-0 left-0 w-full content-center z-10 main-shadow
-        bg-gradient-to-r from-[var(--teacher-primary)] to-[var(--teacher-primary-light)] text-white
+        class="h-[var(--header-height)] fixed top-0 left-0 w-full content-center main-shadow
+        bg-gradient-to-r from-[var(--teacher-primary)] to-[var(--teacher-primary-light)] text-white z-50
         @if($hasActiveMaintenance) maintenance-header-bg @endif
         @if($isOnDeploymentTesting) deployment-testing-marker @endif"
 >

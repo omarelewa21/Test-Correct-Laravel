@@ -488,7 +488,7 @@ class TestTakesController extends Controller
                     }
                 }
 
-                if($returnTestTakeAsArray) {
+                if ($returnTestTakeAsArray) {
                     $testTake = $testTake->toArray();
                     $testTake['school_classes'] = array_values($schoolClasses);
                     return $testTake;
@@ -609,7 +609,8 @@ class TestTakesController extends Controller
      * @param TestTake $testTake
      * @return TestTake|[]
      */
-    public function showFromWithin(TestTake $testTake, Request $request) {
+    public function showFromWithin(TestTake $testTake, Request $request)
+    {
         //17-1-23: 'returnTestTakeAsArray only implemented for: testTake discussing && 'with' => 'participantStatus'
         return $this->showGeneric($testTake, $request, false);
     }
@@ -620,20 +621,20 @@ class TestTakesController extends Controller
      * @param TestTake $testTake
      * @return Response
      */
-    public function show(TestTake $testTake, Request $request) {
-
+    public function show(TestTake $testTake, Request $request)
+    {
         $testTakeResponse = $this->showGeneric($testTake, $request);
 
-        if($testTakeResponse === []) {
+        if ($testTakeResponse === []) {
             return Response::make(
                 content: [],
-                status:403,
+                status: 403,
             );
         }
 
         return Response::make(
             content: $testTakeResponse,
-            status:200,
+            status: 200,
         );
     }
 
@@ -789,7 +790,7 @@ class TestTakesController extends Controller
     {
         $allowNewCoLearning = auth()->user()->schoolLocation->allow_new_co_learning;
 
-        if($allowNewCoLearning && $discussionType === 'OPEN_ONLY') {
+        if ($allowNewCoLearning && $discussionType === 'OPEN_ONLY') {
             return false;
         }
 
@@ -800,19 +801,15 @@ class TestTakesController extends Controller
     {
         $normalize = new Normalize($testTake, $request);
 
-        if($request->filled('ppp')) {
+        if ($request->filled('ppp')) {
             $normalize->normBasedOnGoodPerPoint();
-        }
-        elseif($request->filled('epp')) {
+        } elseif ($request->filled('epp')) {
             $normalize->normBasedOnErrorsPerPoint();
-        }
-        elseif($request->filled('wanted_average')) {
+        } elseif ($request->filled('wanted_average')) {
             $normalize->normBasedOnAverageMark();
-        }
-        elseif($request->filled('n_term') && $request->filled('pass_mark')) {
+        } elseif ($request->filled('n_term') && $request->filled('pass_mark')) {
             $normalize->normBasedOnNTermAndPassMark();
-        }
-        elseif($request->filled('n_term')) {
+        } elseif ($request->filled('n_term')) {
             $normalize->normBasedOnNTerm();
         }
 
@@ -1191,7 +1188,7 @@ class TestTakesController extends Controller
 
     public function updateStatusToDiscussed(TestTake $testTake)
     {
-        return  $testTake->updateToDiscussed(Auth::user());
+        return $testTake->updateToDiscussed(Auth::user());
     }
 
     public function withTemporaryLogin(TestTake $testTake)

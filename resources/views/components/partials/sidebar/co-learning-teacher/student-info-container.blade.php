@@ -7,26 +7,39 @@
     {{-- left --}}
     <div class="flex items-center h-full space-x-1">
         <span class="min-w-[1rem] w-4 flex items-center justify-center">
-            @if($i === 0)
-                <x-icon.time-dispensation class="text-orange"/>
-            @elseif($i === 1)
-                <x-icon.warning class="text-red-500"/>
-            @else
-                <x-icon.checkmark-small class="text-cta"/>
-            @endif
+            @switch($this->testParticipantStatusses[$testParticipant->uuid]['ratingStatus'])
+                @case(\tcCore\Http\Enums\CoLearning\RatingStatus::Green)
+                    <x-icon.checkmark-small class="text-cta"/>
+                    @break
+                @case(\tcCore\Http\Enums\CoLearning\RatingStatus::Orange)
+                    <x-icon.time-dispensation class="text-orange"/>
+                    @break
+                @case(\tcCore\Http\Enums\CoLearning\RatingStatus::Red)
+                    <x-icon.warning class="text-allred"/>
+                    @break
+                @default
+                    <x-icon.time-dispensation class="text-midgrey"/>
+                    @break
+            @endswitch
+
         </span>
         <span class="min-w-[1rem] w-4 flex items-center justify-center">
-            @if($i === 0)
-                <x-icon.smiley-normal class="text-midgrey"/>
-            @elseif($i === 1)
-                <x-icon.smiley-normal class="text-orange"/>
-            @elseif($i === 2)
-                <x-icon.smiley-sad class="text-red-500"/>
-            @elseif($i === 3)
-                <x-icon.smiley-default class="text-midgrey"/>
-            @else
-                <x-icon.smiley-happy class="text-cta"/>
-            @endif
+
+            @switch($this->testParticipantStatusses[$testParticipant->uuid]['abnormalitiesStatus'])
+                @case(\tcCore\Http\Enums\CoLearning\AbnormalitiesStatus::Happy)
+                    <x-icon.smiley-happy />
+                    @break
+                @case(\tcCore\Http\Enums\CoLearning\AbnormalitiesStatus::Neutral)
+                    <x-icon.smiley-normal />
+                    @break
+                @case(\tcCore\Http\Enums\CoLearning\AbnormalitiesStatus::Sad)
+                    <x-icon.smiley-sad />
+                    @break
+                @default
+                    <x-icon.smiley-default class="text-midgrey"/>
+                    @break
+            @endswitch
+
         </span>
         <span class="student-name">{{$userFullName}}</span>
     </div>

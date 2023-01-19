@@ -2,7 +2,7 @@
 
 namespace tcCore\Http\Enums\CoLearning;
 
-enum ScoringStatus: string
+enum RatingStatus: string
 {
     case Green  = 'green';
     case Orange = 'orange';
