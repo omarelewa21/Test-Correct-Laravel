@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Livewire\Component;
+use Ramsey\Uuid\Uuid;
 use tcCore\AppVersionInfo;
 use tcCore\FailedLogin;
 use tcCore\Http\Helpers\AppVersionDetector;
@@ -91,9 +92,9 @@ class Login extends Component
     public $connectEntreeButtonDisabled = true;
 
     private $xssPropsToClean = [
-         'firstName',
-         'suffix',
-         'lastName',
+        'firstName',
+        'suffix',
+        'lastName',
     ];
 
     public $showAuthModal = false;
@@ -125,13 +126,7 @@ class Login extends Component
 
     public function mount()
     {
-        if(request()->has('directlink')){
-            $take = TestTake::whereUuid(request()->get('directlink'))->with('testTakeCode')->first();
-            if($take->testTakeCode){
-                $this->testTakeCode = str_split($take->testTakeCode->code);
-            }
-            $this->take = $take->uuid;
-        }
+        $this->handleDirectLinkOnEnter();
 
         Auth::logout();
 
@@ -175,8 +170,8 @@ class Login extends Component
 
         AppVersionDetector::handleHeaderCheck();
         $this->doLoginProcedure();
-        
-        if($this->checkIfShouldRedirectToTestTake()){
+
+        if ($this->checkIfShouldRedirectToTestTake()) {
             return;
         };
 
@@ -208,7 +203,7 @@ class Login extends Component
             return $this->addError('no_test_found_with_code', __('auth.no_test_found_with_code'));
         }
 
-        if (!$testTakeCode->testTake->guest_accounts){
+        if (!$testTakeCode->testTake->guest_accounts) {
             return $this->addError('guest_account_not_allowed', __('auth.guest_account_not_allowed'));
         }
 
@@ -275,7 +270,8 @@ class Login extends Component
 
     }
 
-    private function cleanXss($name, $value) {
+    private function cleanXss($name, $value)
+    {
         if (in_array($name, $this->xssPropsToClean)) {
             return clean($value);
         }
@@ -506,10 +502,7 @@ class Login extends Component
         $this->resetErrorBag();
     }
 
-    public function returnToLogin()
-    {
-
-    }
+    public function returnToLogin() {}
 
     private function getSchoolLocationAccptedEmailDomainRule()
     {
@@ -606,12 +599,12 @@ class Login extends Component
 
     public function dispatchGuestSuccessNotification()
     {
-        if($this->showGuestSuccess){
+        if ($this->showGuestSuccess) {
             $this->dispatchBrowserEvent('notify',
                 [
-                    'type' => 'guest_success',
-                    'title' => __('auth.'.$this->guest_message),
-                    'message' => __('auth.'.$this->guest_message.'_sub'),
+                    'type'    => 'guest_success',
+                    'title'   => __('auth.' . $this->guest_message),
+                    'message' => __('auth.' . $this->guest_message . '_sub'),
                 ]
             );
         }
@@ -623,8 +616,8 @@ class Login extends Component
 
         $this->dispatchBrowserEvent('notify',
             [
-                'type' => 'guest_success',
-                'title' => __('passwords.reset_title'),
+                'type'    => 'guest_success',
+                'title'   => __('passwords.reset_title'),
                 'message' => __('passwords.reset'),
             ]
         );
@@ -632,18 +625,34 @@ class Login extends Component
 
     private function checkIfShouldRedirectToTestTake()
     {
-        if($this->take){
+        if ($this->take) {
             return redirect()->route('take.directLink', ['testTakeUuid' => $this->take]);
         }
 
-        if($this->isTestTakeCodeCorrectFormat()){
+        if ($this->isTestTakeCodeCorrectFormat()) {
             $code = implode('', $this->testTakeCode);
             $testTakeCode = TestTakeCode::where('code', $code)->with('testTake')->first();
-            if(is_null($testTakeCode)){
+            if (is_null($testTakeCode)) {
                 return false;
             }
             return redirect()->route('take.directLink', ['testTakeUuid' => $testTakeCode->testTake->uuid]);
         }
         return false;
+    }
+
+    private function handleDirectLinkOnEnter(): void
+    {
+        $directLink = request()->get('directlink');
+        if (!$directLink || !Uuid::isValid($directLink)) return;
+
+        $take = TestTake::whereUuid($directLink)->with('testTakeCode')->first();
+
+        if (!$take) return;
+
+        if ($take->testTakeCode) {
+            $this->testTakeCode = str_split($take->testTakeCode->code);
+        }
+
+        $this->take = $take->uuid;
     }
 }
