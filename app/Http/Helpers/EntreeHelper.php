@@ -494,6 +494,10 @@ class EntreeHelper
         if ($user->isTestCorrectUser()) {
             return false;
         }
+
+        if($user->isValidExamCoordinator()){
+            return false;
+        }
         return (optional($user->schoolLocation)->lvs_active && empty($user->eck_id));
     }
 
