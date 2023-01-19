@@ -777,8 +777,10 @@
     <x-login-notification />
 </div>
 
-<script>
-    window.onload = () => {
-        document.getElementById('logo').href = Core.inApp ? '#' : 'https://test-correct.nl'
-    }
-</script>
+@push('scripts')
+    <script>
+        window.onload = () => {
+            document.getElementById('logo').href = Core.inApp ? '#' : 'https://test-correct.nl'
+        }
+    </script>
+@endpush
