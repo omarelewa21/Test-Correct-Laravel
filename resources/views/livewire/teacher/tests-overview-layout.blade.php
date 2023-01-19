@@ -17,7 +17,9 @@
     </x-menu.tab.item>
 </x-menu.tab.container>
 
-<div class="flex w-full max-w-screen-2xl mx-auto  px-8" @hasSection('cms-js-properties') @yield('cms-js-properties') @endif>
+<div class="flex w-full max-w-screen-2xl mx-auto  px-8" @hasSection('cms-js-properties')
+    @yield('cms-js-properties')
+        @endif>
     <div class="w-full divide-y divide-secondary">
         {{-- Filters--}}
         <div class="flex flex-col py-4">
@@ -74,37 +76,30 @@
                         filterContainer="testbank-{{ $this->openTab }}-active-filters"
                 />
                 @if ($this->canFilterOnAuthors())
-                    <x-input.choices-select
-                            wire:key="authors_{{ $this->openTab }}"
-                            :multiple="true"
-                            :options="$this->authors"
-                            :withSearch="true"
-                            placeholderText="{{ __('general.Auteurs') }}"
-                            wire:model="filters.author_id"
-                            filterContainer="testbank-{{ $this->openTab }}-active-filters"
-                    />
+                    @if($this->openTab === 'umbrella')
+                        <x-input.choices-select
+                                wire:key="shared_authors_{{ $this->openTab }}"
+                                :multiple="true"
+                                :options="$this->sharedSectionsAuthors"
+                                :withSearch="true"
+                                placeholderText="{{ __('general.Auteurs') }}"
+                                wire:model="filters.shared_sections_author_id"
+                                filterContainer="testbank-{{ $this->openTab }}-active-filters"
+                        />
+                    @else
+                        <x-input.choices-select
+                                wire:key="authors_{{ $this->openTab }}"
+                                :multiple="true"
+                                :options="$this->authors"
+                                :withSearch="true"
+                                placeholderText="{{ __('general.Auteurs') }}"
+                                wire:model="filters.author_id"
+                                filterContainer="testbank-{{ $this->openTab }}-active-filters"
+                        />
+                    @endif
                 @endif
 
-                @if($this->hasActiveFilters())
-                    <x-button.text-button class="ml-auto text-base"
-                                          size="sm"
-                                          @click="$dispatch('enable-loading-grid');document.getElementById('testbank-{{ $this->openTab }}-active-filters').innerHTML = '';"
-                                          wire:click="clearFilters('{{ $this->openTab }}')"
-                                          wire:key="clearfilters-{{ $this->openTab }}"
-                    >
-                        <span class="min-w-max">{{ __('teacher.Filters wissen') }}</span>
-                        <x-icon.close-small/>
-                    </x-button.text-button>
-                @else
-                    <x-button.text-button class="ml-auto text-base disabled"
-                                          size="sm"
-                                          disabled
-                                          wire:key="clearfilters-disabled-{{ $this->openTab }}"
-                    >
-                        <span class="min-w-max">{{ __('teacher.Filters wissen') }}</span>
-                        <x-icon.close-small/>
-                    </x-button.text-button>
-                @endif
+                @yield('clear-filters-button')
             </div>
             <div id="testbank-{{ $this->openTab }}-active-filters"
                  wire:ignore

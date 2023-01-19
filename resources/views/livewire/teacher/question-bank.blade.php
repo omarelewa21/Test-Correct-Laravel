@@ -156,25 +156,15 @@
                             @endif
                         </div>
 
-
-                        @if($this->hasActiveFilters())
-                            <x-button.text-button class="ml-auto text-base"
-                                                  size="sm"
-                                                  @click="$dispatch('enable-loading-grid');document.getElementById('questionbank-{{ $this->openTab }}-active-filters').innerHTML = '';"
-                                                  wire:click="clearFilters('{{ $this->openTab }}')"
-                            >
-                                <span class="min-w-max">{{ __('teacher.Filters wissen') }}</span>
-                                <x-icon.close-small/>
-                            </x-button.text-button>
-                        @else
-                            <x-button.text-button class="ml-auto text-base disabled"
-                                                  size="sm"
-                                                  disabled
-                            >
-                                <span class="min-w-max">{{ __('teacher.Filters wissen') }}</span>
-                                <x-icon.close-small/>
-                            </x-button.text-button>
-                        @endif
+                        <x-button.text-button class="ml-auto text-base"
+                                              size="sm"
+                                              wire:click="clearFilters()"
+                                              x-on:click="$dispatch('enable-loading-grid');clearFilterPillsFromElement($refs.questionbank);"
+                                              :disabled="!$this->hasActiveFilters()"
+                        >
+                            <span class="min-w-max">{{ __('teacher.Filters wissen') }}</span>
+                            <x-icon.close-small/>
+                        </x-button.text-button>
                     </div>
 
                     <div id="questionbank-{{ $this->openTab }}-active-filters"

@@ -18,6 +18,12 @@ abstract class UserSettingModel extends Model
 
     abstract protected static function sessionKey(User $user): string;
 
+    /**
+     * @param User $user
+     * @param bool $sessionOnly Do not go to the database to retrieve a value;
+     * @param bool $sessionStore When there's no session value present, write the database retrieved data into the session;
+     * @return array
+     */
     static public function getAll(User $user,
                                   bool $sessionOnly = false,
                                   bool $sessionStore = false
@@ -26,11 +32,13 @@ abstract class UserSettingModel extends Model
         return static::retrieveSettings($user, $sessionOnly, $sessionStore);
     }
 
-    static public function getSettingFromSession(User $user, string $title): mixed
-    {
-        return static::getSetting($user, $title, true);
-    }
-
+    /**
+     * @param User $user
+     * @param string $title
+     * @param bool $sessionOnly Do not go to the database to retrieve a value;
+     * @param bool $sessionStore When there's no session value present, write the database retrieved data into the session;
+     * @return mixed
+     */
     static public function getSetting(User   $user,
                                       string $title,
                                       bool   $sessionOnly = false,
@@ -38,6 +46,11 @@ abstract class UserSettingModel extends Model
     ): mixed
     {
         return static::retrieveSetting($user, $title, $sessionOnly, $sessionStore);
+    }
+
+    static public function getSettingFromSession(User $user, string $title): mixed
+    {
+        return static::getSetting($user, $title, true);
     }
 
     static public function hasSetting(User $user, string $title): bool
@@ -162,7 +175,7 @@ abstract class UserSettingModel extends Model
     {
         return static::whereUserId($user->getKey())
             ->get()
-            ->mapWithKeys(fn($setting) => [$setting->title => static::validValue($setting->value)])
+            ->mapWithKeys(fn($setting) => [$setting->title => static::parsedValue($setting->value)])
             ->toArray() ?? [];
     }
 
@@ -178,10 +191,10 @@ abstract class UserSettingModel extends Model
             ->whereTitle($title)
             ->value('value');
 
-        return static::validValue($value);
+        return static::parsedValue($value);
     }
 
-    static private function validValue($value): mixed
+    static private function parsedValue($value): mixed
     {
         return static::isJson($value) ? json_decode($value, true) : $value;
     }

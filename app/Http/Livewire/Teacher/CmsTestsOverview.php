@@ -4,7 +4,6 @@ namespace tcCore\Http\Livewire\Teacher;
 
 use tcCore\Http\Traits\WithAddExistingQuestionFilterSync;
 use tcCore\Test;
-use tcCore\UserSystemSetting;
 
 class CmsTestsOverview extends TestsOverview
 {
@@ -63,7 +62,11 @@ class CmsTestsOverview extends TestsOverview
             'base_subject_id'      => $test->subject()->pluck('base_subject_id'),
             'subject_id'           => [$test->subject_id],
         ];
-
     }
 
+    public function clearFilters(): void
+    {
+        parent::clearFilters();
+        $this->notifySharedFilterComponents();
+    }
 }

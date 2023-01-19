@@ -52,7 +52,7 @@ class QuestionBank extends Component
         'base_subject_id'      => []
     ];
 
-    protected function getListeners()
+    protected function getListeners(): array
     {
         return [
             'testSettingsUpdated',
@@ -78,7 +78,7 @@ class QuestionBank extends Component
         return view('livewire.teacher.question-bank');
     }
 
-    private function getFilters()
+    private function getFilters(): array
     {
         $needsIdSearch = (isset($this->filters['search']) && is_numeric($this->filters['search']));
         $filters = collect($this->filters)->diffKeys(array_flip($this->getNotAllowedFilterProperties()));
@@ -261,8 +261,13 @@ class QuestionBank extends Component
         return (new TestQuestionsController)->store(new CreateTestQuestionRequest($requestParams));
     }
 
-    private function setFilters()
+    private function setFilters(array $filters = null)
     {
+        if ($filters) {
+            $this->filters = $filters;
+            return;
+        }
+
         $storedFilters = UserSystemSetting::getSetting(
             user: auth()->user(),
             title: $this->getFilterSessionKey(),
@@ -286,10 +291,11 @@ class QuestionBank extends Component
         ]);
     }
 
-    public function clearFilters($tab = null)
+    public function clearFilters()
     {
         $this->filters = $this->filterableAttributes;
         UserSystemSetting::setSetting(auth()->user(), $this->getFilterSessionKey(), $this->filters);
+        $this->notifySharedFilterComponents();
     }
 
     public function openDetail($questionUuid, $inTest)
@@ -310,7 +316,7 @@ class QuestionBank extends Component
         $this->groupQuestionDetail = GroupQuestion::whereId($groupQuestionId)
             ->with(['groupQuestionQuestions', 'groupQuestionQuestions.question'])
             ->first();
-//        $this->groupQuestionDetail->loadRelated();
+
         $this->groupQuestionDetail->inTest = $inTest;
 
         return true;
@@ -372,13 +378,11 @@ class QuestionBank extends Component
     }
 
     /**
-     * @param string $source
      * @return array|string[]
      */
     private function getNotAllowedFilterProperties(): array
     {
         $source = $this->getSourceForFilterNotAllowed($this->openTab);
-
         $notAllowed = [
             'personal'        => ['base_subject_id', 'author_id'],
             'school_location' => ['base_subject_id'],

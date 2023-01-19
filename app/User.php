@@ -1284,6 +1284,16 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return $this->hasOne(TrialPeriod::class, 'user_id')->where('school_location_id', $this->school_location_id);
     }
 
+    public function systemSettings()
+    {
+        $this->hasMany(UserSystemSetting::class);
+    }
+
+    public function userFeatureSettings()
+    {
+        return $this->hasMany(UserFeatureSetting::class);
+    }
+
     public function getOnboardingWizardSteps()
     {
         $state = $this->onboardingWizardUserState;

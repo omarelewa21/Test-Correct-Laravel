@@ -35,12 +35,13 @@ class TestsOverview extends OverviewComponent
     public $selected = [];
     public $mode;
     protected array $filterableAttributes = [
-        'name'                 => '',
-        'education_level_year' => [],
-        'education_level_id'   => [],
-        'subject_id'           => [],
-        'author_id'            => [],
-        'base_subject_id'      => []
+        'name'                      => '',
+        'education_level_year'      => [],
+        'education_level_id'        => [],
+        'subject_id'                => [],
+        'author_id'                 => [],
+        'shared_sections_author_id' => [],
+        'base_subject_id'           => []
     ];
 
     protected $listeners = [
@@ -140,7 +141,7 @@ class TestsOverview extends OverviewComponent
     private function getUmbrellaDatasource()
     {
         return Test::sharedSectionsFiltered(
-            $this->cleanFilterForSearch($this->filters, 'external'),
+            $this->getUmbrellaDatasourceFilters(),
             $this->sorting
         );
     }
@@ -208,22 +209,29 @@ class TestsOverview extends OverviewComponent
         })->toArray();
     }
 
-    public function getAuthorsProperty()
+    public function getSharedSectionsAuthorsProperty()
     {
-        return TestAuthor::when($this->openTab === 'umbrella', function ($query) {
-            return $query->schoolLocationAndSharedSectionsAuthorUsers(Auth::user());
-        }, function ($query) {
-            return $query->schoolLocationAuthorUsers(Auth::user());
-        })
+        return TestAuthor::schoolLocationAndSharedSectionsAuthorUsers(Auth::user())
             ->get()
-            ->when($this->openTab === 'umbrella', function ($users) {
-                return $users->reject(function ($user) {
-                    return ($user->school_location_id === Auth::user()->school_location_id && $user->getKey() !== Auth::id());
-                });
+            ->reject(function ($user) {
+                return ($user->school_location_id === Auth::user()->school_location_id && $user->getKey() !== Auth::id());
             })
             ->map(function ($author) {
                 return ['value' => $author->id, 'label' => trim($author->name_first . ' ' . $author->name)];
-            })->values()->toArray();
+            })
+            ->values()
+            ->toArray();
+    }
+
+    public function getAuthorsProperty()
+    {
+        return TestAuthor::schoolLocationAuthorUsers(Auth::user())
+            ->get()
+            ->map(function ($author) {
+                return ['value' => $author->id, 'label' => trim($author->name_first . ' ' . $author->name)];
+            })
+            ->values()
+            ->toArray();
     }
 
     private function cleanFilterForSearch(array $filters, string $source): array
@@ -352,11 +360,24 @@ class TestsOverview extends OverviewComponent
     private function getNotAllowedFilterProperties(string $source): array
     {
         $notAllowed = [
-            'personal'        => ['base_subject_id', 'author_id'],
-            'school_location' => ['base_subject_id'],
-            'external'        => ['subject_id', 'author_id'],
+            'personal'        => ['base_subject_id', 'author_id', 'shared_sections_author_id'],
+            'school_location' => ['base_subject_id', 'shared_sections_author_id'],
+            'umbrella'        => ['subject_id', 'author_id'],
+            'external'        => ['subject_id', 'author_id', 'shared_sections_author_id'],
         ];
 
         return $notAllowed[$source];
+    }
+
+    /**
+     * @return array
+     */
+    private function getUmbrellaDatasourceFilters(): array
+    {
+        $filters = $this->cleanFilterForSearch($this->filters, 'umbrella');
+        if (!empty($filters['shared_sections_author_id'])) {
+            $filters['author_id'] = $filters['shared_sections_author_id'];
+        }
+        return $filters;
     }
 }

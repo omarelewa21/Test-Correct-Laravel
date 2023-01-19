@@ -20,7 +20,7 @@ abstract class OverviewComponent extends Component
 
     public function mount()
     {
-        $this->restoreFiltersFromSession();
+        $this->initialiseWithStoredData();
     }
 
     public function updatingFilters($value, $filter)
@@ -84,14 +84,47 @@ abstract class OverviewComponent extends Component
         }
     }
 
-    private function restoreFiltersFromSession()
+    private function initialiseWithStoredData()
+    {
+        $this->initialiseStoredFilters();
+
+        $this->initialiseStoredPage();
+    }
+
+    /**
+     * @param mixed $sessionFilters
+     * @return array
+     */
+    private function mergeStoredFiltersWithAllAvailable(mixed $sessionFilters): array
+    {
+        return array_merge($this->filterableAttributes, $sessionFilters);
+    }
+
+    /**
+     * @return void
+     */
+    private function initialiseStoredFilters(): void
     {
         $sessionFilters = UserSystemSetting::getSetting(
             user: auth()->user(),
             title: $this->getFilterSessionKey(),
             sessionStore: true
         );
+
+        if ($sessionFilters) {
+            $sessionFilters = $this->mergeStoredFiltersWithAllAvailable($sessionFilters);
+        }
+
         $this->setFilters($sessionFilters);
+    }
+
+    /**
+     * @return void
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
+     */
+    private function initialiseStoredPage(): void
+    {
         if ($page = session()->get($this->getSessionKey() . '-page', null)) {
             $this->setPage($page);
         }

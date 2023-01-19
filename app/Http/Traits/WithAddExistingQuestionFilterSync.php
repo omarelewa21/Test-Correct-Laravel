@@ -18,9 +18,10 @@ trait WithAddExistingQuestionFilterSync
     public function updatedWithAddExistingQuestionFilterSync($name, $value)
     {
         if (Str::startsWith($name, 'filters.')) {
-            $this->emit('shared-filter-updated');
+            $this->notifySharedFilterComponents();
         }
     }
+
     public function loadSharedFilters(): void
     {
         $newFilters = UserSystemSetting::getSetting(
@@ -29,5 +30,10 @@ trait WithAddExistingQuestionFilterSync
         );
 
         $this->setFilters($newFilters);
+    }
+
+    protected function notifySharedFilterComponents(): void
+    {
+        $this->emit('shared-filter-updated', ['except' => $this::class]);
     }
 }
