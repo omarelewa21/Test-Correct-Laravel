@@ -9,6 +9,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use tcCore\Http\Helpers\ImportHelper;
+use tcCore\Http\Helpers\UwlrImportHelper;
 use tcCore\SchoolLocation;
 use tcCore\UmbrellaOrganization;
 use tcCore\User;
@@ -67,15 +68,40 @@ class ProcessUwlrSoapResultJob extends Job implements ShouldQueue
 
         $resultSet->status = 'PROCESSING';
         $resultSet->save();
-        $helper = ImportHelper::initWithUwlrSoapResult(
-            $resultSet,
-            'sobit.nl'
-        );
 
-        $result = $helper->process();
-        $resultSet->status = 'DONE';
-        $resultSet->addToLog('jobFinished',Carbon::now());
-        $resultSet->save();
+        SchoolLocation::where('external_main_code',$resultSet->brin_code)
+            ->where('external_sub_code',$resultSet->dependance_code)
+            ->update(['auto_uwlr_import_status' => UwlrImportHelper::AUTO_UWLR_IMPORT_STATUS_PROCESSING]);
+
+        try {
+            $helper = ImportHelper::initWithUwlrSoapResult(
+                $resultSet,
+                'sobit.nl'
+            );
+
+            $result = $helper->process();
+            $resultSet->status = 'DONE';
+            $resultSet->addToLog('jobFinished', Carbon::now());
+            $resultSet->save();
+            SchoolLocation::where('external_main_code',$resultSet->brin_code)
+                ->where('external_sub_code',$resultSet->dependance_code)
+                ->update([
+                    'auto_uwlr_import_status' => UwlrImportHelper::AUTO_UWLR_IMPORT_STATUS_DONE,
+                    'auto_uwlr_last_import' => Carbon::now(),
+                ]);
+
+        }
+        catch (\Throwable $e){
+            SchoolLocation::where('external_main_code',$resultSet->brin_code)
+                ->where('external_sub_code',$resultSet->dependance_code)
+                ->update(['auto_uwlr_import_status' => UwlrImportHelper::AUTO_UWLR_IMPORT_STATUS_FAILED]);
+            throw $e;
+
+        }
+
+        if($this->autoNext){
+            UwlrImportHelper::handleIfMoreSchoolLocationsCanBeImported();
+        }
 
     }
 }

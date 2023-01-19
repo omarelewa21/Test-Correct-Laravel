@@ -3,6 +3,7 @@
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use tcCore\Http\Helpers\BaseHelper;
+use tcCore\Http\Helpers\UwlrImportHelper;
 use tcCore\Jobs\AnonymizeUsersAfterTooLongNoLoginJob;
 
 class Kernel extends ConsoleKernel
@@ -35,6 +36,9 @@ class Kernel extends ConsoleKernel
         $schedule->command('telescope:prune')->daily();
         $schedule->command('onboarding_wizard_report:update')
             ->dailyAt('06:00');
+        $schedule->call(function(){
+            UwlrImportHelper::handleIfMoreSchoolLocationsCanBeImported();
+        })->hourlyAt(3);
 
 
         /**

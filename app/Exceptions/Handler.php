@@ -1,5 +1,6 @@
 <?php namespace tcCore\Exceptions;
 
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
@@ -61,16 +62,27 @@ class Handler extends ExceptionHandler
         } else if ($this->isHttpException($e)) {
             return $this->renderHttpException($e);
         } else if ($e instanceof QuestionException || $e instanceof SchoolAndSchoolLocationsImportException) {
-            dispatch(
-                new SendExceptionMail($e->getMessage(), $e->getFile(), $e->getLine(), $e->getDetails())
-            );
+            $this->sendExceptionMail($e->getMessage(), $e->getFile(), $e->getLine(), $e->getDetails());
 
             throw new HttpResponseException(new Response($e), 422);
+        } else if($e instanceof UwlrAutoImportException){
+            $e->sendExceptionMail($e->getMessage(), $e->getFile(),$e->getLine(),[],'TLC: Error while handling uwlr import');
+            return false;
         } else if($e instanceof CleanRedirectException){
             return response()
                 ->view('clean-redirect', ['url' => $e->url], 301);
         } else {
             return parent::render($request, $e);
+        }
+    }
+
+    protected function sendExceptionMail($message,$file,$line,$details = [], $subject = null){
+        try {
+            dispatch(
+                new SendExceptionMail($message, $file, $line, $details, $subject)
+            );
+        } catch (\Throwable $th) {
+            Bugsnag::notifyException($th);
         }
     }
 
