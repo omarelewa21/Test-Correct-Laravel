@@ -63,7 +63,7 @@ class TestDetail extends Component
 
     public function redirectToTestOverview()
     {
-        redirect($this->previousURL);
+        redirect()->to(route('teacher.tests'));
     }
 
     public function showGroupDetails($groupUuid)
