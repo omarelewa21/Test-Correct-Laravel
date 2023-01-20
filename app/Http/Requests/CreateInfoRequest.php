@@ -26,6 +26,7 @@ class CreateInfoRequest extends Request
             'content_nl' => 'required',
             'content_en' => 'required',
             'status' => 'required|in:'.Info::ACTIVE.','.Info::INACTIVE,
+            'type' => 'required|in:'.Info::BASE_TYPE.','.Info::FEATURE_TYPE,
             'show_from' => 'required',
             'show_until'=> 'required',
             'for_all' => '',

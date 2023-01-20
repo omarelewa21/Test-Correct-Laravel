@@ -17,6 +17,7 @@ use tcCore\Http\Requests\ShowInfoRequest;
 use tcCore\Http\Requests\UpdateDeploymentRequest;
 use tcCore\Http\Requests\UpdateInfoRequest;
 use tcCore\Info;
+use tcCore\Scopes\InfoBaseType;
 use tcCore\UserInfosDontShow;
 use DOMDocument;
 use Illuminate\Support\Facades\Http;
@@ -36,6 +37,9 @@ class InfoController extends Controller
                 break;
             case 'dashboard':
                 $data = Info::getInfoForUser(Auth::user(), true);
+                break;
+            case 'feature':
+                $data = Info::getInfoForFeature();
                 break;
             default:
                 $data = Info::getInfoForUser(Auth::user());

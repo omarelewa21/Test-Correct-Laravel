@@ -11,12 +11,16 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use tcCore\Lib\User\Roles;
+use tcCore\Scopes\InfoBaseType;
 use tcCore\Traits\UuidTrait;
 
 class Info extends Model
 {
     use SoftDeletes;
     use UuidTrait;
+
+    public const BASE_TYPE = 'BASE';
+    public const FEATURE_TYPE = 'NEW_FEATURE';
 
     public const ACTIVE = 'ACTIVE';
     public const INACTIVE = 'INACTIVE';
@@ -37,6 +41,7 @@ class Info extends Model
         'show_until',
         'status',
         'for_all',
+        'type',
     ];
 
     protected $appends = ['title','content'];
@@ -65,7 +70,6 @@ class Info extends Model
     public static function boot()
     {
         parent::boot();
-
         static::creating(function(Info $info){
             $info->created_by = Auth::id();
         });
@@ -100,6 +104,9 @@ class Info extends Model
         if($discardInfosRemovedByUser){
             $infos = Info::doesntHave('infoRemovedByUser');
         }
+        $infos->addGlobalScope(new InfoBaseType());
+
+
         return $infos->where('status',self::ACTIVE)
                     ->where('show_from','<=', Carbon::now())
                     ->where('show_until','>=',Carbon::now())
@@ -107,6 +114,17 @@ class Info extends Model
                        $query->where('for_all',true)
                            ->orWhereIn('id',$infoIdsFromRoles);
                     })
+                    ->orderBy('show_from','asc')
+                    ->get();
+    }
+
+    public static function getInfoForFeature()
+    {
+        $infos = new Info();
+        return  $infos->where('type','=',self::FEATURE_TYPE)
+                    ->where('status',self::ACTIVE)
+                    ->where('show_from','<=', Carbon::now())
+                    ->where('show_until','>=',Carbon::now())
                     ->orderBy('show_from','asc')
                     ->get();
     }
