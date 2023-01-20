@@ -512,6 +512,6 @@ ORDER BY t2.displayorder,
 
     public static function getTestItemsCreatedAmount(User $user)
     {
-        return Question::whereIn('id', $user->questionAuthors()->pluck('question_id'))->where('type', '<>', 'GroupQuestion')->count();
+        return Question::whereIn('id', $user->questionAuthors()->select('question_id'))->where('type', '<>', 'GroupQuestion')->count();
     }
 }
