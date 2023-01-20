@@ -9,7 +9,6 @@
 
     <div id="main-content-container"
          class="flex border border-2 relative w-full justify-between overflow-auto "
-         style="height: 2000px; overflow:auto; top: 70px; margin-bottom: 70px"
     >
         <div class="flex flex-col justify-between">
             <span>            Hello world</span>

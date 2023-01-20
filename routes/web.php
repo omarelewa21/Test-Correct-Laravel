@@ -99,6 +99,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/file-management/testuploads', \tcCore\Http\Livewire\FileManagement\ToetsenbakkerUploadsOverview::class)->name('file-management.testuploads');
 
         Route::get('/co-learning/{test_take}', \tcCore\Http\Livewire\Teacher\CoLearning::class)->name('co-learning');
+        Route::get('/co-learning-start/{test_take}', \tcCore\Http\Livewire\Teacher\CoLearningStartScreen::class)->name('co-learning-start-screen');
 
     });
 

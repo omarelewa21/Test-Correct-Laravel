@@ -9,20 +9,22 @@ class CakeRedirectHelper
 {
     protected function __construct(
         protected string  $searchValue,
-        protected ?string $uuid = null)
+        protected ?string $uuid = null,
+        protected ?string $returnRoute = null,
+    )
     {
     }
 
-    public static function redirectToCake(string $routeName = 'dashboard', ?string $uuid = null)
+    public static function redirectToCake(string $routeName = 'dashboard', ?string $uuid = null, ?string $returnRoute = null)
     {
-        $helper = new self($routeName, $uuid);
+        $helper = new self($routeName, $uuid, $returnRoute);
 
         return redirect($helper->createCakeUrl());
     }
 
-    public static function getCakeUrl(string $routeName, ?string $uuid = null): string
+    public static function getCakeUrl(string $routeName, ?string $uuid = null, ?string $returnRoute = null): string
     {
-        $helper = new self($routeName, $uuid);
+        $helper = new self($routeName, $uuid, $returnRoute);
 
         return $helper->createCakeUrl();
     }
@@ -46,6 +48,11 @@ class CakeRedirectHelper
                 'page'        => '/',
                 'page_action' => "Navigation.load('$cakeRedirectData')"
             ];
+        }
+        if(!is_null($this->returnRoute) && is_string($this->returnRoute)) {
+            $cakeRedirectData =array_merge($cakeRedirectData, [
+                'return_route' => $this->returnRoute,
+            ]);
         }
 
         $request->merge([
@@ -87,6 +94,8 @@ class CakeRedirectHelper
                 'page'        => '/file_management/testuploads',
                 'page_action' => "Popup.load('/file_management/upload_test',800);",
             ],
+            'test_takes.view'             => sprintf('/test_takes/view/%s', $this->uuid),
+            'test_takes.discussion'       => sprintf('/test_takes/discussion/%s', $this->uuid),
             'planned.my_tests'            => '/test_takes/planned_teacher',
             'planned.my_tests.plan'       => [
                 'page'        => '/test_takes/planned_teacher',

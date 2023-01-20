@@ -12,6 +12,9 @@ use tcCore\TestTake;
 class CoLearning extends Component
 {
     public int|TestTake $testTake;
+    public bool $showStartOverlay = true;
+
+
     public $testParticipantStatusses;
     public float $testParticipantsFinishedWithRatingPercentage; //if 100.0, all possible answers have been rated //todo float or int?
 

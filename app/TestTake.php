@@ -12,6 +12,7 @@ use tcCore\Events\NewTestTakeGraded;
 use tcCore\Events\NewTestTakeReviewable;
 use tcCore\Events\TestTakeOpenForInteraction;
 use tcCore\Events\TestTakeShowResultsChanged;
+use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Helpers\GlobalStateHelper;
 use tcCore\Jobs\CountTeacherLastTestTaken;
@@ -462,6 +463,8 @@ class TestTake extends BaseModel
         if (array_key_exists('school_classes', $attributes)) {
             $this->schoolClasses = $attributes['school_classes'];
         }
+
+        return $this;
     }
 
     private function saveInvigilators()
@@ -1165,10 +1168,11 @@ class TestTake extends BaseModel
 
     public static function redirectToDetail($testTakeUuid, $returnRoute = '')
     {
-        $detailUrl = sprintf('test_takes/view/%s', $testTakeUuid);
-        $temporaryLogin = TemporaryLogin::createWithOptionsForUser(['page', 'return_route'], [$detailUrl, $returnRoute], auth()->user());
-
-        return redirect($temporaryLogin->createCakeUrl());
+        return CakeRedirectHelper::redirectToCake(
+            routeName:'test_takes.view',
+            uuid: $testTakeUuid,
+            returnRoute: $returnRoute,
+        );
     }
 
     public function getParticipantTakenStats()

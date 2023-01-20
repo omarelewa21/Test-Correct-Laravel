@@ -48,13 +48,13 @@
     position: relative;
     width: 18px;
     height: 16px;
-    transition: 1s ease-out;
+    transition: 0.25s ease-out;
 }
 #co-learning-teacher-page #student-info-container .show-on-smartboard svg{
     position: absolute;
 }
 
-#co-learning-teacher-page #student-info-container .show-on-smartboard:hover::before {
+#co-learning-teacher-page #student-info-container .show-on-smartboard::before {
     content: '';
     width: 32px !important;
     height: 32px !important;
@@ -63,7 +63,14 @@
     position: absolute;
     transform: translate(-6px,-8px);
     border-radius: 9999px;
+    opacity: 0;
+    transition: opacity 0.25s ease-out;
 }
+
+#co-learning-teacher-page #student-info-container .show-on-smartboard:hover::before {
+    opacity: 100%;
+}
+
 #co-learning-teacher-page #student-info-container .show-on-smartboard:hover {
     color: white;
 }
@@ -83,4 +90,20 @@
     position: relative;
     margin-bottom: 70px;
     overflow: auto;
+}
+
+#co-learning-start-screen {
+    width: 100vw;
+    height: 100vh;
+    background-image: linear-gradient(to right, var(--teacher-primary) 0%, var(--teacher-primary-light) 100%);
+    overflow: hidden;
+}
+
+#co-learning-start-screen .co-learning-start-content {
+    top: 70px;
+    display: flex;
+    width: 100%;
+    min-height: calc(100vh - 70px);
+    position: relative;
+    overflow: hidden;
 }
