@@ -29,7 +29,7 @@ class UwlrImportHelper
 
     const CLIENT_NAME = 'Overig';
 
-    public static function handleIfMoreSchoolLocationsCanBeImported()
+    public static function handleIfMoreSchoolLocationsCanBeImported() :  void
     {
         $instance = new static();
         if($instance->canAddNewJobForImport()){
@@ -37,7 +37,7 @@ class UwlrImportHelper
         }
     }
 
-    protected function canAddNewJobForImport() :boolean
+    protected function canAddNewJobForImport() :bool
     {
         // max 2 jobs in the queue
         $numberOfJobsInTable = DB::select("SELECT count(*) as number from jobs where payload like '%".ProcessUwlrSoapResultJob::class."%'")[0]->number;
@@ -52,7 +52,7 @@ class UwlrImportHelper
         return true;
     }
 
-    protected function prepareNextSchoolLocationForProcessing()
+    protected function prepareNextSchoolLocationForProcessing() : bool
     {
         $schoolLocation = SchoolLocation::where('lvs_active',true) // only if lvs is active
             ->where('auto_uwlr_import',true) // only if allowed to be imported automagically
@@ -63,6 +63,9 @@ class UwlrImportHelper
             ->orderBy('external_main_code','asc') // if same then order by brin
             ->orderBy('external_sub_code','asc') // and even dependance
             ->first();
+        if(!$schoolLocation){
+            return false;
+        }
 
         try {
             $schoolYears = static::getSchoolYearsForUwlrImport($schoolLocation);
@@ -78,9 +81,10 @@ class UwlrImportHelper
         catch(\Throwable $e){
             throw new UwlrAutoImportException($e);
         }
+        return true;
     }
 
-    public static function getSchoolYearsForUwlrImport($location)
+    public static function getSchoolYearsForUwlrImport($location) : array
     {
         $currentPeriod = PeriodRepository::getCurrentPeriodForSchoolLocation($location, false, false);
         if($location) {

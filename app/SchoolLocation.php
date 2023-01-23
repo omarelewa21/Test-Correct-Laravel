@@ -1281,7 +1281,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable
     public function sendSamlNoMailAddresInRequestDetectedMailIfAppropriate($attr = [])
     {
         if ($this->canSendSamlNoMailAddressInRequestDetectedMail() && $this->lvs_active_no_mail_allowed == false) {
-            Mail::to('support@test-correct.nl')
+            Mail::to(config('mail.from.address'))
                 ->send(new SendSamlNoMailAddressInRequestDetectedMail($this->name, sprintf('Waarschuwing gebruiker van %s probeert in te loggen via Entree zonder emailadres.', $this->name), $attr));
             $this->no_mail_request_detected = now();
             $this->save();

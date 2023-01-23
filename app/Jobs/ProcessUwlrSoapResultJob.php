@@ -52,7 +52,6 @@ class ProcessUwlrSoapResultJob extends Job implements ShouldQueue
         if(!$resultSet){
             // should be a logger notice but let's do an exception for the moment so that we can see what happens in bugsnag
             throw new \Exception('we could not find the corresponding resultset  with id '.$this->uwlrSoapResultId);
-            return true;
         }
         if($resultSet->status !== 'READYTOPROCESS'){
             // should be a logger notice but let's do an exception for the moment so that we can see what happens in bugsnag
@@ -89,6 +88,12 @@ class ProcessUwlrSoapResultJob extends Job implements ShouldQueue
                     'auto_uwlr_import_status' => UwlrImportHelper::AUTO_UWLR_IMPORT_STATUS_DONE,
                     'auto_uwlr_last_import' => Carbon::now(),
                 ]);
+            // send notification to support about importing
+            $schoolLocationName = SchoolLocation::where('external_main_code',$resultSet->brin_code)
+                ->where('external_sub_code',$resultSet->dependance_code)
+                ->value('name');
+
+            SendUwlrImportSchoolLocationSuccessToSupportJob::dispatch($schoolLocationName);
 
         }
         catch (\Throwable $e){
