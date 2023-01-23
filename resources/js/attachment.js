@@ -142,9 +142,10 @@ window.makeResizableDiv = function(element) {
         })
         
         function resize(e) {
+            let width, height;
             if (currentResizer.classList.contains('bottom-right')) {
-                const width = original_width + (e.pageX - original_mouse_x);
-                const height = original_height + (e.pageY - original_mouse_y)
+                width = original_width + (e.pageX - original_mouse_x);
+                height = original_height + (e.pageY - original_mouse_y)
                 if (width > minimum_size) {
                     element.style.width = width + 'px'
                 }
@@ -153,8 +154,8 @@ window.makeResizableDiv = function(element) {
                 }
             }
             else if (currentResizer.classList.contains('bottom-left')) {
-                const height = original_height + (e.pageY - original_mouse_y)
-                const width = original_width - (e.pageX - original_mouse_x)
+                height = original_height + (e.pageY - original_mouse_y)
+                width = original_width - (e.pageX - original_mouse_x)
                 if (height > minimum_size) {
                     element.style.height = height + 'px'
                 }
@@ -164,8 +165,8 @@ window.makeResizableDiv = function(element) {
                 }
             }
             else if (currentResizer.classList.contains('top-right')) {
-                const width = original_width + (e.pageX - original_mouse_x)
-                const height = original_height - (e.pageY - original_mouse_y)
+                width = original_width + (e.pageX - original_mouse_x)
+                height = original_height - (e.pageY - original_mouse_y)
                 if (width > minimum_size) {
                     element.style.width = width + 'px'
                 }
@@ -175,11 +176,11 @@ window.makeResizableDiv = function(element) {
                 }
             }
             else {
-                const width = original_width - (e.pageX - original_mouse_x)
-                const height = original_height - (e.pageY - original_mouse_y)
+                width = original_width - (e.pageX - original_mouse_x)
+                height = original_height - (e.pageY - original_mouse_y)
                 if (width > minimum_size) {
                     element.style.width = width + 'px'
-                    element.style.left = original_x + (e.pageX - original_mouse_x) + 'px'
+                    element.style.left =  original_x + (e.pageX - original_mouse_x) + 'px'
                 }
                 if (height > minimum_size) {
                     element.style.height = height + 'px'
@@ -191,5 +192,87 @@ window.makeResizableDiv = function(element) {
         function stopResize() {
             window.removeEventListener('mousemove', resize)
         }
+    }
+}
+
+/**
+ * Drag of attachment
+ * 
+ * @param {object} element
+ */
+window.dragElement = function (element) {
+    var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+    let newTop, newLeft;
+
+    const elementRect  = element.getBoundingClientRect();
+    const windowHeight = window.innerHeight
+    const windowWidth  = window.innerWidth
+
+    if (document.getElementById(element.id + "drag")) {
+        // if present, the header is where you move the DIV from:
+        document.getElementById(element.id + "drag").onmousedown = dragMouseDown;
+        document.getElementById(element.id + "drag").ontouchstart = dragMouseDown;
+    } else {
+        // otherwise, move the DIV from anywhere inside the DIV:
+        element.onmousedown = dragMouseDown;
+    }
+
+    function dragMouseDown(e) {
+        e = e || window.event;
+        // get the mouse cursor position at startup:
+        if (e.type === 'touchstart') {
+            pos3 = e.touches[0].clientX;
+            pos4 = e.touches[0].clientY;
+        } else {
+            pos3 = e.clientX;
+            pos4 = e.clientY;
+        }
+        document.onmouseup = closeDragElement;
+        document.ontouchend = closeDragElement;
+        // call a function whenever the cursor moves:
+        document.onmousemove = elementDrag;
+        document.ontouchmove = elementDrag;
+    }
+
+    function elementDrag(e) {
+        e = e || window.event;
+        
+        // calculate the new cursor position:
+        if (e.type === 'touchmove') {
+            pos1 = pos3 - e.touches[0].clientX;
+            pos2 = pos4 - e.touches[0].clientY;
+            pos3 = e.touches[0].clientX;
+            pos4 = e.touches[0].clientY;
+        } else {
+            pos1 = pos3 - e.clientX;
+            pos2 = pos4 - e.clientY;
+            pos3 = e.clientX;
+            pos4 = e.clientY;
+        }
+        // set the element's new position:
+        newTop  = (element.offsetTop - pos2);
+        newLeft = (element.offsetLeft - pos1);
+
+        element.style.top  = newTop  + "px";
+        element.style.left = newLeft + "px";
+
+    }
+
+    function closeDragElement(e) {
+        const rightEdge = newLeft + elementRect.width;
+
+        if(newTop  < 0){newTop  = 10}                                   // Check if the top edge is within window height boundaries
+        else if(newTop  > windowHeight-50){newTop = windowHeight-50}
+
+        if(rightEdge < 150){newLeft = 0}                              // Check if the right edge is within window width boundaries
+        else if(rightEdge > windowWidth-10){newLeft = 0}
+
+        element.style.top = newTop + 'px';
+        element.style.left = newLeft + 'px';
+        
+        document.onmouseup = null;
+        document.ontouchend = null;
+        document.onmousemove = null;
+        document.ontouchmove = null;
     }
 }

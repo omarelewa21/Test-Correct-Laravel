@@ -3,6 +3,7 @@
         id="attachment"
         class="fixed top-5 left-5 z-30 shadow-lg border border-blue-grey rounded-10 bg-black {{ $this->getAttachmentModalSize() }}" 
         @if($this->attachmentType != 'audio') x-init="makeResizableDiv($el)" @endif
+        wire:ignore
     >
         <div class="box-border w-full h-full @if($this->attachmentType != 'audio') resizers @endif">
             <div class="hidden h-[45vw] w-3/4 h-1/2 w-5/6 lg:w-4/6 h-[80vh] w-[80vw] h-[45vw]"></div>

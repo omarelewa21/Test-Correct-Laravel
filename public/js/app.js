@@ -7030,83 +7030,6 @@ initializeIntenseWrapper = function initializeIntenseWrapper(app_key, debug, dev
     document.body.appendChild(s);
   }
 };
-dragElement = function dragElement(element) {
-  var pos1 = 0,
-    pos2 = 0,
-    pos3 = 0,
-    pos4 = 0;
-  var uuid = element.id.replace('attachment-', '');
-  var newTop, newLeft;
-  var elementRect = element.getBoundingClientRect();
-  var windowHeight = window.innerHeight;
-  var windowWidth = window.innerWidth;
-  if (document.getElementById(element.id + "drag")) {
-    // if present, the header is where you move the DIV from:
-    document.getElementById(element.id + "drag").onmousedown = dragMouseDown;
-    document.getElementById(element.id + "drag").ontouchstart = dragMouseDown;
-  } else {
-    // otherwise, move the DIV from anywhere inside the DIV:
-    element.onmousedown = dragMouseDown;
-  }
-  function dragMouseDown(e) {
-    e = e || window.event;
-    // get the mouse cursor position at startup:
-    if (e.type === 'touchstart') {
-      pos3 = e.touches[0].clientX;
-      pos4 = e.touches[0].clientY;
-    } else {
-      pos3 = e.clientX;
-      pos4 = e.clientY;
-    }
-    document.onmouseup = closeDragElement;
-    document.ontouchend = closeDragElement;
-    // call a function whenever the cursor moves:
-    document.onmousemove = elementDrag;
-    document.ontouchmove = elementDrag;
-  }
-  function elementDrag(e) {
-    e = e || window.event;
-
-    // calculate the new cursor position:
-    if (e.type === 'touchmove') {
-      pos1 = pos3 - e.touches[0].clientX;
-      pos2 = pos4 - e.touches[0].clientY;
-      pos3 = e.touches[0].clientX;
-      pos4 = e.touches[0].clientY;
-    } else {
-      pos1 = pos3 - e.clientX;
-      pos2 = pos4 - e.clientY;
-      pos3 = e.clientX;
-      pos4 = e.clientY;
-    }
-    // set the element's new position:
-    newTop = element.offsetTop - pos2;
-    newLeft = element.offsetLeft - pos1;
-    element.style.top = newTop + "px";
-    element.style.left = newLeft + "px";
-  }
-  function closeDragElement(e) {
-    var rightEdge = newLeft + elementRect.width;
-    if (newTop < 0) {
-      newTop = 10;
-    } // Check if the top edge is within window height boundaries
-    else if (newTop > windowHeight - 50) {
-      newTop = windowHeight - 50;
-    }
-    if (rightEdge < 150) {
-      newLeft = 0;
-    } // Check if the right edge is within window width boundaries
-    else if (rightEdge > windowWidth - 10) {
-      newLeft = 0;
-    }
-    element.style.top = newTop + "px";
-    element.style.left = newLeft + "px";
-    document.onmouseup = null;
-    document.ontouchend = null;
-    document.onmousemove = null;
-    document.ontouchmove = null;
-  }
-};
 countPresentStudents = function countPresentStudents(members) {
   var activeStudents = 0;
   members.each(function (member) {
@@ -7350,9 +7273,10 @@ window.makeResizableDiv = function (element) {
       window.addEventListener('mouseup', stopResize);
     });
     function resize(e) {
+      var width, height;
       if (currentResizer.classList.contains('bottom-right')) {
-        var width = original_width + (e.pageX - original_mouse_x);
-        var height = original_height + (e.pageY - original_mouse_y);
+        width = original_width + (e.pageX - original_mouse_x);
+        height = original_height + (e.pageY - original_mouse_y);
         if (width > minimum_size) {
           element.style.width = width + 'px';
         }
@@ -7360,34 +7284,34 @@ window.makeResizableDiv = function (element) {
           element.style.height = height + 'px';
         }
       } else if (currentResizer.classList.contains('bottom-left')) {
-        var _height = original_height + (e.pageY - original_mouse_y);
-        var _width = original_width - (e.pageX - original_mouse_x);
-        if (_height > minimum_size) {
-          element.style.height = _height + 'px';
+        height = original_height + (e.pageY - original_mouse_y);
+        width = original_width - (e.pageX - original_mouse_x);
+        if (height > minimum_size) {
+          element.style.height = height + 'px';
         }
-        if (_width > minimum_size) {
-          element.style.width = _width + 'px';
+        if (width > minimum_size) {
+          element.style.width = width + 'px';
           element.style.left = original_x + (e.pageX - original_mouse_x) + 'px';
         }
       } else if (currentResizer.classList.contains('top-right')) {
-        var _width2 = original_width + (e.pageX - original_mouse_x);
-        var _height2 = original_height - (e.pageY - original_mouse_y);
-        if (_width2 > minimum_size) {
-          element.style.width = _width2 + 'px';
+        width = original_width + (e.pageX - original_mouse_x);
+        height = original_height - (e.pageY - original_mouse_y);
+        if (width > minimum_size) {
+          element.style.width = width + 'px';
         }
-        if (_height2 > minimum_size) {
-          element.style.height = _height2 + 'px';
+        if (height > minimum_size) {
+          element.style.height = height + 'px';
           element.style.top = original_y + (e.pageY - original_mouse_y) + 'px';
         }
       } else {
-        var _width3 = original_width - (e.pageX - original_mouse_x);
-        var _height3 = original_height - (e.pageY - original_mouse_y);
-        if (_width3 > minimum_size) {
-          element.style.width = _width3 + 'px';
+        width = original_width - (e.pageX - original_mouse_x);
+        height = original_height - (e.pageY - original_mouse_y);
+        if (width > minimum_size) {
+          element.style.width = width + 'px';
           element.style.left = original_x + (e.pageX - original_mouse_x) + 'px';
         }
-        if (_height3 > minimum_size) {
-          element.style.height = _height3 + 'px';
+        if (height > minimum_size) {
+          element.style.height = height + 'px';
           element.style.top = original_y + (e.pageY - original_mouse_y) + 'px';
         }
       }
@@ -7398,6 +7322,88 @@ window.makeResizableDiv = function (element) {
   };
   for (var i = 0; i < resizers.length; i++) {
     _loop(i);
+  }
+};
+
+/**
+ * Drag of attachment
+ * 
+ * @param {object} element
+ */
+window.dragElement = function (element) {
+  var pos1 = 0,
+    pos2 = 0,
+    pos3 = 0,
+    pos4 = 0;
+  var newTop, newLeft;
+  var elementRect = element.getBoundingClientRect();
+  var windowHeight = window.innerHeight;
+  var windowWidth = window.innerWidth;
+  if (document.getElementById(element.id + "drag")) {
+    // if present, the header is where you move the DIV from:
+    document.getElementById(element.id + "drag").onmousedown = dragMouseDown;
+    document.getElementById(element.id + "drag").ontouchstart = dragMouseDown;
+  } else {
+    // otherwise, move the DIV from anywhere inside the DIV:
+    element.onmousedown = dragMouseDown;
+  }
+  function dragMouseDown(e) {
+    e = e || window.event;
+    // get the mouse cursor position at startup:
+    if (e.type === 'touchstart') {
+      pos3 = e.touches[0].clientX;
+      pos4 = e.touches[0].clientY;
+    } else {
+      pos3 = e.clientX;
+      pos4 = e.clientY;
+    }
+    document.onmouseup = closeDragElement;
+    document.ontouchend = closeDragElement;
+    // call a function whenever the cursor moves:
+    document.onmousemove = elementDrag;
+    document.ontouchmove = elementDrag;
+  }
+  function elementDrag(e) {
+    e = e || window.event;
+
+    // calculate the new cursor position:
+    if (e.type === 'touchmove') {
+      pos1 = pos3 - e.touches[0].clientX;
+      pos2 = pos4 - e.touches[0].clientY;
+      pos3 = e.touches[0].clientX;
+      pos4 = e.touches[0].clientY;
+    } else {
+      pos1 = pos3 - e.clientX;
+      pos2 = pos4 - e.clientY;
+      pos3 = e.clientX;
+      pos4 = e.clientY;
+    }
+    // set the element's new position:
+    newTop = element.offsetTop - pos2;
+    newLeft = element.offsetLeft - pos1;
+    element.style.top = newTop + "px";
+    element.style.left = newLeft + "px";
+  }
+  function closeDragElement(e) {
+    var rightEdge = newLeft + elementRect.width;
+    if (newTop < 0) {
+      newTop = 10;
+    } // Check if the top edge is within window height boundaries
+    else if (newTop > windowHeight - 50) {
+      newTop = windowHeight - 50;
+    }
+    if (rightEdge < 150) {
+      newLeft = 0;
+    } // Check if the right edge is within window width boundaries
+    else if (rightEdge > windowWidth - 10) {
+      newLeft = 0;
+    }
+    element.style.top = newTop + 'px';
+    element.style.left = newLeft + 'px';
+    document.onmouseup = null;
+    document.ontouchend = null;
+    document.onmousemove = null;
+    document.ontouchmove = null;
   }
 };
 
