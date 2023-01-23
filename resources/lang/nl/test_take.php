@@ -79,5 +79,9 @@ return [
     'Read_out_loud'                                => 'Lees voor',
     'test_take.directlink_auth_fail'               => 'U bent niet aangesloten bij deze test, neem contact op met de testeigenaar voor dat probleem',
     'unarchive_test_take_first'                    => 'Dearchiveer deze toets afname om de details te bekijken.',
-
+    'update_to_taken'                              => 'Terug naar afgenomen',
+    'update_to_taken_toast'                        => 'Let op: de beoordelingen uit CO-Learning zullen geen invloed hebben op de al gegeven beoordelingen dat je al hebt nagekeken.',
+    'nvt'                                          => 'N.v.t.',
+    'hide_grade_tooltip'                           => 'Bij formatieve toetsen staan inzicht en voortgang centraal. Daarom zie je hier geen cijfer.',
+    'waiting_grade'                                => "Bezig met nakijken & becijferen. Cijfer nog niet beschikbaar",
 ];

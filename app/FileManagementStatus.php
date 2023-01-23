@@ -1,5 +1,6 @@
 <?php namespace tcCore;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Queue;
 use tcCore\Jobs\PValues\UpdatePValueUsers;
 use tcCore\Lib\Models\BaseModel;
@@ -9,6 +10,8 @@ class FileManagementStatus extends BaseModel {
 
     use SoftDeletes;
 
+    const STATUS_PROVIDED = 14;
+    
     /**
      * The attributes that should be mutated to dates.
      *
@@ -31,5 +34,10 @@ class FileManagementStatus extends BaseModel {
 
     public function parent() {
         return $this->belongsTo('tcCore\FileManagementStatus','partof');
+    }
+
+    public function scopeForToetsenbakkers($query)
+    {
+        return $query->where('id', '<>', FileManagementStatus::STATUS_PROVIDED);
     }
 }

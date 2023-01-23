@@ -31,6 +31,7 @@ class TestTakeOverview extends Component
     public $openTab = self::DEFAULT_OPEN_TAB;
     public $filters = [];
     protected $queryString = ['openTab'];
+    protected $listeners = ['update-test-take-overview' => '$refresh'];
 
     /* Component lifecycle hooks */
     public function mount($stage)

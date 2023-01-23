@@ -21,4 +21,5 @@ return [
     'has_been_deleted'       => 'Schoollocatie is verwijderd',
     'delete_school_location' => 'Verwijder Schoollocatie',
     'delete_are_you_sure'    => 'Weet je zeker dat je deze schoollocatie wilt verwijderen?',
+    'test_package'           => 'Toets pakket',
 ];

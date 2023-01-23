@@ -6,6 +6,8 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Livewire\Livewire;
 use tcCore\Attainment;
 use tcCore\Exceptions\QuestionException;
+use tcCore\Factories\FactoryTest;
+use tcCore\GroupQuestionQuestion;
 use tcCore\Http\Livewire\Teacher\QuestionBank;
 use tcCore\Question;
 use tcCore\QuestionAttainment;
@@ -156,7 +158,7 @@ class QuestionBankTest extends TestCase
         $this->assertGreaterThan($testQuestionCount, $test->testQuestions()->count());
         $this->assertGreaterThan($totalQuestionCount, Question::count());
 
-        $this->assertEquals($questionToDuplicate->getQuestionInstance()->scope, 'ldt');
+        $this->assertEquals('ldt', $questionToDuplicate->getQuestionInstance()->scope);
         $this->assertTrue(!!$questionToDuplicate->getQuestionInstance()->add_to_database);
         $this->assertFalse(!!$questionToDuplicate->getQuestionInstance()->add_to_database_disabled);
 
@@ -205,5 +207,30 @@ class QuestionBankTest extends TestCase
         //Verify the new question has the attainment aswel;
         $this->assertNotEmpty($newQuestion->getQuestionInstance()->attainments);
         $this->assertEquals($newQuestion->getQuestionInstance()->attainments->first()->getKey(), $attainmentToAdd->getKey());
+    }
+
+    public function test_can_add_sub_question_to_test_via_question_bank_with_published_status_of_test()
+    {
+        $this->actingAs($this->getTeacherOne());
+
+        $subQuestion = GroupQuestionQuestion::whereGroupQuestionId(14)->first()->question;
+        $this->assertInstanceOf(Question::class, $subQuestion);
+        $this->assertTrue($subQuestion->isPublished());
+
+        $test = FactoryTest::create()->getTestModel();
+        $this->assertTrue($test->isDraft());
+
+        $testQuestionCount = $test->testQuestions()->count();
+
+        $this->actingAs($this->getTeacherOne());
+        Livewire::withQueryParams(['testId' => $test->uuid, 'testQuestionId' => ''])
+            ->test(QuestionBank::class)
+            ->call('handleCheckboxClick', $subQuestion->getQuestionInstance()->uuid)
+            ->assertDispatchedBrowserEvent('question-added');
+
+        $newQuestion = Question::latest()->first();
+
+        $this->assertNotEquals($subQuestion->getKey(), $newQuestion->getKey());
+        $this->assertTrue($newQuestion->isDraft());
     }
 }

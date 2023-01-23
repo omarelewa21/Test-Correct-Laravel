@@ -26,7 +26,7 @@ class TestPlanModal extends ModalComponent
     public $allowedInvigilators = [];
     public $allowedTeachers = [];
 
-    public $request = ['date' => '', 'schoolClasses' => [], 'invigilators' => []];
+    public $request = ['date' => '', 'schoolClasses' => [], 'invigilators' => [],'is_rtti_test_take' => false];
 
     public $selectedClassesContainerId;
     public $selectedInvigilatorsContrainerId;
@@ -39,6 +39,7 @@ class TestPlanModal extends ModalComponent
         $this->allowedInvigilators = $this->getAllowedInvigilators();
         $this->allowedTeachers = $this->getAllowedTeachers();
         $this->resetModalRequest();
+        $this->rttiExportAllowed = $this->isRttiExportAllowed();
     }
 
     protected function rules()
@@ -67,6 +68,10 @@ class TestPlanModal extends ModalComponent
 
         if ($user->isValidExamCoordinator() && empty($this->request['owner_id'])) {
             $rules['request.owner_id'] = 'required';
+        }
+
+        if($this->rttiExportAllowed) {
+            $conditionalRules['request.is_rtti_test_take'] = 'required';
         }
 
         return $rules;

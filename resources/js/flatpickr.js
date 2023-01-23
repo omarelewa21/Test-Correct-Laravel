@@ -11,7 +11,7 @@ document.addEventListener('alpine:init', () => {
         init() {
             this.picker = flatpickr(this.$refs.datepickr, {
                 locale: this.locale,
-                minDate: minDate == 'today' ? 'today' : false,
+                minDate: minDate ?? false,
                 mode: this.mode,
                 defaultDate: this.wireModel,
                 // The displayed format is humanreadable, the used date is Y-m-d formatted;

@@ -1,5 +1,7 @@
 <?php namespace tcCore;
 
+use iio\libmergepdf\Exception;
+use Illuminate\Support\Facades\DB;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Dyrynda\Database\Casts\EfficientUuid;
@@ -177,6 +179,43 @@ class EducationLevel extends BaseModel
         return $student->studentSchoolClasses()->pluck('education_level_year')->unique();
     }
 
+    public static function getLatestEducationLevelAndEducationLevelYearForStudent(User $student)
+    {
+        $latestSchoolClassForStudent = $student->studentSchoolClasses()
+            ->whereId(
+                DB::table('students')
+                    ->where('user_id', $student->id)
+                    ->orderByDesc('created_at')
+                    ->whereNull('deleted_at')
+                    ->value('class_id')
+            )->with('educationLevel')
+            ->first();
+        $min = 1;
+        if ($latestSchoolClassForStudent->educationLevel->min_attainment_year <= $latestSchoolClassForStudent->education_level_year) {
+            $min = $latestSchoolClassForStudent->educationLevel->min_attainment_year;
+        }
+        return [
+            'education_level_id'    => $latestSchoolClassForStudent->education_level_id,
+            'education_level_years' => collect(range($min, $latestSchoolClassForStudent->education_level_year)),
+        ];
+    }
+
+    public static function getStartAndEndDateForLatestEducationLevelForStudent(User $student)
+    {
+        $result = $student->studentSchoolClasses()->where(
+            'education_level_id',
+            self::getLatestEducationLevelAndEducationLevelYearForStudent($student)['education_level_id']
+        )->join('periods', 'school_classes.school_year_id', 'periods.school_year_id')
+            ->selectRaw('min(periods.start_date) as start_date, max(periods.end_date) as end_date')
+            ->first()
+            ->toArray();
+
+        return [
+            'start_date' => $result['start_date'],
+            'end_date'   => $result['end_date'],
+        ];
+    }
+
 
     private function filterForExamcoordinator($query, User $user)
     {
@@ -190,7 +229,7 @@ class EducationLevel extends BaseModel
     {
         return $user->studentSchoolClasses()->get()
             ->map(function ($schoolClass) {
-                return (object) [
+                return (object)[
                     'educationLevel' => $schoolClass->educationLevel->name,
                     'attainmentType' => $schoolClass->educationLevel->getType($schoolClass),
                 ];
@@ -202,5 +241,24 @@ class EducationLevel extends BaseModel
     private function getType($schoolClass)
     {
         return $this->min_attainment_year <= $schoolClass->education_level_year ? Attainment::TYPE : LearningGoal::TYPE;
+    }
+
+    public static function getLatestForStudentWithSubject(User $user, Subject $subject)
+    {
+        if (!$user->isA('student')) {
+            throw new \ErrorException('method can only be called as a student');
+        }
+        $class = $user->studentSchoolClasses()
+            ->select('school_classes.*')
+            ->join('teachers', 'school_classes.id', '=', 'teachers.class_id')
+            ->where('teachers.subject_id', $subject->getKey())
+            ->orderBy('school_classes.created_at', 'desc')
+            ->limit(1)
+            ->first();
+        if (!$class) {
+            throw new \ErrorException('no school_class found for provided student and subject');
+        }
+
+        return $class->educationLevel;
     }
 }

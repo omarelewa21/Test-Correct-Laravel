@@ -28,6 +28,9 @@ class WaitingRoom extends Component
     {
         return [
             'start-test-take'                                                                                              => 'startTestTake',
+            'start-discussing'                                                                                             => 'startDiscussing',
+            'start-review'                                                                                                 => 'startReview',
+            'start-graded'                                                                                                 => 'startReview',
             'is-test-take-open'                                                                                            => 'isTestTakeOpen',
             'echo-private:TestParticipant.' . $this->testParticipant->uuid . ',.TestTakeOpenForInteraction'                => 'isTestTakeOpen',
             'echo-private:TestParticipant.' . $this->testParticipant->uuid . ',.InbrowserTestingUpdatedForTestParticipant' => 'participantAppCheck',
@@ -61,6 +64,7 @@ class WaitingRoom extends Component
     public $appNeedsUpdateDeadline;
     public $appStatus;
     public $previousURL;
+    public $showGrades=true;
 
     public function mount()
     {
@@ -82,6 +86,8 @@ class WaitingRoom extends Component
         $this->participatingClasses = $this->getParticipatingClasses($this->waitingTestTake);
         $this->participantAppCheck();
         $this->previousURL =  url()->previous();
+
+        $this->showGrades = $this->checkShowGrades();
     }
 
     public function render()
@@ -268,4 +274,13 @@ class WaitingRoom extends Component
     {
         return $showResults != null && $showResults->gt(Carbon::now()) && $this->testParticipant->hasRating();
     }
+    
+    private function checkShowGrades()
+    {
+        if($this->testTakeStatusStage == 'graded'){
+            return $this->waitingTestTake->show_grades;
+        }
+        return false;
+    }
+
 }

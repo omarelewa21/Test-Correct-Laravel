@@ -3,7 +3,7 @@
     <link rel="stylesheet" href="file://{{ public_path('/css/app_pdf.css') }}">
     <link rel="stylesheet" href="file://{{ public_path('/css/print-test-pdf.css') }}">
 </head>
-<body class="test-print-pdf" style="border:0; margin: 0;" onload="subst()">
+<body class="test-print-pdf {{ $extraCssClass }}" style="border:0; margin: 0;" onload="subst()">
 <table class="header-table" style="width: 100%; border: none !important; border-color: white;">
     <tr style="border: none !important; border-color: white;">
         <td class=" bold" rowspan="2" style="border: none !important; border-color: white;">

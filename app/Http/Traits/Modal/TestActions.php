@@ -3,6 +3,7 @@
 namespace tcCore\Http\Traits\Modal;
 
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 use tcCore\EducationLevel;
 use tcCore\Period;
 use tcCore\Subject;
@@ -64,7 +65,7 @@ trait TestActions
     public function getMaxEducationLevelYearProperty()
     {
         if ($this->request['education_level_id']) {
-            $maxYears = $this->allowedEductionLevels->where('id', $this->request['education_level_id'])->first()->max_years;
+            $maxYears = $this->allowedEductionLevels->where('id', $this->request['education_level_id'])->first()?->max_years;
         }
         return $maxYears ?? 6;
     }
@@ -99,7 +100,7 @@ trait TestActions
 
     private function getNameRulesDependingOnAction()
     {
-        $rules = 'required|min:3|unique:tests,name';
+        $rules = 'required|min:3|unique:tests,name,NULL,NULL,deleted_at,NULL';
         if (isset($this->testUuid)) {
             $rules = 'required|min:3|unique:tests,name,'. Test::whereUuid($this->testUuid)->value('id') .',id,author_id,' . Auth::id() . ',deleted_at,NULL,is_system_test,0';
         }

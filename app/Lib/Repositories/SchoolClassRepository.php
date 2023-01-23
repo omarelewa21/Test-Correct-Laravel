@@ -70,7 +70,12 @@ class SchoolClassRepository
             $schoolClassSubjects = [];
 
             foreach ($wantedSchoolClassSubjects[$schoolClassId] as $subjectId) {
-                $schoolClassSubject = clone $subjects->where('id', $subjectId)->first();
+                $subject = $subjects->where('id', $subjectId)?->first();
+                if(!$subject){
+                    continue;
+                }
+
+                $schoolClassSubject = clone $subject;
 
                 $subjectTeachers = $teacherLines->where('class_id', $schoolClassId)->where('subject_id', $subjectId);
                 $subjectTeacherUsers = [];

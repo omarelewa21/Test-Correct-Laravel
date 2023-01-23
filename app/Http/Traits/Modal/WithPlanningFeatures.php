@@ -7,6 +7,13 @@ use tcCore\SchoolClass;
 
 trait WithPlanningFeatures
 {
+    public $rttiExportAllowed = false;
+
+    public function isRttiExportAllowed(): bool
+    {
+        return !! Auth::user()->schoolLocation->is_rtti_school_location;
+    }
+
     public function getSchoolClassesProperty()
     {
         $filters = $this->getFiltersForSchoolClasses();

@@ -16,5 +16,5 @@
     <div class="flex items-center space-x-2 @if($step < 4) opacity-50 @endif">
         <x-icon.chevron-small/>
         <x-icon.grade/>
-        <span>{{ __('student.graded') }}</span></div>
+        <span>{{ __('student.results') }}</span></div>
 </div>

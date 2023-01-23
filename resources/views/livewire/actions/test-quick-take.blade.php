@@ -3,6 +3,7 @@
         @if($disabled)
             <x-button.primary class="w-10 p-0 items-center justify-center opacity-20 cursor-not-allowed"
                               title="{{ __('cms.Direct afnemen') }}"
+                              wire:key="qt-b-{{ $disabled ? 'abc' : 'def' }}"
             >
                 <x-icon.schedule-now/>
             </x-button.primary>
@@ -10,6 +11,7 @@
             <x-button.primary class="w-10 p-0 items-center justify-center"
                               title="{{ __('cms.Direct afnemen') }}"
                               wire:click="handle"
+                              wire:key="qt-b-{{ $disabled ? 'abc' : 'def' }}"
             >
                 <x-icon.schedule-now/>
             </x-button.primary>

@@ -1,16 +1,23 @@
 <x-modal.base-modal force-close="true">
-        <x-slot name="title">
-                <h2>{{__("teacher.toets aanmaken")}}</h2>
-        </x-slot>
-        <x-slot name="content">
-            <div class="flex-grow">
+    <x-slot name="title">
+        <h2>{{__("teacher.toets aanmaken")}}</h2>
+    </x-slot>
+    <x-slot name="content">
+        <div class="flex-grow">
+                @if($allowedSubjects->isEmpty())
+                    <div class="mb-4">
+                        <div class="notification warning max-w-full">
+                            {{ __('teacher.not_linked_to_subjects') }}
+                        </div>
+                    </div>
+                @endif
                 <div class="email-section mb-4 w-full">
                     <div class="mb-4">
                         <div class="input-group w-full">
-                            <input id="username" wire:model.lazy="request.name"
+                            <input id="testname" wire:model.lazy="request.name"
                                    class="form-input @error('request.name') border-red @enderror"
                                    autofocus>
-                            <label for="username"
+                            <label for="testname"
                                    class="transition ease-in-out duration-150">{{ __("teacher.naam toets") }}</label>
                         </div>
                     </div>
@@ -138,24 +145,24 @@
                     </div>
                 </div>
             </div>
-        </x-slot>
-        <x-slot name="footer">
-            <div class="flex justify-between w-full">
-                <x-button.text-button wire:click="$emit('closeModal')">
-                    <x-icon.arrow-left/>
-                    <span>{{ __("modal.Terug") }}</span>
-                </x-button.text-button>
+    </x-slot>
+    <x-slot name="footer">
+        <div class="flex justify-between w-full">
+            <x-button.text-button wire:click="$emit('closeModal')">
+                <x-icon.arrow-left/>
+                <span>{{ __("modal.Terug") }}</span>
+            </x-button.text-button>
 
-                <div class="absolute bottom-8 left-1/2 -translate-x-1/2 h-4 flex items-center justify-center space-x-2">
-                    <div class="border-0 rounded-xl bg-bluegrey h-[14px] w-[14px]"></div>
-                    <div class="border-0 rounded-xl bg-primary h-[14px] w-[14px]"></div>
-                </div>
-
-                <x-button.cta wire:click="submit">
-                    <span>{{ __("teacher.toets aanmaken") }}</span>
-                    <x-icon.arrow/>
-                </x-button.cta>
+            <div class="absolute bottom-8 left-1/2 -translate-x-1/2 h-4 flex items-center justify-center space-x-2">
+                <div class="border-0 rounded-xl bg-bluegrey h-[14px] w-[14px]"></div>
+                <div class="border-0 rounded-xl bg-primary h-[14px] w-[14px]"></div>
             </div>
-        </x-slot>
+
+            <x-button.cta wire:click="submit">
+                <span>{{ __("teacher.toets aanmaken") }}</span>
+                <x-icon.arrow/>
+            </x-button.cta>
+        </div>
+    </x-slot>
 </x-modal.base-modal>
 

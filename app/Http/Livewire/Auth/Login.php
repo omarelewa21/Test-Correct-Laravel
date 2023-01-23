@@ -125,15 +125,15 @@ class Login extends Component
 
     public function mount()
     {
-        Auth::logout();
-
-        if(session()->has('take')){
-            $take = TestTake::whereUuid(session('take'))->with('testTakeCode')->first();
+        if(request()->has('directlink')){
+            $take = TestTake::whereUuid(request()->get('directlink'))->with('testTakeCode')->first();
             if($take->testTakeCode){
                 $this->testTakeCode = str_split($take->testTakeCode->code);
             }
             $this->take = $take->uuid;
         }
+
+        Auth::logout();
 
         session()->invalidate();
         session()->regenerateToken();

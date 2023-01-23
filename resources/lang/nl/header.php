@@ -18,7 +18,7 @@ return [
 
     'Inzien' => 'Inzien',
 
-    'Becijferd' => 'Becijferd',
+    'Resultaten' => 'Resultaten',
 
     'change_password' => 'Wachtwoord wijzigen',
 
@@ -52,6 +52,7 @@ return [
     'Supportpagina' => 'Supportpagina',
     'Automatisch uitloggen uitstellen' => 'Automatisch uitloggen uitstellen',
     'Uploaden toets' => 'Uploaden toets',
+    'Te verwerken Toetsen' => 'Te verwerken Toetsen',
 
     'Webinar' => 'Webinar',
     'Email' => 'Email',

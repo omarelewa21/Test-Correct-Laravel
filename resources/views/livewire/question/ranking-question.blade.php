@@ -9,7 +9,7 @@
                  var rankingBody = document.querySelector('#rq{{$question->getKey()}}')
                     if(showMe) {
                         rankingBody.querySelectorAll('.drag-item').forEach(function(item) {
-                            item.style.width = rankingBody.offsetWidth+1+'px';
+{{--                            item.style.width = rankingBody.offsetWidth+1+'px';--}}
                         });
                     }
              } ,100);
@@ -22,8 +22,12 @@
         <div id="rq{{ $question->getKey() }}" class="flex flex-col max-w-max space-y-2 ranking"
              wire:sortable="updateOrder" wire:model="answerStruct">
             @foreach($answerStruct as $answer)
-                <x-drag-item id="ranking-{{$answer->value}}" sortId="{{ $answer->value }}"
-                             wireKey="option-{{ $answer->value }}" selid="drag-box">
+                <x-drag-item id="ranking-{{$answer->value}}"
+                             sortId="{{ $answer->value }}"
+                             wire:key="option-{{ $answer->value }}"
+                             selid="drag-box"
+                             sortableHandle="false"
+                >
                     {{ html_entity_decode($answerText[$answer->value]) }}
                 </x-drag-item>
             @endforeach

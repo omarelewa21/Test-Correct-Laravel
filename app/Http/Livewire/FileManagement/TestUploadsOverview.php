@@ -25,6 +25,12 @@ class TestUploadsOverview extends OverviewComponent
         'test_builders'    => [],
     ];
 
+    public function mount()
+    {
+        parent::mount();
+        $this->sortField = 'created_at';
+    }
+
     public function render()
     {
         return view('livewire.file-management.test-uploads-overview')->layout('layouts.app-admin');

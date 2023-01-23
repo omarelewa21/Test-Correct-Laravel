@@ -36,6 +36,5 @@ FilePond.registerPlugin(FilePondPluginFileValidateSize);
 import smoothscroll from './smoothscroll-polyfill'
 smoothscroll.polyfill();
 
-anychart.onDocumentLoad(function(){
-    anychart.licenseKey(process.env.MIX_ANYCHART_LICENSE_KEY);
-})
+import anychart from './AnyChart/anychart-base.min';
+anychart.licenseKey(process.env.MIX_ANYCHART_LICENSE_KEY);

@@ -2,7 +2,7 @@
     @if($variant == 'icon-button')
         @if(!$disabled)
             <x-button.primary class="w-10 p-0 items-center justify-center"
-                              @click="window.open('{!! $url !!}', '_blank')"
+                              @click.debounce.500ms="window.open('{!! $url !!}', '_blank')"
                               title="{{ __('teacher.Voorbeeld') }}"
             >
                 <x-icon.preview/>

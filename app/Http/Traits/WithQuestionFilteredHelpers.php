@@ -173,6 +173,9 @@ trait WithQuestionFilteredHelpers
                             ->where('question_authors.user_id','=',$value);
                     }
                     break;
+                case 'draft':
+                    $query->where('questions.draft', '=', $value);
+                    break;
             }
         }
     }

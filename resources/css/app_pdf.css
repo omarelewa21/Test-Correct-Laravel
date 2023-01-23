@@ -371,9 +371,9 @@ div.drag-item > div {
     margin: auto;
 }
 
-/*.page-no-break{*/
-/*    page-break-inside: avoid;*/
-/*}*/
+.page-no-break{
+    page-break-inside: avoid !important;
+}
 
 .question-no-break-mc-option {
     page-break-inside: avoid;

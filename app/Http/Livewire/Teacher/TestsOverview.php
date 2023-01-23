@@ -6,6 +6,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Ramsey\Uuid\Uuid;
 use tcCore\BaseSubject;
 use tcCore\EducationLevel;
 use tcCore\Subject;
@@ -14,6 +15,7 @@ use tcCore\TestTake;
 use tcCore\TemporaryLogin;
 use tcCore\TestAuthor;
 use tcCore\Traits\ContentSourceTabsTrait;
+use tcCore\Traits\UuidTrait;
 
 class TestsOverview extends Component
 {
@@ -25,11 +27,13 @@ class TestsOverview extends Component
     private $sorting = ['id' => 'desc'];
     protected $queryString = [
         'openTab'        => ['as' => 'to_tab'],
-        'referrerAction' => ['except' => '', 'as' => 'to_ra']
+        'referrerAction' => ['except' => ''],
+        'file'           => ['except' => ''],
     ];
 
     public $filters = [];
     public $referrerAction = '';
+    public $file = '';
     public $selected = [];
     public $mode;
 
@@ -37,6 +41,7 @@ class TestsOverview extends Component
         'test-deleted'        => '$refresh',
         'test-added'          => '$refresh',
         'testSettingsUpdated' => '$refresh',
+        'test-updated'        => '$refresh',
     ];
 
     public function mount()
@@ -106,7 +111,7 @@ class TestsOverview extends Component
 
     private function getSchoolDatasource()
     {
-        return Test::filtered(
+        return Test::schoolFiltered(
             array_merge(
                 $this->cleanFilterForSearch($this->filters['school_location']),
                 ['owner_id' => auth()->user()->school_location_id]
@@ -114,7 +119,6 @@ class TestsOverview extends Component
             $this->sorting
         );
     }
-
 
     private function getNationalDatasource()
     {
@@ -286,8 +290,16 @@ class TestsOverview extends Component
         }
 
         if ($this->referrerAction === 'create_test') {
-            $this->emit('openModal', 'teacher.test-create-modal');
-            $this->referrerAction = '';
+            $params = ['teacher.test-create-modal'];
+            if (Uuid::isValid($this->file)) {
+                $params = [
+                    'toetsenbakker.test-create-modal',
+                    ['fileManagement' => $this->file]
+                ];
+            }
+
+            $this->emit('openModal', ...$params);
+            $this->reset('referrerAction', 'file');
         }
         if ($this->referrerAction === 'test_deleted') {
             $this->dispatchBrowserEvent('notify', ['message' => __('teacher.Test is verwijderd')]);

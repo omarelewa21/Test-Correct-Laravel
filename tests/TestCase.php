@@ -184,8 +184,11 @@ abstract class TestCase extends BaseTestCase
         );
     }
 
-    public static function getStudentXAuthRequestData($overrides = [], $studentNumber)
+    public static function getStudentXAuthRequestData($overrides = [], $studentNumber=null)
     {
+        if ($studentNumber === null) {
+            throw new \ErrorException('studentNumber is required;');
+        }
         $username = sprintf('s%d@test-correct.nl', $studentNumber);
         $user = User::where('username', $username)->first();
         ActingAsHelper::getInstance()->setUser($user);
@@ -354,8 +357,11 @@ abstract class TestCase extends BaseTestCase
         return $user;
     }
 
-    protected function createStudent($password, $schoolLocation, $schoolClass = null, $nr)
+    protected function createStudent($password, $schoolLocation, $schoolClass = null, $nr=null)
     {
+        if ($nr ===  null) {
+            throw new \ErrorException('parameter $nr is required');
+        }
         $user = User::create([
             'school_location_id' => $schoolLocation->getKey(),
             'username'           => sprintf('info+%s-%d@test-correct.nl', $schoolLocation->name, $nr),

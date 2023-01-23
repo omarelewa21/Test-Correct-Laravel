@@ -63,6 +63,9 @@ class DatabaseImport
     {
         DatabaseImport::checkEnv();
 
+//        $process = Process::fromShellCommandline('artisan migrate --force');
+//        $process->run();
+
         Artisan::call('migrate --force');
     }
 

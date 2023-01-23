@@ -38,8 +38,10 @@ class TestTake extends BaseModel
     use Archivable;
 
     protected $casts = [
-        'uuid'            => EfficientUuid::class,
-        'notify_students' => 'boolean',
+        'uuid'              => EfficientUuid::class,
+        'notify_students'   => 'boolean',
+        'show_grades'       => 'boolean',
+        'returned_to_taken' => 'boolean'
     ];
 
     /**
@@ -61,7 +63,7 @@ class TestTake extends BaseModel
      *
      * @var array
      */
-    protected $fillable = ['test_id', 'test_take_status_id', 'period_id', 'retake', 'retake_test_take_id', 'time_start', 'time_end', 'location', 'weight', 'note', 'invigilator_note', 'show_results', 'discussion_type', 'is_rtti_test_take', 'exported_to_rtti', 'allow_inbrowser_testing', 'guest_accounts', 'skipped_discussion', 'notify_students', 'user_id', 'scheduled_by'];
+    protected $fillable = ['test_id', 'test_take_status_id', 'period_id', 'retake', 'retake_test_take_id', 'time_start', 'time_end', 'location', 'weight', 'note', 'invigilator_note', 'show_results', 'discussion_type', 'is_rtti_test_take', 'exported_to_rtti', 'allow_inbrowser_testing', 'guest_accounts', 'skipped_discussion', 'notify_students', 'user_id', 'scheduled_by', 'show_grades', 'returned_to_taken'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -963,15 +965,11 @@ class TestTake extends BaseModel
 
     public function scopeOnlyTestsFromSubjectsOrIfDemoThenOnlyWhenOwner($query, User $user)
     {
+
         $query->where(function ($q) use ($user) {
             $subject = (new DemoHelper())->getDemoSubjectForTeacher($user);
-            //TCP-156
             if ($subject === null) {
-                if (config('app.url_login') == "https://testportal.test-correct.nl/" || config('app.url_login') == "https://testportal.test-correct.nl/" || config('app.env') == "production") {
-                    dispatch(new SendExceptionMail("Er is iets mis met de demoschool op ".config('app.url_login')."! \$subject is null in TestTake.php. Dit betekent dat docenten toetsen van andere docenten kunnen zien. Dit moet zo snel mogelijk opgelost worden!",
-                        __FILE__, 510, []));
-                }
-                return;
+                return; // no demo environments any more for new teachers except for the temporary school location
             }
 
             $q->whereIn($this->getTable().'.id', function ($query) use ($subject, $user) {
@@ -1076,7 +1074,19 @@ class TestTake extends BaseModel
 
     public function updateToTaken()
     {
-        $this->test_take_status_id = TestTakeStatus::STATUS_TAKEN;
+        $this->test_take_status_id      = TestTakeStatus::STATUS_TAKEN;
+        $this->discussing_question_id   = null;
+        $this->is_discussed             = 0;
+        $this->discussion_type          = null;
+        $this->show_results             = null;
+        $this->skipped_discussion       = 0;
+        $this->returned_to_taken        = 1;
+        $this->save();
+    }
+
+    public function updateToDiscussed()
+    {
+        $this->test_take_status_id = TestTakeStatus::STATUS_DISCUSSED;
         $this->save();
     }
 

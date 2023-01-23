@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Livewire\Teacher\Questions;
 
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -20,6 +21,7 @@ use tcCore\Http\Controllers\TemporaryLoginController;
 use tcCore\Http\Controllers\TestQuestions\AttachmentsController;
 use tcCore\Http\Controllers\TestQuestionsController;
 use tcCore\Http\Controllers\TestsController;
+use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Http\Interfaces\QuestionCms;
 use tcCore\Http\Requests\CreateAttachmentRequest;
@@ -35,7 +37,7 @@ use tcCore\TestQuestion;
 
 class OpenShort extends Component implements QuestionCms
 {
-    use WithFileUploads,WithQueryStringSyncing;
+    use WithFileUploads, WithQueryStringSyncing;
 
     public $showSelectionOptionsModal = false;
 
@@ -183,7 +185,7 @@ class OpenShort extends Component implements QuestionCms
         ];
     }
 
-    private function resetQuestionProperties()
+    private function resetQuestionProperties($activeTest)
     {
         $this->question = [
             'add_to_database'          => 1,
@@ -209,6 +211,7 @@ class OpenShort extends Component implements QuestionCms
             'all_or_nothing'           => false,
             'lang'                     => $this->testLang ?? Auth::user()->schoolLocation->wscLanguage,
             'add_to_database_disabled' => 0,
+            'draft'                    => $activeTest->draft,
         ];
 
         $this->audioUploadOptions = [];
@@ -258,19 +261,19 @@ class OpenShort extends Component implements QuestionCms
     }
 
     protected $listeners = [
-            'new-tags-for-question' => 'handleExternalUpdatedProperty',
-            'updated-attainment'    => 'handleExternalUpdatedProperty',
-            'updated-learning-goal' => 'handleExternalUpdatedProperty',
-            'new-video-attachment'  => 'handleNewVideoAttachment',
-            'drawing_data_updated'  => 'handleUpdateDrawingData',
-            'refresh'               => 'render',
-            'showQuestion'          => 'showQuestion',
-            'addQuestion'           => 'addQuestion',
-            'showEmpty'             => 'showEmpty',
-            'questionDeleted'       => '$refresh',
-            'addQuestionFromDirty'  => 'addQuestionFromDirty',
-            'testSettingsUpdated'   => 'handleUpdatedTestSettings'
-        ];
+        'new-tags-for-question' => 'handleExternalUpdatedProperty',
+        'updated-attainment'    => 'handleExternalUpdatedProperty',
+        'updated-learning-goal' => 'handleExternalUpdatedProperty',
+        'new-video-attachment'  => 'handleNewVideoAttachment',
+        'drawing_data_updated'  => 'handleUpdateDrawingData',
+        'refresh'               => 'render',
+        'showQuestion'          => 'showQuestion',
+        'addQuestion'           => 'addQuestion',
+        'showEmpty'             => 'showEmpty',
+        'questionDeleted'       => '$refresh',
+        'addQuestionFromDirty'  => 'addQuestionFromDirty',
+        'testSettingsUpdated'   => 'handleUpdatedTestSettings'
+    ];
 
 
     public function handleUpdateDrawingData($data)
@@ -330,7 +333,7 @@ class OpenShort extends Component implements QuestionCms
     private function initialize($activeTest)
     {
         $this->testLang = $activeTest->lang;
-        $this->resetQuestionProperties();
+        $this->resetQuestionProperties($activeTest);
         $this->canDeleteTest = $activeTest->canDelete(Auth::user());
 
         $this->testName = $activeTest->name;
@@ -356,6 +359,10 @@ class OpenShort extends Component implements QuestionCms
             return $this->$newName($arguments);
         }
 
+            if(!method_exists(get_parent_class($this), $method) && !str_contains($method,'hydrate')){
+            $errorMessage = sprintf('Method (%s) not found on parent, type is `%s` (%s) on file %s:%d',$method,$this->question['type'],$this->question['subtype'],__FILE__,__LINE__);
+            Bugsnag::notifyException(new \Exception($errorMessage));
+        }
         return parent::__call($method, $arguments);
     }
 
@@ -570,6 +577,10 @@ class OpenShort extends Component implements QuestionCms
             if ($this->referrer === 'teacher.test-detail') {
                 return redirect()->to(route($this->referrer, $this->testId));
             }
+            if ($this->referrer === 'cake.filemanagement') {
+                $fileManagementUuid = Test::whereUuid($this->testId)->first()->fileManagement->uuid;
+                return CakeRedirectHelper::redirectToCake('files.view_testupload', $fileManagementUuid );
+            }
         }
         $url = sprintf("tests/view/%s", $this->testId);
         if ($this->isPartOfGroupQuestion() && !$this->withDrawer) {
@@ -610,6 +621,8 @@ class OpenShort extends Component implements QuestionCms
         $request = new CmsRequest();
         $request->merge($this->question);
         $request->filterInput();
+
+        $request = $this->handleDraftStatusOfTestForUpdate($request);
 
         if ($this->isPartOfGroupQuestion()) {
             $groupQuestionQuestion = GroupQuestionQuestion::whereUuid($this->groupQuestionQuestionId)->first();
@@ -923,6 +936,7 @@ class OpenShort extends Component implements QuestionCms
             $this->question['discuss'] = $tq->discuss;
             $this->question['decimal_score'] = $q->decimal_score;
             $this->question['lang'] = !is_null($q->lang) ? $q->lang : Auth::user()->schoolLocation->wscLanguage;
+            $this->question['draft'] = $q->draft;
 
             $this->lang = $this->question['lang'];
             $this->educationLevelId = $q->education_level_id;
@@ -1359,7 +1373,7 @@ class OpenShort extends Component implements QuestionCms
     private function returnToTestsList()
     {
         if ($this->referrer) {
-            if (in_array($this->referrer,['teacher.tests', 'teacher.test-detail'])) {
+            if (in_array($this->referrer, ['teacher.tests', 'teacher.test-detail'])) {
                 return redirect()->to(route('teacher.tests'));
             }
         }
@@ -1375,7 +1389,8 @@ class OpenShort extends Component implements QuestionCms
         }
     }
 
-    public function clearQuestionBag(){
+    public function clearQuestionBag()
+    {
         if ($this->obj && method_exists($this->obj, 'clearQuestionBag')) {
             $this->obj->clearQuestionBag();
         }
@@ -1401,5 +1416,11 @@ class OpenShort extends Component implements QuestionCms
             "Laten zien" => __('cms.Laten zien'),
             "Doen"       => __('cms.Doen'),
         ];
+    }
+
+    private function handleDraftStatusOfTestForUpdate(CmsRequest $request): CmsRequest
+    {
+        $request->merge(['test_draft' => Test::whereUuid($this->testId)->value('draft')]);
+        return $request;
     }
 }

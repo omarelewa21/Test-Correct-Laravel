@@ -6,7 +6,7 @@
          yellow: [2,6],
          green: [3,5],
          darkgreen: [4],
-         indicatorLeft: ({{ $pValue->p_value }} / 0.80 * 100) + '%'
+         indicatorLeft: ({{ $pValue->p_value }} * 100) + '%'
      }"
 >
     <div class="flex items-center min-w-[110px]">
@@ -17,7 +17,7 @@
             <span class="bold">P</span>
             {!! number_format( $pValue->p_value, 2) !!}
         </span>
-        <div class="flex relative px-2">
+        <div class="flex relative mx-2">
             <div class="flex rounded-10 overflow-hidden">
                 <template x-for="i in 7">
                     <span class="w-1.5 h-2 bg-allred"
@@ -33,7 +33,7 @@
             </div>
             <span class="pvalue-indicator small" :style="'left:' + indicatorLeft"></span>
         </div>
-        <span class="text-xs text-midgrey">0.8</span>
+        <span class="text-xs text-midgrey">1.0</span>
     </div>
 
     <div class="flex items-center ml-4">

@@ -7,9 +7,14 @@ use Illuminate\View\Component;
 
 class Block extends Component
 {
-    public function __construct(public int $key)
-    {
-    }
+    public function __construct(
+        public int    $key,
+        public bool   $disabled = false,
+        public bool   $emitWhenSet = false,
+        public bool   $upload = false,
+        public string $uploadModel = '',
+        public array  $uploadRules = [],
+    ) {}
 
     public function render(): View
     {

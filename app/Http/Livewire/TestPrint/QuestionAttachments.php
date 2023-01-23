@@ -19,7 +19,7 @@ class QuestionAttachments extends Component
         return view('livewire.test_print.question-attachments');
     }
 
-    private function prepareAttachments()
+    protected function prepareAttachments()
     {
         $this->attachments = $this->attachments->map(function ($attachment) {
             $attachment->filetype = $attachment->getFileType();

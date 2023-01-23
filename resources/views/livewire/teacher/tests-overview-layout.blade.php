@@ -108,9 +108,8 @@
             </div>
             <div id="testbank-{{ $this->openTab }}-active-filters"
                  wire:ignore
-
                  x-data=""
-                 :class="($el.childElementCount !== 1) ? 'mt-2' : ''"
+                 :class="{'mt-2': $el.childElementCount > 0}"
                  class="flex flex-wrap gap-2"
             >
             </div>

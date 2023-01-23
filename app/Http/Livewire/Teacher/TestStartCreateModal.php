@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use LivewireUI\Modal\ModalComponent;
 use tcCore\Http\Controllers\TemporaryLoginController;
+use tcCore\Http\Helpers\BaseHelper;
 
 class TestStartCreateModal extends ModalComponent
 {
@@ -19,36 +20,16 @@ class TestStartCreateModal extends ModalComponent
 
     public function goToCreateTest()
     {
-        $this->showModal = false;
         $this->emitTo('teacher.test-create-modal', 'showModal');
     }
     public function goToUploadTest()
     {
-        $this->showModal = false;
-        $controller = new TemporaryLoginController();
-        $request = new Request();
-        $request->merge([
-            'options'  => [
-                'page'        => '/file_management/testuploads',
-                'page_action' => "Popup.load('/file_management/upload_test',800);",
-            ],
-        ]);
-
-        redirect($controller->toCakeUrl($request));
+        $path = BaseHelper::getLivewireOriginalPath(request()) ?? '';
+        return redirect(route('teacher.upload-tests', ['referrer' => ['type' => 'laravel', 'page' => $path]]));
     }
 
     public static function modalMaxWidth(): string
     {
-        // 'sm'
-        // 'md'
-        // 'lg'
-        // 'xl'
-        // '2xl'
-        // '3xl'
-        // '4xl'
-        // '5xl'
-        // '6xl'
-        // '7xl'
         return '4xl';
     }
 

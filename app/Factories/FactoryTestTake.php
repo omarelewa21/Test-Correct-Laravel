@@ -261,7 +261,7 @@ class FactoryTestTake
     {
         $this->setProperties([
             'discussion_type' => ($openQuestionsOnly ? 'OPEN_ONLY' : 'ALL'),
-            'discussing_question_id' => $this->test->testQuestions->sortBy('order', 'asc')->first()->question_id,
+            'discussing_question_id' => $this->test->testQuestions->sortBy('order')->first()->question_id,
         ]);
         $this->setStatus(7);
         return $this;
@@ -345,38 +345,35 @@ class FactoryTestTake
         return $this;
     }
 
-    public function normalizeScoreRequestExamples() : void
+    public function normalizeScoreRequestExamples($preview=1): object
     {
-        $pppExample = [
-            "ignore_questions" => [
+        return (object) [
+            'pppExample' => [
+                "ignore_questions" => [],
+                "preview"          => $preview,
+                "ppp"              => "1", //amount correct needed per point, 1.5 is 15 'score' needed for a 10
             ],
-            "preview"          => 1,
-            "ppp"              => "1", //amount correct needed per point, 1.5 is 15 'score' needed for a 10
-        ];
-        $eppExample = [
-            "ignore_questions" => [
+            'eppExample' => [
+                "ignore_questions" => [],
+                "preview"          => $preview,
+                "epp"              => "1",
             ],
-            "preview"          => 1,
-            "epp"              => "1",
-        ];
-        $WanAvgExample = [
-            "ignore_questions" => [
+            'WanAvgExample' => [
+                "ignore_questions" => [],
+                "preview"          => $preview,
+                "wanted_average"   => "7.5",
             ],
-            "preview"          => 1,
-            "wanted_average"   => "7.5",
-        ];
-        $n_termExample = [
-            "ignore_questions" => [
+            'n_termExample' => [
+                "ignore_questions" => [],
+                "preview"          => $preview,
+                "n_term"           => "1",
             ],
-            "preview"          => 1,
-            "n_term"           => "1",
-        ];
-        $CesuurExample = [
-            "ignore_questions" => [
-            ],
-            "preview"          => 1,
-            "n_term"           => "1",
-            "pass_mark"        => "50",
+            'CesuurExample' => [
+                "ignore_questions" => [],
+                "preview"          => $preview,
+                "n_term"           => "1",
+                "pass_mark"        => "50",
+            ]
         ];
     }
 
@@ -416,5 +413,4 @@ class FactoryTestTake
 
         return round($rate, 1);
     }
-
 }

@@ -15,6 +15,8 @@ abstract class TestAction extends Component
     public bool $disabled;
     protected $test;
 
+    protected $listeners = ['test-updated' => 'testUpdated'];
+
     public function mount($uuid, $variant, $class)
     {
         $this->test = Test::findByUuid($uuid);
@@ -28,6 +30,11 @@ abstract class TestAction extends Component
     {
         $templateName = Str::kebab(class_basename(get_called_class()));
         return view('livewire.actions.'.$templateName);
+    }
+
+    public function testUpdated()
+    {
+        $this->mount($this->uuid, $this->variant, $this->class);
     }
 
     public abstract function handle();

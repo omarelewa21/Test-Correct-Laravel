@@ -76,4 +76,9 @@ return [
     'not_pausable_only_playable_once'              => 'This sound clip cannot be paused and can only be played once.',
     'test_take.directlink_auth_fail'               => 'You does not affiliate to this test take, please contact test owner for that problem',
     'unarchive_test_take_first'                    => 'Unarchive this test take to view the details.',
+    'update_to_taken'                              => 'Back to taken test',
+    'update_to_taken_toast'                        => 'Please note that the scores derived from CO-Learning will not influence the scoring you have already done in ‘checking’.',
+    'nvt'                                          => 'N/A',
+    'hide_grade_tooltip'                           => "Formative assessment furthers insight and progression. There is no grade applicable for this test.",
+    'waiting_grade'                                => "Currently checking & grading. Grade not yet available",
 ];
