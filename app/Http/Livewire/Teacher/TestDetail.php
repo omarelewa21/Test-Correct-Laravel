@@ -9,6 +9,7 @@ use tcCore\Question;
 use tcCore\Test;
 use tcCore\TestTake;
 use tcCore\TemporaryLogin;
+use Illuminate\Support\Arr;
 
 class TestDetail extends Component
 {
@@ -18,7 +19,7 @@ class TestDetail extends Component
     public $referrer = '';
     public $mode;
     public $context = 'testdetail';
-    public $previousURL ;
+    public $previousUrl;
 
     protected $queryString = ['referrer' => ['except' => '']];
 
@@ -34,7 +35,7 @@ class TestDetail extends Component
         Gate::authorize('canViewTestDetails',[Test::findByUuid($uuid)]);
 
         $this->uuid = $uuid;
-        $this->previousURL = url()->previous();
+        $this->previousUrl = $this->getPreviousUrl();
         $this->setContext();
     }
 
@@ -63,7 +64,7 @@ class TestDetail extends Component
 
     public function redirectToTestOverview()
     {
-        redirect()->to(route('teacher.tests'));
+        redirect()->to($this->previousUrl);
     }
 
     public function showGroupDetails($groupUuid)
@@ -117,5 +118,14 @@ class TestDetail extends Component
     public function testContainsQuestion($questionId)
     {
         return false;
+    }
+
+    public function getPreviousUrl()
+    {
+        $urlComponents = parse_url(url()->previous());
+        if(url($urlComponents['path']) !== route('teacher.tests')){
+            return route('teacher.tests');
+        }
+        return url()->previous();
     }
 }
