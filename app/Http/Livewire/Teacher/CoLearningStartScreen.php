@@ -22,7 +22,14 @@ class CoLearningStartScreen extends Component
     }
 
     public function goToNewCoLearning() {
-        return redirect()->route('teacher.co-learning', ['test_take' => $this->testTake->uuid]);
+        $response = $this->testTake->update([
+            'test_take_status_id' => 7,
+            'discussion_type' => 'OPEN_ONLY'
+        ]);
+
+        if($response) {
+            return redirect()->route('teacher.co-learning', ['test_take' => $this->testTake->uuid]);
+        }
     }
 
     public function goToOldCoLearning() {

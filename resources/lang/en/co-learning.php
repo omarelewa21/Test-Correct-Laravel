@@ -32,6 +32,7 @@ return [
     'all_questions'                 => 'all questions',
     'next'                          => 'Next',
     'previous'                      => 'Previous',
+    'answer_model'                  => 'Answer model',
 
 
 ];

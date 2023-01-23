@@ -92,6 +92,39 @@
     overflow: auto;
 }
 
+#co-learning-teacher-page .question-indicator .question-number {
+    border-color: var(--system-base);
+    background: var(--system-base);
+    color: white;
+}
+
+#co-learning-teacher-page .container-border-left-primary {
+    background-color: var(--primary);
+}
+
+#co-learning-teacher-page .container-border-left-student {
+    background-color: var(--secondary);
+}
+
+#co-learning-teacher-page .container-border-left-student,
+#co-learning-teacher-page .container-border-left-primary {
+    position: absolute;
+    width: 0.5rem;
+    height: 100%;
+    left: 0;
+    top: 0;
+    border-radius: 10px 0 0 10px; /*border left*/
+    border-width: 0px;
+}
+
+#co-learning-teacher-page h4 {
+    line-height: 1.33;
+}
+
+#co-learning-teacher-page .question-title {
+    padding-bottom: 13px;
+}
+
 #co-learning-start-screen {
     width: 100vw;
     height: 100vh;

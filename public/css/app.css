@@ -5198,6 +5198,39 @@ input.datepicker {
     overflow: auto;
 }
 
+#co-learning-teacher-page .question-indicator .question-number {
+    border-color: var(--system-base);
+    background: var(--system-base);
+    color: white;
+}
+
+#co-learning-teacher-page .container-border-left-primary {
+    background-color: var(--primary);
+}
+
+#co-learning-teacher-page .container-border-left-student {
+    background-color: var(--secondary);
+}
+
+#co-learning-teacher-page .container-border-left-student,
+#co-learning-teacher-page .container-border-left-primary {
+    position: absolute;
+    width: 0.5rem;
+    height: 100%;
+    left: 0;
+    top: 0;
+    border-radius: 10px 0 0 10px; /*border left*/
+    border-width: 0px;
+}
+
+#co-learning-teacher-page h4 {
+    line-height: 1.33;
+}
+
+#co-learning-teacher-page .question-title {
+    padding-bottom: 13px;
+}
+
 #co-learning-start-screen {
     width: 100vw;
     height: 100vh;
@@ -5213,6 +5246,7 @@ input.datepicker {
     position: relative;
     overflow: hidden;
 }
+
 
 @font-face {
     font-family: hl-icons;
@@ -8284,6 +8318,15 @@ video {
 .-top-3{
   top: -0.75rem;
 }
+.right-\[-14px\]{
+  right: -14px;
+}
+.top-\[14px\]{
+  top: 14px;
+}
+.left-4{
+  left: 1rem;
+}
 .right-4{
   right: 1rem;
 }
@@ -8298,9 +8341,6 @@ video {
 }
 .right-1\/2{
   right: 50%;
-}
-.left-4{
-  left: 1rem;
 }
 .-right-4{
   right: -1rem;
@@ -8629,6 +8669,9 @@ video {
 .-mr-4{
   margin-right: -1rem;
 }
+.mr-6{
+  margin-right: 1.5rem;
+}
 .ml-5{
   margin-left: 1.25rem;
 }
@@ -8646,9 +8689,6 @@ video {
 }
 .mb-6{
   margin-bottom: 1.5rem;
-}
-.mr-6{
-  margin-right: 1.5rem;
 }
 .-ml-2{
   margin-left: -0.5rem;
@@ -8782,6 +8822,11 @@ video {
 .h-8{
   height: 2rem;
 }
+.h-fit{
+  height: -webkit-fit-content;
+  height: -moz-fit-content;
+  height: fit-content;
+}
 .h-\[30px\]{
   height: 30px;
 }
@@ -8811,11 +8856,6 @@ video {
 }
 .h-\[var\(--header-height\)\]{
   height: var(--header-height);
-}
-.h-fit{
-  height: -webkit-fit-content;
-  height: -moz-fit-content;
-  height: fit-content;
 }
 .h-screen{
   height: 100vh;
@@ -10183,6 +10223,10 @@ video {
   padding-top: 70px;
   padding-bottom: 70px;
 }
+.px-\[60px\]{
+  padding-left: 60px;
+  padding-right: 60px;
+}
 .pt-4{
   padding-top: 1rem;
 }
@@ -10278,6 +10322,12 @@ video {
 }
 .pr-12{
   padding-right: 3rem;
+}
+.pt-\[14px\]{
+  padding-top: 14px;
+}
+.pb-\[33px\]{
+  padding-bottom: 33px;
 }
 .pl-7{
   padding-left: 1.75rem;
@@ -11715,6 +11765,10 @@ ul ul ul {
 .group:hover .group-hover\:text-primary{
   --tw-text-opacity: 1;
   color: rgb(0 77 245 / var(--tw-text-opacity));
+}
+
+.group:hover .group-hover\:opacity-\[0\.05\]{
+  opacity: 0.05;
 }
 
 .group:hover .group-hover\:opacity-0{

@@ -31,5 +31,6 @@ return [
     'all_questions'                 => 'alle vragen',
     'next'                          => 'Volgende',
     'previous'                      => 'Vorige',
+    'answer_model'                  => 'Antwoord model',
 
 ];

@@ -44,7 +44,7 @@
         <span class="student-name">{{$userFullName}}</span>
     </div>
     {{-- right --}}
-    <div class="show-on-smartboard relative" wire:click.prevent="showStudentAnswer('uuid or id')">
+    <div class="show-on-smartboard relative" @click="showStudentAnswer = true" wire:click.prevent="showStudentAnswer('{{ $testParticipant->discussing_answer_rating_id }}')">
         <x-icon.on-smartboard-show />
     </div>
 </div>

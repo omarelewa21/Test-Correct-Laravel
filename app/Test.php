@@ -896,18 +896,23 @@ class Test extends BaseModel
     {
         $orderOpenOnly = 0;
 
-        return $this->testQuestions->sortBy('order')->map(function ($testQuestion) {
+        return $this->testQuestions->sortBy('order')->flatMap(function ($testQuestion) {
             if ($testQuestion->question->type === 'GroupQuestion') {
                 return $testQuestion->question->groupQuestionQuestions->map(function ($item)  {
-                    $questionType = $item->canCheckAnswer() ? 'CLOSED' : 'OPEN';
-                    return ['id' => $item->question->getKey(), 'question_type' => $questionType];
+                    return [
+                        'id' => $item->question->getKey(),
+                        'question_type' => $item->question->canCheckAnswer() ? 'CLOSED' : 'OPEN'
+                    ];
                 });
             }
             $questionType = $testQuestion->question->canCheckAnswer() ? 'CLOSED' : 'OPEN';
-            return ['id' => $testQuestion->question->getKey(), 'question_type' => $questionType];
+            return [['id' => $testQuestion->question->getKey(), 'question_type' => $questionType]];
         })->mapWithKeys(function ($item, $key) use (&$orderOpenOnly) {
-            $order = $item['question_type'] === 'OPEN' ? ++$orderOpenOnly : null;
-            return [$item['id'] => ['order' => $key+1, 'order_open_only' => $order, ...$item]];
+            return [$item['id'] => [
+                'order' => $key+1,
+                'order_open_only' => $item['question_type'] === 'OPEN' ? ++$orderOpenOnly : null,
+                ...$item,
+            ]];
         })->toArray();
     }
 

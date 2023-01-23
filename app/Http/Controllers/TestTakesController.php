@@ -443,7 +443,11 @@ class TestTakesController extends Controller
                             foreach ($answer->answerRatings as $answerRating) {
                                 if (array_key_exists($answerRating->getAttribute('user_id'), $testParticipantUserIds)) {
                                     $testParticipantId = $testParticipantUserIds[$answerRating->getAttribute('user_id')];
-                                    if ($answerRating->getAttribute('type') === 'STUDENT' && $answerRating->getAttribute('rating') != $wantedRating && array_key_exists($answerRating->getAttribute('user_id'), $testParticipantUserIds)) {
+                                    if ($answerRating->getAttribute('type') === 'STUDENT' &&
+                                        $answerRating->getAttribute('rating') !== null &&
+                                        $answerRating->getAttribute('rating') != $wantedRating &&
+                                        array_key_exists($answerRating->getAttribute('user_id'), $testParticipantUserIds)
+                                    ) {
                                         if (!array_key_exists($testParticipantId, $testParticipantAbnormalities)) {
                                             $testParticipantAbnormalities[$testParticipantId] = 0;
                                         }
@@ -638,7 +642,7 @@ class TestTakesController extends Controller
         );
     }
 
-    public function nextQuestion(TestTake $testTake)
+    public function nextQuestion(TestTake $testTake, $returnAsResponseObject = true)
     {
         if ($testTake->testTakeStatus->name == 'Discussing') {
             $testTake->load(['discussingParentQuestions'                                                => function ($query) {
@@ -668,7 +672,11 @@ class TestTakesController extends Controller
             if ($newQuestionIdParents === false) {
                 $testTake->setAttribute('discussing_question_id', null);
                 if (!$testTake->save()) {
-                    return Response::make('Failed to update test take', 500);
+                    return $this->createReturn(
+                        returnAsResponseObject: $returnAsResponseObject,
+                        statusCode: 500,
+                        errorMessage: 'Failed to update test take'
+                    );
                 }
             } else {
                 $newQuestionIdParentParts = explode('.', $newQuestionIdParents);
@@ -689,7 +697,11 @@ class TestTakesController extends Controller
 
                 $testTake->discussingParentQuestions()->saveMany($discussingParentQuestions);
                 if (!$testTake->save()) {
-                    return Response::make('Failed to update test take', 500);
+                    return $this->createReturn(
+                        returnAsResponseObject: $returnAsResponseObject,
+                        statusCode: 500,
+                        errorMessage: 'Failed to update test take'
+                    );
                 }
 
                 $testTake->setAttribute('has_next_question', (QuestionGatherer::getNextQuestionId($testTake->getAttribute('test_id'), $newQuestionIdParents, in_array($testTake->getAttribute('discussion_type'), ['OPEN_ONLY'])) !== false));
@@ -780,10 +792,29 @@ class TestTakesController extends Controller
             }
 
 
-            return Response::make($testTake, 200);
+            return $this->createReturn(
+                returnAsResponseObject: $returnAsResponseObject,
+                statusCode: 200,
+                testTake: $testTake,
+            );
         } else {
-            return Response::make('Failed to set next question, test take is not being discussed', 500);
+            return $this->createReturn(
+                returnAsResponseObject: $returnAsResponseObject,
+                statusCode: 500,
+                errorMessage: 'Failed to set next question, test take is not being discussed'
+            );
         }
+    }
+
+    private function createReturn(bool $returnAsResponseObject, int $statusCode, ?TestTake $testTake = null, ?string $errorMessage = null): Response|TestTake|false
+    {
+        if ($returnAsResponseObject) {
+            $statusCode === 200
+                ? Response::make($testTake, 200)
+                : Response::make($errorMessage, 500);
+        }
+
+        return $statusCode === 200 ? $testTake : false;
     }
 
     private function shouldSkipCreatingAnswerRatingForEmptyAnswer($answer, $discussionType): bool

@@ -26,28 +26,34 @@
         <div class="flex flex-col ">
 
             <div class="flex justify-between drawer-content-head border-b border-bluegrey"
-                 x-init="fillSpaceBetweenElementsHorizontal($refs.drawerContentHeadText1, $refs.drawerContentHeadText2);"
+                 x-init="$nextTick(() => {fillSpaceBetweenElementsHorizontal($refs.drawerContentHeadText1, $refs.drawerContentHeadText2);})"
             >
-                <div x-ref="drawerContentHeadText1" class="whitespace-nowrap"><span class="bold">aanwezig 24</span>/30
+                <div x-ref="drawerContentHeadText1" class="flex">
+                    <span class="bold">aanwezig {{ $this->testParticipantCountActive }}</span>
+                    <span>/{{ $this->testParticipantCount }}</span>
                 </div>
-                <div x-ref="drawerContentHeadText2" class="whitespace-nowrap"><span class="bold">vraag 1</span>/5</div>
+                <div x-ref="drawerContentHeadText2" class="flex">
+                    <span class="bold">vraag {{ $this->openOnly ? $this->questionIndexOpenOnly : $this->questionIndex }}</span>
+                    <span>/{{  $this->openOnly ? $this->questionCountOpenOnly : $this->questionCount }}</span>
+                </div>
             </div>
 
             <div class="drawer-content divide-y divide-bluegrey overflow-auto">
 
                 @foreach($this->testTake->testParticipants as $testParticipant)
-                    <x-partials.sidebar.co-learning-teacher.student-info-container
-                            :testParticipant="$testParticipant"
-                    ></x-partials.sidebar.co-learning-teacher.student-info-container>
+                    @if($testParticipant->active)
+                        <x-partials.sidebar.co-learning-teacher.student-info-container
+                                :testParticipant="$testParticipant"
+                        ></x-partials.sidebar.co-learning-teacher.student-info-container>
+                    @endif
                 @endforeach
 
             </div>
         </div>
 
         <div class="bottom-0 drawer-footer flex justify-between items-center footer-shadow flex-shrink-0"
-             x-init="fillSpaceBetweenElementsHorizontal($refs.footerElement1, $refs.footerElement2);"
+             x-init="$nextTick(() => {fillSpaceBetweenElementsHorizontal($refs.footerElement1, $refs.footerElement2);})"
         >
-            {{-- todo disabled when at the first question --}}
             <x-button.text-button wire:click.prevent="goToPreviousQuestion"
                                   :disabled="$this->atFirstQuestion"
                                   class="flex-shrink-0"
@@ -56,8 +62,9 @@
                 <x-icon.arrow-left/>
                 <span class="ml-2">{{ __('co-learning.previous') }}</span>
             </x-button.text-button>
-            <x-button.primary class="px-4 flex-0 flex-shrink-0"
-                              wire:click.prevent="goToNextQuestion"
+            <x-button.primary wire:click.prevent="goToNextQuestion"
+                              :disabled="$this->atLastQuestion"
+                              class="px-4 flex-0 flex-shrink-0"
                               x-ref="footerElement2"
             >
                 <span class="mr-2">{{ __('co-learning.next') }}</span>
