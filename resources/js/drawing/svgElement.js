@@ -138,6 +138,14 @@ export class Rectangle extends svgElement {
         this.setXAttribute(coords.x);
         this.setYAttribute(coords.y);
     }
+
+    onResize(evt, cursor) {
+        const coords = this.calculateCoords(cursor);
+        this.setWidthAttribute(coords.width);
+        this.setHeightAttribute(coords.height);
+        this.setXAttribute(coords.x);
+        this.setYAttribute(coords.y);
+    }
     /**
      * Adjusts the x, y, width and height of a rectangle because SVG can't handle negative width and height values.
      * @param {{x: number, y: number}} cursor The current cursor position.
@@ -218,7 +226,6 @@ export class Rectangle extends svgElement {
     /**
      * Sets the Width attribute on the shape.
      * @param {number} value The value to be given to the attribute.
-     * @fires
      */
     setWidthAttribute(value) {
         this.setAttributeOnElementWithValidation("width", value);
@@ -259,16 +266,27 @@ export class Circle extends svgElement {
         super("circle", props);
     }
     /**
-     * Function to be called when the cursor was moved.
+     * Function to be called when the cursor was moved during draw.
      * @param {Event} evt The event that triggered the function.
      * @param {{x: number, y: number}} cursor The currect cursor position.
      */
     onDraw(evt, cursor) {
-        this.setRAttribute(this.calculateRadius(cursor));
+        this.setR(this.calculateRadius(cursor));
+    }
+    /**
+     * Function to be called when the cursor was moved during resize.
+     * @param {Event} evt The event that triggered the function.
+     * @param {{x: number, y: number}} cursor The currect cursor position.
+     */
+    onResize(evt, cursor) {
+        // The scaling ratio is here because the corner points do not lay on the circle,
+        // but on a circle with a radius of sqrt(2) bigger
+        const SCALING_RATIO = Math.SQRT1_2;
+        this.setR(SCALING_RATIO*this.calculateRadius(cursor));
     }
     /**
      * Calculates the radius of a circle.
-     * @param {{x: string, y: string}} cursor (x,y) position of the cursor on the screen.
+     * @param {{x: number, y: number}} cursor (x,y) position of the cursor on the screen.
      * @returns Radius of the circle.
      */
     calculateRadius(cursor) {
@@ -450,7 +468,6 @@ export class Image extends svgElement {
     /**
      * Sets the Width attribute on the shape.
      * @param {number} value The value to be given to the attribute.
-     * @fires
      */
     setWidthAttribute(value) {
         this.setAttributeOnElementWithValidation("width", value);

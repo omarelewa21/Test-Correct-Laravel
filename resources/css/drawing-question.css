@@ -530,6 +530,22 @@
     --cursor-type-locked: var(--cursor-default);
 }
 
+#drawing-tool #svg-canvas .side-nw {
+    cursor: nw-resize;
+}
+
+#drawing-tool #svg-canvas .side-sw {
+    cursor: sw-resize;
+}
+
+#drawing-tool #svg-canvas .side-ne {
+    cursor: ne-resize;
+}
+
+#drawing-tool #svg-canvas .side-se {
+    cursor: se-resize;
+}
+
 #drawing-tool #svg-canvas g.draggable {
     cursor: var(--cursor-type-draggable);
 }

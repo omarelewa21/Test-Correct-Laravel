@@ -186,6 +186,9 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
                     translateOfSvgShape: null,
                     offsetCursorToMidPoint: null,
                 },
+                resize: {
+                    enabled: false,
+                },
                 pan: {
                     enabled: false,
                     startCoordinates: {x: 0, y: 0},
@@ -204,6 +207,9 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             },
             drawing() {
                 return this.params.draw.newShape
+            },
+            resizing() {
+                return this.params.resize.enabled
             },
             getLayerDomElementsByLayerId: function (layerId) {
                 const layer = rootElement.querySelector(`#${layerId}`);
@@ -1365,6 +1371,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         if (evt.touches?.length == 2) {
             startPan(evt);
         } else if (drawingApp.params.currentTool == "drag") {
+            if (evt.target.classList.contains("corner")) return startResize(evt);
             startDrag(evt);
         } else {
             startDraw(evt);
@@ -1398,6 +1405,25 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
 
         selectedSvgShape.classList.add("dragging");
         selectedSvgShape.parentElement.classList.add("child-dragging");
+    }
+
+    function startResize(evt) {
+        const shapeGroup = evt.target.closest(".shape");
+        if (!shapeGroup) return;
+
+        const layerID = shapeGroup.parentElement.id;
+        const layerObject = Canvas.layers[Canvas.layerID2Key(layerID)];
+        if (!shapeMayBeDragged(shapeGroup, layerObject)) return;
+
+        const selectedSvgShape = layerObject.shapes[shapeGroup.id].svg;
+
+        Canvas.params.resize = {
+            enabled: true,
+            selectedSvgShape: selectedSvgShape,
+            startingCursorPosition: getCursorPosition(evt),
+        };
+
+        selectedSvgShape.onResizeStart?.(evt, getCursorPosition(evt));
     }
 
     function shapeMayBeDragged(shapeGroup, layerObject) {
@@ -1582,6 +1608,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             processUserPan();
         } else if (Canvas.dragging()) {
             drag(evt);
+        } else if (Canvas.resizing()) {
+            resize(evt);
         } else if (Canvas.drawing()) {
             Canvas.params.draw.newShape.svg.onDraw?.(evt, cursorPosition);
         }
@@ -1631,6 +1659,11 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             Canvas.params.cursorPosition
         );
         Canvas.params.drag.translateOfSvgShape.setTranslate(difference.dx, difference.dy);
+    }
+
+    function resize(evt) {
+        evt.preventDefault();
+        Canvas.params.resize.selectedSvgShape.onResize?.(evt, getCursorPosition(evt));
     }
 
     function processUserPan() {
@@ -1775,6 +1808,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             stopDraw(evt);
         } else if (Canvas.dragging()) {
             stopDrag();
+        } else if (Canvas.resizing()) {
+            stopResize();
         } else if (Canvas.panning()) {
             stopPan();
         }
@@ -1795,6 +1830,10 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         UI.svgCanvas.querySelector("g.dragging").classList.remove("dragging");
         UI.svgCanvas.querySelector(".child-dragging").classList.remove("child-dragging");
         Canvas.params.drag.enabled = false;
+    }
+
+    function stopResize() {
+        Canvas.params.resize.enabled = false;
     }
 
     function stopPan() {
