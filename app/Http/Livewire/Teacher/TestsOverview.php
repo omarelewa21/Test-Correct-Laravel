@@ -6,6 +6,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Ramsey\Uuid\Uuid;
 use tcCore\BaseSubject;
 use tcCore\EducationLevel;
 use tcCore\Subject;
@@ -14,30 +15,43 @@ use tcCore\TestTake;
 use tcCore\TemporaryLogin;
 use tcCore\TestAuthor;
 use tcCore\Traits\ContentSourceTabsTrait;
+use tcCore\Traits\UuidTrait;
 
 class TestsOverview extends Component
 {
-    use WithPagination;
-    use ContentSourceTabsTrait;
-    const ACTIVE_TAB_SESSION_KEY = 'tests-overview-active-tab';
+    use WithPagination, ContentSourceTabsTrait;
 
+    const ACTIVE_TAB_SESSION_KEY = 'tests-overview-active-tab';
     const PER_PAGE = 12;
 
-    public $filters = [];
-
     private $sorting = ['id' => 'desc'];
+    protected $queryString = [
+        'openTab'        => ['as' => 'to_tab'],
+        'referrerAction' => ['except' => ''],
+        'file'           => ['except' => ''],
+    ];
 
-    protected $queryString = ['openTab', 'referrerAction' => ['except' => '']];
-
+    public $filters = [];
     public $referrerAction = '';
-
+    public $file = '';
     public $selected = [];
+    public $mode;
 
     protected $listeners = [
         'test-deleted'        => '$refresh',
         'test-added'          => '$refresh',
         'testSettingsUpdated' => '$refresh',
+        'test-updated'        => '$refresh',
     ];
+
+    public function mount()
+    {
+        $this->isExamCoordinator = Auth::user()->isValidExamCoordinator();
+        $this->abortIfNewTestBankNotAllowed();
+        $this->initialiseContentSourceTabs();
+
+        $this->setFilters();
+    }
 
     public function render()
     {
@@ -56,7 +70,7 @@ class TestsOverview extends Component
         session(['tests-overview-filters' => $this->filters]);
     }
 
-    private function getDatasource()
+    protected function getDatasource()
     {
         try { // added for compatibility with mariadb
             \DB::select(\DB::raw("set session optimizer_switch='condition_fanout_filter=off';"));
@@ -98,7 +112,7 @@ class TestsOverview extends Component
 
     private function getSchoolDatasource()
     {
-        return Test::filtered(
+        return Test::schoolFiltered(
             array_merge(
                 $this->cleanFilterForSearch($this->filters['school_location']),
                 ['owner_id' => auth()->user()->school_location_id]
@@ -106,7 +120,6 @@ class TestsOverview extends Component
             $this->sorting
         );
     }
-
 
     private function getNationalDatasource()
     {
@@ -143,7 +156,7 @@ class TestsOverview extends Component
         );
     }
 
-    private function setFilters()
+    protected function setFilters()
     {
         if (session()->has('tests-overview-filters'))
             $this->filters = session()->get('tests-overview-filters');
@@ -158,7 +171,7 @@ class TestsOverview extends Component
                     'base_subject_id'      => [],
                 ];
                 if ($this->tabNeedsDefaultFilters($tab)) {
-                    $this->filters[$tab] = array_merge($this->filters[$tab], auth()->user()->getSearchFilterDefaultsTeacher());
+                    $this->mergeFiltersWithDefaults($tab);
                 }
             });
         }
@@ -228,16 +241,6 @@ class TestsOverview extends Component
             })->values()->toArray();
     }
 
-    public function mount()
-    {
-        $this->isExamCoordinator = Auth::user()->isValidExamCoordinator();
-
-        $this->abortIfNewTestBankNotAllowed();
-        $this->initialiseContentSourceTabs();
-
-        $this->setFilters();
-    }
-
     private function cleanFilterForSearch(array $filters)
     {
         return collect($filters)->reject(function ($filter) {
@@ -288,8 +291,16 @@ class TestsOverview extends Component
         }
 
         if ($this->referrerAction === 'create_test') {
-            $this->emit('openModal', 'teacher.test-create-modal');
-            $this->referrerAction = '';
+            $params = ['teacher.test-create-modal'];
+            if (Uuid::isValid($this->file)) {
+                $params = [
+                    'toetsenbakker.test-create-modal',
+                    ['fileManagement' => $this->file]
+                ];
+            }
+
+            $this->emit('openModal', ...$params);
+            $this->reset('referrerAction', 'file');
         }
         if ($this->referrerAction === 'test_deleted') {
             $this->dispatchBrowserEvent('notify', ['message' => __('teacher.Test is verwijderd')]);
@@ -302,7 +313,7 @@ class TestsOverview extends Component
         return collect($this->canFilterOnAuthorTabs)->contains($this->openTab);
     }
 
-    private function tabNeedsDefaultFilters($tab): bool
+    protected function tabNeedsDefaultFilters($tab): bool
     {
         return collect($this->schoolLocationInternalContentTabs)->contains($tab) && !Auth::user()->isValidExamCoordinator();
     }
@@ -329,18 +340,15 @@ class TestsOverview extends Component
     public function toPlannedTest($takeUuid)
     {
         $testTake = TestTake::whereUuid($takeUuid)->first();
-        if($testTake->isAssessmentType()){
+        if ($testTake->isAssessmentType()) {
             $url = sprintf("test_takes/assessment_open_teacher/%s", $takeUuid);
-        }else{
+        } else {
             $url = sprintf("test_takes/view/%s", $takeUuid);
         }
         $options = TemporaryLogin::buildValidOptionObject('page', $url);
         return auth()->user()->redirectToCakeWithTemporaryLogin($options);
     }
 
-    /**
-     * @return array
-     */
     private function getContentSourceFilters($tab): array
     {
         $filters = $this->cleanFilterForSearch($this->filters[$tab]);
@@ -348,5 +356,10 @@ class TestsOverview extends Component
             $filters['base_subject_id'] = BaseSubject::currentForAuthUser()->pluck('id')->toArray();
         }
         return $filters;
+    }
+
+    protected function mergeFiltersWithDefaults($tab): void
+    {
+        $this->filters[$tab] = array_merge($this->filters[$tab], auth()->user()->getSearchFilterDefaultsTeacher());
     }
 }

@@ -2,17 +2,15 @@
     'title' => 'unkown',
     'upload',
     'attachment',
-    'disabled' => false
+    'disabled' => false,
+    'deleteAction' => null,
+    'withNumber' => true,
 ])
 
 @php
     $type =  '';
     if($upload) {
-        $type = collect(explode('/', $attachment->getMimeType()))->first();
-
-        if ($type == 'application') {
-            $type = 'pdf';
-        }
+        $type = \tcCore\Http\Helpers\BaseHelper::getWorkableTypeFromUploadMime($attachment->getMimeType());
     } else {
         $type = $attachment->getFileType();
     }
@@ -39,12 +37,14 @@
             <x-icon.audiofile/>
         @elseif($type == 'pdf')
             <x-icon.pdf/>
+        @elseif($type == 'word')
+            <x-icon.word/>
         @else
             <x-icon.attachment/>
         @endif
     </div>
     <div class="flex base items-center relative">
-        <span class="pl-2" x-text="index + ':'"></span>
+        @if($withNumber) <span class="pl-2" x-text="index + ':'"></span> @endif
         @if($type == 'video')
         <span class="p-2 text-base max-w-[200px] truncate"
               :class="{'text-midgrey': resolvingTitle}"
@@ -98,7 +98,7 @@
                                 @else
                                     <x-input.toggle
                                             @change="$wire.handleAttachmentSettingChange({'play_once': $event.target.checked ? '1' : '0'}, '{{ $attachment->uuid }}')"
-                                            :checked="optional(json_decode($attachment->json))->play_once === '1'"
+                                            :checked="(bool)$attachment->getSetting('play_once', $this->questionId)"
                                     />
                                 @endif
                             </div>
@@ -117,7 +117,7 @@
                                 @else
                                     <x-input.toggle
                                             @change="$wire.handleAttachmentSettingChange({'pausable': $event.target.checked ? '1' : '0'}, '{{ $attachment->uuid }}')"
-                                            :checked="optional(json_decode($attachment->json))->pausable === '1'"
+                                            :checked="(bool)$attachment->getSetting('pausable', $this->questionId)"
                                     />
                                 @endif
                             </div>
@@ -145,7 +145,7 @@
                                             class="w-24 pr-10 text-base"
                                             placeholder="250"
                                             @change="$wire.handleAttachmentSettingChange({'timeout': $event.target.value}, '{{ $attachment->uuid }}')"
-                                            :value="optional(json_decode($attachment->json))->timeout"
+                                            :value="$attachment->getSetting('timeout', $this->questionId)"
                                     />
                                 @endif
                                 <span class="audio-seconds-input"></span>
@@ -155,7 +155,12 @@
                     <div class="flex w-full h-px bg-blue-grey mb-2"></div>
                 @endif
                 <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
+                        @if($deleteAction)
+                            @click="{{ $deleteAction }}"
+                        @else
                         @click="$dispatch('delete-modal', ['{{ $upload ? 'upload' : 'attachment'}}', '{{ $upload ? $attachment->getFileName() : $attachment->uuid }}'])"
+                        @endif
+
                 >
                     <x-icon.remove/>
                     <span class="text-base bold inherit">{{ __('cms.Verwijderen') }}</span>

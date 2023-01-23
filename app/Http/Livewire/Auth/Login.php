@@ -125,15 +125,15 @@ class Login extends Component
 
     public function mount()
     {
-        Auth::logout();
-
-        if(session()->has('take')){
-            $take = TestTake::whereUuid(session('take'))->with('testTakeCode')->first();
+        if(request()->has('directlink')){
+            $take = TestTake::whereUuid(request()->get('directlink'))->with('testTakeCode')->first();
             if($take->testTakeCode){
                 $this->testTakeCode = str_split($take->testTakeCode->code);
             }
             $this->take = $take->uuid;
         }
+
+        Auth::logout();
 
         session()->invalidate();
         session()->regenerateToken();
@@ -199,8 +199,6 @@ class Login extends Component
 
     public function guestLogin()
     {
-
-
         if (!$this->filledInNecessaryGuestInformation()) {
             return false;
         }
@@ -212,7 +210,7 @@ class Login extends Component
         $testCodeHelper = new TestTakeCodeHelper();
 
         $testTakeCode = $testCodeHelper->getTestTakeCodeIfExists($this->testTakeCode);
-        if (!$testTakeCode) {
+        if (!$testTakeCode || !$testTakeCode->testTake) {
             return $this->addError('no_test_found_with_code', __('auth.no_test_found_with_code'));
         }
 

@@ -1,9 +1,9 @@
-<x-modal.base-modal>
+<x-modal-new>
     <x-slot name="title">
         <h2>{{__("cms.Direct afnemen")}}</h2>
     </x-slot>
 
-    <x-slot name="content">
+    <x-slot name="body">
         <div class="flex flex-col gap-4">
             <div class="data | flex flex-col gap-x-4 gap-y-2.5">
                 <div class="flex w-full gap-4">
@@ -60,6 +60,15 @@
                     <x-icon.send-mail/>
                     <span class="bold">{{ __('teacher.notify_students') }} </span>
                 </x-input.toggle-row-with-title>
+                @if($rttiExportAllowed)
+                    <x-input.toggle-row-with-title wire:model="testTake.is_rtti_test_take"
+                                                   :toolTip="__('teacher.exporteer_naar_rtti_online_tooltip')"
+                                                   containerClass="border-t w-full lg:w-[calc(50%-0.5rem)]"
+                    >
+                        <x-icon.export/>
+                        <span class="bold">{{ __('teacher.Exporteer naar RTTI Online') }} </span>
+                    </x-input.toggle-row-with-title>
+                @endif
             </div>
 
             @if($errors->isNotEmpty())
@@ -86,4 +95,4 @@
             </x-button.cta>
         </div>
     </x-slot>
-</x-modal.base-modal>
+</x-modal-new>

@@ -92,7 +92,7 @@ trait ExamSchoolQuestionTrait {
     private function toggleTestQuestionsForScopeExamOnTest($question):bool
     {
         foreach($question->testQuestions as $testQuestion){
-            if($testQuestion->test->scope == 'exam'&&!$testQuestion->test->is_system_test){
+            if(null !== $testQuestion->test && $testQuestion->test->scope == 'exam'&&!$testQuestion->test->is_system_test){
                 return true;
             }
         }

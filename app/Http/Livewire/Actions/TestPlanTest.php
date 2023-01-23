@@ -4,6 +4,7 @@ namespace tcCore\Http\Livewire\Actions;
 
 use Illuminate\Support\Facades\Auth;
 use tcCore\Http\Traits\Actions\WithPlanButtonFeatures;
+use tcCore\SchoolLocation;
 
 class TestPlanTest extends TestAction
 {
@@ -23,6 +24,10 @@ class TestPlanTest extends TestAction
 
     protected function getDisabledValue()
     {
-        return !$this->test->canPlan(Auth::user());
+        if(Auth::user()->isToetsenbakker() && Auth::user()->isCurrentlyInToetsenbakkerij()) {
+            return true;
+        }
+
+        return !$this->test->canPlan(Auth::user()) || $this->test->isDraft();
     }
 }

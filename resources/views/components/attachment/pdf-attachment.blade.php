@@ -32,19 +32,8 @@ See https://github.com/adobe-type-tools/cmap-resources
     <link rel="resource" type="application/l10n" href="/pdf/locale/locale.properties">
     <script>
         <!-- MarkO: I took the original DEFAULT_URL out of the viewer.js file and added it here so we can overwrite it with our own -->
-        <?
-        if(isset($attachment_url)) {
-            print("var DEFAULT_URL = '" . $attachment_url . "';");
-        } else {
-            print("var DEFAULT_URL = '';");
-        }
-
-        if(isset($is_question_pdf) && $is_question_pdf) {
-            print("var studentButtons = true;");
-        } else {
-            print("var studentButtons = false;");
-        }
-        ?>
+        let DEFAULT_URL = '{{ $attachment_url ?? '' }}';
+        let studentButtons = @js(isset($is_question_pdf) && $is_question_pdf);
     </script>
     <script src="/pdf/pdf.js"></script>
     <script src="/pdf/viewer.js"></script>

@@ -2,11 +2,9 @@
 
 namespace tcCore\Http\Traits;
 
-use Illuminate\Support\Arr;
-
 trait WithTeacherMenu
 {
-    private function menus()
+    public function menus()
     {
         $menus = [];
         $menus['dashboard'] = [
@@ -51,17 +49,17 @@ trait WithTeacherMenu
         return collect(json_decode(json_encode($menus)));
     }
 
-    private function tiles()
+    public function tiles()
     {
         $tiles = $this->menus->where('hasItems', true)->mapWithKeys(function ($menuData, $menuName) {
-            $getter = $menuName . 'Tiles';
+            $getter = $menuName.'Tiles';
             return [$menuName => self::$getter()];
         });
 
         return collect(json_decode(json_encode($tiles)));
     }
 
-    private static function testsTiles()
+    protected static function testsTiles()
     {
         $tiles = [];
         $tiles['create-test'] = [
@@ -99,7 +97,7 @@ trait WithTeacherMenu
         return $tiles;
     }
 
-    private static function plannedTiles()
+    protected static function plannedTiles()
     {
         $tiles = [];
         $tiles['planned-tests'] = [
@@ -129,7 +127,7 @@ trait WithTeacherMenu
         return $tiles;
     }
 
-    private static function takenTiles()
+    protected static function takenTiles()
     {
         $tiles = [];
 
@@ -153,7 +151,7 @@ trait WithTeacherMenu
         return $tiles;
     }
 
-    private static function classesTiles()
+    protected static function classesTiles()
     {
         $tiles = [];
         $tiles['my-classes-classes'] = [
@@ -175,25 +173,37 @@ trait WithTeacherMenu
         return $tiles;
     }
 
-    private static function analysesTiles()
+    protected static function analysesTiles()
     {
         $tiles = [];
-        $tiles['my-students'] = [
-            'title'  => __('header.Mijn studenten'),
-            'action' => [
-                'directive'  => 'wire',
-                'method'     => 'cakeRedirect',
-                'parameters' => 'analyses.students'
-            ]
-        ];
-        $tiles['my-classes-analyses'] = [
-            'title'  => __('header.Mijn klassen'),
-            'action' => [
-                'directive'  => 'wire',
-                'method'     => 'cakeRedirect',
-                'parameters' => 'analyses.classes'
-            ]
-        ];
+
+        if (auth()->user()->schoolLocation->allow_analyses) {
+            $tiles['my-classes-analyses'] = [
+                'title'  => __('header.Mijn klassen'),
+                'action' => [
+                    'directive'  => 'wire',
+                    'method'     => 'cakeRedirect',
+                    'parameters' => 'new_analyses.classes'
+                ]
+            ];
+        } else {
+            $tiles['my-students'] = [
+                'title'  => __('header.Mijn studenten'),
+                'action' => [
+                    'directive'  => 'wire',
+                    'method'     => 'cakeRedirect',
+                    'parameters' => 'analyses.students'
+                ]
+            ];
+            $tiles['my-classes-analyses'] = [
+                'title'  => __('header.Mijn klassen'),
+                'action' => [
+                    'directive'  => 'wire',
+                    'method'     => 'cakeRedirect',
+                    'parameters' => 'analyses.classes'
+                ]
+            ];
+        }
         return $tiles;
     }
 }

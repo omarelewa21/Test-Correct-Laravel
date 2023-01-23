@@ -1,15 +1,21 @@
 <div id="question-bank"
      class="flex flex-col relative w-full min-h-full bg-lightGrey border-t border-secondary overflow-auto overflow-x-hidden"
-     x-data="{openTab: @entangle('openTab'), inGroup: @entangle('inGroup'), groupDetail: null, bodyVisibility: true,  maxHeight: 'calc(100vh - var(--header-height))'}"
+     x-data="{
+        questionBankOpenTab: @entangle('openTab'),
+        inGroup: @entangle('inGroup'),
+        groupDetail: null,
+        bodyVisibility: true,
+        maxHeight: 'calc(100vh - var(--header-height))'
+        }"
      :style="`max-height: ${maxHeight}`"
      x-init="
         groupDetail = $el.querySelector('#groupdetail');
         $watch('$store.questionBank.inGroup', value => inGroup = value);
         $watch('$store.questionBank.active', value => {
            //if true, the wire method also makes the html rerender, but only calling the render didn't cut it
-           value ? $wire.setAddedQuestionIdsArray() : closeGroupDetail();
+           value ? $wire.setAddedQuestionIdsArray() : closeGroupDetailQb();
         });
-        showGroupDetails = async (groupQuestionUuid, inTest = false) => {
+        showGroupDetailsQb = async (groupQuestionUuid, inTest = false) => {
             let readyForSlide = await $wire.showGroupDetails(groupQuestionUuid, inTest);
 
             if (readyForSlide) {
@@ -23,11 +29,10 @@
                         handleVerticalScroll($el.closest('.slide-container'));
                     }, 250);
                 })
-
             }
         }
 
-        closeGroupDetail = () => {
+        closeGroupDetailQb = () => {
             if (!bodyVisibility) {
                 bodyVisibility = true;
                 maxHeight = 'calc(100vh - var(--header-height))';
@@ -41,7 +46,7 @@
             }
 
         }
-        addQuestionToTest = async (button, questionUuid, showQuestionBankAddConfirmation=false) => {
+        addQuestionToTest = async (button, questionUuid, showQuestionBankAddConfirmation = false) => {
             if(showQuestionBankAddConfirmation) return $wire.emit('openModal', 'teacher.add-sub-question-confirmation-modal', {questionUuid: questionUuid});
             button.disabled = true;
             var enableButton = await $wire.handleCheckboxClick(questionUuid);
@@ -51,73 +56,31 @@
         "
      @question-added.window="Notify.notify('{{ __('cms.question_added') }}');"
      @question-removed.window="Notify.notify('{{ __('cms.question_deleted') }}')"
+     group-container
+     x-on:show-group-details="showGroupDetailsQb($event.detail.questionUuid, $event.detail.inTest );"
+     x-on:close-group-details="closeGroupDetailQb()"
+     x-on:add-question-to-test="addQuestionToTest($event.detail.button, $event.detail.questionUuid, $event.detail.showQuestionBankAddConfirmation)"
+     wire:ignore.self
 >
-    <div class="flex w-full flex-col border-b border-secondary sticky top-0 z-[2]">
-        <div class="py-2 px-6 flex w-full bg-white border-b border-secondary">
-            <div class="flex items-center space-x-2.5">
-                <x-button.back-round @click="hideQuestionBank();" selid="question-bank-back-btn"/>
-                <span class="bold text-lg cursor-default">{{ __('cms.Bestaande vraag toevoegen') }}</span>
-            </div>
+    <x-menu.tab.container >
+        <x-menu.tab.item tab="personal" menu="questionBankOpenTab" >
+            {{ __('general.Persoonlijk') }}
+        </x-menu.tab.item>
+        <x-menu.tab.item tab="school_location" menu="questionBankOpenTab" >
+            {{ __('general.School') }}
+        </x-menu.tab.item>
+        <x-menu.tab.item tab="national" menu="questionBankOpenTab" :highlight="true" :when="$allowedTabs->contains('national')">
+            {{ __('general.Nationaal') }}
+        </x-menu.tab.item>
+        <x-menu.tab.item tab="creathlon" menu="questionBankOpenTab" :highlight="true" :when="$allowedTabs->contains('creathlon')">
+            {{ __('general.Creathlon') }}
+        </x-menu.tab.item>
+    </x-menu.tab.container>
 
-            <div class="flex ml-auto items-center space-x-2.5">
-                <x-button.cta @click="hideQuestionBank();" selid="close-question-bank-btn">
-                    <span>{{ __('drawing-modal.Sluiten') }}</span>
-                </x-button.cta>
 
-                <x-button.slider wire:model="sliderButtonSelected" :disabled="$sliderButtonDisabled"
-                        button-width="135px" :options="$sliderButtonOptions"></x-button.slider>
-
-            </div>
-
-        </div>
-        <div class="flex w-full bg-lightGrey">
-            <div class="w-full   mx-auto">
-                <div class="flex w-full mx-8 max-w-max h-12.5">
-                    <div class="flex items-center relative hover:text-primary hover:bg-primary/5 px-2 cursor-pointer transition"
-                         @click="openTab = 'personal'">
-                        <span class="bold "
-                              :class="openTab === 'personal' ? 'primary' : '' ">{{ __('general.Persoonlijk') }}</span>
-                        <span class="absolute w-[calc(100%-1rem)] bottom-0 left-2" style="height: 3px"
-                              :class="openTab === 'personal' ? 'bg-primary' : 'bg-transparent' "></span>
-                    </div>
-                    <div class="flex items-center relative hover:text-primary hover:bg-primary/5 px-2 cursor-pointer transition"
-                         @click="openTab = 'school_location'">
-                        <span class="bold "
-                              :class="openTab === 'school_location' ? 'primary' : '' ">{{ __('general.School') }}</span>
-                        <span class="absolute w-[calc(100%-1rem)] bottom-0 left-2" style="height: 3px"
-                              :class="openTab === 'school_location' ? 'bg-primary' : 'bg-transparent' "></span>
-                    </div>
-                    @if($allowedTabs->contains('national'))
-                        <div class="flex items-center relative hover:text-primary hover:bg-primary/5 px-2 cursor-pointer group transition"
-                             @click="openTab = 'national'">
-                            <span class="bold text-white bg-sysbase px-2 py-1 rounded-lg group-hover:bg-primary transition"
-                                  :class="{'bg-primary' : openTab === 'national' }"
-                            >
-                                {{ __('general.Nationaal') }}
-                            </span>
-
-                            <span class="absolute w-[calc(100%-1rem)] bottom-0 left-2"
-                                  style="height: 3px"
-                                  :class="openTab === 'national' ? 'bg-primary' : 'bg-transparent' ">
-                            </span>
-                        </div>
-                    @endif
-                    @if($allowedTabs->contains('creathlon'))
-                        <div class="flex items-center relative hover:text-primary hover:bg-primary/5 px-2 cursor-pointer transition"
-                             @click="openTab = 'creathlon'">
-                        <span class="bold "
-                              :class="openTab === 'creathlon' ? 'primary' : '' ">{{ __('general.Creathlon') }}</span>
-                            <span class="absolute w-[calc(100%-1rem)] bottom-0 left-2" style="height: 3px"
-                                  :class="openTab === 'creathlon' ? 'bg-primary' : 'bg-transparent' "></span>
-                        </div>
-                    @endif
-                </div>
-            </div>
-        </div>
-    </div>
     <div class="flex w-full main" x-show="bodyVisibility" x-cloak>
-        <div class="w-full  mx-auto divide-y divide-secondary">
-            <div class="mx-8"
+        <div class="w-full  mx-auto ">
+            <div class="mx-8 divide-y divide-secondary"
                  x-data="{filterLoading: false}"
                  x-init="
                         Livewire.hook('message.sent', (message, component) => {
@@ -134,7 +97,7 @@
                  @enable-loading-grid.window="filterLoading = true;"
             >
                 {{-- Filters--}}
-                <div class="flex flex-col pt-4 pb-2">
+                <div class="flex flex-col py-4">
                     <div class="flex w-full my-2">
                         <div class="relative w-full">
                             <x-input.text class="w-full"
@@ -166,19 +129,19 @@
                                 />
                             @endif
                             <x-input.choices-select :multiple="true"
-                                                    :options="$this->educationLevel"
-                                                    :withSearch="true"
-                                                    placeholderText="{{ __('general.Niveau')}}"
-                                                    wire:model="filters.{{ $this->openTab }}.education_level_id"
-                                                    wire:key="education_level_id_{{ $this->openTab }}"
-                                                    filterContainer="questionbank-{{ $this->openTab }}-active-filters"
-                            />
-                            <x-input.choices-select :multiple="true"
                                                     :options="$this->educationLevelYear"
                                                     :withSearch="true"
                                                     placeholderText="{{ __('general.Leerjaar')}}"
                                                     wire:model="filters.{{ $this->openTab }}.education_level_year"
                                                     wire:key="education_level_year_{{ $this->openTab }}"
+                                                    filterContainer="questionbank-{{ $this->openTab }}-active-filters"
+                            />
+                            <x-input.choices-select :multiple="true"
+                                                    :options="$this->educationLevel"
+                                                    :withSearch="true"
+                                                    placeholderText="{{ __('general.Niveau')}}"
+                                                    wire:model="filters.{{ $this->openTab }}.education_level_id"
+                                                    wire:key="education_level_id_{{ $this->openTab }}"
                                                     filterContainer="questionbank-{{ $this->openTab }}-active-filters"
                             />
                             @if($this->hasAuthorFilter())
@@ -232,12 +195,12 @@
 
                     <x-grid class="mt-4" x-show="filterLoading" x-cloak>
                         @foreach(range(1,6) as $value)
-                            <x-grid.loading-card :delay="$value"/>
+                            <x-grid.loading-card :delay="$value" x-show="filterLoading"/>
                         @endforeach
                     </x-grid>
                     <x-grid class="mt-4" x-show="!filterLoading" x-cloak selid="question-bank-list">
                         @foreach($this->questions as $question)
-                            <x-grid.question-card :question="$question"/>
+                            <x-grid.question-card :question="$question" :inTest="$this->testContainsQuestion($question)" context="question-bank"/>
                         @endforeach
 
                         @if($this->questions->count() && $this->questions->count() != $this->resultCount)

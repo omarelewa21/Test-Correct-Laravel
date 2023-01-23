@@ -1,9 +1,8 @@
 <div id="planned-body"
      x-data="{ activeTab: @entangle('tab') }"
-     x-init="addRelativePaddingToBody('planned-body'); makeHeaderMenuActive('student-header-tests');"
+     x-init="makeHeaderMenuActive('student-header-tests');"
      x-cloak
      class="w-full flex flex-col items-center"
-     x-on:resize.window.debounce.200ms="addRelativePaddingToBody('planned-body')"
      wire:ignore.self
 >
     <div class="flex w-full justify-center border-b border-system-secondary px-4 lg:px-8 xl:px-24">
@@ -28,7 +27,7 @@
             </div>
             <div wire:click="changeActiveTab('{{ $this->gradedTab }}')">
                 <x-button.text-button class="px-2 border-0 {{ $this->gradedTab === $tab ? 'active' : '' }}" withHover="true">
-                    <span>{{ __('student.graded') }}
+                    <span>{{ __('student.results') }}
                     </span>
                 </x-button.text-button>
             </div>

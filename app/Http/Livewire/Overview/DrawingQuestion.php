@@ -2,8 +2,6 @@
 
 namespace tcCore\Http\Livewire\Overview;
 
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use tcCore\Answer;
 use tcCore\Http\Traits\WithAttachments;

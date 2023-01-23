@@ -239,6 +239,7 @@ class ImportHelper
             time() - $this->startTime, $this->cacheHit));
     }
 
+    /** @noinspection UnsupportedStringOffsetOperationsInspection */
     public function process()
     {
 
@@ -1210,7 +1211,7 @@ class ImportHelper
 
             if ($this->should_use_import_password_pattern) {
                 $pattern = ($forRole === 'teacher') ? User::TEACHER_IMPORT_PASSWORD_PATTERN : User::STUDENT_IMPORT_PASSWORD_PATTERN;
-                $user->password = Hash::make(sprintf($pattern, $user->id));
+                $user->password = sprintf($pattern, $user->id);
             }
 
             if ($user->isDirty()) {

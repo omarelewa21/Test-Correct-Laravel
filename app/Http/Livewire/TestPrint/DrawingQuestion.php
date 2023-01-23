@@ -41,7 +41,7 @@ class DrawingQuestion extends Component
         $this->pngBase64 = $this->setDrawingQuestionBase64Image();
     }
 
-    private function setDrawingQuestionBase64Image()
+    protected function setDrawingQuestionBase64Image()
     {
         if (is_null($this->question['zoom_group'])) {
             if (!$this->question->getBackgroundImage() && $this->question->grid) {
@@ -53,7 +53,7 @@ class DrawingQuestion extends Component
         return 'data:image/png;base64,' . base64_encode($svgHelper->getQuestionModelPNG());
     }
 
-    private function setUpOldDrawingQuestionGrid()
+    protected function setUpOldDrawingQuestionGrid()
     {
         $this->oldDrawingQuestionGridHeight = $this->question->grid * 1.5;
         if($this->question->grid <= 4) {

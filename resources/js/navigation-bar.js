@@ -156,7 +156,7 @@ document.addEventListener('alpine:init', () => {
             return !Array.from(this.menuButtonsWithoutItems)
                 .map(item => item.dataset.menu)
                 .filter(n => n)
-                .includes(this.activeMenuItem.dataset.menu);
+                .includes(this.activeMenuItem?.dataset.menu);
         }
     }));
 });

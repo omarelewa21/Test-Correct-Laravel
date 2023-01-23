@@ -36,7 +36,7 @@
     <x-notification :notificationTimeout="$notificationTimeout"/>
     @push('scripts')
         <script>
-            Echo.connector.pusher.config.auth.headers['X-CSRF-TOKEN'] = '{{ csrf_token() }}'
+            addCSRFTokenToEcho('{{ csrf_token() }}');
 
             document.addEventListener("DOMContentLoaded", () => {
                 document.renderCounter = 0;

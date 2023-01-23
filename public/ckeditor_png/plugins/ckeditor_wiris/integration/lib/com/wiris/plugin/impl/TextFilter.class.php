@@ -6,7 +6,6 @@ class com_wiris_plugin_impl_TextFilter {
 		$this->plugin = $plugin;
 		$this->render = $plugin->newRender();
 		$this->service = $plugin->newTextService();
-		$this->fixUrl = null;
 	}}
 	public function save_xml_encode($str) {
 		$tags = com_wiris_plugin_impl_TextFilterTags::newSafeXml();
@@ -123,10 +122,6 @@ class com_wiris_plugin_impl_TextFilter {
 				$n1 = $n1 + strlen($tags->in_appletclose);
 				$sub = _hx_substr($text, $n0, $n1 - $n0);
 				if($safeXML) {
-					if($this->fixUrl === null) {
-						$this->fixUrl = new EReg("<a href=\"[^\"]*\"[^>]*>([^<]*)<\\/a>|<a href=\"[^\"]*\">", "");
-					}
-					$sub = $this->fixUrl->replace($sub, "\$1");
 					$sub = $this->html_entity_decode($sub);
 					$sub = str_replace($tags->in_double_quote, $tags->out_double_quote, $sub);
 					$sub = str_replace($tags->in_open, $tags->out_open, $sub);
@@ -181,10 +176,6 @@ class com_wiris_plugin_impl_TextFilter {
 							}
 						}
 					}
-					if($this->fixUrl === null) {
-						$this->fixUrl = new EReg("<a href=\"[^\"]*\"[^>]*>([^<]*)<\\/a>|<a href=\"[^\"]*\">", "");
-					}
-					$sub = $this->fixUrl->replace($sub, "\$1");
 					$sub = $this->html_entity_decode($sub);
 					$sub = str_replace($tags->in_double_quote, $tags->out_double_quote, $sub);
 					$sub = str_replace($tags->in_open, $tags->out_open, $sub);
@@ -195,8 +186,8 @@ class com_wiris_plugin_impl_TextFilter {
 				$subtext = null;
 				try {
 					$subtext = $this->math2Img($sub, $prop);
-				}catch(Exception $ï¿½e) {
-					$_ex_ = ($ï¿½e instanceof HException) ? $ï¿½e->e : $ï¿½e;
+				}catch(Exception $»e) {
+					$_ex_ = ($»e instanceof HException) ? $»e->e : $»e;
 					$e = $_ex_;
 					{
 						$subtext = $sub;
@@ -237,19 +228,18 @@ class com_wiris_plugin_impl_TextFilter {
 		$str = $this->filterApplet($tags, $str, $prop, $b);
 		return $str;
 	}
-	public $fixUrl;
 	public $service;
 	public $render;
 	public $plugin;
 	public function __call($m, $a) {
 		if(isset($this->$m) && is_callable($this->$m))
 			return call_user_func_array($this->$m, $a);
-		else if(isset($this->ï¿½dynamics[$m]) && is_callable($this->ï¿½dynamics[$m]))
-			return call_user_func_array($this->ï¿½dynamics[$m], $a);
+		else if(isset($this->»dynamics[$m]) && is_callable($this->»dynamics[$m]))
+			return call_user_func_array($this->»dynamics[$m], $a);
 		else if('toString' == $m)
 			return $this->__toString();
 		else
-			throw new HException('Unable to call ï¿½'.$m.'ï¿½');
+			throw new HException('Unable to call «'.$m.'»');
 	}
 	static $NBSP;
 	function __toString() { return 'com.wiris.plugin.impl.TextFilter'; }

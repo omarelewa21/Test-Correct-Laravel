@@ -1,18 +1,18 @@
 <?php namespace tcCore;
 
 use Closure;
+use Dyrynda\Database\Casts\EfficientUuid;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use tcCore\Http\Helpers\AnalysesGeneralDataHelper;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Lib\Models\AccessCheckable;
 use tcCore\Lib\Models\BaseModel;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\Lib\User\Roles;
-use Dyrynda\Database\Casts\EfficientUuid;
-use Dyrynda\Database\Support\GeneratesUuid;
 use tcCore\Traits\UuidTrait;
-use Illuminate\Support\Facades\Auth;
 
 class Subject extends BaseModel implements AccessCheckable
 {
@@ -240,14 +240,9 @@ class Subject extends BaseModel implements AccessCheckable
                     ->join('students', 'school_classes.id', '=', 'students.class_id')
                     ->where('students.user_id', $user->getKey())
                     ->where('school_year_id', $currentSchoolYear->getKey());
-
         }
 
-
-
         return $query->whereIn('id', $subQuery);
-
-
     }
 
     public function scopeCitoFiltered($query, $filters = [], $sorting = [])
@@ -308,24 +303,11 @@ class Subject extends BaseModel implements AccessCheckable
 
     private function filterForExamcoordinator($query, User $user)
     {
-        switch ($user->is_examcoordinator_for) {
-            case 'SCHOOL_LOCATION':
-                $subjectIds = $user->schoolLocation->schoolLocationSections()
-                    ->join('sections', 'school_location_sections.section_id', 'sections.id')
-                    ->join('subjects', 'subjects.section_id', 'sections.id')
-                    ->select('subjects.id', 'subjects.name')->groupBy('subjects.name')->pluck('id')->toArray();
-                break;
-            case 'SCHOOL':
-                $subjectIds = $user->schoolLocation->school->schoolLocations()
-                    ->join('school_location_sections', 'school_location_sections.school_location_id', 'school_locations.id')
-                    ->join('sections', 'school_location_sections.section_id', 'sections.id')
-                    ->join('subjects', 'subjects.section_id', 'sections.id')
-                    ->select('subjects.id', 'subjects.name')->groupBy('subjects.name')->pluck('id')->toArray();
-                break;
-            default:
-                $subjectIds = [];
-                break;
-        }
+        $subjectIds = $user->schoolLocation->schoolLocationSections()
+            ->join('sections', 'school_location_sections.section_id', 'sections.id')
+            ->join('subjects', 'subjects.section_id', 'sections.id')
+            ->select('subjects.id');
+
         return $query->whereIn('id', $subjectIds)->where('demo', 0);
     }
 

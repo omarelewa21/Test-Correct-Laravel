@@ -1,0 +1,198 @@
+/* general score slider input css */
+.score-slider-container .score-slider-continuous-input,
+.score-slider-container .score-slider-input {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 32px;
+    background-color: #ffffff00;
+    cursor: pointer;
+}
+
+/* score slider track */
+.score-slider-container .score-slider-input::-webkit-slider-runnable-track {
+    background-color: transparent;
+    color: transparent;
+}
+
+.score-slider-container .score-slider-input::-moz-range-track {
+    background-color: transparent;
+    color: transparent;
+    width: 100%;
+    height: 32px;
+}
+
+.score-slider-container .score-slider-input::-moz-range-progress {
+    background-color: transparent;
+    color: transparent;
+}
+
+
+.score-slider-container .score-slider-input::-ms-track {
+    width: 100%;
+    height: 32px;
+    cursor: pointer;
+    background: transparent;
+    border-color: transparent;
+    color: transparent;
+}
+
+.score-slider-container .score-slider-input::-ms-fill-lower {
+    background: transparent;
+}
+
+.score-slider-container .score-slider-input::-ms-fill-upper {
+    background: transparent;
+}
+
+.score-slider-container .score-slider-continuous-input::-webkit-slider-runnable-track {
+    background: linear-gradient(to right, var(--primary), var(--primary)), #D7D7D7;
+    background-size: var(--slider-background-size, 0%) 100%;
+    background-repeat: no-repeat;
+    height: 0.75rem;
+    border: 0px;
+    border-radius: 10px;
+}
+
+.score-slider-container .score-slider-continuous-input::-moz-range-track {
+    background-color: #D7D7D7;
+    width: 100%;
+    height: 0.75rem;
+    border-radius: 10px;
+}
+
+.score-slider-container .score-slider-continuous-input::-moz-range-progress {
+    background-color: var(--primary);
+    border-radius: 10px;
+    height: 0.75rem;
+
+}
+
+.score-slider-container .score-slider-continuous-input::-ms-track {
+    width: 100%;
+    height: 0.75rem;
+    cursor: pointer;
+    background: #D7D7D7;
+    border-radius: 10px;
+}
+
+.score-slider-container .score-slider-continuous-input::-ms-fill-lower {
+    background: var(--primary);
+}
+
+.score-slider-container .score-slider-continuous-input::-ms-fill-upper {
+    background: #D7D7D7;
+}
+
+/* score slider thumb*/
+.score-slider-container .score-slider-continuous-input::-webkit-slider-thumb {
+    transform: translate(var(--slider-thumb-offset), -6.25px);
+}
+
+.score-slider-container .score-slider-continuous-input::-moz-range-thumb {
+    transform: translate(var(--slider-thumb-offset));
+}
+
+.score-slider-container .score-slider-continuous-input::-ms-thumb {
+    transform: translate(var(--slider-thumb-offset), -6.25px);
+}
+
+.score-slider-container .score-slider-continuous-input:focus::-webkit-slider-thumb {
+    transform: translate(var(--slider-thumb-offset), -0.6rem);
+}
+
+/* moz doesnt need translate Y. */
+
+.score-slider-container .score-slider-continuous-input:focus::-ms-thumb {
+    transform: translate(var(--slider-thumb-offset), -0.6rem);
+}
+
+.score-slider-container .score-slider-continuous-input::-webkit-slider-thumb,
+.score-slider-container .score-slider-input::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 9999px;
+    border: 0.125rem solid #4781FF;
+    background: rgba(71, 129, 255, 0.5);
+    cursor: pointer;
+    pointer-events: all;
+}
+
+.score-slider-container .score-slider-continuous-input::-moz-range-thumb,
+.score-slider-container .score-slider-input::-moz-range-thumb {
+    visibility: initial;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 9999px;
+    border: 0.125rem solid #4781FF;
+    background: rgba(71, 129, 255, 0.5);
+    cursor: pointer;
+    pointer-events: all;
+}
+
+.score-slider-container .score-slider-continuous-input::-ms-thumb,
+.score-slider-container .score-slider-input::-ms-thumb {
+    visibility: initial;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 9999px;
+    border: 0.125rem solid #4781FF;
+    background: rgba(71, 129, 255, 0.5);
+    cursor: pointer;
+    pointer-events: all;
+}
+
+/* focus score slider thumb */
+.score-slider-container .score-slider-continuous-input:focus::-ms-thumb,
+.score-slider-container .score-slider-input:focus::-ms-thumb {
+    width: 2rem;
+    height: 2rem;
+}
+
+.score-slider-container .score-slider-continuous-input:focus::-moz-range-thumb,
+.score-slider-container .score-slider-input:focus::-moz-range-thumb {
+    width: 2rem;
+    height: 2rem;
+}
+
+.score-slider-container .score-slider-continuous-input:focus::-webkit-slider-thumb,
+.score-slider-container .score-slider-input:focus::-webkit-slider-thumb {
+    width: 2rem;
+    height: 2rem;
+}
+
+/* hover score slider thumb */
+.score-slider-container .score-slider-input:hover::-moz-range-thumb {
+    background: rgba(71, 129, 255, 0.5);
+}
+
+.score-slider-container .score-slider-input:hover::-webkit-slider-thumb {
+    background: rgba(71, 129, 255, 0.5);
+}
+
+.score-slider-container .score-slider-input:hover::-ms-thumb {
+    background: rgba(71, 129, 255, 0.5);
+}
+
+/* score slider hidden thumb */
+.score-slider-container .score-slider-input.hide-thumb::-ms-thumb {
+    visibility: hidden;
+    border: 1px solid #ffffff00;
+    background-color: #ffffff00;
+    pointer-events: none;
+}
+
+.score-slider-container .score-slider-input.hide-thumb::-moz-range-thumb {
+    visibility: hidden;
+    border: 1px solid #ffffff00;
+    background-color: #ffffff00;
+    pointer-events: none;
+}
+
+.score-slider-container .score-slider-input.hide-thumb::-webkit-slider-thumb {
+    visibility: hidden;
+    border: 1px solid #ffffff00;
+    background-color: #ffffff00;
+    pointer-events: none;
+}

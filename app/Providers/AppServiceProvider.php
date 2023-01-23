@@ -73,7 +73,10 @@ class AppServiceProvider extends ServiceProvider {
         });
 
         Gate::define('useNewTakenTestsOverview', function (User $user) {
-            return $user->schoolLocation->allowNewTakenTestsPage;
+            if ($user->isA('Teacher')) {
+                return $user->schoolLocation->allowNewTakenTestsPage;
+            }
+            return true;
         });
     }
 

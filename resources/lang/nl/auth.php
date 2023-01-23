@@ -19,7 +19,6 @@ return [
     'back_to_make_choice'                                                                            => 'Terug naar keuze maken',
     'brin_four_detected'                                                                             => 'Uw Entree account bevat een 4 cijferige brincode. We kunnen uw account niet aan een schoollocatie linken, neem contact op met de helpdesk.',
     'brin_not_found'                                                                                 => 'Je school is niet aangesloten bij Test-Correct',
-    'cancel'                                                                                         => 'Annuleren',
     'choose_this_if_you_already_have_an_account'                                                     => 'Kies deze optie als je reeds een account hebt gemaakt bij Test-Correct',
     'choose_this_if_you_have_no_account'                                                             => 'Kies deze optie als je nog geen account hebt gemaakt bij Test-Correct',
     'congratulations_linked'                                                                         => 'Gefeliciteerd! Je bent gekoppeld',
@@ -107,6 +106,7 @@ return [
     'suffix'                                                                                         => 'Tussenvoegsel',
     'test_code_invalid'                                                                              => 'Toetscode is niet geldig',
     'user_not_in_same_school'                                                                        => 'Je bent in Test-Correct niet gekoppeld aan de gekozen schoollocatie. Kies de juiste schoollocatie',
+    'user_not_in_same_school_please_contact_helpdesk'                                                => 'Je bent in Test-Correct niet gekoppeld aan de gekozen schoollocatie. Neem contact op met de helpdesk',
     'who_are_you'                                                                                    => 'Wie ben je?',
     'login_as_student'                                                                               => 'Inloggen als student',
 //    'should_first_login_using_entree'                   => 'Je gegevens zijn nog niet gecontroleerd log de eerste keer in via Entree',
@@ -147,6 +147,6 @@ return [
     'passwords_dont_match'                                                                           => 'Het opgegeven huidige wachtwoord is incorrect',
     'old_and_new_passwords_match'                                                                    => 'Het huidige en nieuwe wachtwoord komen overeen. Voer een ander wachtwoord in.',
     'test_code_quick_access'                                                                         => 'Vul de testcode in als deze bestaat om snel toegang te krijgen tot een test',
-    'guest_account_not_allowed'                                                                      => 'gastaccounts zijn niet toegestaan voor deze test',
+    'guest_account_not_allowed'                                                                      => 'Inloggen met Test-Direct niet toegestaan',
     'now_login_with_new_password'                                                                    => 'Log nu in met je nieuwe wachtwoord',
 ];

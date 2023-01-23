@@ -87,7 +87,7 @@ class TestQuestionsController extends Controller {
                 $totalData = array_merge($request->all(),$questionData);
                 $question = Question::find($request->get('question_id'));
                 if($question->is_subquestion){
-                    $questionCopy = $question->duplicate([]);
+                    $questionCopy = $question->duplicate($totalData);
                     $questionCopy->getQuestionInstance()->setAttribute('is_subquestion', 0);
                     $totalData = array_merge($totalData,['question_id'=>$questionCopy->getKey()]);
                     $questionCopy->getQuestionInstance()->save();

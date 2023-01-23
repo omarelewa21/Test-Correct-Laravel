@@ -72,6 +72,7 @@ class LokiJson extends NormalizerFormatter
 
     /**
      * {@inheritDoc}
+     * @noinspection UnsupportedStringOffsetOperationsInspection
      */
     public function format(array $record): string
     {

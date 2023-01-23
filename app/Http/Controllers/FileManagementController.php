@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Str;
 use tcCore\FileManagement;
 use tcCore\FileManagementStatus;
+use tcCore\GroupQuestionQuestion;
+use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\Http\Helpers\SchoolHelper;
 use tcCore\Http\Requests;
 use tcCore\Http\Controllers\Controller;
@@ -20,15 +22,26 @@ use tcCore\Http\Requests\CreateTestUploadRequest;
 use tcCore\Http\Requests\ShowFileManagementRequest;
 use tcCore\Http\Requests\UpdateFileManagementRequest;
 use tcCore\Jobs\SendToetsenbakkerInviteMail;
+use tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager;
+use tcCore\Lib\Repositories\PeriodRepository;
+use tcCore\Period;
+use tcCore\Question;
+use tcCore\QuestionAuthor;
 use tcCore\School;
 use tcCore\SchoolLocation;
 use tcCore\Teacher;
 use tcCore\Http\Requests\CreateTeacherRequest;
 use tcCore\Http\Requests\UpdateTeacherRequest;
+use tcCore\Http\Requests\DuplicateFileManagementTestRequest;
+use tcCore\Test;
+use tcCore\TestAuthor;
+use tcCore\TestQuestion;
 use tcCore\UmbrellaOrganization;
+use tcCore\User;
 
 class FileManagementController extends Controller
 {
+    const STATUS_ID_APPROVED = 7;
 
     protected function getBasePath()
     {
@@ -43,8 +56,8 @@ class FileManagementController extends Controller
     public function getFormId()
     {
         $formId = Str::uuid();
-        $fileManagement = FileManagement::where('form_id',$formId)->first();
-        if(is_null($fileManagement)){
+        $fileManagement = FileManagement::where('form_id', $formId)->first();
+        if (is_null($fileManagement)) {
             return Response($formId, 200);
         }
         return $this->getFormId();
@@ -63,6 +76,7 @@ class FileManagementController extends Controller
         $originalEmail = property_exists($typeDetails, 'invite') ? $typeDetails->invite : '';
         $typeDetails->colorcode = $request->get('colorcode');
         $typeDetails->invite = $request->get('invite');
+        $typeDetails->test_upload_additional_option = $request->get('test_upload_additional_option');
         $fileManagement->typedetails = $typeDetails;
         if ($fileManagement->save() !== false) {
             $email = $request->get('invite');
@@ -95,13 +109,9 @@ class FileManagementController extends Controller
         DB::beginTransaction();
         try {
             if ($request->isForm()) {
-
                 $result = $this->handleFormSubmission($schoolLocation, $request, $form_id);
-
             } else {
-
                 $result = $this->handleFileUpload($request, $schoolLocation, $form_id);
-
             }
         } catch (\Exception $e) {
 
@@ -161,7 +171,8 @@ class FileManagementController extends Controller
     public function index(Requests\IndexFileManagementRequest $request)
     {
 
-        $builder = FileManagement::filtered(Auth::user(),$request->get('filter', []), $request->get('order', []));
+        $builder = FileManagement::filtered(Auth::user(), $request->get('filter', []), $request->get('order', []))
+            ->with('subject');
 
         switch (strtolower($request->get('mode', 'paginate'))) {
             case 'all':
@@ -180,17 +191,17 @@ class FileManagementController extends Controller
      */
     public function show(ShowFileManagementRequest $request, FileManagement $fileManagement)
     {
-        $fileManagement->load(['user', 'handler', 'status', 'children', 'schoolLocation']);
+        $fileManagement->load(['user', 'handler', 'status', 'children', 'schoolLocation', 'test', 'subject']);
 
         $user = Auth::user();
         if ($user->hasRole('Account manager') || $user->isToetsenbakker()) {
-            $fileManagement->statuses = FileManagementStatus::all();
+            $fileManagement->append('test_upload_additional_options');
+            $fileManagement->statuses = FileManagementStatus::when($user->isToetsenbakker(), fn($query) => $query->forToetsenbakkers())->get();
         } else if ($user->hasRole('Teacher')) {
             if ($user->school_location_id != $fileManagement->school_location_id) {
                 return Response::make('not allowed', 403);
             }
         }
-
 
         return Response::make($fileManagement, 200);
     }
@@ -222,7 +233,7 @@ class FileManagementController extends Controller
                 'multiple'             => $request->get('multiple'),
                 'form_id'              => $request->get('form_id')
             ],
-            'form_id'           => $form_id,
+            'form_id'            => $form_id,
         ];
 
         $main = new FileManagement();
@@ -276,7 +287,7 @@ class FileManagementController extends Controller
             'form_id'            => $form_id
         ];
 
-        $parent = FileManagement::where('form_id',$form_id)->whereNull('parent_id')->first();
+        $parent = FileManagement::where('form_id', $form_id)->whereNull('parent_id')->first();
         $child = new FileManagement();
 
         $data['id'] = Str::uuid();
@@ -286,10 +297,10 @@ class FileManagementController extends Controller
         $origfileName = $file->getClientOriginalName();
         $nameOnly = explode('.', $origfileName)[0];
 
-        if(!is_null($parent)){
+        if (!is_null($parent)) {
             $fileName = sprintf('%s-%s-%s-%s.%s', date('YmdHis'), Str::random(5), Str::slug($parent->name), $parent->subject, pathinfo($origfileName, PATHINFO_EXTENSION));
             $data['typedetails'] = $parent->typedetails;
-        }else{
+        } else {
             $fileName = sprintf('%s-%s-%s.%s', date('YmdHis'), Str::random(5), $nameOnly, pathinfo($origfileName, PATHINFO_EXTENSION));
         }
         $file->move(sprintf('%s/%s', $this->getBasePath(), $schoolLocation->getKey()), $fileName);
@@ -303,4 +314,80 @@ class FileManagementController extends Controller
         return $child;
     }
 
+    public function duplicateTestToSchool(DuplicateFileManagementTestRequest $request, FileManagement $fileManagement)
+    {
+        if ($fileManagement->file_management_status_id !== self::STATUS_ID_APPROVED) {
+            return response()->json(['errors' => ['not allowed']])->setStatusCode(403);
+        }
+
+        $test = $fileManagement->test;
+
+        ActingAsHelper::getInstance()->setUser($fileManagement->user);
+
+        $duplicateTest = $test->duplicate([]);
+        $duplicateTest->refresh();
+        $duplicateTest->author_id = $fileManagement->user_id;
+        $duplicateTest->testAuthors()->forceDelete();
+        TestAuthor::addAuthorToTest($duplicateTest, $fileManagement->user_id);
+        $duplicateTest->owner_id = $fileManagement->school_location_id;
+
+        if (!$duplicateTest->save()) {
+            return response()->json(['errors' => 'Failed to save duplicated test'])->setStatusCode(500);
+        }
+
+
+        //todo duplicate testQuestions
+        foreach ($duplicateTest->testQuestions as $testQuestion) {
+            $request = new Request();
+            $params = [
+                'id'                       => $testQuestion->id,
+                'subject_id'               => $duplicateTest->subject_id,
+                'education_level_id'       => $duplicateTest->education_level_id,
+                'education_level_year'     => $duplicateTest->education_level_year,
+                'add_to_database_disabled' => true,
+            ];
+            $request = $request->merge($params);
+
+            $response = (new TestQuestionsController())->updateFromWithin($testQuestion, $request);
+            if ($testQuestion->question->type == 'GroupQuestion') {
+                $testQuestion = $testQuestion->fresh();
+                $groupQuestionQuestionManager = GroupQuestionQuestionManager::getInstanceWithUuid($testQuestion->uuid);
+                foreach ($testQuestion->question->groupQuestionQuestions as $groupQuestionQuestion) {
+                    $request = new Request();
+                    $request->merge($params);
+                    $response = (new GroupQuestionQuestionsController())->updateFromWithin($groupQuestionQuestionManager, $groupQuestionQuestion, $request);
+                }
+            }
+        }
+
+        $this->createQuestionAuthorRecordsForAllQuestions($duplicateTest, $fileManagement);
+
+        return response()->json(['status' => 'success'])->setStatusCode(200);
+    }
+
+    private function createAllQuestionsOfTestQueryBuilder(Test $test)
+    {
+        $testQuestionsQuery = TestQuestion::select('question_id as id')->whereTestId($test->getKey());
+        $groupQuestionQuestionsQuery = GroupQuestionQuestion::select('question_id as id')->whereIn('group_question_id', $testQuestionsQuery);
+
+        return $testQuestionsQuery->unionAll($groupQuestionQuestionsQuery);
+    }
+
+    private function createQuestionAuthorRecordsForAllQuestions(Test $test, FileManagement $fileManagement)
+    {
+        $allQuestionIds = $this->createAllQuestionsOfTestQueryBuilder($test)->get();
+
+        //force delete wrongfully duplicated records
+        $questionAuthors = QuestionAuthor::whereIn('question_id', $allQuestionIds)->forceDelete();
+
+        //create new records for the recipient teacher
+        QuestionAuthor::insert($allQuestionIds->map(function ($id) use ($fileManagement) {
+            return [
+                'user_id'     => $fileManagement->user_id,
+                'question_id' => $id->id,
+                'created_at'  => now(),
+                'updated_at'  => now(),
+            ];
+        })->toArray());
+    }
 }

@@ -1,5 +1,5 @@
 <div cms-drawer
-     class="drawer flex z-[20]"
+     class="drawer flex z-[20] overflow-auto"
      selid="question-drawer"
      x-init="
         collapse = window.innerWidth < 1000;
@@ -24,12 +24,19 @@
         handleLoading = () => {
             loadingOverlay = $store.cms.loading;
         }
+        handleSliderClick = (event) => {
+            if (!event.target.classList.contains('slider-option')) {
+                return
+            }
+            document.querySelectorAll('.option-menu-active').forEach((el) => $dispatch(el.getAttribute('context')+'-context-menu-close') );
+            $nextTick(() => showBank = event.target.firstElementChild.dataset.id);
+        }
 
 
      "
-     x-data="{loadingOverlay: false, collapse: false, backdrop: false, emptyStateActive: @entangle('emptyStateActive')}"
+     x-data="{loadingOverlay: false, collapse: false, backdrop: false, emptyStateActive: @entangle('emptyStateActive'), showBank: @js($sliderButtonSelected)}"
      x-cloak
-     x-effect="handleLoading(); "{{--$el.scrollTop = $store.cms.scrollPos;" --}}
+     x-effect="handleLoading();"
      :class="{'collapsed': collapse}"
      @backdrop="backdrop = !backdrop"
      @processing-end.window="$store.cms.processing = false;"
@@ -57,9 +64,6 @@
             <div x-show="emptyStateActive"
                  x-cloak
                  class="empty-state-popover py-4 px-6">
-                {{--                <div class="absolute right-2 top-1 cursor-pointer" >--}}
-                {{--                    <x-icon.close-small/>--}}
-                {{--                </div>--}}
                 <span class="regular text-base">{{ __('cms.begin_with_making_a_question') }}</span>
             </div>
         </div>
@@ -90,7 +94,8 @@
                                        @continue-to-add-group.window="addGroup(false)"
                                        @scroll-dummy-into-view.window="scrollActiveQuestionIntoView()"
             >
-                <div wire:sortable="updateTestItemsOrder" class="sortable-drawer divide-y divide-bluegrey pb-6 pt-4" {{ $emptyStateActive ? 'hidden' : '' }} >
+                <div wire:sortable="updateTestItemsOrder"
+                     class="sortable-drawer divide-y divide-bluegrey pb-6 pt-4" {{ $emptyStateActive ? 'hidden' : '' }} >
                     @php $loopIndex = 0; @endphp
                     @foreach($this->questionsInTest as $testQuestion)
                         @if($testQuestion->question->type === 'GroupQuestion')
@@ -110,7 +115,8 @@
                                                                    :double="$this->duplicateQuestions->contains($question->id) || $this->duplicateQuestions->contains($testQuestion->question->id)"
                                     />
                                 @endforeach
-                                <x-sidebar.cms.dummy-group-question-button :testQuestionUuid="$testQuestion->uuid" :loop="$loopIndex"/>
+                                <x-sidebar.cms.dummy-group-question-button :testQuestionUuid="$testQuestion->uuid"
+                                                                           :loop="$loopIndex"/>
                             </x-sidebar.cms.group-question-container>
                         @else
                             @php $loopIndex ++; @endphp
@@ -126,7 +132,7 @@
                     @endforeach
                     <x-sidebar.cms.dummy-question-button :loop="$loopIndex"/>
                 </div>
-                
+
                 <div wire:loading
                      wire:loading.class.remove="hidden"
                      wire:loading.attr.remove="hidden"
@@ -140,14 +146,15 @@
                     {{ __('cms.Vraaggroep toevoegen') }}
                 </x-button.plus-circle>
 
-                <x-button.plus-circle @click.stop="showAddQuestionSlide()" selid="add-question-btn"
+                <x-button.plus-circle @click.stop="showAddQuestionSlide(true, true)" selid="add-question-btn"
                 >
                     {{__('cms.Vraag toevoegen')}}
                 </x-button.plus-circle>
                 <span id="c1-bottom-spacer"></span>
             </x-sidebar.slide-container>
 
-            <x-sidebar.slide-container class="divide-y divide-bluegrey" x-ref="type" @mouseenter="handleVerticalScroll($el);">
+            <x-sidebar.slide-container class="divide-y divide-bluegrey" x-ref="type"
+                                       @mouseenter="handleVerticalScroll($el);">
                 <div class="py-2 px-5 flex">
                     <div class="flex items-center space-x-2.5">
                         <x-button.back-round @click="backToQuestionOverview($refs.type);"
@@ -157,7 +164,8 @@
                     </div>
                 </div>
 
-                <x-button.plus-circle class="py-4" @click="showNewQuestion($refs.type)" wire:loading.class="pointer-events-none" selid="create-new-question-btn">
+                <x-button.plus-circle class="py-4" @click="showNewQuestion($refs.type)"
+                                      wire:loading.class="pointer-events-none" selid="create-new-question-btn">
                     {{ __( 'cms.Nieuwe creeren' ) }}
                     <x-slot name="subtext">{{ __('cms.Stel een nieuwe vraag op') }}</x-slot>
                 </x-button.plus-circle>
@@ -166,19 +174,40 @@
                     {{ __( 'cms.Bestaande toevoegen' ) }}
                     <x-slot name="subtext">{{ __('cms.Verken en kies uit vragenbank') }}</x-slot>
                 </x-button.plus-circle>
-
-{{--                <div class="flex px-6 py-2.5 space-x-2.5 note cursor-default">--}}
-{{--                    <x-icon.plus-in-circle/>--}}
-{{--                    <div class="flex flex-col ">--}}
-{{--                        <button class="bold mt-px text-left cursor-default">{{ __( 'cms.Bestaande toevoegen' ) }}</button>--}}
-{{--                        <span class="text-sm note regular">{{ __('cms.Verken en kies uit vragenbank') }}</span>--}}
-{{--                    </div>--}}
-{{--                </div>--}}
-
                 <span></span>
             </x-sidebar.slide-container>
-            <x-sidebar.slide-container x-ref="questionbank" @mouseenter="handleVerticalScroll($el);">
-                <livewire:teacher.question-bank/>
+            <x-sidebar.slide-container x-ref="questionbank" @mouseenter="handleVerticalScroll($el);"
+                                       x-on:click="handleSliderClick($event)"
+                                       style="max-height: calc(100vh - var(--header-height))"
+            >
+                <div class="py-2 px-6 flex w-full bg-white z-10">
+                    <div class="flex items-center space-x-2.5">
+                        <x-button.back-round @click="hideQuestionBank();" selid="question-bank-back-btn"/>
+                        <span class="bold text-lg cursor-default">{{ __('cms.Bestaande vraag toevoegen') }}</span>
+                    </div>
+
+                    <div class="flex ml-auto items-center space-x-2.5 relative">
+                        <x-button.cta @click="hideQuestionBank();" selid="close-question-bank-btn">
+                            <span>{{ __('drawing-modal.Sluiten') }}</span>
+                        </x-button.cta>
+
+                        <x-button.slider wire:model.debounce.300ms="sliderButtonSelected"
+                                         button-width="135px"
+                                         :disabled="$sliderButtonDisabled"
+                                         :options="$sliderButtonOptions"
+                        />
+                    </div>
+                </div>
+
+                <div class="flex flex-1 w-full" wire:key="selected-tab-{{ $sliderButtonSelected }}">
+                    <div class="w-full flex flex-1" x-cloak x-show="showBank === 'tests'">
+                        <livewire:teacher.cms-tests-overview :cmsTestUuid="$this->testId"/>
+                    </div>
+
+                    <div class="w-full flex flex-1" x-cloak x-show="showBank === 'questions'">
+                        <livewire:teacher.question-bank :testId="$this->testId" mode="cms"/>
+                    </div>
+                </div>
             </x-sidebar.slide-container>
             <x-sidebar.slide-container x-ref="newquestion" @mouseenter="handleVerticalScroll($el);">
                 <div class="py-2 px-5">

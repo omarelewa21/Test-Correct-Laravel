@@ -10,6 +10,7 @@ use Livewire\Component;
 use Ramsey\Uuid\Uuid;
 use tcCore\Http\Helpers\AllowedAppType;
 use tcCore\Http\Helpers\AppVersionDetector;
+use tcCore\Http\Livewire\CoLearning\CompletionQuestion;
 use tcCore\Http\Traits\WithStudentAppVersionHandling;
 use tcCore\Http\Traits\WithStudentTestTakes;
 use tcCore\TemporaryLogin;
@@ -27,14 +28,15 @@ class WaitingRoom extends Component
     {
         return [
             'start-test-take'                                                                                              => 'startTestTake',
+            'start-discussing'                                                                                             => 'startDiscussing',
+            'start-review'                                                                                                 => 'startReview',
+            'start-graded'                                                                                                 => 'startReview',
             'is-test-take-open'                                                                                            => 'isTestTakeOpen',
             'echo-private:TestParticipant.' . $this->testParticipant->uuid . ',.TestTakeOpenForInteraction'                => 'isTestTakeOpen',
             'echo-private:TestParticipant.' . $this->testParticipant->uuid . ',.InbrowserTestingUpdatedForTestParticipant' => 'participantAppCheck',
             'echo-private:TestParticipant.' . $this->testParticipant->uuid . ',.RemoveParticipantFromWaitingRoom'          => 'removeParticipantFromWaitingRoom',
             'echo-private:TestParticipant.' . $this->testParticipant->uuid . ',.TestTakeForceTakenAway'                    => 'participantStatusChanged',
             'echo-private:TestParticipant.' . $this->testParticipant->uuid . ',.TestTakeReopened'                          => 'participantStatusChanged',
-            //Presence channels are not completely working with Livewire listeners. Presence channel listener is located in x-init of this components blade file. -RR
-//            'echo-presence:Presence-TestTake.' . $this->waitingTestTake->uuid . ',.TestTakeShowResultsChanged'          => 'isTestTakeOpen',
         ];
     }
 
@@ -61,6 +63,7 @@ class WaitingRoom extends Component
     public $appNeedsUpdate;
     public $appNeedsUpdateDeadline;
     public $appStatus;
+    public $showGrades=true;
 
     public function mount()
     {
@@ -82,6 +85,8 @@ class WaitingRoom extends Component
         $this->participatingClasses = $this->getParticipatingClasses($this->waitingTestTake);
 
         $this->participantAppCheck();
+
+        $this->showGrades = $this->checkShowGrades();
     }
 
     public function render()
@@ -113,7 +118,7 @@ class WaitingRoom extends Component
                 return;
             }
             if ($this->waitingTestTake->test->isAssignment()) {
-                $this->isTakeOpen  = $this->waitingTestTake->time_start <= now() && $this->waitingTestTake->time_end >= now();
+                $this->isTakeOpen = $this->waitingTestTake->time_start <= now() && $this->waitingTestTake->time_end >= now();
                 return;
             }
 
@@ -153,15 +158,27 @@ class WaitingRoom extends Component
             ->join('tests', 'test_takes.test_id', '=', 'tests.id')
             ->join('subjects', 'tests.subject_id', '=', 'subjects.id')
             ->where('test_takes.id', TestTake::whereUuid($this->take)->value('id'))
-            ->first();
+            ->firstOrFail();
     }
 
     public function startDiscussing()
     {
+        if ($this->waitingTestTake->discussion_type == 'OPEN_ONLY' && Auth::user()->schoolLocation->allow_new_co_learning) {
+            $this->destroyExistingCoLearningCompletionQuestionSession();
+            return redirect('/student/co-learning/' . $this->take);
+        }
+
         $url = 'test_takes/discuss/' . $this->take;
         $options = TemporaryLogin::buildValidOptionObject('page', $url);
 
         Auth::user()->redirectToCakeWithTemporaryLogin($options);
+    }
+
+    public function destroyExistingCoLearningCompletionQuestionSession()
+    {
+        if (session()->has(CompletionQuestion::SESSION_KEY)) {
+            session()->forget(CompletionQuestion::SESSION_KEY);
+        }
     }
 
     public function startReview()
@@ -251,6 +268,13 @@ class WaitingRoom extends Component
     {
         return $showResults != null && $showResults->gt(Carbon::now()) && $this->testParticipant->hasRating();
     }
-
+    
+    private function checkShowGrades()
+    {
+        if($this->testTakeStatusStage == 'graded'){
+            return $this->waitingTestTake->show_grades;
+        }
+        return false;
+    }
 
 }

@@ -43,7 +43,5 @@
 
 		'Nieuwe verzoek opsturen' => 'Send new request',
 
-		'Met vriendelijke groet' => 'Sincerely',
-
 
 	];

@@ -68,7 +68,7 @@ class EntreeHelper
 
     protected function logger($data)
     {
-        logger($data);
+        //logger($data);
     }
 
     private function retrieveDataFromSession()
@@ -494,6 +494,10 @@ class EntreeHelper
         if ($user->isTestCorrectUser()) {
             return false;
         }
+
+        if($user->isValidExamCoordinator()){
+            return false;
+        }
         return (optional($user->schoolLocation)->lvs_active && empty($user->eck_id));
     }
 
@@ -690,6 +694,14 @@ class EntreeHelper
             return $this->handleEndRedirect();
 
         }
+
+        // if user is in the system with another school location, then we need to redirect and show the error that there is no option to merge
+        if(User::findByEckId($this->getEckIdFromAttributes())->exists()){
+            $url = route('auth.login',
+                ['tab' => 'login', 'entree_error_message' => 'auth.user_not_in_same_school_please_contact_helpdesk']);
+            ;
+            return $this->redirectToUrlAndExit($url);
+        }
         // redirect to maak koppelingscherm;
 
         $message = $this->createSamlMessage();
@@ -829,9 +841,9 @@ class EntreeHelper
             $this->setLaravelUser();
         }
 
-//        if (null == $this->laravelUser) {
-//            return true;//$this->redirectIfNoUserWasFoundForEckId(); // removed otherwise never gona get a scenario5 and no user is catched later on as well
-//        }
+        if (null == $this->laravelUser) {
+            return true;//$this->redirectIfNoUserWasFoundForEckId();
+        }
 
         if (optional($this->laravelUser)->isA($this->getRoleFromAttributes())) {
             return true;

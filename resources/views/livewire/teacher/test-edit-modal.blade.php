@@ -105,24 +105,14 @@
 
 
                 <div class="name flex mb-4 space-x-4">
-                    <div class="input-group mb-4 sm:mb-0 flex-1"
-                         x-data="{ count:0 }"
-                         x-init="count = $refs.countme.value.length;"
-                    >
+                    <div class="input-group mb-4 sm:mb-0 flex-1">
                                 <textarea
                                         id="name_first"
                                         wire:model.lazy="request.introduction"
                                         class="form-input @error('request.introduction') border-red @enderror"
-                                        x-ref="countme"
-                                        x-on:keyup="count = $refs.countme.value.length"
-                                        maxlength="140"
                                 >
                                 </textarea>
-                        <label for="name_first"
-                               class="transition ease-in-out duration-150">{{ __("teacher.introductie-tekst") }}</label>
-                        {{--                            <span class="absolute bottom-px w-full h-2 bg-lightGrey">--}}
-                        {{--                                <span class="absolute rounded-10 h-2 left-0 bg-primary" :style="{'width': (count / $refs.countme.maxLength * 100) + '%', 'transition': 'width 100ms ease-in-out'}"></span>--}}
-                        {{--                            </span>--}}
+                        <label for="name_first" class="transition ease-in-out duration-150">{{ __("teacher.introductie-tekst") }}</label>
                     </div>
                 </div>
                 <div class="error-section">

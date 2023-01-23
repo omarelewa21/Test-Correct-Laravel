@@ -1,7 +1,10 @@
 <div {{ $attributes->merge(['class' => 'grid-card bg-white p-6 rounded-10 card-shadow hover:text-primary cursor-pointer']) }}
-     wire:key="questioncard-{{ $test->uuid }}"
-     @click="activateCard($el)"
+     wire:key="testcard-{{ $test->uuid }}"
+     @if($mode === 'cms')
+         x-on:click="showQuestionsOfTest('{{ $test->uuid }}')"
+     @else
      wire:click="openTestDetail('{{ $test->uuid }}')"
+     @endif
      wire:loading.class="hidden"
      wire:target="filters,clearFilters,$set"
 >
@@ -13,12 +16,12 @@
             <x-button.options id="test{{ $test->id }}"
                                    context="test-card"
                                    :uuid="$test->uuid"
-                                   contextDataJson="{openTab: '{{ $this->openTab }}' }"
+                                   contextDataJson="{openTab: '{{ $this->openTab }}', mode: '{{ $mode }}' }"
             />
     </div>
     <div class="flex w-full justify-between text-base mb-1">
         <div>
-            <span class="bold">{{ $test->subject->name }}</span>
+            <span class="bold">{!! $test->subject->name !!}</span>
             <span class="italic">{{ $test->abbreviation }}</span>
         </div>
         <div class="text-sm">
@@ -30,10 +33,8 @@
         <div>
             <span>{{ $test->authorsAsStringTwo }}</span>
         </div>
-        @if ($test->isCopy())
-            <div class="p-1 text-sm rounded uppercase text-muted border-2 bg-light-grey border-grey-500 text-gray-500">
-                {{ __('kopie') }}
-            </div>
-        @endif
+        <div>
+            <x-published-tag :published="$test->isPublished()"/>
+        </div>
     </div>
 </div>

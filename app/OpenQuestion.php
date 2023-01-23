@@ -2,10 +2,9 @@
 
 use tcCore\Lib\Question\QuestionInterface;
 use Dyrynda\Database\Casts\EfficientUuid;
-use Dyrynda\Database\Support\GeneratesUuid;
 use Ramsey\Uuid\Uuid;
-use tcCore\Scopes\RemoveUuidScope;
 use tcCore\Traits\UuidTrait;
+use Illuminate\Support\Str;
 
 class OpenQuestion extends Question implements QuestionInterface {
 

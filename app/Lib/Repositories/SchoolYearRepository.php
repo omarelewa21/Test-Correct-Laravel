@@ -43,7 +43,7 @@ class SchoolYearRepository
                         ->join('ratings', 'periods.id', '=', 'ratings.period_id')
                         ->where('ratings.user_id', '=', $student->getKey())
                         ->groupBy('school_years.id')
-                        ->orderByRaw('MAX(`school_year_periods`.`end_date`)', 'desc')
+                        ->orderByRaw('MAX(`school_year_periods`.`end_date`) desc')
                         ->limit(1)
                         ->get(['school_years.*']);
 

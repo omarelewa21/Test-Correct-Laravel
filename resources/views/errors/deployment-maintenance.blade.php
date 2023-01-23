@@ -34,7 +34,7 @@
         }
         #background {
             position:       fixed;
-            background:     url(//portal.test-correct.nl/img/bg.png) right no-repeat #f5f5f5;
+            background:     #f5f5f5;
             left:           0px;
             top:            0px;
             width:          100%;

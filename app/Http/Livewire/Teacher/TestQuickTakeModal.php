@@ -3,6 +3,7 @@
 namespace tcCore\Http\Livewire\Teacher;
 
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use LivewireUI\Modal\ModalComponent;
 use Ramsey\Uuid\Uuid;
 use tcCore\Http\Traits\Modal\WithPlanningFeatures;
@@ -22,6 +23,7 @@ class TestQuickTakeModal extends ModalComponent
 
     public $testTake;
     public $selectedClasses = [];
+
 
     protected function messages(): array
     {
@@ -47,6 +49,7 @@ class TestQuickTakeModal extends ModalComponent
                 'testTake.allow_inbrowser_testing' => 'required|boolean',
                 'testTake.guest_accounts'          => 'required|boolean',
                 'testTake.notify_students'         => 'required|boolean',
+
             ];
     }
 
@@ -55,6 +58,9 @@ class TestQuickTakeModal extends ModalComponent
         $conditionalRules = [];
         if (!$this->testTake->guest_accounts) {
             $conditionalRules['selectedClasses'] = 'required';
+        }
+        if($this->rttiExportAllowed) {
+            $conditionalRules['testTake.is_rtti_test_take'] = 'required';
         }
         return $conditionalRules;
     }
@@ -71,6 +77,8 @@ class TestQuickTakeModal extends ModalComponent
         $this->testTake->allow_inbrowser_testing = $this->isAssessmentType();
         $this->testTake->guest_accounts = false;
         $this->testTake->notify_students = false;
+        $this->rttiExportAllowed = $this->isRttiExportAllowed();
+        $this->testTake->is_rtti_test_take = false;
     }
 
     public function hydrate()

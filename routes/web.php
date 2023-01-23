@@ -64,14 +64,23 @@ Route::middleware('auth')->group(function () {
         Route::get('/dashboard/logout', [tcCore\Http\Livewire\Student\Dashboard::class, 'logout'])->name('dashboard.logout');
         Route::get('/test-takes', tcCore\Http\Livewire\Student\TestTakes::class)->name('test-takes');
         Route::get('/waiting-room', tcCore\Http\Livewire\Student\WaitingRoom::class)->name('waiting-room');
-        Route::get('/analyses', tcCore\Http\Livewire\Student\Analyses\AnalysesOverviewDashboard::class)->name('analyses.show');
-        Route::get('/analyses/subject/{subject}', tcCore\Http\Livewire\Student\Analyses\AnalysesSubjectDashboard::class)->name('analyses.subject.show');
-        Route::get('/analyses/attainment/{attainment}', tcCore\Http\Livewire\Student\Analyses\AnalysesAttainmentDashboard::class)->name('analyses.attainment.show');
-        Route::get('/analyses/sub-attainment/{attainment}', tcCore\Http\Livewire\Student\Analyses\AnalysesSubAttainmentDashboard::class)->name('analyses.subattainment.show');
-        Route::get('/analyses/sub-sub-attainment/{attainment}', tcCore\Http\Livewire\Student\Analyses\AnalysesSubSubAttainmentDashboard::class)->name('analyses.subsubattainment.show');
+
+        Route::get('/analyses', tcCore\Http\Livewire\Analyses\AnalysesOverviewDashboard::class)->name('analyses.show');
+        Route::get('/analyses/subject/{subject}', tcCore\Http\Livewire\Analyses\AnalysesSubjectDashboard::class)->name('analyses.subject.show');
+        Route::get('/analyses/attainment/{baseAttainment}', tcCore\Http\Livewire\Analyses\AnalysesAttainmentDashboard::class)->name('analyses.attainment.show');
+        Route::get('/analyses/sub-attainment/{baseAttainment}', tcCore\Http\Livewire\Analyses\AnalysesSubAttainmentDashboard::class)->name('analyses.subattainment.show');
+        Route::get('/analyses/sub-sub-attainment/{baseAttainment}', tcCore\Http\Livewire\Analyses\AnalysesSubSubAttainmentDashboard::class)->name('analyses.subsubattainment.show');
+
+        Route::get('/co-learning/{test_take}', \tcCore\Http\Livewire\Student\CoLearning::class)->name('co-learning');
     });
 
     Route::middleware(['dll', 'teacher'])->prefix('teacher')->name('teacher.')->group(function () {
+        Route::get('/analyses/{student_uuid}/{class_uuid}', tcCore\Http\Livewire\Analyses\AnalysesOverviewDashboard::class)->name('analyses.show');
+        Route::get('/analyses/{student_uuid}/{class_uuid}/subject/{subject}', tcCore\Http\Livewire\Analyses\AnalysesSubjectDashboard::class)->name('analyses.subject.show');
+        Route::get('/analyses/{student_uuid}/{class_uuid}/attainment/{baseAttainment}', tcCore\Http\Livewire\Analyses\AnalysesAttainmentDashboard::class)->name('analyses.attainment.show');
+        Route::get('/analyses/{student_uuid}/{class_uuid}/sub-attainment/{baseAttainment}', tcCore\Http\Livewire\Analyses\AnalysesSubAttainmentDashboard::class)->name('analyses.subattainment.show');
+        Route::get('/analyses/{student_uuid}/{class_uuid}/sub-sub-attainment/{baseAttainment}', tcCore\Http\Livewire\Analyses\AnalysesSubSubAttainmentDashboard::class)->name('analyses.subsubattainment.show');
+
         Route::get('/preview/{test}', [tcCore\Http\Controllers\PreviewLaravelController::class, 'show'])->name('test-preview');
         Route::get('/preview/attachment/{attachment}/{question}', [tcCore\Http\Controllers\AttachmentsLaravelController::class, 'showPreview'])->name('preview.question-attachment-show');
         Route::get('/preview/attachment/pdf/{attachment}/{question}', [tcCore\Http\Controllers\PdfAttachmentsLaravelController::class, 'showPreview'])->name('preview.question-pdf-attachment-show');
@@ -82,9 +91,12 @@ Route::middleware('auth')->group(function () {
         // @TODO PreviewTestTakeController printsTestTakeWithStudentAnswers this should be renamed;
         Route::get('/preview/test_take/{test_take}', [tcCore\Http\Controllers\PreviewTestTakeController::class, 'show'])->name('preview.test_take');
         Route::get('/preview/pdf/test/{test}', [tcCore\Http\Controllers\PrintTestController::class, 'showTest'])->name('preview.test_pdf');
+        Route::get('/preview/pdf/test_opgaven/{test}', [tcCore\Http\Controllers\PrintTestController::class, 'showTestOpgaven'])->name('preview.test_opgaven_pdf');
         Route::get('/preview/pdf/test_take/{test_take}', [tcCore\Http\Controllers\PrintTestController::class, 'showTestTake'])->name('preview.test_take_pdf');
-        Route::get('/preview/pdf/test_attachments/{test}', [tcCore\Http\Controllers\PrintTestController::class, 'showTestPdfAttachments'])->name('preview.test_pdf_attachments');
+        Route::get('/preview/pdf/test_attachments/{test}', [tcCore\Http\Controllers\PrintTestController::class, 'downloadTestAttachments'])->name('preview.test_attachments');
         Route::get('/test_takes/{stage}', \tcCore\Http\Livewire\Teacher\TestTakeOverview::class)->name('test-takes');
+        Route::get('/upload_test', \tcCore\Http\Livewire\Teacher\UploadTest::class)->name('upload-tests');
+        Route::get('/file-management/testuploads', \tcCore\Http\Livewire\FileManagement\ToetsenbakkerUploadsOverview::class)->name('file-management.testuploads');
     });
 
     Route::middleware(['dll', 'student'])->prefix('appapi')->name('appapi')->group(function () {
@@ -100,6 +112,7 @@ Route::middleware('auth')->group(function () {
     Route::middleware(['dll', 'accountManager'])->prefix('account-manager')->name('account-manager.')->group(function () {
         Route::get('/school-locations', \tcCore\Http\Livewire\SchoolLocationsGrid::class)->name('school-locations');
         Route::get('/schools', \tcCore\Http\Livewire\SchoolsGrid::class)->name('schools');
+        Route::get('/file-management/testuploads', \tcCore\Http\Livewire\FileManagement\TestUploadsOverview::class)->name('file-management.testuploads');
     });
 
     Route::middleware(['dll', 'administrator'])->prefix('admin')->name('admin.')->group(function () {

@@ -2,10 +2,12 @@ import Alpine from 'alpinejs';
 import Choices from "choices.js";
 import Intersect from '@alpinejs/intersect';
 import Clipboard from "@ryangjchandler/alpine-clipboard";
+import collapse from "@alpinejs/collapse";
 
-Alpine.plugin(Clipboard)
 window.Alpine = Alpine;
+Alpine.plugin(Clipboard)
 Alpine.plugin(Intersect);
+Alpine.plugin(collapse);
 
 document.addEventListener('alpine:init', () => {
     Alpine.data('questionIndicator', () => ({
@@ -280,7 +282,7 @@ document.addEventListener('alpine:init', () => {
         },
         setIndex() {
             const parent = this.$root.parentElement;
-            if(parent === null) return;
+            if (parent === null) return;
             this.index = Array.prototype.indexOf.call(parent.children, this.$el) + 1;
         }
     }));
@@ -350,6 +352,8 @@ document.addEventListener('alpine:init', () => {
             if (this.gridSvg !== '' && this.gridSvg !== '0.00') {
                 gridSize = this.gridSvg;
 
+            } else if (this.isOldDrawing == false && (this.grid && this.grid !== '0')) {
+                gridSize = 1 / parseInt(this.grid) * 14;    // This calculation is based on try and change to reach the closest formula that makes grid visualization same as old drawing
             }
             if (gridSize) {
                 makePreviewGrid(toolName.drawingApp, gridSize);
@@ -403,8 +407,10 @@ document.addEventListener('alpine:init', () => {
         handleVerticalScroll(el) {
             if (el.getAttribute('x-ref') !== this.activeSlide) return;
 
-            this.$refs.questionEditorSidebar.style.minHeight = 'auto';
-            this.$refs.questionEditorSidebar.style.height = 'auto';
+            if (!this.$store.questionBank.active) {
+                this.$refs.questionEditorSidebar.style.minHeight = 'auto';
+                this.$refs.questionEditorSidebar.style.height = 'auto';
+            }
 
             if (el.offsetHeight > this.drawer.offsetHeight) {
                 this.drawer.classList.add('overflow-auto');
@@ -462,16 +468,21 @@ document.addEventListener('alpine:init', () => {
             })
         },
         addQuestionToGroup(uuid) {
-            this.showAddQuestionSlide()
             this.$store.questionBank.inGroup = uuid;
+            this.showAddQuestionSlide(true, false)
         },
         addGroup(shouldCheckDirty = true) {
             if (this.emitAddToOpenShortIfNecessary(shouldCheckDirty, true, false)) {
                 this.$wire.addGroup();
             }
         },
-        showAddQuestionSlide(shouldCheckDirty = true) {
+        async showAddQuestionSlide(shouldCheckDirty = true, clearGroupUuid = true) {
             if (this.emitAddToOpenShortIfNecessary(shouldCheckDirty, false, false)) {
+                if (clearGroupUuid) {
+                    let questionBankLivewireComponent = Livewire.find(this.drawer.querySelector('#question-bank').getAttribute('wire:id'))
+                    await questionBankLivewireComponent.clearInGroupProperty();
+                    this.$store.questionBank.inGroup = false;
+                }
                 this.next(this.$refs.home);
                 this.$dispatch('backdrop');
             }
@@ -482,7 +493,11 @@ document.addEventListener('alpine:init', () => {
         emitAddToOpenShortIfNecessary(shouldCheckDirty = true, group, newSubQuestion) {
             this.$dispatch('store-current-question');
             if (shouldCheckDirty && this.$store.cms.dirty) {
-                this.$wire.emitTo('teacher.questions.open-short', 'addQuestionFromDirty', {group, newSubQuestion});
+                this.$wire.emitTo('teacher.questions.open-short', 'addQuestionFromDirty', {
+                    group,
+                    newSubQuestion,
+                    groupUuid: this.$store.questionBank.inGroup
+                });
                 return false;
             }
             return true;
@@ -521,13 +536,15 @@ document.addEventListener('alpine:init', () => {
             }, 750)
         },
         setActiveSlideProperty(position) {
-            let index = position / this.slideWidth > 2 ? 3 : position / this.slideWidth;
+            let index = position / this.slideWidth > 2 ? 3 : Math.round(position / this.slideWidth);
             this.activeSlide = this.slides[index];
         },
         poll(interval) {
-            setTimeout(() =>{
-                let el = this.$root.querySelector(`[x-ref="${this.activeSlide}"]`);
-                if(el !== null) this.handleVerticalScroll(el);
+            setTimeout(() => {
+                if (this.activeSlide !== 'questionbank') {
+                    let el = this.$root.querySelector(`[x-ref="${this.activeSlide}"]`);
+                    if (el !== null) this.handleVerticalScroll(el);
+                }
                 this.poll(interval);
             }, interval)
         },
@@ -558,7 +575,6 @@ document.addEventListener('alpine:init', () => {
             // some new fancy way of setting a value when undefined
             window.registeredEventHandlers ??= []
 
-
             this.activeFiltersContainer = document.getElementById(filterContainer);
             this.multiple = multiple === 1;
             this.$nextTick(() => {
@@ -567,6 +583,12 @@ document.addEventListener('alpine:init', () => {
                 let refreshChoices = () => {
                     let selection = this.multiple ? this.value : [this.value]
                     choices.clearStore();
+                    if (this.config.placeholderValue.length > 0 && this.$root.classList.contains('super')) {
+                        let placeholderItem = choices._getTemplate('placeholder', this.config.placeholderValue);
+                        placeholderItem.classList.add('truncate', 'min-w-[1rem]', 'placeholder');
+                        this.$root.querySelector('.choices__placeholder.placeholder')?.remove();
+                        choices.itemList.append(placeholderItem);
+                    }
                     let options = typeof this.options === 'object' ? Object.values(this.options) : this.options;
                     choices.setChoices(options.map(({value, label}) => ({
                         value,
@@ -580,7 +602,8 @@ document.addEventListener('alpine:init', () => {
                 refreshChoices()
 
                 this.$refs.select.addEventListener('choice', (event) => {
-                    let eventValue = isNaN(parseInt(event.detail.choice.value)) ? event.detail.choice.value : parseInt(event.detail.choice.value);
+                    let eventValue = this.getValidatedEventValue(event);
+
                     if (!Array.isArray(this.value)) {
                         this.value = eventValue;
                         return;
@@ -604,12 +627,21 @@ document.addEventListener('alpine:init', () => {
 
                 this.$watch('value', () => refreshChoices());
                 this.$watch('options', () => refreshChoices());
+
+                this.$refs.select.addEventListener('showDropdown', () => {
+                    if (this.$root.querySelector('.is-active') && this.$root.classList.contains('super')) {
+                        this.$refs.chevron.style.left = (this.$root.querySelector('.is-active').offsetWidth - 25) + 'px';
+                    }
+                });
+                this.$refs.select.addEventListener('hideDropdown', () => {
+                    this.$refs.chevron.style.left = 'auto'
+                });
             });
         },
 
         removeFilterItem(item) {
             if (!Array.isArray(this.value)) return;
-            this.value = this.wireModel = this.value.filter(itemValue => itemValue !== item.value);
+            this.wireModel = this.value.filter(itemValue => itemValue !== item.value);
             this.clearFilterPill(item.value);
         },
 
@@ -647,11 +679,20 @@ document.addEventListener('alpine:init', () => {
 
         clearFilterPill(item) {
             return this.activeFiltersContainer.querySelector(this.getDataSelector(item))?.remove();
-        }
+        },
+        getValidatedEventValue: function (event) {
+            let eventValue = event.detail.choice.value;
+            // UUID values can be parseInt'd but then the value is only the first integers until a letter occurs. So this checks the length of the event value vs the parsed value;
+            if (Number.isInteger(parseInt(event.detail.choice.value)) && JSON.stringify(parseInt(event.detail.choice.value)).length === event.detail.choice.value.length) {
+                eventValue = parseInt(event.detail.choice.value);
+            }
+            return eventValue;
+        },
     }));
 
-    Alpine.data('analysesSubjectsGraph', (data) => ({
-            data,
+    Alpine.data('analysesSubjectsGraph', (modelId) => ({
+            modelId,
+            data: [],
             colors: [
                 '#30BC51',
                 '#5043F6',
@@ -664,7 +705,17 @@ document.addEventListener('alpine:init', () => {
                 '#E12576',
                 '#24D2C5',
             ],
+            showEmptyState: false,
+            init() {
+                this.updateGraph();
+            },
+            async updateGraph() {
+                [this.showEmptyState, this.data] = await this.$wire.call('getDataForGraph');
+                this.renderGraph();
+            },
             renderGraph() {
+                var cssSelector = '#pValueChart>div:not(.empty-state)';
+                this.$root.querySelectorAll(cssSelector).forEach(node => node.remove())
                 var chart = anychart.column();
                 var series = chart.column(this.data);
                 var palette = anychart.palettes.distinctColors();
@@ -675,7 +726,7 @@ document.addEventListener('alpine:init', () => {
                 yScale.maximum(1.00)
                 yScale.ticks().interval(0.25)
                 chart.yAxis(0).labels().format(function () {
-                    return this.value == 0 ? 'P 0' : this.value.toFixed(2);
+                    return this.value == 0 ? 'P 0' : 'P ' + this.value.toFixed(2);
                 })
 
                 chart.yGrid().enabled(true);
@@ -690,7 +741,7 @@ document.addEventListener('alpine:init', () => {
                 series.selected().fill("#444");
                 series.stroke(null);
 
-                this.initTooltips(chart, this.data);
+                this.initTooltips(chart, this.data, series);
 
                 var legend = chart.legend();
                 // enable legend
@@ -766,63 +817,69 @@ document.addEventListener('alpine:init', () => {
                 chart.draw();
             },
 
-            initTooltips(chart, data) {
+            initTooltips(chart, data, series) {
                 chart.tooltip().useHtml(true);
                 chart.tooltip().title(false)
                 chart.tooltip().separator(false)
+                series.tooltip().enabled(false)
+                let contentElement = null;
+                let dataRow = null;
 
-                var contentElement = null;
-
+                chart.listen("pointMouseOver", (e) => series.tooltip().enabled(false));
                 chart.listen("pointMouseOver", function (e) {
                     // get the data for the current point
-                    var dataRow = data[e.pointIndex];
+                    dataRow = data[e.pointIndex];
+                    series.tooltip().enabled(true)
 
                     if (contentElement) {
-                        while (contentElement.firstChild) {
-                            contentElement.firstChild.remove()
-                        }
-                        const attainmentHeader = document.createElement("h5");
-                        attainmentHeader.style.color = 'var(--system-base)'
-                        attainmentHeader.appendChild(document.createTextNode(dataRow.title));
-                        contentElement.appendChild(attainmentHeader);
-
-                        const scoreElement = document.createElement("h2");
-                        scoreElement.style.color = 'var(--system-base)'
-                        scoreElement.appendChild(document.createTextNode(`P ${dataRow.value}`));
-                        contentElement.appendChild(scoreElement);
-
-                        const basedOnElement = document.createElement("p");
-                        basedOnElement.style.color = 'var(--system-base)'
-                        basedOnElement.appendChild(document.createTextNode(dataRow.basedOn));
-                        contentElement.appendChild(basedOnElement);
-
-                        if (dataRow.link != false) {
-                            const detailElement = document.createElement("p");
-                            detailElement.style.whiteSpace = 'nowrap'
-                            detailElement.style.color = 'var(--system-base)';
-                            detailElement.style.fontWeight = '900';
-                            detailElement.appendChild(document.createTextNode("Bekijk analyse"));
-
-                            const iconElement = document.createElement('img');
-                            iconElement.src = '/svg/icons/arrow-small.svg';
-                            iconElement.style.display = 'inline-block'
-                            detailElement.appendChild(iconElement)
-                            contentElement.appendChild(detailElement);
-                        }
+                        fillTooltipHtml()
                     }
                 });
+
+                function fillTooltipHtml() {
+                    if (!dataRow) return;
+
+                    while (contentElement.firstChild) {
+                        contentElement.firstChild.remove()
+                    }
+                    const attainmentHeader = document.createElement("h5");
+                    attainmentHeader.style.color = 'var(--system-base)'
+                    attainmentHeader.appendChild(document.createTextNode(dataRow.title));
+                    contentElement.appendChild(attainmentHeader);
+
+                    const scoreElement = document.createElement("h2");
+                    scoreElement.style.color = 'var(--system-base)'
+                    scoreElement.appendChild(document.createTextNode(`P ${dataRow.value}`));
+                    contentElement.appendChild(scoreElement);
+
+                    const basedOnElement = document.createElement("p");
+                    basedOnElement.style.color = 'var(--system-base)'
+                    basedOnElement.appendChild(document.createTextNode(dataRow.basedOn));
+                    contentElement.appendChild(basedOnElement);
+
+                    if (dataRow.link != false) {
+                        const detailElement = document.createElement("p");
+                        detailElement.style.whiteSpace = 'nowrap'
+                        detailElement.style.color = 'var(--system-base)';
+                        detailElement.style.fontWeight = '900';
+                        detailElement.appendChild(document.createTextNode("Bekijk analyse"));
+
+                        const iconElement = document.createElement('img');
+                        iconElement.src = '/svg/icons/arrow-small.svg';
+                        iconElement.style.display = 'inline-block'
+                        detailElement.appendChild(iconElement)
+                        contentElement.appendChild(detailElement);
+                    }
+                }
+
                 chart.tooltip().onDomReady(function (e) {
                     this.parentElement.style.border = '1px solid var(--blue-grey)';
                     this.parentElement.style.background = '#FFFFFF';
                     this.parentElement.style.opacity = '0.8';
                     contentElement = this.contentElement;
 
-                    // console.dir([
-                    //  this.parentElement,
-                    //  this.titleElement,
-                    //  this.separatorElement,
-                    //  this.contentElement
-                    // ]);
+                    fillTooltipHtml();
+
                 });
 
                 /* prevent the content of the contentElement div
@@ -830,17 +887,13 @@ document.addEventListener('alpine:init', () => {
                 chart.tooltip().onBeforeContentChange(function () {
                     return false;
                 });
-            },
-
-
-            init() {
-                this.renderGraph()
             }
         }
     ));
 
-    Alpine.data('analysesAttainmentsGraph', (data) => ({
-            data,
+    Alpine.data('analysesSubjectsTimeSeriesGraph', (modelId) => ({
+            modelId,
+            data: [],
             colors: [
                 '#30BC51',
                 '#5043F6',
@@ -853,7 +906,112 @@ document.addEventListener('alpine:init', () => {
                 '#E12576',
                 '#24D2C5',
             ],
+            subjects: [],
+            showEmptyState: false,
+            init() {
+                this.updateGraph();
+            },
+            async updateGraph() {
+                [this.showEmptyState, this.data, this.subjects] = await this.$wire.call('getDataForSubjectTimeSeriesGraph');
+                this.renderGraph();
+            },
             renderGraph() {
+
+                var cssSelector = '#' + this.modelId + '>div:not(.empty-state)';
+                console.log(cssSelector);
+                this.$root.querySelectorAll(cssSelector).forEach(node => node.remove())
+                // set the data
+                let table = anychart.data.table();
+                table.addData(this.data);
+
+                // chart type
+                var chart = anychart.stock();
+                var yScale = chart.plot(0).yScale();
+                yScale.minimum(0);
+                yScale.maximum(1.00);
+                yScale.ticks().interval(0.25)
+
+                var line = chart.plot(0).lineMarker();
+                line.value(0);
+                line.stroke("2 var(--system-base)");
+
+                chart.plot(0).yAxis(0).labels().format(function () {
+                    return this.value == 0 ? 'P 0' : 'P ' + this.value.toFixed(2);
+                })
+
+                // access labels
+                let labels = chart.scroller().xAxis().labels();
+                let minorLabels = chart.scroller().xAxis().minorLabels();
+
+// set major labels text format
+                labels.format(function () {
+                    return "'" + anychart.format.dateTime(this.tickValue, "Y");
+                });
+// set labels color
+                labels.fontColor('var(--system-base)');
+                labels.fontWeight('bold');
+
+// set minor labels text format
+                minorLabels.format(function () {
+                    return anychart.format.dateTime(this.tickValue, 'MMM');
+                });
+
+// set minor color to selectedColorForScroller;
+                minorLabels.fontColor('var(--system-base) 0.5');
+//
+
+                chart.scroller().selectedFill('var(--system-base) 0.1');
+                chart.scroller().outlineStroke("var(--system-base)", 2);
+                chart.scroller().outline
+
+                this.subjects.forEach((el, index) => {
+                    let cnt = index + 1;
+                    let mapping = table.mapAs();
+                    mapping.addField('value', cnt);
+
+                    let series = chart.plot(0).line(mapping);
+                    series.name(el);
+                    series.legendItem().useHtml(true)
+                    series.legendItem().format("{%seriesName}")
+                    series.stroke(this.colors[index]);
+                })
+
+                chart.title('');
+                chart.plot(0).legend().titleFormat('');
+
+                chart.container(this.modelId);
+                chart.draw();
+            }
+        }
+    ));
+
+
+    Alpine.data('analysesAttainmentsGraph', (modelId) => ({
+            modelId,
+            data: false,
+            colors: [
+                '#30BC51',
+                '#5043F6',
+                '#ECEE7D',
+                '#6820CE',
+                '#CB110E',
+                '#F79D25',
+                '#1B6112',
+                '#43ACF5',
+                '#E12576',
+                '#24D2C5',
+            ],
+            showEmptyState: false,
+            init() {
+                this.updateGraph();
+            },
+            async updateGraph() {
+                [this.showEmptyState, this.data] = await this.$wire.call('getDataForGraph');
+                this.renderGraph();
+            },
+            renderGraph() {
+                var cssSelector = '#pValueChart>div:not(.empty-state)';
+                this.$root.querySelectorAll(cssSelector).forEach(node => node.remove())
                 var chart = anychart.column();
                 var series = chart.column(this.data);
                 var palette = anychart.palettes.distinctColors();
@@ -864,7 +1022,7 @@ document.addEventListener('alpine:init', () => {
                 yScale.maximum(1.00)
                 yScale.ticks().interval(0.25)
                 chart.yAxis(0).labels().format(function () {
-                    return this.value == 0 ? 'P 0' : this.value.toFixed(2);
+                    return this.value == 0 ? 'P 0' : 'P ' + this.value.toFixed(2);
                 })
 
                 chart.yGrid().enabled(true);
@@ -873,14 +1031,13 @@ document.addEventListener('alpine:init', () => {
                     .fontColor('#041f74')
 
 
-
                 for (var i = 0; series.getPoint(i).exists(); i++)
                     series.getPoint(i).set("fill", palette.itemAt(i));
 
                 series.selected().fill("#444");
                 series.stroke(null);
 
-                this.initTooltips(chart, this.data);
+                this.initTooltips(chart, this.data, series);
 
                 var legend = chart.legend();
                 // enable legend
@@ -961,77 +1118,79 @@ document.addEventListener('alpine:init', () => {
                 chart.draw();
             },
 
-            init() {
-                this.renderGraph()
-            },
-
-            initTooltips(chart, data) {
+            initTooltips(chart, data, series) {
                 chart.tooltip().useHtml(true);
                 chart.tooltip().title(false)
                 chart.tooltip().separator(false)
+                series.tooltip().enabled(false)
 
-                var contentElement = null;
+                let contentElement = null;
+                let dataRow = null
+
+                chart.listen("pointMouseOut", (e) => series.tooltip().enabled(false));
+
+                function fillTooltipHtml() {
+                    if (!dataRow) return;
+
+                    while (contentElement.firstChild) {
+                        contentElement.firstChild.remove()
+                    }
+                    const attainmentHeader = document.createElement("h5");
+                    attainmentHeader.style.color = 'var(--system-base)'
+                    attainmentHeader.appendChild(document.createTextNode(dataRow.title));
+                    contentElement.appendChild(attainmentHeader);
+
+                    const scoreElement = document.createElement("h2");
+                    scoreElement.style.color = 'var(--system-base)'
+                    scoreElement.appendChild(document.createTextNode(`P ${dataRow.value}`));
+                    contentElement.appendChild(scoreElement);
+
+                    const basedOnElement = document.createElement("p");
+                    basedOnElement.style.color = 'var(--system-base)'
+                    basedOnElement.appendChild(document.createTextNode(dataRow.basedOn));
+                    contentElement.appendChild(basedOnElement);
+
+                    if (dataRow.count !== null) {
+                        const detailElement = document.createElement("p");
+                        detailElement.style.whiteSpace = 'nowrap'
+                        detailElement.style.color = 'var(--system-base)';
+                        detailElement.style.fontWeight = '900';
+                        detailElement.appendChild(document.createTextNode("Bekijk analyse "));
+
+                        const iconElement = document.createElement('img');
+                        iconElement.src = '/svg/icons/arrow-small.svg';
+                        iconElement.style.display = 'inline-block';
+                        detailElement.appendChild(iconElement);
+                        contentElement.appendChild(detailElement);
+                    }
+
+                    const AttainmentTexElement = document.createElement("p");
+                    AttainmentTexElement.style.color = 'var(--system-base)'
+                    AttainmentTexElement.appendChild(
+                        document.createTextNode(dataRow.text)
+                    );
+                    contentElement.appendChild(AttainmentTexElement);
+
+                }
 
                 chart.listen("pointMouseOver", function (e) {
                     // get the data for the current point
-                    var dataRow = data[e.pointIndex];
+                    series.tooltip().enabled(true)
 
+                    dataRow = data[e.pointIndex];
                     if (contentElement) {
-                        while (contentElement.firstChild) {
-                            contentElement.firstChild.remove()
-                        }
-                        const attainmentHeader = document.createElement("h5");
-                        attainmentHeader.style.color = 'var(--system-base)'
-                        attainmentHeader.appendChild(document.createTextNode(dataRow.title));
-                        contentElement.appendChild(attainmentHeader);
-
-                        const scoreElement = document.createElement("h2");
-                        scoreElement.style.color = 'var(--system-base)'
-                        scoreElement.appendChild(document.createTextNode(`P ${dataRow.value}`));
-                        contentElement.appendChild(scoreElement);
-
-                        const basedOnElement = document.createElement("p");
-                        basedOnElement.style.color = 'var(--system-base)'
-                        basedOnElement.appendChild(document.createTextNode(dataRow.basedOn));
-                        contentElement.appendChild(basedOnElement);
-
-                        if (dataRow.text != null) {
-                            const detailElement = document.createElement("p");
-                            detailElement.style.whiteSpace = 'nowrap'
-                            detailElement.style.color = 'var(--system-base)';
-                            detailElement.style.fontWeight = '900';
-                            detailElement.appendChild(document.createTextNode("Bekijk analyse "));
-
-                            const iconElement = document.createElement('img');
-                            iconElement.src = '/svg/icons/arrow-small.svg';
-                            iconElement.style.display = 'inline-block'
-                            detailElement.appendChild(iconElement)
-                            contentElement.appendChild(detailElement);
-
-                            const AttainmentTexElement = document.createElement("p");
-                            AttainmentTexElement.style.color = 'var(--system-base)'
-                            AttainmentTexElement.appendChild(
-                                document.createTextNode(dataRow.text)
-                            );
-                            contentElement.appendChild(AttainmentTexElement);
-                        }
+                        fillTooltipHtml()
                     }
                 });
 
 
                 chart.tooltip().onDomReady(function (e) {
                     this.parentElement.style.border = '1px solid var(--blue-grey)';
-
                     this.parentElement.style.background = '#FFFFFF';
                     this.parentElement.style.opacity = '0.8';
                     contentElement = this.contentElement;
 
-                    // console.dir([
-                    //  this.parentElement,
-                    //  this.titleElement,
-                    //  this.separatorElement,
-                    //  this.contentElement
-                    // ]);
+                    fillTooltipHtml();
                 });
 
                 /* prevent the content of the contentElement div
@@ -1044,21 +1203,67 @@ document.addEventListener('alpine:init', () => {
     ));
 
 
-    Alpine.data('expandableGraph', (id, modelId, taxonomy) => (
+    Alpine.data('sliderToggle', (model, sources) => (
+        {
+            buttonPosition: '0px',
+            buttonWidth: 'auto',
+            value: model,
+            sources: sources,
+            handle: null,
+            init() {
+                this.handle = this.$el.querySelector('.slider-button-handle');
+                if (this.value === null) {
+                    return;
+                }
+                this.$el.querySelector('.group').firstElementChild.classList.add('text-primary');
+
+                if (this.value !== '' && Object.keys(this.sources).includes(String(this.value))) {
+                    this.activateButton(this.$el.querySelector('[data-id=\'' + this.value + '\']').parentElement);
+                } else {
+                    this.value = this.$el.querySelector('.group').firstElementChild.dataset.id;
+                }
+            },
+            clickButton(target) {
+                this.activateButton(target);
+                this.value = target.firstElementChild.dataset.id;
+            },
+            hoverButton(target) {
+                this.activateButton(target)
+            },
+            activateButton(target) {
+                this.resetButtons(target)
+                this.buttonPosition = target.offsetLeft + 'px';
+                this.buttonWidth = target.offsetWidth + 'px';
+                target.firstElementChild.classList.add('text-primary');
+                this.handle.classList.remove('hidden');
+            },
+            resetButtons(target) {
+                Array.from(target.parentElement.children).forEach(button => {
+                    button.firstElementChild.classList.remove('text-primary');
+                });
+            }
+        }));
+
+    Alpine.data('expandableGraphForGeneral', (id, modelId, taxonomy, component) => (
         {
             data: false,
             modelId,
             taxonomy,
-            containerId: 'chart-' + modelId + '-' + taxonomy,
+            containerId: 'chart-' + id + '-' + taxonomy,
             id,
+            showEmptyState: false,
             init() {
                 if (this.expanded) {
                     this.updateGraph()
                 }
             },
-            async updateGraph() {
-                if (!this.data) {
-                    this.data = await this.$wire.getData(this.modelId, this.taxonomy);
+            async updateGraph(forceUpdate) {
+                if (!this.data || forceUpdate) {
+                    var method = 'getData';
+                    if (component == 'expandableGraphForGeneral') {
+                        method = 'getDataForGeneralGraph';
+                    }
+                    [this.showEmptyState, this.data] = await this.$wire.call(method, this.modelId, this.taxonomy);
                     this.renderGraph()
                 }
             },
@@ -1074,13 +1279,19 @@ document.addEventListener('alpine:init', () => {
             },
             renderGraph: function () {
                 // create bar chart
+                var cssSelector = '#' + this.containerId + '>div:not(.empty-state)';
+                //
+                this.$root.querySelectorAll(cssSelector).forEach(node => node.remove())
                 var chart = anychart.bar();
-
-                // create area series with passed data
+// //
+// //                 var credits = chart.credits();
+//                 credits.enabled(false);
                 var series = chart.bar(this.data);
+
                 series.stroke(this.getColor()).fill(this.getColor())
 
                 var tooltip = series.tooltip()
+
                 tooltip.title(false)
                     .separator(false)
                     .position('right')
@@ -1089,19 +1300,16 @@ document.addEventListener('alpine:init', () => {
                     .offsetY(0)
                     .background('#FFFFFF')
                     .fontColor('#000000')
-                    .format(function () {
-                        return (
-                            'P ' + Math.abs(this.value).toLocaleString()
-
-                        );
-                    });
-
+                    .format("{%tooltip}")
 
                 chart.tooltip().positionMode('point');
                 // set scale minimum
+                chart.yScale().minimum(0)
+                chart.yScale().maximum(1)
+
+                // chart.xScale()//.maximum(100)
                 chart.xAxis().stroke('#041F74')
                 chart.xAxis().stroke('none')
-
                 // set container id for the chart
                 chart.container(this.containerId);
                 // initiate chart drawing
@@ -1120,20 +1328,20 @@ document.addEventListener('alpine:init', () => {
     ));
 
 
-    Alpine.data('contextMenuButton', (context,uuid, contextData) => ({
+    Alpine.data('contextMenuButton', (context, uuid, contextData) => ({
         menuOpen: false,
         uuid,
         contextData,
         context,
         gridCard: null,
-        showEvent: context+'-context-menu-show',
-        closeEvent: context+'-context-menu-close',
+        showEvent: context + '-context-menu-show',
+        closeEvent: context + '-context-menu-close',
         init() {
             this.gridCard = this.$root.closest('.grid-card');
         },
         handle() {
             this.menuOpen = !this.menuOpen;
-            if(this.menuOpen) {
+            if (this.menuOpen) {
                 this.$dispatch(this.showEvent, {
                     uuid: this.uuid,
                     button: this.$root,
@@ -1181,6 +1389,125 @@ document.addEventListener('alpine:init', () => {
         closeMenu() {
             this.correspondingButton.dispatchEvent(new CustomEvent('close-menu'));
             this.contextMenuOpen = false
+        }
+    }));
+
+    Alpine.data('accordionBlock', (key, emitWhenSet = false) => ({
+        id: null,
+        emitWhenSet,
+        droppingFile: false,
+        init() {
+            this.id = this.containerId + '-' + key;
+        },
+        get expanded() {
+            return this.active === this.id
+        },
+        set expanded(value) {
+            this.active = value ? this.id : null
+            if (value) {
+                this.$el.classList.remove('hover:shadow-hover')
+                if (this.emitWhenSet) {
+                    Livewire.emit('accordion-update', this.id);
+                }
+            }
+        },
+    }));
+    Alpine.data('fileUpload', (uploadModel, rules) => ({
+        isDropping: false,
+        isUploading: false,
+        progress: {},
+        dragCounter: 0,
+        uploadModel,
+        rules,
+        handleFileSelect(event) {
+            if (event.target.files.length) {
+                this.uploadFiles(event.target.files)
+            }
+        },
+        handleFileDrop(event) {
+            if (event.dataTransfer.files.length > 0) {
+                this.uploadFiles(event.dataTransfer.files)
+            }
+        },
+        uploadFiles(files) {
+            const $this = this
+            this.isUploading = true
+            let dummyContainer = this.$root.querySelector('#upload-dummies');
+            Array.from(files).forEach((file, key) => {
+                if (!this.fileHasAllowedExtension(file)) {
+                    this.handleIncorrectFileUpload(file);
+                    return;
+                }
+
+                if (this.fileTooLarge(file)) {
+                    this.handleTooLargeOfAfile(file);
+                    return;
+                }
+
+                let badgeId = `upload-badge-${key}`;
+                let loadingBadge = $this.createLoadingBadge(file, badgeId);
+
+                dummyContainer.append(loadingBadge);
+                $this.progress[badgeId] = 0;
+
+                $this.$wire.upload(
+                    this.uploadModel,
+                    file,
+                    success => {
+                        $this.progress[badgeId] = 0
+                        dummyContainer.querySelector(`#${badgeId}`).remove();
+                    },
+                    error => {
+                        Notify.notify(`Er is iets misgegaan met het verwerken van '${file.name}'.`, 'error');
+                        dummyContainer.querySelector(`#${badgeId}`).remove();
+                    },
+                    progress => {
+                        $this.progress[badgeId] = event.detail.progress
+                    })
+            });
+
+        },
+        removeUpload(filename) {
+            this.$wire.removeUpload(this.uploadModel, filename)
+        },
+        handleDragEnter() {
+            this.dragCounter++;
+            this.droppingFile = true;
+        },
+        handleDragLeave() {
+            this.dragCounter--;
+            if (this.dragCounter === 0) {
+                this.droppingFile = false
+            }
+        },
+        handleDrop() {
+            this.droppingFile = false
+            this.dragCounter = 0
+        },
+        createLoadingBadge(file, badgeId) {
+            let template = this.$root.querySelector("template#upload-badge").content.cloneNode(true);
+            template.firstElementChild.id = badgeId;
+            template.querySelector('.badge-name').innerText = file.name;
+
+            return template
+        },
+        getFileExtension: function (file) {
+            let filename = file.name;
+            return filename.substring(filename.lastIndexOf('.') + 1, filename.length) || filename;
+        },
+        fileHasAllowedExtension(file) {
+            return this.rules.extensions.data.includes(this.getFileExtension(file));
+        },
+        handleIncorrectFileUpload(file) {
+            let message = this.rules.extensions.message.replace('%s', this.getFileExtension(file));
+            Notify.notify(message, 'error');
+        },
+        fileTooLarge(file) {
+            return file.size > this.rules.size.data;
+        },
+        handleTooLargeOfAfile(file) {
+            let message = this.rules.size.message.replace('%s', file.name);
+            Notify.notify(message, 'error');
         }
     }));
 

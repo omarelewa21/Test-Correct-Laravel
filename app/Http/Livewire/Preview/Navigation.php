@@ -113,7 +113,7 @@ class Navigation extends Component
 
     public function updateQuestionIndicatorColor()
     {
-        $newNav = $this->nav->map(function (&$item, $key) {
+        $newNav = $this->nav->map(function ($item, $key) {
             $q = $this->q;
             if ($key == --$q) {
                 $item['answered'] = true;
@@ -166,7 +166,7 @@ class Navigation extends Component
 
     public function updateNavWithClosedQuestion($question)
     {
-        $newNav = $this->nav->map(function (&$item) use ($question) {
+        $newNav = $this->nav->map(function ($item) use ($question) {
             if ($item['id'] == $question) {
                 $item['closed'] = true;
                 return $item;
@@ -178,7 +178,7 @@ class Navigation extends Component
 
     public function updateNavWithClosedGroup($groupId)
     {
-        $newNav = $this->nav->map(function (&$item) use ($groupId) {
+        $newNav = $this->nav->map(function ($item) use ($groupId) {
             if ($item['group']['id'] == $groupId) {
                 $item['group']['closed'] = true;
                 return $item;

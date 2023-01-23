@@ -9,7 +9,7 @@
 
     @push('scripts')
         <script>
-            Echo.connector.pusher.config.auth.headers['X-CSRF-TOKEN'] = '{{ csrf_token() }}'
+            addCSRFTokenToEcho('{{ csrf_token() }}');
         </script>
     @endpush
     @livewire('livewire-ui-modal')

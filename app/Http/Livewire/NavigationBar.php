@@ -2,20 +2,15 @@
 
 namespace tcCore\Http\Livewire;
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
-use tcCore\Http\Controllers\TemporaryLoginController;
 use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Http\Helpers\NavigationBarHelper;
-use tcCore\Http\Traits\WithTeacherMenu;
 
-class NavigationBar extends Component
+abstract class NavigationBar extends Component
 {
-    use WithTeacherMenu;
-
     public $activeRoute;
 
     protected $listeners = ['redirectToCake' => 'cakeRedirect'];
@@ -57,31 +52,15 @@ class NavigationBar extends Component
             ->join(',');
 
         return sprintf('%s:click=%s(%s)',
-            $menu->action->directive,
-            $menu->action->method,
+            $menu->action->directive ?? 'wire',
+            $menu->action->method ?? 'laravelRedirect',
             $actionParameters
         );
     }
 
-    private function filterMenuForExamCoordinator()
-    {
-        $notAllowed = [
-            'menus' => [
-                'taken',
-                'classes',
-                'analyses',
-                'results',
-            ],
-            'tiles' => [
-                'tests'   => ['my-uploads','question-bank','create-test'],
-                'planned' => ['invigilating', 'ongoing-assignments'],
-            ]
-        ];
+    protected function handleMenuFilters() {}
 
-        $this->filterMenu($notAllowed);
-    }
-
-    private function filterMenu($notAllowed)
+    protected function filterMenu($notAllowed)
     {
         if (isset($notAllowed['menus'])) {
             $this->menus = $this->menus->reject(function ($menuData, $menuName) use ($notAllowed) {
@@ -102,29 +81,7 @@ class NavigationBar extends Component
         }
     }
 
-    private function handleMenuFilters()
-    {
-        if (Auth::user()->isValidExamCoordinator()) {
-            $this->filterMenuForExamCoordinator();
-        }
-        if (Gate::allows('useNewTakenTestsOverview')) {
-            $this->filterMenuForNewTakenTestsOverview();
-        }
-    }
+    abstract function menus();
+    abstract function tiles();
 
-    private function filterMenuForNewTakenTestsOverview()
-    {
-        $this->menus = $this->menus->mapWithKeys(function ($menu, $menuName) {
-            if ($menuName === 'taken') {
-                $menu->hasItems = false;
-                $menu->action = (object) [
-                    'directive'  => 'wire',
-                    'method'     => 'laravelRedirect',
-                    'parameters' => route('teacher.test-takes', 'taken')
-                ];
-            }
-            return [$menuName => $menu];
-        });
-
-    }
 }

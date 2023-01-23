@@ -498,3 +498,6 @@ input[type=number] {
     font-size: 1rem;
     color: var(--system-base);
 }
+.form-input.search::placeholder {
+    color: var(--mid-grey);
+}

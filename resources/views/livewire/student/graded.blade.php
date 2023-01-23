@@ -1,12 +1,12 @@
 <div class="flex flex-col space-y-4">
     <div>
-        <h1>{{ __('student.graded_tests') }}</h1>
+        <h1>{{ __('student.tests_results') }}</h1>
     </div>
     <div class="content-section p-8 relative" wire:init="loadRatings">
         <x-loading/>
         @if($readyToLoad)
             @if($testTakes->count() == 0)
-                <p>{{ __('student.no_recent_grades') }}</p>
+                <p>{{ __('student.no_recent_results') }}</p>
             @else
                 <x-table>
                     <x-slot name="head">
@@ -52,15 +52,21 @@
                                     @endif
                                 </x-table.cell>
                                 <x-table.cell>
-                                    <x-partials.test-take-type-label type="{{ $testTake->retake }}"/>
+                                    <x-partials.test-take-type-label :type="$testTake->retake"/>
                                 </x-table.cell>
-                                <x-table.cell class="text-right">
-                                    @if($testTake->testParticipants->first()->rating)
+                                <x-table.cell class="text-center">
+                                    @if(!$testTake->show_grades)
+                                        <span title="{{__('test_take.hide_grade_tooltip')}}">
+                                            {{ __('test_take.nvt') }}
+                                        </span>
+                                    @elseif($testTake->testParticipants->first()->rating)
                                         <span class="px-2 py-1 text-sm rounded-full {!! $this->getBgColorForTestParticipantRating($this->getRatingToDisplay($testTake->testParticipants->first())) !!}">
                                             {{ $this->getRatingToDisplay($testTake->testParticipants->first()) }}
                                         </span>
                                     @else
-                                        <span>-</span>
+                                        <span class="text-sm rounded-full bg-grade">
+                                            <x-icon.time-dispensation class="text-white" :title="__('test_take.waiting_grade')"/>
+                                        </span>
                                     @endif
                                 </x-table.cell>
                                 @if($this->testTakeReviewable($testTake))

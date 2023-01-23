@@ -2,6 +2,7 @@
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
@@ -37,8 +38,10 @@ class TestTake extends BaseModel
     use Archivable;
 
     protected $casts = [
-        'uuid'            => EfficientUuid::class,
-        'notify_students' => 'boolean',
+        'uuid'              => EfficientUuid::class,
+        'notify_students'   => 'boolean',
+        'show_grades'       => 'boolean',
+        'returned_to_taken' => 'boolean'
     ];
 
     /**
@@ -60,7 +63,7 @@ class TestTake extends BaseModel
      *
      * @var array
      */
-    protected $fillable = ['test_id', 'test_take_status_id', 'period_id', 'retake', 'retake_test_take_id', 'time_start', 'time_end', 'location', 'weight', 'note', 'invigilator_note', 'show_results', 'discussion_type', 'is_rtti_test_take', 'exported_to_rtti', 'allow_inbrowser_testing', 'guest_accounts', 'skipped_discussion', 'notify_students', 'user_id', 'scheduled_by'];
+    protected $fillable = ['test_id', 'test_take_status_id', 'period_id', 'retake', 'retake_test_take_id', 'time_start', 'time_end', 'location', 'weight', 'note', 'invigilator_note', 'show_results', 'discussion_type', 'is_rtti_test_take', 'exported_to_rtti', 'allow_inbrowser_testing', 'guest_accounts', 'skipped_discussion', 'notify_students', 'user_id', 'scheduled_by', 'show_grades', 'returned_to_taken'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -422,6 +425,11 @@ class TestTake extends BaseModel
         return SchoolClass::fromTestTakes($testTakeIds);
     }
 
+    public function schoolLocation()
+    {
+        return $this->belongsTo(SchoolLocation::class);
+    }
+
     public function invigilators()
     {
         return $this->hasMany('tcCore\Invigilator');
@@ -437,26 +445,10 @@ class TestTake extends BaseModel
 
     public function isAllowedToView(User $userToCheck)
     {
-
-        $value = count(DB::select("select
-        `test_take_id`
-      from
-        `test_participants`
-      where
-        deleted_at is null AND
-        `school_class_id` in (
-            select
-            `class_id`
-          from
-            `teachers`
-          where
-            `user_id` = :userId AND
-            deleted_at is null
-        ) and test_take_id = :testTakeId",
-            ['userId' => $userToCheck->getKey(), 'testTakeId' => $this->getKey()]
-        ));
-
-        return ($value > 0 && $userToCheck->hasAccessToTest($this->test)) || $this->isInvigilator($userToCheck) || $this->isScheduledByUser($userToCheck) || $this->isTakeOwner($userToCheck);
+        return ($this->hasParticipantsThatUserTeaches($userToCheck) && $userToCheck->hasAccessToTest($this->test))
+            || $this->isInvigilator($userToCheck)
+            || ($this->isScheduledByUser($userToCheck) || ($userToCheck->isValidExamCoordinator() && $this->school_location_id === $userToCheck->school_location_id))
+            || $this->isTakeOwner($userToCheck);
     }
 
     public function fill(array $attributes)
@@ -487,7 +479,6 @@ class TestTake extends BaseModel
     {
         $testTakeParticipantFactory = new Factory(new TestParticipant());
         $testParticipants = $testTakeParticipantFactory->generateMany($this->getKey(), ['school_class_ids' => $this->schoolClasses, 'test_take_status_id' => with(TestTakeStatus::where('name', 'Planned')->first())->getKey()]);
-//logger(print_r($testParticipants,true));
         $this->testParticipants()->saveMany($testParticipants);
         $this->schoolClasses = null;
     }
@@ -516,11 +507,13 @@ class TestTake extends BaseModel
             });
         } elseif (in_array('Teacher', $roles)) {
             $user = Auth::user();
-            $query->accessForTeacher($user)
-                ->withoutDemoTeacherForUser($user)
-                ->onlyTestsFromSubjectsOrIfDemoThenOnlyWhenOwner($user)
-                ->when($user->isValidExamCoordinator(), fn($query) => $query->scheduledByExamCoordinator($user));
-
+            $skipDefaults = $user->isValidExamCoordinator() && $this->hasRatedTestTakesFilter($filters);
+            $query->when(!$skipDefaults, function ($query) use ($user) {
+                $query->accessForTeacher($user)
+                    ->withoutDemoTeacherForUser($user)
+                    ->onlyTestsFromSubjectsOrIfDemoThenOnlyWhenOwner($user)
+                    ->when($user->isValidExamCoordinator(), fn($query) => $query->scheduledByExamCoordinator($user));
+            });
         } elseif (in_array('Student', $roles)) {
             $query->whereIn($this->getTable() . '.id', function ($query) {
                 $query->select('test_take_id')
@@ -531,7 +524,6 @@ class TestTake extends BaseModel
         }
 
         $query->belongsToSchoolLocation(Auth::user());
-        //$query->where($this->getTable().'.school_location_id', Auth::user()->school_location_id);
 
         $testTable = with(new Test())->getTable();
         $query->select($this->getTable() . '.*')
@@ -578,10 +570,7 @@ class TestTake extends BaseModel
                     $query->whereIn('retake_test_take_id', $value);
                     break;
                 case 'test_take_status_id':
-                    if (!is_array($value)) {
-                        $value = [$value];
-                    }
-                    $query->whereIn('test_take_status_id', $value);
+                    $query->whereIn('test_take_status_id', Arr::wrap($value));
                     break;
                 case 'time_start_from':
                     $query->where('time_start', '>=', $value);
@@ -686,9 +675,9 @@ class TestTake extends BaseModel
                     $query->whereIn(
                         $this->getTable() . '.id',
                         TestTake::distinctTestTakesFromTests()
-                            ->when(is_int($value),
-                                fn($query) => $query->where('tests.subject_id', $value),
-                                fn($query) => $query->whereIn('tests.subject_id', $value)
+                            ->when(is_array($value),
+                                fn($query) => $query->whereIn('tests.subject_id', $value),
+                                fn($query) => $query->where('tests.subject_id', $value)
                             )
                     );
                     break;
@@ -976,15 +965,11 @@ class TestTake extends BaseModel
 
     public function scopeOnlyTestsFromSubjectsOrIfDemoThenOnlyWhenOwner($query, User $user)
     {
+
         $query->where(function ($q) use ($user) {
             $subject = (new DemoHelper())->getDemoSubjectForTeacher($user);
-            //TCP-156
             if ($subject === null) {
-                if (config('app.url_login') == "https://testportal.test-correct.nl/" || config('app.url_login') == "https://testportal.test-correct.nl/" || config('app.env') == "production") {
-                    dispatch(new SendExceptionMail("Er is iets mis met de demoschool op ".config('app.url_login')."! \$subject is null in TestTake.php. Dit betekent dat docenten toetsen van andere docenten kunnen zien. Dit moet zo snel mogelijk opgelost worden!",
-                        __FILE__, 510, []));
-                }
-                return;
+                return; // no demo environments any more for new teachers except for the temporary school location
             }
 
             $q->whereIn($this->getTable().'.id', function ($query) use ($subject, $user) {
@@ -1089,7 +1074,19 @@ class TestTake extends BaseModel
 
     public function updateToTaken()
     {
-        $this->test_take_status_id = TestTakeStatus::STATUS_TAKEN;
+        $this->test_take_status_id      = TestTakeStatus::STATUS_TAKEN;
+        $this->discussing_question_id   = null;
+        $this->is_discussed             = 0;
+        $this->discussion_type          = null;
+        $this->show_results             = null;
+        $this->skipped_discussion       = 0;
+        $this->returned_to_taken        = 1;
+        $this->save();
+    }
+
+    public function updateToDiscussed()
+    {
+        $this->test_take_status_id = TestTakeStatus::STATUS_DISCUSSED;
         $this->save();
     }
 
@@ -1211,5 +1208,22 @@ class TestTake extends BaseModel
     public function isTakeOwner(User $user): bool
     {
         return $this->user_id === $user->getKey();
+    }
+
+    private function hasRatedTestTakesFilter($filters): bool
+    {
+        if (!isset($filters['test_take_status_id'])) return false;
+
+        return $filters['test_take_status_id'] == (string)TestTakeStatus::STATUS_RATED;
+    }
+
+    private function hasParticipantsThatUserTeaches(User $user): bool
+    {
+        return TestParticipant::select('test_take_id')
+            ->whereIn('school_class_id',
+                Teacher::select('class_id')->whereUserId($user->getKey())
+            )
+            ->whereTestTakeId($this->getKey())
+            ->exists();
     }
 }

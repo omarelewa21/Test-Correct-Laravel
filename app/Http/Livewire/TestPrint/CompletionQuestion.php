@@ -45,7 +45,7 @@ class CompletionQuestion extends Component
         }
     }
 
-    private function completionHelper($question)
+    protected function completionHelper($question)
     {
         //todo answerstruct contains the answers, and so it can be used to calculate the amount of lines. starts with 1 (not 0)
         // todo split up views of completion and selection? completely different
@@ -61,11 +61,8 @@ class CompletionQuestion extends Component
         return preg_replace_callback($this->searchPattern, $replacementFunction, $question_text);
     }
 
-    private function multiHelper($question)
+    protected function multiHelper($question)
     {
-        if (empty($answerJson)) {
-            $answerJson = [];
-        }
         $question_text = $question->converted_question_html;
 
         $this->createAvailableAnswersList();
@@ -81,7 +78,7 @@ class CompletionQuestion extends Component
         return $question_text;
     }
 
-    private function getOption($answers, $correct)
+    protected function getOption($answers, $correct)
     {
         return collect($answers)->map(function ($option, $key) use ($correct) {
             if (trim($option) == trim($correct)) {
@@ -115,7 +112,7 @@ class CompletionQuestion extends Component
         return count($tags) === count(array_filter($this->answer));
     }
 
-    private function getEncodedCheckmarkSvg()
+    protected function getEncodedCheckmarkSvg()
     {
         return rawurlencode('<svg width="13px" height="16px" viewBox="0 0 13 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
     <title>icons/checkmark small blue</title>
@@ -128,7 +125,7 @@ class CompletionQuestion extends Component
     /**
      * create a list of numbers
      */
-    private function createAnswerPlaceholdersList()
+    protected function createAnswerPlaceholdersList()
     {
         $answerStruct = collect($this->answerStruct);
         $max = $answerStruct->count();
@@ -143,7 +140,7 @@ class CompletionQuestion extends Component
         $this->answerPlaceholdersList = $left->zip($right)->flatten()->filter();
     }
 
-    private function createAvailableAnswersList()
+    protected function createAvailableAnswersList()
     {
         $availableAnswers = [];
         $this->question->completionQuestionAnswers->each(function ($option) use (&$availableAnswers) {

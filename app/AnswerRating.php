@@ -5,8 +5,10 @@ use Illuminate\Support\Facades\Queue;
 use tcCore\Jobs\PValues\CalculatePValueForAnswer;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use tcCore\Scopes\ArchivedScope;
 
-class AnswerRating extends BaseModel {
+class AnswerRating extends BaseModel
+{
 
     use SoftDeletes;
 
@@ -43,7 +45,7 @@ class AnswerRating extends BaseModel {
         parent::boot();
 
         // Progress additional answers
-        static::saved(function(AnswerRating $answerRating) {
+        static::saved(function (AnswerRating $answerRating) {
             $answer = $answerRating->answer;
             $answer->setAttribute('final_rating', null);
             $answer->save();
@@ -51,15 +53,18 @@ class AnswerRating extends BaseModel {
         });
     }
 
-    public function user() {
+    public function user()
+    {
         return $this->belongsTo('tcCore\User');
     }
 
-    public function answer() {
+    public function answer()
+    {
         return $this->belongsTo('tcCore\Answer');
     }
 
-    public function testTake() {
+    public function testTake()
+    {
         return $this->belongsTo('tcCore\TestTake');
     }
 
@@ -69,8 +74,7 @@ class AnswerRating extends BaseModel {
 
         if (in_array('Teacher', $roles)) {
 
-            $query->where(function($query)
-            {
+            $query->where(function ($query) {
                 $query->whereIn('test_take_id', function ($query) {
                     $query->select('id')
                         ->from(with(new TestTake())->getTable())
@@ -83,8 +87,8 @@ class AnswerRating extends BaseModel {
             $query->where('user_id', Auth::id());
         }
 
-        foreach($filters as $key => $value) {
-            switch($key) {
+        foreach ($filters as $key => $value) {
+            switch ($key) {
                 case 'answer_id':
                     $value = Answer::whereUuid($value)->first()->getKey();
                     if (is_array($value)) {
@@ -115,7 +119,7 @@ class AnswerRating extends BaseModel {
 
                     $parentRows = DiscussingParentQuestion::where('test_take_id', $value)->orderBy('level')->get();
                     $parents = null;
-                    foreach($parentRows as $answerParentQuestion) {
+                    foreach ($parentRows as $answerParentQuestion) {
                         if ($parents !== null) {
                             $parents .= '.';
                         }
@@ -129,7 +133,7 @@ class AnswerRating extends BaseModel {
                     })->where('question_id', $questionId)->with('answerParentQuestions')->get();
 
                     $answerIds = array();
-                    foreach($answers as $answer) {
+                    foreach ($answers as $answer) {
                         // Decide if this is question that is currently being discussed
                         $answerParents = null;
                         foreach ($answer->answerParentQuestions as $answerParentQuestion) {
@@ -160,10 +164,23 @@ class AnswerRating extends BaseModel {
                         $query->where('rating', null);
                     }
                     break;
+                case 'current_answer_rating':
+                    if ($value && array_key_exists('discussing_at_test_take_id', $filters) && array_key_exists('user_id', $filters)) {
+                        $query->whereIn('id',
+                            TestParticipant::select('discussing_answer_rating_id')
+                                ->whereIn('user_id',
+                                    User::whereUuid($filters['user_id'])->select('id')
+                                )->whereIn('test_take_id',
+                                    TestTake::whereUuid($filters['discussing_at_test_take_id'])->select('id')
+                                        ->withoutGlobalScope(ArchivedScope::class)
+                                )
+                        );
+                    }
+                    break;
             }
         }
 
-        foreach($sorting as $key => $value) {
+        foreach ($sorting as $key => $value) {
             switch (strtolower($value)) {
                 case 'id':
                 case 'answer_id':

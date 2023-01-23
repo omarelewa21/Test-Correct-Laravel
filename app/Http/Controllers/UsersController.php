@@ -61,7 +61,7 @@ class UsersController extends Controller
             $users->with('studentSchoolClasses');
         }
         if (is_array($request->get('with')) && in_array('trial_info', $request->get('with'))) {
-            $users->with(['trialPeriods','trialPeriods.schoolLocation:id,name']);
+            $users = $users->with(['trialPeriods', 'trialPeriods.schoolLocation:id,name']);
         }
 
         switch (strtolower($request->get('mode', 'paginate'))) {
@@ -80,6 +80,11 @@ class UsersController extends Controller
                 $users = $users->paginate(15);
                 if (is_array($request->get('with')) && in_array('studentSubjectAverages', $request->get('with'))) {
                     AverageRatingRepository::getSubjectAveragesOfStudents($users);
+                }
+                if (is_array($request->get('with')) && in_array('trial_info', $request->get('with'))) {
+                    $users->each(function ($user) {
+                        return $user->trialSchoolLocations = $user->getTrialSchoolLocations();
+                    });
                 }
                 $users->transform(function (User $u) {
                     $u->is_temp_teacher = $u->getIsTempTeacher();
@@ -225,7 +230,7 @@ class UsersController extends Controller
     public function confirmEmail(Request $request, EmailConfirmation $emailConfirmation)
     {
         // indien emailConfirmation === null => doorverwijzen naar login pagina
-        if ($emailConfirmation === null) {
+        if ($emailConfirmation === null || null == $emailConfirmation->user) {
             return Response::redirectTo(BaseHelper::getLoginUrl());
         }
 
@@ -316,7 +321,7 @@ class UsersController extends Controller
 
         if (is_array($request->get('with')) && in_array('testsParticipated', $request->get('with'))) {
             $user->load(['testParticipants' => function ($query) {
-                $query->select(['test_participants.*', 'test_takes.uuid as test_take_uuid', 'test_takes.time_start', 'test_takes.test_take_status_id AS test_take_test_take_status_id', 'tests.name'])->join('test_takes', 'test_participants.test_take_id', '=', 'test_takes.id')->join('tests', 'test_takes.test_id', '=', 'tests.id')->orderBy('test_takes.time_start', 'DESC');
+                $query->select(['test_participants.*', 'test_takes.uuid as test_take_uuid', 'test_takes.time_start', 'test_takes.test_take_status_id AS test_take_test_take_status_id', 'tests.name', 'test_takes.show_grades'])->join('test_takes', 'test_participants.test_take_id', '=', 'test_takes.id')->join('tests', 'test_takes.test_id', '=', 'tests.id')->orderBy('test_takes.time_start', 'DESC');
             }]);
 
         }
@@ -346,7 +351,7 @@ class UsersController extends Controller
 
         if ($request->has('password')) {
             Log::stack(['loki'])->info("updateStudent@UsersController.php password reset");
-            $user->setAttribute('password', \Hash::make($request->get('password')));
+            $user->setAttribute('password', $request->get('password'));
             $this->sendPasswordChangedMail($user);
         }
 
@@ -371,7 +376,7 @@ class UsersController extends Controller
 
         if ($request->filled('password')) {
             Log::stack(['loki'])->info("updatePasswordForUser@UsersController.php password reset");
-            $user->setAttribute('password', \Hash::make($request->get('password')));
+            $user->setAttribute('password', $request->get('password'));
             $this->sendPasswordChangedMail($user);
         }
 
@@ -400,7 +405,7 @@ class UsersController extends Controller
 
         if ($request->filled('password')) {
             Log::stack(['loki'])->info("update@UsersController.php password reset");
-            $user->setAttribute('password', \Hash::make($request->get('password')));
+            $user->setAttribute('password', $request->get('password'));
             $this->sendPasswordChangedMail($user);
         }
 
@@ -615,5 +620,14 @@ class UsersController extends Controller
         }
 
         return Response::make($user, 200);
+    }
+
+    public function toetsenbakkers(Request $request)
+    {
+        $toetsenbakkers = Auth::user()->isA('Account manager')
+            ? User::toetsenbakkers()->notDemo()->get()->each->append('name_full')
+            : [];
+
+        return Response::make($toetsenbakkers, 200);
     }
 }

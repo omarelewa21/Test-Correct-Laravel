@@ -10,6 +10,7 @@ use tcCore\Address;
 use tcCore\Answer;
 use tcCore\Attachment;
 use tcCore\Attainment;
+use tcCore\BaseAttainment;
 use tcCore\BaseSubject;
 use tcCore\CompletionQuestion;
 use tcCore\Contact;
@@ -296,6 +297,9 @@ class RouteServiceProvider extends ServiceProvider
         Route::model('maintenanceWhitelistIp', 'tcCore\MaintenanceWhitelistIp', function () {
             throw new RouteModelBindingNotFoundHttpException('MaintenanceWhitelistIp not found');
         });
+        Route::model('file_management', 'tcCore\FileManagement', function () {
+            throw new RouteModelBindingNotFoundHttpException('FileManagement not found');
+        });
 
         /**
          * Route::model('user_role','tcCore\UserRole', function() {
@@ -477,6 +481,10 @@ class RouteServiceProvider extends ServiceProvider
             return Attainment::whereUuid($item)->firstOrFail();
         });
 
+        Route::bind('baseAttainment', function($item) {
+            return BaseAttainment::whereUuid($item)->firstOrFail();
+        });
+
         Route::bind('attachment', function($item) {
             return Attachment::whereUuid($item)->firstOrFail();
         });
@@ -517,7 +525,7 @@ class RouteServiceProvider extends ServiceProvider
             return Tag::whereUuid($item)->firstOrFail();
         });
 
-        Route::bind('fileManagement', function($item) {
+        Route::bind('file_management', function($item) {
             return FileManagement::whereUuid($item)->firstOrFail();
         });
 

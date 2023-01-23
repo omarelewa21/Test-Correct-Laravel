@@ -69,6 +69,11 @@ class BaseHelper
         return request()->getHost() === 'welcome.test-correct.nl';
     }
 
+    public static function getLivewireOriginalPath($request)
+    {
+        return json_decode($request->getContent())->fingerprint->path;
+    }
+
     public function addError($error)
     {
         $this->errors[] = $error;
@@ -99,6 +104,11 @@ class BaseHelper
     public static function notOnLocal()
     {
         return !(str_contains(config('app.url_login'),'testportal') && (str_ends_with(config('app.url_login'),'.test') || str_ends_with(config('app.url_login'),'.test/')));
+    }
+
+        public static function onLocal()
+    {
+        return str_contains(config('app.url_login'),'testportal') && (str_ends_with(config('app.url_login'),'.test') || str_ends_with(config('app.url_login'),'.test/'));
     }
 
     public static function isRunningTestRefreshDb() {
@@ -180,6 +190,9 @@ class BaseHelper
         $answer = str_replace('&lt;','<',$answer);
         $answer = str_replace('&gt;','>',$answer);
         $answer = str_replace('&amp;','&',$answer);
+        $answer = htmlentities($answer, null, 'utf-8');
+        $answer = str_replace("&nbsp;", ' ', $answer);
+
         return $answer;
     }
 
@@ -191,5 +204,18 @@ class BaseHelper
             $queryAr[$type] = $message;
         }
         return route('auth.login',$queryAr);
+    }
+
+    public static function getWorkableTypeFromUploadMime($mime)
+    {
+        if (str($mime)->startsWith('application')) {
+            if (str(explode('/', $mime)[1])->contains('word')) {
+                return 'word';
+            }
+
+            return 'pdf';
+        }
+
+        return collect(explode('/', $mime))->first();
     }
 }

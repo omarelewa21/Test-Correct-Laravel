@@ -112,7 +112,7 @@
                 <div class="toggles | flex flex-col lg:flex-row lg:gap-x-4 flex-wrap mb-4">
                     <x-input.toggle-row-with-title wire:model="request.allow_inbrowser_testing"
                                                    :toolTip="__('teacher.inbrowser_testing_tooltip')"
-                                                   :disabled="$this->isAssessmentType()"
+                                                   :disabled="$this->isAssessmentType() || !auth()->user()->schoolLocation->allow_inbrowser_testing"
                                                    containerClass="border-t w-full lg:w-[calc(50%-0.5rem)]"
                     >
                         <x-icon.web/>
@@ -121,13 +121,13 @@
                     <x-input.toggle-row-with-title wire:model="request.guest_accounts"
                                                    :toolTip="__('teacher.guest_accounts_tooltip')"
                                                    :tooltipAlwaysLeft="true"
+                                                   :disabled="!auth()->user()->schoolLocation->allow_guest_accounts"
                                                    containerClass="lg:border-t w-full lg:w-[calc(50%-0.5rem)]"
                                                    :error="$this->getErrorBag()->has('request.school_classes')"
                     >
                         <x-icon.test-direct/>
                         <span class="bold">{{ __('teacher.Test-Direct toestaan') }} </span>
                     </x-input.toggle-row-with-title>
-
                     <x-input.toggle-row-with-title wire:model="request.notify_students"
                                                    :toolTip="__('teacher.notify_students_tooltip')"
                                                    containerClass="border-t-0 w-full lg:w-[calc(50%-0.5rem)]"
@@ -135,6 +135,15 @@
                         <x-icon.send-mail/>
                         <span class="bold">{{ __('teacher.notify_students') }} </span>
                     </x-input.toggle-row-with-title>
+                    @if($rttiExportAllowed)
+                        <x-input.toggle-row-with-title wire:model="request.is_rtti_test_take"
+                                                       :toolTip="__('teacher.exporteer_naar_rtti_online_tooltip')"
+                                                       containerClass="border-t w-full lg:w-[calc(50%-0.5rem)]"
+                        >
+                            <x-icon.export/>
+                            <span class="bold">{{ __('teacher.Exporteer naar RTTI Online') }} </span>
+                        </x-input.toggle-row-with-title>
+                    @endif
                 </div>
             </div>
             <div class="input-section">

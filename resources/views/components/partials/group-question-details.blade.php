@@ -1,10 +1,12 @@
-<div>
-    <div class="sticky sticky-pseudo-bg z-10 top-0 bg-lightGrey flex items-center px-8 py-1 border-b border-bluegrey"
+<div wire:key="group-question-detail-{{ $context }}-{{ $uuid }}">
+    <div class="sticky @if($context !== 'question-bank') sticky-pseudo-bg @endif z-10 top-0 bg-lightGrey flex items-center px-8 py-1 border-b border-bluegrey"
+         @if($context !== 'question-bank')
          :style="{top: $root.offsetTop + 'px'}"
+         @endif
     >
-        <div class="w-full max-w-screen-2xl mx-auto px-10 z-1 flex items-center justify-between">
+        <div class="w-full max-w-screen-2xl mx-auto @if($context !== 'question-bank') px-10 @endif z-1 flex items-center justify-between">
             <div class="flex items-center space-x-2.5 z-1">
-                <x-button.back-round @click="closeGroupDetail()"/>
+                <x-button.back-round x-on:click="$el.closest('[group-container]').dispatchEvent(new CustomEvent('close-group-details'));"/>
                 <div class="flex text-lg bold">
                     <span>{{ __('question.Vraaggroep') }}: {{ $name ?? '' }}</span>
                 </div>
@@ -55,9 +57,9 @@
                         <x-icon.checkmark-circle color="var(--cta-primary)"/>
                     </span>
                 @endif
-                <x-button.cta x-data="{}" x-show="Alpine.store('questionBank').active"
-                              wire:click.stop="handleCheckboxClick('{{ $uuid }}')"
-                              @click="$el.disabled = true">
+                <x-button.cta x-data="{}"
+                              x-show="Alpine.store('questionBank').active"
+                              x-on:click.stop="addQuestionToTestFromTestCard($el, '{{ $uuid }}', false );$el.disabled = true">
                     <x-icon.plus-2/>
                     <span>{{ __('cms.Toevoegen') }}</span>
                 </x-button.cta>
@@ -65,12 +67,16 @@
         </div>
         <x-grid class="subquestion-grid w-full">
             @forelse($subQuestions as $sub)
-                <x-grid.question-card :question="$sub->question" :testUuid="$this->testId ?? null"
-                                      :order="$loop->iteration" :showQuestionBankAddConfirmation="$showQuestionBankAddConfirmation"/>
+                <x-grid.question-card :question="$sub->question"
+                                      :testUuid="$this->testId ?? null"
+                                      :order="$loop->iteration"
+                                      :showQuestionBankAddConfirmation="$showQuestionBankAddConfirmation"
+                                      :inTest="$this->testContainsQuestion($sub->question)"
+                />
             @empty
                 <span>Geen subvragen</span>
             @endforelse
         </x-grid>
-        <livewire:context-menu.question-card>
+        <livewire:context-menu.question-card/>
     </div>
 </div>

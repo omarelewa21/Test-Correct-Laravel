@@ -7,32 +7,78 @@ use tcCore\Http\Controllers\TemporaryLoginController;
 
 class CakeRedirectHelper
 {
-    protected string $routeName;
-    protected ?string $uuid = null;
+    protected function __construct(
+        protected string  $searchValue,
+        protected ?string $uuid = null)
+    {
+    }
 
-    public static function redirectToCake(string $routeName, ?string $uuid = null) : void
+    public static function redirectToCake(string $routeName = 'dashboard', ?string $uuid = null)
     {
         $helper = new self($routeName, $uuid);
 
-        redirect($helper->createCakeUrl());
+        return redirect($helper->createCakeUrl());
     }
 
-    public static function getCakeUrl(string $routeName, ?string $uuid = null) : string
+    public static function getCakeUrl(string $routeName, ?string $uuid = null): string
     {
         $helper = new self($routeName, $uuid);
 
         return $helper->createCakeUrl();
     }
 
-    protected function __construct(string $routeName, ?string $uuid = null)
-    {
-        $this->routeName = $routeName;
-        $this->uuid = $uuid;
-    }
-
     protected function getCakeUrlAndFollowupActionData()
     {
-        $lookUpArray = [
+        $lookUpArray = $this->getLookupArray();
+
+        return $lookUpArray[$this->searchValue] ?? false;
+    }
+
+    protected function createCakeUrl(): string
+    {
+        $cakeRedirectData = $this->getCakeUrlAndFollowupActionData();
+
+        $controller = new TemporaryLoginController();
+        $request = new Request();
+
+        if (!is_array($cakeRedirectData)) {
+            $cakeRedirectData = [
+                'page'        => '/',
+                'page_action' => "Navigation.load('$cakeRedirectData')"
+            ];
+        }
+
+        $request->merge([
+            'options' => $cakeRedirectData,
+        ]);
+
+        return $controller->toCakeUrl($request);
+    }
+
+    public static function getRouteNameByUrl(string $url, ?string $uuid = null)
+    {
+        $helper = new self($url, $uuid);
+
+        return collect($helper->getLookupArray())
+            ->filter(function ($value) use ($url) {
+                if (is_array($value)) {
+                    return collect($value)->first(function ($subValue) use ($url) {
+                        return str($subValue)->contains($url);
+                    });
+                }
+                return str($value)->contains($url);
+
+            })
+            ->keys()
+            ->first();
+    }
+
+    /**
+     * @return array
+     */
+    private function getLookupArray(): array
+    {
+        return [
             'dashboard'                   => '/users/welcome',
             'tests.test_bank'             => '/tests/index',
             'tests.question_bank'         => '/questions/index',
@@ -51,8 +97,9 @@ class CakeRedirectHelper
             'taken.test_taken'            => '/test_takes/taken_teacher',
             'taken.normalize_test'        => '/test_takes/to_rate',
             'results.rated'               => '/test_takes/rated',
-            'analyses.students'           => '/analyses/students_overview',
+            'analyses.teacher'            => sprintf('/teacher_analyses/view/%s', $this->uuid),
             'analyses.classes'            => '/analyses/school_classes_overview',
+            'new_analyses.classes'        => '/teacher_analyses',
             'classes.my_classes'          => '/teacher_classes',
             'classes.my_schoollocation'   => '/teacher_classes/school_location_classes',
             'update-password'             => [
@@ -69,7 +116,7 @@ class CakeRedirectHelper
             ],
             'knowledge_base'              => [
                 'page'        => '/',
-                'page_action' => "Popup.showExternalPage('https://support.test-correct.nl')",
+                'page_action' => "Popup.showExternalPage('https://support.test-correct.nl/knowledge')",
             ],
             'webinar'                     => [
                 'page'        => '/',
@@ -112,30 +159,29 @@ class CakeRedirectHelper
             'school.delete' => [
                 'page'        => '/',
                 'page_action' => "School.delete('$this->uuid', 0)"
-            ]
+            ],
+
+            'files.class_uploads'                 => '/file_management/classuploads',
+            'files.view_testupload' => sprintf('/file_management/view_testupload/%s', $this->uuid),
+
+            'reports.marketing'       => [
+                'page'        => '/users/welcome',
+                'page_action' => 'window.location.href = "/users/marketing_report"',
+            ],
+            'reports.school_location' => [
+                'page'        => '/users/welcome',
+                'page_action' => 'window.location.href = "/users/school_location_report"',
+            ],
+
+            'database.umbrella_organizations' => '/umbrella_organisations',
+            'database.attainments_import'     => '/attainments',
+            'database.attainmentscito_import' => '/attainments_cito',
+
+            'qtiimport.index'      => '/qtiimport/index',
+            'qtiimport_cito'       => '/qtiimport_cito',
+            'qtiimport_batch_cito' => '/qtiimport_batch_cito',
+
+            'infos.index' => '/infos/index'
         ];
-
-        return $lookUpArray[$this->routeName] ?? false;
-    }
-
-    protected function createCakeUrl() : string
-    {
-        $cakeRedirectData = $this->getCakeUrlAndFollowupActionData();
-
-        $controller = new TemporaryLoginController();
-        $request = new Request();
-
-        if (!is_array($cakeRedirectData)) {
-            $cakeRedirectData = [
-                'page'        => '/',
-                'page_action' => "Navigation.load('$cakeRedirectData')"
-            ];
-        }
-
-        $request->merge([
-            'options' => $cakeRedirectData,
-        ]);
-
-        return $controller->toCakeUrl($request);
     }
 }

@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
 use Illuminate\Support\Arr;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use tcCore\Http\Enums\TestPackages;
 use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Helpers\GlobalStateHelper;
@@ -37,16 +38,20 @@ use tcCore\Lib\User\Roles;
 use Dyrynda\Database\Casts\EfficientUuid;
 use tcCore\Mail\SendSamlNoMailAddressInRequestDetectedMail;
 use tcCore\Traits\UuidTrait;
+use tcCore\Traits\FeatureSettings;
 
-class SchoolLocation extends BaseModel implements AccessCheckable
+class       SchoolLocation extends BaseModel implements AccessCheckable
 {
 
     use SoftDeletes;
     use UuidTrait;
+    use FeatureSettings;
 
     const LVS_MAGISTER = 'Magister';
     const LVS_SOMTODAY = 'SOMTODAY';
     const SSO_ENTREE = 'Entreefederatie';
+    const LICENSE_TYPE_TRIAL = 'TRIAL';
+    const LICENSE_TYPE_CLIENT = 'CLIENT';
 
     protected $casts = [
         'uuid'                       => EfficientUuid::class,
@@ -67,7 +72,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable
      */
     protected $dates = ['deleted_at', 'no_mail_request_detected'];
 
-    protected $appends = ['school_language_cake'];
+    protected $appends = ['school_language_cake', 'feature_settings'];
 
     /**
      * The database table used by the model.
@@ -95,6 +100,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         'keep_out_of_school_location_report',
         'main_phonenumber', 'internetaddress', 'show_exam_material', 'show_cito_quick_test_start', 'show_national_item_bank',
         'allow_wsc', 'allow_writing_assignment', 'license_type', 'allow_creathlon', 'allow_new_taken_tests_page', 'allow_analyses',
+        'allow_new_co_learning', 'test_package',
     ];
 
     /**
@@ -410,7 +416,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable
                     $schoolLocation = $schoolLocation->addSchoolLocationExtras();
                 }
                 if (GlobalStateHelper::getInstance()->hasPreventDemoEnvironmentCreationForSchoolLocation() === false) {
-                    (new DemoHelper())->createDemoPartsForSchool($schoolLocation);
+                    (new DemoHelper())->createDemoForSchoolLocationIfNeeded($schoolLocation);
                 }
                 if ($origAuthUser) {
                     Auth::login($origAuthUser);
@@ -549,7 +555,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable
             ->join('school_location_school_years', function ($join) {
                 $join->on('school_location_school_years.school_year_id', '=', 'school_years.id')
                     ->where('school_location_id', $this->id);
-            })->distinct()->get();
+            })->distinct()->whereNull('school_years.deleted_at')->get();
     }
 
     public function schoolLocationEducationLevels()
@@ -1146,6 +1152,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         $defaultSections = DefaultSection::whereIn('id', $defaultSectionIds)->get();
         // add sections
 
+        $list = [];
         $defaultSections->each(function (DefaultSection $ds) use (&$list) {
             if ($schoolLocationSection = $this->schoolLocationSections->first(function (SchoolLocationSection $sls) use ($ds) {
                 return Str::lower(optional($sls->section)->name) === Str::lower($ds->name);
@@ -1163,7 +1170,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         });
 
         // add sections to schoollocation
-        $this->sections = array_merge(array_values($sectionIds->toArray()), array_values($list));
+        $this->sections = array_merge(array_values($sectionIds->toArray() ?? []), array_values($list));
         $this->saveSections();
 
 
@@ -1291,7 +1298,12 @@ class SchoolLocation extends BaseModel implements AccessCheckable
 
     public function hasTrialLicense(): bool
     {
-        return $this->license_type == 'TRIAL';
+        return $this->license_type === self::LICENSE_TYPE_TRIAL;
+    }
+
+    public function hasClientLicense(): bool
+    {
+        return $this->license_type === self::LICENSE_TYPE_CLIENT;
     }
 
     private function handleLicenseTypeUpdate()
@@ -1299,18 +1311,6 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         if ($this->isDirty('license_type') && $this->license_type === 'CLIENT') {
             TrialPeriod::where('school_location_id', $this->getKey())->delete();
         }
-    }
-
-    public function featureSettings()  //todo place into a trait, with abilities (can do this, or that)
-    {
-        return $this->morphMany(FeatureSetting::class, 'settingable');
-    }
-
-    public function getFeatureSettingsAttribute()
-    {
-        return $this->featureSettings()->getSettings()->mapWithKeys(function($item) {
-            return [$item->title => $item->value];
-        });
     }
 
     public function setAllowCreathlonAttribute(bool $boolean)
@@ -1341,6 +1341,37 @@ class SchoolLocation extends BaseModel implements AccessCheckable
     public function getAllowNewTakenTestsPageAttribute() : bool
     {
         return $this->featureSettings()->getSetting('allow_new_taken_tests_page')->exists();
+    }
+
+    public function setAllowNewCoLearningAttribute(bool $boolean)
+    {
+        return $this->featureSettings()->setSetting('allow_new_co_learning', $boolean);
+    }
+
+    public function getAllowNewCoLearningAttribute() : bool
+    {
+        return $this->featureSettings()->getSetting('allow_new_co_learning')->exists();
+    }
+
+    public function setTestPackageAttribute(TestPackages|string|false $testPackage)
+    {
+        if(is_string($testPackage)){
+            $testPackage = TestPackages::from(Str::lower($testPackage));
+        }
+        if($testPackage === TestPackages::None || $testPackage === null){
+            $testPackage = false;
+        }
+
+        return $this->featureSettings()->setSetting('test_package', $testPackage);
+    }
+
+    public function getTestPackageAttribute()
+    {
+        if(!$testPackage = $this->featureSettings()->getSetting('test_package')->first()?->value) {
+            return TestPackages::None;
+        }
+
+        return TestPackages::tryFrom($testPackage);
     }
 
     public function canDelete(User $user)

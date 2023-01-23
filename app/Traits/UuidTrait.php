@@ -9,6 +9,7 @@
 namespace tcCore\Traits;
 
 use Dyrynda\Database\Support\GeneratesUuid;
+use Ramsey\Uuid\Uuid;
 
 trait UuidTrait {
 
@@ -27,5 +28,14 @@ trait UuidTrait {
     public function getRouteKeyName()
     {
         throw new \Exception('[IDOR] Missing route key model binding for '.__CLASS__.' called url '.request()->fullUrl());
+    }
+
+    public function resolveRouteBindingQuery($query, $value, $field = null)
+    {
+        if (is_string($value) && Uuid::isValid($value)) {
+            return $query->whereUuid($value);
+        }
+
+        return $query->where($field ?? $this->getRouteKeyName(), $value);
     }
 }
