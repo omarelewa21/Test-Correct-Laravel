@@ -81,7 +81,7 @@
                         :withSearch="true"
                         :sortOptions="false"
                         placeholderText="{{ __('cms.Taxonomie') }}"
-                        wire:model="filters.{{ $this->openTab }}.taxonomy"
+                        wire:model="filters.taxonomy"
                         filterContainer="testbank-{{ $this->openTab }}-active-filters"
                 />
 
