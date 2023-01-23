@@ -21,7 +21,12 @@
     <link rel="stylesheet" href="{{ mix('/css/app.css') }}">
     @if(config('bugsnag.browser_key') != '')
         <script src="//d2wy8f7a9ursnm.cloudfront.net/v7/bugsnag.min.js"></script>
-        <script>Bugsnag.start({ apiKey: '{{ config('bugsnag.browser_key') }}' })</script>
+        <script>
+        Bugsnag.start({
+            apiKey: '{{ config('bugsnag.browser_key') }}',
+            enabledBreadcrumbTypes: ['error', 'log', 'navigation', 'request']
+        })
+        </script>
     @endif
     @stack('styling')
 
