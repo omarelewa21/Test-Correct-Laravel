@@ -204,7 +204,6 @@ window.dragElement = function (element) {
     var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
     let newTop, newLeft;
 
-    const elementRect  = element.getBoundingClientRect();
     const windowHeight = window.innerHeight
     const windowWidth  = window.innerWidth
 
@@ -259,7 +258,7 @@ window.dragElement = function (element) {
     }
 
     function closeDragElement(e) {
-        const rightEdge = newLeft + elementRect.width;
+        const rightEdge = newLeft + element.getBoundingClientRect().width;
 
         if(newTop  < 0){newTop  = 10}                                   // Check if the top edge is within window height boundaries
         else if(newTop  > windowHeight-50){newTop = windowHeight-50}

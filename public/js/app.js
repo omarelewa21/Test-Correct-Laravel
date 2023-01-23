@@ -7336,7 +7336,6 @@ window.dragElement = function (element) {
     pos3 = 0,
     pos4 = 0;
   var newTop, newLeft;
-  var elementRect = element.getBoundingClientRect();
   var windowHeight = window.innerHeight;
   var windowWidth = window.innerWidth;
   if (document.getElementById(element.id + "drag")) {
@@ -7385,7 +7384,7 @@ window.dragElement = function (element) {
     element.style.left = newLeft + "px";
   }
   function closeDragElement(e) {
-    var rightEdge = newLeft + elementRect.width;
+    var rightEdge = newLeft + element.getBoundingClientRect().width;
     if (newTop < 0) {
       newTop = 10;
     } // Check if the top edge is within window height boundaries
