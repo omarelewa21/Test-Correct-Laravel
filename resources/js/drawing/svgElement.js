@@ -164,6 +164,14 @@ export class Rectangle extends svgElement {
         };
     }
     /**
+     * Sets the X attribute on the shape and in the props
+     * @param {number} value The value to be set.
+     */
+    setX(value) {
+        this.setXAttribute(value);
+        this.setXProperty(value);
+    }
+    /**
      * Sets the X attribute on the shape.
      * @param {number} value The value to be given to the attribute.
      */
@@ -176,6 +184,14 @@ export class Rectangle extends svgElement {
      */
     setXProperty(value) {
         this.props.x = value;
+    }
+    /**
+     * Sets the Y attribute on the shape and in the props
+     * @param {number} value The value to be set.
+     */
+    setY(value) {
+        this.setYAttribute(value);
+        this.setYProperty(value);
     }
     /**
      * Sets the Y attribute on the shape.
@@ -192,6 +208,14 @@ export class Rectangle extends svgElement {
         this.props.y = value;
     }
     /**
+     * Sets the Width attribute on the shape and in the props
+     * @param {number} value The value to be set.
+     */
+    setWidth(value) {
+        this.setWidthAttribute(value);
+        this.setWidthProperty(value);
+    }
+    /**
      * Sets the Width attribute on the shape.
      * @param {number} value The value to be given to the attribute.
      * @fires
@@ -205,6 +229,14 @@ export class Rectangle extends svgElement {
      */
     setWidthProperty(value) {
         this.props.width = value;
+    }
+    /**
+     * Sets the Height attribute on the shape and in the props
+     * @param {number} value The value to be set.
+     */
+    setHeight(value) {
+        this.setHeightAttribute(value);
+        this.setHeightProperty(value);
     }
     /**
      * Sets the Height attribute on the shape.
@@ -245,6 +277,14 @@ export class Circle extends svgElement {
         return Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
     }
     /**
+     * Sets the R attribute on the shape and in the props.
+     * @param {number} value The value to be set.
+     */
+    setR(value) {
+        this.setRAttribute(value);
+        this.setRProperty(value);
+    }
+    /**
      * Sets the R attribute on the shape.
      * @param {number} value The value to be given to the attribute.
      */
@@ -259,6 +299,14 @@ export class Circle extends svgElement {
         this.props.r = value;
     }
     /**
+     * Sets the CX attribute on the shape and in the props.
+     * @param {number} value The value to be set.
+     */
+    setCX(value) {
+        this.setCXAttribute(value);
+        this.setCXProperty(value);
+    }
+    /**
      * Sets the CX attribute on the shape.
      * @param {number} value The value to be given to the attribute.
      */
@@ -271,6 +319,14 @@ export class Circle extends svgElement {
      */
     setCXProperty(value) {
         this.props.cx = value;
+    }
+    /**
+     * Sets the CY attribute on the shape and in the props.
+     * @param {number} value The value to be set.
+     */
+    setCY(value) {
+        this.setCYAttribute(value);
+        this.setCYProperty(value);
     }
     /**
      * Sets the CY attribute on the shape.
