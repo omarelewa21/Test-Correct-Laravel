@@ -11,6 +11,7 @@ namespace tcCore\Http\Helpers;
 
 use Artisaninweb\SoapWrapper\SoapWrapper;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use tcCore\Exceptions\UwlrAutoImportException;
 use tcCore\Jobs\ProcessUwlrSoapResultJob;
 use tcCore\Lib\Repositories\PeriodRepository;
@@ -32,7 +33,7 @@ class UwlrImportHelper
     public static function handleIfMoreSchoolLocationsCanBeImported() :  void
     {
         $instance = new static();
-        if($instance->canAddNewJobForImport()){
+        if($instance->canAddNewJobForImport()){logger('ja');
             $instance->prepareNextSchoolLocationForProcessing();
         }
     }
@@ -46,7 +47,7 @@ class UwlrImportHelper
         }
         // none in the queue after 5 o'clock and before 19 o'clock
         $now = Carbon::now();
-        if($now->hour >= 5 && $now->hour <= 19){
+        if($now->hour >= 18 && $now->hour <= 19){
             return false;
         }
         return true;
@@ -56,9 +57,17 @@ class UwlrImportHelper
     {
         $schoolLocation = SchoolLocation::where('lvs_active',true) // only if lvs is active
             ->where('auto_uwlr_import',true) // only if allowed to be imported automagically
-            ->where('auto_uwlr_import_status','<>',self::AUTO_UWLR_IMPORT_STATUS_PROCESSING) // don't pick up if currently processing
-            ->where('auto_uwlr_import_status','<>',self::AUTO_UWLR_IMPORT_STATUS_PLANNED) // don't pick  up if already planned
-            ->whereRaw('Date(auto_uwlr_last_import) <> CURDATE()') // don't handle twice a day
+            ->where(function($query){
+                $query->where(function($q){
+                    $q->where('auto_uwlr_import_status','<>',self::AUTO_UWLR_IMPORT_STATUS_PROCESSING) // don't pick up if currently processing
+                    ->where('auto_uwlr_import_status','<>',self::AUTO_UWLR_IMPORT_STATUS_PLANNED); // don't pick  up if already planned
+                })
+                ->orWhereNull('auto_uwlr_import_status');
+            })
+            ->where(function($query){
+                $query->whereRaw('Date(auto_uwlr_last_import) <> CURDATE()') // don't handle twice a day
+                    ->orWhereNull('auto_uwlr_last_import');
+            })
             ->orderBy('auto_uwlr_last_import','asc') // last one first
             ->orderBy('external_main_code','asc') // if same then order by brin
             ->orderBy('external_sub_code','asc') // and even dependance
@@ -69,7 +78,7 @@ class UwlrImportHelper
 
         try {
             $schoolYears = static::getSchoolYearsForUwlrImport($schoolLocation);
-            if($schoolYears->count() < 1){
+            if(count($schoolYears) < 1){
                 throw new \Exception(sprintf('No schoolyears found for school location %s (%d)',$schoolLocation->name, $schoolLocation->getKey()));
             }
             $schoolYear = $schoolYears[0];
