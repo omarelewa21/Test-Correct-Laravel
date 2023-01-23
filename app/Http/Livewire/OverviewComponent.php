@@ -5,6 +5,7 @@ namespace tcCore\Http\Livewire;
 use Illuminate\Support\Str;
 use Livewire\Component;
 use Livewire\WithPagination;
+use tcCore\UserSystemSetting;
 
 abstract class OverviewComponent extends Component
 {
@@ -19,7 +20,7 @@ abstract class OverviewComponent extends Component
 
     public function mount()
     {
-        $this->restoreFiltersFromSession();
+        $this->initialiseWithStoredData();
     }
 
     public function updatingFilters($value, $filter)
@@ -64,10 +65,15 @@ abstract class OverviewComponent extends Component
         return sprintf('%s-session', Str::kebab(class_basename(get_called_class())));
     }
 
+    protected function getFilterSessionKey(): string
+    {
+        return $this->getSessionKey() . '-filters';
+    }
+
     private function updateFiltersInSession(array $filters)
     {
         if ($this->storeFiltersInSession) {
-            session()->put($this->getSessionKey() . '-filters', $filters);
+            UserSystemSetting::setSetting(auth()->user(), $this->getFilterSessionKey(), $filters);
         }
     }
 
@@ -78,10 +84,47 @@ abstract class OverviewComponent extends Component
         }
     }
 
-    private function restoreFiltersFromSession()
+    private function initialiseWithStoredData()
     {
-        $sessionFilters = session()->get($this->getSessionKey() . '-filters', null);
+        $this->initialiseStoredFilters();
+
+        $this->initialiseStoredPage();
+    }
+
+    /**
+     * @param mixed $sessionFilters
+     * @return array
+     */
+    private function mergeStoredFiltersWithAllAvailable(mixed $sessionFilters): array
+    {
+        return array_merge($this->filterableAttributes, $sessionFilters);
+    }
+
+    /**
+     * @return void
+     */
+    private function initialiseStoredFilters(): void
+    {
+        $sessionFilters = UserSystemSetting::getSetting(
+            user: auth()->user(),
+            title: $this->getFilterSessionKey(),
+            sessionStore: true
+        );
+
+        if ($sessionFilters) {
+            $sessionFilters = $this->mergeStoredFiltersWithAllAvailable($sessionFilters);
+        }
+
         $this->setFilters($sessionFilters);
+    }
+
+    /**
+     * @return void
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
+     */
+    private function initialiseStoredPage(): void
+    {
         if ($page = session()->get($this->getSessionKey() . '-page', null)) {
             $this->setPage($page);
         }

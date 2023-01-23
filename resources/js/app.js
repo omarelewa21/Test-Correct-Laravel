@@ -370,3 +370,8 @@ addQuestionToTestFromTestCard = (button, questionUuid, showQuestionBankAddConfir
             )
         )
 }
+
+clearFilterPillsFromElement = (rootElement) => {
+    let pills = rootElement.querySelectorAll('.filter-pill')
+    pills.forEach(pill => pill.remove());
+}
