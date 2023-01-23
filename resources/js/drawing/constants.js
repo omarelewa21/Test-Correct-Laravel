@@ -48,3 +48,12 @@ export const zoomParams = {
 export const panParams = {
     STEP: 5,
 };
+
+export const elementClassNameForType = {
+    "rect": "Rectangle",
+    "circle": "Circle",
+    "line": "Line",
+    "text": "Text",
+    "image": "Image",
+    "path": "Path"
+};

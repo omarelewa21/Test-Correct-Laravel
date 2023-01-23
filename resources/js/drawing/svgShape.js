@@ -1,4 +1,4 @@
-import {pixelsPerCentimeter} from "./constants.js";
+import {pixelsPerCentimeter, elementClassNameForType} from "./constants.js";
 import * as svgElement from "./svgElement.js";
 import {htmlElement} from "./htmlElement.js";
 
@@ -59,19 +59,11 @@ class svgShape {
     }
 
     makeMainElementOfRightType() {
-        switch (this.type) {
-            case "rect":
-                return new svgElement.Rectangle(this.props.main);
-            case "circle":
-                return new svgElement.Circle(this.props.main);
-            case "line":
-                return new svgElement.Line(this.props.main);
-            case "text":
-                return new svgElement.Text(this.props.main);
-            case "image":
-                return new svgElement.Image(this.props.main);
-            case "path":
-                return new svgElement.Path(this.props.main);
+        try {
+            const classToMake = elementClassNameForType[this.type];
+            return new svgElement[classToMake](this.props.main);
+        } catch (e) {
+            console.error(`Type ${this.type} is not a known element type. Skipped creating element.`);
         }
     }
 
