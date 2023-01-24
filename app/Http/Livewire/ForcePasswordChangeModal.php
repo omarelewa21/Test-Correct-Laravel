@@ -19,6 +19,13 @@ class ForcePasswordChangeModal extends ModalComponent
         ];
     }
 
+    public function messages()
+    {
+        return [
+            'newPassword' => __('password-reset.De twee wachtwoorden zijn niet hetzelfde')
+        ];
+    }
+
     public function render()
     {
         return view('livewire.force-password-change-modal');
