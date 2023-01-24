@@ -85,6 +85,10 @@ class UwlrImportHelper
             $helper = static::getHelperAndStoreInDB($schoolLocation->lvs_type,$schoolYear, $schoolLocation->external_main_code, $schoolLocation->external_sub_code);
             $schoolLocation->auto_uwlr_import_status = self::AUTO_UWLR_IMPORT_STATUS_PLANNED;
             $schoolLocation->save();
+            $resultSet = $helper->getResultSet();
+            $resultSet->status = 'READYTOPROCESS';
+            $resultSet->save();
+
             dispatch((new ProcessUwlrSoapResultJob($helper->getResultIdentifier(), true)));
         }
         catch(\Throwable $e){
