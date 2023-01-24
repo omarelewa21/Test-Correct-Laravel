@@ -39,6 +39,7 @@ return [
     'Docent'                                                  => 'Teacher',
     'Student'                                                 => 'Student',
     'Schoolbeheerder'                                         => 'Administrator',
+    'school_not_registered_for_sso'                           => 'Unfortunately we can’t get data from your school yet. Please register without Entree or log in with e-mail.',
     'Maak account'                                            => 'Create account',
     'Maak account long'                                       => 'Do you already have an account?',
     'Over Ons'                                                => 'About us',
