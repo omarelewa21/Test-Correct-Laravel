@@ -114,6 +114,8 @@ return [
     'percentage per leerdoel'                                  => 'Percentage per learninggoal',
     'percentage per subeindterm'                               => 'Percentage per sub-attainment',
     'percentage per subleerdoel'                               => 'Percentage per sub-learninggoal',
+    'percentage per subsubeindterm'                            => 'Percentage per sub-sub-attainment',
+    'percentage per subsubleerdoel'                            => 'Percentage per sub-sub-learninggoal',
     'top vakken om aan te werken'                              => '{0}No relevant data available for top subjects|{1}Most important subject to work on|[2,*] Top :count subjects to work on',
     'top eindtermen om aan te werken'                          => '{0}No relevant data available for top attainments|{1}Most important attainment to work on|[2,*] Top :count attainments to work on',
     'top leerdoelen om aan te werken'                          => '{0}No relevant data available for top attainments|{1}Most important attainment to work on|[2,*] Top :count attainments to work on',
