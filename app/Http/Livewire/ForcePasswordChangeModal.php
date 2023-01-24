@@ -10,13 +10,12 @@ use tcCore\User;
 class ForcePasswordChangeModal extends ModalComponent
 {
     public $newPassword;
-    public $newPasswordRepeat;
+    public $newPassword_confirmation;
 
     public function rules()
     {
         return [
-            'newPasswordRepeat' => 'required|same:newPassword',
-            'newPassword'       => 'required|'. User::getPasswordLengthRule(),
+            'newPassword'       => 'required|confirmed|'. User::getPasswordLengthRule(),
         ];
     }
 

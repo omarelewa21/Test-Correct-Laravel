@@ -61,7 +61,7 @@
                                             x-show="(showPassword && !hoverPassword) || (!showPassword && hoverPassword)"/>
                         </div>
                     </div>
-                    <x-input.text wire:model.lazy="newPasswordRepeat"
+                    <x-input.text wire:model.lazy="newPassword_confirmation"
                                   selid="login-password"
                                   x-bind:type="showPassword ? 'text' : 'password'"
                                   class="pr-12 overflow-ellipsis"
