@@ -258,7 +258,7 @@ class QuestionCmsPreviewModal extends ModalComponent implements QuestionCms
         //if subquestion, and groupQuestion->question not empty or attachments
         if($this->questionModel->is_subquestion) {
             $groupQuestion = GroupQuestionQuestion::where('question_id', $this->questionModel->id)->first()->groupQuestion;
-            if (!empty($groupQuestion->getQuestionInstance()->question) || $this->attachmentCount > 0) {
+            if (!empty($groupQuestion->getQuestionInstance()->question) || $this->attachmentsCount > 0) {
                 $this->emit('openModal', 'teacher.add-sub-question-confirmation-modal', ['questionUuid' => $this->questionModel->uuid]);
                 return;
             }

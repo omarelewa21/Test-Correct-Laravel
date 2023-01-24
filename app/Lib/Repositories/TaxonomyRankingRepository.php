@@ -57,7 +57,7 @@ class TaxonomyRankingRepository
                         ->WhereRaw("questions.rtti <> ''");
                 });
             })
-            ->filter($filters['periods'], $filters['education_level_years'], $filters['teachers'])
+            ->filter($forUser, $filters['periods'], $filters['education_level_years'], $filters['teachers'])
             ->groupBy('id', 'title')
             ->having('Z', '>', 5)
             ->orderBy('formula', 'desc')
@@ -139,7 +139,7 @@ class TaxonomyRankingRepository
                         ->WhereRaw("questions.rtti <> ''");
                 });
             })
-            ->filter($filters['periods'], $filters['education_level_years'], $filters['teachers'], $filters['isLearningGoal'])
+            ->filter($forUser, $filters['periods'], $filters['education_level_years'], $filters['teachers'], $filters['isLearningGoal'])
             ->groupBy('id', 'title')
             ->having('Z', '>', 5)
             ->orderBy('formula', 'desc')

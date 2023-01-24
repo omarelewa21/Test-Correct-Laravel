@@ -144,7 +144,7 @@
                         <div class="border-b flex w-full justify-between items-center py-2">
                             <div class="flex items-center space-x-2.5">
                                 <span class="bold text-base">{{ __('cms.auteur(s)') }}</span>
-                                <span class="ml-10 text-base"></span>
+                                <span class="ml-10 text-base">{{ $authors }}</span>
                             </div>
                         </div>
 

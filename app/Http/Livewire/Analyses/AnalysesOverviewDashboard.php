@@ -25,7 +25,8 @@ class AnalysesOverviewDashboard extends AnalysesDashboard
     }
 
     public function getDataProperty()
-    {}
+    {
+    }
 
     public function getDataForGraph()
     {
@@ -47,7 +48,7 @@ class AnalysesOverviewDashboard extends AnalysesDashboard
                 );
             }
 
-            return (object) [
+            return (object)[
                 'x'       => htmlspecialchars_decode($pValue->name),
                 'title'   => htmlspecialchars_decode($pValue->name),
                 'basedOn' => trans_choice('student.obv count questions', $pValue->cnt ?? 0),
@@ -100,5 +101,31 @@ class AnalysesOverviewDashboard extends AnalysesDashboard
     public function redirectTeacherBack()
     {
         return CakeRedirectHelper::redirectToCake('analyses.teacher', $this->classUuid);
+    }
+
+    public function getDataForSubjectTimeSeriesGraph()
+    {
+        $results = PValueRepository::getPValueForStudentBySubjectDayDateTimeSeries(
+            $this->getHelper()->getForUser(),
+            $this->getPeriodsByFilterValues(),
+            $this->getEducationLevelYearsByFilterValues(),
+            $this->getTeachersByFilterValues()
+        );
+
+        $set = [];
+        $names = [];
+        foreach($results as $result) {
+            if (!in_array($result->name, $names)) {
+                $names[] = $result->name;
+                $prevScore = $result->score ?? 0;
+            }
+            $set[$result->gen_date][] = $prevScore = $result->score ?? $prevScore;
+        }
+
+        $newSet = collect($set)->map(function($arr, $key) {
+            return [$key, ...$arr];
+        })->values()->toArray();
+
+        return [false, $newSet, $names];
     }
 }

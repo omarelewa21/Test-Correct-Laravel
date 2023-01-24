@@ -41,6 +41,9 @@ class TestDuplicateTest extends TestAction
         if (auth()->user()->isValidExamCoordinator()) {
             return true;
         }
+        if (auth()->user()->isToetsenbakker()) {
+            return true;
+        }
 
         $enabled = $this->test->canCopy(auth()->user()) || $this->test->canCopyFromSchool(auth()->user());
         return !$enabled;

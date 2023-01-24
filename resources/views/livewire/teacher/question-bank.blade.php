@@ -104,7 +104,7 @@
                         <div class="relative w-full">
                             <x-input.text class="w-full"
                                           placeholder="{{ __('cms.Search...') }}"
-                                          wire:model.debounce.300ms="filters.{{ $this->openTab }}.search"
+                                          wire:model.debounce.300ms="filters.search"
                             />
                             <x-icon.search class="absolute right-0 -top-2"/>
                         </div>
@@ -116,7 +116,7 @@
                                                         :options="$this->baseSubjects"
                                                         :withSearch="true"
                                                         placeholderText="{{ __('general.Categorie')}}"
-                                                        wire:model="filters.{{ $this->openTab }}.base_subject_id"
+                                                        wire:model="filters.base_subject_id"
                                                         wire:key="qb_base_subject_id_{{ $this->openTab }}"
                                                         filterContainer="questionbank-{{ $this->openTab }}-active-filters"
                                 />
@@ -125,7 +125,7 @@
                                                         :options="$this->subjects"
                                                         :withSearch="true"
                                                         placeholderText="{{ __('student.subject')}}"
-                                                        wire:model="filters.{{ $this->openTab }}.subject_id"
+                                                        wire:model="filters.subject_id"
                                                         wire:key="qb_subject_id_{{ $this->openTab }}"
                                                         filterContainer="questionbank-{{ $this->openTab }}-active-filters"
                                 />
@@ -134,7 +134,7 @@
                                                     :options="$this->educationLevelYear"
                                                     :withSearch="true"
                                                     placeholderText="{{ __('general.Leerjaar')}}"
-                                                    wire:model="filters.{{ $this->openTab }}.education_level_year"
+                                                    wire:model="filters.education_level_year"
                                                     wire:key="qb_education_level_year_{{ $this->openTab }}"
                                                     filterContainer="questionbank-{{ $this->openTab }}-active-filters"
                             />
@@ -142,7 +142,7 @@
                                                     :options="$this->educationLevel"
                                                     :withSearch="true"
                                                     placeholderText="{{ __('general.Niveau')}}"
-                                                    wire:model="filters.{{ $this->openTab }}.education_level_id"
+                                                    wire:model="filters.education_level_id"
                                                     wire:key="qb_education_level_id_{{ $this->openTab }}"
                                                     filterContainer="questionbank-{{ $this->openTab }}-active-filters"
                             />
@@ -161,32 +161,22 @@
                                                         :options="$this->authors"
                                                         :withSearch="true"
                                                         placeholderText="{{ __('general.Auteurs')}}"
-                                                        wire:model="filters.{{ $this->openTab }}.author_id"
+                                                        wire:model="filters.author_id"
                                                         wire:key="qb_author_id_{{ $this->openTab }}"
                                                         filterContainer="questionbank-{{ $this->openTab }}-active-filters"
                                 />
                             @endif
                         </div>
 
-
-                        @if($this->hasActiveFilters())
-                            <x-button.text-button class="ml-auto text-base"
-                                                  size="sm"
-                                                  @click="$dispatch('enable-loading-grid');document.getElementById('questionbank-{{ $this->openTab }}-active-filters').innerHTML = '';"
-                                                  wire:click="clearFilters('{{ $this->openTab }}')"
-                            >
-                                <span class="min-w-max">{{ __('teacher.Filters wissen') }}</span>
-                                <x-icon.close-small/>
-                            </x-button.text-button>
-                        @else
-                            <x-button.text-button class="ml-auto text-base disabled"
-                                                  size="sm"
-                                                  disabled
-                            >
-                                <span class="min-w-max">{{ __('teacher.Filters wissen') }}</span>
-                                <x-icon.close-small/>
-                            </x-button.text-button>
-                        @endif
+                        <x-button.text-button class="ml-auto text-base"
+                                              size="sm"
+                                              wire:click="clearFilters()"
+                                              x-on:click="$dispatch('enable-loading-grid');clearFilterPillsFromElement($refs.questionbank);"
+                                              :disabled="!$this->hasActiveFilters()"
+                        >
+                            <span class="min-w-max">{{ __('teacher.Filters wissen') }}</span>
+                            <x-icon.close-small/>
+                        </x-button.text-button>
                     </div>
 
                     <div id="questionbank-{{ $this->openTab }}-active-filters"

@@ -82,6 +82,8 @@ class RefreshDatabase extends Command
 
         $this->runseeder();
 
+        \tcCore\FactoryScenarios\FactoryScenarioSchoolToetsenbakkerij::create();
+
         if ($this->option('allow-all')) {
             $this->grantSchoolLocationAllPermissions();
         }

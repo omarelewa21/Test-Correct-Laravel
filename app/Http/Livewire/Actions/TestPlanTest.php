@@ -23,6 +23,10 @@ class TestPlanTest extends TestAction
 
     protected function getDisabledValue()
     {
+        if(Auth::user()->isToetsenbakker()) {
+            return true;
+        }
+
         return !$this->test->canPlan(Auth::user()) || $this->test->isDraft();
     }
 }

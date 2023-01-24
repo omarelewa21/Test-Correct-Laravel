@@ -5,7 +5,7 @@
     <link rel="stylesheet" href="file://{{ public_path('/css/print-test-pdf.css') }}">
 </head>
 
-<body class="test-print-pdf" style="margin: 0; border: 0; ">
+<body class="test-print-pdf {{ $extraCssClass }}" style="margin: 0; border: 0; ">
 <div class="cover-container-1" >
     <div>{{ $test->name }}</div>
 </div>
@@ -17,12 +17,14 @@
 </div>
 
 <div class="cover-container-3">
-    <div>
-        {!! __('test-pdf.cover description text 1') !!}
-    </div>
-    <div>
-        {!! __('test-pdf.cover description text 2') !!}
-    </div>
+    @if($explanationText)
+        <div>
+            {!! __('test-pdf.cover description text 1') !!}
+        </div>
+        <div>
+            {!! __('test-pdf.cover description text 2') !!}
+        </div>
+    @endif
 </div>
 
 </body>

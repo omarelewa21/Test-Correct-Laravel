@@ -24,7 +24,7 @@ class CreateAppVersionInfoRequest extends Request {
 		return [
 			'os' => 'required',
             'version' => 'required',
-            'headers' => 'required',
+			'headers' => 'required',
             'version_check_result' => 'required',
 		];
 	}

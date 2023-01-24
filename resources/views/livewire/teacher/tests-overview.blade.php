@@ -20,3 +20,15 @@
         </div>
     @endif
 @endsection
+
+@section('clear-filters-button')
+    <x-button.text-button class="ml-auto text-base"
+                          size="sm"
+                          wire:click="clearFilters()"
+                          x-on:click="$dispatch('enable-loading-grid');document.getElementById('testbank-{{ $this->openTab }}-active-filters').innerHTML = '';"
+                          :disabled="!$this->hasActiveFilters()"
+    >
+        <span class="min-w-max">{{ __('teacher.Filters wissen') }}</span>
+        <x-icon.close-small/>
+    </x-button.text-button>
+@endsection

@@ -16,6 +16,8 @@ class AddOpdrachtToTestKindsTable extends Migration
 //        Schema::table('test_kinds', function (Blueprint $table) {
 //            //
 //        });
+        DB::statement('ALTER TABLE test_kinds ADD uuid binary(16)');
+
         \tcCore\TestKind::create([
             'name'       => 'Opdracht',
             'has_weight' => 0,

@@ -344,4 +344,12 @@ abstract class AnalysesDashboard extends Component
     {
         return auth()->user()->getKey() !== $this->getHelper()->getForUser()->getKey();
     }
+
+    public function showGrades()
+    {
+        return redirect(
+            $this->getHelper()->getRouteForShowGrades()
+        );
+    }
+
 }

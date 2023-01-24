@@ -84,6 +84,7 @@ class Question extends MtiBaseModel
         'owner_id',
         'lang',
         'draft',
+        'add_to_database_disabled',
     ];
 
     /**
@@ -692,9 +693,12 @@ class Question extends MtiBaseModel
 
     public function scopeDifferentScenariosAndDemo($query, $filters = [])
     {
-//        $roles = $this->getUserRoles();
         $user = Auth::user();
-//        $schoolLocation = SchoolLocation::find($user->getAttribute('school_location_id'));
+
+        if ($user->isToetsenbakker()) {
+            return $query->owner($user->schoolLocation);
+        }
+
         if ($user->isA('Teacher')) {
             $subject = (new DemoHelper())->getDemoSubjectForTeacher($user);
             $query->join($this->switchScopeFilteredSubQueryForDifferentScenarios($user, $subject), function ($join) {
@@ -707,18 +711,6 @@ class Question extends MtiBaseModel
                     })->orWhere('questions.subject_id', '<>', $subject->getKey());
                 });
             }
-//            $query->orWhere(function($q) use ($user, $subject){
-//                // subject id = $subject->getKey() together with being an owner through the question_authors table
-//                $q->where('subject_id',$subject->getKey());
-//                $q->whereIn('questions.id',$user->questionAuthors()->pluck('question_id'));
-//            });
-//            // or subject_id in list AND subject not $subject->getKey()
-//            $query->orWhere(function($q) use ($user,$subject){
-//                $q->where('subject_id','<>',$subject->getKey());
-//                $q->whereIn('subject_id', function ($query) use ($user) {
-//                    $user->subjectsIncludingShared($query)->select('id');
-//                });
-//            });
         }
 
         return $query;
@@ -1549,6 +1541,11 @@ class Question extends MtiBaseModel
         }
 
         return $totalData;
+    }
+
+    public function scopeOwner($query, SchoolLocation $schoolLocation)
+    {
+        return $query->where('owner_id', $schoolLocation->getKey());
     }
 
     public function scopeTaxonomies($query, array $valuesPerTaxonomy)
