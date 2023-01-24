@@ -5,9 +5,13 @@
             <x-slot name="icon"><x-icon.copy/></x-slot>
             <x-slot name="text">{{ __('test-take.copy-link') }}</x-slot>
         </x-menu.context-menu.button>
-        <x-menu.context-menu.button wire:click="goToCoLearning">
-            <x-slot name="icon"><x-icon.chevron/></x-slot>
+        <x-menu.context-menu.button wire:click="goToCoLearningPage">
+            <x-slot name="icon"><x-icon.filled-arrow/></x-slot>
             <x-slot name="text">{{ __('test-take.CO-Learning') }}</x-slot>
+        </x-menu.context-menu.button>
+        <x-menu.context-menu.button wire:click="goToScheduleMakeUpPage">
+            <x-slot name="icon"><x-icon.schedule/></x-slot>
+            <x-slot name="text">{{ __('test-take.schedule-make-up-test') }}</x-slot>
         </x-menu.context-menu.button>
         @if($this->hasAnswerPdfOption())
             <x-menu.context-menu.button wire:click="studentAnswersPdf">

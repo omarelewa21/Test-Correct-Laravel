@@ -3,6 +3,7 @@
 namespace tcCore\Http\Livewire\ContextMenu;
 
 use Illuminate\Support\Facades\Auth;
+use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Http\Traits\WithTestTakeInteractions;
 use tcCore\TemporaryLogin;
 use tcCore\TestTake;
@@ -112,7 +113,7 @@ class TestTakeCard extends ContextMenuComponent
         );
     }
 
-    public function goToCoLearning()
+    public function goToCoLearningPage()
     {
         $testTake = TestTake::whereUuid($this->uuid)->with('test', 'testParticipants')->firstOrFail();
 
@@ -121,5 +122,10 @@ class TestTakeCard extends ContextMenuComponent
         );
 
         return $this->openTestTakeDetail($this->uuid, $pageAction);
+    }
+
+    public function goToScheduleMakeUpPage()
+    {
+        return CakeRedirectHelper::redirectToCake('taken.schedule_makeup', $this->uuid);
     }
 }
