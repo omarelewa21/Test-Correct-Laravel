@@ -357,7 +357,6 @@ abstract class TestCase extends BaseTestCase
         return $user;
     }
 
-    protected function createStudent($password, $schoolLocation, $schoolClass = null, $nr=null)
     protected function createStudent($password, $schoolLocation,$schoolClass = null, $nr = null)
     {
         if ($nr ===  null) {
