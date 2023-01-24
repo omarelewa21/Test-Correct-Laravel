@@ -1163,11 +1163,15 @@ class TestTake extends BaseModel
             ->distinct();
     }
 
-    public static function redirectToDetail($testTakeUuid, $returnRoute = '')
+    public static function redirectToDetail($testTakeUuid, $returnRoute = '', ?string $pageAction = null)
     {
         $detailUrl = sprintf('test_takes/view/%s', $testTakeUuid);
-        $temporaryLogin = TemporaryLogin::createWithOptionsForUser(['page', 'return_route'], [$detailUrl, $returnRoute], auth()->user());
-
+        $params = [['page', 'return_route'], [$detailUrl, $returnRoute]];
+        if($pageAction){
+            $params[0][] = 'page_action';
+            $params[1][] = $pageAction;
+        }
+        $temporaryLogin = TemporaryLogin::createWithOptionsForUser($params[0], $params[1], auth()->user());
         return redirect($temporaryLogin->createCakeUrl());
     }
 
@@ -1225,5 +1229,17 @@ class TestTake extends BaseModel
             )
             ->whereTestTakeId($this->getKey())
             ->exists();
+    }
+
+    /**
+     * Check if test take has non-active participants for co-learning
+     */
+    public function hasNonActiveParticipant(): bool
+    {
+        return !is_null(
+            $this->testParticipants->first(function($participant){
+                return is_null($participant->heartbeat_at) || strtotime($participant->heartbeat_at) < (time() - 10);
+            })
+        );
     }
 }

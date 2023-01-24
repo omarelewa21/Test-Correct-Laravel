@@ -5,6 +5,10 @@
             <x-slot name="icon"><x-icon.copy/></x-slot>
             <x-slot name="text">{{ __('test-take.copy-link') }}</x-slot>
         </x-menu.context-menu.button>
+        <x-menu.context-menu.button wire:click="goToCoLearning">
+            <x-slot name="icon"><x-icon.chevron/></x-slot>
+            <x-slot name="text">{{ __('test-take.CO-Learning') }}</x-slot>
+        </x-menu.context-menu.button>
         @if($this->hasAnswerPdfOption())
             <x-menu.context-menu.button wire:click="studentAnswersPdf">
                 <x-slot name="icon"><x-icon.pdf-file/></x-slot>

@@ -111,4 +111,15 @@ class TestTakeCard extends ContextMenuComponent
             ]
         );
     }
+
+    public function goToCoLearning()
+    {
+        $testTake = TestTake::whereUuid($this->uuid)->with('test', 'testParticipants')->firstOrFail();
+
+        $pageAction = sprintf('TestTake.checkStartDiscussion("%s", %s, %s)', $this->uuid, 
+            $testTake->test->hasOpenQuestion() ? 'false' : 'true', $testTake->hasNonActiveParticipant() ? 'true' : 'false'
+        );
+
+        return $this->openTestTakeDetail($this->uuid, $pageAction);
+    }
 }

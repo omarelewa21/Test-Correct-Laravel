@@ -9,13 +9,13 @@ use tcCore\TestTake;
 
 trait WithTestTakeInteractions
 {
-    public function openTestTakeDetail($testTakeUuid)
+    public function openTestTakeDetail($testTakeUuid, ?string $pageAction = null)
     {
         if (TestTake::whereUuid($testTakeUuid)->first()->archived) {
             $this->dispatchBrowserEvent('notify', ['message' => __('test_take.unarchive_test_take_first'), 'type' => 'error']);
             return;
         }
         $returnRoute = Str::replaceFirst(config('app.base_url'), '', Livewire::originalUrl());
-        return TestTake::redirectToDetail($testTakeUuid, $returnRoute);
+        return TestTake::redirectToDetail($testTakeUuid, $returnRoute, $pageAction);
     }
 }
