@@ -78,7 +78,10 @@ class ProcessUwlrSoapResultJob extends Job implements ShouldQueue
                 'sobit.nl'
             );
 
-            $result = $helper->process();
+            // MOET WEER AAN
+//            $result = $helper->process();
+            // MOET WEER UIT
+            sleep(45);
             $resultSet->status = 'DONE';
             $resultSet->addToLog('jobFinished', Carbon::now());
             $resultSet->save();
