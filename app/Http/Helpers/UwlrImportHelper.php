@@ -128,7 +128,7 @@ class UwlrImportHelper
         $helper = null;
         switch ($lvsType) {
             case SchoolLocation::LVS_MAGISTER:
-                $helper = MagisterHelper::guzzle($schoolYear,$brinCode, $dependanceCode)->parseResult()->storeInDB($brinCode, $dependanceCode);
+                $helper = MagisterHelper::guzzle($schoolYear,$brinCode, $dependanceCode, true)->parseResult()->storeInDB($brinCode, $dependanceCode);
                 break;
             case SchoolLocation::LVS_SOMTODAY:
                 $helper = (new SomTodayHelper(new SoapWrapper()))->search(
@@ -136,7 +136,8 @@ class UwlrImportHelper
                     static::CLIENT_NAME,
                     $schoolYear,
                     $brinCode,
-                    $dependanceCode
+                    $dependanceCode,
+                    true
                 )->storeInDB();
                 break;
             default:

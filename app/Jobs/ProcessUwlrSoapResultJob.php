@@ -40,6 +40,7 @@ class ProcessUwlrSoapResultJob extends Job implements ShouldQueue
         $this->autoNext = $autoNext;
     }
 
+
     /**
      * Execute the job.
      *
@@ -50,9 +51,39 @@ class ProcessUwlrSoapResultJob extends Job implements ShouldQueue
         set_time_limit(0);
         $resultSet = UwlrSoapResult::find($this->uwlrSoapResultId);
         if(!$resultSet){
+            $this->runNextIfNeeded();
             // should be a logger notice but let's do an exception for the moment so that we can see what happens in bugsnag
             throw new \Exception('we could not find the corresponding resultset  with id '.$this->uwlrSoapResultId);
         }
+
+        try {
+            $this->doHandle($resultSet);
+        } catch(\Throwable $e){
+            SchoolLocation::where('external_main_code',$resultSet->brin_code)
+                ->where('external_sub_code',$resultSet->dependance_code)
+                ->update(['auto_uwlr_import_status' => UwlrImportHelper::AUTO_UWLR_IMPORT_STATUS_FAILED]);
+            $this->runNextIfNeeded();
+            $resultSet->status = 'FAILED';
+            $resultSet->save();
+            throw $e;
+        }
+        $this->runNextIfNeeded();
+    }
+
+    protected function runNextIfNeeded(){
+        if($this->autoNext){
+            UwlrImportHelper::handleIfMoreSchoolLocationsCanBeImported();
+        }
+    }
+
+    /**
+     * Execute the job.
+     *
+     * @return void
+     */
+    protected function doHandle($resultSet)
+    {
+
         if($resultSet->status !== 'READYTOPROCESS'){
             // should be a logger notice but let's do an exception for the moment so that we can see what happens in bugsnag
             logger('trying to process the resultset with the wrong status '.$resultSet->status.', resultset  with id '.$this->uwlrSoapResultId);
@@ -72,44 +103,31 @@ class ProcessUwlrSoapResultJob extends Job implements ShouldQueue
             ->where('external_sub_code',$resultSet->dependance_code)
             ->update(['auto_uwlr_import_status' => UwlrImportHelper::AUTO_UWLR_IMPORT_STATUS_PROCESSING]);
 
-        try {
-            $helper = ImportHelper::initWithUwlrSoapResult(
-                $resultSet,
-                'sobit.nl'
-            );
 
-            // MOET WEER AAN
+        $helper = ImportHelper::initWithUwlrSoapResult(
+            $resultSet,
+            'sobit.nl'
+        );
+
+        // MOET WEER AAN
 //            $result = $helper->process();
-            // MOET WEER UIT
-            sleep(45);
-            $resultSet->status = 'DONE';
-            $resultSet->addToLog('jobFinished', Carbon::now());
-            $resultSet->save();
-            SchoolLocation::where('external_main_code',$resultSet->brin_code)
-                ->where('external_sub_code',$resultSet->dependance_code)
-                ->update([
-                    'auto_uwlr_import_status' => UwlrImportHelper::AUTO_UWLR_IMPORT_STATUS_DONE,
-                    'auto_uwlr_last_import' => Carbon::now(),
-                ]);
-            // send notification to support about importing
-            $schoolLocationName = SchoolLocation::where('external_main_code',$resultSet->brin_code)
-                ->where('external_sub_code',$resultSet->dependance_code)
-                ->value('name');
+        // MOET WEER UIT
+        sleep(45);
+        $resultSet->status = 'DONE';
+        $resultSet->addToLog('jobFinished', Carbon::now());
+        $resultSet->save();
+        SchoolLocation::where('external_main_code',$resultSet->brin_code)
+            ->where('external_sub_code',$resultSet->dependance_code)
+            ->update([
+                'auto_uwlr_import_status' => UwlrImportHelper::AUTO_UWLR_IMPORT_STATUS_DONE,
+                'auto_uwlr_last_import' => Carbon::now(),
+            ]);
+        // send notification to support about importing
+        $schoolLocationName = SchoolLocation::where('external_main_code',$resultSet->brin_code)
+            ->where('external_sub_code',$resultSet->dependance_code)
+            ->value('name');
 
-            SendUwlrImportSchoolLocationSuccessToSupportJob::dispatch($schoolLocationName);
-
-        }
-        catch (\Throwable $e){
-            SchoolLocation::where('external_main_code',$resultSet->brin_code)
-                ->where('external_sub_code',$resultSet->dependance_code)
-                ->update(['auto_uwlr_import_status' => UwlrImportHelper::AUTO_UWLR_IMPORT_STATUS_FAILED]);
-            throw $e;
-
-        }
-
-        if($this->autoNext){
-            UwlrImportHelper::handleIfMoreSchoolLocationsCanBeImported();
-        }
+        SendUwlrImportSchoolLocationSuccessToSupportJob::dispatch($schoolLocationName);
 
     }
 }
