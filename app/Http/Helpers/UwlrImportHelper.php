@@ -33,7 +33,7 @@ class UwlrImportHelper
     public static function handleIfMoreSchoolLocationsCanBeImported() :  void
     {
         $instance = new static();
-        if($instance->canAddNewJobForImport()){logger('ja');
+        if($instance->canAddNewJobForImport()){
             $instance->prepareNextSchoolLocationForProcessing();
         }
     }
@@ -83,7 +83,7 @@ class UwlrImportHelper
             }
             $schoolYear = $schoolYears[0];
             $helper = static::getHelperAndStoreInDB($schoolLocation->lvs_type,$schoolYear, $schoolLocation->external_main_code, $schoolLocation->external_sub_code);
-            $schoolLocation->auto_uwlr_import_sattus = self::AUTO_UWLR_IMPORT_STATUS_PLANNED;
+            $schoolLocation->auto_uwlr_import_status = self::AUTO_UWLR_IMPORT_STATUS_PLANNED;
             $schoolLocation->save();
             dispatch((new ProcessUwlrSoapResultJob($helper->getResultIdentifier(), true)));
         }
