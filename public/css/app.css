@@ -5156,7 +5156,8 @@ input.datepicker {
     height: 16px;
     transition: 0.25s ease-out;
 }
-#co-learning-teacher-page #student-info-container .show-on-smartboard svg{
+
+#co-learning-teacher-page #student-info-container .show-on-smartboard svg {
     position: absolute;
 }
 
@@ -5167,16 +5168,18 @@ input.datepicker {
     border: 1px solid blue !important;
     background-color: var(--primary) !important;
     position: absolute;
-    transform: translate(-6px,-8px);
+    transform: translate(-6px, -8px);
     border-radius: 9999px;
     opacity: 0;
     transition: opacity 0.25s ease-out;
 }
 
+#co-learning-teacher-page #student-info-container .show-on-smartboard.active::before,
 #co-learning-teacher-page #student-info-container .show-on-smartboard:hover::before {
     opacity: 100%;
 }
 
+#co-learning-teacher-page #student-info-container .show-on-smartboard.active,
 #co-learning-teacher-page #student-info-container .show-on-smartboard:hover {
     color: white;
 }
@@ -8321,11 +8324,11 @@ video {
 .right-\[-14px\]{
   right: -14px;
 }
-.top-\[14px\]{
-  top: 14px;
-}
 .left-4{
   left: 1rem;
+}
+.top-\[14px\]{
+  top: 14px;
 }
 .right-4{
   right: 1rem;

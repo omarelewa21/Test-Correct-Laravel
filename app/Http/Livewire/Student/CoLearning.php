@@ -93,6 +93,7 @@ class CoLearning extends Component
     {
         if (is_null($this->answerRating) && (!$this->noAnswerRatingAvailableForCurrentScreen || !$this->coLearningFinished)) {
             $this->answerRating = AnswerRating::find($this->answerRatingId);
+            $this->writeDiscussingAnswerRatingToDatabase();
         }
         $this->waitForTeacherNotificationEnabled = $this->shouldShowWaitForTeacherNotification();
 

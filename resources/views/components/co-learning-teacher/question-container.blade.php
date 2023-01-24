@@ -2,7 +2,7 @@
 'question',
 ])
 <div class="flex flex-col pt-[14px] pb-[33px] px-10 content-section rs_readable relative"
-    x-data="{collapsed: false}"
+     x-data="{collapsed: false}"
 >
     <div class="question-title flex flex-wrap items-center question-indicator border-bottom mb-2 justify-between">
         <div class="flex items-center">
@@ -41,7 +41,8 @@
         <div class="absolute right-[-14px] group" @click="collapsed = ! collapsed">
             <div class="w-10 h-10 rounded-full flex items-center justify-center group-hover:bg-primary group-hover:opacity-[0.05]"></div>
             <template x-if="true">
-                <x-icon.chevron class="absolute top-[14px] left-4 text-sysbase transition" x-bind:class="collapsed ? '' : 'rotate-90'" x-cloak/>
+                <x-icon.chevron class="absolute top-[14px] left-4 text-sysbase transition"
+                                x-bind:class="collapsed ? '' : 'rotate-90'" x-cloak/>
             </template>
         </div>
 

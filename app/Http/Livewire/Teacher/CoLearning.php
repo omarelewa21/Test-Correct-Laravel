@@ -4,7 +4,9 @@ namespace tcCore\Http\Livewire\Teacher;
 
 use Illuminate\Http\Request;
 use Livewire\Component;
+use tcCore\Answer;
 use tcCore\AnswerRating;
+use tcCore\Events\CoLearningNextQuestion;
 use tcCore\Http\Controllers\TestTakeLaravelController;
 use tcCore\Http\Controllers\TestTakesController;
 use tcCore\Http\Enums\CoLearning\AbnormalitiesStatus;
@@ -29,19 +31,29 @@ class CoLearning extends Component
     public int $testParticipantCount;
     public int $testParticipantCountActive;
 
+    //answerRating properties
+    public $activeAnswerRating = null;
+    public $activeAnswer = null;
+    public $activeAnswerText = null;
+
     //Question Navigation properties
+    public $questionsOrderList;
+
     public int $firstQuestionId;
     public int $lastQuestionId;
-
     public int $questionCount;
-    public int $questionCountOpenOnly;
 
+    public int $questionCountOpenOnly;
     public int $questionIndex;
     public int $questionIndexOpenOnly;
 
     public function mount(TestTake $test_take)
     {
+        //todo guard clause with test_take_status_id
+
         $this->testTake = $test_take;
+
+        $this->openOnly = $this->testTake->discussion_type === self::DISCUSSION_TYPE_OPEN_ONLY;
 
         if ($test_take->discussing_question_id === null) {
             //gets a testTake, but misses TestParticipants Status data.
@@ -50,13 +62,14 @@ class CoLearning extends Component
             (new TestTakesController)->nextQuestion($test_take);
         }
 
+        $this->getStaticNavigationData();
     }
 
     public function render()
     {
-        $this->openOnly = $this->testTake->discussion_type === self::DISCUSSION_TYPE_OPEN_ONLY;
-
         $this->getTestParticipantsData();
+
+//        dd($this->testTake->discussingQuestion);
 
         $this->handleTestParticipantStatusses(); //todo move to polling method
 
@@ -69,7 +82,7 @@ class CoLearning extends Component
     public function nextDiscussionQuestion()
     {
         //do i have to refresh/fresh the TestTake before passing it to the controller?
-        (new TestTakesController)->nextQuestion($this->testTake);
+        $this->testTake = (new TestTakesController)->nextQuestion($this->testTake, false);
     }
 
     /* start header methods */
@@ -108,23 +121,81 @@ class CoLearning extends Component
          * NEW FUNCTIONALITY! DOESNT WORK WITH OLD CO_LEARNING CONTROLLERS!
          * Get the previous Question, make all students go to the previous question
          */
+
+        //todo
+        // * find previous question id in question order list.
+        // * set testTake->discussing_question_id
+        if (!$this->testTake->update(['discussing_question_id' => $this->previousQuestionId])) {
+            //todo what to do if updating fails?
+            return false;
+        }
+        //!!! REMOVE RECORDS OF discussingParentQuestions to prevent errors.
+        $this->testTake->discussingParentQuestions()->delete();
+
+        foreach ($this->testTake->testParticipants as $testParticipant) {
+            CoLearningNextQuestion::dispatch($testParticipant->uuid);
+        }
     }
 
-    public function showStudentAnswer($uuidOrId)
+    public function showStudentAnswer($id)
     {
+        $this->activeAnswerRating = AnswerRating::with('answer')->find($id);
+
+        $this->activeAnswer = $this->activeAnswerRating->answer;
+
+        $array = json_decode(
+            json: $this->activeAnswer->json,
+            associative: true
+        );
+
+        if (isset($array['value'])) {
+            $this->activeAnswerText = $array['value'];
+            return;
+        }
+        //todo transform array of values to a filled in answer text for 'completion question'
+
+        $this->activeAnswerText = $this->testTake->discussingQuestion->getQuestionInstance()->question . collect($array)->join(' & ');
         //TODO show the answer, the student is now rating, on the teacher screen.
+    }
+
+    public function closeStudentAnswer()
+    {
+        $this->activeAnswerRating = null;
+
+        $this->activeAnswer = null;
+        $this->activeAnswerText = null;
     }
 
     /* end sidebar methods */
 
     public function getAtLastQuestionProperty()
     {
-        return $this->testTake->discussing_question_id === $this->lastQuestionId;
+        return (int)$this->testTake->discussing_question_id === (int)$this->lastQuestionId;
     }
 
     public function getAtFirstQuestionProperty()
     {
-        return $this->testTake->discussing_question_id === $this->firstQuestionId;
+        return (int)$this->testTake->discussing_question_id === (int)$this->firstQuestionId;
+    }
+
+    public function getPreviousQuestionIdProperty()
+    {
+        $currentQuestionOrder = $this->questionsOrderList[$this->testTake->discussing_question_id]['order'];
+
+        return $this->questionsOrderList
+            ->filter(fn($item) => $item['order'] < $currentQuestionOrder)
+            ->sortByDesc('order')
+            ->first()['id'];
+    }
+
+    public function getNextQuestionIdProperty()
+    {
+        $currentQuestionOrder = $this->questionsOrderList[$this->testTake->discussing_question_id]['order'];
+
+        return $this->questionsOrderList
+            ->filter(fn($item) => $item['order'] > $currentQuestionOrder)
+            ->sortBy('order')
+            ->first()['id'];
     }
 
     private function handleFinishingCoLearning()
@@ -151,11 +222,8 @@ class CoLearning extends Component
             if (!$testParticipant->active) {
                 return;
             }
-            if(!isset($testParticipant->answer_to_rate) || $testParticipant->answer_to_rate === null) {
-                return;
-            }
 
-            $testParticipantPercentageRated = $testParticipant->answer_to_rate === 0
+            $testParticipantPercentageRated = (!isset($testParticipant->answer_to_rate) || $testParticipant->answer_to_rate === 0)
                 ? 0
                 : ($testParticipant->answer_rated / $testParticipant->answer_to_rate) * 100;
 
@@ -170,9 +238,6 @@ class CoLearning extends Component
 
         $this->testTake->testParticipants->each(function ($testParticipant) use (&$abnormalitiesAverage) {
             if (!$testParticipant->active) {
-                return;
-            }
-            if(!isset($testParticipant->answer_to_rate) || $testParticipant->answer_to_rate === null) {
                 return;
             }
 
@@ -239,39 +304,44 @@ class CoLearning extends Component
     public function getTestParticipantsData(): void
     {
         $request = new Request([
-            'with' => ['participantStatus'],
+            'with' => ['participantStatus', 'discussingQuestion'],
         ]);
 
         //get testTake from TestTakesController, also sets testParticipant 'abnormalities'
         $this->testTake = (new TestTakesController)->showFromWithin($this->testTake, $request, false);
-
+//dd($this->testTake, $this->testTake->discussingQuestion()->first());
         $this->testParticipantCount = $this->testTake->testParticipants->count();
-        $this->testParticipantCountActive = $this->testTake->testParticipants->sum(fn ($tp) => $tp->active);
+        $this->testParticipantCountActive = $this->testTake->testParticipants->sum(fn($tp) => $tp->active);
 
         //temp: sets all testParticipants on active todo remove
         //TODO REMOVE TEMP OVERWRITE
-        $this->testTake->testParticipants->each(function($tp) {
-            $tp->active = (
-                AnswerRating::where('user_id', $tp->user_id)->where('test_take_id', $this->testTake->id)->exists()
-            );
-        });
+//        $this->testTake->testParticipants->each(function ($tp) {
+//            $tp->active = (
+//            AnswerRating::where('user_id', $tp->user_id)->where('test_take_id', $this->testTake->id)->exists()
+//            );
+//        });
     }
 
     protected function getNavigationData()
     {
-        $questionsOrderList = collect($this->testTake->test->getQuestionOrderListWithDiscussionType());
+        $this->questionIndex = $this->questionsOrderList->get($this->testTake->discussing_question_id)['order'];
 
-        $this->questionCount = $questionsOrderList->count('id');
-        $this->questionIndex = $questionsOrderList->get($this->testTake->discussing_question_id)['order'];
-
-        if($this->testTake->discussion_type === self::DISCUSSION_TYPE_OPEN_ONLY) {
-            $questionsOrderList = $questionsOrderList->filter(fn ($item) => $item['question_type'] === 'OPEN');
-        }
-
-        $this->firstQuestionId = $questionsOrderList->sortBy('order')->first()['id'];
-        $this->lastQuestionId = $questionsOrderList->sortBy('order')->last()['id'];
-
-        $this->questionIndexOpenOnly = $questionsOrderList->get($this->testTake->discussing_question_id)['order_open_only'];
-        $this->questionCountOpenOnly = $questionsOrderList->count('id');
+        $this->questionIndexOpenOnly = $this->questionsOrderList->get($this->testTake->discussing_question_id)['order_open_only'];
     }
+
+    protected function getStaticNavigationData()
+    {
+        $this->questionsOrderList = collect($this->testTake->test->getQuestionOrderListWithDiscussionType());
+
+        $this->questionCount = $this->questionsOrderList->count('id');
+
+        if ($this->testTake->discussion_type === self::DISCUSSION_TYPE_OPEN_ONLY) {
+            $this->questionsOrderList = $this->questionsOrderList->filter(fn($item) => $item['question_type'] === 'OPEN');
+        }
+        $this->questionCountOpenOnly = $this->questionsOrderList->count('id');
+
+        $this->firstQuestionId = $this->questionsOrderList->sortBy('order')->first()['id'];
+        $this->lastQuestionId = $this->questionsOrderList->sortBy('order')->last()['id'];
+    }
+
 }

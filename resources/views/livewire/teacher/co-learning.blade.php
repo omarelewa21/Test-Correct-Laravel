@@ -12,7 +12,9 @@
     <div id="main-content-container"
          class="flex border border-2 relative w-full justify-between overflow-auto "
     >
-        <div class="flex flex-col w-full space-y-4 pt-10 px-[60px]">
+        <div class="flex flex-col w-full space-y-4 pt-10 px-[60px]"
+             wire:key="container-{{$this->testTake->discussing_question_id}}"
+        >
 
             <x-co-learning-teacher.question-container
                     :question="$this->testTake->discussingQuestion">

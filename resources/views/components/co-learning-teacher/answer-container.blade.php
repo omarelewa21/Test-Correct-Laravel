@@ -1,7 +1,8 @@
 @props([
 'question',
 ])
-<div x-show="showStudentAnswer" x-cloak x-collapse.duration.500ms>
+<div x-show="showStudentAnswer" x-cloak x-collapse.duration.500ms
+>
 
     <div class="flex flex-col pt-[14px] pb-[33px] px-10 content-section rs_readable relative transition"
          x-data="{collapsed: false}"
@@ -23,13 +24,18 @@
                     @else
                         <x-not-answered/>
                     @endif--}}
-            <div class="absolute right-[-14px] group" style="right: 20px" @click="showStudentAnswer = false">
+            <div class="absolute right-[-14px] group"
+                 style="right: 20px"
+                 @click="showStudentAnswer = false"
+                 wire:click.prevent="closeStudentAnswer()"
+            >
                 <div class="w-10 h-10 rounded-full flex items-center justify-center group-hover:bg-primary group-hover:opacity-[0.05]"></div>
                 <template x-if="true">
-                    <x-icon.on-smartboard-hide class="absolute left-4 top-[14px]" @click="showStudentAnswer = false" />
+                    <x-icon.on-smartboard-hide class="absolute left-4 top-[14px]"
+                    />
                 </template>
             </div>
-            <div class="absolute right-[-14px] group" @click="collapsed = ! collapsed" >
+            <div class="absolute right-[-14px] group" @click="collapsed = ! collapsed">
                 <div class="w-10 h-10 rounded-full flex items-center justify-center group-hover:bg-primary group-hover:opacity-[0.05]"></div>
                 <template x-if="true">
                     <x-icon.chevron class="absolute top-[14px] left-4 text-sysbase transition"
@@ -45,7 +51,7 @@
                     <div class="relative">
                         <x-input.group for="me" class="w-full disabled mt-4">
                             <div class="border border-light-grey p-4 rounded-10 h-fit">
-                                {!! 'please supply student answer' !!}
+                                {!! $this->activeAnswerText !!}
                             </div>
                         </x-input.group>
                     </div>

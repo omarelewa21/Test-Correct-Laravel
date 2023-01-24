@@ -203,20 +203,7 @@ class TestTakesController extends Controller
      */
     private function showGeneric(TestTake $testTake, Request $request, $returnTestTakeAsArray = true)
     {
-        $testTake->load([
-            'test',
-            'test.subject' => function ($query) {
-                $query->withTrashed();
-            },
-            'test.author',
-            'retakeTestTake',
-            'user',
-            'testTakeStatus',
-            'invigilatorUsers',
-            'testParticipants',
-            'testTakeCode'
-        ]);
-        $testTake->test->append('has_pdf_attachments');
+
 
         $isInvigilator = false;
         $roles = $this->getUserRoles();
@@ -615,6 +602,14 @@ class TestTakesController extends Controller
      */
     public function showFromWithin(TestTake $testTake, Request $request)
     {
+        $testTake->load([
+            'test',
+            'test.subject' => fn($query) => $query->withTrashed(),
+            'invigilatorUsers',
+            'testParticipants',
+            'discussingQuestion',
+        ]);
+
         //17-1-23: 'returnTestTakeAsArray only implemented for: testTake discussing && 'with' => 'participantStatus'
         return $this->showGeneric($testTake, $request, false);
     }
@@ -627,6 +622,21 @@ class TestTakesController extends Controller
      */
     public function show(TestTake $testTake, Request $request)
     {
+        $testTake->load([
+            'test',
+            'test.subject' => function ($query) {
+                $query->withTrashed();
+            },
+            'test.author',
+            'retakeTestTake',
+            'user',
+            'testTakeStatus',
+            'invigilatorUsers',
+            'testParticipants',
+            'testTakeCode'
+        ]);
+        $testTake->test->append('has_pdf_attachments');
+
         $testTakeResponse = $this->showGeneric($testTake, $request);
 
         if ($testTakeResponse === []) {

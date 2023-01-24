@@ -1,9 +1,6 @@
 <div class="flex mx-6 items-center h-10 justify-between flex-shrink-0"
      id="student-info-container"
 >
-    @php
-        $i = rand(0,4);
-    @endphp
     {{-- left --}}
     <div class="flex items-center h-full space-x-1">
         <span class="min-w-[1rem] w-4 flex items-center justify-center">
@@ -44,7 +41,15 @@
         <span class="student-name">{{$userFullName}}</span>
     </div>
     {{-- right --}}
-    <div class="show-on-smartboard relative" @click="showStudentAnswer = true" wire:click.prevent="showStudentAnswer('{{ $testParticipant->discussing_answer_rating_id }}')">
+    <div {{--class="show-on-smartboard relative"--}}
+         @click="showStudentAnswer = true"
+         wire:click.prevent="showStudentAnswer('{{ $testParticipant->discussing_answer_rating_id }}')"
+         @class([
+            'show-on-smartboard',
+            'relative',
+            'active' => !is_null($this->activeAnswerRating) ? $testParticipant->discussing_answer_rating_id === $this->activeAnswerRating : false,
+         ])
+    >
         <x-icon.on-smartboard-show />
     </div>
 </div>

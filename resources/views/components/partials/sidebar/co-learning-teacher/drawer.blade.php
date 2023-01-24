@@ -55,6 +55,7 @@
              x-init="$nextTick(() => {fillSpaceBetweenElementsHorizontal($refs.footerElement1, $refs.footerElement2);})"
         >
             <x-button.text-button wire:click.prevent="goToPreviousQuestion"
+                                  wire:key="previousQuestion.{{$this->testTake->discussing_question_id}}"
                                   :disabled="$this->atFirstQuestion"
                                   class="flex-shrink-0"
                                   x-ref="footerElement1"
@@ -63,6 +64,7 @@
                 <span class="ml-2">{{ __('co-learning.previous') }}</span>
             </x-button.text-button>
             <x-button.primary wire:click.prevent="goToNextQuestion"
+                              wire:key="lastQuestion.{{$this->testTake->discussing_question_id}}"
                               :disabled="$this->atLastQuestion"
                               class="px-4 flex-0 flex-shrink-0"
                               x-ref="footerElement2"
