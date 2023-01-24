@@ -19,7 +19,7 @@ class TestDetail extends Component
     public $referrer = '';
     public $mode;
     public $context = 'testdetail';
-    public $previousUrl;
+    public string $previousUrl;
 
     protected $queryString = ['referrer' => ['except' => '']];
 
@@ -35,7 +35,7 @@ class TestDetail extends Component
         Gate::authorize('canViewTestDetails',[Test::findByUuid($uuid)]);
 
         $this->uuid = $uuid;
-        $this->previousUrl = $this->getPreviousUrl();
+        $this->previousUrl = $this->setPreviousUrl();
         $this->setContext();
     }
 
@@ -120,7 +120,7 @@ class TestDetail extends Component
         return false;
     }
 
-    public function getPreviousUrl()
+    private function setPreviousUrl(): string
     {
         $urlComponents = parse_url(url()->previous());
         if(url($urlComponents['path']) !== route('teacher.tests')){
