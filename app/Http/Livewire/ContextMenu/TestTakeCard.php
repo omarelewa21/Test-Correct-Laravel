@@ -99,4 +99,16 @@ class TestTakeCard extends ContextMenuComponent
         $this->dispatchBrowserEvent('notify', ['message' => __('test_take.update_to_taken_toast')]);
         $this->emit('update-test-take-overview');
     }
+
+    public function copyTestTakeLink()
+    {
+        $testTake = TestTake::whereUuid($this->uuid)->firstOrFail();
+        $this->dispatchBrowserEvent(
+            'copy-to-clipboard',
+            [
+                'message'       => $testTake->directLink,
+                'notification'  => $testTake->isAssessmentType() ? __('teacher.assignment_clipboard_copied') : __('teacher.clipboard_copied')
+            ]
+        );
+    }
 }
