@@ -6,7 +6,7 @@
 Error: {{ $errMessage }}<br/>
 @if(isset($file) && isset($lineNr))
 <br/>
-{{ $file }} {{ $lineNr }}
+{{ $file }}:{{ $lineNr }}
 <br/>
 @endif
 @if(isset($details) && count($details))

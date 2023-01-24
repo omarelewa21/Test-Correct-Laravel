@@ -40,7 +40,7 @@ use tcCore\Mail\SendSamlNoMailAddressInRequestDetectedMail;
 use tcCore\Traits\UuidTrait;
 use tcCore\Traits\FeatureSettings;
 
-class       SchoolLocation extends BaseModel implements AccessCheckable
+class SchoolLocation extends BaseModel implements AccessCheckable
 {
 
     use SoftDeletes;
@@ -63,6 +63,8 @@ class       SchoolLocation extends BaseModel implements AccessCheckable
         'sso_active'                 => 'boolean',
         'lvs_active_no_mail_allowed' => 'boolean',
         'school_language'            => 'string',
+        'auto_uwlr_import'           => 'boolean',
+        'auto_uwlr_last_import'      => 'timestamp',
     ];
 
     /**
@@ -100,7 +102,7 @@ class       SchoolLocation extends BaseModel implements AccessCheckable
         'keep_out_of_school_location_report',
         'main_phonenumber', 'internetaddress', 'show_exam_material', 'show_cito_quick_test_start', 'show_national_item_bank',
         'allow_wsc', 'allow_writing_assignment', 'license_type', 'allow_creathlon', 'allow_new_taken_tests_page', 'allow_analyses',
-        'allow_new_co_learning', 'test_package',
+        'allow_new_co_learning', 'test_package','auto_uwlr_import','auto_uwlr_import_status','auto_uwlr_last_import',
     ];
 
     /**
@@ -1279,7 +1281,7 @@ class       SchoolLocation extends BaseModel implements AccessCheckable
     public function sendSamlNoMailAddresInRequestDetectedMailIfAppropriate($attr = [])
     {
         if ($this->canSendSamlNoMailAddressInRequestDetectedMail() && $this->lvs_active_no_mail_allowed == false) {
-            Mail::to('support@test-correct.nl')
+            Mail::to(config('mail.from.address'))
                 ->send(new SendSamlNoMailAddressInRequestDetectedMail($this->name, sprintf('Waarschuwing gebruiker van %s probeert in te loggen via Entree zonder emailadres.', $this->name), $attr));
             $this->no_mail_request_detected = now();
             $this->save();

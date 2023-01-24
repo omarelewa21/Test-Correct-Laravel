@@ -2,14 +2,16 @@
 
 namespace tcCore\Jobs;
 
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Mail\Mailer;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
 class SendExceptionMail extends Job implements ShouldQueue
 {
-    use InteractsWithQueue, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $errMessage;
     protected $file;

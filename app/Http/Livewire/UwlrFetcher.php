@@ -7,15 +7,13 @@ use Carbon\Carbon;
 use Livewire\Component;
 use tcCore\Http\Helpers\MagisterHelper;
 use tcCore\Http\Helpers\SomTodayHelper;
+use tcCore\Http\Helpers\UwlrImportHelper;
 use tcCore\Lib\Repositories\PeriodRepository;
 use tcCore\SchoolLocation;
 use tcCore\SchoolLocationSchoolYear;
 
 class UwlrFetcher extends Component
 {
-    public $clientCode = 'OV';
-
-    public $clientName = 'Overig';
 
     public $schoolYears = [];
 
@@ -73,26 +71,8 @@ class UwlrFetcher extends Component
     {
         $this->schoolYears = [];
         $location = SchoolLocation::find($this->uwlrDatasource[$this->currentSource]['id']);
-        $currentPeriod = PeriodRepository::getCurrentPeriodForSchoolLocation($location, false, false);
         if($location) {
-            $years = $location
-                    ->schoolLocationSchoolYears
-                    ->load('schoolYear:id,year')
-                    ->when(optional($currentPeriod)->schoolYear, function ($slsy) use ($currentPeriod) {
-                        return $slsy->where('schoolYear.year', '>=', $currentPeriod->schoolYear->year);
-                    })
-                    ->when(!optional($currentPeriod)->schoolYear, function ($slsy) {
-                        return $slsy->where('schoolYear.year', '>=', Carbon::now()->subYear()->format('Y'));
-                    })
-                    ->sortBy('schoolYear.year', SORT_REGULAR, false)
-                    ->filter(function(SchoolLocationSchoolYear $s) {
-                        return null != optional($s->schoolYear)->year;
-                    })
-                    ->map(function(SchoolLocationSchoolYear $slsy){
-                        return sprintf('%d-%d', $slsy->schoolYear->year, $slsy->schoolYear->year + 1);
-                    });
-
-            $this->schoolYears = array_values($years->toArray());
+            $this->schoolYears = UwlrImportHelper::getSchoolYearsForUwlrImport($location);
 
             if (!array_key_exists(0, $this->schoolYears)) {
                 $this->addError(
@@ -116,8 +96,8 @@ class UwlrFetcher extends Component
 
     private function setSearchFields()
     {
-        $this->clientCode = $this->uwlrDatasource[$this->currentSource]['client_code'];
-        $this->clientName = $this->uwlrDatasource[$this->currentSource]['client_name'];
+//        $this->clientCode = $this->uwlrDatasource[$this->currentSource]['client_code'];
+//        $this->clientName = $this->uwlrDatasource[$this->currentSource]['client_name'];
 //        $this->schoolYear = $this->schoolYear;
         $this->brinCode = $this->uwlrDatasource[$this->currentSource]['brin_code'];
         $this->dependanceCode = $this->uwlrDatasource[$this->currentSource]['dependance_code'];
@@ -128,7 +108,7 @@ class UwlrFetcher extends Component
 
         try {
             set_time_limit(0);
-            $helper = $this->getHelper();
+            $helper = UwlrImportHelper::getHelperAndStoreInDB($this->uwlrDatasource[$this->currentSource]['lvs_type'], $this->schoolYear, $this->brinCode, $this->dependanceCode);
 
             $this->report = $helper->getResultSet()->report();
             $this->resultIdendifier = $helper->getResultIdentifier();
@@ -139,27 +119,7 @@ class UwlrFetcher extends Component
         }
     }
 
-    public function getHelper()
-    {
-        $helper = null;
-        switch ($this->uwlrDatasource[$this->currentSource]['lvs_type']) {
-            case SchoolLocation::LVS_MAGISTER:
-                $helper = MagisterHelper::guzzle($this->schoolYear,$this->brinCode, $this->dependanceCode)->parseResult()->storeInDB($this->brinCode, $this->dependanceCode);
-                break;
-            case SchoolLocation::LVS_SOMTODAY:
-                $helper = (new SomTodayHelper(new SoapWrapper()))->search(
-                    $this->clientCode,
-                    $this->clientName,
-                    $this->schoolYear,
-                    $this->brinCode,
-                    $this->dependanceCode
-                )->storeInDB();
-                break;
-            default:
-                throw new \Exception(sprintf('No valid lvs_type (%s)',$this->uwlrDatasource[$this->currentSource]['lvs_type']));
-        }
-        return $helper;
-    }
+
 
     public function showGrid()
     {
