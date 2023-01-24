@@ -570,7 +570,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 $user->mentorSchoolClasses ??= [];
             }
 
-            $user->setForcePasswordChangeIfRequired($user);
+            $user->setForcePasswordChangeIfRequired();
+
             if ($user->isDirty(['is_examcoordinator', 'is_examcoordinator_for'])) {
                 $user->setAttribute('session_hash', '');
             }
@@ -2783,17 +2784,17 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         session()->put(self::USER_SETTINGS_SESSION_KEY, [$setting => $value]);
     }
 
-    private function setForcePasswordChangeIfRequired(User $user): void
+    private function setForcePasswordChangeIfRequired(): void
     {
         if (app()->runningInConsole()) return;
-        if (!$user->isDirty(['password'])) {
+        if (!$this->isDirty(['password'])) {
             return;
         }
 
-        if(Auth::id() && Auth::id() !== $user->id) {
-            $user->password_expiration_date = Carbon::now();
+        if(Auth::id() && Auth::id() !== $this->id) {
+            $this->password_expiration_date = Carbon::now();
             return;
         }
-        $user->password_expiration_date = null;
+        $this->password_expiration_date = null;
     }
 }
