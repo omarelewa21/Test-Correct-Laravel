@@ -3,11 +3,13 @@
 namespace tcCore\Jobs;
 
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use tcCore\Exceptions\UwlrAutoImportException;
 use tcCore\Http\Helpers\ImportHelper;
 use tcCore\Http\Helpers\UwlrImportHelper;
 use tcCore\SchoolLocation;
@@ -53,7 +55,7 @@ class ProcessUwlrSoapResultJob extends Job implements ShouldQueue
         if(!$resultSet){
             $this->runNextIfNeeded();
             // should be a logger notice but let's do an exception for the moment so that we can see what happens in bugsnag
-            throw new \Exception('we could not find the corresponding resultset  with id '.$this->uwlrSoapResultId);
+            $this->throwCorrectException('we could not find the corresponding resultset  with id '.$this->uwlrSoapResultId);
         }
 
         try {
@@ -68,6 +70,14 @@ class ProcessUwlrSoapResultJob extends Job implements ShouldQueue
             throw $e;
         }
         $this->runNextIfNeeded();
+    }
+
+    protected function throwCorrectException($message)
+    {
+        if($this->autoNext){
+            throw new UwlrAutoImportException($message);
+        }
+        throw new Exception($message);
     }
 
     protected function runNextIfNeeded(){
