@@ -1,22 +1,14 @@
 <div x-data="{
-        message: null,
-        notification: null,
-    }"
-    @copy-to-clipboard.window="
-        message = $event.detail.message;
-        notification = $event.detail.notification;
-    "
->
-    <div x-data="{
-            copyToClipboard: async () => {
-                let copy = await $clipboard(message);
-                if(copy) message = null;
-                if(notification) {
-                    let notify = await $dispatch('notify', {message: notification});
-                    if(notify) notification = null;
+        copyToClipboard: async (params) => {
+                if (!params.hasOwnProperty('message')) {
+                    console.error('Copy to clipboard needs a value to copy.')
+                    return;
+                 }
+                await $clipboard(params.message);
+                if(params.notification) {
+                    let notify = await $dispatch('notify', {message: params.notification});
                 }
             }
-        }"
-        x-init="$watch('message', () => copyToClipboard())"
-    ></div>
-</div>
+    }"
+    @copy-to-clipboard.window="await copyToClipboard($event.detail)"
+></div>
