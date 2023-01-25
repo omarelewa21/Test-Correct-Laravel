@@ -9,6 +9,11 @@
         maxHeight: 'calc(100vh - var(--header-height))'
      }"
          x-init="
+         $watch('showBank', value => {
+            if (value === 'tests') {
+                $wire.loadSharedFilters();
+            }
+        });
         testQuestionSlide = $el.querySelector('#test-question-slide')
         showQuestionsOfTest = async (testUuid) => $wire.set('testUuid', testUuid);
         slideOver = () => {

@@ -216,7 +216,7 @@ return [
     "create_your_own_test"                                                                   => "Get started with creating your own test",
     "setup_your_own_test"                                                                    => "Set up your test with question groups and questions",
     'attachment_uploading_message'                                                           => 'We\'re processing the attachment(s).',
-    'one_moment_please'                                                                      => 'One moment please  ',
+    'one_moment_please'                                                                      => 'One moment please',
     'R'                                                                                      => 'R',
     'T1'                                                                                     => 'T1',
     'T2'                                                                                     => 'T2',

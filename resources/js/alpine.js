@@ -584,12 +584,10 @@ document.addEventListener('alpine:init', () => {
                     this.getChoicesConfig()
                 );
 
-                setActiveGroupsOnInit.call(this);
-
                 let refreshChoices = () => {
                     let selection = this.multiple ? this.value : [this.value]
                     let options = typeof this.options === 'object' ? Object.values(this.options) : this.options;
-
+                    this.setActiveGroupsOnInit();
                     choices.clearStore();
                     this.addPlaceholderValues(choices);
 
@@ -666,16 +664,21 @@ document.addEventListener('alpine:init', () => {
                     this.$refs.chevron.style.left = 'auto'
                 });
 
-                function setActiveGroupsOnInit() {
-                    this.options.forEach(option => {
-                        if (option.customProperties?.parent === true) {
-                            if (this.value.includes(option.value)) {
-                                this.activeGroups.push(option.value);
-                            }
-                        }
-                    })
-                }
             });
+        },
+        setActiveGroupsOnInit() {
+            if (this.activeGroups.length) {
+                this.activeGroups.forEach(value => this.clearFilterPill(value));
+            }
+            this.activeGroups = [];
+            this.options.forEach(option => {
+                if (option.customProperties?.parent === true) {
+                    if (this.value.includes(option.value)) {
+                        this.activeGroups.push(option.value);
+                    }
+                }
+            })
+            this.activeGroups = this.activeGroups.filter((value, index, self) => self.indexOf(value) === index);
         },
         handleGroupItemChoice: function (choice) {
             let parentId = choice.customProperties.parentId;

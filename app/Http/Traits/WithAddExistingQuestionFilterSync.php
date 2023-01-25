@@ -15,13 +15,6 @@ trait WithAddExistingQuestionFilterSync
         return sprintf($this->filterSessionKey, $this->$identifier);
     }
 
-    public function updatedWithAddExistingQuestionFilterSync($name, $value)
-    {
-        if (Str::startsWith($name, 'filters.')) {
-            $this->notifySharedFilterComponents();
-        }
-    }
-
     public function loadSharedFilters(): void
     {
         $newFilters = UserSystemSetting::getSetting(
@@ -34,6 +27,6 @@ trait WithAddExistingQuestionFilterSync
 
     protected function notifySharedFilterComponents(): void
     {
-        $this->emit('shared-filter-updated', ['except' => $this::class]);
+        $this->emit('shared-filter-updated');
     }
 }
