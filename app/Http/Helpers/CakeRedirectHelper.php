@@ -102,6 +102,7 @@ class CakeRedirectHelper
             'new_analyses.classes'        => '/teacher_analyses',
             'classes.my_classes'          => '/teacher_classes',
             'classes.my_schoollocation'   => '/teacher_classes/school_location_classes',
+            'support.return_as_support_user'=> sprintf('/support/return_as_support_user/%s', $this->uuid),
             'update-password'             => [
                 'page'        => '/users/welcome',
                 'page_action' => 'User.resetPassword();'
