@@ -10,6 +10,11 @@
      :style="`max-height: ${maxHeight}`"
      x-init="
         groupDetail = $el.querySelector('#groupdetail');
+        $watch('showBank', value => {
+            if (value === 'questions') {
+                $wire.loadSharedFilters();
+            }
+        });
         $watch('$store.questionBank.inGroup', value => inGroup = value);
         $watch('$store.questionBank.active', value => {
            //if true, the wire method also makes the html rerender, but only calling the render didn't cut it
@@ -153,7 +158,7 @@
                                     :withSearch="true"
                                     :sortOptions="false"
                                     placeholderText="{{ __('cms.Taxonomie') }}"
-                                    wire:model="filters.{{ $this->openTab }}.taxonomy"
+                                    wire:model="filters.taxonomy"
                                     filterContainer="questionbank-{{ $this->openTab }}-active-filters"
                             />
                             @if($this->hasAuthorFilter())

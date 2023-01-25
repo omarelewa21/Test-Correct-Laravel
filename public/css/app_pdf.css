@@ -3746,6 +3746,10 @@ input[type=number] {
     top: calc(50% - 5px);
 }
 
+.custom-choices .choices__list .choices__item.child {
+    margin-left: 30px;
+}
+
 :root {
     --cta-primary: #3ab753;
     --cta-primary-mid-dark: #27973D;

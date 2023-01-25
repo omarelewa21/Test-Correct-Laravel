@@ -2,7 +2,6 @@
 
 namespace tcCore\Http\Livewire\Teacher;
 
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use tcCore\BaseSubject;
@@ -46,7 +45,7 @@ class QuestionBank extends Component
 
     protected string $filterIdentifyingAttribute = 'testId';
     protected array $filterableAttributes = [
-        'name'                 => '',
+        'search'                 => '',
         'education_level_year' => [],
         'education_level_id'   => [],
         'subject_id'           => [],
@@ -62,7 +61,7 @@ class QuestionBank extends Component
             'addQuestionFromDetail' => 'handleCheckboxClick',
             'questionDeleted'       => 'questionDeletedFromExternalComponent',
             'newGroupId'            => 'newGroupId',
-            'shared-filter-updated' => 'loadSharedFilters'
+            'shared-filter-updated' => 'loadSharedFilters',
         ];
     }
 

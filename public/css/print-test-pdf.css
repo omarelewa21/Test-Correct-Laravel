@@ -9,6 +9,43 @@
     border-style: dashed;
     margin-right: 0.5rem;
 }
+.test-print-pdf .test-print-opgaven-pdf .square-checkbox .checkbox-character,
+.test-print-pdf .test-print-opgaven-pdf .square-checkbox .checkbox-number{
+    margin-top: 0;
+    padding-bottom: 0;
+    padding-top: 0.25rem;
+}
+
+.test-print-pdf .test-print-opgaven-pdf .square-checkbox .checkbox-number{
+    margin-left: 0.5rem;
+}
+
+.test-print-pdf .test-print-opgaven-pdf .square-checkbox .checkbox-character{
+    margin-left: 0.35rem;
+}
+
+.test-print-pdf .test-print-opgaven-pdf .round-checkbox .checkbox-character,
+.test-print-pdf .test-print-opgaven-pdf .round-checkbox .checkbox-number{
+    margin-top: 0;
+    padding-bottom: 0;
+    padding-top: 0.25rem;
+}
+
+.test-print-pdf .test-print-opgaven-pdf .round-checkbox .checkbox-number{
+    margin-left: 0.5rem;
+}
+
+.test-print-pdf .test-print-opgaven-pdf .round-checkbox .checkbox-character{
+    margin-left: 0.40rem;
+}
+
+
+.test-print-pdf .test-print-opgaven-pdf .square-checkbox .checkbox-character,
+.test-print-pdf .test-print-opgaven-pdf .square-checkbox .checkbox-number,
+.test-print-pdf .test-print-opgaven-pdf .round-checkbox .checkbox-character,
+.test-print-pdf .test-print-opgaven-pdf .round-checkbox .checkbox-number{
+    font-weight: bold;
+}
 
 .test-print-pdf .square-checkbox {
     border-radius: 10px;
@@ -383,6 +420,17 @@
     padding-bottom: 0.25rem;
     padding-left: 50px
 }
+.test-print-pdf .test-print-opgaven-pdf .matching-textbox-container-right,
+.test-print-pdf .test-print-opgaven-pdf .matching-textbox-container-left {
+    height: 2.5rem;
+}
+
+
+.test-print-pdf .test-print-opgaven-pdf .matching-textbox-container-right {
+    text-align: left;
+    padding-bottom: 0rem;
+    padding-left: 0px;
+}
 
 .test-print-pdf .matching-textbox-container-left {
     text-align: left;
@@ -424,6 +472,15 @@
     display: inline-block;
     width: 32%;
     margin-right: 0.5rem;
+}
+.test-print-pdf margin-top-4 {
+    margin-top: 1rem;
+}
+
+.test-print-pdf .classify-group-title-opgave {
+    display: inline-block;
+    font-weight: bold;
+    text-align: left;
 }
 
 .test-print-pdf .classify-group-title {
@@ -627,6 +684,7 @@
 }
 
 .test-print-pdf .image-container,
+.test-print-pdf .opgaven-image-container,
 .test-print-pdf .video-container,
 .test-print-pdf .pdf-container,
 .test-print-pdf .audio-container {
@@ -637,6 +695,7 @@
     vertical-align: top;
 }
 .test-print-pdf .image-container span,
+.test-print-pdf .opgaven-image-container span,
 .test-print-pdf .video-container span,
 .test-print-pdf .pdf-container span,
 .test-print-pdf .audio-container span {
@@ -651,3 +710,81 @@
     border:none;
     border-color: #ffffff;
 }
+
+/* change color to black */
+.different-pdf-version-colors {
+    /* pdf compiler cant use css variables */
+    --test-print-color: #041f74;
+    --test-opgaven-print-color: #000000;
+}
+
+.test-print-pdf .test-print-opgaven-pdf .tp-question-title {
+    border-bottom: 2px solid #000000; /*#041f74;*/
+    border-top: 2px solid #000000; /*#041f74;*/
+}
+
+.test-print-pdf .test-print-opgaven-pdf .question-indicator .question-number.complete {
+    border-color: #000000; /*#041f74;*/
+    background: #000000; /*#041f74;*/
+}
+
+.test-print-pdf .test-print-opgaven-pdf .group-question-name-container {
+    background-color: #000000; /*#041f74;*/
+    border: 1px solid #000000; /*#041f74;*/
+}
+
+.test-print-pdf.test-print-opgaven-pdf .footer-icon-continue {
+    color: #000000 !important; /*#041f74 */
+    stroke: #000000 !important; /*#041f74 */
+    -webkit-text-stroke-color: #000000 !important; /*#041f74 */
+}
+
+.test-print-pdf.test-print-opgaven-pdf .footer-icon-end {
+    border: 1px solid #000000; /*#041f74;*/
+    background-color: #000000; /*#041f74;*/
+}
+
+.test-print-pdf.test-print-opgaven-pdf .header-line,
+.test-print-pdf.test-print-opgaven-pdf .footer-line {
+    border: 2px solid #000000; /*#041f74;*/
+    background-color: #000000
+}
+
+body.test-print-opgaven-pdf {
+    color: #000000;
+}
+body#body .test-print-opgaven-pdf {
+    color: #000000;
+}
+.test-print-opgaven-pdf .header-table {
+    color: #000000;
+}
+
+.test-print-opgaven-pdf .footer-table {
+    color: #000000;
+}
+
+.test-print-opgaven-pdf .matching-table {
+    color: #000000;
+}
+
+.test-print-opgaven-pdf .base {
+    color: #000000;
+}
+
+.test-print-opgaven-pdf .divider {
+    background: #000000;
+}
+
+.test-print-opgaven-pdf h1 {
+    color: #000000;
+}
+
+.test-print-opgaven-pdf h4 {
+    color: #000000;
+}
+
+.test-print-opgaven-pdf .question-title {
+    border-bottom: 3px solid #000000;
+}
+
