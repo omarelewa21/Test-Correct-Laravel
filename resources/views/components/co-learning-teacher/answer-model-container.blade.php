@@ -1,7 +1,3 @@
-@props([
-'question',
-])
-
 <div class="flex flex-col pt-[14px] pb-[33px] px-10 content-section rs_readable relative"
      x-data="{collapsed: true}"
 >
@@ -25,7 +21,7 @@
                 <div class="relative">
                     <x-input.group for="me" class="w-full disabled mt-4">
                         <div class="border border-light-grey p-4 rounded-10 h-fit">
-                            {!! $question->answer !!}
+                            {!! $this->answerModelHtml !!}
                         </div>
                     </x-input.group>
                 </div>

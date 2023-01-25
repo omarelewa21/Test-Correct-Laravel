@@ -33,6 +33,7 @@ return [
     'next'                          => 'Next',
     'previous'                      => 'Previous',
     'answer_model'                  => 'Answer model',
+    'write_your_answer'             => 'Write your answer...',
 
 
 ];

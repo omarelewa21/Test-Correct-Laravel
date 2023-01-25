@@ -5234,6 +5234,16 @@ input.datepicker {
     padding-bottom: 13px;
 }
 
+#co-learning-teacher-page .word-count div {
+    display: flex;
+}
+#co-learning-teacher-page .word-count div div {
+    margin-right: 1rem;
+}
+
+
+
+
 #co-learning-start-screen {
     width: 100vw;
     height: 100vh;

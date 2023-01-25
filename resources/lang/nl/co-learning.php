@@ -32,5 +32,7 @@ return [
     'next'                          => 'Volgende',
     'previous'                      => 'Vorige',
     'answer_model'                  => 'Antwoord model',
+    'write_your_answer'             => 'Schrijf jouw antwoord...',
+
 
 ];

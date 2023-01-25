@@ -15,12 +15,15 @@
         $type = $attachment->getFileType();
     }
     if($type == 'video') {
-        $host = $this->getVideoHost($attachment->link);
+        $host = \tcCore\Attachment::getVideoHost($attachment->link);
+    }
+    if(isset($this->questionId)) {
+        $questionId = $questionId;
     }
 @endphp
 
 <div class="flex border rounded-lg border-blue-grey items-center mr-4 mb-2"
-     x-data="badge('{{ $type == 'video' ? $attachment->link : null }}')"
+     x-data="badge('{{ $type == 'video' ? $attachment->link : null }}', {{ !isset($viewOnly) }})"
      wire:key="{{ $attributes['wire:key'] }}"
      @attachments-updated.window="setIndex()"
 >
@@ -57,6 +60,7 @@
             {{ $title }}
         </span>
         @endif
+        @if(!isset($viewOnly) || $viewOnly === false)
         @if($disabled)
             <button class="py-3 px-4 flex items-center h-full rounded-md text-midgrey transition"
             >
@@ -98,7 +102,7 @@
                                 @else
                                     <x-input.toggle
                                             @change="$wire.handleAttachmentSettingChange({'play_once': $event.target.checked ? '1' : '0'}, '{{ $attachment->uuid }}')"
-                                            :checked="(bool)$attachment->getSetting('play_once', $this->questionId)"
+                                            :checked="(bool)$attachment->getSetting('play_once', $questionId)"
                                     />
                                 @endif
                             </div>
@@ -117,7 +121,7 @@
                                 @else
                                     <x-input.toggle
                                             @change="$wire.handleAttachmentSettingChange({'pausable': $event.target.checked ? '1' : '0'}, '{{ $attachment->uuid }}')"
-                                            :checked="(bool)$attachment->getSetting('pausable', $this->questionId)"
+                                            :checked="(bool)$attachment->getSetting('pausable', $questionId)"
                                     />
                                 @endif
                             </div>
@@ -145,7 +149,7 @@
                                             class="w-24 pr-10 text-base"
                                             placeholder="250"
                                             @change="$wire.handleAttachmentSettingChange({'timeout': $event.target.value}, '{{ $attachment->uuid }}')"
-                                            :value="$attachment->getSetting('timeout', $this->questionId)"
+                                            :value="$attachment->getSetting('timeout', $questionId)"
                                     />
                                 @endif
                                 <span class="audio-seconds-input"></span>
@@ -153,6 +157,9 @@
                         </div>
                     </div>
                     <div class="flex w-full h-px bg-blue-grey mb-2"></div>
+                @endif
+                @hasSection('test')
+                    @yield('test')
                 @endif
                 <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
                         @if($deleteAction)
@@ -167,6 +174,7 @@
                 </button>
             </div>
         @endif
+            @endif
 
 
 

@@ -6000,6 +6000,7 @@ document.addEventListener('alpine:init', function () {
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('badge', function () {
     var videoUrl = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+    var setVideoTitle = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
     return {
       options: false,
       videoTitle: videoUrl,
@@ -6041,7 +6042,9 @@ document.addEventListener('alpine:init', function () {
                   _this6.videoTitle = fetchedTitle || videoUrl;
                   _this6.resolvingTitle = false;
 
-                  _this6.$wire.setVideoTitle(videoUrl, _this6.videoTitle);
+                  if (setVideoTitle) {
+                    _this6.$wire.setVideoTitle(videoUrl, _this6.videoTitle);
+                  }
 
                 case 9:
                 case "end":

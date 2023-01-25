@@ -3,6 +3,7 @@
 namespace tcCore\Http\Livewire\Teacher;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use tcCore\Answer;
 use tcCore\AnswerRating;
@@ -11,6 +12,7 @@ use tcCore\Http\Controllers\TestTakeLaravelController;
 use tcCore\Http\Controllers\TestTakesController;
 use tcCore\Http\Enums\CoLearning\AbnormalitiesStatus;
 use tcCore\Http\Enums\CoLearning\RatingStatus;
+use tcCore\Question;
 use tcCore\TestTake;
 
 class CoLearning extends Component
@@ -69,6 +71,7 @@ class CoLearning extends Component
     {
         $this->getTestParticipantsData();
 
+//        $this->getCompletionQuestionAnswers();
 //        dd($this->testTake->discussingQuestion);
 
         $this->handleTestParticipantStatusses(); //todo move to polling method
@@ -143,6 +146,8 @@ class CoLearning extends Component
 
         $this->activeAnswer = $this->activeAnswerRating->answer;
 
+        //todo completion question handle answer options to Html
+
         $array = json_decode(
             json: $this->activeAnswer->json,
             associative: true
@@ -196,6 +201,18 @@ class CoLearning extends Component
             ->filter(fn($item) => $item['order'] > $currentQuestionOrder)
             ->sortBy('order')
             ->first()['id'];
+    }
+
+    public function getAnswerModelHtmlProperty()
+    {
+        $question =  $this->testTake->discussingQuestion;
+        if($question->type === 'CompletionQuestion') {
+            //fill inputs with correct answers
+            return $this->convertCompletionQuestionToHtml($question->completionQuestionAnswers);
+        };
+//        dd($question->completionQuestionAnswers);
+
+        return $question->answer;
     }
 
     private function handleFinishingCoLearning()
@@ -344,4 +361,41 @@ class CoLearning extends Component
         $this->lastQuestionId = $this->questionsOrderList->sortBy('order')->last()['id'];
     }
 
+    public function setVideoTitle() {}
+
+    private function convertCompletionQuestionToHtml($answers = null)
+    {
+        $question = $this->testTake->discussingQuestion;
+
+        $question->getQuestionHtml();
+
+        $question_text = $question->converted_question_html;
+
+        $searchPattern = "/\[([0-9]+)\]/i";
+        $replacementFunction = function ($matches) use ($question, $answers) {
+            $tag_id = $matches[1];
+//            $events = sprintf('@blur="$refs.%s.scrollLeft = 0" @input="$event.target.setAttribute(\'title\', $event.target.value);"', 'comp_answer_' . $tag_id);
+            $events = '';
+            $rsSpan = '';
+            return sprintf(
+                '<span><input x-on:contextmenu="$event.preventDefault()" spellcheck="false" value="%s"   autocorrect="off" autocapitalize="none" class="form-input mb-2 truncate text-center overflow-ellipsis" type="text" id="%s" style="width: 120px" x-ref="%s" %s wire:key="%s"/>%s</span>',
+                $answers?->where('tag', $tag_id)?->first()?->answer ?? '',
+                'answer_' . $tag_id . '_' . $question->getKey(),
+                'comp_answer_' . $tag_id,
+                $events,
+                'comp_answer_' . $tag_id,
+                $rsSpan
+            );
+        };
+
+        return preg_replace_callback($searchPattern, $replacementFunction, $question_text);
+    }
+
+    public function getCompletionQuestionAnswers()
+    {
+        $question = $this->testTake->discussingQuestion;
+
+
+//        $question->completionQuestionAnswers;
+    }
 }

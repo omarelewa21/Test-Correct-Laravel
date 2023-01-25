@@ -256,7 +256,7 @@ document.addEventListener('alpine:init', () => {
             this.hasError.false = [];
         }
     }));
-    Alpine.data('badge', (videoUrl = null) => ({
+    Alpine.data('badge', (videoUrl = null, setVideoTitle = true) => ({
         options: false,
         videoTitle: videoUrl,
         resolvingTitle: true,
@@ -277,7 +277,9 @@ document.addEventListener('alpine:init', () => {
                 const fetchedTitle = await getTitleForVideoUrl(videoUrl);
                 this.videoTitle = fetchedTitle || videoUrl;
                 this.resolvingTitle = false;
-                this.$wire.setVideoTitle(videoUrl, this.videoTitle);
+                if(setVideoTitle){
+                    this.$wire.setVideoTitle(videoUrl, this.videoTitle);
+                }
             }
         },
         setIndex() {

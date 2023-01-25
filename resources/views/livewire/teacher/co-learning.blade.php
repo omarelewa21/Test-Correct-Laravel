@@ -1,6 +1,7 @@
 <div id="co-learning-teacher-page"
      class="flex w-full relative" style="z-index: 1; min-height: 100vh"
      x-data="{showStudentAnswer: false}"
+     wire:poll.keep-alive.5000ms="render()" {{-- getTestParticipantsData() ? --}}
 >
     <x-partials.header.co-learning-teacher testName="{{ $testTake->test->name ?? '' }}"
                                            discussionType="{{ $testTake->discussion_type }}"
@@ -12,7 +13,7 @@
     <div id="main-content-container"
          class="flex border border-2 relative w-full justify-between overflow-auto "
     >
-        <div class="flex flex-col w-full space-y-4 pt-10 px-[60px]"
+        <div class="flex flex-col w-full space-y-4 pt-10 px-[60px] pb-15"
              wire:key="container-{{$this->testTake->discussing_question_id}}"
         >
 
@@ -20,8 +21,7 @@
                     :question="$this->testTake->discussingQuestion">
             </x-co-learning-teacher.question-container>
 
-            <x-co-learning-teacher.answer-model-container
-                    :question="$this->testTake->discussingQuestion">
+            <x-co-learning-teacher.answer-model-container>
             </x-co-learning-teacher.answer-model-container>
 
             <x-co-learning-teacher.answer-container
