@@ -134,6 +134,16 @@ class SomTodayHelper
         return $this->result;
     }
 
+    public function hasException()
+    {
+        return (bool) $this->soapException;
+    }
+
+    public function getException()
+    {
+        return $this->soapException;
+    }
+
     public function getResultIdentifier()
     {
         return $this->resultIdentifier;
@@ -189,4 +199,6 @@ class SomTodayHelper
             ]);
         });
     }
+
+
 }
