@@ -69,7 +69,7 @@ class UwlrImportHelper
             ->where(function ($query) {
                 $query->where(function ($q) {
                     $q->where('auto_uwlr_import_status', self::AUTO_UWLR_IMPORT_STATUS_FAILED_TWICE) // failed twice
-                    ->where('auot_uwlr_last_import', '<=', Carbon::now()->subDay()); // but last try was more than a day ago
+                    ->where('auto_uwlr_last_import', '<=', Carbon::now()->subDay()); // but last try was more than a day ago
                 })
                     ->orWhere('auto_uwlr_import_status', '<>', self::AUTO_UWLR_IMPORT_STATUS_FAILED_TWICE); // or status unlike failed twice
             })
