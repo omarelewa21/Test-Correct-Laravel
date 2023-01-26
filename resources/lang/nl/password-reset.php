@@ -1,4 +1,4 @@
-<?php 
+<?php
 
     return[
         'Maak een nieuw wachtwoord' => 'Nieuw wachtwoord instellen',
@@ -16,7 +16,8 @@
         'Log in' => 'Log in',
         'Ben je een student?' => 'Ben je een student?',
         'Kijk hier' => 'Kijk hier',
-        
+        'Uitleg vervallen wachtwoord' => 'Het wachtwoord waarmee je hebt ingelogd is vervallen en moet gereset worden. Voer een nieuw wachtwoord in, herhaal deze en bevestig.',
+        'De twee wachtwoorden zijn niet hetzelfde' => 'De twee wachtwoorden zijn niet hetzelfde.',
     ];
 
 ?>

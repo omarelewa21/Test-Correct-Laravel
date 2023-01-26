@@ -68,6 +68,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         'uuid'               => EfficientUuid::class,
         'intense'            => 'boolean',
         'is_examcoordinator' => 'boolean',
+        'password_expiration_date' => 'datetime',
     ];
 
     /**
@@ -97,7 +98,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     protected $fillable = [
         'sales_organization_id', 'school_id', 'school_location_id', 'username', 'name_first', 'name_suffix', 'name',
         'password', 'external_id', 'gender', 'time_dispensation', 'text2speech', 'abbreviation', 'note', 'demo',
-        'invited_by', 'account_verified', 'test_take_code_id', 'guest', 'send_welcome_email', 'is_examcoordinator', 'is_examcoordinator_for'
+        'invited_by', 'account_verified', 'test_take_code_id', 'guest', 'send_welcome_email', 'is_examcoordinator', 'is_examcoordinator_for', 'password_expiration_date'
     ];
 
 
@@ -568,6 +569,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 $user->managerSchoolClasses ??= [];
                 $user->mentorSchoolClasses ??= [];
             }
+
+            $user->setForcePasswordChangeIfRequired();
 
             if ($user->isDirty(['is_examcoordinator', 'is_examcoordinator_for'])) {
                 $user->setAttribute('session_hash', '');

@@ -16,5 +16,6 @@
         'Log in' => 'Log in',
         'Ben je een student?' => 'Are you a student?',
         'Kijk hier' => 'Look here',
-
+        'Uitleg vervallen wachtwoord' => 'The password you used to log in has expired and needs to be reset. Enter a new password, repeat and confirm.',
+        'De twee wachtwoorden zijn niet hetzelfde' => 'The two passwords do not match.',
     ];

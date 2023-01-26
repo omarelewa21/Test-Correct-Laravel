@@ -176,14 +176,20 @@ class Login extends Component
         };
 
         $user = auth()->user();
+        $route = $user->getTemporaryCakeLoginUrl();
         if ($user->isA('Student') && $user->schoolLocation->allow_new_student_environment) {
-            return redirect()->intended(route('student.dashboard'));
+            $route = route('student.dashboard');
         }
+// Als dit ooit weer aangezet wordt, vergeet de redirect niet aan te passen naar zoiets als hierboven
 //        if ($user->isA('Account manager')) {
 //            return redirect()->intended(route('uwlr.grid'));
 //        }
 
-        auth()->user()->redirectToCakeWithTemporaryLogin();
+        $expiration_date = $user->password_expiration_date;
+        if($expiration_date && $expiration_date->lessThan(Carbon::now())) {
+            return $this->emit('openModal', 'force-password-change-modal');
+        }
+        return $this->redirect($route);
     }
 
     public function guestLogin()
