@@ -71,12 +71,17 @@ class UwlrImportHelper
                     $q->where('auto_uwlr_import_status', self::AUTO_UWLR_IMPORT_STATUS_FAILED_TWICE) // failed twice
                     ->where('auto_uwlr_last_import', '<=', Carbon::now()->subDay()); // but last try was more than a day ago
                 })
-                    ->orWhere('auto_uwlr_import_status', '<>', self::AUTO_UWLR_IMPORT_STATUS_FAILED_TWICE); // or status unlike failed twice
+                    ->orWhere('auto_uwlr_import_status', '<>', self::AUTO_UWLR_IMPORT_STATUS_FAILED_TWICE) // or status unlike failed twice
+                    ->orWhereNull('auto_uwlr_import_status');
             })
             ->where(function ($query) {
                 $query->where(function ($q) {
                     $q->whereRaw('Date(auto_uwlr_last_import) <> CURDATE()') // don't handle twice a day
-                    ->where('auto_uwlr_import_status', '<>', self::AUTO_UWLR_IMPORT_STATUS_FAILED);
+                    ->where(function($t) {
+                        $t->where('auto_uwlr_import_status', '<>', self::AUTO_UWLR_IMPORT_STATUS_FAILED)
+                        ->
+                        orWhereNull('auto_uwlr_import_status');
+                    });
                 })
                     ->orwhere('auto_uwlr_import_status',  self::AUTO_UWLR_IMPORT_STATUS_FAILED)
                     ->orWhereNull('auto_uwlr_last_import');
