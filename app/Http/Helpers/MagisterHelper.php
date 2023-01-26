@@ -35,6 +35,9 @@ class MagisterHelper
     private $brinCode;
     private $dependanceCode;
 
+    protected $soapError;
+    protected $soapException;
+
     public function __construct($isTestSet = false)
     {
         $this->isTestSet = $isTestSet;
