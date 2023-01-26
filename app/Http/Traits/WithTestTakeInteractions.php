@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 
 trait WithTestTakeInteractions
 {
-    public function openTestTakeDetail($testTakeUuid)
+    public function openTestTakeDetail($testTakeUuid, ?string $pageAction = null)
     {
         $pageNumber = session()->get(TestTakeOverview::PAGE_NUMBER_SESSION_KEY);
         
@@ -22,6 +22,6 @@ trait WithTestTakeInteractions
         
         $returnRoute = Str::replaceFirst(config('app.base_url'), '', Livewire::originalUrl().'?page='. $pageNumber);
         
-        return TestTake::redirectToDetail($testTakeUuid, $returnRoute);
+        return TestTake::redirectToDetail($testTakeUuid, $returnRoute, $pageAction);
     }
 }

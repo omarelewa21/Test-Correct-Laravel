@@ -1,9 +1,17 @@
 <x-menu.context-menu.base context="test-take-card" class="w-60">
 
     @if($this->hasArchiveOption())
-        <x-menu.context-menu.button wire:click="openTestTake">
-            <x-slot name="icon"><x-icon.arrow/></x-slot>
-            <x-slot name="text">{{ __('test-take.Open') }}</x-slot>
+        <x-menu.context-menu.button wire:click="copyTestTakeLink">
+            <x-slot name="icon"><x-icon.copy/></x-slot>
+            <x-slot name="text">{{ __('test-take.copy-link') }}</x-slot>
+        </x-menu.context-menu.button>
+        <x-menu.context-menu.button wire:click="goToCoLearningPage">
+            <x-slot name="icon"><x-icon.filled-arrow/></x-slot>
+            <x-slot name="text">{{ __('test-take.CO-Learning') }}</x-slot>
+        </x-menu.context-menu.button>
+        <x-menu.context-menu.button wire:click="goToScheduleMakeUpPage">
+            <x-slot name="icon"><x-icon.schedule/></x-slot>
+            <x-slot name="text">{{ __('test-take.schedule-make-up-test') }}</x-slot>
         </x-menu.context-menu.button>
         @if($this->hasAnswerPdfOption())
             <x-menu.context-menu.button wire:click="studentAnswersPdf">
@@ -24,7 +32,9 @@
         <x-menu.context-menu.button wire:click="archive">
             <x-slot name="icon"><x-icon.archive/></x-slot>
             <x-slot name="text">{{ __('test-take.Archiveren') }}</x-slot>
-        </x-menu.context-menu.button>   
+        </x-menu.context-menu.button>
+
+        <x-copy-to-clipboard/>  
     @endif
     @if($this->hasUnarchiveOption())
         <x-menu.context-menu.button wire:click="unarchive">

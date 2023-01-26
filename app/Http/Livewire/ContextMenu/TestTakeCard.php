@@ -3,6 +3,7 @@
 namespace tcCore\Http\Livewire\ContextMenu;
 
 use Illuminate\Support\Facades\Auth;
+use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Http\Traits\WithTestTakeInteractions;
 use tcCore\TemporaryLogin;
 use tcCore\TestTake;
@@ -98,5 +99,33 @@ class TestTakeCard extends ContextMenuComponent
             ->update(['test_take_status_id' => TestTakeStatus::STATUS_TAKEN]);
         $this->dispatchBrowserEvent('notify', ['message' => __('test_take.update_to_taken_toast')]);
         $this->emit('update-test-take-overview');
+    }
+
+    public function copyTestTakeLink()
+    {
+        $testTake = TestTake::whereUuid($this->uuid)->firstOrFail();
+        $this->dispatchBrowserEvent(
+            'copy-to-clipboard',
+            [
+                'message'       => $testTake->directLink,
+                'notification'  => $testTake->isAssessmentType() ? __('teacher.assignment_clipboard_copied') : __('teacher.clipboard_copied')
+            ]
+        );
+    }
+
+    public function goToCoLearningPage()
+    {
+        $testTake = TestTake::whereUuid($this->uuid)->with('test', 'testParticipants')->firstOrFail();
+
+        $pageAction = sprintf('TestTake.checkStartDiscussion("%s", %s, %s)', $this->uuid, 
+            $testTake->test->hasOpenQuestion() ? 'false' : 'true', $testTake->hasNonActiveParticipant() ? 'true' : 'false'
+        );
+
+        return $this->openTestTakeDetail($this->uuid, $pageAction);
+    }
+
+    public function goToScheduleMakeUpPage()
+    {
+        return CakeRedirectHelper::redirectToCake('taken.schedule_makeup', $this->uuid);
     }
 }
