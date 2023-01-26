@@ -235,11 +235,13 @@ class CreateUserRequest extends Request {
     private function setSchoolLocationForRequest(): void
     {
         if (Auth::user()->isA('Administrator')) {
-            if (!request()->has('school_location_id')) {
-                throw new \Exception('Administrator provided no school_location_id for the creation of a user.');
-            }
+            if(request()->has('user_roles') && !collect(request()->user_roles)->contains(5)) {
+                if (!request()->has('school_location_id')) {
+                    throw new \Exception('Administrator provided no school_location_id for the creation of a user.');
+                }
 
-            $this->schoolLocationId = request()->get('school_location_id');
+                $this->schoolLocationId = request()->get('school_location_id');
+            }
             return;
         }
 
