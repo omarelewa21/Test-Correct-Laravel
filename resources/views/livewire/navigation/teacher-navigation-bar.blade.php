@@ -4,7 +4,7 @@
     <div id="menu-top" class="menu-top" x-ref="menu_top">
         <div class="action-icon-container">
             @if(session()->has('support.name'))
-                <div class="action-icon menu-chat-icon" style="color: red" title="stop support" wire:click="cakeRedirect('support.return_as_support_user','{{session()->get('support.id')}}')">
+                <div class="action-icon menu-chat-icon" style="color: red" title="stop support" wire:click="laravelRedirect('{{route('support.return_as_support_user')}}')">
                     <svg xmlns="http://www.w3.org/2000/svg" style="height: 30px; width:30px" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
                     </svg>
