@@ -2788,4 +2788,18 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 )
         );
     }
+
+    private function setForcePasswordChangeIfRequired(): void
+    {
+        if (app()->runningInConsole()) return;
+        if (!$this->isDirty(['password'])) {
+            return;
+        }
+
+        if(Auth::id() && Auth::id() !== $this->id) {
+            $this->password_expiration_date = Carbon::now();
+            return;
+        }
+        $this->password_expiration_date = null;
+    }
 }
