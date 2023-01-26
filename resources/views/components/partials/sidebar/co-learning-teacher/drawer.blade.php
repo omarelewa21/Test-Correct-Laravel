@@ -48,6 +48,9 @@
                     @endif
                 @endforeach
 
+                <div @click="showStudentAnswer = true"
+                     wire:click.prevent="showStudentAnswer('{{ 535/*$testParticipant->discussing_answer_rating_id*/ }}')">jup</div>
+
             </div>
         </div>
 

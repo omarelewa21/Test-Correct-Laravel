@@ -2,7 +2,7 @@
 'question',
 ])
 @php
-    $editorId = 'test'.$this->questionIndex;
+    $editorId = 'question'.$this->questionIndex;
 @endphp
 
 <div class="flex flex-col pt-[14px] pb-[33px] px-10 content-section rs_readable relative"
@@ -78,7 +78,7 @@
             @endforeach
         </div>
         @if($question->type !== 'CompletionQuestion')
-            <div>
+            <div class="mb-2">
                 {!! $question->getQuestionInstance()->question !!}
             </div>
         @endif
@@ -87,10 +87,13 @@
             <div class="w-full">
                 <div class="relative">
                     @if($question->type === 'OpenQuestion')
-                        @if($question->subtype === 'medium' || $question->subtype === 'long')
+                        @if($question->subtype === 'medium'
+                        || $question->subtype === 'long'
+                        || $question->subtype === 'writing'
+                        )
 
                             <div wire:ignore>
-                                <span>{!! __('test_take.instruction_open_question') !!}</span>
+                                <span class="mt-2">{!! __('test_take.instruction_open_question') !!}</span>
                                 <x-input.group class="w-full" label="" style="position: relative;">
                                     <textarea id="{{ $editorId }}" name="{{ $editorId }}"
                                               x-init="
@@ -122,7 +125,9 @@
                         @endif
 
                     @elseif($question->type === 'CompletionQuestion')
-                        {!! $this->convertCompletionQuestionToHtml() !!}
+                        <div class="pt-2">
+                            {!! $this->convertCompletionQuestionToHtml() !!}
+                        </div>
                     @endif
                 </div>
             </div>

@@ -24,14 +24,13 @@
                     @else
                         <x-not-answered/>
                     @endif--}}
-            <div class="absolute right-[-14px] group"
-                 style="right: 20px"
+            <div class="hide-on-smartboard group"
                  @click="showStudentAnswer = false"
                  wire:click.prevent="closeStudentAnswer()"
             >
-                <div class="w-10 h-10 rounded-full flex items-center justify-center group-hover:bg-primary group-hover:opacity-[0.05]"></div>
+                <div class="group-hover:bg-primary group-hover:opacity-[0.05]"></div>
                 <template x-if="true">
-                    <x-icon.on-smartboard-hide class="absolute left-4 top-[14px]"
+                    <x-icon.on-smartboard-hide
                     />
                 </template>
             </div>

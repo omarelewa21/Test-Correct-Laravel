@@ -38,6 +38,11 @@ class TestTake extends BaseModel
     use UuidTrait;
     use Archivable;
 
+    /**
+     * Stops the appended attributes from being loaded at every TestTake hydratation if false
+     */
+    public static $withAppends = true;
+
     protected $casts = [
         'uuid'              => EfficientUuid::class,
         'notify_students'   => 'boolean',
@@ -784,11 +789,19 @@ class TestTake extends BaseModel
 
     public function getExportedToRttiFormatedAttribute()
     {
+        if($this->shouldNotAppend()) {
+            return null;
+        }
+
         return array_key_exists('exported_to_rtti',$this->attributes) && $this->attributes['exported_to_rtti'] ? Carbon::parse($this->attributes['exported_to_rtti'])->format('d-m-Y H:i:s') : 'Nog niet geëxporteerd';
     }
 
     public function getInvigilatorsAcceptableAttribute()
     {
+        if($this->shouldNotAppend()) {
+            return null;
+        }
+
         if($this->hasValidInvigilators()){
             return true;
         }
@@ -800,6 +813,10 @@ class TestTake extends BaseModel
 
     public function getInvigilatorsUnacceptableMessageAttribute()
     {
+        if($this->shouldNotAppend()) {
+            return null;
+        }
+
         if($this->hasValidInvigilators()){
             return '';
         }
@@ -810,6 +827,10 @@ class TestTake extends BaseModel
     }
 
     public function getDirectLinkAttribute(){
+        if($this->shouldNotAppend()) {
+            return null;
+        }
+
         return config('app.base_url') ."directlink/". $this->uuid;
     }
 
@@ -1229,5 +1250,13 @@ class TestTake extends BaseModel
             )
             ->whereTestTakeId($this->getKey())
             ->exists();
+    }
+
+    /**
+     * Stop appended attributes from being loaded at every TestTake hydratation
+     **/
+    public function shouldNotAppend() : bool
+    {
+        return !static::$withAppends;
     }
 }

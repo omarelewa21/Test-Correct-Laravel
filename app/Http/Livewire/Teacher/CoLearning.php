@@ -3,10 +3,13 @@
 namespace tcCore\Http\Livewire\Teacher;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
+use PHPUnit\Util\Test;
 use tcCore\Answer;
 use tcCore\AnswerRating;
+use tcCore\CompletionQuestion;
 use tcCore\Events\CoLearningNextQuestion;
 use tcCore\Http\Controllers\TestTakeLaravelController;
 use tcCore\Http\Controllers\TestTakesController;
@@ -35,8 +38,8 @@ class CoLearning extends Component
 
     //answerRating properties
     public $activeAnswerRating = null;
-    public $activeAnswer = null;
     public $activeAnswerText = null;
+    public $activeAnswerAnsweredStatus;
 
     //Question Navigation properties
     public $questionsOrderList;
@@ -48,6 +51,9 @@ class CoLearning extends Component
     public int $questionCountOpenOnly;
     public int $questionIndex;
     public int $questionIndexOpenOnly;
+
+    //CompletionQuestion specific properties
+    public int $completionQuestionTagCount = 0;
 
     public function mount(TestTake $test_take)
     {
@@ -67,23 +73,30 @@ class CoLearning extends Component
         $this->getStaticNavigationData();
     }
 
-    public function render()
+    public function boot()
+    {
+        TestTake::$withAppends = false;
+    }
+
+    public function booted()
     {
         $this->getTestParticipantsData();
-
-//        $this->getCompletionQuestionAnswers();
-//        dd($this->testTake->discussingQuestion);
 
         $this->handleTestParticipantStatusses(); //todo move to polling method
 
         $this->getNavigationData();
+    }
 
+    public function render()
+    {
         return view('livewire.teacher.co-learning')
             ->layout('layouts.co-learning-teacher');
     }
 
     public function nextDiscussionQuestion()
     {
+        $this->removeChangesFromTestTakeModel();
+
         //do i have to refresh/fresh the TestTake before passing it to the controller?
         $this->testTake = (new TestTakesController)->nextQuestion($this->testTake, false);
     }
@@ -120,47 +133,26 @@ class CoLearning extends Component
 
     public function goToPreviousQuestion()
     {
-        /*TODO
-         * NEW FUNCTIONALITY! DOESNT WORK WITH OLD CO_LEARNING CONTROLLERS!
-         * Get the previous Question, make all students go to the previous question
-         */
-
-        //todo
-        // * find previous question id in question order list.
-        // * set testTake->discussing_question_id
-        if (!$this->testTake->update(['discussing_question_id' => $this->previousQuestionId])) {
+        if (!$this->updateDiscussingQuestionIdOnTestTake()) {
             //todo what to do if updating fails?
             return false;
         }
-        //!!! REMOVE RECORDS OF discussingParentQuestions to prevent errors.
+
         $this->testTake->discussingParentQuestions()->delete();
 
-        foreach ($this->testTake->testParticipants as $testParticipant) {
-            CoLearningNextQuestion::dispatch($testParticipant->uuid);
-        }
+        //Pusher is not yet implemented at the student side of Co-Learning
+//        foreach ($this->testTake->testParticipants as $testParticipant) {
+//            CoLearningNextQuestion::dispatch($testParticipant->uuid);
+//        }
     }
 
     public function showStudentAnswer($id)
     {
         $this->activeAnswerRating = AnswerRating::with('answer')->find($id);
 
-        $this->activeAnswer = $this->activeAnswerRating->answer;
+        $this->setActiveAnswerAnsweredStatus();
 
-        //todo completion question handle answer options to Html
-
-        $array = json_decode(
-            json: $this->activeAnswer->json,
-            associative: true
-        );
-
-        if (isset($array['value'])) {
-            $this->activeAnswerText = $array['value'];
-            return;
-        }
-        //todo transform array of values to a filled in answer text for 'completion question'
-
-        $this->activeAnswerText = $this->testTake->discussingQuestion->getQuestionInstance()->question . collect($array)->join(' & ');
-        //TODO show the answer, the student is now rating, on the teacher screen.
+        $this->setActiveAnswerText();
     }
 
     public function closeStudentAnswer()
@@ -169,6 +161,8 @@ class CoLearning extends Component
 
         $this->activeAnswer = null;
         $this->activeAnswerText = null;
+
+        $this->activeAnswerAnsweredStatus = null;
     }
 
     /* end sidebar methods */
@@ -205,11 +199,16 @@ class CoLearning extends Component
 
     public function getAnswerModelHtmlProperty()
     {
-        $question =  $this->testTake->discussingQuestion;
-        if($question->type === 'CompletionQuestion') {
-            //fill inputs with correct answers
-            return $this->convertCompletionQuestionToHtml($question->completionQuestionAnswers);
+        $question = $this->testTake->discussingQuestion;
+
+        if ($question instanceof CompletionQuestion) {
+
+            return $this->convertCompletionQuestionToHtml(
+                $this->uniformCompletionQuestionAnswersDataObject('answer_model')
+            );
+//            return $this->convertCompletionQuestionToHtml($question->completionQuestionAnswers()->get());
         };
+
 //        dd($question->completionQuestionAnswers);
 
         return $question->answer;
@@ -363,7 +362,7 @@ class CoLearning extends Component
 
     public function setVideoTitle() {}
 
-    private function convertCompletionQuestionToHtml($answers = null)
+    private function convertCompletionQuestionToHtml(?Collection $answers = null)
     {
         $question = $this->testTake->discussingQuestion;
 
@@ -371,10 +370,12 @@ class CoLearning extends Component
 
         $question_text = $question->converted_question_html;
 
+        $this->completionQuestionTagCount = 0;
+
         $searchPattern = "/\[([0-9]+)\]/i";
         $replacementFunction = function ($matches) use ($question, $answers) {
+            $this->completionQuestionTagCount++;
             $tag_id = $matches[1];
-//            $events = sprintf('@blur="$refs.%s.scrollLeft = 0" @input="$event.target.setAttribute(\'title\', $event.target.value);"', 'comp_answer_' . $tag_id);
             $events = '';
             $rsSpan = '';
             return sprintf(
@@ -391,11 +392,102 @@ class CoLearning extends Component
         return preg_replace_callback($searchPattern, $replacementFunction, $question_text);
     }
 
-    public function getCompletionQuestionAnswers()
+    protected function updateDiscussingQuestionIdOnTestTake(): bool
     {
-        $question = $this->testTake->discussingQuestion;
+        $this->removeChangesFromTestTakeModel();
+
+        return $this->testTake->update(['discussing_question_id' => $this->previousQuestionId]);
+    }
+
+    /**
+     * @return void
+     */
+    public function removeChangesFromTestTakeModel(): void
+    {
+        $additionalDirtyAttributesWeDontWantToSave = collect(
+            array_keys($this->testTake->getAttributes())
+        )->diff(
+            array_keys($this->testTake->getOriginal())
+        );
+
+        $additionalDirtyAttributesWeDontWantToSave->each(function ($attribute) {
+            unset($this->testTake->$attribute);
+        });
+    }
 
 
-//        $question->completionQuestionAnswers;
+    protected function uniformCompletionQuestionAnswersDataObject($source = null)
+    {
+        switch ($source) {
+            case 'answer_model':
+                // [ 0 => completionQuestionAnswer { tag => ; answer => ; }
+                return $this->testTake->discussingQuestion->completionQuestionAnswers()->get()
+                    ->map(function ($answer) {
+                        $result = new \stdClass();
+                        $result->tag = $answer->tag;
+                        $result->answer = $answer->answer;
+                        return $result;
+                    });
+            case 'student_answer':
+            case 'answer_rating':
+            case 'answers':
+                // [ 0 => [ 0 => 'answer', 1 => 'answer']]
+                return collect(json_decode(
+                    json: $this->activeAnswerRating->answer->json,
+                    associative: true
+                ))->mapWithKeys(function ($answer, $tag) {
+                    $result = new \stdClass();
+                    $result->tag = $tag + 1; //database value is 0 based, tags are 1 based
+                    $result->answer = $answer;
+                    return [$tag => $result];
+                });
+            default:
+                return null;
+        }
+    }
+
+    /**
+     * Set Active student answer Answered status:
+     *  - answered
+     *  - partly-answered
+     *  - not-answered
+     */
+    public function setActiveAnswerAnsweredStatus()
+    {
+        if(!$this->activeAnswerRating->answer->isAnswered) {
+            $this->activeAnswerAnsweredStatus = 'not-answered';
+            return;
+        }
+        if($this->testTake->discussingQuestion instanceof CompletionQuestion) {
+            $this->activeAnswerAnsweredStatus =  (collect($this->activeAnswerRating->answer)->count() === $this->completionQuestionTagCount)
+                ? 'answered'
+                : 'partly-answered';
+            return;
+        }
+        $this->activeAnswerAnsweredStatus = 'answered';
+    }
+
+    public function setActiveAnswerText() : void
+    {
+        if ($this->testTake->discussingQuestion instanceof CompletionQuestion) {
+            $this->activeAnswerText = $this->convertCompletionQuestionToHtml(
+                $this->uniformCompletionQuestionAnswersDataObject('answers')
+            );
+            return;
+        }
+
+        $array = json_decode(
+            json: $this->activeAnswerRating->answer->json,
+            associative: true
+        );
+
+        //todo check if this covers all question types
+        // - add drawing question answer?
+        if (isset($array['value'])) {
+            $this->activeAnswerText = $array['value'];
+            return;
+        }
+
+        $this->activeAnswerText = '';
     }
 }

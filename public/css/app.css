@@ -5184,6 +5184,26 @@ input.datepicker {
     color: white;
 }
 
+#co-learning-teacher-page .hide-on-smartboard {
+    position: absolute;
+    right: 20px;
+}
+#co-learning-teacher-page .hide-on-smartboard div {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 9999px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+}
+#co-learning-teacher-page .hide-on-smartboard svg {
+    position: absolute;
+    top: 12px;
+    left: 9px;
+    color: var(--system-base);
+}
+
 /* height:
  *  Footer = 70px
  *  content-head = 50px
@@ -8334,11 +8354,11 @@ video {
 .right-\[-14px\]{
   right: -14px;
 }
-.left-4{
-  left: 1rem;
-}
 .top-\[14px\]{
   top: 14px;
+}
+.left-4{
+  left: 1rem;
 }
 .right-4{
   right: 1rem;
