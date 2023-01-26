@@ -6146,8 +6146,10 @@ document.addEventListener('alpine:init', function () {
         return this.activeFiltersContainer.querySelector(this.getDataSelector(item)) === null;
       },
       clearFilterPill: function clearFilterPill(item) {
-        var _this$activeFiltersCo;
-        return (_this$activeFiltersCo = this.activeFiltersContainer.querySelector(this.getDataSelector(item))) === null || _this$activeFiltersCo === void 0 ? void 0 : _this$activeFiltersCo.remove();
+        var _document$querySelect;
+        return (_document$querySelect = document.querySelectorAll(this.getDataSelector(item))) === null || _document$querySelect === void 0 ? void 0 : _document$querySelect.forEach(function (el) {
+          return el.remove();
+        });
       },
       getValidatedEventValue: function getValidatedEventValue(event) {
         var eventValue = event.detail.choice.value;
