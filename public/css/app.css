@@ -802,6 +802,33 @@ button.cta-button:disabled, a.cta-button:disabled {
     background-color: #929daf;
     padding: 0.4rem 0.3rem;
 }
+
+.resizers .resizer{
+    width: 10px;
+    height: 10px;
+    border-radius: 50%; /*magic to turn square into circle*/
+    position: absolute;
+}
+.resizers .resizer.top-left {
+    left: -5px;
+    top: -5px;
+    cursor: nwse-resize; /*resizer cursor*/
+}
+.resizers .resizer.top-right {
+    right: -5px;
+    top: -5px;
+    cursor: nesw-resize;
+}
+.resizers .resizer.bottom-left {
+    left: -5px;
+    bottom: -5px;
+    cursor: nesw-resize;
+}
+.resizers .resizer.bottom-right {
+    right: -5px;
+    bottom: -5px;
+    cursor: nwse-resize;
+}
 .form-input {
     padding: 0 10px 0 10px;
     height: 40px;
@@ -8114,6 +8141,9 @@ video {
 .top-10{
   top: 2.5rem;
 }
+.left-10{
+  left: 2.5rem;
+}
 .top-5{
   top: 1.25rem;
 }
@@ -8529,6 +8559,9 @@ video {
 }
 .-mt-1{
   margin-top: -0.25rem;
+}
+.box-border{
+  box-sizing: border-box;
 }
 .block{
   display: block;
