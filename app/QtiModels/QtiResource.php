@@ -48,7 +48,7 @@ class QtiResource
         }
         $this->test = $test;
 
-        logger(sprintf('import started for resource %s, %s, %s', $this->href, $this->type, $this->identifier));
+//        logger(sprintf('import started for resource %s, %s, %s', $this->href, $this->type, $this->identifier));
     }
 
     public function addMetaData($key, $value)

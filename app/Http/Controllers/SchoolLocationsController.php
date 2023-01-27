@@ -140,8 +140,6 @@ class SchoolLocationsController extends Controller {
             $schoolLocation->addDefaultSectionsAndSubjects();
             return Response::make($schoolLocation);
         } catch(\Throwable $th){
-            logger('#### default sections and subjects error ####');
-            logger($th->getMessage());
             Bugsnag::notifyException($th);
             return Response::make($th->getMessage(),500);
         }

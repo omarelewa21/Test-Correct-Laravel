@@ -100,7 +100,6 @@ class ScheduleMailToTeachersOneYearInactive extends Command
                 Mail::to($inactiveTeacher->username)->queue(new SendInactiveUserMail($inactiveTeacher->id));
             } catch (\Throwable $th) {
                 Bugsnag::notifyException($th);
-                logger('failed' . $th);
                 return $this->error($th->getMessage());
             }
         }

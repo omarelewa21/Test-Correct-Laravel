@@ -156,7 +156,6 @@ class UsersController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            logger('Failed to switch school location of teacher' . $e);
             return Response::make('Failed to switch school location of teacher,' . print_r($e->getMessage(), true), 500);
         }
         DB::commit();
@@ -520,7 +519,6 @@ class UsersController extends Controller
             });
         } catch (\Exception $e) {
             DB::rollBack();
-            logger('Failed to import teachers' . $e);
             return Response::make('Failed to import teachers' . print_r($e->getMessage(), true), 500);
         }
         DB::commit();

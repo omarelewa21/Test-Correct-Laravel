@@ -65,13 +65,8 @@ class Deployment extends Model
 
     public function callCakeForMaintenanceCheck()
     {
-        logger('Deployment: ready to call Cake');
         $client = new Client();
         $url = sprintf('%sdeployment_maintenance/check_for_maintenance?%d',config('app.url_login'),date("YmdHis"));
         $res = $client->request('GET',$url);
-        logger('Deployment: url to call '.$url);
-        logger('Deployment: response from url ');
-        logger('Deployment: statuscode '.$res->getStatusCode());
-        logger($res->getBody());
     }
 }

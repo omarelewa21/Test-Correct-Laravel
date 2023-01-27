@@ -858,10 +858,10 @@ class EntreeHelper
 
     protected function addLogRows($functionName)
     {
-        logger($functionName);
-        logger('id of laravel user ' . optional($this->laravelUser)->getKey());
+//        logger($functionName);
+//        logger('id of laravel user ' . optional($this->laravelUser)->getKey());
         $this->attr['eckId'][0] = substr($this->attr['eckId'][0], -10);
-        logger($this->attr);
+//        logger($this->attr);
     }
 
     public function handleScenario1($options = null)

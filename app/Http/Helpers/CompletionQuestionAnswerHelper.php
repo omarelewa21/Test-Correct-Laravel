@@ -188,7 +188,7 @@ class CompletionQuestionAnswerHelper
             });
         } catch (\Exception $e) {
             DB::rollback();
-            logger('===== completion question answer fix error' . $e->getMessage());
+
             throw $e;
         }
 

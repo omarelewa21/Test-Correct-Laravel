@@ -444,7 +444,6 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 $user = User::find($record->user_id);
                 if (null === $user) {
                     $message = (sprintf('THIS SHOULD NOT HAPPEN (did found eckid but no user): Can not find user for id %d', $record->user_id));
-                    logger($message);
                     Bugsnag::notifyException(new \Exception($message));
                     return false;
                 }
