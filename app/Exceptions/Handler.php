@@ -66,6 +66,7 @@ class Handler extends ExceptionHandler
 
             throw new HttpResponseException(new Response($e), 422);
         } else if($e instanceof UwlrAutoImportException){
+            logger('going to send exception mail as we are in the Exception Handler.php');
             $this->sendExceptionMail($e->getMessage(), $e->getFile(),$e->getLine(),[],'TLC: Error while handling uwlr import');
             return false;
         } else if($e instanceof CleanRedirectException){
