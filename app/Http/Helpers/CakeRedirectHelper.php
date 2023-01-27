@@ -44,8 +44,19 @@ class CakeRedirectHelper
         if (!is_array($cakeRedirectData)) {
             $cakeRedirectData = [
                 'page'        => '/',
-                'page_action' => "Navigation.load('$cakeRedirectData')"
+                'page_action' => "Navigation.load('$cakeRedirectData')",
             ];
+        }
+
+        if (session()->has('support')){
+            $cakeRedirectData = array_merge($cakeRedirectData,
+                [
+                    'support' => [
+                        'id'=> session()->get('support.id'),
+                        'name'=> session()->get('support.name'),
+                        ]
+                ]
+            );
         }
 
         $request->merge([
@@ -102,7 +113,6 @@ class CakeRedirectHelper
             'new_analyses.classes'        => '/teacher_analyses',
             'classes.my_classes'          => '/teacher_classes',
             'classes.my_schoollocation'   => '/teacher_classes/school_location_classes',
-            'support.return_as_support_user'=> sprintf('/support/return_as_support_user/%s', $this->uuid),
             'update-password'             => [
                 'page'        => '/users/welcome',
                 'page_action' => 'User.resetPassword();'
