@@ -101,9 +101,6 @@ class UwlrImportHelper
             }
             $schoolYear = $schoolYears[0];
             $helper = static::getHelperAndStoreInDB($schoolLocation->lvs_type, $schoolYear, $schoolLocation->external_main_code, $schoolLocation->external_sub_code);
-            if($helper->hasException()){
-                throw new UwlrAutoImportException($helper->getException());
-            }
             $schoolLocation->auto_uwlr_import_status = self::AUTO_UWLR_IMPORT_STATUS_PLANNED;
             $schoolLocation->save();
             $resultSet = $helper->getResultSet();
