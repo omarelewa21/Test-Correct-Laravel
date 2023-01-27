@@ -18,7 +18,7 @@
         $host = \tcCore\Attachment::getVideoHost($attachment->link);
     }
     if(isset($this->questionId)) {
-        $questionId = $questionId;
+        $questionId = $this->questionId;
     }
 @endphp
 

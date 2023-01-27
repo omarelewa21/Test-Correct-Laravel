@@ -1,7 +1,9 @@
 @props([
 'question',
 ])
-<div x-show="showStudentAnswer" x-cloak x-collapse.duration.500ms
+<div x-show="showStudentAnswer"
+     x-collapse.duration.500ms
+     x-cloak
 >
 
     <div class="flex flex-col pt-[14px] pb-[33px] px-10 content-section rs_readable relative transition"
@@ -24,9 +26,23 @@
                     @else
                         <x-not-answered/>
                     @endif--}}
+            <div class="answered-status-badge">
+                @switch($this->activeAnswerAnsweredStatus)
+                    @case('answered')
+                        <x-answered/>
+                        @break
+                    @case('partly-answered')
+                        <x-partly-answered/>
+                        @break
+                    @case('not-answered')
+                        <x-partly-answered/>
+                        @break
+                    @default
+                @endswitch
+            </div>
             <div class="hide-on-smartboard group"
                  @click="showStudentAnswer = false"
-                 wire:click.prevent="closeStudentAnswer()"
+                 wire:click.prevent="resetActiveAnswer()"
             >
                 <div class="group-hover:bg-primary group-hover:opacity-[0.05]"></div>
                 <template x-if="true">
@@ -46,6 +62,25 @@
         <div x-show="!collapsed" x-collapse.duration.500ms x-cloak>
 
             <div class="questionContainer w-full">
+                @if(true)
+                    <div class="w-full flex items-center justify-center">
+                        <div class="relative w-fit">
+                            @if($this->activeAnswerText)
+                                <img src="{{ $this->activeAnswerText }}"
+                                     class="border border-blue-grey rounded-10 w-fit"
+                                     alt="Drawing answer"
+                                     style="width: {{ $this?->activeDrawingAnswerDimensions['width'] }}; height:  {{ $this?->activeDrawingAnswerDimensions['height'] }}"
+                                >
+                                <div class="absolute bottom-4 right-4">
+                                    <x-button.secondary wire:click="$emit('openModal', 'co-learning.drawing-question-preview-modal', {imgSrc: '{{ $this->activeAnswerText }}' })">
+                                        <x-icon.screen-expand/>
+                                        <span>{{ __('co-learning.view_larger') }}</span>
+                                    </x-button.secondary>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                @else
                 <div class="w-full">
                     <div class="relative">
                         <x-input.group for="me" class="w-full disabled mt-4">
@@ -55,6 +90,7 @@
                         </x-input.group>
                     </div>
                 </div>
+                @endif
             </div>
 
         </div>

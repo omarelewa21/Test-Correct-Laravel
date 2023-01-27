@@ -5204,12 +5204,19 @@ input.datepicker {
     color: var(--system-base);
 }
 
-/* height:
- *  Footer = 70px
- *  content-head = 50px
- *  header = 70px
- * total = 190px
-*/
+
+#co-learning-teacher-page .answered-status-badge {
+    position: absolute;
+    top: 7px;
+    right: 70px;
+}
+
+    /* height:
+     *  Footer = 70px
+     *  content-head = 50px
+     *  header = 70px
+     * total = 190px
+    */
 
 #co-learning-teacher-page #main-content-container {
     top: 70px;
@@ -10430,6 +10437,9 @@ video {
 }
 .pt-16{
   padding-top: 4rem;
+}
+.pb-14{
+  padding-bottom: 3.5rem;
 }
 .pr-2\.5{
   padding-right: 0.625rem;

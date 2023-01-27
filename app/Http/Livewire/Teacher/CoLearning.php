@@ -10,6 +10,7 @@ use PHPUnit\Util\Test;
 use tcCore\Answer;
 use tcCore\AnswerRating;
 use tcCore\CompletionQuestion;
+use tcCore\DrawingQuestion;
 use tcCore\Events\CoLearningNextQuestion;
 use tcCore\Http\Controllers\TestTakeLaravelController;
 use tcCore\Http\Controllers\TestTakesController;
@@ -54,6 +55,7 @@ class CoLearning extends Component
 
     //CompletionQuestion specific properties
     public int $completionQuestionTagCount = 0;
+    public ?Collection $activeDrawingAnswerDimensions;
 
     public function mount(TestTake $test_take)
     {
@@ -146,23 +148,26 @@ class CoLearning extends Component
 //        }
     }
 
-    public function showStudentAnswer($id)
+    public function showStudentAnswer($id): bool
     {
         $this->activeAnswerRating = AnswerRating::with('answer')->find($id);
 
         $this->setActiveAnswerAnsweredStatus();
 
         $this->setActiveAnswerText();
+
+        return true;
     }
 
-    public function closeStudentAnswer()
+    public function resetActiveAnswer()
     {
         $this->activeAnswerRating = null;
 
-        $this->activeAnswer = null;
         $this->activeAnswerText = null;
 
         $this->activeAnswerAnsweredStatus = null;
+
+        $this->activeDrawingAnswerDimensions = null;
     }
 
     /* end sidebar methods */
@@ -179,6 +184,8 @@ class CoLearning extends Component
 
     public function getPreviousQuestionIdProperty()
     {
+        $this->resetActiveAnswer();
+
         $currentQuestionOrder = $this->questionsOrderList[$this->testTake->discussing_question_id]['order'];
 
         return $this->questionsOrderList
@@ -189,6 +196,8 @@ class CoLearning extends Component
 
     public function getNextQuestionIdProperty()
     {
+        $this->resetActiveAnswer();
+
         $currentQuestionOrder = $this->questionsOrderList[$this->testTake->discussing_question_id]['order'];
 
         return $this->questionsOrderList
@@ -360,6 +369,7 @@ class CoLearning extends Component
         $this->lastQuestionId = $this->questionsOrderList->sortBy('order')->last()['id'];
     }
 
+    //code breaks without this method present:
     public function setVideoTitle() {}
 
     private function convertCompletionQuestionToHtml(?Collection $answers = null)
@@ -454,12 +464,12 @@ class CoLearning extends Component
      */
     public function setActiveAnswerAnsweredStatus()
     {
-        if(!$this->activeAnswerRating->answer->isAnswered) {
+        if (!$this->activeAnswerRating->answer->isAnswered) {
             $this->activeAnswerAnsweredStatus = 'not-answered';
             return;
         }
-        if($this->testTake->discussingQuestion instanceof CompletionQuestion) {
-            $this->activeAnswerAnsweredStatus =  (collect($this->activeAnswerRating->answer)->count() === $this->completionQuestionTagCount)
+        if ($this->testTake->discussingQuestion instanceof CompletionQuestion) {
+            $this->activeAnswerAnsweredStatus = (collect($this->activeAnswerRating->answer)->count() === $this->completionQuestionTagCount)
                 ? 'answered'
                 : 'partly-answered';
             return;
@@ -467,12 +477,26 @@ class CoLearning extends Component
         $this->activeAnswerAnsweredStatus = 'answered';
     }
 
-    public function setActiveAnswerText() : void
+    public function setActiveAnswerText(): void
     {
         if ($this->testTake->discussingQuestion instanceof CompletionQuestion) {
             $this->activeAnswerText = $this->convertCompletionQuestionToHtml(
                 $this->uniformCompletionQuestionAnswersDataObject('answers')
             );
+            return;
+        }
+        if ($this->testTake->discussingQuestion instanceof DrawingQuestion) {
+
+            $dimensions = $this->activeAnswerRating->answer->getViewBoxDimensionsFromSvg();
+            $this->activeDrawingAnswerDimensions = collect([
+                'height' => $dimensions['height'] . 'px',
+                'width'  => $dimensions['width'] . 'px',
+            ]);
+
+
+            $this->activeAnswerText = route('teacher.drawing-question-answer-model', $this->testTake->discussingQuestion->uuid);
+return;
+            $this->activeAnswerText = route('teacher.drawing-question-answer', $this->activeAnswerRating->answer->uuid);
             return;
         }
 
@@ -481,13 +505,7 @@ class CoLearning extends Component
             associative: true
         );
 
-        //todo check if this covers all question types
-        // - add drawing question answer?
-        if (isset($array['value'])) {
-            $this->activeAnswerText = $array['value'];
-            return;
-        }
+        $this->activeAnswerText = $array['value'] ?? '';
 
-        $this->activeAnswerText = '';
     }
 }

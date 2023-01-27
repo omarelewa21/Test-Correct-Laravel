@@ -98,6 +98,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/upload_test', \tcCore\Http\Livewire\Teacher\UploadTest::class)->name('upload-tests');
         Route::get('/file-management/testuploads', \tcCore\Http\Livewire\FileManagement\ToetsenbakkerUploadsOverview::class)->name('file-management.testuploads');
 
+        Route::get('/drawing_question_answers/{answer}', [tcCore\Http\Controllers\DrawingQuestionLaravelController::class, 'show'])->name('drawing-question-answer');
+        Route::get('/drawing_question_answer_model/{question}', [tcCore\Http\Controllers\DrawingQuestionLaravelController::class, 'showAnswerModel'])->name('drawing-question-answer-model');
+
         Route::get('/co-learning/{test_take}', \tcCore\Http\Livewire\Teacher\CoLearning::class)->name('co-learning');
         Route::get('/co-learning-start/{test_take}', \tcCore\Http\Livewire\Teacher\CoLearningStartScreen::class)->name('co-learning-start-screen');
 

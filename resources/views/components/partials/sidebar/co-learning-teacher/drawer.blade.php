@@ -48,8 +48,8 @@
                     @endif
                 @endforeach
 
-                <div @click="showStudentAnswer = true"
-                     wire:click.prevent="showStudentAnswer('{{ 535/*$testParticipant->discussing_answer_rating_id*/ }}')">jup</div>
+                <div @click="showStudentAnswer = await $wire.showStudentAnswer(528)"
+                     {{--wire:click.prevent="showStudentAnswer('{{ 528/*535*//*$testParticipant->discussing_answer_rating_id*/ }}')"--}}>jup</div>
 
             </div>
         </div>

@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpSpreadsheet\Shared\Drawing;
 use tcCore\Answer;
 use tcCore\DrawingQuestion;
+use tcCore\Http\Helpers\SvgHelper;
 
 class DrawingQuestionLaravelController extends Controller
 {
@@ -22,5 +23,20 @@ class DrawingQuestionLaravelController extends Controller
         }
 
         return file_get_contents($file);
+    }
+
+    public function showAnswerModel(DrawingQuestion $question)
+    {
+        $svgHelper = new SvgHelper($question->uuid);
+
+//        sprintf('drawing-question-svg/%s/correction_model.png', $question->uuid);
+        $file = Storage::get(sprintf('/drawing-question-svg/%s/correction_model.png', $question->uuid));
+
+
+        return file_get_contents($file);
+        $file = $svgHelper->getCorrectionModelPNG();
+
+        return $file;
+
     }
 }
