@@ -46,7 +46,6 @@ class Handler extends ExceptionHandler
     public function register()
     {
         $this->reportable(function (UwlrAutoImportException $e){
-            logger('going to send exception mail as we are in the Exception Handler.php');
             $this->sendExceptionMail($e->getMessage(), $e->getFile(),$e->getLine(),[],'TLC: Error while handling uwlr import');
         })->stop();
 
@@ -61,8 +60,6 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $e)
     {
-        logger('new exception found of type :'.get_class($e));
-
         if($e instanceof DeploymentMaintenanceException){
             if ($request->expectsJson()) {
                 return response()->json(['error' => strip_tags($e->getMessage())], 503);

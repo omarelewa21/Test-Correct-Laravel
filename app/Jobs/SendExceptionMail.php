@@ -40,8 +40,6 @@ class SendExceptionMail extends Job implements ShouldQueue
             $this->subject = $subject;
         }
 
-        logger('exception mail constructed');
-        logger('error message '.$this->errMessage);
     }
 
     /**
@@ -51,7 +49,6 @@ class SendExceptionMail extends Job implements ShouldQueue
      */
     public function handle(Mailer $mailer)
     {
-        logger('exception mail handled');
 
         $template = 'emails.exception';
         $serverDetails = $_SERVER;
