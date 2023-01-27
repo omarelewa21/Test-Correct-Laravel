@@ -10,6 +10,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use tcCore\Exceptions\UwlrAutoImportException;
+use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Helpers\ImportHelper;
 use tcCore\Http\Helpers\UwlrImportHelper;
 use tcCore\SchoolLocation;
@@ -119,10 +120,11 @@ class ProcessUwlrSoapResultJob extends Job implements ShouldQueue
             'sobit.nl'
         );
 
-        // MOET WEER AAN
-//            $result = $helper->process();
-        // MOET WEER UIT
-        sleep(45);
+        if(!BaseHelper::notProduction()) {
+            // only save data into the corresponding records if on production
+            $result = $helper->process();
+        }
+
         $resultSet->status = 'DONE';
         $resultSet->addToLog('jobFinished', Carbon::now());
         $resultSet->save();
