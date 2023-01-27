@@ -38,7 +38,7 @@ class Kernel extends ConsoleKernel
             ->dailyAt('06:00');
         $schedule->call(function(){
             UwlrImportHelper::handleIfMoreSchoolLocationsCanBeImported();
-        })->hourlyAt(3);
+        })->hourlyAt(18);
 
 
         /**
