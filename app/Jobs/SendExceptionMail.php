@@ -63,9 +63,9 @@ class SendExceptionMail extends Job implements ShouldQueue
                                   'lineNr'     => $this->lineNr,
                                   'details'    => $this->details,
                                   'server'     => $serverDetails], function ($m) {
-            $m->to(
-                config('mail.mail_dev_address')
-            )->subject($this->subject);
+            $m->to(config('mail.mail_dev_address'))
+                ->cc(config('mail.from'))
+                ->subject($this->subject);
         });
     }
 }
