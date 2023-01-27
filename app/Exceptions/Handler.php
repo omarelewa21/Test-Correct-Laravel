@@ -43,6 +43,15 @@ class Handler extends ExceptionHandler
         return parent::report($e);
     }
 
+    public function register()
+    {
+        $this->reportable(function (UwlrAutoImportException $e){
+            logger('going to send exception mail as we are in the Exception Handler.php');
+            $this->sendExceptionMail($e->getMessage(), $e->getFile(),$e->getLine(),[],'TLC: Error while handling uwlr import');
+        })->stop();
+
+    }
+
     /**
      * Render an exception into an HTTP response.
      *
@@ -54,18 +63,16 @@ class Handler extends ExceptionHandler
     {
         logger('new exception found of type :'.get_class($e));
 
-        if ($e instanceof DeploymentMaintenanceException) {
+        if($e instanceof DeploymentMaintenanceException){
             if ($request->expectsJson()) {
                 return response()->json(['error' => strip_tags($e->getMessage())], 503);
             } else {
                 return response()
                     ->view('errors.deployment-maintenance', ['deployment' => $e->deployment], 503);
             }
-        } else if($e instanceof UwlrAutoImportException){
-            logger('going to send exception mail as we are in the Exception Handler.php');
-            $this->sendExceptionMail($e->getMessage(), $e->getFile(),$e->getLine(),[],'TLC: Error while handling uwlr import');
-            return parent::render($request, $e);
-        } else if ($this->isHttpException($e)) {
+        }
+
+        else if ($this->isHttpException($e)) {
             return $this->renderHttpException($e);
         } else if ($e instanceof QuestionException || $e instanceof SchoolAndSchoolLocationsImportException) {
             $this->sendExceptionMail($e->getMessage(), $e->getFile(), $e->getLine(), $e->getDetails());
