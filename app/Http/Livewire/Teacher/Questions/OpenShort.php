@@ -34,6 +34,7 @@ use tcCore\Question;
 use tcCore\TemporaryLogin;
 use tcCore\Test;
 use tcCore\TestQuestion;
+use tcCore\UserFeatureSetting;
 
 class OpenShort extends Component implements QuestionCms
 {
@@ -141,7 +142,7 @@ class OpenShort extends Component implements QuestionCms
     public $uniqueQuestionKey = '';
     public $duplicateQuestion = false;
     public $canDeleteTest = false;
-
+    public $user;
 
     protected function rules()
     {
@@ -332,7 +333,7 @@ class OpenShort extends Component implements QuestionCms
 
     private function initialize($activeTest)
     {
-        $this->testLang = $activeTest->lang;
+        $this->testLang = $this->user = UserFeatureSetting::isUserExists();
         $this->resetQuestionProperties($activeTest);
         $this->canDeleteTest = $activeTest->canDelete(Auth::user());
 
@@ -366,9 +367,23 @@ class OpenShort extends Component implements QuestionCms
         return parent::__call($method, $arguments);
     }
 
+    public function saveUserLanguage(){
+        if($this->user == null){
+            $userFeature = new UserFeatureSetting;
+            $userFeature->user_id = auth()->id();
+            $userFeature->title = 'spellchecker language';
+            $userFeature->value = $this->question['lang'];
+            $userFeature->save();
+        }
+        else{
+            UserFeatureSetting::where('user_id',auth()->id())->update(['value' => $this->question['lang']]);
+        }
+    }
+
     public function save($withRedirect = true)
     {
         if ($this->emptyState) return false;
+        $this->saveUserLanguage();
         if ($this->obj && method_exists($this->obj, 'prepareForSave')) {
             $this->obj->prepareForSave();
         }
