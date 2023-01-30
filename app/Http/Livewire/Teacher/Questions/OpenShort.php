@@ -100,6 +100,8 @@ class OpenShort extends Component implements QuestionCms
 
     protected $tags = [];
 
+    public $test;
+    
     protected $queryString = [
         'action', 'type', 'subtype', 'testId', 'testQuestionId', 'groupQuestionQuestionId', 'owner', 'isCloneRequest', 'withDrawer' => ['except' => false], 'referrer' => ['except' => false],
     ];
@@ -272,7 +274,8 @@ class OpenShort extends Component implements QuestionCms
         'showEmpty'             => 'showEmpty',
         'questionDeleted'       => '$refresh',
         'addQuestionFromDirty'  => 'addQuestionFromDirty',
-        'testSettingsUpdated'   => 'handleUpdatedTestSettings'
+        'testSettingsUpdated'   => 'handleUpdatedTestSettings',
+        'test-updated'          => '$refresh',
     ];
 
 
@@ -313,7 +316,7 @@ class OpenShort extends Component implements QuestionCms
 
     public function mount()
     {
-        $activeTest = Test::whereUuid($this->testId)->with('testAuthors', 'testAuthors.user')->firstOrFail();
+        $this->test = $activeTest = Test::whereUuid($this->testId)->with('testAuthors', 'testAuthors.user')->firstOrFail();
         Gate::authorize('isAuthorOfTest', [$activeTest]);
         $this->isChild = false;
         $this->setTaxonomyOptions();

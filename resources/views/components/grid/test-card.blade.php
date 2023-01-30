@@ -34,7 +34,7 @@
             <span>{{ $test->authorsAsStringTwo }}</span>
         </div>
         <div>
-            <x-published-tag :published="$test->isPublished()"/>
+            <x-published-tag :labelTagWhite="false" :published="$test->isPublished()"/>
         </div>
     </div>
 </div>

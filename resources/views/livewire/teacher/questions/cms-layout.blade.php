@@ -83,7 +83,7 @@
                         @endif
                         <div class="inline-flex items-center gap-2.5 mx-2.5">
                             <span>
-                                <x-published-tag :published="!$this->question['draft']"/>
+                                <x-published-tag :labelTagWhite="false" :published="$this->test->isPublished()"/>
                             </span>
                             @if($this->question['closeable'])
                                 <x-icon.locked/>

@@ -26,13 +26,21 @@
 
             <div class="flex space-x-2" x-data
                  @click="forceSyncEditors();$wire.saveIfDirty()"
-            >
+            >   
+                <div class="mt-1 mr-3"><x-published-tag :labelTagWhite="true" :published="$this->test->isPublished()"/></div>
+                    
                 <x-actions.test-delete variant="icon-button" :uuid="$this->testId"/>
                 <x-actions.test-open-settings variant="icon-button" :uuid="$this->testId"/>
                 <x-actions.test-open-preview variant="icon-button" :uuid="$this->testId"/>
                 <livewire:actions.test-make-pdf variant="icon-button" :uuid="$this->testId"/>
                 <livewire:actions.test-quick-take variant="icon-button" :uuid="$this->testId"/>
-                <livewire:actions.test-plan-test variant="icon-button" :uuid="$this->testId"/>
+
+                @if($this->test->isPublished())
+                    <livewire:actions.test-plan-test :uuid="$this->testId" :wire:key="'plan-test-'.$this->testId"/>
+                @else
+                    <livewire:actions.test-plan-test variant="icon-button" :uuid="$this->testId"/>
+                    <livewire:actions.test-make-published :uuid="$this->testId" :wire:key="'make-published'.$this->testId"/>
+                @endif
             </div>
         @endif
     </div>

@@ -549,6 +549,22 @@ button.cta-button:disabled, a.cta-button:disabled {
     text-transform: uppercase;
 }
 
+.label-tag-white {
+    --card-tag-text-color: white;
+    --card-tag-border-color: white;
+    --card-tag-background-color: rgba(var(--cta-primary-rgb), .1);
+
+    padding: 5px 8px;
+    border-radius: 5px;
+    border: solid 1px;
+    border-color: var(--card-tag-border-color);
+    background-color: var(--card-tag-background-color);
+    color: var(--card-tag-text-color)!important;
+    font-size:10px;
+    font-family: Nunito Bold, sans-serif;
+    text-transform: uppercase;
+}
+
 .card-tag.grey {
     --card-tag-text-color: var(--note);
     --card-tag-border-color: var(--mid-grey);
@@ -9950,11 +9966,11 @@ video {
 .p-8{
   padding: 2rem;
 }
-.p-4{
-  padding: 1rem;
-}
 .p-1{
   padding: 0.25rem;
+}
+.p-4{
+  padding: 1rem;
 }
 .p-5{
   padding: 1.25rem;
@@ -11452,6 +11468,10 @@ ul ul ul {
 .accordion-disabled :where(span,div,h4) {
     color: var(--mid-grey)!important;
     border-color: var(--mid-grey)!important;
+}
+
+.anychart-credits {
+    display: none;
 }
 
 .first\:rounded-l-lg:first-child{

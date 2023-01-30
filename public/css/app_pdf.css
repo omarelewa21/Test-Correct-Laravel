@@ -6905,11 +6905,11 @@ video {
 .p-8{
   padding: 2rem;
 }
-.p-4{
-  padding: 1rem;
-}
 .p-1{
   padding: 0.25rem;
+}
+.p-4{
+  padding: 1rem;
 }
 .p-5{
   padding: 1.25rem;

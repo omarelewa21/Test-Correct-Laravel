@@ -14,6 +14,22 @@
     text-transform: uppercase;
 }
 
+.label-tag-white {
+    --card-tag-text-color: white;
+    --card-tag-border-color: white;
+    --card-tag-background-color: rgba(var(--cta-primary-rgb), .1);
+
+    padding: 5px 8px;
+    border-radius: 5px;
+    border: solid 1px;
+    border-color: var(--card-tag-border-color);
+    background-color: var(--card-tag-background-color);
+    color: var(--card-tag-text-color)!important;
+    font-size:10px;
+    font-family: Nunito Bold, sans-serif;
+    text-transform: uppercase;
+}
+
 .card-tag.grey {
     --card-tag-text-color: var(--note);
     --card-tag-border-color: var(--mid-grey);

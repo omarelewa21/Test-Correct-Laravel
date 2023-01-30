@@ -66,7 +66,7 @@
             </div>
             <div class="flex flex-col note text-sm gap-1">
                 <span>{{ __('general.Laatst gewijzigd') }}: {{ \Carbon\Carbon::parse($this->test->updated_at)->format('d/m/\'y') }}</span>
-                <span class="ml-auto"><x-published-tag :published="$this->test->isPublished()"/></span>
+                <span class="ml-auto"><x-published-tag :labelTagWhite="false" :published="$this->test->isPublished()"/></span>
             </div>
         </div>
         <div class="flex w-full justify-between mt-1 note text-sm">
