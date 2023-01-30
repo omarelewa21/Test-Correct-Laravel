@@ -10,6 +10,7 @@ use tcCore\EducationLevel;
 use tcCore\Http\Livewire\OverviewComponent;
 use tcCore\Http\Helpers\Choices\Choice;
 use tcCore\Lib\Repositories\TaxonomyRepository;
+use tcCore\Http\Livewire\OverviewComponent;
 use tcCore\Subject;
 use tcCore\TemporaryLogin;
 use tcCore\Test;
@@ -169,11 +170,7 @@ class TestsOverview extends OverviewComponent
 
     public function getEducationLevelProperty()
     {
-        return EducationLevel::filtered(['user_id' => auth()->id()], ['name' => 'desc'])
-            ->get(['id', 'name'])
-            ->map(function ($educationLevel) {
-                return Choice::build((int)$educationLevel->id, $educationLevel->name);
-            });
+        return $this->filterableEducationLevelsBasedOnTab();
     }
 
     public function getBasesubjectsProperty()

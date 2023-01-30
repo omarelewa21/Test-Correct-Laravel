@@ -45,7 +45,7 @@ class QuestionBank extends Component
 
     protected string $filterIdentifyingAttribute = 'testId';
     protected array $filterableAttributes = [
-        'search'                 => '',
+        'search'               => '',
         'education_level_year' => [],
         'education_level_id'   => [],
         'subject_id'           => [],
@@ -111,7 +111,7 @@ class QuestionBank extends Component
 
     public function getEducationLevelProperty()
     {
-        return EducationLevel::filtered(['user_id' => Auth::id()])->optionList();
+        return $this->filterableEducationLevelsBasedOnTab();
     }
 
     public function getEducationLevelYearProperty()
