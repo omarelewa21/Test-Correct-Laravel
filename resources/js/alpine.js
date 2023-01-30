@@ -594,7 +594,7 @@ document.addEventListener('alpine:init', () => {
                     options = options.map(({value, label, customProperties}) => ({
                         value,
                         label,
-                        customProperties,
+                        customProperties: customProperties ?? {},
                         selected: selection.includes(value)
                     }))
                     choices.setChoices(options)
