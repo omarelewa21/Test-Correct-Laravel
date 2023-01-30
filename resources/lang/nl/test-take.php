@@ -28,4 +28,6 @@ return [
     'copy-link'                                                                                                                   => 'Kopieer link',
     'CO-Learning'                                                                                                                 => 'CO-Learning',
     'schedule-make-up-test'                                                                                                       => 'Inhaaltoets plannen',
+    'allow-access'                                                                                                                => 'Openzetten',
+    'close-preview'                                                                                                               => 'Dichtzetten',
 ];

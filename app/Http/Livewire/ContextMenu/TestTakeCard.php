@@ -128,4 +128,24 @@ class TestTakeCard extends ContextMenuComponent
     {
         return CakeRedirectHelper::redirectToCake('taken.schedule_makeup', $this->uuid);
     }
+
+    public function hasGrantedPreviewAccess(): bool
+    {
+        return $this->uuid
+            ? TestTake::whereUuid($this->uuid)->firstOrFail()->isAllowedToReviewResultsByParticipants()
+            : false;
+    }
+
+    public function openAllowPreviewInNormPage()
+    {
+        return $this->openTestTakeDetail(
+            $this->uuid,
+            sprintf("Popup.load('/test_takes/update_show_results/%s', 420)", $this->uuid)
+        );
+    }
+
+    public function closePreviewAccess()
+    {
+        return TestTake::whereUuid($this->uuid)->update(['show_results' => null]);
+    }
 }
