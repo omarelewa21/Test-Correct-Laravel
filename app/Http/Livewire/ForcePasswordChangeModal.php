@@ -15,14 +15,15 @@ class ForcePasswordChangeModal extends ModalComponent
     public function rules()
     {
         return [
-            'newPassword'       => 'required|confirmed|'. User::getPasswordLengthRule(),
+            'newPassword'     => 'required|confirmed|' . User::getPasswordLengthRule(),
+            'newPassword.min' => __('registration.password_min'),
         ];
     }
 
     public function messages()
     {
         return [
-            'newPassword' => __('password-reset.De twee wachtwoorden zijn niet hetzelfde')
+            'newPassword.confirmed' => __('password-reset.De twee wachtwoorden zijn niet hetzelfde')
         ];
     }
 
@@ -35,7 +36,7 @@ class ForcePasswordChangeModal extends ModalComponent
     {
         $user = Auth::user();
 
-        if(Hash::check($this->newPassword, $user->password)) {
+        if (Hash::check($this->newPassword, $user->password)) {
             $this->addError('old-and-new-passwords-match', __('auth.old_and_new_passwords_match'));
             return;
         }
@@ -46,8 +47,8 @@ class ForcePasswordChangeModal extends ModalComponent
         $this->closeModal();
         $this->dispatchBrowserEvent('notify',
             [
-                'type' => 'guest_success',
-                'title' => __('auth.password_changed_success'),
+                'type'    => 'guest_success',
+                'title'   => __('auth.password_changed_success'),
                 'message' => __('auth.now_login_with_new_password'),
             ]
         );
@@ -62,6 +63,7 @@ class ForcePasswordChangeModal extends ModalComponent
     {
         return false;
     }
+
     public static function closeModalOnClickAway(): bool
     {
         return false;
