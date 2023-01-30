@@ -10,7 +10,6 @@ use tcCore\EducationLevel;
 use tcCore\Http\Livewire\OverviewComponent;
 use tcCore\Http\Helpers\Choices\Choice;
 use tcCore\Lib\Repositories\TaxonomyRepository;
-use tcCore\Http\Livewire\OverviewComponent;
 use tcCore\Subject;
 use tcCore\TemporaryLogin;
 use tcCore\Test;
