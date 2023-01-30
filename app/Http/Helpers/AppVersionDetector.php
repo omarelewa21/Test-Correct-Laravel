@@ -369,7 +369,7 @@ class AppVersionDetector
         }
         //get current date
         $datetime = new DateTime();
-        $hashDate = substr($datetime->format(DATE_ATOM), 0, 10);
+        $hashDate = $datetime->format("Y-m-d");
         $hashUrl = strtok($_SERVER["REQUEST_URI"], '?');
 
         //electron uses hmac, native JS implementation doesn't
