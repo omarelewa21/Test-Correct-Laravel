@@ -17,7 +17,7 @@ class SupportEscapeController extends Controller
         $supportId= session()->get('support.id');
 
         if (empty($supportId)){
-            return false;
+            return abort(401,'Unauthorized');
         }
 
         Auth::logout();

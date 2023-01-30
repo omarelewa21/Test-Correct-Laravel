@@ -57,6 +57,8 @@ class CakeRedirectHelper
                         ]
                 ]
             );
+
+            session()->forget('support');
         }
 
         $request->merge([

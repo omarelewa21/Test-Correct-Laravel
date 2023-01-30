@@ -45,7 +45,7 @@ Route::middleware(['auth.temp'])->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
-    Route::get('/log-out-as-user-log-in-as-support', [tcCore\Http\Controllers\SupportEscapeController::class, 'index'])->name('support.return_as_support_user');
+    Route::get('/log-out-as-user-log-in-as-support', [tcCore\Http\Controllers\SupportEscapeController::class, 'index'])->name('return_as_support_user');
     Route::get('/temporary-login-to-cake', [tcCore\Http\Controllers\TemporaryLoginController::class, 'toCake'])->name('auth.temporary-login.to-cake');
     Route::get('/entree-link', tcCore\Http\Livewire\Auth\EntreeLink::class)->name('entree-link');
     Route::get('/questions/inlineimage/{image}', [tcCore\Http\Controllers\QuestionsController::class, 'inlineImageLaravel'])->name('inline-image');
