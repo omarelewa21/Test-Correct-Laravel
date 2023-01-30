@@ -32,10 +32,10 @@ class TestDetail extends Component
     public function mount($uuid)
     {
 //        @TODO: Should this be implemented ?;
-        Gate::authorize('canViewTestDetails',[Test::findByUuid($uuid)]);
+        Gate::authorize('canViewTestDetails', [Test::findByUuid($uuid)]);
 
         $this->uuid = $uuid;
-        $this->previousUrl = $this->setPreviousUrl();
+        $this->setPreviousUrl();
         $this->setContext();
     }
 
@@ -50,6 +50,11 @@ class TestDetail extends Component
                 'testQuestions.question.authors'
             ])
             ->firstOrFail();
+    }
+
+    public function updatingPreviousUrl($value)
+    {
+        abort(403);
     }
 
     public function getAmountOfQuestionsProperty()
@@ -99,9 +104,9 @@ class TestDetail extends Component
     public function toPlannedTest($takeUuid)
     {
         $testTake = TestTake::whereUuid($takeUuid)->first();
-        if($testTake->isAssessmentType()){
+        if ($testTake->isAssessmentType()) {
             $url = sprintf("test_takes/assessment_open_teacher/%s", $takeUuid);
-        }else{
+        } else {
             $url = sprintf("test_takes/view/%s", $takeUuid);
         }
         $options = TemporaryLogin::buildValidOptionObject('page', $url);
@@ -120,12 +125,12 @@ class TestDetail extends Component
         return false;
     }
 
-    private function setPreviousUrl(): string
+    private function setPreviousUrl()
     {
         $urlComponents = parse_url(url()->previous());
-        if(url($urlComponents['path']) !== route('teacher.tests')){
-            return route('teacher.tests');
+        $this->previousUrl = url()->previous();
+        if (url($urlComponents['path']) !== route('teacher.tests')) {
+            $this->previousUrl = route('teacher.tests');
         }
-        return url()->previous();
     }
 }
