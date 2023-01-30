@@ -32,4 +32,6 @@ return [
     'answer_model_tooltip'                 => 'The answer model, or correction model, contains the answers of the test questions and is mandatory. This can be provided along with the questions in one document or you can provide them separately.',
     'attachments_tooltip'                  => 'Provide attachments that are necessary for taking the test. Attachments are not mandatory, but must be provided if questions refer to them.',
     'elaboration_attachment_model_tooltip' => 'Provide execution appendices that are necessary for taking the test. Execution appendices are not mandatory, but must be provided if questions refer to them.',
+    'Remark'                               => 'Remark',
+    'Not allowed due to temp school'       => 'You cannot upload classes and tests yet because you are linked to a temporary school. Once we have moved you to your own school, you can upload your classes and tests. We will send you a message as soon as we have linked you to your school.'
 ];
