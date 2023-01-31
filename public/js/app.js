@@ -7251,8 +7251,10 @@ window.plyrPlayer = {
  * Takes a dom div element and makes it resizable from all corners
  * 
  * @param {object} element
+ * @param {string} attachmentType
  */
 window.makeResizableDiv = function (element) {
+  var attachmentType = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
   var resizers = element.querySelectorAll('.resizer');
   var minimum_size = 20;
   var original_width = 0;
@@ -7261,9 +7263,12 @@ window.makeResizableDiv = function (element) {
   var original_y = 0;
   var original_mouse_x = 0;
   var original_mouse_y = 0;
+  var width, height;
   var _loop = function _loop(i) {
     var currentResizer = resizers[i];
-    currentResizer.addEventListener('mousedown', function (e) {
+    currentResizer.addEventListener('mousedown', resizeMouseDown);
+    currentResizer.addEventListener('ontouchstart', resizeMouseDown);
+    function resizeMouseDown(e) {
       e.preventDefault();
       original_width = parseFloat(getComputedStyle(element, null).getPropertyValue('width').replace('px', ''));
       original_height = parseFloat(getComputedStyle(element, null).getPropertyValue('height').replace('px', ''));
@@ -7272,54 +7277,60 @@ window.makeResizableDiv = function (element) {
       original_mouse_x = e.pageX;
       original_mouse_y = e.pageY;
       window.addEventListener('mousemove', resize);
+      window.addEventListener('ontouchmove', resize);
       window.addEventListener('mouseup', stopResize);
-    });
-    function resize(e) {
-      var width, height;
-      if (currentResizer.classList.contains('bottom-right')) {
-        width = original_width + (e.pageX - original_mouse_x);
-        height = original_height + (e.pageY - original_mouse_y);
-        if (width > minimum_size) {
-          element.style.width = width + 'px';
-        }
-        if (height > minimum_size) {
-          element.style.height = height + 'px';
-        }
-      } else if (currentResizer.classList.contains('bottom-left')) {
-        height = original_height + (e.pageY - original_mouse_y);
-        width = original_width - (e.pageX - original_mouse_x);
-        if (height > minimum_size) {
-          element.style.height = height + 'px';
-        }
-        if (width > minimum_size) {
-          element.style.width = width + 'px';
-          element.style.left = original_x + (e.pageX - original_mouse_x) + 'px';
-        }
-      } else if (currentResizer.classList.contains('top-right')) {
-        width = original_width + (e.pageX - original_mouse_x);
-        height = original_height - (e.pageY - original_mouse_y);
-        if (width > minimum_size) {
-          element.style.width = width + 'px';
-        }
-        if (height > minimum_size) {
-          element.style.height = height + 'px';
-          element.style.top = original_y + (e.pageY - original_mouse_y) + 'px';
-        }
-      } else {
-        width = original_width - (e.pageX - original_mouse_x);
-        height = original_height - (e.pageY - original_mouse_y);
-        if (width > minimum_size) {
-          element.style.width = width + 'px';
-          element.style.left = original_x + (e.pageX - original_mouse_x) + 'px';
-        }
-        if (height > minimum_size) {
-          element.style.height = height + 'px';
-          element.style.top = original_y + (e.pageY - original_mouse_y) + 'px';
+      window.addEventListener('ontouchend', stopResize);
+      function resize(e) {
+        if (currentResizer.classList.contains('bottom-right')) {
+          width = original_width + (e.pageX - original_mouse_x);
+          height = original_height + (e.pageY - original_mouse_y);
+          if (width > minimum_size) {
+            element.style.width = width + 'px';
+          }
+          if (height > minimum_size) {
+            element.style.height = height + 'px';
+          }
+        } else if (currentResizer.classList.contains('bottom-left')) {
+          height = original_height + (e.pageY - original_mouse_y);
+          width = original_width - (e.pageX - original_mouse_x);
+          if (height > minimum_size) {
+            element.style.height = height + 'px';
+          }
+          if (width > minimum_size) {
+            element.style.width = width + 'px';
+            element.style.left = original_x + (e.pageX - original_mouse_x) + 'px';
+          }
+        } else if (currentResizer.classList.contains('top-right')) {
+          width = original_width + (e.pageX - original_mouse_x);
+          height = original_height - (e.pageY - original_mouse_y);
+          if (width > minimum_size) {
+            element.style.width = width + 'px';
+          }
+          if (height > minimum_size) {
+            element.style.height = height + 'px';
+            element.style.top = original_y + (e.pageY - original_mouse_y) + 'px';
+          }
+        } else {
+          width = original_width - (e.pageX - original_mouse_x);
+          height = original_height - (e.pageY - original_mouse_y);
+          if (width > minimum_size) {
+            element.style.width = width + 'px';
+            element.style.left = original_x + (e.pageX - original_mouse_x) + 'px';
+          }
+          if (height > minimum_size) {
+            element.style.height = height + 'px';
+            element.style.top = original_y + (e.pageY - original_mouse_y) + 'px';
+          }
         }
       }
-    }
-    function stopResize() {
-      window.removeEventListener('mousemove', resize);
+      function stopResize() {
+        if (attachmentType === 'image') {
+          var ratio = original_height / original_width;
+          element.style.height = ratio * width + 'px';
+        }
+        window.removeEventListener('mousemove', resize);
+        window.removeEventListener('touchmove', resize);
+      }
     }
   };
   for (var i = 0; i < resizers.length; i++) {
