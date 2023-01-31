@@ -3,6 +3,7 @@
 namespace tcCore\Http\Livewire\ContextMenu;
 
 use Illuminate\Support\Facades\Auth;
+use tcCore\Http\Controllers\TestTakesController;
 use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Http\Traits\WithTestTakeInteractions;
 use tcCore\TemporaryLogin;
@@ -160,6 +161,11 @@ class TestTakeCard extends ContextMenuComponent
     public function closePreviewAccess()
     {
         return TestTake::whereUuid($this->uuid)->update(['show_results' => null]);
+    }
+
+    public function rttiExport()
+    {
+        return (new TestTakesController)->export(TestTake::whereUuid($this->uuid)->firstOrFail());
     }
 
     public function hasGrantedPreviewAccess(): bool

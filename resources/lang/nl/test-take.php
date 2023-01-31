@@ -32,4 +32,5 @@ return [
     'close-preview'                                                                                                               => 'Dichtzetten',
     'assess'                                                                                                                      => 'Nakijken',
     'normalize'                                                                                                                   => 'Normeren',
+    'rtti-export'                                                                                                                 => 'Rtti-Export',
 ];

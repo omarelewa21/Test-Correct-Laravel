@@ -48,6 +48,10 @@
                     <x-slot name="icon"><x-icon.autocheck/></x-slot>
                     <x-slot name="text">{{ __('test-take.normalize') }}</x-slot>
                 </x-menu.context-menu.button>
+                <x-menu.context-menu.button wire:click="rttiExport">
+                    <x-slot name="icon"><x-icon.download/></x-slot>
+                    <x-slot name="text">{{ __('test-take.rtti-export') }}</x-slot>
+                </x-menu.context-menu.button>
             @endif
             <x-menu.context-menu.button wire:click="updateStatusToTaken">
                 <x-slot name="icon"><x-icon.arrow/></x-slot>

@@ -33,4 +33,5 @@ return [
     'close-preview'                                                                                                               => 'Close preview',
     'assess'                                                                                                                      => 'Assess',
     'normalize'                                                                                                                   => 'Set norm',
+    'rtti-export'                                                                                                                 => 'Rtti-Export',
 ];
