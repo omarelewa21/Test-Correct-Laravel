@@ -222,6 +222,11 @@ class TestParticipant extends BaseModel
         return $this->belongsTo('tcCore\SchoolClass')->withTrashed();
     }
 
+    public function discussingAnswerRating()
+    {
+        return $this->belongsTo('tcCore\AnswerRating');
+    }
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */

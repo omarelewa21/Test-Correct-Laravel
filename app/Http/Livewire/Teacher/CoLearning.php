@@ -5,10 +5,12 @@ namespace tcCore\Http\Livewire\Teacher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use PHPUnit\Util\Test;
 use tcCore\Answer;
 use tcCore\AnswerRating;
+use tcCore\Attachment;
 use tcCore\CompletionQuestion;
 use tcCore\DrawingQuestion;
 use tcCore\Events\CoLearningNextQuestion;
@@ -17,6 +19,7 @@ use tcCore\Http\Controllers\TestTakesController;
 use tcCore\Http\Enums\CoLearning\AbnormalitiesStatus;
 use tcCore\Http\Enums\CoLearning\RatingStatus;
 use tcCore\Question;
+use tcCore\TestParticipant;
 use tcCore\TestTake;
 
 class CoLearning extends Component
@@ -150,6 +153,8 @@ class CoLearning extends Component
 
     public function showStudentAnswer($id): bool
     {
+        $testParticipant = TestParticipant::find(98);
+
         $this->activeAnswerRating = AnswerRating::with('answer')->find($id);
 
         $this->setActiveAnswerAnsweredStatus();
@@ -218,9 +223,12 @@ class CoLearning extends Component
 //            return $this->convertCompletionQuestionToHtml($question->completionQuestionAnswers()->get());
         };
 
-//        dd($question->completionQuestionAnswers);
-
         return $question->answer;
+    }
+
+    public function getDrawingAnswerModelUrlProperty()
+    {
+        return route('teacher.drawing-question-answer-model', $this->testTake->discussingQuestion->uuid);
     }
 
     private function handleFinishingCoLearning()
@@ -409,10 +417,7 @@ class CoLearning extends Component
         return $this->testTake->update(['discussing_question_id' => $this->previousQuestionId]);
     }
 
-    /**
-     * @return void
-     */
-    public function removeChangesFromTestTakeModel(): void
+    protected function removeChangesFromTestTakeModel(): void
     {
         $additionalDirtyAttributesWeDontWantToSave = collect(
             array_keys($this->testTake->getAttributes())
@@ -462,14 +467,17 @@ class CoLearning extends Component
      *  - partly-answered
      *  - not-answered
      */
-    public function setActiveAnswerAnsweredStatus()
+    protected function setActiveAnswerAnsweredStatus()
     {
         if (!$this->activeAnswerRating->answer->isAnswered) {
             $this->activeAnswerAnsweredStatus = 'not-answered';
             return;
         }
         if ($this->testTake->discussingQuestion instanceof CompletionQuestion) {
-            $this->activeAnswerAnsweredStatus = (collect($this->activeAnswerRating->answer)->count() === $this->completionQuestionTagCount)
+            $givenAnswersCount = collect(json_decode($this->activeAnswerRating->answer->json, true))->count();
+            $this->activeAnswerAnsweredStatus = (
+                $givenAnswersCount === $this->completionQuestionTagCount
+            )
                 ? 'answered'
                 : 'partly-answered';
             return;
@@ -477,7 +485,7 @@ class CoLearning extends Component
         $this->activeAnswerAnsweredStatus = 'answered';
     }
 
-    public function setActiveAnswerText(): void
+    protected function setActiveAnswerText(): void
     {
         if ($this->testTake->discussingQuestion instanceof CompletionQuestion) {
             $this->activeAnswerText = $this->convertCompletionQuestionToHtml(
@@ -487,15 +495,12 @@ class CoLearning extends Component
         }
         if ($this->testTake->discussingQuestion instanceof DrawingQuestion) {
 
-            $dimensions = $this->activeAnswerRating->answer->getViewBoxDimensionsFromSvg();
-            $this->activeDrawingAnswerDimensions = collect([
-                'height' => $dimensions['height'] . 'px',
-                'width'  => $dimensions['width'] . 'px',
-            ]);
-
-
-            $this->activeAnswerText = route('teacher.drawing-question-answer-model', $this->testTake->discussingQuestion->uuid);
-return;
+//            $dimensions = $this->activeAnswerRating->answer->getViewBoxDimensionsFromSvg();
+//            $this->activeDrawingAnswerDimensions = collect([
+//                'height' => $dimensions['height'] . 'px',
+//                'width'  => $dimensions['width'] . 'px',
+//            ]);
+//
             $this->activeAnswerText = route('teacher.drawing-question-answer', $this->activeAnswerRating->answer->uuid);
             return;
         }
@@ -507,5 +512,10 @@ return;
 
         $this->activeAnswerText = $array['value'] ?? '';
 
+    }
+
+    public function viewAttachment(Attachment $attachment)
+    {
+        dd($attachment);
     }
 }

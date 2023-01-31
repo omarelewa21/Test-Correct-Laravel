@@ -110,5 +110,13 @@ window.plyrPlayer = {
         }
 
         return player
+    },
+
+    renderWithoutConstraints(elem) {
+        let controls = ['play', 'progress', 'current-time', 'mute', 'volume'];
+        let player = new Plyr(elem, {
+            controls: controls
+        });
+        return player;
     }
 }

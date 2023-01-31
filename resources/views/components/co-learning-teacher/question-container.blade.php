@@ -5,10 +5,9 @@
     $editorId = 'question'.$this->questionIndex;
 @endphp
 
-<div class="flex flex-col pt-[14px] pb-[33px] px-10 content-section rs_readable relative"
-     x-data="{collapsed: false}"
+<div class="flex flex-col pt-[14px] px-10 content-section rs_readable relative"
 >
-    <div class="question-title flex flex-wrap items-center question-indicator border-bottom mb-2 justify-between">
+    <div class="flex flex-wrap items-center question-indicator pb-[13px] justify-between">
         <div class="flex items-center">
 
             <div class="inline-flex question-number rounded-full text-center justify-center items-center">
@@ -22,8 +21,8 @@
             @endif--}}
 
             <h4 class="inline-block ml-2 mr-6"
-                selid="questiontitle">{{ __('co-learning.question') }}
-                : {!! __('co-learning.'.$question->type.($question->subtype ? '-'.$question->subtype : '')) !!}
+                selid="questiontitle">{{ __('co-learning.question') }}:
+                {!! __('co-learning.'.$question->type.($question->subtype ? '-'.$question->subtype : '')) !!}
             </h4>
             <h7 class="inline-block">{{ $question->score }} pt</h7>
 
@@ -44,11 +43,11 @@
         </div>
 
 
-        <div class="absolute right-[-14px] group" @click="collapsed = ! collapsed">
+        <div class="absolute right-[-14px] group" @click="showQuestion = ! showQuestion">
             <div class="w-10 h-10 rounded-full flex items-center justify-center group-hover:bg-primary group-hover:opacity-[0.05]"></div>
             <template x-if="true">
                 <x-icon.chevron class="absolute top-[14px] left-4 text-sysbase transition"
-                                x-bind:class="collapsed ? '' : 'rotate-90'" x-cloak/>
+                                x-bind:class="showQuestion ? 'rotate-90' : ''" x-cloak/>
             </template>
         </div>
 
@@ -58,7 +57,9 @@
     {{--    @if($this->group)--}}
     {{--        <div class="mb-5">{!! $this->group->question->converted_question_html !!}</div>--}}
     {{--    @endif--}}
-    <div {{-- class="flex flex-1 overview"--}} x-show="!collapsed" x-collapse.duration.500ms x-cloak>
+
+    <div x-show="showQuestion" x-collapse.duration.500ms x-cloak>
+
         {{--@if($question->closeable || ( !is_null($question->groupQuestion) && $question->groupQuestion->closeable) )
             @if($this->closed)
                 <span>{{__('test_take.question_closed_text')}}</span>
@@ -66,6 +67,8 @@
                 <span>{{__('test_take.question_closeable_text')}}</span>
             @endif
         @else--}}
+        <div class="w-full flex question-bottom-line mb-2"></div>
+
         <div class="flex flex-wrap">
             @foreach($question->attachments as $attachment)
                 <x-attachment.badge-view :upload="false"
@@ -73,17 +76,20 @@
                                          :title="$attachment->title"
                                          wire:key="a-badge-{{ $attachment->id.$this->testTake->discussing_question_id }}"
                                          :question-id="$question->getKey()"
+                                         :question-uuid="$question->uuid"
                         {{--  --}}
                 />
             @endforeach
         </div>
-        @if($question->type !== 'CompletionQuestion')
-            <div class="mb-2">
-                {!! $question->getQuestionInstance()->question !!}
-            </div>
-        @endif
 
-        <div class="questionContainer w-full" wire:key="{{ $editorId }}">
+        <div class="mt-2 pb-[33px]">
+            @if($question->type !== 'CompletionQuestion')
+                {!! $question->getQuestionInstance()->question !!}
+            @else
+                {!! $this->convertCompletionQuestionToHtml() !!}
+            @endif
+        </div>
+        {{--<div class="questionContainer w-full pb-[33px]" wire:key="{{ $editorId }}">
             <div class="w-full">
                 <div class="relative">
                     @if($question->type === 'OpenQuestion')
@@ -120,8 +126,6 @@
                                 </div>
                             </x-input.group>
 
-                        @elseif($question->subtype === 'writing')
-                            wip
                         @endif
 
                     @elseif($question->type === 'CompletionQuestion')
@@ -131,7 +135,7 @@
                     @endif
                 </div>
             </div>
-        </div>
+        </div>--}}
 
     </div>
 

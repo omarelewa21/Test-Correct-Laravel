@@ -2,9 +2,5 @@
 
 @props([
     'questionId',
-    'viewOnly' => true,
+    'mode' => 'view',
 ])
-
-@section('view-attachments')
-
-@endsection

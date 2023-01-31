@@ -1,6 +1,15 @@
 <div id="co-learning-teacher-page"
      class="flex w-full relative" style="z-index: 1; min-height: 100vh"
-     x-data="{showStudentAnswer: false}"
+     x-data="{
+     showStudentAnswer: false,
+     showAnswerModel: false,
+     showQuestion: true,
+     resetToggles() {
+        this.showStudentAnswer = false;
+        this.showAnswerModel = false;
+        this.showQuestion = true;
+     },
+     }"
      wire:poll.keep-alive.5000ms="render()" {{-- getTestParticipantsData() ? --}}
 >
     <x-partials.header.co-learning-teacher testName="{{ $testTake->test->name ?? '' }}"

@@ -48,7 +48,7 @@
                     @endif
                 @endforeach
 
-                <div @click="showStudentAnswer = await $wire.showStudentAnswer(528)"
+                <div @click="showStudentAnswer = await $wire.showStudentAnswer(542)" {{--528--}}
                      {{--wire:click.prevent="showStudentAnswer('{{ 528/*535*//*$testParticipant->discussing_answer_rating_id*/ }}')"--}}>jup</div>
 
             </div>
@@ -58,6 +58,7 @@
              x-init="$nextTick(() => {fillSpaceBetweenElementsHorizontal($refs.footerElement1, $refs.footerElement2);})"
         >
             <x-button.text-button wire:click.prevent="goToPreviousQuestion"
+                                  @click="resetToggles"
                                   wire:key="previousQuestion.{{$this->testTake->discussing_question_id}}"
                                   :disabled="$this->atFirstQuestion"
                                   class="flex-shrink-0"
@@ -67,6 +68,7 @@
                 <span class="ml-2">{{ __('co-learning.previous') }}</span>
             </x-button.text-button>
             <x-button.primary wire:click.prevent="goToNextQuestion"
+                              @click="resetToggles"
                               wire:key="lastQuestion.{{$this->testTake->discussing_question_id}}"
                               :disabled="$this->atLastQuestion"
                               class="px-4 flex-0 flex-shrink-0"

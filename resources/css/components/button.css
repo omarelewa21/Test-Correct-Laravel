@@ -400,3 +400,7 @@ button.cta-button:disabled, a.cta-button:disabled {
     box-shadow: 0 3px 6px 0 rgba(4, 31, 116, 0.3);
     color: var(--primary);
 }
+
+.shadow-icon-cirle {
+    box-shadow: 0 0 8px 0 rgba(4, 31, 116, 0.3);
+}

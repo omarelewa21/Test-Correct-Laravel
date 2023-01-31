@@ -6000,12 +6000,14 @@ document.addEventListener('alpine:init', function () {
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('badge', function () {
     var videoUrl = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-    var setVideoTitle = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+    var mode = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
     return {
       options: false,
+      videoUrl: videoUrl,
       videoTitle: videoUrl,
       resolvingTitle: true,
       index: 1,
+      mode: mode,
       init: function init() {
         var _this6 = this;
 
@@ -6042,7 +6044,7 @@ document.addEventListener('alpine:init', function () {
                   _this6.videoTitle = fetchedTitle || videoUrl;
                   _this6.resolvingTitle = false;
 
-                  if (setVideoTitle) {
+                  if (mode === 'edit') {
                     _this6.$wire.setVideoTitle(videoUrl, _this6.videoTitle);
                   }
 
@@ -7994,6 +7996,13 @@ window.plyrPlayer = {
       this.disableElem(player.elements.buttons.play[0]);
     }
 
+    return player;
+  },
+  renderWithoutConstraints: function renderWithoutConstraints(elem) {
+    var controls = ['play', 'progress', 'current-time', 'mute', 'volume'];
+    var player = new (plyr__WEBPACK_IMPORTED_MODULE_0___default())(elem, {
+      controls: controls
+    });
     return player;
   }
 };

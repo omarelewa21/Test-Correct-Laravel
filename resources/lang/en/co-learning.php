@@ -34,6 +34,7 @@ return [
     'previous'                      => 'Previous',
     'answer_model'                  => 'Answer model',
     'write_your_answer'             => 'Write your answer...',
-
+    'answer_model_drawing'          => 'Answer model drawing',
+    'answer_drawing'                => 'Answer drawing question',
 
 ];

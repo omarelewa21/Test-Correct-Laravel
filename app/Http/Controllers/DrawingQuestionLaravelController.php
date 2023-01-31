@@ -29,9 +29,7 @@ class DrawingQuestionLaravelController extends Controller
     {
         $svgHelper = new SvgHelper($question->uuid);
 
-//        sprintf('drawing-question-svg/%s/correction_model.png', $question->uuid);
-        $file = Storage::get(sprintf('/drawing-question-svg/%s/correction_model.png', $question->uuid));
-
+        $file = Storage::disk(SvgHelper::DISK)->path(sprintf('%s/correction_model.png', $question->uuid));
 
         return file_get_contents($file);
         $file = $svgHelper->getCorrectionModelPNG();

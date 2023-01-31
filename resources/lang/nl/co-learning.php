@@ -31,8 +31,10 @@ return [
     'all_questions'                 => 'alle vragen',
     'next'                          => 'Volgende',
     'previous'                      => 'Vorige',
-    'answer_model'                  => 'Antwoord model',
+    'answer_model'                  => 'Antwoordmodel',
     'write_your_answer'             => 'Schrijf jouw antwoord...',
+    'answer_model_drawing'          => 'Antwoordmodel tekening',
+    'answer_drawing'                => 'Antwoord tekenvraag',
 
 
 ];
