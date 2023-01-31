@@ -24,21 +24,21 @@
                 {{--                <span class="text-sm">{{ trans_choice('cms.vraag', $questionCount['regular']) }}, {{ trans_choice('cms.group-question-count', $questionCount['group']) }}</span>--}}
             </div>
 
-            <div class="flex space-x-2" x-data
+            <div class="flex space-x-2 items-center" x-data
                  @click="forceSyncEditors();$wire.saveIfDirty()"
             >   
-                <div class="mt-1 mr-3"><x-published-tag :labelTagWhite="true" :published="$this->test->isPublished()"/></div>
-                    
+                <span class="mr-4">
+                    <x-published-tag labelColor="white" :published="$this->testIsPublished"/>
+                </span>
+
                 <x-actions.test-delete variant="icon-button" :uuid="$this->testId"/>
                 <x-actions.test-open-settings variant="icon-button" :uuid="$this->testId"/>
                 <x-actions.test-open-preview variant="icon-button" :uuid="$this->testId"/>
                 <livewire:actions.test-make-pdf variant="icon-button" :uuid="$this->testId"/>
                 <livewire:actions.test-quick-take variant="icon-button" :uuid="$this->testId"/>
+                <livewire:actions.test-plan-test :variant="$this->testIsPublished ? 'icon-button-with-text' : 'icon-button'" :uuid="$this->testId"/>
 
-                @if($this->test->isPublished())
-                    <livewire:actions.test-plan-test :uuid="$this->testId" :wire:key="'plan-test-'.$this->testId"/>
-                @else
-                    <livewire:actions.test-plan-test variant="icon-button" :uuid="$this->testId"/>
+                @if(!$this->testIsPublished)
                     <livewire:actions.test-make-published :uuid="$this->testId" :wire:key="'make-published'.$this->testId"/>
                 @endif
             </div>

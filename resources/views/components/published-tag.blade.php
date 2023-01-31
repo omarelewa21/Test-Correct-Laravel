@@ -1,7 +1,13 @@
-<span @class([$labelTagWhite ? 'label-tag-white' : 'card-tag', 'grey' => !$published ])>
+<span @class([
+        'inline-flex',
+        'items-center',
+        'gap-1',
+        'card-tag',
+        $labelColor ?? ($published ? 'green' : 'grey')
+  ])>
     @if($published)
-        <x-icon.checkmark-small/> &nbsp; {{ __('test.published')}}
+        <x-icon.checkmark-small/><span class="leading-none">{{ __('test.published')}}</span>
     @else
-        <x-icon.edit/> &nbsp; {{ __('test.unpublished') }}
+        <x-icon.edit width="12" height="12"/><span class="leading-none">{{ __('test.unpublished') }}</span>
     @endif
 </span>

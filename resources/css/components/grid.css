@@ -1,33 +1,27 @@
-.card-tag {
+.card-tag, .card-tag.green {
     --card-tag-text-color: var(--cta-primary);
     --card-tag-border-color: var(--cta-primary);
     --card-tag-background-color: rgba(var(--cta-primary-rgb), .1);
 
-    padding: 5px 8px;
+    padding: 2px 8px;
     border-radius: 5px;
     border: solid 1px;
     border-color: var(--card-tag-border-color);
     background-color: var(--card-tag-background-color);
     color: var(--card-tag-text-color)!important;
-    font-size:10px;
-    font-family: Nunito Bold, sans-serif;
+    min-height: 26px;
+}
+.card-tag span {
+    color: var(--card-tag-text-color)!important;
     text-transform: uppercase;
+    font-family: Nunito Bold, sans-serif;
+    font-size:10px;
 }
 
-.label-tag-white {
+.card-tag.white {
     --card-tag-text-color: white;
     --card-tag-border-color: white;
-    --card-tag-background-color: rgba(var(--cta-primary-rgb), .1);
-
-    padding: 5px 8px;
-    border-radius: 5px;
-    border: solid 1px;
-    border-color: var(--card-tag-border-color);
-    background-color: var(--card-tag-background-color);
-    color: var(--card-tag-text-color)!important;
-    font-size:10px;
-    font-family: Nunito Bold, sans-serif;
-    text-transform: uppercase;
+    --card-tag-background-color: rgba(255 255 255 / .1);
 }
 
 .card-tag.grey {

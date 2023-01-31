@@ -100,7 +100,7 @@ class OpenShort extends Component implements QuestionCms
 
     protected $tags = [];
 
-    public $test;
+    public $testIsPublished;
     
     protected $queryString = [
         'action', 'type', 'subtype', 'testId', 'testQuestionId', 'groupQuestionQuestionId', 'owner', 'isCloneRequest', 'withDrawer' => ['except' => false], 'referrer' => ['except' => false],
@@ -275,7 +275,7 @@ class OpenShort extends Component implements QuestionCms
         'questionDeleted'       => '$refresh',
         'addQuestionFromDirty'  => 'addQuestionFromDirty',
         'testSettingsUpdated'   => 'handleUpdatedTestSettings',
-        'test-updated'          => '$refresh',
+        'test-updated'          => 'testPublished',
     ];
 
 
@@ -316,7 +316,7 @@ class OpenShort extends Component implements QuestionCms
 
     public function mount()
     {
-        $this->test = $activeTest = Test::whereUuid($this->testId)->with('testAuthors', 'testAuthors.user')->firstOrFail();
+        $activeTest = Test::whereUuid($this->testId)->with('testAuthors', 'testAuthors.user')->firstOrFail();
         Gate::authorize('isAuthorOfTest', [$activeTest]);
         $this->isChild = false;
         $this->setTaxonomyOptions();
@@ -338,7 +338,7 @@ class OpenShort extends Component implements QuestionCms
         $this->testLang = $activeTest->lang;
         $this->resetQuestionProperties($activeTest);
         $this->canDeleteTest = $activeTest->canDelete(Auth::user());
-
+        $this->testIsPublished = $activeTest->isPublished();
         $this->testName = $activeTest->name;
         $this->subjectId = $activeTest->subject_id;
         $this->educationLevelId = $activeTest->education_level_id;
@@ -1425,5 +1425,10 @@ class OpenShort extends Component implements QuestionCms
     {
         $request->merge(['test_draft' => Test::whereUuid($this->testId)->value('draft')]);
         return $request;
+    }
+
+    public function testPublished()
+    {
+        $this->testIsPublished = Test::whereUuid($this->testId)->first()->isPublished();
     }
 }
