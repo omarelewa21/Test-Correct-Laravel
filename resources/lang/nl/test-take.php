@@ -30,4 +30,5 @@ return [
     'schedule-make-up-test'                                                                                                       => 'Inhaaltoets plannen',
     'allow-access'                                                                                                                => 'Openzetten',
     'close-preview'                                                                                                               => 'Dichtzetten',
+    'assess'                                                                                                                      => 'Nakijken',
 ];

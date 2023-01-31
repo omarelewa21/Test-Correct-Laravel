@@ -40,12 +40,15 @@
                     <x-slot name="text">{{ __('test-take.close-preview') }}</x-slot>
                 </x-menu.context-menu.button>
             @else
-                <x-menu.context-menu.button wire:click="openAllowPreviewInNormPage">
+                <x-menu.context-menu.button wire:click="openAllowAccessInNormPage">
                     <x-slot name="icon"><x-icon.preview/></x-slot>
                     <x-slot name="text">{{ __('test-take.allow-access') }}</x-slot>
                 </x-menu.context-menu.button>
             @endif
-            
+            <x-menu.context-menu.button wire:click="openAssessInNormPage">
+                <x-slot name="icon"><x-icon.autocheck/></x-slot>
+                <x-slot name="text">{{ __('test-take.assess') }}</x-slot>
+            </x-menu.context-menu.button>
         </div>
 
 

@@ -129,23 +129,38 @@ class TestTakeCard extends ContextMenuComponent
         return CakeRedirectHelper::redirectToCake('taken.schedule_makeup', $this->uuid);
     }
 
-    public function hasGrantedPreviewAccess(): bool
+    public function openAllowAccessInNormPage()
     {
-        return $this->uuid
-            ? TestTake::whereUuid($this->uuid)->firstOrFail()->isAllowedToReviewResultsByParticipants()
-            : false;
+        return 
+            $this->openTestTakeDetail(
+                $this->uuid,
+                sprintf("Popup.load('/test_takes/update_show_results/%s', 420)", $this->uuid)
+            );
     }
 
-    public function openAllowPreviewInNormPage()
+    public function openAssessInNormPage()
     {
+        $testTake = TestTake::whereUuid($this->uuid)->with('test')->firstOrFail();
+
+        if($testTake->test->getWritingAssignmentsCount() > 0){
+            return CakeRedirectHelper::redirectToCake('taken.rate_teacher_participant', $this->uuid);
+        }
+
         return $this->openTestTakeDetail(
             $this->uuid,
-            sprintf("Popup.load('/test_takes/update_show_results/%s', 420)", $this->uuid)
+            sprintf("TestTake.startChecking(%s, %s)", $this->uuid, $testTake->returned_to_taken ? 'true' : 'false')
         );
     }
 
     public function closePreviewAccess()
     {
         return TestTake::whereUuid($this->uuid)->update(['show_results' => null]);
+    }
+
+    public function hasGrantedPreviewAccess(): bool
+    {
+        return $this->uuid
+            ? TestTake::whereUuid($this->uuid)->firstOrFail()->isAllowedToReviewResultsByParticipants()
+            : false;
     }
 }
