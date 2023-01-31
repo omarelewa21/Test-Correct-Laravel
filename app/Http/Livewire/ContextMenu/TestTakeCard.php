@@ -155,7 +155,7 @@ class TestTakeCard extends ContextMenuComponent
 
         return $this->openTestTakeDetail(
             $this->uuid,
-            sprintf("TestTake.startChecking(%s, %s)", $this->uuid, $testTake->returned_to_taken ? 'true' : 'false')
+            sprintf("TestTake.startChecking('%s', %s)", $this->uuid, $testTake->returned_to_taken ? 'true' : 'false')
         );
     }
 
