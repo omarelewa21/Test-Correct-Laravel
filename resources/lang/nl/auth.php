@@ -92,7 +92,7 @@ return [
     'roles_do_not_match_up'                                                                          => 'Oeps, de rol voor dit account in Test-Correct komt niet overeen met de rol die meekomt vanuit Entree, neem contact op met de helpdesk.',
     'saml_message_to_old'                                                                            => 'U heeft te veel tijd genomen om uw account te koppelen, het verzoek is reeds verlopen',
     'school_info_not_synced_with_test_correct'                                                       => 'Je schoolgegevens zijn nog niet gesynchroniseerd met Test-Correct.',
-    'school_not_registered_for_sso'                                                                  => 'We hebben geen ARP-formulier beschikbaar voor jouw school, maar je kan wel inloggen met je gebruikersnaam en wachtwoord.',
+    'school_not_registered_for_sso'                                                                  => 'Helaas krijgen we nog geen data binnen van jouw school. Maak een account aan zonder Entree of log in met je e-mailadres.',
     'Schoolbeheerder'                                                                                => 'Schoolbeheerder',
     'send'                                                                                           => 'Verzenden',
     'send_email'                                                                                     => 'Verstuur e-mail',

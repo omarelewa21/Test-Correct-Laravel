@@ -49,6 +49,7 @@ return [
     'email_incorrect'                                         => 'E-mail address is incorrect',
     'require_captcha'                                         => 'Captcha required',
     'require_captcha_long'                                    => 'Too many failed attempts to log into your account. Fill in the correct code to continue',
+    'school_not_registered_for_sso'                           => 'Unfortunately we can’t get data from your school yet. Please register without Entree or log in with e-mail.',
     'incorrect_captcha'                                       => 'Incorrect code.',
     'logout'                                                  => 'Logout',
     'go_to_test_directly'                                     => 'As a student, go to a test directly',
