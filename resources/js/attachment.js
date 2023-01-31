@@ -117,8 +117,9 @@ window.plyrPlayer = {
  * Takes a dom div element and makes it resizable from all corners
  * 
  * @param {object} element
+ * @param {string} attachmentType
  */
-window.makeResizableDiv = function(element) {
+window.makeResizableDiv = function(element, attachmentType='') {
     const resizers = element.querySelectorAll('.resizer')
     const minimum_size = 20;
     let original_width = 0;
@@ -127,6 +128,7 @@ window.makeResizableDiv = function(element) {
     let original_y = 0;
     let original_mouse_x = 0;
     let original_mouse_y = 0;
+    let width, height;
     for (let i = 0;i < resizers.length; i++) {
         const currentResizer = resizers[i];
 
@@ -147,7 +149,6 @@ window.makeResizableDiv = function(element) {
             window.addEventListener('ontouchend', stopResize)
 
             function resize(e) {
-                let width, height;
                 if (currentResizer.classList.contains('bottom-right')) {
                     width = original_width + (e.pageX - original_mouse_x);
                     height = original_height + (e.pageY - original_mouse_y)
@@ -195,6 +196,10 @@ window.makeResizableDiv = function(element) {
             }
     
             function stopResize() {
+                if(attachmentType === 'image'){
+                    let ratio = original_height/original_width;
+                    element.style.height = (ratio * width) + 'px';
+                }
                 window.removeEventListener('mousemove', resize);
                 window.removeEventListener('touchmove', resize);
             }
