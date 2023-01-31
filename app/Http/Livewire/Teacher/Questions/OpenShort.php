@@ -142,7 +142,7 @@ class OpenShort extends Component implements QuestionCms
     public $uniqueQuestionKey = '';
     public $duplicateQuestion = false;
     public $canDeleteTest = false;
-    public $user;
+    public $settingKey = 'spellchecker language';
 
     protected function rules()
     {
@@ -333,7 +333,7 @@ class OpenShort extends Component implements QuestionCms
 
     private function initialize($activeTest)
     {
-        $this->testLang = $this->user = UserFeatureSetting::isUserExists();
+        $this->testLang = UserFeatureSetting::getSetting(Auth::user(),$this->settingKey);
         $this->resetQuestionProperties($activeTest);
         $this->canDeleteTest = $activeTest->canDelete(Auth::user());
 
@@ -368,22 +368,17 @@ class OpenShort extends Component implements QuestionCms
     }
 
     public function saveUserLanguage(){
-        if($this->user == null){
-            $userFeature = new UserFeatureSetting;
-            $userFeature->user_id = auth()->id();
-            $userFeature->title = 'spellchecker language';
-            $userFeature->value = $this->question['lang'];
-            $userFeature->save();
+        if($this->testLang == null){
+            UserFeatureSetting::setSetting(Auth::user(),$this->settingKey,$this->question['lang']);
         }
         else{
-            UserFeatureSetting::where('user_id',auth()->id())->update(['value' => $this->question['lang']]);
+            UserFeatureSetting::where([['user_id',auth()->id()],['title',$this->settingKey]])->update(['value' => $this->question['lang']]);
         }
     }
 
     public function save($withRedirect = true)
     {
         if ($this->emptyState) return false;
-        $this->saveUserLanguage();
         if ($this->obj && method_exists($this->obj, 'prepareForSave')) {
             $this->obj->prepareForSave();
         }

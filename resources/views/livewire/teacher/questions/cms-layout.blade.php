@@ -35,6 +35,7 @@
                 if (document.getElementById('{{ $this->answerEditorId }}')) {
                     WebspellcheckerTlc.lang(CKEDITOR.instances['{{ $this->answerEditorId }}'], lang);
                 }
+                $wire.saveUserLanguage();
            }
            forceSyncEditors = () => {
                 if (document.getElementById('{{ $this->questionEditorId }}')) {

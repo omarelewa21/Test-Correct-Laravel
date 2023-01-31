@@ -13,14 +13,4 @@ class UserFeatureSetting extends UserSettingModel
     {
         return sprintf('.user-%s-feature-settings', $user->uuid);
     }
-
-    public static function isUserExists(){
-        $user = UserFeatureSetting::where('user_id',auth()->id())->first();
-        
-        if(!empty($user)){
-            return $user->value;
-        }
-        
-        return null;
-    }
 }
