@@ -99,6 +99,7 @@ class CakeRedirectHelper
             'taken.schedule_makeup'       => sprintf('/test_takes/add_retake/%s', $this->uuid),
             'taken.rate_participant'      => sprintf('/test_takes/rate_teacher_participant/%s', $this->uuid),
             'taken.normalize'             => sprintf('/test_takes/normalization/%s', $this->uuid),
+            'taken.marking'               => sprintf('/test_takes/set_final_rates/%s', $this->uuid),
             'results.rated'               => '/test_takes/rated',
             'analyses.teacher'            => sprintf('/teacher_analyses/view/%s', $this->uuid),
             'analyses.classes'            => '/analyses/school_classes_overview',

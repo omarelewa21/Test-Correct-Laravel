@@ -48,6 +48,12 @@
                     <x-slot name="icon"><x-icon.autocheck/></x-slot>
                     <x-slot name="text">{{ __('test-take.normalize') }}</x-slot>
                 </x-menu.context-menu.button>
+                @if ($this->showMarkingButton())
+                    <x-menu.context-menu.button wire:click="goToMarkingPage">
+                        <x-slot name="icon"><x-icon.grade/></x-slot>
+                        <x-slot name="text">{{ __('test-take.marking') }}</x-slot>
+                    </x-menu.context-menu.button>
+                @endif
                 <x-menu.context-menu.button wire:click="rttiExport">
                     <x-slot name="icon"><x-icon.download/></x-slot>
                     <x-slot name="text">{{ __('test-take.rtti-export') }}</x-slot>

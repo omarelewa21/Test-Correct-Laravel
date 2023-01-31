@@ -33,4 +33,5 @@ return [
     'assess'                                                                                                                      => 'Nakijken',
     'normalize'                                                                                                                   => 'Normeren',
     'rtti-export'                                                                                                                 => 'Rtti-Export',
+    'marking'                                                                                                                     => 'Becijferen',
 ];

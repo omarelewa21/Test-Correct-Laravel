@@ -34,4 +34,5 @@ return [
     'assess'                                                                                                                      => 'Assess',
     'normalize'                                                                                                                   => 'Set norm',
     'rtti-export'                                                                                                                 => 'Rtti-Export',
+    'marking'                                                                                                                     => 'Marking',
 ];

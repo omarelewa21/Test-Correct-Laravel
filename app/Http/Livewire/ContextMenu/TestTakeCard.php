@@ -158,6 +158,11 @@ class TestTakeCard extends ContextMenuComponent
         return CakeRedirectHelper::redirectToCake('taken.normalize', $this->uuid);
     }
 
+    public function goToMarkingPage()
+    {
+        return CakeRedirectHelper::redirectToCake('taken.normalize', $this->uuid);
+    }
+
     public function closePreviewAccess()
     {
         return TestTake::whereUuid($this->uuid)->update(['show_results' => null]);
@@ -180,6 +185,15 @@ class TestTakeCard extends ContextMenuComponent
         if($this->uuid){
             $testTake = TestTake::whereUuid($this->uuid)->firstOrFail();
             return  $testTake->is_rtti_test_take == 0 && $testTake->hasAllParticipantAnswersRated();
+        }
+        return false;
+    }
+
+    public function showMarkingButton(): bool
+    {
+        if($this->uuid){
+            $testTake = TestTake::whereUuid($this->uuid)->firstOrFail();
+            return $testTake->ppp || $testTake->epp || $testTake->wanted_average || $testTake->n_term;
         }
         return false;
     }
