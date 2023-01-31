@@ -129,7 +129,11 @@ window.makeResizableDiv = function(element) {
     let original_mouse_y = 0;
     for (let i = 0;i < resizers.length; i++) {
         const currentResizer = resizers[i];
-        currentResizer.addEventListener('mousedown', function(e) {
+
+        currentResizer.addEventListener('mousedown', resizeMouseDown);
+        currentResizer.addEventListener('ontouchstart', resizeMouseDown);
+
+        function resizeMouseDown(e) {
             e.preventDefault()
             original_width = parseFloat(getComputedStyle(element, null).getPropertyValue('width').replace('px', ''));
             original_height = parseFloat(getComputedStyle(element, null).getPropertyValue('height').replace('px', ''));
@@ -138,59 +142,62 @@ window.makeResizableDiv = function(element) {
             original_mouse_x = e.pageX;
             original_mouse_y = e.pageY;
             window.addEventListener('mousemove', resize)
+            window.addEventListener('ontouchmove', resize)
             window.addEventListener('mouseup', stopResize)
-        })
-        
-        function resize(e) {
-            let width, height;
-            if (currentResizer.classList.contains('bottom-right')) {
-                width = original_width + (e.pageX - original_mouse_x);
-                height = original_height + (e.pageY - original_mouse_y)
-                if (width > minimum_size) {
-                    element.style.width = width + 'px'
-                }
-                if (height > minimum_size) {
-                    element.style.height = height + 'px'
-                }
-            }
-            else if (currentResizer.classList.contains('bottom-left')) {
-                height = original_height + (e.pageY - original_mouse_y)
-                width = original_width - (e.pageX - original_mouse_x)
-                if (height > minimum_size) {
-                    element.style.height = height + 'px'
-                }
-                if (width > minimum_size) {
-                    element.style.width = width + 'px'
-                    element.style.left = original_x + (e.pageX - original_mouse_x) + 'px'
-                }
-            }
-            else if (currentResizer.classList.contains('top-right')) {
-                width = original_width + (e.pageX - original_mouse_x)
-                height = original_height - (e.pageY - original_mouse_y)
-                if (width > minimum_size) {
-                    element.style.width = width + 'px'
-                }
-                if (height > minimum_size) {
-                    element.style.height = height + 'px'
-                    element.style.top = original_y + (e.pageY - original_mouse_y) + 'px'
-                }
-            }
-            else {
-                width = original_width - (e.pageX - original_mouse_x)
-                height = original_height - (e.pageY - original_mouse_y)
-                if (width > minimum_size) {
-                    element.style.width = width + 'px'
-                    element.style.left =  original_x + (e.pageX - original_mouse_x) + 'px'
-                }
-                if (height > minimum_size) {
-                    element.style.height = height + 'px'
-                    element.style.top = original_y + (e.pageY - original_mouse_y) + 'px'
-                }
-            }
-        }
+            window.addEventListener('ontouchend', stopResize)
 
-        function stopResize() {
-            window.removeEventListener('mousemove', resize)
+            function resize(e) {
+                let width, height;
+                if (currentResizer.classList.contains('bottom-right')) {
+                    width = original_width + (e.pageX - original_mouse_x);
+                    height = original_height + (e.pageY - original_mouse_y)
+                    if (width > minimum_size) {
+                        element.style.width = width + 'px'
+                    }
+                    if (height > minimum_size) {
+                        element.style.height = height + 'px'
+                    }
+                }
+                else if (currentResizer.classList.contains('bottom-left')) {
+                    height = original_height + (e.pageY - original_mouse_y)
+                    width = original_width - (e.pageX - original_mouse_x)
+                    if (height > minimum_size) {
+                        element.style.height = height + 'px'
+                    }
+                    if (width > minimum_size) {
+                        element.style.width = width + 'px'
+                        element.style.left = original_x + (e.pageX - original_mouse_x) + 'px'
+                    }
+                }
+                else if (currentResizer.classList.contains('top-right')) {
+                    width = original_width + (e.pageX - original_mouse_x)
+                    height = original_height - (e.pageY - original_mouse_y)
+                    if (width > minimum_size) {
+                        element.style.width = width + 'px'
+                    }
+                    if (height > minimum_size) {
+                        element.style.height = height + 'px'
+                        element.style.top = original_y + (e.pageY - original_mouse_y) + 'px'
+                    }
+                }
+                else {
+                    width = original_width - (e.pageX - original_mouse_x)
+                    height = original_height - (e.pageY - original_mouse_y)
+                    if (width > minimum_size) {
+                        element.style.width = width + 'px'
+                        element.style.left =  original_x + (e.pageX - original_mouse_x) + 'px'
+                    }
+                    if (height > minimum_size) {
+                        element.style.height = height + 'px'
+                        element.style.top = original_y + (e.pageY - original_mouse_y) + 'px'
+                    }
+                }
+            }
+    
+            function stopResize() {
+                window.removeEventListener('mousemove', resize);
+                window.removeEventListener('touchmove', resize);
+            }
         }
     }
 }
