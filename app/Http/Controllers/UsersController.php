@@ -140,6 +140,9 @@ class UsersController extends Controller
             $newUser->password = $user->password;
             $newUser->save();
 
+            $newUser->password_expiration_date = null;
+            $newUser->save();
+
             // we can always get the old user by checking the creation date of the new user and use that to see the vervallenDATETIME of the old user
             $user->username = sprintf('vervallen-%d-%s-%s', $newUser->created_at->format('YmdHis'),$newUser->getKey(), explode('@', $user->username)[1]);
             $user->save();

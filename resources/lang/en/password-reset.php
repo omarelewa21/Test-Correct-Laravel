@@ -18,4 +18,5 @@
         'Kijk hier' => 'Look here',
         'Uitleg vervallen wachtwoord' => 'The password you used to log in has expired and needs to be reset. Enter a new password, repeat and confirm.',
         'De twee wachtwoorden zijn niet hetzelfde' => 'The two passwords do not match.',
+        'min password length' => 'The new password should contain a minimum of :LENGTH characters.',
     ];

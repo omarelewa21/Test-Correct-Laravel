@@ -15,15 +15,15 @@ class ForcePasswordChangeModal extends ModalComponent
     public function rules()
     {
         return [
-            'newPassword'     => 'required|confirmed|' . User::getPasswordLengthRule(),
-            'newPassword.min' => __('registration.password_min'),
+            'newPassword' => 'required|confirmed|' . User::getPasswordLengthRule(),
         ];
     }
 
     public function messages()
     {
         return [
-            'newPassword.confirmed' => __('password-reset.De twee wachtwoorden zijn niet hetzelfde')
+            'newPassword.confirmed' => __('password-reset.De twee wachtwoorden zijn niet hetzelfde'),
+            'newPassword.min'       => __('password-reset.min password length', ['length' => User::MIN_PASSWORD_LENGTH]),
         ];
     }
 
