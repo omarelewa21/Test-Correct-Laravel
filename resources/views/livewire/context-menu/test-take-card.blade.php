@@ -24,16 +24,10 @@
         </div>
 
         <div x-show="openTab == 'norm'">
-            @if($this->hasAnswerPdfOption())
-                <x-menu.context-menu.button wire:click="studentAnswersPdf">
-                    <x-slot name="icon"><x-icon.pdf-file/></x-slot>
-                    <x-slot name="text">{{ __('test-take.Antwoord PDF') }}</x-slot>
-                </x-menu.context-menu.button>
-                <x-menu.context-menu.button wire:click="updateStatusToTaken">
-                    <x-slot name="icon"><x-icon.arrow/></x-slot>
-                    <x-slot name="text">{{ __('test_take.update_to_taken') }}</x-slot>
-                </x-menu.context-menu.button>
-            @endif
+            <x-menu.context-menu.button wire:click="studentAnswersPdf">
+                <x-slot name="icon"><x-icon.pdf-file/></x-slot>
+                <x-slot name="text">{{ __('test-take.Antwoord PDF') }}</x-slot>
+            </x-menu.context-menu.button>
             @if ($this->hasGrantedPreviewAccess())
                 <x-menu.context-menu.button wire:click="closePreviewAccess">
                     <x-slot name="icon"><x-icon.preview-off/></x-slot>
@@ -46,8 +40,22 @@
                 </x-menu.context-menu.button>
             @endif
             <x-menu.context-menu.button wire:click="openAssessInNormPage">
-                <x-slot name="icon"><x-icon.autocheck/></x-slot>
+                <x-slot name="icon"><x-icon.grading/></x-slot>
                 <x-slot name="text">{{ __('test-take.assess') }}</x-slot>
+            </x-menu.context-menu.button>
+            @if ($this->showNormalizeButton())
+                <x-menu.context-menu.button wire:click="goToNormalizePage">
+                    <x-slot name="icon"><x-icon.autocheck/></x-slot>
+                    <x-slot name="text">{{ __('test-take.normalize') }}</x-slot>
+                </x-menu.context-menu.button>
+            @endif
+            <x-menu.context-menu.button wire:click="updateStatusToTaken">
+                <x-slot name="icon"><x-icon.arrow/></x-slot>
+                <x-slot name="text">{{ __('test_take.update_to_taken') }}</x-slot>
+            </x-menu.context-menu.button>
+            <x-menu.context-menu.button wire:click="goToScheduleMakeUpPage">
+                <x-slot name="icon"><x-icon.schedule/></x-slot>
+                <x-slot name="text">{{ __('test-take.schedule-make-up-test') }}</x-slot>
             </x-menu.context-menu.button>
         </div>
 

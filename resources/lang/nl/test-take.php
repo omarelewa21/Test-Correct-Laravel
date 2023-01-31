@@ -31,4 +31,5 @@ return [
     'allow-access'                                                                                                                => 'Openzetten',
     'close-preview'                                                                                                               => 'Dichtzetten',
     'assess'                                                                                                                      => 'Nakijken',
+    'normalize'                                                                                                                   => 'Normeren',
 ];

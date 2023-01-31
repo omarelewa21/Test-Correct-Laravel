@@ -32,4 +32,5 @@ return [
     'allow-access'                                                                                                                => 'Allow preview',
     'close-preview'                                                                                                               => 'Close preview',
     'assess'                                                                                                                      => 'Assess',
+    'normalize'                                                                                                                   => 'Set norm',
 ];

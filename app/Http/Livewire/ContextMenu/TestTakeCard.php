@@ -143,13 +143,18 @@ class TestTakeCard extends ContextMenuComponent
         $testTake = TestTake::whereUuid($this->uuid)->with('test')->firstOrFail();
 
         if($testTake->test->getWritingAssignmentsCount() > 0){
-            return CakeRedirectHelper::redirectToCake('taken.rate_teacher_participant', $this->uuid);
+            return CakeRedirectHelper::redirectToCake('taken.rate_participant', $this->uuid);
         }
 
         return $this->openTestTakeDetail(
             $this->uuid,
             sprintf("TestTake.startChecking(%s, %s)", $this->uuid, $testTake->returned_to_taken ? 'true' : 'false')
         );
+    }
+
+    public function goToNormalizePage()
+    {
+        return CakeRedirectHelper::redirectToCake('taken.normalize', $this->uuid);
     }
 
     public function closePreviewAccess()
@@ -162,5 +167,14 @@ class TestTakeCard extends ContextMenuComponent
         return $this->uuid
             ? TestTake::whereUuid($this->uuid)->firstOrFail()->isAllowedToReviewResultsByParticipants()
             : false;
+    }
+
+    public function showNormalizeButton(): bool
+    {
+        if($this->uuid){
+            $testTake = TestTake::whereUuid($this->uuid)->firstOrFail();
+            return  $testTake->is_rtti_test_take == 0 && $testTake->hasAllParticipantAnswersRated();
+        }
+        return false;
     }
 }
