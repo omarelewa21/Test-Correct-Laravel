@@ -3,9 +3,9 @@
 namespace tcCore\Http\Livewire\ContextMenu;
 
 use Illuminate\Support\Facades\Auth;
+use tcCore\Http\Controllers\TestTakesController;
 use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Http\Traits\WithTestTakeInteractions;
-use tcCore\TemporaryLogin;
 use tcCore\TestTake;
 use tcCore\TestTakeStatus;
 
@@ -17,6 +17,11 @@ class TestTakeCard extends ContextMenuComponent
     public $uuid = null;
     public $testTakeStatusId;
     public $isArchived = false;
+    public array $normButtonsShow = [
+        'allow-access'      => true,
+        'normalize'         => false,
+        'marking'           => false
+    ];
 
     public function setContextValues($uuid, $contextData): bool
     {
@@ -24,8 +29,10 @@ class TestTakeCard extends ContextMenuComponent
 
         $take = TestTake::whereUuid($uuid)->get(['test_take_status_id'])->first();
         $this->testTakeStatusId = $take->test_take_status_id;
+        if($this->takeInNormPage()){
+            $this->setNormButtonsShow();
+        }
         $this->isArchived = $take->archived;
-
         return true;
     }
 
@@ -71,7 +78,7 @@ class TestTakeCard extends ContextMenuComponent
         $this->emit('openModal','teacher.pdf-download-modal', ['uuid' => $this->uuid, 'testTake' => true]);
     }
 
-    public function hasAnswerPdfOption(): bool
+    private function takeInNormPage(): bool
     {
         return collect(TestTakeStatus::STATUS_DISCUSSED)->contains($this->testTakeStatusId);
     }
@@ -127,5 +134,66 @@ class TestTakeCard extends ContextMenuComponent
     public function goToScheduleMakeUpPage()
     {
         return CakeRedirectHelper::redirectToCake('taken.schedule_makeup', $this->uuid);
+    }
+
+    public function openAllowAccessInNormPage()
+    {
+        return 
+            $this->openTestTakeDetail(
+                $this->uuid,
+                sprintf("Popup.load('/test_takes/update_show_results/%s', 420)", $this->uuid)
+            );
+    }
+
+    public function openAssessInNormPage()
+    {
+        $testTake = TestTake::whereUuid($this->uuid)->with('test')->firstOrFail();
+
+        if($testTake->test->getWritingAssignmentsCount() > 0){
+            return CakeRedirectHelper::redirectToCake('taken.rate_participant', $this->uuid);
+        }
+
+        return $this->openTestTakeDetail(
+            $this->uuid,
+            sprintf("TestTake.startChecking('%s', %s)", $this->uuid, $testTake->returned_to_taken ? 'true' : 'false')
+        );
+    }
+
+    public function goToNormalizePage()
+    {
+        return CakeRedirectHelper::redirectToCake('taken.normalize', $this->uuid);
+    }
+
+    public function goToMarkingPage()
+    {
+        return CakeRedirectHelper::redirectToCake('taken.marking', $this->uuid);
+    }
+
+    public function closePreviewAccess()
+    {
+        return TestTake::whereUuid($this->uuid)->update(['show_results' => null]);
+    }
+
+    public function rttiExport()
+    {
+        return (new TestTakesController)->export(TestTake::whereUuid($this->uuid)->firstOrFail());
+    }
+
+    private function setNormButtonsShow()
+    {
+        if($this->uuid){
+            $testTake = TestTake::whereUuid($this->uuid)->firstOrFail();
+            return $this->normButtonsShow = [
+                'allow-access'      => !$testTake->isAllowedToReviewResultsByParticipants(),
+                'normalize'         => $testTake->is_rtti_test_take == 0 && $testTake->hasAllParticipantAnswersRated(),
+                'marking'           => $testTake->ppp || $testTake->epp || $testTake->wanted_average || $testTake->n_term
+            ];
+        }
+
+        return $this->normButtonsShow = [
+            'allow-access'      => true,
+            'normalize'         => false,
+            'marking'           => false
+        ];
     }
 }

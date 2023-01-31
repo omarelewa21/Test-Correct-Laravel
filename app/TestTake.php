@@ -1242,4 +1242,26 @@ class TestTake extends BaseModel
             })
         );
     }
+
+    /**
+     * Check if test take is still allowed to review by students 
+     */
+    public function isAllowedToReviewResultsByParticipants(): bool
+    {
+        return
+            !empty($this->show_results)
+            && !is_null($this->show_results)
+            && time() < strtotime($this->show_results);
+    }
+
+    /**
+     * Check if all participant answers are rated
+     */
+    public function hasAllParticipantAnswersRated(): bool
+    {
+        return $this->testParticipants()
+            ->join('answers', 'answers.test_participant_id', 'test_participants.id')
+            ->whereNull('answers.final_rating')
+            ->doesntExist();
+    }
 }

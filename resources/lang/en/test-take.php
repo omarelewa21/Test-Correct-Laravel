@@ -29,4 +29,10 @@ return [
     'copy-link'                                                                                                                   => 'Copy link',
     'CO-Learning'                                                                                                                 => 'CO-Learning',
     'schedule-make-up-test'                                                                                                       => 'Schedule make-up test',
+    'allow-access'                                                                                                                => 'Allow preview',
+    'close-preview'                                                                                                               => 'Close preview',
+    'assess'                                                                                                                      => 'Assess',
+    'normalize'                                                                                                                   => 'Set norm',
+    'rtti-export'                                                                                                                 => 'Rtti-Export',
+    'marking'                                                                                                                     => 'Marking',
 ];
