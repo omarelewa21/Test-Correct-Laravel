@@ -27,7 +27,7 @@
 
     <x-content-section>
         <x-slot name="title">
-            {{ __('student.p waarde vakken') }}
+            {{ __('student.percentage per vak') }}
         </x-slot>
 
 
@@ -49,7 +49,7 @@
     <BR>
     <x-content-section>
         <x-slot name="title">
-            {{ __('student.ontwikkeling p-waarde over tijd') }}
+            {{ __('student.ontwikkeling percentage over tijd') }}
         </x-slot>
 
 

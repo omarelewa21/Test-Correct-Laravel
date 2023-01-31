@@ -31,15 +31,15 @@
 
 @section('analyses.p-values-graph')
     <div class="flex justify-between mb-5">
-        <h2 class="flex">{{ __('student.overzicht p-waardes') }}</h2>
+        <h2 class="flex">{{ __('student.overzicht percentages') }}</h2>
     </div>
     <x-content-section>
 
         <x-slot name="title">
             @if ($attainment->is_learning_goal == 1)
-                {{__('student.p waarde subleerdoelen') }}
+                {{__('student.percentage per subleerdoel') }}
             @else
-                {{__('student.p waarde subeindtermen') }}
+                {{__('student.percentage per subeindterm') }}
             @endif
         </x-slot>
         <div x-data="analysesAttainmentsGraph( 'pValueChart' )"
@@ -88,7 +88,7 @@
     <BR>
     <x-content-section>
         <x-slot name="title">
-            {{ __('student.ontwikkeling p-waarde over tijd') }}
+            {{ __('student.ontwikkeling percentage over tijd') }}
         </x-slot>
 
 

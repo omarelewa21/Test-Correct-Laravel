@@ -42,7 +42,7 @@
 
 @section('analyses.p-values-graph')
     <div class="flex justify-between mb-5">
-        <h2 class="flex">{{ __('student.overzicht p-waardes') }}</h2>
+        <h2 class="flex">{{ __('student.overzicht percentages') }}</h2>
         <div class="flex">
             <x-button.slider
                     class="flex gap-2 items-center"
@@ -57,9 +57,9 @@
         <x-slot name="title">
             {{--            <div class="hidden">{{ $this->data }}</div>--}}
             @if($this->attainmentMode === \tcCore\Attainment::TYPE)
-                {{ __('student.p waarde eindtermen') }}
+                {{ __('student.percentage per eindterm') }}
             @else
-            {{ __('student.p waarde leerdoelen') }}
+            {{ __('student.percentage per leerdoel') }}
             @endif
         </x-slot>
         <div x-data="analysesAttainmentsGraph('pValueChart')"
@@ -87,7 +87,7 @@
     <BR>
     <x-content-section>
         <x-slot name="title">
-                {{ __('student.ontwikkeling p-waarde over tijd') }}
+                {{ __('student.ontwikkeling percentage over tijd') }}
         </x-slot>
 
 
