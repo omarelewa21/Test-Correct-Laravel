@@ -6,7 +6,6 @@ use Illuminate\Support\Facades\Auth;
 use tcCore\Http\Controllers\TestTakesController;
 use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Http\Traits\WithTestTakeInteractions;
-use tcCore\TemporaryLogin;
 use tcCore\TestTake;
 use tcCore\TestTakeStatus;
 
@@ -18,6 +17,11 @@ class TestTakeCard extends ContextMenuComponent
     public $uuid = null;
     public $testTakeStatusId;
     public $isArchived = false;
+    public array $normButtonsShow = [
+        'allow-access'      => true,
+        'normalize'         => false,
+        'marking'           => false
+    ];
 
     public function setContextValues($uuid, $contextData): bool
     {
@@ -25,8 +29,10 @@ class TestTakeCard extends ContextMenuComponent
 
         $take = TestTake::whereUuid($uuid)->get(['test_take_status_id'])->first();
         $this->testTakeStatusId = $take->test_take_status_id;
+        if($this->takeInNormPage()){
+            $this->setNormButtonsShow();
+        }
         $this->isArchived = $take->archived;
-
         return true;
     }
 
@@ -72,7 +78,7 @@ class TestTakeCard extends ContextMenuComponent
         $this->emit('openModal','teacher.pdf-download-modal', ['uuid' => $this->uuid, 'testTake' => true]);
     }
 
-    public function hasAnswerPdfOption(): bool
+    private function takeInNormPage(): bool
     {
         return collect(TestTakeStatus::STATUS_DISCUSSED)->contains($this->testTakeStatusId);
     }
@@ -173,28 +179,21 @@ class TestTakeCard extends ContextMenuComponent
         return (new TestTakesController)->export(TestTake::whereUuid($this->uuid)->firstOrFail());
     }
 
-    public function hasGrantedPreviewAccess(): bool
-    {
-        return $this->uuid
-            ? TestTake::whereUuid($this->uuid)->firstOrFail()->isAllowedToReviewResultsByParticipants()
-            : false;
-    }
-
-    public function showNormalizeButton(): bool
+    private function setNormButtonsShow()
     {
         if($this->uuid){
             $testTake = TestTake::whereUuid($this->uuid)->firstOrFail();
-            return  $testTake->is_rtti_test_take == 0 && $testTake->hasAllParticipantAnswersRated();
+            return $this->normButtonsShow = [
+                'allow-access'      => !$testTake->isAllowedToReviewResultsByParticipants(),
+                'normalize'         => $testTake->is_rtti_test_take == 0 && $testTake->hasAllParticipantAnswersRated(),
+                'marking'           => $testTake->ppp || $testTake->epp || $testTake->wanted_average || $testTake->n_term
+            ];
         }
-        return false;
-    }
 
-    public function showMarkingButton(): bool
-    {
-        if($this->uuid){
-            $testTake = TestTake::whereUuid($this->uuid)->firstOrFail();
-            return $testTake->ppp || $testTake->epp || $testTake->wanted_average || $testTake->n_term;
-        }
-        return false;
+        return $this->normButtonsShow = [
+            'allow-access'      => true,
+            'normalize'         => false,
+            'marking'           => false
+        ];
     }
 }
