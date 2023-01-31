@@ -1046,7 +1046,6 @@ document.addEventListener('alpine:init', () => {
             renderGraph() {
 
                 var cssSelector = '#' + this.modelId + '>div:not(.empty-state)';
-                console.log(cssSelector);
                 this.$root.querySelectorAll(cssSelector).forEach(node => node.remove())
                 // set the data
                 let table = anychart.data.table();
@@ -1054,6 +1053,7 @@ document.addEventListener('alpine:init', () => {
 
                 // chart type
                 var chart = anychart.stock();
+
                 var yScale = chart.plot(0).yScale();
                 yScale.minimum(0);
                 yScale.maximum(1.00);
@@ -1092,6 +1092,8 @@ document.addEventListener('alpine:init', () => {
                 chart.scroller().outlineStroke("var(--system-base)", 2);
                 chart.scroller().outline
 
+                chart.interactivity().hoverMode("single");
+
                 this.subjects.forEach((el, index) => {
                     let cnt = index + 1;
                     let mapping = table.mapAs();
@@ -1101,7 +1103,17 @@ document.addEventListener('alpine:init', () => {
                     series.name(el);
                     series.legendItem().useHtml(true)
                     series.legendItem().format("{%seriesName}")
-                    series.stroke(this.colors[index]);
+
+                    let marker = series.normal().markers();
+                    marker.enabled(false);
+
+                    let marker1 = series.hovered().markers();
+                    marker1.enabled(true);
+                    marker1.size(4);
+                    marker1.type('circle')
+
+                    series.normal().stroke(this.colors[index],2)
+                    series.connectMissingPoints(true);
                 })
 
                 chart.title('');

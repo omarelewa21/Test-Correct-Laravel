@@ -12,6 +12,8 @@ use tcCore\Lib\Repositories\PValueRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyBloomRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyMillerRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyRTTIRepository;
+use tcCore\Lib\Repositories\PValueTimeSeriesDayRepository;
+use tcCore\Lib\Repositories\PValueTimeSeriesWeekRepository;
 use tcCore\Scopes\AttainmentScope;
 use tcCore\Lib\Repositories\TaxonomyRankingRepository;
 use tcCore\Subject;
@@ -172,38 +174,34 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
         );
     }
 
-
     public function getDataForSubjectTimeSeriesGraph()
     {
         $results =
-            // PValueRepository::getPValueForStudentBySubjectDayDateTimeSeries(
-             PValueRepository::getPValueForStudentForSubjectByAttainmentDayDateTimeSeries(
-            $this->getHelper()->getForUser(),
-             $this->subject,
-            $this->getPeriodsByFilterValues(),
-            $this->getEducationLevelYearsByFilterValues(),
-            $this->getTeachersByFilterValues(),
-             $this->getIsLearningGoalFilter()
-        );
+            PValueTimeSeriesWeekRepository::getForStudentForSubjectByAttainment(
+                $this->getHelper()->getForUser(),
+                $this->subject,
+                $this->getPeriodsByFilterValues(),
+                $this->getEducationLevelYearsByFilterValues(),
+                $this->getTeachersByFilterValues(),
+                $this->getIsLearningGoalFilter()
+            );
 
         $set = [];
         $names = [];
-        foreach($results as $result) {
+        foreach ($results as $result) {
             if (!in_array($result->id, $names)) {
                 $names[] = $result->id;
-                $prevScore = $result->score ?? 0;
             }
-            $set[$result->gen_date][] = $prevScore = $result->score ?? $prevScore;
+            $set[$result->week_date][] =  $result->score ?? 'missing';// $prevScore;
         }
 
-        $newSet = collect($set)->map(function($arr, $key) {
+        $newSet = collect($set)->map(function ($arr, $key) {
             return [$key, ...$arr];
         })->values()->toArray();
 
         $eindtermen = collect($names)->map(function ($id) {
             return Attainment::withoutGlobalScope(AttainmentScope::class)->find($id)->name;
         })->toArray();
-
 
         return [false, $newSet, $eindtermen];
     }

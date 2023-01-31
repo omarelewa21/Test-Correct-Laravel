@@ -6,6 +6,8 @@ use tcCore\Attainment;
 use tcCore\BaseAttainment;
 use tcCore\Http\Traits\WithAnalysesGeneralData;
 use tcCore\Lib\Repositories\PValueRepository;
+use tcCore\Lib\Repositories\PValueTimeSeriesDayRepository;
+use tcCore\Lib\Repositories\PValueTimeSeriesWeekRepository;
 use tcCore\Scopes\AttainmentScope;
 use tcCore\Lib\Repositories\TaxonomyRankingRepository;
 use tcCore\Subject;
@@ -103,7 +105,7 @@ class AnalysesAttainmentDashboard extends AnalysesDashboard
     {
         $results =
             // PValueRepository::getPValueForStudentBySubjectDayDateTimeSeries(
-            PValueRepository::getPValueForStudentForAttainmentByAttainmentDayDateTimeSeries(
+            PValueTimeSeriesWeekRepository::getForStudentForAttainmentByAttainment(
                 $this->getHelper()->getForUser(),
                 $this->attainment,
                 $this->subject,
@@ -118,9 +120,8 @@ class AnalysesAttainmentDashboard extends AnalysesDashboard
         foreach($results as $result) {
             if (!in_array($result->id, $names)) {
                 $names[] = $result->id;
-                $prevScore = $result->score ?? 0;
             }
-            $set[$result->gen_date][] = $prevScore = $result->score ?? $prevScore;
+            $set[$result->week_date][] =  $result->score ?? 'missing';
         }
 
         $newSet = collect($set)->map(function($arr, $key) {
@@ -130,7 +131,6 @@ class AnalysesAttainmentDashboard extends AnalysesDashboard
         $eindtermen = collect($names)->map(function ($id) {
             return Attainment::withoutGlobalScope(AttainmentScope::class)->find($id)->name;
         })->toArray();
-
 
         return [false, $newSet, $eindtermen];
     }
