@@ -135,7 +135,6 @@ return [
     'subattainment'                                            => 'Sub-attainment',
     'description'                                              => 'Description',
     'eindterm'                                                 => 'attainment',
-    'Percentage per subsubleerdoel'                            => 'Percentage per sub sub learning goals',
     'ontwikkeling percentage over tijd'                        => 'Timeseries percentage',
     'obv count questions'                                      => "{0}No relevante data available|{1}based on 1 question|[2,*]based on :count questions",
     'Algemeen'                                                 => 'General',
