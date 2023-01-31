@@ -166,7 +166,7 @@ class TestTakeCard extends ContextMenuComponent
 
     public function goToMarkingPage()
     {
-        return CakeRedirectHelper::redirectToCake('taken.normalize', $this->uuid);
+        return CakeRedirectHelper::redirectToCake('taken.marking', $this->uuid);
     }
 
     public function closePreviewAccess()
