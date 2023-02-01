@@ -12,8 +12,8 @@ class PreviewAttachment extends Preview
     public ?string $iconComponentName = null;
     public string $questionUuid;
 
-    public $currentTimes = [];
-    public $pressedPlay = false;
+//    public $currentTimes = [];
+//    public $pressedPlay = false;
 
     public function mount(string $attachmentUuid, string $questionUuid) {
         $this->attachment = Attachment::whereUuid($attachmentUuid)->first();
@@ -23,7 +23,14 @@ class PreviewAttachment extends Preview
     }
 
     public function render() {
-        return view('livewire.modal.preview-attachment');
+
+        if(in_array($this->attachmentType, ['video', 'audio', 'image', 'pdf'])) {
+            return view(
+                "livewire.modal.preview-attachment-{$this->attachmentType}"
+            );
+        }
+        return view("livewire.modal.preview-attachment");
+
     }
 
     protected function setProperties() {
@@ -35,19 +42,6 @@ class PreviewAttachment extends Preview
         if($this->attachmentType === 'video') {
             $iconNameSuffix = Attachment::getVideoHost($this->attachment->link);
         }
-        if($this->attachmentType === 'image') {
-            /*$this->imageDimensions = collect(getimagesize($this->attachment->getCurrentPath()))
-                ->reduce(function ($carry, $item, $key) {
-                    if($key === 0) {
-                        $carry['width'] = $item;
-                    }
-                    if($key === 1) {
-                        $carry['height'] = $item;
-                    }
-                    return $carry;
-                }, collect());*/
-        }
-
 
         $this->iconComponentName = sprintf('icon.%s', $iconNameSuffix);
     }
@@ -57,9 +51,7 @@ class PreviewAttachment extends Preview
     }
 
 
-
-
-    public function audioIsPlayedOnce() {}
+    /*public function audioIsPlayedOnce() {}
 
     public function audioStoreCurrentTime($attachmentUuid, $currentTime)
     {
@@ -72,5 +64,5 @@ class PreviewAttachment extends Preview
             return $this->currentTimes[$this->attachment->uuid];
         }
         return 0;
-    }
+    }*/
 }

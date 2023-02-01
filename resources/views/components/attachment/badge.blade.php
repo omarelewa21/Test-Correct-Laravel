@@ -23,12 +23,13 @@
     }
 @endphp
 
-<div class="flex border rounded-lg border-blue-grey items-center mr-4 mb-2 {{ $mode === 'view' ? 'badge-view' : ''  }} "
+<div class="flex border rounded-lg border-blue-grey items-center mr-4 mb-2 {{ $mode === 'view' ? 'badge-view' : ''  }} relative "
      x-data="badge('{{ $type == 'video' ? $attachment->link : null }}', '{{ $mode }}')"
      wire:key="{{ $attributes['wire:key'] }}"
      @attachments-updated.window="setIndex()"
-     wire:click="$emit('openModal', 'modal.preview-attachment', {{ json_encode(['attachmentUuid' => $attachment->uuid, 'questionUuid' => $questionUuid ]) }})"
-     {{-- todo @click open preview attachments modal --}}
+     @if($mode === 'view')
+        wire:click="$emit('openModal', 'modal.preview-attachment', {{ json_encode(['attachmentUuid' => $attachment->uuid, 'questionUuid' => $questionUuid ]) }})"
+     @endif
 >
     <div class="flex p-2 border-r border-blue-grey h-full items-center">
         @if($type == 'image')

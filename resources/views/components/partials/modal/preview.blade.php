@@ -1,7 +1,7 @@
-<div id="co-learning-preview" class="flex flex-1 flex-col h-full"
+<div id="preview-modal" class="flex flex-1 flex-col h-full"
 
 >
-    <div class="co-learning-drawing-modal-header">
+    <div class="preview-modal-header">
         <div class="bold flex items-center min-w-max space-x-2.5 text-lg">
             @isset($icon)
                 {{ $icon }}
@@ -15,11 +15,11 @@
         </span>
 
         <div class="flex ml-auto items-center space-x-2.5">
-            <x-button.close wire:click="$emit('closeModal')"/>
+            <x-button.close wire:click="$emit('closeModal')" class="bg-white"/>
         </div>
     </div>
 
-    <div class="preview-content mx-auto bg-lightGrey {{-- before-shadow --}}relative"
+    <div class="preview-modal-content mx-auto bg-lightGrey relative"
          wire:ignore.self
     >
         {{ $slot }}

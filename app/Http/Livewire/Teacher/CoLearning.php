@@ -18,6 +18,7 @@ use tcCore\Http\Controllers\TestTakeLaravelController;
 use tcCore\Http\Controllers\TestTakesController;
 use tcCore\Http\Enums\CoLearning\AbnormalitiesStatus;
 use tcCore\Http\Enums\CoLearning\RatingStatus;
+use tcCore\Http\Helpers\CoLearningHelper;
 use tcCore\Question;
 use tcCore\TestParticipant;
 use tcCore\TestTake;
@@ -355,6 +356,13 @@ class CoLearning extends Component
 //        });
     }
 
+    public function getTestParticipants()
+    {
+
+        CoLearningHelper::getTestParticipantStatuses();
+    }
+
+
     protected function getNavigationData()
     {
         $this->questionIndex = $this->questionsOrderList->get($this->testTake->discussing_question_id)['order'];
@@ -376,9 +384,6 @@ class CoLearning extends Component
         $this->firstQuestionId = $this->questionsOrderList->sortBy('order')->first()['id'];
         $this->lastQuestionId = $this->questionsOrderList->sortBy('order')->last()['id'];
     }
-
-    //code breaks without this method present:
-    public function setVideoTitle() {}
 
     private function convertCompletionQuestionToHtml(?Collection $answers = null)
     {
@@ -429,7 +434,6 @@ class CoLearning extends Component
             unset($this->testTake->$attribute);
         });
     }
-
 
     protected function uniformCompletionQuestionAnswersDataObject($source = null)
     {
@@ -495,12 +499,6 @@ class CoLearning extends Component
         }
         if ($this->testTake->discussingQuestion instanceof DrawingQuestion) {
 
-//            $dimensions = $this->activeAnswerRating->answer->getViewBoxDimensionsFromSvg();
-//            $this->activeDrawingAnswerDimensions = collect([
-//                'height' => $dimensions['height'] . 'px',
-//                'width'  => $dimensions['width'] . 'px',
-//            ]);
-//
             $this->activeAnswerText = route('teacher.drawing-question-answer', $this->activeAnswerRating->answer->uuid);
             return;
         }
@@ -512,10 +510,5 @@ class CoLearning extends Component
 
         $this->activeAnswerText = $array['value'] ?? '';
 
-    }
-
-    public function viewAttachment(Attachment $attachment)
-    {
-        dd($attachment);
     }
 }
