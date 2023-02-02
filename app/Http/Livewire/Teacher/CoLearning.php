@@ -95,6 +95,8 @@ class CoLearning extends Component
 
     public function render()
     {
+//        dd($this->testTake->testParticipants->map->abnormalities);
+
         return view('livewire.teacher.co-learning')
             ->layout('layouts.co-learning-teacher');
     }

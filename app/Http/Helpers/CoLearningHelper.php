@@ -11,8 +11,9 @@ class CoLearningHelper extends BaseHelper
 {
     public $testTakeId;
     public $teacherUserId;
+    public $discussingQuestionId;
 
-    public static function getTestParticipantsWithStatus(string $testTakeId, string $teacherUserId)
+    public static function getTestParticipantsWithStatus(string $testTakeId, string $teacherUserId, int $discussingQuestionId)
     {
         //gate if not teacher or invigilator?
 
@@ -22,6 +23,7 @@ class CoLearningHelper extends BaseHelper
         $instance = new static;
         $instance->testTakeId = $testTakeId;
         $instance->teacherUserId = $teacherUserId;
+        $instance->discussingQuestionId = $discussingQuestionId;
 
         return $instance->getTestParticipants();
     }
@@ -61,45 +63,50 @@ class CoLearningHelper extends BaseHelper
 
         $this->testTakeId;
         $this->teacherUserId;
+        $this->discussingQuestionId;
 
-        $date = "2020-01-01 18:01:01";
+//        $date = "2020-01-01 18:01:01";
         $date = now()->subSeconds(30)->format('Y-m-d H:i:s');
 
-        return TestParticipant::where('test_take_id', $this->testTakeId)
+        return TestParticipant::where('test_participants.test_take_id', $this->testTakeId)// $this->testTakeId)
             //add ->active (bool)
-            ->selectRaw(
-                sprintf('*, CASE WHEN heartbeat_at >= DATE("%s") THEN 1 ELSE 0 END as active', $date)
-            )
+            //answer_rated (string|int) CONVERT(..., SIGNED) casts the string(NEWDECIMAL) to an int
+            //answer_to_rate (string|int) if json !== null (isAnswered) then you need to rate it.
+        ->selectRaw(
+                sprintf(
+                    'test_participants.*, 
+                    CASE WHEN heartbeat_at >= "%s" THEN 1 ELSE 0 END as active,
+                    CONVERT(SUM(if(answers.json IS NOT NULL,1,0)), SIGNED) as answer_to_rate,
+                    CONVERT(SUM(answer_ratings.rating IS NOT null), SIGNED) as answer_rated',
+                    $date
+                )
+            )->join('answer_ratings', 'answer_ratings.user_id', '=', 'test_participants.user_id')
+            ->join('answers', 'answer_ratings.answer_id', '=', 'answers.id')
+            ->where('answers.question_id', '=',$this->discussingQuestionId)//241)
+            ->where('test_participants.test_take_id', '=', $this->testTakeId)
+            ->where('answer_ratings.test_take_id', '=', $this->testTakeId)
+            ->where('answer_ratings.type', '=', 'STUDENT')
             //abnormalities?
 
-            //answer_to_rate
-            //answer_rated
             ->groupBy('test_participants.id')
             ->get();
 
 
-
-
-        //tp->active = ( hearbeat_at >= now()->subSeconds(30) );
-
-
         //select
-        //CASE WHEN heartbeat_at >= DATE("2020-01-01") THEN 1
+        //CASE WHEN heartbeat_at >= DATE("2020-01-01 16:00:00") THEN 1
         //     ELSE 0
         //END as active,
-        //count(ar.id) as answer_to_rate,
-        //SUM(ar.rating IS NOT null) as answer_rated,
+        //a.json,
         //test_participants.*
         //
         //from test_participants
         //join answer_ratings as ar on ar.user_id = test_participants.user_id
+        //join answers as a on ar.answer_id = a.id
         //
-        //where ar.test_take_id = 19
-        //	AND test_participants.test_take_id = 19
+        //where ar.test_take_id = 22
+        //	AND test_participants.test_take_id = 22
         //	AND ar.type = "STUDENT"
-        //	AND ar.answer_id IN (select id from answers where question_id = 241 AND test_participant_id IN (select id from test_participants where test_take_id = 19))
-        //
-        //group By test_participants.id
+        //	AND a.question_id = 250
 
 
         /*todo
@@ -118,44 +125,21 @@ class CoLearningHelper extends BaseHelper
 
         //--  backup queries
 
-        //-- one (answers in subQuery)
-        //explain select
-        //CASE WHEN heartbeat_at >= "2023-02-01 16:01:01" THEN 1
+        //explain
+        //select
+        //CASE WHEN test_participants.heartbeat_at >= DATE("2020-01-01 16:00:00") THEN 1
         //     ELSE 0
         //END as active,
-        //count(ar.id) as answer_to_rate,
-        //SUM(ar.rating IS NOT null) as answer_rated,
+        //answers.json,
         //test_participants.*
         //
         //from test_participants
-        //join answer_ratings as ar on ar.user_id = test_participants.user_id
+        //join answer_ratings on answer_ratings.user_id = test_participants.user_id
+        //join answers on answer_ratings.answer_id = answers.id
         //
-        //where ar.test_take_id = 19
+        //where answer_ratings.test_take_id = 19
         //	AND test_participants.test_take_id = 19
-        //	AND ar.type = "STUDENT"
-        //	AND ar.answer_id IN (select id from answers where question_id = 241 AND test_participant_id IN (select id from test_participants where test_take_id = 19))
-        //
-        //group By test_participants.id
-        //
-        //
-        //
-        //-- two
-        //explain select
-        //CASE WHEN heartbeat_at >= DATE("2020-01-01 16:00:00") THEN 1
-        //     ELSE 0
-        //END as active,
-        //count(ar.id) as answer_to_rate,
-        //SUM(ar.rating IS NOT null) as answer_rated,
-        //test_participants.*
-        //
-        //from test_participants
-        //join answer_ratings as ar on ar.user_id = test_participants.user_id
-        //join answers as a on ar.answer_id = a.id AND a.question_id = 241
-        //
-        //where ar.test_take_id = 19
-        //	AND test_participants.test_take_id = 19
-        //	AND ar.type = "STUDENT"
-        //
-        //group By test_participants.id
+        //	AND answer_ratings.type = "STUDENT"
+        //	AND answers.question_id = 241
     }
 }

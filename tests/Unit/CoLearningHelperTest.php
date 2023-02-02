@@ -24,10 +24,12 @@ class CoLearningHelperTest extends TestCase
         $user = User::find(1486);
         auth()->login($user);
 
-        $testTakeId = 19;
+//        $testTakeId = 19;
+        $testTakeId = 22;
         $testTakeUuid = '779168f6-4afe-4153-9102-9a131134ffa7';
 
-        $testTake = TestTake::whereUuid($testTakeUuid)->first();
+//        $testTake = TestTake::whereUuid($testTakeUuid)->first();
+        $testTake = TestTake::find($testTakeId);
 
         $request = new \Illuminate\Http\Request([
             'with' => ['participantStatus', 'discussingQuestion'],
@@ -50,18 +52,31 @@ class CoLearningHelperTest extends TestCase
 
         $this->handleQueryLog($benchmark, 1);
 
-        $benchmark[2]['time'] = Benchmark::measure(function () use (&$result2, $testTakeId, $user) {
-            return $result2 = CoLearningHelper::getTestParticipantsWithStatus($testTakeId, $user->id);
+        $benchmark[2]['time'] = Benchmark::measure(function () use (&$result2, $testTakeId, $user, $testTake) {
+            return $result2 = CoLearningHelper::getTestParticipantsWithStatus($testTakeId, $user->id, $testTake->discussing_question_id);
         });
 
         $this->handleQueryLog($benchmark, 2);
 
+        $result3 = $result2->sortBy('id')->map(function ($tp) {
+            $temp = [];
+            $temp['active'] = (bool) $tp->active;
+            $temp['answer_to_rate'] = $tp->answer_to_rate;
+            $temp['answer_rated'] = $tp->answer_rated;
+            $temp['abnormalities'] = $tp->abnormalities;
+            return $temp;
+        })->all();
+        $result4 = $result1->testParticipants->sortBy('id')->map(function ($tp) {
+            $temp = [];
+            $temp['active'] = $tp->active;
+            $temp['answer_to_rate'] = $tp->answer_to_rate;
+            $temp['answer_rated'] = $tp->answer_rated;
+            $temp['abnormalities'] = $tp->abnormalities;
+            return $temp;
+        })->all();
 
-        dd($benchmark);
-        dd(
-            $result1,
-            $result2,
-        );
+        dd( $result3, $result4, $benchmark,);
+
     }
 
 

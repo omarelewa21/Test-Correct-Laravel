@@ -1,5 +1,6 @@
 <div class="flex mx-6 items-center h-10 justify-between flex-shrink-0"
-     id="student-info-container"
+     id="student-info-container-{{$testParticipant->uuid}}"
+     wire:key="testParticipant-{{$testParticipant->uuid}}"
 >
     {{-- left --}}
     <div class="flex items-center h-full space-x-1">

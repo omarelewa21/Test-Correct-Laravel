@@ -378,7 +378,6 @@ class TestTakesController extends Controller
                     if (!array_key_exists($testParticipant->schoolClass->getKey(), $schoolClasses)) {
                         $schoolClasses[$testParticipant->schoolClass->getKey()] = $testParticipant->schoolClass;
                     }
-
                     foreach ($testParticipant->answers as $answer) {
                         // Decide if this is question that is currently being discussed
                         $answerParents = null;
@@ -394,6 +393,7 @@ class TestTakesController extends Controller
                         $studentRatings = [];
                         foreach ($answer->answerRatings as $answerRating) {
 
+                            //j Active discussion_question?
                             if ($answer->getAttribute('question_id') == $questionId && $parents == $answerParents) {
                                 if (array_key_exists($answerRating->getAttribute('user_id'), $testParticipantUserIds)) {
                                     $testParticipantId = $testParticipantUserIds[$answerRating->getAttribute('user_id')];
@@ -415,6 +415,7 @@ class TestTakesController extends Controller
                                         $ratedAnswerRatingsPerTestParticipant[$testParticipantId]++;
                                     }
                                 }
+                                //j NOT discussion_question:
                             } elseif ($answerRating->getAttribute('type') === 'STUDENT' && $answerRating->getAttribute('rating') != null) {
                                 $studentRatings[] = $answerRating->getAttribute('rating');
                             } elseif ($answerRating->getAttribute('type') === 'SYSTEM') {
@@ -423,7 +424,9 @@ class TestTakesController extends Controller
                                 $teacherRating = $answerRating->getAttribute('rating');
                             }
                         }
-
+                        //j max result is 2 student ratings, 1 teacher rating and 1 system rating
+                        //  array_unique + count > 1 means only abnormalities when students gave a different rating
+                        //  but.. Teacher trumps System and System trumps Student...
                         $studentRatings = array_unique($studentRatings);
                         if ($teacherRating !== null || $systemRating !== null) {
                             $wantedRating = ($teacherRating !== null) ? $teacherRating : $systemRating;
@@ -442,15 +445,19 @@ class TestTakesController extends Controller
                                     }
                                 }
                             }
-                        } elseif (count($studentRatings) > 1) {
+                        } elseif (count($studentRatings) > 1) { //j if there are more than 1 distinct student ratings (two different ratings, then.. both get an abnormality
+                            //j no TEACHER or SYSTEM ratings.. (common with open questions)
                             foreach ($answer->answerRatings as $answerRating) {
+                                //j for each answerRating (2 per student)
                                 if (array_key_exists($answerRating->getAttribute('user_id'), $testParticipantUserIds)) {
                                     $testParticipantId = $testParticipantUserIds[$answerRating->getAttribute('user_id')];
                                     if (array_key_exists($answerRating->getAttribute('user_id'), $testParticipantUserIds)) {
+                                        //j if user in testParticipants...
                                         if (!array_key_exists($testParticipantId, $testParticipantAbnormalities)) {
                                             $testParticipantAbnormalities[$testParticipantId] = 0;
                                         }
                                         $testParticipantAbnormalities[$testParticipantId]++;
+                                        //j ALWAYS count abnormalities?
                                     }
                                 }
                             }
