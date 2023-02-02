@@ -47,11 +47,12 @@ class UwlrImportHelper
         if ($numberOfJobsInTable >= 2) {
             return false;
         }
-        // none in the queue after 5 o'clock and before 19 o'clock
-        $now = Carbon::now();
-        if ($now->hour >= 5 && $now->hour <= 19) {
-            return false;
-        }
+        // moved to the scheduler
+//        // none in the queue after 5 o'clock and before 19 o'clock
+//        $now = Carbon::now();
+//        if ($now->hour >= 5 && $now->hour <= 19) {
+//            return false;
+//        }
         return true;
     }
 

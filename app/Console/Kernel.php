@@ -41,7 +41,7 @@ class Kernel extends ConsoleKernel
             ->dailyAt('06:00');
         $schedule->call(function(){
             UwlrImportHelper::handleIfMoreSchoolLocationsCanBeImported();
-        })->everyThirtyMinutes()->timezone('Europe/Amsterdam');
+        })->everyThirtyMinutes()->unlessBetween('5:00', '19:00')->timezone('Europe/Amsterdam');
 
 
         /**
