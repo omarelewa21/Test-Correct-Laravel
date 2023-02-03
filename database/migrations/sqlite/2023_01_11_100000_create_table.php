@@ -3,6 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\Auth;
+use Ramsey\Uuid\Uuid;
 use tcCore\BaseSubject;
 use tcCore\Factories\FactoryUser;
 use tcCore\FactoryScenarios\FactoryScenarioTestTestWithAllQuestionTypes;
@@ -14,6 +15,7 @@ use tcCore\Period;
 use tcCore\SchoolYear;
 use tcCore\Subject;
 use tcCore\Teacher;
+use tcCore\TestKind;
 use tcCore\TrialPeriod;
 use tcCore\User;
 
@@ -107,7 +109,7 @@ class CreateTable extends Migration
         $this->createRankingQuestionAnswers();
         $this->createRankingQuestions();
         $this->createRatings();
-        $this->question_groups();
+//        $this->question_groups();
         $this->createRoles();
         $this->createSalesOrganizations();
         $this->createSamlMessages();
@@ -166,6 +168,9 @@ class CreateTable extends Migration
         $this->createUwlrSoapResults();
 //        $this->createAnswerRatings();
         $this->createAverageRating();
+        $this->createUserFeatureSettings();
+        $this->createUserSystemSettings();
+
         (new \Database\Seeders\SqLiteSeeder())->run();
         //        Artisan::call('db:seed', ['--class' => 'SqLiteSeeder',]);
 
@@ -1372,7 +1377,7 @@ class CreateTable extends Migration
             $table->string('type');
             $table->text('typedetails')->nullable();
             $table->string('status')->default('new');
-            $table->integer('handledby');
+            $table->integer('handledby')->nullable();
             $table->text('notes')->nullable();
             $table->timestamps();
             $table->softDeletes();
@@ -1392,6 +1397,7 @@ class CreateTable extends Migration
             $table->dateTime('planned_at')->nullable();
             $table->integer('subject_id')->nullable();
             $table->boolean('contains_publisher_content')->nullable()->default(false);
+            $table->efficientUuid('uuid')->index()->unique()->nullable();
         });
     }
 //
@@ -1868,6 +1874,7 @@ class CreateTable extends Migration
             $table->softDeletes();
             $table->string('subtype', 45)->default('SingleChoice');
             $table->boolean('shuffle')->default(false);
+            $table->efficientUuid('uuid')->index()->unique();
         });
     }
 
@@ -3074,44 +3081,7 @@ class CreateTable extends Migration
 //            $table->foreign('user_id')->references('id')->on('users');
         });
     }
-//
-//CREATE TABLE `question_groups` (
-//`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-//`created_at` timestamp NULL default NULL,
-//`updated_at` timestamp NULL default NULL,
-//`deleted_at` timestamp NULL default NULL,
-//`test_id` int(10) unsigned NOT NULL,
-//`database_question_id` int(10) unsigned default NULL,
-//`name` varchar(255) COLLATE utf8_unicode_ci default NULL,
-//`text` text COLLATE utf8_unicode_ci,
-//`order` int(10) unsigned NOT NULL,
-//`shuffle` tinyint(1) NOT NULL,
-//`maintain_position` tinyint(1) NOT NULL,
-//`add_to_database` tinyint(1) NOT NULL,
-//PRIMARY KEY (`id`),
-//KEY `fk_question_groups_tests1_idx` (`test_id`),
-//KEY `fk_question_groups_database_questions1_idx` (`database_question_id`)
-//) ENGINE = InnoDB default CHARSET = utf8 COLLATE = utf8_unicode_ci;
-    private function question_groups()
-    {
-        Schema::create('question_groups', function (Blueprint $table) {
-            $table->increments('id');
-            $table->timestamps();
-            $table->softDeletes();
-            $table->integer('test_id')->unsigned()->index('fk_question_groups_tests1_idx');
-            $table->integer('database_question_id')->unsigned()->nullable()->index('fk_question_groups_database_questions1_idx');
-            $table->string('name')->nullable();
-            $table->text('text', 65535)->nullable();
-            $table->integer('order')->unsigned();
-            $table->boolean('shuffle');
-            $table->boolean('maintain_position');
-            $table->boolean('add_to_database');
-//            $table->foreign('database_question_id',
-//                'fk_question_groups_database_questions1')->references('id')->on('database_questions')->onUpdate('CASCADE')->onDelete('CASCADE');
-//            $table->foreign('test_id',
-//                'fk_question_groups_tests1')->references('id')->on('tests')->onUpdate('CASCADE')->onDelete('CASCADE');
-        });
-    }
+
 
     /**
      * CREATE TABLE `roles` (
@@ -3856,6 +3826,8 @@ class CreateTable extends Migration
             $table->tinyInteger('allow_new_drawing_question')->default('0');
             $table->tinyInteger('keep_out_of_school_location_report')->default('0');
             $table->boolean('show_national_item_bank')->default(false);
+            $table->boolean('allow_writing_assignment')->default(0);
+            $table->enum('license_type', ['TRIAL', 'CLIENT'])->default('TRIAL');
 //            $table->foreign('school_id')->references('id')->on('schools');
 //            $table->foreign('grading_scale_id')->references('id')->on('grading_scales');
 //            $table->foreign('user_id')->references('id')->on('users');
@@ -4487,6 +4459,19 @@ class CreateTable extends Migration
             $table->softDeletes();;
             $table->string('name', 45);
             $table->tinyInteger('has_weight');
+            $table->efficientUuid('uuid')->index()->unique()->nullable();
+        });
+
+        DB::table('test_kinds')->insert([
+            ['id' => 1, 'name' => 'Oefentoets', 'has_weight' => 0,],
+            ['id' => 2, 'name' => 'Formatief', 'has_weight' => 0,],
+            ['id' => 3, 'name' => 'Summatief', 'has_weight' => 1,],
+            ['id' => 4, 'name' => 'Opdracht', 'has_weight' => 0,],
+        ]);
+
+        TestKind::all()->each(function (TestKind $testKind) {
+            $testKind->uuid = (new tcCore\TestKind)->resolveUuid();
+            $testKind->save();
         });
     }
 
@@ -5421,9 +5406,11 @@ class CreateTable extends Migration
             $table->integer('education_level_id')->unsigned()->index('fk_attainments_education_levels1_idx');
             $table->integer('attainment_id')->nullable();
             $table->string('code', 45);
+            $table->string('subcode', 45)->nullable();
             $table->text('description', 65535)->nullable();
             $table->enum('status', ['ACTIVE', 'REPLACED', 'OLD'])->default('ACTIVE');
-            $table->boolean('is_learning_goal');
+            $table->boolean('is_learning_goal')->default(0);
+            $table->efficientUuid('uuid')->index()->unique()->nullable();
 //            $table->foreign('education_level_id', 'fk_attainments_education_levels1')->references('id')->on('education_levels')->onUpdate('CASCADE')->onDelete('CASCADE');
 //            $table->foreign('base_subject_id', 'fk_attainments_base_subjects1')->references('id')->on('base_subjects')->onUpdate('CASCADE')->onDelete('CASCADE');
         });
@@ -5485,4 +5472,31 @@ class CreateTable extends Migration
     }
 
 
+    public function createUserSystemSettings()
+    {
+        if (!Schema::hasTable('user_system_settings')) {
+            Schema::create('user_system_settings', function (Blueprint $table) {
+                $table->id();
+                $table->timestamps();
+                $table->softDeletes();
+                $table->unsignedBigInteger('user_id');
+                $table->string('title');
+                $table->text('value');
+            });
+        }
+    }
+
+    public function createUserFeatureSettings()
+    {
+        if (!Schema::hasTable('user_feature_settings')) {
+            Schema::create('user_feature_settings', function (Blueprint $table) {
+                $table->id();
+                $table->timestamps();
+                $table->softDeletes();
+                $table->unsignedBigInteger('user_id');
+                $table->string('title');
+                $table->text('value');
+            });
+        }
+    }
 }

@@ -2,23 +2,30 @@
 
 namespace Tests\Unit\QtiVersionTwoDotTwoDotTwo;
 
-use Illuminate\Foundation\Testing\DatabaseTransactions;
+use tcCore\Factories\FactoryTest;
+use tcCore\FactoryScenarios\FactoryScenarioSchoolSimple;
 use tcCore\OpenQuestion;
 use tcCore\User;
+use Tests\ScenarioLoader;
 use Tests\TestCase;
 use tcCore\Http\Helpers\QtiImporter\VersionTwoDotTwoDotZero\QtiResource;
 use tcCore\QtiModels\QtiResource as Resource;
 
 class QtiResourceExtendedTextInteractionTest extends TestCase
 {
-    use DatabaseTransactions;
-
     private $instance;
+    protected $loadScenario = FactoryScenarioSchoolSimple::class;
+    private User $teacherOne;
+    private $test;
+
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->actingAs(User::where('username', 'd1@test-correct.nl')->first());
+
+        $this->teacherOne = ScenarioLoader::get('user');
+        $this->test = FactoryTest::create($this->teacherOne)->getTestModel();
+        $this->actingAs($this->teacherOne);
 
         $resource = new Resource(
             'ITM-230041',

@@ -2,7 +2,6 @@
 
 namespace Tests\Unit\FactoryTests\ScenarioFactory;
 
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\WithFaker;
 use tcCore\FactoryScenarios\FactoryScenarioSchool001;
 use tcCore\FactoryScenarios\FactoryScenarioSchoolSimple;

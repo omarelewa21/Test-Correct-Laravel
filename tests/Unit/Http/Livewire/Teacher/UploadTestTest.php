@@ -7,11 +7,15 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use tcCore\EducationLevel;
+use tcCore\FactoryScenarios\FactoryScenarioSchoolSimpleWithTest;
 use tcCore\FileManagement;
 use tcCore\FileManagementStatus;
+use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\Http\Livewire\Teacher\UploadTest;
 use tcCore\Subject;
 use tcCore\TestKind;
+use tcCore\User;
+use Tests\ScenarioLoader;
 use Tests\TestCase;
 
 class UploadTestTest extends TestCase
@@ -22,20 +26,32 @@ class UploadTestTest extends TestCase
     protected $educationLevelUuid;
     protected $testKindUuid;
 
+    protected $loadScenario = FactoryScenarioSchoolSimpleWithTest::class;
+
+    private User $user;
+
+    private User $studentOne;
+
+
+
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->actingAs(self::getTeacherOne());
-        $this->subjectUuid = Subject::filtered(['user_current' => self::getTeacherOne()->getKey()])->first()->uuid; /* Nederlands */
-        $this->educationLevelUuid = EducationLevel::filtered(['user_id' => self::getTeacherOne()->getKey()])->first()->uuid; /* VWO */
-        $this->testKindUuid = TestKind::orderBy('name')->first()->uuid; /* Formatief */
+        $this->user = ScenarioLoader::get('user');
+        $this->studentOne = ScenarioLoader::get('student1');
+        $this->actingAs($this->user);
+        ActingAsHelper::getInstance()->setUser($this->user);
+
+        $this->subjectUuid = Subject::filtered(['user_current' => $this->user->getKey()])->first()->uuid; /* Nederlands */
+        $this->educationLevelUuid = EducationLevel::filtered(['user_id' => $this->user->getKey()])->first()->uuid; /* VWO */
+        $this->testKindUuid = TestKind::whereName('Formatief')->first()->uuid; /* Formatief */
     }
 
     /** @test */
     public function can_open_upload_test_page_with_livewire_component_as_teacher()
     {
-        $this->actingAs(self::getTeacherOne())
+        $this->actingAs($this->user)
             ->get(route('teacher.upload-tests'))
             ->assertSuccessful()
             ->assertSeeLivewire(UploadTest::class);
@@ -44,7 +60,7 @@ class UploadTestTest extends TestCase
     /** @test */
     public function cannot_open_upload_test_page_with_livewire_component_as_student()
     {
-        $this->actingAs(self::getStudentOne())
+        $this->actingAs($this->studentOne)
             ->get(route('teacher.upload-tests'))
             ->assertRedirect();
     }
@@ -52,7 +68,7 @@ class UploadTestTest extends TestCase
     /** @test */
     public function can_process_1_uploaded_file()
     {
-        $this->actingAs(self::getTeacherOne());
+        $this->actingAs($this->user);
         $testName = 'Hogere kaaskundigheid 101';
 
         Storage::fake('test_uploads');
@@ -68,7 +84,7 @@ class UploadTestTest extends TestCase
         $parent = FileManagement::whereName($testName)->first();
         $childName = $parent->children()->first()->name;
 
-        $filePath = sprintf("%s/%s", self::getTeacherOne()->school_location_id, $childName);
+        $filePath = sprintf("%s/%s", $this->user->school_location_id, $childName);
 
         Storage::disk('test_uploads')->assertExists($filePath);
     }
@@ -76,7 +92,7 @@ class UploadTestTest extends TestCase
     /** @test */
     public function can_process_multiple_uploaded_files()
     {
-        $this->actingAs(self::getTeacherOne());
+        $this->actingAs($this->user);
         $testName = 'Hogere kaaskundigheid 101';
 
         Storage::fake('test_uploads');
@@ -94,7 +110,7 @@ class UploadTestTest extends TestCase
 
         $parent->children->each(function ($child) {
             $this->assertEquals($child->subject()->first()->getKey(), Subject::whereUuid($this->subjectUuid)->first()->getKey());
-            $filePath = sprintf("%s/%s", self::getTeacherOne()->school_location_id, $child->name);
+            $filePath = sprintf("%s/%s", $this->user->school_location_id, $child->name);
             Storage::disk('test_uploads')->assertExists($filePath);
         });
     }
@@ -102,7 +118,7 @@ class UploadTestTest extends TestCase
     /** @test */
     public function cannot_process_1_uploaded_file_if_it_is_too_large()
     {
-        $this->actingAs(self::getTeacherOne());
+        $this->actingAs($this->user);
         $testName = 'Hogere kaaskundigheid 101';
         $maxUploadSizeInKiloBytes = 64000;
 
@@ -117,7 +133,7 @@ class UploadTestTest extends TestCase
     /** @test */
     public function cannot_process_multiple_uploaded_files_if_one_is_too_large()
     {
-        $this->actingAs(self::getTeacherOne());
+        $this->actingAs($this->user);
         $testName = 'Hogere kaaskundigheid 101';
 
         $component = Livewire::test(UploadTest::class);
@@ -134,7 +150,7 @@ class UploadTestTest extends TestCase
     /** @test */
     public function can_reset_form_uuid_after_upload_processing()
     {
-        $this->actingAs(self::getTeacherOne());
+        $this->actingAs($this->user);
         $testName = 'Hogere kaaskundigheid 101';
 
         Storage::fake('test_uploads');
@@ -156,7 +172,7 @@ class UploadTestTest extends TestCase
     /** @test */
     public function can_fill_contains_publisher_content_column_is_true_in_database()
     {
-        $this->actingAs(self::getTeacherOne());
+        $this->actingAs($this->user);
         $testName = 'Hogere kaaskundigheid 101';
 
         Storage::fake('test_uploads');
@@ -175,7 +191,7 @@ class UploadTestTest extends TestCase
     /** @test */
     public function can_fill_contains_publisher_content_column_is_false_in_database()
     {
-        $this->actingAs(self::getTeacherOne());
+        $this->actingAs($this->user);
         $testName = 'Hogere kaaskundigheid 101';
 
         Storage::fake('test_uploads');
@@ -195,7 +211,7 @@ class UploadTestTest extends TestCase
     /** @test */
     public function can_set_default_status_of_provided_for_new_file_management()
     {
-        $this->actingAs(self::getTeacherOne());
+        $this->actingAs($this->user);
         $testName = 'Hogere kaaskundigheid 101';
 
         Storage::fake('test_uploads');

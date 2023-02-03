@@ -36,7 +36,17 @@ class FactorySchoolYear
         return $factory;
     }
 
-    public function addPeriod(string $periodName, $periodStartDate, $periodEndDate)
+    public static function createLastSchoolYear(SchoolLocation $schoolLocation)
+    {
+        return self::create(
+            $schoolLocation,
+            (int)Carbon::today()->subYear()->format('Y')
+        )
+            ->addPeriodFullYear();
+    }
+
+    public
+    function addPeriod(string $periodName, $periodStartDate, $periodEndDate)
     {
         $period = new Period([
             'name'       => $periodName,
@@ -56,7 +66,8 @@ class FactorySchoolYear
         return $this;
     }
 
-    public function addPeriodFullYear(string $periodName = 'FullYearPeriod')
+    public
+    function addPeriodFullYear(string $periodName = 'FullYearPeriod')
     {
         $year = $this->schoolYear->year;
 
@@ -73,7 +84,8 @@ class FactorySchoolYear
         return $this;
     }
 
-    public function addFourQuarterYearPeriods(array $periodNames = ['Q1', 'Q2', 'Q3', 'Q4'])
+    public
+    function addFourQuarterYearPeriods(array $periodNames = ['Q1', 'Q2', 'Q3', 'Q4'])
     {
         if (count($periodNames) !== 4) {
             throw new \Exception('please supply precisely four period names, one for each quarter of the year.');

@@ -2,16 +2,24 @@
 
 namespace Tests\Unit;
 
-use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Support\Facades\Gate;
+
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use tcCore\FactoryScenarios\FactoryScenarioSchoolRandomComplexWithCreathlon;
+use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\Http\Helpers\ContentSourceHelper;
 use tcCore\SchoolLocation;
-use tcCore\User;
+use Tests\ScenarioLoader;
 use Tests\TestCase;
 
 class ContentSourceHelperTest extends TestCase
 {
-    use DatabaseTransactions;
+    protected $loadScenario = FactoryScenarioSchoolRandomComplexWithCreathlon::class;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        ActingAsHelper::getInstance()->setUser(ScenarioLoader::get('teacher1'));
+    }
 
     /**
      * @test
@@ -28,7 +36,9 @@ class ContentSourceHelperTest extends TestCase
         $this->assertTrue($user->hasSharedSections());
 
         //check if the Helper methods work
-        $this->assertTrue(ContentSourceHelper::canViewContent($user,$publisherName));
+        $this->assertTrue(
+            ContentSourceHelper::canViewContent($user,$publisherName)
+        );
     }
 
     /**
@@ -63,7 +73,7 @@ class ContentSourceHelperTest extends TestCase
 
     private function setupUserPermissions($allowEverything = true)
     {
-        $user = User::find(1486);
+        $user = ScenarioLoader::get('teacher1');
 
         if($allowEverything)
         {

@@ -130,7 +130,9 @@ class TestQuestion extends BaseModel {
 //                        $question->deleteAnswers($question);
 
                     // add new answers
-                    $testQuestion->question->addAnswers($testQuestion, $totalData['answers']);
+                    if (array_key_exists('answers', $totalData)) {
+                        $testQuestion->question->addAnswers($testQuestion, $totalData['answers']);
+                    }
                 }
                 $testQuestion->addCloneAttachmentsIfAppropriate($questionAttributes);
             } else {

@@ -14,9 +14,6 @@ use Tests\TestCase;
 class ExcelAttainmentCitoManifestTest extends TestCase
 {
 
-    use \Illuminate\Foundation\Testing\DatabaseTransactions;
-
-
     /**
      * @dataProvider dataProvider
      */

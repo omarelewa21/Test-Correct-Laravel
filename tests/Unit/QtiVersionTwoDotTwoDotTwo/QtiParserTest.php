@@ -10,8 +10,6 @@ use Tests\TestCase;
 
 class QtiParserTest extends TestCase
 {
-    use DatabaseTransactions;
-
     /** @test */
     public function it_can_parse_xml()
     {

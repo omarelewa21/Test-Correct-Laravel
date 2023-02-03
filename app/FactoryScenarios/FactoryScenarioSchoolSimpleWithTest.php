@@ -17,23 +17,14 @@ use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\School;
 use tcCore\User;
 
-class FactoryScenarioSchoolSimpleWithSmallNationalItemBank extends FactoryScenarioSchoolSimple
+class FactoryScenarioSchoolSimpleWithTest extends FactoryScenarioSchoolSimple
 {
-    use FactoryScenarioSeederTrait;
-
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
     public static function create()
     {
         return
             parent::create()
-                ->seedNationalItemBank()
-                ->seedSomeGroupQuestions();
+               ->seedTests();
     }
-
 
     public function getData()
     {

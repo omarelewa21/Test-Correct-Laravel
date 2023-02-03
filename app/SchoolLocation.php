@@ -506,6 +506,11 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         return $this->hasMany('tcCore\User');
     }
 
+    public function schoolManagers()
+    {
+        return $this->users()->whereRelation('roles', 'name', '=', 'School manager');
+    }
+
     public function schoolLocationIps()
     {
         return $this->hasMany('tcCore\SchoolLocationIp');

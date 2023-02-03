@@ -12,7 +12,8 @@ final class ScenarioLoader
 
     public static function load($scenarioName)
     {
-        if (!self::isLoadedScenario($scenarioName)) {
+        var_dump($scenarioName);
+        if (!self::isLoadedScenario($scenarioName) && !is_bool($scenarioName)) {
             if (!method_exists($scenarioName, 'getData')) {
                     throw new \Exception(
                         sprintf(

@@ -44,7 +44,7 @@ abstract class TestCase extends BaseTestCase
             ScenarioLoader::load($this->loadScenario);
         }
 
-        if (!ScenarioLoader::isLoadedScenario($this->loadScenario)) {
+        if (!ScenarioLoader::isLoadedScenario($this->loadScenario) && !is_bool($this->loadScenario)) {
             RefreshDatabaseState::$migrated = false;
             $this->refreshInMemoryDatabase();
         }
@@ -57,7 +57,7 @@ abstract class TestCase extends BaseTestCase
             $this->artisan('migrate:fresh',
                 ["--path" => "database/migrations/sqlite/2023_01_11_100000_create_table.php"]
             );
-
+            logger('migrate:fresh');
             $this->app[Kernel::class]->setArtisan(null);
 
             RefreshDatabaseState::$migrated = true;
@@ -65,7 +65,7 @@ abstract class TestCase extends BaseTestCase
             ScenarioLoader::load($this->loadScenario);
         }
 
-        if (!ScenarioLoader::isLoadedScenario($this->loadScenario)) {
+        if (!ScenarioLoader::isLoadedScenario($this->loadScenario)&& !is_bool($this->loadScenario)) {
             RefreshDatabaseState::$migrated = false;
             $this->refreshTestDatabase();
         }

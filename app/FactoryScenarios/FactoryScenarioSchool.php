@@ -103,7 +103,7 @@ abstract class FactoryScenarioSchool
             'user'             => $this->teachers->first(),
             'teacher1'         => $this->teachers->first(),
             'school'           => $this->school,
-            'school_locations' => $this->school->schoolLocations
+            'school_locations' => $this->school->schoolLocations,
         ];
     }
 }

@@ -11,6 +11,7 @@ namespace Tests\Unit\Http\Controllers;
 use tcCore\FactoryScenarios\FactoryScenarioSchoolSimple;
 use tcCore\Http\Controllers\TestTakesController;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\TestTake;
 use tcCore\User;
 use tcCore\TestQuestion;
@@ -44,6 +45,7 @@ class TestTakesControllerTest extends TestCase
     {
         parent::setUp();
         $this->user = ScenarioLoader::get('user');
+        ActingAsHelper::getInstance()->setUser($this->user);
     }
 
     /**

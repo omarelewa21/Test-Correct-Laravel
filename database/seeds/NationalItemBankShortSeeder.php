@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Auth;
+use tcCore\Attainment;
 use tcCore\BaseSubject;
 use tcCore\FactoryScenarios\FactoryScenarioTestTestWithAllQuestionTypes;
 use tcCore\FactoryScenarios\FactoryScenarioTestTestWithOpenShortQuestion;
@@ -196,6 +197,19 @@ class NationalItemBankShortSeeder extends Seeder
                 $question->setAttribute('question', "TBNI: $question->question");
                 $question->save();
             });
+
+            collect(range(1, 10))->each(function ($i) use ($baseSubject) {
+                Attainment::create([
+                    'name'               => "TBNI Attainment $i",
+                    'base_subject_id'    => $baseSubject->id,
+                    'description'        => "TBNI Attainment $i",
+                    'abbreviation'       => "TBNI Attainment $i",
+                    'code'               => "TBNI_$i",
+                    'order'              => $i,
+                    'education_level_id' => 1,
+                ]);
+            });
+
             Auth::login($teacherA);
             $test->save();
         });

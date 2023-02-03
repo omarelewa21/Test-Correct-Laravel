@@ -3,22 +3,19 @@
 namespace tcCore\FactoryScenarios;
 
 use Carbon\Carbon;
-use Database\Seeders\NationalItemBankShortSeeder;
-use Illuminate\Support\Collection;
 use tcCore\Factories\FactoryBaseSubject;
 use tcCore\Factories\FactorySchool;
+use tcCore\Factories\FactorySchoolClass;
 use tcCore\Factories\FactorySchoolLocation;
 use tcCore\Factories\FactorySchoolYear;
 use tcCore\Factories\FactorySection;
-use tcCore\Factories\FactoryTest;
-use tcCore\Factories\Questions\FactoryQuestionGroup;
-use tcCore\Factories\Questions\FactoryQuestionOpenShort;
-use tcCore\Http\Helpers\ActingAsHelper;
-use tcCore\School;
-use tcCore\User;
+use tcCore\Factories\FactoryUser;
 
-class FactoryScenarioSchoolSimpleWithSmallNationalItemBank extends FactoryScenarioSchoolSimple
+class FactoryScenarioSchoolRandomComplexWithCreathlon extends FactoryScenarioSchoolRandomComplex
 {
+    /**
+     * create complex school with creathlon
+     */
     use FactoryScenarioSeederTrait;
 
     public function __construct()
@@ -30,8 +27,7 @@ class FactoryScenarioSchoolSimpleWithSmallNationalItemBank extends FactoryScenar
     {
         return
             parent::create()
-                ->seedNationalItemBank()
-                ->seedSomeGroupQuestions();
+                ->seedCreathlonItemBank();
     }
 
 

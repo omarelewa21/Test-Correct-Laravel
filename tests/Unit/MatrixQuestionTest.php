@@ -20,7 +20,9 @@ class MatrixQuestionTest extends TestCase
      */
     public function should_add_valid_matrixQuestion()
     {
-        $testId = FactoryTest::create(ScenarioLoader::get('teacher1'))->getTestId();
+        $teacherOne = ScenarioLoader::get('teacher1');
+
+        $testId = FactoryTest::create($teacherOne)->getTestId();
         $response = $this->post(
             'api-c/test_question',
             static::getAuthRequestData([
@@ -82,7 +84,7 @@ class MatrixQuestionTest extends TestCase
                 "closeable"              => 0,
 
                 "test_id" => $testId
-            ], ScenarioLoader::get('teacher1')));
+            ], $teacherOne));
 
         $responseData = json_decode($response->getContent());
 
@@ -93,14 +95,10 @@ class MatrixQuestionTest extends TestCase
         $this->assertEquals('1', $responseData->test_id);
         $this->assertEquals('1', $responseData->discuss);
 
-        $magicId = $responseData->id;
+        $magicId = $responseData->uuid;
 
         $response = $this->get(
-            sprintf(
-                '/test_question/%d?user=%s',
-                $magicId,
-                static::USER_TEACHER
-            )
+            static::authUserGetRequest("test_question/$magicId",[],$teacherOne)
         );
 
 
@@ -110,7 +108,7 @@ class MatrixQuestionTest extends TestCase
         $this->assertEquals('MatrixQuestion', $question->type);
 
         $author = $question->authors[0];
-        $this->assertEquals(static::USER_TEACHER, $author->username);
+        $this->assertEquals($teacherOne->username, $author->username);
 
     }
 }
