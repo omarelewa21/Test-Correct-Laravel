@@ -40,7 +40,7 @@ class svgElement {
      * @param {string} value
      */
     setAttributeOnElementWithValidation(key, value) {
-        if (this.keyIsValid(key) && this.valueIsValid(key, value)) {
+        if (this.keyIsValid(key) && this.valueIsValid(value)) {
             this.setAttribute(key, value);
         } else {
             console.info(
