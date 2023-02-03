@@ -3,17 +3,19 @@
 namespace tcCore\Http\Helpers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use tcCore\Http\Controllers\TestTakesController;
 use tcCore\TestParticipant;
 use tcCore\TestTake;
 
 class CoLearningHelper extends BaseHelper
 {
+    static $test_take_id;
+
     public $testTakeId;
-    public $teacherUserId;
     public $discussingQuestionId;
 
-    public static function getTestParticipantsWithStatus(string $testTakeId, string $teacherUserId, int $discussingQuestionId)
+    public static function getTestParticipantsWithStatus(string $testTakeId, int $discussingQuestionId)
     {
         //gate if not teacher or invigilator?
 
@@ -22,7 +24,6 @@ class CoLearningHelper extends BaseHelper
         //return collection testparticipants with abnormalities and activity status
         $instance = new static;
         $instance->testTakeId = $testTakeId;
-        $instance->teacherUserId = $teacherUserId;
         $instance->discussingQuestionId = $discussingQuestionId;
 
         return $instance->getTestParticipants();
@@ -58,88 +59,126 @@ class CoLearningHelper extends BaseHelper
          * ->answer_rated
          * ->answer_to_rate
          * ->abnormalities
-         *
          */
 
         $this->testTakeId;
-        $this->teacherUserId;
         $this->discussingQuestionId;
 
-//        $date = "2020-01-01 18:01:01";
+
+        return static::testParticipantsQuery($this->testTakeId, $this->discussingQuestionId)->get();
+
+    }
+
+    public static function fullTestParticipantsQuery($testTakeId, $discussingQuestionId)
+    {
+        $testParticipants = CoLearningHelper::testParticipantsQuery($testTakeId, $discussingQuestionId);
+        $abnormalitiesSubQuery = CoLearningHelper::getAbnormalitiesQuery();
+
+        $testParticipants
+            ->joinSub($abnormalitiesSubQuery, 'abnormalities', 'abnormalities.user_id', '=', 'test_participants.user_id')
+            ->addSelect('abnormalities.abnormalities');
+
+        return $testParticipants;
+    }
+
+    public static function testParticipantsQuery($testTakeId, $discussingQuestionId)
+    {
         $date = now()->subSeconds(30)->format('Y-m-d H:i:s');
 
-        return TestParticipant::where('test_participants.test_take_id', $this->testTakeId)// $this->testTakeId)
-            //add ->active (bool)
-            //answer_rated (string|int) CONVERT(..., SIGNED) casts the string(NEWDECIMAL) to an int
-            //answer_to_rate (string|int) if json !== null (isAnswered) then you need to rate it.
+
+        return TestParticipant::where('test_participants.test_take_id', $testTakeId)// $testTakeId)
+        //add ->active (bool)
+        //answer_rated (string|int) CONVERT(..., SIGNED) casts the string(NEWDECIMAL) to an int
+        //answer_to_rate (string|int) if json !== null (isAnswered) then you need to rate it.
         ->selectRaw(
-                sprintf(
-                    'test_participants.*, 
+            sprintf(
+                'test_participants.*, 
                     CASE WHEN heartbeat_at >= "%s" THEN 1 ELSE 0 END as active,
                     CONVERT(SUM(if(answers.json IS NOT NULL,1,0)), SIGNED) as answer_to_rate,
                     CONVERT(SUM(answer_ratings.rating IS NOT null), SIGNED) as answer_rated',
-                    $date
-                )
-            )->join('answer_ratings', 'answer_ratings.user_id', '=', 'test_participants.user_id')
+                $date
+            )
+        )->join('answer_ratings', 'answer_ratings.user_id', '=', 'test_participants.user_id')
             ->join('answers', 'answer_ratings.answer_id', '=', 'answers.id')
-            ->where('answers.question_id', '=',$this->discussingQuestionId)//241)
-            ->where('test_participants.test_take_id', '=', $this->testTakeId)
-            ->where('answer_ratings.test_take_id', '=', $this->testTakeId)
+            ->where('answers.question_id', '=',$discussingQuestionId)
+            ->where('test_participants.test_take_id', '=', $testTakeId)
+            ->where('answer_ratings.test_take_id', '=', $testTakeId)
             ->where('answer_ratings.type', '=', 'STUDENT')
-            //abnormalities?
 
-            ->groupBy('test_participants.id')
-            ->get();
-
-
-        //select
-        //CASE WHEN heartbeat_at >= DATE("2020-01-01 16:00:00") THEN 1
-        //     ELSE 0
-        //END as active,
-        //a.json,
-        //test_participants.*
-        //
-        //from test_participants
-        //join answer_ratings as ar on ar.user_id = test_participants.user_id
-        //join answers as a on ar.answer_id = a.id
-        //
-        //where ar.test_take_id = 22
-        //	AND test_participants.test_take_id = 22
-        //	AND ar.type = "STUDENT"
-        //	AND a.question_id = 250
+            ->groupBy('test_participants.id');
+    }
 
 
-        /*todo
-         * abnormalities:
-         *  teacher or system rating:
-         *      ANSWER_RATING student
-         *      Answer_rating rating not null
-         *      Answer_rating rating not 'wantedrating' (system or teacher)
-         *        THEN=> abnormalities[tpId] +1 (!isset = 0, then ++)
-         *  only student ratings:
-         *
-         *  no ratings:
-         */
+    public static function getAbnormalitiesQuery()
+    {
+        $testTakeId = 19;
+        static::$test_take_id = $testTakeId;
 
 
+        $student_ratings_sub = DB::query()
+            ->select(['answer_ratings.answer_id', 'answer_ratings.rating', 'answer_ratings.user_id'])
+            ->from('answers')->crossJoin('answer_ratings', 'answers.id', '=', 'answer_ratings.answer_id')
+            ->where('answer_ratings.test_take_id', '=', $testTakeId)
+            ->where('answer_ratings.type', '=', 'STUDENT');
+        $teacher_ratings_sub = DB::query()
+            ->select(['answer_ratings.answer_id', 'answer_ratings.rating as teacher_rating'])
+            ->from('answers')->leftJoin('answer_ratings', 'answers.id', '=', 'answer_ratings.answer_id')
+            ->where('answer_ratings.test_take_id', '=', static::$test_take_id)
+            ->where('answer_ratings.type', '=', 'TEACHER');
+        $system_ratings_sub = DB::query()
+            ->select(['answer_ratings.answer_id', 'answer_ratings.rating as system_rating'])
+            ->from('answers')->leftJoin('answer_ratings', 'answers.id', '=', 'answer_ratings.answer_id')
+            ->where('answer_ratings.test_take_id', '=', static::$test_take_id)
+            ->where('answer_ratings.type', '=', 'SYSTEM');
 
-        //--  backup queries
 
-        //explain
-        //select
-        //CASE WHEN test_participants.heartbeat_at >= DATE("2020-01-01 16:00:00") THEN 1
-        //     ELSE 0
-        //END as active,
-        //answers.json,
-        //test_participants.*
-        //
-        //from test_participants
-        //join answer_ratings on answer_ratings.user_id = test_participants.user_id
-        //join answers on answer_ratings.answer_id = answers.id
-        //
-        //where answer_ratings.test_take_id = 19
-        //	AND test_participants.test_take_id = 19
-        //	AND answer_ratings.type = "STUDENT"
-        //	AND answers.question_id = 241
+        $student_abnormalities_sub = DB::query()->select(['student_abnormalities.user_id','student_abnormalities.answer_id','abnormalities'])
+            ->fromSub(function ($query) {
+                $query->select(['answer_ratings.answer_id', 'answer_ratings.user_id'])
+                    ->from('answers')->crossJoin('answer_ratings', 'answers.id', '=', 'answer_ratings.answer_id')
+                    ->where('answer_ratings.test_take_id', '=', static::$test_take_id)
+                    ->where('answer_ratings.type', '=', 'STUDENT');
+            }, 'student_abnormalities')
+            ->JoinSub(function ($query) {
+                $query->selectRaw('answer_ratings.answer_id,
+                                  CASE
+                                      WHEN COUNT(DISTINCT
+                                                 CASE WHEN answer_ratings.`rating` IS NOT NULL THEN rating END) > 1
+                                          THEN 1
+                                      ELSE 0 END AS abnormalities')
+                    ->from('answers')->crossJoin('answer_ratings', 'answers.id', '=', 'answer_ratings.answer_id')
+                    ->where('answer_ratings.test_take_id', '=', static::$test_take_id)
+                    ->where('answer_ratings.type', '=', 'STUDENT')
+                ->groupBy('answer_ratings.answer_id');
+            }, 'student_answer_abnormalities', 'student_abnormalities.answer_id','=', 'student_answer_abnormalities.answer_id', 'cross');
+
+
+        //total combined
+        $abnormalities =  DB::query()->selectRaw('total.user_id, sum(total.abnormalities) as abnormalities')
+            ->fromSub(function ($query) use ($student_ratings_sub, $teacher_ratings_sub, $system_ratings_sub, $student_abnormalities_sub) {
+                $query->selectRaw('student_ratings.answer_id, student_ratings.user_id, CASE
+                    WHEN teacher_rating IS NOT NULL THEN if(student_ratings.rating != teacher_rating, 1, 0)
+                    WHEN system_rating IS NOT NULL THEN if(student_ratings.rating != system_rating, 1, 0)
+                    WHEN student_abnormalities.abnormalities > 0 THEN 1
+                    ELSE 0 END as abnormalities
+                ')
+                    ->fromSub($student_ratings_sub, 'student_ratings')
+                    ->joinSub($teacher_ratings_sub, 'teacher_ratings', 'teacher_ratings.answer_id', '=', 'student_ratings.answer_id', 'left')
+                    ->joinSub($system_ratings_sub, 'system_ratings', 'system_ratings.answer_id', '=', 'student_ratings.answer_id', 'left')
+                    ->joinSub($student_abnormalities_sub, 'student_abnormalities', function ($join) {
+                        $join->on('student_abnormalities.user_id', '=', 'student_ratings.user_id');
+                        $join->on('student_abnormalities.answer_id', '=', 'student_ratings.answer_id');
+                    }, type: 'left');
+
+            }, 'total')
+            ->groupBy('total.user_id');
+
+        return $abnormalities;
+
+
+        return $student_ratings_sub->get();
+        return $teacher_ratings_sub->get();
+        return $system_ratings_sub->get();
+        return $student_abnormalities_sub->get();
     }
 }

@@ -24,8 +24,8 @@ class CoLearningHelperTest extends TestCase
         $user = User::find(1486);
         auth()->login($user);
 
-//        $testTakeId = 19;
-        $testTakeId = 22;
+        $testTakeId = 19;
+//        $testTakeId = 22    ;
         $testTakeUuid = '779168f6-4afe-4153-9102-9a131134ffa7';
 
 //        $testTake = TestTake::whereUuid($testTakeUuid)->first();
@@ -53,7 +53,8 @@ class CoLearningHelperTest extends TestCase
         $this->handleQueryLog($benchmark, 1);
 
         $benchmark[2]['time'] = Benchmark::measure(function () use (&$result2, $testTakeId, $user, $testTake) {
-            return $result2 = CoLearningHelper::getTestParticipantsWithStatus($testTakeId, $user->id, $testTake->discussing_question_id);
+            return $result2 = CoLearningHelper::fullTestParticipantsQuery($testTakeId, $testTake->discussing_question_id)->get();
+//            return $result2 = CoLearningHelper::getTestParticipantsWithStatus($testTakeId, $testTake->discussing_question_id);
         });
 
         $this->handleQueryLog($benchmark, 2);
@@ -75,10 +76,34 @@ class CoLearningHelperTest extends TestCase
             return $temp;
         })->all();
 
+        //todo result is different, because of filtering of discussingQuestion in the original controller method.
+
         dd( $result3, $result4, $benchmark,);
 
     }
 
+    /** @test */
+    public function testAbnormalities()
+    {
+        $result = 0;
+
+        $benchmark = Benchmark::measure(function () use (&$result){
+            $result = CoLearningHelper::getAbnormalitiesQuery()->get();
+        });
+
+        dd($result, $benchmark);
+    }
+
+
+    /** @test */
+    public function testAbnormalitiesAndTestParticipants()
+    {
+        //j COMBINE abnormalities (JOIN) with TestParticipants
+
+        $testParticipants = CoLearningHelper::fullTestParticipantsQuery(19, 241);
+
+        dd($testParticipants->get());
+    }
 
     protected function handleQueryLog(&$benchmark, $index)
     {
