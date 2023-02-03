@@ -129,7 +129,7 @@ export class Rectangle extends svgElement {
     /**
      * Function to be called when the cursor was moved.
      * @param {Event} evt The event that triggered the function.
-     * @param {{x: number, y: number}} cursor The currect cursor position.
+     * @param {{x: number, y: number}} cursor The current cursor position.
      */
     onDraw(evt, cursor) {
         let coords = this.calculateCoords(cursor);
@@ -268,7 +268,7 @@ export class Circle extends svgElement {
     /**
      * Function to be called when the cursor was moved during draw.
      * @param {Event} evt The event that triggered the function.
-     * @param {{x: number, y: number}} cursor The currect cursor position.
+     * @param {{x: number, y: number}} cursor The current cursor position.
      */
     onDraw(evt, cursor) {
         this.setR(this.calculateRadius(cursor));
@@ -276,7 +276,7 @@ export class Circle extends svgElement {
     /**
      * Function to be called when the cursor was moved during resize.
      * @param {Event} evt The event that triggered the function.
-     * @param {{x: number, y: number}} cursor The currect cursor position.
+     * @param {{x: number, y: number}} cursor The current cursor position.
      */
     onResize(evt, cursor) {
         // The scaling ratio is here because the corner points do not lay on the circle,
@@ -369,7 +369,7 @@ export class Line extends svgElement {
     /**
      * Function to be called when the cursor was moved.
      * @param {Event} evt The event that triggered the function.
-     * @param {{x: number, y: number}} cursor The currect cursor position.
+     * @param {{x: number, y: number}} cursor The current cursor position.
      */
     onDraw(evt, cursor) {
         this.setX2Attribute(cursor.x);
@@ -544,7 +544,7 @@ export class Text extends svgElement {
     /**
      * Function to be called when the cursor was moved.
      * @param {Event} evt The event that triggered the function.
-     * @param {{x: number, y: number}} cursor The currect cursor position.
+     * @param {{x: number, y: number}} cursor The current cursor position.
      */
     onDraw(evt, cursor) {
         this.setAttributeOnElementWithValidation("x", cursor.x);
