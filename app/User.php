@@ -65,9 +65,10 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     const MIN_PASSWORD_LENGTH = 8;
 
     protected $casts = [
-        'uuid'    => EfficientUuid::class,
-        'intense' => 'boolean',
+        'uuid'               => EfficientUuid::class,
+        'intense'            => 'boolean',
         'is_examcoordinator' => 'boolean',
+        'password_expiration_date' => 'datetime',
     ];
 
     /**
@@ -87,6 +88,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     const STUDENT_IMPORT_PASSWORD_PATTERN = 'S%dTC#2014';
     const TEACHER_IMPORT_PASSWORD_PATTERN = 'T%dTC#2014';
+    const USER_SETTINGS_SESSION_KEY = 'UserSettings';
 
     /**
      * The attributes that are mass assignable.
@@ -96,7 +98,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     protected $fillable = [
         'sales_organization_id', 'school_id', 'school_location_id', 'username', 'name_first', 'name_suffix', 'name',
         'password', 'external_id', 'gender', 'time_dispensation', 'text2speech', 'abbreviation', 'note', 'demo',
-        'invited_by', 'account_verified', 'test_take_code_id', 'guest', 'send_welcome_email', 'is_examcoordinator', 'is_examcoordinator_for'
+        'invited_by', 'account_verified', 'test_take_code_id', 'guest', 'send_welcome_email', 'is_examcoordinator', 'is_examcoordinator_for', 'password_expiration_date'
     ];
 
 
@@ -442,7 +444,6 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 $user = User::find($record->user_id);
                 if (null === $user) {
                     $message = (sprintf('THIS SHOULD NOT HAPPEN (did found eckid but no user): Can not find user for id %d', $record->user_id));
-                    logger($message);
                     Bugsnag::notifyException(new \Exception($message));
                     return false;
                 }
@@ -568,13 +569,15 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 $user->mentorSchoolClasses ??= [];
             }
 
-            if($user->isDirty(['is_examcoordinator', 'is_examcoordinator_for'])) {
+            $user->setForcePasswordChangeIfRequired();
+
+            if ($user->isDirty(['is_examcoordinator', 'is_examcoordinator_for'])) {
                 $user->setAttribute('session_hash', '');
             }
         });
 
-        static::saved(function(User $user){
-            if($user->isA('Teacher')) {
+        static::saved(function (User $user) {
+            if ($user->isA('Teacher')) {
                 $user->handleExamCoordinatorChange();
             }
         });
@@ -1048,7 +1051,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     public function scopeSubjectsInCurrentLocation($query)
     {
         $schoolLocationSectionIds = $this->schoolLocation->schoolLocationSections()->pluck('section_id');
-        return $this->subjects()->whereIn('section_id',$schoolLocationSectionIds);
+        return $this->subjects()->whereIn('section_id', $schoolLocationSectionIds);
     }
 
     public function subjects($query = null)
@@ -1280,7 +1283,17 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function trialPeriodsWithSchoolLocationCheck()
     {
-        return $this->hasOne(TrialPeriod::class, 'user_id')->where('school_location_id',$this->school_location_id);
+        return $this->hasOne(TrialPeriod::class, 'user_id')->where('school_location_id', $this->school_location_id);
+    }
+
+    public function systemSettings()
+    {
+        $this->hasMany(UserSystemSetting::class);
+    }
+
+    public function userFeatureSettings()
+    {
+        return $this->hasMany(UserFeatureSetting::class);
     }
 
     public function getOnboardingWizardSteps()
@@ -1342,7 +1355,28 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function isToetsenbakker()
     {
-        return (bool)FileManagement::where('handledby', $this->getKey())->where('type', 'testupload')->count();
+        if (!$this->isA('Teacher')) {
+            return false;
+        }
+
+        $isToetsenbakker = UserSystemSetting::getSettingFromSession($this, 'isToetsenbakker');
+        if (is_bool($isToetsenbakker)) {
+            return $isToetsenbakker;
+        }
+
+        $isToetsenbakker = FileManagement::testUploads()->handledBy($this)->exists()
+            || SchoolLocationUser::whereUserId($this->getKey())
+                ->whereIn('school_location_id', SchoolLocation::select('id')->where('customer_code', config('custom.TB_customer_code')))
+                ->exists();
+
+        UserSystemSetting::setSetting($this, 'isToetsenbakker', $isToetsenbakker);
+
+        return $isToetsenbakker;
+    }
+
+    public function isCurrentlyInToetsenbakkerij() : bool
+    {
+        return SchoolLocation::where('customer_code', config('custom.TB_customer_code'))->where('id',$this->school_location_id)->exists();
     }
 
     public function isTestCorrectUser()
@@ -1777,7 +1811,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                     );
                     break;
                 case 'without_guests':
-                    $query->when($value, function($query) {
+                    $query->when($value, function ($query) {
                         $query->withoutGuests();
                     });
                     break;
@@ -2605,7 +2639,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function getSearchFilterDefaultsTeacher()
     {
-        if (!$this->isA('teacher')) {
+        if (!$this->isA('teacher') || $this->isToetsenbakker()) {
             return [];
         }
 
@@ -2672,12 +2706,13 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         );
     }
 
-    public function loadPValueStatsForAllSubjects() {
+    public function loadPValueStatsForAllSubjects()
+    {
         $value = Subject::filterForStudent($this)->get()
-            ->map(fn ($subject) => PValueRepository::getPValuesForStudent($this,$subject))
-            ->map(fn ($user) => $user->developedAttainments)
+            ->map(fn($subject) => PValueRepository::getPValuesForStudent($this, $subject))
+            ->map(fn($user) => $user->developedAttainments)
             ->flatten()
-            ->groupBy(fn ($attainment) =>  $attainment->base_subject_id)
+            ->groupBy(fn($attainment) => $attainment->base_subject_id)
             ->map->avg(function ($attainment) {
                 return $attainment->total_p_value;
             })->mapWithKeys(fn($item, $key) => [BaseSubject::find($key)->name => $item]);
@@ -2692,8 +2727,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             return false;
         }
 
-        return $this->allowedSchoolLocations()->each(function($location) {
-            if(!$location->hasTrialLicense() || $this->trialPeriods()->withSchoolLocation($location)->exists()) {
+        return $this->allowedSchoolLocations()->each(function ($location) {
+            if (!$location->hasTrialLicense() || $this->trialPeriods()->withSchoolLocation($location)->exists()) {
                 return true;
             }
             return $this->trialPeriods()->create([
@@ -2728,12 +2763,12 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             ->get();
     }
 
-    public function getDefaultAttainmentMode() {
+    public function getDefaultAttainmentMode()
+    {
 //        SchoolClass::where('user_id', $this->id)
 
         return 'LEARNING_GOAL';
     }
-
     public function setHasPublishedTestAttribute(bool $boolean)
     {
         return $this->featureSettings()->setSetting('has_published_test', $boolean);
@@ -2742,5 +2777,31 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     public function getHasPublishedTestAttribute() : bool
     {
         return $this->featureSettings()->getSetting('has_published_test')->exists();
+    }
+
+    public function scopeToetsenbakkers($query)
+    {
+        return $query->whereIn(
+            'id',
+            SchoolLocationUser::select('user_id')
+                ->whereIn(
+                    'school_location_id',
+                    SchoolLocation::select('id')->where('customer_code', config('custom.TB_customer_code'))
+                )
+        );
+    }
+
+    private function setForcePasswordChangeIfRequired(): void
+    {
+        if (app()->runningInConsole()) return;
+        if (!$this->isDirty(['password'])) {
+            return;
+        }
+
+        if(Auth::id() && Auth::id() !== $this->id) {
+            $this->password_expiration_date = Carbon::now();
+            return;
+        }
+        $this->password_expiration_date = null;
     }
 }

@@ -44,8 +44,8 @@ class AttainmentImportController extends Controller
         DB::beginTransaction();
         try {
             collect($attainmentManifest->getAttainmentResources())->each(function ($resource) use (&$heads, &$added, &$existed) {
-                logger('educationLevelIds');
-                logger($resource->education_level_id);
+//                logger('educationLevelIds');
+//                logger($resource->education_level_id);
                 if ($resource->subcode === null) {
                     $resource->subcode = '';
                 };
@@ -64,22 +64,22 @@ class AttainmentImportController extends Controller
                                     ->where('education_level_id', $education_level_id)
                                     ->where('subcode', '')->first();
                                 if (!$a) {
-                                    logger('education level id ' . $education_level_id);
+//                                    logger('education level id ' . $education_level_id);
                                     throw new \Exception(sprintf('No head attainment for this new attainment %s and key %s in class %s', $resource->code, $headKey, __CLASS__));
                                 }
                                 $heads[$headKey] = $a->getKey();
                             }
                             $data = array_merge((array)$resource, ['attainment_id' => $heads[$headKey], 'education_level_id' => $education_level_id]);
-                            logger('create attainment WITH subcode');
-                            logger($data);
+//                            logger('create attainment WITH subcode');
+//                            logger($data);
                             Attainment::create($data);
                             $added++;
                         } else {
                             $data = (array)$resource;
                             $data['education_level_id'] = $education_level_id;
                             $data['subcode'] = '';
-                            logger('create attainment without subcode');
-                            logger($data);
+//                            logger('create attainment without subcode');
+//                            logger($data);
                             $a = Attainment::create($data);
                             $heads[$headKey] = $a->getKey();
                             $added++;

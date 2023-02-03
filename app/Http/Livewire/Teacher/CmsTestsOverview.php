@@ -2,11 +2,14 @@
 
 namespace tcCore\Http\Livewire\Teacher;
 
+use tcCore\Http\Traits\WithAddExistingQuestionFilterSync;
 use tcCore\Test;
 
 class CmsTestsOverview extends TestsOverview
 {
-    public $testUuid; /*The UUID of the test you're watching the questions for;*/
+    use WithAddExistingQuestionFilterSync;
+
+    public $testUuid; /*The UUID of the test you're watching the questions of;*/
     public $cmsTestUuid; /*The UUID of test you are editing in the CMS;*/
     public $questionsOfTest; /*The questions in the test you've opened in the testbank*/
 
@@ -15,7 +18,16 @@ class CmsTestsOverview extends TestsOverview
     public $cardMode = 'cms';
     public $excludeTabs = ['umbrella'];
 
-    public function showQuestionsOfTest($testUuid)
+    protected string $filterIdentifyingAttribute = 'cmsTestUuid';
+
+    protected function getListeners()
+    {
+        return $this->listeners + [
+                'shared-filter-updated' => 'loadSharedFilters'
+            ];
+    }
+
+    public function showQuestionsOfTest($testUuid): bool
     {
         $this->testUuid = $testUuid;
         return true;
@@ -36,26 +48,25 @@ class CmsTestsOverview extends TestsOverview
     }
 
     /* Overrides TestOverview */
-    protected function mergeFiltersWithDefaults($tab): void
+    protected function mergeFiltersWithDefaults(): void
     {
-        $this->filters[$tab] = array_merge($this->filters[$tab], $this->setDefaultFiltersFromTest($tab));
+        $this->filters = array_merge($this->filters, $this->setDefaultFiltersFromTest());
     }
 
-    private function setDefaultFiltersFromTest($tab): array
+    private function setDefaultFiltersFromTest(): array
     {
         $test = Test::whereUuid($this->cmsTestUuid)->first();
-
-        if ($this->isExternalContentTab($tab)) {
-            $defaultSubject = ['base_subject_id' => $test->subject()->pluck('base_subject_id')];
-        } else {
-            $defaultSubject = ['subject_id' => [$test->subject_id]];
-        }
-
         return [
-                'education_level_year' => [$test->education_level_year],
-                'education_level_id'   => [$test->education_level_id],
-            ] + $defaultSubject;
-
+            'education_level_year' => [$test->education_level_year],
+            'education_level_id'   => [$test->education_level_id],
+            'base_subject_id'      => $test->subject()->pluck('base_subject_id'),
+            'subject_id'           => [$test->subject_id],
+        ];
     }
 
+    public function clearFilters(): void
+    {
+        parent::clearFilters();
+        $this->notifySharedFilterComponents();
+    }
 }

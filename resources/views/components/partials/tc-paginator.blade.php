@@ -40,7 +40,7 @@
                     </p>
                 </div>
 
-                <div class="justify-center flex w-full">
+                <div class="justify-center flex w-full" x-data>
                     <span class="relative z-0 inline-flex items-center">
                         <span class="mr-4">
                             {{-- Previous Page Link --}}
@@ -59,7 +59,7 @@
                                 </span>
                             @else
                                 <span aria-disabled="true" aria-label="{{ __('pagination.previous') }}">
-                                    <x-button.text-button class="px-2"  wire:click="gotoPage(1)"  aria-label="{{ __('pagination.previous') }}">
+                                    <x-button.text-button class="px-2" @click="$wire.gotoPage(1)" aria-label="{{ __('pagination.previous') }}">
                                         <x-icon.arrow-left/>
 
                                     </x-button.text-button>

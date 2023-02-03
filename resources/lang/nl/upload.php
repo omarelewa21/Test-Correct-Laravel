@@ -32,4 +32,6 @@ return [
     'answer_model_tooltip'                 => 'Het antwoordmodel, of correctiemodel, bevat de antwoorden op de toetsvragen  en is verplicht. Deze kan samen met de vragen in één document geleverd worden of je levert deze apart aan.',
     'attachments_tooltip'                  => 'Lever bijlagen aan die nodig zijn bij het maken van de toets. Bijlagen zijn niet verplicht, maar moeten wel aangeleverd worden als vragen ernaar refereren.',
     'elaboration_attachment_model_tooltip' => 'Lever uitwerkbijlagen aan die nodig zijn bij het maken van de toets. UitwerkBijlagen zijn niet verplicht, maar moeten wel aangeleverd worden als vragen ernaar refereren.',
+    'Remark'                               => 'Mededeling',
+    'Not allowed due to temp school'       => 'Je kunt nog geen klassen en toetsen uploaden omdat je in een tijdelijke school zit. Zodra we je verplaatst hebben naar je school kun je je klassen en toetsen wel uploaden. We sturen je een bericht zodra we je gekoppeld hebben aan je school.',
 ];

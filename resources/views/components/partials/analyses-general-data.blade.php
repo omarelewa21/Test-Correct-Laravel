@@ -13,7 +13,7 @@
             @endif
         </div>
         <div class="flex flex-col">
-            <span>{{ __('student.gemiddelde p-waarde') }}</span>
+            <span>{{ __('student.gemiddeld percentage') }}</span>
             <div class="inline-block">
                 @if( $generalStats[$kind.'_taken'] == 0)
                     <span class="note">

@@ -23,6 +23,10 @@ class TestQuickTake extends TestAction
 
     protected function getDisabledValue()
     {
+        if(Auth::user()->isToetsenbakker() && Auth::user()->isCurrentlyInToetsenbakkerij()) {
+            return true;
+        }
+
         return $this->test->isAssignment() || Auth::user()->isValidExamCoordinator() || !$this->test->canPlan(Auth::user()) || $this->test->isDraft();
     }
 }

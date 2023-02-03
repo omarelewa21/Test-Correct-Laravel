@@ -4,7 +4,7 @@ namespace tcCore\Http\Livewire\Analyses;
 
 use tcCore\BaseAttainment;
 use tcCore\Http\Traits\WithAnalysesGeneralData;
-use tcCore\Lib\Repositories\TaxonomyRankingRepostitory;
+use tcCore\Lib\Repositories\TaxonomyRankingRepository;
 use tcCore\Subject;
 
 class AnalysesSubSubAttainmentDashboard extends AnalysesDashboard

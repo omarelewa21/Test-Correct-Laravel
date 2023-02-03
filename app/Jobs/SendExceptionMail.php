@@ -2,14 +2,16 @@
 
 namespace tcCore\Jobs;
 
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Mail\Mailer;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
 class SendExceptionMail extends Job implements ShouldQueue
 {
-    use InteractsWithQueue, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $errMessage;
     protected $file;
@@ -37,6 +39,7 @@ class SendExceptionMail extends Job implements ShouldQueue
         if(null !== $subject) {
             $this->subject = $subject;
         }
+
     }
 
     /**
@@ -46,6 +49,7 @@ class SendExceptionMail extends Job implements ShouldQueue
      */
     public function handle(Mailer $mailer)
     {
+
         $template = 'emails.exception';
         $serverDetails = $_SERVER;
         $ar = ['MAIL_PASSWORD','APP_KEY','DB_USERNAME','DB_PASSWORD','MAIL_FROM_ADDRESS'];
@@ -59,9 +63,9 @@ class SendExceptionMail extends Job implements ShouldQueue
                                   'lineNr'     => $this->lineNr,
                                   'details'    => $this->details,
                                   'server'     => $serverDetails], function ($m) {
-            $m->to(
-                config('mail.mail_dev_address')
-            )->subject($this->subject);
+            $m->to(config('mail.mail_dev_address'))
+                ->cc(config('mail.from.address'))
+                ->subject($this->subject);
         });
     }
 }

@@ -1,5 +1,6 @@
 <?php namespace tcCore\Exceptions;
 
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
@@ -42,6 +43,14 @@ class Handler extends ExceptionHandler
         return parent::report($e);
     }
 
+    public function register()
+    {
+        $this->reportable(function (UwlrAutoImportException $e){
+            $this->sendExceptionMail($e->getMessage(), $e->getFile(),$e->getLine(),[],'TLC: Error while handling uwlr import');
+        })->stop();
+
+    }
+
     /**
      * Render an exception into an HTTP response.
      *
@@ -51,19 +60,19 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $e)
     {
-        if ($e instanceof DeploymentMaintenanceException) {
+        if($e instanceof DeploymentMaintenanceException){
             if ($request->expectsJson()) {
                 return response()->json(['error' => strip_tags($e->getMessage())], 503);
             } else {
                 return response()
                     ->view('errors.deployment-maintenance', ['deployment' => $e->deployment], 503);
             }
-        } else if ($this->isHttpException($e)) {
+        }
+
+        else if ($this->isHttpException($e)) {
             return $this->renderHttpException($e);
         } else if ($e instanceof QuestionException || $e instanceof SchoolAndSchoolLocationsImportException) {
-            dispatch(
-                new SendExceptionMail($e->getMessage(), $e->getFile(), $e->getLine(), $e->getDetails())
-            );
+            $this->sendExceptionMail($e->getMessage(), $e->getFile(), $e->getLine(), $e->getDetails());
 
             throw new HttpResponseException(new Response($e), 422);
         } else if($e instanceof CleanRedirectException){
@@ -71,6 +80,16 @@ class Handler extends ExceptionHandler
                 ->view('clean-redirect', ['url' => $e->url], 301);
         } else {
             return parent::render($request, $e);
+        }
+    }
+
+    protected function sendExceptionMail($message,$file,$line,$details = [], $subject = null){
+        try {
+            dispatch(
+                new SendExceptionMail($message, $file, $line, $details, $subject)
+            );
+        } catch (\Throwable $th) {
+            Bugsnag::notifyException($th);
         }
     }
 

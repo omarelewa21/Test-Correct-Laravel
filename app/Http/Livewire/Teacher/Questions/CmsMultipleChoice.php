@@ -174,7 +174,7 @@ class CmsMultipleChoice extends CmsBase
                     'id'     => Uuid::uuid4(),
                     'order'  => $key + 1,
                     'score'  => $answer->score,
-                    'answer' => BaseHelper::transformHtmlCharsReverse($answer->answer),
+                    'answer' => BaseHelper::transformHtmlCharsReverse($answer->answer,false),
                 ];
             })->toArray();
         }

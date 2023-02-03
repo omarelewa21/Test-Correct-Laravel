@@ -394,8 +394,14 @@ class Question extends MtiBaseModel
             if ($ignore instanceof QuestionAttachment && $ignore->getAttribute('attachment_id') == $questionAttachment->getAttribute('attachment_id') && $ignore->getAttribute('question_id') == $questionAttachment->getAttribute('question_id')) {
                 continue;
             }
+            $options = [];
+            if(isset($attributes['questionAttachmentOptions'][$questionAttachment->attachment_id])){
+                $options = [
+                    'options' => json_encode($attributes['questionAttachmentOptions'][$questionAttachment->attachment_id])
+                ];
+            }
 
-            if (($newAttachment = $questionAttachment->duplicate($question, [])) === false) {
+            if (($newAttachment = $questionAttachment->duplicate($question, $options)) === false) {
                 return false;
             }
         }
@@ -573,6 +579,15 @@ class Question extends MtiBaseModel
         }
     }
 
+    public function isDirtyAttachmentOptions($request) : bool
+    {
+        if(isset($request->all()['questionAttachmentOptions'])) {
+            return true;
+        }
+
+        return false;
+    }
+
     public function isDirtyAnswerOptions($totalData)
     {
         if (!array_key_exists('answers', $totalData)) {
@@ -693,9 +708,12 @@ class Question extends MtiBaseModel
 
     public function scopeDifferentScenariosAndDemo($query, $filters = [])
     {
-//        $roles = $this->getUserRoles();
         $user = Auth::user();
-//        $schoolLocation = SchoolLocation::find($user->getAttribute('school_location_id'));
+
+        if ($user->isToetsenbakker()) {
+            return $query->owner($user->schoolLocation);
+        }
+
         if ($user->isA('Teacher')) {
             $subject = (new DemoHelper())->getDemoSubjectForTeacher($user);
             $query->join($this->switchScopeFilteredSubQueryForDifferentScenarios($user, $subject), function ($join) {
@@ -708,18 +726,6 @@ class Question extends MtiBaseModel
                     })->orWhere('questions.subject_id', '<>', $subject->getKey());
                 });
             }
-//            $query->orWhere(function($q) use ($user, $subject){
-//                // subject id = $subject->getKey() together with being an owner through the question_authors table
-//                $q->where('subject_id',$subject->getKey());
-//                $q->whereIn('questions.id',$user->questionAuthors()->pluck('question_id'));
-//            });
-//            // or subject_id in list AND subject not $subject->getKey()
-//            $query->orWhere(function($q) use ($user,$subject){
-//                $q->where('subject_id','<>',$subject->getKey());
-//                $q->whereIn('subject_id', function ($query) use ($user) {
-//                    $user->subjectsIncludingShared($query)->select('id');
-//                });
-//            });
         }
 
         return $query;
@@ -1069,6 +1075,10 @@ class Question extends MtiBaseModel
             $this->handleDuplication($request);
             return;
         }
+        if ($this->questionAttachmentOptionsNeedSaving($request)) {
+            $this->handleAttachmentOptionsSaving($request);
+        }
+
         $this->saveBothBaseModelAndQuestion();
     }
 
@@ -1081,6 +1091,10 @@ class Question extends MtiBaseModel
             $this->handleDuplication($request);
             return;
         }
+        if ($this->questionAttachmentOptionsNeedSaving($request)) {
+            $this->handleAttachmentOptionsSaving($request);
+        }
+
         $this->saveBothBaseModelAndQuestion();
 
     }
@@ -1088,11 +1102,27 @@ class Question extends MtiBaseModel
     protected function saveBothBaseModelAndQuestion()
     {
         $baseModel = $this->getQuestionInstance();
+
         $var = $baseModel->save();
         if (!$var) {
             throw new QuestionException('Failed to save question');
         }
         $this->save();
+    }
+
+    protected function handleAttachmentOptionsSaving($request)
+    {
+        $this->questionAttachments->each(function ($questionAttachment) use ($request) {
+            if(isset($request['questionAttachmentOptions'][$questionAttachment->attachment_id])){
+                $questionAttachment->options = json_encode($request['questionAttachmentOptions'][$questionAttachment->attachment_id]);
+            }
+        });
+        $this->questionAttachments->each->save();
+    }
+
+    protected function questionAttachmentOptionsNeedSaving($request)
+    {
+        return isset($request['questionAttachmentOptions']);
     }
 
     public function getKeyAfterPossibleDuplicate()
@@ -1174,6 +1204,9 @@ class Question extends MtiBaseModel
             return true;
         }
         if ($baseModel->isDirtyTags()) {
+            return true;
+        }
+        if ($baseModel->isDirtyAttachmentOptions($request)) {
             return true;
         }
         return false;
@@ -1550,6 +1583,24 @@ class Question extends MtiBaseModel
         }
 
         return $totalData;
+    }
+
+    public function scopeOwner($query, SchoolLocation $schoolLocation)
+    {
+        return $query->where('owner_id', $schoolLocation->getKey());
+    }
+
+    public function scopeTaxonomies($query, array $valuesPerTaxonomy)
+    {
+        return $query->where(function ($query) use ($valuesPerTaxonomy) {
+            collect($valuesPerTaxonomy)->each(function ($values, $column) use ($query, $valuesPerTaxonomy) {
+                $whereMethod = array_key_first($valuesPerTaxonomy) === $column ? 'whereIn' : 'orWhereIn';
+                $query->$whereMethod(
+                    'questions.'.$column,
+                    $values
+                );
+            });
+        });
     }
 
     public static function setAttributesFromParentModel(Question $question, Test|GroupQuestion $parent)

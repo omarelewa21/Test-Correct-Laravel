@@ -66,7 +66,7 @@ class PeriodRepository
             ->whereIn('school_year_id', $schoolYears->toArray())
             ->get();
 
-        if ($periods->count() != 1) {
+        if (!$periods->count()) {
             $msg = sprintf(
                 'No valid period found for school location %s with id %d.',
                 $schoolLocation->name,

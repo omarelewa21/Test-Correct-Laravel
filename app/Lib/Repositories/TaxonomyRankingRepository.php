@@ -9,7 +9,7 @@ use tcCore\Subject;
 use tcCore\User;
 use function Symfony\Component\String\s;
 
-class TaxonomyRankingRepostitory
+class TaxonomyRankingRepository
 {
     /**
      *  QUERY FOR SELECTING AND RANKING SUBJECTS TOP 3
@@ -57,7 +57,7 @@ class TaxonomyRankingRepostitory
                         ->WhereRaw("questions.rtti <> ''");
                 });
             })
-            ->filter($filters['periods'], $filters['education_level_years'], $filters['teachers'])
+            ->filter($forUser, $filters['periods'], $filters['education_level_years'], $filters['teachers'])
             ->groupBy('id', 'title')
             ->having('Z', '>', 5)
             ->orderBy('formula', 'desc')
@@ -139,7 +139,7 @@ class TaxonomyRankingRepostitory
                         ->WhereRaw("questions.rtti <> ''");
                 });
             })
-            ->filter($filters['periods'], $filters['education_level_years'], $filters['teachers'], $filters['isLearningGoal'])
+            ->filter($forUser, $filters['periods'], $filters['education_level_years'], $filters['teachers'], $filters['isLearningGoal'])
             ->groupBy('id', 'title')
             ->having('Z', '>', 5)
             ->orderBy('formula', 'desc')

@@ -43,7 +43,7 @@ class SomTodayHelper
     /**
      * Use the SoapWrapper
      */
-    public function search($klantcode, $klantnaam, $schooljaar, $brincode, $dependancecode)
+    public function search($klantcode, $klantnaam, $schooljaar, $brincode, $dependancecode, $autoImport = null)
     {
         $this->searchParams = [
             'source'          => self::SOURCE,
@@ -53,7 +53,7 @@ class SomTodayHelper
             'brin_code'       => $brincode,
             'dependance_code' => $dependancecode,
             'xsdversie'       => self::XSD_VERSION,
-            'username_who_imported' => optional(Auth::user())->username ?: 'system',
+            'username_who_imported' => $autoImport ? 'AUTO_UWLR_IMPORT' : (optional(Auth::user())->username ?: 'system'),
         ];
 
 
@@ -104,9 +104,12 @@ class SomTodayHelper
         );
         if($this->soapError){
             $this->resultSet->error_messages = $this->soapError;
+            $this->resultSet->status = 'FAILED';
             $this->resultSet->save();
             $body = sprintf('There was an exception while retrieving data from SomToday%serror: %s%sdata:%s',PHP_EOL,$this->soapError,PHP_EOL,print_r($this->searchParams,true));
-            Bugsnag::notifyException(new \LogicException($body,0,$this->soapException));
+            if(!app()->runningInConsole()) { // we do this in the import helper
+                Bugsnag::notifyException(new \LogicException($body, 0, $this->soapException));
+            }
             throw new \Exception($body = sprintf('Er ging iets mis bij het ophalen van de gegevens via SomToday<br/>error: %s<br/>Data die gebruikt is:<pre>%s</pre>',$this->soapError,print_r($this->searchParams,true)));
         }
         if (!$this->result) {
@@ -131,6 +134,16 @@ class SomTodayHelper
             throw new \Exception('no result to store');
         }
         return $this->result;
+    }
+
+    public function hasException()
+    {
+        return (bool) $this->soapException;
+    }
+
+    public function getException()
+    {
+        return $this->soapException;
     }
 
     public function getResultIdentifier()
@@ -188,4 +201,6 @@ class SomTodayHelper
             ]);
         });
     }
+
+
 }

@@ -7,9 +7,7 @@
     <meta http-equiv="refresh" content="{{ config('session.lifetime') * 60 }}">
     <title version="{{ \tcCore\Http\Helpers\BaseHelper::getCurrentVersion() }}">Test-Correct</title>
     <link rel="icon" href="{{ asset('img/icons/Logo-Test-Correct-recolored-icon-only.svg') }}"/>
-    {{--    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">--}}
-    <script  src="https://cdn.anychart.com/releases/8.11.0/js/anychart-base.min.js"
-            type="text/javascript"></script>
+
     <script src="/ckeditor/ckeditor.js" type="text/javascript"></script>
     @if(!is_null(Auth::user())&&Auth::user()->canUseTeacherCkEditorWithWebSpellChecker())
         <script src="{{ mix('/js/ckeditor_teacher_wsc.js') }}" type="text/javascript"></script>
@@ -23,7 +21,12 @@
     <link rel="stylesheet" href="{{ mix('/css/app.css') }}">
     @if(config('bugsnag.browser_key') != '')
         <script src="//d2wy8f7a9ursnm.cloudfront.net/v7/bugsnag.min.js"></script>
-        <script>Bugsnag.start({ apiKey: '{{ config('bugsnag.browser_key') }}' })</script>
+        <script>
+        Bugsnag.start({
+            apiKey: '{{ config('bugsnag.browser_key') }}',
+            enabledBreadcrumbTypes: ['error', 'log', 'navigation', 'request']
+        })
+        </script>
     @endif
     @stack('styling')
 
@@ -70,7 +73,6 @@
 <script>
     Alpine.start();
     Core.init();
-    {{--Echo.connector.pusher.config.auth.headers['X-CSRF-TOKEN'] = '{{ csrf_token() }}'--}}
 </script>
 </body>
 </html>

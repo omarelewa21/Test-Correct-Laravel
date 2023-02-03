@@ -21,4 +21,6 @@ return [
     'has_been_deleted'       => 'School location has been deleted',
     'delete_school_location' => 'Delete school location',
     'delete_are_you_sure'    => 'Are you sure you want to delete this school location?',
+    'test_package'           => 'Test package',
+
 ];

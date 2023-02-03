@@ -2,10 +2,14 @@
 
 namespace tcCore\Http\Livewire\Analyses;
 
+use tcCore\Attainment;
 use tcCore\BaseAttainment;
 use tcCore\Http\Traits\WithAnalysesGeneralData;
 use tcCore\Lib\Repositories\PValueRepository;
-use tcCore\Lib\Repositories\TaxonomyRankingRepostitory;
+use tcCore\Lib\Repositories\PValueTimeSeriesDayRepository;
+use tcCore\Lib\Repositories\PValueTimeSeriesWeekRepository;
+use tcCore\Scopes\AttainmentScope;
+use tcCore\Lib\Repositories\TaxonomyRankingRepository;
 use tcCore\Subject;
 
 class AnalysesAttainmentDashboard extends AnalysesDashboard
@@ -28,7 +32,7 @@ class AnalysesAttainmentDashboard extends AnalysesDashboard
 
     public function getTopItemsProperty()
     {
-        return TaxonomyRankingRepostitory::getForAttainment(
+        return TaxonomyRankingRepository::getForAttainment(
             $this->getHelper()->getForUser(),
             Subject::whereUuid($this->subject)->first(),
             $this->attainment,
@@ -95,5 +99,39 @@ class AnalysesAttainmentDashboard extends AnalysesDashboard
                 Subject::whereUuid($this->subject)->first()
             )
         );
+    }
+
+    public function getDataForSubjectTimeSeriesGraph()
+    {
+        $results =
+            // PValueRepository::getPValueForStudentBySubjectDayDateTimeSeries(
+            PValueTimeSeriesWeekRepository::getForStudentForAttainmentByAttainment(
+                $this->getHelper()->getForUser(),
+                $this->attainment,
+                $this->subject,
+                $this->getPeriodsByFilterValues(),
+                $this->getEducationLevelYearsByFilterValues(),
+                $this->getTeachersByFilterValues(),
+                $this->getIsLearningGoalFilter()
+            );
+
+        $set = [];
+        $names = [];
+        foreach($results as $result) {
+            if (!in_array($result->id, $names)) {
+                $names[] = $result->id;
+            }
+            $set[$result->week_date][] =  $result->score ?? 'missing';
+        }
+
+        $newSet = collect($set)->map(function($arr, $key) {
+            return [$key, ...$arr];
+        })->values()->toArray();
+
+        $eindtermen = collect($names)->map(function ($id) {
+            return Attainment::withoutGlobalScope(AttainmentScope::class)->find($id)->name;
+        })->toArray();
+
+        return [false, $newSet, $eindtermen];
     }
 }

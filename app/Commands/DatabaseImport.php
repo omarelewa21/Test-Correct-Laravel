@@ -63,14 +63,14 @@ class DatabaseImport
     public static function migrate()
     {
         DatabaseImport::checkEnv();
-        $process = Process::fromShellCommandline('php artisan migrate --force');
-        $process->run();
-
-        if (!$process->isSuccessful()) {
-            throw new ProcessFailedException($process);
-            echo $process->getOutput();
-        }
-//        Artisan::call('migrate --force');
+//        $process = Process::fromShellCommandline('php artisan migrate --force');
+//        $process->run();
+//
+//        if (!$process->isSuccessful()) {
+//            throw new ProcessFailedException($process);
+//            echo $process->getOutput();
+//        }
+        Artisan::call('migrate --force');
     }
 
     public static function addRequiredDatabaseData()

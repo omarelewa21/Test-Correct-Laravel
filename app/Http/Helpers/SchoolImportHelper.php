@@ -76,7 +76,7 @@ class SchoolImportHelper
             $this->inform('all done');
         } catch(Throwable $e) {
             DB::rollback();
-            logger($e);
+//            logger($e);
             if($this->echoDetails){
                 dd($e->getMessage());
             }

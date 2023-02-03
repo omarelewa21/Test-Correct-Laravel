@@ -240,14 +240,9 @@ class Subject extends BaseModel implements AccessCheckable
                     ->join('students', 'school_classes.id', '=', 'students.class_id')
                     ->where('students.user_id', $user->getKey())
                     ->where('school_year_id', $currentSchoolYear->getKey());
-
         }
 
-
-
         return $query->whereIn('id', $subQuery);
-
-
     }
 
     public function scopeCitoFiltered($query, $filters = [], $sorting = [])

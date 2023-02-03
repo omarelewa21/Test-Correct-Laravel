@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="17" height="16" viewBox="0 0 17 16">
+<svg {{ $attributes }} xmlns="http://www.w3.org/2000/svg" width="17" height="16" viewBox="0 0 17 16">
     <g fill="none" fill-rule="evenodd">
         <g>
             <g>

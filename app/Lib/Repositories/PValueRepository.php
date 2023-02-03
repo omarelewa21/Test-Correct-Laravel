@@ -1,10 +1,13 @@
 <?php namespace tcCore\Lib\Repositories;
 
+use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use tcCore\Attainment;
 use tcCore\BaseSubject;
 use tcCore\EducationLevel;
+use tcCore\Period;
 use tcCore\PValue;
 use tcCore\Scopes\AttainmentScope;
 use tcCore\Subject;
@@ -381,7 +384,7 @@ class PValueRepository
                 $join->on('p_values.test_participant_id', '=', 'test_participants.id')
                     ->where('test_participants.user_id', '=', $user->getKey());
             })
-            ->filter($periods, $educationLevelYears, $teachers)
+            ->filter($user, $periods, $educationLevelYears, $teachers)
             ->groupBy('subject_id');
 
         return Subject::filterForStudentCurrentSchoolYear($user)
@@ -392,6 +395,12 @@ class PValueRepository
             ->orderByRaw('subjects.name')
             ->get();
     }
+
+
+
+
+
+
 
     public static function getPValuePerAttainmentForStudent(User $user, $periods, $educationLevelYears, $teachers, Subject $subject, $isLearningGoal = false)
     {
@@ -404,7 +413,7 @@ class PValueRepository
                 $join->on('p_values.test_participant_id', '=', 'test_participants.id')
                     ->where('test_participants.user_id', '=', $user->getKey());
             })
-            ->filter($periods, $educationLevelYears, $teachers)
+            ->filter($user, $periods, $educationLevelYears, $teachers)
             ->groupBy('attainment_id');
 
         return Attainment::withoutGlobalScope(AttainmentScope::class)
@@ -415,8 +424,8 @@ class PValueRepository
             ->whereNull('attainments.attainment_id')
             ->where('is_learning_goal', $isLearningGoal)
             ->where('attainments.education_level_id', EducationLevel::getLatestForStudentWithSubject($user, $subject)->id)
-            ->orderByRaw('is_learning_goal, education_level_id, attainments.code, attainments.subcode')
-            ->get();
+            ->orderByRaw('is_learning_goal, education_level_id, attainments.code, attainments.subcode');
+
     }
 
     public static function getPValuePerSubAttainmentForStudentAndAttainment(User $user, Attainment $attainment, $periods, $educationLevelYears, $teachers)
@@ -429,7 +438,7 @@ class PValueRepository
                 $join->on('p_values.test_participant_id', '=', 'test_participants.id')
                     ->where('test_participants.user_id', '=', $user->getKey());
             })
-            ->filter($periods, $educationLevelYears, $teachers)
+            ->filter($user, $periods, $educationLevelYears, $teachers)
             ->whereIn('p_value_attainments.attainment_id', Attainment::withoutGlobalScope(AttainmentScope::class)->where('attainment_id', $attainment->getKey())->pluck('id'))
             ->groupBy('attainment_id');
 //            ->orderByRaw('is_learning_goal, education_level_id, attainments.code, attainments.subcode')
@@ -443,5 +452,30 @@ class PValueRepository
             ->where('attainments.attainment_id', $attainment->id)
             ->orderByRaw('is_learning_goal, education_level_id, attainments.code, attainments.subcode')
             ->get();
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+    public static function convertPeriodsToStartAndEndDate($periods, $user)
+    {
+        if ($periods->isNotEmpty()) {
+            return Period::whereIn('id', $periods->pluck('id'))->selectRaw('max(end_date) as end_date, min(start_date) as start_date')->first();
+        }
+
+        $startAndEndDate = EducationLevel::getStartAndEndDateForLatestEducationLevelForStudent($user);
+
+        if (Carbon::parse($startAndEndDate['end_date'])->greaterThan(now())) {
+            $startAndEndDate['end_date'] = now()->format('Y-m-d');
+        }
+        return (object) $startAndEndDate;
     }
 }

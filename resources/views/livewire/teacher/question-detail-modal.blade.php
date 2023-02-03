@@ -200,6 +200,7 @@
                                        name="bloom"
                                        type="radio"
                                        value="{{ $value }}"
+                                       disabled
                                        @if($value === $question->bloom) checked @endif
                                 />
                                 <span class="ml-2">{{ $value }}</span>

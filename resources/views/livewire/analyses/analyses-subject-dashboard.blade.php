@@ -42,7 +42,7 @@
 
 @section('analyses.p-values-graph')
     <div class="flex justify-between mb-5">
-        <h2 class="flex">{{ __('student.overzicht p-waardes') }}</h2>
+        <h2 class="flex">{{ __('student.overzicht percentages') }}</h2>
         <div class="flex">
             <x-button.slider
                     class="flex gap-2 items-center"
@@ -57,9 +57,9 @@
         <x-slot name="title">
             {{--            <div class="hidden">{{ $this->data }}</div>--}}
             @if($this->attainmentMode === \tcCore\Attainment::TYPE)
-                {{ __('student.p waarde eindtermen') }}
+                {{ __('student.percentage per eindterm') }}
             @else
-            {{ __('student.p waarde leerdoelen') }}
+            {{ __('student.percentage per leerdoel') }}
             @endif
         </x-slot>
         <div x-data="analysesAttainmentsGraph('pValueChart')"
@@ -81,4 +81,23 @@
     @else
     {{ trans_choice('student.top leerdoelen om aan te werken', count($this->topItems)) }}
     @endif
+@endsection
+
+@section('analyses.p-values-time-series-graph')
+    <BR>
+    <x-content-section>
+        <x-slot name="title">
+                {{ __('student.ontwikkeling percentage over tijd') }}
+        </x-slot>
+
+
+        <div x-data="analysesSubjectsTimeSeriesGraph('pValueTimeSeriesChart')"
+             x-on:filters-updated.window="updateGraph();"
+        >            <div id="pValueTimeSeriesChart" style="height: 400px;" class="relative" wire:ignore>
+                <x-empty-graph x-show="showEmptyState" :show="true"></x-empty-graph>
+            </div>
+        </div>
+    </x-content-section>
+
+
 @endsection

@@ -6,10 +6,11 @@
     'filterContainer' => '',
     'hasErrors' => false,
     'searchPlaceholder' => __('cms.Search...'),
+    'sortOptions' => true,
  ])
 <div class="{{ $hasErrors ? 'has-error' : ''  }}">
     <div wire:ignore x-cloak
-         {{ $attributes->wire('key') ? 'wire:key="'. $attributes->wire('key')->value. '"' : '' }}
+         {{ $attributes->wire('key') }}
          x-data="choices(@entangle($attributes->wire('model')),
                     {{ $multiple ? 1 : 0 }},
                     @js($options),
@@ -24,7 +25,8 @@
                         resetScrollPosition: false,
                         fuseOptions:{
                             treshold:0.3
-                        }
+                        },
+                        shouldSort: @js($sortOptions)
                     },
                     '{{ $filterContainer }}'
              )"
@@ -42,9 +44,13 @@
         <x-icon.chevron-small x-ref="chevron" class="choices-select-chevron absolute right-4 top-1/2 -translate-y-1/2 rotate-90 pointer-events-none" opacity="1"/>
     </div>
     <template id="filter-pill-template" class="hidden">
-        <button class="space-x-2" @click="$dispatch('removeFrom'+$el.dataset.filter, {
-            value: isNaN(parseInt($el.dataset.filterValue)) ? $el.dataset.filterValue : parseInt($el.dataset.filterValue)
-        }); $el.remove();">
+        <button class="space-x-2"
+                @click="$dispatch($el.dataset.removeEventName, {
+                            value: isNaN(parseInt($el.dataset.filterValue)) ? $el.dataset.filterValue : parseInt($el.dataset.filterValue)
+                        }); $el.remove();
+                        "
+                data-trans-any="{{ __('cms.Alle') }}"
+        >
             <span class="flex"></span>
             <x-icon.close-small/>
         </button>

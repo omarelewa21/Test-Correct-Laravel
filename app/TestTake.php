@@ -38,9 +38,10 @@ class TestTake extends BaseModel
     use Archivable;
 
     protected $casts = [
-        'uuid'            => EfficientUuid::class,
-        'notify_students' => 'boolean',
-        'show_grades'     => 'boolean'
+        'uuid'              => EfficientUuid::class,
+        'notify_students'   => 'boolean',
+        'show_grades'       => 'boolean',
+        'returned_to_taken' => 'boolean'
     ];
 
     /**
@@ -62,7 +63,7 @@ class TestTake extends BaseModel
      *
      * @var array
      */
-    protected $fillable = ['test_id', 'test_take_status_id', 'period_id', 'retake', 'retake_test_take_id', 'time_start', 'time_end', 'location', 'weight', 'note', 'invigilator_note', 'show_results', 'discussion_type', 'is_rtti_test_take', 'exported_to_rtti', 'allow_inbrowser_testing', 'guest_accounts', 'skipped_discussion', 'notify_students', 'user_id', 'scheduled_by','show_grades'];
+    protected $fillable = ['test_id', 'test_take_status_id', 'period_id', 'retake', 'retake_test_take_id', 'time_start', 'time_end', 'location', 'weight', 'note', 'invigilator_note', 'show_results', 'discussion_type', 'is_rtti_test_take', 'exported_to_rtti', 'allow_inbrowser_testing', 'guest_accounts', 'skipped_discussion', 'notify_students', 'user_id', 'scheduled_by', 'show_grades', 'returned_to_taken'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -964,15 +965,11 @@ class TestTake extends BaseModel
 
     public function scopeOnlyTestsFromSubjectsOrIfDemoThenOnlyWhenOwner($query, User $user)
     {
+
         $query->where(function ($q) use ($user) {
             $subject = (new DemoHelper())->getDemoSubjectForTeacher($user);
-            //TCP-156
             if ($subject === null) {
-                if (config('app.url_login') == "https://testportal.test-correct.nl/" || config('app.url_login') == "https://testportal.test-correct.nl/" || config('app.env') == "production") {
-                    dispatch(new SendExceptionMail("Er is iets mis met de demoschool op ".config('app.url_login')."! \$subject is null in TestTake.php. Dit betekent dat docenten toetsen van andere docenten kunnen zien. Dit moet zo snel mogelijk opgelost worden!",
-                        __FILE__, 510, []));
-                }
-                return;
+                return; // no demo environments any more for new teachers except for the temporary school location
             }
 
             $q->whereIn($this->getTable().'.id', function ($query) use ($subject, $user) {
@@ -1083,6 +1080,7 @@ class TestTake extends BaseModel
         $this->discussion_type          = null;
         $this->show_results             = null;
         $this->skipped_discussion       = 0;
+        $this->returned_to_taken        = 1;
         $this->save();
     }
 
@@ -1165,11 +1163,15 @@ class TestTake extends BaseModel
             ->distinct();
     }
 
-    public static function redirectToDetail($testTakeUuid, $returnRoute = '')
+    public static function redirectToDetail($testTakeUuid, $returnRoute = '', ?string $pageAction = null)
     {
         $detailUrl = sprintf('test_takes/view/%s', $testTakeUuid);
-        $temporaryLogin = TemporaryLogin::createWithOptionsForUser(['page', 'return_route'], [$detailUrl, $returnRoute], auth()->user());
-
+        $params = [['page', 'return_route'], [$detailUrl, $returnRoute]];
+        if($pageAction){
+            $params[0][] = 'page_action';
+            $params[1][] = $pageAction;
+        }
+        $temporaryLogin = TemporaryLogin::createWithOptionsForUser($params[0], $params[1], auth()->user());
         return redirect($temporaryLogin->createCakeUrl());
     }
 
@@ -1227,5 +1229,39 @@ class TestTake extends BaseModel
             )
             ->whereTestTakeId($this->getKey())
             ->exists();
+    }
+
+    /**
+     * Check if test take has non-active participants for co-learning
+     */
+    public function hasNonActiveParticipant(): bool
+    {
+        return !is_null(
+            $this->testParticipants->first(function($participant){
+                return is_null($participant->heartbeat_at) || strtotime($participant->heartbeat_at) < (time() - 10);
+            })
+        );
+    }
+
+    /**
+     * Check if test take is still allowed to review by students 
+     */
+    public function isAllowedToReviewResultsByParticipants(): bool
+    {
+        return
+            !empty($this->show_results)
+            && !is_null($this->show_results)
+            && time() < strtotime($this->show_results);
+    }
+
+    /**
+     * Check if all participant answers are rated
+     */
+    public function hasAllParticipantAnswersRated(): bool
+    {
+        return $this->testParticipants()
+            ->join('answers', 'answers.test_participant_id', 'test_participants.id')
+            ->whereNull('answers.final_rating')
+            ->doesntExist();
     }
 }

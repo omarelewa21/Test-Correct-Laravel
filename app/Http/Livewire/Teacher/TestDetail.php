@@ -9,6 +9,7 @@ use tcCore\Question;
 use tcCore\Test;
 use tcCore\TestTake;
 use tcCore\TemporaryLogin;
+use Illuminate\Support\Arr;
 
 class TestDetail extends Component
 {
@@ -18,6 +19,7 @@ class TestDetail extends Component
     public $referrer = '';
     public $mode;
     public $context = 'testdetail';
+    public string $previousUrl;
 
     protected $queryString = ['referrer' => ['except' => '']];
 
@@ -30,9 +32,10 @@ class TestDetail extends Component
     public function mount($uuid)
     {
 //        @TODO: Should this be implemented ?;
-        Gate::authorize('canViewTestDetails',[Test::findByUuid($uuid)]);
+        Gate::authorize('canViewTestDetails', [Test::findByUuid($uuid)]);
 
         $this->uuid = $uuid;
+        $this->setPreviousUrl();
         $this->setContext();
     }
 
@@ -49,6 +52,11 @@ class TestDetail extends Component
             ->firstOrFail();
     }
 
+    public function updatingPreviousUrl($value)
+    {
+        abort(403);
+    }
+
     public function getAmountOfQuestionsProperty()
     {
         return $this->test->getAmountOfQuestions();
@@ -61,7 +69,7 @@ class TestDetail extends Component
 
     public function redirectToTestOverview()
     {
-        redirect()->to(route('teacher.tests'));
+        redirect()->to($this->previousUrl);
     }
 
     public function showGroupDetails($groupUuid)
@@ -96,9 +104,9 @@ class TestDetail extends Component
     public function toPlannedTest($takeUuid)
     {
         $testTake = TestTake::whereUuid($takeUuid)->first();
-        if($testTake->isAssessmentType()){
+        if ($testTake->isAssessmentType()) {
             $url = sprintf("test_takes/assessment_open_teacher/%s", $takeUuid);
-        }else{
+        } else {
             $url = sprintf("test_takes/view/%s", $takeUuid);
         }
         $options = TemporaryLogin::buildValidOptionObject('page', $url);
@@ -115,5 +123,14 @@ class TestDetail extends Component
     public function testContainsQuestion($questionId)
     {
         return false;
+    }
+
+    private function setPreviousUrl()
+    {
+        $urlComponents = parse_url(url()->previous());
+        $this->previousUrl = url()->previous();
+        if (url($urlComponents['path']) !== route('teacher.tests')) {
+            $this->previousUrl = route('teacher.tests');
+        }
     }
 }

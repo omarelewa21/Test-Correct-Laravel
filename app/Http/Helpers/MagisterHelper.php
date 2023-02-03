@@ -5,6 +5,7 @@ namespace tcCore\Http\Helpers;
 
 
 use Artisaninweb\SoapWrapper\SoapWrapper;
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Auth;
 use Ramsey\Uuid\Guid\Guid;
@@ -33,6 +34,7 @@ class MagisterHelper
 
     private $brinCode;
     private $dependanceCode;
+
 
     public function __construct($isTestSet = false)
     {
@@ -69,7 +71,7 @@ class MagisterHelper
 //        $this->soapWrapper = $soapWrapper;
 //    }
 
-    public static function guzzle($schoolYear = '2019-2020', $brinCode = '99DE', $dependanceCode = '00')
+    public static function guzzle($schoolYear = '2019-2020', $brinCode = '99DE', $dependanceCode = '00', $autoImport = null)
     {
         $isTestSet = $brinCode === '99DE';
 
@@ -126,6 +128,10 @@ class MagisterHelper
                 ['body' => $xml]
             );
         } catch (\Exception $e) {
+            Bugsnag::notifyException($e);
+            if(app()->runningInConsole()){
+                throw $e;
+            }
             echo($e->getMessage());
             dd($e);
         }
@@ -142,7 +148,7 @@ class MagisterHelper
             'client_name'           => get_class($instance),
             'school_year'           => $schoolYear,
             'xsd_versie'            => self::XSD_VERSION,
-            'username_who_imported' => optional(Auth::user())->username ?: 'system',
+            'username_who_imported' => $autoImport ? 'AUTO_UWLR_IMPORT' : (optional(Auth::user())->username ?: 'system'),
         ];
 
         return $instance;

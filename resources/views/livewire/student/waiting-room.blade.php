@@ -1,7 +1,6 @@
 <div id="planned-body"
      x-data="{startCountdown: false, isTakeOpen: @entangle('isTakeOpen'), countdownNumber: {{ $this->getCountdownNumber() }}, activeStudents: 0, presenceChannel: null}"
      x-init="
-        addRelativePaddingToBody('planned-body');
         @if(!Auth::user()->guest)
         makeHeaderMenuActive('student-header-tests');
         @endif
@@ -22,7 +21,6 @@
      x-cloak
      class="w-full flex flex-col items-center student-bg"
      :class="{'overflow-hidden h-screen' : startCountdown}"
-     x-on:resize.window.debounce.200ms="addRelativePaddingToBody('planned-body')"
      wire:ignore.self
      wire:init="isTestTakeOpen"
 >
@@ -35,8 +33,7 @@
             <div class="flex flex-col space-y-4 transition-all duration-500">
                 <div>
                     @if(!Auth::user()->guest)
-                        <x-button.text-button class="rotate-svg-180" type="link"
-                                              href="{{ route('student.test-takes', ['tab' => $this->testTakeStatusStage]) }}">
+                        <x-button.text-button class="rotate-svg-180"  wire:click="returnToTestTake" >
                             <x-icon.arrow/>
                             <span class="text-[32px]" selid="waiting-screen-title">{{ $waitingTestTake->test_name }}</span>
                         </x-button.text-button>
@@ -179,7 +176,13 @@
         <div class="w-full h-full px-4 lg:px-8 xl:px-12 transition-all duration-500">
             <div class="flex h-full flex-col mx-auto max-w-7xl transition-all duration-500 pt-16">
                 <div class="flex flex-col mb-4">
-                    <span class="-mb-2">{{ __('student.planned_test') }}</span>
+                    @if($this->testTakeStatusStage === 'discuss')
+                        <span class="-mb-2">{{ __('student.discussing_test') }}</span>
+                    @elseif($this->testTakeStatusStage === 'review' || $this->testTakeStatusStage === 'graded')
+                        <span class="-mb-2">{{ __('student.review_test') }}</span>
+                    @else
+                        <span class="-mb-2">{{ __('student.planned_test') }}</span>
+                    @endif
                     <x-button.text-button class="rotate-svg-180"
                                           x-on:click="startCountdown = false; stopCountdownTimer($refs.root._x_dataStack[0])">
                         <x-icon.arrow/>
@@ -187,7 +190,13 @@
                     </x-button.text-button>
                 </div>
                 <div class="flex flex-col flex-1 w-full items-center mt-16 space-y-3">
-                    <span>{{ __('student.test_starts_in') }}</span>
+                    @if($this->testTakeStatusStage === 'discuss')
+                        <span>{{ __('student.discussing_starts_in') }}</span>
+                    @elseif($this->testTakeStatusStage === 'review' || $this->testTakeStatusStage === 'graded')
+                        <span>{{ __('student.review_starts_in') }}</span>
+                    @else
+                        <span>{{ __('student.test_starts_in') }}</span>
+                    @endif
                     <div class="flex w-28 h-28 justify-center items-center text-center bold border-4 border-system-base rounded-full"
                          style="font-size: 64px">
                         <span class="w-full" x-text="countdownNumber"></span>
@@ -204,13 +213,15 @@
         <script>
             let countdownTimer;
 
-            function startCountdownTimer(data) {
+            function startCountdownTimer(data, listener = 'start-test-take') {
                 countdownTimer = setInterval(function () {
                     data.countdownNumber -= 1;
                     if (data.countdownNumber === 0) {
-                        Core.setAppTestConfigIfNecessary('{{ $testParticipant->uuid }}');
+                        if(listener === 'start-test-take') {
+                            Core.setAppTestConfigIfNecessary('{{ $testParticipant->uuid }}');
+                        }
                         clearClipboard().then(()=>{
-                            Livewire.emitTo('student.waiting-room', 'start-test-take');
+                            Livewire.emitTo('student.waiting-room', listener);
                         });
                         clearInterval(countdownTimer);
                     }

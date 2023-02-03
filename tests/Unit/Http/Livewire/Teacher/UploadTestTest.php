@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use tcCore\EducationLevel;
 use tcCore\FileManagement;
+use tcCore\FileManagementStatus;
 use tcCore\Http\Livewire\Teacher\UploadTest;
 use tcCore\Subject;
 use tcCore\TestKind;
@@ -189,6 +190,23 @@ class UploadTestTest extends TestCase
         $parent = FileManagement::whereName($testName)->with('children')->first();
 
         $this->assertFalse($parent->contains_publisher_content);
+    }
+
+    /** @test */
+    public function can_set_default_status_of_provided_for_new_file_management()
+    {
+        $this->actingAs(self::getTeacherOne());
+        $testName = 'Hogere kaaskundigheid 101';
+
+        Storage::fake('test_uploads');
+        $file = UploadedFile::fake()->create('test_pdf.pdf');
+
+        $component = $this->getTestableLivewire()
+            ->set('testInfo.name', $testName)
+            ->set('uploads', [$file])
+            ->call('finishProcess');
+        $fileManagementStatusId = FileManagement::whereName($testName)->first()->value('file_management_status_id');
+        $this->assertEquals(FileManagementStatus::STATUS_PROVIDED, $fileManagementStatusId);
     }
 
     /**

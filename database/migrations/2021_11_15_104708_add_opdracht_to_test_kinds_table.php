@@ -21,7 +21,7 @@ class AddOpdrachtToTestKindsTable extends Migration
             });
 
             TestKind::whereNull('uuid')->get()->each(function($testKind){
-                $testKind->uuid = Uuid::uuid4();
+                $testKind->uuid = $testKind->resolveUuid();
                 $testKind->save();
             });
 
@@ -37,7 +37,7 @@ class AddOpdrachtToTestKindsTable extends Migration
             [
                 'name'       => 'Opdracht',
                 'has_weight' => 0,
-                'uuid' =>  Uuid::uuid4(),
+                'uuid' =>  (new TestKind)->resolveUuid(),
             ],
 
         );

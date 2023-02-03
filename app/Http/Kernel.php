@@ -13,6 +13,7 @@ use tcCore\Http\Middleware\GuestChoice;
 use tcCore\Http\Middleware\LocaleMiddleware;
 use tcCore\Http\Middleware\Logging;
 use tcCore\Http\Middleware\RequestLogger;
+use tcCore\Http\Middleware\SetHeaders;
 use tcCore\Http\Middleware\TestTakeForceTakenAwayCheck;
 use tcCore\Http\Middleware\ValidGeneralTerms;
 use tcCore\Http\Middleware\ValidTrialPeriod;
@@ -81,6 +82,7 @@ class Kernel extends HttpKernel
             LocaleMiddleware::class,
             CheckForDeploymentMaintenance::class,
             AppDetection::class,
+            SetHeaders::class,
         ],
         'teacher' => [
             AuthenticatedAsTeacher::class,

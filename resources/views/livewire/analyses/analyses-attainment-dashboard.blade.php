@@ -31,15 +31,15 @@
 
 @section('analyses.p-values-graph')
     <div class="flex justify-between mb-5">
-        <h2 class="flex">{{ __('student.overzicht p-waardes') }}</h2>
+        <h2 class="flex">{{ __('student.overzicht percentages') }}</h2>
     </div>
     <x-content-section>
 
         <x-slot name="title">
             @if ($attainment->is_learning_goal == 1)
-                {{__('student.p waarde subleerdoelen') }}
+                {{__('student.percentage per subleerdoel') }}
             @else
-                {{__('student.p waarde subeindtermen') }}
+                {{__('student.percentage per subeindterm') }}
             @endif
         </x-slot>
         <div x-data="analysesAttainmentsGraph( 'pValueChart' )"
@@ -82,4 +82,23 @@
 
 @section('analyses.top-items.title')
         {{ trans_choice('student.top subleerdoelen om aan te werken', count($this->topItems)) }}
+@endsection
+
+@section('analyses.p-values-time-series-graph')
+    <BR>
+    <x-content-section>
+        <x-slot name="title">
+            {{ __('student.ontwikkeling percentage over tijd') }}
+        </x-slot>
+
+
+        <div x-data="analysesSubjectsTimeSeriesGraph('pValueTimeSeriesChart')"
+             x-on:filters-updated.window="updateGraph();"
+        >            <div id="pValueTimeSeriesChart" style="height: 400px;" class="relative" wire:ignore>
+                <x-empty-graph x-show="showEmptyState" :show="true"></x-empty-graph>
+            </div>
+        </div>
+    </x-content-section>
+
+
 @endsection

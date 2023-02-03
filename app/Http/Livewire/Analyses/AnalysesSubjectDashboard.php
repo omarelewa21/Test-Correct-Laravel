@@ -12,7 +12,10 @@ use tcCore\Lib\Repositories\PValueRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyBloomRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyMillerRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyRTTIRepository;
-use tcCore\Lib\Repositories\TaxonomyRankingRepostitory;
+use tcCore\Lib\Repositories\PValueTimeSeriesDayRepository;
+use tcCore\Lib\Repositories\PValueTimeSeriesWeekRepository;
+use tcCore\Scopes\AttainmentScope;
+use tcCore\Lib\Repositories\TaxonomyRankingRepository;
 use tcCore\Subject;
 
 class AnalysesSubjectDashboard extends AnalysesDashboard
@@ -35,7 +38,7 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
 
     public function getTopItemsProperty()
     {
-        return TaxonomyRankingRepostitory::getForSubject(
+        return TaxonomyRankingRepository::getForSubject(
             $this->getHelper()->getForUser(),
             $this->subject,
             [
@@ -99,7 +102,7 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
             $this->getTeachersByFilterValues(),
             $this->subject,
             $this->attainmentModeIsLearningGoal(),
-        );
+        )->get();
 
         $this->showEmptyStateForPValueGraph = $result->filter(fn($item) => !is_null($item['score']))->isEmpty();
 
@@ -171,10 +174,35 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
         );
     }
 
-    public function showGrades()
+    public function getDataForSubjectTimeSeriesGraph()
     {
-        return redirect(
-            $this->getHelper()->getRouteForShowGrades()
-        );
+        $results =
+            PValueTimeSeriesWeekRepository::getForStudentForSubjectByAttainment(
+                $this->getHelper()->getForUser(),
+                $this->subject,
+                $this->getPeriodsByFilterValues(),
+                $this->getEducationLevelYearsByFilterValues(),
+                $this->getTeachersByFilterValues(),
+                $this->getIsLearningGoalFilter()
+            );
+
+        $set = [];
+        $names = [];
+        foreach ($results as $result) {
+            if (!in_array($result->id, $names)) {
+                $names[] = $result->id;
+            }
+            $set[$result->week_date][] =  $result->score ?? 'missing';// $prevScore;
+        }
+
+        $newSet = collect($set)->map(function ($arr, $key) {
+            return [$key, ...$arr];
+        })->values()->toArray();
+
+        $eindtermen = collect($names)->map(function ($id) {
+            return Attainment::withoutGlobalScope(AttainmentScope::class)->find($id)->name;
+        })->toArray();
+
+        return [false, $newSet, $eindtermen];
     }
 }

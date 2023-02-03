@@ -39,8 +39,8 @@ class DefaultSubjectsAndSectionsImportHelper
             DB::commit();
         } catch(\Exception $e){
             DB::rollback();
-            logger($e);
-            logger($e->getMessage());
+//            logger($e);
+//            logger($e->getMessage());
             if($this->inConsole){
                 echo ($e->getMessage());
             } else if(app()->runningInConsole()){

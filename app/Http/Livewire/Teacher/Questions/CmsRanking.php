@@ -145,7 +145,7 @@ class CmsRanking extends CmsBase
                 return [
                     'id'     => Uuid::uuid4(),
                     'order'  => $key + 1,
-                    'answer' => BaseHelper::transformHtmlCharsReverse($answer->answer),
+                    'answer' => BaseHelper::transformHtmlCharsReverse($answer->answer,false),
                 ];
             })->toArray();
         }

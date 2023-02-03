@@ -3,8 +3,8 @@
         <x-button.close onclick="Core.closeElectronApp();" electron/>
         <x-button.close onclick="Core.closeChromebookApp('{{ \tcCore\Http\Helpers\BaseHelper::getLoginUrl() }}')" size="sm" chromebook/>
     </div>
-    <div class="flex w-full items-start justify-center pt-7 pb-9">
-        <a class="flex  w-36 md:w-44" href="https://test-correct.nl">
+    <div class="flex w-full items-start justify-center pt-7 pb-9" wire:ignore>
+        <a class="flex  w-36 md:w-44" id="logo">
             <img class="" src="{{ asset('svg/logos/Logo-Test-Correct-2.svg') }}" alt="Test-Correct">
         </a>
     </div>
@@ -12,10 +12,8 @@
     <div id="login-body" class="flex justify-center items-center flex-grow"
          x-data="{ openTab: @entangle('login_tab'), showPassword: false, hoverPassword: false, initialPreviewIconState: true, showEntreePassword: false, active_overlay: @entangle('active_overlay'), device: @entangle('device')}"
          x-init="
-            /*addRelativePaddingToBody('login-body', 10);*/
             setTimeout(() => {$wire.checkLoginFieldsForInput()}, 250);
             "
-{{--         x-on:resize.window.debounce.200ms="addRelativePaddingToBody('login-body')"--}}
          wire:ignore.self
     >
         <div class="w-full max-w-[540px] mx-4 py-4">
@@ -777,4 +775,13 @@
         <x-modal.auth-create-account maxWidth="lg" wire:model="showAuthModal"/>
     </div>
     <x-login-notification />
+    @livewire('livewire-ui-modal')
 </div>
+
+@push('scripts')
+    <script>
+        window.onload = () => {
+            document.getElementById('logo').href = Core.appType === '' ? 'https://test-correct.nl' : '#' 
+        }
+    </script>
+@endpush

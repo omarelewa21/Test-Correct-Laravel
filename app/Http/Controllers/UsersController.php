@@ -140,9 +140,18 @@ class UsersController extends Controller
             $newUser->password = $user->password;
             $newUser->save();
 
+            $newUser->password_expiration_date = null;
+            $newUser->save();
+
             // we can always get the old user by checking the creation date of the new user and use that to see the vervallenDATETIME of the old user
             $user->username = sprintf('vervallen-%d-%s-%s', $newUser->created_at->format('YmdHis'),$newUser->getKey(), explode('@', $user->username)[1]);
             $user->save();
+
+            // if there are email confirmations waiting, move them to the new user
+            if(EmailConfirmation::where('user_id',$user->getKey())->count()){
+                EmailConfirmation::where('user_id',$user->getKey())->update(['user_id' => $newUser->getKey()]);
+            }
+
             $user->delete();
 
             DB::table('onboarding_wizard_user_steps')->where('user_id', $user->getKey())->update(['user_id' => $newUser->getKey()]);
@@ -150,7 +159,6 @@ class UsersController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            logger('Failed to switch school location of teacher' . $e);
             return Response::make('Failed to switch school location of teacher,' . print_r($e->getMessage(), true), 500);
         }
         DB::commit();
@@ -230,7 +238,7 @@ class UsersController extends Controller
     public function confirmEmail(Request $request, EmailConfirmation $emailConfirmation)
     {
         // indien emailConfirmation === null => doorverwijzen naar login pagina
-        if ($emailConfirmation === null) {
+        if ($emailConfirmation === null || null == $emailConfirmation->user) {
             return Response::redirectTo(BaseHelper::getLoginUrl());
         }
 
@@ -514,7 +522,6 @@ class UsersController extends Controller
             });
         } catch (\Exception $e) {
             DB::rollBack();
-            logger('Failed to import teachers' . $e);
             return Response::make('Failed to import teachers' . print_r($e->getMessage(), true), 500);
         }
         DB::commit();
@@ -620,5 +627,14 @@ class UsersController extends Controller
         }
 
         return Response::make($user, 200);
+    }
+
+    public function toetsenbakkers(Request $request)
+    {
+        $toetsenbakkers = Auth::user()->isA('Account manager')
+            ? User::toetsenbakkers()->notDemo()->get()->each->append('name_full')
+            : [];
+
+        return Response::make($toetsenbakkers, 200);
     }
 }

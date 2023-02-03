@@ -273,6 +273,6 @@ class TestTakeRttiExportController extends Controller
 
     protected function log($logString)
     {
-        logger($logString);
+//        logger($logString);
     }
 }

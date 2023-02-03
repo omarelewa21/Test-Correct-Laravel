@@ -7,14 +7,15 @@ use tcCore\Lib\Repositories\PValueRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyBloomRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyMillerRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyRTTIRepository;
-use tcCore\Lib\Repositories\TaxonomyRankingRepostitory;
+use tcCore\Lib\Repositories\TaxonomyRankingRepository;
+use tcCore\Lib\Repositories\PValueTimeSeriesWeekRepository;
 use tcCore\Subject;
 
 class AnalysesOverviewDashboard extends AnalysesDashboard
 {
     public function getTopItemsProperty()
     {
-        return TaxonomyRankingRepostitory::getForSubjects(
+        return TaxonomyRankingRepository::getForSubjects(
             $this->getHelper()->getForUser(),
             [
                 'periods'               => $this->getPeriodsByFilterValues(),
@@ -25,7 +26,8 @@ class AnalysesOverviewDashboard extends AnalysesDashboard
     }
 
     public function getDataProperty()
-    {}
+    {
+    }
 
     public function getDataForGraph()
     {
@@ -47,7 +49,7 @@ class AnalysesOverviewDashboard extends AnalysesDashboard
                 );
             }
 
-            return (object) [
+            return (object)[
                 'x'       => htmlspecialchars_decode($pValue->name),
                 'title'   => htmlspecialchars_decode($pValue->name),
                 'basedOn' => trans_choice('student.obv count questions', $pValue->cnt ?? 0),
@@ -100,5 +102,30 @@ class AnalysesOverviewDashboard extends AnalysesDashboard
     public function redirectTeacherBack()
     {
         return CakeRedirectHelper::redirectToCake('analyses.teacher', $this->classUuid);
+    }
+
+    public function getDataForSubjectTimeSeriesGraph()
+    {
+        $results = PValueTimeSeriesWeekRepository::getForStudentBySubject(
+            $this->getHelper()->getForUser(),
+            $this->getPeriodsByFilterValues(),
+            $this->getEducationLevelYearsByFilterValues(),
+            $this->getTeachersByFilterValues()
+        );
+
+        $set = [];
+        $names = [];
+        foreach($results as $result) {
+            if (!in_array($result->name, $names)) {
+                $names[] = $result->name;
+            }
+            $set[$result->week_date][] = $result->score ?? 'missing';
+        }
+
+        $newSet = collect($set)->map(function($arr, $key) {
+            return [$key, ...$arr];
+        })->values()->toArray();
+
+        return [false, $newSet, $names];
     }
 }

@@ -15,7 +15,7 @@ class Graded extends Component
     use WithPagination, WithStudentTestTakes, WithSorting;
 
     public $readyToLoad;
-
+    
     protected function getListeners()
     {
         return [
@@ -28,7 +28,7 @@ class Graded extends Component
         $this->sortField = 'test_takes.updated_at';
         $this->sortDirection = 'desc';
     }
-
+    
     public function render()
     {
         return view('livewire.student.graded', [
