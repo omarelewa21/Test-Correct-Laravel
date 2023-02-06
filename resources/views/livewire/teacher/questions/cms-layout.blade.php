@@ -35,7 +35,6 @@
                 if (document.getElementById('{{ $this->answerEditorId }}')) {
                     WebspellcheckerTlc.lang(CKEDITOR.instances['{{ $this->answerEditorId }}'], lang);
                 }
-                $wire.saveUserLanguage();
            }
            forceSyncEditors = () => {
                 if (document.getElementById('{{ $this->questionEditorId }}')) {
@@ -135,7 +134,7 @@
                         {{ __('lang.language') }}
                     </label>
                     <x-input.select
-                            wire:model="question.lang"
+                            wire:model="lang"
                             @change="changeEditorWscLanguage($event.target.value);"
                     >
                         <option value="nl_NL">{{ __('lang.nl_NL') }}</option>
