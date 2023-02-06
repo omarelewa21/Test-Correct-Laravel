@@ -77,7 +77,7 @@ class UwlrImportHelper
             })
             ->where(function ($query) {
                 $query->where(function ($q) {
-                    $q->whereRaw('Date(auto_uwlr_last_import) <> CURDATE()') // don't handle twice a day
+                    $q->where('auto_uwlr_last_import','<=',Carbon::now()->subHours(10)->toDateTimeString())// don't handle twice a day
                     ->where(function($t) {
                         $t->where('auto_uwlr_import_status', '<>', self::AUTO_UWLR_IMPORT_STATUS_FAILED)
                         ->
