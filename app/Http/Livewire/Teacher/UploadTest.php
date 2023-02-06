@@ -77,7 +77,7 @@ class UploadTest extends Component
 
     public function updated($name, $value)
     {
-        $this->tabOneComplete = collect($this->testInfo)->reject(fn($item) => filled($item))->isEmpty();
+        $this->tabOneComplete = $this->validatePropertiesToCompleteTabOne();
         $this->tabTwoComplete = collect($this->uploads)->isNotEmpty();
     }
 
@@ -420,5 +420,16 @@ class UploadTest extends Component
                 Rule::notIn($this->previousUploadedTestNames),
             ]
         ])->validate();
+
+    }
+
+    /**
+     * @return bool
+     */
+    private function validatePropertiesToCompleteTabOne(): bool
+    {
+        return collect($this->testInfo)
+                ->reject(fn($item) => filled($item))
+                ->isEmpty() && !in_array($this->testInfo['name'], $this->previousUploadedTestNames);
     }
 }
