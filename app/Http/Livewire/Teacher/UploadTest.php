@@ -6,7 +6,9 @@ use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Livewire\Component;
 use Livewire\TemporaryUploadedFile;
 use Livewire\WithFileUploads;
@@ -53,6 +55,8 @@ class UploadTest extends Component
     public mixed $uploads = [];
     public array $uploadRules = [];
     public bool $canUseTestUploader = true;
+    public array $previousUploadedTestNames = [];
+    public int $uploadedTests = 0;
 
     public $referrer;
 
@@ -235,8 +239,10 @@ class UploadTest extends Component
         return html_entity_decode($selectedItem->label) ?? '';
     }
 
-    public function finishProcess()
+    public function finishProcess(bool $openSuccessModal = true)
     {
+        $this->validateTestName();
+
         $typedetails = $this->getTypeDetailsForFileManagementModel();
 
         $parentFileManagement = $this->createParentFileManagementModel($typedetails);
@@ -259,7 +265,9 @@ class UploadTest extends Component
             $this->dispatchBrowserEvent('notify', ['message' => __('auth.something_went_wrong'), 'error']);
         }
 
-        $this->emit('openModal', 'teacher.upload-test-success-modal');
+        if ($openSuccessModal) {
+            $this->emit('openModal', 'teacher.upload-test-success-modal');
+        }
 
         $this->setFormUuid();
     }
@@ -385,5 +393,32 @@ class UploadTest extends Component
         if (!$this->canUseTestUploader) {
             $this->emit('openModal', 'teacher.upload-test-not-allowed-modal');
         }
+    }
+
+    public function uploadAnotherTest(bool $withData): bool
+    {
+        $this->finishProcess(false);
+
+        $this->previousUploadedTestNames[] = $this->testInfo['name'];
+        $this->uploadedTests++;
+
+        $propertiesToReset = ['checkInfo', 'uploads', 'tabOneComplete', 'tabTwoComplete'];
+        if (!$withData) {
+            $propertiesToReset[] = 'testInfo';
+        }
+
+        $this->reset(...$propertiesToReset);
+
+        return true;
+    }
+
+    private function validateTestName()
+    {
+        Validator::make($this->testInfo, [
+            'name' => [
+                'required',
+                Rule::notIn($this->previousUploadedTestNames),
+            ]
+        ])->validate();
     }
 }

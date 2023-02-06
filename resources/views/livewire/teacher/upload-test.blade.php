@@ -6,20 +6,30 @@
             <x-button.back-round class="bg-white/20 hover:text-white" wire:click="back"/>
             <h4 class="text-white">@lang('upload.Toets uploaden')</h4>
         </div>
-        <div>
-
+        <div class="flex gap-2 items-center">
+            @if($this->uploadedTests > 0)
+                <x-number-circle class="text-white !border-white bg-transparent">{{ $this->uploadedTests }}</x-number-circle>
+                <span>{{ trans_choice('upload.multiple_tests_uploaded', $this->uploadedTests) }}</span>
+            @endif
         </div>
     </div>
     <div class="main w-full flex-1 my-4 mx-auto max-w-3xl"
          x-data="{
                 expandedClasses: 'text-white bg-sysbase border-sysbase  group-hover:bg-primary group-hover:border-primary',
-                collapsedClasses: 'bg-transparent group-hover:text-primary group-hover:border-primary'
+                collapsedClasses: 'bg-transparent group-hover:text-primary group-hover:border-primary',
+                uploadAnotherTestAction: async (withData) => {
+                                    let uploadComplete = await $wire.uploadAnotherTest(withData);
+                                    if (uploadComplete) {
+                                        $root.firstElementChild.dispatchEvent(new CustomEvent('set-active-block', {detail: {activeBlockId: 1 } }));
+                                    }
+                                }
                 }"
+         x-on:upload-another-test.window="uploadAnotherTestAction($event.detail)"
     >
         <x-accordion.container :activeContainerKey="1">
             <x-accordion.block :key="1" :emitWhenSet="true">
                 <x-slot name="title">
-                    <div class="flex gap-2 items-center">
+                    <div class="flex gap-2 items-center" wire:key="uploaded-tests-{{ $this->uploadedTests }}">
                         @if($tabOneComplete)
                             <x-icon.checkmark-circle color="var(--cta-primary)" width="30" height="30"/>
                         @else
@@ -34,7 +44,9 @@
                 <x-slot name="body">
                     <div class="grid grid-cols-10 grid-flow-row w-full gap-4">
                         <x-input.group class="col-span-10 lg:col-span-7" :label="__('upload.Naam toets')">
-                            <x-input.text wire:model.debounce.300ms="testInfo.name"/>
+                            <x-input.text wire:model.debounce.300ms="testInfo.name"
+                                          :error="in_array($this->testInfo['name'], $this->previousUploadedTestNames)"
+                            />
                         </x-input.group>
 
                         <x-input.group class="col-span-5 lg:col-span-3" :label="__('upload.Afnamedatum')">
@@ -95,6 +107,11 @@
                                                  buttonWidth="auto"
                                 />
                             </div>
+                            @if(in_array($this->testInfo['name'], $this->previousUploadedTestNames))
+                            <div class="notification error stretched">
+                                <div class="title">@lang('upload.duplicate_test_name')</div>
+                            </div>
+                            @endif
                             @if($showDateWarning)
                                 <div class="notification warning stretched">
                                     <div class="title">
@@ -117,7 +134,7 @@
                                :uploadRules="$this->uploadRules"
             >
                 <x-slot name="title">
-                    <div class="flex gap-2 items-center">
+                    <div class="flex gap-2 items-center" wire:key="uploaded-tests-{{ $this->uploadedTests }}">
                         @if($tabTwoComplete)
                             <x-icon.checkmark-circle color="var(--cta-primary)" width="30" height="30"/>
                         @else
@@ -214,7 +231,10 @@
                 </x-slot>
             </x-accordion.block>
 
-            <x-accordion.block :key="3" :disabled="!$tabOneComplete || !$tabTwoComplete" :emitWhenSet="true">
+            <x-accordion.block :key="3"
+                               :disabled="!$tabOneComplete || !$tabTwoComplete"
+                               :emitWhenSet="true"
+            >
                 <x-slot name="title">
                     <div class="flex gap-2 items-center">
                         <x-number-circle x-bind:class="expanded ? expandedClasses : collapsedClasses">
@@ -319,17 +339,27 @@
                             </div>
                         </div>
 
-                        <div class="mt-2">
-                            <x-button.cta class="w-full justify-center"
+                        <div class="mt-2 gap-2 flex w-full">
+                            <x-button.cta class="flex-1 justify-center"
                                           :disabled="!$this->checkedCorrectBoxes"
                                           wire:click="finishProcess"
                                           wire:loading.attr="disabled"
-                                          wire:target="finishProcess"
+                                          wire:target="finishProcess,uploadAnotherTest"
                                           x-on:click="$el.disabled = true"
                             >
                                 <x-icon.upload/>
                                 <span>@lang('upload.Toets uploaden')</span>
                             </x-button.cta>
+
+                            <x-button.primary class="flex-1 justify-center"
+                                          :disabled="!$this->checkedCorrectBoxes"
+                                          wire:loading.attr="disabled"
+                                          wire:target="finishProcess,uploadAnotherTest"
+                                          wire:click="$emit('openModal', 'teacher.upload-another-test-modal')"
+                            >
+                                <span>@lang('upload.Nog een toets uploaden')</span>
+                                <x-icon.arrow/>
+                            </x-button.primary>
                         </div>
                     </div>
                 </x-slot>
