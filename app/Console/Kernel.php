@@ -42,6 +42,9 @@ class Kernel extends ConsoleKernel
         $schedule->call(function(){
             UwlrImportHelper::handleIfMoreSchoolLocationsCanBeImported();
         })->everyThirtyMinutes()->unlessBetween('5:00', '19:00')->timezone('Europe/Amsterdam');
+        $schedule->call(function(){
+            UwlrImportHelper::cleanupCrashedImports();
+        })->dailyAt('13:00')->timezone('Europe/Amsterdam');
 
 
         /**
