@@ -235,4 +235,22 @@ class UploadTestTest extends TestCase
 
         return $component;
     }
+
+    /** @test */
+    public function can_()
+    {
+        $this->actingAs(self::getTeacherOne());
+        $testName = 'Hogere kaaskundigheid 101';
+
+        Storage::fake('test_uploads');
+
+        $file = UploadedFile::fake()->create('test_pdf.pdf');
+        $file2 = UploadedFile::fake()->create('test_pdf2.pdf');
+
+        $component = $this->getTestableLivewire()
+            ->set('testInfo.name', $testName)
+            ->set('uploads', [$file, $file2])
+            ->call('finishProcess')
+            ->assertEmitted('openModal', 'teacher.upload-test-success-modal');
+    }
 }
