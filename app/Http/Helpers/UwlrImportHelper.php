@@ -40,6 +40,17 @@ class UwlrImportHelper
         }
     }
 
+    /**
+     * cleanup school location statusses which are crashed as in are still in status PLANNED or PROCESSING at 13:00 as nothing should be happening by then.
+     * @return void
+     */
+    public static function cleanupCrashedImports()
+    {
+        SchoolLocation::where('auto_uwlr_import_status',self::AUTO_UWLR_IMPORT_STATUS_PLANNED)
+            ->orWhere('auto_uwlr_import_status',self::AUTO_UWLR_IMPORT_STATUS_PROCESSING)
+            ->update(['auto_uwlr_import_status' => null]);
+    }
+
     protected function canAddNewJobForImport(): bool
     {
         // max 2 jobs in the queue
