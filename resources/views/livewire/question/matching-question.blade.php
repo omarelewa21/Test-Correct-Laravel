@@ -32,7 +32,7 @@
                         </div>
                     </x-dropzone>
                 </div>
-                <div class="flex space-x-5 classified">
+                <div class="flex space-x-5 classified overflow-x-scroll">
                     @foreach ($groupItemOrder as $groupId => $items)
                         <x-dropzone id="dropzone{{$question->getKey()}}-{{$groupId}}"
                                     type="classify"
@@ -41,7 +41,7 @@
                                     wire:sortable.item="{{ $groupId }}"
                         >
                             <div id="inner-dropzone{{$question->getKey()}}-{{$groupId}}"
-                                 class="flex flex-col w-full dropzone-height"
+                                 class="flex flex-col w-full dropzone-height min-w-[4rem]"
                                  wire:sortable-group.item-group="{{ $groupId }}"
                                  selid="drag-block-input"
                             >
