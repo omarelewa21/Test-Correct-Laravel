@@ -37,12 +37,7 @@ class TestTakeOverview extends Component
     public function mount($stage)
     {
         $this->abortIfUnauthorized($stage);
-        if($this->openTab == 'norm'){
-            session()->put(self::ACTIVE_TAB_SESSION_KEY, $this->openTab);
-        }
-        else{
-            $this->setOpenTab();
-        }
+        $this->setOpenTab();
         $this->setFilters();
         $this->stage = $stage;
         $this->setPageNumber();
@@ -207,7 +202,12 @@ class TestTakeOverview extends Component
 
     private function setOpenTab()
     {
-        $this->openTab = session(self::ACTIVE_TAB_SESSION_KEY, self::DEFAULT_OPEN_TAB);
+        if($this->openTab == 'norm'){
+            session()->put(self::ACTIVE_TAB_SESSION_KEY, $this->openTab);
+        }
+        else{
+            $this->openTab = session(self::ACTIVE_TAB_SESSION_KEY, self::DEFAULT_OPEN_TAB);
+        }
     }
 
     private function setPageNumber()
