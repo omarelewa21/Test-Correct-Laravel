@@ -23,11 +23,11 @@
             @else
                 <div class="w-full">
                     <livewire:is :component="$this->questionComponentName"
-                            :answerRatingId="$this->answerRating->getKey()"
-                            :questionNumber="$questionOrderNumber"
-                            :answerNumber="$answerFollowUpNumber"
-                            :wire:key="'ar-'. $this->answerRating->getKey()"
-                            />
+                                 :answerRatingId="$this->answerRating->getKey()"
+                                 :questionNumber="$questionOrderNumber"
+                                 :answerNumber="$answerFollowUpNumber"
+                                 :wire:key="'ar-'. $this->answerRating->getKey()"
+                    />
                 </div>
             @endif
         </div>
@@ -40,13 +40,30 @@
             <span class="ml-2">{{ __('co-learning.wait_for_teacher') }}</span>
         </div>
     @endif
-        <footer class="footer px-8 flex content-center justify-between fixed w-full bottom-0 left-0 z-10">
+    <footer class="footer px-8 flex content-center justify-between fixed w-full bottom-0 left-0 z-10">
         @if(!$coLearningFinished)
             <div class="flex">
                 @if(!$this->noAnswerRatingAvailableForCurrentScreen)
                     <div class="flex content-center justify-between"
                          wire:key="ar-{{$this->answerRatingId}}"
                     >
+                        @push('scoreSliderStack')
+                            @once
+                                Livewire.hook('message.received', (message, component) => {
+                                    if (component.name === 'student.co-learning' && message.updateQueue[0]?.method === 'updateHeartbeat') {
+                                        let value = ($refs.scoreInput.value !== '') ? $refs.scoreInput.value : null;
+                                        persistantScore = value;
+                                    }
+                                })
+                                Livewire.hook('message.processed', (message, component) => {
+                                    if (component.name === 'student.co-learning'&& message.updateQueue[0]?.method ==='updateHeartbeat') {
+                                        skipSync = true;
+                                        score = persistantScore;
+                                    }
+                                })
+                            @endonce
+                        @endpush()
+
                         <x-input.score-slider class=""
                                               model-name="rating"
                                               :max-score="$maxRating"

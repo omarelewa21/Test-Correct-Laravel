@@ -23,9 +23,12 @@
         timeOut: null,
         allowHalfPoints: @js($allowHalfPoints),
         disabled: @js($disabled),
-        skipSync: false
+        skipSync: false,
+        persistantScore: null,
         }"
-     x-init="$watch('score', (value, oldValue) => {
+     x-init="
+     @stack('scoreSliderStack')
+     $watch('score', (value, oldValue) => {
            if(disabled || value === oldValue || skipSync){
                 skipSync = false;
                return;
@@ -39,15 +42,10 @@
            }
 
            score = value = allowHalfPoints ? Math.round(value*2)/2 : Math.round(value)
-
-           if(timeOut){
-                clearTimeout(timeOut);
-           }
-           timeOut = setTimeout(() => {
-                $wire.sync(modelName, value);
-           }, 300)
         });
-
+        syncInput = () => {
+            $wire.sync(modelName, score);
+        }
         "
      x-on:updated-score.window="skipSync = true; score = $event.detail.score"
         {{ $attributes->except('wire:model')->merge(['class'=>'flex score-slider-container w-fit justify-between items-center space-x-4 relative '.($disabled ? 'opacity-50': '')]) }}
@@ -113,22 +111,29 @@
                 @endif
             </div>
             <div class="w-full absolute top-0 left-0  flex items-center h-full">
-                <input type="range" min="0" max="{{$maxScore}}" :step="allowHalfPoints ? 0.5 : 1"
-                       class="score-slider-input w-full" x-model="score"
+                <input type="range"
+                       min="0"
+                       max="{{$maxScore}}"
+                       :step="allowHalfPoints ? 0.5 : 1"
+                       class="score-slider-input w-full"
+                       x-model="score"
                        :class="{'hide-thumb': score === null}"
                        x-on:click="score === null ? score = maxScore/2 : ''"
+                       x-on:change="syncInput()"
                 >
             </div>
         @endif
     </div>
 
     <input class="w-16 h-10 border border-blue-grey bg-offwhite flex items-center justify-center rounded-10 text-center"
-           x-model.debounce.250ms.number="score"
+           x-model.number="score"
            type="number"
            max="{{$maxScore}}"
            min="0"
            onclick="this.select()"
            :step="allowHalfPoints ? 0.5 : 1"
+           x-ref="scoreInput"
+           x-on:focusout="syncInput()"
     >
 
     @if($disabled)
