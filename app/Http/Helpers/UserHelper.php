@@ -27,6 +27,7 @@ use tcCore\LoginLog;
 use tcCore\Student;
 use tcCore\TemporaryLogin;
 use tcCore\User;
+use tcCore\UserSystemSetting;
 
 class UserHelper
 {
@@ -128,6 +129,8 @@ class UserHelper
         $user->setAttribute('isExamCoordinator', $user->isValidExamCoordinator());
 
         $user->setAttribute('temporaryLoginOptions', TemporaryLogin::getOptionsForUser($user));
+
+        $user->setAttribute('systemSettings', UserSystemSetting::getAll($user,false,true));
     }
 
     /**
