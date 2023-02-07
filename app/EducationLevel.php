@@ -1,6 +1,7 @@
 <?php namespace tcCore;
 
 use iio\libmergepdf\Exception;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -143,6 +144,16 @@ class EducationLevel extends BaseModel
                         });
                     }
 
+                    break;
+                case 'school_location_id':
+                    $query->whereIn(
+                        'id',
+                        SchoolLocationEducationLevel::whereIn(
+                            'school_location_id',
+                            Arr::wrap($value)
+                        )
+                            ->select('education_level_id')
+                    );
                     break;
             }
         }

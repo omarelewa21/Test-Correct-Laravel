@@ -61,6 +61,8 @@ class OpenShort extends Component implements QuestionCms
 
     public $audioUploadOptions = [];
 
+    public $audioAttachmentOptions = [];
+
     public $uploads = [];
 
     public $attachments = [];
@@ -100,6 +102,8 @@ class OpenShort extends Component implements QuestionCms
 
     protected $tags = [];
 
+    public $testIsPublished;
+    
     protected $queryString = [
         'action', 'type', 'subtype', 'testId', 'testQuestionId', 'groupQuestionQuestionId', 'owner', 'isCloneRequest', 'withDrawer' => ['except' => false], 'referrer' => ['except' => false],
     ];
@@ -122,6 +126,7 @@ class OpenShort extends Component implements QuestionCms
 
     public $questionIndex;
 
+    public $question;
 
     /**
      * @var CmsInfoScreen|CmsMultipleChoice|CmsOpen|CmsRanking|CmsTrueFalse|null
@@ -272,7 +277,8 @@ class OpenShort extends Component implements QuestionCms
         'showEmpty'             => 'showEmpty',
         'questionDeleted'       => '$refresh',
         'addQuestionFromDirty'  => 'addQuestionFromDirty',
-        'testSettingsUpdated'   => 'handleUpdatedTestSettings'
+        'testSettingsUpdated'   => 'handleUpdatedTestSettings',
+        'test-updated'          => 'testPublished',
     ];
 
 
@@ -335,7 +341,7 @@ class OpenShort extends Component implements QuestionCms
         $this->testLang = $activeTest->lang;
         $this->resetQuestionProperties($activeTest);
         $this->canDeleteTest = $activeTest->canDelete(Auth::user());
-
+        $this->testIsPublished = $activeTest->isPublished();
         $this->testName = $activeTest->name;
         $this->subjectId = $activeTest->subject_id;
         $this->educationLevelId = $activeTest->education_level_id;
@@ -684,12 +690,15 @@ class OpenShort extends Component implements QuestionCms
         $attachment = $this->attachments->where('uuid', $attachmentUuid)->first();
         $questionAttachment = $attachment->questionAttachments->where('question_id', $this->questionId)->first();
 
-        $currentJson = json_decode($questionAttachment->options, true);
-        $json = array_merge($currentJson ?? [], $data);
+        $currentJson = $this->audioAttachmentOptions[$attachmentUuid]
+            ?? json_decode($questionAttachment->options, true);
 
-        $questionAttachment->update(['options' => json_encode($json)]);
+        $updatedJson = array_merge($currentJson ?? [], $data);
 
-        $attachment->load(['questionAttachments']);
+        $this->audioAttachmentOptions[$attachmentUuid] = $updatedJson;
+        $this->question['questionAttachmentOptions'][$attachment->getKey()] = $updatedJson;
+
+        $this->dirty = true;
     }
 
     public function handleUploadSettingChange($setting, $value, $attachmentName)
@@ -1422,5 +1431,10 @@ class OpenShort extends Component implements QuestionCms
     {
         $request->merge(['test_draft' => Test::whereUuid($this->testId)->value('draft')]);
         return $request;
+    }
+
+    public function testPublished()
+    {
+        $this->testIsPublished = Test::whereUuid($this->testId)->first()->isPublished();
     }
 }

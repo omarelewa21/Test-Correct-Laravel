@@ -194,9 +194,11 @@ class EntreeHelper
                         }
                     }
                 } else if ($this->school){
-                    if($url = $this->handleIfRegisteringAndSchoolIsAllowed($user,$this->school)){
-                        return $url;
-                    }
+                    // registering can't take place as there is no location, we need to get the registration form in play
+                    return $user;
+//                    if($url = $this->handleIfRegisteringAndSchoolIsAllowed($user,$this->school)){
+//                        return $url;
+//                    }
                 }
                 // if not contact support
                 $url = BaseHelper::getLoginUrlWithOptionalMessage(__('onboarding-welcome.Je bestaande Test-Correct account kan niet geupdate worden. Neem contact op met support.'), true);
@@ -492,6 +494,10 @@ class EntreeHelper
             return false;
         }
         if ($user->isTestCorrectUser()) {
+            return false;
+        }
+
+        if($user->isValidExamCoordinator()){
             return false;
         }
         return (optional($user->schoolLocation)->lvs_active && empty($user->eck_id));
@@ -852,10 +858,10 @@ class EntreeHelper
 
     protected function addLogRows($functionName)
     {
-        logger($functionName);
-        logger('id of laravel user ' . optional($this->laravelUser)->getKey());
+//        logger($functionName);
+//        logger('id of laravel user ' . optional($this->laravelUser)->getKey());
         $this->attr['eckId'][0] = substr($this->attr['eckId'][0], -10);
-        logger($this->attr);
+//        logger($this->attr);
     }
 
     public function handleScenario1($options = null)

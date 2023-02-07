@@ -7,14 +7,15 @@ use tcCore\Lib\Repositories\PValueRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyBloomRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyMillerRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyRTTIRepository;
-use tcCore\Lib\Repositories\TaxonomyRankingRepostitory;
+use tcCore\Lib\Repositories\TaxonomyRankingRepository;
+use tcCore\Lib\Repositories\PValueTimeSeriesWeekRepository;
 use tcCore\Subject;
 
 class AnalysesOverviewDashboard extends AnalysesDashboard
 {
     public function getTopItemsProperty()
     {
-        return TaxonomyRankingRepostitory::getForSubjects(
+        return TaxonomyRankingRepository::getForSubjects(
             $this->getHelper()->getForUser(),
             [
                 'periods'               => $this->getPeriodsByFilterValues(),
@@ -105,7 +106,7 @@ class AnalysesOverviewDashboard extends AnalysesDashboard
 
     public function getDataForSubjectTimeSeriesGraph()
     {
-        $results = PValueRepository::getPValueForStudentBySubjectDayDateTimeSeries(
+        $results = PValueTimeSeriesWeekRepository::getForStudentBySubject(
             $this->getHelper()->getForUser(),
             $this->getPeriodsByFilterValues(),
             $this->getEducationLevelYearsByFilterValues(),
@@ -117,9 +118,8 @@ class AnalysesOverviewDashboard extends AnalysesDashboard
         foreach($results as $result) {
             if (!in_array($result->name, $names)) {
                 $names[] = $result->name;
-                $prevScore = $result->score ?? 0;
             }
-            $set[$result->gen_date][] = $prevScore = $result->score ?? $prevScore;
+            $set[$result->week_date][] = $result->score ?? 'missing';
         }
 
         $newSet = collect($set)->map(function($arr, $key) {

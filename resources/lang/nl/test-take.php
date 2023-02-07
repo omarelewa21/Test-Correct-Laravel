@@ -25,4 +25,13 @@ return [
     'Gedearchiveerd'                                                                                                              => 'Gedearchiveerd',
     'Studenten aanwezig/afwezig'                                                                                                  => 'Studenten aanwezig/afwezig',
     'Er is iets fout gegaan tijdens het exporteren van de gegevens naar RTTI. Neem contact op met de support desk van Test-Correct met als referentie' => 'Er is iets fout gegaan tijdens het exporteren van de gegevens naar RTTI. Neem contact op met de support desk van Test-Correct met als reference: :reference',
+    'copy-link'                                                                                                                   => 'Kopieer link',
+    'CO-Learning'                                                                                                                 => 'CO-Learning',
+    'schedule-make-up-test'                                                                                                       => 'Inhaaltoets plannen',
+    'allow-access'                                                                                                                => 'Openzetten',
+    'close-preview'                                                                                                               => 'Dichtzetten',
+    'assess'                                                                                                                      => 'Nakijken',
+    'normalize'                                                                                                                   => 'Normeren',
+    'rtti-export'                                                                                                                 => 'Rtti-Export',
+    'marking'                                                                                                                     => 'Becijferen',
 ];

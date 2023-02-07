@@ -13,25 +13,28 @@ const { execSync } = require('child_process');
  |
  */
 
-// mix.js('resources/js/app.js', 'public/js')
-//     .sass('resources/sass/app.scss', 'public/css');
 const autoprefixer = require('autoprefixer');
 
-// mix.webpackConfig({
-//     stats: {
-//         children: true,
-//     }
-// })
+mix.postCss("resources/css/app.css", "public/css/", [
+    require("tailwindcss"),
+]).js('resources/js/app.js', 'public/js/');
 
-mix.postCss("resources/css/app.css", "public/css", [
-    require("tailwindcss"),
-]).postCss("resources/css/app_pdf.css", "public/css/", [
-    require("tailwindcss"),
-]).postCss("resources/css/print-test-pdf.css", "public/css/", [
-    require("tailwindcss"), autoprefixer({overrideBrowserslist: [
-            "chrome 6", "safari 5.1"
-        ]})
-]).js('resources/js/app.js', 'public/js');
+if(typeof process.env.MIX_DEVELOPMENT_BUILD !== 'undefined' && process.env.MIX_DEVELOPMENT_BUILD === 'true') {
+    console.info('Asset building in development mode.');
+}
+
+if(typeof process.env.MIX_DEVELOPMENT_BUILD === 'undefined' || process.env.MIX_DEVELOPMENT_BUILD === 'false') {
+    console.info('Asset building in production mode.');
+    mix.postCss("resources/css/app_pdf.css", "public/css/", [
+        require("tailwindcss"),
+    ]).postCss("resources/css/print-test-pdf.css", "public/css/", [
+        autoprefixer({
+            overrideBrowserslist: [
+                "chrome 6", "safari 5.1"
+            ]
+        })
+    ])
+}
 
 const wirisPath = "node_modules/@wiris/mathtype-ckeditor4";
 mix.copy(wirisPath + "/plugin.js", "public/ckeditor/plugins/ckeditor_wiris/plugin.js")

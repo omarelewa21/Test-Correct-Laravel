@@ -571,6 +571,7 @@ document.addEventListener('alpine:init', () => {
         wireModel: wireModel,
         activeFiltersContainer: null,
         choices: null,
+        activeGroups: [],
         init() {
             // some new fancy way of setting a value when undefined
             window.registeredEventHandlers ??= []
@@ -578,23 +579,25 @@ document.addEventListener('alpine:init', () => {
             this.activeFiltersContainer = document.getElementById(filterContainer);
             this.multiple = multiple === 1;
             this.$nextTick(() => {
-                let choices = new Choices(this.$refs.select, this.config);
+                let choices = new Choices(
+                    this.$refs.select,
+                    this.getChoicesConfig()
+                );
 
                 let refreshChoices = () => {
                     let selection = this.multiple ? this.value : [this.value]
-                    choices.clearStore();
-                    if (this.config.placeholderValue.length > 0 && this.$root.classList.contains('super')) {
-                        let placeholderItem = choices._getTemplate('placeholder', this.config.placeholderValue);
-                        placeholderItem.classList.add('truncate', 'min-w-[1rem]', 'placeholder');
-                        this.$root.querySelector('.choices__placeholder.placeholder')?.remove();
-                        choices.itemList.append(placeholderItem);
-                    }
                     let options = typeof this.options === 'object' ? Object.values(this.options) : this.options;
-                    choices.setChoices(options.map(({value, label}) => ({
+                    this.setActiveGroupsOnInit();
+                    choices.clearStore();
+                    this.addPlaceholderValues(choices);
+
+                    options = options.map(({value, label, customProperties}) => ({
                         value,
                         label,
+                        customProperties: customProperties ?? {},
                         selected: selection.includes(value)
-                    })))
+                    }))
+                    choices.setChoices(options)
 
                     this.handleActiveFilters(choices.getValue());
                 }
@@ -603,13 +606,30 @@ document.addEventListener('alpine:init', () => {
 
                 this.$refs.select.addEventListener('choice', (event) => {
                     let eventValue = this.getValidatedEventValue(event);
+                    let choice = event.detail.choice;
 
                     if (!Array.isArray(this.value)) {
                         this.value = eventValue;
                         return;
                     }
-                    if (this.value.includes(eventValue)) {
-                        this.removeFilterItem(choices.getValue().find(value => value.value === event.detail.choice.value));
+                    if (this.isAParentChoice(choice)) {
+                        this.handleGroupItemChoice(choice);
+                    }
+
+                    if (isUnselectedRegularOrChildChoice.call(this)) {
+                        this.removeFilterItem(choices.getValue().find(value => value.value === choice.value));
+
+                        if (this.value.includes(choice.customProperties?.parentId)) {
+                            this.removeFilterItemByValue(choice.customProperties.parentId);
+                            this.activeGroups = this.activeGroups.filter(groupId => groupId !== choice.customProperties.parentId);
+                        }
+                    }
+
+                    this.wireModel = this.value;
+                    refreshChoices();
+
+                    function isUnselectedRegularOrChildChoice() {
+                        return this.value.includes(eventValue) && (this.isAChildChoice(choice) || this.isARegularChoice(choice));
                     }
                 })
                 this.$refs.select.addEventListener('change', () => {
@@ -617,11 +637,18 @@ document.addEventListener('alpine:init', () => {
                     this.value = choices.getValue(true);
                 })
 
-                let eventName = 'removeFrom' + this.$root.dataset.modelName;
+                let eventName = this.getRemoveEventName();
                 if (!window.registeredEventHandlers.includes(eventName)) {
                     window.registeredEventHandlers.push(eventName)
                     window.addEventListener(eventName, (event) => {
-                        this.removeFilterItem(event.detail);
+                        /* If this yields no result, make sure the remove eventnames are unique on the page :) */
+                        let choice = choices.getValue().filter(choice => choice.value === event.detail.value)[0];
+                        if (this.isAParentChoice(choice)) {
+                            this.handleGroupItemChoice(choice);
+                        } else {
+                            this.removeFilterItem(choice);
+                        }
+                        refreshChoices();
                     })
                 }
 
@@ -636,22 +663,84 @@ document.addEventListener('alpine:init', () => {
                 this.$refs.select.addEventListener('hideDropdown', () => {
                     this.$refs.chevron.style.left = 'auto'
                 });
+
             });
         },
+        setActiveGroupsOnInit() {
+            if (this.activeGroups.length) {
+                this.activeGroups.forEach(value => this.clearFilterPill(value));
+            }
+            this.activeGroups = [];
+            this.options.forEach(option => {
+                if (option.customProperties?.parent === true) {
+                    if (this.value.includes(option.value)) {
+                        this.activeGroups.push(option.value);
+                    }
+                }
+            })
+            this.activeGroups = this.activeGroups.filter((value, index, self) => self.indexOf(value) === index);
+        },
+        handleGroupItemChoice: function (choice) {
+            let parentId = choice.customProperties.parentId;
+            let childValues = this.options.filter(option => {
+                return option.customProperties.parent === false && parentId === option.customProperties.parentId;
+            }).map(value => value.value)
 
+            if (!this.value.includes(choice.value)) {
+                this.value = _.union(this.value, childValues, [choice.value]);
+                this.activeGroups.push(choice.value);
+                return;
+            }
+
+            let valuesToSplice = _.union(childValues, [choice.value])
+            valuesToSplice.forEach(val => {
+                if (this.value.includes(val)) {
+                    this.removeFilterItemByValue(val);
+                }
+            });
+            this.activeGroups = this.activeGroups.filter(groupId => groupId !== choice.customProperties.parentId);
+        },
+        isAParentChoice(choice) {
+            return choice.customProperties?.parent === true;
+        },
+        isAChildChoice(choice) {
+            return choice.customProperties?.parentId !== undefined && choice.customProperties?.parent === false;
+        },
+        isARegularChoice(choice) {
+            return choice.customProperties.parent === undefined;
+        },
         removeFilterItem(item) {
             if (!Array.isArray(this.value)) return;
-            this.wireModel = this.value.filter(itemValue => itemValue !== item.value);
-            this.clearFilterPill(item.value);
+            this.removeFilterItemByValue(item.value);
         },
-
+        removeFilterItemByValue(value) {
+            this.value.splice(this.value.indexOf(value), 1)
+            this.clearFilterPill(value);
+        },
         getDataSelector(item) {
             return `[data-filter="${this.$root.dataset.modelName}"][data-filter-value="${item}"]`
         },
 
         handleActiveFilters(choicesValues) {
             if (!Array.isArray(this.value)) return;
-            this.value.forEach(item => {
+
+            let valuesToCreatePillsFor = this.value;
+            if (this.activeGroups.length) {
+                valuesToCreatePillsFor = choicesValues.filter(value => {
+                    if (value.customProperties?.parent === true) {
+                        return true;
+                    }
+                    if (!this.activeGroups.includes(value.customProperties?.parentId)) {
+                        return true;
+                    }
+                    if (!this.needsFilterPill(value.value)) {
+                        this.clearFilterPill(value.value);
+                    }
+                    return false
+                }).map(item => item.value);
+            }
+
+            valuesToCreatePillsFor.forEach(item => {
                 if (this.needsFilterPill(item)) {
                     const cItem = choicesValues.find(value => value.value === item);
                     if (typeof cItem !== 'undefined') {
@@ -661,14 +750,25 @@ document.addEventListener('alpine:init', () => {
             })
         },
 
+        getTextForFilterPill: function (item, element) {
+            let innerHtml = item.label;
+            if (this.isAChildChoice(item)) {
+                innerHtml = `${item.customProperties.parentLabel}: ${item.label}`;
+            }
+            if (this.isAParentChoice(item)) {
+                innerHtml = `${item.label}: ${element.dataset.transAny}`
+            }
+            return innerHtml;
+        },
         createFilterPill(item) {
             const element = document.getElementById('filter-pill-template').content.firstElementChild.cloneNode(true);
-            // const element = document.createElement('span')
+
             element.id = `filter-${this.$root.dataset.modelName}-${item.value}`;
             element.classList.add('filter-pill');
             element.dataset.filter = this.$root.dataset.modelName;
             element.dataset.filterValue = item.value;
-            element.firstElementChild.innerHTML = item.label;
+            element.dataset.removeEventName = this.getRemoveEventName();
+            element.firstElementChild.innerHTML = this.getTextForFilterPill(item, element);
 
             return this.activeFiltersContainer.appendChild(element);
         },
@@ -687,6 +787,34 @@ document.addEventListener('alpine:init', () => {
                 eventValue = parseInt(event.detail.choice.value);
             }
             return eventValue;
+        },
+        getChoicesConfig: function () {
+            return {
+                ...this.config,
+                callbackOnCreateTemplates: () => {
+                    return {
+                        choice(classes, attr) {
+                            const el = Choices.defaults.templates.choice.call(this, classes, attr, '');
+                            if (attr.customProperties?.parent === false) {
+                                el.classList.add('child');
+                            }
+                            return el;
+                        }
+                    }
+                }
+            };
+        },
+        addPlaceholderValues: function (choices) {
+            if (!this.config.placeholderValue.length || !this.$root.classList.contains('super')) {
+                return;
+            }
+            let placeholderItem = choices._getTemplate('placeholder', this.config.placeholderValue);
+            placeholderItem.classList.add('truncate', 'min-w-[1rem]', 'placeholder');
+            this.$root.querySelector('.choices__placeholder.placeholder')?.remove();
+            choices.itemList.append(placeholderItem);
+        },
+        getRemoveEventName: function () {
+            return 'removeFrom' + this.$root.getAttribute('wire:key');
         },
     }));
 
@@ -918,7 +1046,6 @@ document.addEventListener('alpine:init', () => {
             renderGraph() {
 
                 var cssSelector = '#' + this.modelId + '>div:not(.empty-state)';
-                console.log(cssSelector);
                 this.$root.querySelectorAll(cssSelector).forEach(node => node.remove())
                 // set the data
                 let table = anychart.data.table();
@@ -926,6 +1053,7 @@ document.addEventListener('alpine:init', () => {
 
                 // chart type
                 var chart = anychart.stock();
+
                 var yScale = chart.plot(0).yScale();
                 yScale.minimum(0);
                 yScale.maximum(1.00);
@@ -964,6 +1092,8 @@ document.addEventListener('alpine:init', () => {
                 chart.scroller().outlineStroke("var(--system-base)", 2);
                 chart.scroller().outline
 
+                chart.interactivity().hoverMode("single");
+
                 this.subjects.forEach((el, index) => {
                     let cnt = index + 1;
                     let mapping = table.mapAs();
@@ -973,7 +1103,17 @@ document.addEventListener('alpine:init', () => {
                     series.name(el);
                     series.legendItem().useHtml(true)
                     series.legendItem().format("{%seriesName}")
-                    series.stroke(this.colors[index]);
+
+                    let marker = series.normal().markers();
+                    marker.enabled(false);
+
+                    let marker1 = series.hovered().markers();
+                    marker1.enabled(true);
+                    marker1.size(4);
+                    marker1.type('circle')
+
+                    series.normal().stroke(this.colors[index],2)
+                    series.connectMissingPoints(true);
                 })
 
                 chart.title('');

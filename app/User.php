@@ -68,6 +68,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         'uuid'               => EfficientUuid::class,
         'intense'            => 'boolean',
         'is_examcoordinator' => 'boolean',
+        'password_expiration_date' => 'datetime',
     ];
 
     /**
@@ -97,7 +98,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     protected $fillable = [
         'sales_organization_id', 'school_id', 'school_location_id', 'username', 'name_first', 'name_suffix', 'name',
         'password', 'external_id', 'gender', 'time_dispensation', 'text2speech', 'abbreviation', 'note', 'demo',
-        'invited_by', 'account_verified', 'test_take_code_id', 'guest', 'send_welcome_email', 'is_examcoordinator', 'is_examcoordinator_for'
+        'invited_by', 'account_verified', 'test_take_code_id', 'guest', 'send_welcome_email', 'is_examcoordinator', 'is_examcoordinator_for', 'password_expiration_date'
     ];
 
 
@@ -443,7 +444,6 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 $user = User::find($record->user_id);
                 if (null === $user) {
                     $message = (sprintf('THIS SHOULD NOT HAPPEN (did found eckid but no user): Can not find user for id %d', $record->user_id));
-                    logger($message);
                     Bugsnag::notifyException(new \Exception($message));
                     return false;
                 }
@@ -568,6 +568,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 $user->managerSchoolClasses ??= [];
                 $user->mentorSchoolClasses ??= [];
             }
+
+            $user->setForcePasswordChangeIfRequired();
 
             if ($user->isDirty(['is_examcoordinator', 'is_examcoordinator_for'])) {
                 $user->setAttribute('session_hash', '');
@@ -1284,6 +1286,16 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return $this->hasOne(TrialPeriod::class, 'user_id')->where('school_location_id', $this->school_location_id);
     }
 
+    public function systemSettings()
+    {
+        $this->hasMany(UserSystemSetting::class);
+    }
+
+    public function userFeatureSettings()
+    {
+        return $this->hasMany(UserFeatureSetting::class);
+    }
+
     public function getOnboardingWizardSteps()
     {
         $state = $this->onboardingWizardUserState;
@@ -1340,8 +1352,13 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function isToetsenbakker()
     {
-        if (is_bool($this->hasUserSetting('isToetsenbakker'))) {
-            return $this->hasUserSetting('isToetsenbakker');
+        if (!$this->isA('Teacher')) {
+            return false;
+        }
+
+        $isToetsenbakker = UserSystemSetting::getSettingFromSession($this, 'isToetsenbakker');
+        if (is_bool($isToetsenbakker)) {
+            return $isToetsenbakker;
         }
 
         $isToetsenbakker = FileManagement::testUploads()->handledBy($this)->exists()
@@ -1349,7 +1366,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 ->whereIn('school_location_id', SchoolLocation::select('id')->where('customer_code', config('custom.TB_customer_code')))
                 ->exists();
 
-        $this->putUserSetting('isToetsenbakker', $isToetsenbakker);
+        UserSystemSetting::setSetting($this, 'isToetsenbakker', $isToetsenbakker);
 
         return $isToetsenbakker;
     }
@@ -2771,13 +2788,17 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         );
     }
 
-    public function hasUserSetting(string $setting)
+    private function setForcePasswordChangeIfRequired(): void
     {
-        $userSettings = session()->get(self::USER_SETTINGS_SESSION_KEY, []);
-        return $userSettings[$setting] ?? null;
-    }
-    public function putUserSetting(string $setting, $value): void
-    {
-        session()->put(self::USER_SETTINGS_SESSION_KEY, [$setting => $value]);
+        if (app()->runningInConsole()) return;
+        if (!$this->isDirty(['password'])) {
+            return;
+        }
+
+        if(Auth::id() && Auth::id() !== $this->id) {
+            $this->password_expiration_date = Carbon::now();
+            return;
+        }
+        $this->password_expiration_date = null;
     }
 }

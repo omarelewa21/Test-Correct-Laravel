@@ -9,9 +9,11 @@
 namespace tcCore\Http\Helpers;
 
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use tcCore\AppVersionInfo;
 use tcCore\FailedLogin;
+use tcCore\Jobs\SendInactiveUserMail;
 use tcCore\LoginLog;
 use tcCore\TemporaryLogin;
 
@@ -51,6 +53,12 @@ class BaseHelper
         UserHelper::handleTeacherEnvironment($user);
 
         LoginLog::create(['user_id' => $user->getKey()]);
+        if ($user->isA('teacher')){
+            DB::table('mails_send')
+                ->where('user_id', $user->getKey())
+                ->where('mailable',SendInactiveUserMail::class)
+                ->delete();
+        }
         AppVersionInfo::createFromSession();
         FailedLogin::solveForUsernameAndIp($user->username, request()->ip());
     }
@@ -185,12 +193,14 @@ class BaseHelper
         return $answer;
     }
 
-    public static function transformHtmlCharsReverse($answer)
+    public static function transformHtmlCharsReverse($answer, $doHtmlEntities = true)
     {
         $answer = str_replace('&lt;','<',$answer);
         $answer = str_replace('&gt;','>',$answer);
         $answer = str_replace('&amp;','&',$answer);
-        $answer = htmlentities($answer, null, 'utf-8');
+        if($doHtmlEntities) {
+            $answer = htmlentities($answer, null, 'utf-8');
+        }
         $answer = str_replace("&nbsp;", ' ', $answer);
 
         return $answer;

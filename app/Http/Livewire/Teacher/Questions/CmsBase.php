@@ -20,6 +20,11 @@ abstract class CmsBase implements CmsProvider
         $this->instance = $instance;
     }
 
+    public function isCarouselGroup()
+    {
+        return false;
+    }
+
     /**
      * @return mixed|\tcCore\Question
      */

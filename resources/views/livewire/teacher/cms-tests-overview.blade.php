@@ -9,6 +9,11 @@
         maxHeight: 'calc(100vh - var(--header-height))'
      }"
          x-init="
+         $watch('showBank', value => {
+            if (value === 'tests') {
+                $wire.loadSharedFilters();
+            }
+        });
         testQuestionSlide = $el.querySelector('#test-question-slide')
         showQuestionsOfTest = async (testUuid) => $wire.set('testUuid', testUuid);
         slideOver = () => {
@@ -57,4 +62,16 @@
             @endif
         </div>
     </div>
+@endsection
+
+@section('clear-filters-button')
+    <x-button.text-button class="ml-auto text-base"
+                          size="sm"
+                          wire:click="clearFilters()"
+                          x-on:click="clearFilterPillsFromElement($refs.questionbank);"
+                          :disabled="!$this->hasActiveFilters()"
+    >
+        <span class="min-w-max">{{ __('teacher.Filters wissen') }}</span>
+        <x-icon.close-small/>
+    </x-button.text-button>
 @endsection

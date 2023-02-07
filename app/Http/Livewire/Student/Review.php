@@ -15,7 +15,7 @@ use tcCore\TestTakeStatus;
 class Review extends Component
 {
     use WithPagination, WithStudentTestTakes, WithSorting;
-
+   
     public $readyToLoad;
     public $paginateBy = 10;
 

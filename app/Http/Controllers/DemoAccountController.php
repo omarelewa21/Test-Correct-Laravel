@@ -76,7 +76,7 @@ class DemoAccountController extends Controller
             }
         } catch (\Exception $e) {
             DB::rollBack();
-            logger('Failed to update registered teacher' . $e);
+//            logger('Failed to update registered teacher' . $e);
             return Response::make('Failed to update registered teacher' . print_r($e->getMessage(), true), 500);
         }
         DB::commit();
@@ -161,7 +161,7 @@ class DemoAccountController extends Controller
             }
         } catch (\Exception $e) {
             DB::rollBack();
-            logger('Failed to register teacher' . $e);
+//            logger('Failed to register teacher' . $e);
             return Response::make('Failed to register teacher' . print_r($e->getMessage(), true), 500);
         }
         DB::commit();

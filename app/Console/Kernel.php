@@ -3,6 +3,7 @@
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use tcCore\Http\Helpers\BaseHelper;
+use tcCore\Http\Helpers\UwlrImportHelper;
 use tcCore\Jobs\AnonymizeUsersAfterTooLongNoLoginJob;
 
 class Kernel extends ConsoleKernel
@@ -30,11 +31,17 @@ class Kernel extends ConsoleKernel
 //			->daily();
         $schedule->command('school_location_report:update')
             ->dailyAt('02:00');
+//      before we use this scheduler the organisation has to make a Decision on what the goal is for this functionality.
+//      $schedule->command('users_one_year_inactive:scheduled_mail')
+//        ->dailyAt('03:00');
         $schedule->command('requestlog:clear 5 --silent')
-            ->dailyAt('04:00');
+          ->dailyAt('04:00');
         $schedule->command('telescope:prune')->daily();
         $schedule->command('onboarding_wizard_report:update')
             ->dailyAt('06:00');
+        $schedule->call(function(){
+            UwlrImportHelper::handleIfMoreSchoolLocationsCanBeImported();
+        })->everyThirtyMinutes()->unlessBetween('5:00', '19:00')->timezone('Europe/Amsterdam');
 
 
         /**

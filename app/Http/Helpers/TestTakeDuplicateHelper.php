@@ -62,7 +62,7 @@ class TestTakeDuplicateHelper
             $this->startDuplication();
         } catch (\Exception $e) {
             DB::rollback();
-            logger('===== error ' . $e->getMessage());
+//            logger('===== error ' . $e->getMessage());
             throw $e;
         }
         DB::commit();

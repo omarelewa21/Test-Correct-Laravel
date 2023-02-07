@@ -249,3 +249,7 @@
     z-index: 1;
     top: calc(50% - 5px);
 }
+
+.custom-choices .choices__list .choices__item.child {
+    margin-left: 30px;
+}

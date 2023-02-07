@@ -71,7 +71,7 @@ class ReportHelper
             }
         });
         if (null === $this->period) {
-            logger(sprintf('no current period found for school location %s (%d)', $this->reference->name, $this->reference->getKey()));
+//            logger(sprintf('no current period found for school location %s (%d)', $this->reference->name, $this->reference->getKey()));
         }
     }
 

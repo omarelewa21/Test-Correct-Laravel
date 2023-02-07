@@ -25,7 +25,7 @@ class CmsFactory
             return static::$self = new $lookup[$type]($instance);
         }
 
-        throw new \Exception('CMS Factory could not resolve (sub) question type.');
+        throw new \Exception(sprintf('CMS Factory could not resolve (sub) question type (type:%s, subtype: %s).',$type, $subType));
     }
 
     /**

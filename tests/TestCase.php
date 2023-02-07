@@ -357,7 +357,7 @@ abstract class TestCase extends BaseTestCase
         return $user;
     }
 
-    protected function createStudent($password, $schoolLocation, $schoolClass = null, $nr=null)
+    protected function createStudent($password, $schoolLocation,$schoolClass = null, $nr = null)
     {
         if ($nr ===  null) {
             throw new \ErrorException('parameter $nr is required');
@@ -408,18 +408,8 @@ abstract class TestCase extends BaseTestCase
         return $schoolClass;
     }
 
-
-    protected function createTeacher($password, $schoolLocation, $schoolClass=null)
+    protected function createTeacherFromUser(User $user, $schoolLocation, $schoolClass=null)
     {
-        $user = User::create([
-            'school_location_id' => $schoolLocation->getKey(),
-            'username'           => sprintf('info+%s-teacher@test-correct.nl', $schoolLocation->name),
-            'password'           => \Hash::make($password),
-            'name_first'         => $schoolLocation->name,
-            'name'               => sprintf('teacher'),
-            'api_key'            => sha1(time()),
-            'send_welcome_email' => 1
-        ]);
 
         if (!$user) {
             throw new \Exception('could not create teacher');
@@ -439,6 +429,21 @@ abstract class TestCase extends BaseTestCase
         ]);
 
         return $user->refresh();
+    }
+
+    protected function createTeacher($password, $schoolLocation, $schoolClass=null)
+    {
+        $user = User::create([
+            'school_location_id' => $schoolLocation->getKey(),
+            'username'           => sprintf('info+%s-teacher@test-correct.nl', $schoolLocation->name),
+            'password'           => \Hash::make($password),
+            'name_first'         => $schoolLocation->name,
+            'name'               => sprintf('teacher'),
+            'api_key'            => sha1(time()),
+            'send_welcome_email' => 1
+        ]);
+
+        return $this->createTeacherFromUser($user, $schoolLocation, $schoolClass);
     }
 
     public function createOpenQuestion(array $attributes = [])
