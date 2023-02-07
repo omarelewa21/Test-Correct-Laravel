@@ -123,7 +123,12 @@
     </div>
 
     <input class="w-16 h-10 border border-blue-grey bg-offwhite flex items-center justify-center rounded-10 text-center"
-           x-model.lazy.number="score" type="number" max="{{$maxScore}}" min="0" onclick="this.select()" :step="allowHalfPoints ? 0.5 : 1"
+           x-model.debounce.250ms.number="score"
+           type="number"
+           max="{{$maxScore}}"
+           min="0"
+           onclick="this.select()"
+           :step="allowHalfPoints ? 0.5 : 1"
     >
 
     @if($disabled)
