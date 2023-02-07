@@ -13,10 +13,10 @@ return new class extends Migration {
      */
     public function up()
     {
-        if (!BaseSubject::where('name', 'Anatomie en Fysiologie')->exists()) {
+        if (!BaseSubject::where('name', 'Anatomie en Fysiologie NOVA haarlem')->exists()) {
             $baseSubject = new BaseSubject();
             $baseSubject->id = 98;
-            $baseSubject->name = 'Anatomie en Fysiologie Nova Haarlem';
+            $baseSubject->name = 'Anatomie en Fysiologie NOVA Haarlem';
             $baseSubject->show_in_onboarding = 0;
             $baseSubject->level = 'MBO';
             $baseSubject->save();
