@@ -13,6 +13,10 @@ class IndexInfoRequest extends Request
 //        if(!Auth::user()){
 //            return false;
 //        }
+        if(request('mode') === 'feature') {
+            return true;
+        }
+
         if(request('mode','dashboard') === 'dashboard'){
             return true;
         } else {
