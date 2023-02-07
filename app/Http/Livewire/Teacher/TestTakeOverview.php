@@ -37,7 +37,12 @@ class TestTakeOverview extends Component
     public function mount($stage)
     {
         $this->abortIfUnauthorized($stage);
-        $this->setOpenTab();
+        if($this->openTab == 'norm'){
+            session()->put(self::ACTIVE_TAB_SESSION_KEY, $this->openTab);
+        }
+        else{
+            $this->setOpenTab();
+        }
         $this->setFilters();
         $this->stage = $stage;
         $this->setPageNumber();
