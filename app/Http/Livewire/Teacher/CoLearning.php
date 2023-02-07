@@ -5,6 +5,7 @@ namespace tcCore\Http\Livewire\Teacher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use PHPUnit\Util\Test;
@@ -12,6 +13,7 @@ use tcCore\Answer;
 use tcCore\AnswerRating;
 use tcCore\Attachment;
 use tcCore\CompletionQuestion;
+use tcCore\DiscussingParentQuestion;
 use tcCore\DrawingQuestion;
 use tcCore\Events\CoLearningNextQuestion;
 use tcCore\Http\Controllers\TestTakeLaravelController;
@@ -146,7 +148,23 @@ class CoLearning extends Component
             return false;
         }
 
+        $discussingQuestion = $this->testTake->discussingQuestion()->first();
+        $this->testTake->getKey();
+
         $this->testTake->discussingParentQuestions()->delete();
+
+        if($discussingQuestion?->is_subquestion) {
+            $discussingQuestionId = $discussingQuestion->getKey();
+
+            $groupQuestionId = $this->getGroupQuestionIdForSubQuestion($discussingQuestionId);
+
+            $discussingParentQuestion = new DiscussingParentQuestion();
+            $discussingParentQuestion->group_question_id = $groupQuestionId;
+            $discussingParentQuestion->level = 1;
+
+            $this->testTake->discussingParentQuestions()->save($discussingParentQuestion);
+        }
+
 
         //Pusher is not yet implemented at the student side of Co-Learning
 //        foreach ($this->testTake->testParticipants as $testParticipant) {
@@ -345,7 +363,7 @@ class CoLearning extends Component
 
         //get testTake from TestTakesController, also sets testParticipant 'abnormalities'
         $this->testTake = (new TestTakesController)->showFromWithin($this->testTake, $request, false);
-//dd($this->testTake, $this->testTake->discussingQuestion()->first());
+
         $this->testParticipantCount = $this->testTake->testParticipants->count();
         $this->testParticipantCountActive = $this->testTake->testParticipants->sum(fn($tp) => $tp->active);
 
@@ -512,5 +530,21 @@ class CoLearning extends Component
 
         $this->activeAnswerText = $array['value'] ?? '';
 
+    }
+
+    /**
+     * @param mixed $discussingQuestionId
+     * @return mixed|null
+     */
+    protected function getGroupQuestionIdForSubQuestion(mixed $questionId): null|int
+    {
+        return DB::query()
+            ->select('group_question_questions.group_question_id')
+            ->from('test_takes')
+            ->join('tests', 'tests.id', '=', 'test_takes.test_id')
+            ->join('test_questions', 'test_questions.test_id', '=', 'tests.id')
+            ->join('group_question_questions', 'group_question_questions.group_question_id', '=', 'test_questions.question_id')
+            ->where('test_takes.id', '=', $this->testTake->getKey())
+            ->where('group_question_questions.question_id', '=', $questionId)->first()?->group_question_id;
     }
 }

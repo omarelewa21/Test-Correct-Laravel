@@ -24,7 +24,7 @@ class CoLearningHelperTest extends TestCase
         $user = User::find(1486);
         auth()->login($user);
 
-        $testTakeId = 19;
+        $testTakeId = 23;
 //        $testTakeId = 22    ;
         $testTakeUuid = '779168f6-4afe-4153-9102-9a131134ffa7';
 
@@ -53,7 +53,7 @@ class CoLearningHelperTest extends TestCase
         $this->handleQueryLog($benchmark, 1);
 
         $benchmark[2]['time'] = Benchmark::measure(function () use (&$result2, $testTakeId, $user, $testTake) {
-            return $result2 = CoLearningHelper::fullTestParticipantsQuery($testTakeId, $testTake->discussing_question_id)->get();
+            return $result2 = CoLearningHelper::getTestParticipantsWithStatusAndAbnormalities($testTakeId, $testTake->discussing_question_id);
 //            return $result2 = CoLearningHelper::getTestParticipantsWithStatus($testTakeId, $testTake->discussing_question_id);
         });
 
@@ -100,9 +100,9 @@ class CoLearningHelperTest extends TestCase
     {
         //j COMBINE abnormalities (JOIN) with TestParticipants
 
-        $testParticipants = CoLearningHelper::fullTestParticipantsQuery(19, 241);
+        $testParticipants = CoLearningHelper::getTestParticipantsWithStatusAndAbnormalities(19, 241);
 
-        dd($testParticipants->get());
+        dd($testParticipants);
     }
 
     protected function handleQueryLog(&$benchmark, $index)
