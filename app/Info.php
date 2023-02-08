@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use tcCore\Lib\User\Roles;
-use tcCore\Scopes\InfoBaseType;
 use tcCore\Traits\UuidTrait;
 
 class Info extends Model
@@ -100,11 +99,11 @@ class Info extends Model
            return $role->getKey();
         })->toArray();
         $infoIdsFromRoles = DB::table('info_role')->whereIn('role_id',$roleIds)->pluck('info_id')->toArray();
-        $infos = new Info;
+        $infos = new Info();
         if($discardInfosRemovedByUser){
             $infos = Info::doesntHave('infoRemovedByUser');
         }
-        $infos->addGlobalScope(new InfoBaseType());
+        $infos = $infos->InfoBaseType();
 
 
         return $infos->where('status',self::ACTIVE)
@@ -134,8 +133,13 @@ class Info extends Model
         return self::getInfoForUser($user)->contains($this);
     }
 
-    public function infoRemovedByUser(){
+    public function infoRemovedByUser()
+    {
         return $this->hasMany(UserInfosDontShow::class)->where('user_id', auth()->id());
     }
 
+    public function scopeInfoBaseType($builder)
+    {
+        $builder->where('type', '=', Info::BASE_TYPE);
+    }
 }

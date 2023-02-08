@@ -14,7 +14,7 @@ class IndexInfoRequest extends Request
 //            return false;
 //        }
         if(request('mode') === 'feature') {
-            return true;
+            return Auth::user()->isA('Teacher');
         }
 
         if(request('mode','dashboard') === 'dashboard'){

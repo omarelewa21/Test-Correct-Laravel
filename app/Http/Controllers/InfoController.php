@@ -41,6 +41,12 @@ class InfoController extends Controller
             case 'feature':
                 $data = Info::getInfoForFeature();
                 break;
+            case 'types':
+                $data = [
+                    Info::BASE_TYPE=> 'info.Basis',
+                    Info::FEATURE_TYPE=> 'info.Functie',
+                ];
+                break;
             default:
                 $data = Info::getInfoForUser(Auth::user());
         }
