@@ -1342,9 +1342,7 @@ document.addEventListener('alpine:init', () => {
         }
     ));
 
-
-    Alpine.data('sliderToggle', (model, sources) => (
-        {
+    Alpine.data('sliderToggle', (model, sources) => ({
             buttonPosition: '0px',
             buttonWidth: 'auto',
             value: model,
@@ -1371,11 +1369,13 @@ document.addEventListener('alpine:init', () => {
                 this.activateButton(target)
             },
             activateButton(target) {
-                this.resetButtons(target)
-                this.buttonPosition = target.offsetLeft + 'px';
-                this.buttonWidth = target.offsetWidth + 'px';
-                target.firstElementChild.classList.add('text-primary');
-                this.handle.classList.remove('hidden');
+                this.$nextTick(() => {
+                    this.resetButtons(target)
+                    this.buttonPosition = target.offsetLeft + 'px';
+                    this.buttonWidth = target.offsetWidth + 'px';
+                    target.firstElementChild.classList.add('text-primary');
+                    this.handle.classList.remove('hidden');
+                })
             },
             resetButtons(target) {
                 Array.from(target.parentElement.children).forEach(button => {

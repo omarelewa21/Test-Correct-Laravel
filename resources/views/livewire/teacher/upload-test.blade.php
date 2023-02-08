@@ -29,7 +29,7 @@
         <x-accordion.container :activeContainerKey="1">
             <x-accordion.block :key="1" :emitWhenSet="true">
                 <x-slot name="title">
-                    <div class="flex gap-2 items-center" wire:key="uploaded-tests-{{ $this->uploadedTests }}">
+                    <div class="flex gap-2 items-center" wire:key="block-title-1-{{ $this->formUuid }}">
                         @if($tabOneComplete)
                             <x-icon.checkmark-circle color="var(--cta-primary)" width="30" height="30"/>
                         @else
@@ -105,6 +105,7 @@
                                                  :options="[1 => __('general.yes'), 0 => __('general.no')]"
                                                  wire:model="testInfo.contains_publisher_content"
                                                  buttonWidth="auto"
+                                                 wire:key="form-{{ $this->formUuid }}"
                                 />
                             </div>
                             @if(in_array($this->testInfo['name'], $this->previousUploadedTestNames))
