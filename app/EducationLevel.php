@@ -1,5 +1,6 @@
 <?php namespace tcCore;
 
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use iio\libmergepdf\Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -193,15 +194,16 @@ class EducationLevel extends BaseModel
     public static function getLatestEducationLevelAndEducationLevelYearForStudent(User $student)
     {
         $latestSchoolClassForStudent = $student->studentSchoolClasses()
-            ->whereId(
-                DB::table('students')
-                    ->where('user_id', $student->id)
-                    ->orderByDesc('created_at')
-                    ->whereNull('deleted_at')
-                    ->value('class_id')
-            )->with('educationLevel')
+            ->orderBy('school_classes.created_at', 'desc')
+            ->with('educationLevel')
             ->first();
+        if (null === $latestSchoolClassForStudent) {
+            Bugsnag::notifyException(new \Exception(
+                'cannot find a school_class for student with id ' . $student->id
+            ));
+        }
         $min = 1;
+
         if ($latestSchoolClassForStudent->educationLevel->min_attainment_year <= $latestSchoolClassForStudent->education_level_year) {
             $min = $latestSchoolClassForStudent->educationLevel->min_attainment_year;
         }
