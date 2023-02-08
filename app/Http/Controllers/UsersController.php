@@ -464,6 +464,24 @@ class UsersController extends Controller
 
     }
 
+    public function storeSystemSettings(Request $request)
+    {
+        $data = $request->all();
+
+
+        $user = (new UserHelper())->createUserFromData($data);
+        if ($user->isA('teacher')) {
+            $user->account_verified = Carbon::now();
+            $user->save();
+        }
+
+        if ($user !== false) {
+            return Response::make($user, 200);
+        } else {
+            return Response::make('Failed to create user', 500);
+        }
+    }
+
     public function isAccountVerified(Request $request)
     {
         $user = User::where('id', $request->user_id)->first();
