@@ -30,25 +30,21 @@ class InfoController extends Controller
 
     public function index(IndexInfoRequest $request)
     {
-        $data = null;
         switch($request->mode){
             case 'index':
                 $data = Info::orderBy('show_from','desc')->with('roles')->get();
                 break;
             case 'dashboard':
-                $data = Info::getInfoForUser(Auth::user(), true);
+                $data = Info::getForUser(Auth::user(), true);
                 break;
             case 'feature':
-                $data = Info::getInfoForFeature();
+                $data = Info::getForFeature();
                 break;
             case 'types':
-                $data = [
-                    Info::BASE_TYPE=> 'info.Basis',
-                    Info::FEATURE_TYPE=> 'info.Functie',
-                ];
+                $data = Info::getDisplayTypes();
                 break;
             default:
-                $data = Info::getInfoForUser(Auth::user());
+                $data = Info::getForUser(Auth::user());
         }
 
         return Response::make($data, 200);

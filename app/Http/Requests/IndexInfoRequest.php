@@ -19,9 +19,9 @@ class IndexInfoRequest extends Request
 
         if(request('mode','dashboard') === 'dashboard'){
             return true;
-        } else {
-            return Auth::user()->isA('Account manager');
         }
+
+        return Auth::user()->isA('Account manager');
 
     }
 

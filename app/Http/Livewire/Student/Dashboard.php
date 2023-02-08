@@ -65,7 +65,7 @@ class Dashboard extends Component
 
     public function getInfoMessages()
     {
-        return Info::getInfoForUser(Auth::user());
+        return Info::getForUser(Auth::user());
     }
 
     public function showAppVersionMessage()
