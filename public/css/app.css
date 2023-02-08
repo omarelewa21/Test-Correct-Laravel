@@ -528,20 +528,30 @@ button.cta-button:disabled, a.cta-button:disabled {
     max-width: 100%;
     width: 100%;
 }
-.card-tag {
+.card-tag, .card-tag.green {
     --card-tag-text-color: var(--cta-primary);
     --card-tag-border-color: var(--cta-primary);
     --card-tag-background-color: rgba(var(--cta-primary-rgb), .1);
 
-    padding: 5px 8px;
+    padding: 2px 8px;
     border-radius: 5px;
     border: solid 1px;
     border-color: var(--card-tag-border-color);
     background-color: var(--card-tag-background-color);
     color: var(--card-tag-text-color)!important;
-    font-size:10px;
-    font-family: Nunito Bold, sans-serif;
+    min-height: 26px;
+}
+.card-tag span {
+    color: var(--card-tag-text-color)!important;
     text-transform: uppercase;
+    font-family: Nunito Bold, sans-serif;
+    font-size:10px;
+}
+
+.card-tag.white {
+    --card-tag-text-color: white;
+    --card-tag-border-color: white;
+    --card-tag-background-color: rgba(255 255 255 / .1);
 }
 
 .card-tag.grey {
@@ -3842,6 +3852,10 @@ input[type=number] {
     color: var(--primary);
     z-index: 1;
     top: calc(50% - 5px);
+}
+
+.custom-choices .choices__list .choices__item.child {
+    margin-left: 30px;
 }
 .flatpickr-calendar {
   background: transparent;
@@ -8893,6 +8907,9 @@ video {
 .w-\[44vw\]{
   width: 44vw;
 }
+.w-\[30px\]{
+  width: 30px;
+}
 .w-32{
   width: 8rem;
 }
@@ -9241,20 +9258,20 @@ video {
 .gap-6{
   gap: 1.5rem;
 }
+.gap-1{
+  gap: 0.25rem;
+}
 .gap-4{
   gap: 1rem;
-}
-.gap-2{
-  gap: 0.5rem;
 }
 .gap-2\.5{
   gap: 0.625rem;
 }
+.gap-2{
+  gap: 0.5rem;
+}
 .gap-5{
   gap: 1.25rem;
-}
-.gap-1{
-  gap: 0.25rem;
 }
 .gap-\[15px\]{
   gap: 15px;
@@ -9676,6 +9693,10 @@ video {
   --tw-border-opacity: 1;
   border-color: rgb(219 234 254 / var(--tw-border-opacity));
 }
+.\!border-white{
+  --tw-border-opacity: 1 !important;
+  border-color: rgb(255 255 255 / var(--tw-border-opacity)) !important;
+}
 .bg-gray-500{
   --tw-bg-opacity: 1;
   background-color: rgb(107 114 128 / var(--tw-bg-opacity));
@@ -9803,12 +9824,12 @@ video {
 .bg-white\/20{
   background-color: rgb(255 255 255 / 0.2);
 }
+.bg-transparent{
+  background-color: transparent;
+}
 .bg-sysbase{
   --tw-bg-opacity: 1;
   background-color: rgb(4 31 116 / var(--tw-bg-opacity));
-}
-.bg-transparent{
-  background-color: transparent;
 }
 .bg-opacity-0{
   --tw-bg-opacity: 0;
@@ -10010,11 +10031,11 @@ video {
 .pr-40{
   padding-right: 10rem;
 }
-.pt-40{
-  padding-top: 10rem;
-}
 .pb-40{
   padding-bottom: 10rem;
+}
+.pt-40{
+  padding-top: 10rem;
 }
 .pl-20{
   padding-left: 5rem;
@@ -10058,14 +10079,17 @@ video {
 .pt-8{
   padding-top: 2rem;
 }
+.pt-2{
+  padding-top: 0.5rem;
+}
+.pr-12{
+  padding-right: 3rem;
+}
 .pt-5{
   padding-top: 1.25rem;
 }
 .pb-2\.5{
   padding-bottom: 0.625rem;
-}
-.pt-2{
-  padding-top: 0.5rem;
 }
 .pl-3{
   padding-left: 0.75rem;
@@ -10081,9 +10105,6 @@ video {
 }
 .pl-6{
   padding-left: 1.5rem;
-}
-.pr-12{
-  padding-right: 3rem;
 }
 .pl-7{
   padding-left: 1.75rem;
@@ -10244,6 +10265,9 @@ video {
 }
 .leading-5{
   line-height: 1.25rem;
+}
+.leading-none{
+  line-height: 1;
 }
 .leading-relaxed{
   line-height: 1.625;

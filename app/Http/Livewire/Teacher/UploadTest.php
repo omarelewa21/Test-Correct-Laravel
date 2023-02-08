@@ -6,7 +6,9 @@ use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Livewire\Component;
 use Livewire\TemporaryUploadedFile;
 use Livewire\WithFileUploads;
@@ -17,6 +19,7 @@ use tcCore\FileManagement;
 use tcCore\FileManagementStatus;
 use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Helpers\CakeRedirectHelper;
+use tcCore\Http\Helpers\SchoolHelper;
 use tcCore\Subject;
 use tcCore\TestKind;
 
@@ -51,6 +54,9 @@ class UploadTest extends Component
     public string $minimumTakeDate;
     public mixed $uploads = [];
     public array $uploadRules = [];
+    public bool $canUseTestUploader = true;
+    public array $previousUploadedTestNames = [];
+    public int $uploadedTests = 0;
 
     public $referrer;
 
@@ -58,14 +64,20 @@ class UploadTest extends Component
 
     public function mount()
     {
+        $this->canUseTestUploader = !SchoolHelper::isTempTeachersSchoolLocation(Auth::user()->schoolLocation);
         $this->setFormUuid();
         $this->setDateProperties();
         $this->setUploadRules();
     }
 
+    public function updating()
+    {
+        if (!$this->canUseTestUploader) abort(403);
+    }
+
     public function updated($name, $value)
     {
-        $this->tabOneComplete = collect($this->testInfo)->reject(fn($item) => filled($item))->isEmpty();
+        $this->tabOneComplete = $this->validatePropertiesToCompleteTabOne();
         $this->tabTwoComplete = collect($this->uploads)->isNotEmpty();
     }
 
@@ -99,10 +111,10 @@ class UploadTest extends Component
 
         if ($this->referrer['type'] === 'cake') {
             $routeName = CakeRedirectHelper::getRouteNameByUrl($this->referrer['page']);
-            if($routeName){
+            if ($routeName) {
                 return CakeRedirectHelper::redirectToCake($routeName);
             }
-            Bugsnag::notifyException(new \Exception(sprintf('No route name found for referrer page `%s` in file %s line %d',$this->referrer['page'],__FILE__,__LINE__)));
+            Bugsnag::notifyException(new \Exception(sprintf('No route name found for referrer page `%s` in file %s line %d', $this->referrer['page'], __FILE__, __LINE__)));
         }
 
         if ($this->referrer['type'] === 'laravel') {
@@ -227,8 +239,10 @@ class UploadTest extends Component
         return html_entity_decode($selectedItem->label) ?? '';
     }
 
-    public function finishProcess()
+    public function finishProcess(bool $openSuccessModal = true)
     {
+        $this->validateTestName();
+
         $typedetails = $this->getTypeDetailsForFileManagementModel();
 
         $parentFileManagement = $this->createParentFileManagementModel($typedetails);
@@ -251,7 +265,9 @@ class UploadTest extends Component
             $this->dispatchBrowserEvent('notify', ['message' => __('auth.something_went_wrong'), 'error']);
         }
 
-        $this->emit('openModal', 'teacher.upload-test-success-modal');
+        if ($openSuccessModal) {
+            $this->emit('openModal', 'teacher.upload-test-success-modal');
+        }
 
         $this->setFormUuid();
     }
@@ -282,22 +298,22 @@ class UploadTest extends Component
     private function createParentFileManagementModel(Collection $typedetails): FileManagement
     {
         return FileManagement::create([
-            'id'                        => $this->formUuid,
-            'uuid'                      => Uuid::uuid4(),
-            'school_location_id'        => Auth::user()->school_location_id,
-            'user_id'                   => Auth::id(),
-            'origname'                  => $this->testInfo['name'],
-            'name'                      => $this->testInfo['name'],
-            'test_name'                 => $this->testInfo['name'],
-            'education_level_year'      => $this->testInfo['education_level_year'],
-            'type'                      => FileManagement::TYPE_TEST_UPLOAD,
-            'typedetails'               => $typedetails,
-            'file_management_status_id' => FileManagementStatus::STATUS_PROVIDED,
-            'planned_at'                => $this->plannedAt,
-            'subject_id'                => $typedetails['subject_id'],
-            'education_level_id'        => $typedetails['education_level_id'],
-            'test_kind_id'              => $typedetails['test_kind_id'],
-            'form_id'                   => $this->formUuid,
+            'id'                         => $this->formUuid,
+            'uuid'                       => Uuid::uuid4(),
+            'school_location_id'         => Auth::user()->school_location_id,
+            'user_id'                    => Auth::id(),
+            'origname'                   => $this->testInfo['name'],
+            'name'                       => $this->testInfo['name'],
+            'test_name'                  => $this->testInfo['name'],
+            'education_level_year'       => $this->testInfo['education_level_year'],
+            'type'                       => FileManagement::TYPE_TEST_UPLOAD,
+            'typedetails'                => $typedetails,
+            'file_management_status_id'  => FileManagementStatus::STATUS_PROVIDED,
+            'planned_at'                 => $this->plannedAt,
+            'subject_id'                 => $typedetails['subject_id'],
+            'education_level_id'         => $typedetails['education_level_id'],
+            'test_kind_id'               => $typedetails['test_kind_id'],
+            'form_id'                    => $this->formUuid,
             'contains_publisher_content' => $typedetails['contains_publisher_content'],
         ]);
     }
@@ -370,5 +386,50 @@ class UploadTest extends Component
         return collect(range(1, $maxYears))
             ->map(fn($value) => ['value' => (int)$value, 'label' => (string)$value])
             ->toArray();
+    }
+
+    public function handleUploadPermissionsForUser()
+    {
+        if (!$this->canUseTestUploader) {
+            $this->emit('openModal', 'teacher.upload-test-not-allowed-modal');
+        }
+    }
+
+    public function uploadAnotherTest(bool $withData): bool
+    {
+        $this->finishProcess(false);
+
+        $this->previousUploadedTestNames[] = $this->testInfo['name'];
+        $this->uploadedTests++;
+
+        $propertiesToReset = ['checkInfo', 'uploads', 'tabOneComplete', 'tabTwoComplete'];
+        if (!$withData) {
+            $propertiesToReset[] = 'testInfo';
+        }
+
+        $this->reset(...$propertiesToReset);
+
+        return true;
+    }
+
+    private function validateTestName()
+    {
+        Validator::make($this->testInfo, [
+            'name' => [
+                'required',
+                Rule::notIn($this->previousUploadedTestNames),
+            ]
+        ])->validate();
+
+    }
+
+    /**
+     * @return bool
+     */
+    private function validatePropertiesToCompleteTabOne(): bool
+    {
+        return collect($this->testInfo)
+                ->reject(fn($item) => filled($item))
+                ->isEmpty() && !in_array($this->testInfo['name'], $this->previousUploadedTestNames);
     }
 }
