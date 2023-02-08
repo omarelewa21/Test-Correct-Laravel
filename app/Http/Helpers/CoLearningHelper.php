@@ -15,8 +15,14 @@ class CoLearningHelper extends BaseHelper
     public $testTakeId;
     public $discussingQuestionId;
 
-    public static function getTestParticipantsWithStatusOldController(TestTake $testTake, Request $request)
+    public static function getTestParticipantsWithStatusOldController(TestTake $testTake, ?Request $request = null)
     {
+        if(!$request) {
+            $request = new \Illuminate\Http\Request([
+                'with' => ['participantStatus', 'discussingQuestion'],
+            ]);
+        }
+
         return (new TestTakesController)->showFromWithin($testTake, $request, false);
 
     }
@@ -65,17 +71,20 @@ class CoLearningHelper extends BaseHelper
             ->select(['answer_ratings.answer_id', 'answer_ratings.rating', 'answer_ratings.user_id'])
             ->from('answers')->crossJoin('answer_ratings', 'answers.id', '=', 'answer_ratings.answer_id')
             ->where('answer_ratings.test_take_id', '=', $testTakeId)
-            ->where('answer_ratings.type', '=', 'STUDENT');
+            ->where('answer_ratings.type', '=', 'STUDENT')
+            ->where('answer_ratings.deleted_at', '=', null);
         $teacher_ratings_sub = DB::query()
             ->select(['answer_ratings.answer_id', 'answer_ratings.rating as teacher_rating'])
             ->from('answers')->leftJoin('answer_ratings', 'answers.id', '=', 'answer_ratings.answer_id')
             ->where('answer_ratings.test_take_id', '=', static::$test_take_id)
-            ->where('answer_ratings.type', '=', 'TEACHER');
+            ->where('answer_ratings.type', '=', 'TEACHER')
+            ->where('answer_ratings.deleted_at', '=', null);
         $system_ratings_sub = DB::query()
             ->select(['answer_ratings.answer_id', 'answer_ratings.rating as system_rating'])
             ->from('answers')->leftJoin('answer_ratings', 'answers.id', '=', 'answer_ratings.answer_id')
             ->where('answer_ratings.test_take_id', '=', static::$test_take_id)
-            ->where('answer_ratings.type', '=', 'SYSTEM');
+            ->where('answer_ratings.type', '=', 'SYSTEM')
+            ->where('answer_ratings.deleted_at', '=', null);
 
 
         $student_abnormalities_sub = DB::query()->select(['student_abnormalities.user_id', 'student_abnormalities.answer_id', 'abnormalities'])
@@ -83,7 +92,8 @@ class CoLearningHelper extends BaseHelper
                 $query->select(['answer_ratings.answer_id', 'answer_ratings.user_id'])
                     ->from('answers')->crossJoin('answer_ratings', 'answers.id', '=', 'answer_ratings.answer_id')
                     ->where('answer_ratings.test_take_id', '=', static::$test_take_id)
-                    ->where('answer_ratings.type', '=', 'STUDENT');
+                    ->where('answer_ratings.type', '=', 'STUDENT')
+                    ->where('answer_ratings.deleted_at', '=', null);
             }, 'student_abnormalities')
             ->JoinSub(function ($query) {
                 $query->selectRaw('answer_ratings.answer_id,
@@ -95,6 +105,7 @@ class CoLearningHelper extends BaseHelper
                     ->from('answers')->crossJoin('answer_ratings', 'answers.id', '=', 'answer_ratings.answer_id')
                     ->where('answer_ratings.test_take_id', '=', static::$test_take_id)
                     ->where('answer_ratings.type', '=', 'STUDENT')
+                    ->where('answer_ratings.deleted_at', '=', null)
                     ->groupBy('answer_ratings.answer_id');
             }, 'student_answer_abnormalities', 'student_abnormalities.answer_id', '=', 'student_answer_abnormalities.answer_id', 'cross');
 

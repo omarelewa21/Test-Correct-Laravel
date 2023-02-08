@@ -530,4 +530,17 @@ class TestParticipant extends BaseModel
                 ->pluck('test_takes.id')
         )->where('user_id', $user->getKey());
     }
+
+    public function getActiveAttribute($value)
+    {
+        if(!$this->hasAttribute('active')){
+            throw new \Exception("The 'active' property doesn't exist on this model");
+        }
+        if(!isset($this->getAttributes()['active'])) {
+            return false;
+        }
+        $active = $this->getAttributes()['active'];
+        return $this->getAttributes('active');
+
+    }
 }
