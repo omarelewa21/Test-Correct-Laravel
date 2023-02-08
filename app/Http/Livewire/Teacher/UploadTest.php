@@ -395,21 +395,29 @@ class UploadTest extends Component
         }
     }
 
-    public function uploadAnotherTest(bool $withData): bool
+    public function uploadAnotherTest(bool $keepTestInfo): bool
     {
         $this->finishProcess(false);
 
         $this->previousUploadedTestNames[] = $this->testInfo['name'];
         $this->uploadedTests++;
 
-        $propertiesToReset = ['checkInfo', 'uploads', 'tabOneComplete', 'tabTwoComplete'];
-        if (!$withData) {
-            $propertiesToReset[] = 'testInfo';
-        }
-
-        $this->reset(...$propertiesToReset);
+        $this->resetPropertiesToComponentDefault($keepTestInfo);
 
         return true;
+    }
+
+    private function resetPropertiesToComponentDefault(bool $keepTestInfo): void
+    {
+        $propertiesToReset = ['checkInfo', 'uploads', 'tabOneComplete', 'tabTwoComplete'];
+        if (!$keepTestInfo) {
+            $propertiesToReset[] = 'testInfo';
+        }
+        $this->reset(...$propertiesToReset);
+
+        if (!$keepTestInfo) {
+            $this->setDateProperties();
+        }
     }
 
     private function validateTestName()

@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Http\Livewire\Teacher;
 
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -243,8 +244,8 @@ class UploadTestTest extends TestCase
     {
         $this->actingAs(self::getTeacherOne());
 
-        $component = $this->getTestableLivewire()
-            ->call('handleUploadPermissionsForUser')
+        $this->getTestableLivewire()
+            ->call('handleUploadPermissionsForUser')/* Done in the wire:init from the template; */
             ->assertEmitted('openModal', 'teacher.upload-test-not-allowed-modal');
     }
 
@@ -258,6 +259,7 @@ class UploadTestTest extends TestCase
 
         $component->call('uploadAnotherTest', false)
             ->assertSet('testInfo.name', '')
+            ->assertSet('testInfo.contains_publisher_content', null)
             ->assertNotEmitted('openModal', 'teacher.upload-test-success-modal');
     }
 
@@ -280,8 +282,10 @@ class UploadTestTest extends TestCase
             ->set('testInfo.name', 'Coole naam')
             ->call('uploadAnotherTest', true)
             ->assertSet('testInfo.name', 'Coole naam')
+            #
             ->call('finishProcess')
             ->assertHasErrors('name')
+            #
             ->set('testInfo.name', 'Nieuwe naam!')
             ->call('finishProcess')
             ->assertHasNoErrors('name');
@@ -338,5 +342,30 @@ class UploadTestTest extends TestCase
                 $secondParent->education_level_id,
                 $secondParent->education_level_year,
             ]);
+    }
+
+    /** @test */
+    public function can_keep_the_planned_at_date_when_choosing_to_upload_another_test_with_existing_data()
+    {
+        $plannedAtDate = Carbon::now()->addMonth()->addDay()->toDateString();
+        $defaultDate = Carbon::now()->addMonth()->toDateString();
+
+        $this->actingAs($this->teacherOne);
+        $this->getTestableLivewire()
+            ->set('testInfo.planned_at', $plannedAtDate)
+            ->call('uploadAnotherTest', true)
+            ->assertSet('testInfo.planned_at', $plannedAtDate)
+            ->assertNotSet('testInfo.planned_at', $defaultDate)
+            ->assertNotEmitted('openModal', 'teacher.upload-test-success-modal');
+    }
+
+    /** @test */
+    public function can_set_the_default_planned_at_date_when_choosing_to_upload_another_test_without_copying_data()
+    {
+        $this->actingAs($this->teacherOne);
+        $this->getTestableLivewire()
+            ->call('uploadAnotherTest', false)
+            ->assertSet('testInfo.planned_at', Carbon::now()->addMonth()->toDateString())
+            ->assertNotEmitted('openModal', 'teacher.upload-test-success-modal');
     }
 }
