@@ -490,6 +490,8 @@ class TestTake extends BaseModel
         $roles = $this->getUserRoles();
         /** todo: uitzoeken waar het scenario en Teacher en Student overgaat */
         if (in_array('Teacher', $roles) && in_array('Student', $roles)) {
+            /* 2023-02-08 if this message is not seen in bugsnag, it is probably okay to delete this scenario. */
+            \Bugsnag::notify('TestTake::filtered scenario Teacher and Student');
             $query->where(function ($query) {
                 $query->whereIn('test_id', function ($query) {
                     $query->select('id')
@@ -508,8 +510,8 @@ class TestTake extends BaseModel
         } elseif (in_array('Teacher', $roles)) {
             $user = Auth::user();
             $skipDefaults = $user->isValidExamCoordinator() && $this->hasRatedTestTakesFilter($filters);
-            $query->when(!$skipDefaults, function ($query) use ($user) {
-                $query->accessForTeacher($user)
+            $query->when(!$skipDefaults, function ($query) use ($filters, $user) {
+                $query->accessForTeacher($user, $filters)
                     ->withoutDemoTeacherForUser($user)
                     ->onlyTestsFromSubjectsOrIfDemoThenOnlyWhenOwner($user)
                     ->when($user->isValidExamCoordinator(), fn($query) => $query->scheduledByExamCoordinator($user));
@@ -535,7 +537,7 @@ class TestTake extends BaseModel
                     $query->typeNotAssessment();
                     break;
                 case 'takeUuid':
-                    $query->where('test_takes.id', Self::whereUuid($value)->value('id'));
+                    $query->where('test_takes.id', self::whereUuid($value)->value('id'));
                     break;
                 case 'type_assessment':
                     $query->typeAssessment();
@@ -921,9 +923,13 @@ class TestTake extends BaseModel
         return $this;
     }
 
-    private function orUserIsInvigilatorScope($query, User $user)
+    private function orUserIsInvigilatorScope($query, User $user, array $filters = [])
     {
-        $query->orWhereIn($this->getTable().'.id', function ($query) use ($user) {
+        if(!$this->canUseInvigilatorScope($filters)) {
+            return $this;
+        }
+
+        $query->orWhereIn($this->getTable() . '.id', function ($query) use ($user) {
             $query->select('test_take_id')
                 ->from(with(new Invigilator())->getTable())
                 ->where('user_id', $user->id)
@@ -938,12 +944,12 @@ class TestTake extends BaseModel
         return $this;
     }
 
-    public function scopeAccessForTeacher($query, User $user)
+    public function scopeAccessForTeacher($query, User $user, array $filters = [])
     {
-        $query->where(function ($query) use ($user) {
+        $query->where(function ($query) use ($filters, $user) {
             $this
                 ->orUserIsCreatorScope($query, $user)
-                ->orUserIsInvigilatorScope($query, $user)
+                ->orUserIsInvigilatorScope($query, $user, $filters)
                 ->orUserHasAccessToSchoolClassParticipantsAndSubjectScope($query, $user);
         });
     }
@@ -1244,7 +1250,7 @@ class TestTake extends BaseModel
     }
 
     /**
-     * Check if test take is still allowed to review by students 
+     * Check if test take is still allowed to review by students
      */
     public function isAllowedToReviewResultsByParticipants(): bool
     {
@@ -1263,5 +1269,19 @@ class TestTake extends BaseModel
             ->join('answers', 'answers.test_participant_id', 'test_participants.id')
             ->whereNull('answers.final_rating')
             ->doesntExist();
+    }
+
+    private function canUseInvigilatorScope(array $filters): bool
+    {
+        if (!array_key_exists('test_take_status_id', $filters)) {
+            return true;
+        }
+
+        return empty(
+        array_diff(
+            Arr::wrap($filters['test_take_status_id']),
+            [TestTakeStatus::STATUS_PLANNED, TestTakeStatus::STATUS_TAKING_TEST]
+        )
+        );
     }
 }
