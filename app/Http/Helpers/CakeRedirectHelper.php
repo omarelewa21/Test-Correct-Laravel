@@ -54,7 +54,10 @@ class CakeRedirectHelper
         }
 
         $request->merge([
-            'options' => $cakeRedirectData,
+            'options' => array_merge(
+                            $cakeRedirectData,
+                            ["return_route" => url()->previous()]
+                        )
         ]);
 
         return $controller->toCakeUrl($request);
