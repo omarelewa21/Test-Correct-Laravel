@@ -395,14 +395,14 @@ class UploadTest extends Component
         }
     }
 
-    public function uploadAnotherTest(bool $withData): bool
+    public function uploadAnotherTest(bool $keepTestInfo): bool
     {
         $this->finishProcess(false);
 
         $this->previousUploadedTestNames[] = $this->testInfo['name'];
         $this->uploadedTests++;
 
-        $this->resetPropertiesToComponentDefault($withData);
+        $this->resetPropertiesToComponentDefault($keepTestInfo);
 
         return true;
     }
