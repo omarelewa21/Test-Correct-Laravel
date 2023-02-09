@@ -6695,14 +6695,11 @@ document.addEventListener('alpine:init', function () {
         this.activateButton(target);
       },
       activateButton: function activateButton(target) {
-        var _this25 = this;
-        this.$nextTick(function () {
-          _this25.resetButtons(target);
-          _this25.buttonPosition = target.offsetLeft + 'px';
-          _this25.buttonWidth = target.offsetWidth + 'px';
-          target.firstElementChild.classList.add('text-primary');
-          _this25.handle.classList.remove('hidden');
-        });
+        this.resetButtons(target);
+        this.buttonPosition = target.offsetLeft + 'px';
+        this.buttonWidth = target.offsetWidth + 'px';
+        target.firstElementChild.classList.add('text-primary');
+        this.handle.classList.remove('hidden');
       },
       resetButtons: function resetButtons(target) {
         Array.from(target.parentElement.children).forEach(function (button) {
@@ -6725,14 +6722,14 @@ document.addEventListener('alpine:init', function () {
         }
       },
       updateGraph: function updateGraph(forceUpdate) {
-        var _this26 = this;
+        var _this25 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee6() {
-          var method, _yield$_this26$$wire$, _yield$_this26$$wire$2;
+          var method, _yield$_this25$$wire$, _yield$_this25$$wire$2;
           return _regeneratorRuntime().wrap(function _callee6$(_context6) {
             while (1) {
               switch (_context6.prev = _context6.next) {
                 case 0:
-                  if (!(!_this26.data || forceUpdate)) {
+                  if (!(!_this25.data || forceUpdate)) {
                     _context6.next = 10;
                     break;
                   }
@@ -6741,13 +6738,13 @@ document.addEventListener('alpine:init', function () {
                     method = 'getDataForGeneralGraph';
                   }
                   _context6.next = 5;
-                  return _this26.$wire.call(method, _this26.modelId, _this26.taxonomy);
+                  return _this25.$wire.call(method, _this25.modelId, _this25.taxonomy);
                 case 5:
-                  _yield$_this26$$wire$ = _context6.sent;
-                  _yield$_this26$$wire$2 = _slicedToArray(_yield$_this26$$wire$, 2);
-                  _this26.showEmptyState = _yield$_this26$$wire$2[0];
-                  _this26.data = _yield$_this26$$wire$2[1];
-                  _this26.renderGraph();
+                  _yield$_this25$$wire$ = _context6.sent;
+                  _yield$_this25$$wire$2 = _slicedToArray(_yield$_this25$$wire$, 2);
+                  _this25.showEmptyState = _yield$_this25$$wire$2[0];
+                  _this25.data = _yield$_this25$$wire$2[1];
+                  _this25.renderGraph();
                 case 10:
                 case "end":
                   return _context6.stop();
@@ -6846,32 +6843,32 @@ document.addEventListener('alpine:init', function () {
       menuOffsetMarginTop: 56,
       menuOffsetMarginLeft: 224,
       handleIncomingEvent: function handleIncomingEvent(detail) {
-        var _this27 = this;
+        var _this26 = this;
         if (!this.contextMenuOpen) return this.openMenu(detail);
         this.closeMenu();
         setTimeout(function () {
-          _this27.openMenu(detail);
+          _this26.openMenu(detail);
         }, 150);
       },
       openMenu: function openMenu(detail) {
-        var _this28 = this;
+        var _this27 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee7() {
           var readyForShow;
           return _regeneratorRuntime().wrap(function _callee7$(_context7) {
             while (1) {
               switch (_context7.prev = _context7.next) {
                 case 0:
-                  _this28.uuid = detail.uuid;
-                  _this28.correspondingButton = detail.button;
-                  _this28.contextData = detail.contextData;
-                  _this28.$root.style.top = detail.coords.top + _this28.menuOffsetMarginTop + 'px';
-                  _this28.$root.style.left = detail.coords.left - _this28.menuOffsetMarginLeft + 'px';
+                  _this27.uuid = detail.uuid;
+                  _this27.correspondingButton = detail.button;
+                  _this27.contextData = detail.contextData;
+                  _this27.$root.style.top = detail.coords.top + _this27.menuOffsetMarginTop + 'px';
+                  _this27.$root.style.left = detail.coords.left - _this27.menuOffsetMarginLeft + 'px';
                   _context7.next = 7;
-                  return _this28.$wire.setContextValues(_this28.uuid, _this28.contextData);
+                  return _this27.$wire.setContextValues(_this27.uuid, _this27.contextData);
                 case 7:
                   readyForShow = _context7.sent;
-                  if (readyForShow) _this28.contextMenuOpen = true;
-                  _this28.contextMenuOpen = true;
+                  if (readyForShow) _this27.contextMenuOpen = true;
+                  _this27.contextMenuOpen = true;
                 case 10:
                 case "end":
                   return _context7.stop();
@@ -6928,24 +6925,24 @@ document.addEventListener('alpine:init', function () {
         }
       },
       uploadFiles: function uploadFiles(files) {
-        var _this29 = this;
+        var _this28 = this;
         var $this = this;
         this.isUploading = true;
         var dummyContainer = this.$root.querySelector('#upload-dummies');
         Array.from(files).forEach(function (file, key) {
-          if (!_this29.fileHasAllowedExtension(file)) {
-            _this29.handleIncorrectFileUpload(file);
+          if (!_this28.fileHasAllowedExtension(file)) {
+            _this28.handleIncorrectFileUpload(file);
             return;
           }
-          if (_this29.fileTooLarge(file)) {
-            _this29.handleTooLargeOfAfile(file);
+          if (_this28.fileTooLarge(file)) {
+            _this28.handleTooLargeOfAfile(file);
             return;
           }
           var badgeId = "upload-badge-".concat(key);
           var loadingBadge = $this.createLoadingBadge(file, badgeId);
           dummyContainer.append(loadingBadge);
           $this.progress[badgeId] = 0;
-          $this.$wire.upload(_this29.uploadModel, file, function (success) {
+          $this.$wire.upload(_this28.uploadModel, file, function (success) {
             $this.progress[badgeId] = 0;
             dummyContainer.querySelector("#".concat(badgeId)).remove();
           }, function (error) {
