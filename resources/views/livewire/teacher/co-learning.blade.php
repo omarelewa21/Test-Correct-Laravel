@@ -10,13 +10,14 @@
         this.showQuestion = true;
      },
      }"
-     wire:poll.keep-alive.5000ms="render()" {{-- getTestParticipantsData() ? --}}
+     wire:poll.keep-alive.5000ms="render()"
 >
     <x-partials.header.co-learning-teacher testName="{{ $testTake->test->name ?? '' }}"
                                            discussionType="{{ $testTake->discussion_type }}"
                                            :atLastQuestion="$this->atLastQuestion"
     />
     <x-partials.sidebar.co-learning-teacher.drawer
+            wire:key="drawer-qi{{ $questionIndexOpenOnly }}-tpa{{  $testParticipantCountActive }}"
     />
 
     <div id="main-content-container"

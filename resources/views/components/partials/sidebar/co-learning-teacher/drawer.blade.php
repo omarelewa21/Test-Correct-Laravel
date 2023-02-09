@@ -12,6 +12,7 @@
      }"
      x-cloak
      :class="{'collapsed': collapse}"
+     wire:key="{{ $attributes->get('wire:key') }}"
 >
     <div class="collapse-toggle vertical white z-10 cursor-pointer"
          @click="collapse = !collapse "
@@ -27,6 +28,7 @@
 
             <div class="flex justify-between drawer-content-head border-b border-bluegrey"
                  x-init="$nextTick(() => {fillSpaceBetweenElementsHorizontal($refs.drawerContentHeadText1, $refs.drawerContentHeadText2);})"
+                 wire:key="{{ now()->timestamp }}"
             >
                 <div x-ref="drawerContentHeadText1" class="flex">
                     <span class="bold">aanwezig {{ $this->testParticipantCountActive }}</span>
@@ -40,7 +42,7 @@
 
             <div class="drawer-content divide-y divide-bluegrey overflow-auto">
 
-                @foreach($this->testTake->testParticipants as $testParticipant)
+                @foreach($this->testParticipants as $testParticipant)
                     @if($testParticipant->active)
                         <x-partials.sidebar.co-learning-teacher.student-info-container
                                 :testParticipant="$testParticipant"

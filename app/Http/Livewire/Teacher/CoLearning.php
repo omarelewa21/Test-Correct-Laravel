@@ -4,24 +4,16 @@ namespace tcCore\Http\Livewire\Teacher;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
-use PHPUnit\Util\Test;
-use tcCore\Answer;
 use tcCore\AnswerRating;
-use tcCore\Attachment;
 use tcCore\CompletionQuestion;
 use tcCore\DiscussingParentQuestion;
 use tcCore\DrawingQuestion;
-use tcCore\Events\CoLearningNextQuestion;
-use tcCore\Http\Controllers\TestTakeLaravelController;
 use tcCore\Http\Controllers\TestTakesController;
 use tcCore\Http\Enums\CoLearning\AbnormalitiesStatus;
 use tcCore\Http\Enums\CoLearning\RatingStatus;
 use tcCore\Http\Helpers\CoLearningHelper;
-use tcCore\Question;
 use tcCore\TestParticipant;
 use tcCore\TestTake;
 
@@ -32,7 +24,8 @@ class CoLearning extends Component
 
     //TestTake properties
     public int|TestTake $testTake;
-    public bool $showStartOverlay = true;
+    public bool $showStartOverlay = true; //todo implement start screen into colearning
+    public $testParticipants;
 
     public bool $openOnly;
 
@@ -66,7 +59,6 @@ class CoLearning extends Component
     public function mount(TestTake $test_take)
     {
         //todo guard clause with test_take_status_id
-
         $this->testTake = $test_take;
 
         $this->openOnly = $this->testTake->discussion_type === self::DISCUSSION_TYPE_OPEN_ONLY;
@@ -75,6 +67,8 @@ class CoLearning extends Component
             //gets a testTake, but misses TestParticipants Status data.
             // also creates AnswerRatings for students.
             //todo Remove unnecesairy TestTake Query? merge query actions? nextQuestion and participant activity data
+
+            //todo improve nextQuestion performance? move generating answerRatings to start of CoLearning?
             (new TestTakesController)->nextQuestion($test_take);
         }
 
@@ -88,16 +82,12 @@ class CoLearning extends Component
 
     public function booted()
     {
-        $this->getTestParticipantsData();
-
-        $this->handleTestParticipantStatusses(); //todo move to polling method
-
-        $this->getNavigationData();
+        //
     }
 
     public function render()
     {
-//        dd($this->testTake->testParticipants->map->abnormalities);
+        $this->getTestParticipantsData();
 
         return view('livewire.teacher.co-learning')
             ->layout('layouts.co-learning-teacher');
@@ -134,11 +124,16 @@ class CoLearning extends Component
          */
         //todo check if all students have rated their AnswerRatings?
         if ($this->testParticipantsFinishedWithRatingPercentage === 100) {
-            return $this->nextDiscussionQuestion();
+            $this->nextDiscussionQuestion();
+            $this->getNavigationData();
+            return;
         }
 
-        //if not all answerRatings have been Rated, open Modal for confirmation? then the modal can call $this->nextDiscussionQuestion() or something?
-        return $this->nextDiscussionQuestion();
+        //todo if not all answerRatings have been Rated,
+        // open Modal for confirmation? then the modal can call $this->nextDiscussionQuestion() or something?
+
+        $this->nextDiscussionQuestion();
+        $this->getNavigationData();
     }
 
     public function goToPreviousQuestion()
@@ -164,18 +159,17 @@ class CoLearning extends Component
 
             $this->testTake->discussingParentQuestions()->save($discussingParentQuestion);
         }
+        $this->getNavigationData();
 
 
         //Pusher is not yet implemented at the student side of Co-Learning
-//        foreach ($this->testTake->testParticipants as $testParticipant) {
+//        foreach ($this->testParticipants as $testParticipant) {
 //            CoLearningNextQuestion::dispatch($testParticipant->uuid);
 //        }
     }
 
     public function showStudentAnswer($id): bool
     {
-        $testParticipant = TestParticipant::find(98);
-
         $this->activeAnswerRating = AnswerRating::with('answer')->find($id);
 
         $this->setActiveAnswerAnsweredStatus();
@@ -241,7 +235,6 @@ class CoLearning extends Component
             return $this->convertCompletionQuestionToHtml(
                 $this->uniformCompletionQuestionAnswersDataObject('answer_model')
             );
-//            return $this->convertCompletionQuestionToHtml($question->completionQuestionAnswers()->get());
         };
 
         return $question->answer;
@@ -265,14 +258,14 @@ class CoLearning extends Component
         //reset values
         $this->testParticipantStatusses = collect();
 
-        $testParticipantsCount = $this->testTake->testParticipants->sum(fn($tp) => $tp->active === true);
-        $testParticipantsFinishedWithRatingCount = $this->testTake->testParticipants->sum(fn($tp) => ($tp->answer_to_rate === $tp->answer_rated) && $tp->active);
+        $testParticipantsCount = $this->testParticipants->sum(fn($tp) => $tp->active === true);
+        $testParticipantsFinishedWithRatingCount = $this->testParticipants->sum(fn($tp) => ($tp->answer_to_rate === $tp->answer_rated) && $tp->active);
 
         $this->testParticipantsFinishedWithRatingPercentage = $testParticipantsCount > 0
             ? $testParticipantsFinishedWithRatingCount / $testParticipantsCount * 100
             : 0;
 
-        $this->testTake->testParticipants->each(function ($testParticipant) {
+        $this->testParticipants->each(function ($testParticipant) {
             if (!$testParticipant->active) {
                 return;
             }
@@ -286,11 +279,11 @@ class CoLearning extends Component
             ];
         });
 
-        $abnormalitiesTotal = $this->testTake->testParticipants->sum(fn($tp) => ($tp->active && isset($tp->abnormalities)) ? $tp->abnormalities : 0);
-        $abnormalitiesCount = $this->testTake->testParticipants->sum(fn($tp) => $tp->active && isset($tp->abnormalities));
+        $abnormalitiesTotal = $this->testParticipants->sum(fn($tp) => ($tp->active && isset($tp->abnormalities)) ? $tp->abnormalities : 0);
+        $abnormalitiesCount = $this->testParticipants->sum(fn($tp) => $tp->active && isset($tp->abnormalities));
         $abnormalitiesAverage = ($abnormalitiesCount === 0) ? 0 : $abnormalitiesTotal / $abnormalitiesCount;
 
-        $this->testTake->testParticipants->each(function ($testParticipant) use (&$abnormalitiesAverage) {
+        $this->testParticipants->each(function ($testParticipant) use (&$abnormalitiesAverage) {
             if (!$testParticipant->active) {
                 return;
             }
@@ -357,29 +350,12 @@ class CoLearning extends Component
      */
     public function getTestParticipantsData(): void
     {
-        $request = new Request([
-            'with' => ['participantStatus', 'discussingQuestion'],
-        ]);
+        $this->testParticipants = CoLearningHelper::getTestParticipantsWithStatusAndAbnormalities($this->testTake->getKey(), $this->testTake->discussing_question_id);
 
-        //get testTake from TestTakesController, also sets testParticipant 'abnormalities'
-        $this->testTake = (new TestTakesController)->showFromWithin($this->testTake, $request, false);
+        $this->testParticipantCount = $this->testParticipants->count();
+        $this->testParticipantCountActive = $this->testParticipants->sum(fn($tp) => $tp->active);
 
-        $this->testParticipantCount = $this->testTake->testParticipants->count();
-        $this->testParticipantCountActive = $this->testTake->testParticipants->sum(fn($tp) => $tp->active);
-
-        //temp: sets all testParticipants on active todo remove
-        //TODO REMOVE TEMP OVERWRITE
-//        $this->testTake->testParticipants->each(function ($tp) {
-//            $tp->active = (
-//            AnswerRating::where('user_id', $tp->user_id)->where('test_take_id', $this->testTake->id)->exists()
-//            );
-//        });
-    }
-
-    public function getTestParticipants()
-    {
-
-        CoLearningHelper::getTestParticipantStatuses();
+        $this->handleTestParticipantStatusses(); //todo move to polling method?
     }
 
 
@@ -403,6 +379,8 @@ class CoLearning extends Component
 
         $this->firstQuestionId = $this->questionsOrderList->sortBy('order')->first()['id'];
         $this->lastQuestionId = $this->questionsOrderList->sortBy('order')->last()['id'];
+
+        $this->getNavigationData();
     }
 
     private function convertCompletionQuestionToHtml(?Collection $answers = null)

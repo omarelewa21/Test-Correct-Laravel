@@ -3,15 +3,17 @@
 namespace Tests\Unit;
 
 use Carbon\Carbon;
-use Composer\DependencyResolver\Request;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Benchmark;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use tcCore\AnswerRating;
 use tcCore\FactoryScenarios\FactoryScenarioTestTakeDiscussed;
 use tcCore\FactoryScenarios\FactoryScenarioTestTestWithTwoQuestions;
+use tcCore\Http\Controllers\TestTakesController;
 use tcCore\Http\Helpers\CoLearningHelper;
 use tcCore\TestParticipant;
+use tcCore\TestTake;
 use tcCore\TestTakeStatus;
 use tcCore\User;
 use Tests\TestCase;
@@ -27,7 +29,48 @@ class CoLearningHelperTest extends TestCase
      */
     public function canGetTestParticipantAnswersToRateForDiscussingQuestion()
     {
-        $this->markTestIncomplete('TODO');
+        $testTake = $this->setUpTestTake();
+
+        //assert all answerRatings Answers are answered
+        $answerRatings = $this->getAnswerRatings($testTake);
+
+        $answers = $answerRatings->unique->answer->map->answer;
+
+        $allAnswersAreAnswered = $answers->reduce(function ($carry, $answer) {
+            if($answer->isAnswered) {
+                return $carry;
+            }
+            return false;
+        }, true);
+        $this->assertEquals(true, $allAnswersAreAnswered);
+
+
+        //change change one of the answers of the discussing question to unanswered for the first user
+        $firstUserId = $answerRatings->where('user_id', '<>', null)->sortBy('user_id')->map->user_id->first();
+
+        //j Answer => [done = 0 && json = null]
+        $answer = $answerRatings->where('user_id', '=', $firstUserId)
+            ->map
+            ->answer
+            ->where('question_id', '=', $testTake->discussing_question_id)
+            ->first();
+        $answer->json = null;
+        $answer->done = 0;
+        $answer->save();
+
+
+        //assert result of CoLearningHelper returns the same value;
+        $testParticipantsData = CoLearningHelper::getTestParticipantsWithStatusAndAbnormalities($testTake->getKey(), $testTake->discussing_question_id)->sortBy('user_id')->values();
+
+        $maxAnswerToRate = $testParticipantsData->max('answer_to_rate');
+
+        //assert that first testParticipant has to rate less answers than the rest (at least one other student will also have to rate only 1 Answer, therefore compare with max value)
+        $testParticipantsData->each(function ($testParticipant) use ($firstUserId, $maxAnswerToRate) {
+            if($testParticipant->user_id === $firstUserId) {
+                $this->assertLessThan($maxAnswerToRate /* 2 */, $testParticipant->answer_to_rate /* 1 */);
+                return;
+            }
+        });
     }
 
     /**
@@ -37,7 +80,33 @@ class CoLearningHelperTest extends TestCase
      */
     public function canGetTestParticipantRatedAnswersForDiscussingQuestion()
     {
-        $this->markTestIncomplete('TODO');
+        $testTake = $this->setUpTestTake();
+
+        //assert all answerRatings ratings are not null
+        $answerRatings = $this->getAnswerRatings($testTake);
+
+        $notRatedAnswerRatingsCount = $answerRatings->filter(fn ($ar) => $ar->rating === null)->count();
+        $ratedAnswerRatingsCount = $answerRatings->filter(fn ($ar) => $ar->rating !== null)->count();
+        $this->assertEquals(0, $notRatedAnswerRatingsCount);
+        $this->assertGreaterThan(0, $ratedAnswerRatingsCount);
+
+        //change rating of one users answerRatings to null
+        $firstUserId = $answerRatings->where('user_id', '<>', null)->sortBy('user_id')->first()->user_id;
+        $temp = $answerRatings->filter(fn($ar) => $ar->user_id === $firstUserId)->each(fn ($ar) => $ar->update(['rating' => null]));
+
+        //assert result of CoLearningHelper returns the same value;
+        $testParticipantsData = CoLearningHelper::getTestParticipantsWithStatusAndAbnormalities($testTake->getKey(), $testTake->discussing_question_id)->sortBy('user_id')->values();
+        $updatedAnswerRatings = $this->getAnswerRatings($testTake);
+
+        //assert that only the first testParticipant has not rated their AnswersRatings and the rest have
+        $testParticipantsData->each(function ($testParticipant) use ($firstUserId) {
+            if($testParticipant->user_id === $firstUserId) {
+                $this->assertEquals(0, $testParticipant->answer_rated);
+                return;
+            }
+            $this->assertGreaterThan(0, $testParticipant->answer_rated);
+            $this->assertEquals(2, $testParticipant->answer_rated); //currently (feb-2023) students have to rate 2 answerRatings per Question
+        });
     }
 
     /**
@@ -46,34 +115,39 @@ class CoLearningHelperTest extends TestCase
      */
     public function canGetTestParticipantActiveStatus()
     {
-        $testTake = FactoryScenarioTestTakeDiscussed::createTestTake(
-            user: $user = User::find(1486),
-            test: $test = FactoryScenarioTestTestWithTwoQuestions::createTest('abnormalities-test', $user)
-        );
+        $testTake = $this->setUpTestTake();
 
         $testPartcipants = TestParticipant::where('test_take_id', '=', $testTake->getKey())->orderBy('user_id')->get();
         if ($testPartcipants->count() < 3) {
-            throw new \Exception('Test needs at least 3 testParticipants to function');
+            $this->markTestIncomplete(__METHOD__ . ': Test needs at least 3 testParticipants to function');
         }
         $testPartcipants->each(function ($testParticipant, $key) {
-            $key === 0
-                ? $testParticipant->heartbeat_at = Carbon::now()
-                : ($key === 1
-                ? $testParticipant->heartbeat_at = Carbon::now()->subSeconds(15)
-                : ($key === 2
-                    ? $testParticipant->heartbeat_at = Carbon::now()->subMinute()
-                    : $testParticipant->heartbeat_at = null
-                )
-            );
+            switch($key) {
+                case 0:
+                    $testParticipant->heartbeat_at = Carbon::now();
+                    break;
+                case 1:
+                    $testParticipant->heartbeat_at = Carbon::now()->subSeconds(15);
+                    break;
+                case 2:
+                    $testParticipant->heartbeat_at = Carbon::now()->subMinute();
+                    break;
+                default:
+                    $testParticipant->heartbeat_at = null;
+                    break;
+            }
             $testParticipant->save();
         });
 
         $testParticipantsData = CoLearningHelper::getTestParticipantsWithStatusAndAbnormalities($testTake->getKey(), $testTake->discussing_question_id)->sortBy('user_id')->values();
 
+        $testParticipantThatwasActive0secondsAgo = $testParticipantsData->offsetGet(0);
+        $testParticipantThatwasActive15secondsAgo = $testParticipantsData->offsetGet(1);
+        $testParticipantThatwasActive60secondsAgo = $testParticipantsData->offsetGet(2);
 
-        $this->assertEquals(1, $testParticipantsData->offsetGet(0)->active);
-        $this->assertEquals(1, $testParticipantsData->offsetGet(1)->active);
-        $this->assertEquals(0, $testParticipantsData->offsetGet(2)->active);
+        $this->assertEquals(true, $testParticipantThatwasActive0secondsAgo->active);
+        $this->assertEquals(true, $testParticipantThatwasActive15secondsAgo->active);
+        $this->assertEquals(false, $testParticipantThatwasActive60secondsAgo->active);
 
     }
 
@@ -85,12 +159,9 @@ class CoLearningHelperTest extends TestCase
      */
     public function TestParticipantWithOnlyDifferentRatingsAsTheRestHasEqualAmountOfAbnormalitiesAsAnswerRatings()
     {
-        $testTake = FactoryScenarioTestTakeDiscussed::createTestTake(
-            user: $user = User::find(1486),
-            test: $test = FactoryScenarioTestTestWithTwoQuestions::createTest('abnormalities-test', $user)
-        );
+        $testTake = $this->setUpTestTake();
 
-        $answerRatings = AnswerRating::where('test_take_id', '=', $testTake->getKey())->orderBy('answer_id')->get();
+        $answerRatings = $this->getAnswerRatings($testTake);
 
         //change all but one student to the same rating:
         $firstUserId = $answerRatings
@@ -122,12 +193,9 @@ class CoLearningHelperTest extends TestCase
      */
     public function TestParticipantWithOnlyTheSameRatingsAsTheRestHasZeroAbnormalities()
     {
-        $testTake = FactoryScenarioTestTakeDiscussed::createTestTake(
-            user: $user = User::find(1486),
-            test: $test = FactoryScenarioTestTestWithTwoQuestions::createTest('abnormalities-test', $user)
-        );
+        $testTake = $this->setUpTestTake();
 
-        $answerRatings = AnswerRating::where('test_take_id', '=', $testTake->getKey())->orderBy('answer_id')->get();
+        $answerRatings = $this->getAnswerRatings($testTake);
 
         $firstUserId = $answerRatings
             ->where('user_id', '<>', null)
@@ -156,15 +224,9 @@ class CoLearningHelperTest extends TestCase
      */
     public function TestParticipantWithOnlyDifferentRatingsAsTheSystemRatingsHasEqualAmountOfAbnormalitiesAsAnswerRatings()
     {
-        $testTake = FactoryScenarioTestTakeDiscussed::createTestTake(
-            user: $user = User::find(1486),
-            test: $test = FactoryScenarioTestTestWithTwoQuestions::createTest('abnormalities-test', $user)
-        );
-        $testTake->update([
-            'test_take_status_id' => TestTakeStatus::STATUS_DISCUSSING,
-        ]);
+        $testTake = $this->setUpTestTake();
 
-        $answerRatings = AnswerRating::where('test_take_id', '=', $testTake->getKey())->orderBy('answer_id')->get();
+        $answerRatings = $this->getAnswerRatings($testTake);
 
         $firstUserId = null;
         $firstUserAnswerIds = $answerRatings->reduce(function ($carry, $answerRating) use (&$firstUserId) {
@@ -198,7 +260,7 @@ class CoLearningHelperTest extends TestCase
         });
 
         $testParticipantsData = CoLearningHelper::getTestParticipantsWithStatusAndAbnormalities($testTake->getKey(), $testTake->discussing_question_id);
-        $updatedAnswerRatings = AnswerRating::where('test_take_id', '=', $testTake->getKey())->orderBy('answer_id')->get();
+        $updatedAnswerRatings = $this->getAnswerRatings($testTake);
 
         $firstUserAnswerRatingsCount = $updatedAnswerRatings
             ->filter(fn($answerRating) => $answerRating->user_id === $firstUserId)
@@ -221,17 +283,9 @@ class CoLearningHelperTest extends TestCase
      */
     public function TestParticipantWithOnlyDifferentRatingsAsTheTeacherRatingsHasEqualAmountOfAbnormalitiesAsAnswerRatings()
     {
-        $testTake = FactoryScenarioTestTakeDiscussed::createTestTake(
-            user: $user = User::find(1486),
-            test: $test = FactoryScenarioTestTestWithTwoQuestions::createTest('abnormalities-test', $user)
-        );
-        $testTake->update([
-            'test_take_status_id' => TestTakeStatus::STATUS_DISCUSSING,
-        ]);
+        $testTake = $this->setUpTestTake();
 
-        $answerRatings = AnswerRating::where('test_take_id', '=', $testTake->getKey())
-            ->orderBy('answer_id')
-            ->get();
+        $answerRatings = $this->getAnswerRatings($testTake);
 
         $firstUserId = null;
         $firstUserAnswerIds = $answerRatings->reduce(function ($carry, $answerRating) use (&$firstUserId) {
@@ -265,7 +319,8 @@ class CoLearningHelperTest extends TestCase
         });
 
         $testParticipantsData = CoLearningHelper::getTestParticipantsWithStatusAndAbnormalities($testTake->getKey(), $testTake->discussing_question_id);
-        $updatedAnswerRatings = AnswerRating::where('test_take_id', '=', $testTake->getKey())->orderBy('answer_id')->get();
+
+        $updatedAnswerRatings = $this->getAnswerRatings($testTake);
 
         $firstUserAnswerRatingsCount = $updatedAnswerRatings
             ->filter(fn($answerRating) => $answerRating->user_id === $firstUserId)
@@ -290,17 +345,9 @@ class CoLearningHelperTest extends TestCase
      */
     public function TestParticipantHasZeroAbnormalitiesWithCorrectTeacherAnswerRating()
     {
-        $testTake = FactoryScenarioTestTakeDiscussed::createTestTake(
-            user: $user = User::find(1486),
-            test: $test = FactoryScenarioTestTestWithTwoQuestions::createTest('abnormalities-test', $user)
-        );
-        $testTake->update([
-            'test_take_status_id' => TestTakeStatus::STATUS_DISCUSSING,
-        ]);
+        $testTake = $this->setUpTestTake();
 
-        $answerRatings = AnswerRating::where('test_take_id', '=', $testTake->getKey())
-            ->orderBy('answer_id')
-            ->get();
+        $answerRatings = $this->getAnswerRatings($testTake);
 
         $firstUserId = null;
         $firstUserAnswerIds = $answerRatings->reduce(function ($carry, $answerRating) use (&$firstUserId) {
@@ -342,7 +389,7 @@ class CoLearningHelperTest extends TestCase
         });
 
         $testParticipantsData = CoLearningHelper::getTestParticipantsWithStatusAndAbnormalities($testTake->getKey(), $testTake->discussing_question_id);
-        $updatedAnswerRatings = AnswerRating::where('test_take_id', '=', $testTake->getKey())->orderBy('answer_id')->get();
+        $updatedAnswerRatings = $this->getAnswerRatings($testTake);
 
         $firstUserAnswerRatingsCount = $updatedAnswerRatings
             ->filter(fn($answerRating) => $answerRating->user_id === $firstUserId)
@@ -381,23 +428,109 @@ class CoLearningHelperTest extends TestCase
     }
 
 
+
+    /**
+     * This test creates SYSTEM answerRatings for one of the testParticipants,
+     * the SYSTEM ratings are the same as the student, but:
+     *  the other students have different ratings.
+     * It asserts that the user has 0 abnormalities. because the TEACHER ratings overrule the SYSTEM ratings and those overrule the student ratings
+     * @test
+     */
+    public function TestParticipantHasZeroAbnormalitiesWithCorrectTeacherAnswerRatingButIncorrectStudentRatings()
+    {
+        $testTake = $this->setUpTestTake();
+
+        $answerRatings = $this->getAnswerRatings($testTake);
+
+        $firstUserId = null;
+        $firstUserAnswerIds = $answerRatings->reduce(function ($carry, $answerRating) use (&$firstUserId) {
+            if ($firstUserId === null) {
+                $firstUserId = $answerRating->user_id;
+            }
+            if ($answerRating->user_id === $firstUserId) {
+                $carry[] = $answerRating->answer_id;
+            }
+            return $carry;
+        }, []);
+
+        //delete existing system and Teacher ratings
+        $answerRatings->each(function ($answerRating) use ($firstUserId) {
+            if ($answerRating->type !== 'STUDENT') {
+                $answerRating->forceDelete();
+                return;
+            }
+            if( $answerRating->user_id === $firstUserId) {
+                //set first student ratings to the same as SYSTEM
+                $answerRating->rating = 5;
+                $answerRating->save();
+                return;
+            }
+            //set all other student ratings to 1
+            $answerRating->rating = 1;
+            $answerRating->save();
+        });
+
+        //create SYSTEM answer_ratings
+        $systemAnswerRatings = collect($firstUserAnswerIds)->reduce(function ($carry, $answerId) use ($testTake) {
+            $carry[] = [
+                    'answer_id'    => $answerId,
+                    'test_take_id' => $testTake->getKey(),
+                    'type'         => 'SYSTEM',
+                    'rating'       => 5, //equal to first STUDENT rating, not equal to the rest
+                ];
+            return $carry;
+        }, []);
+
+        AnswerRating::insert($systemAnswerRatings);
+
+        $testParticipantsData = CoLearningHelper::getTestParticipantsWithStatusAndAbnormalities($testTake->getKey(), $testTake->discussing_question_id);
+
+        $updatedAnswerRatings = $this->getAnswerRatings($testTake);
+
+        $firstUserAnswerRatingsCount = $updatedAnswerRatings
+            ->filter(fn($answerRating) => $answerRating->user_id === $firstUserId)
+            ->count();
+        $firstUserAbnormalities = (int)$testParticipantsData
+            ->where('user_id', '=', $firstUserId)
+            ->first()
+            ->abnormalities;
+
+
+        //assert SYSTEM AnswerRatings are created
+        $this->assertEquals(
+            expected: $firstUserAnswerRatingsCount,
+            actual: $updatedAnswerRatings->where('type', 'SYSTEM')->count()
+        );
+
+        //assert second user answerRatings dont contain the SYSTEM rating "5.0"
+        $this->assertNotContains(
+            needle: $updatedAnswerRatings->where('type', 'STUDENT')->where('user_id', '<>', $firstUserId)->first()->rating, //"1.0"
+            haystack: $updatedAnswerRatings->where('user_id', '=', $firstUserId)->map->rating
+        );
+        //assert first user answerRatings contains the SYSTEM rating "5.0"
+        $this->assertContains(
+            needle: $updatedAnswerRatings->where('type', 'SYSTEM')->first()->rating, //"5.0"
+            haystack: $updatedAnswerRatings->where('user_id', '=', $firstUserId)->map->rating
+        );
+
+        //assert there are no abnormalities for the user, because all its ratings are the same as the TEACHER,
+        // even though the student rated everything different compared to the other students
+        $this->assertEquals(
+            expected: 0,
+            actual: $firstUserAbnormalities
+        );
+    }
+
+
     /** @test */
     public function benchmarkTestTakeControllerMethodVsCoLearningHelper()
     {
-        $testTake = FactoryScenarioTestTakeDiscussed::createTestTake(
-            user: $user = User::find(1486),
-            test: $test = FactoryScenarioTestTestWithTwoQuestions::createTest('abnormalities-test', $user)
-        );
-        auth()->login($user);
-        $testTake->update([
-            'test_take_status_id' => TestTakeStatus::STATUS_DISCUSSING,
-        ]);
+        $testTake = $this->setUpTestTake();
 
+        $user = User::find(1486);
+        auth()->login($user);
         $testTakeId = $testTake->getKey();
 
-        $request = new \Illuminate\Http\Request([
-            'with' => ['participantStatus', 'discussingQuestion'],
-        ]);
         $benchmark = [];
         $result1 = null;
         $result2 = null;
@@ -406,10 +539,9 @@ class CoLearningHelperTest extends TestCase
 
         DB::enableQueryLog();
 
-        $benchmark['TestTakesController']['time'] = Benchmark::measure(function () use (&$result1, $testTake, $request) {
-            return $result1 = CoLearningHelper::getTestParticipantsWithStatusOldController(
+        $benchmark['TestTakesController']['time'] = Benchmark::measure(function () use (&$result1, $testTake) {
+            return $result1 = $this->getTestParticipantsWithStatusOldController(
                 testTake: $testTake,
-                request: $request,
             );
         });
 
@@ -432,6 +564,18 @@ class CoLearningHelperTest extends TestCase
         $this->assertLessThan($benchmark['TestTakesController']['queries'], $benchmark['CoLearningHelper']['queries']);
     }
 
+    protected function setUpTestTake() : TestTake
+    {
+        $testTake = FactoryScenarioTestTakeDiscussed::createTestTake(
+            user: $user = User::find(1486),
+            test: $test = FactoryScenarioTestTestWithTwoQuestions::createTest('abnormalities-test', $user)
+        );
+        $testTake->update([
+            'test_take_status_id' => TestTakeStatus::STATUS_DISCUSSING,
+        ]);
+        return $testTake;
+    }
+
     protected function handleQueryLog(&$benchmark, $index)
     {
         $queryLog = collect(DB::getQueryLog());
@@ -440,5 +584,21 @@ class CoLearningHelperTest extends TestCase
         $benchmark[$index]['queries'] = $queryLog->count();
 
         DB::flushQueryLog();
+    }
+
+    protected function getAnswerRatings(TestTake $testTake) : Collection
+    {
+        return AnswerRating::where('test_take_id', '=', $testTake->getKey())
+            ->orderBy('answer_id')
+            ->get();
+    }
+
+    protected function getTestParticipantsWithStatusOldController($testTake) {
+
+        $request = new \Illuminate\Http\Request([
+            'with' => ['participantStatus', 'discussingQuestion'],
+        ]);
+
+        return (new TestTakesController)->showFromWithin($testTake, $request, false);
     }
 }

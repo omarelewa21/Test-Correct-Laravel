@@ -539,8 +539,6 @@ class TestParticipant extends BaseModel
         if(!isset($this->getAttributes()['active'])) {
             return false;
         }
-        $active = $this->getAttributes()['active'];
-        return $this->getAttributes('active');
-
+        return $this->getAttributes()['active'] ? true : false;
     }
 }
