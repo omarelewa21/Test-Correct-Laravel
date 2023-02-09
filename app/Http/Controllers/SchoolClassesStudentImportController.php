@@ -84,7 +84,7 @@ class SchoolClassesStudentImportController extends Controller {
             return Response::make($errors, 422);
         }
         DB::commit();
-        return Response::make(count($data['data']) . ' studenten zijn toegevoegd', 200);
+        return Response::json(count($data['data']) . ' studenten zijn toegevoegd');
 
     }
 }

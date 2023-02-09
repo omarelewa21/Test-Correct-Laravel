@@ -37,9 +37,6 @@ class SchoolClassStudentImportControllerTest extends TestCase
 
         $response->assertStatus(422)
             ->assertJsonValidationErrorFor('data.0.username');
-
-        $decodedResponse = $response->decodeResponseJson();
-        $this->assertStringContainsString('The email address contains invalid or international characters', $decodedResponse['errors']['data.0.username'][1]);
     }
 
     /** @test */
@@ -228,7 +225,7 @@ class SchoolClassStudentImportControllerTest extends TestCase
                 'username'    => "carloschoep+K999jjanssen@hotmail.com",
             ]],
         ]))->assertSuccessful();
-        $this->assertEquals('1 studenten zijn toegevoegd', $response->getContent());
+        $this->assertEquals('"1 studenten zijn toegevoegd"', $response->getContent());
 
         $this->assertCount(1, User::whereUsername("carloschoep+K999jjanssen@hotmail.com")->get());
         $this->assertCount(++$countStudentsBefore, Student::get());
@@ -261,7 +258,7 @@ class SchoolClassStudentImportControllerTest extends TestCase
                 'school_class_name' => "Biologie"
             ]],
         ]))->assertSuccessful();
-        $this->assertEquals('1 studenten zijn toegevoegd', $response->getContent());
+        $this->assertEquals('"1 studenten zijn toegevoegd"', $response->getContent());
 
         $this->assertCount(1, User::whereUsername("carloschoep+K999jjanssen@hotmail.com")->get());
         $this->assertCount(++$countStudentsBefore, Student::get());
@@ -410,7 +407,7 @@ class SchoolClassStudentImportControllerTest extends TestCase
                 ]
             ],
         ]))->assertSuccessful();
-        $this->assertEquals('5 studenten zijn toegevoegd', $response->getContent());
+        $this->assertEquals('"5 studenten zijn toegevoegd"', $response->getContent());
 
         foreach ($usernames as $username) {
             $this->assertCount(1, User::whereUsername($username)->get());
@@ -470,7 +467,7 @@ class SchoolClassStudentImportControllerTest extends TestCase
                 'schoolClass'    => $schoolClass->uuid
             ])
             , static::getSchoolBeheerderAuthRequestData($this->getMultipleClassData()))->assertSuccessful();
-        $this->assertEquals('5 studenten zijn toegevoegd', $response->getContent());
+        $this->assertEquals('"5 studenten zijn toegevoegd"', $response->getContent());
         $response = $this->post(
             route(
                 'school_classes.import', [
@@ -512,7 +509,7 @@ class SchoolClassStudentImportControllerTest extends TestCase
                 'username'    => "carloschoep+K1000jjanssen@hotmail.com",
             ]],
         ]))->assertSuccessful();
-        $this->assertEquals('2 studenten zijn toegevoegd', $response->getContent());
+        $this->assertEquals('"2 studenten zijn toegevoegd"', $response->getContent());
 
         $this->assertCount(1, User::whereUsername("carloschoep+K999jjanssen@hotmail.com")->get());
         $this->assertCount(1, User::whereUsername("carloschoep+K1000jjanssen@hotmail.com")->get());
@@ -591,7 +588,7 @@ class SchoolClassStudentImportControllerTest extends TestCase
             ])
             , static::getSchoolBeheerderAuthRequestData([
             'data' => [[
-                'external_id' => "12346",
+                'external_id' => "12345",
                 'name_first'  => "Janus",
                 'name_suffix' => "",
                 'name'        => "Janssens",
@@ -953,19 +950,19 @@ class SchoolClassStudentImportControllerTest extends TestCase
             1  => [
                 'data'       => [
                     [
-                        'external_id'       => 'STUDENTNR S-1-20221109E2',
+                        'external_id'       => 'aSTUDENTNR S-1-20221109E2',
                         'name_first'        => 'S-1-20221109E2',
                         'name_suffix'       => 'TV-1-20221109E2',
                         'name'              => 'AchterN-1-20221109E2',
-                        'username'          => 'carloschoep+S-1-20221109E2@hotmail.com',
+                        'username'          => 'acarloschoep+S-1-20221109E2@hotmail.com',
                         'school_class_name' => 'KLASIMPORTER',
                     ],
                     [
-                        'external_id'       => 'STUDENTNR S-2-20221109E2',
+                        'external_id'       => 'aSTUDENTNR S-2-20221109E2',
                         'name_first'        => 'S-2-20221109E2',
                         'name_suffix'       => 'TV-2-20221109E2',
                         'name'              => 'AchterN-2-20221109E2',
-                        'username'          => 'carloschoep+S-2-20221109E2@hotmail.com',
+                        'username'          => 'acarloschoep+S-2-20221109E2@hotmail.com',
                         'school_class_name' => 'KLASIMPORTER',
                     ]
                 ],
@@ -974,19 +971,19 @@ class SchoolClassStudentImportControllerTest extends TestCase
             2  => [
                 'data'       => [
                     [
-                        'external_id'       => 'ANDERSTUDENTNR S-1-20221109E2',
+                        'external_id'       => 'aANDERSTUDENTNR S-1-20221109E2',
                         'name_first'        => 'S-1-20221109E2',
                         'name_suffix'       => 'TV-1-20221109E2',
                         'name'              => 'AchterN-1-20221109E2',
-                        'username'          => 'carloschoep+S-1-20221109E2@hotmail.com',
+                        'username'          => 'acarloschoep+S-1-20221109E2@hotmail.com',
                         'school_class_name' => 'KLASIMPORTER',
                     ],
                     [
-                        'external_id'       => 'ANDERSTUDENTNR S-2-20221109E2',
+                        'external_id'       => 'aANDERSTUDENTNR S-2-20221109E2',
                         'name_first'        => 'S-2-20221109E2',
                         'name_suffix'       => 'TV-2-20221109E2',
                         'name'              => 'AchterN-2-20221109E2',
-                        'username'          => 'carloschoep+S-2-20221109E2@hotmail.com',
+                        'username'          => 'acarloschoep+S-2-20221109E2@hotmail.com',
                         'school_class_name' => 'KLASIMPORTER',
                     ]
                 ],
@@ -995,19 +992,19 @@ class SchoolClassStudentImportControllerTest extends TestCase
             3  => [
                 'data'       => [
                     [
-                        'external_id'       => 'STUDENTNR S-1-20221109E2',
+                        'external_id'       => 'aSTUDENTNR S-1-20221109E2',
                         'name_first'        => 'S-1-20221109E2',
                         'name_suffix'       => 'TV-1-20221109E2',
                         'name'              => 'AchterN-1-20221109E2',
-                        'username'          => 'carloschoep+ANDERS-1-20221109E2@hotmail.com',
+                        'username'          => 'acarloschoep+ANDERS-1-20221109E2@hotmail.com',
                         'school_class_name' => 'KLASIMPORTER',
                     ],
                     [
-                        'external_id'       => 'STUDENTNR S-2-20221109E2',
+                        'external_id'       => 'aSTUDENTNR S-2-20221109E2',
                         'name_first'        => 'S-2-20221109E2',
                         'name_suffix'       => 'TV-2-20221109E2',
                         'name'              => 'AchterN-2-20221109E2',
-                        'username'          => 'carloschoep+ANDERS-2-20221109E2@hotmail.com',
+                        'username'          => 'acarloschoep+ANDERS-2-20221109E2@hotmail.com',
                         'school_class_name' => 'KLASIMPORTER',
                     ]
                 ],
@@ -1016,19 +1013,19 @@ class SchoolClassStudentImportControllerTest extends TestCase
             5  => [
                 'data'       => [
                     [
-                        'external_id'       => 'STUDENTNR S-1-20221109E2',
+                        'external_id'       => 'aSTUDENTNR S-1-20221109E2',
                         'name_first'        => 'S-1-20221109E2',
                         'name_suffix'       => 'TV-1-20221109E2',
                         'name'              => 'AchterN-1-20221109E2',
-                        'username'          => 'carloschoep+S-1-20221109E2@hotmail.com',
+                        'username'          => 'acarloschoep+S-1-20221109E2@hotmail.com',
                         'school_class_name' => 'ANDEREKLASIMPORTER',
                     ],
                     [
-                        'external_id'       => 'STUDENTNR S-2-20221109E2',
+                        'external_id'       => 'aSTUDENTNR S-2-20221109E2',
                         'name_first'        => 'S-2-20221109E2',
                         'name_suffix'       => 'TV-2-20221109E2',
                         'name'              => 'AchterN-2-20221109E2',
-                        'username'          => 'carloschoep+S-2-20221109E2@hotmail.com',
+                        'username'          => 'acarloschoep+S-2-20221109E2@hotmail.com',
                         'school_class_name' => 'ANDEREKLASIMPORTER',
                     ]
                 ],
@@ -1037,19 +1034,19 @@ class SchoolClassStudentImportControllerTest extends TestCase
             6  => [
                 'data'       => [
                     [
-                        'external_id'       => 'STUDENTNR S--20221109E2',
+                        'external_id'       => 'aSTUDENTNR S--20221109E2',
                         'name_first'        => 'S--20221109E2',
                         'name_suffix'       => 'TV--20221109E2',
                         'name'              => 'AchterN--20221109E2',
-                        'username'          => 'carloschoep+S--20221109E2@hotmail.com',
+                        'username'          => 'acarloschoep+S--20221109E2@hotmail.com',
                         'school_class_name' => 'KLASIMPORTER',
                     ],
                     [
-                        'external_id'       => 'STUDENTNR S--20221109E2',
+                        'external_id'       => 'aSTUDENTNR S--20221109E2',
                         'name_first'        => 'S--20221109E2',
                         'name_suffix'       => 'TV--20221109E2',
                         'name'              => 'AchterN--20221109E2',
-                        'username'          => 'carloschoep+S--20221109E2@hotmail.com',
+                        'username'          => 'acarloschoep+S--20221109E2@hotmail.com',
                         'school_class_name' => 'KLASIMPORTER',
                     ]
                 ],
@@ -1058,19 +1055,19 @@ class SchoolClassStudentImportControllerTest extends TestCase
             7  => [
                 'data'       => [
                     [
-                        'external_id'       => 'STUDENTNR S--20221109E2',
+                        'external_id'       => 'aSTUDENTNR S--20221109E2',
                         'name_first'        => 'S--20221109E2',
                         'name_suffix'       => 'TV--20221109E2',
                         'name'              => 'AchterN--20221109E2',
-                        'username'          => 'carloschoep+S--20221109E2@hotmail.com',
+                        'username'          => 'acarloschoep+S--20221109E2@hotmail.com',
                         'school_class_name' => 'KLASIMPORTER',
                     ],
                     [
-                        'external_id'       => 'ANDERSTUDENTNR S--20221109E2',
+                        'external_id'       => 'aANDERSTUDENTNR S--20221109E2',
                         'name_first'        => 'S--20221109E2',
                         'name_suffix'       => 'TV--20221109E2',
                         'name'              => 'AchterN--20221109E2',
-                        'username'          => 'carloschoep+S--20221109E2@hotmail.com',
+                        'username'          => 'acarloschoep+S--20221109E2@hotmail.com',
                         'school_class_name' => 'KLASIMPORTER',
                     ]
                 ],
@@ -1079,19 +1076,19 @@ class SchoolClassStudentImportControllerTest extends TestCase
             8  => [
                 'data'       => [
                     [
-                        'external_id'       => 'STUDENTNR S--20221109E2',
+                        'external_id'       => 'aSTUDENTNR S--20221109E2',
                         'name_first'        => 'S--20221109E2',
                         'name_suffix'       => 'TV--20221109E2',
                         'name'              => 'AchterN--20221109E2',
-                        'username'          => 'carloschoep+S--20221109E2@hotmail.com',
+                        'username'          => 'acarloschoep+S--20221109E2@hotmail.com',
                         'school_class_name' => 'KLASIMPORTER',
                     ],
                     [
-                        'external_id'       => 'STUDENTNR S--20221109E2',
+                        'external_id'       => 'aSTUDENTNR S--20221109E2',
                         'name_first'        => 'S--20221109E2',
                         'name_suffix'       => 'TV--20221109E2',
                         'name'              => 'AchterN--20221109E2',
-                        'username'          => 'carloschoep+ANDERS--20221109E2@hotmail.com',
+                        'username'          => 'acarloschoep+ANDERS--20221109E2@hotmail.com',
                         'school_class_name' => 'KLASIMPORTER',
                     ]
                 ],
@@ -1100,19 +1097,19 @@ class SchoolClassStudentImportControllerTest extends TestCase
             11 => [
                 'data'       => [
                     [
-                        'external_id'       => 'STUDENTNR S-1-20221109E2',
+                        'external_id'       => 'aSTUDENTNR S-1-20221109E2',
                         'name_first'        => 'S-1-20221109E2',
                         'name_suffix'       => 'TV-1-20221109E2',
                         'name'              => 'AchterN-1-20221109E2',
-                        'username'          => 'carloschoep+S-1-20221109E2@hotmail.com',
+                        'username'          => 'acarloschoep+S-1-20221109E2@hotmail.com',
                         'school_class_name' => 'ANDEREKLAS2IMPORTER',
                     ],
                     [
-                        'external_id'       => 'STUDENTNR S-1-20221109E2',
+                        'external_id'       => 'aSTUDENTNR S-1-20221109E2',
                         'name_first'        => 'S-1-20221109E2',
                         'name_suffix'       => 'TV-1-20221109E2',
                         'name'              => 'AchterN-1-20221109E2',
-                        'username'          => 'carloschoep+S-1-20221109E2@hotmail.com',
+                        'username'          => 'acarloschoep+S-1-20221109E2@hotmail.com',
                         'school_class_name' => 'ANDEREKLAS3IMPORTER',
                     ]
                 ],
@@ -1121,11 +1118,11 @@ class SchoolClassStudentImportControllerTest extends TestCase
             12 => [
                 'data'       => [
                     [
-                        'external_id'       => 'STUDENTNR S-1-20221109E2',
+                        'external_id'       => 'aSTUDENTNR S-1-20221109E2',
                         'name_first'        => 'S-1-20221109E2',
                         'name_suffix'       => 'TV-1-20221109E2',
                         'name'              => 'AchterN-1-20221109E2',
-                        'username'          => 'carloschoep+S-1-20221109E2@hotmail.com',
+                        'username'          => 'acarloschoep+S-1-20221109E2@hotmail.com',
                         'school_class_name' => 'ANDEREKLAS4IMPORTER',
                     ]
                 ],
@@ -1134,11 +1131,11 @@ class SchoolClassStudentImportControllerTest extends TestCase
             14 => [
                 'data'       => [
                     [
-                        'external_id'       => 'STUDENTNR S-1-20221109E2',
+                        'external_id'       => 'aSTUDENTNR S-1-20221109E2',
                         'name_first'        => 'S-1-20221109E2',
                         'name_suffix'       => 'TV-1-20221109E2',
                         'name'              => 'AchterN-1-20221109E2',
-                        'username'          => 'carloschoep+S-1-20221109E2@hotmail.com',
+                        'username'          => 'acarloschoep+S-1-20221109E2@hotmail.com',
                         'school_class_name' => 'NIETBESTAANDEKLAS',
                     ]
                 ],
@@ -1147,11 +1144,11 @@ class SchoolClassStudentImportControllerTest extends TestCase
             15 => [
                 'data'       => [
                     [
-                        'external_id'       => 'STUDENTNR S-1-20221109E2',
+                        'external_id'       => 'aSTUDENTNR S-1-20221109E2',
                         'name_first'        => 'S-1-20221109E2',
                         'name_suffix'       => 'ANDERTV-1-20221109E2',
                         'name'              => 'ANDERAchterN-1-20221109E2',
-                        'username'          => 'carloschoep+S-1-20221109E2@hotmail.com',
+                        'username'          => 'acarloschoep+S-1-20221109E2@hotmail.com',
                         'school_class_name' => 'ANDEREKLAS5IMPORTER',
                     ]
                 ],
@@ -1164,7 +1161,7 @@ class SchoolClassStudentImportControllerTest extends TestCase
                         'name_first'        => 'S-3-20221109E2',
                         'name_suffix'       => 'TV-3-20221109E2',
                         'name'              => 'AchterN-3-20221109E2',
-                        'username'          => 'carloschoep+S-3-20221109E2@hotmail.com',
+                        'username'          => 'acarloschoep+S-3-20221109E2@hotmail.com',
                         'school_class_name' => 'KLASIMPORTER',
                     ]
                 ],
@@ -1173,11 +1170,11 @@ class SchoolClassStudentImportControllerTest extends TestCase
             17 => [
                 'data'       => [
                     [
-                        'external_id'       => 'STUDENTNR S-3-20221109E2',
+                        'external_id'       => 'aSTUDENTNR S-3-20221109E2',
                         'name_first'        => 'S-3-20221109E2',
                         'name_suffix'       => 'TV-3-20221109E2',
                         'name'              => 'AchterN-3-20221109E2',
-                        'username'          => 'carloschoep+S-3-20221109E2@hotmail.com',
+                        'username'          => 'acarloschoep+S-3-20221109E2@hotmail.com',
                         'school_class_name' => 'ANDEREKLASIMPORTER',
                     ]
                 ],
@@ -1201,19 +1198,48 @@ class SchoolClassStudentImportControllerTest extends TestCase
             $this->assertInstanceOf(SchoolClass::class, $class);
         });
     }
+    /** @test */
+    public function can_trash_classes_if_they_already_exist()
+    {
+        $classCount = SchoolClass::count();
+        $classes = FactoryScenarioClassImportCake::create(
+            SchoolLocation::find(1)
+        )->schoolClasses;
+
+        $firstClass = $classes->first();
+        $this->assertDatabaseCount('school_classes', $classCount + 11);
+        $classes->each(function ($class) {
+            $this->assertInstanceOf(SchoolClass::class, $class);
+        });
+
+        $newclasses = FactoryScenarioClassImportCake::create(
+            SchoolLocation::find(1),
+            true
+        )->schoolClasses;
+
+        $this->assertDatabaseMissing('school_classes', $firstClass->toArray());
+        $this->assertDatabaseCount('school_classes', $classCount + 11);
+        $this->assertNotEquals($classes, $newclasses);
+        $newclasses->each(function ($class) {
+            $this->assertInstanceOf(SchoolClass::class, $class);
+        });
+    }
 
     /** @test */
     public function can_get_correct_statuses_per_scenario()
     {
-        FactoryScenarioClassImportCake::create(SchoolLocation::find(3));
+        FactoryScenarioClassImportCake::create(SchoolLocation::find(3), true);
         $scenarios = $this->classImportScenarioDataProvider();
 
         collect($scenarios)->each(function ($scenario) use ($scenarios) {
-            dump(array_search($scenario, $scenarios));
-            $this->post(
+            dump(__CLASS__ ." scenario: ". array_search($scenario, $scenarios));
+            $response = $this->post(
                 route('school_classes.import_with_classes', ['schoolLocation' => SchoolLocation::find(3)->uuid]),
                 static::getSchoolBeheerderAuthRequestData(['data' => $scenario['data']])
             )->assertStatus($scenario['statusCode']);
+//            if (array_search($scenario, $scenarios) === 2) {
+//                dump($response);
+//            }
         });
     }
 }

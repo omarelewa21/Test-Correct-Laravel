@@ -8,7 +8,6 @@ use tcCore\Factories\FactorySchoolClass;
 use tcCore\Factories\FactorySchoolLocation;
 use tcCore\Factories\FactorySchoolYear;
 use tcCore\Http\Helpers\ActingAsHelper;
-use tcCore\Lib\Repositories\PeriodRepository;
 use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\SchoolClass;
 use tcCore\SchoolLocation;
@@ -32,14 +31,18 @@ class FactoryScenarioClassImportCake
         'ANDEREKLAS5IMPORTER',
     ];
 
-    public static function create(?SchoolLocation $schoolLocation)
+    public static function create(?SchoolLocation $schoolLocation, bool $trashIfExists = false)
     {
         $factory = new static;
 
         $schoolYear = $factory->getSchoolYearFromSchoolLocation($schoolLocation);
 
         if ($factory->classesAlreadyExist()) {
-            throw new \Exception('Cannot create import classes, because one or multiple with the same name already exist');
+            if ($trashIfExists) {
+                $factory->trashSchoolClasses();
+            } else {
+                throw new \Exception('Cannot create import classes, because one or multiple with the same name already exist');
+            }
         }
 
         $factory->schoolClasses = collect($factory->classNames)->map(function ($name) use ($schoolYear) {
@@ -54,6 +57,12 @@ class FactoryScenarioClassImportCake
         return SchoolClass::whereSchoolLocationId($this->schoolLocation->getKey())
             ->whereIn('name', $this->classNames)
             ->exists();
+    }
+    private function trashSchoolClasses(): bool
+    {
+        return SchoolClass::whereSchoolLocationId($this->schoolLocation->getKey())
+            ->whereIn('name', $this->classNames)
+            ->forceDelete();
     }
 
     private function getSchoolYearFromSchoolLocation(?SchoolLocation $schoolLocation): SchoolYear
