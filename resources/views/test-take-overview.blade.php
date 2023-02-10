@@ -1,5 +1,5 @@
 <x-layouts.app>
-    <livewire:student.test-take-offline></livewire:student.test-take-offline>
+{{--    <livewire:student.test-take-offline></livewire:student.test-take-offline>--}}
 
     <div class="w-full flex flex-col mb-5 overview"
          x-data="{marginTop: 0}"
