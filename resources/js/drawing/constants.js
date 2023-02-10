@@ -9,7 +9,7 @@ export const validSvgElementKeys = {
     line: ["x1", "y1", "x2", "y2", "pathLength"],
     path: ["d"],
     image: ["x", "y", "width", "height", "href", "preserveAspectRatio", "identifier"],
-    text: ["x", "y", "dx", "dy", "rotate", "lengthAdjust", "data-textcontent"],
+    text: ["x", "y", "dx", "dy", "rotate", "lengthAdjust", "data-textcontent", "font-family"],
     g: ["transform"],
 };
 
