@@ -15,7 +15,7 @@
         <div class="classify-answers-container">
             @foreach($answerOptions as $key => $answer)
                 <div class="classify-answers-sub">
-                    <span class="bold">{{$key}} {!! $answer !!}</span>
+                    <span class="bold">{{$loop->iteration}} {!! $answer !!}</span>
                 </div>
 
             @endforeach

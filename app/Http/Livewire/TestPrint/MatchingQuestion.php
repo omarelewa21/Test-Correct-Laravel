@@ -44,6 +44,10 @@ class MatchingQuestion extends Component
 
     public function render()
     {
+        if($this->question->subtype == 'Classify'){
+            $this->answerOptions = collect($this->answerOptions)->filter()->all();
+        }
+
         return view('livewire.test_print.matching-question');
     }
 
