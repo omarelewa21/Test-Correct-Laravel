@@ -5350,12 +5350,50 @@ input.datepicker {
 }
 
 
+#co-learning-teacher-page #header {
+    position: fixed;
+    left: 0;
+    width: 100%;
+    color: white;
+    z-index: 50;
+    box-shadow: var(--main-shadow);
+    align-content: center;
+    background-image: linear-gradient(to right, var(--teacher-primary), var(--teacher-primary-light));
+    transition: height 1s ease;
+}
 
 
+#co-learning-teacher-page #header #start-screen-content .grid .co-learning-panel {
+    width: 307px;
+    height: 321px;
+    padding: 30px;
+    border-radius: 8px;
+    border: solid 2px rgba(255, 255, 255, 0.3);
+    background-color: rgba(0, 77, 245, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+}
 
+#co-learning-teacher-page #header #start-screen-content .grid .co-learning-panel:hover {
+    box-shadow: 0 8px 16px 0 rgba(4, 31, 116, 0.3);
+    border: solid 2px white;
+    background-color: rgba(0, 77, 245, 0.9);
+}
 
+#co-learning-teacher-page #header #start-screen-content .grid .co-learning-panel.co-learning-restart {
+    height: 375px;
+}
 
-
+#co-learning-teacher-page #header #start-screen-content .grid .co-learning-panel #text-body {
+    height: 91px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    text-align: center;
+}
 
 #co-learning-start-screen {
     width: 100vw;
@@ -8852,6 +8890,9 @@ video {
 .-ml-px{
   margin-left: -1px;
 }
+.mb-\[110px\]{
+  margin-bottom: 110px;
+}
 .mr-0\.5{
   margin-right: 0.125rem;
 }
@@ -10164,17 +10205,6 @@ video {
 }
 .bg-opacity-50{
   --tw-bg-opacity: 0.5;
-}
-.bg-gradient-to-r{
-  background-image: linear-gradient(to right, var(--tw-gradient-stops));
-}
-.from-\[var\(--teacher-primary\)\]{
-  --tw-gradient-from: var(--teacher-primary);
-  --tw-gradient-to: rgb(255 255 255 / 0);
-  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
-}
-.to-\[var\(--teacher-primary-light\)\]{
-  --tw-gradient-to: var(--teacher-primary-light);
 }
 .fill-current{
   fill: currentColor;

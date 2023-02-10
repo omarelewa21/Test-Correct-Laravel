@@ -29,12 +29,19 @@ return [
     'questions_being_discussed'     => 'vragen in behandeling:',
     'open_questions'                => 'alleen open',
     'all_questions'                 => 'alle vragen',
+    'open_questions_only'           => 'Open vragen',
     'next'                          => 'Volgende',
     'previous'                      => 'Vorige',
     'answer_model'                  => 'Antwoordmodel',
     'write_your_answer'             => 'Schrijf jouw antwoord...',
     'answer_model_drawing'          => 'Antwoordmodel tekening',
     'answer_drawing'                => 'Antwoord tekenvraag',
+    'all_questions_text'            => 'Alle vragen van de toets worden behandeld',
+    'all_questions_note'            => 'oude versie CO-Learning',
+    'open_questions_text'           => 'Alleen de open vragen van de toets worden behandeld',
+    'open_questions_note'           => 'BETA versie CO-Learning',
+    'restart_session'               => "begin opnieuw<br>eerdere sessie wordt verwijderd",
+    'current_session'               => ":index/:totalQuestions vragen behandeld<br> op :date"
 
 
 ];

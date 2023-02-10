@@ -5,7 +5,10 @@ namespace tcCore\Http\Helpers;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use tcCore\AnswerRating;
+use tcCore\Http\Controllers\TestTakesController;
 use tcCore\TestParticipant;
+use tcCore\TestTake;
 
 class CoLearningHelper extends BaseHelper
 {
@@ -16,6 +19,13 @@ class CoLearningHelper extends BaseHelper
     {
         return CoLearningHelper::buildTestParticipantsQuery($testTakeId, $discussingQuestionId)->get();
     }
+
+    public static function nextQuestion(TestTake $testTake)
+    {
+        return (new TestTakesController)
+            ->nextQuestion($testTake);
+    }
+
 
     private static function buildTestParticipantsQuery($testTakeId, $discussingQuestionId)
     {
@@ -44,7 +54,7 @@ class CoLearningHelper extends BaseHelper
             )->where('answers.question_id', '=', static::$discussing_question_id)
             ->where('test_participants.test_take_id', '=', static::$test_take_id)
             ->where('answer_ratings.test_take_id', '=', static::$test_take_id)
-            ->where('answer_ratings.type', '=', 'STUDENT')
+            ->where('answer_ratings.type', '=', AnswerRating::TYPE_STUDENT)
             ->groupBy('test_participants.id');
     }
 
@@ -59,14 +69,13 @@ class CoLearningHelper extends BaseHelper
                     WHEN student_abnormalities.abnormalities > 0 THEN 1
                     ELSE 0 END as abnormalities
                 ')
-                    ->fromSub(static::getRatingsSubQueryPerType('STUDENT'), 'student_ratings')
-                    ->joinSub(static::getRatingsSubQueryPerType('TEACHER'), 'teacher_ratings', 'teacher_ratings.answer_id', '=', 'student_ratings.answer_id', 'left')
-                    ->joinSub(static::getRatingsSubQueryPerType('SYSTEM'), 'system_ratings', 'system_ratings.answer_id', '=', 'student_ratings.answer_id', 'left')
+                    ->fromSub(static::getRatingsSubQueryPerType(AnswerRating::TYPE_STUDENT), 'student_ratings')
+                    ->joinSub(static::getRatingsSubQueryPerType(AnswerRating::TYPE_TEACHER), 'teacher_ratings', 'teacher_ratings.answer_id', '=', 'student_ratings.answer_id', 'left')
+                    ->joinSub(static::getRatingsSubQueryPerType(AnswerRating::TYPE_SYSTEM), 'system_ratings', 'system_ratings.answer_id', '=', 'student_ratings.answer_id', 'left')
                     ->joinSub(static::getStudentVsStudentAbnormalitiesSubQuery(), 'student_abnormalities', function ($join) {
                         $join->on('student_abnormalities.user_id', '=', 'student_ratings.user_id');
                         $join->on('student_abnormalities.answer_id', '=', 'student_ratings.answer_id');
                     }, type: 'left');
-
             }, 'total')
             ->groupBy('total.user_id');
     }
@@ -74,7 +83,7 @@ class CoLearningHelper extends BaseHelper
     private static function getStudentVsStudentAbnormalitiesSubQuery() : Builder
     {
         return DB::query()->select(['student_abnormalities.user_id', 'student_abnormalities.answer_id', 'abnormalities'])
-            ->fromSub(static::getRatingsSubQueryPerType('STUDENT', true), 'student_abnormalities')
+            ->fromSub(static::getRatingsSubQueryPerType(AnswerRating::TYPE_STUDENT, true), 'student_abnormalities')
             ->JoinSub(function ($query) {
                 $query->selectRaw('answer_ratings.answer_id,
                                   CASE
@@ -85,7 +94,7 @@ class CoLearningHelper extends BaseHelper
                                       END AS abnormalities')
                     ->from('answers')->crossJoin('answer_ratings', 'answers.id', '=', 'answer_ratings.answer_id')
                     ->where('answer_ratings.test_take_id', '=', static::$test_take_id)
-                    ->where('answer_ratings.type', '=', 'STUDENT')
+                    ->where('answer_ratings.type', '=', AnswerRating::TYPE_STUDENT)
                     ->where('answer_ratings.deleted_at', '=', null)
                     ->groupBy('answer_ratings.answer_id');
             }, 'student_answer_abnormalities', 'student_abnormalities.answer_id', '=', 'student_answer_abnormalities.answer_id', 'cross');
@@ -93,14 +102,14 @@ class CoLearningHelper extends BaseHelper
 
     private static function getRatingsSubQueryPerType($type, $excludeRating = false) : Builder
     {
-        if (!is_string($type) || !in_array($type = Str::upper($type), ['STUDENT', 'TEACHER', 'SYSTEM'])) {
+        if (!is_string($type) || !in_array($type = Str::upper($type), [AnswerRating::TYPE_STUDENT, AnswerRating::TYPE_TEACHER, AnswerRating::TYPE_SYSTEM])) {
             throw new \Exception(sprintf("Rating type %s doesn't exist", $type));
         }
 
         $selectColumnNames = collect([
             'answer_ratings.answer_id',
         ])->when(
-            $type === 'STUDENT',
+            $type === AnswerRating::TYPE_STUDENT,
             fn($collection) => $collection->push('answer_ratings.user_id')
         )->when(
             $excludeRating === false,

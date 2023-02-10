@@ -2,10 +2,12 @@
 
 namespace tcCore\Http\Livewire\Teacher;
 
-use Illuminate\Http\Request;
+use Illuminate\Routing\Redirector;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Livewire\Component;
+use Livewire\Livewire;
 use tcCore\AnswerRating;
 use tcCore\CompletionQuestion;
 use tcCore\DiscussingParentQuestion;
@@ -13,18 +15,22 @@ use tcCore\DrawingQuestion;
 use tcCore\Http\Controllers\TestTakesController;
 use tcCore\Http\Enums\CoLearning\AbnormalitiesStatus;
 use tcCore\Http\Enums\CoLearning\RatingStatus;
+use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Http\Helpers\CoLearningHelper;
-use tcCore\TestParticipant;
 use tcCore\TestTake;
+use tcCore\TestTakeStatus;
 
 class CoLearning extends Component
 {
     const DISCUSSION_TYPE_ALL = 'ALL';
     const DISCUSSION_TYPE_OPEN_ONLY = 'OPEN_ONLY';
 
+    //start screen properties
+    public ?bool $coLearningHasBeenStarted = null;
+    public bool $coLearningRestart = false;
+
     //TestTake properties
     public int|TestTake $testTake;
-    public bool $showStartOverlay = true; //todo implement start screen into colearning
     public $testParticipants;
 
     public bool $openOnly;
@@ -56,23 +62,30 @@ class CoLearning extends Component
     public int $completionQuestionTagCount = 0;
     public ?Collection $activeDrawingAnswerDimensions;
 
+    protected $queryString = [
+        'coLearningHasBeenStarted' => ['except' => true, 'as' => 'started']
+    ];
+
     public function mount(TestTake $test_take)
     {
-        //todo guard clause with test_take_status_id
         $this->testTake = $test_take;
+        $this->redirectIfNotAllowed();
 
-        $this->openOnly = $this->testTake->discussion_type === self::DISCUSSION_TYPE_OPEN_ONLY;
-
-        if ($test_take->discussing_question_id === null) {
-            //gets a testTake, but misses TestParticipants Status data.
-            // also creates AnswerRatings for students.
-            //todo Remove unnecesairy TestTake Query? merge query actions? nextQuestion and participant activity data
-
-            //todo improve nextQuestion performance? move generating answerRatings to start of CoLearning?
-            (new TestTakesController)->nextQuestion($test_take);
+        if ($this->testTakeIsBeingRestarted()) {
+            $this->coLearningRestart = true;
+            $this->getStaticNavigationData();
+            return;
+        }
+        if ($this->coLearningHasBeenStarted === false) {
+            return;
         }
 
-        $this->getStaticNavigationData();
+        if ($this->testTakeHasNotYetBeenStartedBefore()) {
+            $this->coLearningHasBeenStarted = false;
+            return;
+        }
+
+        $this->coLearningHasBeenStarted = true;
     }
 
     public function boot()
@@ -93,6 +106,39 @@ class CoLearning extends Component
             ->layout('layouts.co-learning-teacher');
     }
 
+    public function startCoLearningSession($discussionType, $resetProgress = false)
+    {
+        if (!in_array($discussionType, ['OPEN_ONLY', 'ALL'])) {
+            throw new \Exception('Wrong discussion type');
+        }
+
+        if($this->testTakeNeedsToBeUpdated($discussionType)) {
+            $this->testTake->update([
+                'test_take_status_id' => TestTakeStatus::STATUS_DISCUSSING,
+                'discussion_type'     => $discussionType
+            ]);
+        }
+        if($resetProgress) {
+            //todo remove all STUDENT AnswerRatings?
+            // "begin opnieuw \n eerdere sessie wordt verwijderd"
+        }
+
+        if ($this->testTake->discussing_question_id === null) {
+
+            //gets a testTake, also creates AnswerRatings for students.
+            //todo improve nextQuestion performance? move generating all answerRatings to start of CoLearning?
+            CoLearningHelper::nextQuestion($this->testTake);
+        }
+
+        if ($discussionType === 'ALL') {
+            return CakeRedirectHelper::redirectToCake('test_takes.discussion', $this->testTake->uuid);
+        }
+
+        //finally set bool to true
+        $this->coLearningHasBeenStarted = true;
+        $this->getStaticNavigationData();
+    }
+
     public function nextDiscussionQuestion()
     {
         $this->removeChangesFromTestTakeModel();
@@ -104,7 +150,10 @@ class CoLearning extends Component
     /* start header methods */
     public function redirectBack()
     {
-        return redirect()->route('teacher.test-takes', ['stage' => 'taken']);
+        return TestTake::redirectToDetail(
+            testTakeUuid: $this->testTake->uuid,
+            returnRoute: Str::replaceFirst(config('app.base_url'), '', Livewire::originalUrl()),
+        );
     }
 
 
@@ -148,7 +197,7 @@ class CoLearning extends Component
 
         $this->testTake->discussingParentQuestions()->delete();
 
-        if($discussingQuestion?->is_subquestion) {
+        if ($discussingQuestion?->is_subquestion) {
             $discussingQuestionId = $discussingQuestion->getKey();
 
             $groupQuestionId = $this->getGroupQuestionIdForSubQuestion($discussingQuestionId);
@@ -194,11 +243,17 @@ class CoLearning extends Component
 
     public function getAtLastQuestionProperty()
     {
+        if (!$this->coLearningHasBeenStarted) {
+            return false;
+        }
         return (int)$this->testTake->discussing_question_id === (int)$this->lastQuestionId;
     }
 
     public function getAtFirstQuestionProperty()
     {
+        if (!$this->coLearningHasBeenStarted) {
+            return false;
+        }
         return (int)$this->testTake->discussing_question_id === (int)$this->firstQuestionId;
     }
 
@@ -361,6 +416,10 @@ class CoLearning extends Component
 
     protected function getNavigationData()
     {
+        if (!isset($this->testTake->discussing_question_id)) {
+            return false;
+        }
+
         $this->questionIndex = $this->questionsOrderList->get($this->testTake->discussing_question_id)['order'];
 
         $this->questionIndexOpenOnly = $this->questionsOrderList->get($this->testTake->discussing_question_id)['order_open_only'];
@@ -368,6 +427,8 @@ class CoLearning extends Component
 
     protected function getStaticNavigationData()
     {
+        $this->openOnly = $this->testTake->discussion_type === self::DISCUSSION_TYPE_OPEN_ONLY;
+
         $this->questionsOrderList = collect($this->testTake->test->getQuestionOrderListWithDiscussionType());
 
         $this->questionCount = $this->questionsOrderList->count('id');
@@ -525,4 +586,39 @@ class CoLearning extends Component
             ->where('test_takes.id', '=', $this->testTake->getKey())
             ->where('group_question_questions.question_id', '=', $questionId)->first()?->group_question_id;
     }
+
+    private function redirectIfNotAllowed(): Redirector|null
+    {
+        if (!in_array(
+            $this->testTake->test_take_status_id, [
+            TestTakeStatus::STATUS_TAKEN,
+            TestTakeStatus::STATUS_DISCUSSING,
+        ])) {
+            return redirect()->route('teacher.test-takes', ['stage' => 'taken']);
+        }
+        return null;
+    }
+
+    private function testTakeIsBeingRestarted(): bool
+    {
+        return $this->coLearningHasBeenStarted === false
+            && $this->testTake->discussing_question_id !== null
+            && $this->testTake->discussion_type !== null
+            && $this->testTake->test_take_status_id === TestTakeStatus::STATUS_DISCUSSING;
+    }
+
+    private function testTakeHasNotYetBeenStartedBefore(): bool
+    {
+        return $this->testTake->discussing_question_id === null
+            || $this->testTake->discussion_type === null
+            || $this->testTake->test_take_status_id === TestTakeStatus::STATUS_TAKEN;
+    }
+
+    private function testTakeNeedsToBeUpdated(string $testTakeDiscussionType): bool
+    {
+        return $this->testTake->test_take_status_id !== TestTakeStatus::STATUS_DISCUSSING
+            || $this->testTake->discussion_type !== $testTakeDiscussionType;
+    }
+
+
 }
