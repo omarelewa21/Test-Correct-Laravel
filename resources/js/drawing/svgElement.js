@@ -9,6 +9,7 @@ class svgElement {
         this.element = this.createSvgElementOfType(type);
         this.props = props ?? new Object();
         this.setAllAttributesOnElement();
+        this.drag = {};
     }
     /**
      * Creates a SVG Element of given type.
@@ -120,6 +121,21 @@ class svgElement {
         this.element.remove();
         delete this;
     }
+
+    onDrag(evt, cursor) {
+        this.move(this.calculateMovedDistance(cursor));
+    }
+
+    move(distance) {}
+
+    calculateMovedDistance(cursor) {
+        const previousCursorPosition = this.drag.previousCursorPosition;
+        this.drag.previousCursorPosition = cursor;
+        return {
+            dx: cursor.x - previousCursorPosition.x,
+            dy: cursor.y - previousCursorPosition.y,
+        };
+    }
 }
 
 export class Rectangle extends svgElement {
@@ -133,19 +149,37 @@ export class Rectangle extends svgElement {
      */
     onDraw(evt, cursor) {
         let coords = this.calculateCoords(cursor);
-        this.setWidthAttribute(coords.width);
-        this.setHeightAttribute(coords.height);
-        this.setXAttribute(coords.x);
-        this.setYAttribute(coords.y);
+        this.updateAttributes(coords);
+    }
+
+    onDragStart(evt, cursor) {
+        this.drag.previousCursorPosition = cursor;
+        this.drag.startingPosition = {x: this.props.x, y: this.props.y};
     }
 
     onResize(evt, cursor) {
         const coords = this.calculateCoords(cursor);
-        this.setWidthAttribute(coords.width);
-        this.setHeightAttribute(coords.height);
-        this.setXAttribute(coords.x);
-        this.setYAttribute(coords.y);
+        this.updateAttributes(coords);
     }
+
+    updateAttributes(coords) {
+        this.updatePosition(coords);
+        this.updateSize(coords);
+    }
+
+    move(distance) {
+        this.setX(parseInt(this.props.x) + distance.dx);
+        this.setY(parseInt(this.props.y) + distance.dy);
+    }
+    updatePosition(coords) {
+        this.setX(coords.x);
+        this.setY(coords.y);
+    }
+    updateSize(coords) {
+        this.setWidth(coords.width);
+        this.setHeight(coords.height);
+    }
+
     /**
      * Adjusts the x, y, width and height of a rectangle because SVG can't handle negative width and height values.
      * @param {{x: number, y: number}} cursor The current cursor position.
@@ -273,6 +307,11 @@ export class Circle extends svgElement {
     onDraw(evt, cursor) {
         this.setR(this.calculateRadius(cursor));
     }
+
+    onDragStart(evt, cursor) {
+        this.drag.previousCursorPosition = cursor;
+        this.drag.startingPosition = {x: this.props.cx, y: this.props.cy};
+    }
     /**
      * Function to be called when the cursor was moved during resize.
      * @param {Event} evt The event that triggered the function.
@@ -293,6 +332,9 @@ export class Circle extends svgElement {
         let dx = cursor.x - this.props.cx;
         let dy = cursor.y - this.props.cy;
         return Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
+    }
+    updateSize(coords) {
+        this.setR(coords.r);
     }
     /**
      * Sets the R attribute on the shape and in the props.
@@ -315,6 +357,14 @@ export class Circle extends svgElement {
      */
     setRProperty(value) {
         this.props.r = value;
+    }
+    move(distance) {
+        this.setCX(parseInt(this.props.cx) + distance.dx);
+        this.setCY(parseInt(this.props.cy) + distance.dy);
+    }
+    updatePosition(coords) {
+        this.setCX(coords.x);
+        this.setCY(coords.y);
     }
     /**
      * Sets the CX attribute on the shape and in the props.
@@ -375,6 +425,10 @@ export class Line extends svgElement {
         this.setX2Attribute(cursor.x);
         this.setY2Attribute(cursor.y);
     }
+    setX1(value) {
+        this.setX1Attribute(value);
+        this.setX1Property(value);
+    }
     /**
      * Sets the X1 attribute on the shape.
      * @param {string} value The value to be given to the attribute.
@@ -388,6 +442,10 @@ export class Line extends svgElement {
      */
     setX1Property(value) {
         this.props.x1 = value;
+    }
+    setX2(value) {
+        this.setX2Attribute(value);
+        this.setX2Property(value);
     }
     /**
      * Sets the X2 attribute on the shape.
@@ -403,6 +461,10 @@ export class Line extends svgElement {
     setX2Property(value) {
         this.props.x2 = value;
     }
+    setY1(value) {
+        this.setY1Attribute(value);
+        this.setY1Property(value);
+    }
     /**
      * Sets the Y1 attribute on the shape.
      * @param {string} value The value to be given to the attribute.
@@ -416,6 +478,10 @@ export class Line extends svgElement {
      */
     setY1Property(value) {
         this.props.y1 = value;
+    }
+    setY2(value) {
+        this.setY2Attribute(value);
+        this.setY2Property(value);
     }
     /**
      * Sets the Y2 attribute on the shape.
@@ -436,6 +502,70 @@ export class Line extends svgElement {
 export class Image extends svgElement {
     constructor(props = null) {
         super("image", props);
+    }
+
+    onDragStart(evt, cursor) {
+        this.drag.previousCursorPosition = cursor;
+        this.drag.startingPosition = {x: this.props.x, y: this.props.y};
+    }
+
+    onResize(evt, cursor) {
+        const coords = this.calculateCoords(cursor);
+        this.updateAttributes(coords);
+    }
+
+    calculateCoords(cursor) {
+        let x = this.props.x,
+            y = this.props.y,
+            width = cursor.x - x,
+            height = cursor.y - y;
+        if (width < 0) {
+            width = 0;
+        }
+        if (height < 0) {
+            height = 0;
+        }
+        return {
+            x,
+            y,
+            width,
+            height,
+        };
+    }
+
+    updateAttributes(coords) {
+        this.updatePosition(coords);
+        this.updateSize(coords);
+    }
+
+    move(distance) {
+        this.setX(parseInt(this.props.x) + distance.dx);
+        this.setY(parseInt(this.props.y) + distance.dy);
+    }
+
+    updatePosition(coords) {
+        this.setX(coords.x);
+        this.setY(coords.y);
+    }
+    updateSize(coords) {
+        this.setWidth(coords.width);
+        this.setHeight(coords.height);
+    }
+    /**
+     * Sets the X attribute on the shape and in the props
+     * @param {number} value The value to be set.
+     */
+    setX(value) {
+        this.setXAttribute(value);
+        this.setXProperty(value);
+    }
+    /**
+     * Sets the Y attribute on the shape and in the props
+     * @param {number} value The value to be set.
+     */
+    setY(value) {
+        this.setYAttribute(value);
+        this.setYProperty(value);
     }
     /**
      * Sets the X attribute on the shape.
@@ -465,6 +595,10 @@ export class Image extends svgElement {
     setYProperty(value) {
         this.props.y = value;
     }
+    setWidth(value) {
+        this.setWidthAttribute(value);
+        this.setWidthProperty(value);
+    }
     /**
      * Sets the Width attribute on the shape.
      * @param {number} value The value to be given to the attribute.
@@ -478,6 +612,10 @@ export class Image extends svgElement {
      */
     setWidthProperty(value) {
         this.props.width = value;
+    }
+    setHeight(value) {
+        this.setHeightAttribute(value);
+        this.setHeightProperty(value);
     }
     /**
      * Sets the Height attribute on the shape.
@@ -550,6 +688,22 @@ export class Text extends svgElement {
         this.setAttributeOnElementWithValidation("x", cursor.x);
         this.setAttributeOnElementWithValidation("y", cursor.y);
     }
+    onDragStart(evt, cursor) {
+        this.drag.previousCursorPosition = cursor;
+        this.drag.startingPosition = {x: this.props.x, y: this.props.y};
+    }
+    move(distance) {
+        this.setX(parseInt(this.props.x) + distance.dx);
+        this.setY(parseInt(this.props.y) + distance.dy);
+    }
+    updatePosition(coords) {
+        this.setX(coords.x);
+        this.setY(coords.y);
+    }
+    setX(value) {
+        this.setXAttribute(value);
+        this.setXProperty(value);
+    }
     /**
      * Sets the X attribute on the shape.
      * @param {number} value The value to be given to the attribute.
@@ -563,6 +717,10 @@ export class Text extends svgElement {
      */
     setXProperty(value) {
         this.props.x = value;
+    }
+    setY(value) {
+        this.setYAttribute(value);
+        this.setYProperty(value);
     }
     /**
      * Sets the Y attribute on the shape.

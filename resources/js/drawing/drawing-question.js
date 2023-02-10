@@ -1386,25 +1386,14 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         const layerObject = Canvas.layers[Canvas.layerID2Key(layerID)];
         if (!shapeMayBeDragged(shapeGroup, layerObject)) return;
 
-        const selectedSvgShape = evt.target.closest("g.shape");
-        let existingTransforms = selectedSvgShape.transform.baseVal;
-
-        if (!elementHasTransforms(existingTransforms)) {
-            createNewTranslateTransform(selectedSvgShape);
-        } else if (!firstTransformIsOfTypeTranslate(existingTransforms)) {
-            createNewTranslateTransform(selectedSvgShape);
-        }
-
-        const translateOfSvgShape = getFirstTransform(existingTransforms);
+        const selectedSvgShape = layerObject.shapes[shapeGroup.id].svg;
 
         Canvas.params.drag = {
             enabled: true,
-            offsetCursorToMidPoint: calculateCursorToMidPointOffset(translateOfSvgShape),
-            translateOfSvgShape: translateOfSvgShape,
+            selectedSvgShape: selectedSvgShape
         };
 
-        selectedSvgShape.classList.add("dragging");
-        selectedSvgShape.parentElement.classList.add("child-dragging");
+        selectedSvgShape.onDragStart(evt, Canvas.params.cursorPosition);
     }
 
     function startResize(evt) {
@@ -1428,32 +1417,6 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
 
     function shapeMayBeDragged(shapeGroup, layerObject) {
         return shapeGroup.classList.contains("draggable") && !layerObject.params.locked && layerObject.props.id.includes(layerObject.Canvas.params.currentLayer);
-    }
-
-    function elementHasTransforms(transforms) {
-        return transforms.length !== 0;
-    }
-
-    function createNewTranslateTransform(shape) {
-        let translate = UI.svgCanvas.createSVGTransform();
-        translate.setTranslate(0, 0);
-        shape.transform.baseVal.insertItemBefore(translate, 0);
-    }
-
-    function firstTransformIsOfTypeTranslate(transforms) {
-        return getFirstTransform(transforms)?.type === SVGTransform.SVG_TRANSFORM_TRANSLATE;
-    }
-
-    function getFirstTransform(transforms) {
-        if (transforms.numberOfItems > 0) return transforms.getItem(0);
-    }
-
-    function calculateCursorToMidPointOffset(translate) {
-        const cursorPosition = Canvas.params.cursorPosition;
-        return {
-            x: cursorPosition.x - translate.matrix.e,
-            y: cursorPosition.y - translate.matrix.f,
-        };
     }
 
     function startPan() {
@@ -1654,16 +1617,12 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
 
     function drag(evt) {
         evt.preventDefault();
-        const difference = calculateDistanceCursor(
-            Canvas.params.drag.offsetCursorToMidPoint,
-            Canvas.params.cursorPosition
-        );
-        Canvas.params.drag.translateOfSvgShape.setTranslate(difference.dx, difference.dy);
+        Canvas.params.drag.selectedSvgShape.onDrag(evt, Canvas.params.cursorPosition);
     }
 
     function resize(evt) {
         evt.preventDefault();
-        Canvas.params.resize.selectedSvgShape.onResize?.(evt, getCursorPosition(evt));
+        Canvas.params.resize.selectedSvgShape?.onResize(evt, getCursorPosition(evt));
     }
 
     function processUserPan() {
@@ -1827,8 +1786,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     }
 
     function stopDrag() {
-        UI.svgCanvas.querySelector("g.dragging").classList.remove("dragging");
-        UI.svgCanvas.querySelector(".child-dragging").classList.remove("child-dragging");
+        Canvas.params.drag.selectedSvgShape.onDragEnd();
         Canvas.params.drag.enabled = false;
     }
 
@@ -1978,9 +1936,10 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             },
             Canvas.params.currentLayer
         );
-
         shape.svg.moveToCenter();
         shape.svg.addHighlightEvents();
+        const objectID = `image-${shape.svg.shapeId}`;
+        Canvas.layers[Canvas.params.currentLayer].shapes[objectID] = shape;
     }
 
     function correctImageSize(image) {
