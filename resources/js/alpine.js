@@ -580,7 +580,7 @@ document.addEventListener('alpine:init', () => {
             this.multiple = multiple === 1;
             this.$nextTick(() => {
                 let choices = new Choices(
-                    this.$refs.select,
+                    this.$root.querySelector('select'),
                     this.getChoicesConfig()
                 );
 
