@@ -252,28 +252,29 @@
 }
 
 .resizers .resizer{
-    width: 10px;
-    height: 10px;
+    width: 100px;
+    height: 100px;
     border-radius: 50%; /*magic to turn square into circle*/
     position: absolute;
+    /* background-color: red; */
 }
 .resizers .resizer.top-left {
-    left: -5px;
-    top: -5px;
+    left: -50px;
+    top: -50px;
     cursor: nwse-resize; /*resizer cursor*/
 }
 .resizers .resizer.top-right {
-    right: -5px;
-    top: -5px;
+    right: -50px;
+    top: -50px;
     cursor: nesw-resize;
 }
 .resizers .resizer.bottom-left {
-    left: -5px;
-    bottom: -5px;
+    left: -50px;
+    bottom: -50px;
     cursor: nesw-resize;
 }
 .resizers .resizer.bottom-right {
-    right: -5px;
-    bottom: -5px;
+    right: -50px;
+    bottom: -50px;
     cursor: nwse-resize;
 }
