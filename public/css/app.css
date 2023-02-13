@@ -824,7 +824,6 @@ button.cta-button:disabled, a.cta-button:disabled {
     height: 100px;
     border-radius: 50%; /*magic to turn square into circle*/
     position: absolute;
-    /* background-color: red; */
 }
 .resizers .resizer.top-left {
     left: -50px;
