@@ -201,6 +201,12 @@
 }
 
 
+#co-learning-teacher-page #header.maintenance-header-bg {
+    border-bottom: 4px solid var(--maintenance-header-bg);
+    /*normal maintenance-header-bg not working with colearning background image gradient*/
+}
+
+
 #co-learning-teacher-page #header #start-screen-content .grid .co-learning-panel {
     width: 307px;
     height: 321px;
@@ -233,18 +239,21 @@
     text-align: center;
 }
 
-#co-learning-start-screen {
-    width: 100vw;
-    height: 100vh;
-    background-image: linear-gradient(to right, var(--teacher-primary) 0%, var(--teacher-primary-light) 100%);
-    overflow: hidden;
+#co-learning-teacher-page .co-learning-tooltip {
+    position: fixed;
+    width: 252px;
+    height: 64px;
+    padding: 7px 24px 10px 16px;
+    border: 1px solid var(--blue-grey);
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 4px;
+    display: none;
+    z-index: 10;
 }
-
-#co-learning-start-screen .co-learning-start-content {
-    top: 70px;
-    display: flex;
-    width: 100%;
-    min-height: calc(100vh - 70px);
-    position: relative;
-    overflow: hidden;
+#co-learning-teacher-page .co-learning-tooltip:nth-child(1) {
+    height: 22px;
+}
+#co-learning-teacher-page .co-learning-tooltip:nth-child(2) {
+    height: 18px;
+    font-size: 14px;
 }

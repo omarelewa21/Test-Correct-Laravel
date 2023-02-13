@@ -5,6 +5,21 @@
             'h-[var(--header-height)]' => $this->coLearningHasBeenStarted,
             'h-full' => ! $this->coLearningHasBeenStarted,
         ])
+        x-data="{
+            coLearningSessionStarted: @js($this->coLearningHasBeenStarted),
+            collapseHeader: false,
+            startCoLearningSession: async function(type = 'OPEN_ONLY', resetProgress){
+                result = await $wire.startCoLearningSession(type, resetProgress);
+                if(result !== false) {
+                    this.coLearningSessionStarted = true;
+                }
+            }
+        }"
+
+        @if(!$this->coLearningHasBeenStarted)
+            x-show="!coLearningSessionStarted"
+            x-collapse.min.70px.duration.1500ms
+        @endif
 >
     <div class="py-2.5 px-6 flex h-[var(--header-height)] items-center justify-between">
         <div class="flex items-center space-x-4">
@@ -55,7 +70,7 @@
                         </div>
                         <div>
                             <x-button.cta size="md" wire:click.prevent="startCoLearningSession('ALL', {{ $this->openOnly ? 'true' : 'false' }})">
-                                <span>Starten</span>
+                                <span>{{ __('co-learning.start') }}</span>
                                 <x-icon.arrow/>
                             </x-button.cta>
                         </div>
@@ -91,8 +106,8 @@
                             <div class="text-[14px]">{{ __('co-learning.open_questions_note') }}</div>
                         </div>
                         <div>
-                            <x-button.cta size="md" wire:click.prevent="startCoLearningSession('OPEN_ONLY', {{ !$this->openOnly ? 'true' : 'false' }})">
-                                <span>Starten</span>
+                            <x-button.cta size="md" @click.prevent="startCoLearningSession('OPEN_ONLY', {{ !$this->openOnly ? 'true' : 'false' }})">
+                                <span>{{ __('co-learning.start') }}</span>
                                 <x-icon.arrow/>
                             </x-button.cta>
                         </div>

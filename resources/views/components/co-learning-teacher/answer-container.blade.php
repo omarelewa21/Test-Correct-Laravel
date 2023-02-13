@@ -4,6 +4,7 @@
 <div x-show="showStudentAnswer"
      x-collapse.duration.500ms
      x-cloak
+     wire:key="ac-{{$this?->activeAnswerRating?->getKey()}}"
 >
 
     <div class="flex flex-col pt-[14px] px-10 content-section rs_readable relative transition"

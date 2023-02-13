@@ -41,7 +41,13 @@ return [
     'open_questions_text'           => 'Alleen de open vragen van de toets worden behandeld',
     'open_questions_note'           => 'BETA versie CO-Learning',
     'restart_session'               => "begin opnieuw<br>eerdere sessie wordt verwijderd",
-    'current_session'               => ":index/:totalQuestions vragen behandeld<br> op :date"
+    'current_session'               => ":index/:totalQuestions vragen behandeld<br> op :date",
+    'start'                         => 'Starten',
+    'rated_answers'                 => 'beoordeelde antwoorden',
+    'bad_rater'                     => 'slechte beoordelaar',
+    'average_rater'                 => 'gemiddeld goede beoordelaar',
+    'good_rater'                    => 'goede beoordelaar',
+    'unknown_rater'                 => 'onvoldoende data voor inzicht',
 
 
 ];

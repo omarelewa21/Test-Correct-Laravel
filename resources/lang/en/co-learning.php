@@ -41,6 +41,12 @@ return [
     'open_questions_text'           => 'Only the open questions of the test are covered',
     'open_questions_note'           => 'BETA versie CO-Learning',
     'restart_session'               => "restart session<br>\nprevious session will be deleted",
-    'current_session'               => ":index/:totalQuestions questions discussed<br>on :date"
+    'current_session'               => ":index/:totalQuestions questions discussed<br>on :date",
+    'start'                         => 'Start',
+    'rated_answers'                 => 'rated answers',
+    'bad_rater'                     => 'bad rater',
+    'average_rater'                 => 'average rater',
+    'good_rater'                    => 'good rater',
+    'unknown_rater'                 => 'not enough data for insight',
 
 ];

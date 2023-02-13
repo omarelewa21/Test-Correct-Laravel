@@ -37,7 +37,7 @@ class CoLearningHelperTest extends TestCase
         $answers = $answerRatings->unique->answer->map->answer;
 
         $allAnswersAreAnswered = $answers->reduce(function ($carry, $answer) {
-            if($answer->isAnswered) {
+            if ($answer->isAnswered) {
                 return $carry;
             }
             return false;
@@ -48,7 +48,6 @@ class CoLearningHelperTest extends TestCase
         //change change one of the answers of the discussing question to unanswered for the first user
         $firstUserId = $answerRatings->where('user_id', '<>', null)->sortBy('user_id')->map->user_id->first();
 
-        //j Answer => [done = 0 && json = null]
         $answer = $answerRatings->where('user_id', '=', $firstUserId)
             ->map
             ->answer
@@ -66,7 +65,7 @@ class CoLearningHelperTest extends TestCase
 
         //assert that first testParticipant has to rate less answers than the rest (at least one other student will also have to rate only 1 Answer, therefore compare with max value)
         $testParticipantsData->each(function ($testParticipant) use ($firstUserId, $maxAnswerToRate) {
-            if($testParticipant->user_id === $firstUserId) {
+            if ($testParticipant->user_id === $firstUserId) {
                 $this->assertLessThan($maxAnswerToRate /* 2 */, $testParticipant->answer_to_rate /* 1 */);
                 return;
             }
@@ -85,14 +84,14 @@ class CoLearningHelperTest extends TestCase
         //assert all answerRatings ratings are not null
         $answerRatings = $this->getAnswerRatings($testTake);
 
-        $notRatedAnswerRatingsCount = $answerRatings->filter(fn ($ar) => $ar->rating === null)->count();
-        $ratedAnswerRatingsCount = $answerRatings->filter(fn ($ar) => $ar->rating !== null)->count();
+        $notRatedAnswerRatingsCount = $answerRatings->filter(fn($ar) => $ar->rating === null)->count();
+        $ratedAnswerRatingsCount = $answerRatings->filter(fn($ar) => $ar->rating !== null)->count();
         $this->assertEquals(0, $notRatedAnswerRatingsCount);
         $this->assertGreaterThan(0, $ratedAnswerRatingsCount);
 
         //change rating of one users answerRatings to null
         $firstUserId = $answerRatings->where('user_id', '<>', null)->sortBy('user_id')->first()->user_id;
-        $temp = $answerRatings->filter(fn($ar) => $ar->user_id === $firstUserId)->each(fn ($ar) => $ar->update(['rating' => null]));
+        $temp = $answerRatings->filter(fn($ar) => $ar->user_id === $firstUserId)->each(fn($ar) => $ar->update(['rating' => null]));
 
         //assert result of CoLearningHelper returns the same value;
         $testParticipantsData = CoLearningHelper::getTestParticipantsWithStatusAndAbnormalities($testTake->getKey(), $testTake->discussing_question_id)->sortBy('user_id')->values();
@@ -100,7 +99,7 @@ class CoLearningHelperTest extends TestCase
 
         //assert that only the first testParticipant has not rated their AnswersRatings and the rest have
         $testParticipantsData->each(function ($testParticipant) use ($firstUserId) {
-            if($testParticipant->user_id === $firstUserId) {
+            if ($testParticipant->user_id === $firstUserId) {
                 $this->assertEquals(0, $testParticipant->answer_rated);
                 return;
             }
@@ -122,7 +121,7 @@ class CoLearningHelperTest extends TestCase
             $this->markTestIncomplete(__METHOD__ . ': Test needs at least 3 testParticipants to function');
         }
         $testPartcipants->each(function ($testParticipant, $key) {
-            switch($key) {
+            switch ($key) {
                 case 0:
                     $testParticipant->heartbeat_at = Carbon::now();
                     break;
@@ -218,6 +217,70 @@ class CoLearningHelperTest extends TestCase
     }
 
     /**
+     * Assert that soft deleted AnswerRatings don't create problems / don't cause unexpected abnormalities
+     * @test
+     */
+    public function TestParticipantHasZeroAbnormalitiesWhileHavingAbnormalitiesInSoftDeletedAnswerRatings()
+    {
+        $testTake = $this->setUpTestTake();
+
+        $answerRatings = $this->getAnswerRatings($testTake);
+
+        $firstUserId = $answerRatings
+            ->where('user_id', '<>', null)
+            ->first()
+            ->user_id;
+
+        $answerRatingCopies = collect();
+
+        //save different rating to first student answerRatings
+        $answerRatings
+            ->where('user_id', '=', $firstUserId)
+            ->each(function ($answerRating) use (&$answerRatingCopies) {
+                $answerRating->rating = 1;
+                $answerRating->save();
+                $answerRatingCopies[]= $answerRating->toArray();
+            });
+
+        //delete first user answerRatings
+        $answerRatings
+            ->where('user_id', '=', $firstUserId)
+            ->each(function ($answerRating) {
+                $answerRating->delete();
+            });
+
+        //change all student AnswerRatings to the same rating:
+        $answerRatings = $this->getAnswerRatings($testTake);
+        $answerRatings->each(function ($answerRating) {
+            $answerRating->rating = 5;
+            $answerRating->save();
+        });
+
+        //create new answerRatings for the first user
+        $answerRatingCopies->each(function ($answerRatingData) {
+            unset($answerRatingData['id']);
+            unset($answerRatingData['answer']);
+            $answerRatingData['rating'] = 5;
+            return AnswerRating::create($answerRatingData);
+        });
+
+        $testParticipantsData = CoLearningHelper::getTestParticipantsWithStatusAndAbnormalities($testTake->getKey(), $testTake->discussing_question_id);
+
+        $answerRatings = $this->getAnswerRatings($testTake);
+
+        $firstUserAnswerRatingsWithoutTrashedCount = $answerRatings->where('user_id', '=', $firstUserId)->count();
+        $firstUserAnswerRatingsWithTrashedCount = $this->getAnswerRatings($testTake, true)->where('user_id', '=', $firstUserId)->count();
+
+        $this->assertNotEquals($firstUserAnswerRatingsWithTrashedCount, $firstUserAnswerRatingsWithoutTrashedCount);
+
+        $firstUserAnswerRatingsCount = $answerRatings->filter(fn($answerRating) => $answerRating->user_id === $firstUserId)->count();
+        $firstUserAbnormalities = (int)$testParticipantsData->where('user_id', '=', $firstUserId)->first()->abnormalities;
+
+        $this->assertGreaterThan(0, $firstUserAnswerRatingsCount);
+        $this->assertEquals(0, $firstUserAbnormalities);
+    }
+
+    /**
      * This test creates SYSTEM answerRatings for one of the testParticipants, that are NOT equal to the ratings by this testParticipant (equals abnormalities)
      * It asserts that the user has just as many abnormalities as possible answerRatings.
      * @test
@@ -242,7 +305,7 @@ class CoLearningHelperTest extends TestCase
         //delete system and Teacher ratings
         $answerRatings->each(function ($answerRating) {
             if ($answerRating->type !== 'STUDENT') {
-                $answerRating->forceDelete();
+                $answerRating->delete();
                 return;
             }
             $answerRating->rating = 1;
@@ -301,7 +364,7 @@ class CoLearningHelperTest extends TestCase
         //delete system and Teacher ratings
         $answerRatings->each(function ($answerRating) {
             if ($answerRating->type !== 'STUDENT') {
-                $answerRating->forceDelete();
+                $answerRating->delete();
                 return;
             }
             $answerRating->rating = 1;
@@ -363,7 +426,7 @@ class CoLearningHelperTest extends TestCase
         //delete existing system and Teacher ratings
         $answerRatings->each(function ($answerRating) {
             if ($answerRating->type !== 'STUDENT') {
-                $answerRating->forceDelete();
+                $answerRating->delete();
                 return;
             }
             //set all student ratings to 1
@@ -428,7 +491,6 @@ class CoLearningHelperTest extends TestCase
     }
 
 
-
     /**
      * This test creates SYSTEM answerRatings for one of the testParticipants,
      * the SYSTEM ratings are the same as the student, but:
@@ -456,10 +518,10 @@ class CoLearningHelperTest extends TestCase
         //delete existing system and Teacher ratings
         $answerRatings->each(function ($answerRating) use ($firstUserId) {
             if ($answerRating->type !== 'STUDENT') {
-                $answerRating->forceDelete();
+                $answerRating->delete();
                 return;
             }
-            if( $answerRating->user_id === $firstUserId) {
+            if ($answerRating->user_id === $firstUserId) {
                 //set first student ratings to the same as SYSTEM
                 $answerRating->rating = 5;
                 $answerRating->save();
@@ -473,11 +535,11 @@ class CoLearningHelperTest extends TestCase
         //create SYSTEM answer_ratings
         $systemAnswerRatings = collect($firstUserAnswerIds)->reduce(function ($carry, $answerId) use ($testTake) {
             $carry[] = [
-                    'answer_id'    => $answerId,
-                    'test_take_id' => $testTake->getKey(),
-                    'type'         => 'SYSTEM',
-                    'rating'       => 5, //equal to first STUDENT rating, not equal to the rest
-                ];
+                'answer_id'    => $answerId,
+                'test_take_id' => $testTake->getKey(),
+                'type'         => 'SYSTEM',
+                'rating'       => 5, //equal to first STUDENT rating, not equal to the rest
+            ];
             return $carry;
         }, []);
 
@@ -564,7 +626,7 @@ class CoLearningHelperTest extends TestCase
         $this->assertLessThan($benchmark['TestTakesController']['queries'], $benchmark['CoLearningHelper']['queries']);
     }
 
-    protected function setUpTestTake() : TestTake
+    protected function setUpTestTake(): TestTake
     {
         $testTake = FactoryScenarioTestTakeDiscussed::createTestTake(
             user: $user = User::find(1486),
@@ -586,14 +648,18 @@ class CoLearningHelperTest extends TestCase
         DB::flushQueryLog();
     }
 
-    protected function getAnswerRatings(TestTake $testTake) : Collection
+    protected function getAnswerRatings(TestTake $testTake, $withTrashed = false): Collection
     {
         return AnswerRating::where('test_take_id', '=', $testTake->getKey())
             ->orderBy('answer_id')
+            ->when($withTrashed, function ($query) {
+                $query->withTrashed();
+            })
             ->get();
     }
 
-    protected function getTestParticipantsWithStatusOldController($testTake) {
+    protected function getTestParticipantsWithStatusOldController($testTake)
+    {
 
         $request = new \Illuminate\Http\Request([
             'with' => ['participantStatus', 'discussingQuestion'],

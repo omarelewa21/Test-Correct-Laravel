@@ -71,9 +71,10 @@ class CoLearning extends Component
         $this->testTake = $test_take;
         $this->redirectIfNotAllowed();
 
+        $this->getStaticNavigationData();
+
         if ($this->testTakeIsBeingRestarted()) {
             $this->coLearningRestart = true;
-            $this->getStaticNavigationData();
             return;
         }
         if ($this->coLearningHasBeenStarted === false) {
@@ -112,15 +113,20 @@ class CoLearning extends Component
             throw new \Exception('Wrong discussion type');
         }
 
-        if($this->testTakeNeedsToBeUpdated($discussionType)) {
-            $this->testTake->update([
-                'test_take_status_id' => TestTakeStatus::STATUS_DISCUSSING,
-                'discussion_type'     => $discussionType
-            ]);
+        $testTakeUpdateData = [];
+        if($this->testTakeStatusNeedsToBeUpdated()) {
+            $testTakeUpdateData['test_take_status_id'] = TestTakeStatus::STATUS_DISCUSSING;
+        }
+        if($this->discussionTypeNeedsToBeUpdated($discussionType)) {
+            $testTakeUpdateData['discussion_type'] = $discussionType;
         }
         if($resetProgress) {
-            //todo remove all STUDENT AnswerRatings?
-            // "begin opnieuw \n eerdere sessie wordt verwijderd"
+            $testTakeUpdateData['discussion_question_id'] = null;
+            $testTakeUpdateData['is_discussed'] = 0;
+            $this->deleteStudentAnswerRatings();
+        }
+        if(!empty($testTakeUpdateData)) {
+            $this->testTake->update($testTakeUpdateData);
         }
 
         if ($this->testTake->discussing_question_id === null) {
@@ -143,7 +149,6 @@ class CoLearning extends Component
     {
         $this->removeChangesFromTestTakeModel();
 
-        //do i have to refresh/fresh the TestTake before passing it to the controller?
         $this->testTake = (new TestTakesController)->nextQuestion($this->testTake, false);
     }
 
@@ -168,10 +173,6 @@ class CoLearning extends Component
     /* start sidebar methods */
     public function goToNextQuestion()
     {
-        /*TODO
-         * check => make all students go to the next question
-         */
-        //todo check if all students have rated their AnswerRatings?
         if ($this->testParticipantsFinishedWithRatingPercentage === 100) {
             $this->nextDiscussionQuestion();
             $this->getNavigationData();
@@ -188,7 +189,6 @@ class CoLearning extends Component
     public function goToPreviousQuestion()
     {
         if (!$this->updateDiscussingQuestionIdOnTestTake()) {
-            //todo what to do if updating fails?
             return false;
         }
 
@@ -345,12 +345,22 @@ class CoLearning extends Component
 
             $testParticipantAbnormalitiesAverageDeltaPercentage = null;
 
-            if ($testParticipant->answer_rated > 0 && $abnormalitiesAverage == 0 && $testParticipant->active) {
-                $testParticipantAbnormalitiesAverageDeltaPercentage = 100;
-            }
+            $questionIndex = $this->openOnly ? $this->questionIndexOpenOnly : $this->questionIndex;
 
-            if ($abnormalitiesAverage != 0 && $testParticipant->active) {
-                $testParticipantAbnormalitiesAverageDeltaPercentage = (100 / $abnormalitiesAverage) * $testParticipant->abnormalities;
+            $answersRated = DB::table('answer_ratings')
+                ->where('test_take_id', $this->testTake->getKey())
+                ->where('user_id', $testParticipant->user_id)->get()
+                ->where('rating', '<>', null)
+                ->count();
+
+            if($answersRated >= 4) {
+                if ($testParticipant->answer_rated > 0 && $abnormalitiesAverage == 0 && $testParticipant->active) {
+                    $testParticipantAbnormalitiesAverageDeltaPercentage = 100;
+                }
+
+                if ($abnormalitiesAverage != 0 && $testParticipant->active) {
+                    $testParticipantAbnormalitiesAverageDeltaPercentage = (100 / $abnormalitiesAverage) * $testParticipant->abnormalities;
+                }
             }
 
             $this->testParticipantStatusses = $this->testParticipantStatusses->mergeRecursive([
@@ -614,11 +624,21 @@ class CoLearning extends Component
             || $this->testTake->test_take_status_id === TestTakeStatus::STATUS_TAKEN;
     }
 
-    private function testTakeNeedsToBeUpdated(string $testTakeDiscussionType): bool
+    private function testTakeStatusNeedsToBeUpdated(): bool
     {
-        return $this->testTake->test_take_status_id !== TestTakeStatus::STATUS_DISCUSSING
-            || $this->testTake->discussion_type !== $testTakeDiscussionType;
+        return $this->testTake->test_take_status_id !== TestTakeStatus::STATUS_DISCUSSING;
     }
 
+    private function discussionTypeNeedsToBeUpdated(string $testTakeDiscussionType): bool
+    {
+        return $this->testTake->discussion_type !== $testTakeDiscussionType;
+    }
+
+    private function deleteStudentAnswerRatings()
+    {
+        AnswerRating::where('test_take_id', '=', $this->testTake->getKey())
+            ->where('type', '=', 'STUDENT')
+            ->delete();
+    }
 
 }
