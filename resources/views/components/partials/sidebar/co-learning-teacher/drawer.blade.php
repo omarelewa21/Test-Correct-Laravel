@@ -67,17 +67,6 @@
                         ></x-partials.sidebar.co-learning-teacher.student-info-container>
                     @endif
                 @endforeach
-
-                @php
-                    $answerRating = \Illuminate\Support\Facades\DB::table('answers')->where('question_id', '=', $this->testTake->discussing_question_id)
-                    ->join('answer_ratings', 'answer_ratings.answer_id', '=', 'answers.id')
-                    ->where('answer_ratings.id', '<>', null)->select('answer_ratings.id')->first()->id;
-
-                @endphp
-                <div @click="showStudentAnswer = await $wire.showStudentAnswer(542)" {{--528--}}
-                     wire:click.prevent="showStudentAnswer('{{ $answerRating /*528/*535*//*$testParticipant->discussing_answer_rating_id*/ }}')"
-                >jup</div>
-
             </div>
         </div>
 
