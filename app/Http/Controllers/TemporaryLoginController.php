@@ -82,7 +82,7 @@ class TemporaryLoginController extends Controller
         return $this->createRedirectUrlWithTemporaryLoginUuidToCake($t->uuid,$redirect);
     }
 
-    public static function createRedirectUrlWithTemporaryLoginUuidToCake($uuid, $redirectUrl)
+    private function createRedirectUrlWithTemporaryLoginUuidToCake($uuid, $redirectUrl)
     {
         $response = new \stdClass;
 

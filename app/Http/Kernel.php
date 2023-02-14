@@ -10,7 +10,6 @@ use tcCore\Http\Middleware\AuthenticatedAsStudent;
 use tcCore\Http\Middleware\AuthenticateWithTemporaryLogin;
 use tcCore\Http\Middleware\CheckForDeploymentMaintenance;
 use tcCore\Http\Middleware\GuestChoice;
-use tcCore\Http\Middleware\HasSupportInSession;
 use tcCore\Http\Middleware\LocaleMiddleware;
 use tcCore\Http\Middleware\Logging;
 use tcCore\Http\Middleware\RequestLogger;
@@ -64,7 +63,6 @@ class Kernel extends HttpKernel
         'throttle'              => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'accountManager'        => AuthenticatedAsAccountManager::class,
         'administrator'         => AuthenticatedAsAdministrator::class,
-        'containsSupportUser'   => HasSupportInSession::class,
     ];
 
     /**
