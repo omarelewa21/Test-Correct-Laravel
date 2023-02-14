@@ -519,7 +519,7 @@ class TestTake extends BaseModel
             $user = Auth::user();
             $skipDefaults = $user->isValidExamCoordinator() && $this->hasRatedTestTakesFilter($filters);
             $query->when(!$skipDefaults, function ($query) use ($filters, $user) {
-                $query->accessForTeacher($user, $filters)
+                $query->accessForTeacher($user, (array)$filters)
                     ->withoutDemoTeacherForUser($user)
                     ->onlyTestsFromSubjectsOrIfDemoThenOnlyWhenOwner($user)
                     ->when($user->isValidExamCoordinator(), fn($query) => $query->scheduledByExamCoordinator($user));
