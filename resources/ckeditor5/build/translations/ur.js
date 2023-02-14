@@ -1,0 +1,1 @@
+(function(d){	const l = d['ur'] = d['ur'] || {};	l.dictionary=Object.assign(		l.dictionary||{},		{"Saving changes":"خودکار محفوظ"}	);l.getPluralForm=function(n){return (n != 1);;};})(window.CKEDITOR_TRANSLATIONS||(window.CKEDITOR_TRANSLATIONS={}));

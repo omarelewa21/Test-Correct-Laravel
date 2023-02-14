@@ -131,7 +131,6 @@ document.addEventListener('alpine:init', () => {
         hasError: {empty: [], false: []},
         data: {
             elements: [],
-
         },
         maxOptions: 10,
         minOptions: 2,
@@ -143,10 +142,13 @@ document.addEventListener('alpine:init', () => {
         },
 
         initWithSelection() {
-            let text = window.editor.getSelectedHtml().$.textContent
+            let editor = window.editor;
+            let selection = editor.data.stringify(editor.model.getSelectedContent(editor.model.document.selection));
+            let text = selection
                 .trim()
                 .replace('[', '')
                 .replace(']', '');
+
 
             let content = text;
             if (text.contains('|')) {
@@ -205,7 +207,11 @@ document.addEventListener('alpine:init', () => {
             let lw = livewire.find(document.getElementById('cms').getAttribute('wire:id'));
             lw.set('showSelectionOptionsModal', true)
 
-            window.editor.insertText(result);
+            window.editor.model.change(writer => {
+                window.editor.model.insertContent(
+                    writer.createText(result)
+                );
+            });
 
             setTimeout(() => {
                 this.$wire.setQuestionProperty('question', window.editor.getData());

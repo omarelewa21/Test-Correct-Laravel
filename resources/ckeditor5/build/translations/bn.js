@@ -1,0 +1,1 @@
+(function(d){	const l = d['bn'] = d['bn'] || {};	l.dictionary=Object.assign(		l.dictionary||{},		{"Saving changes":"পরিবর্তনগুলো সংরক্ষণ করা হচ্ছে"}	);l.getPluralForm=function(n){return (n != 1);;};})(window.CKEDITOR_TRANSLATIONS||(window.CKEDITOR_TRANSLATIONS={}));

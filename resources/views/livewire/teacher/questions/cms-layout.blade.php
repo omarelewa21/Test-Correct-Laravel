@@ -30,18 +30,18 @@
            }
            changeEditorWscLanguage = (lang) => {
                 if (document.getElementById('{{ $this->questionEditorId }}')) {
-                    WebspellcheckerTlc.lang(CKEDITOR.instances['{{ $this->questionEditorId }}'], lang);
+                    WebspellcheckerTlc.lang(ClassicEditors['{{ $this->questionEditorId }}'], lang);
                 }
                 if (document.getElementById('{{ $this->answerEditorId }}')) {
-                    WebspellcheckerTlc.lang(CKEDITOR.instances['{{ $this->answerEditorId }}'], lang);
+                    WebspellcheckerTlc.lang(ClassicEditors['{{ $this->answerEditorId }}'], lang);
                 }
            }
            forceSyncEditors = () => {
                 if (document.getElementById('{{ $this->questionEditorId }}')) {
-                    $wire.sync('question.question', CKEDITOR.instances['{{ $this->questionEditorId }}'].getData());
+                    $wire.sync('question.question', ClassicEditors['{{ $this->questionEditorId }}'].getData());
                 }
                 if (document.getElementById('{{ $this->answerEditorId }}')) {
-                    $wire.sync('question.answer', CKEDITOR.instances['{{ $this->answerEditorId }}'].getData());
+                    $wire.sync('question.answer', ClassicEditors['{{ $this->answerEditorId }}'].getData());
                 }
            }
            "

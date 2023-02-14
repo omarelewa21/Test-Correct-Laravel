@@ -5310,6 +5310,11 @@ function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o =
 function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
 function _iterableToArrayLimit(arr, i) { var _i = null == arr ? null : "undefined" != typeof Symbol && arr[Symbol.iterator] || arr["@@iterator"]; if (null != _i) { var _s, _e, _x, _r, _arr = [], _n = !0, _d = !1; try { if (_x = (_i = _i.call(arr)).next, 0 === i) { if (Object(_i) !== _i) return; _n = !1; } else for (; !(_n = (_s = _x.call(_i)).done) && (_arr.push(_s.value), _arr.length !== i); _n = !0) { ; } } catch (err) { _d = !0, _e = err; } finally { try { if (!_n && null != _i["return"] && (_r = _i["return"](), Object(_r) !== _r)) return; } finally { if (_d) throw _e; } } return _arr; } }
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return exports; }; var exports = {}, Op = Object.prototype, hasOwn = Op.hasOwnProperty, defineProperty = Object.defineProperty || function (obj, key, desc) { obj[key] = desc.value; }, $Symbol = "function" == typeof Symbol ? Symbol : {}, iteratorSymbol = $Symbol.iterator || "@@iterator", asyncIteratorSymbol = $Symbol.asyncIterator || "@@asyncIterator", toStringTagSymbol = $Symbol.toStringTag || "@@toStringTag"; function define(obj, key, value) { return Object.defineProperty(obj, key, { value: value, enumerable: !0, configurable: !0, writable: !0 }), obj[key]; } try { define({}, ""); } catch (err) { define = function define(obj, key, value) { return obj[key] = value; }; } function wrap(innerFn, outerFn, self, tryLocsList) { var protoGenerator = outerFn && outerFn.prototype instanceof Generator ? outerFn : Generator, generator = Object.create(protoGenerator.prototype), context = new Context(tryLocsList || []); return defineProperty(generator, "_invoke", { value: makeInvokeMethod(innerFn, self, context) }), generator; } function tryCatch(fn, obj, arg) { try { return { type: "normal", arg: fn.call(obj, arg) }; } catch (err) { return { type: "throw", arg: err }; } } exports.wrap = wrap; var ContinueSentinel = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var IteratorPrototype = {}; define(IteratorPrototype, iteratorSymbol, function () { return this; }); var getProto = Object.getPrototypeOf, NativeIteratorPrototype = getProto && getProto(getProto(values([]))); NativeIteratorPrototype && NativeIteratorPrototype !== Op && hasOwn.call(NativeIteratorPrototype, iteratorSymbol) && (IteratorPrototype = NativeIteratorPrototype); var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(IteratorPrototype); function defineIteratorMethods(prototype) { ["next", "throw", "return"].forEach(function (method) { define(prototype, method, function (arg) { return this._invoke(method, arg); }); }); } function AsyncIterator(generator, PromiseImpl) { function invoke(method, arg, resolve, reject) { var record = tryCatch(generator[method], generator, arg); if ("throw" !== record.type) { var result = record.arg, value = result.value; return value && "object" == _typeof(value) && hasOwn.call(value, "__await") ? PromiseImpl.resolve(value.__await).then(function (value) { invoke("next", value, resolve, reject); }, function (err) { invoke("throw", err, resolve, reject); }) : PromiseImpl.resolve(value).then(function (unwrapped) { result.value = unwrapped, resolve(result); }, function (error) { return invoke("throw", error, resolve, reject); }); } reject(record.arg); } var previousPromise; defineProperty(this, "_invoke", { value: function value(method, arg) { function callInvokeWithMethodAndArg() { return new PromiseImpl(function (resolve, reject) { invoke(method, arg, resolve, reject); }); } return previousPromise = previousPromise ? previousPromise.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(innerFn, self, context) { var state = "suspendedStart"; return function (method, arg) { if ("executing" === state) throw new Error("Generator is already running"); if ("completed" === state) { if ("throw" === method) throw arg; return doneResult(); } for (context.method = method, context.arg = arg;;) { var delegate = context.delegate; if (delegate) { var delegateResult = maybeInvokeDelegate(delegate, context); if (delegateResult) { if (delegateResult === ContinueSentinel) continue; return delegateResult; } } if ("next" === context.method) context.sent = context._sent = context.arg;else if ("throw" === context.method) { if ("suspendedStart" === state) throw state = "completed", context.arg; context.dispatchException(context.arg); } else "return" === context.method && context.abrupt("return", context.arg); state = "executing"; var record = tryCatch(innerFn, self, context); if ("normal" === record.type) { if (state = context.done ? "completed" : "suspendedYield", record.arg === ContinueSentinel) continue; return { value: record.arg, done: context.done }; } "throw" === record.type && (state = "completed", context.method = "throw", context.arg = record.arg); } }; } function maybeInvokeDelegate(delegate, context) { var methodName = context.method, method = delegate.iterator[methodName]; if (undefined === method) return context.delegate = null, "throw" === methodName && delegate.iterator["return"] && (context.method = "return", context.arg = undefined, maybeInvokeDelegate(delegate, context), "throw" === context.method) || "return" !== methodName && (context.method = "throw", context.arg = new TypeError("The iterator does not provide a '" + methodName + "' method")), ContinueSentinel; var record = tryCatch(method, delegate.iterator, context.arg); if ("throw" === record.type) return context.method = "throw", context.arg = record.arg, context.delegate = null, ContinueSentinel; var info = record.arg; return info ? info.done ? (context[delegate.resultName] = info.value, context.next = delegate.nextLoc, "return" !== context.method && (context.method = "next", context.arg = undefined), context.delegate = null, ContinueSentinel) : info : (context.method = "throw", context.arg = new TypeError("iterator result is not an object"), context.delegate = null, ContinueSentinel); } function pushTryEntry(locs) { var entry = { tryLoc: locs[0] }; 1 in locs && (entry.catchLoc = locs[1]), 2 in locs && (entry.finallyLoc = locs[2], entry.afterLoc = locs[3]), this.tryEntries.push(entry); } function resetTryEntry(entry) { var record = entry.completion || {}; record.type = "normal", delete record.arg, entry.completion = record; } function Context(tryLocsList) { this.tryEntries = [{ tryLoc: "root" }], tryLocsList.forEach(pushTryEntry, this), this.reset(!0); } function values(iterable) { if (iterable) { var iteratorMethod = iterable[iteratorSymbol]; if (iteratorMethod) return iteratorMethod.call(iterable); if ("function" == typeof iterable.next) return iterable; if (!isNaN(iterable.length)) { var i = -1, next = function next() { for (; ++i < iterable.length;) { if (hasOwn.call(iterable, i)) return next.value = iterable[i], next.done = !1, next; } return next.value = undefined, next.done = !0, next; }; return next.next = next; } } return { next: doneResult }; } function doneResult() { return { value: undefined, done: !0 }; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, defineProperty(Gp, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), defineProperty(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, toStringTagSymbol, "GeneratorFunction"), exports.isGeneratorFunction = function (genFun) { var ctor = "function" == typeof genFun && genFun.constructor; return !!ctor && (ctor === GeneratorFunction || "GeneratorFunction" === (ctor.displayName || ctor.name)); }, exports.mark = function (genFun) { return Object.setPrototypeOf ? Object.setPrototypeOf(genFun, GeneratorFunctionPrototype) : (genFun.__proto__ = GeneratorFunctionPrototype, define(genFun, toStringTagSymbol, "GeneratorFunction")), genFun.prototype = Object.create(Gp), genFun; }, exports.awrap = function (arg) { return { __await: arg }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, asyncIteratorSymbol, function () { return this; }), exports.AsyncIterator = AsyncIterator, exports.async = function (innerFn, outerFn, self, tryLocsList, PromiseImpl) { void 0 === PromiseImpl && (PromiseImpl = Promise); var iter = new AsyncIterator(wrap(innerFn, outerFn, self, tryLocsList), PromiseImpl); return exports.isGeneratorFunction(outerFn) ? iter : iter.next().then(function (result) { return result.done ? result.value : iter.next(); }); }, defineIteratorMethods(Gp), define(Gp, toStringTagSymbol, "Generator"), define(Gp, iteratorSymbol, function () { return this; }), define(Gp, "toString", function () { return "[object Generator]"; }), exports.keys = function (val) { var object = Object(val), keys = []; for (var key in object) { keys.push(key); } return keys.reverse(), function next() { for (; keys.length;) { var key = keys.pop(); if (key in object) return next.value = key, next.done = !1, next; } return next.done = !0, next; }; }, exports.values = values, Context.prototype = { constructor: Context, reset: function reset(skipTempReset) { if (this.prev = 0, this.next = 0, this.sent = this._sent = undefined, this.done = !1, this.delegate = null, this.method = "next", this.arg = undefined, this.tryEntries.forEach(resetTryEntry), !skipTempReset) for (var name in this) { "t" === name.charAt(0) && hasOwn.call(this, name) && !isNaN(+name.slice(1)) && (this[name] = undefined); } }, stop: function stop() { this.done = !0; var rootRecord = this.tryEntries[0].completion; if ("throw" === rootRecord.type) throw rootRecord.arg; return this.rval; }, dispatchException: function dispatchException(exception) { if (this.done) throw exception; var context = this; function handle(loc, caught) { return record.type = "throw", record.arg = exception, context.next = loc, caught && (context.method = "next", context.arg = undefined), !!caught; } for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i], record = entry.completion; if ("root" === entry.tryLoc) return handle("end"); if (entry.tryLoc <= this.prev) { var hasCatch = hasOwn.call(entry, "catchLoc"), hasFinally = hasOwn.call(entry, "finallyLoc"); if (hasCatch && hasFinally) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } else if (hasCatch) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); } else { if (!hasFinally) throw new Error("try statement without catch or finally"); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } } } }, abrupt: function abrupt(type, arg) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc <= this.prev && hasOwn.call(entry, "finallyLoc") && this.prev < entry.finallyLoc) { var finallyEntry = entry; break; } } finallyEntry && ("break" === type || "continue" === type) && finallyEntry.tryLoc <= arg && arg <= finallyEntry.finallyLoc && (finallyEntry = null); var record = finallyEntry ? finallyEntry.completion : {}; return record.type = type, record.arg = arg, finallyEntry ? (this.method = "next", this.next = finallyEntry.finallyLoc, ContinueSentinel) : this.complete(record); }, complete: function complete(record, afterLoc) { if ("throw" === record.type) throw record.arg; return "break" === record.type || "continue" === record.type ? this.next = record.arg : "return" === record.type ? (this.rval = this.arg = record.arg, this.method = "return", this.next = "end") : "normal" === record.type && afterLoc && (this.next = afterLoc), ContinueSentinel; }, finish: function finish(finallyLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.finallyLoc === finallyLoc) return this.complete(entry.completion, entry.afterLoc), resetTryEntry(entry), ContinueSentinel; } }, "catch": function _catch(tryLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc === tryLoc) { var record = entry.completion; if ("throw" === record.type) { var thrown = record.arg; resetTryEntry(entry); } return thrown; } } throw new Error("illegal catch attempt"); }, delegateYield: function delegateYield(iterable, resultName, nextLoc) { return this.delegate = { iterator: values(iterable), resultName: resultName, nextLoc: nextLoc }, "next" === this.method && (this.arg = undefined), ContinueSentinel; } }, exports; }
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
@@ -5437,7 +5442,9 @@ document.addEventListener('alpine:init', function () {
       },
       initWithSelection: function initWithSelection() {
         var _this3 = this;
-        var text = window.editor.getSelectedHtml().$.textContent.trim().replace('[', '').replace(']', '');
+        var editor = window.editor;
+        var selection = editor.data.stringify(editor.model.getSelectedContent(editor.model.document.selection));
+        var text = selection.trim().replace('[', '').replace(']', '');
         var content = text;
         if (text.contains('|')) {
           content = text.split("|");
@@ -5500,7 +5507,9 @@ document.addEventListener('alpine:init', function () {
         result = '[' + result.join('|') + ']';
         var lw = livewire.find(document.getElementById('cms').getAttribute('wire:id'));
         lw.set('showSelectionOptionsModal', true);
-        window.editor.insertText(result);
+        window.editor.model.change(function (writer) {
+          window.editor.model.insertContent(writer.createText(result));
+        });
         setTimeout(function () {
           _this5.$wire.setQuestionProperty('question', window.editor.getData());
         }, 300);
@@ -5924,6 +5933,7 @@ document.addEventListener('alpine:init', function () {
       wireModel: wireModel,
       activeFiltersContainer: null,
       choices: null,
+      activeGroups: [],
       init: function init() {
         var _window,
           _window$registeredEve,
@@ -5933,51 +5943,74 @@ document.addEventListener('alpine:init', function () {
         this.activeFiltersContainer = document.getElementById(filterContainer);
         this.multiple = multiple === 1;
         this.$nextTick(function () {
-          var choices = new (choices_js__WEBPACK_IMPORTED_MODULE_1___default())(_this17.$refs.select, _this17.config);
+          var choices = new (choices_js__WEBPACK_IMPORTED_MODULE_1___default())(_this17.$refs.select, _this17.getChoicesConfig());
           var refreshChoices = function refreshChoices() {
             var selection = _this17.multiple ? _this17.value : [_this17.value];
-            choices.clearStore();
-            if (_this17.config.placeholderValue.length > 0 && _this17.$root.classList.contains('super')) {
-              var _this17$$root$querySe;
-              var placeholderItem = choices._getTemplate('placeholder', _this17.config.placeholderValue);
-              placeholderItem.classList.add('truncate', 'min-w-[1rem]', 'placeholder');
-              (_this17$$root$querySe = _this17.$root.querySelector('.choices__placeholder.placeholder')) === null || _this17$$root$querySe === void 0 ? void 0 : _this17$$root$querySe.remove();
-              choices.itemList.append(placeholderItem);
-            }
             var options = _typeof(_this17.options) === 'object' ? Object.values(_this17.options) : _this17.options;
-            choices.setChoices(options.map(function (_ref) {
+            _this17.setActiveGroupsOnInit();
+            choices.clearStore();
+            _this17.addPlaceholderValues(choices);
+            options = options.map(function (_ref) {
               var value = _ref.value,
-                label = _ref.label;
+                label = _ref.label,
+                customProperties = _ref.customProperties;
               return {
                 value: value,
                 label: label,
+                customProperties: customProperties !== null && customProperties !== void 0 ? customProperties : {},
                 selected: selection.includes(value)
               };
-            }));
+            });
+            choices.setChoices(options);
             _this17.handleActiveFilters(choices.getValue());
           };
           refreshChoices();
           _this17.$refs.select.addEventListener('choice', function (event) {
             var eventValue = _this17.getValidatedEventValue(event);
+            var choice = event.detail.choice;
             if (!Array.isArray(_this17.value)) {
               _this17.value = eventValue;
               return;
             }
-            if (_this17.value.includes(eventValue)) {
+            if (_this17.isAParentChoice(choice)) {
+              _this17.handleGroupItemChoice(choice);
+            }
+            if (isUnselectedRegularOrChildChoice.call(_this17)) {
+              var _choice$customPropert;
               _this17.removeFilterItem(choices.getValue().find(function (value) {
-                return value.value === event.detail.choice.value;
+                return value.value === choice.value;
               }));
+              if (_this17.value.includes((_choice$customPropert = choice.customProperties) === null || _choice$customPropert === void 0 ? void 0 : _choice$customPropert.parentId)) {
+                _this17.removeFilterItemByValue(choice.customProperties.parentId);
+                _this17.activeGroups = _this17.activeGroups.filter(function (groupId) {
+                  return groupId !== choice.customProperties.parentId;
+                });
+              }
+            }
+            _this17.wireModel = _this17.value;
+            refreshChoices();
+            function isUnselectedRegularOrChildChoice() {
+              return this.value.includes(eventValue) && (this.isAChildChoice(choice) || this.isARegularChoice(choice));
             }
           });
           _this17.$refs.select.addEventListener('change', function () {
             if (!Array.isArray(_this17.value)) return;
             _this17.value = choices.getValue(true);
           });
-          var eventName = 'removeFrom' + _this17.$root.dataset.modelName;
+          var eventName = _this17.getRemoveEventName();
           if (!window.registeredEventHandlers.includes(eventName)) {
             window.registeredEventHandlers.push(eventName);
             window.addEventListener(eventName, function (event) {
-              _this17.removeFilterItem(event.detail);
+              /* If this yields no result, make sure the remove eventnames are unique on the page :) */
+              var choice = choices.getValue().filter(function (choice) {
+                return choice.value === event.detail.value;
+              })[0];
+              if (_this17.isAParentChoice(choice)) {
+                _this17.handleGroupItemChoice(choice);
+              } else {
+                _this17.removeFilterItem(choice);
+              }
+              refreshChoices();
             });
           }
           _this17.$watch('value', function () {
@@ -5996,48 +6029,129 @@ document.addEventListener('alpine:init', function () {
           });
         });
       },
+      setActiveGroupsOnInit: function setActiveGroupsOnInit() {
+        var _this18 = this;
+        if (this.activeGroups.length) {
+          this.activeGroups.forEach(function (value) {
+            return _this18.clearFilterPill(value);
+          });
+        }
+        this.activeGroups = [];
+        this.options.forEach(function (option) {
+          var _option$customPropert;
+          if (((_option$customPropert = option.customProperties) === null || _option$customPropert === void 0 ? void 0 : _option$customPropert.parent) === true) {
+            if (_this18.value.includes(option.value)) {
+              _this18.activeGroups.push(option.value);
+            }
+          }
+        });
+        this.activeGroups = this.activeGroups.filter(function (value, index, self) {
+          return self.indexOf(value) === index;
+        });
+      },
+      handleGroupItemChoice: function handleGroupItemChoice(choice) {
+        var _this19 = this;
+        var parentId = choice.customProperties.parentId;
+        var childValues = this.options.filter(function (option) {
+          return option.customProperties.parent === false && parentId === option.customProperties.parentId;
+        }).map(function (value) {
+          return value.value;
+        });
+        if (!this.value.includes(choice.value)) {
+          this.value = _.union(this.value, childValues, [choice.value]);
+          this.activeGroups.push(choice.value);
+          return;
+        }
+        var valuesToSplice = _.union(childValues, [choice.value]);
+        valuesToSplice.forEach(function (val) {
+          if (_this19.value.includes(val)) {
+            _this19.removeFilterItemByValue(val);
+          }
+        });
+        this.activeGroups = this.activeGroups.filter(function (groupId) {
+          return groupId !== choice.customProperties.parentId;
+        });
+      },
+      isAParentChoice: function isAParentChoice(choice) {
+        var _choice$customPropert2;
+        return ((_choice$customPropert2 = choice.customProperties) === null || _choice$customPropert2 === void 0 ? void 0 : _choice$customPropert2.parent) === true;
+      },
+      isAChildChoice: function isAChildChoice(choice) {
+        var _choice$customPropert3, _choice$customPropert4;
+        return ((_choice$customPropert3 = choice.customProperties) === null || _choice$customPropert3 === void 0 ? void 0 : _choice$customPropert3.parentId) !== undefined && ((_choice$customPropert4 = choice.customProperties) === null || _choice$customPropert4 === void 0 ? void 0 : _choice$customPropert4.parent) === false;
+      },
+      isARegularChoice: function isARegularChoice(choice) {
+        return choice.customProperties.parent === undefined;
+      },
       removeFilterItem: function removeFilterItem(item) {
         if (!Array.isArray(this.value)) return;
-        this.wireModel = this.value.filter(function (itemValue) {
-          return itemValue !== item.value;
-        });
-        this.clearFilterPill(item.value);
+        this.removeFilterItemByValue(item.value);
+      },
+      removeFilterItemByValue: function removeFilterItemByValue(value) {
+        this.value.splice(this.value.indexOf(value), 1);
+        this.clearFilterPill(value);
       },
       getDataSelector: function getDataSelector(item) {
         return "[data-filter=\"".concat(this.$root.dataset.modelName, "\"][data-filter-value=\"").concat(item, "\"]");
       },
       handleActiveFilters: function handleActiveFilters(choicesValues) {
-        var _this18 = this;
+        var _this20 = this;
         if (!Array.isArray(this.value)) return;
-        this.value.forEach(function (item) {
-          if (_this18.needsFilterPill(item)) {
+        var valuesToCreatePillsFor = this.value;
+        if (this.activeGroups.length) {
+          valuesToCreatePillsFor = choicesValues.filter(function (value) {
+            var _value$customProperti, _value$customProperti2;
+            if (((_value$customProperti = value.customProperties) === null || _value$customProperti === void 0 ? void 0 : _value$customProperti.parent) === true) {
+              return true;
+            }
+            if (!_this20.activeGroups.includes((_value$customProperti2 = value.customProperties) === null || _value$customProperti2 === void 0 ? void 0 : _value$customProperti2.parentId)) {
+              return true;
+            }
+            if (!_this20.needsFilterPill(value.value)) {
+              _this20.clearFilterPill(value.value);
+            }
+            return false;
+          }).map(function (item) {
+            return item.value;
+          });
+        }
+        valuesToCreatePillsFor.forEach(function (item) {
+          if (_this20.needsFilterPill(item)) {
             var cItem = choicesValues.find(function (value) {
               return value.value === item;
             });
             if (typeof cItem !== 'undefined') {
-              _this18.createFilterPill(cItem);
+              _this20.createFilterPill(cItem);
             }
           }
         });
       },
+      getTextForFilterPill: function getTextForFilterPill(item, element) {
+        var innerHtml = item.label;
+        if (this.isAChildChoice(item)) {
+          innerHtml = "".concat(item.customProperties.parentLabel, ": ").concat(item.label);
+        }
+        if (this.isAParentChoice(item)) {
+          innerHtml = "".concat(item.label, ": ").concat(element.dataset.transAny);
+        }
+        return innerHtml;
+      },
       createFilterPill: function createFilterPill(item) {
         var element = document.getElementById('filter-pill-template').content.firstElementChild.cloneNode(true);
-        // const element = document.createElement('span')
         element.id = "filter-".concat(this.$root.dataset.modelName, "-").concat(item.value);
         element.classList.add('filter-pill');
         element.dataset.filter = this.$root.dataset.modelName;
         element.dataset.filterValue = item.value;
-        element.firstElementChild.innerHTML = item.label;
+        element.dataset.removeEventName = this.getRemoveEventName();
+        element.firstElementChild.innerHTML = this.getTextForFilterPill(item, element);
         return this.activeFiltersContainer.appendChild(element);
       },
       needsFilterPill: function needsFilterPill(item) {
         return this.activeFiltersContainer.querySelector(this.getDataSelector(item)) === null;
       },
       clearFilterPill: function clearFilterPill(item) {
-        var _document$querySelect;
-        return (_document$querySelect = document.querySelectorAll(this.getDataSelector(item))) === null || _document$querySelect === void 0 ? void 0 : _document$querySelect.forEach(function (el) {
-          return el.remove();
-        });
+        var _this$activeFiltersCo;
+        return (_this$activeFiltersCo = this.activeFiltersContainer.querySelector(this.getDataSelector(item))) === null || _this$activeFiltersCo === void 0 ? void 0 : _this$activeFiltersCo.remove();
       },
       getValidatedEventValue: function getValidatedEventValue(event) {
         var eventValue = event.detail.choice.value;
@@ -6046,6 +6160,35 @@ document.addEventListener('alpine:init', function () {
           eventValue = parseInt(event.detail.choice.value);
         }
         return eventValue;
+      },
+      getChoicesConfig: function getChoicesConfig() {
+        return _objectSpread(_objectSpread({}, this.config), {}, {
+          callbackOnCreateTemplates: function callbackOnCreateTemplates() {
+            return {
+              choice: function choice(classes, attr) {
+                var _attr$customPropertie;
+                var el = choices_js__WEBPACK_IMPORTED_MODULE_1___default().defaults.templates.choice.call(this, classes, attr, '');
+                if (((_attr$customPropertie = attr.customProperties) === null || _attr$customPropertie === void 0 ? void 0 : _attr$customPropertie.parent) === false) {
+                  el.classList.add('child');
+                }
+                return el;
+              }
+            };
+          }
+        });
+      },
+      addPlaceholderValues: function addPlaceholderValues(choices) {
+        var _this$$root$querySele;
+        if (!this.config.placeholderValue.length || !this.$root.classList.contains('super')) {
+          return;
+        }
+        var placeholderItem = choices._getTemplate('placeholder', this.config.placeholderValue);
+        placeholderItem.classList.add('truncate', 'min-w-[1rem]', 'placeholder');
+        (_this$$root$querySele = this.$root.querySelector('.choices__placeholder.placeholder')) === null || _this$$root$querySele === void 0 ? void 0 : _this$$root$querySele.remove();
+        choices.itemList.append(placeholderItem);
+      },
+      getRemoveEventName: function getRemoveEventName() {
+        return 'removeFrom' + this.$root.getAttribute('wire:key');
       }
     };
   });
@@ -6059,21 +6202,21 @@ document.addEventListener('alpine:init', function () {
         this.updateGraph();
       },
       updateGraph: function updateGraph() {
-        var _this19 = this;
+        var _this21 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
-          var _yield$_this19$$wire$, _yield$_this19$$wire$2;
+          var _yield$_this21$$wire$, _yield$_this21$$wire$2;
           return _regeneratorRuntime().wrap(function _callee3$(_context3) {
             while (1) {
               switch (_context3.prev = _context3.next) {
                 case 0:
                   _context3.next = 2;
-                  return _this19.$wire.call('getDataForGraph');
+                  return _this21.$wire.call('getDataForGraph');
                 case 2:
-                  _yield$_this19$$wire$ = _context3.sent;
-                  _yield$_this19$$wire$2 = _slicedToArray(_yield$_this19$$wire$, 2);
-                  _this19.showEmptyState = _yield$_this19$$wire$2[0];
-                  _this19.data = _yield$_this19$$wire$2[1];
-                  _this19.renderGraph();
+                  _yield$_this21$$wire$ = _context3.sent;
+                  _yield$_this21$$wire$2 = _slicedToArray(_yield$_this21$$wire$, 2);
+                  _this21.showEmptyState = _yield$_this21$$wire$2[0];
+                  _this21.data = _yield$_this21$$wire$2[1];
+                  _this21.renderGraph();
                 case 7:
                 case "end":
                   return _context3.stop();
@@ -6243,22 +6386,22 @@ document.addEventListener('alpine:init', function () {
         this.updateGraph();
       },
       updateGraph: function updateGraph() {
-        var _this20 = this;
+        var _this22 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4() {
-          var _yield$_this20$$wire$, _yield$_this20$$wire$2;
+          var _yield$_this22$$wire$, _yield$_this22$$wire$2;
           return _regeneratorRuntime().wrap(function _callee4$(_context4) {
             while (1) {
               switch (_context4.prev = _context4.next) {
                 case 0:
                   _context4.next = 2;
-                  return _this20.$wire.call('getDataForSubjectTimeSeriesGraph');
+                  return _this22.$wire.call('getDataForSubjectTimeSeriesGraph');
                 case 2:
-                  _yield$_this20$$wire$ = _context4.sent;
-                  _yield$_this20$$wire$2 = _slicedToArray(_yield$_this20$$wire$, 3);
-                  _this20.showEmptyState = _yield$_this20$$wire$2[0];
-                  _this20.data = _yield$_this20$$wire$2[1];
-                  _this20.subjects = _yield$_this20$$wire$2[2];
-                  _this20.renderGraph();
+                  _yield$_this22$$wire$ = _context4.sent;
+                  _yield$_this22$$wire$2 = _slicedToArray(_yield$_this22$$wire$, 3);
+                  _this22.showEmptyState = _yield$_this22$$wire$2[0];
+                  _this22.data = _yield$_this22$$wire$2[1];
+                  _this22.subjects = _yield$_this22$$wire$2[2];
+                  _this22.renderGraph();
                 case 8:
                 case "end":
                   return _context4.stop();
@@ -6268,9 +6411,8 @@ document.addEventListener('alpine:init', function () {
         }))();
       },
       renderGraph: function renderGraph() {
-        var _this21 = this;
+        var _this23 = this;
         var cssSelector = '#' + this.modelId + '>div:not(.empty-state)';
-        console.log(cssSelector);
         this.$root.querySelectorAll(cssSelector).forEach(function (node) {
           return node.remove();
         });
@@ -6315,6 +6457,7 @@ document.addEventListener('alpine:init', function () {
         chart.scroller().selectedFill('var(--system-base) 0.1');
         chart.scroller().outlineStroke("var(--system-base)", 2);
         chart.scroller().outline;
+        chart.interactivity().hoverMode("single");
         this.subjects.forEach(function (el, index) {
           var cnt = index + 1;
           var mapping = table.mapAs();
@@ -6323,7 +6466,14 @@ document.addEventListener('alpine:init', function () {
           series.name(el);
           series.legendItem().useHtml(true);
           series.legendItem().format("{%seriesName}");
-          series.stroke(_this21.colors[index]);
+          var marker = series.normal().markers();
+          marker.enabled(false);
+          var marker1 = series.hovered().markers();
+          marker1.enabled(true);
+          marker1.size(4);
+          marker1.type('circle');
+          series.normal().stroke(_this23.colors[index], 2);
+          series.connectMissingPoints(true);
         });
         chart.title('');
         chart.plot(0).legend().titleFormat('');
@@ -6342,21 +6492,21 @@ document.addEventListener('alpine:init', function () {
         this.updateGraph();
       },
       updateGraph: function updateGraph() {
-        var _this22 = this;
+        var _this24 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5() {
-          var _yield$_this22$$wire$, _yield$_this22$$wire$2;
+          var _yield$_this24$$wire$, _yield$_this24$$wire$2;
           return _regeneratorRuntime().wrap(function _callee5$(_context5) {
             while (1) {
               switch (_context5.prev = _context5.next) {
                 case 0:
                   _context5.next = 2;
-                  return _this22.$wire.call('getDataForGraph');
+                  return _this24.$wire.call('getDataForGraph');
                 case 2:
-                  _yield$_this22$$wire$ = _context5.sent;
-                  _yield$_this22$$wire$2 = _slicedToArray(_yield$_this22$$wire$, 2);
-                  _this22.showEmptyState = _yield$_this22$$wire$2[0];
-                  _this22.data = _yield$_this22$$wire$2[1];
-                  _this22.renderGraph();
+                  _yield$_this24$$wire$ = _context5.sent;
+                  _yield$_this24$$wire$2 = _slicedToArray(_yield$_this24$$wire$, 2);
+                  _this24.showEmptyState = _yield$_this24$$wire$2[0];
+                  _this24.data = _yield$_this24$$wire$2[1];
+                  _this24.renderGraph();
                 case 7:
                 case "end":
                   return _context5.stop();
@@ -6576,14 +6726,14 @@ document.addEventListener('alpine:init', function () {
         }
       },
       updateGraph: function updateGraph(forceUpdate) {
-        var _this23 = this;
+        var _this25 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee6() {
-          var method, _yield$_this23$$wire$, _yield$_this23$$wire$2;
+          var method, _yield$_this25$$wire$, _yield$_this25$$wire$2;
           return _regeneratorRuntime().wrap(function _callee6$(_context6) {
             while (1) {
               switch (_context6.prev = _context6.next) {
                 case 0:
-                  if (!(!_this23.data || forceUpdate)) {
+                  if (!(!_this25.data || forceUpdate)) {
                     _context6.next = 10;
                     break;
                   }
@@ -6592,13 +6742,13 @@ document.addEventListener('alpine:init', function () {
                     method = 'getDataForGeneralGraph';
                   }
                   _context6.next = 5;
-                  return _this23.$wire.call(method, _this23.modelId, _this23.taxonomy);
+                  return _this25.$wire.call(method, _this25.modelId, _this25.taxonomy);
                 case 5:
-                  _yield$_this23$$wire$ = _context6.sent;
-                  _yield$_this23$$wire$2 = _slicedToArray(_yield$_this23$$wire$, 2);
-                  _this23.showEmptyState = _yield$_this23$$wire$2[0];
-                  _this23.data = _yield$_this23$$wire$2[1];
-                  _this23.renderGraph();
+                  _yield$_this25$$wire$ = _context6.sent;
+                  _yield$_this25$$wire$2 = _slicedToArray(_yield$_this25$$wire$, 2);
+                  _this25.showEmptyState = _yield$_this25$$wire$2[0];
+                  _this25.data = _yield$_this25$$wire$2[1];
+                  _this25.renderGraph();
                 case 10:
                 case "end":
                   return _context6.stop();
@@ -6697,32 +6847,32 @@ document.addEventListener('alpine:init', function () {
       menuOffsetMarginTop: 56,
       menuOffsetMarginLeft: 224,
       handleIncomingEvent: function handleIncomingEvent(detail) {
-        var _this24 = this;
+        var _this26 = this;
         if (!this.contextMenuOpen) return this.openMenu(detail);
         this.closeMenu();
         setTimeout(function () {
-          _this24.openMenu(detail);
+          _this26.openMenu(detail);
         }, 150);
       },
       openMenu: function openMenu(detail) {
-        var _this25 = this;
+        var _this27 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee7() {
           var readyForShow;
           return _regeneratorRuntime().wrap(function _callee7$(_context7) {
             while (1) {
               switch (_context7.prev = _context7.next) {
                 case 0:
-                  _this25.uuid = detail.uuid;
-                  _this25.correspondingButton = detail.button;
-                  _this25.contextData = detail.contextData;
-                  _this25.$root.style.top = detail.coords.top + _this25.menuOffsetMarginTop + 'px';
-                  _this25.$root.style.left = detail.coords.left - _this25.menuOffsetMarginLeft + 'px';
+                  _this27.uuid = detail.uuid;
+                  _this27.correspondingButton = detail.button;
+                  _this27.contextData = detail.contextData;
+                  _this27.$root.style.top = detail.coords.top + _this27.menuOffsetMarginTop + 'px';
+                  _this27.$root.style.left = detail.coords.left - _this27.menuOffsetMarginLeft + 'px';
                   _context7.next = 7;
-                  return _this25.$wire.setContextValues(_this25.uuid, _this25.contextData);
+                  return _this27.$wire.setContextValues(_this27.uuid, _this27.contextData);
                 case 7:
                   readyForShow = _context7.sent;
-                  if (readyForShow) _this25.contextMenuOpen = true;
-                  _this25.contextMenuOpen = true;
+                  if (readyForShow) _this27.contextMenuOpen = true;
+                  _this27.contextMenuOpen = true;
                 case 10:
                 case "end":
                   return _context7.stop();
@@ -6779,24 +6929,24 @@ document.addEventListener('alpine:init', function () {
         }
       },
       uploadFiles: function uploadFiles(files) {
-        var _this26 = this;
+        var _this28 = this;
         var $this = this;
         this.isUploading = true;
         var dummyContainer = this.$root.querySelector('#upload-dummies');
         Array.from(files).forEach(function (file, key) {
-          if (!_this26.fileHasAllowedExtension(file)) {
-            _this26.handleIncorrectFileUpload(file);
+          if (!_this28.fileHasAllowedExtension(file)) {
+            _this28.handleIncorrectFileUpload(file);
             return;
           }
-          if (_this26.fileTooLarge(file)) {
-            _this26.handleTooLargeOfAfile(file);
+          if (_this28.fileTooLarge(file)) {
+            _this28.handleTooLargeOfAfile(file);
             return;
           }
           var badgeId = "upload-badge-".concat(key);
           var loadingBadge = $this.createLoadingBadge(file, badgeId);
           dummyContainer.append(loadingBadge);
           $this.progress[badgeId] = 0;
-          $this.$wire.upload(_this26.uploadModel, file, function (success) {
+          $this.$wire.upload(_this28.uploadModel, file, function (success) {
             $this.progress[badgeId] = 0;
             dummyContainer.querySelector("#".concat(badgeId)).remove();
           }, function (error) {
@@ -7133,6 +7283,12 @@ addQuestionToTestFromTestCard = function addQuestionToTestFromTestCard(button, q
     }
   }));
 };
+clearFilterPillsFromElement = function clearFilterPillsFromElement(rootElement) {
+  var pills = rootElement.querySelectorAll('.filter-pill');
+  pills.forEach(function (pill) {
+    return pill.remove();
+  });
+};
 
 /***/ }),
 
@@ -7436,7 +7592,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _smoothscroll_polyfill__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_smoothscroll_polyfill__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var _AnyChart_anychart_base_min__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./AnyChart/anychart-base.min */ "./resources/js/AnyChart/anychart-base.min.js");
 /* harmony import */ var _AnyChart_anychart_base_min__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_AnyChart_anychart_base_min__WEBPACK_IMPORTED_MODULE_3__);
-/* provided dependency */ var process = __webpack_require__(/*! process/browser.js */ "./node_modules/process/browser.js");
 window._ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
 
 /**
@@ -7458,7 +7613,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "0e13f3e11acf6dda4522",
+  key: "51d7221bf733999d7138",
   cluster: "eu",
   forceTLS: true
 });
@@ -7471,7 +7626,7 @@ FilePond.registerPlugin((filepond_plugin_file_validate_size__WEBPACK_IMPORTED_MO
 
 _smoothscroll_polyfill__WEBPACK_IMPORTED_MODULE_2___default().polyfill();
 
-_AnyChart_anychart_base_min__WEBPACK_IMPORTED_MODULE_3___default().licenseKey(process.env.MIX_ANYCHART_LICENSE_KEY);
+_AnyChart_anychart_base_min__WEBPACK_IMPORTED_MODULE_3___default().licenseKey("test-correct.nl-fd20379b-1da7f4b1");
 
 /***/ }),
 
@@ -13153,54 +13308,27 @@ readspeakerLoadCore = function (_readspeakerLoadCore) {
   \******************************************/
 /***/ (() => {
 
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
 RichTextEditor = {
   initStudent: function initStudent(editorId) {
-    var editor = CKEDITOR.instances[editorId];
-    if (editor) {
-      editor.destroy(true);
-    }
-    CKEDITOR.replace(editorId, {
-      removePlugins: 'pastefromword,pastefromgdocs,advanced,simpleuploads,dropoff,copyformatting,image,pastetext,uploadwidget,uploadimage',
-      extraPlugins: 'blockimagepaste,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
-      toolbar: [{
-        name: 'basicstyles',
-        items: ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript']
-      }, {
-        name: 'paragraph',
-        items: ['NumberedList', 'BulletedList']
-      }, {
-        name: 'insert',
-        items: ['Table']
-      }, {
-        name: 'styles',
-        items: ['Font', 'FontSize']
-      }, {
-        name: 'wirisplugins',
-        items: ['ckeditor_wiris_formulaEditor', 'ckeditor_wiris_formulaEditorChemistry']
-      }]
-    });
-    CKEDITOR.instances[editorId].on('change', function (e) {
-      RichTextEditor.sendInputEventToEditor(editorId, e);
-    });
+    console.log('this should implement student init // example is open-medium-question.blase.php');
   },
   initStudentCoLearning: function initStudentCoLearning(editorId) {
     var lang = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'nl_NL';
     var wsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-    var editor = CKEDITOR.instances[editorId];
-    if (editor) {
-      editor.destroy(true);
-    }
-    if (wsc) {
-      CKEDITOR.disableAutoInline = true;
-      CKEDITOR.config.removePlugins = 'scayt,wsc';
-    }
-    CKEDITOR.on('instanceReady', function (event) {
-      var editor = event.editor;
-      WebspellcheckerTlc.forTeacherQuestion(editor, lang, wsc);
-    });
-    CKEDITOR.replace(editorId, {
-      removePlugins: 'pastefromword,pastefromgdocs,advanced,simpleuploads,dropoff,copyformatting,image,pastetext,uploadwidget,uploadimage,elementspath',
-      extraPlugins: 'quicktable,ckeditor_wiris,autogrow,wordcount,notification',
+    return ClassicEditor.create(document.querySelector('#' + editorId), {
+      autosave: {
+        waitingTime: 300,
+        save: function save(editor) {
+          editor.updateSourceElement();
+          editor.sourceElement.dispatchEvent(new Event('input'));
+        }
+      },
       wordcount: {
         showWordCount: true,
         showParagraphs: false,
@@ -13208,146 +13336,49 @@ RichTextEditor = {
         countSpacesAsChars: true
       },
       autoGrow_maxHeight: 0,
-      toolbar: []
-    });
-    editor = CKEDITOR.instances[editorId];
-    editor.on('change', function (e) {
-      RichTextEditor.sendInputEventToEditor(editorId, e);
-    });
-    editor.on('instanceReady', function (e) {
-      setTimeout(function () {
-        document.getElementById('word-count-' + editorId).textContent = editor.wordCount.wordCount;
-        document.getElementById('char-count-' + editorId).textContent = editor.wordCount.charCount;
-      }, 300);
-      window.addEventListener('wsc-problems-count-updated-' + editorId, function (e) {
-        var problemCountSpan = document.getElementById('problem-count-' + editorId);
-        if (problemCountSpan) {
-          problemCountSpan.textContent = e.detail.problemsCount;
-        }
-      });
-      document.getElementById('cke_wordcount_' + editorId).classList.add('hidden');
-      document.querySelector('.cke_top').style.display = 'none !important';
-      document.querySelector('.cke_bottom').style.display = 'none !important';
-    });
-  },
-  initCMS: function initCMS(editorId) {
-    var lang = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'nl_NL';
-    var wsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-    var editor = CKEDITOR.instances[editorId];
-    if (editor) {
-      editor.destroy(true);
-    }
-    if (wsc) {
-      CKEDITOR.disableAutoInline = true;
-      CKEDITOR.config.removePlugins = 'scayt,wsc';
-    }
-    CKEDITOR.on('instanceReady', function (event) {
-      var editor = event.editor;
-      WebspellcheckerTlc.forTeacherQuestion(editor, lang, wsc);
-    });
-    CKEDITOR.replace(editorId, {});
-    editor = CKEDITOR.instances[editorId];
-    editor.on('change', function (e) {
-      RichTextEditor.sendInputEventToEditor(editorId, e);
-    });
-    editor.on('simpleuploads.startUpload', function (e) {
-      e.data.extraHeaders = {
-        'X-CSRF-TOKEN': document.querySelector('meta[name="_token"]').content
-      };
-    });
-    editor.on('simpleuploads.finishedUpload', function (e) {
-      RichTextEditor.sendInputEventToEditor(editorId, e);
+      toolbar: [],
+      wproofreader: window.WEBSPELLCHECKER_CONFIG
+    }).then(function (editor) {
+      ClassicEditors[editorId] = editor;
+      var wordCountPlugin = editor.plugins.get('WordCount');
+      var wordCountWrapper = document.getElementById('word-count-' + editorId);
+      wordCountWrapper.appendChild(wordCountPlugin.wordCountContainer);
+      if (typeof ReadspeakerTlc != 'undefined') {
+        ReadspeakerTlc.ckeditor.addListenersForReadspeaker(editor, questionId, editorId);
+        ReadspeakerTlc.ckeditor.disableContextMenuOnCkeditor();
+      }
+    })["catch"](function (error) {
+      console.error(error);
     });
   },
   initSelectionCMS: function initSelectionCMS(editorId) {
     var lang = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'nl_NL';
-    var wsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-    var editor = CKEDITOR.instances[editorId];
+    var allowWsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+    var editor = ClassicEditors[editorId];
     if (editor) {
       editor.destroy(true);
     }
-    if (wsc) {
-      CKEDITOR.disableAutoInline = true;
-      CKEDITOR.config.removePlugins = 'scayt,wsc';
-    }
-    CKEDITOR.on('instanceReady', function (event) {
-      var editor = event.editor;
-      WebspellcheckerTlc.forTeacherQuestion(editor, lang, wsc);
-    });
-    CKEDITOR.replace(editorId, {
-      extraPlugins: 'selection,simpleuploads,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
-      toolbar: [{
-        name: 'basicstyles',
-        items: ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript']
-      }, {
-        name: 'paragraph',
-        items: ['NumberedList', 'BulletedList']
-      }, {
-        name: 'insert',
-        items: ['addImage', 'Table']
-      }, {
-        name: 'styles',
-        items: ['Font', 'FontSize']
-      }, {
-        name: 'wirisplugins',
-        items: ['ckeditor_wiris_formulaEditor', 'ckeditor_wiris_formulaEditorChemistry']
-      }, {
-        name: 'extra',
-        items: ['selection']
-      }]
-    });
-    CKEDITOR.instances[editorId].on('change', function (e) {
-      RichTextEditor.sendInputEventToEditor(editorId, e);
+    return ClassicEditor.create(document.getElementById(editorId), this.getConfigForTeacher(allowWsc, ['Selection'])).then(function (editor) {
+      ClassicEditors[editorId] = editor;
+      WebspellcheckerTlc.lang(editor, lang);
+      // WebspellcheckerTlc.setEditorToReadOnly(editor);
+      window.editor = editor;
+    })["catch"](function (error) {
+      console.error(error);
     });
   },
-  initCompletionCMS: function initCompletionCMS(editorId) {
-    var lang = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'nl_NL';
-    var wsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-    var editor = CKEDITOR.instances[editorId];
+  initCompletionCMS: function initCompletionCMS(editorId, lang) {
+    var allowWsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+    var editor = ClassicEditors[editorId];
     if (editor) {
       editor.destroy(true);
     }
-    if (wsc) {
-      CKEDITOR.disableAutoInline = true;
-      CKEDITOR.config.removePlugins = 'scayt,wsc';
-    }
-    CKEDITOR.on('instanceReady', function (event) {
-      var editor = event.editor;
-      WebspellcheckerTlc.forTeacherQuestion(editor, lang, wsc);
-    });
-    CKEDITOR.replace(editorId, {
-      extraPlugins: 'completion,simpleuploads,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
-      toolbar: [{
-        name: 'clipboard',
-        items: ['Undo', 'Redo']
-      }, {
-        name: 'basicstyles',
-        items: ['Bold', 'Italic', 'Underline', 'Strike', 'RemoveFormat', 'Subscript', 'Superscript']
-      }, {
-        name: 'paragraph',
-        items: ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote']
-      }, {
-        name: 'insert',
-        items: ['addImage', 'Table']
-      }, {
-        name: 'styles',
-        items: ['Format', 'Font', 'FontSize']
-      }, {
-        name: 'colors',
-        items: ['TextColor', 'BGColor', 'CopyFormatting']
-      }, {
-        name: 'align',
-        items: ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock']
-      }, {
-        name: 'wirisplugins',
-        items: ['ckeditor_wiris_formulaEditor', 'ckeditor_wiris_formulaEditorChemistry']
-      }, {
-        name: 'extra',
-        items: ['completion']
-      }]
-    });
-    CKEDITOR.instances[editorId].on('change', function (e) {
-      RichTextEditor.sendInputEventToEditor(editorId, e);
+    return ClassicEditor.create(document.getElementById(editorId), this.getConfigForTeacher(allowWsc, ['Completion'])).then(function (editor) {
+      ClassicEditors[editorId] = editor;
+      WebspellcheckerTlc.lang(editor, lang);
+      // WebspellcheckerTlc.setEditorToReadOnly(editor);
+    })["catch"](function (error) {
+      console.error(error);
     });
   },
   sendInputEventToEditor: function sendInputEventToEditor(editorId, e) {
@@ -13379,12 +13410,9 @@ RichTextEditor = {
       console.error(error);
     });
   },
-  initClassicEditorForTeacherplayerWsc: function initClassicEditorForTeacherplayerWsc(editorId, lang) {
-    var editor = ClassicEditors[editorId];
-    if (editor) {
-      editor.destroy(true);
-    }
-    return ClassicEditor.create(document.getElementById(editorId), {
+  getConfigForTeacher: function getConfigForTeacher(allowWsc) {
+    var pluginsToAdd = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+    var config = {
       autosave: {
         waitingTime: 300,
         save: function save(editor) {
@@ -13392,37 +13420,53 @@ RichTextEditor = {
           editor.sourceElement.dispatchEvent(new Event('input'));
         }
       },
-      wproofreader: {
-        lang: lang,
-        serviceProtocol: 'https',
-        servicePort: '80',
-        serviceHost: 'testwsc.test-correct.nl',
-        servicePath: 'wscservice/api',
-        srcUrl: 'https://testwsc.test-correct.nl/wscservice/wscbundle/wscbundle.js'
+      image: {
+        upload: {
+          types: ['jpeg', 'png', 'gif', 'bmp', 'webp', 'tiff']
+        }
+      },
+      simpleUpload: {
+        uploadUrl: '/cms/ckeditor_upload/images',
+        // Enable the XMLHttpRequest.withCredentials property.
+        withCredentials: true,
+        // Headers sent along with the XMLHttpRequest to the upload server.
+        headers: {
+          'X-CSRF-TOKEN': document.querySelector('meta[name="_token"]').content
+          // Authorization: 'Bearer <JSON Web Token>'
+        }
       }
-    }).then(function (editor) {
-      ClassicEditors[editorId] = editor;
-      WebspellcheckerTlc.lang(editor, lang);
-      // WebspellcheckerTlc.setEditorToReadOnly(editor);
-    })["catch"](function (error) {
-      console.error(error);
+    };
+
+    config.removePlugins = [];
+    config.toolbar = {
+      removeItems: []
+    };
+    if (allowWsc) {
+      config.wproofreader = window.WEBSPELLCHECKER_CONFIG;
+    } else {
+      config.removePlugins = ['WProofreader'];
+    }
+    var availablePlugins = ['Selection', 'Completion'];
+    var pluginsToRemove = availablePlugins.filter(function (plugin) {
+      return !pluginsToAdd.includes(plugin);
     });
+    config.removePlugins = [].concat(_toConsumableArray(config.removePlugins), _toConsumableArray(pluginsToRemove));
+    config.toolbar.removeItems = pluginsToRemove.map(function (item) {
+      return item.toLowerCase();
+    });
+    console.dir(config);
+    return config;
   },
-  initClassicEditorForTeacherplayer: function initClassicEditorForTeacherplayer(editorId) {
+  initForTeacher: function initForTeacher(editorId, lang) {
+    var allowWsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
     var editor = ClassicEditors[editorId];
     if (editor) {
       editor.destroy(true);
     }
-    return ClassicEditor.create(document.getElementById(editorId), {
-      autosave: {
-        waitingTime: 300,
-        save: function save(editor) {
-          editor.updateSourceElement();
-          editor.sourceElement.dispatchEvent(new Event('input'));
-        }
-      }
-    }).then(function (editor) {
+    return ClassicEditor.create(document.getElementById(editorId), this.getConfigForTeacher(allowWsc)).then(function (editor) {
       ClassicEditors[editorId] = editor;
+      WebspellcheckerTlc.lang(editor, lang);
+      // WebspellcheckerTlc.setEditorToReadOnly(editor);
     })["catch"](function (error) {
       console.error(error);
     });
