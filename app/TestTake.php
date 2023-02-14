@@ -1197,12 +1197,11 @@ class TestTake extends BaseModel
     {
         if($pageAction) {
             $detailUrl = sprintf('test_takes/view/%s', $testTakeUuid);
-            $params = [['page', 'return_route'], [$detailUrl, $returnRoute]];
-            if($pageAction){
-                $params[0][] = 'page_action';
-                $params[1][] = $pageAction;
-            }
-            $temporaryLogin = TemporaryLogin::createWithOptionsForUser($params[0], $params[1], auth()->user());
+            $temporaryLogin = TemporaryLogin::createWithOptionsForUser(
+                ['page', 'return_route', 'page_action'],
+                [$detailUrl, $returnRoute, $pageAction],
+                auth()->user()
+            );
             return redirect($temporaryLogin->createCakeUrl());
         }
 
