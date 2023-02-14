@@ -93,11 +93,12 @@ class CoLearning extends Component
     {
         if (is_null($this->answerRating) && (!$this->noAnswerRatingAvailableForCurrentScreen || !$this->coLearningFinished)) {
             $this->answerRating = AnswerRating::find($this->answerRatingId);
+            $this->writeDiscussingAnswerRatingToDatabase();
         }
         $this->waitForTeacherNotificationEnabled = $this->shouldShowWaitForTeacherNotification();
 
         return view('livewire.student.co-learning')
-            ->layout('layouts.co-learning');
+            ->layout('layouts.co-learning-student');
     }
 
     public function booted()

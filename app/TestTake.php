@@ -12,6 +12,7 @@ use tcCore\Events\NewTestTakeGraded;
 use tcCore\Events\NewTestTakeReviewable;
 use tcCore\Events\TestTakeOpenForInteraction;
 use tcCore\Events\TestTakeShowResultsChanged;
+use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Helpers\GlobalStateHelper;
 use tcCore\Jobs\CountTeacherLastTestTaken;
@@ -36,6 +37,11 @@ class TestTake extends BaseModel
     use SoftDeletes;
     use UuidTrait;
     use Archivable;
+
+    /**
+     * Stops the appended attributes from being loaded at every TestTake hydratation if false
+     */
+    public static $withAppends = true;
 
     protected $casts = [
         'uuid'              => EfficientUuid::class,
@@ -63,7 +69,7 @@ class TestTake extends BaseModel
      *
      * @var array
      */
-    protected $fillable = ['test_id', 'test_take_status_id', 'period_id', 'retake', 'retake_test_take_id', 'time_start', 'time_end', 'location', 'weight', 'note', 'invigilator_note', 'show_results', 'discussion_type', 'is_rtti_test_take', 'exported_to_rtti', 'allow_inbrowser_testing', 'guest_accounts', 'skipped_discussion', 'notify_students', 'user_id', 'scheduled_by', 'show_grades', 'returned_to_taken'];
+    protected $fillable = ['test_id', 'test_take_status_id', 'period_id', 'retake', 'retake_test_take_id', 'time_start', 'time_end', 'location', 'weight', 'note', 'invigilator_note', 'show_results', 'discussion_type', 'is_rtti_test_take', 'exported_to_rtti', 'allow_inbrowser_testing', 'guest_accounts', 'skipped_discussion', 'notify_students', 'user_id', 'scheduled_by', 'show_grades', 'returned_to_taken', 'discussing_question_id'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -462,6 +468,8 @@ class TestTake extends BaseModel
         if (array_key_exists('school_classes', $attributes)) {
             $this->schoolClasses = $attributes['school_classes'];
         }
+
+        return $this;
     }
 
     private function saveInvigilators()
@@ -783,11 +791,19 @@ class TestTake extends BaseModel
 
     public function getExportedToRttiFormatedAttribute()
     {
+        if($this->shouldNotAppend()) {
+            return null;
+        }
+
         return array_key_exists('exported_to_rtti',$this->attributes) && $this->attributes['exported_to_rtti'] ? Carbon::parse($this->attributes['exported_to_rtti'])->format('d-m-Y H:i:s') : 'Nog niet geëxporteerd';
     }
 
     public function getInvigilatorsAcceptableAttribute()
     {
+        if($this->shouldNotAppend()) {
+            return null;
+        }
+
         if($this->hasValidInvigilators()){
             return true;
         }
@@ -799,6 +815,10 @@ class TestTake extends BaseModel
 
     public function getInvigilatorsUnacceptableMessageAttribute()
     {
+        if($this->shouldNotAppend()) {
+            return null;
+        }
+
         if($this->hasValidInvigilators()){
             return '';
         }
@@ -809,6 +829,10 @@ class TestTake extends BaseModel
     }
 
     public function getDirectLinkAttribute(){
+        if($this->shouldNotAppend()) {
+            return null;
+        }
+
         return config('app.base_url') ."directlink/". $this->uuid;
     }
 
@@ -1171,14 +1195,22 @@ class TestTake extends BaseModel
 
     public static function redirectToDetail($testTakeUuid, $returnRoute = '', ?string $pageAction = null)
     {
-        $detailUrl = sprintf('test_takes/view/%s', $testTakeUuid);
-        $params = [['page', 'return_route'], [$detailUrl, $returnRoute]];
-        if($pageAction){
-            $params[0][] = 'page_action';
-            $params[1][] = $pageAction;
+        if($pageAction) {
+            $detailUrl = sprintf('test_takes/view/%s', $testTakeUuid);
+            $params = [['page', 'return_route'], [$detailUrl, $returnRoute]];
+            if($pageAction){
+                $params[0][] = 'page_action';
+                $params[1][] = $pageAction;
+            }
+            $temporaryLogin = TemporaryLogin::createWithOptionsForUser($params[0], $params[1], auth()->user());
+            return redirect($temporaryLogin->createCakeUrl());
         }
-        $temporaryLogin = TemporaryLogin::createWithOptionsForUser($params[0], $params[1], auth()->user());
-        return redirect($temporaryLogin->createCakeUrl());
+
+        return CakeRedirectHelper::redirectToCake(
+            routeName:'test_takes.view',
+            uuid: $testTakeUuid,
+            returnRoute: $returnRoute,
+        );
     }
 
     public function getParticipantTakenStats()
@@ -1283,5 +1315,14 @@ class TestTake extends BaseModel
             [TestTakeStatus::STATUS_PLANNED, TestTakeStatus::STATUS_TAKING_TEST]
         )
         );
+    }
+
+
+    /**
+     * Stop appended attributes from being loaded at every TestTake hydratation
+     **/
+    public function shouldNotAppend() : bool
+    {
+        return !static::$withAppends;
     }
 }

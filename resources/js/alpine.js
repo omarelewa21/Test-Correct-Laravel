@@ -256,11 +256,13 @@ document.addEventListener('alpine:init', () => {
             this.hasError.false = [];
         }
     }));
-    Alpine.data('badge', (videoUrl = null) => ({
+    Alpine.data('badge', (videoUrl = null, mode = null) => ({
         options: false,
+        videoUrl: videoUrl,
         videoTitle: videoUrl,
         resolvingTitle: true,
         index: 1,
+        mode: mode,
         async init() {
             this.setIndex();
 
@@ -277,14 +279,16 @@ document.addEventListener('alpine:init', () => {
                 const fetchedTitle = await getTitleForVideoUrl(videoUrl);
                 this.videoTitle = fetchedTitle || videoUrl;
                 this.resolvingTitle = false;
-                this.$wire.setVideoTitle(videoUrl, this.videoTitle);
+                if(mode === 'edit') {
+                    this.$wire.setVideoTitle(videoUrl, this.videoTitle);
+                }
             }
         },
         setIndex() {
             const parent = this.$root.parentElement;
             if (parent === null) return;
             this.index = Array.prototype.indexOf.call(parent.children, this.$el) + 1;
-        }
+        },
     }));
 
     Alpine.data('drawingTool', (questionId, entanglements, isTeacher, isPreview = false) => ({

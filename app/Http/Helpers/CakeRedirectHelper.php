@@ -7,29 +7,25 @@ use tcCore\Http\Controllers\TemporaryLoginController;
 
 class CakeRedirectHelper
 {
-    protected string $routeName;
-    protected ?string $uuid = null;
-    protected ?string $page = null;
+    protected function __construct(
+        protected string  $routeName,
+        protected ?string $uuid = null,
+        protected ?int $pageNumber = null,
+        protected ?string $returnRoute = null,
+    ) {}
 
-    public static function redirectToCake(string $routeName = 'dashboard', ?string $uuid = null, ?string $page = null)
+    public static function redirectToCake(string $routeName = 'dashboard', ?string $uuid = null, ?int $pageNumber = null, ?string $returnRoute = null)
     {
-        $helper = new self($routeName, $uuid, $page);
+        $helper = new self($routeName, $uuid, $pageNumber, $returnRoute);
 
         return redirect($helper->createCakeUrl());
     }
 
-    public static function getCakeUrl(string $routeName, ?string $uuid = null, ?string $page = null) : string
+    public static function getCakeUrl(string $routeName, ?string $uuid = null, ?int $pageNumber = null, ?string $returnRoute = null): string
     {
-        $helper = new self($routeName, $uuid, $page);
+        $helper = new self($routeName, $uuid, $pageNumber, $returnRoute);
 
         return $helper->createCakeUrl();
-    }
-
-    protected function __construct(string $routeName, ?string $uuid = null, ?string $page = null)
-    {
-        $this->routeName = $routeName;
-        $this->uuid = $uuid;
-        $this->page = $page;
     }
 
     protected function getCakeUrlAndFollowupActionData()
@@ -56,7 +52,7 @@ class CakeRedirectHelper
         $request->merge([
             'options' => array_merge(
                             $cakeRedirectData,
-                            ["return_route" => url()->previous()]
+                            ["return_route" => $this->returnRoute ?? url()->previous()]
                         )
         ]);
 
@@ -95,6 +91,8 @@ class CakeRedirectHelper
                 'page'        => '/file_management/testuploads',
                 'page_action' => "Popup.load('/file_management/upload_test',800);",
             ],
+            'test_takes.view'             => sprintf('/test_takes/view/%s', $this->uuid),
+            'test_takes.discussion'       => sprintf('/test_takes/discussion/%s', $this->uuid),
             'planned.my_tests'            => '/test_takes/planned_teacher',
             'planned.my_tests.plan'       => [
                 'page'        => '/test_takes/planned_teacher',
@@ -145,7 +143,7 @@ class CakeRedirectHelper
             ],
             'school_location.view'   => [
                 'page'        => '/',
-                'page_number' => $this->page,
+                'page_number' => $this->pageNumber,
                 'page_action' => sprintf("Navigation.load('/school_locations/view/%s')", $this->uuid)
             ],
             'school_location.edit'   => [
@@ -163,7 +161,7 @@ class CakeRedirectHelper
             ],
             'school.view'   => [
                 'page'        => '/',
-                'page_number' => $this->page,
+                'page_number' => $this->pageNumber,
                 'page_action' => sprintf("Navigation.load('/schools/view/%s')", $this->uuid)
             ],
             'school.edit'   => [
