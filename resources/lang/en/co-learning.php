@@ -44,9 +44,9 @@ return [
     'current_session'               => ":index/:totalQuestions questions discussed<br>on :date",
     'start'                         => 'Start',
     'rated_answers'                 => 'rated answers',
-    'bad_rater'                     => 'bad rater',
-    'average_rater'                 => 'average rater',
-    'good_rater'                    => 'good rater',
-    'unknown_rater'                 => 'not enough data for insight',
+    'bad_rater'                     => 'bad scorer',
+    'average_rater'                 => 'average scorer',
+    'good_rater'                    => 'good scorer',
+    'unknown_rater'                 => 'insufficient data for insights',
 
 ];

@@ -603,6 +603,8 @@ class CoLearning extends Component
             $this->testTake->test_take_status_id, [
             TestTakeStatus::STATUS_TAKEN,
             TestTakeStatus::STATUS_DISCUSSING,
+            TestTakeStatus::STATUS_DISCUSSED,
+            TestTakeStatus::STATUS_RATED,
         ])) {
             return redirect()->route('teacher.test-takes', ['stage' => 'taken']);
         }
@@ -614,7 +616,7 @@ class CoLearning extends Component
         return $this->coLearningHasBeenStarted === false
             && $this->testTake->discussing_question_id !== null
             && $this->testTake->discussion_type !== null
-            && $this->testTake->test_take_status_id === TestTakeStatus::STATUS_DISCUSSING;
+            && $this->testTake->test_take_status_id >= TestTakeStatus::STATUS_DISCUSSING;
     }
 
     private function testTakeHasNotYetBeenStartedBefore(): bool
