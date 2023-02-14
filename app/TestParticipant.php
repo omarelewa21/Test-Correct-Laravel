@@ -531,6 +531,9 @@ class TestParticipant extends BaseModel
         )->where('user_id', $user->getKey());
     }
 
+    /**
+     * This property is being set arbitrarily in a query in CoLearningHelper, it doesn't exist on TestParticipant by default
+     */
     public function getActiveAttribute($value)
     {
         if(!$this->hasAttribute('active')){

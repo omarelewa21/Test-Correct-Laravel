@@ -901,16 +901,16 @@ class Test extends BaseModel
                 return $testQuestion->question->groupQuestionQuestions->map(function ($item)  {
                     return [
                         'id' => $item->question->getKey(),
-                        'question_type' => $item->question->canCheckAnswer() ? 'CLOSED' : 'OPEN'
+                        'question_type' => $item->question->canCheckAnswer() ? Question::TYPE_CLOSED : Question::TYPE_OPEN
                     ];
                 });
             }
-            $questionType = $testQuestion->question->canCheckAnswer() ? 'CLOSED' : 'OPEN';
+            $questionType = $testQuestion->question->canCheckAnswer() ? Question::TYPE_CLOSED : Question::TYPE_OPEN;
             return [['id' => $testQuestion->question->getKey(), 'question_type' => $questionType]];
         })->mapWithKeys(function ($item, $key) use (&$orderOpenOnly) {
             return [$item['id'] => [
                 'order' => $key+1,
-                'order_open_only' => $item['question_type'] === 'OPEN' ? ++$orderOpenOnly : null,
+                'order_open_only' => $item['question_type'] === Question::TYPE_OPEN ? ++$orderOpenOnly : null,
                 ...$item,
             ]];
         })->toArray();
