@@ -11,8 +11,10 @@
      x-on:mousemove="setPositionToolTip(tooltip, $event)"
 >
     {{-- left --}}
-    <div class="flex items-center h-full space-x-1">
-        <span class="min-w-[1rem] w-4 flex items-center justify-center">
+    <div class="flex items-center h-full space-x-1"
+    >
+        <span class="min-w-[1rem] w-4 flex items-center justify-center"
+        >
             @switch($this->testParticipantStatusses[$testParticipant->uuid]['ratingStatus'])
                 @case(\tcCore\Http\Enums\CoLearning\RatingStatus::Green)
                     <x-icon.checkmark-small class="text-cta"/>
@@ -29,7 +31,8 @@
             @endswitch
 
         </span>
-        <span class="min-w-[1rem] w-4 flex items-center justify-center" wire:key="tpi-{{$this->testParticipantStatusses[$testParticipant->uuid]['abnormalitiesStatus']}}">
+        <span class="min-w-[1rem] w-4 flex items-center justify-center"
+        >
 
             @switch($this->testParticipantStatusses[$testParticipant->uuid]['abnormalitiesStatus'])
                 @case(\tcCore\Http\Enums\CoLearning\AbnormalitiesStatus::Happy)
