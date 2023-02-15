@@ -256,7 +256,7 @@ document.addEventListener('alpine:init', () => {
             this.hasError.false = [];
         }
     }));
-    Alpine.data('badge', (videoUrl = null, mode = null) => ({
+    Alpine.data('badge', (videoUrl = null, mode = 'edit') => ({
         options: false,
         videoUrl: videoUrl,
         videoTitle: videoUrl,
