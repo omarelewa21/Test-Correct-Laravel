@@ -66,6 +66,11 @@ class CoLearning extends Component
         'coLearningHasBeenStarted' => ['except' => true, 'as' => 'started']
     ];
 
+    protected $listeners = [
+        'finishCoLearning',
+        'redirectBack',
+    ];
+
     public function mount(TestTake $test_take)
     {
         $this->testTake = $test_take;

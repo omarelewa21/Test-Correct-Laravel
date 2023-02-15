@@ -23,7 +23,7 @@
 >
     <div class="py-2.5 px-6 flex h-[var(--header-height)] items-center justify-between">
         <div class="flex items-center space-x-4">
-            <x-button.back-round wire:click="redirectBack()" class="bg-white/20 hover:text-white"></x-button.back-round>
+            <x-button.back-round wire:click="$wire.emit('openModal', 'co-learning.back-confirmation-modal')" class="bg-white/20 hover:text-white"></x-button.back-round>
             <h6 class="text-white">{{ __('co-learning.co_learning') }}: </h6>
             <h4 class="text-white">{{ $testName }}</h4>
         </div>

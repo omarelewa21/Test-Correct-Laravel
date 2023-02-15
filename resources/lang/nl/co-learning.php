@@ -48,6 +48,9 @@ return [
     'average_rater'                 => 'gemiddeld goede beoordelaar',
     'good_rater'                    => 'goede beoordelaar',
     'unknown_rater'                 => 'onvoldoende data voor inzicht',
+    'continue_later'                => 'Later verdergaan',
+    'close_colearning'              => 'CO-Learning sessie afsluiten',
+    'close_colearning_text'         => 'Wil je CO-Learning afsluiten om later verder te gaan, of wil je CO-Learning afronden?',
 
 
 ];

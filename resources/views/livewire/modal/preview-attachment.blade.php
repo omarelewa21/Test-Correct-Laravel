@@ -1,7 +1,6 @@
 <x-partials.modal.preview>
 
-{{--    @hasSection('content')--}}
-        @if(false)
+    @hasSection('content')
 
         @yield('content')
 

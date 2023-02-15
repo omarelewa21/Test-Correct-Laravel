@@ -48,5 +48,8 @@ return [
     'average_rater'                 => 'average scorer',
     'good_rater'                    => 'good scorer',
     'unknown_rater'                 => 'insufficient data for insights',
+    'continue_later'                => 'Continue later',
+    'close_colearning'              => 'Close CO-Learning session',
+    'close_colearning_text'         => 'Do you want to close CO-Learning and continue with it later, or do you want to finish the CO-Learning session?',
 
 ];

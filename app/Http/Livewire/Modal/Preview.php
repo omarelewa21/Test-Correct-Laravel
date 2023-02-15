@@ -12,6 +12,10 @@ abstract class Preview extends ModalComponent
         'full' => 'modal-full-screen',
     ];
 
+    /**
+     * Preview modal layout file:
+     * components/partials/modal/preview.blade.php
+     */
     abstract public function render();
 
     /*
