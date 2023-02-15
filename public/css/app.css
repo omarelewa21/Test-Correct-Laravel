@@ -5185,7 +5185,16 @@ input.datepicker {
     background-color: white;
 }
 
-#co-learning-teacher-page #student-info-container .student-name {
+#co-learning-teacher-page .student-info-container > * {
+    opacity: 100%;
+}
+
+#co-learning-teacher-page .student-info-container:hover {
+    background-color: rgba(0,77,245,0.05);
+    color: var(--teacher-primary);
+}
+
+#co-learning-teacher-page .student-info-container .student-name {
     display: inline-block;
     width: 186px;
     max-width: 186px;
@@ -5194,18 +5203,18 @@ input.datepicker {
     white-space: nowrap;
 }
 
-#co-learning-teacher-page #student-info-container .show-on-smartboard {
+#co-learning-teacher-page .student-info-container .show-on-smartboard {
     position: relative;
     width: 18px;
     height: 16px;
     transition: 0.25s ease-out;
 }
 
-#co-learning-teacher-page #student-info-container .show-on-smartboard svg {
+#co-learning-teacher-page .student-info-container .show-on-smartboard svg {
     position: absolute;
 }
 
-#co-learning-teacher-page #student-info-container .show-on-smartboard::before {
+#co-learning-teacher-page .student-info-container .show-on-smartboard::before {
     content: '';
     width: 32px !important;
     height: 32px !important;
@@ -5218,14 +5227,23 @@ input.datepicker {
     transition: opacity 0.25s ease-out;
 }
 
-#co-learning-teacher-page #student-info-container .show-on-smartboard.active::before,
-#co-learning-teacher-page #student-info-container .show-on-smartboard:hover::before {
+#co-learning-teacher-page .student-info-container.active .show-on-smartboard::before {
     opacity: 100%;
 }
 
-#co-learning-teacher-page #student-info-container .show-on-smartboard.active,
-#co-learning-teacher-page #student-info-container .show-on-smartboard:hover {
+#co-learning-teacher-page .student-info-container.active .show-on-smartboard:hover,
+#co-learning-teacher-page .student-info-container.active .show-on-smartboard {
     color: white;
+}
+
+#co-learning-teacher-page .student-info-container .show-on-smartboard:hover {
+    color: var(--teacher-primary);
+}
+
+#co-learning-teacher-page .student-info-container.active .student-name {
+    font-weight: bold;
+    color: var(--teacher-primary);
+    font-family: "Nunito Bold";
 }
 
 #co-learning-teacher-page .hide-on-smartboard {

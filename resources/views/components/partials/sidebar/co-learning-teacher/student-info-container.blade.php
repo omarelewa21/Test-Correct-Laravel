@@ -1,4 +1,6 @@
-<div class="flex px-6 items-center h-10 justify-between flex-shrink-0 cursor-pointer"
+<div class="student-info-container flex px-6 items-center h-10 justify-between flex-shrink-0 cursor-pointer
+@if(!is_null($this->activeAnswerRating) ? $testParticipant->discussing_answer_rating_id === $this->activeAnswerRating->id : false) active @endif
+"
      id="student-info-container-{{$testParticipant->uuid}}"
      wire:key="testParticipant-{{$testParticipant->uuid}}"
      x-data="{
@@ -48,13 +50,13 @@
         <span class="student-name">{{$userFullName}}</span>
     </div>
     {{-- right --}}
-    <div {{--class="show-on-smartboard relative"--}}
+    <div
          @click="showStudentAnswer = true"
          wire:click.prevent="showStudentAnswer('{{ $testParticipant->discussing_answer_rating_id }}')"
          @class([
             'show-on-smartboard',
             'relative',
-            'active' => !is_null($this->activeAnswerRating) ? $testParticipant->discussing_answer_rating_id === $this->activeAnswerRating : false,
+            'active' => !is_null($this->activeAnswerRating) ? $testParticipant->discussing_answer_rating_id === $this->activeAnswerRating->id : false,
          ])
     >
         <x-icon.on-smartboard-show />
