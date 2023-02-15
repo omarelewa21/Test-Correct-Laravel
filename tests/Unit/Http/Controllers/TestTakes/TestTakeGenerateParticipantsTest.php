@@ -30,5 +30,9 @@ class TestTakeGenerateParticipantsTest extends TestCase
     {
         $testTake = $this->testTakeFactory->testTake;
         $this->assertEquals(self::STUDENTS_COUNT, $testTake->testParticipants()->count());
+        foreach($testTake->testParticipants as $participant){
+            $this->assertEquals(1, $participant->school_class_id);
+            $this->assertEquals(1, $participant->test_take_status_id);
+        }
     }
 }
