@@ -17,6 +17,7 @@ use tcCore\Http\Requests\ShowInfoRequest;
 use tcCore\Http\Requests\UpdateDeploymentRequest;
 use tcCore\Http\Requests\UpdateInfoRequest;
 use tcCore\Info;
+use tcCore\Scopes\InfoBaseType;
 use tcCore\UserInfosDontShow;
 use DOMDocument;
 use Illuminate\Support\Facades\Http;
@@ -29,16 +30,21 @@ class InfoController extends Controller
 
     public function index(IndexInfoRequest $request)
     {
-        $data = null;
         switch($request->mode){
             case 'index':
                 $data = Info::orderBy('show_from','desc')->with('roles')->get();
                 break;
             case 'dashboard':
-                $data = Info::getInfoForUser(Auth::user(), true);
+                $data = Info::getForUser(Auth::user(), true);
+                break;
+            case 'feature':
+                $data = Info::getForFeature();
+                break;
+            case 'types':
+                $data = Info::getDisplayTypes();
                 break;
             default:
-                $data = Info::getInfoForUser(Auth::user());
+                $data = Info::getForUser(Auth::user());
         }
 
         return Response::make($data, 200);
