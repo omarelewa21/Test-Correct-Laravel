@@ -4,7 +4,7 @@
      id="student-info-container-{{$testParticipant->uuid}}"
      wire:key="testParticipant-{{$testParticipant->uuid}}"
      x-data="{
-        tooltip: $refs['{{ 'tt-'.$testParticipant->uuid }}']
+        tooltip: document.querySelector('[x-ref=\'{{ 'tt-'.$testParticipant->uuid }}\']')
      }"
      x-on:mouseenter="showToolTip(tooltip)"
      x-on:mouseleave="hideToolTip(tooltip)"
@@ -54,17 +54,24 @@
     </div>
     {{-- right --}}
     <div
-         @click="showStudentAnswer = true"
-         wire:click.prevent="showStudentAnswer('{{ $testParticipant->discussing_answer_rating_id }}')"
+        @unless(is_null($testParticipant?->discussing_answer_rating_id))
+            @click="showStudentAnswer = true"
+            wire:click.prevent="showStudentAnswer('{{ $testParticipant->discussing_answer_rating_id }}')"
+        @endif
+
          @class([
             'show-on-smartboard',
             'relative',
             'active' => !is_null($this->activeAnswerRating) ? $testParticipant->discussing_answer_rating_id === $this->activeAnswerRating->id : false,
+            'disabled' => is_null($testParticipant?->discussing_answer_rating_id),
          ])
     >
         <x-icon.on-smartboard-show />
     </div>
-    <div class="co-learning-tooltip" x-ref="{{ 'tt-'.$testParticipant->uuid }}">
+    <div class="co-learning-tooltip"
+         x-ref="{{ 'tt-'.$testParticipant->uuid }}"
+         wire:ignore
+    >
         <div class="flex items-center space-x-2">
             @switch($this->testParticipantStatusses[$testParticipant->uuid]['ratingStatus'])
                 @case(\tcCore\Http\Enums\CoLearning\RatingStatus::Green)

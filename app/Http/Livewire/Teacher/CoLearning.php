@@ -66,11 +66,6 @@ class CoLearning extends Component
         'coLearningHasBeenStarted' => ['except' => true, 'as' => 'started']
     ];
 
-    protected $listeners = [
-        'finishCoLearning',
-        'redirectBack',
-    ];
-
     public function mount(TestTake $test_take)
     {
         $this->testTake = $test_take;
@@ -224,6 +219,10 @@ class CoLearning extends Component
 
     public function showStudentAnswer($id): bool
     {
+        if($id === null || $id === '') {
+            return false;
+        }
+
         $this->activeAnswerRating = AnswerRating::with('answer')->find($id);
 
         $this->setActiveAnswerAnsweredStatus();

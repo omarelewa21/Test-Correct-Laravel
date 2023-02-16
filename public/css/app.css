@@ -5236,6 +5236,11 @@ input.datepicker {
     color: white;
 }
 
+#co-learning-teacher-page .student-info-container .show-on-smartboard.disabled:hover,
+#co-learning-teacher-page .student-info-container .show-on-smartboard.disabled {
+    color: var(--mid-grey);
+}
+
 #co-learning-teacher-page .student-info-container .show-on-smartboard:hover {
     color: var(--teacher-primary);
 }
@@ -5417,6 +5422,7 @@ input.datepicker {
     border-radius: 4px;
     display: none;
     z-index: 10;
+    color: var(--system-base);
 }
 #co-learning-teacher-page .co-learning-tooltip:nth-child(1) {
     height: 22px;
