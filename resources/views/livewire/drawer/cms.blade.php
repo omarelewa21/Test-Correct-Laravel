@@ -140,7 +140,9 @@
                      class="fixed hidden inset-0" style="width: var(--sidebar-width)"></div>
                 <div x-show="loadingOverlay"
                      class="fixed inset-0 bg-white opacity-20"
-                     style="width: var(--sidebar-width)"></div>
+                     style="width: var(--sidebar-width)"
+                     selid="cms-drawer-loading-overlay"
+                ></div>
 
                 <x-button.plus-circle @click.stop="addGroup()" selid="add-question-group-btn">
                     {{ __('cms.Vraaggroep toevoegen') }}

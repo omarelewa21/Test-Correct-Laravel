@@ -62,7 +62,23 @@ class CompletionQuestion extends Component
                 $rsSpan = '<span wire:ignore class="rs_placeholder"></span>';
             }
             return sprintf(
-                '<span><input x-on:contextmenu="$event.preventDefault()" spellcheck="false"   autocorrect="off" autocapitalize="none"  wire:model.lazy="answer.%d" class="form-input mb-2 truncate text-center overflow-ellipsis" type="text" id="%s" style="width: 120px" x-ref="%s" %s wire:key="%s"/>%s</span>',
+                '<span>
+                            <input
+                                x-on:contextmenu="$event.preventDefault()"
+                                spellcheck="false"
+                                autocorrect="off"
+                                autocapitalize="none"
+                                wire:model.lazy="answer.%d"
+                                class="form-input mb-2 truncate text-center overflow-ellipsis completion-question-input"
+                                type="text"
+                                id="%s"
+                                style="width:
+                                120px"
+                                x-ref="%s"
+                                %s
+                                wire:key="%s"/>%s
+                        </span>',
+
                 $tag_id,
                 'answer_' . $tag_id . '_' . $this->question->getKey(),
                 'comp_answer_' . $tag_id,
