@@ -1,4 +1,6 @@
-<div class="flex px-6 items-center h-10 justify-between flex-shrink-0 cursor-pointer"
+<div class="student-info-container flex px-6 items-center h-10 justify-between flex-shrink-0 cursor-pointer
+@if(!is_null($this->activeAnswerRating) ? $testParticipant->discussing_answer_rating_id === $this->activeAnswerRating->id : false) active @endif
+"
      id="student-info-container-{{$testParticipant->uuid}}"
      wire:key="testParticipant-{{$testParticipant->uuid}}"
      x-data="{
@@ -9,8 +11,10 @@
      x-on:mousemove="setPositionToolTip(tooltip, $event)"
 >
     {{-- left --}}
-    <div class="flex items-center h-full space-x-1">
-        <span class="min-w-[1rem] w-4 flex items-center justify-center">
+    <div class="flex items-center h-full space-x-1"
+    >
+        <span class="min-w-[1rem] w-4 flex items-center justify-center"
+        >
             @switch($this->testParticipantStatusses[$testParticipant->uuid]['ratingStatus'])
                 @case(\tcCore\Http\Enums\CoLearning\RatingStatus::Green)
                     <x-icon.checkmark-small class="text-cta"/>
@@ -27,7 +31,8 @@
             @endswitch
 
         </span>
-        <span class="min-w-[1rem] w-4 flex items-center justify-center" wire:key="tpi-{{$this->testParticipantStatusses[$testParticipant->uuid]['abnormalitiesStatus']}}">
+        <span class="min-w-[1rem] w-4 flex items-center justify-center"
+        >
 
             @switch($this->testParticipantStatusses[$testParticipant->uuid]['abnormalitiesStatus'])
                 @case(\tcCore\Http\Enums\CoLearning\AbnormalitiesStatus::Happy)
@@ -48,13 +53,13 @@
         <span class="student-name">{{$userFullName}}</span>
     </div>
     {{-- right --}}
-    <div {{--class="show-on-smartboard relative"--}}
+    <div
          @click="showStudentAnswer = true"
          wire:click.prevent="showStudentAnswer('{{ $testParticipant->discussing_answer_rating_id }}')"
          @class([
             'show-on-smartboard',
             'relative',
-            'active' => !is_null($this->activeAnswerRating) ? $testParticipant->discussing_answer_rating_id === $this->activeAnswerRating : false,
+            'active' => !is_null($this->activeAnswerRating) ? $testParticipant->discussing_answer_rating_id === $this->activeAnswerRating->id : false,
          ])
     >
         <x-icon.on-smartboard-show />
