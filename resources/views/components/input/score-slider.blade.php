@@ -28,25 +28,31 @@
         }"
      x-init="
      @stack('scoreSliderStack')
-     $watch('score', (value, oldValue) => {
-           if(disabled || value === oldValue || skipSync){
-                skipSync = false;
-               return;
-           }
+             $watch('score', (value, oldValue) => {
+                   if(disabled || value === oldValue || skipSync){
+                        skipSync = false;
+                       return;
+                   }
 
-           if(value >= maxScore){
-            score = value = maxScore;
-           }
-           if(value <= 0) {
-            score = value = 0;
-           }
+                   if(value >= maxScore){
+                    score = value = maxScore;
+                   }
+                   if(value <= 0) {
+                    score = value = 0;
+                   }
 
-           score = value = allowHalfPoints ? Math.round(value*2)/2 : Math.round(value)
-        });
-        syncInput = () => {
-            $wire.sync(modelName, score);
-        }
-        "
+                   score = value = allowHalfPoints ? Math.round(value*2)/2 : Math.round(value)
+                });
+                syncInput = () => {
+                    $wire.sync(modelName, score);
+                };
+                noChangeEventFallback = () => {
+                    if(score === null) {
+                        score = maxScore/2
+                        syncInput();
+                    }
+                }
+"
      x-on:updated-score.window="skipSync = true; score = $event.detail.score"
         {{ $attributes->except('wire:model')->merge(['class'=>'flex score-slider-container w-fit justify-between items-center space-x-4 relative '.($disabled ? 'opacity-50': '')]) }}
 >
@@ -118,7 +124,7 @@
                        class="score-slider-input w-full"
                        x-model="score"
                        :class="{'hide-thumb': score === null}"
-                       x-on:click="score === null ? score = maxScore/2 : ''"
+                       x-on:click="noChangeEventFallback"
                        x-on:change="syncInput()"
                 >
             </div>
