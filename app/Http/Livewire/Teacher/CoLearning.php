@@ -173,15 +173,6 @@ class CoLearning extends Component
     /* start sidebar methods */
     public function goToNextQuestion()
     {
-        if ($this->testParticipantsFinishedWithRatingPercentage === 100) {
-            $this->nextDiscussionQuestion();
-            $this->getNavigationData();
-            return;
-        }
-
-        //todo if not all answerRatings have been Rated,
-        // open Modal for confirmation? then the modal can call $this->nextDiscussionQuestion() or something?
-
         $this->nextDiscussionQuestion();
         $this->getNavigationData();
     }

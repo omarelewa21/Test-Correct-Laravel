@@ -54,32 +54,28 @@
 }
 
 #co-learning-teacher-page .student-info-container .show-on-smartboard {
-    position: relative;
-    width: 18px;
-    height: 16px;
+    position: absolute;
+    width: 32px !important;
+    height: 32px !important;
     transition: 0.25s ease-out;
+    background: none;
+    right: 17px;
+    border-radius: 9999px;
+    transition: opacity 0.25s ease-out;
+    border: 1px solid transparent !important;
 }
 
 #co-learning-teacher-page .student-info-container .show-on-smartboard svg {
     position: absolute;
+    top: 7px;
+    left: 6px;
 }
 
-#co-learning-teacher-page .student-info-container .show-on-smartboard::before {
-    content: '';
-    width: 32px !important;
-    height: 32px !important;
+#co-learning-teacher-page .student-info-container.active .show-on-smartboard {
     border: 1px solid blue !important;
     background-color: var(--primary) !important;
-    position: absolute;
-    transform: translate(-6px, -8px);
-    border-radius: 9999px;
-    opacity: 0;
-    transition: opacity 0.25s ease-out;
 }
 
-#co-learning-teacher-page .student-info-container.active .show-on-smartboard::before {
-    opacity: 100%;
-}
 
 #co-learning-teacher-page .student-info-container.active .show-on-smartboard:hover,
 #co-learning-teacher-page .student-info-container.active .show-on-smartboard {

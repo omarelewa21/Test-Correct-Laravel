@@ -16,7 +16,6 @@
             tooltip.style.display = 'block';
         },
         hideToolTip: (tooltip) => {
-        console.log('hide');
             tooltip.style.display = 'none';
         },
         setPositionToolTip: (tooltip, event) => {

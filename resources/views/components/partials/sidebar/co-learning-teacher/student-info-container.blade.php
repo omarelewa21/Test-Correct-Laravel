@@ -36,13 +36,13 @@
 
             @switch($this->testParticipantStatusses[$testParticipant->uuid]['abnormalitiesStatus'])
                 @case(\tcCore\Http\Enums\CoLearning\AbnormalitiesStatus::Happy)
-                    <x-icon.smiley-happy />
+                    <x-icon.smiley-happy/>
                     @break
                 @case(\tcCore\Http\Enums\CoLearning\AbnormalitiesStatus::Neutral)
-                    <x-icon.smiley-normal />
+                    <x-icon.smiley-normal/>
                     @break
                 @case(\tcCore\Http\Enums\CoLearning\AbnormalitiesStatus::Sad)
-                    <x-icon.smiley-sad />
+                    <x-icon.smiley-sad/>
                     @break
                 @default
                     <x-icon.smiley-default class="text-midgrey"/>
@@ -53,21 +53,20 @@
         <span class="student-name">{{$userFullName}}</span>
     </div>
     {{-- right --}}
-    <div
-        @unless(is_null($testParticipant?->discussing_answer_rating_id))
+    <button
             @click="showStudentAnswer = true"
-            wire:click.prevent="showStudentAnswer('{{ $testParticipant->discussing_answer_rating_id }}')"
-        @endif
+            wire:click="showStudentAnswer('{{ $testParticipant->discussing_answer_rating_id }}')"
 
-         @class([
-            'show-on-smartboard',
-            'relative',
-            'active' => !is_null($this->activeAnswerRating) ? $testParticipant->discussing_answer_rating_id === $this->activeAnswerRating->id : false,
-            'disabled' => is_null($testParticipant?->discussing_answer_rating_id),
-         ])
+            @class([
+               'show-on-smartboard',
+               'relative',
+               'active' => !is_null($this->activeAnswerRating) ? $testParticipant->discussing_answer_rating_id === $this->activeAnswerRating->id : false,
+               'disabled' => is_null($testParticipant?->discussing_answer_rating_id),
+            ])
+            @disabled(is_null($testParticipant?->discussing_answer_rating_id))
     >
-        <x-icon.on-smartboard-show />
-    </div>
+        <x-icon.on-smartboard-show/>
+    </button>
     <div class="co-learning-tooltip"
          x-ref="{{ 'tt-'.$testParticipant->uuid }}"
          wire:ignore
@@ -87,23 +86,23 @@
                     <x-icon.time-dispensation class="text-midgrey"/>
                     @break
             @endswitch
-                <div class="inline-flex items-center">
-                    <span class="bold">{{ $testParticipant->answer_rated }}</span>
-                    <span class="text-[14px]">/{{ $testParticipant->answer_to_rate }} {{ __('co-learning.rated_answers') }}</span>
-                </div>
+            <div class="inline-flex items-center">
+                <span class="bold">{{ $testParticipant->answer_rated }}</span>
+                <span class="text-[14px]">/{{ $testParticipant->answer_to_rate }} {{ __('co-learning.rated_answers') }}</span>
+            </div>
         </div>
         <div class="flex items-center space-x-2">
             @switch($this->testParticipantStatusses[$testParticipant->uuid]['abnormalitiesStatus'])
                 @case(\tcCore\Http\Enums\CoLearning\AbnormalitiesStatus::Happy)
-                    <x-icon.smiley-happy />
+                    <x-icon.smiley-happy/>
                     <span class="text-[14px]">{{__('co-learning.good_rater')}}</span>
                     @break
                 @case(\tcCore\Http\Enums\CoLearning\AbnormalitiesStatus::Neutral)
-                    <x-icon.smiley-normal />
+                    <x-icon.smiley-normal/>
                     <span class="text-[14px]">{{__('co-learning.average_rater')}}</span>
                     @break
                 @case(\tcCore\Http\Enums\CoLearning\AbnormalitiesStatus::Sad)
-                    <x-icon.smiley-sad />
+                    <x-icon.smiley-sad/>
                     <span class="text-[14px]">{{__('co-learning.bad_rater')}}</span>
                     @break
                 @default
