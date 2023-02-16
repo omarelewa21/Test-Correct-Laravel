@@ -5,7 +5,10 @@
      "
      x-data="{
         collapse: false,
-        fillSpaceBetweenElementsHorizontal: (element1, element2) => {
+        fillSpaceBetweenElementsHorizontal: (xref1, xref2) => {
+            element1 = document.querySelector('[x-ref=\'' + xref1 + '\']');
+            element2 = document.querySelector('[x-ref=\'' + xref2 + '\']');
+
             remainingSpace = element2.offsetLeft - (element1.offsetLeft + element1.offsetWidth);
             element2.style.marginLeft = remainingSpace + 'px';
         },
@@ -46,7 +49,7 @@
         <div class="flex flex-col ">
 
             <div class="flex justify-between drawer-content-head border-b border-bluegrey"
-                 x-init="$nextTick(() => {fillSpaceBetweenElementsHorizontal($refs.drawerContentHeadText1, $refs.drawerContentHeadText2);})"
+                 x-init="$nextTick(() => {fillSpaceBetweenElementsHorizontal('drawerContentHeadText1', 'drawerContentHeadText2');})"
                  wire:key="{{ now()->timestamp }}"
             >
                 <div x-ref="drawerContentHeadText1" class="flex">
@@ -71,7 +74,7 @@
         </div>
 
         <div class="bottom-0 drawer-footer flex justify-between items-center footer-shadow flex-shrink-0"
-             x-init="$nextTick(() => {fillSpaceBetweenElementsHorizontal($refs.footerElement1, $refs.footerElement2);})"
+             x-init="$nextTick(() => {fillSpaceBetweenElementsHorizontal('footerElement1', 'footerElement2');})"
         >
             <x-button.text-button wire:click.prevent="goToPreviousQuestion"
                                   @click="resetToggles"
