@@ -2,6 +2,7 @@
 
 @section('container')
     <div id="testbank"
+         selid="tests-overview-page"
          x-data="{
             openTab: $wire.entangle('openTab')
          }"
