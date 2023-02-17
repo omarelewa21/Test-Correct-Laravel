@@ -78,4 +78,9 @@ class Header extends Component
     {
         return Message::filtered(['unread_receiver_id' => Auth::id() ])->count();
     }
+
+    public function laravelRedirect($route)
+    {
+        return redirect($route);
+    }
 }

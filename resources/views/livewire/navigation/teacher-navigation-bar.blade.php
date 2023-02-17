@@ -3,6 +3,11 @@
 @section('menu-top')
     <div id="menu-top" class="menu-top" x-ref="menu_top">
         <div class="action-icon-container">
+            @if(session()->has('support.id'))
+                <div class="action-icon menu-chat-icon" style="color: red" title="stop support" wire:click="laravelRedirect('{{route('support.return_as_support_user')}}')">
+                    <x-icon.stop-support/>
+                </div>
+            @endif
             <div class="action-icon menu-chat-icon" wire:click="cakeRedirect('chat')">
                 <x-icon.chat/>
                 <span>{{__('Chat')}}</span>

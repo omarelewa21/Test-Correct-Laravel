@@ -45,8 +45,21 @@ class CakeRedirectHelper
         if (!is_array($cakeRedirectData)) {
             $cakeRedirectData = [
                 'page'        => '/',
-                'page_action' => "Navigation.load('$cakeRedirectData')"
+                'page_action' => "Navigation.load('$cakeRedirectData')",
             ];
+        }
+
+        if (session()->has('support')){
+            $cakeRedirectData = array_merge($cakeRedirectData,
+                [
+                    'support' => [
+                        'id'=> session()->get('support.id'),
+                        'name'=> session()->get('support.name'),
+                        ]
+                ]
+            );
+
+            session()->forget('support');
         }
 
         $request->merge([
