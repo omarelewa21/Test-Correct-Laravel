@@ -23,6 +23,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
      * @type {Object.<string, ELEvent>}
      * @typedef EventListenerSettings
      * @type {Object.<string, HTMLElement|ELEvents>}
+     * @typedef Element
+     * @type {HTMLElement|SVGElement}
      */
 
     /**
@@ -65,7 +67,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
                         makeGrid();
                         updateMidPoint();
                     }
-                    if(grid && grid !== '0'){
+                    if (grid && grid !== '0') {
                         drawGridBackground();
                     }
                     processGridToggleChange();
@@ -76,7 +78,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
 
                     drawingApp.firstInit = false;
                     clearInterval(pollingFunction);
-                    if(Canvas.params.initialZoomLevel != 1){
+                    if (Canvas.params.initialZoomLevel !== 1) {
                         updateZoomInputValue(Canvas.params.initialZoomLevel);
                         zoom(Canvas.params.initialZoomLevel);
                         panDrawingCenterToScreenCenter();
@@ -116,7 +118,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         /**
          * Adds event listeners with the parameters specified in the settings.
          * @param {EventListenerSettings[]} settings
-         * @param {} thisArg Specific this context when needed.
+         * @param {*} thisArg Specific this context when needed.
          */
         bindEventListeners(settings, thisArg = null) {
             settings.forEach((eventListener) => {
@@ -1007,13 +1009,10 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     function drawingFitsScreen() {
         const bbox = UI.svgPanZoomGroup.getBBox({fill: true, stroke: true, markers: true});
         const screenBounds = Canvas.params.bounds;
-        if (bbox.x < screenBounds.left
+        return !(bbox.x < screenBounds.left
             || bbox.y < screenBounds.top
             || bbox.width > screenBounds.width
-            || bbox.height > screenBounds.height
-
-        ) return false;
-        else return true;
+            || bbox.height > screenBounds.height);
     }
 
     function renderShapesFromSvgLayerString(layerName) {
@@ -1035,7 +1034,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
                 !(!drawingApp.isTeacher() && layerName === "question")
             );
             Canvas.layers[layerName].shapes[shapeID] = newShape;
-            if(isOldDrawing && layerName === "question"){
+            if (isOldDrawing && layerName === "question") {
                 fitDrawingToScreen();
             }
             newShape.svg.addHighlightEvents();
@@ -1170,7 +1169,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         canvas.setAttribute('width', image.width);
         canvas.setAttribute('height', image.height);
 
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             image.onload = () => {
                 const ctx = canvas.getContext("2d");
                 ctx.drawImage(image, 0, 0, image.width, image.height);
@@ -1230,7 +1229,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
 
     function hasHiddenLayers() {
         if (drawingApp.isTeacher()) {
-            if (Canvas.params.currentLayer == 'question') {
+            if (Canvas.params.currentLayer === 'question') {
                 return questionLayerIsHidden() || hasQuestionHiddenLayers()
             }
         }
@@ -1336,11 +1335,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         const diffX = Math.abs(evtClientX - startX);
         const diffY = Math.abs(evtClientY - startY);
 
-        if (diffX < delta && diffY < delta) {
-            return false;
-        }
-
-        return true;
+        return !(diffX < delta && diffY < delta);
     }
 
     function setMousedownPosition(evt) {
@@ -1368,9 +1363,9 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
 
         Canvas.unhighlightShapes();
 
-        if (evt.touches?.length == 2) {
+        if (evt.touches?.length === 2) {
             startPan(evt);
-        } else if (drawingApp.params.currentTool == "drag") {
+        } else if (drawingApp.params.currentTool === "drag") {
             if (evt.target.classList.contains("corner")) return startResize(evt);
             startDrag(evt);
         } else {
@@ -1464,7 +1459,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
                     "width": 0,
                     "height": 0,
                     "fill":
-                        UI.fillOpacityNumber.value == 0 ? "none" : UI.fillColor.value,
+                        UI.fillOpacityNumber.value === 0 ? "none" : UI.fillColor.value,
                     "fill-opacity": parseFloat(UI.fillOpacityNumber.value / 100),
                     "stroke": UI.strokeColor.value,
                     "stroke-width": UI.strokeWidth.value,
@@ -1476,7 +1471,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
                     "cy": cursorPosition.y,
                     "r": 0,
                     "fill":
-                        UI.fillOpacityNumber.value == 0 ? "none" : UI.fillColor.value,
+                        UI.fillOpacityNumber.value === 0 ? "none" : UI.fillColor.value,
                     "fill-opacity": parseFloat(UI.fillOpacityNumber.value / 100),
                     "stroke": UI.strokeColor.value,
                     "stroke-width": UI.strokeWidth.value,
@@ -1531,6 +1526,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
      * @param {string} type Type of svgShape to be created.
      * @param {propObj} props Properties which will be appended to the main svgElement.
      * @param {?SVGElement} parent The parent to which the created svgShape will be added. Defaults to an empty SVGElement().
+     * @param {boolean} withHelperElements Boolean to set whether helper elements should be created for the shape
+     * @param {boolean} withHighlightEvents Boolean to set whether highlight events should be set for the shape
      * @returns A shape object of the right type
      */
     function makeNewSvgShape(type, props, parent = new SVGElement(), withHelperElements, withHighlightEvents) {
@@ -1801,7 +1798,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     function processToolChange(evt) {
         let currentTool = drawingApp.params.currentTool,
             newTool = determineNewTool(evt);
-        if (currentTool == newTool) return;
+        if (currentTool === newTool) return;
         drawingApp.params.currentTool = newTool;
         makeSelectedBtnActive(evt.currentTarget);
         enableSpecificPropSelectInputs();
@@ -1831,7 +1828,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         const id = evt.currentTarget.id;
         let startOfSlice = id.indexOf("-") + 1,
             endOfSlice = id.lastIndexOf("-");
-        if (endOfSlice == startOfSlice - 1 || endOfSlice == -1) {
+        if (endOfSlice === startOfSlice - 1 || endOfSlice === -1) {
             endOfSlice = startOfSlice - 1;
             startOfSlice = 0;
         }
@@ -1860,13 +1857,13 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
 
             const identifier = uuidv4();
             UI.submitBtn.disabled = true
-            livewireComponent.upload(`cmsPropertyBag.images.${Canvas.params.currentLayer}.${identifier}`, fileURL, (fileName) => {
+            livewireComponent.upload(`cmsPropertyBag.images.${Canvas.params.currentLayer}.${identifier}`, fileURL, () => {
                 // Success callback.
                 UI.submitBtn.disabled = false
             }, () => {
                 // Error callback.
                 UI.submitBtn.disabled = false
-            }, (event) => {
+            }, () => {
                 // Progress callback.
             })
 
@@ -2005,9 +2002,9 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         Canvas.layers.bgGrid = new svgShape.Grid(0, props, UI.svgGridGroup, drawingApp, Canvas);
     }
 
-    function getAdjustedGridValue(){
-        if(grid && grid !== '0'){
-            return 1/parseInt(grid) * 14;   // This calculation is based on try and change to reach the closest formula that makes grid visualization same as old drawing
+    function getAdjustedGridValue() {
+        if (grid && grid !== '0') {
+            return 1 / parseInt(grid) * 14;   // This calculation is based on try and change to reach the closest formula that makes grid visualization same as old drawing
         }
         return 0;
     }
@@ -2026,7 +2023,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         if (valueWithinBounds(UI.gridSize)) {
             drawingApp.params.gridSize = UI.gridSize.value;
             Canvas.layers.grid.shape.update();
-            if(Canvas.layers.bgGrid){
+            if (Canvas.layers.bgGrid) {
                 Canvas.layers.bgGrid.update(getAdjustedGridValue());
             }
         }
@@ -2127,7 +2124,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         let value = parseFloat(inputElem.value),
             max = parseFloat(inputElem.max),
             min = parseFloat(inputElem.min);
-        if (Number.isNaN(value) || value == 0) {
+        if (Number.isNaN(value) || value === 0) {
             return false;
         }
         if (value > max) {
@@ -2211,13 +2208,6 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         }
 
         return handleMinPanGroupSizes(panGroupSize);
-
-        return {
-            x: panGroupSize.x,
-            y: panGroupSize.y,
-            width: panGroupSize.width > minPanGroupWidth ? panGroupSize.width : minPanGroupWidth,
-            height: panGroupSize.height > minPanGroupHeight ? panGroupSize.height : minPanGroupHeight,
-        }
     }
 
     function handleMinPanGroupSizes(panGroupSize) {
@@ -2320,7 +2310,7 @@ function clearPreviewGrid(rootElement) {
 window.makePreviewGrid = function (drawingApp, gridSvg) {
 
     const rootElement = drawingApp.params.root
-    
+
     clearPreviewGrid(rootElement);
 
     const props = {
