@@ -9,7 +9,9 @@ class svgElement {
         this.element = this.createSvgElementOfType(type);
         this.props = props ?? new Object();
         this.setAllAttributesOnElement();
+        this.draw = {};
         this.drag = {};
+        this.resize = {};
     }
     /**
      * Creates a SVG Element of given type.
@@ -142,13 +144,17 @@ export class Rectangle extends svgElement {
     constructor(props = null) {
         super("rect", props);
     }
+
+    onDrawStart(evt, cursor) {
+        this.draw.startingPosition = cursor;
+    }
     /**
      * Function to be called when the cursor was moved.
      * @param {Event} evt The event that triggered the function.
      * @param {{x: number, y: number}} cursor The current cursor position.
      */
     onDraw(evt, cursor) {
-        let coords = this.calculateCoords(cursor);
+        let coords = this.calculateCoords(cursor, this.draw.startingPosition);
         this.updateAttributes(coords);
     }
 
@@ -157,8 +163,12 @@ export class Rectangle extends svgElement {
         this.drag.startingPosition = {x: this.props.x, y: this.props.y};
     }
 
+    onResizeStart(evt, cursor) {
+        this.resize.startingPosition = {x: this.props.x, y: this.props.y};
+    }
+
     onResize(evt, cursor) {
-        const coords = this.calculateCoords(cursor);
+        const coords = this.calculateCoords(cursor, this.resize.startingPosition);
         this.updateAttributes(coords);
     }
 
@@ -183,11 +193,12 @@ export class Rectangle extends svgElement {
     /**
      * Adjusts the x, y, width and height of a rectangle because SVG can't handle negative width and height values.
      * @param {{x: number, y: number}} cursor The current cursor position.
+     * @param {{x: number, y: number}} startingPosition The cursor position at the start
      * @returns An Object containing a valid value for x, y, width and height.
      */
-    calculateCoords(cursor) {
-        let x = this.props.x,
-            y = this.props.y,
+    calculateCoords(cursor, startingPosition) {
+        let x = startingPosition.x,
+            y = startingPosition.y,
             width = cursor.x - x,
             height = cursor.y - y;
         if (width < 0) {
