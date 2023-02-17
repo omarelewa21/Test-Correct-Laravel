@@ -8335,6 +8335,12 @@ video {
 .m-5{
   margin: 1.25rem;
 }
+.m-auto{
+  margin: auto;
+}
+.m-2{
+  margin: 0.5rem;
+}
 .mx-8{
   margin-left: 2rem;
   margin-right: 2rem;
@@ -11719,6 +11725,11 @@ ul ul ul {
   }
 
 
+  .sm\:grid-cols-2{
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+
   .sm\:flex-row{
     flex-direction: row;
   }
@@ -11915,6 +11926,21 @@ ul ul ul {
   }
 
 
+  .md\:grid-cols-4{
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+
+  .md\:grid-cols-2{
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+
+  .md\:grid-cols-1{
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+
+
   .md\:flex-row{
     flex-direction: row;
   }
@@ -12070,6 +12096,11 @@ ul ul ul {
   }
 
 
+  .lg\:grid-cols-3{
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+
   .lg\:flex-row{
     flex-direction: row;
   }
@@ -12136,6 +12167,16 @@ ul ul ul {
   }
 
 
+  .xl\:grid-cols-5{
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+
+  .xl\:grid-cols-4{
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+
   .xl\:flex-row{
     flex-direction: row;
   }
@@ -12190,5 +12231,20 @@ ul ul ul {
 
   .\32xl\:max-w-6xl{
     max-width: 72rem;
+  }
+
+
+  .\32xl\:grid-cols-6{
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+
+  .\32xl\:grid-cols-5{
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+
+  .\32xl\:grid-cols-4{
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
