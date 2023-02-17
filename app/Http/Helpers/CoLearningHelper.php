@@ -55,6 +55,9 @@ class CoLearningHelper extends BaseHelper
             ->where('test_participants.test_take_id', '=', static::$test_take_id)
             ->where('answer_ratings.test_take_id', '=', static::$test_take_id)
             ->where('answer_ratings.type', '=', AnswerRating::TYPE_STUDENT)
+            ->where('answer_ratings.deleted_at', '=', null)
+            ->where('answers.deleted_at', '=', null)
+            ->where('test_participants.deleted_at', '=', null)
             ->groupBy('test_participants.id');
     }
 

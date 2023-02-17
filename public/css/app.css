@@ -5226,9 +5226,6 @@ input.datepicker {
     background-color: var(--primary) !important;
 }
 
-/*#co-learning-teacher-page .student-info-container.active .show-on-smartboard::before {*/
-/*    opacity: 100%;*/
-/*}*/
 
 #co-learning-teacher-page .student-info-container.active .show-on-smartboard:hover,
 #co-learning-teacher-page .student-info-container.active .show-on-smartboard {
@@ -5264,6 +5261,7 @@ input.datepicker {
 
 }
 #co-learning-teacher-page .hide-on-smartboard svg {
+    position: absolute;
     top: 12px;
     left: 9px;
     color: var(--system-base);

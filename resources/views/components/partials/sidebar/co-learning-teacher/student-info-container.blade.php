@@ -69,7 +69,6 @@
     </button>
     <div class="co-learning-tooltip"
          x-ref="{{ 'tt-'.$testParticipant->uuid }}"
-         wire:ignore
     >
         <div class="flex items-center space-x-2">
             @switch($this->testParticipantStatusses[$testParticipant->uuid]['ratingStatus'])

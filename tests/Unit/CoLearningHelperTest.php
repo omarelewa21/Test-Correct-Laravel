@@ -22,6 +22,51 @@ class CoLearningHelperTest extends TestCase
 {
     use DatabaseTransactions;
 
+    /** @test */
+    public function canGetAnswersToRateAndAnswerRatedWhenThereAreSoftDeletedAnswersOrAnswerRatings()
+    {
+        $testTake = $this->setUpTestTake();
+        $answerRatings = $this->getAnswerRatings($testTake);
+        $firstUserId = $answerRatings
+            ->where('user_id', '<>', null)
+            ->first()
+            ->user_id;
+
+        $answerRatingCopies = collect();
+
+        //save different rating to first student answerRatings
+        $answerRatings
+            ->where('user_id', '=', $firstUserId)
+            ->each(function ($answerRating) use (&$answerRatingCopies) {
+                $answerRating->rating = 1;
+                $answerRating->save();
+                $answerRatingCopies[] = $answerRating->toArray();
+            });
+
+        //delete first user answerRatings
+        $answerRatings
+            ->where('user_id', '=', $firstUserId)
+            ->each(function ($answerRating) {
+                $answerRating->delete();
+            });
+
+        //create new answerRatings for the first user
+        $answerRatingCopies->each(function ($answerRatingData) {
+            unset($answerRatingData['id']);
+            unset($answerRatingData['answer']);
+            AnswerRating::create($answerRatingData)->delete();
+            return AnswerRating::create($answerRatingData);
+        });
+
+        $testParticipantsData = CoLearningHelper::getTestParticipantsWithStatusAndAbnormalities($testTake->getKey(), $testTake->discussing_question_id)
+            ->sortBy('user_id')->values();
+
+        foreach ($testParticipantsData as $testParticipant) {
+            $this->assertLessThanOrEqual(2, $testParticipant->answer_rated);
+            $this->assertLessThanOrEqual(2, $testParticipant->answer_to_rate);
+        }
+    }
+
     /**
      * Assert CoLearningHelper gets the correct amount of answers the student has to rate
      *  for the TestTake => discussing question
@@ -239,7 +284,7 @@ class CoLearningHelperTest extends TestCase
             ->each(function ($answerRating) use (&$answerRatingCopies) {
                 $answerRating->rating = 1;
                 $answerRating->save();
-                $answerRatingCopies[]= $answerRating->toArray();
+                $answerRatingCopies[] = $answerRating->toArray();
             });
 
         //delete first user answerRatings
