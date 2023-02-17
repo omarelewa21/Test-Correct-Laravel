@@ -66,11 +66,6 @@ class CoLearning extends Component
         'coLearningHasBeenStarted' => ['except' => true, 'as' => 'started']
     ];
 
-    protected $listeners = [
-        'finishCoLearning',
-        'redirectBack',
-    ];
-
     public function mount(TestTake $test_take)
     {
         $this->testTake = $test_take;
@@ -178,15 +173,6 @@ class CoLearning extends Component
     /* start sidebar methods */
     public function goToNextQuestion()
     {
-        if ($this->testParticipantsFinishedWithRatingPercentage === 100) {
-            $this->nextDiscussionQuestion();
-            $this->getNavigationData();
-            return;
-        }
-
-        //todo if not all answerRatings have been Rated,
-        // open Modal for confirmation? then the modal can call $this->nextDiscussionQuestion() or something?
-
         $this->nextDiscussionQuestion();
         $this->getNavigationData();
     }
@@ -224,6 +210,10 @@ class CoLearning extends Component
 
     public function showStudentAnswer($id): bool
     {
+        if($id === null || $id === '') {
+            return false;
+        }
+
         $this->activeAnswerRating = AnswerRating::with('answer')->find($id);
 
         $this->setActiveAnswerAnsweredStatus();
