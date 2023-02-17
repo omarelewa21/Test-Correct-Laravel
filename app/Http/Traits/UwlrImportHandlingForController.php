@@ -5,7 +5,6 @@ namespace tcCore\Http\Traits;
 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
-use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\SchoolClass;
 use tcCore\SchoolClassImportLog;
 use tcCore\User;
