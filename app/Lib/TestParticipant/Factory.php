@@ -11,59 +11,33 @@ class Factory {
     {
         $this->testParticipant = $testParticipant;
     }
+    
 
     public function generateMany($testTakeId, $data)
     {
-        $schoolClassIds = null;
-        if (array_key_exists('school_class_ids', $data)) {
-            $schoolClassIds = $data['school_class_ids'];
-            unset($data['school_class_ids']);
+        $schoolClassIds = $data['school_class_ids'] ?? null;
+        $testParticipantIds = $data['test_participant_ids'] ?? null;
+        unset($data['school_class_ids'], $data['test_participant_ids']);
+
+        $userIds = $data['user_id'] ?? [];
+        if (!is_array($userIds)) {
+            $userIds = [$userIds];
         }
+        unset($data['user_id']);
 
-        $testParticipantIds = null;
-        if (array_key_exists('test_participant_ids', $data)) {
-            $testParticipantIds = $data['test_participant_ids'];
-            unset($data['test_participant_ids']);
-        }
-
-        $userIds = [];
-
-        if (array_key_exists('user_id', $data)) {
-            if (is_array($data['user_id'])) {
-                $userIds = $data['user_id'];
-            } else {
-                $userIds = [$data['user_id']];
-            }
-
-            unset($data['user_id']);
-        }
-
-        $schoolClassUserIds = [];
-        if($schoolClassIds) {
-            $schoolClassUserIds = $this->getUserIdsFromSchoolClass($schoolClassIds);
-        }
-
-        $testParticipantUserIds = [];
-        if($testParticipantIds) {
-            $testParticipantUserIds = $this->getUserIdsFromTestParticipantIds($testParticipantIds);
-        }
+        $schoolClassUserIds = $schoolClassIds ? $this->getUserIdsFromSchoolClass($schoolClassIds) : [];
+        $testParticipantUserIds = $testParticipantIds ? $this->getUserIdsFromTestParticipantIds($testParticipantIds) : [];
 
         $UserIdSchoolClass = [];
-        foreach($schoolClassUserIds as $schoolClassId => $studentUsers) {
+        $allUsers = $schoolClassUserIds + $testParticipantUserIds;
+        foreach($allUsers as $schoolClassId => $studentUsers) {
             foreach ($studentUsers as $studentUserId) {
                 $UserIdSchoolClass[$studentUserId] = $schoolClassId;
                 $userIds[] = $studentUserId;
             }
         }
-
-        foreach($testParticipantUserIds as $schoolClassId => $studentUsers) {
-            foreach ($studentUsers as $studentUserId) {
-                $UserIdSchoolClass[$studentUserId] = $schoolClassId;
-                $userIds[] = $studentUserId;
-            }
-        }
-
         $userIds = array_unique($userIds);
+
 
         $testParticipants = [];
 
@@ -97,30 +71,24 @@ class Factory {
         return $testParticipants;
     }
 
-    private function getUserIdsFromSchoolClass($schoolClassIds) {
-        $schoolClasses = SchoolClass::with('studentUsers')->find($schoolClassIds);
-        $schoolClassUserIds = [];
-
-        foreach($schoolClasses as $schoolClass) {
-            foreach($schoolClass->studentUsers as $studentUser) {
-                $schoolClassUserIds[$schoolClass->getKey()][] = $studentUser->getKey();
-            }
-        }
-
-        return $schoolClassUserIds;
+    // Get user IDs from the specified school classes.
+    private function getUserIdsFromSchoolClass($schoolClassIds)
+    {
+        return SchoolClass::whereIn('id', $schoolClassIds)
+            ->with('studentUsers')
+            ->get()
+            ->pluck('studentUsers.*.id', 'id')
+            ->toArray();
     }
 
-    private function getUserIdsFromTestParticipantIds($testParticipantIds) {
-        $testParticipants = TestParticipant::find($testParticipantIds);
-        $testParticipantUserIds = [];
-
-        foreach($testParticipants as $testParticipant) {
-            $testParticipantUserIds[$testParticipant->getAttribute('school_class_id')][] = $testParticipant->getAttribute('user_id');
-        }
-
-        return $testParticipantUserIds;
+    // Get user IDs from the specified test participants.
+    private function getUserIdsFromTestParticipantIds($testParticipantIds)
+    {
+        return TestParticipant::whereIn('id', $testParticipantIds)
+            ->get()
+            ->pluck('user_id', 'school_class_id')
+            ->toArray();
     }
-
 
     public function generate($data, $withoutSaving = false)
     {

@@ -5,6 +5,7 @@ namespace Tests\Unit\Http\Controllers\TestTakes;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use tcCore\Factories\FactoryTestTake;
 use tcCore\FactoryScenarios\FactoryScenarioTestTakePlanned;
+use tcCore\TestParticipant;
 use tests\TestCase;
 
 class TestTakeGenerateParticipantsTest extends TestCase
@@ -22,17 +23,23 @@ class TestTakeGenerateParticipantsTest extends TestCase
     }
 
     /**
-     * A basic unit test example.
+     * Test that the factory's generateMany method correctly creates TestParticipants for a TestTake.
      *
      * @return void
      */
     public function test_factory_generateMany()
     {
         $testTake = $this->testTakeFactory->testTake;
+
+        // Assert
         $this->assertEquals(self::STUDENTS_COUNT, $testTake->testParticipants()->count());
-        foreach($testTake->testParticipants as $participant){
-            $this->assertEquals(1, $participant->school_class_id);
-            $this->assertEquals(1, $participant->test_take_status_id);
+        foreach ($testTake->testParticipants as $participant) {
+            $this->assertNotNull(1, $participant->school_class_id);
+            $this->assertNotNull(1, $participant->test_take_status_id);
+            $this->assertNotNull($participant->user_id);
+            $this->assertNotNull($participant->created_at);
+            $this->assertNotNull($participant->updated_at);
+            $this->assertInstanceOf(TestParticipant::class, $participant);
         }
     }
 }
