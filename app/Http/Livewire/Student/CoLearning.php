@@ -370,6 +370,8 @@ class CoLearning extends Component
 
     public function updateHeartbeat($skipRender = true)
     {
+        $this->redirectIfNotStatusDiscussing();
+
         if($this->testTake->discussing_question_id !== $this->discussingQuestionId) {
             return $this->goToActiveQuestion();
         }
