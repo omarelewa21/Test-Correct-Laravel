@@ -1,7 +1,7 @@
 <?php
 return [
     'Toets inleveren'                                                                                                             => 'Toets inleveren',
-    'Weet je zeker dat je de toets wilt inleveren?'                                                                               => 'Weet je zeker dat je de toets wilt inleveren',
+    'Weet je zeker dat je de toets wilt inleveren?'                                                                               => 'Weet je zeker dat je de toets wilt inleveren?',
     'Inleveren'                                                                                                                   => 'Inleveren',
     'Toets ingenomen door docent.'                                                                                                => 'Toets ingenomen door docent.',
     'De toets is ingenomen door de docent, je kunt daardoor niet verder werken. Keer terug naar het dashboard.'                   => 'De toets is ingenomen door de docent, je kunt daardoor niet verder werken. Keer terug naar het dashboard.',
