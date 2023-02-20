@@ -8,4 +8,40 @@ enum RatingStatus: string
     case Orange = 'orange';
     case Red    = 'red';
     case Grey   = 'grey';
+
+    public static function get(int $answersToRate, int $answersRated, int|float $testParticipantsFinishedRatingPercentage) : RatingStatus
+    {
+        $percentageRated = $answersToRate > 0
+            ? $answersRated / $answersToRate * 100
+            : 0;
+
+        if (intval($percentageRated) === 100) {
+            return RatingStatus::Green;
+        }
+        if (
+            $percentageRated < 50 &&
+            $testParticipantsFinishedRatingPercentage > 50
+        ) {
+            return RatingStatus::Red;
+        }
+        if (
+            $percentageRated > 0 &&
+            $percentageRated < 100
+        ) {
+            return RatingStatus::Orange;
+        }
+
+        return RatingStatus::Grey;
+    }
+
+
+    /**
+     * Returns whether two RatingStatusses are equal
+     * @param RatingStatus $ratingStatus
+     * @return bool
+     */
+    public function equals(RatingStatus $ratingStatus): bool
+    {
+        return $this->value === $ratingStatus->value;
+    }
 }

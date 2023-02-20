@@ -309,6 +309,10 @@ class CoLearning extends Component
         $this->testParticipantStatusses = collect();
 
         $testParticipantsCount = $this->testParticipants->sum(fn($tp) => $tp->active === true);
+        if($testParticipantsCount === 0) {
+            return;
+        }
+
         $testParticipantsFinishedWithRatingCount = $this->testParticipants->sum(fn($tp) => ($tp->answer_to_rate === $tp->answer_rated) && $tp->active);
 
         $this->testParticipantsFinishedWithRatingPercentage = $testParticipantsCount > 0
@@ -320,12 +324,12 @@ class CoLearning extends Component
                 return;
             }
 
-            $testParticipantPercentageRated = (!isset($testParticipant->answer_to_rate) || $testParticipant->answer_to_rate === 0)
-                ? 0
-                : ($testParticipant->answer_rated / $testParticipant->answer_to_rate) * 100;
-
             $this->testParticipantStatusses[$testParticipant->uuid] = [
-                'ratingStatus' => $this->getRatingStatusForTestParticipant($testParticipantPercentageRated)
+                'ratingStatus' => RatingStatus::get(
+                    $testParticipant->answer_to_rate,
+                    $testParticipant->answer_rated,
+                    $this->testParticipantsFinishedWithRatingPercentage
+                )
             ];
         });
 
@@ -338,36 +342,27 @@ class CoLearning extends Component
                 return;
             }
 
-            $testParticipantAbnormalitiesAverageDeltaPercentage = null;
-
-            $questionIndex = $this->openOnly ? $this->questionIndexOpenOnly : $this->questionIndex;
-
-            $answersRated = DB::table('answer_ratings')
+            $answersRatedByTestParticipant = DB::table('answer_ratings')
                 ->where('test_take_id', $this->testTake->getKey())
                 ->where('user_id', $testParticipant->user_id)->get()
                 ->where('rating', '<>', null)
+                ->where('deleted_at', '=', null)
                 ->count();
-
-            if($answersRated >= 4) {
-                if ($testParticipant->answer_rated > 0 && $abnormalitiesAverage == 0 && $testParticipant->active) {
-                    $testParticipantAbnormalitiesAverageDeltaPercentage = 100;
-                }
-
-                if ($abnormalitiesAverage != 0 && $testParticipant->active) {
-                    $testParticipantAbnormalitiesAverageDeltaPercentage = (100 / $abnormalitiesAverage) * $testParticipant->abnormalities;
-                }
-            }
 
             $this->testParticipantStatusses = $this->testParticipantStatusses->mergeRecursive([
                 $testParticipant->uuid => [
-                    'abnormalitiesStatus' => $this->getAbnormalitiesStatusForTestParticipant($testParticipantAbnormalitiesAverageDeltaPercentage)
+                    'abnormalitiesStatus' => AbnormalitiesStatus::get(
+                        testParticipantAbnormalities: $testParticipant->abnormalities,
+                        averageAbnormalitiesAmount: $abnormalitiesAverage,
+                        enoughDataAvailable: $answersRatedByTestParticipant >= 4,
+                    )
                 ]
             ]);
 
         });
     }
 
-    function getAbnormalitiesStatusForTestParticipant($averageDeltaPercentage): AbnormalitiesStatus
+    private function getAbnormalitiesStatusForTestParticipant($averageDeltaPercentage): AbnormalitiesStatus
     {
         if ($averageDeltaPercentage === null) {
             return AbnormalitiesStatus::Default;
@@ -382,9 +377,9 @@ class CoLearning extends Component
         return AbnormalitiesStatus::Sad;
     }
 
-    function getRatingStatusForTestParticipant($percentageRated): RatingStatus
+    private function getRatingStatusForTestParticipant($percentageRated): RatingStatus
     {
-        if ($percentageRated === 100) {
+        if (intval($percentageRated) === 100) {
             return RatingStatus::Green;
         }
         if (
@@ -415,7 +410,7 @@ class CoLearning extends Component
         $this->testParticipantCount = $this->testParticipants->count();
         $this->testParticipantCountActive = $this->testParticipants->sum(fn($tp) => $tp->active);
 
-        $this->handleTestParticipantStatusses(); //todo move to polling method?
+        $this->handleTestParticipantStatusses();
     }
 
 
