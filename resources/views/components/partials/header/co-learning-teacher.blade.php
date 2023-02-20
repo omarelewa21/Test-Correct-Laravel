@@ -25,7 +25,7 @@
         <div class="flex items-center space-x-4">
             <x-button.back-round wire:click="redirectBack()" class="bg-white/20 hover:text-white"></x-button.back-round>
             <h6 class="text-white">{{ __('co-learning.co_learning') }}: </h6>
-            <h4 class="text-white">{{ $testName }}</h4>
+            <h4 class="text-white">{!!  clean($testName) !!}</h4>
         </div>
         <div class="flex">
             @if($this->coLearningHasBeenStarted)

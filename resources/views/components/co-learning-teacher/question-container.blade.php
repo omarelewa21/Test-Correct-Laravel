@@ -77,7 +77,6 @@
                                          wire:key="a-badge-{{ $attachment->id.$this->testTake->discussing_question_id }}"
                                          :question-id="$question->getKey()"
                                          :question-uuid="$question->uuid"
-                        {{--  --}}
                 />
             @endforeach
         </div>
