@@ -129,10 +129,10 @@ class AppVersionDetector
                 "3.4.0-beta.5"
             ],
             "needsUpdate" => [
-                "3.2.3"
+
             ],
             "needsUpdateDeadline" => [
-                "3.2.3" => "2 maart 2023"
+
             ],
         ],
         "macosElectron" => [
@@ -181,10 +181,10 @@ class AppVersionDetector
                 "3.4.0-beta.5"
             ],
             "needsUpdate" => [
-                "3.2.3"
+
             ],
             "needsUpdateDeadline" => [
-                "3.2.3" => "2 maart 2023"
+
             ],
         ]
     ];
