@@ -811,7 +811,7 @@ class TestTake extends BaseModel
 
     private function createTestTakeCodeIfNeeded()
     {
-        if ($this->testTakeCode()->count() === 0) {
+        if ($this->testTakeCode()->doesntExist()) {
             $this->testTakeCode()->create();
         }
     }
