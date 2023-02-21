@@ -122,7 +122,7 @@ class TestTake extends BaseModel
             $originalTestTakeStatus = TestTakeStatus::find($testTake->getOriginal('test_take_status_id'));
 
             // logging statuses if changed
-            if($testTake->getOriginal('test_take_status_id') != $testTake->test_take_status_id) {
+            if($testTake->isDirty('test_take_status_id')) {
                 TestTakeStatusLog::create([
                     'test_take_id' => $testTake->getKey(),
                     'test_take_status_id' => $testTake->test_take_status_id
