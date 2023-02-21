@@ -334,7 +334,6 @@ class TestTake extends BaseModel
         });
 
         static::created(function (TestTake $testTake) {
-
             if ($testTake->schoolClasses !== null) {
                 $testTake->saveSchoolClassTestTakeParticipants();
             }
@@ -848,24 +847,24 @@ class TestTake extends BaseModel
 
     private function updateGuestAvailabilityForParticipantsOnStatusChange()
     {
-        $this->testParticipants->each(function($participant) {
-            if ($participant->user()->value('guest') == true) {
-                $participant->available_for_guests = true;
-                $participant->save();
-            }
-        });
+        $this->testParticipants()
+            ->whereExists(function ($query) {
+                $query->select(DB::raw(1))
+                ->from('users')
+                ->whereColumn('users.id', 'test_participants.user_id')
+                ->where('users.guest', true);
+            })
+            ->update(['test_participants.available_for_guests' => true]);
     }
 
     private function handleInbrowserTestingChangesForParticipants()
     {
-        if ($this->allow_inbrowser_testing != $this->getOriginal('allow_inbrowser_testing')) {
-            TestParticipant::where('test_take_id', $this->getKey())
-                ->get()
-                ->each(function ($participant) {
-                    $participant->setAttribute('allow_inbrowser_testing', $this->allow_inbrowser_testing)->save();
-                    InbrowserTestingUpdatedForTestParticipant::dispatch($participant->uuid);
-                });
-        }
+        if ($this->isDirty('allow_inbrowser_testing')) {
+            $this->testParticipants()->update(['allow_inbrowser_testing' => $this->allow_inbrowser_testing]);
+            $this->testParticipants->each(function ($participant) {
+                InbrowserTestingUpdatedForTestParticipant::dispatch($participant->uuid);
+            });
+        }        
     }
 
     private function handleShowResultChanges()
