@@ -869,9 +869,9 @@ class TestTake extends BaseModel
 
     private function handleShowResultChanges()
     {
-        if ($this->show_results != $this->getOriginal('show_results')) {
+        if ($this->wasChanged('show_results')) {
             TestTakeShowResultsChanged::dispatch($this->uuid);
-
+    
             $this->testParticipants->each(function($participant) {
                 NewTestTakeReviewable::dispatch($participant->user()->value('uuid'));
             });
