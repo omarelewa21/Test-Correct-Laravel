@@ -416,6 +416,9 @@ class CoLearning extends Component
 
     protected function getNavigationData()
     {
+        $this->questionIndex = 0;
+        $this->questionIndexOpenOnly = 0;
+
         if (!isset($this->testTake->discussing_question_id)) {
             return false;
         }
