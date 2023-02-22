@@ -23,7 +23,7 @@
                         </div>
                     </x-dropzone>
                 </div>
-                <div class="classified flex flex-1 flex-shrink-0 align-baseline flex-grow-0 flex-wrap flex-lg-row flex-md-column">
+                <div class="classified gap-5 flex flex-1 flex-shrink-0 align-baseline flex-grow-0 flex-wrap flex-lg-row flex-md-column">
                     @foreach ($groupItemOrder as $groupId => $items)
                         <x-dropzone type="classify"
                                     title="{!! html_entity_decode($itemAnswerValues[$groupId]) !!}"

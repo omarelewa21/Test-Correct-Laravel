@@ -5,7 +5,7 @@
 ])
 <div class="flex flex-col flex-1 min-w-[16rem] justify-content-space-evenly space-y-3 leading-5 pdf-200px pdf-ml-2 question-no-break-dropzone" id="main-{{$attributes->get('id')}}" >
     @isset($title)
-        <h6 id="heading_for_{{ $attributes->get('id') }}" class="m-5 text-center pdf-dropzone-heading"> {{ $title }}</h6>
+        <h6 id="heading_for_{{ $attributes->get('id') }}" class="text-center pdf-dropzone-heading"> {{ $title }}</h6>
     @endif
 
     <div {{ $attributes }}
