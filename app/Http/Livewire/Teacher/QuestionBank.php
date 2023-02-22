@@ -92,6 +92,7 @@ class QuestionBank extends Component
             ->when($this->openTab === 'school_location', fn($filters) => $filters->merge(['source' => 'schoolLocation', 'draft' => false]))
             ->when($this->openTab === 'national', fn($filters) => $filters->merge(['source' => 'national']))
             ->when($this->openTab === 'creathlon', fn($filters) => $filters->merge(['source' => 'creathlon']))
+            ->when($this->openTab === 'olympiade', fn($filters) => $filters->merge(['source' => 'olympiade']))
             ->when($needsIdSearch, function ($filters) {
                 unset($filters['search']);
                 return $filters->merge(['id' => $this->filters['search']]);

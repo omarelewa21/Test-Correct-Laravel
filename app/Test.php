@@ -336,6 +336,14 @@ class Test extends BaseModel
             $query, $filters, $sorting);
     }
 
+    public function scopeOlympiadeItemBankFiltered($query, $filters = [], $sorting = [])
+    {
+        return $this->contentSourceFiltered(
+            'published_olympiade',
+            config('custom.olympiade_school_customercode'),
+            $query, $filters, $sorting);
+    }
+
     public function scopeSharedSectionsFiltered($query, $filters = [], $sorting = [])
     {
         $user = Auth::user();

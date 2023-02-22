@@ -59,6 +59,7 @@ class CreathlonItemBankSeeder extends Seeder
                     'abbreviation'       => 'PUBLS',
                     'scope'              => 'published_creathlon',
                     'education_level_id' => '1',
+                    'draft'              => false,
                 ])
                 ->addQuestions([
                     FactoryQuestionOpenShort::create(),
@@ -72,6 +73,7 @@ class CreathlonItemBankSeeder extends Seeder
                     'abbreviation'       => 'UNF',
                     'scope'              => 'not_published_creathlon',
                     'education_level_id' => '1',
+                    'draft'              => false,
                 ])
                 ->addQuestions([
                     FactoryQuestionOpenShort::create(),

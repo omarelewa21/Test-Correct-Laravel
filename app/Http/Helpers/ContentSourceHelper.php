@@ -9,8 +9,8 @@ use tcCore\User;
 
 class ContentSourceHelper
 {
-    const PUBLISHABLE_ABBREVIATIONS = ['EXAM', 'LDT', 'PUBLS'];
-    const PUBLISHABLE_SCOPES = ['exam', 'ldt', 'published_creathlon'];
+    const PUBLISHABLE_ABBREVIATIONS = ['EXAM', 'LDT', 'PUBLS', 'SBON'];
+    const PUBLISHABLE_SCOPES = ['exam', 'ldt', 'published_creathlon', 'published_olympiade'];
 
     public static function allAllowedForUser(User $user)
     {
@@ -23,6 +23,8 @@ class ContentSourceHelper
             fn($collection) => $collection->push('national')
         )->when(self::canViewContent($user, 'creathlon'),
             fn($collection) => $collection->push('creathlon')
+        )->when(self::canViewContent($user, 'olympiade'),
+            fn($collection) => $collection->push('olympiade')
         );
     }
 
@@ -41,27 +43,38 @@ class ContentSourceHelper
                 return $user->schoolLocation->show_national_item_bank;
             case 'creathlon':
                 return $user->schoolLocation->allow_creathlon &&
-                    self::testsAvailable('creathlon', $user);
+                    self::testsAvailable($user, 'creathlon');
+            case 'olympiade':
+                return $user->schoolLocation->allow_olympiade &&
+                    self::testsAvailable($user, 'olympiade');
         }
 
         return false;
     }
 
-    public static function testsAvailable(string $contentSourceName, User $user)
+    public static function testsAvailable(User $user, string $contentSourceName)
     {
-        if (in_array($contentSourceName, ['exam', 'cito'])) {
-            $publishedTestScope = $contentSourceName;
-        } elseif (in_array($contentSourceName, ['national', 'tbni'])) {
-            $publishedTestScope = 'ldt';
-        } else {
-            $publishedTestScope = 'published_' . $contentSourceName;
+        switch($contentSourceName) {
+
         }
 
-        return Test::select('s.base_subject_id')
-            ->distinct()
-            ->join('subjects as s', 'tests.subject_id', '=', 's.id')
-            ->where('tests.scope', '=', $publishedTestScope)
-            ->whereIn('s.base_subject_id', Subject::filtered(['user_current' => $user->getKey()], [])->pluck('base_subject_id'))
-            ->exists('s.base_subject_id');
+        if ($contentSourceName === 'umbrella') {
+            return Test::sharedSectionsFiltered()->exists();
+        }
+        if ($contentSourceName === 'exam') {
+            return Test::ExamFiltered()->exists();
+        }
+        if ($contentSourceName === 'cito') {
+            return Test::CitoFiltered()->exists();
+        }
+        if (in_array($contentSourceName, ['national', 'tbni'])) {
+            return Test::NationalItemBankFiltered()->exists();
+        }
+        if ($contentSourceName === 'creathlon') {
+            return Test::CreathlonItemBankFiltered()->exists();
+        }
+        if ($contentSourceName === 'olympiade') {
+            return Test::OlympiadeItemBankFiltered()->exists();
+        }
     }
 }

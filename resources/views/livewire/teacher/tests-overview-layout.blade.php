@@ -15,6 +15,9 @@
     <x-menu.tab.item tab="creathlon" menu="openTab" :highlight="true" :when="$allowedTabs->contains('creathlon')">
         {{ __('general.Creathlon') }}
     </x-menu.tab.item>
+    <x-menu.tab.item tab="olympiade" menu="openTab" :highlight="true" :when="$allowedTabs->contains('olympiade')">
+        {{ __('general.Olympiade') }}
+    </x-menu.tab.item>
 </x-menu.tab.container>
 
 <div class="flex w-full max-w-screen-2xl mx-auto  px-8" @hasSection('cms-js-properties')

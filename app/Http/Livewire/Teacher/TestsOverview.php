@@ -90,6 +90,9 @@ class TestsOverview extends OverviewComponent
             case 'creathlon':
                 $datasource = $this->getCreathlonDatasource();
                 break;
+            case 'olympiade':
+                $datasource = $this->getOlympiadeDatasource();
+                break;
             case 'personal':
             default :
                 $datasource = $this->getPersonalDatasource();
@@ -152,6 +155,14 @@ class TestsOverview extends OverviewComponent
     private function getCreathlonDatasource()
     {
         return Test::creathlonItemBankFiltered(
+            $this->getContentSourceFilters(),
+            $this->sorting
+        );
+    }
+
+    private function getOlympiadeDatasource()
+    {
+        return Test::olympiadeItemBankFiltered(
             $this->getContentSourceFilters(),
             $this->sorting
         );
