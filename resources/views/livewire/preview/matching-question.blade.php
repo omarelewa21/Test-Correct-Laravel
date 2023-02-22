@@ -9,7 +9,7 @@
         </div>
         @if($question->subtype == 'Classify')
             <div id="matching-container{{$question->getKey()}}" class="flex flex-col classify" wire:sortable-group="updateOrder">
-                <div class="flex">
+                <div class="classified flex flex-1 flex-shrink-0 align-baseline flex-grow-0 flex-wrap flex-lg-row flex-md-column">
                     <x-dropzone wire:key="group-start" startGroup="true">
                         <div class="h-full space-x-1 focus:outline-none start-group" wire:sortable-group.item-group="startGroep">
                             @foreach($shuffledAnswers as $option)
@@ -28,7 +28,7 @@
                         </div>
                     </x-dropzone>
                 </div>
-                <div class="flex space-x-5 classified">
+                <div class="classified flex flex-1 flex-shrink-0 align-baseline flex-grow-0 flex-wrap flex-lg-row flex-md-column">
                     @foreach ($groupItemOrder as $groupId => $items)
                         <x-dropzone id="dropzone{{$question->getKey()}}-{{$groupId}}"
                                     type="classify"

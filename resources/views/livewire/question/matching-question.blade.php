@@ -32,7 +32,7 @@
                         </div>
                     </x-dropzone>
                 </div>
-                <div class="classified grid gap-4 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 my-4">
+                <div class="classified gap-2 flex flex-1 flex-shrink-0 align-baseline flex-grow-0 flex-wrap flex-lg-row flex-md-column">
                     @foreach ($groupItemOrder as $groupId => $items)
                         <x-dropzone id="dropzone{{$question->getKey()}}-{{$groupId}}"
                                     type="classify"
