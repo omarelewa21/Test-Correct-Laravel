@@ -3,6 +3,7 @@
 use Carbon\Carbon;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Illuminate\Support\Facades\DB;
 use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Helpers\UwlrImportHelper;
 use tcCore\Jobs\AnonymizeUsersAfterTooLongNoLoginJob;
