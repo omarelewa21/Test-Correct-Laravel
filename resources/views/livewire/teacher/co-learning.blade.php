@@ -9,6 +9,13 @@
         this.showAnswerModel = false;
         this.showQuestion = true;
      },
+     async openStudentAnswer(id) {
+        result = await $wire.call('showStudentAnswer',id);
+        if(result === true || result === false) { {{-- faster than: typeof result === 'boolean' --}}
+            return this.showStudentAnswer = result;
+        }
+        this.showStudentAnswer = false;
+     },
      }"
 >
     <x-partials.header.co-learning-teacher testName="{{ $testTake->test->name ?? '' }}"

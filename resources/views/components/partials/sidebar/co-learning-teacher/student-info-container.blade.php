@@ -54,9 +54,7 @@
     </div>
     {{-- right --}}
     <button
-            @click="showStudentAnswer = true"
-            wire:click="showStudentAnswer('{{ $testParticipant->discussing_answer_rating_id }}')"
-
+            @click="openStudentAnswer('{{ $testParticipant->discussing_answer_rating_id }}')"
             @class([
                'show-on-smartboard',
                'relative',

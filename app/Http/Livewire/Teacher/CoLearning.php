@@ -210,6 +210,11 @@ class CoLearning extends Component
 
     public function showStudentAnswer($id): bool
     {
+        if((int) $id === $this->activeAnswerRating?->id){
+            $this->resetActiveAnswer();
+            return false;
+        }
+
         if($id === null || $id === '') {
             return false;
         }
