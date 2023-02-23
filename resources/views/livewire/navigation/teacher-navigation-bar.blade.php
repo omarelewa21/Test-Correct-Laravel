@@ -3,7 +3,7 @@
 @section('menu-top')
     <div id="menu-top" class="menu-top" x-ref="menu_top">
         <div class="action-icon-container">
-            <div class="action-icon menu-chat-icon" wire:click="cakeRedirect('chat')">
+            <div class="action-icon menu-chat-icon" x-ref="chat_button">
                 <x-icon.chat/>
                 <span>{{__('Chat')}}</span>
             </div>

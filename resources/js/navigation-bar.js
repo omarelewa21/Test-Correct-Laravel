@@ -18,6 +18,21 @@ document.addEventListener('alpine:init', () => {
 
             this.menuButtonsWithItems = this.bottom.querySelectorAll('.has-items');
             this.menuButtonsWithoutItems = this.bottom.querySelectorAll('div:not(.has-items)');
+            this.initializeHubspot();
+
+            if (window.HubSpotConversations) {
+                this.onConversationsAPIReady();
+            } else {
+                window.hsConversationsOnReady = [this.onConversationsAPIReady];
+            }
+            
+            if (hubspotLoaded == undefined) { 
+                var _hsq = window._hsq = window._hsq || [];
+                _hsq.push(["identify", "<?=AuthComponent::user('username')?>"]);
+                _hsq.push(['trackPageView']);
+        
+                var hubspotLoaded = true;
+            }
 
             if (this.$wire.activeRoute.sub !== '') {
                 let activeTileItem = navBar.querySelector('.' + this.$wire.activeRoute.sub);
@@ -63,7 +78,27 @@ document.addEventListener('alpine:init', () => {
             this.$refs.support_button.addEventListener('click', event => {
                 this.supportMenuShow();
             });
-
+            this.$refs.chat_button.addEventListener('click', event => {
+                this.openHubspotWidget();
+            });
+        },
+        initializeHubspot(){
+            var hubspotScript = document.createElement('script');
+            hubspotScript.setAttribute('src','//js-eu1.hs-scripts.com/26318898.js');
+            document.head.appendChild(hubspotScript);
+        },
+        openHubspotWidget(){
+            var widget = window.HubSpotConversations.widget;
+            if (widget.status().loaded) {
+                widget.open()
+            } else {
+                widget.load({ widgetOpen: true });
+            }
+        },
+        onConversationsAPIReady(){
+            window.hsConversationsSettings = {
+                loadImmediately: false
+            };
         },
         tileItemsHide() {
             this.menuButtonsWithItems.forEach(element => {
