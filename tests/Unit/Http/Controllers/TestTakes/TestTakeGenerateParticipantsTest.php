@@ -30,12 +30,12 @@ class TestTakeGenerateParticipantsTest extends TestCase
     public function test_factory_generateMany()
     {
         $testTake = $this->testTakeFactory->testTake;
-
         // Assert
         $this->assertEquals(self::STUDENTS_COUNT, $testTake->testParticipants()->count());
+        $this->assertEquals(1, $testTake->invigilators()->count());
         foreach ($testTake->testParticipants as $participant) {
-            $this->assertNotNull(1, $participant->school_class_id);
-            $this->assertNotNull(1, $participant->test_take_status_id);
+            $this->assertNotNull($participant->school_class_id);
+            $this->assertNotNull($participant->test_take_status_id);
             $this->assertNotNull($participant->user_id);
             $this->assertNotNull($participant->created_at);
             $this->assertNotNull($participant->updated_at);
