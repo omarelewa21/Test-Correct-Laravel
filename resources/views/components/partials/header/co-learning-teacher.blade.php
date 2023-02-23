@@ -18,7 +18,7 @@
 
         @if(!$this->coLearningHasBeenStarted)
             x-show="!coLearningSessionStarted"
-            x-collapse.min.70px.duration.1500ms
+        x-collapse.min.70px.duration.1500ms
         @endif
 >
     <div class="py-2.5 px-6 flex h-[var(--header-height)] items-center justify-between">
@@ -55,7 +55,8 @@
 
                     <div @class([
                        "co-learning-panel",
-                       "co-learning-restart" => $this->coLearningRestart
+                       "co-learning-restart" => $this->coLearningRestart,
+                       "co-learning-previous-discussion-type" => !$this->openOnly,
                        ])
                     >
                         <div>
@@ -69,7 +70,8 @@
                             <div class="text-[14px]">{{ __('co-learning.all_questions_note') }}</div>
                         </div>
                         <div>
-                            <x-button.cta size="md" wire:click.prevent="startCoLearningSession('ALL', {{ $this->openOnly ? 'true' : 'false' }})">
+                            <x-button.cta size="md"
+                                          wire:click.prevent="startCoLearningSession('ALL', {{ $this->openOnly ? 'true' : 'false' }})">
                                 <span>{{ __('co-learning.start') }}</span>
                                 <x-icon.arrow/>
                             </x-button.cta>
@@ -92,7 +94,8 @@
                     </div>
                     <div @class([
                        "co-learning-panel",
-                       "co-learning-restart" => $this->coLearningRestart
+                       "co-learning-restart" => $this->coLearningRestart,
+                       "co-learning-previous-discussion-type" => $this->openOnly,
                        ])
                     >
                         <div>
@@ -106,7 +109,8 @@
                             <div class="text-[14px]">{{ __('co-learning.open_questions_note') }}</div>
                         </div>
                         <div>
-                            <x-button.cta size="md" @click.prevent="startCoLearningSession('OPEN_ONLY', {{ !$this->openOnly ? 'true' : 'false' }})">
+                            <x-button.cta size="md"
+                                          @click.prevent="startCoLearningSession('OPEN_ONLY', {{ !$this->openOnly ? 'true' : 'false' }})">
                                 <span>{{ __('co-learning.start') }}</span>
                                 <x-icon.arrow/>
                             </x-button.cta>

@@ -870,30 +870,30 @@ button.cta-button:disabled, a.cta-button:disabled {
 }
 
 .resizers .resizer{
-    width: 10px;
-    height: 10px;
-    border-radius: 50%; /*magic to turn square into circle*/
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
     position: absolute;
     /* background-color: red; */
 }
 .resizers .resizer.top-left {
-    left: -5px;
-    top: -5px;
-    cursor: nwse-resize; /*resizer cursor*/
+    left: -10px;
+    top: -10px;
+    cursor: nwse-resize;
 }
 .resizers .resizer.top-right {
-    right: -5px;
-    top: -5px;
+    right: -10px;
+    top: -10px;
     cursor: nesw-resize;
 }
 .resizers .resizer.bottom-left {
-    left: -5px;
-    bottom: -5px;
+    left: -10px;
+    bottom: -10px;
     cursor: nesw-resize;
 }
 .resizers .resizer.bottom-right {
-    right: -5px;
-    bottom: -5px;
+    right: -10px;
+    bottom: -10px;
     cursor: nwse-resize;
 }
 .form-input {
@@ -5156,19 +5156,23 @@ input.datepicker {
 }
 
 /* hover score slider thumb */
+.score-slider-container .score-slider-continuous-input:hover::-moz-range-thumb,
 .score-slider-container .score-slider-input:hover::-moz-range-thumb {
     background: rgba(71, 129, 255, 0.5);
 }
 
+.score-slider-container .score-slider-continuous-input:hover::-webkit-slider-thumb,
 .score-slider-container .score-slider-input:hover::-webkit-slider-thumb {
     background: rgba(71, 129, 255, 0.5);
 }
 
+.score-slider-container .score-slider-continuous-input:hover::-ms-thumb,
 .score-slider-container .score-slider-input:hover::-ms-thumb {
     background: rgba(71, 129, 255, 0.5);
 }
 
 /* score slider hidden thumb */
+.score-slider-container .score-slider-continuous-input.hide-thumb::-ms-thumb,
 .score-slider-container .score-slider-input.hide-thumb::-ms-thumb {
     visibility: hidden;
     border: 1px solid #ffffff00;
@@ -5176,6 +5180,7 @@ input.datepicker {
     pointer-events: none;
 }
 
+.score-slider-container .score-slider-continuous-input.hide-thumb::-moz-range-thumb,
 .score-slider-container .score-slider-input.hide-thumb::-moz-range-thumb {
     visibility: hidden;
     border: 1px solid #ffffff00;
@@ -5183,6 +5188,7 @@ input.datepicker {
     pointer-events: none;
 }
 
+.score-slider-container .score-slider-continuous-input.hide-thumb::-webkit-slider-thumb,
 .score-slider-container .score-slider-input.hide-thumb::-webkit-slider-thumb {
     visibility: hidden;
     border: 1px solid #ffffff00;
@@ -5431,6 +5437,7 @@ input.datepicker {
     justify-content: space-between;
 }
 
+#co-learning-teacher-page #header #start-screen-content .grid .co-learning-panel.co-learning-restart.co-learning-previous-discussion-type,
 #co-learning-teacher-page #header #start-screen-content .grid .co-learning-panel:hover {
     box-shadow: 0 8px 16px 0 rgba(4, 31, 116, 0.3);
     border: solid 2px white;

@@ -25,6 +25,22 @@
         disabled: @js($disabled),
         skipSync: false,
         persistantScore: null,
+        getSliderBackgroundSize(el) {
+            if(this.score === null) {
+                return 0;
+            }
+
+            var min = el.min || 0;
+            var max = el.max || 100;
+            var value = el.value;
+
+            var size = (value - min) / (max - min) * 100;
+            return size;
+        },
+        setSliderBackgroundSize(el) {
+            el.style.setProperty('--slider-thumb-offset', `${ 25 / 100 * this.getSliderBackgroundSize(el) -12.5}px`)
+            el.style.setProperty('--slider-background-size', `${this.getSliderBackgroundSize(el)}%`)
+        }
         }"
      x-init="
      @stack('scoreSliderStack')
@@ -42,16 +58,21 @@
                    }
 
                    score = value = allowHalfPoints ? Math.round(value*2)/2 : Math.round(value)
+
+                   numberInput = document.querySelector('[x-ref=\'score_slider_continuous_input\']');
+                   if(numberInput !== null) {
+                       setSliderBackgroundSize(numberInput);
+                   }
                 });
                 syncInput = () => {
                     $wire.sync(modelName, score);
                 };
                 noChangeEventFallback = () => {
                     if(score === null) {
-                        score = maxScore/2
+                        score = allowHalfPoints ? maxScore/2 : Math.round(maxScore/2);
                         syncInput();
                     }
-                }
+                };
 "
      x-on:updated-score.window="skipSync = true; score = $event.detail.score"
         {{ $attributes->except('wire:model')->merge(['class'=>'flex score-slider-container w-fit justify-between items-center space-x-4 relative '.($disabled ? 'opacity-50': '')]) }}
@@ -62,21 +83,6 @@
     <div class="flex relative min-w-[calc(10.375rem+12px)] max-w-[calc(16.75rem+30px)] h-12">
         @if($continuousScoreSlider)
             <div class="flex w-full h-full justify-between items-center pl-[12px] pr-[15px]"
-                 x-data="{
-                    getSliderBackgroundSize(el) {
-                        var min = el.min || 0;
-                        var max = el.max || 100;
-                        var value = el.value;
-
-                        var size = (value - min) / (max - min) * 100;
-
-                        return size;
-                    },
-                    setSliderBackgroundSize(el) {
-                        el.style.setProperty('--slider-thumb-offset', `${ 25 / 100 * this.getSliderBackgroundSize(el) -12.5}px`)
-                        el.style.setProperty('--slider-background-size', `${this.getSliderBackgroundSize(el)}%`)
-                    }
-                 }"
             >
                 <input type="range" min="0" max="{{$maxScore}}"
                        :step="allowHalfPoints ? 0.5 : 1"
@@ -85,6 +91,7 @@
                        x-ref="score_slider_continuous_input"
                        x-init="setSliderBackgroundSize($el); $nextTick(() => { setSliderBackgroundSize($el); })"
                        x-on:input="setSliderBackgroundSize($el)"
+                       x-on:change="syncInput()"
                        :class="{'hide-thumb': score === null}"
                 >
             </div>

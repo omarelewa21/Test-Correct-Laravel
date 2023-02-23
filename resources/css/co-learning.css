@@ -239,6 +239,7 @@
     justify-content: space-between;
 }
 
+#co-learning-teacher-page #header #start-screen-content .grid .co-learning-panel.co-learning-restart.co-learning-previous-discussion-type,
 #co-learning-teacher-page #header #start-screen-content .grid .co-learning-panel:hover {
     box-shadow: 0 8px 16px 0 rgba(4, 31, 116, 0.3);
     border: solid 2px white;
