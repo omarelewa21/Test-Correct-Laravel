@@ -11,6 +11,7 @@ use tcCore\AppVersionInfo;
 use tcCore\Http\Helpers\BaseHelper;
 use tcCore\TemporaryLogin;
 use tcCore\User;
+use tcCore\UserSystemSetting;
 
 class TemporaryLoginController extends Controller
 {
@@ -42,6 +43,13 @@ class TemporaryLoginController extends Controller
             $redirect = $request->get('redirect');
         }
         return BaseHelper::createRedirectUrlWithTemporaryLoginUuid($t->uuid,$redirect);
+    }
+
+    public function setSettingFromCake(Request $request)
+    {
+        UserSystemSetting::setSetting(Auth::user(),$request['title'], $request['value']);
+        UserSystemSetting::getAll(Auth::user());
+        return ;
     }
 
     public function toCake(Request $request)

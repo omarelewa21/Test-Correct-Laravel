@@ -60,11 +60,12 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 
     Route::post('/temporary-login',[tcCore\Http\Controllers\TemporaryLoginController::class,'create'])->name('auth.temporary-login.create');
 
+    Route::post('/temporary-login/settings',[tcCore\Http\Controllers\TemporaryLoginController::class,'setSettingFromCake'])->name('auth.setSetting');
+
     Route::get('info/{info}',[tcCore\Http\Controllers\InfoController::class,'show']);
     Route::post('info',[tcCore\Http\Controllers\InfoController::class,'store']);
     Route::put('info/{info}',[tcCore\Http\Controllers\InfoController::class,'update']);
     Route::delete('info/{info}',[tcCore\Http\Controllers\InfoController::class,'delete']);
-
 
     Route::get('role',[\tcCore\Http\Controllers\RolesController::class,'index']);
 
