@@ -14,7 +14,7 @@ return new class extends Migration {
     {
         if (!Schema::hasColumn('infos', 'type')) {
             Schema::table('infos', function (Blueprint $table) {
-                $table->string('type')->default('BASE');
+                $table->string('type')->default(\tcCore\Info::BASE_TYPE);
             });
         }
     }

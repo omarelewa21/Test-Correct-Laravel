@@ -14,14 +14,14 @@ class IndexInfoRequest extends Request
 //            return false;
 //        }
         if(request('mode') === 'feature') {
-            return true;
+            return Auth::user()->isA('Teacher');
         }
 
         if(request('mode','dashboard') === 'dashboard'){
             return true;
-        } else {
-            return Auth::user()->isA('Account manager');
         }
+
+        return Auth::user()->isA('Account manager');
 
     }
 
