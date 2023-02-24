@@ -92,7 +92,7 @@ class Onboarding extends Component
             'registration.gender'                       => 'sometimes',
             'registration.gender_different'             => 'sometimes',
             'registration.name_first'                   => 'sometimes',
-            'registration.username'                     => 'required|email:rfc,dns|unique:users',
+            'registration.username'                     => 'required|email:rfc,dns|unique:users,username',
             'registration.name'                         => 'sometimes',
             'registration.name_suffix'                  => 'sometimes',
             'registration.registration_email_confirmed' => 'sometimes',

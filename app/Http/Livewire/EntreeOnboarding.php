@@ -91,7 +91,7 @@ class EntreeOnboarding extends Onboarding
     public function rules()
     {
         $default = [
-            'registration.username'                     => 'required|email:rfc,dns|unique:users',
+            'registration.username'                     => 'required|email:rfc,dns|unique:users,username',
             'registration.registration_email_confirmed' => 'sometimes',
             'registration.school_location'              => 'sometimes',
             'registration.website_url'                  => 'sometimes',
