@@ -1,12 +1,18 @@
 @props([
 'title' => '',
 'onlyInteger' => false,
-'disabled' => false
+'disabled' => false,
+'error' => false
 ])
 
-<input {{ $attributes->merge(['class' => 'form-input']) }}
+<input {{ $attributes->except(['class']) }}
+        @class([
+         $attributes->get('class'),
+         'form-input',
+         'border-allred' => $error
+        ])
        @if($title != '') title="{{ $title }}" @endif
-        @if($onlyInteger) type="number" @keypress="[',','.'].includes($event.key) ? $event.preventDefault() : ''" @endif
+       @if($onlyInteger) type="number" @keypress="[',','.'].includes($event.key) ? $event.preventDefault() : ''" @endif
        autocomplete="off"
-       @if($disabled) disabled @endif
+       @disabled($disabled)
 />

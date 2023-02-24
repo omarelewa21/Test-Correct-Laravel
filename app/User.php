@@ -999,8 +999,17 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function getTeacherSchoolClassIds()
     {
-        return Teacher::where('user_id', $this->getKey())
-            ->where('deleted_at', null)
+        $current = SchoolYearRepository::getCurrentSchoolYear();
+        if ($current == null) {
+            return false;
+        }
+
+        return Teacher::where('teachers.user_id', $this->getKey())
+            ->where('teachers.deleted_at', null)
+            ->leftJoin('school_classes', 'teachers.class_id', 'school_classes.id')
+            ->where('school_classes.demo', 0)
+            ->where('school_classes.created_by', 'lvs')
+            ->where('school_classes.school_year_id', $current->getKey())
             ->pluck('class_id');
     }
 

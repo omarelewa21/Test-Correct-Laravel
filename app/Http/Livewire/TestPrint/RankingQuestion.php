@@ -31,6 +31,7 @@ class RankingQuestion extends Component
             $result[] = (object)['order' => $key + 1, 'value' => $value->id];
             $this->answerText[$value->id] = $value->answer;
         }
+        shuffle($result);
         $this->answerStruct = ($result);
 
 

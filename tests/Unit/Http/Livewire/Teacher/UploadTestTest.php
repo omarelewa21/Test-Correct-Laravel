@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Http\Livewire\Teacher;
 
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -250,5 +251,135 @@ class UploadTestTest extends TestCase
         });
 
         return $component;
+    }
+
+    /** @test */
+    public function can_not_use_test_uploader_when_in_temp_school()
+    {
+        $this->actingAs($this->user);
+
+        $this->getTestableLivewire()
+            ->call('handleUploadPermissionsForUser')/* Done in the wire:init from the template; */
+            ->assertEmitted('openModal', 'teacher.upload-test-not-allowed-modal');
+    }
+
+    /** @test */
+    public function can_reset_test_info_when_choosing_to_upload_another_test_without_copying_data()
+    {
+        $this->actingAs($this->user);
+
+        $component = $this->getTestableLivewire();
+        $component->assertSet('testInfo.name', 'Lekker uploaden!');
+
+        $component->call('uploadAnotherTest', false)
+            ->assertSet('testInfo.name', '')
+            ->assertSet('testInfo.contains_publisher_content', null)
+            ->assertNotEmitted('openModal', 'teacher.upload-test-success-modal');
+    }
+
+    /** @test */
+    public function can_keep_test_info_when_choosing_to_upload_another_test_with_existing_data()
+    {
+        $this->actingAs($this->user);
+
+        $this->getTestableLivewire()
+            ->assertSet('testInfo.name', 'Lekker uploaden!')
+            ->call('uploadAnotherTest', true)
+            ->assertSet('testInfo.name', 'Lekker uploaden!')
+            ->assertNotEmitted('openModal', 'teacher.upload-test-success-modal');
+    }
+
+    /** @test */
+    public function cannot_upload_a_subsequent_test_with_the_same_name()
+    {
+        $this->getTestableLivewire()
+            ->set('testInfo.name', 'Coole naam')
+            ->call('uploadAnotherTest', true)
+            ->assertSet('testInfo.name', 'Coole naam')
+            #
+            ->call('finishProcess')
+            ->assertHasErrors('name')
+            #
+            ->set('testInfo.name', 'Nieuwe naam!')
+            ->call('finishProcess')
+            ->assertHasNoErrors('name');
+    }
+
+    /** @test */
+    public function can_process_a_subsequent_upload_request()
+    {
+        $this->actingAs($this->user);
+        $testName = 'subsequent test name';
+        $secondTestName = $testName . '2';
+
+        Storage::fake('test_uploads');
+
+        $file = UploadedFile::fake()->create('test_pdf.pdf');
+        $newFile = UploadedFile::fake()->create('test_pdf2.pdf');
+
+        $this->getTestableLivewire()
+            ->set('testInfo.name', $testName)
+            ->set('uploads', [$file])
+            ->call('uploadAnotherTest', true)
+            ->set('testInfo.name', $secondTestName)
+            ->assertSet('uploads', [])
+            ->set('uploads', [$newFile])
+            ->call('finishProcess');
+
+
+        $parent = FileManagement::whereName($testName)->with('children')->first();
+        $parent->children->each(function ($child) {
+            $this->assertEquals($child->subject()->first()->getKey(), Subject::whereUuid($this->subjectUuid)->first()->getKey());
+            $filePath = sprintf("%s/%s", $this->user->school_location_id, $child->name);
+            Storage::disk('test_uploads')->assertExists($filePath);
+        });
+
+        $secondParent = FileManagement::whereName($secondTestName)->with('children')->first();
+        $secondParent->children->each(function ($child) {
+            $this->assertEquals(
+                $child->subject()->first()->getKey(),
+                Subject::whereUuid($this->subjectUuid)->first()->getKey()
+            );
+            $filePath = sprintf("%s/%s", $this->user->school_location_id, $child->name);
+            Storage::disk('test_uploads')->assertExists($filePath);
+        });
+
+        $this->assertNotEquals($parent->getKey(), $secondParent->getKey());
+        $this->assertEquals(
+            [
+                $parent->subject_id,
+                $parent->education_level_id,
+                $parent->education_level_year,
+            ],
+            [
+                $secondParent->subject_id,
+                $secondParent->education_level_id,
+                $secondParent->education_level_year,
+            ]);
+    }
+
+    /** @test */
+    public function can_keep_the_planned_at_date_when_choosing_to_upload_another_test_with_existing_data()
+    {
+        $plannedAtDate = Carbon::now()->addMonth()->addDay()->toDateString();
+        $defaultDate = Carbon::now()->addMonth()->toDateString();
+
+        $this->actingAs($this->user);
+        $this->getTestableLivewire()
+            ->set('testInfo.planned_at', $plannedAtDate)
+            ->call('uploadAnotherTest', true)
+            ->assertSet('testInfo.planned_at', $plannedAtDate)
+            ->assertNotSet('testInfo.planned_at', $defaultDate)
+            ->assertNotEmitted('openModal', 'teacher.upload-test-success-modal');
+    }
+
+    /** @test */
+    public function can_set_the_default_planned_at_date_when_choosing_to_upload_another_test_without_copying_data()
+    {
+        $this->actingAs($this->user);
+        $this->getTestableLivewire()
+            ->call('uploadAnotherTest', false)
+            ->assertSet('testInfo.planned_at', Carbon::now()->addMonth()->toDateString())
+            ->assertNotEmitted('openModal', 'teacher.upload-test-success-modal');
     }
 }

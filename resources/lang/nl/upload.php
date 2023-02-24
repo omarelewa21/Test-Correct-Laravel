@@ -34,4 +34,11 @@ return [
     'elaboration_attachment_model_tooltip' => 'Lever uitwerkbijlagen aan die nodig zijn bij het maken van de toets. UitwerkBijlagen zijn niet verplicht, maar moeten wel aangeleverd worden als vragen ernaar refereren.',
     'Remark'                               => 'Mededeling',
     'Not allowed due to temp school'       => 'Je kunt nog geen klassen en toetsen uploaden omdat je in een tijdelijke school zit. Zodra we je verplaatst hebben naar je school kun je je klassen en toetsen wel uploaden. We sturen je een bericht zodra we je gekoppeld hebben aan je school.',
+    'Nog een toets uploaden'               => 'Nog een toets uploaden',
+    'Toetsgegevens overnemen?'             => 'Toetsgegevens overnemen?',
+    'copy_test_info_text'                  => 'Wil je de toetsgegevens van deze toets overnemen naar de volgende toets? Je kan deze dan nog aanpassen.',
+    'Overnemen'                            => 'Overnemen',
+    'Niet overnemen'                       => 'Niet overnemen',
+    'multiple_tests_uploaded'              => '{0} Toetsen geüpload|{1} Toets geüpload|[2,*] Toetsen geüpload',
+    'duplicate_test_name'                  => 'Deze toets kan niet dezelfde titel hebben als de vorige toets',
 ];

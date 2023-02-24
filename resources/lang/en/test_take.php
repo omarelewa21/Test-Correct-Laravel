@@ -38,7 +38,7 @@ return [
     'next_question'                                => 'Next question',
     'turn_in'                                      => 'Turn in',
     'speak'                                        => 'Speak',
-    'overview'                                     => 'View my answers',
+    'overview'                                     => 'View test',
     'answered'                                     => 'Answered',
     'not_answered'                                 => 'Not answered',
     'partly_answered'                              => 'Partly answered',

@@ -184,7 +184,7 @@
         <div class="flex justify-end items-center">
             <div class="flex gap-4">
 
-                <x-button.text-button wire:click="close">{{ __('modal.sluiten') }}</x-button.text-button>
+                <x-button.text-button wire:click="$emit('closeModal')">{{ __('modal.sluiten') }}</x-button.text-button>
                 <x-button.cta @click="export_pdf(value)">{{ __('cms.pdf_exporteren') }}</x-button.cta>
             </div>
         </div>
