@@ -18,7 +18,7 @@ class CreateTestRatingParticipantsTable extends Migration {
 			$table->integer('test_rating_id')->unsigned()->index('fk_test_participants_has_test_ratings_test_ratings1_idx');
 			$table->timestamps();
 			$table->softDeletes();
-			$table->primary(['test_participant_id','test_rating_id'], '');
+			$table->primary(['test_participant_id','test_rating_id'], 'primary_key_for_test_rating');
 		});
 	}
 

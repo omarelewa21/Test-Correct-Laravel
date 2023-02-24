@@ -10,9 +10,6 @@ use Carbon\Carbon;
 
 class LocationReportTest extends TestCase
 {
-
-    //use \Illuminate\Foundation\Testing\DatabaseTransactions;
-
     protected function verbose_out($string) {
 
         fwrite(STDERR, print_r($string, TRUE));

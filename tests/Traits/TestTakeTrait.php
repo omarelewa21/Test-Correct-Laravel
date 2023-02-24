@@ -63,8 +63,12 @@ trait TestTakeTrait
     }
 
 
-    public function initDefaultTestTake($testId)
+    public function initDefaultTestTake($testId, $user=null)
     {
+        if ($user == null) {
+            $user = self::getTeacherOne();
+        }
+
         $this->withoutExceptionHandling();
         $newTestTakeData = [
             'date'                => Carbon::now()->format('d-m-Y'),
@@ -82,7 +86,7 @@ trait TestTakeTrait
         ];
         $response = $this->post(
             'api-c/test_take',
-            static::getTeacherOneAuthRequestData($newTestTakeData)
+            static::getUserAuthRequestData( $user, $newTestTakeData )
         );
         $response->assertStatus(200);
         return $response->decodeResponseJson()['id'];

@@ -3,6 +3,7 @@
 namespace Tests\Unit\FactoryTests\ScenarioFactory;
 
 use Carbon\Carbon;
+use Database\Seeders\CreathlonItemBankSeeder;
 use Illuminate\Foundation\Testing\Concerns\InteractsWithExceptionHandling;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -35,7 +36,6 @@ use Tests\Unit\FactoryTests\SchoolFactory\Teacher;
 class FactoryScenarioSchoolTest extends TestCase
 {
 
-    use DatabaseTransactions;
     use WithFaker;
 
     public function Scenario_School_001()
@@ -67,6 +67,7 @@ class FactoryScenarioSchoolTest extends TestCase
     /** @test */
     public function can_create_school_scenario_based_on_supplied_written_testScenario()
     {
+
         $factoryScenarioSchool = FactoryScenarioSchool001::create();
 
         $this->assertEquals(15, $factoryScenarioSchool->getStudents()->count());
@@ -105,7 +106,7 @@ class FactoryScenarioSchoolTest extends TestCase
                 $countTestsNotCurrentYear += ($test->period->schoolyear->year == now()->format('Y') ? 0 : 1);
             });
         $this->assertEquals(2, $countTestsNotCurrentYear);
-        $this->assertEquals($startCountTests + 10/*demoToetsen*/ + 12, Test::count());
+        $this->assertEquals($startCountTests + 12, Test::count());
     }
 
     /** @test */
@@ -267,7 +268,7 @@ class FactoryScenarioSchoolTest extends TestCase
         $schoolLocationCount = Test::count();
         $testCount = Test::count();
 
-        (new \CreathlonItemBankSeeder)->run('CreathlonItemBankSeeder');
+        (new CreathlonItemBankSeeder)->run('CreathlonItemBankSeeder');
 
         $newSchoolLocationCount = Test::count();
         $newTestCount = Test::count();

@@ -16,7 +16,6 @@ use Tests\TestCase;
 
 class FactorySectionTest extends TestCase
 {
-    use DatabaseTransactions;
     use WithFaker;
 
     //BaseSubjects table should only be used as a lookUp table

@@ -2,10 +2,13 @@
 
 namespace tcCore\Factories;
 
+use iio\libmergepdf\Exception;
+use Illuminate\Support\Arr;
 use tcCore\Factories\Traits\DieAndDumpAble;
 use tcCore\Factories\Traits\DoWhileLoggedInTrait;
 use tcCore\Factories\Traits\PropertyGetableByName;
 use tcCore\Lib\TestParticipant\Factory;
+use tcCore\School;
 use tcCore\SchoolClass;
 use tcCore\Student;
 use tcCore\TestParticipant;
@@ -34,14 +37,15 @@ class FactoryTestParticipant
      */
     public static function makeForAllUsersInClass($classId): FactoryTestParticipant
     {
-        $factory = new static;
+        $list = collect(Arr::wrap($classId))->map(fn($item) => $item instanceof SchoolClass ? $item->getKey() : $item);
 
-        if (!is_array($classId)) {
-            $classId = [$classId];
+        if ($list->reject(fn($item) =>  is_int($item) )->count() > 0) {
+            throw new Exception('$classId should contain ids of SchoolClass or Instances of SchoolClass');
         }
 
+        $factory = new static;
         $factory->participantsData = [
-            "school_class_ids" => $classId,
+            "school_class_ids" => $list->toArray(),
         ];
 
 //        $examplepostdata = [

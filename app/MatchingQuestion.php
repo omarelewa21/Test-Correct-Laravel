@@ -205,12 +205,12 @@ class MatchingQuestion extends Question implements QuestionInterface {
                 'left' => [
                    'order' => (int) $answerDetails->order,
                    'answer' => $answerDetails->left,
-                    'type'  => 'left',
+                    'type'  => strtoupper('left'),
                 ],
                 'right' => [
                     'order' => (int) $answerDetails->order,
                     'answer' => $answerDetails->right,
-                    'type'  => 'right',
+                    'type'  => strtoupper('right'),
                     'correct_answer_id' => ''
                 ]
             ];

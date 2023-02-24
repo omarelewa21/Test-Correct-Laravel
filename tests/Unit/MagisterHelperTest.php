@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use tcCore\FactoryScenarios\FactoryScenarioSchoolSimple;
 use tcCore\Http\Helpers\MagisterHelper;
 use tcCore\Http\Helpers\ImportHelper;
 use tcCore\SchoolClass;
@@ -16,7 +17,7 @@ use Tests\TestCase;
 
 class MagisterHelperTest extends TestCase
 {
-    use \Illuminate\Foundation\Testing\DatabaseTransactions;
+    protected $loadScenario = FactoryScenarioSchoolSimple::class;
 
     /** @test */
     public function test_guzzle()

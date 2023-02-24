@@ -151,13 +151,13 @@ class Subject extends BaseModel implements AccessCheckable
                     if ($user->isValidExamCoordinator()) {
                         $this->filterForExamcoordinator($query, $user);
                     } else {
-                        $schoolYear = SchoolYearRepository::getCurrentSchoolYear();
-                        $query->whereIn('id', function ($query) use ($value, $schoolYear, $user) {
+                        $schoolYears = SchoolYearRepository::getCurrentSchoolYears();
+                        $query->whereIn('id', function ($query) use ($value, $schoolYears, $user) {
                             $query->select('subject_id')
                                 ->from(with(new Teacher())->getTable())
                                 ->whereNull('teachers.deleted_at')
                                 ->leftJoin('school_classes', 'school_classes.id', '=', 'teachers.class_id')
-                                ->where('school_classes.school_year_id', $schoolYear->getKey());
+                                ->whereIn('school_classes.school_year_id', $schoolYears->map->getKey());
                             if (is_array($value)) {
                                 $query->whereIn('user_id', $value);
                             } else {
@@ -261,11 +261,11 @@ class Subject extends BaseModel implements AccessCheckable
 
     public function scopeNationalItemBankFiltered($query, $filters = [], $sorting = [])
     {
-        $nationalItemBankSchools = [
+        $nationalItemBankSchools = collect([
             SchoolLocation::where('customer_code', config('custom.national_item_bank_school_customercode'))->first(),
             SchoolLocation::where('customer_code', config('custom.examschool_customercode'))->first(),
 //            SchoolLocation::where('customer_code', 'CITO-TOETSENOPMAAT')->first(),
-        ];
+        ])->filter()->all();
 
         return $this->filterByUserAndSchoolLocation($query, Auth::user(), $nationalItemBankSchools);
     }

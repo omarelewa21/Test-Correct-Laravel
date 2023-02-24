@@ -2,28 +2,30 @@
 
 namespace Tests\Unit\QtiWoots;
 
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Str;
+use tcCore\Factories\FactoryTest;
+use tcCore\FactoryScenarios\FactoryScenarioSchoolSimple;
 use tcCore\MultipleChoiceQuestionAnswerLink;
 use tcCore\User;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\ScenarioLoader;
 use Tests\TestCase;
 use tcCore\Http\Helpers\QtiImporter\VersionTwoDotTwoDotZero\QtiResource;
 use tcCore\QtiModels\QtiResource as Resource;
 
-class QtiResourceToSingleChoice4Test extends TestCase
+class QtiResourceToSimpleChoice4Test extends TestCase
 {
-    use DatabaseTransactions;
 
     private $instance;
-
+    protected $loadScenario = FactoryScenarioSchoolSimple::class;
+    private User $teacherOne;
+    private $test;
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->actingAs(User::where('username', 'd1@test-correct.nl')->first());
-
+        $this->teacherOne = ScenarioLoader::get('user');
+        $this->test = FactoryTest::create($this->teacherOne)->getTestModel();
+        $this->actingAs($this->teacherOne);
         $resource = new Resource(
             'QUE_2812160_1',
             'imsqti_item_xmlv2p2',

@@ -13,17 +13,17 @@ class AddLvsConfigDataToMagisterSchoolLocation extends Migration
      */
     public function up()
     {
-        if (\tcCore\Http\Helpers\BaseHelper::notProduction()) {
-            $location = \tcCore\SchoolLocation::firstWhere([
-                "name"          => "Magister schoollocatie",
-                "customer_code" => "Magister Schoollocation",
-            ]);
-
-            $location->lvs = true;
-            $location->lvs_active = true;
-            $location->lvs_type = \tcCore\SchoolLocation::LVS_MAGISTER;
-            $location->save();
-        }
+//        if (\tcCore\Http\Helpers\BaseHelper::notProduction()) {
+//            $location = \tcCore\SchoolLocation::firstWhere([
+//                "name"          => "Magister schoollocatie",
+//                "customer_code" => "Magister Schoollocation",
+//            ]);
+//
+//            $location->lvs = true;
+//            $location->lvs_active = true;
+//            $location->lvs_type = \tcCore\SchoolLocation::LVS_MAGISTER;
+//            $location->save();
+//        }
     }
 
     /**

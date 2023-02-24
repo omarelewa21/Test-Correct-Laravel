@@ -22,6 +22,7 @@ class CreateSchoolClassesTable extends Migration {
 			$table->integer('school_year_id')->unsigned()->index('fk_classes_school_years1_idx');
 			$table->integer('mentor_id')->unsigned()->index('fk_classes_users1_idx');
 			$table->integer('manager_id')->unsigned()->index('fk_classes_users2_idx');
+            $table->boolean('do_not_overwrite_from_interface')->nullable();
 			$table->string('name', 45);
 			$table->boolean('is_main_school_class')->nullable();
 		});

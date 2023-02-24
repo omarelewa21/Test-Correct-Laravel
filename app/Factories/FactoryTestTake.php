@@ -21,6 +21,7 @@ use tcCore\Student;
 use tcCore\Test;
 use tcCore\TestParticipant;
 use tcCore\TestTake;
+use tcCore\TestTakeStatus;
 use tcCore\User;
 
 class FactoryTestTake
@@ -64,9 +65,7 @@ class FactoryTestTake
     {
         $this->testTake->fill($this->testTakeProperties);
 
-        if (isset($this->testTakeProperties['user_id'])) {
-            $this->testTake->setAttribute('user_id', $this->testTakeProperties['user_id']);
-        }
+        $this->handleUnfillableProperties();
 
         if (!$this->doWhileLoggedIn(function () {
             return $this->testTake->save();
@@ -129,9 +128,8 @@ class FactoryTestTake
 
     public function setTestParticipantsTakingTest()
     {
-        $this->testTake->testParticipants->each(function ($testParticipant, $key) {
-            $testParticipant->test_take_status_id = 3;
-            $testParticipant->save();
+        $this->testTake->testParticipants->each(function ($testParticipant) {
+            $this->setTestParticipantTakingTest($testParticipant);
         });
 
         return $this;
@@ -140,23 +138,7 @@ class FactoryTestTake
     public function fillTestParticipantsAnswers()
     {
         $this->testTake->testParticipants->each(function ($testParticipant, $key) {
-            $testParticipant->answers->each(function ($answer, $key) {
-
-                $lookUp = [
-                    'InfoscreenQuestion'     => FactoryAnswerInfoscreenQuestion::class,
-                    'OpenQuestion'           => FactoryAnswerOpenQuestion::class,
-                    'CompletionQuestion'     => FactoryAnswerCompletionQuestion::class,
-                    'RankingQuestion'        => FactoryAnswerRankingQuestion::class,
-                    'MultipleChoiceQuestion' => FactoryAnswerMultipleChoiceQuestion::class,
-                    'MatchingQuestion'       => FactoryAnswerMatchingQuestion::class,
-                ];
-
-                if ($factory = $lookUp[$answer->question->type] ?? false) {
-                    $factory::generate($answer);
-                } else {
-                    throw new \Exception($answer->question->type . ' is not implemented (yet).');
-                }
-            });
+            $this->fillAllAnswersForParticipant($testParticipant);
         });
 
         return $this;
@@ -412,5 +394,64 @@ class FactoryTestTake
         }
 
         return round($rate, 1);
+    }
+
+    /**
+     * @param $testParticipant
+     * @return void
+     * @throws \Exception
+     */
+    function fillAllAnswersForParticipant($testParticipant): void
+    {
+        $testParticipant->answers->each(function ($answer) {
+            $this->fillAnswer($answer);
+        });
+    }
+
+    /**
+     * @param $answer
+     * @return void
+     * @throws \Exception
+     */
+    public function  fillAnswer($answer)
+    {
+        $lookUp = [
+            'InfoscreenQuestion'     => FactoryAnswerInfoscreenQuestion::class,
+            'OpenQuestion'           => FactoryAnswerOpenQuestion::class,
+            'CompletionQuestion'     => FactoryAnswerCompletionQuestion::class,
+            'RankingQuestion'        => FactoryAnswerRankingQuestion::class,
+            'MultipleChoiceQuestion' => FactoryAnswerMultipleChoiceQuestion::class,
+            'MatchingQuestion'       => FactoryAnswerMatchingQuestion::class,
+        ];
+
+        if (!array_key_exists($answer->question->type, $lookUp) ) {
+            throw new \Exception($answer->question->type . ' is not implemented (yet).');
+        }
+
+        $factory = $lookUp[$answer->question->type];
+        $factory::generate($answer);
+    }
+
+    /**
+     * @param $testParticipant
+     * @return void
+     */
+    function setTestParticipantTakingTest($testParticipant): void
+    {
+        $testParticipant->test_take_status_id = TestTakeStatus::STATUS_TAKING_TEST;
+        $testParticipant->save();
+    }
+
+    /**
+     * @return void
+     */
+    private function handleUnfillableProperties(): void
+    {
+        if (isset($this->testTakeProperties['user_id'])) {
+            $this->testTake->setAttribute('user_id', $this->testTakeProperties['user_id']);
+        }
+        if (isset($this->testTakeProperties['discussing_question_id'])) {
+            $this->testTake->setAttribute('discussing_question_id', $this->testTakeProperties['discussing_question_id']);
+        }
     }
 }

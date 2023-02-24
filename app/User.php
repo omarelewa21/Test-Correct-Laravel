@@ -1315,8 +1315,11 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
         if ($wizard == null) {
             $roleIds = $this->roles()->pluck('id');
-            $wizard = OnboardingWizard::whereIn('role_id', $roleIds)->where('active',
-                true)->orderBy('role_id')->first();
+            $wizard = OnboardingWizard::whereIn('role_id', $roleIds)
+                ->where('active', true)
+                ->orderBy('role_id')
+                ->first();
+
             OnboardingWizardUserState::create([
                 'id'                   => Str::uuid(),
                 'user_id'              => $this->getKey(),

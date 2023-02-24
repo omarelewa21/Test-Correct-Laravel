@@ -3,7 +3,6 @@
 namespace tcCore\Factories;
 
 use tcCore\Factories\Traits\DoWhileLoggedInTrait;
-use tcCore\Period;
 use tcCore\Subject;
 use tcCore\User;
 

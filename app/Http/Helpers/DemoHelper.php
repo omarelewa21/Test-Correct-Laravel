@@ -51,6 +51,8 @@ class DemoHelper
     const TEACHERLASTNAMEBASE = 'TLC demodocent';
     const SCHOOLLOCATIONNAME = 'DEMO TOUR SCHOOL 01';
 
+    public $alwaysCreateDemoEnvironment = false;
+
     public function setSchoolLocation(SchoolLocation $schoolLocation)
     {
         $this->schoolLocation = $schoolLocation;
@@ -262,6 +264,9 @@ class DemoHelper
 
     protected function notInTemporaryTeacherSchoolLocation(SchoolLocation $schoolLocation)
     {
+        if ($this->alwaysCreateDemoEnvironment) {
+            return false;
+        }
         // only create demo environment if teacher is in temporary teacher school location
         return !SchoolHelper::isTempTeachersSchoolLocation($schoolLocation);
     }
@@ -282,7 +287,7 @@ class DemoHelper
         $this->addDemoEducationlevelToSchoolIfNeeded();
     }
 
-    protected function prepareDemoForNewTeacher(SchoolLocation $schoolLocation, SchoolYear $schoolYear, User $user)
+    public function prepareDemoForNewTeacher(SchoolLocation $schoolLocation, SchoolYear $schoolYear, User $user)
     {
         if (GlobalStateHelper::getInstance()->hasPreventDemoEnvironmentCreationForSchoolLocation() === false) {
             $currentQueueState = GlobalStateHelper::getInstance()->isQueueAllowed();

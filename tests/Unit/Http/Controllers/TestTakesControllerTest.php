@@ -8,22 +8,26 @@
 
 namespace Tests\Unit\Http\Controllers;
 
+use tcCore\FactoryScenarios\FactoryScenarioSchoolSimple;
 use tcCore\Http\Controllers\TestTakesController;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\TestTake;
 use tcCore\User;
 use tcCore\TestQuestion;
+use Tests\ScenarioLoader;
 use Tests\TestCase;
 use Tests\Traits\TestTrait;
 use Tests\Traits\TestTakeTrait;
 use Tests\Traits\GroupQuestionTrait;
 use Tests\Traits\MultipleChoiceQuestionTrait;
 
+/**
+ * @group ignore
+ */
 class TestTakesControllerTest extends TestCase
 {
 
-    use \Illuminate\Foundation\Testing\DatabaseTransactions;
-    use DatabaseTransactions;
     use TestTrait;
     use TestTakeTrait;
     use GroupQuestionTrait;
@@ -33,55 +37,43 @@ class TestTakesControllerTest extends TestCase
     private $originalQuestionId;
     private $copyTestId;
 
-    /** @test */
+    protected $loadScenario = FactoryScenarioSchoolSimple::class;
+
+    private User $user;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->user = ScenarioLoader::get('user');
+        ActingAsHelper::getInstance()->setUser($this->user);
+    }
+
+    /**
+     * @test
+     */
     public function calculateMaxScore()
     {
+        $this->actingAs($this->user);
+
         $attributes = $this->getTestAttributes();
-        $this->createTLCTest($attributes);
+        $this->createTLCTest($attributes, $this->user);
         $attributes = $this->getAttributesForCarouselGroupQuestion($this->originalTestId);
-        $testQuestionId = $this->createGroupQuestion($attributes);
+        $testQuestionId = $this->createGroupQuestion($attributes, $this->user);
         $groupTestQuestion = TestQuestion::find($testQuestionId);
         $attributes = $this->getAttributesForMultipleChoiceQuestion($this->originalTestId);
-        for ($i=0; $i < 10; $i++) {     
-            $this->createMultipleChoiceQuestionInGroup($attributes,$groupTestQuestion->uuid);
+        for ($i = 0; $i < 10; $i++) {
+            $this->createMultipleChoiceQuestionInGroup($attributes, $groupTestQuestion->uuid, $this->user);
         }
-        $this->createMultipleChoiceQuestion($attributes);
-        $testTakeId = $this->initDefaultTestTake($this->originalTestId);
+        $this->createMultipleChoiceQuestion($attributes, $this->user);
+        $testTakeId = $this->initDefaultTestTake($this->originalTestId, $this->user);
         $testTake = TestTake::find($testTakeId);
-        $response = $this->get(static::authTeacherOneGetRequest('api-c/test_take_max_score/'.$testTake->uuid, []));
+
+        $response = $this->get(self::authUserGetRequest(
+            'test_take_max_score/' . $testTake->uuid,
+            [],
+            $this->user
+        ));
         $response->assertStatus(200);
-        $response->dump();
+        $this->assertEquals(20, $response->getContent());
     }
-
-    /** @test */
-    public function surveillance_for_d1()
-    {
-        $filters = [
-            "test_take_status_id" => "3",
-            "invigilator_id"      => "1486",
-            "mode"                => "list",
-        ];
-        $sorting = [
-            "time_start" => "asc",
-        ];
-        $this->actingAs(User::whereUsername('d1@test-correct.nl')->first());
-
-        (new TestTakesController())->show(TestTake::find(1));
-
-
-    }
-
-    /** @test */
-    public function prutstest()
-    {
-        $response = $this->get(
-            static::authTeacherOneGetRequest(
-                'group_question_question/5/3',
-                []
-            )
-        );
-        dd($response);
-    }
-
-
 }

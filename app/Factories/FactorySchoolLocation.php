@@ -64,7 +64,7 @@ class FactorySchoolLocation
             "activated"                              => "1",
             "number_of_students"                     => "10",
             "number_of_teachers"                     => "10",
-            "external_main_code"                     => "FF",
+            "external_main_code"                     => "FFBB",
             "external_sub_code"                      => "00",
             "is_rtti_school_location"                => "0",
             "is_open_source_content_creator"         => "0",

@@ -129,7 +129,7 @@ class TestDetail extends Component
     {
         $urlComponents = parse_url(url()->previous());
         $this->previousUrl = url()->previous();
-        if (url($urlComponents['path']) !== route('teacher.tests')) {
+        if (array_key_exists('path', $urlComponents) && url($urlComponents['path']) !== route('teacher.tests.create')) {
             $this->previousUrl = route('teacher.tests');
         }
     }
