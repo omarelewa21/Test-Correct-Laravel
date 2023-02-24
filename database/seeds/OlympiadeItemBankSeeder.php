@@ -68,7 +68,9 @@ class OlympiadeItemBankSeeder extends Seeder
                     'draft'              => false,
                 ])
                 ->addQuestions([
-                    FactoryQuestionOpenShort::create(),
+                    FactoryQuestionOpenShort::create()->setProperties([
+                        "question" => '<p>voorbeeld vraag olympiade:</p> <p>wat is de waarde van pi</p> ',
+                    ]),
                 ]);
         });
         $secondHalf->each(function ($subject) use ($secondaryTestAuthor) {
@@ -82,7 +84,9 @@ class OlympiadeItemBankSeeder extends Seeder
                     'draft'              => false,
                 ])
                 ->addQuestions([
-                    FactoryQuestionOpenShort::create(),
+                    FactoryQuestionOpenShort::create()->setProperties([
+                        "question" => '<p>voorbeeld vraag olympiade:</p> <p>wat is de waarde van pi</p> ',
+                    ]),
                 ]);
         });
     }

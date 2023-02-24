@@ -82,6 +82,10 @@
                          :when="$allowedTabs->contains('creathlon')">
             {{ __('general.Creathlon') }}
         </x-menu.tab.item>
+        <x-menu.tab.item tab="olympiade" menu="questionBankOpenTab" :highlight="true"
+                         :when="$allowedTabs->contains('olympiade')">
+            {{ __('general.Olympiade') }}
+        </x-menu.tab.item>
     </x-menu.tab.container>
 
 

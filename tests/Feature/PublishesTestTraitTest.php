@@ -34,6 +34,11 @@ class PublishesTestTraitTest extends TestCase
             'scope'        => 'ldt',
             'toetsen_bakker'=> 'info+ontwikkelaar-b@test-correct.nl',
         ],
+        'SBON'        => [
+            'abbreviation' => 'SBON',
+            'scope'        => 'published_olympiade',
+            'toetsen_bakker'=> 'info+olympiadeontwikkelaar-B@test-correct.nl',
+        ],
     ];
     public $unpublish = [
         'CREATHLON'   => [
@@ -50,6 +55,11 @@ class PublishesTestTraitTest extends TestCase
             'abbreviation' => 'ELSE',
             'scope'        => 'not_ldt',
             'toetsen_bakker'=> 'info+ontwikkelaar-b@test-correct.nl',
+        ],
+        'SBON'        => [
+            'abbreviation' => 'ELSE',
+            'scope'        => 'not_published_olympiade',
+            'toetsen_bakker'=> 'info+olympiadeontwikkelaar-B@test-correct.nl',
         ],
     ];
 
@@ -232,7 +242,7 @@ class PublishesTestTraitTest extends TestCase
         $scope = $published ? $this->publish[$customerCode]['scope'] : $this->unpublish[$customerCode]['scope'];
 
         $period = $teacher->schoolLocation->schoolYears[0]->periods[0];
-        $subject = $teacher->schoolLocation->schoolLocationSections[1]->subjects[0];
+        $subject = $teacher->schoolLocation->schoolLocationSections[0]->subjects[0];
 
         $test = new Test([
             'subject_id'           => $subject->id,
@@ -271,9 +281,6 @@ class PublishesTestTraitTest extends TestCase
     {
         if(AuthorsController::getPublishableAuthorByCustomerCode($customerCode) == null) {
             $this->markTestSkipped('no author available for customer code: '. $customerCode);
-
-
-
         }
         if (isset($this->publish['CREATHLON']) && AuthorsController::getPublishableAuthorByCustomerCode('CREATHLON') == null) {
             unset($this->publish['CREATHLON']);
@@ -286,6 +293,10 @@ class PublishesTestTraitTest extends TestCase
         if (isset($this->publish['TBNI']) && AuthorsController::getPublishableAuthorByCustomerCode('TBNI') == null) {
             unset($this->publish['TBNI']);
             unset($this->unpublish['TBNI']);
+        }
+        if (isset($this->publish['SBON']) && AuthorsController::getPublishableAuthorByCustomerCode('SBON') == null) {
+            unset($this->publish['SBON']);
+            unset($this->unpublish['SBON']);
         }
         return;
     }

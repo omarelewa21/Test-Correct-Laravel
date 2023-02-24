@@ -62,7 +62,9 @@ class CreathlonItemBankSeeder extends Seeder
                     'draft'              => false,
                 ])
                 ->addQuestions([
-                    FactoryQuestionOpenShort::create(),
+                    FactoryQuestionOpenShort::create()->setProperties([
+                        "question" => '<p>voorbeeld vraag creathlon:</p> <p>wat is de waarde van pi</p> ',
+                    ]),
                 ]);
         });
         $secondHalf->each(function ($subject) use ($secondaryTestAuthor) {
@@ -76,7 +78,9 @@ class CreathlonItemBankSeeder extends Seeder
                     'draft'              => false,
                 ])
                 ->addQuestions([
-                    FactoryQuestionOpenShort::create(),
+                    FactoryQuestionOpenShort::create()->setProperties([
+                        "question" => '<p>voorbeeld vraag creathlon:</p> <p>wat is de waarde van pi</p> ',
+                    ]),
                 ]);
         });
     }

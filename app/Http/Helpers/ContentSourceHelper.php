@@ -54,10 +54,6 @@ class ContentSourceHelper
 
     public static function testsAvailable(User $user, string $contentSourceName)
     {
-        switch($contentSourceName) {
-
-        }
-
         if ($contentSourceName === 'umbrella') {
             return Test::sharedSectionsFiltered()->exists();
         }
