@@ -6,10 +6,10 @@
     'allowWsc' => false,
 ])
 @php
-    $temp = $allowWsc?'true':'false';
+    $temp = $allowWsc ? 'true':'false';
         switch($type) {
            case 'cms':
-               $initFunctionCall = "RichTextEditor.initCMS('".$editorId."','".$lang."',".$temp.")";
+                   $initFunctionCall = "RichTextEditor.initForTeacher('".$editorId."','".$lang."', ".$allowWsc.")";
                break;
            case 'cms-completion':
                $initFunctionCall = "RichTextEditor.initCompletionCMS('".$editorId."','".$lang."',".$allowWsc.")";
@@ -26,14 +26,15 @@
        }
 @endphp
 
-<div class="ckeditor-error rounded-10 @error($attributes->wire('model')->value) border border-allred @enderror" selid="ckeditor">
+<div class="ckeditor-error rounded-10 @error($attributes->wire('model')->value) border border-allred @enderror"
+     selid="ckeditor">
     <div wire:ignore>
         <textarea
-            {{ $attributes->merge(['class' => 'form-input resize-none']) }}
-            x-data="{}" x-init="{{ $initFunctionCall }}"
-            id="{{ $editorId }}"
-            name="{{ $editorId }}"
-            @if($disabled) disabled @endif
+                {{ $attributes->merge(['class' => 'form-input resize-none']) }}
+                x-data="{}" x-init="{{ $initFunctionCall }}"
+                id="{{ $editorId }}"
+                name="{{ $editorId }}"
+                @if($disabled) disabled @endif
         ></textarea>
     </div>
 </div>
