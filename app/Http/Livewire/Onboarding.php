@@ -75,6 +75,7 @@ class Onboarding extends Component
             'registration.city.required'            => __('registration.city_required'),
             'registration.username.required'        => __('registration.username_required'),
             'registration.username.email'           => __('registration.username_email'),
+            'registration.username.unique'     => __('registration.username_unique'),
             'domain.required'                       => __('registration.domain_required'),
         ];
     }
@@ -91,7 +92,7 @@ class Onboarding extends Component
             'registration.gender'                       => 'sometimes',
             'registration.gender_different'             => 'sometimes',
             'registration.name_first'                   => 'sometimes',
-            'registration.username'                     => 'required|email:rfc,dns',
+            'registration.username'                     => 'required|email:rfc,dns|unique,users',
             'registration.name'                         => 'sometimes',
             'registration.name_suffix'                  => 'sometimes',
             'registration.registration_email_confirmed' => 'sometimes',
