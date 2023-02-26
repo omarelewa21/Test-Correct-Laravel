@@ -1507,6 +1507,10 @@ document.addEventListener('alpine:init', () => {
         correspondingButton: null,
         menuOffsetMarginTop: 56,
         menuOffsetMarginLeft: 224,
+        menuCard:null,
+        init(){
+            this.menuCard = this.$root.closest('#context-menu-base');
+        },
         handleIncomingEvent(detail) {
             if (!this.contextMenuOpen) return this.openMenu(detail);
 
@@ -1519,9 +1523,16 @@ document.addEventListener('alpine:init', () => {
             this.uuid = detail.uuid;
             this.correspondingButton = detail.button;
             this.contextData = detail.contextData;
-            this.$root.style.top = (detail.coords.top + this.menuOffsetMarginTop) + 'px';
-            this.$root.style.left = (detail.coords.left - this.menuOffsetMarginLeft) + 'px';
 
+            if(this.menuCard.classList.contains("w-50")){
+                this.$root.style.top = (detail.coords.top + this.menuOffsetMarginTop - 100) + 'px';
+                this.$root.style.left = (detail.coords.left - this.menuOffsetMarginLeft - 25) + 'px';
+            }
+            else{
+                this.$root.style.top = (detail.coords.top + this.menuOffsetMarginTop) + 'px';
+                this.$root.style.left = (detail.coords.left - this.menuOffsetMarginLeft) + 'px';
+            }
+            
             let readyForShow = await this.$wire.setContextValues(this.uuid, this.contextData);
             if (readyForShow) this.contextMenuOpen = true;
             this.contextMenuOpen = true
