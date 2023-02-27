@@ -38,6 +38,7 @@ use tcCore\Http\Requests\CreateUserRequest;
 use tcCore\Http\Requests\UpdateUserRequest;
 use tcCore\Http\Helpers\SchoolHelper;
 use tcCore\UserRole;
+use tcCore\UserSystemSetting;
 
 class UsersController extends Controller
 {
@@ -654,5 +655,25 @@ class UsersController extends Controller
             : [];
 
         return Response::make($toetsenbakkers, 200);
+    }
+
+
+    public function setUserSettingFromCake(Request $request)
+    {
+        if(!$request->has('setting')){
+            return 'doesn\'t contain setting';
+        }
+
+        if(!is_array($request->get('setting'))){
+            return 'not array';
+        }
+
+        if(!$request->has('setting.title')||!$request->has('setting.value')){
+            return 'setting doesn\'t contain title, value or both';
+        }
+
+        UserSystemSetting::setSetting(Auth::user(),$request['setting']['title'], $request['setting']['value']);
+        UserSystemSetting::getAll(Auth::user());
+        return UserSystemSetting::getAll(Auth::user());
     }
 }

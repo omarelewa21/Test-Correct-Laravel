@@ -45,20 +45,6 @@ class TemporaryLoginController extends Controller
         return BaseHelper::createRedirectUrlWithTemporaryLoginUuid($t->uuid,$redirect);
     }
 
-    public function setSettingFromCake(Request $request)
-    {
-        if(!$request->has('setting')){
-            return false;
-        }
-
-        if(!is_array($request->has('setting'))){
-            return false;
-        }
-
-        UserSystemSetting::setSetting(Auth::user(),$request['title'], $request['value']);
-        UserSystemSetting::getAll(Auth::user());
-        return UserSystemSetting::getAll(Auth::user());
-    }
 
     public function toCake(Request $request)
     {
