@@ -202,7 +202,12 @@ class TestTakeOverview extends Component
 
     private function setOpenTab()
     {
-        $this->openTab = session(self::ACTIVE_TAB_SESSION_KEY, self::DEFAULT_OPEN_TAB);
+        if($this->openTab == 'norm'){
+            session()->put(self::ACTIVE_TAB_SESSION_KEY, $this->openTab);
+        }
+        else{
+            $this->openTab = session(self::ACTIVE_TAB_SESSION_KEY, self::DEFAULT_OPEN_TAB);
+        }
     }
 
     private function setPageNumber()
