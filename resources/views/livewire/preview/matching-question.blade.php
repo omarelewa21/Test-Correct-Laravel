@@ -15,7 +15,8 @@
                             @foreach($shuffledAnswers as $option)
                                 @if($option->correct_answer_id !== null)
                                     @if($answerStruct[$option->id] === '')
-                                        <x-drag-item wire:key="option-{{ $option->id }}" sortableHandle="false"
+                                        <x-drag-item  id="drag_item{{$question->getKey()}}-{{$option->id}}"
+                                                      wire:key="option-{{ $option->id }}" sortableHandle="false"
                                                      wire:sortable-group.item="{{ $option->id }}"
                                                      class="{{ empty($option->answer)  || $option->answer == ' ' ? 'hidden' : '' }}"
                                                      >
@@ -28,7 +29,7 @@
                         </div>
                     </x-dropzone>
                 </div>
-                <div class="flex space-x-5 classified">
+                <div class="classified flex flex-1 gap-5 flex-shrink-0 align-baseline flex-grow-0 flex-wrap flex-lg-row flex-md-column">
                     @foreach ($groupItemOrder as $groupId => $items)
                         <x-dropzone id="dropzone{{$question->getKey()}}-{{$groupId}}"
                                     type="classify"
@@ -63,7 +64,8 @@
                             @foreach($shuffledAnswers as $option)
                                 @if(  $option->correct_answer_id !== null )
                                     @if($answerStruct[$option->id] === '')
-                                        <x-drag-item wire:key="option-{{ $option->id }}" sortableHandle="false"
+                                        <x-drag-item id="drag_item{{ $option->id }}"
+                                                wire:key="option-{{ $option->id }}" sortableHandle="false"
                                                      wire:sortable-group.item="{{ $option->id }}">
                                             {{ html_entity_decode($option->answer) }}
                                         </x-drag-item>
@@ -90,7 +92,8 @@
                                             @foreach($shuffledAnswers as $option)
                                                 @if(  $option->correct_answer_id !== null )
                                                     @if($answerStruct[$option->id] == $group->id)
-                                                        <x-drag-item wire:key="option-{{ $option->id }}" sortableHandle="false"
+                                                        <x-drag-item id="drag_item{{ $option->id }}"
+                                                                     wire:key="option-{{ $option->id }}" sortableHandle="false"
                                                                      wire:sortable-group.item="{{ $option->id }}">
                                                             {{ html_entity_decode($option->answer) }}
                                                         </x-drag-item>
