@@ -16,6 +16,36 @@ class Logging
                 ["path" => "api-c/message", "method" => "GET"],
             ]
         ],
+        'Administrator' => [
+            'blacklist' => [
+                ["path" => "api-c/message", "method" => "GET"],
+            ]
+        ],
+        'Support' => [
+            'blacklist' => [
+                ["path" => "api-c/message", "method" => "GET"],
+            ]
+        ],
+        'Tech administrator' => [
+            'blacklist' => [
+                ["path" => "api-c/message", "method" => "GET"],
+            ]
+        ],
+        'School management' => [
+            'blacklist' => [
+                ["path" => "api-c/message", "method" => "GET"],
+            ]
+        ],
+        'School manager' => [
+            'blacklist' => [
+                ["path" => "api-c/message", "method" => "GET"],
+            ]
+        ],
+        'Account manager' => [
+            'blacklist' => [
+                ["path" => "api-c/message", "method" => "GET"],
+            ]
+        ],
         'Teacher' => [
             'whitelist' => [
                 ["message" => "authenticated", "path" => "livewire/message/auth.login", "method" => "ALL"],

@@ -238,6 +238,11 @@ class WaitingRoom extends Component
         $this->meetsAppRequirement = !!($this->appStatus != AllowedAppType::NOTALLOWED);
         $this->appNeedsUpdate = !!($this->appStatus === AllowedAppType::NEEDSUPDATE);
 
+        if ($this->needsApp && $this->meetsAppRequirement && !AppVersionDetector::verifyKeyHeader()) {
+            // student is using a modified app since the tlckey header is incorrect
+            $this->appStatus = AllowedAppType::NOTALLOWED;
+        }
+
         if ($this->appNeedsUpdate) {
             $this->appNeedsUpdateDeadline = AppVersionDetector::needsUpdateDeadline();
         }
