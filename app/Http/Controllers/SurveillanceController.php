@@ -80,19 +80,22 @@ class SurveillanceController extends Controller
 
     private function getTakesForSurveillance(User $owner, $take_id=null)
     {
+
+        $test_take_ids = is_null($take_id) ? $this->getCachedTestTakeIds($owner) : [$take_id];
+
         $participantHasEvents = TestTakeEvent::select('test_participant_id',
             DB::Raw('max(test_take_events.id) as event'))
             ->join('test_take_event_types', 'test_take_events.test_take_event_type_id', '=', 'test_take_event_types.id')
             ->where('requires_confirming', '1')
             ->where('confirmed', '0')
+            ->whereIn('test_take_id',$test_take_ids)
             ->groupBy('test_participant_id');
 
-        $test_ids = is_null($take_id) ? $this->getCachedTestTakeIds($owner) : [$take_id];
 
         return TestTake::select('test_takes.id as id', 'test_takes.uuid as uuid', 'tests.name as test_name')
         ->withoutGlobalScope(ArchivedScope::class)
         ->join('tests', 'test_takes.test_id', 'tests.id')
-        ->whereIn('test_takes.id', $test_ids)
+        ->whereIn('test_takes.id', $test_take_ids)
         ->where('test_take_status_id', '=', '3')
         ->with([
             'testParticipants' => function ($query) use ($participantHasEvents) {

@@ -904,6 +904,30 @@ class Test extends BaseModel
         })->toArray();
     }
 
+    public function getQuestionOrderListWithDiscussionType()
+    {
+        $orderOpenOnly = 0;
+
+        return $this->testQuestions->sortBy('order')->flatMap(function ($testQuestion) {
+            if ($testQuestion->question->type === 'GroupQuestion') {
+                return $testQuestion->question->groupQuestionQuestions->map(function ($item)  {
+                    return [
+                        'id' => $item->question->getKey(),
+                        'question_type' => $item->question->canCheckAnswer() ? Question::TYPE_CLOSED : Question::TYPE_OPEN
+                    ];
+                });
+            }
+            $questionType = $testQuestion->question->canCheckAnswer() ? Question::TYPE_CLOSED : Question::TYPE_OPEN;
+            return [['id' => $testQuestion->question->getKey(), 'question_type' => $questionType]];
+        })->mapWithKeys(function ($item, $key) use (&$orderOpenOnly) {
+            return [$item['id'] => [
+                'order' => $key+1,
+                'order_open_only' => $item['question_type'] === Question::TYPE_OPEN ? ++$orderOpenOnly : null,
+                ...$item,
+            ]];
+        })->toArray();
+    }
+
     public function canDuplicate()
     {
         return strtolower($this->scope) !== 'cito';

@@ -37,6 +37,10 @@ class AuthenticateWithTemporaryLogin
         }
         $options = json_decode($options);
 
+        if (property_exists($options, 'support')){
+            session()->put('support',collect($options->support));
+        }
+
         if (property_exists($options, 'app_details')) {
             $this->registerAppDetails($options);
             AppVersionInfo::createFromSession();
