@@ -33,5 +33,12 @@ return [
     'attachments_tooltip'                  => 'Provide attachments that are necessary for taking the test. Attachments are not mandatory, but must be provided if questions refer to them.',
     'elaboration_attachment_model_tooltip' => 'Provide execution appendices that are necessary for taking the test. Execution appendices are not mandatory, but must be provided if questions refer to them.',
     'Remark'                               => 'Remark',
-    'Not allowed due to temp school'       => 'You cannot upload classes and tests yet because you are linked to a temporary school. Once we have moved you to your own school, you can upload your classes and tests. We will send you a message as soon as we have linked you to your school.'
+    'Not allowed due to temp school'       => 'You cannot upload classes and tests yet because you are linked to a temporary school. Once we have moved you to your own school, you can upload your classes and tests. We will send you a message as soon as we have linked you to your school.',
+    'Nog een toets uploaden'               => 'Upload another test',
+    'Toetsgegevens overnemen?'             => 'Copy test info?',
+    'copy_test_info_text'                  => 'Would you like to copy the information of this test to the next test.',
+    'Overnemen'                            => 'Copy',
+    'Niet overnemen'                       => 'Don\'t copy',
+    'multiple_tests_uploaded'              => '{0} Tests uploaded|{1} Test uploaded|[2,*] Tests uploaded',
+    'duplicate_test_name'                  => 'This test can’t have the same title as the previous one',
 ];

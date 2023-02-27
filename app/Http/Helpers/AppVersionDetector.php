@@ -2,6 +2,8 @@
 namespace tcCore\Http\Helpers;
 
 use Carbon\Carbon;
+use DateTime;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 abstract class AllowedAppType
@@ -13,6 +15,12 @@ abstract class AllowedAppType
 
 class AppVersionDetector
 {
+    private static $preSharedKeys = [
+        "electron" => "aZCLBuzBbHsFpd2DPO3zK84xCoWCQxFaE0Uk3LLd",
+        "ios" => "SEFu4HU6IWaXe3lUGIDHE0Mj9o0xco2NNUaL0IkP",
+        "chromeos" => "VxCM01YTwRAojSP0zonQQLmhf1zu5RBA8lHJn9ja"
+    ];
+
     private static $osConversion = [
         "windows10" => "windows10OS",
         "windows" => "windowsOS",
@@ -121,10 +129,10 @@ class AppVersionDetector
                 "3.4.0-beta.5"
             ],
             "needsUpdate" => [
-                "3.2.3"
+
             ],
             "needsUpdateDeadline" => [
-                "3.2.3" => "2 maart 2023"
+
             ],
         ],
         "macosElectron" => [
@@ -173,10 +181,10 @@ class AppVersionDetector
                 "3.4.0-beta.5"
             ],
             "needsUpdate" => [
-                "3.2.3"
+
             ],
             "needsUpdateDeadline" => [
-                "3.2.3" => "2 maart 2023"
+
             ],
         ]
     ];
@@ -270,6 +278,18 @@ class AppVersionDetector
         return false;
     }
 
+    // Remove the "-beta.X" from the "1.2.3-beta.X" string to only keep the "1.2.3" version
+    // This way we can have infinite beta versions for an allowed version
+    private static function convertVersionNumber(string $version) : string
+    {
+        if (Str::contains($version, "beta")) {
+            try {
+                return substr($version, 0, strpos($version, "beta")-1);
+            } catch (\Throwable $_) {}
+        }
+        return $version;
+    }
+
     public static function needsUpdateDeadline($headers = false)
     {
         if (!$headers) {
@@ -279,6 +299,9 @@ class AppVersionDetector
             $headers = (array) $headers;
         }
         $version = self::detect($headers);
+
+        $version["app_version"] = self::convertVersionNumber($version["app_version"]);
+
         if(!isset(self::$allowedVersions[$version["os"]])){
             return false;
         }
@@ -309,6 +332,8 @@ class AppVersionDetector
     public static function isVersionAllowed($headers = false)
     {
         $version = self::detect($headers);
+
+        $version["app_version"] = self::convertVersionNumber($version["app_version"]);
 
         if (
             isset(self::$allowedVersions[$version["os"]]["ok"]) &&
@@ -352,6 +377,82 @@ class AppVersionDetector
         }
 
         return $headers;
+    }
+
+    /*
+     * Enforce app verification through a seperate 'tlckey' header.
+     * This method should only be called if canUseBrowserTesting is false.
+     * Faulty clients will be logged, and for now still be allowed to avoid potential problems on production.
+     */
+    public static function verifyKeyHeader(): bool
+    {
+        $headers = self::getAllHeaders();
+
+        //backdoor header
+        //if the header "4yQSPYaGl7HOOideJrjJBVDpPYSoK0GhzULSq1tz" is defined with value "sj6q9kwDa0kEePn9MXVnRkkJxmu6G3lXrvBHRZwz"
+        //then we allow it because this is the backdoor for testing
+        if (key_exists('4yQSPYaGl7HOOideJrjJBVDpPYSoK0GhzULSq1tz', $headers) && $headers["4yQSPYaGl7HOOideJrjJBVDpPYSoK0GhzULSq1tz"] == "sj6q9kwDa0kEePn9MXVnRkkJxmu6G3lXrvBHRZwz") {
+            return true;
+        }
+
+        $version = self::detect($headers);
+        if ($version["os"] == "windowsElectron" || $version["os"] == "macosElectron") {
+            $presharedKey = self::$preSharedKeys['electron'];
+            $key = $headers["tlckey"];
+            $hmac = true;
+        } else if ($version["os"] == "iOS") {
+            $presharedKey = self::$preSharedKeys['ios'];
+            $key = $headers["tlckey"];
+            $hmac = false;
+        } else if ($version["os"] == "ChromeOS") {
+            $presharedKey = self::$preSharedKeys['chromeos'];
+            $key = $headers["tlckey"];
+            $hmac = false;
+        } else {
+            Log::stack(['loki'])->warning("verifyKeyHeader unknown OS, but allowed", ['version_os' => $version["os"], 'headers' => $headers]);
+            return true;
+        }
+        if ($key == null) {
+            Log::stack(['loki'])->warning("verifyKeyHeader no key found, but allowed", ['version_os' => $version["os"], 'headers' => $headers]);
+            return true;
+        }
+        $result = self::computeKeyDigest($presharedKey, $hmac);
+        if ($key === $result) {
+            return true;
+        } else {
+            Log::stack(['loki'])->warning(
+                "verifyKeyHeader failed, but allowed",
+                [
+                    'key' => $key,
+                    'result' => $result,
+                    'version_os' => $version["os"],
+                    'headers' => $headers
+                ]
+            );
+            return true;
+        }
+    }
+
+    private static function computeKeyDigest(string $presharedKey, bool $hmac): string
+    {
+        if ($presharedKey == null) {
+            throw new Error("Preshared key is undefined. Key verification failed");
+        }
+        //get current date
+        $datetime = new DateTime();
+        $hashDate = $datetime->format("Y-m-d");
+        $hashUrl = strtok($_SERVER["REQUEST_URI"], '?');
+
+        //electron uses hmac, native JS implementation doesn't
+        if ($hmac) {
+            $hasher = hash_init("sha256", HASH_HMAC, $presharedKey);
+
+            hash_update($hasher, $hashUrl);
+            hash_update($hasher, $hashDate);
+            return hash_final($hasher);
+        } else {
+            return hash('sha256', $hashUrl . $hashDate . $presharedKey);
+        }
     }
 
     public static function handleHeaderCheck($headers = null)

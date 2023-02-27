@@ -18,7 +18,8 @@
         <script>
         Bugsnag.start({
             apiKey: '{{ config('bugsnag.browser_key') }}',
-            enabledBreadcrumbTypes: ['error', 'log', 'navigation', 'request']
+            enabledBreadcrumbTypes: ['error', 'log'],
+            autoTrackSessions: false
         })
         </script>
     @endif

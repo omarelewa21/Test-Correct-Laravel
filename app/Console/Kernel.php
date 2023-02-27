@@ -1,7 +1,9 @@
 <?php namespace tcCore\Console;
 
+use Carbon\Carbon;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Illuminate\Support\Facades\DB;
 use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Helpers\UwlrImportHelper;
 use tcCore\Jobs\AnonymizeUsersAfterTooLongNoLoginJob;
@@ -40,8 +42,16 @@ class Kernel extends ConsoleKernel
         $schedule->command('onboarding_wizard_report:update')
             ->dailyAt('06:00');
         $schedule->call(function(){
+            DB::table('cache')->where('expiration','<',now()->subDay()->timestamp)->delete();
+        })
+            ->dailyAt('18:55')
+            ->timezone('Europe/Amsterdam');
+        $schedule->call(function(){
             UwlrImportHelper::handleIfMoreSchoolLocationsCanBeImported();
         })->everyThirtyMinutes()->unlessBetween('5:00', '19:00')->timezone('Europe/Amsterdam');
+        $schedule->call(function(){
+            UwlrImportHelper::cleanupCrashedImports();
+        })->dailyAt('13:00')->timezone('Europe/Amsterdam');
 
 
         /**

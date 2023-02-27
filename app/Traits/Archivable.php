@@ -38,6 +38,10 @@ trait Archivable
 
     public function getArchivedAttribute()
     {
+        if($this->shouldNotAppend()) {
+            return null;
+        }
+
         if (array_key_exists('archivable_model_id', $this->attributes)) {
             return (null !== $this->attributes['archivable_model_id']);
         }

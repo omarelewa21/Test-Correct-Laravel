@@ -65,6 +65,7 @@
                                                     placeholderText="{{ __('plan-test-take.plan_test_for') }}"
                                                     wire:model="request.owner_id"
                                                     filterContainer="selected_owner"
+                                                    wire:key='allowed-teachers'
                                                     id="choices_owner"
                             />
 
@@ -84,6 +85,7 @@
                                             wire:model="request.school_classes"
                                             filterContainer="selected_classes"
                                             id="teachers_and_classes"
+                                            wire:key='school-classes'
                                             hasErrors="{{ $this->getErrorBag()->has('request.school_classes') ? 'true': '' }}"
                     />
                     <div id="selected_classes" wire:ignore class="space-x-4 ml-4"></div>
@@ -102,6 +104,7 @@
                                             wire:model="request.invigilators"
                                             filterContainer="selected_invigilators"
                                             id="choices_invigilators"
+                                            wire:key='allowed-invigilators'
                                             hasErrors="{{ $this->getErrorBag()->has('request.invigilators') ? 'true': '' }}"
                     />
 

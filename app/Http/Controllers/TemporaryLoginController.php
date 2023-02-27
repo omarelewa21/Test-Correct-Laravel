@@ -7,6 +7,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Str;
 use tcCore\AppVersionInfo;
 use tcCore\Http\Helpers\BaseHelper;
 use tcCore\TemporaryLogin;
@@ -75,7 +76,7 @@ class TemporaryLoginController extends Controller
         if($request->has('redirect')){
             $redirect = $request->get('redirect');
         }
-        header('Location: '.BaseHelper::createRedirectUrlWithTemporaryLoginUuidToCake($t->uuid,$redirect));
+        header('Location: '.$this->createRedirectUrlWithTemporaryLoginUuidToCake($t->uuid,$redirect));
         exit;
     }
 
@@ -94,8 +95,22 @@ class TemporaryLoginController extends Controller
         if($request->has('redirect')){
             $redirect = $request->get('redirect');
         }
-        return BaseHelper::createRedirectUrlWithTemporaryLoginUuidToCake($t->uuid,$redirect);
+        return $this->createRedirectUrlWithTemporaryLoginUuidToCake($t->uuid,$redirect);
     }
 
+    private function createRedirectUrlWithTemporaryLoginUuidToCake($uuid, $redirectUrl)
+    {
+        $response = new \stdClass;
+
+        $relativeUrl = sprintf('%s?redirect=%s',
+            sprintf('users/temporary_login/%s',$uuid),
+            rawurlencode($redirectUrl)
+        );
+        if(Str::startsWith($relativeUrl,'/')) {
+            $relativeUrl = Str::replaceFirst('/', '', $relativeUrl);
+        }
+
+        return sprintf('%s%s',BaseHelper::getLoginUrl(), $relativeUrl);
+    }
 
 }
