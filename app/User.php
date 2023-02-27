@@ -2529,7 +2529,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function createGeneralTermsLogIfRequired()
     {
-        if ($this->isA('teacher') && $this->hasNoActiveLicense() && $this->generalTermsLog()->count() == 0) {
+        if ($this->isA('teacher') && !$this->isClientUser() && $this->hasNoActiveLicense() && $this->generalTermsLog()->count() == 0) {
             $this->generalTermsLog()->create();
         }
         return $this;
@@ -2809,5 +2809,10 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             return;
         }
         $this->password_expiration_date = null;
+    }
+
+    public function isClientUser(): bool
+    {
+        return $this->schoolLocation()->value('license_type') === 'CLIENT';
     }
 }
