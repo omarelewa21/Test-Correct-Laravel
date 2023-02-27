@@ -1,9 +1,15 @@
 <div cms id="cms" class="flex flex-1"
-     x-data="{loading: @entangle('loading'), empty: {{ $this->emptyState ? 1 : 0 }}, dirty: @entangle('dirty') }"
+     x-data="{
+            loading: @js($loading),
+            empty: @js($this->emptyState),
+            dirty: @entangle('dirty'),
+            loadTimeout: null
+             }"
      x-init="
            handleQuestionChange = (evt) => {
                 $store.cms.loading = true;
                 loading = true;
+                $wire.set('loading', true);
                 if(typeof evt !== 'undefined') empty = false;
                 removeDrawingLegacy();
                 window.scrollTo({top: 0, behavior: 'smooth'});
@@ -12,11 +18,11 @@
 
            loadingTimeout = (value) => {
                 if (value === true) {
-                    const loadingTimeout = setTimeout(() => {
+                    loadTimeout = setTimeout(() => {
                         $store.cms.loading = false;
                         $store.cms.processing = false;
-                        loading = false;
-                        clearTimeout(loadingTimeout);
+                        $wire.set('loading', false);
+                        clearTimeout(loadTimeout);
                     }, 1000)
                 }
            }
@@ -56,7 +62,6 @@
     <x-partials.header.cms-editor :testName="$testName" :questionCount="$this->amountOfQuestions"/>
     <div class="question-editor-content w-full relative"
          wire:key="container-{{ $this->uniqueQuestionKey }}"
-         {{--         :class="{'opacity-0': $store.cms.loading || empty, 'opacity-50': $store.cms.processing && !loading}"--}}
          style="opacity: 0; transition: opacity .3s ease-in"
          :style="{'opacity': ($store.cms.loading || $store.cms.emptyState) ? 0 : ($store.cms.processing) ? 0 : 1}"
          x-ref="editorcontainer"
@@ -595,4 +600,24 @@
             </div>
         </div>
     @endif
+    @pushOnce('scripts')
+    <script>
+        Livewire.hook('message.sent', (message, component) => {
+            if (component.id === document.getElementById('cms').getAttribute('wire:id')) {
+                Alpine.store('cms').pendingRequestTally++;
+                Alpine.store('cms').handledAllRequests = false;
+            }
+        });
+        Livewire.hook('message.processed', (message, component) => {
+            if (component.id === document.getElementById('cms').getAttribute('wire:id')) {
+                Alpine.store('cms').pendingRequestTally--;
+                Alpine.store('cms').pendingRequestTimeout = setTimeout(() => {
+                    if (Alpine.store('cms').pendingRequestTally === 0) {
+                        Alpine.store('cms').handledAllRequests = true;
+                    }
+                }, 250)
+            }
+        });
+    </script>
+    @endPushOnce
 </div>

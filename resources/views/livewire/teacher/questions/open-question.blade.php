@@ -16,5 +16,6 @@
             type="cms"
             :disabled="isset($preview)"
             lang="{{ $lang }}"
+            selid="answer-textarea"
     />
 @endsection

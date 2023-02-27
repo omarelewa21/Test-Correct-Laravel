@@ -43,7 +43,7 @@
                 $errorAnswerClassRight = 'border-allred'
             @endphp
             @enderror
-            <x-drag-item id="mc-{{$answer->id}}" sortId="{{ $answer->order }}"
+            <x-drag-item id="mc-{{ $answer->id }}" sortId="{{ $answer->order }}"
                          wireKey="option-{{ $answer->id }}" selid="drag-box"
                          class="flex px-0 py-0 border-0 bg-system-white relative regular"
                          slotClasses="w-full mr-0 "

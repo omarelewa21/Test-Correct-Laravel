@@ -1,4 +1,5 @@
 <div cms-drawer
+     id="cms-drawer"
      class="drawer flex z-[20] overflow-auto"
      selid="question-drawer"
      x-init="
@@ -144,11 +145,12 @@
                      selid="cms-drawer-loading-overlay"
                 ></div>
 
-                <x-button.plus-circle @click.stop="addGroup()" selid="add-question-group-btn">
+                <x-button.plus-circle @click.stop.throttle="addGroup()" selid="add-question-group-btn">
                     {{ __('cms.Vraaggroep toevoegen') }}
                 </x-button.plus-circle>
 
-                <x-button.plus-circle @click.stop="showAddQuestionSlide(true, true)" selid="add-question-btn"
+                <x-button.plus-circle @click.stop.throttle.500ms="showAddQuestionSlide(true, true)"
+                                      selid="add-question-btn"
                 >
                     {{__('cms.Vraag toevoegen')}}
                 </x-button.plus-circle>
@@ -161,6 +163,7 @@
                     <div class="flex items-center space-x-2.5">
                         <x-button.back-round @click="backToQuestionOverview($refs.type);"
                                              wire:click="$set('groupId', null)"
+                                             selid="new-question-type-back-btn"
                         />
                         <span class="bold text-lg">{{ __('cms.Vraag toevoegen') }}</span>
                     </div>

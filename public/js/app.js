@@ -5704,6 +5704,26 @@ document.addEventListener('alpine:init', function () {
           _this8.scrollActiveQuestionIntoView();
         }, 400);
         this.poll(this.pollingInterval);
+        this.$watch('$store.cms.handledAllRequests', function (value) {
+          if (value) {
+            _this8.checkActiveSlide();
+          }
+        });
+      },
+      checkActiveSlide: function checkActiveSlide() {
+        if (!['newquestion', 'questionbank'].includes(this.activeSlide)) {
+          return;
+        }
+        if (this.$root.children[2].getAttribute('x-ref') === this.activeSlide) {
+          return;
+        }
+        if (this.activeSlide === 'newquestion') {
+          return this.setNextSlide(this.$refs.newquestion);
+        }
+        if (this.activeSlide === 'newquestion') {
+          return this.setNextSlide(this.$refs.questionbank);
+        }
+        this.prev(this.$root.children[2]);
       },
       next: function next(currentEl) {
         var left = this.$refs.questionEditorSidebar.scrollLeft + this.slideWidth;
@@ -7007,7 +7027,10 @@ document.addEventListener('alpine:init', function () {
     dirty: false,
     scrollPos: 0,
     reinitOnClose: false,
-    emptyState: false
+    emptyState: false,
+    pendingRequestTimeout: null,
+    pendingRequestTally: 0,
+    handledAllRequests: true
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].store('questionBank', {
     active: false,
