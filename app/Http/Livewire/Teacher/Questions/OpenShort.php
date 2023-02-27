@@ -34,6 +34,7 @@ use tcCore\Question;
 use tcCore\TemporaryLogin;
 use tcCore\Test;
 use tcCore\TestQuestion;
+use tcCore\UserFeatureSetting;
 
 class OpenShort extends Component implements QuestionCms
 {
@@ -97,13 +98,14 @@ class OpenShort extends Component implements QuestionCms
     public $bloomOptions = [];
     public $millerOptions = [];
     public $lang = 'nl_NL';
-    public $testLang = null;
+    private $lastSelectedLanguage;
     public $allowWsc = false;
+    const SETTING_LANG = 'spellchecker language';
 
     protected $tags = [];
 
     public $testIsPublished;
-    
+
     protected $queryString = [
         'action', 'type', 'subtype', 'testId', 'testQuestionId', 'groupQuestionQuestionId', 'owner', 'isCloneRequest', 'withDrawer' => ['except' => false], 'referrer' => ['except' => false],
     ];
@@ -146,7 +148,6 @@ class OpenShort extends Component implements QuestionCms
     public $uniqueQuestionKey = '';
     public $duplicateQuestion = false;
     public $canDeleteTest = false;
-
 
     protected function rules()
     {
@@ -214,7 +215,7 @@ class OpenShort extends Component implements QuestionCms
             'learning_goals'           => [],
             'test_id'                  => '',
             'all_or_nothing'           => false,
-            'lang'                     => $this->testLang ?? Auth::user()->schoolLocation->wscLanguage,
+            'lang'                     => $this->lastSelectedLanguage,
             'add_to_database_disabled' => 0,
             'draft'                    => $activeTest->draft,
         ];
@@ -253,7 +254,7 @@ class OpenShort extends Component implements QuestionCms
         $this->uniqueQuestionKey = $this->testQuestionId . $this->groupQuestionQuestionId . $this->action . $this->questionEditorId;
         $this->duplicateQuestion = false;
         $this->canDeleteTest = false;
-        $this->lang = $this->testLang ?? Auth::user()->schoolLocation->wscLanguage;
+        $this->lang = $this->lastSelectedLanguage;
     }
 
 
@@ -317,6 +318,13 @@ class OpenShort extends Component implements QuestionCms
         }
     }
 
+    public function updatedLang($value)
+    {
+        UserFeatureSetting::setSetting(Auth::user(), self::SETTING_LANG, $value);
+        $this->lastSelectedLanguage = $value;
+        $this->question['lang'] = $value;
+    }
+
     public function mount()
     {
         $activeTest = Test::whereUuid($this->testId)->with('testAuthors', 'testAuthors.user')->firstOrFail();
@@ -338,7 +346,7 @@ class OpenShort extends Component implements QuestionCms
 
     private function initialize($activeTest)
     {
-        $this->testLang = $activeTest->lang;
+        $this->lastSelectedLanguage = $this->getTestLanguage();
         $this->resetQuestionProperties($activeTest);
         $this->canDeleteTest = $activeTest->canDelete(Auth::user());
         $this->testIsPublished = $activeTest->isPublished();
@@ -1436,5 +1444,15 @@ class OpenShort extends Component implements QuestionCms
     public function testPublished()
     {
         $this->testIsPublished = Test::whereUuid($this->testId)->first()->isPublished();
+    }
+
+    private function getTestLanguage(): string
+    {
+        if(UserFeatureSetting::hasSetting(Auth::user(), self::SETTING_LANG)){
+            return UserFeatureSetting::getSetting(Auth::user(), self::SETTING_LANG);
+        }
+        $lang = Auth::user()->schoolLocation->wscLanguage;
+        UserFeatureSetting::setSetting(Auth::user(), self::SETTING_LANG, $lang);
+        return $lang;
     }
 }

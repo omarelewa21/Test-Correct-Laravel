@@ -10,7 +10,7 @@ class FeatureSetting extends Model
 
     public function settingable()
     {
-        $this->morphTo();
+        return $this->morphTo();
     }
 
     public static function scopeGetSettings($query)
