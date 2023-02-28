@@ -1490,6 +1490,7 @@ document.addEventListener('alpine:init', () => {
                     uuid: this.uuid,
                     button: this.$root,
                     coords: {
+                        gridCardOffsetHeight: this.gridCard.offsetHeight,
                         top: this.gridCard.offsetTop,
                         left: this.gridCard.offsetLeft + this.gridCard.offsetWidth
                     },
@@ -1512,8 +1513,17 @@ document.addEventListener('alpine:init', () => {
         menuOffsetMarginTop: 56,
         menuOffsetMarginLeft: 224,
         menuCard:null,
+        detailCoordsTop:null,
+        detailCoordsLeft:null,
+        gridCardOffsetHeight:null,
         init(){
             this.menuCard = this.$root.closest('#context-menu-base');
+        },
+        preventMenuFallOffScreen(){
+            if(this.menuCard.offsetHeight > this.gridCardOffsetHeight){
+                this.$root.style.top = (this.detailCoordsTop + this.menuOffsetMarginTop - (this.menuCard.offsetHeight - this.gridCardOffsetHeight) - 25) + 'px';
+                this.$root.style.left = (this.detailCoordsLeft - this.menuCard.offsetWidth - 50) + 'px';
+            }
         },
         handleIncomingEvent(detail) {
             if (!this.contextMenuOpen) return this.openMenu(detail);
@@ -1527,16 +1537,13 @@ document.addEventListener('alpine:init', () => {
             this.uuid = detail.uuid;
             this.correspondingButton = detail.button;
             this.contextData = detail.contextData;
-
-            if(this.menuCard.classList.contains("w-50")){
-                this.$root.style.top = (detail.coords.top + this.menuOffsetMarginTop - 100) + 'px';
-                this.$root.style.left = (detail.coords.left - this.menuOffsetMarginLeft - 25) + 'px';
-            }
-            else{
-                this.$root.style.top = (detail.coords.top + this.menuOffsetMarginTop) + 'px';
-                this.$root.style.left = (detail.coords.left - this.menuOffsetMarginLeft) + 'px';
-            }
+            this.detailCoordsTop = detail.coords.top;
+            this.detailCoordsLeft = detail.coords.left;
+            this.gridCardOffsetHeight = detail.coords.gridCardOffsetHeight;
             
+            this.$root.style.top = (this.detailCoordsTop + this.menuOffsetMarginTop) + 'px';
+            this.$root.style.left = (this.detailCoordsLeft - this.menuOffsetMarginLeft) + 'px'; 
+
             let readyForShow = await this.$wire.setContextValues(this.uuid, this.contextData);
             if (readyForShow) this.contextMenuOpen = true;
             this.contextMenuOpen = true

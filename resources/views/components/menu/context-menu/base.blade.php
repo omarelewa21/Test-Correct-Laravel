@@ -3,6 +3,9 @@
      class="absolute bg-white py-2 main-shadow rounded-10 z-1 {{ $class }}"
      x-data="contextMenuHandler()"
      x-show="contextMenuOpen"
+     x-effect="setTimeout(() => {
+        preventMenuFallOffScreen();
+    }, 150);"
      x-transition:enter="transition ease-out origin-top-right duration-200"
      x-transition:enter-start="opacity-0 transform scale-90"
      x-transition:enter-end="opacity-100 transform scale-100"
