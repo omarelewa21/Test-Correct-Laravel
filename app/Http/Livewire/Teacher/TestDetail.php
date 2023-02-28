@@ -125,12 +125,17 @@ class TestDetail extends Component
         return false;
     }
 
+    /**
+     * always go back to teacher.tests route, but with or without params
+     *
+     * @return void
+     */
     private function setPreviousUrl()
     {
         $urlComponents = parse_url(url()->previous());
-        $this->previousUrl = url()->previous();
-        if (array_key_exists('path', $urlComponents) && url($urlComponents['path']) !== route('teacher.tests')) {
-            $this->previousUrl = route('teacher.tests');
+        $this->previousUrl = url()->previous(); // with params
+        if (array_key_exists('path', $urlComponents) && url($urlComponents['path']) !== route('teacher.tests')) { //
+            $this->previousUrl = route('teacher.tests'); // without params
         }
     }
 }
