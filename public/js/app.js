@@ -5562,11 +5562,14 @@ document.addEventListener('alpine:init', function () {
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('badge', function () {
     var videoUrl = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+    var mode = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'edit';
     return {
       options: false,
+      videoUrl: videoUrl,
       videoTitle: videoUrl,
       resolvingTitle: true,
       index: 1,
+      mode: mode,
       init: function init() {
         var _this6 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
@@ -5595,7 +5598,9 @@ document.addEventListener('alpine:init', function () {
                   fetchedTitle = _context.sent;
                   _this6.videoTitle = fetchedTitle || videoUrl;
                   _this6.resolvingTitle = false;
-                  _this6.$wire.setVideoTitle(videoUrl, _this6.videoTitle);
+                  if (mode === 'edit') {
+                    _this6.$wire.setVideoTitle(videoUrl, _this6.videoTitle);
+                  }
                 case 9:
                 case "end":
                   return _context.stop();
@@ -5939,7 +5944,7 @@ document.addEventListener('alpine:init', function () {
         this.activeFiltersContainer = document.getElementById(filterContainer);
         this.multiple = multiple === 1;
         this.$nextTick(function () {
-          var choices = new (choices_js__WEBPACK_IMPORTED_MODULE_1___default())(_this17.$refs.select, _this17.getChoicesConfig());
+          var choices = new (choices_js__WEBPACK_IMPORTED_MODULE_1___default())(_this17.$root.querySelector('select'), _this17.getChoicesConfig());
           var refreshChoices = function refreshChoices() {
             var selection = _this17.multiple ? _this17.value : [_this17.value];
             var options = _typeof(_this17.options) === 'object' ? Object.values(_this17.options) : _this17.options;
@@ -6695,11 +6700,14 @@ document.addEventListener('alpine:init', function () {
         this.activateButton(target);
       },
       activateButton: function activateButton(target) {
-        this.resetButtons(target);
-        this.buttonPosition = target.offsetLeft + 'px';
-        this.buttonWidth = target.offsetWidth + 'px';
-        target.firstElementChild.classList.add('text-primary');
-        this.handle.classList.remove('hidden');
+        var _this25 = this;
+        this.$nextTick(function () {
+          _this25.resetButtons(target);
+          _this25.buttonPosition = target.offsetLeft + 'px';
+          _this25.buttonWidth = target.offsetWidth + 'px';
+          target.firstElementChild.classList.add('text-primary');
+          _this25.handle.classList.remove('hidden');
+        });
       },
       resetButtons: function resetButtons(target) {
         Array.from(target.parentElement.children).forEach(function (button) {
@@ -6722,14 +6730,14 @@ document.addEventListener('alpine:init', function () {
         }
       },
       updateGraph: function updateGraph(forceUpdate) {
-        var _this25 = this;
+        var _this26 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee6() {
-          var method, _yield$_this25$$wire$, _yield$_this25$$wire$2;
+          var method, _yield$_this26$$wire$, _yield$_this26$$wire$2;
           return _regeneratorRuntime().wrap(function _callee6$(_context6) {
             while (1) {
               switch (_context6.prev = _context6.next) {
                 case 0:
-                  if (!(!_this25.data || forceUpdate)) {
+                  if (!(!_this26.data || forceUpdate)) {
                     _context6.next = 10;
                     break;
                   }
@@ -6738,13 +6746,13 @@ document.addEventListener('alpine:init', function () {
                     method = 'getDataForGeneralGraph';
                   }
                   _context6.next = 5;
-                  return _this25.$wire.call(method, _this25.modelId, _this25.taxonomy);
+                  return _this26.$wire.call(method, _this26.modelId, _this26.taxonomy);
                 case 5:
-                  _yield$_this25$$wire$ = _context6.sent;
-                  _yield$_this25$$wire$2 = _slicedToArray(_yield$_this25$$wire$, 2);
-                  _this25.showEmptyState = _yield$_this25$$wire$2[0];
-                  _this25.data = _yield$_this25$$wire$2[1];
-                  _this25.renderGraph();
+                  _yield$_this26$$wire$ = _context6.sent;
+                  _yield$_this26$$wire$2 = _slicedToArray(_yield$_this26$$wire$, 2);
+                  _this26.showEmptyState = _yield$_this26$$wire$2[0];
+                  _this26.data = _yield$_this26$$wire$2[1];
+                  _this26.renderGraph();
                 case 10:
                 case "end":
                   return _context6.stop();
@@ -6843,32 +6851,32 @@ document.addEventListener('alpine:init', function () {
       menuOffsetMarginTop: 56,
       menuOffsetMarginLeft: 224,
       handleIncomingEvent: function handleIncomingEvent(detail) {
-        var _this26 = this;
+        var _this27 = this;
         if (!this.contextMenuOpen) return this.openMenu(detail);
         this.closeMenu();
         setTimeout(function () {
-          _this26.openMenu(detail);
+          _this27.openMenu(detail);
         }, 150);
       },
       openMenu: function openMenu(detail) {
-        var _this27 = this;
+        var _this28 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee7() {
           var readyForShow;
           return _regeneratorRuntime().wrap(function _callee7$(_context7) {
             while (1) {
               switch (_context7.prev = _context7.next) {
                 case 0:
-                  _this27.uuid = detail.uuid;
-                  _this27.correspondingButton = detail.button;
-                  _this27.contextData = detail.contextData;
-                  _this27.$root.style.top = detail.coords.top + _this27.menuOffsetMarginTop + 'px';
-                  _this27.$root.style.left = detail.coords.left - _this27.menuOffsetMarginLeft + 'px';
+                  _this28.uuid = detail.uuid;
+                  _this28.correspondingButton = detail.button;
+                  _this28.contextData = detail.contextData;
+                  _this28.$root.style.top = detail.coords.top + _this28.menuOffsetMarginTop + 'px';
+                  _this28.$root.style.left = detail.coords.left - _this28.menuOffsetMarginLeft + 'px';
                   _context7.next = 7;
-                  return _this27.$wire.setContextValues(_this27.uuid, _this27.contextData);
+                  return _this28.$wire.setContextValues(_this28.uuid, _this28.contextData);
                 case 7:
                   readyForShow = _context7.sent;
-                  if (readyForShow) _this27.contextMenuOpen = true;
-                  _this27.contextMenuOpen = true;
+                  if (readyForShow) _this28.contextMenuOpen = true;
+                  _this28.contextMenuOpen = true;
                 case 10:
                 case "end":
                   return _context7.stop();
@@ -6925,24 +6933,24 @@ document.addEventListener('alpine:init', function () {
         }
       },
       uploadFiles: function uploadFiles(files) {
-        var _this28 = this;
+        var _this29 = this;
         var $this = this;
         this.isUploading = true;
         var dummyContainer = this.$root.querySelector('#upload-dummies');
         Array.from(files).forEach(function (file, key) {
-          if (!_this28.fileHasAllowedExtension(file)) {
-            _this28.handleIncorrectFileUpload(file);
+          if (!_this29.fileHasAllowedExtension(file)) {
+            _this29.handleIncorrectFileUpload(file);
             return;
           }
-          if (_this28.fileTooLarge(file)) {
-            _this28.handleTooLargeOfAfile(file);
+          if (_this29.fileTooLarge(file)) {
+            _this29.handleTooLargeOfAfile(file);
             return;
           }
           var badgeId = "upload-badge-".concat(key);
           var loadingBadge = $this.createLoadingBadge(file, badgeId);
           dummyContainer.append(loadingBadge);
           $this.progress[badgeId] = 0;
-          $this.$wire.upload(_this28.uploadModel, file, function (success) {
+          $this.$wire.upload(_this29.uploadModel, file, function (success) {
             $this.progress[badgeId] = 0;
             dummyContainer.querySelector("#".concat(badgeId)).remove();
           }, function (error) {
@@ -7396,6 +7404,13 @@ window.plyrPlayer = {
       this.disableElem(player.elements.buttons.play[0]);
     }
     return player;
+  },
+  renderWithoutConstraints: function renderWithoutConstraints(elem) {
+    var controls = ['play', 'progress', 'current-time', 'mute', 'volume'];
+    var player = new (plyr__WEBPACK_IMPORTED_MODULE_0___default())(elem, {
+      controls: controls
+    });
+    return player;
   }
 };
 
@@ -7419,59 +7434,96 @@ window.makeResizableDiv = function (element) {
   var _loop = function _loop(i) {
     var currentResizer = resizers[i];
     currentResizer.addEventListener('mousedown', resizeMouseDown);
-    currentResizer.addEventListener('ontouchstart', resizeMouseDown);
+    currentResizer.addEventListener('touchstart', resizeMouseDown);
     function resizeMouseDown(e) {
       e.preventDefault();
       original_width = parseFloat(getComputedStyle(element, null).getPropertyValue('width').replace('px', ''));
       original_height = parseFloat(getComputedStyle(element, null).getPropertyValue('height').replace('px', ''));
       original_x = element.getBoundingClientRect().left;
       original_y = element.getBoundingClientRect().top;
-      original_mouse_x = e.pageX;
-      original_mouse_y = e.pageY;
+      if (e.type === 'touchstart') {
+        original_mouse_x = e.touches[0].pageX;
+        original_mouse_y = e.touches[0].pageY;
+      } else {
+        original_mouse_x = e.pageX;
+        original_mouse_y = e.pageY;
+      }
       window.addEventListener('mousemove', resize);
-      window.addEventListener('ontouchmove', resize);
+      window.addEventListener('touchmove', resize);
       window.addEventListener('mouseup', stopResize);
-      window.addEventListener('ontouchend', stopResize);
+      window.addEventListener('touchend', stopResize);
       function resize(e) {
         if (currentResizer.classList.contains('bottom-right')) {
-          width = original_width + (e.pageX - original_mouse_x);
-          height = original_height + (e.pageY - original_mouse_y);
-          if (width > minimum_size) {
-            element.style.width = width + 'px';
+          if (e.type === 'touchmove') {
+            width = original_width + (e.touches[0].pageX - original_mouse_x);
+            height = original_height + (e.touches[0].pageY - original_mouse_y);
+          } else {
+            width = original_width + (e.pageX - original_mouse_x);
+            height = original_height + (e.pageY - original_mouse_y);
           }
-          if (height > minimum_size) {
-            element.style.height = height + 'px';
-          }
+          if (width > minimum_size) element.style.width = width + 'px';
+          if (height > minimum_size) element.style.height = height + 'px';
         } else if (currentResizer.classList.contains('bottom-left')) {
-          height = original_height + (e.pageY - original_mouse_y);
-          width = original_width - (e.pageX - original_mouse_x);
+          if (e.type === 'touchmove') {
+            height = original_height + (e.touches[0].pageY - original_mouse_y);
+            width = original_width - (e.touches[0].pageX - original_mouse_x);
+            if (width > minimum_size) {
+              element.style.width = width + 'px';
+              element.style.left = original_x + (e.touches[0].pageX - original_mouse_x) + 'px';
+            }
+          } else {
+            height = original_height + (e.pageY - original_mouse_y);
+            width = original_width - (e.pageX - original_mouse_x);
+            if (width > minimum_size) {
+              element.style.width = width + 'px';
+              element.style.left = original_x + (e.pageX - original_mouse_x) + 'px';
+            }
+          }
           if (height > minimum_size) {
             element.style.height = height + 'px';
-          }
-          if (width > minimum_size) {
-            element.style.width = width + 'px';
-            element.style.left = original_x + (e.pageX - original_mouse_x) + 'px';
           }
         } else if (currentResizer.classList.contains('top-right')) {
-          width = original_width + (e.pageX - original_mouse_x);
-          height = original_height - (e.pageY - original_mouse_y);
+          if (e.type === 'touchmove') {
+            width = original_width + (e.touches[0].pageX - original_mouse_x);
+            height = original_height - (e.touches[0].pageY - original_mouse_y);
+            if (height > minimum_size) {
+              element.style.height = height + 'px';
+              element.style.top = original_y + (e.touches[0].pageY - original_mouse_y) + 'px';
+            }
+          } else {
+            width = original_width + (e.pageX - original_mouse_x);
+            height = original_height - (e.pageY - original_mouse_y);
+            if (height > minimum_size) {
+              element.style.height = height + 'px';
+              element.style.top = original_y + (e.pageY - original_mouse_y) + 'px';
+            }
+          }
           if (width > minimum_size) {
             element.style.width = width + 'px';
-          }
-          if (height > minimum_size) {
-            element.style.height = height + 'px';
-            element.style.top = original_y + (e.pageY - original_mouse_y) + 'px';
           }
         } else {
-          width = original_width - (e.pageX - original_mouse_x);
-          height = original_height - (e.pageY - original_mouse_y);
-          if (width > minimum_size) {
-            element.style.width = width + 'px';
-            element.style.left = original_x + (e.pageX - original_mouse_x) + 'px';
-          }
-          if (height > minimum_size) {
-            element.style.height = height + 'px';
-            element.style.top = original_y + (e.pageY - original_mouse_y) + 'px';
+          if (e.type === 'touchmove') {
+            width = original_width - (e.touches[0].pageX - original_mouse_x);
+            height = original_height - (e.touches[0].pageY - original_mouse_y);
+            if (width > minimum_size) {
+              element.style.width = width + 'px';
+              element.style.left = original_x + (e.touches[0].pageX - original_mouse_x) + 'px';
+            }
+            if (height > minimum_size) {
+              element.style.height = height + 'px';
+              element.style.top = original_y + (e.touches[0].pageY - original_mouse_y) + 'px';
+            }
+          } else {
+            width = original_width - (e.pageX - original_mouse_x);
+            height = original_height - (e.pageY - original_mouse_y);
+            if (width > minimum_size) {
+              element.style.width = width + 'px';
+              element.style.left = original_x + (e.pageX - original_mouse_x) + 'px';
+            }
+            if (height > minimum_size) {
+              element.style.height = height + 'px';
+              element.style.top = original_y + (e.pageY - original_mouse_y) + 'px';
+            }
           }
         }
       }
@@ -7633,9 +7685,6 @@ _AnyChart_anychart_base_min__WEBPACK_IMPORTED_MODULE_3___default().licenseKey(pr
   \******************************/
 /***/ (() => {
 
-function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
-function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
 function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 parent.skip = false;
 var notifsent = false;
@@ -7669,7 +7718,6 @@ Core = {
     }
     Core.checkForElectron();
     runCheckFocus();
-    catchscreenshotchromeOS();
     startStudentActivityCheck();
     Core.appType === '' ? Core.enableBrowserFeatures() : Core.enableAppFeatures(Core.appType);
   },
@@ -7964,41 +8012,6 @@ function startStudentActivityCheck() {
 }
 function isMakingTest() {
   return document.querySelector('[testtakemanager]') != null;
-}
-function catchscreenshotchromeOS() {
-  if (Core.appType == 'chromebook') {
-    var safeKeys = ['c', 'x', 'z', 'y', 'v', '0'];
-    var storeKeys = [];
-    window.addEventListener("keydown", function (event) {
-      if (event.ctrlKey && !event.repeat) {
-        storeKeys.push(event.key);
-      }
-    });
-    window.addEventListener("keyup", function (event) {
-      if (event.key == "Control") {
-        var _iterator = _createForOfIteratorHelper(storeKeys),
-          _step;
-        try {
-          for (_iterator.s(); !(_step = _iterator.n()).done;) {
-            key = _step.value;
-            if (!safeKeys.includes(key.toLowerCase()) && key != "Control") {
-              Core.lostFocus('printscreen'); //massage to teacher needs to added
-              break;
-            }
-          }
-        } catch (err) {
-          _iterator.e(err);
-        } finally {
-          _iterator.f();
-        }
-        if (storeKeys.length == 1 & storeKeys[0] == "Control") {
-          Core.lostFocus('printscreen'); //massage to teacher needs to added
-        }
-
-        storeKeys = [];
-      }
-    });
-  }
 }
 
 /***/ }),

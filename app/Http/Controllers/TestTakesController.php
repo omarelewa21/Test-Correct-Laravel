@@ -200,24 +200,10 @@ class TestTakesController extends Controller
      * Display the specified test take.
      *
      * @param TestTake $testTake
-     * @return Response
      */
-    public function show(TestTake $testTake, Request $request)
+    private function showGeneric(TestTake $testTake, Request $request, $returnTestTakeAsArray = true)
     {
-        $testTake->load([
-            'test',
-            'test.subject' => function ($query) {
-                $query->withTrashed();
-            },
-            'test.author',
-            'retakeTestTake',
-            'user',
-            'testTakeStatus',
-            'invigilatorUsers',
-            'testParticipants',
-            'testTakeCode'
-        ]);
-        $testTake->test->append('has_pdf_attachments');
+
 
         $isInvigilator = false;
         $roles = $this->getUserRoles();
@@ -225,7 +211,7 @@ class TestTakesController extends Controller
         if (in_array('Teacher', $roles) || in_array('Invigilator', $roles)) {
             $isInvigilator = $testTake->isAllowedToView(Auth::user());
             if (!$isInvigilator) {
-                return Response::make([], 403);
+                return []; //17-1-23: returning [] gets translated to a 403 response.
             }
         }
 
@@ -241,7 +227,6 @@ class TestTakesController extends Controller
         if (filled($testTake->scheduled_by)) {
             $testTake->append('scheduled_by_user_name');
         }
-
         // Dit 335 regelige (!!!) bakbeest wordt geskipt met request voor nakijken per student
         if ($isInvigilator && is_array($request->get('with')) && in_array('participantStatus', $request->get('with'))) {
             if ($testTake->testTakeStatus->name == 'Taking test') {
@@ -351,7 +336,7 @@ class TestTakesController extends Controller
 
                 $testTake['school_classes'] = array_values($schoolClasses);
 
-                return Response::make($testTake, 200);
+                return $testTake;
             } elseif ($testTake->testTakeStatus->name == 'Discussing') {
                 $testTake->load(['discussingParentQuestions'                                                                                                                    => function ($query) {
                     $query->orderBy('level');
@@ -393,7 +378,6 @@ class TestTakesController extends Controller
                     if (!array_key_exists($testParticipant->schoolClass->getKey(), $schoolClasses)) {
                         $schoolClasses[$testParticipant->schoolClass->getKey()] = $testParticipant->schoolClass;
                     }
-
                     foreach ($testParticipant->answers as $answer) {
                         // Decide if this is question that is currently being discussed
                         $answerParents = null;
@@ -438,14 +422,17 @@ class TestTakesController extends Controller
                                 $teacherRating = $answerRating->getAttribute('rating');
                             }
                         }
-
                         $studentRatings = array_unique($studentRatings);
                         if ($teacherRating !== null || $systemRating !== null) {
                             $wantedRating = ($teacherRating !== null) ? $teacherRating : $systemRating;
                             foreach ($answer->answerRatings as $answerRating) {
                                 if (array_key_exists($answerRating->getAttribute('user_id'), $testParticipantUserIds)) {
                                     $testParticipantId = $testParticipantUserIds[$answerRating->getAttribute('user_id')];
-                                    if ($answerRating->getAttribute('type') === 'STUDENT' && $answerRating->getAttribute('rating') != $wantedRating && array_key_exists($answerRating->getAttribute('user_id'), $testParticipantUserIds)) {
+                                    if ($answerRating->getAttribute('type') === 'STUDENT' &&
+                                        $answerRating->getAttribute('rating') !== null &&
+                                        $answerRating->getAttribute('rating') != $wantedRating &&
+                                        array_key_exists($answerRating->getAttribute('user_id'), $testParticipantUserIds)
+                                    ) {
                                         if (!array_key_exists($testParticipantId, $testParticipantAbnormalities)) {
                                             $testParticipantAbnormalities[$testParticipantId] = 0;
                                         }
@@ -490,9 +477,13 @@ class TestTakesController extends Controller
                     }
                 }
 
-                $testTake = $testTake->toArray();
+                if ($returnTestTakeAsArray) {
+                    $testTake = $testTake->toArray();
+                    $testTake['school_classes'] = array_values($schoolClasses);
+                    return $testTake;
+                }
                 $testTake['school_classes'] = array_values($schoolClasses);
-                return Response::make($testTake, 200);
+                return $testTake;
             }
         } elseif ($isInvigilator && is_array($request->get('with')) && in_array('scores', $request->get('with'))) {
             $ratings = [];
@@ -517,7 +508,7 @@ class TestTakesController extends Controller
                 $query->select(['id', 'created_at', 'updated_at', 'deleted_at', 'user_id', 'rating', 'retake_rating']);
             }]);
 
-            return Response::make($testTake, 200);
+            return $testTake;
         } elseif ($isInvigilator && is_array($request->get('with')) && in_array('averages', $request->get('with'))) {
             $testTake->load(['testParticipants.answers', 'testParticipants.answers.answerRatings', 'testParticipants.answers.answerParentQuestions' => function ($query) {
                 $query->orderBy('level');
@@ -572,7 +563,7 @@ class TestTakesController extends Controller
             unset($testTake['test_participants']);
             $testTake['questions'] = $questions;
 
-            return Response::make($testTake, 200);
+            return $testTake;
         } elseif ($isInvigilator && $testTake->testTakeStatus->name == 'Discussing') {
             $testTake->load(['discussingParentQuestions' => function ($query) {
                 $query->orderBy('level');
@@ -598,10 +589,68 @@ class TestTakesController extends Controller
 
         $testTake['writing_assignments_count'] = $test->getWritingAssignmentsCount();
 
-        return Response::make($testTake, 200);
+        return $testTake;
     }
 
-    public function nextQuestion(TestTake $testTake)
+    /**
+     * Get the specified test take from within laravel
+     *
+     * @param TestTake $testTake
+     * @return TestTake|[]
+     */
+    public function showFromWithin(TestTake $testTake, Request $request)
+    {
+        $testTake->load([
+            'test',
+            'test.subject' => fn($query) => $query->withTrashed(),
+            'invigilatorUsers',
+            'testParticipants',
+            'discussingQuestion',
+        ]);
+
+        //17-1-23: 'returnTestTakeAsArray only implemented for: testTake discussing && 'with' => 'participantStatus'
+        return $this->showGeneric($testTake, $request, false);
+    }
+
+    /**
+     * Display the specified test take.
+     *
+     * @param TestTake $testTake
+     * @return Response
+     */
+    public function show(TestTake $testTake, Request $request)
+    {
+        $testTake->load([
+            'test',
+            'test.subject' => function ($query) {
+                $query->withTrashed();
+            },
+            'test.author',
+            'retakeTestTake',
+            'user',
+            'testTakeStatus',
+            'invigilatorUsers',
+            'testParticipants',
+            'testTakeCode'
+        ]);
+        $testTake->test->append('has_pdf_attachments');
+
+        $testTakeResponse = $this->showGeneric($testTake, $request);
+
+        if ($testTakeResponse === []) {
+            return Response::make(
+                content: [],
+                status: 403,
+            );
+        }
+
+        return Response::make(
+            content: $testTakeResponse,
+            status: 200,
+        );
+    }
+
+    public function nextQuestion(TestTake $testTake, $returnAsResponseObject = true)
     {
         if ($testTake->testTakeStatus->name == 'Discussing') {
             $testTake->load(['discussingParentQuestions'                                                => function ($query) {
@@ -631,7 +680,11 @@ class TestTakesController extends Controller
             if ($newQuestionIdParents === false) {
                 $testTake->setAttribute('discussing_question_id', null);
                 if (!$testTake->save()) {
-                    return Response::make('Failed to update test take', 500);
+                    return $this->createReturn(
+                        returnAsResponseObject: $returnAsResponseObject,
+                        statusCode: 500,
+                        errorMessage: 'Failed to update test take'
+                    );
                 }
             } else {
                 $newQuestionIdParentParts = explode('.', $newQuestionIdParents);
@@ -652,7 +705,11 @@ class TestTakesController extends Controller
 
                 $testTake->discussingParentQuestions()->saveMany($discussingParentQuestions);
                 if (!$testTake->save()) {
-                    return Response::make('Failed to update test take', 500);
+                    return $this->createReturn(
+                        returnAsResponseObject: $returnAsResponseObject,
+                        statusCode: 500,
+                        errorMessage: 'Failed to update test take'
+                    );
                 }
 
                 $testTake->setAttribute('has_next_question', (QuestionGatherer::getNextQuestionId($testTake->getAttribute('test_id'), $newQuestionIdParents, in_array($testTake->getAttribute('discussion_type'), ['OPEN_ONLY'])) !== false));
@@ -743,17 +800,36 @@ class TestTakesController extends Controller
             }
 
 
-            return Response::make($testTake, 200);
+            return $this->createReturn(
+                returnAsResponseObject: $returnAsResponseObject,
+                statusCode: 200,
+                testTake: $testTake,
+            );
         } else {
-            return Response::make('Failed to set next question, test take is not being discussed', 500);
+            return $this->createReturn(
+                returnAsResponseObject: $returnAsResponseObject,
+                statusCode: 500,
+                errorMessage: 'Failed to set next question, test take is not being discussed'
+            );
         }
+    }
+
+    private function createReturn(bool $returnAsResponseObject, int $statusCode, ?TestTake $testTake = null, ?string $errorMessage = null): Response|TestTake|false
+    {
+        if ($returnAsResponseObject) {
+            $statusCode === 200
+                ? Response::make($testTake, 200)
+                : Response::make($errorMessage, 500);
+        }
+
+        return $statusCode === 200 ? $testTake : false;
     }
 
     private function shouldSkipCreatingAnswerRatingForEmptyAnswer($answer, $discussionType): bool
     {
         $allowNewCoLearning = auth()->user()->schoolLocation->allow_new_co_learning;
 
-        if($allowNewCoLearning && $discussionType === 'OPEN_ONLY') {
+        if ($allowNewCoLearning && $discussionType === 'OPEN_ONLY') {
             return false;
         }
 
@@ -764,19 +840,15 @@ class TestTakesController extends Controller
     {
         $normalize = new Normalize($testTake, $request);
 
-        if($request->filled('ppp')) {
+        if ($request->filled('ppp')) {
             $normalize->normBasedOnGoodPerPoint();
-        }
-        elseif($request->filled('epp')) {
+        } elseif ($request->filled('epp')) {
             $normalize->normBasedOnErrorsPerPoint();
-        }
-        elseif($request->filled('wanted_average')) {
+        } elseif ($request->filled('wanted_average')) {
             $normalize->normBasedOnAverageMark();
-        }
-        elseif($request->filled('n_term') && $request->filled('pass_mark')) {
+        } elseif ($request->filled('n_term') && $request->filled('pass_mark')) {
             $normalize->normBasedOnNTermAndPassMark();
-        }
-        elseif($request->filled('n_term')) {
+        } elseif ($request->filled('n_term')) {
             $normalize->normBasedOnNTerm();
         }
 
@@ -1155,7 +1227,7 @@ class TestTakesController extends Controller
 
     public function updateStatusToDiscussed(TestTake $testTake)
     {
-        return  $testTake->updateToDiscussed(Auth::user());
+        return $testTake->updateToDiscussed(Auth::user());
     }
 
     public function withTemporaryLogin(TestTake $testTake)

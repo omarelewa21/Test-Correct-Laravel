@@ -37,6 +37,8 @@ class Question extends MtiBaseModel
     public $mtiClassField = 'type';
     public $mtiParentTable = 'questions';
 
+    const TYPE_OPEN = 'OPEN';
+    const TYPE_CLOSED = 'CLOSED';
 
     const INLINE_IMAGE_PATTERN = '/custom/imageload.php?filename=';
 

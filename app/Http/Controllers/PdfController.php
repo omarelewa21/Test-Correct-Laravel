@@ -134,7 +134,7 @@ class PdfController extends Controller
         }
         try{
             parse_str(parse_url($imgNode->getAttribute('src'))['query'], $params);
-            $baseName = $params['filename'];
+            $baseName = basename($params['filename']);
             $diskName = 'cake';
             $prefix = 'questionanswers/';
             $this->getBase64ImgPath($imgNode,$baseName,$diskName,$prefix);

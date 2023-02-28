@@ -33,7 +33,7 @@ module.exports = {
                 midgrey: '#929DAF',
                 student: '#ECDB00',
                 lightgreen: '#95cd3e',
-                orange: '#eca000',
+                orange: '#ff9d23',
                 note: '#6b7789',
                 lightGrey: '#F0F2F5',
             },
