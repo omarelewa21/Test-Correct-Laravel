@@ -20,46 +20,120 @@ class PublishesTestTraitTest extends TestCase
 
     public $publish = [
         'CREATHLON'   => [
-            'abbreviation' => 'PUBLS',
-            'scope'        => 'published_creathlon',
-            'toetsen_bakker'=> 'info+creathlonontwikkelaarB@test-correct.nl',
+            'abbreviation'   => 'PUBLS',
+            'scope'          => 'published_creathlon',
+            'toetsen_bakker' => 'info+creathlonontwikkelaarB@test-correct.nl',
         ],
         'OPENSOURCE1' => [
-            'abbreviation' => 'EXAM',
-            'scope'        => 'exam',
-            'toetsen_bakker'=> 'info+CEdocent-b@test-correct.nl',
+            'abbreviation'   => 'EXAM',
+            'scope'          => 'exam',
+            'toetsen_bakker' => 'info+CEdocent-b@test-correct.nl',
         ],
         'TBNI'        => [
-            'abbreviation' => 'LDT',
-            'scope'        => 'ldt',
-            'toetsen_bakker'=> 'info+ontwikkelaar-b@test-correct.nl',
+            'abbreviation'   => 'LDT',
+            'scope'          => 'ldt',
+            'toetsen_bakker' => 'info+ontwikkelaar-b@test-correct.nl',
         ],
         'SBON'        => [
-            'abbreviation' => 'SBON',
-            'scope'        => 'published_olympiade',
-            'toetsen_bakker'=> 'info+olympiadeontwikkelaar-B@test-correct.nl',
+            'abbreviation'   => 'SBON',
+            'scope'          => 'published_olympiade',
+            'toetsen_bakker' => 'info+olympiadeontwikkelaar-B@test-correct.nl',
         ],
     ];
     public $unpublish = [
         'CREATHLON'   => [
-            'abbreviation' => 'ELSE',
-            'scope'        => 'not_published_creathlon',
-            'toetsen_bakker'=> 'info+creathlonontwikkelaarB@test-correct.nl',
+            'abbreviation'   => 'ELSE',
+            'scope'          => 'not_published_creathlon',
+            'toetsen_bakker' => 'info+creathlonontwikkelaarB@test-correct.nl',
         ],
         'OPENSOURCE1' => [
-            'abbreviation' => 'ELSE',
-            'scope'        => 'not_exam',
-            'toetsen_bakker'=> 'info+CEdocent-b@test-correct.nl',
+            'abbreviation'   => 'ELSE',
+            'scope'          => 'not_exam',
+            'toetsen_bakker' => 'info+CEdocent-b@test-correct.nl',
         ],
         'TBNI'        => [
-            'abbreviation' => 'ELSE',
-            'scope'        => 'not_ldt',
-            'toetsen_bakker'=> 'info+ontwikkelaar-b@test-correct.nl',
+            'abbreviation'   => 'ELSE',
+            'scope'          => 'not_ldt',
+            'toetsen_bakker' => 'info+ontwikkelaar-b@test-correct.nl',
         ],
         'SBON'        => [
-            'abbreviation' => 'ELSE',
-            'scope'        => 'not_published_olympiade',
-            'toetsen_bakker'=> 'info+olympiadeontwikkelaar-B@test-correct.nl',
+            'abbreviation'   => 'ELSE',
+            'scope'          => 'not_published_olympiade',
+            'toetsen_bakker' => 'info+olympiadeontwikkelaar-B@test-correct.nl',
+        ],
+    ];
+    public $invalidPublish = [
+        'CREATHLON 1'   => [
+            'customer_code'  => 'CREATHLON',
+            'abbreviation'   => 'EXAM',
+            'scope'          => 'not_published_creathlon',
+            'toetsen_bakker' => 'info+creathlonontwikkelaarB@test-correct.nl',
+        ],
+        'CREATHLON 2'   => [
+            'customer_code'  => 'CREATHLON',
+            'abbreviation'   => 'LDT',
+            'scope'          => 'not_published_creathlon',
+            'toetsen_bakker' => 'info+creathlonontwikkelaarB@test-correct.nl',
+        ],
+        'CREATHLON 3'   => [
+            'customer_code'  => 'CREATHLON',
+            'abbreviation'   => 'SBON',
+            'scope'          => 'not_published_creathlon',
+            'toetsen_bakker' => 'info+creathlonontwikkelaarB@test-correct.nl',
+        ],
+        'OPENSOURCE1 1' => [
+            'customer_code'  => 'OPENSOURCE1',
+            'abbreviation'   => 'LDT',
+            'scope'          => 'not_exam',
+            'toetsen_bakker' => 'info+CEdocent-b@test-correct.nl',
+        ],
+        'OPENSOURCE1 2' => [
+            'customer_code'  => 'OPENSOURCE1',
+            'abbreviation'   => 'SBON',
+            'scope'          => 'not_exam',
+            'toetsen_bakker' => 'info+CEdocent-b@test-correct.nl',
+        ],
+        'OPENSOURCE1 3' => [
+            'customer_code'  => 'OPENSOURCE1',
+            'abbreviation'   => 'PUBLS',
+            'scope'          => 'not_exam',
+            'toetsen_bakker' => 'info+CEdocent-b@test-correct.nl',
+        ],
+        'TBNI 1'          => [
+            'customer_code'  => 'TBNI',
+            'abbreviation'   => 'PUBLS',
+            'scope'          => 'not_ldt',
+            'toetsen_bakker' => 'info+ontwikkelaar-b@test-correct.nl',
+        ],
+        'TBNI 2'          => [
+            'customer_code'  => 'TBNI',
+            'abbreviation'   => 'SBON',
+            'scope'          => 'not_ldt',
+            'toetsen_bakker' => 'info+ontwikkelaar-b@test-correct.nl',
+        ],
+        'TBNI 3'          => [
+            'customer_code'  => 'TBNI',
+            'abbreviation'   => 'EXAM',
+            'scope'          => 'not_ldt',
+            'toetsen_bakker' => 'info+ontwikkelaar-b@test-correct.nl',
+        ],
+        'SBON 1'          => [
+            'customer_code'  => 'SBON',
+            'abbreviation'   => 'PUBLS',
+            'scope'          => 'not_published_olympiade',
+            'toetsen_bakker' => 'info+olympiadeontwikkelaar-B@test-correct.nl',
+        ],
+        'SBON 2'          => [
+            'customer_code'  => 'SBON',
+            'abbreviation'   => 'EXAM',
+            'scope'          => 'not_published_olympiade',
+            'toetsen_bakker' => 'info+olympiadeontwikkelaar-B@test-correct.nl',
+        ],
+        'SBON 3'          => [
+            'customer_code'  => 'SBON',
+            'abbreviation'   => 'LDT',
+            'scope'          => 'not_published_olympiade',
+            'toetsen_bakker' => 'info+olympiadeontwikkelaar-B@test-correct.nl',
         ],
     ];
 
@@ -203,6 +277,28 @@ class PublishesTestTraitTest extends TestCase
 
     /**
      * @test
+     * @dataProvider invalidPublishDataSet
+     */
+    public function cannot_publish_test_with_abbreviation_of_other_content_source($valid_customerCode, $invalid_abbreviation, $valid_unpublished_scope, $valid_secondary_author)
+    {
+        $this->skipUnavailableCustomerCode($valid_customerCode);
+
+        //login correct (secondary) author for publishing
+        Auth::login(User::whereUsername($valid_secondary_author)->first());
+
+        $test = $this->createTest($valid_customerCode, false);
+        $this->assertNotEquals($invalid_abbreviation, $test->abbreviation);
+        $this->assertEquals($valid_unpublished_scope, $test->scope); //scope is the same as the unpublished scope
+
+        $test->abbreviation = $invalid_abbreviation;
+        $test->save();
+
+        $this->assertEquals($invalid_abbreviation, $test->fresh()->abbreviation); //abbreviation has the wrong input
+        $this->assertEquals($valid_unpublished_scope, $test->fresh()->scope); //scope stays unchanged
+    }
+
+    /**
+     * @test
      * @dataProvider validPublishDataSet
      */
     public function cannot_unpublish_test($valid_customerCode, $valid_abbreviation, $valid_scope)
@@ -279,8 +375,8 @@ class PublishesTestTraitTest extends TestCase
 
     protected function skipUnavailableCustomerCode($customerCode)
     {
-        if(AuthorsController::getPublishableAuthorByCustomerCode($customerCode) == null) {
-            $this->markTestSkipped('no author available for customer code: '. $customerCode);
+        if (AuthorsController::getPublishableAuthorByCustomerCode($customerCode) == null) {
+            $this->markTestSkipped('no author available for customer code: ' . $customerCode);
         }
         if (isset($this->publish['CREATHLON']) && AuthorsController::getPublishableAuthorByCustomerCode('CREATHLON') == null) {
             unset($this->publish['CREATHLON']);
@@ -327,6 +423,17 @@ class PublishesTestTraitTest extends TestCase
         return $array;
     }
 
+    /**
+     * @array["valid_customerCode" => ["valid_customerCode", "invalid_abbreviation", "invalid_scope"]]
+     */
+    public function invalidpublishDataSet()
+    {
+        $array = [];
+        foreach ($this->invalidPublish as $key => $value) {
+            $array[$key] = [$value['customer_code'], $value['abbreviation'], $value['scope'], $value['toetsen_bakker']];
+        }
+        return $array;
+    }
 
 
 }
