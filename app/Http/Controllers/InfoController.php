@@ -125,7 +125,7 @@ class InfoController extends Controller
                 Log::info('this should be a model in a array',(array)Info::whereUuid($infoNewFeature)->first()->getKey());
             }
             $title= 'newFeaturesSeen';
-            UserSystemSetting::setSetting(Auth::user(),$title,$infos);
+            UserSystemSetting::setSetting(Auth::user(),$title,json_encode($infos));
             return Response::make(true,200);
         }
 
