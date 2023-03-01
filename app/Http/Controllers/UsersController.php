@@ -673,7 +673,7 @@ class UsersController extends Controller
         }
 
         UserSystemSetting::setSetting(Auth::user(),$request['setting']['title'], $request['setting']['value']);
-        UserSystemSetting::getAll(Auth::user());
+
         return UserSystemSetting::getAll(Auth::user());
     }
 }
