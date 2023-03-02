@@ -122,14 +122,14 @@ class MatchingQuestion extends Question implements QuestionInterface {
 
         $possibleAnswers = [];
         foreach($matchingQuestionAnswers as $matchingQuestionAnswer) {
-            if ($matchingQuestionAnswer->getAttribute('type') === 'LEFT') {
+            if (Str::upper($matchingQuestionAnswer->getAttribute('type')) === 'LEFT') {
                 $possibleAnswers[] = $matchingQuestionAnswer->getKey();
             }
         }
 
         $correctAnswers = [];
         foreach($matchingQuestionAnswers as $matchingQuestionAnswer) {
-            if ($matchingQuestionAnswer->getAttribute('type') === 'RIGHT' && in_array($matchingQuestionAnswer->getAttribute('correct_answer_id'), $possibleAnswers)) {
+            if (Str::uppre($matchingQuestionAnswer->getAttribute('type')) === 'RIGHT' && in_array($matchingQuestionAnswer->getAttribute('correct_answer_id'), $possibleAnswers)) {
                 if( Str::lower($this->subtype) === 'classify'
                     && ( empty($matchingQuestionAnswer->getAttribute('answer')) || $matchingQuestionAnswer->getAttribute('answer') === ' ' ) ){
                     continue;
@@ -203,14 +203,14 @@ class MatchingQuestion extends Question implements QuestionInterface {
 
             $details = [
                 'left' => [
-                   'order' => (int) $answerDetails->order,
-                   'answer' => $answerDetails->left,
-                    'type'  => strtoupper('left'),
+                    'order' => (int) $answerDetails->order,
+                    'answer' => $answerDetails->left,
+                    'type'  => Str::upper('left'),
                 ],
                 'right' => [
                     'order' => (int) $answerDetails->order,
                     'answer' => $answerDetails->right,
-                    'type'  => strtoupper('right'),
+                    'type'  => Str::upper('right'),
                     'correct_answer_id' => ''
                 ]
             ];
@@ -219,11 +219,11 @@ class MatchingQuestion extends Question implements QuestionInterface {
 
             $lastId = false;
             foreach($details as $detail){
-                if($detail['type'] == 'right'){
+                if(Str::upper($detail['type']) == 'RIGHT'){
                     $detail['correct_answer_id'] = $lastId; // right needs the corresponding correct answer which is de left
                 }
 
-                if($detail['type'] == 'left' || ($detail['type'] == 'right' && $this->subtype != 'Classify')) {
+                if(Str::upper($detail['type']) == 'LEFT' || (Str::upper($detail['type']) == 'RIGHT' && $this->subtype != 'Classify')) {
                     $lastId = $this->addAnswer($detail, $question);
                 }
                 else { // should always be the case
