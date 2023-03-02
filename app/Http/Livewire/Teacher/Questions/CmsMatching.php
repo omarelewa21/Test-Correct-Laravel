@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Livewire\Teacher\Questions;
 
+use Illuminate\Support\Str;
 use Ramsey\Uuid\Uuid;
 use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Interfaces\QuestionCms;
@@ -146,7 +147,7 @@ class CmsMatching extends CmsBase
                 'type'   => ''
             ];
             $this->instance->cmsPropertyBag['answerStruct'] = $q->matchingQuestionAnswers->map(function ($answer, $key) use (&$corresponding) {
-                if ($answer->type === 'LEFT') {
+                if (Str::upper($answer->type) === 'LEFT') {
                     $corresponding = (object)[
                         'id'     => $answer->id,
                         'answer' => $answer->answer,

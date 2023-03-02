@@ -3,6 +3,7 @@
 namespace tcCore\Http\Livewire\Teacher\Questions;
 
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Ramsey\Uuid\Uuid;
 use tcCore\Http\Helpers\BaseHelper;
@@ -221,7 +222,7 @@ class CmsClassify extends CmsBase
             $corresponding = null;
 
             $q->matchingQuestionAnswers->each(function ($answer) use (&$corresponding, &$struct) {
-                if ($answer->type === 'LEFT') {
+                if (Str::upper($answer->type) === 'LEFT') {
                     if ($corresponding) {
                         $struct[$corresponding['id']] = $corresponding;
                         $this->instance->cmsPropertyBag['answerSubCount'][$corresponding['id']] = count($corresponding['rights']);

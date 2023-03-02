@@ -122,14 +122,14 @@ class MatchingQuestion extends Question implements QuestionInterface {
 
         $possibleAnswers = [];
         foreach($matchingQuestionAnswers as $matchingQuestionAnswer) {
-            if ($matchingQuestionAnswer->getAttribute('type') === 'LEFT') {
+            if (Str::upper($matchingQuestionAnswer->getAttribute('type')) === 'LEFT') {
                 $possibleAnswers[] = $matchingQuestionAnswer->getKey();
             }
         }
 
         $correctAnswers = [];
         foreach($matchingQuestionAnswers as $matchingQuestionAnswer) {
-            if ($matchingQuestionAnswer->getAttribute('type') === 'RIGHT' && in_array($matchingQuestionAnswer->getAttribute('correct_answer_id'), $possibleAnswers)) {
+            if (Str::uppre($matchingQuestionAnswer->getAttribute('type')) === 'RIGHT' && in_array($matchingQuestionAnswer->getAttribute('correct_answer_id'), $possibleAnswers)) {
                 if( Str::lower($this->subtype) === 'classify'
                     && ( empty($matchingQuestionAnswer->getAttribute('answer')) || $matchingQuestionAnswer->getAttribute('answer') === ' ' ) ){
                     continue;
@@ -203,14 +203,14 @@ class MatchingQuestion extends Question implements QuestionInterface {
 
             $details = [
                 'left' => [
-                   'order' => (int) $answerDetails->order,
-                   'answer' => $answerDetails->left,
-                    'type'  => 'left',
+                    'order' => (int) $answerDetails->order,
+                    'answer' => $answerDetails->left,
+                    'type'  => Str::upper('left'),
                 ],
                 'right' => [
                     'order' => (int) $answerDetails->order,
                     'answer' => $answerDetails->right,
-                    'type'  => 'right',
+                    'type'  => Str::upper('right'),
                     'correct_answer_id' => ''
                 ]
             ];
