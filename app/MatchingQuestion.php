@@ -219,11 +219,11 @@ class MatchingQuestion extends Question implements QuestionInterface {
 
             $lastId = false;
             foreach($details as $detail){
-                if($detail['type'] == 'right'){
+                if(Str::upper($detail['type']) == 'RIGHT'){
                     $detail['correct_answer_id'] = $lastId; // right needs the corresponding correct answer which is de left
                 }
 
-                if($detail['type'] == 'left' || ($detail['type'] == 'right' && $this->subtype != 'Classify')) {
+                if(Str::upper($detail['type']) == 'LEFT' || (Str::upper($detail['type']) == 'RIGHT' && $this->subtype != 'Classify')) {
                     $lastId = $this->addAnswer($detail, $question);
                 }
                 else { // should always be the case
@@ -256,7 +256,10 @@ class MatchingQuestion extends Question implements QuestionInterface {
     }
 
     protected function addAnswer($detail, $question){
+        logger('addAnswer '.__FILE__.':'.__LINE__);
+        logger($detail);
         $detail = collect($detail);
+
 
         $matchingQuestionAnswer = new MatchingQuestionAnswer();
 
@@ -272,6 +275,7 @@ class MatchingQuestion extends Question implements QuestionInterface {
         if(!$matchingQuestionAnswerLink->save()) {
             throw new QuestionException('Failed to create matching question answer link',422);
         }
+        logger('new id '.$matchingQuestionAnswer->getKey());
         return $matchingQuestionAnswer->getKey();
     }
 
