@@ -7464,11 +7464,13 @@ document.addEventListener('alpine:init', function () {
       detailCoordsTop: null,
       detailCoordsLeft: null,
       gridCardOffsetHeight: null,
+      bodyPage: null,
       init: function init() {
         this.menuCard = this.$root.closest('#context-menu-base');
+        this.bodyPage = this.$root.closest('.divide-secondary');
       },
       preventMenuFallOffScreen: function preventMenuFallOffScreen() {
-        if (this.menuCard.offsetHeight > this.gridCardOffsetHeight) {
+        if (this.menuCard.offsetTop + this.menuCard.offsetHeight >= this.bodyPage.offsetHeight + this.bodyPage.offsetTop) {
           this.$root.style.top = this.detailCoordsTop + this.menuOffsetMarginTop - (this.menuCard.offsetHeight - this.gridCardOffsetHeight) - 25 + 'px';
           this.$root.style.left = this.detailCoordsLeft - this.menuCard.offsetWidth - 50 + 'px';
         }
