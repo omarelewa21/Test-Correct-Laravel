@@ -222,4 +222,5 @@ return [
     'T2'                                                                                     => 'T2',
     'I'                                                                                      => 'I',
     'Alle'                                                                                   => 'Any',
+    'Sorry, er ging iets fout, probeer het nogmaals'                                         => 'Sorry, something went wrong. Please try again',
 ];
