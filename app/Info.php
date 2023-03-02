@@ -132,7 +132,7 @@ class Info extends Model
             ->where('status', self::ACTIVE)
             ->where('show_from', '<=', Carbon::now())
             ->where('show_until', '>=', Carbon::now())
-            ->orderBy('show_until', 'asc')
+            ->orderBy('show_from', 'desc')
             ->get();
     }
 
