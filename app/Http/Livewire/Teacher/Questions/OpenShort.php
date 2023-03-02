@@ -1126,6 +1126,13 @@ class OpenShort extends Component implements QuestionCms
         $this->questionEditorId = Str::uuid()->__toString();
     }
 
+    private function resetToEmptyState()
+    {
+        $this->emptyState = true;
+        $this->reset(['type', 'subtype', 'testQuestionId']);
+        $this->emitTo('drawer.cms', 'show-empty');
+    }
+
     private function openLastQuestion()
     {
         $testQuestionUuid = Test::whereUuid($this->testId)
@@ -1135,9 +1142,7 @@ class OpenShort extends Component implements QuestionCms
             ->value('uuid');
 
         if (!$testQuestionUuid) {
-            $this->emptyState = true;
-            $this->reset(['type', 'subtype', 'testQuestionId']);
-            $this->emitTo('drawer.cms', 'show-empty');
+            $this->resetToEmptyState();
             return true;
         }
 
@@ -1216,7 +1221,7 @@ class OpenShort extends Component implements QuestionCms
             } catch(\Exception $e){
                 // the groupQuestionQuestion could not be found and has probably to do with using the back button
                 // we therefor lead the user to the test page again with a notification
-                $this->openLastQuestion();
+                $this->resetToEmptyState();
                 $this->dispatchBrowserEvent('notify', ['message' => __('cms.'), 'type' => 'error']);
                 return;
             }
