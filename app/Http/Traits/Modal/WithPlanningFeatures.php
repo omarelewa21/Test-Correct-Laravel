@@ -20,7 +20,7 @@ trait WithPlanningFeatures
         return SchoolClass::filtered($filters)->optionList();
     }
 
-    public function isAssessmentType()
+    public function isAssignmentType()
     {
         return $this->test->isAssignment();
     }

@@ -72,9 +72,9 @@ class Kernel extends ConsoleKernel
 //            ->dailyAt('05:00');
 // one minute past the hour;
 //        if(BaseHelper::notProduction()){
-//            $schedule->command('assessment:start_and_stop')->everyMinute();
+//            $schedule->command('assignment:start_and_stop')->everyMinute();
 //        } else {
-//            $schedule->command('assessment:start_and_stop')->hourlyAt(1);
+//            $schedule->command('assignment:start_and_stop')->hourlyAt(1);
 //        }
     }
 

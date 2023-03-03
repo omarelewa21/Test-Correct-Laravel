@@ -115,7 +115,7 @@ class TestTakeCard extends ContextMenuComponent
             'copy-to-clipboard',
             [
                 'message'       => $testTake->directLink,
-                'notification'  => $testTake->isAssessmentType() ? __('teacher.assignment_clipboard_copied') : __('teacher.clipboard_copied')
+                'notification'  => $testTake->isAssignmentType() ? __('teacher.assignment_clipboard_copied') : __('teacher.clipboard_copied')
             ]
         );
     }

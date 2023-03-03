@@ -25,7 +25,7 @@ return [
     'my_uploads'                                    => 'My uploads',
     'my_planned_tests'                              => 'My scheduled tests',
     'surveillance'                                  => 'Surveillance',
-    'open_assessments'                              => 'Current assignments',
+    'open_assignments'                              => 'Current assignments',
     'my_taken_tests'                                => 'My tests taken',
     'check_standardize'                             => 'Checking & grading',
     'my_students'                                   => 'My students',

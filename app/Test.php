@@ -847,7 +847,7 @@ class Test extends BaseModel
 
     public function isAssignment()
     {
-        return $this->test_kind_id == TestKind::ASSESSMENT_TYPE;
+        return $this->test_kind_id == TestKind::ASSIGNMENT_TYPE;
     }
 
     public function getAuthorsAsString()

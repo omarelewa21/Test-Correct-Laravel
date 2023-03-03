@@ -224,7 +224,7 @@ class SurveillanceController extends Controller
                 return [];
             }
 
-            $filtered = request()->boolean('withoutParticipants') ? ['type_assessment'=> true] : ['type_not_assessment' => true];
+            $filtered = request()->boolean('withoutParticipants') ? ['type_assignment'=> true] : ['type_not_assignment' => true];
             $filtered = array_merge($filtered, [
                 'invigilator_id' => $owner->id,
                 'test_take_status_id' => '3',
@@ -245,7 +245,7 @@ class SurveillanceController extends Controller
     private function getCacheKey($owner, $withoutParticipants = false) {
         $prefix = 'surveilence_data';
         if ($withoutParticipants) {
-            $prefix = 'assessment_open_teacher_data';
+            $prefix = 'assignment_open_teacher_data';
         }
 
         return sprintf('%s_%s', $prefix, $owner->uuid);

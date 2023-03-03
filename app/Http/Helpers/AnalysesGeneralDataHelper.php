@@ -61,7 +61,7 @@ class AnalysesGeneralDataHelper
         return TestTake::withoutGlobalScope(ArchivedScope::class)
             ->join('tests', 'tests.id', '=', 'test_takes.test_id')
             ->where('tests.subject_id', $this->subject->getKey())
-            ->where('tests.test_kind_id', $operator, TestKind::ASSESSMENT_TYPE)
+            ->where('tests.test_kind_id', $operator, TestKind::ASSIGNMENT_TYPE)
 
             ->when(!empty($this->filters), function ($query) {
                 foreach($this->filters as $key => $value) {
@@ -166,7 +166,7 @@ class AnalysesGeneralDataHelper
             ->leftJoin('tests', 'tests.id', '=', 'test_takes.test_id')
             ->where('p_value_attainments.attainment_id', $this->attainment->getKey())
             ->where('test_participants.user_id', $this->user->getKey())
-            ->where('tests.test_kind_id', $operator, TestKind::ASSESSMENT_TYPE)
+            ->where('tests.test_kind_id', $operator, TestKind::ASSIGNMENT_TYPE)
 
             ->when(!empty($this->filters), function ($query) {
                 foreach($this->filters as $key => $value) {

@@ -28,7 +28,7 @@ trait WithStudentTestTakes
                 DB::raw(
                     sprintf(
                         "case when tests.test_kind_id = %d then 1 else 0 end as is_assignment",
-                        TestKind::ASSESSMENT_TYPE
+                        TestKind::ASSIGNMENT_TYPE
                     )
                 )
             )
