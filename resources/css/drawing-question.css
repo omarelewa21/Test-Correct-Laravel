@@ -530,19 +530,19 @@
     --cursor-type-locked: var(--cursor-default);
 }
 
-#drawing-tool #svg-canvas .side-nw {
+#drawing-tool #svg-canvas g.resizable .side-nw {
     cursor: nw-resize;
 }
 
-#drawing-tool #svg-canvas .side-sw {
+#drawing-tool #svg-canvas g.resizable .side-sw {
     cursor: sw-resize;
 }
 
-#drawing-tool #svg-canvas .side-ne {
+#drawing-tool #svg-canvas g.resizable .side-ne {
     cursor: ne-resize;
 }
 
-#drawing-tool #svg-canvas .side-se {
+#drawing-tool #svg-canvas g.resizable .side-se {
     cursor: se-resize;
 }
 
@@ -1040,8 +1040,7 @@
     stroke-dasharray: 10, 5;
 }
 
-#drawing-tool .shape.dragging .border {
-    /*stroke-dasharray: 10, 5;*/
+#drawing-tool .shape.dragging :is(.border, .corner) {
     opacity: 0;
 }
 

@@ -57,3 +57,7 @@ export const elementClassNameForType = {
     "image": "Image",
     "path": "Path"
 };
+
+export const resizableSvgShapes = [
+  "rect", "circle", "image"
+];

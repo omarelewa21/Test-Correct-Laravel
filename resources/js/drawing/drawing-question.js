@@ -11,18 +11,28 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
      * @type {Object}
      * @property {number} x
      * @property {number} y
-     *
+     */
+    /**
      * @typedef propObj
      * @type {Object.<string, string|number>}
-     *
+     */
+    /**
      * @typedef ELOptions
      * @type {Object.<string, boolean|AbortSignal>|boolean}
+     */
+    /**
      * @typedef ELEvent
      * @type {Object.<string, Function|ELOptions>}
+     */
+    /**
      * @typedef ELEvents
      * @type {Object.<string, ELEvent>}
+     */
+    /**
      * @typedef EventListenerSettings
      * @type {Object.<string, HTMLElement|ELEvents>}
+     */
+    /**
      * @typedef Element
      * @type {HTMLElement|SVGElement}
      */
@@ -1364,13 +1374,13 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         Canvas.unhighlightShapes();
 
         if (evt.touches?.length === 2) {
-            startPan(evt);
-        } else if (drawingApp.params.currentTool === "drag") {
-            if (evt.target.classList.contains("corner")) return startResize(evt);
-            startDrag(evt);
-        } else {
-            startDraw(evt);
+            return startPan(evt);
         }
+        if (drawingApp.params.currentTool === "drag") {
+            if (evt.target.classList.contains("corner")) return startResize(evt);
+            return startDrag(evt);
+        }
+        return startDraw(evt);
     }
 
     function startDrag(evt) {
@@ -1403,8 +1413,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
 
         Canvas.params.resize = {
             enabled: true,
-            selectedSvgShape: selectedSvgShape,
-            startingCursorPosition: getCursorPosition(evt),
+            selectedSvgShape: selectedSvgShape
         };
 
         selectedSvgShape.onResizeStart?.(evt, getCursorPosition(evt));
@@ -1502,7 +1511,6 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
                     "y": cursorPosition.y,
                     "fill": UI.textColor.value,
                     "stroke-width": 0,
-                    "value": 'abc',
                     "opacity": parseFloat(UI.elemOpacityNumber.value / 100),
                     "style": `${drawingApp.params.boldText ? "font-weight: bold;" : ""} font-size: ${UI.textSize.value / 16}rem`,
                 };

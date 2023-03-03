@@ -3,6 +3,22 @@ import {
     validSvgElementKeys
 } from "./constants.js";
 
+/**
+ * @typedef RectangleCoords
+ * @type {Object}
+ * @property {number} x
+ * @property {number} y
+ * @property {number} width
+ * @property {number} height
+ */
+/**
+ * @typedef CircleCoords
+ * @type {Object}
+ * @property {number} cx
+ * @property {number} cy
+ * @property {number} r
+ */
+
 class svgElement {
     constructor(type, props) {
         this.type = type;
@@ -94,12 +110,15 @@ class svgElement {
     }
 
     /**
-     * Hide the element.
+     * Hides the element.
      */
     hide() {
         this.element.style.display = "none";
     }
 
+    /**
+     * Shows the element.
+     */
     show() {
         this.element.style.display = "";
     }
@@ -137,19 +156,26 @@ class svgElement {
         delete this;
     }
 
+    /**
+     * Event handler called during dragging
+     * @param {Event} evt
+     * @param {Cursor} cursor
+     */
     onDrag(evt, cursor) {
-        this.move(this.calculateMovedDistance(cursor));
-    }
-
-    move(distance) {
-    }
-
-    calculateMovedDistance(cursor) {
-        const previousCursorPosition = this.drag.previousCursorPosition;
+        this.move(this.calculateMovedDistance(cursor, this.drag.previousCursorPosition));
         this.drag.previousCursorPosition = cursor;
+    }
+
+    /**
+     * Calculates difference between previous and current cursor position
+     * @param {Cursor} currentPosition
+     * @param {Cursor} previousPosition
+     * @returns {{dx: number, dy: number}}
+     */
+    calculateMovedDistance(currentPosition, previousPosition) {
         return {
-            dx: cursor.x - previousCursorPosition.x,
-            dy: cursor.y - previousCursorPosition.y,
+            dx: currentPosition.x - previousPosition.x,
+            dy: currentPosition.y - previousPosition.y,
         };
     }
 }
@@ -159,79 +185,92 @@ export class Rectangle extends svgElement {
         super("rect", props);
     }
 
+    /**
+     * Event handler called at start of drawing
+     * @param {Event} evt
+     * @param {Cursor} cursor
+     */
     onDrawStart(evt, cursor) {
         this.draw.startingPosition = cursor;
     }
 
     /**
-     * Function to be called when the cursor was moved.
-     * @param {Event} evt The event that triggered the function.
-     * @param {{x: number, y: number}} cursor The current cursor position.
+     * Event handler called during drawing.
+     * @param {Event} evt
+     * @param {Cursor} cursor
      */
     onDraw(evt, cursor) {
-        let coords = this.calculateCoords(cursor, this.draw.startingPosition);
+        let coords = this.calculateCoordsForDraw(cursor);
         this.updateAttributes(coords);
     }
 
+    /**
+     * Calculates values for the x, y, width and height properties of the rectangle.
+     * @param {{x: number, y: number}} cursor
+     * @returns {RectangleCoords}
+     */
+    calculateCoordsForDraw(cursor) {
+        const startingPosition = this.draw.startingPosition;
+        const coords = {
+            x: startingPosition.x,
+            y: startingPosition.y,
+            width: cursor.x - startingPosition.x,
+            height: cursor.y - startingPosition.y,
+        };
+        const replacements = {
+            x: cursor.x,
+            y: cursor.y,
+            width: -coords.width,
+            height: -coords.height
+        };
+        return this.correctNegativeSizes(coords, replacements);
+    }
+
+    /**
+     * Event handler called at start of dragging
+     * @param {Event} evt
+     * @param {Cursor} cursor
+     */
     onDragStart(evt, cursor) {
         this.drag.previousCursorPosition = cursor;
         this.drag.startingPosition = {x: this.props.x, y: this.props.y};
     }
 
-    onResizeStart(evt, cursor) {
-        this.resize.startingPosition = {x: this.props.x, y: this.props.y};
-    }
-
-    onResize(evt, cursor) {
-        const coords = this.calculateCoords(cursor, this.resize.startingPosition);
-        this.updateAttributes(coords);
-    }
-
+    /**
+     * Calls this.updatePosition and this.updateSize with the new values.
+     * @param {RectangleCoords} coords
+     */
     updateAttributes(coords) {
         this.updatePosition(coords);
         this.updateSize(coords);
     }
 
+    /**
+     * Sets the x and y values to the old values plus
+     * the offset specified by distance.dx and distance.dy
+     * @param {{dx: number, dy: number}} distance
+     */
     move(distance) {
-        this.setX(parseInt(this.props.x) + distance.dx);
-        this.setY(parseInt(this.props.y) + distance.dy);
-    }
-
-    updatePosition(coords) {
-        this.setX(coords.x);
-        this.setY(coords.y);
-    }
-
-    updateSize(coords) {
-        this.setWidth(coords.width);
-        this.setHeight(coords.height);
+        this.setX(parseFloat(this.props.x) + distance.dx);
+        this.setY(parseFloat(this.props.y) + distance.dy);
     }
 
     /**
-     * Adjusts the x, y, width and height of a rectangle because SVG can't handle negative width and height values.
-     * @param {{x: number, y: number}} cursor The current cursor position.
-     * @param {{x: number, y: number}} startingPosition The cursor position at the start
-     * @returns An Object containing a valid value for x, y, width and height.
+     * Sets the specified position
+     * @param {{x: number, y: number}} position
      */
-    calculateCoords(cursor, startingPosition) {
-        let x = startingPosition.x,
-            y = startingPosition.y,
-            width = cursor.x - x,
-            height = cursor.y - y;
-        if (width < 0) {
-            x = cursor.x;
-            width *= -1;
-        }
-        if (height < 0) {
-            y = cursor.y;
-            height *= -1;
-        }
-        return {
-            x,
-            y,
-            width,
-            height,
-        };
+    updatePosition(position) {
+        this.setX(position.x);
+        this.setY(position.y);
+    }
+
+    /**
+     * Sets the specified size
+     * @param {{width: number, height: number}} size
+     */
+    updateSize(size) {
+        this.setWidth(size.width);
+        this.setHeight(size.height);
     }
 
     /**
@@ -341,23 +380,28 @@ export class Circle extends svgElement {
     }
 
     /**
-     * Function to be called when the cursor was moved during draw.
-     * @param {Event} evt The event that triggered the function.
-     * @param {{x: number, y: number}} cursor The current cursor position.
+     * Event handler called during drawing.
+     * @param {Event} evt
+     * @param {Cursor} cursor
      */
     onDraw(evt, cursor) {
         this.setR(this.calculateRadius(cursor));
     }
 
+    /**
+     * Event handler called at start of dragging
+     * @param {Event} evt
+     * @param {Cursor} cursor
+     */
     onDragStart(evt, cursor) {
         this.drag.previousCursorPosition = cursor;
         this.drag.startingPosition = {x: this.props.cx, y: this.props.cy};
     }
 
     /**
-     * Function to be called when the cursor was moved during resize.
-     * @param {Event} evt The event that triggered the function.
-     * @param {{x: number, y: number}} cursor The current cursor position.
+     * Event handler called during resize.
+     * @param {Event} evt
+     * @param {Cursor} cursor
      */
     onResize(evt, cursor) {
         // The scaling ratio is here because the corner points do not lay on the circle,
@@ -368,15 +412,19 @@ export class Circle extends svgElement {
 
     /**
      * Calculates the radius of a circle.
-     * @param {{x: number, y: number}} cursor (x,y) position of the cursor on the screen.
-     * @returns Radius of the circle.
+     * @param {Cursor} cursor
+     * @returns {number} Radius of the circle.
      */
     calculateRadius(cursor) {
-        let dx = cursor.x - this.props.cx;
-        let dy = cursor.y - this.props.cy;
+        const dx = cursor.x - this.props.cx;
+        const dy = cursor.y - this.props.cy;
         return Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
     }
 
+    /**
+     * Sets the radius to the given value
+     * @param {CircleCoords} coords
+     */
     updateSize(coords) {
         this.setR(coords.r);
     }
@@ -406,14 +454,23 @@ export class Circle extends svgElement {
         this.props.r = value;
     }
 
+    /**
+     * Sets the cx and cy values to the old values plus
+     * the offset specified by distance.dx and distance.dy
+     * @param {{dx: number, dy: number}} distance
+     */
     move(distance) {
-        this.setCX(parseInt(this.props.cx) + distance.dx);
-        this.setCY(parseInt(this.props.cy) + distance.dy);
+        this.setCX(parseFloat(this.props.cx) + distance.dx);
+        this.setCY(parseFloat(this.props.cy) + distance.dy);
     }
 
-    updatePosition(coords) {
-        this.setCX(coords.x);
-        this.setCY(coords.y);
+    /**
+     * Sets the specified position
+     * @param {{x: number, y: number}} position
+     */
+    updatePosition(position) {
+        this.setCX(position.x);
+        this.setCY(position.y);
     }
 
     /**
@@ -473,15 +530,46 @@ export class Line extends svgElement {
     }
 
     /**
-     * Function to be called when the cursor was moved.
-     * @param {Event} evt The event that triggered the function.
-     * @param {{x: number, y: number}} cursor The current cursor position.
+     * Event handler called during drawing.
+     * @param {Event} evt
+     * @param {Cursor} cursor
      */
     onDraw(evt, cursor) {
-        this.setX2Attribute(cursor.x);
-        this.setY2Attribute(cursor.y);
+        this.setX2(cursor.x);
+        this.setY2(cursor.y);
     }
 
+    /**
+     * Event handler called at start of dragging
+     * @param {Event} evt
+     * @param {Cursor} cursor
+     */
+    onDragStart(evt, cursor) {
+        this.drag.previousCursorPosition = cursor;
+        this.drag.startingPosition = {
+            x1: this.props.x1,
+            y1: this.props.y1,
+            x2: this.props.x2,
+            y2: this.props.y2,
+        };
+    }
+
+    /**
+     * Sets the x and y values to the old values plus
+     * the offset specified by distance.dx and distance.dy
+     * @param {{dx: number, dy: number}} distance
+     */
+    move(distance) {
+        this.setX1(this.props.x1 + distance.dx);
+        this.setY1(this.props.y1 + distance.dy);
+        this.setX2(this.props.x2 + distance.dx);
+        this.setY2(this.props.y2 + distance.dy);
+    }
+
+    /**
+     * Sets the X1 attribute on the shape and in the props
+     * @param value
+     */
     setX1(value) {
         this.setX1Attribute(value);
         this.setX1Property(value);
@@ -503,6 +591,10 @@ export class Line extends svgElement {
         this.props.x1 = value;
     }
 
+    /**
+     * Sets the X2 attribute on the shape and in the props
+     * @param value
+     */
     setX2(value) {
         this.setX2Attribute(value);
         this.setX2Property(value);
@@ -524,6 +616,10 @@ export class Line extends svgElement {
         this.props.x2 = value;
     }
 
+    /**
+     * Sets the Y1 attribute on the shape and in the props
+     * @param value
+     */
     setY1(value) {
         this.setY1Attribute(value);
         this.setY1Property(value);
@@ -545,6 +641,10 @@ export class Line extends svgElement {
         this.props.y1 = value;
     }
 
+    /**
+     * Sets the Y2 attribute on the shape and in the props
+     * @param value
+     */
     setY2(value) {
         this.setY2Attribute(value);
         this.setY2Property(value);
@@ -572,33 +672,14 @@ export class Image extends svgElement {
         super("image", props);
     }
 
+    /**
+     * Event handler called at start of dragging
+     * @param {Event} evt
+     * @param {Cursor} cursor
+     */
     onDragStart(evt, cursor) {
         this.drag.previousCursorPosition = cursor;
         this.drag.startingPosition = {x: this.props.x, y: this.props.y};
-    }
-
-    onResize(evt, cursor) {
-        const coords = this.calculateCoords(cursor);
-        this.updateAttributes(coords);
-    }
-
-    calculateCoords(cursor) {
-        let x = this.props.x,
-            y = this.props.y,
-            width = cursor.x - x,
-            height = cursor.y - y;
-        if (width < 0) {
-            width = 0;
-        }
-        if (height < 0) {
-            height = 0;
-        }
-        return {
-            x,
-            y,
-            width,
-            height,
-        };
     }
 
     updateAttributes(coords) {
@@ -606,9 +687,14 @@ export class Image extends svgElement {
         this.updateSize(coords);
     }
 
+    /**
+     * Sets the x and y values to the old values plus
+     * the offset specified by distance.dx and distance.dy
+     * @param {{dx: number, dy: number}} distance
+     */
     move(distance) {
-        this.setX(parseInt(this.props.x) + distance.dx);
-        this.setY(parseInt(this.props.y) + distance.dy);
+        this.setX(parseFloat(this.props.x) + distance.dx);
+        this.setY(parseFloat(this.props.y) + distance.dy);
     }
 
     updatePosition(coords) {
@@ -671,6 +757,10 @@ export class Image extends svgElement {
         this.props.y = value;
     }
 
+    /**
+     * Sets the Width attribute on the shape and in the props
+     * @param value
+     */
     setWidth(value) {
         this.setWidthAttribute(value);
         this.setWidthProperty(value);
@@ -692,6 +782,10 @@ export class Image extends svgElement {
         this.props.width = value;
     }
 
+    /**
+     * Sets the Height attribute on the shape and in the props.
+     * @param value
+     */
     setHeight(value) {
         this.setHeightAttribute(value);
         this.setHeightProperty(value);
@@ -714,6 +808,15 @@ export class Image extends svgElement {
     }
 
     /**
+     * Sets the Href attribute on the shape and in the props
+     * @param value
+     */
+    setHref(value) {
+        this.setHrefAttribute(value);
+        this.setHrefProperty(value);
+    }
+
+    /**
      * Sets the Href attribute on the shape.
      * @param {string} value The value to be given to the attribute.
      */
@@ -733,6 +836,66 @@ export class Image extends svgElement {
 export class Path extends svgElement {
     constructor(props = null) {
         super("path", props);
+    }
+
+    /**
+     * Event handler called at the start of drawing
+     * @param evt
+     * @param cursor
+     */
+    onDrawStart(evt, cursor) {
+        this.draw.previousPosition = cursor;
+    }
+
+    /**
+     * Event handler called during drawing
+     * @param evt
+     * @param cursor
+     */
+    onDraw(evt, cursor) {
+        const path = this.getDAttribute();
+        const distance = this.calculateMovedDistance(cursor, this.draw.previousPosition);
+        this.setD(`${path} l ${distance.dx},${distance.dy}`);
+        this.draw.previousPosition = cursor;
+    }
+
+    /**
+     * Event handler called at the start of dragging
+     * @param evt
+     * @param cursor
+     */
+    onDragStart(evt, cursor) {
+        this.drag.previousCursorPosition = cursor;
+    }
+
+    /**
+     * Helper function called from onDrag to move the element
+     * @param {{dx: number, dy: number}} distance
+     */
+    move(distance) {
+        let dValue = this.props.d.split(" ");
+        dValue[1] = this.calculateNewStartingPoint(dValue[1], distance);
+        this.setD(dValue.join(" "));
+    }
+
+    /**
+     * Parses oldStartingPoint, then moves it by the offset specified by distance.
+     * @param {string} oldStartingPoint
+     * @param {{dx: number, dy: number}} distance
+     * @returns {string}
+     */
+    calculateNewStartingPoint(oldStartingPoint, distance) {
+        const oldCoords = oldStartingPoint.split(",").map(value => parseFloat(value));
+        return [oldCoords[0] + distance.dx, oldCoords[1] + distance.dy].join(",");
+    }
+
+    /**
+     * Sets the D attribute on the shape and in the props
+     * @param {string} value
+     */
+    setD(value) {
+        this.setDAttribute(value);
+        this.setDProperty(value);
     }
 
     /**
@@ -766,23 +929,32 @@ export class Text extends svgElement {
     }
 
     /**
-     * Function to be called when the cursor was moved.
-     * @param {Event} evt The event that triggered the function.
-     * @param {{x: number, y: number}} cursor The current cursor position.
+     * Event handler called during drawing
+     * @param {Event} evt
+     * @param {Cursor} cursor
      */
     onDraw(evt, cursor) {
         this.setAttributeOnElementWithValidation("x", cursor.x);
         this.setAttributeOnElementWithValidation("y", cursor.y);
     }
 
+    /**
+     * Event handler called at the start of dragging
+     * @param {Event} evt
+     * @param {Cursor} cursor
+     */
     onDragStart(evt, cursor) {
         this.drag.previousCursorPosition = cursor;
         this.drag.startingPosition = {x: this.props.x, y: this.props.y};
     }
 
+    /**
+     * Helper function called from onDrag to move the element
+     * @param {{dx: number, dy: number}} distance
+     */
     move(distance) {
-        this.setX(parseInt(this.props.x) + distance.dx);
-        this.setY(parseInt(this.props.y) + distance.dy);
+        this.setX(parseFloat(this.props.x) + distance.dx);
+        this.setY(parseFloat(this.props.y) + distance.dy);
     }
 
     updatePosition(coords) {
@@ -790,6 +962,10 @@ export class Text extends svgElement {
         this.setY(coords.y);
     }
 
+    /**
+     * Sets the X attribute on the shape and in the props.
+     * @param {number} value
+     */
     setX(value) {
         this.setXAttribute(value);
         this.setXProperty(value);
@@ -811,6 +987,10 @@ export class Text extends svgElement {
         this.props.x = value;
     }
 
+    /**
+     * Sets the Y attribute on the shape and in the props.
+     * @param {number} value
+     */
     setY(value) {
         this.setYAttribute(value);
         this.setYProperty(value);
@@ -833,15 +1013,19 @@ export class Text extends svgElement {
     }
 
     /**
-     * Appends the specified text to the text element.
-     * @param {string} text The text to be appended.
+     * Sets the specified text to be the content of the text element.
+     * @param {string} text
      */
     setTextContent(text) {
         this.element.textContent = text;
     }
 
+    /**
+     * Sets the specified font family
+     * @param {string} font
+     */
     setFontFamily(font) {
-        this.element.setAttribute('font-family', font);
+        this.setAttributeOnElementWithValidation('font-family', font);
     }
 }
 
@@ -856,3 +1040,112 @@ export class Group extends svgElement {
         super("g", props);
     }
 }
+
+const rectangularResizeFunctionality = {
+
+    /**
+     * Event handler called at start of resizing
+     * @param {Event} evt
+     * @param {Cursor} cursor
+     */
+    onResizeStart(evt, cursor) {
+        this.resize.startingCoords = {
+            x: this.props.x,
+            y: this.props.y,
+            width: this.props.width,
+            height: this.props.height,
+        };
+        this.resize.selectedCorner = this.getClassOfSelectedCorner(evt.target);
+    },
+
+    /**
+     * Determines the first class name of the given element that matches the format.
+     * @param {Element} element
+     * @returns {string}
+     */
+    getClassOfSelectedCorner(element) {
+        const cornerElementClassMatcher = /(side-)[\w-]+/g;
+        return element.classList.toString()
+            .match(cornerElementClassMatcher)[0];
+    },
+
+    /**
+     * Event handler called during resizing
+     * @param {Event} evt
+     * @param {Cursor} cursor
+     */
+    onResize(evt, cursor) {
+        const coords = this.calculateCoordsForResize(cursor);
+        this.updateAttributes(coords);
+    },
+
+    /**
+     * Calculates new values for the x, y, width and height properties of the rectangle.
+     * @param {{x: number, y: number}} cursor
+     * @returns {RectangleCoords}
+     */
+    calculateCoordsForResize(cursor) {
+        const startingCoords = this.resize.startingCoords;
+        const coords = {
+            x: startingCoords.x,
+            y: startingCoords.y,
+            width: cursor.x - startingCoords.x,
+            height: cursor.y - startingCoords.y,
+        };
+        const replacements = {
+            x: cursor.x,
+            y: cursor.y
+        };
+        switch (this.resize.selectedCorner) {
+            case "side-se":
+                break;
+            case "side-ne":
+                coords.y = cursor.y;
+                coords.height = parseFloat(startingCoords.height) + (startingCoords.y - cursor.y);
+                replacements.y = this.props.y;
+                break;
+            case "side-sw":
+                coords.x = cursor.x;
+                coords.width = parseFloat(startingCoords.width) + (startingCoords.x - cursor.x);
+                replacements.x = this.props.x;
+                break;
+            case "side-nw":
+                coords.x = cursor.x;
+                coords.y = cursor.y;
+                coords.width = parseFloat(startingCoords.width) + (startingCoords.x - cursor.x);
+                coords.height = parseFloat(startingCoords.height) + (startingCoords.y - cursor.y)
+                replacements.x = this.props.x;
+                replacements.y = this.props.y;
+                break;
+            default:
+                console.error(`'this.resize.selectedCorner' contains an invalid value: "${this.resize.selectedCorner}"`);
+                coords.width = startingCoords.width;
+                coords.height = startingCoords.height;
+        }
+        replacements.width = -coords.width;
+        replacements.height = -coords.height;
+        return this.correctNegativeSizes(coords, replacements);
+    },
+
+    /**
+     * Inverts the width and height and changes x and y when the width or height
+     * are negative because SVG can't handle negative width and height values.
+     * @param {RectangleCoords} coords The calculated position and size of a rectangle
+     * @param {RectangleCoords} replacements The values assigned when correction is needed
+     * @returns {RectangleCoords}
+     */
+    correctNegativeSizes(coords, replacements) {
+        if (coords.width < 0) {
+            coords.x = replacements.x;
+            coords.width = replacements.width;
+        }
+        if (coords.height < 0) {
+            coords.y = replacements.y;
+            coords.height = replacements.height;
+        }
+        return coords;
+    }
+};
+
+Object.assign(Rectangle.prototype, rectangularResizeFunctionality);
+Object.assign(Image.prototype, rectangularResizeFunctionality);
