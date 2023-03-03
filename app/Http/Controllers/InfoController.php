@@ -4,10 +4,7 @@ namespace tcCore\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
-use Laravel\Telescope\Http\Controllers\LogController;
-use Monolog\Logger;
 use tcCore\Deployment;
 use tcCore\Http\Requests\CreateDeploymentRequest;
 use tcCore\Http\Requests\CreateInfoRequest;
@@ -23,6 +20,7 @@ use tcCore\Info;
 use tcCore\Scopes\InfoBaseType;
 use tcCore\UserInfosDontShow;
 use DOMDocument;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use tcCore\UserSystemSetting;
@@ -116,20 +114,21 @@ class InfoController extends Controller
 
     public function seenNewFeatures(request $request){
         $data = json_decode($request->get('data'));
-        Log::info('this should be an array',(array)$data);
 
-        if(!auth()->user()->isA('student')) {
-            $infos= [];
-            foreach ($data as $infoNewFeature){
-                array_push($infos,Info::whereUuid($infoNewFeature)->first()->getKey());
-                Log::info('this should be a model in a array',(array)Info::whereUuid($infoNewFeature)->first()->getKey());
-            }
-            $title= 'newFeaturesSeen';
-            UserSystemSetting::setSetting(Auth::user(),$title,json_encode($infos));
-            return Response::make(true,200);
+        if(auth()->user()->isA('student')) {
+            return Response::make(false, 500);
         }
 
-        return Response::make(false, 500);
+        $infos= [];
+
+        foreach ($data as $infoNewFeature){
+            array_push($infos,Info::whereUuid($infoNewFeature)->first()->getKey());
+        }
+
+        $user = Auth::user();
+
+        UserSystemSetting::setSetting($user,'newFeaturesSeen',json_encode($infos));
+        return Response::make(UserSystemSetting::getAll($user),200);
 
     }
 

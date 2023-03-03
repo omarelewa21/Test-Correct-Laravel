@@ -465,24 +465,6 @@ class UsersController extends Controller
 
     }
 
-    public function storeSystemSettings(Request $request)
-    {
-        $data = $request->all();
-
-
-        $user = (new UserHelper())->createUserFromData($data);
-        if ($user->isA('teacher')) {
-            $user->account_verified = Carbon::now();
-            $user->save();
-        }
-
-        if ($user !== false) {
-            return Response::make($user, 200);
-        } else {
-            return Response::make('Failed to create user', 500);
-        }
-    }
-
     public function isAccountVerified(Request $request)
     {
         $user = User::where('id', $request->user_id)->first();
@@ -660,20 +642,22 @@ class UsersController extends Controller
 
     public function setUserSettingFromCake(Request $request)
     {
-        if(!$request->has('setting')){
-            return 'doesn\'t contain setting';
+        $user =Auth::user();
+
+        if (! $user){
+            return Response::make(__('exception.user-not-found'), 500);
         }
 
-        if(!is_array($request->get('setting'))){
-            return 'not array';
+        if(!$request->has('setting')){
+            return Response::make(__('exception.not-contain-setting'), 500);
         }
 
         if(!$request->has('setting.title')||!$request->has('setting.value')){
-            return 'setting doesn\'t contain title, value or both';
+            return Response::make(__('exception.incorrect-array'), 500);
         }
 
-        UserSystemSetting::setSetting(Auth::user(),$request['setting']['title'], $request['setting']['value']);
+        UserSystemSetting::setSetting($user,$request['setting']['title'], $request['setting']['value']);
 
-        return UserSystemSetting::getAll(Auth::user());
+        return Response::make(UserSystemSetting::getAll($user), 200);
     }
 }
