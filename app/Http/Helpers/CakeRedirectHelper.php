@@ -112,7 +112,7 @@ class CakeRedirectHelper
                 'page_action' => "Popup.load('/test_takes/add',1000)",
             ],
             'planned.surveillance'        => '/test_takes/surveillance',
-            'planned.assessment_open'     => '/test_takes/assessment_open_teacher',
+            'planned.assignment_open'     => '/test_takes/assignment_open_teacher',
             'taken.test_taken'            => '/test_takes/taken_teacher',
             'taken.normalize_test'        => '/test_takes/to_rate',
             'taken.schedule_makeup'       => sprintf('/test_takes/add_retake/%s', $this->uuid),

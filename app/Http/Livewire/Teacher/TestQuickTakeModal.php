@@ -74,7 +74,7 @@ class TestQuickTakeModal extends ModalComponent
         $this->testTake = new TestTake();
         /* The only editable settings */
         $this->testTake->weight = 5;
-        $this->testTake->allow_inbrowser_testing = $this->isAssessmentType();
+        $this->testTake->allow_inbrowser_testing = $this->isAssignmentType();
         $this->testTake->guest_accounts = false;
         $this->testTake->notify_students = false;
         $this->rttiExportAllowed = $this->isRttiExportAllowed();

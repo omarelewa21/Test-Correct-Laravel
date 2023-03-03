@@ -541,14 +541,14 @@ class TestTake extends BaseModel
 
         foreach ($filters as $key => $value) {
             switch ($key) {
-                case 'type_not_assessment':
-                    $query->typeNotAssessment();
+                case 'type_not_assignment':
+                    $query->TypeNotAssignment();
                     break;
                 case 'takeUuid':
                     $query->where('test_takes.id', self::whereUuid($value)->value('id'));
                     break;
-                case 'type_assessment':
-                    $query->typeAssessment();
+                case 'type_assignment':
+                    $query->typeAssignment();
                     break;
                 case 'user_id':
                     if (is_array($value)) {
@@ -1054,24 +1054,24 @@ class TestTake extends BaseModel
         return false;
     }
 
-    public function scopeTypeAssessment(Builder $query)
+    public function scopeTypeAssignment(Builder $query)
     {
         return $query->when(
             !self::isJoined($query, 'tests'),
             function($query) {
                 $query->join('tests', 'test_takes.test_id', 'tests.id');
             }
-        )->where('tests.test_kind_id', TestKind::ASSESSMENT_TYPE);
+        )->where('tests.test_kind_id', TestKind::ASSIGNMENT_TYPE);
     }
 
-    public function scopeTypeNotAssessment(Builder $query)
+    public function scopeTypeNotAssignment(Builder $query)
     {
         return $query->when(
             !self::isJoined($query, 'tests'),
             function($query) {
                 $query->join('tests', 'test_takes.test_id', 'tests.id');
             }
-        )->where('test_kind_id', '<>', TestKind::ASSESSMENT_TYPE);
+        )->where('test_kind_id', '<>', TestKind::ASSIGNMENT_TYPE);
     }
 
     public function scopeStatusPlanned(Builder $query)
@@ -1241,9 +1241,9 @@ class TestTake extends BaseModel
         return optional(User::select(['id', 'name', 'name_suffix', 'name_first'])->whereId($this->scheduled_by)->first())->name_full;
     }
 
-    public function isAssessmentType()
+    public function isAssignmentType()
     {
-        return $this->test->test_kind_id == TestKind::ASSESSMENT_TYPE;
+        return $this->test->test_kind_id == TestKind::ASSIGNMENT_TYPE;
     }
 
     public function isTakeOwner(User $user): bool

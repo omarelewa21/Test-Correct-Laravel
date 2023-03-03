@@ -8,12 +8,12 @@
 {{ __("test_planned.Jouw docent heeft zojuist een toetsafname gepland") }}. {{ __("test_planned.Op") }} {{ DateTime::createFromFormat('Y-m-d H:i:s', $testParticipant->testTake->time_start)->format('d-m-Y') }}  {{__('test_planned.wordt de toets')}}  "{{ $testParticipant->testTake->test->name }}" {{ __('test_planned.van het vak') }} {{ $testParticipant->testTake->test->subject->name }} {{ __("test_planned.afgenomen") }}.<br/>
 <br/>
 
-{{ $is_assessment ? __("test_planned.assignment_text_access_link") : __("test_planned.text_access_link") }}
+{{ $is_assignment ? __("test_planned.assignment_text_access_link") : __("test_planned.text_access_link") }}
 <a href="{{$directlink}}">
     <strong>{{__("test_planned.this_link")}}</strong>
 </a>
 @if ($takeCode)
-    {{$is_assessment ? __('test_planned.assignment_take_code') : __('test_planned.test_take_code')}}: <strong>{{$takeCode}}</strong>
+    {{$is_assignment ? __('test_planned.assignment_take_code') : __('test_planned.test_take_code')}}: <strong>{{$takeCode}}</strong>
 @endif
 <br/>
 <br/>

@@ -50,11 +50,11 @@ class TestTakesTest extends TestCase
     }
 
     /** @test */
-    public function it_should_return_all_test_takes_with_type_assessment()
+    public function it_should_return_all_test_takes_with_type_assignment()
     {
         $this->assertCount(0, TestTake::typeAssignment()->get());
 
-        $test = $this->getTest(['test_kind_id' => TestKind::ASSESSMENT_TYPE]);
+        $test = $this->getTest(['test_kind_id' => TestKind::ASSIGNMENT_TYPE]);
 
         FactoryTestTake::create($test, ScenarioLoader::get('teacher1'));
 
@@ -64,7 +64,7 @@ class TestTakesTest extends TestCase
         $this->assertCount(1, $list);
 
         $list->each(function ($testTake) {
-            $this->assertEquals(TestKind::ASSESSMENT_TYPE, $testTake->test->test_kind_id);
+            $this->assertEquals(TestKind::ASSIGNMENT_TYPE, $testTake->test->test_kind_id);
         });
     }
 

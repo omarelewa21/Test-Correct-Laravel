@@ -104,6 +104,7 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/co-learning/{test_take}', \tcCore\Http\Livewire\Teacher\CoLearning::class)->name('co-learning');
 
+
     });
 
     Route::middleware(['dll', 'student'])->prefix('appapi')->name('appapi')->group(function () {

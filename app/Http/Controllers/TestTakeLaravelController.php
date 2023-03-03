@@ -205,10 +205,10 @@ class TestTakeLaravelController extends Controller
         $notification=null;
         $url=null;
 
-        if($testTake->isAssessmentType()){
+        if($testTake->isAssignmentType()){
             // is assignment
             if($testTake->testTakeStatus->name == 'Taking test' || $testTake->testTakeStatus->name == 'Planned'){
-                $url = sprintf("test_takes/assessment_open_teacher/%s", $testTake->uuid);
+                $url = sprintf("test_takes/assignment_open_teacher/%s", $testTake->uuid);
             }else{
                 $url = sprintf("test_takes/view/%s", $testTake->uuid);
             }
@@ -226,10 +226,10 @@ class TestTakeLaravelController extends Controller
         $notification=null;
         $url=null;
 
-        if($testTake->isAssessmentType()){
+        if($testTake->isAssignmentType()){
             // is assignment
             if($testTake->testTakeStatus->name == 'Taking test' || $testTake->testTakeStatus->name == 'Planned'){
-                $url = sprintf("test_takes/assessment_open_teacher/%s", $testTake->uuid);
+                $url = sprintf("test_takes/assignment_open_teacher/%s", $testTake->uuid);
             }else{
                 $notification = __('teacher.take_not_accessible_toast_for_invigilator', ['testName' => $testTake->test->name]);
             }
