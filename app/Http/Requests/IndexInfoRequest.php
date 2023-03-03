@@ -13,11 +13,15 @@ class IndexInfoRequest extends Request
 //        if(!Auth::user()){
 //            return false;
 //        }
+        if(request('mode') === 'feature') {
+            return Auth::user()->isA('Teacher');
+        }
+
         if(request('mode','dashboard') === 'dashboard'){
             return true;
-        } else {
-            return Auth::user()->isA('Account manager');
         }
+
+        return Auth::user()->isA('Account manager');
 
     }
 

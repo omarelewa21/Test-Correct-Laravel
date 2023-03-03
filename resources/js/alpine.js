@@ -256,11 +256,13 @@ document.addEventListener('alpine:init', () => {
             this.hasError.false = [];
         }
     }));
-    Alpine.data('badge', (videoUrl = null) => ({
+    Alpine.data('badge', (videoUrl = null, mode = 'edit') => ({
         options: false,
+        videoUrl: videoUrl,
         videoTitle: videoUrl,
         resolvingTitle: true,
         index: 1,
+        mode: mode,
         async init() {
             this.setIndex();
 
@@ -277,14 +279,16 @@ document.addEventListener('alpine:init', () => {
                 const fetchedTitle = await getTitleForVideoUrl(videoUrl);
                 this.videoTitle = fetchedTitle || videoUrl;
                 this.resolvingTitle = false;
-                this.$wire.setVideoTitle(videoUrl, this.videoTitle);
+                if(mode === 'edit') {
+                    this.$wire.setVideoTitle(videoUrl, this.videoTitle);
+                }
             }
         },
         setIndex() {
             const parent = this.$root.parentElement;
             if (parent === null) return;
             this.index = Array.prototype.indexOf.call(parent.children, this.$el) + 1;
-        }
+        },
     }));
 
     Alpine.data('drawingTool', (questionId, entanglements, isTeacher, isPreview = false) => ({
@@ -601,7 +605,7 @@ document.addEventListener('alpine:init', () => {
             this.multiple = multiple === 1;
             this.$nextTick(() => {
                 let choices = new Choices(
-                    this.$refs.select,
+                    this.$root.querySelector('select'),
                     this.getChoicesConfig()
                 );
 
@@ -1363,9 +1367,7 @@ document.addEventListener('alpine:init', () => {
         }
     ));
 
-
-    Alpine.data('sliderToggle', (model, sources) => (
-        {
+    Alpine.data('sliderToggle', (model, sources) => ({
             buttonPosition: '0px',
             buttonWidth: 'auto',
             value: model,
@@ -1392,11 +1394,13 @@ document.addEventListener('alpine:init', () => {
                 this.activateButton(target)
             },
             activateButton(target) {
-                this.resetButtons(target)
-                this.buttonPosition = target.offsetLeft + 'px';
-                this.buttonWidth = target.offsetWidth + 'px';
-                target.firstElementChild.classList.add('text-primary');
-                this.handle.classList.remove('hidden');
+                this.$nextTick(() => {
+                    this.resetButtons(target)
+                    this.buttonPosition = target.offsetLeft + 'px';
+                    this.buttonWidth = target.offsetWidth + 'px';
+                    target.firstElementChild.classList.add('text-primary');
+                    this.handle.classList.remove('hidden');
+                })
             },
             resetButtons(target) {
                 Array.from(target.parentElement.children).forEach(button => {

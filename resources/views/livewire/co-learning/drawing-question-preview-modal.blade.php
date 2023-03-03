@@ -1,24 +1,45 @@
-<div cms id="cms-preview" class="flex flex-1 flex-col bg-lightGrey h-full overflow-auto"
->
-    <div class="question-editor-preview-header flex w-full bg-white items-center pl-6 pr-3 py-4 fixed z-10">
-        <div class="bold flex items-center min-w-max space-x-2.5 text-lg">
-            <x-icon.preview/>
+<x-partials.modal.preview>
+    <div class="w-full h-full"
+         x-data="{
+         zoomOut: () => {
+                if(this.percentage <= 12.5) { return; }
+                if(this.percentage <= 25) {
+                    this.percentage = 12.5;
+                } else {
+                    this.percentage = this.percentage - 25;
+                }
+                drawingImg.style.width = this.percentage.toString() + '%';
+             },
+             zoomIn: () => {
+                 this.percentage = this.percentage + 25;
+                 drawingImg.style.width = this.percentage.toString() + '%';
+             }
+         }"
+         x-init="drawingImg = $refs.drawingAnswer;
+                 percentage = 100;
+                 drawingImg.style.width = percentage.toString() + '%';
+         ">
+        <div class="w-full h-full overflow-auto flex flex-col items-center align-center justify-center">
+            <img src="{{ $this->imgSrc }}" style="max-width: 300%"
+                 class="w-full bg-white" alt="Drawing answer"
+                 x-ref="drawingAnswer">
         </div>
-
-        <h3 class="line-clamp-1 break-all px-2.5">
-            {{__('co-learning.DrawingQuestion')}}
-        </h3>
-
-        <div class="flex ml-auto items-center space-x-2.5">
-
-            <x-button.close wire:click="$emit('closeModal')"/>
+        <div style="position: absolute;  bottom: 19px; right: 67px;"
+             @click="zoomIn()"
+        >
+            <x-button.icon-circle>
+                <x-icon.plus/>
+            </x-button.icon-circle>
+        </div>
+        <div style="position: absolute; bottom: 19px; right: 19px;"
+             @click="zoomOut()"
+        >
+            <x-button.icon-circle>
+                <x-icon.min/>
+            </x-button.icon-circle>
         </div>
     </div>
-    <div class="pt-[70px] w-full mx-auto h-full relative" wire:ignore.self>
-
-        <img src="{{ $this->imgSrc }}"
-             class="border border-blue-grey rounded-10 w-full bg-white" alt="Drawing answer">
-
-    </div>
-</div>
-
+    <x-slot name="icon">
+        <x-icon.image/>
+    </x-slot>
+</x-partials.modal.preview>

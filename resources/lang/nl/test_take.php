@@ -40,7 +40,7 @@ return [
     'next_question'                                => 'Volgende vraag',
     'turn_in'                                      => 'Inleveren',
     'speak'                                        => 'Lees voor',
-    'overview'                                     => 'Mijn antwoorden bekijken',
+    'overview'                                     => 'Toets bekijken',
     'answered'                                     => 'Beantwoord',
     'not_answered'                                 => 'Niet beantwoord',
     'partly_answered'                              => 'Deels beantwoord',

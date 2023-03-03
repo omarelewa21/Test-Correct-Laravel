@@ -222,6 +222,11 @@ class TestParticipant extends BaseModel
         return $this->belongsTo('tcCore\SchoolClass')->withTrashed();
     }
 
+    public function discussingAnswerRating()
+    {
+        return $this->belongsTo('tcCore\AnswerRating');
+    }
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
@@ -524,5 +529,19 @@ class TestParticipant extends BaseModel
                 ->whereIn('tests.id', TestQuestion::where('question_id', $question->getKey())->pluck('test_id'))
                 ->pluck('test_takes.id')
         )->where('user_id', $user->getKey());
+    }
+
+    /**
+     * This property is being set arbitrarily in a query in CoLearningHelper, it doesn't exist on TestParticipant by default
+     */
+    public function getActiveAttribute($value)
+    {
+        if(!$this->hasAttribute('active')){
+            throw new \Exception("The 'active' property doesn't exist on this model");
+        }
+        if(!isset($this->getAttributes()['active'])) {
+            return false;
+        }
+        return $this->getAttributes()['active'] ? true : false;
     }
 }

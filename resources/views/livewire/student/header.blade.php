@@ -34,6 +34,11 @@
         </div>
 
         <div class="flex ml-auto action-icons mr-4 relative">
+            @if(session()->has('support.id'))
+                <div class="action-icon menu-chat-icon" style="color: red" title="stop support" wire:click="laravelRedirect('{{route('support.return_as_support_user')}}')">
+                    <x-icon.stop-support/>
+                </div>
+            @endif
             <div class="flex space-x-1">
                 <button class="flex items-center justify-center order-1 p-1.5 rounded-full action-icon-button relative"
                         :class="{'active' : activeIcon === 'support'}"

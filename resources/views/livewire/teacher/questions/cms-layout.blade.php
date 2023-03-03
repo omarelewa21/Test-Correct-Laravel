@@ -140,7 +140,7 @@
                             {{ __('lang.language') }}
                         </label>
                         <x-input.select
-                                wire:model="question.lang"
+                                wire:model="lang"
                                 @change="changeEditorWscLanguage($event.target.value);"
                         >
                             <option value="nl_NL">{{ __('lang.nl_NL') }}</option>
