@@ -166,6 +166,8 @@ class svgElement {
         this.drag.previousCursorPosition = cursor;
     }
 
+    move() {}
+
     /**
      * Calculates difference between previous and current cursor position
      * @param {Cursor} currentPosition
@@ -224,153 +226,6 @@ export class Rectangle extends svgElement {
             height: -coords.height
         };
         return this.correctNegativeSizes(coords, replacements);
-    }
-
-    /**
-     * Event handler called at start of dragging
-     * @param {Event} evt
-     * @param {Cursor} cursor
-     */
-    onDragStart(evt, cursor) {
-        this.drag.previousCursorPosition = cursor;
-        this.drag.startingPosition = {x: this.props.x, y: this.props.y};
-    }
-
-    /**
-     * Calls this.updatePosition and this.updateSize with the new values.
-     * @param {RectangleCoords} coords
-     */
-    updateAttributes(coords) {
-        this.updatePosition(coords);
-        this.updateSize(coords);
-    }
-
-    /**
-     * Sets the x and y values to the old values plus
-     * the offset specified by distance.dx and distance.dy
-     * @param {{dx: number, dy: number}} distance
-     */
-    move(distance) {
-        this.setX(parseFloat(this.props.x) + distance.dx);
-        this.setY(parseFloat(this.props.y) + distance.dy);
-    }
-
-    /**
-     * Sets the specified position
-     * @param {{x: number, y: number}} position
-     */
-    updatePosition(position) {
-        this.setX(position.x);
-        this.setY(position.y);
-    }
-
-    /**
-     * Sets the specified size
-     * @param {{width: number, height: number}} size
-     */
-    updateSize(size) {
-        this.setWidth(size.width);
-        this.setHeight(size.height);
-    }
-
-    /**
-     * Sets the X attribute on the shape and in the props
-     * @param {number} value The value to be set.
-     */
-    setX(value) {
-        this.setXAttribute(value);
-        this.setXProperty(value);
-    }
-
-    /**
-     * Sets the X attribute on the shape.
-     * @param {number} value The value to be given to the attribute.
-     */
-    setXAttribute(value) {
-        this.setAttributeOnElementWithValidation("x", value);
-    }
-
-    /**
-     * Sets the X attribute in the props.
-     * @param {number} value The value to be given to the property.
-     */
-    setXProperty(value) {
-        this.props.x = value;
-    }
-
-    /**
-     * Sets the Y attribute on the shape and in the props
-     * @param {number} value The value to be set.
-     */
-    setY(value) {
-        this.setYAttribute(value);
-        this.setYProperty(value);
-    }
-
-    /**
-     * Sets the Y attribute on the shape.
-     * @param {number} value The value to be given to the attribute.
-     */
-    setYAttribute(value) {
-        this.setAttributeOnElementWithValidation("y", value);
-    }
-
-    /**
-     * Sets the Y attribute in the props.
-     * @param {number} value The value to be given to the property.
-     */
-    setYProperty(value) {
-        this.props.y = value;
-    }
-
-    /**
-     * Sets the Width attribute on the shape and in the props
-     * @param {number} value The value to be set.
-     */
-    setWidth(value) {
-        this.setWidthAttribute(value);
-        this.setWidthProperty(value);
-    }
-
-    /**
-     * Sets the Width attribute on the shape.
-     * @param {number} value The value to be given to the attribute.
-     */
-    setWidthAttribute(value) {
-        this.setAttributeOnElementWithValidation("width", value);
-    }
-
-    /**
-     * Sets the Width attribute in the props.
-     * @param {number} value The value to be given to the property.
-     */
-    setWidthProperty(value) {
-        this.props.width = value;
-    }
-
-    /**
-     * Sets the Height attribute on the shape and in the props
-     * @param {number} value The value to be set.
-     */
-    setHeight(value) {
-        this.setHeightAttribute(value);
-        this.setHeightProperty(value);
-    }
-
-    /**
-     * Sets the Height attribute on the shape.
-     * @param {number} value The value to be given to the attribute.
-     */
-    setHeightAttribute(value) {
-        this.setAttributeOnElementWithValidation("height", value);
-    }
-
-    /**
-     * Sets the Height attribute in the props.
-     * @param {number} value The value to be given to the property.
-     */
-    setHeightProperty(value) {
-        this.props.height = value;
     }
 }
 
@@ -673,141 +528,6 @@ export class Image extends svgElement {
     }
 
     /**
-     * Event handler called at start of dragging
-     * @param {Event} evt
-     * @param {Cursor} cursor
-     */
-    onDragStart(evt, cursor) {
-        this.drag.previousCursorPosition = cursor;
-        this.drag.startingPosition = {x: this.props.x, y: this.props.y};
-    }
-
-    updateAttributes(coords) {
-        this.updatePosition(coords);
-        this.updateSize(coords);
-    }
-
-    /**
-     * Sets the x and y values to the old values plus
-     * the offset specified by distance.dx and distance.dy
-     * @param {{dx: number, dy: number}} distance
-     */
-    move(distance) {
-        this.setX(parseFloat(this.props.x) + distance.dx);
-        this.setY(parseFloat(this.props.y) + distance.dy);
-    }
-
-    updatePosition(coords) {
-        this.setX(coords.x);
-        this.setY(coords.y);
-    }
-
-    updateSize(coords) {
-        this.setWidth(coords.width);
-        this.setHeight(coords.height);
-    }
-
-    /**
-     * Sets the X attribute on the shape and in the props
-     * @param {number} value The value to be set.
-     */
-    setX(value) {
-        this.setXAttribute(value);
-        this.setXProperty(value);
-    }
-
-    /**
-     * Sets the Y attribute on the shape and in the props
-     * @param {number} value The value to be set.
-     */
-    setY(value) {
-        this.setYAttribute(value);
-        this.setYProperty(value);
-    }
-
-    /**
-     * Sets the X attribute on the shape.
-     * @param {number} value The value to be given to the attribute.
-     */
-    setXAttribute(value) {
-        this.setAttributeOnElementWithValidation("x", value);
-    }
-
-    /**
-     * Sets the X attribute in the props.
-     * @param {number} value The value to be given to the property.
-     */
-    setXProperty(value) {
-        this.props.x = value;
-    }
-
-    /**
-     * Sets the Y attribute on the shape.
-     * @param {number} value The value to be given to the attribute.
-     */
-    setYAttribute(value) {
-        this.setAttributeOnElementWithValidation("y", value);
-    }
-
-    /**
-     * Sets the Y attribute in the props.
-     * @param {number} value The value to be given to the property.
-     */
-    setYProperty(value) {
-        this.props.y = value;
-    }
-
-    /**
-     * Sets the Width attribute on the shape and in the props
-     * @param value
-     */
-    setWidth(value) {
-        this.setWidthAttribute(value);
-        this.setWidthProperty(value);
-    }
-
-    /**
-     * Sets the Width attribute on the shape.
-     * @param {number} value The value to be given to the attribute.
-     */
-    setWidthAttribute(value) {
-        this.setAttributeOnElementWithValidation("width", value);
-    }
-
-    /**
-     * Sets the Width attribute in the props.
-     * @param {number} value The value to be given to the property.
-     */
-    setWidthProperty(value) {
-        this.props.width = value;
-    }
-
-    /**
-     * Sets the Height attribute on the shape and in the props.
-     * @param value
-     */
-    setHeight(value) {
-        this.setHeightAttribute(value);
-        this.setHeightProperty(value);
-    }
-
-    /**
-     * Sets the Height attribute on the shape.
-     * @param {number} value The value to be given to the attribute.
-     */
-    setHeightAttribute(value) {
-        this.setAttributeOnElementWithValidation("height", value);
-    }
-
-    /**
-     * Sets the Height attribute in the props.
-     * @param {number} value The value to be given to the property.
-     */
-    setHeightProperty(value) {
-        this.props.height = value;
-    }
-
-    /**
      * Sets the Href attribute on the shape and in the props
      * @param value
      */
@@ -916,7 +636,7 @@ export class Path extends svgElement {
 
     /**
      * Sets the D attribute in the props.
-     * @param {number} value The value to be given to the property.
+     * @param {string} value The value to be given to the property.
      */
     setDProperty(value) {
         this.props.d = value;
@@ -1041,7 +761,142 @@ export class Group extends svgElement {
     }
 }
 
-const rectangularResizeFunctionality = {
+const rectangularFunctionality = {
+
+    /**
+     * Event handler called at start of dragging
+     * @param {Event} evt
+     * @param {Cursor} cursor
+     */
+    onDragStart(evt, cursor) {
+        this.drag.previousCursorPosition = cursor;
+        this.drag.startingPosition = {x: this.props.x, y: this.props.y};
+    },
+
+    updateAttributes(coords) {
+        this.updatePosition(coords);
+        this.updateSize(coords);
+    },
+
+    /**
+     * Sets the x and y values to the old values plus
+     * the offset specified by distance.dx and distance.dy
+     * @param {{dx: number, dy: number}} distance
+     */
+    move(distance) {
+        this.setX(parseFloat(this.props.x) + distance.dx);
+        this.setY(parseFloat(this.props.y) + distance.dy);
+    },
+
+    updatePosition(coords) {
+        this.setX(coords.x);
+        this.setY(coords.y);
+    },
+
+    updateSize(coords) {
+        this.setWidth(coords.width);
+        this.setHeight(coords.height);
+    },
+
+    /**
+     * Sets the X attribute on the shape and in the props
+     * @param {number} value The value to be set.
+     */
+    setX(value) {
+        this.setXAttribute(value);
+        this.setXProperty(value);
+    },
+
+    /**
+     * Sets the X attribute on the shape.
+     * @param {number} value The value to be given to the attribute.
+     */
+    setXAttribute(value) {
+        this.setAttributeOnElementWithValidation("x", value);
+    },
+
+    /**
+     * Sets the X attribute in the props.
+     * @param {number} value The value to be given to the property.
+     */
+    setXProperty(value) {
+        this.props.x = value;
+    },
+
+    /**
+     * Sets the Y attribute on the shape and in the props
+     * @param {number} value The value to be set.
+     */
+    setY(value) {
+        this.setYAttribute(value);
+        this.setYProperty(value);
+    },
+
+    /**
+     * Sets the Y attribute on the shape.
+     * @param {number} value The value to be given to the attribute.
+     */
+    setYAttribute(value) {
+        this.setAttributeOnElementWithValidation("y", value);
+    },
+
+    /**
+     * Sets the Y attribute in the props.
+     * @param {number} value The value to be given to the property.
+     */
+    setYProperty(value) {
+        this.props.y = value;
+    },
+
+    /**
+     * Sets the Width attribute on the shape and in the props
+     * @param value
+     */
+    setWidth(value) {
+        this.setWidthAttribute(value);
+        this.setWidthProperty(value);
+    },
+
+    /**
+     * Sets the Width attribute on the shape.
+     * @param {number} value The value to be given to the attribute.
+     */
+    setWidthAttribute(value) {
+        this.setAttributeOnElementWithValidation("width", value);
+    },
+
+    /**
+     * Sets the Width attribute in the props.
+     * @param {number} value The value to be given to the property.
+     */
+    setWidthProperty(value) {
+        this.props.width = value;
+    },
+
+    /**
+     * Sets the Height attribute on the shape and in the props.
+     * @param value
+     */
+    setHeight(value) {
+        this.setHeightAttribute(value);
+        this.setHeightProperty(value);
+    },
+
+    /**
+     * Sets the Height attribute on the shape.
+     * @param {number} value The value to be given to the attribute.
+     */
+    setHeightAttribute(value) {
+        this.setAttributeOnElementWithValidation("height", value);
+    },
+
+    /**
+     * Sets the Height attribute in the props.
+     * @param {number} value The value to be given to the property.
+     */
+    setHeightProperty(value) {
+        this.props.height = value;
+    },
 
     /**
      * Event handler called at start of resizing
@@ -1094,7 +949,9 @@ const rectangularResizeFunctionality = {
         };
         const replacements = {
             x: cursor.x,
-            y: cursor.y
+            y: cursor.y,
+            width: 0,
+            height: 0,
         };
         switch (this.resize.selectedCorner) {
             case "side-se":
@@ -1147,5 +1004,5 @@ const rectangularResizeFunctionality = {
     }
 };
 
-Object.assign(Rectangle.prototype, rectangularResizeFunctionality);
-Object.assign(Image.prototype, rectangularResizeFunctionality);
+Object.assign(Rectangle.prototype, rectangularFunctionality);
+Object.assign(Image.prototype, rectangularFunctionality);
