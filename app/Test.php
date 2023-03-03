@@ -1193,9 +1193,7 @@ class Test extends BaseModel
 
     private function isFromAllowedTestPublisher($user): bool
     {
-        return ContentSourceHelper::allAllowedForUser($user)
-            ->map(fn($publisher) => 'published_' . $publisher)
-            ->contains($this->scope);
+        return ContentSourceHelper::scopeIsAllowedForUser($user, $this->scope);
     }
 
     public function scopeOwner($query, SchoolLocation $schoolLocation)

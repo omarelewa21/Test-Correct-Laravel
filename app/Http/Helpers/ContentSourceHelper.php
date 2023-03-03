@@ -3,29 +3,53 @@
 namespace tcCore\Http\Helpers;
 
 use Illuminate\Support\Facades\Auth;
+use tcCore\Services\ContentSource\CreathlonService;
+use tcCore\Services\ContentSource\NationalItemBankService;
+use tcCore\Services\ContentSource\OlympiadeService;
+use tcCore\Services\ContentSource\UmbrellaOrganizationService;
 use tcCore\Subject;
 use tcCore\Test;
 use tcCore\User;
 
 class ContentSourceHelper
 {
-    const PUBLISHABLE_ABBREVIATIONS = ['EXAM', 'LDT', 'PUBLS', 'SBON'];
-    const PUBLISHABLE_SCOPES = ['exam', 'ldt', 'published_creathlon', 'published_olympiade'];
+    const PUBLISHABLE_ABBREVIATIONS = [
+        'EXAM',
+        'LDT',
+        'PUBLS',
+        'SBON',
+    ];
+    const PUBLISHABLE_SCOPES = [
+        'exam',
+        'ldt',
+        'published_creathlon',
+        'published_olympiade',
+    ];
+
+    const AVAILABLE_SOURCES = [
+        'umbrella'  => UmbrellaOrganizationService::class,
+        'national'  => NationalItemBankService::class,
+        'creathlon' => CreathlonService::class,
+        'olympiade' => OlympiadeService::class,
+    ];
 
     public static function allAllowedForUser(User $user)
     {
-        return collect([
-            'personal',
-            'school_location'
-        ])->when(self::canViewContent($user, 'umbrella'),
-            fn($collection) => $collection->push('umbrella')
-        )->when(self::canViewContent($user, 'national'),
-            fn($collection) => $collection->push('national')
-        )->when(self::canViewContent($user, 'creathlon'),
-            fn($collection) => $collection->push('creathlon')
-        )->when(self::canViewContent($user, 'olympiade'),
-            fn($collection) => $collection->push('olympiade')
-        );
+        return collect(self::AVAILABLE_SOURCES)
+            ->filter(function ($source) use ($user) {
+                return $source::isAvailableForUser($user);
+            });
+    }
+
+    public static function scopeIsAllowedForUser(User $user, string|null $scope): bool
+    {
+        if(static::scopeHasNotBeenSet($scope)) {
+            return true;
+        }
+
+        return ContentSourceHelper::allAllowedForUser($user)
+            ->map(fn($item, $publisher) => 'published_' . $publisher)
+            ->contains($scope);
     }
 
     public static function canViewContent(User $user, string $contentSourceName): bool
@@ -35,42 +59,22 @@ class ContentSourceHelper
             case 'school_location':
                 return true;
             case 'umbrella':
-                return $user->hasSharedSections() && !$user->isValidExamCoordinator();
+                return UmbrellaOrganizationService::isAvailableForUser($user);
             case 'ldt':
             case 'tbni':
-                $contentSourceName = 'national';
             case 'national':
-                return $user->schoolLocation->show_national_item_bank;
+                return NationalItemBankService::isAvailableForUser($user);
             case 'creathlon':
-                return $user->schoolLocation->allow_creathlon &&
-                    self::testsAvailable($user, 'creathlon');
+                return CreathlonService::isAvailableForUser($user);
             case 'olympiade':
-                return $user->schoolLocation->allow_olympiade &&
-                    self::testsAvailable($user, 'olympiade');
+                return OlympiadeService::isAvailableForUser($user);
         }
 
         return false;
     }
 
-    public static function testsAvailable(User $user, string $contentSourceName)
+    protected static function scopeHasNotBeenSet(string|null $scope)
     {
-        if ($contentSourceName === 'umbrella') {
-            return Test::sharedSectionsFiltered()->exists();
-        }
-        if ($contentSourceName === 'exam') {
-            return Test::ExamFiltered()->exists();
-        }
-        if ($contentSourceName === 'cito') {
-            return Test::CitoFiltered()->exists();
-        }
-        if (in_array($contentSourceName, ['national', 'tbni'])) {
-            return Test::NationalItemBankFiltered()->exists();
-        }
-        if ($contentSourceName === 'creathlon') {
-            return Test::CreathlonItemBankFiltered()->exists();
-        }
-        if ($contentSourceName === 'olympiade') {
-            return Test::OlympiadeItemBankFiltered()->exists();
-        }
+        return $scope === '' || $scope === null;
     }
 }

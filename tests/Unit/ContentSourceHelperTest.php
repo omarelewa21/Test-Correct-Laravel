@@ -8,6 +8,10 @@ use tcCore\Factories\FactoryTest;
 use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\Http\Helpers\ContentSourceHelper;
 use tcCore\SchoolLocation;
+use tcCore\Services\ContentSource\CreathlonService;
+use tcCore\Services\ContentSource\NationalItemBankService;
+use tcCore\Services\ContentSource\OlympiadeService;
+use tcCore\Services\ContentSource\UmbrellaOrganizationService;
 use tcCore\Test;
 use tcCore\User;
 use Tests\TestCase;
@@ -15,6 +19,33 @@ use Tests\TestCase;
 class ContentSourceHelperTest extends TestCase
 {
     use DatabaseTransactions;
+
+    /**
+     * @test
+     * @dataProvider contentSourceDataset
+     */
+    public function contentSourceServiceTest(
+        $serviceClass,
+        $expectedTranslation,
+        $expectedHighlightEnabled,
+        $expectedContentSourceAvailable,
+        $expectedTabName,
+    )
+    {
+        //relies on auth user..
+        $user = $this->setupUserPermissions();
+
+        //assert translation
+        $this->assertEquals($expectedTranslation, $serviceClass::getTranslation());
+
+        //assert checking available for user
+        // allowed for user (schoolLocation) and available tests for the user
+        $this->assertEquals($expectedContentSourceAvailable, $serviceClass::isAvailableForUser($user));
+
+        $this->assertEquals($expectedHighlightEnabled, $serviceClass::highlightTab());
+
+        $this->assertEquals($expectedTabName, $serviceClass::getTabName());
+    }
 
     /**
      * @test
@@ -43,12 +74,10 @@ class ContentSourceHelperTest extends TestCase
         $this->actingAs($user);
 
         $this->assertEquals([
-            'personal',
-            'school_location',
-            'umbrella',
-            'national',
-            'creathlon',
-            'olympiade',
+            "umbrella"  => "tcCore\Services\ContentSource\UmbrellaOrganizationService",
+            "national"  => "tcCore\Services\ContentSource\NationalItemBankService",
+            "creathlon" => "tcCore\Services\ContentSource\CreathlonService",
+            "olympiade" => "tcCore\Services\ContentSource\OlympiadeService",
         ],
             ContentSourceHelper::allAllowedForUser($user)->toArray()
         );
@@ -76,26 +105,56 @@ class ContentSourceHelperTest extends TestCase
     }
 
     /**
-     * @test
-     * @dataProvider publisherNamesDataSet
+     * Data Providers
      */
-    public function canGetTestsAvailable($publisherName)
-    {
-        $user = $this->setupUserPermissions();
-
-        $this->assertTrue(ContentSourceHelper::testsAvailable($user, $publisherName));
-    }
-
     public function publisherNamesDataSet(): array
     {
         return [
-            'national'  => ['national'],
             'umbrella'  => ['umbrella'],
+            'national'  => ['national'],
             'creathlon' => ['creathlon'],
             'olympiade' => ['olympiade'],
         ];
     }
 
+    public function contentSourceDataset()
+    {
+        return [
+            'umbrella'  => [
+                'class'       => UmbrellaOrganizationService::class,
+                'translation' => 'Scholengemeenschap',
+                'highlight'   => false,
+                'available'   => true,
+                'tabName'     => 'umbrella',
+            ],
+            'national'  => [
+                'class'       => NationalItemBankService::class,
+                'translation' => 'Nationaal',
+                'highlight'   => true,
+                'available'   => true,
+                'tabName'     => 'national',
+            ],
+            'creathlon' => [
+                'class'       => CreathlonService::class,
+                'translation' => 'Creathlon',
+                'highlight'   => true,
+                'available'   => true,
+                'tabName'     => 'creathlon',
+            ],
+            'olympiade' => [
+                'class'       => OlympiadeService::class,
+                'translation' => 'Olympiade',
+                'highlight'   => true,
+                'available'   => true,
+                'tabName'     => 'olympiade',
+            ],
+        ];
+    }
+
+
+    /**
+     * Setup
+     */
     private function setupUserPermissions($allowEverything = true)
     {
         $user = User::find(1486);
@@ -144,4 +203,5 @@ class ContentSourceHelperTest extends TestCase
         FactoryTest::create()->setProperties(['subject_id' => $subjectId, 'scope' => 'published_creathlon']);
         FactoryTest::create()->setProperties(['subject_id' => $subjectId, 'scope' => 'published_olympiade']);
     }
+
 }

@@ -194,7 +194,7 @@ class QuestionBank extends Component
 
     public function updatedInGroup($value)
     {
-        collect($this->allowedTabs)->each(function ($tab) use ($value) {
+        collect($this->allowedTabs)->each(function ($item, $tab) use ($value) {
             $this->filters[$tab]['without_groups'] = $value;
         });
     }

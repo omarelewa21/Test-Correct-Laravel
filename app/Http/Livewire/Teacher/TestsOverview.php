@@ -315,7 +315,7 @@ class TestsOverview extends OverviewComponent
 
     protected function tabNeedsDefaultFilters($tab): bool
     {
-        return collect($this->schoolLocationInternalContentTabs)->contains($tab) && !Auth::user()->isValidExamCoordinator();
+        return collect($this->schoolLocationInternalContentTabs)->has($tab) && !Auth::user()->isValidExamCoordinator();
     }
 
     public function getMessageKey($resultsCount): string
