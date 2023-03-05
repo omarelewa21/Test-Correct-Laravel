@@ -1,6 +1,6 @@
 <header id="navigation-bar"
      class="navigation-bar"
-     x-data="navigationBar"
+     x-data="navigationBar({{ $user }})"
      x-ref="nav_bar"
 >
     <div id="logo" class="logo">

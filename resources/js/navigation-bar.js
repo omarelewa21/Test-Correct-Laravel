@@ -1,5 +1,5 @@
 document.addEventListener('alpine:init', () => {
-    Alpine.data('navigationBar', () => ({
+    Alpine.data('navigationBar', (user) => ({
         hideTimeout: null,
         bottom: null,
         userMenuTimeout: null,
@@ -9,16 +9,20 @@ document.addEventListener('alpine:init', () => {
         menuButtons: null,
         menuButtonsWithoutItems: null,
         activeMenuItem: null,
+        user,
+        teacher:null,
         init() {
             let navBar = this.$refs.nav_bar;
             this.bottom = this.$refs.menu_bottom;
             let tiles = this.$refs.tiles;
             let scrollLeft = this.$refs.menu_scroll_left;
             let scrollRight = this.$refs.menu_scroll_right;
+            this.teacher = this.user.roles[0];
 
             this.menuButtonsWithItems = this.bottom.querySelectorAll('.has-items');
             this.menuButtonsWithoutItems = this.bottom.querySelectorAll('div:not(.has-items)');
-            this.initializeHubspot();
+
+            if(this.teacher != undefined) this.initializeHubspot();
 
             if (window.HubSpotConversations) {
                 this.onConversationsAPIReady();
