@@ -1,6 +1,6 @@
 <x-partials.overview-question-container :number="$number" :question="$question" :answer="$answer">
 
-    <div class="w-full space-y-3" x-data=""
+    <div class="w-full space-y-3" x-data="completionQuestion()"
          x-init="$el.querySelectorAll('input')
                 .forEach(function(el){
                     if(el.value == '') {

@@ -7004,6 +7004,43 @@ document.addEventListener('alpine:init', function () {
       }
     };
   });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('completionQuestion', function () {
+    return {
+      minWidth: 120,
+      maxWidth: 1000,
+      setInputWidth: function setInputWidth(input) {
+        var _this30 = this;
+        var init = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+        var preview = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+        if (!init || preview) {
+          this.calculateInputWidth(input);
+          return;
+        }
+        this.$watch('showMe', function (value) {
+          if (!value) {
+            return;
+          }
+          _this30.$nextTick(function () {
+            _this30.calculateInputWidth(input);
+          });
+        });
+      },
+      calculateInputWidth: function calculateInputWidth(input) {
+        this.minWidth = 120;
+        this.maxWidth = input.closest('div.input-group').parentElement.offsetWidth;
+        this.span = input.parentElement.querySelector('.absolute');
+        this.span.innerText = input.value;
+        this.newWidth = this.span.offsetWidth + 27;
+        if (this.newWidth < this.minWidth) {
+          this.newWidth = this.minWidth;
+        }
+        if (this.newWidth > this.maxWidth) {
+          this.newWidth = this.maxWidth;
+        }
+        input.style.width = this.newWidth + 'px';
+      }
+    };
+  });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].directive('global', function (el, _ref2) {
     var expression = _ref2.expression;
     var f = new Function('_', '$data', '_.' + expression + ' = $data;return;');
