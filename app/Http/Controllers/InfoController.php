@@ -112,23 +112,35 @@ class InfoController extends Controller
 
     }
 
-    public function seenNewFeatures(request $request){
-        $data = json_decode($request->get('data'));
+    public function seenNewFeatures(){
 
-        if(auth()->user()->isA('student')) {
+        $user = Auth::user();
+        return Response::make(false, 500);
+        if(!auth()->user()->isA('Teacher')) {
             return Response::make(false, 500);
         }
 
-        $infos= [];
-
-        foreach ($data as $infoNewFeature){
-            array_push($infos,Info::whereUuid($infoNewFeature)->first()->getKey());
+        UserSystemSetting::setSetting($user,'newFeaturesSeen',true);
+        if (!UserSystemSetting::getSetting($user,'newFeaturesSeen')) {
+            return Response::make(false, 500);
         }
+        return Response::make(true,200);
+
+    }
+
+    public function closedNewFeatures(){
 
         $user = Auth::user();
 
-        UserSystemSetting::setSetting($user,'newFeaturesSeen',json_encode($infos));
-        return Response::make(UserSystemSetting::getAll($user),200);
+        if(!auth()->user()->isA('Teacher')) {
+            return Response::make(false, 500);
+        }
+
+        UserSystemSetting::setSetting($user,'newFeatureMessageClosed',true);
+        if (!UserSystemSetting::getSetting($user,'newFeatureMessageClosed')) {
+            return Response::make(false, 500);
+        }
+        return Response::make(true,200);
 
     }
 

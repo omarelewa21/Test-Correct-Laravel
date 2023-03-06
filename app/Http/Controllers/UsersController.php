@@ -638,26 +638,4 @@ class UsersController extends Controller
 
         return Response::make($toetsenbakkers, 200);
     }
-
-
-    public function setUserSettingFromCake(Request $request)
-    {
-        $user =Auth::user();
-
-        if (! $user){
-            return Response::make(__('exception.user-not-found'), 500);
-        }
-
-        if(!$request->has('setting')){
-            return Response::make(__('exception.not-contain-setting'), 500);
-        }
-
-        if(!$request->has('setting.title')||!$request->has('setting.value')){
-            return Response::make(__('exception.incorrect-array'), 500);
-        }
-
-        UserSystemSetting::setSetting($user,$request['setting']['title'], $request['setting']['value']);
-
-        return Response::make(UserSystemSetting::getAll($user), 200);
-    }
 }

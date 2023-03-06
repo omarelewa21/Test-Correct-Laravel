@@ -50,7 +50,8 @@ Route::get('check_for_deployment_maintenance',['uses' => 'DeploymentMaintenanceC
 Route::group(['middleware' => ['api', 'bindings']], function() {
     Route::get('info', [tcCore\Http\Controllers\InfoController::class, 'index']);
     Route::post('info/removeDashboardInfo/{info}', [tcCore\Http\Controllers\InfoController::class,'removeDashboardInfo']);
-    Route::post('info/seenNewFeatures', [tcCore\Http\Controllers\InfoController::class,'seenNewFeatures']);
+    Route::put('info/seenNewFeatures', [tcCore\Http\Controllers\InfoController::class,'seenNewFeatures']);
+    Route::put('info/closedNewFeaturesMessage', [tcCore\Http\Controllers\InfoController::class,'closedNewFeatures']);
 });
 
 Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bindings']], function(){
@@ -60,8 +61,6 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 
 
     Route::post('/temporary-login',[tcCore\Http\Controllers\TemporaryLoginController::class,'create'])->name('auth.temporary-login.create');
-
-    Route::post('/set-user-setting',[tcCore\Http\Controllers\UsersController::class,'setUserSettingFromCake'])->name('auth.setUserSetting');
 
     Route::get('info/{info}',[tcCore\Http\Controllers\InfoController::class,'show']);
     Route::post('info',[tcCore\Http\Controllers\InfoController::class,'store']);
