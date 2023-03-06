@@ -51,7 +51,7 @@ class ContentSourceHelperTest extends TestCase
      * @test
      * @dataProvider publisherNamesDataSet
      */
-    public function can_view_content($publisherName)
+    public function can_view_content_if_allowed_for_school_location_and_content_is_available($publisherName)
     {
         $user = $this->setupUserPermissions();
         \Auth::login($user);
@@ -88,7 +88,7 @@ class ContentSourceHelperTest extends TestCase
      * @test
      * @dataProvider publisherNamesDataSet
      */
-    public function cannot_view_content($publisherName)
+    public function cannot_view_content_if_not_allowed_for_school_location_or_user($publisherName)
     {
         $user = $this->setupUserPermissions(false);
         \Auth::login($user);
