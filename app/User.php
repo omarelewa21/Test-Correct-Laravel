@@ -2531,7 +2531,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     {
         if (
             $this->isA('teacher')
-            && !$this->schoolLocation->hasClientLicense()
+            && $this->schoolLocation->hasTrialLicense()
             && $this->hasNoActiveLicense()
             && $this->generalTermsLog()->count() == 0
         )
