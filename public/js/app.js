@@ -14415,7 +14415,7 @@ window.Livewire.directive('sortable-group', function (el, directive, component) 
 /***/ (() => {
 
 document.addEventListener('alpine:init', function () {
-  Alpine.data('navigationBar', function (user) {
+  Alpine.data('navigationBar', function (isTeacher) {
     return {
       hideTimeout: null,
       bottom: null,
@@ -14426,8 +14426,6 @@ document.addEventListener('alpine:init', function () {
       menuButtons: null,
       menuButtonsWithoutItems: null,
       activeMenuItem: null,
-      user: user,
-      teacher: null,
       init: function init() {
         var _this = this;
 
@@ -14436,10 +14434,9 @@ document.addEventListener('alpine:init', function () {
         var tiles = this.$refs.tiles;
         var scrollLeft = this.$refs.menu_scroll_left;
         var scrollRight = this.$refs.menu_scroll_right;
-        this.teacher = this.user.roles[0];
         this.menuButtonsWithItems = this.bottom.querySelectorAll('.has-items');
         this.menuButtonsWithoutItems = this.bottom.querySelectorAll('div:not(.has-items)');
-        if (this.teacher != undefined) this.initializeHubspot();
+        if (isTeacher) this.initializeHubspot();
 
         if (window.HubSpotConversations) {
           this.onConversationsAPIReady();
@@ -14450,7 +14447,7 @@ document.addEventListener('alpine:init', function () {
         if (hubspotLoaded == undefined) {
           var _hsq = window._hsq = window._hsq || [];
 
-          _hsq.push(["identify", "<?=AuthComponent::user('username')?>"]);
+          _hsq.push(["identify"]);
 
           _hsq.push(['trackPageView']);
 
