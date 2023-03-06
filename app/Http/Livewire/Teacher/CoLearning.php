@@ -17,16 +17,18 @@ use tcCore\Http\Enums\CoLearning\AbnormalitiesStatus;
 use tcCore\Http\Enums\CoLearning\RatingStatus;
 use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Http\Helpers\CoLearningHelper;
+use tcCore\Http\Interfaces\CollapsableHeader;
 use tcCore\TestTake;
 use tcCore\TestTakeStatus;
 
-class CoLearning extends Component
+class CoLearning extends Component implements CollapsableHeader
 {
     const DISCUSSION_TYPE_ALL = 'ALL';
     const DISCUSSION_TYPE_OPEN_ONLY = 'OPEN_ONLY';
 
     //start screen properties
     public ?bool $coLearningHasBeenStarted = null;
+    public bool $headerCollapsed = false;
     public bool $coLearningRestart = false;
 
     //TestTake properties
@@ -83,10 +85,11 @@ class CoLearning extends Component
 
         if ($this->testTakeHasNotYetBeenStartedBefore()) {
             $this->coLearningHasBeenStarted = false;
+            $this->headerCollapsed = false;
             return;
         }
 
-        $this->coLearningHasBeenStarted = true;
+        $this->headerCollapsed = true;
     }
 
     public function boot()
@@ -142,6 +145,7 @@ class CoLearning extends Component
 
         //finally set bool to true
         $this->coLearningHasBeenStarted = true;
+        $this->headerCollapsed = true;
         $this->getStaticNavigationData();
     }
 
@@ -641,4 +645,8 @@ class CoLearning extends Component
             ->delete();
     }
 
+    public function handleHeaderCollapse($args)
+    {
+        return $this->startCoLearningSession($args['discussionType'], $args['resetProgress'] ?? false);
+    }
 }

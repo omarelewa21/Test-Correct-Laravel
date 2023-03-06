@@ -51,5 +51,5 @@ return [
     'continue_later'                => 'Continue later',
     'close_colearning'              => 'Close CO-Learning session',
     'close_colearning_text'         => 'Do you want to close CO-Learning and continue with it later, or do you want to finish the CO-Learning session?',
-
+    'choose_method_subtitle'        => 'Choose your method',
 ];

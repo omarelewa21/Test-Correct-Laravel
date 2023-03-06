@@ -11,5 +11,5 @@
     <div>
         {{ $button }}
     </div>
-
+    {{ $additionalInfo ?? '' }}
 </div>
