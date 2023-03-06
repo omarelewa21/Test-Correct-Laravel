@@ -99,6 +99,7 @@ class CmsClassify extends CmsBase
             $this->instance->cmsPropertyBag['answerCount']--;
         }
         $this->createAnswerStruct();
+        $this->instance->dirty = true;
     }
 
     public function deleteSubItem($keyId)
@@ -117,6 +118,8 @@ class CmsClassify extends CmsBase
             $this->instance->cmsPropertyBag['answerSubCount'][$key]--;
         }
         $this->createAnswerStruct();
+
+        $this->instance->dirty = true;
     }
 
     public function addAnswerItem()
