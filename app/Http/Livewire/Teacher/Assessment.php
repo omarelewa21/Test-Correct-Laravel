@@ -21,4 +21,9 @@ class Assessment extends Component implements CollapsableHeader
         $this->headerCollapsed = true;
         return true;
     }
+
+    public function redirectBack()
+    {
+        // TODO: Implement redirectBack() method.
+    }
 }

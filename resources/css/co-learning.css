@@ -294,7 +294,9 @@
 }
 
 #co-learning-teacher-page #header #start-screen-content .grid .co-learning-panel #text-body,
-#assessment-page #header #start-screen-content .grid .co-learning-panel #text-body {
+#co-learning-teacher-page #header #start-screen-content .grid .co-learning-panel .panel-body,
+#assessment-page #header #start-screen-content .grid .co-learning-panel #text-body,
+#assessment-page #header #start-screen-content .grid .co-learning-panel .panel-body {
     height: 91px;
     display: flex;
     flex-direction: column;

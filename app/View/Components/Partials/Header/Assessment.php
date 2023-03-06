@@ -7,7 +7,7 @@ use Illuminate\Contracts\View\View;
 class Assessment extends HeaderComponent
 {
     public function __construct(
-
+        public string $testName
     )
     {
         parent::__construct();
