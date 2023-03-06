@@ -146,6 +146,8 @@ class CmsMultipleChoice extends CmsBase
             $this->instance->cmsPropertyBag['answerCount']--;
         }
         $this->createAnswerStruct();
+
+        $this->instance->dirty = true;
     }
 
     public function addAnswerItem()
