@@ -2,28 +2,69 @@
 
 namespace tcCore\Http\Livewire\Teacher;
 
+use Illuminate\Support\Collection;
 use Livewire\Component;
+use tcCore\Exceptions\AssessmentException;
 use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Http\Interfaces\CollapsableHeader;
 use tcCore\TestTake;
 
 class Assessment extends Component implements CollapsableHeader
 {
+    /*Template booleans*/
     public bool $headerCollapsed = false;
-    public bool $skipDiscrepancies = false;
+    public bool $skipCoLearningDiscrepancies = false;
     public bool $skippedCoLearning = false;
 
-    public string $testName;
-    public string $testTakeUuid;
-
+    /*Computed*/
     protected $queryString = ['referrer' => ['except' => '']];
     public string $referrer = '';
 
-    public function mount(TestTake $testTake)
+    /*Component properties*/
+    public string $testName;
+    public string $testTakeUuid;
+    public $questionsOrderList = [];
+    public int $assessingAnswerIndex = 1;
+
+    public $questionCount;
+    public $studentCount;
+    public $answers = [
+        's1' => [
+            '1' => 'a',
+            '2' => 'b',
+            '3' => 'c',
+        ],
+        's2' => [
+            '1' => 'a',
+            '2' => 'b',
+            '3' => 'c',
+        ],
+        's3' => [
+            '1' => 'a',
+            '2' => 'b',
+            '3' => 'c',
+        ],
+        's4' => [
+            '1' => 'a',
+            '2' => 'b',
+            '3' => 'c',
+        ],
+        's5' => [
+            '1' => 'a',
+            '2' => 'b',
+            '3' => 'c',
+        ],
+    ];
+
+    public function mount(TestTake $testTake): void
     {
         $this->testName = $testTake->test->name;
         $this->testTakeUuid = $testTake->uuid;
         $this->skippedCoLearning = !$testTake->skipped_discussion;
+
+        if ($this->headerCollapsed) {
+            $this->handleHeaderCollapse(['ALL', true]);
+        }
     }
 
     public function render()
@@ -32,18 +73,66 @@ class Assessment extends Component implements CollapsableHeader
             ->layout('layouts.assessment');
     }
 
-    public function handleHeaderCollapse($args)
+    /**
+     * @throws AssessmentException
+     */
+    public function handleHeaderCollapse($args): bool
     {
-        $this->headerCollapsed = true;
-        return true;
+        [$assessmentType, $reset] = $this->validateStartArguments($args);
+//        $this->questionsOrderList = collect(
+//            TestTake::whereUuid($this->testTakeUuid)
+//                ->first()
+//                ->test
+//                ->getQuestionOrderListWithDiscussionType()
+//        );
+
+        collect($this->answers)->each(function($student, $key) {
+            $q = count($this->answers[$key]);
+            if ($q > $this->questionCount) {
+                $this->questionCount = $q;
+            }
+        });
+        $this->studentCount = count($this->answers);
+
+
+        return $this->headerCollapsed = true;
     }
 
     public function redirectBack()
     {
-        if (blank($this->referrer) || $this->referrer === 'cake') {
+        if ($this->referrer === 'cake' || blank($this->referrer)) {
             return CakeRedirectHelper::redirectToCake('test_takes.view', $this->testTakeUuid);
         }
 
         return redirect()->route($this->referrer, 'norm');
+    }
+
+    /**
+     * @param $args
+     * @return array
+     * @throws AssessmentException
+     */
+    public function validateStartArguments($args): array
+    {
+        $allowedTypes = ['ALL', 'OPEN_ONLY'];
+
+        [$assessmentType, $reset] = $args;
+        if (!in_array($assessmentType, $allowedTypes, true)) {
+            throw new AssessmentException('Assessment type not allowed');
+        }
+        return $args;
+    }
+
+    public function loadAnswer($value, $property)
+    {
+        logger([$value, $property]);
+        return $value;
+    }
+
+    public function loadStudent($value, $property)
+    {
+        logger([$value, $property]);
+
+        return $value;
     }
 }

@@ -5448,16 +5448,16 @@ window.Alpine = alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"];
 alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].plugin(_ryangjchandler_alpine_clipboard__WEBPACK_IMPORTED_MODULE_3__["default"]);
 alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].plugin(_alpinejs_intersect__WEBPACK_IMPORTED_MODULE_2__["default"]);
 alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].plugin(_alpinejs_collapse__WEBPACK_IMPORTED_MODULE_4__["default"]);
-document.addEventListener('alpine:init', function () {
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('questionIndicator', function () {
+document.addEventListener("alpine:init", function () {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("questionIndicator", function () {
     return {
       showSlider: false,
       scrollStep: 100,
       totalScrollWidth: 0,
-      activeQuestion: window.Livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).entangle('q')
+      activeQuestion: window.Livewire.find(document.querySelector("[test-take-player]").getAttribute("wire:id")).entangle("q")
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('tagManager', function () {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("tagManager", function () {
     return {
       tags: [],
       remove: function remove(index) {
@@ -5466,27 +5466,27 @@ document.addEventListener('alpine:init', function () {
       add: function add(inputElement) {
         if (inputElement.value) {
           this.tags.push(inputElement.value);
-          inputElement.value = '';
+          inputElement.value = "";
         }
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('selectSearch', function (config) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("selectSearch", function (config) {
     var _config$emptyOptionsM, _config$placeholder;
     return {
       data: config.data,
-      emptyOptionsMessage: (_config$emptyOptionsM = config.emptyOptionsMessage) !== null && _config$emptyOptionsM !== void 0 ? _config$emptyOptionsM : 'No results match your search.',
+      emptyOptionsMessage: (_config$emptyOptionsM = config.emptyOptionsMessage) !== null && _config$emptyOptionsM !== void 0 ? _config$emptyOptionsM : "No results match your search.",
       focusedOptionIndex: null,
       name: config.name,
       open: false,
       options: {},
-      placeholder: (_config$placeholder = config.placeholder) !== null && _config$placeholder !== void 0 ? _config$placeholder : 'Select an option',
-      search: '',
+      placeholder: (_config$placeholder = config.placeholder) !== null && _config$placeholder !== void 0 ? _config$placeholder : "Select an option",
+      search: "",
       value: config.value,
       closeListbox: function closeListbox() {
         this.open = false;
         this.focusedOptionIndex = null;
-        this.search = '';
+        this.search = "";
       },
       focusNextOption: function focusNextOption() {
         if (this.focusedOptionIndex === null) return this.focusedOptionIndex = Object.keys(this.options).length - 1;
@@ -5508,7 +5508,7 @@ document.addEventListener('alpine:init', function () {
         var _this = this;
         this.options = this.data;
         if (!(this.value in this.options)) this.value = null;
-        this.$watch('search', function (value) {
+        this.$watch("search", function (value) {
           if (!_this.open || !value) return _this.options = _this.data;
           _this.options = Object.keys(_this.data).filter(function (key) {
             return _this.data[key].toLowerCase().includes(value.toLowerCase());
@@ -5542,7 +5542,7 @@ document.addEventListener('alpine:init', function () {
     };
   });
 
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('selectionOptions', function (entangle) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("selectionOptions", function (entangle) {
     return {
       showPopup: entangle.value,
       editorId: entangle.editorId,
@@ -5562,13 +5562,13 @@ document.addEventListener('alpine:init', function () {
       },
       initWithSelection: function initWithSelection() {
         var _this3 = this;
-        var text = window.editor.getSelectedHtml().$.textContent.trim().replace('[', '').replace(']', '');
+        var text = window.editor.getSelectedHtml().$.textContent.trim().replace("[", "").replace("]", "");
         var content = text;
-        if (text.contains('|')) {
+        if (text.contains("|")) {
           content = text.split("|");
         }
         var currentDataRows = this.data.elements.length;
-        this.data.elements[0].checked = 'true';
+        this.data.elements[0].checked = "true";
         if (!Array.isArray(content)) {
           this.data.elements[0].value = content;
           return;
@@ -5582,8 +5582,8 @@ document.addEventListener('alpine:init', function () {
         });
       },
       addRow: function addRow() {
-        var value = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
-        var checked = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'false';
+        var value = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "";
+        var checked = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "false";
         var component = {
           id: this.data.elements.length,
           checked: checked,
@@ -5603,9 +5603,9 @@ document.addEventListener('alpine:init', function () {
       toggleChecked: function toggleChecked(event, element) {
         var _this4 = this;
         this.$nextTick(function () {
-          if (element.checked == 'true') {
+          if (element.checked == "true") {
             _this4.data.elements = _this4.data.elements.map(function (item) {
-              item.checked = item.id == element.id ? 'true' : 'false';
+              item.checked = item.id == element.id ? "true" : "false";
               return item;
             });
           }
@@ -5614,28 +5614,28 @@ document.addEventListener('alpine:init', function () {
       insertDataInEditor: function insertDataInEditor() {
         var _this5 = this;
         var correct = this.data.elements.find(function (el) {
-          return el.value != '' && el.checked == 'true';
+          return el.value != "" && el.checked == "true";
         });
         var result = this.data.elements.filter(function (el) {
-          return el.value != '' && el.checked == 'false';
+          return el.value != "" && el.checked == "false";
         }).map(function (el) {
           return el.value;
         });
         result.unshift(correct.value);
-        result = '[' + result.join('|') + ']';
-        var lw = livewire.find(document.getElementById('cms').getAttribute('wire:id'));
-        lw.set('showSelectionOptionsModal', true);
+        result = "[" + result.join("|") + "]";
+        var lw = livewire.find(document.getElementById("cms").getAttribute("wire:id"));
+        lw.set("showSelectionOptionsModal", true);
         window.editor.insertText(result);
         setTimeout(function () {
-          _this5.$wire.setQuestionProperty('question', window.editor.getData());
+          _this5.$wire.setQuestionProperty("question", window.editor.getData());
         }, 300);
       },
       validateInput: function validateInput() {
         var emptyFields = this.data.elements.filter(function (element) {
-          return element.value === '';
+          return element.value === "";
         });
         var falseValues = this.data.elements.filter(function (element) {
-          return element.checked === 'false';
+          return element.checked === "false";
         });
         if (emptyFields.length !== 0 || this.data.elements.length === falseValues.length) {
           this.hasError.empty = emptyFields.map(function (item) {
@@ -5646,7 +5646,7 @@ document.addEventListener('alpine:init', function () {
               return item.id;
             });
           }
-          Notify.notify('Niet alle velden zijn (correct) ingevuld', 'error');
+          Notify.notify("Niet alle velden zijn (correct) ingevuld", "error");
           return false;
         }
         return true;
@@ -5663,7 +5663,7 @@ document.addEventListener('alpine:init', function () {
           return true;
         }
         return !!this.data.elements.find(function (element) {
-          return element.value === '';
+          return element.value === "";
         });
       },
       closePopup: function closePopup() {
@@ -5680,9 +5680,9 @@ document.addEventListener('alpine:init', function () {
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('badge', function () {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("badge", function () {
     var videoUrl = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-    var mode = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'edit';
+    var mode = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "edit";
     return {
       options: false,
       videoUrl: videoUrl,
@@ -5698,12 +5698,12 @@ document.addEventListener('alpine:init', function () {
             while (1) switch (_context.prev = _context.next) {
               case 0:
                 _this6.setIndex();
-                _this6.$watch('options', function (value) {
+                _this6.$watch("options", function (value) {
                   if (value) {
                     var pWidth = _this6.$refs.optionscontainer.parentElement.offsetWidth;
                     var pPos = _this6.$refs.optionscontainer.parentElement.getBoundingClientRect().left;
                     if (pWidth + pPos < 288) {
-                      _this6.$refs.optionscontainer.classList.remove('right-0');
+                      _this6.$refs.optionscontainer.classList.remove("right-0");
                     }
                   }
                 });
@@ -5717,7 +5717,7 @@ document.addEventListener('alpine:init', function () {
                 fetchedTitle = _context.sent;
                 _this6.videoTitle = fetchedTitle || videoUrl;
                 _this6.resolvingTitle = false;
-                if (mode === 'edit') {
+                if (mode === "edit") {
                   _this6.$wire.setVideoTitle(videoUrl, _this6.videoTitle);
                 }
               case 9:
@@ -5734,7 +5734,7 @@ document.addEventListener('alpine:init', function () {
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('drawingTool', function (questionId, entanglements, isTeacher) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("drawingTool", function (questionId, entanglements, isTeacher) {
     var isPreview = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
     return {
       show: false,
@@ -5759,15 +5759,15 @@ document.addEventListener('alpine:init', function () {
         if (this.isTeacher) {
           this.makeGridIfNecessary(toolName);
         }
-        this.$watch('show', function (show) {
+        this.$watch("show", function (show) {
           if (show) {
             toolName.Canvas.data.answer = _this7.answerSvg;
             toolName.Canvas.data.question = _this7.questionSvg;
             _this7.handleGrid(toolName);
             toolName.drawingApp.init();
           } else {
-            var component = getClosestLivewireComponentByAttribute(_this7.$root, 'questionComponent');
-            component.call('render');
+            var component = getClosestLivewireComponentByAttribute(_this7.$root, "questionComponent");
+            component.call("render");
           }
         });
         toolName.Canvas.layers.answer.enable();
@@ -5778,7 +5778,7 @@ document.addEventListener('alpine:init', function () {
         }
       },
       handleGrid: function handleGrid(toolName) {
-        if (this.gridSvg !== '0.00' && this.gridSvg !== '') {
+        if (this.gridSvg !== "0.00" && this.gridSvg !== "") {
           var parsedGrid = parseFloat(this.gridSvg);
           toolName.UI.gridSize.value = parsedGrid;
           toolName.UI.gridToggle.checked = true;
@@ -5791,9 +5791,9 @@ document.addEventListener('alpine:init', function () {
       },
       makeGridIfNecessary: function makeGridIfNecessary(toolName) {
         var gridSize = false;
-        if (this.gridSvg !== '' && this.gridSvg !== '0.00') {
+        if (this.gridSvg !== "" && this.gridSvg !== "0.00") {
           gridSize = this.gridSvg;
-        } else if (this.isOldDrawing == false && this.grid && this.grid !== '0') {
+        } else if (this.isOldDrawing == false && this.grid && this.grid !== "0") {
           gridSize = 1 / parseInt(this.grid) * 14; // This calculation is based on try and change to reach the closest formula that makes grid visualization same as old drawing
         }
 
@@ -5806,13 +5806,13 @@ document.addEventListener('alpine:init', function () {
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('questionEditorSidebar', function () {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("questionEditorSidebar", function () {
     return {
       slideWidth: 300,
       drawer: null,
       resizing: false,
       resizeTimout: null,
-      slides: ['home', 'type', 'newquestion', 'questionbank'],
+      slides: ["home", "type", "newquestion", "questionbank"],
       activeSlide: null,
       scrollTimeout: null,
       pollingInterval: 2500,
@@ -5820,7 +5820,7 @@ document.addEventListener('alpine:init', function () {
       init: function init() {
         var _this8 = this;
         this.slideWidth = this.$root.offsetWidth;
-        this.drawer = this.$root.closest('.drawer');
+        this.drawer = this.$root.closest(".drawer");
         this.setActiveSlideProperty(this.$root.scrollLeft);
         setTimeout(function () {
           _this8.handleVerticalScroll(_this8.$root.firstElementChild);
@@ -5841,9 +5841,9 @@ document.addEventListener('alpine:init', function () {
       home: function home() {
         var scrollActiveIntoView = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
         this.scroll(0, scrollActiveIntoView);
-        if (!this.$store.cms.emptyState) this.$dispatch('backdrop');
+        if (!this.$store.cms.emptyState) this.$dispatch("backdrop");
         this.handleVerticalScroll(this.$refs.home);
-        this.$dispatch('closed-with-backdrop', false);
+        this.$dispatch("closed-with-backdrop", false);
       },
       scroll: function scroll(position) {
         var scrollActiveIntoView = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
@@ -5854,21 +5854,21 @@ document.addEventListener('alpine:init', function () {
       },
       handleVerticalScroll: function handleVerticalScroll(el) {
         var _this9 = this;
-        if (el.getAttribute('x-ref') !== this.activeSlide) return;
+        if (el.getAttribute("x-ref") !== this.activeSlide) return;
         if (!this.$store.questionBank.active) {
-          this.$refs.questionEditorSidebar.style.minHeight = 'auto';
-          this.$refs.questionEditorSidebar.style.height = 'auto';
+          this.$refs.questionEditorSidebar.style.minHeight = "auto";
+          this.$refs.questionEditorSidebar.style.height = "auto";
         }
         if (el.offsetHeight > this.drawer.offsetHeight) {
-          this.drawer.classList.add('overflow-auto');
-          this.drawer.classList.remove('overflow-hidden');
+          this.drawer.classList.add("overflow-auto");
+          this.drawer.classList.remove("overflow-hidden");
         } else {
-          this.drawer.classList.add('overflow-hidden');
-          this.drawer.classList.remove('overflow-auto');
+          this.drawer.classList.add("overflow-hidden");
+          this.drawer.classList.remove("overflow-auto");
         }
         this.$nextTick(function () {
-          _this9.$refs.questionEditorSidebar.style.minHeight = _this9.drawer.offsetHeight + 'px';
-          _this9.$refs.questionEditorSidebar.style.height = el.offsetHeight + 'px';
+          _this9.$refs.questionEditorSidebar.style.minHeight = _this9.drawer.offsetHeight + "px";
+          _this9.$refs.questionEditorSidebar.style.height = el.offsetHeight + "px";
         });
       },
       setNextSlide: function setNextSlide(toInsert) {
@@ -5885,7 +5885,7 @@ document.addEventListener('alpine:init', function () {
         var _this11 = this;
         this.setNextSlide(this.$refs.questionbank);
         this.$nextTick(function () {
-          _this11.drawer.classList.add('fullscreen');
+          _this11.drawer.classList.add("fullscreen");
           var boundingRect = _this11.$refs.questionbank.getBoundingClientRect();
           _this11.scroll(boundingRect.x + boundingRect.width);
           _this11.$store.questionBank.active = true;
@@ -5893,27 +5893,27 @@ document.addEventListener('alpine:init', function () {
       },
       hideQuestionBank: function hideQuestionBank() {
         var _this12 = this;
-        this.$root.querySelectorAll('.slide-container').forEach(function (slide) {
-          slide.classList.add('opacity-0');
+        this.$root.querySelectorAll(".slide-container").forEach(function (slide) {
+          slide.classList.add("opacity-0");
         });
         this.$store.questionBank.active = false;
         if (this.$store.questionBank.inGroup) {
-          var drawerComponent = getClosestLivewireComponentByAttribute(this.$el, 'cms-drawer');
-          drawerComponent.set('groupId', null);
+          var drawerComponent = getClosestLivewireComponentByAttribute(this.$el, "cms-drawer");
+          drawerComponent.set("groupId", null);
           this.$store.questionBank.inGroup = false;
         }
         this.$nextTick(function () {
-          _this12.drawer.classList.remove('fullscreen');
+          _this12.drawer.classList.remove("fullscreen");
           _this12.home();
           // this.scroll(container.parentElement.firstElementChild.offsetWidth);
           setTimeout(function () {
-            _this12.$root.querySelectorAll('.slide-container').forEach(function (slide) {
-              slide.classList.remove('opacity-0');
+            _this12.$root.querySelectorAll(".slide-container").forEach(function (slide) {
+              slide.classList.remove("opacity-0");
             });
-            _this12.$wire.emitTo('drawer.cms', 'refreshDrawer');
-            _this12.$dispatch('resize');
+            _this12.$wire.emitTo("drawer.cms", "refreshDrawer");
+            _this12.$dispatch("resize");
           }, 400);
-          _this12.$wire.emitTo('drawer.cms', 'refreshDrawer');
+          _this12.$wire.emitTo("drawer.cms", "refreshDrawer");
         });
       },
       addQuestionToGroup: function addQuestionToGroup(uuid) {
@@ -5944,14 +5944,14 @@ document.addEventListener('alpine:init', function () {
                   _context2.next = 8;
                   break;
                 }
-                questionBankLivewireComponent = Livewire.find(_this13.drawer.querySelector('#question-bank').getAttribute('wire:id'));
+                questionBankLivewireComponent = Livewire.find(_this13.drawer.querySelector("#question-bank").getAttribute("wire:id"));
                 _context2.next = 7;
                 return questionBankLivewireComponent.clearInGroupProperty();
               case 7:
                 _this13.$store.questionBank.inGroup = false;
               case 8:
                 _this13.next(_this13.$refs.home);
-                _this13.$dispatch('backdrop');
+                _this13.$dispatch("backdrop");
               case 10:
               case "end":
                 return _context2.stop();
@@ -5967,9 +5967,9 @@ document.addEventListener('alpine:init', function () {
         var shouldCheckDirty = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
         var group = arguments.length > 1 ? arguments[1] : undefined;
         var newSubQuestion = arguments.length > 2 ? arguments[2] : undefined;
-        this.$dispatch('store-current-question');
+        this.$dispatch("store-current-question");
         if (shouldCheckDirty && this.$store.cms.dirty) {
-          this.$wire.emitTo('teacher.questions.open-short', 'addQuestionFromDirty', {
+          this.$wire.emitTo("teacher.questions.open-short", "addQuestionFromDirty", {
             group: group,
             newSubQuestion: newSubQuestion,
             groupUuid: this.$store.questionBank.inGroup
@@ -5995,18 +5995,18 @@ document.addEventListener('alpine:init', function () {
       },
       scrollActiveQuestionIntoView: function scrollActiveQuestionIntoView() {
         var _this15 = this;
-        if (this.activeSlide !== 'home') return;
+        if (this.activeSlide !== "home") return;
         clearTimeout(this.scrollTimeout);
         this.scrollTimeout = setTimeout(function () {
-          var activeQuestion = _this15.$refs.home.querySelector('.question-button.question-active');
-          activeQuestion || (activeQuestion = _this15.$refs.home.querySelector('.group-active'));
+          var activeQuestion = _this15.$refs.home.querySelector(".question-button.question-active");
+          activeQuestion || (activeQuestion = _this15.$refs.home.querySelector(".group-active"));
           if (activeQuestion === null) return clearTimeout(_this15.scrollTimeout);
           var top = activeQuestion.getBoundingClientRect().top;
           var screenWithBottomMargin = window.screen.height - 200;
           if (top >= screenWithBottomMargin) {
             _this15.drawer.scrollTo({
               top: top - screenWithBottomMargin / 2,
-              behavior: 'smooth'
+              behavior: "smooth"
             });
           }
           clearTimeout(_this15.scrollTimeout);
@@ -6019,7 +6019,7 @@ document.addEventListener('alpine:init', function () {
       poll: function poll(interval) {
         var _this16 = this;
         setTimeout(function () {
-          if (_this16.activeSlide !== 'questionbank') {
+          if (_this16.activeSlide !== "questionbank") {
             var el = _this16.$root.querySelector("[x-ref=\"".concat(_this16.activeSlide, "\"]"));
             if (el !== null) _this16.handleVerticalScroll(el);
           }
@@ -6027,21 +6027,21 @@ document.addEventListener('alpine:init', function () {
         }, interval);
       },
       getScrollToProperties: function getScrollToProperties(position) {
-        var safariAgent = navigator.userAgent.indexOf('Safari') > -1;
-        var chromeAgent = navigator.userAgent.indexOf('Chrome') > -1;
+        var safariAgent = navigator.userAgent.indexOf("Safari") > -1;
+        var chromeAgent = navigator.userAgent.indexOf("Chrome") > -1;
         if (chromeAgent && safariAgent) safariAgent = false;
         var scrollToSettings = {
           left: position >= 0 ? position : 0
         };
         /* RR: Smooth scrolling breaks entirely on Safari 15.4 so I only add it in non-safari browsers just so it doesn't break anything..*/
         if (!safariAgent) {
-          scrollToSettings.behavior = 'smooth';
+          scrollToSettings.behavior = "smooth";
         }
         return scrollToSettings;
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('choices', function (wireModel, multiple, options, config, filterContainer) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("choices", function (wireModel, multiple, options, config, filterContainer) {
     return {
       multiple: multiple,
       value: wireModel,
@@ -6060,10 +6060,10 @@ document.addEventListener('alpine:init', function () {
         this.activeFiltersContainer = document.getElementById(filterContainer);
         this.multiple = multiple === 1;
         this.$nextTick(function () {
-          var choices = new (choices_js__WEBPACK_IMPORTED_MODULE_1___default())(_this17.$root.querySelector('select'), _this17.getChoicesConfig());
+          var choices = new (choices_js__WEBPACK_IMPORTED_MODULE_1___default())(_this17.$root.querySelector("select"), _this17.getChoicesConfig());
           var refreshChoices = function refreshChoices() {
             var selection = _this17.multiple ? _this17.value : [_this17.value];
-            var options = _typeof(_this17.options) === 'object' ? Object.values(_this17.options) : _this17.options;
+            var options = _typeof(_this17.options) === "object" ? Object.values(_this17.options) : _this17.options;
             _this17.setActiveGroupsOnInit();
             choices.clearStore();
             _this17.addPlaceholderValues(choices);
@@ -6082,7 +6082,7 @@ document.addEventListener('alpine:init', function () {
             _this17.handleActiveFilters(choices.getValue());
           };
           refreshChoices();
-          _this17.$refs.select.addEventListener('choice', function (event) {
+          _this17.$refs.select.addEventListener("choice", function (event) {
             var eventValue = _this17.getValidatedEventValue(event);
             var choice = event.detail.choice;
             if (!Array.isArray(_this17.value)) {
@@ -6110,7 +6110,7 @@ document.addEventListener('alpine:init', function () {
               return this.value.includes(eventValue) && (this.isAChildChoice(choice) || this.isARegularChoice(choice));
             }
           });
-          _this17.$refs.select.addEventListener('change', function () {
+          _this17.$refs.select.addEventListener("change", function () {
             if (!Array.isArray(_this17.value)) return;
             _this17.value = choices.getValue(true);
           });
@@ -6130,19 +6130,19 @@ document.addEventListener('alpine:init', function () {
               refreshChoices();
             });
           }
-          _this17.$watch('value', function () {
+          _this17.$watch("value", function () {
             return refreshChoices();
           });
-          _this17.$watch('options', function () {
+          _this17.$watch("options", function () {
             return refreshChoices();
           });
-          _this17.$refs.select.addEventListener('showDropdown', function () {
-            if (_this17.$root.querySelector('.is-active') && _this17.$root.classList.contains('super')) {
-              _this17.$refs.chevron.style.left = _this17.$root.querySelector('.is-active').offsetWidth - 25 + 'px';
+          _this17.$refs.select.addEventListener("showDropdown", function () {
+            if (_this17.$root.querySelector(".is-active") && _this17.$root.classList.contains("super")) {
+              _this17.$refs.chevron.style.left = _this17.$root.querySelector(".is-active").offsetWidth - 25 + "px";
             }
           });
-          _this17.$refs.select.addEventListener('hideDropdown', function () {
-            _this17.$refs.chevron.style.left = 'auto';
+          _this17.$refs.select.addEventListener("hideDropdown", function () {
+            _this17.$refs.chevron.style.left = "auto";
           });
         });
       },
@@ -6237,7 +6237,7 @@ document.addEventListener('alpine:init', function () {
             var cItem = choicesValues.find(function (value) {
               return value.value === item;
             });
-            if (typeof cItem !== 'undefined') {
+            if (typeof cItem !== "undefined") {
               _this20.createFilterPill(cItem);
             }
           }
@@ -6254,9 +6254,9 @@ document.addEventListener('alpine:init', function () {
         return innerHtml;
       },
       createFilterPill: function createFilterPill(item) {
-        var element = document.getElementById('filter-pill-template').content.firstElementChild.cloneNode(true);
+        var element = document.getElementById("filter-pill-template").content.firstElementChild.cloneNode(true);
         element.id = "filter-".concat(this.$root.dataset.modelName, "-").concat(item.value);
-        element.classList.add('filter-pill');
+        element.classList.add("filter-pill");
         element.dataset.filter = this.$root.dataset.modelName;
         element.dataset.filterValue = item.value;
         element.dataset.removeEventName = this.getRemoveEventName();
@@ -6284,9 +6284,9 @@ document.addEventListener('alpine:init', function () {
             return {
               choice: function choice(classes, attr) {
                 var _attr$customPropertie;
-                var el = choices_js__WEBPACK_IMPORTED_MODULE_1___default().defaults.templates.choice.call(this, classes, attr, '');
+                var el = choices_js__WEBPACK_IMPORTED_MODULE_1___default().defaults.templates.choice.call(this, classes, attr, "");
                 if (((_attr$customPropertie = attr.customProperties) === null || _attr$customPropertie === void 0 ? void 0 : _attr$customPropertie.parent) === false) {
-                  el.classList.add('child');
+                  el.classList.add("child");
                 }
                 return el;
               }
@@ -6296,24 +6296,24 @@ document.addEventListener('alpine:init', function () {
       },
       addPlaceholderValues: function addPlaceholderValues(choices) {
         var _this$$root$querySele;
-        if (!this.config.placeholderValue.length || !this.$root.classList.contains('super')) {
+        if (!this.config.placeholderValue.length || !this.$root.classList.contains("super")) {
           return;
         }
-        var placeholderItem = choices._getTemplate('placeholder', this.config.placeholderValue);
-        placeholderItem.classList.add('truncate', 'min-w-[1rem]', 'placeholder');
-        (_this$$root$querySele = this.$root.querySelector('.choices__placeholder.placeholder')) === null || _this$$root$querySele === void 0 ? void 0 : _this$$root$querySele.remove();
+        var placeholderItem = choices._getTemplate("placeholder", this.config.placeholderValue);
+        placeholderItem.classList.add("truncate", "min-w-[1rem]", "placeholder");
+        (_this$$root$querySele = this.$root.querySelector(".choices__placeholder.placeholder")) === null || _this$$root$querySele === void 0 ? void 0 : _this$$root$querySele.remove();
         choices.itemList.append(placeholderItem);
       },
       getRemoveEventName: function getRemoveEventName() {
-        return 'removeFrom' + this.$root.getAttribute('wire:key');
+        return "removeFrom" + this.$root.getAttribute("wire:key");
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('analysesSubjectsGraph', function (modelId) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("analysesSubjectsGraph", function (modelId) {
     return {
       modelId: modelId,
       data: [],
-      colors: ['#30BC51', '#5043F6', '#ECEE7D', '#6820CE', '#CB110E', '#F79D25', '#1B6112', '#43ACF5', '#E12576', '#24D2C5'],
+      colors: ["#30BC51", "#5043F6", "#ECEE7D", "#6820CE", "#CB110E", "#F79D25", "#1B6112", "#43ACF5", "#E12576", "#24D2C5"],
       showEmptyState: false,
       init: function init() {
         this.updateGraph();
@@ -6326,7 +6326,7 @@ document.addEventListener('alpine:init', function () {
             while (1) switch (_context3.prev = _context3.next) {
               case 0:
                 _context3.next = 2;
-                return _this21.$wire.call('getDataForGraph');
+                return _this21.$wire.call("getDataForGraph");
               case 2:
                 _yield$_this21$$wire$ = _context3.sent;
                 _yield$_this21$$wire$2 = _slicedToArray(_yield$_this21$$wire$, 2);
@@ -6341,7 +6341,7 @@ document.addEventListener('alpine:init', function () {
         }))();
       },
       renderGraph: function renderGraph() {
-        var cssSelector = '#pValueChart>div:not(.empty-state)';
+        var cssSelector = "#pValueChart>div:not(.empty-state)";
         this.$root.querySelectorAll(cssSelector).forEach(function (node) {
           return node.remove();
         });
@@ -6354,10 +6354,10 @@ document.addEventListener('alpine:init', function () {
         yScale.maximum(1.00);
         yScale.ticks().interval(0.25);
         chart.yAxis(0).labels().format(function () {
-          return this.value == 0 ? 'P 0' : 'P ' + this.value.toFixed(2);
+          return this.value == 0 ? "P 0" : "P " + this.value.toFixed(2);
         });
         chart.yGrid().enabled(true);
-        chart.xAxis(0).labels().fontWeight("bold").fontColor('#041f74').rotation(-60);
+        chart.xAxis(0).labels().fontWeight("bold").fontColor("#041f74").rotation(-60);
         for (var i = 0; series.getPoint(i).exists(); i++) series.getPoint(i).set("fill", palette.itemAt(i));
         series.selected().fill("#444");
         series.stroke(null);
@@ -6372,8 +6372,8 @@ document.addEventListener('alpine:init', function () {
             items[i].iconType = "square";
             items[i].iconFill = palette.itemAt([i]);
             items[i].iconEnabled = true;
-            items[i].fontWeight = 'bold';
-            items[i].fontColor = '#041f74';
+            items[i].fontWeight = "bold";
+            items[i].fontColor = "#041f74";
           }
           return items;
         });
@@ -6414,13 +6414,13 @@ document.addEventListener('alpine:init', function () {
           });
         });
         chart.listen("pointsSelect", function (e) {
-          if (e.point.get('link')) {
-            window.open(e.point.get('link'), '_self');
+          if (e.point.get("link")) {
+            window.open(e.point.get("link"), "_self");
           }
         });
 
         // // set container id for the chart
-        chart.container('pValueChart');
+        chart.container("pValueChart");
         // initiate chart drawing
         chart.draw();
       },
@@ -6448,34 +6448,34 @@ document.addEventListener('alpine:init', function () {
             contentElement.firstChild.remove();
           }
           var attainmentHeader = document.createElement("h5");
-          attainmentHeader.style.color = 'var(--system-base)';
+          attainmentHeader.style.color = "var(--system-base)";
           attainmentHeader.appendChild(document.createTextNode(dataRow.title));
           contentElement.appendChild(attainmentHeader);
           var scoreElement = document.createElement("h2");
-          scoreElement.style.color = 'var(--system-base)';
+          scoreElement.style.color = "var(--system-base)";
           scoreElement.appendChild(document.createTextNode("P ".concat(dataRow.value)));
           contentElement.appendChild(scoreElement);
           var basedOnElement = document.createElement("p");
-          basedOnElement.style.color = 'var(--system-base)';
+          basedOnElement.style.color = "var(--system-base)";
           basedOnElement.appendChild(document.createTextNode(dataRow.basedOn));
           contentElement.appendChild(basedOnElement);
           if (dataRow.link != false) {
             var detailElement = document.createElement("p");
-            detailElement.style.whiteSpace = 'nowrap';
-            detailElement.style.color = 'var(--system-base)';
-            detailElement.style.fontWeight = '900';
+            detailElement.style.whiteSpace = "nowrap";
+            detailElement.style.color = "var(--system-base)";
+            detailElement.style.fontWeight = "900";
             detailElement.appendChild(document.createTextNode("Bekijk analyse"));
-            var iconElement = document.createElement('img');
-            iconElement.src = '/svg/icons/arrow-small.svg';
-            iconElement.style.display = 'inline-block';
+            var iconElement = document.createElement("img");
+            iconElement.src = "/svg/icons/arrow-small.svg";
+            iconElement.style.display = "inline-block";
             detailElement.appendChild(iconElement);
             contentElement.appendChild(detailElement);
           }
         }
         chart.tooltip().onDomReady(function (e) {
-          this.parentElement.style.border = '1px solid var(--blue-grey)';
-          this.parentElement.style.background = '#FFFFFF';
-          this.parentElement.style.opacity = '0.8';
+          this.parentElement.style.border = "1px solid var(--blue-grey)";
+          this.parentElement.style.background = "#FFFFFF";
+          this.parentElement.style.opacity = "0.8";
           contentElement = this.contentElement;
           fillTooltipHtml();
         });
@@ -6488,11 +6488,11 @@ document.addEventListener('alpine:init', function () {
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('analysesSubjectsTimeSeriesGraph', function (modelId) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("analysesSubjectsTimeSeriesGraph", function (modelId) {
     return {
       modelId: modelId,
       data: [],
-      colors: ['#30BC51', '#5043F6', '#ECEE7D', '#6820CE', '#CB110E', '#F79D25', '#1B6112', '#43ACF5', '#E12576', '#24D2C5'],
+      colors: ["#30BC51", "#5043F6", "#ECEE7D", "#6820CE", "#CB110E", "#F79D25", "#1B6112", "#43ACF5", "#E12576", "#24D2C5"],
       subjects: [],
       showEmptyState: false,
       init: function init() {
@@ -6506,7 +6506,7 @@ document.addEventListener('alpine:init', function () {
             while (1) switch (_context4.prev = _context4.next) {
               case 0:
                 _context4.next = 2;
-                return _this22.$wire.call('getDataForSubjectTimeSeriesGraph');
+                return _this22.$wire.call("getDataForSubjectTimeSeriesGraph");
               case 2:
                 _yield$_this22$$wire$ = _context4.sent;
                 _yield$_this22$$wire$2 = _slicedToArray(_yield$_this22$$wire$, 3);
@@ -6523,7 +6523,7 @@ document.addEventListener('alpine:init', function () {
       },
       renderGraph: function renderGraph() {
         var _this23 = this;
-        var cssSelector = '#' + this.modelId + '>div:not(.empty-state)';
+        var cssSelector = "#" + this.modelId + ">div:not(.empty-state)";
         this.$root.querySelectorAll(cssSelector).forEach(function (node) {
           return node.remove();
         });
@@ -6541,7 +6541,7 @@ document.addEventListener('alpine:init', function () {
         line.value(0);
         line.stroke("2 var(--system-base)");
         chart.plot(0).yAxis(0).labels().format(function () {
-          return this.value == 0 ? 'P 0' : 'P ' + this.value.toFixed(2);
+          return this.value == 0 ? "P 0" : "P " + this.value.toFixed(2);
         });
 
         // access labels
@@ -6553,26 +6553,26 @@ document.addEventListener('alpine:init', function () {
           return "'" + anychart.format.dateTime(this.tickValue, "Y");
         });
         // set labels color
-        labels.fontColor('var(--system-base)');
-        labels.fontWeight('bold');
+        labels.fontColor("var(--system-base)");
+        labels.fontWeight("bold");
 
         // set minor labels text format
         minorLabels.format(function () {
-          return anychart.format.dateTime(this.tickValue, 'MMM');
+          return anychart.format.dateTime(this.tickValue, "MMM");
         });
 
         // set minor color to selectedColorForScroller;
-        minorLabels.fontColor('var(--system-base) 0.5');
+        minorLabels.fontColor("var(--system-base) 0.5");
         //
 
-        chart.scroller().selectedFill('var(--system-base) 0.1');
+        chart.scroller().selectedFill("var(--system-base) 0.1");
         chart.scroller().outlineStroke("var(--system-base)", 2);
         chart.scroller().outline;
         chart.interactivity().hoverMode("single");
         this.subjects.forEach(function (el, index) {
           var cnt = index + 1;
           var mapping = table.mapAs();
-          mapping.addField('value', cnt);
+          mapping.addField("value", cnt);
           var series = chart.plot(0).line(mapping);
           series.name(el);
           series.legendItem().useHtml(true);
@@ -6582,22 +6582,22 @@ document.addEventListener('alpine:init', function () {
           var marker1 = series.hovered().markers();
           marker1.enabled(true);
           marker1.size(4);
-          marker1.type('circle');
+          marker1.type("circle");
           series.normal().stroke(_this23.colors[index], 2);
           series.connectMissingPoints(true);
         });
-        chart.title('');
-        chart.plot(0).legend().titleFormat('');
+        chart.title("");
+        chart.plot(0).legend().titleFormat("");
         chart.container(this.modelId);
         chart.draw();
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('analysesAttainmentsGraph', function (modelId) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("analysesAttainmentsGraph", function (modelId) {
     return {
       modelId: modelId,
       data: false,
-      colors: ['#30BC51', '#5043F6', '#ECEE7D', '#6820CE', '#CB110E', '#F79D25', '#1B6112', '#43ACF5', '#E12576', '#24D2C5'],
+      colors: ["#30BC51", "#5043F6", "#ECEE7D", "#6820CE", "#CB110E", "#F79D25", "#1B6112", "#43ACF5", "#E12576", "#24D2C5"],
       showEmptyState: false,
       init: function init() {
         this.updateGraph();
@@ -6610,7 +6610,7 @@ document.addEventListener('alpine:init', function () {
             while (1) switch (_context5.prev = _context5.next) {
               case 0:
                 _context5.next = 2;
-                return _this24.$wire.call('getDataForGraph');
+                return _this24.$wire.call("getDataForGraph");
               case 2:
                 _yield$_this24$$wire$ = _context5.sent;
                 _yield$_this24$$wire$2 = _slicedToArray(_yield$_this24$$wire$, 2);
@@ -6625,7 +6625,7 @@ document.addEventListener('alpine:init', function () {
         }))();
       },
       renderGraph: function renderGraph() {
-        var cssSelector = '#pValueChart>div:not(.empty-state)';
+        var cssSelector = "#pValueChart>div:not(.empty-state)";
         this.$root.querySelectorAll(cssSelector).forEach(function (node) {
           return node.remove();
         });
@@ -6638,10 +6638,10 @@ document.addEventListener('alpine:init', function () {
         yScale.maximum(1.00);
         yScale.ticks().interval(0.25);
         chart.yAxis(0).labels().format(function () {
-          return this.value == 0 ? 'P 0' : 'P ' + this.value.toFixed(2);
+          return this.value == 0 ? "P 0" : "P " + this.value.toFixed(2);
         });
         chart.yGrid().enabled(true);
-        chart.xAxis(0).labels().fontWeight("bold").fontColor('#041f74');
+        chart.xAxis(0).labels().fontWeight("bold").fontColor("#041f74");
         for (var i = 0; series.getPoint(i).exists(); i++) series.getPoint(i).set("fill", palette.itemAt(i));
         series.selected().fill("#444");
         series.stroke(null);
@@ -6658,8 +6658,8 @@ document.addEventListener('alpine:init', function () {
             items[i].iconFill = palette.itemAt([i]);
             items[i].iconEnabled = true;
             items[i].text = _data[i].title;
-            items[i].fontWeight = 'bold';
-            items[i].fontColor = '#041f74';
+            items[i].fontWeight = "bold";
+            items[i].fontColor = "#041f74";
           }
           return items;
         });
@@ -6700,14 +6700,14 @@ document.addEventListener('alpine:init', function () {
           });
         });
         chart.listen("pointsSelect", function (e) {
-          if (e.point.get('link')) {
-            window.open(e.point.get('link'), '_self');
+          if (e.point.get("link")) {
+            window.open(e.point.get("link"), "_self");
           }
         });
         chart.interactivity("by-x");
 
         // set container id for the chart
-        chart.container('pValueChart');
+        chart.container("pValueChart");
         // initiate chart drawing
         chart.draw();
       },
@@ -6727,31 +6727,31 @@ document.addEventListener('alpine:init', function () {
             contentElement.firstChild.remove();
           }
           var attainmentHeader = document.createElement("h5");
-          attainmentHeader.style.color = 'var(--system-base)';
+          attainmentHeader.style.color = "var(--system-base)";
           attainmentHeader.appendChild(document.createTextNode(dataRow.title));
           contentElement.appendChild(attainmentHeader);
           var scoreElement = document.createElement("h2");
-          scoreElement.style.color = 'var(--system-base)';
+          scoreElement.style.color = "var(--system-base)";
           scoreElement.appendChild(document.createTextNode("P ".concat(dataRow.value)));
           contentElement.appendChild(scoreElement);
           var basedOnElement = document.createElement("p");
-          basedOnElement.style.color = 'var(--system-base)';
+          basedOnElement.style.color = "var(--system-base)";
           basedOnElement.appendChild(document.createTextNode(dataRow.basedOn));
           contentElement.appendChild(basedOnElement);
           if (dataRow.count !== null) {
             var detailElement = document.createElement("p");
-            detailElement.style.whiteSpace = 'nowrap';
-            detailElement.style.color = 'var(--system-base)';
-            detailElement.style.fontWeight = '900';
+            detailElement.style.whiteSpace = "nowrap";
+            detailElement.style.color = "var(--system-base)";
+            detailElement.style.fontWeight = "900";
             detailElement.appendChild(document.createTextNode("Bekijk analyse "));
-            var iconElement = document.createElement('img');
-            iconElement.src = '/svg/icons/arrow-small.svg';
-            iconElement.style.display = 'inline-block';
+            var iconElement = document.createElement("img");
+            iconElement.src = "/svg/icons/arrow-small.svg";
+            iconElement.style.display = "inline-block";
             detailElement.appendChild(iconElement);
             contentElement.appendChild(detailElement);
           }
           var AttainmentTexElement = document.createElement("p");
-          AttainmentTexElement.style.color = 'var(--system-base)';
+          AttainmentTexElement.style.color = "var(--system-base)";
           AttainmentTexElement.appendChild(document.createTextNode(dataRow.text));
           contentElement.appendChild(AttainmentTexElement);
         }
@@ -6764,9 +6764,9 @@ document.addEventListener('alpine:init', function () {
           }
         });
         chart.tooltip().onDomReady(function (e) {
-          this.parentElement.style.border = '1px solid var(--blue-grey)';
-          this.parentElement.style.background = '#FFFFFF';
-          this.parentElement.style.opacity = '0.8';
+          this.parentElement.style.border = "1px solid var(--blue-grey)";
+          this.parentElement.style.background = "#FFFFFF";
+          this.parentElement.style.opacity = "0.8";
           contentElement = this.contentElement;
           fillTooltipHtml();
         });
@@ -6779,23 +6779,23 @@ document.addEventListener('alpine:init', function () {
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('sliderToggle', function (model, sources) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("sliderToggle", function (model, sources) {
     return {
-      buttonPosition: '0px',
-      buttonWidth: 'auto',
+      buttonPosition: "0px",
+      buttonWidth: "auto",
       value: model,
       sources: sources,
       handle: null,
       init: function init() {
-        this.handle = this.$el.querySelector('.slider-button-handle');
+        this.handle = this.$el.querySelector(".slider-button-handle");
         if (this.value === null) {
           return;
         }
-        this.$el.querySelector('.group').firstElementChild.classList.add('text-primary');
-        if (this.value !== '' && Object.keys(this.sources).includes(String(this.value))) {
-          this.activateButton(this.$el.querySelector('[data-id=\'' + this.value + '\']').parentElement);
+        this.$el.querySelector(".group").firstElementChild.classList.add("text-primary");
+        if (this.value !== "" && Object.keys(this.sources).includes(String(this.value))) {
+          this.activateButton(this.$el.querySelector("[data-id='" + this.value + "']").parentElement);
         } else {
-          this.value = this.$el.querySelector('.group').firstElementChild.dataset.id;
+          this.value = this.$el.querySelector(".group").firstElementChild.dataset.id;
         }
       },
       clickButton: function clickButton(target) {
@@ -6809,25 +6809,25 @@ document.addEventListener('alpine:init', function () {
         var _this25 = this;
         this.$nextTick(function () {
           _this25.resetButtons(target);
-          _this25.buttonPosition = target.offsetLeft + 'px';
-          _this25.buttonWidth = target.offsetWidth + 'px';
-          target.firstElementChild.classList.add('text-primary');
-          _this25.handle.classList.remove('hidden');
+          _this25.buttonPosition = target.offsetLeft + "px";
+          _this25.buttonWidth = target.offsetWidth + "px";
+          target.firstElementChild.classList.add("text-primary");
+          _this25.handle.classList.remove("hidden");
         });
       },
       resetButtons: function resetButtons(target) {
         Array.from(target.parentElement.children).forEach(function (button) {
-          button.firstElementChild.classList.remove('text-primary');
+          button.firstElementChild.classList.remove("text-primary");
         });
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('expandableGraphForGeneral', function (id, modelId, taxonomy, component) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("expandableGraphForGeneral", function (id, modelId, taxonomy, component) {
     return {
       data: false,
       modelId: modelId,
       taxonomy: taxonomy,
-      containerId: 'chart-' + id + '-' + taxonomy,
+      containerId: "chart-" + id + "-" + taxonomy,
       id: id,
       showEmptyState: false,
       init: function init() {
@@ -6846,9 +6846,9 @@ document.addEventListener('alpine:init', function () {
                   _context6.next = 10;
                   break;
                 }
-                method = 'getData';
-                if (component == 'expandableGraphForGeneral') {
-                  method = 'getDataForGeneralGraph';
+                method = "getData";
+                if (component == "expandableGraphForGeneral") {
+                  method = "getDataForGeneralGraph";
                 }
                 _context6.next = 5;
                 return _this26.$wire.call(method, _this26.modelId, _this26.taxonomy);
@@ -6876,7 +6876,7 @@ document.addEventListener('alpine:init', function () {
       },
       renderGraph: function renderGraph() {
         // create bar chart
-        var cssSelector = '#' + this.containerId + '>div:not(.empty-state)';
+        var cssSelector = "#" + this.containerId + ">div:not(.empty-state)";
         //
         this.$root.querySelectorAll(cssSelector).forEach(function (node) {
           return node.remove();
@@ -6888,42 +6888,42 @@ document.addEventListener('alpine:init', function () {
         var series = chart.bar(this.data);
         series.stroke(this.getColor()).fill(this.getColor());
         var tooltip = series.tooltip();
-        tooltip.title(false).separator(false).position('right').anchor('left-center').offsetX(5).offsetY(0).background('#FFFFFF').fontColor('#000000').format("{%tooltip}");
-        chart.tooltip().positionMode('point');
+        tooltip.title(false).separator(false).position("right").anchor("left-center").offsetX(5).offsetY(0).background("#FFFFFF").fontColor("#000000").format("{%tooltip}");
+        chart.tooltip().positionMode("point");
         // set scale minimum
         chart.yScale().minimum(0);
         chart.yScale().maximum(1);
 
         // chart.xScale()//.maximum(100)
-        chart.xAxis().stroke('#041F74');
-        chart.xAxis().stroke('none');
+        chart.xAxis().stroke("#041F74");
+        chart.xAxis().stroke("none");
         // set container id for the chart
         chart.container(this.containerId);
         // initiate chart drawing
         chart.draw();
       },
       getColor: function getColor() {
-        if (this.taxonomy == 'Bloom') {
-          return '#E2DD10';
+        if (this.taxonomy == "Bloom") {
+          return "#E2DD10";
         }
-        if (this.taxonomy == 'Miller') {
-          return '#5043F6';
+        if (this.taxonomy == "Miller") {
+          return "#5043F6";
         }
-        return '#2EBC4F';
+        return "#2EBC4F";
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contextMenuButton', function (context, uuid, contextData) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("contextMenuButton", function (context, uuid, contextData) {
     return {
       menuOpen: false,
       uuid: uuid,
       contextData: contextData,
       context: context,
       gridCard: null,
-      showEvent: context + '-context-menu-show',
-      closeEvent: context + '-context-menu-close',
+      showEvent: context + "-context-menu-show",
+      closeEvent: context + "-context-menu-close",
       init: function init() {
-        this.gridCard = this.$root.closest('.grid-card');
+        this.gridCard = this.$root.closest(".grid-card");
       },
       handle: function handle() {
         this.menuOpen = !this.menuOpen;
@@ -6946,7 +6946,7 @@ document.addEventListener('alpine:init', function () {
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contextMenuHandler', function () {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("contextMenuHandler", function () {
     return {
       contextMenuOpen: false,
       uuid: null,
@@ -6972,8 +6972,8 @@ document.addEventListener('alpine:init', function () {
                 _this28.uuid = detail.uuid;
                 _this28.correspondingButton = detail.button;
                 _this28.contextData = detail.contextData;
-                _this28.$root.style.top = detail.coords.top + _this28.menuOffsetMarginTop + 'px';
-                _this28.$root.style.left = detail.coords.left - _this28.menuOffsetMarginLeft + 'px';
+                _this28.$root.style.top = detail.coords.top + _this28.menuOffsetMarginTop + "px";
+                _this28.$root.style.left = detail.coords.left - _this28.menuOffsetMarginLeft + "px";
                 _context7.next = 7;
                 return _this28.$wire.setContextValues(_this28.uuid, _this28.contextData);
               case 7:
@@ -6988,19 +6988,19 @@ document.addEventListener('alpine:init', function () {
         }))();
       },
       closeMenu: function closeMenu() {
-        this.correspondingButton.dispatchEvent(new CustomEvent('close-menu'));
+        this.correspondingButton.dispatchEvent(new CustomEvent("close-menu"));
         this.contextMenuOpen = false;
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('accordionBlock', function (key) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("accordionBlock", function (key) {
     var emitWhenSet = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
     return {
       id: null,
       emitWhenSet: emitWhenSet,
       droppingFile: false,
       init: function init() {
-        this.id = this.containerId + '-' + key;
+        this.id = this.containerId + "-" + key;
       },
       get expanded() {
         return this.active === this.id;
@@ -7008,15 +7008,15 @@ document.addEventListener('alpine:init', function () {
       set expanded(value) {
         this.active = value ? this.id : null;
         if (value) {
-          this.$el.classList.remove('hover:shadow-hover');
+          this.$el.classList.remove("hover:shadow-hover");
           if (this.emitWhenSet) {
-            Livewire.emit('accordion-update', this.id);
+            Livewire.emit("accordion-update", this.id);
           }
         }
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('fileUpload', function (uploadModel, rules) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("fileUpload", function (uploadModel, rules) {
     return {
       isDropping: false,
       isUploading: false,
@@ -7038,7 +7038,7 @@ document.addEventListener('alpine:init', function () {
         var _this29 = this;
         var $this = this;
         this.isUploading = true;
-        var dummyContainer = this.$root.querySelector('#upload-dummies');
+        var dummyContainer = this.$root.querySelector("#upload-dummies");
         Array.from(files).forEach(function (file, key) {
           if (!_this29.fileHasAllowedExtension(file)) {
             _this29.handleIncorrectFileUpload(file);
@@ -7056,7 +7056,7 @@ document.addEventListener('alpine:init', function () {
             $this.progress[badgeId] = 0;
             dummyContainer.querySelector("#".concat(badgeId)).remove();
           }, function (error) {
-            Notify.notify("Er is iets misgegaan met het verwerken van '".concat(file.name, "'."), 'error');
+            Notify.notify("Er is iets misgegaan met het verwerken van '".concat(file.name, "'."), "error");
             dummyContainer.querySelector("#".concat(badgeId)).remove();
           }, function (progress) {
             $this.progress[badgeId] = event.detail.progress;
@@ -7083,35 +7083,105 @@ document.addEventListener('alpine:init', function () {
       createLoadingBadge: function createLoadingBadge(file, badgeId) {
         var template = this.$root.querySelector("template#upload-badge").content.cloneNode(true);
         template.firstElementChild.id = badgeId;
-        template.querySelector('.badge-name').innerText = file.name;
+        template.querySelector(".badge-name").innerText = file.name;
         return template;
       },
       getFileExtension: function getFileExtension(file) {
         var filename = file.name;
-        return filename.substring(filename.lastIndexOf('.') + 1, filename.length) || filename;
+        return filename.substring(filename.lastIndexOf(".") + 1, filename.length) || filename;
       },
       fileHasAllowedExtension: function fileHasAllowedExtension(file) {
         return this.rules.extensions.data.includes(this.getFileExtension(file));
       },
       handleIncorrectFileUpload: function handleIncorrectFileUpload(file) {
-        var message = this.rules.extensions.message.replace('%s', this.getFileExtension(file));
-        Notify.notify(message, 'error');
+        var message = this.rules.extensions.message.replace("%s", this.getFileExtension(file));
+        Notify.notify(message, "error");
       },
       fileTooLarge: function fileTooLarge(file) {
         return file.size > this.rules.size.data;
       },
       handleTooLargeOfAfile: function handleTooLargeOfAfile(file) {
-        var message = this.rules.size.message.replace('%s', file.name);
-        Notify.notify(message, 'error');
+        var message = this.rules.size.message.replace("%s", file.name);
+        Notify.notify(message, "error");
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].directive('global', function (el, _ref2) {
-    var expression = _ref2.expression;
-    var f = new Function('_', '$data', '_.' + expression + ' = $data;return;');
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("livewireNavigator", function (property, current, total, methodCall) {
+    return {
+      property: property,
+      current: current,
+      total: total,
+      methodCall: methodCall,
+      first: function first() {
+        this.current = 1;
+      },
+      last: function last() {
+        this.current = this.total;
+      },
+      next: function next() {
+        if (this.current >= this.total) return;
+        this.current++;
+      },
+      previous: function previous() {
+        if (this.current <= 1) return;
+        this.current--;
+      },
+      requestTimeout: null,
+      init: function init() {
+        var _this30 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee10() {
+          return _regeneratorRuntime().wrap(function _callee10$(_context10) {
+            while (1) switch (_context10.prev = _context10.next) {
+              case 0:
+                _this30.$watch("current", /*#__PURE__*/function () {
+                  var _ref2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee9(value, oldValue) {
+                    return _regeneratorRuntime().wrap(function _callee9$(_context9) {
+                      while (1) switch (_context9.prev = _context9.next) {
+                        case 0:
+                          clearTimeout(_this30.requestTimeout);
+                          _this30.requestTimeout = setTimeout( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee8() {
+                            var response;
+                            return _regeneratorRuntime().wrap(function _callee8$(_context8) {
+                              while (1) switch (_context8.prev = _context8.next) {
+                                case 0:
+                                  _context8.next = 2;
+                                  return _this30.$wire[_this30.methodCall](value, _this30.property);
+                                case 2:
+                                  response = _context8.sent;
+                                  if (response) {
+                                    console.log("Updated ".concat(_this30.property, " to: ").concat(response));
+                                  }
+                                case 4:
+                                case "end":
+                                  return _context8.stop();
+                              }
+                            }, _callee8);
+                          })), 500);
+                        case 2:
+                        case "end":
+                          return _context9.stop();
+                      }
+                    }, _callee9);
+                  }));
+                  return function (_x2, _x3) {
+                    return _ref2.apply(this, arguments);
+                  };
+                }());
+              case 1:
+              case "end":
+                return _context10.stop();
+            }
+          }, _callee10);
+        }))();
+      }
+    };
+  });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].directive("global", function (el, _ref4) {
+    var expression = _ref4.expression;
+    var f = new Function("_", "$data", "_." + expression + " = $data;return;");
     f(window, el._x_dataStack[0]);
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].store('cms', {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].store("cms", {
     loading: false,
     processing: false,
     dirty: false,
@@ -7119,13 +7189,13 @@ document.addEventListener('alpine:init', function () {
     reinitOnClose: false,
     emptyState: false
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].store('questionBank', {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].store("questionBank", {
     active: false,
     inGroup: false
   });
 });
 function getTitleForVideoUrl(videoUrl) {
-  return fetch('https://noembed.com/embed?url=' + videoUrl).then(function (response) {
+  return fetch("https://noembed.com/embed?url=" + videoUrl).then(function (response) {
     return response.json();
   }).then(function (data) {
     if (!data.error) {

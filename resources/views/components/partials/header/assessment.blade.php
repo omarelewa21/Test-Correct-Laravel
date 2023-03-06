@@ -10,8 +10,19 @@
 @endsection
 
 @section('collapsedLeft')
-    <div>
-        Hier navigatie
+    <div class="flex items-center gap-6">
+        <x-numeric-navigator :current="1"
+                             :total="$this->questionCount"
+                             property="answer"
+                             methodCall="loadAnswer"
+        />
+
+        <x-numeric-navigator :current="1"
+                             :total="$this->studentCount"
+                             property="student"
+                             methodCall="loadStudent"
+                             iconName="chevron"
+        />
     </div>
 @endsection
 @section('panels')
@@ -24,7 +35,9 @@
             <div>{{ __('assessment.all_questions_text') }}</div>
         </x-slot:subtitle>
         <x-slot:button>
-            <x-button.cta size="md">
+            <x-button.cta size="md"
+                          @click.prevent="handleHeaderCollapse(['ALL',true])"
+            >
                 <span>{{ __('co-learning.start') }}</span>
                 <x-icon.arrow />
             </x-button.cta>
@@ -39,7 +52,7 @@
         <x-slot:subtitle>{{ __('assessment.open_questions_text') }}</x-slot:subtitle>
         <x-slot:button>
             <x-button.cta size="md"
-                          @click.prevent="handleHeaderCollapse(['OPEN_ONLY', true])"
+                          @click.prevent="handleHeaderCollapse(['OPEN_ONLY',true])"
             >
                 <span>{{ __('co-learning.start') }}</span>
                 <x-icon.arrow />
@@ -72,7 +85,7 @@
         <div @class(['flex py-1.5 px-4 items-center justify-between', 'opacity-25 pointer-events-none' => $this->skippedCoLearning])>
             <span>@lang('assessment.Antwoorden zonder discrepanties overslaan')</span>
             <div class="flex items-center gap-4">
-                <x-input.toggle wire:model="skipDiscrepancies" />
+                <x-input.toggle wire:model="skipCoLearningDiscrepancies" />
                 <x-tooltip idle-classes="bg-transparent text-white border-white border">
                     <span class="text-left">@lang('assessment.discrepancies_toggle_tooltip')</span>
                 </x-tooltip>

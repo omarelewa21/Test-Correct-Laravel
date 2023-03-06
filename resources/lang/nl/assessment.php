@@ -8,8 +8,8 @@ return [
     'Gesloten vragen worden automatisch nagekeken' => 'Gesloten vragen worden automatisch nagekeken',
     'Score wordt overgenomen uit CO-Learning'      => 'Score wordt overgenomen uit CO-Learning',
     'Antwoorden zonder discrepanties overslaan'    => 'Antwoorden zonder discrepanties overslaan',
-    'continuously_saved_tooltip'                   => 'We slaan toegekende scores en feedback altijd op.',
-    'closed_question_checked_tooltip'              => 'Alle gesloten vragen worden automatisch nagekeken en beoordeeld. Voor de gatentekst kun je zelf aangeven of deze automatisch moet worden nagekeken.',
-    'colearning_score_tooltip'                     => 'Scores die studenten gegeven hebben aan antwoorden worden getoond tijdens nakijken. Als er geen discrepantie is kent het systeem deze score toe aan het antwoord',
-    'discrepancies_toggle_tooltip'                 => 'Als twee studenten dezelfde score toekennen aan een antwoord, is dit vrijwel altijd hetzelfde als wat de docent zou geven. Je kunt ervoor kiezen om deze antwoord over te slaan tijdens nakijken.',
+    'continuously_saved_tooltip'                   => 'We slaan toegekende scores en feedback altijd op. Je hoeft niet actief op te slaan en kan later altijd verder gaan waar je was gebleven.',
+    'closed_question_checked_tooltip'              => 'Alle gesloten vragen worden automatisch nagekeken en beoordeeld o.b.v. het correctie-/antwoordmodel. Wel zo handig, want dit scheelt een hoop van jouw waardevolle tijd. Voor de gatentekst kun je zelf aangeven of deze automatisch moet worden nagekeken.',
+    'colearning_score_tooltip'                     => 'Scores die studenten hebben gegeven aan antwoorden worden getoond tijdens het nakijken. Als er geen discrepanties zijn kent het systeem deze score toe aan het antwoord',
+    'discrepancies_toggle_tooltip'                 => 'Wanneer twee studenten dezelfde score toekennen aan een antwoord, zou de docent meestal dezelfde score toekennen. Je kunt ervoor kiezen om deze antwoord over te slaan tijdens het nakijken.',
 ];
