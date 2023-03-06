@@ -1193,6 +1193,10 @@ class Test extends BaseModel
 
     private function isFromAllowedTestPublisher($user): bool
     {
+        if($this->scope === null || $this->scope === '') {
+            return false;
+        }
+
         return ContentSourceHelper::scopeIsAllowedForUser($user, $this->scope);
     }
 

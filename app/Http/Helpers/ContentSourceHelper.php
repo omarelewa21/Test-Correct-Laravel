@@ -41,12 +41,8 @@ class ContentSourceHelper
             });
     }
 
-    public static function scopeIsAllowedForUser(User $user, string|null $testScope): bool
+    public static function scopeIsAllowedForUser(User $user, string $testScope): bool
     {
-        if(static::scopeHasNotBeenSet($testScope)) {
-            return true;
-        }
-
         return ContentSourceHelper::allAllowedForUser($user)
             ->map(fn($item, $publisher) => 'published_' . $publisher)
             ->contains($testScope);
@@ -69,10 +65,5 @@ class ContentSourceHelper
         }
 
         return false;
-    }
-
-    protected static function scopeHasNotBeenSet(string|null $scope)
-    {
-        return $scope === '' || $scope === null;
     }
 }
