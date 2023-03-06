@@ -1,6 +1,40 @@
 <x-partials.question-container :number="$number" :question="$question">
     <div class="w-full space-y-3 completion-question-container"
-         x-data="{}"
+         x-data="{
+            setInputWidth(input, init = false) {
+                if(!init){
+                    this.calculateInputWidth(input);
+                    return;
+                }
+
+                this.$watch('showMe', (value) => {
+                    if(!value) {
+                        return;
+                    }
+                    this.$nextTick(() => {
+                        this.calculateInputWidth(input);
+                    })
+                })
+            },
+            calculateInputWidth (input) {
+                minWidth = 120;
+                maxWidth = input.closest('div.input-group').offsetWidth;
+
+                span = input.parentElement.querySelector('.absolute');
+
+                span.innerText = input.value;
+                newWidth = span.offsetWidth + 27;
+
+                if(newWidth < minWidth) {
+                    newWidth = minWidth;
+                }
+                if(newWidth > maxWidth) {
+                    newWidth = maxWidth;
+                }
+
+                input.style.width = newWidth + 'px';
+            }
+         }"
          x-init="truncateOptionsIfTooLong($el); setTitlesOnLoad($el)"
          @resize.window.debounce.250ms="truncateOptionsIfTooLong($el)"
          id="completion_{{ $question->id }}"
