@@ -41,15 +41,15 @@ class ContentSourceHelper
             });
     }
 
-    public static function scopeIsAllowedForUser(User $user, string|null $scope): bool
+    public static function scopeIsAllowedForUser(User $user, string|null $testScope): bool
     {
-        if(static::scopeHasNotBeenSet($scope)) {
+        if(static::scopeHasNotBeenSet($testScope)) {
             return true;
         }
 
         return ContentSourceHelper::allAllowedForUser($user)
             ->map(fn($item, $publisher) => 'published_' . $publisher)
-            ->contains($scope);
+            ->contains($testScope);
     }
 
     public static function canViewContent(User $user, string $contentSourceName): bool
@@ -60,8 +60,6 @@ class ContentSourceHelper
                 return true;
             case 'umbrella':
                 return UmbrellaOrganizationService::isAvailableForUser($user);
-            case 'ldt':
-            case 'tbni':
             case 'national':
                 return NationalItemBankService::isAvailableForUser($user);
             case 'creathlon':
