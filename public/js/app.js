@@ -7434,96 +7434,59 @@ window.makeResizableDiv = function (element) {
   var _loop = function _loop(i) {
     var currentResizer = resizers[i];
     currentResizer.addEventListener('mousedown', resizeMouseDown);
-    currentResizer.addEventListener('touchstart', resizeMouseDown);
+    currentResizer.addEventListener('ontouchstart', resizeMouseDown);
     function resizeMouseDown(e) {
       e.preventDefault();
       original_width = parseFloat(getComputedStyle(element, null).getPropertyValue('width').replace('px', ''));
       original_height = parseFloat(getComputedStyle(element, null).getPropertyValue('height').replace('px', ''));
       original_x = element.getBoundingClientRect().left;
       original_y = element.getBoundingClientRect().top;
-      if (e.type === 'touchstart') {
-        original_mouse_x = e.touches[0].pageX;
-        original_mouse_y = e.touches[0].pageY;
-      } else {
-        original_mouse_x = e.pageX;
-        original_mouse_y = e.pageY;
-      }
+      original_mouse_x = e.pageX;
+      original_mouse_y = e.pageY;
       window.addEventListener('mousemove', resize);
-      window.addEventListener('touchmove', resize);
+      window.addEventListener('ontouchmove', resize);
       window.addEventListener('mouseup', stopResize);
-      window.addEventListener('touchend', stopResize);
+      window.addEventListener('ontouchend', stopResize);
       function resize(e) {
         if (currentResizer.classList.contains('bottom-right')) {
-          if (e.type === 'touchmove') {
-            width = original_width + (e.touches[0].pageX - original_mouse_x);
-            height = original_height + (e.touches[0].pageY - original_mouse_y);
-          } else {
-            width = original_width + (e.pageX - original_mouse_x);
-            height = original_height + (e.pageY - original_mouse_y);
-          }
-          if (width > minimum_size) element.style.width = width + 'px';
-          if (height > minimum_size) element.style.height = height + 'px';
-        } else if (currentResizer.classList.contains('bottom-left')) {
-          if (e.type === 'touchmove') {
-            height = original_height + (e.touches[0].pageY - original_mouse_y);
-            width = original_width - (e.touches[0].pageX - original_mouse_x);
-            if (width > minimum_size) {
-              element.style.width = width + 'px';
-              element.style.left = original_x + (e.touches[0].pageX - original_mouse_x) + 'px';
-            }
-          } else {
-            height = original_height + (e.pageY - original_mouse_y);
-            width = original_width - (e.pageX - original_mouse_x);
-            if (width > minimum_size) {
-              element.style.width = width + 'px';
-              element.style.left = original_x + (e.pageX - original_mouse_x) + 'px';
-            }
+          width = original_width + (e.pageX - original_mouse_x);
+          height = original_height + (e.pageY - original_mouse_y);
+          if (width > minimum_size) {
+            element.style.width = width + 'px';
           }
           if (height > minimum_size) {
             element.style.height = height + 'px';
           }
-        } else if (currentResizer.classList.contains('top-right')) {
-          if (e.type === 'touchmove') {
-            width = original_width + (e.touches[0].pageX - original_mouse_x);
-            height = original_height - (e.touches[0].pageY - original_mouse_y);
-            if (height > minimum_size) {
-              element.style.height = height + 'px';
-              element.style.top = original_y + (e.touches[0].pageY - original_mouse_y) + 'px';
-            }
-          } else {
-            width = original_width + (e.pageX - original_mouse_x);
-            height = original_height - (e.pageY - original_mouse_y);
-            if (height > minimum_size) {
-              element.style.height = height + 'px';
-              element.style.top = original_y + (e.pageY - original_mouse_y) + 'px';
-            }
+        } else if (currentResizer.classList.contains('bottom-left')) {
+          height = original_height + (e.pageY - original_mouse_y);
+          width = original_width - (e.pageX - original_mouse_x);
+          if (height > minimum_size) {
+            element.style.height = height + 'px';
           }
           if (width > minimum_size) {
             element.style.width = width + 'px';
+            element.style.left = original_x + (e.pageX - original_mouse_x) + 'px';
+          }
+        } else if (currentResizer.classList.contains('top-right')) {
+          width = original_width + (e.pageX - original_mouse_x);
+          height = original_height - (e.pageY - original_mouse_y);
+          if (width > minimum_size) {
+            element.style.width = width + 'px';
+          }
+          if (height > minimum_size) {
+            element.style.height = height + 'px';
+            element.style.top = original_y + (e.pageY - original_mouse_y) + 'px';
           }
         } else {
-          if (e.type === 'touchmove') {
-            width = original_width - (e.touches[0].pageX - original_mouse_x);
-            height = original_height - (e.touches[0].pageY - original_mouse_y);
-            if (width > minimum_size) {
-              element.style.width = width + 'px';
-              element.style.left = original_x + (e.touches[0].pageX - original_mouse_x) + 'px';
-            }
-            if (height > minimum_size) {
-              element.style.height = height + 'px';
-              element.style.top = original_y + (e.touches[0].pageY - original_mouse_y) + 'px';
-            }
-          } else {
-            width = original_width - (e.pageX - original_mouse_x);
-            height = original_height - (e.pageY - original_mouse_y);
-            if (width > minimum_size) {
-              element.style.width = width + 'px';
-              element.style.left = original_x + (e.pageX - original_mouse_x) + 'px';
-            }
-            if (height > minimum_size) {
-              element.style.height = height + 'px';
-              element.style.top = original_y + (e.pageY - original_mouse_y) + 'px';
-            }
+          width = original_width - (e.pageX - original_mouse_x);
+          height = original_height - (e.pageY - original_mouse_y);
+          if (width > minimum_size) {
+            element.style.width = width + 'px';
+            element.style.left = original_x + (e.pageX - original_mouse_x) + 'px';
+          }
+          if (height > minimum_size) {
+            element.style.height = height + 'px';
+            element.style.top = original_y + (e.pageY - original_mouse_y) + 'px';
           }
         }
       }

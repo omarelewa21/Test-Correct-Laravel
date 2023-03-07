@@ -94,7 +94,6 @@
 #co-learning-teacher-page .student-info-container.active .student-name {
     font-weight: bold;
     color: var(--teacher-primary);
-    font-family: "Nunito Bold";
 }
 
 #co-learning-teacher-page .hide-on-smartboard {

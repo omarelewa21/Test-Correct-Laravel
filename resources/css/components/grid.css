@@ -14,7 +14,7 @@
 .card-tag span {
     color: var(--card-tag-text-color)!important;
     text-transform: uppercase;
-    font-family: Nunito Bold, sans-serif;
+    font-weight: bold;
     font-size:10px;
 }
 

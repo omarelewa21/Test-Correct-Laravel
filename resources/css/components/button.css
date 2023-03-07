@@ -1,7 +1,7 @@
 .button {
     border-radius: 10px;
     font-size: 18px;
-    font-family: Nunito Bold;
+    font-weight: bold;
     padding: 0 20px 0 20px;
     align-items: center;
     display: inline-flex;
@@ -32,7 +32,7 @@
 .text-button {
     border-radius: 0;
     color: var(--system-base);
-    font-family: Nunito Bold;
+    font-weight: bold;
     padding: 0;
 }
 

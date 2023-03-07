@@ -143,6 +143,32 @@
 
     </div>
 </div>
+<div class="p-4">
+    <div>
+        <div style="font-size: 50px" class="italic">italic</div>
+        <div style="font-family: Nunito Italic; font-size: 50px">font-family-italic</div>
+
+
+        <div style="font-size: 50px" class="italic">italic</div>
+        <div style="font-family: Nunito Italic; font-size: 50px">italic</div>
+
+        <div class="font-bold">font-bold</div>
+        <div class="bold">bold</div>
+        <div class="font-extrabold">font-extrabold</div>
+        <div class="font-black">font-black</div>
+    </div>
+    <div >
+        <div class="font-thin">font-thin</div>
+        <div class="font-extralight">font-extralight</div>
+        <div class="font-light">font-light</div>
+        <div class="font-normal">font-normal</div>
+        <div class="font-medium">font-medium</div>
+        <div class="font-semibold">font-semibold</div>
+        <div class="font-bold">font-bold</div>
+        <div class="font-extrabold">font-extrabold</div>
+        <div class="font-black">font-black</div>
+    </div>
+</div>
 @hasSection('detailSlide')
     @yield('detailSlide')
 @endif
