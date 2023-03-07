@@ -126,20 +126,6 @@ class InfoController extends Controller
 
     }
 
-    public function closedNewFeatures(){
-
-        $user = Auth::user();
-
-        if(!auth()->user()->isA('Teacher')) {
-            return Response::make(false, 405);
-        }
-
-        UserSystemSetting::setSetting($user,'newFeatureMessageClosed',true);
-
-        return Response::make(true,200);
-
-    }
-
     /**
      * Get image from cake part and replace each cake img src with laravel src
      * @param (string) html content
