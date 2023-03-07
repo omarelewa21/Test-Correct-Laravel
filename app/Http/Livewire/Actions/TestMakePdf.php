@@ -31,6 +31,6 @@ class TestMakePdf extends TestAction
 
     protected function getDisabledValue(): bool
     {
-        return (!$this->test->canEdit(Auth::user()) && !Auth::user()->isValidExamCoordinator()) || $this->test->isDraft();
+        return $this->test->isDraft();
     }
 }
