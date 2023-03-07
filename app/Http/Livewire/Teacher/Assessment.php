@@ -86,6 +86,19 @@ class Assessment extends Component implements CollapsableHeader
 //                ->getQuestionOrderListWithDiscussionType()
 //        );
 
+//        $testTakeData = TestTake::whereUuid($this->testTakeUuid)
+//            ->with([
+//                'testParticipants:id,uuid,test_take_id,user_id',
+//                'testParticipants.answers:id,uuid,test_participant_id,question_id,json,final_rating',
+//            ])
+//            ->first();
+//        $testParticipants = $testTakeData->testParticipants;
+//        $answers = $testParticipants->mapWithKeys(function ($participant) {
+//            return [$participant->uuid => collect($participant->answers)];
+//        });
+
+
+
         collect($this->answers)->each(function($student, $key) {
             $q = count($this->answers[$key]);
             if ($q > $this->questionCount) {
