@@ -1654,8 +1654,7 @@ document.addEventListener("alpine:init", () => {
             Notify.notify(message, "error");
         }
     }));
-    Alpine.data("livewireNavigator", (property, current, total, methodCall) => ({
-        property,
+    Alpine.data("assessmentNavigator", (current, total, methodCall) => ({
         current,
         total,
         methodCall,
@@ -1678,12 +1677,12 @@ document.addEventListener("alpine:init", () => {
             this.$watch("current", async (value, oldValue) => {
                 clearTimeout(this.requestTimeout);
                 this.requestTimeout = setTimeout(async () => {
-                    let response = await this.$wire[this.methodCall](value, this.property);
+                    let response = await this.$wire[this.methodCall](value);
 
                     if (response) {
-                        console.log(`Updated ${this.property} to: ${response}`);
+                        console.log(`Called ${this.methodCall} with value: ${response}`);
                     }
-                }, 500);
+                }, 250);
             });
         }
     }));

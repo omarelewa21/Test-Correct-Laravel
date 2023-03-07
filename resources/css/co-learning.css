@@ -171,20 +171,19 @@
     color: white;
 }
 
-#co-learning-teacher-page .container-border-left-primary,
-#assessment-page .container-border-left-primary {
+#co-learning-teacher-page .container-border-left.primary,
+#assessment-page .container-border-left.primary {
     background-color: var(--primary);
 }
 
-#co-learning-teacher-page .container-border-left-student,
-#assessment-page .container-border-left-student {
+#co-learning-teacher-page .container-border-left.student,
+#assessment-page .container-border-left.student {
     background-color: var(--secondary);
 }
 
-#co-learning-teacher-page .container-border-left-student,
-#assessment-page .container-border-left-student,
-#co-learning-teacher-page .container-border-left-primary,
-#assessment-page .container-border-left-primary {
+#co-learning-teacher-page .container-border-left,
+#assessment-page .container-border-left {
+    background-color: var(--primary);
     position: absolute;
     width: 0.5rem;
     height: 100%;
@@ -248,6 +247,7 @@
 #assessment-page #header {
     position: fixed;
     left: 0;
+    top:0;
     width: 100%;
     color: white;
     z-index: 50;

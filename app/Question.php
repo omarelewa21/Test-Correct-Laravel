@@ -1604,4 +1604,8 @@ class Question extends MtiBaseModel
             });
         });
     }
+    public function isFullyAnswered(Answer $answer): bool
+    {
+        return (bool)$answer->done;
+    }
 }

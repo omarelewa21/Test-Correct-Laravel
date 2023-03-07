@@ -1,5 +1,4 @@
 @props([
-    'property',
     'current',
     'total',
     'methodCall',
@@ -7,7 +6,7 @@
 ])
 
 <div {{ $attributes->class(['assessment-navigator | flex gap-4 items-center justify-center']) }}
-     x-data="livewireNavigator(@js($property), @js($current),@js($total),@js($methodCall))"
+     x-data="assessmentNavigator(@js($current),@js($total),@js($methodCall))"
      x-cloak
 >
     <div class="flex gap-2">

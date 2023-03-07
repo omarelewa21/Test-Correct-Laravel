@@ -3,4 +3,5 @@
 @props([
     'questionId',
     'mode' => 'view',
+    'upload' => false
 ])

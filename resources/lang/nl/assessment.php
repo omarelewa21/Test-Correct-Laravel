@@ -12,4 +12,5 @@ return [
     'closed_question_checked_tooltip'              => 'Alle gesloten vragen worden automatisch nagekeken en beoordeeld o.b.v. het correctie-/antwoordmodel. Wel zo handig, want dit scheelt een hoop van jouw waardevolle tijd. Voor de gatentekst kun je zelf aangeven of deze automatisch moet worden nagekeken.',
     'colearning_score_tooltip'                     => 'Scores die studenten hebben gegeven aan antwoorden worden getoond tijdens het nakijken. Als er geen discrepanties zijn kent het systeem deze score toe aan het antwoord',
     'discrepancies_toggle_tooltip'                 => 'Wanneer twee studenten dezelfde score toekennen aan een antwoord, zou de docent meestal dezelfde score toekennen. Je kunt ervoor kiezen om deze antwoord over te slaan tijdens het nakijken.',
+    'Nakijken'                                     => 'Nakijken',
 ];

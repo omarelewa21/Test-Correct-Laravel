@@ -52,4 +52,5 @@ return [
     'close_colearning'              => 'CO-Learning sessie afsluiten',
     'close_colearning_text'         => 'Wil je CO-Learning afsluiten om later verder te gaan, of wil je CO-Learning afronden?',
     'choose_method_subtitle'        => 'Kies je sessie methode',
+    'start_co_learning_session'     => 'Start CO-Learning sessie',
 ];

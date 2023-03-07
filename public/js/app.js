@@ -7106,9 +7106,8 @@ document.addEventListener("alpine:init", function () {
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("livewireNavigator", function (property, current, total, methodCall) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("assessmentNavigator", function (current, total, methodCall) {
     return {
-      property: property,
       current: current,
       total: total,
       methodCall: methodCall,
@@ -7145,18 +7144,18 @@ document.addEventListener("alpine:init", function () {
                               while (1) switch (_context8.prev = _context8.next) {
                                 case 0:
                                   _context8.next = 2;
-                                  return _this30.$wire[_this30.methodCall](value, _this30.property);
+                                  return _this30.$wire[_this30.methodCall](value);
                                 case 2:
                                   response = _context8.sent;
                                   if (response) {
-                                    console.log("Updated ".concat(_this30.property, " to: ").concat(response));
+                                    console.log("Called ".concat(_this30.methodCall, " with value: ").concat(response));
                                   }
                                 case 4:
                                 case "end":
                                   return _context8.stop();
                               }
                             }, _callee8);
-                          })), 500);
+                          })), 250);
                         case 2:
                         case "end":
                           return _context9.stop();
