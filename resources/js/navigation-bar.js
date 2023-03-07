@@ -1,5 +1,5 @@
 document.addEventListener('alpine:init', () => {
-    Alpine.data('navigationBar', (enableHubSpot=false) => ({
+    Alpine.data('navigationBar', (enableHubSpotChat=false) => ({
         hideTimeout: null,
         bottom: null,
         userMenuTimeout: null,
@@ -19,7 +19,7 @@ document.addEventListener('alpine:init', () => {
             this.menuButtonsWithItems = this.bottom.querySelectorAll('.has-items');
             this.menuButtonsWithoutItems = this.bottom.querySelectorAll('div:not(.has-items)');
 
-            if(enableHubSpot) this.initializeHubspot();
+            if(enableHubSpotChat) this.initializeHubspot();
 
             if (window.HubSpotConversations) {
                 this.onConversationsAPIReady();

@@ -14416,7 +14416,7 @@ window.Livewire.directive('sortable-group', function (el, directive, component) 
 
 document.addEventListener('alpine:init', function () {
   Alpine.data('navigationBar', function () {
-    var enableHubSpot = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+    var enableHubSpotChat = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
     return {
       hideTimeout: null,
       bottom: null,
@@ -14437,7 +14437,7 @@ document.addEventListener('alpine:init', function () {
         var scrollRight = this.$refs.menu_scroll_right;
         this.menuButtonsWithItems = this.bottom.querySelectorAll('.has-items');
         this.menuButtonsWithoutItems = this.bottom.querySelectorAll('div:not(.has-items)');
-        if (enableHubSpot) this.initializeHubspot();
+        if (enableHubSpotChat) this.initializeHubspot();
 
         if (window.HubSpotConversations) {
           this.onConversationsAPIReady();
