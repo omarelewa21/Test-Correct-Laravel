@@ -51,6 +51,7 @@ Route::group(['middleware' => ['api', 'bindings']], function() {
     Route::get('info', [tcCore\Http\Controllers\InfoController::class, 'index']);
     Route::post('info/removeDashboardInfo/{info}', [tcCore\Http\Controllers\InfoController::class,'removeDashboardInfo']);
     Route::put('info/seenNewFeatures', [tcCore\Http\Controllers\InfoController::class,'seenNewFeatures']);
+    Route::put('info/closedNewFeaturesMessage', [tcCore\Http\Controllers\InfoController::class,'closedNewFeaturesMessage']);
 });
 
 Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bindings']], function(){
