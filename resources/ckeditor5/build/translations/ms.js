@@ -1,1 +1,0 @@
-(function(d){	const l = d['ms'] = d['ms'] || {};	l.dictionary=Object.assign(		l.dictionary||{},		{"Saving changes":"Menyimpan perubahan"}	);l.getPluralForm=function(n){return 0;;};})(window.CKEDITOR_TRANSLATIONS||(window.CKEDITOR_TRANSLATIONS={}));
