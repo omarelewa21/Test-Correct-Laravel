@@ -115,15 +115,13 @@ class InfoController extends Controller
     public function seenNewFeatures(){
 
         $user = Auth::user();
-        return Response::make(false, 500);
+
         if(!auth()->user()->isA('Teacher')) {
-            return Response::make(false, 500);
+            return Response::make(false, 401);
         }
 
         UserSystemSetting::setSetting($user,'newFeaturesSeen',true);
-        if (!UserSystemSetting::getSetting($user,'newFeaturesSeen')) {
-            return Response::make(false, 500);
-        }
+
         return Response::make(true,200);
 
     }
@@ -133,13 +131,11 @@ class InfoController extends Controller
         $user = Auth::user();
 
         if(!auth()->user()->isA('Teacher')) {
-            return Response::make(false, 500);
+            return Response::make(false, 405);
         }
 
         UserSystemSetting::setSetting($user,'newFeatureMessageClosed',true);
-        if (!UserSystemSetting::getSetting($user,'newFeatureMessageClosed')) {
-            return Response::make(false, 500);
-        }
+
         return Response::make(true,200);
 
     }
