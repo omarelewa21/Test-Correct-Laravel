@@ -36,9 +36,6 @@ if(typeof process.env.MIX_DEVELOPMENT_BUILD === 'undefined' || process.env.MIX_D
     ])
 }
 
-const wirisPath = "node_modules/@wiris/mathtype-ckeditor4";
-mix.copy(wirisPath + "/plugin.js", "public/ckeditor/plugins/ckeditor_wiris/plugin.js")
-    .copyDirectory(wirisPath + "/icons", "public/ckeditor/plugins/ckeditor_wiris/icons");
 
 mix.copy("resources/ckeditor5/build/ckeditor.js", "public/js/ckeditor.js");
 mix.copy("resources/ckeditor5/build/ckeditor.js.map", "public/js/ckeditor.js.map");
