@@ -18,7 +18,7 @@ abstract class NavigationBar extends Component
     public $showSchoolSwitcher = false;
     public $menus = [];
     public $tileGroups = [];
-    public $isTeacher;
+    public $enableHubSpot;
 
     public function mount()
     {
@@ -27,7 +27,7 @@ abstract class NavigationBar extends Component
         $this->menus = $this->menus();
         $this->tileGroups = $this->tiles();
         $this->handleMenuFilters();
-        $this->isTeacher = isset(Auth::user()->roles[0]) ? true : false;
+        $this->enableHubSpot = isset(Auth::user()->roles[0]) ? true : false;
     }
 
     public function render()
