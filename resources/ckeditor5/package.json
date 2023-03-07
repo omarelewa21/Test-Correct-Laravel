@@ -31,7 +31,7 @@
     "@webspellchecker/wproofreader-ckeditor5": "2.1.0",
     "@ckeditor/ckeditor5-paste-from-office":"^32.0.0",
     "@wiris/mathtype-ckeditor5": "7.27.2",
-    "@ckeditor/ckeditor5-core/src/plugin": "32.0.0",
+    "@ckeditor/ckeditor5-core": "32.0.0",
     "css-loader": "^5.2.7",
     "postcss": "^7.0.39",
     "postcss-loader": "^4.3.0",
