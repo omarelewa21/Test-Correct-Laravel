@@ -3,6 +3,7 @@
 namespace tcCore\Http\Livewire\Overview;
 
 use Livewire\Component;
+use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithGroups;
 use tcCore\Question;
@@ -25,7 +26,7 @@ class OpenQuestion extends Component
 
         $temp = (array) json_decode($this->answers[$this->question->uuid]['answer']);
         if (key_exists('value', $temp)) {
-            $this->answer = $temp['value'];
+            $this->answer = BaseHelper::transformHtmlCharsReverse($temp['value'], false);
         }
 
         $this->answered = $this->answers[$this->question->uuid]['answered'];

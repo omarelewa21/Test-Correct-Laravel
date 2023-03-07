@@ -1682,6 +1682,45 @@ document.addEventListener('alpine:init', () => {
     }));
 
 
+    Alpine.data('completionQuestion', () => ({
+        minWidth: 120,
+        maxWidth: 1000,
+        setInputWidth(input, init = false, preview = false) {
+
+            if(!init || preview){
+                this.calculateInputWidth(input);
+                return;
+            }
+
+            this.$watch('showMe', (value) => {
+                if(!value) {
+                    return;
+                }
+                this.$nextTick(() => {
+                    this.calculateInputWidth(input);
+                })
+            })
+        },
+        calculateInputWidth (input) {
+            this.minWidth = 120;
+            this.maxWidth = input.closest('div.input-group').parentElement.offsetWidth;
+
+            this.span = input.parentElement.querySelector('.absolute');
+
+            this.span.innerText = input.value;
+            this.newWidth = this.span.offsetWidth + 27;
+
+            if(this.newWidth < this.minWidth) {
+                this.newWidth = this.minWidth;
+            }
+            if(this.newWidth > this.maxWidth) {
+                this.newWidth = this.maxWidth;
+            }
+
+            input.style.width = this.newWidth + 'px';
+        }
+    }));
+
     Alpine.directive('global', function (el, {expression}) {
         let f = new Function('_', '$data', '_.' + expression + ' = $data;return;');
         f(window, el._x_dataStack[0]);

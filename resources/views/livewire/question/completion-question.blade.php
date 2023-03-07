@@ -1,6 +1,6 @@
 <x-partials.question-container :number="$number" :question="$question">
     <div class="w-full space-y-3 completion-question-container"
-         x-data="{}"
+         x-data="completionQuestion()"
          x-init="truncateOptionsIfTooLong($el); setTitlesOnLoad($el)"
          @resize.window.debounce.250ms="truncateOptionsIfTooLong($el)"
          id="completion_{{ $question->id }}"
