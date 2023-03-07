@@ -1222,7 +1222,7 @@ class OpenShort extends Component implements QuestionCms
                 // the groupQuestionQuestion could not be found and has probably to do with using the back button
                 // we therefor lead the user to the test page again with a notification
                 $this->resetToEmptyState();
-                $this->dispatchBrowserEvent('notify', ['message' => __('cms.'), 'type' => 'error']);
+                $this->dispatchBrowserEvent('notify', ['message' => __('cms.Sorry, er ging iets fout, probeer het nogmaals'), 'type' => 'error']);
                 return;
             }
             $this->type = $question->type;
