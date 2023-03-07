@@ -4,6 +4,7 @@ namespace tcCore\Http\Livewire\Question;
 
 use Livewire\Component;
 use tcCore\Answer;
+use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Traits\WithAttachments;
 use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithGroups;
@@ -26,7 +27,7 @@ class OpenQuestion extends Component
 
         $temp = (array) json_decode($this->answers[$this->question->uuid]['answer']);
         if (key_exists('value', $temp)) {
-            $this->answer = $temp['value'];
+            $this->answer = BaseHelper::transformHtmlCharsReverse($temp['value'], false);
         }
 
 //        $this->attachments = $this->question->attachments;
