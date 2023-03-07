@@ -154,7 +154,6 @@ RichTextEditor = {
 
         config.removePlugins = [...config.removePlugins, ...pluginsToRemove];
         config.toolbar.removeItems = pluginsToRemove.map(item => item.toLowerCase());
-        console.dir(config);
 
         return config;
     },

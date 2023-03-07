@@ -19,10 +19,11 @@
                 "serviceProtocol": "https",
                 "servicePort": "80",
                 "serviceHost": "wsc.test-correct.nl",
-                "servicePath": "wscservice/api"
+                "servicePath": "wscservice/api",
+                "srcUrl": "https://wsc.test-correct.nl/wscservice/wscbundle/wscbundle.js",
             }
         </script>
-        <script src="https://wsc.test-correct.nl/wscservice/wscbundle/wscbundle.js"></script>
+{{--        <script src="https://wsc.test-correct.nl/wscservice/wscbundle/wscbundle.js"></script>--}}
     @endif
 @endpush
 </x-layouts.base>
