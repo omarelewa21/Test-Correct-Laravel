@@ -3,6 +3,7 @@ import Choices from "choices.js";
 import Intersect from "@alpinejs/intersect";
 import Clipboard from "@ryangjchandler/alpine-clipboard";
 import collapse from "@alpinejs/collapse";
+import { isString } from "lodash";
 
 window.Alpine = Alpine;
 Alpine.plugin(Clipboard);
@@ -1346,7 +1347,7 @@ document.addEventListener("alpine:init", () => {
         }
     ));
 
-    Alpine.data("sliderToggle", (model, sources) => ({
+    Alpine.data("sliderToggle", (model, sources, initialValue) => ({
         buttonPosition: "0px",
         buttonWidth: "auto",
         value: model,
@@ -1354,6 +1355,9 @@ document.addEventListener("alpine:init", () => {
         handle: null,
         init() {
             this.handle = this.$el.querySelector(".slider-button-handle");
+            if (initialValue !== null) {
+                this.value = isString(initialValue) ? this.sources.indexOf(initialValue) : +initialValue;
+            }
             if (this.value === null) {
                 return;
             }

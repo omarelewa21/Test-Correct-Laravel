@@ -48,6 +48,9 @@ class Assessment extends Component implements CollapsableHeader
     protected $questions;
     protected $testTakeData;
 
+    public $score;
+    public $toggle;
+
     /*        [
             's1' => [
                 '1' => 'a',
@@ -161,7 +164,12 @@ class Assessment extends Component implements CollapsableHeader
         $this->ai = $value;
         $this->answerIndex = $value - 1;
 
-        $this->currentAnswer = $this->answers->where('question_id', $this->currentQuestion->getKey())->values()[$this->answerIndex];
+        $answersForQuestion = $this->answers->where('question_id', $this->currentQuestion->getKey())->values();
+        // 1 Are there answers?
+        // 2 Is there an answer for this index?
+        $this->currentAnswer = $answersForQuestion[$this->answerIndex];
+
+        $this->makeToggleProperties();
 
         return $value;
     }
@@ -184,7 +192,7 @@ class Assessment extends Component implements CollapsableHeader
 
         $this->assessmentContext = [
             'skippedCoLearning' => !$testTake->skipped_discussion,
-            'assessedAt'        => str($testTake->assessed_at->translatedFormat('j M Y'))->replace('.', ''),
+            'assessedAt'        => filled($testTake->assessed_at) ? str($testTake->assessed_at->translatedFormat('j M Y'))->replace('.', '') : null,
             'assessmentType'    => $testTake->assessment_type,
         ];
         $this->openOnly = $testTake->assessment_type === 'OPEN_ONLY';
@@ -202,7 +210,7 @@ class Assessment extends Component implements CollapsableHeader
             return TestTake::whereUuid($this->testTakeUuid)
                 ->with([
                     'testParticipants:id,uuid,test_take_id,user_id',
-                    'testParticipants.answers:id,uuid,test_participant_id,question_id,json,final_rating',
+                    'testParticipants.answers:id,uuid,test_participant_id,question_id,json,final_rating,done',
                     'test:id',
                     'test.testQuestions:id,test_id,question_id',
                     'test.testQuestions.question',
@@ -230,5 +238,25 @@ class Assessment extends Component implements CollapsableHeader
     private function skipBootedMethod(): void
     {
         $this->skipBooted = true;
+    }
+
+    public function getNeedsQuestionSectionProperty(): bool
+    {
+        return !$this->currentQuestion->isSubType('TrueFalse');
+    }
+
+    private function makeToggleProperties(): void
+    {
+        if ($this->currentQuestion->isType('MultipleChoice')) {
+            if($this->currentQuestion->isSubType('MultipleChoice')) {
+                for ($i = 0; $i <= $this->currentQuestion->selectable_answers; $i++) {
+//                    $this->toggle[$i] = null;
+                }
+            }
+
+            if ($this->currentQuestion->isSubType('TrueFalse')) {
+//                $this->toggle = null;
+            }
+        }
     }
 }

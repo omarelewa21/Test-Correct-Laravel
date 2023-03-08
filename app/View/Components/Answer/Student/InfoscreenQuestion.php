@@ -1,13 +1,10 @@
 <?php
 
-namespace tcCore\View\Components\Answer\Teacher;
-
-
+namespace tcCore\View\Components\Answer\Student;
 
 class InfoscreenQuestion extends QuestionComponent
 {
-
-    protected function setAnswerStruct($question): void
+    protected function setAnswerStruct($question, $answer): void
     {
         // TODO: Implement setAnswerStruct() method.
     }
