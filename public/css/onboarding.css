@@ -17,18 +17,8 @@
 
 @font-face {
     font-family: Nunito;
-    src: url("../fonts/Nunito-VariableFont_wght.ttf");
+    src: url("../fonts/Nunito/Nunito-VariableFont_wght.ttf");
     font-weight: 100 900;
-}
-
-@font-face {
-    font-family: Nunito Bold;
-    src: url("../fonts/Nunito/Nunito-Bold.ttf");
-}
-
-@font-face {
-    font-family: Nunito Regular;
-    src: url("../fonts/Nunito/Nunito-Regular.ttf");
 }
 
 @font-face {
@@ -229,12 +219,13 @@ h6 {
 
 .onboarding-header {
     color: var(--primary);
-    font-family: Nunito Regular;
+    font-family: Nunito;
     box-shadow: 0px 3px 8px 0px rgba(77,87,143,0.07);
 }
 
 .onboarding-body {
-    font-family: Nunito bold;
+    font-family: Nunito;
+    font-weight: bold;
 }
 
 .content-section {
@@ -329,7 +320,8 @@ span.active {
 .button {
     border-radius: 10px;
     font-size: 18px;
-    font-family: Nunito Bold;
+    font-family: Nunito;
+    font-weight: bold;
     padding: 0 20px 0 20px;
 }
 
@@ -353,7 +345,8 @@ span.active {
 .text-button {
     min-height: 40px;
     color: var(--system-base);
-    font-family: Nunito Bold;
+    font-family: Nunito;
+    font-weight: bold;
 }
 
 .rotate-svg > svg{
@@ -593,10 +586,10 @@ span.active {
 }
 
 label {
-    font-family: Nunito Regular;
+    font-family: Nunito;
 }
 input {
-    font-family: Nunito Regular;
+    font-family: Nunito;
 }
 
 .input-group:hover input {
@@ -604,7 +597,8 @@ input {
 }
 
 input:focus + label {
-    font-family: Nunito Bold;
+    font-family: Nunito;
+    font-weight: bold;
     color: var(--primary);
     transition: ease-in-out 150ms;
 }
@@ -628,12 +622,13 @@ input:focus + label {
 }
 
 .notification > .title {
-    font-family: Nunito Bold;
+    font-family: Nunito;
+    font-weight: bold;
     font-size: 1rem;
 }
 
 .notification > .body {
-    font-family: Nunito Regular;
+    font-family: Nunito;
     font-size: 0.875rem;
     line-height: normal;
     display: block;
@@ -658,7 +653,8 @@ input:focus + label {
 }
 
 .label_bold {
-    font-family: Nunito Bold;
+    font-family: Nunito;
+    font-weight: bold;
     color: var(--primary);
 }
 
@@ -669,7 +665,7 @@ input:focus + label {
     width: 100%;
     height: 40px;
     margin-left: 16px;
-    font-family: 'Nunito Regular';
+    font-family: 'Nunito';
     font-size: 16px;
     font-weight: normal;
     font-stretch: normal;
@@ -716,7 +712,7 @@ input:focus + label {
     background-color: #F9FAFF;
 }
 .input-text-select::placeholder {
-    font-family: Nunito Regular;
+    font-family: Nunito;
     font-size: 1rem;
     font-weight: normal;
     font-stretch: normal;
@@ -803,7 +799,7 @@ div.subject_item{
     padding:16px;
     padding-top: 7px;
     padding-bottom: 0px;
-    font-family: Nunito Regular;
+    font-family: Nunito;
     font-size: 1rem;
     font-weight: normal;
     font-stretch: normal;
@@ -860,7 +856,7 @@ img.icon-close-small-subjects{
     white-space: nowrap;
     display: none;
     font-size: .75rem;
-    font-family: Nunito Regular;
+    font-family: Nunito;
 }
 
 .tooltip:hover:before {

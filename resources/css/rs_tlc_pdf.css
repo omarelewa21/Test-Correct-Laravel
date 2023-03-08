@@ -31,20 +31,14 @@
 }
 
 @font-face {
-    font-family: Nunito Bold;
-    src: url(/fonts/Nunito-Bold.ttf?7a387fa586931c1ca491b70b8305b435);
-    font-weight: bold;
+    font-family: Nunito;
+    src: url(/fonts/Nunito-VariableFont_wght.ttf?4a3eef3e0a61b7eb3eda7a33f00ff18b);
+    font-weight: 100 900;
 }
 
-@font-face {
-    font-family: Nunito Regular;
-    src: url(/fonts/Nunito-Regular.ttf?37a4c5442e0a607a7acce2ec3966982a);
-    font-weight: normal;
-}
 #toolbarContainer{
     height: 40px;
 }
-
 
 .Rectangle{
     background-color: #ffffff;
@@ -191,7 +185,7 @@ div {
     display: block;
 }
 body {
-    font-family: Nunito Regular, sans-serif !important;
+    font-family: Nunito, sans-serif !important;
     background: var(--light-grey) !important;
     color: var(--system-base);
     touch-action: manipulation;

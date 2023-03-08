@@ -17,18 +17,8 @@
 
 @font-face {
     font-family: Nunito;
-    src: url("../fonts/Nunito-VariableFont_wght.ttf");
+    src: url("../fonts/Nunito/Nunito-VariableFont_wght.ttf");
     font-weight: 100 900;
-}
-
-@font-face {
-    font-family: Nunito Bold;
-    src: url("../fonts/Nunito/Nunito-Bold.ttf");
-}
-
-@font-face {
-    font-family: Nunito Regular;
-    src: url("../fonts/Nunito/Nunito-Regular.ttf");
 }
 
 @font-face {
@@ -226,7 +216,8 @@ h6 {
 }
 
 .onboarding-body {
-    font-family: Nunito bold;
+    font-family: Nunito;
+    font-weight: bold;
 }
 
 .content-section {
@@ -324,7 +315,8 @@ span.active {
 .button {
     border-radius: 10px;
     font-size: 18px;
-    font-family: Nunito Bold;
+    font-family: Nunito;
+    font-weight: bold;
     padding: 0 20px 0 20px;
 }
 
@@ -348,7 +340,8 @@ span.active {
 .text-button {
     min-height: 40px;
     color: var(--system-base);
-    font-family: Nunito Bold;
+    font-family: Nunito;
+    font-weight: bold;
 }
 
 .rotate-svg > svg{
@@ -599,7 +592,8 @@ input {
 }
 
 input:focus + label {
-    font-family: Nunito Bold;
+    font-family: Nunito;
+    font-weight: bold;
     color: var(--primary);
     transition: ease-in-out 150ms;
 }
@@ -623,7 +617,8 @@ input:focus + label {
 }
 
 .notification > .title {
-    font-family: Nunito Bold;
+    font-family: Nunito;
+    font-weight: bold;
     font-size: 1rem;
 }
 

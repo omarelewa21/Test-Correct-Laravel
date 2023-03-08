@@ -2644,7 +2644,8 @@ input[type=number] {
 }
 #drawing-tool.teacher #sidebar .layer-group#question-group .shape-container.reorder-highlight {
     background-color: rgba(var(--purple-mid-dark-rgb), 0.10);
-    font-family: "Nunito Bold", sans-serif;
+    font-family: "Nunito", sans-serif;
+    font-weight: bold;
     color: var(--purple-mid-dark);
 }
 .preview #drawing-tool #img-upload-btn {
@@ -4078,14 +4079,16 @@ svg {
 
 h1 {
     font-size: 2rem;
-    font-family: Nunito Bold;
+    font-family: Nunito;
+    font-weight: bold;
     line-height: 2rem;
     color: var(--system-base);
 }
 
 h2 {
     font-size: 1.75rem;
-    font-family: Nunito Bold;
+    font-family: Nunito;
+    font-weight: bold;
     line-height: 2rem;
     color: var(--system-base);
 }
@@ -4099,21 +4102,24 @@ h3 {
 
 h4 {
     font-size: 1.5rem;
-    font-family: Nunito Bold;
+    font-family: Nunito;
+    font-weight: bold;
     line-height: 1.5rem;
     color: var(--system-base);
 }
 
 h5 {
     font-size: 1.25rem;
-    font-family: Nunito Bold;
+    font-family: Nunito;
+    font-weight: bold;
     line-height: 1.25rem;
     color: var(--system-base);
 }
 
 h6 {
     font-size: 1.125rem;
-    font-family: Nunito Bold;
+    font-family: Nunito;
+    font-weight: bold;
     line-height: 1.125rem;
     color: var(--system-base);
 }
@@ -7232,21 +7238,6 @@ video {
 .font-normal{
   font-weight: 400;
 }
-.font-extrabold{
-  font-weight: 800;
-}
-.font-black{
-  font-weight: 900;
-}
-.font-thin{
-  font-weight: 100;
-}
-.font-extralight{
-  font-weight: 200;
-}
-.font-light{
-  font-weight: 300;
-}
 .uppercase{
   text-transform: uppercase;
 }
@@ -7586,7 +7577,8 @@ h1 {
 
 h4 {
     font-size: 1.5rem;
-    font-family: Nunito Bold;
+    font-family: Nunito;
+    font-weight: bold;
     line-height: 1.5rem;
     color: #041f74;
 }

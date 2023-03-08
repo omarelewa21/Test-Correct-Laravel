@@ -81,20 +81,8 @@
 
 @font-face {
     font-family: Nunito;
-    src: url("../fonts/Nunito-VariableFont_wght.ttf");
+    src: url("../fonts/Nunito/Nunito-VariableFont_wght.ttf");
     font-weight: 100 900;
-}
-
-@font-face {
-    font-family: Nunito Bold;
-    src: url("../fonts/Nunito/Nunito-Bold.ttf");
-    font-weight: bold;
-}
-
-@font-face {
-    font-family: Nunito Regular;
-    src: url("../fonts/Nunito/Nunito-Regular.ttf");
-    font-weight: normal;
 }
 
 @font-face {
@@ -122,7 +110,6 @@
 
 body {
     font-family: Nunito, sans-serif !important;
-    /*font-family: Nunito Regular, sans-serif !important;*/
     background: var(--light-grey) !important;
     color: var(--system-base);
     touch-action: manipulation;

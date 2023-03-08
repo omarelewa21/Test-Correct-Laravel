@@ -2777,7 +2777,8 @@ input[type=number] {
 }
 #drawing-tool.teacher #sidebar .layer-group#question-group .shape-container.reorder-highlight {
     background-color: rgba(var(--purple-mid-dark-rgb), 0.10);
-    font-family: "Nunito Bold", sans-serif;
+    font-family: "Nunito", sans-serif;
+    font-weight: bold;
     color: var(--purple-mid-dark);
 }
 .preview #drawing-tool #img-upload-btn {
@@ -5507,7 +5508,8 @@ input.datepicker {
 /*}*/
 /*.rsbtn .rsbtn_play .rsbtn_left .rsbtn_text .rsbtn_label {*/
 /*    color: #041f74;*/
-/*    font-family: "Nunito Bold", sans-serif;*/
+/*    font-family: "Nunito", sans-serif;*/
+/*font-weight: bold;*/
 /*    font-size: 18px;*/
 /*    padding-left: 0.2em;*/
 /*    display: inline;*/
@@ -5604,7 +5606,7 @@ input.datepicker {
     width: 81px;
     height: 24px;
     margin: 0 0 6px 8px;
-    font-family: Nunito Bold;
+    font-family: Nunito;
     font-size: 18px;
     font-weight: bold;
     font-stretch: normal;
@@ -7696,7 +7698,8 @@ body.rs_highcontrast #rslightbox_contentcontainer #rslightbox_toolbar .rslightbo
     background-position-y: 6px;
 }
 .rspopup .rspopup_btn.rspopup_play span{
-    font-family: Nunito Bold, sans-serif;
+    font-family: Nunito, sans-serif;
+    font-weight: bold;
     color: var(--all-Base);
     vertical-align: super;
     margin-left: 10px;
@@ -7721,7 +7724,8 @@ span.completion-response-object-container{
     footer button.text-button{
         border-radius: 10px;
         font-size: 18px;
-        font-family: Nunito Bold;
+        font-family: Nunito;
+        font-weight: bold;
         padding-top: 0px;
         padding-right: 20px;
         padding-bottom: 0px;
@@ -10621,21 +10625,6 @@ video {
 .font-normal{
   font-weight: 400;
 }
-.font-extrabold{
-  font-weight: 800;
-}
-.font-black{
-  font-weight: 900;
-}
-.font-thin{
-  font-weight: 100;
-}
-.font-extralight{
-  font-weight: 200;
-}
-.font-light{
-  font-weight: 300;
-}
 .uppercase{
   text-transform: uppercase;
 }
@@ -10990,18 +10979,6 @@ video {
 }
 
 @font-face {
-    font-family: Nunito Bold;
-    src: url(/fonts/Nunito-Bold.ttf?7a387fa586931c1ca491b70b8305b435);
-    font-weight: bold;
-}
-
-@font-face {
-    font-family: Nunito Regular;
-    src: url(/fonts/Nunito-Regular.ttf?37a4c5442e0a607a7acce2ec3966982a);
-    font-weight: normal;
-}
-
-@font-face {
     font-family: Zilla Slab Regular;
     src: url(/fonts/ZillaSlab-Regular.ttf?77d29d36cb7664b0568e87376a1f1ed4);
 }
@@ -11026,7 +11003,6 @@ video {
 
 body {
     font-family: Nunito, sans-serif !important;
-    /*font-family: Nunito Regular, sans-serif !important;*/
     background: var(--light-grey) !important;
     color: var(--system-base);
     touch-action: manipulation;

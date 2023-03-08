@@ -18,18 +18,8 @@
 <style>
     @font-face {
         font-family: Nunito;
-        src: url("file:{{base_path()}}/resources/fonts/Nunito-VariableFont_wght.ttf") format('truetype');
+        src: url("file:{{base_path()}}/resources/fonts/Nunito/Nunito-VariableFont_wght.ttf") format('truetype');
         font-weight: 100 900;
-    }
-    @font-face {
-        font-family: "Nunito Bold";
-        src: url("file:{{base_path()}}/resources/fonts/Nunito/Nunito-Bold.ttf") format('truetype');
-        font-weight: bold;
-    }
-    @font-face {
-        font-family: Nunito Regular;
-        src: url("file:{{base_path()}}/resources/fonts/Nunito/Nunito-Regular.ttf") format('truetype');
-        font-weight: normal;
     }
 </style>
 

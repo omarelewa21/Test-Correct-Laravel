@@ -1011,7 +1011,8 @@
 }
 #drawing-tool.teacher #sidebar .layer-group#question-group .shape-container.reorder-highlight {
     background-color: rgba(var(--purple-mid-dark-rgb), 0.10);
-    font-family: "Nunito Bold", sans-serif;
+    font-family: "Nunito", sans-serif;
+    font-weight: bold;
     color: var(--purple-mid-dark);
 }
 .preview #drawing-tool #img-upload-btn {
