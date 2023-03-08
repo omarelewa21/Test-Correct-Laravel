@@ -724,7 +724,7 @@ class Question extends MtiBaseModel
             if (!is_null($subject)) {
                 $query->where(function ($q) use ($user, $subject) {
                     $q->where(function ($query) use ($user, $subject) {
-                        $query->where('questions.subject_id', $subject->getKey())->whereIn('questions.id', $user->questionAuthors()->pluck('question_id'));
+                        $query->where('questions.subject_id', $subject->getKey())->whereIn('questions.id', $user->questionAuthors()->select('question_id'));
                     })->orWhere('questions.subject_id', '<>', $subject->getKey());
                 });
             }
