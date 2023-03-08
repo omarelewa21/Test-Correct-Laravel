@@ -660,7 +660,7 @@ class TestTakesController extends Controller
             }]);
 
             $skipDoNotDiscuss = auth()->user()->schoolLocation->allow_new_co_learning
-                &&  $testTake->getAttribute('discussion_type') === ['OPEN_ONLY'];
+                &&  $testTake->getAttribute('discussion_type') === 'OPEN_ONLY';
 
             // Set next question
             $questionId = null;
