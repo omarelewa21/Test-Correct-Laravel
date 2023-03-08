@@ -186,7 +186,7 @@ class TestsOverview extends OverviewComponent
             return BaseSubject::optionList();
         }
 
-        return BaseSubject::whereIn('id', Subject::filtered(['user_current' => Auth::id()], [])->pluck('base_subject_id'))
+        return BaseSubject::whereIn('id', Subject::filtered(['user_current' => Auth::id()], [])->select('base_subject_id'))
             ->optionList();
     }
 
