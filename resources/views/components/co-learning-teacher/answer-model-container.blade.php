@@ -83,6 +83,6 @@
         </div>
 
     </div>
-    <div class="container-border-left-primary"></div>
+    <div class="container-border-left primary"></div>
 </div>
 

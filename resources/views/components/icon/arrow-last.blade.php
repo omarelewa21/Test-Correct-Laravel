@@ -4,7 +4,8 @@
             <g>
                 <g>
                     <g>
-                        <path d="M6.5 2.5L11.5 7.5 6.5 12.5M15.5 1.5L15.5 13.5M1.5 7.5L10.5 7.5" transform="translate(-1303 -102) translate(1264 70) translate(32) translate(7 32)"/>
+                        <path d="M6.5 2.5L11.5 7.5 6.5 12.5M15.5 1.5L15.5 13.5M1.5 7.5L10.5 7.5"
+                              transform="translate(-1303 -102) translate(1264 70) translate(32) translate(7 32)" />
                     </g>
                 </g>
             </g>

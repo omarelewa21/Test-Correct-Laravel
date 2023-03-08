@@ -103,8 +103,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/drawing_question_answer_model/{question}', [tcCore\Http\Controllers\DrawingQuestionLaravelController::class, 'showAnswerModel'])->name('drawing-question-answer-model');
 
         Route::get('/co-learning/{test_take}', \tcCore\Http\Livewire\Teacher\CoLearning::class)->name('co-learning');
-
-
+        Route::get('/assessment/{testTake}', \tcCore\Http\Livewire\Teacher\Assessment::class)->name('assessment');
     });
 
     Route::middleware(['dll', 'student'])->prefix('appapi')->name('appapi')->group(function () {

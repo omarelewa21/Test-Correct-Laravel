@@ -1,9 +1,15 @@
 {{--maxToolTipWidth 24rem = 24*16 = 384 px--}}
 @props([
     'alwaysLeft' => false,
+    'activeClasses' => 'bg-primary text-white ',
+    'idleClasses' => 'bg-system-secondary text-sysbase',
 ])
+<button x-data="{
+            tooltip: false,
+            maxToolTipWidth: 384,
+            alwaysLeft: @js($alwaysLeft),
 
-<button x-data="{tooltip: false, maxToolTipWidth: 384, alwaysLeft: @js($alwaysLeft) }"
+            }"
         x-init="
             $watch('tooltip', value => {
                 if (tooltip) {
@@ -19,13 +25,17 @@
                 }
             })
         "
+        x-cloak
         x-on:click="tooltip = !tooltip"
         x-on:click.outside="tooltip = false"
-        {{ $attributes->merge(['class' => 'relative rounded-full flex py-1.5 transition-colors ']) }}
-        :class="tooltip ? 'bg-primary text-white px-1.5' : 'bg-system-secondary text-sysbase px-2'"
+        x-bind:class="tooltip ? @js($activeClasses) : @js($idleClasses)"
+        @class([
+          $attributes->get('class'),
+          'relative flex w-[22px] h-[22px] items-center justify-center rounded-full transition-colors'
+        ])
 >
-    <x-icon.questionmark-small x-show="!tooltip"/>
-    <x-icon.close-small x-show="tooltip"/>
+    <x-icon.questionmark-small x-show="!tooltip" x-cloak/>
+    <x-icon.close-small x-show="tooltip" x-cloak/>
     <div x-show="tooltip"
          x-ref="tooltipdiv"
          x-cloak
