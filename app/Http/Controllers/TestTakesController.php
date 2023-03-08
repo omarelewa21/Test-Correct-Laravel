@@ -659,6 +659,8 @@ class TestTakesController extends Controller
                 $query->where('type', 'STUDENT');
             }]);
 
+            $allowNewCoLearning = auth()->user()->schoolLocation->allow_new_co_learning;
+
             // Set next question
             $questionId = null;
             foreach ($testTake->discussingParentQuestions as $discussingParentQuestions) {
@@ -674,7 +676,12 @@ class TestTakesController extends Controller
 
             $questionId .= $testTake->getAttribute('discussing_question_id');
 
-            $newQuestionIdParents = QuestionGatherer::getNextQuestionId($testTake->getAttribute('test_id'), $questionId, in_array($testTake->getAttribute('discussion_type'), ['OPEN_ONLY']));
+            $newQuestionIdParents = QuestionGatherer::getNextQuestionId(
+                $testTake->getAttribute('test_id'),
+                $questionId,
+                in_array($testTake->getAttribute('discussion_type'), ['OPEN_ONLY']),
+                skipDoNotDiscuss: $allowNewCoLearning, //todo set true if new co learning is allowed (student version)
+            );
 
             $testTake->discussingParentQuestions()->delete();
             if ($newQuestionIdParents === false) {
@@ -712,7 +719,14 @@ class TestTakesController extends Controller
                     );
                 }
 
-                $testTake->setAttribute('has_next_question', (QuestionGatherer::getNextQuestionId($testTake->getAttribute('test_id'), $newQuestionIdParents, in_array($testTake->getAttribute('discussion_type'), ['OPEN_ONLY'])) !== false));
+                $testTake->setAttribute('has_next_question', (QuestionGatherer::getNextQuestionId(
+                        $testTake->getAttribute('test_id'),
+                        $newQuestionIdParents,
+                        in_array($testTake->getAttribute('discussion_type'), ['OPEN_ONLY']),
+                        skipDoNotDiscuss: $allowNewCoLearning
+                    ) !== false),
+
+                );
 
                 // Generate for active students next answer_ratings
                 if ($discuss) {
