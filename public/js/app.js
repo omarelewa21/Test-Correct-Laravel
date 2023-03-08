@@ -62,7 +62,7 @@ function src_default(Alpine) {
           start: {height: current + "px"},
           end: {height: full + "px"}
         }, () => el._x_isShown = true, () => {
-          if (el.getBoundingClientRect().height == full) {
+          if (el.style.height == `${full}px`) {
             el.style.overflow = null;
           }
         });
@@ -5442,7 +5442,9 @@ document.addEventListener('alpine:init', function () {
       },
       initWithSelection: function initWithSelection() {
         var _this3 = this;
-        var text = window.editor.getSelectedHtml().$.textContent.trim().replace('[', '').replace(']', '');
+        var editor = window.editor;
+        var selection = editor.data.stringify(editor.model.getSelectedContent(editor.model.document.selection));
+        var text = selection.trim().replace('[', '').replace(']', '');
         var content = text;
         if (text.contains('|')) {
           content = text.split("|");
@@ -5505,7 +5507,9 @@ document.addEventListener('alpine:init', function () {
         result = '[' + result.join('|') + ']';
         var lw = livewire.find(document.getElementById('cms').getAttribute('wire:id'));
         lw.set('showSelectionOptionsModal', true);
-        window.editor.insertText(result);
+        window.editor.model.change(function (writer) {
+          window.editor.model.insertContent(writer.createText(result));
+        });
         setTimeout(function () {
           _this5.$wire.setQuestionProperty('question', window.editor.getData());
         }, 300);
@@ -5562,14 +5566,11 @@ document.addEventListener('alpine:init', function () {
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('badge', function () {
     var videoUrl = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-    var mode = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'edit';
     return {
       options: false,
-      videoUrl: videoUrl,
       videoTitle: videoUrl,
       resolvingTitle: true,
       index: 1,
-      mode: mode,
       init: function init() {
         var _this6 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
@@ -5598,9 +5599,7 @@ document.addEventListener('alpine:init', function () {
                   fetchedTitle = _context.sent;
                   _this6.videoTitle = fetchedTitle || videoUrl;
                   _this6.resolvingTitle = false;
-                  if (mode === 'edit') {
-                    _this6.$wire.setVideoTitle(videoUrl, _this6.videoTitle);
-                  }
+                  _this6.$wire.setVideoTitle(videoUrl, _this6.videoTitle);
                 case 9:
                 case "end":
                   return _context.stop();
@@ -5944,7 +5943,7 @@ document.addEventListener('alpine:init', function () {
         this.activeFiltersContainer = document.getElementById(filterContainer);
         this.multiple = multiple === 1;
         this.$nextTick(function () {
-          var choices = new (choices_js__WEBPACK_IMPORTED_MODULE_1___default())(_this17.$root.querySelector('select'), _this17.getChoicesConfig());
+          var choices = new (choices_js__WEBPACK_IMPORTED_MODULE_1___default())(_this17.$refs.select, _this17.getChoicesConfig());
           var refreshChoices = function refreshChoices() {
             var selection = _this17.multiple ? _this17.value : [_this17.value];
             var options = _typeof(_this17.options) === 'object' ? Object.values(_this17.options) : _this17.options;
@@ -6700,14 +6699,11 @@ document.addEventListener('alpine:init', function () {
         this.activateButton(target);
       },
       activateButton: function activateButton(target) {
-        var _this25 = this;
-        this.$nextTick(function () {
-          _this25.resetButtons(target);
-          _this25.buttonPosition = target.offsetLeft + 'px';
-          _this25.buttonWidth = target.offsetWidth + 'px';
-          target.firstElementChild.classList.add('text-primary');
-          _this25.handle.classList.remove('hidden');
-        });
+        this.resetButtons(target);
+        this.buttonPosition = target.offsetLeft + 'px';
+        this.buttonWidth = target.offsetWidth + 'px';
+        target.firstElementChild.classList.add('text-primary');
+        this.handle.classList.remove('hidden');
       },
       resetButtons: function resetButtons(target) {
         Array.from(target.parentElement.children).forEach(function (button) {
@@ -6730,14 +6726,14 @@ document.addEventListener('alpine:init', function () {
         }
       },
       updateGraph: function updateGraph(forceUpdate) {
-        var _this26 = this;
+        var _this25 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee6() {
-          var method, _yield$_this26$$wire$, _yield$_this26$$wire$2;
+          var method, _yield$_this25$$wire$, _yield$_this25$$wire$2;
           return _regeneratorRuntime().wrap(function _callee6$(_context6) {
             while (1) {
               switch (_context6.prev = _context6.next) {
                 case 0:
-                  if (!(!_this26.data || forceUpdate)) {
+                  if (!(!_this25.data || forceUpdate)) {
                     _context6.next = 10;
                     break;
                   }
@@ -6746,13 +6742,13 @@ document.addEventListener('alpine:init', function () {
                     method = 'getDataForGeneralGraph';
                   }
                   _context6.next = 5;
-                  return _this26.$wire.call(method, _this26.modelId, _this26.taxonomy);
+                  return _this25.$wire.call(method, _this25.modelId, _this25.taxonomy);
                 case 5:
-                  _yield$_this26$$wire$ = _context6.sent;
-                  _yield$_this26$$wire$2 = _slicedToArray(_yield$_this26$$wire$, 2);
-                  _this26.showEmptyState = _yield$_this26$$wire$2[0];
-                  _this26.data = _yield$_this26$$wire$2[1];
-                  _this26.renderGraph();
+                  _yield$_this25$$wire$ = _context6.sent;
+                  _yield$_this25$$wire$2 = _slicedToArray(_yield$_this25$$wire$, 2);
+                  _this25.showEmptyState = _yield$_this25$$wire$2[0];
+                  _this25.data = _yield$_this25$$wire$2[1];
+                  _this25.renderGraph();
                 case 10:
                 case "end":
                   return _context6.stop();
@@ -6851,32 +6847,32 @@ document.addEventListener('alpine:init', function () {
       menuOffsetMarginTop: 56,
       menuOffsetMarginLeft: 224,
       handleIncomingEvent: function handleIncomingEvent(detail) {
-        var _this27 = this;
+        var _this26 = this;
         if (!this.contextMenuOpen) return this.openMenu(detail);
         this.closeMenu();
         setTimeout(function () {
-          _this27.openMenu(detail);
+          _this26.openMenu(detail);
         }, 150);
       },
       openMenu: function openMenu(detail) {
-        var _this28 = this;
+        var _this27 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee7() {
           var readyForShow;
           return _regeneratorRuntime().wrap(function _callee7$(_context7) {
             while (1) {
               switch (_context7.prev = _context7.next) {
                 case 0:
-                  _this28.uuid = detail.uuid;
-                  _this28.correspondingButton = detail.button;
-                  _this28.contextData = detail.contextData;
-                  _this28.$root.style.top = detail.coords.top + _this28.menuOffsetMarginTop + 'px';
-                  _this28.$root.style.left = detail.coords.left - _this28.menuOffsetMarginLeft + 'px';
+                  _this27.uuid = detail.uuid;
+                  _this27.correspondingButton = detail.button;
+                  _this27.contextData = detail.contextData;
+                  _this27.$root.style.top = detail.coords.top + _this27.menuOffsetMarginTop + 'px';
+                  _this27.$root.style.left = detail.coords.left - _this27.menuOffsetMarginLeft + 'px';
                   _context7.next = 7;
-                  return _this28.$wire.setContextValues(_this28.uuid, _this28.contextData);
+                  return _this27.$wire.setContextValues(_this27.uuid, _this27.contextData);
                 case 7:
                   readyForShow = _context7.sent;
-                  if (readyForShow) _this28.contextMenuOpen = true;
-                  _this28.contextMenuOpen = true;
+                  if (readyForShow) _this27.contextMenuOpen = true;
+                  _this27.contextMenuOpen = true;
                 case 10:
                 case "end":
                   return _context7.stop();
@@ -6933,24 +6929,24 @@ document.addEventListener('alpine:init', function () {
         }
       },
       uploadFiles: function uploadFiles(files) {
-        var _this29 = this;
+        var _this28 = this;
         var $this = this;
         this.isUploading = true;
         var dummyContainer = this.$root.querySelector('#upload-dummies');
         Array.from(files).forEach(function (file, key) {
-          if (!_this29.fileHasAllowedExtension(file)) {
-            _this29.handleIncorrectFileUpload(file);
+          if (!_this28.fileHasAllowedExtension(file)) {
+            _this28.handleIncorrectFileUpload(file);
             return;
           }
-          if (_this29.fileTooLarge(file)) {
-            _this29.handleTooLargeOfAfile(file);
+          if (_this28.fileTooLarge(file)) {
+            _this28.handleTooLargeOfAfile(file);
             return;
           }
           var badgeId = "upload-badge-".concat(key);
           var loadingBadge = $this.createLoadingBadge(file, badgeId);
           dummyContainer.append(loadingBadge);
           $this.progress[badgeId] = 0;
-          $this.$wire.upload(_this29.uploadModel, file, function (success) {
+          $this.$wire.upload(_this28.uploadModel, file, function (success) {
             $this.progress[badgeId] = 0;
             dummyContainer.querySelector("#".concat(badgeId)).remove();
           }, function (error) {
@@ -7001,43 +6997,6 @@ document.addEventListener('alpine:init', function () {
       handleTooLargeOfAfile: function handleTooLargeOfAfile(file) {
         var message = this.rules.size.message.replace('%s', file.name);
         Notify.notify(message, 'error');
-      }
-    };
-  });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('completionQuestion', function () {
-    return {
-      minWidth: 120,
-      maxWidth: 1000,
-      setInputWidth: function setInputWidth(input) {
-        var _this30 = this;
-        var init = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-        var preview = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-        if (!init || preview) {
-          this.calculateInputWidth(input);
-          return;
-        }
-        this.$watch('showMe', function (value) {
-          if (!value) {
-            return;
-          }
-          _this30.$nextTick(function () {
-            _this30.calculateInputWidth(input);
-          });
-        });
-      },
-      calculateInputWidth: function calculateInputWidth(input) {
-        this.minWidth = 120;
-        this.maxWidth = input.closest('div.input-group').parentElement.offsetWidth;
-        this.span = input.parentElement.querySelector('.absolute');
-        this.span.innerText = input.value;
-        this.newWidth = this.span.offsetWidth + 27;
-        if (this.newWidth < this.minWidth) {
-          this.newWidth = this.minWidth;
-        }
-        if (this.newWidth > this.maxWidth) {
-          this.newWidth = this.maxWidth;
-        }
-        input.style.width = this.newWidth + 'px';
       }
     };
   });
@@ -7441,13 +7400,6 @@ window.plyrPlayer = {
       this.disableElem(player.elements.buttons.play[0]);
     }
     return player;
-  },
-  renderWithoutConstraints: function renderWithoutConstraints(elem) {
-    var controls = ['play', 'progress', 'current-time', 'mute', 'volume'];
-    var player = new (plyr__WEBPACK_IMPORTED_MODULE_0___default())(elem, {
-      controls: controls
-    });
-    return player;
   }
 };
 
@@ -7640,7 +7592,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _smoothscroll_polyfill__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_smoothscroll_polyfill__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var _AnyChart_anychart_base_min__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./AnyChart/anychart-base.min */ "./resources/js/AnyChart/anychart-base.min.js");
 /* harmony import */ var _AnyChart_anychart_base_min__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_AnyChart_anychart_base_min__WEBPACK_IMPORTED_MODULE_3__);
-/* provided dependency */ var process = __webpack_require__(/*! process/browser.js */ "./node_modules/process/browser.js");
 window._ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
 
 /**
@@ -7662,7 +7613,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "662d128370816e2bbb66",
+  key: "51d7221bf733999d7138",
   cluster: "eu",
   forceTLS: true
 });
@@ -7675,7 +7626,7 @@ FilePond.registerPlugin((filepond_plugin_file_validate_size__WEBPACK_IMPORTED_MO
 
 _smoothscroll_polyfill__WEBPACK_IMPORTED_MODULE_2___default().polyfill();
 
-_AnyChart_anychart_base_min__WEBPACK_IMPORTED_MODULE_3___default().licenseKey(process.env.MIX_ANYCHART_LICENSE_KEY);
+_AnyChart_anychart_base_min__WEBPACK_IMPORTED_MODULE_3___default().licenseKey("test-correct.nl-fd20379b-1da7f4b1");
 
 /***/ }),
 
@@ -7685,6 +7636,9 @@ _AnyChart_anychart_base_min__WEBPACK_IMPORTED_MODULE_3___default().licenseKey(pr
   \******************************/
 /***/ (() => {
 
+function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
 function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 parent.skip = false;
 var notifsent = false;
@@ -7718,6 +7672,7 @@ Core = {
     }
     Core.checkForElectron();
     runCheckFocus();
+    catchscreenshotchromeOS();
     startStudentActivityCheck();
     Core.appType === '' ? Core.enableBrowserFeatures() : Core.enableAppFeatures(Core.appType);
   },
@@ -8012,6 +7967,41 @@ function startStudentActivityCheck() {
 }
 function isMakingTest() {
   return document.querySelector('[testtakemanager]') != null;
+}
+function catchscreenshotchromeOS() {
+  if (Core.appType == 'chromebook') {
+    var safeKeys = ['c', 'x', 'z', 'y', 'v', '0'];
+    var storeKeys = [];
+    window.addEventListener("keydown", function (event) {
+      if (event.ctrlKey && !event.repeat) {
+        storeKeys.push(event.key);
+      }
+    });
+    window.addEventListener("keyup", function (event) {
+      if (event.key == "Control") {
+        var _iterator = _createForOfIteratorHelper(storeKeys),
+          _step;
+        try {
+          for (_iterator.s(); !(_step = _iterator.n()).done;) {
+            key = _step.value;
+            if (!safeKeys.includes(key.toLowerCase()) && key != "Control") {
+              Core.lostFocus('printscreen'); //massage to teacher needs to added
+              break;
+            }
+          }
+        } catch (err) {
+          _iterator.e(err);
+        } finally {
+          _iterator.f();
+        }
+        if (storeKeys.length == 1 & storeKeys[0] == "Control") {
+          Core.lostFocus('printscreen'); //massage to teacher needs to added
+        }
+
+        storeKeys = [];
+      }
+    });
+  }
 }
 
 /***/ }),
@@ -13318,54 +13308,27 @@ readspeakerLoadCore = function (_readspeakerLoadCore) {
   \******************************************/
 /***/ (() => {
 
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
 RichTextEditor = {
   initStudent: function initStudent(editorId) {
-    var editor = CKEDITOR.instances[editorId];
-    if (editor) {
-      editor.destroy(true);
-    }
-    CKEDITOR.replace(editorId, {
-      removePlugins: 'pastefromword,pastefromgdocs,advanced,simpleuploads,dropoff,copyformatting,image,pastetext,uploadwidget,uploadimage',
-      extraPlugins: 'blockimagepaste,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
-      toolbar: [{
-        name: 'basicstyles',
-        items: ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript']
-      }, {
-        name: 'paragraph',
-        items: ['NumberedList', 'BulletedList']
-      }, {
-        name: 'insert',
-        items: ['Table']
-      }, {
-        name: 'styles',
-        items: ['Font', 'FontSize']
-      }, {
-        name: 'wirisplugins',
-        items: ['ckeditor_wiris_formulaEditor', 'ckeditor_wiris_formulaEditorChemistry']
-      }]
-    });
-    CKEDITOR.instances[editorId].on('change', function (e) {
-      RichTextEditor.sendInputEventToEditor(editorId, e);
-    });
+    console.log('this should implement student init // example is open-medium-question.blase.php');
   },
   initStudentCoLearning: function initStudentCoLearning(editorId) {
     var lang = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'nl_NL';
     var wsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-    var editor = CKEDITOR.instances[editorId];
-    if (editor) {
-      editor.destroy(true);
-    }
-    if (wsc) {
-      CKEDITOR.disableAutoInline = true;
-      CKEDITOR.config.removePlugins = 'scayt,wsc';
-    }
-    CKEDITOR.on('instanceReady', function (event) {
-      var editor = event.editor;
-      WebspellcheckerTlc.forTeacherQuestion(editor, lang, wsc);
-    });
-    CKEDITOR.replace(editorId, {
-      removePlugins: 'pastefromword,pastefromgdocs,advanced,simpleuploads,dropoff,copyformatting,image,pastetext,uploadwidget,uploadimage,elementspath',
-      extraPlugins: 'quicktable,ckeditor_wiris,autogrow,wordcount,notification',
+    return ClassicEditor.create(document.querySelector('#' + editorId), {
+      autosave: {
+        waitingTime: 300,
+        save: function save(editor) {
+          editor.updateSourceElement();
+          editor.sourceElement.dispatchEvent(new Event('input'));
+        }
+      },
       wordcount: {
         showWordCount: true,
         showParagraphs: false,
@@ -13373,146 +13336,49 @@ RichTextEditor = {
         countSpacesAsChars: true
       },
       autoGrow_maxHeight: 0,
-      toolbar: []
-    });
-    editor = CKEDITOR.instances[editorId];
-    editor.on('change', function (e) {
-      RichTextEditor.sendInputEventToEditor(editorId, e);
-    });
-    editor.on('instanceReady', function (e) {
-      setTimeout(function () {
-        document.getElementById('word-count-' + editorId).textContent = editor.wordCount.wordCount;
-        document.getElementById('char-count-' + editorId).textContent = editor.wordCount.charCount;
-      }, 300);
-      window.addEventListener('wsc-problems-count-updated-' + editorId, function (e) {
-        var problemCountSpan = document.getElementById('problem-count-' + editorId);
-        if (problemCountSpan) {
-          problemCountSpan.textContent = e.detail.problemsCount;
-        }
-      });
-      document.getElementById('cke_wordcount_' + editorId).classList.add('hidden');
-      document.querySelector('.cke_top').style.display = 'none !important';
-      document.querySelector('.cke_bottom').style.display = 'none !important';
-    });
-  },
-  initCMS: function initCMS(editorId) {
-    var lang = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'nl_NL';
-    var wsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-    var editor = CKEDITOR.instances[editorId];
-    if (editor) {
-      editor.destroy(true);
-    }
-    if (wsc) {
-      CKEDITOR.disableAutoInline = true;
-      CKEDITOR.config.removePlugins = 'scayt,wsc';
-    }
-    CKEDITOR.on('instanceReady', function (event) {
-      var editor = event.editor;
-      WebspellcheckerTlc.forTeacherQuestion(editor, lang, wsc);
-    });
-    CKEDITOR.replace(editorId, {});
-    editor = CKEDITOR.instances[editorId];
-    editor.on('change', function (e) {
-      RichTextEditor.sendInputEventToEditor(editorId, e);
-    });
-    editor.on('simpleuploads.startUpload', function (e) {
-      e.data.extraHeaders = {
-        'X-CSRF-TOKEN': document.querySelector('meta[name="_token"]').content
-      };
-    });
-    editor.on('simpleuploads.finishedUpload', function (e) {
-      RichTextEditor.sendInputEventToEditor(editorId, e);
+      toolbar: [],
+      wproofreader: window.WEBSPELLCHECKER_CONFIG
+    }).then(function (editor) {
+      ClassicEditors[editorId] = editor;
+      var wordCountPlugin = editor.plugins.get('WordCount');
+      var wordCountWrapper = document.getElementById('word-count-' + editorId);
+      wordCountWrapper.appendChild(wordCountPlugin.wordCountContainer);
+      if (typeof ReadspeakerTlc != 'undefined') {
+        ReadspeakerTlc.ckeditor.addListenersForReadspeaker(editor, questionId, editorId);
+        ReadspeakerTlc.ckeditor.disableContextMenuOnCkeditor();
+      }
+    })["catch"](function (error) {
+      console.error(error);
     });
   },
   initSelectionCMS: function initSelectionCMS(editorId) {
     var lang = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'nl_NL';
-    var wsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-    var editor = CKEDITOR.instances[editorId];
+    var allowWsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+    var editor = ClassicEditors[editorId];
     if (editor) {
       editor.destroy(true);
     }
-    if (wsc) {
-      CKEDITOR.disableAutoInline = true;
-      CKEDITOR.config.removePlugins = 'scayt,wsc';
-    }
-    CKEDITOR.on('instanceReady', function (event) {
-      var editor = event.editor;
-      WebspellcheckerTlc.forTeacherQuestion(editor, lang, wsc);
-    });
-    CKEDITOR.replace(editorId, {
-      extraPlugins: 'selection,simpleuploads,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
-      toolbar: [{
-        name: 'basicstyles',
-        items: ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript']
-      }, {
-        name: 'paragraph',
-        items: ['NumberedList', 'BulletedList']
-      }, {
-        name: 'insert',
-        items: ['addImage', 'Table']
-      }, {
-        name: 'styles',
-        items: ['Font', 'FontSize']
-      }, {
-        name: 'wirisplugins',
-        items: ['ckeditor_wiris_formulaEditor', 'ckeditor_wiris_formulaEditorChemistry']
-      }, {
-        name: 'extra',
-        items: ['selection']
-      }]
-    });
-    CKEDITOR.instances[editorId].on('change', function (e) {
-      RichTextEditor.sendInputEventToEditor(editorId, e);
+    return ClassicEditor.create(document.getElementById(editorId), this.getConfigForTeacher(allowWsc, ['Selection'])).then(function (editor) {
+      ClassicEditors[editorId] = editor;
+      WebspellcheckerTlc.lang(editor, lang);
+      // WebspellcheckerTlc.setEditorToReadOnly(editor);
+      window.editor = editor;
+    })["catch"](function (error) {
+      console.error(error);
     });
   },
-  initCompletionCMS: function initCompletionCMS(editorId) {
-    var lang = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'nl_NL';
-    var wsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-    var editor = CKEDITOR.instances[editorId];
+  initCompletionCMS: function initCompletionCMS(editorId, lang) {
+    var allowWsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+    var editor = ClassicEditors[editorId];
     if (editor) {
       editor.destroy(true);
     }
-    if (wsc) {
-      CKEDITOR.disableAutoInline = true;
-      CKEDITOR.config.removePlugins = 'scayt,wsc';
-    }
-    CKEDITOR.on('instanceReady', function (event) {
-      var editor = event.editor;
-      WebspellcheckerTlc.forTeacherQuestion(editor, lang, wsc);
-    });
-    CKEDITOR.replace(editorId, {
-      extraPlugins: 'completion,simpleuploads,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
-      toolbar: [{
-        name: 'clipboard',
-        items: ['Undo', 'Redo']
-      }, {
-        name: 'basicstyles',
-        items: ['Bold', 'Italic', 'Underline', 'Strike', 'RemoveFormat', 'Subscript', 'Superscript']
-      }, {
-        name: 'paragraph',
-        items: ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote']
-      }, {
-        name: 'insert',
-        items: ['addImage', 'Table']
-      }, {
-        name: 'styles',
-        items: ['Format', 'Font', 'FontSize']
-      }, {
-        name: 'colors',
-        items: ['TextColor', 'BGColor', 'CopyFormatting']
-      }, {
-        name: 'align',
-        items: ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock']
-      }, {
-        name: 'wirisplugins',
-        items: ['ckeditor_wiris_formulaEditor', 'ckeditor_wiris_formulaEditorChemistry']
-      }, {
-        name: 'extra',
-        items: ['completion']
-      }]
-    });
-    CKEDITOR.instances[editorId].on('change', function (e) {
-      RichTextEditor.sendInputEventToEditor(editorId, e);
+    return ClassicEditor.create(document.getElementById(editorId), this.getConfigForTeacher(allowWsc, ['Completion'])).then(function (editor) {
+      ClassicEditors[editorId] = editor;
+      WebspellcheckerTlc.lang(editor, lang);
+      // WebspellcheckerTlc.setEditorToReadOnly(editor);
+    })["catch"](function (error) {
+      console.error(error);
     });
   },
   sendInputEventToEditor: function sendInputEventToEditor(editorId, e) {
@@ -13544,12 +13410,9 @@ RichTextEditor = {
       console.error(error);
     });
   },
-  initClassicEditorForTeacherplayerWsc: function initClassicEditorForTeacherplayerWsc(editorId, lang) {
-    var editor = ClassicEditors[editorId];
-    if (editor) {
-      editor.destroy(true);
-    }
-    return ClassicEditor.create(document.getElementById(editorId), {
+  getConfigForTeacher: function getConfigForTeacher(allowWsc) {
+    var pluginsToAdd = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+    var config = {
       autosave: {
         waitingTime: 300,
         save: function save(editor) {
@@ -13557,37 +13420,52 @@ RichTextEditor = {
           editor.sourceElement.dispatchEvent(new Event('input'));
         }
       },
-      wproofreader: {
-        lang: lang,
-        serviceProtocol: 'https',
-        servicePort: '80',
-        serviceHost: 'testwsc.test-correct.nl',
-        servicePath: 'wscservice/api',
-        srcUrl: 'https://testwsc.test-correct.nl/wscservice/wscbundle/wscbundle.js'
+      image: {
+        upload: {
+          types: ['jpeg', 'png', 'gif', 'bmp', 'webp', 'tiff']
+        }
+      },
+      simpleUpload: {
+        uploadUrl: '/cms/ckeditor_upload/images',
+        // Enable the XMLHttpRequest.withCredentials property.
+        withCredentials: true,
+        // Headers sent along with the XMLHttpRequest to the upload server.
+        headers: {
+          'X-CSRF-TOKEN': document.querySelector('meta[name="_token"]').content
+          // Authorization: 'Bearer <JSON Web Token>'
+        }
       }
-    }).then(function (editor) {
-      ClassicEditors[editorId] = editor;
-      WebspellcheckerTlc.lang(editor, lang);
-      // WebspellcheckerTlc.setEditorToReadOnly(editor);
-    })["catch"](function (error) {
-      console.error(error);
+    };
+
+    config.removePlugins = [];
+    config.toolbar = {
+      removeItems: []
+    };
+    if (allowWsc) {
+      config.wproofreader = window.WEBSPELLCHECKER_CONFIG;
+    } else {
+      config.removePlugins = ['WProofreader'];
+    }
+    var availablePlugins = ['Selection', 'Completion'];
+    var pluginsToRemove = availablePlugins.filter(function (plugin) {
+      return !pluginsToAdd.includes(plugin);
     });
+    config.removePlugins = [].concat(_toConsumableArray(config.removePlugins), _toConsumableArray(pluginsToRemove));
+    config.toolbar.removeItems = pluginsToRemove.map(function (item) {
+      return item.toLowerCase();
+    });
+    return config;
   },
-  initClassicEditorForTeacherplayer: function initClassicEditorForTeacherplayer(editorId) {
+  initForTeacher: function initForTeacher(editorId, lang) {
+    var allowWsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
     var editor = ClassicEditors[editorId];
     if (editor) {
       editor.destroy(true);
     }
-    return ClassicEditor.create(document.getElementById(editorId), {
-      autosave: {
-        waitingTime: 300,
-        save: function save(editor) {
-          editor.updateSourceElement();
-          editor.sourceElement.dispatchEvent(new Event('input'));
-        }
-      }
-    }).then(function (editor) {
+    return ClassicEditor.create(document.getElementById(editorId), this.getConfigForTeacher(allowWsc)).then(function (editor) {
       ClassicEditors[editorId] = editor;
+      WebspellcheckerTlc.lang(editor, lang);
+      // WebspellcheckerTlc.setEditorToReadOnly(editor);
     })["catch"](function (error) {
       console.error(error);
     });

@@ -12,18 +12,19 @@
     @if(Auth::user()->schoolLocation->allow_wsc)
         <script>
             window.WEBSPELLCHECKER_CONFIG = {
-                "autoSearch": false,
-                "autoDestroy": true,
-                "autocorrect": true,
-                "autocomplete": true,
-                "serviceProtocol": "https",
-                "servicePort": "80",
-                "serviceHost": "wsc.test-correct.nl",
-                "servicePath": "wscservice/api",
-                "srcUrl": "https://wsc.test-correct.nl/wscservice/wscbundle/wscbundle.js",
+                autoSearch: false,
+                autoDestroy: true,
+                autocorrect: false,
+                autocomplete: false,
+                actionItems: ['addWord', 'ignoreAll', 'ignore', 'settings', 'toggle', 'proofreadDialog'],
+                enableBadgeButton:true,
+                serviceProtocol: "https",
+                servicePort: "80",
+                serviceHost: "wsc.test-correct.nl",
+                servicePath: "wscservice/api",
+                srcUrl: "https://wsc.test-correct.nl/wscservice/wscbundle/wscbundle.js",
             }
         </script>
-{{--        <script src="https://wsc.test-correct.nl/wscservice/wscbundle/wscbundle.js"></script>--}}
     @endif
 @endpush
 </x-layouts.base>
