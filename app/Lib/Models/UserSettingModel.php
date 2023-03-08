@@ -74,6 +74,11 @@ abstract class UserSettingModel extends Model
         static::writeSettingToSession($user, $title, $value);
     }
 
+    static public function setSettingForAllUsers(string $title, mixed $value)
+    {
+        static::writeSettingToDatabaseForAllUsers($title, $value);
+    }
+
     static private function writeSettingToSession(User $user, string $title, mixed $value): void
     {
         $sessionValues = static::retrieveSettingsFromSession($user);
@@ -91,6 +96,16 @@ abstract class UserSettingModel extends Model
             'user_id' => $user->getKey(),
             'title'   => $title,
         ], [
+            'value' => is_array($value) ? json_encode($value) : $value
+        ]);
+    }
+
+    static private function writeSettingToDatabaseForAllUsers( string $title, mixed $value): void
+    {
+        static::where([
+            'title'   => $title,
+        ])
+        ->update([
             'value' => is_array($value) ? json_encode($value) : $value
         ]);
     }

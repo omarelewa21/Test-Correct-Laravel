@@ -136,6 +136,17 @@ class Info extends Model
             ->get();
     }
 
+    public function getIfFeatureNewToday()
+    {
+        $infos = new Info();
+        return $infos->where('type', '=', self::FEATURE_TYPE)
+            ->where('status', self::ACTIVE)
+            ->whereBetween('show_from', [Carbon::yesterday(),Carbon::today()])
+            ->where('show_until', '>=', Carbon::now())
+            ->orderBy('show_from', 'desc')
+            ->get();
+    }
+
     public function isVisibleForUser(User $user)
     {
         return self::getForUser($user)->contains($this);

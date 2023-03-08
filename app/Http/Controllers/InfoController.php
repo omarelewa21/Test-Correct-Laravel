@@ -4,6 +4,7 @@ namespace tcCore\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 use tcCore\Deployment;
 use tcCore\Http\Requests\CreateDeploymentRequest;
@@ -90,6 +91,16 @@ class InfoController extends Controller
         }
         $info = Info::create($data->all());
         $info->saveRoleInfo($request->validated());
+
+        $now = new \DateTime();
+        $from = new \DateTime($info->show_from);
+        $until = new \DateTime($info->show_until);
+
+        if ($info->type == Info::FEATURE_TYPE && $info->status == Info::ACTIVE && $until > $now && $from < $now) {
+            UserSystemSetting::setSettingForAllUsers('newFeaturesSeen', false);
+            UserSystemSetting::setSettingForAllUsers('closedNewFeaturesMessage', false);
+        }
+
         return Response::make($info,200);
     }
 
