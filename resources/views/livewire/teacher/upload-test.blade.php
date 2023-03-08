@@ -3,7 +3,7 @@
 >
     <div class="question-editor-header header w-full " style="position:sticky;">
         <div class="flex gap-4 items-center">
-            <x-button.back-round class="bg-white/20 hover:text-white" wire:click="back"/>
+            <x-button.back-round background-class="bg-white/20" class="hover:text-white" wire:click="back"/>
             <h4 class="text-white">@lang('upload.Toets uploaden')</h4>
         </div>
         <div class="flex gap-2 items-center">

@@ -126,7 +126,7 @@
             </div>
 
         </div>
-        <div class="container-border-left-student"></div>
+        <div class="container-border-left student"></div>
 
     </div>
 </div>

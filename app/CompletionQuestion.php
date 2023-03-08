@@ -519,4 +519,10 @@ class CompletionQuestion extends Question implements QuestionInterface
 
         return preg_replace_callback($searchPattern, $replacementFunction, $question->getQuestionHtml());
     }
+
+    public function isFullyAnswered(Answer $answer): bool
+    {
+        $givenAnswersCount = collect(json_decode($answer->json, true))->count();
+        return $givenAnswersCount === $this->loadCount('completionQuestionAnswers')->completion_question_answers;
+    }
 }

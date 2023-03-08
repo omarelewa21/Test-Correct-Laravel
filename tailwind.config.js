@@ -55,6 +55,9 @@ module.exports = {
             },
             boxShadow: {
                 'hover': 'var(--hover-shadow)'
+            },
+            padding: {
+                '15': '3.75rem'
             }
         },
         keyframes: {

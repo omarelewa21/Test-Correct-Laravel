@@ -1624,4 +1624,9 @@ class Question extends MtiBaseModel
             $questionInstance->setAttribute('draft', $parent->getAttribute('draft'));
         }
     }
+
+    public function isFullyAnswered(Answer $answer): bool
+    {
+        return (bool)$answer->done;
+    }
 }

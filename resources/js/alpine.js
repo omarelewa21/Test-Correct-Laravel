@@ -1,38 +1,38 @@
-import Alpine from 'alpinejs';
+import Alpine from "alpinejs";
 import Choices from "choices.js";
-import Intersect from '@alpinejs/intersect';
+import Intersect from "@alpinejs/intersect";
 import Clipboard from "@ryangjchandler/alpine-clipboard";
 import collapse from "@alpinejs/collapse";
 
 window.Alpine = Alpine;
-Alpine.plugin(Clipboard)
+Alpine.plugin(Clipboard);
 Alpine.plugin(Intersect);
 Alpine.plugin(collapse);
 
-document.addEventListener('alpine:init', () => {
-    Alpine.data('questionIndicator', () => ({
+document.addEventListener("alpine:init", () => {
+    Alpine.data("questionIndicator", () => ({
         showSlider: false,
         scrollStep: 100,
         totalScrollWidth: 0,
-        activeQuestion: window.Livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).entangle('q')
+        activeQuestion: window.Livewire.find(document.querySelector("[test-take-player]").getAttribute("wire:id")).entangle("q")
     }));
-    Alpine.data('tagManager', () => ({
+    Alpine.data("tagManager", () => ({
         tags: [],
-        remove: function (index) {
-            this.tags.splice(index, 1)
+        remove: function(index) {
+            this.tags.splice(index, 1);
         },
-        add: function (inputElement) {
+        add: function(inputElement) {
             if (inputElement.value) {
                 this.tags.push(inputElement.value);
-                inputElement.value = '';
+                inputElement.value = "";
             }
-        },
+        }
     }));
-    Alpine.data('selectSearch', (config) => ({
+    Alpine.data("selectSearch", (config) => ({
 
         data: config.data,
 
-        emptyOptionsMessage: config.emptyOptionsMessage ?? 'No results match your search.',
+        emptyOptionsMessage: config.emptyOptionsMessage ?? "No results match your search.",
 
         focusedOptionIndex: null,
 
@@ -42,93 +42,93 @@ document.addEventListener('alpine:init', () => {
 
         options: {},
 
-        placeholder: config.placeholder ?? 'Select an option',
+        placeholder: config.placeholder ?? "Select an option",
 
-        search: '',
+        search: "",
 
         value: config.value,
 
-        closeListbox: function () {
-            this.open = false
+        closeListbox: function() {
+            this.open = false;
 
-            this.focusedOptionIndex = null
+            this.focusedOptionIndex = null;
 
-            this.search = ''
+            this.search = "";
         },
 
-        focusNextOption: function () {
-            if (this.focusedOptionIndex === null) return this.focusedOptionIndex = Object.keys(this.options).length - 1
+        focusNextOption: function() {
+            if (this.focusedOptionIndex === null) return this.focusedOptionIndex = Object.keys(this.options).length - 1;
 
-            if (this.focusedOptionIndex + 1 >= Object.keys(this.options).length) return
+            if (this.focusedOptionIndex + 1 >= Object.keys(this.options).length) return;
 
-            this.focusedOptionIndex++
+            this.focusedOptionIndex++;
 
             this.$refs.listbox.children[this.focusedOptionIndex].scrollIntoView({
-                block: "center",
-            })
+                block: "center"
+            });
         },
 
-        focusPreviousOption: function () {
-            if (this.focusedOptionIndex === null) return this.focusedOptionIndex = 0
+        focusPreviousOption: function() {
+            if (this.focusedOptionIndex === null) return this.focusedOptionIndex = 0;
 
-            if (this.focusedOptionIndex <= 0) return
+            if (this.focusedOptionIndex <= 0) return;
 
-            this.focusedOptionIndex--
+            this.focusedOptionIndex--;
 
             this.$refs.listbox.children[this.focusedOptionIndex].scrollIntoView({
-                block: "center",
-            })
+                block: "center"
+            });
         },
 
-        init: function () {
-            this.options = this.data
+        init: function() {
+            this.options = this.data;
 
-            if (!(this.value in this.options)) this.value = null
+            if (!(this.value in this.options)) this.value = null;
 
-            this.$watch('search', ((value) => {
-                if (!this.open || !value) return this.options = this.data
+            this.$watch("search", ((value) => {
+                if (!this.open || !value) return this.options = this.data;
 
                 this.options = Object.keys(this.data)
                     .filter((key) => this.data[key].toLowerCase().includes(value.toLowerCase()))
                     .reduce((options, key) => {
-                        options[key] = this.data[key]
-                        return options
-                    }, {})
-            }))
+                        options[key] = this.data[key];
+                        return options;
+                    }, {});
+            }));
         },
 
-        selectOption: function () {
-            if (!this.open) return this.toggleListboxVisibility()
+        selectOption: function() {
+            if (!this.open) return this.toggleListboxVisibility();
 
-            this.value = Object.keys(this.options)[this.focusedOptionIndex]
+            this.value = Object.keys(this.options)[this.focusedOptionIndex];
 
-            this.closeListbox()
+            this.closeListbox();
         },
 
-        toggleListboxVisibility: function () {
-            if (this.open) return this.closeListbox()
+        toggleListboxVisibility: function() {
+            if (this.open) return this.closeListbox();
 
-            this.focusedOptionIndex = Object.keys(this.options).indexOf(this.value)
+            this.focusedOptionIndex = Object.keys(this.options).indexOf(this.value);
 
-            if (this.focusedOptionIndex < 0) this.focusedOptionIndex = 0
+            if (this.focusedOptionIndex < 0) this.focusedOptionIndex = 0;
 
-            this.open = true
+            this.open = true;
 
             // this.$nextTick(() => {
             setTimeout(() => {
-                this.$refs.search.focus()
+                this.$refs.search.focus();
 
                 this.$refs.listbox.children[this.focusedOptionIndex].scrollIntoView({
                     block: "center"
-                })
+                });
             }, 10);
             // })
-        },
+        }
     }));
-    Alpine.data('selectionOptions', (entangle) => ({
+    Alpine.data("selectionOptions", (entangle) => ({
         showPopup: entangle.value,
         editorId: entangle.editorId,
-        hasError: {empty: [], false: []},
+        hasError: { empty: [], false: [] },
         data: {
             elements: [],
         },
@@ -146,17 +146,17 @@ document.addEventListener('alpine:init', () => {
             let selection = editor.data.stringify(editor.model.getSelectedContent(editor.model.document.selection));
             let text = selection
                 .trim()
-                .replace('[', '')
-                .replace(']', '');
+                .replace("[", "")
+                .replace("]", "");
 
 
             let content = text;
-            if (text.contains('|')) {
+            if (text.contains("|")) {
                 content = text.split("|");
             }
 
             let currentDataRows = this.data.elements.length;
-            this.data.elements[0].checked = 'true';
+            this.data.elements[0].checked = "true";
 
             if (!Array.isArray(content)) {
                 this.data.elements[0].value = content;
@@ -169,14 +169,14 @@ document.addEventListener('alpine:init', () => {
                     currentDataRows++;
                 }
                 this.data.elements[key].value = word.trim();
-            })
+            });
         },
 
-        addRow(value = '', checked = 'false') {
+        addRow(value = "", checked = "false") {
             let component = {
                 id: this.data.elements.length,
                 checked: checked,
-                value: value,
+                value: value
             };
             this.data.elements.push(component);
         },
@@ -189,23 +189,23 @@ document.addEventListener('alpine:init', () => {
 
         toggleChecked(event, element) {
             this.$nextTick(() => {
-                if (element.checked == 'true') {
+                if (element.checked == "true") {
                     this.data.elements = this.data.elements.map(item => {
-                        item.checked = item.id == element.id ? 'true' : 'false';
+                        item.checked = item.id == element.id ? "true" : "false";
                         return item;
-                    })
+                    });
                 }
             });
         },
 
-        insertDataInEditor: function () {
-            let correct = this.data.elements.find(el => el.value != '' && el.checked == 'true');
-            let result = this.data.elements.filter(el => el.value != '' && el.checked == 'false').map(el => el.value);
+        insertDataInEditor: function() {
+            let correct = this.data.elements.find(el => el.value != "" && el.checked == "true");
+            let result = this.data.elements.filter(el => el.value != "" && el.checked == "false").map(el => el.value);
 
-            result.unshift(correct.value)
-            result = '[' + result.join('|') + ']';
-            let lw = livewire.find(document.getElementById('cms').getAttribute('wire:id'));
-            lw.set('showSelectionOptionsModal', true)
+            result.unshift(correct.value);
+            result = "[" + result.join("|") + "]";
+            let lw = livewire.find(document.getElementById("cms").getAttribute("wire:id"));
+            lw.set("showSelectionOptionsModal", true);
 
             window.editor.model.change(writer => {
                 window.editor.model.insertContent(
@@ -214,12 +214,12 @@ document.addEventListener('alpine:init', () => {
             });
 
             setTimeout(() => {
-                this.$wire.setQuestionProperty('question', window.editor.getData());
+                this.$wire.setQuestionProperty("question", window.editor.getData());
             }, 300);
         },
-        validateInput: function () {
-            const emptyFields = this.data.elements.filter(element => element.value === '')
-            const falseValues = this.data.elements.filter(element => element.checked === 'false')
+        validateInput: function() {
+            const emptyFields = this.data.elements.filter(element => element.value === "");
+            const falseValues = this.data.elements.filter(element => element.checked === "false");
 
             if (emptyFields.length !== 0 || this.data.elements.length === falseValues.length) {
                 this.hasError.empty = emptyFields.map(item => item.id);
@@ -228,7 +228,7 @@ document.addEventListener('alpine:init', () => {
                     this.hasError.false = falseValues.map(item => item.id);
                 }
 
-                Notify.notify('Niet alle velden zijn (correct) ingevuld', 'error');
+                Notify.notify("Niet alle velden zijn (correct) ingevuld", "error");
                 return false;
             }
 
@@ -245,9 +245,9 @@ document.addEventListener('alpine:init', () => {
         },
         disabled() {
             if (this.data.elements.length >= this.maxOptions) {
-                return true
+                return true;
             }
-            return !!this.data.elements.find(element => element.value === '');
+            return !!this.data.elements.find(element => element.value === "");
         },
         closePopup() {
             this.showPopup = false;
@@ -255,14 +255,14 @@ document.addEventListener('alpine:init', () => {
             this.init();
         },
         canDelete() {
-            return this.data.elements.length <= 2
+            return this.data.elements.length <= 2;
         },
         resetHasError() {
             this.hasError.empty = [];
             this.hasError.false = [];
         }
     }));
-    Alpine.data('badge', (videoUrl = null, mode = 'edit') => ({
+    Alpine.data("badge", (videoUrl = null, mode = "edit") => ({
         options: false,
         videoUrl: videoUrl,
         videoTitle: videoUrl,
@@ -272,20 +272,20 @@ document.addEventListener('alpine:init', () => {
         async init() {
             this.setIndex();
 
-            this.$watch('options', value => {
+            this.$watch("options", value => {
                 if (value) {
                     let pWidth = this.$refs.optionscontainer.parentElement.offsetWidth;
                     let pPos = this.$refs.optionscontainer.parentElement.getBoundingClientRect().left;
                     if ((pWidth + pPos) < 288) {
-                        this.$refs.optionscontainer.classList.remove('right-0');
+                        this.$refs.optionscontainer.classList.remove("right-0");
                     }
                 }
-            })
+            });
             if (videoUrl) {
                 const fetchedTitle = await getTitleForVideoUrl(videoUrl);
                 this.videoTitle = fetchedTitle || videoUrl;
                 this.resolvingTitle = false;
-                if(mode === 'edit') {
+                if (mode === "edit") {
                     this.$wire.setVideoTitle(videoUrl, this.videoTitle);
                 }
             }
@@ -294,10 +294,10 @@ document.addEventListener('alpine:init', () => {
             const parent = this.$root.parentElement;
             if (parent === null) return;
             this.index = Array.prototype.indexOf.call(parent.children, this.$el) + 1;
-        },
+        }
     }));
 
-    Alpine.data('drawingTool', (questionId, entanglements, isTeacher, isPreview = false) => ({
+    Alpine.data("drawingTool", (questionId, entanglements, isTeacher, isPreview = false) => ({
         show: false,
         questionId: questionId,
         answerSvg: entanglements.answerSvg,
@@ -321,7 +321,7 @@ document.addEventListener('alpine:init', () => {
                 this.makeGridIfNecessary(toolName);
             }
 
-            this.$watch('show', show => {
+            this.$watch("show", show => {
                 if (show) {
                     toolName.Canvas.data.answer = this.answerSvg;
                     toolName.Canvas.data.question = this.questionSvg;
@@ -330,10 +330,10 @@ document.addEventListener('alpine:init', () => {
 
                     toolName.drawingApp.init();
                 } else {
-                    const component = getClosestLivewireComponentByAttribute(this.$root, 'questionComponent');
-                    component.call('render');
+                    const component = getClosestLivewireComponentByAttribute(this.$root, "questionComponent");
+                    component.call("render");
                 }
-            })
+            });
 
             toolName.Canvas.layers.answer.enable();
             if (this.isTeacher) {
@@ -344,7 +344,7 @@ document.addEventListener('alpine:init', () => {
 
         },
         handleGrid(toolName) {
-            if (this.gridSvg !== '0.00' && this.gridSvg !== '') {
+            if (this.gridSvg !== "0.00" && this.gridSvg !== "") {
                 let parsedGrid = parseFloat(this.gridSvg);
                 toolName.UI.gridSize.value = parsedGrid;
                 toolName.UI.gridToggle.checked = true;
@@ -359,32 +359,32 @@ document.addEventListener('alpine:init', () => {
         makeGridIfNecessary(toolName) {
             let gridSize = false;
 
-            if (this.gridSvg !== '' && this.gridSvg !== '0.00') {
+            if (this.gridSvg !== "" && this.gridSvg !== "0.00") {
                 gridSize = this.gridSvg;
 
-            } else if (this.isOldDrawing == false && (this.grid && this.grid !== '0')) {
+            } else if (this.isOldDrawing == false && (this.grid && this.grid !== "0")) {
                 gridSize = 1 / parseInt(this.grid) * 14;    // This calculation is based on try and change to reach the closest formula that makes grid visualization same as old drawing
             }
             if (gridSize) {
                 makePreviewGrid(toolName.drawingApp, gridSize);
                 setTimeout(() => {
                     makePreviewGrid(toolName.drawingApp, gridSize);
-                }, 2000)
+                }, 2000);
             }
         }
     }));
-    Alpine.data('questionEditorSidebar', () => ({
+    Alpine.data("questionEditorSidebar", () => ({
         slideWidth: 300,
         drawer: null,
         resizing: false,
         resizeTimout: null,
-        slides: ['home', 'type', 'newquestion', 'questionbank'],
+        slides: ["home", "type", "newquestion", "questionbank"],
         activeSlide: null,
         scrollTimeout: null,
         pollingInterval: 2500, // Milliseconds;
         init() {
             this.slideWidth = this.$root.offsetWidth;
-            this.drawer = this.$root.closest('.drawer');
+            this.drawer = this.$root.closest(".drawer");
             this.setActiveSlideProperty(this.$root.scrollLeft);
             setTimeout(() => {
                 this.handleVerticalScroll(this.$root.firstElementChild);
@@ -404,35 +404,35 @@ document.addEventListener('alpine:init', () => {
         },
         home(scrollActiveIntoView = true) {
             this.scroll(0, scrollActiveIntoView);
-            if (!this.$store.cms.emptyState) this.$dispatch('backdrop');
+            if (!this.$store.cms.emptyState) this.$dispatch("backdrop");
             this.handleVerticalScroll(this.$refs.home);
-            this.$dispatch('closed-with-backdrop', false);
+            this.$dispatch("closed-with-backdrop", false);
         },
         scroll(position, scrollActiveIntoView = true) {
-            this.setActiveSlideProperty(position)
+            this.setActiveSlideProperty(position);
             if (scrollActiveIntoView) this.scrollActiveQuestionIntoView();
             this.$refs.questionEditorSidebar.scrollTo(this.getScrollToProperties(position));
-            this.$store.cms.scrollPos = 0
+            this.$store.cms.scrollPos = 0;
         },
         handleVerticalScroll(el) {
-            if (el.getAttribute('x-ref') !== this.activeSlide) return;
+            if (el.getAttribute("x-ref") !== this.activeSlide) return;
 
             if (!this.$store.questionBank.active) {
-                this.$refs.questionEditorSidebar.style.minHeight = 'auto';
-                this.$refs.questionEditorSidebar.style.height = 'auto';
+                this.$refs.questionEditorSidebar.style.minHeight = "auto";
+                this.$refs.questionEditorSidebar.style.height = "auto";
             }
 
             if (el.offsetHeight > this.drawer.offsetHeight) {
-                this.drawer.classList.add('overflow-auto');
-                this.drawer.classList.remove('overflow-hidden');
+                this.drawer.classList.add("overflow-auto");
+                this.drawer.classList.remove("overflow-hidden");
             } else {
-                this.drawer.classList.add('overflow-hidden');
-                this.drawer.classList.remove('overflow-auto');
+                this.drawer.classList.add("overflow-hidden");
+                this.drawer.classList.remove("overflow-auto");
             }
             this.$nextTick(() => {
-                this.$refs.questionEditorSidebar.style.minHeight = this.drawer.offsetHeight + 'px';
-                this.$refs.questionEditorSidebar.style.height = el.offsetHeight + 'px';
-            })
+                this.$refs.questionEditorSidebar.style.minHeight = this.drawer.offsetHeight + "px";
+                this.$refs.questionEditorSidebar.style.height = el.offsetHeight + "px";
+            });
         },
         setNextSlide(toInsert) {
             this.$root.insertBefore(toInsert, this.$refs.type.nextElementSibling);
@@ -446,40 +446,40 @@ document.addEventListener('alpine:init', () => {
         showQuestionBank() {
             this.setNextSlide(this.$refs.questionbank);
             this.$nextTick(() => {
-                this.drawer.classList.add('fullscreen');
+                this.drawer.classList.add("fullscreen");
                 const boundingRect = this.$refs.questionbank.getBoundingClientRect();
                 this.scroll(boundingRect.x + boundingRect.width);
                 this.$store.questionBank.active = true;
             });
         },
         hideQuestionBank() {
-            this.$root.querySelectorAll('.slide-container').forEach((slide) => {
-                slide.classList.add('opacity-0')
-            })
+            this.$root.querySelectorAll(".slide-container").forEach((slide) => {
+                slide.classList.add("opacity-0");
+            });
             this.$store.questionBank.active = false;
 
             if (this.$store.questionBank.inGroup) {
-                let drawerComponent = getClosestLivewireComponentByAttribute(this.$el, 'cms-drawer');
-                drawerComponent.set('groupId', null);
+                let drawerComponent = getClosestLivewireComponentByAttribute(this.$el, "cms-drawer");
+                drawerComponent.set("groupId", null);
                 this.$store.questionBank.inGroup = false;
             }
             this.$nextTick(() => {
-                this.drawer.classList.remove('fullscreen');
+                this.drawer.classList.remove("fullscreen");
                 this.home();
                 // this.scroll(container.parentElement.firstElementChild.offsetWidth);
                 setTimeout(() => {
-                    this.$root.querySelectorAll('.slide-container').forEach((slide) => {
-                        slide.classList.remove('opacity-0')
-                    })
-                    this.$wire.emitTo('drawer.cms', 'refreshDrawer');
-                    this.$dispatch('resize');
-                }, 400)
-                this.$wire.emitTo('drawer.cms', 'refreshDrawer');
-            })
+                    this.$root.querySelectorAll(".slide-container").forEach((slide) => {
+                        slide.classList.remove("opacity-0");
+                    });
+                    this.$wire.emitTo("drawer.cms", "refreshDrawer");
+                    this.$dispatch("resize");
+                }, 400);
+                this.$wire.emitTo("drawer.cms", "refreshDrawer");
+            });
         },
         addQuestionToGroup(uuid) {
             this.$store.questionBank.inGroup = uuid;
-            this.showAddQuestionSlide(true, false)
+            this.showAddQuestionSlide(true, false);
         },
         addGroup(shouldCheckDirty = true) {
             if (this.emitAddToOpenShortIfNecessary(shouldCheckDirty, true, false)) {
@@ -489,21 +489,21 @@ document.addEventListener('alpine:init', () => {
         async showAddQuestionSlide(shouldCheckDirty = true, clearGroupUuid = true) {
             if (this.emitAddToOpenShortIfNecessary(shouldCheckDirty, false, false)) {
                 if (clearGroupUuid) {
-                    let questionBankLivewireComponent = Livewire.find(this.drawer.querySelector('#question-bank').getAttribute('wire:id'))
+                    let questionBankLivewireComponent = Livewire.find(this.drawer.querySelector("#question-bank").getAttribute("wire:id"));
                     await questionBankLivewireComponent.clearInGroupProperty();
                     this.$store.questionBank.inGroup = false;
                 }
                 this.next(this.$refs.home);
-                this.$dispatch('backdrop');
+                this.$dispatch("backdrop");
             }
         },
         addSubQuestionToNewGroup(shouldCheckDirty = true) {
-            this.emitAddToOpenShortIfNecessary(shouldCheckDirty, false, true)
+            this.emitAddToOpenShortIfNecessary(shouldCheckDirty, false, true);
         },
         emitAddToOpenShortIfNecessary(shouldCheckDirty = true, group, newSubQuestion) {
-            this.$dispatch('store-current-question');
+            this.$dispatch("store-current-question");
             if (shouldCheckDirty && this.$store.cms.dirty) {
-                this.$wire.emitTo('teacher.questions.open-short', 'addQuestionFromDirty', {
+                this.$wire.emitTo("teacher.questions.open-short", "addQuestionFromDirty", {
                     group,
                     newSubQuestion,
                     groupUuid: this.$store.questionBank.inGroup
@@ -528,22 +528,22 @@ document.addEventListener('alpine:init', () => {
             }
         },
         scrollActiveQuestionIntoView() {
-            if (this.activeSlide !== 'home') return;
+            if (this.activeSlide !== "home") return;
             clearTimeout(this.scrollTimeout);
             this.scrollTimeout = setTimeout(() => {
-                let activeQuestion = this.$refs.home.querySelector('.question-button.question-active');
-                activeQuestion ||= this.$refs.home.querySelector('.group-active');
+                let activeQuestion = this.$refs.home.querySelector(".question-button.question-active");
+                activeQuestion ||= this.$refs.home.querySelector(".group-active");
                 if (activeQuestion === null) return clearTimeout(this.scrollTimeout);
 
                 const top = activeQuestion.getBoundingClientRect().top;
                 const screenWithBottomMargin = (window.screen.height - 200);
 
                 if (top >= screenWithBottomMargin) {
-                    this.drawer.scrollTo({top: (top - screenWithBottomMargin / 2), behavior: 'smooth'});
+                    this.drawer.scrollTo({ top: (top - screenWithBottomMargin / 2), behavior: "smooth" });
                 }
 
                 clearTimeout(this.scrollTimeout);
-            }, 750)
+            }, 750);
         },
         setActiveSlideProperty(position) {
             let index = position / this.slideWidth > 2 ? 3 : Math.round(position / this.slideWidth);
@@ -551,29 +551,29 @@ document.addEventListener('alpine:init', () => {
         },
         poll(interval) {
             setTimeout(() => {
-                if (this.activeSlide !== 'questionbank') {
+                if (this.activeSlide !== "questionbank") {
                     let el = this.$root.querySelector(`[x-ref="${this.activeSlide}"]`);
                     if (el !== null) this.handleVerticalScroll(el);
                 }
                 this.poll(interval);
-            }, interval)
+            }, interval);
         },
         getScrollToProperties(position) {
-            let safariAgent = navigator.userAgent.indexOf('Safari') > -1;
-            let chromeAgent = navigator.userAgent.indexOf('Chrome') > -1;
+            let safariAgent = navigator.userAgent.indexOf("Safari") > -1;
+            let chromeAgent = navigator.userAgent.indexOf("Chrome") > -1;
             if ((chromeAgent) && (safariAgent)) safariAgent = false;
 
             let scrollToSettings = {
-                left: position >= 0 ? position : 0,
-            }
+                left: position >= 0 ? position : 0
+            };
             /* RR: Smooth scrolling breaks entirely on Safari 15.4 so I only add it in non-safari browsers just so it doesn't break anything..*/
             if (!safariAgent) {
-                scrollToSettings.behavior = 'smooth';
+                scrollToSettings.behavior = "smooth";
             }
             return scrollToSettings;
         }
     }));
-    Alpine.data('choices', (wireModel, multiple, options, config, filterContainer) => ({
+    Alpine.data("choices", (wireModel, multiple, options, config, filterContainer) => ({
         multiple: multiple,
         value: wireModel,
         options: options,
@@ -584,37 +584,37 @@ document.addEventListener('alpine:init', () => {
         activeGroups: [],
         init() {
             // some new fancy way of setting a value when undefined
-            window.registeredEventHandlers ??= []
+            window.registeredEventHandlers ??= [];
 
             this.activeFiltersContainer = document.getElementById(filterContainer);
             this.multiple = multiple === 1;
             this.$nextTick(() => {
                 let choices = new Choices(
-                    this.$root.querySelector('select'),
+                    this.$root.querySelector("select"),
                     this.getChoicesConfig()
                 );
 
                 let refreshChoices = () => {
-                    let selection = this.multiple ? this.value : [this.value]
-                    let options = typeof this.options === 'object' ? Object.values(this.options) : this.options;
+                    let selection = this.multiple ? this.value : [this.value];
+                    let options = typeof this.options === "object" ? Object.values(this.options) : this.options;
                     this.setActiveGroupsOnInit();
                     choices.clearStore();
                     this.addPlaceholderValues(choices);
 
-                    options = options.map(({value, label, customProperties}) => ({
+                    options = options.map(({ value, label, customProperties }) => ({
                         value,
                         label,
                         customProperties: customProperties ?? {},
                         selected: selection.includes(value)
-                    }))
-                    choices.setChoices(options)
+                    }));
+                    choices.setChoices(options);
 
                     this.handleActiveFilters(choices.getValue());
-                }
+                };
 
-                refreshChoices()
+                refreshChoices();
 
-                this.$refs.select.addEventListener('choice', (event) => {
+                this.$refs.select.addEventListener("choice", (event) => {
                     let eventValue = this.getValidatedEventValue(event);
                     let choice = event.detail.choice;
 
@@ -641,15 +641,15 @@ document.addEventListener('alpine:init', () => {
                     function isUnselectedRegularOrChildChoice() {
                         return this.value.includes(eventValue) && (this.isAChildChoice(choice) || this.isARegularChoice(choice));
                     }
-                })
-                this.$refs.select.addEventListener('change', () => {
+                });
+                this.$refs.select.addEventListener("change", () => {
                     if (!Array.isArray(this.value)) return;
                     this.value = choices.getValue(true);
-                })
+                });
 
                 let eventName = this.getRemoveEventName();
                 if (!window.registeredEventHandlers.includes(eventName)) {
-                    window.registeredEventHandlers.push(eventName)
+                    window.registeredEventHandlers.push(eventName);
                     window.addEventListener(eventName, (event) => {
                         /* If this yields no result, make sure the remove eventnames are unique on the page :) */
                         let choice = choices.getValue().filter(choice => choice.value === event.detail.value)[0];
@@ -659,19 +659,19 @@ document.addEventListener('alpine:init', () => {
                             this.removeFilterItem(choice);
                         }
                         refreshChoices();
-                    })
+                    });
                 }
 
-                this.$watch('value', () => refreshChoices());
-                this.$watch('options', () => refreshChoices());
+                this.$watch("value", () => refreshChoices());
+                this.$watch("options", () => refreshChoices());
 
-                this.$refs.select.addEventListener('showDropdown', () => {
-                    if (this.$root.querySelector('.is-active') && this.$root.classList.contains('super')) {
-                        this.$refs.chevron.style.left = (this.$root.querySelector('.is-active').offsetWidth - 25) + 'px';
+                this.$refs.select.addEventListener("showDropdown", () => {
+                    if (this.$root.querySelector(".is-active") && this.$root.classList.contains("super")) {
+                        this.$refs.chevron.style.left = (this.$root.querySelector(".is-active").offsetWidth - 25) + "px";
                     }
                 });
-                this.$refs.select.addEventListener('hideDropdown', () => {
-                    this.$refs.chevron.style.left = 'auto'
+                this.$refs.select.addEventListener("hideDropdown", () => {
+                    this.$refs.chevron.style.left = "auto";
                 });
 
             });
@@ -687,14 +687,14 @@ document.addEventListener('alpine:init', () => {
                         this.activeGroups.push(option.value);
                     }
                 }
-            })
+            });
             this.activeGroups = this.activeGroups.filter((value, index, self) => self.indexOf(value) === index);
         },
-        handleGroupItemChoice: function (choice) {
+        handleGroupItemChoice: function(choice) {
             let parentId = choice.customProperties.parentId;
             let childValues = this.options.filter(option => {
                 return option.customProperties.parent === false && parentId === option.customProperties.parentId;
-            }).map(value => value.value)
+            }).map(value => value.value);
 
             if (!this.value.includes(choice.value)) {
                 this.value = _.union(this.value, childValues, [choice.value]);
@@ -702,7 +702,7 @@ document.addEventListener('alpine:init', () => {
                 return;
             }
 
-            let valuesToSplice = _.union(childValues, [choice.value])
+            let valuesToSplice = _.union(childValues, [choice.value]);
             valuesToSplice.forEach(val => {
                 if (this.value.includes(val)) {
                     this.removeFilterItemByValue(val);
@@ -724,11 +724,11 @@ document.addEventListener('alpine:init', () => {
             this.removeFilterItemByValue(item.value);
         },
         removeFilterItemByValue(value) {
-            this.value.splice(this.value.indexOf(value), 1)
+            this.value.splice(this.value.indexOf(value), 1);
             this.clearFilterPill(value);
         },
         getDataSelector(item) {
-            return `[data-filter="${this.$root.dataset.modelName}"][data-filter-value="${item}"]`
+            return `[data-filter="${this.$root.dataset.modelName}"][data-filter-value="${item}"]`;
         },
 
         handleActiveFilters(choicesValues) {
@@ -746,35 +746,35 @@ document.addEventListener('alpine:init', () => {
                     if (!this.needsFilterPill(value.value)) {
                         this.clearFilterPill(value.value);
                     }
-                    return false
+                    return false;
                 }).map(item => item.value);
             }
 
             valuesToCreatePillsFor.forEach(item => {
                 if (this.needsFilterPill(item)) {
                     const cItem = choicesValues.find(value => value.value === item);
-                    if (typeof cItem !== 'undefined') {
+                    if (typeof cItem !== "undefined") {
                         this.createFilterPill(cItem);
                     }
                 }
-            })
+            });
         },
 
-        getTextForFilterPill: function (item, element) {
+        getTextForFilterPill: function(item, element) {
             let innerHtml = item.label;
             if (this.isAChildChoice(item)) {
                 innerHtml = `${item.customProperties.parentLabel}: ${item.label}`;
             }
             if (this.isAParentChoice(item)) {
-                innerHtml = `${item.label}: ${element.dataset.transAny}`
+                innerHtml = `${item.label}: ${element.dataset.transAny}`;
             }
             return innerHtml;
         },
         createFilterPill(item) {
-            const element = document.getElementById('filter-pill-template').content.firstElementChild.cloneNode(true);
+            const element = document.getElementById("filter-pill-template").content.firstElementChild.cloneNode(true);
 
             element.id = `filter-${this.$root.dataset.modelName}-${item.value}`;
-            element.classList.add('filter-pill');
+            element.classList.add("filter-pill");
             element.dataset.filter = this.$root.dataset.modelName;
             element.dataset.filterValue = item.value;
             element.dataset.removeEventName = this.getRemoveEventName();
@@ -784,13 +784,13 @@ document.addEventListener('alpine:init', () => {
         },
 
         needsFilterPill(item) {
-            return this.activeFiltersContainer.querySelector(this.getDataSelector(item)) === null
+            return this.activeFiltersContainer.querySelector(this.getDataSelector(item)) === null;
         },
 
         clearFilterPill(item) {
             return this.activeFiltersContainer.querySelector(this.getDataSelector(item))?.remove();
         },
-        getValidatedEventValue: function (event) {
+        getValidatedEventValue: function(event) {
             let eventValue = event.detail.choice.value;
             // UUID values can be parseInt'd but then the value is only the first integers until a letter occurs. So this checks the length of the event value vs the parsed value;
             if (Number.isInteger(parseInt(event.detail.choice.value)) && JSON.stringify(parseInt(event.detail.choice.value)).length === event.detail.choice.value.length) {
@@ -798,80 +798,80 @@ document.addEventListener('alpine:init', () => {
             }
             return eventValue;
         },
-        getChoicesConfig: function () {
+        getChoicesConfig: function() {
             return {
                 ...this.config,
                 callbackOnCreateTemplates: () => {
                     return {
                         choice(classes, attr) {
-                            const el = Choices.defaults.templates.choice.call(this, classes, attr, '');
+                            const el = Choices.defaults.templates.choice.call(this, classes, attr, "");
                             if (attr.customProperties?.parent === false) {
-                                el.classList.add('child');
+                                el.classList.add("child");
                             }
                             return el;
                         }
-                    }
+                    };
                 }
             };
         },
-        addPlaceholderValues: function (choices) {
-            if (!this.config.placeholderValue.length || !this.$root.classList.contains('super')) {
+        addPlaceholderValues: function(choices) {
+            if (!this.config.placeholderValue.length || !this.$root.classList.contains("super")) {
                 return;
             }
-            let placeholderItem = choices._getTemplate('placeholder', this.config.placeholderValue);
-            placeholderItem.classList.add('truncate', 'min-w-[1rem]', 'placeholder');
-            this.$root.querySelector('.choices__placeholder.placeholder')?.remove();
+            let placeholderItem = choices._getTemplate("placeholder", this.config.placeholderValue);
+            placeholderItem.classList.add("truncate", "min-w-[1rem]", "placeholder");
+            this.$root.querySelector(".choices__placeholder.placeholder")?.remove();
             choices.itemList.append(placeholderItem);
         },
-        getRemoveEventName: function () {
-            return 'removeFrom' + this.$root.getAttribute('wire:key');
-        },
+        getRemoveEventName: function() {
+            return "removeFrom" + this.$root.getAttribute("wire:key");
+        }
     }));
 
-    Alpine.data('analysesSubjectsGraph', (modelId) => ({
+    Alpine.data("analysesSubjectsGraph", (modelId) => ({
             modelId,
             data: [],
             colors: [
-                '#30BC51',
-                '#5043F6',
-                '#ECEE7D',
-                '#6820CE',
-                '#CB110E',
-                '#F79D25',
-                '#1B6112',
-                '#43ACF5',
-                '#E12576',
-                '#24D2C5',
+                "#30BC51",
+                "#5043F6",
+                "#ECEE7D",
+                "#6820CE",
+                "#CB110E",
+                "#F79D25",
+                "#1B6112",
+                "#43ACF5",
+                "#E12576",
+                "#24D2C5"
             ],
             showEmptyState: false,
             init() {
                 this.updateGraph();
             },
             async updateGraph() {
-                [this.showEmptyState, this.data] = await this.$wire.call('getDataForGraph');
+                [this.showEmptyState, this.data] = await this.$wire.call("getDataForGraph");
                 this.renderGraph();
             },
             renderGraph() {
-                var cssSelector = '#pValueChart>div:not(.empty-state)';
-                this.$root.querySelectorAll(cssSelector).forEach(node => node.remove())
+                var cssSelector = "#pValueChart>div:not(.empty-state)";
+                this.$root.querySelectorAll(cssSelector).forEach(node => node.remove());
                 var chart = anychart.column();
                 var series = chart.column(this.data);
                 var palette = anychart.palettes.distinctColors();
                 palette.items(this.colors);
 
                 var yScale = chart.yScale();
-                yScale.minimum(0)
-                yScale.maximum(1.00)
-                yScale.ticks().interval(0.25)
-                chart.yAxis(0).labels().format(function () {
-                    return this.value == 0 ? 'P 0' : 'P ' + this.value.toFixed(2);
-                })
+                yScale.minimum(0);
+                yScale.maximum(1.00);
+                yScale.ticks().interval(0.25);
+                chart.yAxis(0).labels().format(function() {
+                    return this.value == 0 ? "P 0" : "P " + this.value.toFixed(2);
+                });
 
                 chart.yGrid().enabled(true);
                 chart.xAxis(0).labels()
                     .fontWeight("bold")
-                    .fontColor('#041f74')
-                    .rotation(-60)
+                    .fontColor("#041f74")
+                    .rotation(-60);
 
                 for (var i = 0; series.getPoint(i).exists(); i++)
                     series.getPoint(i).set("fill", palette.itemAt(i));
@@ -887,36 +887,36 @@ document.addEventListener('alpine:init', () => {
                 // set source of legend items
                 legend.itemsSourceMode("categories");
 
-                legend.itemsFormatter(function (items) {
+                legend.itemsFormatter(function(items) {
                     for (var i = 0; i < items.length; i++) {
                         items[i].iconType = "square";
                         items[i].iconFill = palette.itemAt([i]);
                         items[i].iconEnabled = true;
-                        items[i].fontWeight = 'bold';
-                        items[i].fontColor = '#041f74';
+                        items[i].fontWeight = "bold";
+                        items[i].fontColor = "#041f74";
                     }
                     return items;
                 });
 
-                legend.listen("legendItemMouseOver", function (event) {
+                legend.listen("legendItemMouseOver", function(event) {
                     // get item's index
                     var index = event["itemIndex"];
                     // enable the hover state of the series
                     series.getPoint(index).hovered(true);
                 });
-                legend.listen("legendItemMouseOut", function (event) {
+                legend.listen("legendItemMouseOut", function(event) {
                     // get item's index
                     var index = event["itemIndex"];
                     // disable the hover state of the series
                     series.getPoint(index).hovered(false);
                 });
 
-                legend.listen("legendItemClick", function (event) {
+                legend.listen("legendItemClick", function(event) {
                     // get item's index
                     var index = event["itemIndex"];
                     // disable the hover state of the series
                     series.getPoint(index).selected(!series.getPoint(index).selected());
-                    legend.itemsFormatter(function (items) {
+                    legend.itemsFormatter(function(items) {
                         for (var i = 0; i < items.length; i++) {
                             items[i].iconType = "square";
                             if (series.getPoint(i).selected())
@@ -929,8 +929,8 @@ document.addEventListener('alpine:init', () => {
                     });
                 });
 
-                chart.listen("pointsSelect", function () {
-                    legend.itemsFormatter(function (items) {
+                chart.listen("pointsSelect", function() {
+                    legend.itemsFormatter(function(items) {
                         for (var i = 0; i < items.length; i++) {
                             items[i].iconType = "square";
                             if (series.getPoint(i).selected())
@@ -943,34 +943,34 @@ document.addEventListener('alpine:init', () => {
                     });
                 });
 
-                chart.listen("pointsSelect", function (e) {
-                    if (e.point.get('link')) {
-                        window.open(e.point.get('link'), '_self');
+                chart.listen("pointsSelect", function(e) {
+                    if (e.point.get("link")) {
+                        window.open(e.point.get("link"), "_self");
                     }
                 });
 
                 // // set container id for the chart
-                chart.container('pValueChart');
+                chart.container("pValueChart");
                 // initiate chart drawing
                 chart.draw();
             },
 
             initTooltips(chart, data, series) {
                 chart.tooltip().useHtml(true);
-                chart.tooltip().title(false)
-                chart.tooltip().separator(false)
-                series.tooltip().enabled(false)
+                chart.tooltip().title(false);
+                chart.tooltip().separator(false);
+                series.tooltip().enabled(false);
                 let contentElement = null;
                 let dataRow = null;
 
                 chart.listen("pointMouseOver", (e) => series.tooltip().enabled(false));
-                chart.listen("pointMouseOver", function (e) {
+                chart.listen("pointMouseOver", function(e) {
                     // get the data for the current point
                     dataRow = data[e.pointIndex];
-                    series.tooltip().enabled(true)
+                    series.tooltip().enabled(true);
 
                     if (contentElement) {
-                        fillTooltipHtml()
+                        fillTooltipHtml();
                     }
                 });
 
@@ -978,42 +978,42 @@ document.addEventListener('alpine:init', () => {
                     if (!dataRow) return;
 
                     while (contentElement.firstChild) {
-                        contentElement.firstChild.remove()
+                        contentElement.firstChild.remove();
                     }
                     const attainmentHeader = document.createElement("h5");
-                    attainmentHeader.style.color = 'var(--system-base)'
+                    attainmentHeader.style.color = "var(--system-base)";
                     attainmentHeader.appendChild(document.createTextNode(dataRow.title));
                     contentElement.appendChild(attainmentHeader);
 
                     const scoreElement = document.createElement("h2");
-                    scoreElement.style.color = 'var(--system-base)'
+                    scoreElement.style.color = "var(--system-base)";
                     scoreElement.appendChild(document.createTextNode(`P ${dataRow.value}`));
                     contentElement.appendChild(scoreElement);
 
                     const basedOnElement = document.createElement("p");
-                    basedOnElement.style.color = 'var(--system-base)'
+                    basedOnElement.style.color = "var(--system-base)";
                     basedOnElement.appendChild(document.createTextNode(dataRow.basedOn));
                     contentElement.appendChild(basedOnElement);
 
                     if (dataRow.link != false) {
                         const detailElement = document.createElement("p");
-                        detailElement.style.whiteSpace = 'nowrap'
-                        detailElement.style.color = 'var(--system-base)';
-                        detailElement.style.fontWeight = '900';
+                        detailElement.style.whiteSpace = "nowrap";
+                        detailElement.style.color = "var(--system-base)";
+                        detailElement.style.fontWeight = "900";
                         detailElement.appendChild(document.createTextNode("Bekijk analyse"));
 
-                        const iconElement = document.createElement('img');
-                        iconElement.src = '/svg/icons/arrow-small.svg';
-                        iconElement.style.display = 'inline-block'
-                        detailElement.appendChild(iconElement)
+                        const iconElement = document.createElement("img");
+                        iconElement.src = "/svg/icons/arrow-small.svg";
+                        iconElement.style.display = "inline-block";
+                        detailElement.appendChild(iconElement);
                         contentElement.appendChild(detailElement);
                     }
                 }
 
-                chart.tooltip().onDomReady(function (e) {
-                    this.parentElement.style.border = '1px solid var(--blue-grey)';
-                    this.parentElement.style.background = '#FFFFFF';
-                    this.parentElement.style.opacity = '0.8';
+                chart.tooltip().onDomReady(function(e) {
+                    this.parentElement.style.border = "1px solid var(--blue-grey)";
+                    this.parentElement.style.background = "#FFFFFF";
+                    this.parentElement.style.opacity = "0.8";
                     contentElement = this.contentElement;
 
                     fillTooltipHtml();
@@ -1022,27 +1022,27 @@ document.addEventListener('alpine:init', () => {
 
                 /* prevent the content of the contentElement div
                 from being overridden by the default formatter */
-                chart.tooltip().onBeforeContentChange(function () {
+                chart.tooltip().onBeforeContentChange(function() {
                     return false;
                 });
             }
         }
     ));
 
-    Alpine.data('analysesSubjectsTimeSeriesGraph', (modelId) => ({
+    Alpine.data("analysesSubjectsTimeSeriesGraph", (modelId) => ({
             modelId,
             data: [],
             colors: [
-                '#30BC51',
-                '#5043F6',
-                '#ECEE7D',
-                '#6820CE',
-                '#CB110E',
-                '#F79D25',
-                '#1B6112',
-                '#43ACF5',
-                '#E12576',
-                '#24D2C5',
+                "#30BC51",
+                "#5043F6",
+                "#ECEE7D",
+                "#6820CE",
+                "#CB110E",
+                "#F79D25",
+                "#1B6112",
+                "#43ACF5",
+                "#E12576",
+                "#24D2C5"
             ],
             subjects: [],
             showEmptyState: false,
@@ -1050,13 +1050,13 @@ document.addEventListener('alpine:init', () => {
                 this.updateGraph();
             },
             async updateGraph() {
-                [this.showEmptyState, this.data, this.subjects] = await this.$wire.call('getDataForSubjectTimeSeriesGraph');
+                [this.showEmptyState, this.data, this.subjects] = await this.$wire.call("getDataForSubjectTimeSeriesGraph");
                 this.renderGraph();
             },
             renderGraph() {
 
-                var cssSelector = '#' + this.modelId + '>div:not(.empty-state)';
-                this.$root.querySelectorAll(cssSelector).forEach(node => node.remove())
+                var cssSelector = "#" + this.modelId + ">div:not(.empty-state)";
+                this.$root.querySelectorAll(cssSelector).forEach(node => node.remove());
                 // set the data
                 let table = anychart.data.table();
                 table.addData(this.data);
@@ -1067,52 +1067,52 @@ document.addEventListener('alpine:init', () => {
                 var yScale = chart.plot(0).yScale();
                 yScale.minimum(0);
                 yScale.maximum(1.00);
-                yScale.ticks().interval(0.25)
+                yScale.ticks().interval(0.25);
 
                 var line = chart.plot(0).lineMarker();
                 line.value(0);
                 line.stroke("2 var(--system-base)");
 
-                chart.plot(0).yAxis(0).labels().format(function () {
-                    return this.value == 0 ? 'P 0' : 'P ' + this.value.toFixed(2);
-                })
+                chart.plot(0).yAxis(0).labels().format(function() {
+                    return this.value == 0 ? "P 0" : "P " + this.value.toFixed(2);
+                });
 
                 // access labels
                 let labels = chart.scroller().xAxis().labels();
                 let minorLabels = chart.scroller().xAxis().minorLabels();
 
 // set major labels text format
-                labels.format(function () {
+                labels.format(function() {
                     return "'" + anychart.format.dateTime(this.tickValue, "Y");
                 });
 // set labels color
-                labels.fontColor('var(--system-base)');
-                labels.fontWeight('bold');
+                labels.fontColor("var(--system-base)");
+                labels.fontWeight("bold");
 
 // set minor labels text format
-                minorLabels.format(function () {
-                    return anychart.format.dateTime(this.tickValue, 'MMM');
+                minorLabels.format(function() {
+                    return anychart.format.dateTime(this.tickValue, "MMM");
                 });
 
 // set minor color to selectedColorForScroller;
-                minorLabels.fontColor('var(--system-base) 0.5');
+                minorLabels.fontColor("var(--system-base) 0.5");
 //
 
-                chart.scroller().selectedFill('var(--system-base) 0.1');
+                chart.scroller().selectedFill("var(--system-base) 0.1");
                 chart.scroller().outlineStroke("var(--system-base)", 2);
-                chart.scroller().outline
+                chart.scroller().outline;
 
                 chart.interactivity().hoverMode("single");
 
                 this.subjects.forEach((el, index) => {
                     let cnt = index + 1;
                     let mapping = table.mapAs();
-                    mapping.addField('value', cnt);
+                    mapping.addField("value", cnt);
 
                     let series = chart.plot(0).line(mapping);
                     series.name(el);
-                    series.legendItem().useHtml(true)
-                    series.legendItem().format("{%seriesName}")
+                    series.legendItem().useHtml(true);
+                    series.legendItem().format("{%seriesName}");
 
                     let marker = series.normal().markers();
                     marker.enabled(false);
@@ -1120,14 +1120,14 @@ document.addEventListener('alpine:init', () => {
                     let marker1 = series.hovered().markers();
                     marker1.enabled(true);
                     marker1.size(4);
-                    marker1.type('circle')
+                    marker1.type("circle");
 
-                    series.normal().stroke(this.colors[index],2)
+                    series.normal().stroke(this.colors[index], 2);
                     series.connectMissingPoints(true);
-                })
+                });
 
-                chart.title('');
-                chart.plot(0).legend().titleFormat('');
+                chart.title("");
+                chart.plot(0).legend().titleFormat("");
 
                 chart.container(this.modelId);
                 chart.draw();
@@ -1136,49 +1136,49 @@ document.addEventListener('alpine:init', () => {
     ));
 
 
-    Alpine.data('analysesAttainmentsGraph', (modelId) => ({
+    Alpine.data("analysesAttainmentsGraph", (modelId) => ({
             modelId,
             data: false,
             colors: [
-                '#30BC51',
-                '#5043F6',
-                '#ECEE7D',
-                '#6820CE',
-                '#CB110E',
-                '#F79D25',
-                '#1B6112',
-                '#43ACF5',
-                '#E12576',
-                '#24D2C5',
+                "#30BC51",
+                "#5043F6",
+                "#ECEE7D",
+                "#6820CE",
+                "#CB110E",
+                "#F79D25",
+                "#1B6112",
+                "#43ACF5",
+                "#E12576",
+                "#24D2C5"
             ],
             showEmptyState: false,
             init() {
                 this.updateGraph();
             },
             async updateGraph() {
-                [this.showEmptyState, this.data] = await this.$wire.call('getDataForGraph');
+                [this.showEmptyState, this.data] = await this.$wire.call("getDataForGraph");
                 this.renderGraph();
             },
             renderGraph() {
-                var cssSelector = '#pValueChart>div:not(.empty-state)';
-                this.$root.querySelectorAll(cssSelector).forEach(node => node.remove())
+                var cssSelector = "#pValueChart>div:not(.empty-state)";
+                this.$root.querySelectorAll(cssSelector).forEach(node => node.remove());
                 var chart = anychart.column();
                 var series = chart.column(this.data);
                 var palette = anychart.palettes.distinctColors();
                 palette.items(this.colors);
 
                 var yScale = chart.yScale();
-                yScale.minimum(0)
-                yScale.maximum(1.00)
-                yScale.ticks().interval(0.25)
-                chart.yAxis(0).labels().format(function () {
-                    return this.value == 0 ? 'P 0' : 'P ' + this.value.toFixed(2);
-                })
+                yScale.minimum(0);
+                yScale.maximum(1.00);
+                yScale.ticks().interval(0.25);
+                chart.yAxis(0).labels().format(function() {
+                    return this.value == 0 ? "P 0" : "P " + this.value.toFixed(2);
+                });
 
                 chart.yGrid().enabled(true);
                 chart.xAxis(0).labels()
                     .fontWeight("bold")
-                    .fontColor('#041f74')
+                    .fontColor("#041f74");
 
 
                 for (var i = 0; series.getPoint(i).exists(); i++)
@@ -1196,38 +1196,38 @@ document.addEventListener('alpine:init', () => {
                 legend.itemsSourceMode("categories");
 
                 var _data = this.data;
-                legend.itemsFormatter(function (items) {
+                legend.itemsFormatter(function(items) {
                     for (var i = 0; i < items.length; i++) {
                         items[i].iconType = "square";
                         items[i].iconFill = palette.itemAt([i]);
                         items[i].iconEnabled = true;
                         items[i].text = _data[i].title;
-                        items[i].fontWeight = 'bold';
-                        items[i].fontColor = '#041f74';
+                        items[i].fontWeight = "bold";
+                        items[i].fontColor = "#041f74";
                     }
                     return items;
                 });
 
 
-                legend.listen("legendItemMouseOver", function (event) {
+                legend.listen("legendItemMouseOver", function(event) {
                     // get item's index
                     var index = event["itemIndex"];
                     // enable the hover state of the series
                     series.getPoint(index).hovered(true);
                 });
-                legend.listen("legendItemMouseOut", function (event) {
+                legend.listen("legendItemMouseOut", function(event) {
                     // get item's index
                     var index = event["itemIndex"];
                     // disable the hover state of the series
                     series.getPoint(index).hovered(false);
                 });
 
-                legend.listen("legendItemClick", function (event) {
+                legend.listen("legendItemClick", function(event) {
                     // get item's index
                     var index = event["itemIndex"];
                     // disable the hover state of the series
                     series.getPoint(index).selected(!series.getPoint(index).selected());
-                    legend.itemsFormatter(function (items) {
+                    legend.itemsFormatter(function(items) {
                         for (var i = 0; i < items.length; i++) {
                             items[i].iconType = "square";
                             if (series.getPoint(i).selected())
@@ -1240,8 +1240,8 @@ document.addEventListener('alpine:init', () => {
                     });
                 });
 
-                chart.listen("pointsSelect", function () {
-                    legend.itemsFormatter(function (items) {
+                chart.listen("pointsSelect", function() {
+                    legend.itemsFormatter(function(items) {
                         for (var i = 0; i < items.length; i++) {
                             items[i].iconType = "square";
                             if (series.getPoint(i).selected())
@@ -1254,28 +1254,28 @@ document.addEventListener('alpine:init', () => {
                     });
                 });
 
-                chart.listen("pointsSelect", function (e) {
-                    if (e.point.get('link')) {
-                        window.open(e.point.get('link'), '_self');
+                chart.listen("pointsSelect", function(e) {
+                    if (e.point.get("link")) {
+                        window.open(e.point.get("link"), "_self");
                     }
                 });
 
                 chart.interactivity("by-x");
 
                 // set container id for the chart
-                chart.container('pValueChart');
+                chart.container("pValueChart");
                 // initiate chart drawing
                 chart.draw();
             },
 
             initTooltips(chart, data, series) {
                 chart.tooltip().useHtml(true);
-                chart.tooltip().title(false)
-                chart.tooltip().separator(false)
-                series.tooltip().enabled(false)
+                chart.tooltip().title(false);
+                chart.tooltip().separator(false);
+                series.tooltip().enabled(false);
 
                 let contentElement = null;
-                let dataRow = null
+                let dataRow = null;
 
                 chart.listen("pointMouseOut", (e) => series.tooltip().enabled(false));
 
@@ -1283,39 +1283,39 @@ document.addEventListener('alpine:init', () => {
                     if (!dataRow) return;
 
                     while (contentElement.firstChild) {
-                        contentElement.firstChild.remove()
+                        contentElement.firstChild.remove();
                     }
                     const attainmentHeader = document.createElement("h5");
-                    attainmentHeader.style.color = 'var(--system-base)'
+                    attainmentHeader.style.color = "var(--system-base)";
                     attainmentHeader.appendChild(document.createTextNode(dataRow.title));
                     contentElement.appendChild(attainmentHeader);
 
                     const scoreElement = document.createElement("h2");
-                    scoreElement.style.color = 'var(--system-base)'
+                    scoreElement.style.color = "var(--system-base)";
                     scoreElement.appendChild(document.createTextNode(`P ${dataRow.value}`));
                     contentElement.appendChild(scoreElement);
 
                     const basedOnElement = document.createElement("p");
-                    basedOnElement.style.color = 'var(--system-base)'
+                    basedOnElement.style.color = "var(--system-base)";
                     basedOnElement.appendChild(document.createTextNode(dataRow.basedOn));
                     contentElement.appendChild(basedOnElement);
 
                     if (dataRow.count !== null) {
                         const detailElement = document.createElement("p");
-                        detailElement.style.whiteSpace = 'nowrap'
-                        detailElement.style.color = 'var(--system-base)';
-                        detailElement.style.fontWeight = '900';
+                        detailElement.style.whiteSpace = "nowrap";
+                        detailElement.style.color = "var(--system-base)";
+                        detailElement.style.fontWeight = "900";
                         detailElement.appendChild(document.createTextNode("Bekijk analyse "));
 
-                        const iconElement = document.createElement('img');
-                        iconElement.src = '/svg/icons/arrow-small.svg';
-                        iconElement.style.display = 'inline-block';
+                        const iconElement = document.createElement("img");
+                        iconElement.src = "/svg/icons/arrow-small.svg";
+                        iconElement.style.display = "inline-block";
                         detailElement.appendChild(iconElement);
                         contentElement.appendChild(detailElement);
                     }
 
                     const AttainmentTexElement = document.createElement("p");
-                    AttainmentTexElement.style.color = 'var(--system-base)'
+                    AttainmentTexElement.style.color = "var(--system-base)";
                     AttainmentTexElement.appendChild(
                         document.createTextNode(dataRow.text)
                     );
@@ -1323,21 +1323,21 @@ document.addEventListener('alpine:init', () => {
 
                 }
 
-                chart.listen("pointMouseOver", function (e) {
+                chart.listen("pointMouseOver", function(e) {
                     // get the data for the current point
-                    series.tooltip().enabled(true)
+                    series.tooltip().enabled(true);
 
                     dataRow = data[e.pointIndex];
                     if (contentElement) {
-                        fillTooltipHtml()
+                        fillTooltipHtml();
                     }
                 });
 
 
-                chart.tooltip().onDomReady(function (e) {
-                    this.parentElement.style.border = '1px solid var(--blue-grey)';
-                    this.parentElement.style.background = '#FFFFFF';
-                    this.parentElement.style.opacity = '0.8';
+                chart.tooltip().onDomReady(function(e) {
+                    this.parentElement.style.border = "1px solid var(--blue-grey)";
+                    this.parentElement.style.background = "#FFFFFF";
+                    this.parentElement.style.opacity = "0.8";
                     contentElement = this.contentElement;
 
                     fillTooltipHtml();
@@ -1345,149 +1345,149 @@ document.addEventListener('alpine:init', () => {
 
                 /* prevent the content of the contentElement div
                 from being overridden by the default formatter */
-                chart.tooltip().onBeforeContentChange(function () {
+                chart.tooltip().onBeforeContentChange(function() {
                     return false;
                 });
             }
         }
     ));
 
-    Alpine.data('sliderToggle', (model, sources) => ({
-            buttonPosition: '0px',
-            buttonWidth: 'auto',
-            value: model,
-            sources: sources,
-            handle: null,
-            init() {
-                this.handle = this.$el.querySelector('.slider-button-handle');
-                if (this.value === null) {
-                    return;
-                }
-                this.$el.querySelector('.group').firstElementChild.classList.add('text-primary');
-
-                if (this.value !== '' && Object.keys(this.sources).includes(String(this.value))) {
-                    this.activateButton(this.$el.querySelector('[data-id=\'' + this.value + '\']').parentElement);
-                } else {
-                    this.value = this.$el.querySelector('.group').firstElementChild.dataset.id;
-                }
-            },
-            clickButton(target) {
-                this.activateButton(target);
-                this.value = target.firstElementChild.dataset.id;
-            },
-            hoverButton(target) {
-                this.activateButton(target)
-            },
-            activateButton(target) {
-                this.$nextTick(() => {
-                    this.resetButtons(target)
-                    this.buttonPosition = target.offsetLeft + 'px';
-                    this.buttonWidth = target.offsetWidth + 'px';
-                    target.firstElementChild.classList.add('text-primary');
-                    this.handle.classList.remove('hidden');
-                })
-            },
-            resetButtons(target) {
-                Array.from(target.parentElement.children).forEach(button => {
-                    button.firstElementChild.classList.remove('text-primary');
-                });
+    Alpine.data("sliderToggle", (model, sources) => ({
+        buttonPosition: "0px",
+        buttonWidth: "auto",
+        value: model,
+        sources: sources,
+        handle: null,
+        init() {
+            this.handle = this.$el.querySelector(".slider-button-handle");
+            if (this.value === null) {
+                return;
             }
-        }));
+            this.$el.querySelector(".group").firstElementChild.classList.add("text-primary");
 
-    Alpine.data('expandableGraphForGeneral', (id, modelId, taxonomy, component) => (
+            if (this.value !== "" && Object.keys(this.sources).includes(String(this.value))) {
+                this.activateButton(this.$el.querySelector("[data-id='" + this.value + "']").parentElement);
+            } else {
+                this.value = this.$el.querySelector(".group").firstElementChild.dataset.id;
+            }
+        },
+        clickButton(target) {
+            this.activateButton(target);
+            this.value = target.firstElementChild.dataset.id;
+        },
+        hoverButton(target) {
+            this.activateButton(target);
+        },
+        activateButton(target) {
+            this.$nextTick(() => {
+                this.resetButtons(target);
+                this.buttonPosition = target.offsetLeft + "px";
+                this.buttonWidth = target.offsetWidth + "px";
+                target.firstElementChild.classList.add("text-primary");
+                this.handle.classList.remove("hidden");
+            });
+        },
+        resetButtons(target) {
+            Array.from(target.parentElement.children).forEach(button => {
+                button.firstElementChild.classList.remove("text-primary");
+            });
+        }
+    }));
+
+    Alpine.data("expandableGraphForGeneral", (id, modelId, taxonomy, component) => (
         {
             data: false,
             modelId,
             taxonomy,
-            containerId: 'chart-' + id + '-' + taxonomy,
+            containerId: "chart-" + id + "-" + taxonomy,
             id,
             showEmptyState: false,
             init() {
                 if (this.expanded) {
-                    this.updateGraph()
+                    this.updateGraph();
                 }
             },
             async updateGraph(forceUpdate) {
                 if (!this.data || forceUpdate) {
-                    var method = 'getData';
-                    if (component == 'expandableGraphForGeneral') {
-                        method = 'getDataForGeneralGraph';
+                    var method = "getData";
+                    if (component == "expandableGraphForGeneral") {
+                        method = "getDataForGeneralGraph";
                     }
                     [this.showEmptyState, this.data] = await this.$wire.call(method, this.modelId, this.taxonomy);
-                    this.renderGraph()
+                    this.renderGraph();
                 }
             },
             get expanded() {
-                return this.active === this.id
+                return this.active === this.id;
             },
             set expanded(value) {
                 if (value) {
-                    this.updateGraph()
+                    this.updateGraph();
                 }
 
-                this.active = value ? this.id : null
+                this.active = value ? this.id : null;
             },
-            renderGraph: function () {
+            renderGraph: function() {
                 // create bar chart
-                var cssSelector = '#' + this.containerId + '>div:not(.empty-state)';
+                var cssSelector = "#" + this.containerId + ">div:not(.empty-state)";
                 //
-                this.$root.querySelectorAll(cssSelector).forEach(node => node.remove())
+                this.$root.querySelectorAll(cssSelector).forEach(node => node.remove());
                 var chart = anychart.bar();
 // //
 // //                 var credits = chart.credits();
 //                 credits.enabled(false);
                 var series = chart.bar(this.data);
 
-                series.stroke(this.getColor()).fill(this.getColor())
+                series.stroke(this.getColor()).fill(this.getColor());
 
-                var tooltip = series.tooltip()
+                var tooltip = series.tooltip();
 
                 tooltip.title(false)
                     .separator(false)
-                    .position('right')
-                    .anchor('left-center')
+                    .position("right")
+                    .anchor("left-center")
                     .offsetX(5)
                     .offsetY(0)
-                    .background('#FFFFFF')
-                    .fontColor('#000000')
-                    .format("{%tooltip}")
+                    .background("#FFFFFF")
+                    .fontColor("#000000")
+                    .format("{%tooltip}");
 
-                chart.tooltip().positionMode('point');
+                chart.tooltip().positionMode("point");
                 // set scale minimum
-                chart.yScale().minimum(0)
-                chart.yScale().maximum(1)
+                chart.yScale().minimum(0);
+                chart.yScale().maximum(1);
 
                 // chart.xScale()//.maximum(100)
-                chart.xAxis().stroke('#041F74')
-                chart.xAxis().stroke('none')
+                chart.xAxis().stroke("#041F74");
+                chart.xAxis().stroke("none");
                 // set container id for the chart
                 chart.container(this.containerId);
                 // initiate chart drawing
                 chart.draw();
             },
-            getColor: function () {
-                if (this.taxonomy == 'Bloom') {
-                    return '#E2DD10';
+            getColor: function() {
+                if (this.taxonomy == "Bloom") {
+                    return "#E2DD10";
                 }
-                if (this.taxonomy == 'Miller') {
-                    return '#5043F6';
+                if (this.taxonomy == "Miller") {
+                    return "#5043F6";
                 }
-                return '#2EBC4F';
+                return "#2EBC4F";
             }
         }
     ));
 
 
-    Alpine.data('contextMenuButton', (context, uuid, contextData) => ({
+    Alpine.data("contextMenuButton", (context, uuid, contextData) => ({
         menuOpen: false,
         uuid,
         contextData,
         context,
         gridCard: null,
-        showEvent: context + '-context-menu-show',
-        closeEvent: context + '-context-menu-close',
+        showEvent: context + "-context-menu-show",
+        closeEvent: context + "-context-menu-close",
         init() {
-            this.gridCard = this.$root.closest('.grid-card');
+            this.gridCard = this.$root.closest(".grid-card");
         },
         handle() {
             this.menuOpen = !this.menuOpen;
@@ -1501,9 +1501,9 @@ document.addEventListener('alpine:init', () => {
                         left: this.gridCard.offsetLeft + this.gridCard.offsetWidth
                     },
                     contextData: this.contextData
-                })
+                });
             } else {
-                this.$dispatch(this.closeEvent)
+                this.$dispatch(this.closeEvent);
             }
         },
         closeMenu() {
@@ -1511,7 +1511,7 @@ document.addEventListener('alpine:init', () => {
         }
     }));
 
-    Alpine.data('contextMenuHandler', () => ({
+    Alpine.data("contextMenuHandler", () => ({
         contextMenuOpen: false,
         uuid: null,
         contextData: null,
@@ -1548,41 +1548,41 @@ document.addEventListener('alpine:init', () => {
             this.detailCoordsTop = detail.coords.top;
             this.detailCoordsLeft = detail.coords.left;
             this.gridCardOffsetHeight = detail.coords.gridCardOffsetHeight;
-            
+
             this.$root.style.top = (this.detailCoordsTop + this.menuOffsetMarginTop) + 'px';
-            this.$root.style.left = (this.detailCoordsLeft - this.menuOffsetMarginLeft) + 'px'; 
+            this.$root.style.left = (this.detailCoordsLeft - this.menuOffsetMarginLeft) + 'px';
 
             let readyForShow = await this.$wire.setContextValues(this.uuid, this.contextData);
             if (readyForShow) this.contextMenuOpen = true;
-            this.contextMenuOpen = true
+            this.contextMenuOpen = true;
         },
         closeMenu() {
-            this.correspondingButton.dispatchEvent(new CustomEvent('close-menu'));
-            this.contextMenuOpen = false
+            this.correspondingButton.dispatchEvent(new CustomEvent("close-menu"));
+            this.contextMenuOpen = false;
         }
     }));
 
-    Alpine.data('accordionBlock', (key, emitWhenSet = false) => ({
+    Alpine.data("accordionBlock", (key, emitWhenSet = false) => ({
         id: null,
         emitWhenSet,
         droppingFile: false,
         init() {
-            this.id = this.containerId + '-' + key;
+            this.id = this.containerId + "-" + key;
         },
         get expanded() {
-            return this.active === this.id
+            return this.active === this.id;
         },
         set expanded(value) {
-            this.active = value ? this.id : null
+            this.active = value ? this.id : null;
             if (value) {
-                this.$el.classList.remove('hover:shadow-hover')
+                this.$el.classList.remove("hover:shadow-hover");
                 if (this.emitWhenSet) {
-                    Livewire.emit('accordion-update', this.id);
+                    Livewire.emit("accordion-update", this.id);
                 }
             }
-        },
+        }
     }));
-    Alpine.data('fileUpload', (uploadModel, rules) => ({
+    Alpine.data("fileUpload", (uploadModel, rules) => ({
         isDropping: false,
         isUploading: false,
         progress: {},
@@ -1591,18 +1591,18 @@ document.addEventListener('alpine:init', () => {
         rules,
         handleFileSelect(event) {
             if (event.target.files.length) {
-                this.uploadFiles(event.target.files)
+                this.uploadFiles(event.target.files);
             }
         },
         handleFileDrop(event) {
             if (event.dataTransfer.files.length > 0) {
-                this.uploadFiles(event.dataTransfer.files)
+                this.uploadFiles(event.dataTransfer.files);
             }
         },
         uploadFiles(files) {
-            const $this = this
-            this.isUploading = true
-            let dummyContainer = this.$root.querySelector('#upload-dummies');
+            const $this = this;
+            this.isUploading = true;
+            let dummyContainer = this.$root.querySelector("#upload-dummies");
             Array.from(files).forEach((file, key) => {
                 if (!this.fileHasAllowedExtension(file)) {
                     this.handleIncorrectFileUpload(file);
@@ -1624,21 +1624,21 @@ document.addEventListener('alpine:init', () => {
                     this.uploadModel,
                     file,
                     success => {
-                        $this.progress[badgeId] = 0
+                        $this.progress[badgeId] = 0;
                         dummyContainer.querySelector(`#${badgeId}`).remove();
                     },
                     error => {
-                        Notify.notify(`Er is iets misgegaan met het verwerken van '${file.name}'.`, 'error');
+                        Notify.notify(`Er is iets misgegaan met het verwerken van '${file.name}'.`, "error");
                         dummyContainer.querySelector(`#${badgeId}`).remove();
                     },
                     progress => {
-                        $this.progress[badgeId] = event.detail.progress
-                    })
+                        $this.progress[badgeId] = event.detail.progress;
+                    });
             });
 
         },
         removeUpload(filename) {
-            this.$wire.removeUpload(this.uploadModel, filename)
+            this.$wire.removeUpload(this.uploadModel, filename);
         },
         handleDragEnter() {
             this.dragCounter++;
@@ -1647,40 +1647,71 @@ document.addEventListener('alpine:init', () => {
         handleDragLeave() {
             this.dragCounter--;
             if (this.dragCounter === 0) {
-                this.droppingFile = false
+                this.droppingFile = false;
             }
         },
         handleDrop() {
-            this.droppingFile = false
-            this.dragCounter = 0
+            this.droppingFile = false;
+            this.dragCounter = 0;
         },
         createLoadingBadge(file, badgeId) {
             let template = this.$root.querySelector("template#upload-badge").content.cloneNode(true);
             template.firstElementChild.id = badgeId;
-            template.querySelector('.badge-name').innerText = file.name;
+            template.querySelector(".badge-name").innerText = file.name;
 
-            return template
+            return template;
         },
-        getFileExtension: function (file) {
+        getFileExtension: function(file) {
             let filename = file.name;
-            return filename.substring(filename.lastIndexOf('.') + 1, filename.length) || filename;
+            return filename.substring(filename.lastIndexOf(".") + 1, filename.length) || filename;
         },
         fileHasAllowedExtension(file) {
             return this.rules.extensions.data.includes(this.getFileExtension(file));
         },
         handleIncorrectFileUpload(file) {
-            let message = this.rules.extensions.message.replace('%s', this.getFileExtension(file));
-            Notify.notify(message, 'error');
+            let message = this.rules.extensions.message.replace("%s", this.getFileExtension(file));
+            Notify.notify(message, "error");
         },
         fileTooLarge(file) {
             return file.size > this.rules.size.data;
         },
         handleTooLargeOfAfile(file) {
-            let message = this.rules.size.message.replace('%s', file.name);
-            Notify.notify(message, 'error');
+            let message = this.rules.size.message.replace("%s", file.name);
+            Notify.notify(message, "error");
         }
     }));
+    Alpine.data("assessmentNavigator", (current, total, methodCall) => ({
+        current,
+        total,
+        methodCall,
+        first() {
+            this.current = 1;
+        },
+        last() {
+            this.current = this.total;
+        },
+        next() {
+            if (this.current >= this.total) return;
+            this.current++;
+        },
+        previous() {
+            if (this.current <= 1) return;
+            this.current--;
+        },
+        requestTimeout: null,
+        async init() {
+            this.$watch("current", async (value, oldValue) => {
+                clearTimeout(this.requestTimeout);
+                this.requestTimeout = setTimeout(async () => {
+                    let response = await this.$wire[this.methodCall](value);
 
+                    if (response) {
+                        console.log(`Called ${this.methodCall} with value: ${response}`);
+                    }
+                }, 250);
+            });
+        }
+    }));
 
     Alpine.data('completionQuestion', () => ({
         minWidth: 120,
@@ -1726,22 +1757,22 @@ document.addEventListener('alpine:init', () => {
         f(window, el._x_dataStack[0]);
     });
 
-    Alpine.store('cms', {
+    Alpine.store("cms", {
         loading: false,
         processing: false,
         dirty: false,
         scrollPos: 0,
         reinitOnClose: false,
-        emptyState: false,
+        emptyState: false
     });
-    Alpine.store('questionBank', {
+    Alpine.store("questionBank", {
         active: false,
         inGroup: false
     });
 });
 
 function getTitleForVideoUrl(videoUrl) {
-    return fetch('https://noembed.com/embed?url=' + videoUrl)
+    return fetch("https://noembed.com/embed?url=" + videoUrl)
         .then((response) => response.json())
         .then((data) => {
             if (!data.error) {
