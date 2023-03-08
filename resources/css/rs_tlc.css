@@ -25,7 +25,8 @@
 /*}*/
 /*.rsbtn .rsbtn_play .rsbtn_left .rsbtn_text .rsbtn_label {*/
 /*    color: #041f74;*/
-/*    font-family: "Nunito Bold", sans-serif;*/
+/*    font-family: "Nunito", sans-serif;*/
+/*font-weight: bold;*/
 /*    font-size: 18px;*/
 /*    padding-left: 0.2em;*/
 /*    display: inline;*/
@@ -122,7 +123,7 @@
     width: 81px;
     height: 24px;
     margin: 0 0 6px 8px;
-    font-family: Nunito Bold;
+    font-family: Nunito;
     font-size: 18px;
     font-weight: bold;
     font-stretch: normal;
@@ -2211,7 +2212,8 @@ body.rs_highcontrast #rslightbox_contentcontainer #rslightbox_toolbar .rslightbo
     background-position-y: 6px;
 }
 .rspopup .rspopup_btn.rspopup_play span{
-    font-family: Nunito Bold, sans-serif;
+    font-family: Nunito, sans-serif;
+    font-weight: bold;
     color: var(--all-Base);
     vertical-align: super;
     margin-left: 10px;
@@ -2236,7 +2238,8 @@ span.completion-response-object-container{
     footer button.text-button{
         border-radius: 10px;
         font-size: 18px;
-        font-family: Nunito Bold;
+        font-family: Nunito;
+        font-weight: bold;
         padding-top: 0px;
         padding-right: 20px;
         padding-bottom: 0px;

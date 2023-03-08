@@ -52,7 +52,7 @@
 .button {
     border-radius: 10px;
     font-size: 18px;
-    font-family: Nunito Bold;
+    font-weight: bold;
     padding: 0 20px 0 20px;
     align-items: center;
     display: inline-flex;
@@ -83,7 +83,7 @@
 .text-button {
     border-radius: 0;
     color: var(--system-base);
-    font-family: Nunito Bold;
+    font-weight: bold;
     padding: 0;
 }
 
@@ -479,12 +479,12 @@ button.cta-button:disabled, a.cta-button:disabled {
 }
 
 .notification  .title {
-    font-family: Nunito Bold;
+    font-weight: bold;
     font-size: 1rem;
 }
 
 .notification  .body {
-    font-family: Nunito Regular;
+    font-family: Nunito;
     font-size: 0.875rem;
     line-height: normal;
     display: block;
@@ -605,7 +605,7 @@ button.cta-button:disabled, a.cta-button:disabled {
 .card-tag span {
     color: var(--card-tag-text-color)!important;
     text-transform: uppercase;
-    font-family: Nunito Bold, sans-serif;
+    font-weight: bold;
     font-size:10px;
 }
 
@@ -942,11 +942,13 @@ button.cta-button:disabled, a.cta-button:disabled {
 }
 
 label {
-    font-family: Nunito Regular;
+    font-family: Nunito;
+    font-weight: normal;
 }
 
 input {
-    font-family: Nunito Regular;
+    font-family: Nunito;
+    font-weight: normal;
 }
 
 .input-group:hover input {
@@ -954,7 +956,8 @@ input {
 }
 
 input:focus + label, textarea:focus + label, select:focus + label {
-    font-family: Nunito Bold;
+    font-family: Nunito;
+    font-weight: bold;
     color: var(--primary);
     transition: 150ms ease-in-out;
 }
@@ -2507,7 +2510,8 @@ input[type=number] {
 }
 
 #drawing-tool #sidebar .layer-group .shape-container.selected {
-    font-family: "Nunito Bold", sans-serif;
+    font-family: "Nunito", sans-serif;
+    font-weight: bold;
 }
 
 #drawing-tool.teacher #sidebar .layer-group#question-group .shape-container:hover {
@@ -2776,12 +2780,14 @@ input[type=number] {
 
 #drawing-tool #sidebar .layer-group .shape-container.reorder-highlight {
     background-color: rgba(var(--primary-rgb), 0.10);
-    font-family: "Nunito Bold", sans-serif;
+    font-family: "Nunito", sans-serif;
+    font-weight: bold;
     color: var(--primary);
 }
 #drawing-tool.teacher #sidebar .layer-group#question-group .shape-container.reorder-highlight {
     background-color: rgba(var(--purple-mid-dark-rgb), 0.10);
-    font-family: "Nunito Bold", sans-serif;
+    font-family: "Nunito", sans-serif;
+    font-weight: bold;
     color: var(--purple-mid-dark);
 }
 .preview #drawing-tool #img-upload-btn {
@@ -2843,7 +2849,8 @@ input[type=number] {
 }
 
 #drawing-tool .shape-container.selected {
-    font-family: "Nunito Bold", sans-serif;
+    font-family: "Nunito", sans-serif;
+    font-weight: bold;
 }
 
 
@@ -5303,7 +5310,6 @@ input.datepicker {
 #co-learning-teacher-page .student-info-container.active .student-name {
     font-weight: bold;
     color: var(--teacher-primary);
-    font-family: "Nunito Bold";
 }
 
 #co-learning-teacher-page .hide-on-smartboard {
@@ -5514,7 +5520,8 @@ input.datepicker {
 /*}*/
 /*.rsbtn .rsbtn_play .rsbtn_left .rsbtn_text .rsbtn_label {*/
 /*    color: #041f74;*/
-/*    font-family: "Nunito Bold", sans-serif;*/
+/*    font-family: "Nunito", sans-serif;*/
+/*font-weight: bold;*/
 /*    font-size: 18px;*/
 /*    padding-left: 0.2em;*/
 /*    display: inline;*/
@@ -5611,7 +5618,7 @@ input.datepicker {
     width: 81px;
     height: 24px;
     margin: 0 0 6px 8px;
-    font-family: Nunito Bold;
+    font-family: Nunito;
     font-size: 18px;
     font-weight: bold;
     font-stretch: normal;
@@ -7720,7 +7727,8 @@ body.rs_highcontrast #rslightbox_contentcontainer #rslightbox_toolbar .rslightbo
     background-position-y: 6px;
 }
 .rspopup .rspopup_btn.rspopup_play span{
-    font-family: Nunito Bold, sans-serif;
+    font-family: Nunito, sans-serif;
+    font-weight: bold;
     color: var(--all-Base);
     vertical-align: super;
     margin-left: 10px;
@@ -7745,7 +7753,8 @@ span.completion-response-object-container{
     footer button.text-button{
         border-radius: 10px;
         font-size: 18px;
-        font-family: Nunito Bold;
+        font-family: Nunito;
+        font-weight: bold;
         padding-top: 0px;
         padding-right: 20px;
         padding-bottom: 0px;
@@ -11073,15 +11082,9 @@ video {
 }
 
 @font-face {
-    font-family: Nunito Bold;
-    src: url(/fonts/Nunito-Bold.ttf?7a387fa586931c1ca491b70b8305b435);
-    font-weight: bold;
-}
-
-@font-face {
-    font-family: Nunito Regular;
-    src: url(/fonts/Nunito-Regular.ttf?37a4c5442e0a607a7acce2ec3966982a);
-    font-weight: normal;
+    font-family: Nunito;
+    src: url(/fonts/Nunito-VariableFont_wght.ttf?4a3eef3e0a61b7eb3eda7a33f00ff18b);
+    font-weight: 100 900;
 }
 
 @font-face {
@@ -11108,7 +11111,7 @@ video {
 }
 
 body {
-    font-family: Nunito Regular, sans-serif !important;
+    font-family: Nunito, sans-serif !important;
     background: var(--light-grey) !important;
     color: var(--system-base);
     touch-action: manipulation;
@@ -11346,14 +11349,16 @@ svg {
 
 h1 {
     font-size: 2rem;
-    font-family: Nunito Bold;
+    font-family: Nunito;
+    font-weight: 700;
     line-height: 2rem;
     color: var(--system-base);
 }
 
 h2 {
     font-size: 1.75rem;
-    font-family: Nunito Bold;
+    font-family: Nunito;
+    font-weight: 700;
     line-height: 2rem;
     color: var(--system-base);
 }
@@ -11370,28 +11375,32 @@ h3.bold {
 
 h4 {
     font-size: 1.5rem;
-    font-family: Nunito Bold;
+    font-family: Nunito;
+    font-weight: 700;
     line-height: 1.5rem;
     color: var(--system-base);
 }
 
 h5 {
     font-size: 1.25rem;
-    font-family: Nunito Bold;
+    font-family: Nunito;
+    font-weight: 700;
     line-height: 1.25rem;
     color: var(--system-base);
 }
 
 h6 {
     font-size: 1.125rem;
-    font-family: Nunito Bold;
+    font-family: Nunito;
+    font-weight: 700;
     line-height: 1.125rem;
     color: var(--system-base);
 }
 
 h7 {
     font-size: 1rem;
-    font-family: Nunito Bold;
+    font-family: Nunito;
+    font-weight: 700;
     line-height: 1.5rem;
     color: var(--system-base);
 }
@@ -11399,21 +11408,21 @@ h7 {
 .body1 {
     font-size: 1.125rem;
     line-height: 1.5rem;
-    font-family: Nunito Regular;
+    font-family: Nunito;
 }
 
 .body2 {
     font-size: 1rem;
     line-height: 1.5rem;
-    font-family: Nunito Regular;
+    font-family: Nunito;
 }
 
 .bold {
-    font-family: Nunito Bold;
+    font-weight: 700;
 }
 
 .regular {
-    font-family: Nunito Regular;
+    font-family: Nunito;
 }
 
 .font-size-14 {

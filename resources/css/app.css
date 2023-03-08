@@ -80,15 +80,9 @@
 }
 
 @font-face {
-    font-family: Nunito Bold;
-    src: url("../fonts/Nunito/Nunito-Bold.ttf");
-    font-weight: bold;
-}
-
-@font-face {
-    font-family: Nunito Regular;
-    src: url("../fonts/Nunito/Nunito-Regular.ttf");
-    font-weight: normal;
+    font-family: Nunito;
+    src: url("../fonts/Nunito/Nunito-VariableFont_wght.ttf");
+    font-weight: 100 900;
 }
 
 @font-face {
@@ -115,7 +109,7 @@
 }
 
 body {
-    font-family: Nunito Regular, sans-serif !important;
+    font-family: Nunito, sans-serif !important;
     background: var(--light-grey) !important;
     color: var(--system-base);
     touch-action: manipulation;
@@ -353,14 +347,16 @@ svg {
 
 h1 {
     font-size: 2rem;
-    font-family: Nunito Bold;
+    font-family: Nunito;
+    font-weight: 700;
     line-height: 2rem;
     color: var(--system-base);
 }
 
 h2 {
     font-size: 1.75rem;
-    font-family: Nunito Bold;
+    font-family: Nunito;
+    font-weight: 700;
     line-height: 2rem;
     color: var(--system-base);
 }
@@ -377,28 +373,32 @@ h3.bold {
 
 h4 {
     font-size: 1.5rem;
-    font-family: Nunito Bold;
+    font-family: Nunito;
+    font-weight: 700;
     line-height: 1.5rem;
     color: var(--system-base);
 }
 
 h5 {
     font-size: 1.25rem;
-    font-family: Nunito Bold;
+    font-family: Nunito;
+    font-weight: 700;
     line-height: 1.25rem;
     color: var(--system-base);
 }
 
 h6 {
     font-size: 1.125rem;
-    font-family: Nunito Bold;
+    font-family: Nunito;
+    font-weight: 700;
     line-height: 1.125rem;
     color: var(--system-base);
 }
 
 h7 {
     font-size: 1rem;
-    font-family: Nunito Bold;
+    font-family: Nunito;
+    font-weight: 700;
     line-height: 1.5rem;
     color: var(--system-base);
 }
@@ -406,21 +406,21 @@ h7 {
 .body1 {
     font-size: 1.125rem;
     line-height: 1.5rem;
-    font-family: Nunito Regular;
+    font-family: Nunito;
 }
 
 .body2 {
     font-size: 1rem;
     line-height: 1.5rem;
-    font-family: Nunito Regular;
+    font-family: Nunito;
 }
 
 .bold {
-    font-family: Nunito Bold;
+    font-weight: 700;
 }
 
 .regular {
-    font-family: Nunito Regular;
+    font-family: Nunito;
 }
 
 .font-size-14 {
