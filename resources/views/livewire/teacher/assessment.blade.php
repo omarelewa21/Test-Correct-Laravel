@@ -2,7 +2,7 @@
      class="min-h-screen w-full"
 >
     <x-partials.header.assessment :testName="$testName" />
-    @if($this->headerCollapsed)
+    @if(false)
 
         <div class="px-15 py-10 gap-6 flex flex-col "
              x-data="{showQuestion: true}"

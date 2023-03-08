@@ -130,11 +130,12 @@ class Assessment extends Component implements CollapsableHeader
 
     public function redirectBack()
     {
+        Session::forget("assessment-started-$this->testTakeUuid");
+
         if ($this->referrer === 'cake' || blank($this->referrer)) {
             return CakeRedirectHelper::redirectToCake('test_takes.view', $this->testTakeUuid);
         }
 
-        Session::forget("assessment-started-$this->testTakeUuid");
 
         return redirect()->route($this->referrer, 'norm');
     }

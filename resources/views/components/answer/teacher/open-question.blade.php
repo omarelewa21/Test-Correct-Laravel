@@ -1,6 +1,6 @@
 <div class="flex w-full">
     @if(in_array($question->subtype, ['medium', 'long', 'writing']))
-        <div wire:ignore wire:key="{{$editorId}}">
+        <div wire:ignore wire:key="answer-editor-{{$editorId}}">
             <x-input.group class="w-full" label="" style="position: relative;">
                                     <textarea id="{{ $editorId }}" name="{{ $editorId }}"
                                               x-init="
@@ -10,7 +10,7 @@
                                                 }
                                                 RichTextEditor.initClassicEditorForStudentplayer('{{  $editorId }}', '{{ $question->getKey() }}');
                                                 setTimeout(() => {
-                                                    RichTextEditor.setReadOnly(ClassicEditors.{{  $editorId }});
+                                                    RichTextEditor.setReadOnly(ClassicEditors['{{  $editorId }}']);
                                                 }, 100)
                                               "
                                     >
