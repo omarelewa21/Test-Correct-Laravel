@@ -344,7 +344,7 @@ ORDER BY t2.displayorder,
     {
         return optional(
             AnswerRating::where('type', 'teacher')
-                ->whereIn('test_take_id', $user->testTakes()->where('demo', 0)->pluck('id')
+                ->whereIn('test_take_id', $user->testTakes()->where('demo', 0)->select('id')
                 )->orderBy('created_at', 'desc')
                 ->first()
         )->created_at;
@@ -381,7 +381,7 @@ ORDER BY t2.displayorder,
 
         return optional(
             TestParticipant::whereIn('test_take_id',
-                ($user->testTakes()->where('demo', 0)->where('test_take_status_id', 9)->pluck('id'))
+                ($user->testTakes()->where('demo', 0)->where('test_take_status_id', 9)->select('id'))
             )->where(function ($query) {
                 return $query->orWhereNotNull('rating')->orWhereNotNull('retake_rating');
             })->orderBy('updated_at', 'asc')->first()
@@ -397,7 +397,7 @@ ORDER BY t2.displayorder,
 //        return optional(AnswerRating::whereIn('test_take_id', $user->testTakes()->where('demo', 0)->pluck('id'))->orderBy('created_at', 'desc')->first())->created_at;
         return optional(
             TestParticipant::whereIn('test_take_id',
-                ($user->testTakes()->where('demo', 0)->where('test_take_status_id', 9)->pluck('id'))
+                ($user->testTakes()->where('demo', 0)->where('test_take_status_id', 9)->select('id'))
             )->where(function ($query) {
                 return $query->orWhereNotNull('rating')->orWhereNotNull('retake_rating');
             })->orderBy('updated_at', 'desc')->first()

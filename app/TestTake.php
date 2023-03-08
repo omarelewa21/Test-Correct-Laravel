@@ -662,9 +662,9 @@ class TestTake extends BaseModel
                     break;
                 case 'school_class_id':
                     if (is_array($value)) {
-                        $query->whereIn($this->getTable() . '.id', TestParticipant::whereIn('school_class_id', $value)->distinct()->pluck('test_take_id'));
+                        $query->whereIn($this->getTable() . '.id', TestParticipant::whereIn('school_class_id', $value)->distinct()->select('test_take_id'));
                     } else {
-                        $query->whereIn($this->getTable() . '.id', TestParticipant::where('school_class_id', $value)->distinct()->pluck('test_take_id'));
+                        $query->whereIn($this->getTable() . '.id', TestParticipant::where('school_class_id', $value)->distinct()->select('test_take_id'));
                     }
                     break;
                 case 'school_class_name':
@@ -673,7 +673,7 @@ class TestTake extends BaseModel
                         TestParticipant::whereHas('schoolClass', function ($q) use ($value) {
                             $q->where('name', 'LIKE', '%'.$value.'%');
                         })->distinct()
-                            ->pluck('test_take_id'));
+                            ->select('test_take_id'));
                     break;
                 case 'location':
                     $query->where('location', 'LIKE', '%' . $value . '%');
@@ -774,7 +774,7 @@ class TestTake extends BaseModel
     public function hasCarousel()
     {
         $countCarouselGroupsInTestTake = GroupQuestion::whereIn('id',
-            $this->test->testQuestions->pluck('question_id')
+            $this->test->testQuestions->select('question_id')
         )->where('groupquestion_type' ,'carousel')->count();
 
         return $countCarouselGroupsInTestTake > 0;

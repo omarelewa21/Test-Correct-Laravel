@@ -388,8 +388,8 @@ class EntreeOnboarding extends Onboarding
     protected function getSubjectIdsForSchoolLocationAsCollection(SchoolLocation $schoolLocation)
     {
         $baseSubjectIds = $this->getSelectedBaseSubjectIds();
-        $sections = $schoolLocation->schoolLocationSections()->pluck('section_id');
-        return Subject::whereIn('section_id', $sections->toArray())->whereIn('base_subject_id', $baseSubjectIds->toArray())->pluck('id');
+        $sectionsBuilder = $schoolLocation->schoolLocationSections()->select('section_id');
+        return Subject::whereIn('section_id', $sectionsBuilder)->whereIn('base_subject_id', $baseSubjectIds->toArray())->pluck('id');
     }
 
     private function btnStepOneDisabledCheck()

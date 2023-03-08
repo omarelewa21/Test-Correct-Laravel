@@ -1059,7 +1059,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function scopeSubjectsInCurrentLocation($query)
     {
-        $schoolLocationSectionIds = $this->schoolLocation->schoolLocationSections()->pluck('section_id');
+        $schoolLocationSectionIds = $this->schoolLocation->schoolLocationSections()->select('section_id');
         return $this->subjects()->whereIn('section_id', $schoolLocationSectionIds);
     }
 
@@ -1127,7 +1127,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
         if (count($sharedSectionIds) > 0) {
             $subjectIdsFromShared = Subject::whereIn('section_id', $sharedSectionIds)->whereIn('base_subject_id',
-                $baseSubjectIds)->pluck('id')->unique();
+                $baseSubjectIds)->select('id');
         }
 
         $subjectIds = $subjectIdsFromShared;
@@ -1171,7 +1171,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
         if (count($sharedSectionIds) > 0) {
             $sectionIdsFromShared = Subject::whereIn('section_id', $sharedSectionIds)->whereIn('base_subject_id',
-                $baseSubjectIds)->pluck('section_id')->unique();
+                $baseSubjectIds)->select('section_id')->unique();
         }
 
         if ($query === null) {
@@ -1314,7 +1314,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         }
 
         if ($wizard == null) {
-            $roleIds = $this->roles()->pluck('id');
+            $roleIds = $this->roles()->select('id');
             $wizard = OnboardingWizard::whereIn('role_id', $roleIds)->where('active',
                 true)->orderBy('role_id')->first();
             OnboardingWizardUserState::create([

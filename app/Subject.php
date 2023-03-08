@@ -107,7 +107,7 @@ class Subject extends BaseModel implements AccessCheckable
                 $user->sections()
                     ->union(
                         $user->sectionsOnlyShared()
-                    )->pluck('id')
+                    )->select('id')
             );
         }
 
@@ -313,7 +313,7 @@ class Subject extends BaseModel implements AccessCheckable
 
     private function getAvailableSubjectsForSchoolLocation(SchoolLocation $schoolLocation)
     {
-        return $this->whereIn('id', Teacher::whereIn('class_id', $schoolLocation->schoolClasses()->pluck('id')
+        return $this->whereIn('id', Teacher::whereIn('class_id', $schoolLocation->schoolClasses()->select('id')
         )->pluck('subject_id')->unique())->get();
     }
 

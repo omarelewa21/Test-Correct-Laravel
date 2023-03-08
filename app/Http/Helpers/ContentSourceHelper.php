@@ -61,7 +61,7 @@ class ContentSourceHelper
             ->distinct()
             ->join('subjects as s', 'tests.subject_id', '=', 's.id')
             ->where('tests.scope', '=', $publishedTestScope)
-            ->whereIn('s.base_subject_id', Subject::filtered(['user_current' => $user->getKey()], [])->pluck('base_subject_id'))
+            ->whereIn('s.base_subject_id', Subject::filtered(['user_current' => $user->getKey()], [])->select('base_subject_id'))
             ->exists('s.base_subject_id');
     }
 }

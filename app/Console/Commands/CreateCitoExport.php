@@ -368,7 +368,7 @@ class CreateCitoExport extends Command
 
     protected function handleStep1()
     {
-        $answers = Answer::whereIn('question_id',Question::where('scope','cito')->pluck('id'))->whereNotNull('json')->get();
+        $answers = Answer::whereIn('question_id',Question::where('scope','cito')->select('id'))->whereNotNull('json')->get();
 
         $this->handleStartOfStep($answers->count());
 
