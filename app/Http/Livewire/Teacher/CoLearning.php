@@ -54,7 +54,7 @@ class CoLearning extends Component
     public int $lastQuestionId;
     public int $questionCount;
 
-    public int $questionCountOpenOnly;
+    public int $questionCountFiltered;
     public int $questionIndex;
     public int $questionIndexOpenOnly;
 
@@ -121,7 +121,7 @@ class CoLearning extends Component
             $testTakeUpdateData['discussion_type'] = $discussionType;
         }
         if($resetProgress) {
-            $testTakeUpdateData['discussion_question_id'] = null;
+            $testTakeUpdateData['discussing_question_id'] = null;
             $testTakeUpdateData['is_discussed'] = 0;
             $this->deleteStudentAnswerRatings();
         }
@@ -441,10 +441,13 @@ class CoLearning extends Component
 
         $this->questionCount = $this->questionsOrderList->count('id');
 
+        //filter questions that have 'discuss in class' on false
+        $this->questionsOrderList = $this->questionsOrderList->filter(fn($item) => $item['discuss'] === 1);
+
         if ($this->testTake->discussion_type === self::DISCUSSION_TYPE_OPEN_ONLY) {
             $this->questionsOrderList = $this->questionsOrderList->filter(fn($item) => $item['question_type'] === 'OPEN');
         }
-        $this->questionCountOpenOnly = $this->questionsOrderList->count('id');
+        $this->questionCountFiltered = $this->questionsOrderList->count('id');
 
         $this->firstQuestionId = $this->questionsOrderList->sortBy('order')->first()['id'];
         $this->lastQuestionId = $this->questionsOrderList->sortBy('order')->last()['id'];
