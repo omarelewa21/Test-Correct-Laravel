@@ -121,7 +121,7 @@ class CoLearning extends Component
             $testTakeUpdateData['discussion_type'] = $discussionType;
         }
         if($resetProgress) {
-            $testTakeUpdateData['discussion_question_id'] = null;
+            $testTakeUpdateData['discussing_question_id'] = null;
             $testTakeUpdateData['is_discussed'] = 0;
             $this->deleteStudentAnswerRatings();
         }
