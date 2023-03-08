@@ -219,6 +219,7 @@ Editor.defaultConfig = {
             'removeFormat',
             'completion',
             'selection',
+            'wproofreader',
         ]
     },
     language: 'nl',
