@@ -660,7 +660,8 @@ class TestTakesController extends Controller
                 $query->where('type', 'STUDENT');
             }]);
 
-            $allowNewCoLearning = auth()->user()->schoolLocation->allow_new_co_learning;
+            $skipDoNotDiscuss = auth()->user()->schoolLocation->allow_new_co_learning
+                &&  $testTake->getAttribute('discussion_type') === 'OPEN_ONLY';
 
             // Set next question
             $questionId = null;
@@ -685,7 +686,7 @@ class TestTakesController extends Controller
                 $testTake->getAttribute('test_id'),
                 $questionId,
                 in_array($testTake->getAttribute('discussion_type'), ['OPEN_ONLY']),
-                skipDoNotDiscuss: $allowNewCoLearning, //todo set true if new co learning is allowed (student version)
+                $skipDoNotDiscuss,
             );
 
             $testTake->discussingParentQuestions()->delete();
@@ -728,7 +729,7 @@ class TestTakesController extends Controller
                         $testTake->getAttribute('test_id'),
                         $newQuestionIdParents,
                         in_array($testTake->getAttribute('discussion_type'), ['OPEN_ONLY']),
-                        skipDoNotDiscuss: $allowNewCoLearning
+                        $skipDoNotDiscuss
                     ) !== false),
 
                 );
