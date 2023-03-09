@@ -101,6 +101,12 @@ return [
             'driver' => 'local',
             'root' => storage_path('app/files'),
             'throw' => true,
+        ],
+
+        'logs' => [
+            'driver' => 'local',
+            'root' => storage_path() . '/logs',
+            'throw' => true,
         ]
 
 	],

@@ -762,6 +762,11 @@ button.cta-button:disabled, a.cta-button:disabled {
     bottom: -5px;
     cursor: nwse-resize;
 }
+
+.questionContainer .completion-question-container p > *,
+.questionContainer .completion-question-overview-container p > * {
+    vertical-align: middle;
+}
 .form-input {
     padding: 0 10px 0 10px;
     height: 40px;
