@@ -16,7 +16,7 @@
                  setTitlesOnLoad($el);
                  ">
 
-        <div>
+        <div class="completion-question-overview-container">
             <x-input.group class="body1 max-w-full flex-col" for="" x-data="">
                 {!! $html !!}
             </x-input.group>
