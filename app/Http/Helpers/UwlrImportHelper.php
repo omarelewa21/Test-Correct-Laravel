@@ -10,6 +10,7 @@ namespace tcCore\Http\Helpers;
 
 
 use Artisaninweb\SoapWrapper\SoapWrapper;
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use tcCore\Exceptions\UwlrAutoImportException;
@@ -17,6 +18,9 @@ use tcCore\Jobs\ProcessUwlrSoapResultJob;
 use tcCore\Lib\Repositories\PeriodRepository;
 use tcCore\SchoolLocation;
 use tcCore\SchoolLocationSchoolYear;
+use tcCore\UwlrSoapEntry;
+use tcCore\UwlrSoapResult;
+use Throwable;
 
 
 class UwlrImportHelper
@@ -31,6 +35,32 @@ class UwlrImportHelper
     const CLIENT_CODE = 'OV';
 
     const CLIENT_NAME = 'Overig';
+
+    public static function pruneRecords($sub = '1 month')
+    {
+        try {
+            $start = microtime(true);
+            $pastCarbon = Carbon::now()->sub($sub);
+            $uwlrSoapResultQueryBuilder = UwlrSoapResult::where('created_at','<',$pastCarbon)->select('id');
+            $countResult = $uwlrSoapResultQueryBuilder->count();
+            $entryQueryBuilder = UwlrSoapEntry::whereIn('uwlr_soap_result_id',$uwlrSoapResultQueryBuilder);
+            $countEntries = $entryQueryBuilder->count();
+            $entryQueryBuilder->delete();
+            $uwlrSoapResultQueryBuilder->delete();
+            $duration = microtime(true) - $start;
+            return [
+                'result records deleted' => $countResult,
+                'entry records deleted' => $countEntries,
+                'duration' => $duration
+            ];
+        } catch(Throwable $e){
+            $message = sprintf('Could not determine carbon date based on substraction of the term `%s` and therefor not prune the uwl soap records. Error was: %s',$sub, $e->getMessage());
+            Bugsnag::notifyException(new \Exception(
+                $message
+            ));
+            return $message;
+        }
+    }
 
     public static function handleIfMoreSchoolLocationsCanBeImported(): void
     {
