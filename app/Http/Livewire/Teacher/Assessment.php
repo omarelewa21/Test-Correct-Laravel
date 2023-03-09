@@ -242,13 +242,22 @@ class Assessment extends Component implements CollapsableHeader
 
     public function getNeedsQuestionSectionProperty(): bool
     {
-        return !$this->currentQuestion->isSubType('TrueFalse');
+        $types = collect(['CompletionQuestion']);
+        $subTypes = collect(['TrueFalse']);
+        if ($types->contains($this->currentQuestion->type)) {
+            return false;
+        }
+        if ($subTypes->contains($this->currentQuestion->subtype)) {
+            return false;
+        }
+
+        return true;
     }
 
     private function makeToggleProperties(): void
     {
         if ($this->currentQuestion->isType('MultipleChoice')) {
-            if($this->currentQuestion->isSubType('MultipleChoice')) {
+            if ($this->currentQuestion->isSubType('MultipleChoice')) {
                 for ($i = 0; $i <= $this->currentQuestion->selectable_answers; $i++) {
 //                    $this->toggle[$i] = null;
                 }

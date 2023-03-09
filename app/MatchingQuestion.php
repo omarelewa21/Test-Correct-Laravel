@@ -10,7 +10,8 @@ use Ramsey\Uuid\Uuid;
 use tcCore\Traits\UuidTrait;
 use Illuminate\Support\Str;
 
-class MatchingQuestion extends Question implements QuestionInterface {
+class MatchingQuestion extends Question implements QuestionInterface
+{
 
     use UuidTrait;
 
@@ -46,20 +47,24 @@ class MatchingQuestion extends Question implements QuestionInterface {
      */
     protected $hidden = [];
 
-    public function question() {
+    public function question()
+    {
 
         return $this->belongsTo('tcCore\Question', $this->getKeyName());
     }
 
-    public function matchingQuestionAnswerLinks() {
+    public function matchingQuestionAnswerLinks()
+    {
         return $this->hasMany('tcCore\MatchingQuestionAnswerLink', 'matching_question_id');
     }
 
-    public function matchingQuestionAnswers() {
-        return $this->belongsToMany('tcCore\MatchingQuestionAnswer', 'matching_question_answer_links', 'matching_question_id', 'matching_question_answer_id')->withPivot([$this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn(), 'order'])->wherePivot($this->getDeletedAtColumn(), null)->orderBy('matching_question_answer_links.order','asc')->orderBy('matching_question_answer_links.matching_question_answer_id','asc');
+    public function matchingQuestionAnswers()
+    {
+        return $this->belongsToMany('tcCore\MatchingQuestionAnswer', 'matching_question_answer_links', 'matching_question_id', 'matching_question_answer_id')->withPivot([$this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn(), 'order'])->wherePivot($this->getDeletedAtColumn(), null)->orderBy('matching_question_answer_links.order', 'asc')->orderBy('matching_question_answer_links.matching_question_answer_id', 'asc');
     }
 
-    public function reorder(MatchingQuestionAnswerLink $movedAnswer) {
+    public function reorder(MatchingQuestionAnswerLink $movedAnswer)
+    {
         $answers = $this->matchingQuestionAnswerLinks()->join('matching_question_answers', 'matching_question_answers.id', '=', 'matching_question_answer_links.matching_question_answer_id')->where('matching_question_answers.type', $movedAnswer->matchingQuestion->getAttribute('type'))->orderBy('order')->get(['matching_question_answer_links.*']);
 
         $this->performReorder($answers, $movedAnswer, 'order');
@@ -70,7 +75,8 @@ class MatchingQuestion extends Question implements QuestionInterface {
         $this->load('matchingQuestionAnswers');
     }
 
-    public function duplicate(array $attributes, $ignore = null) {
+    public function duplicate(array $attributes, $ignore = null)
+    {
         $question = $this->replicate();
 
         $question->parentInstance = $this->parentInstance->duplicate($attributes, $ignore);
@@ -87,7 +93,7 @@ class MatchingQuestion extends Question implements QuestionInterface {
         }
 
         $skipped = [];
-        foreach($this->matchingQuestionAnswerLinks as $matchingQuestionAnswerLink) {
+        foreach ($this->matchingQuestionAnswerLinks as $matchingQuestionAnswerLink) {
             if ($ignore instanceof MatchingQuestionAnswer && $ignore->getKey() == $matchingQuestionAnswerLink->getAttribute('matching_question_answer_id')) {
                 $skipped[] = $matchingQuestionAnswerLink->getAttribute('matching_question_answer_id');
             }
@@ -100,12 +106,12 @@ class MatchingQuestion extends Question implements QuestionInterface {
             }
         }
 
-        foreach($this->matchingQuestionAnswerLinks as $matchingQuestionAnswerLink) {
-            if(in_array($matchingQuestionAnswerLink->getAttribute('matching_question_answer_id'), $skipped) || in_array($matchingQuestionAnswerLink->getAttribute('correct_answer_id'), $skipped)) {
+        foreach ($this->matchingQuestionAnswerLinks as $matchingQuestionAnswerLink) {
+            if (in_array($matchingQuestionAnswerLink->getAttribute('matching_question_answer_id'), $skipped) || in_array($matchingQuestionAnswerLink->getAttribute('correct_answer_id'), $skipped)) {
                 continue;
             }
 
-            if($matchingQuestionAnswerLink->duplicate($question, []) === false) {
+            if ($matchingQuestionAnswerLink->duplicate($question, []) === false) {
                 return false;
             }
         }
@@ -113,25 +119,27 @@ class MatchingQuestion extends Question implements QuestionInterface {
         return $question;
     }
 
-    public function canCheckAnswer() {
+    public function canCheckAnswer()
+    {
         return true;
     }
 
-    public function checkAnswer($answer) {
+    public function checkAnswer($answer)
+    {
         $matchingQuestionAnswers = $this->matchingQuestionAnswers;
 
         $possibleAnswers = [];
-        foreach($matchingQuestionAnswers as $matchingQuestionAnswer) {
+        foreach ($matchingQuestionAnswers as $matchingQuestionAnswer) {
             if ($matchingQuestionAnswer->getAttribute('type') === 'LEFT') {
                 $possibleAnswers[] = $matchingQuestionAnswer->getKey();
             }
         }
 
         $correctAnswers = [];
-        foreach($matchingQuestionAnswers as $matchingQuestionAnswer) {
+        foreach ($matchingQuestionAnswers as $matchingQuestionAnswer) {
             if ($matchingQuestionAnswer->getAttribute('type') === 'RIGHT' && in_array($matchingQuestionAnswer->getAttribute('correct_answer_id'), $possibleAnswers)) {
-                if( Str::lower($this->subtype) === 'classify'
-                    && ( empty($matchingQuestionAnswer->getAttribute('answer')) || $matchingQuestionAnswer->getAttribute('answer') === ' ' ) ){
+                if (Str::lower($this->subtype) === 'classify'
+                    && (empty($matchingQuestionAnswer->getAttribute('answer')) || $matchingQuestionAnswer->getAttribute('answer') === ' ')) {
                     continue;
                 }
                 $correctAnswers[$matchingQuestionAnswer->getKey()] = $matchingQuestionAnswer->getAttribute('correct_answer_id');
@@ -139,12 +147,12 @@ class MatchingQuestion extends Question implements QuestionInterface {
         }
 
         $answers = json_decode($answer->getAttribute('json'), true);
-        if(!$answers) {
+        if (!$answers) {
             return 0;
         }
 
         $correct = 0;
-        foreach($correctAnswers as $right => $left) {
+        foreach ($correctAnswers as $right => $left) {
             if (array_key_exists($right, $answers) && $answers[$right] == $left) {
                 $correct++;
             }
@@ -157,8 +165,8 @@ class MatchingQuestion extends Question implements QuestionInterface {
             $score = floor($score);
         }
 
-        if($this->allOrNothingQuestion()){
-            if($score == count($correctAnswers)){
+        if ($this->allOrNothingQuestion()) {
+            if ($score == count($correctAnswers)) {
                 return $this->score;
             } else {
                 return 0;
@@ -168,8 +176,9 @@ class MatchingQuestion extends Question implements QuestionInterface {
         return $score;
     }
 
-    public function getClassifyAnswersFromAnswer($answer){
-        return explode("\n",$answer);
+    public function getClassifyAnswersFromAnswer($answer)
+    {
+        return explode("\n", $answer);
     }
 
     /**
@@ -178,7 +187,8 @@ class MatchingQuestion extends Question implements QuestionInterface {
      * @return boolean
      * @throws \Exception
      */
-    public function addAnswers($mainQuestion,$answers){
+    public function addAnswers($mainQuestion, $answers)
+    {
 
         $question = $this;
 //        if ($this->isUsed($mainQuestion)) {
@@ -194,43 +204,41 @@ class MatchingQuestion extends Question implements QuestionInterface {
 //        }
 
         if (!QuestionAuthor::addAuthorToQuestion($question)) {
-            throw new QuestionException('Failed to attach author to question',422);
+            throw new QuestionException('Failed to attach author to question', 422);
         }
 
-        foreach($answers as $order => $answerDetails) {
-            $answerDetails = (object) $answerDetails;
-            if(is_null($answerDetails->left) || is_null($answerDetails->right)) continue;
+        foreach ($answers as $order => $answerDetails) {
+            $answerDetails = (object)$answerDetails;
+            if (is_null($answerDetails->left) || is_null($answerDetails->right)) continue;
 
             $details = [
-                'left' => [
-                   'order' => (int) $answerDetails->order,
-                   'answer' => $answerDetails->left,
-                    'type'  => 'left',
+                'left'  => [
+                    'order'  => (int)$answerDetails->order,
+                    'answer' => $answerDetails->left,
+                    'type'   => 'left',
                 ],
                 'right' => [
-                    'order' => (int) $answerDetails->order,
-                    'answer' => $answerDetails->right,
-                    'type'  => 'right',
+                    'order'             => (int)$answerDetails->order,
+                    'answer'            => $answerDetails->right,
+                    'type'              => 'right',
                     'correct_answer_id' => ''
                 ]
             ];
 
 
-
             $lastId = false;
-            foreach($details as $detail){
-                if($detail['type'] == 'right'){
+            foreach ($details as $detail) {
+                if ($detail['type'] == 'right') {
                     $detail['correct_answer_id'] = $lastId; // right needs the corresponding correct answer which is de left
                 }
 
-                if($detail['type'] == 'left' || ($detail['type'] == 'right' && $this->subtype != 'Classify')) {
+                if ($detail['type'] == 'left' || ($detail['type'] == 'right' && $this->subtype != 'Classify')) {
                     $lastId = $this->addAnswer($detail, $question);
-                }
-                else { // should always be the case
+                } else { // should always be the case
                     $originalDetail = $detail;
-                    foreach($this->getClassifyAnswersFromAnswer($originalDetail['answer']) as $answer){
+                    foreach ($this->getClassifyAnswersFromAnswer($originalDetail['answer']) as $answer) {
                         $detail['answer'] = $answer;
-                         $this->addAnswer($detail, $question);
+                        $this->addAnswer($detail, $question);
                     }
                 }
 //                $detail = collect($detail);
@@ -255,7 +263,8 @@ class MatchingQuestion extends Question implements QuestionInterface {
         return true;
     }
 
-    protected function addAnswer($detail, $question){
+    protected function addAnswer($detail, $question)
+    {
         $detail = collect($detail);
 
         $matchingQuestionAnswer = new MatchingQuestionAnswer();
@@ -269,14 +278,15 @@ class MatchingQuestion extends Question implements QuestionInterface {
         $matchingQuestionAnswerLink->setAttribute('matching_question_id', $question->getKey());
         $matchingQuestionAnswerLink->setAttribute('matching_question_answer_id', $matchingQuestionAnswer->getKey());
 
-        if(!$matchingQuestionAnswerLink->save()) {
-            throw new QuestionException('Failed to create matching question answer link',422);
+        if (!$matchingQuestionAnswerLink->save()) {
+            throw new QuestionException('Failed to create matching question answer link', 422);
         }
         return $matchingQuestionAnswer->getKey();
     }
 
-    public function deleteAnswers(){
-        $this->matchingQuestionAnswerLinks->each(function($qAL){
+    public function deleteAnswers()
+    {
+        $this->matchingQuestionAnswerLinks->each(function ($qAL) {
             if (!$qAL->matchingQuestionAnswer->isUsed($qAL)) {
                 if (!$qAL->matchingQuestionAnswer->delete()) {
                     throw new QuestionException('Failed to delete matching question answer', 422);
@@ -302,7 +312,7 @@ class MatchingQuestion extends Question implements QuestionInterface {
     public function needsToBeUpdated($request)
     {
         $totalData = $this->getTotalDataForTestQuestionUpdate($request);
-        if($this->isDirtyAnswerOptions($totalData)){
+        if ($this->isDirtyAnswerOptions($totalData)) {
             return true;
         }
         return parent::needsToBeUpdated($request);
@@ -312,23 +322,38 @@ class MatchingQuestion extends Question implements QuestionInterface {
     {
         $emptyCount = 0;
         $haveOneNonEmptyContainer = false;
-        foreach($answers as $answer){
-            if(Str::of($answer['left'])->trim()->length() === 0){
-                $validator->errors()->add('question.answers', __('cms.container_label_missing') );
+        foreach ($answers as $answer) {
+            if (Str::of($answer['left'])->trim()->length() === 0) {
+                $validator->errors()->add('question.answers', __('cms.container_label_missing'));
             }
 
-            if(Str::of($answer['right'])->trim()->length() === 0){
+            if (Str::of($answer['right'])->trim()->length() === 0) {
                 $emptyCount += 1;
-            }else{
+            } else {
                 $haveOneNonEmptyContainer = true;
             }
         }
 
-        if(!$haveOneNonEmptyContainer){
-            $validator->errors()->add('question.answers', __('cms.one_container_with_items') );
+        if (!$haveOneNonEmptyContainer) {
+            $validator->errors()->add('question.answers', __('cms.one_container_with_items'));
         }
-        if($emptyCount > 1){
-            $validator->errors()->add('question.answers', __('cms.one_empty_container_allowed') );
+        if ($emptyCount > 1) {
+            $validator->errors()->add('question.answers', __('cms.one_empty_container_allowed'));
         }
+    }
+
+    public function getCorrectAnswerStructure()
+    {
+        return $this->matchingQuestionAnswers()
+            ->join('matching_question_answer_links as mal', 'mal.matching_question_answer_id', '=', 'matching_question_answers.id')
+            ->select('matching_question_answers.*', 'mal.order')
+            ->orderBy('mal.order', 'desc')
+            ->get();
+    }
+
+    public function isFullyAnswered(Answer $answer): bool
+    {
+        $givenAnswersCount = collect(json_decode($answer->json, true))->filter()->count();
+        return $givenAnswersCount === $this->matchingQuestionAnswers()->where('type', 'RIGHT')->count();
     }
 }

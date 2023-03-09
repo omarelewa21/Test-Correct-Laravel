@@ -6790,7 +6790,7 @@ document.addEventListener("alpine:init", function () {
       sources: sources,
       handle: null,
       init: function init() {
-        this.handle = this.$el.querySelector(".slider-button-handle");
+        this.setHandle();
         if (initialValue !== null) {
           this.value = (0,lodash__WEBPACK_IMPORTED_MODULE_5__.isString)(initialValue) ? this.sources.indexOf(initialValue) : +initialValue;
         }
@@ -6825,6 +6825,17 @@ document.addEventListener("alpine:init", function () {
         Array.from(target.parentElement.children).forEach(function (button) {
           button.firstElementChild.classList.remove("text-primary");
         });
+      },
+      setHandle: function setHandle() {
+        var _this26 = this;
+        this.handle = this.$el.querySelector(".slider-button-handle");
+
+        /* Add transition classes later so it doesn't flicker the initial value setting */
+        this.$nextTick(function () {
+          setTimeout(function () {
+            _this26.handle.classList.add("transition-all", "ease-in-out", "duration-300");
+          }, 200);
+        });
       }
     };
   });
@@ -6842,13 +6853,13 @@ document.addEventListener("alpine:init", function () {
         }
       },
       updateGraph: function updateGraph(forceUpdate) {
-        var _this26 = this;
+        var _this27 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee6() {
-          var method, _yield$_this26$$wire$, _yield$_this26$$wire$2;
+          var method, _yield$_this27$$wire$, _yield$_this27$$wire$2;
           return _regeneratorRuntime().wrap(function _callee6$(_context6) {
             while (1) switch (_context6.prev = _context6.next) {
               case 0:
-                if (!(!_this26.data || forceUpdate)) {
+                if (!(!_this27.data || forceUpdate)) {
                   _context6.next = 10;
                   break;
                 }
@@ -6857,13 +6868,13 @@ document.addEventListener("alpine:init", function () {
                   method = "getDataForGeneralGraph";
                 }
                 _context6.next = 5;
-                return _this26.$wire.call(method, _this26.modelId, _this26.taxonomy);
+                return _this27.$wire.call(method, _this27.modelId, _this27.taxonomy);
               case 5:
-                _yield$_this26$$wire$ = _context6.sent;
-                _yield$_this26$$wire$2 = _slicedToArray(_yield$_this26$$wire$, 2);
-                _this26.showEmptyState = _yield$_this26$$wire$2[0];
-                _this26.data = _yield$_this26$$wire$2[1];
-                _this26.renderGraph();
+                _yield$_this27$$wire$ = _context6.sent;
+                _yield$_this27$$wire$2 = _slicedToArray(_yield$_this27$$wire$, 2);
+                _this27.showEmptyState = _yield$_this27$$wire$2[0];
+                _this27.data = _yield$_this27$$wire$2[1];
+                _this27.renderGraph();
               case 10:
               case "end":
                 return _context6.stop();
@@ -6961,31 +6972,31 @@ document.addEventListener("alpine:init", function () {
       menuOffsetMarginTop: 56,
       menuOffsetMarginLeft: 224,
       handleIncomingEvent: function handleIncomingEvent(detail) {
-        var _this27 = this;
+        var _this28 = this;
         if (!this.contextMenuOpen) return this.openMenu(detail);
         this.closeMenu();
         setTimeout(function () {
-          _this27.openMenu(detail);
+          _this28.openMenu(detail);
         }, 150);
       },
       openMenu: function openMenu(detail) {
-        var _this28 = this;
+        var _this29 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee7() {
           var readyForShow;
           return _regeneratorRuntime().wrap(function _callee7$(_context7) {
             while (1) switch (_context7.prev = _context7.next) {
               case 0:
-                _this28.uuid = detail.uuid;
-                _this28.correspondingButton = detail.button;
-                _this28.contextData = detail.contextData;
-                _this28.$root.style.top = detail.coords.top + _this28.menuOffsetMarginTop + "px";
-                _this28.$root.style.left = detail.coords.left - _this28.menuOffsetMarginLeft + "px";
+                _this29.uuid = detail.uuid;
+                _this29.correspondingButton = detail.button;
+                _this29.contextData = detail.contextData;
+                _this29.$root.style.top = detail.coords.top + _this29.menuOffsetMarginTop + "px";
+                _this29.$root.style.left = detail.coords.left - _this29.menuOffsetMarginLeft + "px";
                 _context7.next = 7;
-                return _this28.$wire.setContextValues(_this28.uuid, _this28.contextData);
+                return _this29.$wire.setContextValues(_this29.uuid, _this29.contextData);
               case 7:
                 readyForShow = _context7.sent;
-                if (readyForShow) _this28.contextMenuOpen = true;
-                _this28.contextMenuOpen = true;
+                if (readyForShow) _this29.contextMenuOpen = true;
+                _this29.contextMenuOpen = true;
               case 10:
               case "end":
                 return _context7.stop();
@@ -7041,24 +7052,24 @@ document.addEventListener("alpine:init", function () {
         }
       },
       uploadFiles: function uploadFiles(files) {
-        var _this29 = this;
+        var _this30 = this;
         var $this = this;
         this.isUploading = true;
         var dummyContainer = this.$root.querySelector("#upload-dummies");
         Array.from(files).forEach(function (file, key) {
-          if (!_this29.fileHasAllowedExtension(file)) {
-            _this29.handleIncorrectFileUpload(file);
+          if (!_this30.fileHasAllowedExtension(file)) {
+            _this30.handleIncorrectFileUpload(file);
             return;
           }
-          if (_this29.fileTooLarge(file)) {
-            _this29.handleTooLargeOfAfile(file);
+          if (_this30.fileTooLarge(file)) {
+            _this30.handleTooLargeOfAfile(file);
             return;
           }
           var badgeId = "upload-badge-".concat(key);
           var loadingBadge = $this.createLoadingBadge(file, badgeId);
           dummyContainer.append(loadingBadge);
           $this.progress[badgeId] = 0;
-          $this.$wire.upload(_this29.uploadModel, file, function (success) {
+          $this.$wire.upload(_this30.uploadModel, file, function (success) {
             $this.progress[badgeId] = 0;
             dummyContainer.querySelector("#".concat(badgeId)).remove();
           }, function (error) {
@@ -7133,28 +7144,28 @@ document.addEventListener("alpine:init", function () {
       },
       requestTimeout: null,
       init: function init() {
-        var _this30 = this;
+        var _this31 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee10() {
           return _regeneratorRuntime().wrap(function _callee10$(_context10) {
             while (1) switch (_context10.prev = _context10.next) {
               case 0:
-                _this30.$watch("current", /*#__PURE__*/function () {
+                _this31.$watch("current", /*#__PURE__*/function () {
                   var _ref2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee9(value, oldValue) {
                     return _regeneratorRuntime().wrap(function _callee9$(_context9) {
                       while (1) switch (_context9.prev = _context9.next) {
                         case 0:
-                          clearTimeout(_this30.requestTimeout);
-                          _this30.requestTimeout = setTimeout( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee8() {
+                          clearTimeout(_this31.requestTimeout);
+                          _this31.requestTimeout = setTimeout( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee8() {
                             var response;
                             return _regeneratorRuntime().wrap(function _callee8$(_context8) {
                               while (1) switch (_context8.prev = _context8.next) {
                                 case 0:
                                   _context8.next = 2;
-                                  return _this30.$wire[_this30.methodCall](value);
+                                  return _this31.$wire[_this31.methodCall](value);
                                 case 2:
                                   response = _context8.sent;
                                   if (response) {
-                                    console.log("Called ".concat(_this30.methodCall, " with value: ").concat(response));
+                                    console.log("Called ".concat(_this31.methodCall, " with value: ").concat(response));
                                   }
                                 case 4:
                                 case "end":

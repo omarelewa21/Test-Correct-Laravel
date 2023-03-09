@@ -24,7 +24,6 @@
                   'grid-cols-1 w-1/2' => !$studentAnswer,
                 ])>
             @foreach($answerStruct as $answerLink)
-
                 <div class="flex items-center flex-col flex-1">
                     <label for="link{{ $answerLink->multiple_choice_question_answer_id }}"
                             @class([
@@ -48,8 +47,12 @@
                 </div>
                 @if($studentAnswer && $answerLink->active)
                     <div class="flex items-center">
-                        <x-button.true-false-toggle :wireKey="'toggle-'.$answer->uuid.$loop->iteration"
-                                                    :initialValue="$answerLink->active && $answerLink->score > 0" />
+                        @if($question->all_or_nothing)
+
+                        @else
+                            <x-button.true-false-toggle :wireKey="'toggle-'.$answer->uuid.$loop->iteration"
+                                                        :initialValue="$answerLink->active && $answerLink->score > 0" />
+                        @endif
                     </div>
                 @endif
             @endforeach

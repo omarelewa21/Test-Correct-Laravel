@@ -1354,7 +1354,7 @@ document.addEventListener("alpine:init", () => {
         sources: sources,
         handle: null,
         init() {
-            this.handle = this.$el.querySelector(".slider-button-handle");
+            this.setHandle();
             if (initialValue !== null) {
                 this.value = isString(initialValue) ? this.sources.indexOf(initialValue) : +initialValue;
             }
@@ -1389,6 +1389,16 @@ document.addEventListener("alpine:init", () => {
             Array.from(target.parentElement.children).forEach(button => {
                 button.firstElementChild.classList.remove("text-primary");
             });
+        },
+        setHandle(){
+            this.handle = this.$el.querySelector(".slider-button-handle");
+
+            /* Add transition classes later so it doesn't flicker the initial value setting */
+            this.$nextTick(() => {
+                setTimeout(() => {
+                    this.handle.classList.add("transition-all", "ease-in-out", "duration-300");
+                }, 200)
+            })
         }
     }));
 

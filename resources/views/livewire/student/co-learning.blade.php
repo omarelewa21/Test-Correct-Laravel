@@ -53,13 +53,13 @@
                                     if (component.name === 'student.co-learning' && message.updateQueue[0]?.method === 'updateHeartbeat') {
                                         scoreInputElement = document.querySelector('[x-ref=\'scoreInput\']');
                                         let value = (scoreInputElement !== null && scoreInputElement.value !== '') ? scoreInputElement.value : null;
-                                        persistantScore = value;
+                                        persistentScore = value;
                                     }
                                 })
                                 Livewire.hook('message.processed', (message, component) => {
                                     if (component.name === 'student.co-learning'&& message.updateQueue[0]?.method ==='updateHeartbeat') {
                                         skipSync = true;
-                                        score = persistantScore;
+                                        score = persistentScore;
                                     }
                                 })
                             @endonce

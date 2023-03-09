@@ -221,7 +221,7 @@
 
 #co-learning-teacher-page .badge-view,
 #assessment-page .badge-view {
-
+    transition: 150ms ease background-color,150ms ease color;
 }
 
 #co-learning-teacher-page .badge-view:hover,
