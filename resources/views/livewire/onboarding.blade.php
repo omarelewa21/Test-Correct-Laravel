@@ -81,7 +81,7 @@
                                             <div class="input-group">
                                                 <input id="username" wire:model.lazy="registration.username"
                                                        class="form-input @error('registration.username') border-red @enderror"
-                                                       autofocus>
+                                                       >
                                                 <label for="username"
                                                        class="transition ease-in-out duration-150">{{ __("onboarding.your_school_email") }}</label>
                                             </div>

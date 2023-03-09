@@ -10,7 +10,7 @@
                             <input id="username" wire:model.lazy="username"
                                    autocomplete="new-password"
                                    class="form-input @error('registration.username') border-red @enderror"
-                                   autofocus>
+                                   >
                             <label for="username"
                                    class="transition ease-in-out duration-150">{{__("password-reset.E-mail")}}</label>
                         </div>
