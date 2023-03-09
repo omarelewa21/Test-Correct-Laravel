@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use tcCore\AnswerRating;
 use tcCore\DiscussingParentQuestion;
@@ -674,7 +675,11 @@ class TestTakesController extends Controller
                 $questionId .= '.';
             }
 
-            $questionId .= $testTake->getAttribute('discussing_question_id');
+            if(($discussingQuestionId = $testTake->getAttribute('discussing_question_id')) === null) {
+                $questionId = null;
+            } else {
+                $questionId .= $discussingQuestionId;
+            }
 
             $newQuestionIdParents = QuestionGatherer::getNextQuestionId(
                 $testTake->getAttribute('test_id'),
@@ -698,7 +703,7 @@ class TestTakesController extends Controller
                 $newQuestionId = array_pop($newQuestionIdParentParts);
                 $discuss = QuestionGatherer::getQuestionOfTest($testTake->getAttribute('test_id'), $newQuestionIdParents, true);
                 $discuss = ($discuss instanceof Question) ? $discuss->getAttribute('discuss') == true : false;
-                $testTake->setAttribute('discussing_question_id', $newQuestionId);
+                $testTake->setAttribute('discussing_question_id', (int)$newQuestionId);
 
                 $level = 1;
 

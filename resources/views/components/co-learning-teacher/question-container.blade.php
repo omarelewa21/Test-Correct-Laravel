@@ -14,31 +14,12 @@
                 <span class="align-middle cursor-default">{{ $this->questionIndex }}</span>
             </div>
 
-            {{--@if($question->closeable && !$this->closed)
-                <x-icon.unlocked class="ml-2"/>
-            @elseif($this->closed)
-                <x-icon.locked class="ml-2"/>
-            @endif--}}
 
             <h4 class="inline-block ml-2 mr-6"
                 selid="questiontitle">{{ __('co-learning.question') }}:
-                {!! __('co-learning.'.$question->type.($question->subtype ? '-'.$question->subtype : '')) !!}
+                {{ $question?->typeName }}
             </h4>
             <h7 class="inline-block">{{ $question->score }} pt</h7>
-
-            {{-- todo: get group question --}}
-            {{--@if($this->question->group)
-                <h1 class="inline-flex ml-2">{{ $this->group->name }}</h1>
-            @endif--}}
-            {{--@if ($this->answered)
-                @if($this->isQuestionFullyAnswered())
-                    <x-answered/>
-                @else
-                    <x-partly-answered/>
-                @endif
-            @else
-                <x-not-answered/>
-            @endif--}}
 
         </div>
 
