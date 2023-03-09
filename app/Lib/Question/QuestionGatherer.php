@@ -128,7 +128,7 @@ class QuestionGatherer {
         unset(static::$questions[$testId], static::$questionsDotted[$testId]);
     }
 
-    public static function getNextQuestionId($testId, $dottedQuestionId, $skipClosed = false) {
+    public static function getNextQuestionId($testId, $dottedQuestionId, $skipClosed = false, $skipDoNotDiscuss = false) {
         $questions = array_keys(static::getQuestionsOfTest($testId, true));
 
         if ($dottedQuestionId === '') {
@@ -139,6 +139,12 @@ class QuestionGatherer {
             if ($dottedQuestionId === null) {
                 if(self::questionIsPartOfCarousel($questionId,$testId)){
                     continue;
+                }
+                if($skipDoNotDiscuss){
+                    $question = static::$questionsDotted[$testId][$questionId];
+                    if($question->discuss === 0) {
+                        continue;
+                    }
                 }
                 if ($skipClosed) {
                     $question = static::$questionsDotted[$testId][$questionId];

@@ -100,7 +100,7 @@
                     <div class="text-center text-[14px]">
                         {!!  __('co-learning.current_session', [
                         'index' => $this->questionIndexOpenOnly,
-                        'totalQuestions' => $this->questionCountOpenOnly,
+                        'totalQuestions' => $this->questionCountFiltered,
                         'date' => $this->testTake->updated_at->format('d/m/Y')
                         ]) !!}
                     </div>

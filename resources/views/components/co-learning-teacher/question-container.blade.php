@@ -14,10 +14,11 @@
             </div>
             <h4 class="inline-block ml-2 mr-6"
                 selid="questiontitle">{{ __('co-learning.question') }}:
-                {!! __('co-learning.'.$question->type.($question->subtype ? '-'.$question->subtype : '')) !!}
+                {{ $question?->typeName }}
             </h4>
             <h7 class="inline-block">{{ $question->score }} pt</h7>
         </div>
+
 
         <div class="absolute right-[-14px] group" @click="showQuestion = ! showQuestion">
             <div class="w-10 h-10 rounded-full flex items-center justify-center group-hover:bg-primary group-hover:opacity-[0.05]"></div>

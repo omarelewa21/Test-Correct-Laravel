@@ -58,7 +58,7 @@
                 </div>
                 <div x-ref="drawerContentHeadText2" class="flex">
                     <span class="bold">vraag {{ $this->openOnly ? $this->questionIndexOpenOnly : $this->questionIndex }}</span>
-                    <span>/{{  $this->openOnly ? $this->questionCountOpenOnly : $this->questionCount }}</span>
+                    <span>/{{  $this->questionCountFiltered }}</span>
                 </div>
             </div>
 
