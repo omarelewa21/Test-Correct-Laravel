@@ -481,8 +481,7 @@ class Test extends BaseModel
     {
         $test = $this->replicate();
         $test->fill($attributes);
-
-        if(in_array($test->abbreviation, ContentSourceHelper::PUBLISHABLE_ABBREVIATIONS)) {
+        if(ContentSourceHelper::getPublishableAbbreviations()->contains($test->abbreviation)) {
             $test->abbreviation = 'COPY';
         }
 

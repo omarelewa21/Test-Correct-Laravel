@@ -35,17 +35,12 @@ trait ContentSourceTabsTrait
     {
         $this->openTab = $this->getDefaultOpenTab();
 
-        $this->schoolLocationInternalContentTabs = collect([
-            'personal'        => 'personal',
-            'school_location' => 'school_location',
-        ]);
+        $this->allowedTabs = ContentSourceHelper::allAllowedForUser(Auth::user());
 
-        $this->schoolLocationExternalContentTabs = ContentSourceHelper::allAllowedForUser(Auth::user());
+        $this->schoolLocationInternalContentTabs = $this->allowedTabs->filter(fn ($contentSourceClass, $sourceName) => in_array($sourceName, ['personal', 'school_location']));
+        $this->schoolLocationExternalContentTabs = $this->allowedTabs->reject(fn ($contentSourceClass, $sourceName) => in_array($sourceName, ['personal', 'school_location']));
 
         $this->rejectExcludedTabs();
-
-        $this->allowedTabs = collect($this->schoolLocationInternalContentTabs)
-            ->merge($this->schoolLocationExternalContentTabs);
 
         $this->abortIfTabNotAllowed();
 

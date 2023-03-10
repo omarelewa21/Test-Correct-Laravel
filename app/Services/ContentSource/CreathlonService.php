@@ -7,6 +7,8 @@ use tcCore\User;
 
 class CreathlonService extends ContentSourceService
 {
+    public static int $order = 500;
+
     public static function getTranslation(): string
     {
         return __('general.Creathlon');
@@ -17,9 +19,19 @@ class CreathlonService extends ContentSourceService
         return true;
     }
 
-    public static function getTabName(): string
+    public static function getName(): string
     {
         return 'creathlon';
+    }
+
+    public static function getPublishScope(): string|array|null
+    {
+        return 'published_creathlon';
+    }
+
+    public static function getPublishAbbreviation(): string|array|null
+    {
+        return 'PUBLS';
     }
 
     protected static function testsAvailableForUser(User $user): bool

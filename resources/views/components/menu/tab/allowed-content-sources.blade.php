@@ -4,7 +4,7 @@
 ])
 @foreach($contentSources as $source)
     @if(class_exists($source))
-    <x-menu.tab.item tab="{{$source::getTabName()}}"
+    <x-menu.tab.item tab="{{$source::getName()}}"
                      :menu="$menu"
                      :highlight="$source::highlightTab()"
                      >

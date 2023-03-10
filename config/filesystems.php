@@ -101,7 +101,13 @@ return [
             'driver' => 'local',
             'root' => storage_path('app/files'),
             'throw' => true,
-        ]
+        ],
+
+        'content_source' => [
+            'driver' => 'local',
+            'root' => app_path('Services/ContentSource'),
+            'throw' => true,
+        ],
 
 	],
 

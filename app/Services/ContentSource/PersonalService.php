@@ -5,42 +5,37 @@ namespace tcCore\Services\ContentSource;
 use tcCore\Test;
 use tcCore\User;
 
-class OlympiadeService extends ContentSourceService
+class PersonalService extends ContentSourceService
 {
-    public static int $order = 600;
+    public static int $order = 100;
 
     public static function getTranslation(): string
     {
-        return __('general.Olympiade');
-    }
-
-    public static function highlightTab(): bool
-    {
-        return true;
-    }
-
-    public static function getPublishScope(): string|array|null
-    {
-        return 'published_olympiade';
-    }
-
-    public static function getPublishAbbreviation(): string|array|null
-    {
-        return 'SBON';
+        return __('general.Persoonlijk');
     }
 
     public static function getName(): string
     {
-        return 'olympiade';
+        return 'personal';
+    }
+
+    public static function getPublishScope(): string|array|null
+    {
+        return null;
+    }
+
+    public static function getPublishAbbreviation(): string|array|null
+    {
+        return null;
     }
 
     protected static function testsAvailableForUser(User $user): bool
     {
-        return Test::OlympiadeItemBankFiltered()->exists();
+        return true;
     }
 
     protected static function allowedForUser(User $user): bool
     {
-        return $user->schoolLocation->allow_olympiade;
+        return !$user->isValidExamCoordinator();
     }
 }

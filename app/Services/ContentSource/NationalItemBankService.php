@@ -7,6 +7,8 @@ use tcCore\User;
 
 class NationalItemBankService extends ContentSourceService
 {
+    public static int $order = 400;
+
     public static function getTranslation(): string
     {
         return __('general.Nationaal');
@@ -17,9 +19,19 @@ class NationalItemBankService extends ContentSourceService
         return true;
     }
 
-    public static function getTabName(): string
+    public static function getName(): string
     {
         return 'national';
+    }
+
+    public static function getPublishScope(): string|array|null
+    {
+        return ['exam', 'ldt'];
+    }
+
+    public static function getPublishAbbreviation(): string|array|null
+    {
+        return ['EXAM', 'LDT'];
     }
 
     protected static function testsAvailableForUser(User $user): bool

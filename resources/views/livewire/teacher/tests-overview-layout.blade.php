@@ -1,11 +1,5 @@
 @yield('container')
 <x-menu.tab.container :withTileEvents="$usesTileMenu ?? true">
-    <x-menu.tab.item tab="personal" menu="openTab" :when="!$this->isExamCoordinator">
-        {{ __('general.Persoonlijk') }}
-    </x-menu.tab.item>
-    <x-menu.tab.item tab="school_location" menu="openTab">
-        {{ __('general.School') }}
-    </x-menu.tab.item>
     <x-menu.tab.allowed-content-sources :content-sources="$allowedTabs"
                                         menu="openTab"
     ></x-menu.tab.allowed-content-sources>

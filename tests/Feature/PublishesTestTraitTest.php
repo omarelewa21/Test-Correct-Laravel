@@ -8,9 +8,13 @@ use Illuminate\Support\Facades\Auth;
 use Livewire\Livewire;
 use tcCore\Factories\Questions\FactoryQuestionOpenShort;
 use tcCore\Http\Controllers\AuthorsController;
+use tcCore\Http\Controllers\TestQuestionsController;
+use tcCore\Http\Livewire\Teacher\Questions\CmsRequest;
+use tcCore\Question;
 use tcCore\SchoolLocation;
 use tcCore\Subject;
 use tcCore\Test;
+use tcCore\TestQuestion;
 use tcCore\User;
 use Tests\TestCase;
 
@@ -136,6 +140,39 @@ class PublishesTestTraitTest extends TestCase
             'toetsen_bakker' => 'info+olympiadeontwikkelaar-B@test-correct.nl',
         ],
     ];
+
+    /**
+     * @test
+     * @dataProvider validPublishDataSet
+     */
+    public function copyingAPublishedTestUnpublishesIt($valid_customerCode, $valid_abbreviation, $valid_scope, $toetsen_bakker_username)
+    {
+        $this->skipUnavailableCustomerCode($valid_customerCode);
+
+        Auth::login(User::whereUsername($toetsen_bakker_username)->first());
+
+        $test = $this->createTest($valid_customerCode, true);
+        $this->assertSame($valid_abbreviation, $test->abbreviation);
+        $this->assertSame($valid_scope, $test->scope);
+
+        $question = $test->testQuestions->first()->question->getQuestionInstance();
+        $this->assertSame($valid_scope, $question->scope);
+
+        $duplicateTest = $test->duplicate([], User::whereUsername($toetsen_bakker_username)->first()->getKey());
+
+        $duplicateQuestion = $duplicateTest->testQuestions->first()->question->getQuestionInstance();
+
+        $request = new CmsRequest();
+        $request->merge(['scope' => null, 'question' => '<p>dit is een gloednieuwe vraag</p>']);
+        $request->filterInput();
+
+        $this->assertNotEquals($valid_abbreviation, $duplicateTest->abbreviation);
+        $this->assertNotEquals($valid_scope, $duplicateTest->scope);
+
+
+        //PROBLEM! original test -> question gets unpublished. 10-3-23: made ticket to fix it.
+        $this->assertEquals($valid_scope ,$test->testQuestions()->first()->question->scope);
+    }
 
     /**
      * @test

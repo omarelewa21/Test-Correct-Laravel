@@ -68,12 +68,6 @@
      wire:ignore.self
 >
     <x-menu.tab.container>
-        <x-menu.tab.item tab="personal" menu="questionBankOpenTab">
-            {{ __('general.Persoonlijk') }}
-        </x-menu.tab.item>
-        <x-menu.tab.item tab="school_location" menu="questionBankOpenTab">
-            {{ __('general.School') }}
-        </x-menu.tab.item>
         <x-menu.tab.allowed-content-sources :content-sources="$allowedTabs"
                                             menu="questionBankOpenTab"
         ></x-menu.tab.allowed-content-sources>

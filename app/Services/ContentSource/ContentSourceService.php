@@ -6,6 +6,8 @@ use tcCore\User;
 
 abstract class ContentSourceService
 {
+    public static int $order;
+
     /**
      * Get the translation string for the name of the content source.
      *
@@ -13,7 +15,7 @@ abstract class ContentSourceService
      */
     abstract public static function getTranslation(): string;
 
-    abstract public static function getTabName(): string;
+    abstract public static function getName(): string;
 
     /**
      * Get wheter the content source is allowed and tests are available for the user
@@ -37,6 +39,22 @@ abstract class ContentSourceService
     }
 
     /**
+     * Get the content source scope that is set after publishing the tests and test questions.
+     *
+     * Returns null when the ContentSource is not publishable.
+     * @return string|null
+     */
+    abstract public static function getPublishScope(): string|array|null;
+
+    /**
+     * Get the content source abbreviation that is used to publish the tests and test questions.
+     *
+     * Returns null when the ContentSource is not publishable.
+     * @return string|null
+     */
+    abstract public static function getPublishAbbreviation(): string|array|null;
+
+    /**
      * Get whether there are tests from the content source available for the authenticated user
      *
      * @return bool
@@ -49,5 +67,4 @@ abstract class ContentSourceService
      * @return bool
      */
     abstract protected static function allowedForUser(User $user): bool;
-
 }

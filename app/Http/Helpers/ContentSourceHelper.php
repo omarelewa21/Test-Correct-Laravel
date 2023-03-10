@@ -2,43 +2,24 @@
 
 namespace tcCore\Http\Helpers;
 
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
+use tcCore\Services\ContentSource\ContentSourceService;
 use tcCore\Services\ContentSource\CreathlonService;
 use tcCore\Services\ContentSource\NationalItemBankService;
 use tcCore\Services\ContentSource\OlympiadeService;
+use tcCore\Services\ContentSource\PersonalService;
+use tcCore\Services\ContentSource\SchoolLocationService;
 use tcCore\Services\ContentSource\UmbrellaOrganizationService;
-use tcCore\Subject;
-use tcCore\Test;
 use tcCore\User;
 
 class ContentSourceHelper
 {
-    const PUBLISHABLE_ABBREVIATIONS = [
-        'EXAM',
-        'LDT',
-        'PUBLS',
-        'SBON',
-    ];
-    const PUBLISHABLE_SCOPES = [
-        'exam',
-        'ldt',
-        'published_creathlon',
-        'published_olympiade',
-    ];
-
-    const AVAILABLE_SOURCES = [
-        'umbrella'  => UmbrellaOrganizationService::class,
-        'national'  => NationalItemBankService::class,
-        'creathlon' => CreathlonService::class,
-        'olympiade' => OlympiadeService::class,
-    ];
 
     public static function allAllowedForUser(User $user)
     {
-        return collect(self::AVAILABLE_SOURCES)
-            ->filter(function ($source) use ($user) {
-                return $source::isAvailableForUser($user);
-            });
+        return static::getAvailableSourcesInCorrectOrder()
+            ->filter(fn($source) => $source::isAvailableForUser($user));
     }
 
     public static function scopeIsAllowedForUser(User $user, string $testScope): bool
@@ -50,20 +31,46 @@ class ContentSourceHelper
 
     public static function canViewContent(User $user, string $contentSourceName): bool
     {
-        switch ($contentSourceName) {
-            case 'personal':
-            case 'school_location':
-                return true;
-            case 'umbrella':
-                return UmbrellaOrganizationService::isAvailableForUser($user);
-            case 'national':
-                return NationalItemBankService::isAvailableForUser($user);
-            case 'creathlon':
-                return CreathlonService::isAvailableForUser($user);
-            case 'olympiade':
-                return OlympiadeService::isAvailableForUser($user);
+        if ($contentSourceService = collect(self::getAvailableSourcesInCorrectOrder())->get($contentSourceName, false)) {
+            return $contentSourceService::isAvailableForUser($user);
         }
 
         return false;
+    }
+
+    public static function getPublishableScopes(): Collection
+    {
+        return static::getAvailableSourcesInCorrectOrder()
+            ->map(fn($source) => $source::getPublishScope())
+            ->flatten()
+            ->filter()
+            ->values();
+    }
+
+    public static function getPublishableAbbreviations(): Collection
+    {
+        return static::getAvailableSourcesInCorrectOrder()
+            ->map(fn($source) => $source::getPublishAbbreviation())
+            ->flatten()
+            ->filter()
+            ->values();
+    }
+
+    private static function getAvailableSourcesInCorrectOrder()
+    {
+        return collect(self::getAllAvailableContentSourceServices())
+            ->sortBy(fn($source) => $source::$order);
+    }
+
+    private static function getAllAvailableContentSourceServices()
+    {
+        return collect(Storage::disk('content_source')->files())
+            ->mapWithKeys(function ($file) {
+                $class = sprintf('tcCore\Services\ContentSource\\%s', str_replace('.php', '', $file));
+                if (!class_exists($class) || $class === ContentSourceService::class) {
+                    return [];
+                }
+                return [$class::getName() => $class];
+            });
     }
 }

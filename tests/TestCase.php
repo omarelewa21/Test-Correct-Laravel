@@ -477,7 +477,7 @@ abstract class TestCase extends BaseTestCase
     /**
      * Call a private or protected method on an object that is normally unreachable from within a unit test
      */
-    public function callPrivateMethod(object $object, string $methodName, array $arguments)
+    public function callPrivateMethod(object $object, string $methodName, array $arguments = [])
     {
         $class = new \ReflectionClass($object);
         $method = $class->getMethod($methodName);
