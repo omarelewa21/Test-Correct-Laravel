@@ -40,12 +40,12 @@ class AppApi extends Controller
         $testTakeEvent->setAttribute('test_take_event_type_id', $reasonId);
         $testTakeEvent->setAttribute('test_participant_id', $testParticipant->getKey());
         $testTakeEvent->setAttribute('metadata', json_decode($request->metadata, true));
+        $testParticipant->testTake->testTakeEvents()->save($testTakeEvent);
 
         // force hand-in test if a VM has been detected
         if ($testTakeEvent->testTakeEventType->reason == "vm") {
-            $testParticipant->testTake->setAttribute('test_take_status_id', TestTakeStatus::STATUS_TAKEN);
+            $testParticipant->testTake->setAttribute('test_take_status_id', TestTakeStatus::STATUS_TAKEN)->save();
         }
 
-        $testParticipant->testTake->testTakeEvents()->save($testTakeEvent);
     }
 }
