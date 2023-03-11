@@ -6,7 +6,7 @@ enum VirtualMachineSoftwares: string
 {
 
     case vmware = 'VMWare';
-    case virtualbox = 'Virtual Box';
+    case virtualbox = 'VirtualBox';
     case qemu = 'QEMU';
     case wine = 'Wine';
     case sandboxie = 'Sandboxie';
