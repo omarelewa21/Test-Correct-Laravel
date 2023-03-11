@@ -56,7 +56,7 @@ class TestTakeEvent extends BaseModel {
         parent::boot();
 
         static::saving(function(TestTakeEvent $testTakeEvent) {
-            $testTakeEvent = $this->handleMetadata($testTakeEvent);
+            $testTakeEvent = self::handleMetadata($testTakeEvent);
 
             if ($testTakeEvent->shouldIgnoreEventRegistration()) {
                 return false;
@@ -174,7 +174,7 @@ class TestTakeEvent extends BaseModel {
         return false;
     }
 
-    private function handleMetadata(TestTakeEvent $testTakeEvent): TestTakeEvent {
+    private static function handleMetadata(TestTakeEvent $testTakeEvent): TestTakeEvent {
         if ($testTakeEvent->testTakeEventType->reason == "vm") {
             try {
                 $metadata = $testTakeEvent->metadata;
