@@ -2,38 +2,24 @@
 
 namespace tcCore\Http\Livewire\CoLearning;
 
-use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
-use Illuminate\Support\Facades\Storage;
-use LivewireUI\Modal\ModalComponent;
-use tcCore\Answer;
+use tcCore\Http\Livewire\Modal\Preview;
 
-class DrawingQuestionPreviewModal extends ModalComponent
+class DrawingQuestionPreviewModal extends Preview
 {
     public string $imgSrc;
-    protected static array $maxWidths = [
-        'full' => 'modal-full-screen',
-    ];
 
-    public function mount($imgSrc)
+    public function mount()
     {
-        $this->imgSrc = $imgSrc;
+        if($this->title === 'answer-model') {
+            $this->title = __('co-learning.answer_model_drawing');
+        }
+        if($this->title === 'answer') {
+            $this->title = __('co-learning.answer_drawing');
+        }
     }
 
     public function render()
     {
         return view('livewire.co-learning.drawing-question-preview-modal');
-    }
-
-    /*
-     * Modal settings
-     */
-    public static function modalMaxWidth(): string
-    {
-        return 'full';
-    }
-
-    public static function destroyOnClose(): bool
-    {
-        return false;
     }
 }

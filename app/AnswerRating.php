@@ -12,6 +12,10 @@ class AnswerRating extends BaseModel
 
     use SoftDeletes;
 
+    const TYPE_STUDENT = 'STUDENT';
+    const TYPE_TEACHER = 'TEACHER';
+    const TYPE_SYSTEM = 'SYSTEM';
+
     /**
      * The attributes that should be mutated to dates.
      *
