@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
 use tcCore\Http\Controllers\GroupQuestionQuestionsController;
-use tcCore\Http\Controllers\RequestController;
 use tcCore\Http\Controllers\TestQuestionsController;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Helpers\ContentSourceHelper;
@@ -207,7 +206,7 @@ class Test extends BaseModel
             $order = $movedTestQuestion->getAttribute('order');
         }
 
-        $testQuestions = $this->testQuestions()->orderBy('order')->get();
+        $testQuestions = $this->testQuestions()->with('test')->orderBy('order')->get();
 
         $i = 1;
         if ($movedTestQuestion !== null && $order) {
@@ -499,9 +498,11 @@ class Test extends BaseModel
             return false;
         }
 
-        $this->load(['testQuestions' => function ($query) {
-            $query->orderBy('order');
-        }]);
+        $this->load([
+            'testQuestions' => fn($query) => $query->orderBy('order'),
+            'testQuestions.question',
+            'testQuestions.test'
+        ]);
 
         foreach ($this->testQuestions as $testQuestion) {
             if ($testQuestion->duplicate($test, [], false) === false) {
