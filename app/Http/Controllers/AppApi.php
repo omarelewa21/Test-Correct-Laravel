@@ -44,7 +44,7 @@ class AppApi extends Controller
 
         // force hand-in test if a VM has been detected
         if ($testTakeEvent->testTakeEventType->reason == "vm") {
-            $testParticipant->testTake->setAttribute('test_take_status_id', TestTakeStatus::STATUS_TAKEN)->save();
+            $testParticipant->setAttribute('test_take_status_id', TestTakeStatus::STATUS_TAKEN)->save();
         }
 
     }
