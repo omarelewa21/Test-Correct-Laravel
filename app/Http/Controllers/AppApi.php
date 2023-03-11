@@ -10,6 +10,7 @@ use tcCore\Http\Requests\AppApiHandInRequest;
 use tcCore\TestParticipant;
 use tcCore\TestTakeEvent;
 use tcCore\TestTakeEventType;
+use tcCore\TestTakeStatus;
 
 class AppApi extends Controller
 {
@@ -39,6 +40,12 @@ class AppApi extends Controller
         $testTakeEvent->setAttribute('test_take_event_type_id', $reasonId);
         $testTakeEvent->setAttribute('test_participant_id', $testParticipant->getKey());
         $testTakeEvent->setAttribute('metadata', json_decode($request->metadata, true));
+
+        // force hand-in test if a VM has been detected
+        if ($testTakeEvent->testTakeEventType->reason == "vm") {
+            $testParticipant->testTake->setAttribute('test_take_status_id', TestTakeStatus::STATUS_TAKEN);
+        }
+
         $testParticipant->testTake->testTakeEvents()->save($testTakeEvent);
     }
 }
