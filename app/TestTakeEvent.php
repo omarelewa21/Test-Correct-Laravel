@@ -184,25 +184,25 @@ class TestTakeEvent extends BaseModel {
                     //.we translate it to a string
                     switch ($metadata['software']) {
                         case 0x15ad:
-                            $metadata['software'] = VirtualMachineSoftwares::vmware;
+                            $metadata['software'] = VirtualMachineSoftwares::vmware->value;
                             break;
                         case 0x0e0f:
-                            $metadata['software'] = VirtualMachineSoftwares::vmware;
+                            $metadata['software'] = VirtualMachineSoftwares::vmware->value;
                             break;
                         case 0x80ee:
-                            $metadata['software'] = VirtualMachineSoftwares::virtualbox;
+                            $metadata['software'] = VirtualMachineSoftwares::virtualbox->value;
                             break;
                         case 0x203a:
-                            $metadata['software'] = VirtualMachineSoftwares::parallels;
+                            $metadata['software'] = VirtualMachineSoftwares::parallels->value;
                             break;
                         case 0x46f4:
-                            $metadata['software'] = VirtualMachineSoftwares::qemu;
+                            $metadata['software'] = VirtualMachineSoftwares::qemu->value;
                             break;
                         default:
-                            $metadata['software'] = VirtualMachineSoftwares::unknown . ', vendor: ' . $metadata['software'];
+                            $metadata['software'] = VirtualMachineSoftwares::unknown->value . ', vendor: ' . $metadata['software'];
                             break;
                     }
-                } elseif (array_key_exists('type', $metadata) && $metadata['type'] == VirtualMachineDetectionTypes::windows) {
+                } elseif (array_key_exists('type', $metadata) && $metadata['type'] == VirtualMachineDetectionTypes::windows->value) {
                     // the reported software is through the Pafish VM detection
                     if (array_key_exists('vmware', $metadata) &&
                         (
@@ -215,7 +215,7 @@ class TestTakeEvent extends BaseModel {
                             $metadata['vmware']['wmiSerial'] === true
                         )
                     ) {
-                        $metadata['software'] = VirtualMachineSoftwares::vmware;
+                        $metadata['software'] = VirtualMachineSoftwares::vmware->value;
                     } elseif (array_key_exists('virtualbox', $metadata) &&
                         (
                             $metadata['virtualbox']['scsi'] === true || 
@@ -237,7 +237,7 @@ class TestTakeEvent extends BaseModel {
                             $metadata['virtualbox']['wmi'] === true
                         )
                     ) {
-                        $metadata['software'] = VirtualMachineSoftwares::virtualbox;
+                        $metadata['software'] = VirtualMachineSoftwares::virtualbox->value;
                     } elseif (array_key_exists('qemu', $metadata) &&
                         (
                             $metadata['qemu']['scsi'] === true || 
@@ -245,7 +245,7 @@ class TestTakeEvent extends BaseModel {
                             $metadata['qemu']['cpuBrand'] === true
                         )
                     ) {
-                      $metadata['software'] = VirtualMachineSoftwares::qemu;
+                      $metadata['software'] = VirtualMachineSoftwares::qemu->value;
                     } elseif (array_key_exists('wine', $metadata) &&
                         (
                             $metadata['wine']['unixFileName'] === true || 
@@ -253,23 +253,23 @@ class TestTakeEvent extends BaseModel {
                             $metadata['wine']['cpuBrand'] === true
                         )
                     ) {
-                        $metadata['software'] = VirtualMachineSoftwares::wine;
+                        $metadata['software'] = VirtualMachineSoftwares::wine->value;
                     } elseif (array_key_exists('sandboxie', $metadata) &&
                         (
                             $metadata['sandboxie']['dll'] === true
                         )
                     ) {
-                        $metadata['software'] = VirtualMachineSoftwares::sandboxie;
+                        $metadata['software'] = VirtualMachineSoftwares::sandboxie->value;
                     } elseif (array_key_exists('cpuInfo', $metadata) &&
                         (
                             $metadata['cpuInfo']['knownVMVendor'] === true ||
                             $metadata['cpuInfo']['hv_bit'] === true
                         )
                     ) {
-                        $metadata['software'] = VirtualMachineSoftwares::unknown . ', vendor: '
+                        $metadata['software'] = VirtualMachineSoftwares::unknown->value . ', vendor: '
                             . $metadata['vendor'] . ' & Hypervisor: ' . $metadata['hypervisorVendor'];
                     }
-                } elseif (array_key_exists('type', $metadata) && $metadata['type'] == VirtualMachineDetectionTypes::macos) {
+                } elseif (array_key_exists('type', $metadata) && $metadata['type'] == VirtualMachineDetectionTypes::macos->value) {
                   // TODO: implement macOS VM detection in the client and a parser here  
                 } else {
                     Bugsnag::leaveBreadcrumb('metadata', 'info', $metadata);
