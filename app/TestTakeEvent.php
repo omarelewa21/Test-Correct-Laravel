@@ -202,7 +202,7 @@ class TestTakeEvent extends BaseModel {
                             $metadata['software'] = VirtualMachineSoftwares::unknown . ', vendor: ' . $metadata['software'];
                             break;
                     }
-                } else if (array_key_exists('type', $metadata) && $metadata['type'] == VirtualMachineDetectionTypes::windows) {
+                } elseif (array_key_exists('type', $metadata) && $metadata['type'] == VirtualMachineDetectionTypes::windows) {
                     // the reported software is through the Pafish VM detection
                     if (array_key_exists('vmware', $metadata) &&
                         (
@@ -269,10 +269,11 @@ class TestTakeEvent extends BaseModel {
                         $metadata['software'] = VirtualMachineSoftwares::unknown . ', vendor: '
                             . $metadata['vendor'] . ' & Hypervisor: ' . $metadata['hypervisorVendor'];
                     }
-                } else if (array_key_exists('type', $metadata) && $metadata['type'] == VirtualMachineDetectionTypes::macos) {
+                } elseif (array_key_exists('type', $metadata) && $metadata['type'] == VirtualMachineDetectionTypes::macos) {
                   // TODO: implement macOS VM detection in the client and a parser here  
                 } else {
-                    Bugsnag::notifyError("Could not handle VM detection fraud event", "The following metadata failed to parse: " . json_encode($metadata));
+                    Bugsnag::leaveBreadcrumb('metadata', 'info', $metadata);
+                    Bugsnag::notifyError("Could not handle VM detection fraud event", "Failed to parse metadata");
                     
                 }
                 $testTakeEvent->metadata = $metadata;
