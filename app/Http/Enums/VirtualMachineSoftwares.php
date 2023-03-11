@@ -15,3 +15,9 @@ enum VirtualMachineSoftwares: string
     case xen = 'Xen';
     case unknown = '???';
 }
+
+enum VirtualMachineDetectionTypes: string {
+    case windows = 'windows';
+    case macos = 'macos';
+    case hid = 'hid';
+}
