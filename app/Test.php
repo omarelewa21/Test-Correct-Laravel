@@ -525,7 +525,10 @@ class Test extends BaseModel
 
         // existing testauthors duplicate
         $this->testAuthors()->pluck('user_id')->each(function ($userId) use ($test) {
-            TestAuthor::addAuthorToTest($test, $userId);
+            $test->testAuthors()->withTrashed()->updateOrCreate(
+                ['user_id' => $userId],
+                ['deleted_at' => null]
+            );
         });
 
         // add testauthor if author_id is not null
