@@ -62,6 +62,8 @@ class Factory {
         foreach ($userIds as $userId) {
             $testParticipant = new TestParticipant($data);
             $testParticipant->setAttribute('user_id', $userId);
+            $testParticipant->skipBootCreatedMethod = true;
+            $testParticipant->skipBootSavedMethod = true;
             if (array_key_exists($userId, $UserIdSchoolClass)) {
                 $testParticipant->setAttribute('school_class_id', $UserIdSchoolClass[$userId]);
             }

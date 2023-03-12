@@ -64,13 +64,16 @@ class TestParticipant extends BaseModel
      */
     protected $hidden = [];
 
-    public $skipBootSavedMethod = false;
+    public bool $skipBootSavedMethod = false;
+    public bool $skipBootCreatedMethod = false;
 
     public static function boot()
     {
         parent::boot();
 
         static::created(function (TestParticipant $testParticipant) {
+            if($testParticipant->skipBootCreatedMethod) return;
+
             if ($testParticipant->testTake->allow_inbrowser_testing) {
                 $testParticipant->allow_inbrowser_testing = true;
                 $testParticipant->save();

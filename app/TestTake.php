@@ -23,10 +23,10 @@ use tcCore\Jobs\SendTestRatedMail;
 use tcCore\Lib\Answer\AnswerChecker;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use tcCore\Jobs\SendExceptionMail;
 use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\Lib\TestParticipant\Factory;
 use Dyrynda\Database\Casts\EfficientUuid;
+use tcCore\Events\NewTestTakePlanned;
 use tcCore\Scopes\ArchivedScope;
 use tcCore\Traits\Archivable;
 use tcCore\Traits\UuidTrait;
@@ -342,6 +342,7 @@ class TestTake extends BaseModel
         static::created(function (TestTake $testTake) {
             if ($testTake->schoolClasses !== null) {
                 $testTake->saveSchoolClassTestTakeParticipants();
+                $testTake->dispatchNewTestTakePlannedEvent();
             }
             if($testTake->notify_students && GlobalStateHelper::getInstance()->isQueueAllowed()) {
                 Queue::later(300, new SendTestPlannedMail($testTake->getKey()));
@@ -490,7 +491,14 @@ class TestTake extends BaseModel
         $this->schoolClasses = null;
     }
 
-
+    public function dispatchNewTestTakePlannedEvent()
+    {
+        $this->testParticipants()->join('users', 'users.id', '=', 'test_participants.user_id')
+            ->select('users.uuid')->distinct()->get()->pluck('uuid')
+            ->each(function ($userUuid) {
+                NewTestTakePlanned::dispatch($userUuid);
+            });
+    }
 
     public function scopeFiltered($query, $filters = [], $sorting = [])
     {
