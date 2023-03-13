@@ -365,7 +365,7 @@ abstract class TestCase extends BaseTestCase
         $user = User::create([
             'school_location_id' => $schoolLocation->getKey(),
             'username'           => sprintf('info+%s-%d@test-correct.nl', $schoolLocation->name, $nr),
-            'password'           => \Hash::make($password),
+            'password'           => \WirisHash::make($password),
             'name_first'         => $schoolLocation->name,
             'name'               => sprintf('student-%d', $nr),
             'api_key'            => sha1(time()),
@@ -436,7 +436,7 @@ abstract class TestCase extends BaseTestCase
         $user = User::create([
             'school_location_id' => $schoolLocation->getKey(),
             'username'           => sprintf('info+%s-teacher@test-correct.nl', $schoolLocation->name),
-            'password'           => \Hash::make($password),
+            'password'           => \WirisHash::make($password),
             'name_first'         => $schoolLocation->name,
             'name'               => sprintf('teacher'),
             'api_key'            => sha1(time()),

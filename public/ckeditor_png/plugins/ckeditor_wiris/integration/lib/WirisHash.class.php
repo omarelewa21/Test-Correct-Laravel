@@ -1,6 +1,6 @@
 <?php
 
-class Hash implements IteratorAggregate{
+class WirisHash implements IteratorAggregate{
 	public function __construct() {
 		if(!php_Boot::$skip_constructor) {
 		$this->h = array();

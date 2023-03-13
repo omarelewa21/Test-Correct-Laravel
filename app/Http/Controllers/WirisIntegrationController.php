@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Controllers;
 
+use Barryvdh\Debugbar\Facades\Debugbar;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 
@@ -19,12 +20,12 @@ class WirisIntegrationController extends Controller
     }
 
     public function showimage() {
-        logger(__METHOD__ . __CLASS__ . __LINE__);
+        Debugbar::disable();
         include(public_path().'/ckeditor_png/plugins/ckeditor_wiris/integration/showimage.php');
     }
 
     public function createimage() {
-        logger(__METHOD__ . __CLASS__ . __LINE__);
+        Debugbar::disable();
         include(public_path().'/ckeditor_png/plugins/ckeditor_wiris/integration/createimage.php');
     }
 }
