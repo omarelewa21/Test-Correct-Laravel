@@ -2,8 +2,6 @@
 
 namespace tcCore\Factories;
 
-use Faker\Factory as FakerFactory;
-use Faker\Generator as Faker;
 use tcCore\EducationLevel;
 use tcCore\Factories\Questions\FactoryQuestionCompletionCompletion;
 use tcCore\Factories\Questions\FactoryQuestionCompletionMulti;
@@ -39,12 +37,6 @@ class FactoryTest
     private Period $testPeriod;
     private EducationLevel $testEducationLevel;
     private ?User $user;
-    private Faker $faker;
-
-    private function __construct()
-    {
-        $this->faker = FakerFactory::create();
-    }
 
     /**
      * Create a new test record
@@ -176,7 +168,7 @@ class FactoryTest
         $this->testEducationLevel = FactoryEducationLevel::getFirstEducationLevelForUser($this->user);
 
         return [
-            "name"                 => $this->faker->word() . '-' . $this->faker->numberBetween(1000, 9999),
+            "name"                 => 'test-' . rand(1000,9999) . rand(1000,9999),
             "abbreviation"         => 'TEST',
             "test_kind_id"         => SUMMATIVE_TEST_KIND,
             "subject_id"           => $this->testSubject->id,

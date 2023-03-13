@@ -105,9 +105,8 @@ class FactoryUser
      */
     protected function createTeacherInfo($number, $schoolLocation)
     {
-        $faker = \Faker\Factory::create('nl_NL');
 
-        $firstName = $faker->firstName();
+        $firstName = 'naam-'. $this->randomCharacters(4);
 
         $this->teacherInfo = [
             'name_first'   => $firstName,
