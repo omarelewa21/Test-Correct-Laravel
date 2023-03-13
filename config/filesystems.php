@@ -103,11 +103,17 @@ return [
             'throw' => true,
         ],
 
+        'content_source' => [
+            'driver' => 'local',
+            'root' => app_path('Services/ContentSource'),
+            'throw' => true,
+        ],
+
         'logs' => [
             'driver' => 'local',
             'root' => storage_path() . '/logs',
             'throw' => true,
-        ]
+        ],
 
 	],
 

@@ -137,6 +137,8 @@ abstract class FactoryQuestion implements FactoryQuestionInterface
     public function setTestModel(Test $testModel)
     {
         $this->testModel = $testModel;
+
+        return $this;
     }
 
     public function handleAttachments()

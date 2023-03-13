@@ -1,20 +1,8 @@
 @yield('container')
 <x-menu.tab.container :withTileEvents="$usesTileMenu ?? true">
-    <x-menu.tab.item tab="personal" menu="openTab" :when="!$this->isExamCoordinator">
-        {{ __('general.Persoonlijk') }}
-    </x-menu.tab.item>
-    <x-menu.tab.item tab="school_location" menu="openTab">
-        {{ __('general.School') }}
-    </x-menu.tab.item>
-    <x-menu.tab.item tab="umbrella" menu="openTab" :when="$allowedTabs->contains('umbrella')">
-        {{ __('general.Scholengemeenschap') }}
-    </x-menu.tab.item>
-    <x-menu.tab.item tab="national" menu="openTab" :highlight="true" :when="$allowedTabs->contains('national')">
-        {{ __('general.Nationaal') }}
-    </x-menu.tab.item>
-    <x-menu.tab.item tab="creathlon" menu="openTab" :highlight="true" :when="$allowedTabs->contains('creathlon')">
-        {{ __('general.Creathlon') }}
-    </x-menu.tab.item>
+    <x-menu.tab.allowed-content-sources :content-sources="$allowedTabs"
+                                        menu="openTab"
+    ></x-menu.tab.allowed-content-sources>
 </x-menu.tab.container>
 
 <div class="flex w-full max-w-screen-2xl mx-auto  px-8" @hasSection('cms-js-properties')

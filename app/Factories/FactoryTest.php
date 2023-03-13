@@ -188,7 +188,7 @@ class FactoryTest
             "author_id"            => $this->user->id,  //Auth::id()
             "owner_id"             => $this->schoolLocationID,  //Auth::user()->school_location_id
             "is_system_test"       => 0,
-            "draft"                => 1,
+            "draft"                => false,
         ];
     }
 }

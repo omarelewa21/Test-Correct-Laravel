@@ -59,9 +59,12 @@ class CreathlonItemBankSeeder extends Seeder
                     'abbreviation'       => 'PUBLS',
                     'scope'              => 'published_creathlon',
                     'education_level_id' => '1',
+                    'draft'              => false,
                 ])
                 ->addQuestions([
-                    FactoryQuestionOpenShort::create(),
+                    FactoryQuestionOpenShort::create()->setProperties([
+                        "question" => '<p>voorbeeld vraag creathlon:</p> <p>wat is de waarde van pi</p> ',
+                    ]),
                 ]);
         });
         $secondHalf->each(function ($subject) use ($secondaryTestAuthor) {
@@ -72,9 +75,12 @@ class CreathlonItemBankSeeder extends Seeder
                     'abbreviation'       => 'UNF',
                     'scope'              => 'not_published_creathlon',
                     'education_level_id' => '1',
+                    'draft'              => false,
                 ])
                 ->addQuestions([
-                    FactoryQuestionOpenShort::create(),
+                    FactoryQuestionOpenShort::create()->setProperties([
+                        "question" => '<p>voorbeeld vraag creathlon:</p> <p>wat is de waarde van pi</p> ',
+                    ]),
                 ]);
         });
     }

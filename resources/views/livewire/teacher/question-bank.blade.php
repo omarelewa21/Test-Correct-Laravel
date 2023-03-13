@@ -68,20 +68,9 @@
      wire:ignore.self
 >
     <x-menu.tab.container>
-        <x-menu.tab.item tab="personal" menu="questionBankOpenTab">
-            {{ __('general.Persoonlijk') }}
-        </x-menu.tab.item>
-        <x-menu.tab.item tab="school_location" menu="questionBankOpenTab">
-            {{ __('general.School') }}
-        </x-menu.tab.item>
-        <x-menu.tab.item tab="national" menu="questionBankOpenTab" :highlight="true"
-                         :when="$allowedTabs->contains('national')">
-            {{ __('general.Nationaal') }}
-        </x-menu.tab.item>
-        <x-menu.tab.item tab="creathlon" menu="questionBankOpenTab" :highlight="true"
-                         :when="$allowedTabs->contains('creathlon')">
-            {{ __('general.Creathlon') }}
-        </x-menu.tab.item>
+        <x-menu.tab.allowed-content-sources :content-sources="$allowedTabs"
+                                            menu="questionBankOpenTab"
+        ></x-menu.tab.allowed-content-sources>
     </x-menu.tab.container>
 
 
@@ -234,15 +223,14 @@
                             @endforeach
                         @else
                             <span class="col-span-1 lg:col-span-2 text-center">
-                            {{-- @TODO: Add translations--}}
                                 @if(!$this->questions->count())
                                     @if($this->openTab === 'personal')
-                                        U heeft nog geen eigen gemaakte vragen voor deze zoekfilters.
+                                        {{ __('cms.no_personal_content_search_filters') }}
                                     @else
-                                        Er is nog geen openbare content voor uw school.
+                                        {{ __('cms.no_public_content_search_filters') }}
                                     @endif
                                 @else
-                                    Er zijn geen items meer voor deze zoekfilters.
+                                    {{ __('cms.no_items_search_filter') }}
                                 @endif
                         </span>
                         @endif

@@ -254,7 +254,7 @@ class TestQuestion extends BaseModel {
 
     public function duplicateQuestionsIfPublishedContent($testQuestion): void
     {
-        if (in_array($testQuestion->question->scope, ContentSourceHelper::PUBLISHABLE_SCOPES)) {
+        if (ContentSourceHelper::getPublishableScopes()->contains($testQuestion->question->scope)) {
             $request = new Request();
             $request->merge(['scope' => null]);
 
