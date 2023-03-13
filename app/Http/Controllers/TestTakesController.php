@@ -660,33 +660,13 @@ class TestTakesController extends Controller
                 $query->where('type', 'STUDENT');
             }]);
 
-            $skipDoNotDiscuss = auth()->user()->schoolLocation->allow_new_co_learning
-                &&  $testTake->getAttribute('discussion_type') === 'OPEN_ONLY';
 
             // Set next question
-            $questionId = null;
-            foreach ($testTake->discussingParentQuestions as $discussingParentQuestions) {
-                if ($questionId !== null) {
-                    $questionId .= '.';
-                }
-                $questionId .= $discussingParentQuestions->getAttribute('group_question_id');
-            }
-
-            if ($questionId !== null) {
-                $questionId .= '.';
-            }
-
-            if(($discussingQuestionId = $testTake->getAttribute('discussing_question_id')) === null) {
-                $questionId = null;
-            } else {
-                $questionId .= $discussingQuestionId;
-            }
-
             $newQuestionIdParents = QuestionGatherer::getNextQuestionId(
                 $testTake->getAttribute('test_id'),
-                $questionId,
-                in_array($testTake->getAttribute('discussion_type'), ['OPEN_ONLY']),
-                $skipDoNotDiscuss,
+                $testTake->getDottedDiscussingQuestionIdWithOptionalGroupQuestionId(),
+                $testTake->isDiscussionTypeOpenOnly(),
+                skipDoNotDiscuss: $testTake->studentsAreInNewCoLearningAndDiscussingTypeIsOpenOnly()
             );
 
             $testTake->discussingParentQuestions()->delete();
@@ -728,8 +708,8 @@ class TestTakesController extends Controller
                 $testTake->setAttribute('has_next_question', (QuestionGatherer::getNextQuestionId(
                         $testTake->getAttribute('test_id'),
                         $newQuestionIdParents,
-                        in_array($testTake->getAttribute('discussion_type'), ['OPEN_ONLY']),
-                        $skipDoNotDiscuss
+                        $testTake->isDiscussionTypeOpenOnly(),
+                        skipDoNotDiscuss: $testTake->studentsAreInNewCoLearningAndDiscussingTypeIsOpenOnly()
                     ) !== false),
 
                 );
@@ -810,11 +790,6 @@ class TestTakesController extends Controller
                             $testParticipant->save();
                         }
 
-                    }
-                }
-                if (auth()->user()->schoolLocation->allow_new_co_learning) {
-                    foreach ($testTake->testParticipants as $testParticipant) {
-                        CoLearningNextQuestion::dispatch($testParticipant->uuid);
                     }
                 }
             }
@@ -1349,4 +1324,6 @@ class TestTakesController extends Controller
 
         return Response::make($testTake);
     }
+
+
 }

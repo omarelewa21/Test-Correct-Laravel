@@ -19,7 +19,6 @@
             <h7 class="inline-block">{{ $question->score }} pt</h7>
         </div>
 
-
         <div class="absolute right-[-14px] group" @click="showQuestion = ! showQuestion">
             <div class="w-10 h-10 rounded-full flex items-center justify-center group-hover:bg-primary group-hover:opacity-[0.05]"></div>
             <template x-if="true">
