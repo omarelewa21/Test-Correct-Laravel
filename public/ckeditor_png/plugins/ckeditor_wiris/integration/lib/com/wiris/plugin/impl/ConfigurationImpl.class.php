@@ -22,8 +22,8 @@ class com_wiris_plugin_impl_ConfigurationImpl implements com_wiris_plugin_api_Co
 	public function getJsonConfiguration($configurationKeys) {
 		$configurationKeysArray = _hx_explode(",", $configurationKeys);
 		$iterator = $configurationKeysArray->iterator();
-		$jsonOutput = new Hash();
-		$jsonVariables = new Hash();
+		$jsonOutput = new WirisHash();
+		$jsonVariables = new WirisHash();
 		$thereIsNullValue = false;
 		while($iterator->hasNext()) {
 			$key = $iterator->next();
@@ -47,7 +47,7 @@ class com_wiris_plugin_impl_ConfigurationImpl implements com_wiris_plugin_api_Co
 		return com_wiris_util_json_JSon::encode($javaScriptHash);
 	}
 	public function getJavaScriptHash() {
-		$javaScriptHash = new Hash();
+		$javaScriptHash = new WirisHash();
 		$javaScriptHash->set("editorEnabled", $this->getProperty("wiriseditorenabled", null) === "true");
 		$javaScriptHash->set("imageMathmlAttribute", $this->getProperty("wiriseditormathmlattribute", null));
 		$javaScriptHash->set("saveMode", $this->getProperty("wiriseditorsavemode", null));
@@ -78,7 +78,7 @@ class com_wiris_plugin_impl_ConfigurationImpl implements com_wiris_plugin_api_Co
 			$javaScriptHash->set("editorParameters", com_wiris_util_json_JSon::decode($this->getProperty(com_wiris_plugin_api_ConfigurationKeys::$EDITOR_PARAMS, null)));
 		} else {
 			$h = com_wiris_plugin_api_ConfigurationKeys::$imageConfigPropertiesInv;
-			$attributes = new Hash();
+			$attributes = new WirisHash();
 			$confVal = "";
 			$i = 0;
 			$it = $h->keys();
@@ -101,8 +101,8 @@ class com_wiris_plugin_impl_ConfigurationImpl implements com_wiris_plugin_api_Co
 			if($version === null) {
 				$version = "Missing version";
 			}
-		}catch(Exception $»e) {
-			$_ex_ = ($»e instanceof HException) ? $»e->e : $»e;
+		}catch(Exception $ï¿½e) {
+			$_ex_ = ($ï¿½e instanceof HException) ? $ï¿½e->e : $ï¿½e;
 			$ex = $_ex_;
 			{
 				$version = "Missing version";
@@ -174,16 +174,16 @@ class com_wiris_plugin_impl_ConfigurationImpl implements com_wiris_plugin_api_Co
 	public function __call($m, $a) {
 		if(isset($this->$m) && is_callable($this->$m))
 			return call_user_func_array($this->$m, $a);
-		else if(isset($this->»dynamics[$m]) && is_callable($this->»dynamics[$m]))
-			return call_user_func_array($this->»dynamics[$m], $a);
+		else if(isset($this->ï¿½dynamics[$m]) && is_callable($this->ï¿½dynamics[$m]))
+			return call_user_func_array($this->ï¿½dynamics[$m], $a);
 		else if('toString' == $m)
 			return $this->__toString();
 		else
-			throw new HException('Unable to call «'.$m.'»');
+			throw new HException('Unable to call ï¿½'.$m.'ï¿½');
 	}
 	function __toString() { return 'com.wiris.plugin.impl.ConfigurationImpl'; }
 }
-function com_wiris_plugin_impl_ConfigurationImpl_0(&$»this, &$array, &$arrayClose, &$arrayOpen, &$value) {
+function com_wiris_plugin_impl_ConfigurationImpl_0(&$ï¿½this, &$array, &$arrayClose, &$arrayOpen, &$value) {
 	if(strlen($array) === 2) {
 		return "]";
 	} else {

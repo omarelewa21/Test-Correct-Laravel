@@ -86,7 +86,7 @@ class com_wiris_plugin_impl_TextFilter {
 		$mml = $this->plugin->getConfiguration()->getProperty(com_wiris_plugin_api_ConfigurationKeys::$FILTER_OUTPUT_MATHML, "false") === "true";
 		$f = 96 / $dpi;
 		$imageFormatController = $this->plugin->getImageFormatController();
-		$metricsHash = new Hash();
+		$metricsHash = new WirisHash();
 		$metricsHash->set("width", Std::parseInt($width));
 		$metricsHash->set("height", Std::parseInt($height));
 		$metricsHash->set("baseline", Std::parseInt($baseline));
@@ -186,8 +186,8 @@ class com_wiris_plugin_impl_TextFilter {
 				$subtext = null;
 				try {
 					$subtext = $this->math2Img($sub, $prop);
-				}catch(Exception $»e) {
-					$_ex_ = ($»e instanceof HException) ? $»e->e : $»e;
+				}catch(Exception $ï¿½e) {
+					$_ex_ = ($ï¿½e instanceof HException) ? $ï¿½e->e : $ï¿½e;
 					$e = $_ex_;
 					{
 						$subtext = $sub;
@@ -234,12 +234,12 @@ class com_wiris_plugin_impl_TextFilter {
 	public function __call($m, $a) {
 		if(isset($this->$m) && is_callable($this->$m))
 			return call_user_func_array($this->$m, $a);
-		else if(isset($this->»dynamics[$m]) && is_callable($this->»dynamics[$m]))
-			return call_user_func_array($this->»dynamics[$m], $a);
+		else if(isset($this->ï¿½dynamics[$m]) && is_callable($this->ï¿½dynamics[$m]))
+			return call_user_func_array($this->ï¿½dynamics[$m], $a);
 		else if('toString' == $m)
 			return $this->__toString();
 		else
-			throw new HException('Unable to call «'.$m.'»');
+			throw new HException('Unable to call ï¿½'.$m.'ï¿½');
 	}
 	static $NBSP;
 	function __toString() { return 'com.wiris.plugin.impl.TextFilter'; }

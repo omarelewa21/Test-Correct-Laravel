@@ -3,7 +3,7 @@
 class com_wiris_util_json_JsonAPIResponse {
 	public function __construct() {
 		if(!php_Boot::$skip_constructor) {
-		$this->result = new Hash();
+		$this->result = new WirisHash();
 		$this->errors = new _hx_array(array());
 		$this->warnings = new _hx_array(array());
 	}}
@@ -39,7 +39,7 @@ class com_wiris_util_json_JsonAPIResponse {
 		$this->result->set($key, $value);
 	}
 	public function getResponse() {
-		$response = new Hash();
+		$response = new WirisHash();
 		if($this->status === com_wiris_util_json_JsonAPIResponse::$STATUS_ERROR) {
 			$response->set("errors", $this->errors);
 			$response->set("status", "error");
@@ -62,12 +62,12 @@ class com_wiris_util_json_JsonAPIResponse {
 	public function __call($m, $a) {
 		if(isset($this->$m) && is_callable($this->$m))
 			return call_user_func_array($this->$m, $a);
-		else if(isset($this->»dynamics[$m]) && is_callable($this->»dynamics[$m]))
-			return call_user_func_array($this->»dynamics[$m], $a);
+		else if(isset($this->ï¿½dynamics[$m]) && is_callable($this->ï¿½dynamics[$m]))
+			return call_user_func_array($this->ï¿½dynamics[$m], $a);
 		else if('toString' == $m)
 			return $this->__toString();
 		else
-			throw new HException('Unable to call «'.$m.'»');
+			throw new HException('Unable to call ï¿½'.$m.'ï¿½');
 	}
 	static $STATUS_OK = 0;
 	static $STATUS_WARNING = 1;

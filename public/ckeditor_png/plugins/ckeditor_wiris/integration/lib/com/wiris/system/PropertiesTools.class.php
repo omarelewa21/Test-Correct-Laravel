@@ -18,7 +18,7 @@ class com_wiris_system_PropertiesTools {
 		$prop[$key] = $value;
 	}
 	static function fromProperties($prop) {
-		$ht = new Hash();
+		$ht = new WirisHash();
 		$key = "";
 		$value = "";
 		foreach ($prop as $key => $value) {
