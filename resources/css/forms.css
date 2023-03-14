@@ -501,3 +501,25 @@ input[type=number] {
 .form-input.search::placeholder {
     color: var(--mid-grey);
 }
+
+.slider-button-container .slider-option span {
+    transition: color 150ms ease-in-out;
+}
+.slider-button-container .slider-option {
+    position: relative;
+}
+
+.slider-button-container .slider-option:after {
+    content: '';
+    position: absolute;
+    left: -1px;
+    top: -1px;
+    width: calc(100% + 2px);
+    height: calc(100% + 2px);
+    border: 2px solid transparent;
+    border-radius: 8px;
+    transition: border-color 150ms ease-in-out;
+}
+.slider-button-container .slider-option:hover:after {
+    border-color: var(--blue-grey);
+}

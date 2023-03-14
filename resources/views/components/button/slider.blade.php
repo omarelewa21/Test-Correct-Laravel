@@ -10,19 +10,12 @@
 <div wire:ignore
      {{ $attributes->merge(['class' => 'slider-button-container'])->except('wire:model') }}
      x-id="['slider-button']"
-     @if($attributes->has('wire:model'))
-         x-data="sliderToggle(
-             @entangle($attributes->wire('model')),
+     x-data="sliderToggle(
+             @if($attributes->wire('model')->value) @entangle($attributes->wire('model')) @else null @endif,
              @js($options),
              @js($initialValue)
          )"
-    @else
-         x-data="sliderToggle(
-             null,
-             @js($options),
-             @js($initialValue)
-         )"
-    @endif
+     x-on:slider-toggle-rerender="rerender()"
 >
     @if($label)
         <label :for="$id('slider-button')">
@@ -37,11 +30,16 @@
                      {{ $disabledStyling ? 'bg-white opacity-70 note hover:text-note' : 'bg-off-white cursor-pointer'}}
                      "
                      @if(!$disabled) @click="clickButton($el)" @endif
+                     data-active="false"
                 >
                     <span data-id="{{$id}}"
                           class="inline-flex justify-center w-full px-3 border-r border-blue-grey group-last:border-r-0 pointer-events-none"
                     >
-                        @if($useNamedSlots) {{$$button}} @else {{ $button }} @endif
+                        @if($useNamedSlots)
+                            {{$$button}}
+                        @else
+                            {{ $button }}
+                        @endif
                     </span>
                 </div>
             @endforeach

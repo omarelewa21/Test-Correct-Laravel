@@ -5,13 +5,63 @@
     @if($this->headerCollapsed)
 
         <div class="px-15 py-10 gap-6 flex flex-col "
-             x-data="{showQuestion: true}"
+             x-data="{}"
         >
-            <h7 class="inline-block">{{ $this->currentQuestion->getKey() }}</h7>
+            @js($this->questionIndex)
+            @js($this->answerIndex)
+            {{-- Group section --}}
+            @if($this->currentGroup)
+                <x-accordion.container :active-container-key="$this->groupPanel ? 'group' : ''"
+                                       :wire:key="'group-section-'.$this->qi.$this->ai"
+                >
+                    <x-accordion.block key="group"
+                                       :emitWhenSet="true"
+                                       :wire:key="'group-section-block-'.$this->qi.$this->ai"
+                                       mode="transparent"
+                    >
+                        <x-slot:title>
+                            <div class="question-indicator items-center flex">
+                                <div class="flex gap-4 items-center relative top-0.5">
+                                    <h4 class="inline-flex"
+                                        selid="questiontitle">
+                                        <span>@lang('question.Vraaggroep')</span>
+                                        <span>:</span>
+                                        <span class="ml-2">{{ $this->currentGroup->name }}</span>
+                                    </h4>
+                                </div>
+                            </div>
+                        </x-slot:title>
+                        <x-slot:body>
+                            <div class="flex flex-col gap-2"
+                                 wire:key="group-block-{{  $this->currentGroup->uuid }}">
+                                <div class="flex flex-wrap">
+                                    @foreach($this->currentGroup->attachments as $attachment)
+                                        <x-attachment.badge-view :attachment="$attachment"
+                                                                 :title="$attachment->title"
+                                                                 :wire:key="'badge-'.$this->currentGroup->uuid"
+                                                                 :question-id="$this->currentGroup->getKey()"
+                                                                 :question-uuid="$this->currentGroup->uuid"
+                                        />
+                                    @endforeach
+                                </div>
+                                <div>
+                                    {!! $this->currentGroup->converted_question_html !!}
+                                </div>
+                            </div>
+                        </x-slot:body>
+                    </x-accordion.block>
+                </x-accordion.container>
+            @endif
+
             {{-- Question section --}}
             @if($this->needsQuestionSection)
-                <x-accordion.container :active-container-key="1">
-                    <x-accordion.block :key="1">
+                <x-accordion.container :active-container-key="$this->questionPanel ? 'question' : ''"
+                                       :wire:key="'question-section-'.$this->qi.$this->ai"
+                >
+                    <x-accordion.block key="question"
+                                       :emitWhenSet="true"
+                                       :wire:key="'question-section-block-'.$this->qi.$this->ai"
+                    >
                         <x-slot:title>
                             <div class="question-indicator items-center flex">
                                 <div class="inline-flex question-number rounded-full text-center justify-center items-center">
@@ -52,8 +102,14 @@
             @endif
             {{-- Answer section --}}
             @unless($this->currentQuestion->isType('infoscreen'))
-                <x-accordion.container :active-container-key="1">
-                    <x-accordion.block :key="1" :coloredBorderClass="'student'">
+                <x-accordion.container :active-container-key="$this->answerPanel ? 'answer' : ''"
+                                       :wire:key="'answer-section-'.$this->qi.$this->ai"
+                >
+                    <x-accordion.block key="answer"
+                                       :coloredBorderClass="'student'"
+                                       :emitWhenSet="true"
+                                       :wire:key="'answer-section-block-'.$this->qi.$this->ai"
+                    >
                         <x-slot:title>
                             <div class="question-indicator items-center flex gap-4">
                                 <h4 class="flex items-center" selid="questiontitle">
@@ -85,8 +141,14 @@
                 </x-accordion.container>
 
                 {{-- Answermodel section --}}
-                <x-accordion.container :active-container-key="1">
-                    <x-accordion.block :key="1" :coloredBorderClass="'primary'">
+                <x-accordion.container :active-container-key="$this->answerModelPanel ? 'answer-model' : ''"
+                                       :wire:key="'answer-model-section-'.$this->qi.$this->ai"
+                >
+                    <x-accordion.block key="answer-model"
+                                       :coloredBorderClass="'primary'"
+                                       :emitWhenSet="true"
+                                       :wire:key="'answer-model-section-block'.$this->qi.$this->ai"
+                    >
                         <x-slot:title>
                             <div class="question-indicator items-center flex">
                                 <h4 class="inline-block" selid="questiontitle">@lang('co-learning.answer_model')</h4>

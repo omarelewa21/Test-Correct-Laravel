@@ -1401,6 +1401,28 @@ input[type=number] {
     color: var(--mid-grey);
 }
 
+.slider-button-container .slider-option span {
+    transition: color 150ms ease-in-out;
+}
+.slider-button-container .slider-option {
+    position: relative;
+}
+
+.slider-button-container .slider-option:after {
+    content: '';
+    position: absolute;
+    left: -1px;
+    top: -1px;
+    width: calc(100% + 2px);
+    height: calc(100% + 2px);
+    border: 2px solid transparent;
+    border-radius: 8px;
+    transition: border-color 150ms ease-in-out;
+}
+.slider-button-container .slider-option:hover:after {
+    border-color: var(--blue-grey);
+}
+
 .primary-gradient {
     background: linear-gradient(to right, var(--primary) 0%, var(--teacher-primary-light) 100%);
 }
@@ -5486,7 +5508,7 @@ input.datepicker {
 
 #co-learning-teacher-page .badge-view,
 #assessment-page .badge-view {
-    transition: 150ms ease background-color,150ms ease color;
+    transition: 150ms ease background-color, 150ms ease color;
 }
 
 #co-learning-teacher-page .badge-view:hover,
@@ -5512,7 +5534,7 @@ input.datepicker {
 #assessment-page #header {
     position: fixed;
     left: 0;
-    top:0;
+    top: 0;
     width: 100%;
     color: white;
     z-index: 50;
@@ -5593,6 +5615,24 @@ input.datepicker {
 #assessment-page .co-learning-tooltip:nth-child(2) {
     height: 18px;
     font-size: 14px;
+}
+
+
+#assessment-page .multiple-choice .all-or-nothing-toggle {
+    position: absolute;
+    left: calc(50% + 2rem);
+    transform: translateY(-50%);
+}
+#assessment-page .multiple-choice .first-active .all-or-nothing-line {
+    right: -1rem;
+    position: absolute;
+    width: 10px;
+    border: solid 2px var(--primary);
+    border-left: none;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    top: 50%;
+    transition: height 50ms ease
 }
 
 @font-face {
@@ -8627,9 +8667,6 @@ video {
 .right-1\/2{
   right: 50%;
 }
-.right-14{
-  right: 3.5rem;
-}
 .right-2{
   right: 0.5rem;
 }
@@ -9495,9 +9532,6 @@ video {
 .max-w-xs{
   max-width: 20rem;
 }
-.max-w-\[50\%\]{
-  max-width: 50%;
-}
 .flex-1{
   flex: 1 1 0%;
 }
@@ -9661,9 +9695,6 @@ video {
      -moz-appearance: none;
           appearance: none;
 }
-.auto-cols-auto{
-  grid-auto-columns: auto;
-}
 .grid-flow-row{
   grid-auto-flow: row;
 }
@@ -9684,18 +9715,6 @@ video {
 }
 .grid-cols-\[min-content\2c auto\]{
   grid-template-columns: min-content auto;
-}
-.grid-cols-\[max\(min-content\2c 50\%\)\2c auto\]{
-  grid-template-columns: max(min-content,50%) auto;
-}
-.grid-cols-\[min-content\2c 1fr\]{
-  grid-template-columns: min-content 1fr;
-}
-.grid-cols-\[max-content\2c auto\]{
-  grid-template-columns: max-content auto;
-}
-.grid-cols-\[max-content\2c 1fr\]{
-  grid-template-columns: max-content 1fr;
 }
 .flex-row{
   flex-direction: row;
@@ -9738,6 +9757,12 @@ video {
 }
 .justify-between{
   justify-content: space-between;
+}
+.gap-0{
+  gap: 0px;
+}
+.gap-0\.5{
+  gap: 0.125rem;
 }
 .gap-1{
   gap: 0.25rem;
@@ -10157,6 +10182,10 @@ video {
 .border-inherit{
   border-color: inherit;
 }
+.border-lightGrey{
+  --tw-border-opacity: 1;
+  border-color: rgb(240 242 245 / var(--tw-border-opacity));
+}
 .border-offwhite{
   --tw-border-opacity: 1;
   border-color: rgb(249 250 255 / var(--tw-border-opacity));
@@ -10191,10 +10220,6 @@ video {
 .border-white{
   --tw-border-opacity: 1;
   border-color: rgb(255 255 255 / var(--tw-border-opacity));
-}
-.border-lightGrey{
-  --tw-border-opacity: 1;
-  border-color: rgb(240 242 245 / var(--tw-border-opacity));
 }
 .border-b-white\/25{
   border-bottom-color: rgb(255 255 255 / 0.25);
@@ -11923,6 +11948,11 @@ ul ul ul {
   color: rgb(146 157 175 / var(--tw-text-opacity));
 }
 
+.hover\:text-note:hover{
+  --tw-text-opacity: 1;
+  color: rgb(107 119 137 / var(--tw-text-opacity));
+}
+
 .hover\:text-primary:hover{
   --tw-text-opacity: 1;
   color: rgb(0 77 245 / var(--tw-text-opacity));
@@ -11936,11 +11966,6 @@ ul ul ul {
 .hover\:text-white:hover{
   --tw-text-opacity: 1;
   color: rgb(255 255 255 / var(--tw-text-opacity));
-}
-
-.hover\:text-note:hover{
-  --tw-text-opacity: 1;
-  color: rgb(107 119 137 / var(--tw-text-opacity));
 }
 
 .hover\:underline:hover{

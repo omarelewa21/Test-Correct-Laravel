@@ -57,7 +57,9 @@
             @endif
             <div class="flex h-full rounded-md hover:text-primary reorder"
                  title="{{ __('sidebar.reorder') }}"
-                 wire:sortable.handle>
+                 wire:sortable.handle
+                 wire:key="group-handle-{{ $testQuestion->uuid }}"
+            >
                 <x-icon.reorder/>
             </div>
             <div class="flex">

@@ -19,7 +19,7 @@
         <x-assessment-navigator :current="$this->ai"
                                 :total="$this->studentCount"
                                 methodCall="loadAnswer"
-                                iconName="questionmark"
+                                iconName="profile"
         />
     </div>
 @endsection

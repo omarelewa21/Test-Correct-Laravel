@@ -1358,6 +1358,13 @@ document.addEventListener("alpine:init", () => {
             if (initialValue !== null) {
                 this.value = isString(initialValue) ? this.sources.indexOf(initialValue) : +initialValue;
             }
+
+            this.bootComponent();
+        },
+        rerender() {
+            this.bootComponent();
+        },
+        bootComponent() {
             if (this.value === null) {
                 return;
             }
@@ -1390,15 +1397,15 @@ document.addEventListener("alpine:init", () => {
                 button.firstElementChild.classList.remove("text-primary");
             });
         },
-        setHandle(){
+        setHandle() {
             this.handle = this.$el.querySelector(".slider-button-handle");
 
             /* Add transition classes later so it doesn't flicker the initial value setting */
             this.$nextTick(() => {
                 setTimeout(() => {
-                    this.handle.classList.add("transition-all", "ease-in-out", "duration-300");
-                }, 200)
-            })
+                    this.handle.classList.add("transition-all", "ease-in-out", "duration-150");
+                }, 200);
+            });
         }
     }));
 
@@ -1563,10 +1570,11 @@ document.addEventListener("alpine:init", () => {
         set expanded(value) {
             this.active = value ? this.id : null;
             if (value) {
+                this.$root.querySelectorAll(".slider-button-container").forEach(toggle => toggle.dispatchEvent(new CustomEvent("slider-toggle-rerender")));
                 this.$el.classList.remove("hover:shadow-hover");
-                if (this.emitWhenSet) {
-                    Livewire.emit("accordion-update", this.id);
-                }
+            }
+            if (this.emitWhenSet) {
+                Livewire.emit("accordion-update", { key, value });
             }
         }
     }));
@@ -1672,32 +1680,81 @@ document.addEventListener("alpine:init", () => {
         current,
         total,
         methodCall,
-        first() {
-            this.current = 1;
-        },
-        last() {
-            this.current = this.total;
-        },
-        next() {
-            if (this.current >= this.total) return;
-            this.current++;
-        },
-        previous() {
-            if (this.current <= 1) return;
-            this.current--;
-        },
+        skipWatch: false,
         requestTimeout: null,
-        async init() {
-            this.$watch("current", async (value, oldValue) => {
-                clearTimeout(this.requestTimeout);
-                this.requestTimeout = setTimeout(async () => {
-                    let response = await this.$wire[this.methodCall](value);
+        async first() {
+            await this.updateCurrent(1);
+        },
+        async last() {
+            await this.updateCurrent(this.total);
+        },
+        async next() {
+            if (this.current >= this.total) return;
+            await this.updateCurrent(this.current + 1);
+        },
+        async previous() {
+            if (this.current <= 1) return;
+            await this.updateCurrent(this.current - 1);
+        },
+        async updateCurrent(value) {
+            clearTimeout(this.requestTimeout);
 
-                    if (response) {
-                        console.log(`Called ${this.methodCall} with value: ${response}`);
+            this.requestTimeout = setTimeout(async () => {
+                let response = await this.$wire[this.methodCall](value);
+                if (response !== this.current) {
+                    this.current = response;
+                }
+            }, 250);
+        },
+        async init() {
+
+        }
+    }));
+    Alpine.data("multipleChoiceAllOrNothingLines", (activeItems, withToggle) => ({
+        activeItems,
+        withToggle,
+        fixLineHeightCount: 0,
+        fixInterval: null,
+        init() {
+            this.placeAllOrNothingLines();
+            this.fixLineHeight();
+            this.$watch("expanded", (value) => this.placeAllOrNothingLines());
+        },
+        fixLineHeight() {
+            this.fixInterval = setInterval(() => {
+                this.placeAllOrNothingLines();
+                this.fixLineHeightCount++;
+                if (this.fixLineHeightCount >= 5) {
+                    clearInterval(this.fixInterval);
+                }
+            }, 200);
+        },
+        placeAllOrNothingLines() {
+            this.$nextTick(() => {
+                const parent = this.$root.parentElement;
+                this.activeItems.map(item => {
+                    const el = parent.querySelector(`[data-active-item='${item}']`);
+                    let height = (el.offsetTop + (el.offsetHeight / 2) - this.$root.offsetHeight / 2);
+                    if (this.$root !== parent.firstElementChild) {
+                        height -= this.$root.offsetTop;
                     }
-                }, 250);
+                    this.$root.querySelector(`[data-line='${item}']`).style.height = height + "px";
+                });
+
+                if (this.withToggle) {
+                    const toggleEl = parent.parentElement.querySelector(".all-or-nothing-toggle");
+                    const firstEl = this.$root;
+                    const lastEl = parent.querySelector(`[data-active-item="${this.activeItems.slice(-1)}"]`);
+                    let middle = this.middleOfElement(firstEl);
+                    if (lastEl) {
+                        middle = (this.middleOfElement(firstEl) + this.middleOfElement(lastEl)) / 2;
+                    }
+                    toggleEl.style.top = middle + "px";
+                }
             });
+        },
+        middleOfElement(element) {
+            return element.offsetTop + (element.offsetHeight / 2);
         }
     }));
 

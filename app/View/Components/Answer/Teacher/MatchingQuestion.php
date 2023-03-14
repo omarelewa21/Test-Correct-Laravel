@@ -2,9 +2,11 @@
 
 namespace tcCore\View\Components\Answer\Teacher;
 
+use Illuminate\Support\Collection;
+
 class MatchingQuestion extends QuestionComponent
 {
-    public $answerStruct;
+    public Collection $answerStruct;
 
     protected function setAnswerStruct($question): void
     {

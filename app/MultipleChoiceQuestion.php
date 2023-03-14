@@ -296,4 +296,10 @@ class MultipleChoiceQuestion extends Question implements QuestionInterface
             ->orderBy('multiple_choice_question_answer_links.order', 'asc')
             ->get();
     }
+
+    public function isFullyAnswered(Answer $answer): bool
+    {
+        $givenAnswersCount = collect(json_decode($answer->json, true))->filter()->count();
+        return $givenAnswersCount === $this->selectable_answers;
+    }
 }

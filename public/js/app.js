@@ -6794,6 +6794,12 @@ document.addEventListener("alpine:init", function () {
         if (initialValue !== null) {
           this.value = (0,lodash__WEBPACK_IMPORTED_MODULE_5__.isString)(initialValue) ? this.sources.indexOf(initialValue) : +initialValue;
         }
+        this.bootComponent();
+      },
+      rerender: function rerender() {
+        this.bootComponent();
+      },
+      bootComponent: function bootComponent() {
         if (this.value === null) {
           return;
         }
@@ -6833,7 +6839,7 @@ document.addEventListener("alpine:init", function () {
         /* Add transition classes later so it doesn't flicker the initial value setting */
         this.$nextTick(function () {
           setTimeout(function () {
-            _this26.handle.classList.add("transition-all", "ease-in-out", "duration-300");
+            _this26.handle.classList.add("transition-all", "ease-in-out", "duration-150");
           }, 200);
         });
       }
@@ -7025,10 +7031,16 @@ document.addEventListener("alpine:init", function () {
       set expanded(value) {
         this.active = value ? this.id : null;
         if (value) {
+          this.$root.querySelectorAll(".slider-button-container").forEach(function (toggle) {
+            return toggle.dispatchEvent(new CustomEvent("slider-toggle-rerender"));
+          });
           this.$el.classList.remove("hover:shadow-hover");
-          if (this.emitWhenSet) {
-            Livewire.emit("accordion-update", this.id);
-          }
+        }
+        if (this.emitWhenSet) {
+          Livewire.emit("accordion-update", {
+            key: key,
+            value: value
+          });
         }
       }
     };
@@ -7128,72 +7140,180 @@ document.addEventListener("alpine:init", function () {
       current: current,
       total: total,
       methodCall: methodCall,
+      skipWatch: false,
+      requestTimeout: null,
       first: function first() {
-        this.current = 1;
+        var _this31 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee8() {
+          return _regeneratorRuntime().wrap(function _callee8$(_context8) {
+            while (1) switch (_context8.prev = _context8.next) {
+              case 0:
+                _context8.next = 2;
+                return _this31.updateCurrent(1);
+              case 2:
+              case "end":
+                return _context8.stop();
+            }
+          }, _callee8);
+        }))();
       },
       last: function last() {
-        this.current = this.total;
+        var _this32 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee9() {
+          return _regeneratorRuntime().wrap(function _callee9$(_context9) {
+            while (1) switch (_context9.prev = _context9.next) {
+              case 0:
+                _context9.next = 2;
+                return _this32.updateCurrent(_this32.total);
+              case 2:
+              case "end":
+                return _context9.stop();
+            }
+          }, _callee9);
+        }))();
       },
       next: function next() {
-        if (this.current >= this.total) return;
-        this.current++;
-      },
-      previous: function previous() {
-        if (this.current <= 1) return;
-        this.current--;
-      },
-      requestTimeout: null,
-      init: function init() {
-        var _this31 = this;
+        var _this33 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee10() {
           return _regeneratorRuntime().wrap(function _callee10$(_context10) {
             while (1) switch (_context10.prev = _context10.next) {
               case 0:
-                _this31.$watch("current", /*#__PURE__*/function () {
-                  var _ref2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee9(value, oldValue) {
-                    return _regeneratorRuntime().wrap(function _callee9$(_context9) {
-                      while (1) switch (_context9.prev = _context9.next) {
-                        case 0:
-                          clearTimeout(_this31.requestTimeout);
-                          _this31.requestTimeout = setTimeout( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee8() {
-                            var response;
-                            return _regeneratorRuntime().wrap(function _callee8$(_context8) {
-                              while (1) switch (_context8.prev = _context8.next) {
-                                case 0:
-                                  _context8.next = 2;
-                                  return _this31.$wire[_this31.methodCall](value);
-                                case 2:
-                                  response = _context8.sent;
-                                  if (response) {
-                                    console.log("Called ".concat(_this31.methodCall, " with value: ").concat(response));
-                                  }
-                                case 4:
-                                case "end":
-                                  return _context8.stop();
-                              }
-                            }, _callee8);
-                          })), 250);
-                        case 2:
-                        case "end":
-                          return _context9.stop();
-                      }
-                    }, _callee9);
-                  }));
-                  return function (_x2, _x3) {
-                    return _ref2.apply(this, arguments);
-                  };
-                }());
-              case 1:
+                if (!(_this33.current >= _this33.total)) {
+                  _context10.next = 2;
+                  break;
+                }
+                return _context10.abrupt("return");
+              case 2:
+                _context10.next = 4;
+                return _this33.updateCurrent(_this33.current + 1);
+              case 4:
               case "end":
                 return _context10.stop();
             }
           }, _callee10);
         }))();
+      },
+      previous: function previous() {
+        var _this34 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee11() {
+          return _regeneratorRuntime().wrap(function _callee11$(_context11) {
+            while (1) switch (_context11.prev = _context11.next) {
+              case 0:
+                if (!(_this34.current <= 1)) {
+                  _context11.next = 2;
+                  break;
+                }
+                return _context11.abrupt("return");
+              case 2:
+                _context11.next = 4;
+                return _this34.updateCurrent(_this34.current - 1);
+              case 4:
+              case "end":
+                return _context11.stop();
+            }
+          }, _callee11);
+        }))();
+      },
+      updateCurrent: function updateCurrent(value) {
+        var _this35 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee13() {
+          return _regeneratorRuntime().wrap(function _callee13$(_context13) {
+            while (1) switch (_context13.prev = _context13.next) {
+              case 0:
+                clearTimeout(_this35.requestTimeout);
+                _this35.requestTimeout = setTimeout( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee12() {
+                  var response;
+                  return _regeneratorRuntime().wrap(function _callee12$(_context12) {
+                    while (1) switch (_context12.prev = _context12.next) {
+                      case 0:
+                        _context12.next = 2;
+                        return _this35.$wire[_this35.methodCall](value);
+                      case 2:
+                        response = _context12.sent;
+                        if (response !== _this35.current) {
+                          _this35.current = response;
+                        }
+                      case 4:
+                      case "end":
+                        return _context12.stop();
+                    }
+                  }, _callee12);
+                })), 250);
+              case 2:
+              case "end":
+                return _context13.stop();
+            }
+          }, _callee13);
+        }))();
+      },
+      init: function init() {
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee14() {
+          return _regeneratorRuntime().wrap(function _callee14$(_context14) {
+            while (1) switch (_context14.prev = _context14.next) {
+              case 0:
+              case "end":
+                return _context14.stop();
+            }
+          }, _callee14);
+        }))();
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].directive("global", function (el, _ref4) {
-    var expression = _ref4.expression;
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("multipleChoiceAllOrNothingLines", function (activeItems, withToggle) {
+    return {
+      activeItems: activeItems,
+      withToggle: withToggle,
+      fixLineHeightCount: 0,
+      fixInterval: null,
+      init: function init() {
+        var _this36 = this;
+        this.placeAllOrNothingLines();
+        this.fixLineHeight();
+        this.$watch("expanded", function (value) {
+          return _this36.placeAllOrNothingLines();
+        });
+      },
+      fixLineHeight: function fixLineHeight() {
+        var _this37 = this;
+        this.fixInterval = setInterval(function () {
+          _this37.placeAllOrNothingLines();
+          _this37.fixLineHeightCount++;
+          if (_this37.fixLineHeightCount >= 5) {
+            clearInterval(_this37.fixInterval);
+          }
+        }, 200);
+      },
+      placeAllOrNothingLines: function placeAllOrNothingLines() {
+        var _this38 = this;
+        this.$nextTick(function () {
+          var parent = _this38.$root.parentElement;
+          _this38.activeItems.map(function (item) {
+            var el = parent.querySelector("[data-active-item='".concat(item, "']"));
+            var height = el.offsetTop + el.offsetHeight / 2 - _this38.$root.offsetHeight / 2;
+            if (_this38.$root !== parent.firstElementChild) {
+              height -= _this38.$root.offsetTop;
+            }
+            _this38.$root.querySelector("[data-line='".concat(item, "']")).style.height = height + "px";
+          });
+          if (_this38.withToggle) {
+            var toggleEl = parent.parentElement.querySelector(".all-or-nothing-toggle");
+            var firstEl = _this38.$root;
+            var lastEl = parent.querySelector("[data-active-item=\"".concat(_this38.activeItems.slice(-1), "\"]"));
+            var middle = _this38.middleOfElement(firstEl);
+            if (lastEl) {
+              middle = (_this38.middleOfElement(firstEl) + _this38.middleOfElement(lastEl)) / 2;
+            }
+            toggleEl.style.top = middle + "px";
+          }
+        });
+      },
+      middleOfElement: function middleOfElement(element) {
+        return element.offsetTop + element.offsetHeight / 2;
+      }
+    };
+  });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].directive("global", function (el, _ref3) {
+    var expression = _ref3.expression;
     var f = new Function("_", "$data", "_." + expression + " = $data;return;");
     f(window, el._x_dataStack[0]);
   });

@@ -344,10 +344,10 @@ class MatchingQuestion extends Question implements QuestionInterface
 
     public function getCorrectAnswerStructure()
     {
-        return $this->matchingQuestionAnswers()
-            ->join('matching_question_answer_links as mal', 'mal.matching_question_answer_id', '=', 'matching_question_answers.id')
+        return MatchingQuestionAnswer::join('matching_question_answer_links as mal', 'mal.matching_question_answer_id', '=', 'matching_question_answers.id')
             ->select('matching_question_answers.*', 'mal.order')
             ->orderBy('mal.order', 'desc')
+            ->where('mal.matching_question_id', $this->getKey())
             ->get();
     }
 

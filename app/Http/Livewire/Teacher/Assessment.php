@@ -9,6 +9,7 @@ use tcCore\Exceptions\AssessmentException;
 use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Http\Interfaces\CollapsableHeader;
 use tcCore\TestTake;
+use tcCore\TestTakeStatus;
 
 class Assessment extends Component implements CollapsableHeader
 {
@@ -20,6 +21,10 @@ class Assessment extends Component implements CollapsableHeader
         'assessedAt'                  => null,
         'assessmentType'              => null,
     ];
+    public bool $questionPanel = true;
+    public bool $answerPanel = true;
+    public bool $answerModelPanel = true;
+    public bool $groupPanel = true;
 
     /*Computed*/
     protected $queryString = [
@@ -30,6 +35,20 @@ class Assessment extends Component implements CollapsableHeader
     public string $referrer = '';
     public string $qi = ''; /* Question index */
     public string $ai = ''; /* Answer index */
+    /**
+     * @return mixed
+     */
+    public function getAnswersForCurrentQuestion()
+    {
+        return $this->answers->where('question_id', $this->currentQuestion->getKey())->values();
+    }
+
+    protected function getListeners()
+    {
+        return [
+            'accordion-update' => 'handlePanelActivity'
+        ];
+    }
 
     /*Component properties*/
     protected bool $skipBooted = false;
@@ -44,53 +63,27 @@ class Assessment extends Component implements CollapsableHeader
     public $currentAnswer;
     public $currentQuestion;
 
+    public $currentGroup;
+
     protected $answers;
     protected $questions;
+    protected $groups;
     protected $testTakeData;
 
     public $score;
-    public $toggle;
-
-    /*        [
-            's1' => [
-                '1' => 'a',
-                '2' => 'b',
-                '3' => 'c',
-            ],
-            's2' => [
-                '1' => 'a',
-                '2' => 'b',
-                '3' => 'c',
-            ],
-            's3' => [
-                '1' => 'a',
-                '2' => 'b',
-                '3' => 'c',
-            ],
-            's4' => [
-                '1' => 'a',
-                '2' => 'b',
-                '3' => 'c',
-            ],
-            's5' => [
-                '1' => 'a',
-                '2' => 'b',
-                '3' => 'c',
-            ],
-        ];*/
 
     public function mount(TestTake $testTake): void
     {
         $this->testTakeUuid = $testTake->uuid;
-        $this->setTemplateVariables($testTake);
 
         $this->headerCollapsed = Session::has("assessment-started-$this->testTakeUuid");
+        $this->setTestTakeData();
 
         if ($this->headerCollapsed) {
             $this->skipBootedMethod();
-            $this->setTestTakeData();
             $this->startAssessment();
         }
+        $this->setTemplateVariables($testTake);
     }
 
     public function render()
@@ -148,7 +141,7 @@ class Assessment extends Component implements CollapsableHeader
      * @return array
      * @throws AssessmentException
      */
-    public function validateStartArguments($args): array
+    private function validateStartArguments($args): array
     {
         $allowedTypes = ['ALL', 'OPEN_ONLY'];
 
@@ -161,15 +154,32 @@ class Assessment extends Component implements CollapsableHeader
 
     public function loadAnswer($value)
     {
-        $this->ai = $value;
-        $this->answerIndex = $value - 1;
+        $answersForQuestion = $this->getAnswersForCurrentQuestion();
 
-        $answersForQuestion = $this->answers->where('question_id', $this->currentQuestion->getKey())->values();
         // 1 Are there answers?
-        // 2 Is there an answer for this index?
-        $this->currentAnswer = $answersForQuestion[$this->answerIndex];
+        if ($answersForQuestion->isEmpty()) {
+//            $this->loadQuestion($value + 1, true);
+            throw new AssessmentException('Geen antwoorden voor vraag: ' . $this->currentQuestion->getKey());
+        }
 
-        $this->makeToggleProperties();
+        // 2 Is there an answer for this index?
+        $index = $value - 1;
+        if ($answersForQuestion->has($index)) {
+            $this->currentAnswer = $answersForQuestion[$index];
+            $this->answerIndex = $index;
+            $this->ai = $value;
+            return $value;
+        }
+
+        if ($answer = $answersForQuestion->filter(fn($answer, $key) => $key > $index)->first()) {
+            $this->currentAnswer = $answer;
+            $this->answerIndex = $answersForQuestion->search($answer);
+            $this->ai = $this->answerIndex + 1;
+
+            return $this->ai;
+        }
+
+        throw new AssessmentException('Geen antwoord voor vraag:' . $this->currentQuestion->getKey() . ' antwoord: ' . $value);
 
         return $value;
     }
@@ -179,11 +189,29 @@ class Assessment extends Component implements CollapsableHeader
         $this->qi = $value;
         $this->questionIndex = $value - 1;
 
-        $this->currentQuestion = $this->questions[$this->questionIndex];
 
+        $nextQuestion = $this->questions[$this->questionIndex];
+        $abc = $this->answers->where('question_id', $nextQuestion->id)->values()->get($this->ai);
+        if ($abc) {
+            $this->currentQuestion = $nextQuestion;
+            $this->loadAnswer($this->ai);
+            $this->handleGroupQuestion();
+            return $value;
+        }
+        $increasingIndex = $value > $this->qi;
+        $newQuestionId = $this->answers->where('test_participant_id', $this->currentAnswer->test_participant_id)
+            ->values()
+            ->filter(fn($answer, $key) => $increasingIndex ? $key >= $value - 1 : $key < $value - 1)
+            ->when(($increasingIndex), fn($answers) => $answers->first(), fn($answers) => $answers->last())
+            ->question_id;
+
+        $this->currentQuestion = $this->questions->where('id', $newQuestionId)->first();
+        $index = $this->questions->search($this->currentQuestion);
+        $this->qi = $index + 1;
+        $this->questionIndex = $index;
         $this->loadAnswer($this->ai);
 
-        return $value;
+        return $this->qi;
     }
 
     private function setTemplateVariables(TestTake $testTake): void
@@ -197,14 +225,14 @@ class Assessment extends Component implements CollapsableHeader
         ];
         $this->openOnly = $testTake->assessment_type === 'OPEN_ONLY';
 
-        $this->questionCount = $testTake->test()->select('id')->first()->loadCount('testQuestions')->test_questions_count;
-        $this->studentCount = $testTake->loadCount('testParticipants')->test_participants_count;
+        $this->questionCount = $this->questions->count();
+        $this->studentCount = $testTake->testParticipants()->where('test_take_status_id', '>', TestTakeStatus::STATUS_TAKING_TEST)->count();
     }
 
     /**
      * @return void
      */
-    public function setTestTakeData(): void
+    private function setTestTakeData(): void
     {
         $this->testTakeData = cache()->remember("assessment-data-$this->testTakeUuid", now()->addDays(3), function () {
             return TestTake::whereUuid($this->testTakeUuid)
@@ -224,7 +252,18 @@ class Assessment extends Component implements CollapsableHeader
             });
         })->sortBy('question_id');
 
-        $this->questions = $this->testTakeData->test->listOfTakeableTestQuestions()->map->question;
+        $this->groups = $this->testTakeData->test->testQuestions->map(fn($testQuestion) => $testQuestion->question->isType('Group') ? $testQuestion->question : null)->filter();
+        $this->questions = $this->testTakeData->test->testQuestions->flatMap(function ($testQuestion) {
+            $testQuestion->question->loadRelated();
+            if ($testQuestion->question->type === 'GroupQuestion') {
+                $groupQuestion = $testQuestion->question;
+                return $testQuestion->question->groupQuestionQuestions->map(function ($item) use ($groupQuestion) {
+                    $item->question->belongs_to_groupquestion_id = $groupQuestion->getKey();
+                    return $item->question;
+                });
+            }
+            return collect([$testQuestion->question]);
+        });
     }
 
     private function startAssessment(): void
@@ -254,18 +293,28 @@ class Assessment extends Component implements CollapsableHeader
         return true;
     }
 
-    private function makeToggleProperties(): void
+    /**
+     * @param $panelData
+     * @return void
+     * @throws AssessmentException
+     */
+    public function handlePanelActivity($panelData): void
     {
-        if ($this->currentQuestion->isType('MultipleChoice')) {
-            if ($this->currentQuestion->isSubType('MultipleChoice')) {
-                for ($i = 0; $i <= $this->currentQuestion->selectable_answers; $i++) {
-//                    $this->toggle[$i] = null;
-                }
-            }
-
-            if ($this->currentQuestion->isSubType('TrueFalse')) {
-//                $this->toggle = null;
-            }
+        $panelName = str($panelData['key'])->camel()->append('Panel')->value();
+        if (!property_exists($this, $panelName)) {
+            throw new AssessmentException('Panel update for unknown panel property.');
         }
+
+        $this->$panelName = $panelData['value'];
+    }
+
+    private function handleGroupQuestion()
+    {
+        if (!$this->currentQuestion->belongs_to_groupquestion_id) {
+            $this->currentGroup = null;
+            return;
+        }
+
+        $this->currentGroup = $this->groups->where('id', $this->currentQuestion->belongs_to_groupquestion_id)->first();
     }
 }

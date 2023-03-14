@@ -1,4 +1,4 @@
-<div class="flex">
+<div class="flex multiple-choice relative">
     @if($question->isSubType('TrueFalse'))
         <div class="flex gap-4 items-center">
             <div class="bold">
@@ -19,12 +19,26 @@
 
     @if($question->isSubType('MultipleChoice'))
         <div @class([
-                  'grid gap-2',
-                  'grid-cols-2 w-full' => $studentAnswer,
-                  'grid-cols-1 w-1/2' => !$studentAnswer,
+                  'grid gap-2 relative',
+                  'grid-cols-2 w-full' => $studentAnswer && !$question->all_or_nothing,
+                  'grid-cols-1 w-1/2' => !$studentAnswer || $question->all_or_nothing,
                 ])>
             @foreach($answerStruct as $answerLink)
-                <div class="flex items-center flex-col flex-1">
+                @php
+                    $activeAnswers = $answerStruct->where('active', true);
+                    $firstActiveAnswer = $activeAnswers->first() === $answerLink;
+                    $allButFirstActiveAnswerIds = $activeAnswers->where('multiple_choice_question_answer_id', '!=',$answerLink->multiple_choice_question_answer_id)->pluck('multiple_choice_question_answer_id');
+                @endphp
+                <div @class([
+                    'flex items-center flex-col flex-1 relative',
+                    'first-active' => $firstActiveAnswer,
+                 ])
+                     @if($answerLink->active && $question->all_or_nothing && $firstActiveAnswer)
+                         x-data="multipleChoiceAllOrNothingLines(@js($allButFirstActiveAnswerIds), @js($studentAnswer))"
+                         x-cloak
+                     @endif
+                     data-active-item="@js($answerLink->multiple_choice_question_answer_id)"
+                >
                     <label for="link{{ $answerLink->multiple_choice_question_answer_id }}"
                             @class([
                                 'relative w-full flex px-6 py-4 border-2 border-blue-grey rounded-10 base multiple-choice-question transition ease-in-out duration-150 focus:outline-none justify-between pointer-events-none',
@@ -32,24 +46,29 @@
                                 'active' => $answerLink->active,
                             ])
                     >
-                        <input
-                                id="link{{ $answerLink->multiple_choice_question_answer_id }}"
-                                name="Question_{{ $question->id }}"
-                                type="radio"
-                                class="hidden"
-                                value="{{ $answerLink->multiple_choice_question_answer_id }}"
+                        <input id="link{{ $answerLink->multiple_choice_question_answer_id }}"
+                               name="Question_{{ $question->id }}"
+                               type="radio"
+                               class="hidden"
+                               value="{{ $answerLink->multiple_choice_question_answer_id }}"
                         >
-                        <span class="truncate">{!! $answerLink->answer !!}</span>
-                        <div @class(['hidden' => !$answerLink->active])>
+                        <span class="">{!! $answerLink->answer !!}</span>
+                        <div @class(['hidden' => !$answerLink->active || $studentAnswer])>
                             <x-icon.checkmark />
                         </div>
                     </label>
+                    @if($answerLink->active && $question->all_or_nothing && $firstActiveAnswer)
+                        @foreach($allButFirstActiveAnswerIds as $activeAnswer)
+                            <div wire:ignore
+                                 class="all-or-nothing-line"
+                                 data-line="@js($activeAnswer)"
+                            ></div>
+                        @endforeach
+                    @endif
                 </div>
-                @if($studentAnswer && $answerLink->active)
+                @if($studentAnswer && !$question->all_or_nothing)
                     <div class="flex items-center">
-                        @if($question->all_or_nothing)
-
-                        @else
+                        @if($answerLink->active)
                             <x-button.true-false-toggle :wireKey="'toggle-'.$answer->uuid.$loop->iteration"
                                                         :initialValue="$answerLink->active && $answerLink->score > 0" />
                         @endif
@@ -57,6 +76,12 @@
                 @endif
             @endforeach
         </div>
+        @if($studentAnswer && $question->all_or_nothing && $answer->isAnswered)
+            <div class="all-or-nothing-toggle" wire:ignore>
+                <x-button.true-false-toggle :wireKey="'toggle-'.$answer->uuid"
+                                            :initialValue="$allOrNothingToggleActive" />
+            </div>
+        @endif
     @endif
 
     @if($question->isSubType('ARQ'))
