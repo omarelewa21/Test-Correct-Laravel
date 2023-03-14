@@ -13,7 +13,7 @@ class IndexInfoRequest extends Request
 //        if(!Auth::user()){
 //            return false;
 //        }
-        if(request('mode') === 'feature') {
+        if(in_array(request('mode') ,['feature','latestFeature'])) {
             return Auth::user()->isA('Teacher');
         }
 

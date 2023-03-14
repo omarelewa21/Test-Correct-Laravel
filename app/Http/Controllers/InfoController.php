@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Controllers;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -41,6 +42,9 @@ class InfoController extends Controller
                 break;
             case 'feature':
                 $data = Info::getForFeature();
+                break;
+            case 'latestFeature':
+                $data = Info::getLatestFeature();
                 break;
             case 'types':
                 $data = Info::getDisplayTypes();
@@ -92,15 +96,6 @@ class InfoController extends Controller
         $info = Info::create($data->all());
         $info->saveRoleInfo($request->validated());
 
-        $now = new \DateTime();
-        $from = new \DateTime($info->show_from);
-        $until = new \DateTime($info->show_until);
-
-        if ($info->type == Info::FEATURE_TYPE && $info->status == Info::ACTIVE && $until > $now && $from < $now) {
-            UserSystemSetting::setSettingForAllUsers('newFeaturesSeen', false);
-            UserSystemSetting::setSettingForAllUsers('closedNewFeaturesMessage', false);
-        }
-
         return Response::make($info,200);
     }
 
@@ -131,7 +126,7 @@ class InfoController extends Controller
             return Response::make(false, 401);
         }
 
-        UserSystemSetting::setSetting($user,'newFeaturesSeen',true);
+        UserSystemSetting::setSetting($user,'newFeaturesSeen',Carbon::now()->timestamp);
 
         return Response::make(true,200);
 
@@ -145,7 +140,7 @@ class InfoController extends Controller
             return Response::make(false, 401);
         }
 
-        UserSystemSetting::setSetting($user,'closedNewFeaturesMessage',true);
+        UserSystemSetting::setSetting($user,'closedNewFeaturesMessage',Carbon::now()->timestamp);
 
         return Response::make(true,200);
 

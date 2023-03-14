@@ -136,6 +136,17 @@ class Info extends Model
             ->get();
     }
 
+    public static function getLatestFeature()
+    {
+        $infos = new Info();
+        return $infos->where('type', '=', self::FEATURE_TYPE)
+            ->where('status', self::ACTIVE)
+            ->where('show_from', '<=', Carbon::now())
+            ->where('show_until', '>=', Carbon::now())
+            ->orderBy('created_at', 'desc')
+            ->first();
+    }
+
     public function getIfFeatureNewToday()
     {
         $infos = new Info();
