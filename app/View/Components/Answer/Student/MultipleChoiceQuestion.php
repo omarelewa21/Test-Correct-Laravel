@@ -25,10 +25,14 @@ class MultipleChoiceQuestion extends QuestionComponent
             });
 
         if ($question->all_or_nothing) {
-            $this->allOrNothingToggleActive = $this->answerStruct->filter(fn($link) => $link->score > 0)
-                ->map(fn($link) => $link->multiple_choice_question_answer_id)
-                ->diff($givenAnswerId)
-                ->isEmpty();
+             $correctIds = $this->answerStruct->filter(fn($link) => $link->score > 0)
+                ->map(fn($link) => $link->multiple_choice_question_answer_id);
+
+             if ($correctIds->count() !== $givenAnswerId->count()) {
+                $this->allOrNothingToggleActive = false;
+                return;
+             }
+            $this->allOrNothingToggleActive = $correctIds->diff($givenAnswerId)->isEmpty();
         }
     }
 }
