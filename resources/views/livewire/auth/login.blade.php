@@ -11,27 +11,30 @@
 
     <div id="login-body" class="flex justify-center items-center flex-grow"
          x-data="{
-         openTab: @entangle('login_tab'),
-          showPassword: false,
-           hoverPassword: false,
+            openTab: @entangle('login_tab'),
+            showPassword: false,
+            hoverPassword: false,
             initialPreviewIconState: true,
-             showEntreePassword: false,
-              active_overlay: @entangle('active_overlay'),
-               device: @entangle('device'),
-               autofocusInput: '{{ $autofocusInput }}'
-               }"
+            showEntreePassword: false,
+            active_overlay: @entangle('active_overlay'),
+            device: @entangle('device'),
+         }"
          x-init="
-         console.log(document.getElementById(autofocusInput));
-            setTimeout(() => {$wire.checkLoginFieldsForInput()}, 250);
-            document.querySelector(autofocusInput).focus();
+            setTimeout(() => {
+                setCurrentFocusInput()
+                $wire.checkLoginFieldsForInput()
+            }, 250);
 
-            $watch('openTab', value => {
-            console.log(value)
-             if (value === 2) {
-
-                    $root.querySelector('.test-direct-firstname')?.focus();
-
+            function setCurrentFocusInput (){
+                let name = active_overlay === 'send_reset_password' ? 'overlay' : openTab;
+                $root.querySelector(`[data-focus-tab='${name}']`)?.focus();
              }
+
+             $watch('active_overlay', value => {
+               setTimeout( setCurrentFocusInput, 250);
+            })
+            $watch('openTab', value => {
+               setTimeout( setCurrentFocusInput, 250);
             })
             "
          wire:ignore.self
@@ -86,7 +89,7 @@
 
 
                                     <x-input.group class="mt-5" label="{{ __('auth.emailaddress') }}">
-                                        <x-input.text id="email-forgot-password" selid="forgot-password-email" wire:model.debounce.300ms="forgotPasswordEmail"/>
+                                        <x-input.text data-focus-tab="overlay" id="forgot-password-email" selid="forgot-password-email" wire:model.debounce.300ms="forgotPasswordEmail"/>
                                     </x-input.group>
 
                                     <div class="flex w-full justify-self-end mt-auto">
@@ -124,7 +127,7 @@
                                 <form wire:submit.prevent="login" action="#" method="POST" class="flex-col flex flex-1">
                                     <div class="flex flex-col space-y-4">
                                         <x-input.group label="{{ __('auth.emailaddress')}}" class="flex-1">
-                                            <x-input.text selid="login-username" wire:model.lazy="username" x-ref="username"></x-input.text>
+                                            <x-input.text data-focus-tab="1" id="login-username" selid="login-username" wire:model.lazy="username" autofocus></x-input.text>
                                         </x-input.group>
                                         <x-input.group label="{{ __('auth.password')}}" class="flex-1 relative">
                                             <div @mouseenter="hoverPassword = true"
@@ -296,14 +299,14 @@
                                       class="flex-col flex flex-1 justify-start">
                                     <div class="flex flex-col md:flex-row space-y-4 md:space-x-4 md:space-y-0">
                                         <x-input.group label="{{ __('auth.first_name')}}" class="w-full">
-                                            <x-input.text selid="test-direct-firstname" wire:model.lazy="firstName" class="test-direct-firstname" ></x-input.text>
+                                            <x-input.text data-focus-tab="2" selid="test-direct-firstname" wire:model.lazy="firstName" autofocus></x-input.text>
                                         </x-input.group>
                                         <x-input.group label="{{ __('auth.suffix')}}" class="w-28">
-                                            <x-input.text selid="test-direct-suffix" wire:model.lazy="suffix"></x-input.text>
+                                            <x-input.text selid="test-direct-suffix" wire:model.lazy="suffix" autofocus></x-input.text>
                                         </x-input.group>
                                     </div>
                                     <x-input.group label="{{ __('auth.last_name')}}" class="mt-4">
-                                        <x-input.text selid="test-direct-lastname" wire:model.lazy="lastName"></x-input.text>
+                                        <x-input.text selid="test-direct-lastname" wire:model.lazy="lastName" autofocus></x-input.text>
                                     </x-input.group>
                                     <div class="flex-1 ">
                                         <div class="mx-auto flex flex-col">
@@ -542,7 +545,7 @@
                                           class="flex-col flex flex-1">
                                         <div class="flex flex-col md:flex-row space-y-4 md:space-x-4 md:space-y-0">
                                             <x-input.group label="{{ __('auth.emailaddress')}}" class="flex-1">
-                                                <x-input.text wire:model.lazy="username"></x-input.text>
+                                                <x-input.text wire:model.lazy="username" autofocus></x-input.text>
                                             </x-input.group>
                                             <x-input.group label="{{ __('auth.password')}}" class="flex-1 relative">
                                                 <x-input.text wire:model.lazy="password"
@@ -650,7 +653,7 @@
 
                                         <div class="flex flex-col md:flex-row space-y-4 md:space-x-4 md:space-y-0">
                                             <x-input.group label="{{ __('auth.emailaddress')}}" class="w-full md:w-1/2">
-                                                <x-input.text wire:model.lazy="username" ></x-input.text>
+                                                <x-input.text wire:model.lazy="username" autofocus></x-input.text>
                                             </x-input.group>
                                             {{ $schoolLocation }}
 
