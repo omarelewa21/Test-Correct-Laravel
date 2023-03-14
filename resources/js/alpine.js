@@ -1682,19 +1682,19 @@ document.addEventListener("alpine:init", () => {
         methodCall,
         skipWatch: false,
         requestTimeout: null,
-        async first() {
-            await this.updateCurrent(1);
+        first() {
+            this.updateCurrent(1);
         },
-        async last() {
-            await this.updateCurrent(this.total);
+        last() {
+            this.updateCurrent(this.total);
         },
-        async next() {
+        next() {
             if (this.current >= this.total) return;
-            await this.updateCurrent(this.current + 1);
+            this.updateCurrent(this.current + 1);
         },
-        async previous() {
+        previous() {
             if (this.current <= 1) return;
-            await this.updateCurrent(this.current - 1);
+            this.updateCurrent(this.current - 1);
         },
         async updateCurrent(value) {
             clearTimeout(this.requestTimeout);
@@ -1704,11 +1704,8 @@ document.addEventListener("alpine:init", () => {
                 if (response !== this.current) {
                     this.current = response;
                 }
-            }, 250);
+            }, 150);
         },
-        async init() {
-
-        }
     }));
     Alpine.data("multipleChoiceAllOrNothingLines", (activeItems, withToggle) => ({
         activeItems,

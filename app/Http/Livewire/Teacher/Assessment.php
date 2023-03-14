@@ -186,19 +186,22 @@ class Assessment extends Component implements CollapsableHeader
 
     public function loadQuestion($value)
     {
-        $this->qi = $value;
-        $this->questionIndex = $value - 1;
+        $newIndex = $value - 1;
 
-
-        $nextQuestion = $this->questions[$this->questionIndex];
-        $abc = $this->answers->where('question_id', $nextQuestion->id)->values()->get($this->ai);
-        if ($abc) {
-            $this->currentQuestion = $nextQuestion;
-            $this->loadAnswer($this->ai);
-            $this->handleGroupQuestion();
-            return $value;
+        if ($this->questions->has($newIndex)) {
+            $nextQuestion = $this->questions->get($newIndex);
+            $abc = $this->answers->where('question_id', $nextQuestion->id)->values()->get($this->ai);
+            if ($abc) {
+                $this->currentQuestion = $nextQuestion;
+                $this->qi = $value;
+                $this->questionIndex = $newIndex;
+                $this->loadAnswer($this->ai);
+                $this->handleGroupQuestion();
+                return $value;
+            }
         }
-        $increasingIndex = $value > $this->qi;
+
+        $increasingIndex = $value > (int)$this->qi;
         $newQuestionId = $this->answers->where('test_participant_id', $this->currentAnswer->test_participant_id)
             ->values()
             ->filter(fn($answer, $key) => $increasingIndex ? $key >= $value - 1 : $key < $value - 1)
