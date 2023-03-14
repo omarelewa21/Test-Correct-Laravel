@@ -391,6 +391,27 @@ document.addEventListener("alpine:init", () => {
                 this.scrollActiveQuestionIntoView();
             }, 400);
             this.poll(this.pollingInterval);
+            this.$watch('$store.cms.handledAllRequests', (value) => {
+                if (value) {
+                    this.checkActiveSlide();
+                }
+            });
+        },
+        checkActiveSlide() {
+            if (!['newquestion', 'questionbank'].includes(this.activeSlide)) {
+                return;
+            }
+            if (this.$root.children[2].getAttribute('x-ref') === this.activeSlide) {
+                return;
+            }
+            if (this.activeSlide === 'newquestion') {
+                return this.setNextSlide(this.$refs.newquestion);
+            }
+            if (this.activeSlide === 'newquestion') {
+                return this.setNextSlide(this.$refs.questionbank);
+            }
+            this.prev(this.$root.children[2]);
+
         },
         next(currentEl) {
             const left = this.$refs.questionEditorSidebar.scrollLeft + this.slideWidth;
@@ -1763,7 +1784,10 @@ document.addEventListener("alpine:init", () => {
         dirty: false,
         scrollPos: 0,
         reinitOnClose: false,
-        emptyState: false
+        emptyState: false,
+        pendingRequestTimeout: null,
+        pendingRequestTally: 0,
+        handledAllRequests: true,
     });
     Alpine.store("questionBank", {
         active: false,

@@ -7,6 +7,7 @@
     'containerClass' => '',
     'error' => false,
     'title' => '',
+    'selid' => '',
 ])
 @php
     $borderColor = $error ? 'border-red-500' : 'border-inherit'
@@ -21,7 +22,7 @@
                 <span class="text-base text-left">{{ $toolTip }}</span>
             </x-tooltip>
         @endif
-        <label class="switch @if($small) small @endif">
+        <label class="switch @if($small) small @endif" @notempty($selid) selid="{{ $selid }}" @endif>
             <input type="checkbox" {{ $attributes->merge() }} value="1" autocapitalize="none" autocorrect="off"
                    autocomplete="off" spellcheck="false" class="verify-ok" {{ $checked ? 'checked' : ''}}
                    @if($disabled) disabled @endif

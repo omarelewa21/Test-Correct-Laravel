@@ -67,6 +67,16 @@
 <script>
     Alpine.start();
     Core.init();
+
+    window.processingRequest = false;
+    window.cmsProcessTally = 0;
+    Livewire.hook('message.sent', (message, component) => {
+        window.processingRequest = true
+
+    });
+    Livewire.hook('message.processed', (message, component) => {
+        window.processingRequest = false
+    });
 </script>
 </body>
 </html>

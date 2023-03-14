@@ -2,6 +2,7 @@
 
 @section('container')
     <div id="testbank"
+         selid="tests-overview-page"
          x-data="{
             openTab: $wire.entangle('openTab')
          }"
@@ -13,7 +14,10 @@
 @section('create-test-button')
     @if(!auth()->user()->isValidExamCoordinator())
         <div class="flex space-x-2.5">
-            <x-button.cta class="px-4" wire:click="$emit('openModal', 'teacher.test-start-create-modal')">
+            <x-button.cta class="px-4"
+                          wire:click="$emit('openModal', 'teacher.test-start-create-modal')"
+                          selid="create-new-test-button"
+            >
                 <x-icon.plus-2/>
                 <span>{{ __('general.create test') }}</span>
             </x-button.cta>

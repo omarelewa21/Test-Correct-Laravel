@@ -57,7 +57,7 @@
                 <span>{{ __('modal.cancel') }}</span>
             </x-button.text-button>
 
-            <x-button.cta wire:click="handle()" :disabled="!empty($testErrors)">
+            <x-button.cta selid="publish-test-modal-btn" wire:click="handle()" :disabled="!empty($testErrors)">
                 <x-icon.publish/>
                 <span>{{ __('test.publish') }}</span>
             </x-button.cta>

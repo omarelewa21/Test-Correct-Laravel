@@ -3,6 +3,7 @@
         @if(!$disabled)
             <x-button.primary class="w-10 p-0 items-center justify-center"
                               title="{{ __('teacher.Construeren') }}"
+                              selid="test-open-constructor"
                               @click="window.open('{!! $url !!}', '_self')">
                 <x-icon.edit/>
             </x-button.primary>
@@ -15,6 +16,7 @@
         @if(!$disabled)
             <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
                     @click="window.open('{!! $url !!}', '_self')"
+                    selid="test-open-constructor"
             >
                 <span class="w-5 flex justify-center"><x-icon.edit/></span>
                 <span class="text-base bold inherit">{{ __('cms.Construeren') }}</span>
