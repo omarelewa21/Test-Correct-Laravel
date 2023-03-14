@@ -7,8 +7,6 @@
         <div class="px-15 py-10 gap-6 flex flex-col "
              x-data="{}"
         >
-            @js($this->questionIndex)
-            @js($this->answerIndex)
             {{-- Group section --}}
             @if($this->currentGroup)
                 <x-accordion.container :active-container-key="$this->groupPanel ? 'group' : ''"
