@@ -1416,22 +1416,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function getNameFullAttribute()
     {
-        $result = '';
-        if (array_key_exists('name_first', $this->attributes) && !empty($this->attributes['name_first'])) {
-            $result .= $this->attributes['name_first'];
-        }
-        if (array_key_exists('name_first',
-                $this->attributes) && !empty($this->attributes['name_first']) && array_key_exists('name_suffix',
-                $this->attributes) && !empty($this->attributes['name_suffix'])) {
-            $result .= ' ' . $this->attributes['name_suffix'];
-        }
-        if ((array_key_exists('name_first',
-                    $this->attributes) && !empty($this->attributes['name_first']) || (array_key_exists('name_suffix',
-                        $this->attributes) && !empty($this->attributes['name_suffix']))) && array_key_exists('name',
-                $this->attributes) && !empty($this->attributes['name'])) {
-            $result .= ' ' . $this->attributes['name'];
-        }
-        return $result;
+        return Str::squish(sprintf('%s %s %s', $this->name_first, $this->name_suffix, $this->name));
     }
 
     public function hasSharedSections()

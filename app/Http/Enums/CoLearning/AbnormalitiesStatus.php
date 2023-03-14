@@ -2,7 +2,9 @@
 
 namespace tcCore\Http\Enums\CoLearning;
 
-enum AbnormalitiesStatus: string
+use tcCore\Http\Enums\Sortable;
+
+enum AbnormalitiesStatus: string implements Sortable
 {
     case Happy   = 'happy';
     case Neutral = 'neutral';
@@ -28,7 +30,7 @@ enum AbnormalitiesStatus: string
         $percentualDifferenceComparedToTheAverageAbnormalitiesAmount = null;
 
         if ($averageAbnormalitiesAmount != 0) {
-            $percentualDifferenceComparedToTheAverageAbnormalitiesAmount = (100 * $testParticipantAbnormalities / $averageAbnormalitiesAmount ) - 100;
+            $percentualDifferenceComparedToTheAverageAbnormalitiesAmount = (100 * $testParticipantAbnormalities / $averageAbnormalitiesAmount) - 100;
         }
         if ($percentualDifferenceComparedToTheAverageAbnormalitiesAmount < -5) {
             return self::Happy;
@@ -37,6 +39,16 @@ enum AbnormalitiesStatus: string
             return self::Neutral;
         }
         return self::Sad;
+    }
+
+    public function getOrder(): int
+    {
+        return match ($this) {
+            self::Happy => 4,
+            self::Neutral => 3,
+            self::Sad => 2,
+            self::Default => 1,
+        };
     }
 
     /**

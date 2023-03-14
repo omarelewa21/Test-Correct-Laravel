@@ -21,14 +21,7 @@ class StudentInfoContainer extends Component
         public TestParticipant $testParticipant,
     )
     {
-        $user = $this->testParticipant->user;
-
-        $this->userFullName = Str::replace(
-            search: '  ',
-            replace: ' ',
-            subject: sprintf('%s %s %s', $user->name_first, $user->name_suffix, $user->name)
-        );
-
+        $this->userFullName = $this->testParticipant->user->nameFull;
     }
 
     /**

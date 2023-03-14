@@ -2,7 +2,9 @@
 
 namespace tcCore\Http\Enums\CoLearning;
 
-enum RatingStatus: string
+use tcCore\Http\Enums\Sortable;
+
+enum RatingStatus: string implements Sortable
 {
     case Green  = 'green';
     case Orange = 'orange';
@@ -34,6 +36,15 @@ enum RatingStatus: string
         return RatingStatus::Grey;
     }
 
+    public function getOrder(): int
+    {
+        return match ($this) {
+            self::Green => 40,
+            self::Orange => 30,
+            self::Grey => 20,
+            self::Red => 10,
+        };
+    }
 
     /**
      * Returns whether two RatingStatusses are equal
