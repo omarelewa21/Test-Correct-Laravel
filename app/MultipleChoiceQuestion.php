@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace tcCore;
 
@@ -11,7 +11,8 @@ use Dyrynda\Database\Support\GeneratesUuid;
 use Ramsey\Uuid\Uuid;
 use tcCore\Traits\UuidTrait;
 
-class MultipleChoiceQuestion extends Question implements QuestionInterface {
+class MultipleChoiceQuestion extends Question implements QuestionInterface
+{
 
     use UuidTrait;
 
@@ -47,15 +48,18 @@ class MultipleChoiceQuestion extends Question implements QuestionInterface {
      */
     protected $hidden = [];
 
-    public function question() {
+    public function question()
+    {
         return $this->belongsTo('tcCore\Question', $this->getKeyName());
     }
 
-    public function multipleChoiceQuestionAnswerLinks() {
+    public function multipleChoiceQuestionAnswerLinks()
+    {
         return $this->hasMany('tcCore\MultipleChoiceQuestionAnswerLink', 'multiple_choice_question_id');
     }
 
-    public function multipleChoiceQuestionAnswers() {
+    public function multipleChoiceQuestionAnswers()
+    {
         return $this->belongsToMany(
             'tcCore\MultipleChoiceQuestionAnswer',
             'multiple_choice_question_answer_links',
@@ -74,7 +78,8 @@ class MultipleChoiceQuestion extends Question implements QuestionInterface {
         );
     }
 
-    public function reorder(MultipleChoiceQuestionAnswerLink $movedAnswer) {
+    public function reorder(MultipleChoiceQuestionAnswerLink $movedAnswer)
+    {
         $answers = $this->multipleChoiceQuestionAnswerLinks()->orderBy('order')->get();
 
         $this->performReorder($answers, $movedAnswer, 'order');
@@ -85,7 +90,8 @@ class MultipleChoiceQuestion extends Question implements QuestionInterface {
         $this->load('multipleChoiceQuestionAnswers');
     }
 
-    public function duplicate(array $attributes, $ignore = null) {
+    public function duplicate(array $attributes, $ignore = null)
+    {
         $question = $this->replicate();
         $question->parentInstance = $this->parentInstance->duplicate($attributes, $ignore);
         if ($question->parentInstance === false) {
@@ -100,7 +106,7 @@ class MultipleChoiceQuestion extends Question implements QuestionInterface {
             return false;
         }
 
-        foreach($this->multipleChoiceQuestionAnswerLinks as $multipleChoiceQuestionAnswerLink) {
+        foreach ($this->multipleChoiceQuestionAnswerLinks as $multipleChoiceQuestionAnswerLink) {
             if ($ignore instanceof MultipleChoiceQuestionAnswer && $ignore->getKey() == $multipleChoiceQuestionAnswerLink->getAttribute('multiple_choice_question_answer_id')) {
                 continue;
             }
@@ -111,7 +117,7 @@ class MultipleChoiceQuestion extends Question implements QuestionInterface {
                 continue;
             }
 
-            if($multipleChoiceQuestionAnswerLink->duplicate($question, []) === false) {
+            if ($multipleChoiceQuestionAnswerLink->duplicate($question, []) === false) {
                 return false;
             }
         }
@@ -119,15 +125,17 @@ class MultipleChoiceQuestion extends Question implements QuestionInterface {
         return $question;
     }
 
-    public function canCheckAnswer() {
+    public function canCheckAnswer()
+    {
         return true;
     }
 
-    public function checkAnswer($answer) {
+    public function checkAnswer($answer)
+    {
         $multipleChoiceQuestionAnswers = $this->multipleChoiceQuestionAnswers;
 
         $answers = json_decode($answer->getAttribute('json'), true);
-        if(!$answers) {
+        if (!$answers) {
             return 0;
         }
 
@@ -136,12 +144,12 @@ class MultipleChoiceQuestion extends Question implements QuestionInterface {
         $countCorrectAnswers = 0;
 
         $givenAnswers = 0;
-        foreach($answers as $key => $val){
-           if($val == 1) $givenAnswers++;
+        foreach ($answers as $key => $val) {
+            if ($val == 1) $givenAnswers++;
         }
 
-        foreach($multipleChoiceQuestionAnswers as $multipleChoiceQuestionAnswer) {
-            if($multipleChoiceQuestionAnswer->score > 0){
+        foreach ($multipleChoiceQuestionAnswers as $multipleChoiceQuestionAnswer) {
+            if ($multipleChoiceQuestionAnswer->score > 0) {
                 $countCorrectAnswers++;
             }
             if (array_key_exists($multipleChoiceQuestionAnswer->getKey(), $answers) && $answers[$multipleChoiceQuestionAnswer->getKey()] == 1) {
@@ -151,13 +159,13 @@ class MultipleChoiceQuestion extends Question implements QuestionInterface {
         }
 
 
-        if($this->allOrNothingQuestion()){
-            if(Str::lower($this->subtype) == 'arq'){
-                if($score == $this->score) {
+        if ($this->allOrNothingQuestion()) {
+            if (Str::lower($this->subtype) == 'arq') {
+                if ($score == $this->score) {
                     return $score;
                 }
-            } else if($score == $maxScore && $countCorrectAnswers === $givenAnswers){
-                    return $this->score;
+            } else if ($score == $maxScore && $countCorrectAnswers === $givenAnswers) {
+                return $this->score;
             }
             return 0;
         }
@@ -178,7 +186,7 @@ class MultipleChoiceQuestion extends Question implements QuestionInterface {
 
     public function deleteAnswers()
     {
-        $this->multipleChoiceQuestionAnswerLinks->each(function($qAL){
+        $this->multipleChoiceQuestionAnswerLinks->each(function ($qAL) {
             if (!$qAL->delete()) {
                 throw new QuestionException('Failed to delete multiple choice question answer link', 422);
             }
@@ -197,8 +205,8 @@ class MultipleChoiceQuestion extends Question implements QuestionInterface {
     {
 
         $question = $this;
-        foreach($answers as $answerDetails) {
-            if(!$this->isValidAnswerDetails($answerDetails)){
+        foreach ($answers as $answerDetails) {
+            if (!$this->isValidAnswerDetails($answerDetails)) {
                 continue;
             }
             $multipleChoiceQuestionAnswer = new MultipleChoiceQuestionAnswer();
@@ -224,22 +232,22 @@ class MultipleChoiceQuestion extends Question implements QuestionInterface {
 
     private function isValidAnswerDetails($answer)
     {
-        if(!array_key_exists('answer', $answer)&&!array_key_exists('score', $answer)){
+        if (!array_key_exists('answer', $answer) && !array_key_exists('score', $answer)) {
             return false;
         }
-        if(!array_key_exists('answer', $answer)&&$answer['score']!=''){
+        if (!array_key_exists('answer', $answer) && $answer['score'] != '') {
             return true;
         }
-        if(array_key_exists('answer', $answer)){
-            if($answer['answer']==''&&!array_key_exists('score', $answer)){
+        if (array_key_exists('answer', $answer)) {
+            if ($answer['answer'] == '' && !array_key_exists('score', $answer)) {
                 return false;
             }
-            if($answer['answer']==''&&$answer['score']==''){
+            if ($answer['answer'] == '' && $answer['score'] == '') {
                 return false;
             }
         }
-        if(array_key_exists('answer', $answer)&&$this->subtype!='ARQ'){
-            if($answer['answer']==''&&$answer['score']=='0'){
+        if (array_key_exists('answer', $answer) && $this->subtype != 'ARQ') {
+            if ($answer['answer'] == '' && $answer['score'] == '0') {
                 return false;
             }
         }
@@ -263,13 +271,14 @@ class MultipleChoiceQuestion extends Question implements QuestionInterface {
     public function needsToBeUpdated($request)
     {
         $totalData = $this->getTotalDataForTestQuestionUpdate($request);
-        if($this->isDirtyAnswerOptions($totalData)){
+        if ($this->isDirtyAnswerOptions($totalData)) {
             return true;
         }
         return parent::needsToBeUpdated($request);
     }
 
-    public static function getArqStructure() {
+    public static function getArqStructure()
+    {
         return [
             ['A', 'test_take.correct', 'test_take.correct', 'test_take.correct_reason'],
             ['B', 'test_take.correct', 'test_take.correct', 'test_take.incorrect_reason'],
@@ -277,5 +286,20 @@ class MultipleChoiceQuestion extends Question implements QuestionInterface {
             ['D', 'test_take.incorrect', 'test_take.correct', 'test_take.not_applicable'],
             ['E', 'test_take.incorrect', 'test_take.incorrect', 'test_take.not_applicable'],
         ];
+    }
+
+    public function getCorrectAnswerStructure()
+    {
+        return $this->multipleChoiceQuestionAnswerLinks()
+            ->join('multiple_choice_question_answers', 'multiple_choice_question_answers.id', '=', 'multiple_choice_question_answer_links.multiple_choice_question_answer_id')
+            ->select('multiple_choice_question_answer_links.*', 'multiple_choice_question_answers.answer', 'multiple_choice_question_answers.score')
+            ->orderBy('multiple_choice_question_answer_links.order', 'asc')
+            ->get();
+    }
+
+    public function isFullyAnswered(Answer $answer): bool
+    {
+        $givenAnswersCount = collect(json_decode($answer->json, true))->filter()->count();
+        return $givenAnswersCount === $this->selectable_answers;
     }
 }

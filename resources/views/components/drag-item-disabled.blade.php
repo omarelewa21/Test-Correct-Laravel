@@ -16,7 +16,7 @@ rounded-10 inline-flex px-4 py-1.5 items-center justify-between drag-item bold f
     {{ $attributes }}
 >
     <span class="mr-3 flex items-center pdf-align-center" >{{ $slot }}</span>
-    <div class="w-4">
+    <div class="w-4 text-midgrey">
         <x-icon.grab/>
     </div>
 </div>

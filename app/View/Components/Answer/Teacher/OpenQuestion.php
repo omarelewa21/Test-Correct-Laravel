@@ -5,21 +5,21 @@ namespace tcCore\View\Components\Answer\Teacher;
 use tcCore\Answer;
 use tcCore\Question;
 
+
 class OpenQuestion extends QuestionComponent
 {
-    public string $editorId;
     public string $answerValue;
 
     public function __construct(
         public Question $question,
-        public Answer $answer,
-    ) {
-        parent::__construct($question, $answer);
-        $this->editorId = $this->question->uuid . $this->answer->uuid;
-        $this->answerValue = json_decode($this->answer->json)->value ?? '';
-    }
-    public function render()
+        public string $editorId,
+    )
     {
-        return view('components.answer.teacher.open-question');
+        parent::__construct($question);
+    }
+
+    protected function setAnswerStruct($question): void
+    {
+        $this->answerValue = $this->question->answer;
     }
 }

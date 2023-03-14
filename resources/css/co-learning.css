@@ -220,7 +220,7 @@
 
 #co-learning-teacher-page .badge-view,
 #assessment-page .badge-view {
-
+    transition: 150ms ease background-color, 150ms ease color;
 }
 
 #co-learning-teacher-page .badge-view:hover,
@@ -246,7 +246,7 @@
 #assessment-page #header {
     position: fixed;
     left: 0;
-    top:0;
+    top: 0;
     width: 100%;
     color: white;
     z-index: 50;
@@ -327,4 +327,22 @@
 #assessment-page .co-learning-tooltip:nth-child(2) {
     height: 18px;
     font-size: 14px;
+}
+
+
+#assessment-page .multiple-choice .all-or-nothing-toggle {
+    position: absolute;
+    left: calc(50% + 2rem);
+    transform: translateY(-50%);
+}
+#assessment-page .multiple-choice .first-active .all-or-nothing-line {
+    right: -1rem;
+    position: absolute;
+    width: 10px;
+    border: solid 2px var(--primary);
+    border-left: none;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    top: 50%;
+    transition: height 50ms ease
 }

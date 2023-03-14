@@ -2,10 +2,13 @@
 
 namespace tcCore\View\Components\Answer\Teacher;
 
+
+
 class DrawingQuestion extends QuestionComponent
 {
-    public function render()
+    public string $imageSource;
+    protected function setAnswerStruct($question): void
     {
-        return view('components.answer.teacher.drawing-question');
+        $this->imageSource = route('teacher.drawing-question-answer-model', $question->uuid);
     }
 }

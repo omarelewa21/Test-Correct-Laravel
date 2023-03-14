@@ -23,7 +23,7 @@
     }
 @endphp
 
-<div class="flex border rounded-lg border-blue-grey items-center mr-4 mb-2 {{ $mode === 'view' ? 'badge-view' : ''  }} relative "
+<div class="flex border rounded-lg bg-white border-blue-grey items-center mr-4 mb-2 {{ $mode === 'view' ? 'badge-view cursor-pointer' : ''  }} relative "
      x-data="badge('{{ $type == 'video' ? $attachment->link : null }}', '{{ $mode }}')"
      wire:key="{{ $attributes['wire:key'] }}"
      @attachments-updated.window="setIndex()"

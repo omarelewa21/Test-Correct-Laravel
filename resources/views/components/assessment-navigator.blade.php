@@ -6,8 +6,9 @@
 ])
 
 <div {{ $attributes->class(['assessment-navigator | flex gap-4 items-center justify-center']) }}
-     x-data="assessmentNavigator(@js($current),@js($total),@js($methodCall))"
+     x-data="assessmentNavigator(@js((int)$current),@js($total),@js($methodCall))"
      x-cloak
+     wire:ignore
 >
     <div class="flex gap-2">
         <button class="flex w-[22px] h-[22px] items-center justify-center rounded-full transition-colors"
@@ -27,16 +28,16 @@
         </button>
     </div>
     <div class="flex gap-1 items-center">
-        <span class="py-[3px] pr-2 min-w-[30px] bold rounded-full bg-white text-sysbase text-center"
+        <span class="inline-flex items-center justify-center gap-0.5 py-[3px] pr-2 min-w-[30px] bold rounded-full bg-white text-sysbase text-center"
               x-bind:class="current >= 10 ? 'pl-2' : 'pl-2'"
         >
             @if($iconName)
                 <x-dynamic-component component="icon.{{ $iconName }}" />
             @endif
-            <span x-text="current"></span>
+            <span class="inline-flex" x-text="current"></span>
         </span>
-        /
-        <span x-text="total"></span>
+        <span class="inline-flex">/</span>
+        <span class="inline-flex" x-text="total"></span>
     </div>
     <div class="flex gap-2">
         <button class="flex w-[22px] h-[22px] items-center justify-center rounded-full transition-colors"

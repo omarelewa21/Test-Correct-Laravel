@@ -1,7 +1,8 @@
 @extends('components.partials.header.collapsable')
 
 @section('title')
-    <h6 class="text-white">@lang($this->headerCollapsed ? 'co-learning.co_learning' : 'start_co_learning_session'): </h6>
+    <h6 class="text-white">@lang($this->headerCollapsed ? 'co-learning.co_learning' : 'start_co_learning_session')
+        : </h6>
     <h4 class="text-white">{!!  clean($testName) !!}</h4>
 @endsection
 
@@ -41,11 +42,7 @@
             <x-button.cta size="md"
                           wire:click.prevent="startCoLearningSession('ALL', {{ $this->openOnly ? 'true' : 'false' }})">
                 <span>
-                @if($this->coLearningRestart && !$this->openOnly)
-                    @lang('auth.continue')
-                @else
-                    @lang('co-learning.start')
-                @endif
+                    @lang($this->coLearningRestart && !$this->openOnly ? 'auth.continue' : 'co-learning.start')
                 </span>
                 <x-icon.arrow />
             </x-button.cta>
@@ -85,11 +82,7 @@
             <x-button.cta size="md"
                           @click.prevent="handleHeaderCollapse({discussionType:'OPEN_ONLY',resetProgress:{{ !$this->openOnly ? 'true' : 'false' }} })">
                 <span>
-                @if($this->coLearningRestart && $this->openOnly)
-                    @lang('auth.continue')
-                @else
-                    @lang('co-learning.start')
-                @endif
+                    @lang($this->coLearningRestart && $this->openOnly ? 'auth.continue' : 'co-learning.start')
                 </span>
                 <x-icon.arrow />
             </x-button.cta>

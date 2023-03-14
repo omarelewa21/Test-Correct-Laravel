@@ -232,4 +232,14 @@ class RankingQuestion extends Question implements QuestionInterface {
         }
         return parent::needsToBeUpdated($request);
     }
+
+    public function getCorrectAnswerStructure()
+    {
+        return $this->rankingQuestionAnswerLinks()
+            ->join('ranking_question_answers', 'ranking_question_answers.id', '=', 'ranking_question_answer_links.ranking_question_answer_id')
+            ->selectRaw('ranking_question_answer_links.*, ranking_question_answers.answer')
+            ->orderBy('ranking_question_answer_links.correct_order', 'asc')
+            ->orderBy('ranking_question_answer_links.order', 'asc')
+            ->get();
+    }
 }

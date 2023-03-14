@@ -2,10 +2,14 @@
 
 namespace tcCore\View\Components\Answer\Teacher;
 
+use tcCore\Question;
+
 class RankingQuestion extends QuestionComponent
 {
-    public function render()
+    public $answerStruct;
+
+    protected function setAnswerStruct($question):void
     {
-        return view('components.answer.teacher.ranking-question');
+        $this->answerStruct = $question->getCorrectAnswerStructure();
     }
 }

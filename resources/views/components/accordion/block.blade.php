@@ -2,10 +2,12 @@
      id="accordion-block"
      role="region"
      @class([
-        'rounded-lg bg-white shadow relative',
+        $attributes->get('class'),
+        'rounded-lg bg-white shadow relative' => $mode === 'panel',
         'accordion-disabled' => $disabled
         ])
      x-bind:class="{' bg-primary/5 border-dashed border-primary border-4 rounded-10 -m-1 ': droppingFile}"
+     {{ $attributes->except(['class', 'key', 'emitWhenSet']) }}
 >
     @if($upload)
         <div x-data="fileUpload(@js($uploadModel), @js($uploadRules))"
@@ -21,7 +23,7 @@
                         x-on:click="expanded = !expanded"
                         :aria-expanded="expanded"
                         @disabled($disabled)
-                        class="flex w-full items-center rounded-lg px-10 py-3 text-xl font-bold group transition-shadow"
+                        @class(['flex w-full items-center rounded-lg py-3 text-xl font-bold group transition-shadow','px-10' => $mode === 'panel', ])
                         x-on:mouseenter="if(!expanded) $el.classList.add('hover:shadow-hover')"
                         x-on:mouseleave="$el.classList.remove('hover:shadow-hover')"
                 >
@@ -49,7 +51,7 @@
             <div x-show="expanded"
                  x-collapse
             >
-                <div class="mx-10 pb-10 pt-4 border-t-3 border-sysbase flex max-w-full">
+                <div @class(['pt-4 border-t-3 border-sysbase flex max-w-full', 'mx-10 pb-10' => $mode === 'panel'])>
                     {{ $body }}
                 </div>
             </div>

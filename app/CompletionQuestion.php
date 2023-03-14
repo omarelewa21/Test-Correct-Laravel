@@ -16,8 +16,8 @@ class CompletionQuestion extends Question implements QuestionInterface
     use UuidTrait;
 
     protected $casts = [
-        'uuid' => EfficientUuid::class,
-        'auto_check_answer' => 'boolean',
+        'uuid'                             => EfficientUuid::class,
+        'auto_check_answer'                => 'boolean',
         'auto_check_answer_case_sensitive' => 'boolean',
     ];
 
@@ -475,8 +475,8 @@ class CompletionQuestion extends Question implements QuestionInterface
         $qHelper = new QuestionHelper();
         $questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($questionString, true);
 
-        foreach($questionData['answers'] as $answer){
-            if(trim($answer['answer']) == ''){
+        foreach ($questionData['answers'] as $answer) {
+            if (trim($answer['answer']) == '') {
                 if (request()->input('subtype') === 'completion') {
                     $validator->errors()->add($fieldPreFix . 'question', 'U dient één woord tussen vierkante haakjes te plaatsen.');
                 } else {
@@ -485,7 +485,7 @@ class CompletionQuestion extends Question implements QuestionInterface
                 break;
             }
 
-            if(trim(clean(html_entity_decode($answer['answer']))) == ''){
+            if (trim(clean(html_entity_decode($answer['answer']))) == '') {
                 $validator->errors()->add($fieldPreFix . 'question', 'U heeft tekens gebruikt die hier niet mogelijk zijn');
                 break;
             }
@@ -523,6 +523,20 @@ class CompletionQuestion extends Question implements QuestionInterface
     public function isFullyAnswered(Answer $answer): bool
     {
         $givenAnswersCount = collect(json_decode($answer->json, true))->count();
-        return $givenAnswersCount === $this->loadCount('completionQuestionAnswers')->completion_question_answers;
+        return $givenAnswersCount === $this->completionQuestionAnswers()->count();
+    }
+
+    public function getCorrectAnswerStructure()
+    {
+        return $this->completionQuestionAnswerLinks()
+            ->join(
+                'completion_question_answers',
+                'completion_question_answer_links.completion_question_answer_id',
+                '=',
+                'completion_question_answers.id'
+            )
+            ->orderBy('completion_question_answer_links.order')
+            ->select('completion_question_answers.*')
+            ->get();
     }
 }
