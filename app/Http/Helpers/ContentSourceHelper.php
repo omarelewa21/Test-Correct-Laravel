@@ -2,66 +2,75 @@
 
 namespace tcCore\Http\Helpers;
 
-use Illuminate\Support\Facades\Auth;
-use tcCore\Subject;
-use tcCore\Test;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
+use tcCore\Services\ContentSource\ContentSourceService;
+use tcCore\Services\ContentSource\CreathlonService;
+use tcCore\Services\ContentSource\NationalItemBankService;
+use tcCore\Services\ContentSource\OlympiadeService;
+use tcCore\Services\ContentSource\PersonalService;
+use tcCore\Services\ContentSource\SchoolLocationService;
+use tcCore\Services\ContentSource\UmbrellaOrganizationService;
 use tcCore\User;
 
 class ContentSourceHelper
 {
-    const PUBLISHABLE_ABBREVIATIONS = ['EXAM', 'LDT', 'PUBLS'];
-    const PUBLISHABLE_SCOPES = ['exam', 'ldt', 'published_creathlon'];
 
     public static function allAllowedForUser(User $user)
     {
-        return collect([
-            'personal',
-            'school_location'
-        ])->when(self::canViewContent($user, 'umbrella'),
-            fn($collection) => $collection->push('umbrella')
-        )->when(self::canViewContent($user, 'national'),
-            fn($collection) => $collection->push('national')
-        )->when(self::canViewContent($user, 'creathlon'),
-            fn($collection) => $collection->push('creathlon')
-        );
+        return static::getAvailableSourcesInCorrectOrder()
+            ->filter(fn($source) => $source::isAvailableForUser($user));
+    }
+
+    public static function scopeIsAllowedForUser(User $user, string $testScope): bool
+    {
+        return ContentSourceHelper::allAllowedForUser($user)
+            ->map(fn($item, $publisher) => 'published_' . $publisher)
+            ->contains($testScope);
     }
 
     public static function canViewContent(User $user, string $contentSourceName): bool
     {
-        switch ($contentSourceName) {
-            case 'personal':
-            case 'school_location':
-                return true;
-            case 'umbrella':
-                return $user->hasSharedSections() && !$user->isValidExamCoordinator();
-            case 'ldt':
-            case 'tbni':
-                $contentSourceName = 'national';
-            case 'national':
-                return $user->schoolLocation->show_national_item_bank;
-            case 'creathlon':
-                return $user->schoolLocation->allow_creathlon &&
-                    self::testsAvailable('creathlon', $user);
+        if ($contentSourceService = collect(self::getAvailableSourcesInCorrectOrder())->get($contentSourceName, false)) {
+            return $contentSourceService::isAvailableForUser($user);
         }
 
         return false;
     }
 
-    public static function testsAvailable(string $contentSourceName, User $user)
+    public static function getPublishableScopes(): Collection
     {
-        if (in_array($contentSourceName, ['exam', 'cito'])) {
-            $publishedTestScope = $contentSourceName;
-        } elseif (in_array($contentSourceName, ['national', 'tbni'])) {
-            $publishedTestScope = 'ldt';
-        } else {
-            $publishedTestScope = 'published_' . $contentSourceName;
-        }
+        return static::getAvailableSourcesInCorrectOrder()
+            ->map(fn($source) => $source::getPublishScope())
+            ->flatten()
+            ->filter()
+            ->values();
+    }
 
-        return Test::select('s.base_subject_id')
-            ->distinct()
-            ->join('subjects as s', 'tests.subject_id', '=', 's.id')
-            ->where('tests.scope', '=', $publishedTestScope)
-            ->whereIn('s.base_subject_id', Subject::filtered(['user_current' => $user->getKey()], [])->pluck('base_subject_id'))
-            ->exists('s.base_subject_id');
+    public static function getPublishableAbbreviations(): Collection
+    {
+        return static::getAvailableSourcesInCorrectOrder()
+            ->map(fn($source) => $source::getPublishAbbreviation())
+            ->flatten()
+            ->filter()
+            ->values();
+    }
+
+    private static function getAvailableSourcesInCorrectOrder()
+    {
+        return collect(self::getAllAvailableContentSourceServices())
+            ->sortBy(fn($source) => $source::$order);
+    }
+
+    private static function getAllAvailableContentSourceServices()
+    {
+        return collect(Storage::disk('content_source')->files())
+            ->mapWithKeys(function ($file) {
+                $class = sprintf('tcCore\Services\ContentSource\\%s', str_replace('.php', '', $file));
+                if (!class_exists($class) || $class === ContentSourceService::class) {
+                    return [];
+                }
+                return [$class::getName() => $class];
+            });
     }
 }

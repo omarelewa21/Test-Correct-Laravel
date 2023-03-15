@@ -103,8 +103,8 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         'allow_new_student_environment', 'allow_new_question_editor',
         'keep_out_of_school_location_report',
         'main_phonenumber', 'internetaddress', 'show_exam_material', 'show_cito_quick_test_start', 'show_national_item_bank',
-        'allow_wsc', 'allow_writing_assignment', 'license_type', 'allow_creathlon', 'allow_new_taken_tests_page', 'allow_analyses',
-        'allow_new_co_learning', 'allow_new_co_learning_teacher', 'test_package', 'auto_uwlr_import', 'auto_uwlr_import_status', 'auto_uwlr_last_import',
+        'allow_wsc', 'allow_writing_assignment', 'license_type', 'allow_creathlon', 'allow_olympiade', 'allow_new_taken_tests_page', 'allow_analyses',
+        'allow_new_co_learning', 'allow_new_co_learning_teacher', 'test_package','auto_uwlr_import','auto_uwlr_import_status','auto_uwlr_last_import',
     ];
 
     /**

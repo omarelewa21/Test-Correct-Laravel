@@ -221,4 +221,7 @@ return [
     'T2'                                                                                     => 'T2',
     'I'                                                                                      => 'I',
     'Alle'                                                                                   => 'Alle',
+    'no_personal_content_search_filters'                                                     => 'U heeft nog geen eigen gemaakte vragen voor deze zoekfilters.',
+    'no_public_content_search_filters'                                                       => 'Er is nog geen openbare content voor uw school.',
+    'no_items_search_filter'                                                                 => 'Er zijn geen items meer voor deze zoekfilters.',
 ];

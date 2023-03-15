@@ -182,6 +182,7 @@ class FactoryTest
             "introduction" => "Default test introduction",
             "author_id" => $this->user->id,  //Auth::id()
             "owner_id" => $this->schoolLocationID,  //Auth::user()->school_location_id
+            "draft" => false,
         ];
     }
 }

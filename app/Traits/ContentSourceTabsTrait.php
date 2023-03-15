@@ -37,29 +37,25 @@ trait ContentSourceTabsTrait
 
         $this->allowedTabs = ContentSourceHelper::allAllowedForUser(Auth::user());
 
-        $this->abortIfTabNotAllowed();
+        $this->schoolLocationInternalContentTabs = $this->allowedTabs->filter(fn ($contentSourceClass, $sourceName) => in_array($sourceName, ['personal', 'school_location']));
+        $this->schoolLocationExternalContentTabs = $this->allowedTabs->reject(fn ($contentSourceClass, $sourceName) => in_array($sourceName, ['personal', 'school_location']));
+
         $this->rejectExcludedTabs();
 
-        $this->schoolLocationInternalContentTabs = [
-            'personal',
-            'school_location',
-        ];;
+        $this->abortIfTabNotAllowed();
 
-        $this->schoolLocationExternalContentTabs = $this->allowedTabs->reject(function ($tabName) {
-            return in_array($tabName, $this->schoolLocationInternalContentTabs);
-        })->values();
     }
 
     private function abortIfTabNotAllowed($openTab = null): void
     {
-        if (!$this->allowedTabs->contains($openTab ?? $this->openTab)) {
+        if (!$this->allowedTabs->has($openTab ?? $this->openTab)) {
             abort(404);
         }
     }
 
     public function isExternalContentTab($tab = null): bool
     {
-        return collect($this->schoolLocationExternalContentTabs)->contains($tab ?? $this->openTab);
+        return collect($this->schoolLocationExternalContentTabs)->has($tab ?? $this->openTab);
     }
 
     private function getDefaultOpenTab(): string
@@ -77,13 +73,13 @@ trait ContentSourceTabsTrait
     {
         if (!isset($this->excludeTabs)) return;
 
-        $this->allowedTabs = $this->allowedTabs->reject(fn($tab) => collect($this->excludeTabs)->contains($tab));
+        $this->schoolLocationExternalContentTabs = $this->schoolLocationExternalContentTabs->reject(fn($class, $tab) => collect($this->excludeTabs)->contains($tab));
 
     }
 
     protected function filterableEducationLevelsBasedOnTab(): Collection
     {
-        if (collect($this->schoolLocationInternalContentTabs)->contains($this->openTab)) {
+        if (collect($this->schoolLocationInternalContentTabs)->has($this->openTab)) {
             return EducationLevel::filtered(['school_location_id' => Auth::user()->school_location_id])->optionList();
         }
 
@@ -93,7 +89,8 @@ trait ContentSourceTabsTrait
                 DB::query()->fromSub(
                     Test::when($this->openTab === 'umbrella', fn($query) => $query->sharedSectionsFiltered([], []))
                         ->when($this->openTab === 'national', fn($query) => $query->nationalItemBankFiltered([], []))
-                        ->when($this->openTab === 'creathlon', fn($query) => $query->creathlonItemBankFiltered([], [])),
+                        ->when($this->openTab === 'creathlon', fn($query) => $query->creathlonItemBankFiltered([], []))
+                        ->when($this->openTab === 'olympiade', fn($query) => $query->olympiadeItemBankFiltered([], [])),
                     'tests2'
                 )->select('education_level_id')
             )->optionList();

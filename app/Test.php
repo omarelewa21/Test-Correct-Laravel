@@ -336,6 +336,14 @@ class Test extends BaseModel
             $query, $filters, $sorting);
     }
 
+    public function scopeOlympiadeItemBankFiltered($query, $filters = [], $sorting = [])
+    {
+        return $this->contentSourceFiltered(
+            'published_olympiade',
+            config('custom.olympiade_school_customercode'),
+            $query, $filters, $sorting);
+    }
+
     public function scopeSharedSectionsFiltered($query, $filters = [], $sorting = [])
     {
         $user = Auth::user();
@@ -473,8 +481,7 @@ class Test extends BaseModel
     {
         $test = $this->replicate();
         $test->fill($attributes);
-
-        if(in_array($test->abbreviation, ContentSourceHelper::PUBLISHABLE_ABBREVIATIONS)) {
+        if(ContentSourceHelper::getPublishableAbbreviations()->contains($test->abbreviation)) {
             $test->abbreviation = 'COPY';
         }
 
@@ -1185,9 +1192,11 @@ class Test extends BaseModel
 
     private function isFromAllowedTestPublisher($user): bool
     {
-        return ContentSourceHelper::allAllowedForUser($user)
-            ->map(fn($publisher) => 'published_' . $publisher)
-            ->contains($this->scope);
+        if($this->scope === null || $this->scope === '') {
+            return false;
+        }
+
+        return ContentSourceHelper::scopeIsAllowedForUser($user, $this->scope);
     }
 
     public function scopeOwner($query, SchoolLocation $schoolLocation)
