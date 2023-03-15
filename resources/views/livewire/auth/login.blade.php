@@ -70,7 +70,7 @@
                                     <div class="flex w-full justify-self-end mt-auto">
                                         <x-button.text-button size="md"
                                                               class="flex w-1/2 mr-2 justify-end"
-                                                              @click.prevent="active_overlay = ''"
+                                                              @click.prevent="activeOverlay = ''"
                                                               selid="forgot-password-cancel-btn">
                                             <span>{{__('auth.cancel')}}</span>
                                         </x-button.text-button>
@@ -405,8 +405,7 @@
             <div class="w-full flex flex-col md:flex-row items-center justify-center space-x-2">
                 <div>
                     <x-button.text-button selid="login-forgot-password-btn" class="order-1" size="sm"
-                                          wire:click.prevent="$set('active_overlay', 'send_reset_password')">
-                        <span class="text-base">{{__('auth.forgot_password')}}</span>
+                                          @click.prevent="activeOverlay ='send_reset_password'">                        <span class="text-base">{{__('auth.forgot_password')}}</span>
                         <x-icon.arrow/>
                     </x-button.text-button>
                 </div>

@@ -1664,22 +1664,20 @@ document.addEventListener('alpine:init', () => {
         device,
         init(){
             setTimeout(() => {
-                this.setCurrentFocusInput()
                 this.$wire.checkLoginFieldsForInput()
             }, 250);
-
-
+            this.setCurrentFocusInput()
 
             this.$watch('activeOverlay', value => {
-                setTimeout( this.setCurrentFocusInput, 250);
+                this.setCurrentFocusInput()
             })
             this.$watch('openTab', value => {
-                setTimeout( this.setCurrentFocusInput, 250);
+                this.setCurrentFocusInput()
             })
         },
         setCurrentFocusInput (){
             let name = this.activeOverlay === 'send_reset_password' ? 'overlay' : this.openTab;
-            this.$root.querySelector(`[data-focus-tab='${name}']`)?.focus();
+            setTimeout(() => this.$root.querySelector(`[data-focus-tab='${name}']`)?.focus(), 250);
         },
         changeActiveOverlay (activeOverlay = ''){
             this.activeOverlay = activeOverlay;
