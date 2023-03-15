@@ -19,4 +19,15 @@ enum UserFeatureSetting: string
         }
         return $value;
     }
+
+    public function castValue($callback)
+    {
+        $castMethod = sprintf('cast%s', Str::pascal($this->value));
+        if (method_exists(self::class, $castMethod)) {
+            return self::$castMethod(
+                $callback()
+            );
+        }
+        return false;
+    }
 }
