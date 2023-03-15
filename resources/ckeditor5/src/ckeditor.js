@@ -61,7 +61,13 @@ class Completion extends Plugin {
 
             button.on('execute', () => {
                 editor.model.change(writer => {
-                    let selection = editor.data.stringify(editor.model.getSelectedContent(editor.model.document.selection));
+                    let selection = '';
+                    let range = editor.model.document.selection.getFirstRange()
+                    for(const value of range.getItems()){
+                        selection = selection + value.data;
+                    }
+                    console.log(selection);
+
                     let firstChar = selection[0];
                     let lastChar = selection[selection.length - 1];
 
