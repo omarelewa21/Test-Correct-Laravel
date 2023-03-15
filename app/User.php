@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use tcCore\Http\Enums\UserFeatureSetting as UserFeatureSettingEnum;
 use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Helpers\DemoHelper;
@@ -47,7 +48,7 @@ use tcCore\Lib\User\Factory;
 use tcCore\Lib\User\Roles;
 use Dyrynda\Database\Casts\EfficientUuid;
 use tcCore\Traits\ExamCoordinator;
-use tcCore\Traits\FeatureSettings;
+use tcCore\Traits\HasFeatureSettings;
 use tcCore\Traits\UuidTrait;
 use Facades\tcCore\Http\Controllers\PreviewLaravelController;
 
@@ -60,7 +61,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         CanResetPassword,
         ExamCoordinator,
         UuidTrait,
-        FeatureSettings;
+        HasFeatureSettings;
 
     const MIN_PASSWORD_LENGTH = 8;
 
@@ -89,6 +90,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     const STUDENT_IMPORT_PASSWORD_PATTERN = 'S%dTC#2014';
     const TEACHER_IMPORT_PASSWORD_PATTERN = 'T%dTC#2014';
     const USER_SETTINGS_SESSION_KEY = 'UserSettings';
+
+    const FEATURE_SETTING_ENUM = UserFeatureSettingEnum::class;
 
     /**
      * The attributes that are mass assignable.

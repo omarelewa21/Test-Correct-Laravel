@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
 use Illuminate\Support\Arr;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use tcCore\Http\Enums\SchoolLocationFeatureSetting;
 use tcCore\Http\Enums\TestPackages;
 use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\Http\Helpers\DemoHelper;
@@ -38,20 +39,21 @@ use tcCore\Lib\User\Roles;
 use Dyrynda\Database\Casts\EfficientUuid;
 use tcCore\Mail\SendSamlNoMailAddressInRequestDetectedMail;
 use tcCore\Traits\UuidTrait;
-use tcCore\Traits\FeatureSettings;
+use tcCore\Traits\HasFeatureSettings;
 
 class SchoolLocation extends BaseModel implements AccessCheckable
 {
 
     use SoftDeletes;
     use UuidTrait;
-    use FeatureSettings;
+    use HasFeatureSettings;
 
     const LVS_MAGISTER = 'Magister';
     const LVS_SOMTODAY = 'SOMTODAY';
     const SSO_ENTREE = 'Entreefederatie';
     const LICENSE_TYPE_TRIAL = 'TRIAL';
     const LICENSE_TYPE_CLIENT = 'CLIENT';
+    const FEATURE_SETTING_ENUM = SchoolLocationFeatureSetting::class;
 
     protected $casts = [
         'uuid'                       => EfficientUuid::class,
@@ -102,7 +104,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         'keep_out_of_school_location_report',
         'main_phonenumber', 'internetaddress', 'show_exam_material', 'show_cito_quick_test_start', 'show_national_item_bank',
         'allow_wsc', 'allow_writing_assignment', 'license_type', 'allow_creathlon', 'allow_new_taken_tests_page', 'allow_analyses',
-        'allow_new_co_learning', 'allow_new_co_learning_teacher', 'test_package','auto_uwlr_import','auto_uwlr_import_status','auto_uwlr_last_import',
+        'allow_new_co_learning', 'allow_new_co_learning_teacher', 'test_package', 'auto_uwlr_import', 'auto_uwlr_import_status', 'auto_uwlr_last_import',
     ];
 
     /**
@@ -430,7 +432,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable
 
         static::deleted(function (SchoolLocation $schoolLocation) {
             $schoolLocation->sharedSections()->detach();
-            foreach($schoolLocation->schoolLocationSections()->get() as $sharedSection){
+            foreach ($schoolLocation->schoolLocationSections()->get() as $sharedSection) {
                 SchoolLocationSharedSection::where('section_id', $sharedSection->section_id)->delete();
             }
             $schoolLocation->dispatchJobs(true);
@@ -1313,77 +1315,6 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         if ($this->isDirty('license_type') && $this->license_type === 'CLIENT') {
             TrialPeriod::where('school_location_id', $this->getKey())->delete();
         }
-    }
-
-    public function setAllowCreathlonAttribute(bool $boolean)
-    {
-        return $this->featureSettings()->setSetting('allow_creathlon', $boolean);
-    }
-
-    public function getAllowCreathlonAttribute() : bool
-    {
-        return $this->featureSettings()->getSetting('allow_creathlon')->exists();
-    }
-
-    public function setAllowAnalysesAttribute(bool $boolean)
-    {
-        return $this->featureSettings()->setSetting('allow_analyses', $boolean);
-    }
-
-    public function getAllowAnalysesAttribute() : bool
-    {
-        return $this->featureSettings()->getSetting('allow_analyses')->exists();
-    }
-
-    public function setAllowNewTakenTestsPageAttribute(bool $boolean)
-    {
-        return $this->featureSettings()->setSetting('allow_new_taken_tests_page', $boolean);
-    }
-
-    public function getAllowNewTakenTestsPageAttribute() : bool
-    {
-        return $this->featureSettings()->getSetting('allow_new_taken_tests_page')->exists();
-    }
-
-    public function setAllowNewCoLearningAttribute(bool $boolean)
-    {
-        return $this->featureSettings()->setSetting('allow_new_co_learning', $boolean);
-    }
-
-    public function getAllowNewCoLearningAttribute() : bool
-    {
-        return $this->featureSettings()->getSetting('allow_new_co_learning')->exists();
-    }
-
-    public function setAllowNewCoLearningTeacherAttribute(bool $boolean)
-    {
-        return $this->featureSettings()->setSetting('allow_new_co_learning_teacher', $boolean);
-    }
-
-    public function getAllowNewCoLearningTeacherAttribute() : bool
-    {
-        return $this->featureSettings()->getSetting('allow_new_co_learning_teacher')->exists();
-    }
-
-    public function setTestPackageAttribute(TestPackages|string|false $testPackage)
-    {
-        if(is_string($testPackage)){
-            $testPackage = TestPackages::from(Str::lower($testPackage));
-        }
-        if($testPackage === TestPackages::None || $testPackage === null){
-            $testPackage = false;
-        }
-
-        return $this->featureSettings()->setSetting('test_package', $testPackage);
-    }
-
-    public function getTestPackageAttribute()
-    {
-        if(!$testPackage = $this->featureSettings()->getSetting('test_package')->first()?->value) {
-            return TestPackages::None;
-        }
-
-        return TestPackages::tryFrom($testPackage);
     }
 
     public function canDelete(User $user)
