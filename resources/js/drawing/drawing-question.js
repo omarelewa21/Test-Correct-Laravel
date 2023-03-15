@@ -1,4 +1,4 @@
-import {panParams, shapePropertiesAvailableToUser, zoomParams} from "./constants.js";
+import {panParams, resizableSvgShapes, shapePropertiesAvailableToUser, zoomParams} from "./constants.js";
 import * as svgShape from "./svgShape.js";
 import {UIElements, warningBox} from "./uiElements.js";
 import * as sidebar from "./sidebar.js";
@@ -1410,13 +1410,18 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         if (!shapeMayBeDragged(shapeGroup, layerObject)) return;
 
         const selectedSvgShape = layerObject.shapes[shapeGroup.id].svg;
+        if (!shapeIsResizable(selectedSvgShape)) return;
 
         Canvas.params.resize = {
             enabled: true,
             selectedSvgShape: selectedSvgShape
         };
 
-        selectedSvgShape.onResizeStart?.(evt, getCursorPosition(evt));
+        selectedSvgShape.onResizeStart(evt, getCursorPosition(evt));
+    }
+
+    function shapeIsResizable(shape) {
+        return resizableSvgShapes.includes(shape.type);
     }
 
     function shapeMayBeDragged(shapeGroup, layerObject) {
@@ -1627,7 +1632,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
 
     function resize(evt) {
         evt.preventDefault();
-        Canvas.params.resize.selectedSvgShape?.onResize(evt, getCursorPosition(evt));
+        Canvas.params.resize.selectedSvgShape.onResize(evt, getCursorPosition(evt));
     }
 
     function processUserPan() {
@@ -1781,26 +1786,31 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
 
     function stopDraw(evt) {
         const newShape = Canvas.params.draw.newShape;
-        newShape.svg.onDrawEnd?.(
+        newShape.svg.onDrawEnd(
             evt,
             Canvas.params.cursorPosition
         );
-        newShape.svg.addHighlightEvents();
         Canvas.params.highlightedShape = newShape;
         Canvas.params.draw.newShape = null;
     }
 
     function stopDrag() {
         Canvas.params.drag.selectedSvgShape.onDragEnd();
-        Canvas.params.drag.enabled = false;
+        Canvas.params.drag = {
+            enabled: false,
+        };
     }
 
     function stopResize() {
-        Canvas.params.resize.enabled = false;
+        Canvas.params.resize = {
+            enabled: false,
+        };
     }
 
     function stopPan() {
-        Canvas.params.pan.enabled = false;
+        Canvas.params.pan = {
+            enabled: false,
+        };
     }
 
     function processToolChange(evt) {
