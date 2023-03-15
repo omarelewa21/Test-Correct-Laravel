@@ -143,7 +143,13 @@ document.addEventListener('alpine:init', () => {
 
         initWithSelection() {
             let editor = window.editor;
-            let selection = editor.data.stringify(editor.model.getSelectedContent(editor.model.document.selection));
+           // let selection = editor.data.stringify(editor.model.getSelectedContent(editor.model.document.selection));
+
+            let selection = '';
+            let range = editor.model.document.selection.getFirstRange()
+            for(const value of range.getItems()){
+                selection = selection + value.data;
+            }
             let text = selection
                 .trim()
                 .replace('[', '')

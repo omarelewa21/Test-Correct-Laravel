@@ -110,7 +110,7 @@
             if(saveButton) {
                 saveButton.addEventListener('click', function () {
                     @this.
-                    set("{!!  $attributes->wire('model') !!}", CKEDITOR.instances['{{$editorId}}'].getData())
+                    set("{!!  $attributes->wire('model') !!}", window.ClassicEditors['{{$editorId}}'].getData())
                 });
             }
         }
