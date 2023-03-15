@@ -374,8 +374,8 @@ class CoLearning extends Component
                 }
 
                 $order = 0;
-                $order += $this->testParticipantStatusses[$testParticipant->uuid]['ratingStatus']?->getOrder();
-                $order += $this->testParticipantStatusses[$testParticipant->uuid]['abnormalitiesStatus']?->getOrder();
+                $order += $this->testParticipantStatusses[$testParticipant->uuid]['ratingStatus']?->getSortWeight();
+                $order += $this->testParticipantStatusses[$testParticipant->uuid]['abnormalitiesStatus']?->getSortWeight();
 
                 return $order;
             });

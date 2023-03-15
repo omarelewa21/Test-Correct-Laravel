@@ -4,5 +4,5 @@ namespace tcCore\Http\Enums;
 
 interface Sortable
 {
-    public function getOrder(): int;
+    public function getSortWeight(): int;
 }

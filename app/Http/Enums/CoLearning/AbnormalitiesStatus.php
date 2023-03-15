@@ -27,21 +27,19 @@ enum AbnormalitiesStatus: string implements Sortable
         if ($averageAbnormalitiesAmount === 0) {
             return self::Neutral;
         }
-        $percentualDifferenceComparedToTheAverageAbnormalitiesAmount = null;
 
-        if ($averageAbnormalitiesAmount != 0) {
-            $percentualDifferenceComparedToTheAverageAbnormalitiesAmount = (100 * $testParticipantAbnormalities / $averageAbnormalitiesAmount) - 100;
-        }
-        if ($percentualDifferenceComparedToTheAverageAbnormalitiesAmount < -5) {
+        $differenceWithTheAverageAbormalitiesCount = self::getPercentualDifferenceComparedToTheAverageAmountOfAbnormalities($testParticipantAbnormalities, $averageAbnormalitiesAmount);
+
+        if ($differenceWithTheAverageAbormalitiesCount < -5) {
             return self::Happy;
         }
-        if ($percentualDifferenceComparedToTheAverageAbnormalitiesAmount < 15) {
+        if ($differenceWithTheAverageAbormalitiesCount < 15) {
             return self::Neutral;
         }
         return self::Sad;
     }
 
-    public function getOrder(): int
+    public function getSortWeight(): int
     {
         return match ($this) {
             self::Happy => 4,
@@ -59,5 +57,10 @@ enum AbnormalitiesStatus: string implements Sortable
     public function equals(AbnormalitiesStatus $abnormalitiesStatus): bool
     {
         return $this->value === $abnormalitiesStatus->value;
+    }
+
+    private static function getPercentualDifferenceComparedToTheAverageAmountOfAbnormalities(int $testParticipantAbnormalities, int $averageAbnormalitiesAmount): int|float
+    {
+        return (100 * $testParticipantAbnormalities / $averageAbnormalitiesAmount) - 100;
     }
 }
