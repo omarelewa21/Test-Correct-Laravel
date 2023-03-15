@@ -190,7 +190,6 @@ Editor.builtinPlugins = [
 // Editor configuration.
 Editor.defaultConfig = {
     toolbar: {
-
         items: [
             'completion',
             'selection',
@@ -220,7 +219,6 @@ Editor.defaultConfig = {
             'fontColor',
             'heading',
             'removeFormat',
-
             'wproofreader',
         ]
     },
@@ -240,10 +238,9 @@ Editor.defaultConfig = {
     fontFamily: {
         options: [
             'default',
-            'Arial',
-            'Calibri',
-            'Times New Roman',
-            'Verdana'
+            'Zilla slab, serif',
+            'Oswald, sans-serif',
+            'Shantell Sans, sans-serif',
         ]
     },
     fontSize: {
@@ -260,6 +257,14 @@ Editor.defaultConfig = {
             };
         }),
         supportAllValues: true
+    },
+    heading: {
+        options: [
+            { model: 'paragraph', title: 'Paragraph'},
+            { model: 'heading1', view: 'h1', title: 'Heading 1'},
+            { model: 'heading2', view: 'h2', title: 'Heading 2'},
+            { model: 'heading3', view: 'h4', title: 'Heading 3'},
+        ]
     },
 
     ui: {
