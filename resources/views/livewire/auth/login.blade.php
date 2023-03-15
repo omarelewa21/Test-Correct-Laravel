@@ -10,33 +10,8 @@
     </div>
 
     <div id="login-body" class="flex justify-center items-center flex-grow"
-         x-data="{
-            openTab: @entangle('login_tab'),
-            showPassword: false,
-            hoverPassword: false,
-            initialPreviewIconState: true,
-            showEntreePassword: false,
-            active_overlay: @entangle('active_overlay'),
-            device: @entangle('device'),
-         }"
-         x-init="
-            setTimeout(() => {
-                setCurrentFocusInput()
-                $wire.checkLoginFieldsForInput()
-            }, 250);
+         x-data="loginScreen(@entangle('login_tab'),@entangle('active_overlay'),@entangle('device'))"
 
-            function setCurrentFocusInput (){
-                let name = active_overlay === 'send_reset_password' ? 'overlay' : openTab;
-                $root.querySelector(`[data-focus-tab='${name}']`)?.focus();
-             }
-
-             $watch('active_overlay', value => {
-               setTimeout( setCurrentFocusInput, 250);
-            })
-            $watch('openTab', value => {
-               setTimeout( setCurrentFocusInput, 250);
-            })
-            "
          wire:ignore.self
     >
         <div class="w-full max-w-[540px] mx-4 py-4">
@@ -79,7 +54,7 @@
 
                         {{-- forgot password overlay (request password reset) --}}
                         <div class="absolute w-full h-full left-0 top-0 bg-opacity-50 bg-white z-10 rounded-b-lg"
-                             x-show="active_overlay == 'send_reset_password'" @click.outside="active_overlay = ''"
+                             x-show="activeOverlay == 'send_reset_password'" @click.outside="activeOverlay = ''"
                              x-transition.duration.300ms x-cloak>
                             <div class="absolute rounded-b-lg right-1/2 top-0 translate-x-1/2 w-[460px] h-[333px] bg-white shadow-xl">
                                 <form wire:submit.prevent="sendForgotPasswordEmail" action="#" method="POST"
@@ -112,9 +87,9 @@
                                 </form>
                             </div>
                         </div>
-                        {{-- active_overlay reset_password (after clicking link in email) --}}
+                        {{-- activeOverlay reset_password (after clicking link in email) --}}
                         <div class="absolute w-full h-full left-0 top-0 bg-opacity-50 bg-white z-10 rounded-b-lg "
-                             x-show="active_overlay == 'reset_password'" @click.outside="active_overlay = ''"
+                             x-show="activeOverlay == 'reset_password'" @click.outside="activeOverlay = ''"
                              x-transition.duration.300ms x-cloak>
                             <div class="absolute rounded-b-lg right-1/2 top-0 translate-x-1/2 w-[460px] min-h-[333px] bg-white shadow-xl flex flex-col px-10 pb-10 pt-[31px]">
                                 <livewire:password-reset/>

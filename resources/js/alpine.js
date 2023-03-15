@@ -1654,6 +1654,37 @@ document.addEventListener('alpine:init', () => {
             Notify.notify(message, 'error');
         }
     }));
+    Alpine.data('loginScreen', (openTab, activeOverlay,device) => ({
+        openTab,
+        showPassword: false,
+        hoverPassword: false,
+        initialPreviewIconState: true,
+        showEntreePassword: false,
+        activeOverlay,
+        device,
+        init(){
+            setTimeout(() => {
+                this.setCurrentFocusInput()
+                this.$wire.checkLoginFieldsForInput()
+            }, 250);
+
+
+
+            this.$watch('activeOverlay', value => {
+                setTimeout( this.setCurrentFocusInput, 250);
+            })
+            this.$watch('openTab', value => {
+                setTimeout( this.setCurrentFocusInput, 250);
+            })
+        },
+        setCurrentFocusInput (){
+            let name = this.activeOverlay === 'send_reset_password' ? 'overlay' : this.openTab;
+            this.$root.querySelector(`[data-focus-tab='${name}']`)?.focus();
+        },
+        changeActiveOverlay (activeOverlay = ''){
+            this.activeOverlay = activeOverlay;
+        }
+    }));
 
 
     Alpine.directive('global', function (el, {expression}) {
