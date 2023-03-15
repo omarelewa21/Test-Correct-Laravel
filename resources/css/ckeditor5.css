@@ -1,9 +1,7 @@
 .ck-editor__editable_inline {
     min-height: 300px;
-    font-family: Arial;
     font-size: 1.000em;
 }
-
 .ck-content .table {
     float: left;
 }
@@ -302,7 +300,6 @@
     border-radius: 2px;
     transition: 250ms ease-in-out box-shadow, 250ms ease-in-out background, 250ms ease-in-out border;
 }
-
 /* ckeditor5-list/theme/todolist.css */
 .ck-content .todo-list .todo-list__label > input::after {
     display: block;
@@ -489,6 +486,15 @@
 /*}*/
 .ck-content ol {
     list-style-type: decimal;
+}
+
+.ck.ck-editor .ck-editor__top {
+    position: absolute;
+    max-width: 100%;
+    width: 100%;
+}
+.ck.ck-editor .ck-editor__main {
+    padding-top:40px;
 }
 
 .ckeditor-disabled {
