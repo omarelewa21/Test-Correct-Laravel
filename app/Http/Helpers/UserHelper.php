@@ -17,6 +17,7 @@ use tcCore\Answer;
 use tcCore\BaseSubject;
 use tcCore\EducationLevel;
 use tcCore\FailedLogin;
+use tcCore\Info;
 use tcCore\Jobs\SendWelcomeMail;
 use tcCore\Jobs\SetSchoolYearForDemoClassToCurrent;
 use tcCore\Lib\Repositories\PeriodRepository;
@@ -131,6 +132,9 @@ class UserHelper
         $user->setAttribute('temporaryLoginOptions', TemporaryLogin::getOptionsForUser($user));
 
         $user->setAttribute('systemSettings', UserSystemSetting::getAll($user,false,true));
+
+        $user->setAttribute('shouldShowNewFeaturePopup', self::checkIfNewFeaturePopupShouldShow());
+        $user->setAttribute('shouldShowNewFeatureMessage', self::checkIfNewFeatureMessageShouldShow());
     }
 
     /**
@@ -218,5 +222,25 @@ class UserHelper
                 }
             });
         return $results;
+    }
+
+    private static function checkIfNewFeaturePopupShouldShow()
+    {
+        $newFeaturesSeen = UserSystemSetting::getSetting(Auth::user(), 'newFeaturesSeen');
+
+        if (empty($newFeaturesSeen) || $newFeaturesSeen < strtotime(Info::getLatestFeature()->created_at)){
+            return true;
+        }
+        return false;
+    }
+
+    private static function checkIfNewFeatureMessageShouldShow()
+    {
+        $newFeaturesMessageClosed = UserSystemSetting::getSetting(Auth::user(), 'closedNewFeaturesMessage');
+
+        if (empty($newFeaturesMessageClosed) || $newFeaturesMessageClosed < strtotime(Info::getLatestFeature()->created_at)){
+            return true;
+        }
+        return false;
     }
 }

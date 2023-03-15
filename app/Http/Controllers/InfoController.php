@@ -43,9 +43,6 @@ class InfoController extends Controller
             case 'feature':
                 $data = Info::getForFeature();
                 break;
-            case 'latestFeature':
-                $data = Info::getLatestFeature();
-                break;
             case 'types':
                 $data = Info::getDisplayTypes();
                 break;
