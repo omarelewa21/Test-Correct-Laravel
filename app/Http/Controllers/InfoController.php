@@ -23,6 +23,7 @@ use DOMDocument;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use tcCore\UserSystemSetting;
 
 class InfoController extends Controller
 {
@@ -108,6 +109,20 @@ class InfoController extends Controller
         }
 
         return Response::make(false, 500);
+
+    }
+
+    public function seenNewFeatures(){
+
+        $user = Auth::user();
+
+        if(!auth()->user()->isA('Teacher')) {
+            return Response::make(false, 401);
+        }
+
+        UserSystemSetting::setSetting($user,'newFeaturesSeen',true);
+
+        return Response::make(true,200);
 
     }
 

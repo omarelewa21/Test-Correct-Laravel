@@ -107,7 +107,7 @@ abstract class UserSettingModel extends Model
     ): array
     {
         $settings = static::retrieveSettingsFromSession($user);
-        if ($sessionOnly || !empty($settings)) {
+        if ($sessionOnly && !empty($settings)) {
             return $settings;
         }
 
@@ -133,7 +133,7 @@ abstract class UserSettingModel extends Model
                                                    $sessionStore = false): mixed
     {
         $setting = static::retrieveSettingFromSession($user, $title);
-        if ($sessionOnly || !is_null($setting)) {
+        if ($sessionOnly && !is_null($setting)) {
             return $setting;
         }
         $databaseSetting = static::retrieveSettingFromDatabase($user, $title);
