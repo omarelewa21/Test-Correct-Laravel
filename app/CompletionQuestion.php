@@ -528,15 +528,15 @@ class CompletionQuestion extends Question implements QuestionInterface
 
     public function getCorrectAnswerStructure()
     {
-        return $this->completionQuestionAnswerLinks()
-            ->join(
-                'completion_question_answers',
-                'completion_question_answer_links.completion_question_answer_id',
-                '=',
-                'completion_question_answers.id'
-            )
+        return CompletionQuestionAnswerLink::join(
+            'completion_question_answers',
+            'completion_question_answer_links.completion_question_answer_id',
+            '=',
+            'completion_question_answers.id'
+        )
             ->orderBy('completion_question_answer_links.order')
             ->select('completion_question_answers.*')
+            ->where('completion_question_id', $this->getKey())
             ->get();
     }
 }

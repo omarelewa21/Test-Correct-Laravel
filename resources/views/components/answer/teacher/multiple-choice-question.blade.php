@@ -2,15 +2,16 @@
     @if($question->isSubType('TrueFalse'))
         <div class="flex gap-4 items-center">
             <div class="bold">
-                {!! $answerStruct->first(fn($link) => $link->active)->answer !!}
+                {!! $answerStruct->first(fn($link) => $link->active)?->answer !!}
             </div>
             <div>
                 {!! $question->converted_question_html  !!}
             </div>
             @if($studentAnswer)
+                @js($answer->id)
                 <div>
                     <x-button.true-false-toggle :wireKey="'toggle-'.$answer->uuid"
-                                                :initialValue="$answerStruct->first(fn($link) => $link->active)->score > 0"
+                                                :initialValue="$answerStruct->first(fn($link) => $link->active)?->score > 0"
                     />
                 </div>
             @endisset
