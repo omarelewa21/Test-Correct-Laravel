@@ -6,8 +6,6 @@
     <x-partials.header.assessment :testName="$testName" />
     @if($this->headerCollapsed)
         <div class="px-15 py-10 gap-6 flex flex-col">
-            @js($this->currentQuestion->id)
-            @js($this->currentAnswer->test_participant_id)
             {{-- Group section --}}
             @if($this->currentGroup)
                 <x-accordion.container :active-container-key="$this->groupPanel ? 'group' : ''"
