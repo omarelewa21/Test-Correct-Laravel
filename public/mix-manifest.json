@@ -1,11 +1,11 @@
 {
-    "/js/app.js": "/js/app.js?id=03f6514f6b7fa11c1ee1fcb94e38b2ad",
-    "/css/app.css": "/css/app.css?id=cadb6e0cd4689c8e27c97ee4640eb95f",
-    "/css/app_pdf.css": "/css/app_pdf.css?id=db84f23160d0c2cc1a580e01e89f302e",
+    "/js/app.js": "/js/app.js?id=49fc39435786e03177bda2294299d20c",
+    "/css/app.css": "/css/app.css?id=01443526f7efdbf3156b8f7bcd0bc11e",
+    "/css/app_pdf.css": "/css/app_pdf.css?id=fe399e068416f52ef2d847d90e62da33",
     "/css/print-test-pdf.css": "/css/print-test-pdf.css?id=dfd4341b79cfded946a5383296074afc",
     "/js/ckeditor.js": "/js/ckeditor.js?id=cb4fa2dd1211c0aba8ff4b282f8c58c7",
     "/js/ckeditor.js.map": "/js/ckeditor.js.map?id=5bbe6c36319e1f616d92472b59225b13",
     "/js/readspeaker_tlc.js": "/js/readspeaker_tlc.js?id=f226cbc2b9b71ed0b870c523bd82eaf1",
-    "/css/rs_tlc.css": "/css/rs_tlc.css?id=4fd16ff4391e17a3505364b9171cab3a",
-    "/css/rs_tlc_pdf.css": "/css/rs_tlc_pdf.css?id=283c8e099b8252c0a4637f83bf28322e"
+    "/css/rs_tlc.css": "/css/rs_tlc.css?id=95258143d6fd9f705fcc2c0369c5e402",
+    "/css/rs_tlc_pdf.css": "/css/rs_tlc_pdf.css?id=1e09c8ed0d711245f9c8cfd52130e783"
 }

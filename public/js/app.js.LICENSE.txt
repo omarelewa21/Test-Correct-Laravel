@@ -1,17 +1,17 @@
 /*!
- * FilePond 4.30.3
+ * FilePond 4.30.4
  * Licensed under MIT, https://opensource.org/licenses/MIT/
  * Please visit https://pqina.nl/filepond/ for details.
  */
 
 /*!
- * FilePondPluginFileValidateSize 2.2.5
+ * FilePondPluginFileValidateSize 2.2.8
  * Licensed under MIT, https://opensource.org/licenses/MIT/
  * Please visit https://pqina.nl/filepond/ for details.
  */
 
 /*!
- * Pusher JavaScript Library v7.0.3
+ * Pusher JavaScript Library v7.6.0
  * https://pusher.com/
  *
  * Copyright 2020, Pusher
@@ -43,7 +43,9 @@
  * Date: 2016-05-20T17:23Z
  */
 
-/*! choices.js v10.1.0 | © 2022 Josh Johnson | https://github.com/jshjohnson/Choices#readme */
+/*! choices.js v10.2.0 | © 2022 Josh Johnson | https://github.com/jshjohnson/Choices#readme */
+
+/*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */
 
 /**
  * @license
