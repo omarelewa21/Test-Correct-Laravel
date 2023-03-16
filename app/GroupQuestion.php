@@ -9,12 +9,13 @@ use Ramsey\Uuid\Uuid;
 use tcCore\Traits\UuidTrait;
 use tcCore\Http\Helpers\QuestionHelper;
 
-class GroupQuestion extends Question implements QuestionInterface {
+class GroupQuestion extends Question implements QuestionInterface
+{
 
     use UuidTrait;
 
     protected $casts = [
-        'uuid' => EfficientUuid::class,
+        'uuid'                   => EfficientUuid::class,
         'number_of_subquestions' => 'integer',
     ];
 
@@ -37,7 +38,7 @@ class GroupQuestion extends Question implements QuestionInterface {
      *
      * @var array
      */
-    protected $fillable = ['name', 'shuffle','groupquestion_type','number_of_subquestions'];
+    protected $fillable = ['name', 'shuffle', 'groupquestion_type', 'number_of_subquestions'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -48,7 +49,8 @@ class GroupQuestion extends Question implements QuestionInterface {
 
     protected $callbacks = false;
 
-    public function duplicate(array $attributes, $ignore = null, $callbacks = true) {
+    public function duplicate(array $attributes, $ignore = null, $callbacks = true)
+    {
         $question = $this->replicate();
 
 
@@ -65,7 +67,7 @@ class GroupQuestion extends Question implements QuestionInterface {
             return false;
         }
 
-        foreach($this->groupQuestionQuestions as $groupQuestionQuestions) {
+        foreach ($this->groupQuestionQuestions as $groupQuestionQuestions) {
             if ($ignore instanceof Question && $ignore->getKey() == $groupQuestionQuestions->getAttribute('question_id')) {
                 continue;
             }
@@ -102,15 +104,18 @@ class GroupQuestion extends Question implements QuestionInterface {
         return $question;
     }
 
-    public function setCallbacks($callbacks) {
+    public function setCallbacks($callbacks)
+    {
         $this->callbacks = ($callbacks === true);
     }
 
-    public function doCallbacks() {
+    public function doCallbacks()
+    {
         return $this->callbacks;
     }
 
-    public function isParentDirty() {
+    public function isParentDirty()
+    {
         return false;
     }
 
@@ -118,7 +123,7 @@ class GroupQuestion extends Question implements QuestionInterface {
     {
         $this->load('groupQuestionQuestions', 'groupQuestionQuestions.question');
         if ($loadRelatedChildren === true) {
-            foreach($this->groupQuestionQuestions as $groupQuestionQuestion) {
+            foreach ($this->groupQuestionQuestions as $groupQuestionQuestion) {
                 if ($groupQuestionQuestion->question instanceof GroupQuestion) {
                     if (!in_array($groupQuestionQuestion->question->getKey(), $questionIds)) {
                         $thisQuestionIds = $questionIds;
@@ -132,22 +137,25 @@ class GroupQuestion extends Question implements QuestionInterface {
         }
     }
 
-    public function groupQuestionQuestions() {
+    public function groupQuestionQuestions()
+    {
         return $this->hasMany('tcCore\GroupQuestionQuestion')->orderBy('order');
     }
 
-    public function question() {
+    public function question()
+    {
         return $this->belongsTo('tcCore\Question', $this->getKeyName());
     }
 
-    public function reorder($movedGroupQuestionQuestion) {
+    public function reorder($movedGroupQuestionQuestion)
+    {
         $order = $movedGroupQuestionQuestion->getAttribute('order');
 
         $groupQuestionQuestions = $this->groupQuestionQuestions()->orderBy('order')->get();
 
         $i = 1;
         if ($order) {
-            foreach($groupQuestionQuestions as $groupQuestionQuestion) {
+            foreach ($groupQuestionQuestions as $groupQuestionQuestion) {
                 if ($groupQuestionQuestion->getKey() === $movedGroupQuestionQuestion->getKey()) {
                     continue;
                 }
@@ -170,7 +178,7 @@ class GroupQuestion extends Question implements QuestionInterface {
                 $movedGroupQuestionQuestion->doCallbacks(true);
             }
         } else {
-            foreach($groupQuestionQuestions as $groupQuestionQuestion) {
+            foreach ($groupQuestionQuestions as $groupQuestionQuestion) {
                 if ($groupQuestionQuestion->getKey() === $movedGroupQuestionQuestion->getKey()) {
                     continue;
                 }
@@ -189,25 +197,26 @@ class GroupQuestion extends Question implements QuestionInterface {
         }
     }
 
-    public function generateAnswersForGroupQuestion($parents, $testShuffle, &$order, &$answers) {
+    public function generateAnswersForGroupQuestion($parents, $testShuffle, &$order, &$answers)
+    {
         $this->load('groupQuestionQuestions', 'groupQuestionQuestions.question');
 
         $questions = null;
-        foreach($this->groupQuestionQuestions as $groupQuestionQuestion) {
+        foreach ($this->groupQuestionQuestions as $groupQuestionQuestion) {
             $question = $groupQuestionQuestion->question;
             $question->setAttribute('order', $groupQuestionQuestion->getAttribute('order'));
             $question->setAttribute('maintain_position', $groupQuestionQuestion->getAttribute('maintain_position'));
             $questions[] = $question;
         }
 
-        if($this->isCarouselQuestion()){
+        if ($this->isCarouselQuestion()) {
             $questions = $this->filterQuestionsForCarousel($questions);
         }
 
         if ($questions === null) {
             return;
         }
-        usort($questions, function($a, $b) {
+        usort($questions, function ($a, $b) {
             $a = $a->getAttribute('order');
             $b = $b->getAttribute('order');
             if ($a == $b) {
@@ -221,7 +230,7 @@ class GroupQuestion extends Question implements QuestionInterface {
         $shuffleQuestions = [];
         $availableOrder = [];
 
-        foreach($questions as $question) {
+        foreach ($questions as $question) {
             $question = $question->getQuestionInstance();
             if ($question->getAttribute('maintain_position') == 1 || $this->getAttribute('shuffle') == 0 || $testShuffle == 0) {
                 $questionOrder[$groupQuestionOrder] = $question;
@@ -235,7 +244,7 @@ class GroupQuestion extends Question implements QuestionInterface {
         //Insert shuffled questions
         shuffle($shuffleQuestions);
 
-        foreach($shuffleQuestions as $question) {
+        foreach ($shuffleQuestions as $question) {
             $groupQuestionOrder = array_shift($availableOrder);
 
             if ($question instanceof Question) {
@@ -283,13 +292,14 @@ class GroupQuestion extends Question implements QuestionInterface {
     //     return;
     // }
 
-    public function getQuestionScores($parents, &$questionMaxScore, &$pointsPerQuestion) {
-        if($this->groupquestion_type == 'carousel'){
+    public function getQuestionScores($parents, &$questionMaxScore, &$pointsPerQuestion)
+    {
+        if ($this->groupquestion_type == 'carousel') {
             return $this->getCarouselQuestionScores($questionMaxScore, $pointsPerQuestion);
         }
         $this->load('groupQuestionQuestions', 'groupQuestionQuestions.question');
         $parents[] = $this->getKey();
-        foreach($this->groupQuestionQuestions as $groupQuestionQuestions) {
+        foreach ($this->groupQuestionQuestions as $groupQuestionQuestions) {
             if ($groupQuestionQuestions->question instanceof GroupQuestion) {
                 if (!in_array($groupQuestionQuestions->question->getKey(), $parents)) {
                     $groupQuestionQuestions->question->getQuestionScores([], $questionMaxScore, $pointsPerQuestion);
@@ -302,35 +312,37 @@ class GroupQuestion extends Question implements QuestionInterface {
         return;
     }
 
-    private function getCarouselQuestionScores(&$questionMaxScore, &$pointsPerQuestion) {
+    private function getCarouselQuestionScores(&$questionMaxScore, &$pointsPerQuestion)
+    {
         $questionMaxScore += (new QuestionHelper())->getTotalScoreForCarouselQuestion($this);
         $this->load('groupQuestionQuestions', 'groupQuestionQuestions.question');
-        foreach($this->groupQuestionQuestions as $groupQuestionQuestions) {
+        foreach ($this->groupQuestionQuestions as $groupQuestionQuestions) {
             $pointsPerQuestion[$groupQuestionQuestions->question->getKey()] = $groupQuestionQuestions->question->getAttribute('score');
         }
         return;
     }
 
-    public function gatherAffectedTests($ignoreGroupQuestions = [], $ignoreTests = []) {
+    public function gatherAffectedTests($ignoreGroupQuestions = [], $ignoreTests = [])
+    {
         QuestionGatherer::invalidateGroupQuestionCache($this);
 
         $groupQuestionId = $this->getKey();
-        $tests = Test::whereIn('id', function($query) use ($groupQuestionId) {
+        $tests = Test::whereIn('id', function ($query) use ($groupQuestionId) {
             $testQuestion = new TestQuestion();
             $query->from($testQuestion->getTable())->select('test_id')->where('question_id', $groupQuestionId);
         })->whereNotIn('id', $ignoreTests)->get();
         $ignoreTests = $tests->pluck('id');
 
         $ignoreGroupQuestions[] = $this->getKey();
-        $groupQuestions = static::whereIn('id', function($query) use ($groupQuestionId) {
+        $groupQuestions = static::whereIn('id', function ($query) use ($groupQuestionId) {
             $testQuestion = new GroupQuestionQuestion();
             $query->from($testQuestion->getTable())->select('group_question_id')->where('question_id', $groupQuestionId);
         })->get();
 
-        foreach($groupQuestions as $groupQuestion) {
+        foreach ($groupQuestions as $groupQuestion) {
             if (!in_array($groupQuestion->getKey(), $ignoreGroupQuestions)) {
                 $groupQuestionTests = $groupQuestion->gatherAffectedTests($ignoreGroupQuestions, $ignoreTests);
-                foreach($tests as $groupQuestionTest) {
+                foreach ($tests as $groupQuestionTest) {
                     $tests->add($groupQuestionTest);
                     $ignoreTests[] = $groupQuestionTest->getKey();
                 }
@@ -340,36 +352,36 @@ class GroupQuestion extends Question implements QuestionInterface {
         return $tests;
     }
 
-    public function canCheckAnswer() {
-        return false;
-    }
-
-    public function checkAnswer($answer) {
-        return false;
-    }
-
-    public function isCarouselQuestion()
+    public function canCheckAnswer()
     {
-        if($this->groupquestion_type=='carousel'){
-            return true;
-        }
         return false;
     }
 
-    public function filterQuestionsForCarousel($questions){
-        if(!$this->isCarouselQuestion()){
+    public function checkAnswer($answer)
+    {
+        return false;
+    }
+
+    public function isCarouselQuestion(): bool
+    {
+        return $this->groupquestion_type === 'carousel';
+    }
+
+    public function filterQuestionsForCarousel($questions)
+    {
+        if (!$this->isCarouselQuestion()) {
             return $questions;
         }
-        if(is_null($this->number_of_subquestions)||$this->number_of_subquestions==0){
+        if (is_null($this->number_of_subquestions) || $this->number_of_subquestions == 0) {
             return $questions;
         }
-        if($this->number_of_subquestions>=count($questions)){
+        if ($this->number_of_subquestions >= count($questions)) {
             return $questions;
         }
         $returnArray = [];
-        $randomKeys = array_rand($questions,$this->number_of_subquestions);
-        if (! is_array($randomKeys)) {
-             $randomKeys = [$randomKeys];
+        $randomKeys = array_rand($questions, $this->number_of_subquestions);
+        if (!is_array($randomKeys)) {
+            $randomKeys = [$randomKeys];
         }
         foreach ($randomKeys as $randomKey) {
             $returnArray[] = $questions[$randomKey];
@@ -379,7 +391,7 @@ class GroupQuestion extends Question implements QuestionInterface {
 
     public function getQuestionCount()
     {
-        if($this->groupquestion_type == 'carousel'){
+        if ($this->groupquestion_type == 'carousel') {
             return $this->getCarouselGroupQuestionCount();
         }
         return $this->getGenericGroupQuestionCount();
@@ -388,7 +400,7 @@ class GroupQuestion extends Question implements QuestionInterface {
     protected function getCarouselGroupQuestionCount()
     {
         $questionCount = $this->getGenericGroupQuestionCount();
-        if($this->number_of_subquestions > $questionCount){
+        if ($this->number_of_subquestions > $questionCount) {
             return $questionCount;
         }
         return $this->number_of_subquestions;

@@ -76,4 +76,6 @@ return [
     'en'                              => 'and',
     'jaar'                            => 'Year',
     'aanvraag datum'                  => 'Request date',
+    'inklappen'                       => 'Collapse',
+    'uitklappen'                      => 'Expand',
 ];
