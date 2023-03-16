@@ -7,7 +7,7 @@
         'accordion-disabled' => $disabled
         ])
      x-bind:class="{' bg-primary/5 border-dashed border-primary border-4 rounded-10 -m-1 ': droppingFile}"
-     {{ $attributes->except(['class', 'key', 'emitWhenSet']) }}
+        {{ $attributes->except(['class', 'key', 'emitWhenSet']) }}
 >
     @if($upload)
         <div x-data="fileUpload(@js($uploadModel), @js($uploadRules))"
@@ -24,8 +24,10 @@
                         :aria-expanded="expanded"
                         @disabled($disabled)
                         @class(['flex w-full items-center rounded-lg py-3 text-xl font-bold group transition-shadow','px-10' => $mode === 'panel', ])
-                        x-on:mouseenter="if(!expanded) $el.classList.add('hover:shadow-hover')"
+                        @if($mode === 'panel')
+                            x-on:mouseenter="if(!expanded) $el.classList.add('hover:shadow-hover')"
                         x-on:mouseleave="$el.classList.remove('hover:shadow-hover')"
+                        @endif
                 >
                     <div class="flex gap-4 items-center w-full">
                         {{ $title }}

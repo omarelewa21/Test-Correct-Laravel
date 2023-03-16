@@ -11,15 +11,21 @@
 
 @section('collapsedLeft')
     <div class="flex items-center gap-6">
-        <x-assessment-navigator :current="$this->qi"
+        <x-assessment-navigator id="question-navigator"
+                                :current="$this->questionNavigationValue"
                                 :total="$this->questionCount"
                                 methodCall="loadQuestion"
+                                :last="$this->lastQuestionForStudent"
+                                :first="$this->firstQuestionForStudent"
         />
 
-        <x-assessment-navigator :current="$this->ai"
+        <x-assessment-navigator id="answer-navigator"
+                                :current="$this->answerNavigationValue"
                                 :total="$this->studentCount"
                                 methodCall="loadAnswer"
                                 iconName="profile"
+                                :last="$this->lastAnswerForQuestion"
+                                :first="$this->firstAnswerForQuestion"
         />
     </div>
 @endsection

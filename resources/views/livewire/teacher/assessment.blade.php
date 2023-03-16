@@ -1,20 +1,21 @@
 <div id="assessment-page"
      class="min-h-screen w-full"
+     x-data="assessment"
+     x-on:update-navigation.window="dispatchUpdateToNavigator($event.detail.navigator, $event.detail.updates)"
 >
     <x-partials.header.assessment :testName="$testName" />
     @if($this->headerCollapsed)
-
-        <div class="px-15 py-10 gap-6 flex flex-col "
-             x-data="{}"
-        >
+        <div class="px-15 py-10 gap-6 flex flex-col">
+            @js($this->currentQuestion->id)
+            @js($this->currentAnswer->test_participant_id)
             {{-- Group section --}}
             @if($this->currentGroup)
                 <x-accordion.container :active-container-key="$this->groupPanel ? 'group' : ''"
-                                       :wire:key="'group-section-'.$this->qi.$this->ai"
+                                       :wire:key="'group-section-'.$this->questionNavigationValue.$this->answerNavigationValue"
                 >
                     <x-accordion.block key="group"
                                        :emitWhenSet="true"
-                                       :wire:key="'group-section-block-'.$this->qi.$this->ai"
+                                       :wire:key="'group-section-block-'.$this->questionNavigationValue.$this->answerNavigationValue"
                                        mode="transparent"
                     >
                         <x-slot:title>
@@ -54,16 +55,16 @@
             {{-- Question section --}}
             @if($this->needsQuestionSection)
                 <x-accordion.container :active-container-key="$this->questionPanel ? 'question' : ''"
-                                       :wire:key="'question-section-'.$this->qi.$this->ai"
+                                       :wire:key="'question-section-'.$this->questionNavigationValue.$this->answerNavigationValue"
                 >
                     <x-accordion.block key="question"
                                        :emitWhenSet="true"
-                                       :wire:key="'question-section-block-'.$this->qi.$this->ai"
+                                       :wire:key="'question-section-block-'.$this->questionNavigationValue.$this->answerNavigationValue"
                     >
                         <x-slot:title>
                             <div class="question-indicator items-center flex">
                                 <div class="inline-flex question-number rounded-full text-center justify-center items-center">
-                                    <span class="align-middle cursor-default">{{ $this->qi }}</span>
+                                    <span class="align-middle cursor-default">{{ $this->questionNavigationValue }}</span>
                                 </div>
                                 <div class="flex gap-4 items-center relative top-0.5">
                                     <h4 class="inline-flex"
@@ -83,7 +84,7 @@
                                     @foreach($this->currentQuestion->attachments as $attachment)
                                         <x-attachment.badge-view :attachment="$attachment"
                                                                  :title="$attachment->title"
-                                                                 :wire:key="'badge-'.$this->currentQuestion->uuid.$this->qi"
+                                                                 :wire:key="'badge-'.$this->currentQuestion->uuid.$this->questionNavigationValue"
                                                                  :question-id="$this->currentQuestion->getKey()"
                                                                  :question-uuid="$this->currentQuestion->uuid"
                                         />
@@ -101,12 +102,12 @@
             {{-- Answer section --}}
             @unless($this->currentQuestion->isType('infoscreen'))
                 <x-accordion.container :active-container-key="$this->answerPanel ? 'answer' : ''"
-                                       :wire:key="'answer-section-'.$this->qi.$this->ai"
+                                       :wire:key="'answer-section-'.$this->questionNavigationValue.$this->answerNavigationValue"
                 >
                     <x-accordion.block key="answer"
                                        :coloredBorderClass="'student'"
                                        :emitWhenSet="true"
-                                       :wire:key="'answer-section-block-'.$this->qi.$this->ai"
+                                       :wire:key="'answer-section-block-'.$this->questionNavigationValue.$this->answerNavigationValue"
                     >
                         <x-slot:title>
                             <div class="question-indicator items-center flex gap-4">
@@ -140,12 +141,12 @@
 
                 {{-- Answermodel section --}}
                 <x-accordion.container :active-container-key="$this->answerModelPanel ? 'answer-model' : ''"
-                                       :wire:key="'answer-model-section-'.$this->qi.$this->ai"
+                                       :wire:key="'answer-model-section-'.$this->questionNavigationValue.$this->answerNavigationValue"
                 >
                     <x-accordion.block key="answer-model"
                                        :coloredBorderClass="'primary'"
                                        :emitWhenSet="true"
-                                       :wire:key="'answer-model-section-block'.$this->qi.$this->ai"
+                                       :wire:key="'answer-model-section-block'.$this->questionNavigationValue.$this->answerNavigationValue"
                     >
                         <x-slot:title>
                             <div class="question-indicator items-center flex">

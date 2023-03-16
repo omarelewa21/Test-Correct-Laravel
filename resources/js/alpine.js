@@ -1629,7 +1629,7 @@ document.addEventListener("alpine:init", () => {
             if (this.emitWhenSet) {
                 Livewire.emit("accordion-update", { key, value });
             }
-        }
+        },
     }));
     Alpine.data("fileUpload", (uploadModel, rules) => ({
         isDropping: false,
@@ -1729,36 +1729,47 @@ document.addEventListener("alpine:init", () => {
             Notify.notify(message, "error");
         }
     }));
-    Alpine.data("assessmentNavigator", (current, total, methodCall) => ({
+    Alpine.data("assessment", () => ({
+        dispatchUpdateToNavigator(navigator, updates) {
+            let navigatorElement = this.$root.querySelector(`#${navigator}-navigator`);
+            if (navigatorElement) {
+                return navigatorElement.dispatchEvent(new CustomEvent("update-navigator", { detail: { ...updates } }));
+            }
+            console.warn("No navigation component found for the specified name.");
+        }
+    }));
+    Alpine.data("assessmentNavigator", (current, total, methodCall, lastValue, firstValue) => ({
         current,
         total,
         methodCall,
+        lastValue,
+        firstValue,
         skipWatch: false,
-        requestTimeout: null,
-        first() {
-            this.updateCurrent(1);
+        async first() {
+            await this.updateCurrent(this.firstValue, "first");
         },
-        last() {
-            this.updateCurrent(this.total);
+        async last() {
+            await this.updateCurrent(this.lastValue, "last");
         },
-        next() {
-            if (this.current >= this.total) return;
-            this.updateCurrent(this.current + 1);
+        async next() {
+            if (this.current >= this.lastValue) return;
+            await this.updateCurrent(this.current + 1, "incr");
         },
-        previous() {
-            if (this.current <= 1) return;
-            this.updateCurrent(this.current - 1);
+        async previous() {
+            if (this.current <= this.firstValue) return;
+            await this.updateCurrent(this.current - 1, "decr");
         },
-        async updateCurrent(value) {
-            clearTimeout(this.requestTimeout);
-
-            this.requestTimeout = setTimeout(async () => {
-                let response = await this.$wire[this.methodCall](value);
-                if (response !== this.current) {
-                    this.current = response;
-                }
-            }, 150);
+        async updateCurrent(value, action) {
+            let response = await this.$wire[this.methodCall](value, action);
+            if (response) {
+                this.updateProperties(response);
+            }
         },
+        updateProperties(updates) {
+            this.current = parseInt(updates.index);
+            this.lastValue = parseInt(updates.last);
+            this.firstValue = parseInt(updates.first);
+        }
     }));
     Alpine.data("multipleChoiceAllOrNothingLines", (activeItems, withToggle) => ({
         activeItems,
