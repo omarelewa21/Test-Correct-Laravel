@@ -8,7 +8,7 @@ use tcCore\Http\Enums\CoLearning\RatingStatus;
 
 use Tests\TestCase;
 
-class CoLearningAbnormalitiesStatusTest extends TestCase
+class CoLearningStudentStatusTest extends TestCase
 {
     use DatabaseTransactions;
 

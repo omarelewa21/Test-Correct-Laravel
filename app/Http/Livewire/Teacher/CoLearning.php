@@ -117,18 +117,18 @@ class CoLearning extends Component implements CollapsableHeader
         }
 
         $testTakeUpdateData = [];
-        if($this->testTakeStatusNeedsToBeUpdated()) {
+        if ($this->testTakeStatusNeedsToBeUpdated()) {
             $testTakeUpdateData['test_take_status_id'] = TestTakeStatus::STATUS_DISCUSSING;
         }
-        if($this->discussionTypeNeedsToBeUpdated($discussionType)) {
+        if ($this->discussionTypeNeedsToBeUpdated($discussionType)) {
             $testTakeUpdateData['discussion_type'] = $discussionType;
         }
-        if($resetProgress) {
-            $testTakeUpdateData['discussing_question_id'] = null;
+        if ($resetProgress) {
+            $testTakeUpdateData['discussion_question_id'] = null;
             $testTakeUpdateData['is_discussed'] = 0;
             $this->deleteStudentAnswerRatings();
         }
-        if(!empty($testTakeUpdateData)) {
+        if (!empty($testTakeUpdateData)) {
             $this->testTake->update($testTakeUpdateData);
         }
 
@@ -214,12 +214,12 @@ class CoLearning extends Component implements CollapsableHeader
 
     public function showStudentAnswer($id): bool
     {
-        if((int) $id === $this->activeAnswerRating?->id){
+        if ((int)$id === $this->activeAnswerRating?->id) {
             $this->resetActiveAnswer();
             return false;
         }
 
-        if($id === null || $id === '') {
+        if ($id === null || $id === '') {
             return false;
         }
 
@@ -318,7 +318,7 @@ class CoLearning extends Component implements CollapsableHeader
         $this->testParticipantStatusses = collect();
 
         $testParticipantsCount = $this->testParticipants->sum(fn($tp) => $tp->active === true);
-        if($testParticipantsCount === 0) {
+        if ($testParticipantsCount === 0) {
             return;
         }
 
@@ -369,6 +369,20 @@ class CoLearning extends Component implements CollapsableHeader
             ]);
 
         });
+
+        $this->testParticipants = $this->testParticipants
+            ->sortBy(fn($testParticipant) => $testParticipant->user->nameFull)
+            ->sortBy(function ($testParticipant) {
+                if (!isset($this->testParticipantStatusses[$testParticipant->uuid])) {
+                    return 0;
+                }
+
+                $order = 0;
+                $order += $this->testParticipantStatusses[$testParticipant->uuid]['ratingStatus']?->getSortWeight();
+                $order += $this->testParticipantStatusses[$testParticipant->uuid]['abnormalitiesStatus']?->getSortWeight();
+
+                return $order;
+            });
     }
 
     private function getAbnormalitiesStatusForTestParticipant($averageDeltaPercentage): AbnormalitiesStatus
