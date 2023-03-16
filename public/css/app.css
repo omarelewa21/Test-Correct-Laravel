@@ -12472,6 +12472,11 @@ ul ul ul {
   }
 
 
+  .md\:grid-cols-2{
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+
   .md\:flex-row{
     flex-direction: row;
   }
@@ -12622,6 +12627,11 @@ ul ul ul {
   }
 
 
+  .lg\:grid-cols-3{
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+
   .lg\:grid-cols-4{
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
@@ -12693,6 +12703,11 @@ ul ul ul {
   }
 
 
+  .xl\:grid-cols-4{
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+
   .xl\:flex-row{
     flex-direction: row;
   }
@@ -12747,5 +12762,10 @@ ul ul ul {
 
   .\32xl\:max-w-6xl{
     max-width: 72rem;
+  }
+
+
+  .\32xl\:grid-cols-4{
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }

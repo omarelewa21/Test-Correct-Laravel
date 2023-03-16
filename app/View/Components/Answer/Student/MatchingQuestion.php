@@ -30,6 +30,6 @@ class MatchingQuestion extends QuestionComponent
         $this->answerStruct = $pairs->forget('unused')
             ->map(fn($pair) => $pair->sortBy(['type']))
             ->filter()
-            ->sortKeys();
+            ->sortKeysDesc();
     }
 }
