@@ -225,4 +225,5 @@ return [
     'no_personal_content_search_filters'                                                     => 'You have not yet created any self-made questions for these search filters.',
     'no_public_content_search_filters'                                                       => 'There is no public content for your school yet.',
     'no_items_search_filter'                                                                 => 'There are no more entries for these search filters.',
+    'Sorry, er ging iets fout, probeer het nogmaals'                                         => 'Sorry, something went wrong. Please try again',
 ];

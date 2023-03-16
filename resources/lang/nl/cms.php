@@ -224,4 +224,5 @@ return [
     'no_personal_content_search_filters'                                                     => 'U heeft nog geen eigen gemaakte vragen voor deze zoekfilters.',
     'no_public_content_search_filters'                                                       => 'Er is nog geen openbare content voor uw school.',
     'no_items_search_filter'                                                                 => 'Er zijn geen items meer voor deze zoekfilters.',
+    'Sorry, er ging iets fout, probeer het nogmaals'                                         => 'Sorry, er ging iets fout probeer het nogmaals',
 ];

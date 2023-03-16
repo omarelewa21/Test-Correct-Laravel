@@ -106,6 +106,8 @@ class OpenShort extends Component implements QuestionCms
 
     public $testIsPublished;
 
+    public $currentUrl;
+
     protected $queryString = [
         'action', 'type', 'subtype', 'testId', 'testQuestionId', 'groupQuestionQuestionId', 'owner', 'isCloneRequest', 'withDrawer' => ['except' => false], 'referrer' => ['except' => false],
     ];
@@ -327,6 +329,7 @@ class OpenShort extends Component implements QuestionCms
 
     public function mount()
     {
+        $this->currentUrl = url()->current();
         $activeTest = Test::whereUuid($this->testId)->with('testAuthors', 'testAuthors.user')->firstOrFail();
         Gate::authorize('isAuthorOfTest', [$activeTest]);
         $this->isChild = false;
@@ -1123,6 +1126,13 @@ class OpenShort extends Component implements QuestionCms
         $this->questionEditorId = Str::uuid()->__toString();
     }
 
+    private function resetToEmptyState()
+    {
+        $this->emptyState = true;
+        $this->reset(['type', 'subtype', 'testQuestionId']);
+        $this->emitTo('drawer.cms', 'show-empty');
+    }
+
     private function openLastQuestion()
     {
         $testQuestionUuid = Test::whereUuid($this->testId)
@@ -1132,9 +1142,7 @@ class OpenShort extends Component implements QuestionCms
             ->value('uuid');
 
         if (!$testQuestionUuid) {
-            $this->emptyState = true;
-            $this->reset(['type', 'subtype', 'testQuestionId']);
-            $this->emitTo('drawer.cms', 'show-empty');
+            $this->resetToEmptyState();
             return true;
         }
 
@@ -1208,10 +1216,18 @@ class OpenShort extends Component implements QuestionCms
         if ($args['isSubQuestion']) {
             $groupQuestion = $testQuestion->question;
             $question = Question::whereUuid($args['questionUuid'])->first();
+            try {
+                $this->groupQuestionQuestionId = $groupQuestion->groupQuestionQuestions()->firstWhere('question_id', $question->getKey())->uuid;
+            } catch(\Exception $e){
+                // the groupQuestionQuestion could not be found and has probably to do with using the back button
+                // we therefor lead the user to the test page again with a notification
+                $this->resetToEmptyState();
+                $this->dispatchBrowserEvent('notify', ['message' => __('cms.Sorry, er ging iets fout, probeer het nogmaals'), 'type' => 'error']);
+                return;
+            }
             $this->type = $question->type;
             $this->subtype = $question->subtype;
             $this->owner = 'group';
-            $this->groupQuestionQuestionId = $groupQuestion->groupQuestionQuestions()->firstWhere('question_id', $question->getKey())->uuid;
             $this->testQuestionId = $args['testQuestionUuid'];
         } else {
             $this->type = $testQuestion->question->type;
