@@ -56,11 +56,12 @@ class Assessment extends Component implements CollapsableHeader
     protected $groups;
     protected $students;
 
+    /* Context properties */
     public $currentAnswer;
     public $currentQuestion;
     public $currentGroup;
+    public $score = null;
 
-    /* Context properties */
     protected bool $skipBooted = false;
 
     public string $testTakeUuid;

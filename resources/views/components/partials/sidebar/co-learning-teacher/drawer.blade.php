@@ -45,7 +45,7 @@
             <x-icon.chevron class="-top-px relative"/>
         </button>
     </div>
-    <div class="flex flex-col w-full justify-between h-[calc(100vh-70px)] drawer-width">
+    <div class="flex flex-col w-full justify-between h-[calc(100vh-var(--header-height))] drawer-width">
         <div class="flex flex-col ">
 
             <div class="flex justify-between drawer-content-head border-b border-bluegrey"

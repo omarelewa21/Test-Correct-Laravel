@@ -7309,6 +7309,82 @@ document.addEventListener("alpine:init", function () {
       }
     };
   });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("assessmentDrawer", function () {
+    return {
+      activeTab: 1,
+      tabs: [1, 2, 3],
+      collapse: false,
+      container: null,
+      init: function init() {
+        this.container = this.$root.querySelector("#slide-container");
+      },
+      tab: function tab(index) {
+        if (!this.tabs.includes(index)) return;
+        this.activeTab = index;
+        var slide = this.$root.querySelector(".slide-" + index);
+        this.container.scroll({
+          left: slide.offsetLeft,
+          behavior: "smooth"
+        });
+      }
+    };
+  });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('scoreSlider', function (score, model, maxScore, halfPoints, disabled, stack) {
+    return {
+      score: score,
+      model: model,
+      maxScore: maxScore,
+      timeOut: null,
+      halfPoints: halfPoints,
+      disabled: disabled,
+      skipSync: false,
+      persistantScore: null,
+      getSliderBackgroundSize: function getSliderBackgroundSize(el) {
+        if (this.score === null) {
+          return 0;
+        }
+        var min = el.min || 0;
+        var max = el.max || 100;
+        var value = el.value;
+        return (value - min) / (max - min) * 100;
+      },
+      setSliderBackgroundSize: function setSliderBackgroundSize(el) {
+        el.style.setProperty('--slider-thumb-offset', "".concat(25 / 100 * this.getSliderBackgroundSize(el) - 12.5, "px"));
+        el.style.setProperty('--slider-background-size', "".concat(this.getSliderBackgroundSize(el), "%"));
+      },
+      syncInput: function syncInput() {
+        this.$wire.sync(modelName, score);
+      },
+      noChangeEventFallback: function noChangeEventFallback() {
+        if (this.score === null) {
+          this.score = this.halfPoints ? this.maxScore / 2 : Math.round(this.maxScore / 2);
+          this.syncInput();
+        }
+      },
+      init: function init() {
+        var _this39 = this;
+        // This echos custom JS from the template and for some reason it actually works;
+        stack;
+        this.$watch('score', function (value, oldValue) {
+          if (_this39.disabled || value === oldValue || _this39.skipSync) {
+            _this39.skipSync = false;
+            return;
+          }
+          if (value >= _this39.maxScore) {
+            _this39.score = value = _this39.maxScore;
+          }
+          if (value <= 0) {
+            _this39.score = value = 0;
+          }
+          _this39.score = value = _this39.halfPoints ? Math.round(value * 2) / 2 : Math.round(value);
+          var numberInput = _this39.$root.querySelector('[x-ref=\'score_slider_continuous_input\']');
+          if (numberInput !== null) {
+            _this39.setSliderBackgroundSize(numberInput);
+          }
+        });
+      }
+    };
+  });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].directive("global", function (el, _ref2) {
     var expression = _ref2.expression;
     var f = new Function("_", "$data", "_." + expression + " = $data;return;");
