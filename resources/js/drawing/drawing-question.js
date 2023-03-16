@@ -1036,13 +1036,19 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             };
             const shapeID = groupElement.id,
                 shapeType = shapeID.substring(0, shapeID.indexOf("-"));
-            const newShape = makeNewSvgShapeWithSidebarEntry(
+            let newShape = makeNewSvgShapeWithSidebarEntry(
                 shapeType,
                 props,
                 layerName,
                 true,
                 !(!drawingApp.isTeacher() && layerName === "question")
-            );
+            )
+            // Convert old dragging system (using SVGTransforms)
+            // to new dragging system (all done with the SVG attributes of the element itself)
+            if(newShape.svg.type === 'path')
+                newShape = letPathShapesUseRelativeCoords(newShape);
+            newShape = convertDragTransforms(newShape);
+
             Canvas.layers[layerName].shapes[shapeID] = newShape;
             if (isOldDrawing && layerName === "question") {
                 fitDrawingToScreen();
@@ -1050,6 +1056,82 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             newShape.svg.addHighlightEvents();
         }
         UI.svgLayerToRender.innerHTML = "";
+    }
+
+    function letPathShapesUseRelativeCoords(shape) {
+        const mainElement = shape.svg.mainElement;
+        const oldDValue = convertDStringToArray(mainElement.getDAttribute());
+        let newDValue = [],
+            startingPoint = oldDValue.shift();
+        oldDValue.reduce((previousCommand, currentCommand) => {
+            newDValue.push(convertCommandFromAbsoluteToRelative(currentCommand, previousCommand));
+            return currentCommand;
+        }, startingPoint);
+        newDValue.unshift(startingPoint);
+        mainElement.setD(newDValue.map((command) => `${command[0]} ${command[1].join(",")}`).join(" "));
+        return shape;
+    }
+
+    /**
+     * @typedef PathDStruct
+     * @type {Array.<Array.<String, Array.<Number>>>}
+     */
+
+    /**
+     * @example 'M -58.6,38.38 L 16.7,56.93' becomes [['M',[-58.6, 38.38]],['L',[16.7,56.93]]]
+     * @param dValue
+     * @returns {PathDStruct}
+     */
+    function convertDStringToArray(dValue) {
+        const commandMatcher = /([A-Z])(\s)([\-0-9.,])+/g; // Example: 'M -58.6,38.38'
+        const coordValueMatcher = /([\-.0-9])+/g; // Example: '-58.6'
+        return dValue
+            .match(commandMatcher)
+            .map((command) => [
+                    command[0],
+                    command.match(coordValueMatcher).map(Number)
+                ]);
+    }
+
+    /**
+     * @param {PathDStruct} command
+     * @param {PathDStruct} previousCommand
+     * @returns {PathDStruct}
+     */
+    function convertCommandFromAbsoluteToRelative(command, previousCommand) {
+        return [
+            command[0].toLowerCase(),
+            convertCoordsFromAbsoluteToRelative(command[1], previousCommand[1])
+        ];
+    }
+
+    function convertCoordsFromAbsoluteToRelative(currentCoords, previousCoords) {
+        return [currentCoords[0] - previousCoords[0], currentCoords[1] - previousCoords[1]];
+    }
+
+    function convertDragTransforms(shape) {
+        const shapeGroup = shape.svg.shapeGroup;
+        const distanceToMove = retrieveTranslateValuesOfElement(shapeGroup.element);
+        shape.svg.mainElement.move(distanceToMove);
+        shapeGroup.element.removeAttribute("transform");
+        return shape;
+    }
+
+    function retrieveTranslateValuesOfElement(element) {
+        if(!elementHasTransforms(element))
+            return {
+                dx: 0,
+                dy: 0,
+            };
+        const translationMatrix = element.transform.baseVal[0].matrix;
+        return {
+            dx: translationMatrix.e,
+            dy: translationMatrix.f,
+        };
+    }
+
+    function elementHasTransforms(element) {
+        return element.transform.baseVal.length
     }
 
     function copyAllAttributesFromElementToObject(element) {

@@ -415,10 +415,10 @@ export class Line extends svgElement {
      * @param {{dx: number, dy: number}} distance
      */
     move(distance) {
-        this.setX1(this.props.x1 + distance.dx);
-        this.setY1(this.props.y1 + distance.dy);
-        this.setX2(this.props.x2 + distance.dx);
-        this.setY2(this.props.y2 + distance.dy);
+        this.setX1(parseFloat(this.props.x1) + distance.dx);
+        this.setY1(parseFloat(this.props.y1) + distance.dy);
+        this.setX2(parseFloat(this.props.x2) + distance.dx);
+        this.setY2(parseFloat(this.props.y2) + distance.dy);
     }
 
     /**
@@ -605,7 +605,7 @@ export class Path extends svgElement {
      * @returns {string}
      */
     calculateNewStartingPoint(oldStartingPoint, distance) {
-        const oldCoords = oldStartingPoint.split(",").map(value => parseFloat(value));
+        const oldCoords = oldStartingPoint.split(",").map(parseFloat);
         return [oldCoords[0] + distance.dx, oldCoords[1] + distance.dy].join(",");
     }
 
