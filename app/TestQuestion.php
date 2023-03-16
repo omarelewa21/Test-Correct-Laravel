@@ -1,18 +1,13 @@
 <?php namespace tcCore;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use tcCore\Exceptions\QuestionException;
 use tcCore\Http\Controllers\TestQuestionsController;
 use tcCore\Http\Helpers\ContentSourceHelper;
 use tcCore\Http\Helpers\QuestionHelper;
-use tcCore\Http\Requests\UpdateTestQuestionRequest;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Dyrynda\Database\Casts\EfficientUuid;
-use Dyrynda\Database\Support\GeneratesUuid;
 use Ramsey\Uuid\Uuid;
 use tcCore\Lib\Question\Factory;
 use tcCore\Traits\UuidTrait;
@@ -63,7 +58,6 @@ class TestQuestion extends BaseModel {
         parent::boot();
 
         static::saving(function(TestQuestion $testQuestion) {
-            $testQuestion->load('test');
             return $testQuestion->test->allowChange();
         });
 

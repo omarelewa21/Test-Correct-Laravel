@@ -28,6 +28,7 @@ use tcCore\Jobs\SendExceptionMail;
 use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\Lib\TestParticipant\Factory;
 use Dyrynda\Database\Casts\EfficientUuid;
+use tcCore\Events\NewTestTakePlanned;
 use tcCore\Scopes\ArchivedScope;
 use tcCore\Traits\Archivable;
 use tcCore\Traits\UuidTrait;
@@ -129,7 +130,7 @@ class TestTake extends BaseModel
             $originalTestTakeStatus = TestTakeStatus::find($testTake->getOriginal('test_take_status_id'));
 
             // logging statuses if changed
-            if ($testTake->getOriginal('test_take_status_id') != $testTake->test_take_status_id) {
+            if($testTake->isDirty('test_take_status_id')) {
                 TestTakeStatusLog::create([
                     'test_take_id'        => $testTake->getKey(),
                     'test_take_status_id' => $testTake->test_take_status_id
@@ -349,9 +350,9 @@ class TestTake extends BaseModel
         });
 
         static::created(function (TestTake $testTake) {
-
             if ($testTake->schoolClasses !== null) {
                 $testTake->saveSchoolClassTestTakeParticipants();
+                $testTake->dispatchNewTestTakePlannedEvent();
             }
             if ($testTake->notify_students && GlobalStateHelper::getInstance()->isQueueAllowed()) {
                 Queue::later(300, new SendTestPlannedMail($testTake->getKey()));
@@ -500,6 +501,14 @@ class TestTake extends BaseModel
         $this->schoolClasses = null;
     }
 
+    public function dispatchNewTestTakePlannedEvent()
+    {
+        $this->testParticipants()->join('users', 'users.id', '=', 'test_participants.user_id')
+            ->select('users.uuid')->distinct()->get()->pluck('uuid')
+            ->each(function ($userUuid) {
+                NewTestTakePlanned::dispatch($userUuid);
+            });
+    }
 
     public function scopeFiltered($query, $filters = [], $sorting = [])
     {
@@ -847,7 +856,7 @@ class TestTake extends BaseModel
 
     private function createTestTakeCodeIfNeeded()
     {
-        if ($this->testTakeCode()->count() === 0) {
+        if ($this->testTakeCode()->doesntExist()) {
             $this->testTakeCode()->create();
         }
     }
@@ -883,32 +892,32 @@ class TestTake extends BaseModel
 
     private function updateGuestAvailabilityForParticipantsOnStatusChange()
     {
-        $this->testParticipants->each(function ($participant) {
-            if ($participant->user()->value('guest') == true) {
-                $participant->available_for_guests = true;
-                $participant->save();
-            }
-        });
+        $this->testParticipants()
+            ->whereExists(function ($query) {
+                $query->select(DB::raw(1))
+                ->from('users')
+                ->whereColumn('users.id', 'test_participants.user_id')
+                ->where('users.guest', true);
+            })
+            ->update(['test_participants.available_for_guests' => true]);
     }
 
     private function handleInbrowserTestingChangesForParticipants()
     {
-        if ($this->allow_inbrowser_testing != $this->getOriginal('allow_inbrowser_testing')) {
-            TestParticipant::where('test_take_id', $this->getKey())
-                ->get()
-                ->each(function ($participant) {
-                    $participant->setAttribute('allow_inbrowser_testing', $this->allow_inbrowser_testing)->save();
-                    InbrowserTestingUpdatedForTestParticipant::dispatch($participant->uuid);
-                });
+        if ($this->isDirty('allow_inbrowser_testing')) {
+            $this->testParticipants()->update(['allow_inbrowser_testing' => $this->allow_inbrowser_testing]);
+            $this->testParticipants->each(function ($participant) {
+                InbrowserTestingUpdatedForTestParticipant::dispatch($participant->uuid);
+            });
         }
     }
 
     private function handleShowResultChanges()
     {
-        if ($this->show_results != $this->getOriginal('show_results')) {
+        if ($this->wasChanged('show_results')) {
             TestTakeShowResultsChanged::dispatch($this->uuid);
 
-            $this->testParticipants->each(function ($participant) {
+            $this->testParticipants->each(function($participant) {
                 NewTestTakeReviewable::dispatch($participant->user()->value('uuid'));
             });
         }
