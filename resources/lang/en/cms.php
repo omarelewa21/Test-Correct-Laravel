@@ -136,7 +136,7 @@ return [
     'Basis'                                                                                  => 'Basic',
     'naam vraaggroep'                                                                        => 'Name group question',
     'type vraaggroep'                                                                        => 'Type group question',
-    'carrousel'                                                                              => 'Carrousel',
+    'carrousel'                                                                              => 'Carousel',
     'carrousel_omschrijving'                                                                 => 'A sample set from this group is part of the test.',
     'klassiek'                                                                               => 'Classic',
     'klassiek_omschrijving'                                                                  => 'All questions in this group are part of the test.',

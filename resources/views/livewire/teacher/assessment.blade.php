@@ -19,11 +19,14 @@
                         <x-slot:title>
                             <div class="question-indicator items-center flex">
                                 <div class="flex gap-4 items-center relative top-0.5">
-                                    <h4 class="inline-flex"
+                                    <h4 class="inline-flex items-center pr-4"
                                         selid="questiontitle">
                                         <span>@lang('question.Vraaggroep')</span>
                                         <span>:</span>
-                                        <span class="ml-2">{{ $this->currentGroup->name }}</span>
+                                        <span class="ml-2 text-left">{{ $this->currentGroup->name }}</span>
+                                        @if($this->currentGroup->isCarouselQuestion())
+                                            <span class="ml-2 lowercase text-base">@lang('cms.carrousel')</span>
+                                        @endif
                                     </h4>
                                 </div>
                             </div>

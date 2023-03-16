@@ -74,4 +74,6 @@ return [
     'en'                              => 'en',
     'jaar'                            => 'Jaar',
     'aanvraag datum'                  => 'Aanvraag datum',
+    'inklappen'                       => 'Inklappen',
+    'uitklappen'                      => 'Uitklappen',
 ];
