@@ -64,7 +64,7 @@
 
 
                                     <x-input.group class="mt-5" label="{{ __('auth.emailaddress') }}">
-                                        <x-input.text data-focus-tab="overlay" id="forgot-password-email" selid="forgot-password-email" wire:model.debounce.300ms="forgotPasswordEmail"/>
+                                        <x-input.text data-focus-tab="send_reset_password" id="forgot-password-email" selid="forgot-password-email" wire:model.debounce.300ms="forgotPasswordEmail"/>
                                     </x-input.group>
 
                                     <div class="flex w-full justify-self-end mt-auto">

@@ -8,6 +8,7 @@
                     <div class="mb-4">
                         <div class="input-group w-full">
                             <input id="username" wire:model.lazy="username"
+                                   data-focus-tab="reset_password"
                                    autocomplete="new-password"
                                    class="form-input @error('registration.username') border-red @enderror"
                                    >

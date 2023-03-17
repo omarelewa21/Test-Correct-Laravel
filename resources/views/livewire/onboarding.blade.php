@@ -5,7 +5,19 @@
         </a>
     </div>
 
-    <div class="pt-12" x-data="{step: @entangle('step')}" x-cloak>
+    <div class="pt-12"
+         x-data="{step: @entangle('step')}"
+         x-init="
+                setCurrentFocusInput();
+
+                $watch('step', value => {
+                    setCurrentFocusInput()
+                });
+                function setCurrentFocusInput (){
+                    setTimeout(() => document.querySelector(`[data-focus-tab='${step}']`)?.focus(), 250);
+                }
+            "
+         x-cloak>
         <div class="">
             <div class="relative px-3 sm:px-10">
                 <div class="absolute -top-10 left-1/2 -translate-x-1/2">
@@ -79,7 +91,8 @@
                                     <div class="email-section mb-4 w-full">
                                         <div class="mb-4">
                                             <div class="input-group">
-                                                <input id="username" wire:model.lazy="registration.username"
+                                                <input id="username" wire:model.lazy="registration.username" data-focus-tab="1"
+
                                                        class="form-input @error('registration.username') border-red @enderror"
                                                        >
                                                 <label for="username"
@@ -371,6 +384,7 @@
                                 <div class="school-info">
                                     <div class="input-group w-full">
                                         <input id="school_location"
+                                               data-focus-tab="2"
                                                wire:model="registration.school_location"
                                                class="form-input @error('registration.school_location') border-red @enderror">
                                         <label for="school_location"
