@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use tcCore\Answer;
 use tcCore\BaseSubject;
 use tcCore\EducationLevel;
@@ -131,10 +132,18 @@ class UserHelper
 
         $user->setAttribute('temporaryLoginOptions', TemporaryLogin::getOptionsForUser($user));
 
-        $user->setAttribute('systemSettings', UserSystemSetting::getAll($user,false,true));
+        $userSystemSettings = UserSystemSetting::getAll($user,false,true);
 
-        $user->setAttribute('shouldShowNewFeaturePopup', self::checkIfNewFeaturePopupShouldShow());
-        $user->setAttribute('shouldShowNewFeatureMessage', self::checkIfNewFeatureMessageShouldShow());
+        $user->setAttribute('systemSettings', $userSystemSettings);
+
+        $latestFeature = Info::getLatestFeature()->created_at->timestamp;
+        $user->setAttribute('shouldShowNewFeaturePopup',
+            (empty($userSystemSettings['newFeaturesSeen']) || $userSystemSettings['newFeaturesSeen'] < $latestFeature)
+        );
+
+        $user->setAttribute('shouldShowNewFeatureMessage',
+            (empty($userSystemSettings['closedNewFeaturesMessage']) || $userSystemSettings['closedNewFeaturesMessage'] < $latestFeature)
+        );
     }
 
     /**
@@ -222,25 +231,5 @@ class UserHelper
                 }
             });
         return $results;
-    }
-
-    private static function checkIfNewFeaturePopupShouldShow()
-    {
-        $newFeaturesSeen = UserSystemSetting::getSetting(Auth::user(), 'newFeaturesSeen');
-
-        if (empty($newFeaturesSeen) || $newFeaturesSeen < strtotime(Info::getLatestFeature()->created_at)){
-            return true;
-        }
-        return false;
-    }
-
-    private static function checkIfNewFeatureMessageShouldShow()
-    {
-        $newFeaturesMessageClosed = UserSystemSetting::getSetting(Auth::user(), 'closedNewFeaturesMessage');
-
-        if (empty($newFeaturesMessageClosed) || $newFeaturesMessageClosed < strtotime(Info::getLatestFeature()->created_at)){
-            return true;
-        }
-        return false;
     }
 }
