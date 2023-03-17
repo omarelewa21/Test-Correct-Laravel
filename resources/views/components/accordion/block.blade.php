@@ -3,6 +3,7 @@
      role="region"
      @class([
         $attributes->get('class'),
+        'accordion-block',
         'rounded-lg bg-white shadow relative' => $mode === 'panel',
         'accordion-disabled' => $disabled
         ])

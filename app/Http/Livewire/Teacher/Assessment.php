@@ -263,11 +263,12 @@ class Assessment extends Component implements CollapsableHeader
                 return $answer;
             });
         })->where('done')
+            ->sortBy('order')
             ->sortBy('test_participant_id')
-            ->sortBy('question_id');
+            ->values();
 
         $this->groups = $this->testTakeData->test->testQuestions->map(fn($testQuestion) => $testQuestion->question->isType('Group') ? $testQuestion->question : null)->filter();
-        $this->questions = $this->testTakeData->test->testQuestions->flatMap(function ($testQuestion) {
+        $this->questions = $this->testTakeData->test->testQuestions->sortBy('order')->flatMap(function ($testQuestion) {
             $testQuestion->question->loadRelated();
             if ($testQuestion->question->type === 'GroupQuestion') {
                 $groupQuestion = $testQuestion->question;
@@ -277,14 +278,13 @@ class Assessment extends Component implements CollapsableHeader
                 });
             }
             return collect([$testQuestion->question]);
-        });
+        })->values();
         $this->students = $this->testTakeData->testParticipants->where('test_take_status_id', '>', TestTakeStatus::STATUS_TAKING_TEST)->sortBy('id')->pluck('id');
     }
 
     private function startAssessment(): void
     {
-        if (blank($this->questionNavigationValue)) $this->questionNavigationValue = 1;
-        if (blank($this->answerNavigationValue)) $this->answerNavigationValue = 1;
+        $this->initializeNavigationProperties();
 
         $this->loadQuestion($this->questionNavigationValue);
     }
@@ -464,5 +464,32 @@ class Assessment extends Component implements CollapsableHeader
             throw new AssessmentException('Assessment type not allowed');
         }
         return $args;
+    }
+
+    private function initializeNavigationProperties()
+    {
+        if ($this->validQueryStringPropertiesForNavigation()) {
+            return;
+        }
+
+        $firstAnswer = $this->answers->first();
+        $firstQuestionForAnswer = $this->questions->where('id', $firstAnswer->question_id)->first();
+
+        $this->questionNavigationValue = $this->questions->search($firstQuestionForAnswer) + 1;
+        $this->answerNavigationValue = $this->answers->search($firstAnswer) + 1;
+    }
+
+    private function validQueryStringPropertiesForNavigation(): bool
+    {
+        if (blank($this->questionNavigationValue) || blank($this->answerNavigationValue)) return false;
+
+        $answer = $this->answers->get($this->answerNavigationValue - 1);
+        if (!$answer) return false;
+
+        $questionIndex = $this->questions->search(
+            $this->questions->where('question_id', $answer->question_id)
+        );
+
+        return $questionIndex !== false;
     }
 }

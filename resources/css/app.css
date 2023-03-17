@@ -787,3 +787,7 @@ ul ul ul {
 .anychart-credits {
     display: none;
 }
+
+.accordion-block img {
+    width: auto;
+}

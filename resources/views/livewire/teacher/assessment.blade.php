@@ -3,7 +3,7 @@
      x-data="assessment"
      x-on:update-navigation.window="dispatchUpdateToNavigator($event.detail.navigator, $event.detail.updates)"
 >
-    <x-partials.header.assessment :testName="$testName" />
+    <x-partials.header.assessment :testName="$testName"/>
     @if($this->headerCollapsed)
         <div class="flex min-h-[calc(100vh-var(--header-height))] relative">
             <div class="px-15 py-10 gap-6 flex flex-col flex-1">
@@ -45,7 +45,7 @@
                                             />
                                         @endforeach
                                     </div>
-                                    <div>
+                                    <div class="flex">
                                         {!! $this->currentGroup->converted_question_html !!}
                                     </div>
                                 </div>
@@ -93,7 +93,7 @@
                                         @endforeach
                                     </div>
 
-                                    <div>
+                                    <div class="max-w-full">
                                         {!! $this->currentQuestion->converted_question_html !!}
                                     </div>
                                 </div>
@@ -170,7 +170,7 @@
                 @endif
             </div>
 
-            <div class="drawer right flex isolate overflow-hidden flex-shrink-0"
+            <div class="hidden drawer right flex isolate overflow-hidden flex-shrink-0"
                  x-data="assessmentDrawer"
                  x-cloak
                  x-bind:class="{'collapsed': collapse}"
