@@ -7340,17 +7340,15 @@ document.addEventListener("alpine:init", function () {
       skipSync: false,
       persistantScore: null,
       getSliderBackgroundSize: function getSliderBackgroundSize(el) {
-        if (this.score === null) {
-          return 0;
-        }
+        if (this.score === null) return 0;
         var min = el.min || 0;
         var max = el.max || 100;
         var value = el.value;
         return (value - min) / (max - min) * 100;
       },
       setSliderBackgroundSize: function setSliderBackgroundSize(el) {
-        el.style.setProperty('--slider-thumb-offset', "".concat(25 / 100 * this.getSliderBackgroundSize(el) - 12.5, "px"));
-        el.style.setProperty('--slider-background-size', "".concat(this.getSliderBackgroundSize(el), "%"));
+        el.style.setProperty("--slider-thumb-offset", "".concat(25 / 100 * this.getSliderBackgroundSize(el) - 12.5, "px"));
+        el.style.setProperty("--slider-background-size", "".concat(this.getSliderBackgroundSize(el), "%"));
       },
       syncInput: function syncInput() {
         this.$wire.sync(modelName, score);
@@ -7365,7 +7363,7 @@ document.addEventListener("alpine:init", function () {
         var _this39 = this;
         // This echos custom JS from the template and for some reason it actually works;
         stack;
-        this.$watch('score', function (value, oldValue) {
+        this.$watch("score", function (value, oldValue) {
           if (_this39.disabled || value === oldValue || _this39.skipSync) {
             _this39.skipSync = false;
             return;
@@ -7377,7 +7375,7 @@ document.addEventListener("alpine:init", function () {
             _this39.score = value = 0;
           }
           _this39.score = value = _this39.halfPoints ? Math.round(value * 2) / 2 : Math.round(value);
-          var numberInput = _this39.$root.querySelector('[x-ref=\'score_slider_continuous_input\']');
+          var numberInput = _this39.$root.querySelector("[x-ref='score_slider_continuous_input']");
           if (numberInput !== null) {
             _this39.setSliderBackgroundSize(numberInput);
           }

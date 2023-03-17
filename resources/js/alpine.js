@@ -1789,9 +1789,7 @@ document.addEventListener("alpine:init", () => {
         skipSync: false,
         persistantScore: null,
         getSliderBackgroundSize(el) {
-            if(this.score === null) {
-                return 0;
-            }
+            if (this.score === null) return 0;
 
             const min = el.min || 0;
             const max = el.max || 100;
@@ -1800,43 +1798,43 @@ document.addEventListener("alpine:init", () => {
             return (value - min) / (max - min) * 100;
         },
         setSliderBackgroundSize(el) {
-            el.style.setProperty('--slider-thumb-offset', `${ 25 / 100 * this.getSliderBackgroundSize(el) -12.5}px`)
-            el.style.setProperty('--slider-background-size', `${this.getSliderBackgroundSize(el)}%`)
+            el.style.setProperty("--slider-thumb-offset", `${25 / 100 * this.getSliderBackgroundSize(el) - 12.5}px`);
+            el.style.setProperty("--slider-background-size", `${this.getSliderBackgroundSize(el)}%`);
         },
         syncInput() {
             this.$wire.sync(modelName, score);
         },
         noChangeEventFallback() {
-            if(this.score === null) {
-                this.score = this.halfPoints ? this.maxScore/2 : Math.round(this.maxScore/2);
+            if (this.score === null) {
+                this.score = this.halfPoints ? this.maxScore / 2 : Math.round(this.maxScore / 2);
                 this.syncInput();
             }
         },
         init() {
             // This echos custom JS from the template and for some reason it actually works;
-            stack
+            stack;
 
-            this.$watch('score', (value, oldValue) => {
-                if(this.disabled || value === oldValue || this.skipSync){
+            this.$watch("score", (value, oldValue) => {
+                if (this.disabled || value === oldValue || this.skipSync) {
                     this.skipSync = false;
                     return;
                 }
 
-                if(value >= this.maxScore){
+                if (value >= this.maxScore) {
                     this.score = value = this.maxScore;
                 }
-                if(value <= 0) {
+                if (value <= 0) {
                     this.score = value = 0;
                 }
 
-                this.score = value = this.halfPoints ? Math.round(value*2)/2 : Math.round(value)
+                this.score = value = this.halfPoints ? Math.round(value * 2) / 2 : Math.round(value);
 
-                const numberInput = this.$root.querySelector('[x-ref=\'score_slider_continuous_input\']');
-                if(numberInput !== null) {
+                const numberInput = this.$root.querySelector("[x-ref='score_slider_continuous_input']");
+                if (numberInput !== null) {
                     this.setSliderBackgroundSize(numberInput);
                 }
             });
-        },
+        }
     }));
 
     Alpine.directive("global", function(el, { expression }) {
