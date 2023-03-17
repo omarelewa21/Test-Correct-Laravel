@@ -93,15 +93,9 @@ RichTextEditor = {
 
     initClassicEditorForStudentplayer: function (editorId, questionId) {
         return ClassicEditor
-            .create(document.querySelector('#' + editorId), {
-                autosave: {
-                    waitingTime: 300,
-                    save(editor) {
-                        editor.updateSourceElement();
-                        editor.sourceElement.dispatchEvent(new Event('input'));
-                    }
-                }
-            })
+            .create(document.querySelector('#' + editorId),
+                this.getConfigForStudent(false, [])
+            )
             .then(editor => {
                 ClassicEditors[editorId] = editor;
                 const wordCountPlugin = editor.plugins.get('WordCount');
@@ -115,6 +109,29 @@ RichTextEditor = {
             .catch(error => {
                 console.error(error);
             });
+    },
+    getConfigForStudent: function (allowWsc, pluginsToAdd = []) {
+        let config = {
+            autosave: {
+                waitingTime: 300,
+                save(editor) {
+                    editor.updateSourceElement();
+                    editor.sourceElement.dispatchEvent(new Event('input'));
+                }
+            },
+        };
+
+        config.toolbar = { removeItems: [] };
+
+        if (allowWsc) {
+            config.wproofreader = window.WEBSPELLCHECKER_CONFIG;
+            config.removePlugins = ['Selection', 'Completion', 'ImageUpload','Image'];
+            config.toolbar.removeItems =  ['selection', 'completion', 'imageUpload','image'];
+        } else {
+            config.removePlugins = ['WProofreader', 'Selection', 'Completion', 'ImageUpload','Image'];
+            config.toolbar.removeItems =  ['wproofreader', 'selection', 'completion', 'imageUpload','image'];
+        }
+        return config;
     },
     getConfigForTeacher: function (allowWsc, pluginsToAdd = []) {
         let config = {
