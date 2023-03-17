@@ -35,8 +35,6 @@ class Login extends Component
     public $doIHaveATcAccount = 1;
     public $doIHaveATcAccountChoice = null;
 
-    public $autofocusInput = 'username';
-
     public $username = '';
     public $password = '';
     public $captcha = '';
