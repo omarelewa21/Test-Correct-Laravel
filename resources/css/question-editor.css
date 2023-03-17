@@ -157,11 +157,20 @@
     border: solid 1px;
     top: calc(var(--header-height) + 40px);
     left: calc(var(--sidebar-width) - 15px);
-    transition: left var(--sidebar-transition);
+    transition: left var(--sidebar-transition),right var(--sidebar-transition);
+}
+
+.drawer.right .collapse-toggle {
+    left: initial;
+    right: calc(var(--sidebar-width) - 15px);
 }
 
 .drawer.collapsed .collapse-toggle {
     left: calc(var(--collapsed-sidebar-width) - 15px);
+}
+.drawer.right.collapsed .collapse-toggle {
+    left: initial;
+    right: calc(var(--collapsed-sidebar-width) - 15px);
 }
 
 .drawer .collapse-toggle.horizontal {

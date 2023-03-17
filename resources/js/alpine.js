@@ -182,8 +182,7 @@ document.addEventListener("alpine:init", () => {
         addRow(value = "", checked = "false") {
             let component = {
                 id: this.data.elements.length,
-                checked: checked,
-                value: value
+                checked: checked, value: value
             };
             this.data.elements.push(component);
         },
@@ -1629,7 +1628,7 @@ document.addEventListener("alpine:init", () => {
             if (this.emitWhenSet) {
                 Livewire.emit("accordion-update", { key, value });
             }
-        },
+        }
     }));
     Alpine.data("fileUpload", (uploadModel, rules) => ({
         isDropping: false,
@@ -1816,6 +1815,78 @@ document.addEventListener("alpine:init", () => {
         },
         middleOfElement(element) {
             return element.offsetTop + (element.offsetHeight / 2);
+        }
+    }));
+    Alpine.data("assessmentDrawer", () => ({
+        activeTab: 1,
+        tabs: [1, 2, 3],
+        collapse: false,
+        container: null,
+        init() {
+            this.container = this.$root.querySelector("#slide-container");
+        },
+        tab(index) {
+            if (!this.tabs.includes(index)) return;
+            this.activeTab = index;
+            const slide = this.$root.querySelector(".slide-" + index);
+            this.container.scroll({ left: slide.offsetLeft, behavior: "smooth" });
+        }
+    }));
+    Alpine.data('scoreSlider', (score, model, maxScore, halfPoints, disabled, stack) => ({
+        score,
+        model,
+        maxScore,
+        timeOut: null,
+        halfPoints,
+        disabled,
+        skipSync: false,
+        persistantScore: null,
+        getSliderBackgroundSize(el) {
+            if (this.score === null) return 0;
+
+            const min = el.min || 0;
+            const max = el.max || 100;
+            const value = el.value;
+
+            return (value - min) / (max - min) * 100;
+        },
+        setSliderBackgroundSize(el) {
+            el.style.setProperty("--slider-thumb-offset", `${25 / 100 * this.getSliderBackgroundSize(el) - 12.5}px`);
+            el.style.setProperty("--slider-background-size", `${this.getSliderBackgroundSize(el)}%`);
+        },
+        syncInput() {
+            this.$wire.sync(modelName, score);
+        },
+        noChangeEventFallback() {
+            if (this.score === null) {
+                this.score = this.halfPoints ? this.maxScore / 2 : Math.round(this.maxScore / 2);
+                this.syncInput();
+            }
+        },
+        init() {
+            // This echos custom JS from the template and for some reason it actually works;
+            stack;
+
+            this.$watch("score", (value, oldValue) => {
+                if (this.disabled || value === oldValue || this.skipSync) {
+                    this.skipSync = false;
+                    return;
+                }
+
+                if (value >= this.maxScore) {
+                    this.score = value = this.maxScore;
+                }
+                if (value <= 0) {
+                    this.score = value = 0;
+                }
+
+                this.score = value = this.halfPoints ? Math.round(value * 2) / 2 : Math.round(value);
+
+                const numberInput = this.$root.querySelector("[x-ref='score_slider_continuous_input']");
+                if (numberInput !== null) {
+                    this.setSliderBackgroundSize(numberInput);
+                }
+            });
         }
     }));
 

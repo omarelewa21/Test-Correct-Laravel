@@ -2,78 +2,28 @@
     'maxScore',
     'score',
     'modelName',
-    'allowHalfPoints' => true,
+    'halfPoints' => true,
     'continuousScoreSlider' => false,
     'disabled' => false
 ])
 @php
-    if ($allowHalfPoints && $maxScore > 7) {
+    if ($halfPoints && $maxScore > 7) {
         $continuousScoreSlider = true;
     }
-    if (!$allowHalfPoints && $maxScore > 15) {
+    if (!$halfPoints && $maxScore > 15) {
         $continuousScoreSlider = true;
     }
 @endphp
 
 <div wire:ignore
-     x-data="{
-        score: @js($score ?? null),
-        modelName: '{{$modelName}}',
-        maxScore: {{ $maxScore }},
-        timeOut: null,
-        allowHalfPoints: @js($allowHalfPoints),
-        disabled: @js($disabled),
-        skipSync: false,
-        persistantScore: null,
-        getSliderBackgroundSize(el) {
-            if(this.score === null) {
-                return 0;
-            }
-
-            var min = el.min || 0;
-            var max = el.max || 100;
-            var value = el.value;
-
-            var size = (value - min) / (max - min) * 100;
-            return size;
-        },
-        setSliderBackgroundSize(el) {
-            el.style.setProperty('--slider-thumb-offset', `${ 25 / 100 * this.getSliderBackgroundSize(el) -12.5}px`)
-            el.style.setProperty('--slider-background-size', `${this.getSliderBackgroundSize(el)}%`)
-        }
-        }"
-     x-init="
-     @stack('scoreSliderStack')
-             $watch('score', (value, oldValue) => {
-                   if(disabled || value === oldValue || skipSync){
-                        skipSync = false;
-                       return;
-                   }
-
-                   if(value >= maxScore){
-                    score = value = maxScore;
-                   }
-                   if(value <= 0) {
-                    score = value = 0;
-                   }
-
-                   score = value = allowHalfPoints ? Math.round(value*2)/2 : Math.round(value)
-
-                   numberInput = document.querySelector('[x-ref=\'score_slider_continuous_input\']');
-                   if(numberInput !== null) {
-                       setSliderBackgroundSize(numberInput);
-                   }
-                });
-                syncInput = () => {
-                    $wire.sync(modelName, score);
-                };
-                noChangeEventFallback = () => {
-                    if(score === null) {
-                        score = allowHalfPoints ? maxScore/2 : Math.round(maxScore/2);
-                        syncInput();
-                    }
-                };
-"
+     x-data="scoreSlider(
+        @json($score),
+        @js($modelName),
+        @js($maxScore),
+        @js($halfPoints),
+        @js($disabled),
+        @stack('scoreSliderStack')
+     )"
      x-on:updated-score.window="skipSync = true; score = $event.detail.score"
         {{ $attributes->except('wire:model')->merge(['class'=>'flex score-slider-container w-fit justify-between items-center space-x-4 relative '.($disabled ? 'opacity-50': '')]) }}
 >
@@ -85,7 +35,7 @@
             <div class="flex w-full h-full justify-between items-center pl-[12px] pr-[15px]"
             >
                 <input type="range" min="0" max="{{$maxScore}}"
-                       :step="allowHalfPoints ? 0.5 : 1"
+                       :step="halfPoints ? 0.5 : 1"
                        x-model="score"
                        class="score-slider-continuous-input"
                        x-ref="score_slider_continuous_input"
@@ -99,7 +49,7 @@
             <div class="flex w-full h-full justify-between items-center pl-[12px] pr-[15px] space-x-[0.125rem]"
                  wire:ignore>
 
-                @if($allowHalfPoints)
+                @if($halfPoints)
                     <template x-for="scoreOption in maxScore">
                         <div class="flex relative rounded-10 h-3 min-w-6 flex-grow border"
                              :class="scoreOption <= score ? 'bg-primary border-primary' : 'border-bluegrey bg-offwhite'">
@@ -127,7 +77,7 @@
                 <input type="range"
                        min="0"
                        max="{{$maxScore}}"
-                       :step="allowHalfPoints ? 0.5 : 1"
+                       :step="halfPoints ? 0.5 : 1"
                        class="score-slider-input w-full"
                        x-model="score"
                        :class="{'hide-thumb': score === null}"
@@ -144,7 +94,7 @@
            max="{{$maxScore}}"
            min="0"
            onclick="this.select()"
-           :step="allowHalfPoints ? 0.5 : 1"
+           :step="halfPoints ? 0.5 : 1"
            x-ref="scoreInput"
            x-on:focusout="syncInput()"
     >
