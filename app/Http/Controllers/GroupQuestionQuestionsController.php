@@ -85,7 +85,7 @@ class GroupQuestionQuestionsController extends Controller
         try {
             if ($request->get('question_id') === null) {
 
-                $groupQuestionQuestion = GroupQuestionQuestion::store($groupQuestion, $request->all());
+                $groupQuestionQuestion = GroupQuestionQuestion::store($groupQuestionQuestionManager, $request->all());
 
             } else {
                 $groupQuestionQuestion = new GroupQuestionQuestion();

@@ -137,7 +137,7 @@ class MatchingQuestion extends Question implements QuestionInterface
 
         $correctAnswers = [];
         foreach($matchingQuestionAnswers as $matchingQuestionAnswer) {
-            if (Str::uppre($matchingQuestionAnswer->getAttribute('type')) === 'RIGHT' && in_array($matchingQuestionAnswer->getAttribute('correct_answer_id'), $possibleAnswers)) {
+            if (Str::upper($matchingQuestionAnswer->getAttribute('type')) === 'RIGHT' && in_array($matchingQuestionAnswer->getAttribute('correct_answer_id'), $possibleAnswers)) {
                 if( Str::lower($this->subtype) === 'classify'
                     && ( empty($matchingQuestionAnswer->getAttribute('answer')) || $matchingQuestionAnswer->getAttribute('answer') === ' ' ) ){
                     continue;
