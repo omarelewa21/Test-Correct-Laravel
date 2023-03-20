@@ -13368,6 +13368,7 @@ RichTextEditor = {
     });
   },
   initSelectionCMS: function initSelectionCMS(editorId) {
+    var _this = this;
     var lang = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'nl_NL';
     var allowWsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
     var editor = ClassicEditors[editorId];
@@ -13378,12 +13379,14 @@ RichTextEditor = {
       ClassicEditors[editorId] = editor;
       WebspellcheckerTlc.lang(editor, lang);
       // WebspellcheckerTlc.setEditorToReadOnly(editor);
+      _this.setReadOnly(editor);
       window.editor = editor;
     })["catch"](function (error) {
       console.error(error);
     });
   },
   initCompletionCMS: function initCompletionCMS(editorId, lang) {
+    var _this2 = this;
     var allowWsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
     var editor = ClassicEditors[editorId];
     if (editor) {
@@ -13393,6 +13396,7 @@ RichTextEditor = {
       ClassicEditors[editorId] = editor;
       WebspellcheckerTlc.lang(editor, lang);
       // WebspellcheckerTlc.setEditorToReadOnly(editor);
+      _this2.setReadOnly(editor);
     })["catch"](function (error) {
       console.error(error);
     });
@@ -13489,6 +13493,7 @@ RichTextEditor = {
     return config;
   },
   initForTeacher: function initForTeacher(editorId, lang) {
+    var _this3 = this;
     var allowWsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
     var editor = ClassicEditors[editorId];
     if (editor) {
@@ -13498,16 +13503,20 @@ RichTextEditor = {
       ClassicEditors[editorId] = editor;
       WebspellcheckerTlc.lang(editor, lang);
       // WebspellcheckerTlc.setEditorToReadOnly(editor);
+      _this3.setReadOnly(editor);
     })["catch"](function (error) {
       console.error(error);
     });
   },
+  /** @TODO: this method should be refactored to setReadOnlyIfApplicable  but it has a reference in readspeaker_tlc.js which i dont want to test 1 day before deployment.*/
   setReadOnly: function setReadOnly(editor) {
-    editor.isReadOnly = true;
-    var editables = editor.ui.view.editable.element.querySelectorAll("[contenteditable=true]");
-    editables.forEach(function (element) {
-      element.setAttribute('contenteditable', false);
-    });
+    if (editor.sourceElement.hasAttribute('disabled')) {
+      editor.isReadOnly = true;
+      var editables = editor.ui.view.editable.element.querySelectorAll("[contenteditable=true]");
+      editables.forEach(function (element) {
+        element.setAttribute('contenteditable', false);
+      });
+    }
   },
   writeContentToTexarea: function writeContentToTexarea(editorId) {
     var editor = ClassicEditors[editorId];
@@ -65952,9 +65961,12 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
 /*!*******************************!*\
   !*** ./resources/css/app.css ***!
   \*******************************/
-/***/ (() => {
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-throw new Error("Module build failed (from ./node_modules/mini-css-extract-plugin/dist/loader.js):\nModuleBuildError: Module build failed (from ./node_modules/css-loader/dist/cjs.js):\nError: Can't resolve '../fonts/Nunito/Nunito-VariableFont_wght.ttf' in '/Users/martinfolkerts/Sites/test-correct/resources/css'\n    at finishWithoutResolve (/Users/martinfolkerts/Sites/test-correct/node_modules/enhanced-resolve/lib/Resolver.js:309:18)\n    at /Users/martinfolkerts/Sites/test-correct/node_modules/enhanced-resolve/lib/Resolver.js:386:15\n    at /Users/martinfolkerts/Sites/test-correct/node_modules/enhanced-resolve/lib/Resolver.js:435:5\n    at eval (eval at create (/Users/martinfolkerts/Sites/test-correct/node_modules/tapable/lib/HookCodeFactory.js:33:10), <anonymous>:16:1)\n    at /Users/martinfolkerts/Sites/test-correct/node_modules/enhanced-resolve/lib/Resolver.js:435:5\n    at eval (eval at create (/Users/martinfolkerts/Sites/test-correct/node_modules/tapable/lib/HookCodeFactory.js:33:10), <anonymous>:27:1)\n    at /Users/martinfolkerts/Sites/test-correct/node_modules/enhanced-resolve/lib/DescriptionFilePlugin.js:87:43\n    at /Users/martinfolkerts/Sites/test-correct/node_modules/enhanced-resolve/lib/Resolver.js:435:5\n    at eval (eval at create (/Users/martinfolkerts/Sites/test-correct/node_modules/tapable/lib/HookCodeFactory.js:33:10), <anonymous>:15:1)\n    at /Users/martinfolkerts/Sites/test-correct/node_modules/enhanced-resolve/lib/Resolver.js:435:5\n    at eval (eval at create (/Users/martinfolkerts/Sites/test-correct/node_modules/tapable/lib/HookCodeFactory.js:33:10), <anonymous>:16:1)\n    at /Users/martinfolkerts/Sites/test-correct/node_modules/enhanced-resolve/lib/Resolver.js:435:5\n    at eval (eval at create (/Users/martinfolkerts/Sites/test-correct/node_modules/tapable/lib/HookCodeFactory.js:33:10), <anonymous>:16:1)\n    at /Users/martinfolkerts/Sites/test-correct/node_modules/enhanced-resolve/lib/Resolver.js:435:5\n    at eval (eval at create (/Users/martinfolkerts/Sites/test-correct/node_modules/tapable/lib/HookCodeFactory.js:33:10), <anonymous>:27:1)\n    at /Users/martinfolkerts/Sites/test-correct/node_modules/enhanced-resolve/lib/DescriptionFilePlugin.js:87:43\n    at /Users/martinfolkerts/Sites/test-correct/node_modules/enhanced-resolve/lib/Resolver.js:435:5\n    at eval (eval at create (/Users/martinfolkerts/Sites/test-correct/node_modules/tapable/lib/HookCodeFactory.js:33:10), <anonymous>:16:1)\n    at /Users/martinfolkerts/Sites/test-correct/node_modules/enhanced-resolve/lib/Resolver.js:435:5\n    at eval (eval at create (/Users/martinfolkerts/Sites/test-correct/node_modules/tapable/lib/HookCodeFactory.js:33:10), <anonymous>:15:1)\n    at /Users/martinfolkerts/Sites/test-correct/node_modules/enhanced-resolve/lib/DirectoryExistsPlugin.js:41:15\n    at process.processTicksAndRejections (node:internal/process/task_queues:81:21)\n    at processResult (/Users/martinfolkerts/Sites/test-correct/node_modules/webpack/lib/NormalModule.js:758:19)\n    at /Users/martinfolkerts/Sites/test-correct/node_modules/webpack/lib/NormalModule.js:860:5\n    at /Users/martinfolkerts/Sites/test-correct/node_modules/loader-runner/lib/LoaderRunner.js:400:11\n    at /Users/martinfolkerts/Sites/test-correct/node_modules/loader-runner/lib/LoaderRunner.js:252:18\n    at context.callback (/Users/martinfolkerts/Sites/test-correct/node_modules/loader-runner/lib/LoaderRunner.js:124:13)\n    at Object.loader (/Users/martinfolkerts/Sites/test-correct/node_modules/css-loader/dist/index.js:155:5)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)");
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+// extracted by mini-css-extract-plugin
+
 
 /***/ }),
 
@@ -75263,6 +75275,7 @@ module.exports = JSON.parse('{"name":"axios","version":"0.21.4","description":"P
 /******/ 		// [resolve, reject, Promise] = chunk loading, 0 = chunk loaded
 /******/ 		var installedChunks = {
 /******/ 			"/js/app": 0,
+/******/ 			"css/app": 0,
 /******/ 			"css/app_pdf": 0,
 /******/ 			"css/print-test-pdf": 0
 /******/ 		};
@@ -75314,10 +75327,10 @@ module.exports = JSON.parse('{"name":"axios","version":"0.21.4","description":"P
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module depends on other loaded chunks and execution need to be delayed
-/******/ 	__webpack_require__.O(undefined, ["css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/js/app.js")))
-/******/ 	__webpack_require__.O(undefined, ["css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/css/app.css")))
-/******/ 	__webpack_require__.O(undefined, ["css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/css/app_pdf.css")))
-/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/css/print-test-pdf.css")))
+/******/ 	__webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/js/app.js")))
+/******/ 	__webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/css/app.css")))
+/******/ 	__webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/css/app_pdf.css")))
+/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/css/print-test-pdf.css")))
 /******/ 	__webpack_exports__ = __webpack_require__.O(__webpack_exports__);
 /******/ 	
 /******/ })()

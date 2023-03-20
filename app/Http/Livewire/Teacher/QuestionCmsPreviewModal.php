@@ -78,7 +78,7 @@ class QuestionCmsPreviewModal extends ModalComponent implements QuestionCms
     {
         $question = Question::whereUuid($uuid)->first();
         $this->inTest = $inTest;
-        $this->allowWsc = Auth::user()->schoolLocation->allow_wsc;
+//        $this->allowWsc = Auth::user()->schoolLocation->allow_wsc;
 
         $this->initializeComponent($question);
     }

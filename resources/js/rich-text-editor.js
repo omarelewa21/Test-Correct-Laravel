@@ -55,6 +55,7 @@ RichTextEditor = {
                 ClassicEditors[editorId] = editor;
                 WebspellcheckerTlc.lang(editor, lang);
                 // WebspellcheckerTlc.setEditorToReadOnly(editor);
+                this.setReadOnly(editor);
                 window.editor = editor;
             })
             .catch(error => {
@@ -77,6 +78,7 @@ RichTextEditor = {
 
                 WebspellcheckerTlc.lang(editor, lang);
                 // WebspellcheckerTlc.setEditorToReadOnly(editor);
+                this.setReadOnly(editor);
             })
             .catch(error => {
                 console.error(error);
@@ -121,15 +123,15 @@ RichTextEditor = {
             },
         };
 
-        config.toolbar = { removeItems: [] };
+        config.toolbar = {removeItems: []};
 
         if (allowWsc) {
             config.wproofreader = window.WEBSPELLCHECKER_CONFIG;
-            config.removePlugins = ['Selection', 'Completion', 'ImageUpload','Image'];
-            config.toolbar.removeItems =  ['selection', 'completion', 'imageUpload','image'];
+            config.removePlugins = ['Selection', 'Completion', 'ImageUpload', 'Image'];
+            config.toolbar.removeItems = ['selection', 'completion', 'imageUpload', 'image'];
         } else {
-            config.removePlugins = ['WProofreader', 'Selection', 'Completion', 'ImageUpload','Image'];
-            config.toolbar.removeItems =  ['wproofreader', 'selection', 'completion', 'imageUpload','image'];
+            config.removePlugins = ['WProofreader', 'Selection', 'Completion', 'ImageUpload', 'Image'];
+            config.toolbar.removeItems = ['wproofreader', 'selection', 'completion', 'imageUpload', 'image'];
         }
         return config;
     },
@@ -159,7 +161,7 @@ RichTextEditor = {
             }
         };
         config.removePlugins = [];
-        config.toolbar = { removeItems: [] };
+        config.toolbar = {removeItems: []};
         if (allowWsc) {
             config.wproofreader = window.WEBSPELLCHECKER_CONFIG;
         } else {
@@ -167,7 +169,7 @@ RichTextEditor = {
         }
 
         const availablePlugins = ['Selection', 'Completion'];
-        const pluginsToRemove =  availablePlugins.filter(plugin => !pluginsToAdd.includes(plugin));
+        const pluginsToRemove = availablePlugins.filter(plugin => !pluginsToAdd.includes(plugin));
 
         config.removePlugins = [...config.removePlugins, ...pluginsToRemove];
         config.toolbar.removeItems = pluginsToRemove.map(item => item.toLowerCase());
@@ -189,18 +191,22 @@ RichTextEditor = {
                 ClassicEditors[editorId] = editor;
                 WebspellcheckerTlc.lang(editor, lang);
                 // WebspellcheckerTlc.setEditorToReadOnly(editor);
+                this.setReadOnly(editor);
             })
             .catch(error => {
                 console.error(error);
             });
     },
 
+    /** @TODO: this method should be refactored to setReadOnlyIfApplicable  but it has a reference in readspeaker_tlc.js which i dont want to test 1 day before deployment.*/
     setReadOnly: function (editor) {
-        editor.isReadOnly = true;
-        var editables = editor.ui.view.editable.element.querySelectorAll("[contenteditable=true]");
-        editables.forEach(function (element) {
-            element.setAttribute('contenteditable', false);
-        });
+        if (editor.sourceElement.hasAttribute('disabled')) {
+            editor.isReadOnly = true;
+            var editables = editor.ui.view.editable.element.querySelectorAll("[contenteditable=true]");
+            editables.forEach(function (element) {
+                element.setAttribute('contenteditable', false);
+            });
+        }
     },
     writeContentToTexarea: function (editorId) {
         var editor = ClassicEditors[editorId];
