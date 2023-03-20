@@ -13,4 +13,6 @@ return [
     'colearning_score_tooltip'                     => 'Scores given by students to answers are displayed during the assessment. If there are no discrepancies, the system will assign the score to the answer.',
     'discrepancies_toggle_tooltip'                 => 'When two students assign the same score to an answer, the teacher most likely would give the same score. You can choose to skip these answers during the assessment.',
     'Nakijken'                                     => 'Assessment',
+    'Score uit CO-Learning'                        => 'Score from CO-Learning',
+    'Automatisch nakijken'                         => 'Score automatically',
 ];

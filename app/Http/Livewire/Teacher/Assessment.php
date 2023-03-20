@@ -6,6 +6,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Session;
 use Livewire\Component;
 use tcCore\Answer;
+use tcCore\AnswerRating;
 use tcCore\Exceptions\AssessmentException;
 use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Http\Interfaces\CollapsableHeader;
@@ -52,6 +53,7 @@ class Assessment extends Component implements CollapsableHeader
     /* Data properties filled from cache */
     protected $testTakeData;
     protected $answers;
+    protected $answerRatings;
     protected $questions;
     protected $groups;
     protected $students;
@@ -118,6 +120,43 @@ class Assessment extends Component implements CollapsableHeader
         }
 
         return true;
+    }
+
+    public function getFastScoringOptionsProperty()
+    {
+        $middle = (int)round($this->currentQuestion->score / 2);
+        $top = (int)$this->currentQuestion->score;
+
+        return collect([
+            [
+                'title'  => "Onvoldoende",
+                'points' => "0",
+                'text'   => "Geen van de belangrijkste onderdelen aangekaart. Antwoord bevat onvoldoende analyse of verklaring.",
+                'value'  => 0,
+            ],
+            [
+                'title'  => "Voldoende",
+                'points' => "+" . $middle,
+                'text'   => "Een aantal van de belangrijkste onderdelen aangekaart. Antwoord bevat slechte analyse of verklaring.",
+                'value'  => $middle,
+            ],
+            [
+                'title'  => "Uitstekend",
+                'points' => "+" . $top,
+                'text'   => "Bijna alle belangrijkste onderdelen aangekaart. Antwoord bevat goede analyse of verklaring.",
+                'value'  => $top,
+            ]
+        ]);
+    }
+
+    public function getShowAutomaticallyScoredToggleProperty(): bool
+    {
+        return $this->currentAnswer->answerRatings->where('type', AnswerRating::TYPE_SYSTEM)->isNotEmpty();
+    }
+
+    public function getShowCoLearningScoreToggleProperty(): bool
+    {
+        return $this->currentAnswer->answerRatings->where('type', AnswerRating::TYPE_STUDENT)->isNotEmpty();
     }
 
     /* Event listener methods */
@@ -197,6 +236,8 @@ class Assessment extends Component implements CollapsableHeader
             $this->dispatchUpdateQuestionNavigatorEvent();
         }
 
+        $this->score = $this->figureOutAnswerScore();
+
         return [
             'index' => $this->answerNavigationValue,
             'last'  => $this->lastAnswerForQuestion,
@@ -251,6 +292,7 @@ class Assessment extends Component implements CollapsableHeader
                 ->with([
                     'testParticipants:id,uuid,test_take_id,user_id,test_take_status_id',
                     'testParticipants.answers:id,uuid,test_participant_id,question_id,json,final_rating,done',
+                    'testParticipants.answers.answerRatings:id,answer_id,type,rating,advise',
                     'test:id',
                     'test.testQuestions:id,test_id,question_id',
                     'test.testQuestions.question',
@@ -262,7 +304,7 @@ class Assessment extends Component implements CollapsableHeader
             return $participant->answers->map(function ($answer) {
                 return $answer;
             });
-        })->where('done')
+        })
             ->sortBy('order')
             ->sortBy('test_participant_id')
             ->values();
@@ -325,7 +367,6 @@ class Assessment extends Component implements CollapsableHeader
      */
     private function getLastQuestionsCountForCurrentStudent(): int
     {
-
         return $this->questions->search(
                 $this->questions->where('id', $this->getAvailableAnswersForCurrentStudent()->last()->question_id)->first()
             ) + 1;
@@ -483,13 +524,21 @@ class Assessment extends Component implements CollapsableHeader
     {
         if (blank($this->questionNavigationValue) || blank($this->answerNavigationValue)) return false;
 
-        $answer = $this->answers->get($this->answerNavigationValue - 1);
-        if (!$answer) return false;
+        $question = $this->questions->get((int)$this->questionNavigationValue - 1);
+        $answer = $this->answers->where('question_id', $question->id)->values()->get($this->answerNavigationValue - 1);
 
-        $questionIndex = $this->questions->search(
-            $this->questions->where('question_id', $answer->question_id)
-        );
+        return $answer && $question && $answer->question_id === $question->id;
+    }
 
-        return $questionIndex !== false;
+    private function currentIndexIsAnInfoQuestion()
+    {
+        return $this->questions->get((int)$this->questionNavigationValue - 1)?->first()->isType('Infoscreen');
+    }
+
+    private function figureOutAnswerScore(): ?int
+    {
+        $ratings = $this->currentAnswer->answerRatings;
+
+        return $ratings->where('type', AnswerRating::TYPE_SYSTEM)->first()?->rating;
     }
 }

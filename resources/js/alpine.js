@@ -1779,7 +1779,7 @@ document.addEventListener("alpine:init", () => {
             this.container.scroll({ left: slide.offsetLeft, behavior: "smooth" });
         }
     }));
-    Alpine.data('scoreSlider', (score, model, maxScore, halfPoints, disabled, stack) => ({
+    Alpine.data("scoreSlider", (score, model, maxScore, halfPoints, disabled, stack) => ({
         score,
         model,
         maxScore,
@@ -1802,7 +1802,10 @@ document.addEventListener("alpine:init", () => {
             el.style.setProperty("--slider-background-size", `${this.getSliderBackgroundSize(el)}%`);
         },
         syncInput() {
-            this.$wire.sync(modelName, score);
+            // Don't update if the value is the same;
+            if (this.$wire[this.model] === this.score) return;
+            this.$wire.sync(this.model, this.score);
+            this.$dispatch("slider-score-updated", { score: this.score });
         },
         noChangeEventFallback() {
             if (this.score === null) {
@@ -1834,9 +1837,26 @@ document.addEventListener("alpine:init", () => {
                     this.setSliderBackgroundSize(numberInput);
                 }
             });
+
+            this.$nextTick(() => {
+                this.$root.querySelector("[x-ref='scoreInput']").focus();
+            });
         }
     }));
-
+    Alpine.data("fastScoring", (scoreOptions, currentScore) => ({
+        fastOption: null,
+        scoreOptions,
+        setOption(key) {
+            this.fastOption = key;
+            this.$dispatch("updated-score", { score: scoreOptions[key] });
+        },
+        updatedScore(score) {
+            this.fastOption = score ? this.scoreOptions.indexOf(score) : null;
+        },
+        init() {
+            this.fastOption = currentScore ? this.scoreOptions.indexOf(currentScore) : null;
+        }
+    }));
     Alpine.directive("global", function(el, { expression }) {
         let f = new Function("_", "$data", "_." + expression + " = $data;return;");
         f(window, el._x_dataStack[0]);

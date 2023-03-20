@@ -13,4 +13,6 @@ return [
     'colearning_score_tooltip'                     => 'Scores die studenten hebben gegeven aan antwoorden worden getoond tijdens het nakijken. Als er geen discrepanties zijn kent het systeem deze score toe aan het antwoord',
     'discrepancies_toggle_tooltip'                 => 'Wanneer twee studenten dezelfde score toekennen aan een antwoord, zou de docent meestal dezelfde score toekennen. Je kunt ervoor kiezen om deze antwoord over te slaan tijdens het nakijken.',
     'Nakijken'                                     => 'Nakijken',
+    'Score uit CO-Learning'                        => 'Score uit CO-Learning',
+    'Automatisch nakijken'                         => 'Automatisch nakijken',
 ];

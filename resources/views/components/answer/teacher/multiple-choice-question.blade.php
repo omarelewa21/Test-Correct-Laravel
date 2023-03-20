@@ -86,7 +86,7 @@
     @endif
 
     @if($question->isSubType('ARQ'))
-        <div class="flex w-1/2 flex-col">
+        <div class="flex w-full flex-col">
             <div>
                 <div class="px-5 space-x-4 text-base bold flex flex-row">
                     <span class="w-16">{{__('test_take.option')}}</span>

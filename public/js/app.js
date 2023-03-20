@@ -7329,7 +7329,7 @@ document.addEventListener("alpine:init", function () {
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('scoreSlider', function (score, model, maxScore, halfPoints, disabled, stack) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("scoreSlider", function (score, model, maxScore, halfPoints, disabled, stack) {
     return {
       score: score,
       model: model,
@@ -7351,7 +7351,12 @@ document.addEventListener("alpine:init", function () {
         el.style.setProperty("--slider-background-size", "".concat(this.getSliderBackgroundSize(el), "%"));
       },
       syncInput: function syncInput() {
-        this.$wire.sync(modelName, score);
+        // Don't update if the value is the same;
+        if (this.$wire[this.model] === this.score) return;
+        this.$wire.sync(this.model, this.score);
+        this.$dispatch("slider-score-updated", {
+          score: this.score
+        });
       },
       noChangeEventFallback: function noChangeEventFallback() {
         if (this.score === null) {
@@ -7380,6 +7385,27 @@ document.addEventListener("alpine:init", function () {
             _this39.setSliderBackgroundSize(numberInput);
           }
         });
+        this.$nextTick(function () {
+          _this39.$root.querySelector("[x-ref='scoreInput']").focus();
+        });
+      }
+    };
+  });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("fastScoring", function (scoreOptions, currentScore) {
+    return {
+      fastOption: null,
+      scoreOptions: scoreOptions,
+      setOption: function setOption(key) {
+        this.fastOption = key;
+        this.$dispatch("updated-score", {
+          score: scoreOptions[key]
+        });
+      },
+      updatedScore: function updatedScore(score) {
+        this.fastOption = score ? this.scoreOptions.indexOf(score) : null;
+      },
+      init: function init() {
+        this.fastOption = currentScore ? this.scoreOptions.indexOf(currentScore) : null;
       }
     };
   });
