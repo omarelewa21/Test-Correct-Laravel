@@ -66,7 +66,6 @@ class Completion extends Plugin {
                     for(const value of range.getItems()){
                         selection = selection + value.data;
                     }
-                    console.log(selection);
 
                     let firstChar = selection[0];
                     let lastChar = selection[selection.length - 1];
