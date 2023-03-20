@@ -61,4 +61,14 @@ trait HasFeatureSettings
     {
         return static::FEATURE_SETTING_ENUM;
     }
+
+    public function fillFeatureSettings(array &$attributes)
+    {
+        foreach($attributes as $attribute => $value) {
+            if ($this->getEnumByKey($attribute)) {
+                $this->$attribute = $value;
+                unset($attributes[$attribute]);
+            }
+        }
+    }
 }

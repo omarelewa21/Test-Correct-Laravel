@@ -192,6 +192,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         self::reguard();
         parent::fill($attributes);
 
+        $this->fillFeatureSettings($attributes);
+
         if (array_key_exists('external_id', $attributes)) {
             $this->updateExternalId = $attributes['external_id'];
         }
@@ -2777,15 +2779,6 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 //        SchoolClass::where('user_id', $this->id)
 
         return 'LEARNING_GOAL';
-    }
-    public function setHasPublishedTestAttribute(bool $boolean)
-    {
-        return $this->featureSettings()->setSetting('has_published_test', $boolean);
-    }
-
-    public function getHasPublishedTestAttribute() : bool
-    {
-        return $this->featureSettings()->getSetting('has_published_test')->exists();
     }
 
     public function scopeToetsenbakkers($query)
