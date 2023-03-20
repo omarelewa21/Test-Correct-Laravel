@@ -13,6 +13,7 @@ enum SchoolLocationFeatureSetting: string
     case ALLOW_NEW_CO_LEARNING_TEACHER = 'allow_new_co_learning_teacher';
     case ALLOW_CREATHLON = 'allow_creathlon';
     case ALLOW_OLYMPIADE = 'allow_olympiade';
+    case ALLOW_NEW_ASSESSMENT = 'allow_new_assessment';
 
     public function validateValue($value)
     {
