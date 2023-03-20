@@ -9,7 +9,7 @@
     $temp = $allowWsc ? 'true':'false';
         switch($type) {
            case 'cms':
-                   $initFunctionCall = "RichTextEditor.initForTeacher('".$editorId."','".$lang."', ".$allowWsc.")";
+               $initFunctionCall = "RichTextEditor.initForTeacher('".$editorId."','".$lang."', ".$allowWsc.")";
                break;
            case 'cms-completion':
                $initFunctionCall = "RichTextEditor.initCompletionCMS('".$editorId."','".$lang."',".$allowWsc.")";
