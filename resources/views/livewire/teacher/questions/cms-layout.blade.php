@@ -336,6 +336,8 @@
                             <x-input.toggle-row-with-title wire:model="question.maintain_position"
                                                            class="{{ $this->isSettingsGeneralPropertyDisabled('maintainPosition') ? 'text-disabled' : '' }}"
                                                            :disabled="$this->isSettingsGeneralPropertyDisabled('maintainPosition')"
+                                                           :toolTip="$this->isGroupQuestion() ? __('cms.dont_shuffle_question_group_tooltip_text') : ''"
+
                             >
                                 <x-icon.shuffle-off/>
                                 <span class="bold"> {{ $this->isGroupQuestion() ? __('cms.Deze vraaggroep niet shuffelen') : __('cms.Deze vraag niet shuffelen') }}</span>
@@ -404,7 +406,9 @@
                         @endif
 
                         @if($this->isGroupQuestion())
-                            <x-input.toggle-row-with-title wire:model="question.shuffle">
+                            <x-input.toggle-row-with-title wire:model="question.shuffle"
+                                                           :tool-tip="__('cms.shuffle_questions_in_group_tooltip_text')"
+                            >
                                 <x-icon.shuffle/>
                                 <span class="bold">{{ __('cms.Vragen in deze group shuffelen')}}</span>
                             </x-input.toggle-row-with-title>
