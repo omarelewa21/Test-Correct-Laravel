@@ -141,6 +141,9 @@ class CmsClassify extends CmsBase
         $result = [];
         $nr = 0;
         foreach ($this->instance->cmsPropertyBag['answerStruct'] as $key => $value) {
+            if(is_object($value)){
+                $value = (array) $value;
+            }
             $result[$key] = (object)['id' => $key, 'order' => $nr + 1, 'left' => $value['left'], 'rights' => $value['rights']];
             if (!isset($this->instance->cmsPropertyBag['answerSubCount'][$key])) {
                 $this->instance->cmsPropertyBag['answerSubCount'][$key] = 1;
