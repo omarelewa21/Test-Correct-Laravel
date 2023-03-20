@@ -144,9 +144,9 @@ class SchoolLocation extends BaseModel implements AccessCheckable
 
     public function fill(array $attributes)
     {
-        parent::fill($attributes);
-
         $this->fillFeatureSettings($attributes);
+
+        parent::fill($attributes);
 
         if (array_key_exists('school_years', $attributes)) {
             $this->schoolYears = $attributes['school_years'];

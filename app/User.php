@@ -190,9 +190,10 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         // attributes that are not on the database but are transformable to other fields
         // or relations. They will end up in the insert query when guarding is off.
         self::reguard();
-        parent::fill($attributes);
 
         $this->fillFeatureSettings($attributes);
+
+        parent::fill($attributes);
 
         if (array_key_exists('external_id', $attributes)) {
             $this->updateExternalId = $attributes['external_id'];
