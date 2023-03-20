@@ -448,7 +448,7 @@ class CoLearning extends Component implements CollapsableHeader
 
         $this->questionIndex = $this->questionsOrderList->get($this->testTake->discussing_question_id)['order'];
 
-        $this->questionIndexOpenOnly = $this->questionsOrderList->get($this->testTake->discussing_question_id)['order_open_only'];
+        $this->questionIndexOpenOnly = $this->questionsOrderList->get($this->testTake->discussing_question_id)['order_open_only'] ?: $this->questionIndexOpenOnly;
     }
 
     protected function getStaticNavigationData()

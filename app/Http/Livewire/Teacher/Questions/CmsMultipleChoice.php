@@ -81,12 +81,14 @@ class CmsMultipleChoice extends CmsBase
         collect($this->instance->cmsPropertyBag['answerStruct'])->each(function ($value, $key) use (&$result) {
             $value = (array)$value;
 
-            $result[] = (object)[
-                'id'     => $value['id'],
-                'order'  => $key + 1,
-                'answer' => $value['answer'],
-                'score'  => (int)$value['score']
-            ];
+            if(array_key_exists('id',$value)) {
+                $result[] = (object)[
+                    'id'     => $value['id'],
+                    'order'  => $key + 1,
+                    'answer' => $value['answer'],
+                    'score'  => (int)$value['score']
+                ];
+            }
         })->toArray();
 
         if (count($this->instance->cmsPropertyBag['answerStruct']) < $this->instance->cmsPropertyBag['answerCount']) {
