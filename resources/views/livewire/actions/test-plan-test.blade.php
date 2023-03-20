@@ -22,7 +22,7 @@
                 <x-icon.schedule/>
             </x-button.icon>
         @else
-            <x-button.icon color="cta" wire:click="handle" title="{{ __('teacher.Inplannen') }}">
+            <x-button.icon wire:key='icon-plan-button' color="cta" wire:click="handle" title="{{ __('teacher.Inplannen') }}">
                 <x-icon.schedule/>
             </x-button.icon>
         @endif
