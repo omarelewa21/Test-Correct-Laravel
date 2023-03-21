@@ -8,7 +8,6 @@
                 {!! $question->converted_question_html  !!}
             </div>
             @if($studentAnswer)
-                @js($answer->id)
                 <div>
                     <x-button.true-false-toggle :wireKey="'toggle-'.$answer->uuid"
                                                 :initialValue="$answerStruct->first(fn($link) => $link->active)?->score > 0"
@@ -36,7 +35,7 @@
                  ])
                      @if($answerLink->active && $question->all_or_nothing && $firstActiveAnswer)
                          x-data="multipleChoiceAllOrNothingLines(@js($allButFirstActiveAnswerIds), @js($studentAnswer))"
-                         x-cloak
+                     x-cloak
                      @endif
                      data-active-item="@js($answerLink->multiple_choice_question_answer_id)"
                 >

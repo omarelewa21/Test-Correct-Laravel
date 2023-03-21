@@ -6,7 +6,6 @@
     <x-partials.header.assessment :testName="$testName" />
     @if($this->headerCollapsed)
         <div class="flex min-h-[calc(100vh-var(--header-height))] relative">
-            @js($this->currentAnswer->id)
             <div class="px-15 py-10 gap-6 flex flex-col flex-1">
                 {{-- Group section --}}
                 @if($this->currentGroup)
@@ -243,7 +242,7 @@
                                     </x-tooltip>
                                 </div>
                             @endif
-
+                            @if($this->showScoreSlider)
                             <div class="score-slider | flex w-full"
                                  wire:key="score-slider-{{  $this->questionNavigationValue.$this->answerNavigationValue }}"
                             >
@@ -254,7 +253,8 @@
                                                       mode="small"
                                 />
                             </div>
-
+                            @endif
+                            @if($this->showFastScoring)
                             <div class="fast-scoring | flex flex-col w-full gap-2"
                                  wire:key="fast-scoring-{{  $this->questionNavigationValue.$this->answerNavigationValue }}"
                                  x-data="fastScoring(@js($this->fastScoringOptions->map->value), @js($this->score))"
@@ -283,6 +283,7 @@
                                     @endforeach
                                 </div>
                             </div>
+                            @endif
                         </div>
                         <div class="slide-2 p-6 flex-[1_0_100%] h-full w-[var(--sidebar-width)] space-y-4">
                             Content Tab 2

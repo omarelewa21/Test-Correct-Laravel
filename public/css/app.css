@@ -10462,9 +10462,6 @@ video {
 .p-8{
   padding: 2rem;
 }
-.p-3\.5{
-  padding: 0.875rem;
-}
 .\!px-2{
   padding-left: 0.5rem !important;
   padding-right: 0.5rem !important;
@@ -10727,9 +10724,6 @@ video {
 }
 .pr-\[15px\]{
   padding-right: 15px;
-}
-.pr-\[7px\]{
-  padding-right: 7px;
 }
 .pt-0{
   padding-top: 0px;
@@ -11110,11 +11104,6 @@ video {
 }
 .transition-transform{
   transition-property: transform;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 150ms;
-}
-.transition-\[borderWidth\]{
-  transition-property: borderWidth;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
 }

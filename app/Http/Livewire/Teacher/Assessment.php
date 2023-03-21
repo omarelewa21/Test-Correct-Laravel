@@ -124,16 +124,28 @@ class Assessment extends Component implements CollapsableHeader
 
     public function getFastScoringOptionsProperty()
     {
-        $middle = (int)round($this->currentQuestion->score / 2);
-        $top = (int)$this->currentQuestion->score;
+        $score = $this->currentQuestion->score;
+        $middle = (int)round($score / 2);
+        $top = (int)$score;
 
-        return collect([
+        $options = collect([
             [
                 'title'  => "Onvoldoende",
                 'points' => "0",
                 'text'   => "Geen van de belangrijkste onderdelen aangekaart. Antwoord bevat onvoldoende analyse of verklaring.",
                 'value'  => 0,
-            ],
+            ]
+        ]);
+        if ($score < 2) {
+            return $options->push([
+                'title'  => "Voldoende",
+                'points' => "+" . $top,
+                'text'   => "Bijna alle belangrijkste onderdelen aangekaart. Antwoord bevat goede analyse of verklaring.",
+                'value'  => $top,
+            ]);
+        }
+
+        return $options->push(
             [
                 'title'  => "Voldoende",
                 'points' => "+" . $middle,
@@ -145,18 +157,29 @@ class Assessment extends Component implements CollapsableHeader
                 'points' => "+" . $top,
                 'text'   => "Bijna alle belangrijkste onderdelen aangekaart. Antwoord bevat goede analyse of verklaring.",
                 'value'  => $top,
-            ]
-        ]);
+            ]);
     }
 
     public function getShowAutomaticallyScoredToggleProperty(): bool
     {
-        return $this->currentAnswer->answerRatings->where('type', AnswerRating::TYPE_SYSTEM)->isNotEmpty();
+        return $this->currentAnswer->answerRatings->where('type', AnswerRating::TYPE_SYSTEM)->isNotEmpty()
+            && !$this->currentQuestion->isType('Infoscreen');
     }
 
     public function getShowCoLearningScoreToggleProperty(): bool
     {
-        return $this->currentAnswer->answerRatings->where('type', AnswerRating::TYPE_STUDENT)->isNotEmpty();
+        return $this->currentAnswer->answerRatings->where('type', AnswerRating::TYPE_STUDENT)->isNotEmpty()
+            && !$this->currentQuestion->isType('Infoscreen');
+    }
+
+    public function getShowFastScoringProperty(): bool
+    {
+        return !$this->currentQuestion->isType('Infoscreen');
+    }
+
+    public function getShowScoreSliderProperty(): bool
+    {
+        return !$this->currentQuestion->isType('Infoscreen');
     }
 
     /* Event listener methods */
