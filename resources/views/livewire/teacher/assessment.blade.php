@@ -11,6 +11,7 @@
                 <div class="flex flex-col">
                     <span>vraag: @js($this->currentQuestion->id)</span>
                     <span>antwoord: @js($this->currentAnswer->id)</span>
+                    <span>testtake: @js($this->testTakeData->id)</span>
                 </div>
                 @if($this->currentGroup)
                     <x-accordion.container :active-container-key="$this->groupPanel ? 'group' : ''"
@@ -255,14 +256,20 @@
                                                       :score="$this->score"
                                                       :halfPoints="$this->currentQuestion->decimal_score"
                                                       mode="small"
+                                                      :disabled="!$this->currentAnswer->isAnswered"
                                 />
                             </div>
                             @endif
                             @if($this->showFastScoring)
                             <div class="fast-scoring | flex flex-col w-full gap-2"
                                  wire:key="fast-scoring-{{  $this->questionNavigationValue.$this->answerNavigationValue }}"
-                                 x-data="fastScoring(@js($this->fastScoringOptions->map->value), @js($this->score))"
+                                 x-data="fastScoring(
+                                     @js($this->fastScoringOptions->map->value),
+                                     @js($this->score),
+                                     @js(!$this->currentAnswer->isAnswered)
+                                 )"
                                  x-on:slider-score-updated.window="updatedScore($event.detail.score)"
+                                 x-bind:class="{'disabled': disabled}"
                             >
                                 <span class="flex ">Snelscore opties</span>
                                 <div class="flex flex-col w-full gap-2">

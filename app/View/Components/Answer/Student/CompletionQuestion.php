@@ -15,7 +15,9 @@ class CompletionQuestion extends QuestionComponent
     protected function setAnswerStruct($question, $answer): void
     {
         $correctAnswers = $question->getCorrectAnswerStructure()->pluck('answer');
-        $givenAnswers = collect(array_values(json_decode($answer->json, true)))
+        $abc = json_decode($answer->json, true) ?? [];
+
+        $givenAnswers = collect(array_values($abc))
             ->map(function ($answerOption, $key) use ($correctAnswers){
             return ['given' => $answerOption, 'correct' => $answerOption === $correctAnswers[$key]];
         })->toArray();

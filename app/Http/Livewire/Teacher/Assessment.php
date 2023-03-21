@@ -69,7 +69,7 @@ class Assessment extends Component implements CollapsableHeader
     public string $testTakeUuid;
     public bool $openOnly;
 
-    /* Livewire methods */
+    /* Lifecycle methods */
     protected function getListeners()
     {
         return [
@@ -105,6 +105,11 @@ class Assessment extends Component implements CollapsableHeader
     public function render()
     {
         return view('livewire.teacher.assessment')->layout('layouts.assessment');
+    }
+
+    public function updatedScore($value)
+    {
+        AnswerRating::where('type', AnswerRating::TYPE_TEACHER);
     }
 
     /* Computed properties */
@@ -170,8 +175,10 @@ class Assessment extends Component implements CollapsableHeader
 
     public function getShowCoLearningScoreToggleProperty(): bool
     {
-        return $this->currentAnswer->answerRatings->where('type', AnswerRating::TYPE_STUDENT)->isNotEmpty()
-            || $this->currentQuestion->isType('Infoscreen');
+        if ($this->currentQuestion->isType('Infoscreen')) {
+            return false;
+        }
+        return $this->currentAnswerHasRatingsOfType(AnswerRating::TYPE_STUDENT);
     }
 
     public function getShowFastScoringProperty(): bool
@@ -325,11 +332,7 @@ class Assessment extends Component implements CollapsableHeader
                 ->first();
         });
 
-        $this->answers = $this->testTakeData->testParticipants->flatMap(function ($participant) {
-            return $participant->answers->map(function ($answer) {
-                return $answer;
-            });
-        })
+        $this->answers = $this->testTakeData->testParticipants->flatMap(fn($participant) => $participant->answers->map(fn($answer) => $answer))
             ->sortBy('order')
             ->sortBy('test_participant_id')
             ->values();
@@ -562,13 +565,23 @@ class Assessment extends Component implements CollapsableHeader
 
     private function figureOutAnswerScore(): ?int
     {
-        $ratings = $this->currentAnswer->answerRatings;
+        $ratings = $this->currentAnswer->answerRatings->whereNotNull('rating');
+        if ($rating = $ratings->first(fn($rating) => $rating->type === AnswerRating::TYPE_SYSTEM)) {
+            return $rating->rating;
+        }
+        if ($rating = $ratings->first(fn($rating) => $rating->type === AnswerRating::TYPE_STUDENT)) {
+            return $rating->rating;
+        }
 
-        return $ratings->where('type', AnswerRating::TYPE_SYSTEM)->first()?->rating;
+        if(!$this->currentAnswer->isAnswered) {
+            return 0;
+        }
+
+        return null;
     }
 
     private function currentAnswerHasRatingsOfType(string $type): bool
     {
-        return $this->currentAnswer->answerRatings->where('type', $type)->isNotEmpty();
+        return $this->currentAnswer->answerRatings->where('type', $type)->whereNotNull('rating')->isNotEmpty();
     }
 }

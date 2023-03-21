@@ -7385,16 +7385,19 @@ document.addEventListener("alpine:init", function () {
             _this39.setSliderBackgroundSize(numberInput);
           }
         });
-        this.$nextTick(function () {
-          _this39.$root.querySelector("[x-ref='scoreInput']").focus();
-        });
+        if (!this.disabled) {
+          this.$nextTick(function () {
+            _this39.$root.querySelector("[x-ref='scoreInput']").focus();
+          });
+        }
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("fastScoring", function (scoreOptions, currentScore) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("fastScoring", function (scoreOptions, currentScore, disabled) {
     return {
       fastOption: null,
       scoreOptions: scoreOptions,
+      disabled: disabled,
       setOption: function setOption(key) {
         this.fastOption = key;
         this.$dispatch("updated-score", {
@@ -7405,7 +7408,7 @@ document.addEventListener("alpine:init", function () {
         this.fastOption = score ? this.scoreOptions.indexOf(score) : null;
       },
       init: function init() {
-        this.fastOption = currentScore ? this.scoreOptions.indexOf(currentScore) : null;
+        this.fastOption = currentScore !== null ? this.scoreOptions.indexOf(currentScore) : null;
       }
     };
   });

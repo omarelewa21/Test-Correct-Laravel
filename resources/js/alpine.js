@@ -1837,15 +1837,17 @@ document.addEventListener("alpine:init", () => {
                     this.setSliderBackgroundSize(numberInput);
                 }
             });
-
-            this.$nextTick(() => {
-                this.$root.querySelector("[x-ref='scoreInput']").focus();
-            });
+            if(!this.disabled) {
+                this.$nextTick(() => {
+                    this.$root.querySelector("[x-ref='scoreInput']").focus();
+                });
+            }
         }
     }));
-    Alpine.data("fastScoring", (scoreOptions, currentScore) => ({
+    Alpine.data("fastScoring", (scoreOptions, currentScore, disabled) => ({
         fastOption: null,
         scoreOptions,
+        disabled,
         setOption(key) {
             this.fastOption = key;
             this.$dispatch("updated-score", { score: scoreOptions[key] });
@@ -1854,7 +1856,7 @@ document.addEventListener("alpine:init", () => {
             this.fastOption = score ? this.scoreOptions.indexOf(score) : null;
         },
         init() {
-            this.fastOption = currentScore ? this.scoreOptions.indexOf(currentScore) : null;
+            this.fastOption = currentScore !== null ? this.scoreOptions.indexOf(currentScore) : null;
         }
     }));
     Alpine.directive("global", function(el, { expression }) {

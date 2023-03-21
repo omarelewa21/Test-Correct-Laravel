@@ -7927,6 +7927,17 @@ span.completion-response-object-container{
     border-color: var(--primary);
 }
 
+.fast-scoring.disabled {
+    pointer-events: none;
+}
+.fast-scoring.disabled .fast-option,
+.fast-scoring.disabled .fast-option .note,
+.fast-scoring.disabled .fast-option.active,
+.fast-scoring.disabled .fast-option.active .borderdiv,
+.fast-scoring.disabled .fast-option.active .note {
+    opacity: .75;
+}
+
 /*
 ! tailwindcss v3.2.7 | MIT License | https://tailwindcss.com
 */
