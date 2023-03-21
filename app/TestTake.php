@@ -3,6 +3,7 @@
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
@@ -536,7 +537,7 @@ class TestTake extends BaseModel
             $user = Auth::user();
             $skipDefaults = $user->isValidExamCoordinator() && $this->hasRatedTestTakesFilter($filters);
             $query->when(!$skipDefaults, function ($query) use ($filters, $user) {
-                $query->accessForTeacher($user, (array)$filters)
+                $query->accessForTeacher($user, $filters)
                     ->withoutDemoTeacherForUser($user)
                     ->onlyTestsFromSubjectsOrIfDemoThenOnlyWhenOwner($user)
                     ->when($user->isValidExamCoordinator(), fn($query) => $query->scheduledByExamCoordinator($user));
@@ -965,7 +966,7 @@ class TestTake extends BaseModel
         return $this;
     }
 
-    private function orUserIsInvigilatorScope($query, User $user, array $filters = [])
+    private function orUserIsInvigilatorScope($query, User $user, $filters = [])
     {
         if (!$this->canUseInvigilatorScope($filters)) {
             return $this;
@@ -986,7 +987,7 @@ class TestTake extends BaseModel
         return $this;
     }
 
-    public function scopeAccessForTeacher($query, User $user, array $filters = [])
+    public function scopeAccessForTeacher($query, User $user, $filters = [])
     {
         $query->where(function ($query) use ($filters, $user) {
             $this
@@ -1322,8 +1323,11 @@ class TestTake extends BaseModel
             ->doesntExist();
     }
 
-    private function canUseInvigilatorScope(array $filters): bool
+    private function canUseInvigilatorScope($filters): bool
     {
+        if ($filters instanceof Collection) {
+            $filters = $filters->toArray();
+        }
         if (!array_key_exists('test_take_status_id', $filters)) {
             return true;
         }
