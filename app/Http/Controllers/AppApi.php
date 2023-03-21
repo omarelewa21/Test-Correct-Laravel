@@ -43,8 +43,8 @@ class AppApi extends Controller
         $testTakeEvent->setAttribute('metadata', json_decode($request->metadata, true));
         $testParticipant->testTake->testTakeEvents()->save($testTakeEvent);
 
-        // force hand-in test if a VM has been detected
-        if ($testTakeEvent->testTakeEventType->reason == "vm") {
+        // force hand-in test if a VM has been detected, but not if it is an assignment
+        if ($testTakeEvent->testTakeEventType->reason == "vm" && !$testParticipant->testTake->test->isAssignment()) {
             $testParticipant->setAttribute('test_take_status_id', TestTakeStatus::STATUS_TAKEN)->save();
             TestTakeForceTakenAway::dispatch($testParticipant->uuid);
         }
