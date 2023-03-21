@@ -13353,7 +13353,17 @@ RichTextEditor = {
       },
       autoGrow_maxHeight: 0,
       toolbar: [],
-      wproofreader: window.WEBSPELLCHECKER_CONFIG
+      wproofreader: {
+        autoSearch: false,
+        autoDestroy: true,
+        autocorrect: true,
+        autocomplete: true,
+        serviceProtocol: "https",
+        servicePort: "80",
+        serviceHost: "wsc.test-correct.nl",
+        servicePath: "wscservice/api",
+        enableBadgeButton: false
+      }
     }).then(function (editor) {
       ClassicEditors[editorId] = editor;
       var wordCountPlugin = editor.plugins.get('WordCount');
@@ -13437,7 +13447,20 @@ RichTextEditor = {
       removeItems: []
     };
     if (allowWsc) {
-      config.wproofreader = window.WEBSPELLCHECKER_CONFIG;
+      console.log('yyoyouy');
+      config.wproofreader = {
+        autoSearch: false,
+        autoDestroy: true,
+        autocorrect: false,
+        autocomplete: false,
+        actionItems: ['addWord', 'ignoreAll', 'ignore', 'settings', 'toggle', 'proofreadDialog'],
+        enableBadgeButton: true,
+        serviceProtocol: "https",
+        servicePort: "80",
+        serviceHost: "wsc.test-correct.nl",
+        servicePath: "wscservice/api",
+        srcUrl: "https://wsc.test-correct.nl/wscservice/wscbundle/wscbundle.js"
+      };
       config.removePlugins = ['Selection', 'Completion', 'ImageUpload', 'Image'];
       config.toolbar.removeItems = ['selection', 'completion', 'imageUpload', 'image'];
     } else {
@@ -13478,7 +13501,19 @@ RichTextEditor = {
       removeItems: []
     };
     if (allowWsc) {
-      config.wproofreader = window.WEBSPELLCHECKER_CONFIG;
+      config.wproofreader = {
+        autoSearch: false,
+        autoDestroy: true,
+        autocorrect: false,
+        autocomplete: false,
+        actionItems: ['addWord', 'ignoreAll', 'ignore', 'settings', 'toggle', 'proofreadDialog'],
+        enableBadgeButton: true,
+        serviceProtocol: "https",
+        servicePort: "80",
+        serviceHost: "wsc.test-correct.nl",
+        servicePath: "wscservice/api",
+        srcUrl: "https://wsc.test-correct.nl/wscservice/wscbundle/wscbundle.js"
+      };
     } else {
       config.removePlugins = ['WProofreader'];
     }
