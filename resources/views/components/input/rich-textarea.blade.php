@@ -21,7 +21,7 @@
                $initFunctionCall = "RichTextEditor.initStudentCoLearning('".$editorId."','".$lang."',".$allowWsc.")";
                break;
            default:
-              $initFunctionCall = "RichTextEditor.initStudent('".$editorId."')";
+               $initFunctionCall = "RichTextEditor.initClassicEditorForStudentplayer('".$editorId."','".$lang."',".$allowWsc.")";
               break;
        }
 @endphp
