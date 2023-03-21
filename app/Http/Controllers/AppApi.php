@@ -5,7 +5,6 @@ namespace tcCore\Http\Controllers;
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
-use tcCore\Events\TestTakeForceTakenAway;
 use tcCore\Http\Requests\AppApiFraudEventRequest;
 use tcCore\Http\Requests\AppApiHandInRequest;
 use tcCore\TestParticipant;
@@ -48,7 +47,6 @@ class AppApi extends Controller
             !$testParticipant->testTake->test->isAssignment()
         ) {
             $testParticipant->setAttribute('test_take_status_id', TestTakeStatus::STATUS_TAKEN)->save();
-            TestTakeForceTakenAway::dispatch($testParticipant->uuid);
         }
 
         $testParticipant->testTake->testTakeEvents()->save($testTakeEvent);
