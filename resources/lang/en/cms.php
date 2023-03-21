@@ -165,7 +165,7 @@ return [
     'Wijzigingen opgeslagen'                                                                 => 'Changes saved',
     'item added'                                                                             => ':item added',
     'Vragen in deze group shuffelen'                                                         => 'Shuffle questions within this question group',
-    'shuffle_questions_in_group_tooltip_text'                                                => 'This setting ensures that the questions within this question group are shuffled. The order of of the questions get shuffled.',
+    'shuffle_questions_in_group_tooltip_text'                                                => 'This setting ensures that the questions within this question group are shuffled when the test itself is also set to shuffle. The order of of the questions get shuffled.',
     'Omschrijving'                                                                           => 'Description',
     'Deze vraaggroep afsluiten'                                                              => 'Close this question group',
     'carousel_not_enough_questions'                                                          => 'There are too few questions in the question carousel to use this test. Add more questions or adjust the amount of questions to ask on the test',

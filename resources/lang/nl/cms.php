@@ -164,7 +164,7 @@ return [
     'Wijzigingen opgeslagen'                                                                 => 'Wijzigingen opgeslagen',
     'item added'                                                                             => ':item toegevoegd',
     'Vragen in deze group shuffelen'                                                         => 'Vragen binnen deze vraaggroep shuffelen',
-    'shuffle_questions_in_group_tooltip_text'                                                         => 'Deze instelling zorgt ervoor dat de vragen binnen deze vraaggroep geshuffelt worden. De volgorde wordt door elkaar geschudt.',
+    'shuffle_questions_in_group_tooltip_text'                                                => 'Deze instelling zorgt ervoor dat de vragen binnen deze vraaggroep geshuffelt worden wanneer de toets zelf ook op shuffelen is gezet. De volgorde wordt door elkaar geschudt.',
     'Omschrijving'                                                                           => 'Omschrijving',
     'Deze vraaggroep afsluiten'                                                              => 'Deze vraaggroep afsluiten',
     'carousel_not_enough_questions'                                                          => 'Er zijn te weinig vragen in de vraagcarrousel om deze toets te gebruiken. Vul het aantal vragen aan of pas het aantal te vragen toetsvragen aan.',
