@@ -4,7 +4,7 @@
     </x-slot>
     <x-slot name="content">
         <div class="flex-grow">
-                @if($allowedSubjects->isEmpty() || true)
+                @if($allowedSubjects->isEmpty())
                     <div class="mb-4">
                         <div class="notification warning max-w-full">
                             {{ __('teacher.not_linked_to_subjects') }}
