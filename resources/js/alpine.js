@@ -1863,7 +1863,7 @@ document.addEventListener("alpine:init", () => {
             this.container.scroll({ left: slide.offsetLeft, behavior: "smooth" });
         }
     }));
-    Alpine.data('scoreSlider', (score, model, maxScore, halfPoints, disabled, stack) => ({
+    Alpine.data('scoreSlider', (score, model, maxScore, halfPoints, disabled, coLearning) => ({
         score,
         model,
         maxScore,
@@ -1886,7 +1886,7 @@ document.addEventListener("alpine:init", () => {
             el.style.setProperty("--slider-background-size", `${this.getSliderBackgroundSize(el)}%`);
         },
         syncInput() {
-            this.$wire.sync(modelName, score);
+            this.$wire.sync(this.model, this.score);
         },
         noChangeEventFallback() {
             if (this.score === null) {
@@ -1896,7 +1896,20 @@ document.addEventListener("alpine:init", () => {
         },
         init() {
             // This echos custom JS from the template and for some reason it actually works;
-            stack;
+            if(coLearning) {
+                Livewire.hook('message.received', (message, component) => {
+                    if (component.name === 'student.co-learning' && message.updateQueue[0]?.method === 'updateHeartbeat') {
+                        let scoreInputElement = this.$root.querySelector('[x-ref=\'scoreInput\']');
+                        this.persistentScore = (scoreInputElement !== null && scoreInputElement.value !== '') ? scoreInputElement.value : null;
+                    }
+                })
+                Livewire.hook('message.processed', (message, component) => {
+                    if (component.name === 'student.co-learning'&& message.updateQueue[0]?.method ==='updateHeartbeat') {
+                        this.skipSync = true;
+                        this.score = this.persistentScore;
+                    }
+                })
+            }
 
 
             this.$watch("score", (value, oldValue) => {

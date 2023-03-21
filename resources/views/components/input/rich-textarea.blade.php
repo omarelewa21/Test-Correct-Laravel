@@ -18,7 +18,7 @@
                $initFunctionCall = "RichTextEditor.initSelectionCMS('".$editorId."','".$lang."',".$allowWsc.")";
                break;
            case 'student-co-learning':
-               $initFunctionCall = "RichTextEditor.initStudentCoLearning('".$editorId."','".$lang."',".$allowWsc.")";
+               $initFunctionCall = "RichTextEditor.initStudentCoLearning('".$editorId."','".$lang."',".$temp.")";
                break;
            default:
                $initFunctionCall = "RichTextEditor.initClassicEditorForStudentplayer('".$editorId."','".$lang."',".$allowWsc.")";

@@ -3,7 +3,7 @@
         <div class="relative" wire:key="editor-{{$answerRatingId}}">
             <x-input.group for="me" class="w-full disabled mt-4" >
                 <x-input.rich-textarea wire:model.debounce.1000ms="answer"
-                                       :editor-id="$answerRatingId"
+                                       :editor-id="'ar-'.$answerRatingId"
                                        :allow-wsc="$webSpellChecker"
                                        type="student-co-learning"
                                        lang="{{$question->lang ?? 'nl_NL'}}"

@@ -4,7 +4,8 @@
     'modelName',
     'halfPoints' => true,
     'continuousScoreSlider' => false,
-    'disabled' => false
+    'disabled' => false,
+    'coLearning' => false
 ])
 @php
     if ($halfPoints && $maxScore > 7) {
@@ -17,12 +18,12 @@
 
 <div wire:ignore
      x-data="scoreSlider(
-        @json($score),
+        @js($score),
         @js($modelName),
         @js($maxScore),
         @js($halfPoints),
         @js($disabled),
-        @stack('scoreSliderStack')
+        @js($coLearning)
      )"
      x-on:updated-score.window="skipSync = true; score = $event.detail.score"
         {{ $attributes->except('wire:model')->merge(['class'=>'flex score-slider-container w-fit justify-between items-center space-x-4 relative '.($disabled ? 'opacity-50': '')]) }}

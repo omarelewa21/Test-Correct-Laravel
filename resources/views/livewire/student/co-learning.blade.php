@@ -47,30 +47,13 @@
                     <div class="flex content-center justify-between"
                          wire:key="ar-{{$this->answerRatingId}}"
                     >
-                        @push('scoreSliderStack')
-                            @once
-                                Livewire.hook('message.received', (message, component) => {
-                                    if (component.name === 'student.co-learning' && message.updateQueue[0]?.method === 'updateHeartbeat') {
-                                        scoreInputElement = document.querySelector('[x-ref=\'scoreInput\']');
-                                        let value = (scoreInputElement !== null && scoreInputElement.value !== '') ? scoreInputElement.value : null;
-                                        persistentScore = value;
-                                    }
-                                })
-                                Livewire.hook('message.processed', (message, component) => {
-                                    if (component.name === 'student.co-learning'&& message.updateQueue[0]?.method ==='updateHeartbeat') {
-                                        skipSync = true;
-                                        score = persistentScore;
-                                    }
-                                })
-                            @endonce
-                        @endpush()
-
                         <x-input.score-slider class=""
                                               model-name="rating"
                                               :max-score="$maxRating"
                                               :score="$rating"
-                                              :allow-half-points="$allowRatingWithHalfPoints"
+                                              :half-points="$allowRatingWithHalfPoints"
                                               :disabled="!$this->answerRating->answer->isAnswered"
+                                              :co-learning="true"
                         />
                     </div>
                 @endif
