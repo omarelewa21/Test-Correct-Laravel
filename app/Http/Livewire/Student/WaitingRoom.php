@@ -105,6 +105,11 @@ class WaitingRoom extends Component
             }
         }
 
+        // through the AppApi a Virtual Machine has been reported, so we cancel taking the test
+        if ($this->testParticipant->test_take_status_id == TestTakeStatus::STATUS_TAKEN) {
+            return $this->escortUserFromWaitingRoom();
+        }
+
         $this->redirectRoute('student.test-take-laravel', $this->take);
     }
 
