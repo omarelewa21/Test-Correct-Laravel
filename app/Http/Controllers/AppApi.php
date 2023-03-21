@@ -5,6 +5,7 @@ namespace tcCore\Http\Controllers;
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
+use tcCore\Events\TestTakeForceTakenAway;
 use tcCore\Http\Requests\AppApiFraudEventRequest;
 use tcCore\Http\Requests\AppApiHandInRequest;
 use tcCore\TestParticipant;
@@ -45,6 +46,7 @@ class AppApi extends Controller
         // force hand-in test if a VM has been detected
         if ($testTakeEvent->testTakeEventType->reason == "vm") {
             $testParticipant->setAttribute('test_take_status_id', TestTakeStatus::STATUS_TAKEN)->save();
+            TestTakeForceTakenAway::dispatch($testParticipant->uuid);
         }
 
     }
