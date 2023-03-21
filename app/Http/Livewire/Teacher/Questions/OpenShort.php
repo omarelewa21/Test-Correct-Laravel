@@ -376,8 +376,8 @@ class OpenShort extends Component implements QuestionCms
             return $this->$newName($arguments);
         }
 
-            if(!method_exists(get_parent_class($this), $method) && !str_contains($method,'hydrate')){
-            $errorMessage = sprintf('Method (%s) not found on parent, type is `%s` (%s) on file %s:%d',$method,$this->question['type'],$this->question['subtype'],__FILE__,__LINE__);
+        if (!method_exists(get_parent_class($this), $method) && !str_contains($method, 'hydrate')) {
+            $errorMessage = sprintf('Method (%s) not found on parent, type is `%s` (%s) on file %s:%d', $method, $this->question['type'], $this->question['subtype'], __FILE__, __LINE__);
             Bugsnag::notifyException(new \Exception($errorMessage));
         }
         return parent::__call($method, $arguments);
@@ -596,7 +596,7 @@ class OpenShort extends Component implements QuestionCms
             }
             if ($this->referrer === 'cake.filemanagement') {
                 $fileManagementUuid = Test::whereUuid($this->testId)->first()->fileManagement->uuid;
-                return CakeRedirectHelper::redirectToCake('files.view_testupload', $fileManagementUuid );
+                return CakeRedirectHelper::redirectToCake('files.view_testupload', $fileManagementUuid);
             }
         }
         $url = sprintf("tests/view/%s", $this->testId);
@@ -957,6 +957,7 @@ class OpenShort extends Component implements QuestionCms
             $this->question['decimal_score'] = $q->decimal_score;
             $this->question['lang'] = !is_null($q->lang) ? $q->lang : Auth::user()->schoolLocation->wscLanguage;
             $this->question['draft'] = $q->draft;
+            $this->question['shuffle'] = $q->shuffle;
 
             $this->lang = $this->question['lang'];
             $this->educationLevelId = $q->education_level_id;
@@ -1334,7 +1335,7 @@ class OpenShort extends Component implements QuestionCms
 
         $this->save(false);
 
-        $continueEvent = $data['group'] ?  'continue-to-add-group' : 'continue-to-new-slide';
+        $continueEvent = $data['group'] ? 'continue-to-add-group' : 'continue-to-new-slide';
         $this->dispatchBrowserEvent($continueEvent, $data);
 
         if ($data['newSubQuestion']) {
@@ -1464,7 +1465,7 @@ class OpenShort extends Component implements QuestionCms
 
     private function getTestLanguage(): string
     {
-        if(UserFeatureSetting::hasSetting(Auth::user(), self::SETTING_LANG)){
+        if (UserFeatureSetting::hasSetting(Auth::user(), self::SETTING_LANG)) {
             return UserFeatureSetting::getSetting(Auth::user(), self::SETTING_LANG);
         }
         $lang = Auth::user()->schoolLocation->wscLanguage;
