@@ -67,6 +67,8 @@
     min-width: 100px;
     max-width: 250px;
     width: max-content;
+    will-change: filter;
+    z-index: 10;
 }
 
 .custom-choices .choices__list .choices__item.choices__item--choice.choices__item--selectable {
