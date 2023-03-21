@@ -36,10 +36,11 @@
                 <x-actions.test-open-preview variant="icon-button" :uuid="$this->testId"/>
                 <livewire:actions.test-make-pdf variant="icon-button" :uuid="$this->testId"/>
                 <livewire:actions.test-quick-take variant="icon-button" :uuid="$this->testId"/>
-                <livewire:actions.test-plan-test :variant="$this->testIsPublished ? 'icon-button-with-text' : 'icon-button'" :uuid="$this->testId"/>
-
                 @if(!$this->testIsPublished)
+                    <livewire:actions.test-plan-test variant="icon-button" :uuid="$this->testId"/>
                     <livewire:actions.test-make-published :uuid="$this->testId" :wire:key="'make-published'.$this->testId"/>
+                @else
+                    <livewire:actions.test-plan-test variant="icon-button-with-text" :uuid="$this->testId"/>
                 @endif
             </div>
         @endif
