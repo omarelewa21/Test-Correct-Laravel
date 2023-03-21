@@ -32,16 +32,10 @@ class AppApi extends Controller
             return;
         }
 
-        $isReportedInLastTwoMinutesAndNotConfirmed = $testParticipant->testTake->testTakeEvents()->where('test_take_event_type_id', '=', $reasonId)->whereBetween('created_at', [now()->subMinutes(2), now()])->where('confirmed', '=', 0)->first();
-        if ($isReportedInLastTwoMinutesAndNotConfirmed) {
-            return;
-        }
-
         $testTakeEvent = new TestTakeEvent();
         $testTakeEvent->setAttribute('test_take_event_type_id', $reasonId);
         $testTakeEvent->setAttribute('test_participant_id', $testParticipant->getKey());
         $testTakeEvent->setAttribute('metadata', json_decode($request->metadata, true));
-        $testParticipant->testTake->testTakeEvents()->save($testTakeEvent);
 
         // force hand-in test if a VM has been detected, but not if it is an assignment
         if (
@@ -52,6 +46,13 @@ class AppApi extends Controller
             $testParticipant->setAttribute('test_take_status_id', TestTakeStatus::STATUS_TAKEN)->save();
             TestTakeForceTakenAway::dispatch($testParticipant->uuid);
         }
+
+        $isReportedInLastTwoMinutesAndNotConfirmed = $testParticipant->testTake->testTakeEvents()->where('test_take_event_type_id', '=', $reasonId)->whereBetween('created_at', [now()->subMinutes(2), now()])->where('confirmed', '=', 0)->first();
+        if ($isReportedInLastTwoMinutesAndNotConfirmed) {
+            return;
+        }
+
+        $testParticipant->testTake->testTakeEvents()->save($testTakeEvent);
 
     }
 }
