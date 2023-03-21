@@ -15,4 +15,11 @@ return [
     'Nakijken'                                     => 'Nakijken',
     'Score uit CO-Learning'                        => 'Score uit CO-Learning',
     'Automatisch nakijken'                         => 'Automatisch nakijken',
+    'insufficient'                                 => 'Onvoldoende',
+    'insufficient_text'                            => 'Geen van de belangrijkste onderwerpen aangekaart. Antwoord bevat onvoldoende analyse of verklaring.',
+    'sufficient'                                   => 'Voldoende',
+    'sufficient_text'                              => 'Een aantal van de belangrijke onderwerpen aangekaart. Antwoord bevat delen van de analyse of verklaring.',
+    'great'                                        => 'Uitstekend',
+    'great_text'                                   => 'Bijna alle belangrijkste onderwerpen aangekaart. Antwoord bevat een sterk onderbouwde analyse of verklaring.',
+
 ];

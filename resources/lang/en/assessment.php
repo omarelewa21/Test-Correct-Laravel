@@ -15,4 +15,11 @@ return [
     'Nakijken'                                     => 'Assessment',
     'Score uit CO-Learning'                        => 'Score from CO-Learning',
     'Automatisch nakijken'                         => 'Score automatically',
+    'insufficient'                                 => 'Insufficient',
+    'insufficient_text'                            => 'None of the important topics addressed. Answer contains insufficient analysis or explanation.',
+    'sufficient'                                   => 'Sufficient',
+    'sufficient_text'                              => 'Some of the important topics addressed. Answer contains parts of the analysis or explanation.',
+    'great'                                        => 'Great',
+    'great_text'                                   => 'Addressed almost all important topics. Answer contains substantiated analysis or explanation.',
+
 ];

@@ -8,6 +8,10 @@
         <div class="flex min-h-[calc(100vh-var(--header-height))] relative">
             <div class="px-15 py-10 gap-6 flex flex-col flex-1">
                 {{-- Group section --}}
+                <div class="flex flex-col">
+                    <span>vraag: @js($this->currentQuestion->id)</span>
+                    <span>antwoord: @js($this->currentAnswer->id)</span>
+                </div>
                 @if($this->currentGroup)
                     <x-accordion.container :active-container-key="$this->groupPanel ? 'group' : ''"
                                            :wire:key="'group-section-'.$this->questionNavigationValue.$this->answerNavigationValue"
@@ -249,7 +253,7 @@
                                 <x-input.score-slider modelName="score"
                                                       :maxScore="$this->currentQuestion->score"
                                                       :score="$this->score"
-                                                      :allowHalfPoints="$this->currentQuestion->decimal_score"
+                                                      :halfPoints="$this->currentQuestion->decimal_score"
                                                       mode="small"
                                 />
                             </div>

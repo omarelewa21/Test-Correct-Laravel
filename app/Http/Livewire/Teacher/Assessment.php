@@ -130,46 +130,48 @@ class Assessment extends Component implements CollapsableHeader
 
         $options = collect([
             [
-                'title'  => "Onvoldoende",
+                'title'  => __('assessment.insufficient'),
                 'points' => "0",
-                'text'   => "Geen van de belangrijkste onderdelen aangekaart. Antwoord bevat onvoldoende analyse of verklaring.",
+                'text'   => __('assessment.insufficient_text'),
                 'value'  => 0,
             ]
         ]);
         if ($score < 2) {
             return $options->push([
-                'title'  => "Voldoende",
+                'title'  => __('assessment.sufficient'),
                 'points' => "+" . $top,
-                'text'   => "Bijna alle belangrijkste onderdelen aangekaart. Antwoord bevat goede analyse of verklaring.",
+                'text'   => __('assessment.great_text'),
                 'value'  => $top,
             ]);
         }
 
         return $options->push(
             [
-                'title'  => "Voldoende",
+                'title'  => __('assessment.sufficient'),
                 'points' => "+" . $middle,
-                'text'   => "Een aantal van de belangrijkste onderdelen aangekaart. Antwoord bevat slechte analyse of verklaring.",
+                'text'   => __('assessment.sufficient_text'),
                 'value'  => $middle,
             ],
             [
-                'title'  => "Uitstekend",
+                'title'  => __('assessment.great'),
                 'points' => "+" . $top,
-                'text'   => "Bijna alle belangrijkste onderdelen aangekaart. Antwoord bevat goede analyse of verklaring.",
+                'text'   => __('assessment.great_text'),
                 'value'  => $top,
             ]);
     }
 
     public function getShowAutomaticallyScoredToggleProperty(): bool
     {
-        return $this->currentAnswer->answerRatings->where('type', AnswerRating::TYPE_SYSTEM)->isNotEmpty()
-            && !$this->currentQuestion->isType('Infoscreen');
+        if ($this->currentQuestion->isType('Infoscreen')) {
+            return false;
+        }
+        return $this->currentAnswerHasRatingsOfType(AnswerRating::TYPE_SYSTEM);
     }
 
     public function getShowCoLearningScoreToggleProperty(): bool
     {
         return $this->currentAnswer->answerRatings->where('type', AnswerRating::TYPE_STUDENT)->isNotEmpty()
-            && !$this->currentQuestion->isType('Infoscreen');
+            || $this->currentQuestion->isType('Infoscreen');
     }
 
     public function getShowFastScoringProperty(): bool
@@ -563,5 +565,10 @@ class Assessment extends Component implements CollapsableHeader
         $ratings = $this->currentAnswer->answerRatings;
 
         return $ratings->where('type', AnswerRating::TYPE_SYSTEM)->first()?->rating;
+    }
+
+    private function currentAnswerHasRatingsOfType(string $type): bool
+    {
+        return $this->currentAnswer->answerRatings->where('type', $type)->isNotEmpty();
     }
 }
