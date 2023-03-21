@@ -163,16 +163,6 @@ class TestTakeEvent extends BaseModel {
         return (bool)$query->count();
     }
 
-    public static function isFraudEventAcknowledgedPreviously($participantId, string $eventType) {
-        $query = self::leftJoin('test_take_event_types', 'test_take_events.test_take_event_type_id', '=', 'test_take_event_types.id')
-            ->where('confirmed', 1)
-            ->where('test_participant_id', $participantId)
-            ->where('requires_confirming', 1)
-            ->where('reason', $eventType);
-
-        return (bool)$query->count();
-    }
-
     public function shouldIgnoreEventRegistration()
     {
         if ($this->testTake->test->isAssignment()){
