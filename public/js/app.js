@@ -13847,38 +13847,18 @@ RichTextEditor = {
   initStudentCoLearning: function initStudentCoLearning(editorId) {
     var lang = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'nl_NL';
     var wsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-    return ClassicEditor.create(document.querySelector('#' + editorId), {
-      autosave: {
-        waitingTime: 300,
-        save: function save(editor) {
-          editor.updateSourceElement();
-          editor.sourceElement.dispatchEvent(new Event('input'));
-        }
-      },
-      wordcount: {
-        showWordCount: true,
-        showParagraphs: false,
-        showCharCount: true,
-        countSpacesAsChars: true
-      },
-      autoGrow_maxHeight: 0,
-      toolbar: [],
-      wproofreader: {
-        autoSearch: false,
-        autoDestroy: true,
-        autocorrect: true,
-        autocomplete: true,
-        serviceProtocol: "https",
-        servicePort: "80",
-        serviceHost: "wsc.test-correct.nl",
-        servicePath: "wscservice/api",
-        enableBadgeButton: false
-      }
-    }).then(function (editor) {
+    return ClassicEditor.create(document.querySelector('#' + editorId), this.getConfigForStudent(wsc, [])).then(function (editor) {
       ClassicEditors[editorId] = editor;
       var wordCountPlugin = editor.plugins.get('WordCount');
       var wordCountWrapper = document.getElementById('word-count-' + editorId);
       wordCountWrapper.appendChild(wordCountPlugin.wordCountContainer);
+      WebspellcheckerTlc.forTeacherQuestion(editor, lang, wsc);
+      window.addEventListener('wsc-problems-count-updated-' + editorId, function (e) {
+        var problemCountSpan = document.getElementById('problem-count-' + editorId);
+        if (problemCountSpan) {
+          problemCountSpan.textContent = e.detail.problemsCount;
+        }
+      });
       if (typeof ReadspeakerTlc != 'undefined') {
         ReadspeakerTlc.ckeditor.addListenersForReadspeaker(editor, questionId, editorId);
         ReadspeakerTlc.ckeditor.disableContextMenuOnCkeditor();
@@ -13951,6 +13931,12 @@ RichTextEditor = {
           editor.updateSourceElement();
           editor.sourceElement.dispatchEvent(new Event('input'));
         }
+      },
+      wordcount: {
+        showWordCount: true,
+        showParagraphs: false,
+        showCharCount: true,
+        countSpacesAsChars: true
       }
     };
     config.toolbar = {
@@ -14287,12 +14273,12 @@ WebspellcheckerTlc = {
   initWsc: function initWsc(editor, language) {
     setTimeout(function () {
       var instance = WEBSPELLCHECKER.init({
-        container: editor.window.getFrame() ? editor.window.getFrame().$ : editor.element.$,
+        container: editor.ui._editableElements.get('main'),
         spellcheckLang: language,
         localization: 'nl'
       });
       instance.subscribe('problemCheckEnded', function (event) {
-        window.dispatchEvent(new CustomEvent('wsc-problems-count-updated-' + editor.name, {
+        window.dispatchEvent(new CustomEvent('wsc-problems-count-updated-' + editor.sourceElement.id, {
           detail: {
             problemsCount: instance.getProblemsCount()
           }

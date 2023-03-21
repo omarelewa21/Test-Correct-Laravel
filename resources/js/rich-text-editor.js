@@ -5,40 +5,22 @@ RichTextEditor = {
 
     initStudentCoLearning: function (editorId, lang = 'nl_NL', wsc = false) {
         return ClassicEditor
-            .create(document.querySelector('#' + editorId), {
-                autosave: {
-                    waitingTime: 300,
-                    save(editor) {
-                        editor.updateSourceElement();
-                        editor.sourceElement.dispatchEvent(new Event('input'));
-                    }
-                },
-                wordcount: {
-                    showWordCount: true,
-                    showParagraphs: false,
-                    showCharCount: true,
-                    countSpacesAsChars: true
-                },
-                autoGrow_maxHeight: 0,
-                toolbar: [],
-                wproofreader: {
-                    autoSearch: false,
-                    autoDestroy: true,
-                    autocorrect: true,
-                    autocomplete: true,
-                    serviceProtocol: "https",
-                    servicePort: "80",
-                    serviceHost: "wsc.test-correct.nl",
-                    servicePath: "wscservice/api",
-                    enableBadgeButton: false
-                }
-            })
+            .create(document.querySelector('#' + editorId),
+                this.getConfigForStudent(wsc, [])
+            )
             .then(editor => {
                 ClassicEditors[editorId] = editor;
                 const wordCountPlugin = editor.plugins.get('WordCount');
                 const wordCountWrapper = document.getElementById('word-count-' + editorId);
                 wordCountWrapper.appendChild(wordCountPlugin.wordCountContainer);
+                WebspellcheckerTlc.forTeacherQuestion(editor,lang,wsc);
 
+                window.addEventListener('wsc-problems-count-updated-'+editorId, (e) => {
+                    let problemCountSpan = document.getElementById('problem-count-'+editorId);
+                    if(problemCountSpan){
+                        problemCountSpan.textContent = e.detail.problemsCount;
+                    }
+                });
                 if (typeof ReadspeakerTlc != 'undefined') {
                     ReadspeakerTlc.ckeditor.addListenersForReadspeaker(editor, questionId, editorId);
                     ReadspeakerTlc.ckeditor.disableContextMenuOnCkeditor();
@@ -130,6 +112,12 @@ RichTextEditor = {
                     editor.updateSourceElement();
                     editor.sourceElement.dispatchEvent(new Event('input'));
                 }
+            },
+            wordcount: {
+                showWordCount: true,
+                showParagraphs: false,
+                showCharCount: true,
+                countSpacesAsChars: true
             },
         };
 

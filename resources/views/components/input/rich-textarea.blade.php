@@ -9,19 +9,19 @@
     $temp = $allowWsc ? 'true':'false';
         switch($type) {
            case 'cms':
-               $initFunctionCall = "RichTextEditor.initForTeacher('".$editorId."','".$lang."', ".$allowWsc.")";
+               $initFunctionCall = "RichTextEditor.initForTeacher('".$editorId."','".$lang."', ".$temp.")";
                break;
            case 'cms-completion':
-               $initFunctionCall = "RichTextEditor.initCompletionCMS('".$editorId."','".$lang."',".$allowWsc.")";
+               $initFunctionCall = "RichTextEditor.initCompletionCMS('".$editorId."','".$lang."',".$temp.")";
                break;
            case 'cms-selection':
-               $initFunctionCall = "RichTextEditor.initSelectionCMS('".$editorId."','".$lang."',".$allowWsc.")";
+               $initFunctionCall = "RichTextEditor.initSelectionCMS('".$editorId."','".$lang."',".$temp.")";
                break;
            case 'student-co-learning':
                $initFunctionCall = "RichTextEditor.initStudentCoLearning('".$editorId."','".$lang."',".$temp.")";
                break;
            default:
-               $initFunctionCall = "RichTextEditor.initClassicEditorForStudentplayer('".$editorId."','".$lang."',".$allowWsc.")";
+               $initFunctionCall = "RichTextEditor.initClassicEditorForStudentplayer('".$editorId."','".$lang."',".$temp.")";
               break;
        }
 @endphp
