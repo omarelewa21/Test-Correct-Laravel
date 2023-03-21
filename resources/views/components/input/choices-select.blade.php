@@ -26,7 +26,8 @@
                         fuseOptions:{
                             treshold:0.3
                         },
-                        shouldSort: @js($sortOptions)
+                        shouldSort: @js($sortOptions),
+                        position: 'bottom'
                     },
                     '{{ $filterContainer }}'
              )"
