@@ -147,8 +147,7 @@ class TestTakesTest extends TestCase
         FactoryTestTake::createWithParticipants($test);
         FactoryTestTake::createWithParticipants($test);
 
-        $testTakeIds = ScenarioLoader::get('teacher1')->testTakes->pluck('id');
-
+        $testTakeIds = ScenarioLoader::get('teacher1')->testTakes()->pluck('id');
         $schoolClasses = TestTake::schoolClassesForMultiple($testTakeIds)->pluck('name');
 
         $this->assertNotEmpty($schoolClasses);

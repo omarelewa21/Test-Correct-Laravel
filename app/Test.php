@@ -96,8 +96,8 @@ class Test extends BaseModel
         });
 
         static::saved(function (Test $test) {
-            $test->handleTestPublishing();
             $test->forwardPropertyChangesToDependentModels();
+            $test->handleTestPublishing();
             $test->handlePublishingQuestionsOfTest();
             TestAuthor::addExamAuthorToTest($test);
             TestAuthor::addNationalItemBankAuthorToTest($test);

@@ -9,6 +9,7 @@ use Livewire\Livewire;
 use tcCore\Attainment;
 use tcCore\Exceptions\QuestionException;
 use tcCore\Factories\FactoryTest;
+use tcCore\Factories\Questions\FactoryQuestionOpenShort;
 use tcCore\FactoryScenarios\FactoryScenarioSchoolSimple;
 use tcCore\FactoryScenarios\FactoryScenarioSchoolSimpleWithSmallNationalItemBank;
 use tcCore\GroupQuestionQuestion;
@@ -234,15 +235,17 @@ class QuestionBankTest extends TestCase
      * @test
      * @group ignore
      */
-    public function can_add_sub_question_to_test_via_question_bank_with_published_status_of_test()
+    public function can_add_sub_question_to_test_via_question_bank_with_not_published_status_of_test()
     {
         $this->actingAs($this->user);
 
         $subQuestion = GroupQuestionQuestion::first()->question;
         $this->assertInstanceOf(Question::class, $subQuestion);
-//        $this->assertTrue($subQuestion->isPublished());
+        $this->assertTrue($subQuestion->isPublished());
 
-        $test = FactoryTest::create($this->user)->getTestModel();
+        $test = FactoryTest::create($this->user, ['draft' => 1])
+            ->getTestModel();
+
         $this->assertTrue($test->isDraft());
 
         $testQuestionCount = $test->testQuestions()->count();
@@ -256,5 +259,35 @@ class QuestionBankTest extends TestCase
 
         $this->assertNotEquals($subQuestion->getKey(), $newQuestion->getKey());
         $this->assertTrue($newQuestion->isDraft());
+    }
+
+    /**
+     * @test
+     * @group ignore
+     */
+    public function can_add_sub_question_to_test_via_question_bank_with_published_status_of_test()
+    {
+        $this->actingAs($this->user);
+
+        $subQuestion = GroupQuestionQuestion::first()->question;
+        $this->assertInstanceOf(Question::class, $subQuestion);
+        $this->assertTrue($subQuestion->isPublished());
+
+        $test = FactoryTest::create($this->user, ['draft' => 0])
+            ->getTestModel();
+
+        $this->assertTrue($test->isPublished());
+
+        $testQuestionCount = $test->testQuestions()->count();
+
+        Livewire::withQueryParams(['testId' => $test->uuid, 'testQuestionId' => ''])
+            ->test(QuestionBank::class)
+            ->call('handleCheckboxClick', $subQuestion->getQuestionInstance()->uuid)
+            ->assertDispatchedBrowserEvent('question-added');
+
+        $newQuestion = Question::latest()->first();
+
+        $this->assertNotEquals($subQuestion->getKey(), $newQuestion->getKey());
+        $this->assertTrue($newQuestion->isPublished());
     }
 }
