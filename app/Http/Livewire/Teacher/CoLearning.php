@@ -110,8 +110,10 @@ class CoLearning extends Component implements CollapsableHeader
             ->layout('layouts.co-learning-teacher');
     }
 
-    public function startCoLearningSession($discussionType, $resetProgress = false)
+    public function startCoLearningSession($discussionType)
     {
+        $resetProgress = $discussionType != $this->testTake->discussion_type;
+
         if (!in_array($discussionType, ['OPEN_ONLY', 'ALL'])) {
             throw new \Exception('Wrong discussion type');
         }
@@ -124,12 +126,13 @@ class CoLearning extends Component implements CollapsableHeader
             $testTakeUpdateData['discussion_type'] = $discussionType;
         }
         if ($resetProgress) {
-            $testTakeUpdateData['discussion_question_id'] = null;
+            $testTakeUpdateData['discussing_question_id'] = null;
             $testTakeUpdateData['is_discussed'] = 0;
             $this->deleteStudentAnswerRatings();
         }
         if (!empty($testTakeUpdateData)) {
             $this->testTake->update($testTakeUpdateData);
+            $this->testTake->refresh();
         }
 
         if ($this->testTake->discussing_question_id === null) {
@@ -664,6 +667,6 @@ class CoLearning extends Component implements CollapsableHeader
 
     public function handleHeaderCollapse($args)
     {
-        return $this->startCoLearningSession($args['discussionType'], $args['resetProgress'] ?? false);
+        return $this->startCoLearningSession($args['discussionType']);
     }
 }
