@@ -2507,6 +2507,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function hasNeedsToAcceptGeneralTerms()
     {
+        if($this->schoolLocation->hasClientLicense()) {
+            return false;
+        }
         return (
             $this->isA('teacher')
             && $this->hasNoActiveLicense()
