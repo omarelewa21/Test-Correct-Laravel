@@ -94,7 +94,7 @@
             </div>
         @endempty
         <div class="flex w-full" x-show="testDetailBodyVisibility">
-            <div class="w-full mx-auto divide-y divide-secondary">
+            <div class="w-full mx-auto divide-y divide-secondary z-0">
                 {{-- Content --}}
                 <div class="flex flex-col py-4" style="min-height: 500px">
                     <x-grid class="mt-4">
