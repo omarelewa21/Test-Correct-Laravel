@@ -26,12 +26,14 @@ class AppApi extends Controller
     {
         $reason = $request->reason;
         $reasonId = TestTakeEventType::where('reason', '=', $reason)->value('id');
+        $response = ["ok" => true, "handedIn" => false];
+
         if ($reasonId == null) {
             Bugsnag::notifyError('UnknownTestTakeEventType', 'Reason ' . $reason . ' is not a valid TestTakeEventType.');
-            return Response::json(["ok" => false, "handedIn" => false]);
+            $response['ok'] = false;
+            return Response::json($response);
         }
 
-        $response = ["ok" => true, "handedIn" => false];
 
         $isReportedInLastTwoMinutesAndNotConfirmed = $testParticipant->testTake->testTakeEvents()->where('test_take_event_type_id', '=', $reasonId)->whereBetween('created_at', [now()->subMinutes(2), now()])->where('confirmed', '=', 0)->first();
         if ($isReportedInLastTwoMinutesAndNotConfirmed) {
