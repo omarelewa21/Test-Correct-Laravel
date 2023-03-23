@@ -85,15 +85,7 @@ class TestParticipant extends BaseModel
             if ($testParticipant->skipBootSavedMethod) {
                 return;
             }
-            if ($testParticipant->isDirty('test_take_status_id')) {
-                logger([
-                    'datetime'            => Carbon::now(),
-                    'previous'            => $testParticipant->getOriginal('test_take_status_id'),
-                    'new'                 => $testParticipant->getAttribute('test_take_status_id'),
-                    'test_participant_id' => $testParticipant->getKey(),
-                    'test_take_status_id' => $testParticipant->testTake->test_take_status_id,
-                ]);
-            }
+
             //$testParticipant->load('testTakeStatus');
 
             $testParticipant->makeEmptyAnswerOptionsFor();

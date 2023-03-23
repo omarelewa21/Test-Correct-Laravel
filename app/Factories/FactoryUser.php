@@ -90,7 +90,7 @@ class FactoryUser
         $schoolManager = $schoolLocation->users()->whereIn('users.id', function ($query) {
             $query->from('user_roles')->where('user_roles.role_id', 6)->select('user_roles.user_id');
         })->first();
-        logger([$schoolManager->getKey(), $schoolLocation->getKey()]);
+
 
         $factory->doWhileLoggedIn(function () use ($factory) {
             $factory->createUser();
