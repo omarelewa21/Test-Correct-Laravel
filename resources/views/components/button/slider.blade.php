@@ -17,6 +17,7 @@
              @js($initialStatus)
          )"
      x-on:slider-toggle-rerender="rerender()"
+     x-on:scoring-elements-error.window="markInputElementsWithError()"
      data-toggle-value="@js($toggleValue)"
 >
     @if($label)

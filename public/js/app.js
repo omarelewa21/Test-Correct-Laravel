@@ -6800,6 +6800,7 @@ document.addEventListener("alpine:init", function () {
         this.bootComponent();
       },
       bootComponent: function bootComponent() {
+        this.$root.dataset.hasValue = this.value !== null;
         if (this.value === null) {
           return;
         }
@@ -6814,10 +6815,12 @@ document.addEventListener("alpine:init", function () {
         this.activateButton(target);
         var oldValue = this.value;
         this.value = target.firstElementChild.dataset.id;
+        this.$root.dataset.hasValue = this.value !== null;
         if (oldValue !== this.value) {
           this.$dispatch("slider-toggle-value-updated", {
             value: this.$root.dataset.toggleValue,
-            state: parseInt(this.value) === 1 ? "on" : "off"
+            state: parseInt(this.value) === 1 ? "on" : "off",
+            firstTick: oldValue === null
           });
         }
       },
@@ -6849,7 +6852,9 @@ document.addEventListener("alpine:init", function () {
             _this26.handle.classList.add("transition-all", "ease-in-out", "duration-150");
           }, 200);
         });
-      }
+      },
+      markInputElementsWithError: function markInputElementsWithError() {},
+      markInputElementsClean: function markInputElementsClean() {}
     };
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("expandableGraphForGeneral", function (id, modelId, taxonomy, component) {
@@ -7148,6 +7153,9 @@ document.addEventListener("alpine:init", function () {
       shadowScore: score,
       maxScore: maxScore,
       halfPoints: halfPoints,
+      init: function init() {
+        this.$store.assessment.currentScore = this.score;
+      },
       toggleCount: function toggleCount() {
         return this.$root.querySelectorAll(".student-answer .slider-button-container").length;
       },
@@ -7162,7 +7170,7 @@ document.addEventListener("alpine:init", function () {
       },
       toggleTicked: function toggleTicked(event) {
         var parsedValue = this.isFloat(event.value) ? parseFloat(event.value) : parseInt(event.value);
-        this.calculateNewScore(parsedValue, event.state);
+        this.setNewGlobalScore(parsedValue, event.state, event.firstTick);
         this.$root.querySelector(".score-slider-container").dispatchEvent(new CustomEvent("new-score", {
           detail: {
             score: this.score
@@ -7172,20 +7180,19 @@ document.addEventListener("alpine:init", function () {
       isFloat: function isFloat(value) {
         return parseFloat(value.match(/^-?\d*(\.\d+)?$/)) > 0;
       },
-      calculateNewScore: function calculateNewScore(score, state) {
-        var newScore = this.shadowScore = state === "on" ? this.shadowScore + score : this.shadowScore - score;
-        if (!this.halfPoints) {
-          newScore = state === "on" ? Math.ceil(newScore) : Math.floor(newScore);
+      getCurrentScore: function getCurrentScore() {
+        return this.halfPoints ? Math.round(this.shadowScore * 2) / 2 : Math.round(this.shadowScore);
+      },
+      setNewGlobalScore: function setNewGlobalScore(score, state, firstTick) {
+        if (firstTick && state === "off") {
+          var _this$shadowScore;
+          (_this$shadowScore = this.shadowScore) !== null && _this$shadowScore !== void 0 ? _this$shadowScore : this.shadowScore = 0;
+        } else {
+          this.shadowScore = state === "on" ? this.shadowScore + score : this.shadowScore - score;
         }
-        if (newScore < 0) {
-          this.score = this.shadowScore = 0;
-          return;
-        }
-        if (newScore > this.maxScore) {
-          this.score = this.shadowScore = this.maxScore;
-          return;
-        }
-        this.score = newScore;
+        if (this.shadowScore < 0) this.shadowScore = 0;
+        if (this.shadowScore > this.maxScore) this.shadowScore = this.maxScore;
+        this.score = this.$store.assessment.currentScore = this.getCurrentScore();
       }
     };
   });
@@ -7276,14 +7283,17 @@ document.addEventListener("alpine:init", function () {
           return _regeneratorRuntime().wrap(function _callee12$(_context12) {
             while (1) switch (_context12.prev = _context12.next) {
               case 0:
-                _context12.next = 2;
+                _this35.$dispatch("assessment-drawer-tab-update", {
+                  tab: 1
+                });
+                _context12.next = 3;
                 return _this35.$wire[_this35.methodCall](value, action);
-              case 2:
+              case 3:
                 response = _context12.sent;
                 if (response) {
                   _this35.updateProperties(response);
                 }
-              case 4:
+              case 5:
               case "end":
                 return _context12.stop();
             }
@@ -7356,6 +7366,7 @@ document.addEventListener("alpine:init", function () {
       tabs: [1, 2, 3],
       collapse: false,
       container: null,
+      clickedNext: false,
       init: function init() {
         this.container = this.$root.querySelector("#slide-container");
       },
@@ -7366,6 +7377,26 @@ document.addEventListener("alpine:init", function () {
         this.container.scroll({
           left: slide.offsetLeft,
           behavior: "smooth"
+        });
+      },
+      next: function next() {
+        var _this39 = this;
+        if (this.$store.assessment.currentScore === null && !this.clickedNext) {
+          this.$dispatch("scoring-elements-error");
+          this.clickedNext = true;
+          return;
+        }
+        this.tab(1);
+        this.$nextTick(function () {
+          _this39.$wire.next();
+          _this39.clickedNext = false;
+        });
+      },
+      previous: function previous() {
+        var _this40 = this;
+        this.tab(1);
+        this.$nextTick(function () {
+          _this40.$wire.previous();
         });
       }
     };
@@ -7380,6 +7411,7 @@ document.addEventListener("alpine:init", function () {
       disabled: disabled,
       skipSync: false,
       persistantScore: null,
+      inputBox: null,
       getSliderBackgroundSize: function getSliderBackgroundSize(el) {
         if (this.score === null) return 0;
         var min = el.min || 0;
@@ -7395,6 +7427,7 @@ document.addEventListener("alpine:init", function () {
         // Don't update if the value is the same;
         if (this.$wire[this.model] === this.score) return;
         this.$wire.sync(this.model, this.score);
+        this.$store.assessment.currentScore = this.score;
       },
       noChangeEventFallback: function noChangeEventFallback() {
         if (this.score === null) {
@@ -7403,31 +7436,43 @@ document.addEventListener("alpine:init", function () {
         }
       },
       init: function init() {
-        var _this39 = this;
+        var _this41 = this;
         // This echos custom JS from the template and for some reason it actually works;
         stack;
+        this.inputBox = this.$root.querySelector("[x-ref='scoreInput']");
         this.$watch("score", function (value, oldValue) {
-          if (_this39.disabled || value === oldValue || _this39.skipSync) {
-            _this39.skipSync = false;
+          _this41.markInputElementsClean();
+          if (_this41.disabled || value === oldValue || _this41.skipSync) {
+            _this41.skipSync = false;
             return;
           }
-          if (value >= _this39.maxScore) {
-            _this39.score = value = _this39.maxScore;
+          if (value >= _this41.maxScore) {
+            _this41.score = value = _this41.maxScore;
           }
           if (value <= 0) {
-            _this39.score = value = 0;
+            _this41.score = value = 0;
           }
-          _this39.score = value = _this39.halfPoints ? Math.round(value * 2) / 2 : Math.round(value);
-          var numberInput = _this39.$root.querySelector("[x-ref='score_slider_continuous_input']");
+          _this41.score = value = _this41.halfPoints ? Math.round(value * 2) / 2 : Math.round(value);
+          var numberInput = _this41.$root.querySelector("[x-ref='score_slider_continuous_input']");
           if (numberInput !== null) {
-            _this39.setSliderBackgroundSize(numberInput);
+            _this41.setSliderBackgroundSize(numberInput);
           }
         });
         if (!this.disabled) {
           this.$nextTick(function () {
-            _this39.$root.querySelector("[x-ref='scoreInput']").focus();
+            _this41.inputBox.focus();
           });
         }
+      },
+      markInputElementsWithError: function markInputElementsWithError() {
+        if (this.disabled) return;
+        this.inputBox.classList.add("border-allred");
+        this.inputBox.classList.remove("border-blue-grey");
+      },
+      markInputElementsClean: function markInputElementsClean() {
+        if (this.disabled) return;
+        this.inputBox.classList.add("border-blue-grey");
+        this.inputBox.classList.remove("border-allred");
       }
     };
   });
@@ -7466,6 +7511,9 @@ document.addEventListener("alpine:init", function () {
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].store("questionBank", {
     active: false,
     inGroup: false
+  });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].store("assessment", {
+    currentScore: null
   });
 });
 function getTitleForVideoUrl(videoUrl) {

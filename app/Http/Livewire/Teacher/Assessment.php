@@ -218,6 +218,16 @@ class Assessment extends Component implements CollapsableHeader
         return !$this->currentAnswer->isAnswered;
     }
 
+    public function getFinalAnswerReachedProperty(): bool
+    {
+        return $this->onLastQuestionToAssess() && $this->onLastAnswerForQuestion();
+    }
+
+    public function getOnBeginningOfAssessmentProperty(): bool
+    {
+        return $this->onFirstQuestionToAssess() && $this->onFirstAnswerForQuestion();
+    }
+
     /* Event listener methods */
     /**
      * @param $panelData
@@ -325,6 +335,75 @@ class Assessment extends Component implements CollapsableHeader
 
         return $this->returnFromLoadQuestion($nextQuestion, $newIndex);
     }
+
+    /**
+     * @throws AssessmentException
+     */
+    public function next()
+    {
+        if ($this->finalAnswerReached) {
+            throw new AssessmentException('This should not be possible. Are you a magician?');
+        }
+
+        if (!$this->onLastAnswerForQuestion()) {
+            $this->dispatchUpdateAnswerNavigatorEvent(
+                $this->loadAnswer(value: (int)$this->answerNavigationValue + 1, action: 'incr', internal: true)
+            );
+            return true;
+        }
+
+        if (!$this->onLastQuestionToAssess()) {
+            $newQuestionId = $this->questions->get((int)$this->questionNavigationValue)->id;
+
+            $newAnswerIndex = $this->students->search(
+                    $this->answers->where('question_id', $newQuestionId)->first()->test_participant_id
+                ) + 1;
+
+            $this->answerNavigationValue = $newAnswerIndex;
+
+            $this->dispatchUpdateQuestionNavigatorEvent(
+                $this->loadQuestion(value: (int)$this->questionNavigationValue + 1, action: 'incr')
+            );
+            return true;
+        }
+
+        throw new AssessmentException('You somehow managed to get this far? Go get a medal you magnificent beast!');
+    }
+
+    /**
+     * @throws AssessmentException
+     */
+    public function previous()
+    {
+        if ($this->onBeginningOfAssessment) {
+            throw new AssessmentException('You can\'t go back in time you silly goose.');
+        }
+
+        if (!$this->onFirstAnswerForQuestion()) {
+            $this->dispatchUpdateAnswerNavigatorEvent(
+                $this->loadAnswer(value: (int)$this->answerNavigationValue - 1, action: 'decr', internal: true)
+            );
+            return true;
+        }
+
+        if (!$this->onFirstQuestionToAssess()) {
+            $newQuestionId = $this->questions->get((int)$this->questionNavigationValue - 2)->id;
+            $newAnswerIndex = $this->students->search(
+                    $this->answers->where('question_id', $newQuestionId)->last()->test_participant_id
+                ) + 1;
+
+            $this->answerNavigationValue = $newAnswerIndex;
+
+            $this->dispatchUpdateQuestionNavigatorEvent(
+                $this->loadQuestion(value: (int)$this->questionNavigationValue - 1, action: 'decr')
+            );
+            return true;
+        }
+
+        throw new AssessmentException('Oh my god you are amazing. no one should have been able to do this, but you did!');
+    }
+
+    /* Private methods */
 
     private function setTemplateVariables(TestTake $testTake): void
     {
@@ -465,14 +544,13 @@ class Assessment extends Component implements CollapsableHeader
             $this->loadAnswer(value: $this->answerNavigationValue, internal: true)
         );
 
-        // Current answer needs to be set before calculating first and last;
-        $firstForCurrentStudent = $this->firstQuestionForStudent = $this->getFirstQuestionsCountForCurrentStudent();
-        $lastForCurrentStudent = $this->lastQuestionForStudent = $this->getLastQuestionsCountForCurrentStudent();
+        $this->firstQuestionForStudent = $this->getFirstQuestionsCountForCurrentStudent();
+        $this->lastQuestionForStudent = $this->getLastQuestionsCountForCurrentStudent();
 
         return [
             'index' => $this->questionNavigationValue,
-            'first' => $firstForCurrentStudent,
-            'last'  => $lastForCurrentStudent,
+            'first' => $this->firstQuestionForStudent,
+            'last'  => $this->lastQuestionForStudent,
         ];
     }
 
@@ -536,9 +614,9 @@ class Assessment extends Component implements CollapsableHeader
         $this->dispatchBrowserEvent('update-navigation', ['navigator' => 'answer', 'updates' => $answerUpdates]);
     }
 
-    private function dispatchUpdateQuestionNavigatorEvent()
+    private function dispatchUpdateQuestionNavigatorEvent(array|null $questionUpdates = null)
     {
-        $questionUpdates = [
+        $questionUpdates ??= [
             'index' => $this->questionNavigationValue,
             'first' => $this->getFirstQuestionsCountForCurrentStudent(),
             'last'  => $this->getLastQuestionsCountForCurrentStudent(),
@@ -580,7 +658,10 @@ class Assessment extends Component implements CollapsableHeader
         if (blank($this->questionNavigationValue) || blank($this->answerNavigationValue)) return false;
 
         $question = $this->questions->get((int)$this->questionNavigationValue - 1);
-        $answer = $this->answers->where('question_id', $question->id)->values()->get($this->answerNavigationValue - 1);
+        $participantId = $this->students->get((int)$this->answerNavigationValue - 1);
+        $answer = $this->answers->where('question_id', $question->id)
+            ->where('test_participant_id', $participantId)
+            ->first();
 
         return $answer && $question && $answer->question_id === $question->id;
     }
@@ -615,5 +696,25 @@ class Assessment extends Component implements CollapsableHeader
     private function hasOnlyTwoFastScoringOptions(): bool
     {
         return $this->currentQuestion->score < 2 || $this->currentQuestion->all_or_nothing;
+    }
+
+    private function onFirstAnswerForQuestion(): bool
+    {
+        return (int)$this->answerNavigationValue === (int)$this->firstAnswerForQuestion;
+    }
+
+    private function onLastAnswerForQuestion(): bool
+    {
+        return (int)$this->answerNavigationValue === (int)$this->lastAnswerForQuestion;
+    }
+
+    private function onLastQuestionToAssess(): bool
+    {
+        return (int)$this->questionNavigationValue === $this->questions->count();
+    }
+
+    private function onFirstQuestionToAssess(): bool
+    {
+        return (int)$this->questionNavigationValue === 1;
     }
 }

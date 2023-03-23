@@ -182,9 +182,10 @@
                  x-data="assessmentDrawer"
                  x-cloak
                  x-bind:class="{'collapsed': collapse}"
+                 x-on:assessment-drawer-tab-update.window="tab($event.detail.tab)"
             >
                 <div class="collapse-toggle vertical white z-10 cursor-pointer"
-                     @click="collapse = !collapse "
+                     @click="collapse = !collapse"
                 >
                     <button class="relative"
                             :class="{'rotate-svg-180 -left-px': collapse}"
@@ -219,7 +220,9 @@
                         </buttons>
                     </div>
                     <div id="slide-container"
-                         class="slide-container | flex h-full max-w-[var(--sidebar-width)] overflow-hidden">
+                         class="slide-container | flex h-full max-w-[var(--sidebar-width)] overflow-hidden"
+                         wire:ignore.self
+                    >
                         <div class="slide-1 | p-6 flex-[1_0_100%] h-full w-[var(--sidebar-width)] space-y-4">
                             <div class="question-indicator | items-center flex w-full">
                                 <div class="inline-flex question-number rounded-full text-center justify-center items-center">
@@ -307,7 +310,31 @@
                             Content Tab 3
                         </div>
                     </div>
-
+                    <div class="nav-buttons | flex w-full justify-between items-center gap-2 px-6 h-[var(--header-height)] "
+                         style="box-shadow: 0 -3px 8px 0 rgba(77, 87, 143, 0.3);"
+                         wire:key="drawer-nav-buttons-{{  $this->questionNavigationValue.$this->answerNavigationValue }}"
+                    >
+                        <x-button.text-button size="sm"
+                                              x-on:click="previous"
+                                              wire:target="previous,next"
+                                              wire:loading.attr="disabled"
+                                              wire:key="previous-button-{{  $this->questionNavigationValue.$this->answerNavigationValue }}"
+                                              :disabled="$this->onFirstQuestionToAssess() && $this->onFirstAnswerForQuestion()"
+                        >
+                            <x-icon.chevron class="rotate-180" />
+                            <span>@lang('pagination.previous')</span>
+                        </x-button.text-button>
+                        <x-button.primary size="sm"
+                                          x-on:click="next"
+                                          wire:target="previous,next"
+                                          wire:loading.attr="disabled"
+                                          wire:key="next-button-{{  $this->questionNavigationValue.$this->answerNavigationValue }}"
+                                          :disabled="$this->onLastQuestionToAssess() && $this->onLastAnswerForQuestion()"
+                        >
+                            <span>@lang('pagination.next')</span>
+                            <x-icon.chevron />
+                        </x-button.primary>
+                    </div>
                 </div>
             </div>
         </div>
