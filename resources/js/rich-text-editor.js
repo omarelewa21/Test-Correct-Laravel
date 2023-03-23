@@ -104,6 +104,26 @@ RichTextEditor = {
                 console.error(error);
             });
     },
+    initClassicEditorForStudentPreviewplayer: function (editorId, questionId) {
+        return ClassicEditor
+            .create(document.querySelector('#' + editorId),
+                this.getConfigForStudent(false, [])
+            )
+            .then(editor => {
+                ClassicEditors[editorId] = editor;
+                const wordCountPlugin = editor.plugins.get('WordCount');
+                const wordCountWrapper = document.getElementById('word-count-' + editorId);
+                wordCountWrapper.appendChild(wordCountPlugin.wordCountContainer);
+                if (typeof ReadspeakerTlc != 'undefined') {
+                    ReadspeakerTlc.ckeditor.replaceReadableAreaByClone(editor);
+                }
+                editor.isReadOnly = true;
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    },
+
     getConfigForStudent: function (allowWsc, pluginsToAdd = []) {
         let config = {
             autosave: {

@@ -305,9 +305,9 @@ class CoLearning extends Component
             $this->noAnswerRatingAvailableForCurrentScreen = true;
             $this->waitForTeacherNotificationEnabled = true;
         }
-
-        $this->getQuestionAndAnswerNavigationData();
-
+        if($this->answerRatings->isNotEmpty()) {
+            $this->getQuestionAndAnswerNavigationData();
+        }
     }
 
     private function checkIfStudentCanFinishCoLearning(): void

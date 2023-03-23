@@ -20,6 +20,9 @@
            case 'student-co-learning':
                $initFunctionCall = "RichTextEditor.initStudentCoLearning('".$editorId."','".$lang."',".$temp.")";
                break;
+           case 'student-preview':
+               $initFunctionCall = "RichTextEditor.initClassicEditorForStudentPreviewplayer('".$editorId."','".$lang."',".$temp.")";
+               break;
            default:
                $initFunctionCall = "RichTextEditor.initClassicEditorForStudentplayer('".$editorId."','".$lang."',".$temp.")";
               break;

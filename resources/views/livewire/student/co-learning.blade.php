@@ -63,26 +63,27 @@
                 <span><b class="bold">{{ __('co-learning.question') }} {{$this->questionFollowUpNumber}}</b>/{{$this->numberOfQuestions}}</span>
 
                 @if($previousAnswerAvailable)
-                    <x-button.primary class="rotate-svg-180" wire:click="goToPreviousAnswerRating()">
+                    <x-button.primary class="rotate-svg-180"
+                                      wire:click="goToPreviousAnswerRating()"
+                                      wire:loading.attr="disabled"
+                    >
                         <x-icon.arrow class=""/>
                         <span>{{ __('co-learning.previous_answer') }}</span>
                     </x-button.primary>
                 @elseif($nextAnswerAvailable)
-                    @if($this->enableNextQuestionButton)
-                        <x-button.primary wire:click="goToNextAnswerRating()">
+                        <x-button.primary wire:click="goToNextAnswerRating()"
+                                          wire:loading.attr="disabled"
+                                          :disabled="!$this->enableNextQuestionButton"
+                        >
                             <span>{{ __('co-learning.next_answer') }}</span>
                             <x-icon.arrow/>
                         </x-button.primary>
-                    @else
-                        <x-button.primary wire:click="goToNextAnswerRating()" disabled>
-                            <span>{{ __('co-learning.next_answer') }}</span>
-                            <x-icon.arrow/>
-                        </x-button.primary>
-                    @endif
                 @endif
 
                 @if($finishCoLearningButtonEnabled)
-                    <x-button.cta wire:click="goToFinishedCoLearningPage">
+                    <x-button.cta wire:click="goToFinishedCoLearningPage"
+                                  wire:loading.attr="disabled"
+                    >
                         {{ __('co-learning.finish') }}
                     </x-button.cta>
                 @endif
