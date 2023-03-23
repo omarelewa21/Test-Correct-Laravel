@@ -449,9 +449,10 @@ class CoLearning extends Component implements CollapsableHeader
             return false;
         }
 
-        $this->questionIndex = $this->questionsOrderList->get($this->testTake->discussing_question_id)['order'];
-
-        $this->questionIndexOpenOnly = $this->questionsOrderList->get($this->testTake->discussing_question_id)['order_open_only'] ?: $this->questionIndexOpenOnly;
+        if($this->questionsOrderList->get($this->testTake->discussing_question_id)) {
+            $this->questionIndex = $this->questionsOrderList->get($this->testTake->discussing_question_id)['order'];
+            $this->questionIndexOpenOnly = $this->questionsOrderList->get($this->testTake->discussing_question_id)['order_open_only'] ?: $this->questionIndexOpenOnly;
+        }
     }
 
     protected function getStaticNavigationData()
