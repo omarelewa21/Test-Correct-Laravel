@@ -27,7 +27,7 @@ class CoLearning extends Component implements CollapsableHeader
     const DISCUSSION_TYPE_OPEN_ONLY = 'OPEN_ONLY';
 
     //start screen properties
-    public ?bool $coLearningHasBeenStarted = null;
+    public ?bool $coLearningHasBeenStarted = true;
     public bool $headerCollapsed = false;
     public bool $coLearningRestart = false;
 
@@ -268,7 +268,13 @@ class CoLearning extends Component implements CollapsableHeader
     {
         $this->resetActiveAnswer();
 
-        $currentQuestionOrder = $this->questionsOrderList[$this->testTake->discussing_question_id]['order'];
+        $discussingQuestionId = $this->testTake?->fresh()->discussing_question_id;
+
+        if($discussingQuestionId === null) {
+            return null;
+        }
+
+        $currentQuestionOrder = $this->questionsOrderList[$discussingQuestionId]['order'];
 
         return $this->questionsOrderList
             ->filter(fn($item) => $item['order'] < $currentQuestionOrder)
@@ -510,7 +516,9 @@ class CoLearning extends Component implements CollapsableHeader
     {
         $this->removeChangesFromTestTakeModel();
 
-        return $this->testTake->update(['discussing_question_id' => $this->previousQuestionId]);
+        if($this->previousQuestionId !== null) {
+            return $this->testTake->update(['discussing_question_id' => $this->previousQuestionId]);
+        }
     }
 
     protected function removeChangesFromTestTakeModel(): void
