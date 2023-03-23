@@ -13,5 +13,6 @@ enum VirtualMachineSoftwares: string
     case parallels = 'Parallels';
     case mshyperv = 'Microsoft Hyper-V';
     case xen = 'Xen';
+    case macosvm = 'macOS VM';
     case unknown = '???';
 }

@@ -270,7 +270,7 @@ class TestTakeEvent extends BaseModel {
                             . $metadata['vendor'] . ' & Hypervisor: ' . $metadata['hypervisorVendor'];
                     }
                 } elseif (array_key_exists('type', $metadata) && $metadata['type'] == VirtualMachineDetectionTypes::macos->value) {
-                  // TODO: implement macOS VM detection in the client and a parser here  
+                  $metadata['software'] = VirtualMachineSoftwares::macosvm->value;
                 } else {
                     Bugsnag::leaveBreadcrumb('metadata', 'info', $metadata);
                     Bugsnag::notifyError("Could not handle VM detection fraud event", "Failed to parse metadata");
