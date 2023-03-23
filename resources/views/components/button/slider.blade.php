@@ -5,7 +5,8 @@
 'disabled' => false,
 'disabledStyling' => false,
 'useNamedSlots' => false,
-'initialValue' => null,
+'initialStatus' => null,
+'toggleValue' => 0,
 ])
 <div wire:ignore
      {{ $attributes->merge(['class' => 'slider-button-container'])->except('wire:model') }}
@@ -13,9 +14,10 @@
      x-data="sliderToggle(
              @if($attributes->wire('model')->value) @entangle($attributes->wire('model')) @else null @endif,
              @js($options),
-             @js($initialValue)
+             @js($initialStatus)
          )"
      x-on:slider-toggle-rerender="rerender()"
+     data-toggle-value="@js($toggleValue)"
 >
     @if($label)
         <label :for="$id('slider-button')">

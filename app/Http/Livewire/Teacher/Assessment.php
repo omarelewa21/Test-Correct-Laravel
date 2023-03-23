@@ -4,12 +4,16 @@ namespace tcCore\Http\Livewire\Teacher;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Str;
 use Livewire\Component;
 use tcCore\Answer;
 use tcCore\AnswerRating;
+use tcCore\CompletionQuestion;
 use tcCore\Exceptions\AssessmentException;
 use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Http\Interfaces\CollapsableHeader;
+use tcCore\MatchingQuestion;
+use tcCore\MultipleChoiceQuestion;
 use tcCore\Question;
 use tcCore\TestTake;
 use tcCore\TestTakeStatus;
@@ -127,7 +131,7 @@ class Assessment extends Component implements CollapsableHeader
         return true;
     }
 
-    public function getFastScoringOptionsProperty()
+    public function getFastScoringOptionsProperty(): Collection
     {
         $score = $this->currentQuestion->score;
         $middle = (int)round($score / 2);
@@ -141,7 +145,7 @@ class Assessment extends Component implements CollapsableHeader
                 'value'  => 0,
             ]
         ]);
-        if ($score < 2) {
+        if ($this->hasOnlyTwoFastScoringOptions()) {
             return $options->push([
                 'title'  => __('assessment.sufficient'),
                 'points' => "+" . $top,
@@ -189,6 +193,29 @@ class Assessment extends Component implements CollapsableHeader
     public function getShowScoreSliderProperty(): bool
     {
         return !$this->currentQuestion->isType('Infoscreen');
+    }
+
+    public function getDrawerScoringDisabledProperty(): bool
+    {
+        $types = collect([
+            'completionquestion',
+            'multiplechoicequestion',
+            'matchingquestion',
+        ]);
+        $subTypes = collect([
+            'multi',
+            'completion',
+            'truefalse',
+            'multiplechoice',
+            'classify',
+            'matching',
+        ]);
+
+        if ($types->contains(Str::lower($this->currentQuestion->type))) {
+            return $subTypes->contains(Str::lower($this->currentQuestion->subtype));
+        }
+
+        return !$this->currentAnswer->isAnswered;
     }
 
     /* Event listener methods */
@@ -573,7 +600,7 @@ class Assessment extends Component implements CollapsableHeader
             return $rating->rating;
         }
 
-        if(!$this->currentAnswer->isAnswered) {
+        if (!$this->currentAnswer->isAnswered) {
             return 0;
         }
 
@@ -583,5 +610,10 @@ class Assessment extends Component implements CollapsableHeader
     private function currentAnswerHasRatingsOfType(string $type): bool
     {
         return $this->currentAnswer->answerRatings->where('type', $type)->whereNotNull('rating')->isNotEmpty();
+    }
+
+    private function hasOnlyTwoFastScoringOptions(): bool
+    {
+        return $this->currentQuestion->score < 2 || $this->currentQuestion->all_or_nothing;
     }
 }

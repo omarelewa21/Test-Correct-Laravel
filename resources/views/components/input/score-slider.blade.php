@@ -8,6 +8,7 @@
         @stack('scoreSliderStack')
      )"
      x-on:updated-score.window="skipSync = true; score = $event.detail.score"
+     x-on:new-score="console.log($event.detail); score = $event.detail.score"
         {{ $attributes->except(['wire:model', 'class']) }}
         @class([
             $attributes->get('class'),

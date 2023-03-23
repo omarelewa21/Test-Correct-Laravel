@@ -7911,7 +7911,7 @@ span.completion-response-object-container{
 }
 
 .fast-scoring .fast-option{
-    transition: color 150ms ease-in-out, border-color 150ms ease-in-out;
+    transition: color 150ms ease-in-out, border-color 150ms ease-in-out, opacity 150ms ease-in-out;
     position: relative;
 }
 .fast-scoring .fast-option .borderdiv {
@@ -9291,6 +9291,9 @@ video {
 .\!min-h-0{
   min-height: 0px !important;
 }
+.min-h-\[100px\]{
+  min-height: 100px;
+}
 .min-h-\[300px\]{
   min-height: 300px;
 }
@@ -9481,6 +9484,9 @@ video {
 }
 .min-w-\[125px\]{
   min-width: 125px;
+}
+.min-w-\[15rem\]{
+  min-width: 15rem;
 }
 .min-w-\[163px\]{
   min-width: 163px;
@@ -12573,11 +12579,6 @@ ul ul ul {
   }
 
 
-  .md\:grid-cols-2{
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-
   .md\:grid-cols-3{
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -12730,11 +12731,6 @@ ul ul ul {
 
   .lg\:grid-cols-2{
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-
-  .lg\:grid-cols-3{
-    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
 

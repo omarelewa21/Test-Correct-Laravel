@@ -1346,7 +1346,7 @@ document.addEventListener("alpine:init", () => {
         }
     ));
 
-    Alpine.data("sliderToggle", (model, sources, initialValue) => ({
+    Alpine.data("sliderToggle", (model, sources, initialStatus) => ({
         buttonPosition: "0px",
         buttonWidth: "auto",
         value: model,
@@ -1354,8 +1354,8 @@ document.addEventListener("alpine:init", () => {
         handle: null,
         init() {
             this.setHandle();
-            if (initialValue !== null) {
-                this.value = isString(initialValue) ? this.sources.indexOf(initialValue) : +initialValue;
+            if (initialStatus !== null) {
+                this.value = isString(initialStatus) ? this.sources.indexOf(initialStatus) : +initialStatus;
             }
 
             this.bootComponent();
@@ -1377,7 +1377,15 @@ document.addEventListener("alpine:init", () => {
         },
         clickButton(target) {
             this.activateButton(target);
+            const oldValue = this.value;
             this.value = target.firstElementChild.dataset.id;
+
+            if (oldValue !== this.value) {
+                this.$dispatch("slider-toggle-value-updated", {
+                    value: this.$root.dataset.toggleValue,
+                    state: parseInt(this.value) === 1 ? "on" : "off"
+                });
+            }
         },
         hoverButton(target) {
             this.activateButton(target);
@@ -1675,13 +1683,51 @@ document.addEventListener("alpine:init", () => {
             Notify.notify(message, "error");
         }
     }));
-    Alpine.data("assessment", () => ({
+    Alpine.data("assessment", (score, maxScore, halfPoints) => ({
+        score,
+        shadowScore: score,
+        maxScore,
+        halfPoints,
+        toggleCount() {
+            return this.$root.querySelectorAll(".student-answer .slider-button-container").length;
+        },
         dispatchUpdateToNavigator(navigator, updates) {
             let navigatorElement = this.$root.querySelector(`#${navigator}-navigator`);
             if (navigatorElement) {
                 return navigatorElement.dispatchEvent(new CustomEvent("update-navigator", { detail: { ...updates } }));
             }
             console.warn("No navigation component found for the specified name.");
+        },
+        toggleTicked(event) {
+            const parsedValue = this.isFloat(event.value) ? parseFloat(event.value) : parseInt(event.value);
+            this.calculateNewScore(parsedValue, event.state);
+            this.$root.querySelector(".score-slider-container")
+                .dispatchEvent(new CustomEvent(
+                    "new-score",
+                    { detail: { score: this.score } }
+                ));
+
+        },
+        isFloat(value) {
+            return parseFloat(value.match(/^-?\d*(\.\d+)?$/)) > 0;
+        },
+        calculateNewScore(score, state) {
+            let newScore = this.shadowScore = state === "on" ? this.shadowScore + score : this.shadowScore - score;
+
+            if (!this.halfPoints) {
+                newScore = state === "on" ? Math.ceil(newScore) : Math.floor(newScore);
+            }
+            if (newScore < 0) {
+                this.score = this.shadowScore = 0;
+                return;
+            }
+
+            if (newScore > this.maxScore) {
+                this.score = this.shadowScore = this.maxScore;
+                return;
+            }
+
+            this.score = newScore;
         }
     }));
     Alpine.data("assessmentNavigator", (current, total, methodCall, lastValue, firstValue) => ({
@@ -1805,7 +1851,6 @@ document.addEventListener("alpine:init", () => {
             // Don't update if the value is the same;
             if (this.$wire[this.model] === this.score) return;
             this.$wire.sync(this.model, this.score);
-            this.$dispatch("slider-score-updated", { score: this.score });
         },
         noChangeEventFallback() {
             if (this.score === null) {
@@ -1837,7 +1882,7 @@ document.addEventListener("alpine:init", () => {
                     this.setSliderBackgroundSize(numberInput);
                 }
             });
-            if(!this.disabled) {
+            if (!this.disabled) {
                 this.$nextTick(() => {
                     this.$root.querySelector("[x-ref='scoreInput']").focus();
                 });

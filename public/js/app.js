@@ -6782,7 +6782,7 @@ document.addEventListener("alpine:init", function () {
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("sliderToggle", function (model, sources, initialValue) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("sliderToggle", function (model, sources, initialStatus) {
     return {
       buttonPosition: "0px",
       buttonWidth: "auto",
@@ -6791,8 +6791,8 @@ document.addEventListener("alpine:init", function () {
       handle: null,
       init: function init() {
         this.setHandle();
-        if (initialValue !== null) {
-          this.value = (0,lodash__WEBPACK_IMPORTED_MODULE_5__.isString)(initialValue) ? this.sources.indexOf(initialValue) : +initialValue;
+        if (initialStatus !== null) {
+          this.value = (0,lodash__WEBPACK_IMPORTED_MODULE_5__.isString)(initialStatus) ? this.sources.indexOf(initialStatus) : +initialStatus;
         }
         this.bootComponent();
       },
@@ -6812,7 +6812,14 @@ document.addEventListener("alpine:init", function () {
       },
       clickButton: function clickButton(target) {
         this.activateButton(target);
+        var oldValue = this.value;
         this.value = target.firstElementChild.dataset.id;
+        if (oldValue !== this.value) {
+          this.$dispatch("slider-toggle-value-updated", {
+            value: this.$root.dataset.toggleValue,
+            state: parseInt(this.value) === 1 ? "on" : "off"
+          });
+        }
       },
       hoverButton: function hoverButton(target) {
         this.activateButton(target);
@@ -7135,8 +7142,15 @@ document.addEventListener("alpine:init", function () {
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("assessment", function () {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("assessment", function (score, maxScore, halfPoints) {
     return {
+      score: score,
+      shadowScore: score,
+      maxScore: maxScore,
+      halfPoints: halfPoints,
+      toggleCount: function toggleCount() {
+        return this.$root.querySelectorAll(".student-answer .slider-button-container").length;
+      },
       dispatchUpdateToNavigator: function dispatchUpdateToNavigator(navigator, updates) {
         var navigatorElement = this.$root.querySelector("#".concat(navigator, "-navigator"));
         if (navigatorElement) {
@@ -7145,6 +7159,33 @@ document.addEventListener("alpine:init", function () {
           }));
         }
         console.warn("No navigation component found for the specified name.");
+      },
+      toggleTicked: function toggleTicked(event) {
+        var parsedValue = this.isFloat(event.value) ? parseFloat(event.value) : parseInt(event.value);
+        this.calculateNewScore(parsedValue, event.state);
+        this.$root.querySelector(".score-slider-container").dispatchEvent(new CustomEvent("new-score", {
+          detail: {
+            score: this.score
+          }
+        }));
+      },
+      isFloat: function isFloat(value) {
+        return parseFloat(value.match(/^-?\d*(\.\d+)?$/)) > 0;
+      },
+      calculateNewScore: function calculateNewScore(score, state) {
+        var newScore = this.shadowScore = state === "on" ? this.shadowScore + score : this.shadowScore - score;
+        if (!this.halfPoints) {
+          newScore = state === "on" ? Math.ceil(newScore) : Math.floor(newScore);
+        }
+        if (newScore < 0) {
+          this.score = this.shadowScore = 0;
+          return;
+        }
+        if (newScore > this.maxScore) {
+          this.score = this.shadowScore = this.maxScore;
+          return;
+        }
+        this.score = newScore;
       }
     };
   });
@@ -7354,9 +7395,6 @@ document.addEventListener("alpine:init", function () {
         // Don't update if the value is the same;
         if (this.$wire[this.model] === this.score) return;
         this.$wire.sync(this.model, this.score);
-        this.$dispatch("slider-score-updated", {
-          score: this.score
-        });
       },
       noChangeEventFallback: function noChangeEventFallback() {
         if (this.score === null) {

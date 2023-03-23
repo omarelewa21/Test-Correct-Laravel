@@ -4,7 +4,7 @@
 }
 
 .fast-scoring .fast-option{
-    transition: color 150ms ease-in-out, border-color 150ms ease-in-out;
+    transition: color 150ms ease-in-out, border-color 150ms ease-in-out, opacity 150ms ease-in-out;
     position: relative;
 }
 .fast-scoring .fast-option .borderdiv {

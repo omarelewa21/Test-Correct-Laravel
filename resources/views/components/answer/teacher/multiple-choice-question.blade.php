@@ -10,7 +10,8 @@
             @if($studentAnswer)
                 <div>
                     <x-button.true-false-toggle :wireKey="'toggle-'.$answer->uuid"
-                                                :initialValue="$answerStruct->first(fn($link) => $link->active)?->score > 0"
+                                                :initialStatus="$answerStruct->first(fn($link) => $link->active)?->score > 0"
+                                                :toggleValue="$question->score"
                     />
                 </div>
             @endisset
@@ -70,7 +71,9 @@
                     <div class="flex items-center">
                         @if($answerLink->active)
                             <x-button.true-false-toggle :wireKey="'toggle-'.$answer->uuid.$loop->iteration"
-                                                        :initialValue="$answerLink->active && $answerLink->score > 0" />
+                                                        :initialStatus="$answerLink->active && $answerLink->score > 0"
+                                                        :toggleValue="$answerLink->score"
+                            />
                         @endif
                     </div>
                 @endif
@@ -79,7 +82,9 @@
         @if($studentAnswer && $question->all_or_nothing && $answer->isAnswered)
             <div class="all-or-nothing-toggle" wire:ignore>
                 <x-button.true-false-toggle :wireKey="'toggle-'.$answer->uuid"
-                                            :initialValue="$allOrNothingToggleActive" />
+                                            :initialStatus="$allOrNothingToggleActive"
+                                            :toggleValue="$question->score"
+                />
             </div>
         @endif
     @endif

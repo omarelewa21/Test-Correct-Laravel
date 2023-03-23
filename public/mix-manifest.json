@@ -1,8 +1,13 @@
 {
     "/js/app.js": "/js/app.js",
     "/css/app.css": "/css/app.css",
+    "/ckeditor/plugins/ckeditor_wiris/plugin.js": "/ckeditor/plugins/ckeditor_wiris/plugin.js",
+    "/ckeditor/plugins/ckeditor_wiris/icons/cas.png": "/ckeditor/plugins/ckeditor_wiris/icons/cas.png",
+    "/ckeditor/plugins/ckeditor_wiris/icons/chem.png": "/ckeditor/plugins/ckeditor_wiris/icons/chem.png",
+    "/ckeditor/plugins/ckeditor_wiris/icons/formula.png": "/ckeditor/plugins/ckeditor_wiris/icons/formula.png",
     "/js/ckeditor.js": "/js/ckeditor.js",
-    "/js/ckeditor.js.map": "/js/ckeditor.js.map",
+    "/js/ckeditor_teacher.js": "/js/ckeditor_teacher.js",
+    "/js/ckeditor_teacher_wsc.js": "/js/ckeditor_teacher_wsc.js",
     "/js/readspeaker_tlc.js": "/js/readspeaker_tlc.js",
     "/css/rs_tlc.css": "/css/rs_tlc.css",
     "/css/rs_tlc_pdf.css": "/css/rs_tlc_pdf.css"
