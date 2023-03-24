@@ -131,7 +131,7 @@ document.addEventListener("alpine:init", () => {
         editorId: entangle.editorId,
         hasError: { empty: [], false: [] },
         data: {
-            elements: [],
+            elements: []
         },
         maxOptions: 10,
         minOptions: 2,
@@ -144,11 +144,11 @@ document.addEventListener("alpine:init", () => {
 
         initWithSelection() {
             let editor = window.editor;
-           // let selection = editor.data.stringify(editor.model.getSelectedContent(editor.model.document.selection));
+            // let selection = editor.data.stringify(editor.model.getSelectedContent(editor.model.document.selection));
 
-            let selection = '';
-            let range = editor.model.document.selection.getFirstRange()
-            for(const value of range.getItems()){
+            let selection = "";
+            let range = editor.model.document.selection.getFirstRange();
+            for (const value of range.getItems()) {
                 selection = selection + value.data;
             }
             let text = selection
@@ -397,23 +397,23 @@ document.addEventListener("alpine:init", () => {
                 this.scrollActiveQuestionIntoView();
             }, 400);
             this.poll(this.pollingInterval);
-            this.$watch('$store.cms.handledAllRequests', (value) => {
+            this.$watch("$store.cms.handledAllRequests", (value) => {
                 if (value) {
                     this.checkActiveSlide();
                 }
             });
         },
         checkActiveSlide() {
-            if (!['newquestion', 'questionbank'].includes(this.activeSlide)) {
+            if (!["newquestion", "questionbank"].includes(this.activeSlide)) {
                 return;
             }
-            if (this.$root.children[2].getAttribute('x-ref') === this.activeSlide) {
+            if (this.$root.children[2].getAttribute("x-ref") === this.activeSlide) {
                 return;
             }
-            if (this.activeSlide === 'newquestion') {
+            if (this.activeSlide === "newquestion") {
                 return this.setNextSlide(this.$refs.newquestion);
             }
-            if (this.activeSlide === 'newquestion') {
+            if (this.activeSlide === "newquestion") {
                 return this.setNextSlide(this.$refs.questionbank);
             }
             this.prev(this.$root.children[2]);
@@ -1397,7 +1397,7 @@ document.addEventListener("alpine:init", () => {
             this.bootComponent();
         },
         bootComponent() {
-            this.$root.dataset.hasValue = this.value !== null
+            this.$root.dataset.hasValue = this.value !== null;
             if (this.value === null) {
                 return;
             }
@@ -1405,6 +1405,7 @@ document.addEventListener("alpine:init", () => {
 
             if (this.value !== "" && Object.keys(this.sources).includes(String(this.value))) {
                 this.activateButton(this.$el.querySelector("[data-id='" + this.value + "']").parentElement);
+                this.$dispatch('initial-toggle-tick')
             } else {
                 this.value = this.$el.querySelector(".group").firstElementChild.dataset.id;
             }
@@ -1414,7 +1415,7 @@ document.addEventListener("alpine:init", () => {
 
             const oldValue = this.value;
             this.value = target.firstElementChild.dataset.id;
-            this.$root.dataset.hasValue = this.value !== null
+            this.$root.dataset.hasValue = this.value !== null;
             if (oldValue !== this.value) {
                 this.$dispatch("slider-toggle-value-updated", {
                     value: this.$root.dataset.toggleValue,
@@ -1433,6 +1434,7 @@ document.addEventListener("alpine:init", () => {
                 this.resetButtons(target);
                 this.buttonPosition = target.offsetLeft + "px";
                 this.buttonWidth = target.offsetWidth + "px";
+                target.dataset.active = true;
                 target.firstElementChild.classList.add("text-primary");
                 this.handle.classList.remove("hidden");
             });
@@ -1453,10 +1455,16 @@ document.addEventListener("alpine:init", () => {
             });
         },
         markInputElementsWithError() {
-
+            const falseOptions = this.$root.querySelectorAll(".slider-option[data-active=\"false\"]");
+            if (falseOptions.length === 2) {
+                falseOptions.forEach(el => el.classList.add("!border-allred"));
+            }
         },
         markInputElementsClean() {
-
+            const falseOptions = this.$root.querySelectorAll(".slider-option[data-active=\"false\"]");
+            if (falseOptions.length === 2) {
+                falseOptions.forEach(el => el.classList.remove("!border-allred"));
+            }
         }
     }));
 
@@ -1584,19 +1592,19 @@ document.addEventListener("alpine:init", () => {
         correspondingButton: null,
         menuOffsetMarginTop: 56,
         menuOffsetMarginLeft: 224,
-        menuCard:null,
-        detailCoordsTop:null,
-        detailCoordsLeft:null,
-        gridCardOffsetHeight:null,
-        bodyPage:null,
-        init(){
-            this.menuCard = this.$root.closest('#context-menu-base');
-            this.bodyPage = this.$root.closest('.divide-secondary');
+        menuCard: null,
+        detailCoordsTop: null,
+        detailCoordsLeft: null,
+        gridCardOffsetHeight: null,
+        bodyPage: null,
+        init() {
+            this.menuCard = this.$root.closest("#context-menu-base");
+            this.bodyPage = this.$root.closest(".divide-secondary");
         },
-        preventMenuFallOffScreen(){
-            if(this.menuCard.offsetTop + this.menuCard.offsetHeight >= this.bodyPage.offsetHeight + this.bodyPage.offsetTop){
-                this.$root.style.top = (this.detailCoordsTop + this.menuOffsetMarginTop - (this.menuCard.offsetHeight - this.gridCardOffsetHeight) - 25) + 'px';
-                this.$root.style.left = (this.detailCoordsLeft - this.menuCard.offsetWidth - 50) + 'px';
+        preventMenuFallOffScreen() {
+            if (this.menuCard.offsetTop + this.menuCard.offsetHeight >= this.bodyPage.offsetHeight + this.bodyPage.offsetTop) {
+                this.$root.style.top = (this.detailCoordsTop + this.menuOffsetMarginTop - (this.menuCard.offsetHeight - this.gridCardOffsetHeight) - 25) + "px";
+                this.$root.style.left = (this.detailCoordsLeft - this.menuCard.offsetWidth - 50) + "px";
             }
         },
         handleIncomingEvent(detail) {
@@ -1615,8 +1623,8 @@ document.addEventListener("alpine:init", () => {
             this.detailCoordsLeft = detail.coords.left;
             this.gridCardOffsetHeight = detail.coords.gridCardOffsetHeight;
 
-            this.$root.style.top = (this.detailCoordsTop + this.menuOffsetMarginTop) + 'px';
-            this.$root.style.left = (this.detailCoordsLeft - this.menuOffsetMarginLeft) + 'px';
+            this.$root.style.top = (this.detailCoordsTop + this.menuOffsetMarginTop) + "px";
+            this.$root.style.left = (this.detailCoordsLeft - this.menuOffsetMarginLeft) + "px";
 
             let readyForShow = await this.$wire.setContextValues(this.uuid, this.contextData);
             if (readyForShow) this.contextMenuOpen = true;
@@ -1747,7 +1755,7 @@ document.addEventListener("alpine:init", () => {
             Notify.notify(message, "error");
         }
     }));
-    Alpine.data("loginScreen", (openTab, activeOverlay,device) => ({
+    Alpine.data("loginScreen", (openTab, activeOverlay, device) => ({
         openTab,
         showPassword: false,
         hoverPassword: false,
@@ -1755,24 +1763,24 @@ document.addEventListener("alpine:init", () => {
         showEntreePassword: false,
         activeOverlay,
         device,
-        init(){
+        init() {
             setTimeout(() => {
-                this.$wire.checkLoginFieldsForInput()
+                this.$wire.checkLoginFieldsForInput();
             }, 250);
-            this.setCurrentFocusInput()
+            this.setCurrentFocusInput();
 
             this.$watch("activeOverlay", value => {
-                this.setCurrentFocusInput()
-            })
+                this.setCurrentFocusInput();
+            });
             this.$watch("openTab", value => {
-                this.setCurrentFocusInput()
-            })
+                this.setCurrentFocusInput();
+            });
         },
-        setCurrentFocusInput (){
-            let name = ('' != this.activeOverlay) ? this.activeOverlay : this.openTab;
+        setCurrentFocusInput() {
+            let name = ("" != this.activeOverlay) ? this.activeOverlay : this.openTab;
             setTimeout(() => this.$root.querySelector(`[data-focus-tab='${name}']`)?.focus(), 250);
         },
-        changeActiveOverlay (activeOverlay = ""){
+        changeActiveOverlay(activeOverlay = "") {
             this.activeOverlay = activeOverlay;
         }
     }));
@@ -1783,9 +1791,19 @@ document.addEventListener("alpine:init", () => {
         halfPoints,
         init() {
             this.$store.assessment.currentScore = this.score;
+            this.$store.assessment.toggleCount = this.toggleCount();
+            this.$store.assessment.togglesTicked = 0;
+            console.log([
+                this.$store.assessment.currentScore,
+            this.$store.assessment.toggleCount,
+            this.$store.assessment.togglesTicked,
+            ])
         },
         toggleCount() {
-            return this.$root.querySelectorAll(".student-answer .slider-button-container").length;
+            return this.$root.querySelectorAll(".student-answer .slider-button-container:not(.disabled)").length;
+        },
+        initialToggleTicked() {
+          this.$store.assessment.togglesTicked++;
         },
         dispatchUpdateToNavigator(navigator, updates) {
             let navigatorElement = this.$root.querySelector(`#${navigator}-navigator`);
@@ -1797,7 +1815,8 @@ document.addEventListener("alpine:init", () => {
         toggleTicked(event) {
             const parsedValue = this.isFloat(event.value) ? parseFloat(event.value) : parseInt(event.value);
 
-            this.setNewGlobalScore(parsedValue, event.state, event.firstTick);
+            this.setNewScore(parsedValue, event.state, event.firstTick);
+            this.updateAssessmentStore();
 
             this.$root.querySelector(".score-slider-container")
                 .dispatchEvent(new CustomEvent(
@@ -1813,7 +1832,7 @@ document.addEventListener("alpine:init", () => {
                 ? Math.round(this.shadowScore * 2) / 2
                 : Math.round(this.shadowScore);
         },
-        setNewGlobalScore(score, state, firstTick) {
+        setNewScore(score, state, firstTick) {
             if (firstTick && state === "off") {
                 this.shadowScore ??= 0;
             } else {
@@ -1825,8 +1844,11 @@ document.addEventListener("alpine:init", () => {
             if (this.shadowScore < 0) this.shadowScore = 0;
             if (this.shadowScore > this.maxScore) this.shadowScore = this.maxScore;
 
-            this.score = this.$store.assessment.currentScore = this.getCurrentScore();
-
+            this.score = this.getCurrentScore();
+        },
+        updateAssessmentStore() {
+            this.$store.assessment.currentScore = this.score;
+            this.$store.assessment.togglesTicked++;
         }
     }));
     Alpine.data("assessmentNavigator", (current, total, methodCall, lastValue, firstValue) => ({
@@ -1926,7 +1948,7 @@ document.addEventListener("alpine:init", () => {
             this.container.scroll({ left: slide.offsetLeft, behavior: "smooth" });
         },
         next() {
-            if (this.$store.assessment.currentScore === null && !this.clickedNext) {
+            if (!this.$store.assessment.clearToProceed() && !this.clickedNext) {
                 this.$dispatch("scoring-elements-error");
                 this.clickedNext = true;
                 return;
@@ -1981,19 +2003,19 @@ document.addEventListener("alpine:init", () => {
         },
         init() {
             // This echos custom JS from the template and for some reason it actually works;
-            if(coLearning) {
-                Livewire.hook('message.received', (message, component) => {
-                    if (component.name === 'student.co-learning' && message.updateQueue[0]?.method === 'updateHeartbeat') {
-                        let scoreInputElement = this.$root.querySelector('[x-ref=\'scoreInput\']');
-                        this.persistentScore = (scoreInputElement !== null && scoreInputElement.value !== '') ? scoreInputElement.value : null;
+            if (coLearning) {
+                Livewire.hook("message.received", (message, component) => {
+                    if (component.name === "student.co-learning" && message.updateQueue[0]?.method === "updateHeartbeat") {
+                        let scoreInputElement = this.$root.querySelector("[x-ref='scoreInput']");
+                        this.persistentScore = (scoreInputElement !== null && scoreInputElement.value !== "") ? scoreInputElement.value : null;
                     }
-                })
-                Livewire.hook('message.processed', (message, component) => {
-                    if (component.name === 'student.co-learning'&& message.updateQueue[0]?.method ==='updateHeartbeat') {
+                });
+                Livewire.hook("message.processed", (message, component) => {
+                    if (component.name === "student.co-learning" && message.updateQueue[0]?.method === "updateHeartbeat") {
                         this.skipSync = true;
                         this.score = this.persistentScore;
                     }
-                })
+                });
             }
 
             this.inputBox = this.$root.querySelector("[x-ref='scoreInput']");
@@ -2036,42 +2058,42 @@ document.addEventListener("alpine:init", () => {
         }
     }));
 
-    Alpine.data('completionQuestion', () => ({
+    Alpine.data("completionQuestion", () => ({
         minWidth: 120,
         maxWidth: 1000,
         setInputWidth(input, init = false, preview = false) {
 
-            if(!init || preview){
+            if (!init || preview) {
                 this.calculateInputWidth(input);
                 return;
             }
 
-            this.$watch('showMe', (value) => {
-                if(!value) {
+            this.$watch("showMe", (value) => {
+                if (!value) {
                     return;
                 }
                 this.$nextTick(() => {
                     this.calculateInputWidth(input);
-                })
-            })
+                });
+            });
         },
-        calculateInputWidth (input) {
+        calculateInputWidth(input) {
             this.minWidth = 120;
-            this.maxWidth = input.closest('div.input-group').parentElement.offsetWidth;
+            this.maxWidth = input.closest("div.input-group").parentElement.offsetWidth;
 
-            this.span = input.parentElement.querySelector('.absolute');
+            this.span = input.parentElement.querySelector(".absolute");
 
             this.span.innerText = input.value;
             this.newWidth = this.span.offsetWidth + 27;
 
-            if(this.newWidth < this.minWidth) {
+            if (this.newWidth < this.minWidth) {
                 this.newWidth = this.minWidth;
             }
-            if(this.newWidth > this.maxWidth) {
+            if (this.newWidth > this.maxWidth) {
                 this.newWidth = this.maxWidth;
             }
 
-            input.style.width = this.newWidth + 'px';
+            input.style.width = this.newWidth + "px";
         }
     }));
     Alpine.data("fastScoring", (scoreOptions, currentScore, disabled) => ({
@@ -2089,8 +2111,8 @@ document.addEventListener("alpine:init", () => {
             this.fastOption = currentScore !== null ? this.scoreOptions.indexOf(currentScore) : null;
         }
     }));
-    Alpine.directive('global', function (el, {expression}) {
-        let f = new Function('_', '$data', '_.' + expression + ' = $data;return;');
+    Alpine.directive("global", function(el, { expression }) {
+        let f = new Function("_", "$data", "_." + expression + " = $data;return;");
         f(window, el._x_dataStack[0]);
     });
 
@@ -2103,14 +2125,19 @@ document.addEventListener("alpine:init", () => {
         emptyState: false,
         pendingRequestTimeout: null,
         pendingRequestTally: 0,
-        handledAllRequests: true,
+        handledAllRequests: true
     });
     Alpine.store("questionBank", {
         active: false,
         inGroup: false
     });
     Alpine.store("assessment", {
-        currentScore: null
+        currentScore: null,
+        toggleCount: 0,
+        togglesTicked: 0,
+        clearToProceed() {
+            return this.currentScore !== null && this.togglesTicked === this.toggleCount;
+        }
     });
 });
 

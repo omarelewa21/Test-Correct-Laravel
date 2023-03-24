@@ -4,6 +4,7 @@
      wire:key="page-@js($this->questionNavigationValue.$this->answerNavigationValue)"
      x-on:update-navigation.window="dispatchUpdateToNavigator($event.detail.navigator, $event.detail.updates)"
      x-on:slider-toggle-value-updated.window="toggleTicked($event.detail)"
+     x-on:initial-toggle-tick.window="initialToggleTicked()"
 >
     <x-partials.header.assessment :testName="$testName" />
     @if($this->headerCollapsed)

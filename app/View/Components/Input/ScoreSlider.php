@@ -15,6 +15,7 @@ class ScoreSlider extends Component
         public bool           $continuousScoreSlider = false,
         public bool           $disabled = false,
         public string         $mode = 'default',
+        public bool           $coLearning = false,
     )
     {
 

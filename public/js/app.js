@@ -5428,8 +5428,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(lodash__WEBPACK_IMPORTED_MODULE_5__);
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
 function _iterableToArrayLimit(arr, i) { var _i = null == arr ? null : "undefined" != typeof Symbol && arr[Symbol.iterator] || arr["@@iterator"]; if (null != _i) { var _s, _e, _x, _r, _arr = [], _n = !0, _d = !1; try { if (_x = (_i = _i.call(arr)).next, 0 === i) { if (Object(_i) !== _i) return; _n = !1; } else for (; !(_n = (_s = _x.call(_i)).done) && (_arr.push(_s.value), _arr.length !== i); _n = !0); } catch (err) { _d = !0, _e = err; } finally { try { if (!_n && null != _i["return"] && (_r = _i["return"](), Object(_r) !== _r)) return; } finally { if (_d) throw _e; } } return _arr; } }
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
@@ -5441,6 +5439,9 @@ function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" =
 function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return exports; }; var exports = {}, Op = Object.prototype, hasOwn = Op.hasOwnProperty, defineProperty = Object.defineProperty || function (obj, key, desc) { obj[key] = desc.value; }, $Symbol = "function" == typeof Symbol ? Symbol : {}, iteratorSymbol = $Symbol.iterator || "@@iterator", asyncIteratorSymbol = $Symbol.asyncIterator || "@@asyncIterator", toStringTagSymbol = $Symbol.toStringTag || "@@toStringTag"; function define(obj, key, value) { return Object.defineProperty(obj, key, { value: value, enumerable: !0, configurable: !0, writable: !0 }), obj[key]; } try { define({}, ""); } catch (err) { define = function define(obj, key, value) { return obj[key] = value; }; } function wrap(innerFn, outerFn, self, tryLocsList) { var protoGenerator = outerFn && outerFn.prototype instanceof Generator ? outerFn : Generator, generator = Object.create(protoGenerator.prototype), context = new Context(tryLocsList || []); return defineProperty(generator, "_invoke", { value: makeInvokeMethod(innerFn, self, context) }), generator; } function tryCatch(fn, obj, arg) { try { return { type: "normal", arg: fn.call(obj, arg) }; } catch (err) { return { type: "throw", arg: err }; } } exports.wrap = wrap; var ContinueSentinel = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var IteratorPrototype = {}; define(IteratorPrototype, iteratorSymbol, function () { return this; }); var getProto = Object.getPrototypeOf, NativeIteratorPrototype = getProto && getProto(getProto(values([]))); NativeIteratorPrototype && NativeIteratorPrototype !== Op && hasOwn.call(NativeIteratorPrototype, iteratorSymbol) && (IteratorPrototype = NativeIteratorPrototype); var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(IteratorPrototype); function defineIteratorMethods(prototype) { ["next", "throw", "return"].forEach(function (method) { define(prototype, method, function (arg) { return this._invoke(method, arg); }); }); } function AsyncIterator(generator, PromiseImpl) { function invoke(method, arg, resolve, reject) { var record = tryCatch(generator[method], generator, arg); if ("throw" !== record.type) { var result = record.arg, value = result.value; return value && "object" == _typeof(value) && hasOwn.call(value, "__await") ? PromiseImpl.resolve(value.__await).then(function (value) { invoke("next", value, resolve, reject); }, function (err) { invoke("throw", err, resolve, reject); }) : PromiseImpl.resolve(value).then(function (unwrapped) { result.value = unwrapped, resolve(result); }, function (error) { return invoke("throw", error, resolve, reject); }); } reject(record.arg); } var previousPromise; defineProperty(this, "_invoke", { value: function value(method, arg) { function callInvokeWithMethodAndArg() { return new PromiseImpl(function (resolve, reject) { invoke(method, arg, resolve, reject); }); } return previousPromise = previousPromise ? previousPromise.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(innerFn, self, context) { var state = "suspendedStart"; return function (method, arg) { if ("executing" === state) throw new Error("Generator is already running"); if ("completed" === state) { if ("throw" === method) throw arg; return doneResult(); } for (context.method = method, context.arg = arg;;) { var delegate = context.delegate; if (delegate) { var delegateResult = maybeInvokeDelegate(delegate, context); if (delegateResult) { if (delegateResult === ContinueSentinel) continue; return delegateResult; } } if ("next" === context.method) context.sent = context._sent = context.arg;else if ("throw" === context.method) { if ("suspendedStart" === state) throw state = "completed", context.arg; context.dispatchException(context.arg); } else "return" === context.method && context.abrupt("return", context.arg); state = "executing"; var record = tryCatch(innerFn, self, context); if ("normal" === record.type) { if (state = context.done ? "completed" : "suspendedYield", record.arg === ContinueSentinel) continue; return { value: record.arg, done: context.done }; } "throw" === record.type && (state = "completed", context.method = "throw", context.arg = record.arg); } }; } function maybeInvokeDelegate(delegate, context) { var methodName = context.method, method = delegate.iterator[methodName]; if (undefined === method) return context.delegate = null, "throw" === methodName && delegate.iterator["return"] && (context.method = "return", context.arg = undefined, maybeInvokeDelegate(delegate, context), "throw" === context.method) || "return" !== methodName && (context.method = "throw", context.arg = new TypeError("The iterator does not provide a '" + methodName + "' method")), ContinueSentinel; var record = tryCatch(method, delegate.iterator, context.arg); if ("throw" === record.type) return context.method = "throw", context.arg = record.arg, context.delegate = null, ContinueSentinel; var info = record.arg; return info ? info.done ? (context[delegate.resultName] = info.value, context.next = delegate.nextLoc, "return" !== context.method && (context.method = "next", context.arg = undefined), context.delegate = null, ContinueSentinel) : info : (context.method = "throw", context.arg = new TypeError("iterator result is not an object"), context.delegate = null, ContinueSentinel); } function pushTryEntry(locs) { var entry = { tryLoc: locs[0] }; 1 in locs && (entry.catchLoc = locs[1]), 2 in locs && (entry.finallyLoc = locs[2], entry.afterLoc = locs[3]), this.tryEntries.push(entry); } function resetTryEntry(entry) { var record = entry.completion || {}; record.type = "normal", delete record.arg, entry.completion = record; } function Context(tryLocsList) { this.tryEntries = [{ tryLoc: "root" }], tryLocsList.forEach(pushTryEntry, this), this.reset(!0); } function values(iterable) { if (iterable) { var iteratorMethod = iterable[iteratorSymbol]; if (iteratorMethod) return iteratorMethod.call(iterable); if ("function" == typeof iterable.next) return iterable; if (!isNaN(iterable.length)) { var i = -1, next = function next() { for (; ++i < iterable.length;) if (hasOwn.call(iterable, i)) return next.value = iterable[i], next.done = !1, next; return next.value = undefined, next.done = !0, next; }; return next.next = next; } } return { next: doneResult }; } function doneResult() { return { value: undefined, done: !0 }; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, defineProperty(Gp, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), defineProperty(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, toStringTagSymbol, "GeneratorFunction"), exports.isGeneratorFunction = function (genFun) { var ctor = "function" == typeof genFun && genFun.constructor; return !!ctor && (ctor === GeneratorFunction || "GeneratorFunction" === (ctor.displayName || ctor.name)); }, exports.mark = function (genFun) { return Object.setPrototypeOf ? Object.setPrototypeOf(genFun, GeneratorFunctionPrototype) : (genFun.__proto__ = GeneratorFunctionPrototype, define(genFun, toStringTagSymbol, "GeneratorFunction")), genFun.prototype = Object.create(Gp), genFun; }, exports.awrap = function (arg) { return { __await: arg }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, asyncIteratorSymbol, function () { return this; }), exports.AsyncIterator = AsyncIterator, exports.async = function (innerFn, outerFn, self, tryLocsList, PromiseImpl) { void 0 === PromiseImpl && (PromiseImpl = Promise); var iter = new AsyncIterator(wrap(innerFn, outerFn, self, tryLocsList), PromiseImpl); return exports.isGeneratorFunction(outerFn) ? iter : iter.next().then(function (result) { return result.done ? result.value : iter.next(); }); }, defineIteratorMethods(Gp), define(Gp, toStringTagSymbol, "Generator"), define(Gp, iteratorSymbol, function () { return this; }), define(Gp, "toString", function () { return "[object Generator]"; }), exports.keys = function (val) { var object = Object(val), keys = []; for (var key in object) keys.push(key); return keys.reverse(), function next() { for (; keys.length;) { var key = keys.pop(); if (key in object) return next.value = key, next.done = !1, next; } return next.done = !0, next; }; }, exports.values = values, Context.prototype = { constructor: Context, reset: function reset(skipTempReset) { if (this.prev = 0, this.next = 0, this.sent = this._sent = undefined, this.done = !1, this.delegate = null, this.method = "next", this.arg = undefined, this.tryEntries.forEach(resetTryEntry), !skipTempReset) for (var name in this) "t" === name.charAt(0) && hasOwn.call(this, name) && !isNaN(+name.slice(1)) && (this[name] = undefined); }, stop: function stop() { this.done = !0; var rootRecord = this.tryEntries[0].completion; if ("throw" === rootRecord.type) throw rootRecord.arg; return this.rval; }, dispatchException: function dispatchException(exception) { if (this.done) throw exception; var context = this; function handle(loc, caught) { return record.type = "throw", record.arg = exception, context.next = loc, caught && (context.method = "next", context.arg = undefined), !!caught; } for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i], record = entry.completion; if ("root" === entry.tryLoc) return handle("end"); if (entry.tryLoc <= this.prev) { var hasCatch = hasOwn.call(entry, "catchLoc"), hasFinally = hasOwn.call(entry, "finallyLoc"); if (hasCatch && hasFinally) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } else if (hasCatch) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); } else { if (!hasFinally) throw new Error("try statement without catch or finally"); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } } } }, abrupt: function abrupt(type, arg) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc <= this.prev && hasOwn.call(entry, "finallyLoc") && this.prev < entry.finallyLoc) { var finallyEntry = entry; break; } } finallyEntry && ("break" === type || "continue" === type) && finallyEntry.tryLoc <= arg && arg <= finallyEntry.finallyLoc && (finallyEntry = null); var record = finallyEntry ? finallyEntry.completion : {}; return record.type = type, record.arg = arg, finallyEntry ? (this.method = "next", this.next = finallyEntry.finallyLoc, ContinueSentinel) : this.complete(record); }, complete: function complete(record, afterLoc) { if ("throw" === record.type) throw record.arg; return "break" === record.type || "continue" === record.type ? this.next = record.arg : "return" === record.type ? (this.rval = this.arg = record.arg, this.method = "return", this.next = "end") : "normal" === record.type && afterLoc && (this.next = afterLoc), ContinueSentinel; }, finish: function finish(finallyLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.finallyLoc === finallyLoc) return this.complete(entry.completion, entry.afterLoc), resetTryEntry(entry), ContinueSentinel; } }, "catch": function _catch(tryLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc === tryLoc) { var record = entry.completion; if ("throw" === record.type) { var thrown = record.arg; resetTryEntry(entry); } return thrown; } } throw new Error("illegal catch attempt"); }, delegateYield: function delegateYield(iterable, resultName, nextLoc) { return this.delegate = { iterator: values(iterable), resultName: resultName, nextLoc: nextLoc }, "next" === this.method && (this.arg = undefined), ContinueSentinel; } }, exports; }
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e2) { throw _e2; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e3) { didErr = true; err = _e3; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
 
 
 
@@ -5565,7 +5566,24 @@ document.addEventListener("alpine:init", function () {
       },
       initWithSelection: function initWithSelection() {
         var _this3 = this;
-        var text = window.editor.getSelectedHtml().$.textContent.trim().replace("[", "").replace("]", "");
+        var editor = window.editor;
+        // let selection = editor.data.stringify(editor.model.getSelectedContent(editor.model.document.selection));
+
+        var selection = "";
+        var range = editor.model.document.selection.getFirstRange();
+        var _iterator = _createForOfIteratorHelper(range.getItems()),
+          _step;
+        try {
+          for (_iterator.s(); !(_step = _iterator.n()).done;) {
+            var value = _step.value;
+            selection = selection + value.data;
+          }
+        } catch (err) {
+          _iterator.e(err);
+        } finally {
+          _iterator.f();
+        }
+        var text = selection.trim().replace("[", "").replace("]", "");
         var content = text;
         if (text.contains("|")) {
           content = text.split("|");
@@ -5628,7 +5646,9 @@ document.addEventListener("alpine:init", function () {
         result = "[" + result.join("|") + "]";
         var lw = livewire.find(document.getElementById("cms").getAttribute("wire:id"));
         lw.set("showSelectionOptionsModal", true);
-        window.editor.insertText(result);
+        window.editor.model.change(function (writer) {
+          window.editor.model.insertContent(writer.createText(result));
+        });
         setTimeout(function () {
           _this5.$wire.setQuestionProperty("question", window.editor.getData());
         }, 300);
@@ -5830,6 +5850,26 @@ document.addEventListener("alpine:init", function () {
           _this8.scrollActiveQuestionIntoView();
         }, 400);
         this.poll(this.pollingInterval);
+        this.$watch("$store.cms.handledAllRequests", function (value) {
+          if (value) {
+            _this8.checkActiveSlide();
+          }
+        });
+      },
+      checkActiveSlide: function checkActiveSlide() {
+        if (!["newquestion", "questionbank"].includes(this.activeSlide)) {
+          return;
+        }
+        if (this.$root.children[2].getAttribute("x-ref") === this.activeSlide) {
+          return;
+        }
+        if (this.activeSlide === "newquestion") {
+          return this.setNextSlide(this.$refs.newquestion);
+        }
+        if (this.activeSlide === "newquestion") {
+          return this.setNextSlide(this.$refs.questionbank);
+        }
+        this.prev(this.$root.children[2]);
       },
       next: function next(currentEl) {
         var left = this.$refs.questionEditorSidebar.scrollLeft + this.slideWidth;
@@ -6807,6 +6847,7 @@ document.addEventListener("alpine:init", function () {
         this.$el.querySelector(".group").firstElementChild.classList.add("text-primary");
         if (this.value !== "" && Object.keys(this.sources).includes(String(this.value))) {
           this.activateButton(this.$el.querySelector("[data-id='" + this.value + "']").parentElement);
+          this.$dispatch('initial-toggle-tick');
         } else {
           this.value = this.$el.querySelector(".group").firstElementChild.dataset.id;
         }
@@ -6833,6 +6874,7 @@ document.addEventListener("alpine:init", function () {
           _this25.resetButtons(target);
           _this25.buttonPosition = target.offsetLeft + "px";
           _this25.buttonWidth = target.offsetWidth + "px";
+          target.dataset.active = true;
           target.firstElementChild.classList.add("text-primary");
           _this25.handle.classList.remove("hidden");
         });
@@ -6853,8 +6895,22 @@ document.addEventListener("alpine:init", function () {
           }, 200);
         });
       },
-      markInputElementsWithError: function markInputElementsWithError() {},
-      markInputElementsClean: function markInputElementsClean() {}
+      markInputElementsWithError: function markInputElementsWithError() {
+        var falseOptions = this.$root.querySelectorAll(".slider-option[data-active=\"false\"]");
+        if (falseOptions.length === 2) {
+          falseOptions.forEach(function (el) {
+            return el.classList.add("!border-allred");
+          });
+        }
+      },
+      markInputElementsClean: function markInputElementsClean() {
+        var falseOptions = this.$root.querySelectorAll(".slider-option[data-active=\"false\"]");
+        if (falseOptions.length === 2) {
+          falseOptions.forEach(function (el) {
+            return el.classList.remove("!border-allred");
+          });
+        }
+      }
     };
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("expandableGraphForGeneral", function (id, modelId, taxonomy, component) {
@@ -6967,6 +7023,7 @@ document.addEventListener("alpine:init", function () {
             uuid: this.uuid,
             button: this.$root,
             coords: {
+              gridCardOffsetHeight: this.gridCard.offsetHeight,
               top: this.gridCard.offsetTop,
               left: this.gridCard.offsetLeft + this.gridCard.offsetWidth
             },
@@ -6989,6 +7046,21 @@ document.addEventListener("alpine:init", function () {
       correspondingButton: null,
       menuOffsetMarginTop: 56,
       menuOffsetMarginLeft: 224,
+      menuCard: null,
+      detailCoordsTop: null,
+      detailCoordsLeft: null,
+      gridCardOffsetHeight: null,
+      bodyPage: null,
+      init: function init() {
+        this.menuCard = this.$root.closest("#context-menu-base");
+        this.bodyPage = this.$root.closest(".divide-secondary");
+      },
+      preventMenuFallOffScreen: function preventMenuFallOffScreen() {
+        if (this.menuCard.offsetTop + this.menuCard.offsetHeight >= this.bodyPage.offsetHeight + this.bodyPage.offsetTop) {
+          this.$root.style.top = this.detailCoordsTop + this.menuOffsetMarginTop - (this.menuCard.offsetHeight - this.gridCardOffsetHeight) - 25 + "px";
+          this.$root.style.left = this.detailCoordsLeft - this.menuCard.offsetWidth - 50 + "px";
+        }
+      },
       handleIncomingEvent: function handleIncomingEvent(detail) {
         var _this28 = this;
         if (!this.contextMenuOpen) return this.openMenu(detail);
@@ -7007,15 +7079,18 @@ document.addEventListener("alpine:init", function () {
                 _this29.uuid = detail.uuid;
                 _this29.correspondingButton = detail.button;
                 _this29.contextData = detail.contextData;
-                _this29.$root.style.top = detail.coords.top + _this29.menuOffsetMarginTop + "px";
-                _this29.$root.style.left = detail.coords.left - _this29.menuOffsetMarginLeft + "px";
-                _context7.next = 7;
+                _this29.detailCoordsTop = detail.coords.top;
+                _this29.detailCoordsLeft = detail.coords.left;
+                _this29.gridCardOffsetHeight = detail.coords.gridCardOffsetHeight;
+                _this29.$root.style.top = _this29.detailCoordsTop + _this29.menuOffsetMarginTop + "px";
+                _this29.$root.style.left = _this29.detailCoordsLeft - _this29.menuOffsetMarginLeft + "px";
+                _context7.next = 10;
                 return _this29.$wire.setContextValues(_this29.uuid, _this29.contextData);
-              case 7:
+              case 10:
                 readyForShow = _context7.sent;
                 if (readyForShow) _this29.contextMenuOpen = true;
                 _this29.contextMenuOpen = true;
-              case 10:
+              case 13:
               case "end":
                 return _context7.stop();
             }
@@ -7147,6 +7222,42 @@ document.addEventListener("alpine:init", function () {
       }
     };
   });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("loginScreen", function (openTab, activeOverlay, device) {
+    return {
+      openTab: openTab,
+      showPassword: false,
+      hoverPassword: false,
+      initialPreviewIconState: true,
+      showEntreePassword: false,
+      activeOverlay: activeOverlay,
+      device: device,
+      init: function init() {
+        var _this31 = this;
+        setTimeout(function () {
+          _this31.$wire.checkLoginFieldsForInput();
+        }, 250);
+        this.setCurrentFocusInput();
+        this.$watch("activeOverlay", function (value) {
+          _this31.setCurrentFocusInput();
+        });
+        this.$watch("openTab", function (value) {
+          _this31.setCurrentFocusInput();
+        });
+      },
+      setCurrentFocusInput: function setCurrentFocusInput() {
+        var _this32 = this;
+        var name = "" != this.activeOverlay ? this.activeOverlay : this.openTab;
+        setTimeout(function () {
+          var _this32$$root$querySe;
+          return (_this32$$root$querySe = _this32.$root.querySelector("[data-focus-tab='".concat(name, "']"))) === null || _this32$$root$querySe === void 0 ? void 0 : _this32$$root$querySe.focus();
+        }, 250);
+      },
+      changeActiveOverlay: function changeActiveOverlay() {
+        var activeOverlay = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "";
+        this.activeOverlay = activeOverlay;
+      }
+    };
+  });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("assessment", function (score, maxScore, halfPoints) {
     return {
       score: score,
@@ -7155,9 +7266,15 @@ document.addEventListener("alpine:init", function () {
       halfPoints: halfPoints,
       init: function init() {
         this.$store.assessment.currentScore = this.score;
+        this.$store.assessment.toggleCount = this.toggleCount();
+        this.$store.assessment.togglesTicked = 0;
+        console.log([this.$store.assessment.currentScore, this.$store.assessment.toggleCount, this.$store.assessment.togglesTicked]);
       },
       toggleCount: function toggleCount() {
-        return this.$root.querySelectorAll(".student-answer .slider-button-container").length;
+        return this.$root.querySelectorAll(".student-answer .slider-button-container:not(.disabled)").length;
+      },
+      initialToggleTicked: function initialToggleTicked() {
+        this.$store.assessment.togglesTicked++;
       },
       dispatchUpdateToNavigator: function dispatchUpdateToNavigator(navigator, updates) {
         var navigatorElement = this.$root.querySelector("#".concat(navigator, "-navigator"));
@@ -7170,7 +7287,8 @@ document.addEventListener("alpine:init", function () {
       },
       toggleTicked: function toggleTicked(event) {
         var parsedValue = this.isFloat(event.value) ? parseFloat(event.value) : parseInt(event.value);
-        this.setNewGlobalScore(parsedValue, event.state, event.firstTick);
+        this.setNewScore(parsedValue, event.state, event.firstTick);
+        this.updateAssessmentStore();
         this.$root.querySelector(".score-slider-container").dispatchEvent(new CustomEvent("new-score", {
           detail: {
             score: this.score
@@ -7183,7 +7301,7 @@ document.addEventListener("alpine:init", function () {
       getCurrentScore: function getCurrentScore() {
         return this.halfPoints ? Math.round(this.shadowScore * 2) / 2 : Math.round(this.shadowScore);
       },
-      setNewGlobalScore: function setNewGlobalScore(score, state, firstTick) {
+      setNewScore: function setNewScore(score, state, firstTick) {
         if (firstTick && state === "off") {
           var _this$shadowScore;
           (_this$shadowScore = this.shadowScore) !== null && _this$shadowScore !== void 0 ? _this$shadowScore : this.shadowScore = 0;
@@ -7192,7 +7310,11 @@ document.addEventListener("alpine:init", function () {
         }
         if (this.shadowScore < 0) this.shadowScore = 0;
         if (this.shadowScore > this.maxScore) this.shadowScore = this.maxScore;
-        this.score = this.$store.assessment.currentScore = this.getCurrentScore();
+        this.score = this.getCurrentScore();
+      },
+      updateAssessmentStore: function updateAssessmentStore() {
+        this.$store.assessment.currentScore = this.score;
+        this.$store.assessment.togglesTicked++;
       }
     };
   });
@@ -7205,13 +7327,13 @@ document.addEventListener("alpine:init", function () {
       firstValue: firstValue,
       skipWatch: false,
       first: function first() {
-        var _this31 = this;
+        var _this33 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee8() {
           return _regeneratorRuntime().wrap(function _callee8$(_context8) {
             while (1) switch (_context8.prev = _context8.next) {
               case 0:
                 _context8.next = 2;
-                return _this31.updateCurrent(_this31.firstValue, "first");
+                return _this33.updateCurrent(_this33.firstValue, "first");
               case 2:
               case "end":
                 return _context8.stop();
@@ -7220,13 +7342,13 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       last: function last() {
-        var _this32 = this;
+        var _this34 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee9() {
           return _regeneratorRuntime().wrap(function _callee9$(_context9) {
             while (1) switch (_context9.prev = _context9.next) {
               case 0:
                 _context9.next = 2;
-                return _this32.updateCurrent(_this32.lastValue, "last");
+                return _this34.updateCurrent(_this34.lastValue, "last");
               case 2:
               case "end":
                 return _context9.stop();
@@ -7235,19 +7357,19 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       next: function next() {
-        var _this33 = this;
+        var _this35 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee10() {
           return _regeneratorRuntime().wrap(function _callee10$(_context10) {
             while (1) switch (_context10.prev = _context10.next) {
               case 0:
-                if (!(_this33.current >= _this33.lastValue)) {
+                if (!(_this35.current >= _this35.lastValue)) {
                   _context10.next = 2;
                   break;
                 }
                 return _context10.abrupt("return");
               case 2:
                 _context10.next = 4;
-                return _this33.updateCurrent(_this33.current + 1, "incr");
+                return _this35.updateCurrent(_this35.current + 1, "incr");
               case 4:
               case "end":
                 return _context10.stop();
@@ -7256,19 +7378,19 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       previous: function previous() {
-        var _this34 = this;
+        var _this36 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee11() {
           return _regeneratorRuntime().wrap(function _callee11$(_context11) {
             while (1) switch (_context11.prev = _context11.next) {
               case 0:
-                if (!(_this34.current <= _this34.firstValue)) {
+                if (!(_this36.current <= _this36.firstValue)) {
                   _context11.next = 2;
                   break;
                 }
                 return _context11.abrupt("return");
               case 2:
                 _context11.next = 4;
-                return _this34.updateCurrent(_this34.current - 1, "decr");
+                return _this36.updateCurrent(_this36.current - 1, "decr");
               case 4:
               case "end":
                 return _context11.stop();
@@ -7277,21 +7399,21 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       updateCurrent: function updateCurrent(value, action) {
-        var _this35 = this;
+        var _this37 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee12() {
           var response;
           return _regeneratorRuntime().wrap(function _callee12$(_context12) {
             while (1) switch (_context12.prev = _context12.next) {
               case 0:
-                _this35.$dispatch("assessment-drawer-tab-update", {
+                _this37.$dispatch("assessment-drawer-tab-update", {
                   tab: 1
                 });
                 _context12.next = 3;
-                return _this35.$wire[_this35.methodCall](value, action);
+                return _this37.$wire[_this37.methodCall](value, action);
               case 3:
                 response = _context12.sent;
                 if (response) {
-                  _this35.updateProperties(response);
+                  _this37.updateProperties(response);
                 }
               case 5:
               case "end":
@@ -7314,42 +7436,42 @@ document.addEventListener("alpine:init", function () {
       fixLineHeightCount: 0,
       fixInterval: null,
       init: function init() {
-        var _this36 = this;
+        var _this38 = this;
         this.placeAllOrNothingLines();
         this.fixLineHeight();
         this.$watch("expanded", function (value) {
-          return _this36.placeAllOrNothingLines();
+          return _this38.placeAllOrNothingLines();
         });
       },
       fixLineHeight: function fixLineHeight() {
-        var _this37 = this;
+        var _this39 = this;
         this.fixInterval = setInterval(function () {
-          _this37.placeAllOrNothingLines();
-          _this37.fixLineHeightCount++;
-          if (_this37.fixLineHeightCount >= 5) {
-            clearInterval(_this37.fixInterval);
+          _this39.placeAllOrNothingLines();
+          _this39.fixLineHeightCount++;
+          if (_this39.fixLineHeightCount >= 5) {
+            clearInterval(_this39.fixInterval);
           }
         }, 200);
       },
       placeAllOrNothingLines: function placeAllOrNothingLines() {
-        var _this38 = this;
+        var _this40 = this;
         this.$nextTick(function () {
-          var parent = _this38.$root.parentElement;
-          _this38.activeItems.map(function (item) {
+          var parent = _this40.$root.parentElement;
+          _this40.activeItems.map(function (item) {
             var el = parent.querySelector("[data-active-item='".concat(item, "']"));
-            var height = el.offsetTop + el.offsetHeight / 2 - _this38.$root.offsetHeight / 2;
-            if (_this38.$root !== parent.firstElementChild) {
-              height -= _this38.$root.offsetTop;
+            var height = el.offsetTop + el.offsetHeight / 2 - _this40.$root.offsetHeight / 2;
+            if (_this40.$root !== parent.firstElementChild) {
+              height -= _this40.$root.offsetTop;
             }
-            _this38.$root.querySelector("[data-line='".concat(item, "']")).style.height = height + "px";
+            _this40.$root.querySelector("[data-line='".concat(item, "']")).style.height = height + "px";
           });
-          if (_this38.withToggle) {
+          if (_this40.withToggle) {
             var toggleEl = parent.parentElement.querySelector(".all-or-nothing-toggle");
-            var firstEl = _this38.$root;
-            var lastEl = parent.querySelector("[data-active-item=\"".concat(_this38.activeItems.slice(-1), "\"]"));
-            var middle = _this38.middleOfElement(firstEl);
+            var firstEl = _this40.$root;
+            var lastEl = parent.querySelector("[data-active-item=\"".concat(_this40.activeItems.slice(-1), "\"]"));
+            var middle = _this40.middleOfElement(firstEl);
             if (lastEl) {
-              middle = (_this38.middleOfElement(firstEl) + _this38.middleOfElement(lastEl)) / 2;
+              middle = (_this40.middleOfElement(firstEl) + _this40.middleOfElement(lastEl)) / 2;
             }
             toggleEl.style.top = middle + "px";
           }
@@ -7380,28 +7502,28 @@ document.addEventListener("alpine:init", function () {
         });
       },
       next: function next() {
-        var _this39 = this;
-        if (this.$store.assessment.currentScore === null && !this.clickedNext) {
+        var _this41 = this;
+        if (!this.$store.assessment.clearToProceed() && !this.clickedNext) {
           this.$dispatch("scoring-elements-error");
           this.clickedNext = true;
           return;
         }
         this.tab(1);
         this.$nextTick(function () {
-          _this39.$wire.next();
-          _this39.clickedNext = false;
+          _this41.$wire.next();
+          _this41.clickedNext = false;
         });
       },
       previous: function previous() {
-        var _this40 = this;
+        var _this42 = this;
         this.tab(1);
         this.$nextTick(function () {
-          _this40.$wire.previous();
+          _this42.$wire.previous();
         });
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("scoreSlider", function (score, model, maxScore, halfPoints, disabled, stack) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("scoreSlider", function (score, model, maxScore, halfPoints, disabled, coLearning) {
     return {
       score: score,
       model: model,
@@ -7436,31 +7558,46 @@ document.addEventListener("alpine:init", function () {
         }
       },
       init: function init() {
-        var _this41 = this;
+        var _this43 = this;
         // This echos custom JS from the template and for some reason it actually works;
-        stack;
+        if (coLearning) {
+          Livewire.hook("message.received", function (message, component) {
+            var _message$updateQueue$;
+            if (component.name === "student.co-learning" && ((_message$updateQueue$ = message.updateQueue[0]) === null || _message$updateQueue$ === void 0 ? void 0 : _message$updateQueue$.method) === "updateHeartbeat") {
+              var scoreInputElement = _this43.$root.querySelector("[x-ref='scoreInput']");
+              _this43.persistentScore = scoreInputElement !== null && scoreInputElement.value !== "" ? scoreInputElement.value : null;
+            }
+          });
+          Livewire.hook("message.processed", function (message, component) {
+            var _message$updateQueue$2;
+            if (component.name === "student.co-learning" && ((_message$updateQueue$2 = message.updateQueue[0]) === null || _message$updateQueue$2 === void 0 ? void 0 : _message$updateQueue$2.method) === "updateHeartbeat") {
+              _this43.skipSync = true;
+              _this43.score = _this43.persistentScore;
+            }
+          });
+        }
         this.inputBox = this.$root.querySelector("[x-ref='scoreInput']");
         this.$watch("score", function (value, oldValue) {
-          _this41.markInputElementsClean();
-          if (_this41.disabled || value === oldValue || _this41.skipSync) {
-            _this41.skipSync = false;
+          _this43.markInputElementsClean();
+          if (_this43.disabled || value === oldValue || _this43.skipSync) {
+            _this43.skipSync = false;
             return;
           }
-          if (value >= _this41.maxScore) {
-            _this41.score = value = _this41.maxScore;
+          if (value >= _this43.maxScore) {
+            _this43.score = value = _this43.maxScore;
           }
           if (value <= 0) {
-            _this41.score = value = 0;
+            _this43.score = value = 0;
           }
-          _this41.score = value = _this41.halfPoints ? Math.round(value * 2) / 2 : Math.round(value);
-          var numberInput = _this41.$root.querySelector("[x-ref='score_slider_continuous_input']");
+          _this43.score = value = _this43.halfPoints ? Math.round(value * 2) / 2 : Math.round(value);
+          var numberInput = _this43.$root.querySelector("[x-ref='score_slider_continuous_input']");
           if (numberInput !== null) {
-            _this41.setSliderBackgroundSize(numberInput);
+            _this43.setSliderBackgroundSize(numberInput);
           }
         });
         if (!this.disabled) {
           this.$nextTick(function () {
-            _this41.inputBox.focus();
+            _this43.inputBox.focus();
           });
         }
       },
@@ -7473,6 +7610,43 @@ document.addEventListener("alpine:init", function () {
         if (this.disabled) return;
         this.inputBox.classList.add("border-blue-grey");
         this.inputBox.classList.remove("border-allred");
+      }
+    };
+  });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("completionQuestion", function () {
+    return {
+      minWidth: 120,
+      maxWidth: 1000,
+      setInputWidth: function setInputWidth(input) {
+        var _this44 = this;
+        var init = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+        var preview = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+        if (!init || preview) {
+          this.calculateInputWidth(input);
+          return;
+        }
+        this.$watch("showMe", function (value) {
+          if (!value) {
+            return;
+          }
+          _this44.$nextTick(function () {
+            _this44.calculateInputWidth(input);
+          });
+        });
+      },
+      calculateInputWidth: function calculateInputWidth(input) {
+        this.minWidth = 120;
+        this.maxWidth = input.closest("div.input-group").parentElement.offsetWidth;
+        this.span = input.parentElement.querySelector(".absolute");
+        this.span.innerText = input.value;
+        this.newWidth = this.span.offsetWidth + 27;
+        if (this.newWidth < this.minWidth) {
+          this.newWidth = this.minWidth;
+        }
+        if (this.newWidth > this.maxWidth) {
+          this.newWidth = this.maxWidth;
+        }
+        input.style.width = this.newWidth + "px";
       }
     };
   });
@@ -7506,14 +7680,22 @@ document.addEventListener("alpine:init", function () {
     dirty: false,
     scrollPos: 0,
     reinitOnClose: false,
-    emptyState: false
+    emptyState: false,
+    pendingRequestTimeout: null,
+    pendingRequestTally: 0,
+    handledAllRequests: true
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].store("questionBank", {
     active: false,
     inGroup: false
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].store("assessment", {
-    currentScore: null
+    currentScore: null,
+    toggleCount: 0,
+    togglesTicked: 0,
+    clearToProceed: function clearToProceed() {
+      return this.currentScore !== null && this.togglesTicked === this.toggleCount;
+    }
   });
 });
 function getTitleForVideoUrl(videoUrl) {
@@ -13479,6 +13661,7 @@ window.Livewire.directive('sortable-group', function (el, directive, component) 
 
 document.addEventListener('alpine:init', function () {
   Alpine.data('navigationBar', function () {
+    var enableHubSpotChat = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
     return {
       hideTimeout: null,
       bottom: null,
@@ -13498,6 +13681,18 @@ document.addEventListener('alpine:init', function () {
         var scrollRight = this.$refs.menu_scroll_right;
         this.menuButtonsWithItems = this.bottom.querySelectorAll('.has-items');
         this.menuButtonsWithoutItems = this.bottom.querySelectorAll('div:not(.has-items)');
+        if (enableHubSpotChat) this.initializeHubspot();
+        if (window.HubSpotConversations) {
+          this.onConversationsAPIReady();
+        } else {
+          window.hsConversationsOnReady = [this.onConversationsAPIReady];
+        }
+        if (hubspotLoaded == undefined) {
+          var _hsq = window._hsq = window._hsq || [];
+          _hsq.push(["identify"]);
+          _hsq.push(['trackPageView']);
+          var hubspotLoaded = true;
+        }
         if (this.$wire.activeRoute.sub !== '') {
           var activeTileItem = navBar.querySelector('.' + this.$wire.activeRoute.sub);
           activeTileItem.classList.add('tile-active');
@@ -13545,6 +13740,29 @@ document.addEventListener('alpine:init', function () {
         this.$refs.support_button.addEventListener('click', function (event) {
           _this.supportMenuShow();
         });
+        this.$refs.chat_button.addEventListener('click', function (event) {
+          _this.openHubspotWidget();
+        });
+      },
+      initializeHubspot: function initializeHubspot() {
+        var hubspotScript = document.createElement('script');
+        hubspotScript.setAttribute('src', '//js-eu1.hs-scripts.com/26318898.js');
+        document.head.appendChild(hubspotScript);
+      },
+      openHubspotWidget: function openHubspotWidget() {
+        var widget = window.HubSpotConversations.widget;
+        if (widget.status().loaded) {
+          widget.open();
+        } else {
+          widget.load({
+            widgetOpen: true
+          });
+        }
+      },
+      onConversationsAPIReady: function onConversationsAPIReady() {
+        window.hsConversationsSettings = {
+          loadImmediately: false
+        };
       },
       tileItemsHide: function tileItemsHide() {
         this.menuButtonsWithItems.forEach(function (element) {
@@ -13763,201 +13981,71 @@ readspeakerLoadCore = function (_readspeakerLoadCore) {
   \******************************************/
 /***/ (() => {
 
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
 RichTextEditor = {
   initStudent: function initStudent(editorId) {
-    var editor = CKEDITOR.instances[editorId];
-    if (editor) {
-      editor.destroy(true);
-    }
-    CKEDITOR.replace(editorId, {
-      removePlugins: 'pastefromword,pastefromgdocs,advanced,simpleuploads,dropoff,copyformatting,image,pastetext,uploadwidget,uploadimage',
-      extraPlugins: 'blockimagepaste,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
-      toolbar: [{
-        name: 'basicstyles',
-        items: ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript']
-      }, {
-        name: 'paragraph',
-        items: ['NumberedList', 'BulletedList']
-      }, {
-        name: 'insert',
-        items: ['Table']
-      }, {
-        name: 'styles',
-        items: ['Font', 'FontSize']
-      }, {
-        name: 'wirisplugins',
-        items: ['ckeditor_wiris_formulaEditor', 'ckeditor_wiris_formulaEditorChemistry']
-      }]
-    });
-    CKEDITOR.instances[editorId].on('change', function (e) {
-      RichTextEditor.sendInputEventToEditor(editorId, e);
-    });
+    console.log('this should implement student init // example is open-medium-question.blase.php');
   },
   initStudentCoLearning: function initStudentCoLearning(editorId) {
     var lang = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'nl_NL';
     var wsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-    var editor = CKEDITOR.instances[editorId];
-    if (editor) {
-      editor.destroy(true);
-    }
-    if (wsc) {
-      CKEDITOR.disableAutoInline = true;
-      CKEDITOR.config.removePlugins = 'scayt,wsc';
-    }
-    CKEDITOR.on('instanceReady', function (event) {
-      var editor = event.editor;
+    return ClassicEditor.create(document.querySelector('#' + editorId), this.getConfigForStudent(wsc, [])).then(function (editor) {
+      ClassicEditors[editorId] = editor;
+      var wordCountPlugin = editor.plugins.get('WordCount');
+      var wordCountWrapper = document.getElementById('word-count-' + editorId);
+      wordCountWrapper.appendChild(wordCountPlugin.wordCountContainer);
       WebspellcheckerTlc.forTeacherQuestion(editor, lang, wsc);
-    });
-    CKEDITOR.replace(editorId, {
-      removePlugins: 'pastefromword,pastefromgdocs,advanced,simpleuploads,dropoff,copyformatting,image,pastetext,uploadwidget,uploadimage,elementspath',
-      extraPlugins: 'quicktable,ckeditor_wiris,autogrow,wordcount,notification',
-      wordcount: {
-        showWordCount: true,
-        showParagraphs: false,
-        showCharCount: true,
-        countSpacesAsChars: true
-      },
-      autoGrow_maxHeight: 0,
-      toolbar: []
-    });
-    editor = CKEDITOR.instances[editorId];
-    editor.on('change', function (e) {
-      RichTextEditor.sendInputEventToEditor(editorId, e);
-    });
-    editor.on('instanceReady', function (e) {
-      setTimeout(function () {
-        document.getElementById('word-count-' + editorId).textContent = editor.wordCount.wordCount;
-        document.getElementById('char-count-' + editorId).textContent = editor.wordCount.charCount;
-      }, 300);
       window.addEventListener('wsc-problems-count-updated-' + editorId, function (e) {
         var problemCountSpan = document.getElementById('problem-count-' + editorId);
         if (problemCountSpan) {
           problemCountSpan.textContent = e.detail.problemsCount;
         }
       });
-      document.getElementById('cke_wordcount_' + editorId).classList.add('hidden');
-      document.querySelector('.cke_top').style.display = 'none !important';
-      document.querySelector('.cke_bottom').style.display = 'none !important';
-    });
-  },
-  initCMS: function initCMS(editorId) {
-    var lang = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'nl_NL';
-    var wsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-    var editor = CKEDITOR.instances[editorId];
-    if (editor) {
-      editor.destroy(true);
-    }
-    if (wsc) {
-      CKEDITOR.disableAutoInline = true;
-      CKEDITOR.config.removePlugins = 'scayt,wsc';
-    }
-    CKEDITOR.on('instanceReady', function (event) {
-      var editor = event.editor;
-      WebspellcheckerTlc.forTeacherQuestion(editor, lang, wsc);
-    });
-    CKEDITOR.replace(editorId, {});
-    editor = CKEDITOR.instances[editorId];
-    editor.on('change', function (e) {
-      RichTextEditor.sendInputEventToEditor(editorId, e);
-    });
-    editor.on('simpleuploads.startUpload', function (e) {
-      e.data.extraHeaders = {
-        'X-CSRF-TOKEN': document.querySelector('meta[name="_token"]').content
-      };
-    });
-    editor.on('simpleuploads.finishedUpload', function (e) {
-      RichTextEditor.sendInputEventToEditor(editorId, e);
+      if (typeof ReadspeakerTlc != 'undefined') {
+        ReadspeakerTlc.ckeditor.addListenersForReadspeaker(editor, questionId, editorId);
+        ReadspeakerTlc.ckeditor.disableContextMenuOnCkeditor();
+      }
+    })["catch"](function (error) {
+      console.error(error);
     });
   },
   initSelectionCMS: function initSelectionCMS(editorId) {
+    var _this = this;
     var lang = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'nl_NL';
-    var wsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-    var editor = CKEDITOR.instances[editorId];
+    var allowWsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+    var editor = ClassicEditors[editorId];
     if (editor) {
       editor.destroy(true);
     }
-    if (wsc) {
-      CKEDITOR.disableAutoInline = true;
-      CKEDITOR.config.removePlugins = 'scayt,wsc';
-    }
-    CKEDITOR.on('instanceReady', function (event) {
-      var editor = event.editor;
-      WebspellcheckerTlc.forTeacherQuestion(editor, lang, wsc);
-    });
-    CKEDITOR.replace(editorId, {
-      extraPlugins: 'selection,simpleuploads,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
-      toolbar: [{
-        name: 'basicstyles',
-        items: ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript']
-      }, {
-        name: 'paragraph',
-        items: ['NumberedList', 'BulletedList']
-      }, {
-        name: 'insert',
-        items: ['addImage', 'Table']
-      }, {
-        name: 'styles',
-        items: ['Font', 'FontSize']
-      }, {
-        name: 'wirisplugins',
-        items: ['ckeditor_wiris_formulaEditor', 'ckeditor_wiris_formulaEditorChemistry']
-      }, {
-        name: 'extra',
-        items: ['selection']
-      }]
-    });
-    CKEDITOR.instances[editorId].on('change', function (e) {
-      RichTextEditor.sendInputEventToEditor(editorId, e);
+    return ClassicEditor.create(document.getElementById(editorId), this.getConfigForTeacher(allowWsc, ['Selection'])).then(function (editor) {
+      ClassicEditors[editorId] = editor;
+      WebspellcheckerTlc.lang(editor, lang);
+      // WebspellcheckerTlc.setEditorToReadOnly(editor);
+      _this.setReadOnly(editor);
+      window.editor = editor;
+    })["catch"](function (error) {
+      console.error(error);
     });
   },
-  initCompletionCMS: function initCompletionCMS(editorId) {
-    var lang = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'nl_NL';
-    var wsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-    var editor = CKEDITOR.instances[editorId];
+  initCompletionCMS: function initCompletionCMS(editorId, lang) {
+    var _this2 = this;
+    var allowWsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+    var editor = ClassicEditors[editorId];
     if (editor) {
       editor.destroy(true);
     }
-    if (wsc) {
-      CKEDITOR.disableAutoInline = true;
-      CKEDITOR.config.removePlugins = 'scayt,wsc';
-    }
-    CKEDITOR.on('instanceReady', function (event) {
-      var editor = event.editor;
-      WebspellcheckerTlc.forTeacherQuestion(editor, lang, wsc);
-    });
-    CKEDITOR.replace(editorId, {
-      extraPlugins: 'completion,simpleuploads,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
-      toolbar: [{
-        name: 'clipboard',
-        items: ['Undo', 'Redo']
-      }, {
-        name: 'basicstyles',
-        items: ['Bold', 'Italic', 'Underline', 'Strike', 'RemoveFormat', 'Subscript', 'Superscript']
-      }, {
-        name: 'paragraph',
-        items: ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote']
-      }, {
-        name: 'insert',
-        items: ['addImage', 'Table']
-      }, {
-        name: 'styles',
-        items: ['Format', 'Font', 'FontSize']
-      }, {
-        name: 'colors',
-        items: ['TextColor', 'BGColor', 'CopyFormatting']
-      }, {
-        name: 'align',
-        items: ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock']
-      }, {
-        name: 'wirisplugins',
-        items: ['ckeditor_wiris_formulaEditor', 'ckeditor_wiris_formulaEditorChemistry']
-      }, {
-        name: 'extra',
-        items: ['completion']
-      }]
-    });
-    CKEDITOR.instances[editorId].on('change', function (e) {
-      RichTextEditor.sendInputEventToEditor(editorId, e);
+    return ClassicEditor.create(document.getElementById(editorId), this.getConfigForTeacher(allowWsc, ['Completion'])).then(function (editor) {
+      ClassicEditors[editorId] = editor;
+      WebspellcheckerTlc.lang(editor, lang);
+      // WebspellcheckerTlc.setEditorToReadOnly(editor);
+      _this2.setReadOnly(editor);
+    })["catch"](function (error) {
+      console.error(error);
     });
   },
   sendInputEventToEditor: function sendInputEventToEditor(editorId, e) {
@@ -13968,15 +14056,7 @@ RichTextEditor = {
     textarea.dispatchEvent(new Event('input'));
   },
   initClassicEditorForStudentplayer: function initClassicEditorForStudentplayer(editorId, questionId) {
-    return ClassicEditor.create(document.querySelector('#' + editorId), {
-      autosave: {
-        waitingTime: 300,
-        save: function save(editor) {
-          editor.updateSourceElement();
-          editor.sourceElement.dispatchEvent(new Event('input'));
-        }
-      }
-    }).then(function (editor) {
+    return ClassicEditor.create(document.querySelector('#' + editorId), this.getConfigForStudent(false, [])).then(function (editor) {
       ClassicEditors[editorId] = editor;
       var wordCountPlugin = editor.plugins.get('WordCount');
       var wordCountWrapper = document.getElementById('word-count-' + editorId);
@@ -13989,12 +14069,23 @@ RichTextEditor = {
       console.error(error);
     });
   },
-  initClassicEditorForTeacherplayerWsc: function initClassicEditorForTeacherplayerWsc(editorId, lang) {
-    var editor = ClassicEditors[editorId];
-    if (editor) {
-      editor.destroy(true);
-    }
-    return ClassicEditor.create(document.getElementById(editorId), {
+  initClassicEditorForStudentPreviewplayer: function initClassicEditorForStudentPreviewplayer(editorId, questionId) {
+    return ClassicEditor.create(document.querySelector('#' + editorId), this.getConfigForStudent(false, [])).then(function (editor) {
+      ClassicEditors[editorId] = editor;
+      var wordCountPlugin = editor.plugins.get('WordCount');
+      var wordCountWrapper = document.getElementById('word-count-' + editorId);
+      wordCountWrapper.appendChild(wordCountPlugin.wordCountContainer);
+      if (typeof ReadspeakerTlc != 'undefined') {
+        ReadspeakerTlc.ckeditor.replaceReadableAreaByClone(editor);
+      }
+      editor.isReadOnly = true;
+    })["catch"](function (error) {
+      console.error(error);
+    });
+  },
+  getConfigForStudent: function getConfigForStudent(allowWsc) {
+    var pluginsToAdd = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+    var config = {
       autosave: {
         waitingTime: 300,
         save: function save(editor) {
@@ -14002,47 +14093,121 @@ RichTextEditor = {
           editor.sourceElement.dispatchEvent(new Event('input'));
         }
       },
-      wproofreader: {
-        lang: lang,
-        serviceProtocol: 'https',
-        servicePort: '80',
-        serviceHost: 'testwsc.test-correct.nl',
-        servicePath: 'wscservice/api',
-        srcUrl: 'https://testwsc.test-correct.nl/wscservice/wscbundle/wscbundle.js'
+      wordcount: {
+        showWordCount: true,
+        showParagraphs: false,
+        showCharCount: true,
+        countSpacesAsChars: true
       }
-    }).then(function (editor) {
-      ClassicEditors[editorId] = editor;
-      WebspellcheckerTlc.lang(editor, lang);
-      // WebspellcheckerTlc.setEditorToReadOnly(editor);
-    })["catch"](function (error) {
-      console.error(error);
-    });
-  },
-  initClassicEditorForTeacherplayer: function initClassicEditorForTeacherplayer(editorId) {
-    var editor = ClassicEditors[editorId];
-    if (editor) {
-      editor.destroy(true);
+    };
+    config.toolbar = {
+      removeItems: []
+    };
+    if (allowWsc) {
+      config.wproofreader = {
+        autoSearch: false,
+        autoDestroy: true,
+        autocorrect: false,
+        autocomplete: false,
+        actionItems: ['addWord', 'ignoreAll', 'ignore', 'settings', 'toggle', 'proofreadDialog'],
+        enableBadgeButton: true,
+        serviceProtocol: "https",
+        servicePort: "80",
+        serviceHost: "wsc.test-correct.nl",
+        servicePath: "wscservice/api",
+        srcUrl: "https://wsc.test-correct.nl/wscservice/wscbundle/wscbundle.js"
+      };
+      config.removePlugins = ['Selection', 'Completion', 'ImageUpload', 'Image'];
+      config.toolbar.removeItems = ['selection', 'completion', 'imageUpload', 'image'];
+    } else {
+      config.removePlugins = ['WProofreader', 'Selection', 'Completion', 'ImageUpload', 'Image'];
+      config.toolbar.removeItems = ['wproofreader', 'selection', 'completion', 'imageUpload', 'image'];
     }
-    return ClassicEditor.create(document.getElementById(editorId), {
+    return config;
+  },
+  getConfigForTeacher: function getConfigForTeacher(allowWsc) {
+    var pluginsToAdd = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+    var config = {
       autosave: {
         waitingTime: 300,
         save: function save(editor) {
           editor.updateSourceElement();
           editor.sourceElement.dispatchEvent(new Event('input'));
         }
+      },
+      image: {
+        upload: {
+          types: ['jpeg', 'png', 'gif', 'bmp', 'webp', 'tiff']
+        }
+      },
+      simpleUpload: {
+        uploadUrl: '/cms/ckeditor_upload/images',
+        // Enable the XMLHttpRequest.withCredentials property.
+        withCredentials: true,
+        // Headers sent along with the XMLHttpRequest to the upload server.
+        headers: {
+          'X-CSRF-TOKEN': document.querySelector('meta[name="_token"]').content
+          // Authorization: 'Bearer <JSON Web Token>'
+        }
       }
-    }).then(function (editor) {
+    };
+
+    config.removePlugins = [];
+    config.toolbar = {
+      removeItems: []
+    };
+    if (allowWsc) {
+      config.wproofreader = {
+        autoSearch: false,
+        autoDestroy: true,
+        autocorrect: false,
+        autocomplete: false,
+        actionItems: ['addWord', 'ignoreAll', 'ignore', 'settings', 'toggle', 'proofreadDialog'],
+        enableBadgeButton: true,
+        serviceProtocol: "https",
+        servicePort: "80",
+        serviceHost: "wsc.test-correct.nl",
+        servicePath: "wscservice/api",
+        srcUrl: "https://wsc.test-correct.nl/wscservice/wscbundle/wscbundle.js"
+      };
+    } else {
+      config.removePlugins = ['WProofreader'];
+    }
+    var availablePlugins = ['Selection', 'Completion'];
+    var pluginsToRemove = availablePlugins.filter(function (plugin) {
+      return !pluginsToAdd.includes(plugin);
+    });
+    config.removePlugins = [].concat(_toConsumableArray(config.removePlugins), _toConsumableArray(pluginsToRemove));
+    config.toolbar.removeItems = pluginsToRemove.map(function (item) {
+      return item.toLowerCase();
+    });
+    return config;
+  },
+  initForTeacher: function initForTeacher(editorId, lang) {
+    var _this3 = this;
+    var allowWsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+    var editor = ClassicEditors[editorId];
+    if (editor) {
+      editor.destroy(true);
+    }
+    return ClassicEditor.create(document.getElementById(editorId), this.getConfigForTeacher(allowWsc)).then(function (editor) {
       ClassicEditors[editorId] = editor;
+      WebspellcheckerTlc.lang(editor, lang);
+      // WebspellcheckerTlc.setEditorToReadOnly(editor);
+      _this3.setReadOnly(editor);
     })["catch"](function (error) {
       console.error(error);
     });
   },
+  /** @TODO: this method should be refactored to setReadOnlyIfApplicable  but it has a reference in readspeaker_tlc.js which i dont want to test 1 day before deployment.*/
   setReadOnly: function setReadOnly(editor) {
-    editor.isReadOnly = true;
-    var editables = editor.ui.view.editable.element.querySelectorAll("[contenteditable=true]");
-    editables.forEach(function (element) {
-      element.setAttribute('contenteditable', false);
-    });
+    if (editor.sourceElement.hasAttribute('disabled')) {
+      editor.isReadOnly = true;
+      var editables = editor.ui.view.editable.element.querySelectorAll("[contenteditable=true]");
+      editables.forEach(function (element) {
+        element.setAttribute('contenteditable', false);
+      });
+    }
   },
   writeContentToTexarea: function writeContentToTexarea(editorId) {
     var editor = ClassicEditors[editorId];
@@ -14269,12 +14434,12 @@ WebspellcheckerTlc = {
   initWsc: function initWsc(editor, language) {
     setTimeout(function () {
       var instance = WEBSPELLCHECKER.init({
-        container: editor.window.getFrame() ? editor.window.getFrame().$ : editor.element.$,
+        container: editor.ui._editableElements.get('main'),
         spellcheckLang: language,
         localization: 'nl'
       });
       instance.subscribe('problemCheckEnded', function (event) {
-        window.dispatchEvent(new CustomEvent('wsc-problems-count-updated-' + editor.name, {
+        window.dispatchEvent(new CustomEvent('wsc-problems-count-updated-' + editor.sourceElement.id, {
           detail: {
             problemsCount: instance.getProblemsCount()
           }
