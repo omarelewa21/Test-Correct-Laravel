@@ -21,14 +21,14 @@ class WirisIntegrationController extends Controller
     }
 
     public function showimage() {
-        if(BaseHelper::notProduction()) {
+        if(class_exists('Barryvdh\Debugbar\Facades\Debugbar')) {
             Debugbar::disable();
         }
         include(public_path().'/ckeditor_png/plugins/ckeditor_wiris/integration/showimage.php');
     }
 
     public function createimage() {
-        if(BaseHelper::notProduction()) {
+        if(class_exists('Barryvdh\Debugbar\Facades\Debugbar')) {
             Debugbar::disable();
         }
         include(public_path().'/ckeditor_png/plugins/ckeditor_wiris/integration/createimage.php');
