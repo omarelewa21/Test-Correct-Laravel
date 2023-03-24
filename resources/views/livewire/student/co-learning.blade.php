@@ -47,30 +47,13 @@
                     <div class="flex content-center justify-between"
                          wire:key="ar-{{$this->answerRatingId}}"
                     >
-                        @push('scoreSliderStack')
-                            @once
-                                Livewire.hook('message.received', (message, component) => {
-                                    if (component.name === 'student.co-learning' && message.updateQueue[0]?.method === 'updateHeartbeat') {
-                                        scoreInputElement = document.querySelector('[x-ref=\'scoreInput\']');
-                                        let value = (scoreInputElement !== null && scoreInputElement.value !== '') ? scoreInputElement.value : null;
-                                        persistentScore = value;
-                                    }
-                                })
-                                Livewire.hook('message.processed', (message, component) => {
-                                    if (component.name === 'student.co-learning'&& message.updateQueue[0]?.method ==='updateHeartbeat') {
-                                        skipSync = true;
-                                        score = persistentScore;
-                                    }
-                                })
-                            @endonce
-                        @endpush()
-
                         <x-input.score-slider class=""
                                               model-name="rating"
                                               :max-score="$maxRating"
                                               :score="$rating"
-                                              :allow-half-points="$allowRatingWithHalfPoints"
+                                              :half-points="$allowRatingWithHalfPoints"
                                               :disabled="!$this->answerRating->answer->isAnswered"
+                                              :co-learning="true"
                         />
                     </div>
                 @endif
@@ -80,26 +63,27 @@
                 <span><b class="bold">{{ __('co-learning.question') }} {{$this->questionFollowUpNumber}}</b>/{{$this->numberOfQuestions}}</span>
 
                 @if($previousAnswerAvailable)
-                    <x-button.primary class="rotate-svg-180" wire:click="goToPreviousAnswerRating()">
+                    <x-button.primary class="rotate-svg-180"
+                                      wire:click="goToPreviousAnswerRating()"
+                                      wire:loading.attr="disabled"
+                    >
                         <x-icon.arrow class=""/>
                         <span>{{ __('co-learning.previous_answer') }}</span>
                     </x-button.primary>
                 @elseif($nextAnswerAvailable)
-                    @if($this->enableNextQuestionButton)
-                        <x-button.primary wire:click="goToNextAnswerRating()">
+                        <x-button.primary wire:click="goToNextAnswerRating()"
+                                          wire:loading.attr="disabled"
+                                          :disabled="!$this->enableNextQuestionButton"
+                        >
                             <span>{{ __('co-learning.next_answer') }}</span>
                             <x-icon.arrow/>
                         </x-button.primary>
-                    @else
-                        <x-button.primary wire:click="goToNextAnswerRating()" disabled>
-                            <span>{{ __('co-learning.next_answer') }}</span>
-                            <x-icon.arrow/>
-                        </x-button.primary>
-                    @endif
                 @endif
 
                 @if($finishCoLearningButtonEnabled)
-                    <x-button.cta wire:click="goToFinishedCoLearningPage">
+                    <x-button.cta wire:click="goToFinishedCoLearningPage"
+                                  wire:loading.attr="disabled"
+                    >
                         {{ __('co-learning.finish') }}
                     </x-button.cta>
                 @endif

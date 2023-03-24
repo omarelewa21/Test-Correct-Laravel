@@ -20,6 +20,7 @@ class Factory {
 
         $this->user->fill($data);
 
+
         $this->user->setAttribute('api_key', Str::random(40));
 
         if($withoutSaving === true){

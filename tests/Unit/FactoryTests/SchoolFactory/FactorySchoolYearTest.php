@@ -14,7 +14,6 @@ use Tests\TestCase;
 
 class FactorySchoolYearTest extends TestCase
 {
-    use DatabaseTransactions;
     use WithFaker;
 
     /** @test */
@@ -39,7 +38,7 @@ class FactorySchoolYearTest extends TestCase
     /** @test */
     public function can_create_school_year_only_if_no_current_school_year_exist()
     {
-        Carbon::setTestNow(Carbon::create(Carbon::now()->year, 9, 1)); //default created schoolyear starts at current year, month 8.
+        Carbon::setTestNow(Carbon::create(2022, 9, 1)); //default created schoolyear starts at current year, month 8.
 
         $startCount = SchoolYear::count();
         $schoolLocation = FactorySchoolLocation::create(

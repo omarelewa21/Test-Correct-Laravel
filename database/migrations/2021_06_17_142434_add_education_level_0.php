@@ -16,9 +16,12 @@ class AddEducationLevel0 extends Migration
      */
     public function up()
     {
-        Schema::table('education_levels', function (Blueprint $table) {
-            $table->integer('attainment_education_level_id')->nullable();
-        });
+
+        if (!Schema::hasColumn('education_levels', 'attainment_education_level_id')) {
+            Schema::table('education_levels', function (Blueprint $table) {
+                $table->integer('attainment_education_level_id')->nullable();
+            });
+        }
         $el = EducationLevel::create([
             'name' => 'uwlr_education_level',
             'max_years' => 8

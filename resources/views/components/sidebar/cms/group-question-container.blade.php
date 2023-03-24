@@ -6,6 +6,7 @@
      wire:sortable.item="{{ $question->uuid }}"
      wire:sortable-group="updateGroupItemsOrder"
      title="{{ __('cms.Open vraaggroep') }}"
+     uuid="{{ $question->uuid }}"
 >
     <div class="flex space-x-2 py-1.5 pl-6 pr-4 cursor-pointer group-question-title-container hover:bg-primary/5 hover:text-primary"
     >

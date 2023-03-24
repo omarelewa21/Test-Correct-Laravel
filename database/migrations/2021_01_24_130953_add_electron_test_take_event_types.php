@@ -26,6 +26,17 @@ class AddElectronTestTakeEventTypes extends Migration
     public function up()
     {
         TestTakeEventType::unguard();
+        TestTakeEventType::all()->each->forceDelete();
+        AddElectronTestTakeEventTypes::createAndAdd(1,'Start',0,'start-test');
+        AddElectronTestTakeEventTypes::createAndAdd(2,'Stop',0,'stop-test');
+        AddElectronTestTakeEventTypes::createAndAdd(3,'Lost focus',1,'lost-focus');
+        AddElectronTestTakeEventTypes::createAndAdd(4,'Screenshot',1,'screenshot');
+        AddElectronTestTakeEventTypes::createAndAdd(5,'Started late',1,'started-late');
+        AddElectronTestTakeEventTypes::createAndAdd(6,'Start discussion',0,'start-discussion');
+        AddElectronTestTakeEventTypes::createAndAdd(7,'End discussion',0,'end-discussion');
+        AddElectronTestTakeEventTypes::createAndAdd(8,'Continue',0,'continue');
+        AddElectronTestTakeEventTypes::createAndAdd(9,'Application closed',1,'application-closed');
+        AddElectronTestTakeEventTypes::createAndAdd(10,'Lost focus alt tab',1,'alt-tab');
         AddElectronTestTakeEventTypes::createAndAdd(11, 'Pressed meta key', 1, 'before-input-meta');
         AddElectronTestTakeEventTypes::createAndAdd(12, 'Pressed alt key', 1, 'before-input-alt');
         AddElectronTestTakeEventTypes::createAndAdd(13,'Application closed alt+f4', 1, 'alt+f4');

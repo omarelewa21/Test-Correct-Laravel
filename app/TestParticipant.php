@@ -64,13 +64,16 @@ class TestParticipant extends BaseModel
      */
     protected $hidden = [];
 
-    public $skipBootSavedMethod = false;
+    public bool $skipBootSavedMethod = false;
+    public bool $skipBootCreatedMethod = false;
 
     public static function boot()
     {
         parent::boot();
 
         static::created(function (TestParticipant $testParticipant) {
+            if ($testParticipant->skipBootCreatedMethod) return;
+
             if ($testParticipant->testTake->allow_inbrowser_testing) {
                 $testParticipant->allow_inbrowser_testing = true;
                 $testParticipant->save();
@@ -82,6 +85,7 @@ class TestParticipant extends BaseModel
             if ($testParticipant->skipBootSavedMethod) {
                 return;
             }
+
             //$testParticipant->load('testTakeStatus');
 
             $testParticipant->makeEmptyAnswerOptionsFor();
@@ -326,9 +330,9 @@ class TestParticipant extends BaseModel
         if ($this->test_take_status_id == TestTakeStatus::STATUS_TAKING_TEST) {
             $testTakeTypeStatus = TestTakeEventType::where('name', '=', 'Start')->value('id');
             $participantStartEvent = TestTakeEvent::whereTestParticipantId($this->getKey())
-                                                    ->whereTestTakeId($this->testTake->getKey())
-                                                    ->whereTestTakeEventTypeId($testTakeTypeStatus)
-                                                    ->first();
+                ->whereTestTakeId($this->testTake->getKey())
+                ->whereTestTakeEventTypeId($testTakeTypeStatus)
+                ->first();
             if (!$participantStartEvent) {
                 // Test participant test event for starting
                 $testTakeEvent = new TestTakeEvent();
@@ -417,7 +421,7 @@ class TestParticipant extends BaseModel
     public function handInTestTake()
     {
         //Remaining handInTestTake actions handled in TestParticipant boot method
-        if($this->hasStatus(TestTakeStatus::STATUS_TAKING_TEST)) {
+        if ($this->hasStatus(TestTakeStatus::STATUS_TAKING_TEST)) {
             $this->setAttribute('test_take_status_id', TestTakeStatus::STATUS_HANDED_IN)->save();
         }
         return true;
@@ -443,13 +447,13 @@ class TestParticipant extends BaseModel
         $statusOkay = $this->test_take_status_id == TestTakeStatus::STATUS_TAKING_TEST;
 
         if ($this->isInBrowser()) {
-            if (! $this->canUseBrowserTesting()) {
+            if (!$this->canUseBrowserTesting()) {
                 return false;
             }
         }
 
         if ($statusOkay && $this->testTake->test->isAssignment()) {
-            return  ($this->testTake->time_start <= now() && $this->testTake->time_end >= now());
+            return ($this->testTake->time_start <= now() && $this->testTake->time_end >= now());
         }
         return $statusOkay;
     }
@@ -488,7 +492,7 @@ class TestParticipant extends BaseModel
         if ($newStatus === $this->test_take_status_id) {
             $this->testTake->testTakeEvents()->create([
                 'test_take_event_type_id' => TestTakeEventType::where('reason', '=', 'rejoined')->value('id'),
-                'test_participant_id' => $this->getKey()
+                'test_participant_id'     => $this->getKey()
             ]);
             return true;
         }
@@ -536,10 +540,10 @@ class TestParticipant extends BaseModel
      */
     public function getActiveAttribute($value)
     {
-        if(!$this->hasAttribute('active')){
+        if (!$this->hasAttribute('active')) {
             throw new \Exception("The 'active' property doesn't exist on this model");
         }
-        if(!isset($this->getAttributes()['active'])) {
+        if (!isset($this->getAttributes()['active'])) {
             return false;
         }
         return $this->getAttributes()['active'] ? true : false;

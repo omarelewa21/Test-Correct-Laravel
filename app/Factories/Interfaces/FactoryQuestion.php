@@ -14,4 +14,12 @@ Interface FactoryQuestion {
 
     public function setTestModel(Test $testModel);
 
+    public function questionDefinition();
+
+    public function answerDefinition();
+
+    public function questionType(): string;
+
+    public function questionSubType(): string;
+
 }

@@ -3,10 +3,12 @@
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Ramsey\Uuid\Uuid;
+use tcCore\Events\CoLearningNextQuestion;
 use tcCore\Events\InbrowserTestingUpdatedForTestParticipant;
 use tcCore\Events\NewTestTakeGraded;
 use tcCore\Events\NewTestTakeReviewable;
@@ -27,6 +29,7 @@ use tcCore\Jobs\SendExceptionMail;
 use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\Lib\TestParticipant\Factory;
 use Dyrynda\Database\Casts\EfficientUuid;
+use tcCore\Events\NewTestTakePlanned;
 use tcCore\Scopes\ArchivedScope;
 use tcCore\Traits\Archivable;
 use tcCore\Traits\UuidTrait;
@@ -88,7 +91,7 @@ class TestTake extends BaseModel
      */
     protected $schoolClasses;
 
-    protected $appends = ['exported_to_rtti_formated','invigilators_acceptable','invigilators_unacceptable_message', 'directLink'];
+    protected $appends = ['exported_to_rtti_formated', 'invigilators_acceptable', 'invigilators_unacceptable_message', 'directLink'];
 
     public static function boot()
     {
@@ -113,7 +116,7 @@ class TestTake extends BaseModel
                 $testTake->setAttribute('test_id', $systemTestId);
             }
 
-            if ($testTake->testTakeStatus->name === 'Discussing' && $testTake->getAttribute('discussing_question_id') != $testTake->getOriginal('discussing_question_id')) {
+            if ($testTake->testTakeStatus->name === 'Discussing' && $testTake->getAttribute('discussing_question_id') !== null) {
                 $testTake->setAttribute('is_discussed', true);
             }
 
@@ -128,15 +131,15 @@ class TestTake extends BaseModel
             $originalTestTakeStatus = TestTakeStatus::find($testTake->getOriginal('test_take_status_id'));
 
             // logging statuses if changed
-            if($testTake->getOriginal('test_take_status_id') != $testTake->test_take_status_id) {
+            if($testTake->isDirty('test_take_status_id')) {
                 TestTakeStatusLog::create([
-                    'test_take_id' => $testTake->getKey(),
+                    'test_take_id'        => $testTake->getKey(),
                     'test_take_status_id' => $testTake->test_take_status_id
                 ]);
                 // if we go from taken to discussed without actual discussing, we get a record created 8 (but in the mean time a 7 is also created as
                 // initiated from the frontend, so we need to remove that record if it was in the last 60 seconds as then you did not really discuss the test take
-                if((int) $testTake->test_take_status_id === 8){
-                    TestTakeStatusLog::where('test_take_id',$testTake->getKey())->where('test_take_status_id',7)->where('created_at','>=',Carbon::now()->subSeconds(120))->delete();
+                if ((int)$testTake->test_take_status_id === 8) {
+                    TestTakeStatusLog::where('test_take_id', $testTake->getKey())->where('test_take_status_id', 7)->where('created_at', '>=', Carbon::now()->subSeconds(120))->delete();
                 }
 
                 $testTake->updateGuestAvailabilityForParticipantsOnStatusChange();
@@ -221,6 +224,14 @@ class TestTake extends BaseModel
                 $testTake->testTakeEvents()->save($testTakeEvent);
             }
 
+            if ($testTake->test_take_status_id === TestTakeStatus::STATUS_DISCUSSING) {
+                if ($testTake->studentsAreInNewCoLearningAndDiscussingTypeIsOpenOnly()) {
+                    foreach ($testTake->testParticipants as $testParticipant) {
+                        CoLearningNextQuestion::dispatch($testParticipant->uuid);
+                    }
+                }
+            }
+
             if ($testTake->testTakeStatus->name === 'Discussing' && $testTake->getAttribute('test_take_status_id') != $testTake->getOriginal('test_take_status_id')) {
                 $testTakeEvent = new TestTakeEvent();
                 $testTakeEvent->setAttribute('test_take_event_type_id', TestTakeEventType::where('name', '=', 'Start discussion')->value('id'));
@@ -235,12 +246,12 @@ class TestTake extends BaseModel
 
                 $testTakeDiscussionNotAllowedStatusses = TestTakeStatus::whereIn('name', ['Planned', 'Test not taken', 'Taken away'])->pluck('id', 'name')->all();
 
-                $testTake->load([   'testParticipants',
-                                    'testParticipants.schoolClass' => function($query){
-                                            return $query->withTrashed();
-                                    },
-                                    'testParticipants.schoolClass.schoolLocation'
-                                ]);
+                $testTake->load(['testParticipants',
+                    'testParticipants.schoolClass' => function ($query) {
+                        return $query->withTrashed();
+                    },
+                    'testParticipants.schoolClass.schoolLocation'
+                ]);
                 foreach ($testTake->testParticipants as $testParticipant) {
                     if (!in_array($testParticipant->getAttribute('test_take_status_id'), $testTakeDiscussionNotAllowedStatusses)) {
                         $testParticipant->setAttribute('test_take_status_id', $testParticipantDiscussingStatus);
@@ -303,11 +314,11 @@ class TestTake extends BaseModel
             }
 
             if ($testTake->testTakeStatus->name === 'Rated' && $originalTestTakeStatus !== null && $originalTestTakeStatus->name !== 'Rated') {
-                if(GlobalStateHelper::getInstance()->isQueueAllowed()) {
+                if (GlobalStateHelper::getInstance()->isQueueAllowed()) {
                     Queue::later(300, new SendTestRatedMail($testTake));
                 }
 
-                $testTake->testParticipants->each(function($participant) {
+                $testTake->testParticipants->each(function ($participant) {
                     NewTestTakeGraded::dispatch($participant->user()->value('uuid'));
                 });
             }
@@ -332,19 +343,19 @@ class TestTake extends BaseModel
             $testTake->updateGuestRatingVisibilityWindow();
         });
 
-        static::creating(function(TestTake $testTake) {
-            if($testTake->school_location_id === null) {
+        static::creating(function (TestTake $testTake) {
+            if ($testTake->school_location_id === null) {
                 $testTake->school_location_id = Auth::user()->school_location_id;
             }
             $testTake->scheduled_by = auth()->id();
         });
 
         static::created(function (TestTake $testTake) {
-
             if ($testTake->schoolClasses !== null) {
                 $testTake->saveSchoolClassTestTakeParticipants();
+                $testTake->dispatchNewTestTakePlannedEvent();
             }
-            if($testTake->notify_students && GlobalStateHelper::getInstance()->isQueueAllowed()) {
+            if ($testTake->notify_students && GlobalStateHelper::getInstance()->isQueueAllowed()) {
                 Queue::later(300, new SendTestPlannedMail($testTake->getKey()));
             }
         });
@@ -444,9 +455,9 @@ class TestTake extends BaseModel
     public function invigilatorUsers()
     {
         return $this->belongsToMany('tcCore\User', 'invigilators')
-                ->withTrashed()
-                ->withPivot([$this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()])
-                ->wherePivot($this->getDeletedAtColumn(), null);
+            ->withTrashed()
+            ->withPivot([$this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()])
+            ->wherePivot($this->getDeletedAtColumn(), null);
     }
 
     public function isAllowedToView(User $userToCheck)
@@ -491,7 +502,14 @@ class TestTake extends BaseModel
         $this->schoolClasses = null;
     }
 
-
+    public function dispatchNewTestTakePlannedEvent()
+    {
+        $this->testParticipants()->join('users', 'users.id', '=', 'test_participants.user_id')
+            ->select('users.uuid')->distinct()->get()->pluck('uuid')
+            ->each(function ($userUuid) {
+                NewTestTakePlanned::dispatch($userUuid);
+            });
+    }
 
     public function scopeFiltered($query, $filters = [], $sorting = [])
     {
@@ -519,7 +537,7 @@ class TestTake extends BaseModel
             $user = Auth::user();
             $skipDefaults = $user->isValidExamCoordinator() && $this->hasRatedTestTakesFilter($filters);
             $query->when(!$skipDefaults, function ($query) use ($filters, $user) {
-                $query->accessForTeacher($user, (array)$filters)
+                $query->accessForTeacher($user, $filters)
                     ->withoutDemoTeacherForUser($user)
                     ->onlyTestsFromSubjectsOrIfDemoThenOnlyWhenOwner($user)
                     ->when($user->isValidExamCoordinator(), fn($query) => $query->scheduledByExamCoordinator($user));
@@ -568,7 +586,7 @@ class TestTake extends BaseModel
                     if (!is_array($value)) {
                         $value = [$value];
                     }
-                    $query->whereIn($this->getTable().'.period_id', $value);
+                    $query->whereIn($this->getTable() . '.period_id', $value);
                     break;
                 case 'retake':
                     $query->where('retake', '=', $value);
@@ -669,9 +687,9 @@ class TestTake extends BaseModel
                     break;
                 case 'school_class_name':
                     $query->whereIn(
-                        $this->getTable().'.id',
+                        $this->getTable() . '.id',
                         TestParticipant::whereHas('schoolClass', function ($q) use ($value) {
-                            $q->where('name', 'LIKE', '%'.$value.'%');
+                            $q->where('name', 'LIKE', '%' . $value . '%');
                         })->distinct()
                             ->pluck('test_take_id'));
                     break;
@@ -762,7 +780,7 @@ class TestTake extends BaseModel
         return $allowed;
     }
 
-    public function scopeNotDemo($query, $tableAlias=null)
+    public function scopeNotDemo($query, $tableAlias = null)
     {
         if (!$tableAlias) {
             $tableAlias = $this->getTable();
@@ -775,7 +793,7 @@ class TestTake extends BaseModel
     {
         $countCarouselGroupsInTestTake = GroupQuestion::whereIn('id',
             $this->test->testQuestions->pluck('question_id')
-        )->where('groupquestion_type' ,'carousel')->count();
+        )->where('groupquestion_type', 'carousel')->count();
 
         return $countCarouselGroupsInTestTake > 0;
     }
@@ -791,54 +809,55 @@ class TestTake extends BaseModel
 
     public function getExportedToRttiFormatedAttribute()
     {
-        if($this->shouldNotAppend()) {
+        if ($this->shouldNotAppend()) {
             return null;
         }
 
-        return array_key_exists('exported_to_rtti',$this->attributes) && $this->attributes['exported_to_rtti'] ? Carbon::parse($this->attributes['exported_to_rtti'])->format('d-m-Y H:i:s') : 'Nog niet geëxporteerd';
+        return array_key_exists('exported_to_rtti', $this->attributes) && $this->attributes['exported_to_rtti'] ? Carbon::parse($this->attributes['exported_to_rtti'])->format('d-m-Y H:i:s') : 'Nog niet geëxporteerd';
     }
 
     public function getInvigilatorsAcceptableAttribute()
     {
-        if($this->shouldNotAppend()) {
+        if ($this->shouldNotAppend()) {
             return null;
         }
 
-        if($this->hasValidInvigilators()){
+        if ($this->hasValidInvigilators()) {
             return true;
         }
         return false;
-        if($this->hasRemovedInvigilators()){
+        if ($this->hasRemovedInvigilators()) {
             $invigilatorsRemoved = true;
         }
     }
 
     public function getInvigilatorsUnacceptableMessageAttribute()
     {
-        if($this->shouldNotAppend()) {
+        if ($this->shouldNotAppend()) {
             return null;
         }
 
-        if($this->hasValidInvigilators()){
+        if ($this->hasValidInvigilators()) {
             return '';
         }
-        if($this->hasRemovedInvigilators()){
+        if ($this->hasRemovedInvigilators()) {
             return __('De surveilant is niet langer actief binnen Test-Correct');
         }
         return _('Er is geen surveillant gekoppeld');
     }
 
-    public function getDirectLinkAttribute(){
-        if($this->shouldNotAppend()) {
+    public function getDirectLinkAttribute()
+    {
+        if ($this->shouldNotAppend()) {
             return null;
         }
 
-        return config('app.base_url') ."directlink/". $this->uuid;
+        return config('app.base_url') . "directlink/" . $this->uuid;
     }
 
     private function createTestTakeCodeIfNeeded()
     {
-        if ($this->testTakeCode()->count() === 0) {
+        if ($this->testTakeCode()->doesntExist()) {
             $this->testTakeCode()->create();
         }
     }
@@ -874,29 +893,29 @@ class TestTake extends BaseModel
 
     private function updateGuestAvailabilityForParticipantsOnStatusChange()
     {
-        $this->testParticipants->each(function($participant) {
-            if ($participant->user()->value('guest') == true) {
-                $participant->available_for_guests = true;
-                $participant->save();
-            }
-        });
+        $this->testParticipants()
+            ->whereExists(function ($query) {
+                $query->select(DB::raw(1))
+                ->from('users')
+                ->whereColumn('users.id', 'test_participants.user_id')
+                ->where('users.guest', true);
+            })
+            ->update(['test_participants.available_for_guests' => true]);
     }
 
     private function handleInbrowserTestingChangesForParticipants()
     {
-        if ($this->allow_inbrowser_testing != $this->getOriginal('allow_inbrowser_testing')) {
-            TestParticipant::where('test_take_id', $this->getKey())
-                ->get()
-                ->each(function ($participant) {
-                    $participant->setAttribute('allow_inbrowser_testing', $this->allow_inbrowser_testing)->save();
-                    InbrowserTestingUpdatedForTestParticipant::dispatch($participant->uuid);
-                });
+        if ($this->isDirty('allow_inbrowser_testing')) {
+            $this->testParticipants()->update(['allow_inbrowser_testing' => $this->allow_inbrowser_testing]);
+            $this->testParticipants->each(function ($participant) {
+                InbrowserTestingUpdatedForTestParticipant::dispatch($participant->uuid);
+            });
         }
     }
 
     private function handleShowResultChanges()
     {
-        if ($this->show_results != $this->getOriginal('show_results')) {
+        if ($this->wasChanged('show_results')) {
             TestTakeShowResultsChanged::dispatch($this->uuid);
 
             $this->testParticipants->each(function($participant) {
@@ -907,7 +926,7 @@ class TestTake extends BaseModel
 
     private function orUserHasAccessToSchoolClassParticipantsAndSubjectScope($query, User $user)
     {
-        $query->orWhereIn($this->getTable().'.id', function ($query) use ($user) {
+        $query->orWhereIn($this->getTable() . '.id', function ($query) use ($user) {
             $currentSchoolYearId = SchoolYearRepository::getCurrentSchoolYear()->getKey();
             $teacherTable = with((new Teacher)->getTable());
             $schoolClassTable = with((new SchoolClass())->getTable());
@@ -922,17 +941,17 @@ class TestTake extends BaseModel
                             ->where('user_id', $user->id)
                             ->where('school_year_id', $currentSchoolYearId)
                             ->whereNull("$teacherTable.deleted_at");
-                          //  ->whereNull("$schoolClassTable.deleted_at");
+                        //  ->whereNull("$schoolClassTable.deleted_at");
                     })
-                ->whereIn($this->getTable().'.id',
+                ->whereIn($this->getTable() . '.id',
                     function ($query) use ($teacherTable, $schoolClassTable, $currentSchoolYearId) {
                         $testTable = with(new Test())->getTable();
                         $query
-                            ->select($this->getTable().'.id')
+                            ->select($this->getTable() . '.id')
                             ->from($this->getTable())
-                            ->join($testTable, $testTable.'.id', '=', $this->getTable().'.test_id')
-                            ->whereNull($testTable.'.deleted_at')
-                            ->whereIn($testTable.'.subject_id',
+                            ->join($testTable, $testTable . '.id', '=', $this->getTable() . '.test_id')
+                            ->whereNull($testTable . '.deleted_at')
+                            ->whereIn($testTable . '.subject_id',
                                 function ($query) use ($teacherTable, $schoolClassTable, $currentSchoolYearId) {
                                     $query->select('subject_id')
                                         ->from($teacherTable)
@@ -940,16 +959,16 @@ class TestTake extends BaseModel
                                         ->where('user_id', Auth::id())
                                         ->where('school_year_id', $currentSchoolYearId)
                                         ->whereNull("$teacherTable.deleted_at");
-                                       // ->whereNull("$schoolClassTable.deleted_at");
+                                    // ->whereNull("$schoolClassTable.deleted_at");
                                 });
                     });
         });
         return $this;
     }
 
-    private function orUserIsInvigilatorScope($query, User $user, array $filters = [])
+    private function orUserIsInvigilatorScope($query, User $user, $filters = [])
     {
-        if(!$this->canUseInvigilatorScope($filters)) {
+        if (!$this->canUseInvigilatorScope($filters)) {
             return $this;
         }
 
@@ -968,7 +987,7 @@ class TestTake extends BaseModel
         return $this;
     }
 
-    public function scopeAccessForTeacher($query, User $user, array $filters = [])
+    public function scopeAccessForTeacher($query, User $user, $filters = [])
     {
         $query->where(function ($query) use ($filters, $user) {
             $this
@@ -980,16 +999,16 @@ class TestTake extends BaseModel
 
     public function scopeBelongsToSchoolLocation($query, User $user)
     {
-        $query->where($this->getTable().'.school_location_id', $user->school_location_id);
+        $query->where($this->getTable() . '.school_location_id', $user->school_location_id);
     }
 
     public function scopeWithoutDemoTeacherForUser($query, User $user)
     {
         $query->where(function ($query) use ($user) {
             $query->where(function ($query) use ($user) {
-                $query->where($this->getTable().'.demo', 1)
-                    ->where($this->getTable().'.user_id', $user->getKey());
-            })->orWhere($this->getTable().'.demo', 0);
+                $query->where($this->getTable() . '.demo', 1)
+                    ->where($this->getTable() . '.user_id', $user->getKey());
+            })->orWhere($this->getTable() . '.demo', 0);
         });
     }
 
@@ -1002,19 +1021,19 @@ class TestTake extends BaseModel
                 return; // no demo environments any more for new teachers except for the temporary school location
             }
 
-            $q->whereIn($this->getTable().'.id', function ($query) use ($subject, $user) {
+            $q->whereIn($this->getTable() . '.id', function ($query) use ($subject, $user) {
                 $testTable = with(new Test())->getTable();
                 $query
-                    ->select($this->getTable().'.id')
+                    ->select($this->getTable() . '.id')
                     ->from($this->getTable())
-                    ->join($testTable, $testTable.'.id', '=', $this->getTable().'.test_id')
-                    ->whereNull($testTable.'.deleted_at')
+                    ->join($testTable, $testTable . '.id', '=', $this->getTable() . '.test_id')
+                    ->whereNull($testTable . '.deleted_at')
                     ->where(function ($query) use ($subject, $user, $testTable) {
                         $query->where(function ($query) use ($testTable, $subject, $user) {
-                            $query->where($testTable.'.subject_id', $subject->getKey())
-                                ->where($testTable.'.author_id', $user->getKey());
+                            $query->where($testTable . '.subject_id', $subject->getKey())
+                                ->where($testTable . '.author_id', $user->getKey());
                         })
-                            ->orWhere($testTable.'.subject_id', '<>', $subject->getKey());
+                            ->orWhere($testTable . '.subject_id', '<>', $subject->getKey());
                     });
 
             });
@@ -1037,17 +1056,18 @@ class TestTake extends BaseModel
 
     private function hasValidInvigilators()
     {
-        foreach ($this->invigilatorUsers as $invigilator){
-            if(is_null($invigilator->deleted_at)){
+        foreach ($this->invigilatorUsers as $invigilator) {
+            if (is_null($invigilator->deleted_at)) {
                 return true;
             }
         }
         return false;
     }
 
-    private function hasRemovedInvigilators(){
-        foreach ($this->invigilatorUsers as $invigilator){
-            if(!is_null($invigilator->deleted_at)){
+    private function hasRemovedInvigilators()
+    {
+        foreach ($this->invigilatorUsers as $invigilator) {
+            if (!is_null($invigilator->deleted_at)) {
                 return true;
             }
         }
@@ -1058,7 +1078,7 @@ class TestTake extends BaseModel
     {
         return $query->when(
             !self::isJoined($query, 'tests'),
-            function($query) {
+            function ($query) {
                 $query->join('tests', 'test_takes.test_id', 'tests.id');
             }
         )->where('tests.test_kind_id', TestKind::ASSIGNMENT_TYPE);
@@ -1068,7 +1088,7 @@ class TestTake extends BaseModel
     {
         return $query->when(
             !self::isJoined($query, 'tests'),
-            function($query) {
+            function ($query) {
                 $query->join('tests', 'test_takes.test_id', 'tests.id');
             }
         )->where('test_kind_id', '<>', TestKind::ASSIGNMENT_TYPE);
@@ -1087,7 +1107,7 @@ class TestTake extends BaseModel
     public function scopeShouldStart(Builder $query)
     {
         return $query->where('time_start', '<', now())
-                    ->where('time_end','>',now());
+            ->where('time_end', '>', now());
 
     }
 
@@ -1104,13 +1124,13 @@ class TestTake extends BaseModel
 
     public function updateToTaken()
     {
-        $this->test_take_status_id      = TestTakeStatus::STATUS_TAKEN;
-        $this->discussing_question_id   = null;
-        $this->is_discussed             = 0;
-        $this->discussion_type          = null;
-        $this->show_results             = null;
-        $this->skipped_discussion       = 0;
-        $this->returned_to_taken        = 1;
+        $this->test_take_status_id = TestTakeStatus::STATUS_TAKEN;
+        $this->discussing_question_id = null;
+        $this->is_discussed = 0;
+        $this->discussion_type = null;
+        $this->show_results = null;
+        $this->skipped_discussion = 0;
+        $this->returned_to_taken = 1;
         $this->save();
     }
 
@@ -1140,8 +1160,8 @@ class TestTake extends BaseModel
     {
         $user = $user ?? Auth::user();
         $query->where(function ($query) {
-                $query->where('test_take_status_id', TestTakeStatus::STATUS_RATED);
-            })
+            $query->where('test_take_status_id', TestTakeStatus::STATUS_RATED);
+        })
             ->whereIn('test_takes.id', function ($query) use ($withNullRating, $user) {
                 $query->select('test_take_id')
                     ->from(with(new TestParticipant())->getTable())
@@ -1161,12 +1181,13 @@ class TestTake extends BaseModel
                 }]);
     }
 
-    public function maxScore($ignoreQuestions = []){
-        foreach ($ignoreQuestions as $key=>$value){
-            if(!strstr($value,'.')){
+    public function maxScore($ignoreQuestions = [])
+    {
+        foreach ($ignoreQuestions as $key => $value) {
+            if (!strstr($value, '.')) {
                 continue;
             }
-            $arr = explode('.',$value);
+            $arr = explode('.', $value);
             $ignoreQuestions[$key] = $arr[1];
         }
         return $this->test->maxScore($ignoreQuestions);
@@ -1195,7 +1216,7 @@ class TestTake extends BaseModel
 
     public static function redirectToDetail($testTakeUuid, $returnRoute = '', ?string $pageAction = null)
     {
-        if($pageAction) {
+        if ($pageAction) {
             $detailUrl = sprintf('test_takes/view/%s', $testTakeUuid);
             $temporaryLogin = TemporaryLogin::createWithOptionsForUser(
                 ['page', 'return_route', 'page_action'],
@@ -1206,7 +1227,7 @@ class TestTake extends BaseModel
         }
 
         return CakeRedirectHelper::redirectToCake(
-            routeName:'test_takes.view',
+            routeName: 'test_takes.view',
             uuid: $testTakeUuid,
             returnRoute: $returnRoute,
         );
@@ -1216,7 +1237,7 @@ class TestTake extends BaseModel
     {
         $this->loadMissing('testParticipants');
         return [
-            'taken'    => $this->testParticipants->filter(function ($participant) {
+            'taken' => $this->testParticipants->filter(function ($participant) {
                 return TestTakeStatus::testTakenStatusses()->contains($participant->test_take_status_id);
             })->count(),
 
@@ -1274,7 +1295,7 @@ class TestTake extends BaseModel
     public function hasNonActiveParticipant(): bool
     {
         return !is_null(
-            $this->testParticipants->first(function($participant){
+            $this->testParticipants->first(function ($participant) {
                 return is_null($participant->heartbeat_at) || strtotime($participant->heartbeat_at) < (time() - 10);
             })
         );
@@ -1302,8 +1323,11 @@ class TestTake extends BaseModel
             ->doesntExist();
     }
 
-    private function canUseInvigilatorScope(array $filters): bool
+    private function canUseInvigilatorScope($filters): bool
     {
+        if ($filters instanceof Collection) {
+            $filters = $filters->toArray();
+        }
         if (!array_key_exists('test_take_status_id', $filters)) {
             return true;
         }
@@ -1320,8 +1344,44 @@ class TestTake extends BaseModel
     /**
      * Stop appended attributes from being loaded at every TestTake hydratation
      **/
-    public function shouldNotAppend() : bool
+    public function shouldNotAppend(): bool
     {
         return !static::$withAppends;
     }
+
+    public function studentsAreInNewCoLearningAndDiscussingTypeIsOpenOnly()
+    {
+        return ($this->schoolLocation->allow_new_co_learning || $this->schoolLocation->allow_new_co_learning_teacher)
+            && $this->isDiscussionTypeOpenOnly();
+    }
+
+    public function isDiscussionTypeOpenOnly()
+    {
+        return $this->getAttribute('discussion_type') === 'OPEN_ONLY';
+    }
+
+    /**
+     * @param TestTake $testTake
+     * @return array
+     */
+    public function getDottedDiscussingQuestionIdWithOptionalGroupQuestionId()
+    {
+        $questionId = null;
+        foreach ($this->discussingParentQuestions as $discussingParentQuestions) {
+            if ($questionId !== null) {
+                $questionId .= '.';
+            }
+            $questionId .= $discussingParentQuestions->getAttribute('group_question_id');
+        }
+
+        if ($questionId !== null) {
+            $questionId .= '.';
+        }
+        $discussingQuestionId = $this->getAttribute('discussing_question_id');
+        if ($discussingQuestionId === null) {
+            return null;
+        }
+        return $questionId . $discussingQuestionId;
+    }
+
 }

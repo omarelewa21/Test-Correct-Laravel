@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Livewire\TestPrint;
 
+use Illuminate\Support\Str;
 use Livewire\Component;
 use tcCore\Answer;
 use tcCore\Http\Traits\WithAttachments;
@@ -67,7 +68,7 @@ class MatchingQuestion extends Component
         [$this->answerGroups, $this->answerOptions] = $this->question->matchingQuestionAnswers->mapToGroups(function ($item, $key) {
             return [$item->type => $item->answer];
         })->map(function ($group, $key) {
-            if($key == "RIGHT"){
+            if(Str::upper($key) == "RIGHT"){
                 return $group->shuffle();
             }
             return $group;

@@ -1,9 +1,15 @@
 <div cms id="cms" class="flex flex-1"
-     x-data="{loading: @entangle('loading'), empty: {{ $this->emptyState ? 1 : 0 }}, dirty: @entangle('dirty') }"
+     x-data="{
+            loading: @js($loading),
+            empty: @js($this->emptyState),
+            dirty: @entangle('dirty'),
+            loadTimeout: null
+             }"
      x-init="
            handleQuestionChange = (evt) => {
                 $store.cms.loading = true;
                 loading = true;
+                $wire.set('loading', true);
                 if(typeof evt !== 'undefined') empty = false;
                 removeDrawingLegacy();
                 window.scrollTo({top: 0, behavior: 'smooth'});
@@ -12,11 +18,11 @@
 
            loadingTimeout = (value) => {
                 if (value === true) {
-                    const loadingTimeout = setTimeout(() => {
+                    loadTimeout = setTimeout(() => {
                         $store.cms.loading = false;
                         $store.cms.processing = false;
-                        loading = false;
-                        clearTimeout(loadingTimeout);
+                        $wire.set('loading', false);
+                        clearTimeout(loadTimeout);
                     }, 1000)
                 }
            }
@@ -30,18 +36,18 @@
            }
            changeEditorWscLanguage = (lang) => {
                 if (document.getElementById('{{ $this->questionEditorId }}')) {
-                    WebspellcheckerTlc.lang(CKEDITOR.instances['{{ $this->questionEditorId }}'], lang);
+                    WebspellcheckerTlc.lang(ClassicEditors['{{ $this->questionEditorId }}'], lang);
                 }
                 if (document.getElementById('{{ $this->answerEditorId }}')) {
-                    WebspellcheckerTlc.lang(CKEDITOR.instances['{{ $this->answerEditorId }}'], lang);
+                    WebspellcheckerTlc.lang(ClassicEditors['{{ $this->answerEditorId }}'], lang);
                 }
            }
            forceSyncEditors = () => {
                 if (document.getElementById('{{ $this->questionEditorId }}')) {
-                    $wire.sync('question.question', CKEDITOR.instances['{{ $this->questionEditorId }}'].getData());
+                    $wire.sync('question.question', ClassicEditors['{{ $this->questionEditorId }}'].getData());
                 }
                 if (document.getElementById('{{ $this->answerEditorId }}')) {
-                    $wire.sync('question.answer', CKEDITOR.instances['{{ $this->answerEditorId }}'].getData());
+                    $wire.sync('question.answer', ClassicEditors['{{ $this->answerEditorId }}'].getData());
                 }
            }
            "
@@ -56,7 +62,6 @@
     <x-partials.header.cms-editor :testName="$testName" :questionCount="$this->amountOfQuestions"/>
     <div class="question-editor-content w-full relative"
          wire:key="container-{{ $this->uniqueQuestionKey }}"
-         {{--         :class="{'opacity-0': $store.cms.loading || empty, 'opacity-50': $store.cms.processing && !loading}"--}}
          style="opacity: 0; transition: opacity .3s ease-in"
          :style="{'opacity': ($store.cms.loading || $store.cms.emptyState) ? 0 : ($store.cms.processing) ? 0 : 1}"
          x-ref="editorcontainer"
@@ -336,6 +341,8 @@
                             <x-input.toggle-row-with-title wire:model="question.maintain_position"
                                                            class="{{ $this->isSettingsGeneralPropertyDisabled('maintainPosition') ? 'text-disabled' : '' }}"
                                                            :disabled="$this->isSettingsGeneralPropertyDisabled('maintainPosition')"
+                                                           :toolTip="$this->isGroupQuestion() ? __('cms.dont_shuffle_question_group_tooltip_text') : ''"
+
                             >
                                 <x-icon.shuffle-off/>
                                 <span class="bold"> {{ $this->isGroupQuestion() ? __('cms.Deze vraaggroep niet shuffelen') : __('cms.Deze vraag niet shuffelen') }}</span>
@@ -404,7 +411,9 @@
                         @endif
 
                         @if($this->isGroupQuestion())
-                            <x-input.toggle-row-with-title wire:model="question.shuffle">
+                            <x-input.toggle-row-with-title wire:model="question.shuffle"
+                                                           :tool-tip="__('cms.shuffle_questions_in_group_tooltip_text')"
+                            >
                                 <x-icon.shuffle/>
                                 <span class="bold">{{ __('cms.Vragen in deze group shuffelen')}}</span>
                             </x-input.toggle-row-with-title>
@@ -595,4 +604,24 @@
             </div>
         </div>
     @endif
+    @pushOnce('scripts')
+    <script>
+        Livewire.hook('message.sent', (message, component) => {
+            if (component.id === document.getElementById('cms').getAttribute('wire:id')) {
+                Alpine.store('cms').pendingRequestTally++;
+                Alpine.store('cms').handledAllRequests = false;
+            }
+        });
+        Livewire.hook('message.processed', (message, component) => {
+            if (component.id === document.getElementById('cms').getAttribute('wire:id')) {
+                Alpine.store('cms').pendingRequestTally--;
+                Alpine.store('cms').pendingRequestTimeout = setTimeout(() => {
+                    if (Alpine.store('cms').pendingRequestTally === 0) {
+                        Alpine.store('cms').handledAllRequests = true;
+                    }
+                }, 250)
+            }
+        });
+    </script>
+    @endPushOnce
 </div>

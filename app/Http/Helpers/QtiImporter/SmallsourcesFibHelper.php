@@ -54,7 +54,7 @@ class SmallsourcesFibHelper extends QtiBaseQuestionHelper
             'decimal_score'          => '',
             'add_to_database'        => '',
             'attainments'            => '',
-            'note_type'              => '',
+            'note_type'              => 'NONE',
             'is_open_source_content' => ''
         ];
     }

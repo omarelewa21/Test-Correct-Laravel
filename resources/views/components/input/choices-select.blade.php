@@ -26,7 +26,8 @@
                         fuseOptions:{
                             treshold:0.3
                         },
-                        shouldSort: @js($sortOptions)
+                        shouldSort: @js($sortOptions),
+                        position: 'bottom'
                     },
                     '{{ $filterContainer }}'
              )"
@@ -37,6 +38,7 @@
          data-model-name="{{ $attributes->wire('model')->value }}"
          x-on:mouseenter="$el.querySelector('svg').classList.add('primary');"
          x-on:mouseleave="$el.querySelector('svg').classList.remove('primary');"
+         {{ $attributes->except(['class', 'wire:model', 'wire:key', 'id']) }}
     >
         <select x-ref="select" :multiple="multiple" placeholder="{{ $placeholderText }}"
                 id="{{$attributes['id']}}">

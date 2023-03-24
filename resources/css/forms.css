@@ -39,11 +39,13 @@
 }
 
 label {
-    font-family: Nunito Regular;
+    font-family: Nunito;
+    font-weight: normal;
 }
 
 input {
-    font-family: Nunito Regular;
+    font-family: Nunito;
+    font-weight: normal;
 }
 
 .input-group:hover input {
@@ -51,7 +53,8 @@ input {
 }
 
 input:focus + label, textarea:focus + label, select:focus + label {
-    font-family: Nunito Bold;
+    font-family: Nunito;
+    font-weight: bold;
     color: var(--primary);
     transition: 150ms ease-in-out;
 }

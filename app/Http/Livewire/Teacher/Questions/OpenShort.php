@@ -106,6 +106,8 @@ class OpenShort extends Component implements QuestionCms
 
     public $testIsPublished;
 
+    public $currentUrl;
+
     protected $queryString = [
         'action', 'type', 'subtype', 'testId', 'testQuestionId', 'groupQuestionQuestionId', 'owner', 'isCloneRequest', 'withDrawer' => ['except' => false], 'referrer' => ['except' => false],
     ];
@@ -327,6 +329,7 @@ class OpenShort extends Component implements QuestionCms
 
     public function mount()
     {
+        $this->currentUrl = url()->current();
         $activeTest = Test::whereUuid($this->testId)->with('testAuthors', 'testAuthors.user')->firstOrFail();
         Gate::authorize('isAuthorOfTest', [$activeTest]);
         $this->isChild = false;
@@ -373,8 +376,8 @@ class OpenShort extends Component implements QuestionCms
             return $this->$newName($arguments);
         }
 
-            if(!method_exists(get_parent_class($this), $method) && !str_contains($method,'hydrate')){
-            $errorMessage = sprintf('Method (%s) not found on parent, type is `%s` (%s) on file %s:%d',$method,$this->question['type'],$this->question['subtype'],__FILE__,__LINE__);
+        if (!method_exists(get_parent_class($this), $method) && !str_contains($method, 'hydrate')) {
+            $errorMessage = sprintf('Method (%s) not found on parent, type is `%s` (%s) on file %s:%d', $method, $this->question['type'], $this->question['subtype'], __FILE__, __LINE__);
             Bugsnag::notifyException(new \Exception($errorMessage));
         }
         return parent::__call($method, $arguments);
@@ -593,7 +596,7 @@ class OpenShort extends Component implements QuestionCms
             }
             if ($this->referrer === 'cake.filemanagement') {
                 $fileManagementUuid = Test::whereUuid($this->testId)->first()->fileManagement->uuid;
-                return CakeRedirectHelper::redirectToCake('files.view_testupload', $fileManagementUuid );
+                return CakeRedirectHelper::redirectToCake('files.view_testupload', $fileManagementUuid);
             }
         }
         $url = sprintf("tests/view/%s", $this->testId);
@@ -954,6 +957,7 @@ class OpenShort extends Component implements QuestionCms
             $this->question['decimal_score'] = $q->decimal_score;
             $this->question['lang'] = !is_null($q->lang) ? $q->lang : Auth::user()->schoolLocation->wscLanguage;
             $this->question['draft'] = $q->draft;
+            $this->question['shuffle'] = $q->shuffle;
 
             $this->lang = $this->question['lang'];
             $this->educationLevelId = $q->education_level_id;
@@ -1123,6 +1127,13 @@ class OpenShort extends Component implements QuestionCms
         $this->questionEditorId = Str::uuid()->__toString();
     }
 
+    private function resetToEmptyState()
+    {
+        $this->emptyState = true;
+        $this->reset(['type', 'subtype', 'testQuestionId']);
+        $this->emitTo('drawer.cms', 'show-empty');
+    }
+
     private function openLastQuestion()
     {
         $testQuestionUuid = Test::whereUuid($this->testId)
@@ -1132,9 +1143,7 @@ class OpenShort extends Component implements QuestionCms
             ->value('uuid');
 
         if (!$testQuestionUuid) {
-            $this->emptyState = true;
-            $this->reset(['type', 'subtype', 'testQuestionId']);
-            $this->emitTo('drawer.cms', 'show-empty');
+            $this->resetToEmptyState();
             return true;
         }
 
@@ -1208,10 +1217,18 @@ class OpenShort extends Component implements QuestionCms
         if ($args['isSubQuestion']) {
             $groupQuestion = $testQuestion->question;
             $question = Question::whereUuid($args['questionUuid'])->first();
+            try {
+                $this->groupQuestionQuestionId = $groupQuestion->groupQuestionQuestions()->firstWhere('question_id', $question->getKey())->uuid;
+            } catch(\Exception $e){
+                // the groupQuestionQuestion could not be found and has probably to do with using the back button
+                // we therefor lead the user to the test page again with a notification
+                $this->resetToEmptyState();
+                $this->dispatchBrowserEvent('notify', ['message' => __('cms.Sorry, er ging iets fout, probeer het nogmaals'), 'type' => 'error']);
+                return;
+            }
             $this->type = $question->type;
             $this->subtype = $question->subtype;
             $this->owner = 'group';
-            $this->groupQuestionQuestionId = $groupQuestion->groupQuestionQuestions()->firstWhere('question_id', $question->getKey())->uuid;
             $this->testQuestionId = $args['testQuestionUuid'];
         } else {
             $this->type = $testQuestion->question->type;
@@ -1318,7 +1335,7 @@ class OpenShort extends Component implements QuestionCms
 
         $this->save(false);
 
-        $continueEvent = $data['group'] ?  'continue-to-add-group' : 'continue-to-new-slide';
+        $continueEvent = $data['group'] ? 'continue-to-add-group' : 'continue-to-new-slide';
         $this->dispatchBrowserEvent($continueEvent, $data);
 
         if ($data['newSubQuestion']) {
@@ -1448,7 +1465,7 @@ class OpenShort extends Component implements QuestionCms
 
     private function getTestLanguage(): string
     {
-        if(UserFeatureSetting::hasSetting(Auth::user(), self::SETTING_LANG)){
+        if (UserFeatureSetting::hasSetting(Auth::user(), self::SETTING_LANG)) {
             return UserFeatureSetting::getSetting(Auth::user(), self::SETTING_LANG);
         }
         $lang = Auth::user()->schoolLocation->wscLanguage;

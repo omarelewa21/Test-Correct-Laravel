@@ -105,7 +105,7 @@ class com_wiris_plugin_impl_RenderImpl implements com_wiris_plugin_api_Render{
 		$bs = null;
 		$bs = $store->retreiveData($digest, $imageFormat);
 		if($bs !== null) {
-			$jsonResult = new Hash();
+			$jsonResult = new WirisHash();
 			$content = haxe_io_Bytes::ofData($bs);
 			if($imageFormat === "png") {
 				$content = _hx_deref(new com_wiris_system_Base64())->encodeBytes($content);
@@ -316,7 +316,7 @@ class com_wiris_plugin_impl_RenderImpl implements com_wiris_plugin_api_Render{
 	public function computeDigest($mml, $param) {
 		$ss = $this->getEditorParametersList();
 		$i = null;
-		$renderParams = new Hash();
+		$renderParams = new WirisHash();
 		{
 			$_g1 = 0; $_g = $ss->length;
 			while($_g1 < $_g) {

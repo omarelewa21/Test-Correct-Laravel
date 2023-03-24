@@ -7,27 +7,29 @@
  */
 namespace Tests\Unit;
 
+use tcCore\Factories\FactoryUser;
+use tcCore\FactoryScenarios\FactoryScenarioSchoolSimple;
 use tcCore\Text2Speech;
 use tcCore\Text2SpeechLog;
-use tcCore\User;
+use Tests\ScenarioLoader;
 use Tests\TestCase;
 
 class Text2SpeechTest extends TestCase
 {
-
-    use \Illuminate\Foundation\Testing\DatabaseTransactions;
+    protected $loadScenario = FactoryScenarioSchoolSimple::class;
+    protected function setUp(): void
+    {
+        parent::setUp();
+    }
 
     /**
      * @test
      */
     public function it_should_show_text2speech_for_the_user()
     {
-        $user = factory(User::class)->create([
-            'text2speech' => true
-        ]);
+        $user = $this->createStudentWithText2Speech();
 
         $this->assertTrue($user->hasText2Speech());
-        $this->deleteUser($user);
     }
 
     /**
@@ -35,9 +37,7 @@ class Text2SpeechTest extends TestCase
      */
     public function it_should_show_active_text2speech_for_the_user()
     {
-        $user = factory(User::class)->create([
-            'text2speech' => true
-        ]);
+        $user = $this->createStudentWithText2Speech();
 
         factory(Text2Speech::class)->create([
             'user_id' => $user->getKey(),
@@ -45,7 +45,6 @@ class Text2SpeechTest extends TestCase
         ]);
 
         $this->assertTrue($user->hasActiveText2Speech());
-        $this->deleteUser($user);
     }
 
     /**
@@ -53,9 +52,7 @@ class Text2SpeechTest extends TestCase
      */
     public function it_should_show_inactive_text2speech_for_a_text2speech_user()
     {
-        $user = factory(User::class)->create([
-            'text2speech' => true
-        ]);
+        $user = $this->createStudentWithText2Speech();
 
         factory(Text2Speech::class)->create([
             'user_id' => $user->getKey(),
@@ -65,8 +62,6 @@ class Text2SpeechTest extends TestCase
         $this->assertTrue($user->hasText2Speech());
 
         $this->assertFalse($user->hasActiveText2Speech());
-
-        $this->deleteUser($user);
     }
 
     /**
@@ -74,9 +69,7 @@ class Text2SpeechTest extends TestCase
      */
     public function it_should_show_a_log_record_for_a_text2speech_user()
     {
-        $user = factory(User::class)->create([
-            'text2speech' => true
-        ]);
+        $user = $this->createStudentWithText2Speech();
 
         factory(Text2Speech::class)->create([
             'user_id' => $user->getKey(),
@@ -93,7 +86,17 @@ class Text2SpeechTest extends TestCase
         $this->assertFalse($user->hasActiveText2Speech());
 
         $this->assertCount(1, $user->text2SpeechLog()->get());
+    }
 
-        $this->deleteUser($user);
+    /**
+     * @return mixed
+     * @throws \Exception
+     */
+    private function createStudentWithText2Speech()
+    {
+        return FactoryUser::createStudent(
+            ScenarioLoader::get('school_locations')->first(),
+            ['text2speech' => true]
+        )->user;
     }
 }

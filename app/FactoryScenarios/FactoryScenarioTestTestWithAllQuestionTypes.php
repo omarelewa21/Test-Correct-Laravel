@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use tcCore\Factories\FactoryTest;
 use tcCore\Factories\Questions\FactoryQuestionCompletionCompletion;
 use tcCore\Factories\Questions\FactoryQuestionCompletionMulti;
+use tcCore\Factories\Questions\FactoryQuestionGroup;
 use tcCore\Factories\Questions\FactoryQuestionInfoscreen;
 use tcCore\Factories\Questions\FactoryQuestionMatchingClassify;
 use tcCore\Factories\Questions\FactoryQuestionMatchingMatching;
@@ -27,7 +28,7 @@ class FactoryScenarioTestTestWithAllQuestionTypes extends FactoryScenarioTest
     {
         return FactoryTest::create($this->user)
             ->setProperties([
-                'name' => $this->testName ?? 'Test with all question types. '.Carbon::now()->format('ymd-Hi'),
+                'name' => $this->testName ?? 'Test with all question types. ' . Carbon::now()->format('ymd-Hi'),
             ])->addQuestions([
                 FactoryQuestionInfoscreen::create(),
                 FactoryQuestionRanking::create(),
@@ -44,6 +45,11 @@ class FactoryScenarioTestTestWithAllQuestionTypes extends FactoryScenarioTest
                 FactoryQuestionCompletionMulti::create(),
                 FactoryQuestionMatchingMatching::create(),
                 FactoryQuestionMatchingClassify::create(),
+                FactoryQuestionGroup::create()
+                    ->addQuestions([
+                        FactoryQuestionOpenLong::create()
+                            ->setProperties(['question' => '<p>I am part of a group!</p>']),
+                    ]),
             ]);
     }
 }

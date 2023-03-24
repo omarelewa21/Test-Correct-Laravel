@@ -1,6 +1,5 @@
 .ck-editor__editable_inline {
     min-height: 300px;
-    font-family: Arial;
     font-size: 1.000em;
 }
 
@@ -489,6 +488,15 @@
 /*}*/
 .ck-content ol {
     list-style-type: decimal;
+}
+
+.ck.ck-editor .ck-editor__top {
+    position: absolute;
+    max-width: 100%;
+    width: 100%;
+}
+.ck.ck-editor .ck-editor__main {
+    padding-top:40px;
 }
 
 .ckeditor-disabled {

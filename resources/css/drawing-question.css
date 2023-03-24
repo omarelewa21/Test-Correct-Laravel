@@ -737,7 +737,8 @@
 }
 
 #drawing-tool #sidebar .layer-group .shape-container.selected {
-    font-family: "Nunito Bold", sans-serif;
+    font-family: "Nunito", sans-serif;
+    font-weight: bold;
 }
 
 #drawing-tool.teacher #sidebar .layer-group#question-group .shape-container:hover {
@@ -1004,12 +1005,14 @@
 
 #drawing-tool #sidebar .layer-group .shape-container.reorder-highlight {
     background-color: rgba(var(--primary-rgb), 0.10);
-    font-family: "Nunito Bold", sans-serif;
+    font-family: "Nunito", sans-serif;
+    font-weight: bold;
     color: var(--primary);
 }
 #drawing-tool.teacher #sidebar .layer-group#question-group .shape-container.reorder-highlight {
     background-color: rgba(var(--purple-mid-dark-rgb), 0.10);
-    font-family: "Nunito Bold", sans-serif;
+    font-family: "Nunito", sans-serif;
+    font-weight: bold;
     color: var(--purple-mid-dark);
 }
 .preview #drawing-tool #img-upload-btn {
@@ -1071,7 +1074,8 @@
 }
 
 #drawing-tool .shape-container.selected {
-    font-family: "Nunito Bold", sans-serif;
+    font-family: "Nunito", sans-serif;
+    font-weight: bold;
 }
 
 

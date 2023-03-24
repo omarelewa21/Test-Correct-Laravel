@@ -18,6 +18,7 @@ abstract class NavigationBar extends Component
     public $showSchoolSwitcher = false;
     public $menus = [];
     public $tileGroups = [];
+    public $enableHubSpotChat;
 
     public function mount()
     {
@@ -26,6 +27,7 @@ abstract class NavigationBar extends Component
         $this->menus = $this->menus();
         $this->tileGroups = $this->tiles();
         $this->handleMenuFilters();
+        $this->enableHubSpotChat = Auth::user()->isA('teacher');
     }
 
     public function render()

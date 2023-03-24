@@ -7,6 +7,7 @@ use Carbon\CarbonInterval;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Str;
 use tcCore\EducationLevel;
+use tcCore\FactoryScenarios\FactoryScenarioSchoolSimple;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\OnboardingWizard;
@@ -30,8 +31,8 @@ use Tests\Unit\Http\Helpers\OnboardingTestHelper;
 
 class ShortcodeTest extends TestCase
 {
-    use DatabaseTransactions;
-
+//    use DatabaseTransactions;
+    protected $loadScenario = FactoryScenarioSchoolSimple::class;
     /** @test */
     public function it_can_be_created()
     {

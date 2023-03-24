@@ -5,7 +5,7 @@
         @js($maxScore),
         @js($halfPoints),
         @js($disabled),
-        @stack('scoreSliderStack')
+        @js($coLearning)
      )"
      x-on:updated-score.window="skipSync = true; score = $event.detail.score"
      x-on:new-score="console.log($event.detail); score = $event.detail.score"

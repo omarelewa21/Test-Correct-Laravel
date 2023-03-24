@@ -151,13 +151,13 @@ class Subject extends BaseModel implements AccessCheckable
                     if ($user->isValidExamCoordinator()) {
                         $this->filterForExamcoordinator($query, $user);
                     } else {
-                        $schoolYear = SchoolYearRepository::getCurrentSchoolYear();
-                        $query->whereIn('id', function ($query) use ($value, $schoolYear, $user) {
+                        $schoolYears = SchoolYearRepository::getCurrentSchoolYears();
+                        $query->whereIn('id', function ($query) use ($value, $schoolYears, $user) {
                             $query->select('subject_id')
                                 ->from(with(new Teacher())->getTable())
                                 ->whereNull('teachers.deleted_at')
                                 ->leftJoin('school_classes', 'school_classes.id', '=', 'teachers.class_id')
-                                ->where('school_classes.school_year_id', $schoolYear->getKey());
+                                ->whereIn('school_classes.school_year_id', $schoolYears->map->getKey());
                             if (is_array($value)) {
                                 $query->whereIn('user_id', $value);
                             } else {
@@ -261,11 +261,11 @@ class Subject extends BaseModel implements AccessCheckable
 
     public function scopeNationalItemBankFiltered($query, $filters = [], $sorting = [])
     {
-        $nationalItemBankSchools = [
+        $nationalItemBankSchools = collect([
             SchoolLocation::where('customer_code', config('custom.national_item_bank_school_customercode'))->first(),
             SchoolLocation::where('customer_code', config('custom.examschool_customercode'))->first(),
-//            SchoolLocation::where('customer_code', 'CITO-TOETSENOPMAAT')->first(),
-        ];
+           // SchoolLocation::where('customer_code', 'CITO-TOETSENOPMAAT')->first(),
+        ])->filter()->all();
 
         return $this->filterByUserAndSchoolLocation($query, Auth::user(), $nationalItemBankSchools);
     }
@@ -277,14 +277,22 @@ class Subject extends BaseModel implements AccessCheckable
         return $this->filterByUserAndSchoolLocation($query, Auth::user(), $creathlonSchoolLocation);
     }
 
+    public function scopeOlympiadeFiltered($query, $filters = [], $sorting = [])
+    {
+        $olympiadeSchoolLocation = SchoolLocation::where('customer_code', config('custom.olympiade_school_customercode'))->first();
+
+        return $this->filterByUserAndSchoolLocation($query, Auth::user(), $olympiadeSchoolLocation);
+    }
+
     private function filterByUserAndSchoolLocation($query, User $user, $schoolLocations)
     {
         if (!$schoolLocations) { // slower but as a fallback in case there's no cito school
             $query->where('subjects.id', -1);
             return $query;
         }
-
-        $schoolLocations = Arr::wrap($schoolLocations);
+        $schoolLocations = array_filter(
+            Arr::wrap($schoolLocations)
+        );
 
         $subjectIds = [];
 
@@ -313,8 +321,12 @@ class Subject extends BaseModel implements AccessCheckable
 
     private function getAvailableSubjectsForSchoolLocation(SchoolLocation $schoolLocation)
     {
-        return $this->whereIn('id', Teacher::whereIn('class_id', $schoolLocation->schoolClasses()->pluck('id')
-        )->pluck('subject_id')->unique())->get();
+        return
+            $this->select('subjects.*')
+            ->join('sections', 'sections.id', '=', 'subjects.section_id')
+            ->join('school_location_sections', 'sections.id', '=', 'school_location_sections.section_id')
+            ->where('school_location_sections.school_location_id', '=', $schoolLocation->getKey())
+            ->get();
     }
 
     public function canAccess()

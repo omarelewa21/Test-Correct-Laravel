@@ -5,11 +5,8 @@ namespace Tests\Unit\Http\Helpers;
 
 
 use Illuminate\Support\Str;
-use tcCore\Http\Helpers\EduIxService;
 use tcCore\OnboardingWizard;
 use tcCore\OnboardingWizardStep;
-use tcCore\User;
-use Tests\TestCase;
 
 class OnboardingTestHelper
 {

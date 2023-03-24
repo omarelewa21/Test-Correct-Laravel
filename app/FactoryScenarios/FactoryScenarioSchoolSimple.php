@@ -16,6 +16,8 @@ use tcCore\SchoolLocation;
 class FactoryScenarioSchoolSimple extends FactoryScenarioSchool
 {
     protected $schoolName;
+
+    public $data;
     protected $schoolLocationName;
     protected $schoolYearYear;
 
@@ -59,8 +61,9 @@ class FactoryScenarioSchoolSimple extends FactoryScenarioSchool
         //create school location, add educationLevels VWO, Gymnasium, Havo
         $schoolLocation = FactorySchoolLocation::create($school, $factory->schoolLocationName)->addEducationlevels([1, 2, 3])->schoolLocation;
         //create school year and full year period for the current year
-        $schoolYearLocation = FactorySchoolYear::create($schoolLocation, (int)Carbon::today()->format('Y'))
-            ->addPeriodFullYear()->schoolYear;
+        $schoolYearLocation = FactorySchoolYear::create($schoolLocation, (int)Carbon::today()->format('Y'), true)
+            ->addPeriodFullYear()
+            ->schoolYear;
         //create section and subject
         $section = FactorySection::create($schoolLocation, $factory->sectionName)
             ->addSubject(FactoryBaseSubject::find($factory->baseSubjectId),$factory->subjectName)->section;

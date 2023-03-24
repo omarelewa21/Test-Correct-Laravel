@@ -15,7 +15,7 @@
             type="{{ $type }}"
             :disabled="$disabled"
             lang="{{ $lang }}"
-            allowWsc={{ $allowWsc }}
+            :allowWsc="$allowWsc"
     />
 
     <div x-show="showPopup"
@@ -102,7 +102,7 @@
         <div x-show="showPopup" x-cloak style="height: 70px;"></div>
     </div>
 </div>
-
+{{-- @TODO MF 20-02-2023 @ROAN I think the script below can be deleted because we never have a save button on the page--}}
 @push('scripts')
     <script>
         if(typeof saveButton === 'undefined') {
@@ -110,7 +110,7 @@
             if(saveButton) {
                 saveButton.addEventListener('click', function () {
                     @this.
-                    set("{!!  $attributes->wire('model') !!}", CKEDITOR.instances['{{$editorId}}'].getData())
+                    set("{!!  $attributes->wire('model') !!}", window.ClassicEditors['{{$editorId}}'].getData())
                 });
             }
         }

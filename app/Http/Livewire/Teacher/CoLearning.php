@@ -27,7 +27,7 @@ class CoLearning extends Component implements CollapsableHeader
     const DISCUSSION_TYPE_OPEN_ONLY = 'OPEN_ONLY';
 
     //start screen properties
-    public ?bool $coLearningHasBeenStarted = null;
+    public ?bool $coLearningHasBeenStarted = true;
     public bool $headerCollapsed = false;
     public bool $coLearningRestart = false;
 
@@ -56,7 +56,7 @@ class CoLearning extends Component implements CollapsableHeader
     public int $lastQuestionId;
     public int $questionCount;
 
-    public int $questionCountOpenOnly;
+    public int $questionCountFiltered;
     public int $questionIndex;
     public int $questionIndexOpenOnly;
 
@@ -110,26 +110,29 @@ class CoLearning extends Component implements CollapsableHeader
             ->layout('layouts.co-learning-teacher');
     }
 
-    public function startCoLearningSession($discussionType, $resetProgress = false)
+    public function startCoLearningSession($discussionType)
     {
+        $resetProgress = $discussionType != $this->testTake->discussion_type;
+
         if (!in_array($discussionType, ['OPEN_ONLY', 'ALL'])) {
             throw new \Exception('Wrong discussion type');
         }
 
         $testTakeUpdateData = [];
-        if($this->testTakeStatusNeedsToBeUpdated()) {
+        if ($this->testTakeStatusNeedsToBeUpdated()) {
             $testTakeUpdateData['test_take_status_id'] = TestTakeStatus::STATUS_DISCUSSING;
         }
-        if($this->discussionTypeNeedsToBeUpdated($discussionType)) {
+        if ($this->discussionTypeNeedsToBeUpdated($discussionType)) {
             $testTakeUpdateData['discussion_type'] = $discussionType;
         }
-        if($resetProgress) {
-            $testTakeUpdateData['discussion_question_id'] = null;
+        if ($resetProgress) {
+            $testTakeUpdateData['discussing_question_id'] = null;
             $testTakeUpdateData['is_discussed'] = 0;
             $this->deleteStudentAnswerRatings();
         }
-        if(!empty($testTakeUpdateData)) {
+        if (!empty($testTakeUpdateData)) {
             $this->testTake->update($testTakeUpdateData);
+            $this->testTake->refresh();
         }
 
         if ($this->testTake->discussing_question_id === null) {
@@ -214,12 +217,12 @@ class CoLearning extends Component implements CollapsableHeader
 
     public function showStudentAnswer($id): bool
     {
-        if((int) $id === $this->activeAnswerRating?->id){
+        if ((int)$id === $this->activeAnswerRating?->id) {
             $this->resetActiveAnswer();
             return false;
         }
 
-        if($id === null || $id === '') {
+        if ($id === null || $id === '') {
             return false;
         }
 
@@ -265,7 +268,13 @@ class CoLearning extends Component implements CollapsableHeader
     {
         $this->resetActiveAnswer();
 
-        $currentQuestionOrder = $this->questionsOrderList[$this->testTake->discussing_question_id]['order'];
+        $discussingQuestionId = $this->testTake?->fresh()->discussing_question_id;
+
+        if($discussingQuestionId === null) {
+            return null;
+        }
+
+        $currentQuestionOrder = $this->questionsOrderList[$discussingQuestionId]['order'];
 
         return $this->questionsOrderList
             ->filter(fn($item) => $item['order'] < $currentQuestionOrder)
@@ -318,7 +327,7 @@ class CoLearning extends Component implements CollapsableHeader
         $this->testParticipantStatusses = collect();
 
         $testParticipantsCount = $this->testParticipants->sum(fn($tp) => $tp->active === true);
-        if($testParticipantsCount === 0) {
+        if ($testParticipantsCount === 0) {
             return;
         }
 
@@ -369,6 +378,20 @@ class CoLearning extends Component implements CollapsableHeader
             ]);
 
         });
+
+        $this->testParticipants = $this->testParticipants
+            ->sortBy(fn($testParticipant) => $testParticipant->user->nameFull)
+            ->sortBy(function ($testParticipant) {
+                if (!isset($this->testParticipantStatusses[$testParticipant->uuid])) {
+                    return 0;
+                }
+
+                $order = 0;
+                $order += $this->testParticipantStatusses[$testParticipant->uuid]['ratingStatus']?->getSortWeight();
+                $order += $this->testParticipantStatusses[$testParticipant->uuid]['abnormalitiesStatus']?->getSortWeight();
+
+                return $order;
+            });
     }
 
     private function getAbnormalitiesStatusForTestParticipant($averageDeltaPercentage): AbnormalitiesStatus
@@ -432,9 +455,10 @@ class CoLearning extends Component implements CollapsableHeader
             return false;
         }
 
-        $this->questionIndex = $this->questionsOrderList->get($this->testTake->discussing_question_id)['order'];
-
-        $this->questionIndexOpenOnly = $this->questionsOrderList->get($this->testTake->discussing_question_id)['order_open_only'];
+        if($this->questionsOrderList->get($this->testTake->discussing_question_id)) {
+            $this->questionIndex = $this->questionsOrderList->get($this->testTake->discussing_question_id)['order'];
+            $this->questionIndexOpenOnly = $this->questionsOrderList->get($this->testTake->discussing_question_id)['order_open_only'] ?: $this->questionIndexOpenOnly;
+        }
     }
 
     protected function getStaticNavigationData()
@@ -445,10 +469,13 @@ class CoLearning extends Component implements CollapsableHeader
 
         $this->questionCount = $this->questionsOrderList->count('id');
 
+        //filter questions that have 'discuss in class' on false
+        $this->questionsOrderList = $this->questionsOrderList->filter(fn($item) => $item['discuss'] === 1);
+
         if ($this->testTake->discussion_type === self::DISCUSSION_TYPE_OPEN_ONLY) {
             $this->questionsOrderList = $this->questionsOrderList->filter(fn($item) => $item['question_type'] === 'OPEN');
         }
-        $this->questionCountOpenOnly = $this->questionsOrderList->count('id');
+        $this->questionCountFiltered = $this->questionsOrderList->count('id');
 
         $this->firstQuestionId = $this->questionsOrderList->sortBy('order')->first()['id'];
         $this->lastQuestionId = $this->questionsOrderList->sortBy('order')->last()['id'];
@@ -490,7 +517,9 @@ class CoLearning extends Component implements CollapsableHeader
     {
         $this->removeChangesFromTestTakeModel();
 
-        return $this->testTake->update(['discussing_question_id' => $this->previousQuestionId]);
+        if($this->previousQuestionId !== null) {
+            return $this->testTake->update(['discussing_question_id' => $this->previousQuestionId]);
+        }
     }
 
     protected function removeChangesFromTestTakeModel(): void
@@ -647,6 +676,6 @@ class CoLearning extends Component implements CollapsableHeader
 
     public function handleHeaderCollapse($args)
     {
-        return $this->startCoLearningSession($args['discussionType'], $args['resetProgress'] ?? false);
+        return $this->startCoLearningSession($args['discussionType']);
     }
 }

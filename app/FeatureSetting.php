@@ -20,8 +20,7 @@ class FeatureSetting extends Model
 
     /**
      * Set Setting for a model instance:
-     * If setting doesn't exist, returns false.
-     * So updating to false means removing record.
+     * Passing a false $value results in removing the record.
      */
     public function scopeSetSetting($query, string $title, $value)
     {
@@ -29,7 +28,7 @@ class FeatureSetting extends Model
             return [class_exists($value) ? 'type' : 'id' => $value];
         });
 
-        if (!$value) {
+        if ($value === false || $value === null) {
             return $query
                 ->where('title', '=', $title)
                 ->where('settingable_id', '=', $settingableValues['id'])
@@ -47,9 +46,7 @@ class FeatureSetting extends Model
     }
 
     /**
-     * Set Setting for a model instance:
-     * If setting doesn't exist, returns false.
-     * So updating to false means removing record.
+     * Get Setting for a model instance:
      */
     public function scopeGetSetting($query, $title, $value = null)
     {

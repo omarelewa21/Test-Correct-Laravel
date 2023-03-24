@@ -3,15 +3,31 @@
 namespace Tests\Unit\QtiVersionTwoDotTwoDotTwo;
 
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use tcCore\Factories\FactoryTest;
+use tcCore\FactoryScenarios\FactoryScenarioSchoolSimple;
 use tcCore\User;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\ScenarioLoader;
 use Tests\TestCase;
 use tcCore\Http\Helpers\QtiImporter\VersionTwoDotTwoDotZero\QtiResource;
 use tcCore\QtiModels\QtiResource as Resource;
 
 class QtiResourceTypeGuesserTest extends TestCase
 {
+    protected $loadScenario = FactoryScenarioSchoolSimple::class;
+    private User $teacherOne;
+    private $test;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->teacherOne = ScenarioLoader::get('user');
+        $this->test = FactoryTest::create($this->teacherOne)->getTestModel();
+        $this->actingAs($this->teacherOne);
+    }
+
     /**
      * @test
      * @dataProvider resourceProvider
@@ -19,8 +35,6 @@ class QtiResourceTypeGuesserTest extends TestCase
     public function it_can_guess_the_item_type($identifier, $type, $href, $version, $guid, $type_to_guess)
     {
         $resource = new Resource($identifier, $type, storage_path($href), $version, $guid);
-
-        $this->actingAs(User::where('username', 'd1@test-correct.nl')->first());
         $this->instance = (new QtiResource($resource))->handle();
 
         $this->assertEquals(

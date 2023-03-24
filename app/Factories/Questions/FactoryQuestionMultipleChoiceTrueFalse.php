@@ -9,28 +9,28 @@ class FactoryQuestionMultipleChoiceTrueFalse extends FactoryQuestionMultipleChoi
     //  Only the score should be able to change.
     //      Or accept them, because false inputs need to be possible to create?
 
-    protected function questionDefinition()
+    public function questionDefinition()
     {
         return "<p>Is Rotterdam de hoofdstad van Nederland?</p>\n";
     }
 
-    protected function questionSubType()
+    public function questionSubType(): string
     {
         return "TrueFalse";
     }
 
-    protected function answerDefinition()
+    public function answerDefinition()
     {
         return [
             [
-                'order' => 1,
+                'order'  => 1,
                 'answer' => 'Juist',
-                'score' => 0,
+                'score'  => 0,
             ],
             [
-                'order' => 2,
+                'order'  => 2,
                 'answer' => 'Onjuist',
-                'score' => 5,
+                'score'  => 5,
             ],
         ];
 

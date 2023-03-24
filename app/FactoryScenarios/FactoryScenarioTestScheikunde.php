@@ -13,12 +13,10 @@ class FactoryScenarioTestScheikunde extends FactoryScenarioTest
 {
     protected function createFactoryTest(): FactoryTest
     {
-        $scheikundeSubjectInSameSectionAsUser = FactorySubject::getFirstSubjectForUser($this->user)
-            ->section
-            ->subjects()
-            ->where('name', 'LIKE', '%cheikunde%')
-            ->pluck('id')
-            ->first();
+        $scheikundeSubjectInSameSectionAsUser = FactorySubject::getSubjectsForUser($this->user)
+            ->where('name',  'Scheikunde')
+            ->first()
+            ->getKey();
         if(is_null($scheikundeSubjectInSameSectionAsUser)){
             //checking for Scheikunde in the same section, does not mean it is a valid subject for the user.
             throw new \Exception('No Scheikunde subject available for this user.');

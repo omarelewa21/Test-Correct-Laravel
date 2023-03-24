@@ -16,5 +16,7 @@
             type="cms"
             :disabled="isset($preview)"
             lang="{{ $lang }}"
+            selid="answer-textarea"
+            :allowWsc="$allowWsc"
     />
 @endsection

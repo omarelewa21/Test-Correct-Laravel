@@ -52,7 +52,11 @@ class SchoolClass extends BaseModel implements AccessCheckable
      *
      * @var array
      */
-    protected $fillable = ['created_by', 'old_school_class_id', 'school_location_id', 'subject_id', 'education_level_id', 'school_year_id', 'name', 'education_level_year', 'is_main_school_class', 'do_not_overwrite_from_interface', 'demo', 'visible', 'guest_class', 'test_take_id'];
+    protected $fillable = [
+        'created_by', 'old_school_class_id', 'school_location_id', 'subject_id', 'education_level_id', 'school_year_id',
+        'name', 'education_level_year', 'is_main_school_class', 'do_not_overwrite_from_interface', 'demo', 'visible',
+        'guest_class', 'test_take_id'
+    ];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -75,7 +79,8 @@ class SchoolClass extends BaseModel implements AccessCheckable
 
         if (array_key_exists('student_users', $attributes)) {
             $this->students = $attributes['student_users'];
-        } elseif (array_key_exists('add_student_user', $attributes) || array_key_exists('delete_student_user', $attributes)) {
+        } elseif (array_key_exists('add_student_user', $attributes) || array_key_exists('delete_student_user',
+                $attributes)) {
             $this->students = $this->students()->withTrashed()->pluck('user_id')->all();
             if (array_key_exists('add_student_user', $attributes)) {
                 array_push($this->students, $attributes['add_student_user']);
@@ -90,7 +95,8 @@ class SchoolClass extends BaseModel implements AccessCheckable
 
         if (array_key_exists('mentor_users', $attributes)) {
             $this->mentors = $attributes['mentors'];
-        } elseif (array_key_exists('add_mentor_user', $attributes) || array_key_exists('delete_mentor_user', $attributes)) {
+        } elseif (array_key_exists('add_mentor_user', $attributes) || array_key_exists('delete_mentor_user',
+                $attributes)) {
             $this->mentors = $this->mentors()->withTrashed()->pluck('user_id')->all();
             if (array_key_exists('add_mentor_user', $attributes)) {
                 array_push($this->mentors, $attributes['add_mentor_user']);
@@ -105,7 +111,8 @@ class SchoolClass extends BaseModel implements AccessCheckable
 
         if (array_key_exists('manager_users', $attributes)) {
             $this->managers = $attributes['manager_users'];
-        } elseif (array_key_exists('add_manager_user', $attributes) || array_key_exists('delete_manager_user', $attributes)) {
+        } elseif (array_key_exists('add_manager_user', $attributes) || array_key_exists('delete_manager_user',
+                $attributes)) {
             $this->managers = $this->managers()->withTrashed()->pluck('user_id')->all();
             if (array_key_exists('add_manager_user', $attributes)) {
                 array_push($this->managers, $attributes['add_manager_user']);
@@ -157,31 +164,35 @@ class SchoolClass extends BaseModel implements AccessCheckable
             if ($schoolClass->getOriginal('demo') == true && !isset($schoolClass->demoRestrictionOverrule)) {
                 return false;
             }
-            if (isset($schoolClass->demoRestrictionOverrule)) unset($schoolClass->demoRestrictionOverrule);
+            if (isset($schoolClass->demoRestrictionOverrule)) {
+                unset($schoolClass->demoRestrictionOverrule);
+            }
             self::setDoNotOverwriteFromInterfaceOnDemoClass($schoolClass);
         });
 
 
         static::deleting(function (SchoolClass $schoolClass) {
-            if ($schoolClass->getOriginal('demo') == true) return false;
+            if ($schoolClass->getOriginal('demo') == true) {
+                return false;
+            }
         });
 
         static::deleted(function (SchoolClass $schoolClass) {
-            $managers = Manager::where('school_class_id',$schoolClass->getKey())->get();
-            $managers->each(function (Manager $manager)  {
+            $managers = Manager::where('school_class_id', $schoolClass->getKey())->get();
+            $managers->each(function (Manager $manager) {
                 $manager->delete();
             });
-            $mentors = Mentor::where('school_class_id',$schoolClass->getKey())->get();
+            $mentors = Mentor::where('school_class_id', $schoolClass->getKey())->get();
             $mentors->each(function (Mentor $mentor) {
                 $mentor->delete();
             });
-            $teachers = Teacher::where('class_id',$schoolClass->getKey())->get();
+            $teachers = Teacher::where('class_id', $schoolClass->getKey())->get();
             $teachers->each(function (Teacher $teacher) {
-                    $teacher->delete();
+                $teacher->delete();
             });
-            $students = Student::where('class_id',$schoolClass->getKey())->get();
+            $students = Student::where('class_id', $schoolClass->getKey())->get();
             $students->each(function (Student $student) {
-                    $student->delete();
+                $student->delete();
             });
         });
     }
@@ -201,7 +212,9 @@ class SchoolClass extends BaseModel implements AccessCheckable
     {
         return $this->belongsToMany('tcCore\User', 'mentors', 'school_class_id', 'user_id')
             ->withTrashed()
-            ->withPivot([$this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()])->wherePivot($this->getDeletedAtColumn(), null);
+            ->withPivot([
+                $this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()
+            ])->wherePivot($this->getDeletedAtColumn(), null);
     }
 
     protected function saveMentors()
@@ -221,7 +234,9 @@ class SchoolClass extends BaseModel implements AccessCheckable
 
     public function managerUsers()
     {
-        return $this->belongsToMany('tcCore\User', 'managers', 'school_class_id', 'user_id')->withPivot([$this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()])->wherePivot($this->getDeletedAtColumn(), null);
+        return $this->belongsToMany('tcCore\User', 'managers', 'school_class_id', 'user_id')->withPivot([
+            $this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()
+        ])->wherePivot($this->getDeletedAtColumn(), null);
     }
 
     protected function saveManagers()
@@ -241,7 +256,9 @@ class SchoolClass extends BaseModel implements AccessCheckable
 
     public function studentUsers()
     {
-        return $this->belongsToMany('tcCore\User', 'students', 'class_id', 'user_id')->withPivot([$this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()])->wherePivot($this->getDeletedAtColumn(), null);
+        return $this->belongsToMany('tcCore\User', 'students', 'class_id', 'user_id')->withPivot([
+            $this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()
+        ])->wherePivot($this->getDeletedAtColumn(), null);
     }
 
     protected function saveStudents()
@@ -263,11 +280,12 @@ class SchoolClass extends BaseModel implements AccessCheckable
         return $this->belongsTo('tcCore\SchoolYear');
     }
 
-    public function teacherUsers() {
+    public function teacherUsers()
+    {
         return $this->belongsToMany('tcCore\User', 'teachers', 'class_id', 'user_id')
-                ->withTrashed()
-                ->withPivot([$this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()])
-                ->wherePivot($this->getDeletedAtColumn(), null);
+            ->withTrashed()
+            ->withPivot([$this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()])
+            ->wherePivot($this->getDeletedAtColumn(), null);
     }
 
     public function teacher()
@@ -311,32 +329,35 @@ class SchoolClass extends BaseModel implements AccessCheckable
                 }
 
                 if (in_array('Teacher', $roles)) {
-                    if( $user->isValidExamCoordinator() ){
+                    if ($user->isValidExamCoordinator()) {
                         $this->filterForExamcoordinator($query, $user);
-                    }else{
-                        $query->orWhereIn($this->getTable() . '.id', function ($query) use ($userId) {
+                    } else {
+                        $query->orWhereIn($this->getTable().'.id', function ($query) use ($userId) {
                             $query->select('class_id')->from(with(new Teacher())->getTable())->whereNull('deleted_at');
-                                $query->where('user_id', $userId);
+                            $query->where('user_id', $userId);
                         });
                     }
 
                 }
 
                 if (in_array('Mentor', $roles)) {
-                    $query->orWhereIn($this->getTable() . '.id', function ($query) use ($userId) {
-                        $query->select('school_class_id')->from(with(new Mentor())->getTable())->whereNull('deleted_at')->where('user_id', $userId);
+                    $query->orWhereIn($this->getTable().'.id', function ($query) use ($userId) {
+                        $query->select('school_class_id')->from(with(new Mentor())->getTable())->whereNull('deleted_at')->where('user_id',
+                            $userId);
                     });
                 }
 
                 if (in_array('School management', $roles)) {
-                    $query->orWhereIn($this->getTable() . '.id', function ($query) use ($userId) {
-                        $query->select('school_class_id')->from(with(new Manager())->getTable())->whereNull('deleted_at')->where('user_id', $userId);
+                    $query->orWhereIn($this->getTable().'.id', function ($query) use ($userId) {
+                        $query->select('school_class_id')->from(with(new Manager())->getTable())->whereNull('deleted_at')->where('user_id',
+                            $userId);
                     });
                 }
 
                 if (in_array('Student', $roles)) {
-                    $query->orWhereIn($this->getTable() . '.id', function ($query) use ($userId) {
-                        $query->select('class_id')->from(with(new Student())->getTable())->whereNull('deleted_at')->where('user_id', $userId);
+                    $query->orWhereIn($this->getTable().'.id', function ($query) use ($userId) {
+                        $query->select('class_id')->from(with(new Student())->getTable())->whereNull('deleted_at')->where('user_id',
+                            $userId);
                     });
                 }
             });
@@ -345,7 +366,7 @@ class SchoolClass extends BaseModel implements AccessCheckable
         foreach ($filters as $key => $value) {
             switch ($key) {
                 case 'name':
-                    $query->where('name', 'LIKE', '%' . $value . '%');
+                    $query->where('name', 'LIKE', '%'.$value.'%');
                     break;
                 case 'current_school_year':
                     if ($value != true) {
@@ -364,10 +385,8 @@ class SchoolClass extends BaseModel implements AccessCheckable
                         break;
                     }
                     $schoolYearRepository = new SchoolYearRepository();
-                    $currentSchoolYear = $schoolYearRepository->getCurrentSchoolYear();
-                    if ($currentSchoolYear instanceof SchoolYear) {
-                        $query->where('school_year_id', '=', $currentSchoolYear->getKey());
-                    }
+                    $currentSchoolYears = $schoolYearRepository->getCurrentSchoolYears();
+                    $query->whereIn('school_year_id', $currentSchoolYears->map->getKey());
                     break;
                 case 'school_year_id':
                     if (is_array($value)) {
@@ -454,24 +473,29 @@ class SchoolClass extends BaseModel implements AccessCheckable
             return true;
         }
 
-        if ((in_array('Account manager', $roles) || in_array('School manager', $roles)) && SchoolLocation::filtered(['id' => $this->getAttribute('school_location_id')])->count() > 0) {
+        if ((in_array('Account manager', $roles) || in_array('School manager',
+                    $roles)) && SchoolLocation::filtered(['id' => $this->getAttribute('school_location_id')])->count() > 0) {
             return true;
         }
 
         $userId = Auth::user()->getKey();
-        if (in_array('Teacher', $roles) && Teacher::where('user_id', $userId)->where('class_id', $this->getKey())->count() > 0) {
+        if (in_array('Teacher', $roles) && Teacher::where('user_id', $userId)->where('class_id',
+                $this->getKey())->count() > 0) {
             return true;
         }
 
-        if (in_array('Mentor', $roles) && Mentor::where('user_id', $userId)->where('school_class_id', $this->getKey())->count() > 0) {
+        if (in_array('Mentor', $roles) && Mentor::where('user_id', $userId)->where('school_class_id',
+                $this->getKey())->count() > 0) {
             return true;
         }
 
-        if (in_array('School management', $roles) && Manager::where('user_id', $userId)->where('school_class_id', $this->getKey())->count() > 0) {
+        if (in_array('School management', $roles) && Manager::where('user_id', $userId)->where('school_class_id',
+                $this->getKey())->count() > 0) {
             return true;
         }
 
-        if (in_array('Student', $roles) && Student::where('user_id', $userId)->where('class_id', $this->getKey())->count() > 0) {
+        if (in_array('Student', $roles) && Student::where('user_id', $userId)->where('class_id',
+                $this->getKey())->count() > 0) {
             return true;
         }
 
@@ -518,7 +542,7 @@ class SchoolClass extends BaseModel implements AccessCheckable
         $testTake->load('test:id,education_level_id,education_level_year');
 
         return SchoolClass::create([
-            'name'                 => 'guest_class_' . $testTake->getKey(),
+            'name'                 => 'guest_class_'.$testTake->getKey(),
             'education_level_id'   => $testTake->test->education_level_id,
             'education_level_year' => $testTake->test->education_level_year,
             'school_location_id'   => $testTake->user()->value('school_location_id'),
@@ -541,6 +565,7 @@ class SchoolClass extends BaseModel implements AccessCheckable
     {
         return $query->where('guest_class', 0);
     }
+
     public function scopeWithGuestClasses($query)
     {
         return $query->where('guest_class', 1);
@@ -548,9 +573,10 @@ class SchoolClass extends BaseModel implements AccessCheckable
 
     private function filterForExamcoordinator($query, User $user)
     {
-        $classIds = SchoolClass::select(['id'])->where('school_location_id', $user->school_location_id)->withoutGuestClasses();
+        $classIds = SchoolClass::select(['id'])->where('school_location_id',
+            $user->school_location_id)->withoutGuestClasses();
 
-        return $query->orWhereIn(self::getTable() . '.id', $classIds)->where('demo', 0);
+        return $query->orWhereIn(self::getTable().'.id', $classIds)->where('demo', 0);
     }
 
     public function scopeFromTestTakes($query, $testTakeIds)

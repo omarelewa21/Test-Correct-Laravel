@@ -231,8 +231,9 @@ class GroupQuestion extends Question implements QuestionInterface
         $availableOrder = [];
 
         foreach ($questions as $question) {
+            $maintain_position = $question->getAttribute('maintain_position');
             $question = $question->getQuestionInstance();
-            if ($question->getAttribute('maintain_position') == 1 || $this->getAttribute('shuffle') == 0 || $testShuffle == 0) {
+            if ($maintain_position == 1 || $this->getAttribute('shuffle') == 0 || $testShuffle == 0) {
                 $questionOrder[$groupQuestionOrder] = $question;
             } else {
                 $shuffleQuestions[] = $question;

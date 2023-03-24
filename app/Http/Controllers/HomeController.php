@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Queue;
 use tcCore\Answer;
 use tcCore\MultipleChoiceQuestion;
+use tcCore\Question;
 use tcCore\TestQuestion;
 use tcCore\Jobs\PValues\CalculatePValueForAnswer;
 use tcCore\Jobs\Rating\CalculateRatingForTestParticipant;
@@ -73,18 +74,7 @@ class HomeController extends Controller {
 
         $question->fill($questiondata);
 
-        $questionInstance = $question->getQuestionInstance();
-        if ($questionInstance->getAttribute('subject_id') === null) {
-            $questionInstance->setAttribute('subject_id', $test->subject->getKey());
-        }
-
-        if ($questionInstance->getAttribute('education_level_id') === null) {
-            $questionInstance->setAttribute('education_level_id', $test->educationLevel->getKey());
-        }
-
-        if ($questionInstance->getAttribute('education_level_year') === null) {
-            $questionInstance->setAttribute('education_level_year', $test->getAttribute('education_level_year'));
-        }
+        Question::setAttributesFromParentModel($question, $test);
 
         // dd($question);
 

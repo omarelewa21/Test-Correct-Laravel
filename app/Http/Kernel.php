@@ -8,6 +8,7 @@ use tcCore\Http\Middleware\AuthenticatedAsAdministrator;
 use tcCore\Http\Middleware\AuthenticatedAsTeacher;
 use tcCore\Http\Middleware\AuthenticatedAsStudent;
 use tcCore\Http\Middleware\AuthenticateWithTemporaryLogin;
+use tcCore\Http\Middleware\BugsnagRequestId;
 use tcCore\Http\Middleware\CheckForDeploymentMaintenance;
 use tcCore\Http\Middleware\GuestChoice;
 use tcCore\Http\Middleware\LocaleMiddleware;
@@ -36,6 +37,7 @@ class Kernel extends HttpKernel
         //'Illuminate\View\Middleware\ShareErrorsFromSession',
         RequestLogger::class,
         Logging::class,
+        BugsnagRequestId::class,
     ];
 
     /**

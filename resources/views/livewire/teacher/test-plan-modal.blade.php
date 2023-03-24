@@ -87,6 +87,7 @@
                                             id="teachers_and_classes"
                                             wire:key='school-classes'
                                             hasErrors="{{ $this->getErrorBag()->has('request.school_classes') ? 'true': '' }}"
+                                            selid="plan-modal-classes-select"
                     />
                     <div id="selected_classes" wire:ignore class="space-x-4 ml-4"></div>
 
@@ -117,6 +118,7 @@
                                                                                                :toolTip="__('teacher.inbrowser_testing_tooltip')"
                                                                                                :disabled="$this->isAssignmentType() || !auth()->user()->schoolLocation->allow_inbrowser_testing"
                                                                                                containerClass="border-t w-full lg:w-[calc(50%-0.5rem)]"
+                                                                                               selid="plan-modal-allow-browser"
                                                                 >
                                                                     <x-icon.web/>
                                                                     <span class="bold">{{ __('teacher.Browsertoetsen toestaan') }} </span>
@@ -169,7 +171,7 @@
                 {{--                    <span>{{__('teacher.Volgende Inplannen')}}</span>--}}
                 {{--                    <x-icon.chevron/>--}}
                 {{--                </x-button.primary>--}}
-                <x-button.cta size="sm" wire:click="planNext">
+                <x-button.cta size="sm" wire:click="planNext" selid="plan-modal-plan-btn">
                     <x-icon.checkmark />
                     <span>{{__('teacher.Inplannen')}}</span>
                 </x-button.cta>

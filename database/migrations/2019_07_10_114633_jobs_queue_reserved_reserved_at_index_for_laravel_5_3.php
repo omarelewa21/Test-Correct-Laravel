@@ -19,7 +19,7 @@ class JobsQueueReservedReservedAtIndexForLaravel53 extends Migration
             if ($doctrineTable->hasIndex('jobs_queue_reserved_reserved_at_index')) {
                 $table->dropIndex('jobs_queue_reserved_reserved_at_index');
             }
-            $table->dropColumn('reserved');
+//            $table->dropColumn('reserved');
             $table->index(['queue', 'reserved_at']);
         });
 

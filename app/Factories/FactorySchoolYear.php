@@ -18,17 +18,19 @@ class FactorySchoolYear
     use DoWhileLoggedInTrait;
 
     public SchoolYear $schoolYear;
+    protected int $year;
 
     public static function create(SchoolLocation $schoolLocation, int $year, $doNotCreateIfCurrentSchoolYearExists = false)
     {
         $factory = new static;
         ActingAsHelper::getInstance()->setUser($schoolLocation->users->first());
-//dd($schoolLocation->users->first());
+        $factory->year = $year;
+
         if ($doNotCreateIfCurrentSchoolYearExists && SchoolYearRepository::getCurrentSchoolYear()) {
             $factory->schoolYear = SchoolYearRepository::getCurrentSchoolYear();
         }
         if (!isset($factory->schoolYear) || is_null($factory->schoolYear)) {
-            $factory->schoolYear = new SchoolYear(['year' => $year]);
+            $factory->schoolYear = new SchoolYear(['year' => $factory->year]);
 
             $schoolLocation->schoolYears()->save($factory->schoolYear);
         }
@@ -36,7 +38,17 @@ class FactorySchoolYear
         return $factory;
     }
 
-    public function addPeriod(string $periodName, $periodStartDate, $periodEndDate)
+    public static function createLastSchoolYear(SchoolLocation $schoolLocation)
+    {
+        return self::create(
+            $schoolLocation,
+            (int)Carbon::today()->subYear()->format('Y')
+        )
+            ->addPeriodFullYear();
+    }
+
+    public
+    function addPeriod(string $periodName, $periodStartDate, $periodEndDate)
     {
         $period = new Period([
             'name'       => $periodName,
@@ -56,9 +68,10 @@ class FactorySchoolYear
         return $this;
     }
 
-    public function addPeriodFullYear(string $periodName = 'FullYearPeriod')
+    public
+    function addPeriodFullYear(string $periodName = 'FullYearPeriod')
     {
-        $year = $this->schoolYear->year;
+        $year = $this->year;
 
         $period = new Period([
             'name'       => $periodName,
@@ -73,13 +86,14 @@ class FactorySchoolYear
         return $this;
     }
 
-    public function addFourQuarterYearPeriods(array $periodNames = ['Q1', 'Q2', 'Q3', 'Q4'])
+    public
+    function addFourQuarterYearPeriods(array $periodNames = ['Q1', 'Q2', 'Q3', 'Q4'])
     {
         if (count($periodNames) !== 4) {
             throw new \Exception('please supply precisely four period names, one for each quarter of the year.');
         }
 
-        $year = $this->schoolYear->year;
+        $year = $this->year;
 
         $date = Carbon::create($year)->startOfYear();
 

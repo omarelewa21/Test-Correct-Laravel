@@ -414,6 +414,12 @@ trait WithQuestionFilteredHelpers
                 $baseSubjectsToGetSubjectsFor = $this->getBaseSubjectsToFilterWith($baseSubjectIds);
                 $subjectsQuery->whereIn('base_subject_id', $baseSubjectsToGetSubjectsFor);
                 break;
+            case 'olympiade':
+                $subjectsQuery = Subject::olympiadeFiltered();
+
+                $baseSubjectsToGetSubjectsFor = $this->getBaseSubjectsToFilterWith($baseSubjectIds);
+                $subjectsQuery->whereIn('base_subject_id', $baseSubjectsToGetSubjectsFor);
+                break;
             default:
                 break;
         }

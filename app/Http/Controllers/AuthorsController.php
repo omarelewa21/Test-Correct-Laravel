@@ -53,6 +53,7 @@ class AuthorsController extends Controller
             config('custom.examschool_customercode')                => config('custom.examschool_author'),
             config('custom.national_item_bank_school_customercode') => config('custom.national_item_bank_school_author'),
             config('custom.creathlon_school_customercode')          => config('custom.creathlon_school_author'),
+            config('custom.olympiade_school_customercode')          => config('custom.olympiade_school_author'),
         ];
     }
 

@@ -7,6 +7,8 @@ use Carbon\CarbonInterval;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Str;
 use tcCore\EducationLevel;
+use tcCore\Factories\FactoryTest;
+use tcCore\FactoryScenarios\FactoryScenarioSchoolSimple;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\OnboardingWizard;
@@ -23,13 +25,14 @@ use tcCore\TestTake;
 use tcCore\User;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\ScenarioLoader;
 use Tests\TestCase;
 use Tests\Unit\Http\Helpers\DemoHelperTestHelper;
 use Tests\Unit\Http\Helpers\OnboardingTestHelper;
 
 class DemoHelperTest extends TestCase
 {
-    use DatabaseTransactions;
+    protected $loadScenario = FactoryScenarioSchoolSimple::class;
 
     /** @test */
     public function demohelper_a_teacher_should_be_created()
@@ -114,12 +117,16 @@ class DemoHelperTest extends TestCase
     /** @test */
     public function demohelper_a_new_teacher_should_get_a_demotest()
     {
+        $this->expectExceptionMessage('demo test creation has been removed.');
+
         $helper = (new DemoHelperTestHelper());
+        $helper->alwaysCreateDemoEnvironment = true;
         $schoolLocation = SchoolLocation::first();
         $helper->setSchoolLocation($schoolLocation);
         $helper->createDemoSectionIfNeeded();
         $subject = $helper->createDemoSubjectIfNeeded();
         $actingUser = $this->getActingSchoolbeheerder();
+
         $this->actingAs($actingUser);
         $schoolYear = SchoolYearRepository::getCurrentSchoolYear();
         if($schoolYear === null){
@@ -133,33 +140,32 @@ class DemoHelperTest extends TestCase
         }
 
         if(Test::where('name',DemoHelperTestHelper::BASEDEMOTESTNAME)->count() === 0){
-            $test = Test::first();
-            $test->name = DemoHelperTestHelper::BASEDEMOTESTNAME;
-            $test->save();
+            FactoryTest::create(ScenarioLoader::get('teacher1'),['name' =>  DemoHelperTestHelper::BASEDEMOTESTNAME]);
         }
 
-        $user = User::where('username','d1@test-correct.nl')->first();
+        $user = ScenarioLoader::get('teacher1');
 
         $returnData = (object) $helper->prepareDemoForNewTeacher($schoolLocation,$schoolYear,$user);
-        $this->assertTrue($returnData->new);
+//        $this->assertTrue($returnData->new);
 
-        $this->assertEquals(Test::class,get_class($returnData->test));
+//        $this->assertEquals(Test::class,get_class($returnData->test));
 
         $baseTestTakesCount = TestTake::where('test_id',(new DemoHelperTestHelper)->getBaseDemoTest()->getKey())->count();
-        $newTestTakesCount = count($returnData->testTakes);
+//        $newTestTakesCount = count($returnData->testTakes);
 
-        $this->assertEquals($baseTestTakesCount,$newTestTakesCount);
+//        $this->assertEquals($baseTestTakesCount,$newTestTakesCount);
     }
 
     protected function getActingSchoolbeheerder()
     {
-        return User::where('username','opensourceschoollocatie1schoolbeheerder@test-correct.nl')->first();
+        return ScenarioLoader::get('school_locations')->first()->schoolManagers()->first();
     }
 
-    /** @test */
+    /* Test disabled because the demo environment is not needed anymore */
     public function demohelper_democlass_and_users_should_be_created_if_needed_on_new_current_period()
     {
         $helper = (new DemoHelperTestHelper());
+        $helper->alwaysCreateDemoEnvironment = true;
 
         $actingUser = $this->getActingSchoolbeheerder();
         $this->actingAs($actingUser);
@@ -191,7 +197,7 @@ class DemoHelperTest extends TestCase
     {
         $helper = (new DemoHelperTestHelper());
 
-        $user = User::where('username','testadmin@teachandlearncompany.com')->first();
+        $user = User::whereNull('school_location_id')->first();
         $this->actingAs($user);
 
         $schoolLocation = SchoolLocation::first();
@@ -216,7 +222,7 @@ class DemoHelperTest extends TestCase
         }
     }
 
-    /** @test */
+    /* Test disabled because the demo environment is not needed anymore */
     public function demohelper_on_schoollocation_creation_section_subject_and_users_should_be_created()
     {
         $sectionCount = Section::count();
@@ -224,6 +230,7 @@ class DemoHelperTest extends TestCase
         $userCount = User::count();
 
         $helper = new DemoHelper();
+        $helper->alwaysCreateDemoEnvironment = true;
         $schoolLocation = SchoolLocation::create([
             'name'=> Str::random(5),
             'education_levels'=> ['2'],

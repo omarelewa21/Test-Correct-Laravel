@@ -11,6 +11,7 @@
             <x-button.cta wire:click="handle"
                           title="{{ __('test.publish') }}"
                           class="px-4"
+                          selid="publish-test-btn"
             >
                 <x-icon.publish/>
                 <span>{{ __('test.publish') }}</span>
@@ -22,7 +23,7 @@
                 <x-icon.publish/>
             </x-button.icon>
         @else
-            <x-button.icon color="cta" wire:click="handle" title="{{ __('test.publish') }}">
+            <x-button.icon color="cta" wire:click="handle" title="{{ __('test.publish') }}" selid="publish-test-btn">
                 <x-icon.publish/>
             </x-button.icon>
         @endif
@@ -30,6 +31,7 @@
         <button
                 class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
                 wire:click="handle"
+                selid="publish-test-btn"
         >
             <span class="w-5 flex justify-center"><x-icon.publish/></span>
             <span class="text-base bold inherit">{{ __('test.publish') }}</span>

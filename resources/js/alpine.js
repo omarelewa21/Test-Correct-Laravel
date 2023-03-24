@@ -131,8 +131,7 @@ document.addEventListener("alpine:init", () => {
         editorId: entangle.editorId,
         hasError: { empty: [], false: [] },
         data: {
-            elements: []
-
+            elements: [],
         },
         maxOptions: 10,
         minOptions: 2,
@@ -144,10 +143,19 @@ document.addEventListener("alpine:init", () => {
         },
 
         initWithSelection() {
-            let text = window.editor.getSelectedHtml().$.textContent
+            let editor = window.editor;
+           // let selection = editor.data.stringify(editor.model.getSelectedContent(editor.model.document.selection));
+
+            let selection = '';
+            let range = editor.model.document.selection.getFirstRange()
+            for(const value of range.getItems()){
+                selection = selection + value.data;
+            }
+            let text = selection
                 .trim()
                 .replace("[", "")
                 .replace("]", "");
+
 
             let content = text;
             if (text.contains("|")) {
@@ -205,7 +213,11 @@ document.addEventListener("alpine:init", () => {
             let lw = livewire.find(document.getElementById("cms").getAttribute("wire:id"));
             lw.set("showSelectionOptionsModal", true);
 
-            window.editor.insertText(result);
+            window.editor.model.change(writer => {
+                window.editor.model.insertContent(
+                    writer.createText(result)
+                );
+            });
 
             setTimeout(() => {
                 this.$wire.setQuestionProperty("question", window.editor.getData());
@@ -385,6 +397,27 @@ document.addEventListener("alpine:init", () => {
                 this.scrollActiveQuestionIntoView();
             }, 400);
             this.poll(this.pollingInterval);
+            this.$watch('$store.cms.handledAllRequests', (value) => {
+                if (value) {
+                    this.checkActiveSlide();
+                }
+            });
+        },
+        checkActiveSlide() {
+            if (!['newquestion', 'questionbank'].includes(this.activeSlide)) {
+                return;
+            }
+            if (this.$root.children[2].getAttribute('x-ref') === this.activeSlide) {
+                return;
+            }
+            if (this.activeSlide === 'newquestion') {
+                return this.setNextSlide(this.$refs.newquestion);
+            }
+            if (this.activeSlide === 'newquestion') {
+                return this.setNextSlide(this.$refs.questionbank);
+            }
+            this.prev(this.$root.children[2]);
+
         },
         next(currentEl) {
             const left = this.$refs.questionEditorSidebar.scrollLeft + this.slideWidth;
@@ -1529,6 +1562,7 @@ document.addEventListener("alpine:init", () => {
                     uuid: this.uuid,
                     button: this.$root,
                     coords: {
+                        gridCardOffsetHeight: this.gridCard.offsetHeight,
                         top: this.gridCard.offsetTop,
                         left: this.gridCard.offsetLeft + this.gridCard.offsetWidth
                     },
@@ -1550,6 +1584,21 @@ document.addEventListener("alpine:init", () => {
         correspondingButton: null,
         menuOffsetMarginTop: 56,
         menuOffsetMarginLeft: 224,
+        menuCard:null,
+        detailCoordsTop:null,
+        detailCoordsLeft:null,
+        gridCardOffsetHeight:null,
+        bodyPage:null,
+        init(){
+            this.menuCard = this.$root.closest('#context-menu-base');
+            this.bodyPage = this.$root.closest('.divide-secondary');
+        },
+        preventMenuFallOffScreen(){
+            if(this.menuCard.offsetTop + this.menuCard.offsetHeight >= this.bodyPage.offsetHeight + this.bodyPage.offsetTop){
+                this.$root.style.top = (this.detailCoordsTop + this.menuOffsetMarginTop - (this.menuCard.offsetHeight - this.gridCardOffsetHeight) - 25) + 'px';
+                this.$root.style.left = (this.detailCoordsLeft - this.menuCard.offsetWidth - 50) + 'px';
+            }
+        },
         handleIncomingEvent(detail) {
             if (!this.contextMenuOpen) return this.openMenu(detail);
 
@@ -1562,8 +1611,12 @@ document.addEventListener("alpine:init", () => {
             this.uuid = detail.uuid;
             this.correspondingButton = detail.button;
             this.contextData = detail.contextData;
-            this.$root.style.top = (detail.coords.top + this.menuOffsetMarginTop) + "px";
-            this.$root.style.left = (detail.coords.left - this.menuOffsetMarginLeft) + "px";
+            this.detailCoordsTop = detail.coords.top;
+            this.detailCoordsLeft = detail.coords.left;
+            this.gridCardOffsetHeight = detail.coords.gridCardOffsetHeight;
+
+            this.$root.style.top = (this.detailCoordsTop + this.menuOffsetMarginTop) + 'px';
+            this.$root.style.left = (this.detailCoordsLeft - this.menuOffsetMarginLeft) + 'px';
 
             let readyForShow = await this.$wire.setContextValues(this.uuid, this.contextData);
             if (readyForShow) this.contextMenuOpen = true;
@@ -1692,6 +1745,35 @@ document.addEventListener("alpine:init", () => {
         handleTooLargeOfAfile(file) {
             let message = this.rules.size.message.replace("%s", file.name);
             Notify.notify(message, "error");
+        }
+    }));
+    Alpine.data("loginScreen", (openTab, activeOverlay,device) => ({
+        openTab,
+        showPassword: false,
+        hoverPassword: false,
+        initialPreviewIconState: true,
+        showEntreePassword: false,
+        activeOverlay,
+        device,
+        init(){
+            setTimeout(() => {
+                this.$wire.checkLoginFieldsForInput()
+            }, 250);
+            this.setCurrentFocusInput()
+
+            this.$watch("activeOverlay", value => {
+                this.setCurrentFocusInput()
+            })
+            this.$watch("openTab", value => {
+                this.setCurrentFocusInput()
+            })
+        },
+        setCurrentFocusInput (){
+            let name = ('' != this.activeOverlay) ? this.activeOverlay : this.openTab;
+            setTimeout(() => this.$root.querySelector(`[data-focus-tab='${name}']`)?.focus(), 250);
+        },
+        changeActiveOverlay (activeOverlay = ""){
+            this.activeOverlay = activeOverlay;
         }
     }));
     Alpine.data("assessment", (score, maxScore, halfPoints) => ({
@@ -1862,7 +1944,7 @@ document.addEventListener("alpine:init", () => {
             });
         }
     }));
-    Alpine.data("scoreSlider", (score, model, maxScore, halfPoints, disabled, stack) => ({
+    Alpine.data("scoreSlider", (score, model, maxScore, halfPoints, disabled, coLearning) => ({
         score,
         model,
         maxScore,
@@ -1899,7 +1981,21 @@ document.addEventListener("alpine:init", () => {
         },
         init() {
             // This echos custom JS from the template and for some reason it actually works;
-            stack;
+            if(coLearning) {
+                Livewire.hook('message.received', (message, component) => {
+                    if (component.name === 'student.co-learning' && message.updateQueue[0]?.method === 'updateHeartbeat') {
+                        let scoreInputElement = this.$root.querySelector('[x-ref=\'scoreInput\']');
+                        this.persistentScore = (scoreInputElement !== null && scoreInputElement.value !== '') ? scoreInputElement.value : null;
+                    }
+                })
+                Livewire.hook('message.processed', (message, component) => {
+                    if (component.name === 'student.co-learning'&& message.updateQueue[0]?.method ==='updateHeartbeat') {
+                        this.skipSync = true;
+                        this.score = this.persistentScore;
+                    }
+                })
+            }
+
             this.inputBox = this.$root.querySelector("[x-ref='scoreInput']");
             this.$watch("score", (value, oldValue) => {
                 this.markInputElementsClean();
@@ -1939,6 +2035,45 @@ document.addEventListener("alpine:init", () => {
             this.inputBox.classList.remove("border-allred");
         }
     }));
+
+    Alpine.data('completionQuestion', () => ({
+        minWidth: 120,
+        maxWidth: 1000,
+        setInputWidth(input, init = false, preview = false) {
+
+            if(!init || preview){
+                this.calculateInputWidth(input);
+                return;
+            }
+
+            this.$watch('showMe', (value) => {
+                if(!value) {
+                    return;
+                }
+                this.$nextTick(() => {
+                    this.calculateInputWidth(input);
+                })
+            })
+        },
+        calculateInputWidth (input) {
+            this.minWidth = 120;
+            this.maxWidth = input.closest('div.input-group').parentElement.offsetWidth;
+
+            this.span = input.parentElement.querySelector('.absolute');
+
+            this.span.innerText = input.value;
+            this.newWidth = this.span.offsetWidth + 27;
+
+            if(this.newWidth < this.minWidth) {
+                this.newWidth = this.minWidth;
+            }
+            if(this.newWidth > this.maxWidth) {
+                this.newWidth = this.maxWidth;
+            }
+
+            input.style.width = this.newWidth + 'px';
+        }
+    }));
     Alpine.data("fastScoring", (scoreOptions, currentScore, disabled) => ({
         fastOption: null,
         scoreOptions,
@@ -1954,8 +2089,8 @@ document.addEventListener("alpine:init", () => {
             this.fastOption = currentScore !== null ? this.scoreOptions.indexOf(currentScore) : null;
         }
     }));
-    Alpine.directive("global", function(el, { expression }) {
-        let f = new Function("_", "$data", "_." + expression + " = $data;return;");
+    Alpine.directive('global', function (el, {expression}) {
+        let f = new Function('_', '$data', '_.' + expression + ' = $data;return;');
         f(window, el._x_dataStack[0]);
     });
 
@@ -1965,7 +2100,10 @@ document.addEventListener("alpine:init", () => {
         dirty: false,
         scrollPos: 0,
         reinitOnClose: false,
-        emptyState: false
+        emptyState: false,
+        pendingRequestTimeout: null,
+        pendingRequestTally: 0,
+        handledAllRequests: true,
     });
     Alpine.store("questionBank", {
         active: false,

@@ -5,7 +5,7 @@ namespace tcCore\Factories\Questions;
 class FactoryQuestionMultipleChoiceARQ extends FactoryQuestionMultipleChoice
 {
 
-    protected function questionDefinition()
+    public function questionDefinition()
     {
         return "<p>Assertion: The people of Belgium are dumb according to the people of the Netherlands</p>
                 <p>Reason: Belgium's roads are in bad shape</p>";
@@ -18,33 +18,33 @@ class FactoryQuestionMultipleChoiceARQ extends FactoryQuestionMultipleChoice
         return collect($this->questionProperties['answers'])->max('score');
     }
 
-    protected function questionSubType()
+    public function questionSubType(): string
     {
         return "ARQ";
     }
 
-    protected function answerDefinition()
+    public function answerDefinition()
     {
         return [
             0 => [
                 'answer' => '',
-                'score' => '0',
+                'score'  => '0',
             ],
             1 => [
                 'answer' => '',
-                'score' => '5',
+                'score'  => '5',
             ],
             2 => [
                 'answer' => '',
-                'score' => '0',
+                'score'  => '0',
             ],
             3 => [
                 'answer' => '',
-                'score' => '0',
+                'score'  => '0',
             ],
             4 => [
                 'answer' => '',
-                'score' => '0',
+                'score'  => '0',
             ],
         ];
     }

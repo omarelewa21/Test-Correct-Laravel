@@ -10,10 +10,8 @@
     </div>
 
     <div id="login-body" class="flex justify-center items-center flex-grow"
-         x-data="{ openTab: @entangle('login_tab'), showPassword: false, hoverPassword: false, initialPreviewIconState: true, showEntreePassword: false, active_overlay: @entangle('active_overlay'), device: @entangle('device')}"
-         x-init="
-            setTimeout(() => {$wire.checkLoginFieldsForInput()}, 250);
-            "
+         x-data="loginScreen(@entangle('login_tab'),@entangle('active_overlay'),@entangle('device'))"
+
          wire:ignore.self
     >
         <div class="w-full max-w-[540px] mx-4 py-4">
@@ -56,7 +54,7 @@
 
                         {{-- forgot password overlay (request password reset) --}}
                         <div class="absolute w-full h-full left-0 top-0 bg-opacity-50 bg-white z-10 rounded-b-lg"
-                             x-show="active_overlay == 'send_reset_password'" @click.outside="active_overlay = ''"
+                             x-show="activeOverlay == 'send_reset_password'" @click.outside="activeOverlay = ''"
                              x-transition.duration.300ms x-cloak>
                             <div class="absolute rounded-b-lg right-1/2 top-0 translate-x-1/2 w-[460px] h-[333px] bg-white shadow-xl">
                                 <form wire:submit.prevent="sendForgotPasswordEmail" action="#" method="POST"
@@ -66,13 +64,13 @@
 
 
                                     <x-input.group class="mt-5" label="{{ __('auth.emailaddress') }}">
-                                        <x-input.text selid="forgot-password-email" wire:model.debounce.300ms="forgotPasswordEmail"/>
+                                        <x-input.text data-focus-tab="send_reset_password" id="forgot-password-email" selid="forgot-password-email" wire:model.debounce.300ms="forgotPasswordEmail"/>
                                     </x-input.group>
 
                                     <div class="flex w-full justify-self-end mt-auto">
                                         <x-button.text-button size="md"
                                                               class="flex w-1/2 mr-2 justify-end"
-                                                              @click.prevent="active_overlay = ''"
+                                                              @click.prevent="activeOverlay = ''"
                                                               selid="forgot-password-cancel-btn">
                                             <span>{{__('auth.cancel')}}</span>
                                         </x-button.text-button>
@@ -89,9 +87,9 @@
                                 </form>
                             </div>
                         </div>
-                        {{-- active_overlay reset_password (after clicking link in email) --}}
+                        {{-- activeOverlay reset_password (after clicking link in email) --}}
                         <div class="absolute w-full h-full left-0 top-0 bg-opacity-50 bg-white z-10 rounded-b-lg "
-                             x-show="active_overlay == 'reset_password'" @click.outside="active_overlay = ''"
+                             x-show="activeOverlay == 'reset_password'" @click.outside="activeOverlay = ''"
                              x-transition.duration.300ms x-cloak>
                             <div class="absolute rounded-b-lg right-1/2 top-0 translate-x-1/2 w-[460px] min-h-[333px] bg-white shadow-xl flex flex-col px-10 pb-10 pt-[31px]">
                                 <livewire:password-reset/>
@@ -104,7 +102,7 @@
                                 <form wire:submit.prevent="login" action="#" method="POST" class="flex-col flex flex-1">
                                     <div class="flex flex-col space-y-4">
                                         <x-input.group label="{{ __('auth.emailaddress')}}" class="flex-1">
-                                            <x-input.text selid="login-username" wire:model.lazy="username" autofocus></x-input.text>
+                                            <x-input.text data-focus-tab="1" id="login-username" selid="login-username" wire:model.lazy="username" autofocus></x-input.text>
                                         </x-input.group>
                                         <x-input.group label="{{ __('auth.password')}}" class="flex-1 relative">
                                             <div @mouseenter="hoverPassword = true"
@@ -276,7 +274,7 @@
                                       class="flex-col flex flex-1 justify-start">
                                     <div class="flex flex-col md:flex-row space-y-4 md:space-x-4 md:space-y-0">
                                         <x-input.group label="{{ __('auth.first_name')}}" class="w-full">
-                                            <x-input.text selid="test-direct-firstname" wire:model.lazy="firstName" autofocus></x-input.text>
+                                            <x-input.text data-focus-tab="2" selid="test-direct-firstname" wire:model.lazy="firstName" autofocus></x-input.text>
                                         </x-input.group>
                                         <x-input.group label="{{ __('auth.suffix')}}" class="w-28">
                                             <x-input.text selid="test-direct-suffix" wire:model.lazy="suffix" autofocus></x-input.text>
@@ -407,8 +405,7 @@
             <div class="w-full flex flex-col md:flex-row items-center justify-center space-x-2">
                 <div>
                     <x-button.text-button selid="login-forgot-password-btn" class="order-1" size="sm"
-                                          wire:click.prevent="$set('active_overlay', 'send_reset_password')">
-                        <span class="text-base">{{__('auth.forgot_password')}}</span>
+                                          @click.prevent="activeOverlay ='send_reset_password'">                        <span class="text-base">{{__('auth.forgot_password')}}</span>
                         <x-icon.arrow/>
                     </x-button.text-button>
                 </div>

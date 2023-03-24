@@ -33,6 +33,9 @@ Route::get('/uwlr', tcCore\Http\Livewire\UwlrGrid::class)->name('uwlr.grid');
 
 Route::get('/ckeditor/plugins/ckeditor_wiris/integration/configurationjs', [\tcCore\Http\Controllers\WirisIntegrationController::class, 'configurationjs']);
 Route::post('integration/configurationjs', [\tcCore\Http\Controllers\WirisIntegrationController::class, 'configurationjs']);
+Route::post('/wiris/createimage', [\tcCore\Http\Controllers\WirisIntegrationController::class, 'createimage']);
+Route::post('/wiris/showimage', [\tcCore\Http\Controllers\WirisIntegrationController::class, 'showimage']);
+Route::get('/wiris/showimage', [\tcCore\Http\Controllers\WirisIntegrationController::class, 'showimage']);
 Route::get('/get_app_version', [\tcCore\Http\Helpers\AppVersionDetector::class, 'getAppVersion']);
 Route::get('/directlink/{testTakeUuid}', [\tcCore\Http\Controllers\TestTakeLaravelController::class, 'directLink'])->name('take.directLink');
 

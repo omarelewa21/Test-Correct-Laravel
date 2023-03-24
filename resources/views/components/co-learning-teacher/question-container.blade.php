@@ -14,7 +14,7 @@
             </div>
             <h4 class="inline-block ml-2 mr-6"
                 selid="questiontitle">{{ __('co-learning.question') }}:
-                {!! __('co-learning.'.$question->type.($question->subtype ? '-'.$question->subtype : '')) !!}
+                {{ $question?->typeName }}
             </h4>
             <h7 class="inline-block">{{ $question->score }} pt</h7>
         </div>

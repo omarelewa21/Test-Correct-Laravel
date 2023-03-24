@@ -4,7 +4,7 @@
         'gap-1',
         'card-tag',
         $labelColor ?? ($published ? 'green' : 'grey')
-  ])>
+  ]) selid="publish-tag">
     @if($published)
         <x-icon.checkmark-small/><span class="leading-none">{{ __('test.published')}}</span>
     @else

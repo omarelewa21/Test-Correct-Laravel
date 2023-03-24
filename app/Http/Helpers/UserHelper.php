@@ -9,24 +9,18 @@
 namespace tcCore\Http\Helpers;
 
 
-use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
-use tcCore\Answer;
-use tcCore\BaseSubject;
-use tcCore\EducationLevel;
 use tcCore\FailedLogin;
+use tcCore\Info;
 use tcCore\Jobs\SendWelcomeMail;
-use tcCore\Jobs\SetSchoolYearForDemoClassToCurrent;
-use tcCore\Lib\Repositories\PeriodRepository;
-use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\Lib\User\Factory;
-use tcCore\Lib\User\Roles;
 use tcCore\LoginLog;
 use tcCore\Student;
 use tcCore\TemporaryLogin;
 use tcCore\User;
+use tcCore\UserSystemSetting;
 
 class UserHelper
 {
@@ -128,6 +122,19 @@ class UserHelper
         $user->setAttribute('isExamCoordinator', $user->isValidExamCoordinator());
 
         $user->setAttribute('temporaryLoginOptions', TemporaryLogin::getOptionsForUser($user));
+
+        $userSystemSettings = UserSystemSetting::getAll($user,false,true);
+
+        $user->setAttribute('systemSettings', $userSystemSettings);
+
+        $latestFeatureTimestamp = (int) Info::getLatestFeature()?->created_at?->timestamp;
+        $user->setAttribute('shouldShowNewFeaturePopup',
+            (empty($userSystemSettings['newFeaturesSeen']) || $userSystemSettings['newFeaturesSeen'] < $latestFeatureTimestamp)
+        );
+
+        $user->setAttribute('shouldShowNewFeatureMessage',
+            (empty($userSystemSettings['closedNewFeaturesMessage']) || $userSystemSettings['closedNewFeaturesMessage'] < $latestFeatureTimestamp)
+        );
     }
 
     /**

@@ -3,13 +3,23 @@
 namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use tcCore\FactoryScenarios\FactoryScenarioSchoolSimple;
 use tcCore\User;
+use Tests\ScenarioLoader;
 use Tests\TestCase;
 use Livewire\Livewire;
 
 class LoginTest extends TestCase
 {
-    use DatabaseTransactions;
+    protected $loadScenario = FactoryScenarioSchoolSimple::class;
+
+    private User $user;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->user = ScenarioLoader::get('user');
+    }
 
     /** @test */
     public function can_view_login_page()
@@ -19,79 +29,43 @@ class LoginTest extends TestCase
             ->assertSeeLivewire('auth.login');
     }
 
-
     /** @test */
-    public function can_login()
+    public function teacher_can_login()
     {
-        $user = self::studentOne();
-
         Livewire::test('auth.login')
-            ->set('email', $user->email)
-            ->set('password', 'Sobit4456')
+            ->set('username', $this->user->username)
+            ->set('password', 'TCSoBit500')
             ->call('login');
 
         $this->assertTrue(
-            auth()->user()->is(User::where('username', $user->email)->first())
+            auth()->user()->is(User::where('username', $this->user->username)->first())
         );
     }
-
-//    /** @test */
-//    public function is_redirected_to_intended_after_login_prompt_from_auth_guard()
-//    {
-//        Route::get('/intended')->middleware('auth');
-//
-//        $user = self::studentOne();
-//
-//        $this->get('/intended')->assertRedirect('/login');
-//
-//        Livewire::test('auth.login')
-//            ->set('email', $user->email)
-//            ->set('password', 'password')
-//            ->call('login')
-//            ->assertRedirect('/intended');
-//    }
-
-//    /** @test */
-//    public function is_redirected_to_root_after_login()
-//    {
-//        $user = self::studentOne();
-//
-//        Livewire::test('auth.login')
-//            ->set('email', $user->email)
-//            ->set('password', 'Sobit4456')
-//            ->call('login')
-//            ->assertRedirect('/');
-//    }
 
     /** @test */
     public function email_is_required()
     {
-
         Livewire::test('auth.login')
-            ->set('password', 'Sobit4456')
+            ->set('password', 'TCSoBit500')
             ->call('login')
-            ->assertHasErrors(['email' => 'required']);
+            ->assertHasErrors(['username' => 'required']);
     }
 
     /** @test */
     public function email_must_be_valid_email()
     {
-        User::factory()->create();
-
         Livewire::test('auth.login')
-            ->set('email', 'invalid-email')
-            ->set('password', 'Sobit4456')
+            ->set('username', 'invalid-email')
+            ->set('password', 'TCSoBit500')
             ->call('login')
-            ->assertHasErrors(['email' => 'email']);
+            ->assertHasErrors(['username' => 'email']);
     }
 
     /** @test */
     public function password_is_required()
     {
-        $user = self::studentOne();
-
         Livewire::test('auth.login')
-            ->set('email', $user->email)
+            ->set('username', $this->user->username)
             ->call('login')
             ->assertHasErrors(['password' => 'required']);
     }
@@ -99,18 +73,12 @@ class LoginTest extends TestCase
     /** @test */
     public function bad_login_attempt_shows_message()
     {
-        $user = self::studentOne();
-
         Livewire::test('auth.login')
-            ->set('email', $user->email)
+            ->set('username', $this->user->username)
             ->set('password', 'bad-password')
             ->call('login')
-            ->assertHasErrors('email');
+            ->assertHasErrors('invalid_user');
 
         $this->assertNull(auth()->user());
-    }
-
-    private static function studentOne(){
-        return User::firstWhere('username', 's1@test-correct.nl');
     }
 }

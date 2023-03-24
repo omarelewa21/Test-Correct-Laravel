@@ -50,6 +50,8 @@ Route::get('check_for_deployment_maintenance',['uses' => 'DeploymentMaintenanceC
 Route::group(['middleware' => ['api', 'bindings']], function() {
     Route::get('info', [tcCore\Http\Controllers\InfoController::class, 'index']);
     Route::post('info/removeDashboardInfo/{info}', [tcCore\Http\Controllers\InfoController::class,'removeDashboardInfo']);
+    Route::put('info/seenNewFeatures', [tcCore\Http\Controllers\InfoController::class,'seenNewFeatures']);
+    Route::put('info/closedNewFeaturesMessage', [tcCore\Http\Controllers\InfoController::class,'closedNewFeaturesMessage']);
 });
 
 Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bindings']], function(){
@@ -64,7 +66,6 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::post('info',[tcCore\Http\Controllers\InfoController::class,'store']);
     Route::put('info/{info}',[tcCore\Http\Controllers\InfoController::class,'update']);
     Route::delete('info/{info}',[tcCore\Http\Controllers\InfoController::class,'delete']);
-
 
     Route::get('role',[\tcCore\Http\Controllers\RolesController::class,'index']);
 

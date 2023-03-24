@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Auth;
+use tcCore\Factories\Questions\FactoryQuestionOpenShort;
 use tcCore\Lib\User\Factory;
 use tcCore\Period;
 use tcCore\SchoolYear;
@@ -191,10 +192,20 @@ class ExamSchoolSeeder extends Seeder
                                   'demo'=>false,
                                   'scope'=>'exam',
                                   'published'=>'1',
+                                  'draft' => 0,
                             ]);
             $test->setAttribute('author_id', $teacherA->id);
             $test->setAttribute('owner_id', $teacherA->school_location_id);
             $test->save();
+            $test->update(['draft' => false]);
+
+            $questionFactory = FactoryQuestionOpenShort::create()
+                ->setProperties([
+                    "question" => '<p>voorbeeld vraag examen:</p> <p>wat is de waarde van pi</p> ',
+                    'scope' => 'exam',
+                    'draft' => false,
+                ])->setTestModel($test)
+                ->store();
         });
 
 

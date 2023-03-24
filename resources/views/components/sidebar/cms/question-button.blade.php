@@ -14,6 +14,7 @@
      style="max-width: 300px"
      data-order-number="{{ $loop }}"
      selid="question-list-entry"
+     uuid="{{ $question->uuid }}"
      @if($subQuestion)
         wire:sortable-group.item="{{ $question->uuid }}"
      @else

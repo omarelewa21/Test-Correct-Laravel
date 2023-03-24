@@ -39,6 +39,10 @@ trait PublishesTestsTrait
                 'abbreviation' => 'PUBLS',
                 'scope'        => 'published_creathlon',
             ],
+            config('custom.olympiade_school_customercode')          => [
+                'abbreviation' => 'SBON',
+                'scope'        => 'published_olympiade',
+            ],
         ]);
     }
 

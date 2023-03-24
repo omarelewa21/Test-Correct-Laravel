@@ -11,6 +11,7 @@ class FactoryScenarioTestTakeRated extends FactoryScenarioTestTake
     protected function createFactoryTestTake()
     {
         return FactoryTestTake::create($this->test, $this->user)
+            ->setProperties(['draft' => 0])
             ->addFirstSchoolClassAsParticipants()
             ->setStatusTakingTest()
             ->setTestParticipantsTakingTest()

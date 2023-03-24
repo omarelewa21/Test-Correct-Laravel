@@ -6,11 +6,13 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Arr;
 use Illuminate\Testing\TestResponse;
 use tcCore\Factories\FactoryTestTake;
+use tcCore\FactoryScenarios\FactoryScenarioSchoolSimple;
 use tcCore\FactoryScenarios\FactoryScenarioTestTakeRated;
 use tcCore\Lib\Question\QuestionGatherer;
 use tcCore\TestTake;
 use tcCore\User;
-use tests\TestCase;
+use Tests\ScenarioLoader;
+use Tests\TestCase;
 
 class NormalizeTest extends TestCase
 {
@@ -20,10 +22,12 @@ class NormalizeTest extends TestCase
     protected User $user;
     protected object $normalizeScoreRequest;
 
+    protected $loadScenario = FactoryScenarioSchoolSimple::class;
+
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = $this->getTeacherOne();
+          $this->user = ScenarioLoader::get('user');
         $this->testTakeFactory = FactoryScenarioTestTakeRated::create($this->user)->testTakeFactory;
         $this->normalizeScoreRequest = $this->testTakeFactory->normalizeScoreRequestExamples();
     }
@@ -67,19 +71,19 @@ class NormalizeTest extends TestCase
     {
         $this->executeTest($this->normalizeScoreRequest->n_termExample);
     }
-    
+
     public function testNormBasedOnNTermAndPassMark()
     {
         $this->executeTest($this->normalizeScoreRequest->n_termExample);
     }
-    
+
 
     /**
      * execute old method and retireve results
-     * 
+     *
      * @param tcCore/TestTake $testTake
      * @param array $payload
-     * 
+     *
      * @return tcCore/TestTake
      */
     private function oldNormalizeMethod(TestTake $testTake, array $payload)
