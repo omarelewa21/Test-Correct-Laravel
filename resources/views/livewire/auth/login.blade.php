@@ -10,12 +10,16 @@
     </div>
 
     <div id="login-body" class="flex justify-center items-center flex-grow"
-         x-data="loginScreen(@entangle('login_tab'),@entangle('active_overlay'),@entangle('device'))"
-
+         x-data="loginScreen(
+                 @entangle('login_tab'),
+                 @entangle('active_overlay'),
+                 @entangle('device'),
+                 @js($errors->any())
+                 )"
+         wire:key="has-errors-@js($errors->any())"
          wire:ignore.self
     >
         <div class="w-full max-w-[540px] mx-4 py-4">
-
 
             @if($tab == 'login')
                 {{-- top content block height:120px --}}
@@ -782,3 +786,4 @@
         }
     </script>
 @endpush
+

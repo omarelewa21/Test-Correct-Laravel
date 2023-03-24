@@ -1656,7 +1656,7 @@ document.addEventListener('alpine:init', () => {
         }
     }));
 
-    Alpine.data('loginScreen', (openTab, activeOverlay,device) => ({
+    Alpine.data('loginScreen', (openTab, activeOverlay,device,hasErrors) => ({
         openTab,
         showPassword: false,
         hoverPassword: false,
@@ -1664,12 +1664,17 @@ document.addEventListener('alpine:init', () => {
         showEntreePassword: false,
         activeOverlay,
         device,
+        hasErrors,
         init(){
             setTimeout(() => {
                 this.$wire.checkLoginFieldsForInput()
             }, 250);
             this.setCurrentFocusInput()
 
+            this.$watch('hasErrors', value => {
+                this.setCurrentFocusInput();
+                hasErrors = false;
+            })
             this.$watch('activeOverlay', value => {
                 this.setCurrentFocusInput()
             })
