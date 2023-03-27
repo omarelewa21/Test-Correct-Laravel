@@ -1405,7 +1405,7 @@ document.addEventListener("alpine:init", () => {
 
             if (this.value !== "" && Object.keys(this.sources).includes(String(this.value))) {
                 this.activateButton(this.$el.querySelector("[data-id='" + this.value + "']").parentElement);
-                this.$dispatch('initial-toggle-tick')
+                this.$dispatch("initial-toggle-tick");
             } else {
                 this.value = this.$el.querySelector(".group").firstElementChild.dataset.id;
             }
@@ -1790,20 +1790,13 @@ document.addEventListener("alpine:init", () => {
         maxScore,
         halfPoints,
         init() {
-            this.$store.assessment.currentScore = this.score;
-            this.$store.assessment.toggleCount = this.toggleCount();
-            this.$store.assessment.togglesTicked = 0;
-            console.log([
-                this.$store.assessment.currentScore,
-            this.$store.assessment.toggleCount,
-            this.$store.assessment.togglesTicked,
-            ])
+            this.$store.assessment.resetData(this.score, this.toggleCount());
         },
         toggleCount() {
             return this.$root.querySelectorAll(".student-answer .slider-button-container:not(.disabled)").length;
         },
         initialToggleTicked() {
-          this.$store.assessment.togglesTicked++;
+            this.$store.assessment.togglesTicked++;
         },
         dispatchUpdateToNavigator(navigator, updates) {
             let navigatorElement = this.$root.querySelector(`#${navigator}-navigator`);
@@ -1954,6 +1947,7 @@ document.addEventListener("alpine:init", () => {
                 return;
             }
             this.tab(1);
+            this.$store.assessment.resetData();
             this.$nextTick(() => {
                 this.$wire.next();
                 this.clickedNext = false;
@@ -2137,6 +2131,11 @@ document.addEventListener("alpine:init", () => {
         togglesTicked: 0,
         clearToProceed() {
             return this.currentScore !== null && this.togglesTicked === this.toggleCount;
+        },
+        resetData(score = null, toggleCount = 0, togglesTicked = 0) {
+            this.currentScore = score;
+            this.toggleCount = toggleCount;
+            this.togglesTicked = togglesTicked;
         }
     });
 });

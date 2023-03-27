@@ -8,7 +8,7 @@
         @js($coLearning)
      )"
      x-on:updated-score.window="skipSync = true; score = $event.detail.score"
-     x-on:new-score="console.log($event.detail); score = $event.detail.score"
+     x-on:new-score="score = $event.detail.score"
      x-on:scoring-elements-error.window="markInputElementsWithError()"
         {{ $attributes->except(['wire:model', 'class']) }}
         @class([

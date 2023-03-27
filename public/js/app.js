@@ -6847,7 +6847,7 @@ document.addEventListener("alpine:init", function () {
         this.$el.querySelector(".group").firstElementChild.classList.add("text-primary");
         if (this.value !== "" && Object.keys(this.sources).includes(String(this.value))) {
           this.activateButton(this.$el.querySelector("[data-id='" + this.value + "']").parentElement);
-          this.$dispatch('initial-toggle-tick');
+          this.$dispatch("initial-toggle-tick");
         } else {
           this.value = this.$el.querySelector(".group").firstElementChild.dataset.id;
         }
@@ -7265,10 +7265,7 @@ document.addEventListener("alpine:init", function () {
       maxScore: maxScore,
       halfPoints: halfPoints,
       init: function init() {
-        this.$store.assessment.currentScore = this.score;
-        this.$store.assessment.toggleCount = this.toggleCount();
-        this.$store.assessment.togglesTicked = 0;
-        console.log([this.$store.assessment.currentScore, this.$store.assessment.toggleCount, this.$store.assessment.togglesTicked]);
+        this.$store.assessment.resetData(this.score, this.toggleCount());
       },
       toggleCount: function toggleCount() {
         return this.$root.querySelectorAll(".student-answer .slider-button-container:not(.disabled)").length;
@@ -7509,6 +7506,7 @@ document.addEventListener("alpine:init", function () {
           return;
         }
         this.tab(1);
+        this.$store.assessment.resetData();
         this.$nextTick(function () {
           _this41.$wire.next();
           _this41.clickedNext = false;
@@ -7695,6 +7693,14 @@ document.addEventListener("alpine:init", function () {
     togglesTicked: 0,
     clearToProceed: function clearToProceed() {
       return this.currentScore !== null && this.togglesTicked === this.toggleCount;
+    },
+    resetData: function resetData() {
+      var score = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+      var toggleCount = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+      var togglesTicked = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
+      this.currentScore = score;
+      this.toggleCount = toggleCount;
+      this.togglesTicked = togglesTicked;
     }
   });
 });
