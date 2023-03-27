@@ -43,7 +43,7 @@
         </x-slot:subtitle>
         <x-slot:button>
             <x-button.cta size="md"
-                          @click.prevent="handleHeaderCollapse(['ALL',true])"
+                          x-on:click.prevent="handleHeaderCollapse(['ALL', {{ ($this->assessmentContext['assessmentType'] && $this->openOnly) ? 'true' : 'false' }} ])"
             >
                 <span>
                     @if($this->assessmentContext['assessmentType'] && !$this->openOnly)
@@ -60,7 +60,7 @@
                 @unless($this->openOnly)
                     <div class="text-center text-[14px]">
                         {!!  __('co-learning.current_session', [
-                        'index' => 0,
+                        'index' => $this->assessmentContext['assessIndex'],
                         'totalQuestions' => $this->questionCount,
                         'date' => $this->assessmentContext['assessedAt']
                         ]) !!}
@@ -84,8 +84,7 @@
         <x-slot:title>{{ str(__('co-learning.open_questions_only'))->ucfirst() }}</x-slot:title>
         <x-slot:subtitle>{{ __('assessment.open_questions_text') }}</x-slot:subtitle>
         <x-slot:button>
-            <x-button.cta size="md"
-                          @click.prevent="handleHeaderCollapse(['OPEN_ONLY',true])"
+            <x-button.cta size="md" x-on:click.prevent="handleHeaderCollapse(['OPEN_ONLY', {{ ($this->assessmentContext['assessmentType'] && !$this->openOnly) ? 'true' : 'false' }}])"
             >
                 <span>
                 @if($this->assessmentContext['assessmentType'] && $this->openOnly)

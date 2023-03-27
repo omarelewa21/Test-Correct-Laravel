@@ -6822,13 +6822,14 @@ document.addEventListener("alpine:init", function () {
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("sliderToggle", function (model, sources, initialStatus) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("sliderToggle", function (model, sources, initialStatus, disabled) {
     return {
       buttonPosition: "0px",
       buttonWidth: "auto",
       value: model,
       sources: sources,
       handle: null,
+      disabled: disabled,
       init: function init() {
         this.setHandle();
         if (initialStatus !== null) {
@@ -6847,7 +6848,9 @@ document.addEventListener("alpine:init", function () {
         this.$el.querySelector(".group").firstElementChild.classList.add("text-primary");
         if (this.value !== "" && Object.keys(this.sources).includes(String(this.value))) {
           this.activateButton(this.$el.querySelector("[data-id='" + this.value + "']").parentElement);
-          this.$dispatch("initial-toggle-tick");
+          if (!this.disabled) {
+            this.$dispatch("initial-toggle-tick");
+          }
         } else {
           this.value = this.$el.querySelector(".group").firstElementChild.dataset.id;
         }
@@ -7258,12 +7261,13 @@ document.addEventListener("alpine:init", function () {
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("assessment", function (score, maxScore, halfPoints) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("assessment", function (score, maxScore, halfPoints, drawerScoringDisabled) {
     return {
       score: score,
       shadowScore: score,
       maxScore: maxScore,
       halfPoints: halfPoints,
+      drawerScoringDisabled: drawerScoringDisabled,
       init: function init() {
         this.$store.assessment.resetData(this.score, this.toggleCount());
       },
@@ -7276,6 +7280,7 @@ document.addEventListener("alpine:init", function () {
       dispatchUpdateToNavigator: function dispatchUpdateToNavigator(navigator, updates) {
         var navigatorElement = this.$root.querySelector("#".concat(navigator, "-navigator"));
         if (navigatorElement) {
+          this.$store.assessment.resetData(this.score, this.toggleCount());
           return navigatorElement.dispatchEvent(new CustomEvent("update-navigator", {
             detail: _objectSpread({}, updates)
           }));
@@ -7291,6 +7296,9 @@ document.addEventListener("alpine:init", function () {
             score: this.score
           }
         }));
+        if (this.drawerScoringDisabled) {
+          this.$wire.set('score', this.score);
+        }
       },
       isFloat: function isFloat(value) {
         return parseFloat(value.match(/^-?\d*(\.\d+)?$/)) > 0;
@@ -7500,24 +7508,78 @@ document.addEventListener("alpine:init", function () {
       },
       next: function next() {
         var _this41 = this;
-        if (!this.$store.assessment.clearToProceed() && !this.clickedNext) {
-          this.$dispatch("scoring-elements-error");
-          this.clickedNext = true;
-          return;
-        }
-        this.tab(1);
-        this.$store.assessment.resetData();
-        this.$nextTick(function () {
-          _this41.$wire.next();
-          _this41.clickedNext = false;
-        });
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee14() {
+          return _regeneratorRuntime().wrap(function _callee14$(_context14) {
+            while (1) switch (_context14.prev = _context14.next) {
+              case 0:
+                if (!(!_this41.$store.assessment.clearToProceed() && !_this41.clickedNext)) {
+                  _context14.next = 4;
+                  break;
+                }
+                _this41.$dispatch("scoring-elements-error");
+                _this41.clickedNext = true;
+                return _context14.abrupt("return");
+              case 4:
+                _this41.tab(1);
+                _this41.$store.assessment.resetData();
+                _context14.next = 8;
+                return _this41.$nextTick( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee13() {
+                  var done;
+                  return _regeneratorRuntime().wrap(function _callee13$(_context13) {
+                    while (1) switch (_context13.prev = _context13.next) {
+                      case 0:
+                        _context13.next = 2;
+                        return _this41.$wire.next();
+                      case 2:
+                        done = _context13.sent;
+                        if (done) {
+                          _this41.clickedNext = false;
+                        }
+                      case 4:
+                      case "end":
+                        return _context13.stop();
+                    }
+                  }, _callee13);
+                })));
+              case 8:
+              case "end":
+                return _context14.stop();
+            }
+          }, _callee14);
+        }))();
       },
       previous: function previous() {
         var _this42 = this;
-        this.tab(1);
-        this.$nextTick(function () {
-          _this42.$wire.previous();
-        });
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee16() {
+          return _regeneratorRuntime().wrap(function _callee16$(_context16) {
+            while (1) switch (_context16.prev = _context16.next) {
+              case 0:
+                _this42.tab(1);
+                _context16.next = 3;
+                return _this42.$nextTick( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee15() {
+                  var done;
+                  return _regeneratorRuntime().wrap(function _callee15$(_context15) {
+                    while (1) switch (_context15.prev = _context15.next) {
+                      case 0:
+                        _context15.next = 2;
+                        return _this42.$wire.previous();
+                      case 2:
+                        done = _context15.sent;
+                        if (done) {
+                          _this42.clickedNext = false;
+                        }
+                      case 4:
+                      case "end":
+                        return _context15.stop();
+                    }
+                  }, _callee15);
+                })));
+              case 3:
+              case "end":
+                return _context16.stop();
+            }
+          }, _callee16);
+        }))();
       }
     };
   });
@@ -7667,8 +7729,8 @@ document.addEventListener("alpine:init", function () {
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].directive("global", function (el, _ref2) {
-    var expression = _ref2.expression;
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].directive("global", function (el, _ref4) {
+    var expression = _ref4.expression;
     var f = new Function("_", "$data", "_." + expression + " = $data;return;");
     f(window, el._x_dataStack[0]);
   });
