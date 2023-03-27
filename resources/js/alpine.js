@@ -1673,7 +1673,6 @@ document.addEventListener('alpine:init', () => {
 
             this.$watch('hasErrors', value => {
                 this.setCurrentFocusInput();
-                hasErrors = false;
             })
             this.$watch('activeOverlay', value => {
                 this.setCurrentFocusInput()

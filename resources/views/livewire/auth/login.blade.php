@@ -265,7 +265,7 @@
                                         </div>
                                     @endif
                                     <div class="flex mt-auto pt-4">
-                                        <x-button.cta selid="login-btn" class="flex flex-grow justify-center" size="md">
+                                        <x-button.cta @click="setCurrentFocusInput();"  selid="login-btn" class="flex flex-grow justify-center" size="md">
                                             <span>{{ __('auth.log_in_verb') }}</span>
                                         </x-button.cta>
                                     </div>
@@ -379,8 +379,8 @@
                                     </div>
 
                                     <div class="flex mt-auto pt-4">
-                                        <x-button.cta selid="test-direct-login-btn" class="flex flex-grow justify-center" size="md">
-                                            <span>{{ __('auth.log_in_verb') }}</span>
+                                        <x-button.cta @click="setCurrentFocusInput();"  selid="test-direct-login-btn" class="flex flex-grow justify-center" size="md">
+                                           <span>{{ __('auth.log_in_verb') }}</span>
                                         </x-button.cta>
                                     </div>
                                 </form>
@@ -501,7 +501,7 @@
                                     </div>
                                 </div>
                                 <div class="flex w-full justify-between mt-auto">
-                                    <x-button.text-button type="link" href="{{ route('auth.login') }}"
+                                    <x-button.text-button @click="hasErrors = false;" type="link" href="{{ route('auth.login') }}"
                                                           class="rotate-svg-180">
                                         <x-icon.arrow/>
                                         <span>{{ __('auth.back_to_login') }}</span>
