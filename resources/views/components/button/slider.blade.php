@@ -5,17 +5,25 @@
 'disabled' => false,
 'disabledStyling' => false,
 'useNamedSlots' => false,
-'initialValue' => null,
+'initialStatus' => null,
+'toggleValue' => 0,
 ])
 <div wire:ignore
-     {{ $attributes->merge(['class' => 'slider-button-container'])->except('wire:model') }}
+     {{ $attributes->except(['wire:model', 'class']) }}
      x-id="['slider-button']"
      x-data="sliderToggle(
              @if($attributes->wire('model')->value) @entangle($attributes->wire('model')) @else null @endif,
              @js($options),
-             @js($initialValue)
+             @js($initialStatus)
          )"
      x-on:slider-toggle-rerender="rerender()"
+     x-on:scoring-elements-error.window="markInputElementsWithError()"
+     data-toggle-value="@js($toggleValue)"
+        @class([
+           $attributes->get('class'),
+           'slider-button-container',
+           'disabled' => $disabled,
+           ])
 >
     @if($label)
         <label :for="$id('slider-button')">
@@ -23,12 +31,14 @@
         </label>
     @endif
     <div class="relative">
-        <div :id="$id('slider-button')" class="flex">
+        <div :id="$id('slider-button')" @class(['flex', 'pointer-events-none' => $disabled])>
             @foreach($options as $id => $button)
                 <div style="width: {{$buttonWidth}}"
-                     class="slider-option hover:text-primary group flex items-center justify-center h-10 bold border-blue-grey border-t border-b first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg
-                     {{ $disabledStyling ? 'bg-white opacity-70 note hover:text-note' : 'bg-off-white cursor-pointer'}}
-                     "
+                     @class([
+                          'slider-option hover:text-primary group flex items-center justify-center h-10 bold border-t border-b first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg',
+                          'bg-off-white cursor-pointer border-bluegrey' => !$disabled,
+                          'bg-white note hover:text-note border-lightGrey' => $disabled,
+                        ])
                      @if(!$disabled) @click="clickButton($el)" @endif
                      data-active="false"
                 >

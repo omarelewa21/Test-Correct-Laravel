@@ -2,22 +2,22 @@
     @if($question->isSubType('classify'))
         <div class="flex flex-col gap-2 classify">
             @if($studentAnswer)
-                <div class="flex">
+                <div class="flex gap-2 flex-wrap">
                     @foreach($unusedAnswers as $answerOption)
-                        <x-drag-item-disabled sortableHandle="false" class="h-fit break-all"
+                        <x-drag-item-disabled sortableHandle="false" class="h-fit break-all cursor-default"
                                               style="height:40px;border:none">
                             {!! $answerOption->answer !!}
                         </x-drag-item-disabled>
                     @endforeach
                 </div>
             @endif
-            <div class="gap-4 flex grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 3xl:grid-cols-4">
+            <div class="gap-4 flex flex-wrap">
                 @foreach($answerStruct as $index => $group)
-                    <div class="flex flex-1 flex-col gap-2">
+                    <div class="flex flex-1 flex-col gap-2 min-w-[15rem] w-fit">
                         <div class="flex justify-center">
                             <span class="text-lg bold">{!! $group->where('type', 'LEFT')->first()->answer !!}</span>
                         </div>
-                        <div class="flex flex-col items-center gap-2 flex-1 border border-dashed border-bluegrey border-2 rounded-10 p-2">
+                        <div class="flex flex-col items-center gap-2 flex-1 border border-dashed border-bluegrey border-2 rounded-10 p-2 min-h-[100px]">
                             @foreach($group->where('type', 'RIGHT') as $answerOption)
                                 <x-drag-item-disabled sortableHandle="false" class="w-full h-fit break-all"
                                                       style="border:none">
@@ -25,7 +25,9 @@
                                 </x-drag-item-disabled>
                                 @if($studentAnswer)
                                     <x-button.true-false-toggle
-                                            :initial-value="$group->where('type', 'LEFT')->first()->id === $answerOption->correct_answer_id" />
+                                            :initialStatus="$group->where('type', 'LEFT')->first()->id === $answerOption->correct_answer_id"
+                                            :toggleValue="$answerOption->score"
+                                    />
                                 @endif
                             @endforeach
                         </div>
@@ -38,7 +40,7 @@
     @if($question->isSubType('matching'))
         <div class="flex flex-col gap-2 matching">
             @if($studentAnswer)
-                <div class="flex">
+                <div class="flex gap-2 flex-wrap">
                     @foreach($unusedAnswers as $answerOption)
                         <x-drag-item-disabled sortableHandle="false" class="h-fit break-all"
                                               style="height:40px;border:none">
@@ -63,7 +65,9 @@
                                     </x-drag-item-disabled>
                                     @if($studentAnswer)
                                         <x-button.true-false-toggle
-                                                :initial-value="$pair->where('type','LEFT')->first()->id === $answerOption->correct_answer_id" />
+                                                :initialStatus="$pair->where('type','LEFT')->first()->id === $answerOption->correct_answer_id"
+                                                :toggleValue="$answerOption->score"
+                                        />
                                     @endif
                                 </div>
                             @endif

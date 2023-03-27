@@ -10,11 +10,17 @@ class CompletionQuestion extends QuestionComponent
 
     public mixed $questionTextPartials = [];
     public mixed $questionTextPartialFinal = [];
-    public mixed $answerStruct = [];
+    public $answerStruct;
 
     protected function setAnswerStruct($question): void
     {
-        $this->answerStruct = $question->getCorrectAnswerStructure()->pluck('answer')->map(fn ($answer) => ['given' => $answer]);
+        $this->answerStruct = $question->getCorrectAnswerStructure()
+            ->map(function ($answer) {
+                $answer->answerText = $answer->answer;
+                return $answer;
+            })
+            ->where('correct', 1)
+            ->values();
 
         $this->questionTextPartials = $this->explodeAndModifyQuestionText($question->converted_question_html);
 

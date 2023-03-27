@@ -13,4 +13,13 @@ return [
     'colearning_score_tooltip'                     => 'Scores given by students to answers are displayed during the assessment. If there are no discrepancies, the system will assign the score to the answer.',
     'discrepancies_toggle_tooltip'                 => 'When two students assign the same score to an answer, the teacher most likely would give the same score. You can choose to skip these answers during the assessment.',
     'Nakijken'                                     => 'Assessment',
+    'Score uit CO-Learning'                        => 'Score from CO-Learning',
+    'Automatisch nakijken'                         => 'Score automatically',
+    'insufficient'                                 => 'Insufficient',
+    'insufficient_text'                            => 'None of the important topics addressed. Answer contains insufficient analysis or explanation.',
+    'sufficient'                                   => 'Sufficient',
+    'sufficient_text'                              => 'Some of the important topics addressed. Answer contains parts of the analysis or explanation.',
+    'great'                                        => 'Great',
+    'great_text'                                   => 'Addressed almost all important topics. Answer contains substantiated analysis or explanation.',
+
 ];
