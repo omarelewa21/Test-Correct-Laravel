@@ -78,4 +78,5 @@ return [
     'aanvraag datum'                  => 'Request date',
     'inklappen'                       => 'Collapse',
     'uitklappen'                      => 'Expand',
+    'cancel'                          => 'Cancel',
 ];

@@ -567,6 +567,7 @@
         </div>
     </div>
     <x-modal.question-editor-delete-modal/>
+    <x-after-planning-toast/>
     <x-modal.question-editor-dirty-question-modal
             :item="strtolower($this->isGroupQuestion() ? __('cms.group-question') : __('drawing-modal.Vraag'))"
             :new="!$this->editModeForExistingQuestion()"/>

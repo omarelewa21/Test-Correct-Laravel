@@ -104,13 +104,7 @@ class TestDetail extends Component
     public function toPlannedTest($takeUuid)
     {
         $testTake = TestTake::whereUuid($takeUuid)->first();
-        if ($testTake->isAssignmentType()) {
-            $url = sprintf("test_takes/assignment_open_teacher/%s", $takeUuid);
-        } else {
-            $url = sprintf("test_takes/view/%s", $takeUuid);
-        }
-        $options = TemporaryLogin::buildValidOptionObject('page', $url);
-        return auth()->user()->redirectToCakeWithTemporaryLogin($options);
+        return auth()->user()->redirectToCakeWithTemporaryLogin($testTake->getPlannedTestOptions());
     }
 
     private function setContext()
