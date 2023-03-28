@@ -164,7 +164,7 @@
     <x-slot name="footer">
         <div class="flex justify-between w-full px-2">
             <x-button.text-button size="sm" wire:click="closeModal">
-                <span>{{__('Annuleren')}}</span>
+                <span>{{__('general.cancel')}}</span>
             </x-button.text-button>
             <div class="flex space-x-2.5">
                 {{--                <x-button.primary size="sm" wire:click="planNext">--}}
