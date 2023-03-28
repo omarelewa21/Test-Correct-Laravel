@@ -1384,4 +1384,14 @@ class TestTake extends BaseModel
         return $questionId . $discussingQuestionId;
     }
 
+    public function getPlannedTestOptions()
+    {
+        return TemporaryLogin::buildValidOptionObject(
+            'page',
+            $this->isAssignmentType()
+            ? sprintf("test_takes/assignment_open_teacher/%s", $this->uuid)
+            : sprintf("test_takes/view/%s", $this->uuid)
+        );
+    }
+
 }
