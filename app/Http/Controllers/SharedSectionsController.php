@@ -35,7 +35,7 @@ class SharedSectionsController extends Controller {
     {
         $schoolLocations = SchoolLocation::where('school_id',Auth::user()->schoolLocation->school_id)
             ->whereNotNull('school_id')
-            ->whereNotIn('id',$section->sharedSchoolLocations()->pluck('id'))
+            ->whereNotIn('id',$section->sharedSchoolLocations()->select('id'))
             ->where('id','!=',Auth::user()->schoolLocation->getKey())
             ->get();
         $return = collect([]);

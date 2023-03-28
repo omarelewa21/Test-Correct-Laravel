@@ -107,7 +107,7 @@ class Subject extends BaseModel implements AccessCheckable
                 $user->sections()
                     ->union(
                         $user->sectionsOnlyShared()
-                    )->pluck('id')
+                    )->select('id')
             );
         }
 

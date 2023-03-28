@@ -171,8 +171,8 @@ class CompletionQuestionAnswerHelper
         DB::beginTransaction();
         try {
 
-            $questionIds = Question::whereScope('cito')->whereType('CompletionQuestion')->pluck('id');
-            $completionQuestions = CompletionQuestion::whereSubtype('multi')->whereIn('id', $questionIds)->get();
+            $questionIdsBuilder = Question::whereScope('cito')->whereType('CompletionQuestion')->select('id');
+            $completionQuestions = CompletionQuestion::whereSubtype('multi')->whereIn('id', $questionIdsBuilder)->get();
             $fixed = 0;
             $completionQuestions->each(function (CompletionQuestion $q) use (&$fixed) {
                 $this->correctNrs = [];

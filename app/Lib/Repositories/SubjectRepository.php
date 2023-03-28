@@ -12,8 +12,8 @@ class SubjectRepository
     // Get subjects of student with base subject
     public static function getSubjectsOfStudent(User $student)
     {
-        $subjectIds = AverageRating::where('user_id', $student->getKey())->distinct()->pluck('subject_id');
-        return Subject::whereIn('id', $subjectIds)->with('baseSubject')->get();
+        $subjectIdsBuilder = AverageRating::where('user_id', $student->getKey())->distinct()->select('subject_id');
+        return Subject::whereIn('id', $subjectIdsBuilder)->with('baseSubject')->get();
     }
 
     // Get subjects of school location(s)
