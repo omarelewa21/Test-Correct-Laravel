@@ -55,6 +55,8 @@ class Kernel extends ConsoleKernel
         $schedule->call(function(){
             UwlrImportHelper::pruneRecords('2 weeks');
         })->dailyAt('14:00')->timezone('Europe/Amsterdam');
+        $schedule->command('schoollocation:deleteTrialRecordsClientLicense')
+            ->dailyAt('17:00')->timezone('Europe/Amsterdam');
 
 
         /**
