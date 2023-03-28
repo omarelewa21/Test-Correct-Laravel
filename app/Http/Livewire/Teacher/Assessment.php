@@ -177,6 +177,16 @@ class Assessment extends Component implements CollapsableHeader
         return $this->currentAnswerHasRatingsOfType(AnswerRating::TYPE_SYSTEM);
     }
 
+    public function getAutomaticallyScoredValueProperty(): float
+    {
+        return $this->currentAnswer->answerRatings->where('type', AnswerRating::TYPE_SYSTEM)->first()->rating;
+    }
+
+    public function getCoLearningScoredValueProperty(): float
+    {
+        return $this->currentAnswer->answerRatings->where('type', AnswerRating::TYPE_STUDENT)->first()->rating;
+    }
+
     public function getShowCoLearningScoreToggleProperty(): bool
     {
         if ($this->currentQuestion->isType('Infoscreen')) {
@@ -483,9 +493,9 @@ class Assessment extends Component implements CollapsableHeader
 
     private function startAssessment(): void
     {
-        $this->initializeNavigationProperties();
-
         $this->openOnly = $this->testTakeData->fresh()->assessment_type === 'OPEN_ONLY';
+
+        $this->initializeNavigationProperties();
 
         $this->loadQuestion($this->questionNavigationValue);
     }
@@ -692,25 +702,33 @@ class Assessment extends Component implements CollapsableHeader
         }
 
         if ($previousId = $this->testTakeData->fresh()->assessing_question_id) {
-            $previouslyAssessedQuestion = $this->questions->where('id', $previousId)->first();
+            $previouslyAssessedQuestion = $this->questions->discussionTypeFiltered($this->openOnly)
+                ->where('id', $previousId)
+                ->first();
             if ($previouslyAssessedQuestion) {
                 $this->setNavigationDataWithPreviouslyAssessedQuestion($previouslyAssessedQuestion);
                 return;
             }
         }
 
-        $firstAnswer = $this->answers->first();
-        $firstQuestionForAnswer = $this->questions->where('id', $firstAnswer->question_id)->first();
+
+        $firstAnswer = $this->answers->whereIn('question_id', $this->getQuestionIdsForCurrentAssessmentType())->first();
+        $firstQuestionForAnswer = $this->questions->discussionTypeFiltered($this->openOnly)
+            ->where('id', $firstAnswer->question_id)
+            ->first();
 
         $this->questionNavigationValue = $this->questions->search($firstQuestionForAnswer) + 1;
-        $this->answerNavigationValue = $this->answers->search($firstAnswer) + 1;
+        $this->answerNavigationValue = $this->answers
+                ->whereIn('question_id', $this->getQuestionIdsForCurrentAssessmentType())
+                ->values()
+                ->search($firstAnswer) + 1;
     }
 
     private function validQueryStringPropertiesForNavigation(): bool
     {
         if (blank($this->questionNavigationValue) || blank($this->answerNavigationValue)) return false;
 
-        $question = $this->questions->get((int)$this->questionNavigationValue - 1);
+        $question = $this->questions->discussionTypeFiltered($this->openOnly)->get((int)$this->questionNavigationValue - 1);
         $participantId = $this->students->get((int)$this->answerNavigationValue - 1);
         $answer = $this->answers->where('question_id', $question->id)
             ->where('test_participant_id', $participantId)
@@ -841,6 +859,16 @@ class Assessment extends Component implements CollapsableHeader
     private function getQuestionIdsForCurrentAssessmentType()
     {
         return $this->questions->discussionTypeFiltered($this->openOnly)->pluck('id');
+    }
+
+    /**
+     * @return bool
+     */
+    private function currentAnswerCoLearningRatingsHasNoDiscrepancy(): bool
+    {
+        return $this->currentAnswer->answerRatings->where('type', AnswerRating::TYPE_STUDENT)
+                ->keyBy('rating')
+                ->count() === 1;
     }
 
 }

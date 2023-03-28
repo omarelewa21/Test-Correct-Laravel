@@ -22,4 +22,8 @@ return [
     'great'                                        => 'Great',
     'great_text'                                   => 'Addressed almost all important topics. Answer contains substantiated analysis or explanation.',
     'save_exit'                                    => 'Save & exit',
+    'scoren'                                       => 'Scoring',
+    'score_assigned'                               => 'Score assigned',
+    'no_discrepancy'                               => 'No discrepancy',
+    'discrepancy'                                  => 'Notice: discrepancy',
 ];
