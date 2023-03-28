@@ -34,4 +34,5 @@ return [
     'normalize'                                                                                                                   => 'Normeren',
     'rtti-export'                                                                                                                 => 'Rtti-Export',
     'marking'                                                                                                                     => 'Becijferen',
+    'not-all-questions-answered-attention'                                                                                        => 'Let op, nog niet alle vragen zijn beantwoord: :questions. Vragen die al zijn afgesloten kunnen niet later beantwoord worden.',
 ];

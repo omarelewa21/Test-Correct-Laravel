@@ -21,6 +21,7 @@ class TestTake extends Component
     public $testParticipantUuid;
     public $forceTakenAwayModal = false;
     public $browserTestingDisabledModal = false;
+    public string $questionsWithNoAnswer = '';
 
     /** @var int
      *  time in milliseconds a notification is shown
@@ -206,5 +207,18 @@ class TestTake extends Component
         if ($test->isAssignment()) {
             $this->dispatchBrowserEvent('show-to-dashboard');
         }
+    }
+
+    public function isAllQuestionsHaveAnswer(): bool
+    {
+        $testParticipant = TestParticipant::findOrFail($this->testParticipantId);
+        $questionsWithNoAnswer = [];
+        foreach($testParticipant->answers as $answer) {
+            if (is_null($answer->json) || empty($answer->json)) {
+                $questionsWithNoAnswer[] = 'Q' . $answer->order;
+            }
+        }
+        $this->questionsWithNoAnswer = implode(', ', $questionsWithNoAnswer);
+        return empty($questionsWithNoAnswer);
     }
 }
