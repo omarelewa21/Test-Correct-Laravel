@@ -341,8 +341,10 @@ trait WithQuestionFilteredHelpers
     {
         $joins = [];
         if (!$openQuestionOnly && !array_key_exists('subtype', $filters) && !$openQuestionDisabled) {
+            // instead of just set the joins to add openquestion, the join takes place straight away. Probably due to further filters and/ or sortings
             $query->leftJoin($openQuestion->getTable(), $openQuestion->getTable() . '.' . $openQuestion->getKeyName(), '=', $this->getTable() . '.' . $this->getKeyName());
-        } elseif ($openQuestionOnly && !array_key_exists('subtype', $filters)) {
+        } elseif ($openQuestionOnly) {
+            // maybe it could be joined straight away just as above.
             $joins[] = 'openquestion';
         }
         $joins[] = 'groupquestion';
