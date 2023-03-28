@@ -2,7 +2,8 @@
 
 namespace tcCore\Http\Traits\Modal;
 
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use tcCore\EducationLevel;
 use tcCore\Period;
@@ -100,11 +101,30 @@ trait TestActions
 
     private function getNameRulesDependingOnAction()
     {
-        $rules = 'required|min:3|unique:tests,name,NULL,NULL,deleted_at,NULL';
-        if (isset($this->testUuid)) {
-            $rules = 'required|min:3|unique:tests,name,'. Test::whereUuid($this->testUuid)->value('id') .',id,author_id,' . Auth::id() . ',deleted_at,NULL,is_system_test,0';
-        }
-
-        return $rules;
+        return[
+            'required',
+            'min:3',
+            Rule::unique('tests', 'name')
+            ->where(fn (Builder $query) => 
+                $query->where(['is_system_test' => 0, 'deleted_at' => null])
+                // Subquery to allow tests from the same school as the current user
+                ->whereExists(fn ($query) =>
+                    $query->select(DB::raw(1))
+                    ->from('users')
+                    ->whereColumn('users.id', 'tests.author_id')
+                    ->where(function ($query) {
+                        $schoolId = Auth()->user()->school_id;
+                        // if user attached to school, then allow repeated names from the same school
+                        if ($schoolId) $query->where('users.school_id', '<>', $schoolId);
+                        // if not attached to school, then allow repeated names in general
+                        else $query->whereNotNull('users.school_id');
+                    })
+                )
+            )
+            // When editing an existing test, ignore the current test ID for the uniqueness check
+            ->when(isset($this->testUuid), fn ($query) =>
+                $query->ignore(Test::whereUuid($this->testUuid)->value('id'))
+            )
+        ];
     }
 }
