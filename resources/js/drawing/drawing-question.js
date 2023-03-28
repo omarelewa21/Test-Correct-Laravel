@@ -1,4 +1,4 @@
-import {panParams, shapePropertiesAvailableToUser, zoomParams} from "./constants.js";
+import {panParams, resizableSvgShapes, shapePropertiesAvailableToUser, zoomParams} from "./constants.js";
 import * as svgShape from "./svgShape.js";
 import {UIElements, warningBox} from "./uiElements.js";
 import * as sidebar from "./sidebar.js";
@@ -11,18 +11,30 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
      * @type {Object}
      * @property {number} x
      * @property {number} y
-     *
+     */
+    /**
      * @typedef propObj
      * @type {Object.<string, string|number>}
-     *
+     */
+    /**
      * @typedef ELOptions
      * @type {Object.<string, boolean|AbortSignal>|boolean}
+     */
+    /**
      * @typedef ELEvent
      * @type {Object.<string, Function|ELOptions>}
+     */
+    /**
      * @typedef ELEvents
      * @type {Object.<string, ELEvent>}
+     */
+    /**
      * @typedef EventListenerSettings
      * @type {Object.<string, HTMLElement|ELEvents>}
+     */
+    /**
+     * @typedef Element
+     * @type {HTMLElement|SVGElement}
      */
 
     /**
@@ -65,7 +77,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
                         makeGrid();
                         updateMidPoint();
                     }
-                    if(grid && grid !== '0'){
+                    if (grid && grid !== '0') {
                         drawGridBackground();
                     }
                     processGridToggleChange();
@@ -76,7 +88,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
 
                     drawingApp.firstInit = false;
                     clearInterval(pollingFunction);
-                    if(Canvas.params.initialZoomLevel != 1){
+                    if (Canvas.params.initialZoomLevel !== 1) {
                         updateZoomInputValue(Canvas.params.initialZoomLevel);
                         zoom(Canvas.params.initialZoomLevel);
                         panDrawingCenterToScreenCenter();
@@ -116,7 +128,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         /**
          * Adds event listeners with the parameters specified in the settings.
          * @param {EventListenerSettings[]} settings
-         * @param {} thisArg Specific this context when needed.
+         * @param {*} thisArg Specific this context when needed.
          */
         bindEventListeners(settings, thisArg = null) {
             settings.forEach((eventListener) => {
@@ -186,6 +198,9 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
                     translateOfSvgShape: null,
                     offsetCursorToMidPoint: null,
                 },
+                resize: {
+                    enabled: false,
+                },
                 pan: {
                     enabled: false,
                     startCoordinates: {x: 0, y: 0},
@@ -204,6 +219,9 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             },
             drawing() {
                 return this.params.draw.newShape
+            },
+            resizing() {
+                return this.params.resize.enabled
             },
             getLayerDomElementsByLayerId: function (layerId) {
                 const layer = rootElement.querySelector(`#${layerId}`);
@@ -1001,13 +1019,10 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     function drawingFitsScreen() {
         const bbox = UI.svgPanZoomGroup.getBBox({fill: true, stroke: true, markers: true});
         const screenBounds = Canvas.params.bounds;
-        if (bbox.x < screenBounds.left
+        return !(bbox.x < screenBounds.left
             || bbox.y < screenBounds.top
             || bbox.width > screenBounds.width
-            || bbox.height > screenBounds.height
-
-        ) return false;
-        else return true;
+            || bbox.height > screenBounds.height);
     }
 
     function renderShapesFromSvgLayerString(layerName) {
@@ -1021,20 +1036,102 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             };
             const shapeID = groupElement.id,
                 shapeType = shapeID.substring(0, shapeID.indexOf("-"));
-            const newShape = makeNewSvgShapeWithSidebarEntry(
+            let newShape = makeNewSvgShapeWithSidebarEntry(
                 shapeType,
                 props,
                 layerName,
                 true,
                 !(!drawingApp.isTeacher() && layerName === "question")
-            );
+            )
+            // Convert old dragging system (using SVGTransforms)
+            // to new dragging system (all done with the SVG attributes of the element itself)
+            if(newShape.svg.type === 'path')
+                newShape = letPathShapesUseRelativeCoords(newShape);
+            newShape = convertDragTransforms(newShape);
+
             Canvas.layers[layerName].shapes[shapeID] = newShape;
-            if(isOldDrawing && layerName === "question"){
+            if (isOldDrawing && layerName === "question") {
                 fitDrawingToScreen();
             }
             newShape.svg.addHighlightEvents();
         }
         UI.svgLayerToRender.innerHTML = "";
+    }
+
+    function letPathShapesUseRelativeCoords(shape) {
+        const mainElement = shape.svg.mainElement;
+        const oldDValue = convertDStringToArray(mainElement.getDAttribute());
+        let newDValue = [],
+            startingPoint = oldDValue.shift();
+        oldDValue.reduce((previousCommand, currentCommand) => {
+            newDValue.push(convertCommandFromAbsoluteToRelative(currentCommand, previousCommand));
+            return currentCommand;
+        }, startingPoint);
+        newDValue.unshift(startingPoint);
+        mainElement.setD(newDValue.map((command) => `${command[0]} ${command[1].join(",")}`).join(" "));
+        return shape;
+    }
+
+    /**
+     * @typedef PathDStruct
+     * @type {Array.<Array.<String, Array.<Number>>>}
+     */
+
+    /**
+     * @example 'M -58.6,38.38 L 16.7,56.93' becomes [['M',[-58.6, 38.38]],['L',[16.7,56.93]]]
+     * @param dValue
+     * @returns {PathDStruct}
+     */
+    function convertDStringToArray(dValue) {
+        const commandMatcher = /([A-Z])(\s)([\-0-9.,])+/g; // Example: 'M -58.6,38.38'
+        const coordValueMatcher = /([\-.0-9])+/g; // Example: '-58.6'
+        return dValue
+            .match(commandMatcher)
+            .map((command) => [
+                    command[0],
+                    command.match(coordValueMatcher).map(Number)
+                ]);
+    }
+
+    /**
+     * @param {PathDStruct} command
+     * @param {PathDStruct} previousCommand
+     * @returns {PathDStruct}
+     */
+    function convertCommandFromAbsoluteToRelative(command, previousCommand) {
+        return [
+            command[0].toLowerCase(),
+            convertCoordsFromAbsoluteToRelative(command[1], previousCommand[1])
+        ];
+    }
+
+    function convertCoordsFromAbsoluteToRelative(currentCoords, previousCoords) {
+        return [currentCoords[0] - previousCoords[0], currentCoords[1] - previousCoords[1]];
+    }
+
+    function convertDragTransforms(shape) {
+        const shapeGroup = shape.svg.shapeGroup;
+        const distanceToMove = retrieveTranslateValuesOfElement(shapeGroup.element);
+        shape.svg.mainElement.move(distanceToMove);
+        shapeGroup.element.removeAttribute("transform");
+        return shape;
+    }
+
+    function retrieveTranslateValuesOfElement(element) {
+        if(!elementHasTransforms(element))
+            return {
+                dx: 0,
+                dy: 0,
+            };
+        const translationMatrix = element.transform.baseVal[0].matrix;
+        return {
+            dx: translationMatrix.e,
+            dy: translationMatrix.f,
+        };
+    }
+
+    function elementHasTransforms(element) {
+        return element.transform.baseVal.length
     }
 
     function copyAllAttributesFromElementToObject(element) {
@@ -1164,7 +1261,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         canvas.setAttribute('width', image.width);
         canvas.setAttribute('height', image.height);
 
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             image.onload = () => {
                 const ctx = canvas.getContext("2d");
                 ctx.drawImage(image, 0, 0, image.width, image.height);
@@ -1224,7 +1321,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
 
     function hasHiddenLayers() {
         if (drawingApp.isTeacher()) {
-            if (Canvas.params.currentLayer == 'question') {
+            if (Canvas.params.currentLayer === 'question') {
                 return questionLayerIsHidden() || hasQuestionHiddenLayers()
             }
         }
@@ -1330,11 +1427,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         const diffX = Math.abs(evtClientX - startX);
         const diffY = Math.abs(evtClientY - startY);
 
-        if (diffX < delta && diffY < delta) {
-            return false;
-        }
-
-        return true;
+        return !(diffX < delta && diffY < delta);
     }
 
     function setMousedownPosition(evt) {
@@ -1362,13 +1455,14 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
 
         Canvas.unhighlightShapes();
 
-        if (evt.touches?.length == 2) {
-            startPan(evt);
-        } else if (drawingApp.params.currentTool == "drag") {
-            startDrag(evt);
-        } else {
-            startDraw(evt);
+        if (evt.touches?.length === 2) {
+            return startPan(evt);
         }
+        if (drawingApp.params.currentTool === "drag") {
+            if (evt.target.classList.contains("corner")) return startResize(evt);
+            return startDrag(evt);
+        }
+        return startDraw(evt);
     }
 
     function startDrag(evt) {
@@ -1379,55 +1473,41 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         const layerObject = Canvas.layers[Canvas.layerID2Key(layerID)];
         if (!shapeMayBeDragged(shapeGroup, layerObject)) return;
 
-        const selectedSvgShape = evt.target.closest("g.shape");
-        let existingTransforms = selectedSvgShape.transform.baseVal;
-
-        if (!elementHasTransforms(existingTransforms)) {
-            createNewTranslateTransform(selectedSvgShape);
-        } else if (!firstTransformIsOfTypeTranslate(existingTransforms)) {
-            createNewTranslateTransform(selectedSvgShape);
-        }
-
-        const translateOfSvgShape = getFirstTransform(existingTransforms);
+        const selectedSvgShape = layerObject.shapes[shapeGroup.id].svg;
 
         Canvas.params.drag = {
             enabled: true,
-            offsetCursorToMidPoint: calculateCursorToMidPointOffset(translateOfSvgShape),
-            translateOfSvgShape: translateOfSvgShape,
+            selectedSvgShape: selectedSvgShape
         };
 
-        selectedSvgShape.classList.add("dragging");
-        selectedSvgShape.parentElement.classList.add("child-dragging");
+        selectedSvgShape.onDragStart(evt, Canvas.params.cursorPosition);
+    }
+
+    function startResize(evt) {
+        const shapeGroup = evt.target.closest(".shape");
+        if (!shapeGroup) return;
+
+        const layerID = shapeGroup.parentElement.id;
+        const layerObject = Canvas.layers[Canvas.layerID2Key(layerID)];
+        if (!shapeMayBeDragged(shapeGroup, layerObject)) return;
+
+        const selectedSvgShape = layerObject.shapes[shapeGroup.id].svg;
+        if (!shapeIsResizable(selectedSvgShape)) return;
+
+        Canvas.params.resize = {
+            enabled: true,
+            selectedSvgShape: selectedSvgShape
+        };
+
+        selectedSvgShape.onResizeStart(evt, getCursorPosition(evt));
+    }
+
+    function shapeIsResizable(shape) {
+        return resizableSvgShapes.includes(shape.type);
     }
 
     function shapeMayBeDragged(shapeGroup, layerObject) {
         return shapeGroup.classList.contains("draggable") && !layerObject.params.locked && layerObject.props.id.includes(layerObject.Canvas.params.currentLayer);
-    }
-
-    function elementHasTransforms(transforms) {
-        return transforms.length !== 0;
-    }
-
-    function createNewTranslateTransform(shape) {
-        let translate = UI.svgCanvas.createSVGTransform();
-        translate.setTranslate(0, 0);
-        shape.transform.baseVal.insertItemBefore(translate, 0);
-    }
-
-    function firstTransformIsOfTypeTranslate(transforms) {
-        return getFirstTransform(transforms)?.type === SVGTransform.SVG_TRANSFORM_TRANSLATE;
-    }
-
-    function getFirstTransform(transforms) {
-        if (transforms.numberOfItems > 0) return transforms.getItem(0);
-    }
-
-    function calculateCursorToMidPointOffset(translate) {
-        const cursorPosition = Canvas.params.cursorPosition;
-        return {
-            x: cursorPosition.x - translate.matrix.e,
-            y: cursorPosition.y - translate.matrix.f,
-        };
     }
 
     function startPan() {
@@ -1475,7 +1555,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
                     "width": 0,
                     "height": 0,
                     "fill":
-                        UI.fillOpacityNumber.value == 0 ? "none" : UI.fillColor.value,
+                        UI.fillOpacityNumber.value === 0 ? "none" : UI.fillColor.value,
                     "fill-opacity": parseFloat(UI.fillOpacityNumber.value / 100),
                     "stroke": UI.strokeColor.value,
                     "stroke-width": UI.strokeWidth.value,
@@ -1487,7 +1567,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
                     "cy": cursorPosition.y,
                     "r": 0,
                     "fill":
-                        UI.fillOpacityNumber.value == 0 ? "none" : UI.fillColor.value,
+                        UI.fillOpacityNumber.value === 0 ? "none" : UI.fillColor.value,
                     "fill-opacity": parseFloat(UI.fillOpacityNumber.value / 100),
                     "stroke": UI.strokeColor.value,
                     "stroke-width": UI.strokeWidth.value,
@@ -1518,7 +1598,6 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
                     "y": cursorPosition.y,
                     "fill": UI.textColor.value,
                     "stroke-width": 0,
-                    "value": 'abc',
                     "opacity": parseFloat(UI.elemOpacityNumber.value / 100),
                     "style": `${drawingApp.params.boldText ? "font-weight: bold;" : ""} font-size: ${UI.textSize.value / 16}rem`,
                 };
@@ -1542,6 +1621,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
      * @param {string} type Type of svgShape to be created.
      * @param {propObj} props Properties which will be appended to the main svgElement.
      * @param {?SVGElement} parent The parent to which the created svgShape will be added. Defaults to an empty SVGElement().
+     * @param {boolean} withHelperElements Boolean to set whether helper elements should be created for the shape
+     * @param {boolean} withHighlightEvents Boolean to set whether highlight events should be set for the shape
      * @returns A shape object of the right type
      */
     function makeNewSvgShape(type, props, parent = new SVGElement(), withHelperElements, withHighlightEvents) {
@@ -1582,6 +1663,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             processUserPan();
         } else if (Canvas.dragging()) {
             drag(evt);
+        } else if (Canvas.resizing()) {
+            resize(evt);
         } else if (Canvas.drawing()) {
             Canvas.params.draw.newShape.svg.onDraw?.(evt, cursorPosition);
         }
@@ -1626,11 +1709,12 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
 
     function drag(evt) {
         evt.preventDefault();
-        const difference = calculateDistanceCursor(
-            Canvas.params.drag.offsetCursorToMidPoint,
-            Canvas.params.cursorPosition
-        );
-        Canvas.params.drag.translateOfSvgShape.setTranslate(difference.dx, difference.dy);
+        Canvas.params.drag.selectedSvgShape.onDrag(evt, Canvas.params.cursorPosition);
+    }
+
+    function resize(evt) {
+        evt.preventDefault();
+        Canvas.params.resize.selectedSvgShape.onResize(evt, getCursorPosition(evt));
     }
 
     function processUserPan() {
@@ -1775,6 +1859,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             stopDraw(evt);
         } else if (Canvas.dragging()) {
             stopDrag();
+        } else if (Canvas.resizing()) {
+            stopResize();
         } else if (Canvas.panning()) {
             stopPan();
         }
@@ -1782,29 +1868,37 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
 
     function stopDraw(evt) {
         const newShape = Canvas.params.draw.newShape;
-        newShape.svg.onDrawEnd?.(
+        newShape.svg.onDrawEnd(
             evt,
             Canvas.params.cursorPosition
         );
-        newShape.svg.addHighlightEvents();
         Canvas.params.highlightedShape = newShape;
         Canvas.params.draw.newShape = null;
     }
 
     function stopDrag() {
-        UI.svgCanvas.querySelector("g.dragging").classList.remove("dragging");
-        UI.svgCanvas.querySelector(".child-dragging").classList.remove("child-dragging");
-        Canvas.params.drag.enabled = false;
+        Canvas.params.drag.selectedSvgShape.onDragEnd();
+        Canvas.params.drag = {
+            enabled: false,
+        };
+    }
+
+    function stopResize() {
+        Canvas.params.resize = {
+            enabled: false,
+        };
     }
 
     function stopPan() {
-        Canvas.params.pan.enabled = false;
+        Canvas.params.pan = {
+            enabled: false,
+        };
     }
 
     function processToolChange(evt) {
         let currentTool = drawingApp.params.currentTool,
             newTool = determineNewTool(evt);
-        if (currentTool == newTool) return;
+        if (currentTool === newTool) return;
         drawingApp.params.currentTool = newTool;
         makeSelectedBtnActive(evt.currentTarget);
         enableSpecificPropSelectInputs();
@@ -1834,7 +1928,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         const id = evt.currentTarget.id;
         let startOfSlice = id.indexOf("-") + 1,
             endOfSlice = id.lastIndexOf("-");
-        if (endOfSlice == startOfSlice - 1 || endOfSlice == -1) {
+        if (endOfSlice === startOfSlice - 1 || endOfSlice === -1) {
             endOfSlice = startOfSlice - 1;
             startOfSlice = 0;
         }
@@ -1863,13 +1957,13 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
 
             const identifier = uuidv4();
             UI.submitBtn.disabled = true
-            livewireComponent.upload(`cmsPropertyBag.images.${Canvas.params.currentLayer}.${identifier}`, fileURL, (fileName) => {
+            livewireComponent.upload(`cmsPropertyBag.images.${Canvas.params.currentLayer}.${identifier}`, fileURL, () => {
                 // Success callback.
                 UI.submitBtn.disabled = false
             }, () => {
                 // Error callback.
                 UI.submitBtn.disabled = false
-            }, (event) => {
+            }, () => {
                 // Progress callback.
             })
 
@@ -1939,9 +2033,10 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             },
             Canvas.params.currentLayer
         );
-
         shape.svg.moveToCenter();
         shape.svg.addHighlightEvents();
+        const objectID = `image-${shape.svg.shapeId}`;
+        Canvas.layers[Canvas.params.currentLayer].shapes[objectID] = shape;
     }
 
     function correctImageSize(image) {
@@ -2007,9 +2102,9 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         Canvas.layers.bgGrid = new svgShape.Grid(0, props, UI.svgGridGroup, drawingApp, Canvas);
     }
 
-    function getAdjustedGridValue(){
-        if(grid && grid !== '0'){
-            return 1/parseInt(grid) * 14;   // This calculation is based on try and change to reach the closest formula that makes grid visualization same as old drawing
+    function getAdjustedGridValue() {
+        if (grid && grid !== '0') {
+            return 1 / parseInt(grid) * 14;   // This calculation is based on try and change to reach the closest formula that makes grid visualization same as old drawing
         }
         return 0;
     }
@@ -2028,7 +2123,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         if (valueWithinBounds(UI.gridSize)) {
             drawingApp.params.gridSize = UI.gridSize.value;
             Canvas.layers.grid.shape.update();
-            if(Canvas.layers.bgGrid){
+            if (Canvas.layers.bgGrid) {
                 Canvas.layers.bgGrid.update(getAdjustedGridValue());
             }
         }
@@ -2129,7 +2224,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         let value = parseFloat(inputElem.value),
             max = parseFloat(inputElem.max),
             min = parseFloat(inputElem.min);
-        if (Number.isNaN(value) || value == 0) {
+        if (Number.isNaN(value) || value === 0) {
             return false;
         }
         if (value > max) {
@@ -2213,13 +2308,6 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         }
 
         return handleMinPanGroupSizes(panGroupSize);
-
-        return {
-            x: panGroupSize.x,
-            y: panGroupSize.y,
-            width: panGroupSize.width > minPanGroupWidth ? panGroupSize.width : minPanGroupWidth,
-            height: panGroupSize.height > minPanGroupHeight ? panGroupSize.height : minPanGroupHeight,
-        }
     }
 
     function handleMinPanGroupSizes(panGroupSize) {
@@ -2322,7 +2410,7 @@ function clearPreviewGrid(rootElement) {
 window.makePreviewGrid = function (drawingApp, gridSvg) {
 
     const rootElement = drawingApp.params.root
-    
+
     clearPreviewGrid(rootElement);
 
     const props = {
