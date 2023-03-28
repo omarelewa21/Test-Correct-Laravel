@@ -21,5 +21,5 @@ return [
     'sufficient_text'                              => 'Een aantal van de belangrijke onderwerpen aangekaart. Antwoord bevat delen van de analyse of verklaring.',
     'great'                                        => 'Uitstekend',
     'great_text'                                   => 'Bijna alle belangrijkste onderwerpen aangekaart. Antwoord bevat een sterk onderbouwde analyse of verklaring.',
-
+    'save_exit'                                    => 'Opslaan & afsluiten',
 ];

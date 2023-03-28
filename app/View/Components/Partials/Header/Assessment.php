@@ -11,6 +11,7 @@ class Assessment extends HeaderComponent
     )
     {
         parent::__construct();
+        $this->backButtonTitle = __('assessment.save_exit');
     }
 
     public function render(): View
