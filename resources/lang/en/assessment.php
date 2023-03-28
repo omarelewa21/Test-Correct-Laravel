@@ -21,5 +21,5 @@ return [
     'sufficient_text'                              => 'Some of the important topics addressed. Answer contains parts of the analysis or explanation.',
     'great'                                        => 'Great',
     'great_text'                                   => 'Addressed almost all important topics. Answer contains substantiated analysis or explanation.',
-
+    'save_exit'                                    => 'Save & exit',
 ];

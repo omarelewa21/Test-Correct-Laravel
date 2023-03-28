@@ -2,7 +2,7 @@
 
 @section('title')
     <h6 class="text-white">@lang($this->headerCollapsed ? 'assessment.Nakijken' : 'assessment.Start nakijken'): </h6>
-    <h4 class="text-white truncate">{!!  clean($testName) !!}</h4>
+    <h4 class="text-white truncate" title="{!!  clean($testName) !!}">{!!  clean($testName) !!}</h4>
 @endsection
 
 @section('subtitle')
@@ -61,7 +61,7 @@
                     <div class="text-center text-[14px]">
                         {!!  __('co-learning.current_session', [
                         'index' => $this->assessmentContext['assessIndex'],
-                        'totalQuestions' => $this->questionCount,
+                        'totalQuestions' => $this->assessmentContext['totalToAssess'],
                         'date' => $this->assessmentContext['assessedAt']
                         ]) !!}
                     </div>
@@ -84,7 +84,8 @@
         <x-slot:title>{{ str(__('co-learning.open_questions_only'))->ucfirst() }}</x-slot:title>
         <x-slot:subtitle>{{ __('assessment.open_questions_text') }}</x-slot:subtitle>
         <x-slot:button>
-            <x-button.cta size="md" x-on:click.prevent="handleHeaderCollapse(['OPEN_ONLY', {{ ($this->assessmentContext['assessmentType'] && !$this->openOnly) ? 'true' : 'false' }}])"
+            <x-button.cta size="md"
+                          x-on:click.prevent="handleHeaderCollapse(['OPEN_ONLY', {{ ($this->assessmentContext['assessmentType'] && !$this->openOnly) ? 'true' : 'false' }}])"
             >
                 <span>
                 @if($this->assessmentContext['assessmentType'] && $this->openOnly)
@@ -101,8 +102,8 @@
                 @if($this->openOnly)
                     <div class="text-center text-[14px]">
                         {!!  __('co-learning.current_session', [
-                        'index' => 0,
-                        'totalQuestions' => $this->questionCount,
+                        'index' => $this->assessmentContext['assessIndex'],
+                        'totalQuestions' => $this->assessmentContext['totalToAssess'],
                         'date' => $this->assessmentContext['assessedAt']
                         ]) !!}
                     </div>
