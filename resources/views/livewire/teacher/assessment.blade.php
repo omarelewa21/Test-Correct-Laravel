@@ -248,12 +248,13 @@
                                 </div>
                             </div>
                             @if($this->showCoLearningScoreToggle)
-                                <div class="colearning-answers | flex w-full items-center justify-between">
+                                <div class="colearning-answers | flex w-full items-center justify-between"
+                                     title="@lang('assessment.score_assigned'): @js($this->coLearningScoredValue)"
+                                     x-cloak
+                                >
                                     <x-input.toggle disabled checked />
                                     <span class="bold text-base">@lang('assessment.Score uit CO-Learning')</span>
-                                    <x-tooltip>
-                                        @lang('assessment.score_assigned'): @js($this->coLearningScoredValue)
-                                    </x-tooltip>
+                                    <x-tooltip>Staat geen tekst in het ticket :)</x-tooltip>
                                 </div>
                                 <div @class([
                                           'notification py-0 px-4 gap-6 flex items-center',
@@ -266,12 +267,13 @@
                                 </div>
                             @endif
                             @if($this->showAutomaticallyScoredToggle)
-                                <div class="auto-assessed | flex w-full items-center justify-between">
+                                <div class="auto-assessed | flex w-full items-center justify-between cursor-default"
+                                     title="@lang('assessment.score_assigned'): @js($this->automaticallyScoredValue)"
+                                     x-cloak
+                                >
                                     <x-input.toggle disabled checked />
                                     <span class="bold text-base">@lang('assessment.Automatisch nakijken')</span>
-                                    <x-tooltip>
-                                        @lang('assessment.score_assigned'): @js($this->automaticallyScoredValue)
-                                    </x-tooltip>
+                                    <x-tooltip>Staat geen tekst in het ticket :)</x-tooltip>
                                 </div>
                             @endif
                             @if($this->showScoreSlider)
