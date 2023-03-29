@@ -30,4 +30,6 @@ return [
     'CO-Learning scores'                           => 'CO-Learning scores',
     'CO-Learning no results'                       => 'CO-Learning: geen resultaten',
     'carousel_explainer'                           => 'Alleen de afgenomen vragen worden getoond',
+    'Feedback'                                     => 'Feedback',
+    'Feedback toevoegen'                           => 'Feedback toevoegen',
 ];

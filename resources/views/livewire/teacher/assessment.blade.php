@@ -1,5 +1,5 @@
 <div id="assessment-page"
-     class="min-h-full w-full"
+     class="min-h-full w-full assessment"
      x-data="assessment(@js($this->score), @js($this->currentQuestion?->score), @js((bool)$this->currentQuestion?->decimal_score), @js($this->drawerScoringDisabled))"
      wire:key="page-@js($this->questionNavigationValue.$this->answerNavigationValue.$this->score)"
      x-on:update-navigation.window="dispatchUpdateToNavigator($event.detail.navigator, $event.detail.updates)"
@@ -11,7 +11,7 @@
         <div class="flex min-h-[calc(100vh-var(--header-height))] relative">
             <div class="px-15 py-10 gap-6 flex flex-col flex-1">
                 {{-- Group section --}}
-                <div class="flex flex-col">
+                <div class="flex flex-col text-xs">
                     <span>vraag: @js($this->currentQuestion->id)</span>
                     <span>antwoord: @js($this->currentAnswer->id)</span>
                     <span>testtake: @js($this->testTakeData->id)</span>
@@ -32,7 +32,8 @@
                                 >
                                     <span>@lang('question.Vraaggroep')</span>
                                     <span>:</span>
-                                    <span x-cloak class="ml-2 text-left flex line-clamp-1" title="{!! $this->currentGroup->name !!}">
+                                    <span x-cloak class="ml-2 text-left flex line-clamp-1"
+                                          title="{!! $this->currentGroup->name !!}">
                                         {!! $this->currentGroup->name !!}
                                     </span>
                                     @if($this->currentGroup->isCarouselQuestion())
@@ -215,6 +216,7 @@
                                 class="flex h-[60px] px-2 cursor-pointer items-center border-b-3 border-transparent hover:text-primary transition-colors"
                                 x-on:click="tab(2)"
                                 x-bind:class="activeTab === 2 ? 'primary border-primary hover:border-primary' : 'hover:border-primary/25'"
+                                title="@lang('assessment.Feedback')"
                         >
                             <x-icon.feedback-text />
                         </buttons>
@@ -235,7 +237,7 @@
                          class="slide-container | flex h-full max-w-[var(--sidebar-width)] overflow-hidden"
                          wire:ignore.self
                     >
-                        <div class="slide-1 | p-6 flex-[1_0_100%] h-full w-[var(--sidebar-width)] space-y-4">
+                        <div class="slide-1 scoring | p-6 flex-[1_0_100%] h-full w-[var(--sidebar-width)] space-y-4">
                             <div class="question-indicator | items-center flex w-full">
                                 <div class="inline-flex question-number rounded-full text-center justify-center items-center">
                                     <span class="align-middle cursor-default">{{ $this->questionNavigationValue }}</span>
@@ -326,10 +328,22 @@
                                 </div>
                             @endif
                         </div>
-                        <div class="slide-2 | p-6 flex-[1_0_100%] h-full w-[var(--sidebar-width)] space-y-4">
-                            Content Tab 2
+                        <div class="slide-2 feedback | p-6 flex-[1_0_100%] h-full w-[var(--sidebar-width)] space-y-4">
+                            <div class="flex flex-col w-full gap-2">
+                                <span class="flex ">@lang('assessment.Feedback toevoegen')</span>
+
+                                <div class="flex w-full flex-col gap-2"
+                                     wire:key="feedback-editor-{{  $this->questionNavigationValue.$this->answerNavigationValue }}"
+                                >
+                                    <x-input.rich-textarea type="assessment-feedback"
+                                                           :editorId="'feedback-editor'. $this->questionNavigationValue.$this->answerNavigationValue"
+                                                           wire:model.debounce.300ms="feedback"
+
+                                    />
+                                </div>
+                            </div>
                         </div>
-                        <div class="slide-3 | p-6 flex-[1_0_100%] h-full w-[var(--sidebar-width)] space-y-4">
+                        <div class="slide-3 co-learning | p-6 flex-[1_0_100%] h-full w-[var(--sidebar-width)] space-y-4">
                             <div class="flex flex-col w-full gap-2">
                                 <span class="flex ">@lang('assessment.CO-Learning scores')</span>
                                 @if(!$this->currentAnswerCoLearningRatingsHasNoDiscrepancy())

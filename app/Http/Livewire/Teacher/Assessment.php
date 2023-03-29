@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use Livewire\Component;
 use tcCore\Answer;
+use tcCore\AnswerFeedback;
 use tcCore\AnswerRating;
 use tcCore\Exceptions\AssessmentException;
 use tcCore\Http\Helpers\CakeRedirectHelper;
@@ -66,6 +67,7 @@ class Assessment extends Component implements CollapsableHeader
     public $currentQuestion;
     public $currentGroup;
     public $score = null;
+    public $feedback = '';
 
     protected bool $skipBooted = false;
 
@@ -114,6 +116,11 @@ class Assessment extends Component implements CollapsableHeader
     public function updatedScore($value)
     {
         $this->updateOrCreateAnswerRating($value);
+    }
+
+    public function updatedFeedback($value)
+    {
+        $this->updateOrCreateAnswerFeedback($value);
     }
 
     /* Computed properties */
@@ -320,6 +327,7 @@ class Assessment extends Component implements CollapsableHeader
         }
 
         $this->score = $this->figureOutAnswerScore();
+        $this->feedback = $this->getFeedbackForCurrentAnswer();
 
         return [
             'index' => $this->answerNavigationValue,
@@ -900,5 +908,24 @@ class Assessment extends Component implements CollapsableHeader
     private function sessionSettings(): object
     {
         return (object)Session::get('assessment-started-' . $this->testTakeUuid, []);
+    }
+
+    private function updateOrCreateAnswerFeedback($value)
+    {
+        $this->currentAnswer->feedback()
+            ->updateOrCreate([
+                'user_id' => auth()->id(),
+            ], [
+                'message' => clean($value)
+            ]);
+    }
+
+    private function getFeedbackForCurrentAnswer(): string
+    {
+        return $this->currentAnswer
+            ->feedback()
+            ->where('user_id', auth()->id())
+            ->first()
+            ?->message ?? '';
     }
 }

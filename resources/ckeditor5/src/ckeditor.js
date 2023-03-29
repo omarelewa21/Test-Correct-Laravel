@@ -162,8 +162,6 @@ Editor.builtinPlugins = [
     Image,
     ImageCaption,
     ImageResize, //LinkImage
-
-
     ImageUpload,
     Indent,
     Italic,

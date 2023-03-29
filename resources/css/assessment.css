@@ -3,10 +3,11 @@
     color: var(--primary);
 }
 
-.fast-scoring .fast-option{
+.fast-scoring .fast-option {
     transition: color 150ms ease-in-out, border-color 150ms ease-in-out, opacity 150ms ease-in-out;
     position: relative;
 }
+
 .fast-scoring .fast-option .borderdiv {
     transition: border-color 150ms ease-in-out;
     border-width: 3px;
@@ -14,6 +15,7 @@
     position: absolute;
     inset: -1px;
 }
+
 .fast-scoring .fast-option.active,
 .fast-scoring .fast-option.active .borderdiv {
     color: var(--primary);
@@ -23,10 +25,47 @@
 .fast-scoring.disabled {
     pointer-events: none;
 }
+
 .fast-scoring.disabled .fast-option,
 .fast-scoring.disabled .fast-option .note,
 .fast-scoring.disabled .fast-option.active,
 .fast-scoring.disabled .fast-option.active .borderdiv,
 .fast-scoring.disabled .fast-option.active .note {
     opacity: .75;
+}
+
+.drawer .feedback .ck-editor__editable_inline {
+    min-height: 150px;
+}
+
+.drawer .feedback .ck.ck-editor__main {
+    padding-top: 76px;
+}
+
+.drawer .feedback .ck.ck-icon.ck-button__icon {
+    color: var(--system-base);
+}
+
+.drawer .feedback .ck.ck-editor__top {
+    --ck-color-button-on-background: var(--primary-opacity-05);
+    --ck-color-button-on-hover-background: var(--primary-opacity-10);
+    --ck-color-button-default-hover-background: var(--primary-opacity-05);
+    --ck-color-toolbar-background: white;
+}
+.drawer .feedback .ck-on .ck.ck-icon.ck-button__icon {
+    color: var(--primary);
+}
+
+.drawer .feedback .ck.ck-editor__main > .ck-editor__editable {
+    --ck-color-base-background: var(--off-white);
+}
+
+.drawer .feedback .ck-dropdown {
+    --ck-dropdown-max-width: 200px;
+}
+
+.drawer .feedback .ck-dropdown__panel .ck.ck-form__header.ck-special-characters-navigation {
+    height: auto;
+    flex-wrap: wrap;
+    justify-content: end;
 }

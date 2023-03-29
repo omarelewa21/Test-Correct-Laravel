@@ -14057,24 +14057,24 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToAr
 function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
 RichTextEditor = {
   initStudent: function initStudent(editorId) {
-    console.log('this should implement student init // example is open-medium-question.blase.php');
+    console.log("this should implement student init // example is open-medium-question.blase.php");
   },
   initStudentCoLearning: function initStudentCoLearning(editorId) {
-    var lang = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'nl_NL';
+    var lang = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "nl_NL";
     var wsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-    return ClassicEditor.create(document.querySelector('#' + editorId), this.getConfigForStudent(wsc, [])).then(function (editor) {
+    return ClassicEditor.create(document.querySelector("#" + editorId), this.getConfigForStudent(wsc, [])).then(function (editor) {
       ClassicEditors[editorId] = editor;
-      var wordCountPlugin = editor.plugins.get('WordCount');
-      var wordCountWrapper = document.getElementById('word-count-' + editorId);
+      var wordCountPlugin = editor.plugins.get("WordCount");
+      var wordCountWrapper = document.getElementById("word-count-" + editorId);
       wordCountWrapper.appendChild(wordCountPlugin.wordCountContainer);
       WebspellcheckerTlc.forTeacherQuestion(editor, lang, wsc);
-      window.addEventListener('wsc-problems-count-updated-' + editorId, function (e) {
-        var problemCountSpan = document.getElementById('problem-count-' + editorId);
+      window.addEventListener("wsc-problems-count-updated-" + editorId, function (e) {
+        var problemCountSpan = document.getElementById("problem-count-" + editorId);
         if (problemCountSpan) {
           problemCountSpan.textContent = e.detail.problemsCount;
         }
       });
-      if (typeof ReadspeakerTlc != 'undefined') {
+      if (typeof ReadspeakerTlc != "undefined") {
         ReadspeakerTlc.ckeditor.addListenersForReadspeaker(editor, questionId, editorId);
         ReadspeakerTlc.ckeditor.disableContextMenuOnCkeditor();
       }
@@ -14084,13 +14084,13 @@ RichTextEditor = {
   },
   initSelectionCMS: function initSelectionCMS(editorId) {
     var _this = this;
-    var lang = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'nl_NL';
+    var lang = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "nl_NL";
     var allowWsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
     var editor = ClassicEditors[editorId];
     if (editor) {
       editor.destroy(true);
     }
-    return ClassicEditor.create(document.getElementById(editorId), this.getConfigForTeacher(allowWsc, ['Selection'])).then(function (editor) {
+    return ClassicEditor.create(document.getElementById(editorId), this.getConfigForTeacher(allowWsc, ["Selection"])).then(function (editor) {
       ClassicEditors[editorId] = editor;
       WebspellcheckerTlc.lang(editor, lang);
       // WebspellcheckerTlc.setEditorToReadOnly(editor);
@@ -14107,7 +14107,7 @@ RichTextEditor = {
     if (editor) {
       editor.destroy(true);
     }
-    return ClassicEditor.create(document.getElementById(editorId), this.getConfigForTeacher(allowWsc, ['Completion'])).then(function (editor) {
+    return ClassicEditor.create(document.getElementById(editorId), this.getConfigForTeacher(allowWsc, ["Completion"])).then(function (editor) {
       ClassicEditors[editorId] = editor;
       WebspellcheckerTlc.lang(editor, lang);
       // WebspellcheckerTlc.setEditorToReadOnly(editor);
@@ -14121,15 +14121,15 @@ RichTextEditor = {
     setTimeout(function () {
       textarea.value = e.editor.getData();
     }, 300);
-    textarea.dispatchEvent(new Event('input'));
+    textarea.dispatchEvent(new Event("input"));
   },
   initClassicEditorForStudentplayer: function initClassicEditorForStudentplayer(editorId, questionId) {
-    return ClassicEditor.create(document.querySelector('#' + editorId), this.getConfigForStudent(false, [])).then(function (editor) {
+    return ClassicEditor.create(document.querySelector("#" + editorId), this.getConfigForStudent(false, [])).then(function (editor) {
       ClassicEditors[editorId] = editor;
-      var wordCountPlugin = editor.plugins.get('WordCount');
-      var wordCountWrapper = document.getElementById('word-count-' + editorId);
+      var wordCountPlugin = editor.plugins.get("WordCount");
+      var wordCountWrapper = document.getElementById("word-count-" + editorId);
       wordCountWrapper.appendChild(wordCountPlugin.wordCountContainer);
-      if (typeof ReadspeakerTlc != 'undefined') {
+      if (typeof ReadspeakerTlc != "undefined") {
         ReadspeakerTlc.ckeditor.addListenersForReadspeaker(editor, questionId, editorId);
         ReadspeakerTlc.ckeditor.disableContextMenuOnCkeditor();
       }
@@ -14138,12 +14138,12 @@ RichTextEditor = {
     });
   },
   initClassicEditorForStudentPreviewplayer: function initClassicEditorForStudentPreviewplayer(editorId, questionId) {
-    return ClassicEditor.create(document.querySelector('#' + editorId), this.getConfigForStudent(false, [])).then(function (editor) {
+    return ClassicEditor.create(document.querySelector("#" + editorId), this.getConfigForStudent(false, [])).then(function (editor) {
       ClassicEditors[editorId] = editor;
-      var wordCountPlugin = editor.plugins.get('WordCount');
-      var wordCountWrapper = document.getElementById('word-count-' + editorId);
+      var wordCountPlugin = editor.plugins.get("WordCount");
+      var wordCountWrapper = document.getElementById("word-count-" + editorId);
       wordCountWrapper.appendChild(wordCountPlugin.wordCountContainer);
-      if (typeof ReadspeakerTlc != 'undefined') {
+      if (typeof ReadspeakerTlc != "undefined") {
         ReadspeakerTlc.ckeditor.replaceReadableAreaByClone(editor);
       }
       editor.isReadOnly = true;
@@ -14158,7 +14158,7 @@ RichTextEditor = {
         waitingTime: 300,
         save: function save(editor) {
           editor.updateSourceElement();
-          editor.sourceElement.dispatchEvent(new Event('input'));
+          editor.sourceElement.dispatchEvent(new Event("input"));
         }
       },
       wordcount: {
@@ -14177,7 +14177,7 @@ RichTextEditor = {
         autoDestroy: true,
         autocorrect: false,
         autocomplete: false,
-        actionItems: ['addWord', 'ignoreAll', 'ignore', 'settings', 'toggle', 'proofreadDialog'],
+        actionItems: ["addWord", "ignoreAll", "ignore", "settings", "toggle", "proofreadDialog"],
         enableBadgeButton: true,
         serviceProtocol: "https",
         servicePort: "80",
@@ -14185,44 +14185,49 @@ RichTextEditor = {
         servicePath: "wscservice/api",
         srcUrl: "https://wsc.test-correct.nl/wscservice/wscbundle/wscbundle.js"
       };
-      config.removePlugins = ['Selection', 'Completion', 'ImageUpload', 'Image'];
-      config.toolbar.removeItems = ['selection', 'completion', 'imageUpload', 'image'];
+      config.removePlugins = ["Selection", "Completion", "ImageUpload", "Image"];
+      config.toolbar.removeItems = ["selection", "completion", "imageUpload", "image"];
     } else {
-      config.removePlugins = ['WProofreader', 'Selection', 'Completion', 'ImageUpload', 'Image'];
-      config.toolbar.removeItems = ['wproofreader', 'selection', 'completion', 'imageUpload', 'image'];
+      config.removePlugins = ["WProofreader", "Selection", "Completion", "ImageUpload", "Image"];
+      config.toolbar.removeItems = ["wproofreader", "selection", "completion", "imageUpload", "image"];
     }
     return config;
   },
   getConfigForTeacher: function getConfigForTeacher(allowWsc) {
+    var _removeItems$plugins, _removeItems$toolbar;
     var pluginsToAdd = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+    var removeItems = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {
+      plugins: [],
+      items: []
+    };
     var config = {
       autosave: {
         waitingTime: 300,
         save: function save(editor) {
           editor.updateSourceElement();
-          editor.sourceElement.dispatchEvent(new Event('input'));
+          editor.sourceElement.dispatchEvent(new Event("input"));
         }
       },
       image: {
         upload: {
-          types: ['jpeg', 'png', 'gif', 'bmp', 'webp', 'tiff']
+          types: ["jpeg", "png", "gif", "bmp", "webp", "tiff"]
         }
       },
       simpleUpload: {
-        uploadUrl: '/cms/ckeditor_upload/images',
+        uploadUrl: "/cms/ckeditor_upload/images",
         // Enable the XMLHttpRequest.withCredentials property.
         withCredentials: true,
         // Headers sent along with the XMLHttpRequest to the upload server.
         headers: {
-          'X-CSRF-TOKEN': document.querySelector('meta[name="_token"]').content
+          "X-CSRF-TOKEN": document.querySelector("meta[name=\"_token\"]").content
           // Authorization: 'Bearer <JSON Web Token>'
         }
       }
     };
 
-    config.removePlugins = [];
+    config.removePlugins = (_removeItems$plugins = removeItems === null || removeItems === void 0 ? void 0 : removeItems.plugins) !== null && _removeItems$plugins !== void 0 ? _removeItems$plugins : [];
     config.toolbar = {
-      removeItems: []
+      removeItems: (_removeItems$toolbar = removeItems === null || removeItems === void 0 ? void 0 : removeItems.toolbar) !== null && _removeItems$toolbar !== void 0 ? _removeItems$toolbar : []
     };
     if (allowWsc) {
       config.wproofreader = {
@@ -14230,7 +14235,7 @@ RichTextEditor = {
         autoDestroy: true,
         autocorrect: false,
         autocomplete: false,
-        actionItems: ['addWord', 'ignoreAll', 'ignore', 'settings', 'toggle', 'proofreadDialog'],
+        actionItems: ["addWord", "ignoreAll", "ignore", "settings", "toggle", "proofreadDialog"],
         enableBadgeButton: true,
         serviceProtocol: "https",
         servicePort: "80",
@@ -14239,16 +14244,16 @@ RichTextEditor = {
         srcUrl: "https://wsc.test-correct.nl/wscservice/wscbundle/wscbundle.js"
       };
     } else {
-      config.removePlugins = ['WProofreader'];
+      config.removePlugins.push("WProofreader");
     }
-    var availablePlugins = ['Selection', 'Completion'];
+    var availablePlugins = ["Selection", "Completion"];
     var pluginsToRemove = availablePlugins.filter(function (plugin) {
       return !pluginsToAdd.includes(plugin);
     });
     config.removePlugins = [].concat(_toConsumableArray(config.removePlugins), _toConsumableArray(pluginsToRemove));
-    config.toolbar.removeItems = pluginsToRemove.map(function (item) {
+    config.toolbar.removeItems = [].concat(_toConsumableArray(config.toolbar.removeItems), _toConsumableArray(config.removePlugins.map(function (item) {
       return item.toLowerCase();
-    });
+    })));
     return config;
   },
   initForTeacher: function initForTeacher(editorId, lang) {
@@ -14267,13 +14272,31 @@ RichTextEditor = {
       console.error(error);
     });
   },
+  initAssessmentFeedback: function initAssessmentFeedback(editorId, lang) {
+    var allowWsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+    var editor = ClassicEditors[editorId];
+    if (editor) {
+      editor.destroy(true);
+    }
+    var itemsToRemove = {
+      plugins: ["Essentials", "FontFamily", "FontSize", "FontBackgroundColor", "Heading", "Indent", "FontColor", "RemoveFormat", "PasteFromOffice", "WordCount", "WProofreader", "Completion", "Selection"],
+      toolbar: ["outdent", "indent", "completion", "selection", "fontFamily", "fontBackgroundColor", "fontSize", "undo", "redo", "fontColor", "heading", "removeFormat", "wproofreader", "specialCharacters"]
+    };
+    var config = this.getConfigForTeacher(allowWsc, [], itemsToRemove, true);
+    config.toolbar.shouldNotGroupWhenFull = true;
+    return ClassicEditor.create(document.getElementById(editorId), config).then(function (editor) {
+      ClassicEditors[editorId] = editor;
+    })["catch"](function (error) {
+      console.error(error);
+    });
+  },
   /** @TODO: this method should be refactored to setReadOnlyIfApplicable  but it has a reference in readspeaker_tlc.js which i dont want to test 1 day before deployment.*/
   setReadOnly: function setReadOnly(editor) {
-    if (editor.sourceElement.hasAttribute('disabled')) {
+    if (editor.sourceElement.hasAttribute("disabled")) {
       editor.isReadOnly = true;
       var editables = editor.ui.view.editable.element.querySelectorAll("[contenteditable=true]");
       editables.forEach(function (element) {
-        element.setAttribute('contenteditable', false);
+        element.setAttribute("contenteditable", false);
       });
     }
   },
@@ -14281,7 +14304,7 @@ RichTextEditor = {
     var editor = ClassicEditors[editorId];
     if (editor) {
       editor.updateSourceElement();
-      editor.sourceElement.dispatchEvent(new Event('input'));
+      editor.sourceElement.dispatchEvent(new Event("input"));
     }
   }
 };
