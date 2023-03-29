@@ -1,7 +1,7 @@
 <div id="assessment-page"
      class="min-h-full w-full"
-     x-data="assessment(@js($this->score), @js($this->currentQuestion?->score), @js((bool)$this->currentQuestion?->decimal_score))"
-     wire:key="page-@js($this->questionNavigationValue.$this->answerNavigationValue)"
+     x-data="assessment(@js($this->score), @js($this->currentQuestion?->score), @js((bool)$this->currentQuestion?->decimal_score), @js($this->drawerScoringDisabled))"
+     wire:key="page-@js($this->questionNavigationValue.$this->answerNavigationValue.$this->score)"
      x-on:update-navigation.window="dispatchUpdateToNavigator($event.detail.navigator, $event.detail.updates)"
      x-on:slider-toggle-value-updated.window="toggleTicked($event.detail)"
      x-on:initial-toggle-tick.window="initialToggleTicked()"
@@ -103,7 +103,11 @@
                                     </div>
 
                                     <div class="max-w-full">
-                                        {!! $this->currentQuestion->converted_question_html !!}
+                                        @if($this->currentQuestion->isType('Completion'))
+                                            {!! $this->currentQuestion->getDisplayableQuestionText()  !!}
+                                        @else
+                                            {!! $this->currentQuestion->converted_question_html !!}
+                                        @endif
                                     </div>
                                 </div>
                             </x-slot:body>
@@ -202,6 +206,7 @@
                                 class="flex h-[60px] px-2 cursor-pointer items-center border-b-3 border-transparent hover:text-primary transition-colors"
                                 x-on:click="tab(1)"
                                 x-bind:class="{'primary border-primary': activeTab === 1}"
+                                title="@lang('assessment.scoren')"
                         >
                             <x-icon.review />
                         </buttons>
@@ -242,8 +247,17 @@
                                     <x-input.toggle disabled checked />
                                     <span class="bold text-base">@lang('assessment.Score uit CO-Learning')</span>
                                     <x-tooltip>
-
+                                        @lang('assessment.score_assigned'): @js($this->coLearningScoredValue)
                                     </x-tooltip>
+                                </div>
+                                <div @class([
+                                          'notification py-0 px-4 gap-6 flex items-center',
+                                          'warning' => !$this->currentAnswerCoLearningRatingsHasNoDiscrepancy(),
+                                          'info' => $this->currentAnswerCoLearningRatingsHasNoDiscrepancy(),
+                                          ])
+                                >
+                                    <x-icon.co-learning />
+                                    <span class="bold">@lang($this->currentAnswerCoLearningRatingsHasNoDiscrepancy() ? 'assessment.no_discrepancy' : 'assessment.discrepancy')</span>
                                 </div>
                             @endif
                             @if($this->showAutomaticallyScoredToggle)
@@ -251,7 +265,7 @@
                                     <x-input.toggle disabled checked />
                                     <span class="bold text-base">@lang('assessment.Automatisch nakijken')</span>
                                     <x-tooltip>
-
+                                        @lang('assessment.score_assigned'): @js($this->automaticallyScoredValue)
                                     </x-tooltip>
                                 </div>
                             @endif
@@ -320,7 +334,7 @@
                                               wire:target="previous,next"
                                               wire:loading.attr="disabled"
                                               wire:key="previous-button-{{  $this->questionNavigationValue.$this->answerNavigationValue }}"
-                                              :disabled="$this->onFirstQuestionToAssess() && $this->onFirstAnswerForQuestion()"
+                                              :disabled="$this->onBeginningOfAssessment()"
                         >
                             <x-icon.chevron class="rotate-180" />
                             <span>@lang('pagination.previous')</span>
@@ -330,7 +344,7 @@
                                           wire:target="previous,next"
                                           wire:loading.attr="disabled"
                                           wire:key="next-button-{{  $this->questionNavigationValue.$this->answerNavigationValue }}"
-                                          :disabled="$this->onLastQuestionToAssess() && $this->onLastAnswerForQuestion()"
+                                          :disabled="$this->finalAnswerReached()"
                         >
                             <span>@lang('pagination.next')</span>
                             <x-icon.chevron />

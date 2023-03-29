@@ -43,5 +43,9 @@ class MacrosServiceProvider extends ServiceProvider
         Collection::macro('append', function (...$values) {
             return $this->push(...$values);
         });
+
+        Collection::macro('discussionTypeFiltered', function (bool $openOnly) {
+            return $this->when($openOnly, fn($questions) => $questions->where('isDiscussionTypeOpen', true));
+        });
     }
 }

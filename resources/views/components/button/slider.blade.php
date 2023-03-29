@@ -14,7 +14,8 @@
      x-data="sliderToggle(
              @if($attributes->wire('model')->value) @entangle($attributes->wire('model')) @else null @endif,
              @js($options),
-             @js($initialStatus)
+             @js($initialStatus),
+             @js($disabled)
          )"
      x-on:slider-toggle-rerender="rerender()"
      x-on:scoring-elements-error.window="markInputElementsWithError()"

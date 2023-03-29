@@ -1379,12 +1379,13 @@ document.addEventListener("alpine:init", () => {
         }
     ));
 
-    Alpine.data("sliderToggle", (model, sources, initialStatus) => ({
+    Alpine.data("sliderToggle", (model, sources, initialStatus, disabled) => ({
         buttonPosition: "0px",
         buttonWidth: "auto",
         value: model,
         sources: sources,
         handle: null,
+        disabled,
         init() {
             this.setHandle();
             if (initialStatus !== null) {
@@ -1405,7 +1406,9 @@ document.addEventListener("alpine:init", () => {
 
             if (this.value !== "" && Object.keys(this.sources).includes(String(this.value))) {
                 this.activateButton(this.$el.querySelector("[data-id='" + this.value + "']").parentElement);
-                this.$dispatch("initial-toggle-tick");
+                if (!this.disabled) {
+                    this.$dispatch("initial-toggle-tick");
+                }
             } else {
                 this.value = this.$el.querySelector(".group").firstElementChild.dataset.id;
             }
@@ -1784,11 +1787,12 @@ document.addEventListener("alpine:init", () => {
             this.activeOverlay = activeOverlay;
         }
     }));
-    Alpine.data("assessment", (score, maxScore, halfPoints) => ({
+    Alpine.data("assessment", (score, maxScore, halfPoints, drawerScoringDisabled) => ({
         score,
         shadowScore: score,
         maxScore,
         halfPoints,
+        drawerScoringDisabled,
         init() {
             this.$store.assessment.resetData(this.score, this.toggleCount());
         },
@@ -1801,6 +1805,7 @@ document.addEventListener("alpine:init", () => {
         dispatchUpdateToNavigator(navigator, updates) {
             let navigatorElement = this.$root.querySelector(`#${navigator}-navigator`);
             if (navigatorElement) {
+                this.$store.assessment.resetData(this.score, this.toggleCount());
                 return navigatorElement.dispatchEvent(new CustomEvent("update-navigator", { detail: { ...updates } }));
             }
             console.warn("No navigation component found for the specified name.");
@@ -1816,6 +1821,9 @@ document.addEventListener("alpine:init", () => {
                     "new-score",
                     { detail: { score: this.score } }
                 ));
+            if (this.drawerScoringDisabled) {
+                this.$wire.set('score', this.score);
+            }
         },
         isFloat(value) {
             return parseFloat(value.match(/^-?\d*(\.\d+)?$/)) > 0;
@@ -1933,6 +1941,7 @@ document.addEventListener("alpine:init", () => {
         clickedNext: false,
         init() {
             this.container = this.$root.querySelector("#slide-container");
+
         },
         tab(index) {
             if (!this.tabs.includes(index)) return;
@@ -1940,23 +1949,29 @@ document.addEventListener("alpine:init", () => {
             const slide = this.$root.querySelector(".slide-" + index);
             this.container.scroll({ left: slide.offsetLeft, behavior: "smooth" });
         },
-        next() {
+        async next() {
             if (!this.$store.assessment.clearToProceed() && !this.clickedNext) {
                 this.$dispatch("scoring-elements-error");
                 this.clickedNext = true;
                 return;
             }
+
             this.tab(1);
             this.$store.assessment.resetData();
-            this.$nextTick(() => {
-                this.$wire.next();
-                this.clickedNext = false;
-            });
+            await this.$nextTick(async () => {
+                const done = await this.$wire.next();
+                if (done) {
+                    this.clickedNext = false;
+                }
+            })
         },
-        previous() {
+        async previous() {
             this.tab(1);
-            this.$nextTick(() => {
-                this.$wire.previous();
+            await this.$nextTick(async () => {
+                const done = await this.$wire.previous();
+                if (done) {
+                    this.clickedNext = false;
+                }
             });
         }
     }));

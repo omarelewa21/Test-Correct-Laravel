@@ -34,7 +34,7 @@
                         x-on:mouseleave="$el.classList.remove('hover:shadow-hover')"
                         @endif
                 >
-                    <div class="flex gap-4 items-center w-full">
+                    <div class="flex gap-4 items-center w-full flex-wrap">
                         {{ $title }}
                         {{ $titleLeft ?? '' }}
                     </div>

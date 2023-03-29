@@ -460,6 +460,11 @@ class TestTake extends BaseModel
             ->wherePivot($this->getDeletedAtColumn(), null);
     }
 
+    public function answerRatings()
+    {
+        return $this->hasMany(AnswerRating::class, 'test_take_id');
+    }
+
     public function isAllowedToView(User $userToCheck)
     {
         return ($this->hasParticipantsThatUserTeaches($userToCheck) && $userToCheck->hasAccessToTest($this->test))
