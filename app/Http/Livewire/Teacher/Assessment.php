@@ -453,7 +453,8 @@ class Assessment extends Component implements CollapsableHeader
                 ->with([
                     'testParticipants:id,uuid,test_take_id,user_id,test_take_status_id',
                     'testParticipants.answers:id,uuid,test_participant_id,question_id,json,final_rating,done',
-                    'testParticipants.answers.answerRatings:id,answer_id,type,rating,advise',
+                    'testParticipants.answers.answerRatings:id,answer_id,type,rating,advise,user_id',
+                    'testParticipants.answers.answerRatings.user:id,name,name_first,name_suffix',
                     'test:id',
                     'test.testQuestions:id,test_id,question_id',
                     'test.testQuestions.question',
@@ -718,10 +719,7 @@ class Assessment extends Component implements CollapsableHeader
             ->first();
 
         $this->questionNavigationValue = $this->questions->search($firstQuestionForAnswer) + 1;
-        $this->answerNavigationValue = $this->answers
-                ->whereIn('question_id', $this->getQuestionIdsForCurrentAssessmentType())
-                ->values()
-                ->search($firstAnswer) + 1;
+        $this->answerNavigationValue = $this->students->search($firstAnswer->test_participant_id) + 1;
     }
 
     private function validQueryStringPropertiesForNavigation(): bool
@@ -748,8 +746,10 @@ class Assessment extends Component implements CollapsableHeader
         if ($rating = $ratings->first(fn($rating) => $rating->type === AnswerRating::TYPE_SYSTEM)) {
             return $rating->rating;
         }
-        if ($rating = $ratings->first(fn($rating) => $rating->type === AnswerRating::TYPE_STUDENT)) {
-            return $rating->rating;
+
+        if ($ratings->where('type', AnswerRating::TYPE_STUDENT)->isNotEmpty()) {
+            $rating = $ratings->filter(fn($rating) => $rating->type === AnswerRating::TYPE_STUDENT)->median('rating');
+            return $this->currentQuestion->decimal_score ? round($rating) : round($rating * 2) / 2;
         }
 
         if (!$this->currentAnswer->isAnswered) {
@@ -848,12 +848,9 @@ class Assessment extends Component implements CollapsableHeader
     private function setNavigationDataWithPreviouslyAssessedQuestion($previouslyAssessedQuestion): void
     {
         $this->questionNavigationValue = $this->questions->search($previouslyAssessedQuestion) + 1;
-        $this->answerNavigationValue = $this->answers
-                ->where('question_id', $previouslyAssessedQuestion->id)
-                ->values()
-                ->search(
-                    $this->answers->where('question_id', $previouslyAssessedQuestion->id)->first()
-                ) + 1;
+        $this->answerNavigationValue = $this->students->search(
+                $this->answers->where('question_id', $previouslyAssessedQuestion->id)->first()->test_participant_id
+            ) + 1;
     }
 
     private function getQuestionIdsForCurrentAssessmentType()
@@ -869,6 +866,17 @@ class Assessment extends Component implements CollapsableHeader
         return $this->currentAnswer->answerRatings->where('type', AnswerRating::TYPE_STUDENT)
                 ->keyBy('rating')
                 ->count() === 1;
+    }
+
+    public function coLearningRatings()
+    {
+        return $this->currentAnswer
+            ->answerRatings
+            ->where('type', AnswerRating::TYPE_STUDENT)
+            ->sortBy('user.name_first')
+            ->each(function ($answerRating) {
+                $answerRating->displayRating = $this->currentQuestion->decimal_score ? (float)$answerRating->rating : (int)$answerRating->rating;
+            });
     }
 
 }

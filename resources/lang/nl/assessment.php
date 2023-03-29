@@ -26,4 +26,7 @@ return [
     'score_assigned'                               => 'Score toegekend',
     'no_discrepancy'                               => 'Geen discrepantie',
     'discrepancy'                                  => 'Let op: discrepantie',
+    'snelscore_opties'                             => 'Snelscoren',
+    'CO-Learning scores'                           => 'CO-Learning scores',
+    'CO-Learning no results'                       => 'CO-Learning: geen resultaten',
 ];

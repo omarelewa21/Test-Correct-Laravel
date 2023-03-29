@@ -26,4 +26,7 @@ return [
     'score_assigned'                               => 'Score assigned',
     'no_discrepancy'                               => 'No discrepancy',
     'discrepancy'                                  => 'Notice: discrepancy',
+    'snelscore_opties'                             => 'Fast scoring',
+    'CO-Learning scores'                           => 'CO-Learning scores',
+    'CO-Learning no results'                       => 'CO-Learning: no results',
 ];
