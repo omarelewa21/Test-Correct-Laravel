@@ -27,19 +27,20 @@
                                            mode="transparent"
                         >
                             <x-slot:title>
-                                <div class="question-indicator items-center flex">
-                                    <div class="flex gap-4 items-center relative top-0.5">
-                                        <h4 class="inline-flex items-center pr-4"
-                                            selid="questiontitle">
-                                            <span>@lang('question.Vraaggroep')</span>
-                                            <span>:</span>
-                                            <span class="ml-2 text-left">{{ $this->currentGroup->name }}</span>
-                                            @if($this->currentGroup->isCarouselQuestion())
-                                                <span class="ml-2 lowercase text-base">@lang('cms.carrousel')</span>
-                                            @endif
-                                        </h4>
-                                    </div>
-                                </div>
+                                <h4 class="flex items-center pr-4"
+                                    selid="questiontitle"
+                                >
+                                    <span>@lang('question.Vraaggroep')</span>
+                                    <span>:</span>
+                                    <span x-cloak class="ml-2 text-left flex line-clamp-1" title="{!! $this->currentGroup->name !!}">
+                                        {!! $this->currentGroup->name !!}
+                                    </span>
+                                    @if($this->currentGroup->isCarouselQuestion())
+                                        <span class="ml-2 lowercase text-base"
+                                              title="@lang('assessment.carousel_explainer')"
+                                        >@lang('cms.carrousel')</span>
+                                    @endif
+                                </h4>
                             </x-slot:title>
                             <x-slot:body>
                                 <div class="flex flex-col gap-2"
@@ -344,7 +345,7 @@
                                                 <div class="flex items-center justify-center w-[30px] min-w-[30px] h-[30px] border-bluegrey border bg-off-white overflow-hidden rounded-full">
                                                     <x-icon.profile class="scale-150 text-sysbase relative top-1" />
                                                 </div>
-                                                <span class="ml-2 truncate pr-2">{{ $rating->user->nameFull }}{{ $rating->user->nameFull }}{{ $rating->user->nameFull }}</span>
+                                                <span class="ml-2 truncate pr-2">{{ $rating->user->nameFull }}</span>
                                                 <span class="ml-auto">@js($rating->displayRating)</span>
                                             </div>
                                         @endforeach
