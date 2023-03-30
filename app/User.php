@@ -1177,7 +1177,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
         if (count($sharedSectionIds) > 0) {
             $sectionIdsFromShared = Subject::whereIn('section_id', $sharedSectionIds)->whereIn('base_subject_id',
-                $baseSubjectIds)->pluck('section_id')->unique();
+                $baseSubjectIds)->select('section_id');
         }
 
         if ($query === null) {
