@@ -774,7 +774,7 @@ class TestTake extends BaseModel
     public function hasCarousel()
     {
         $countCarouselGroupsInTestTake = GroupQuestion::whereIn('id',
-            $this->test->testQuestions->select('question_id')
+            $this->test->testQuestions()->select('question_id')
         )->where('groupquestion_type' ,'carousel')->count();
 
         return $countCarouselGroupsInTestTake > 0;
