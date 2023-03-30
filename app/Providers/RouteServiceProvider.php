@@ -554,7 +554,7 @@ class RouteServiceProvider extends ServiceProvider
 
         $this->mapWebRoutes();
 
-        if (!$this->app->environment('production')){
+        if (!$this->app->environment('production') && app()->isLocal()){
             $this->mapTestingRoutes();
         }
 //        $this->mapWebRoutes();
