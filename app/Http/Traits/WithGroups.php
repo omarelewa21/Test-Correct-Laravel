@@ -17,9 +17,9 @@ trait WithGroups
         if ($this->question->is_subquestion) {
             $groupQuestions = GroupQuestionQuestion::whereQuestionId($this->question->getKey())->get();
             if ($groupQuestions->count() > 1) {
-                $groupQuestionIdsBuilder = $groupQuestions->select('group_question_id');
+                $groupQuestionIds = $groupQuestions->pluck('group_question_id')->toArray();
                 $testId = $this->getTestId();
-                $this->group =  TestQuestion::whereTestId($testId)->whereIn('question_id', $groupQuestionIdsBuilder)->first()->question;
+                $this->group =  TestQuestion::whereTestId($testId)->whereIn('question_id', $groupQuestionIds)->first()->question;
             } else {
                 $this->group = $groupQuestions->first()->groupQuestion;
             }
