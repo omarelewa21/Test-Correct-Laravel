@@ -10,6 +10,7 @@ use tcCore\Period;
 use tcCore\Subject;
 use tcCore\Test;
 use tcCore\TestKind;
+use Illuminate\Support\Str;
 
 trait TestActions
 {
@@ -101,23 +102,22 @@ trait TestActions
 
     private function getNameRulesDependingOnAction()
     {
-        return[
+        return [
             'required',
             'min:3',
             Rule::unique('tests', 'name')
             ->where(fn (Builder $query) => 
                 $query->where(['is_system_test' => 0, 'deleted_at' => null])
-                // Subquery to allow tests from the same school as the current user
+                // Subquery to allow tests with the same name if school location customer code is TBSC
                 ->whereExists(fn ($query) =>
                     $query->select(DB::raw(1))
                     ->from('users')
                     ->whereColumn('users.id', 'tests.author_id')
                     ->where(function ($query) {
-                        $schoolId = Auth()->user()->school_id;
-                        // if user attached to school, then allow repeated names from the same school
-                        if ($schoolId) $query->where('users.school_id', '<>', $schoolId);
-                        // if not attached to school, then allow repeated names in general
-                        else $query->whereNotNull('users.school_id');
+                        $schoolLocation = Auth()->user()->schoolLocation;
+                        if ($schoolLocation && Str::upper($schoolLocation->customer_code) === 'TBSC'){
+                            $query->where('users.school_location_id', '<>', $schoolLocation->id);
+                        }
                     })
                 )
             )
