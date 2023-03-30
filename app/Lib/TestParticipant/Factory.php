@@ -1,5 +1,6 @@
 <?php namespace tcCore\Lib\TestParticipant;
 
+use Illuminate\Support\Arr;
 use tcCore\SchoolClass;
 use tcCore\TestParticipant;
 
@@ -18,24 +19,16 @@ class Factory {
         $schoolClassIds = $data['school_class_ids'] ?? null;
         $testParticipantIds = $data['test_participant_ids'] ?? null;
 
-        $userIds = $data['user_id'] ?? [];
-        if (!is_array($userIds)) {
-            $userIds = [$userIds];
-        }
+        $userIds = Arr::wrap($data['user_id'] ?? []);
+
         unset($data['school_class_ids'], $data['test_participant_ids'], $data['user_id']);
 
         $schoolClassUserIds = $schoolClassIds ? $this->getUserIdsFromSchoolClass($schoolClassIds) : [];
         $testParticipantUserIds = $testParticipantIds ? $this->getUserIdsFromTestParticipantIds($testParticipantIds) : [];
-        logger([
-           'schoolClassUserIds' => $schoolClassUserIds,
-           'testParticipantIds' => $testParticipantIds,
-           'testParticipantUserIds' => $testParticipantUserIds,
-        ]);
+
         $UserIdSchoolClass = [];
         $allUsers = $schoolClassUserIds + $testParticipantUserIds;
-        logger([
-            'allUsers' => $allUsers
-        ]);
+
         foreach($allUsers as $schoolClassId => $studentUsers) {
             foreach ($studentUsers as $studentUserId) {
                 $UserIdSchoolClass[$studentUserId] = $schoolClassId;
@@ -44,13 +37,12 @@ class Factory {
         }
         $userIds = array_unique($userIds);
 
-
         $testParticipants = [];
 
         $existingTestParticipants = TestParticipant::withTrashed()->whereIn('user_id', $userIds)->where('test_take_id', $testTakeId)->get();
         foreach ($existingTestParticipants as $existingTestParticipant) {
             if ($existingTestParticipant->trashed()) {
-                $existingTestParticipant->setAttribute(with(new TestParticipant())->getDeletedAtColumn(), null);
+                $existingTestParticipant->restore();
             }
 
             $existingTestParticipant->fill($data);
