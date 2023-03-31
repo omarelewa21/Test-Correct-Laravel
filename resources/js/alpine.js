@@ -1683,6 +1683,8 @@ document.addEventListener('alpine:init', () => {
         },
         setCurrentFocusInput (){
             let name = ('' != this.activeOverlay) ? this.activeOverlay : this.openTab;
+
+            console.log(hasErrors);
             setTimeout(() => this.$root.querySelector(`[data-focus-tab='${name}']`)?.focus(), 250);
         },
         changeActiveOverlay (activeOverlay = ''){

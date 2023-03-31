@@ -7004,7 +7004,7 @@ document.addEventListener('alpine:init', function () {
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('loginScreen', function (openTab, activeOverlay, device) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('loginScreen', function (openTab, activeOverlay, device, hasErrors) {
     return {
       openTab: openTab,
       showPassword: false,
@@ -7013,23 +7013,31 @@ document.addEventListener('alpine:init', function () {
       showEntreePassword: false,
       activeOverlay: activeOverlay,
       device: device,
+      hasErrors: hasErrors,
       init: function init() {
         var _this30 = this;
         setTimeout(function () {
-          _this30.setCurrentFocusInput();
           _this30.$wire.checkLoginFieldsForInput();
         }, 250);
+        this.setCurrentFocusInput();
+        this.$watch('hasErrors', function (value) {
+          _this30.setCurrentFocusInput();
+        });
         this.$watch('activeOverlay', function (value) {
-          setTimeout(_this30.setCurrentFocusInput, 250);
+          _this30.setCurrentFocusInput();
         });
         this.$watch('openTab', function (value) {
-          setTimeout(_this30.setCurrentFocusInput, 250);
+          _this30.setCurrentFocusInput();
         });
       },
       setCurrentFocusInput: function setCurrentFocusInput() {
-        var _this$$root$querySele2;
-        var name = this.activeOverlay === 'send_reset_password' ? 'overlay' : this.openTab;
-        (_this$$root$querySele2 = this.$root.querySelector("[data-focus-tab='".concat(name, "']"))) === null || _this$$root$querySele2 === void 0 ? void 0 : _this$$root$querySele2.focus();
+        var _this31 = this;
+        var name = '' != this.activeOverlay ? this.activeOverlay : this.openTab;
+        console.log(hasErrors);
+        setTimeout(function () {
+          var _this31$$root$querySe;
+          return (_this31$$root$querySe = _this31.$root.querySelector("[data-focus-tab='".concat(name, "']"))) === null || _this31$$root$querySe === void 0 ? void 0 : _this31$$root$querySe.focus();
+        }, 250);
       },
       changeActiveOverlay: function changeActiveOverlay() {
         var activeOverlay = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';

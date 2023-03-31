@@ -14,13 +14,13 @@
                  @entangle('login_tab'),
                  @entangle('active_overlay'),
                  @entangle('device'),
-                 @js($errors->any())
+                 @entangle('')
                  )"
-         wire:key="has-errors-@js($errors->any())"
          wire:ignore.self
     >
-        <div class="w-full max-w-[540px] mx-4 py-4">
 
+        <div class="w-full max-w-[540px] mx-4 py-4">
+            {{var_dump($errors->getMessages())}}
             @if($tab == 'login')
                 {{-- top content block height:120px --}}
                 <div class="bg-white rounded-t-[10px] px-10 pt-[31px] pb-0 shadow-lg flex flex-col relative border-b border-secondary">
@@ -122,7 +122,8 @@
                                                                     x-show="(showPassword && !hoverPassword) || (!showPassword && hoverPassword)"/>
                                                 </div>
                                             </div>
-                                            <x-input.text wire:model.lazy="password"
+                                            <x-input.text data-focus-tab="1-password"
+                                                          wire:model.lazy="password"
                                                           selid="login-password"
                                                           x-bind:type="showPassword ? 'text' : 'password'"
                                                           class="pr-12 overflow-ellipsis"
