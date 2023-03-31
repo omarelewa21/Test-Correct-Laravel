@@ -89,6 +89,10 @@ class SeleniumController
             $request->input('command'),
             $request->input('parameters', [])
         );
+
+        return response()->json([
+            'output' => Artisan::output(),
+        ]);
     }
 
     public function csrfToken()
