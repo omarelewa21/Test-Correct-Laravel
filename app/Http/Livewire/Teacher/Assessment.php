@@ -237,6 +237,19 @@ class Assessment extends Component implements CollapsableHeader
         return !$this->currentAnswer->isAnswered;
     }
 
+    public function getProgressProperty(): int
+    {
+//        $answersToAssess = $this->answers->discrepancyFiltered((bool) $this->assessmentContext['skipCoLearningNoDiscrepancies']);
+//
+//        $answersRated = AnswerRating::where('test_take_id', $this->testTakeData->id)
+//            ->whereIn('answer_id', $answersToAssess->pluck('id'))
+//            ->whereNot('type', AnswerRating::TYPE_STUDENT)
+//            ->count();
+//
+//        return floor($answersRated / $answersToAssess->count() * 100);
+        return 1;
+    }
+
     /* Event listener methods */
     /**
      * @param $panelData
@@ -913,11 +926,10 @@ class Assessment extends Component implements CollapsableHeader
     private function updateOrCreateAnswerFeedback($value)
     {
         $this->currentAnswer->feedback()
-            ->updateOrCreate([
-                'user_id' => auth()->id(),
-            ], [
-                'message' => clean($value)
-            ]);
+            ->updateOrCreate(
+                ['user_id' => auth()->id()],
+                ['message' => clean($value)]
+            );
     }
 
     private function getFeedbackForCurrentAnswer(): string

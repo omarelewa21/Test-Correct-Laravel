@@ -9,7 +9,10 @@
     <x-partials.header.assessment :testName="$testName" />
     @if($this->headerCollapsed)
         <div class="flex min-h-[calc(100vh-var(--header-height))] relative">
-            <div class="px-15 py-10 gap-6 flex flex-col flex-1">
+            <div class="px-15 py-10 gap-6 flex flex-col flex-1 relative">
+{{--                <div class="progress-bar absolute top-1 left-0 w-full h-4 bg-allred">--}}
+{{--                    @js($this->progress) % nagekeken--}}
+{{--                </div>--}}
                 {{-- Group section --}}
                 <div class="flex flex-col text-xs">
                     <span>vraag: @js($this->currentQuestion->id)</span>
