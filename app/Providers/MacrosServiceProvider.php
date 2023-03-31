@@ -11,9 +11,7 @@ use Illuminate\Support\Str;
 
 class MacrosServiceProvider extends ServiceProvider
 {
-    public function register()
-    {
-    }
+    public function register() {}
 
     public function boot()
     {
@@ -21,20 +19,20 @@ class MacrosServiceProvider extends ServiceProvider
             return $this->havingRaw("COUNT($column) $operator $amount");
         });
 
-        EloquentBuilder::macro('optionList', function ($cols = ['id','name'], $labelCallback = null) {
-            return $this->get($cols)->map(function ($value) use ($labelCallback){
-                return (object) ['value' => $value->id, 'label' => ($labelCallback) ? $labelCallback($value) : $value->name];
+        EloquentBuilder::macro('optionList', function ($cols = ['id', 'name'], $labelCallback = null) {
+            return $this->get($cols)->map(function ($value) use ($labelCallback) {
+                return (object)['value' => $value->id, 'label' => ($labelCallback) ? $labelCallback($value) : $value->name];
             });
         });
 
-        EloquentBuilder::macro('uuidOptionList', function ($cols = ['uuid','name'], $labelCallback = null) {
-            return $this->get($cols)->map(function ($value) use ($labelCallback){
-                return (object) ['value' => $value->uuid, 'label' => ($labelCallback) ? $labelCallback($value) : $value->name];
+        EloquentBuilder::macro('uuidOptionList', function ($cols = ['uuid', 'name'], $labelCallback = null) {
+            return $this->get($cols)->map(function ($value) use ($labelCallback) {
+                return (object)['value' => $value->uuid, 'label' => ($labelCallback) ? $labelCallback($value) : $value->name];
             });
         });
 
         Str::macro('dotToPascal', function ($string) {
-            return Str::of($string)->replace('.','_')->camel()->ucfirst();
+            return Str::of($string)->replace('.', '_')->camel()->ucfirst();
         });
         Str::macro('pascal', function ($string) {
             return Str::of($string)->studly();
@@ -43,9 +41,15 @@ class MacrosServiceProvider extends ServiceProvider
         Collection::macro('append', function (...$values) {
             return $this->push(...$values);
         });
-
+        Collection::macro('whereNot', function (string $property, mixed $value, bool $strict = false) {
+            $operator = $strict ? '!==' : '!=';
+            return $this->where($property, $operator, $value);
+        });
         Collection::macro('discussionTypeFiltered', function (bool $openOnly) {
             return $this->when($openOnly, fn($questions) => $questions->where('isDiscussionTypeOpen', true));
+        });
+        Collection::macro('discrepancyFiltered', function (bool $hideNonDescrepancy) {
+            return $this->when($hideNonDescrepancy, fn($answers) => $answers->whereNot('hasDiscrepancy', false, true));
         });
     }
 }

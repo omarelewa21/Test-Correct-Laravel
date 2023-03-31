@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use Livewire\Component;
 use tcCore\Answer;
+use tcCore\AnswerFeedback;
 use tcCore\AnswerRating;
 use tcCore\Exceptions\AssessmentException;
 use tcCore\Http\Helpers\CakeRedirectHelper;
@@ -20,12 +21,12 @@ class Assessment extends Component implements CollapsableHeader
     /*Template properties*/
     public bool $headerCollapsed = false;
     public array $assessmentContext = [
-        'skipCoLearningDiscrepancies' => false,
-        'skippedCoLearning'           => false,
-        'assessedAt'                  => null,
-        'assessmentType'              => null,
-        'assessIndex'                 => null,
-        'totalToAssess'               => 0
+        'skipCoLearningNoDiscrepancies' => false,
+        'skippedCoLearning'             => false,
+        'assessedAt'                    => null,
+        'assessmentType'                => null,
+        'assessIndex'                   => null,
+        'totalToAssess'                 => 0
     ];
     public bool $questionPanel = true;
     public bool $answerPanel = true;
@@ -66,6 +67,7 @@ class Assessment extends Component implements CollapsableHeader
     public $currentQuestion;
     public $currentGroup;
     public $score = null;
+    public $feedback = '';
 
     protected bool $skipBooted = false;
 
@@ -114,6 +116,11 @@ class Assessment extends Component implements CollapsableHeader
     public function updatedScore($value)
     {
         $this->updateOrCreateAnswerRating($value);
+    }
+
+    public function updatedFeedback($value)
+    {
+        $this->updateOrCreateAnswerFeedback($value);
     }
 
     /* Computed properties */
@@ -230,6 +237,19 @@ class Assessment extends Component implements CollapsableHeader
         return !$this->currentAnswer->isAnswered;
     }
 
+    public function getProgressProperty(): int
+    {
+//        $answersToAssess = $this->answers->discrepancyFiltered((bool) $this->assessmentContext['skipCoLearningNoDiscrepancies']);
+//
+//        $answersRated = AnswerRating::where('test_take_id', $this->testTakeData->id)
+//            ->whereIn('answer_id', $answersToAssess->pluck('id'))
+//            ->whereNot('type', AnswerRating::TYPE_STUDENT)
+//            ->count();
+//
+//        return floor($answersRated / $answersToAssess->count() * 100);
+        return 1;
+    }
+
     /* Event listener methods */
     /**
      * @param $panelData
@@ -273,7 +293,10 @@ class Assessment extends Component implements CollapsableHeader
         $this->setTestTakeData();
         $this->startAssessment();
 
-        Session::put("assessment-started-$this->testTakeUuid", $args);
+        Session::put(
+            "assessment-started-$this->testTakeUuid",
+            $args + ['skipCoLearningNoDiscrepancies' => $this->assessmentContext['skipCoLearningNoDiscrepancies']]
+        );
 
         return $this->headerCollapsed = true;
     }
@@ -317,6 +340,7 @@ class Assessment extends Component implements CollapsableHeader
         }
 
         $this->score = $this->figureOutAnswerScore();
+        $this->feedback = $this->getFeedbackForCurrentAnswer();
 
         return [
             'index' => $this->answerNavigationValue,
@@ -333,7 +357,7 @@ class Assessment extends Component implements CollapsableHeader
         $newIndex = $value - 1;
 
         if ($nextQuestion = $this->questions->discussionTypeFiltered($this->openOnly)->get($newIndex)) {
-            $hasAnswerForNextQuestion = $this->answers->where('question_id', $nextQuestion->id)
+            $hasAnswerForNextQuestion = $this->getAnswersForCurrentQuestion($nextQuestion)
                 ->where('test_participant_id', $this->getCurrentParticipantId())
                 ->first();
             if ($hasAnswerForNextQuestion) {
@@ -432,11 +456,12 @@ class Assessment extends Component implements CollapsableHeader
         $this->openOnly = $testTake->assessment_type === 'OPEN_ONLY';
 
         $this->assessmentContext = [
-            'skippedCoLearning' => !$testTake->skipped_discussion,
-            'assessedAt'        => filled($testTake->assessed_at) ? str($testTake->assessed_at->translatedFormat('j M Y'))->replace('.', '') : null,
-            'assessmentType'    => $testTake->assessment_type,
-            'assessIndex'       => $this->getAssessedQuestionsCount(),
-            'totalToAssess'     => $this->questions->discussionTypeFiltered($this->openOnly)->count(),
+            'skipCoLearningNoDiscrepancies' => (bool)($this->sessionSettings()?->skipCoLearningNoDiscrepancies ?? $this->assessmentContext['skipCoLearningNoDiscrepancies']),
+            'skippedCoLearning'             => $testTake->skipped_discussion,
+            'assessedAt'                    => filled($testTake->assessed_at) ? str($testTake->assessed_at->translatedFormat('j M Y'))->replace('.', '') : null,
+            'assessmentType'                => $testTake->assessment_type,
+            'assessIndex'                   => $this->getAssessedQuestionsCount(),
+            'totalToAssess'                 => $this->questions->discussionTypeFiltered($this->openOnly)->count(),
         ];
 
         $this->questionCount = $this->questions->count();
@@ -453,7 +478,8 @@ class Assessment extends Component implements CollapsableHeader
                 ->with([
                     'testParticipants:id,uuid,test_take_id,user_id,test_take_status_id',
                     'testParticipants.answers:id,uuid,test_participant_id,question_id,json,final_rating,done',
-                    'testParticipants.answers.answerRatings:id,answer_id,type,rating,advise',
+                    'testParticipants.answers.answerRatings:id,answer_id,type,rating,advise,user_id',
+                    'testParticipants.answers.answerRatings.user:id,name,name_first,name_suffix',
                     'test:id',
                     'test.testQuestions:id,test_id,question_id',
                     'test.testQuestions.question',
@@ -466,6 +492,15 @@ class Assessment extends Component implements CollapsableHeader
             ->sortBy('order')
             ->sortBy('test_participant_id')
             ->values();
+
+        $this->answers->each(function ($answer) {
+            $coLearningRatings = $answer->answerRatings->where('type', AnswerRating::TYPE_STUDENT);
+            if (!$coLearningRatings) {
+                $answer->hasDiscrepancy = null;
+                return true;
+            }
+            $answer->hasDiscrepancy = !$this->currentAnswerCoLearningRatingsHasNoDiscrepancy($answer);
+        });
 
         $this->groups = $this->testTakeData->test->testQuestions
             ->map(fn($testQuestion) => $testQuestion->question->isType('Group') ? $testQuestion->question : null)
@@ -518,9 +553,12 @@ class Assessment extends Component implements CollapsableHeader
     /**
      * @return mixed
      */
-    private function getAnswersForCurrentQuestion(): Collection
+    private function getAnswersForCurrentQuestion(?Question $question = null): Collection
     {
-        return $this->answers->where('question_id', $this->currentQuestion->getKey())->values();
+        $question ??= $this->currentQuestion;
+        return $this->answers->where('question_id', $question->getKey())
+            ->discrepancyFiltered((bool)$this->assessmentContext['skipCoLearningNoDiscrepancies'])
+            ->values();
     }
 
     /**
@@ -652,7 +690,8 @@ class Assessment extends Component implements CollapsableHeader
      */
     private function getClosestAvailableAnswer(string $action, Collection $answers, int $currentIndex): ?Answer
     {
-        $answers = $answers->whereIn('question_id', $this->getQuestionIdsForCurrentAssessmentType());
+        $answers = $answers->whereIn('question_id', $this->getQuestionIdsForCurrentAssessmentType())
+            ->discrepancyFiltered((bool)$this->assessmentContext['skipCoLearningNoDiscrepancies']);
         if ($action === 'last') return $answers->last();
         if ($action === 'first') return $answers->first();
         if ($action === 'decr') return $answers->filter(fn($answer, $key) => $key < $currentIndex)->last();
@@ -718,10 +757,7 @@ class Assessment extends Component implements CollapsableHeader
             ->first();
 
         $this->questionNavigationValue = $this->questions->search($firstQuestionForAnswer) + 1;
-        $this->answerNavigationValue = $this->answers
-                ->whereIn('question_id', $this->getQuestionIdsForCurrentAssessmentType())
-                ->values()
-                ->search($firstAnswer) + 1;
+        $this->answerNavigationValue = $this->students->search($firstAnswer->test_participant_id) + 1;
     }
 
     private function validQueryStringPropertiesForNavigation(): bool
@@ -748,8 +784,10 @@ class Assessment extends Component implements CollapsableHeader
         if ($rating = $ratings->first(fn($rating) => $rating->type === AnswerRating::TYPE_SYSTEM)) {
             return $rating->rating;
         }
-        if ($rating = $ratings->first(fn($rating) => $rating->type === AnswerRating::TYPE_STUDENT)) {
-            return $rating->rating;
+
+        if ($ratings->where('type', AnswerRating::TYPE_STUDENT)->isNotEmpty()) {
+            $rating = $ratings->filter(fn($rating) => $rating->type === AnswerRating::TYPE_STUDENT)->median('rating');
+            return $this->currentQuestion->decimal_score ? round($rating) : round($rating * 2) / 2;
         }
 
         if (!$this->currentAnswer->isAnswered) {
@@ -812,14 +850,14 @@ class Assessment extends Component implements CollapsableHeader
     {
         $questionsIdsWithTimesRated = Answer::from('answers as a')
             ->distinct()
-            ->selectRaw('questions.question_id')
+            ->selectRaw('participants.question_id')
             ->joinSub(function ($query) {
-                $query->select('question_id')
+                $query->select('question_id', 'tp.id')
                     ->from('answers')
                     ->join('test_participants as tp', 'tp.id', '=', 'answers.test_participant_id')
                     ->where('tp.test_take_id', $this->testTakeData->id)
                     ->distinct();
-            }, 'questions', fn($join) => $join->on('questions.question_id', '=', 'a.question_id'))
+            }, 'participants', fn($join) => $join->on('participants.question_id', '=', 'a.question_id')->on('participants.id', '=', 'a.test_participant_id'))
             ->selectSub(function ($query) {
                 $query->selectRaw('count(*)')
                     ->from('answer_ratings as ar')
@@ -829,7 +867,7 @@ class Assessment extends Component implements CollapsableHeader
             ->selectSub(function ($query) {
                 $query->selectRaw('count(*)')
                     ->from('answers as a2')
-                    ->whereRaw('a2.question_id = questions.question_id');
+                    ->whereRaw('a2.question_id = participants.question_id');
             }, 'answerCount')
             ->whereNull('a.deleted_at')
             ->withTrashed()
@@ -848,12 +886,9 @@ class Assessment extends Component implements CollapsableHeader
     private function setNavigationDataWithPreviouslyAssessedQuestion($previouslyAssessedQuestion): void
     {
         $this->questionNavigationValue = $this->questions->search($previouslyAssessedQuestion) + 1;
-        $this->answerNavigationValue = $this->answers
-                ->where('question_id', $previouslyAssessedQuestion->id)
-                ->values()
-                ->search(
-                    $this->answers->where('question_id', $previouslyAssessedQuestion->id)->first()
-                ) + 1;
+        $this->answerNavigationValue = $this->students->search(
+                $this->answers->where('question_id', $previouslyAssessedQuestion->id)->first()->test_participant_id
+            ) + 1;
     }
 
     private function getQuestionIdsForCurrentAssessmentType()
@@ -864,11 +899,45 @@ class Assessment extends Component implements CollapsableHeader
     /**
      * @return bool
      */
-    private function currentAnswerCoLearningRatingsHasNoDiscrepancy(): bool
+    private function currentAnswerCoLearningRatingsHasNoDiscrepancy(?Answer $answer = null): bool
     {
-        return $this->currentAnswer->answerRatings->where('type', AnswerRating::TYPE_STUDENT)
+        $answer ??= $this->currentAnswer;
+        return $answer->answerRatings->where('type', AnswerRating::TYPE_STUDENT)
                 ->keyBy('rating')
                 ->count() === 1;
     }
 
+    public function coLearningRatings()
+    {
+        return $this->currentAnswer
+            ->answerRatings
+            ->where('type', AnswerRating::TYPE_STUDENT)
+            ->sortBy('user.name_first')
+            ->each(function ($answerRating) {
+                $answerRating->displayRating = $this->currentQuestion->decimal_score ? (float)$answerRating->rating : (int)$answerRating->rating;
+            });
+    }
+
+    private function sessionSettings(): object
+    {
+        return (object)Session::get('assessment-started-' . $this->testTakeUuid, []);
+    }
+
+    private function updateOrCreateAnswerFeedback($value)
+    {
+        $this->currentAnswer->feedback()
+            ->updateOrCreate(
+                ['user_id' => auth()->id()],
+                ['message' => clean($value)]
+            );
+    }
+
+    private function getFeedbackForCurrentAnswer(): string
+    {
+        return $this->currentAnswer
+            ->feedback()
+            ->where('user_id', auth()->id())
+            ->first()
+            ?->message ?? '';
+    }
 }

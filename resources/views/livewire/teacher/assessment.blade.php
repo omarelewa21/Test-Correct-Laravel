@@ -1,5 +1,5 @@
 <div id="assessment-page"
-     class="min-h-full w-full"
+     class="min-h-full w-full assessment"
      x-data="assessment(@js($this->score), @js($this->currentQuestion?->score), @js((bool)$this->currentQuestion?->decimal_score), @js($this->drawerScoringDisabled))"
      wire:key="page-@js($this->questionNavigationValue.$this->answerNavigationValue.$this->score)"
      x-on:update-navigation.window="dispatchUpdateToNavigator($event.detail.navigator, $event.detail.updates)"
@@ -9,9 +9,12 @@
     <x-partials.header.assessment :testName="$testName" />
     @if($this->headerCollapsed)
         <div class="flex min-h-[calc(100vh-var(--header-height))] relative">
-            <div class="px-15 py-10 gap-6 flex flex-col flex-1">
+            <div class="px-15 py-10 gap-6 flex flex-col flex-1 relative">
+{{--                <div class="progress-bar absolute top-1 left-0 w-full h-4 bg-allred">--}}
+{{--                    @js($this->progress) % nagekeken--}}
+{{--                </div>--}}
                 {{-- Group section --}}
-                <div class="flex flex-col">
+                <div class="flex flex-col text-xs">
                     <span>vraag: @js($this->currentQuestion->id)</span>
                     <span>antwoord: @js($this->currentAnswer->id)</span>
                     <span>testtake: @js($this->testTakeData->id)</span>
@@ -27,19 +30,21 @@
                                            mode="transparent"
                         >
                             <x-slot:title>
-                                <div class="question-indicator items-center flex">
-                                    <div class="flex gap-4 items-center relative top-0.5">
-                                        <h4 class="inline-flex items-center pr-4"
-                                            selid="questiontitle">
-                                            <span>@lang('question.Vraaggroep')</span>
-                                            <span>:</span>
-                                            <span class="ml-2 text-left">{{ $this->currentGroup->name }}</span>
-                                            @if($this->currentGroup->isCarouselQuestion())
-                                                <span class="ml-2 lowercase text-base">@lang('cms.carrousel')</span>
-                                            @endif
-                                        </h4>
-                                    </div>
-                                </div>
+                                <h4 class="flex items-center pr-4"
+                                    selid="questiontitle"
+                                >
+                                    <span>@lang('question.Vraaggroep')</span>
+                                    <span>:</span>
+                                    <span x-cloak class="ml-2 text-left flex line-clamp-1"
+                                          title="{!! $this->currentGroup->name !!}">
+                                        {!! $this->currentGroup->name !!}
+                                    </span>
+                                    @if($this->currentGroup->isCarouselQuestion())
+                                        <span class="ml-2 lowercase text-base"
+                                              title="@lang('assessment.carousel_explainer')"
+                                        >@lang('cms.carrousel')</span>
+                                    @endif
+                                </h4>
                             </x-slot:title>
                             <x-slot:body>
                                 <div class="flex flex-col gap-2"
@@ -205,7 +210,7 @@
                         <buttons
                                 class="flex h-[60px] px-2 cursor-pointer items-center border-b-3 border-transparent hover:text-primary transition-colors"
                                 x-on:click="tab(1)"
-                                x-bind:class="{'primary border-primary': activeTab === 1}"
+                                x-bind:class="activeTab === 1 ? 'primary border-primary hover:border-primary' : 'hover:border-primary/25'"
                                 title="@lang('assessment.scoren')"
                         >
                             <x-icon.review />
@@ -213,14 +218,20 @@
                         <buttons
                                 class="flex h-[60px] px-2 cursor-pointer items-center border-b-3 border-transparent hover:text-primary transition-colors"
                                 x-on:click="tab(2)"
-                                x-bind:class="{'primary border-primary': activeTab === 2}"
+                                x-bind:class="activeTab === 2 ? 'primary border-primary hover:border-primary' : 'hover:border-primary/25'"
+                                title="@lang('assessment.Feedback')"
                         >
                             <x-icon.feedback-text />
                         </buttons>
                         <buttons
-                                class="flex h-[60px] px-2 cursor-pointer items-center border-b-3 border-transparent hover:text-primary transition-colors"
+                                @class([
+                                    'flex h-[60px] px-2 cursor-pointer items-center border-b-3 border-transparent hover:text-primary transition-colors',
+                                    'text-midgrey pointer-events-none' => !$this->showCoLearningScoreToggle
+                                    ])
                                 x-on:click="tab(3)"
-                                x-bind:class="{'primary border-primary': activeTab === 3}"
+                                x-bind:class="activeTab === 3 ? 'primary border-primary hover:border-primary' : 'hover:border-primary/25'"
+                                title="@lang($this->showCoLearningScoreToggle ? 'co-learning.co_learning' : 'assessment.CO-Learning no results')"
+                                @disabled(!$this->showCoLearningScoreToggle)
                         >
                             <x-icon.co-learning />
                         </buttons>
@@ -229,7 +240,7 @@
                          class="slide-container | flex h-full max-w-[var(--sidebar-width)] overflow-hidden"
                          wire:ignore.self
                     >
-                        <div class="slide-1 | p-6 flex-[1_0_100%] h-full w-[var(--sidebar-width)] space-y-4">
+                        <div class="slide-1 scoring | p-6 flex-[1_0_100%] h-full w-[var(--sidebar-width)] space-y-4">
                             <div class="question-indicator | items-center flex w-full">
                                 <div class="inline-flex question-number rounded-full text-center justify-center items-center">
                                     <span class="align-middle cursor-default">{{ $this->questionNavigationValue }}</span>
@@ -243,12 +254,13 @@
                                 </div>
                             </div>
                             @if($this->showCoLearningScoreToggle)
-                                <div class="colearning-answers | flex w-full items-center justify-between">
+                                <div class="colearning-answers | flex w-full items-center justify-between"
+                                     title="@lang('assessment.score_assigned'): @js($this->coLearningScoredValue)"
+                                     x-cloak
+                                >
                                     <x-input.toggle disabled checked />
                                     <span class="bold text-base">@lang('assessment.Score uit CO-Learning')</span>
-                                    <x-tooltip>
-                                        @lang('assessment.score_assigned'): @js($this->coLearningScoredValue)
-                                    </x-tooltip>
+                                    <x-tooltip>Staat geen tekst in het ticket :)</x-tooltip>
                                 </div>
                                 <div @class([
                                           'notification py-0 px-4 gap-6 flex items-center',
@@ -261,12 +273,13 @@
                                 </div>
                             @endif
                             @if($this->showAutomaticallyScoredToggle)
-                                <div class="auto-assessed | flex w-full items-center justify-between">
+                                <div class="auto-assessed | flex w-full items-center justify-between cursor-default"
+                                     title="@lang('assessment.score_assigned'): @js($this->automaticallyScoredValue)"
+                                     x-cloak
+                                >
                                     <x-input.toggle disabled checked />
                                     <span class="bold text-base">@lang('assessment.Automatisch nakijken')</span>
-                                    <x-tooltip>
-                                        @lang('assessment.score_assigned'): @js($this->automaticallyScoredValue)
-                                    </x-tooltip>
+                                    <x-tooltip>Staat geen tekst in het ticket :)</x-tooltip>
                                 </div>
                             @endif
                             @if($this->showScoreSlider)
@@ -293,7 +306,7 @@
                                      x-on:slider-score-updated.window="updatedScore($event.detail.score)"
                                      x-bind:class="{'disabled': disabled}"
                                 >
-                                    <span class="flex ">Snelscore opties</span>
+                                    <span class="flex ">@lang('assessment.snelscore_opties')</span>
                                     <div class="flex flex-col w-full gap-2">
                                         @foreach($this->fastScoringOptions as $key => $option)
                                             <div class="fast-option | flex flex-col w-full p-4 gap-2 border border-bluegrey rounded-md transition-all hover:border-primary hover:text-primary hover:bg-primary/5 cursor-pointer"
@@ -318,11 +331,45 @@
                                 </div>
                             @endif
                         </div>
-                        <div class="slide-2 | p-6 flex-[1_0_100%] h-full w-[var(--sidebar-width)] space-y-4">
-                            Content Tab 2
+                        <div class="slide-2 feedback | p-6 flex-[1_0_100%] h-full w-[var(--sidebar-width)] space-y-4">
+                            <div class="flex flex-col w-full gap-2">
+                                <span class="flex ">@lang('assessment.Feedback toevoegen')</span>
+
+                                <div class="flex w-full flex-col gap-2"
+                                     wire:key="feedback-editor-{{  $this->questionNavigationValue.$this->answerNavigationValue }}"
+                                >
+                                    <x-input.rich-textarea type="assessment-feedback"
+                                                           :editorId="'feedback-editor'. $this->questionNavigationValue.$this->answerNavigationValue"
+                                                           wire:model.debounce.300ms="feedback"
+
+                                    />
+                                </div>
+                            </div>
                         </div>
-                        <div class="slide-3 | p-6 flex-[1_0_100%] h-full w-[var(--sidebar-width)] space-y-4">
-                            Content Tab 3
+                        <div class="slide-3 co-learning | p-6 flex-[1_0_100%] h-full w-[var(--sidebar-width)] space-y-4">
+                            <div class="flex flex-col w-full gap-2">
+                                <span class="flex ">@lang('assessment.CO-Learning scores')</span>
+                                @if(!$this->currentAnswerCoLearningRatingsHasNoDiscrepancy())
+                                    <div class="notification py-0 px-4 gap-6 flex items-center warning">
+                                        <x-icon.co-learning />
+                                        <span class="bold">@lang('assessment.discrepancy')</span>
+                                    </div>
+                                @endif
+                                <div class="flex w-full flex-col gap-2">
+                                    @if($this->showCoLearningScoreToggle)
+                                        @foreach($this->coLearningRatings() as $rating )
+                                            <div class="flex py-[7px] pl-3 pr-4 items-center border-l-4 border-l-student border border-bluegrey rounded-r-md rounded-l-sm">
+                                                <div class="flex items-center justify-center w-[30px] min-w-[30px] h-[30px] border-bluegrey border bg-off-white overflow-hidden rounded-full">
+                                                    <x-icon.profile class="scale-150 text-sysbase relative top-1" />
+                                                </div>
+                                                <span class="ml-2 truncate pr-2">{{ $rating->user->nameFull }}</span>
+                                                <span class="ml-auto">@js($rating->displayRating)</span>
+                                            </div>
+                                        @endforeach
+                                    @endif
+
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="nav-buttons | flex w-full justify-between items-center gap-2 px-6 h-[var(--header-height)] "
