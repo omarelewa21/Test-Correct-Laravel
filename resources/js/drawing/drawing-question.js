@@ -893,9 +893,9 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
 
     function encodeSvgLayersAsBase64Strings() {
         return {
-            question: UnicodeBase64Polyfill.encodeBase64(Canvas.layers.question.svg.innerHTML),
-            answer: UnicodeBase64Polyfill.encodeBase64(Canvas.layers.answer.svg.innerHTML),
-            grid: UnicodeBase64Polyfill.encodeBase64(Canvas.layers.grid.svg.innerHTML)
+            question: UnicodeBase64Polyfill.encode(Canvas.layers.question.svg.innerHTML),
+            answer: UnicodeBase64Polyfill.encode(Canvas.layers.answer.svg.innerHTML),
+            grid: UnicodeBase64Polyfill.encode(Canvas.layers.grid.svg.innerHTML)
         };
     }
 
@@ -940,7 +940,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             newShape.svg.updateBorderElement();
             newShape.svg.updateCornerElements();
         } else {
-            const decodedString = UnicodeBase64Polyfill.decodeBase64(layerData.data);
+            const decodedString = UnicodeBase64Polyfill.decode(layerData.data);
             UI.svgLayerToRender.innerHTML = decodedString;
             renderShapesFromSvgLayerString(layerData.name);
         }
@@ -1104,8 +1104,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
 
     function cleanedBase64EncodedStrings() {
         return {
-            question: UnicodeBase64Polyfill.encodeBase64(clearImageSources(Canvas.layers.question.svg)),
-            answer: UnicodeBase64Polyfill.encodeBase64(clearImageSources(Canvas.layers.answer.svg))
+            question: UnicodeBase64Polyfill.encode(clearImageSources(Canvas.layers.question.svg)),
+            answer: UnicodeBase64Polyfill.encode(clearImageSources(Canvas.layers.answer.svg))
         };
     }
 
@@ -1179,7 +1179,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     async function getPNGStringFromSVG(svg, panGroupSize) {
         prepareSvgForConversion(svg, panGroupSize);
         const newImage = new Image(panGroupSize.width, panGroupSize.height);
-        const base64StringOfSVG = UnicodeBase64Polyfill.encodeBase64(new XMLSerializer().serializeToString(svg));
+        const base64StringOfSVG = UnicodeBase64Polyfill.encode(new XMLSerializer().serializeToString(svg));
         newImage.setAttribute('src', 'data:image/svg+xml;base64,' + base64StringOfSVG);
 
         return await getDataUrlFromCanvasByImage(newImage);

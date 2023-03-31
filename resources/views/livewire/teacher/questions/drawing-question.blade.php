@@ -66,8 +66,8 @@
                          xmlns="http://www.w3.org/2000/svg"
                          style="--cursor-type-locked:var(--cursor-crosshair); --cursor-type-draggable:var(--cursor-crosshair);">
                         <g wire:ignore id="grid-preview-svg" stroke="var(--all-BlueGrey)" stroke-width="1"></g>
-                        <g class="question-svg" x-html="UnicodeBase64Polyfill.decodeBase64(questionSvg)"></g>
-                        <g class="answer-svg" x-html="UnicodeBase64Polyfill.decodeBase64(answerSvg)"></g>
+                        <g class="question-svg" x-html="UnicodeBase64Polyfill.decode(questionSvg)"></g>
+                        <g class="answer-svg" x-html="UnicodeBase64Polyfill.decode(answerSvg)"></g>
                     </svg>
 
                     {{-- extra div overlay so the svg is not hoverable--}}
