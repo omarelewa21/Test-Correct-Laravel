@@ -86,5 +86,6 @@ return [
 
     'Exporteer naar RTTI Online'    => 'Exporteer naar RTTI Online',
     'exporteer_naar_rtti_online_tooltip' => 'Let op, normeren en becijferen gebeurt in RTTI-Online als dit aanstaat.',
+    'allow_spellchecker'                => 'Spellingscontrole toestaan voor studenten',
 
 ];
