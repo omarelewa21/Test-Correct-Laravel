@@ -82,6 +82,28 @@
             </div>
         </div>
         <div class="flex flex-col bg-light-grey items-center justify-center py-12">
+            @if($needsApp && !$meetsAppRequirement && !$this->testParticipant->isInBrowser())
+                <div class="flex w-full justify-center transition-all duration-300 mb-4">
+                    <div class="notification error stretched">
+                        <div class="flex items-center space-x-3">
+                            <x-icon.exclamation/>
+                            <span class="title">{{ __('general.attention') }}</span>
+                        </div>
+                        <span class="body">{{ __('student.app_not_allowed') }}</span>
+                    </div>
+                </div>
+            @endif
+            @if($needsApp && $this->testParticipant->isInBrowser())
+                <div class="flex w-full justify-center transition-all duration-300 mb-4">
+                    <div class="notification error stretched">
+                        <div class="flex items-center space-x-3">
+                            <x-icon.exclamation/>
+                            <span class="title">{{ __('auth.download_student_app') }}</span>
+                        </div>
+                        <span class="body">{{ __('student.not_allowed_to_test_in_browser') }}</span>
+                    </div>
+                </div>
+            @endif
             <div class="content-section flex flex-col w-full max-w-2xl p-8 space-y-4">
                 @if($this->testTakeStatusStage != 'graded')
                     @if($this->testTakeStatusStage == 'planned')
@@ -123,28 +145,6 @@
                                     <x-icon.time-dispensation class="text-white" :title="__('test_take.waiting_grade')"/>
                                 </span>
                             @endif
-                        </div>
-                    </div>
-                @endif
-                @if($needsApp && !$meetsAppRequirement && !$this->testParticipant->isInBrowser())
-                    <div class="flex w-full justify-center transition-all duration-300 mb-4">
-                        <div class="notification error stretched">
-                            <div class="flex items-center space-x-3">
-                                <x-icon.exclamation/>
-                                <span class="title">{{ __('general.attention') }}</span>
-                            </div>
-                            <span class="body">{{ __('student.app_not_allowed') }}</span>
-                        </div>
-                    </div>
-                @endif
-                @if($needsApp && $this->testParticipant->isInBrowser())
-                    <div class="flex w-full justify-center transition-all duration-300 mb-4">
-                        <div class="notification error stretched">
-                            <div class="flex items-center space-x-3">
-                                <x-icon.exclamation/>
-                                <span class="title">{{ __('auth.download_student_app') }}</span>
-                            </div>
-                            <span class="body">{{ __('student.not_allowed_to_test_in_browser') }}</span>
                         </div>
                     </div>
                 @endif
