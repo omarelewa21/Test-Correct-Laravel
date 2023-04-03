@@ -3,6 +3,9 @@ import * as svgShape from "./svgShape.js";
 import {UIElements, warningBox} from "./uiElements.js";
 import * as sidebar from "./sidebar.js";
 import {v4 as uuidv4} from 'uuid';
+import * as UnicodeBase64Polyfill from './unicodeBase64Polyfill.js';
+
+window.UnicodeBase64Polyfill = UnicodeBase64Polyfill;
 
 window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, isOldDrawing) {
 
@@ -908,9 +911,9 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
 
     function encodeSvgLayersAsBase64Strings() {
         return {
-            question: btoa(Canvas.layers.question.svg.innerHTML),
-            answer: btoa(Canvas.layers.answer.svg.innerHTML),
-            grid: btoa(Canvas.layers.grid.svg.innerHTML)
+            question: UnicodeBase64Polyfill.encode(Canvas.layers.question.svg.innerHTML),
+            answer: UnicodeBase64Polyfill.encode(Canvas.layers.answer.svg.innerHTML),
+            grid: UnicodeBase64Polyfill.encode(Canvas.layers.grid.svg.innerHTML)
         };
     }
 
@@ -955,7 +958,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             newShape.svg.updateBorderElement();
             newShape.svg.updateCornerElements();
         } else {
-            const decodedString = atob(layerData.data);
+            const decodedString = UnicodeBase64Polyfill.decode(layerData.data);
             UI.svgLayerToRender.innerHTML = decodedString;
             renderShapesFromSvgLayerString(layerData.name);
         }
@@ -1198,8 +1201,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
 
     function cleanedBase64EncodedStrings() {
         return {
-            question: btoa(clearImageSources(Canvas.layers.question.svg)),
-            answer: btoa(clearImageSources(Canvas.layers.answer.svg))
+            question: UnicodeBase64Polyfill.encode(clearImageSources(Canvas.layers.question.svg)),
+            answer: UnicodeBase64Polyfill.encode(clearImageSources(Canvas.layers.answer.svg))
         };
     }
 
@@ -1273,7 +1276,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     async function getPNGStringFromSVG(svg, panGroupSize) {
         prepareSvgForConversion(svg, panGroupSize);
         const newImage = new Image(panGroupSize.width, panGroupSize.height);
-        newImage.setAttribute('src', 'data:image/svg+xml;base64,' + btoa(new XMLSerializer().serializeToString(svg)));
+        const base64StringOfSVG = UnicodeBase64Polyfill.encode(new XMLSerializer().serializeToString(svg));
+        newImage.setAttribute('src', 'data:image/svg+xml;base64,' + base64StringOfSVG);
 
         return await getDataUrlFromCanvasByImage(newImage);
     }
