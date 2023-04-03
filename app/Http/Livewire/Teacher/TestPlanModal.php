@@ -48,7 +48,7 @@ class TestPlanModal extends ModalComponent
         $rules = [
             'request.date'                  => 'required',
             'request.time_end'              => 'sometimes',
-            'request.allow_spellchecker'    => 'sometimes|boolean',
+            'request.allow_wsc'             => 'sometimes|boolean',
             'request.weight'                => 'required',
             'request.period_id'             => 'required',
             'request.school_classes'        => 'required',
@@ -186,7 +186,7 @@ class TestPlanModal extends ModalComponent
         $this->request['guest_accounts'] = 0;
         $this->request['school_classes'] = [];
         $this->request['notify_students'] = true;
-        $this->request['allow_spellchecker'] = false;
+        $this->request['allow_wsc'] = false;
 
         $this->request['invigilators'] = [$this->defaultInvigilator()];
         $this->request['owner_id'] = $this->defaultOwner();

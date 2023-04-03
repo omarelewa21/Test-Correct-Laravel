@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('test_takes', function (Blueprint $table) {
-            $table->boolean('allow_spellchecker')->default(false);
+            $table->boolean('allow_wsc')->default(false);
         });
     }
 
@@ -26,7 +26,7 @@ return new class extends Migration
     public function down()
     {
         Schema::table('test_takes', function (Blueprint $table) {
-            $table->dropColumn('allow_spellchecker');
+            $table->dropColumn('allow_wsc');
         });
     }
 };

@@ -142,11 +142,11 @@
                     </x-input.toggle-row-with-title>
 
                     @if ($this->isAssignmentType())
-                        <x-input.toggle-row-with-title wire:model="request.allow_spellchecker"
+                        <x-input.toggle-row-with-title wire:model="request.allow_wsc"
                                                     containerClass="border-t-0 w-full lg:w-[calc(50%-0.5rem)]"
                         >
                             <x-icon.autocheck />
-                            <span class="bold">{{ __('teacher.allow_spellchecker') }} </span>
+                            <span class="bold">{{ __('teacher.allow_wsc') }} </span>
                         </x-input.toggle-row-with-title>
                     @endif
 

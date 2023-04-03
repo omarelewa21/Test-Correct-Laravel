@@ -83,5 +83,5 @@ return [
     'not_linked_to_education_levels'                                                           => 'Test constructing not possible because you are not linked to education levels.',
     'Exporteer naar RTTI Online'                                                               => 'Export to RTTI Online',
     'exporteer_naar_rtti_online_tooltip'                                                       => 'Be aware that norming and grading takes place in RTTI-Online when this is on',
-    'allow_spellchecker'                                                                       => 'Allow spellchecker for students',
+    'allow_wsc'                                                                       => 'Allow spellchecker for students',
 ];
