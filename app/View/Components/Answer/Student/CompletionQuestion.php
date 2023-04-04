@@ -50,10 +50,10 @@ class CompletionQuestion extends QuestionComponent
         }
 
         if ($this->question->auto_check_answer_case_sensitive) {
-            return $givenAnswer === $correctAnswer->answer;
+            return $givenAnswer === $correctAnswer->answer ? true : null;
         }
 
-        return Str::lower($givenAnswer) === Str::lower($correctAnswer->answer);
+        return Str::lower($givenAnswer) === Str::lower($correctAnswer->answer) ? true : null;
     }
 
     private function createCompletionAnswerStruct(mixed $answers, $correctAnswers, $answer)
