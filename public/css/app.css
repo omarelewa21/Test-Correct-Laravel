@@ -8828,6 +8828,9 @@ video {
 .top-8{
   top: 2rem;
 }
+.top-\[100px\]{
+  top: 100px;
+}
 .top-\[14px\]{
   top: 14px;
 }
@@ -8839,6 +8842,9 @@ video {
 }
 .top-\[93px\]{
   top: 93px;
+}
+.top-\[calc\(var\(--header-height\)\+4px\)\]{
+  top: calc(var(--header-height) + 4px);
 }
 .top-\[var\(--header-height\)\]{
   top: var(--header-height);
@@ -11352,6 +11358,7 @@ video {
     --header-height: 70px;
 
     --sidebar-width: 300px;
+    --active-sidebar-width: var(--sidebar-width);
     --sidebar-transition: .5s ease;
     --collapsed-sidebar-width: 24px;
 

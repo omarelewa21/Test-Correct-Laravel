@@ -10,8 +10,10 @@
     @if($this->headerCollapsed)
         <div class="flex min-h-[calc(100vh-var(--header-height))] relative">
             <div class="px-15 py-10 gap-6 flex flex-col flex-1 relative">
-                <div class="progress-bar-background | absolute top-1 left-0  h-4 bg-white/50 border-bluegrey border-y w-full">
-                    <span class="progress-bar | flex items-center justify-end absolute left-0 h-[calc(1rem-2px)] bg-primary rounded-r-full pr-2"
+                <div class="progress-bar-background |  h-4 bg-white/50 border-bluegrey border-y fixed top-[calc(var(--header-height)+4px)] left-0"
+                     style="width: calc(100% - var(--active-sidebar-width)); transition: width var(--sidebar-transition)"
+                >
+                    <span class="progress-bar | sticky top-[100px] flex items-center justify-end absolute left-0 h-[calc(1rem-2px)] bg-primary rounded-r-full pr-2"
                           style="width: @js($this->progress)%; transition: width 150ms ease-in"
                     >
                         <span class="text-xs text-white">@js($this->progress)%</span>
@@ -199,7 +201,7 @@
                  x-on:assessment-drawer-tab-update.window="tab($event.detail.tab)"
             >
                 <div class="collapse-toggle vertical white z-10 cursor-pointer"
-                     @click="collapse = !collapse"
+                     @click="collapse = !collapse;"
                 >
                     <button class="relative"
                             :class="{'rotate-svg-180 -left-px': collapse}"

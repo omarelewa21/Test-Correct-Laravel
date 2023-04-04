@@ -1946,6 +1946,9 @@ document.addEventListener("alpine:init", () => {
         init() {
             this.container = this.$root.querySelector("#slide-container");
             this.tab(1);
+            this.$watch('collapse', (value) => {
+                document.documentElement.style.setProperty('--active-sidebar-width', value ? 'var(--collapsed-sidebar-width)' : 'var(--sidebar-width)' )
+            })
         },
         tab(index) {
             if (!this.tabs.includes(index)) return;

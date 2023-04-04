@@ -7504,6 +7504,9 @@ document.addEventListener("alpine:init", function () {
       init: function init() {
         this.container = this.$root.querySelector("#slide-container");
         this.tab(1);
+        this.$watch('collapse', function (value) {
+          document.documentElement.style.setProperty('--active-sidebar-width', value ? 'var(--collapsed-sidebar-width)' : 'var(--sidebar-width)');
+        });
       },
       tab: function tab(index) {
         var _this41 = this;
