@@ -925,43 +925,14 @@ class Assessment extends Component implements CollapsableHeader
 
     private function getAssessedQuestionsCount(): int
     {
-        $questionsIdsWithTimesRated = Answer::from('answers as a')
-            ->distinct()
-            ->selectRaw('participants.question_id')
-            ->joinSub(function ($query) {
-                $query->select('question_id', 'tp.id')
-                    ->from('answers')
-                    ->join('test_participants as tp', 'tp.id', '=', 'answers.test_participant_id')
-                    ->where('tp.test_take_id', $this->testTakeData->id)
-                    ->distinct();
-            },
-                'participants',
-                function ($join) {
-                    return $join->on('participants.question_id', '=', 'a.question_id')->on(
-                        'participants.id',
-                        '=',
-                        'a.test_participant_id'
-                    );
-                })
-            ->selectSub(function ($query) {
-                $query->selectRaw('count(*)')
-                    ->from('answer_ratings as ar')
-                    ->whereRaw('ar.answer_id = a.id')
-                    ->whereNull('ar.deleted_at');
-            }, 'assessedCount')
-            ->selectSub(function ($query) {
-                $query->selectRaw('count(*)')
-                    ->from('answers as a2')
-                    ->whereRaw('a2.question_id = participants.question_id');
-            }, 'answerCount')
-            ->whereNull('a.deleted_at')
-            ->withTrashed()
-            ->get();
-
-        return $questionsIdsWithTimesRated
+        $unansweredQuestionCount = $this->answers
             ->whereIn('question_id', $this->getQuestionIdsForCurrentAssessmentType())
-            ->where(fn($item) => $item->assessedCount >= $item->answerCount)
+            ->where(fn($answer) => $answer->answerRatings->where('type', '!=', AnswerRating::TYPE_STUDENT)->isEmpty())
+            ->pluck('question_id')
+            ->unique()
             ->count();
+
+        return $this->questions->discussionTypeFiltered($this->openOnly)->count() - $unansweredQuestionCount;
     }
 
     /**
