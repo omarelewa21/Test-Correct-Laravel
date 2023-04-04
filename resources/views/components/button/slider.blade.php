@@ -7,6 +7,7 @@
 'useNamedSlots' => false,
 'initialStatus' => null,
 'toggleValue' => 0,
+'identifier' => null,
 ])
 <div wire:ignore
      {{ $attributes->except(['wire:model', 'class']) }}
@@ -15,7 +16,8 @@
              @if($attributes->wire('model')->value) @entangle($attributes->wire('model')) @else null @endif,
              @js($options),
              @js($initialStatus),
-             @js($disabled)
+             @js($disabled),
+             @js($identifier)
          )"
      x-on:slider-toggle-rerender="rerender()"
      x-on:scoring-elements-error.window="markInputElementsWithError()"

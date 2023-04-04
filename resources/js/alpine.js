@@ -1379,13 +1379,14 @@ document.addEventListener("alpine:init", () => {
         }
     ));
 
-    Alpine.data("sliderToggle", (model, sources, initialStatus, disabled) => ({
+    Alpine.data("sliderToggle", (model, sources, initialStatus, disabled, identifier) => ({
         buttonPosition: "0px",
         buttonWidth: "auto",
         value: model,
         sources: sources,
         handle: null,
         disabled,
+        identifier,
         init() {
             this.setHandle();
             if (initialStatus !== null) {
@@ -1418,14 +1419,14 @@ document.addEventListener("alpine:init", () => {
 
             const oldValue = this.value;
             this.value = target.firstElementChild.dataset.id;
+
             this.$root.dataset.hasValue = this.value !== null;
             if (oldValue !== this.value) {
                 this.$dispatch("slider-toggle-value-updated", {
                     value: this.$root.dataset.toggleValue,
-                    state: parseInt(this.value) === 1
-                        ? "on"
-                        : "off",
-                    firstTick: oldValue === null
+                    state: parseInt(this.value) === 1 ? "on" : "off",
+                    firstTick: oldValue === null,
+                    identifier: this.identifier
                 });
             }
         },
@@ -1795,6 +1796,9 @@ document.addEventListener("alpine:init", () => {
         drawerScoringDisabled,
         init() {
             this.$store.assessment.resetData(this.score, this.toggleCount());
+            if (isString(this.shadowScore)) {
+                this.shadowScore = this.isFloat(score) ? parseFloat(score) : parseInt(score);
+            }
         },
         toggleCount() {
             return this.$root.querySelectorAll(".student-answer .slider-button-container:not(.disabled)").length;
@@ -1812,7 +1816,6 @@ document.addEventListener("alpine:init", () => {
         },
         toggleTicked(event) {
             const parsedValue = this.isFloat(event.value) ? parseFloat(event.value) : parseInt(event.value);
-
             this.setNewScore(parsedValue, event.state, event.firstTick);
             this.updateAssessmentStore();
 
@@ -1822,7 +1825,10 @@ document.addEventListener("alpine:init", () => {
                     { detail: { score: this.score } }
                 ));
             if (this.drawerScoringDisabled) {
-                this.$wire.set('score', this.score);
+                this.$wire.set("score", this.score);
+            }
+            if (event.hasOwnProperty('identifier')) {
+                this.$wire.toggleValueUpdated(event.identifier, event.state);
             }
         },
         isFloat(value) {
@@ -1844,7 +1850,6 @@ document.addEventListener("alpine:init", () => {
 
             if (this.shadowScore < 0) this.shadowScore = 0;
             if (this.shadowScore > this.maxScore) this.shadowScore = this.maxScore;
-
             this.score = this.getCurrentScore();
         },
         updateAssessmentStore() {
@@ -1941,13 +1946,16 @@ document.addEventListener("alpine:init", () => {
         clickedNext: false,
         init() {
             this.container = this.$root.querySelector("#slide-container");
-
+            this.tab(1);
         },
         tab(index) {
             if (!this.tabs.includes(index)) return;
             this.activeTab = index;
             const slide = this.$root.querySelector(".slide-" + index);
-            this.container.scroll({ left: slide.offsetLeft, behavior: "smooth" });
+            this.handleSlideHeight(slide);
+            this.$nextTick(() => {
+                this.container.scroll({ top: 0, left: slide.offsetLeft, behavior: "smooth" });
+            });
         },
         async next() {
             if (!this.$store.assessment.clearToProceed() && !this.clickedNext) {
@@ -1963,7 +1971,7 @@ document.addEventListener("alpine:init", () => {
                 if (done) {
                     this.clickedNext = false;
                 }
-            })
+            });
         },
         async previous() {
             this.tab(1);
@@ -1973,6 +1981,15 @@ document.addEventListener("alpine:init", () => {
                     this.clickedNext = false;
                 }
             });
+        },
+        handleSlideHeight(slide) {
+            if (slide.offsetHeight > this.container.offsetHeight) {
+                this.container.classList.add("overflow-y-auto");
+                this.container.classList.remove("overflow-y-hidden");
+            } else {
+                this.container.classList.remove("overflow-y-auto");
+                this.container.classList.add("overflow-y-hidden");
+            }
         }
     }));
     Alpine.data("scoreSlider", (score, model, maxScore, halfPoints, disabled, coLearning) => ({

@@ -9547,6 +9547,12 @@ video {
 .w-px{
   width: 1px;
 }
+.w-\[1rem\]{
+  width: 1rem;
+}
+.w-\[3\.375rem\]{
+  width: 3.375rem;
+}
 .min-w-\[110px\]{
   min-width: 110px;
 }
@@ -12107,10 +12113,6 @@ ul ul ul {
 .hover\:border-primary:hover{
   --tw-border-opacity: 1;
   border-color: rgb(0 77 245 / var(--tw-border-opacity));
-}
-
-.hover\:border-primary\/5:hover{
-  border-color: rgb(0 77 245 / 0.05);
 }
 
 .hover\:border-primary\/25:hover{
