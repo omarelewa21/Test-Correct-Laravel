@@ -1788,14 +1788,16 @@ document.addEventListener("alpine:init", () => {
             this.activeOverlay = activeOverlay;
         }
     }));
-    Alpine.data("assessment", (score, maxScore, halfPoints, drawerScoringDisabled) => ({
+    Alpine.data("assessment", (score, maxScore, halfPoints, drawerScoringDisabled, pageUpdated) => ({
         score,
         shadowScore: score,
         maxScore,
         halfPoints,
         drawerScoringDisabled,
         init() {
-            this.$store.assessment.resetData(this.score, this.toggleCount());
+            if (pageUpdated) {
+                this.$store.assessment.resetData(this.score, this.toggleCount());
+            }
             if (isString(this.shadowScore)) {
                 this.shadowScore = this.isFloat(score) ? parseFloat(score) : parseInt(score);
             }
@@ -1816,19 +1818,12 @@ document.addEventListener("alpine:init", () => {
         toggleTicked(event) {
             const parsedValue = this.isFloat(event.value) ? parseFloat(event.value) : parseInt(event.value);
             this.setNewScore(parsedValue, event.state, event.firstTick);
+
             this.updateAssessmentStore();
 
-            this.$root.querySelector(".score-slider-container")
-                .dispatchEvent(new CustomEvent(
-                    "new-score",
-                    { detail: { score: this.score } }
-                ));
-            if (this.drawerScoringDisabled) {
-                this.$wire.set("score", this.score);
-            }
-            if (event.hasOwnProperty('identifier')) {
-                this.$wire.toggleValueUpdated(event.identifier, event.state);
-            }
+            this.dispatchNewScoreToSlider();
+
+            this.updateLivewireComponent(event);
         },
         isFloat(value) {
             return parseFloat(value.match(/^-?\d*(\.\d+)?$/)) > 0;
@@ -1853,7 +1848,23 @@ document.addEventListener("alpine:init", () => {
         },
         updateAssessmentStore() {
             this.$store.assessment.currentScore = this.score;
+            console.log('ja hier');
             this.$store.assessment.togglesTicked++;
+        },
+        dispatchNewScoreToSlider() {
+            this.$root.querySelector(".score-slider-container")
+                .dispatchEvent(new CustomEvent(
+                    "new-score",
+                    { detail: { score: this.score } }
+                ));
+        },
+        updateLivewireComponent(event) {
+            if (this.drawerScoringDisabled) {
+                this.$wire.set("score", this.score);
+            }
+            if (event.hasOwnProperty('identifier')) {
+                this.$wire.toggleValueUpdated(event.identifier, event.state);
+            }
         }
     }));
     Alpine.data("assessmentNavigator", (current, total, methodCall, lastValue, firstValue) => ({

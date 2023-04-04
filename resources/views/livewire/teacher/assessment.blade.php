@@ -1,7 +1,7 @@
 <div id="assessment-page"
      class="min-h-full w-full assessment"
-     x-data="assessment(@js($this->score), @js($this->currentQuestion?->score), @js((bool)$this->currentQuestion?->decimal_score), @js($this->drawerScoringDisabled))"
-     wire:key="page-@js($this->questionNavigationValue.$this->answerNavigationValue.$this->score)"
+     x-data="assessment(@js($this->score), @js($this->currentQuestion?->score), @js((bool)$this->currentQuestion?->decimal_score), @js($this->drawerScoringDisabled), @js($this->updatePage))"
+     wire:key="page-@js($this->questionNavigationValue.$this->answerNavigationValue.$this->updatePage)"
      x-on:update-navigation.window="dispatchUpdateToNavigator($event.detail.navigator, $event.detail.updates)"
      x-on:slider-toggle-value-updated.window="toggleTicked($event.detail)"
      x-on:initial-toggle-tick.window="initialToggleTicked()"
@@ -10,13 +10,17 @@
     @if($this->headerCollapsed)
         <div class="flex min-h-[calc(100vh-var(--header-height))] relative">
             <div class="px-15 py-10 gap-6 flex flex-col flex-1 relative">
-                <div class="progress-bar-background |  h-4 bg-white/50 border-bluegrey border-y fixed top-[calc(var(--header-height)+4px)] left-0"
+                <div class="progress-bar-background |  h-4 bg-white/50 border-bluegrey border-y fixed top-[calc(var(--header-height)+4px)] left-0 z-1"
                      style="width: calc(100% - var(--active-sidebar-width)); transition: width var(--sidebar-transition)"
                 >
                     <span class="progress-bar | sticky top-[100px] flex items-center justify-end absolute left-0 h-[calc(1rem-2px)] bg-primary rounded-r-full pr-2"
                           style="width: @js($this->progress)%; transition: width 150ms ease-in"
                     >
+                        @if($this->progress === 0)
+                        <span class="text-xs text-sysbase absolute left-4">@js($this->progress)%</span>
+                        @else
                         <span class="text-xs text-white">@js($this->progress)%</span>
+                        @endif
                     </span>
                 </div>
                 {{-- Group section --}}

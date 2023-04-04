@@ -7263,7 +7263,7 @@ document.addEventListener("alpine:init", function () {
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("assessment", function (score, maxScore, halfPoints, drawerScoringDisabled) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("assessment", function (score, maxScore, halfPoints, drawerScoringDisabled, pageUpdated) {
     return {
       score: score,
       shadowScore: score,
@@ -7271,7 +7271,9 @@ document.addEventListener("alpine:init", function () {
       halfPoints: halfPoints,
       drawerScoringDisabled: drawerScoringDisabled,
       init: function init() {
-        this.$store.assessment.resetData(this.score, this.toggleCount());
+        if (pageUpdated) {
+          this.$store.assessment.resetData(this.score, this.toggleCount());
+        }
         if ((0,lodash__WEBPACK_IMPORTED_MODULE_5__.isString)(this.shadowScore)) {
           this.shadowScore = this.isFloat(score) ? parseFloat(score) : parseInt(score);
         }
@@ -7295,17 +7297,8 @@ document.addEventListener("alpine:init", function () {
         var parsedValue = this.isFloat(event.value) ? parseFloat(event.value) : parseInt(event.value);
         this.setNewScore(parsedValue, event.state, event.firstTick);
         this.updateAssessmentStore();
-        this.$root.querySelector(".score-slider-container").dispatchEvent(new CustomEvent("new-score", {
-          detail: {
-            score: this.score
-          }
-        }));
-        if (this.drawerScoringDisabled) {
-          this.$wire.set("score", this.score);
-        }
-        if (event.hasOwnProperty('identifier')) {
-          this.$wire.toggleValueUpdated(event.identifier, event.state);
-        }
+        this.dispatchNewScoreToSlider();
+        this.updateLivewireComponent(event);
       },
       isFloat: function isFloat(value) {
         return parseFloat(value.match(/^-?\d*(\.\d+)?$/)) > 0;
@@ -7326,7 +7319,23 @@ document.addEventListener("alpine:init", function () {
       },
       updateAssessmentStore: function updateAssessmentStore() {
         this.$store.assessment.currentScore = this.score;
+        console.log('ja hier');
         this.$store.assessment.togglesTicked++;
+      },
+      dispatchNewScoreToSlider: function dispatchNewScoreToSlider() {
+        this.$root.querySelector(".score-slider-container").dispatchEvent(new CustomEvent("new-score", {
+          detail: {
+            score: this.score
+          }
+        }));
+      },
+      updateLivewireComponent: function updateLivewireComponent(event) {
+        if (this.drawerScoringDisabled) {
+          this.$wire.set("score", this.score);
+        }
+        if (event.hasOwnProperty('identifier')) {
+          this.$wire.toggleValueUpdated(event.identifier, event.state);
+        }
       }
     };
   });
