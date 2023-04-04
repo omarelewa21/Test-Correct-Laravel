@@ -3,6 +3,7 @@
     'disabled' => false,
     'initialStatus' => null,
     'toggleValue' => 0,
+    'identifier' => null,
 ])
 <x-button.slider
                  :wire:model="$wireModel"
@@ -13,6 +14,7 @@
                  :disabledStyling="$disabled"
                  :initialStatus="$initialStatus"
                  :toggleValue="$toggleValue"
+                 :identifier="$identifier"
 >
     <x-slot name="yes">
         <x-icon.checkmark />

@@ -59,15 +59,11 @@
             @if($this->assessmentContext['assessmentType'])
                 @unless($this->openOnly)
                     <div class="text-center text-[14px]">
-                        {!!  __('co-learning.current_session', [
+                        {!!  __('assessment.current_session', [
                         'index' => $this->assessmentContext['assessIndex'],
                         'totalQuestions' => $this->assessmentContext['totalToAssess'],
                         'date' => $this->assessmentContext['assessedAt']
                         ]) !!}
-                    </div>
-                @else
-                    <div class="text-center text-[14px]">
-                        @lang('co-learning.restart_session')
                     </div>
                 @endif
             @endif
@@ -101,15 +97,11 @@
             @if($this->assessmentContext['assessmentType'])
                 @if($this->openOnly)
                     <div class="text-center text-[14px]">
-                        {!!  __('co-learning.current_session', [
+                        {!!  __('assessment.current_session', [
                         'index' => $this->assessmentContext['assessIndex'],
                         'totalQuestions' => $this->assessmentContext['totalToAssess'],
                         'date' => $this->assessmentContext['assessedAt']
                         ]) !!}
-                    </div>
-                @else
-                    <div class="text-center text-[14px]">
-                        @lang('co-learning.restart_session')
                     </div>
                 @endif
             @endif

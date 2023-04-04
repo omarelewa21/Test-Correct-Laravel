@@ -11,6 +11,7 @@
                 <x-button.true-false-toggle :disabled="!$answerStruct->get($answerIndex)->answered"
                                             :initialStatus="$answerStruct->get($answerIndex)->activeToggle"
                                             :toggleValue="$answerStruct->get($answerIndex)->score"
+                                            :identifier="$answerStruct->get($answerIndex)->tag"
                 />
             @endif
         </div>

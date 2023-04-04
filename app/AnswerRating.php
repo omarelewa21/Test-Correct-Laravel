@@ -35,7 +35,7 @@ class AnswerRating extends BaseModel
      *
      * @var array
      */
-    protected $fillable = ['answer_id', 'user_id', 'test_take_id', 'type', 'rating'];
+    protected $fillable = ['answer_id', 'user_id', 'test_take_id', 'type', 'rating', 'json'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -43,6 +43,10 @@ class AnswerRating extends BaseModel
      * @var array
      */
     protected $hidden = [];
+
+    protected $casts = [
+        'json' => 'array'
+    ];
 
     public static function boot()
     {

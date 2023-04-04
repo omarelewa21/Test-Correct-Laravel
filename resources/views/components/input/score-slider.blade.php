@@ -86,7 +86,7 @@
             <input @class([
                       'h-10 border border-blue-grey bg-offwhite flex rounded-10 text-center',
                       'w-16 items-center justify-center' => $mode === 'default',
-                      'min-w-[3.375rem]' => $mode === 'small',
+                      'min-w-[3.375rem] w-[3.375rem]' => $mode === 'small',
                       ])
                    x-model.number="score"
                    type="number"

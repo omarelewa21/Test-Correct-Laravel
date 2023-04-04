@@ -35,14 +35,25 @@ class CompletionQuestion extends QuestionComponent
      */
     private function isToggleActiveForAnswer($givenAnswer, $correctAnswer): ?bool
     {
-        if (!$this->answer->answerRatings) return null;
-        if ($this->question->isSubType('completion') && !$this->question->auto_check_answer) return null;
-
-        if ($this->question->auto_check_answer_case_sensitive) {
-            return $givenAnswer === $correctAnswer;
+        if (!$this->answer->answerRatings) {
+            return null;
         }
 
-        return Str::lower($givenAnswer) === Str::lower($correctAnswer);
+        if ($teacherRating = $this->getTeacherRatingWithToggleData()) {
+            if ($this->ratingHasBoolValueForKey($teacherRating, $correctAnswer->tag)) {
+                return $teacherRating->json[$correctAnswer->tag];
+            }
+        }
+
+        if ($this->question->isSubType('completion') && !$this->question->auto_check_answer) {
+            return null;
+        }
+
+        if ($this->question->auto_check_answer_case_sensitive) {
+            return $givenAnswer === $correctAnswer->answer;
+        }
+
+        return Str::lower($givenAnswer) === Str::lower($correctAnswer->answer);
     }
 
     private function createCompletionAnswerStruct(mixed $answers, $correctAnswers, $answer)
@@ -74,8 +85,13 @@ class CompletionQuestion extends QuestionComponent
         $hasValue = isset($answers[$key]) && filled($answers[$key]);
         $object->answerText = $hasValue ? $answers[$key] : '......';
         $object->answered = $hasValue;
-        $object->activeToggle = $hasValue ? $this->isToggleActiveForAnswer($answers[$key], $correctAnswer->answer) : null;
+        $object->activeToggle = $hasValue ? $this->isToggleActiveForAnswer(
+            $answers[$key],
+            $correctAnswer
+        ) : null;
         $object->score = $score;
+        $object->tag = $hasValue ? $correctAnswer->tag : '';
         return $object;
     }
+
 }

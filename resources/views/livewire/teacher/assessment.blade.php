@@ -10,9 +10,13 @@
     @if($this->headerCollapsed)
         <div class="flex min-h-[calc(100vh-var(--header-height))] relative">
             <div class="px-15 py-10 gap-6 flex flex-col flex-1 relative">
-{{--                <div class="progress-bar absolute top-1 left-0 w-full h-4 bg-allred">--}}
-{{--                    @js($this->progress) % nagekeken--}}
-{{--                </div>--}}
+                <div class="progress-bar-background | absolute top-1 left-0  h-4 bg-white/50 border-bluegrey border-y w-full">
+                    <span class="progress-bar | flex items-center justify-end absolute left-0 h-[calc(1rem-2px)] bg-primary rounded-r-full pr-2"
+                          style="width: @js($this->progress)%; transition: width 150ms ease-in"
+                    >
+                        <span class="text-xs text-white">@js($this->progress)%</span>
+                    </span>
+                </div>
                 {{-- Group section --}}
                 <div class="flex flex-col text-xs">
                     <span>vraag: @js($this->currentQuestion->id)</span>
@@ -205,7 +209,7 @@
                 </div>
 
                 <div class="flex flex-1 flex-col sticky top-[var(--header-height)]">
-                    <div class="flex w-full justify-center gap-2 "
+                    <div class="flex w-full justify-center gap-2 z-1"
                          style="box-shadow: 0 3px 8px 0 rgba(4, 31, 116, 0.2);">
                         <buttons
                                 class="flex h-[60px] px-2 cursor-pointer items-center border-b-3 border-transparent hover:text-primary transition-colors"
@@ -237,10 +241,10 @@
                         </buttons>
                     </div>
                     <div id="slide-container"
-                         class="slide-container | flex h-full max-w-[var(--sidebar-width)] overflow-hidden"
+                         class="slide-container | flex h-full max-w-[var(--sidebar-width)] overflow-x-hidden overflow-y-auto"
                          wire:ignore.self
                     >
-                        <div class="slide-1 scoring | p-6 flex-[1_0_100%] h-full w-[var(--sidebar-width)] space-y-4">
+                        <div class="slide-1 scoring | p-6 flex-[1_0_100%] h-fit min-h-full w-[var(--sidebar-width)] space-y-4 isolate">
                             <div class="question-indicator | items-center flex w-full">
                                 <div class="inline-flex question-number rounded-full text-center justify-center items-center">
                                     <span class="align-middle cursor-default">{{ $this->questionNavigationValue }}</span>
@@ -260,7 +264,7 @@
                                 >
                                     <x-input.toggle disabled checked />
                                     <span class="bold text-base">@lang('assessment.Score uit CO-Learning')</span>
-                                    <x-tooltip>Staat geen tekst in het ticket :)</x-tooltip>
+                                    <x-tooltip>@lang('assessment.colearning_score_tooltip')</x-tooltip>
                                 </div>
                                 <div @class([
                                           'notification py-0 px-4 gap-6 flex items-center',
@@ -279,7 +283,7 @@
                                 >
                                     <x-input.toggle disabled checked />
                                     <span class="bold text-base">@lang('assessment.Automatisch nakijken')</span>
-                                    <x-tooltip>Staat geen tekst in het ticket :)</x-tooltip>
+                                    <x-tooltip>@lang('assessment.closed_question_checked_tooltip')</x-tooltip>
                                 </div>
                             @endif
                             @if($this->showScoreSlider)
@@ -331,7 +335,7 @@
                                 </div>
                             @endif
                         </div>
-                        <div class="slide-2 feedback | p-6 flex-[1_0_100%] h-full w-[var(--sidebar-width)] space-y-4">
+                        <div class="slide-2 feedback | p-6 flex-[1_0_100%] h-fit min-h-full w-[var(--sidebar-width)] space-y-4 isolate">
                             <div class="flex flex-col w-full gap-2">
                                 <span class="flex ">@lang('assessment.Feedback toevoegen')</span>
 
@@ -346,7 +350,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="slide-3 co-learning | p-6 flex-[1_0_100%] h-full w-[var(--sidebar-width)] space-y-4">
+                        <div class="slide-3 co-learning | p-6 flex-[1_0_100%] h-fit min-h-full w-[var(--sidebar-width)] space-y-4 isolate">
                             <div class="flex flex-col w-full gap-2">
                                 <span class="flex ">@lang('assessment.CO-Learning scores')</span>
                                 @if(!$this->currentAnswerCoLearningRatingsHasNoDiscrepancy())

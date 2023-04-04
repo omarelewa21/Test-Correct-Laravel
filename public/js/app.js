@@ -6822,7 +6822,7 @@ document.addEventListener("alpine:init", function () {
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("sliderToggle", function (model, sources, initialStatus, disabled) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("sliderToggle", function (model, sources, initialStatus, disabled, identifier) {
     return {
       buttonPosition: "0px",
       buttonWidth: "auto",
@@ -6830,6 +6830,7 @@ document.addEventListener("alpine:init", function () {
       sources: sources,
       handle: null,
       disabled: disabled,
+      identifier: identifier,
       init: function init() {
         this.setHandle();
         if (initialStatus !== null) {
@@ -6864,7 +6865,8 @@ document.addEventListener("alpine:init", function () {
           this.$dispatch("slider-toggle-value-updated", {
             value: this.$root.dataset.toggleValue,
             state: parseInt(this.value) === 1 ? "on" : "off",
-            firstTick: oldValue === null
+            firstTick: oldValue === null,
+            identifier: this.identifier
           });
         }
       },
@@ -7270,6 +7272,9 @@ document.addEventListener("alpine:init", function () {
       drawerScoringDisabled: drawerScoringDisabled,
       init: function init() {
         this.$store.assessment.resetData(this.score, this.toggleCount());
+        if ((0,lodash__WEBPACK_IMPORTED_MODULE_5__.isString)(this.shadowScore)) {
+          this.shadowScore = this.isFloat(score) ? parseFloat(score) : parseInt(score);
+        }
       },
       toggleCount: function toggleCount() {
         return this.$root.querySelectorAll(".student-answer .slider-button-container:not(.disabled)").length;
@@ -7280,7 +7285,6 @@ document.addEventListener("alpine:init", function () {
       dispatchUpdateToNavigator: function dispatchUpdateToNavigator(navigator, updates) {
         var navigatorElement = this.$root.querySelector("#".concat(navigator, "-navigator"));
         if (navigatorElement) {
-          this.$store.assessment.resetData(this.score, this.toggleCount());
           return navigatorElement.dispatchEvent(new CustomEvent("update-navigator", {
             detail: _objectSpread({}, updates)
           }));
@@ -7297,7 +7301,10 @@ document.addEventListener("alpine:init", function () {
           }
         }));
         if (this.drawerScoringDisabled) {
-          this.$wire.set('score', this.score);
+          this.$wire.set("score", this.score);
+        }
+        if (event.hasOwnProperty('identifier')) {
+          this.$wire.toggleValueUpdated(event.identifier, event.state);
         }
       },
       isFloat: function isFloat(value) {
@@ -7496,44 +7503,50 @@ document.addEventListener("alpine:init", function () {
       clickedNext: false,
       init: function init() {
         this.container = this.$root.querySelector("#slide-container");
+        this.tab(1);
       },
       tab: function tab(index) {
+        var _this41 = this;
         if (!this.tabs.includes(index)) return;
         this.activeTab = index;
         var slide = this.$root.querySelector(".slide-" + index);
-        this.container.scroll({
-          left: slide.offsetLeft,
-          behavior: "smooth"
+        this.handleSlideHeight(slide);
+        this.$nextTick(function () {
+          _this41.container.scroll({
+            top: 0,
+            left: slide.offsetLeft,
+            behavior: "smooth"
+          });
         });
       },
       next: function next() {
-        var _this41 = this;
+        var _this42 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee14() {
           return _regeneratorRuntime().wrap(function _callee14$(_context14) {
             while (1) switch (_context14.prev = _context14.next) {
               case 0:
-                if (!(!_this41.$store.assessment.clearToProceed() && !_this41.clickedNext)) {
+                if (!(!_this42.$store.assessment.clearToProceed() && !_this42.clickedNext)) {
                   _context14.next = 4;
                   break;
                 }
-                _this41.$dispatch("scoring-elements-error");
-                _this41.clickedNext = true;
+                _this42.$dispatch("scoring-elements-error");
+                _this42.clickedNext = true;
                 return _context14.abrupt("return");
               case 4:
-                _this41.tab(1);
-                _this41.$store.assessment.resetData();
+                _this42.tab(1);
+                _this42.$store.assessment.resetData();
                 _context14.next = 8;
-                return _this41.$nextTick( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee13() {
+                return _this42.$nextTick( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee13() {
                   var done;
                   return _regeneratorRuntime().wrap(function _callee13$(_context13) {
                     while (1) switch (_context13.prev = _context13.next) {
                       case 0:
                         _context13.next = 2;
-                        return _this41.$wire.next();
+                        return _this42.$wire.next();
                       case 2:
                         done = _context13.sent;
                         if (done) {
-                          _this41.clickedNext = false;
+                          _this42.clickedNext = false;
                         }
                       case 4:
                       case "end":
@@ -7549,24 +7562,24 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       previous: function previous() {
-        var _this42 = this;
+        var _this43 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee16() {
           return _regeneratorRuntime().wrap(function _callee16$(_context16) {
             while (1) switch (_context16.prev = _context16.next) {
               case 0:
-                _this42.tab(1);
+                _this43.tab(1);
                 _context16.next = 3;
-                return _this42.$nextTick( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee15() {
+                return _this43.$nextTick( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee15() {
                   var done;
                   return _regeneratorRuntime().wrap(function _callee15$(_context15) {
                     while (1) switch (_context15.prev = _context15.next) {
                       case 0:
                         _context15.next = 2;
-                        return _this42.$wire.previous();
+                        return _this43.$wire.previous();
                       case 2:
                         done = _context15.sent;
                         if (done) {
-                          _this42.clickedNext = false;
+                          _this43.clickedNext = false;
                         }
                       case 4:
                       case "end":
@@ -7580,6 +7593,15 @@ document.addEventListener("alpine:init", function () {
             }
           }, _callee16);
         }))();
+      },
+      handleSlideHeight: function handleSlideHeight(slide) {
+        if (slide.offsetHeight > this.container.offsetHeight) {
+          this.container.classList.add("overflow-y-auto");
+          this.container.classList.remove("overflow-y-hidden");
+        } else {
+          this.container.classList.remove("overflow-y-auto");
+          this.container.classList.add("overflow-y-hidden");
+        }
       }
     };
   });
@@ -7618,46 +7640,46 @@ document.addEventListener("alpine:init", function () {
         }
       },
       init: function init() {
-        var _this43 = this;
+        var _this44 = this;
         // This echos custom JS from the template and for some reason it actually works;
         if (coLearning) {
           Livewire.hook("message.received", function (message, component) {
             var _message$updateQueue$;
             if (component.name === "student.co-learning" && ((_message$updateQueue$ = message.updateQueue[0]) === null || _message$updateQueue$ === void 0 ? void 0 : _message$updateQueue$.method) === "updateHeartbeat") {
-              var scoreInputElement = _this43.$root.querySelector("[x-ref='scoreInput']");
-              _this43.persistentScore = scoreInputElement !== null && scoreInputElement.value !== "" ? scoreInputElement.value : null;
+              var scoreInputElement = _this44.$root.querySelector("[x-ref='scoreInput']");
+              _this44.persistentScore = scoreInputElement !== null && scoreInputElement.value !== "" ? scoreInputElement.value : null;
             }
           });
           Livewire.hook("message.processed", function (message, component) {
             var _message$updateQueue$2;
             if (component.name === "student.co-learning" && ((_message$updateQueue$2 = message.updateQueue[0]) === null || _message$updateQueue$2 === void 0 ? void 0 : _message$updateQueue$2.method) === "updateHeartbeat") {
-              _this43.skipSync = true;
-              _this43.score = _this43.persistentScore;
+              _this44.skipSync = true;
+              _this44.score = _this44.persistentScore;
             }
           });
         }
         this.inputBox = this.$root.querySelector("[x-ref='scoreInput']");
         this.$watch("score", function (value, oldValue) {
-          _this43.markInputElementsClean();
-          if (_this43.disabled || value === oldValue || _this43.skipSync) {
-            _this43.skipSync = false;
+          _this44.markInputElementsClean();
+          if (_this44.disabled || value === oldValue || _this44.skipSync) {
+            _this44.skipSync = false;
             return;
           }
-          if (value >= _this43.maxScore) {
-            _this43.score = value = _this43.maxScore;
+          if (value >= _this44.maxScore) {
+            _this44.score = value = _this44.maxScore;
           }
           if (value <= 0) {
-            _this43.score = value = 0;
+            _this44.score = value = 0;
           }
-          _this43.score = value = _this43.halfPoints ? Math.round(value * 2) / 2 : Math.round(value);
-          var numberInput = _this43.$root.querySelector("[x-ref='score_slider_continuous_input']");
+          _this44.score = value = _this44.halfPoints ? Math.round(value * 2) / 2 : Math.round(value);
+          var numberInput = _this44.$root.querySelector("[x-ref='score_slider_continuous_input']");
           if (numberInput !== null) {
-            _this43.setSliderBackgroundSize(numberInput);
+            _this44.setSliderBackgroundSize(numberInput);
           }
         });
         if (!this.disabled) {
           this.$nextTick(function () {
-            _this43.inputBox.focus();
+            _this44.inputBox.focus();
           });
         }
       },
@@ -7678,7 +7700,7 @@ document.addEventListener("alpine:init", function () {
       minWidth: 120,
       maxWidth: 1000,
       setInputWidth: function setInputWidth(input) {
-        var _this44 = this;
+        var _this45 = this;
         var init = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
         var preview = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
         if (!init || preview) {
@@ -7689,8 +7711,8 @@ document.addEventListener("alpine:init", function () {
           if (!value) {
             return;
           }
-          _this44.$nextTick(function () {
-            _this44.calculateInputWidth(input);
+          _this45.$nextTick(function () {
+            _this45.calculateInputWidth(input);
           });
         });
       },

@@ -25,8 +25,9 @@
                                 </x-drag-item-disabled>
                                 @if($studentAnswer)
                                     <x-button.true-false-toggle
-                                            :initialStatus="$group->where('type', 'LEFT')->first()->id === $answerOption->correct_answer_id"
+                                            :initialStatus="$answerOption->activeToggle"
                                             :toggleValue="$answerOption->score"
+                                            :identifier="$answerOption->id"
                                     />
                                 @endif
                             @endforeach
@@ -65,8 +66,9 @@
                                     </x-drag-item-disabled>
                                     @if($studentAnswer)
                                         <x-button.true-false-toggle
-                                                :initialStatus="$pair->where('type','LEFT')->first()->id === $answerOption->correct_answer_id"
+                                                :initialStatus="$answerOption->activeToggle"
                                                 :toggleValue="$answerOption->score"
+                                                :identifier="$answerOption->id"
                                         />
                                     @endif
                                 </div>
