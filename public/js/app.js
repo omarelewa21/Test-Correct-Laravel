@@ -7285,7 +7285,6 @@ document.addEventListener("alpine:init", function () {
       dispatchUpdateToNavigator: function dispatchUpdateToNavigator(navigator, updates) {
         var navigatorElement = this.$root.querySelector("#".concat(navigator, "-navigator"));
         if (navigatorElement) {
-          this.$store.assessment.resetData(this.score, this.toggleCount());
           return navigatorElement.dispatchEvent(new CustomEvent("update-navigator", {
             detail: _objectSpread({}, updates)
           }));

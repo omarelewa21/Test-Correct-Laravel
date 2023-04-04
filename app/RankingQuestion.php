@@ -253,6 +253,7 @@ class RankingQuestion extends Question implements QuestionInterface
             ->orderBy('ranking_question_answer_links.correct_order', 'asc')
             ->orderBy('ranking_question_answer_links.order', 'asc')
             ->where('ranking_question_id', $this->getKey())
+            ->whereNull('ranking_question_answers.deleted_at')
             ->get();
     }
 }

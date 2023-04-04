@@ -537,6 +537,7 @@ class CompletionQuestion extends Question implements QuestionInterface
             ->orderBy('completion_question_answer_links.order')
             ->select('completion_question_answers.*')
             ->where('completion_question_id', $this->getKey())
+            ->whereNull('completion_question_answers.deleted_at')
             ->get();
     }
     public function getDisplayableQuestionText()

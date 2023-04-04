@@ -1809,7 +1809,6 @@ document.addEventListener("alpine:init", () => {
         dispatchUpdateToNavigator(navigator, updates) {
             let navigatorElement = this.$root.querySelector(`#${navigator}-navigator`);
             if (navigatorElement) {
-                this.$store.assessment.resetData(this.score, this.toggleCount());
                 return navigatorElement.dispatchEvent(new CustomEvent("update-navigator", { detail: { ...updates } }));
             }
             console.warn("No navigation component found for the specified name.");
