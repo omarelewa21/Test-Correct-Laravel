@@ -85,10 +85,10 @@ RichTextEditor = {
         textarea.dispatchEvent(new Event("input"));
     },
 
-    initClassicEditorForStudentplayer: function(editorId, questionId) {
+    initClassicEditorForStudentplayer: function (editorId, questionId, allowWsc = false) {
         return ClassicEditor
             .create(document.querySelector("#" + editorId),
-                this.getConfigForStudent(false, [])
+                this.getConfigForStudent(allowWsc, [])
             )
             .then(editor => {
                 ClassicEditors[editorId] = editor;

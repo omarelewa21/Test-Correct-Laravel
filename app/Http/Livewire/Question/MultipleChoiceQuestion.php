@@ -31,6 +31,8 @@ class MultipleChoiceQuestion extends Component
 
     public $answerText;
 
+    public $testTakeUuid;
+
 
     public function mount()
     {

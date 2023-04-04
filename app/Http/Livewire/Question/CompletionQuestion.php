@@ -22,6 +22,7 @@ class CompletionQuestion extends Component
     public $answers;
     public $number;
     public $preventAnswerTransformation = true;
+    public $testTakeUuid;
 
     public function mount()
     {

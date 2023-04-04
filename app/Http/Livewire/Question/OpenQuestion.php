@@ -10,6 +10,7 @@ use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithGroups;
 use tcCore\Http\Traits\WithNotepad;
 use tcCore\Http\Traits\WithUpdatingHandling;
+use tcCore\TestTake;
 
 class OpenQuestion extends Component
 {
@@ -20,6 +21,8 @@ class OpenQuestion extends Component
     public $number;
     public $answers;
     public $editorId;
+    public $testTakeUuid;
+    public bool $allowWsc = false;
 
     public function mount()
     {
@@ -30,6 +33,7 @@ class OpenQuestion extends Component
             $this->answer = BaseHelper::transformHtmlCharsReverse($temp['value'], false);
         }
 
+        $this->allowWsc = $this->allowSpellChecker();
 //        $this->attachments = $this->question->attachments;
     }
 
@@ -64,5 +68,11 @@ class OpenQuestion extends Component
         $value = clean($value);
 
         return $this->question->isSubType('short') ? strip_tags($value) : $value;
+    }
+
+    private function allowSpellChecker(): bool
+    {
+        $testTake = TestTake::whereUuid($this->testTakeUuid)->first();
+        return $testTake->isAssignmentType() ? $testTake->allow_wsc : false;
     }
 }
