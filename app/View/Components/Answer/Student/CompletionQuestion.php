@@ -40,7 +40,7 @@ class CompletionQuestion extends QuestionComponent
         }
 
         if ($teacherRating = $this->getTeacherRatingWithToggleData()) {
-            if (is_bool($teacherRating->json[$correctAnswer->tag])) {
+            if ($this->ratingHasBoolValueForKey($teacherRating, $correctAnswer->tag)) {
                 return $teacherRating->json[$correctAnswer->tag];
             }
         }
@@ -90,7 +90,7 @@ class CompletionQuestion extends QuestionComponent
             $correctAnswer
         ) : null;
         $object->score = $score;
-        $object->tag = $correctAnswer->tag;
+        $object->tag = $hasValue ? $correctAnswer->tag : '';
         return $object;
     }
 

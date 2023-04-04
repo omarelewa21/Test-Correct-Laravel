@@ -36,4 +36,14 @@ abstract class QuestionComponent extends Component
         if (!$this->studentAnswer) return null;
         return $this->answer->teacherRatings()->whereNotNull('json')->first();
     }
+
+    /**
+     * @param $rating
+     * @return bool
+     */
+    protected function ratingHasBoolValueForKey($rating, $id): bool
+    {
+        if (!$rating) return false;
+        return isset($rating->json[$id]) && is_bool($rating->json[$id]);
+    }
 }

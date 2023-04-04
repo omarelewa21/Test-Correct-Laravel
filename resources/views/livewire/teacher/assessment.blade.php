@@ -10,10 +10,12 @@
     @if($this->headerCollapsed)
         <div class="flex min-h-[calc(100vh-var(--header-height))] relative">
             <div class="px-15 py-10 gap-6 flex flex-col flex-1 relative">
-                <div class="progress-bar absolute top-1 left-0  h-4 bg-primary"
-                     style="width: @js($this->progress)%"
-                >
-                    @js($this->progress) % nagekeken
+                <div class="progress-bar-background | absolute top-1 left-0  h-4 bg-white/50 border-bluegrey border-y w-full">
+                    <span class="progress-bar | flex items-center justify-end absolute left-0 h-[calc(1rem-2px)] bg-primary rounded-r-full pr-2"
+                          style="width: @js($this->progress)%; transition: width 150ms ease-in"
+                    >
+                        <span class="text-xs text-white">@js($this->progress)%</span>
+                    </span>
                 </div>
                 {{-- Group section --}}
                 <div class="flex flex-col text-xs">

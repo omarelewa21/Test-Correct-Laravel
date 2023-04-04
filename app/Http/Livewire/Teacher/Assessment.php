@@ -1028,26 +1028,13 @@ class Assessment extends Component implements CollapsableHeader
 
     private function setProgress(): void
     {
-        $filteredAnswers = $this->answers
-            ->discrepancyFiltered((bool)$this->assessmentContext['skipCoLearningNoDiscrepancies']);
+        [$percentagePerAnswer, $assessedAnswers] = $this->getProgressPropertiesForCalculation();
 
-        $assessedAnswers = $filteredAnswers->where(function ($answer) {
-            if ($answer->answerRatings->where('type', '!=', AnswerRating::TYPE_STUDENT)->isNotEmpty()) {
-                return true;
-            }
-            return $answer->hasDiscrepancy === false;
-        });
-
-        $total = $filteredAnswers->count();
-        $percentagePerAnswer = 1 / $total * 100;
-
-
-        $index = $this->answers->search(fn($answer) => $answer->id === $this->currentAnswer->id);
-
-        $multiplier = $assessedAnswers->filter(fn($item, $key) => $key <= $index)->count();
-
+        $currentAnswerIndexOfAllAnswers = $this->answers->search(fn($answer) => $answer->id === $this->currentAnswer->id);
+        $multiplier = $assessedAnswers->filter(fn($item, $key) => $key <= $currentAnswerIndexOfAllAnswers)->count();
 
         $newPercentage = floor($percentagePerAnswer * $multiplier);
+
         if ($newPercentage > $this->progress) {
             $this->progress = $newPercentage;
         }
@@ -1061,5 +1048,25 @@ class Assessment extends Component implements CollapsableHeader
             ->median('rating');
 
         return $this->currentQuestion->decimal_score ? floor(($rating * 2) / 2) : (int)round($rating);
+    }
+
+    /**
+     * @return array
+     */
+    private function getProgressPropertiesForCalculation(): array
+    {
+        $filteredAnswers = $this->answers
+            ->discrepancyFiltered((bool)$this->assessmentContext['skipCoLearningNoDiscrepancies']);
+
+        $percentagePerAnswer = 1 / $filteredAnswers->count() * 100;
+
+        $assessedAnswers = $filteredAnswers->where(function ($answer) {
+            if ($answer->answerRatings->where('type', '!=', AnswerRating::TYPE_STUDENT)->isNotEmpty()) {
+                return true;
+            }
+            return $answer->hasDiscrepancy === false;
+        });
+
+        return [$percentagePerAnswer, $assessedAnswers];
     }
 }
