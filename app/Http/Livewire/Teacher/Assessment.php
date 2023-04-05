@@ -68,8 +68,9 @@ class Assessment extends Component implements CollapsableHeader
     public $currentQuestion;
     public $currentGroup;
     public $score = null;
-    public $feedback = '';
-    public $progress = 0;
+    public string $feedback = '';
+    public int $progress = 0;
+    public int $maxVisitedValue = 0;
 
     protected bool $skipBooted = false;
 
@@ -604,15 +605,9 @@ class Assessment extends Component implements CollapsableHeader
      */
     private function getLastQuestionsCountForCurrentStudent(): int
     {
-        return $this->questions->search(
-                $this->questions->where(
-                    'id',
-                    $this->getAvailableAnswersForCurrentStudent()
-                        ->whereIn('question_id', $this->getQuestionIdsForCurrentAssessmentType())
-                        ->last()
-                        ->question_id
-                )->first()
-            ) + 1;
+        $question = $this->getEdgeQuestionForStudent('last');
+
+        return $this->getNavigationValueForQuestion($question);
     }
 
     /**
@@ -620,15 +615,9 @@ class Assessment extends Component implements CollapsableHeader
      */
     private function getFirstQuestionsCountForCurrentStudent(): int
     {
-        return $this->questions->search(
-                $this->questions->where(
-                    'id',
-                    $this->getAvailableAnswersForCurrentStudent()
-                        ->whereIn('question_id', $this->getQuestionIdsForCurrentAssessmentType())
-                        ->first()
-                        ->question_id
-                )->first()
-            ) + 1;
+        $question = $this->getEdgeQuestionForStudent('first');
+
+        return $this->getNavigationValueForQuestion($question);
     }
 
     private function setComponentQuestionProperties(Question $newQuestion, int $index): void
@@ -813,7 +802,8 @@ class Assessment extends Component implements CollapsableHeader
         $firstQuestionForAnswer = $this->questions->discussionTypeFiltered($this->openOnly)
             ->where('id', $firstAnswer->question_id)
             ->first();
-        $this->questionNavigationValue = $this->questions->search($firstQuestionForAnswer) + 1;
+
+        $this->questionNavigationValue = $this->getNavigationValueForQuestion($firstQuestionForAnswer);
         $this->answerNavigationValue = $this->students->search($firstAnswer->test_participant_id) + 1;
     }
 
@@ -888,7 +878,9 @@ class Assessment extends Component implements CollapsableHeader
 
     private function onLastQuestionToAssess(): bool
     {
-        return (int)$this->questionNavigationValue === $this->questions->count();
+        return (int)$this->questionNavigationValue === $this->getNavigationValueForQuestion(
+                $this->questions->discussionTypeFiltered($this->openOnly)->last()
+            );
     }
 
     private function onFirstQuestionToAssess(): bool
@@ -927,7 +919,7 @@ class Assessment extends Component implements CollapsableHeader
      */
     private function setNavigationDataWithPreviouslyAssessedQuestion($previouslyAssessedQuestion): void
     {
-        $this->questionNavigationValue = $this->questions->search($previouslyAssessedQuestion) + 1;
+        $this->questionNavigationValue = $this->getNavigationValueForQuestion($previouslyAssessedQuestion);
         $this->answerNavigationValue = $this->students->search(
                 $this->answers->where('question_id', $previouslyAssessedQuestion->id)->first()->test_participant_id
             ) + 1;
@@ -1026,6 +1018,30 @@ class Assessment extends Component implements CollapsableHeader
         });
 
         return [$percentagePerAnswer, $assessedAnswers];
+    }
+
+    private function getNavigationValueForQuestion(Question $question): int
+    {
+        return $this->questions->search($question) + 1;
+    }
+
+    private function getEdgeQuestionForStudent(string $edge): Question
+    {
+        if (!in_array($edge, ['first' . 'last'])) {
+            throw new AssessmentException(
+                sprintf(
+                    'Something went wrong with getting the "%s" answer from all available. Did you mean "first" or "last"?',
+                    $edge
+                )
+            );
+        }
+        return $this->questions->where(
+            'id',
+            $this->getAvailableAnswersForCurrentStudent()
+                ->whereIn('question_id', $this->getQuestionIdsForCurrentAssessmentType())
+                ->$edge()
+                ->question_id
+        )->first();
     }
 
     private function verifyTestTakeData()

@@ -16,7 +16,8 @@ class CompletionQuestion extends QuestionComponent
     protected function setAnswerStruct($question, $answer): void
     {
         $correctAnswers = $question->getCorrectAnswerStructure();
-        $answers = json_decode($answer->json ?? '{}', true);
+        $givenAnswers = json_decode($answer->json ?? '{}', true);
+        $answers = $this->matchGivenAnswersWithRequiredAmount($correctAnswers, $givenAnswers);
 
         $this->answerStruct = $question->isSubType('completion')
             ? $this->createCompletionAnswerStruct($answers, $correctAnswers, $answer)
@@ -66,17 +67,11 @@ class CompletionQuestion extends QuestionComponent
 
     private function createSelectionAnswerStruct(mixed $answers, $correctAnswers)
     {
-        if ($answers) {
-            return collect($answers)->map(function ($link, $key) use ($answers, $correctAnswers) {
-                $answer = (object)$link;
-                $correctAnswer = $correctAnswers->where('correct', 1)->values()->get($key - 1);
-                $score = $this->question->score / $correctAnswers->where('correct', 1)->count();
-                return $this->setAnswerPropertiesOnObject($answer, $key, $correctAnswer, $answers, $score);
-            })->values();
-        }
-
-        return $correctAnswers->where('correct', 1)->map(function ($link) {
-            return $this->setAnswerPropertiesOnObject($link, 0, [], [], 0);
+        return collect($answers)->map(function ($link, $key) use ($answers, $correctAnswers) {
+            $answer = (object)$link;
+            $correctAnswer = $correctAnswers->where('correct', 1)->values()->get($key - 1);
+            $score = $this->question->score / $correctAnswers->where('correct', 1)->count();
+            return $this->setAnswerPropertiesOnObject($answer, $key, $correctAnswer, $answers, $score);
         })->values();
     }
 
@@ -92,6 +87,25 @@ class CompletionQuestion extends QuestionComponent
         $object->score = $score;
         $object->tag = $hasValue ? $correctAnswer->tag : '';
         return $object;
+    }
+
+    /**
+     * @param $correctAnswers
+     * @param mixed $answers
+     * @return mixed
+     */
+    private function matchGivenAnswersWithRequiredAmount($correctAnswers, array $answers): array
+    {
+        if ($correctAnswers->where('correct', 1)->count() > count($answers)) {
+            $correctAnswers->where('correct', 1)->values()->each(function ($item, $key) use (&$answers) {
+                $answerKey = $key + 1;
+                if (!isset($answers[$answerKey])) {
+                    $answers[$answerKey] = '';
+                }
+            });
+        }
+
+        return $answers;
     }
 
 }
