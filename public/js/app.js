@@ -7319,7 +7319,7 @@ document.addEventListener("alpine:init", function () {
       },
       updateAssessmentStore: function updateAssessmentStore() {
         this.$store.assessment.currentScore = this.score;
-        console.log('ja hier');
+        console.log("ja hier");
         this.$store.assessment.togglesTicked++;
       },
       dispatchNewScoreToSlider: function dispatchNewScoreToSlider() {
@@ -7333,7 +7333,7 @@ document.addEventListener("alpine:init", function () {
         if (this.drawerScoringDisabled) {
           this.$wire.set("score", this.score);
         }
-        if (event.hasOwnProperty('identifier')) {
+        if (event.hasOwnProperty("identifier")) {
           this.$wire.toggleValueUpdated(event.identifier, event.state);
         }
       }
@@ -7513,8 +7513,8 @@ document.addEventListener("alpine:init", function () {
       init: function init() {
         this.container = this.$root.querySelector("#slide-container");
         this.tab(1);
-        this.$watch('collapse', function (value) {
-          document.documentElement.style.setProperty('--active-sidebar-width', value ? 'var(--collapsed-sidebar-width)' : 'var(--sidebar-width)');
+        this.$watch("collapse", function (value) {
+          document.documentElement.style.setProperty("--active-sidebar-width", value ? "var(--collapsed-sidebar-width)" : "var(--sidebar-width)");
         });
       },
       tab: function tab(index) {
@@ -7614,6 +7614,10 @@ document.addEventListener("alpine:init", function () {
           this.container.classList.remove("overflow-y-auto");
           this.container.classList.add("overflow-y-hidden");
         }
+      },
+      handleResize: function handleResize() {
+        var slide = this.$root.querySelector(".slide-" + this.activeTab);
+        this.handleSlideHeight(slide);
       }
     };
   });

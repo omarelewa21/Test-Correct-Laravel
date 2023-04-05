@@ -1848,7 +1848,6 @@ document.addEventListener("alpine:init", () => {
         },
         updateAssessmentStore() {
             this.$store.assessment.currentScore = this.score;
-            console.log('ja hier');
             this.$store.assessment.togglesTicked++;
         },
         dispatchNewScoreToSlider() {
@@ -1862,7 +1861,7 @@ document.addEventListener("alpine:init", () => {
             if (this.drawerScoringDisabled) {
                 this.$wire.set("score", this.score);
             }
-            if (event.hasOwnProperty('identifier')) {
+            if (event.hasOwnProperty("identifier")) {
                 this.$wire.toggleValueUpdated(event.identifier, event.state);
             }
         }
@@ -1957,9 +1956,9 @@ document.addEventListener("alpine:init", () => {
         init() {
             this.container = this.$root.querySelector("#slide-container");
             this.tab(1);
-            this.$watch('collapse', (value) => {
-                document.documentElement.style.setProperty('--active-sidebar-width', value ? 'var(--collapsed-sidebar-width)' : 'var(--sidebar-width)' )
-            })
+            this.$watch("collapse", (value) => {
+                document.documentElement.style.setProperty("--active-sidebar-width", value ? "var(--collapsed-sidebar-width)" : "var(--sidebar-width)");
+            });
         },
         tab(index) {
             if (!this.tabs.includes(index)) return;
@@ -2003,6 +2002,10 @@ document.addEventListener("alpine:init", () => {
                 this.container.classList.remove("overflow-y-auto");
                 this.container.classList.add("overflow-y-hidden");
             }
+        },
+        handleResize() {
+            const slide = this.$root.querySelector(".slide-" + this.activeTab);
+            this.handleSlideHeight(slide);
         }
     }));
     Alpine.data("scoreSlider", (score, model, maxScore, halfPoints, disabled, coLearning) => ({
