@@ -88,7 +88,7 @@ class CoLearning extends Component
 
         if (!$this->coLearningFinished) {
             $this->getAnswerRatings();
-            $this->necessaryAmountOfAnswerRatings = $this->answerRatings->count();
+            $this->necessaryAmountOfAnswerRatings = $this->answerRatings->count() ?: 1;
         }
         $this->updateHeartbeat(false);
     }
