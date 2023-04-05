@@ -70,7 +70,7 @@ class Assessment extends Component implements CollapsableHeader
     public $score = null;
     public string $feedback = '';
     public int $progress = 0;
-    public int $maxVisitedValue = 0;
+    public int $maxAssessedValue = 1;
 
     protected bool $skipBooted = false;
 
@@ -555,6 +555,8 @@ class Assessment extends Component implements CollapsableHeader
             '>',
             TestTakeStatus::STATUS_TAKING_TEST
         )->sortBy('id')->pluck('id');
+
+        $this->maxAssessedValue = $this->testTakeData->fresh()->max_assessed_answer_index ?? 1;
     }
 
     private function startAssessment($reset = false): void
@@ -792,11 +794,7 @@ class Assessment extends Component implements CollapsableHeader
 
         $firstAnswer = $this->answers->whereIn('question_id', $this->getQuestionIdsForCurrentAssessmentType())->first();
         if ($reset) {
-            $firstAnswer = $this->answers->first(function ($answer) {
-                return $answer->answerRatings->doesntContain(function ($rating) {
-                    return $rating->type === AnswerRating::TYPE_TEACHER || $rating->type === AnswerRating::TYPE_SYSTEM;
-                });
-            });
+            $firstAnswer = $this->getFirstAnswerWhichDoesntHaveATeacherOrSystemRating() ?? $this->answers->last();
         }
 
         $firstQuestionForAnswer = $this->questions->discussionTypeFiltered($this->openOnly)
@@ -979,9 +977,17 @@ class Assessment extends Component implements CollapsableHeader
     {
         [$percentagePerAnswer, $assessedAnswers] = $this->getProgressPropertiesForCalculation();
 
-        $currentAnswerIndexOfAllAnswers = $this->answers->search(fn($answer) => $answer->id === $this->currentAnswer->id
-        );
-        $multiplier = $assessedAnswers->filter(fn($item, $key) => $key <= $currentAnswerIndexOfAllAnswers)->count();
+        $currentAnswerIndexOfAllAnswers = $this->answers->search(function ($answer) {
+            return $answer->id === $this->currentAnswer->id;
+        });
+
+        $maxAssessedValue = max($currentAnswerIndexOfAllAnswers, $this->maxAssessedValue);
+
+        if ($maxAssessedValue > $this->maxAssessedValue) {
+            $this->updateMaxAssessedValue($maxAssessedValue);
+        }
+
+        $multiplier = $assessedAnswers->filter(fn($item, $key) => $key <= $maxAssessedValue)->count();
 
         $newPercentage = floor($percentagePerAnswer * $multiplier);
 
@@ -1006,7 +1012,8 @@ class Assessment extends Component implements CollapsableHeader
     private function getProgressPropertiesForCalculation(): array
     {
         $filteredAnswers = $this->answers
-            ->discrepancyFiltered((bool)$this->assessmentContext['skipCoLearningNoDiscrepancies']);
+            ->discrepancyFiltered((bool)$this->assessmentContext['skipCoLearningNoDiscrepancies'])
+            ->whereIn('question_id', $this->getQuestionIdsForCurrentAssessmentType());
 
         $percentagePerAnswer = 1 / $filteredAnswers->count() * 100;
 
@@ -1027,7 +1034,7 @@ class Assessment extends Component implements CollapsableHeader
 
     private function getEdgeQuestionForStudent(string $edge): Question
     {
-        if (!in_array($edge, ['first' . 'last'])) {
+        if (!in_array($edge, ['first', 'last'])) {
             throw new AssessmentException(
                 sprintf(
                     'Something went wrong with getting the "%s" answer from all available. Did you mean "first" or "last"?',
@@ -1056,5 +1063,22 @@ class Assessment extends Component implements CollapsableHeader
             returnRoute : '/teacher/test_takes/taken',
             notification: ['message' => __('assessment.no_answers'), 'type' => 'error']
         );
+    }
+
+    private function updateMaxAssessedValue($currentAnswerIndexOfAllAnswers)
+    {
+        TestTake::whereUuid($this->testTakeUuid)
+            ->update([
+                'max_assessed_answer_index' => $currentAnswerIndexOfAllAnswers
+            ]);
+    }
+
+    private function getFirstAnswerWhichDoesntHaveATeacherOrSystemRating(): ?Answer
+    {
+        return $this->answers->first(function ($answer) {
+            return $answer->answerRatings->doesntContain(function ($rating) {
+                return $rating->type === AnswerRating::TYPE_TEACHER || $rating->type === AnswerRating::TYPE_SYSTEM;
+            });
+        });
     }
 }

@@ -13,14 +13,14 @@
                 <div class="progress-bar-background |  h-4 bg-white/50 border-bluegrey border-y fixed top-[calc(var(--header-height)+4px)] left-0 z-1"
                      style="width: calc(100% - var(--active-sidebar-width)); transition: width var(--sidebar-transition)"
                 >
-                    <span class="progress-bar | sticky top-[100px] flex items-center justify-end absolute left-0 h-[calc(1rem-2px)] bg-primary rounded-r-full pr-2"
+                    <span @class(['progress-bar | sticky top-[100px] flex items-center justify-end absolute left-0 h-[calc(1rem-2px)] bg-primary pr-2', 'rounded-r-full' => $this->progress < 100])
                           style="width: @js($this->progress)%; transition: width 150ms ease-in"
                     >
-                        @if($this->progress === 0)
-                        <span class="text-xs text-sysbase absolute left-4">@js($this->progress)%</span>
-                        @else
-                        <span class="text-xs text-white">@js($this->progress)%</span>
-                        @endif
+                        <span @class([
+                            'text-xs',
+                            'text-sysbase absolute left-4' => $this->progress === 0,
+                            'text-white' => $this->progress > 0,
+                        ])>@js($this->progress)%</span>
                     </span>
                 </div>
                 {{-- Group section --}}
