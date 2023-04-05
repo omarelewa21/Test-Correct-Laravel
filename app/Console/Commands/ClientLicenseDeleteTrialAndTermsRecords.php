@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 use tcCore\GeneralTermsLog;
 use tcCore\SchoolLocation;
+use tcCore\SchoolLocationUser;
 use tcCore\TrialPeriod;
 
 class ClientLicenseDeleteTrialAndTermsRecords extends Command
@@ -32,7 +33,9 @@ class ClientLicenseDeleteTrialAndTermsRecords extends Command
     public function handle()
     {
         TrialPeriod::whereIn('school_location_id',SchoolLocation::where('license_type','CLIENT')->select('id'))->delete();
-        GeneralTermsLog::whereIn('school_location_id',SchoolLocation::where('license_type','CLIENT')->select('id'))->delete();
+        $schoolLocationIdsBuilder = SchoolLocation::where('license_type','CLIENT')->select('id');
+        $userIdsBuilder = SchoolLocationUser::whereIn('school_location_id',$schoolLocationIdsBuilder)->select('user_id');
+        GeneralTermsLog::whereIn('user_id',$userIdsBuilder)->delete();
         return Command::SUCCESS;
     }
 }
