@@ -23,7 +23,7 @@
                     </div>
                     <div class="mt-4">
                         <x-button.cta
-                                selid="login-btn"de
+                                selid="login-btn"
                                 class="w-full justify-center"
                                 size="md"
                                 type="link"
