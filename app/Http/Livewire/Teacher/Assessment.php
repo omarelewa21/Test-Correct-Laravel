@@ -269,9 +269,8 @@ class Assessment extends Component implements CollapsableHeader
     /**
      * @throws AssessmentException
      */
-    public function handleHeaderCollapse(
-        $args
-    ): bool {
+    public function handleHeaderCollapse($args): bool
+    {
         [$assessmentType, $reset] = $this->validateStartArguments($args);
 
         $updates = [
@@ -559,7 +558,7 @@ class Assessment extends Component implements CollapsableHeader
         $this->maxAssessedValue = $this->testTakeData->fresh()->max_assessed_answer_index ?? 1;
     }
 
-    private function startAssessment($reset = false): void
+    private function startAssessment(bool $reset = false): void
     {
         $this->openOnly = $this->testTakeData->fresh()->assessment_type === 'OPEN_ONLY';
 
@@ -776,7 +775,7 @@ class Assessment extends Component implements CollapsableHeader
         return $args;
     }
 
-    private function initializeNavigationProperties($reset = false)
+    private function initializeNavigationProperties(bool $reset = false)
     {
         if ($this->validQueryStringPropertiesForNavigation()) {
             return;
@@ -850,7 +849,7 @@ class Assessment extends Component implements CollapsableHeader
             return $this->getCoLearningScoreForCurrentAnswer();
         }
 
-        return 0;
+        return null;
     }
 
     private function currentAnswerHasRatingsOfType(
