@@ -203,6 +203,7 @@
                  x-cloak
                  x-bind:class="{'collapsed': collapse}"
                  x-on:assessment-drawer-tab-update.window="tab($event.detail.tab)"
+                 x-on:resize.window.throttle="handleResize"
             >
                 <div class="collapse-toggle vertical white z-10 cursor-pointer"
                      @click="collapse = !collapse;"
