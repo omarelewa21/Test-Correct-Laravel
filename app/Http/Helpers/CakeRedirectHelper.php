@@ -12,11 +12,19 @@ class CakeRedirectHelper
         protected ?string $uuid = null,
         protected ?int $pageNumber = null,
         protected ?string $returnRoute = null,
-    ) {}
+        protected ?array $notification = null,
+    ) {
+        $this->validateNotification($notification);
+    }
 
-    public static function redirectToCake(string $routeName = 'dashboard', ?string $uuid = null, ?int $pageNumber = null, ?string $returnRoute = null)
-    {
-        $helper = new self($routeName, $uuid, $pageNumber, $returnRoute);
+    public static function redirectToCake(
+        string $routeName = 'dashboard',
+        ?string $uuid = null,
+        ?int $pageNumber = null,
+        ?string $returnRoute = null,
+        ?array $notification = null,
+    ) {
+        $helper = new self($routeName, $uuid, $pageNumber, $returnRoute, $notification);
 
         return redirect($helper->createCakeUrl());
     }
@@ -47,6 +55,10 @@ class CakeRedirectHelper
                 'page'        => '/',
                 'page_action' => "Navigation.load('$cakeRedirectData')",
             ];
+        }
+
+        if ($this->notification) {
+            $cakeRedirectData = $this->addNotificationToPageAction($cakeRedirectData);
         }
 
         if (session()->has('support')){
@@ -206,7 +218,36 @@ class CakeRedirectHelper
             'qtiimport_cito'       => '/qtiimport_cito',
             'qtiimport_batch_cito' => '/qtiimport_batch_cito',
 
-            'infos.index' => '/infos/index'
+            'infos.index' => '/infos/index',
         ];
+    }
+
+    /**
+     * @param array|null $notification
+     * @return void
+     * @throws \Exception
+     */
+    private function validateNotification(?array $notification): void
+    {
+        if ($notification) {
+            if (!array_key_exists('message', $this->notification)) {
+                throw new \Exception('Notifications should always have a message');
+            }
+        }
+    }
+
+    /**
+     * @param mixed $cakeRedirectData
+     * @return mixed
+     */
+    private function addNotificationToPageAction(mixed $cakeRedirectData): mixed
+    {
+        $cakeRedirectData['page_action'] = sprintf(
+            "%s;Notify.notify('%s', '%s');",
+            $cakeRedirectData['page_action'],
+            $this->notification['message'],
+            $this->notification['type'] ?? 'info'
+        );
+        return $cakeRedirectData;
     }
 }

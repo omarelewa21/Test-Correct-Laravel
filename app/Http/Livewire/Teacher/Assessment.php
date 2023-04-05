@@ -91,6 +91,8 @@ class Assessment extends Component implements CollapsableHeader
         $this->headerCollapsed = Session::has("assessment-started-$this->testTakeUuid");
         $this->setTestTakeData();
 
+        $this->verifyTestTakeData();
+
         if ($this->headerCollapsed) {
             $this->skipBootedMethod();
             $this->startAssessment();
@@ -281,7 +283,7 @@ class Assessment extends Component implements CollapsableHeader
         TestTake::whereUuid($this->testTakeUuid)->update($updates);
 
         $this->setTestTakeData();
-        $this->startAssessment();
+        $this->startAssessment($reset);
 
         Session::put(
             "assessment-started-$this->testTakeUuid",
@@ -546,7 +548,6 @@ class Assessment extends Component implements CollapsableHeader
             ->values();
 
         $this->currentQuestion = $this->questions->get((int)$this->questionNavigationValue - 1);
-//        $this->currentAnswer = $this->answers->get((int)$this->answerNavigationValue - 1);
 
         $this->students = $this->testTakeData->testParticipants->where(
             'test_take_status_id',
@@ -555,11 +556,11 @@ class Assessment extends Component implements CollapsableHeader
         )->sortBy('id')->pluck('id');
     }
 
-    private function startAssessment(): void
+    private function startAssessment($reset = false): void
     {
         $this->openOnly = $this->testTakeData->fresh()->assessment_type === 'OPEN_ONLY';
 
-        $this->initializeNavigationProperties();
+        $this->initializeNavigationProperties($reset);
 
         $this->loadQuestion($this->questionNavigationValue);
     }
@@ -784,7 +785,7 @@ class Assessment extends Component implements CollapsableHeader
         return $args;
     }
 
-    private function initializeNavigationProperties()
+    private function initializeNavigationProperties($reset = false)
     {
         if ($this->validQueryStringPropertiesForNavigation()) {
             return;
@@ -800,12 +801,18 @@ class Assessment extends Component implements CollapsableHeader
             }
         }
 
-
         $firstAnswer = $this->answers->whereIn('question_id', $this->getQuestionIdsForCurrentAssessmentType())->first();
+        if ($reset) {
+            $firstAnswer = $this->answers->first(function ($answer) {
+                return $answer->answerRatings->doesntContain(function ($rating) {
+                    return $rating->type === AnswerRating::TYPE_TEACHER || $rating->type === AnswerRating::TYPE_SYSTEM;
+                });
+            });
+        }
+
         $firstQuestionForAnswer = $this->questions->discussionTypeFiltered($this->openOnly)
             ->where('id', $firstAnswer->question_id)
             ->first();
-
         $this->questionNavigationValue = $this->questions->search($firstQuestionForAnswer) + 1;
         $this->answerNavigationValue = $this->students->search($firstAnswer->test_participant_id) + 1;
     }
@@ -1019,5 +1026,19 @@ class Assessment extends Component implements CollapsableHeader
         });
 
         return [$percentagePerAnswer, $assessedAnswers];
+    }
+
+    private function verifyTestTakeData()
+    {
+        if (filled($this->answers)) {
+            return true;
+        }
+
+        return CakeRedirectHelper::redirectToCake(
+            routeName   : 'test_takes.view',
+            uuid        : $this->testTakeUuid,
+            returnRoute : '/teacher/test_takes/taken',
+            notification: ['message' => __('assessment.no_answers'), 'type' => 'error']
+        );
     }
 }
