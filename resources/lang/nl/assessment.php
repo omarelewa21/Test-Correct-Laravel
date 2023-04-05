@@ -34,4 +34,5 @@ return [
     'Feedback'                                     => 'Feedback',
     'Feedback toevoegen'                           => 'Feedback toevoegen',
     'current_session'                              => ":index/:totalQuestions vragen nagekeken<br>op :date",
+    'no_answers'                                   => 'Er zijn geen antwoorden om na te kijken.'
 ];

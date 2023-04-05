@@ -91,6 +91,8 @@ class Assessment extends Component implements CollapsableHeader
         $this->headerCollapsed = Session::has("assessment-started-$this->testTakeUuid");
         $this->setTestTakeData();
 
+        $this->verifyTestTakeData();
+
         if ($this->headerCollapsed) {
             $this->skipBootedMethod();
             $this->startAssessment();
@@ -545,7 +547,6 @@ class Assessment extends Component implements CollapsableHeader
             ->values();
 
         $this->currentQuestion = $this->questions->get((int)$this->questionNavigationValue - 1);
-//        $this->currentAnswer = $this->answers->get((int)$this->answerNavigationValue - 1);
 
         $this->students = $this->testTakeData->testParticipants->where(
             'test_take_status_id',
@@ -811,7 +812,6 @@ class Assessment extends Component implements CollapsableHeader
         $firstQuestionForAnswer = $this->questions->discussionTypeFiltered($this->openOnly)
             ->where('id', $firstAnswer->question_id)
             ->first();
-
         $this->questionNavigationValue = $this->questions->search($firstQuestionForAnswer) + 1;
         $this->answerNavigationValue = $this->students->search($firstAnswer->test_participant_id) + 1;
     }
@@ -1025,5 +1025,19 @@ class Assessment extends Component implements CollapsableHeader
         });
 
         return [$percentagePerAnswer, $assessedAnswers];
+    }
+
+    private function verifyTestTakeData()
+    {
+        if (filled($this->answers)) {
+            return true;
+        }
+
+        return CakeRedirectHelper::redirectToCake(
+            routeName   : 'test_takes.view',
+            uuid        : $this->testTakeUuid,
+            returnRoute : '/teacher/test_takes/taken',
+            notification: ['message' => __('assessment.no_answers'), 'type' => 'error']
+        );
     }
 }
