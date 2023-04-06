@@ -25,7 +25,8 @@ class Assessment extends Component implements CollapsableHeader
         'assessedAt'                    => null,
         'assessmentType'                => null,
         'assessIndex'                   => null,
-        'totalToAssess'                 => 0
+        'totalToAssess'                 => 0,
+        'showStudentNames'              => false,
     ];
     public bool $questionPanel = true;
     public bool $answerPanel = true;
@@ -110,6 +111,7 @@ class Assessment extends Component implements CollapsableHeader
 
         if ($this->headerCollapsed) {
             $this->setTestTakeData();
+            $this->hydrateCurrentProperties();
         }
     }
 
@@ -285,10 +287,7 @@ class Assessment extends Component implements CollapsableHeader
         $this->setTestTakeData();
         $this->startAssessment($reset);
 
-        Session::put(
-            "assessment-started-$this->testTakeUuid",
-            $args + ['skipCoLearningNoDiscrepancies' => $this->assessmentContext['skipCoLearningNoDiscrepancies']]
-        );
+        $this->storeAssessmentSessionContext($args);
 
         return $this->headerCollapsed = true;
     }
@@ -475,12 +474,12 @@ class Assessment extends Component implements CollapsableHeader
             'skipCoLearningNoDiscrepancies' => (bool)($this->sessionSettings(
             )?->skipCoLearningNoDiscrepancies ?? $this->assessmentContext['skipCoLearningNoDiscrepancies']),
             'skippedCoLearning'             => $testTake->skipped_discussion,
-            'assessedAt'                    => filled($testTake->assessed_at) ? str(
-                $testTake->assessed_at->translatedFormat('j M Y')
-            )->replace('.', '') : null,
+            'assessedAt'                    => $this->getFormattedAssessedAtDate($testTake),
             'assessmentType'                => $testTake->assessment_type,
             'assessIndex'                   => $this->getAssessedQuestionsCount(),
             'totalToAssess'                 => $this->questions->discussionTypeFiltered($this->openOnly)->count(),
+            'showStudentNames'              => $this->sessionSettings(
+                )?->showStudentNames ?? $this->assessmentContext['showStudentNames'],
         ];
 
         $this->questionCount = $this->questions->count();
@@ -518,6 +517,7 @@ class Assessment extends Component implements CollapsableHeader
             ->values();
 
         $this->answers->each(function ($answer) {
+            $this->setUserOnAnswer($answer);
             $coLearningRatings = $answer->answerRatings->where('type', AnswerRating::TYPE_STUDENT);
             if (!$coLearningRatings) {
                 $answer->hasDiscrepancy = null;
@@ -1079,5 +1079,49 @@ class Assessment extends Component implements CollapsableHeader
                 return $rating->type === AnswerRating::TYPE_TEACHER || $rating->type === AnswerRating::TYPE_SYSTEM;
             });
         });
+    }
+
+    /**
+     * @param $args
+     * @return void
+     */
+    private function storeAssessmentSessionContext($args): void
+    {
+        $contextData = [
+            'skipCoLearningNoDiscrepancies' => (bool)$this->assessmentContext['skipCoLearningNoDiscrepancies'],
+            'showStudentNames'              => (bool)$this->assessmentContext['showStudentNames'],
+        ];
+
+        Session::put(
+            "assessment-started-$this->testTakeUuid",
+            $args + $contextData
+        );
+    }
+
+    private function getFormattedAssessedAtDate(TestTake $testTake)
+    {
+        return filled($testTake->assessed_at)
+            ? str($testTake->assessed_at->translatedFormat('j M Y'))->replace('.', '')
+            : null;
+    }
+
+    private function hydrateCurrentProperties(): void
+    {
+        $this->setUserOnAnswer($this->currentAnswer);
+    }
+
+    private function setUserOnAnswer(Answer $answer): void
+    {
+        $answer->user = $this->testTakeData->testParticipants->find($answer->test_participant_id)?->user;
+        $answer->user->shortLastname = str(
+            sprintf(
+                '%s %s',
+                $answer->user->name_suffix,
+                substr($answer->user->name, 0, 1)
+            )
+        )
+            ->squish()
+            ->append('.')
+            ->value();
     }
 }

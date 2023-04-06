@@ -1953,6 +1953,7 @@ document.addEventListener("alpine:init", () => {
         collapse: false,
         container: null,
         clickedNext: false,
+        tooltipTimeout: null,
         init() {
             this.container = this.$root.querySelector("#slide-container");
             this.tab(1);
@@ -2006,6 +2007,17 @@ document.addEventListener("alpine:init", () => {
         handleResize() {
             const slide = this.$root.querySelector(".slide-" + this.activeTab);
             this.handleSlideHeight(slide);
+        },
+        closeTooltips() {
+            const previousDate = new Date(this.tooltipTimeout);
+            previousDate.setMilliseconds(previousDate.getMilliseconds() + 1000);
+            if (Date.parse(previousDate) > Date.now()) {
+                return;
+            }
+            this.tooltipTimeout = Date.now();
+            this.$root.querySelectorAll(".tooltip-container").forEach((el) => {
+                el.dispatchEvent(new CustomEvent("close"));
+            });
         }
     }));
     Alpine.data("scoreSlider", (score, model, maxScore, halfPoints, disabled, coLearning) => ({
@@ -2151,6 +2163,59 @@ document.addEventListener("alpine:init", () => {
         },
         init() {
             this.fastOption = currentScore !== null ? this.scoreOptions.indexOf(currentScore) : null;
+        }
+    }));
+    Alpine.data("tooltip", (alwaysLeft) => ({
+        alwaysLeft,
+        tooltip: false,
+        maxToolTipWidth: 384,
+        height: 0,
+        init() {
+            this.setHeightProperty();
+
+            this.$watch("tooltip", value => {
+                if (value) {
+                    let ignoreLeft = false;
+                    if (alwaysLeft || this.tooltipTooWideForPosition()) {
+                        this.$refs.tooltipdiv.classList.remove("left-1/2", "-translate-x-1/2");
+                        this.$refs.tooltipdiv.classList.add("right-0");
+                        ignoreLeft = true;
+                    }
+                    this.$refs.tooltipdiv.style.top = this.getTop();
+                    this.$refs.tooltipdiv.style.left = this.getLeft(ignoreLeft);
+                }
+            });
+        },
+        getTop() {
+            let top = ((this.$root.getBoundingClientRect().top + this.$root.offsetHeight + 8));
+            const bottom = top + this.height;
+            if (bottom > window.innerHeight) {
+                top = top - (bottom - window.innerHeight);
+            }
+            return top + "px";
+        },
+        getLeft(ignoreLeft = false) {
+            if (ignoreLeft) return 'auto';
+            let left = this.$root.getBoundingClientRect().left + (this.$root.offsetWidth / 2);
+            return left + "px";
+        },
+        handleScroll() {
+            this.$refs.tooltipdiv.style.top = this.getTop();
+        },
+        handleResize() {
+            this.$refs.tooltipdiv.style.top = this.getTop();
+            this.$refs.tooltipdiv.style.left = this.getLeft();
+        },
+        setHeightProperty() {
+            this.tooltip = true;
+            this.$nextTick(() => {
+                this.height = this.$refs.tooltipdiv.offsetHeight;
+                this.tooltip = false;
+                this.$refs.tooltipdiv.classList.remove("invisible");
+            });
+        },
+        tooltipTooWideForPosition() {
+            return ((this.$el.getBoundingClientRect().left + (this.maxToolTipWidth / 2)) > window.innerWidth);
         }
     }));
     Alpine.directive("global", function(el, { expression }) {
