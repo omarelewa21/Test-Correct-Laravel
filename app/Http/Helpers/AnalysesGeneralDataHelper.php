@@ -44,12 +44,16 @@ class AnalysesGeneralDataHelper
             ->fromSub(
                 PValue::selectSub($this->takenTestsCountForSubject(false), 'tests_taken')
                     ->selectSub($this->takenTestsCountForSubject(true), 'assignments_taken')
-                    ->selectSub($this->averagePValueForSubject(false), 'tests_pvalue_average')
-                    ->selectSub($this->averagePValueForSubject(true), 'assignments_pvalue_average')
-                    ->selectSub($this->questionCountForSubject(false), 'tests_questions')
-                    ->selectSub($this->questionCountForSubject(true), 'assignments_questions')
+//                    ->selectSub($this->averagePValueForSubject(false), 'tests_pvalue_average_old')
+//                    ->selectSub($this->averagePValueForSubject(true), 'assignments_pvalue_average_old')
+//                    ->selectSub($this->questionCountForSubject(false), 'tests_questions_old')
+//                    ->selectSub($this->questionCountForSubject(true), 'assignments_questions_old')
                     ->selectSub($this->averageRatingForSubject(false), 'tests_rating_average')
                     ->selectSub($this->averageRatingForSubject(true), 'assignments_rating_average')
+                    ->selectSub($this->pValueForSubject(false), 'tests_pvalue_average')
+                    ->selectSub($this->countForSubject(false), 'tests_questions')
+                    ->selectSub($this->pValueForSubject(true), 'assignments_pvalue_average')
+                    ->selectSub($this->countForSubject(true), 'assignments_questions')
                 , 'sub'
             )
             ->first();
@@ -62,10 +66,9 @@ class AnalysesGeneralDataHelper
             ->join('tests', 'tests.id', '=', 'test_takes.test_id')
             ->where('tests.subject_id', $this->subject->getKey())
             ->where('tests.test_kind_id', $operator, TestKind::ASSIGNMENT_TYPE)
-
             ->when(!empty($this->filters), function ($query) {
-                foreach($this->filters as $key => $value) {
-                    $query->whereIn('tests.'.$this->filterColumn[$key], $value);
+                foreach ($this->filters as $key => $value) {
+                    $query->whereIn('tests.' . $this->filterColumn[$key], $value);
                 }
             });
     }
@@ -80,6 +83,7 @@ class AnalysesGeneralDataHelper
     private function questionCountForSubject(bool $assignment)
     {
         return Answer::selectRaw('count(*)')
+            ->whereNotNull('final_rating')
             ->whereIn(
                 'test_participant_id',
                 TestParticipant::selectRaw('id')
@@ -167,13 +171,54 @@ class AnalysesGeneralDataHelper
             ->where('p_value_attainments.attainment_id', $this->attainment->getKey())
             ->where('test_participants.user_id', $this->user->getKey())
             ->where('tests.test_kind_id', $operator, TestKind::ASSIGNMENT_TYPE)
-
             ->when(!empty($this->filters), function ($query) {
-                foreach($this->filters as $key => $value) {
-                    $query->whereIn('tests.'.$this->filterColumn[$key], $value);
+                foreach ($this->filters as $key => $value) {
+                    $query->whereIn('tests.' . $this->filterColumn[$key], $value);
                 }
             });
     }
+
+    private function pValueForSubject(bool $assignment)
+    {
+        $operator = $assignment ? '=' : '<>';
+        return PValue::selectRaw('avg(score/max_score)')
+            ->join('test_participants', function ($join) {
+                $join->on('p_values.test_participant_id', '=', 'test_participants.id')
+                    ->where('test_participants.user_id', '=', $this->user->getKey());
+            })
+            ->join('test_takes', 'test_takes.id', '=', 'test_participants.test_take_id')
+            ->join('tests', 'tests.id', '=', 'test_takes.test_id')
+            ->where('p_values.subject_id', $this->subject->getKey())
+            ->where('tests.subject_id', $this->subject->getKey())
+            ->where('tests.test_kind_id', $operator, TestKind::ASSIGNMENT_TYPE)
+            ->when(!empty($this->filters), function ($query) {
+                foreach ($this->filters as $key => $value) {
+                    $query->whereIn('tests.' . $this->filterColumn[$key], $value);
+                }
+            });
+    }
+
+    private function countForSubject(bool $assignment)
+    {
+        $operator = $assignment ? '=' : '<>';
+        return PValue::selectRaw('count(p_values.subject_id)')
+            ->join('test_participants', function ($join) {
+                $join->on('p_values.test_participant_id', '=', 'test_participants.id')
+                    ->where('test_participants.user_id', '=', $this->user->getKey());
+            })
+            ->join('test_takes', 'test_takes.id', '=', 'test_participants.test_take_id')
+            ->join('tests', 'tests.id', '=', 'test_takes.test_id')
+            ->where('p_values.subject_id', $this->subject->getKey())
+            ->where('tests.subject_id', $this->subject->getKey())
+            ->where('tests.test_kind_id', $operator, TestKind::ASSIGNMENT_TYPE)
+            ->when(!empty($this->filters), function ($query) {
+                foreach ($this->filters as $key => $value) {
+                    $query->whereIn('tests.' . $this->filterColumn[$key], $value);
+                }
+            });
+    }
+
+
 
 
 }
