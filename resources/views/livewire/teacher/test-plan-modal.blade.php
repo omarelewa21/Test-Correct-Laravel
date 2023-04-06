@@ -172,7 +172,7 @@
                 {{--                    <x-icon.chevron/>--}}
                 {{--                </x-button.primary>--}}
                 <x-button.cta size="sm" wire:click="planNext" selid="plan-modal-plan-btn"  wire:loading.attr="disabled" wire:target="planNext">
-                    <x-icon.checkmark />
+                    <x-icon.checkmark wire:loading.remove wire:target="planNext"/>
                     <span wire:loading.remove wire:target="planNext">{{__('teacher.Inplannen')}}</span>
                     <span wire:loading wire:target="planNext">{{ __('cms.one_moment_please') }}</span>
                 </x-button.cta>
