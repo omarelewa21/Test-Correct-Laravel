@@ -1086,7 +1086,7 @@ class OpenShort extends Component implements QuestionCms
 
     public function needIsolate()
     {
-        return !!(in_array($this->type, $this->typesNeedIsolate));
+        return !!($this->type && in_array($this->type, $this->typesNeedIsolate));
     }
 
     public function resolveOrderNumber()
