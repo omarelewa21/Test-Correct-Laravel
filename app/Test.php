@@ -1285,4 +1285,14 @@ class Test extends BaseModel
     {
         return $this->owner_id === SchoolLocation::where('customer_code', config('custom.TB_customer_code'))->value('id');
     }
+
+    /**
+     * return true if allow_writing_assignment is allowed for the school location and there are writing assignments
+     * 
+     * @return bool
+     */
+    public function getAllowWscForStudentsAttribute(): bool
+    {
+        return Auth()->user()->schoolLocation->allow_writing_assignment && $this->getWritingAssignmentsCount() > 0; 
+    }
 }

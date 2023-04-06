@@ -60,6 +60,14 @@
                     <x-icon.send-mail />
                     <span class="bold">{{ __('teacher.notify_students') }} </span>
                 </x-input.toggle-row-with-title>
+                @if ($this->showSpellCheckerToggle())
+                        <x-input.toggle-row-with-title wire:model="request.allow_wsc"
+                                                    containerClass="border-t-0 w-full lg:w-[calc(50%-0.5rem)]"
+                        >
+                            <x-icon.autocheck />
+                            <span class="bold">{{ __('teacher.allow_wsc') }} </span>
+                        </x-input.toggle-row-with-title>
+                    @endif
                 @if($rttiExportAllowed)
                     <x-input.toggle-row-with-title wire:model="testTake.is_rtti_test_take"
                                                    :toolTip="__('teacher.exporteer_naar_rtti_online_tooltip')"
