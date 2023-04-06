@@ -47,8 +47,6 @@ class Assessment extends Component implements CollapsableHeader
     public string $answerNavigationValue = '';
 
     /* Navigation properties */
-    public int $questionIndex = 1;
-    public int $answerIndex = 1;
     public $questionCount;
     public $lastQuestionForStudent;
     public $firstQuestionForStudent;
@@ -635,7 +633,6 @@ class Assessment extends Component implements CollapsableHeader
     {
         $this->currentQuestion = $newQuestion;
         $this->questionNavigationValue = $index + 1;
-        $this->questionIndex = $index;
         $this->handleGroupQuestion();
     }
 
@@ -643,7 +640,6 @@ class Assessment extends Component implements CollapsableHeader
     {
         $this->currentAnswer = $answer;
         $this->answerNavigationValue = $index;
-        $this->answerIndex = $this->answerNavigationValue - 1;
     }
 
     /**

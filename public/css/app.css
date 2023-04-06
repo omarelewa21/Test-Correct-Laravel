@@ -8047,6 +8047,16 @@ span.completion-response-object-container{
     position: relative;
     pointer-events: none;
 }
+#student-test-review #header {
+    position: sticky;
+    width: 100%;
+    height: var(--header-height);
+    top: 0;
+    left: 0;
+    background-image: linear-gradient(to right, var(--highlight-primary-mid-dark) 0%, var(--teacher-highlight-primary) 99%);
+    box-shadow: var(--main-shadow);
+    color: var(--system-base);
+}
 /*
 ! tailwindcss v3.2.7 | MIT License | https://tailwindcss.com
 */
@@ -9948,6 +9958,9 @@ video {
 .flex-wrap{
   flex-wrap: wrap;
 }
+.place-items-end{
+  place-items: end;
+}
 .content-center{
   align-content: center;
 }
@@ -10620,6 +10633,9 @@ video {
   -o-object-fit: cover;
      object-fit: cover;
 }
+.\!p-0{
+  padding: 0px !important;
+}
 .p-0{
   padding: 0px;
 }
@@ -10658,9 +10674,6 @@ video {
 }
 .p-8{
   padding: 2rem;
-}
-.\!p-0{
-  padding: 0px !important;
 }
 .\!px-0{
   padding-left: 0px !important;
