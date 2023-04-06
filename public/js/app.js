@@ -7784,9 +7784,11 @@ document.addEventListener("alpine:init", function () {
       tooltip: false,
       maxToolTipWidth: 384,
       height: 0,
+      inModal: false,
       init: function init() {
         var _this46 = this;
         this.setHeightProperty();
+        this.inModal = this.$root.closest('#modal-container') !== null;
         this.$watch("tooltip", function (value) {
           if (value) {
             var ignoreLeft = false;
@@ -7801,7 +7803,10 @@ document.addEventListener("alpine:init", function () {
         });
       },
       getTop: function getTop() {
-        var top = this.$root.getBoundingClientRect().top + this.$root.offsetHeight + 8;
+        var top = this.$root.getBoundingClientRect().y + this.$root.offsetHeight + 8;
+        if (this.inModal) {
+          top -= this.getModalDimensions().top;
+        }
         var bottom = top + this.height;
         if (bottom > window.innerHeight) {
           top = top - (bottom - window.innerHeight);
@@ -7811,7 +7816,10 @@ document.addEventListener("alpine:init", function () {
       getLeft: function getLeft() {
         var ignoreLeft = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
         if (ignoreLeft) return 'auto';
-        var left = this.$root.getBoundingClientRect().left + this.$root.offsetWidth / 2;
+        var left = this.$root.getBoundingClientRect().x + this.$root.offsetWidth / 2;
+        if (this.inModal) {
+          left -= this.getModalDimensions().left;
+        }
         return left + "px";
       },
       handleScroll: function handleScroll() {
@@ -7832,6 +7840,10 @@ document.addEventListener("alpine:init", function () {
       },
       tooltipTooWideForPosition: function tooltipTooWideForPosition() {
         return this.$el.getBoundingClientRect().left + this.maxToolTipWidth / 2 > window.innerWidth;
+      },
+      getModalDimensions: function getModalDimensions() {
+        var modal = document.querySelector('#modal-container');
+        return modal.getBoundingClientRect();
       }
     };
   });
@@ -14166,13 +14178,12 @@ RichTextEditor = {
     console.log("this should implement student init // example is open-medium-question.blase.php");
   },
   initStudentCoLearning: function initStudentCoLearning(editorId) {
+    var _this = this;
     var lang = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "nl_NL";
     var wsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
     return ClassicEditor.create(document.querySelector("#" + editorId), this.getConfigForStudent(wsc, [])).then(function (editor) {
       ClassicEditors[editorId] = editor;
-      var wordCountPlugin = editor.plugins.get("WordCount");
-      var wordCountWrapper = document.getElementById("word-count-" + editorId);
-      wordCountWrapper.appendChild(wordCountPlugin.wordCountContainer);
+      _this.setupWordCounter(editor, editorId);
       WebspellcheckerTlc.forTeacherQuestion(editor, lang, wsc);
       window.addEventListener("wsc-problems-count-updated-" + editorId, function (e) {
         var problemCountSpan = document.getElementById("problem-count-" + editorId);
@@ -14189,7 +14200,7 @@ RichTextEditor = {
     });
   },
   initSelectionCMS: function initSelectionCMS(editorId) {
-    var _this = this;
+    var _this2 = this;
     var lang = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "nl_NL";
     var allowWsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
     var editor = ClassicEditors[editorId];
@@ -14200,14 +14211,14 @@ RichTextEditor = {
       ClassicEditors[editorId] = editor;
       WebspellcheckerTlc.lang(editor, lang);
       // WebspellcheckerTlc.setEditorToReadOnly(editor);
-      _this.setReadOnly(editor);
+      _this2.setReadOnly(editor);
       window.editor = editor;
     })["catch"](function (error) {
       console.error(error);
     });
   },
   initCompletionCMS: function initCompletionCMS(editorId, lang) {
-    var _this2 = this;
+    var _this3 = this;
     var allowWsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
     var editor = ClassicEditors[editorId];
     if (editor) {
@@ -14217,7 +14228,7 @@ RichTextEditor = {
       ClassicEditors[editorId] = editor;
       WebspellcheckerTlc.lang(editor, lang);
       // WebspellcheckerTlc.setEditorToReadOnly(editor);
-      _this2.setReadOnly(editor);
+      _this3.setReadOnly(editor);
     })["catch"](function (error) {
       console.error(error);
     });
@@ -14230,11 +14241,10 @@ RichTextEditor = {
     textarea.dispatchEvent(new Event("input"));
   },
   initClassicEditorForStudentplayer: function initClassicEditorForStudentplayer(editorId, questionId) {
+    var _this4 = this;
     return ClassicEditor.create(document.querySelector("#" + editorId), this.getConfigForStudent(false, [])).then(function (editor) {
       ClassicEditors[editorId] = editor;
-      var wordCountPlugin = editor.plugins.get("WordCount");
-      var wordCountWrapper = document.getElementById("word-count-" + editorId);
-      wordCountWrapper.appendChild(wordCountPlugin.wordCountContainer);
+      _this4.setupWordCounter(editor, editorId);
       if (typeof ReadspeakerTlc != "undefined") {
         ReadspeakerTlc.ckeditor.addListenersForReadspeaker(editor, questionId, editorId);
         ReadspeakerTlc.ckeditor.disableContextMenuOnCkeditor();
@@ -14244,11 +14254,10 @@ RichTextEditor = {
     });
   },
   initClassicEditorForStudentPreviewplayer: function initClassicEditorForStudentPreviewplayer(editorId, questionId) {
+    var _this5 = this;
     return ClassicEditor.create(document.querySelector("#" + editorId), this.getConfigForStudent(false, [])).then(function (editor) {
       ClassicEditors[editorId] = editor;
-      var wordCountPlugin = editor.plugins.get("WordCount");
-      var wordCountWrapper = document.getElementById("word-count-" + editorId);
-      wordCountWrapper.appendChild(wordCountPlugin.wordCountContainer);
+      _this5.setupWordCounter(editor, editorId);
       if (typeof ReadspeakerTlc != "undefined") {
         ReadspeakerTlc.ckeditor.replaceReadableAreaByClone(editor);
       }
@@ -14328,9 +14337,15 @@ RichTextEditor = {
           "X-CSRF-TOKEN": document.querySelector("meta[name=\"_token\"]").content
           // Authorization: 'Bearer <JSON Web Token>'
         }
+      },
+
+      wordcount: {
+        showWordCount: true,
+        showParagraphs: false,
+        showCharCount: true,
+        countSpacesAsChars: true
       }
     };
-
     config.removePlugins = (_removeItems$plugins = removeItems === null || removeItems === void 0 ? void 0 : removeItems.plugins) !== null && _removeItems$plugins !== void 0 ? _removeItems$plugins : [];
     config.toolbar = {
       removeItems: (_removeItems$toolbar = removeItems === null || removeItems === void 0 ? void 0 : removeItems.toolbar) !== null && _removeItems$toolbar !== void 0 ? _removeItems$toolbar : []
@@ -14363,7 +14378,7 @@ RichTextEditor = {
     return config;
   },
   initForTeacher: function initForTeacher(editorId, lang) {
-    var _this3 = this;
+    var _this6 = this;
     var allowWsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
     var editor = ClassicEditors[editorId];
     if (editor) {
@@ -14373,7 +14388,7 @@ RichTextEditor = {
       ClassicEditors[editorId] = editor;
       WebspellcheckerTlc.lang(editor, lang);
       // WebspellcheckerTlc.setEditorToReadOnly(editor);
-      _this3.setReadOnly(editor);
+      _this6.setReadOnly(editor);
     })["catch"](function (error) {
       console.error(error);
     });
@@ -14396,6 +14411,20 @@ RichTextEditor = {
       console.error(error);
     });
   },
+  initInlineFeedback: function initInlineFeedback(editorId, lang) {
+    var _this7 = this;
+    var allowWsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+    var editor = ClassicEditors[editorId];
+    if (editor) {
+      editor.destroy(true);
+    }
+    return ClassicEditor.create(document.getElementById(editorId), this.getConfigForTeacher(allowWsc)).then(function (editor) {
+      ClassicEditors[editorId] = editor;
+      _this7.setupWordCounter(editor, editorId);
+    })["catch"](function (error) {
+      console.error(error);
+    });
+  },
   /** @TODO: this method should be refactored to setReadOnlyIfApplicable  but it has a reference in readspeaker_tlc.js which i dont want to test 1 day before deployment.*/
   setReadOnly: function setReadOnly(editor) {
     if (editor.sourceElement.hasAttribute("disabled")) {
@@ -14412,6 +14441,11 @@ RichTextEditor = {
       editor.updateSourceElement();
       editor.sourceElement.dispatchEvent(new Event("input"));
     }
+  },
+  setupWordCounter: function setupWordCounter(editor, editorId) {
+    var wordCountPlugin = editor.plugins.get("WordCount");
+    var wordCountWrapper = document.getElementById("word-count-" + editorId);
+    wordCountWrapper.appendChild(wordCountPlugin.wordCountContainer);
   }
 };
 

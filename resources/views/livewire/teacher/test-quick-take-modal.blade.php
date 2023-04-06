@@ -1,6 +1,6 @@
 <x-modal-new>
     <x-slot name="title">
-        <h2>{{__("cms.Direct afnemen")}}</h2>
+        {{__("cms.Direct afnemen")}}
     </x-slot>
 
     <x-slot name="body">

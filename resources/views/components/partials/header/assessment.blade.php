@@ -144,7 +144,7 @@
             <div class="flex items-center gap-4">
                 <x-input.toggle wire:model="assessmentContext.showStudentNames" />
                 <x-tooltip idle-classes="bg-transparent text-white border-white border">
-                    <span class="text-left">@lang('assessment.Toon de naam van studenten')</span>
+                    <span class="text-left">@lang('assessment.show_student_tooltip_text')</span>
                 </x-tooltip>
             </div>
         </div>

@@ -1431,6 +1431,35 @@ input[type=number] {
     border-color: var(--blue-grey);
 }
 
+.inline-feedback-modal div[selid="ckeditor"],
+.inline-feedback-modal div[selid="ckeditor"] > div {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+.inline-feedback-modal .ck-editor,
+.inline-feedback-modal .ck-editor .ck-editor__main,
+.inline-feedback-modal .ck-editor .ck-editor__main .ck-content {
+    height: 100%;
+}
+
+
+
+.inline-feedback-modal .ck.ck-sticky-panel__placeholder {
+    height: 0!important;
+}
+.inline-feedback-modal .ck.ck-sticky-panel .ck-sticky-panel__content_sticky {
+    position: static!important;
+    top: 0!important;
+    box-shadow: none;
+    border-radius: var(--ck-border-radius);
+}
+
+.inline-feedback-modal .ck.ck-sticky-panel .ck-sticky-panel__content_sticky .ck-toolbar {
+    border-top-left-radius: var(--ck-border-radius) !important;
+    border-top-right-radius: var(--ck-border-radius) !important;
+}
+
 .primary-gradient {
     background: linear-gradient(to right, var(--primary) 0%, var(--teacher-primary-light) 100%);
 }
@@ -7968,7 +7997,8 @@ span.completion-response-object-container{
     opacity: .75;
 }
 
-.drawer .feedback .ck-editor__editable_inline {
+.drawer .feedback .ck-editor__editable_inline,
+.inline-feedback-modal .ck-editor__editable_inline {
     min-height: 150px;
 }
 
@@ -7976,21 +8006,26 @@ span.completion-response-object-container{
     padding-top: 76px;
 }
 
-.drawer .feedback .ck.ck-icon.ck-button__icon {
+.drawer .feedback .ck.ck-icon.ck-button__icon,
+.inline-feedback-modal .ck.ck-icon.ck-button__icon {
     color: var(--system-base);
 }
 
-.drawer .feedback .ck.ck-editor__top {
+.drawer .feedback .ck.ck-editor__top,
+.inline-feedback-modal .ck.ck-editor__top {
     --ck-color-button-on-background: var(--primary-opacity-05);
     --ck-color-button-on-hover-background: var(--primary-opacity-10);
     --ck-color-button-default-hover-background: var(--primary-opacity-05);
     --ck-color-toolbar-background: white;
 }
-.drawer .feedback .ck-on .ck.ck-icon.ck-button__icon {
+
+.drawer .feedback .ck-on .ck.ck-icon.ck-button__icon,
+.inline-feedback-modal .ck-on .ck.ck-icon.ck-button__icon {
     color: var(--primary);
 }
 
-.drawer .feedback .ck.ck-editor__main > .ck-editor__editable {
+.drawer .feedback .ck.ck-editor__main > .ck-editor__editable,
+.inline-feedback-modal .ck.ck-editor__main > .ck-editor__editable {
     --ck-color-base-background: var(--off-white);
 }
 
@@ -7998,10 +8033,19 @@ span.completion-response-object-container{
     --ck-dropdown-max-width: 200px;
 }
 
-.drawer .feedback .ck-dropdown__panel .ck.ck-form__header.ck-special-characters-navigation {
+.drawer .feedback .ck-dropdown__panel .ck.ck-form__header.ck-special-characters-navigation{
     height: auto;
     flex-wrap: wrap;
     justify-content: end;
+}
+.drawer .feedback .ckeditor-disabled .ck.ck-editor__main > .ck-editor__editable,
+.inline-feedback-modal .ckeditor-disabled .ck.ck-editor__main > .ck-editor__editable {
+    --ck-color-base-background: white;
+}
+.drawer .feedback .ckeditor-disabled,
+.inline-feedback-modal .ckeditor-disabled {
+    position: relative;
+    pointer-events: none;
 }
 /*
 ! tailwindcss v3.2.7 | MIT License | https://tailwindcss.com
@@ -9610,16 +9654,16 @@ video {
 .min-w-\[calc\(10\.375rem\+12px\)\]{
   min-width: calc(10.375rem + 12px);
 }
+.min-w-fit{
+  min-width: -moz-fit-content;
+  min-width: fit-content;
+}
 .min-w-full{
   min-width: 100%;
 }
 .min-w-max{
   min-width: -moz-max-content;
   min-width: max-content;
-}
-.min-w-fit{
-  min-width: -moz-fit-content;
-  min-width: fit-content;
 }
 .max-w-0{
   max-width: 0rem;
@@ -10189,9 +10233,6 @@ video {
 .break-all{
   word-break: break-all;
 }
-.break-keep{
-  word-break: keep-all;
-}
 .rounded{
   border-radius: 0.25rem;
 }
@@ -10617,6 +10658,9 @@ video {
 }
 .p-8{
   padding: 2rem;
+}
+.\!p-0{
+  padding: 0px !important;
 }
 .\!px-0{
   padding-left: 0px !important;

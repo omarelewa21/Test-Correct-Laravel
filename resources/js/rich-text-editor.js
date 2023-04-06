@@ -10,9 +10,7 @@ RichTextEditor = {
             )
             .then(editor => {
                 ClassicEditors[editorId] = editor;
-                const wordCountPlugin = editor.plugins.get("WordCount");
-                const wordCountWrapper = document.getElementById("word-count-" + editorId);
-                wordCountWrapper.appendChild(wordCountPlugin.wordCountContainer);
+                this.setupWordCounter(editor, editorId);
                 WebspellcheckerTlc.forTeacherQuestion(editor, lang, wsc);
 
                 window.addEventListener("wsc-problems-count-updated-" + editorId, (e) => {
@@ -92,9 +90,7 @@ RichTextEditor = {
             )
             .then(editor => {
                 ClassicEditors[editorId] = editor;
-                const wordCountPlugin = editor.plugins.get("WordCount");
-                const wordCountWrapper = document.getElementById("word-count-" + editorId);
-                wordCountWrapper.appendChild(wordCountPlugin.wordCountContainer);
+                this.setupWordCounter(editor, editorId);
                 if (typeof ReadspeakerTlc != "undefined") {
                     ReadspeakerTlc.ckeditor.addListenersForReadspeaker(editor, questionId, editorId);
                     ReadspeakerTlc.ckeditor.disableContextMenuOnCkeditor();
@@ -111,9 +107,7 @@ RichTextEditor = {
             )
             .then(editor => {
                 ClassicEditors[editorId] = editor;
-                const wordCountPlugin = editor.plugins.get("WordCount");
-                const wordCountWrapper = document.getElementById("word-count-" + editorId);
-                wordCountWrapper.appendChild(wordCountPlugin.wordCountContainer);
+                this.setupWordCounter(editor, editorId);
                 if (typeof ReadspeakerTlc != "undefined") {
                     ReadspeakerTlc.ckeditor.replaceReadableAreaByClone(editor);
                 }
@@ -195,6 +189,12 @@ RichTextEditor = {
                     "X-CSRF-TOKEN": document.querySelector("meta[name=\"_token\"]").content
                     // Authorization: 'Bearer <JSON Web Token>'
                 }
+            },
+            wordcount: {
+                showWordCount: true,
+                showParagraphs: false,
+                showCharCount: true,
+                countSpacesAsChars: true
             }
         };
         config.removePlugins = removeItems?.plugins ?? [];
@@ -300,6 +300,25 @@ RichTextEditor = {
                 console.error(error);
             });
     },
+    initInlineFeedback: function(editorId, lang, allowWsc = false) {
+        let editor = ClassicEditors[editorId];
+        if (editor) {
+            editor.destroy(true);
+        }
+
+        return ClassicEditor
+            .create(
+                document.getElementById(editorId),
+                this.getConfigForTeacher(allowWsc)
+            )
+            .then(editor => {
+                ClassicEditors[editorId] = editor;
+                this.setupWordCounter(editor, editorId);
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    },
 
     /** @TODO: this method should be refactored to setReadOnlyIfApplicable  but it has a reference in readspeaker_tlc.js which i dont want to test 1 day before deployment.*/
     setReadOnly: function(editor) {
@@ -317,5 +336,10 @@ RichTextEditor = {
             editor.updateSourceElement();
             editor.sourceElement.dispatchEvent(new Event("input"));
         }
-    }
+    },
+    setupWordCounter: function(editor, editorId) {
+        const wordCountPlugin = editor.plugins.get("WordCount");
+        const wordCountWrapper = document.getElementById("word-count-" + editorId);
+        wordCountWrapper.appendChild(wordCountPlugin.wordCountContainer);
+    },
 };
