@@ -33,8 +33,8 @@ class Assessment extends Component implements CollapsableHeader
     public bool $answerModelPanel = true;
     public bool $groupPanel = true;
     public string $testName;
-
     protected $updatePage = false;
+    public $hasFeedback = false;
 
     /*Query string properties*/
     protected $queryString = [
@@ -82,7 +82,8 @@ class Assessment extends Component implements CollapsableHeader
     protected function getListeners()
     {
         return [
-            'accordion-update' => 'handlePanelActivity'
+            'accordion-update' => 'handlePanelActivity',
+            'inline-feedback-saved' => 'handleFeedbackChange'
         ];
     }
 
@@ -463,6 +464,17 @@ class Assessment extends Component implements CollapsableHeader
         ]);
     }
 
+    public function handleFeedbackChange()
+    {
+        $this->getFeedbackForCurrentAnswer();
+    }
+
+    public function deleteFeedback(): void
+    {
+        $this->currentAnswer->feedback()->where('user_id', auth()->id())->delete();
+        $this->getFeedbackForCurrentAnswer();
+    }
+
 
     /* Private methods */
     private function setTemplateVariables(TestTake $testTake): void
@@ -546,8 +558,6 @@ class Assessment extends Component implements CollapsableHeader
                 return collect([$testQuestion->question]);
             })
             ->values();
-
-        $this->currentQuestion = $this->questions->get((int)$this->questionNavigationValue - 1);
 
         $this->students = $this->testTakeData->testParticipants->where(
             'test_take_status_id',
@@ -965,11 +975,14 @@ class Assessment extends Component implements CollapsableHeader
 
     private function getFeedbackForCurrentAnswer(): string
     {
-        return $this->currentAnswer
+        $feedback = $this->currentAnswer
             ->feedback()
             ->where('user_id', auth()->id())
             ->first()
             ?->message ?? '';
+
+        $this->hasFeedback = filled($feedback);
+        return $this->currentQuestion->isSubType('writing') ? '' : $feedback;
     }
 
     private function setProgress(): void
@@ -1108,6 +1121,7 @@ class Assessment extends Component implements CollapsableHeader
     private function hydrateCurrentProperties(): void
     {
         $this->setUserOnAnswer($this->currentAnswer);
+        $this->currentQuestion = $this->questions->get((int)$this->questionNavigationValue - 1);
     }
 
     private function setUserOnAnswer(Answer $answer): void

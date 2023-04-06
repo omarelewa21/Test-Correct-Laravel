@@ -36,4 +36,8 @@ return [
     'current_session'                              => ":index/:totalQuestions vragen nagekeken<br>op :date",
     'no_answers'                                   => 'Er zijn geen antwoorden om na te kijken.',
     'Toon de naam van studenten'                   => 'Toon de naam van studenten',
+    'Inline feedback toevoegen'                    => 'Inline feedback toevoegen',
+    'Inline feedback wijzigen'                     => 'Inline feedback wijzigen',
+    'Inline feedback verwijderen'                  => 'Inline feedback verwijderen',
+    'show_student_tooltip_text'                    => 'Zet dit aan om voor alle antwoorden standaard de student naam te tonen.',
 ];

@@ -2170,9 +2170,10 @@ document.addEventListener("alpine:init", () => {
         tooltip: false,
         maxToolTipWidth: 384,
         height: 0,
+        inModal: false,
         init() {
             this.setHeightProperty();
-
+            this.inModal = this.$root.closest('#modal-container') !== null;
             this.$watch("tooltip", value => {
                 if (value) {
                     let ignoreLeft = false;
@@ -2187,7 +2188,12 @@ document.addEventListener("alpine:init", () => {
             });
         },
         getTop() {
-            let top = ((this.$root.getBoundingClientRect().top + this.$root.offsetHeight + 8));
+            let top = ((this.$root.getBoundingClientRect().y + this.$root.offsetHeight + 8));
+
+            if (this.inModal) {
+                top -= this.getModalDimensions().top;
+            }
+
             const bottom = top + this.height;
             if (bottom > window.innerHeight) {
                 top = top - (bottom - window.innerHeight);
@@ -2196,7 +2202,10 @@ document.addEventListener("alpine:init", () => {
         },
         getLeft(ignoreLeft = false) {
             if (ignoreLeft) return 'auto';
-            let left = this.$root.getBoundingClientRect().left + (this.$root.offsetWidth / 2);
+            let left = this.$root.getBoundingClientRect().x + (this.$root.offsetWidth / 2);
+            if (this.inModal) {
+                left -= this.getModalDimensions().left;
+            }
             return left + "px";
         },
         handleScroll() {
@@ -2216,6 +2225,10 @@ document.addEventListener("alpine:init", () => {
         },
         tooltipTooWideForPosition() {
             return ((this.$el.getBoundingClientRect().left + (this.maxToolTipWidth / 2)) > window.innerWidth);
+        },
+        getModalDimensions() {
+            const modal = document.querySelector('#modal-container');
+            return modal.getBoundingClientRect();
         }
     }));
     Alpine.directive("global", function(el, { expression }) {
