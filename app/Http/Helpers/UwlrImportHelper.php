@@ -54,7 +54,7 @@ class UwlrImportHelper
                 'duration' => $duration
             ];
         } catch(Throwable $e){
-            $message = sprintf('Could not determine carbon date based on substraction of the term `%s` and therefor not prune the uwl soap records. Error was: %s',$sub, $e->getMessage());
+            $message = sprintf('Could not determine carbapp/Http/Traits/WithQuestionFilteredHelpers.php:430on date based on substraction of the term `%s` and therefor not prune the uwl soap records. Error was: %s',$sub, $e->getMessage());
             Bugsnag::notifyException(new \Exception(
                 $message
             ));
