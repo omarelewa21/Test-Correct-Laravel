@@ -12,7 +12,7 @@ class Factory {
     {
         $this->testParticipant = $testParticipant;
     }
-    
+
 
     public function generateMany($testTakeId, $data)
     {
