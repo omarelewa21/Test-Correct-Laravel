@@ -66,7 +66,11 @@ class AnalysesOverviewDashboard extends AnalysesDashboard
 
     public function render()
     {
-        return view('livewire.analyses.analyses-overview-dashboard')->layout($this->getHelper()->getLayout());;
+        try {
+            return view('livewire.analyses.analyses-overview-dashboard')->layout($this->getHelper()->getLayout());;
+        } catch (\Exception $e) {
+            dd('me');
+        }
     }
 
     protected function getMillerData($subjectId)

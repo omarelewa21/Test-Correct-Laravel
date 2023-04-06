@@ -4,6 +4,7 @@ use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use iio\libmergepdf\Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use tcCore\Exceptions\AnalysesPolicyException;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Dyrynda\Database\Casts\EfficientUuid;
@@ -201,6 +202,7 @@ class EducationLevel extends BaseModel
             Bugsnag::notifyException(new \Exception(
                 'cannot find a school_class for student with id ' . $student->id
             ));
+            throw new AnalysesPolicyException(__('exception.analyses.no_school_class_for_student'));
         }
         $min = 1;
 

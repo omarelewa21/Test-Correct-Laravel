@@ -6,7 +6,7 @@ use Exception;
 use Livewire\Exceptions\BypassViewHandler;
 use Throwable;
 
-class AssessmentException extends Exception
+class AnalysesPolicyException extends Exception
 {
     use BypassViewHandler;
     public function __construct(string $message = "", int $code = 0, ?Throwable $previous = null)

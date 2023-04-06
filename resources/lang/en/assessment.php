@@ -34,4 +34,6 @@ return [
     'Feedback'                                     => 'Feedback',
     'Feedback toevoegen'                           => 'Add feedback',
     'current_session'                              => ":index/:totalQuestions questions assessed<br>on :date",
+    'no_answers'                                   => 'There are no answers to asssess.',
+    'Toon de naam van studenten'                   => 'Show name of students',
 ];

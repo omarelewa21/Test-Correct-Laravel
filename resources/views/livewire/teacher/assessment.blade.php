@@ -13,14 +13,14 @@
                 <div class="progress-bar-background |  h-4 bg-white/50 border-bluegrey border-y fixed top-[calc(var(--header-height)+4px)] left-0 z-1"
                      style="width: calc(100% - var(--active-sidebar-width)); transition: width var(--sidebar-transition)"
                 >
-                    <span class="progress-bar | sticky top-[100px] flex items-center justify-end absolute left-0 h-[calc(1rem-2px)] bg-primary rounded-r-full pr-2"
+                    <span @class(['progress-bar | sticky top-[100px] flex items-center justify-end absolute left-0 h-[calc(1rem-2px)] bg-primary pr-2', 'rounded-r-full' => $this->progress < 100])
                           style="width: @js($this->progress)%; transition: width 150ms ease-in"
                     >
-                        @if($this->progress === 0)
-                        <span class="text-xs text-sysbase absolute left-4">@js($this->progress)%</span>
-                        @else
-                        <span class="text-xs text-white">@js($this->progress)%</span>
-                        @endif
+                        <span @class([
+                            'text-xs',
+                            'text-sysbase absolute left-4' => $this->progress === 0,
+                            'text-white' => $this->progress > 0,
+                        ])>@js($this->progress)%</span>
                     </span>
                 </div>
                 {{-- Group section --}}
@@ -141,16 +141,31 @@
                         >
                             <x-slot:title>
                                 <div class="question-indicator items-center flex gap-4">
-                                    <h4 class="flex items-center" selid="questiontitle">
+                                    <h4 class="flex items-center flex-wrap" selid="questiontitle">
                                         <span>@lang('co-learning.answer')</span>
+                                        @if($this->assessmentContext['showStudentNames'])
+                                            <span class="ml-2 truncate max-w-[170px]">{{ $this->currentAnswer->user->name_first }}</span>
+                                            <span x-bind:class="{'ml-2': $el.previousElementSibling.offsetWidth < 170}">{{ $this->currentAnswer->user->shortLastname }}</span>
+                                        @endif
                                         <span>:</span>
                                         <span class="ml-2">{{ $this->currentQuestion->type_name }}</span>
                                     </h4>
-                                    <h7 class="inline-block">{{ $this->currentQuestion->score }} pt</h7>
+                                    <h7 class="inline-block min-w-fit">{{ $this->currentQuestion->score }} pt</h7>
                                 </div>
                             </x-slot:title>
                             <x-slot:titleLeft>
-                                <div class="ml-auto mr-6 relative top-0.5">
+                                <div class="ml-auto mr-6 relative top-0.5 flex gap-2 items-center">
+                                    <span x-on:click.stop.prevent="">
+                                        <x-tooltip class="w-[40px] h-[30px]" :icon-height="true" :icon-width="true">
+                                            <x-slot:idleIcon>
+                                                <span class="flex items-center" x-show="!tooltip" x-cloak>
+                                                    <x-icon.profile />
+                                                    <x-icon.questionmark-small/>
+                                                </span>
+                                            </x-slot:idleIcon>
+                                            {{ $this->currentAnswer->user->nameFull }}
+                                        </x-tooltip>
+                                    </span>
                                     <x-dynamic-component :component="$this->currentAnswer->answeredStatus" />
                                 </div>
                             </x-slot:titleLeft>
@@ -203,6 +218,7 @@
                  x-cloak
                  x-bind:class="{'collapsed': collapse}"
                  x-on:assessment-drawer-tab-update.window="tab($event.detail.tab)"
+                 x-on:resize.window.throttle="handleResize"
             >
                 <div class="collapse-toggle vertical white z-10 cursor-pointer"
                      @click="collapse = !collapse;"
@@ -249,6 +265,7 @@
                     <div id="slide-container"
                          class="slide-container | flex h-full max-w-[var(--sidebar-width)] overflow-x-hidden overflow-y-auto"
                          wire:ignore.self
+                         x-on:scroll="closeTooltips()"
                     >
                         <div class="slide-1 scoring | p-6 flex-[1_0_100%] h-fit min-h-full w-[var(--sidebar-width)] space-y-4 isolate">
                             <div class="question-indicator | items-center flex w-full">
@@ -356,7 +373,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="slide-3 co-learning | p-6 flex-[1_0_100%] h-fit min-h-full w-[var(--sidebar-width)] space-y-4 isolate">
+                        <div class="slide-3 co-learning | p-6 flex-[1_0_100%] h-fit min-h-full w-[var(--sidebar-width)] space-y-4">
                             <div class="flex flex-col w-full gap-2">
                                 <span class="flex ">@lang('assessment.CO-Learning scores')</span>
                                 @if(!$this->currentAnswerCoLearningRatingsHasNoDiscrepancy())
