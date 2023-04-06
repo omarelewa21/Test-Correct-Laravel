@@ -403,6 +403,8 @@ trait WithQuestionFilteredHelpers
 
     private function addSourceFilterToPublishedQuery(&$query, $source, $baseSubjectIds = [])
     {
+        $subjectsQuery = null;
+
         switch($source){
             case 'national':
                 $subjectsQuery = Subject::nationalItemBankFiltered();
@@ -427,7 +429,7 @@ trait WithQuestionFilteredHelpers
         }
 
 
-        if ($subjectsIds = $subjectsQuery->pluck('id')) {
+        if ($subjectsQuery && $subjectsIds = $subjectsQuery->pluck('id')) {
             return $query->whereIn('subject_id', $subjectsIds);
         }
 
