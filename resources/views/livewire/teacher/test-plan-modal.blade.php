@@ -171,9 +171,10 @@
                 {{--                    <span>{{__('teacher.Volgende Inplannen')}}</span>--}}
                 {{--                    <x-icon.chevron/>--}}
                 {{--                </x-button.primary>--}}
-                <x-button.cta size="sm" wire:click="planNext" selid="plan-modal-plan-btn">
+                <x-button.cta size="sm" wire:click="planNext" selid="plan-modal-plan-btn"  wire:loading.attr="disabled">
                     <x-icon.checkmark />
-                    <span>{{__('teacher.Inplannen')}}</span>
+                    <span wire:loading.remove>{{__('teacher.Inplannen')}}</span>
+                    <span wire:loading>{{ __('one_moment_please') }}</span>
                 </x-button.cta>
             </div>
         </div>
