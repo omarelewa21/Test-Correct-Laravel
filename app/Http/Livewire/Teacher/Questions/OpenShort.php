@@ -113,6 +113,8 @@ class OpenShort extends Component implements QuestionCms
         'action', 'type', 'subtype', 'testId', 'testQuestionId', 'groupQuestionQuestionId', 'owner', 'isCloneRequest', 'withDrawer' => ['except' => false], 'referrer' => ['except' => false],
     ];
 
+    protected $typesNeedIsolate = ['MatchingQuestion'];
+
     protected $settingsGeneralPropertiesVisibility = [
         'autoCheckAnswer'                       => false,
         'autoCheckAnswerCaseSensitive'          => false,
@@ -1080,6 +1082,11 @@ class OpenShort extends Component implements QuestionCms
     public function isGroupQuestion()
     {
         return !!($this->type === 'GroupQuestion');
+    }
+
+    public function needIsolate()
+    {
+        return !!(in_array($this->type, $this->typesNeedIsolate));
     }
 
     public function resolveOrderNumber()
