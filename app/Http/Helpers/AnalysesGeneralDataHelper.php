@@ -40,6 +40,59 @@ class AnalysesGeneralDataHelper
         $this->subject = $subject;
         $this->filters = collect($filters)->filter()->toArray();
 
+        return PValue::query()->addSelect(
+            DB::raw('
+            avg(
+    			case when test_kind_id = 4
+    				then score/max_score
+    				else NULL
+    			end
+    			) as assignments_pvalue_average,   
+    		sum(
+    			case when test_kind_id = 4
+    				then 1
+    				else 0
+    			end
+    		) as assignment_question_count,
+            avg(
+    			case when test_kind_id <> 4
+    				then score/max_score
+    				else null
+    			end
+    			) as tests_pvalue_average,
+    		sum(
+    			case when test_kind_id <> 4
+    				then 1
+    				else 0
+    			end
+    		) as tests_questions,
+    		count(distinct case when test_kind_id <> 4 then test_take_id end) as tests_taken,
+    		count(distinct case when test_kind_id = 4 then test_take_id end) as assignments_taken
+            ')
+        )
+            ->selectSub($this->averageRatingForSubject(false), 'tests_rating_average')
+            ->selectSub($this->averageRatingForSubject(true), 'assignments_rating_average')
+            ->join('test_participants', 'test_participants.id', '=', 'p_values.test_participant_id')
+            ->join('test_takes', 'test_takes.id', '=', 'test_participants.test_take_id')
+            ->join('tests', 'tests.id', '=', 'test_takes.test_id')
+            ->where('p_values.subject_id', $this->subject->getKey())
+            ->where('test_participants.user_id', $this->user->getKey())
+            ->when(!empty($this->filters), function ($query) {
+                foreach ($this->filters as $filter => $values) {
+                    if (isset($this->filterColumn[$filter])) {
+                        $query->whereIn($this->filterColumn[$filter], $values);
+                    }
+                }
+            })
+            ->first()
+        ->toArray();
+    }
+
+    public function getAllForSubjectOld(Subject $subject, $filters)
+    {
+        $this->subject = $subject;
+        $this->filters = collect($filters)->filter()->toArray();
+
         return DB::query()
             ->fromSub(
                 PValue::selectSub($this->takenTestsCountForSubject(false), 'tests_taken')
@@ -217,8 +270,6 @@ class AnalysesGeneralDataHelper
                 }
             });
     }
-
-
 
 
 }
