@@ -175,7 +175,7 @@ class TestTakeEvent extends BaseModel {
     }
 
     private static function handleMetadata(TestTakeEvent $testTakeEvent): TestTakeEvent {
-        if ($testTakeEvent->testTakeEventType->reason == "vm") {
+        if ($testTakeEvent->testTakeEventType->reason === "vm") {
             try {
                 $metadata = $testTakeEvent->metadata;
                 
@@ -202,7 +202,7 @@ class TestTakeEvent extends BaseModel {
                             $metadata['software'] = VirtualMachineSoftwares::unknown->value . ', vendor: ' . $metadata['software'];
                             break;
                     }
-                } elseif (array_key_exists('type', $metadata) && $metadata['type'] == VirtualMachineDetectionTypes::windows->value) {
+                } elseif (array_key_exists('type', $metadata) && $metadata['type'] === VirtualMachineDetectionTypes::windows->value) {
                     // the reported software is through the Pafish VM detection
                     if (array_key_exists('vmware', $metadata) &&
                         (
@@ -269,7 +269,7 @@ class TestTakeEvent extends BaseModel {
                         $metadata['software'] = VirtualMachineSoftwares::unknown->value . ', vendor: '
                             . $metadata['vendor'] . ' & Hypervisor: ' . $metadata['hypervisorVendor'];
                     }
-                } elseif (array_key_exists('type', $metadata) && $metadata['type'] == VirtualMachineDetectionTypes::macos->value) {
+                } elseif (array_key_exists('type', $metadata) && $metadata['type'] === VirtualMachineDetectionTypes::macos->value) {
                   $metadata['software'] = VirtualMachineSoftwares::macosvm->value;
                 } else {
                     Bugsnag::leaveBreadcrumb('metadata', 'info', $metadata);

@@ -47,7 +47,7 @@ class AppApi extends Controller
 
         // force hand-in test if a VM has been detected, but not if it is an assignment
         if (
-            $testTakeEvent->testTakeEventType->reason == "vm" &&
+            $testTakeEvent->testTakeEventType->reason === "vm" &&
             !$testParticipant->testTake->test->isAssignment()
         ) {
             $testParticipant->setAttribute('test_take_status_id', TestTakeStatus::STATUS_TAKEN)->save();
