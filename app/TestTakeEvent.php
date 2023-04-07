@@ -181,7 +181,7 @@ class TestTakeEvent extends BaseModel {
                 
                 if (array_key_exists('software', $metadata) && is_int($metadata['software'])) {
                     // the reported software is an integer so through the HID detection
-                    //.we translate it to a string
+                    // we translate it to a string
                     switch ($metadata['software']) {
                         case 0x15ad:
                             $metadata['software'] = VirtualMachineSoftwares::vmware->value;
