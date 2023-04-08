@@ -4,7 +4,13 @@
         <x-slot name="body">
             {{ __("test-take.Weet je zeker dat je de toets wilt inleveren?") }}
             @if (!$this->isAllQuestionsHaveAnswer())
-            <br><br> {{ __("test-take.not-all-questions-answered-attention", ['questions' => $questionsWithNoAnswer]) }}
+                <div class="flex w-full justify-center transition-all duration-300 mb-4 mt-5">
+                    <div class="notification warning stretched">
+                        {{ __("test-take.not-all-questions-answered") }}
+                        <strong> {{ $questionsWithNoAnswer }} </strong>. <br>
+                        {{ __("test-take.not-all-questions-answered-extension") }}
+                    </div>
+                </div>
             @endif
         </x-slot>
         <x-slot name="actionButton">

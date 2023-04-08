@@ -35,5 +35,6 @@ return [
     'normalize'                                                                                                                   => 'Set norm',
     'rtti-export'                                                                                                                 => 'Rtti-Export',
     'marking'                                                                                                                     => 'Marking',
-    'not-all-questions-answered-attention'                                                                                        => 'Attention, not all questions have been answered yet: :questions. Closed questions can’t be answered at a later time.',
+    'not-all-questions-answered'                                                                                                  => 'Not all questions have been answered yet: ',
+    'not-all-questions-answered-extension'                                                                                        => 'Closed questions can’t be answered at a later time.'
 ];
