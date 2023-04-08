@@ -72,7 +72,6 @@ class OpenQuestion extends Component
 
     private function allowSpellChecker(): bool
     {
-        $testTake = TestTake::whereUuid($this->testTakeUuid)->first();
-        return $testTake->isAssignmentType() ? $testTake->allow_wsc : false;
+        return TestTake::whereUuid($this->testTakeUuid)->value('allow_wsc') && $this->question->isWritingAssignmentWithSpellCheckAvailable();
     }
 }
