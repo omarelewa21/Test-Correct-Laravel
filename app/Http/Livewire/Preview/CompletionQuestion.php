@@ -41,7 +41,7 @@ class CompletionQuestion extends Component
                             type="text" id="%s" x-ref="%s" %s wire:key="%s"/></span>',
                 'comp_answer_' . $tag_id . '_span',
                 $tag_id,
-                'answer_' . $tag_id .'_'.$this->question->getKey(),
+                'answer_' . $tag_id .'_'.$question->getKey(),
                 'comp_answer_' . $tag_id,
                 $events,
                 'comp_answer_' . $tag_id
