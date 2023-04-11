@@ -202,6 +202,7 @@ class EducationLevel extends BaseModel
             Bugsnag::notifyException(new \Exception(
                 'cannot find a school_class for student with id ' . $student->id
             ));
+
             throw new AnalysesPolicyException(__('exception.analyses.no_school_class_for_student'));
         }
         $min = 1;
