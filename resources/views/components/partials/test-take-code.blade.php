@@ -10,6 +10,7 @@
         <x-input.text class="w-10 text-center test-code" type="number"
                       max="9" maxlength="1" wire:model.defer="testTakeCode.0"
                       x-ref="testCode_1"
+                      data-focus-tab-error="2-invalid_test_code"
                       x-on:input="testCodeInput($el)"
                       x-on:paste.prevent="handlePaste($event, $el)"
         />
