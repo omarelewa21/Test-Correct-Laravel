@@ -101,22 +101,22 @@ class QuestionsController extends Controller
 
     public function inlineImageLaravel(Request $request, $image)
     {
-
-        $questionAnswersImage = $image;
-        if(!Storage::disk('cake')->exists("questionanswers/$image")){
-            $questionAnswersImage = urldecode($questionAnswersImage);
-        }
-        if (Storage::disk('cake')->exists("questionanswers/$questionAnswersImage")) {
-            $path = Storage::disk('cake')->path("questionanswers/$questionAnswersImage");
-            return Response::file($path);
-        }
-
         $inlineImage = $image;
         if(!Storage::disk('inline_images')->exists($inlineImage)){
             $inlineImage = urldecode($inlineImage);
         }
         if (Storage::disk('inline_images')->exists($inlineImage)) {
             $path = Storage::disk('inline_images')->path($inlineImage);
+            return Response::file($path);
+        }
+
+        //also check old inline-image storage folder
+        $questionAnswersImage = $image;
+        if(!Storage::disk('cake')->exists("questionanswers/$image")){
+            $questionAnswersImage = urldecode($questionAnswersImage);
+        }
+        if (Storage::disk('cake')->exists("questionanswers/$questionAnswersImage")) {
+            $path = Storage::disk('cake')->path("questionanswers/$questionAnswersImage");
             return Response::file($path);
         }
 

@@ -198,10 +198,6 @@ class PdfController extends Controller
 
     private function snappyToPdfFromString($html)
     {
-//        if(config('app.url')=='https://testwelcome.test-correct.nl'){
-//            Storage::put('temp/result1.html',$html);
-//        }
-
         $output = \PDF::loadHtml($html)->setOption('header-html', resource_path('pdf_templates/header.html'))->setOption('footer-html', resource_path('pdf_templates/footer.html'));
         return $output->download('file.pdf');
 
@@ -209,11 +205,6 @@ class PdfController extends Controller
 
     private function snappyToTestPrintPdf($html, $header, $footer)
     {
-//        if(config('app.url')=='https://testwelcome.test-correct.nl'){
-//            Storage::put('temp/result1.html',$html);
-//            Storage::put('temp/result1footer.html',$footer);
-//        }
-
         $fileName = Uuid::uuid4().'.pdf';
         $disk = Storage::disk('temp_pdf');
 
