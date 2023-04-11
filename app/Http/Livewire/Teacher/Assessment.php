@@ -190,7 +190,7 @@ class Assessment extends Component implements CollapsableHeader
         if ($this->currentQuestion->isType('Infoscreen')) {
             return false;
         }
-        if (!$this->currentQuestion->isAnswered) {
+        if (!$this->currentAnswer->isAnswered) {
             return false;
         }
         return $this->currentAnswerHasRatingsOfType(AnswerRating::TYPE_SYSTEM);
@@ -862,10 +862,13 @@ class Assessment extends Component implements CollapsableHeader
         return null;
     }
 
-    private function currentAnswerHasRatingsOfType(
-        string $type
-    ): bool {
-        return $this->currentAnswer->answerRatings->where('type', $type)->whereNotNull('rating')->isNotEmpty();
+    private function currentAnswerHasRatingsOfType(string $type): bool
+    {
+        return $this->currentAnswer
+            ->answerRatings
+            ->where('type', $type)
+            ->whereNotNull('rating')
+            ->isNotEmpty();
     }
 
     private function hasOnlyTwoFastScoringOptions(): bool
