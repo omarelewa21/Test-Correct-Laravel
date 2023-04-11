@@ -217,15 +217,15 @@
                 countdownTimer = setInterval(function () {
                     data.countdownNumber -= 1;
                     if (data.countdownNumber === 0) {
-                        if(listener === 'start-test-take') {
-                            Core.setAppTestConfigIfNecessary('{{ $testParticipant->uuid }}');
-                        }
                         clearClipboard().then(()=>{
                             Livewire.emitTo('student.waiting-room', listener);
                         });
                         clearInterval(countdownTimer);
                     }
                 }, 1000);
+                if(listener === 'start-test-take') {
+                    Core.setAppTestConfigIfNecessary('{{ $testParticipant->uuid }}');
+                }
             }
 
             function stopCountdownTimer(data) {
