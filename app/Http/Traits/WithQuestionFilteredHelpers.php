@@ -425,7 +425,7 @@ trait WithQuestionFilteredHelpers
         }
 
 
-        if ($subjectsIds = $subjectsQuery->pluck('id')) {
+        if (isset($subjectsQuery) && $subjectsIds = $subjectsQuery->pluck('id')) {
             return $query->whereIn('subject_id', $subjectsIds);
         }
 

@@ -90,6 +90,7 @@ class QuestionBank extends Component
         })
             ->when($this->openTab === 'personal', fn($filters) => $filters->merge(['source' => 'me']))
             ->when($this->openTab === 'school_location', fn($filters) => $filters->merge(['source' => 'schoolLocation', 'draft' => false]))
+            ->when($this->openTab === 'umbrella', fn($filters) => $filters->merge(['source' => 'school', 'draft' => false]))
             ->when($this->openTab === 'national', fn($filters) => $filters->merge(['source' => 'national']))
             ->when($this->openTab === 'creathlon', fn($filters) => $filters->merge(['source' => 'creathlon']))
             ->when($this->openTab === 'olympiade', fn($filters) => $filters->merge(['source' => 'olympiade']))
@@ -368,7 +369,7 @@ class QuestionBank extends Component
 
     private function questionDataSource()
     {
-        if ($this->isExternalContentTab()) {
+        if ($this->isExternalContentTab() && $this->openTab !== 'umbrella') {
             return Question::publishedFiltered($this->getFilters())->published();
         }
         return Question::filtered($this->getFilters());
