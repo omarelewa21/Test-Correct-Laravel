@@ -122,7 +122,7 @@
                                                                     x-show="(showPassword && !hoverPassword) || (!showPassword && hoverPassword)"/>
                                                 </div>
                                             </div>
-                                            <x-input.text data-focus-tab="1-password"
+                                            <x-input.text data-focus-tab-error="1-password"
                                                           wire:model.lazy="password"
                                                           selid="login-password"
                                                           x-bind:type="showPassword ? 'text' : 'password'"
@@ -286,7 +286,7 @@
                                         </x-input.group>
                                     </div>
                                     <x-input.group label="{{ __('auth.last_name')}}" class="mt-4">
-                                        <x-input.text selid="test-direct-lastname" wire:model.lazy="lastName" autofocus></x-input.text>
+                                        <x-input.text data-focus-tab-error="2-empty_guest_last_name" selid="test-direct-lastname" wire:model.lazy="lastName" autofocus></x-input.text>
                                     </x-input.group>
                                     <div class="flex-1 ">
                                         <div class="mx-auto flex flex-col">
@@ -502,7 +502,7 @@
                                     </div>
                                 </div>
                                 <div class="flex w-full justify-between mt-auto">
-                                    <x-button.text-button @click="hasErrors = false;" type="link" href="{{ route('auth.login') }}"
+                                    <x-button.text-button type="link" href="{{ route('auth.login') }}"
                                                           class="rotate-svg-180">
                                         <x-icon.arrow/>
                                         <span>{{ __('auth.back_to_login') }}</span>
