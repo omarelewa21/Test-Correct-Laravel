@@ -12,7 +12,7 @@ class DashboardController extends Controller
         }
 
         if (auth()->user()?->isA('teacher')) {
-            return CakeRedirectHelper::getRouteNameByUrl('/teacher/dashboard');
+            return CakeRedirectHelper::redirectToCake();
         }
 
         return redirect()->route('auth.login');
