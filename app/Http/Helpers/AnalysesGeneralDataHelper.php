@@ -99,7 +99,7 @@ class AnalysesGeneralDataHelper
     				then 1
     				else 0
     			end
-    		) as assignment_question_count,
+    		) as assignment_questions,
             avg(
     			case when test_kind_id <> 4
     				then score/max_score
