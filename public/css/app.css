@@ -10620,6 +10620,9 @@ video {
   -o-object-fit: cover;
      object-fit: cover;
 }
+.\!p-0{
+  padding: 0px !important;
+}
 .p-0{
   padding: 0px;
 }
@@ -10658,9 +10661,6 @@ video {
 }
 .p-8{
   padding: 2rem;
-}
-.\!p-0{
-  padding: 0px !important;
 }
 .\!px-0{
   padding-left: 0px !important;

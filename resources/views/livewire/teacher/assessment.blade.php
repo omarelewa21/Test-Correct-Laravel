@@ -160,7 +160,7 @@
                                             <x-slot:idleIcon>
                                                 <span class="flex items-center" x-show="!tooltip" x-cloak>
                                                     <x-icon.profile />
-                                                    <x-icon.questionmark-small/>
+                                                    <x-icon.i-letter />
                                                 </span>
                                             </x-slot:idleIcon>
                                             {{ $this->currentAnswer->user->nameFull }}
@@ -376,14 +376,14 @@
                                                           wire:click="$emit('openModal', 'teacher.inline-feedback-modal', {answer: '{{  $this->currentAnswer->uuid }}' } );"
                                         >
                                             <span>@lang($this->hasFeedback ? 'assessment.Inline feedback wijzigen' : 'assessment.Inline feedback toevoegen')</span>
-                                            <x-icon.chevron/>
+                                            <x-icon.chevron />
                                         </x-button.primary>
                                         @if($this->hasFeedback)
                                             <x-button.text-button class="!p-0 justify-center"
-                                                              wire:click="deleteFeedback"
+                                                                  wire:click="deleteFeedback"
                                             >
                                                 <span>@lang('assessment.Inline feedback verwijderen')</span>
-                                                <x-icon.chevron/>
+                                                <x-icon.chevron />
                                             </x-button.text-button>
                                         @endif
                                     @endif
