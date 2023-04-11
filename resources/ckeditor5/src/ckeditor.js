@@ -160,10 +160,10 @@ Editor.builtinPlugins = [
     FontBackgroundColor,
     Heading,
     Image,
-    ImageCaption,
-    ImageResize, //LinkImage
-    ImageStyle,
-    ImageToolbar,
+    // ImageCaption,
+    // ImageResize, //LinkImage
+    // ImageStyle,
+    // ImageToolbar,
     ImageUpload,
     Indent,
     Italic,

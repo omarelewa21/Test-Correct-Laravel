@@ -179,9 +179,6 @@ RichTextEditor = {
                 upload: {
                     types: ['jpeg', 'png', 'gif', 'bmp', 'webp', 'tiff']
                 },
-                styles: {
-
-                },
                 toolbar: [
                     'imageTextAlternative',
                     // 'toggleImageCaption',
