@@ -3,6 +3,7 @@ namespace tcCore\Http\Helpers;
 
 use Carbon\Carbon;
 use DateTime;
+use DateTimeZone;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
@@ -427,7 +428,7 @@ class AppVersionDetector
             throw new Error("Preshared key is undefined. Key verification failed");
         }
         //get current date
-        $datetime = new DateTime();
+        $datetime = new DateTime('now', new DateTimeZone('UTC'));
         $hashDate = $datetime->format("Y-m-d");
         $hashUrl = strtok($_SERVER["REQUEST_URI"], '?');
 
