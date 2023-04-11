@@ -2,7 +2,10 @@
       class="min-h-full w-full review"
 >
     <header id="header" @class(['flex items-center py-2.5 px-6'])>
-        <x-button.back-round wire:click="redirectBack()" title="@lang('test-take.Terug')" />
+        <x-button.back-round wire:click="redirectBack()"
+                             title="@lang('test-take.Terug')"
+                             backgroundClass="bg-white/20"
+        />
 
         <h6 class="flex ml-4">@lang('review.Inzien'): </h6>
         <h4 class="flex ml-2 mr-4 line-clamp-1" title="{!!  clean($testName) !!}">{!!  clean($testName) !!}</h4>
@@ -191,7 +194,11 @@
                                     <span>:</span>
                                     <span class="ml-2">{{ $this->currentQuestion->type_name }}</span>
                                 </h4>
-                                <h7 class="inline-block min-w-fit">{{ $this->currentQuestion->score }} pt</h7>
+                                <div class="flex min-w-fit text-base">
+                                    <h7 class="inline-flex">{{  $this->score ?? '-' }}</h7>
+                                    <span class="inline-flex font-normal">/</span>
+                                    <span class="inline-flex body2 font-normal">{{ $this->currentQuestion->score }} pt</span>
+                                </div>
                             </div>
                         </x-slot:title>
                         <x-slot:titleLeft>
@@ -244,7 +251,7 @@
 
         </div>
         <div class="drawer | right flex isolate overflow-hidden flex-shrink-0"
-             x-data="assessmentDrawer"
+             x-data="assessmentDrawer(true)"
              x-cloak
              x-bind:class="{'collapsed': collapse}"
              x-on:assessment-drawer-tab-update.window="tab($event.detail.tab)"
@@ -273,11 +280,14 @@
                         <x-icon.review />
                     </buttons>
                     <buttons
-                            class="flex h-[60px] px-2 cursor-pointer items-center border-b-3 border-transparent hover:text-primary transition-colors"
+                            @class([
+                                'flex h-[60px] px-2 cursor-pointer items-center border-b-3 border-transparent hover:text-primary transition-colors',
+                                'text-midgrey pointer-events-none' => !$this->hasFeedback,
+                                ])
                             x-on:click="tab(2)"
                             x-bind:class="activeTab === 2 ? 'primary border-primary hover:border-primary' : 'hover:border-primary/25'"
                             title="@lang('assessment.Feedback')"
-                            @disabled(!$this->currentAnswer->feedback->isEmpty())
+                            @disabled(!$this->hasFeedback)
                     >
                         <x-icon.feedback-text />
                     </buttons>
@@ -300,59 +310,61 @@
                      x-on:scroll="closeTooltips()"
                 >
                     <div class="slide-1 scoring | p-6 flex-[1_0_100%] h-fit min-h-full w-[var(--sidebar-width)] space-y-4 isolate">
-                        <div class="question-indicator | items-center flex w-full">
-                            <div class="inline-flex question-number rounded-full text-center justify-center items-center">
-                                <span class="align-middle cursor-default">{{ $this->questionPosition }}</span>
-                            </div>
-                            <div class="flex gap-4 items-center relative top-0.5 w-full">
-                                <h4 class="inline-flex"
-                                    selid="questiontitle">
-                                    <span>{{ $this->currentQuestion->type_name }}</span>
-                                </h4>
-                                <h7 class="ml-auto inline-block">{{ $this->currentQuestion->score }} pt</h7>
+                        <div class="flex-col w-full">
+                            @if($this->currentGroup)
+                                <div class="mb-2">
+                                    <div class="h-8 flex items-center">
+                                        <h5 class="inline-flex line-clamp-1"
+                                            title="{!! $this->currentGroup->name !!}">{!! $this->currentGroup->name !!}</h5>
+                                    </div>
+                                    <div class="h-[3px] rounded-lg w-full bg-sysbase"></div>
+                                </div>
+                            @endif
+                            <div class="question-indicator | items-center flex w-full">
+                                <div class="inline-flex question-number rounded-full text-center justify-center items-center">
+                                    <span class="align-middle cursor-default">{{ $this->questionPosition }}</span>
+                                </div>
+                                <div class="flex justify-between items-center relative top-0.5 w-full">
+                                    <h4 class="inline-flex line-clamp-1"
+                                        selid="questiontitle"
+                                        title="{{ $this->currentQuestion->type_name }}"
+                                    >
+                                        <span>{{ $this->currentQuestion->type_name }}</span>
+                                    </h4>
+                                    <div class="flex min-w-fit">
+                                        <h7 class="ml-auto inline-block">{{  $this->score ?? '-' }}</h7>
+                                        <span>/</span>
+                                        <span class="body2">{{ $this->currentQuestion->score }} pt</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        @if($this->showCoLearningScoreToggle)
-                            <div class="colearning-answers | flex w-full items-center justify-between"
-                                 title="@lang('assessment.score_assigned'): @js($this->coLearningScoredValue)"
-                                 x-cloak
+                        <div class="score-slider | flex w-full relative"
+                             wire:key="score-slider-{{  $this->questionPosition }}"
+                        >
+                            <x-input.score-slider modelName="score"
+                                                  :maxScore="$this->currentQuestion->score"
+                                                  :score="$this->score"
+                                                  :halfPoints="$this->currentQuestion->decimal_score"
+                                                  mode="small"
+                                                  :disabled="false"
+                                                  :title="__('review.Jouw score')"
+                                                  :hideThumb="true"
                             >
-                                <x-input.toggle disabled checked />
-                                <span class="bold text-base">@lang('assessment.Score uit CO-Learning')</span>
-                                <x-tooltip>@lang('assessment.colearning_score_tooltip')</x-tooltip>
-                            </div>
-                            <div @class([
-                                          'notification py-0 px-4 gap-6 flex items-center',
-                                          'warning' => !$this->currentAnswerCoLearningRatingsHasNoDiscrepancy(),
-                                          'info' => $this->currentAnswerCoLearningRatingsHasNoDiscrepancy(),
-                                          ])
-                            >
-                                <x-icon.co-learning />
-                                <span class="bold">@lang($this->currentAnswerCoLearningRatingsHasNoDiscrepancy() ? 'assessment.no_discrepancy' : 'assessment.discrepancy')</span>
-                            </div>
-                        @endif
-                        @if($this->showAutomaticallyScoredToggle)
-                            <div class="auto-assessed | flex w-full items-center justify-between cursor-default"
-                                 title="@lang('assessment.score_assigned'): @js($this->automaticallyScoredValue)"
-                                 x-cloak
-                            >
-                                <x-input.toggle disabled checked />
-                                <span class="bold text-base">@lang('assessment.Automatisch nakijken')</span>
-                                <x-tooltip>@lang('assessment.closed_question_checked_tooltip')</x-tooltip>
-                            </div>
-                        @endif
-                        @if($this->showScoreSlider)
-                            <div class="score-slider | flex w-full"
-                                 wire:key="score-slider-{{  $this->questionPosition }}"
-                            >
-                                <x-input.score-slider modelName="score"
-                                                      :maxScore="$this->currentQuestion->score"
-                                                      :score="$this->score"
-                                                      :halfPoints="$this->currentQuestion->decimal_score"
-                                                      mode="small"
-                                                      :disabled="true"
-                                />
-                            </div>
+                                <x-slot:tooltip>
+                                    <div class="ml-auto">
+                                        <x-tooltip>@lang('review.review_score_tooltip')</x-tooltip>
+                                    </div>
+                                </x-slot:tooltip>
+                            </x-input.score-slider>
+                        </div>
+                        @if($this->hasFeedback)
+                        <div>
+                            <x-button.text-button x-on:click="tab(2)" size="sm" class="text-base">
+                                <x-icon.feedback-text/>
+                                <span>@lang('review.Bekijk feedback')</span>
+                            </x-button.text-button>
+                        </div>
                         @endif
                     </div>
                     <div class="slide-2 feedback | p-6 flex-[1_0_100%] h-fit min-h-full w-[var(--sidebar-width)] space-y-4 isolate">
@@ -365,8 +377,7 @@
                                 <x-input.rich-textarea type="assessment-feedback"
                                                        :editorId="'feedback-editor'. $this->questionPosition"
                                                        wire:model.debounce.300ms="feedback"
-                                                       :disabled="$this->currentQuestion->isSubType('writing')"
-
+                                                       :disabled="true"
                                 />
                                 @if($this->currentQuestion->isSubType('writing'))
                                     <x-button.primary class="!p-0 justify-center"
@@ -422,21 +433,32 @@
                                           wire:target="previous,next"
                                           wire:loading.attr="disabled"
                                           wire:key="previous-button-{{  $this->questionPosition }}"
-                                          :disabled="false"
+                                          :disabled="(int)$this->questionPosition === 1"
                     >
                         <x-icon.chevron class="rotate-180" />
                         <span>@lang('pagination.previous')</span>
                     </x-button.text-button>
-                    <x-button.primary size="sm"
-                                      x-on:click="next"
+                    @if($this->finalAnswerReached())
+                        <x-button.cta size="sm"
+                                      wire:click="redirectBack"
                                       wire:target="previous,next"
                                       wire:loading.attr="disabled"
                                       wire:key="next-button-{{  $this->questionPosition }}"
-                                      :disabled="$this->finalAnswerReached()"
-                    >
-                        <span>@lang('pagination.next')</span>
-                        <x-icon.chevron />
-                    </x-button.primary>
+                        >
+                            <span>@lang('review.finish')</span>
+                            <x-icon.checkmark />
+                        </x-button.cta>
+                    @else
+                        <x-button.primary size="sm"
+                                          x-on:click="next"
+                                          wire:target="previous,next"
+                                          wire:loading.attr="disabled"
+                                          wire:key="next-button-{{  $this->questionPosition }}"
+                        >
+                            <span>@lang('pagination.next')</span>
+                            <x-icon.chevron />
+                        </x-button.primary>
+                    @endif
                 </div>
             </div>
         </div>

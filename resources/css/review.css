@@ -19,7 +19,8 @@
 }
 
 #student-test-review .question-indicator .question-number {
-    background-color: transparent;
+    color: white;
+    background-color: var(--system-base);
 }
 
 #student-test-review .nav-container .question-indicator .question-number {
@@ -64,5 +65,8 @@
 
 #student-test-review .nav-container .question-indicator {
     display: flex;
-    align-items: start;
+    align-items: flex-start;
+}
+#student-test-review .slider-input-wrapper {
+    pointer-events: none;
 }

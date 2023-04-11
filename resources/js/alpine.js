@@ -1947,13 +1947,14 @@ document.addEventListener("alpine:init", () => {
             return element.offsetTop + (element.offsetHeight / 2);
         }
     }));
-    Alpine.data("assessmentDrawer", () => ({
+    Alpine.data("assessmentDrawer", (inReview = false) => ({
         activeTab: 1,
         tabs: [1, 2, 3],
         collapse: false,
         container: null,
         clickedNext: false,
         tooltipTimeout: null,
+        inReview,
         init() {
             this.container = this.$root.querySelector("#slide-container");
             this.tab(1);
@@ -1972,7 +1973,7 @@ document.addEventListener("alpine:init", () => {
             });
         },
         async next() {
-            if (!this.$store.assessment.clearToProceed() && !this.clickedNext) {
+            if (!this.inReview && !this.$store.assessment.clearToProceed() && !this.clickedNext) {
                 this.$dispatch("scoring-elements-error");
                 this.clickedNext = true;
                 return;
@@ -2021,7 +2022,7 @@ document.addEventListener("alpine:init", () => {
             });
         }
     }));
-    Alpine.data("scoreSlider", (score, model, maxScore, halfPoints, disabled, coLearning) => ({
+    Alpine.data("scoreSlider", (score, model, maxScore, halfPoints, disabled, coLearning, focusInput) => ({
         score,
         model,
         maxScore,
@@ -2031,6 +2032,7 @@ document.addEventListener("alpine:init", () => {
         skipSync: false,
         persistantScore: null,
         inputBox: null,
+        focusInput,
         getSliderBackgroundSize(el) {
             if (this.score === null) return 0;
 
@@ -2095,7 +2097,7 @@ document.addEventListener("alpine:init", () => {
                     this.setSliderBackgroundSize(numberInput);
                 }
             });
-            if (!this.disabled) {
+            if (focusInput) {
                 this.$nextTick(() => {
                     this.inputBox.focus();
                 });

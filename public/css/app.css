@@ -8071,7 +8071,8 @@ span.completion-response-object-container{
 }
 
 #student-test-review .question-indicator .question-number {
-    background-color: transparent;
+    color: white;
+    background-color: var(--system-base);
 }
 
 #student-test-review .nav-container .question-indicator .question-number {
@@ -8117,7 +8118,10 @@ span.completion-response-object-container{
 
 #student-test-review .nav-container .question-indicator {
     display: flex;
-    align-items: start;
+    align-items: flex-start;
+}
+#student-test-review .slider-input-wrapper {
+    pointer-events: none;
 }
 
 /*
@@ -9426,6 +9430,9 @@ video {
 }
 .h-\[333px\]{
   height: 333px;
+}
+.h-\[3px\]{
+  height: 3px;
 }
 .h-\[45vw\]{
   height: 45vw;

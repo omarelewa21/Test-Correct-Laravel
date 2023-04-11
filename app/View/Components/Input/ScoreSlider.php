@@ -16,14 +16,19 @@ class ScoreSlider extends Component
         public bool           $disabled = false,
         public string         $mode = 'default',
         public bool           $coLearning = false,
-    )
-    {
-
+        public null|string    $title = null,
+        public                $tooltip = null,
+        public bool           $focusInput = false,
+        public bool           $hideThumb = false,
+    ) {
         if ($this->halfPoints && $this->maxScore > 7) {
             $this->continuousScoreSlider = true;
         }
         if (!$this->halfPoints && $this->maxScore > 15) {
             $this->continuousScoreSlider = true;
+        }
+        if (!$this->title) {
+            $this->title = __('Score');
         }
     }
 

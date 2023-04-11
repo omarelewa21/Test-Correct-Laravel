@@ -7503,6 +7503,7 @@ document.addEventListener("alpine:init", function () {
     };
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("assessmentDrawer", function () {
+    var inReview = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
     return {
       activeTab: 1,
       tabs: [1, 2, 3],
@@ -7510,6 +7511,7 @@ document.addEventListener("alpine:init", function () {
       container: null,
       clickedNext: false,
       tooltipTimeout: null,
+      inReview: inReview,
       init: function init() {
         this.container = this.$root.querySelector("#slide-container");
         this.tab(1);
@@ -7538,7 +7540,7 @@ document.addEventListener("alpine:init", function () {
           return _regeneratorRuntime().wrap(function _callee14$(_context14) {
             while (1) switch (_context14.prev = _context14.next) {
               case 0:
-                if (!(!_this42.$store.assessment.clearToProceed() && !_this42.clickedNext)) {
+                if (!(!_this42.inReview && !_this42.$store.assessment.clearToProceed() && !_this42.clickedNext)) {
                   _context14.next = 4;
                   break;
                 }
@@ -7633,7 +7635,7 @@ document.addEventListener("alpine:init", function () {
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("scoreSlider", function (score, model, maxScore, halfPoints, disabled, coLearning) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("scoreSlider", function (score, model, maxScore, halfPoints, disabled, coLearning, focusInput) {
     return {
       score: score,
       model: model,
@@ -7644,6 +7646,7 @@ document.addEventListener("alpine:init", function () {
       skipSync: false,
       persistantScore: null,
       inputBox: null,
+      focusInput: focusInput,
       getSliderBackgroundSize: function getSliderBackgroundSize(el) {
         if (this.score === null) return 0;
         var min = el.min || 0;
@@ -7705,7 +7708,7 @@ document.addEventListener("alpine:init", function () {
             _this44.setSliderBackgroundSize(numberInput);
           }
         });
-        if (!this.disabled) {
+        if (focusInput) {
           this.$nextTick(function () {
             _this44.inputBox.focus();
           });

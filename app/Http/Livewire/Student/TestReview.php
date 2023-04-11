@@ -2,7 +2,9 @@
 
 namespace tcCore\Http\Livewire\Student;
 
+use Illuminate\Support\Collection;
 use Livewire\Component;
+use tcCore\AnswerRating;
 
 class TestReview extends Component
 {
@@ -32,8 +34,10 @@ class TestReview extends Component
     public $currentAnswer;
     public $currentQuestion;
     public $currentGroup;
-    public $score = 1;
-    public $hasFeedback = false;
+
+    public null|int|float $score = null;
+    public bool $hasFeedback = false;
+    public string $feedback = '';
 
     protected bool $skipBooted = false;
 
@@ -111,6 +115,8 @@ class TestReview extends Component
         $this->currentAnswer = $this->answers->where('question_id', $this->currentQuestion->id)->first();
         $this->questionPosition = $position;
         $this->handleGroupQuestion();
+        $this->handleAnswerFeedback();
+        $this->handleAnswerScore();
     }
 
     public function currentAnswerCoLearningRatingsHasNoDiscrepancy(): bool
@@ -125,7 +131,7 @@ class TestReview extends Component
 
     public function finalAnswerReached(): bool
     {
-        return false;
+        return $this->answers->count() === (int) $this->questionPosition;
     }
 
     public function next()
@@ -238,6 +244,63 @@ class TestReview extends Component
                     ->first(fn($answer) => $answer->question_id === $question->id)
                     ->stripy = true;
             });
+    }
+
+    private function handleAnswerFeedback():void
+    {
+        $this->reset('feedback');
+        if($this->hasFeedback = $this->currentAnswer->feedback->isNotEmpty()) {
+            $this->feedback = $this->currentAnswer->feedback->first()?->message;
+        }
+    }
+
+    private function currentAnswerRatings(): Collection
+    {
+        return $this->currentAnswer->answerRatings;
+    }
+
+    private function teacherRating(): ?AnswerRating
+    {
+        return $this->currentAnswer
+            ->answerRatings
+            ->where('type', AnswerRating::TYPE_TEACHER)
+            ->first();
+    }
+
+    private function systemRating(): ?AnswerRating
+    {
+        return $this->currentAnswer
+            ->answerRatings
+            ->where('type', AnswerRating::TYPE_SYSTEM)
+            ->first();
+    }
+
+    private function studentRatings(): Collection
+    {
+        return $this->currentAnswer
+            ->answerRatings
+            ->where('type', AnswerRating::TYPE_STUDENT);
+    }
+
+    private function handleAnswerScore() :void
+    {
+        if ($rating = $this->teacherRating()) {
+            $this->score = $rating->rating;
+            return;
+        }
+
+        if ($rating = $this->systemRating()) {
+            $this->score = $rating->rating;
+            return;
+        }
+
+        if ($this->studentRatings()->isNotEmpty()) {
+            $this->score = $this->studentRatings()->median('rating');
+            return;
+        }
+
+
+        $this->score = null;
     }
 
 }

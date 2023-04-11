@@ -269,16 +269,26 @@
                          x-on:scroll="closeTooltips()"
                     >
                         <div class="slide-1 scoring | p-6 flex-[1_0_100%] h-fit min-h-full w-[var(--sidebar-width)] space-y-4 isolate">
-                            <div class="question-indicator | items-center flex w-full">
-                                <div class="inline-flex question-number rounded-full text-center justify-center items-center">
-                                    <span class="align-middle cursor-default">{{ $this->questionNavigationValue }}</span>
-                                </div>
-                                <div class="flex gap-4 items-center relative top-0.5 w-full">
-                                    <h4 class="inline-flex"
-                                        selid="questiontitle">
-                                        <span>{{ $this->currentQuestion->type_name }}</span>
-                                    </h4>
-                                    <h7 class="ml-auto inline-block">{{ $this->currentQuestion->score }} pt</h7>
+                            <div class="flex-col w-full">
+                                @if($this->currentGroup)
+                                    <div class="mb-2">
+                                        <div class="h-8 flex items-center">
+                                            <h5 class="inline-flex line-clamp-1" title="{!! $this->currentGroup->name !!}">{!! $this->currentGroup->name !!}</h5>
+                                        </div>
+                                        <div class="h-[3px] rounded-lg w-full bg-sysbase"></div>
+                                    </div>
+                                @endif
+                                <div class="question-indicator | items-center flex w-full">
+                                    <div class="inline-flex question-number rounded-full text-center justify-center items-center">
+                                        <span class="align-middle cursor-default">{{ $this->questionNavigationValue }}</span>
+                                    </div>
+                                    <div class="flex gap-4 items-center relative top-0.5 w-full">
+                                        <h4 class="inline-flex"
+                                            selid="questiontitle">
+                                            <span>{{ $this->currentQuestion->type_name }}</span>
+                                        </h4>
+                                        <h7 class="ml-auto inline-block">{{ $this->currentQuestion->score }} pt</h7>
+                                    </div>
                                 </div>
                             </div>
                             @if($this->showCoLearningScoreToggle)
@@ -320,6 +330,7 @@
                                                           :halfPoints="$this->currentQuestion->decimal_score"
                                                           mode="small"
                                                           :disabled="$this->drawerScoringDisabled"
+                                                          :focus-input="true"
                                     />
                                 </div>
                             @endif
