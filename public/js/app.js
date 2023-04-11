@@ -13911,7 +13911,23 @@ RichTextEditor = {
       image: {
         upload: {
           types: ['jpeg', 'png', 'gif', 'bmp', 'webp', 'tiff']
-        }
+        },
+        styles: {},
+        toolbar: ['imageTextAlternative',
+        // 'toggleImageCaption',
+        '|', 'imageStyle:inline', {
+          // Grouping into one drop-down.
+          name: 'wrapText',
+          title: 'Tekstterugloop',
+          items: ['imageStyle:alignLeft', 'imageStyle:alignRight'],
+          defaultItem: 'imageStyle:alignLeft'
+        }, {
+          // Grouping into one drop-down.
+          name: 'breakText',
+          title: 'Tekst onderbreken',
+          items: ['imageStyle:alignBlockLeft', 'imageStyle:alignCenter', 'imageStyle:alignBlockRight'],
+          defaultItem: 'imageStyle:alignBlockLeft'
+        }, 'imageStyle:side', '|', 'resizeImage']
       },
       simpleUpload: {
         uploadUrl: '/cms/ckeditor_upload/images',
