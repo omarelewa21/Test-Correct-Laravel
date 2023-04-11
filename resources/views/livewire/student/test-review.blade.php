@@ -359,41 +359,28 @@
                             </x-input.score-slider>
                         </div>
                         @if($this->hasFeedback)
-                        <div>
-                            <x-button.text-button x-on:click="tab(2)" size="sm" class="text-base">
-                                <x-icon.feedback-text/>
-                                <span>@lang('review.Bekijk feedback')</span>
-                            </x-button.text-button>
-                        </div>
+                            <div>
+                                <x-button.text-button x-on:click="tab(2)" size="sm" class="text-base">
+                                    <x-icon.feedback-text />
+                                    <span>@lang('review.Bekijk feedback')</span>
+                                </x-button.text-button>
+                            </div>
                         @endif
                     </div>
                     <div class="slide-2 feedback | p-6 flex-[1_0_100%] h-fit min-h-full w-[var(--sidebar-width)] space-y-4 isolate">
                         <div class="flex flex-col w-full gap-2">
-                            <span class="flex ">@lang('assessment.Feedback toevoegen')</span>
+                            <span class="flex bold">@lang('review.Gegeven feedback')</span>
 
                             <div class="flex w-full flex-col gap-2"
                                  wire:key="feedback-editor-{{  $this->questionPosition }}"
                             >
-                                <x-input.rich-textarea type="assessment-feedback"
-                                                       :editorId="'feedback-editor'. $this->questionPosition"
-                                                       wire:model.debounce.300ms="feedback"
-                                                       :disabled="true"
-                                />
-                                @if($this->currentQuestion->isSubType('writing'))
+                                @if($this->hasFeedback)
                                     <x-button.primary class="!p-0 justify-center"
-                                                      wire:click="$emit('openModal', 'teacher.inline-feedback-modal', {answer: '{{  $this->currentAnswer->uuid }}' } );"
-                                    >
-                                        <span>@lang($this->hasFeedback ? 'assessment.Inline feedback wijzigen' : 'assessment.Inline feedback toevoegen')</span>
-                                        <x-icon.chevron />
-                                    </x-button.primary>
-                                    @if($this->hasFeedback)
-                                        <x-button.text-button class="!p-0 justify-center"
-                                                              wire:click="deleteFeedback"
-                                        >
-                                            <span>@lang('assessment.Inline feedback verwijderen')</span>
-                                            <x-icon.chevron />
-                                        </x-button.text-button>
-                                    @endif
+                                                  wire:click="$emit('openModal', 'teacher.inline-feedback-modal', {answer: '{{  $this->currentAnswer->uuid }}', disabled: true });"
+                                >
+                                    <span>@lang('review.Bekijk feedback')</span>
+                                    <x-icon.chevron />
+                                </x-button.primary>
                                 @endif
                             </div>
                         </div>
@@ -402,9 +389,12 @@
                         <div class="flex flex-col w-full gap-2">
                             <span class="flex ">@lang('assessment.CO-Learning scores')</span>
                             @if(!$this->currentAnswerCoLearningRatingsHasNoDiscrepancy())
-                                <div class="notification py-0 px-4 gap-6 flex items-center warning">
-                                    <x-icon.co-learning />
-                                    <span class="bold">@lang('assessment.discrepancy')</span>
+                                <div class="notification py-3 warning">
+                                    <div class="title">
+                                        <x-icon.exclamation/>
+                                        <span>@lang('review.Er waren verschillen')</span>
+                                    </div>
+                                    <span class="body">@lang('review.co_learning_differences')</span>
                                 </div>
                             @endif
                             <div class="flex w-full flex-col gap-2">
@@ -414,7 +404,7 @@
                                             <div class="flex items-center justify-center w-[30px] min-w-[30px] h-[30px] border-bluegrey border bg-off-white overflow-hidden rounded-full">
                                                 <x-icon.profile class="scale-150 text-sysbase relative top-1" />
                                             </div>
-                                            <span class="ml-2 truncate pr-2">{{ $rating->user->nameFull }}</span>
+                                            <span class="ml-2 truncate pr-2">Student {{ $loop->iteration }}</span>
                                             <span class="ml-auto">@js($rating->displayRating)</span>
                                         </div>
                                     @endforeach
@@ -463,4 +453,7 @@
             </div>
         </div>
     </div>
+
+    <x-notification/>
+    @livewire('livewire-ui-modal')
 </main>

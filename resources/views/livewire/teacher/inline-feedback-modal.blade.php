@@ -8,6 +8,7 @@
         <x-input.rich-textarea wire:model="feedback"
                                type="cms"
                                :editor-id="$editorId"
+                               :disabled="$disabled"
         />
         <div id="word-count-{{ $editorId }}" wire:ignore class="word-count note text-sm mt-2"></div>
     </div>

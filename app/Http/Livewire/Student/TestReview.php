@@ -83,7 +83,7 @@ class TestReview extends Component
 
     public function getShowCoLearningScoreToggleProperty(): bool
     {
-        return true;
+        return $this->studentRatings()->isNotEmpty();
     }
 
     public function getCoLearningScoredValueProperty(): int|float
@@ -121,17 +121,22 @@ class TestReview extends Component
 
     public function currentAnswerCoLearningRatingsHasNoDiscrepancy(): bool
     {
-        return false;
+        return $this->studentRatings()
+            ->keyBy('rating')
+            ->count() === 1;
     }
 
     public function coLearningRatings()
     {
-        return [];
+        return $this->studentRatings()
+            ->each(function ($answerRating) {
+                $answerRating->displayRating = $this->currentQuestion->decimal_score ? (float)$answerRating->rating : (int)$answerRating->rating;
+            });
     }
 
     public function finalAnswerReached(): bool
     {
-        return $this->answers->count() === (int) $this->questionPosition;
+        return $this->answers->count() === (int)$this->questionPosition;
     }
 
     public function next()
@@ -246,10 +251,10 @@ class TestReview extends Component
             });
     }
 
-    private function handleAnswerFeedback():void
+    private function handleAnswerFeedback(): void
     {
         $this->reset('feedback');
-        if($this->hasFeedback = $this->currentAnswer->feedback->isNotEmpty()) {
+        if ($this->hasFeedback = $this->currentAnswer->feedback->isNotEmpty()) {
             $this->feedback = $this->currentAnswer->feedback->first()?->message;
         }
     }
@@ -282,7 +287,7 @@ class TestReview extends Component
             ->where('type', AnswerRating::TYPE_STUDENT);
     }
 
-    private function handleAnswerScore() :void
+    private function handleAnswerScore(): void
     {
         if ($rating = $this->teacherRating()) {
             $this->score = $rating->rating;
