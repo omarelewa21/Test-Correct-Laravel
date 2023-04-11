@@ -14,13 +14,13 @@
                  @entangle('login_tab'),
                  @entangle('active_overlay'),
                  @entangle('device'),
-                 @entangle('')
+                 @js(array_keys($errors->getMessages()))
                  )"
          wire:ignore.self
+         wire:key="has-errors-@js(implode(array_keys($errors->getMessages())))"
     >
 
         <div class="w-full max-w-[540px] mx-4 py-4">
-            {{var_dump($errors->getMessages())}}
             @if($tab == 'login')
                 {{-- top content block height:120px --}}
                 <div class="bg-white rounded-t-[10px] px-10 pt-[31px] pb-0 shadow-lg flex flex-col relative border-b border-secondary">
