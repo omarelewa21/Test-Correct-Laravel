@@ -1,9 +1,7 @@
 <main id="student-test-review"
       class="min-h-full w-full review"
 >
-    <header id="header"
-            @class(['flex items-center py-2.5 px-6'])
-    >
+    <header id="header" @class(['flex items-center py-2.5 px-6'])>
         <x-button.back-round wire:click="redirectBack()" title="@lang('test-take.Terug')" />
 
         <h6 class="flex ml-4">@lang('review.Inzien'): </h6>
@@ -17,11 +15,232 @@
 
     <div class="flex min-h-[calc(100vh-var(--header-height))] relative">
         <div class="px-15 py-10 gap-6 flex flex-col flex-1 relative">
-            <div class="flex flex-col">
+            {{-- Question necklace navigation  --}}
+            <div class="nav-container | fixed-sub-header-container h-20 bg-lightGrey border-bluegrey border-b top-[var(--header-height)]"
+            >
+                <div class="flex w-full h-full px-15 items-center invisible"
+                     x-data="reviewNavigation(@js($this->questionPosition))"
+                     x-bind:class="{'invisible': !doneInitting }"
+                >
+                    <div class="slider-buttons | flex relative -top-px z-10" x-show="showSlider">
+                        <button class="inline-flex base rotate-svg-180 w-8 h-8 rounded-full transition items-center justify-center transform focus:outline-none"
+                                x-on:click="console.log('naaaaar het begin!')">
+                            <x-icon.arrow-last />
+                        </button>
+                        <button class="inline-flex base rotate-svg-180 w-8 h-8 rounded-full transition items-center justify-center transform focus:outline-none"
+                                x-on:click="console.log('naaaaar links!')">
+                            <x-icon.chevron />
+                        </button>
+                    </div>
+                    <div id="navscrollbar"
+                         class="question-indicator gap-2"
+                         x-bind:class="{'overflow-x-auto' : showSlider}"
+                    >
+                        @foreach($this->answers as $answer)
+                            <div class="flex flex-col items-center gap-1 relative">
+                                <div @class([
+                                    'question-number | mt-px inline-flex rounded-full text-center justify-center items-center cursor-pointer hover:shadow-lg',
+                                    'active' => (int)$this->questionPosition === $loop->iteration,
+                                    'done' => $answer->done,
+                                    'connector' => $answer->stripy
+                                ])
+                                     wire:click="loadQuestion(@js($loop->iteration))"
+                                >
+                                    <span class="align-middle px-1.5">@js($loop->iteration)</span>
+                                </div>
+                                @if($answer->feedback->isNotEmpty())
+                                    <x-icon.feedback-text class="inline-flex" />
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                    <div class="slider-buttons | flex relative -top-px z-10" x-show="showSlider">
+                        <button class="inline-flex base w-8 h-8 rounded-full transition items-center justify-center transform focus:outline-none"
+                                x-on:click="console.log('Naaaaar rechts!')">
+                            <x-icon.chevron />
+                        </button>
+                        <button class="inline-flex base w-8 h-8 rounded-full transition items-center justify-center transform focus:outline-none"
+                                x-on:click="console.log('Naaaaar eind!')">
+                            <x-icon.arrow-last />
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Page content --}}
+            <div class="flex flex-col mt-20">
                 <span>vraag: @js($this->currentQuestion->id)</span>
                 <span>antwoord: @js($this->currentAnswer->id)</span>
                 <span>test take:@js($this->testTakeData->id)</span>
             </div>
+
+            {{-- Group section --}}
+            @if($this->currentGroup)
+                <x-accordion.container :active-container-key="$this->groupPanel ? 'group' : ''"
+                                       :wire:key="'group-section-'.$this->questionPosition"
+                >
+                    <x-accordion.block key="group"
+                                       :emitWhenSet="true"
+                                       :wire:key="'group-section-block-'.$this->questionPosition"
+                                       mode="transparent"
+                    >
+                        <x-slot:title>
+                            <h4 class="flex items-center pr-4"
+                                selid="questiontitle"
+                            >
+                                <span>@lang('question.Vraaggroep')</span>
+                                <span>:</span>
+                                <span x-cloak class="ml-2 text-left flex line-clamp-1"
+                                      title="{!! $this->currentGroup->name !!}">
+                                        {!! $this->currentGroup->name !!}
+                                    </span>
+                                @if($this->currentGroup->isCarouselQuestion())
+                                    <span class="ml-2 lowercase text-base"
+                                          title="@lang('assessment.carousel_explainer')"
+                                    >@lang('cms.carrousel')</span>
+                                @endif
+                            </h4>
+                        </x-slot:title>
+                        <x-slot:body>
+                            <div class="flex flex-col gap-2"
+                                 wire:key="group-block-{{  $this->currentGroup->uuid }}">
+                                <div class="flex flex-wrap">
+                                    @foreach($this->currentGroup->attachments as $attachment)
+                                        <x-attachment.badge-view :attachment="$attachment"
+                                                                 :title="$attachment->title"
+                                                                 :wire:key="'badge-'.$this->currentGroup->uuid"
+                                                                 :question-id="$this->currentGroup->getKey()"
+                                                                 :question-uuid="$this->currentGroup->uuid"
+                                        />
+                                    @endforeach
+                                </div>
+                                <div class="flex">
+                                    {!! $this->currentGroup->converted_question_html !!}
+                                </div>
+                            </div>
+                        </x-slot:body>
+                    </x-accordion.block>
+                </x-accordion.container>
+            @endif
+
+            {{-- Question section --}}
+            @if($this->needsQuestionSection)
+                <x-accordion.container :active-container-key="$this->questionPanel ? 'question' : ''"
+                                       :wire:key="'question-section-'.$this->questionPosition"
+                >
+                    <x-accordion.block key="question"
+                                       :emitWhenSet="true"
+                                       :wire:key="'question-section-block-'.$this->questionPosition"
+                    >
+                        <x-slot:title>
+                            <div class="question-indicator items-center flex">
+                                <div class="inline-flex question-number rounded-full text-center justify-center items-center">
+                                    <span class="align-middle cursor-default">{{ $this->questionPosition }}</span>
+                                </div>
+                                <div class="flex gap-4 items-center relative top-0.5">
+                                    <h4 class="inline-flex"
+                                        selid="questiontitle">
+                                        <span>@lang('co-learning.question')</span>
+                                        <span>:</span>
+                                        <span class="ml-2">{{ $this->currentQuestion->type_name }}</span>
+                                    </h4>
+                                    <h7 class="inline-block">{{ $this->currentQuestion->score }} pt</h7>
+                                </div>
+                            </div>
+                        </x-slot:title>
+                        <x-slot:body>
+                            <div class="flex flex-col gap-2"
+                                 wire:key="question-block-{{  $this->currentQuestion->uuid }}">
+                                <div class="flex flex-wrap">
+                                    @foreach($this->currentQuestion->attachments as $attachment)
+                                        <x-attachment.badge-view :attachment="$attachment"
+                                                                 :title="$attachment->title"
+                                                                 :wire:key="'badge-'.$this->currentQuestion->uuid.$this->questionPosition"
+                                                                 :question-id="$this->currentQuestion->getKey()"
+                                                                 :question-uuid="$this->currentQuestion->uuid"
+                                        />
+                                    @endforeach
+                                </div>
+
+                                <div class="max-w-full">
+                                    @if($this->currentQuestion->isType('Completion'))
+                                        {!! $this->currentQuestion->getDisplayableQuestionText()  !!}
+                                    @else
+                                        {!! $this->currentQuestion->converted_question_html !!}
+                                    @endif
+                                </div>
+                            </div>
+                        </x-slot:body>
+                    </x-accordion.block>
+                </x-accordion.container>
+            @endif
+            {{-- Answer section --}}
+            @unless($this->currentQuestion->isType('infoscreen'))
+                <x-accordion.container :active-container-key="$this->answerPanel ? 'answer' : ''"
+                                       :wire:key="'answer-section-'.$this->questionPosition"
+                >
+                    <x-accordion.block key="answer"
+                                       :coloredBorderClass="'student'"
+                                       :emitWhenSet="true"
+                                       :wire:key="'answer-section-block-'.$this->questionPosition"
+                    >
+                        <x-slot:title>
+                            <div class="question-indicator items-center flex gap-4">
+                                <h4 class="flex items-center flex-wrap" selid="questiontitle">
+                                    <span>@lang('co-learning.answer')</span>
+                                    <span>:</span>
+                                    <span class="ml-2">{{ $this->currentQuestion->type_name }}</span>
+                                </h4>
+                                <h7 class="inline-block min-w-fit">{{ $this->currentQuestion->score }} pt</h7>
+                            </div>
+                        </x-slot:title>
+                        <x-slot:titleLeft>
+                            <div class="ml-auto mr-6 relative top-0.5 flex gap-2 items-center">
+                                <x-dynamic-component :component="$this->currentAnswer->answeredStatus" />
+                            </div>
+                        </x-slot:titleLeft>
+                        <x-slot:body>
+                            <div class="student-answer | w-full"
+                                 wire:key="student-answer-{{$this->currentQuestion->uuid.$this->currentAnswer->uuid}}"
+                            >
+                                <x-dynamic-component
+                                        :component="'answer.student.'. str($this->currentQuestion->type)->kebab()"
+                                        :question="$this->currentQuestion"
+                                        :answer="$this->currentAnswer"
+                                        :editorId="'editor-'.$this->currentQuestion->uuid.$this->currentAnswer->uuid"
+                                />
+                            </div>
+                        </x-slot:body>
+                    </x-accordion.block>
+                </x-accordion.container>
+
+                {{-- Answermodel section --}}
+                <x-accordion.container :active-container-key="$this->answerModelPanel ? 'answer-model' : ''"
+                                       :wire:key="'answer-model-section-'.$this->questionPosition"
+                >
+                    <x-accordion.block key="answer-model"
+                                       :coloredBorderClass="'primary'"
+                                       :emitWhenSet="true"
+                                       :wire:key="'answer-model-section-block'.$this->questionPosition"
+                    >
+                        <x-slot:title>
+                            <div class="question-indicator items-center flex">
+                                <h4 class="inline-block"
+                                    selid="questiontitle">@lang('co-learning.answer_model')</h4>
+                            </div>
+                        </x-slot:title>
+                        <x-slot:body>
+                            <div class="w-full" wire:key="answer-model-{{$this->currentQuestion->uuid}}">
+                                <x-dynamic-component
+                                        :component="'answer.teacher.'. str($this->currentQuestion->type)->kebab()"
+                                        :question="$this->currentQuestion"
+                                        :editorId="'editor-'.$this->currentQuestion->uuid"
+                                />
+                            </div>
+                        </x-slot:body>
+                    </x-accordion.block>
+                </x-accordion.container>
+            @endif
 
         </div>
         <div class="drawer | right flex isolate overflow-hidden flex-shrink-0"
@@ -58,6 +277,7 @@
                             x-on:click="tab(2)"
                             x-bind:class="activeTab === 2 ? 'primary border-primary hover:border-primary' : 'hover:border-primary/25'"
                             title="@lang('assessment.Feedback')"
+                            @disabled(!$this->currentAnswer->feedback->isEmpty())
                     >
                         <x-icon.feedback-text />
                     </buttons>
@@ -153,14 +373,14 @@
                                                       wire:click="$emit('openModal', 'teacher.inline-feedback-modal', {answer: '{{  $this->currentAnswer->uuid }}' } );"
                                     >
                                         <span>@lang($this->hasFeedback ? 'assessment.Inline feedback wijzigen' : 'assessment.Inline feedback toevoegen')</span>
-                                        <x-icon.chevron/>
+                                        <x-icon.chevron />
                                     </x-button.primary>
                                     @if($this->hasFeedback)
                                         <x-button.text-button class="!p-0 justify-center"
                                                               wire:click="deleteFeedback"
                                         >
                                             <span>@lang('assessment.Inline feedback verwijderen')</span>
-                                            <x-icon.chevron/>
+                                            <x-icon.chevron />
                                         </x-button.text-button>
                                     @endif
                                 @endif

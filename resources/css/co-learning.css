@@ -171,17 +171,20 @@
 }
 
 #co-learning-teacher-page .container-border-left.primary,
-#assessment-page .container-border-left.primary {
+#assessment-page .container-border-left.primary,
+#student-test-review .container-border-left.primary {
     background-color: var(--primary);
 }
 
 #co-learning-teacher-page .container-border-left.student,
-#assessment-page .container-border-left.student {
+#assessment-page .container-border-left.student,
+#student-test-review .container-border-left.student {
     background-color: var(--secondary);
 }
 
 #co-learning-teacher-page .container-border-left,
-#assessment-page .container-border-left {
+#assessment-page .container-border-left,
+#student-test-review .container-border-left {
     background-color: var(--primary);
     position: absolute;
     width: 0.5rem;

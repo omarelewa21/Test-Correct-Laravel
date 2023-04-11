@@ -5521,17 +5521,20 @@ input.datepicker {
 }
 
 #co-learning-teacher-page .container-border-left.primary,
-#assessment-page .container-border-left.primary {
+#assessment-page .container-border-left.primary,
+#student-test-review .container-border-left.primary {
     background-color: var(--primary);
 }
 
 #co-learning-teacher-page .container-border-left.student,
-#assessment-page .container-border-left.student {
+#assessment-page .container-border-left.student,
+#student-test-review .container-border-left.student {
     background-color: var(--secondary);
 }
 
 #co-learning-teacher-page .container-border-left,
-#assessment-page .container-border-left {
+#assessment-page .container-border-left,
+#student-test-review .container-border-left {
     background-color: var(--primary);
     position: absolute;
     width: 0.5rem;
@@ -8056,7 +8059,67 @@ span.completion-response-object-container{
     background-image: linear-gradient(to right, var(--highlight-primary-mid-dark) 0%, var(--teacher-highlight-primary) 99%);
     box-shadow: var(--main-shadow);
     color: var(--system-base);
+    z-index: 2;
 }
+
+.fixed-sub-header-container {
+    width: calc(100% - var(--active-sidebar-width));
+    transition: width var(--sidebar-transition);
+    position: fixed;
+    left: 0;
+    z-index: 1;
+}
+
+#student-test-review .question-indicator .question-number {
+    background-color: transparent;
+}
+
+#student-test-review .nav-container .question-indicator .question-number {
+    --rqn-number-color: var(--system-base);
+    --rqn-border-color: var(--system-base);
+    --rqn-background-color: transparent;
+    position: static;
+    min-width: 30px;
+    width: -moz-fit-content;
+    width: fit-content;
+    transition: box-shadow ease-in-out 150ms;
+    margin-right: auto;
+
+    color: var(--rqn-number-color);
+    border-color: var(--rqn-border-color);
+    background-color: var(--rqn-background-color);
+}
+
+#student-test-review .nav-container .question-indicator .question-number.done {
+    --rqn-number-color: white;
+    --rqn-background-color: var(--system-base);
+}
+
+#student-test-review .nav-container .question-indicator .question-number.active {
+    --rqn-border-color: var(--primary);
+    --rqn-number-color: var(--primary);
+}
+
+#student-test-review .nav-container .question-indicator .question-number.done.active {
+    --rqn-number-color: white;
+    --rqn-background-color: var(--primary);
+}
+
+#student-test-review .nav-container .question-indicator .question-number.connector:after {
+    content: '';
+    position: absolute;
+    top: 15px;
+    width: 8px;
+    height: 3px;
+    left: 100%;
+    background: var(--system-base);
+}
+
+#student-test-review .nav-container .question-indicator {
+    display: flex;
+    align-items: start;
+}
+
 /*
 ! tailwindcss v3.2.7 | MIT License | https://tailwindcss.com
 */
@@ -9211,6 +9274,9 @@ video {
 .mt-2\.5{
   margin-top: 0.625rem;
 }
+.mt-20{
+  margin-top: 5rem;
+}
 .mt-3{
   margin-top: 0.75rem;
 }
@@ -9303,6 +9369,9 @@ video {
 }
 .h-2\.5{
   height: 0.625rem;
+}
+.h-20{
+  height: 5rem;
 }
 .h-28{
   height: 7rem;
@@ -9957,9 +10026,6 @@ video {
 }
 .flex-wrap{
   flex-wrap: wrap;
-}
-.place-items-end{
-  place-items: end;
 }
 .content-center{
   align-content: center;

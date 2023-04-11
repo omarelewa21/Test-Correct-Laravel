@@ -3,13 +3,16 @@
 namespace tcCore\Http\Livewire\Student;
 
 use Livewire\Component;
-use tcCore\AnswerRating;
 
 class TestReview extends Component
 {
     /*Template properties*/
     public string $reviewableUntil = '';
-    public $testName;
+    public string $testName;
+    public bool $questionPanel = true;
+    public bool $answerPanel = true;
+    public bool $answerModelPanel = true;
+    public bool $groupPanel = true;
 
     /*Query string properties*/
     protected $queryString = ['questionPosition' => ['except' => '', 'as' => 'question']];
@@ -32,6 +35,8 @@ class TestReview extends Component
     public $score = 1;
     public $hasFeedback = false;
 
+    protected bool $skipBooted = false;
+
     /* Lifecycle methods */
     public function mount($testTakeUuid): void
     {
@@ -42,6 +47,18 @@ class TestReview extends Component
         $this->startReview();
 
         $this->setTemplateVariables();
+
+        $this->skipBooted = true;
+    }
+
+    public function booted(): void
+    {
+        if ($this->skipBooted) {
+            return;
+        }
+
+        $this->setReviewData();
+        $this->hydrateCurrentProperties();
     }
 
     public function render()
@@ -59,23 +76,41 @@ class TestReview extends Component
     {
         return true;
     }
+
     public function getShowCoLearningScoreToggleProperty(): bool
     {
         return true;
     }
+
     public function getCoLearningScoredValueProperty(): int|float
     {
         return 5;
     }
+
     public function getAutomaticallyScoredValueProperty(): int|float
     {
         return 5;
+    }
+
+    public function getNeedsQuestionSectionProperty(): bool
+    {
+        return true;
     }
 
     /* Public accessible methods */
     public function redirectBack()
     {
         return redirect()->route('student.test-takes', ['tab' => 'review']);
+    }
+
+    public function loadQuestion(int $position): void
+    {
+        $index = $position - 1;
+
+        $this->currentQuestion = $this->questions->get($index);
+        $this->currentAnswer = $this->answers->where('question_id', $this->currentQuestion->id)->first();
+        $this->questionPosition = $position;
+        $this->handleGroupQuestion();
     }
 
     public function currentAnswerCoLearningRatingsHasNoDiscrepancy(): bool
@@ -91,6 +126,16 @@ class TestReview extends Component
     public function finalAnswerReached(): bool
     {
         return false;
+    }
+
+    public function next()
+    {
+        $this->loadQuestion((int)$this->questionPosition + 1);
+    }
+
+    public function previous()
+    {
+        $this->loadQuestion((int)$this->questionPosition - 1);
     }
 
     /* Private methods */
@@ -110,7 +155,8 @@ class TestReview extends Component
                             'test.testQuestions.question',
                             'testParticipants' => fn($query) => $query->where('user_id', $userId),
                             'testParticipants.answers',
-                            'testParticipants.answers.answerRatings'
+                            'testParticipants.answers.answerRatings',
+                            'testParticipants.answers.feedback'
                         ])
                         ->first();
                 }
@@ -138,7 +184,10 @@ class TestReview extends Component
                 }
                 return collect([$testQuestion->question]);
             })
+            ->filter(fn($question) => $this->answers->pluck('question_id')->contains($question->id))
             ->values();
+
+        $this->addGroupConnectorPropertyToAnswerIfNecessary();
     }
 
     private function startReview(): void
@@ -154,18 +203,41 @@ class TestReview extends Component
         $this->reviewableUntil = $this->testTakeData->show_results->translatedFormat('j F \'y - H:i');
     }
 
-    private function loadQuestion(int $position): void
-    {
-        $index = $position - 1;
-
-        $this->currentQuestion = $this->questions->get($index);
-        $this->currentAnswer = $this->answers->where('question_id', $this->currentQuestion->id)->first();
-        $this->questionPosition = $position;
-    }
-
     private function initializeNavigationProperties(): void
     {
         $this->questionPosition = blank($this->questionPosition) ? 1 : $this->questionPosition;
+    }
+
+    private function hydrateCurrentProperties(): void
+    {
+        $this->currentQuestion = $this->questions->get((int)$this->questionPosition - 1);
+    }
+
+    private function handleGroupQuestion(): void
+    {
+        if (!$this->currentQuestion->belongs_to_groupquestion_id) {
+            $this->currentGroup = null;
+            return;
+        }
+
+        $this->currentGroup = $this->groups->where('id', $this->currentQuestion->belongs_to_groupquestion_id)->first();
+    }
+
+    /**
+     * @return void
+     */
+    private function addGroupConnectorPropertyToAnswerIfNecessary(): void
+    {
+        $this->questions
+            ->whereNotNull('belongs_to_groupquestion_id')
+            ->groupBy('belongs_to_groupquestion_id')
+            ->each(fn($group) => $group->pop())
+            ->flatten()
+            ->each(function ($question) {
+                $this->answers
+                    ->first(fn($answer) => $answer->question_id === $question->id)
+                    ->stripy = true;
+            });
     }
 
 }

@@ -1,6 +1,7 @@
 <div id="assessment-page"
      class="min-h-full w-full assessment"
      x-data="assessment(@js($this->score), @js($this->currentQuestion?->score), @js((bool)$this->currentQuestion?->decimal_score), @js($this->drawerScoringDisabled), @js($this->updatePage))"
+     x-cloak
      wire:key="page-@js($this->questionNavigationValue.$this->answerNavigationValue.$this->updatePage)"
      x-on:update-navigation.window="dispatchUpdateToNavigator($event.detail.navigator, $event.detail.updates)"
      x-on:slider-toggle-value-updated.window="toggleTicked($event.detail)"
@@ -10,8 +11,7 @@
     @if($this->headerCollapsed)
         <div class="flex min-h-[calc(100vh-var(--header-height))] relative">
             <div class="px-15 py-10 gap-6 flex flex-col flex-1 relative">
-                <div class="progress-bar-background |  h-4 bg-white/50 border-bluegrey border-y fixed top-[calc(var(--header-height)+4px)] left-0 z-1"
-                     style="width: calc(100% - var(--active-sidebar-width)); transition: width var(--sidebar-transition)"
+                <div class="progress-bar-container | fixed-sub-header-container h-4 bg-white/50 border-bluegrey border-y top-[calc(var(--header-height)+4px)]"
                 >
                     <span @class(['progress-bar | sticky top-[100px] flex items-center justify-end absolute left-0 h-[calc(1rem-2px)] bg-primary pr-2', 'rounded-r-full' => $this->progress < 100])
                           style="width: @js($this->progress)%; transition: width 150ms ease-in"
@@ -23,6 +23,7 @@
                         ])>@js($this->progress)%</span>
                     </span>
                 </div>
+
                 {{-- Group section --}}
                 <div class="flex flex-col text-xs">
                     <span>vraag: @js($this->currentQuestion->id)</span>

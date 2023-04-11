@@ -1964,6 +1964,7 @@ document.addEventListener("alpine:init", () => {
         tab(index) {
             if (!this.tabs.includes(index)) return;
             this.activeTab = index;
+            this.closeTooltips();
             const slide = this.$root.querySelector(".slide-" + index);
             this.handleSlideHeight(slide);
             this.$nextTick(() => {
@@ -2173,7 +2174,7 @@ document.addEventListener("alpine:init", () => {
         inModal: false,
         init() {
             this.setHeightProperty();
-            this.inModal = this.$root.closest('#modal-container') !== null;
+            this.inModal = this.$root.closest("#modal-container") !== null;
             this.$watch("tooltip", value => {
                 if (value) {
                     let ignoreLeft = false;
@@ -2201,7 +2202,7 @@ document.addEventListener("alpine:init", () => {
             return top + "px";
         },
         getLeft(ignoreLeft = false) {
-            if (ignoreLeft) return 'auto';
+            if (ignoreLeft) return "auto";
             let left = this.$root.getBoundingClientRect().x + (this.$root.offsetWidth / 2);
             if (this.inModal) {
                 left -= this.getModalDimensions().left;
@@ -2227,8 +2228,42 @@ document.addEventListener("alpine:init", () => {
             return ((this.$el.getBoundingClientRect().left + (this.maxToolTipWidth / 2)) > window.innerWidth);
         },
         getModalDimensions() {
-            const modal = document.querySelector('#modal-container');
+            const modal = document.querySelector("#modal-container");
             return modal.getBoundingClientRect();
+        }
+    }));
+    Alpine.data("reviewNavigation", (current) => ({
+        showSlider: true,
+        scrollStep: 100,
+        totalScrollWidth: 0,
+        activeQuestion: current,
+        intersectionCountdown: null,
+        navScrollBar: null,
+        doneInitting: false,
+        init() {
+            this.$nextTick(() => {
+                this.$root.querySelector('.active').scrollIntoView({behavior: 'smooth'});
+                this.totalScrollWidth = this.$root.offsetWidth;
+                this.resize();
+                this.doneInitting = true;
+            });
+        },
+        resize() {
+            this.scrollStep = window.innerWidth / 10;
+            const sliderButtons = this.$root.querySelector('.slider-buttons').offsetWidth * 2;
+            this.showSlider = (this.$root.querySelector('.question-indicator').offsetWidth + sliderButtons) >= (this.$root.offsetWidth - 120);
+        },
+        startIntersectionCountdown() {
+            clearInterval(this.intersectionCountdown);
+            let seconds = 0;
+            this.intersectionCountdown = setInterval(function() {
+                if (seconds === 5) {
+                    clearInterval(this.intersectionCountdown);
+                    let left = this.$root.querySelector(".active").offsetLeft;
+                    this.$root.scrollTo({ left: left - this.$root.getBoundingClientRect().left, behavior: "smooth" });
+                }
+                seconds++;
+            }, 1000);
         }
     }));
     Alpine.directive("global", function(el, { expression }) {

@@ -7521,6 +7521,7 @@ document.addEventListener("alpine:init", function () {
         var _this41 = this;
         if (!this.tabs.includes(index)) return;
         this.activeTab = index;
+        this.closeTooltips();
         var slide = this.$root.querySelector(".slide-" + index);
         this.handleSlideHeight(slide);
         this.$nextTick(function () {
@@ -7788,7 +7789,7 @@ document.addEventListener("alpine:init", function () {
       init: function init() {
         var _this46 = this;
         this.setHeightProperty();
-        this.inModal = this.$root.closest('#modal-container') !== null;
+        this.inModal = this.$root.closest("#modal-container") !== null;
         this.$watch("tooltip", function (value) {
           if (value) {
             var ignoreLeft = false;
@@ -7815,7 +7816,7 @@ document.addEventListener("alpine:init", function () {
       },
       getLeft: function getLeft() {
         var ignoreLeft = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-        if (ignoreLeft) return 'auto';
+        if (ignoreLeft) return "auto";
         var left = this.$root.getBoundingClientRect().x + this.$root.offsetWidth / 2;
         if (this.inModal) {
           left -= this.getModalDimensions().left;
@@ -7842,8 +7843,50 @@ document.addEventListener("alpine:init", function () {
         return this.$el.getBoundingClientRect().left + this.maxToolTipWidth / 2 > window.innerWidth;
       },
       getModalDimensions: function getModalDimensions() {
-        var modal = document.querySelector('#modal-container');
+        var modal = document.querySelector("#modal-container");
         return modal.getBoundingClientRect();
+      }
+    };
+  });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("reviewNavigation", function (current) {
+    return {
+      showSlider: true,
+      scrollStep: 100,
+      totalScrollWidth: 0,
+      activeQuestion: current,
+      intersectionCountdown: null,
+      navScrollBar: null,
+      doneInitting: false,
+      init: function init() {
+        var _this48 = this;
+        this.$nextTick(function () {
+          _this48.$root.querySelector('.active').scrollIntoView({
+            behavior: 'smooth'
+          });
+          _this48.totalScrollWidth = _this48.$root.offsetWidth;
+          _this48.resize();
+          _this48.doneInitting = true;
+        });
+      },
+      resize: function resize() {
+        this.scrollStep = window.innerWidth / 10;
+        var sliderButtons = this.$root.querySelector('.slider-buttons').offsetWidth * 2;
+        this.showSlider = this.$root.querySelector('.question-indicator').offsetWidth + sliderButtons >= this.$root.offsetWidth - 120;
+      },
+      startIntersectionCountdown: function startIntersectionCountdown() {
+        clearInterval(this.intersectionCountdown);
+        var seconds = 0;
+        this.intersectionCountdown = setInterval(function () {
+          if (seconds === 5) {
+            clearInterval(this.intersectionCountdown);
+            var left = this.$root.querySelector(".active").offsetLeft;
+            this.$root.scrollTo({
+              left: left - this.$root.getBoundingClientRect().left,
+              behavior: "smooth"
+            });
+          }
+          seconds++;
+        }, 1000);
       }
     };
   });

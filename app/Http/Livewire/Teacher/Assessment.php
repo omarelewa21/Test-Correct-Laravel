@@ -32,9 +32,9 @@ class Assessment extends Component implements CollapsableHeader
     public bool $answerPanel = true;
     public bool $answerModelPanel = true;
     public bool $groupPanel = true;
+    public bool $hasFeedback = false;
     public string $testName;
-    protected $updatePage = false;
-    public $hasFeedback = false;
+    protected bool $updatePage = false;
 
     /*Query string properties*/
     protected $queryString = [
