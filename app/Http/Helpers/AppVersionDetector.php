@@ -55,8 +55,6 @@ class AppVersionDetector
         ],
         "iOS" => [
             "ok" => [
-                "3.0.0",
-                "3.0.1",
                 "3.0.2",
                 "3.0.3",
                 "3.0.4",
@@ -73,19 +71,15 @@ class AppVersionDetector
                 "3.2.4",
             ],
             "needsUpdate" => [
+
             ],
             "needsUpdateDeadline" => [
+
             ],
         ],
         "ChromeOS" => [
             "ok" =>
             [
-                "3.0.0",
-                "3.0.1",
-                "3.0.2",
-                "3.0.3",
-                "3.0.4",
-                "3.0.5",
                 "3.1.0",
                 "3.1.10",
                 "3.1.20",
@@ -118,18 +112,14 @@ class AppVersionDetector
                 "3.5.50",
             ],
             "needsUpdate" => [
+                '3.0.0',
             ],
             "needsUpdateDeadline" => [
+                '3.0.0' => '1 juni 2023',
             ],
         ],
         "windowsElectron" => [
             "ok" => [
-                "3.3.1",
-                "3.3.1-beta.1",
-                "3.3.1-beta.2",
-                "3.3.1-beta.3",
-                "3.3.1-beta.4",
-                "3.3.1-beta.5",
                 "3.3.2",
                 "3.3.2-beta.1",
                 "3.3.2-beta.2",
@@ -193,19 +183,15 @@ class AppVersionDetector
             ],
             "needsUpdate" => [
                 '3.3.0',
+                '3.3.1',
             ],
             "needsUpdateDeadline" => [
                 '3.3.0' => '28 april 2023',
+                '3.3.1' => '6 juni 2023',
             ],
         ],
         "macosElectron" => [
             "ok" => [
-                "3.3.1",
-                "3.3.1-beta.1",
-                "3.3.1-beta.2",
-                "3.3.1-beta.3",
-                "3.3.1-beta.4",
-                "3.3.1-beta.5",
                 "3.3.2",
                 "3.3.2-beta.1",
                 "3.3.2-beta.2",
@@ -269,9 +255,11 @@ class AppVersionDetector
             ],
             "needsUpdate" => [
                 '3.3.0',
+                '3.3.1',
             ],
             "needsUpdateDeadline" => [
                 '3.3.0' => '28 april 2023',
+                '3.3.1' => '6 juni 2023',
             ],
         ]
     ];
