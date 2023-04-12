@@ -107,17 +107,14 @@ trait TestActions
             'min:3',
             Rule::unique('tests', 'name')
                 ->where(function (Builder $query){
-                    // If the user is not a TBSC user, restrict the user from creating a test with the same name
-                    $schoolLocation = auth()->user()->schoolLocation;
-                    if ($schoolLocation && Str::upper($schoolLocation->customer_code) !== 'TBSC'){
-                        $query->where(['is_system_test' => 0, 'deleted_at' => null, 'author_id' => auth()->id()]);
+                    if (auth()->user()->isToetsenbakker()){
+                        $query->whereRaw('1 = 0'); // This will return no results when the user is a Toetsenbakker to allow for duplicate test names
                     } else {
-                        $query->whereNull('id'); // This will return no results
+                        $query->where(['is_system_test' => 0, 'deleted_at' => null, 'author_id' => auth()->id()]);
                     }
                 })
-                // When editing an existing test, ignore the current test ID for the uniqueness check
                 ->when(isset($this->testUuid), fn ($query) =>
-                    $query->ignore(Test::whereUuid($this->testUuid)->value('id'))
+                    $query->ignore(Test::whereUuid($this->testUuid)->value('id'))  // When editing an existing test, ignore the current test ID for the uniqueness check
                 )
         ];
     }
