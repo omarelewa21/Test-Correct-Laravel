@@ -21,23 +21,23 @@
             {{-- Question necklace navigation  --}}
             <div class="nav-container | fixed-sub-header-container h-20 bg-lightGrey border-bluegrey border-b top-[var(--header-height)]"
             >
-                <div class="flex w-full h-full px-15 items-center invisible"
+                <div class="flex w-full h-full px-15 items-center invisible overflow-hidden"
                      x-data="reviewNavigation(@js($this->questionPosition))"
-                     x-bind:class="{'invisible': !doneInitting }"
+                     x-bind:class="{'invisible': !initialized }"
                 >
-                    <div class="slider-buttons | flex relative -top-px z-10" x-show="showSlider">
+                    <div class="slider-buttons left | flex relative items-center h-full z-10" x-show="showSlider">
                         <button class="inline-flex base rotate-svg-180 w-8 h-8 rounded-full transition items-center justify-center transform focus:outline-none"
-                                x-on:click="console.log('naaaaar het begin!')">
+                                x-on:click="start()">
                             <x-icon.arrow-last />
                         </button>
                         <button class="inline-flex base rotate-svg-180 w-8 h-8 rounded-full transition items-center justify-center transform focus:outline-none"
-                                x-on:click="console.log('naaaaar links!')">
+                                x-on:click="left()">
                             <x-icon.chevron />
                         </button>
                     </div>
                     <div id="navscrollbar"
                          class="question-indicator gap-2"
-                         x-bind:class="{'overflow-x-auto' : showSlider}"
+                         x-bind:class="{'overflow-x-auto px-3' : showSlider}"
                     >
                         @foreach($this->answers as $answer)
                             <div class="flex flex-col items-center gap-1 relative">
@@ -45,9 +45,10 @@
                                     'question-number | mt-px inline-flex rounded-full text-center justify-center items-center cursor-pointer hover:shadow-lg',
                                     'active' => (int)$this->questionPosition === $loop->iteration,
                                     'done' => $answer->done,
-                                    'connector' => $answer->stripy
+                                    'connector' => $answer->connector
                                 ])
                                      wire:click="loadQuestion(@js($loop->iteration))"
+                                     x-on:click="$dispatch('assessment-drawer-tab-update', {tab: 1})"
                                 >
                                     <span class="align-middle px-1.5">@js($loop->iteration)</span>
                                 </div>
@@ -57,13 +58,14 @@
                             </div>
                         @endforeach
                     </div>
-                    <div class="slider-buttons | flex relative -top-px z-10" x-show="showSlider">
+                    <div class="slider-buttons right | flex relative items-center -top-px h-full z-10"
+                         x-show="showSlider">
                         <button class="inline-flex base w-8 h-8 rounded-full transition items-center justify-center transform focus:outline-none"
-                                x-on:click="console.log('Naaaaar rechts!')">
+                                x-on:click="right()">
                             <x-icon.chevron />
                         </button>
                         <button class="inline-flex base w-8 h-8 rounded-full transition items-center justify-center transform focus:outline-none"
-                                x-on:click="console.log('Naaaaar eind!')">
+                                x-on:click="end()">
                             <x-icon.arrow-last />
                         </button>
                     </div>
@@ -214,6 +216,7 @@
                                         :component="'answer.student.'. str($this->currentQuestion->type)->kebab()"
                                         :question="$this->currentQuestion"
                                         :answer="$this->currentAnswer"
+                                        :disabledToggle="true"
                                         :editorId="'editor-'.$this->currentQuestion->uuid.$this->currentAnswer->uuid"
                                 />
                             </div>
@@ -222,31 +225,33 @@
                 </x-accordion.container>
 
                 {{-- Answermodel section --}}
-                <x-accordion.container :active-container-key="$this->answerModelPanel ? 'answer-model' : ''"
-                                       :wire:key="'answer-model-section-'.$this->questionPosition"
-                >
-                    <x-accordion.block key="answer-model"
-                                       :coloredBorderClass="'primary'"
-                                       :emitWhenSet="true"
-                                       :wire:key="'answer-model-section-block'.$this->questionPosition"
+                @if($this->showCorrectionModel)
+                    <x-accordion.container :active-container-key="$this->answerModelPanel ? 'answer-model' : ''"
+                                           :wire:key="'answer-model-section-'.$this->questionPosition"
                     >
-                        <x-slot:title>
-                            <div class="question-indicator items-center flex">
-                                <h4 class="inline-block"
-                                    selid="questiontitle">@lang('co-learning.answer_model')</h4>
-                            </div>
-                        </x-slot:title>
-                        <x-slot:body>
-                            <div class="w-full" wire:key="answer-model-{{$this->currentQuestion->uuid}}">
-                                <x-dynamic-component
-                                        :component="'answer.teacher.'. str($this->currentQuestion->type)->kebab()"
-                                        :question="$this->currentQuestion"
-                                        :editorId="'editor-'.$this->currentQuestion->uuid"
-                                />
-                            </div>
-                        </x-slot:body>
-                    </x-accordion.block>
-                </x-accordion.container>
+                        <x-accordion.block key="answer-model"
+                                           :coloredBorderClass="'primary'"
+                                           :emitWhenSet="true"
+                                           :wire:key="'answer-model-section-block'.$this->questionPosition"
+                        >
+                            <x-slot:title>
+                                <div class="question-indicator items-center flex">
+                                    <h4 class="inline-block"
+                                        selid="questiontitle">@lang('co-learning.answer_model')</h4>
+                                </div>
+                            </x-slot:title>
+                            <x-slot:body>
+                                <div class="w-full" wire:key="answer-model-{{$this->currentQuestion->uuid}}">
+                                    <x-dynamic-component
+                                            :component="'answer.teacher.'. str($this->currentQuestion->type)->kebab()"
+                                            :question="$this->currentQuestion"
+                                            :editorId="'editor-'.$this->currentQuestion->uuid"
+                                    />
+                                </div>
+                            </x-slot:body>
+                        </x-accordion.block>
+                    </x-accordion.container>
+                @endif
             @endif
 
         </div>
@@ -376,11 +381,11 @@
                             >
                                 @if($this->hasFeedback)
                                     <x-button.primary class="!p-0 justify-center"
-                                                  wire:click="$emit('openModal', 'teacher.inline-feedback-modal', {answer: '{{  $this->currentAnswer->uuid }}', disabled: true });"
-                                >
-                                    <span>@lang('review.Bekijk feedback')</span>
-                                    <x-icon.chevron />
-                                </x-button.primary>
+                                                      wire:click="$emit('openModal', 'teacher.inline-feedback-modal', {answer: '{{  $this->currentAnswer->uuid }}', disabled: true });"
+                                    >
+                                        <span>@lang('review.Bekijk feedback')</span>
+                                        <x-icon.chevron />
+                                    </x-button.primary>
                                 @endif
                             </div>
                         </div>
@@ -391,7 +396,7 @@
                             @if(!$this->currentAnswerCoLearningRatingsHasNoDiscrepancy())
                                 <div class="notification py-3 warning">
                                     <div class="title">
-                                        <x-icon.exclamation/>
+                                        <x-icon.exclamation />
                                         <span>@lang('review.Er waren verschillen')</span>
                                     </div>
                                     <span class="body">@lang('review.co_learning_differences')</span>
@@ -454,6 +459,6 @@
         </div>
     </div>
 
-    <x-notification/>
+    <x-notification />
     @livewire('livewire-ui-modal')
 </main>

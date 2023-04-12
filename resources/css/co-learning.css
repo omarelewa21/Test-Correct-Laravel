@@ -221,19 +221,16 @@
 }
 
 
-#co-learning-teacher-page .badge-view,
-#assessment-page .badge-view {
+.badge-view {
     transition: 150ms ease background-color, 150ms ease color;
 }
 
-#co-learning-teacher-page .badge-view:hover,
-#assessment-page .badge-view:hover {
+.badge-view:hover {
     background-color: #f3f7ff;
     color: var(--teacher-primary);
 }
 
-#co-learning-teacher-page .badge-view:hover:after,
-#assessment-page .badge-view:hover:after {
+.badge-view:hover:after {
     content: '';
     border: 2px solid var(--teacher-primary);
     position: absolute;
@@ -333,11 +330,13 @@
 }
 
 
+#student-test-review .multiple-choice .all-or-nothing-toggle,
 #assessment-page .multiple-choice .all-or-nothing-toggle {
     position: absolute;
     left: calc(50% + 2rem);
     transform: translateY(-50%);
 }
+#student-test-review .multiple-choice .first-active .all-or-nothing-line,
 #assessment-page .multiple-choice .first-active .all-or-nothing-line {
     right: -1rem;
     position: absolute;

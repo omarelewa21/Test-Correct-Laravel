@@ -7859,32 +7859,53 @@ document.addEventListener("alpine:init", function () {
       activeQuestion: current,
       intersectionCountdown: null,
       navScrollBar: null,
-      doneInitting: false,
+      initialized: false,
       init: function init() {
         var _this48 = this;
+        this.navScrollBar = this.$root.querySelector('#navscrollbar');
         this.$nextTick(function () {
-          _this48.$root.querySelector('.active').scrollIntoView({
-            behavior: 'smooth'
+          _this48.$root.querySelector(".active").scrollIntoView({
+            behavior: "smooth"
           });
           _this48.totalScrollWidth = _this48.$root.offsetWidth;
           _this48.resize();
-          _this48.doneInitting = true;
+          _this48.initialized = true;
         });
       },
       resize: function resize() {
         this.scrollStep = window.innerWidth / 10;
-        var sliderButtons = this.$root.querySelector('.slider-buttons').offsetWidth * 2;
-        this.showSlider = this.$root.querySelector('.question-indicator').offsetWidth + sliderButtons >= this.$root.offsetWidth - 120;
+        var sliderButtons = this.$root.querySelector(".slider-buttons").offsetWidth * 2;
+        this.showSlider = this.$root.querySelector(".question-indicator").offsetWidth + sliderButtons >= this.$root.offsetWidth - 120;
+      },
+      scroll: function scroll(position) {
+        this.navScrollBar.scrollTo({
+          left: position,
+          behavior: "smooth"
+        });
+        this.startIntersectionCountdown();
+      },
+      start: function start() {
+        this.scroll(0);
+      },
+      end: function end() {
+        this.scroll(this.totalScrollWidth);
+      },
+      left: function left() {
+        this.scroll(this.navScrollBar.scrollLeft - this.scrollStep);
+      },
+      right: function right() {
+        this.scroll(this.navScrollBar.scrollLeft + this.scrollStep);
       },
       startIntersectionCountdown: function startIntersectionCountdown() {
+        var _this49 = this;
         clearInterval(this.intersectionCountdown);
         var seconds = 0;
         this.intersectionCountdown = setInterval(function () {
           if (seconds === 5) {
-            clearInterval(this.intersectionCountdown);
-            var left = this.$root.querySelector(".active").offsetLeft;
-            this.$root.scrollTo({
-              left: left - this.$root.getBoundingClientRect().left,
+            clearInterval(_this49.intersectionCountdown);
+            var left = _this49.$root.querySelector(".active").offsetLeft;
+            _this49.navScrollBar.scrollTo({
+              left: left - _this49.$root.getBoundingClientRect().left,
               behavior: "smooth"
             });
           }

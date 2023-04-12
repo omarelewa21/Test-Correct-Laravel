@@ -3,11 +3,21 @@
 namespace tcCore\View\Components\Answer\Student;
 
 use Illuminate\Support\Collection;
+use tcCore\Answer;
+use tcCore\Question;
 
 class MatchingQuestion extends QuestionComponent
 {
     public $answerStruct = [];
     public $unusedAnswers = [];
+
+    public function __construct(
+        public Question $question,
+        public Answer   $answer,
+        public bool     $disabledToggle = false,
+    ) {
+        parent::__construct($question, $answer);
+    }
 
     protected function setAnswerStruct($question, $answer): void
     {

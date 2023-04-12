@@ -5,6 +5,7 @@ namespace tcCore\Http\Livewire\Student;
 use Illuminate\Support\Collection;
 use Livewire\Component;
 use tcCore\AnswerRating;
+use tcCore\Exceptions\AssessmentException;
 
 class TestReview extends Component
 {
@@ -42,6 +43,11 @@ class TestReview extends Component
     protected bool $skipBooted = false;
 
     /* Lifecycle methods */
+    protected function getListeners(): array
+    {
+        return ['accordion-update' => 'handlePanelActivity'];
+    }
+
     public function mount($testTakeUuid): void
     {
         $this->testTakeUuid = $testTakeUuid;
@@ -101,6 +107,29 @@ class TestReview extends Component
         return true;
     }
 
+    public function getShowCorrectionModelProperty(): bool
+    {
+        return $this->testTakeData->fresh()->show_correction_model;
+    }
+
+    /* Event listener methods */
+    /**
+     * @param $panelData
+     * @return void
+     * @throws AssessmentException
+     */
+    public function handlePanelActivity(
+        $panelData
+    ): void {
+        $panelName = str($panelData['key'])->camel()->append('Panel')->value();
+        if (!property_exists($this, $panelName)) {
+            throw new AssessmentException('Panel update for unknown panel property.');
+        }
+
+        $this->$panelName = $panelData['value'];
+    }
+
+
     /* Public accessible methods */
     public function redirectBack()
     {
@@ -122,8 +151,8 @@ class TestReview extends Component
     public function currentAnswerCoLearningRatingsHasNoDiscrepancy(): bool
     {
         return $this->studentRatings()
-            ->keyBy('rating')
-            ->count() === 1;
+                ->keyBy('rating')
+                ->count() === 1;
     }
 
     public function coLearningRatings()
@@ -247,7 +276,7 @@ class TestReview extends Component
             ->each(function ($question) {
                 $this->answers
                     ->first(fn($answer) => $answer->question_id === $question->id)
-                    ->stripy = true;
+                    ->connector = true;
             });
     }
 
