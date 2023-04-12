@@ -44,18 +44,11 @@ class CompletionQuestion extends Component
 
         $replacementFunction = function ($matches) use ($question) {
             $tag_id = $matches[1] - 1; // the completion_question_answers list is 1 based but the inputs need to be 0 based
-
-            return sprintf(
-                '<span class="inline-flex max-w-full">
-                            <span class="absolute whitespace-nowrap" style="left: -9999px" x-ref="%s"></span> 
-                            <input wire:model="answer.%d" class="form-input mb-2 disabled truncate text-center overflow-ellipsis" type="text" id="%s" style="width: 100px" disabled
-                                x-init="setInputWidth($el, true, true);" x-on:input="setInputWidth($el)"
-                            />
-                        </span>',
-                'answer_' . $tag_id,
-                $tag_id,
-                'answer_' . $tag_id
-            );
+            $events = '';
+            $rsSpan = '';
+            $context = 'student';
+            $answer = '';
+            return view('livewire.teacher.co-learning-completion-question-html', compact('tag_id', 'question', 'answer', 'events', 'rsSpan', 'context'));
         };
 
         return preg_replace_callback($this->searchPattern, $replacementFunction, $question_text);
