@@ -7,7 +7,9 @@
         return el.value.length + 4 + 'ch'
     }
 }">
-    <input x-on:contextmenu="$event.preventDefault()" spellcheck="false"
+    <input @if ($context === 'student') wire:model.lazy="answer.{{$tag_id}}" @endif
+        x-on:contextmenu="$event.preventDefault()"
+        spellcheck="false"
         value="{!! $answer !!}"
         autocorrect="off"
         autocapitalize="none"
@@ -15,10 +17,9 @@
         type="text"
         id="{{ 'answer_' . $tag_id . '_' . $question->getKey() }}"
         x-ref="{{ 'comp_answer_' . $tag_id }}"
-        {{ $events }}
+        {!! $events !!}
         :style="{width: getInputWidth($el)}"
-        wire:key=" {{'comp_answer_' . $tag_id}}"
-        @input="$el.style.width = getInputWidth($el)"
+        wire:key="{{'comp_answer_' . $tag_id}}"
     />
     {{ $rsSpan }}
 </span>
