@@ -26,6 +26,7 @@ use tcCore\GroupQuestionQuestion;
 use tcCore\Info;
 use tcCore\InfoscreenQuestion;
 use tcCore\Invigilator;
+use tcCore\LearningGoal;
 use tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager;
 use tcCore\License;
 use tcCore\MaintenanceWhitelistIp;
@@ -43,7 +44,6 @@ use tcCore\SchoolLocation;
 use tcCore\SchoolLocationContact;
 use tcCore\SchoolLocationIp;
 use tcCore\SchoolYear;
-use tcCore\Scopes\AttainmentScope;
 use tcCore\Section;
 use tcCore\Student;
 use tcCore\Subject;
@@ -483,7 +483,7 @@ class RouteServiceProvider extends ServiceProvider
         });
 
         Route::bind('learning_goal', function($item) {
-            return Attainment::withoutGlobalScope(new AttainmentScope)->whereUuid($item)->firstOrFail();
+            return LearningGoal::whereUuid($item)->firstOrFail();
         });
 
         Route::bind('baseAttainment', function($item) {
