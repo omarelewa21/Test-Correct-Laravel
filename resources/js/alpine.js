@@ -1408,7 +1408,7 @@ document.addEventListener("alpine:init", () => {
             if (this.value !== "" && Object.keys(this.sources).includes(String(this.value))) {
                 this.activateButton(this.$el.querySelector("[data-id='" + this.value + "']").parentElement);
                 if (!this.disabled) {
-                    this.$dispatch("initial-toggle-tick");
+                    this.$nextTick(() => this.$dispatch("initial-toggle-tick"));
                 }
             } else {
                 this.value = this.$el.querySelector(".group").firstElementChild.dataset.id;
@@ -1794,9 +1794,10 @@ document.addEventListener("alpine:init", () => {
         maxScore,
         halfPoints,
         drawerScoringDisabled,
+        pageUpdated,
         init() {
-            if (pageUpdated) {
-                this.$store.assessment.resetData(this.score, this.toggleCount());
+            if (this.pageUpdated) {
+                this.resetStoredData();
             }
             if (isString(this.shadowScore)) {
                 this.shadowScore = this.isFloat(score) ? parseFloat(score) : parseInt(score);
@@ -1809,6 +1810,7 @@ document.addEventListener("alpine:init", () => {
             this.$store.assessment.togglesTicked++;
         },
         dispatchUpdateToNavigator(navigator, updates) {
+            this.resetStoredData();
             let navigatorElement = this.$root.querySelector(`#${navigator}-navigator`);
             if (navigatorElement) {
                 return navigatorElement.dispatchEvent(new CustomEvent("update-navigator", { detail: { ...updates } }));
@@ -1864,6 +1866,12 @@ document.addEventListener("alpine:init", () => {
             if (event.hasOwnProperty("identifier")) {
                 this.$wire.toggleValueUpdated(event.identifier, event.state);
             }
+        },
+        resetStoredData() {
+            this.$store.assessment.resetData(this.score, this.toggleCount());
+            this.$nextTick(() => {
+                this.$store.assessment.toggleCount = this.toggleCount();
+            });
         }
     }));
     Alpine.data("assessmentNavigator", (current, total, methodCall, lastValue, firstValue) => ({
@@ -1980,21 +1988,18 @@ document.addEventListener("alpine:init", () => {
             }
 
             this.tab(1);
-            this.$store.assessment.resetData();
             await this.$nextTick(async () => {
-                const done = await this.$wire.next();
-                if (done) {
-                    this.clickedNext = false;
-                }
+                this.$store.assessment.resetData();
+                await this.$wire.next();
+                this.clickedNext = false;
             });
         },
         async previous() {
             this.tab(1);
             await this.$nextTick(async () => {
-                const done = await this.$wire.previous();
-                if (done) {
-                    this.clickedNext = false;
-                }
+                this.$store.assessment.resetData();
+                await this.$wire.previous();
+                this.clickedNext = false;
             });
         },
         handleSlideHeight(slide) {
@@ -2051,6 +2056,7 @@ document.addEventListener("alpine:init", () => {
             if (this.$wire[this.model] === this.score) return;
             this.$wire.sync(this.model, this.score);
             this.$store.assessment.currentScore = this.score;
+            this.$dispatch("slider-score-updated", { score: this.score });
         },
         noChangeEventFallback() {
             if (this.score === null) {
@@ -2059,7 +2065,6 @@ document.addEventListener("alpine:init", () => {
             }
         },
         init() {
-            // This echos custom JS from the template and for some reason it actually works;
             if (coLearning) {
                 Livewire.hook("message.received", (message, component) => {
                     if (component.name === "student.co-learning" && message.updateQueue[0]?.method === "updateHeartbeat") {
@@ -2160,12 +2165,19 @@ document.addEventListener("alpine:init", () => {
         setOption(key) {
             this.fastOption = key;
             this.$dispatch("updated-score", { score: scoreOptions[key] });
+            this.$store.assessment.currentScore = scoreOptions[key];
         },
         updatedScore(score) {
-            this.fastOption = score ? this.scoreOptions.indexOf(score) : null;
+            this.fastOption = this.scoreOptions.indexOf(score);
         },
         init() {
-            this.fastOption = currentScore !== null ? this.scoreOptions.indexOf(currentScore) : null;
+            if (currentScore === null) {
+                return;
+            }
+            if (currentScore.toString().indexOf(".0") !== -1) {
+                const parsedScore = parseInt(currentScore);
+                this.fastOption = this.scoreOptions.indexOf(parsedScore);
+            }
         }
     }));
     Alpine.data("tooltip", (alwaysLeft) => ({
@@ -2174,6 +2186,7 @@ document.addEventListener("alpine:init", () => {
         maxToolTipWidth: 384,
         height: 0,
         inModal: false,
+        show: false,
         init() {
             this.setHeightProperty();
             this.inModal = this.$root.closest("#modal-container") !== null;
@@ -2189,6 +2202,7 @@ document.addEventListener("alpine:init", () => {
                     this.$refs.tooltipdiv.style.left = this.getLeft(ignoreLeft);
                 }
             });
+            this.$nextTick(() => this.show = true);
         },
         getTop() {
             let top = ((this.$root.getBoundingClientRect().y + this.$root.offsetHeight + 8));

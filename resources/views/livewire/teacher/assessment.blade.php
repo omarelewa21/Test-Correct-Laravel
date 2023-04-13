@@ -2,7 +2,7 @@
      class="min-h-full w-full assessment"
      x-data="assessment(@js($this->score), @js($this->currentQuestion?->score), @js((bool)$this->currentQuestion?->decimal_score), @js($this->drawerScoringDisabled), @js($this->updatePage))"
      x-cloak
-     wire:key="page-@js($this->questionNavigationValue.$this->answerNavigationValue.$this->updatePage)"
+     wire:key="page-{{ $this->questionNavigationValue.$this->answerNavigationValue.$this->updatePage }}"
      x-on:update-navigation.window="dispatchUpdateToNavigator($event.detail.navigator, $event.detail.updates)"
      x-on:slider-toggle-value-updated.window="toggleTicked($event.detail)"
      x-on:initial-toggle-tick.window="initialToggleTicked()"
@@ -11,15 +11,17 @@
     @if($this->headerCollapsed)
         <div class="flex min-h-[calc(100vh-var(--header-height))] relative">
             <div class="px-15 py-10 gap-6 flex flex-col flex-1 relative">
-                <div class="progress-bar-container | fixed-sub-header-container h-4 bg-white/50 border-bluegrey border-y top-[calc(var(--header-height)+4px)]"
-                >
-                    <span @class(['progress-bar | sticky top-[100px] flex items-center justify-end absolute left-0 h-[calc(1rem-2px)] bg-primary pr-2', 'rounded-r-full' => $this->progress < 100])
-                          style="width: @js($this->progress)%; transition: width 150ms ease-in"
+                <div class="progress-bar-container | fixed-sub-header-container h-4 bg-white/50 border-bluegrey border-y fixed top-[calc(var(--header-height)+4px)] left-0 z-1">
+                    <span @class([
+                            'progress-bar | sticky top-[100px] flex items-center justify-end absolute left-0 h-[calc(1rem-2px)] bg-primary pr-2',
+                            'rounded-r-full' => $this->progress < 100
+                         ])
+                          style="width: @js($this->progress)%;"
                     >
                         <span @class([
                             'text-xs',
-                            'text-sysbase absolute left-4' => $this->progress === 0,
-                            'text-white' => $this->progress > 0,
+                            'text-sysbase absolute -right-6' => $this->progress <= 5,
+                            'text-white' => $this->progress > 5,
                         ])>@js($this->progress)%</span>
                     </span>
                 </div>
@@ -70,7 +72,7 @@
                                             />
                                         @endforeach
                                     </div>
-                                    <div class="flex">
+                                    <div class="flex flex-col">
                                         {!! $this->currentGroup->converted_question_html !!}
                                     </div>
                                 </div>
@@ -161,7 +163,7 @@
                                             <x-slot:idleIcon>
                                                 <span class="flex items-center" x-show="!tooltip" x-cloak>
                                                     <x-icon.profile />
-                                                    <x-icon.questionmark-small/>
+                                                    <x-icon.i-letter />
                                                 </span>
                                             </x-slot:idleIcon>
                                             {{ $this->currentAnswer->user->nameFull }}
@@ -388,14 +390,14 @@
                                                           wire:click="$emit('openModal', 'teacher.inline-feedback-modal', {answer: '{{  $this->currentAnswer->uuid }}' } );"
                                         >
                                             <span>@lang($this->hasFeedback ? 'assessment.Inline feedback wijzigen' : 'assessment.Inline feedback toevoegen')</span>
-                                            <x-icon.chevron/>
+                                            <x-icon.chevron />
                                         </x-button.primary>
                                         @if($this->hasFeedback)
                                             <x-button.text-button class="!p-0 justify-center"
-                                                              wire:click="deleteFeedback"
+                                                                  wire:click="deleteFeedback"
                                             >
                                                 <span>@lang('assessment.Inline feedback verwijderen')</span>
-                                                <x-icon.chevron/>
+                                                <x-icon.chevron />
                                             </x-button.text-button>
                                         @endif
                                     @endif

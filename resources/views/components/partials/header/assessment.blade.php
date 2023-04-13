@@ -139,7 +139,7 @@
                 </x-tooltip>
             </div>
         </div>
-        <div @class(['flex py-1.5 px-4 items-center justify-between', 'opacity-25 pointer-events-none' => $this->assessmentContext['skippedCoLearning']])>
+        <div @class(['flex py-1.5 px-4 items-center justify-between'])>
             <span>@lang('assessment.Toon de naam van studenten')</span>
             <div class="flex items-center gap-4">
                 <x-input.toggle wire:model="assessmentContext.showStudentNames" />
