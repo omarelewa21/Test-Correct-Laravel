@@ -1174,7 +1174,7 @@ class Test extends BaseModel
 
     private function subjectIsInCurrentBaseSubjects(): bool
     {
-        return BaseSubject::currentForAuthUser()->whereId($this->subject()->select('base_subject_id'))->exists();
+        return BaseSubject::currentForAuthUser()->whereId($this->subject()->pluck('base_subject_id'))->exists();
     }
 
     public static function publishedAvailableFromPublisher($publishedTestScope, User $user): bool
