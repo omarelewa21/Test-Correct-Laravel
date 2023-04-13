@@ -112,7 +112,7 @@ class QuestionsController extends Controller
 
         //also check old inline-image storage folder
         $questionAnswersImage = $image;
-        if(!Storage::disk('cake')->exists("questionanswers/$image")){
+        if(!Storage::disk('cake')->exists("questionanswers/$questionAnswersImage")){
             $questionAnswersImage = urldecode($questionAnswersImage);
         }
         if (Storage::disk('cake')->exists("questionanswers/$questionAnswersImage")) {
