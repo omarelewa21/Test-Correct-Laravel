@@ -468,7 +468,7 @@ class PValueRepository
     public static function convertPeriodsToStartAndEndDate($periods, $user)
     {
         if ($periods->isNotEmpty()) {
-            return Period::whereIn('id', $periods->select('id'))->selectRaw('max(end_date) as end_date, min(start_date) as start_date')->first();
+            return Period::whereIn('id', $periods->pluck('id'))->selectRaw('max(end_date) as end_date, min(start_date) as start_date')->first();
         }
 
         $startAndEndDate = EducationLevel::getStartAndEndDateForLatestEducationLevelForStudent($user);
