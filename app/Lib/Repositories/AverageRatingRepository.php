@@ -36,7 +36,7 @@ class AverageRatingRepository {
         $allSchoolClasses = Collection::make(array_unique($allSchoolClasses));
 
         // Get all student in all classes
-        $students = Student::whereIn('class_id', $allSchoolClasses->select('id'))->with('user')->get();
+        $students = Student::whereIn('class_id', $allSchoolClasses->pluck('id'))->with('user')->get();
         $usersSchoolClassIds = [];
         $studentCount = [];
         foreach($students as $student) {
