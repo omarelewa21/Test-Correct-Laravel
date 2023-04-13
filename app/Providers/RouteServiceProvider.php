@@ -43,6 +43,7 @@ use tcCore\SchoolLocation;
 use tcCore\SchoolLocationContact;
 use tcCore\SchoolLocationIp;
 use tcCore\SchoolYear;
+use tcCore\Scopes\AttainmentScope;
 use tcCore\Section;
 use tcCore\Student;
 use tcCore\Subject;
@@ -479,6 +480,10 @@ class RouteServiceProvider extends ServiceProvider
 
         Route::bind('attainment', function($item) {
             return Attainment::whereUuid($item)->firstOrFail();
+        });
+
+        Route::bind('learning_goal', function($item) {
+            return Attainment::withoutGlobalScope(new AttainmentScope)->whereUuid($item)->firstOrFail();
         });
 
         Route::bind('baseAttainment', function($item) {
