@@ -82,7 +82,7 @@ class Assessment extends Component implements CollapsableHeader
     protected function getListeners()
     {
         return [
-            'accordion-update' => 'handlePanelActivity',
+            'accordion-update'      => 'handlePanelActivity',
             'inline-feedback-saved' => 'handleFeedbackChange'
         ];
     }
@@ -518,26 +518,6 @@ class Assessment extends Component implements CollapsableHeader
                 ->first();
         });
 
-        $this->answers = $this->testTakeData->testParticipants
-            ->load([
-                'answers:id,uuid,test_participant_id,question_id,json,order,final_rating,done',
-                'answers.answerRatings:id,answer_id,type,rating,advise,user_id',
-                'answers.answerRatings.user:id,name,name_first,name_suffix',
-            ])
-            ->flatMap(fn($participant) => $participant->answers->map(fn($answer) => $answer))
-            ->sortBy(['order', 'test_participant_id'])
-            ->values();
-
-        $this->answers->each(function ($answer) {
-            $this->setUserOnAnswer($answer);
-            $coLearningRatings = $answer->answerRatings->where('type', AnswerRating::TYPE_STUDENT);
-            if (!$coLearningRatings) {
-                $answer->hasDiscrepancy = null;
-                return true;
-            }
-            $answer->hasDiscrepancy = !$this->currentAnswerCoLearningRatingsHasNoDiscrepancy($answer);
-        });
-
         $this->groups = $this->testTakeData->test->testQuestions
             ->map(fn($testQuestion) => $testQuestion->question->isType('Group') ? $testQuestion->question : null)
             ->filter();
@@ -559,11 +539,33 @@ class Assessment extends Component implements CollapsableHeader
             })
             ->values();
 
-        $this->students = $this->testTakeData->testParticipants->where(
-            'test_take_status_id',
-            '>',
-            TestTakeStatus::STATUS_TAKING_TEST
-        )->sortBy('id')->pluck('id');
+        $this->answers = $this->testTakeData->testParticipants
+            ->load([
+                'answers:id,uuid,test_participant_id,question_id,json,order,final_rating,done',
+                'answers.answerRatings:id,answer_id,type,rating,advise,user_id',
+                'answers.answerRatings.user:id,name,name_first,name_suffix',
+            ])
+            ->flatMap(function ($participant) {
+                return $participant->answers->map(function ($answer) {
+                    $this->setUserOnAnswer($answer);
+
+                    $coLearningRatings = $answer->answerRatings->where('type', AnswerRating::TYPE_STUDENT);
+                    $answer->hasDiscrepancy = $coLearningRatings
+                        ? !$this->currentAnswerCoLearningRatingsHasNoDiscrepancy($answer)
+                        : null;
+
+                    $answer->sortOrder = $this->getNavigationValueForQuestion($answer->question);
+                    return $answer;
+                });
+            })
+            ->sortBy(['sortOrder', 'test_participant_id'])
+            ->values();
+
+        $this->students = $this->testTakeData
+            ->testParticipants
+            ->where('test_take_status_id', '>', TestTakeStatus::STATUS_TAKING_TEST)
+            ->sortBy('id')
+            ->pluck('id');
 
         $this->maxAssessedValue = $this->testTakeData->fresh()->max_assessed_answer_index ?? 1;
     }
@@ -1027,8 +1029,7 @@ class Assessment extends Component implements CollapsableHeader
     private function getProgressPropertiesForCalculation(): array
     {
         $filteredAnswers = $this->answers
-            ->discrepancyFiltered((bool)$this->assessmentContext['skipCoLearningNoDiscrepancies'])
-            ->whereIn('question_id', $this->getQuestionIdsForCurrentAssessmentType());
+            ->discrepancyFiltered((bool)$this->assessmentContext['skipCoLearningNoDiscrepancies']);
 
         $percentagePerAnswer = 1 / $filteredAnswers->count() * 100;
 
@@ -1044,7 +1045,7 @@ class Assessment extends Component implements CollapsableHeader
 
     private function getNavigationValueForQuestion(Question $question): int
     {
-        return $this->questions->search($question) + 1;
+        return $this->questions->search(fn($q) => $q->id === $question->id) + 1;
     }
 
     private function getEdgeQuestionForStudent(string $edge): Question

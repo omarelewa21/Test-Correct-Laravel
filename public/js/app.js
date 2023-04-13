@@ -6842,6 +6842,7 @@ document.addEventListener("alpine:init", function () {
         this.bootComponent();
       },
       bootComponent: function bootComponent() {
+        var _this25 = this;
         this.$root.dataset.hasValue = this.value !== null;
         if (this.value === null) {
           return;
@@ -6850,7 +6851,9 @@ document.addEventListener("alpine:init", function () {
         if (this.value !== "" && Object.keys(this.sources).includes(String(this.value))) {
           this.activateButton(this.$el.querySelector("[data-id='" + this.value + "']").parentElement);
           if (!this.disabled) {
-            this.$dispatch("initial-toggle-tick");
+            this.$nextTick(function () {
+              return _this25.$dispatch("initial-toggle-tick");
+            });
           }
         } else {
           this.value = this.$el.querySelector(".group").firstElementChild.dataset.id;
@@ -6874,14 +6877,14 @@ document.addEventListener("alpine:init", function () {
         this.activateButton(target);
       },
       activateButton: function activateButton(target) {
-        var _this25 = this;
+        var _this26 = this;
         this.$nextTick(function () {
-          _this25.resetButtons(target);
-          _this25.buttonPosition = target.offsetLeft + "px";
-          _this25.buttonWidth = target.offsetWidth + "px";
+          _this26.resetButtons(target);
+          _this26.buttonPosition = target.offsetLeft + "px";
+          _this26.buttonWidth = target.offsetWidth + "px";
           target.dataset.active = true;
           target.firstElementChild.classList.add("text-primary");
-          _this25.handle.classList.remove("hidden");
+          _this26.handle.classList.remove("hidden");
         });
       },
       resetButtons: function resetButtons(target) {
@@ -6890,13 +6893,13 @@ document.addEventListener("alpine:init", function () {
         });
       },
       setHandle: function setHandle() {
-        var _this26 = this;
+        var _this27 = this;
         this.handle = this.$el.querySelector(".slider-button-handle");
 
         /* Add transition classes later so it doesn't flicker the initial value setting */
         this.$nextTick(function () {
           setTimeout(function () {
-            _this26.handle.classList.add("transition-all", "ease-in-out", "duration-150");
+            _this27.handle.classList.add("transition-all", "ease-in-out", "duration-150");
           }, 200);
         });
       },
@@ -6932,13 +6935,13 @@ document.addEventListener("alpine:init", function () {
         }
       },
       updateGraph: function updateGraph(forceUpdate) {
-        var _this27 = this;
+        var _this28 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee6() {
-          var method, _yield$_this27$$wire$, _yield$_this27$$wire$2;
+          var method, _yield$_this28$$wire$, _yield$_this28$$wire$2;
           return _regeneratorRuntime().wrap(function _callee6$(_context6) {
             while (1) switch (_context6.prev = _context6.next) {
               case 0:
-                if (!(!_this27.data || forceUpdate)) {
+                if (!(!_this28.data || forceUpdate)) {
                   _context6.next = 10;
                   break;
                 }
@@ -6947,13 +6950,13 @@ document.addEventListener("alpine:init", function () {
                   method = "getDataForGeneralGraph";
                 }
                 _context6.next = 5;
-                return _this27.$wire.call(method, _this27.modelId, _this27.taxonomy);
+                return _this28.$wire.call(method, _this28.modelId, _this28.taxonomy);
               case 5:
-                _yield$_this27$$wire$ = _context6.sent;
-                _yield$_this27$$wire$2 = _slicedToArray(_yield$_this27$$wire$, 2);
-                _this27.showEmptyState = _yield$_this27$$wire$2[0];
-                _this27.data = _yield$_this27$$wire$2[1];
-                _this27.renderGraph();
+                _yield$_this28$$wire$ = _context6.sent;
+                _yield$_this28$$wire$2 = _slicedToArray(_yield$_this28$$wire$, 2);
+                _this28.showEmptyState = _yield$_this28$$wire$2[0];
+                _this28.data = _yield$_this28$$wire$2[1];
+                _this28.renderGraph();
               case 10:
               case "end":
                 return _context6.stop();
@@ -7067,34 +7070,34 @@ document.addEventListener("alpine:init", function () {
         }
       },
       handleIncomingEvent: function handleIncomingEvent(detail) {
-        var _this28 = this;
+        var _this29 = this;
         if (!this.contextMenuOpen) return this.openMenu(detail);
         this.closeMenu();
         setTimeout(function () {
-          _this28.openMenu(detail);
+          _this29.openMenu(detail);
         }, 150);
       },
       openMenu: function openMenu(detail) {
-        var _this29 = this;
+        var _this30 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee7() {
           var readyForShow;
           return _regeneratorRuntime().wrap(function _callee7$(_context7) {
             while (1) switch (_context7.prev = _context7.next) {
               case 0:
-                _this29.uuid = detail.uuid;
-                _this29.correspondingButton = detail.button;
-                _this29.contextData = detail.contextData;
-                _this29.detailCoordsTop = detail.coords.top;
-                _this29.detailCoordsLeft = detail.coords.left;
-                _this29.gridCardOffsetHeight = detail.coords.gridCardOffsetHeight;
-                _this29.$root.style.top = _this29.detailCoordsTop + _this29.menuOffsetMarginTop + "px";
-                _this29.$root.style.left = _this29.detailCoordsLeft - _this29.menuOffsetMarginLeft + "px";
+                _this30.uuid = detail.uuid;
+                _this30.correspondingButton = detail.button;
+                _this30.contextData = detail.contextData;
+                _this30.detailCoordsTop = detail.coords.top;
+                _this30.detailCoordsLeft = detail.coords.left;
+                _this30.gridCardOffsetHeight = detail.coords.gridCardOffsetHeight;
+                _this30.$root.style.top = _this30.detailCoordsTop + _this30.menuOffsetMarginTop + "px";
+                _this30.$root.style.left = _this30.detailCoordsLeft - _this30.menuOffsetMarginLeft + "px";
                 _context7.next = 10;
-                return _this29.$wire.setContextValues(_this29.uuid, _this29.contextData);
+                return _this30.$wire.setContextValues(_this30.uuid, _this30.contextData);
               case 10:
                 readyForShow = _context7.sent;
-                if (readyForShow) _this29.contextMenuOpen = true;
-                _this29.contextMenuOpen = true;
+                if (readyForShow) _this30.contextMenuOpen = true;
+                _this30.contextMenuOpen = true;
               case 13:
               case "end":
                 return _context7.stop();
@@ -7156,24 +7159,24 @@ document.addEventListener("alpine:init", function () {
         }
       },
       uploadFiles: function uploadFiles(files) {
-        var _this30 = this;
+        var _this31 = this;
         var $this = this;
         this.isUploading = true;
         var dummyContainer = this.$root.querySelector("#upload-dummies");
         Array.from(files).forEach(function (file, key) {
-          if (!_this30.fileHasAllowedExtension(file)) {
-            _this30.handleIncorrectFileUpload(file);
+          if (!_this31.fileHasAllowedExtension(file)) {
+            _this31.handleIncorrectFileUpload(file);
             return;
           }
-          if (_this30.fileTooLarge(file)) {
-            _this30.handleTooLargeOfAfile(file);
+          if (_this31.fileTooLarge(file)) {
+            _this31.handleTooLargeOfAfile(file);
             return;
           }
           var badgeId = "upload-badge-".concat(key);
           var loadingBadge = $this.createLoadingBadge(file, badgeId);
           dummyContainer.append(loadingBadge);
           $this.progress[badgeId] = 0;
-          $this.$wire.upload(_this30.uploadModel, file, function (success) {
+          $this.$wire.upload(_this31.uploadModel, file, function (success) {
             $this.progress[badgeId] = 0;
             dummyContainer.querySelector("#".concat(badgeId)).remove();
           }, function (error) {
@@ -7237,24 +7240,24 @@ document.addEventListener("alpine:init", function () {
       activeOverlay: activeOverlay,
       device: device,
       init: function init() {
-        var _this31 = this;
+        var _this32 = this;
         setTimeout(function () {
-          _this31.$wire.checkLoginFieldsForInput();
+          _this32.$wire.checkLoginFieldsForInput();
         }, 250);
         this.setCurrentFocusInput();
         this.$watch("activeOverlay", function (value) {
-          _this31.setCurrentFocusInput();
+          _this32.setCurrentFocusInput();
         });
         this.$watch("openTab", function (value) {
-          _this31.setCurrentFocusInput();
+          _this32.setCurrentFocusInput();
         });
       },
       setCurrentFocusInput: function setCurrentFocusInput() {
-        var _this32 = this;
+        var _this33 = this;
         var name = "" != this.activeOverlay ? this.activeOverlay : this.openTab;
         setTimeout(function () {
-          var _this32$$root$querySe;
-          return (_this32$$root$querySe = _this32.$root.querySelector("[data-focus-tab='".concat(name, "']"))) === null || _this32$$root$querySe === void 0 ? void 0 : _this32$$root$querySe.focus();
+          var _this33$$root$querySe;
+          return (_this33$$root$querySe = _this33.$root.querySelector("[data-focus-tab='".concat(name, "']"))) === null || _this33$$root$querySe === void 0 ? void 0 : _this33$$root$querySe.focus();
         }, 250);
       },
       changeActiveOverlay: function changeActiveOverlay() {
@@ -7270,9 +7273,10 @@ document.addEventListener("alpine:init", function () {
       maxScore: maxScore,
       halfPoints: halfPoints,
       drawerScoringDisabled: drawerScoringDisabled,
+      pageUpdated: pageUpdated,
       init: function init() {
-        if (pageUpdated) {
-          this.$store.assessment.resetData(this.score, this.toggleCount());
+        if (this.pageUpdated) {
+          this.resetStoredData();
         }
         if ((0,lodash__WEBPACK_IMPORTED_MODULE_5__.isString)(this.shadowScore)) {
           this.shadowScore = this.isFloat(score) ? parseFloat(score) : parseInt(score);
@@ -7285,6 +7289,7 @@ document.addEventListener("alpine:init", function () {
         this.$store.assessment.togglesTicked++;
       },
       dispatchUpdateToNavigator: function dispatchUpdateToNavigator(navigator, updates) {
+        this.resetStoredData();
         var navigatorElement = this.$root.querySelector("#".concat(navigator, "-navigator"));
         if (navigatorElement) {
           return navigatorElement.dispatchEvent(new CustomEvent("update-navigator", {
@@ -7335,6 +7340,13 @@ document.addEventListener("alpine:init", function () {
         if (event.hasOwnProperty("identifier")) {
           this.$wire.toggleValueUpdated(event.identifier, event.state);
         }
+      },
+      resetStoredData: function resetStoredData() {
+        var _this34 = this;
+        this.$store.assessment.resetData(this.score, this.toggleCount());
+        this.$nextTick(function () {
+          _this34.$store.assessment.toggleCount = _this34.toggleCount();
+        });
       }
     };
   });
@@ -7347,13 +7359,13 @@ document.addEventListener("alpine:init", function () {
       firstValue: firstValue,
       skipWatch: false,
       first: function first() {
-        var _this33 = this;
+        var _this35 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee8() {
           return _regeneratorRuntime().wrap(function _callee8$(_context8) {
             while (1) switch (_context8.prev = _context8.next) {
               case 0:
                 _context8.next = 2;
-                return _this33.updateCurrent(_this33.firstValue, "first");
+                return _this35.updateCurrent(_this35.firstValue, "first");
               case 2:
               case "end":
                 return _context8.stop();
@@ -7362,13 +7374,13 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       last: function last() {
-        var _this34 = this;
+        var _this36 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee9() {
           return _regeneratorRuntime().wrap(function _callee9$(_context9) {
             while (1) switch (_context9.prev = _context9.next) {
               case 0:
                 _context9.next = 2;
-                return _this34.updateCurrent(_this34.lastValue, "last");
+                return _this36.updateCurrent(_this36.lastValue, "last");
               case 2:
               case "end":
                 return _context9.stop();
@@ -7377,19 +7389,19 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       next: function next() {
-        var _this35 = this;
+        var _this37 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee10() {
           return _regeneratorRuntime().wrap(function _callee10$(_context10) {
             while (1) switch (_context10.prev = _context10.next) {
               case 0:
-                if (!(_this35.current >= _this35.lastValue)) {
+                if (!(_this37.current >= _this37.lastValue)) {
                   _context10.next = 2;
                   break;
                 }
                 return _context10.abrupt("return");
               case 2:
                 _context10.next = 4;
-                return _this35.updateCurrent(_this35.current + 1, "incr");
+                return _this37.updateCurrent(_this37.current + 1, "incr");
               case 4:
               case "end":
                 return _context10.stop();
@@ -7398,19 +7410,19 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       previous: function previous() {
-        var _this36 = this;
+        var _this38 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee11() {
           return _regeneratorRuntime().wrap(function _callee11$(_context11) {
             while (1) switch (_context11.prev = _context11.next) {
               case 0:
-                if (!(_this36.current <= _this36.firstValue)) {
+                if (!(_this38.current <= _this38.firstValue)) {
                   _context11.next = 2;
                   break;
                 }
                 return _context11.abrupt("return");
               case 2:
                 _context11.next = 4;
-                return _this36.updateCurrent(_this36.current - 1, "decr");
+                return _this38.updateCurrent(_this38.current - 1, "decr");
               case 4:
               case "end":
                 return _context11.stop();
@@ -7419,21 +7431,21 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       updateCurrent: function updateCurrent(value, action) {
-        var _this37 = this;
+        var _this39 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee12() {
           var response;
           return _regeneratorRuntime().wrap(function _callee12$(_context12) {
             while (1) switch (_context12.prev = _context12.next) {
               case 0:
-                _this37.$dispatch("assessment-drawer-tab-update", {
+                _this39.$dispatch("assessment-drawer-tab-update", {
                   tab: 1
                 });
                 _context12.next = 3;
-                return _this37.$wire[_this37.methodCall](value, action);
+                return _this39.$wire[_this39.methodCall](value, action);
               case 3:
                 response = _context12.sent;
                 if (response) {
-                  _this37.updateProperties(response);
+                  _this39.updateProperties(response);
                 }
               case 5:
               case "end":
@@ -7456,42 +7468,42 @@ document.addEventListener("alpine:init", function () {
       fixLineHeightCount: 0,
       fixInterval: null,
       init: function init() {
-        var _this38 = this;
+        var _this40 = this;
         this.placeAllOrNothingLines();
         this.fixLineHeight();
         this.$watch("expanded", function (value) {
-          return _this38.placeAllOrNothingLines();
+          return _this40.placeAllOrNothingLines();
         });
       },
       fixLineHeight: function fixLineHeight() {
-        var _this39 = this;
+        var _this41 = this;
         this.fixInterval = setInterval(function () {
-          _this39.placeAllOrNothingLines();
-          _this39.fixLineHeightCount++;
-          if (_this39.fixLineHeightCount >= 5) {
-            clearInterval(_this39.fixInterval);
+          _this41.placeAllOrNothingLines();
+          _this41.fixLineHeightCount++;
+          if (_this41.fixLineHeightCount >= 5) {
+            clearInterval(_this41.fixInterval);
           }
         }, 200);
       },
       placeAllOrNothingLines: function placeAllOrNothingLines() {
-        var _this40 = this;
+        var _this42 = this;
         this.$nextTick(function () {
-          var parent = _this40.$root.parentElement;
-          _this40.activeItems.map(function (item) {
+          var parent = _this42.$root.parentElement;
+          _this42.activeItems.map(function (item) {
             var el = parent.querySelector("[data-active-item='".concat(item, "']"));
-            var height = el.offsetTop + el.offsetHeight / 2 - _this40.$root.offsetHeight / 2;
-            if (_this40.$root !== parent.firstElementChild) {
-              height -= _this40.$root.offsetTop;
+            var height = el.offsetTop + el.offsetHeight / 2 - _this42.$root.offsetHeight / 2;
+            if (_this42.$root !== parent.firstElementChild) {
+              height -= _this42.$root.offsetTop;
             }
-            _this40.$root.querySelector("[data-line='".concat(item, "']")).style.height = height + "px";
+            _this42.$root.querySelector("[data-line='".concat(item, "']")).style.height = height + "px";
           });
-          if (_this40.withToggle) {
+          if (_this42.withToggle) {
             var toggleEl = parent.parentElement.querySelector(".all-or-nothing-toggle");
-            var firstEl = _this40.$root;
-            var lastEl = parent.querySelector("[data-active-item=\"".concat(_this40.activeItems.slice(-1), "\"]"));
-            var middle = _this40.middleOfElement(firstEl);
+            var firstEl = _this42.$root;
+            var lastEl = parent.querySelector("[data-active-item=\"".concat(_this42.activeItems.slice(-1), "\"]"));
+            var middle = _this42.middleOfElement(firstEl);
             if (lastEl) {
-              middle = (_this40.middleOfElement(firstEl) + _this40.middleOfElement(lastEl)) / 2;
+              middle = (_this42.middleOfElement(firstEl) + _this42.middleOfElement(lastEl)) / 2;
             }
             toggleEl.style.top = middle + "px";
           }
@@ -7518,13 +7530,13 @@ document.addEventListener("alpine:init", function () {
         });
       },
       tab: function tab(index) {
-        var _this41 = this;
+        var _this43 = this;
         if (!this.tabs.includes(index)) return;
         this.activeTab = index;
         var slide = this.$root.querySelector(".slide-" + index);
         this.handleSlideHeight(slide);
         this.$nextTick(function () {
-          _this41.container.scroll({
+          _this43.container.scroll({
             top: 0,
             left: slide.offsetLeft,
             behavior: "smooth"
@@ -7532,41 +7544,37 @@ document.addEventListener("alpine:init", function () {
         });
       },
       next: function next() {
-        var _this42 = this;
+        var _this44 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee14() {
           return _regeneratorRuntime().wrap(function _callee14$(_context14) {
             while (1) switch (_context14.prev = _context14.next) {
               case 0:
-                if (!(!_this42.$store.assessment.clearToProceed() && !_this42.clickedNext)) {
+                if (!(!_this44.$store.assessment.clearToProceed() && !_this44.clickedNext)) {
                   _context14.next = 4;
                   break;
                 }
-                _this42.$dispatch("scoring-elements-error");
-                _this42.clickedNext = true;
+                _this44.$dispatch("scoring-elements-error");
+                _this44.clickedNext = true;
                 return _context14.abrupt("return");
               case 4:
-                _this42.tab(1);
-                _this42.$store.assessment.resetData();
-                _context14.next = 8;
-                return _this42.$nextTick( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee13() {
-                  var done;
+                _this44.tab(1);
+                _context14.next = 7;
+                return _this44.$nextTick( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee13() {
                   return _regeneratorRuntime().wrap(function _callee13$(_context13) {
                     while (1) switch (_context13.prev = _context13.next) {
                       case 0:
-                        _context13.next = 2;
-                        return _this42.$wire.next();
-                      case 2:
-                        done = _context13.sent;
-                        if (done) {
-                          _this42.clickedNext = false;
-                        }
+                        _this44.$store.assessment.resetData();
+                        _context13.next = 3;
+                        return _this44.$wire.next();
+                      case 3:
+                        _this44.clickedNext = false;
                       case 4:
                       case "end":
                         return _context13.stop();
                     }
                   }, _callee13);
                 })));
-              case 8:
+              case 7:
               case "end":
                 return _context14.stop();
             }
@@ -7574,25 +7582,22 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       previous: function previous() {
-        var _this43 = this;
+        var _this45 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee16() {
           return _regeneratorRuntime().wrap(function _callee16$(_context16) {
             while (1) switch (_context16.prev = _context16.next) {
               case 0:
-                _this43.tab(1);
+                _this45.tab(1);
                 _context16.next = 3;
-                return _this43.$nextTick( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee15() {
-                  var done;
+                return _this45.$nextTick( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee15() {
                   return _regeneratorRuntime().wrap(function _callee15$(_context15) {
                     while (1) switch (_context15.prev = _context15.next) {
                       case 0:
-                        _context15.next = 2;
-                        return _this43.$wire.previous();
-                      case 2:
-                        done = _context15.sent;
-                        if (done) {
-                          _this43.clickedNext = false;
-                        }
+                        _this45.$store.assessment.resetData();
+                        _context15.next = 3;
+                        return _this45.$wire.previous();
+                      case 3:
+                        _this45.clickedNext = false;
                       case 4:
                       case "end":
                         return _context15.stop();
@@ -7659,6 +7664,9 @@ document.addEventListener("alpine:init", function () {
         if (this.$wire[this.model] === this.score) return;
         this.$wire.sync(this.model, this.score);
         this.$store.assessment.currentScore = this.score;
+        this.$dispatch("slider-score-updated", {
+          score: this.score
+        });
       },
       noChangeEventFallback: function noChangeEventFallback() {
         if (this.score === null) {
@@ -7667,46 +7675,45 @@ document.addEventListener("alpine:init", function () {
         }
       },
       init: function init() {
-        var _this44 = this;
-        // This echos custom JS from the template and for some reason it actually works;
+        var _this46 = this;
         if (coLearning) {
           Livewire.hook("message.received", function (message, component) {
             var _message$updateQueue$;
             if (component.name === "student.co-learning" && ((_message$updateQueue$ = message.updateQueue[0]) === null || _message$updateQueue$ === void 0 ? void 0 : _message$updateQueue$.method) === "updateHeartbeat") {
-              var scoreInputElement = _this44.$root.querySelector("[x-ref='scoreInput']");
-              _this44.persistentScore = scoreInputElement !== null && scoreInputElement.value !== "" ? scoreInputElement.value : null;
+              var scoreInputElement = _this46.$root.querySelector("[x-ref='scoreInput']");
+              _this46.persistentScore = scoreInputElement !== null && scoreInputElement.value !== "" ? scoreInputElement.value : null;
             }
           });
           Livewire.hook("message.processed", function (message, component) {
             var _message$updateQueue$2;
             if (component.name === "student.co-learning" && ((_message$updateQueue$2 = message.updateQueue[0]) === null || _message$updateQueue$2 === void 0 ? void 0 : _message$updateQueue$2.method) === "updateHeartbeat") {
-              _this44.skipSync = true;
-              _this44.score = _this44.persistentScore;
+              _this46.skipSync = true;
+              _this46.score = _this46.persistentScore;
             }
           });
         }
         this.inputBox = this.$root.querySelector("[x-ref='scoreInput']");
         this.$watch("score", function (value, oldValue) {
-          _this44.markInputElementsClean();
-          if (_this44.disabled || value === oldValue || _this44.skipSync) {
-            _this44.skipSync = false;
+          _this46.markInputElementsClean();
+          if (_this46.disabled || value === oldValue || _this46.skipSync) {
+            _this46.skipSync = false;
             return;
           }
-          if (value >= _this44.maxScore) {
-            _this44.score = value = _this44.maxScore;
+          if (value >= _this46.maxScore) {
+            _this46.score = value = _this46.maxScore;
           }
           if (value <= 0) {
-            _this44.score = value = 0;
+            _this46.score = value = 0;
           }
-          _this44.score = value = _this44.halfPoints ? Math.round(value * 2) / 2 : Math.round(value);
-          var numberInput = _this44.$root.querySelector("[x-ref='score_slider_continuous_input']");
+          _this46.score = value = _this46.halfPoints ? Math.round(value * 2) / 2 : Math.round(value);
+          var numberInput = _this46.$root.querySelector("[x-ref='score_slider_continuous_input']");
           if (numberInput !== null) {
-            _this44.setSliderBackgroundSize(numberInput);
+            _this46.setSliderBackgroundSize(numberInput);
           }
         });
         if (!this.disabled) {
           this.$nextTick(function () {
-            _this44.inputBox.focus();
+            _this46.inputBox.focus();
           });
         }
       },
@@ -7727,7 +7734,7 @@ document.addEventListener("alpine:init", function () {
       minWidth: 120,
       maxWidth: 1000,
       setInputWidth: function setInputWidth(input) {
-        var _this45 = this;
+        var _this47 = this;
         var init = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
         var preview = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
         if (!init || preview) {
@@ -7738,8 +7745,8 @@ document.addEventListener("alpine:init", function () {
           if (!value) {
             return;
           }
-          _this45.$nextTick(function () {
-            _this45.calculateInputWidth(input);
+          _this47.$nextTick(function () {
+            _this47.calculateInputWidth(input);
           });
         });
       },
@@ -7769,12 +7776,19 @@ document.addEventListener("alpine:init", function () {
         this.$dispatch("updated-score", {
           score: scoreOptions[key]
         });
+        this.$store.assessment.currentScore = scoreOptions[key];
       },
       updatedScore: function updatedScore(score) {
-        this.fastOption = score ? this.scoreOptions.indexOf(score) : null;
+        this.fastOption = this.scoreOptions.indexOf(score);
       },
       init: function init() {
-        this.fastOption = currentScore !== null ? this.scoreOptions.indexOf(currentScore) : null;
+        if (currentScore === null) {
+          return;
+        }
+        if (currentScore.toString().indexOf(".0") !== -1) {
+          var parsedScore = parseInt(currentScore);
+          this.fastOption = this.scoreOptions.indexOf(parsedScore);
+        }
       }
     };
   });
@@ -7785,21 +7799,25 @@ document.addEventListener("alpine:init", function () {
       maxToolTipWidth: 384,
       height: 0,
       inModal: false,
+      show: false,
       init: function init() {
-        var _this46 = this;
+        var _this48 = this;
         this.setHeightProperty();
-        this.inModal = this.$root.closest('#modal-container') !== null;
+        this.inModal = this.$root.closest("#modal-container") !== null;
         this.$watch("tooltip", function (value) {
           if (value) {
             var ignoreLeft = false;
-            if (alwaysLeft || _this46.tooltipTooWideForPosition()) {
-              _this46.$refs.tooltipdiv.classList.remove("left-1/2", "-translate-x-1/2");
-              _this46.$refs.tooltipdiv.classList.add("right-0");
+            if (alwaysLeft || _this48.tooltipTooWideForPosition()) {
+              _this48.$refs.tooltipdiv.classList.remove("left-1/2", "-translate-x-1/2");
+              _this48.$refs.tooltipdiv.classList.add("right-0");
               ignoreLeft = true;
             }
-            _this46.$refs.tooltipdiv.style.top = _this46.getTop();
-            _this46.$refs.tooltipdiv.style.left = _this46.getLeft(ignoreLeft);
+            _this48.$refs.tooltipdiv.style.top = _this48.getTop();
+            _this48.$refs.tooltipdiv.style.left = _this48.getLeft(ignoreLeft);
           }
+        });
+        this.$nextTick(function () {
+          return _this48.show = true;
         });
       },
       getTop: function getTop() {
@@ -7815,7 +7833,7 @@ document.addEventListener("alpine:init", function () {
       },
       getLeft: function getLeft() {
         var ignoreLeft = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-        if (ignoreLeft) return 'auto';
+        if (ignoreLeft) return "auto";
         var left = this.$root.getBoundingClientRect().x + this.$root.offsetWidth / 2;
         if (this.inModal) {
           left -= this.getModalDimensions().left;
@@ -7830,19 +7848,19 @@ document.addEventListener("alpine:init", function () {
         this.$refs.tooltipdiv.style.left = this.getLeft();
       },
       setHeightProperty: function setHeightProperty() {
-        var _this47 = this;
+        var _this49 = this;
         this.tooltip = true;
         this.$nextTick(function () {
-          _this47.height = _this47.$refs.tooltipdiv.offsetHeight;
-          _this47.tooltip = false;
-          _this47.$refs.tooltipdiv.classList.remove("invisible");
+          _this49.height = _this49.$refs.tooltipdiv.offsetHeight;
+          _this49.tooltip = false;
+          _this49.$refs.tooltipdiv.classList.remove("invisible");
         });
       },
       tooltipTooWideForPosition: function tooltipTooWideForPosition() {
         return this.$el.getBoundingClientRect().left + this.maxToolTipWidth / 2 > window.innerWidth;
       },
       getModalDimensions: function getModalDimensions() {
-        var modal = document.querySelector('#modal-container');
+        var modal = document.querySelector("#modal-container");
         return modal.getBoundingClientRect();
       }
     };
