@@ -134,10 +134,10 @@ abstract class FactoryScenarioSchool
         return $this->getMinimalData()->toArray();
     }
 
-    private function transformModelToArray($model)
+    protected function transformModelToArray($model)
     {
         if ($model instanceof User) {
-            $returnValue = [
+            return [
                 'id'       => $model->getKey(),
                 'uuid'     => $model->uuid,
                 'username' => $model->username,
@@ -145,14 +145,12 @@ abstract class FactoryScenarioSchool
             ];
         }
         if ($model instanceof SchoolLocation || $model instanceof School) {
-            $returnValue = [
+            return [
                 'id'            => $model->getKey(),
                 'uuid'          => $model->uuid,
                 'name'          => $model->name,
                 'customer_code' => $model->customer_code,
             ];
         }
-
-        return $returnValue;
     }
 }

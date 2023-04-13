@@ -2794,7 +2794,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     private function setForcePasswordChangeIfRequired(): void
     {
         if (app()->runningInConsole()) return;
-        if (!$this->isDirty(['password'])) {
+        if (!$this->isDirty(['password']) || $this->isDirty('password_expiration_date')) {
             return;
         }
 

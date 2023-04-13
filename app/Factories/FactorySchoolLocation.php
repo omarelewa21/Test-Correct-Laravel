@@ -81,6 +81,7 @@ class FactorySchoolLocation
             "main_country"                           => "Netherlands",
             "invoice_country"                        => "Netherlands",
             "visit_country"                          => "Netherlands",
+            "license_type"                           => "CLIENT",
         ];
     }
 }

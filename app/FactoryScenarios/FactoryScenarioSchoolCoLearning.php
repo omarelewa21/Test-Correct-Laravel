@@ -13,6 +13,7 @@ use tcCore\Factories\FactorySection;
 use tcCore\Factories\FactoryUser;
 use tcCore\School;
 use tcCore\SchoolLocation;
+use tcCore\Test;
 use tcCore\User;
 
 class FactoryScenarioSchoolCoLearning extends FactoryScenarioSchool
@@ -28,6 +29,7 @@ class FactoryScenarioSchoolCoLearning extends FactoryScenarioSchool
     protected $baseSubjectId;
 
     protected $schoolClassName;
+    private Test $test;
 
     public function __construct()
     {
@@ -153,7 +155,7 @@ class FactoryScenarioSchoolCoLearning extends FactoryScenarioSchool
     protected function createCoLearningTestTake(User $teacherUser)
     {
         //create test
-        $test = FactoryScenarioTestTestWithOpenQuestions::createTest(
+        $this->test = $test = FactoryScenarioTestTestWithOpenQuestions::createTest(
             user: $teacherUser,
             testName: 'CO-Learning Test open questions . ' . Carbon::now()->format('ymd-Hi'),
         );
@@ -164,5 +166,24 @@ class FactoryScenarioSchoolCoLearning extends FactoryScenarioSchool
             test: $test,
             testName: $test->name,
         );
+    }
+
+    public function getData()
+    {
+        return [... parent::getData(), 'test' => $this->test];
+    }
+
+    protected function transformModelToArray($model)
+    {
+        if ($model instanceof Test) {
+            return [
+                'id'    => $model->getKey(),
+                'uuid'  => $model->uuid,
+                'title' => $model->title,
+            ];
+        }
+
+        return parent::transformModelToArray($model);
+
     }
 }
