@@ -16,7 +16,7 @@
                             'progress-bar | sticky top-[100px] flex items-center justify-end absolute left-0 h-[calc(1rem-2px)] bg-primary pr-2',
                             'rounded-r-full' => $this->progress < 100
                          ])
-                          style="width: @js($this->progress)%;"
+                          style="widt*h: @js($this->progress)%;"
                     >
                         <span @class([
                             'text-xs',

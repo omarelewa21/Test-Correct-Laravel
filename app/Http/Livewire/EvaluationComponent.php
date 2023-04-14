@@ -1,28 +1,20 @@
 <?php
 
-namespace tcCore\Http\Livewire\Student;
+namespace tcCore\Http\Livewire;
 
 use Illuminate\Support\Collection;
 use Livewire\Component;
 use tcCore\AnswerRating;
 use tcCore\Exceptions\AssessmentException;
-use tcCore\Http\Livewire\EvaluationComponent;
 
-class TestReview extends EvaluationComponent
+class EvaluationComponent extends Component
 {
     /*Template properties*/
-    public string $reviewableUntil = '';
     public string $testName;
     public bool $questionPanel = true;
     public bool $answerPanel = true;
     public bool $answerModelPanel = true;
     public bool $groupPanel = true;
-
-    /*Query string properties*/
-    protected $queryString = ['questionPosition' => ['except' => '', 'as' => 'question']];
-    public string $questionPosition = '';
-
-    /* Navigation properties */
 
 
     /* Data properties filled from cache */
@@ -47,34 +39,6 @@ class TestReview extends EvaluationComponent
     protected function getListeners(): array
     {
         return ['accordion-update' => 'handlePanelActivity'];
-    }
-
-    public function mount($testTakeUuid): void
-    {
-        $this->testTakeUuid = $testTakeUuid;
-
-        $this->setReviewData();
-
-        $this->startReview();
-
-        $this->setTemplateVariables();
-
-        $this->skipBooted = true;
-    }
-
-    public function booted(): void
-    {
-        if ($this->skipBooted) {
-            return;
-        }
-
-        $this->setReviewData();
-        $this->hydrateCurrentProperties();
-    }
-
-    public function render()
-    {
-        return view('livewire.student.test-review')->layout('layouts.base');
     }
 
     /* Computed properties */
@@ -132,29 +96,7 @@ class TestReview extends EvaluationComponent
 
 
     /* Public accessible methods */
-    public function redirectBack()
-    {
-        return redirect()->route('student.test-takes', ['tab' => 'review']);
-    }
-
-    public function loadQuestion(int $position): void
-    {
-        $index = $position - 1;
-
-        $this->currentQuestion = $this->questions->get($index);
-        $this->currentAnswer = $this->answers->where('question_id', $this->currentQuestion->id)->first();
-        $this->questionPosition = $position;
-        $this->handleGroupQuestion();
-        $this->handleAnswerFeedback();
-        $this->handleAnswerScore();
-    }
-
-    public function currentAnswerCoLearningRatingsHasNoDiscrepancy(): bool
-    {
-        return $this->studentRatings()
-                ->keyBy('rating')
-                ->count() === 1;
-    }
+    abstract public function redirectBack();
 
     public function coLearningRatings()
     {
@@ -164,10 +106,7 @@ class TestReview extends EvaluationComponent
             });
     }
 
-    public function finalAnswerReached(): bool
-    {
-        return $this->answers->count() === (int)$this->questionPosition;
-    }
+    abstract public function finalAnswerReached(): bool;
 
     public function next()
     {
@@ -337,5 +276,6 @@ class TestReview extends EvaluationComponent
 
         $this->score = null;
     }
+
 
 }

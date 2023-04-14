@@ -5521,17 +5521,20 @@ input.datepicker {
 }
 
 #co-learning-teacher-page .container-border-left.primary,
-#assessment-page .container-border-left.primary {
+#assessment-page .container-border-left.primary,
+#student-test-review .container-border-left.primary {
     background-color: var(--primary);
 }
 
 #co-learning-teacher-page .container-border-left.student,
-#assessment-page .container-border-left.student {
+#assessment-page .container-border-left.student,
+#student-test-review .container-border-left.student {
     background-color: var(--secondary);
 }
 
 #co-learning-teacher-page .container-border-left,
-#assessment-page .container-border-left {
+#assessment-page .container-border-left,
+#student-test-review .container-border-left {
     background-color: var(--primary);
     position: absolute;
     width: 0.5rem;
@@ -5568,19 +5571,16 @@ input.datepicker {
 }
 
 
-#co-learning-teacher-page .badge-view,
-#assessment-page .badge-view {
+.badge-view {
     transition: 150ms ease background-color, 150ms ease color;
 }
 
-#co-learning-teacher-page .badge-view:hover,
-#assessment-page .badge-view:hover {
+.badge-view:hover {
     background-color: #f3f7ff;
     color: var(--teacher-primary);
 }
 
-#co-learning-teacher-page .badge-view:hover:after,
-#assessment-page .badge-view:hover:after {
+.badge-view:hover:after {
     content: '';
     border: 2px solid var(--teacher-primary);
     position: absolute;
@@ -5680,11 +5680,13 @@ input.datepicker {
 }
 
 
+#student-test-review .multiple-choice .all-or-nothing-toggle,
 #assessment-page .multiple-choice .all-or-nothing-toggle {
     position: absolute;
     left: calc(50% + 2rem);
     transform: translateY(-50%);
 }
+#student-test-review .multiple-choice .first-active .all-or-nothing-line,
 #assessment-page .multiple-choice .first-active .all-or-nothing-line {
     right: -1rem;
     position: absolute;
@@ -8058,6 +8060,85 @@ span.completion-response-object-container{
     transition: width 150ms ease-in
 }
 
+#student-test-review #header {
+    position: sticky;
+    width: 100%;
+    height: var(--header-height);
+    top: 0;
+    left: 0;
+    background-image: linear-gradient(to right, var(--highlight-primary-mid-dark) 0%, var(--teacher-highlight-primary) 99%);
+    box-shadow: var(--main-shadow);
+    color: var(--system-base);
+    z-index: 2;
+}
+
+.fixed-sub-header-container {
+    width: calc(100% - var(--active-sidebar-width));
+    transition: width var(--sidebar-transition);
+    position: fixed;
+    left: 0;
+    z-index: 1;
+}
+
+#student-test-review .question-indicator .question-number {
+    color: white;
+    background-color: var(--system-base);
+}
+
+#student-test-review .nav-container .question-indicator .question-number {
+    --rqn-number-color: var(--system-base);
+    --rqn-border-color: var(--system-base);
+    --rqn-background-color: transparent;
+    position: static;
+    min-width: 30px;
+    width: -moz-fit-content;
+    width: fit-content;
+    transition: box-shadow ease-in-out 150ms;
+    margin-right: auto;
+
+    color: var(--rqn-number-color);
+    border-color: var(--rqn-border-color);
+    background-color: var(--rqn-background-color);
+}
+
+#student-test-review .nav-container .question-indicator .question-number.done {
+    --rqn-number-color: white;
+    --rqn-background-color: var(--system-base);
+}
+
+#student-test-review .nav-container .question-indicator .question-number.active {
+    --rqn-border-color: var(--primary);
+    --rqn-number-color: var(--primary);
+}
+
+#student-test-review .nav-container .question-indicator .question-number.done.active {
+    --rqn-number-color: white;
+    --rqn-background-color: var(--primary);
+}
+
+#student-test-review .nav-container .question-indicator .question-number.connector:after {
+    content: '';
+    position: absolute;
+    top: 15px;
+    width: 8px;
+    height: 3px;
+    left: 100%;
+    background: var(--system-base);
+}
+
+#student-test-review .nav-container .question-indicator {
+    display: flex;
+    align-items: flex-start;
+}
+#student-test-review .slider-input-wrapper {
+    pointer-events: none;
+}
+
+#student-test-review .slider-buttons > button {
+
+}
+
+
 /*
 ! tailwindcss v3.2.7 | MIT License | https://tailwindcss.com
 */
@@ -8763,6 +8844,9 @@ video {
 .-right-4{
   right: -1rem;
 }
+.-right-6{
+  right: -1.5rem;
+}
 .-right-px{
   right: -1px;
 }
@@ -8903,9 +8987,6 @@ video {
 }
 .top-\[var\(--header-height\)\]{
   top: var(--header-height);
-}
-.-right-6{
-  right: -1.5rem;
 }
 .isolate{
   isolation: isolate;
@@ -9215,6 +9296,9 @@ video {
 .mt-2\.5{
   margin-top: 0.625rem;
 }
+.mt-20{
+  margin-top: 5rem;
+}
 .mt-3{
   margin-top: 0.75rem;
 }
@@ -9308,6 +9392,9 @@ video {
 .h-2\.5{
   height: 0.625rem;
 }
+.h-20{
+  height: 5rem;
+}
 .h-28{
   height: 7rem;
 }
@@ -9361,6 +9448,9 @@ video {
 }
 .h-\[333px\]{
   height: 333px;
+}
+.h-\[3px\]{
+  height: 3px;
 }
 .h-\[45vw\]{
   height: 45vw;
