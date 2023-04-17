@@ -6,16 +6,16 @@ use Illuminate\Support\Collection;
 use Livewire\Component;
 use tcCore\AnswerRating;
 use tcCore\Exceptions\AssessmentException;
+use tcCore\TestTake;
 
-class EvaluationComponent extends Component
+abstract class EvaluationComponent extends Component
 {
     /*Template properties*/
-    public string $testName;
+    public string $testName = '';
     public bool $questionPanel = true;
     public bool $answerPanel = true;
     public bool $answerModelPanel = true;
     public bool $groupPanel = true;
-
 
     /* Data properties filled from cache */
     protected $testTakeData;
@@ -24,7 +24,7 @@ class EvaluationComponent extends Component
     protected $questions;
 
     /* Context properties */
-    public $testTakeUuid;
+    public string $testTakeUuid;
     public $currentAnswer;
     public $currentQuestion;
     public $currentGroup;
@@ -41,51 +41,14 @@ class EvaluationComponent extends Component
         return ['accordion-update' => 'handlePanelActivity'];
     }
 
-    /* Computed properties */
-    public function getShowScoreSliderProperty(): bool
-    {
-        return true;
-    }
-
-    public function getShowAutomaticallyScoredToggleProperty(): bool
-    {
-        return true;
-    }
-
-    public function getShowCoLearningScoreToggleProperty(): bool
-    {
-        return $this->studentRatings()->isNotEmpty();
-    }
-
-    public function getCoLearningScoredValueProperty(): int|float
-    {
-        return 5;
-    }
-
-    public function getAutomaticallyScoredValueProperty(): int|float
-    {
-        return 5;
-    }
-
-    public function getNeedsQuestionSectionProperty(): bool
-    {
-        return true;
-    }
-
-    public function getShowCorrectionModelProperty(): bool
-    {
-        return $this->testTakeData->fresh()->show_correction_model;
-    }
-
     /* Event listener methods */
     /**
      * @param $panelData
      * @return void
      * @throws AssessmentException
      */
-    public function handlePanelActivity(
-        $panelData
-    ): void {
+    public function handlePanelActivity($panelData): void
+    {
         $panelName = str($panelData['key'])->camel()->append('Panel')->value();
         if (!property_exists($this, $panelName)) {
             throw new AssessmentException('Panel update for unknown panel property.');
@@ -94,9 +57,20 @@ class EvaluationComponent extends Component
         $this->$panelName = $panelData['value'];
     }
 
+    /* Computed properties */
+    abstract public function getShowScoreSliderProperty(): bool;
+
+    abstract public function getShowCoLearningScoreToggleProperty(): bool;
 
     /* Public accessible methods */
     abstract public function redirectBack();
+
+    abstract public function finalAnswerReached(): bool;
+
+    abstract public function loadQuestion(int $position): bool|array;
+    abstract public function next(): bool;
+
+    abstract public function previous(): bool;
 
     public function coLearningRatings()
     {
@@ -106,94 +80,26 @@ class EvaluationComponent extends Component
             });
     }
 
-    abstract public function finalAnswerReached(): bool;
-
-    public function next()
-    {
-        $this->loadQuestion((int)$this->questionPosition + 1);
-    }
-
-    public function previous()
-    {
-        $this->loadQuestion((int)$this->questionPosition - 1);
-    }
-
     /* Private methods */
-    private function setReviewData(): void
-    {
-        $userId = auth()->id();
+    abstract protected function setData(): void;
+    abstract protected function getTestTakeData(): TestTake;
+    abstract protected function getAnswers(): Collection;
+    abstract protected function getQuestions(): Collection;
+    abstract protected function getGroups(): Collection;
 
-        $this->testTakeData = cache()
-            ->remember(
-                sprintf("review-data-%s-%s", $this->testTakeUuid, $userId),
-                now()->addDays(3),
-                function () use ($userId) {
-                    return \tcCore\TestTake::whereUuid($this->testTakeUuid)
-                        ->with([
-                            'test:id,name',
-                            'test.testQuestions:id,test_id,question_id',
-                            'test.testQuestions.question',
-                            'testParticipants' => fn($query) => $query->where('user_id', $userId),
-                            'testParticipants.answers',
-                            'testParticipants.answers.answerRatings',
-                            'testParticipants.answers.feedback'
-                        ])
-                        ->first();
-                }
-            );
+    abstract protected function start(): void;
 
-        $this->answers = $this->testTakeData->testParticipants
-            ->flatMap(fn($participant) => $participant->answers->map(fn($answer) => $answer))
-            ->sortBy(['order', 'test_participant_id'])
-            ->values();
+    abstract protected function setTemplateVariables(): void;
 
-        $this->groups = $this->testTakeData->test->testQuestions
-            ->map(fn($testQuestion) => $testQuestion->question->isType('Group') ? $testQuestion->question : null)
-            ->filter();
+    abstract protected function initializeNavigationProperties(): void;
 
-        $this->questions = $this->testTakeData->test->testQuestions
-            ->sortBy('order')
-            ->flatMap(function ($testQuestion) {
-                $testQuestion->question->loadRelated();
-                if ($testQuestion->question->type === 'GroupQuestion') {
-                    $groupQuestion = $testQuestion->question;
-                    return $testQuestion->question->groupQuestionQuestions->map(function ($item) use ($groupQuestion) {
-                        $item->question->belongs_to_groupquestion_id = $groupQuestion->getKey();
-                        return $item->question;
-                    });
-                }
-                return collect([$testQuestion->question]);
-            })
-            ->filter(fn($question) => $this->answers->pluck('question_id')->contains($question->id))
-            ->values();
+    abstract protected function hydrateCurrentProperties(): void;
 
-        $this->addGroupConnectorPropertyToAnswerIfNecessary();
-    }
+    abstract protected function currentAnswerCoLearningRatingsHasNoDiscrepancy(): bool;
 
-    private function startReview(): void
-    {
-        $this->initializeNavigationProperties();
+    abstract protected function handleAnswerScore(): null|int|float;
 
-        $this->loadQuestion($this->questionPosition);
-    }
-
-    private function setTemplateVariables(): void
-    {
-        $this->testName = $this->testTakeData->test->name;
-        $this->reviewableUntil = $this->testTakeData->show_results->translatedFormat('j F \'y - H:i');
-    }
-
-    private function initializeNavigationProperties(): void
-    {
-        $this->questionPosition = blank($this->questionPosition) ? 1 : $this->questionPosition;
-    }
-
-    private function hydrateCurrentProperties(): void
-    {
-        $this->currentQuestion = $this->questions->get((int)$this->questionPosition - 1);
-    }
-
-    private function handleGroupQuestion(): void
+    protected function handleGroupQuestion(): void
     {
         if (!$this->currentQuestion->belongs_to_groupquestion_id) {
             $this->currentGroup = null;
@@ -203,37 +109,12 @@ class EvaluationComponent extends Component
         $this->currentGroup = $this->groups->where('id', $this->currentQuestion->belongs_to_groupquestion_id)->first();
     }
 
-    /**
-     * @return void
-     */
-    private function addGroupConnectorPropertyToAnswerIfNecessary(): void
-    {
-        $this->questions
-            ->whereNotNull('belongs_to_groupquestion_id')
-            ->groupBy('belongs_to_groupquestion_id')
-            ->each(fn($group) => $group->pop())
-            ->flatten()
-            ->each(function ($question) {
-                $this->answers
-                    ->first(fn($answer) => $answer->question_id === $question->id)
-                    ->connector = true;
-            });
-    }
-
-    private function handleAnswerFeedback(): void
-    {
-        $this->reset('feedback');
-        if ($this->hasFeedback = $this->currentAnswer->feedback->isNotEmpty()) {
-            $this->feedback = $this->currentAnswer->feedback->first()?->message;
-        }
-    }
-
-    private function currentAnswerRatings(): Collection
+    protected function currentAnswerRatings(): Collection
     {
         return $this->currentAnswer->answerRatings;
     }
 
-    private function teacherRating(): ?AnswerRating
+    protected function teacherRating(): ?AnswerRating
     {
         return $this->currentAnswer
             ->answerRatings
@@ -241,7 +122,7 @@ class EvaluationComponent extends Component
             ->first();
     }
 
-    private function systemRating(): ?AnswerRating
+    protected function systemRating(): ?AnswerRating
     {
         return $this->currentAnswer
             ->answerRatings
@@ -249,33 +130,10 @@ class EvaluationComponent extends Component
             ->first();
     }
 
-    private function studentRatings(): Collection
+    protected function studentRatings(): Collection
     {
         return $this->currentAnswer
             ->answerRatings
             ->where('type', AnswerRating::TYPE_STUDENT);
     }
-
-    private function handleAnswerScore(): void
-    {
-        if ($rating = $this->teacherRating()) {
-            $this->score = $rating->rating;
-            return;
-        }
-
-        if ($rating = $this->systemRating()) {
-            $this->score = $rating->rating;
-            return;
-        }
-
-        if ($this->studentRatings()->isNotEmpty()) {
-            $this->score = $this->studentRatings()->median('rating');
-            return;
-        }
-
-
-        $this->score = null;
-    }
-
-
 }
