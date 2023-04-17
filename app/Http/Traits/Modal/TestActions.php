@@ -106,25 +106,16 @@ trait TestActions
             'required',
             'min:3',
             Rule::unique('tests', 'name')
-            ->where(fn (Builder $query) => 
-                $query->where(['is_system_test' => 0, 'deleted_at' => null])
-                // Subquery to allow tests with the same name if school location customer code is TBSC
-                ->whereExists(fn ($query) =>
-                    $query->select(DB::raw(1))
-                    ->from('users')
-                    ->whereColumn('users.id', 'tests.author_id')
-                    ->where(function ($query) {
-                        $schoolLocation = Auth()->user()->schoolLocation;
-                        if ($schoolLocation && Str::upper($schoolLocation->customer_code) === 'TBSC'){
-                            $query->where('users.school_location_id', '<>', $schoolLocation->id);
-                        }
-                    })
+                ->where(function (Builder $query){
+                    if (auth()->user()->isToetsenbakker()){
+                        $query->whereRaw('1 = 0'); // This will return no results when the user is a Toetsenbakker to allow for duplicate test names
+                    } else {
+                        $query->where(['is_system_test' => 0, 'deleted_at' => null, 'author_id' => auth()->id()]);
+                    }
+                })
+                ->when(isset($this->testUuid), fn ($query) =>
+                    $query->ignore(Test::whereUuid($this->testUuid)->value('id'))  // When editing an existing test, ignore the current test ID for the uniqueness check
                 )
-            )
-            // When editing an existing test, ignore the current test ID for the uniqueness check
-            ->when(isset($this->testUuid), fn ($query) =>
-                $query->ignore(Test::whereUuid($this->testUuid)->value('id'))
-            )
         ];
     }
 }
