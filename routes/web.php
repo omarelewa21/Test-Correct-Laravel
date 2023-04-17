@@ -70,14 +70,13 @@ Route::middleware('auth')->group(function () {
         Route::get('/dashboard/logout', [tcCore\Http\Livewire\Student\Dashboard::class, 'logout'])->name('dashboard.logout');
         Route::get('/test-takes', tcCore\Http\Livewire\Student\TestTakes::class)->name('test-takes');
         Route::get('/waiting-room', tcCore\Http\Livewire\Student\WaitingRoom::class)->name('waiting-room');
-
         Route::get('/analyses', tcCore\Http\Livewire\Analyses\AnalysesOverviewDashboard::class)->name('analyses.show');
         Route::get('/analyses/subject/{subject}', tcCore\Http\Livewire\Analyses\AnalysesSubjectDashboard::class)->name('analyses.subject.show');
         Route::get('/analyses/attainment/{baseAttainment}', tcCore\Http\Livewire\Analyses\AnalysesAttainmentDashboard::class)->name('analyses.attainment.show');
         Route::get('/analyses/sub-attainment/{baseAttainment}', tcCore\Http\Livewire\Analyses\AnalysesSubAttainmentDashboard::class)->name('analyses.subattainment.show');
         Route::get('/analyses/sub-sub-attainment/{baseAttainment}', tcCore\Http\Livewire\Analyses\AnalysesSubSubAttainmentDashboard::class)->name('analyses.subsubattainment.show');
-
         Route::get('/co-learning/{test_take}', \tcCore\Http\Livewire\Student\CoLearning::class)->name('co-learning');
+        Route::get('/review/{testTakeUuid}', \tcCore\Http\Livewire\Student\TestReview::class)->name('test-review');
     });
 
     Route::middleware(['dll', 'teacher'])->prefix('teacher')->name('teacher.')->group(function () {

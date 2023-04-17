@@ -193,11 +193,15 @@ class WaitingRoom extends Component
 
     public function startReview()
     {
+        if (Auth::user()->schoolLocation->allow_new_reviewing) {
+            return redirect()->route('student.test-review', $this->take);
+        }
+
         $url = 'test_takes/glance/' . $this->take;
         $url = filled($this->origin) ? $url . '?origin=' . $this->origin : $url;
         $options = TemporaryLogin::buildValidOptionObject('page', $url);
 
-        Auth::user()->redirectToCakeWithTemporaryLogin($options);
+        return Auth::user()->redirectToCakeWithTemporaryLogin($options);
     }
 
     public function returnToGuestChoicePage()

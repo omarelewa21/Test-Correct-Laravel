@@ -7515,6 +7515,7 @@ document.addEventListener("alpine:init", function () {
     };
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("assessmentDrawer", function () {
+    var inReview = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
     return {
       activeTab: 1,
       tabs: [1, 2, 3],
@@ -7522,6 +7523,7 @@ document.addEventListener("alpine:init", function () {
       container: null,
       clickedNext: false,
       tooltipTimeout: null,
+      inReview: inReview,
       init: function init() {
         this.container = this.$root.querySelector("#slide-container");
         this.tab(1);
@@ -7533,6 +7535,7 @@ document.addEventListener("alpine:init", function () {
         var _this43 = this;
         if (!this.tabs.includes(index)) return;
         this.activeTab = index;
+        this.closeTooltips();
         var slide = this.$root.querySelector(".slide-" + index);
         this.handleSlideHeight(slide);
         this.$nextTick(function () {
@@ -7549,7 +7552,7 @@ document.addEventListener("alpine:init", function () {
           return _regeneratorRuntime().wrap(function _callee14$(_context14) {
             while (1) switch (_context14.prev = _context14.next) {
               case 0:
-                if (!(!_this44.$store.assessment.clearToProceed() && !_this44.clickedNext)) {
+                if (!(!_this44.inReview && !_this44.$store.assessment.clearToProceed() && !_this44.clickedNext)) {
                   _context14.next = 4;
                   break;
                 }
@@ -7637,7 +7640,7 @@ document.addEventListener("alpine:init", function () {
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("scoreSlider", function (score, model, maxScore, halfPoints, disabled, coLearning) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("scoreSlider", function (score, model, maxScore, halfPoints, disabled, coLearning, focusInput) {
     return {
       score: score,
       model: model,
@@ -7648,6 +7651,7 @@ document.addEventListener("alpine:init", function () {
       skipSync: false,
       persistantScore: null,
       inputBox: null,
+      focusInput: focusInput,
       getSliderBackgroundSize: function getSliderBackgroundSize(el) {
         if (this.score === null) return 0;
         var min = el.min || 0;
@@ -7711,7 +7715,7 @@ document.addEventListener("alpine:init", function () {
             _this46.setSliderBackgroundSize(numberInput);
           }
         });
-        if (!this.disabled) {
+        if (focusInput) {
           this.$nextTick(function () {
             _this46.inputBox.focus();
           });
@@ -7862,6 +7866,69 @@ document.addEventListener("alpine:init", function () {
       getModalDimensions: function getModalDimensions() {
         var modal = document.querySelector("#modal-container");
         return modal.getBoundingClientRect();
+      }
+    };
+  });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("reviewNavigation", function (current) {
+    return {
+      showSlider: true,
+      scrollStep: 100,
+      totalScrollWidth: 0,
+      activeQuestion: current,
+      intersectionCountdown: null,
+      navScrollBar: null,
+      initialized: false,
+      init: function init() {
+        var _this50 = this;
+        this.navScrollBar = this.$root.querySelector('#navscrollbar');
+        this.$nextTick(function () {
+          _this50.$root.querySelector(".active").scrollIntoView({
+            behavior: "smooth"
+          });
+          _this50.totalScrollWidth = _this50.$root.offsetWidth;
+          _this50.resize();
+          _this50.initialized = true;
+        });
+      },
+      resize: function resize() {
+        this.scrollStep = window.innerWidth / 10;
+        var sliderButtons = this.$root.querySelector(".slider-buttons").offsetWidth * 2;
+        this.showSlider = this.$root.querySelector(".question-indicator").offsetWidth + sliderButtons >= this.$root.offsetWidth - 120;
+      },
+      scroll: function scroll(position) {
+        this.navScrollBar.scrollTo({
+          left: position,
+          behavior: "smooth"
+        });
+        this.startIntersectionCountdown();
+      },
+      start: function start() {
+        this.scroll(0);
+      },
+      end: function end() {
+        this.scroll(this.totalScrollWidth);
+      },
+      left: function left() {
+        this.scroll(this.navScrollBar.scrollLeft - this.scrollStep);
+      },
+      right: function right() {
+        this.scroll(this.navScrollBar.scrollLeft + this.scrollStep);
+      },
+      startIntersectionCountdown: function startIntersectionCountdown() {
+        var _this51 = this;
+        clearInterval(this.intersectionCountdown);
+        var seconds = 0;
+        this.intersectionCountdown = setInterval(function () {
+          if (seconds === 5) {
+            clearInterval(_this51.intersectionCountdown);
+            var left = _this51.$root.querySelector(".active").offsetLeft;
+            _this51.navScrollBar.scrollTo({
+              left: left - _this51.$root.getBoundingClientRect().left,
+              behavior: "smooth"
+            });
+          }
+          seconds++;
+        }, 1000);
       }
     };
   });

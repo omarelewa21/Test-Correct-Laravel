@@ -1955,13 +1955,14 @@ document.addEventListener("alpine:init", () => {
             return element.offsetTop + (element.offsetHeight / 2);
         }
     }));
-    Alpine.data("assessmentDrawer", () => ({
+    Alpine.data("assessmentDrawer", (inReview = false) => ({
         activeTab: 1,
         tabs: [1, 2, 3],
         collapse: false,
         container: null,
         clickedNext: false,
         tooltipTimeout: null,
+        inReview,
         init() {
             this.container = this.$root.querySelector("#slide-container");
             this.tab(1);
@@ -1972,6 +1973,7 @@ document.addEventListener("alpine:init", () => {
         tab(index) {
             if (!this.tabs.includes(index)) return;
             this.activeTab = index;
+            this.closeTooltips();
             const slide = this.$root.querySelector(".slide-" + index);
             this.handleSlideHeight(slide);
             this.$nextTick(() => {
@@ -1979,7 +1981,7 @@ document.addEventListener("alpine:init", () => {
             });
         },
         async next() {
-            if (!this.$store.assessment.clearToProceed() && !this.clickedNext) {
+            if (!this.inReview && !this.$store.assessment.clearToProceed() && !this.clickedNext) {
                 this.$dispatch("scoring-elements-error");
                 this.clickedNext = true;
                 return;
@@ -2025,7 +2027,7 @@ document.addEventListener("alpine:init", () => {
             });
         }
     }));
-    Alpine.data("scoreSlider", (score, model, maxScore, halfPoints, disabled, coLearning) => ({
+    Alpine.data("scoreSlider", (score, model, maxScore, halfPoints, disabled, coLearning, focusInput) => ({
         score,
         model,
         maxScore,
@@ -2035,6 +2037,7 @@ document.addEventListener("alpine:init", () => {
         skipSync: false,
         persistantScore: null,
         inputBox: null,
+        focusInput,
         getSliderBackgroundSize(el) {
             if (this.score === null) return 0;
 
@@ -2099,7 +2102,7 @@ document.addEventListener("alpine:init", () => {
                     this.setSliderBackgroundSize(numberInput);
                 }
             });
-            if (!this.disabled) {
+            if (focusInput) {
                 this.$nextTick(() => {
                     this.inputBox.focus();
                 });
@@ -2243,6 +2246,61 @@ document.addEventListener("alpine:init", () => {
         getModalDimensions() {
             const modal = document.querySelector("#modal-container");
             return modal.getBoundingClientRect();
+        }
+    }));
+    Alpine.data("reviewNavigation", (current) => ({
+        showSlider: true,
+        scrollStep: 100,
+        totalScrollWidth: 0,
+        activeQuestion: current,
+        intersectionCountdown: null,
+        navScrollBar: null,
+        initialized: false,
+        init() {
+            this.navScrollBar = this.$root.querySelector('#navscrollbar');
+            this.$nextTick(() => {
+                this.$root.querySelector(".active").scrollIntoView({ behavior: "smooth" });
+                this.totalScrollWidth = this.$root.offsetWidth;
+                this.resize();
+                this.initialized = true;
+            });
+        },
+        resize() {
+            this.scrollStep = window.innerWidth / 10;
+            const sliderButtons = this.$root.querySelector(".slider-buttons").offsetWidth * 2;
+            this.showSlider = (this.$root.querySelector(".question-indicator").offsetWidth + sliderButtons) >= (this.$root.offsetWidth - 120);
+        },
+        scroll(position) {
+            this.navScrollBar.scrollTo({ left: position, behavior: "smooth" });
+            this.startIntersectionCountdown();
+        },
+        start() {
+            this.scroll(0);
+        },
+        end() {
+            this.scroll(this.totalScrollWidth);
+        },
+        left() {
+            this.scroll(this.navScrollBar.scrollLeft - this.scrollStep);
+        },
+        right() {
+            this.scroll(this.navScrollBar.scrollLeft + this.scrollStep);
+        },
+        startIntersectionCountdown() {
+            clearInterval(this.intersectionCountdown);
+            let seconds = 0;
+
+            this.intersectionCountdown = setInterval(() => {
+                if (seconds === 5) {
+                    clearInterval(this.intersectionCountdown);
+                    let left = this.$root.querySelector(".active").offsetLeft;
+                    this.navScrollBar.scrollTo({
+                        left: left - this.$root.getBoundingClientRect().left,
+                        behavior: "smooth"
+                    });
+                }
+                seconds++
+            }, 1000);
         }
     }));
     Alpine.directive("global", function(el, { expression }) {
