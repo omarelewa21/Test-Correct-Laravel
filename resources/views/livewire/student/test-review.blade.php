@@ -135,6 +135,7 @@
                                       :feedback-tab-disabled="!$this->hasFeedback"
                                       :co-learning-enabled="$this->showCoLearningScoreToggle"
                                       :in-review="true"
+                                      :score="$this->score"
                                       :unique-key="$this->questionPosition"
         >
             <x-slot:slideOneContent>

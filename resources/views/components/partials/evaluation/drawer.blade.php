@@ -78,7 +78,15 @@
                                 selid="questiontitle">
                                 <span>{{ $question->type_name }}</span>
                             </h4>
+                            @if($inReview)
+                            <div class="ml-auto flex min-w-fit">
+                                <h7 class="inline-block">{{  $score ?? '-' }}</h7>
+                                <span>/</span>
+                                <span class="body2">{{ $question->score }} pt</span>
+                            </div>
+                            @else
                             <h7 class="ml-auto inline-block">{{ $question->score }} pt</h7>
+                            @endif
                         </div>
                     </div>
                 </div>
