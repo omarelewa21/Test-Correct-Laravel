@@ -61,8 +61,10 @@
                     @if($group)
                         <div class="mb-2">
                             <div class="h-8 flex items-center">
-                                <h5 class="inline-flex line-clamp-1"
-                                    title="{!! $group->name !!}">{!! $group->name !!}</h5>
+                                <h5 class="inline-flex max-w-[252px]"
+                                    title="{!! $group->name !!}">
+                                    <span class=" truncate">{!! $group->name !!}</span>
+                                </h5>
                             </div>
                             <div class="h-[3px] rounded-lg w-full bg-sysbase"></div>
                         </div>

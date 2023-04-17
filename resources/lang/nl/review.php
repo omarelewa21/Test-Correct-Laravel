@@ -2,7 +2,7 @@
 
 return [
     'Inzien'                  => 'Inzien',
-    'inzichtelijk tot'        => 'inzichtelijk tot',
+    'in te zien tot'        => 'in te zien tot',
     'Jouw score'              => 'Jouw score',
     'review_score_tooltip'    => 'Jouw score is gegeven door jouw docent, automatisch gescoord of gescoord in CO-Learning (unaniem)',
     'finish'                  => 'Afsluiten',

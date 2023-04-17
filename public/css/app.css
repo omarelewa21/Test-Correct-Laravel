@@ -9823,6 +9823,9 @@ video {
 .max-w-\[236px\]{
   max-width: 236px;
 }
+.max-w-\[252px\]{
+  max-width: 252px;
+}
 .max-w-\[540px\]{
   max-width: 540px;
 }
@@ -10583,9 +10586,6 @@ video {
 .border-white{
   --tw-border-opacity: 1;
   border-color: rgb(255 255 255 / var(--tw-border-opacity));
-}
-.border-b-white\/25{
-  border-bottom-color: rgb(255 255 255 / 0.25);
 }
 .border-l-student{
   --tw-border-opacity: 1;
