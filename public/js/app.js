@@ -8338,7 +8338,8 @@ window.plyrPlayer = {
     var mode = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : "notPreview";
     var controls = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : ['play', 'progress', 'current-time', 'mute', 'volume'];
     var player = new (plyr__WEBPACK_IMPORTED_MODULE_0___default())(elem, {
-      controls: controls
+      controls: controls,
+      iconUrl: '/svg/plyr.svg'
     });
     this.Onplaying(player, mode, wire, attachmentUuid);
     if (constraints.length !== 0) {
@@ -8355,7 +8356,8 @@ window.plyrPlayer = {
   renderWithoutConstraints: function renderWithoutConstraints(elem) {
     var controls = ['play', 'progress', 'current-time', 'mute', 'volume'];
     var player = new (plyr__WEBPACK_IMPORTED_MODULE_0___default())(elem, {
-      controls: controls
+      controls: controls,
+      iconUrl: '/svg/plyr.svg'
     });
     return player;
   }
@@ -8935,9 +8937,11 @@ function isMakingTest() {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "elementClassNameForType": () => (/* binding */ elementClassNameForType),
 /* harmony export */   "nameInSidebarEntryForShape": () => (/* binding */ nameInSidebarEntryForShape),
 /* harmony export */   "panParams": () => (/* binding */ panParams),
 /* harmony export */   "pixelsPerCentimeter": () => (/* binding */ pixelsPerCentimeter),
+/* harmony export */   "resizableSvgShapes": () => (/* binding */ resizableSvgShapes),
 /* harmony export */   "shapePropertiesAvailableToUser": () => (/* binding */ shapePropertiesAvailableToUser),
 /* harmony export */   "svgNS": () => (/* binding */ svgNS),
 /* harmony export */   "validHtmlElementKeys": () => (/* binding */ validHtmlElementKeys),
@@ -8952,7 +8956,7 @@ var validSvgElementKeys = {
   line: ["x1", "y1", "x2", "y2", "pathLength"],
   path: ["d"],
   image: ["x", "y", "width", "height", "href", "preserveAspectRatio", "identifier"],
-  text: ["x", "y", "dx", "dy", "rotate", "lengthAdjust", "data-textcontent"],
+  text: ["x", "y", "dx", "dy", "rotate", "lengthAdjust", "data-textcontent", "font-family"],
   g: ["transform"]
 };
 var shapePropertiesAvailableToUser = {
@@ -8985,6 +8989,15 @@ var zoomParams = {
 var panParams = {
   STEP: 5
 };
+var elementClassNameForType = {
+  "rect": "Rectangle",
+  "circle": "Circle",
+  "line": "Line",
+  "text": "Text",
+  "image": "Image",
+  "path": "Path"
+};
+var resizableSvgShapes = ["rect", "circle", "image"];
 
 /***/ }),
 
@@ -9000,7 +9013,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _svgShape_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./svgShape.js */ "./resources/js/drawing/svgShape.js");
 /* harmony import */ var _uiElements_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./uiElements.js */ "./resources/js/drawing/uiElements.js");
 /* harmony import */ var _sidebar_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./sidebar.js */ "./resources/js/drawing/sidebar.js");
-/* harmony import */ var uuid__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/v4.js");
+/* harmony import */ var uuid__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/v4.js");
+/* harmony import */ var _unicodeBase64Polyfill_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./unicodeBase64Polyfill.js */ "./resources/js/drawing/unicodeBase64Polyfill.js");
 function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return exports; }; var exports = {}, Op = Object.prototype, hasOwn = Op.hasOwnProperty, defineProperty = Object.defineProperty || function (obj, key, desc) { obj[key] = desc.value; }, $Symbol = "function" == typeof Symbol ? Symbol : {}, iteratorSymbol = $Symbol.iterator || "@@iterator", asyncIteratorSymbol = $Symbol.asyncIterator || "@@asyncIterator", toStringTagSymbol = $Symbol.toStringTag || "@@toStringTag"; function define(obj, key, value) { return Object.defineProperty(obj, key, { value: value, enumerable: !0, configurable: !0, writable: !0 }), obj[key]; } try { define({}, ""); } catch (err) { define = function define(obj, key, value) { return obj[key] = value; }; } function wrap(innerFn, outerFn, self, tryLocsList) { var protoGenerator = outerFn && outerFn.prototype instanceof Generator ? outerFn : Generator, generator = Object.create(protoGenerator.prototype), context = new Context(tryLocsList || []); return defineProperty(generator, "_invoke", { value: makeInvokeMethod(innerFn, self, context) }), generator; } function tryCatch(fn, obj, arg) { try { return { type: "normal", arg: fn.call(obj, arg) }; } catch (err) { return { type: "throw", arg: err }; } } exports.wrap = wrap; var ContinueSentinel = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var IteratorPrototype = {}; define(IteratorPrototype, iteratorSymbol, function () { return this; }); var getProto = Object.getPrototypeOf, NativeIteratorPrototype = getProto && getProto(getProto(values([]))); NativeIteratorPrototype && NativeIteratorPrototype !== Op && hasOwn.call(NativeIteratorPrototype, iteratorSymbol) && (IteratorPrototype = NativeIteratorPrototype); var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(IteratorPrototype); function defineIteratorMethods(prototype) { ["next", "throw", "return"].forEach(function (method) { define(prototype, method, function (arg) { return this._invoke(method, arg); }); }); } function AsyncIterator(generator, PromiseImpl) { function invoke(method, arg, resolve, reject) { var record = tryCatch(generator[method], generator, arg); if ("throw" !== record.type) { var result = record.arg, value = result.value; return value && "object" == _typeof(value) && hasOwn.call(value, "__await") ? PromiseImpl.resolve(value.__await).then(function (value) { invoke("next", value, resolve, reject); }, function (err) { invoke("throw", err, resolve, reject); }) : PromiseImpl.resolve(value).then(function (unwrapped) { result.value = unwrapped, resolve(result); }, function (error) { return invoke("throw", error, resolve, reject); }); } reject(record.arg); } var previousPromise; defineProperty(this, "_invoke", { value: function value(method, arg) { function callInvokeWithMethodAndArg() { return new PromiseImpl(function (resolve, reject) { invoke(method, arg, resolve, reject); }); } return previousPromise = previousPromise ? previousPromise.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(innerFn, self, context) { var state = "suspendedStart"; return function (method, arg) { if ("executing" === state) throw new Error("Generator is already running"); if ("completed" === state) { if ("throw" === method) throw arg; return doneResult(); } for (context.method = method, context.arg = arg;;) { var delegate = context.delegate; if (delegate) { var delegateResult = maybeInvokeDelegate(delegate, context); if (delegateResult) { if (delegateResult === ContinueSentinel) continue; return delegateResult; } } if ("next" === context.method) context.sent = context._sent = context.arg;else if ("throw" === context.method) { if ("suspendedStart" === state) throw state = "completed", context.arg; context.dispatchException(context.arg); } else "return" === context.method && context.abrupt("return", context.arg); state = "executing"; var record = tryCatch(innerFn, self, context); if ("normal" === record.type) { if (state = context.done ? "completed" : "suspendedYield", record.arg === ContinueSentinel) continue; return { value: record.arg, done: context.done }; } "throw" === record.type && (state = "completed", context.method = "throw", context.arg = record.arg); } }; } function maybeInvokeDelegate(delegate, context) { var methodName = context.method, method = delegate.iterator[methodName]; if (undefined === method) return context.delegate = null, "throw" === methodName && delegate.iterator["return"] && (context.method = "return", context.arg = undefined, maybeInvokeDelegate(delegate, context), "throw" === context.method) || "return" !== methodName && (context.method = "throw", context.arg = new TypeError("The iterator does not provide a '" + methodName + "' method")), ContinueSentinel; var record = tryCatch(method, delegate.iterator, context.arg); if ("throw" === record.type) return context.method = "throw", context.arg = record.arg, context.delegate = null, ContinueSentinel; var info = record.arg; return info ? info.done ? (context[delegate.resultName] = info.value, context.next = delegate.nextLoc, "return" !== context.method && (context.method = "next", context.arg = undefined), context.delegate = null, ContinueSentinel) : info : (context.method = "throw", context.arg = new TypeError("iterator result is not an object"), context.delegate = null, ContinueSentinel); } function pushTryEntry(locs) { var entry = { tryLoc: locs[0] }; 1 in locs && (entry.catchLoc = locs[1]), 2 in locs && (entry.finallyLoc = locs[2], entry.afterLoc = locs[3]), this.tryEntries.push(entry); } function resetTryEntry(entry) { var record = entry.completion || {}; record.type = "normal", delete record.arg, entry.completion = record; } function Context(tryLocsList) { this.tryEntries = [{ tryLoc: "root" }], tryLocsList.forEach(pushTryEntry, this), this.reset(!0); } function values(iterable) { if (iterable) { var iteratorMethod = iterable[iteratorSymbol]; if (iteratorMethod) return iteratorMethod.call(iterable); if ("function" == typeof iterable.next) return iterable; if (!isNaN(iterable.length)) { var i = -1, next = function next() { for (; ++i < iterable.length;) if (hasOwn.call(iterable, i)) return next.value = iterable[i], next.done = !1, next; return next.value = undefined, next.done = !0, next; }; return next.next = next; } } return { next: doneResult }; } function doneResult() { return { value: undefined, done: !0 }; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, defineProperty(Gp, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), defineProperty(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, toStringTagSymbol, "GeneratorFunction"), exports.isGeneratorFunction = function (genFun) { var ctor = "function" == typeof genFun && genFun.constructor; return !!ctor && (ctor === GeneratorFunction || "GeneratorFunction" === (ctor.displayName || ctor.name)); }, exports.mark = function (genFun) { return Object.setPrototypeOf ? Object.setPrototypeOf(genFun, GeneratorFunctionPrototype) : (genFun.__proto__ = GeneratorFunctionPrototype, define(genFun, toStringTagSymbol, "GeneratorFunction")), genFun.prototype = Object.create(Gp), genFun; }, exports.awrap = function (arg) { return { __await: arg }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, asyncIteratorSymbol, function () { return this; }), exports.AsyncIterator = AsyncIterator, exports.async = function (innerFn, outerFn, self, tryLocsList, PromiseImpl) { void 0 === PromiseImpl && (PromiseImpl = Promise); var iter = new AsyncIterator(wrap(innerFn, outerFn, self, tryLocsList), PromiseImpl); return exports.isGeneratorFunction(outerFn) ? iter : iter.next().then(function (result) { return result.done ? result.value : iter.next(); }); }, defineIteratorMethods(Gp), define(Gp, toStringTagSymbol, "Generator"), define(Gp, iteratorSymbol, function () { return this; }), define(Gp, "toString", function () { return "[object Generator]"; }), exports.keys = function (val) { var object = Object(val), keys = []; for (var key in object) keys.push(key); return keys.reverse(), function next() { for (; keys.length;) { var key = keys.pop(); if (key in object) return next.value = key, next.done = !1, next; } return next.done = !0, next; }; }, exports.values = values, Context.prototype = { constructor: Context, reset: function reset(skipTempReset) { if (this.prev = 0, this.next = 0, this.sent = this._sent = undefined, this.done = !1, this.delegate = null, this.method = "next", this.arg = undefined, this.tryEntries.forEach(resetTryEntry), !skipTempReset) for (var name in this) "t" === name.charAt(0) && hasOwn.call(this, name) && !isNaN(+name.slice(1)) && (this[name] = undefined); }, stop: function stop() { this.done = !0; var rootRecord = this.tryEntries[0].completion; if ("throw" === rootRecord.type) throw rootRecord.arg; return this.rval; }, dispatchException: function dispatchException(exception) { if (this.done) throw exception; var context = this; function handle(loc, caught) { return record.type = "throw", record.arg = exception, context.next = loc, caught && (context.method = "next", context.arg = undefined), !!caught; } for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i], record = entry.completion; if ("root" === entry.tryLoc) return handle("end"); if (entry.tryLoc <= this.prev) { var hasCatch = hasOwn.call(entry, "catchLoc"), hasFinally = hasOwn.call(entry, "finallyLoc"); if (hasCatch && hasFinally) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } else if (hasCatch) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); } else { if (!hasFinally) throw new Error("try statement without catch or finally"); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } } } }, abrupt: function abrupt(type, arg) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc <= this.prev && hasOwn.call(entry, "finallyLoc") && this.prev < entry.finallyLoc) { var finallyEntry = entry; break; } } finallyEntry && ("break" === type || "continue" === type) && finallyEntry.tryLoc <= arg && arg <= finallyEntry.finallyLoc && (finallyEntry = null); var record = finallyEntry ? finallyEntry.completion : {}; return record.type = type, record.arg = arg, finallyEntry ? (this.method = "next", this.next = finallyEntry.finallyLoc, ContinueSentinel) : this.complete(record); }, complete: function complete(record, afterLoc) { if ("throw" === record.type) throw record.arg; return "break" === record.type || "continue" === record.type ? this.next = record.arg : "return" === record.type ? (this.rval = this.arg = record.arg, this.method = "return", this.next = "end") : "normal" === record.type && afterLoc && (this.next = afterLoc), ContinueSentinel; }, finish: function finish(finallyLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.finallyLoc === finallyLoc) return this.complete(entry.completion, entry.afterLoc), resetTryEntry(entry), ContinueSentinel; } }, "catch": function _catch(tryLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc === tryLoc) { var record = entry.completion; if ("throw" === record.type) { var thrown = record.arg; resetTryEntry(entry); } return thrown; } } throw new Error("illegal catch attempt"); }, delegateYield: function delegateYield(iterable, resultName, nextLoc) { return this.delegate = { iterator: values(iterable), resultName: resultName, nextLoc: nextLoc }, "next" === this.method && (this.arg = undefined), ContinueSentinel; } }, exports; }
 function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
@@ -9021,6 +9035,8 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 
 
+
+window.UnicodeBase64Polyfill = _unicodeBase64Polyfill_js__WEBPACK_IMPORTED_MODULE_4__;
 window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, isOldDrawing) {
   var _this2 = this;
   /**
@@ -9028,18 +9044,30 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
    * @type {Object}
    * @property {number} x
    * @property {number} y
-   *
+   */
+  /**
    * @typedef propObj
    * @type {Object.<string, string|number>}
-   *
+   */
+  /**
    * @typedef ELOptions
    * @type {Object.<string, boolean|AbortSignal>|boolean}
+   */
+  /**
    * @typedef ELEvent
    * @type {Object.<string, Function|ELOptions>}
+   */
+  /**
    * @typedef ELEvents
    * @type {Object.<string, ELEvent>}
+   */
+  /**
    * @typedef EventListenerSettings
    * @type {Object.<string, HTMLElement|ELEvents>}
+   */
+  /**
+   * @typedef Element
+   * @type {HTMLElement|SVGElement}
    */
 
   /**
@@ -9089,7 +9117,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
           Canvas.setCurrentLayer(Canvas.params.currentLayer);
           drawingApp.firstInit = false;
           clearInterval(pollingFunction);
-          if (Canvas.params.initialZoomLevel != 1) {
+          if (Canvas.params.initialZoomLevel !== 1) {
             updateZoomInputValue(Canvas.params.initialZoomLevel);
             zoom(Canvas.params.initialZoomLevel);
             panDrawingCenterToScreenCenter();
@@ -9122,7 +9150,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     /**
      * Adds event listeners with the parameters specified in the settings.
      * @param {EventListenerSettings[]} settings
-     * @param {} thisArg Specific this context when needed.
+     * @param {*} thisArg Specific this context when needed.
      */
     bindEventListeners: function bindEventListeners(settings) {
       var _this = this;
@@ -9200,6 +9228,9 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
           translateOfSvgShape: null,
           offsetCursorToMidPoint: null
         },
+        resize: {
+          enabled: false
+        },
         pan: {
           enabled: false,
           startCoordinates: {
@@ -9221,6 +9252,9 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
       },
       drawing: function drawing() {
         return this.params.draw.newShape;
+      },
+      resizing: function resizing() {
+        return this.params.resize.enabled;
       },
       getLayerDomElementsByLayerId: function getLayerDomElementsByLayerId(layerId) {
         var layer = rootElement.querySelector("#".concat(layerId));
@@ -9889,9 +9923,9 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
   }
   function encodeSvgLayersAsBase64Strings() {
     return {
-      question: btoa(Canvas.layers.question.svg.innerHTML),
-      answer: btoa(Canvas.layers.answer.svg.innerHTML),
-      grid: btoa(Canvas.layers.grid.svg.innerHTML)
+      question: _unicodeBase64Polyfill_js__WEBPACK_IMPORTED_MODULE_4__.encode(Canvas.layers.question.svg.innerHTML),
+      answer: _unicodeBase64Polyfill_js__WEBPACK_IMPORTED_MODULE_4__.encode(Canvas.layers.answer.svg.innerHTML),
+      grid: _unicodeBase64Polyfill_js__WEBPACK_IMPORTED_MODULE_4__.encode(Canvas.layers.grid.svg.innerHTML)
     };
   }
   function retrieveSavedDrawingData() {
@@ -9930,7 +9964,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
       newShape.svg.updateBorderElement();
       newShape.svg.updateCornerElements();
     } else {
-      var decodedString = atob(layerData.data);
+      var decodedString = _unicodeBase64Polyfill_js__WEBPACK_IMPORTED_MODULE_4__.decode(layerData.data);
       UI.svgLayerToRender.innerHTML = decodedString;
       renderShapesFromSvgLayerString(layerData.name);
     }
@@ -9995,7 +10029,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
       markers: true
     });
     var screenBounds = Canvas.params.bounds;
-    if (bbox.x < screenBounds.left || bbox.y < screenBounds.top || bbox.width > screenBounds.width || bbox.height > screenBounds.height) return false;else return true;
+    return !(bbox.x < screenBounds.left || bbox.y < screenBounds.top || bbox.width > screenBounds.width || bbox.height > screenBounds.height);
   }
   function renderShapesFromSvgLayerString(layerName) {
     var content = UI.svgLayerToRender.content;
@@ -10013,6 +10047,10 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         var shapeID = groupElement.id,
           shapeType = shapeID.substring(0, shapeID.indexOf("-"));
         var newShape = makeNewSvgShapeWithSidebarEntry(shapeType, props, layerName, true, !(!drawingApp.isTeacher() && layerName === "question"));
+        // Convert old dragging system (using SVGTransforms)
+        // to new dragging system (all done with the SVG attributes of the element itself)
+        if (newShape.svg.type === 'path') newShape = letPathShapesUseRelativeCoords(newShape);
+        newShape = convertDragTransforms(newShape);
         Canvas.layers[layerName].shapes[shapeID] = newShape;
         if (isOldDrawing && layerName === "question") {
           fitDrawingToScreen();
@@ -10025,6 +10063,71 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
       _iterator.f();
     }
     UI.svgLayerToRender.innerHTML = "";
+  }
+  function letPathShapesUseRelativeCoords(shape) {
+    // const mainElement = shape.svg.mainElement;
+    // const oldDValue = convertDStringToArray(mainElement.getDAttribute());
+
+    // let newDValue = [],
+    //     startingPoint = oldDValue.shift();
+    // oldDValue.reduce((previousCommand, currentCommand) => {
+    //     newDValue.push(convertCommandFromAbsoluteToRelative(currentCommand, previousCommand));
+    //     return currentCommand;
+    // }, startingPoint);
+    // newDValue.unshift(startingPoint);
+    // mainElement.setD(newDValue.map((command) => `${command[0]} ${command[1].join(",")}`).join(" "));
+    return shape;
+  }
+
+  /**
+   * @typedef PathDStruct
+   * @type {Array.<Array.<String, Array.<Number>>>}
+   */
+
+  /**
+   * @example 'M -58.6,38.38 L 16.7,56.93' becomes [['M',[-58.6, 38.38]],['L',[16.7,56.93]]]
+   * @param dValue
+   * @returns {PathDStruct}
+   */
+  function convertDStringToArray(dValue) {
+    var commandMatcher = /([A-Za-z])(\s)([\-0-9.,])+/g; // Example: 'M -58.6,38.38'
+    var coordValueMatcher = /([\-.0-9])+/g; // Example: '-58.6'
+    return dValue.match(commandMatcher).map(function (command) {
+      return [command[0], command.match(coordValueMatcher).map(Number)];
+    });
+  }
+
+  /**
+   * @param {PathDStruct} command
+   * @param {PathDStruct} previousCommand
+   * @returns {PathDStruct}
+   */
+  function convertCommandFromAbsoluteToRelative(command, previousCommand) {
+    return [command[0].toLowerCase(), convertCoordsFromAbsoluteToRelative(command[1], previousCommand[1])];
+  }
+  function convertCoordsFromAbsoluteToRelative(currentCoords, previousCoords) {
+    return [currentCoords[0] - previousCoords[0], currentCoords[1] - previousCoords[1]];
+  }
+  function convertDragTransforms(shape) {
+    var shapeGroup = shape.svg.shapeGroup;
+    var distanceToMove = retrieveTranslateValuesOfElement(shapeGroup.element);
+    shape.svg.mainElement.move(distanceToMove);
+    shapeGroup.element.removeAttribute("transform");
+    return shape;
+  }
+  function retrieveTranslateValuesOfElement(element) {
+    if (!elementHasTransforms(element)) return {
+      dx: 0,
+      dy: 0
+    };
+    var translationMatrix = element.transform.baseVal[0].matrix;
+    return {
+      dx: translationMatrix.e,
+      dy: translationMatrix.f
+    };
+  }
+  function elementHasTransforms(element) {
+    return element.transform.baseVal.length;
   }
   function copyAllAttributesFromElementToObject(element) {
     var attributes = {};
@@ -10086,8 +10189,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
   }
   function cleanedBase64EncodedStrings() {
     return {
-      question: btoa(clearImageSources(Canvas.layers.question.svg)),
-      answer: btoa(clearImageSources(Canvas.layers.answer.svg))
+      question: _unicodeBase64Polyfill_js__WEBPACK_IMPORTED_MODULE_4__.encode(clearImageSources(Canvas.layers.question.svg)),
+      answer: _unicodeBase64Polyfill_js__WEBPACK_IMPORTED_MODULE_4__.encode(clearImageSources(Canvas.layers.answer.svg))
     };
   }
   function clearImageSources(layer) {
@@ -10204,7 +10307,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     var canvas = document.createElement("canvas");
     canvas.setAttribute('width', image.width);
     canvas.setAttribute('height', image.height);
-    return new Promise(function (resolve, reject) {
+    return new Promise(function (resolve) {
       image.onload = function () {
         var ctx = canvas.getContext("2d");
         ctx.drawImage(image, 0, 0, image.width, image.height);
@@ -10217,18 +10320,19 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
   }
   function _getPNGStringFromSVG() {
     _getPNGStringFromSVG = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4(svg, panGroupSize) {
-      var newImage;
+      var newImage, base64StringOfSVG;
       return _regeneratorRuntime().wrap(function _callee4$(_context4) {
         while (1) switch (_context4.prev = _context4.next) {
           case 0:
             prepareSvgForConversion(svg, panGroupSize);
             newImage = new Image(panGroupSize.width, panGroupSize.height);
-            newImage.setAttribute('src', 'data:image/svg+xml;base64,' + btoa(new XMLSerializer().serializeToString(svg)));
-            _context4.next = 5;
+            base64StringOfSVG = _unicodeBase64Polyfill_js__WEBPACK_IMPORTED_MODULE_4__.encode(new XMLSerializer().serializeToString(svg));
+            newImage.setAttribute('src', 'data:image/svg+xml;base64,' + base64StringOfSVG);
+            _context4.next = 6;
             return getDataUrlFromCanvasByImage(newImage);
-          case 5:
-            return _context4.abrupt("return", _context4.sent);
           case 6:
+            return _context4.abrupt("return", _context4.sent);
+          case 7:
           case "end":
             return _context4.stop();
         }
@@ -10289,7 +10393,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
   }
   function hasHiddenLayers() {
     if (drawingApp.isTeacher()) {
-      if (Canvas.params.currentLayer == 'question') {
+      if (Canvas.params.currentLayer === 'question') {
         return questionLayerIsHidden() || hasQuestionHiddenLayers();
       }
     }
@@ -10375,10 +10479,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     }
     var diffX = Math.abs(evtClientX - startX);
     var diffY = Math.abs(evtClientY - startY);
-    if (diffX < delta && diffY < delta) {
-      return false;
-    }
-    return true;
+    return !(diffX < delta && diffY < delta);
   }
   function setMousedownPosition(evt) {
     var _evt$touches2;
@@ -10402,13 +10503,14 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     setMousedownPosition(evt);
     if (Canvas.params.focusedShape) Canvas.params.focusedShape = null;
     Canvas.unhighlightShapes();
-    if (((_evt$touches3 = evt.touches) === null || _evt$touches3 === void 0 ? void 0 : _evt$touches3.length) == 2) {
-      startPan(evt);
-    } else if (drawingApp.params.currentTool == "drag") {
-      startDrag(evt);
-    } else {
-      startDraw(evt);
+    if (((_evt$touches3 = evt.touches) === null || _evt$touches3 === void 0 ? void 0 : _evt$touches3.length) === 2) {
+      return startPan(evt);
     }
+    if (drawingApp.params.currentTool === "drag") {
+      if (evt.target.classList.contains("corner")) return startResize(evt);
+      return startDrag(evt);
+    }
+    return startDraw(evt);
   }
   function startDrag(evt) {
     var shapeGroup = evt.target.closest(".shape");
@@ -10416,46 +10518,32 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     var layerID = shapeGroup.parentElement.id;
     var layerObject = Canvas.layers[Canvas.layerID2Key(layerID)];
     if (!shapeMayBeDragged(shapeGroup, layerObject)) return;
-    var selectedSvgShape = evt.target.closest("g.shape");
-    var existingTransforms = selectedSvgShape.transform.baseVal;
-    if (!elementHasTransforms(existingTransforms)) {
-      createNewTranslateTransform(selectedSvgShape);
-    } else if (!firstTransformIsOfTypeTranslate(existingTransforms)) {
-      createNewTranslateTransform(selectedSvgShape);
-    }
-    var translateOfSvgShape = getFirstTransform(existingTransforms);
+    var selectedSvgShape = layerObject.shapes[shapeGroup.id].svg;
     Canvas.params.drag = {
       enabled: true,
-      offsetCursorToMidPoint: calculateCursorToMidPointOffset(translateOfSvgShape),
-      translateOfSvgShape: translateOfSvgShape
+      selectedSvgShape: selectedSvgShape
     };
-    selectedSvgShape.classList.add("dragging");
-    selectedSvgShape.parentElement.classList.add("child-dragging");
+    selectedSvgShape.onDragStart(evt, Canvas.params.cursorPosition);
+  }
+  function startResize(evt) {
+    var shapeGroup = evt.target.closest(".shape");
+    if (!shapeGroup) return;
+    var layerID = shapeGroup.parentElement.id;
+    var layerObject = Canvas.layers[Canvas.layerID2Key(layerID)];
+    if (!shapeMayBeDragged(shapeGroup, layerObject)) return;
+    var selectedSvgShape = layerObject.shapes[shapeGroup.id].svg;
+    if (!shapeIsResizable(selectedSvgShape)) return;
+    Canvas.params.resize = {
+      enabled: true,
+      selectedSvgShape: selectedSvgShape
+    };
+    selectedSvgShape.onResizeStart(evt, getCursorPosition(evt));
+  }
+  function shapeIsResizable(shape) {
+    return _constants_js__WEBPACK_IMPORTED_MODULE_0__.resizableSvgShapes.includes(shape.type);
   }
   function shapeMayBeDragged(shapeGroup, layerObject) {
     return shapeGroup.classList.contains("draggable") && !layerObject.params.locked && layerObject.props.id.includes(layerObject.Canvas.params.currentLayer);
-  }
-  function elementHasTransforms(transforms) {
-    return transforms.length !== 0;
-  }
-  function createNewTranslateTransform(shape) {
-    var translate = UI.svgCanvas.createSVGTransform();
-    translate.setTranslate(0, 0);
-    shape.transform.baseVal.insertItemBefore(translate, 0);
-  }
-  function firstTransformIsOfTypeTranslate(transforms) {
-    var _getFirstTransform;
-    return ((_getFirstTransform = getFirstTransform(transforms)) === null || _getFirstTransform === void 0 ? void 0 : _getFirstTransform.type) === SVGTransform.SVG_TRANSFORM_TRANSLATE;
-  }
-  function getFirstTransform(transforms) {
-    if (transforms.numberOfItems > 0) return transforms.getItem(0);
-  }
-  function calculateCursorToMidPointOffset(translate) {
-    var cursorPosition = Canvas.params.cursorPosition;
-    return {
-      x: cursorPosition.x - translate.matrix.e,
-      y: cursorPosition.y - translate.matrix.f
-    };
   }
   function startPan() {
     Canvas.params.pan = {
@@ -10493,7 +10581,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
           "y": cursorPosition.y,
           "width": 0,
           "height": 0,
-          "fill": UI.fillOpacityNumber.value == 0 ? "none" : UI.fillColor.value,
+          "fill": UI.fillOpacityNumber.value === 0 ? "none" : UI.fillColor.value,
           "fill-opacity": parseFloat(UI.fillOpacityNumber.value / 100),
           "stroke": UI.strokeColor.value,
           "stroke-width": UI.strokeWidth.value,
@@ -10504,7 +10592,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
           "cx": cursorPosition.x,
           "cy": cursorPosition.y,
           "r": 0,
-          "fill": UI.fillOpacityNumber.value == 0 ? "none" : UI.fillColor.value,
+          "fill": UI.fillOpacityNumber.value === 0 ? "none" : UI.fillColor.value,
           "fill-opacity": parseFloat(UI.fillOpacityNumber.value / 100),
           "stroke": UI.strokeColor.value,
           "stroke-width": UI.strokeWidth.value,
@@ -10535,7 +10623,6 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
           "y": cursorPosition.y,
           "fill": UI.textColor.value,
           "stroke-width": 0,
-          "value": 'abc',
           "opacity": parseFloat(UI.elemOpacityNumber.value / 100),
           "style": "".concat(drawingApp.params.boldText ? "font-weight: bold;" : "", " font-size: ").concat(UI.textSize.value / 16, "rem")
         };
@@ -10558,6 +10645,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
    * @param {string} type Type of svgShape to be created.
    * @param {propObj} props Properties which will be appended to the main svgElement.
    * @param {?SVGElement} parent The parent to which the created svgShape will be added. Defaults to an empty SVGElement().
+   * @param {boolean} withHelperElements Boolean to set whether helper elements should be created for the shape
+   * @param {boolean} withHighlightEvents Boolean to set whether highlight events should be set for the shape
    * @returns A shape object of the right type
    */
   function makeNewSvgShape(type, props) {
@@ -10598,6 +10687,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
       processUserPan();
     } else if (Canvas.dragging()) {
       drag(evt);
+    } else if (Canvas.resizing()) {
+      resize(evt);
     } else if (Canvas.drawing()) {
       var _Canvas$params$draw$n, _Canvas$params$draw$n2;
       (_Canvas$params$draw$n = (_Canvas$params$draw$n2 = Canvas.params.draw.newShape.svg).onDraw) === null || _Canvas$params$draw$n === void 0 ? void 0 : _Canvas$params$draw$n.call(_Canvas$params$draw$n2, evt, cursorPosition);
@@ -10638,8 +10729,11 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
   }
   function drag(evt) {
     evt.preventDefault();
-    var difference = calculateDistanceCursor(Canvas.params.drag.offsetCursorToMidPoint, Canvas.params.cursorPosition);
-    Canvas.params.drag.translateOfSvgShape.setTranslate(difference.dx, difference.dy);
+    Canvas.params.drag.selectedSvgShape.onDrag(evt, Canvas.params.cursorPosition);
+  }
+  function resize(evt) {
+    evt.preventDefault();
+    Canvas.params.resize.selectedSvgShape.onResize(evt, getCursorPosition(evt));
   }
   function processUserPan() {
     var difference = calculateDistanceCursor(Canvas.params.pan.startCoordinates, Canvas.params.cursorPosition);
@@ -10785,30 +10879,38 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
       stopDraw(evt);
     } else if (Canvas.dragging()) {
       stopDrag();
+    } else if (Canvas.resizing()) {
+      stopResize();
     } else if (Canvas.panning()) {
       stopPan();
     }
   }
   function stopDraw(evt) {
-    var _newShape$svg$onDrawE, _newShape$svg2;
     var newShape = Canvas.params.draw.newShape;
-    (_newShape$svg$onDrawE = (_newShape$svg2 = newShape.svg).onDrawEnd) === null || _newShape$svg$onDrawE === void 0 ? void 0 : _newShape$svg$onDrawE.call(_newShape$svg2, evt, Canvas.params.cursorPosition);
-    newShape.svg.addHighlightEvents();
+    newShape.svg.onDrawEnd(evt, Canvas.params.cursorPosition);
     Canvas.params.highlightedShape = newShape;
     Canvas.params.draw.newShape = null;
   }
   function stopDrag() {
-    UI.svgCanvas.querySelector("g.dragging").classList.remove("dragging");
-    UI.svgCanvas.querySelector(".child-dragging").classList.remove("child-dragging");
-    Canvas.params.drag.enabled = false;
+    Canvas.params.drag.selectedSvgShape.onDragEnd();
+    Canvas.params.drag = {
+      enabled: false
+    };
+  }
+  function stopResize() {
+    Canvas.params.resize = {
+      enabled: false
+    };
   }
   function stopPan() {
-    Canvas.params.pan.enabled = false;
+    Canvas.params.pan = {
+      enabled: false
+    };
   }
   function processToolChange(evt) {
     var currentTool = drawingApp.params.currentTool,
       newTool = determineNewTool(evt);
-    if (currentTool == newTool) return;
+    if (currentTool === newTool) return;
     drawingApp.params.currentTool = newTool;
     makeSelectedBtnActive(evt.currentTarget);
     enableSpecificPropSelectInputs();
@@ -10834,7 +10936,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     var id = evt.currentTarget.id;
     var startOfSlice = id.indexOf("-") + 1,
       endOfSlice = id.lastIndexOf("-");
-    if (endOfSlice == startOfSlice - 1 || endOfSlice == -1) {
+    if (endOfSlice === startOfSlice - 1 || endOfSlice === -1) {
       endOfSlice = startOfSlice - 1;
       startOfSlice = 0;
     }
@@ -10861,15 +10963,15 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
           };
         }
         var reader = new FileReader();
-        var identifier = (0,uuid__WEBPACK_IMPORTED_MODULE_4__["default"])();
+        var identifier = (0,uuid__WEBPACK_IMPORTED_MODULE_5__["default"])();
         UI.submitBtn.disabled = true;
-        livewireComponent.upload("cmsPropertyBag.images.".concat(Canvas.params.currentLayer, ".").concat(identifier), fileURL, function (fileName) {
+        livewireComponent.upload("cmsPropertyBag.images.".concat(Canvas.params.currentLayer, ".").concat(identifier), fileURL, function () {
           // Success callback.
           UI.submitBtn.disabled = false;
         }, function () {
           // Error callback.
           UI.submitBtn.disabled = false;
-        }, function (event) {
+        }, function () {
           // Progress callback.
         });
         reader.readAsDataURL(fileURL);
@@ -10926,7 +11028,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
   }
   function _dummyImageLoaded() {
     _dummyImageLoaded = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee6(evt, identifier) {
-      var dummyImage, scaleFactor, base65PNGString, shape;
+      var dummyImage, scaleFactor, base65PNGString, shape, objectID;
       return _regeneratorRuntime().wrap(function _callee6$(_context6) {
         while (1) switch (_context6.prev = _context6.next) {
           case 0:
@@ -10946,7 +11048,9 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             }, Canvas.params.currentLayer);
             shape.svg.moveToCenter();
             shape.svg.addHighlightEvents();
-          case 8:
+            objectID = "image-".concat(shape.svg.shapeId);
+            Canvas.layers[Canvas.params.currentLayer].shapes[objectID] = shape;
+          case 10:
           case "end":
             return _context6.stop();
         }
@@ -11110,7 +11214,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     var value = parseFloat(inputElem.value),
       max = parseFloat(inputElem.max),
       min = parseFloat(inputElem.min);
-    if (Number.isNaN(value) || value == 0) {
+    if (Number.isNaN(value) || value === 0) {
       return false;
     }
     if (value > max) {
@@ -11196,12 +11300,6 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
       Canvas.layers.grid.shape.show();
     }
     return handleMinPanGroupSizes(panGroupSize);
-    return {
-      x: panGroupSize.x,
-      y: panGroupSize.y,
-      width: panGroupSize.width > minPanGroupWidth ? panGroupSize.width : minPanGroupWidth,
-      height: panGroupSize.height > minPanGroupHeight ? panGroupSize.height : minPanGroupHeight
-    };
   }
   function handleMinPanGroupSizes(panGroupSize) {
     var minPanGroupWidth = 820;
@@ -12160,16 +12258,36 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
 function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 
+
+/**
+ * @typedef RectangleCoords
+ * @type {Object}
+ * @property {number} x
+ * @property {number} y
+ * @property {number} width
+ * @property {number} height
+ */
+/**
+ * @typedef CircleCoords
+ * @type {Object}
+ * @property {number} cx
+ * @property {number} cy
+ * @property {number} r
+ */
 var svgElement = /*#__PURE__*/function () {
   function svgElement(type, props) {
     _classCallCheck(this, svgElement);
     this.type = type;
     this.element = this.createSvgElementOfType(type);
-    this.props = props !== null && props !== void 0 ? props : new Object();
+    this.props = props !== null && props !== void 0 ? props : {};
     this.setAllAttributesOnElement();
+    this.draw = {};
+    this.drag = {};
+    this.resize = {};
   }
+
   /**
-   * Creates a SVG Element of given type.
+   * Creates an SVG Element of given type.
    * @param {string} type
    * @returns The SVG Element.
    */
@@ -12178,6 +12296,7 @@ var svgElement = /*#__PURE__*/function () {
     value: function createSvgElementOfType(type) {
       return document.createElementNS(_constants_js__WEBPACK_IMPORTED_MODULE_0__.svgNS, type);
     }
+
     /**
      * Sets attribute specified by key to given value, without validation, using .setAttributeNS()
      * @param {string} key
@@ -12188,6 +12307,7 @@ var svgElement = /*#__PURE__*/function () {
     value: function setAttribute(key, value) {
       this.element.setAttributeNS(null, key, value);
     }
+
     /**
      * Calls getAttributeNS() on this.element to get the value of an attribute.
      * @param {string} key Key of the attribute to get.
@@ -12198,20 +12318,22 @@ var svgElement = /*#__PURE__*/function () {
     value: function getAttribute(key) {
       return this.element.getAttributeNS(null, key);
     }
+
     /**
      * Checks if a given key-value pair may be set on the element and does so if allowed. Shows an info in the console if not allowed.
      * @param {string} key
-     * @param {string} value
+     * @param {string|number|boolean} value
      */
   }, {
     key: "setAttributeOnElementWithValidation",
     value: function setAttributeOnElementWithValidation(key, value) {
-      if (this.keyIsValid(key) && this.valueIsValid(key, value)) {
+      if (this.keyIsValid(key) && this.valueIsValid(value)) {
         this.setAttribute(key, value);
       } else {
         console.info("Attribute %c".concat(key, "%c is invalid for this element (type: ").concat(this.type, ") and has been ignored."), "font-style: italic", null);
       }
     }
+
     /**
      * Checks if a given key may be set on the element.
      * @param {string} key An attribute key to check.
@@ -12225,6 +12347,7 @@ var svgElement = /*#__PURE__*/function () {
         return attr === key;
       });
     }
+
     /**
      * Checks if a given value is a string, number or boolean.
      * @param {*} value
@@ -12236,6 +12359,7 @@ var svgElement = /*#__PURE__*/function () {
     value: function valueIsValid(value) {
       return typeof value === "string" || typeof value === "number" || typeof value === "boolean";
     }
+
     /**
      * Loops over all attributes given and calls setAttributeOnElementWithValidation() on each.
      */
@@ -12249,19 +12373,25 @@ var svgElement = /*#__PURE__*/function () {
         this.setAttributeOnElementWithValidation(key, value);
       }
     }
+
     /**
-     * Hide the element.
+     * Hides the element.
      */
   }, {
     key: "hide",
     value: function hide() {
       this.element.style.display = "none";
     }
+
+    /**
+     * Shows the element.
+     */
   }, {
     key: "show",
     value: function show() {
       this.element.style.display = "";
     }
+
     /**
      * Calls getBBox() on this.element.
      * @returns The return value of getBBox().
@@ -12271,6 +12401,7 @@ var svgElement = /*#__PURE__*/function () {
     value: function getBoundingBox() {
       return this.element.getBBox();
     }
+
     /**
      * Calls addEventListener() on this.element with the given arguments.
      * @param {string} type
@@ -12281,15 +12412,17 @@ var svgElement = /*#__PURE__*/function () {
     value: function addEventListener(type, func) {
       this.element.addEventListener(type, func);
     }
+
     /**
      * Calls appendChild() on this.element with the given argument.
-     * @param {HTMLElement} element
+     * @param {Element} element
      */
   }, {
     key: "appendChild",
     value: function appendChild(element) {
       this.element.appendChild(element);
     }
+
     /**
      * Calls remove() on this.element and deletes this object.
      */
@@ -12298,6 +12431,36 @@ var svgElement = /*#__PURE__*/function () {
     value: function remove() {
       this.element.remove();
       delete this;
+    }
+
+    /**
+     * Event handler called during dragging
+     * @param {Event} evt
+     * @param {Cursor} cursor
+     */
+  }, {
+    key: "onDrag",
+    value: function onDrag(evt, cursor) {
+      this.move(this.calculateMovedDistance(cursor, this.drag.previousCursorPosition));
+      this.drag.previousCursorPosition = cursor;
+    }
+  }, {
+    key: "move",
+    value: function move() {}
+
+    /**
+     * Calculates difference between previous and current cursor position
+     * @param {Cursor} currentPosition
+     * @param {Cursor} previousPosition
+     * @returns {{dx: number, dy: number}}
+     */
+  }, {
+    key: "calculateMovedDistance",
+    value: function calculateMovedDistance(currentPosition, previousPosition) {
+      return {
+        dx: currentPosition.x - previousPosition.x,
+        dy: currentPosition.y - previousPosition.y
+      };
     }
   }]);
   return svgElement;
@@ -12310,119 +12473,52 @@ var Rectangle = /*#__PURE__*/function (_svgElement) {
     _classCallCheck(this, Rectangle);
     return _super.call(this, "rect", props);
   }
+
   /**
-   * Function to be called when the cursor was moved.
-   * @param {Event} evt The event that triggered the function.
-   * @param {{x: number, y: number}} cursor The currect cursor position.
+   * Event handler called at start of drawing
+   * @param {Event} evt
+   * @param {Cursor} cursor
    */
   _createClass(Rectangle, [{
+    key: "onDrawStart",
+    value: function onDrawStart(evt, cursor) {
+      this.draw.startingPosition = cursor;
+    }
+
+    /**
+     * Event handler called during drawing.
+     * @param {Event} evt
+     * @param {Cursor} cursor
+     */
+  }, {
     key: "onDraw",
     value: function onDraw(evt, cursor) {
-      var coords = this.calculateCoords(cursor);
-      this.setWidthAttribute(coords.width);
-      this.setHeightAttribute(coords.height);
-      this.setXAttribute(coords.x);
-      this.setYAttribute(coords.y);
+      var coords = this.calculateCoordsForDraw(cursor);
+      this.updateAttributes(coords);
     }
+
     /**
-     * Adjusts the x, y, width and height of a rectangle because SVG can't handle negative width and height values.
-     * @param {{x: number, y: number}} cursor The current cursor position.
-     * @returns An Object containing a valid value for x, y, width and height.
+     * Calculates values for the x, y, width and height properties of the rectangle.
+     * @param {{x: number, y: number}} cursor
+     * @returns {RectangleCoords}
      */
   }, {
-    key: "calculateCoords",
-    value: function calculateCoords(cursor) {
-      var x = this.props.x,
-        y = this.props.y,
-        width = cursor.x - x,
-        height = cursor.y - y;
-      if (width < 0) {
-        x = cursor.x;
-        width *= -1;
-      }
-      if (height < 0) {
-        y = cursor.y;
-        height *= -1;
-      }
-      return {
-        x: x,
-        y: y,
-        width: width,
-        height: height
+    key: "calculateCoordsForDraw",
+    value: function calculateCoordsForDraw(cursor) {
+      var startingPosition = this.draw.startingPosition;
+      var coords = {
+        x: startingPosition.x,
+        y: startingPosition.y,
+        width: cursor.x - startingPosition.x,
+        height: cursor.y - startingPosition.y
       };
-    }
-    /**
-     * Sets the X attribute on the shape.
-     * @param {number} value The value to be given to the attribute.
-     */
-  }, {
-    key: "setXAttribute",
-    value: function setXAttribute(value) {
-      this.setAttributeOnElementWithValidation("x", value);
-    }
-    /**
-     * Sets the X attribute in the props.
-     * @param {number} value The value to be given to the property.
-     */
-  }, {
-    key: "setXProperty",
-    value: function setXProperty(value) {
-      this.props.x = value;
-    }
-    /**
-     * Sets the Y attribute on the shape.
-     * @param {number} value The value to be given to the attribute.
-     */
-  }, {
-    key: "setYAttribute",
-    value: function setYAttribute(value) {
-      this.setAttributeOnElementWithValidation("y", value);
-    }
-    /**
-     * Sets the Y attribute in the props.
-     * @param {number} value The value to be given to the property.
-     */
-  }, {
-    key: "setYProperty",
-    value: function setYProperty(value) {
-      this.props.y = value;
-    }
-    /**
-     * Sets the Width attribute on the shape.
-     * @param {number} value The value to be given to the attribute.
-     * @fires
-     */
-  }, {
-    key: "setWidthAttribute",
-    value: function setWidthAttribute(value) {
-      this.setAttributeOnElementWithValidation("width", value);
-    }
-    /**
-     * Sets the Width attribute in the props.
-     * @param {number} value The value to be given to the property.
-     */
-  }, {
-    key: "setWidthProperty",
-    value: function setWidthProperty(value) {
-      this.props.width = value;
-    }
-    /**
-     * Sets the Height attribute on the shape.
-     * @param {number} value The value to be given to the attribute.
-     */
-  }, {
-    key: "setHeightAttribute",
-    value: function setHeightAttribute(value) {
-      this.setAttributeOnElementWithValidation("height", value);
-    }
-    /**
-     * Sets the Height attribute in the props.
-     * @param {number} value The value to be given to the property.
-     */
-  }, {
-    key: "setHeightProperty",
-    value: function setHeightProperty(value) {
-      this.props.height = value;
+      var replacements = {
+        x: cursor.x,
+        y: cursor.y,
+        width: -coords.width,
+        height: -coords.height
+      };
+      return this.correctNegativeSizes(coords, replacements);
     }
   }]);
   return Rectangle;
@@ -12435,20 +12531,51 @@ var Circle = /*#__PURE__*/function (_svgElement2) {
     _classCallCheck(this, Circle);
     return _super2.call(this, "circle", props);
   }
+
   /**
-   * Function to be called when the cursor was moved.
-   * @param {Event} evt The event that triggered the function.
-   * @param {{x: number, y: number}} cursor The currect cursor position.
+   * Event handler called during drawing.
+   * @param {Event} evt
+   * @param {Cursor} cursor
    */
   _createClass(Circle, [{
     key: "onDraw",
     value: function onDraw(evt, cursor) {
-      this.setRAttribute(this.calculateRadius(cursor));
+      this.setR(this.calculateRadius(cursor));
     }
+
+    /**
+     * Event handler called at start of dragging
+     * @param {Event} evt
+     * @param {Cursor} cursor
+     */
+  }, {
+    key: "onDragStart",
+    value: function onDragStart(evt, cursor) {
+      this.drag.previousCursorPosition = cursor;
+      this.drag.startingPosition = {
+        x: this.props.cx,
+        y: this.props.cy
+      };
+    }
+
+    /**
+     * Event handler called during resize.
+     * @param {Event} evt
+     * @param {Cursor} cursor
+     */
+  }, {
+    key: "onResize",
+    value: function onResize(evt, cursor) {
+      // The scaling ratio is here because the corner points do not lay on the circle,
+      // but on a circle with a radius of sqrt(2) bigger
+      var SCALING_RATIO = Math.SQRT1_2;
+      this.setR(SCALING_RATIO * this.calculateRadius(cursor));
+    }
+
     /**
      * Calculates the radius of a circle.
-     * @param {{x: string, y: string}} cursor (x,y) position of the cursor on the screen.
-     * @returns Radius of the circle.
+     * @param {Cursor} cursor
+     * @returns {number} Radius of the circle.
      */
   }, {
     key: "calculateRadius",
@@ -12457,6 +12584,28 @@ var Circle = /*#__PURE__*/function (_svgElement2) {
       var dy = cursor.y - this.props.cy;
       return Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
     }
+
+    /**
+     * Sets the radius to the given value
+     * @param {CircleCoords} coords
+     */
+  }, {
+    key: "updateSize",
+    value: function updateSize(coords) {
+      this.setR(coords.r);
+    }
+
+    /**
+     * Sets the R attribute on the shape and in the props.
+     * @param {number} value The value to be set.
+     */
+  }, {
+    key: "setR",
+    value: function setR(value) {
+      this.setRAttribute(value);
+      this.setRProperty(value);
+    }
+
     /**
      * Sets the R attribute on the shape.
      * @param {number} value The value to be given to the attribute.
@@ -12466,6 +12615,7 @@ var Circle = /*#__PURE__*/function (_svgElement2) {
     value: function setRAttribute(value) {
       this.setAttributeOnElementWithValidation("r", value);
     }
+
     /**
      * Sets the R attribute in the props.
      * @param {number} value The value to be given to the property.
@@ -12475,6 +12625,41 @@ var Circle = /*#__PURE__*/function (_svgElement2) {
     value: function setRProperty(value) {
       this.props.r = value;
     }
+
+    /**
+     * Sets the cx and cy values to the old values plus
+     * the offset specified by distance.dx and distance.dy
+     * @param {{dx: number, dy: number}} distance
+     */
+  }, {
+    key: "move",
+    value: function move(distance) {
+      this.setCX(parseFloat(this.props.cx) + distance.dx);
+      this.setCY(parseFloat(this.props.cy) + distance.dy);
+    }
+
+    /**
+     * Sets the specified position
+     * @param {{x: number, y: number}} position
+     */
+  }, {
+    key: "updatePosition",
+    value: function updatePosition(position) {
+      this.setCX(position.x);
+      this.setCY(position.y);
+    }
+
+    /**
+     * Sets the CX attribute on the shape and in the props.
+     * @param {number} value The value to be set.
+     */
+  }, {
+    key: "setCX",
+    value: function setCX(value) {
+      this.setCXAttribute(value);
+      this.setCXProperty(value);
+    }
+
     /**
      * Sets the CX attribute on the shape.
      * @param {number} value The value to be given to the attribute.
@@ -12484,6 +12669,7 @@ var Circle = /*#__PURE__*/function (_svgElement2) {
     value: function setCXAttribute(value) {
       this.setAttributeOnElementWithValidation("cx", value);
     }
+
     /**
      * Sets the CX attribute in the props.
      * @param {number} value The value to be given to the property.
@@ -12493,6 +12679,18 @@ var Circle = /*#__PURE__*/function (_svgElement2) {
     value: function setCXProperty(value) {
       this.props.cx = value;
     }
+
+    /**
+     * Sets the CY attribute on the shape and in the props.
+     * @param {number} value The value to be set.
+     */
+  }, {
+    key: "setCY",
+    value: function setCY(value) {
+      this.setCYAttribute(value);
+      this.setCYProperty(value);
+    }
+
     /**
      * Sets the CY attribute on the shape.
      * @param {number} value The value to be given to the attribute.
@@ -12502,6 +12700,7 @@ var Circle = /*#__PURE__*/function (_svgElement2) {
     value: function setCYAttribute(value) {
       this.setAttributeOnElementWithValidation("cy", value);
     }
+
     /**
      * Sets the CY attribute in the props.
      * @param {number} value The value to be given to the property.
@@ -12522,26 +12721,71 @@ var Line = /*#__PURE__*/function (_svgElement3) {
     _classCallCheck(this, Line);
     return _super3.call(this, "line", props);
   }
+
   /**
-   * Function to be called when the cursor was moved.
-   * @param {Event} evt The event that triggered the function.
-   * @param {{x: number, y: number}} cursor The currect cursor position.
+   * Event handler called during drawing.
+   * @param {Event} evt
+   * @param {Cursor} cursor
    */
   _createClass(Line, [{
     key: "onDraw",
     value: function onDraw(evt, cursor) {
-      this.setX2Attribute(cursor.x);
-      this.setY2Attribute(cursor.y);
+      this.setX2(cursor.x);
+      this.setY2(cursor.y);
     }
+
+    /**
+     * Event handler called at start of dragging
+     * @param {Event} evt
+     * @param {Cursor} cursor
+     */
+  }, {
+    key: "onDragStart",
+    value: function onDragStart(evt, cursor) {
+      this.drag.previousCursorPosition = cursor;
+      this.drag.startingPosition = {
+        x1: this.props.x1,
+        y1: this.props.y1,
+        x2: this.props.x2,
+        y2: this.props.y2
+      };
+    }
+
+    /**
+     * Sets the x and y values to the old values plus
+     * the offset specified by distance.dx and distance.dy
+     * @param {{dx: number, dy: number}} distance
+     */
+  }, {
+    key: "move",
+    value: function move(distance) {
+      this.setX1(parseFloat(this.props.x1) + distance.dx);
+      this.setY1(parseFloat(this.props.y1) + distance.dy);
+      this.setX2(parseFloat(this.props.x2) + distance.dx);
+      this.setY2(parseFloat(this.props.y2) + distance.dy);
+    }
+
+    /**
+     * Sets the X1 attribute on the shape and in the props
+     * @param value
+     */
+  }, {
+    key: "setX1",
+    value: function setX1(value) {
+      this.setX1Attribute(value);
+      this.setX1Property(value);
+    }
+
     /**
      * Sets the X1 attribute on the shape.
-     * @param {string} value The value to be given to the attribute.
+     * @param {number} value The value to be given to the attribute.
      */
   }, {
     key: "setX1Attribute",
     value: function setX1Attribute(value) {
       this.setAttributeOnElementWithValidation("x1", value);
     }
+
     /**
      * Sets the X1 attribute in the props.
      * @param {number} value The value to be given to the property.
@@ -12551,15 +12795,28 @@ var Line = /*#__PURE__*/function (_svgElement3) {
     value: function setX1Property(value) {
       this.props.x1 = value;
     }
+
+    /**
+     * Sets the X2 attribute on the shape and in the props
+     * @param value
+     */
+  }, {
+    key: "setX2",
+    value: function setX2(value) {
+      this.setX2Attribute(value);
+      this.setX2Property(value);
+    }
+
     /**
      * Sets the X2 attribute on the shape.
-     * @param {string} value The value to be given to the attribute.
+     * @param {number} value The value to be given to the attribute.
      */
   }, {
     key: "setX2Attribute",
     value: function setX2Attribute(value) {
       this.setAttributeOnElementWithValidation("x2", value);
     }
+
     /**
      * Sets the X2 attribute in the props.
      * @param {number} value The value to be given to the property.
@@ -12569,15 +12826,28 @@ var Line = /*#__PURE__*/function (_svgElement3) {
     value: function setX2Property(value) {
       this.props.x2 = value;
     }
+
+    /**
+     * Sets the Y1 attribute on the shape and in the props
+     * @param value
+     */
+  }, {
+    key: "setY1",
+    value: function setY1(value) {
+      this.setY1Attribute(value);
+      this.setY1Property(value);
+    }
+
     /**
      * Sets the Y1 attribute on the shape.
-     * @param {string} value The value to be given to the attribute.
+     * @param {number} value The value to be given to the attribute.
      */
   }, {
     key: "setY1Attribute",
     value: function setY1Attribute(value) {
       this.setAttributeOnElementWithValidation("y1", value);
     }
+
     /**
      * Sets the Y1 attribute in the props.
      * @param {number} value The value to be given to the property.
@@ -12587,15 +12857,28 @@ var Line = /*#__PURE__*/function (_svgElement3) {
     value: function setY1Property(value) {
       this.props.y1 = value;
     }
+
+    /**
+     * Sets the Y2 attribute on the shape and in the props
+     * @param value
+     */
+  }, {
+    key: "setY2",
+    value: function setY2(value) {
+      this.setY2Attribute(value);
+      this.setY2Property(value);
+    }
+
     /**
      * Sets the Y2 attribute on the shape.
-     * @param {string} value The value to be given to the attribute.
+     * @param {number} value The value to be given to the attribute.
      */
   }, {
     key: "setY2Attribute",
     value: function setY2Attribute(value) {
       this.setAttributeOnElementWithValidation("y2", value);
     }
+
     /**
      * Sets the Y2 attribute in the props.
      * @param {number} value The value to be given to the property.
@@ -12616,79 +12899,18 @@ var Image = /*#__PURE__*/function (_svgElement4) {
     _classCallCheck(this, Image);
     return _super4.call(this, "image", props);
   }
+
   /**
-   * Sets the X attribute on the shape.
-   * @param {number} value The value to be given to the attribute.
+   * Sets the Href attribute on the shape and in the props
+   * @param value
    */
   _createClass(Image, [{
-    key: "setXAttribute",
-    value: function setXAttribute(value) {
-      this.setAttributeOnElementWithValidation("x", value);
+    key: "setHref",
+    value: function setHref(value) {
+      this.setHrefAttribute(value);
+      this.setHrefProperty(value);
     }
-    /**
-     * Sets the X attribute in the props.
-     * @param {number} value The value to be given to the property.
-     */
-  }, {
-    key: "setXProperty",
-    value: function setXProperty(value) {
-      this.props.x = value;
-    }
-    /**
-     * Sets the Y attribute on the shape.
-     * @param {number} value The value to be given to the attribute.
-     */
-  }, {
-    key: "setYAttribute",
-    value: function setYAttribute(value) {
-      this.setAttributeOnElementWithValidation("y", value);
-    }
-    /**
-     * Sets the Y attribute in the props.
-     * @param {number} value The value to be given to the property.
-     */
-  }, {
-    key: "setYProperty",
-    value: function setYProperty(value) {
-      this.props.y = value;
-    }
-    /**
-     * Sets the Width attribute on the shape.
-     * @param {number} value The value to be given to the attribute.
-     * @fires
-     */
-  }, {
-    key: "setWidthAttribute",
-    value: function setWidthAttribute(value) {
-      this.setAttributeOnElementWithValidation("width", value);
-    }
-    /**
-     * Sets the Width attribute in the props.
-     * @param {number} value The value to be given to the property.
-     */
-  }, {
-    key: "setWidthProperty",
-    value: function setWidthProperty(value) {
-      this.props.width = value;
-    }
-    /**
-     * Sets the Height attribute on the shape.
-     * @param {number} value The value to be given to the attribute.
-     */
-  }, {
-    key: "setHeightAttribute",
-    value: function setHeightAttribute(value) {
-      this.setAttributeOnElementWithValidation("height", value);
-    }
-    /**
-     * Sets the Height attribute in the props.
-     * @param {number} value The value to be given to the property.
-     */
-  }, {
-    key: "setHeightProperty",
-    value: function setHeightProperty(value) {
-      this.props.height = value;
-    }
+
     /**
      * Sets the Href attribute on the shape.
      * @param {string} value The value to be given to the attribute.
@@ -12698,6 +12920,7 @@ var Image = /*#__PURE__*/function (_svgElement4) {
     value: function setHrefAttribute(value) {
       this.setAttributeOnElementWithValidation("href", value);
     }
+
     /**
      * Sets the Href attribute in the props.
      * @param {number} value The value to be given to the property.
@@ -12718,15 +12941,89 @@ var Path = /*#__PURE__*/function (_svgElement5) {
     _classCallCheck(this, Path);
     return _super5.call(this, "path", props);
   }
+
   /**
-   * Sets the D attribute on the shape.
-   * @param {string} value The value to be given to the attribute.
+   * Event handler called at the start of drawing
+   * @param evt
+   * @param cursor
    */
   _createClass(Path, [{
+    key: "onDrawStart",
+    value: function onDrawStart(evt, cursor) {
+      this.draw.previousPosition = cursor;
+    }
+
+    /**
+     * Event handler called during drawing
+     * @param evt
+     * @param cursor
+     */
+  }, {
+    key: "onDraw",
+    value: function onDraw(evt, cursor) {
+      var path = this.getDAttribute();
+      var distance = this.calculateMovedDistance(cursor, this.draw.previousPosition);
+      this.setD("".concat(path, " l ").concat(distance.dx, ",").concat(distance.dy));
+      this.draw.previousPosition = cursor;
+    }
+
+    /**
+     * Event handler called at the start of dragging
+     * @param evt
+     * @param cursor
+     */
+  }, {
+    key: "onDragStart",
+    value: function onDragStart(evt, cursor) {
+      this.drag.previousCursorPosition = cursor;
+    }
+
+    /**
+     * Helper function called from onDrag to move the element
+     * @param {{dx: number, dy: number}} distance
+     */
+  }, {
+    key: "move",
+    value: function move(distance) {
+      var dValue = this.props.d.split(" ");
+      dValue[1] = this.calculateNewStartingPoint(dValue[1], distance);
+      this.setD(dValue.join(" "));
+    }
+
+    /**
+     * Parses oldStartingPoint, then moves it by the offset specified by distance.
+     * @param {string} oldStartingPoint
+     * @param {{dx: number, dy: number}} distance
+     * @returns {string}
+     */
+  }, {
+    key: "calculateNewStartingPoint",
+    value: function calculateNewStartingPoint(oldStartingPoint, distance) {
+      var oldCoords = oldStartingPoint.split(",").map(parseFloat);
+      return [oldCoords[0] + distance.dx, oldCoords[1] + distance.dy].join(",");
+    }
+
+    /**
+     * Sets the D attribute on the shape and in the props
+     * @param {string} value
+     */
+  }, {
+    key: "setD",
+    value: function setD(value) {
+      this.setDAttribute(value);
+      this.setDProperty(value);
+    }
+
+    /**
+     * Sets the D attribute on the shape.
+     * @param {string} value The value to be given to the attribute.
+     */
+  }, {
     key: "setDAttribute",
     value: function setDAttribute(value) {
       this.setAttributeOnElementWithValidation("d", value);
     }
+
     /**
      * Calls this.getAttribute("d").
      * @returns the return value of this.getAttribute("d")
@@ -12736,9 +13033,10 @@ var Path = /*#__PURE__*/function (_svgElement5) {
     value: function getDAttribute() {
       return this.getAttribute("d");
     }
+
     /**
      * Sets the D attribute in the props.
-     * @param {number} value The value to be given to the property.
+     * @param {string} value The value to be given to the property.
      */
   }, {
     key: "setDProperty",
@@ -12756,20 +13054,62 @@ var Text = /*#__PURE__*/function (_svgElement6) {
     _classCallCheck(this, Text);
     return _super6.call(this, "text", props);
   }
+
+  /**
+   * Event handler called during drawing
+   * @param {Event} evt
+   * @param {Cursor} cursor
+   */
   _createClass(Text, [{
-    key: "onDrawStart",
-    value: function onDrawStart(evt, cursor) {}
-    /**
-     * Function to be called when the cursor was moved.
-     * @param {Event} evt The event that triggered the function.
-     * @param {{x: number, y: number}} cursor The currect cursor position.
-     */
-  }, {
     key: "onDraw",
     value: function onDraw(evt, cursor) {
       this.setAttributeOnElementWithValidation("x", cursor.x);
       this.setAttributeOnElementWithValidation("y", cursor.y);
     }
+
+    /**
+     * Event handler called at the start of dragging
+     * @param {Event} evt
+     * @param {Cursor} cursor
+     */
+  }, {
+    key: "onDragStart",
+    value: function onDragStart(evt, cursor) {
+      this.drag.previousCursorPosition = cursor;
+      this.drag.startingPosition = {
+        x: this.props.x,
+        y: this.props.y
+      };
+    }
+
+    /**
+     * Helper function called from onDrag to move the element
+     * @param {{dx: number, dy: number}} distance
+     */
+  }, {
+    key: "move",
+    value: function move(distance) {
+      this.setX(parseFloat(this.props.x) + distance.dx);
+      this.setY(parseFloat(this.props.y) + distance.dy);
+    }
+  }, {
+    key: "updatePosition",
+    value: function updatePosition(coords) {
+      this.setX(coords.x);
+      this.setY(coords.y);
+    }
+
+    /**
+     * Sets the X attribute on the shape and in the props.
+     * @param {number} value
+     */
+  }, {
+    key: "setX",
+    value: function setX(value) {
+      this.setXAttribute(value);
+      this.setXProperty(value);
+    }
+
     /**
      * Sets the X attribute on the shape.
      * @param {number} value The value to be given to the attribute.
@@ -12779,6 +13119,7 @@ var Text = /*#__PURE__*/function (_svgElement6) {
     value: function setXAttribute(value) {
       this.setAttributeOnElementWithValidation("x", value);
     }
+
     /**
      * Sets the X attribute in the props.
      * @param {number} value The value to be given to the property.
@@ -12788,6 +13129,18 @@ var Text = /*#__PURE__*/function (_svgElement6) {
     value: function setXProperty(value) {
       this.props.x = value;
     }
+
+    /**
+     * Sets the Y attribute on the shape and in the props.
+     * @param {number} value
+     */
+  }, {
+    key: "setY",
+    value: function setY(value) {
+      this.setYAttribute(value);
+      this.setYProperty(value);
+    }
+
     /**
      * Sets the Y attribute on the shape.
      * @param {number} value The value to be given to the attribute.
@@ -12797,6 +13150,7 @@ var Text = /*#__PURE__*/function (_svgElement6) {
     value: function setYAttribute(value) {
       this.setAttributeOnElementWithValidation("y", value);
     }
+
     /**
      * Sets the Y attribute in the props.
      * @param {number} value The value to be given to the property.
@@ -12806,19 +13160,25 @@ var Text = /*#__PURE__*/function (_svgElement6) {
     value: function setYProperty(value) {
       this.props.y = value;
     }
+
     /**
-     * Appends the specified text to the text element.
-     * @param {string} text The text to be appended.
+     * Sets the specified text to be the content of the text element.
+     * @param {string} text
      */
   }, {
     key: "setTextContent",
     value: function setTextContent(text) {
       this.element.textContent = text;
     }
+
+    /**
+     * Sets the specified font family
+     * @param {string} font
+     */
   }, {
     key: "setFontFamily",
     value: function setFontFamily(font) {
-      this.element.setAttribute('font-family', font);
+      this.setAttributeOnElementWithValidation('font-family', font);
     }
   }]);
   return Text;
@@ -12843,6 +13203,230 @@ var Group = /*#__PURE__*/function (_svgElement8) {
   }
   return _createClass(Group);
 }(svgElement);
+var rectangularFunctionality = {
+  /**
+   * Event handler called at start of dragging
+   * @param {Event} evt
+   * @param {Cursor} cursor
+   */
+  onDragStart: function onDragStart(evt, cursor) {
+    this.drag.previousCursorPosition = cursor;
+    this.drag.startingPosition = {
+      x: this.props.x,
+      y: this.props.y
+    };
+  },
+  updateAttributes: function updateAttributes(coords) {
+    this.updatePosition(coords);
+    this.updateSize(coords);
+  },
+  /**
+   * Sets the x and y values to the old values plus
+   * the offset specified by distance.dx and distance.dy
+   * @param {{dx: number, dy: number}} distance
+   */
+  move: function move(distance) {
+    this.setX(parseFloat(this.props.x) + distance.dx);
+    this.setY(parseFloat(this.props.y) + distance.dy);
+  },
+  updatePosition: function updatePosition(coords) {
+    this.setX(coords.x);
+    this.setY(coords.y);
+  },
+  updateSize: function updateSize(coords) {
+    this.setWidth(coords.width);
+    this.setHeight(coords.height);
+  },
+  /**
+   * Sets the X attribute on the shape and in the props
+   * @param {number} value The value to be set.
+   */
+  setX: function setX(value) {
+    this.setXAttribute(value);
+    this.setXProperty(value);
+  },
+  /**
+   * Sets the X attribute on the shape.
+   * @param {number} value The value to be given to the attribute.
+   */
+  setXAttribute: function setXAttribute(value) {
+    this.setAttributeOnElementWithValidation("x", value);
+  },
+  /**
+   * Sets the X attribute in the props.
+   * @param {number} value The value to be given to the property.
+   */
+  setXProperty: function setXProperty(value) {
+    this.props.x = value;
+  },
+  /**
+   * Sets the Y attribute on the shape and in the props
+   * @param {number} value The value to be set.
+   */
+  setY: function setY(value) {
+    this.setYAttribute(value);
+    this.setYProperty(value);
+  },
+  /**
+   * Sets the Y attribute on the shape.
+   * @param {number} value The value to be given to the attribute.
+   */
+  setYAttribute: function setYAttribute(value) {
+    this.setAttributeOnElementWithValidation("y", value);
+  },
+  /**
+   * Sets the Y attribute in the props.
+   * @param {number} value The value to be given to the property.
+   */
+  setYProperty: function setYProperty(value) {
+    this.props.y = value;
+  },
+  /**
+   * Sets the Width attribute on the shape and in the props
+   * @param value
+   */
+  setWidth: function setWidth(value) {
+    this.setWidthAttribute(value);
+    this.setWidthProperty(value);
+  },
+  /**
+   * Sets the Width attribute on the shape.
+   * @param {number} value The value to be given to the attribute.
+   */
+  setWidthAttribute: function setWidthAttribute(value) {
+    this.setAttributeOnElementWithValidation("width", value);
+  },
+  /**
+   * Sets the Width attribute in the props.
+   * @param {number} value The value to be given to the property.
+   */
+  setWidthProperty: function setWidthProperty(value) {
+    this.props.width = value;
+  },
+  /**
+   * Sets the Height attribute on the shape and in the props.
+   * @param value
+   */
+  setHeight: function setHeight(value) {
+    this.setHeightAttribute(value);
+    this.setHeightProperty(value);
+  },
+  /**
+   * Sets the Height attribute on the shape.
+   * @param {number} value The value to be given to the attribute.
+   */
+  setHeightAttribute: function setHeightAttribute(value) {
+    this.setAttributeOnElementWithValidation("height", value);
+  },
+  /**
+   * Sets the Height attribute in the props.
+   * @param {number} value The value to be given to the property.
+   */
+  setHeightProperty: function setHeightProperty(value) {
+    this.props.height = value;
+  },
+  /**
+   * Event handler called at start of resizing
+   * @param {Event} evt
+   * @param {Cursor} cursor
+   */
+  onResizeStart: function onResizeStart(evt, cursor) {
+    this.resize.startingCoords = {
+      x: this.props.x,
+      y: this.props.y,
+      width: this.props.width,
+      height: this.props.height
+    };
+    this.resize.selectedCorner = this.getClassOfSelectedCorner(evt.target);
+  },
+  /**
+   * Determines the first class name of the given element that matches the format.
+   * @param {Element} element
+   * @returns {string}
+   */
+  getClassOfSelectedCorner: function getClassOfSelectedCorner(element) {
+    var cornerElementClassMatcher = /(side-)[\w-]+/g;
+    return element.classList.toString().match(cornerElementClassMatcher)[0];
+  },
+  /**
+   * Event handler called during resizing
+   * @param {Event} evt
+   * @param {Cursor} cursor
+   */
+  onResize: function onResize(evt, cursor) {
+    var coords = this.calculateCoordsForResize(cursor);
+    this.updateAttributes(coords);
+  },
+  /**
+   * Calculates new values for the x, y, width and height properties of the rectangle.
+   * @param {{x: number, y: number}} cursor
+   * @returns {RectangleCoords}
+   */
+  calculateCoordsForResize: function calculateCoordsForResize(cursor) {
+    var startingCoords = this.resize.startingCoords;
+    var coords = {
+      x: startingCoords.x,
+      y: startingCoords.y,
+      width: cursor.x - startingCoords.x,
+      height: cursor.y - startingCoords.y
+    };
+    var replacements = {
+      x: cursor.x,
+      y: cursor.y,
+      width: 0,
+      height: 0
+    };
+    switch (this.resize.selectedCorner) {
+      case "side-se":
+        break;
+      case "side-ne":
+        coords.y = cursor.y;
+        coords.height = parseFloat(startingCoords.height) + (startingCoords.y - cursor.y);
+        replacements.y = this.props.y;
+        break;
+      case "side-sw":
+        coords.x = cursor.x;
+        coords.width = parseFloat(startingCoords.width) + (startingCoords.x - cursor.x);
+        replacements.x = this.props.x;
+        break;
+      case "side-nw":
+        coords.x = cursor.x;
+        coords.y = cursor.y;
+        coords.width = parseFloat(startingCoords.width) + (startingCoords.x - cursor.x);
+        coords.height = parseFloat(startingCoords.height) + (startingCoords.y - cursor.y);
+        replacements.x = this.props.x;
+        replacements.y = this.props.y;
+        break;
+      default:
+        console.error("'this.resize.selectedCorner' contains an invalid value: \"".concat(this.resize.selectedCorner, "\""));
+        coords.width = startingCoords.width;
+        coords.height = startingCoords.height;
+    }
+    replacements.width = -coords.width;
+    replacements.height = -coords.height;
+    return this.correctNegativeSizes(coords, replacements);
+  },
+  /**
+   * Inverts the width and height and changes x and y when the width or height
+   * are negative because SVG can't handle negative width and height values.
+   * @param {RectangleCoords} coords The calculated position and size of a rectangle
+   * @param {RectangleCoords} replacements The values assigned when correction is needed
+   * @returns {RectangleCoords}
+   */
+  correctNegativeSizes: function correctNegativeSizes(coords, replacements) {
+    if (coords.width < 0) {
+      coords.x = replacements.x;
+      coords.width = replacements.width;
+    }
+    if (coords.height < 0) {
+      coords.y = replacements.y;
+      coords.height = replacements.height;
+    }
+    return coords;
+  }
+};
+Object.assign(Rectangle.prototype, rectangularFunctionality);
+Object.assign(Image.prototype, rectangularFunctionality);
 
 /***/ }),
 
@@ -12884,24 +13468,9 @@ function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input ==
 
 
 
-/**
- * @typedef propObj
- * @type {Object.<string, string|number>}
- *
- */
+/** * @typedef propObj * @type {Object.<string, string|number>} * */
 var svgShape = /*#__PURE__*/function () {
-  /**
-   * @param {number} shapeId The unique identifier the shape gets.
-   * @param {string} type The type of shape to be made.
-   * @param {?propObj} props
-   * All properties (attributes) to be assigned to the shape,
-   * when omitted the properties of the shape are loaded.
-   * @param {?SVGElement} parent The parent the shape should be appended to.
-   * @param drawingApp
-   * @param Canvas
-   * @param withHelperElements
-   * @param withHighlightEvents
-   */
+  /**     * @param {number} shapeId The unique identifier the shape gets.     * @param {string} type The type of shape to be made.     * @param {?propObj} props     * All properties (attributes) to be assigned to the shape,     * when omitted the properties of the shape are loaded.     * @param {?SVGElement} parent The parent the shape should be appended to.     * @param drawingApp     * @param Canvas     * @param withHelperElements     * @param withHighlightEvents     */
   function svgShape(shapeId, type, props, parent, drawingApp, Canvas) {
     var _this = this;
     var withHelperElements = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : true;
@@ -12927,6 +13496,7 @@ var svgShape = /*#__PURE__*/function () {
     this.parent = parent;
     //construct shape group
     this.props.group["class"] = "shape draggable";
+    if (this.shapeShouldBeResizable()) this.props.group["class"] += " resizable";
     this.props.group.id = "".concat(this.type, "-").concat(this.shapeId);
     this.shapeGroup = new _svgElement_js__WEBPACK_IMPORTED_MODULE_1__.Group(this.props.group);
     // construct main element
@@ -12950,19 +13520,11 @@ var svgShape = /*#__PURE__*/function () {
   _createClass(svgShape, [{
     key: "makeMainElementOfRightType",
     value: function makeMainElementOfRightType() {
-      switch (this.type) {
-        case "rect":
-          return new _svgElement_js__WEBPACK_IMPORTED_MODULE_1__.Rectangle(this.props.main);
-        case "circle":
-          return new _svgElement_js__WEBPACK_IMPORTED_MODULE_1__.Circle(this.props.main);
-        case "line":
-          return new _svgElement_js__WEBPACK_IMPORTED_MODULE_1__.Line(this.props.main);
-        case "text":
-          return new _svgElement_js__WEBPACK_IMPORTED_MODULE_1__.Text(this.props.main);
-        case "image":
-          return new _svgElement_js__WEBPACK_IMPORTED_MODULE_1__.Image(this.props.main);
-        case "path":
-          return new _svgElement_js__WEBPACK_IMPORTED_MODULE_1__.Path(this.props.main);
+      try {
+        var classToMake = _constants_js__WEBPACK_IMPORTED_MODULE_0__.elementClassNameForType[this.type];
+        return new _svgElement_js__WEBPACK_IMPORTED_MODULE_1__[classToMake](this.props.main);
+      } catch (e) {
+        console.error("Type ".concat(this.type, " is not a known element type. Skipped creating element."));
       }
     }
   }, {
@@ -12970,7 +13532,7 @@ var svgShape = /*#__PURE__*/function () {
     value: function makeCornerElements() {
       var bbox = this.mainElement.getBoundingBox();
       return [new _svgElement_js__WEBPACK_IMPORTED_MODULE_1__.Circle({
-        "class": "corner left-top",
+        "class": "corner side-nw",
         "cx": bbox.x - this.offset,
         "cy": bbox.y - this.offset,
         "r": "8px",
@@ -12978,7 +13540,7 @@ var svgShape = /*#__PURE__*/function () {
         "stroke-width": "2",
         "fill": "var(--all-OffWhite)"
       }), new _svgElement_js__WEBPACK_IMPORTED_MODULE_1__.Circle({
-        "class": "corner left-bottom",
+        "class": "corner side-sw",
         "cx": bbox.x - this.offset,
         "cy": bbox.y + bbox.height + this.offset,
         "r": "8px",
@@ -12986,7 +13548,7 @@ var svgShape = /*#__PURE__*/function () {
         "stroke-width": "2",
         "fill": "var(--all-OffWhite)"
       }), new _svgElement_js__WEBPACK_IMPORTED_MODULE_1__.Circle({
-        "class": "corner right-bottom",
+        "class": "corner side-se",
         "cx": bbox.x + bbox.width + this.offset,
         "cy": bbox.y + bbox.height + this.offset,
         "r": "8px",
@@ -12994,7 +13556,7 @@ var svgShape = /*#__PURE__*/function () {
         "stroke-width": "2",
         "fill": "var(--all-OffWhite)"
       }), new _svgElement_js__WEBPACK_IMPORTED_MODULE_1__.Circle({
-        "class": "corner right-top",
+        "class": "corner side-ne",
         "cx": bbox.x + bbox.width + this.offset,
         "cy": bbox.y - this.offset,
         "r": "8px",
@@ -13022,9 +13584,20 @@ var svgShape = /*#__PURE__*/function () {
       });
     }
   }, {
+    key: "shapeShouldBeResizable",
+    value: function shapeShouldBeResizable() {
+      return _constants_js__WEBPACK_IMPORTED_MODULE_0__.resizableSvgShapes.includes(this.type);
+    }
+  }, {
     key: "isQuestionLayer",
     value: function isQuestionLayer() {
       return this.Canvas.layerID2Key(this.parent.id) === 'question';
+    }
+  }, {
+    key: "updateHelperElements",
+    value: function updateHelperElements() {
+      this.updateBorderElement();
+      this.updateCornerElements();
     }
   }, {
     key: "updateCornerElements",
@@ -13057,18 +13630,25 @@ var svgShape = /*#__PURE__*/function () {
   }, {
     key: "showBorderElement",
     value: function showBorderElement() {
-      if (this.parent.id.includes(this.Canvas.params.currentLayer) && this.drawingApp.currentToolIs('drag')) {
+      if (this.elementBelongsToCurrentLayer() && this.drawingApp.currentToolIs('drag')) {
         this.borderElement.setAttribute("stroke", this.borderElement.props.stroke);
         this.borderElement.setAttribute("stroke-dasharray", '4,5');
         this.borderElement.setAttribute("opacity", '.5');
       }
     }
   }, {
+    key: "elementBelongsToCurrentLayer",
+    value: function elementBelongsToCurrentLayer() {
+      return this.parent.id.includes(this.Canvas.params.currentLayer);
+    }
+  }, {
     key: "showCornerElements",
     value: function showCornerElements() {
-      this.cornerElements.forEach(function (cornerElement) {
-        cornerElement.show();
-      });
+      if (this.elementBelongsToCurrentLayer() && this.drawingApp.currentToolIs('drag')) {
+        this.cornerElements.forEach(function (cornerElement) {
+          cornerElement.show();
+        });
+      }
     }
   }, {
     key: "hideHelperElements",
@@ -13151,26 +13731,54 @@ var svgShape = /*#__PURE__*/function () {
       var _this$mainElement$onD2, _this$mainElement2, _this$onDrawShapeSpec;
       (_this$mainElement$onD2 = (_this$mainElement2 = this.mainElement).onDraw) === null || _this$mainElement$onD2 === void 0 ? void 0 : _this$mainElement$onD2.call(_this$mainElement2, evt, cursor);
       (_this$onDrawShapeSpec = this.onDrawShapeSpecific) === null || _this$onDrawShapeSpec === void 0 ? void 0 : _this$onDrawShapeSpec.call(this, evt, cursor);
-      this.updateBorderElement();
-      this.updateCornerElements();
+      this.updateHelperElements();
     }
   }, {
     key: "onDrawEnd",
     value: function onDrawEnd(evt, cursor) {
-      var _this$mainElement$onD3, _this$mainElement3, _this$onDrawEndShapeS;
-      (_this$mainElement$onD3 = (_this$mainElement3 = this.mainElement).onDrawEnd) === null || _this$mainElement$onD3 === void 0 ? void 0 : _this$mainElement$onD3.call(_this$mainElement3, evt, cursor);
+      var _this$onDrawEndShapeS;
       (_this$onDrawEndShapeS = this.onDrawEndShapeSpecific) === null || _this$onDrawEndShapeS === void 0 ? void 0 : _this$onDrawEndShapeS.call(this, evt, cursor);
-      this.updateBorderElement();
-      this.updateCornerElements();
+      this.updateHelperElements();
       this.showBorderElement();
+      this.addHighlightEvents();
+    }
+  }, {
+    key: "onDragStart",
+    value: function onDragStart(evt, cursor) {
+      var _this$mainElement$onD3, _this$mainElement3;
+      this.shapeGroup.element.classList.add("dragging");
+      this.shapeGroup.element.parentElement.classList.add("child-dragging");
+      (_this$mainElement$onD3 = (_this$mainElement3 = this.mainElement).onDragStart) === null || _this$mainElement$onD3 === void 0 ? void 0 : _this$mainElement$onD3.call(_this$mainElement3, evt, cursor);
+    }
+  }, {
+    key: "onDrag",
+    value: function onDrag(evt, cursor) {
+      this.mainElement.onDrag(evt, cursor);
+      this.updateHelperElements();
+    }
+  }, {
+    key: "onDragEnd",
+    value: function onDragEnd() {
+      this.shapeGroup.element.classList.remove("dragging");
+      this.shapeGroup.element.parentElement.classList.remove("child-dragging");
+    }
+  }, {
+    key: "onResizeStart",
+    value: function onResizeStart(evt, cursor) {
+      this.mainElement.onResizeStart(evt, cursor);
+    }
+  }, {
+    key: "onResize",
+    value: function onResize(evt, cursor) {
+      this.mainElement.onResize(evt, cursor);
+      this.updateHelperElements();
     }
   }, {
     key: "addHighlightEvents",
     value: function addHighlightEvents() {
       var _this2 = this;
       if (!this.withHighlightEvents) return;
-      this.updateBorderElement();
-      this.updateCornerElements();
+      this.updateHelperElements();
       var settings = [{
         element: this.shapeGroup,
         events: {
@@ -13206,11 +13814,13 @@ var svgShape = /*#__PURE__*/function () {
     key: "highlight",
     value: function highlight() {
       this.showBorderElement();
+      this.showCornerElements();
     }
   }, {
     key: "unhighlight",
     value: function unhighlight() {
       this.hideBorderElement();
+      this.hideCornerElements();
     }
   }, {
     key: "showExplainerForLayer",
@@ -13223,17 +13833,7 @@ var svgShape = /*#__PURE__*/function () {
 var Rectangle = /*#__PURE__*/function (_svgShape) {
   _inherits(Rectangle, _svgShape);
   var _super = _createSuper(Rectangle);
-  /**
-   * @param {number} shapeId The unique identifier the shape gets.
-   * @param {?propObj} props
-   * All properties (attributes) to be assigned to the shape,
-   * when omitted the properties of the shape are loaded.
-   * @param {?SVGElement} parent The parent the shape should be appended to.
-   * @param drawingApp
-   * @param Canvas
-   * @param withHelperElements
-   * @param withHighlightEvents
-   */
+  /**     * @param {number} shapeId The unique identifier the shape gets.     * @param {?propObj} props     * All properties (attributes) to be assigned to the shape,     * when omitted the properties of the shape are loaded.     * @param {?SVGElement} parent The parent the shape should be appended to.     * @param drawingApp     * @param Canvas     * @param withHelperElements     * @param withHighlightEvents     */
   function Rectangle(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
     _classCallCheck(this, Rectangle);
     return _super.call(this, shapeId, "rect", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
@@ -13243,17 +13843,7 @@ var Rectangle = /*#__PURE__*/function (_svgShape) {
 var Circle = /*#__PURE__*/function (_svgShape2) {
   _inherits(Circle, _svgShape2);
   var _super2 = _createSuper(Circle);
-  /**
-   * @param {number} shapeId The unique identifier the shape gets.
-   * @param {?propObj} props
-   * All properties (attributes) to be assigned to the shape,
-   * when omitted the properties of the shape are loaded.
-   * @param {?SVGElement} parent The parent the shape should be appended to.
-   * @param drawingApp
-   * @param Canvas
-   * @param withHelperElements
-   * @param withHighlightEvents
-   */
+  /**     * @param {number} shapeId The unique identifier the shape gets.     * @param {?propObj} props     * All properties (attributes) to be assigned to the shape,     * when omitted the properties of the shape are loaded.     * @param {?SVGElement} parent The parent the shape should be appended to.     * @param drawingApp     * @param Canvas     * @param withHelperElements     * @param withHighlightEvents     */
   function Circle(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
     _classCallCheck(this, Circle);
     return _super2.call(this, shapeId, "circle", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
@@ -13263,17 +13853,7 @@ var Circle = /*#__PURE__*/function (_svgShape2) {
 var Line = /*#__PURE__*/function (_svgShape3) {
   _inherits(Line, _svgShape3);
   var _super3 = _createSuper(Line);
-  /**
-   * @param {number} shapeId The unique identifier the shape gets.
-   * @param {?propObj} props
-   * All properties (attributes) to be assigned to the shape,
-   * when omitted the properties of the shape are loaded.
-   * @param {?SVGElement} parent The parent the shape should be appended to.
-   * @param drawingApp
-   * @param Canvas
-   * @param withHelperElements
-   * @param withHighlightEvents
-   */
+  /**     * @param {number} shapeId The unique identifier the shape gets.     * @param {?propObj} props     * All properties (attributes) to be assigned to the shape,     * when omitted the properties of the shape are loaded.     * @param {?SVGElement} parent The parent the shape should be appended to.     * @param drawingApp     * @param Canvas     * @param withHelperElements     * @param withHighlightEvents     */
   function Line(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
     var _this3;
     _classCallCheck(this, Line);
@@ -13327,17 +13907,7 @@ var Line = /*#__PURE__*/function (_svgShape3) {
 var Text = /*#__PURE__*/function (_svgShape4) {
   _inherits(Text, _svgShape4);
   var _super4 = _createSuper(Text);
-  /**
-   * @param {number} shapeId The unique identifier the shape gets.
-   * @param {?propObj} props
-   * All properties (attributes) to be assigned to the shape,
-   * when omitted the properties of the shape are loaded.
-   * @param {?SVGElement} parent The parent the shape should be appended to.
-   * @param drawingApp
-   * @param Canvas
-   * @param withHelperElements
-   * @param withHighlightEvents
-   */
+  /**     * @param {number} shapeId The unique identifier the shape gets.     * @param {?propObj} props     * All properties (attributes) to be assigned to the shape,     * when omitted the properties of the shape are loaded.     * @param {?SVGElement} parent The parent the shape should be appended to.     * @param drawingApp     * @param Canvas     * @param withHelperElements     * @param withHighlightEvents     */
   function Text(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
     var _this4;
     _classCallCheck(this, Text);
@@ -13382,17 +13952,7 @@ var Text = /*#__PURE__*/function (_svgShape4) {
 var Image = /*#__PURE__*/function (_svgShape5) {
   _inherits(Image, _svgShape5);
   var _super5 = _createSuper(Image);
-  /**
-   * @param {number} shapeId The unique identifier the shape gets.
-   * @param {?propObj} props
-   * All properties (attributes) to be assigned to the shape,
-   * when omitted the properties of the shape are loaded.
-   * @param {?SVGElement} parent The parent the shape should be appended to.
-   * @param drawingApp
-   * @param Canvas
-   * @param withHelperElements
-   * @param withHighlightEvents
-   */
+  /**     * @param {number} shapeId The unique identifier the shape gets.     * @param {?propObj} props     * All properties (attributes) to be assigned to the shape,     * when omitted the properties of the shape are loaded.     * @param {?SVGElement} parent The parent the shape should be appended to.     * @param drawingApp     * @param Canvas     * @param withHelperElements     * @param withHighlightEvents     */
   function Image(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
     _classCallCheck(this, Image);
     return _super5.call(this, shapeId, "image", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
@@ -13401,8 +13961,8 @@ var Image = /*#__PURE__*/function (_svgShape5) {
     key: "moveToCenter",
     value: function moveToCenter() {
       var bbox = this.mainElement.getBoundingBox();
-      this.mainElement.setXAttribute(-bbox.width / 2);
-      this.mainElement.setYAttribute(-bbox.height / 2);
+      this.mainElement.setX(-bbox.width / 2);
+      this.mainElement.setY(-bbox.height / 2);
     }
   }]);
   return Image;
@@ -13410,17 +13970,7 @@ var Image = /*#__PURE__*/function (_svgShape5) {
 var Path = /*#__PURE__*/function (_svgShape6) {
   _inherits(Path, _svgShape6);
   var _super6 = _createSuper(Path);
-  /**
-   * @param {number} shapeId The unique identifier the shape gets.
-   * @param {?propObj} props
-   * All properties (attributes) to be assigned to the shape,
-   * when omitted the properties of the shape are loaded.
-   * @param {?SVGElement} parent The parent the shape should be appended to.
-   * @param drawingApp
-   * @param Canvas
-   * @param withHelperElements
-   * @param withHighlightEvents
-   */
+  /**     * @param {number} shapeId The unique identifier the shape gets.     * @param {?propObj} props     * All properties (attributes) to be assigned to the shape,     * when omitted the properties of the shape are loaded.     * @param {?SVGElement} parent The parent the shape should be appended to.     * @param drawingApp     * @param Canvas     * @param withHelperElements     * @param withHighlightEvents     */
   function Path(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
     _classCallCheck(this, Path);
     return _super6.call(this, shapeId, "path", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
@@ -13430,15 +13980,7 @@ var Path = /*#__PURE__*/function (_svgShape6) {
 var Grid = /*#__PURE__*/function (_Path) {
   _inherits(Grid, _Path);
   var _super7 = _createSuper(Grid);
-  /**
-   * @param {number} shapeId The unique identifier the shape gets.
-   * @param {?propObj} props
-   * All properties (attributes) to be assigned to the shape,
-   * when omitted the properties of the shape are loaded.
-   * @param {HTMLElement} parent The parent the shape should be appended to.
-   * @param drawingApp
-   * @param Canvas
-   */
+  /**     * @param {number} shapeId The unique identifier the shape gets.     * @param {?propObj} props     * All properties (attributes) to be assigned to the shape,     * when omitted the properties of the shape are loaded.     * @param {HTMLElement} parent The parent the shape should be appended to.     * @param drawingApp     * @param Canvas     */
   function Grid(shapeId, props, parent, drawingApp, Canvas) {
     var _this6;
     _classCallCheck(this, Grid);
@@ -13517,17 +14059,7 @@ var Grid = /*#__PURE__*/function (_Path) {
 var Freehand = /*#__PURE__*/function (_Path2) {
   _inherits(Freehand, _Path2);
   var _super8 = _createSuper(Freehand);
-  /**
-   * @param {number} shapeId The unique identifier the shape gets.
-   * @param {?propObj} props
-   * All properties (attributes) to be assigned to the shape,
-   * when omitted the properties of the shape are loaded.
-   * @param {?SVGElement} parent The parent the shape should be appended to.
-   * @param drawingApp
-   * @param Canvas
-   * @param withHelperElements
-   * @param withHighlightEvents
-   */
+  /**     * @param {number} shapeId The unique identifier the shape gets.     * @param {?propObj} props     * All properties (attributes) to be assigned to the shape,     * when omitted the properties of the shape are loaded.     * @param {?SVGElement} parent The parent the shape should be appended to.     * @param drawingApp     * @param Canvas     * @param withHelperElements     * @param withHighlightEvents     */
   function Freehand(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
     var _this7;
     _classCallCheck(this, Freehand);
@@ -13535,14 +14067,7 @@ var Freehand = /*#__PURE__*/function (_Path2) {
     _this7.shapeGroup.setAttribute("id", "freehand-".concat(shapeId));
     return _this7;
   }
-  _createClass(Freehand, [{
-    key: "onDrawShapeSpecific",
-    value: function onDrawShapeSpecific(evt, cursor) {
-      var path = this.mainElement.getDAttribute();
-      this.mainElement.setDAttribute("".concat(path, " L ").concat(cursor.x, ",").concat(cursor.y));
-    }
-  }]);
-  return Freehand;
+  return _createClass(Freehand);
 }(Path);
 
 /***/ }),
@@ -13638,6 +14163,124 @@ var warningBox = /*#__PURE__*/function () {
   }]);
   return warningBox;
 }();
+
+/***/ }),
+
+/***/ "./resources/js/drawing/unicodeBase64Polyfill.js":
+/*!*******************************************************!*\
+  !*** ./resources/js/drawing/unicodeBase64Polyfill.js ***!
+  \*******************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "decode": () => (/* binding */ decode),
+/* harmony export */   "encode": () => (/* binding */ encode)
+/* harmony export */ });
+/**
+ *
+ *  Base64 encode / decode
+ *  Original source: http://www.webtoolkit.info/
+ *  Adapted for drawing question
+ **/
+
+var _keyStr = Array.from("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=");
+
+// public method for encoding
+function encode(input) {
+  var output = "";
+  var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
+  var i = 0;
+  input = _utf8_encode(input);
+  while (i < input.length) {
+    chr1 = input.charCodeAt(i++);
+    chr2 = input.charCodeAt(i++);
+    chr3 = input.charCodeAt(i++);
+    enc1 = chr1 >> 2;
+    enc2 = (chr1 & 3) << 4 | chr2 >> 4;
+    enc3 = (chr2 & 15) << 2 | chr3 >> 6;
+    enc4 = chr3 & 63;
+    if (isNaN(chr2)) {
+      enc3 = enc4 = 64;
+    } else if (isNaN(chr3)) {
+      enc4 = 64;
+    }
+    output += _keyStr[enc1] + _keyStr[enc2] + _keyStr[enc3] + _keyStr[enc4];
+  }
+  return output;
+}
+
+// public method for decoding
+function decode(input) {
+  var output = "";
+  var chr1, chr2, chr3;
+  var enc1, enc2, enc3, enc4;
+  var i = 0;
+  input = input.replace(/[^A-Za-z0-9\+\/\=]/g, "");
+  while (i < input.length) {
+    enc1 = _keyStr.indexOf(input.charAt(i++));
+    enc2 = _keyStr.indexOf(input.charAt(i++));
+    enc3 = _keyStr.indexOf(input.charAt(i++));
+    enc4 = _keyStr.indexOf(input.charAt(i++));
+    chr1 = enc1 << 2 | enc2 >> 4;
+    chr2 = (enc2 & 15) << 4 | enc3 >> 2;
+    chr3 = (enc3 & 3) << 6 | enc4;
+    output += String.fromCharCode(chr1);
+    if (enc3 !== 64) {
+      output += String.fromCharCode(chr2);
+    }
+    if (enc4 !== 64) {
+      output += String.fromCharCode(chr3);
+    }
+  }
+  return _utf8_decode(output);
+}
+
+// private method for UTF-8 encoding
+function _utf8_encode(string) {
+  string = string.replace(/\r\n/g, "\n");
+  var utftext = "";
+  for (var n = 0; n < string.length; n++) {
+    var c = string.charCodeAt(n);
+    if (c < 128) {
+      utftext += String.fromCharCode(c);
+    } else if (c > 127 && c < 2048) {
+      utftext += String.fromCharCode(c >> 6 | 192);
+      utftext += String.fromCharCode(c & 63 | 128);
+    } else {
+      utftext += String.fromCharCode(c >> 12 | 224);
+      utftext += String.fromCharCode(c >> 6 & 63 | 128);
+      utftext += String.fromCharCode(c & 63 | 128);
+    }
+  }
+  return utftext;
+}
+
+// private method for UTF-8 decoding
+function _utf8_decode(utftext) {
+  var string = "";
+  var i = 0;
+  var c, c2, c3;
+  while (i < utftext.length) {
+    c = utftext.charCodeAt(i);
+    if (c < 128) {
+      string += String.fromCharCode(c);
+      i++;
+    } else if (c > 191 && c < 224) {
+      c2 = utftext.charCodeAt(i + 1);
+      string += String.fromCharCode((c & 31) << 6 | c2 & 63);
+      i += 2;
+    } else {
+      c2 = utftext.charCodeAt(i + 1);
+      c3 = utftext.charCodeAt(i + 2);
+      string += String.fromCharCode((c & 15) << 12 | (c2 & 63) << 6 | c3 & 63);
+      i += 3;
+    }
+  }
+  return string;
+}
+
 
 /***/ }),
 
@@ -14327,7 +14970,8 @@ RichTextEditor = {
   },
   initClassicEditorForStudentplayer: function initClassicEditorForStudentplayer(editorId, questionId) {
     var _this4 = this;
-    return ClassicEditor.create(document.querySelector("#" + editorId), this.getConfigForStudent(false, [])).then(function (editor) {
+    var allowWsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+    return ClassicEditor.create(document.querySelector("#" + editorId), this.getConfigForStudent(allowWsc, [])).then(function (editor) {
       ClassicEditors[editorId] = editor;
       _this4.setupWordCounter(editor, editorId);
       if (typeof ReadspeakerTlc != "undefined") {
@@ -14411,7 +15055,22 @@ RichTextEditor = {
       image: {
         upload: {
           types: ["jpeg", "png", "gif", "bmp", "webp", "tiff"]
-        }
+        },
+        toolbar: ['imageTextAlternative',
+        // 'toggleImageCaption',
+        '|', 'imageStyle:inline', {
+          // Grouping into one drop-down.
+          name: 'wrapText',
+          title: 'Tekstterugloop',
+          items: ['imageStyle:alignLeft', 'imageStyle:alignRight'],
+          defaultItem: 'imageStyle:alignLeft'
+        }, {
+          // Grouping into one drop-down.
+          name: 'breakText',
+          title: 'Tekst onderbreken',
+          items: ['imageStyle:alignBlockLeft', 'imageStyle:alignCenter', 'imageStyle:alignBlockRight'],
+          defaultItem: 'imageStyle:alignBlockLeft'
+        }, 'imageStyle:side', '|', 'resizeImage']
       },
       simpleUpload: {
         uploadUrl: "/cms/ckeditor_upload/images",
