@@ -14,6 +14,7 @@ use tcCore\Http\Livewire\EvaluationComponent;
 use tcCore\Question;
 use tcCore\TestTake;
 use tcCore\TestTakeStatus;
+use tcCore\User;
 
 class Assessment extends EvaluationComponent implements CollapsableHeader
 {
@@ -1002,6 +1003,9 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     private function setUserOnAnswer(Answer $answer): void
     {
         $answer->user = $this->testTakeData->testParticipants->find($answer->test_participant_id)?->user;
+        if(!$answer->user){
+            $answer->user = User::getDeletedNewUser();
+        }
         $answer->user->shortLastname = str(
             sprintf(
                 '%s %s',
