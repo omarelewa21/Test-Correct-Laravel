@@ -403,9 +403,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
         $json[$id] = $state === 'on';
 
-        $this->updateOrCreateAnswerRating([
-            'json' => $json
-        ]);
+        $this->updateOrCreateAnswerRating(['json' => $json]);
     }
 
     public function handleFeedbackChange()
@@ -423,15 +421,16 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     /* Private methods */
     protected function setTemplateVariables(): void
     {
-        $this->testName = $this->testTakeData->test->name ?? '';
-        $this->openOnly = $this->testTakeData->assessment_type === 'OPEN_ONLY';
+        $testTake = $this->testTakeData->refresh();
+        $this->testName = $testTake->test->name ?? '';
+        $this->openOnly = $testTake->assessment_type === 'OPEN_ONLY';
 
         $this->assessmentContext = [
             'skipCoLearningNoDiscrepancies' => (bool)($this->sessionSettings(
             )?->skipCoLearningNoDiscrepancies ?? $this->assessmentContext['skipCoLearningNoDiscrepancies']),
-            'skippedCoLearning'             => $this->testTakeData->skipped_discussion,
-            'assessedAt'                    => $this->getFormattedAssessedAtDate($this->testTakeData),
-            'assessmentType'                => $this->testTakeData->assessment_type,
+            'skippedCoLearning'             => $testTake->skipped_discussion,
+            'assessedAt'                    => $this->getFormattedAssessedAtDate($testTake),
+            'assessmentType'                => $testTake->assessment_type,
             'assessIndex'                   => $this->getAssessedQuestionsCount(),
             'totalToAssess'                 => $this->questions->discussionTypeFiltered($this->openOnly)->count(),
             'showStudentNames'              => $this->sessionSettings(
@@ -777,7 +776,9 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
     private function onFirstQuestionToAssess(): bool
     {
-        return (int)$this->questionNavigationValue === 1;
+        return (int)$this->questionNavigationValue === $this->getNavigationValueForQuestion(
+                $this->questions->discussionTypeFiltered($this->openOnly)->first()
+            );
     }
 
     /**
@@ -1067,22 +1068,13 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
     protected function getQuestions(): Collection
     {
-        return $this->testTakeData->test->testQuestions
-            ->sortBy('order')
-            ->flatMap(function ($testQuestion) {
-                $testQuestion->question->loadRelated();
-                if ($testQuestion->question->type === 'GroupQuestion') {
-                    $groupQuestion = $testQuestion->question;
-                    return $testQuestion->question->groupQuestionQuestions->map(function ($item) use ($groupQuestion) {
-                        $item->question->belongs_to_groupquestion_id = $groupQuestion->getKey();
-                        $item->question->isDiscussionTypeOpen = !$item->question->canCheckAnswer();
-                        return $item->question;
-                    });
+        return $this->testTakeData
+            ->test
+            ->getFlatQuestionList(
+                function ($relationModel) {
+                    $relationModel->question->isDiscussionTypeOpen = !$relationModel->question->canCheckAnswer();
                 }
-                $testQuestion->question->isDiscussionTypeOpen = !$testQuestion->question->canCheckAnswer();
-                return collect([$testQuestion->question]);
-            })
-            ->values();
+            );
     }
 
     protected function getGroups(): Collection
