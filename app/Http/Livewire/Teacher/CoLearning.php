@@ -497,17 +497,11 @@ class CoLearning extends Component implements CollapsableHeader
         $replacementFunction = function ($matches) use ($question, $answers) {
             $this->completionQuestionTagCount++;
             $tag_id = $matches[1];
-            $events = '';
+            $events = '@input="$el.style.width = getInputWidth($el)"';
             $rsSpan = '';
-            return sprintf(
-                '<span><input x-on:contextmenu="$event.preventDefault()" spellcheck="false" value="%s"   autocorrect="off" autocapitalize="none" class="form-input mb-2 truncate text-center overflow-ellipsis" type="text" id="%s" style="width: 120px" x-ref="%s" %s wire:key="%s"/>%s</span>',
-                $answers?->where('tag', $tag_id)?->first()?->answer ?? '',
-                'answer_' . $tag_id . '_' . $question->getKey(),
-                'comp_answer_' . $tag_id,
-                $events,
-                'comp_answer_' . $tag_id,
-                $rsSpan
-            );
+            $answer = $answers?->where('tag', $tag_id)?->first()?->answer ?? '';
+            $context = 'teacher-colearning';
+            return view('livewire.teacher.co-learning-completion-question-html', compact('tag_id', 'question', 'answer', 'events', 'rsSpan', 'context'));
         };
 
         return preg_replace_callback($searchPattern, $replacementFunction, $question_text);
@@ -556,7 +550,7 @@ class CoLearning extends Component implements CollapsableHeader
                     associative: true
                 ))->mapWithKeys(function ($answer, $tag) {
                     $result = new \stdClass();
-                    $result->tag = $tag + 1; //database value is 0 based, tags are 1 based
+                    $result->tag = intval($tag) + 1; //database value is 0 based, tags are 1 based
                     $result->answer = $answer;
                     return [$tag => $result];
                 });

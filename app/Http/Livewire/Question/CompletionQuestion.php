@@ -57,25 +57,15 @@ class CompletionQuestion extends Component
         $searchPattern = "/\[([0-9]+)\]/i";
         $replacementFunction = function ($matches) use ($question,) {
             $tag_id = $matches[1] - 1; // the completion_question_answers list is 1 based but the inputs need to be 0 based
-            $events = sprintf('@blur="$refs.%s.scrollLeft = 0" @input="$event.target.setAttribute(\'title\', $event.target.value);"', 'comp_answer_' . $tag_id);
+            $events = '@blur="$el.scrollLeft = 0" @input="$event.target.setAttribute(\'title\', $event.target.value); $el.style.width = getInputWidth($el)"';
             $rsSpan = '';
+            $answer = '';
+            $context = 'student';
             if (Auth::user()->text2speech) {
-                $events = sprintf('@focus="handleTextBoxFocusForReadspeaker(event,\'%s\')" @blur="$refs.%s.scrollLeft = 0;handleTextBoxBlurForReadspeaker(event,\'%s\')" @input="$event.target.setAttribute(\'title\', $event.target.value)"', $question->getKey(), 'comp_answer_' . $tag_id, $question->getKey());
+                $events = sprintf('@focus="handleTextBoxFocusForReadspeaker(event,\'%s\')" @blur="$el.scrollLeft = 0;handleTextBoxBlurForReadspeaker(event,\'%s\')" @input="$event.target.setAttribute(\'title\', $event.target.value); $el.style.width = getInputWidth($el)"', $question->getKey(), $question->getKey());
                 $rsSpan = '<span wire:ignore class="rs_placeholder"></span>';
             }
-            return sprintf(
-                '<span class="inline-flex max-w-full"><span class="absolute whitespace-nowrap" style="left: -9999px" x-ref="%s"></span> <input x-on:contextmenu="$event.preventDefault()" x-on:input="setInputWidth($el)" spellcheck="false" style="width: 120px"  autocorrect="off" autocapitalize="none"  wire:model.lazy="answer.%d"
-                            class="form-input mb-2 truncate text-center"  x-init="setInputWidth($el, true);"
-                            type="text" id="%s" x-ref="%s" %s wire:key="%s"/>%s</span>',
-
-                'comp_answer_' . $tag_id . '_span',
-                $tag_id,
-                'answer_' . $tag_id . '_' . $this->question->getKey(),
-                'comp_answer_' . $tag_id,
-                $events,
-                'comp_answer_' . $tag_id,
-                $rsSpan,
-            );
+            return view('livewire.teacher.co-learning-completion-question-html', compact('tag_id', 'question', 'answer', 'events', 'rsSpan', 'context'));
         };
 
         return preg_replace_callback($searchPattern, $replacementFunction, $question_text);
