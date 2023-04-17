@@ -214,19 +214,9 @@ class TestReview extends EvaluationComponent
 
     protected function getQuestions(): Collection
     {
-        return $this->testTakeData->test->testQuestions
-            ->sortBy('order')
-            ->flatMap(function ($testQuestion) {
-                $testQuestion->question->loadRelated();
-                if ($testQuestion->question->type === 'GroupQuestion') {
-                    $groupQuestion = $testQuestion->question;
-                    return $testQuestion->question->groupQuestionQuestions->map(function ($item) use ($groupQuestion) {
-                        $item->question->belongs_to_groupquestion_id = $groupQuestion->getKey();
-                        return $item->question;
-                    });
-                }
-                return collect([$testQuestion->question]);
-            })
+        return $this->testTakeData
+            ->test
+            ->getFlatQuestionList()
             ->filter(fn($question) => $this->answers->pluck('question_id')->contains($question->id))
             ->values();
     }

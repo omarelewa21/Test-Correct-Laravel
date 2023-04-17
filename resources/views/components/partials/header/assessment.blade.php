@@ -110,7 +110,7 @@
 @endsection()
 
 @section('additionalInfo')
-    <div @class(["flex flex-col w-3/4 self-center divide-white divide-y border-t border-b border-white mt-6", 'border-b-white/25' => $this->assessmentContext['skippedCoLearning']])>
+    <div @class(["flex flex-col w-3/4 self-center divide-white divide-y border-t border-b border-white mt-6"])>
         <div class="flex py-2 px-4 items-center justify-between">
             <span>@lang('assessment.Alles wordt tussentijds opgeslagen')</span>
             <x-tooltip idle-classes="bg-transparent text-white border-white border">

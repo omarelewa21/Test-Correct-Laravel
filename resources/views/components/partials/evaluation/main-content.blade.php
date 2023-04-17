@@ -61,7 +61,7 @@
                 <x-slot:title>
                     <div class="question-indicator items-center flex">
                         <div class="inline-flex question-number rounded-full text-center justify-center items-center">
-                            <span class="align-middle cursor-default">{{ $uniqueKey }}</span>
+                            <span class="align-middle cursor-default">{{ $navigationValue }}</span>
                         </div>
                         <div class="flex gap-4 items-center relative top-0.5">
                             <h4 class="inline-flex"
@@ -77,7 +77,7 @@
                 <x-slot:body>
                     <div class="flex flex-col gap-2"
                          wire:key="question-block-{{  $question->uuid }}">
-                        <div class="flex flex-wrap">
+                        <div class="flex flex-wrap" wire:key="attachment-container-{{ $uniqueKey }}">
                             @foreach($question->attachments as $attachment)
                                 <x-attachment.badge-view :attachment="$attachment"
                                                          :title="$attachment->title"
