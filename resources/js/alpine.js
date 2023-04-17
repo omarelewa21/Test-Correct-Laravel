@@ -1759,7 +1759,7 @@ document.addEventListener("alpine:init", () => {
             Notify.notify(message, "error");
         }
     }));
-    Alpine.data("loginScreen", (openTab, activeOverlay, device) => ({
+    Alpine.data("loginScreen", (openTab, activeOverlay, device, hasErrors) => ({
         openTab,
         showPassword: false,
         hoverPassword: false,
@@ -1767,12 +1767,16 @@ document.addEventListener("alpine:init", () => {
         showEntreePassword: false,
         activeOverlay,
         device,
-        init() {
+        hasErrors,
+        init(){
             setTimeout(() => {
                 this.$wire.checkLoginFieldsForInput();
             }, 250);
             this.setCurrentFocusInput();
 
+            this.$watch("hasErrors", value => {
+                this.setCurrentFocusInput();
+            })
             this.$watch("activeOverlay", value => {
                 this.setCurrentFocusInput();
             });
@@ -1780,9 +1784,10 @@ document.addEventListener("alpine:init", () => {
                 this.setCurrentFocusInput();
             });
         },
-        setCurrentFocusInput() {
+        setCurrentFocusInput (){
             let name = ("" != this.activeOverlay) ? this.activeOverlay : this.openTab;
-            setTimeout(() => this.$root.querySelector(`[data-focus-tab='${name}']`)?.focus(), 250);
+            var finder = ("" != hasErrors) ? `[data-focus-tab-error = '${name}-${hasErrors[0]}']` :`[data-focus-tab = '${name}']`
+            setTimeout(() => this.$root.querySelector(finder)?.focus(), 250);
         },
         changeActiveOverlay(activeOverlay = "") {
             this.activeOverlay = activeOverlay;
