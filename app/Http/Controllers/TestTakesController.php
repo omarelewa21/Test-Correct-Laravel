@@ -636,6 +636,8 @@ class TestTakesController extends Controller
         ]);
         $testTake->test->append('has_pdf_attachments');
 
+        if($request->with_allowWSC) $testTake->test->append('allow_wsc_for_students');
+
         $testTakeResponse = $this->showGeneric($testTake, $request);
 
         if ($testTakeResponse === []) {

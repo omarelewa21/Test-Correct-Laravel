@@ -1317,4 +1317,14 @@ class Test extends BaseModel
             })
             ->values();
     }
+
+    /**
+     * return true if allow_writing_assignment is allowed for the school location and there are writing assignments
+     *
+     * @return bool
+     */
+    public function getAllowWscForStudentsAttribute(): bool
+    {
+        return Auth()->user()->schoolLocation->allow_writing_assignment && $this->getWritingAssignmentsCount() > 0;
+    }
 }
