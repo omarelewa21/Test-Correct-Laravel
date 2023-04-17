@@ -132,7 +132,7 @@
         <x-partials.evaluation.drawer :question="$this->currentQuestion"
                                       :group="$this->currentGroup"
                                       :navigation-value="$this->questionPosition"
-                                      :feedback-tab-disabled="$this->hasFeedback"
+                                      :feedback-tab-disabled="!$this->hasFeedback"
                                       :co-learning-enabled="$this->showCoLearningScoreToggle"
                                       :in-review="true"
                                       :unique-key="$this->questionPosition"
