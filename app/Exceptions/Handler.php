@@ -67,9 +67,7 @@ class Handler extends ExceptionHandler
                 return response()
                     ->view('errors.deployment-maintenance', ['deployment' => $e->deployment], 503);
             }
-        }
-
-        else if ($this->isHttpException($e)) {
+        } else if ($this->isHttpException($e)) {
             return $this->renderHttpException($e);
         } else if ($e instanceof QuestionException || $e instanceof SchoolAndSchoolLocationsImportException) {
             $this->sendExceptionMail($e->getMessage(), $e->getFile(), $e->getLine(), $e->getDetails());

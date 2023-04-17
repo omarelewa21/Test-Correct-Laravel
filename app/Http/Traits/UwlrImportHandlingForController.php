@@ -45,7 +45,7 @@ trait UwlrImportHandlingForController
                             ->orWhereNotNull('checked_by_admin');
                     })
                     ->whereIn('class_id',$classIds->toArray())
-                    ->pluck('class_id')
+                    ->select('class_id')
             )
             ->update([
                 'visible' => true,

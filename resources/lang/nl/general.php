@@ -78,4 +78,5 @@ return [
     'aanvraag datum'                  => 'Aanvraag datum',
     'inklappen'                       => 'Inklappen',
     'uitklappen'                      => 'Uitklappen',
+    'cancel'                          => 'Annuleren',
 ];

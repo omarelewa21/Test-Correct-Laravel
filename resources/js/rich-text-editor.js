@@ -83,10 +83,10 @@ RichTextEditor = {
         textarea.dispatchEvent(new Event("input"));
     },
 
-    initClassicEditorForStudentplayer: function(editorId, questionId) {
+    initClassicEditorForStudentplayer: function (editorId, questionId, allowWsc = false) {
         return ClassicEditor
             .create(document.querySelector("#" + editorId),
-                this.getConfigForStudent(false, [])
+                this.getConfigForStudent(allowWsc, [])
             )
             .then(editor => {
                 ClassicEditors[editorId] = editor;
@@ -178,7 +178,37 @@ RichTextEditor = {
             image: {
                 upload: {
                     types: ["jpeg", "png", "gif", "bmp", "webp", "tiff"]
-                }
+                },
+                toolbar: [
+                    'imageTextAlternative',
+                    // 'toggleImageCaption',
+                    '|',
+                    'imageStyle:inline',
+                    {
+                        // Grouping into one drop-down.
+                        name: 'wrapText',
+                        title: 'Tekstterugloop',
+                        items: [
+                            'imageStyle:alignLeft',
+                            'imageStyle:alignRight',
+                        ],
+                        defaultItem: 'imageStyle:alignLeft'
+                    },
+                    {
+                        // Grouping into one drop-down.
+                        name: 'breakText',
+                        title: 'Tekst onderbreken',
+                        items: [
+                            'imageStyle:alignBlockLeft',
+                            'imageStyle:alignCenter',
+                            'imageStyle:alignBlockRight',
+                        ],
+                        defaultItem: 'imageStyle:alignBlockLeft'
+                    },
+                    'imageStyle:side',
+                    '|',
+                    'resizeImage'
+                ]
             },
             simpleUpload: {
                 uploadUrl: "/cms/ckeditor_upload/images",

@@ -28,39 +28,39 @@ trait WithQuestionFilteredHelpers
                         switch($filters['source']){
                             case 'schoolLocation': // only my colleages and me
                                 if(is_array($value)) {
-                                    $subjectIds = $user->subjects()->whereIn('base_subject_id', $value);
+                                    $subjectIdsBuilder = $user->subjects()->whereIn('base_subject_id', $value);
                                 } else {
-                                    $subjectIds = $user->subjects()->where('base_subject_id','=',$value);
+                                    $subjectIdsBuilder = $user->subjects()->where('base_subject_id','=',$value);
                                 }
-                                $subjectIds = $subjectIds->pluck('id');
-                                $query->whereIn('subject_id',$subjectIds);
+                                $subjectIdsBuilder->select('id');
+                                $query->whereIn('subject_id',$subjectIdsBuilder);
                                 break;
                             case 'school': //  shared sections
                                 if(is_array($value)) {
-                                    $subjectIds = $user->subjectsOnlyShared()->whereIn('base_subject_id', $value);
+                                    $subjectIdsBuilder = $user->subjectsOnlyShared()->whereIn('base_subject_id', $value);
                                 } else {
-                                    $subjectIds = $user->subjectsOnlyShared()->where('base_subject_id','=',$value);
+                                    $subjectIdsBuilder = $user->subjectsOnlyShared()->where('base_subject_id','=',$value);
                                 }
-                                $subjectIds = $subjectIds->pluck('id');
-                                $query->whereIn('subject_id',$subjectIds);
+                                $subjectIdsBuilder->select('id');
+                                $query->whereIn('subject_id',$subjectIdsBuilder);
                                 break;
                             default:
                                 if(is_array($value)) {
-                                    $subjectIds = $user->subjectsIncludingShared()->whereIn('base_subject_id', $value);
+                                    $subjectIdsBuilder = $user->subjectsIncludingShared()->whereIn('base_subject_id', $value);
                                 } else {
-                                    $subjectIds = $user->subjectsIncludingShared()->where('base_subject_id','=',$value);
+                                    $subjectIdsBuilder = $user->subjectsIncludingShared()->where('base_subject_id','=',$value);
                                 }
-                                $subjectIds = $subjectIds->pluck('id');
-                                $query->whereIn('subject_id',$subjectIds);
+                                $subjectIdsBuilder->select('id');
+                                $query->whereIn('subject_id',$subjectIdsBuilder);
                                 break;
                         }
                     } else {
                         if(is_array($value)) {
-                            $subjectIds = $user->subjectsIncludingShared()->whereIn('base_subject_id', $value);
+                            $subjectIdsBuilder = $user->subjectsIncludingShared()->whereIn('base_subject_id', $value);
                         } else {
-                            $subjectIds = $user->subjectsIncludingShared()->where('base_subject_id','=',$value);
+                            $subjectIdsBuilder = $user->subjectsIncludingShared()->where('base_subject_id','=',$value);
                         }
-                        $subjectIds = $subjectIds->pluck('id');
+                        $subjectIdsBuilder->select('id');
                         $query->whereIn('subject_id',$subjectIds);
                     }
 
@@ -75,14 +75,14 @@ trait WithQuestionFilteredHelpers
                                     ->where('question_authors.user_id', '=', $user->getKey());
                                 break;
                             case 'schoolLocation': // only my colleages and me
-                                $query->whereIn('subject_id', $user->subjects()->pluck('id'));
+                                $query->whereIn('subject_id', $user->subjects()->select('id'));
                                 $query->where($this->table . '.owner_id', Auth::user()->school_location_id);
                                 break;
                             case 'school': //  shared sections
-                                $query->whereIn('subject_id', $user->subjectsOnlyShared()->pluck('id'));
+                                $query->whereIn('subject_id', $user->subjectsOnlyShared()->select('id'));
                                 break;
                             default:
-                                $query->whereIn('subject_id', $user->subjectsIncludingShared()->pluck('id'));
+                                $query->whereIn('subject_id', $user->subjectsIncludingShared()->select('id'));
                                 break;
                         }
                     }
@@ -341,8 +341,10 @@ trait WithQuestionFilteredHelpers
     {
         $joins = [];
         if (!$openQuestionOnly && !array_key_exists('subtype', $filters) && !$openQuestionDisabled) {
+            // instead of just set the joins to add openquestion, the join takes place straight away. Probably due to further filters and/ or sortings
             $query->leftJoin($openQuestion->getTable(), $openQuestion->getTable() . '.' . $openQuestion->getKeyName(), '=', $this->getTable() . '.' . $this->getKeyName());
-        } elseif ($openQuestionOnly && !array_key_exists('subtype', $filters)) {
+        } elseif ($openQuestionOnly) {
+            // maybe it could be joined straight away just as above.
             $joins[] = 'openquestion';
         }
         $joins[] = 'groupquestion';
@@ -401,6 +403,8 @@ trait WithQuestionFilteredHelpers
 
     private function addSourceFilterToPublishedQuery(&$query, $source, $baseSubjectIds = [])
     {
+        $subjectsQuery = null;
+
         switch($source){
             case 'national':
                 $subjectsQuery = Subject::nationalItemBankFiltered();
@@ -425,7 +429,7 @@ trait WithQuestionFilteredHelpers
         }
 
 
-        if ($subjectsIds = $subjectsQuery->pluck('id')) {
+        if (isset($subjectsQuery) && $subjectsIds = $subjectsQuery->pluck('id')) {
             return $query->whereIn('subject_id', $subjectsIds);
         }
 

@@ -104,10 +104,10 @@ class Subject extends BaseModel implements AccessCheckable
             });
         } elseif (!in_array('Administrator', $roles) && $user->isPartOfSharedSection()) {
             $query->whereIn('section_id',
-                $user->sections()
+                $user->sections()->pluck('id')
                     ->union(
-                        $user->sectionsOnlyShared()
-                    )->pluck('id')
+                        $user->sectionsOnlyShared()->pluck('id')
+                    )
             );
         }
 
