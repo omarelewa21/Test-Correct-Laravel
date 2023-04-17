@@ -47,7 +47,6 @@
     </div>
     <div class="flex flex-col w-full justify-between h-[calc(100vh-var(--header-height))] drawer-width">
         <div class="flex flex-col ">
-
             <div class="flex justify-between drawer-content-head border-b border-bluegrey"
                  x-init="$nextTick(() => {fillSpaceBetweenElementsHorizontal('drawerContentHeadText1', 'drawerContentHeadText2');})"
                  wire:key="{{ now()->timestamp }}"
@@ -62,12 +61,13 @@
                 </div>
             </div>
 
-            <div class="drawer-content divide-y divide-bluegrey overflow-auto">
+            <div class="drawer-content overflow-auto">
                 @foreach($this->testParticipants as $testParticipant)
                     @if($testParticipant->active)
                         <x-partials.sidebar.co-learning-teacher.student-info-container
                                 :testParticipant="$testParticipant"
-                        ></x-partials.sidebar.co-learning-teacher.student-info-container>
+                                :activeAnswerRating="$activeAnswerRating"
+                        />
                     @endif
                 @endforeach
             </div>
@@ -85,7 +85,7 @@
                                   wire:loading.attr="disabled"
             >
                 <x-icon.arrow-left/>
-                <span class="ml-2">{{ __('co-learning.previous') }}</span>
+                <span>{{ __('co-learning.previous') }}</span>
             </x-button.text-button>
             <x-button.primary wire:click.prevent="goToNextQuestion"
                               @click="resetToggles"
@@ -95,7 +95,7 @@
                               x-ref="footerElement2"
                               wire:loading.attr="disabled"
             >
-                <span class="mr-2">{{ __('co-learning.next') }}</span>
+                <span>{{ __('co-learning.next') }}</span>
                 <x-icon.arrow/>
             </x-button.primary>
         </div>
