@@ -9,7 +9,7 @@ export const validSvgElementKeys = {
     line: ["x1", "y1", "x2", "y2", "pathLength"],
     path: ["d"],
     image: ["x", "y", "width", "height", "href", "preserveAspectRatio", "identifier"],
-    text: ["x", "y", "dx", "dy", "rotate", "lengthAdjust", "data-textcontent"],
+    text: ["x", "y", "dx", "dy", "rotate", "lengthAdjust", "data-textcontent", "font-family"],
     g: ["transform"],
 };
 
@@ -48,3 +48,16 @@ export const zoomParams = {
 export const panParams = {
     STEP: 5,
 };
+
+export const elementClassNameForType = {
+    "rect": "Rectangle",
+    "circle": "Circle",
+    "line": "Line",
+    "text": "Text",
+    "image": "Image",
+    "path": "Path"
+};
+
+export const resizableSvgShapes = [
+  "rect", "circle", "image"
+];

@@ -4,9 +4,11 @@ use Illuminate\Support\Facades\Auth;
 use Ramsey\Uuid\Uuid;
 use tcCore\EducationLevel;
 use tcCore\Http\Helpers\DemoHelper;
+use tcCore\Http\Traits\Modal\TestActions;
 
 class CreateTestRequest extends Request {
 
+	use TestActions;
 	/**
 	 * Determine if the user is authorized to make this request.
 	 *
@@ -27,15 +29,15 @@ class CreateTestRequest extends Request {
 		$this->filterInput();
 
 		return [
-			'subject_id' => '',
-			'education_level_id' => 'required',
-			'period_id' => '',
-			'name' => 'unique:tests,name,NULL,id,author_id,' . Auth::id().',deleted_at,NULL,is_system_test,0',
-			'abbreviation' => '',
-			'kind' => '',
-			'status' => '',
-			'grade' => '',
-			'shuffle' => ''
+			'subject_id' 			=> ['required', 'integer', $this->getAllowedSubjectsRule()],
+			'education_level_id' 	=> ['required', 'integer', $this->getAllowedEducationLevelsRule()],
+			'period_id' 			=> ['required', 'integer', $this->getAllowedPeriodsRule()],
+			'name' 					=> $this->getNameRulesDependingOnAction(),
+			'abbreviation' 			=> 'required|max:5',
+			'kind' 					=> '',
+			'status' 				=> '',
+			'grade' 				=> '',
+			'shuffle' 				=> 'required|boolean'
 		];
 	}
 

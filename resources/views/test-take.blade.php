@@ -23,6 +23,7 @@
                             :question="$testQuestion"
                             :number="++$key"
                             :answers="$answers"
+                            :testTakeUuid="$uuid"
                             wire:key="'q-'.$testQuestion->uuid'"
                         />
                     @elseif($testQuestion->type === 'MultipleChoiceQuestion')
@@ -30,6 +31,7 @@
                             :question="$testQuestion"
                             :number="++$key"
                             :answers="$answers"
+                            :testTakeUuid="$uuid"
                             wire:key="'q-'.$testQuestion->uuid'"
                         />
                     @elseif($testQuestion->type === 'OpenQuestion')
@@ -37,6 +39,7 @@
                             :question="$testQuestion"
                             :number="++$key"
                             :answers="$answers"
+                            :testTakeUuid="$uuid"
                             wire:key="'q-'.$testQuestion->uuid'q-'"
                         />
                     @elseif($testQuestion->type === 'MatchingQuestion')
@@ -45,6 +48,7 @@
                             :question="$testQuestion"
                             :number="++$key"
                             :answers="$answers"
+                            :testTakeUuid="$uuid"
                             wire:key="'q-'.$testQuestion->uuid'"
                         />
                     @elseif($testQuestion->type === 'CompletionQuestion')
@@ -52,6 +56,7 @@
                             :question="$testQuestion"
                             :number="++$key"
                             :answers="$answers"
+                            :testTakeUuid="$uuid"
                             wire:key="'q-'.$testQuestion->uuid'"
                         />
                     @elseif($testQuestion->type === 'RankingQuestion')
@@ -59,6 +64,7 @@
                             :question="$testQuestion"
                             :number="++$key"
                             :answers="$answers"
+                            :testTakeUuid="$uuid"
                             wire:key="'q-'.$testQuestion->uuid'"
                         />
                     @elseif($testQuestion->type === 'InfoscreenQuestion')
@@ -66,6 +72,7 @@
                             :question="$testQuestion"
                             :number="++$key"
                             :answers="$answers"
+                            :testTakeUuid="$uuid"
                             wire:key="'q-'.$testQuestion->uuid"
                         />
                     @elseif($testQuestion->type === 'DrawingQuestion')
@@ -73,6 +80,7 @@
                             :question="$testQuestion"
                             :number="++$key"
                             :answers="$answers"
+                            :testTakeUuid="$uuid"
                             wire:key="'q-'.$testQuestion->uuid"
                         />
                     @elseif($testQuestion->type === 'MatrixQuestion')
@@ -80,6 +88,7 @@
                             :question="$testQuestion"
                             :number="++$key"
                             :answers="$answers"
+                            :testTakeUuid="$uuid"
                             wire:key="'q-'.$testQuestion->uuid"
                         />
                     @endif

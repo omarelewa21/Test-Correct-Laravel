@@ -157,7 +157,7 @@ class PValueRepository
         }
 
         // Get all pvalues and join attainments
-        $pValues = PValue::whereIn('test_participant_id', $student->testParticipants()->pluck('id'))->with('attainments');
+        $pValues = PValue::whereIn('test_participant_id', $student->testParticipants()->select('id'))->with('attainments');
         if ($subjectIds !== null) {
             $pValues->whereIn('subject_id', $subjectIds);
         }
@@ -439,7 +439,7 @@ class PValueRepository
                     ->where('test_participants.user_id', '=', $user->getKey());
             })
             ->filter($user, $periods, $educationLevelYears, $teachers)
-            ->whereIn('p_value_attainments.attainment_id', Attainment::withoutGlobalScope(AttainmentScope::class)->where('attainment_id', $attainment->getKey())->pluck('id'))
+            ->whereIn('p_value_attainments.attainment_id', Attainment::withoutGlobalScope(AttainmentScope::class)->where('attainment_id', $attainment->getKey())->select('id'))
             ->groupBy('attainment_id');
 //            ->orderByRaw('is_learning_goal, education_level_id, attainments.code, attainments.subcode')
 

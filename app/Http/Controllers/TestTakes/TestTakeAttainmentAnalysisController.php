@@ -18,7 +18,7 @@ class TestTakeAttainmentAnalysisController extends Controller {
      */
     public function index(TestTake $testTake, Request $request)
     {
-        $participantIds = $testTake->testParticipants()->pluck('id');
+        $participantIdsBuilder = $testTake->testParticipants()->select('id');
         $data = DB::table('p_values')
             ->leftJoin('questions','p_values.question_id','=','questions.id')
             ->leftJoin('question_attainments','questions.id','=','question_attainments.question_id')
@@ -28,7 +28,7 @@ class TestTakeAttainmentAnalysisController extends Controller {
                     sum(p_values.max_score) as total_max_score,count(question_attainments.question_id) as questions_per_attainment,
                     count(distinct p_values.test_participant_id) as count_testparticipants,
                     sum(p_values.score)/sum(p_values.max_score) as p_value')
-            ->whereIn('test_participant_id',$participantIds)
+            ->whereIn('test_participant_id',$participantIdsBuilder)
             ->whereNull('p_values.deleted_at')
             ->whereNull('question_attainments.deleted_at')
             ->whereNull('questions.deleted_at')
@@ -51,7 +51,7 @@ class TestTakeAttainmentAnalysisController extends Controller {
      */
     public function show(TestTake $testTake, Attainment $attainment)
     {
-        $participantIds = $testTake->testParticipants()->pluck('id');
+        $participantIdsBuilder = $testTake->testParticipants()->select('id');
         $data = DB::table('p_values')
             ->leftJoin('questions','p_values.question_id','=','questions.id')
             ->leftJoin('question_attainments','questions.id','=','question_attainments.question_id')
@@ -62,7 +62,7 @@ class TestTakeAttainmentAnalysisController extends Controller {
                     sum(p_values.max_score) as total_max_score,count(question_attainments.question_id) as questions_per_attainment,
                     count(distinct p_values.test_participant_id) as count_testparticipants,
                     sum(p_values.score)/sum(p_values.max_score) as p_value')
-            ->whereIn('test_participant_id',$participantIds)
+            ->whereIn('test_participant_id',$participantIdsBuilder)
             ->where('question_attainments.attainment_id',$attainment->getKey())
             ->whereNull('p_values.deleted_at')
             ->whereNull('question_attainments.deleted_at')

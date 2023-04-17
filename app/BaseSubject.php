@@ -122,7 +122,7 @@ class BaseSubject extends BaseModel {
 
     public static function scopeCurrentForAuthUser($query)
     {
-        return $query->whereIn('id', Subject::filtered(['user_current' => Auth::id()])->pluck('base_subject_id'));
+        return $query->whereIn('id', Subject::filtered(['user_current' => Auth::id()])->select('base_subject_id'));
     }
 
     // shouldn't this method be used for the scopeCurrentForAuthUser ???

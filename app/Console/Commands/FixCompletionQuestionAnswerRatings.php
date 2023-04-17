@@ -59,15 +59,15 @@ class FixCompletionQuestionAnswerRatings extends Command
 
         $dryRun = !$this->confirm('Do you want to SKIP the dry run?');
 
-        $completionQuestionsIds = CompletionQuestion::whereIn('id',
+        $completionQuestionsIdsBuilder = CompletionQuestion::whereIn('id',
             CompletionQuestionAnswerLink::where('updated_at','>=', '2020-10-22 12:00:00')
                 ->where('updated_at','<=','2020-10-22 21:00:00')
-                ->pluck('completion_question_id')
-        )->pluck('id');
+                ->select('completion_question_id')
+        )->select('id');
 
-        $testIds = TestQuestion::whereIn('question_id',$completionQuestionsIds->toArray())->groupBy('test_id')->pluck('test_id');
+        $testIdsBuilder = TestQuestion::whereIn('question_id',$completionQuestionsIdsBuilder)->groupBy('test_id')->select('test_id');
 
-        $testTakes = TestTake::whereIn('test_take_status_id',[7,8,9])->whereIn('test_id',$testIds->toArray())->get();
+        $testTakes = TestTake::whereIn('test_take_status_id',[7,8,9])->whereIn('test_id',$testIdsBuilder)->get();
 
         $testTakeRecalculationHelper = new TestTakeRecalculationHelper($this);
         $report = (object) [

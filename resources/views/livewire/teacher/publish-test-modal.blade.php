@@ -40,7 +40,7 @@
                 </div>
             </div>
         @endif
-        <div>{{ __('test.publish_test_text') }}</div>
+        <div> {{ __('test.publish_test_text') }} <br> {{ __('test.publish_test_text_hint') }} </div>
 
         @notempty($testErrors)
         <div class="flex flex-col gap-2.5 mt-2.5">
