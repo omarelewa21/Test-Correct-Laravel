@@ -9,7 +9,7 @@
 'toggleValue' => 0,
 'identifier' => null,
 ])
-<div wire:ignore
+<span wire:ignore
      {{ $attributes->except(['wire:model', 'class']) }}
      x-id="['slider-button']"
      x-data="sliderToggle(
@@ -33,10 +33,10 @@
             {{$label}}
         </label>
     @endif
-    <div class="relative">
-        <div :id="$id('slider-button')" @class(['flex', 'pointer-events-none' => $disabled])>
+    <span class="relative">
+        <span :id="$id('slider-button')" @class(['flex', 'pointer-events-none' => $disabled])>
             @foreach($options as $id => $button)
-                <div style="width: {{$buttonWidth}}"
+                <span style="width: {{$buttonWidth}}"
                      @class([
                           'slider-option hover:text-primary group flex items-center justify-center h-10 bold border-t border-b first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg',
                           'bg-off-white cursor-pointer border-bluegrey' => !$disabled,
@@ -54,14 +54,14 @@
                             {{ $button }}
                         @endif
                     </span>
-                </div>
+                </span>
             @endforeach
-        </div>
-        <div :id="$id('slider-button')+'-handle'"
+        </span>
+        <span :id="$id('slider-button')+'-handle'"
              style="width: @js($buttonWidth);"
              :style="{left: buttonPosition, width: buttonWidth}"
              class="border-2 rounded-lg border-primary absolute h-10 bottom-0 pointer-events-none slider-button-handle hidden"
         >
-        </div>
-    </div>
-</div>
+        </span>
+    </span>
+</span>

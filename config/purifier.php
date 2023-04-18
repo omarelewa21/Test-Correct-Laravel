@@ -22,66 +22,67 @@ return [
     'cachePath'     => storage_path('app/purifier'),
     'cacheFileMode' => 0755,
     'settings'      => [
-        'default' => [
+        'default'           => [
             'HTML.Doctype'             => 'HTML 4.01 Transitional',
-            'HTML.Allowed'             => 'figure[style|class],h1,h2,h3,h4,h5,h6,b,strong,i,em,a[href|title],ul,ol,li,p[style],br,span[style|class],img[width|height|alt|src|style],table[cellspacing|cellpadding|style|border|style],tbody,tr,td[abbr],thead,s,sub,sup,u,math[xmlns|mathvariant|mathcolor|dir|class],msqrt[mathvariant|mathcolor],mn[mathvariant|mathcolor],msub[mathvariant|mathcolor],msup[mathvariant|mathcolor],mo[mathvariant|mathcolor|largeop],mfrac[bevelled|mathvariant|mathcolor],mrow[mathvariant|mathcolor],mi[mathvariant|mathcolor],mfenced[open|close|mathvariant|mathcolor],mroot[mathvariant|mathcolor],mover[mathvariant|mathcolor],munderover[mathvariant|mathcolor],mn[mathvariant|mathcolor],mtd[mathvariant|mathcolor],mtr[mathvariant|mathcolor],mtable[mathvariant|mathcolor],msrow[mathvariant|mathcolor],msline[mathvariant|mathcolor],mstack[mathvariant|mathcolor|charalign|stackalign],mlongdiv[mathvariant|mathcolor|charalign|charspacing|stackalign],msgroup[mathvariant|mathcolor],mstyle[mathvariant|mathcolor|displaystyle],mmultiscripts[mathvariant|mathcolor],mprescripts[mathvariant|mathcolor],none[mathvariant|mathcolor],msubsup[mathvariant|mathcolor],munder[mathvariant|mathcolor],menclose[mathvariant|mathcolor|notation],mtext[mathvariant|mathcolor],mspace[mathvariant|mathcolor|linebreak],blockquote[style]',
+            'HTML.Allowed'             => 'figure[style|class],h1,h2,h3,h4,h5,h6,b,strong,i,em,a[href|title],ul,ol,li,p[style],br,span[style|class],img[width|height|alt|src|style|class],table[cellspacing|cellpadding|style|border|style],tbody,tr,td[abbr],thead,s,sub,sup,u,math[xmlns|mathvariant|mathcolor|dir|class],msqrt[mathvariant|mathcolor],mn[mathvariant|mathcolor],msub[mathvariant|mathcolor],msup[mathvariant|mathcolor],mo[mathvariant|mathcolor|largeop],mfrac[bevelled|mathvariant|mathcolor],mrow[mathvariant|mathcolor],mi[mathvariant|mathcolor],mfenced[open|close|mathvariant|mathcolor],mroot[mathvariant|mathcolor],mover[mathvariant|mathcolor],munderover[mathvariant|mathcolor],mn[mathvariant|mathcolor],mtd[mathvariant|mathcolor],mtr[mathvariant|mathcolor],mtable[mathvariant|mathcolor],msrow[mathvariant|mathcolor],msline[mathvariant|mathcolor],mstack[mathvariant|mathcolor|charalign|stackalign],mlongdiv[mathvariant|mathcolor|charalign|charspacing|stackalign],msgroup[mathvariant|mathcolor],mstyle[mathvariant|mathcolor|displaystyle],mmultiscripts[mathvariant|mathcolor],mprescripts[mathvariant|mathcolor],none[mathvariant|mathcolor],msubsup[mathvariant|mathcolor],munder[mathvariant|mathcolor],menclose[mathvariant|mathcolor|notation],mtext[mathvariant|mathcolor],mspace[mathvariant|mathcolor|linebreak],blockquote[style]',
             'CSS.AllowedProperties'    => 'font,font-size,font-weight,font-style,font-family,text-decoration,padding-left,color,background-color,text-align,width,height,border-style,border-width,margin,float',
             'AutoFormat.AutoParagraph' => false,
             'AutoFormat.RemoveEmpty'   => false,
+            'CSS.MaxImgLength'         => null,
         ],
-        'test'    => [
+        'test'              => [
             'Attr.EnableID' => 'true',
         ],
-        "youtube" => [
+        "youtube"           => [
             "HTML.SafeIframe"      => 'false',
             "URI.SafeIframeRegexp" => "%^(http://|https://|//)(www.youtube.com/embed/|player.vimeo.com/video/)%",
         ],
         'custom_definition' => [
-            'id'  => 'html5-definitions',
-            'rev' => 1,
-            'debug' => false,
-            'elements' => [
+            'id'         => 'html5-definitions',
+            'rev'        => 1,
+            'debug'      => false,
+            'elements'   => [
                 // http://developers.whatwg.org/sections.html
                 ['section', 'Block', 'Flow', 'Common'],
-                ['p',       'Block', 'Flow', 'Common'],
-                ['nav',     'Block', 'Flow', 'Common'],
+                ['p', 'Block', 'Flow', 'Common'],
+                ['nav', 'Block', 'Flow', 'Common'],
                 ['article', 'Block', 'Flow', 'Common'],
-                ['aside',   'Block', 'Flow', 'Common'],
-                ['header',  'Block', 'Flow', 'Common'],
-                ['footer',  'Block', 'Flow', 'Common'],
-				
-				// Content model actually excludes several tags, not modelled here
+                ['aside', 'Block', 'Flow', 'Common'],
+                ['header', 'Block', 'Flow', 'Common'],
+                ['footer', 'Block', 'Flow', 'Common'],
+
+                // Content model actually excludes several tags, not modelled here
                 ['address', 'Block', 'Flow', 'Common'],
                 ['hgroup', 'Block', 'Required: h1 | h2 | h3 | h4 | h5 | h6', 'Common'],
-				
-				// http://developers.whatwg.org/grouping-content.html
+
+                // http://developers.whatwg.org/grouping-content.html
                 ['figure', 'Block', 'Optional: (figcaption, Flow) | (Flow, figcaption) | Flow', 'Common'],
                 ['figcaption', 'Inline', 'Flow', 'Common'],
-				
-				// http://developers.whatwg.org/the-video-element.html#the-video-element
+
+                // http://developers.whatwg.org/the-video-element.html#the-video-element
                 ['video', 'Block', 'Optional: (source, Flow) | (Flow, source) | Flow', 'Common', [
-                    'src' => 'URI',
-					'type' => 'Text',
-					'width' => 'Length',
-					'height' => 'Length',
-					'poster' => 'URI',
-					'preload' => 'Enum#auto,metadata,none',
-					'controls' => 'Bool',
+                    'src'      => 'URI',
+                    'type'     => 'Text',
+                    'width'    => 'Length',
+                    'height'   => 'Length',
+                    'poster'   => 'URI',
+                    'preload'  => 'Enum#auto,metadata,none',
+                    'controls' => 'Bool',
                 ]],
                 ['source', 'Block', 'Flow', 'Common', [
-					'src' => 'URI',
-					'type' => 'Text',
+                    'src'  => 'URI',
+                    'type' => 'Text',
                 ]],
 
-				// http://developers.whatwg.org/text-level-semantics.html
-                ['s',    'Inline', 'Inline', 'Common'],
-                ['var',  'Inline', 'Inline', 'Common'],
-                ['sub',  'Inline', 'Inline', 'Common'],
-                ['sup',  'Inline', 'Inline', 'Common'],
+                // http://developers.whatwg.org/text-level-semantics.html
+                ['s', 'Inline', 'Inline', 'Common'],
+                ['var', 'Inline', 'Inline', 'Common'],
+                ['sub', 'Inline', 'Inline', 'Common'],
+                ['sup', 'Inline', 'Inline', 'Common'],
                 ['mark', 'Inline', 'Inline', 'Common'],
-                ['wbr',  'Inline', 'Empty', 'Core'],
-				
-				// http://developers.whatwg.org/edits.html
+                ['wbr', 'Inline', 'Empty', 'Core'],
+
+                // http://developers.whatwg.org/edits.html
                 ['ins', 'Block', 'Flow', 'Common', ['cite' => 'URI', 'datetime' => 'CDATA']],
                 ['del', 'Block', 'Flow', 'Common', ['cite' => 'URI', 'datetime' => 'CDATA']],
             ],
@@ -100,13 +101,12 @@ return [
             ['mfrac', 'bevelled', 'CDATA'],
             ['mfenced', 'open', 'CDATA'],
             ['mfenced', 'close', 'CDATA'],
-            
+
         ],
-        'custom_elements' => [
+        'custom_elements'   => [
             ['u', 'Inline', 'Inline', 'Common'],
             ['blockquote', 'Block', 'Flow', 'Common'],
 
-            
 
             // wiris
             // http://htmlpurifier.org/docs/enduser-customize.html
