@@ -1,21 +1,22 @@
 <div x-data="tooltip(@js($alwaysLeft))"
-        x-cloak
-        x-on:click="tooltip = !tooltip"
-        x-on:click.outside="tooltip = false"
-        x-bind:class="tooltip ? @js($activeClasses) : @js($idleClasses)"
-        @class([
-          $attributes->get('class'),
-          'tooltip-container relative flex items-center justify-center rounded-full transition-colors cursor-pointer z-',
-          'w-[22px]' => !$iconWidth,
-          'h-[22px]' => !$iconHeight,
-        ])
-        x-on:scroll.window="handleScroll()"
-        x-on:resize.window="handleResize()"
-        x-on:close="tooltip = false"
+     @class([
+       $attributes->get('class'),
+       'tooltip-container relative flex items-center justify-center rounded-full transition-colors cursor-pointer',
+       'w-[22px]' => !$iconWidth,
+       'h-[22px]' => !$iconHeight,
+     ])
+     x-cloak
+     x-show="show"
+     x-bind:class="tooltip ? @js($activeClasses) : @js($idleClasses)"
+     x-on:click="tooltip = !tooltip"
+     x-on:click.outside="tooltip = false"
+     x-on:scroll.window="handleScroll()"
+     x-on:resize.window="handleResize()"
+     x-on:close="tooltip = false"
 >
     @if($idleIcon)
         {{ $idleIcon }}
-        @else
+    @else
         <x-icon.questionmark-small x-show="!tooltip" x-cloak />
     @endif
     <x-icon.close-small x-show="tooltip" x-cloak />

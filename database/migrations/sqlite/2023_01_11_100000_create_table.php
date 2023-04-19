@@ -109,7 +109,6 @@ class CreateTable extends Migration
         $this->createRankingQuestionAnswers();
         $this->createRankingQuestions();
         $this->createRatings();
-//        $this->question_groups();
         $this->createRoles();
         $this->createSalesOrganizations();
         $this->createSamlMessages();
@@ -145,7 +144,7 @@ class CreateTable extends Migration
         $this->createTeachers();
         $this->temporary_login();
         $this->createTestAuthors();
-        $this->TestKinds();
+        $this->createTestKinds();
         $this->createTestParticipants();
         $this->createTestQuestions();
         $this->createTestRatingParticipants();
@@ -170,6 +169,8 @@ class CreateTable extends Migration
         $this->createAverageRating();
         $this->createUserFeatureSettings();
         $this->createUserSystemSettings();
+        $this->createMailsSend();
+        $this->createRttiExportLogs();
 
         (new \Database\Seeders\SqLiteSeeder())->run();
         //        Artisan::call('db:seed', ['--class' => 'SqLiteSeeder',]);
@@ -290,6 +291,8 @@ class CreateTable extends Migration
             $table->enum('type', ['SYSTEM', 'STUDENT', 'TEACHER']);
             $table->decimal('rating', 11, 1)->unsigned()->nullable();
             $table->text('advice')->nullable();
+            $table->json('json')->nullable();
+
         });
     }
 
@@ -402,6 +405,8 @@ class CreateTable extends Migration
             $table->string('os')->nullable();
             $table->text('headers')->nullable();
             $table->string('version_check_result')->nullable();
+            $table->string('user_os')->nullable();
+            $table->string('user_os_version')->nullable();
         });
     }
 //
@@ -1122,6 +1127,8 @@ class CreateTable extends Migration
             $table->longText('payload');
             $table->longText('exception');
             $table->timestamp('failed_at')->useCurrent();
+            $table->string('uuid')->after('id')->nullable()->unique();
+
         });
     }
 //
@@ -1327,6 +1334,33 @@ class CreateTable extends Migration
                 'colorcode'    => 'colorcode-47',
                 'partof'       => 11,
             ],
+            [
+                'id'           => 12,
+                'created_at'   => \Carbon\Carbon::now(),
+                'updated_at'   => \Carbon\Carbon::now(),
+                'name'         => 'Afgerond',
+                'displayorder' => 8,
+                'partof'       => 12,
+                'colorcode'    => 'colorcode-46'
+            ],
+            [
+                'id'           => 13,
+                'created_at'   => \Carbon\Carbon::now(),
+                'updated_at'   => \Carbon\Carbon::now(),
+                'name'         => 'Geannuleerd',
+                'displayorder' => 13,
+                'partof'       => 13,
+                'colorcode'    => 'colorcode-47'
+            ],
+            [
+                'id'           => 14,
+                'created_at'   => \Carbon\Carbon::now(),
+                'updated_at'   => \Carbon\Carbon::now(),
+                'name'         => 'Aangeleverd',
+                'displayorder' => 0,
+                'partof'       => 14,
+                'colorcode'    => 'colorcode-2'
+            ],
         ]);
     }
 //
@@ -1398,6 +1432,7 @@ class CreateTable extends Migration
             $table->integer('subject_id')->nullable();
             $table->boolean('contains_publisher_content')->nullable()->default(false);
             $table->efficientUuid('uuid')->index()->unique()->nullable();
+            $table->integer('test_id')->nullable();
         });
     }
 //
@@ -1587,6 +1622,8 @@ class CreateTable extends Migration
             $table->string('status')->default('INACTIVE');
             $table->integer('created_by');
             $table->boolean('for_all')->default(true);
+            $table->string('type')->default(\tcCore\Info::BASE_TYPE);
+
         });
     }
 //# Dump of table infoscreen_questions
@@ -3824,10 +3861,14 @@ class CreateTable extends Migration
             $table->tinyInteger('allow_new_student_environment')->default('1');
             $table->tinyInteger('allow_new_question_editor')->default('0');
             $table->tinyInteger('allow_new_drawing_question')->default('0');
+            $table->boolean('allow_new_test_bank')->default(true);
             $table->tinyInteger('keep_out_of_school_location_report')->default('0');
             $table->boolean('show_national_item_bank')->default(false);
             $table->boolean('allow_writing_assignment')->default(0);
             $table->enum('license_type', ['TRIAL', 'CLIENT'])->default('TRIAL');
+            $table->boolean('auto_uwlr_import')->default(0);
+            $table->timestamp('auto_uwlr_last_import')->nullable();
+            $table->string('auto_uwlr_import_status')->nullable();
 //            $table->foreign('school_id')->references('id')->on('schools');
 //            $table->foreign('grading_scale_id')->references('id')->on('grading_scales');
 //            $table->foreign('user_id')->references('id')->on('users');
@@ -4451,7 +4492,7 @@ class CreateTable extends Migration
      * PRIMARY KEY (`id`)
      * ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
      */
-    private function TestKinds()
+    private function createTestKinds()
     {
         Schema::create('test_kinds', function (Blueprint $table) {
             $table->id();
@@ -4533,6 +4574,7 @@ class CreateTable extends Migration
             $table->tinyInteger('started_in_new_player')->default('0');
             $table->tinyInteger('answers_provisioned')->default('0');
             $table->tinyInteger('available_for_guests')->default('0');
+            $table->integer('discussing_answer_rating_id')->unsigned()->nullable();
 //            $table->foreign('answer_id')->references('id')->on('answers');
 //            $table->foreign('school_class_id')->references('id')->on('school_classes');
 //            $table->foreign('test_take_status_id')->references('id')->on('test_take_statuses');
@@ -4851,6 +4893,14 @@ class CreateTable extends Migration
             $table->tinyInteger('allow_inbrowser_testing')->default('0');
             $table->tinyInteger('guest_accounts')->default('0');
             $table->integer('scheduled_by')->unsigned()->nullable();
+            $table->boolean('returned_to_taken')->default(false);
+            $table->tinyText('assessment_type')->nullable();
+            $table->integer('assessing_question_id')->nullable();
+            $table->dateTime('assessed_at')->nullable();
+            $table->integer('max_assessed_answer_index')->nullable();
+            $table->boolean('allow_wsc')->default(false);
+            $table->boolean('show_grades')->default(1);
+            $table->boolean('show_correction_model')->default(true)->nullable();
 //            $table->foreign('period_id')->references('id')->on('periods');
 //            $table->foreign('discussing_question_id')->references('id')->on('questions');
 //            $table->foreign('test_take_status_id')->references('id')->on('test_take_statuses');
@@ -5250,6 +5300,7 @@ class CreateTable extends Migration
             $table->integer('test_take_code_id')->nullable();
             $table->boolean('is_examcoordinator')->default(false);
             $table->enum('is_examcoordinator_for', ['NONE', 'SCHOOL_LOCATION', 'SCHOOL'])->nullable();
+            $table->timestamp('password_expiration_date')->nullable();
 //            $table->foreign('sales_organization_id')->references('id')->on('sales_organizations')->nullable();
 //            $table->foreign('school_location_id')->references('id')->on('school_locations')->nullable();
 //            $table->foreign('school_id')->references('id')->on('schools')->nullable();
@@ -5497,6 +5548,41 @@ class CreateTable extends Migration
                 $table->string('title');
                 $table->text('value');
             });
+        }
+    }
+
+    public function createMailsSend()
+    {
+        if (!Schema::hasTable('mails_send')) {
+            Schema::create('mails_send', function (Blueprint $table) {
+                $table->id();
+                $table->integer('user_id')->unsigned();
+                $table->string('mailable');
+                $table->timestamps();
+            });
+//            Schema::table('mails_send', function (Blueprint $table) {
+//                $table->foreign('user_id')->references('id')->on('users');
+//            });
+        }
+    }
+
+    public function createRttiExportLogs()
+    {
+        if (!Schema::hasTable('rtti_export_logs')) {
+            Schema::create('rtti_export_logs', function (Blueprint $table) {
+                $table->id();
+                $table->timestamps();
+                $table->integer('test_take_id');
+                $table->integer('user_id');
+                $table->string('url');
+                $table->text('export');
+                $table->text('result')->nullable();
+                $table->text('error')->nullable();
+                $table->boolean('has_errors')->default(false);
+                $table->text('response')->nullable();
+                $table->string('reference',50)->nullable();
+            });
+
         }
     }
 }

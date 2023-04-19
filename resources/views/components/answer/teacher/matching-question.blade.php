@@ -28,6 +28,7 @@
                                             :initialStatus="$answerOption->activeToggle"
                                             :toggleValue="$answerOption->score"
                                             :identifier="$answerOption->id"
+                                            :disabled="$disabledToggle"
                                     />
                                 @endif
                             @endforeach
@@ -69,6 +70,7 @@
                                                 :initialStatus="$answerOption->activeToggle"
                                                 :toggleValue="$answerOption->score"
                                                 :identifier="$answerOption->id"
+                                                :disabled="$disabledToggle"
                                         />
                                     @endif
                                 </div>

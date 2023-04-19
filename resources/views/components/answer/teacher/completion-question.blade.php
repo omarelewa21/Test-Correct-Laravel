@@ -8,7 +8,7 @@
                 {!! $answerStruct->get($answerIndex)->answerText !!}
             </span>
             @if($studentAnswer)
-                <x-button.true-false-toggle :disabled="!$answerStruct->get($answerIndex)->answered"
+                <x-button.true-false-toggle :disabled="$disabledToggle || !$answerStruct->get($answerIndex)->answered"
                                             :initialStatus="$answerStruct->get($answerIndex)->activeToggle"
                                             :toggleValue="$answerStruct->get($answerIndex)->score"
                                             :identifier="$answerStruct->get($answerIndex)->tag"
