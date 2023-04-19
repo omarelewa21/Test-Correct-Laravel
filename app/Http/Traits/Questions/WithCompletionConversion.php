@@ -44,7 +44,7 @@ trait WithCompletionConversion
                 return $word;
             }
             if (in_array($word, ['.', ',', ':', ';', '?', '!'])) {
-                return sprintf('<span class="mr-1 -ml-1">%s</span>', $word);
+                return sprintf('<span class="mr-1 -ml-2">%s</span>', $word);
             }
             return sprintf('<span class="mr-1">%s</span>', $word);
         });

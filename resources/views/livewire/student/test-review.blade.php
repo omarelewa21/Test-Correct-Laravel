@@ -112,7 +112,7 @@
                             </div>
                         </x-slot:titleLeft>
                         <x-slot:body>
-                            <div class="student-answer | w-full"
+                            <div class="student-answer | w-full | questionContainer"
                                  wire:key="student-answer-{{$this->currentQuestion->uuid.$this->currentAnswer->uuid}}"
                             >
                                 <x-dynamic-component
