@@ -98,6 +98,15 @@ class WaitingRoom extends Component
 
     public function startTestTake()
     {
+        // through the AppApi a Virtual Machine has been reported, so we cancel taking the test
+        if ($this->testParticipant->test_take_status_id === TestTakeStatus::STATUS_TAKEN) {
+            $this->testParticipant->test_take_status_id = TestTakeStatus::STATUS_TAKING_TEST;
+            $this->testParticipant->save();
+            $this->testParticipant->test_take_status_id = TestTakeStatus::STATUS_TAKEN;
+            $this->testParticipant->save();
+            return $this->escortUserFromWaitingRoom();
+        }
+
         if ($this->waitingTestTake->test_take_status_id === TestTakeStatus::STATUS_TAKING_TEST) {
             if (!$this->testParticipant->isRejoiningTestTake(TestTakeStatus::STATUS_TAKING_TEST)) {
                 $this->testParticipant->test_take_status_id = TestTakeStatus::STATUS_TAKING_TEST;

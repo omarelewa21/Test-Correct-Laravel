@@ -348,6 +348,7 @@ class MatchingQuestion extends Question implements QuestionInterface
             ->select('matching_question_answers.*', 'mal.order')
             ->orderBy('mal.order', 'desc')
             ->where('mal.matching_question_id', $this->getKey())
+            ->whereNull('mal.deleted_at')
             ->get();
     }
 

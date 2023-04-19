@@ -10,6 +10,7 @@ use tcCore\Http\Requests\AppApiHandInRequest;
 use tcCore\TestParticipant;
 use tcCore\TestTakeEvent;
 use tcCore\TestTakeEventType;
+use tcCore\TestTakeStatus;
 
 class AppApi extends Controller
 {
@@ -25,20 +26,35 @@ class AppApi extends Controller
     {
         $reason = $request->reason;
         $reasonId = TestTakeEventType::where('reason', '=', $reason)->value('id');
+        $response = ["ok" => true, "handedIn" => false];
+
         if ($reasonId == null) {
             Bugsnag::notifyError('UnknownTestTakeEventType', 'Reason ' . $reason . ' is not a valid TestTakeEventType.');
-            return;
+            $response['ok'] = false;
+            return Response::json($response);
         }
+
 
         $isReportedInLastTwoMinutesAndNotConfirmed = $testParticipant->testTake->testTakeEvents()->where('test_take_event_type_id', '=', $reasonId)->whereBetween('created_at', [now()->subMinutes(2), now()])->where('confirmed', '=', 0)->first();
         if ($isReportedInLastTwoMinutesAndNotConfirmed) {
-            return;
+            return Response::json($response);
         }
 
         $testTakeEvent = new TestTakeEvent();
         $testTakeEvent->setAttribute('test_take_event_type_id', $reasonId);
         $testTakeEvent->setAttribute('test_participant_id', $testParticipant->getKey());
         $testTakeEvent->setAttribute('metadata', json_decode($request->metadata, true));
+
+        // force hand-in test if a VM has been detected, but not if it is an assignment
+        if (
+            $testTakeEvent->testTakeEventType->reason === "vm" &&
+            !$testParticipant->testTake->test->isAssignment()
+        ) {
+            $testParticipant->setAttribute('test_take_status_id', TestTakeStatus::STATUS_TAKEN)->save();
+            $response['handedIn'] = true;
+        }
+
         $testParticipant->testTake->testTakeEvents()->save($testTakeEvent);
+        return Response::json($response);
     }
 }

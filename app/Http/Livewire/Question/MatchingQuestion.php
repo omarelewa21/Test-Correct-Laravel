@@ -23,6 +23,8 @@ class MatchingQuestion extends Component
     public $answerStruct;
 
     public $shuffledAnswers;
+    
+    public $testTakeUuid;
 
     public function mount()
     {

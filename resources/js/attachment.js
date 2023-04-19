@@ -93,7 +93,8 @@ window.plyrPlayer = {
     render(elem, wire, attachmentUuid, constraints, audioCanBePlayedAgain=true, mode="notPreview", controls=['play', 'progress', 'current-time', 'mute', 'volume'])
     {
         let player = new Plyr(elem, {
-            controls: controls
+            controls: controls,
+            iconUrl: '/svg/plyr.svg'
         });
 
         this.Onplaying(player, mode, wire, attachmentUuid);
@@ -115,7 +116,8 @@ window.plyrPlayer = {
     renderWithoutConstraints(elem) {
         let controls = ['play', 'progress', 'current-time', 'mute', 'volume'];
         let player = new Plyr(elem, {
-            controls: controls
+            controls: controls,
+            iconUrl: '/svg/plyr.svg'
         });
         return player;
     }
