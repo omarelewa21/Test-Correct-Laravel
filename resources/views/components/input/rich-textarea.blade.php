@@ -23,6 +23,9 @@
            case 'student-preview':
                $initFunctionCall = "RichTextEditor.initClassicEditorForStudentPreviewplayer('".$editorId."','".$lang."',".$temp.")";
                break;
+           case 'assessment-feedback':
+               $initFunctionCall = "RichTextEditor.initAssessmentFeedback('".$editorId."','".$lang."',".$temp.")";
+               break;
            default:
                $initFunctionCall = "RichTextEditor.initClassicEditorForStudentplayer('".$editorId."','".$lang."',".$temp.")";
               break;
@@ -33,11 +36,11 @@
      selid="ckeditor">
     <div wire:ignore @class(['ckeditor-disabled' => $disabled])>
         <textarea
-            {{ $attributes->merge(['class' => 'form-input resize-none']) }}
-            x-data="{}" x-init="{{ $initFunctionCall }}"
-            id="{{ $editorId }}"
-            name="{{ $editorId }}"
-            @if($disabled) disabled @endif
+                {{ $attributes->merge(['class' => 'form-input resize-none']) }}
+                x-data="{}" x-init="{{ $initFunctionCall }}"
+                id="{{ $editorId }}"
+                name="{{ $editorId }}"
+                @if($disabled) disabled @endif
         > {{ $value ?? '' }} </textarea>
     </div>
 </div>

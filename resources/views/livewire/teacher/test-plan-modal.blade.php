@@ -172,16 +172,17 @@
     <x-slot name="footer">
         <div class="flex justify-between w-full px-2">
             <x-button.text-button size="sm" wire:click="closeModal">
-                <span>{{__('Annuleren')}}</span>
+                <span>{{__('general.cancel')}}</span>
             </x-button.text-button>
             <div class="flex space-x-2.5">
                 {{--                <x-button.primary size="sm" wire:click="planNext">--}}
                 {{--                    <span>{{__('teacher.Volgende Inplannen')}}</span>--}}
                 {{--                    <x-icon.chevron/>--}}
                 {{--                </x-button.primary>--}}
-                <x-button.cta size="sm" wire:click="planNext" selid="plan-modal-plan-btn">
-                    <x-icon.checkmark />
-                    <span>{{__('teacher.Inplannen')}}</span>
+                <x-button.cta size="sm" wire:click="planNext" selid="plan-modal-plan-btn"  wire:loading.attr="disabled" wire:target="planNext">
+                    <x-icon.checkmark wire:loading.remove wire:target="planNext"/>
+                    <span wire:loading.remove wire:target="planNext">{{__('teacher.Inplannen')}}</span>
+                    <span wire:loading wire:target="planNext">{{ __('cms.one_moment_please') }}</span>
                 </x-button.cta>
             </div>
         </div>

@@ -1151,10 +1151,8 @@ class SchoolLocation extends BaseModel implements AccessCheckable
             return $ds->default_section_id;
         });
 
-        // all subjects of current school location
-        $sectionIdsFromSchoolLocationSections = $this->schoolLocationSections()->pluck('section_id');
         // we need to check if all sections are not deleted as deletion is based on section and not school location section
-        $sectionIds = Section::whereIn('id', $sectionIdsFromSchoolLocationSections)->pluck('id');
+        $sectionIds = Section::whereIn('id', $this->schoolLocationSections()->select('section_id'))->pluck('id');
         $subjects = Subject::whereIn('section_id', $sectionIds)->pluck('name', 'id')->map(function ($name, $id) {
             return strtolower($name);
         })->flip();

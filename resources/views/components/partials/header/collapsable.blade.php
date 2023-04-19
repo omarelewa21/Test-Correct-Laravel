@@ -25,8 +25,11 @@
 >
     <div class="py-2.5 px-6 flex h-[var(--header-height)] items-center justify-between">
         <div class="flex items-center space-x-4 truncate">
-            <x-button.back-round wire:click="redirectBack()" background-class="bg-white/20"
-                                 class="hover:text-white"></x-button.back-round>
+            <x-button.back-round wire:click="redirectBack()"
+                                 background-class="bg-white/20"
+                                 class="hover:text-white"
+                                 title="{{ $backButtonTitle }}"
+            />
             @yield('title')
         </div>
         <div class="flex" x-show="doneCollapsing" x-transition x-cloak>

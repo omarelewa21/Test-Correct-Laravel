@@ -5,9 +5,9 @@
             <x-button.back-round wire:click="redirectBack"/>
             <div class="flex text-lg bold">
                 <span>
-                    <a href="{{ route('student.analyses.show') }}">{{ __('header.Analyses') }}</a>
+                    <a href="{{ $this->getHelper()->getRouteForDashboardShow() }}">{{ __('header.Analyses') }}</a>
                     <x-icon.chevron-small opacity="1"></x-icon.chevron-small>
-                    <a href="{{ route('student.analyses.subject.show', $subject) }}">
+                    <a href="{{ $this->getHelper()->getRouteForSubjectShow( \tcCore\Subject::whereUuid($subject)->first()) }}">
                         {!!  \tcCore\Subject::whereUuid($subject)->first()->name !!}
                     </a>
                     <x-icon.chevron-small opacity="1"></x-icon.chevron-small>

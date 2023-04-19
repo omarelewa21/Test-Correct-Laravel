@@ -1,6 +1,7 @@
 <?php namespace tcCore;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -284,5 +285,10 @@ class Answer extends BaseModel
         }
 
         return 'partly-answered';
+    }
+
+    public function teacherRatings(): Collection
+    {
+        return $this->answerRatings->where('type', AnswerRating::TYPE_TEACHER);
     }
 }

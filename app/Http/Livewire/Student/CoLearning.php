@@ -60,6 +60,8 @@ class CoLearning extends Component
     public $testParticipant;
     public $answerOptions;
 
+    public $necessaryAmountOfAnswerRatings;
+
     protected function getListeners()
     {
         return [
@@ -67,6 +69,7 @@ class CoLearning extends Component
 //            CoLearningNextQuestion::channelSignature($this->testParticipant->uuid)   => 'goToActiveQuestion',
 //            CoLearningPresence::channelSignature($this->testTake->uuid)              => 'updateHeartbeat',
             'UpdateAnswerRating'                                                     => 'updateAnswerRating',
+            'goToActiveQuestion',
         ];
     }
 
@@ -85,6 +88,7 @@ class CoLearning extends Component
 
         if (!$this->coLearningFinished) {
             $this->getAnswerRatings();
+            $this->necessaryAmountOfAnswerRatings = $this->answerRatings->count() ?: 1;
         }
         $this->updateHeartbeat(false);
     }
@@ -271,6 +275,12 @@ class CoLearning extends Component
 
         $response = (new AnswerRatingsController())->indexFromWithin($request);
         $this->answerRatings = $response->getOriginalContent()->keyBy('id');
+
+        if($this->answerRatings->count() < $this->necessaryAmountOfAnswerRatings) {
+            // this fixes an error when the answerRatings are queried before the teacher is done generating them.
+            $this->emitSelf('goToActiveQuestion');
+            $this->skipRender();
+        }
 
         $this->answeredAnswerRatingIds = $this->answerRatings->filter(function($ar) {
             return $ar->answer->isAnswered;

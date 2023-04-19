@@ -1,5 +1,6 @@
 <?php namespace tcCore\Lib\TestParticipant;
 
+use Illuminate\Support\Arr;
 use tcCore\SchoolClass;
 use tcCore\TestParticipant;
 
@@ -11,25 +12,23 @@ class Factory {
     {
         $this->testParticipant = $testParticipant;
     }
-    
+
 
     public function generateMany($testTakeId, $data)
     {
         $schoolClassIds = $data['school_class_ids'] ?? null;
         $testParticipantIds = $data['test_participant_ids'] ?? null;
-        unset($data['school_class_ids'], $data['test_participant_ids']);
 
-        $userIds = $data['user_id'] ?? [];
-        if (!is_array($userIds)) {
-            $userIds = [$userIds];
-        }
-        unset($data['user_id']);
+        $userIds = Arr::wrap($data['user_id'] ?? []);
+
+        unset($data['school_class_ids'], $data['test_participant_ids'], $data['user_id']);
 
         $schoolClassUserIds = $schoolClassIds ? $this->getUserIdsFromSchoolClass($schoolClassIds) : [];
         $testParticipantUserIds = $testParticipantIds ? $this->getUserIdsFromTestParticipantIds($testParticipantIds) : [];
 
         $UserIdSchoolClass = [];
         $allUsers = $schoolClassUserIds + $testParticipantUserIds;
+
         foreach($allUsers as $schoolClassId => $studentUsers) {
             foreach ($studentUsers as $studentUserId) {
                 $UserIdSchoolClass[$studentUserId] = $schoolClassId;
@@ -38,13 +37,12 @@ class Factory {
         }
         $userIds = array_unique($userIds);
 
-
         $testParticipants = [];
 
         $existingTestParticipants = TestParticipant::withTrashed()->whereIn('user_id', $userIds)->where('test_take_id', $testTakeId)->get();
         foreach ($existingTestParticipants as $existingTestParticipant) {
             if ($existingTestParticipant->trashed()) {
-                $existingTestParticipant->setAttribute(with(new TestParticipant())->getDeletedAtColumn(), null);
+                $existingTestParticipant->restore();
             }
 
             $existingTestParticipant->fill($data);
@@ -76,20 +74,30 @@ class Factory {
     // Get user IDs from the specified school classes.
     private function getUserIdsFromSchoolClass($schoolClassIds)
     {
-        return SchoolClass::whereIn('id', $schoolClassIds)
-            ->with('studentUsers')
-            ->get()
-            ->pluck('studentUsers.*.id', 'id')
-            ->toArray();
+
+        $schoolClasses = SchoolClass::with('studentUsers')->find($schoolClassIds);
+        $schoolClassUserIds = [];
+
+        foreach($schoolClasses as $schoolClass) {
+            foreach($schoolClass->studentUsers as $studentUser) {
+                $schoolClassUserIds[$schoolClass->getKey()][] = $studentUser->getKey();
+            }
+        }
+
+        return $schoolClassUserIds;
     }
 
     // Get user IDs from the specified test participants.
     private function getUserIdsFromTestParticipantIds($testParticipantIds)
     {
-        return TestParticipant::whereIn('id', $testParticipantIds)
-            ->get()
-            ->pluck('user_id', 'school_class_id')
-            ->toArray();
+        $testParticipants = TestParticipant::find($testParticipantIds);
+        $testParticipantUserIds = [];
+
+        foreach($testParticipants as $testParticipant) {
+            $testParticipantUserIds[$testParticipant->getAttribute('school_class_id')][] = $testParticipant->getAttribute('user_id');
+        }
+
+        return $testParticipantUserIds;
     }
 
     public function generate($data, $withoutSaving = false)

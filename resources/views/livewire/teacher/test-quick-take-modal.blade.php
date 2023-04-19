@@ -1,6 +1,6 @@
 <x-modal-new>
     <x-slot name="title">
-        <h2>{{__("cms.Direct afnemen")}}</h2>
+        {{__("cms.Direct afnemen")}}
     </x-slot>
 
     <x-slot name="body">
@@ -97,9 +97,10 @@
                 <span>{{ __("teacher.Annuleer") }}</span>
             </x-button.text-button>
 
-            <x-button.cta wire:click="plan" size="sm">
-                <x-icon.checkmark />
-                <span>{{ __("regular-staff.Toets afnemen") }}</span>
+            <x-button.cta wire:click="plan" size="sm" wire:loading.attr="disabled" wire:target="plan">
+                <x-icon.checkmark  wire:loading.remove wire:target="plan"/>
+                <span wire:loading.remove wire:target="plan">{{ __("regular-staff.Toets afnemen") }}</span>
+                <span wire:loading wire:target="plan">{{ __('cms.one_moment_please') }}</span>
             </x-button.cta>
         </div>
     </x-slot>

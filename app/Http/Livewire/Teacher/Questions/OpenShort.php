@@ -34,6 +34,7 @@ use tcCore\Question;
 use tcCore\TemporaryLogin;
 use tcCore\Test;
 use tcCore\TestQuestion;
+use tcCore\TestTake;
 use tcCore\UserFeatureSetting;
 
 class OpenShort extends Component implements QuestionCms
@@ -111,6 +112,8 @@ class OpenShort extends Component implements QuestionCms
     protected $queryString = [
         'action', 'type', 'subtype', 'testId', 'testQuestionId', 'groupQuestionQuestionId', 'owner', 'isCloneRequest', 'withDrawer' => ['except' => false], 'referrer' => ['except' => false],
     ];
+
+    protected $typesNeedIsolate = ['MatchingQuestion'];
 
     protected $settingsGeneralPropertiesVisibility = [
         'autoCheckAnswer'                       => false,
@@ -1081,6 +1084,11 @@ class OpenShort extends Component implements QuestionCms
         return !!($this->type === 'GroupQuestion');
     }
 
+    public function needIsolate()
+    {
+        return !!($this->type && in_array($this->type, $this->typesNeedIsolate));
+    }
+
     public function resolveOrderNumber()
     {
         if ($this->isGroupQuestion() || $this->emptyState) {
@@ -1471,5 +1479,11 @@ class OpenShort extends Component implements QuestionCms
         $lang = Auth::user()->schoolLocation->wscLanguage;
         UserFeatureSetting::setSetting(Auth::user(), self::SETTING_LANG, $lang);
         return $lang;
+    }
+
+    public function toPlannedTest($takeUuid)
+    {
+        $testTake = TestTake::whereUuid($takeUuid)->first();
+        return auth()->user()->redirectToCakeWithTemporaryLogin($testTake->getPlannedTestOptions());
     }
 }

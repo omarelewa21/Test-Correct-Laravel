@@ -72,7 +72,7 @@ class TestTake extends BaseModel
      *
      * @var array
      */
-    protected $fillable = ['test_id', 'test_take_status_id', 'period_id', 'retake', 'retake_test_take_id', 'time_start', 'time_end', 'location', 'weight', 'note', 'invigilator_note', 'show_results', 'discussion_type', 'is_rtti_test_take', 'exported_to_rtti', 'allow_inbrowser_testing', 'guest_accounts', 'skipped_discussion', 'notify_students', 'user_id', 'scheduled_by', 'show_grades', 'returned_to_taken', 'discussing_question_id', 'assessed_at', 'assessment_type', 'assessing_question_id', 'allow_wsc'];
+    protected $fillable = ['test_id', 'test_take_status_id', 'period_id', 'retake', 'retake_test_take_id', 'time_start', 'time_end', 'location', 'weight', 'note', 'invigilator_note', 'show_results', 'discussion_type', 'is_rtti_test_take', 'exported_to_rtti', 'allow_inbrowser_testing', 'guest_accounts', 'skipped_discussion', 'notify_students', 'user_id', 'scheduled_by', 'show_grades', 'returned_to_taken', 'discussing_question_id', 'assessed_at', 'assessment_type', 'assessing_question_id', 'allow_wsc', 'max_assessed_answer_index'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -460,6 +460,11 @@ class TestTake extends BaseModel
             ->wherePivot($this->getDeletedAtColumn(), null);
     }
 
+    public function answerRatings()
+    {
+        return $this->hasMany(AnswerRating::class, 'test_take_id');
+    }
+
     public function isAllowedToView(User $userToCheck)
     {
         return ($this->hasParticipantsThatUserTeaches($userToCheck) && $userToCheck->hasAccessToTest($this->test))
@@ -680,9 +685,9 @@ class TestTake extends BaseModel
                     break;
                 case 'school_class_id':
                     if (is_array($value)) {
-                        $query->whereIn($this->getTable() . '.id', TestParticipant::whereIn('school_class_id', $value)->distinct()->pluck('test_take_id'));
+                        $query->whereIn($this->getTable() . '.id', TestParticipant::whereIn('school_class_id', $value)->distinct()->select('test_take_id'));
                     } else {
-                        $query->whereIn($this->getTable() . '.id', TestParticipant::where('school_class_id', $value)->distinct()->pluck('test_take_id'));
+                        $query->whereIn($this->getTable() . '.id', TestParticipant::where('school_class_id', $value)->distinct()->select('test_take_id'));
                     }
                     break;
                 case 'school_class_name':
@@ -691,7 +696,7 @@ class TestTake extends BaseModel
                         TestParticipant::whereHas('schoolClass', function ($q) use ($value) {
                             $q->where('name', 'LIKE', '%' . $value . '%');
                         })->distinct()
-                            ->pluck('test_take_id'));
+                            ->select('test_take_id'));
                     break;
                 case 'location':
                     $query->where('location', 'LIKE', '%' . $value . '%');
@@ -791,11 +796,12 @@ class TestTake extends BaseModel
 
     public function hasCarousel()
     {
-        $countCarouselGroupsInTestTake = GroupQuestion::whereIn('id',
-            $this->test->testQuestions->pluck('question_id')
-        )->where('groupquestion_type', 'carousel')->count();
-
-        return $countCarouselGroupsInTestTake > 0;
+        return GroupQuestion::whereIn(
+            'id',
+            $this->test->testQuestions()->select('question_id')
+        )
+            ->where('groupquestion_type', 'carousel')
+            ->exists();
     }
 
     public function giveAbbreviatedInvigilatorNames()
@@ -1382,6 +1388,16 @@ class TestTake extends BaseModel
             return null;
         }
         return $questionId . $discussingQuestionId;
+    }
+
+    public function getPlannedTestOptions()
+    {
+        return TemporaryLogin::buildValidOptionObject(
+            'page',
+            $this->isAssignmentType()
+            ? sprintf("test_takes/assignment_open_teacher/%s", $this->uuid)
+            : sprintf("test_takes/view/%s", $this->uuid)
+        );
     }
 
 }
