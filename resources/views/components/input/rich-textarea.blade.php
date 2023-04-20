@@ -41,6 +41,6 @@
                 id="{{ $editorId }}"
                 name="{{ $editorId }}"
                 @if($disabled) disabled @endif
-        > {{ $value ?? '' }} </textarea>
+        > {{ $slot ?? '' }} </textarea>
     </div>
 </div>

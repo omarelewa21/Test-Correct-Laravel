@@ -7544,6 +7544,14 @@ document.addEventListener("alpine:init", function () {
             left: slide.offsetLeft,
             behavior: "smooth"
           });
+          setTimeout(function () {
+            var position = _this43.container.scrollLeft / 300 + 1;
+            if (!_this43.tabs.includes(position)) {
+              _this43.container.scroll({
+                left: slide.offsetLeft
+              });
+            }
+          }, 500);
         });
       },
       next: function next() {
@@ -7552,7 +7560,7 @@ document.addEventListener("alpine:init", function () {
           return _regeneratorRuntime().wrap(function _callee14$(_context14) {
             while (1) switch (_context14.prev = _context14.next) {
               case 0:
-                if (!(!_this44.inReview && !_this44.$store.assessment.clearToProceed() && !_this44.clickedNext)) {
+                if (!_this44.needsToPerformActionsStill()) {
                   _context14.next = 4;
                   break;
                 }
@@ -7637,6 +7645,9 @@ document.addEventListener("alpine:init", function () {
         this.$root.querySelectorAll(".tooltip-container").forEach(function (el) {
           el.dispatchEvent(new CustomEvent("close"));
         });
+      },
+      needsToPerformActionsStill: function needsToPerformActionsStill() {
+        return !this.inReview && !this.$store.assessment.clearToProceed() && !this.clickedNext;
       }
     };
   });
