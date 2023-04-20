@@ -226,6 +226,11 @@
                                     <div class="flex items-center justify-center w-[30px] min-w-[30px] h-[30px] border-bluegrey border bg-off-white overflow-hidden rounded-full">
                                         <x-icon.profile class="scale-150 text-sysbase relative top-1" />
                                     </div>
+                                    @php
+                                        if(!$rating->user) {
+                                            $rating->user = \tcCore\User::getDeletedNewUser();
+                                        }
+                                    @endphp
                                     <span class="ml-2 truncate pr-2">{{ $rating->user->nameFull }}</span>
                                     <span class="ml-auto">@js($rating->displayRating)</span>
                                 </div>
