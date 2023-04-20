@@ -17,6 +17,7 @@ class Drawer extends Component
         public Question   $question,
         public ?Question  $group = null,
         public bool       $inReview = false,
+        public null|string|int $score = null,
     ) {}
 
     public function render(): View

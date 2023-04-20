@@ -61,8 +61,10 @@
                     @if($group)
                         <div class="mb-2">
                             <div class="h-8 flex items-center">
-                                <h5 class="inline-flex line-clamp-1"
-                                    title="{!! $group->name !!}">{!! $group->name !!}</h5>
+                                <h5 class="inline-flex max-w-[252px]"
+                                    title="{!! $group->name !!}">
+                                    <span class=" truncate">{!! $group->name !!}</span>
+                                </h5>
                             </div>
                             <div class="h-[3px] rounded-lg w-full bg-sysbase"></div>
                         </div>
@@ -76,7 +78,15 @@
                                 selid="questiontitle">
                                 <span>{{ $question->type_name }}</span>
                             </h4>
+                            @if($inReview)
+                            <div class="ml-auto flex min-w-fit">
+                                <h7 class="inline-block">{{  $score ?? '-' }}</h7>
+                                <span>/</span>
+                                <span class="body2">{{ $question->score }} pt</span>
+                            </div>
+                            @else
                             <h7 class="ml-auto inline-block">{{ $question->score }} pt</h7>
+                            @endif
                         </div>
                     </div>
                 </div>

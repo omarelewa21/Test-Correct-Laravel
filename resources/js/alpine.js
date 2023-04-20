@@ -1983,10 +1983,16 @@ document.addEventListener("alpine:init", () => {
             this.handleSlideHeight(slide);
             this.$nextTick(() => {
                 this.container.scroll({ top: 0, left: slide.offsetLeft, behavior: "smooth" });
+                setTimeout(() => {
+                    const position = (this.container.scrollLeft / 300) + 1;
+                    if (!this.tabs.includes(position)) {
+                        this.container.scroll({ left: slide.offsetLeft });
+                    }
+                }, 500);
             });
         },
         async next() {
-            if (!this.inReview && !this.$store.assessment.clearToProceed() && !this.clickedNext) {
+            if (this.needsToPerformActionsStill()) {
                 this.$dispatch("scoring-elements-error");
                 this.clickedNext = true;
                 return;
@@ -2030,7 +2036,10 @@ document.addEventListener("alpine:init", () => {
             this.$root.querySelectorAll(".tooltip-container").forEach((el) => {
                 el.dispatchEvent(new CustomEvent("close"));
             });
-        }
+        },
+        needsToPerformActionsStill() {
+            return !this.inReview && !this.$store.assessment.clearToProceed() && !this.clickedNext;
+        },
     }));
     Alpine.data("scoreSlider", (score, model, maxScore, halfPoints, disabled, coLearning, focusInput) => ({
         score,

@@ -288,6 +288,8 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
         $this->score = $this->handleAnswerScore();
         $this->feedback = $this->getFeedbackForCurrentAnswer();
+        $this->answerPanel = true;
+        $this->setUserOnAnswer($this->currentAnswer);
         $this->setProgress();
 
         return [
@@ -1046,14 +1048,12 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             ])
             ->flatMap(function ($participant) {
                 return $participant->answers->map(function ($answer) {
-                    $this->setUserOnAnswer($answer);
-
                     $coLearningRatings = $answer->answerRatings->where('type', AnswerRating::TYPE_STUDENT);
                     $answer->hasDiscrepancy = $coLearningRatings
                         ? !$this->currentAnswerCoLearningRatingsHasNoDiscrepancy($answer)
                         : null;
 
-                    $answer->sortOrder = $this->getNavigationValueForQuestion($answer->question);
+                    $answer->sortOrder = $this->questions->search(fn($q) => $q->id === $answer->question_id) + 1;
                     return $answer;
                 });
             })
