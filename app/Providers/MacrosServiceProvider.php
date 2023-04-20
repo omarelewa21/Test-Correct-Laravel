@@ -51,5 +51,13 @@ class MacrosServiceProvider extends ServiceProvider
         Collection::macro('discrepancyFiltered', function (bool $hideNonDescrepancy) {
             return $this->when($hideNonDescrepancy, fn($answers) => $answers->whereNot('hasDiscrepancy', false, true));
         });
+
+        //implements Eloquent Builder methods into
+        Collection::macro('onlyTrashed', function () {
+            return $this->whereNotNull('deleted_at');
+        });
+        Collection::macro('withoutTrashed', function () {
+            return $this->whereNull('deleted_at');
+        });
     }
 }
