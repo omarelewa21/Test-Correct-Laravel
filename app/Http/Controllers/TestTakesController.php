@@ -11,7 +11,8 @@ use Maatwebsite\Excel\Facades\Excel;
 use tcCore\AnswerRating;
 use tcCore\DiscussingParentQuestion;
 use tcCore\Events\CoLearningForceTakenAway;
-use tcCore\Events\CoLearningNextQuestion;
+use tcCore\Events\TestTakeChangeDiscussingQuestion;
+use tcCore\Events\TestTakeForceTakenAway;
 use tcCore\GroupQuestion;
 use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Helpers\DemoHelper;
@@ -1284,7 +1285,7 @@ class TestTakesController extends Controller
     private function handleCoLearningForceTakeAway($testTake, $request)
     {
         if ($request->get('test_take_status_id') == 8 && !$request->get('skipped_discussion')) {
-            $testTake->testParticipants->each(fn($testParticipant) => CoLearningForceTakenAway::dispatch($testParticipant->uuid));
+            $testTake->testParticipants->each(fn($testParticipant) => TestTakeForceTakenAway::dispatch($testParticipant->uuid));
         }
     }
 

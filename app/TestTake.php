@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Ramsey\Uuid\Uuid;
-use tcCore\Events\CoLearningNextQuestion;
+use tcCore\Events\TestTakeChangeDiscussingQuestion;
 use tcCore\Events\InbrowserTestingUpdatedForTestParticipant;
 use tcCore\Events\NewTestTakeGraded;
 use tcCore\Events\NewTestTakeReviewable;
@@ -227,7 +227,7 @@ class TestTake extends BaseModel
             if ($testTake->test_take_status_id === TestTakeStatus::STATUS_DISCUSSING) {
                 if ($testTake->studentsAreInNewCoLearningAndDiscussingTypeIsOpenOnly()) {
                     foreach ($testTake->testParticipants as $testParticipant) {
-                        CoLearningNextQuestion::dispatch($testParticipant->uuid);
+                        TestTakeChangeDiscussingQuestion::dispatch($testParticipant->uuid);
                     }
                 }
             }

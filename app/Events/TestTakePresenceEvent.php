@@ -40,4 +40,19 @@ abstract class TestTakePresenceEvent implements ShouldBroadcastNow
         $eventName = class_basename(get_called_class());
         return "echo-presence:presence-TestTake.$testTakeUuid,.$eventName";
     }
+
+    public static function channelHereSignature($testTakeUuid)
+    {
+        return "echo-presence:presence-TestTake.$testTakeUuid,.here";
+    }
+
+    public static function channelJoiningSignature($testTakeUuid)
+    {
+        return "echo-presence:presence-TestTake.$testTakeUuid,.joining";
+    }
+
+    public static function channelLeavingSignature($testTakeUuid)
+    {
+        return "echo-presence:presence-TestTake.$testTakeUuid,.leaving";
+    }
 }
