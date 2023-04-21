@@ -225,8 +225,8 @@ See https://github.com/adobe-type-tools/cmap-resources
                             <option id="pageWidthOption" title="" value="page-width" data-l10n-id="page_scale_width">Page Width</option>
                             <option id="customScaleOption" title="" value="custom" disabled="disabled" hidden="true"></option>
                             <option title="" value="0.5" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 50 }'>50%</option>
-                            <option title="" value="0.75" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 75 }'>75%</option>
-                            <option title="" value="1" data-l10n-id="page_scale_percent" selected="selected" data-l10n-args='{ "scale": 100 }'>100%</option>
+                            <option title="" value="0.75" data-l10n-id="page_scale_percent" selected="selected" data-l10n-args='{ "scale": 75 }'>75%</option>
+                            <option title="" value="1" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 100 }'>100%</option>
                             <option title="" value="1.25" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 125 }'>125%</option>
                             <option title="" value="1.5" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 150 }'>150%</option>
                             <option title="" value="2" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 200 }'>200%</option>
