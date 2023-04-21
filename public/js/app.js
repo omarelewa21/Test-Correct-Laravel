@@ -8235,7 +8235,7 @@ window.makeResizableDiv = function (element) {
       window.addEventListener('ontouchend', stopResize);
       function resize(e) {
         if (attachmentType === 'pdf' || attachmentType === 'video') {
-          disableIframePointerEvents();
+          iframeTimeout = temporarilyDisablePointerEvents(iframe, iframeTimeout);
         }
         if (currentResizer.classList.contains('bottom-right')) {
           width = original_width + (e.pageX - original_mouse_x);
@@ -8285,22 +8285,10 @@ window.makeResizableDiv = function (element) {
           element.style.height = ratio * width + 'px';
         }
         if (attachmentType === 'pdf' || attachmentType === 'video') {
-          enableIframePointerEvents();
+          resetTemporarilyDisabledPointerEvents(iframe, iframeTimeout);
         }
         window.removeEventListener('mousemove', resize);
         window.removeEventListener('touchmove', resize);
-      }
-      function disableIframePointerEvents() {
-        iframe.style.pointerEvents = 'none';
-        if (iframeTimeout) {
-          clearTimeout(iframeTimeout);
-        }
-        iframeTimeout = setTimeout(function () {
-          enableIframePointerEvents();
-        }, 500);
-      }
-      function enableIframePointerEvents() {
-        iframe.style.pointerEvents = 'auto';
       }
     }
   };
@@ -8322,6 +8310,8 @@ window.dragElement = function (element) {
   var newTop, newLeft;
   var windowHeight = window.innerHeight;
   var windowWidth = window.innerWidth;
+  var iframe = element.querySelector('.resizers iframe');
+  var iframeTimeout = 0;
   if (document.getElementById(element.id + "drag")) {
     // if present, the header is where you move the DIV from:
     document.getElementById(element.id + "drag").onmousedown = dragMouseDown;
@@ -8347,6 +8337,7 @@ window.dragElement = function (element) {
     document.ontouchmove = elementDrag;
   }
   function elementDrag(e) {
+    iframeTimeout = temporarilyDisablePointerEvents(iframe, iframeTimeout);
     e = e || window.event;
 
     // calculate the new cursor position:
@@ -8387,7 +8378,30 @@ window.dragElement = function (element) {
     document.ontouchend = null;
     document.onmousemove = null;
     document.ontouchmove = null;
+    resetTemporarilyDisabledPointerEvents(iframe, iframeTimeout);
   }
+};
+var temporarilyDisablePointerEvents = function temporarilyDisablePointerEvents(element, timeout) {
+  var milliseconds = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 500;
+  if (!element) {
+    return false;
+  }
+  element.style.pointerEvents = 'none';
+  if (timeout) {
+    clearTimeout(timeout);
+  }
+  return setTimeout(function () {
+    resetTemporarilyDisabledPointerEvents(element, timeout);
+  }, milliseconds);
+};
+var resetTemporarilyDisabledPointerEvents = function resetTemporarilyDisabledPointerEvents(element, timeout) {
+  if (!element) {
+    return false;
+  }
+  if (timeout) {
+    clearTimeout(timeout);
+  }
+  element.style.pointerEvents = 'auto';
 };
 
 /***/ }),
