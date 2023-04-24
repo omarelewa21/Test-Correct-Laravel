@@ -46,7 +46,7 @@
             @endforeach
         </div>
 
-        <div class="mt-2 pb-[33px]">
+        <div class="mt-2 pb-[33px] questionContainer">
             @if($question->type !== 'CompletionQuestion')
                 {!! $question->getQuestionInstance()->question !!}
             @else

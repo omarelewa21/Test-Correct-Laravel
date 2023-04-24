@@ -1,5 +1,5 @@
 <div id="co-learning-page"
-     class="flex flex-col w-full pt-12"
+     class="flex flex-col w-full pt-12 pb-12"
      wire:poll.keep-alive.5000ms="updateHeartbeat()"
 >
 
