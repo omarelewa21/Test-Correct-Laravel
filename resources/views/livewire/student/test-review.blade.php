@@ -35,7 +35,7 @@
                          x-data="reviewNavigation(@js($this->questionPosition))"
                          x-bind:class="{'invisible': !initialized }"
                     >
-                        <div class="slider-buttons left | flex relative items-center h-full z-10" x-show="showSlider">
+                        <div class="slider-buttons left | flex relative pt-4 -top-px h-full z-10" x-show="showSlider">
                             <button class="inline-flex base rotate-svg-180 w-8 h-8 rounded-full transition items-center justify-center transform focus:outline-none"
                                     x-on:click="start()">
                                 <x-icon.arrow-last />
@@ -46,11 +46,11 @@
                             </button>
                         </div>
                         <div id="navscrollbar"
-                             class="question-indicator gap-2"
+                             class="question-indicator gap-2 pt-4 h-full"
                              x-bind:class="{'overflow-x-auto px-3' : showSlider}"
                         >
                             @foreach($this->answers as $answer)
-                                <div class="flex flex-col items-center gap-1 relative">
+                                <div class="flex flex-col gap-1 relative">
                                     <div @class([
                                     'question-number | mt-px inline-flex rounded-full text-center justify-center items-center cursor-pointer hover:shadow-lg',
                                     'active' => (int)$this->questionPosition === $loop->iteration,
@@ -68,7 +68,7 @@
                                 </div>
                             @endforeach
                         </div>
-                        <div class="slider-buttons right | flex relative items-center -top-px h-full z-10"
+                        <div class="slider-buttons right | flex relative pt-4 -top-px h-full z-10"
                              x-show="showSlider">
                             <button class="inline-flex base w-8 h-8 rounded-full transition items-center justify-center transform focus:outline-none"
                                     x-on:click="right()">

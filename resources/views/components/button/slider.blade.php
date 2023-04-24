@@ -60,7 +60,7 @@
         <span :id="$id('slider-button')+'-handle'"
              style="width: @js($buttonWidth);"
              :style="{left: buttonPosition, width: buttonWidth}"
-             class="border-2 rounded-lg border-primary absolute h-10 bottom-0 pointer-events-none slider-button-handle hidden"
+             class="border-2 rounded-lg border-primary absolute top-0 h-10 bottom-0 pointer-events-none slider-button-handle hidden"
         >
         </span>
     </span>
