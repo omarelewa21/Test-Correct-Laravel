@@ -1,16 +1,13 @@
 <?php namespace tcCore;
 
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use tcCore\Http\Helpers\SvgHelper;
-use tcCore\Http\Requests\UpdateTestQuestionRequest;
 use tcCore\Lib\Question\QuestionInterface;
 use Dyrynda\Database\Casts\EfficientUuid;
-use Dyrynda\Database\Support\GeneratesUuid;
 use Ramsey\Uuid\Uuid;
+use tcCore\Scopes\ArchivedScope;
 use tcCore\Traits\UuidTrait;
 
 class DrawingQuestion extends Question implements QuestionInterface {
@@ -251,5 +248,31 @@ class DrawingQuestion extends Question implements QuestionInterface {
     public function isOldDrawingQuestion()
     {
         return filled($this->question->answer) && blank($this->question->zoom_group);
+    }
+
+    public function canAnswerModelBeSeen(User $user): bool
+    {
+        if (!$user->isA('Student')) {
+            return true;
+        }
+
+        /* Check if student has an active review session which includes this question. */
+        return TestTake::withoutGlobalScope(ArchivedScope::class)
+            ->join(
+                'test_participants',
+                'test_takes.id',
+                '=',
+                'test_participants.test_take_id'
+            )
+            ->join(
+                'test_questions',
+                'test_takes.test_id',
+                '=',
+                'test_questions.test_id'
+            )
+            ->where('test_participants.user_id', $user->getKey())
+            ->where('test_questions.question_id', $this->getKey())
+            ->where('test_takes.show_results', '>', now())
+            ->exists();
     }
 }

@@ -2,7 +2,6 @@
 
 namespace tcCore\Http\Livewire\Modal;
 
-use LivewireUI\Modal\ModalComponent;
 use tcCore\Attachment;
 
 class PreviewAttachment extends Preview
@@ -12,57 +11,54 @@ class PreviewAttachment extends Preview
     public ?string $iconComponentName = null;
     public string $questionUuid;
 
-//    public $currentTimes = [];
-//    public $pressedPlay = false;
+    public string $source;
 
-    public function mount(string $attachmentUuid, string $questionUuid) {
+    public function mount(string $attachmentUuid, string $questionUuid)
+    {
         $this->attachment = Attachment::whereUuid($attachmentUuid)->first();
         $this->questionUuid = $questionUuid;
 
         $this->setProperties();
     }
 
-    public function render() {
-
-        if(in_array($this->attachmentType, ['video', 'audio', 'image', 'pdf'])) {
-            return view(
-                "livewire.modal.preview-attachment-{$this->attachmentType}"
-            );
+    public function render()
+    {
+        if (in_array($this->attachmentType, ['video', 'audio', 'image', 'pdf'])) {
+            return view("livewire.modal.preview-attachment-{$this->attachmentType}");
         }
         return view("livewire.modal.preview-attachment");
-
     }
 
-    protected function setProperties() {
+    protected function setProperties()
+    {
         $this->attachmentType = $this->attachment->getFileType();
         $iconNameSuffix = $this->attachmentType;
 
         $this->setTitle();
+        $this->setSource();
 
-        if($this->attachmentType === 'video') {
+        if ($this->attachmentType === 'video') {
             $iconNameSuffix = Attachment::getVideoHost($this->attachment->link);
         }
 
         $this->iconComponentName = sprintf('icon.%s', $iconNameSuffix);
     }
 
-    protected function setTitle() {
+    protected function setTitle(): void
+    {
         $this->title = $this->attachment->title;
     }
 
-
-    /*public function audioIsPlayedOnce() {}
-
-    public function audioStoreCurrentTime($attachmentUuid, $currentTime)
+    private function setSource(): void
     {
-        $this->currentTimes[$attachmentUuid] = $currentTime;
+        $prefix = auth()->user()->isA('Student') ? 'student' : 'teacher.preview';
+        $route = $this->attachmentType === 'pdf' ? 'question-pdf-attachment-show' : 'question-attachment-show';
+        $this->source = route(
+            $prefix . '.' . $route,
+            [
+                'attachment' => $this->attachment->uuid,
+                'question'   => $this->questionUuid
+            ]
+        );
     }
-
-    public function getCurrentTime()
-    {
-        if(array_key_exists($this->attachment->uuid,$this->currentTimes)){
-            return $this->currentTimes[$this->attachment->uuid];
-        }
-        return 0;
-    }*/
 }

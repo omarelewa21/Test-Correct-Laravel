@@ -82,7 +82,9 @@
                                             :component="'answer.student.'. str($this->currentQuestion->type)->kebab()"
                                             :question="$this->currentQuestion"
                                             :answer="$this->currentAnswer"
+                                            :inAssessment="true"
                                             :editorId="'editor-'.$this->currentQuestion->uuid.$this->currentAnswer->uuid"
+                                            :disabled-toggle="true"
                                     />
                                 </div>
                             </x-slot:body>

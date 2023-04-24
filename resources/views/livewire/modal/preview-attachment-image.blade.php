@@ -22,7 +22,7 @@
                  previewImage.style.width = percentage.toString() + '%';
          ">
         <div class="w-full h-full overflow-auto flex flex-col items-center align-center justify-center">
-            <img src="{{ route('teacher.preview.question-attachment-show', ['attachment' => $attachment->uuid, 'question' => $questionUuid]) }}"
+            <img src="{{ $this->source }}"
                  style="max-width: 300%"
                  class="w-full bg-white" alt="Preview image"
                  x-ref="imagePreview">

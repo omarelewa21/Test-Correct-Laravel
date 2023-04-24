@@ -45,13 +45,7 @@
             <x-button.cta size="md"
                           x-on:click.prevent="handleHeaderCollapse(['ALL', {{ ($this->assessmentContext['assessmentType'] && $this->openOnly) ? 'true' : 'false' }} ])"
             >
-                <span>
-                    @if($this->assessmentContext['assessmentType'] && !$this->openOnly)
-                        @lang('auth.continue')
-                    @else
-                        @lang('co-learning.start')
-                    @endif
-                </span>
+                <span>@lang($this->assessmentContext['assessmentType'] && !$this->openOnly ? 'auth.continue' : 'co-learning.start')</span>
                 <x-icon.arrow />
             </x-button.cta>
         </x-slot:button>
@@ -73,23 +67,22 @@
     <x-partials.header.panel @class([
                 "co-learning-restart" => $this->assessmentContext['assessmentType'],
                 "co-learning-previous-discussion-type" => $this->openOnly,
+                'disabled' => $this->hasNoOpenQuestion,
                 ])>
         <x-slot:sticker>
             <x-stickers.questions-open-only />
         </x-slot:sticker>
         <x-slot:title>{{ str(__('co-learning.open_questions_only'))->ucfirst() }}</x-slot:title>
-        <x-slot:subtitle>{{ __('assessment.open_questions_text') }}</x-slot:subtitle>
+        <x-slot:subtitle>
+            <span>@lang('assessment.open_questions_text')</span>
+            <span class="text-sm text-white/90">@lang('assessment.Er zitten geen open vragen in deze toets.')</span>
+        </x-slot:subtitle>
         <x-slot:button>
             <x-button.cta size="md"
                           x-on:click.prevent="handleHeaderCollapse(['OPEN_ONLY', {{ ($this->assessmentContext['assessmentType'] && !$this->openOnly) ? 'true' : 'false' }}])"
+                          :disabled="$this->hasNoOpenQuestion"
             >
-                <span>
-                @if($this->assessmentContext['assessmentType'] && $this->openOnly)
-                        @lang('auth.continue')
-                    @else
-                        @lang('co-learning.start')
-                    @endif
-                </span>
+                <span>@lang($this->assessmentContext['assessmentType'] && $this->openOnly ? 'auth.continue' : 'co-learning.start')</span>
                 <x-icon.arrow />
             </x-button.cta>
         </x-slot:button>
