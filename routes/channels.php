@@ -22,6 +22,16 @@ Broadcast::channel('presence-TestTake.{testTakeUuid}', function ($user) {
         'student' => $user->isA('Student')
     ];
 });
+
+Broadcast::channel('presence-TestTake-CoLearning.{testTakeUuid}', function ($user) {
+    return [
+        'uuid'    => $user->uuid,
+        'name'    => $user->getNameFullAttribute(),
+        'guest'   => $user->guest,
+        'student' => $user->isA('Student')
+    ];
+});
+
 Broadcast::channel('TestTake.{testTakeUuid}', function () {
     return true;
 });

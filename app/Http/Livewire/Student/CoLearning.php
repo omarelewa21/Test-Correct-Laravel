@@ -9,6 +9,7 @@ use Livewire\Component;
 use tcCore\AnswerRating;
 use tcCore\Events\TestTakeChangeDiscussingQuestion;
 use tcCore\Events\CoLearningForceTakenAway;
+use tcCore\Events\TestTakeCoLearningPresenceEvent;
 use tcCore\Events\TestTakeForceTakenAway;
 use tcCore\Events\TestTakePresenceEvent;
 use tcCore\Http\Controllers\AnswerRatingsController;
@@ -66,11 +67,7 @@ class CoLearning extends Component
     protected function getListeners()
     {
         return [
-            //todo move presence events to teacher and make sure they work.
-//            TestTakePresenceEvent::channelHereSignature($this->testTake->uuid)                      => 'dumptest',
-//            TestTakePresenceEvent::channelJoiningSignature($this->testTake->uuid)                      => 'dumptest',
-//            TestTakePresenceEvent::channelLeavingSignature($this->testTake->uuid)                      => 'dumptest',
-            TestTakePresenceEvent::channelSignature(testTakeUuid: $this->testTake->uuid)            => 'render',
+            TestTakeCoLearningPresenceEvent::channelSignature(testTakeUuid: $this->testTake->uuid)  => 'render',
             TestTakeForceTakenAway::channelSignature($this->testParticipant->uuid)                  => 'redirectToTestTakesInReview',
             TestTakeChangeDiscussingQuestion::channelSignature(testTakeUuid: $this->testTake->uuid) => 'goToActiveQuestion',
             'UpdateAnswerRating'                                                                    => 'updateAnswerRating',
@@ -398,7 +395,8 @@ class CoLearning extends Component
             $this->skipRender();
         }
 
-        return $this->testParticipant->setAttribute('heartbeat_at', Carbon::now())->save();
+        //todo write fallback mechanism for student colearning to set heartbeat when Pusher fails to connect.
+//        return $this->testParticipant->setAttribute('heartbeat_at', Carbon::now())->save();
     }
 
     public function getQuestionComponentNameProperty(): string

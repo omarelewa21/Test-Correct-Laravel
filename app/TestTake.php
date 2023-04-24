@@ -227,9 +227,7 @@ class TestTake extends BaseModel
 
             if ($testTake->test_take_status_id === TestTakeStatus::STATUS_DISCUSSING) {
                 if ($testTake->studentsAreInNewCoLearningAndDiscussingTypeIsOpenOnly()) {
-                    foreach ($testTake->testParticipants as $testParticipant) {
-                        AfterResponse::$performAction[] = fn() => TestTakeChangeDiscussingQuestion::dispatch($testParticipant->uuid);
-                    }
+                    AfterResponse::$performAction[] = fn() => TestTakeChangeDiscussingQuestion::dispatch($testTake->uuid);
                 }
             }
 

@@ -63,7 +63,7 @@
 
             <div class="drawer-content overflow-auto">
                 @foreach($this->testParticipants as $testParticipant)
-                    @if($testParticipant->active)
+                    @if($this->testParticipantIsActive($testParticipant))
                         <x-partials.sidebar.co-learning-teacher.student-info-container
                                 :testParticipant="$testParticipant"
                                 :activeAnswerRating="$activeAnswerRating"

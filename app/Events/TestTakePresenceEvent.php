@@ -13,7 +13,7 @@ abstract class TestTakePresenceEvent implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    private $testTakeUuid;
+    protected $testTakeUuid;
 
     /**
      * Create a new event instance.
@@ -41,18 +41,4 @@ abstract class TestTakePresenceEvent implements ShouldBroadcastNow
         return "echo-presence:presence-TestTake.$testTakeUuid,.$eventName";
     }
 
-    public static function channelHereSignature($testTakeUuid)
-    {
-        return "echo-presence:presence-TestTake.$testTakeUuid,.here";
-    }
-
-    public static function channelJoiningSignature($testTakeUuid)
-    {
-        return "echo-presence:presence-TestTake.$testTakeUuid,.joining";
-    }
-
-    public static function channelLeavingSignature($testTakeUuid)
-    {
-        return "echo-presence:presence-TestTake.$testTakeUuid,.leaving";
-    }
 }
