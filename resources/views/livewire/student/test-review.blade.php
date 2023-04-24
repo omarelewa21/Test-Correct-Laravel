@@ -3,7 +3,7 @@
 >
     <header id="header" @class(['flex items-center py-2.5 px-6'])>
         <x-button.back-round wire:click="redirectBack()"
-                             title="@lang('test-take.Terug')"
+                             title="{{  __('test-take.Terug') }}"
                              backgroundClass="bg-white/20"
         />
 

@@ -19,20 +19,23 @@
         <div class="flex w-full justify-center gap-2 z-1"
              style="box-shadow: 0 3px 8px 0 rgba(4, 31, 116, 0.2);">
             <buttons
-                    class="flex h-[60px] px-2 cursor-pointer items-center border-b-3 border-transparent hover:text-primary transition-colors"
+                    class="flex h-[60px] px-2 cursor-pointer items-center border-b-3 border-transparent hover:text-primary hover:bg-primary/5 transition-colors"
                     x-on:click="tab(1)"
-                    x-bind:class="activeTab === 1 ? 'primary border-primary hover:border-primary' : 'hover:border-primary/25'"
+                    x-bind:class="{'primary border-primary': activeTab === 1}"
                     title="@lang('assessment.scoren')"
             >
                 <x-icon.review />
             </buttons>
             <buttons
                     @class([
-                                'flex h-[60px] px-2 cursor-pointer items-center border-b-3 border-transparent hover:text-primary transition-colors',
-                                'text-midgrey pointer-events-none' => $feedbackTabDisabled,
+                            'flex h-[60px] px-2 items-center border-b-3 border-transparent transition-colors',
+                            'text-midgrey cursor-default' => $feedbackTabDisabled,
+                            'hover:text-primary hover:bg-primary/5 cursor-pointer' => !$feedbackTabDisabled,
                                 ])
-                    x-on:click="tab(2)"
-                    x-bind:class="activeTab === 2 ? 'primary border-primary hover:border-primary' : 'hover:border-primary/25'"
+                    @if(!$feedbackTabDisabled)
+                        x-on:click="tab(2)"
+                        x-bind:class="{'primary border-primary': activeTab === 2}"
+                    @endif
                     title="@lang('assessment.Feedback')"
                     @disabled($feedbackTabDisabled)
             >
@@ -40,11 +43,14 @@
             </buttons>
             <buttons
                     @class([
-                        'flex h-[60px] px-2 cursor-pointer items-center border-b-3 border-transparent hover:text-primary transition-colors',
-                        'text-midgrey pointer-events-none' => !$coLearningEnabled
+                            'flex h-[60px] px-2 items-center border-b-3 border-transparent transition-colors',
+                            'text-midgrey cursor-default' => !$coLearningEnabled,
+                            'hover:text-primary hover:bg-primary/5 cursor-pointer' => $coLearningEnabled
                         ])
-                    x-on:click="tab(3)"
-                    x-bind:class="activeTab === 3 ? 'primary border-primary hover:border-primary' : 'hover:border-primary/25'"
+                    @if($coLearningEnabled)
+                        x-on:click="tab(3)"
+                        x-bind:class="{'primary border-primary': activeTab === 3}"
+                    @endif
                     title="@lang($coLearningEnabled ? 'co-learning.co_learning' : 'assessment.CO-Learning no results')"
                     @disabled(!$coLearningEnabled)
             >

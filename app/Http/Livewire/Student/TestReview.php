@@ -73,6 +73,7 @@ class TestReview extends EvaluationComponent
         $this->questionPosition = $position;
         $this->handleGroupQuestion();
         $this->handleAnswerFeedback();
+        $this->openClosedPanels();
         $this->score = $this->handleAnswerScore();
 
         return true;
@@ -207,6 +208,7 @@ class TestReview extends EvaluationComponent
     protected function getAnswers(): Collection
     {
         return $this->testTakeData->testParticipants
+            ->load('answers.feedback')
             ->flatMap(fn($participant) => $participant->answers->map(fn($answer) => $answer))
             ->sortBy(['order', 'test_participant_id'])
             ->values();
@@ -226,6 +228,12 @@ class TestReview extends EvaluationComponent
         return $this->testTakeData->test->testQuestions
             ->map(fn($testQuestion) => $testQuestion->question->isType('Group') ? $testQuestion->question : null)
             ->filter();
+    }
+
+    private function openClosedPanels()
+    {
+        $this->questionPanel = true;
+        $this->answerPanel = true;
     }
 
 }

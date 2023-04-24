@@ -79,4 +79,6 @@ return [
     'inklappen'                       => 'Inklappen',
     'uitklappen'                      => 'Uitklappen',
     'cancel'                          => 'Annuleren',
+    'loading'                         => 'Laden',
+    'image unavailable'               => 'Geen afbeelding beschikbaar',
 ];

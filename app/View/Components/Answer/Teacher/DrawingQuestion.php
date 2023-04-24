@@ -9,6 +9,7 @@ class DrawingQuestion extends QuestionComponent
     public string $imageSource;
     protected function setAnswerStruct($question): void
     {
-        $this->imageSource = route('teacher.drawing-question-answer-model', $question->uuid);
+        $prefix = auth()->user()->isA('Student') ? 'student' : 'teacher';
+        $this->imageSource = route($prefix.'.drawing-question-answer-model', $question->uuid);
     }
 }
