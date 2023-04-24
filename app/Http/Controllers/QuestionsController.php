@@ -62,7 +62,7 @@ class QuestionsController extends Controller
     /**
      * Display the specified question.
      *
-     * @param  Question  $question
+     * @param Question $question
      * @return Response
      */
     public function show($question)
@@ -83,7 +83,7 @@ class QuestionsController extends Controller
     /**
      * Offers a download to the specified drawing question from storage.
      *
-     * @param  DrawingQuestion  $drawingQuestion
+     * @param DrawingQuestion $drawingQuestion
      * @return Response
      */
     public function bg(DrawingQuestion $drawingQuestion)
@@ -101,22 +101,22 @@ class QuestionsController extends Controller
 
     public function inlineImageLaravel(Request $request, $image)
     {
-        $inlineImage = $image;
-        if(!Storage::disk('inline_images')->exists($inlineImage)){
-            $inlineImage = urldecode($inlineImage);
-        }
-        if (Storage::disk('inline_images')->exists($inlineImage)) {
-            $path = Storage::disk('inline_images')->path($inlineImage);
-            return Response::file($path);
-        }
 
-        //also check old inline-image storage folder
         $questionAnswersImage = $image;
-        if(!Storage::disk('cake')->exists("questionanswers/$questionAnswersImage")){
+        if (!Storage::disk('cake')->exists("questionanswers/$image")) {
             $questionAnswersImage = urldecode($questionAnswersImage);
         }
         if (Storage::disk('cake')->exists("questionanswers/$questionAnswersImage")) {
             $path = Storage::disk('cake')->path("questionanswers/$questionAnswersImage");
+            return Response::file($path);
+        }
+
+        $inlineImage = $image;
+        if (!Storage::disk('inline_images')->exists($inlineImage)) {
+            $inlineImage = urldecode($inlineImage);
+        }
+        if (Storage::disk('inline_images')->exists($inlineImage)) {
+            $path = Storage::disk('inline_images')->path($inlineImage);
             return Response::file($path);
         }
 
@@ -166,7 +166,7 @@ class QuestionsController extends Controller
         if (Storage::disk(SvgHelper::DISK)->exists($path)) {
             $server = \League\Glide\ServerFactory::create([
                 'source' => Storage::disk(SvgHelper::DISK)->path(sprintf('%s/%s', $drawingQuestion, $type)),
-                'cache' => Storage::disk(SvgHelper::DISK)->path(sprintf('%s/%s/cache', $drawingQuestion, $type))
+                'cache'  => Storage::disk(SvgHelper::DISK)->path(sprintf('%s/%s/cache', $drawingQuestion, $type))
             ]);
 
             return $server->outputImage($identifier, (new SvgHelper($drawingQuestion))->getArrayWidthAndHeight());
@@ -174,18 +174,19 @@ class QuestionsController extends Controller
         abort(404);
     }
 
-    private function getPng($drawingQuestion, $fileName) {
-        $path = sprintf('%s/%s', $drawingQuestion,  $fileName);
+    private function getPng($drawingQuestion, $fileName)
+    {
+        $path = sprintf('%s/%s', $drawingQuestion, $fileName);
         if (Storage::disk(SvgHelper::DISK)->exists($path)) {
             $server = \League\Glide\ServerFactory::create([
                 'source' => Storage::disk(SvgHelper::DISK)->path($drawingQuestion),
-                'cache' => Storage::disk(SvgHelper::DISK)->path(sprintf('%s/cache', $drawingQuestion))
+                'cache'  => Storage::disk(SvgHelper::DISK)->path(sprintf('%s/cache', $drawingQuestion))
             ]);
 
             $widthAndHeight = (new SvgHelper($drawingQuestion))->getArrayWidthAndHeight();
 
-            $height = (float) $widthAndHeight['h'];
-            $width = (float) $widthAndHeight['w'];
+            $height = (float)$widthAndHeight['h'];
+            $width = (float)$widthAndHeight['w'];
 
             if ($width > 800) {
                 $width = 800;
@@ -194,16 +195,17 @@ class QuestionsController extends Controller
             $height = round(800 * $height / $widthAndHeight['w']);
 
 
-            $widthAndHeight['h'] = (string) $height;
-            $widthAndHeight['w'] =  (string) $width;
+            $widthAndHeight['h'] = (string)$height;
+            $widthAndHeight['w'] = (string)$width;
 
             return $server->outputImage($fileName, $widthAndHeight);
         }
         abort(404);
     }
 
-    public function getDrawingQuestionGivenAnswerPng($answerUuid) {
-        $path = sprintf('drawing_question_answers/%s.png',$answerUuid);
+    public function getDrawingQuestionGivenAnswerPng($answerUuid)
+    {
+        $path = sprintf('drawing_question_answers/%s.png', $answerUuid);
         if (Storage::exists($path)) {
             return Storage::get($path);
         }
@@ -215,6 +217,7 @@ class QuestionsController extends Controller
     {
         return $this->getPng($drawingQuestion, SvgHelper::CORRECTION_MODEL_PNG_FILENAME);
     }
+
     public function drawingQuestionQuestionPng($drawingQuestion)
     {
         return $this->getPng($drawingQuestion, SvgHelper::QUESTION_PNG_FILENAME);

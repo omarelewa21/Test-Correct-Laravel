@@ -501,6 +501,8 @@ class Test extends BaseModel
 
         $test->setAttribute('uuid', Uuid::uuid4());
 
+        $test->unsetRelation('testQuestions');
+
         if ($test->save() === false) {
             return false;
         }
