@@ -18,6 +18,7 @@ use tcCore\TestParticipant;
 use tcCore\TestTake;
 use tcCore\GroupQuestion;
 use tcCore\Answer;
+use tcCore\User;
 
 class TestParticipantsController extends Controller
 {
@@ -58,7 +59,11 @@ class TestParticipantsController extends Controller
                     //$query->where('test_take_id', $testTake->getKey());
                 }]);
 
-                $testParticipants = $testParticipants->get()->sortBy(function ($testParticipant, $key) {
+                $testParticipants = $testParticipants->get()
+                    ->sortBy(function ($testParticipant, $key) {
+                        if(!$testParticipant->user){
+                            return 'ZZZZZZZ'; // we want them to end up in the end of the list if the user has been deleted
+                        }
                     return $testParticipant->user->name.$testParticipant->user->name_suffix.$testParticipant->user->name_first;
                 });
 
@@ -186,6 +191,7 @@ class TestParticipantsController extends Controller
                         }
                     }
                 }
+
                 return Response::make($testParticipants, 200);
                 break;
             case 'list':
