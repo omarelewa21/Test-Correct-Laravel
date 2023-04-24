@@ -5645,8 +5645,8 @@ input.datepicker {
 
 #co-learning-teacher-page #header #start-screen-content .grid .co-learning-panel.co-learning-restart.co-learning-previous-discussion-type,
 #assessment-page #header #start-screen-content .grid .co-learning-panel.co-learning-restart.co-learning-previous-discussion-type,
-#co-learning-teacher-page #header #start-screen-content .grid .co-learning-panel:hover,
-#assessment-page #header #start-screen-content .grid .co-learning-panel:hover {
+#co-learning-teacher-page #header #start-screen-content .grid .co-learning-panel:not(.disabled):hover,
+#assessment-page #header #start-screen-content .grid .co-learning-panel:not(.disabled):hover {
     box-shadow: 0 8px 16px 0 rgba(4, 31, 116, 0.3);
     border: solid 2px white;
     background-color: rgba(0, 77, 245, 0.9);
@@ -11332,6 +11332,15 @@ video {
 }
 .text-white\/20{
   color: rgb(255 255 255 / 0.2);
+}
+.text-white\/50{
+  color: rgb(255 255 255 / 0.5);
+}
+.text-white\/75{
+  color: rgb(255 255 255 / 0.75);
+}
+.text-white\/90{
+  color: rgb(255 255 255 / 0.9);
 }
 .underline{
   text-decoration-line: underline;
