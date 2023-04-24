@@ -3,7 +3,9 @@
 namespace tcCore\View\Components\Answer\Student;
 
 use Illuminate\Support\Str;
+use tcCore\Answer;
 use tcCore\Http\Traits\Questions\WithCompletionConversion;
+use tcCore\Question;
 
 class CompletionQuestion extends QuestionComponent
 {
@@ -12,6 +14,14 @@ class CompletionQuestion extends QuestionComponent
     public mixed $questionTextPartials = [];
     public mixed $questionTextPartialFinal = [];
     public $answerStruct;
+
+    public function __construct(
+        Question    $question,
+        Answer      $answer,
+        public bool $showToggles = true,
+    ) {
+        parent::__construct($question, $answer);
+    }
 
     protected function setAnswerStruct($question, $answer): void
     {

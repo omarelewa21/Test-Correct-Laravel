@@ -17,6 +17,7 @@ use tcCore\Events\TestTakeShowResultsChanged;
 use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Helpers\GlobalStateHelper;
+use tcCore\Http\Middleware\AfterResponse;
 use tcCore\Jobs\CountTeacherLastTestTaken;
 use tcCore\Jobs\CountTeacherTestDiscussed;
 use tcCore\Jobs\CountTeacherTestTaken;
@@ -116,7 +117,7 @@ class TestTake extends BaseModel
                 $testTake->setAttribute('test_id', $systemTestId);
             }
 
-            if ($testTake->testTakeStatus->name === 'Discussing' && $testTake->getAttribute('discussing_question_id') !== null) {
+            if ($testTake->test_take_status_id === TestTakeStatus::STATUS_DISCUSSING && $testTake->getAttribute('discussing_question_id') !== null) {
                 $testTake->setAttribute('is_discussed', true);
             }
 
@@ -227,7 +228,7 @@ class TestTake extends BaseModel
             if ($testTake->test_take_status_id === TestTakeStatus::STATUS_DISCUSSING) {
                 if ($testTake->studentsAreInNewCoLearningAndDiscussingTypeIsOpenOnly()) {
                     foreach ($testTake->testParticipants as $testParticipant) {
-                        TestTakeChangeDiscussingQuestion::dispatch($testParticipant->uuid);
+                        AfterResponse::$performAction[] = fn() => TestTakeChangeDiscussingQuestion::dispatch($testParticipant->uuid);
                     }
                 }
             }
@@ -261,7 +262,6 @@ class TestTake extends BaseModel
                     TestTakeOpenForInteraction::dispatch($testParticipant->uuid);
                 }
             }
-
             if (($testTake->testTakeStatus->name === 'Discussing' && $testTake->getAttribute('discussing_question_id') != $testTake->getOriginal('discussing_question_id'))
                 || ($testTake->testTakeStatus->name === 'Discussed' && $testTake->getAttribute('test_take_status_id') != $testTake->getOriginal('test_take_status_id'))) {
                 $inactiveTestParticipant = [];
