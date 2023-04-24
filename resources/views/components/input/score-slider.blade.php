@@ -45,6 +45,7 @@
                                @if(!$hideThumb)
                                :class="{'hide-thumb': score === null}"
                                 @endif
+                                @disabled($disabled)
                         >
                     </div>
                 @else
@@ -87,6 +88,7 @@
                                @endif
                                x-on:click="noChangeEventFallback"
                                x-on:change="syncInput()"
+                                @disabled($disabled)
                         >
                     </div>
                 @endif
@@ -105,6 +107,7 @@
                    :step="halfPoints ? 0.5 : 1"
                    x-ref="scoreInput"
                    x-on:focusout="syncInput($el.value)"
+                   @disabled($disabled)
             >
             @if($mode === 'small')
         </div>
