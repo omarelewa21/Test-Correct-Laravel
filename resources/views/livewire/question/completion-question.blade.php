@@ -6,7 +6,7 @@
          id="completion_{{ $question->id }}"
     >
         <div questionHtml wire:ignore>
-            <x-input.group class="body1 max-w-full flex-col" for="">
+            <x-input.group class="body1 max-w-full flex-col questionhtml" for="">
                 {!! $html !!}
             </x-input.group>
             <div wire:ignore class="rspopup_tlc hidden rsbtn_popup_tlc_{{$question->id}}"  ><div class="rspopup_play rspopup_btn rs_skip" role="button" tabindex="0" aria-label="Lees voor" data-rslang="title/arialabel:listen" data-rsevent-id="rs_340375" title="Lees voor"></div></div>

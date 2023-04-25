@@ -7,7 +7,7 @@
                 <span>{!! __('test_take.instruction_arq') !!}</span>
             </div>
             <div class="flex flex-row space-x-5">
-                <div class="flex flex-1 flex-col space-y-6" wire:ignore>
+                <div class="inline-block flex-1 space-y-6" wire:ignore>
                     {!! $question->converted_question_html !!}
                 </div>
                 <div class="flex flex-1 flex-col">
