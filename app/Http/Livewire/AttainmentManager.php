@@ -2,11 +2,10 @@
 
 namespace tcCore\Http\Livewire;
 
-use Livewire\Component;
 use tcCore\Attainment;
 use tcCore\EducationLevel;
 
-class AttainmentManager extends Component
+class AttainmentManager extends TCComponent
 {
     public $subdomainId;
 

@@ -2,14 +2,11 @@
 
 namespace tcCore\Http\Livewire\Teacher;
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Livewire\Component;
-use LivewireUI\Modal\ModalComponent;
-use tcCore\Http\Controllers\TemporaryLoginController;
 use tcCore\Http\Helpers\BaseHelper;
+use tcCore\Http\Livewire\TCModalComponent;
 
-class TestStartCreateModal extends ModalComponent
+class TestStartCreateModal extends TCModalComponent
 {
     public function mount()
     {

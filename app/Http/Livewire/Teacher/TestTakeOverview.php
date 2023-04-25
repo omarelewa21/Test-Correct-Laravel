@@ -2,14 +2,14 @@
 
 namespace tcCore\Http\Livewire\Teacher;
 
-use Livewire\Component;
 use Livewire\WithPagination;
+use tcCore\Http\Livewire\TCComponent;
 use tcCore\Http\Traits\WithTestTakeInteractions;
 use tcCore\Subject;
 use tcCore\TestTake;
 use tcCore\TestTakeStatus;
 
-class TestTakeOverview extends Component
+class TestTakeOverview extends TCComponent
 {
     use WithPagination, WithTestTakeInteractions;
 

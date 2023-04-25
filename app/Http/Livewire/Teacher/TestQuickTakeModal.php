@@ -3,9 +3,8 @@
 namespace tcCore\Http\Livewire\Teacher;
 
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
-use LivewireUI\Modal\ModalComponent;
 use Ramsey\Uuid\Uuid;
+use tcCore\Http\Livewire\TCModalComponent;
 use tcCore\Http\Traits\Modal\WithPlanningFeatures;
 use tcCore\Lib\Repositories\PeriodRepository;
 use tcCore\TemporaryLogin;
@@ -13,7 +12,7 @@ use tcCore\Test;
 use tcCore\TestTake;
 use tcCore\TestTakeStatus;
 
-class TestQuickTakeModal extends ModalComponent
+class TestQuickTakeModal extends TCModalComponent
 {
     use WithPlanningFeatures;
 

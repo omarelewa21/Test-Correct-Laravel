@@ -2,23 +2,12 @@
 
 namespace tcCore\Http\Livewire\Student;
 
-use Carbon\Carbon;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Response;
-use Illuminate\Support\Str;
-use Livewire\Component;
-use tcCore\Answer;
-use tcCore\Lib\Question\QuestionInterface;
-use tcCore\MultipleChoiceQuestion;
-use tcCore\MultipleChoiceQuestionAnswer;
+use tcCore\Http\Livewire\TCComponent;
 use tcCore\Question;
-use tcCore\TestParticipant;
 use tcCore\TestTake as Test;
 
 
-class TesttakeStub extends Component
+class TesttakeStub extends TCComponent
 {
 
     public $testQuestions;

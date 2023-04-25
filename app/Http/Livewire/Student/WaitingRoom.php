@@ -3,24 +3,19 @@
 namespace tcCore\Http\Livewire\Student;
 
 use Carbon\Carbon;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
-use Livewire\Component;
 use Ramsey\Uuid\Uuid;
 use tcCore\Http\Helpers\AllowedAppType;
 use tcCore\Http\Helpers\AppVersionDetector;
 use tcCore\Http\Livewire\CoLearning\CompletionQuestion;
-use tcCore\Http\Traits\WithStudentAppVersionHandling;
+use tcCore\Http\Livewire\TCComponent;
 use tcCore\Http\Traits\WithStudentTestTakes;
 use tcCore\TemporaryLogin;
-use tcCore\TestKind;
 use tcCore\TestParticipant;
 use tcCore\TestTake;
-use tcCore\TestTakeEvent;
 use tcCore\TestTakeStatus;
 
-class WaitingRoom extends Component
+class WaitingRoom extends TCComponent
 {
     use WithStudentTestTakes;
 

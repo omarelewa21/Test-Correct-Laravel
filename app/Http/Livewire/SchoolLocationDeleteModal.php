@@ -4,11 +4,9 @@ namespace tcCore\Http\Livewire;
 
 use Exception;
 use Illuminate\Support\Facades\Auth;
-use Livewire\Livewire;
-use LivewireUI\Modal\ModalComponent;
 use tcCore\SchoolLocation;
 
-class SchoolLocationDeleteModal extends ModalComponent
+class SchoolLocationDeleteModal extends TCModalComponent
 {
     public string $uuid;
 

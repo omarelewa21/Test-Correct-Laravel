@@ -5,14 +5,11 @@ namespace tcCore\Http\Livewire\CoLearning;
 use Bugsnag\Breadcrumbs\Breadcrumb;
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Support\Str;
-use Livewire\Component;
-use tcCore\Answer;
 use tcCore\AnswerRating;
-use tcCore\Http\Traits\WithCloseable;
-use tcCore\Http\Traits\WithGroups;
+use tcCore\Http\Livewire\TCComponent;
 use tcCore\Question;
 
-abstract class CoLearningQuestion extends Component
+abstract class CoLearningQuestion extends TCComponent
 {
     public $answer = null;
     public $answered;

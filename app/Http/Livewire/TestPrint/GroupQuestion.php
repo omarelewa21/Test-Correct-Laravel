@@ -2,9 +2,9 @@
 
 namespace tcCore\Http\Livewire\TestPrint;
 
-use Livewire\Component;
+use tcCore\Http\Livewire\TCComponent;
 
-class GroupQuestion extends Component
+class GroupQuestion extends TCComponent
 {
     public $question;
     public $groupStart = false;

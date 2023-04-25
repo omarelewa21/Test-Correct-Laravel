@@ -9,15 +9,19 @@ use tcCore\TestParticipant;
 
 trait WithUpdatingHandling
 {
-
-    public function updating(&$name, &$value)
+    public function updatedWithUpdatingHandling(&$name, &$value)
     {
         if(!isset($this->preventAnswerTransformation) || !$this->preventAnswerTransformation) {
+            $refValue = $value;
             Request::filter($value);
+            if($refValue !== $value) {
+                $this->syncInput($name, $value);
+            }
         }
+
     }
 
-    public function updateAnswerIdForTestParticipant()
+    public function updateAnswerIdForTestParticipantWithUpdatingHandling()
     {
         $answer = Answer::select('id','test_participant_id')->whereId($this->answers[$this->question->uuid]['id'])->first();
 

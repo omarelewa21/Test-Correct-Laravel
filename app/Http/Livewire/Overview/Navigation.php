@@ -2,9 +2,9 @@
 
 namespace tcCore\Http\Livewire\Overview;
 
-use Livewire\Component;
+use tcCore\Http\Livewire\TCComponent;
 
-class Navigation extends Component
+class Navigation extends TCComponent
 {
     public $nav;
     public $testTakeUuid;

@@ -4,15 +4,14 @@ namespace tcCore\Http\Livewire\Student;
 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
-use Livewire\Component;
 use tcCore\Http\Helpers\BaseHelper;
+use tcCore\Http\Livewire\TCComponent;
 use tcCore\TemporaryLogin;
 use tcCore\TestParticipant;
 use tcCore\TestTakeEvent;
 use tcCore\TestTakeEventType;
 
-
-class TestTake extends Component
+class TestTake extends TCComponent
 {
     const FALLBACK_EVENT_TYPE_ID = 3; //lost-focus
     public $testTakeUuid;

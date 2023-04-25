@@ -2,14 +2,14 @@
 
 namespace tcCore\Http\Livewire\Overview;
 
-use Livewire\Component;
+use tcCore\Http\Livewire\TCComponent;
 use tcCore\Http\Traits\WithAttachments;
 use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithGroups;
 use tcCore\Http\Traits\WithNotepad;
 use tcCore\Question;
 
-class MatrixQuestion extends Component
+class MatrixQuestion extends TCComponent
 {
     use WithAttachments, WithNotepad, withCloseable, WithGroups;
 

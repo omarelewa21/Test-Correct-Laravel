@@ -3,10 +3,10 @@
 namespace tcCore\Http\Livewire\ContextMenu;
 
 use Illuminate\Support\Str;
-use Livewire\Component;
 use Livewire\Livewire;
+use tcCore\Http\Livewire\TCComponent;
 
-abstract class ContextMenuComponent extends Component
+abstract class ContextMenuComponent extends TCComponent
 {
     public function render()
     {

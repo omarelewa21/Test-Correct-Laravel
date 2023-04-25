@@ -3,20 +3,15 @@
 namespace tcCore\Http\Livewire;
 
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Livewire\Component;
 use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Helpers\ImportHelper;
 use tcCore\Jobs\ProcessUwlrSoapResultJob;
-use tcCore\SchoolClass;
 use tcCore\SchoolLocation;
 use tcCore\SchoolLocationSection;
-use tcCore\User;
 use tcCore\UwlrSoapEntry;
 use tcCore\UwlrSoapResult;
 
-class UwlrGrid extends Component
+class UwlrGrid extends TCComponent
 {
     public $showSuccessDialog = false;
     public $successDialogMessage = '';

@@ -2,18 +2,17 @@
 
 namespace tcCore\Http\Livewire\Teacher;
 
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
-use LivewireUI\Modal\ModalComponent;
 use tcCore\GroupQuestionQuestion;
 use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Http\Interfaces\QuestionCms;
+use tcCore\Http\Livewire\TCModalComponent;
 use tcCore\Http\Livewire\Teacher\Questions\CmsFactory;
 use tcCore\Http\Livewire\Teacher\Questions\CmsMultipleChoice;
 use tcCore\Question;
 
-class QuestionCmsPreviewModal extends ModalComponent implements QuestionCms
+class QuestionCmsPreviewModal extends TCModalComponent implements QuestionCms
 {
     public array $question = [
         'add_to_database'        => 1,

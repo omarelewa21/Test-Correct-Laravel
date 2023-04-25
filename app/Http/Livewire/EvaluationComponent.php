@@ -3,12 +3,11 @@
 namespace tcCore\Http\Livewire;
 
 use Illuminate\Support\Collection;
-use Livewire\Component;
 use tcCore\AnswerRating;
 use tcCore\Exceptions\AssessmentException;
 use tcCore\TestTake;
 
-abstract class EvaluationComponent extends Component
+abstract class EvaluationComponent extends TCComponent
 {
     /*Template properties*/
     public string $testName = '';

@@ -2,13 +2,12 @@
 
 namespace tcCore\Http\Livewire\Student;
 
-use Illuminate\Support\Facades\Auth;
-use Livewire\Component;
+use tcCore\Http\Livewire\TCComponent;
 use tcCore\TestParticipant;
 use tcCore\TestTakeEvent;
 use tcCore\TestTakeStatus;
 
-class FraudDetection extends Component
+class FraudDetection extends TCComponent
 {
     public $fraudDetected = false;
     public $testParticipantId, $testParticipantUuid, $testTakeUuid;

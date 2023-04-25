@@ -5,12 +5,12 @@ namespace tcCore\Http\Livewire\Teacher;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use LivewireUI\Modal\ModalComponent;
 use tcCore\GroupQuestionQuestion;
+use tcCore\Http\Livewire\TCModalComponent;
 use tcCore\Test;
 use tcCore\TestQuestion;
 
-class PublishTestModal extends ModalComponent
+class PublishTestModal extends TCModalComponent
 {
     public $testUuid;
     public $showInfo;

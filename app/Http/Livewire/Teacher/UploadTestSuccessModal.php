@@ -2,10 +2,10 @@
 
 namespace tcCore\Http\Livewire\Teacher;
 
-use LivewireUI\Modal\ModalComponent;
 use tcCore\Http\Helpers\CakeRedirectHelper;
+use tcCore\Http\Livewire\TCModalComponent;
 
-class UploadTestSuccessModal extends ModalComponent
+class UploadTestSuccessModal extends TCModalComponent
 {
     public static function modalMaxWidthClass(): string
     {

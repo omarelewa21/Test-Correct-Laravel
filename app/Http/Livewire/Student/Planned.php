@@ -2,14 +2,13 @@
 
 namespace tcCore\Http\Livewire\Student;
 
-use Illuminate\Support\Facades\Auth;
-use Livewire\Component;
 use Livewire\WithPagination;
 use tcCore\Events\NewTestTakePlanned;
+use tcCore\Http\Livewire\TCComponent;
 use tcCore\Http\Traits\WithSorting;
 use tcCore\Http\Traits\WithStudentTestTakes;
 
-class Planned extends Component
+class Planned extends TCComponent
 {
     use WithPagination, WithStudentTestTakes, WithSorting;
 

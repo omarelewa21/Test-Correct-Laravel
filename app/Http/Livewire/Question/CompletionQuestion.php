@@ -3,19 +3,17 @@
 namespace tcCore\Http\Livewire\Question;
 
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
-use Livewire\Component;
 use tcCore\Answer;
 use tcCore\Http\Helpers\BaseHelper;
+use tcCore\Http\Livewire\TCComponent;
 use tcCore\Http\Traits\WithAttachments;
 use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithGroups;
 use tcCore\Http\Traits\WithNotepad;
-use tcCore\Http\Traits\WithUpdatingHandling;
 
-class CompletionQuestion extends Component
+class CompletionQuestion extends TCComponent
 {
-    use WithAttachments, WithNotepad, withCloseable, WithGroups, WithUpdatingHandling;
+    use WithAttachments, WithNotepad, withCloseable, WithGroups;
 
     public $question;
     public $answer;

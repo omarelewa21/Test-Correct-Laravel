@@ -3,11 +3,10 @@
 namespace tcCore\Http\Livewire;
 
 use Illuminate\Support\Str;
-use Livewire\Component;
 use Livewire\WithPagination;
 use tcCore\UserSystemSetting;
 
-abstract class OverviewComponent extends Component
+abstract class OverviewComponent extends TCComponent
 {
     use WithPagination;
 

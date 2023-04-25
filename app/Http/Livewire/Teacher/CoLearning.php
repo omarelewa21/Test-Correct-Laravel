@@ -6,7 +6,6 @@ use Illuminate\Routing\Redirector;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use Livewire\Component;
 use Livewire\Livewire;
 use tcCore\AnswerRating;
 use tcCore\CompletionQuestion;
@@ -18,10 +17,11 @@ use tcCore\Http\Enums\CoLearning\RatingStatus;
 use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Http\Helpers\CoLearningHelper;
 use tcCore\Http\Interfaces\CollapsableHeader;
+use tcCore\Http\Livewire\TCComponent;
 use tcCore\TestTake;
 use tcCore\TestTakeStatus;
 
-class CoLearning extends Component implements CollapsableHeader
+class CoLearning extends TCComponent implements CollapsableHeader
 {
     const DISCUSSION_TYPE_ALL = 'ALL';
     const DISCUSSION_TYPE_OPEN_ONLY = 'OPEN_ONLY';
