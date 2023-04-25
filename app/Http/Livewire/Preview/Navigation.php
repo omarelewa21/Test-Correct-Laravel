@@ -2,10 +2,10 @@
 
 namespace tcCore\Http\Livewire\Preview;
 
-use Livewire\Component;
+use tcCore\Http\Livewire\TCComponent;
 use tcCore\Question;
 
-class Navigation extends Component
+class Navigation extends TCComponent
 {
     public $nav;
     public $testId;

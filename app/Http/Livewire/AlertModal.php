@@ -2,9 +2,8 @@
 
 namespace tcCore\Http\Livewire;
 
-use LivewireUI\Modal\ModalComponent;
 
-class AlertModal extends ModalComponent
+class AlertModal extends TCModalComponent
 {
     public $message;
     public $primaryAction = false;

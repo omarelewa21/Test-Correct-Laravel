@@ -2,15 +2,15 @@
 
 namespace tcCore\Http\Livewire\Overview;
 
-use Livewire\Component;
 use tcCore\Answer;
+use tcCore\Http\Livewire\TCComponent;
 use tcCore\Http\Traits\WithAttachments;
 use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithGroups;
 use tcCore\Http\Traits\WithNotepad;
 use tcCore\Question;
 
-class DrawingQuestion extends Component
+class DrawingQuestion extends TCComponent
 {
     use WithAttachments, WithNotepad, WithCloseable, WithGroups;
 

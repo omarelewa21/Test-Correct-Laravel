@@ -2,10 +2,10 @@
 
 namespace tcCore\Http\Livewire\Teacher;
 
-use LivewireUI\Modal\ModalComponent;
 use tcCore\Answer;
+use tcCore\Http\Livewire\TCModalComponent;
 
-class InlineFeedbackModal extends ModalComponent
+class InlineFeedbackModal extends TCModalComponent
 {
     public $answer;
     public $feedback = '';

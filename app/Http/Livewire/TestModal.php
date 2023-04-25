@@ -2,15 +2,14 @@
 
 namespace tcCore\Http\Livewire;
 
-use Illuminate\Support\Facades\Auth;
-use LivewireUI\Modal\ModalComponent;
 use tcCore\Http\Traits\Modal\TestActions;
-use tcCore\Period;
+use tcCore\Http\Traits\WithUpdatingHandling;
 use tcCore\Test;
 
-abstract class TestModal extends ModalComponent
+abstract class TestModal extends TCModalComponent
 {
     use TestActions;
+    use WithUpdatingHandling;
 
     public bool $forceClose = true;
 

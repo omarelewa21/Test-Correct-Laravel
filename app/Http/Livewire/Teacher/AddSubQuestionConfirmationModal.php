@@ -3,9 +3,10 @@
 namespace tcCore\Http\Livewire\Teacher;
 
 use LivewireUI\Modal\ModalComponent;
+use tcCore\Http\Livewire\TCModalComponent;
 use tcCore\Question;
 
-class AddSubQuestionConfirmationModal extends ModalComponent
+class AddSubQuestionConfirmationModal extends TCModalComponent
 {
     public string $questionUuid;
 

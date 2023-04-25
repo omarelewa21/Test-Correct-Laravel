@@ -4,22 +4,15 @@ namespace tcCore\Http\Livewire\Student;
 
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Response;
-use Livewire\Component;
 use tcCore\AnswerRating;
-use tcCore\Events\CoLearningForceTakenAway;
-use tcCore\Events\CoLearningNextQuestion;
-use tcCore\Events\CoLearningPresence;
 use tcCore\Http\Controllers\AnswerRatingsController;
 use tcCore\Http\Controllers\TestTakeLaravelController;
 use tcCore\Http\Livewire\CoLearning\CompletionQuestion;
-use tcCore\Http\Livewire\CoLearning\OpenQuestion;
-use tcCore\TestParticipant;
-use tcCore\TestQuestion;
+use tcCore\Http\Livewire\TCComponent;
 use tcCore\TestTake;
 use tcCore\TestTakeStatus;
 
-class CoLearning extends Component
+class CoLearning extends TCComponent
 {
     const SESSION_KEY = 'co-learning-answer-options';
 

@@ -3,14 +3,14 @@
 namespace tcCore\Http\Livewire\Preview;
 
 use Illuminate\Support\Facades\Auth;
-use Livewire\Component;
 use tcCore\Http\Helpers\SvgHelper;
+use tcCore\Http\Livewire\TCComponent;
 use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithNotepad;
 use tcCore\Http\Traits\WithPreviewAttachments;
 use tcCore\Http\Traits\WithPreviewGroups;
 
-class DrawingQuestion extends Component
+class DrawingQuestion extends TCComponent
 {
     use WithPreviewAttachments, WithNotepad, withCloseable, WithPreviewGroups;
 

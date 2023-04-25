@@ -2,9 +2,9 @@
 
 namespace tcCore\Http\Livewire\Student;
 
-use Livewire\Component;
+use tcCore\Http\Livewire\TCComponent;
 
-class TestTakeOffline extends Component
+class TestTakeOffline extends TCComponent
 {
     public function render()
     {

@@ -10,14 +10,14 @@ use tcCore\TestParticipant;
 trait WithUpdatingHandling
 {
 
-    public function updating(&$name, &$value)
+    public function updatingWithUpdatingHandling(&$name, &$value)
     {
         if(!isset($this->preventAnswerTransformation) || !$this->preventAnswerTransformation) {
             Request::filter($value);
         }
     }
 
-    public function updateAnswerIdForTestParticipant()
+    public function updateAnswerIdForTestParticipantWithUpdatingHandling()
     {
         $answer = Answer::select('id','test_participant_id')->whereId($this->answers[$this->question->uuid]['id'])->first();
 

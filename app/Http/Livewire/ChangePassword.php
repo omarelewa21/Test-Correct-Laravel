@@ -4,11 +4,10 @@ namespace tcCore\Http\Livewire;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Livewire\Component;
 use tcCore\Http\Traits\UserNotificationForController;
 use tcCore\User;
 
-class ChangePassword extends Component
+class ChangePassword extends TCComponent
 {
     use UserNotificationForController;
 

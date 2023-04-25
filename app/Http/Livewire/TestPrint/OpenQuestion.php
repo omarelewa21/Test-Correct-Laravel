@@ -2,13 +2,12 @@
 
 namespace tcCore\Http\Livewire\TestPrint;
 
-use Livewire\Component;
-use tcCore\Answer;
+use tcCore\Http\Livewire\TCComponent;
 use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithGroups;
 use tcCore\Question;
 
-class OpenQuestion extends Component
+class OpenQuestion extends TCComponent
 {
     use WithCloseable, WithGroups;
 

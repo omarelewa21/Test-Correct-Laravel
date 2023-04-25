@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
-use Livewire\Component;
 use Livewire\TemporaryUploadedFile;
 use Livewire\WithFileUploads;
 use Ramsey\Uuid\Uuid;
@@ -17,13 +16,13 @@ use tcCore\EducationLevel;
 use tcCore\Exceptions\UploadTestException;
 use tcCore\FileManagement;
 use tcCore\FileManagementStatus;
-use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Http\Helpers\SchoolHelper;
+use tcCore\Http\Livewire\TCComponent;
 use tcCore\Subject;
 use tcCore\TestKind;
 
-class UploadTest extends Component
+class UploadTest extends TCComponent
 {
     use WithFileUploads;
 

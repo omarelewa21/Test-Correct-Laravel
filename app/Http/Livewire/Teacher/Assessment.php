@@ -5,18 +5,18 @@ namespace tcCore\Http\Livewire\Teacher;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
-use Livewire\Component;
 use tcCore\Answer;
 use tcCore\AnswerRating;
 use tcCore\Exceptions\AssessmentException;
 use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Http\Interfaces\CollapsableHeader;
+use tcCore\Http\Livewire\TCComponent;
 use tcCore\Question;
 use tcCore\TestTake;
 use tcCore\TestTakeStatus;
 use tcCore\User;
 
-class Assessment extends Component implements CollapsableHeader
+class Assessment extends TCComponent implements CollapsableHeader
 {
     /*Template properties*/
     public bool $headerCollapsed = false;

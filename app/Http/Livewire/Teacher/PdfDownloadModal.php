@@ -3,13 +3,12 @@
 namespace tcCore\Http\Livewire\Teacher;
 
 use Illuminate\Http\Request;
-use LivewireUI\Modal\ModalComponent;
-use tcCore\Http\Controllers\PrintTestController;
 use tcCore\Http\Controllers\TemporaryLoginController;
+use tcCore\Http\Livewire\TCModalComponent;
 use tcCore\Test;
 use tcCore\TestTake;
 
-class PdfDownloadModal extends ModalComponent
+class PdfDownloadModal extends TCModalComponent
 {
     public string $waitingScreenHtml;
     public string $translation;

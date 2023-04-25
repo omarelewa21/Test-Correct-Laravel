@@ -2,9 +2,7 @@
 
 namespace tcCore\Http\Livewire;
 
-use LivewireUI\Modal\ModalComponent;
-
-class OpenUserLogoutWarningModal extends ModalComponent
+class OpenUserLogoutWarningModal extends TCModalComponent
 {
     public function render()
     {

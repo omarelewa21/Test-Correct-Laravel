@@ -4,10 +4,9 @@ namespace tcCore\Http\Livewire;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use LivewireUI\Modal\ModalComponent;
 use tcCore\User;
 
-class ForcePasswordChangeModal extends ModalComponent
+class ForcePasswordChangeModal extends TCModalComponent
 {
     public $newPassword;
     public $newPassword_confirmation;

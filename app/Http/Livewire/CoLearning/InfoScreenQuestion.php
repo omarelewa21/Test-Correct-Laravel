@@ -2,14 +2,12 @@
 
 namespace tcCore\Http\Livewire\CoLearning;
 
-use Livewire\Component;
-use tcCore\Answer;
-use tcCore\AnswerRating;
+use tcCore\Http\Livewire\TCComponent;
 use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithGroups;
 use tcCore\Question;
 
-class InfoScreenQuestion extends Component
+class InfoScreenQuestion extends TCComponent
 {
     use WithCloseable, WithGroups;
 
