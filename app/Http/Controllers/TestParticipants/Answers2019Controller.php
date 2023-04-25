@@ -178,7 +178,7 @@ class Answers2019Controller extends Controller
                     ->first()
                     ->groupQuestion
                     ->questions()
-                    ->pluck('question_id')
+                    ->select('question_id')
             )
                 ->where('test_participant_id', $testParticipant->getKey())
                 ->update(['closed_group' => true]);

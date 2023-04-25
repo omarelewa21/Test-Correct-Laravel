@@ -2,16 +2,18 @@
     @if($question->isSubType('TrueFalse'))
         <div class="flex gap-4 items-center">
             <div class="bold">
-                {!! $answerStruct->first(fn($link) => $link->active)?->answer !!}
+                {!! $answerStruct->first(fn($link) => $link->active)?->answer ?? '......' !!}
             </div>
             <div>
                 {!! $question->converted_question_html  !!}
             </div>
             @if($studentAnswer)
-                @js($answer->id)
                 <div>
                     <x-button.true-false-toggle :wireKey="'toggle-'.$answer->uuid"
-                                                :initialValue="$answerStruct->first(fn($link) => $link->active)?->score > 0"
+                                                :initialStatus="$trueFalseToggleActive"
+                                                :toggleValue="$question->score"
+                                                :disabled="$answerStruct->where('active', true)->isEmpty()"
+                                                :identifier="$question->id"
                     />
                 </div>
             @endisset
@@ -36,7 +38,7 @@
                  ])
                      @if($answerLink->active && $question->all_or_nothing && $firstActiveAnswer)
                          x-data="multipleChoiceAllOrNothingLines(@js($allButFirstActiveAnswerIds), @js($studentAnswer))"
-                         x-cloak
+                     x-cloak
                      @endif
                      data-active-item="@js($answerLink->multiple_choice_question_answer_id)"
                 >
@@ -71,7 +73,10 @@
                     <div class="flex items-center">
                         @if($answerLink->active)
                             <x-button.true-false-toggle :wireKey="'toggle-'.$answer->uuid.$loop->iteration"
-                                                        :initialValue="$answerLink->active && $answerLink->score > 0" />
+                                                        :initialStatus="$answerLink->toggleStatus"
+                                                        :toggleValue="$answerLink->score"
+                                                        :identifier="$answerLink->order"
+                            />
                         @endif
                     </div>
                 @endif
@@ -80,13 +85,16 @@
         @if($studentAnswer && $question->all_or_nothing && $answer->isAnswered)
             <div class="all-or-nothing-toggle" wire:ignore>
                 <x-button.true-false-toggle :wireKey="'toggle-'.$answer->uuid"
-                                            :initialValue="$allOrNothingToggleActive" />
+                                            :initialStatus="$allOrNothingToggleActive"
+                                            :toggleValue="$question->score"
+                                            :identifier="$question->id"
+                />
             </div>
         @endif
     @endif
 
     @if($question->isSubType('ARQ'))
-        <div class="flex w-1/2 flex-col">
+        <div class="flex w-full flex-col">
             <div>
                 <div class="px-5 space-x-4 text-base bold flex flex-row">
                     <span class="w-16">{{__('test_take.option')}}</span>

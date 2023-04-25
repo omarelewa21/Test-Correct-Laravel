@@ -23,6 +23,8 @@ class InfoScreenQuestion extends Component
 
     public $answer = '';
 
+    public $testTakeUuid;
+
     public function mount()
     {
         if($this->answers[$this->question->uuid]['answered']) {

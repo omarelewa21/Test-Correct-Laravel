@@ -675,9 +675,9 @@ class Test extends BaseModel
                     break;
                 case 'base_subject_id':
                     if (is_array($value)) {
-                        $query->whereIn('tests.subject_id', Subject::whereIn('base_subject_id', $value)->pluck('id'));
+                        $query->whereIn('tests.subject_id', Subject::whereIn('base_subject_id', $value)->select('id'));
                     } else {
-                        $query->whereIn('tests.subject_id', Subject::where('base_subject_id', $value)->pluck('id'));
+                        $query->whereIn('tests.subject_id', Subject::where('base_subject_id', $value)->select('id'));
                     }
                     break;
                 case 'education_level_id':
@@ -1183,7 +1183,7 @@ class Test extends BaseModel
             ->distinct()
             ->join('subjects as s', 'tests.subject_id', '=', 's.id')
             ->where('tests.scope', '=', $publishedTestScope)
-            ->whereIn('s.base_subject_id', Subject::filtered(['user_current' => $user->getKey()], [])->pluck('base_subject_id'))
+            ->whereIn('s.base_subject_id', Subject::filtered(['user_current' => $user->getKey()], [])->select('base_subject_id'))
             ->exists('s.base_subject_id');
     }
 

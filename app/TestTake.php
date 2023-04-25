@@ -17,6 +17,7 @@ use tcCore\Events\TestTakeShowResultsChanged;
 use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Helpers\GlobalStateHelper;
+use tcCore\Http\Middleware\AfterResponse;
 use tcCore\Jobs\CountTeacherLastTestTaken;
 use tcCore\Jobs\CountTeacherTestDiscussed;
 use tcCore\Jobs\CountTeacherTestTaken;
@@ -72,7 +73,7 @@ class TestTake extends BaseModel
      *
      * @var array
      */
-    protected $fillable = ['test_id', 'test_take_status_id', 'period_id', 'retake', 'retake_test_take_id', 'time_start', 'time_end', 'location', 'weight', 'note', 'invigilator_note', 'show_results', 'discussion_type', 'is_rtti_test_take', 'exported_to_rtti', 'allow_inbrowser_testing', 'guest_accounts', 'skipped_discussion', 'notify_students', 'user_id', 'scheduled_by', 'show_grades', 'returned_to_taken', 'discussing_question_id', 'assessed_at', 'assessment_type', 'assessing_question_id'];
+    protected $fillable = ['test_id', 'test_take_status_id', 'period_id', 'retake', 'retake_test_take_id', 'time_start', 'time_end', 'location', 'weight', 'note', 'invigilator_note', 'show_results', 'discussion_type', 'is_rtti_test_take', 'exported_to_rtti', 'allow_inbrowser_testing', 'guest_accounts', 'skipped_discussion', 'notify_students', 'user_id', 'scheduled_by', 'show_grades', 'returned_to_taken', 'discussing_question_id', 'assessed_at', 'assessment_type', 'assessing_question_id', 'allow_wsc', 'max_assessed_answer_index'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -116,7 +117,7 @@ class TestTake extends BaseModel
                 $testTake->setAttribute('test_id', $systemTestId);
             }
 
-            if ($testTake->testTakeStatus->name === 'Discussing' && $testTake->getAttribute('discussing_question_id') !== null) {
+            if ($testTake->test_take_status_id === TestTakeStatus::STATUS_DISCUSSING && $testTake->getAttribute('discussing_question_id') !== null) {
                 $testTake->setAttribute('is_discussed', true);
             }
 
@@ -227,7 +228,7 @@ class TestTake extends BaseModel
             if ($testTake->test_take_status_id === TestTakeStatus::STATUS_DISCUSSING) {
                 if ($testTake->studentsAreInNewCoLearningAndDiscussingTypeIsOpenOnly()) {
                     foreach ($testTake->testParticipants as $testParticipant) {
-                        CoLearningNextQuestion::dispatch($testParticipant->uuid);
+                        AfterResponse::$performAction[] = fn() => CoLearningNextQuestion::dispatch($testParticipant->uuid);
                     }
                 }
             }
@@ -261,7 +262,6 @@ class TestTake extends BaseModel
                     TestTakeOpenForInteraction::dispatch($testParticipant->uuid);
                 }
             }
-
             if (($testTake->testTakeStatus->name === 'Discussing' && $testTake->getAttribute('discussing_question_id') != $testTake->getOriginal('discussing_question_id'))
                 || ($testTake->testTakeStatus->name === 'Discussed' && $testTake->getAttribute('test_take_status_id') != $testTake->getOriginal('test_take_status_id'))) {
                 $inactiveTestParticipant = [];
@@ -458,6 +458,11 @@ class TestTake extends BaseModel
             ->withTrashed()
             ->withPivot([$this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()])
             ->wherePivot($this->getDeletedAtColumn(), null);
+    }
+
+    public function answerRatings()
+    {
+        return $this->hasMany(AnswerRating::class, 'test_take_id');
     }
 
     public function isAllowedToView(User $userToCheck)
@@ -680,9 +685,9 @@ class TestTake extends BaseModel
                     break;
                 case 'school_class_id':
                     if (is_array($value)) {
-                        $query->whereIn($this->getTable() . '.id', TestParticipant::whereIn('school_class_id', $value)->distinct()->pluck('test_take_id'));
+                        $query->whereIn($this->getTable() . '.id', TestParticipant::whereIn('school_class_id', $value)->distinct()->select('test_take_id'));
                     } else {
-                        $query->whereIn($this->getTable() . '.id', TestParticipant::where('school_class_id', $value)->distinct()->pluck('test_take_id'));
+                        $query->whereIn($this->getTable() . '.id', TestParticipant::where('school_class_id', $value)->distinct()->select('test_take_id'));
                     }
                     break;
                 case 'school_class_name':
@@ -691,7 +696,7 @@ class TestTake extends BaseModel
                         TestParticipant::whereHas('schoolClass', function ($q) use ($value) {
                             $q->where('name', 'LIKE', '%' . $value . '%');
                         })->distinct()
-                            ->pluck('test_take_id'));
+                            ->select('test_take_id'));
                     break;
                 case 'location':
                     $query->where('location', 'LIKE', '%' . $value . '%');
@@ -791,11 +796,12 @@ class TestTake extends BaseModel
 
     public function hasCarousel()
     {
-        $countCarouselGroupsInTestTake = GroupQuestion::whereIn('id',
-            $this->test->testQuestions->pluck('question_id')
-        )->where('groupquestion_type', 'carousel')->count();
-
-        return $countCarouselGroupsInTestTake > 0;
+        return GroupQuestion::whereIn(
+            'id',
+            $this->test->testQuestions()->select('question_id')
+        )
+            ->where('groupquestion_type', 'carousel')
+            ->exists();
     }
 
     public function giveAbbreviatedInvigilatorNames()
@@ -1382,6 +1388,16 @@ class TestTake extends BaseModel
             return null;
         }
         return $questionId . $discussingQuestionId;
+    }
+
+    public function getPlannedTestOptions()
+    {
+        return TemporaryLogin::buildValidOptionObject(
+            'page',
+            $this->isAssignmentType()
+            ? sprintf("test_takes/assignment_open_teacher/%s", $this->uuid)
+            : sprintf("test_takes/view/%s", $this->uuid)
+        );
     }
 
 }

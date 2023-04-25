@@ -8,7 +8,9 @@ use Illuminate\Support\Benchmark;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use tcCore\AnswerRating;
+use tcCore\FactoryScenarios\FactoryScenarioSchoolSimpleWithTest;
 use tcCore\FactoryScenarios\FactoryScenarioTestTakeDiscussed;
+use tcCore\FactoryScenarios\FactoryScenarioTestTakeTaken;
 use tcCore\FactoryScenarios\FactoryScenarioTestTestWithTwoQuestions;
 use tcCore\Http\Controllers\TestTakesController;
 use tcCore\Http\Helpers\CoLearningHelper;
@@ -16,11 +18,13 @@ use tcCore\TestParticipant;
 use tcCore\TestTake;
 use tcCore\TestTakeStatus;
 use tcCore\User;
+use Tests\ScenarioLoader;
 use Tests\TestCase;
 
 class CoLearningHelperTest extends TestCase
 {
     use DatabaseTransactions;
+    protected $loadScenario = FactoryScenarioSchoolSimpleWithTest::class;
 
     /** @test */
     public function canGetAnswersToRateAndAnswerRatedWhenThereAreSoftDeletedAnswersOrAnswerRatings()
@@ -711,5 +715,21 @@ class CoLearningHelperTest extends TestCase
         ]);
 
         return (new TestTakesController)->showFromWithin($testTake, $request, false);
+    }
+
+    /** @test */
+    public function can_()
+    {
+        $this->actingAs(ScenarioLoader::get('user'));
+        $testtake = FactoryScenarioTestTakeTaken::createTestTake(user: ScenarioLoader::get('user'));
+
+        \tcCore\TestTake::find($testtake->id)
+            ->load([
+                'discussingParentQuestions'              => fn($query) => $query->orderBy('level'),
+                'testParticipants',
+                'testParticipants.answers',
+                'testParticipants.answers.answerRatings' => fn($query) => $query->where('type', 'STUDENT'),
+                'testParticipants.answers.answerParentQuestions'
+            ])->relationsToArray();
     }
 }

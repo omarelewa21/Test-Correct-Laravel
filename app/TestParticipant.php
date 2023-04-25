@@ -48,7 +48,7 @@ class TestParticipant extends BaseModel
      */
     protected $table = 'test_participants';
 
-    protected $appends = ['intense'];
+    protected $appends = [];
 
     /**
      * The attributes that are mass assignable.
@@ -530,8 +530,8 @@ class TestParticipant extends BaseModel
         return $query->whereIn('test_take_id',
             DB::table('test_takes')
                 ->join('tests', 'test_takes.test_id', '=', 'tests.id')
-                ->whereIn('tests.id', TestQuestion::where('question_id', $question->getKey())->pluck('test_id'))
-                ->pluck('test_takes.id')
+                ->whereIn('tests.id', TestQuestion::where('question_id', $question->getKey())->select('test_id'))
+                ->select('test_takes.id')
         )->where('user_id', $user->getKey());
     }
 

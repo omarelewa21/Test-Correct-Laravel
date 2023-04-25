@@ -46,13 +46,14 @@ class TestPlanModal extends ModalComponent
     {
         $user = auth()->user();
         $rules = [
-            'request.date'            => 'required',
-            'request.time_end'        => 'sometimes',
-            'request.weight'          => 'required',
-            'request.period_id'       => 'required',
-            'request.school_classes'  => 'required',
-            'request.notify_students' => 'required|boolean',
-            'request.invigilators'    => 'required|min:1|array',
+            'request.date'                  => 'required',
+            'request.time_end'              => 'sometimes',
+            'request.allow_wsc'             => 'sometimes|boolean',
+            'request.weight'                => 'required',
+            'request.period_id'             => 'required',
+            'request.school_classes'        => 'required',
+            'request.notify_students'       => 'required|boolean',
+            'request.invigilators'          => 'required|min:1|array',
         ];
 
         if ($this->isAssignmentType()) {
@@ -185,6 +186,7 @@ class TestPlanModal extends ModalComponent
         $this->request['guest_accounts'] = 0;
         $this->request['school_classes'] = [];
         $this->request['notify_students'] = true;
+        $this->request['allow_wsc'] = false;
 
         $this->request['invigilators'] = [$this->defaultInvigilator()];
         $this->request['owner_id'] = $this->defaultOwner();

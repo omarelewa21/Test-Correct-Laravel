@@ -4,7 +4,7 @@
      @class([
         $attributes->get('class'),
         'accordion-block',
-        'rounded-lg bg-white shadow relative' => $mode === 'panel',
+        'rounded-lg bg-white relative' => $mode === 'panel',
         'accordion-disabled' => $disabled
         ])
      x-bind:class="{' bg-primary/5 border-dashed border-primary border-4 rounded-10 -m-1 ': droppingFile}"
@@ -34,13 +34,13 @@
                         x-on:mouseleave="$el.classList.remove('hover:shadow-hover')"
                         @endif
                 >
-                    <div class="flex gap-4 items-center w-full">
+                    <div class="flex gap-4 items-center w-full flex-wrap">
                         {{ $title }}
                         {{ $titleLeft ?? '' }}
                     </div>
                     <div class="inline ml-auto">
                         <span x-bind:class="{'rotate-svg-90': expanded}"
-                              x-bind:title="expanded ? $el.dataset.transExpand : $el.dataset.transCollapse"
+                              x-bind:title="expanded ? $el.dataset.transCollapse : $el.dataset.transExpand"
                               @class([
                                 'flex items-center justify-center rounded-full min-w-[40px] w-10 h-10 transition',
                                 'group-hover:bg-primary/5' => !$disabled
