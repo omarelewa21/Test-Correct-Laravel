@@ -48,7 +48,7 @@ class TestParticipant extends BaseModel
      */
     protected $table = 'test_participants';
 
-    protected $appends = ['intense'];
+    protected $appends = [];
 
     /**
      * The attributes that are mass assignable.

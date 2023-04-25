@@ -13,7 +13,7 @@ abstract class TestTakePresenceEvent implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    private $testTakeUuid;
+    protected $testTakeUuid;
 
     /**
      * Create a new event instance.
@@ -40,4 +40,5 @@ abstract class TestTakePresenceEvent implements ShouldBroadcastNow
         $eventName = class_basename(get_called_class());
         return "echo-presence:presence-TestTake.$testTakeUuid,.$eventName";
     }
+
 }

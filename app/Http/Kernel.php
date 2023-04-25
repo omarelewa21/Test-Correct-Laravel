@@ -1,24 +1,42 @@
-<?php namespace tcCore\Http;
+<?php
+namespace tcCore\Http;
 
 
+use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
+use Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode;
+use Illuminate\Routing\Middleware\SubstituteBindings;
+use Illuminate\Routing\Middleware\ThrottleRequests;
+use Illuminate\Session\Middleware\StartSession;
+use Illuminate\View\Middleware\ShareErrorsFromSession;
+use tcCore\Http\Middleware\AfterResponse;
+use tcCore\Http\Middleware\ApiKey;
 use tcCore\Http\Middleware\AppDetection;
+use tcCore\Http\Middleware\Authenticate;
 use tcCore\Http\Middleware\AuthenticatedAsAccountManager;
 use tcCore\Http\Middleware\AuthenticatedAsAdministrator;
 use tcCore\Http\Middleware\AuthenticatedAsTeacher;
 use tcCore\Http\Middleware\AuthenticatedAsStudent;
 use tcCore\Http\Middleware\AuthenticateWithTemporaryLogin;
+use tcCore\Http\Middleware\Authorize;
+use tcCore\Http\Middleware\AuthorizeBinds;
 use tcCore\Http\Middleware\BugsnagRequestId;
+use tcCore\Http\Middleware\CakeLaravelFilter;
 use tcCore\Http\Middleware\CheckForDeploymentMaintenance;
+use tcCore\Http\Middleware\DuplicateLogin;
+use tcCore\Http\Middleware\DuplicateLoginLivewire;
+use tcCore\Http\Middleware\EncryptCookies;
 use tcCore\Http\Middleware\GuestChoice;
 use tcCore\Http\Middleware\LocaleMiddleware;
 use tcCore\Http\Middleware\Logging;
+use tcCore\Http\Middleware\RedirectIfAuthenticated;
 use tcCore\Http\Middleware\RequestLogger;
 use tcCore\Http\Middleware\SetHeaders;
 use tcCore\Http\Middleware\TestTakeForceTakenAwayCheck;
 use tcCore\Http\Middleware\ValidGeneralTerms;
 use tcCore\Http\Middleware\ValidTrialPeriod;
 use tcCore\Http\Middleware\TrustProxies;
+use tcCore\Http\Middleware\VerifyCsrfToken;
 
 class Kernel extends HttpKernel
 {
@@ -29,12 +47,7 @@ class Kernel extends HttpKernel
      * @var array
      */
     protected $middleware = [
-        'Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode',
-        // This is an API-only, so no need for sessions and cookies!
-        //'Illuminate\Cookie\Middleware\EncryptCookies',
-        //'Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse',
-        //'Illuminate\Session\Middleware\StartSession',
-        //'Illuminate\View\Middleware\ShareErrorsFromSession',
+        CheckForMaintenanceMode::class,
         RequestLogger::class,
         Logging::class,
         BugsnagRequestId::class,
@@ -46,23 +59,21 @@ class Kernel extends HttpKernel
      * @var array
      */
     protected $routeMiddleware = [
-        'auth'                  => 'tcCore\Http\Middleware\Authenticate',
-        //'auth.basic' => 'Illuminate\Auth\Middleware\AuthenticateWithBasicAuth',
-        'guest'                 => 'tcCore\Http\Middleware\RedirectIfAuthenticated',
-        //'csrf' => 'Illuminate\Foundation\Http\Middleware\VerifyCsrfToken',
-        'bindings'              => \Illuminate\Routing\Middleware\SubstituteBindings::class,
-        'api'                   => 'tcCore\Http\Middleware\ApiKey',
-        'dl'                    => 'tcCore\Http\Middleware\DuplicateLogin',
-        'dll'                   => 'tcCore\Http\Middleware\DuplicateLoginLivewire',
-        'authorize'             => 'tcCore\Http\Middleware\Authorize',
-        'authorizeBinds'        => 'tcCore\Http\Middleware\AuthorizeBinds',
-        'cakeLaravelFilter'     => 'tcCore\Http\Middleware\CakeLaravelFilter',
+        'auth'                  => Authenticate::class,
+        'guest'                 => RedirectIfAuthenticated::class,
+        'bindings'              => SubstituteBindings::class,
+        'api'                   => ApiKey::class,
+        'dl'                    => DuplicateLogin::class,
+        'dll'                   => DuplicateLoginLivewire::class,
+        'authorize'             => Authorize::class,
+        'authorizeBinds'        => AuthorizeBinds::class,
+        'cakeLaravelFilter'     => CakeLaravelFilter::class,
         'auth.temp'             => AuthenticateWithTemporaryLogin::class,
         'deploymentMaintenance' => CheckForDeploymentMaintenance::class,
         'student'               => AuthenticatedAsStudent::class,
         'forceTaken'            => TestTakeForceTakenAwayCheck::class,
         'guestChoice'           => GuestChoice::class,
-        'throttle'              => \Illuminate\Routing\Middleware\ThrottleRequests::class,
+        'throttle'              => ThrottleRequests::class,
         'accountManager'        => AuthenticatedAsAccountManager::class,
         'administrator'         => AuthenticatedAsAdministrator::class,
     ];
@@ -74,17 +85,17 @@ class Kernel extends HttpKernel
      */
     protected $middlewareGroups = [
         'web'     => [
-            \tcCore\Http\Middleware\EncryptCookies::class,
-            \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
-            \Illuminate\Session\Middleware\StartSession::class,
-            // \Illuminate\Session\Middleware\AuthenticateSession::class,
-            \Illuminate\View\Middleware\ShareErrorsFromSession::class,
-            \tcCore\Http\Middleware\VerifyCsrfToken::class,
-            \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            EncryptCookies::class,
+            AddQueuedCookiesToResponse::class,
+            StartSession::class,
+            ShareErrorsFromSession::class,
+            VerifyCsrfToken::class,
+            SubstituteBindings::class,
             LocaleMiddleware::class,
             CheckForDeploymentMaintenance::class,
             AppDetection::class,
             SetHeaders::class,
+            AfterResponse::class,
         ],
         'teacher' => [
             AuthenticatedAsTeacher::class,

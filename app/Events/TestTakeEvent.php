@@ -7,21 +7,22 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Auth;
 
-abstract class TestParticipantEvent implements ShouldBroadcastNow
+abstract class TestTakeEvent implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $testParticipantUuid;
+    public $testTakeUuid;
 
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct($testParticipantUuid)
+    public function __construct($testTakeUuid)
     {
-        $this->testParticipantUuid = $testParticipantUuid;
+        $this->testTakeUuid = $testTakeUuid;
     }
 
     /**
@@ -31,13 +32,18 @@ abstract class TestParticipantEvent implements ShouldBroadcastNow
      */
     public function broadcastOn()
     {
-        return new PrivateChannel('TestParticipant.'.$this->testParticipantUuid);
+        return new PrivateChannel('TestTake.'.$this->testTakeUuid);
     }
 
-    public static function channelSignature($testParticipantUuid)
+    public static function channelSignature(string $testTakeUuid)
     {
         $eventName = class_basename(get_called_class());
 
-        return "echo-private:TestParticipant.$testParticipantUuid,.$eventName";
+        return "echo-private:TestTake.$testTakeUuid,.$eventName";
+    }
+
+    public function broadcastAs()
+    {
+        return class_basename(get_called_class());
     }
 }

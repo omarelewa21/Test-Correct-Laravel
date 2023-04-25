@@ -4,7 +4,7 @@
      @class([
         $attributes->get('class'),
         'accordion-block',
-        'rounded-lg bg-white shadow relative' => $mode === 'panel',
+        'rounded-lg bg-white relative' => $mode === 'panel',
         'accordion-disabled' => $disabled
         ])
      x-bind:class="{' bg-primary/5 border-dashed border-primary border-4 rounded-10 -m-1 ': droppingFile}"

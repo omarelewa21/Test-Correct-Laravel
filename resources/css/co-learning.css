@@ -39,7 +39,12 @@
     justify-content: flex-start;
     background-color: white;
 }
-
+#co-learning-teacher-page .student-info-container {
+    transition: color 150ms ease-in-out, background-color 150ms ease-in-out;
+}
+#co-learning-teacher-page .student-info-container:not(:first-child) .content {
+    border-top: 1px solid var(--blue-grey)
+}
 #co-learning-teacher-page .student-info-container > *,
 #assessment-page .student-info-container > * {
     opacity: 100%;
@@ -60,18 +65,18 @@
     text-overflow: ellipsis;
     white-space: nowrap;
 }
-
+/* van hier */
 #co-learning-teacher-page .student-info-container .show-on-smartboard,
 #assessment-page .student-info-container .show-on-smartboard {
-    position: absolute;
     width: 32px !important;
     height: 32px !important;
-    transition: 0.25s ease-out;
     background: none;
-    right: 17px;
     border-radius: 9999px;
-    transition: opacity 0.25s ease-out;
-    border: 1px solid transparent !important;
+    transition: color 150ms ease-out, background-color 150ms ease-out, border-color 150ms ease-out;
+    border: 1px solid transparent;
+}
+#co-learning-teacher-page .student-info-container .show-on-smartboard:focus {
+    border-color: rgba(0,77,245,0.15)
 }
 
 #co-learning-teacher-page .student-info-container .show-on-smartboard svg,
@@ -106,7 +111,7 @@
 #assessment-page .student-info-container .show-on-smartboard:hover {
     color: var(--teacher-primary);
 }
-
+/* tot hier */
 #co-learning-teacher-page .student-info-container.active .student-name,
 #assessment-page .student-info-container.active .student-name {
     font-weight: bold;
@@ -222,12 +227,18 @@
 
 
 .badge-view {
-    transition: 150ms ease background-color, 150ms ease color;
+    transition: 150ms ease background-color, 150ms ease color, box-shadow 150ms ease;
 }
 
 .badge-view:hover {
+    cursor: pointer;
     background-color: #f3f7ff;
+    box-shadow: 0 3px 6px 0 rgba(4, 31, 116, 0.2);
     color: var(--teacher-primary);
+}
+
+.badge-view:hover .badge-title {
+    color: var(--primary);
 }
 
 .badge-view:hover:after {
@@ -318,16 +329,16 @@
     color: var(--system-base);
 }
 
-#co-learning-teacher-page .co-learning-tooltip:nth-child(1),
-#assessment-page .co-learning-tooltip:nth-child(1) {
-    height: 22px;
-}
+/*#co-learning-teacher-page .co-learning-tooltip:nth-child(1),*/
+/*#assessment-page .co-learning-tooltip:nth-child(1) {*/
+/*    height: 22px;*/
+/*}*/
 
-#co-learning-teacher-page .co-learning-tooltip:nth-child(2),
-#assessment-page .co-learning-tooltip:nth-child(2) {
-    height: 18px;
-    font-size: 14px;
-}
+/*#co-learning-teacher-page .co-learning-tooltip:nth-child(2),*/
+/*#assessment-page .co-learning-tooltip:nth-child(2) {*/
+/*    height: 18px;*/
+/*    font-size: 14px;*/
+/*}*/
 
 
 #student-test-review .multiple-choice .all-or-nothing-toggle,

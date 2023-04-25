@@ -3,6 +3,7 @@
 namespace tcCore\View\Components\Partials\Sidebar\CoLearningTeacher;
 
 use Illuminate\View\Component;
+use tcCore\AnswerRating;
 
 class Drawer extends Component
 {
@@ -11,7 +12,9 @@ class Drawer extends Component
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(
+        public ?AnswerRating $activeAnswerRating = null
+    )
     {
         //
     }

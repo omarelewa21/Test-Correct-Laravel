@@ -7,7 +7,7 @@
             <span class="bold w-full flex justify-center mb-1 px-4">
                 {!! $answerStruct->get($answerIndex)->answerText !!}
             </span>
-            @if($studentAnswer)
+            @if($studentAnswer && $showToggles)
                 <x-button.true-false-toggle :disabled="!$answerStruct->get($answerIndex)->answered"
                                             :initialStatus="$answerStruct->get($answerIndex)->activeToggle"
                                             :toggleValue="$answerStruct->get($answerIndex)->score"

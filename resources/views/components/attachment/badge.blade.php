@@ -50,7 +50,7 @@
             <x-icon.attachment/>
         @endif
     </div>
-    <div class="flex base items-center relative">
+    <div class="flex base items-center relative badge-title">
         @if($withNumber)
             <span class="pl-2" x-text="index + ':'"></span>
         @endif

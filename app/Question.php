@@ -1637,4 +1637,9 @@ class Question extends MtiBaseModel
     {
         return (bool)$answer->done;
     }
+
+    public function getDisplayableQuestionText()
+    {
+        return $this->converted_question_html;
+    }
 }

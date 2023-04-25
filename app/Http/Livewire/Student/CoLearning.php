@@ -5,6 +5,11 @@ namespace tcCore\Http\Livewire\Student;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use tcCore\AnswerRating;
+use tcCore\Events\TestTakeChangeDiscussingQuestion;
+use tcCore\Events\CoLearningForceTakenAway;
+use tcCore\Events\TestTakeCoLearningPresenceEvent;
+use tcCore\Events\TestTakeForceTakenAway;
+use tcCore\Events\TestTakePresenceEvent;
 use tcCore\Http\Controllers\AnswerRatingsController;
 use tcCore\Http\Controllers\TestTakeLaravelController;
 use tcCore\Http\Livewire\CoLearning\CompletionQuestion;
@@ -37,6 +42,8 @@ class CoLearning extends TCComponent
 
     public $discussingQuestionId;
 
+    public $pollingFallbackActive = false;
+
     protected $queryString = [
         'answerRatingId'     => ['as' => 'e'],
         'coLearningFinished' => ['except' => false, 'as' => 'b']
@@ -58,10 +65,10 @@ class CoLearning extends TCComponent
     protected function getListeners()
     {
         return [
-//            CoLearningForceTakenAway::channelSignature($this->testParticipant->uuid) => 'redirectToTestTakesInReview',
-//            CoLearningNextQuestion::channelSignature($this->testParticipant->uuid)   => 'goToActiveQuestion',
-//            CoLearningPresence::channelSignature($this->testTake->uuid)              => 'updateHeartbeat',
-            'UpdateAnswerRating'                                                     => 'updateAnswerRating',
+            TestTakeCoLearningPresenceEvent::channelSignature(testTakeUuid: $this->testTake->uuid)  => 'render',
+            TestTakeForceTakenAway::channelSignature($this->testParticipant->uuid)                  => 'redirectToTestTakesInReview',
+            TestTakeChangeDiscussingQuestion::channelSignature(testTakeUuid: $this->testTake->uuid) => 'goToActiveQuestion',
+            'UpdateAnswerRating'                                                                    => 'updateAnswerRating',
             'goToActiveQuestion',
         ];
     }
@@ -83,7 +90,6 @@ class CoLearning extends TCComponent
             $this->getAnswerRatings();
             $this->necessaryAmountOfAnswerRatings = $this->answerRatings->count() ?: 1;
         }
-        $this->updateHeartbeat(false);
     }
 
     public function render()
@@ -100,14 +106,17 @@ class CoLearning extends TCComponent
 
     public function booted()
     {
-        if($this->testTake->test_take_status_id > 7){
-            return $this->redirectToTestTakesInReview();
-        }
+        $this->redirectIfNotStatusDiscussing();
     }
 
     public function redirectToTestTakesInReview()
     {
         return redirect()->route('student.test-takes', ['tab' => 'review']);
+    }
+
+    public function redirectToTestTakesToBeDiscussed()
+    {
+        return redirect()->route('student.test-takes', ['tab' => 'discuss']);
     }
 
     public function getEnableNextQuestionButtonProperty(): bool
@@ -168,7 +177,7 @@ class CoLearning extends TCComponent
         $questionIsFullyRated = $answerOptions['amountChecked'] === $answerOptions['amountCheckable'];
 
         if ($this->allowRatingWithHalfPoints) {
-            $this->rating = round($this->maxRating / $answerOptions['maxScore'] * $answerOptions['score'] * 2)/2;
+            $this->rating = round($this->maxRating / $answerOptions['maxScore'] * $answerOptions['score'] * 2) / 2;
         } else {
             $this->rating = round($this->maxRating / $answerOptions['maxScore'] * $answerOptions['score']);
         }
@@ -187,7 +196,7 @@ class CoLearning extends TCComponent
             $this->rating = $this->maxRating;
         }
 
-        if($updateAnswerRatingRating){
+        if ($updateAnswerRatingRating) {
             $this->answerRating->rating = $this->rating;
             $this->answerRating->save();
         }
@@ -215,7 +224,7 @@ class CoLearning extends TCComponent
 
         $this->questionOrderNumber = $this->questionOrderList[$currentQuestionId];
         $this->numberOfQuestions = $testTakeQuestionsCollection->reduce(function ($carry, $question) use ($currentQuestionId) {
-            if($question->discuss === 0) {
+            if ($question->discuss === 0) {
                 return $carry;
             }
 
@@ -269,13 +278,13 @@ class CoLearning extends TCComponent
         $response = (new AnswerRatingsController())->indexFromWithin($request);
         $this->answerRatings = $response->getOriginalContent()->keyBy('id');
 
-        if($this->answerRatings->count() < $this->necessaryAmountOfAnswerRatings) {
+        if ($this->answerRatings->count() < $this->necessaryAmountOfAnswerRatings) {
             // this fixes an error when the answerRatings are queried before the teacher is done generating them.
             $this->emitSelf('goToActiveQuestion');
             $this->skipRender();
         }
 
-        $this->answeredAnswerRatingIds = $this->answerRatings->filter(function($ar) {
+        $this->answeredAnswerRatingIds = $this->answerRatings->filter(function ($ar) {
             return $ar->answer->isAnswered;
         })->map->getKey()->values();
 
@@ -308,7 +317,7 @@ class CoLearning extends TCComponent
             $this->noAnswerRatingAvailableForCurrentScreen = true;
             $this->waitForTeacherNotificationEnabled = true;
         }
-        if($this->answerRatings->isNotEmpty()) {
+        if ($this->answerRatings->isNotEmpty()) {
             $this->getQuestionAndAnswerNavigationData();
         }
     }
@@ -369,8 +378,11 @@ class CoLearning extends TCComponent
 
     private function redirectIfNotStatusDiscussing()
     {
-        if ($this->testTake->test_take_status_id !== TestTakeStatus::STATUS_DISCUSSING) {
-            return redirect()->route('student.test-takes', ['tab' => 'discuss']);
+        if ($this->testTake->test_take_status_id < TestTakeStatus::STATUS_DISCUSSING) {
+            $this->redirectToTestTakesToBeDiscussed();
+        }
+        if ($this->testTake->test_take_status_id > TestTakeStatus::STATUS_DISCUSSING) {
+            return $this->redirectToTestTakesInReview();
         }
     }
 
@@ -378,7 +390,7 @@ class CoLearning extends TCComponent
     {
         $this->redirectIfNotStatusDiscussing();
 
-        if($this->testTake->discussing_question_id !== $this->discussingQuestionId) {
+        if ($this->testTake->discussing_question_id !== $this->discussingQuestionId) {
             return $this->goToActiveQuestion();
         }
 
@@ -386,7 +398,7 @@ class CoLearning extends TCComponent
             $this->skipRender();
         }
 
-        return $this->testParticipant->setAttribute('heartbeat_at', Carbon::now())->save();
+         return $this->testParticipant->setAttribute('heartbeat_at', Carbon::now())->save();
     }
 
     public function getQuestionComponentNameProperty(): string
