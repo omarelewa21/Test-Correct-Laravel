@@ -1,0 +1,32 @@
+<?php
+
+return [
+    'account'                                 => 'Account',
+    'settings'                                => 'settings',
+    'Systeem taal'                            => 'System language',
+    'Automatisch uitloggen na'                => 'Automatically log off after',
+    'auto_logout_tooltip'                     => 'To secure the safety of your account you will be automatically logged off after 15 minutes of inactivity. You can change this timer to a maximum of 120 minutes.',
+    'Jouw profiel'                            => 'Your profile',
+    'docent account'                          => 'teacher account',
+    'Dhr'                                     => 'Mr',
+    'Mevr'                                    => 'Ms',
+    'Anders'                                  => 'Other',
+    'Jouw'                                    => 'Your',
+    'Profielfoto uploaden'                    => 'Upload profile picture',
+    'Standaard taal'                          => 'Default language',
+    'test_header_info_text'                   => 'Change the presets of your account settings to your preference.',
+    'test_header_info_subtext'                => 'settings for location:',
+    'Constructie'                             => 'Construction',
+    'Afname'                                  => 'Take',
+    'Nakijken'                                => 'Assessment',
+    'Inzien'                                  => 'Student test review',
+    'Becijferen en normeren'                  => 'Standardize & grade',
+    'Neem taal over van taalvak'              => 'Copy language from language subject',
+    'Aantal punten per vraag'                 => 'amount of points per question',
+    'Automatisch nakijken gatentektst vragen' => 'Automatically score gap questions',
+    'Standaard taal tooltip'                  => 'This sets the spellchecker language during construction and assessment',
+    'Weging van de toets'                     => 'Weight of the test',
+    'Cijfers tonen'                           => 'Show grades',
+    'Toon antwoordmodel'                      => 'Show correction model',
+
+];

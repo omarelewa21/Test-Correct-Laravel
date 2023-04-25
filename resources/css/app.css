@@ -61,6 +61,7 @@
     --card-shadow: 0 3px 16px 0 rgba(4, 31, 116, 0.1);
     --small-shadow: 0 1px 4px 0 rgba(4, 31, 116, 0.06);
     --hover-shadow: 0 8px 16px 0 rgba(4, 31, 116, 0.2);
+    --content-box-shadow: 0 3px 6px 0 rgba(4, 31, 116, 0.1);
     --white: #ffffff;
     --maintenance-header-bg: #ff6666;
     --deployment-testing-color: darkorange;
@@ -503,7 +504,7 @@ h7 {
 .content-section {
     background: white;
     border-radius: 10px;
-    box-shadow: 0 3px 18px 0 rgba(77, 87, 143, 0.1);
+    box-shadow: var(--content-box-shadow)
 }
 
 .divider {

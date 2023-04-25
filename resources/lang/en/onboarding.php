@@ -10,7 +10,7 @@ return [
     'Aanhef'                                                                                                                                           => 'Title',
     'Meneer'                                                                                                                                           => 'Mr.',
     'Mevrouw'                                                                                                                                          => 'Ms.',
-    'Anders'                                                                                                                                           => 'Otherwise',
+    'Anders'                                                                                                                                           => 'Other',
     'Voornaam'                                                                                                                                         => 'First name',
     'Tussenvoegsel'                                                                                                                                    => 'Prefix',
     'Tussenv.'                                                                                                                                         => 'Prefix',

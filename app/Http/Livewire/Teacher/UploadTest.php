@@ -20,12 +20,14 @@ use tcCore\FileManagementStatus;
 use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Http\Helpers\SchoolHelper;
+use tcCore\Http\Traits\WithReturnHandling;
 use tcCore\Subject;
 use tcCore\TestKind;
 
 class UploadTest extends Component
 {
     use WithFileUploads;
+    use WithReturnHandling;
 
     const CAKE_RETURN_ROUTE_SESSION_KEY = 'upload_test_cake_return_route';
     const LARAVEL_RETURN_ROUTE_SESSION_KEY = 'upload_test_laravel_return_route';
@@ -57,10 +59,6 @@ class UploadTest extends Component
     public bool $canUseTestUploader = true;
     public array $previousUploadedTestNames = [];
     public int $uploadedTests = 0;
-
-    public $referrer;
-
-    protected $queryString = ['referrer'];
 
     public function mount()
     {
@@ -105,22 +103,7 @@ class UploadTest extends Component
 
     public function back()
     {
-        if (blank($this->referrer) || blank($this->referrer['page'])) {
-            return CakeRedirectHelper::redirectToCake();
-        }
-
-        if ($this->referrer['type'] === 'cake') {
-            $routeName = CakeRedirectHelper::getRouteNameByUrl($this->referrer['page']);
-            if ($routeName) {
-                return CakeRedirectHelper::redirectToCake($routeName);
-            }
-            Bugsnag::notifyException(new \Exception(sprintf('No route name found for referrer page `%s` in file %s line %d', $this->referrer['page'], __FILE__, __LINE__)));
-        }
-
-        if ($this->referrer['type'] === 'laravel') {
-            return redirect($this->referrer['page']);
-        }
-        return CakeRedirectHelper::redirectToCake();
+        return $this->redirectUsingReferrer();
     }
 
     /**
