@@ -9,12 +9,16 @@ use tcCore\TestParticipant;
 
 trait WithUpdatingHandling
 {
-
-    public function updatingWithUpdatingHandling(&$name, &$value)
+    public function updatedWithUpdatingHandling(&$name, &$value)
     {
         if(!isset($this->preventAnswerTransformation) || !$this->preventAnswerTransformation) {
+            $refValue = $value;
             Request::filter($value);
+            if($refValue !== $value) {
+                $this->syncInput($name, $value);
+            }
         }
+
     }
 
     public function updateAnswerIdForTestParticipantWithUpdatingHandling()

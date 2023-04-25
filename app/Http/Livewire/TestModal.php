@@ -3,13 +3,11 @@
 namespace tcCore\Http\Livewire;
 
 use tcCore\Http\Traits\Modal\TestActions;
-use tcCore\Http\Traits\WithUpdatingHandling;
 use tcCore\Test;
 
 abstract class TestModal extends TCModalComponent
 {
     use TestActions;
-    use WithUpdatingHandling;
 
     public bool $forceClose = true;
 
