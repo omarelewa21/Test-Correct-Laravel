@@ -1,6 +1,18 @@
 <div id="co-learning-page"
      class="flex flex-col w-full pt-12"
-     {{--wire:poll.keep-alive.5000ms="updateHeartbeat()"--}}
+     @if($pollingFallbackActive) wire:poll.keep-alive.5000ms="updateHeartbeat()" @endif
+     x-init="
+         pusher = Echo.connector.pusher
+         pusher.connection.bind('error', () => failureTest());
+         pusher.connection.bind('connected', () => PusherConnectionSuccesful = true);
+     "
+     x-data="{
+         PusherConnectionSuccesful: null,
+         failureTest: (e) => {
+            PusherConnectionSuccesful = false;
+            $wire.set('pollingFallbackActive', true);
+         },
+     }"
 >
 
     @if($this->coLearningFinished)
@@ -91,6 +103,5 @@
             </div>
         @endif
     </footer>
-
 
 </div>

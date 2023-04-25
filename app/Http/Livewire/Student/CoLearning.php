@@ -4,7 +4,6 @@ namespace tcCore\Http\Livewire\Student;
 
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Response;
 use Livewire\Component;
 use tcCore\AnswerRating;
 use tcCore\Events\TestTakeChangeDiscussingQuestion;
@@ -45,6 +44,8 @@ class CoLearning extends Component
     public $answeredAnswerRatingIds;
 
     public $discussingQuestionId;
+
+    public $pollingFallbackActive = false;
 
     protected $queryString = [
         'answerRatingId'     => ['as' => 'e'],
@@ -92,7 +93,6 @@ class CoLearning extends Component
             $this->getAnswerRatings();
             $this->necessaryAmountOfAnswerRatings = $this->answerRatings->count() ?: 1;
         }
-        $this->updateHeartbeat(false);
     }
 
     public function render()
@@ -109,14 +109,17 @@ class CoLearning extends Component
 
     public function booted()
     {
-        if ($this->testTake->test_take_status_id > 7) {
-            return $this->redirectToTestTakesInReview();
-        }
+        $this->redirectIfNotStatusDiscussing();
     }
 
     public function redirectToTestTakesInReview()
     {
         return redirect()->route('student.test-takes', ['tab' => 'review']);
+    }
+
+    public function redirectToTestTakesToBeDiscussed()
+    {
+        return redirect()->route('student.test-takes', ['tab' => 'discuss']);
     }
 
     public function getEnableNextQuestionButtonProperty(): bool
@@ -378,8 +381,11 @@ class CoLearning extends Component
 
     private function redirectIfNotStatusDiscussing()
     {
-        if ($this->testTake->test_take_status_id !== TestTakeStatus::STATUS_DISCUSSING) {
-            return redirect()->route('student.test-takes', ['tab' => 'discuss']);
+        if ($this->testTake->test_take_status_id < TestTakeStatus::STATUS_DISCUSSING) {
+            $this->redirectToTestTakesToBeDiscussed();
+        }
+        if ($this->testTake->test_take_status_id > TestTakeStatus::STATUS_DISCUSSING) {
+            return $this->redirectToTestTakesInReview();
         }
     }
 
@@ -395,8 +401,7 @@ class CoLearning extends Component
             $this->skipRender();
         }
 
-        //todo write fallback mechanism for student colearning to set heartbeat when Pusher fails to connect.
-//        return $this->testParticipant->setAttribute('heartbeat_at', Carbon::now())->save();
+         return $this->testParticipant->setAttribute('heartbeat_at', Carbon::now())->save();
     }
 
     public function getQuestionComponentNameProperty(): string
