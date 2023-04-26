@@ -2811,4 +2811,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         }
         $this->password_expiration_date = null;
     }
+
+    public function getSessionLengthAttribute()
+    {
+        return session('extensionTime', 15*60);
+    }
 }

@@ -4,11 +4,11 @@ namespace tcCore\Http\Livewire;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Livewire\Component;
+use LivewireUI\Modal\ModalComponent;
 use tcCore\Http\Traits\UserNotificationForController;
 use tcCore\User;
 
-class ChangePassword extends Component
+class ChangePassword extends ModalComponent
 {
     use UserNotificationForController;
 
@@ -21,7 +21,7 @@ class ChangePassword extends Component
         return [
             'currentPassword'   => 'required',
             'newPasswordRepeat' => 'required|same:newPassword',
-            'newPassword'       => 'required|'. User::getPasswordLengthRule(),
+            'newPassword'       => 'required|' . User::getPasswordLengthRule(),
         ];
     }
 
@@ -62,11 +62,18 @@ class ChangePassword extends Component
         $user->password = $this->newPassword;
         $user->save();
         $this->sendPasswordChangedMail($user);
-        return $this->dispatchBrowserEvent('password-changed-success', __('auth.password_changed_success'));
+
+        $this->dispatchBrowserEvent('notify', ['message' => __('auth.password_changed_success')]);
+        $this->closeModal();
     }
 
     public function updated()
     {
         $this->clearValidation();
+    }
+
+    public static function modalMaxWidth(): string
+    {
+        return 'md';
     }
 }

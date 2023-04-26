@@ -99,6 +99,11 @@
 }
 
 @font-face {
+    font-family: Zilla Slab SemiBold;
+    src: url("../fonts/Zilla_Slab/ZillaSlab-SemiBold.ttf");
+}
+
+@font-face {
     font-family: 'dotsfont';
     src: url('../fonts/Password/dotsfont.eot');
     src: url('../fonts/Password/dotsfont.eot?#iefix') format('embedded-opentype'),
@@ -387,6 +392,9 @@ h3 {
 
 h3.bold {
     font-family: Zilla Slab Bold, serif;
+}
+h3.semi-bold {
+    font-family: Zilla Slab SemiBold, serif;
 }
 
 h4 {

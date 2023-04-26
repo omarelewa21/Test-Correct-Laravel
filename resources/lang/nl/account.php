@@ -31,4 +31,11 @@ return [
     'Studenten informeren via mail'           => 'Studenten informeren via mail',
     'Cijfers tonen'                           => 'Toon cijfers',
     'Toon antwoordmodel'                      => 'Toon antwoordmodel',
+    'uneditable_title_lvs'                    => 'Jouw profiel komt vanuit de koppeling tussen jouw Entree account met jouw LVS',
+    'uneditable_text_lvs'                     => 'Jouw profiel komt vanuit de koppeling tussen je Entree account met je LVS. De informatie van je Test-Correct profiel komt vanuit je Entree account dat gekoppeld is aan je LVS en is daarom niet aanpasbaar. Ga naar het LVS als je de account gegevens hiervan wilt veranderen.',
+    'uneditable_title_license'                => 'Jouw profiel wordt beheerd door je school en kun je daarom niet zelf aanpassen.',
+    'Jouw scholen'                            => '[0,1]Jouw school|[2,*]Jouw scholen',
+    'Jouw vakken'                             => '[0,1]Jouw vak|[2,*]Jouw vakken',
+    'Jouw klassen'                            => '[0,1]Jouw klas|[2,*]Jouw klassen',
+
 ];

@@ -33,7 +33,6 @@
         </x-slot>
     </x-modal>
 
-    <x-notification :notificationTimeout="$notificationTimeout"/>
     @push('scripts')
         <script>
             addCSRFTokenToEcho('{{ csrf_token() }}');

@@ -16,7 +16,6 @@ class Header extends Component
     public $appVersion;
     public $appStatus;
     public $showKnowledgebankModal = false;
-    public $showChangePasswordModal = false;
     public $unreadMessageCount = null;
 
     public function mount()

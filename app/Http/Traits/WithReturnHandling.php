@@ -21,16 +21,7 @@ trait WithReturnHandling
             if ($routeName) {
                 return CakeRedirectHelper::redirectToCake($routeName);
             }
-            Bugsnag::notifyException(
-                new \Exception(
-                    sprintf(
-                        'No route name found for referrer page `%s` in file %s line %d',
-                        $this->referrer['page'],
-                        __FILE__,
-                        __LINE__
-                    )
-                )
-            );
+            $this->notifyBugsnag();
         }
 
         if ($this->referrer['type'] === 'laravel') {
@@ -38,5 +29,19 @@ trait WithReturnHandling
         }
 
         return CakeRedirectHelper::redirectToCake();
+    }
+
+    private function notifyBugsnag(): void
+    {
+        Bugsnag::notifyException(
+            new \Exception(
+                sprintf(
+                    'No route name found for referrer page `%s` in file %s line %d',
+                    $this->referrer['page'],
+                    __FILE__,
+                    __LINE__
+                )
+            )
+        );
     }
 }

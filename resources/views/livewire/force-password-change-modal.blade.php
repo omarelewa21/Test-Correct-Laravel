@@ -4,7 +4,7 @@
     </x-slot>
 
     <x-slot name="content">
-        <div @password-changed-success.window="Notify.notify($event.detail, 'info')">
+        <div>
             <span>{{__('password-reset.Uitleg vervallen wachtwoord')}}</span>
             <div>
                 @if($errors->isNotEmpty())
