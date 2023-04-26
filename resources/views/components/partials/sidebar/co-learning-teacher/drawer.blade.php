@@ -91,7 +91,6 @@
                               @click="resetToggles"
                               wire:key="lastQuestion.{{$this->testTake->discussing_question_id}}"
                               :disabled="$this->atLastQuestion"
-                              class="px-4 flex-0 flex-shrink-0"
                               x-ref="footerElement2"
                               wire:loading.attr="disabled"
             >

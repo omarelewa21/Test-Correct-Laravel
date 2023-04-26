@@ -180,6 +180,7 @@ class CoLearning extends TCComponent implements CollapsableHeader
             //gets a testTake, also creates AnswerRatings for students.
             //todo improve nextQuestion performance? move generating all answerRatings to start of CoLearning?
             CoLearningHelper::nextQuestion($this->testTake);
+            $this->discussingQuestion = $this->testTake->discussingQuestion()->first();
         }
 
         //finally set bool to true
@@ -469,7 +470,7 @@ class CoLearning extends TCComponent implements CollapsableHeader
     {
         $this->testParticipants = CoLearningHelper::getTestParticipantsWithStatusAndAbnormalities(
             $this->testTake->getKey(),
-            $this->discussingQuestion->getKey(),
+            $this->discussingQuestion?->getKey(),
         );
 
         $this->testParticipants
@@ -480,7 +481,7 @@ class CoLearning extends TCComponent implements CollapsableHeader
             ])
             ->whereNotNull('discussing_answer_rating_id')
             ->each(function ($participant) {
-                $participant->syncedWithCurrentQuestion = $participant->discussingAnswerRating->answer->question_id === $this->discussingQuestion->id;
+                $participant->syncedWithCurrentQuestion = $participant->discussingAnswerRating->answer->question_id === $this->discussingQuestion?->id;
             });
 
         $this->testParticipantCount = $this->testParticipants->count();
