@@ -1327,6 +1327,9 @@ class Test extends BaseModel
      */
     public function getAllowWscForStudentsAttribute(): bool
     {
-        return Auth()->user()->schoolLocation->allow_writing_assignment && $this->getWritingAssignmentsCount() > 0;
+        $schoolLocation = Auth()->user()->schoolLocation;
+        return $schoolLocation->allow_writing_assignment
+            && $schoolLocation->allow_wsc
+            && $this->getWritingAssignmentsCount() > 0;
     }
 }

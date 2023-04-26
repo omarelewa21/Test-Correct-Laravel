@@ -61,7 +61,7 @@
                     <span class="bold">{{ __('teacher.notify_students') }} </span>
                 </x-input.toggle-row-with-title>
                 @if ($this->showSpellCheckerToggle())
-                        <x-input.toggle-row-with-title wire:model="request.allow_wsc"
+                        <x-input.toggle-row-with-title wire:model="testTake.allow_wsc"
                                                     containerClass="border-t-0 w-full lg:w-[calc(50%-0.5rem)]"
                         >
                             <x-icon.autocheck />
