@@ -98,6 +98,11 @@
                     >
                         {{ __('co-learning.finish') }}
                     </x-button.cta>
+                @elseif($this->atLastQuestion)
+                    <x-button.cta :disabled="true"
+                    >
+                        {{ __('co-learning.finish') }}
+                    </x-button.cta>
                 @endif
 
             </div>
