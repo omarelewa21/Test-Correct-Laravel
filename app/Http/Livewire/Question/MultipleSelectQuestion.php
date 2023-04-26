@@ -27,6 +27,8 @@ class MultipleSelectQuestion extends Component
     public $answerText;
     public $shuffledKeys;
 
+    public $testTakeUuid;
+
     public function mount()
     {
         $this->selectable_answers = $this->question->selectable_answers;

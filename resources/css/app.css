@@ -19,6 +19,7 @@
 @import url("score-slider.css");
 @import url("co-learning.css");
 @import url("rs_tlc.css");
+@import url("assessment.css");
 
 
 @tailwind base;
@@ -67,6 +68,7 @@
     --header-height: 70px;
 
     --sidebar-width: 300px;
+    --active-sidebar-width: var(--sidebar-width);
     --sidebar-transition: .5s ease;
     --collapsed-sidebar-width: 24px;
 

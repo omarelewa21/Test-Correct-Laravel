@@ -1,7 +1,9 @@
 @props([
     'wireModel' => null,
     'disabled' => false,
-    'initialValue' => null,
+    'initialStatus' => null,
+    'toggleValue' => 0,
+    'identifier' => null,
 ])
 <x-button.slider
                  :wire:model="$wireModel"
@@ -10,7 +12,9 @@
                  :useNamedSlots="true"
                  :disabled="$disabled"
                  :disabledStyling="$disabled"
-                 :initialValue="$initialValue"
+                 :initialStatus="$initialStatus"
+                 :toggleValue="$toggleValue"
+                 :identifier="$identifier"
 >
     <x-slot name="yes">
         <x-icon.checkmark />

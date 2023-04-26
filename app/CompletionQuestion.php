@@ -523,7 +523,7 @@ class CompletionQuestion extends Question implements QuestionInterface
     public function isFullyAnswered(Answer $answer): bool
     {
         $givenAnswersCount = collect(json_decode($answer->json, true))->count();
-        return $givenAnswersCount === $this->completionQuestionAnswers()->count();
+        return $givenAnswersCount === $this->completionQuestionAnswers()->where('correct', true)->count();
     }
 
     public function getCorrectAnswerStructure()
@@ -537,6 +537,28 @@ class CompletionQuestion extends Question implements QuestionInterface
             ->orderBy('completion_question_answer_links.order')
             ->select('completion_question_answers.*')
             ->where('completion_question_id', $this->getKey())
+            ->whereNull('completion_question_answers.deleted_at')
             ->get();
+    }
+    public function getDisplayableQuestionText()
+    {
+        $question_text = $this->converted_question_html;
+        $searchPattern = "/\[([0-9]+)\]/i";
+        $replacementFunction = function ($matches) {
+            $tag_id = $matches[1];
+            return sprintf(
+                '<span class="inline-flex max-w-full">
+                            <input class="form-input mb-2 truncate text-center overflow-ellipsis" 
+                                    type="text" 
+                                    id="%s" 
+                                    style="width: 140px" 
+                                    disabled
+                            />
+                        </span>',
+                'answer_' . $tag_id,
+            );
+        };
+
+        return preg_replace_callback($searchPattern, $replacementFunction, $question_text);
     }
 }

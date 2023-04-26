@@ -2,7 +2,7 @@
 
 @section('title')
     <h6 class="text-white">@lang($this->headerCollapsed ? 'assessment.Nakijken' : 'assessment.Start nakijken'): </h6>
-    <h4 class="text-white truncate">{!!  clean($testName) !!}</h4>
+    <h4 class="text-white truncate" title="{!!  clean($testName) !!}">{!!  clean($testName) !!}</h4>
 @endsection
 
 @section('subtitle')
@@ -43,7 +43,7 @@
         </x-slot:subtitle>
         <x-slot:button>
             <x-button.cta size="md"
-                          @click.prevent="handleHeaderCollapse(['ALL',true])"
+                          x-on:click.prevent="handleHeaderCollapse(['ALL', {{ ($this->assessmentContext['assessmentType'] && $this->openOnly) ? 'true' : 'false' }} ])"
             >
                 <span>
                     @if($this->assessmentContext['assessmentType'] && !$this->openOnly)
@@ -59,15 +59,11 @@
             @if($this->assessmentContext['assessmentType'])
                 @unless($this->openOnly)
                     <div class="text-center text-[14px]">
-                        {!!  __('co-learning.current_session', [
-                        'index' => 0,
-                        'totalQuestions' => $this->questionCount,
+                        {!!  __('assessment.current_session', [
+                        'index' => $this->assessmentContext['assessIndex'],
+                        'totalQuestions' => $this->assessmentContext['totalToAssess'],
                         'date' => $this->assessmentContext['assessedAt']
                         ]) !!}
-                    </div>
-                @else
-                    <div class="text-center text-[14px]">
-                        @lang('co-learning.restart_session')
                     </div>
                 @endif
             @endif
@@ -85,7 +81,7 @@
         <x-slot:subtitle>{{ __('assessment.open_questions_text') }}</x-slot:subtitle>
         <x-slot:button>
             <x-button.cta size="md"
-                          @click.prevent="handleHeaderCollapse(['OPEN_ONLY',true])"
+                          x-on:click.prevent="handleHeaderCollapse(['OPEN_ONLY', {{ ($this->assessmentContext['assessmentType'] && !$this->openOnly) ? 'true' : 'false' }}])"
             >
                 <span>
                 @if($this->assessmentContext['assessmentType'] && $this->openOnly)
@@ -101,15 +97,11 @@
             @if($this->assessmentContext['assessmentType'])
                 @if($this->openOnly)
                     <div class="text-center text-[14px]">
-                        {!!  __('co-learning.current_session', [
-                        'index' => 0,
-                        'totalQuestions' => $this->questionCount,
+                        {!!  __('assessment.current_session', [
+                        'index' => $this->assessmentContext['assessIndex'],
+                        'totalQuestions' => $this->assessmentContext['totalToAssess'],
                         'date' => $this->assessmentContext['assessedAt']
                         ]) !!}
-                    </div>
-                @else
-                    <div class="text-center text-[14px]">
-                        @lang('co-learning.restart_session')
                     </div>
                 @endif
             @endif
@@ -141,9 +133,18 @@
         <div @class(['flex py-1.5 px-4 items-center justify-between', 'opacity-25 pointer-events-none' => $this->assessmentContext['skippedCoLearning']])>
             <span>@lang('assessment.Antwoorden zonder discrepanties overslaan')</span>
             <div class="flex items-center gap-4">
-                <x-input.toggle wire:model="assessmentContext.skipCoLearningDiscrepancies" />
+                <x-input.toggle wire:model="assessmentContext.skipCoLearningNoDiscrepancies" />
                 <x-tooltip idle-classes="bg-transparent text-white border-white border">
                     <span class="text-left">@lang('assessment.discrepancies_toggle_tooltip')</span>
+                </x-tooltip>
+            </div>
+        </div>
+        <div @class(['flex py-1.5 px-4 items-center justify-between', 'opacity-25 pointer-events-none' => $this->assessmentContext['skippedCoLearning']])>
+            <span>@lang('assessment.Toon de naam van studenten')</span>
+            <div class="flex items-center gap-4">
+                <x-input.toggle wire:model="assessmentContext.showStudentNames" />
+                <x-tooltip idle-classes="bg-transparent text-white border-white border">
+                    <span class="text-left">@lang('assessment.show_student_tooltip_text')</span>
                 </x-tooltip>
             </div>
         </div>

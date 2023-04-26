@@ -20,7 +20,7 @@
                 if (editor) {
                     editor.destroy(true);
                 }
-                RichTextEditor.initClassicEditorForStudentplayer('{{$editorId}}','{{ $question->getKey() }}');
+                RichTextEditor.initClassicEditorForStudentplayer('{{$editorId}}','{{ $question->getKey() }}', @this.allowWsc);
             });
             @if(!is_null(Auth::user())&&Auth::user()->text2speech)
                 document.addEventListener('readspeaker_closed', () => {
@@ -28,7 +28,7 @@
                         return;
                     }
                     ReadspeakerTlc.ckeditor.reattachReadableAreaAndDestroy('{{ $editorId }}');
-                    RichTextEditor.initClassicEditorForStudentplayer('{{$editorId}}','{{ $question->getKey() }}');
+                    RichTextEditor.initClassicEditorForStudentplayer('{{$editorId}}','{{ $question->getKey() }}', @this.allowWsc);
                 })
                 document.addEventListener('readspeaker_started', () => {
                     if(ReadspeakerTlc.guard.shouldNotDetachCkEditor(document.querySelector( '#{{ $editorId }}' ))){

@@ -75,7 +75,7 @@
 
 
     <div class="flex w-full main" x-show="bodyVisibility" x-cloak>
-        <div class="w-full  mx-auto ">
+        <div class="w-full  mx-auto z-0">
             <div class="mx-8 divide-y divide-secondary"
                  x-data="{filterLoading: false}"
                  x-init="
