@@ -70,7 +70,7 @@
                     </div>
                 @endif
             </div>
-            <div class="flex items-center space-x-2">
+            <div class="flex items-center space-x-4">
                 <span><b class="bold">{{ __('co-learning.answer') }} {{ $this->answerFollowUpNumber }}</b>/{{ $this->numberOfAnswers }}</span>
                 <span><b class="bold">{{ __('co-learning.question') }} {{$this->questionFollowUpNumber}}</b>/{{$this->numberOfQuestions}}</span>
 
@@ -79,7 +79,7 @@
                                       wire:click="goToPreviousAnswerRating()"
                                       wire:loading.attr="disabled"
                     >
-                        <x-icon.arrow class=""/>
+                        <x-icon.chevron />
                         <span>{{ __('co-learning.previous_answer') }}</span>
                     </x-button.primary>
                 @elseif($nextAnswerAvailable)
@@ -88,7 +88,7 @@
                                           :disabled="!$this->enableNextQuestionButton"
                         >
                             <span>{{ __('co-learning.next_answer') }}</span>
-                            <x-icon.arrow/>
+                            <x-icon.chevron/>
                         </x-button.primary>
                 @endif
 

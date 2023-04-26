@@ -6,7 +6,7 @@
     align-items: center;
     display: inline-flex;
     min-height: 40px;
-    border: solid 1px transparent;
+    border: solid 2px transparent;
     transition: 100ms ease-in-out;
 }
 
@@ -17,6 +17,7 @@
 .button-xs {
     min-height: auto;
 }
+
 .button-sm {
     min-height: 40px;
 }
@@ -117,32 +118,41 @@ button.cta-button:disabled, a.cta-button:disabled {
 .primary-button {
     color: white;
     background-color: rgba(0, 77, 245, 1);
-    background-image: radial-gradient(ellipse farthest-side at 10% 10%, rgba(0, 77, 245, .5) 0, rgba(0, 77, 245, 0) 100%);
-    background-size: 0px 0px;
-    background-repeat: no-repeat;
     box-shadow: 0 1px 2px 1px rgba(0, 0, 0, .15);
-    transition: color 0.3s cubic-bezier(.215, .61, .355, 1);
+    transition: all 0.3s cubic-bezier(.215, .61, .355, 1);
+    width: -moz-fit-content;
+    width: fit-content;
+    justify-content: center;
 }
 
 .primary-button:hover {
-    background-color: rgba(71, 129, 255, 1);
-    background-size: 100% 100%;
-    box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.1);
-    transition: all 0.3s cubic-bezier(.215, .61, .355, 1);
+    background-size: 102% 100%;
+    box-shadow: 0 3px 6px 0 rgba(4, 31, 116, 0.3);
+    background-image: linear-gradient(to right, #002096 0%, var(--teacher-primary-light) 100%),
+    linear-gradient(to bottom, var(--teacher-primary), var(--teacher-primary));
 }
 
 .primary-button:focus {
+    background-size: 102% 100%;
+    background-image: linear-gradient(to right, #002096 0%, var(--teacher-primary-light) 100%), linear-gradient(to bottom, var(--teacher-primary), var(--teacher-primary));
     outline: none;
+    transition: border 0.1s;
+    border: solid 2px #002096;
+    box-shadow: 0 3px 6px 0 rgba(4, 31, 116, 0.3);
 }
 
 .primary-button:active {
+    background-size: 102% 100%;
     outline: none;
+    box-shadow: 0 1px 3px 0 rgba(4, 31, 116, 0.4);
+    background-image: linear-gradient(to right, #002096 0%, var(--teacher-primary-light) 100%), linear-gradient(to bottom, var(--teacher-primary), var(--teacher-primary));
 }
+
 
 .primary-button:disabled {
     background: var(--light-grey);
     color: var(--mid-grey);
-    box-shadow: none;
+    box-shadow: 0 1px 4px 0 rgba(4, 31, 116, 0.06);
 }
 
 .secondary-button {
@@ -350,7 +360,7 @@ button.cta-button:disabled, a.cta-button:disabled {
 }
 
 .group-type {
-    display:flex;
+    display: flex;
     position: relative;
     padding: 20px 16px 10px 16px;
     border-radius: 10px;
@@ -362,6 +372,7 @@ button.cta-button:disabled, a.cta-button:disabled {
     box-shadow .2s ease-in-out,
     border-color .2s ease-in-out;
 }
+
 .group-type.active {
     padding: 19px 15px 9px 15px;
     border-width: 2px;
@@ -387,6 +398,7 @@ button.cta-button:disabled, a.cta-button:disabled {
     color: var(--primary);
     background-color: var(--off-white);
 }
+
 .test-change-option.active p {
     color: var(--primary);
 }
