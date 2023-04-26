@@ -767,6 +767,23 @@ button.cta-button:disabled, a.cta-button:disabled {
 .questionContainer .completion-question-overview-container p > * {
     vertical-align: middle;
 }
+
+.pdf-answers .group-question-description,
+.pdf-answers .questionContainer,
+.pdf-answer-model .group-question-description,
+.pdf-answer-model .questionContainer {
+    width: 100%;
+    overflow: auto;
+    display: inline-block;
+}
+
+.pdf-answers .group-question-description .image-style-side,
+.pdf-answers .questionContainer .image-style-side,
+.pdf-answer-model .group-question-description .image-style-side,
+.pdf-answer-model .questionContainer .image-style-side {
+    width: 50%;
+    margin-left: 50%;
+}
 .form-input {
     padding: 0 10px 0 10px;
     height: 40px;

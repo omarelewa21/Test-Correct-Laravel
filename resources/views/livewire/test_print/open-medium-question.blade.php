@@ -4,7 +4,7 @@
             {{__('test-pdf.open-long-question-explanation')}}
         </div>
         <div class="flex-col">
-            <div class="children-block-pdf">
+            <div class="children-block-pdf questionhhtml questionContainer">
                 {!! $question->converted_question_html !!}
             </div>
             <div wire:ignore class="w-full mt-2 question-no-break-open-medium">

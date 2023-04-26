@@ -1,7 +1,7 @@
 <x-partials.question-container :number="$number" :question="$question">
 
     <div class="w-full space-y-3 matching-question">
-        <div wire:ignore>
+        <div wire:ignore class="questionhtml">
             {!!   $question->converted_question_html !!}
         </div>
         <div>

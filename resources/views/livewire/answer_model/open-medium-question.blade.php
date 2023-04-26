@@ -5,7 +5,7 @@
 
         <div class="flex-col space-y-3">
             <div class="children-block-pdf">
-                {!! $question->converted_question_html !!}
+                {!! $question->converted_question_html !!}&nbsp;
             </div>
             <x-input.group wire:ignore class="w-full question-no-break-open-medium">
                 <x-input.mock-textarea :question="$question"
