@@ -63,6 +63,14 @@ class CoLearning extends TCComponent
 
     public $necessaryAmountOfAnswerRatings;
 
+    /**
+     * @return bool
+     */
+    public function getAtLastQuestionProperty(): bool
+    {
+        return $this->numberOfQuestions === $this->questionFollowUpNumber;
+    }
+
     protected function getListeners()
     {
         return [
@@ -326,7 +334,7 @@ class CoLearning extends TCComponent
     private function checkIfStudentCanFinishCoLearning(): void
     {
         if (
-            $this->numberOfQuestions === $this->questionFollowUpNumber &&
+            $this->atLastQuestion &&
             $this->shouldShowWaitForTeacherNotification()
         ) {
             $this->finishCoLearningButtonEnabled = true;
