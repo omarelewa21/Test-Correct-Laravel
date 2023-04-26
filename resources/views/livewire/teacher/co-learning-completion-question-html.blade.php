@@ -21,5 +21,5 @@
         :style="{width: getInputWidth($el)}"
         wire:key="{{'comp_answer_' . $tag_id}}"
     />
-    {{ $rsSpan }}
+    {!! $rsSpan !!}
 </span>
