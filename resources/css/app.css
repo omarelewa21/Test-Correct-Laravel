@@ -27,7 +27,7 @@
 @tailwind utilities;
 
 :root {
-    --cta-primary: #3ab753;
+    --cta-primary: #3dbb56;
     --cta-primary-mid-dark: #27973D;
     --cta-primary-mid-dark-rgb: 39, 151, 61;
     --cta-primary-rgb: 58, 183, 83;
