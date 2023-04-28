@@ -11,6 +11,7 @@ use tcCore\Events\CoLearningForceTakenAway;
 use tcCore\Events\TestTakeCoLearningPresenceEvent;
 use tcCore\Events\TestTakeForceTakenAway;
 use tcCore\Events\TestTakePresenceEvent;
+use tcCore\Events\TestTakeStop;
 use tcCore\Http\Controllers\AnswerRatingsController;
 use tcCore\Http\Controllers\TestTakeLaravelController;
 use tcCore\Http\Livewire\CoLearning\CompletionQuestion;
@@ -69,7 +70,7 @@ class CoLearning extends Component
     {
         return [
             TestTakeCoLearningPresenceEvent::channelSignature(testTakeUuid: $this->testTake->uuid)  => 'render',
-            TestTakeForceTakenAway::channelSignature($this->testParticipant->uuid)                  => 'redirectToTestTakesInReview',
+            TestTakeStop::channelSignature(testTakeUuid: $this->testTake->uuid)                     => 'redirectToTestTakesInReview',
             TestTakeChangeDiscussingQuestion::channelSignature(testTakeUuid: $this->testTake->uuid) => 'goToActiveQuestion',
             'UpdateAnswerRating'                                                                    => 'updateAnswerRating',
             'goToActiveQuestion',
@@ -401,7 +402,7 @@ class CoLearning extends Component
             $this->skipRender();
         }
 
-         return $this->testParticipant->setAttribute('heartbeat_at', Carbon::now())->save();
+        return $this->testParticipant->setAttribute('heartbeat_at', Carbon::now())->save();
     }
 
     public function getQuestionComponentNameProperty(): string

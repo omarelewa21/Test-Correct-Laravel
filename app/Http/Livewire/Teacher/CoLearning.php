@@ -14,6 +14,7 @@ use tcCore\DiscussingParentQuestion;
 use tcCore\DrawingQuestion;
 use tcCore\Events\TestTakeCoLearningPresenceEvent;
 use tcCore\Events\TestTakeForceTakenAway;
+use tcCore\Events\TestTakeStop;
 use tcCore\Http\Controllers\TestTakesController;
 use tcCore\Http\Enums\CoLearning\AbnormalitiesStatus;
 use tcCore\Http\Enums\CoLearning\RatingStatus;
@@ -349,9 +350,7 @@ class CoLearning extends Component implements CollapsableHeader
             'test_take_status_id' => 8,
             'skipped_discussion'  => false,
         ]);
-        $this->testParticipants->each(function ($testParticipant) {
-            AfterResponse::$performAction[] = fn() => TestTakeForceTakenAway::dispatch($testParticipant->uuid);
-        });
+        AfterResponse::$performAction[] = fn() => TestTakeStop::dispatch($this->testTake->uuid);
     }
 
     private function handleTestParticipantStatusses(): void
