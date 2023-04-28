@@ -1,10 +1,10 @@
 <x-partials.co-learning-question-container :question="$question"
 >
-    <div class="w-full flex items-center justify-center">
-        <div class="relative w-fit">
+    <div class="w-full flex items-center justify-center border border-blue-grey rounded-10">
+        <div class="relative w-full flex justify-center">
             @if($answered)
                 <img src="{{ $imgSrc }}"
-                     class="border border-blue-grey rounded-10 w-fit"
+                     class="w-fit"
                      alt="Drawing answer"
                      style="width: {{ $this->imageWidth() }}; height: {{ $this->imageHeight() }}"
                 >
