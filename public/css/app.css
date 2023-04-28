@@ -145,7 +145,7 @@ button.cta-button:focus, a.cta-button:focus {
 button.cta-button:disabled, a.cta-button:disabled {
     background: var(--light-grey);
     color: var(--mid-grey);
-    box-shadow: none;
+    box-shadow: 0 1px 4px 0 rgba(4, 31, 116, 0.06);
 }
 
 .primary-button.btn-disabled {
