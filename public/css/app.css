@@ -115,28 +115,31 @@
 button.cta-button, a.cta-button {
     color: white;
     background-color: rgba(58, 183, 83, 1);
-    background-image: radial-gradient(ellipse farthest-side at 10% 10%, rgba(58, 183, 83, .5) 0, rgba(58, 183, 83, 0) 100%);
-    background-size: 0px 0px;
-    background-repeat: no-repeat;
-    box-shadow: 0 1px 2px 1px rgba(0, 0, 0, .15);
-    transition: color 0.3s cubic-bezier(.215, .61, .355, 1);
+    /*box-shadow: 0 1px 2px 1px rgba(0, 0, 0, .15);*/
+    transition: all 0.3s cubic-bezier(.215, .61, .355, 1);
+    background-size: calc(100% + 4px) calc(100% + 4px); /*compensate for transparent border*/
+    background-position-x: center;
+}
+
+button.cta-button:hover, a.cta-button:hover,
+button.cta-button:active, a.cta-button:active,
+button.cta-button:focus, a.cta-button:focus {
+    background-image: linear-gradient(to left, #4ad866 0%, var(--cta-primary-dark) 100%), linear-gradient(to bottom, var(--cta-primary), var(--cta-primary));
+    outline: none;
 }
 
 button.cta-button:hover, a.cta-button:hover {
-    background-color: rgb(60, 202, 86);
-    background-size: 100% 100%;
-    box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.1);
+    box-shadow: 0 3px 6px 0 rgba(4, 31, 116, 0.3);
     transition: all 0.3s cubic-bezier(.215, .61, .355, 1);
 }
 
 button.cta-button:active, a.cta-button:active {
-    background: linear-gradient(90deg, rgba(57, 180, 81, 1) 0%, rgba(61, 187, 86, 1) 100%);
-    box-shadow: 0 1px 6px 0 rgba(77, 87, 143, 0.5);
+    box-shadow: 0 1px 3px 0 rgba(4, 31, 116, 0.4);
 }
 
 button.cta-button:focus, a.cta-button:focus {
-    background: var(--cta-primary);
-    border: 1px solid var(--cta-primary-dark);
+    box-shadow: 0 3px 6px 0 rgba(4, 31, 116, 0.3);
+    border: 2px solid var(--cta-primary-dark);
 }
 
 button.cta-button:disabled, a.cta-button:disabled {
@@ -164,34 +167,34 @@ button.cta-button:disabled, a.cta-button:disabled {
 .primary-button {
     color: white;
     background-color: rgba(0, 77, 245, 1);
-    box-shadow: 0 1px 2px 1px rgba(0, 0, 0, .15);
+    /*box-shadow: 0 1px 2px 1px rgba(0, 0, 0, .15);*/
     transition: all 0.3s cubic-bezier(.215, .61, .355, 1);
     width: -moz-fit-content;
     width: fit-content;
     justify-content: center;
+    background-size: calc(100% + 4px) calc(100% + 4px); /*compensate for transparent border*/
+    background-position-x: center;
+}
+
+.primary-button:hover,
+.primary-button:active,
+.primary-button:focus {
+    background-image: linear-gradient(to right, #002096 0%, var(--teacher-primary-light) 100%), linear-gradient(to bottom, var(--teacher-primary), var(--teacher-primary));
+    outline: none;
 }
 
 .primary-button:hover {
-    background-size: 102% 100%;
     box-shadow: 0 3px 6px 0 rgba(4, 31, 116, 0.3);
-    background-image: linear-gradient(to right, #002096 0%, var(--teacher-primary-light) 100%),
-    linear-gradient(to bottom, var(--teacher-primary), var(--teacher-primary));
 }
 
 .primary-button:focus {
-    background-size: 102% 100%;
-    background-image: linear-gradient(to right, #002096 0%, var(--teacher-primary-light) 100%), linear-gradient(to bottom, var(--teacher-primary), var(--teacher-primary));
-    outline: none;
     transition: border 0.1s;
     border: solid 2px #002096;
     box-shadow: 0 3px 6px 0 rgba(4, 31, 116, 0.3);
 }
 
 .primary-button:active {
-    background-size: 102% 100%;
-    outline: none;
     box-shadow: 0 1px 3px 0 rgba(4, 31, 116, 0.4);
-    background-image: linear-gradient(to right, #002096 0%, var(--teacher-primary-light) 100%), linear-gradient(to bottom, var(--teacher-primary), var(--teacher-primary));
 }
 
 
@@ -11404,7 +11407,7 @@ video {
 }
 
 :root {
-    --cta-primary: #3ab753;
+    --cta-primary: #3dbb56;
     --cta-primary-mid-dark: #27973D;
     --cta-primary-mid-dark-rgb: 39, 151, 61;
     --cta-primary-rgb: 58, 183, 83;
