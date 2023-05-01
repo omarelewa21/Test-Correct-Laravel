@@ -12,6 +12,7 @@
      async openStudentAnswer(id) {
         result = await $wire.call('showStudentAnswer',id);
         this.showStudentAnswer = result === true;
+        $dispatch('accordion-toggled')
      },
      }"
 >
@@ -27,7 +28,7 @@
 
         <div id="main-content-container"
              class="flex border-2 relative w-full justify-between overflow-auto "
-                             {{--wire:poll.keep-alive.5000ms="render()"--}}
+                             wire:poll.keep-alive.5000ms="render()"
         >
             <div class="flex flex-col w-full space-y-4 pt-10 px-[60px] pb-14"
                  wire:key="container-{{$this->testTake->discussing_question_id}}"
@@ -122,7 +123,6 @@
                                             <span>@lang('co-learning.answer')</span>
                                             <span>:</span>
                                             <span class="ml-2">{{ $this->discussingQuestion->type_name }}</span>
-                                            <span class="ml-2">{{$this->activeAnswerRating->id}}</span>
                                         </h4>
                                         <h7 class="inline-block min-w-fit">{{ $this->discussingQuestion->score }}pt
                                         </h7>

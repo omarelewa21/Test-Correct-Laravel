@@ -292,55 +292,17 @@ clearFilterPillsFromElement = (rootElement) => {
     pills.forEach(pill => pill.remove());
 }
 
-setHeightToAspectRatioAccordion = async (element, aspectRatioWidth, aspectRatioHeight) => {
-
+setHeightToAspectRatio = async (element) => {
+    aspectRatioWidth = 940;
+    aspectRatioHeight = 500;
     aspectRatio = (aspectRatioHeight / aspectRatioWidth);
 
-    element.style.height = ((element.parentElement.parentElement.parentElement.parentElement.parentElement.clientWidth-82) * aspectRatio) + 'px';
+    newHeight = (element.closest('#accordion-block, #answer-container').clientWidth-82) * aspectRatio;
 
-    selector = '.' + element.classList.value.split(' ').join('.');
+    if(newHeight <= 0) {
+        setTimeout (() => setHeightToAspectRatio(element), 50);
+        return;
+    }
 
-    setTimeout (()  => {
-        elementWidth = element.clientWidth;
-
-        newHeight = elementWidth * aspectRatio
-
-        if(newHeight !== 0 && element) {
-            element.style.height = newHeight+"px";
-        }
-    }, 100);
-
+    element.style.height = newHeight + 'px';
 }
-
-setHeightToAspectRatio = async (element, aspectRatioWidth, aspectRatioHeight) => {
-
-        elementWidth = element.clientWidth;
-
-        newHeight = elementWidth * (aspectRatioHeight / aspectRatioWidth)
-
-        if(newHeight !== 0 && element) {
-            element.style.height = newHeight+"px";
-        }
-}
-
-// awaitForElementWidth = async (selector) => {
-//     return new Promise(resolve => {
-//         if (document.querySelector(selector)) {
-//             console.log('here1');
-//             return resolve(document.querySelector(selector));
-//         }
-//
-//         const observer = new MutationObserver(mutations => {
-//             console.log('heref');
-//             if (document.querySelector(selector)) {
-//                 resolve(document.querySelector(selector));
-//                 observer.disconnect();
-//             }
-//         });
-//         console.log('heref');
-//         observer.observe(document.body, {
-//             childList: true,
-//             subtree: true
-//         });
-//     });
-// }

@@ -8159,73 +8159,35 @@ clearFilterPillsFromElement = function clearFilterPillsFromElement(rootElement) 
     return pill.remove();
   });
 };
-setHeightToAspectRatioAccordion = /*#__PURE__*/function () {
-  var _ref = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(element, aspectRatioWidth, aspectRatioHeight) {
+setHeightToAspectRatio = /*#__PURE__*/function () {
+  var _ref = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(element) {
     return _regeneratorRuntime().wrap(function _callee$(_context) {
       while (1) switch (_context.prev = _context.next) {
         case 0:
+          aspectRatioWidth = 940;
+          aspectRatioHeight = 500;
           aspectRatio = aspectRatioHeight / aspectRatioWidth;
-          element.style.height = (element.parentElement.parentElement.parentElement.parentElement.parentElement.clientWidth - 82) * aspectRatio + 'px';
-          selector = '.' + element.classList.value.split(' ').join('.');
+          newHeight = (element.closest('#accordion-block, #answer-container').clientWidth - 82) * aspectRatio;
+          if (!(newHeight <= 0)) {
+            _context.next = 7;
+            break;
+          }
           setTimeout(function () {
-            elementWidth = element.clientWidth;
-            newHeight = elementWidth * aspectRatio;
-            if (newHeight !== 0 && element) {
-              element.style.height = newHeight + "px";
-            }
-          }, 100);
-        case 4:
+            return setHeightToAspectRatio(element);
+          }, 50);
+          return _context.abrupt("return");
+        case 7:
+          element.style.height = newHeight + 'px';
+        case 8:
         case "end":
           return _context.stop();
       }
     }, _callee);
   }));
-  return function setHeightToAspectRatioAccordion(_x, _x2, _x3) {
+  return function setHeightToAspectRatio(_x) {
     return _ref.apply(this, arguments);
   };
 }();
-setHeightToAspectRatio = /*#__PURE__*/function () {
-  var _ref2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(element, aspectRatioWidth, aspectRatioHeight) {
-    return _regeneratorRuntime().wrap(function _callee2$(_context2) {
-      while (1) switch (_context2.prev = _context2.next) {
-        case 0:
-          elementWidth = element.clientWidth;
-          newHeight = elementWidth * (aspectRatioHeight / aspectRatioWidth);
-          if (newHeight !== 0 && element) {
-            element.style.height = newHeight + "px";
-          }
-        case 3:
-        case "end":
-          return _context2.stop();
-      }
-    }, _callee2);
-  }));
-  return function setHeightToAspectRatio(_x4, _x5, _x6) {
-    return _ref2.apply(this, arguments);
-  };
-}();
-
-// awaitForElementWidth = async (selector) => {
-//     return new Promise(resolve => {
-//         if (document.querySelector(selector)) {
-//             console.log('here1');
-//             return resolve(document.querySelector(selector));
-//         }
-//
-//         const observer = new MutationObserver(mutations => {
-//             console.log('heref');
-//             if (document.querySelector(selector)) {
-//                 resolve(document.querySelector(selector));
-//                 observer.disconnect();
-//             }
-//         });
-//         console.log('heref');
-//         observer.observe(document.body, {
-//             childList: true,
-//             subtree: true
-//         });
-//     });
-// }
 
 /***/ }),
 
