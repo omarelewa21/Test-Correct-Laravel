@@ -2,6 +2,7 @@
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use tcCore\Lib\User\Roles;
 
@@ -78,11 +79,18 @@ abstract class Request extends FormRequest {
         //sanitize input to prevent XSS
         //value is passed as reference
         if (is_array($input)) {
-            array_walk_recursive($input, function(&$value, $key) {
+            array_walk_recursive($input, function (&$value, $key) {
                 if (!empty($value) && is_string($value)) {
                     $value = clean($value);
                 }
             });
+        } else if($input instanceof Collection) {
+            $input->transform(function ($a) {
+                return self::filter($a);
+            });
+        } elseif (is_bool($input) || is_int($input) || is_float($input)){
+            // we don't do anything.
+            // And as a failsafe we fall back to the string
         } else {
             $input = clean($input);
         }
