@@ -1,10 +1,10 @@
 <div class="w-full flex items-center justify-center border border-blue-grey rounded-10">
-    <div class="relative w-full flex justify-center">
+    <div class="relative w-full block drawing-question-img-container" @accordion-toggled.window="setHeightToAspectRatioAccordion($el, 940, 500)" @resize.window="setHeightToAspectRatio($el, 940, 500)">
         @if($studentAnswer && empty($answer->json))
             @lang('drawing-question.Geen afbeelding')
         @else
             <img src="{{ $imageSource }}"
-                 class=" w-full"
+                 class="block m-auto inset-0 absolute max-h-full"
                  alt="Drawing answer"
             >
             <div class="absolute bottom-4 right-4">
