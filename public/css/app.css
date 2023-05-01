@@ -11333,12 +11333,6 @@ video {
 .text-white\/20{
   color: rgb(255 255 255 / 0.2);
 }
-.text-white\/50{
-  color: rgb(255 255 255 / 0.5);
-}
-.text-white\/75{
-  color: rgb(255 255 255 / 0.75);
-}
 .text-white\/90{
   color: rgb(255 255 255 / 0.9);
 }
@@ -12319,10 +12313,6 @@ ul ul ul {
 .hover\:border-primary:hover{
   --tw-border-opacity: 1;
   border-color: rgb(0 77 245 / var(--tw-border-opacity));
-}
-
-.hover\:border-primary\/25:hover{
-  border-color: rgb(0 77 245 / 0.25);
 }
 
 .hover\:\!bg-white:hover{
