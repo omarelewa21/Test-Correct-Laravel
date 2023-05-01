@@ -20,7 +20,7 @@
                 <span class="bold text-base">{{ $question['name'] }}</span>
                 <span class="note">{{ $question['description'] }}</span>
                 <button class="absolute top-0 right-0">
-                    <x-icon.plus-2/>
+                    <x-icon.plus/>
                 </button>
             </div>
         </div>
@@ -54,7 +54,7 @@
                 <span class="bold text-base">{{ $question['name'] }}</span>
                 <span class="note">{{ $question['description'] }}</span>
                 <button class="absolute top-0 right-0">
-                    <x-icon.plus-2/>
+                    <x-icon.plus/>
                 </button>
             </div>
         </div>
@@ -74,7 +74,7 @@
                 <span class="bold text-base">{{ $question['name'] }}</span>
                 <span class="note">{{ $question['description'] }}</span>
                 <button class="absolute top-0 right-0">
-                    <x-icon.plus-2/>
+                    <x-icon.plus/>
                 </button>
             </div>
         </div>

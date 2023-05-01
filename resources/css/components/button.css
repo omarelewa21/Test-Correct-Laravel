@@ -128,7 +128,6 @@ button.cta-button:disabled, a.cta-button:disabled {
     color: white;
     background-color: rgba(0, 77, 245, 1);
     transition: all 0.3s cubic-bezier(.215, .61, .355, 1);
-    width: fit-content;
     justify-content: center;
     background-size: calc(100% + 4px) calc(100% + 4px); /*compensate for transparent border*/
     background-position-x: center;

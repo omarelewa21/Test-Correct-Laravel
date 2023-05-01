@@ -15,7 +15,7 @@
                 </span>
             @endif
             <x-button.cta x-data="{}" x-cloak x-show="Alpine.store('questionBank').active" size="sm" wire:click="addQuestion">
-                <x-icon.plus-2/>
+                <x-icon.plus/>
                 <span>{{ __('cms.Toevoegen') }}</span>
             </x-button.cta>
 
