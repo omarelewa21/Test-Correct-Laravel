@@ -71,27 +71,27 @@
                                             {{ $this->currentAnswer->user->nameFull }}
                                         </x-tooltip>
                                     </span>
-                                    <x-dynamic-component :component="$this->currentAnswer->answeredStatus" />
-                                </div>
-                            </x-slot:titleLeft>
-                            <x-slot:body>
-                                <div class="student-answer | w-full | questionContainer"
-                                     wire:key="student-answer-{{$this->currentQuestion->uuid.$this->currentAnswer->uuid}}"
-                                >
-                                    <x-dynamic-component
-                                            :component="'answer.student.'. str($this->currentQuestion->type)->kebab()"
-                                            :question="$this->currentQuestion"
-                                            :answer="$this->currentAnswer"
-                                            :inAssessment="true"
-                                            :editorId="'editor-'.$this->currentQuestion->uuid.$this->currentAnswer->uuid"
-                                            :disabled-toggle="true"
-                                    />
-                                </div>
-                            </x-slot:body>
-                        </x-accordion.block>
-                    </x-accordion.container>
-                </x-slot:answerBlock>
-            </x-partials.evaluation.main-content>
+                                        <x-dynamic-component :component="$this->currentAnswer->answeredStatus" />
+                                    </div>
+                                </x-slot:titleLeft>
+                                <x-slot:body>
+                                    <div class="student-answer | w-full | questionContainer"
+                                         wire:key="student-answer-{{$this->currentQuestion->uuid.$this->currentAnswer->uuid}}"
+                                    >
+                                        <x-dynamic-component
+                                                :component="'answer.student.'. str($this->currentQuestion->type)->kebab()"
+                                                :question="$this->currentQuestion"
+                                                :answer="$this->currentAnswer"
+                                                :inAssessment="true"
+                                                :editorId="'editor-'.$this->currentQuestion->uuid.$this->currentAnswer->uuid"
+                                                :disabled-toggle="true"
+                                        />
+                                    </div>
+                                </x-slot:body>
+                            </x-accordion.block>
+                        </x-accordion.container>
+                    </x-slot:answerBlock>
+                </x-partials.evaluation.main-content>
 
                 <x-partials.evaluation.drawer :question="$this->currentQuestion"
                                               :group="$this->currentGroup"
@@ -213,31 +213,27 @@
                         </div>
                     </x-slot:slideTwoContent>
 
-                <x-slot:slideThreeContent>
-                    <span class="flex ">@lang('assessment.CO-Learning scores')</span>
-                    @if(!$this->currentAnswerCoLearningRatingsHasNoDiscrepancy())
-                        <div class="notification py-0 px-4 gap-6 flex items-center warning">
-                            <x-icon.co-learning />
-                            <span class="bold">@lang('assessment.discrepancy')</span>
-                        </div>
-                    @endif
-                    <div class="flex w-full flex-col gap-2">
-                        @if($this->showCoLearningScoreToggle)
-                            @foreach($this->coLearningRatings() as $rating )
-                                <div class="flex py-[7px] pl-3 pr-4 items-center border-l-4 border-l-student border border-bluegrey rounded-r-md rounded-l-sm">
-                                    <div class="flex items-center justify-center w-[30px] min-w-[30px] h-[30px] border-bluegrey border bg-off-white overflow-hidden rounded-full">
-                                        <x-icon.profile class="scale-150 text-sysbase relative top-1" />
-                                    </div>
-                                    @php
-                                        if(!$rating->user) {
-                                            $rating->user = \tcCore\User::getDeletedNewUser();
-                                        }
-                                    @endphp
-                                    <span class="ml-2 truncate pr-2">{{ $rating->user->nameFull }}</span>
-                                    <span class="ml-auto">@js($rating->displayRating)</span>
-                                </div>
-                            @endforeach
+                    <x-slot:slideThreeContent>
+                        <span class="flex ">@lang('assessment.CO-Learning scores')</span>
+                        @if(!$this->currentAnswerCoLearningRatingsHasNoDiscrepancy())
+                            <div class="notification py-0 px-4 gap-6 flex items-center warning">
+                                <x-icon.co-learning />
+                                <span class="bold">@lang('assessment.discrepancy')</span>
+                            </div>
                         @endif
+                        <div class="flex w-full flex-col gap-2">
+                            @if($this->showCoLearningScoreToggle)
+                                @foreach($this->coLearningRatings() as $rating )
+                                    <div class="flex py-[7px] pl-3 pr-4 items-center border-l-4 border-l-student border border-bluegrey rounded-r-md rounded-l-sm">
+                                        <div class="flex items-center justify-center w-[30px] min-w-[30px] h-[30px] border-bluegrey border bg-off-white overflow-hidden rounded-full">
+                                            <x-icon.profile class="scale-150 text-sysbase relative top-1" />
+                                        </div>
+                                        {{ $rating->user->id }}
+                                        <span class="ml-2 truncate pr-2">{{ $rating->user->nameFull }}</span>
+                                        <span class="ml-auto">@js($rating->displayRating)</span>
+                                    </div>
+                                @endforeach
+                            @endif
 
                         </div>
                     </x-slot:slideThreeContent>
