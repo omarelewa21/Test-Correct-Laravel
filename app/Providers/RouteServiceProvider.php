@@ -26,6 +26,7 @@ use tcCore\GroupQuestionQuestion;
 use tcCore\Info;
 use tcCore\InfoscreenQuestion;
 use tcCore\Invigilator;
+use tcCore\LearningGoal;
 use tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager;
 use tcCore\License;
 use tcCore\MaintenanceWhitelistIp;
@@ -479,6 +480,10 @@ class RouteServiceProvider extends ServiceProvider
 
         Route::bind('attainment', function($item) {
             return Attainment::whereUuid($item)->firstOrFail();
+        });
+
+        Route::bind('learning_goal', function($item) {
+            return LearningGoal::whereUuid($item)->firstOrFail();
         });
 
         Route::bind('baseAttainment', function($item) {

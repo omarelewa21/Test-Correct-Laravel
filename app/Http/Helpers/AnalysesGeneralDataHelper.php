@@ -52,7 +52,7 @@ class AnalysesGeneralDataHelper
             ->when(!empty($this->filters), function ($query) {
                 foreach ($this->filters as $filter => $values) {
                     if (isset($this->filterColumn[$filter])) {
-                        $query->whereIn($this->filterColumn[$filter], $values);
+                        $query->whereIn('tests.'.$this->filterColumn[$filter], $values);
                     }
                 }
             })
@@ -77,7 +77,7 @@ class AnalysesGeneralDataHelper
             ->when(!empty($this->filters), function ($query) {
                 foreach ($this->filters as $filter => $values) {
                     if (isset($this->filterColumn[$filter])) {
-                        $query->whereIn($this->filterColumn[$filter], $values);
+                        $query->whereIn('tests.' . $this->filterColumn[$filter], $values);
                     }
                 }
             })

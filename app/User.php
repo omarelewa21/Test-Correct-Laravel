@@ -1422,6 +1422,14 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return false;
     }
 
+    public static function getDeletedNewUser()
+    {
+        $user = new static();
+        $user->name = 'student';
+        $user->name_first = 'verwijderde';
+        return $user;
+    }
+
     public function getNameFullAttribute()
     {
         return Str::squish(sprintf('%s %s %s', $this->name_first, $this->name_suffix, $this->name));
