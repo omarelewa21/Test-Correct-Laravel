@@ -110,6 +110,12 @@
     background-color: transparent;
 }
 
+[questionhtml],
+.questionhtml {
+    width: 100% !important;
+    display: inline-block !important;
+}
+
 .questionContainer p {
     word-wrap: break-word;
     width: 100%;

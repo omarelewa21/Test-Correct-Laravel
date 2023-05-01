@@ -2,7 +2,7 @@
 
     <div class="w-full">
         <div class="flex-col space-y-3">
-            <div>
+            <div class="questionhtml">
                 {!! $question->converted_question_html !!}
             </div>
             <x-input.group wire:ignore class="w-full">

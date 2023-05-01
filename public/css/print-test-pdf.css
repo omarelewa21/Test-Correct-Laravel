@@ -149,6 +149,28 @@
             margin-block-end: 0.5rem;
 }
 
+.pdf-answer-model .group-question-description,
+.pdf-answer-model .questionContainer,
+.test-print-pdf .group-question-description,
+.test-print-pdf .questionContainer {
+    width: 100%;
+    overflow: auto;
+    display: inline-block;
+}
+
+.test-print-pdf .questionhtml p {
+    width: 100%;
+}
+
+
+.pdf-answer-model .group-question-description .image-style-side,
+.pdf-answer-model .questionContainer .image-style-side,
+.test-print-pdf .group-question-description .image-style-side,
+.test-print-pdf .questionContainer .image-style-side {
+    width: 50%;
+    margin-left: 50%;
+}
+
 .test-print-pdf .true-false-sub {
     width: 144px;
     display: inline-block;

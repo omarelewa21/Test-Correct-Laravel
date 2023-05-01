@@ -5,7 +5,7 @@
                 x-init="count = $refs.countme.value.length;"
                 class="relative open-question-container"
         >
-            <div questionHtml wire:ignore>{!!   $question->converted_question_html !!}</div>
+            <div questionHtml wire:ignore style="width: 100%; display: inline-block">{!!   $question->converted_question_html !!}</div>
 
             <div class="flex-col relative mt-4">
                 <label for="me" class="transition ease-in-out duration-150">{!! __('test_take.instruction_open_question') !!}</label>
