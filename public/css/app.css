@@ -900,23 +900,6 @@ button.cta-button:disabled, a.cta-button:disabled {
 .questionContainer .completion-question-overview-container p > * {
     vertical-align: middle;
 }
-
-.pdf-answers .group-question-description,
-.pdf-answers .questionContainer,
-.pdf-answer-model .group-question-description,
-.pdf-answer-model .questionContainer {
-    width: 100%;
-    overflow: auto;
-    display: inline-block;
-}
-
-.pdf-answers .group-question-description .image-style-side,
-.pdf-answers .questionContainer .image-style-side,
-.pdf-answer-model .group-question-description .image-style-side,
-.pdf-answer-model .questionContainer .image-style-side {
-    width: 50%;
-    margin-left: 50%;
-}
 .form-input {
     padding: 0 10px 0 10px;
     height: 40px;
@@ -3094,24 +3077,7 @@ input[type=number] {
     background-color: transparent;
 }
 
-[questionhtml],
-.questionhtml {
-    width: 100% !important;
-    display: inline-block !important;
-}
-
-.questionContainer p {
-    word-wrap: break-word;
-    width: 100%;
-}
-
-.questionContainer .input-group:has(p),
-.questionContainer .co-learning-completion {
-    display: block;
-}
-
 /* ckeditor5-image/theme/imageresize.css */
-.questionContainer .image.image_resized ,
 .ck-content .image.image_resized {
     max-width: 100%;
     display: block;
@@ -3119,19 +3085,16 @@ input[type=number] {
 }
 
 /* ckeditor5-image/theme/imageresize.css */
-.questionContainer .image.image_resized img ,
 .ck-content .image.image_resized img {
     width: 100%;
 }
 
 /* ckeditor5-image/theme/imageresize.css */
-.questionContainer .image.image_resized > figcaption ,
 .ck-content .image.image_resized > figcaption {
     display: block;
 }
 
 /* ckeditor5-image/theme/imagecaption.css */
-.questionContainer .image > figcaption ,
 .ck-content .image > figcaption {
     display: table-caption;
     caption-side: bottom;
@@ -3144,7 +3107,6 @@ input[type=number] {
 }
 
 /* ckeditor5-image/theme/image.css */
-.questionContainer .image ,
 .ck-content .image {
     display: table;
     clear: both;
@@ -3154,7 +3116,6 @@ input[type=number] {
 }
 
 /* ckeditor5-image/theme/image.css */
-.questionContainer .image img ,
 .ck-content .image img {
     display: block;
     margin: 0 auto;
@@ -3163,7 +3124,6 @@ input[type=number] {
 }
 
 /* ckeditor5-image/theme/image.css */
-.questionContainer .image-inline ,
 .ck-content .image-inline {
     /*
      * Normally, the .image-inline would have "display: inline-block" and "img { width: 100% }" (to follow the wrapper while resizing).;
@@ -3176,14 +3136,11 @@ input[type=number] {
 }
 
 /* ckeditor5-image/theme/image.css */
-.questionContainer .image-inline picture ,
 .ck-content .image-inline picture {
     display: flex;
 }
 
 /* ckeditor5-image/theme/image.css */
-.questionContainer .image-inline picture,
-.questionContainer .image-inline img,
 .ck-content .image-inline picture,
 .ck-content .image-inline img {
     flex-grow: 1;
@@ -3192,23 +3149,18 @@ input[type=number] {
 }
 
 /* ckeditor5-image/theme/imagestyle.css */
-.questionContainer .image-style-block-align-left,
-.questionContainer .image-style-block-align-right,
 .ck-content .image-style-block-align-left,
 .ck-content .image-style-block-align-right {
     max-width: calc(100% - var(--ck-image-style-spacing));
 }
 
 /* ckeditor5-image/theme/imagestyle.css */
-.questionContainer .image-style-align-left,
-.questionContainer .image-style-align-right,
 .ck-content .image-style-align-left,
 .ck-content .image-style-align-right {
     clear: none;
 }
 
 /* ckeditor5-image/theme/imagestyle.css */
-.questionContainer .image-style-side ,
 .ck-content .image-style-side {
     float: right;
     margin-left: var(--ck-image-style-spacing);
@@ -3216,44 +3168,36 @@ input[type=number] {
 }
 
 /* ckeditor5-image/theme/imagestyle.css */
-.questionContainer .image-style-align-left ,
 .ck-content .image-style-align-left {
     float: left;
     margin-right: var(--ck-image-style-spacing);
 }
 
 /* ckeditor5-image/theme/imagestyle.css */
-.questionContainer .image-style-align-center ,
 .ck-content .image-style-align-center {
     margin-left: auto;
     margin-right: auto;
 }
 
 /* ckeditor5-image/theme/imagestyle.css */
-.questionContainer .image-style-align-right ,
 .ck-content .image-style-align-right {
     float: right;
     margin-left: var(--ck-image-style-spacing);
 }
 
 /* ckeditor5-image/theme/imagestyle.css */
-.questionContainer .image-style-block-align-right ,
 .ck-content .image-style-block-align-right {
     margin-right: 0;
     margin-left: auto;
 }
 
 /* ckeditor5-image/theme/imagestyle.css */
-.questionContainer .image-style-block-align-left ,
 .ck-content .image-style-block-align-left {
     margin-left: 0;
     margin-right: auto;
 }
 
 /* ckeditor5-image/theme/imagestyle.css */
-.questionContainer p + .image-style-align-left,
-.questionContainer p + .image-style-align-right,
-.questionContainer p + .image-style-side,
 .ck-content p + .image-style-align-left,
 .ck-content p + .image-style-align-right,
 .ck-content p + .image-style-side {
@@ -3261,8 +3205,6 @@ input[type=number] {
 }
 
 /* ckeditor5-image/theme/imagestyle.css */
-.questionContainer :not(figure) .image-style-align-left,
-.questionContainer :not(figure) .image-style-align-right,
 .ck-content .image-inline.image-style-align-left,
 .ck-content .image-inline.image-style-align-right {
     margin-top: var(--ck-inline-image-style-spacing);
@@ -3270,13 +3212,11 @@ input[type=number] {
 }
 
 /* ckeditor5-image/theme/imagestyle.css */
-.questionContainer .image-inline.image-style-align-left ,
 .ck-content .image-inline.image-style-align-left {
     margin-right: var(--ck-inline-image-style-spacing);
 }
 
 /* ckeditor5-image/theme/imagestyle.css */
-.questionContainer .image-inline.image-style-align-right ,
 .ck-content .image-inline.image-style-align-right {
     margin-left: var(--ck-inline-image-style-spacing);
 }
@@ -5705,8 +5645,8 @@ input.datepicker {
 
 #co-learning-teacher-page #header #start-screen-content .grid .co-learning-panel.co-learning-restart.co-learning-previous-discussion-type,
 #assessment-page #header #start-screen-content .grid .co-learning-panel.co-learning-restart.co-learning-previous-discussion-type,
-#co-learning-teacher-page #header #start-screen-content .grid .co-learning-panel:hover,
-#assessment-page #header #start-screen-content .grid .co-learning-panel:hover {
+#co-learning-teacher-page #header #start-screen-content .grid .co-learning-panel:not(.disabled):hover,
+#assessment-page #header #start-screen-content .grid .co-learning-panel:not(.disabled):hover {
     box-shadow: 0 8px 16px 0 rgba(4, 31, 116, 0.3);
     border: solid 2px white;
     background-color: rgba(0, 77, 245, 0.9);
@@ -9794,10 +9734,6 @@ video {
   width: -moz-max-content;
   width: max-content;
 }
-.w-min{
-  width: -moz-min-content;
-  width: min-content;
-}
 .w-px{
   width: 1px;
 }
@@ -11011,9 +10947,6 @@ video {
 .pb-10{
   padding-bottom: 2.5rem;
 }
-.pb-12{
-  padding-bottom: 3rem;
-}
 .pb-14{
   padding-bottom: 3.5rem;
 }
@@ -11399,6 +11332,9 @@ video {
 }
 .text-white\/20{
   color: rgb(255 255 255 / 0.2);
+}
+.text-white\/90{
+  color: rgb(255 255 255 / 0.9);
 }
 .underline{
   text-decoration-line: underline;
@@ -12377,10 +12313,6 @@ ul ul ul {
 .hover\:border-primary:hover{
   --tw-border-opacity: 1;
   border-color: rgb(0 77 245 / var(--tw-border-opacity));
-}
-
-.hover\:border-primary\/25:hover{
-  border-color: rgb(0 77 245 / 0.25);
 }
 
 .hover\:\!bg-white:hover{

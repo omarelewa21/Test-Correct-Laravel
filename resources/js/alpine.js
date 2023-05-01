@@ -1407,9 +1407,6 @@ document.addEventListener("alpine:init", () => {
 
             if (this.value !== "" && Object.keys(this.sources).includes(String(this.value))) {
                 this.activateButton(this.$el.querySelector("[data-id='" + this.value + "']").parentElement);
-                if (!this.disabled) {
-                    this.$nextTick(() => this.$dispatch("initial-toggle-tick"));
-                }
             } else {
                 this.value = this.$el.querySelector(".group").firstElementChild.dataset.id;
             }
@@ -1793,9 +1790,9 @@ document.addEventListener("alpine:init", () => {
             this.activeOverlay = activeOverlay;
         }
     }));
-    Alpine.data("assessment", (score, maxScore, halfPoints, drawerScoringDisabled, pageUpdated) => ({
-        score,
-        shadowScore: score,
+    Alpine.data("assessment", (initialScore, maxScore, halfPoints, drawerScoringDisabled, pageUpdated) => ({
+        score: initialScore,
+        shadowScore: initialScore,
         maxScore,
         halfPoints,
         drawerScoringDisabled,
@@ -1805,18 +1802,15 @@ document.addEventListener("alpine:init", () => {
                 this.resetStoredData();
             }
             if (isString(this.shadowScore)) {
-                this.shadowScore = this.isFloat(score) ? parseFloat(score) : parseInt(score);
+                this.shadowScore = this.isFloat(initialScore) ? parseFloat(initialScore) : parseInt(initialScore);
             }
         },
         toggleCount() {
             return this.$root.querySelectorAll(".student-answer .slider-button-container:not(.disabled)").length;
         },
-        initialToggleTicked() {
-            this.$store.assessment.togglesTicked++;
-        },
         dispatchUpdateToNavigator(navigator, updates) {
             this.resetStoredData();
-            let navigatorElement = this.$root.querySelector(`#${navigator}-navigator`);
+            let navigatorElement = document.querySelector(`#${navigator}-navigator`);
             if (navigatorElement) {
                 return navigatorElement.dispatchEvent(new CustomEvent("update-navigator", { detail: { ...updates } }));
             }
@@ -1840,13 +1834,13 @@ document.addEventListener("alpine:init", () => {
                 ? Math.round(this.shadowScore * 2) / 2
                 : Math.round(this.shadowScore);
         },
-        setNewScore(score, state, firstTick) {
+        setNewScore(newScore, state, firstTick) {
             if (firstTick && state === "off") {
                 this.shadowScore ??= 0;
             } else {
                 this.shadowScore = state === "on"
-                    ? this.shadowScore + score
-                    : this.shadowScore - score;
+                    ? this.shadowScore + newScore
+                    : this.shadowScore - newScore;
             }
 
             if (this.shadowScore < 0) this.shadowScore = 0;
@@ -1855,7 +1849,6 @@ document.addEventListener("alpine:init", () => {
         },
         updateAssessmentStore() {
             this.$store.assessment.currentScore = this.score;
-            this.$store.assessment.togglesTicked++;
         },
         dispatchNewScoreToSlider() {
             this.$root.querySelector(".score-slider-container")
@@ -1877,7 +1870,7 @@ document.addEventListener("alpine:init", () => {
             this.$nextTick(() => {
                 this.$store.assessment.toggleCount = this.toggleCount();
             });
-        }
+        },
     }));
     Alpine.data("assessmentNavigator", (current, total, methodCall, lastValue, firstValue) => ({
         current,
@@ -2340,14 +2333,13 @@ document.addEventListener("alpine:init", () => {
     Alpine.store("assessment", {
         currentScore: null,
         toggleCount: 0,
-        togglesTicked: 0,
         clearToProceed() {
-            return this.currentScore !== null && this.togglesTicked === this.toggleCount;
+            const valuedToggles = document.querySelectorAll('.student-answer .slider-button-container:not(disabled)[data-has-value="true"]')
+            return this.currentScore !== null && valuedToggles >= this.toggleCount;
         },
-        resetData(score = null, toggleCount = 0, togglesTicked = 0) {
+        resetData(score = null, toggleCount = 0) {
             this.currentScore = score;
             this.toggleCount = toggleCount;
-            this.togglesTicked = togglesTicked;
         }
     });
 });
