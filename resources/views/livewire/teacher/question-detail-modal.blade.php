@@ -252,7 +252,7 @@
                     wire:click.stop="addQuestion"
                     @click="$el.disabled = true"
             >
-                <x-icon.plus-2/>
+                <x-icon.plus/>
             </button>
         </div>
     </div>

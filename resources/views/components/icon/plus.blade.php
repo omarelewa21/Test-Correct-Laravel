@@ -1,1 +1,5 @@
-<svg {{ $attributes->merge(['class' => 'inline-block w-5 h-5']) }} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+<svg {{ $attributes }} width="13" height="13" xmlns="http://www.w3.org/2000/svg">
+    <g fill="none" fill-rule="evenodd" stroke-linecap="round" stroke="currentColor" stroke-width="3">
+        <path d="M1.5 6.5h10M6.5 11.5v-10"/>
+    </g>
+</svg>

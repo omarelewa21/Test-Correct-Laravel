@@ -174,8 +174,6 @@ button.cta-button:disabled, a.cta-button:disabled {
     color: white;
     background-color: rgba(0, 77, 245, 1);
     transition: all 0.3s cubic-bezier(.215, .61, .355, 1);
-    width: -moz-fit-content;
-    width: fit-content;
     justify-content: center;
     background-size: calc(100% + 4px) calc(100% + 4px); /*compensate for transparent border*/
     background-position-x: center;
@@ -5592,11 +5590,13 @@ input.datepicker {
     background-color: var(--primary);
 }
 
+#co-learning-page .container-border-left.student,
 #co-learning-teacher-page .container-border-left.student,
 #assessment-page .container-border-left.student {
     background-color: var(--secondary);
 }
 
+#co-learning-page .container-border-left,
 #co-learning-teacher-page .container-border-left,
 #assessment-page .container-border-left {
     background-color: var(--primary);
