@@ -107,6 +107,7 @@
                    :step="halfPoints ? 0.5 : 1"
                    x-ref="scoreInput"
                    x-on:focusout="syncInput($el.value)"
+                   autofocus
                    @disabled($disabled)
             >
             @if($mode === 'small')

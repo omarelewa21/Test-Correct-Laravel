@@ -21,7 +21,7 @@
             @endif
             <div x-bind:id="id">
                 <button
-                        x-on:click="expanded = !expanded"
+                        x-on:click="expanded = !expanded; $dispatch('accordion-toggled')"
                         :aria-expanded="expanded"
                         @disabled($disabled)
                         @class([

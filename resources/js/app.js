@@ -291,3 +291,56 @@ clearFilterPillsFromElement = (rootElement) => {
     let pills = rootElement.querySelectorAll('.filter-pill')
     pills.forEach(pill => pill.remove());
 }
+
+setHeightToAspectRatioAccordion = async (element, aspectRatioWidth, aspectRatioHeight) => {
+
+    aspectRatio = (aspectRatioHeight / aspectRatioWidth);
+
+    element.style.height = ((element.parentElement.parentElement.parentElement.parentElement.parentElement.clientWidth-82) * aspectRatio) + 'px';
+
+    selector = '.' + element.classList.value.split(' ').join('.');
+
+    setTimeout (()  => {
+        elementWidth = element.clientWidth;
+
+        newHeight = elementWidth * aspectRatio
+
+        if(newHeight !== 0 && element) {
+            element.style.height = newHeight+"px";
+        }
+    }, 100);
+
+}
+
+setHeightToAspectRatio = async (element, aspectRatioWidth, aspectRatioHeight) => {
+
+        elementWidth = element.clientWidth;
+
+        newHeight = elementWidth * (aspectRatioHeight / aspectRatioWidth)
+
+        if(newHeight !== 0 && element) {
+            element.style.height = newHeight+"px";
+        }
+}
+
+// awaitForElementWidth = async (selector) => {
+//     return new Promise(resolve => {
+//         if (document.querySelector(selector)) {
+//             console.log('here1');
+//             return resolve(document.querySelector(selector));
+//         }
+//
+//         const observer = new MutationObserver(mutations => {
+//             console.log('heref');
+//             if (document.querySelector(selector)) {
+//                 resolve(document.querySelector(selector));
+//                 observer.disconnect();
+//             }
+//         });
+//         console.log('heref');
+//         observer.observe(document.body, {
+//             childList: true,
+//             subtree: true
+//         });
+//     });
+// }
