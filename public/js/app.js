@@ -7652,6 +7652,11 @@ document.addEventListener("alpine:init", function () {
         var value = el.value;
         return (value - min) / (max - min) * 100;
       },
+      setThumbOffset: function setThumbOffset(el, score, maxScore) {
+        var offsetFromCenter = -12;
+        offsetFromCenter += score / maxScore * 24;
+        el.style.setProperty("--slider-thumb-offset", "".concat(offsetFromCenter, "px"));
+      },
       setSliderBackgroundSize: function setSliderBackgroundSize(el) {
         el.style.setProperty("--slider-thumb-offset", "".concat(25 / 100 * this.getSliderBackgroundSize(el) - 12.5, "px"));
         el.style.setProperty("--slider-background-size", "".concat(this.getSliderBackgroundSize(el), "%"));
