@@ -245,28 +245,28 @@ class TestTakeDuplicateHelper
     protected function getAnswersIfAvailable()
     {
         if($this->data['participants']->count()) {
-            $this->data->put('answers', Answer::whereIn('test_participant_id', $this->data['participants']->pluck('id'))->get());
+            $this->data->put('answers', Answer::whereIn('test_participant_id', $this->data['participants']->select('id'))->get());
         }
     }
 
     protected function getAnswerParentQuestionsIfAvailable()
     {
         if($this->data['answers']->count()){
-            $this->data->put('answerParentQuestions',AnswerParentQuestion::whereIn('answer_id', $this->data['answers']->pluck('id'))->get());
+            $this->data->put('answerParentQuestions',AnswerParentQuestion::whereIn('answer_id', $this->data['answers']->select('id'))->get());
         }
     }
 
     protected function getAnswerRatingsIfAvailable()
     {
         if($this->data['participants']->count()) {
-            $this->data->put('answerRatings', AnswerRating::whereIn('answer_id', $this->data['answers']->pluck('id'))->get());
+            $this->data->put('answerRatings', AnswerRating::whereIn('answer_id', $this->data['answers']->select('id'))->get());
         }
     }
 
     protected function getTestTakeEventsIfAvailable()
     {
         if($this->data['participants']->count()) {
-            $this->data->put('testTakeEvents', TestTakeEvent::whereIn('test_participant_id', $this->data['participants']->pluck('id'))->get());
+            $this->data->put('testTakeEvents', TestTakeEvent::whereIn('test_participant_id', $this->data['participants']->select('id'))->get());
         }
     }
 

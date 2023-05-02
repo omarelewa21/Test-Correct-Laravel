@@ -23,6 +23,7 @@ class MatrixQuestion extends Component
     public $subQuestions;
     public $questionAnswers;
     public $answerStruct;
+    public $testTakeUuid;
 
     public function mount()
     {

@@ -42,7 +42,7 @@ class CountTeacherLastTestTaken extends Job implements ShouldQueue
         $teacherIds = $user->teacher()->get(['id', 'class_id', 'subject_id'])->keyBy('id');
 
         // Get wanted statuses
-        $testTakeFinishedStatusIds = TestTakeStatus::whereIn('name', ['Taken', 'Discussing', 'Discussed', 'Rated'])->pluck('id')->all();
+        $testTakeFinishedStatusIdsBuilder = TestTakeStatus::whereIn('name', ['Taken', 'Discussing', 'Discussed', 'Rated'])->select('id');
 
         // Get the unique test takes which contain students in the teacher's classes
         $count = TestTake::select('test_takes.id')
@@ -54,7 +54,7 @@ class CountTeacherLastTestTaken extends Job implements ShouldQueue
                     });
                 }
             })
-            ->whereIn('test_takes.test_take_status_id', $testTakeFinishedStatusIds)
+            ->whereIn('test_takes.test_take_status_id', $testTakeFinishedStatusIdsBuilder)
             ->whereNull('tests.deleted_at')
             ->whereNull('test_participants.deleted_at')
             ->join('tests', 'tests.id', '=', 'test_takes.test_id')

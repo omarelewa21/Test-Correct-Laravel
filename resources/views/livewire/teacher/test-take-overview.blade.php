@@ -15,7 +15,7 @@
     </x-menu.tab.container>
 
     <div class="flex w-full max-w-screen-2xl mx-auto  px-10">
-        <div class="w-full divide-y divide-secondary">
+        <div class="w-full divide-y divide-secondary z-0">
             {{-- Filters--}}
             <div class="flex flex-col py-4">
                 <div class="flex w-full mt-2">

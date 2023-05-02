@@ -140,6 +140,16 @@
                         <x-icon.send-mail />
                         <span class="bold">{{ __('teacher.notify_students') }} </span>
                     </x-input.toggle-row-with-title>
+
+                    @if ($this->isAssignmentType())
+                        <x-input.toggle-row-with-title wire:model="request.allow_wsc"
+                                                    containerClass="border-t-0 w-full lg:w-[calc(50%-0.5rem)]"
+                        >
+                            <x-icon.autocheck />
+                            <span class="bold">{{ __('teacher.allow_wsc') }} </span>
+                        </x-input.toggle-row-with-title>
+                    @endif
+
                     @if($rttiExportAllowed)
                         <x-input.toggle-row-with-title wire:model="request.is_rtti_test_take"
                                                        :toolTip="__('teacher.exporteer_naar_rtti_online_tooltip')"
@@ -164,16 +174,17 @@
     <x-slot name="footer">
         <div class="flex justify-between w-full px-2">
             <x-button.text-button size="sm" wire:click="closeModal">
-                <span>{{__('Annuleren')}}</span>
+                <span>{{__('general.cancel')}}</span>
             </x-button.text-button>
             <div class="flex space-x-2.5">
                 {{--                <x-button.primary size="sm" wire:click="planNext">--}}
                 {{--                    <span>{{__('teacher.Volgende Inplannen')}}</span>--}}
                 {{--                    <x-icon.chevron/>--}}
                 {{--                </x-button.primary>--}}
-                <x-button.cta size="sm" wire:click="planNext" selid="plan-modal-plan-btn">
-                    <x-icon.checkmark />
-                    <span>{{__('teacher.Inplannen')}}</span>
+                <x-button.cta size="sm" wire:click="planNext" selid="plan-modal-plan-btn"  wire:loading.attr="disabled" wire:target="planNext">
+                    <x-icon.checkmark wire:loading.remove wire:target="planNext"/>
+                    <span wire:loading.remove wire:target="planNext">{{__('teacher.Inplannen')}}</span>
+                    <span wire:loading wire:target="planNext">{{ __('cms.one_moment_please') }}</span>
                 </x-button.cta>
             </div>
         </div>

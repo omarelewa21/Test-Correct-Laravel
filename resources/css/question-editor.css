@@ -256,6 +256,9 @@
     .drawer {
         position: fixed;
     }
+    .drawer.right {
+        right: 0;
+    }
 
     .drawer + div {
         margin-left: 24px;

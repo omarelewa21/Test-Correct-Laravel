@@ -41,6 +41,8 @@ class DrawingQuestion extends Component
 
     public $usesNewDrawingTool = false;
 
+    public $testTakeUuid;
+
     protected function getListeners()
     {
         return [

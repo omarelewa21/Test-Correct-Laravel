@@ -33,13 +33,17 @@ class CompletionQuestion extends Component
         $searchPattern = "/\[([0-9]+)\]/i";
         $replacementFunction = function ($matches) use ($question) {
             $tag_id = $matches[1] - 1; // the completion_question_answers list is 1 based but the inputs need to be 0 based
+            $events = sprintf('@blur="$refs.%s.scrollLeft = 0" @input="$event.target.setAttribute(\'title\', $event.target.value);"', 'comp_answer_' . $tag_id);
 
             return sprintf(
-                '<input x-on:contextmenu="$event.preventDefault()" spellcheck="false" wire:model.lazy="answer.%d" class="form-input mb-2 truncate text-center overflow-ellipsis" type="text" id="%s" style="width: 120px" x-ref="%s" @blur="$refs.%s.scrollLeft = 0" @input="$event.target.setAttribute(\'title\', $event.target.value);" wire:key="%s"/>',
+                '<span class="inline-flex max-w-full"><span class="absolute whitespace-nowrap" style="left: -9999px" x-ref="%s"></span> <input x-on:contextmenu="$event.preventDefault()" x-on:input="setInputWidth($el)" spellcheck="false" style="width: 120px"  autocorrect="off" autocapitalize="none"  wire:model.lazy="answer.%d"
+                            class="form-input mb-2 truncate text-center"  x-init="setInputWidth($el, true);"
+                            type="text" id="%s" x-ref="%s" %s wire:key="%s"/></span>',
+                'comp_answer_' . $tag_id . '_span',
                 $tag_id,
                 'answer_' . $tag_id .'_'.$this->question->getKey(),
                 'comp_answer_' . $tag_id,
-                'comp_answer_' . $tag_id,
+                $events,
                 'comp_answer_' . $tag_id
             );
         };

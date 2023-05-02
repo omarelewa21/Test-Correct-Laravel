@@ -126,7 +126,7 @@
                 </div>
             </div>
         </div>
-        <div class="flex flex-col flex-1 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto"
+        <div class="@if($this->needIsolate()) isolate @endif flex flex-col flex-1 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto"
              x-data="{openTab: 1}"
              x-init="$watch('openTab', value => { value === 1 ? $dispatch('tabchange') : '';})"
              @opentab.window="openTab = $event.detail; window.scrollTo({top: 0, behavior: 'smooth'})"
@@ -567,6 +567,7 @@
         </div>
     </div>
     <x-modal.question-editor-delete-modal/>
+    <x-after-planning-toast/>
     <x-modal.question-editor-dirty-question-modal
             :item="strtolower($this->isGroupQuestion() ? __('cms.group-question') : __('drawing-modal.Vraag'))"
             :new="!$this->editModeForExistingQuestion()"/>

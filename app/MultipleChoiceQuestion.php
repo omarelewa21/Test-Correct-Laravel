@@ -291,9 +291,10 @@ class MultipleChoiceQuestion extends Question implements QuestionInterface
     public function getCorrectAnswerStructure()
     {
         return MultipleChoiceQuestionAnswerLink::join('multiple_choice_question_answers', 'multiple_choice_question_answers.id', '=', 'multiple_choice_question_answer_links.multiple_choice_question_answer_id')
-            ->select('multiple_choice_question_answer_links.*', 'multiple_choice_question_answers.answer', 'multiple_choice_question_answers.score')
+            ->select(['multiple_choice_question_answer_links.*', 'multiple_choice_question_answers.answer', 'multiple_choice_question_answers.score'])
             ->orderBy('multiple_choice_question_answer_links.order', 'asc')
             ->where('multiple_choice_question_id', $this->getKey())
+            ->whereNull('multiple_choice_question_answers.deleted_at')
             ->get();
     }
 
