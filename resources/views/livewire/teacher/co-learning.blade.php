@@ -28,17 +28,11 @@
 
         <div id="main-content-container"
              class="flex border-2 relative w-full justify-between overflow-auto "
-                             wire:poll.keep-alive.5000ms="render()"
+                             {{--wire:poll.keep-alive.5000ms="render()"--}}
         >
             <div class="flex flex-col w-full space-y-4 pt-10 px-[60px] pb-14"
                  wire:key="container-{{$this->testTake->discussing_question_id}}"
             >
-                <div class="flex flex-col">
-                    @js($this->testTake->id)
-                    @js($this->testTake->discussing_question_id)
-                    @js( $this->activeAnswerRating?->id ?? 'none' )
-                </div>
-
                 <x-accordion.container :active-container-key="'question'"
                                        :wire:key="'question-section-'.$this->discussingQuestion->id"
                 >

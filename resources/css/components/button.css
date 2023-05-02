@@ -454,3 +454,55 @@ button.cta-button:disabled, a.cta-button:disabled {
 .shadow-icon-cirle {
     box-shadow: 0 0 8px 0 rgba(4, 31, 116, 0.3);
 }
+
+.icon-circle-button {
+    min-width: 40px;
+    width: 40px;
+    min-height: 40px;
+    height: 40px;
+    box-shadow: 0 3px 16px 0 rgba(4, 31, 116, 0.2);
+    background-color: var(--all-White);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    position: relative;
+    color: var(--system-base);
+}
+
+.icon-circle-button:hover::after,
+.icon-circle-button:active::after {
+    content: '';
+    inset: -2px;
+    background-color: #004df580;
+    position: absolute;
+    border: inherit;
+    border-radius: inherit;
+}
+.icon-circle-button:disabled::after {
+    content: none; /*disable hover overlay for disabled button*/
+}
+
+.icon-circle-button:hover {
+    box-shadow: 0 3px 8px 0 rgba(4, 31, 116, 0.2);
+    color: var(--teacher-primary);
+}
+
+.icon-circle-button:active {
+    box-shadow: 0 3px 8px 0 rgba(4, 31, 116, 0.3);
+    color: var(--teacher-primary);
+}
+
+.icon-circle-button:focus-visible,
+.icon-circle-button:focus {
+    box-shadow: 0 3px 8px 0 rgba(4, 31, 116, 0.2);
+    border: solid 2px #4781ff80;
+    color: var(--teacher-primary);
+    outline: none;
+}
+
+.icon-circle-button:disabled {
+    box-shadow: 0 3px 8px 0 rgba(4, 31, 116, 0.2);
+    color: var(--mid-grey);
+}
