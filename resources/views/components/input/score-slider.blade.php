@@ -25,7 +25,10 @@
     @if($mode === 'small')
         <div class="flex gap-2 items-center w-full">
             @endif
-            <div @class(['flex relative','min-w-[calc(10.375rem+12px)] max-w-[calc(16.75rem+30px)] h-12' => $mode === 'default', 'w-full' => $mode === 'small'])>
+            <div @class(['flex relative','min-w-[calc(10.375rem+12px)] max-w-[calc(16.75rem+30px)] h-12 score-slider-track-container' => $mode === 'default', 'w-full' => $mode === 'small'])>
+                <div x-show="score === null" class="score-slider-initial-handle"
+                    @click="score = 0; syncInput()"
+                ></div>
                 @if($continuousScoreSlider)
                     <div class="flex w-full h-full justify-between items-center pl-[12px] pr-[15px]"
                     >
@@ -41,12 +44,12 @@
                         >
                     </div>
                 @else
-                    <div class="flex w-full h-full justify-between items-center  space-x-[0.125rem]"
+                    <div class="flex w-full h-full justify-between items-center  space-x-[0.125rem] score-slider-pill-container"
                          wire:ignore>
 
                         @if($halfPoints)
                             <template x-for="scoreOption in maxScore">
-                                <div class="flex relative rounded-10 h-3 min-w-6 flex-grow border"
+                                <div class="flex relative rounded-10 h-3 min-w-6 flex-grow border score-slider-pill"
                                      :class="scoreOption <= score ? 'bg-primary border-primary' : 'border-bluegrey bg-offwhite'">
                                     <div class="rounded-10 h-3 min-w-[1rem] flex-grow -mt-[1px] -ml-[1px]"
                                          :class="scoreOption-0.75 <= score ? 'border bg-primary border-primary' : 'opacity-100'"
@@ -62,7 +65,7 @@
                             </template>
                         @else
                             <template x-for="scoreOption in maxScore">
-                                <div class="rounded-10 h-3 min-w-[1rem] flex-grow border "
+                                <div class="rounded-10 h-3 min-w-[1rem] flex-grow border score-slider-pill"
                                      :class="scoreOption <= score ? 'bg-primary border-primary' : 'bg-offwhite border-bluegrey'"
                                 ></div>
                             </template>
@@ -76,15 +79,17 @@
                                class="score-slider-input w-full"
                                x-model="score"
                                :class="{'hide-thumb': score === null}"
-                               x-on:click="noChangeEventFallback"
-                               x-on:change="syncInput()"
+                               x-on:click="noChangeEventFallback; $nextTick(() => { setThumbOffset($el, score, maxScore); }) "
+                               x-on:input="setThumbOffset($el, score, maxScore);"
+                               x-on:change="syncInput(); "
+                               x-init="setThumbOffset($el, score, maxScore); $nextTick(() => { setThumbOffset($el, score, maxScore); })"
                         >
                     </div>
                 @endif
             </div>
 
             <input @class([
-                      'h-10 border border-blue-grey bg-offwhite flex rounded-10 text-center',
+                      'h-10 score-slider-number-input',
                       'w-16 items-center justify-center' => $mode === 'default',
                       'min-w-[3.375rem] w-[3.375rem]' => $mode === 'small',
                       ])
