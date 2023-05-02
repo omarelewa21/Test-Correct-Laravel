@@ -209,7 +209,7 @@ class TestTake extends Component
         }
     }
 
-    public function isAllQuestionsHaveAnswer(): bool
+    public function doAllQuestionsHaveAnswers(): bool
     {
         $testParticipant = TestParticipant::findOrFail($this->testParticipantId);
         $questionsWithNoAnswer = [];
@@ -218,7 +218,14 @@ class TestTake extends Component
                 $questionsWithNoAnswer[] = $answer->order;
             }
         }
+        $last = null;
+        if(count($questionsWithNoAnswer) > 1){
+            $last = array_pop($questionsWithNoAnswer);
+        }
         $this->questionsWithNoAnswer = implode(', ', $questionsWithNoAnswer);
+        if(null !== $last){
+            $this->questionsWithNoAnswer .= sprintf(' %s %d', __("test-take.and"),$last);
+        }
         return empty($questionsWithNoAnswer);
     }
 }

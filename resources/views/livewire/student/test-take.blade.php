@@ -2,7 +2,7 @@
     <x-modal maxWidth="2xl" :customFooter="true" wire:model="showTurnInModal">
         <x-slot name="title">{{ __("test-take.Toets inleveren") }}</x-slot>
         <x-slot name="body">
-            @if (!$this->isAllQuestionsHaveAnswer())
+            @if (!$this->doAllQuestionsHaveAnswers())
                 <div class="flex w-full justify-center transition-all duration-300">
                     <div class="notification warning stretched">
                         <p class="mb-2"> <strong >  {{ __("test-take.attention-not-all-questions-answered") }} </strong> </p>
