@@ -1790,13 +1790,13 @@ document.addEventListener("alpine:init", () => {
             this.activeOverlay = activeOverlay;
         }
     }));
-    Alpine.data("assessment", (initialScore, maxScore, halfPoints, drawerScoringDisabled, pageUpdated) => ({
-        score: initialScore,
-        shadowScore: initialScore,
-        maxScore,
-        halfPoints,
-        drawerScoringDisabled,
-        pageUpdated,
+    Alpine.data("assessment", (array) => ({
+        score: array.initialScore,
+        shadowScore: array.initialScore,
+        maxScore: array.maxScore,
+        halfPoints: array.halfPoints,
+        drawerScoringDisabled: array.drawerScoringDisabled,
+        pageUpdated: array.pageUpdated,
         init() {
             if (this.pageUpdated) {
                 this.resetStoredData();
@@ -1806,7 +1806,7 @@ document.addEventListener("alpine:init", () => {
             }
         },
         toggleCount() {
-            return this.$root.querySelectorAll(".student-answer .slider-button-container:not(.disabled)").length;
+            return document.querySelectorAll(".student-answer .slider-button-container:not(.disabled)").length;
         },
         dispatchUpdateToNavigator(navigator, updates) {
             this.resetStoredData();
@@ -1851,7 +1851,7 @@ document.addEventListener("alpine:init", () => {
             this.$store.assessment.currentScore = this.score;
         },
         dispatchNewScoreToSlider() {
-            this.$root.querySelector(".score-slider-container")
+            document.querySelector(".score-slider-container")
                 .dispatchEvent(new CustomEvent(
                     "new-score",
                     { detail: { score: this.score } }
@@ -1859,10 +1859,10 @@ document.addEventListener("alpine:init", () => {
         },
         updateLivewireComponent(event) {
             if (this.drawerScoringDisabled) {
-                this.$wire.set("score", this.score);
+                // this.$wire.set("score", this.score);
             }
             if (event.hasOwnProperty("identifier")) {
-                this.$wire.toggleValueUpdated(event.identifier, event.state);
+                // this.$wire.toggleValueUpdated(event.identifier, event.state);
             }
         },
         resetStoredData() {
@@ -1871,6 +1871,9 @@ document.addEventListener("alpine:init", () => {
                 this.$store.assessment.toggleCount = this.toggleCount();
             });
         },
+        updateScoringData(data) {
+            Object.assign(this, data);
+        }
     }));
     Alpine.data("assessmentNavigator", (current, total, methodCall, lastValue, firstValue) => ({
         current,
@@ -2334,7 +2337,7 @@ document.addEventListener("alpine:init", () => {
         currentScore: null,
         toggleCount: 0,
         clearToProceed() {
-            const valuedToggles = document.querySelectorAll('.student-answer .slider-button-container:not(disabled)[data-has-value="true"]')
+            const valuedToggles = document.querySelectorAll('.student-answer .slider-button-container:not(disabled)[data-has-value="true"]').length;
             return this.currentScore !== null && valuedToggles >= this.toggleCount;
         },
         resetData(score = null, toggleCount = 0) {

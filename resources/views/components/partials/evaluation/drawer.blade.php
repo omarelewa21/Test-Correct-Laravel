@@ -4,6 +4,7 @@
      x-bind:class="{'collapsed': collapse}"
      x-on:assessment-drawer-tab-update.window="tab($event.detail.tab)"
      x-on:resize.window.throttle="handleResize"
+     wire:key="evaluation-drawer-{{ $uniqueKey }}"
 >
     <div class="collapse-toggle vertical white z-10 cursor-pointer"
          @click="collapse = !collapse;"
@@ -60,6 +61,7 @@
         <div id="slide-container"
              class="slide-container | flex h-full max-w-[var(--sidebar-width)] overflow-x-hidden overflow-y-auto"
              wire:ignore.self
+             wire:key="slide-container-{{ $uniqueKey }}"
              x-on:scroll="closeTooltips()"
         >
             <div class="slide-1 scoring | p-6 flex-[1_0_100%] h-fit min-h-full w-[var(--sidebar-width)] space-y-4 isolate">
