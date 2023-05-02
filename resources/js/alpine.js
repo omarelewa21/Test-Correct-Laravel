@@ -1854,10 +1854,10 @@ document.addEventListener("alpine:init", () => {
         },
         updateLivewireComponent(event) {
             if (this.drawerScoringDisabled) {
-                // this.$wire.set("score", this.score);
+                this.$wire.set("score", this.score);
             }
             if (event.hasOwnProperty("identifier")) {
-                // this.$wire.toggleValueUpdated(event.identifier, event.state);
+                this.$wire.toggleValueUpdated(event.identifier, event.state);
             }
         },
         resetStoredData() {
