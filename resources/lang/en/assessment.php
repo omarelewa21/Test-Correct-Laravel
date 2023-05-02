@@ -41,4 +41,6 @@ return [
     'Inline feedback verwijderen'                  => 'Remove inline feedback',
     'show_student_tooltip_text'                    => 'Enable this to show student names by default for each answer.',
     'Er zitten geen open vragen in deze toets.'    => 'There are no open questions in this test.',
+    'Inline feedback schrijven in antwoord'        => 'Write inline feedback in answer',
+    'Inline feedback bekijken'                     => 'View inline feedback',
 ];

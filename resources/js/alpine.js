@@ -2292,20 +2292,15 @@ document.addEventListener("alpine:init", () => {
             this.scroll(this.navScrollBar.scrollLeft + this.scrollStep);
         },
         startIntersectionCountdown() {
-            clearInterval(this.intersectionCountdown);
-            let seconds = 0;
-
-            this.intersectionCountdown = setInterval(() => {
-                if (seconds === 5) {
-                    clearInterval(this.intersectionCountdown);
-                    let left = this.$root.querySelector(".active").offsetLeft;
-                    this.navScrollBar.scrollTo({
-                        left: left - this.$root.getBoundingClientRect().left,
-                        behavior: "smooth"
-                    });
-                }
-                seconds++
-            }, 1000);
+            clearTimeout(this.intersectionCountdown);
+            this.intersectionCountdown = setTimeout(() => {
+                clearTimeout(this.intersectionCountdown);
+                let left = this.$root.querySelector(".active").offsetLeft;
+                this.navScrollBar.scrollTo({
+                    left: left - (this.$root.getBoundingClientRect().left + 16),
+                    behavior: "smooth"
+                });
+            }, 5000);
         }
     }));
     Alpine.directive("global", function(el, { expression }) {

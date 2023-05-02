@@ -2,8 +2,7 @@
     <x-slot:icon>
         <x-icon.feedback-text />
     </x-slot:icon>
-    <x-slot:title>Inline feedback schrijven in antwoord</x-slot:title>
-
+    <x-slot:title>@lang('assessment.'. $disabled ? 'Inline feedback bekijken' : 'Inline feedback schrijven in antwoord')</x-slot:title>
     <div class="inline-feedback-modal | flex h-full w-full p-5">
         <x-input.rich-textarea wire:model="feedback"
                                type="cms"
