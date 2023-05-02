@@ -635,6 +635,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     {
         $this->updatePage = true;
         $this->dispatchBrowserEvent('update-navigation', ['navigator' => $navigator, 'updates' => $updates]);
+        $this->dispatchBrowserEvent('update-scoring-data', $this->getScoringData());
     }
 
     private function dispatchUpdateAnswerNavigatorEvent(array $answerUpdates): void
@@ -1087,5 +1088,16 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     public function getHasNoOpenQuestionProperty(): bool
     {
         return !$this->testTakeData->test->hasOpenQuestion();
+    }
+
+    public function getScoringData(): array
+    {
+        return [
+            'initialScore'          => $this->score,
+            'maxScore'              => $this->currentQuestion?->score,
+            'halfPoints'            => (bool)$this->currentQuestion?->decimal_score,
+            'drawerScoringDisabled' => $this->drawerScoringDisabled,
+            'pageUpdated'           => $this->updatePage,
+        ];
     }
 }
