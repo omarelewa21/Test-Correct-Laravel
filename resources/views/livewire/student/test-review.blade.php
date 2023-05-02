@@ -34,6 +34,7 @@
                     <div class="flex w-full h-full px-15 items-center invisible overflow-hidden"
                          x-data="reviewNavigation(@js($this->questionPosition))"
                          x-bind:class="{'invisible': !initialized }"
+                         x-on:resize.window.throttle="resize()"
                     >
                         <div class="slider-buttons left | flex relative pt-4 -top-px h-full z-10" x-show="showSlider">
                             <button class="inline-flex base rotate-svg-180 w-8 h-8 rounded-full transition items-center justify-center transform focus:outline-none"
@@ -50,7 +51,9 @@
                              x-bind:class="{'overflow-x-auto px-3' : showSlider}"
                         >
                             @foreach($this->answers as $answer)
-                                <div class="flex flex-col gap-1 relative">
+                                <div @class([
+                                    'flex flex-col gap-1 items-center',
+                                ])>
                                     <div @class([
                                     'question-number | mt-px inline-flex rounded-full text-center justify-center items-center cursor-pointer hover:shadow-lg',
                                     'active' => (int)$this->questionPosition === $loop->iteration,

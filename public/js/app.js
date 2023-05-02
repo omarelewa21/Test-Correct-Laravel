@@ -7325,10 +7325,10 @@ document.addEventListener("alpine:init", function () {
       },
       updateLivewireComponent: function updateLivewireComponent(event) {
         if (this.drawerScoringDisabled) {
-          // this.$wire.set("score", this.score);
+          this.$wire.set("score", this.score);
         }
         if (event.hasOwnProperty("identifier")) {
-          // this.$wire.toggleValueUpdated(event.identifier, event.state);
+          this.$wire.toggleValueUpdated(event.identifier, event.state);
         }
       },
       resetStoredData: function resetStoredData() {
@@ -7920,19 +7920,15 @@ document.addEventListener("alpine:init", function () {
       },
       startIntersectionCountdown: function startIntersectionCountdown() {
         var _this50 = this;
-        clearInterval(this.intersectionCountdown);
-        var seconds = 0;
-        this.intersectionCountdown = setInterval(function () {
-          if (seconds === 5) {
-            clearInterval(_this50.intersectionCountdown);
-            var left = _this50.$root.querySelector(".active").offsetLeft;
-            _this50.navScrollBar.scrollTo({
-              left: left - _this50.$root.getBoundingClientRect().left,
-              behavior: "smooth"
-            });
-          }
-          seconds++;
-        }, 1000);
+        clearTimeout(this.intersectionCountdown);
+        this.intersectionCountdown = setTimeout(function () {
+          clearTimeout(_this50.intersectionCountdown);
+          var left = _this50.$root.querySelector(".active").offsetLeft;
+          _this50.navScrollBar.scrollTo({
+            left: left - (_this50.$root.getBoundingClientRect().left + 16),
+            behavior: "smooth"
+          });
+        }, 5000);
       }
     };
   });
