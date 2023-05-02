@@ -21,7 +21,7 @@ trait WithUpdatingHandling
 
     }
 
-    public function updateAnswerIdForTestParticipantWithUpdatingHandling()
+    public function updateAnswerIdForTestParticipant()
     {
         $answer = Answer::select('id','test_participant_id')->whereId($this->answers[$this->question->uuid]['id'])->first();
 
