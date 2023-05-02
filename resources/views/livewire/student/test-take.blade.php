@@ -5,7 +5,7 @@
             @if (!$this->isAllQuestionsHaveAnswer())
                 <div class="flex w-full justify-center transition-all duration-300">
                     <div class="notification warning stretched">
-                        <strong>  {{ __("test-take.attention-not-all-questions-answered") }} </strong> <br>
+                        <p class="mb-2"> <strong >  {{ __("test-take.attention-not-all-questions-answered") }} </strong> </p>
                         {{ __("test-take.not-all-questions-answered") }}
                         <strong>{{ $questionsWithNoAnswer }}</strong>.
                         {{ __("test-take.not-all-questions-answered-extension") }}
@@ -14,7 +14,7 @@
             @endif
         </x-slot>
          <x-slot name="customFooter">
-            <div class="flex justify-between items-center mt-6 w-full p-2">
+            <div class="flex justify-between items-center mt-4 w-full p-2">
                 <div>
                     {{ __('test-take.Weet je zeker dat je de toets wilt inleveren?') }}
                 </div>

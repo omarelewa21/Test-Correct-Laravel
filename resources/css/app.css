@@ -793,3 +793,7 @@ ul ul ul {
 .accordion-block img {
     width: auto;
 }
+
+.left-3 {
+    left: 3rem;
+}
