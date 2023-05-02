@@ -1,9 +1,10 @@
 <span x-data="{
-    minWidth: 120,
-    maxWidth: 1000,
     getInputWidth: function(el){
-        if(el.scrollWidth > this.maxWidth) return this.maxWidth + 'px'
-        if(el.value.length == 0) return this.minWidth + 'px'
+        const minWidth = 120;
+        let maxWidth = el.parentNode.closest('div').offsetWidth;
+        maxWidth = maxWidth > 1000 ? 1000 : maxWidth;
+        if(el.scrollWidth > maxWidth) return maxWidth + 'px'
+        if(el.value.length == 0) return minWidth + 'px'
         return el.value.length + 4 + 'ch'
     }
 }">
@@ -20,6 +21,8 @@
         {!! $events !!}
         :style="{width: getInputWidth($el)}"
         wire:key="{{'comp_answer_' . $tag_id}}"
+        @keyup="$el.style.width = getInputWidth($el)"
+        @resize.window="$el.style.width = getInputWidth($el)"
     />
     {!! $rsSpan !!}
 </span>
