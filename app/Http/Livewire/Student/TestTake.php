@@ -20,6 +20,7 @@ class TestTake extends TCComponent
     public $testParticipantUuid;
     public $forceTakenAwayModal = false;
     public $browserTestingDisabledModal = false;
+    public string $questionsWithNoAnswer = '';
 
     /** @var int
      *  time in milliseconds a notification is shown
@@ -205,5 +206,25 @@ class TestTake extends TCComponent
         if ($test->isAssignment()) {
             $this->dispatchBrowserEvent('show-to-dashboard');
         }
+    }
+
+    public function doAllQuestionsHaveAnswers(): bool
+    {
+        $testParticipant = TestParticipant::findOrFail($this->testParticipantId);
+        $questionsWithNoAnswer = [];
+        foreach($testParticipant->answers as $answer) {
+            if (is_null($answer->json) || empty($answer->json)) {
+                $questionsWithNoAnswer[] = $answer->order;
+            }
+        }
+        $last = null;
+        if(count($questionsWithNoAnswer) > 1){
+            $last = array_pop($questionsWithNoAnswer);
+        }
+        $this->questionsWithNoAnswer = implode(', ', $questionsWithNoAnswer);
+        if(null !== $last){
+            $this->questionsWithNoAnswer .= sprintf(' %s %d', __("test-take.and"),$last);
+        }
+        return empty($questionsWithNoAnswer);
     }
 }

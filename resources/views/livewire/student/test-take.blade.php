@@ -1,12 +1,33 @@
 <div x-data="{}" x-init="Core.init(); $wire.showAssignmentElements()" testtakemanager>
-    <x-modal maxWidth="lg" wire:model="showTurnInModal">
+    <x-modal maxWidth="2xl" :customFooter="true" wire:model="showTurnInModal">
         <x-slot name="title">{{ __("test-take.Toets inleveren") }}</x-slot>
-        <x-slot name="body">{{ __("test-take.Weet je zeker dat je de toets wilt inleveren?") }}</x-slot>
-        <x-slot name="actionButton">
-            <x-button.cta size="md" onclick="endTest()">
-                <span>{{ __("test-take.Inleveren") }}</span>
-                <x-icon.arrow/>
-            </x-button.cta>
+        <x-slot name="body">
+            @if (!$this->doAllQuestionsHaveAnswers())
+                <div class="flex w-full justify-center transition-all duration-300">
+                    <div class="notification warning stretched">
+                        <p class="mb-2"> <strong >  {{ __("test-take.attention-not-all-questions-answered") }} </strong> </p>
+                        {{ __("test-take.not-all-questions-answered") }}
+                        <strong>{{ $questionsWithNoAnswer }}</strong>.
+                        {{ __("test-take.not-all-questions-answered-extension") }}
+                    </div>
+                </div>
+            @endif
+        </x-slot>
+         <x-slot name="customFooter">
+            <div class="flex justify-between items-center mt-4 w-full p-2">
+                <div>
+                    {{ __('test-take.Weet je zeker dat je de toets wilt inleveren?') }}
+                </div>
+                <div class="relative left-3">
+                    <x-button.text-button @click="show = false" class="rotate-svg-180 mr-2">
+                        <span>{{ __('modal.cancel') }}</span>
+                    </x-button.text-button>
+                    <x-button.cta size="md" onclick="endTest()">
+                        <span>{{ __('test-take.Inleveren') }}</span>
+                        <x-icon.checkmark-small />
+                    </x-button.cta>
+                </div>
+            <div>
         </x-slot>
     </x-modal>
 

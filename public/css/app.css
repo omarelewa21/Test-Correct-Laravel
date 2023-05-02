@@ -5536,20 +5536,17 @@ input.datepicker {
 }
 
 #co-learning-teacher-page .container-border-left.primary,
-#assessment-page .container-border-left.primary,
-#student-test-review .container-border-left.primary {
+#assessment-page .container-border-left.primary {
     background-color: var(--primary);
 }
 
 #co-learning-teacher-page .container-border-left.student,
-#assessment-page .container-border-left.student,
-#student-test-review .container-border-left.student {
+#assessment-page .container-border-left.student {
     background-color: var(--secondary);
 }
 
 #co-learning-teacher-page .container-border-left,
-#assessment-page .container-border-left,
-#student-test-review .container-border-left {
+#assessment-page .container-border-left {
     background-color: var(--primary);
     position: absolute;
     width: 0.5rem;
@@ -5586,16 +5583,19 @@ input.datepicker {
 }
 
 
-.badge-view {
+#co-learning-teacher-page .badge-view,
+#assessment-page .badge-view {
     transition: 150ms ease background-color, 150ms ease color;
 }
 
-.badge-view:hover {
+#co-learning-teacher-page .badge-view:hover,
+#assessment-page .badge-view:hover {
     background-color: #f3f7ff;
     color: var(--teacher-primary);
 }
 
-.badge-view:hover:after {
+#co-learning-teacher-page .badge-view:hover:after,
+#assessment-page .badge-view:hover:after {
     content: '';
     border: 2px solid var(--teacher-primary);
     position: absolute;
@@ -5645,8 +5645,8 @@ input.datepicker {
 
 #co-learning-teacher-page #header #start-screen-content .grid .co-learning-panel.co-learning-restart.co-learning-previous-discussion-type,
 #assessment-page #header #start-screen-content .grid .co-learning-panel.co-learning-restart.co-learning-previous-discussion-type,
-#co-learning-teacher-page #header #start-screen-content .grid .co-learning-panel:not(.disabled):hover,
-#assessment-page #header #start-screen-content .grid .co-learning-panel:not(.disabled):hover {
+#co-learning-teacher-page #header #start-screen-content .grid .co-learning-panel:hover,
+#assessment-page #header #start-screen-content .grid .co-learning-panel:hover {
     box-shadow: 0 8px 16px 0 rgba(4, 31, 116, 0.3);
     border: solid 2px white;
     background-color: rgba(0, 77, 245, 0.9);
@@ -5695,13 +5695,11 @@ input.datepicker {
 }
 
 
-#student-test-review .multiple-choice .all-or-nothing-toggle,
 #assessment-page .multiple-choice .all-or-nothing-toggle {
     position: absolute;
     left: calc(50% + 2rem);
     transform: translateY(-50%);
 }
-#student-test-review .multiple-choice .first-active .all-or-nothing-line,
 #assessment-page .multiple-choice .first-active .all-or-nothing-line {
     right: -1rem;
     position: absolute;
@@ -8050,112 +8048,22 @@ span.completion-response-object-container{
     --ck-dropdown-max-width: 200px;
 }
 
-.drawer .feedback .ck-dropdown__panel .ck.ck-form__header.ck-special-characters-navigation {
+.drawer .feedback .ck-dropdown__panel .ck.ck-form__header.ck-special-characters-navigation{
     height: auto;
     flex-wrap: wrap;
     justify-content: end;
 }
-
 .drawer .feedback .ckeditor-disabled .ck.ck-editor__main > .ck-editor__editable,
 .inline-feedback-modal .ckeditor-disabled .ck.ck-editor__main > .ck-editor__editable {
     --ck-color-base-background: white;
 }
-
 .drawer .feedback .ckeditor-disabled,
 .inline-feedback-modal .ckeditor-disabled {
     position: relative;
     pointer-events: none;
 }
-
-.progress-bar-background {
-    width: calc(100% - var(--active-sidebar-width));
-    transition: width var(--sidebar-transition)
-}
-.progress-bar-background .progress-bar {
-    transition: width 150ms ease-in
-}
-
-#student-test-review #header {
-    position: sticky;
-    width: 100%;
-    height: var(--header-height);
-    top: 0;
-    left: 0;
-    background-image: linear-gradient(to right, var(--highlight-primary-mid-dark) 0%, var(--teacher-highlight-primary) 99%);
-    box-shadow: var(--main-shadow);
-    color: var(--system-base);
-    z-index: 2;
-}
-
-.fixed-sub-header-container {
-    width: calc(100% - var(--active-sidebar-width));
-    transition: width var(--sidebar-transition);
-    position: fixed;
-    left: 0;
-    z-index: 1;
-}
-
-#student-test-review .question-indicator .question-number {
-    color: white;
-    background-color: var(--system-base);
-}
-
-#student-test-review .nav-container .question-indicator .question-number {
-    --rqn-number-color: var(--system-base);
-    --rqn-border-color: var(--system-base);
-    --rqn-background-color: transparent;
-    position: static;
-    min-width: 30px;
-    width: -moz-fit-content;
-    width: fit-content;
-    transition: box-shadow ease-in-out 150ms;
-    margin-right: auto;
-
-    color: var(--rqn-number-color);
-    border-color: var(--rqn-border-color);
-    background-color: var(--rqn-background-color);
-}
-
-#student-test-review .nav-container .question-indicator .question-number.done {
-    --rqn-number-color: white;
-    --rqn-background-color: var(--system-base);
-}
-
-#student-test-review .nav-container .question-indicator .question-number.active {
-    --rqn-border-color: var(--primary);
-    --rqn-number-color: var(--primary);
-}
-
-#student-test-review .nav-container .question-indicator .question-number.done.active {
-    --rqn-number-color: white;
-    --rqn-background-color: var(--primary);
-}
-
-#student-test-review .nav-container .question-indicator .question-number.connector:after {
-    content: '';
-    position: absolute;
-    top: 15px;
-    width: 8px;
-    height: 3px;
-    left: 100%;
-    background: var(--system-base);
-}
-
-#student-test-review .nav-container .question-indicator {
-    display: flex;
-    align-items: flex-start;
-}
-#student-test-review .slider-input-wrapper {
-    pointer-events: none;
-}
-
-#student-test-review .slider-buttons > button {
-
-}
-
-
 /*
-! tailwindcss v3.2.7 | MIT License | https://tailwindcss.com
+! tailwindcss v3.3.2 | MIT License | https://tailwindcss.com
 */
 
 
@@ -8187,6 +8095,7 @@ span.completion-response-object-container{
 3. Use a more readable tab size.
 4. Use the user's configured `sans` font-family by default.
 5. Use the user's configured `sans` font-feature-settings by default.
+6. Use the user's configured `sans` font-variation-settings by default.
 */
 
 
@@ -8198,6 +8107,7 @@ html {
      tab-size: 4; /* 3 */
   font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"; /* 4 */
   font-feature-settings: normal; /* 5 */
+  font-variation-settings: normal; /* 6 */
 }
 
 
@@ -8619,6 +8529,9 @@ video {
   --tw-pan-y:  ;
   --tw-pinch-zoom:  ;
   --tw-scroll-snap-strictness: proximity;
+  --tw-gradient-from-position:  ;
+  --tw-gradient-via-position:  ;
+  --tw-gradient-to-position:  ;
   --tw-ordinal:  ;
   --tw-slashed-zero:  ;
   --tw-numeric-figure:  ;
@@ -8667,6 +8580,9 @@ video {
   --tw-pan-y:  ;
   --tw-pinch-zoom:  ;
   --tw-scroll-snap-strictness: proximity;
+  --tw-gradient-from-position:  ;
+  --tw-gradient-via-position:  ;
+  --tw-gradient-to-position:  ;
   --tw-ordinal:  ;
   --tw-slashed-zero:  ;
   --tw-numeric-figure:  ;
@@ -8813,28 +8729,16 @@ video {
   position: sticky;
 }
 .-inset-2{
-  top: -0.5rem;
-  right: -0.5rem;
-  bottom: -0.5rem;
-  left: -0.5rem;
+  inset: -0.5rem;
 }
 .-inset-2\.5{
-  top: -0.625rem;
-  right: -0.625rem;
-  bottom: -0.625rem;
-  left: -0.625rem;
+  inset: -0.625rem;
 }
 .-inset-px{
-  top: -1px;
-  right: -1px;
-  bottom: -1px;
-  left: -1px;
+  inset: -1px;
 }
 .inset-0{
-  top: 0px;
-  right: 0px;
-  bottom: 0px;
-  left: 0px;
+  inset: 0px;
 }
 .inset-x-0{
   left: 0px;
@@ -8858,9 +8762,6 @@ video {
 }
 .-right-4{
   right: -1rem;
-}
-.-right-6{
-  right: -1.5rem;
 }
 .-right-px{
   right: -1px;
@@ -8912,6 +8813,9 @@ video {
 }
 .left-2{
   left: 0.5rem;
+}
+.left-3{
+  left: 0.75rem;
 }
 .left-4{
   left: 1rem;
@@ -9314,9 +9218,6 @@ video {
 .mt-2\.5{
   margin-top: 0.625rem;
 }
-.mt-20{
-  margin-top: 5rem;
-}
 .mt-3{
   margin-top: 0.75rem;
 }
@@ -9346,6 +9247,18 @@ video {
 }
 .box-border{
   box-sizing: border-box;
+}
+.line-clamp-1{
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
+.line-clamp-2{
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 .block{
   display: block;
@@ -9410,9 +9323,6 @@ video {
 .h-2\.5{
   height: 0.625rem;
 }
-.h-20{
-  height: 5rem;
-}
 .h-28{
   height: 7rem;
 }
@@ -9466,9 +9376,6 @@ video {
 }
 .h-\[333px\]{
   height: 333px;
-}
-.h-\[3px\]{
-  height: 3px;
 }
 .h-\[45vw\]{
   height: 45vw;
@@ -9822,9 +9729,6 @@ video {
 }
 .max-w-\[236px\]{
   max-width: 236px;
-}
-.max-w-\[252px\]{
-  max-width: 252px;
 }
 .max-w-\[540px\]{
   max-width: 540px;
@@ -10587,6 +10491,9 @@ video {
   --tw-border-opacity: 1;
   border-color: rgb(255 255 255 / var(--tw-border-opacity));
 }
+.border-b-white\/25{
+  border-bottom-color: rgb(255 255 255 / 0.25);
+}
 .border-l-student{
   --tw-border-opacity: 1;
   border-left-color: rgb(236 219 0 / var(--tw-border-opacity));
@@ -11333,9 +11240,6 @@ video {
 .text-white\/20{
   color: rgb(255 255 255 / 0.2);
 }
-.text-white\/90{
-  color: rgb(255 255 255 / 0.9);
-}
 .underline{
   text-decoration-line: underline;
 }
@@ -11484,18 +11388,6 @@ video {
 }
 .ease-out{
   transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
-}
-.line-clamp-1{
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 1;
-}
-.line-clamp-2{
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
 }
 
 :root {
@@ -12266,6 +12158,10 @@ ul ul ul {
     width: auto;
 }
 
+.left-3 {
+    left: 3rem;
+}
+
 .first\:rounded-l-lg:first-child{
   border-top-left-radius: 0.5rem;
   border-bottom-left-radius: 0.5rem;
@@ -12313,6 +12209,10 @@ ul ul ul {
 .hover\:border-primary:hover{
   --tw-border-opacity: 1;
   border-color: rgb(0 77 245 / var(--tw-border-opacity));
+}
+
+.hover\:border-primary\/25:hover{
+  border-color: rgb(0 77 245 / 0.25);
 }
 
 .hover\:\!bg-white:hover{
