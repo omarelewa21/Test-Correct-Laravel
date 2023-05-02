@@ -215,7 +215,7 @@ class TestTake extends Component
         $questionsWithNoAnswer = [];
         foreach($testParticipant->answers as $answer) {
             if (is_null($answer->json) || empty($answer->json)) {
-                $questionsWithNoAnswer[] = 'Q' . $answer->order;
+                $questionsWithNoAnswer[] = $answer->order;
             }
         }
         $this->questionsWithNoAnswer = implode(', ', $questionsWithNoAnswer);
