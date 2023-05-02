@@ -249,8 +249,7 @@ class TestTakeEvent extends BaseModel {
                     } elseif (array_key_exists('wine', $metadata) &&
                         (
                             $metadata['wine']['unixFileName'] === true || 
-                            $metadata['wine']['systemBios'] === true ||
-                            $metadata['wine']['cpuBrand'] === true
+                            $metadata['wine']['registry'] === true
                         )
                     ) {
                         $metadata['software'] = VirtualMachineSoftwares::wine->value;
