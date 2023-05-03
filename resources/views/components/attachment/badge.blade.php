@@ -43,7 +43,7 @@
         @elseif($type == 'audio')
             <x-icon.audiofile/>
         @elseif($type == 'pdf')
-            <x-icon.pdf/>
+            <x-/>
         @elseif($type == 'word')
             <x-icon.word/>
         @else
