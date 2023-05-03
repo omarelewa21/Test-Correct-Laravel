@@ -6,18 +6,18 @@
     @if($variant == 'icon-button')
         @if($disabled)
             <x-button.primary
-                    class="w-10 p-0 items-center justify-center opacity-20 cursor-not-allowed"
+                    class="w-10 p-0 items-center justify-center opacity-20 cursor-not-allowed off-white"
                     title="{{ __('teacher.PDF maken') }}"
             >
-                <x-icon.pdf-file color="var(--off-white)"/>
+                <x-icon.pdf-file/>
             </x-button.primary>
         @else
             <x-button.primary
-                    class="w-10 p-0 items-center justify-center"
+                    class="w-10 p-0 items-center justify-center off-white"
                     x-on:click="makePDF()"
                     title="{{ __('teacher.PDF maken') }}"
             >
-                <x-icon.pdf-file color="var(--off-white)"/>
+                <x-icon.pdf-file/>
             </x-button.primary>
         @endif
     @elseif($variant == 'context-menu' && !$disabled)
