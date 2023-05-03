@@ -5632,6 +5632,13 @@ input.datepicker {
     --drawer-width: 300px;
 }
 
+#co-learning-teacher-page img {
+    background-color: rgba(var(--light-grey-rgb), 1);
+    background-image: url(/pdf/images/loading-icon.gif);
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
 #co-learning-teacher-page .drawer-footer,
 #assessment-page .drawer-footer {
     height: 70px;
@@ -11684,6 +11691,7 @@ video {
     --mid-grey: #929DAF;
     --mid-grey-rgb: 146, 157, 175;
     --light-grey: #F0F2F5;
+    --light-grey-rgb: 240, 242, 245;
     --blue-grey: #c3d0ed;
     --shadow-blue: #4D578F;
     --off-white: #f9faff;
