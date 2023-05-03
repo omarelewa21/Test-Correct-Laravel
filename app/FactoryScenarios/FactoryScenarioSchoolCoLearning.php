@@ -14,6 +14,7 @@ use tcCore\Factories\FactoryUser;
 use tcCore\School;
 use tcCore\SchoolLocation;
 use tcCore\Test;
+use tcCore\TestTake;
 use tcCore\User;
 
 class FactoryScenarioSchoolCoLearning extends FactoryScenarioSchool
@@ -30,6 +31,8 @@ class FactoryScenarioSchoolCoLearning extends FactoryScenarioSchool
 
     protected $schoolClassName;
     private Test $test;
+
+    private TestTake $testTake;
 
     public function __construct()
     {
@@ -161,7 +164,7 @@ class FactoryScenarioSchoolCoLearning extends FactoryScenarioSchool
         );
 
         //create taken testtake
-        FactoryScenarioTestTakeTaken::create(
+        $this->testTake = FactoryScenarioTestTakeTaken::createTestTake(
             user: $teacherUser,
             test: $test,
             testName: $test->name,
@@ -170,7 +173,7 @@ class FactoryScenarioSchoolCoLearning extends FactoryScenarioSchool
 
     public function getData()
     {
-        return [... parent::getData(), 'test' => $this->test];
+        return [... parent::getData(), 'test_take'=> $this->testTake];
     }
 
     protected function transformModelToArray($model)
