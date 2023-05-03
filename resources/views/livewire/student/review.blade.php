@@ -50,7 +50,9 @@
                                     <span>{{ \Carbon\Carbon::parse($testTake->show_results)->format('d-m-Y H:i') }}</span>
                                 </x-table.cell>
                                 <x-table.cell buttonCell class="text-right">
-                                    <x-button.cta selid="dashboard-start-take-button">{{ __('student.review') }}</x-button.cta>
+                                    <x-button.cta selid="dashboard-start-take-button">
+                                        <span>{{ __('student.review') }}</span>
+                                    </x-button.cta>
                                 </x-table.cell>
                             </x-table.row>
                         @endforeach

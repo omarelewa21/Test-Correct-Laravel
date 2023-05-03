@@ -57,7 +57,19 @@
                         </x-slot:title>
                         <x-slot:body>
                             <div class="flex flex-col gap-2"
-                                 wire:key="question-block-{{  $this->discussingQuestion->uuid }}">
+                                 wire:key="question-block-{{  $this->discussingQuestion->uuid }}"
+                                 x-init="
+                                     elements = $el.querySelectorAll('img[src]').forEach((img) => {
+                                        if(img.naturalWidth <= 0) {
+                                           img.style.minHeight = '50px';
+                                           img.style.minWidth = '50px';
+                                            }
+                                        img.addEventListener('load', (event) => {
+                                            event.target.style.minHeight = 'unset';
+                                            event.target.style.minWidth = 'unset';
+                                        })
+                                     })
+                                 ">
                                 <div class="flex flex-wrap">
                                     @foreach($this->discussingQuestion->attachments as $attachment)
                                         <x-attachment.badge-view :attachment="$attachment"
