@@ -168,7 +168,7 @@ class Teacher extends Component
     {
         return [
             'system_language'      => $this->user->schoolLocation->school_language,
-            'wsc_default_language' => $this->user->schoolLocation->school_language
+            'wsc_default_language' => $this->user->schoolLocation->wsc_language
         ];
     }
 

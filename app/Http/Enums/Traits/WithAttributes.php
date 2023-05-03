@@ -6,29 +6,26 @@ use Illuminate\Support\Collection;
 use ReflectionClassConstant;
 use tcCore\Http\Enums\Attributes\Description;
 use tcCore\Http\Enums\Attributes\Initial;
+use tcCore\Http\Enums\Attributes\Type;
 
 trait WithAttributes
 {
     public static function getInitialValue(self $enum): mixed
     {
-        $ref = new ReflectionClassConstant(self::class, $enum->name);
-        $classAttributes = $ref->getAttributes(Initial::class);
-
-        if (count($classAttributes) === 0) {
+        $instance = self::getAttributeInstance($enum, Initial::class);
+        if (!$instance) {
             return null;
         }
-        return $classAttributes[0]->newInstance()->initial;
+        return $instance->initial;
     }
 
     public static function getDescription(self $enum): ?string
     {
-        $ref = new ReflectionClassConstant(self::class, $enum->name);
-        $classAttributes = $ref->getAttributes(Description::class);
-
-        if (count($classAttributes) === 0) {
+        $instance = self::getAttributeInstance($enum, Description::class);
+        if (!$instance) {
             return null;
         }
-        return __($classAttributes[0]->newInstance()->translationKey);
+        return __($instance->translationKey);
     }
 
     public static function casesWithDescription(): Collection
@@ -37,5 +34,25 @@ trait WithAttributes
             ->mapWithKeys(function ($enum) {
                 return [$enum->value => self::getDescription($enum)];
             });
+    }
+
+    public function getType()
+    {
+        $instance = self::getAttributeInstance($this, Type::class);
+        if (!$instance) {
+            return null;
+        }
+        return $instance->type;
+    }
+
+    private static function getAttributeInstance(self $enum, $attributeClass)
+    {
+        $ref = new ReflectionClassConstant(self::class, $enum->name);
+        $classAttributes = $ref->getAttributes($attributeClass);
+
+        if (count($classAttributes) === 0) {
+            return null;
+        }
+        return $classAttributes[0]->newInstance();
     }
 }

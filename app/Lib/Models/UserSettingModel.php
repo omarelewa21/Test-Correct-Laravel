@@ -48,7 +48,11 @@ abstract class UserSettingModel extends Model
         bool                     $sessionStore = false,
         mixed                    $default = null,
     ): mixed {
-        return static::retrieveSetting($user, $title, $sessionOnly, $sessionStore) ?? $default;
+        $value = static::retrieveSetting($user, $title, $sessionOnly, $sessionStore);
+        if ($title instanceof FeatureSettingKey) {
+            $value = $title->castValue($value);
+        }
+        return $value ?? $default;
     }
 
     public static function getSettingFromSession(User $user, string|FeatureSettingKey $title): mixed
@@ -110,7 +114,7 @@ abstract class UserSettingModel extends Model
         bool $sessionStore = false
     ): array {
         $settings = static::retrieveSettingsFromSession($user);
-        if ($sessionOnly && !empty($settings)) {
+        if ($sessionOnly || !empty($settings)) {
             return $settings;
         }
 
@@ -120,7 +124,7 @@ abstract class UserSettingModel extends Model
                 static::writeSettingToSession($user, $title, $value);
             }
         }
-        return $databaseSettings ?? [];
+        return $databaseSettings;
     }
 
     /**
@@ -137,7 +141,7 @@ abstract class UserSettingModel extends Model
         bool                     $sessionStore = false
     ): mixed {
         $setting = static::retrieveSettingFromSession($user, $title);
-        if ($sessionOnly && !is_null($setting)) {
+        if ($sessionOnly || !is_null($setting)) {
             return $setting;
         }
         $databaseSetting = static::retrieveSettingFromDatabase($user, $title);

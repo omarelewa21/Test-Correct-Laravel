@@ -139,8 +139,7 @@
                         <label>
                             {{ __('lang.language') }}
                         </label>
-                        <x-input.select
-                                wire:model="lang"
+                        <x-input.select wire:model="lang"
                                 @change="changeEditorWscLanguage($event.target.value);"
                         >
                             @foreach($this->wscLanguages as $key => $language)

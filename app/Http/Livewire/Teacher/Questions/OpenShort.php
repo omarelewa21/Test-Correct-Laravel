@@ -14,6 +14,7 @@ use Livewire\Component;
 use Livewire\WithFileUploads;
 use Ramsey\Uuid\Uuid;
 use tcCore\Attachment;
+use tcCore\BaseSubject;
 use tcCore\GroupQuestionQuestion;
 use tcCore\Http\Controllers\GroupQuestionQuestions\AttachmentsController as GroupAttachmentsController;
 use tcCore\Http\Controllers\GroupQuestionQuestionsController;
@@ -21,6 +22,7 @@ use tcCore\Http\Controllers\TemporaryLoginController;
 use tcCore\Http\Controllers\TestQuestions\AttachmentsController;
 use tcCore\Http\Controllers\TestQuestionsController;
 use tcCore\Http\Controllers\TestsController;
+use tcCore\Http\Enums\UserFeatureSetting as UserFeatureSettingEnum;
 use tcCore\Http\Enums\WscLanguage;
 use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Http\Helpers\QuestionHelper;
@@ -222,7 +224,7 @@ class OpenShort extends Component implements QuestionCms
             'learning_goals'           => [],
             'test_id'                  => '',
             'all_or_nothing'           => false,
-            'lang'                     => $this->lastSelectedLanguage,
+            'lang'                     => $this->getDefaultWscLanguage(),
             'add_to_database_disabled' => 0,
             'draft'                    => $activeTest->draft,
         ];
@@ -261,7 +263,7 @@ class OpenShort extends Component implements QuestionCms
         $this->uniqueQuestionKey = $this->testQuestionId . $this->groupQuestionQuestionId . $this->action . $this->questionEditorId;
         $this->duplicateQuestion = false;
         $this->canDeleteTest = false;
-        $this->lang = $this->lastSelectedLanguage;
+//        $this->lang = $this->lastSelectedLanguage;
     }
 
 
@@ -325,10 +327,10 @@ class OpenShort extends Component implements QuestionCms
         }
     }
 
-    public function updatedLang($value)
+    public function updatedLang($value): void
     {
-        UserFeatureSetting::setSetting(Auth::user(), self::SETTING_LANG, $value);
-        $this->lastSelectedLanguage = $value;
+//        UserFeatureSetting::setSetting(Auth::user(), self::SETTING_LANG, $value);
+//        $this->lastSelectedLanguage = $value;
         $this->question['lang'] = $value;
     }
 
@@ -349,19 +351,19 @@ class OpenShort extends Component implements QuestionCms
         $this->initializeContext($this->action, $this->type, $this->subtype, $activeTest);
         $this->obj = CmsFactory::create($this);
         $this->initializePropertyBag($activeTest);
-        $this->allowWsc = Auth::user()->schoolLocation->allow_wsc;
-        $this->wscLanguages = WscLanguage::casesWithDescription();
     }
 
     private function initialize($activeTest)
     {
-        $this->lastSelectedLanguage = $this->getTestLanguage();
+//        $this->lastSelectedLanguage = $this->getTestLanguage();
         $this->resetQuestionProperties($activeTest);
         $this->canDeleteTest = $activeTest->canDelete(Auth::user());
         $this->testIsPublished = $activeTest->isPublished();
         $this->testName = $activeTest->name;
         $this->subjectId = $activeTest->subject_id;
         $this->educationLevelId = $activeTest->education_level_id;
+        $this->allowWsc = Auth::user()->schoolLocation->allow_wsc;
+        $this->wscLanguages = WscLanguage::casesWithDescription();
     }
 
     public function __call($method, $arguments = null)
@@ -1474,19 +1476,32 @@ class OpenShort extends Component implements QuestionCms
         $this->testIsPublished = Test::whereUuid($this->testId)->first()->isPublished();
     }
 
-    private function getTestLanguage(): string
+    private function getTestLanguage(): ?WscLanguage
     {
-        if (UserFeatureSetting::hasSetting(Auth::user(), self::SETTING_LANG)) {
-            return UserFeatureSetting::getSetting(Auth::user(), self::SETTING_LANG);
-        }
-        $lang = Auth::user()->schoolLocation->wscLanguage;
-        UserFeatureSetting::setSetting(Auth::user(), self::SETTING_LANG, $lang);
-        return $lang;
+        return BaseSubject::join('subjects', 'subjects.base_subject_id', '=', 'base_subjects.id')
+            ->join('tests', 'tests.subject_id', '=', 'subjects.id')
+            ->whereIn('tests.id', Test::whereUuid($this->testId)->select('id'))
+            ->value('wsc_lang');
     }
 
     public function toPlannedTest($takeUuid)
     {
         $testTake = TestTake::whereUuid($takeUuid)->first();
         return auth()->user()->redirectToCakeWithTemporaryLogin($testTake->getPlannedTestOptions());
+    }
+
+    private function getDefaultWscLanguage()
+    {
+        if (UserFeatureSetting::getSetting(Auth::user(), UserFeatureSettingEnum::WSC_COPY_SUBJECT_LANGUAGE, default: true)) {
+            if ($subjectLanguage = $this->getTestLanguage()) {
+                return $subjectLanguage;
+            }
+        }
+
+        if ($language = UserFeatureSetting::getSetting(Auth::user(), UserFeatureSettingEnum::WSC_DEFAULT_LANGUAGE)) {
+            return $language;
+        }
+
+        return 'nl_NL';
     }
 }

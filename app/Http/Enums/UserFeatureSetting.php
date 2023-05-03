@@ -3,14 +3,18 @@
 namespace tcCore\Http\Enums;
 
 use Illuminate\Support\Collection;
-use Illuminate\Support\Str;
 use tcCore\Exceptions\AccountSettingException;
 use tcCore\Http\Enums\Attributes\Initial;
+use tcCore\Http\Enums\Attributes\Type;
 use tcCore\Http\Enums\Traits\WithAttributes;
+use tcCore\Http\Enums\Traits\WithCasting;
+use tcCore\Http\Enums\Traits\WithValidation;
 
 enum UserFeatureSetting: string implements FeatureSettingKey
 {
     use WithAttributes;
+    use WithValidation;
+    use WithCasting;
 
     #[Initial(false)]
     case HAS_PUBLISHED_TEST = 'has_published_test';
@@ -23,6 +27,7 @@ enum UserFeatureSetting: string implements FeatureSettingKey
     #[Initial('nl_NL')]
     case WSC_DEFAULT_LANGUAGE = 'wsc_default_language';
     #[Initial(true)]
+    #[Type('bool')]
     case WSC_COPY_SUBJECT_LANGUAGE = 'wsc_copy_subject_language';
     #[Initial(true)]
     case QUESTION_PUBLICLY_AVAILABLE = 'question_publicly_available';
@@ -54,28 +59,6 @@ enum UserFeatureSetting: string implements FeatureSettingKey
     case GRADE_STANDARD_VALUE = 'grade_standard_value';
     #[Initial(50)]
     case GRADE_CESUUR_PERCENTAGE = 'grade_cesuur_percentage';
-
-
-    public function validateValue($value)
-    {
-        $validationMethod = sprintf('validate%s', Str::pascal($this->value));
-        if (
-            ($value !== false && $value !== null)
-            && method_exists(self::class, $validationMethod)
-        ) {
-            return self::$validationMethod($value);
-        }
-        return $value;
-    }
-
-    public function castValue($callback)
-    {
-        $castMethod = sprintf('cast%s', Str::pascal($this->value));
-        if (method_exists(self::class, $castMethod)) {
-            return self::$castMethod($callback());
-        }
-        return false;
-    }
 
     public static function initialValues(): Collection
     {
@@ -118,5 +101,21 @@ enum UserFeatureSetting: string implements FeatureSettingKey
         }
 
         return true;
+    }
+
+    private function castSystemLanguage($value): SystemLanguage
+    {
+        return SystemLanguage::tryFrom($value) ?? SystemLanguage::DUTCH;
+    }
+
+    private function castWscLanguage($value): WscLanguage
+    {
+        return WscLanguage::tryFrom($value) ?? WscLanguage::DUTCH;
+
+    }
+
+    private function castGradeDefaultStandard($value): GradingStandard
+    {
+        return GradingStandard::tryFrom($value) ?? GradingStandard::N_TERM;
     }
 }

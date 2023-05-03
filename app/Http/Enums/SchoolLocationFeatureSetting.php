@@ -3,40 +3,33 @@
 namespace tcCore\Http\Enums;
 
 use Illuminate\Support\Str;
+use tcCore\Http\Enums\Attributes\Type;
+use tcCore\Http\Enums\Traits\WithAttributes;
+use tcCore\Http\Enums\Traits\WithCasting;
+use tcCore\Http\Enums\Traits\WithValidation;
 
 enum SchoolLocationFeatureSetting: string
 {
+    use WithAttributes;
+    use WithValidation;
+    use WithCasting;
+
     case TEST_PACKAGE = 'test_package';
+    #[Type('bool')]
     case ALLOW_ANALYSES = 'allow_analyses';
+    #[Type('bool')]
     case ALLOW_NEW_TAKEN_TESTS_PAGE = 'allow_new_taken_tests_page';
+    #[Type('bool')]
     case ALLOW_NEW_CO_LEARNING = 'allow_new_co_learning';
+    #[Type('bool')]
     case ALLOW_NEW_CO_LEARNING_TEACHER = 'allow_new_co_learning_teacher';
+    #[Type('bool')]
     case ALLOW_CREATHLON = 'allow_creathlon';
+    #[Type('bool')]
     case ALLOW_OLYMPIADE = 'allow_olympiade';
+    #[Type('bool')]
     case ALLOW_NEW_ASSESSMENT = 'allow_new_assessment';
 
-    public function validateValue($value)
-    {
-        $validationMethod = sprintf('validate%s', Str::pascal($this->value));
-        if (
-            ($value !== false && $value !== null)
-            && method_exists(self::class, $validationMethod)
-        ) {
-            return self::$validationMethod($value);
-        }
-        return $value;
-    }
-
-    public function castValue($callback)
-    {
-        $castMethod = sprintf('cast%s', Str::pascal($this->value));
-        if (method_exists(self::class, $castMethod)) {
-            return self::$castMethod(
-                $callback()
-            );
-        }
-        return false;
-    }
 
     public static function validateTestPackage(TestPackages|string $testPackage): string|false
     {
