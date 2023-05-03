@@ -5,3 +5,8 @@
 .cta-gradient {
     background: linear-gradient(to right, var(--cta-primary-mid-dark) 0%, var(--cta-primary) 98%), linear-gradient(to bottom, var(--light-grey), #c8d0e2 80%);
 }
+
+.shimmer {
+    position: relative;
+    transition: color 150ms ease-in-out;
+}

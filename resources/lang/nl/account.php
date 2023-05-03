@@ -26,8 +26,6 @@ return [
     'Automatisch nakijken gatentektst vragen' => 'Automatisch nakijken gatentektst vragen',
     'Standaard taal tooltip'                  => 'Dit bepaalt de taal van de spellingscontrole tijdens constructie en nakijken',
     'Weging van de toets'                     => 'Weging van de toets',
-    'Browsertoetsen toestaan'                 => 'Browsertoetsen toestaan',
-    'Test-Direct toestaan'                    => 'Test-Direct toestaan',
     'Studenten informeren via mail'           => 'Studenten informeren via mail',
     'Cijfers tonen'                           => 'Toon cijfers',
     'Toon antwoordmodel'                      => 'Toon antwoordmodel',
@@ -37,5 +35,5 @@ return [
     'Jouw scholen'                            => '[0,1]Jouw school|[2,*]Jouw scholen',
     'Jouw vakken'                             => '[0,1]Jouw vak|[2,*]Jouw vakken',
     'Jouw klassen'                            => '[0,1]Jouw klas|[2,*]Jouw klassen',
-
+    'Standaard normering'                          => 'Standaard normering',
 ];

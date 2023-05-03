@@ -540,6 +540,7 @@ class CompletionQuestion extends Question implements QuestionInterface
             ->whereNull('completion_question_answers.deleted_at')
             ->get();
     }
+
     public function getDisplayableQuestionText()
     {
         $question_text = $this->converted_question_html;

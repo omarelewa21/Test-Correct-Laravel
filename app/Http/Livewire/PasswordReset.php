@@ -25,14 +25,9 @@ class PasswordReset extends Component
 
     protected $queryString = ['token'];
 
-    private function get_browser_language(){
-        if(array_key_exists('HTTP_ACCEPT_LANGUAGE', $_SERVER)){
-            $language = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
-            if($language ==	 'nl'){
-                return 'nl';
-            }
-        }
-        return 'en';
+    private function get_browser_language()
+    {
+        return BaseHelper::browserLanguage();
     }
 
     protected function messages(){

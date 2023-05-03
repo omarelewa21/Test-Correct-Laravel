@@ -1,6 +1,7 @@
-<main class=""
-      x-data="{openTab: 'account'}"
+<main class="account-page"
+      x-data="{openTab: 'account', shimmer: false}"
       x-cloak
+      x-on:updated-language.window="$nextTick(() => setTimeout(() => shimmer = false, 5000))"
 >
     <header class="sticky flex flex-col justify-center top-0 w-full z-10">
         <div class="flex w-full px-4 items-center justify-center relative text-white z-10 h-[var(--header-height)] bg-gradient-to-r from-[var(--teacher-primary)] to-[var(--teacher-primary-light)] main-shadow">
@@ -29,9 +30,13 @@
                 <div class="content-section p-10 grid grid-cols-1 lg:grid-cols-2 gap-6 w-full">
                     <div class="system-lang | flex flex-col">
                         <x-input.group :label="__('account.Systeem taal')">
-                            <x-input.select>
-                                <option>Nederlands</option>
-                                <option>Engels</option>
+                            <x-input.select wire:model="featureSettings.system_language"
+                                            x-on:change="shimmer = true"
+                            >
+                                @foreach($this->systemLanguages as $key => $language)
+                                    <option value="{{ $key }}"
+                                            wire:key="system-language-option-{{ $key }}">{{ $language }}</option>
+                                @endforeach
                             </x-input.select>
                         </x-input.group>
                     </div>
@@ -218,25 +223,27 @@
                             <x-tooltip>@lang('account.Standaard taal tooltip')</x-tooltip>
                         </div>
                         <x-input.group class="mb-[7px]">
-                            <x-input.select>
-                                <option>Nederlands</option>
-                                <option>Engels</option>
+                            <x-input.select wire:model="featureSettings.wsc_default_language">
+                                @foreach($this->wscLanguages as $key => $language)
+                                    <option value="{{ $key }}"
+                                            wire:key="wsc-language-option-{{ $key }}">{{ $language }}</option>
+                                @endforeach
                             </x-input.select>
                         </x-input.group>
                     </div>
 
                     <div class="border-b lg:border-t border-bluegrey flex w-full items-center h-[50px] gap-2.5 self-end">
-                        <x-input.toggle class="mr-2" />
+                        <x-input.toggle wire:model="featureSettings.question_publicly_available" class="mr-2" />
                         <x-icon.preview />
                         <span class="bold">@lang('cms.Openbaar maken')</span>
                     </div>
                     <div class="border-b border-bluegrey flex w-full items-center h-[50px] gap-2.5 self-end">
-                        <x-input.toggle class="mr-2" />
+                        <x-input.toggle wire:model="featureSettings.wsc_copy_subject_language" class="mr-2" />
                         <x-icon.questionmark />
                         <span class="bold">@lang('account.Neem taal over van taalvak')</span>
                     </div>
                     <div class="border-b border-bluegrey flex w-full items-center h-[50px] gap-2.5 self-end">
-                        <x-input.toggle class="mr-2" />
+                        <x-input.toggle wire:model="featureSettings.question_auto_score_completion" class="mr-2" />
                         <x-icon.autocheck />
                         <span class="bold">@lang('account.Automatisch nakijken gatentektst vragen')</span>
                     </div>
@@ -247,14 +254,15 @@
                             <span class="bold">@lang('account.Aantal punten per vraag')</span>
                         </div>
                         <div class="flex gap-2 items-center">
-                            <x-input.text class="text-center w-[3.375rem]"
+                            <x-input.text wire:model="featureSettings.question_default_points"
+                                          class="text-center w-[3.375rem]"
                                           :only-integer="true"
                             />
                         </div>
                     </div>
 
                     <div class="border-b border-bluegrey flex w-full items-center h-[50px] gap-2.5 self-end">
-                        <x-input.toggle class="mr-2" />
+                        <x-input.toggle wire:model="featureSettings.question_half_points_possible" class="mr-2" />
                         <x-icon.half-points />
                         <span class="bold">@lang('cms.Halve puntenbeoordeling mogelijk')</span>
                     </div>
@@ -266,19 +274,19 @@
 
                 <div class="content-section p-10 grid grid-cols-1 lg:grid-cols-2 gap-x-6 w-full">
                     <div class="border-b border-t border-bluegrey flex w-full items-center h-[50px] gap-2.5">
-                        <x-input.toggle class="mr-2" />
+                        <x-input.toggle wire:model="featureSettings.test_take_browser_testing" class="mr-2" />
                         <x-icon.web />
-                        <span class="bold">@lang('account.Browsertoetsen toestaan')</span>
+                        <span class="bold">@lang('teacher.Browsertoetsen toestaan')</span>
                     </div>
                     <div class="border-b lg:border-t border-bluegrey flex w-full items-center h-[50px] gap-2.5">
-                        <x-input.toggle class="mr-2" />
+                        <x-input.toggle wire:model="featureSettings.test_take_notify_students" class="mr-2" />
                         <x-icon.send-mail />
                         <span class="bold">@lang('account.Studenten informeren via mail')</span>
                     </div>
                     <div class="border-b border-bluegrey flex w-full items-center h-[50px] gap-2.5 self-end">
-                        <x-input.toggle class="mr-2" />
+                        <x-input.toggle wire:model="featureSettings.test_take_test_direct" class="mr-2" />
                         <x-icon.test-direct />
-                        <span class="bold">@lang('account.Test-Direct toestaan')</span>
+                        <span class="bold">@lang('teacher.Test-Direct toestaan')</span>
                     </div>
                     <div class="flex justify-between items-center border-b border-bluegrey h-[50px]">
                         <div class="flex gap-2 items-center">
@@ -286,7 +294,8 @@
                             <span class="bold">@lang('account.Weging van de toets')</span>
                         </div>
                         <div class="flex gap-2 items-center">
-                            <x-input.text class="text-center w-[3.375rem]"
+                            <x-input.text wire:model="featureSettings.test_take_default_weight"
+                                          class="text-center w-[3.375rem]"
                                           :only-integer="true"
                             />
                         </div>
@@ -299,12 +308,13 @@
 
                 <div class="content-section p-10 grid grid-cols-1 lg:grid-cols-2 gap-x-6 w-full">
                     <div class="border-b border-t border-bluegrey flex w-full items-center h-[50px] gap-2.5">
-                        <x-input.toggle class="mr-2" />
+                        <x-input.toggle wire:model="featureSettings.assessment_skip_no_discrepancy_answer"
+                                        class="mr-2" />
                         <x-icon.co-learning />
                         <span class="bold">@lang('Kaas')</span>
                     </div>
                     <div class="border-b lg:border-t border-bluegrey flex w-full items-center h-[50px] gap-2.5">
-                        <x-input.toggle class="mr-2" />
+                        <x-input.toggle wire:model="featureSettings.assessment_show_student_names" class="mr-2" />
                         <x-icon.profile />
                         <span class="bold">@lang('assessment.Toon de naam van studenten')</span>
                     </div>
@@ -316,12 +326,12 @@
 
                 <div class="content-section p-10 grid grid-cols-1 lg:grid-cols-2 gap-x-6 w-full">
                     <div class="border-b border-t border-bluegrey flex w-full items-center h-[50px] gap-2.5">
-                        <x-input.toggle class="mr-2" />
+                        <x-input.toggle wire:model="featureSettings.review_show_grades" class="mr-2" />
                         <x-icon.grade />
                         <span class="bold">@lang('account.Cijfers tonen')</span>
                     </div>
                     <div class="border-b lg:border-t border-bluegrey flex w-full items-center h-[50px] gap-2.5">
-                        <x-input.toggle class="mr-2" />
+                        <x-input.toggle wire:model="featureSettings.review_show_correction_model" class="mr-2" />
                         <x-icon.discuss />
                         <span class="bold">@lang('account.Toon antwoordmodel')</span>
                     </div>
@@ -334,21 +344,27 @@
                 <div class="content-section p-10 grid grid-cols-1 lg:grid-cols-2 gap-x-6 w-full">
                     <div class="default-lang | flex flex-col gap-1">
                         <div class="flex items-center justify-between">
-                            <span>@lang('account.Standaard taal')</span>
-                            <x-tooltip>@lang('account.Standaard taal tooltip')</x-tooltip>
+                            <span>@lang('account.Standaard normering')</span>
                         </div>
                         <div class="flex items-center w-full gap-2">
                             <x-input.group class="flex-1">
-                                <x-input.select>
-                                    <option>Nederlands</option>
-                                    <option>Engels</option>
+                                <x-input.select wire:model="featureSettings.grade_default_standard">
+                                    @foreach($this->gradingStandards as $key => $standard)
+                                        <option value="{{ $key }}"
+                                                wire:key="grading-standard-option-{{ $key }}">{{ $standard }}</option>
+                                    @endforeach
                                 </x-input.select>
                             </x-input.group>
                             <x-input.group>
-                                <x-input.text class="text-center w-[3.375rem]" />
+                                <x-input.text wire:model="featureSettings.grade_standard_value"
+                                              class="text-center w-[3.375rem]"
+                                />
                             </x-input.group>
                             <x-input.group>
-                                <x-input.text class="text-center w-[3.375rem]" />
+                                <x-input.text wire:model="featureSettings.grade_cesuur_percentage"
+                                              :disabled="$this->featureSettings['grade_default_standard'] !== 'cesuur'"
+                                              class="text-center w-[3.375rem]"
+                                />
                             </x-input.group>
                         </div>
                     </div>

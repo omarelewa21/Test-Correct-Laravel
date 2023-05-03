@@ -4,11 +4,15 @@ namespace tcCore\Http\Livewire\Account;
 
 use Illuminate\Support\Collection;
 use Livewire\Component;
+use tcCore\Http\Enums\GradingStandard;
+use tcCore\Http\Enums\SystemLanguage;
+use tcCore\Http\Enums\UserFeatureSetting as UserFeatureSettingEnum;
+use tcCore\Http\Enums\WscLanguage;
+use tcCore\Http\Helpers\UserHelper;
 use tcCore\Http\Traits\WithReturnHandling;
 use tcCore\SchoolLocationUser;
 use tcCore\User;
 use tcCore\UserFeatureSetting;
-use tcCore\Http\Enums\UserFeatureSetting as UserFeatureSettingEnum;
 
 class Teacher extends Component
 {
@@ -23,6 +27,9 @@ class Teacher extends Component
     public array $subjects;
     public array $locations;
     public array $classes;
+    public Collection $systemLanguages;
+    public Collection $wscLanguages;
+    public Collection $gradingStandards;
 
     protected function getRules(): array
     {
@@ -35,6 +42,7 @@ class Teacher extends Component
         $this->setCanEditProfile();
         $this->setProfileSchoolLocationData();
         $this->setFeatureSettings();
+        $this->setSelectOptions();
     }
 
     public function hydrate(): void
@@ -44,7 +52,7 @@ class Teacher extends Component
 
     public function dehydrate(): void
     {
-        if ($this->user->isDirty()) {
+        if ($this->user->isDirty() && $this->canEditProfile) {
             $this->user->save();
         }
     }
@@ -56,12 +64,26 @@ class Teacher extends Component
         }
     }
 
+    public function updatedFeatureSettingsSystemLanguage(): void
+    {
+        UserHelper::setSystemLanguage($this->user);
+        $this->setSelectOptions();
+        $this->dispatchBrowserEvent('updated-language');
+    }
+
     public function updatedUserData(mixed $value, string $name): void
     {
         $this->validate();
         if ($this->user->hasAttribute($name)) {
             $this->user->$name = $value;
         };
+    }
+
+    public function updatedFeatureSettingsGradeDefaultStandard(string $value): void
+    {
+        if ($enum = GradingStandard::tryFrom($value)) {
+            $this->handleUpdatedGradingStandard($enum);
+        }
     }
 
     public function redirectBack()
@@ -115,8 +137,14 @@ class Teacher extends Component
 
     private function setFeatureSettings(): void
     {
+        $externalDefaults = $this->getExternalDefaultSettingValues();
         $this->featureSettings = UserFeatureSettingEnum::initialValues()
+            ->merge($externalDefaults)
             ->merge(UserFeatureSetting::getAll($this->user));
+
+        $this->handleUpdatedGradingStandard(
+            GradingStandard::tryFrom($this->featureSettings['grade_default_standard'])
+        );
     }
 
     /**
@@ -133,6 +161,45 @@ class Teacher extends Component
         } catch (\Throwable $exception) {
             $this->featureSettings[$name] = UserFeatureSettingEnum::getInitialValue($enum);
             $this->addError($name, $exception->getMessage());
+        }
+    }
+
+    private function getExternalDefaultSettingValues(): array
+    {
+        return [
+            'system_language'      => $this->user->schoolLocation->school_language,
+            'wsc_default_language' => $this->user->schoolLocation->school_language
+        ];
+    }
+
+    private function setSelectOptions(): void
+    {
+        $this->setLanguages();
+
+        $this->gradingStandards = GradingStandard::casesWithDescription();
+    }
+
+    private function setLanguages(): void
+    {
+        $this->systemLanguages = SystemLanguage::casesWithDescription();
+
+        $this->wscLanguages = WscLanguage::casesWithDescription();
+    }
+
+    /**
+     * @param GradingStandard $enum
+     * @return void
+     */
+    private function handleUpdatedGradingStandard(GradingStandard $enum): void
+    {
+        if ($enum === GradingStandard::CESUUR) {
+            $this->featureSettings['grade_cesuur_percentage'] = UserFeatureSetting::getSetting(
+                user   : $this->user,
+                title  : UserFeatureSettingEnum::GRADE_CESUUR_PERCENTAGE,
+                default: GradingStandard::getInitialValue($enum)
+            );
+        } else {
+            $this->featureSettings['grade_cesuur_percentage'] = null;
         }
     }
 }

@@ -2173,7 +2173,7 @@ document.addEventListener("alpine:init", () => {
         inModal: false,
         init() {
             this.setHeightProperty();
-            this.inModal = this.$root.closest('#modal-container') !== null;
+            this.inModal = this.$root.closest("#modal-container") !== null;
             this.$watch("tooltip", value => {
                 if (value) {
                     let ignoreLeft = false;
@@ -2201,7 +2201,7 @@ document.addEventListener("alpine:init", () => {
             return top + "px";
         },
         getLeft(ignoreLeft = false) {
-            if (ignoreLeft) return 'auto';
+            if (ignoreLeft) return "auto";
             let left = this.$root.getBoundingClientRect().x + (this.$root.offsetWidth / 2);
             if (this.inModal) {
                 left -= this.getModalDimensions().left;
@@ -2227,7 +2227,7 @@ document.addEventListener("alpine:init", () => {
             return ((this.$el.getBoundingClientRect().left + (this.maxToolTipWidth / 2)) > window.innerWidth);
         },
         getModalDimensions() {
-            const modal = document.querySelector('#modal-container');
+            const modal = document.querySelector("#modal-container");
             return modal.getBoundingClientRect();
         }
     }));

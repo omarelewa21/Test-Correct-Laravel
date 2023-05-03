@@ -133,7 +133,7 @@
              selid="tabcontainer"
         >
             <div class="flex justify-end py-5" wire:ignore>
-                @if(\Illuminate\Support\Facades\Auth::user()->schoolLocation->allow_wsc)
+                @if($this->allowWsc)
                     <div class="flex items-center relative left-4 gap-4 mr-4" wire:ignore
                          wire:key="wsc-language-component-{{ $this->uniqueQuestionKey }}-{{$question['lang']}}">
                         <label>
@@ -143,12 +143,9 @@
                                 wire:model="lang"
                                 @change="changeEditorWscLanguage($event.target.value);"
                         >
-                            <option value="nl_NL">{{ __('lang.nl_NL') }}</option>
-                            <option value="en_GB">{{ __('lang.en_GB') }}</option>
-                            <option value="fr_FR">{{ __('lang.fr_FR') }}</option>
-                            <option value="de_DE">{{ __('lang.de_DE') }}</option>
-                            <option value="es_ES">{{ __('lang.es_ES') }}</option>
-                            <option value="it_IT">{{ __('lang.it_IT') }}</option>
+                            @foreach($this->wscLanguages as $key => $language)
+                                <option value="{{ $key }}">{{ $language }}</option>
+                            @endforeach
                         </x-input.select>
                     </div>
                 @endif

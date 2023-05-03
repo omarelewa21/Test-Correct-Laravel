@@ -2605,9 +2605,17 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         });
     }
 
-    public function getActiveLanguage()
+    public function getActiveLanguage($sessionOverride = false): string
     {
-        return session()->has('locale') ? session()->get('locale') : optional($this->schoolLocation)->school_language ?? config('app.locale');
+        if (!$sessionOverride && session()->has('locale')) {
+            return session()->get('locale');
+        }
+
+        if ($language = UserFeatureSetting::getSetting($this, UserFeatureSettingEnum::SYSTEM_LANGUAGE) ) {
+            return $language;
+        }
+
+        return $this->schoolLocation?->school_language ?? BaseHelper::browserLanguage();
     }
 
     public function hasSingleSchoolLocation()
@@ -2812,8 +2820,15 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         $this->password_expiration_date = null;
     }
 
-    public function getSessionLengthAttribute()
+    public function getSessionLengthAttribute():int
     {
-        return session('extensionTime', 15*60);
+        return session(
+            'extensionTime',
+            (int)UserFeatureSetting::getSetting(
+                user   : $this,
+                title  : UserFeatureSettingEnum::AUTO_LOGOUT_MINUTES,
+                default: UserFeatureSettingEnum::getInitialValue(UserFeatureSettingEnum::AUTO_LOGOUT_MINUTES),
+            ) * 60
+        );
     }
 }

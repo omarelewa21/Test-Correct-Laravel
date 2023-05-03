@@ -7788,7 +7788,7 @@ document.addEventListener("alpine:init", function () {
       init: function init() {
         var _this46 = this;
         this.setHeightProperty();
-        this.inModal = this.$root.closest('#modal-container') !== null;
+        this.inModal = this.$root.closest("#modal-container") !== null;
         this.$watch("tooltip", function (value) {
           if (value) {
             var ignoreLeft = false;
@@ -7815,7 +7815,7 @@ document.addEventListener("alpine:init", function () {
       },
       getLeft: function getLeft() {
         var ignoreLeft = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-        if (ignoreLeft) return 'auto';
+        if (ignoreLeft) return "auto";
         var left = this.$root.getBoundingClientRect().x + this.$root.offsetWidth / 2;
         if (this.inModal) {
           left -= this.getModalDimensions().left;
@@ -7842,7 +7842,7 @@ document.addEventListener("alpine:init", function () {
         return this.$el.getBoundingClientRect().left + this.maxToolTipWidth / 2 > window.innerWidth;
       },
       getModalDimensions: function getModalDimensions() {
-        var modal = document.querySelector('#modal-container');
+        var modal = document.querySelector("#modal-container");
         return modal.getBoundingClientRect();
       }
     };

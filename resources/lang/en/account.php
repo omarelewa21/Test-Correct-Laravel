@@ -26,6 +26,7 @@ return [
     'Automatisch nakijken gatentektst vragen' => 'Automatically score gap questions',
     'Standaard taal tooltip'                  => 'This sets the spellchecker language during construction and assessment',
     'Weging van de toets'                     => 'Weight of the test',
+    'Studenten informeren via mail'           => 'Inform students with e-mail',
     'Cijfers tonen'                           => 'Show grades',
     'Toon antwoordmodel'                      => 'Show correction model',
     'uneditable_title_lvs'                    => 'Your profile information is copied from the connection between Entree and your student information system',
@@ -34,4 +35,5 @@ return [
     'Jouw scholen'                            => '[0,1]Your school|[2,*]Your schools',
     'Jouw vakken'                             => '[0,1]Your subject|[2,*]Your subjects',
     'Jouw klassen'                            => '[0,1]Your class|[2,*]Your classes',
+    'Standaard normering'                     => 'Default grading standard',
 ];

@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Ramsey\Uuid\Uuid;
 use tcCore\Exceptions\QuestionException;
+use tcCore\Http\Enums\WscLanguage;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Traits\WithQuestionFilteredHelpers;
 use tcCore\Lib\Models\MtiBaseModel;
@@ -31,6 +32,7 @@ class Question extends MtiBaseModel
         'all_or_nothing'           => 'boolean',
         'add_to_database_disabled' => 'boolean',
         'draft'                    => 'boolean',
+        'lang'                     => WscLanguage::class,
     ];
 
     public $mtiBaseClass = 'tcCore\Question';

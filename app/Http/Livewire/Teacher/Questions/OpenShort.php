@@ -21,6 +21,7 @@ use tcCore\Http\Controllers\TemporaryLoginController;
 use tcCore\Http\Controllers\TestQuestions\AttachmentsController;
 use tcCore\Http\Controllers\TestQuestionsController;
 use tcCore\Http\Controllers\TestsController;
+use tcCore\Http\Enums\WscLanguage;
 use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Http\Interfaces\QuestionCms;
@@ -101,6 +102,7 @@ class OpenShort extends Component implements QuestionCms
     public $lang = 'nl_NL';
     private $lastSelectedLanguage;
     public $allowWsc = false;
+    public $wscLanguages;
     const SETTING_LANG = 'spellchecker language';
 
     protected $tags = [];
@@ -348,6 +350,7 @@ class OpenShort extends Component implements QuestionCms
         $this->obj = CmsFactory::create($this);
         $this->initializePropertyBag($activeTest);
         $this->allowWsc = Auth::user()->schoolLocation->allow_wsc;
+        $this->wscLanguages = WscLanguage::casesWithDescription();
     }
 
     private function initialize($activeTest)
