@@ -2,11 +2,13 @@
 
 namespace tcCore\Http\Livewire\Preview;
 
+use Illuminate\Support\Facades\Blade;
 use Livewire\Component;
 use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithNotepad;
 use tcCore\Http\Traits\WithPreviewAttachments;
 use tcCore\Http\Traits\WithPreviewGroups;
+use tcCore\View\Components\CompletionQuestionConvertedHtml;
 
 class CompletionQuestion extends Component
 {
@@ -26,21 +28,7 @@ class CompletionQuestion extends Component
 
     private function completionHelper($question)
     {
-        $question->getQuestionHtml();
-
-        $question_text = $question->converted_question_html;
-
-        $searchPattern = "/\[([0-9]+)\]/i";
-        $replacementFunction = function ($matches) use ($question) {
-            $tag_id = $matches[1] - 1; // the completion_question_answers list is 1 based but the inputs need to be 0 based
-            $answer = '';
-            $rsSpan = '';
-            $events = sprintf('@blur="$refs.%s.scrollLeft = 0" @input="$event.target.setAttribute(\'title\', $event.target.value); $el.style.width = getInputWidth($el)"', 'comp_answer_' . $tag_id);
-            $context = 'teacher-preview';
-            return view('livewire.teacher.co-learning-completion-question-html', compact('tag_id', 'question', 'answer', 'events', 'rsSpan', 'context'));
-        };
-
-        return preg_replace_callback($searchPattern, $replacementFunction, $question_text);
+        return Blade::renderComponent(new CompletionQuestionConvertedHtml($question, $context='teacher-preview'));
     }
 
     private function multiHelper($question)

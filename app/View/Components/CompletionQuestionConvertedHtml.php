@@ -9,24 +9,19 @@ use tcCore\CompletionQuestion;
 class CompletionQuestionConvertedHtml extends Component
 {
 
-    public CompletionQuestion $question;
-    public ?Collection $answers;
-    public string $context;
-
     /**
      * Create a new component instance.
      *
      * @return void
      */
-    public function __construct(CompletionQuestion $question, string $context = 'student', ?Collection $answers = null)
-    {
-        $this->question = $question;
-        $this->answers = $answers;
-        $this->context = $context;
-    }
+    public function __construct(
+        public CompletionQuestion $question,
+        public string $context = 'student',
+        public ?Collection $answers = null
+    ){}
 
     /**
-     * Get the view / contents that represent the component.
+     * Get modfied string for completion question.
      *
      * @return string
      */
@@ -46,8 +41,8 @@ class CompletionQuestionConvertedHtml extends Component
     {
         return match ($this->context) {
             'assessment' => $this->transformTextGapsForAssessment(),
-            'preview' => $this->transformTextGapsForPreview(),
-            default => $this->transformTextGapsForStudent(),
+            'teacher-preview' => $this->transformTextGapsForPreview(),
+            default => $this->transformTextGapsForAssessment(),
         };
     }
 
@@ -71,6 +66,24 @@ class CompletionQuestionConvertedHtml extends Component
                         </span>',
                 'answer_' . $tag_id,
             );
+        };
+    }
+
+    /**
+     * Transform question text gaps for teacher preview
+     * 
+     * @return \Closure
+     */
+    public function transformTextGapsForPreview()
+    {
+        return function ($matches) {
+            $tag_id = $matches[1] - 1;      // the completion_question_answers list is 1 based but the inputs need to be 0 based
+            $answer = '';
+            $rsSpan = '';
+            $events = sprintf('@blur="$refs.%s.scrollLeft = 0" @input="$event.target.setAttribute(\'title\', $event.target.value); $el.style.width = getInputWidth($el)"', 'comp_answer_' . $tag_id);
+            $context = 'teacher-preview';
+            $question = $this->question;
+            return view('components.completion-question-converted-html', compact('tag_id', 'answer', 'events', 'rsSpan', 'context', 'question'));
         };
     }
 }
