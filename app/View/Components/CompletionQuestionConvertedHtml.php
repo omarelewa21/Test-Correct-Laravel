@@ -2,6 +2,7 @@
 
 namespace tcCore\View\Components;
 
+use Illuminate\Support\Collection;
 use Illuminate\View\Component;
 use tcCore\CompletionQuestion;
 
@@ -9,27 +10,55 @@ class CompletionQuestionConvertedHtml extends Component
 {
 
     public CompletionQuestion $question;
+    public ?Collection $answers;
+    public string $context;
 
     /**
      * Create a new component instance.
      *
      * @return void
      */
-    public function __construct(CompletionQuestion $question, string $context)
+    public function __construct(CompletionQuestion $question, string $context = 'student', ?Collection $answers = null)
     {
         $this->question = $question;
+        $this->answers = $answers;
+        $this->context = $context;
     }
 
     /**
      * Get the view / contents that represent the component.
      *
-     * @return \Illuminate\Contracts\View\View|\Closure|string
+     * @return string
      */
     public function render()
     {
         $question_text = $this->question->converted_question_html;
         $searchPattern = "/\[([0-9]+)\]/i";
-        $replacementFunction = function ($matches) {
+        return preg_replace_callback($searchPattern, $this->transformTextGapsBasedOnContext(), $question_text);
+    }
+
+    /**
+     * Transform question text gaps based on the context
+     * 
+     * @return \Closure
+     */
+    public function transformTextGapsBasedOnContext()
+    {
+        return match ($this->context) {
+            'assessment' => $this->transformTextGapsForAssessment(),
+            'preview' => $this->transformTextGapsForPreview(),
+            default => $this->transformTextGapsForStudent(),
+        };
+    }
+
+    /**
+     * Transform question text gaps for assessment
+     * 
+     * @return \Closure
+     */
+    public function transformTextGapsForAssessment()
+    {
+        return function ($matches) {
             $tag_id = $matches[1];
             return sprintf(
                 '<span class="inline-flex max-w-full">
@@ -43,8 +72,5 @@ class CompletionQuestionConvertedHtml extends Component
                 'answer_' . $tag_id,
             );
         };
-
-        return preg_replace_callback($searchPattern, $replacementFunction, $question_text);
-        return view('components.completion-question-converted-html');
     }
 }
