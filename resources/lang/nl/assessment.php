@@ -40,4 +40,7 @@ return [
     'Inline feedback wijzigen'                     => 'Inline feedback wijzigen',
     'Inline feedback verwijderen'                  => 'Inline feedback verwijderen',
     'show_student_tooltip_text'                    => 'Zet dit aan om voor alle antwoorden standaard de student naam te tonen.',
+    'Er zitten geen open vragen in deze toets.'    => 'Er zitten geen open vragen in deze toets.',
+    'Inline feedback schrijven in antwoord'        => 'Inline feedback schrijven in antwoord',
+    'Inline feedback bekijken'                     => 'Inline feedback bekijken',
 ];

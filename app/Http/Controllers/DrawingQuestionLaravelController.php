@@ -27,6 +27,10 @@ class DrawingQuestionLaravelController extends Controller
 
     public function showAnswerModel(DrawingQuestion $question)
     {
+        if (!$question->canAnswerModelBeSeen(auth()->user())) {
+            abort(404);
+        }
+
         $svgHelper = new SvgHelper($question->uuid);
 
         $file = Storage::disk(SvgHelper::DISK)->path(sprintf('%s/correction_model.png', $question->uuid));

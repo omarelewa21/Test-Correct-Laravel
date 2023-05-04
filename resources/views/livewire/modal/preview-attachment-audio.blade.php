@@ -10,7 +10,7 @@
         <div class="w-3/4">
             <div class="mt-4" wire:ignore>
                 <audio id="player"
-                       src="{{ route('teacher.preview.question-attachment-show', ['attachment' => $this->attachment->uuid, 'question' => $this->questionUuid]) }}"
+                       src="{{ $this->source }}"
                        x-ref="player"
                 ></audio>
             </div>

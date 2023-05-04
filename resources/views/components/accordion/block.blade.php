@@ -40,7 +40,7 @@
                     </div>
                     <div class="inline ml-auto">
                         <span x-bind:class="{'rotate-svg-90': expanded}"
-                              x-bind:title="expanded ? $el.dataset.transExpand : $el.dataset.transCollapse"
+                              x-bind:title="expanded ? $el.dataset.transCollapse : $el.dataset.transExpand"
                               @class([
                                 'flex items-center justify-center rounded-full min-w-[40px] w-10 h-10 transition',
                                 'group-hover:bg-primary/5' => !$disabled

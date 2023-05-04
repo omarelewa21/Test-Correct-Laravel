@@ -2,12 +2,23 @@
 
 namespace tcCore\View\Components\Answer\Student;
 
+use tcCore\Answer;
+use tcCore\Question;
+
 class MultipleChoiceQuestion extends QuestionComponent
 {
     public mixed $answerStruct;
     public array $arqStructure = [];
     public bool $allOrNothingToggleActive = false;
     public bool $trueFalseToggleActive = false;
+
+    public function __construct(
+        public Question $question,
+        public Answer   $answer,
+        public bool     $disabledToggle = false,
+    ) {
+        parent::__construct($question, $answer);
+    }
 
     protected function setAnswerStruct($question, $answer): void
     {

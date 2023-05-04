@@ -12,7 +12,7 @@
                     <x-button.true-false-toggle :wireKey="'toggle-'.$answer->uuid"
                                                 :initialStatus="$trueFalseToggleActive"
                                                 :toggleValue="$question->score"
-                                                :disabled="$answerStruct->where('active', true)->isEmpty()"
+                                                :disabled="$disabledToggle || $answerStruct->where('active', true)->isEmpty()"
                                                 :identifier="$question->id"
                     />
                 </div>
@@ -76,6 +76,7 @@
                                                         :initialStatus="$answerLink->toggleStatus"
                                                         :toggleValue="$answerLink->score"
                                                         :identifier="$answerLink->order"
+                                                        :disabled="$disabledToggle"
                             />
                         @endif
                     </div>
@@ -88,6 +89,7 @@
                                             :initialStatus="$allOrNothingToggleActive"
                                             :toggleValue="$question->score"
                                             :identifier="$question->id"
+                                            :disabled="$disabledToggle"
                 />
             </div>
         @endif
