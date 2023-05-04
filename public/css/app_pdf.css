@@ -7051,6 +7051,10 @@ video {
   --tw-border-opacity: 1;
   border-color: rgb(255 255 255 / var(--tw-border-opacity));
 }
+.border-student{
+  --tw-border-opacity: 1;
+  border-color: rgb(236 219 0 / var(--tw-border-opacity));
+}
 .border-b-white\/25{
   border-bottom-color: rgb(255 255 255 / 0.25);
 }
@@ -8508,6 +8512,11 @@ h2.student-testtake-answers-separator span {
 
 .hover\:bg-white\/20:hover{
   background-color: rgb(255 255 255 / 0.2);
+}
+
+.hover\:bg-\[\#F2F6FF\]:hover{
+  --tw-bg-opacity: 1;
+  background-color: rgb(242 246 255 / var(--tw-bg-opacity));
 }
 
 .hover\:font-bold:hover{
