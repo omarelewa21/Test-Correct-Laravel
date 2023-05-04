@@ -2,8 +2,6 @@
 
 namespace tcCore\Lib\Models;
 
-use Carbon\Carbon;
-use Enum;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Session;
 use tcCore\Http\Enums\FeatureSettingKey;
@@ -75,10 +73,15 @@ abstract class UserSettingModel extends Model
         return !is_null(static::retrieveSettingFromDatabase($user, $title));
     }
 
-    public static function setSetting(User $user, string|FeatureSettingKey $title, mixed $value)
+    public static function setSetting(User $user, string|FeatureSettingKey $title, mixed $value): void
     {
         static::writeSettingToDatabase($user, $title, $value);
         static::writeSettingToSession($user, $title, $value);
+    }
+
+    public static function clearSession(User $user): void
+    {
+        Session::forget(static::sessionKey($user),);
     }
 
     private static function writeSettingToSession(User $user, string|FeatureSettingKey $title, mixed $value): void

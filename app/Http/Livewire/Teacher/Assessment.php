@@ -9,25 +9,27 @@ use Livewire\Component;
 use tcCore\Answer;
 use tcCore\AnswerRating;
 use tcCore\Exceptions\AssessmentException;
+use tcCore\Http\Enums\UserFeatureSetting as UserFeatureSettingEnum;
 use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Http\Interfaces\CollapsableHeader;
 use tcCore\Question;
 use tcCore\TestTake;
 use tcCore\TestTakeStatus;
 use tcCore\User;
+use tcCore\UserFeatureSetting;
 
 class Assessment extends Component implements CollapsableHeader
 {
     /*Template properties*/
     public bool $headerCollapsed = false;
     public array $assessmentContext = [
-        'skipCoLearningNoDiscrepancies' => false,
-        'skippedCoLearning'             => false,
-        'assessedAt'                    => null,
-        'assessmentType'                => null,
-        'assessIndex'                   => null,
-        'totalToAssess'                 => 0,
-        'showStudentNames'              => false,
+        'assessment_skip_no_discrepancy_answer' => false,
+        'skippedCoLearning'                     => false,
+        'assessedAt'                            => null,
+        'assessmentType'                        => null,
+        'assessIndex'                           => null,
+        'totalToAssess'                         => 0,
+        'assessment_show_student_names'         => false,
     ];
     public bool $questionPanel = true;
     public bool $answerPanel = true;
@@ -83,7 +85,7 @@ class Assessment extends Component implements CollapsableHeader
     protected function getListeners()
     {
         return [
-            'accordion-update' => 'handlePanelActivity',
+            'accordion-update'      => 'handlePanelActivity',
             'inline-feedback-saved' => 'handleFeedbackChange'
         ];
     }
@@ -484,15 +486,13 @@ class Assessment extends Component implements CollapsableHeader
         $this->openOnly = $testTake->assessment_type === 'OPEN_ONLY';
 
         $this->assessmentContext = [
-            'skipCoLearningNoDiscrepancies' => (bool)($this->sessionSettings(
-            )?->skipCoLearningNoDiscrepancies ?? $this->assessmentContext['skipCoLearningNoDiscrepancies']),
-            'skippedCoLearning'             => $testTake->skipped_discussion,
-            'assessedAt'                    => $this->getFormattedAssessedAtDate($testTake),
-            'assessmentType'                => $testTake->assessment_type,
-            'assessIndex'                   => $this->getAssessedQuestionsCount(),
-            'totalToAssess'                 => $this->questions->discussionTypeFiltered($this->openOnly)->count(),
-            'showStudentNames'              => $this->sessionSettings(
-                )?->showStudentNames ?? $this->assessmentContext['showStudentNames'],
+            'assessment_skip_no_discrepancy_answer' => $this->getSessionSettingValue('assessment_skip_no_discrepancy_answer'),
+            'skippedCoLearning'                     => $testTake->skipped_discussion,
+            'assessedAt'                            => $this->getFormattedAssessedAtDate($testTake),
+            'assessmentType'                        => $testTake->assessment_type,
+            'assessIndex'                           => $this->getAssessedQuestionsCount(),
+            'totalToAssess'                         => $this->questions->discussionTypeFiltered($this->openOnly)->count(),
+            'assessment_show_student_names'         => $this->getSessionSettingValue('assessment_show_student_names'),
         ];
 
         $this->questionCount = $this->questions->count();
@@ -600,7 +600,7 @@ class Assessment extends Component implements CollapsableHeader
     {
         $question ??= $this->currentQuestion;
         return $this->answers->where('question_id', $question->getKey())
-            ->discrepancyFiltered((bool)$this->assessmentContext['skipCoLearningNoDiscrepancies'])
+            ->discrepancyFiltered((bool)$this->assessmentContext['assessment_skip_no_discrepancy_answer'])
             ->values();
     }
 
@@ -734,7 +734,7 @@ class Assessment extends Component implements CollapsableHeader
     private function getClosestAvailableAnswer(string $action, Collection $answers, int $currentIndex): ?Answer
     {
         $answers = $answers->whereIn('question_id', $this->getQuestionIdsForCurrentAssessmentType())
-            ->discrepancyFiltered((bool)$this->assessmentContext['skipCoLearningNoDiscrepancies']);
+            ->discrepancyFiltered((bool)$this->assessmentContext['assessment_skip_no_discrepancy_answer']);
         if ($action === 'last') {
             return $answers->last();
         }
@@ -1025,7 +1025,7 @@ class Assessment extends Component implements CollapsableHeader
     private function getProgressPropertiesForCalculation(): array
     {
         $filteredAnswers = $this->answers
-            ->discrepancyFiltered((bool)$this->assessmentContext['skipCoLearningNoDiscrepancies'])
+            ->discrepancyFiltered((bool)$this->assessmentContext['assessment_skip_no_discrepancy_answer'])
             ->whereIn('question_id', $this->getQuestionIdsForCurrentAssessmentType());
 
         $percentagePerAnswer = 1 / $filteredAnswers->count() * 100;
@@ -1102,8 +1102,8 @@ class Assessment extends Component implements CollapsableHeader
     private function storeAssessmentSessionContext($args): void
     {
         $contextData = [
-            'skipCoLearningNoDiscrepancies' => (bool)$this->assessmentContext['skipCoLearningNoDiscrepancies'],
-            'showStudentNames'              => (bool)$this->assessmentContext['showStudentNames'],
+            'assessment_skip_no_discrepancy_answer' => (bool)$this->assessmentContext['assessment_skip_no_discrepancy_answer'],
+            'assessment_show_student_names'         => (bool)$this->assessmentContext['assessment_show_student_names'],
         ];
 
         Session::put(
@@ -1128,7 +1128,7 @@ class Assessment extends Component implements CollapsableHeader
     private function setUserOnAnswer(Answer $answer): void
     {
         $answer->user = $this->testTakeData->testParticipants->find($answer->test_participant_id)?->user;
-        if(!$answer->user){
+        if (!$answer->user) {
             $answer->user = User::getDeletedNewUser();
         }
         $answer->user->shortLastname = str(
@@ -1141,5 +1141,18 @@ class Assessment extends Component implements CollapsableHeader
             ->squish()
             ->append('.')
             ->value();
+    }
+
+    private function getSessionSettingValue($setting): bool
+    {
+        if (property_exists($this->sessionSettings(), $setting)) {
+            return $this->sessionSettings()?->$setting;
+        }
+
+        return UserFeatureSetting::getSetting(
+            user   : auth()->user(),
+            title  : UserFeatureSettingEnum::tryFrom($setting),
+            default: $this->assessmentContext[$setting]
+        );
     }
 }

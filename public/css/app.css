@@ -4914,6 +4914,7 @@ input.datepicker {
     z-index: 10;
     top: 0;
     margin-bottom: var(--nav-bar-height);
+    font-weight: 600;
 }
 
 .navigation-bar .logo svg {
@@ -5095,14 +5096,13 @@ input.datepicker {
     }
 }
 
-
 .navigation-bar .menu-bottom .menu-item {
     color: white;
     padding: 13px 12px;
     cursor: pointer;
 }
 
-.navigation-bar .menu-bottom .menu-item:first-child {
+.navigation-bar .menu-bottom .menu-item:nth-of-type(1n) {
     margin-left: 13px;
 }
 

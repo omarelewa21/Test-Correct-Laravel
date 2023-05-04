@@ -311,7 +311,7 @@
                         <x-input.toggle wire:model="featureSettings.assessment_skip_no_discrepancy_answer"
                                         class="mr-2" />
                         <x-icon.co-learning />
-                        <span class="bold">@lang('Kaas')</span>
+                        <span class="bold">@lang('account.Sla antwoorden over die met CO-Learning zijn beoordeeld')</span>
                     </div>
                     <div class="border-b lg:border-t border-bluegrey flex w-full items-center h-[50px] gap-2.5">
                         <x-input.toggle wire:model="featureSettings.assessment_show_student_names" class="mr-2" />

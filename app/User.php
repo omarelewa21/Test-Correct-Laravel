@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use tcCore\Http\Enums\SystemLanguage;
 use tcCore\Http\Enums\UserFeatureSetting as UserFeatureSettingEnum;
 use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\Http\Helpers\BaseHelper;
@@ -2607,15 +2608,15 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function getActiveLanguage($sessionOverride = false): string
     {
-        if (!$sessionOverride && session()->has('locale')) {
-            return session()->get('locale');
+        if (!$sessionOverride && $language = session()->get('locale')) {
+            return $language instanceof SystemLanguage ? $language->value : $language;
         }
 
-        if ($language = UserFeatureSetting::getSetting($this, UserFeatureSettingEnum::SYSTEM_LANGUAGE) ) {
-            return $language;
+        if ($language = UserFeatureSetting::getSetting($this, UserFeatureSettingEnum::SYSTEM_LANGUAGE)) {
+            return $language->value;
         }
 
-        return $this->schoolLocation?->school_language ?? BaseHelper::browserLanguage();
+        return $this->schoolLocation?->school_language?->value ?? BaseHelper::browserLanguage();
     }
 
     public function hasSingleSchoolLocation()

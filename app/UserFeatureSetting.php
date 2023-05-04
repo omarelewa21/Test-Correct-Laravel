@@ -8,6 +8,6 @@ class UserFeatureSetting extends UserSettingModel
 {
     protected static function sessionKey(User $user): string
     {
-        return sprintf('.user-%s-feature-settings', $user->uuid);
+        return sprintf('_user-%s-feature-settings', $user->uuid);
     }
 }

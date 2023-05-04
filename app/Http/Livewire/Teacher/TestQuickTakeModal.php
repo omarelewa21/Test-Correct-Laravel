@@ -6,12 +6,14 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use LivewireUI\Modal\ModalComponent;
 use Ramsey\Uuid\Uuid;
+use tcCore\Http\Enums\UserFeatureSetting as UserFeatureSettingEnum;
 use tcCore\Http\Traits\Modal\WithPlanningFeatures;
 use tcCore\Lib\Repositories\PeriodRepository;
 use tcCore\TemporaryLogin;
 use tcCore\Test;
 use tcCore\TestTake;
 use tcCore\TestTakeStatus;
+use tcCore\UserFeatureSetting;
 
 class TestQuickTakeModal extends ModalComponent
 {
@@ -72,12 +74,7 @@ class TestQuickTakeModal extends ModalComponent
         $this->testName = $this->test->name;
 
         $this->testTake = new TestTake();
-        /* The only editable settings */
-        $this->testTake->weight = 5;
-        $this->testTake->allow_inbrowser_testing = $this->isAssignmentType();
-        $this->testTake->guest_accounts = false;
-        $this->testTake->notify_students = false;
-        $this->rttiExportAllowed = $this->isRttiExportAllowed();
+        $this->setFeatureSettingDefaults($this->testTake);
         $this->testTake->is_rtti_test_take = false;
     }
 

@@ -17,10 +17,13 @@ enum UserFeatureSetting: string implements FeatureSettingKey
     use WithCasting;
 
     #[Initial(false)]
+    #[Type('bool')]
     case HAS_PUBLISHED_TEST = 'has_published_test';
     #[Initial(true)]
+    #[Type('bool')]
     case ENABLE_AUTO_LOGOUT = 'enable_auto_logout';
     #[Initial(15)]
+    #[Type('int')]
     case AUTO_LOGOUT_MINUTES = 'auto_logout_minutes';
     #[Initial('nl')]
     case SYSTEM_LANGUAGE = 'system_language';
@@ -30,34 +33,48 @@ enum UserFeatureSetting: string implements FeatureSettingKey
     #[Type('bool')]
     case WSC_COPY_SUBJECT_LANGUAGE = 'wsc_copy_subject_language';
     #[Initial(true)]
+    #[Type('bool')]
     case QUESTION_PUBLICLY_AVAILABLE = 'question_publicly_available';
     #[Initial(1)]
+    #[Type('int')]
     case QUESTION_DEFAULT_POINTS = 'question_default_points';
     #[Initial(true)]
+    #[Type('bool')]
     case QUESTION_HALF_POINTS_POSSIBLE = 'question_half_points_possible';
     #[Initial(true)]
+    #[Type('bool')]
     case QUESTION_AUTO_SCORE_COMPLETION = 'question_auto_score_completion';
     #[Initial(1)]
+    #[Type('int')]
     case TEST_TAKE_DEFAULT_WEIGHT = 'test_take_default_weight';
     #[Initial(true)]
+    #[Type('bool')]
     case TEST_TAKE_BROWSER_TESTING = 'test_take_browser_testing';
     #[Initial(false)]
+    #[Type('bool')]
     case TEST_TAKE_TEST_DIRECT = 'test_take_test_direct';
     #[Initial(false)]
+    #[Type('bool')]
     case TEST_TAKE_NOTIFY_STUDENTS = 'test_take_notify_students';
     #[Initial(false)]
+    #[Type('bool')]
     case ASSESSMENT_SKIP_NO_DISCREPANCY_ANSWER = 'assessment_skip_no_discrepancy_answer';
     #[Initial(false)]
+    #[Type('bool')]
     case ASSESSMENT_SHOW_STUDENT_NAMES = 'assessment_show_student_names';
     #[Initial(true)]
+    #[Type('bool')]
     case REVIEW_SHOW_GRADES = 'review_show_grades';
     #[Initial(true)]
+    #[Type('bool')]
     case REVIEW_SHOW_CORRECTION_MODEL = 'review_show_correction_model';
     #[Initial('n_term')]
     case GRADE_DEFAULT_STANDARD = 'grade_default_standard';
     #[Initial(1)]
+    #[Type('int')]
     case GRADE_STANDARD_VALUE = 'grade_standard_value';
     #[Initial(50)]
+    #[Type('int')]
     case GRADE_CESUUR_PERCENTAGE = 'grade_cesuur_percentage';
 
     public static function initialValues(): Collection
@@ -111,7 +128,6 @@ enum UserFeatureSetting: string implements FeatureSettingKey
     private function castWscLanguage($value): WscLanguage
     {
         return WscLanguage::tryFrom($value) ?? WscLanguage::DUTCH;
-
     }
 
     private function castGradeDefaultStandard($value): GradingStandard
