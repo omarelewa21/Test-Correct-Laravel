@@ -42,6 +42,7 @@ class CompletionQuestionConvertedHtml extends Component
         return match ($this->context) {
             'assessment' => $this->transformTextGapsForAssessment(),
             'teacher-preview' => $this->transformTextGapsForPreview(),
+            'student' => $this->transformTextGapsForStudent(), 
             default => $this->transformTextGapsForAssessment(),
         };
     }
@@ -83,6 +84,28 @@ class CompletionQuestionConvertedHtml extends Component
             $events = sprintf('@blur="$refs.%s.scrollLeft = 0" @input="$event.target.setAttribute(\'title\', $event.target.value); $el.style.width = getInputWidth($el)"', 'comp_answer_' . $tag_id);
             $context = 'teacher-preview';
             $question = $this->question;
+            return view('components.completion-question-converted-html', compact('tag_id', 'answer', 'events', 'rsSpan', 'context', 'question'));
+        };
+    }
+
+    /**
+     * Transform question text gaps for student
+     * 
+     * @return \Closure
+     */
+    public function transformTextGapsForStudent()
+    {
+        return function ($matches) {
+            $tag_id = $matches[1] - 1; // the completion_question_answers list is 1 based but the inputs need to be 0 based
+            $events = '@blur="$el.scrollLeft = 0" @input="$event.target.setAttribute(\'title\', $event.target.value); $el.style.width = getInputWidth($el)"';
+            $rsSpan = '';
+            $answer = '';
+            $context = 'student';
+            $question = $this->question;
+            if (auth()->user()->text2speech) {
+                $events = sprintf('@focus="handleTextBoxFocusForReadspeaker(event,\'%s\')" @blur="$el.scrollLeft = 0;handleTextBoxBlurForReadspeaker(event,\'%s\')" @input="$event.target.setAttribute(\'title\', $event.target.value); $el.style.width = getInputWidth($el)"', $question->getKey(), $question->getKey());
+                $rsSpan = '<span wire:ignore class="rs_placeholder"></span>';
+            }
             return view('components.completion-question-converted-html', compact('tag_id', 'answer', 'events', 'rsSpan', 'context', 'question'));
         };
     }
