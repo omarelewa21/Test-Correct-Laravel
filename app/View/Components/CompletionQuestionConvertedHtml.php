@@ -8,16 +8,16 @@ use tcCore\CompletionQuestion;
 
 class CompletionQuestionConvertedHtml extends Component
 {
-
     /**
      * Create a new component instance.
      *
      * @return void
      */
     public function __construct(
-        public CompletionQuestion $question,
-        public string $context = 'student',
-        public ?Collection $answers = null
+        private CompletionQuestion $question,
+        private string $context = 'student',
+        private ?Collection $answers = null,
+        private ?int $completionQuestionTagCount = 0,        // User for teacher co-learning
     ){}
 
     /**
@@ -29,6 +29,7 @@ class CompletionQuestionConvertedHtml extends Component
     {
         $question_text = $this->question->converted_question_html;
         $searchPattern = "/\[([0-9]+)\]/i";
+
         return preg_replace_callback($searchPattern, $this->transformTextGapsBasedOnContext(), $question_text);
     }
 
@@ -42,8 +43,8 @@ class CompletionQuestionConvertedHtml extends Component
         return match ($this->context) {
             'assessment' => $this->transformTextGapsForAssessment(),
             'teacher-preview' => $this->transformTextGapsForPreview(),
-            'student' => $this->transformTextGapsForStudent(), 
-            default => $this->transformTextGapsForAssessment(),
+            'teacher-colearning' => $this->transformTextGapsForCoLearning(),
+            default => $this->transformTextGapsForStudent(),
         };
     }
 
@@ -82,7 +83,7 @@ class CompletionQuestionConvertedHtml extends Component
             $answer = '';
             $rsSpan = '';
             $events = sprintf('@blur="$refs.%s.scrollLeft = 0" @input="$event.target.setAttribute(\'title\', $event.target.value); $el.style.width = getInputWidth($el)"', 'comp_answer_' . $tag_id);
-            $context = 'teacher-preview';
+            $context = $this->context;
             $question = $this->question;
             return view('components.completion-question-converted-html', compact('tag_id', 'answer', 'events', 'rsSpan', 'context', 'question'));
         };
@@ -100,13 +101,33 @@ class CompletionQuestionConvertedHtml extends Component
             $events = '@blur="$el.scrollLeft = 0" @input="$event.target.setAttribute(\'title\', $event.target.value); $el.style.width = getInputWidth($el)"';
             $rsSpan = '';
             $answer = '';
-            $context = 'student';
+            $context = $this->context;
             $question = $this->question;
             if (auth()->user()->text2speech) {
                 $events = sprintf('@focus="handleTextBoxFocusForReadspeaker(event,\'%s\')" @blur="$el.scrollLeft = 0;handleTextBoxBlurForReadspeaker(event,\'%s\')" @input="$event.target.setAttribute(\'title\', $event.target.value); $el.style.width = getInputWidth($el)"', $question->getKey(), $question->getKey());
                 $rsSpan = '<span wire:ignore class="rs_placeholder"></span>';
             }
             return view('components.completion-question-converted-html', compact('tag_id', 'answer', 'events', 'rsSpan', 'context', 'question'));
+        };
+    }
+
+    /**
+     * Transform question text gaps for teacher colearning
+     * 
+     * @return \Closure
+     */
+    public function transformTextGapsForCoLearning()
+    {
+        return function ($matches) {
+            $this->completionQuestionTagCount++;
+            $tag_id = $matches[1];
+            $events = '@input="$el.style.width = getInputWidth($el)"';
+            $rsSpan = '';
+            $question = $this->question;
+            $answers = $this->answers;
+            $answer = $answers?->where('tag', $tag_id)?->first()?->answer ?? '';
+            $context = 'teacher-colearning';
+            return view('components.completion-question-converted-html', compact('tag_id', 'question', 'answer', 'events', 'rsSpan', 'context'));
         };
     }
 }

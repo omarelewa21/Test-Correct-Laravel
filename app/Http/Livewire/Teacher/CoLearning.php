@@ -4,6 +4,7 @@ namespace tcCore\Http\Livewire\Teacher;
 
 use Illuminate\Routing\Redirector;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Livewire\Component;
@@ -20,6 +21,7 @@ use tcCore\Http\Helpers\CoLearningHelper;
 use tcCore\Http\Interfaces\CollapsableHeader;
 use tcCore\TestTake;
 use tcCore\TestTakeStatus;
+use tcCore\View\Components\CompletionQuestionConvertedHtml;
 
 class CoLearning extends Component implements CollapsableHeader
 {
@@ -485,26 +487,17 @@ class CoLearning extends Component implements CollapsableHeader
 
     private function convertCompletionQuestionToHtml(?Collection $answers = null)
     {
-        $question = $this->testTake->discussingQuestion;
-
-        $question->getQuestionHtml();
-
-        $question_text = $question->converted_question_html;
-
         $this->completionQuestionTagCount = 0;
+        $completionQuestionTagCount = &$this->completionQuestionTagCount;
 
-        $searchPattern = "/\[([0-9]+)\]/i";
-        $replacementFunction = function ($matches) use ($question, $answers) {
-            $this->completionQuestionTagCount++;
-            $tag_id = $matches[1];
-            $events = '@input="$el.style.width = getInputWidth($el)"';
-            $rsSpan = '';
-            $answer = $answers?->where('tag', $tag_id)?->first()?->answer ?? '';
-            $context = 'teacher-colearning';
-            return view('livewire.teacher.co-learning-completion-question-html', compact('tag_id', 'question', 'answer', 'events', 'rsSpan', 'context'));
-        };
-
-        return preg_replace_callback($searchPattern, $replacementFunction, $question_text);
+        return Blade::renderComponent(
+            new CompletionQuestionConvertedHtml(
+                $this->testTake->discussingQuestion,
+                $context='teacher-colearning',
+                $answers,
+                $completionQuestionTagCount
+            )
+        );
     }
 
     protected function updateDiscussingQuestionIdOnTestTake(): bool
