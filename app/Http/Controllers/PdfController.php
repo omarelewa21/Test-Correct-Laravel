@@ -325,21 +325,29 @@ class PdfController extends Controller
         ];
 
         try {
-            $createPath = sprintf('http://127.0.0.1/%s/plugins/ckeditor_wiris/integration/createimage.php',$folder);
-            $path = sprintf('http://127.0.0.1/%s/plugins/ckeditor_wiris/integration/showimage.php',$folder);
-            if(stristr(config('app.base_url'),'correct.test')){
-                $createPath = sprintf('http://testwelcome.test-correct.test/%s/plugins/ckeditor_wiris/integration/createimage.php',$folder);
-                $path = sprintf('http://testwelcome.test-correct.test/%s/plugins/ckeditor_wiris/integration/showimage.php',$folder);
+            $host = 'http://127.0.0.1/';
+
+            if (stristr(config('app.base_url'), 'correct.test')) {
+                $host = 'http://testwelcome.test-correct.test/';
             }
+            $path = sprintf('%swiris/showimage', $host);
+            $createPath = sprintf('%swiris/createimage', $host);
+
+//            $createPath = sprintf('http://127.0.0.1/%s/plugins/ckeditor_wiris/integration/createimage.php',$folder);
+//            $path = sprintf('http://127.0.0.1/%s/plugins/ckeditor_wiris/integration/showimage.php',$folder);
+//            if(stristr(config('app.base_url'),'correct.test')){
+//                $createPath = sprintf('http://testwelcome.test-correct.test/%s/plugins/ckeditor_wiris/integration/createimage.php',$folder);
+//                $path = sprintf('http://testwelcome.test-correct.test/%s/plugins/ckeditor_wiris/integration/showimage.php',$folder);
+//            }
             $headers =  ['host' => trim(str_replace('https://','',str_replace('http://','',config('app.base_url'))),'/')];
 
             $client = new Client();
-            $res = $client->request('POST', $createPath, [
+            $res1 = $client->request('POST', $createPath, [
                 'form_params' => $data,
                 'verify' => false,
                 'headers' => $headers
             ]);
-            $formulaUrl = $res->getBody()->getContents();
+            $formulaUrl = $res1->getBody()->getContents();
             $components = parse_url($formulaUrl);
             parse_str($components['query'], $results);
             $formula = $results['formula'];
@@ -351,15 +359,16 @@ class PdfController extends Controller
                 'version' => '7.26.0.1439',
                 'dpi' => 120,
             ];
-            $res = $client->request('GET', $path, ['query' => $data1,'headers' => $headers]);
-            $res = $client->request('POST', $path, [
+            $res2 = $client->request('GET', $path, ['query' => $data1,'headers' => $headers]);
+            $res3 = $client->request('POST', $path, [
                 'form_params' => $data,'headers' => $headers]);
 
         } catch (\GuzzleHttp\Exception\RequestException $e) {
             if ($e->hasResponse()) {
                 Bugsnag::notifyException($e);
             }
+            throw $e;
         }
-        return json_decode($res->getBody()->getContents(), true);
+        return json_decode($res3->getBody()->getContents(), true);
     }
 }

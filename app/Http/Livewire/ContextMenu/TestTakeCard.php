@@ -115,7 +115,7 @@ class TestTakeCard extends ContextMenuComponent
             'copy-to-clipboard',
             [
                 'message'       => $testTake->directLink,
-                'notification'  => $testTake->isAssessmentType() ? __('teacher.assignment_clipboard_copied') : __('teacher.clipboard_copied')
+                'notification'  => $testTake->isAssignmentType() ? __('teacher.assignment_clipboard_copied') : __('teacher.clipboard_copied')
             ]
         );
     }
@@ -150,6 +150,9 @@ class TestTakeCard extends ContextMenuComponent
     public function openAssessInNormPage()
     {
         $testTake = TestTake::whereUuid($this->uuid)->with('test')->firstOrFail();
+        if (Auth::user()->schoolLocation->allow_new_assessment) {
+            return $this->redirectRoute('teacher.assessment',['testTake' => $testTake->uuid,'referrer' => 'teacher.test-takes']);
+        }
 
         if($testTake->test->getWritingAssignmentsCount() > 0){
             return CakeRedirectHelper::redirectToCake('taken.rate_participant', $this->uuid);

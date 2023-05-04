@@ -1,6 +1,7 @@
 <?php namespace tcCore;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -113,7 +114,7 @@ class Answer extends BaseModel
         $scores = [];
         // $this->unsetRelation('answerRatings');
         // $this->load('answerRatings');
- 
+
         foreach ($this->answerRatings as $answerRating) {
             if ($answerRating->getAttribute('rating') === null) {
                 continue;
@@ -217,17 +218,6 @@ class Answer extends BaseModel
         parent::fill($attributes);
     }
 
-//    public function getCloseableGroupAttribute()
-//    {
-//        return !!(optional(
-//            optional(
-//                optional(
-//                    $this->parentGroupQuestions
-//                )->first()
-//            )->groupQuestion
-//        )->closeable == 1);
-//    }
-
     public function getIsAnsweredAttribute()
     {
         return !!$this->done;
@@ -235,7 +225,7 @@ class Answer extends BaseModel
 
     public function getJsonAttribute($json)
     {
-        if( !is_null($json) && $this->question->isType('OpenQuestion') && $this->question->isSubType('short')){
+        if (!is_null($json) && $this->question->isType('OpenQuestion') && $this->question->isSubType('short')) {
             return strip_tags($json);
         }
         return $json;
@@ -256,12 +246,13 @@ class Answer extends BaseModel
         Answer::whereId($answerId)->update(['json' => $json, 'done' => 1]);
     }
 
-    public static function registerTime(int $answerId,  int $timeToRegister)
+    public static function registerTime(int $answerId, int $timeToRegister)
     {
         DB::table('answers')->whereId($answerId)->increment('time', $timeToRegister);
     }
 
-    public function feedback(){
+    public function feedback()
+    {
         return $this->hasMany(AnswerFeedback::class);
     }
 
@@ -281,5 +272,23 @@ class Answer extends BaseModel
         [$x, $y, $width, $height] = sscanf($viewBox, '%s %s %s %s');
 
         return ['x' => $x, 'y' => $y, 'width' => $width, 'height' => $height];
+    }
+
+    public function getAnsweredStatusAttribute(): string
+    {
+        if (!$this->isAnswered) {
+            return 'not-answered';
+        }
+
+        if($this->question->isFullyAnswered($this)) {
+            return 'answered';
+        }
+
+        return 'partly-answered';
+    }
+
+    public function teacherRatings(): Collection
+    {
+        return $this->answerRatings->where('type', AnswerRating::TYPE_TEACHER);
     }
 }

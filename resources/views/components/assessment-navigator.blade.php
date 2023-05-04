@@ -1,0 +1,61 @@
+@props([
+    'current',
+    'total',
+    'methodCall',
+    'iconName' => null,
+    'last' => $total,
+    'first' => 1,
+])
+
+<div {{ $attributes->class(['assessment-navigator | flex gap-4 items-center justify-center']) }}
+     x-data="assessmentNavigator(@js((int)$current),@js($total),@js($methodCall), @js($last), @js($first))"
+     x-cloak
+     x-on:update-navigator="updateProperties($event.detail)"
+     wire:ignore
+>
+    <div class="flex gap-2">
+        <button class="flex w-[22px] h-[22px] items-center justify-center rounded-full transition-colors"
+                x-on:click="first()"
+                x-bind:disabled="current === firstValue"
+                x-bind:class="current === firstValue ? 'text-white/20' : 'hover:bg-white/20' "
+
+        >
+            <x-icon.arrow-last class="inline-flex rotate-180 -top-px relative" />
+        </button>
+        <button class="flex w-[22px] h-[22px] items-center justify-center rounded-full transition-colors"
+                x-on:click="previous()"
+                x-bind:disabled="current === firstValue"
+                x-bind:class="current === firstValue ? 'text-white/20' : 'hover:bg-white/20' "
+        >
+            <x-icon.chevron class="inline-flex rotate-180 -top-px relative" />
+        </button>
+    </div>
+    <div class="flex gap-1 items-center">
+        <span class="inline-flex items-center justify-center gap-0.5 py-[3px] pr-2 min-w-[30px] bold rounded-full bg-white text-sysbase text-center"
+              x-bind:class="current >= 10 ? 'pl-2' : 'pl-2'"
+        >
+            @if($iconName)
+                <x-dynamic-component component="icon.{{ $iconName }}" />
+            @endif
+            <span class="inline-flex" x-text="current"></span>
+        </span>
+        <span class="inline-flex">/</span>
+        <span class="inline-flex" x-text="total"></span>
+    </div>
+    <div class="flex gap-2">
+        <button class="flex w-[22px] h-[22px] items-center justify-center rounded-full transition-colors"
+                x-on:click="next()"
+                x-bind:disabled="current === lastValue"
+                x-bind:class="current === lastValue ? 'text-white/20' : 'hover:bg-white/20' "
+        >
+            <x-icon.chevron class="inline-flex" />
+        </button>
+        <button class="flex w-[22px] h-[22px] items-center justify-center rounded-full transition-colors"
+                x-on:click="last()"
+                x-bind:disabled="current === lastValue"
+                x-bind:class="current === lastValue ? 'text-white/20' : 'hover:bg-white/20' "
+        >
+            <x-icon.arrow-last class="inline-flex" />
+        </button>
+    </div>
+</div>

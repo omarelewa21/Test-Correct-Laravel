@@ -30,6 +30,12 @@ class ChangeWiskundeQuestionToLongOpenQuestion extends Migration
      */
     public function up()
     {
+        if (!Schema::hasColumn('tags', 'uuid')) {
+            Schema::table('tags', function (Blueprint $table) {
+                $table->efficientUuid('uuid')->index()->unique()->nullable();
+            });
+        }
+
         $tag = $this->getTag();
         if($tag === null){
             $tag = \tcCore\Tag::create([

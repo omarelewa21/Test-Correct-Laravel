@@ -2,15 +2,16 @@
 
 namespace Tests\Unit;
 
-
-use Illuminate\Foundation\Testing\DatabaseTransactions;
+use tcCore\FactoryScenarios\FactoryScenarioSchoolSimple;
+use tcCore\FactoryScenarios\FactoryScenarioTestTakeRated;
 use tcCore\TestTake;
 use tcCore\User;
+use Tests\ScenarioLoader;
 use Tests\TestCase;
 
 class GradingDataTest extends TestCase
 {
-    use DatabaseTransactions;
+    protected $loadScenario = FactoryScenarioSchoolSimple::class;
 
     private User $teacher;
     private TestTake $testTake;
@@ -18,8 +19,8 @@ class GradingDataTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->teacher = User::whereUsername('sander.smits+TESTSANDERdocent1@test-correct.nl')->first();
-        $this->testTake = TestTake::whereUuid('b0333d3c-db00-419b-8d45-e9ca19d86798')->first();
+        $this->teacher = ScenarioLoader::get('teacher1');
+        $this->testTake = FactoryScenarioTestTakeRated::createTestTake($this->teacher);
     }
 
     /**
@@ -98,7 +99,7 @@ class GradingDataTest extends TestCase
     private function getTestTakeRequest($params = []): string
     {
         return self::authUserGetRequest(
-            sprintf('/api-c/test_take/%s', $this->testTake->uuid),
+            sprintf('test_take/%s', $this->testTake->uuid),
             $params,
             $this->teacher
         );
@@ -117,7 +118,7 @@ class GradingDataTest extends TestCase
         ];
 
         return self::authUserGetRequest(
-            '/api-c/test_question',
+            'test_question',
             $params,
             $this->teacher
         );
@@ -127,7 +128,7 @@ class GradingDataTest extends TestCase
     {
         $params['mode'] = 'all';
         return self::authUserGetRequest(
-            sprintf('/api-c/test_take/%s/test_participant', $this->testTake->uuid),
+            sprintf('test_take/%s/test_participant', $this->testTake->uuid),
             $params,
             $this->teacher
         );
@@ -136,7 +137,7 @@ class GradingDataTest extends TestCase
     private function getTestTakeForGradingRequest($params = []): string
     {
         return self::authUserGetRequest(
-            sprintf('/api-c/test_take/%s/grading', $this->testTake->uuid),
+            sprintf('test_take/%s/grading', $this->testTake->uuid),
             $params,
             $this->teacher
         );

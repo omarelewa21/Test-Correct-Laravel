@@ -14,6 +14,7 @@ use tcCore\Exceptions\QuestionException;
 use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Lib\Question\Factory;
 use tcCore\QtiModels\QtiAssessmentItem;
+use tcCore\Question;
 use tcCore\QuestionAttachment;
 use tcCore\Test;
 use tcCore\TestQuestion;
@@ -199,16 +200,8 @@ class QtiParser
 
             $totalData = array_merge($this->convertedAr,$questionData);
             $question->fill($totalData);
-            $questionInstance = $question->getQuestionInstance();
-            if ($questionInstance->getAttribute('subject_id') === null) {
-                $questionInstance->setAttribute('subject_id', $test->subject->getKey());
-            }
-            if ($questionInstance->getAttribute('education_level_id') === null) {
-                $questionInstance->setAttribute('education_level_id', $test->educationLevel->getKey());
-            }
-            if ($questionInstance->getAttribute('education_level_year') === null) {
-                $questionInstance->setAttribute('education_level_year', $test->getAttribute('education_level_year'));
-            }
+            Question::setAttributesFromParentModel($question, $test);
+
             if ($question->save()) {
                 $testQuestion->setAttribute('question_id', $question->getKey());
                 if ($testQuestion->save()) {

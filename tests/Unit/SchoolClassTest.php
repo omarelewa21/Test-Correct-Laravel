@@ -11,6 +11,7 @@ namespace Tests\Unit;
 use Illuminate\Support\Facades\DB;
 use tcCore\ArchivedModel;
 use tcCore\EckidUser;
+use tcCore\FactoryScenarios\FactoryScenarioSchoolSimple;
 use tcCore\Manager;
 use tcCore\Mentor;
 use tcCore\School;
@@ -25,7 +26,7 @@ use Tests\TestCase;
 
 class SchoolClassTest extends TestCase
 {
-    use \Illuminate\Foundation\Testing\DatabaseTransactions;
+    protected $loadScenario = FactoryScenarioSchoolSimple::class;
 
     /** @test */
     public function when_deleting_a_school_class_relations_should_also_be_deleted()

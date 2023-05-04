@@ -21,6 +21,7 @@ class RankingQuestion extends Component
     public $number;
     public $answers;
     public $answerStruct;
+    public $testTakeUuid;
     public $answerText = [];
 
     public function mount()

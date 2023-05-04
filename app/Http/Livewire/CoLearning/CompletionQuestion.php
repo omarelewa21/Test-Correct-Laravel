@@ -7,11 +7,11 @@ use Illuminate\Support\Str;
 use Livewire\Component;
 use tcCore\Answer;
 use tcCore\Http\Livewire\Student\CoLearning;
+use tcCore\Http\Traits\Questions\WithCompletionConversion;
 
 class CompletionQuestion extends CoLearningQuestion
 {
-    const SEARCH_PATTERN = "/\[([0-9]+)\]/i";
-
+    use WithCompletionConversion;
     const SESSION_KEY = 'co-learning-answer-options';
 
     public array $answerOptions;
@@ -113,60 +113,6 @@ class CompletionQuestion extends CoLearningQuestion
     private function writeAnswerOptionsToSession()
     {
         session([static::SESSION_KEY => $this->answerOptions]);
-    }
-
-    private function explodeQuestionTextPartialIntoWordsAndHtmlTags($partial): \Illuminate\Support\Collection
-    {
-        preg_match_all('/<[^>]++>|[^<>\s]++/', $partial, $stringPartialsArray);
-        return collect($stringPartialsArray)->flatten();
-    }
-
-    private function concatinateWirisMathTagsInQuestionPartialsArray(\Illuminate\Support\Collection &$stringPartialsArray): void
-    {
-        $stringPartialsArray->filter(function ($item) {
-            return (strpos($item, '<math') !== false || strpos($item, '</math') !== false);
-        })->mapWithKeys(function ($tag, $index) {
-            return [$index => ['tag' => $tag, 'index' => $index]];
-        })->chunk(2)
-            ->each(function ($item) use ($stringPartialsArray) {
-                $startIndex = $item->first()['index'];
-                $endIndex = $item->last()['index'];
-                $concatinatedMathTagString = '';
-                for ($i = $startIndex; $i <= $endIndex; $i++) {
-                    $concatinatedMathTagString .= $stringPartialsArray->pull($i);
-                }
-                $stringPartialsArray[$startIndex] = $concatinatedMathTagString;
-            });
-    }
-
-    private function addBreaksAndSpanTagsToQuestionPartials(\Illuminate\Support\Collection &$stringPartialsArray): void
-    {
-        $stringPartialsArray = $stringPartialsArray->map(function ($word) {
-            if (in_array($word, ['</p>', '</table>', '</ol>', '</ul>'])) {
-                return sprintf('%s<span class="co-learning-break"></span>', $word);
-            }
-            if (strpos($word, chr(60)) !== false) {
-                return $word;
-            }
-            if (in_array($word, ['.', ',', ':', ';', '?', '!'])) {
-                return sprintf('<span class="mr-1 -ml-1">%s</span>', $word);
-            }
-            return sprintf('<span class="mr-1">%s</span>', $word);
-        });
-    }
-
-    private function explodeAndModifyQuestionText($question_text): \Illuminate\Support\Collection
-    {
-        return collect(explode('(##)', preg_replace(self::SEARCH_PATTERN, '(##)', $question_text)))
-            ->map(function ($partial) {
-                $stringPartialsArray = $this->explodeQuestionTextPartialIntoWordsAndHtmlTags($partial);
-
-                $this->concatinateWirisMathTagsInQuestionPartialsArray($stringPartialsArray);
-
-                $this->addBreaksAndSpanTagsToQuestionPartials($stringPartialsArray);
-
-                return $stringPartialsArray;
-            });
     }
 
     /**

@@ -2,9 +2,16 @@
 
 namespace tcCore\FactoryScenarios;
 
+use Carbon\Carbon;
 use Illuminate\Support\Collection;
+use tcCore\Factories\FactoryBaseSubject;
+use tcCore\Factories\FactorySchool;
+use tcCore\Factories\FactorySchoolLocation;
+use tcCore\Factories\FactorySchoolYear;
+use tcCore\Factories\FactorySection;
 use tcCore\Factories\FactoryTest;
 use tcCore\School;
+use tcCore\User;
 
 abstract class FactoryScenarioSchool
 {
@@ -13,6 +20,7 @@ abstract class FactoryScenarioSchool
     public Collection $tests;
     protected Collection $teachers;
     protected Collection $students;
+
 
     public function __construct()
     {
@@ -84,5 +92,18 @@ abstract class FactoryScenarioSchool
         });
 
         return $this;
+    }
+
+    public function getData()
+    {
+        return [
+            'students'         => $this->getStudents(),
+            'student1'         => $this->students->first(),
+            'teachers'         => $this->getTeachers(),
+            'user'             => $this->teachers->first(),
+            'teacher1'         => $this->teachers->first(),
+            'school'           => $this->school,
+            'school_locations' => $this->school->schoolLocations,
+        ];
     }
 }

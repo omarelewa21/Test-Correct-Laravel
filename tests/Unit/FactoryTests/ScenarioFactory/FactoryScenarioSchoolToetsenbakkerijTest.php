@@ -5,10 +5,11 @@ namespace Tests\Unit\FactoryTests\ScenarioFactory;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use tcCore\FactoryScenarios\FactoryScenarioSchoolToetsenbakkerij;
 use tcCore\SchoolLocation;
+use Tests\TestCase;
 
-class FactoryScenarioSchoolToetsenbakkerijTest extends \Tests\TestCase
+class FactoryScenarioSchoolToetsenbakkerijTest extends TestCase
 {
-    use DatabaseTransactions;
+
 
     /** @test */
     public function can_create_toetsenbakker_school_with_factory()

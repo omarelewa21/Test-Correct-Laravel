@@ -31,8 +31,10 @@ class AddMinAttainmentYearToEducationLevelsTable extends Migration
             ['Mavo/Havo', 2],
         ])->each(function ($item) {
             $educationLevel = EducationLevel::firstWhere('name', $item[0]);
-            $educationLevel->min_attainment_year = $item[1];
-            $educationLevel->save();
+            if ($educationLevel) {
+                $educationLevel->min_attainment_year = $item[1];
+                $educationLevel->save();
+            }
         });
     }
 

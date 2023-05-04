@@ -90,6 +90,9 @@ class TestsOverview extends OverviewComponent
             case 'creathlon':
                 $datasource = $this->getCreathlonDatasource();
                 break;
+            case 'olympiade':
+                $datasource = $this->getOlympiadeDatasource();
+                break;
             case 'personal':
             default :
                 $datasource = $this->getPersonalDatasource();
@@ -157,6 +160,14 @@ class TestsOverview extends OverviewComponent
         );
     }
 
+    private function getOlympiadeDatasource()
+    {
+        return Test::olympiadeItemBankFiltered(
+            $this->getContentSourceFilters(),
+            $this->sorting
+        );
+    }
+
     protected function setFilters(array $filters = null): void
     {
         parent::setFilters($filters);
@@ -186,7 +197,7 @@ class TestsOverview extends OverviewComponent
             return BaseSubject::optionList();
         }
 
-        return BaseSubject::whereIn('id', Subject::filtered(['user_current' => Auth::id()], [])->pluck('base_subject_id'))
+        return BaseSubject::whereIn('id', Subject::filtered(['user_current' => Auth::id()], [])->select('base_subject_id'))
             ->optionList();
     }
 
@@ -304,7 +315,7 @@ class TestsOverview extends OverviewComponent
 
     protected function tabNeedsDefaultFilters($tab): bool
     {
-        return collect($this->schoolLocationInternalContentTabs)->contains($tab) && !Auth::user()->isValidExamCoordinator();
+        return collect($this->schoolLocationInternalContentTabs)->has($tab) && !Auth::user()->isValidExamCoordinator();
     }
 
     public function getMessageKey($resultsCount): string
@@ -329,13 +340,7 @@ class TestsOverview extends OverviewComponent
     public function toPlannedTest($takeUuid)
     {
         $testTake = TestTake::whereUuid($takeUuid)->first();
-        if ($testTake->isAssessmentType()) {
-            $url = sprintf("test_takes/assessment_open_teacher/%s", $takeUuid);
-        } else {
-            $url = sprintf("test_takes/view/%s", $takeUuid);
-        }
-        $options = TemporaryLogin::buildValidOptionObject('page', $url);
-        return auth()->user()->redirectToCakeWithTemporaryLogin($options);
+        return auth()->user()->redirectToCakeWithTemporaryLogin($testTake->getPlannedTestOptions());
     }
 
     private function getContentSourceFilters(): array

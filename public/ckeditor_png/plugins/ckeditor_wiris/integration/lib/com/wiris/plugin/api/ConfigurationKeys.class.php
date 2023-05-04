@@ -57,7 +57,7 @@ class com_wiris_plugin_api_ConfigurationKeys {
 	static $SERVICES_PARAMETERS_LIST = "mml,lang,service,latex,mode,ignoreStyles";
 	static function computeInverse($dict) {
 		$keys = $dict->keys();
-		$outDict = new Hash();
+		$outDict = new WirisHash();
 		while($keys->hasNext()) {
 			$key = $keys->next();
 			$outDict->set($dict->get($key), $key);
@@ -68,7 +68,7 @@ class com_wiris_plugin_api_ConfigurationKeys {
 	function __toString() { return 'com.wiris.plugin.api.ConfigurationKeys'; }
 }
 {
-	com_wiris_plugin_api_ConfigurationKeys::$imageConfigProperties = new Hash();
+	com_wiris_plugin_api_ConfigurationKeys::$imageConfigProperties = new WirisHash();
 	com_wiris_plugin_api_ConfigurationKeys::$imageConfigProperties->set("backgroundColor", "wirisimagebackgroundcolor");
 	com_wiris_plugin_api_ConfigurationKeys::$imageConfigProperties->set("transparency", "wiristransparency");
 	com_wiris_plugin_api_ConfigurationKeys::$imageConfigProperties->set("fontSize", "wirisimagefontsize");

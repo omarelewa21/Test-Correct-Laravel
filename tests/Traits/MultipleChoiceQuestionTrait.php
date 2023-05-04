@@ -9,17 +9,19 @@
 namespace Tests\Traits;
 
 use Ramsey\Uuid\Uuid;
+use tcCore\User;
 
 
 trait MultipleChoiceQuestionTrait
 {
     
-    private function createMultipleChoiceQuestion($attributes){
+    private function createMultipleChoiceQuestion($attributes, $user=null){
+        if ($user == null) {
+            $user = User::where('username', 'd1@test-correct.nl')->first();
+        }
         $response = $this->post(
             'api-c/test_question',
-            static::getTeacherOneAuthRequestData(
-                $attributes
-            )
+            static::getUserAuthRequestData($user, $attributes)
         );
         $response->assertStatus(200);
         $testQuestionId = $response->decodeResponseJson()['id'];
@@ -27,13 +29,15 @@ trait MultipleChoiceQuestionTrait
         return $testQuestionId;
     }
 
-    private function createMultipleChoiceQuestionInGroup($attributes,$groupQuestionUuid){
+    private function createMultipleChoiceQuestionInGroup($attributes,$groupQuestionUuid, $user=null){
+        if ($user == null) {
+            $user = User::where('username', 'd1@test-correct.nl')->first();
+        }
+
         $url = 'api-c/group_question_question/'.$groupQuestionUuid;
         $response = $this->post(
             $url,
-            static::getTeacherOneAuthRequestData(
-                $attributes
-            )
+            static::getUserAuthRequestData($user, $attributes)
         );
         $response->assertStatus(200);
         $testQuestionId = $response->decodeResponseJson()['id'];

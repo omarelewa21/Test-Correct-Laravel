@@ -28,13 +28,13 @@ class php_Lib {
 		return fpassthru(fopen($file, "r"));
 	}
 	static function toPhpArray($a) {
-		return $a->»a;
+		return $a->ï¿½a;
 	}
 	static function toHaxeArray($a) {
 		return new _hx_array($a);
 	}
 	static function hashOfAssociativeArray($arr) {
-		$h = new Hash();
+		$h = new WirisHash();
 		$h->h = $arr;
 		return $h;
 	}

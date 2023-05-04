@@ -2,13 +2,15 @@
 
 namespace tcCore\Http\Traits\Modal;
 
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use tcCore\EducationLevel;
 use tcCore\Period;
 use tcCore\Subject;
 use tcCore\Test;
 use tcCore\TestKind;
+use Illuminate\Support\Str;
 
 trait TestActions
 {
@@ -100,11 +102,29 @@ trait TestActions
 
     private function getNameRulesDependingOnAction()
     {
-        $rules = 'required|min:3|unique:tests,name,NULL,NULL,deleted_at,NULL';
-        if (isset($this->testUuid)) {
-            $rules = 'required|min:3|unique:tests,name,'. Test::whereUuid($this->testUuid)->value('id') .',id,author_id,' . Auth::id() . ',deleted_at,NULL,is_system_test,0';
-        }
-
-        return $rules;
+        return [
+            'required',
+            'min:3',
+            Rule::unique('tests', 'name')
+            ->where(fn (Builder $query) => 
+                $query->where(['is_system_test' => 0, 'deleted_at' => null])
+                // Subquery to allow tests with the same name if school location customer code is TBSC
+                ->whereExists(fn ($query) =>
+                    $query->select(DB::raw(1))
+                    ->from('users')
+                    ->whereColumn('users.id', 'tests.author_id')
+                    ->where(function ($query) {
+                        $schoolLocation = Auth()->user()->schoolLocation;
+                        if ($schoolLocation && Str::upper($schoolLocation->customer_code) === 'TBSC'){
+                            $query->where('users.school_location_id', '<>', $schoolLocation->id);
+                        }
+                    })
+                )
+            )
+            // When editing an existing test, ignore the current test ID for the uniqueness check
+            ->when(isset($this->testUuid), fn ($query) =>
+                $query->ignore(Test::whereUuid($this->testUuid)->value('id'))
+            )
+        ];
     }
 }

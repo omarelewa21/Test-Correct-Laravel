@@ -13,12 +13,11 @@ class FactoryScenarioTestBiologie extends FactoryScenarioTest
 {
     protected function createFactoryTest(): FactoryTest
     {
-        $biologieSubjectInSameSectionAsUser = FactorySubject::getFirstSubjectForUser($this->user)
-            ->section
-            ->subjects()
-            ->where('name', 'LIKE', '%iologie%')
-            ->pluck('id')
-            ->first();
+        $biologieSubjectInSameSectionAsUser = FactorySubject::getSubjectsForUser($this->user)
+            ->where('name',  'Biologie')
+            ->first()
+            ->getKey();
+
         if(is_null($biologieSubjectInSameSectionAsUser)){
             //checking for Biologie in the same section, does not mean it is a valid subject for the user.
             throw new \Exception('No Biologie subject available for this user.');

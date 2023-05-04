@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use tcCore\Http\Enums\UserFeatureSetting as UserFeatureSettingEnum;
 use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Helpers\DemoHelper;
@@ -47,7 +48,7 @@ use tcCore\Lib\User\Factory;
 use tcCore\Lib\User\Roles;
 use Dyrynda\Database\Casts\EfficientUuid;
 use tcCore\Traits\ExamCoordinator;
-use tcCore\Traits\FeatureSettings;
+use tcCore\Traits\HasFeatureSettings;
 use tcCore\Traits\UuidTrait;
 use Facades\tcCore\Http\Controllers\PreviewLaravelController;
 
@@ -60,7 +61,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         CanResetPassword,
         ExamCoordinator,
         UuidTrait,
-        FeatureSettings;
+        HasFeatureSettings;
 
     const MIN_PASSWORD_LENGTH = 8;
 
@@ -89,6 +90,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     const STUDENT_IMPORT_PASSWORD_PATTERN = 'S%dTC#2014';
     const TEACHER_IMPORT_PASSWORD_PATTERN = 'T%dTC#2014';
     const USER_SETTINGS_SESSION_KEY = 'UserSettings';
+
+    const FEATURE_SETTING_ENUM = UserFeatureSettingEnum::class;
 
     /**
      * The attributes that are mass assignable.
@@ -187,6 +190,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         // attributes that are not on the database but are transformable to other fields
         // or relations. They will end up in the insert query when guarding is off.
         self::reguard();
+
+        $this->fillFeatureSettings($attributes);
+
         parent::fill($attributes);
 
         if (array_key_exists('external_id', $attributes)) {
@@ -1059,7 +1065,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function scopeSubjectsInCurrentLocation($query)
     {
-        $schoolLocationSectionIds = $this->schoolLocation->schoolLocationSections()->pluck('section_id');
+        $schoolLocationSectionIds = $this->schoolLocation->schoolLocationSections()->select('section_id');
         return $this->subjects()->whereIn('section_id', $schoolLocationSectionIds);
     }
 
@@ -1127,7 +1133,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
         if (count($sharedSectionIds) > 0) {
             $subjectIdsFromShared = Subject::whereIn('section_id', $sharedSectionIds)->whereIn('base_subject_id',
-                $baseSubjectIds)->pluck('id')->unique();
+                $baseSubjectIds)->select('id');
         }
 
         $subjectIds = $subjectIdsFromShared;
@@ -1171,7 +1177,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
         if (count($sharedSectionIds) > 0) {
             $sectionIdsFromShared = Subject::whereIn('section_id', $sharedSectionIds)->whereIn('base_subject_id',
-                $baseSubjectIds)->pluck('section_id')->unique();
+                $baseSubjectIds)->select('section_id');
         }
 
         if ($query === null) {
@@ -1314,9 +1320,11 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         }
 
         if ($wizard == null) {
-            $roleIds = $this->roles()->pluck('id');
-            $wizard = OnboardingWizard::whereIn('role_id', $roleIds)->where('active',
-                true)->orderBy('role_id')->first();
+            $roleIds = $this->roles()->select('id');
+            $wizard = OnboardingWizard::whereIn('role_id', $roleIds)
+                ->where('active', true)
+                ->orderBy('role_id')
+                ->first();
             OnboardingWizardUserState::create([
                 'id'                   => Str::uuid(),
                 'user_id'              => $this->getKey(),
@@ -1414,24 +1422,17 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return false;
     }
 
+    public static function getDeletedNewUser()
+    {
+        $user = new static();
+        $user->name = 'student';
+        $user->name_first = 'verwijderde';
+        return $user;
+    }
+
     public function getNameFullAttribute()
     {
-        $result = '';
-        if (array_key_exists('name_first', $this->attributes) && !empty($this->attributes['name_first'])) {
-            $result .= $this->attributes['name_first'];
-        }
-        if (array_key_exists('name_first',
-                $this->attributes) && !empty($this->attributes['name_first']) && array_key_exists('name_suffix',
-                $this->attributes) && !empty($this->attributes['name_suffix'])) {
-            $result .= ' ' . $this->attributes['name_suffix'];
-        }
-        if ((array_key_exists('name_first',
-                    $this->attributes) && !empty($this->attributes['name_first']) || (array_key_exists('name_suffix',
-                        $this->attributes) && !empty($this->attributes['name_suffix']))) && array_key_exists('name',
-                $this->attributes) && !empty($this->attributes['name'])) {
-            $result .= ' ' . $this->attributes['name'];
-        }
-        return $result;
+        return Str::squish(sprintf('%s %s %s', $this->name_first, $this->name_suffix, $this->name));
     }
 
     public function hasSharedSections()
@@ -2513,6 +2514,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function hasNeedsToAcceptGeneralTerms()
     {
+        if($this->schoolLocation->hasClientLicense()) {
+            return false;
+        }
         return (
             $this->isA('teacher')
             && $this->hasNoActiveLicense()
@@ -2529,7 +2533,13 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function createGeneralTermsLogIfRequired()
     {
-        if ($this->isA('teacher') && $this->hasNoActiveLicense() && $this->generalTermsLog()->count() == 0) {
+        if (
+            $this->isA('teacher')
+            && $this->schoolLocation->hasTrialLicense()
+            && $this->hasNoActiveLicense()
+            && $this->generalTermsLog()->count() == 0
+        )
+        {
             $this->generalTermsLog()->create();
         }
         return $this;
@@ -2774,15 +2784,6 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 //        SchoolClass::where('user_id', $this->id)
 
         return 'LEARNING_GOAL';
-    }
-    public function setHasPublishedTestAttribute(bool $boolean)
-    {
-        return $this->featureSettings()->setSetting('has_published_test', $boolean);
-    }
-
-    public function getHasPublishedTestAttribute() : bool
-    {
-        return $this->featureSettings()->getSetting('has_published_test')->exists();
     }
 
     public function scopeToetsenbakkers($query)

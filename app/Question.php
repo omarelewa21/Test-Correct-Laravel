@@ -893,7 +893,7 @@ class Question extends MtiBaseModel
     }
 
     /**
-     * @param $mainQuestion either TestQuestion or GroupQuestionQuestion
+     * @param $mainQuestion TestQuestion|GroupQuestionQuestion
      * @param $answers
      * @return array
      * @throws \Exception
@@ -1603,5 +1603,30 @@ class Question extends MtiBaseModel
                 );
             });
         });
+    }
+
+    public static function setAttributesFromParentModel(Question $question, Test|GroupQuestion $parent)
+    {
+        $questionInstance = $question->getQuestionInstance();
+        if ($questionInstance->getAttribute('subject_id') === null) {
+            $questionInstance->setAttribute('subject_id', $parent->subject->getKey());
+        }
+
+        if ($questionInstance->getAttribute('education_level_id') === null) {
+            $questionInstance->setAttribute('education_level_id', $parent->educationLevel->getKey());
+        }
+
+        if ($questionInstance->getAttribute('education_level_year') === null) {
+            $questionInstance->setAttribute('education_level_year', $parent->getAttribute('education_level_year'));
+        }
+
+        if ($questionInstance->getAttribute('draft') === null) {
+            $questionInstance->setAttribute('draft', $parent->getAttribute('draft'));
+        }
+    }
+
+    public function isFullyAnswered(Answer $answer): bool
+    {
+        return (bool)$answer->done;
     }
 }

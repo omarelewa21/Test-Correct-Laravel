@@ -9,26 +9,37 @@
 namespace Tests\Unit\QtiQuayn;
 
 
+use tcCore\Factories\FactoryTest;
+use tcCore\FactoryScenarios\FactoryScenarioSchoolSimple;
 use tcCore\Http\Controllers\QtiImportController;
 use tcCore\Test;
 use tcCore\User;
+use Tests\ScenarioLoader;
 use Tests\TestCase;
 
 class SmallsourceMultiplechoiceHelperTest extends TestCase
 {
-    use \Illuminate\Foundation\Testing\DatabaseTransactions;
+    protected $loadScenario = FactoryScenarioSchoolSimple::class;
+    private User $teacherOne;
+    private $test;
+    protected function setUp(): void
+    {
+        parent::setUp();
 
+        $this->teacherOne = ScenarioLoader::get('user');
+        $this->test = FactoryTest::create($this->teacherOne)->getTestModel();
+        $this->actingAs($this->teacherOne);
+    }
     /** @test */
     public function a_multiplechoice_questions_has_answers()
     {
         $zipDir = '';
         $basePath = '';
 
-        $test = new Test();
         $question = simplexml_load_file(__DIR__.'/../../_fixtures_quayn_qti/smallsourceMultiplechoiceSample1.xml',
             'SimpleXMLElement', LIBXML_NOCDATA);
 
-        $result = QtiImportController::parseQuestion($question,$test,$zipDir, $basePath);
+        $result = QtiImportController::parseQuestion($question,$this->test,$zipDir, $basePath);
 
         $helper = $result->helper;
         $this->assertEquals('MultipleChoiceQuestion', $helper->getType());
@@ -47,11 +58,10 @@ class SmallsourceMultiplechoiceHelperTest extends TestCase
         $zipDir = '';
         $basePath = '';
 
-        $test = new Test();
         $question = simplexml_load_file(__DIR__.'/../../_fixtures_quayn_qti/smallsourceMultiplechoiceSample2.xml',
             'SimpleXMLElement', LIBXML_NOCDATA);
 
-        $result = QtiImportController::parseQuestion($question,$test,$zipDir, $basePath);
+        $result = QtiImportController::parseQuestion($question,$this->test,$zipDir, $basePath);
 
         $helper = $result->helper;
         $this->assertEquals('CompletionQuestion', $helper->getType());

@@ -40,7 +40,7 @@
                 </div>
             </div>
         @endif
-        <div>{{ __('test.publish_test_text') }}</div>
+        <div> {{ __('test.publish_test_text') }} <br> {{ __('test.publish_test_text_hint') }} </div>
 
         @notempty($testErrors)
         <div class="flex flex-col gap-2.5 mt-2.5">
@@ -57,7 +57,7 @@
                 <span>{{ __('modal.cancel') }}</span>
             </x-button.text-button>
 
-            <x-button.cta wire:click="handle()" :disabled="!empty($testErrors)">
+            <x-button.cta selid="publish-test-modal-btn" wire:click="handle()" :disabled="!empty($testErrors)">
                 <x-icon.publish/>
                 <span>{{ __('test.publish') }}</span>
             </x-button.cta>

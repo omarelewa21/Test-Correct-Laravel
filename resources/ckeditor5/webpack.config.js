@@ -19,8 +19,6 @@ module.exports = {
 
 	entry: {
 		ckeditor: path.resolve( __dirname, 'src', 'ckeditor.js' ),
-		ckeditor_teacher: path.resolve( __dirname, 'src', 'ckeditor_teacher.js' ),
-		ckeditor_teacher_wsc: path.resolve( __dirname, 'src', 'ckeditor_teacher_wsc.js' ),
 	},
 
 

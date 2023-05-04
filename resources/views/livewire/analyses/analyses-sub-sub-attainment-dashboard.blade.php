@@ -5,17 +5,17 @@
         <x-button.back-round wire:click="redirectBack"/>
         <div class="flex text-lg bold">
                 <span>
-                    <a href="{{ route('student.analyses.show') }}">{{ __('header.Analyses') }}</a>
+                    <a href="{{ $this->getHelper()->getRouteForDashboardShow()  }}">{{ __('header.Analyses') }}</a>
                     <x-icon.chevron-small opacity="1"></x-icon.chevron-small>
-                    <a href="{{ route('student.analyses.subject.show', $subject) }}">
+                    <a href="{{ $this->getHelper()->getRouteForSubjectShow(  \tcCore\Subject::whereUuid($subject)->first()) }}">
                         {!!  \tcCore\Subject::whereUuid($subject)->first()->name !!}
                     </a>
                     <x-icon.chevron-small opacity="1"></x-icon.chevron-small>
-                    <a href="{{ route('student.analyses.attainment.show', ['baseAttainment' => $parentParentAttainment->uuid, 'subject' => $subject]) }}">
+                    <a href="{{ $this->getHelper()->getRouteForAttainmentShow( $parentParentAttainment,  \tcCore\Subject::whereUuid($subject)->first()) }}">
                       {{ $parentParentAttainment->name }}
                     </a>
                     <x-icon.chevron-small opacity="1"></x-icon.chevron-small>
-                     <a href="{{ route('student.analyses.subattainment.show', ['baseAttainment' => $parentAttainment->uuid, 'subject' => $subject]) }}">
+                     <a href="{{ $this->getHelper()->getRouteForSubAttainmentShow($parentAttainment, \tcCore\Subject::whereUuid($subject)->first()) }}">
                     {{ $parentAttainment->getSubNameWithNumber($parentAttainment->getOrderNumber()) }}
                      </a>
                      <x-icon.chevron-small opacity="1"></x-icon.chevron-small>

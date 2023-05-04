@@ -5,6 +5,7 @@ namespace Tests\Unit;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Str;
+use tcCore\FactoryScenarios\FactoryScenarioSchoolSimple;
 use tcCore\OnboardingWizard;
 use tcCore\OnboardingWizardStep;
 use tcCore\OnboardingWizardUserStep;
@@ -12,12 +13,13 @@ use tcCore\Test;
 use tcCore\User;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\ScenarioLoader;
 use Tests\TestCase;
 use Tests\Unit\Http\Helpers\OnboardingTestHelper;
 
 class OnboardingWizardTest extends TestCase
 {
-    use DatabaseTransactions;
+    protected $loadScenario = FactoryScenarioSchoolSimple::class;
 
 
     /** @test */
@@ -26,7 +28,7 @@ class OnboardingWizardTest extends TestCase
         $helper = (new OnboardingTestHelper());
         $obj = $helper->createNewWizardWithSteps();
 
-        $user = User::where('username','d1@test-correct.nl')->first();
+        $user = ScenarioLoader::get('teacher1');
 
         $steps = $user->getOnboardingWizardSteps();
         $this->assertTrue($steps->count() === 2); // two main steps
@@ -40,7 +42,9 @@ class OnboardingWizardTest extends TestCase
         $helper = (new OnboardingTestHelper());
         $obj = $helper->createNewWizardWithSteps();
 
-        $done = $helper->countDoneStepsForUser($user = User::where('username',self::USER_TEACHER)->first());
+        $done = $helper->countDoneStepsForUser(
+            ScenarioLoader::get('teacher1')
+        );
 
         $this->assertTrue($done === 0);
     }
@@ -51,7 +55,7 @@ class OnboardingWizardTest extends TestCase
         $helper = (new OnboardingTestHelper());
         $obj = $helper->createNewWizardWithSteps();
 
-        $user = User::where('username','d1@test-correct.nl')->first();
+        $user = ScenarioLoader::get('teacher1');
 
         OnboardingWizardUserStep::create([
            'id' => Str::uuid(),
@@ -70,7 +74,7 @@ class OnboardingWizardTest extends TestCase
         $helper = (new OnboardingTestHelper());
         $obj = $helper->createNewWizardWithSteps();
 
-        $user = User::where('username','d1@test-correct.nl')->first();
+        $user = ScenarioLoader::get('teacher1');
 
         OnboardingWizardUserStep::create([
             'id' => Str::uuid(),
@@ -95,7 +99,7 @@ class OnboardingWizardTest extends TestCase
         $helper = (new OnboardingTestHelper());
         $obj = $helper->createNewWizardWithSteps();
 
-        $user = User::where('username','d1@test-correct.nl')->first();
+        $user = ScenarioLoader::get('teacher1');
 
         OnboardingWizardUserStep::create([
             'id' => Str::uuid(),

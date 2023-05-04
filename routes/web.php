@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::get('redirect-to-dashboard', [\tcCore\Http\Controllers\DashboardController::class, 'index'])->name('redirect-to-dashboard');
+
 Route::get('/onboarding', tcCore\Http\Livewire\Onboarding::class)->name('onboarding.welcome');
 Route::get('/entree/onboarding', tcCore\Http\Livewire\EntreeOnboarding::class)->name('onboarding.welcome.entree');
 Route::get('/user/confirm_email/{EmailConfirmation}', [tcCore\Http\Controllers\UsersController::class, 'confirmEmail']);
@@ -33,6 +35,9 @@ Route::get('/uwlr', tcCore\Http\Livewire\UwlrGrid::class)->name('uwlr.grid');
 
 Route::get('/ckeditor/plugins/ckeditor_wiris/integration/configurationjs', [\tcCore\Http\Controllers\WirisIntegrationController::class, 'configurationjs']);
 Route::post('integration/configurationjs', [\tcCore\Http\Controllers\WirisIntegrationController::class, 'configurationjs']);
+Route::post('/wiris/createimage', [\tcCore\Http\Controllers\WirisIntegrationController::class, 'createimage']);
+Route::post('/wiris/showimage', [\tcCore\Http\Controllers\WirisIntegrationController::class, 'showimage']);
+Route::get('/wiris/showimage', [\tcCore\Http\Controllers\WirisIntegrationController::class, 'showimage']);
 Route::get('/get_app_version', [\tcCore\Http\Helpers\AppVersionDetector::class, 'getAppVersion']);
 Route::get('/directlink/{testTakeUuid}', [\tcCore\Http\Controllers\TestTakeLaravelController::class, 'directLink'])->name('take.directLink');
 
@@ -103,7 +108,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/drawing_question_answer_model/{question}', [tcCore\Http\Controllers\DrawingQuestionLaravelController::class, 'showAnswerModel'])->name('drawing-question-answer-model');
 
         Route::get('/co-learning/{test_take}', \tcCore\Http\Livewire\Teacher\CoLearning::class)->name('co-learning');
-
+        Route::get('/assessment/{testTake}', \tcCore\Http\Livewire\Teacher\Assessment::class)->name('assessment');
     });
 
     Route::middleware(['dll', 'student'])->prefix('appapi')->name('appapi')->group(function () {

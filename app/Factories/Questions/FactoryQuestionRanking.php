@@ -25,63 +25,46 @@ class FactoryQuestionRanking extends FactoryQuestion
         return $this;
     }
 
-    public function setScore(int $score)
-    {
-        $this->questionProperties['score'] = $score;
-
-        return $this;
-    }
-
     protected function definition()
     {
-        //generate default question, with default answers, override answers later if provided.
-        return [
-            "add_to_database" => 1,
-            "bloom" => "",
-            "closeable" => 0,
-            "decimal_score" => 0,
-            "discuss" => 1,
-            "maintain_position" => 0,
-            "miller" => "",
-            "is_open_source_content" => 0,
-            "tags" => [],
-            "note_type" => "NONE",
-            "order" => 0,
-            "rtti" => "",
-            "subtype" => "ranking",
-            "type" => "RankingQuestion",
-            "attainments" => [],
-            "all_or_nothing" => false,
-            "score" => 5,
-            //The following can be overridden in child classes
-            "question" => $this->questionDefinition(),
-            "answers" => $this->answerDefinition(),
-            //The following need to be calculated/set before saving
-            "test_id" => 0,
-        ];
+        return array_merge(
+            parent::definition(),
+            [
+                "answers" => $this->answerDefinition(),
+            ]);
     }
 
-    protected function questionDefinition()
+    public function questionDefinition()
     {
         return "<p>sorteer van laag naar hoog</p>";
     }
 
-    protected function answerDefinition()
+    public function answerDefinition()
     {
         return [
             0 => [
-                "order" => 1,
+                "order"  => 1,
                 "answer" => "een (1)",
             ],
             1 => [
-                "order" => 2,
+                "order"  => 2,
                 "answer" => "twee (2)",
             ],
             2 => [
-                "order" => 3,
+                "order"  => 3,
                 "answer" => "drie (3)",
             ],
         ];
 
+    }
+
+    public function questionType(): string
+    {
+        return 'RankingQuestion';
+    }
+
+    public function questionSubType(): string
+    {
+        return 'ranking';
     }
 }

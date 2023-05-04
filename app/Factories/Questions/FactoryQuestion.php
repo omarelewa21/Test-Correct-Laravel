@@ -6,18 +6,18 @@ use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Livewire\TemporaryUploadedFile;
 use tcCore\Attainment;
+use tcCore\Exceptions\QuestionException;
 use tcCore\Factories\Interfaces\FactoryQuestion as FactoryQuestionInterface;
+use tcCore\GroupQuestionQuestion;
 use tcCore\Http\Controllers\TestQuestions\AttachmentsController;
 use tcCore\Http\Requests\CreateAttachmentRequest;
-use tcCore\Lib\Repositories\PValueRepository;
+use tcCore\Lib\Question\Factory;
 use tcCore\Lib\Repositories\PValueTaxonomyBloomRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyMillerRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyRTTIRepository;
-use tcCore\Subject;
 use tcCore\Test;
 use tcCore\TestQuestion;
 use tcCore\User;
-use tcCore\View\Components\Layouts\App;
 
 abstract class FactoryQuestion implements FactoryQuestionInterface
 {
@@ -104,7 +104,7 @@ abstract class FactoryQuestion implements FactoryQuestionInterface
 
     public function store()
     {
-     $this->addRandomAttainmentsBySubject();
+        $this->addRandomAttainmentsBySubject();
         $this->addRandomTaxonomy();
 
         $this->questionProperties = array_merge(
@@ -118,6 +118,8 @@ abstract class FactoryQuestion implements FactoryQuestionInterface
         $this->lastTestQuestion = $this->doWhileLoggedIn(function () {
             return TestQuestion::store($this->questionProperties);
         }, User::find($this->testModel->author_id));
+
+        $this->handleAfterStoreActions();
     }
 
     public function setScore(int $score)
@@ -135,6 +137,8 @@ abstract class FactoryQuestion implements FactoryQuestionInterface
     public function setTestModel(Test $testModel)
     {
         $this->testModel = $testModel;
+
+        return $this;
     }
 
     public function handleAttachments()
@@ -255,4 +259,56 @@ abstract class FactoryQuestion implements FactoryQuestionInterface
 
         return $this;
     }
+
+    protected function definition()
+    {
+        return [
+            "add_to_database"          => 1,
+            "add_to_database_disabled" => 0,
+            "bloom"                    => null,
+            "closeable"                => 0,
+            "decimal_score"            => 0,
+            "discuss"                  => 1,
+            "maintain_position"        => 0,
+            "miller"                   => null,
+            "is_open_source_content"   => 0,
+            "tags"                     => [],
+            "note_type"                => "NONE",
+            "order"                    => 0,
+            "rtti"                     => null,
+            "score"                    => 5,
+            "attainments"              => [],
+            "test_id"                  => 0,
+            "all_or_nothing"           => false,
+            'answer'                   => $this->answerDefinition(),
+            'question'                 => $this->questionDefinition(),
+            "subtype"                  => $this->questionSubType(),
+            "type"                     => $this->questionType(),
+        ];
+    }
+
+    public function storeSubQuestions()
+    {
+        if (!$this->subQuestions) return;
+
+        $this->doWhileLoggedIn(function () {
+            $this->subQuestions->each(function($subQuestionFactory) {
+                $factoryProperties = $subQuestionFactory->getQuestionProperties();
+                GroupQuestionQuestion::store($this->lastTestQuestion, $factoryProperties);
+            });
+        }, User::find($this->testModel->author_id));
+    }
+
+    public function getQuestionProperties(): array
+    {
+        return $this->questionProperties;
+    }
+
+    public function handleAfterStoreActions()
+    {
+        if($this->questionProperties['type'] === 'GroupQuestion') {
+            $this->storeSubQuestions();
+        }
+    }
+
 }

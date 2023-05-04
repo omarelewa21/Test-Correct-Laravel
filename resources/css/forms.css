@@ -39,11 +39,13 @@
 }
 
 label {
-    font-family: Nunito Regular;
+    font-family: Nunito;
+    font-weight: normal;
 }
 
 input {
-    font-family: Nunito Regular;
+    font-family: Nunito;
+    font-weight: normal;
 }
 
 .input-group:hover input {
@@ -51,7 +53,8 @@ input {
 }
 
 input:focus + label, textarea:focus + label, select:focus + label {
-    font-family: Nunito Bold;
+    font-family: Nunito;
+    font-weight: bold;
     color: var(--primary);
     transition: 150ms ease-in-out;
 }
@@ -500,4 +503,55 @@ input[type=number] {
 }
 .form-input.search::placeholder {
     color: var(--mid-grey);
+}
+
+.slider-button-container .slider-option span {
+    transition: color 150ms ease-in-out;
+}
+.slider-button-container .slider-option {
+    position: relative;
+}
+
+.slider-button-container .slider-option:after {
+    content: '';
+    position: absolute;
+    left: -1px;
+    top: -1px;
+    width: calc(100% + 2px);
+    height: calc(100% + 2px);
+    border: 2px solid transparent;
+    border-radius: 8px;
+    transition: border-color 150ms ease-in-out;
+}
+.slider-button-container .slider-option:hover:after {
+    border-color: var(--blue-grey);
+}
+
+.inline-feedback-modal div[selid="ckeditor"],
+.inline-feedback-modal div[selid="ckeditor"] > div {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+.inline-feedback-modal .ck-editor,
+.inline-feedback-modal .ck-editor .ck-editor__main,
+.inline-feedback-modal .ck-editor .ck-editor__main .ck-content {
+    height: 100%;
+}
+
+
+
+.inline-feedback-modal .ck.ck-sticky-panel__placeholder {
+    height: 0!important;
+}
+.inline-feedback-modal .ck.ck-sticky-panel .ck-sticky-panel__content_sticky {
+    position: static!important;
+    top: 0!important;
+    box-shadow: none;
+    border-radius: var(--ck-border-radius);
+}
+
+.inline-feedback-modal .ck.ck-sticky-panel .ck-sticky-panel__content_sticky .ck-toolbar {
+    border-top-left-radius: var(--ck-border-radius) !important;
+    border-top-right-radius: var(--ck-border-radius) !important;
 }

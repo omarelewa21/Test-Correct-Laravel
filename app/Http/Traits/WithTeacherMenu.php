@@ -121,7 +121,7 @@ trait WithTeacherMenu
             'action' => [
                 'directive'  => 'wire',
                 'method'     => 'cakeRedirect',
-                'parameters' => 'planned.assessment_open'
+                'parameters' => 'planned.assignment_open'
             ]
         ];
         return $tiles;

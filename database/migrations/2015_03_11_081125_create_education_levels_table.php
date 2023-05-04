@@ -18,6 +18,7 @@ class CreateEducationLevelsTable extends Migration {
 			$table->timestamps();
 			$table->softDeletes();
 			$table->string('name', 45)->nullable();
+            $table->integer('attainment_education_level_id')->nullable();
 			$table->integer('max_years')->unsigned();
 		});
 	}

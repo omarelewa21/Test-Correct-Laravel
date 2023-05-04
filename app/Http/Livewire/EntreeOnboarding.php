@@ -81,6 +81,7 @@ class EntreeOnboarding extends Onboarding
             'selectedLocationsString.required' => __('registration.school_location_required'),
             'registration.username.required'   => __('registration.username_required'),
             'registration.username.email'      => __('registration.username_email'),
+            'registration.username.unique'     => __('registration.username_unique'),
             'password.required'                => __('registration.password_required'),
             'password.min'                     => __('registration.password_min'),
             'password.same'                    => __('registration.password_same'),
@@ -90,7 +91,7 @@ class EntreeOnboarding extends Onboarding
     public function rules()
     {
         $default = [
-            'registration.username'                     => 'required|email:rfc,dns',
+            'registration.username'                     => 'required|email:rfc,dns|unique:users,username',
             'registration.registration_email_confirmed' => 'sometimes',
             'registration.school_location'              => 'sometimes',
             'registration.website_url'                  => 'sometimes',
@@ -388,8 +389,8 @@ class EntreeOnboarding extends Onboarding
     protected function getSubjectIdsForSchoolLocationAsCollection(SchoolLocation $schoolLocation)
     {
         $baseSubjectIds = $this->getSelectedBaseSubjectIds();
-        $sections = $schoolLocation->schoolLocationSections()->pluck('section_id');
-        return Subject::whereIn('section_id', $sections->toArray())->whereIn('base_subject_id', $baseSubjectIds->toArray())->pluck('id');
+        $sectionsBuilder = $schoolLocation->schoolLocationSections()->select('section_id');
+        return Subject::whereIn('section_id', $sectionsBuilder)->whereIn('base_subject_id', $baseSubjectIds->toArray())->pluck('id');
     }
 
     private function btnStepOneDisabledCheck()

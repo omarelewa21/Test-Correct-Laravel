@@ -18,92 +18,86 @@ class ChangeCoreArchitecture extends Migration {
 		DROP FOREIGN KEY `fk_questions_question_groups1`,
 		DROP FOREIGN KEY `fk_questions_database_questions1`;
 		 */
-		Schema::table('questions', function(Blueprint $table)
-		{
-			$table->dropForeign('fk_questions_tests1');
-			$table->dropForeign('fk_questions_question_groups1');
-			$table->dropForeign('fk_questions_database_questions1');
-		});
+        //disabled for sqlLite
+        if(config('database.default') != 'sqlite' ) {
 
-		DB::statement('ALTER TABLE `questions` CHANGE COLUMN `score` `score` INT(10) UNSIGNED NULL DEFAULT NULL ,
+            Schema::table('questions', function (Blueprint $table) {
+                $table->dropForeign('fk_questions_tests1');
+                $table->dropForeign('fk_questions_question_groups1');
+                $table->dropForeign('fk_questions_database_questions1');
+            });
+
+            DB::statement('ALTER TABLE `questions` CHANGE COLUMN `score` `score` INT(10) UNSIGNED NULL DEFAULT NULL ,
 CHANGE COLUMN `decimal_score` `decimal_score` TINYINT(1) NULL DEFAULT NULL ;');
 
-		/**
-		ALTER TABLE `question_groups`
-		DROP FOREIGN KEY `fk_question_groups_tests1`,
-		DROP FOREIGN KEY `fk_question_groups_database_questions1`;
-		 */
-		Schema::table('question_groups', function(Blueprint $table)
-		{
-			$table->dropForeign('fk_question_groups_tests1');
-			$table->dropForeign('fk_question_groups_database_questions1');
-		});
+            /**
+             * ALTER TABLE `question_groups`
+             * DROP FOREIGN KEY `fk_question_groups_tests1`,
+             * DROP FOREIGN KEY `fk_question_groups_database_questions1`;
+             */
+            Schema::table('question_groups', function (Blueprint $table) {
+                $table->dropForeign('fk_question_groups_tests1');
+                $table->dropForeign('fk_question_groups_database_questions1');
+            });
 
 
-		/**
-		ALTER TABLE `attachments`
-		DROP FOREIGN KEY `fk_attachments_question_groups1`;
-		 */
-		Schema::table('attachments', function(Blueprint $table)
-		{
-			$table->dropForeign('fk_attachments_question_groups1');
-		});
+            /**
+             * ALTER TABLE `attachments`
+             * DROP FOREIGN KEY `fk_attachments_question_groups1`;
+             */
+            Schema::table('attachments', function (Blueprint $table) {
+                $table->dropForeign('fk_attachments_question_groups1');
+            });
 
 
-		/**
-		ALTER TABLE `school_location_ips`
-		DROP FOREIGN KEY `fk_school_location_ips_school_locations1`;
-		 */
-		Schema::table('school_location_ips', function(Blueprint $table)
-		{
-			$table->dropForeign('fk_school_location_ips_school_locations1');
-		});
+            /**
+             * ALTER TABLE `school_location_ips`
+             * DROP FOREIGN KEY `fk_school_location_ips_school_locations1`;
+             */
+            Schema::table('school_location_ips', function (Blueprint $table) {
+                $table->dropForeign('fk_school_location_ips_school_locations1');
+            });
 
-		/**
-		ALTER TABLE `test_correct`.`attachments`
-		DROP FOREIGN KEY `fk_attachments_questions1`;
-		 */
-		Schema::table('attachments', function(Blueprint $table)
-		{
-			$table->dropForeign('fk_attachments_questions1');
-		});
+            /**
+             * ALTER TABLE `test_correct`.`attachments`
+             * DROP FOREIGN KEY `fk_attachments_questions1`;
+             */
+            Schema::table('attachments', function (Blueprint $table) {
+                $table->dropForeign('fk_attachments_questions1');
+            });
 
-		/**
-		ALTER TABLE `test_correct`.`ranking_question_answers`
-		DROP FOREIGN KEY `fk_ranking_question_answers_ranking_questions1`;
-		 */
-		Schema::table('ranking_question_answers', function(Blueprint $table)
-		{
-			$table->dropForeign('fk_ranking_question_answers_ranking_questions1');
-		});
+            /**
+             * ALTER TABLE `test_correct`.`ranking_question_answers`
+             * DROP FOREIGN KEY `fk_ranking_question_answers_ranking_questions1`;
+             */
+            Schema::table('ranking_question_answers', function (Blueprint $table) {
+                $table->dropForeign('fk_ranking_question_answers_ranking_questions1');
+            });
 
-		/**
-		ALTER TABLE `test_correct`.`matching_question_answers`
-		DROP FOREIGN KEY `fk_matching_question_answers_matching_questions1`;
-		 */
-		Schema::table('matching_question_answers', function(Blueprint $table)
-		{
-			$table->dropForeign('fk_matching_question_answers_matching_questions1');
-		});
+            /**
+             * ALTER TABLE `test_correct`.`matching_question_answers`
+             * DROP FOREIGN KEY `fk_matching_question_answers_matching_questions1`;
+             */
+            Schema::table('matching_question_answers', function (Blueprint $table) {
+                $table->dropForeign('fk_matching_question_answers_matching_questions1');
+            });
 
-		/**
-		ALTER TABLE `test_correct`.`multiple_choice_question_answers`
-		DROP FOREIGN KEY `fk_multiple_choice_question_answers_multiple_choice_questions1`;
-		 */
-		Schema::table('multiple_choice_question_answers', function(Blueprint $table)
-		{
-			$table->dropForeign('fk_multiple_choice_question_answers_multiple_choice_questions1');
-		});
+            /**
+             * ALTER TABLE `test_correct`.`multiple_choice_question_answers`
+             * DROP FOREIGN KEY `fk_multiple_choice_question_answers_multiple_choice_questions1`;
+             */
+            Schema::table('multiple_choice_question_answers', function (Blueprint $table) {
+                $table->dropForeign('fk_multiple_choice_question_answers_multiple_choice_questions1');
+            });
 
-		/**
-		ALTER TABLE `test_correct`.`completion_question_answers`
-		DROP FOREIGN KEY `fk_completion_question_answers_completion_questions1`;
-		 */
-		Schema::table('completion_question_answers', function(Blueprint $table)
-		{
-			$table->dropForeign('fk_completion_question_answers_completion_questions1');
-		});
-
+            /**
+             * ALTER TABLE `test_correct`.`completion_question_answers`
+             * DROP FOREIGN KEY `fk_completion_question_answers_completion_questions1`;
+             */
+            Schema::table('completion_question_answers', function (Blueprint $table) {
+                $table->dropForeign('fk_completion_question_answers_completion_questions1');
+            });
+        }
 		/**
 		ALTER TABLE `test_correct`.`test_participants`
 		ADD COLUMN `answer_id` INT(10) UNSIGNED NULL DEFAULT NULL AFTER `school_class_id`,
@@ -189,7 +183,7 @@ CHANGE COLUMN `decimal_score` `decimal_score` TINYINT(1) NULL DEFAULT NULL ;');
 
 		Schema::create('group_questions', function(Blueprint $table)
 		{
-			$table->integer('id')->unsigned()->index('fk_group_questions_questions1_idx');
+			$table->integer('id')->unsigned()->index();//'fk_group_questions_questions1_idx');
 			$table->timestamps();
 			$table->softDeletes();
 			$table->string('name')->nullable();
@@ -566,7 +560,7 @@ CHANGE COLUMN `decimal_score` `decimal_score` TINYINT(1) NULL DEFAULT NULL ;');
 			$table->softDeletes();
 			$table->integer('order')->unsigned();
 			$table->integer('correct_order')->unsigned();
-			$table->primary(['ranking_question_id', 'ranking_question_answer_id'], '');
+			$table->primary(['ranking_question_id', 'ranking_question_answer_id'], 'pk_something');
 			$table->foreign('ranking_question_id', 'fk_ranking_question_answer_links_ranking_questions1')->references('id')->on('ranking_questions')->onUpdate('CASCADE')->onDelete('CASCADE');
 			$table->foreign('ranking_question_answer_id', 'fk_ranking_question_answer_links_ranking_question_answers1')->references('id')->on('ranking_question_answers')->onUpdate('CASCADE')->onDelete('CASCADE');
 		});
@@ -602,7 +596,7 @@ CHANGE COLUMN `decimal_score` `decimal_score` TINYINT(1) NULL DEFAULT NULL ;');
 			$table->timestamps();
 			$table->softDeletes();
 			$table->integer('order')->unsigned();
-			$table->primary(['matching_question_id', 'matching_question_answer_id'], '');
+			$table->primary(['matching_question_id', 'matching_question_answer_id'], 'pk_matching_question_id');
 			$table->foreign('matching_question_id', 'fk_matching_question_answer_links_matching_questions1')->references('id')->on('matching_questions')->onUpdate('CASCADE')->onDelete('CASCADE');
 			$table->foreign('matching_question_answer_id', 'fk_matching_question_answer_links_matching_question_answers1')->references('id')->on('matching_question_answers')->onUpdate('CASCADE')->onDelete('CASCADE');
 		});
@@ -638,7 +632,7 @@ CHANGE COLUMN `decimal_score` `decimal_score` TINYINT(1) NULL DEFAULT NULL ;');
 			$table->timestamps();
 			$table->softDeletes();
 			$table->integer('order')->unsigned();
-			$table->primary(['multiple_choice_question_id', 'multiple_choice_question_answer_id'], '');
+			$table->primary(['multiple_choice_question_id', 'multiple_choice_question_answer_id'], 'pk_multiple_choice_question_id');
 			$table->foreign('multiple_choice_question_id', 'fk_multiple_choice_question_answer_links_multiple_choice_ques2')->references('id')->on('multiple_choice_questions')->onUpdate('CASCADE')->onDelete('CASCADE');
 			$table->foreign('multiple_choice_question_answer_id', 'fk_multiple_choice_question_answer_links_multiple_choice_ques1')->references('id')->on('multiple_choice_question_answers')->onUpdate('CASCADE')->onDelete('CASCADE');
 		});
@@ -673,7 +667,7 @@ CHANGE COLUMN `decimal_score` `decimal_score` TINYINT(1) NULL DEFAULT NULL ;');
 			$table->integer('completion_question_answer_id')->unsigned()->index('fk_completion_question_answer_links_completion_question_ans_idx');
 			$table->timestamps();
 			$table->softDeletes();
-			$table->primary(['completion_question_id', 'completion_question_answer_id'], '');
+			$table->primary(['completion_question_id', 'completion_question_answer_id'], 'pk_completion_question_id');
 			$table->foreign('completion_question_id', 'fk_completion_question_answer_links_completion_questions1')->references('id')->on('completion_questions')->onUpdate('CASCADE')->onDelete('CASCADE');
 			$table->foreign('completion_question_answer_id', 'fk_completion_question_answer_links_completion_question_answe1')->references('id')->on('completion_question_answers')->onUpdate('CASCADE')->onDelete('CASCADE');
 		});
@@ -750,7 +744,7 @@ CHANGE COLUMN `decimal_score` `decimal_score` TINYINT(1) NULL DEFAULT NULL ;');
 			$table->integer('question_id')->unsigned()->index('fk_question_attainments_questions1_idx');
 			$table->timestamps();
 			$table->softDeletes();
-			$table->primary(['attainment_id', 'question_id'], '');
+			$table->primary(['attainment_id', 'question_id'], 'pk_attainment_id');
 			$table->foreign('attainment_id', 'fk_question_attainments_attainments1')->references('id')->on('attainments')->onUpdate('CASCADE')->onDelete('CASCADE');
 			$table->foreign('question_id', 'fk_question_attainments_questions1')->references('id')->on('questions')->onUpdate('CASCADE')->onDelete('CASCADE');
 		});
@@ -828,9 +822,11 @@ CHANGE COLUMN `decimal_score` `decimal_score` TINYINT(1) NULL DEFAULT NULL ;');
 		 * Data-Migration script
 		 * Add all subjects to a base subject
 		 */
-		$baseSubjectId = DB::table('base_subjects')->insertGetId(
-			['created_at' => DB::raw('now()'), 'updated_at' => DB::raw('now()'), 'deleted_at' => null, 'name' => 'Anders']
-		);
+        $insertGetId = ['created_at' => DB::raw('now()'), 'updated_at' => DB::raw('now()'), 'deleted_at' => null, 'name' => 'Anders'];
+        if (config('database.default') == 'sqlite') {
+            $insertGetId = ['created_at' => DB::raw("date('now')"), 'updated_at' => DB::raw("date('now')"), 'deleted_at' => null, 'name' => 'Anders'];
+        }
+		$baseSubjectId = DB::table('base_subjects')->insertGetId( $insertGetId );
 
 		DB::table('subjects')
 			->where('base_subject_id', 0)
@@ -912,172 +908,161 @@ CHANGE COLUMN `decimal_score` `decimal_score` TINYINT(1) NULL DEFAULT NULL ;');
 		DROP COLUMN `question_group_id`,
 		DROP COLUMN `test_id`;
 		 */
-		Schema::table('questions', function(Blueprint $table)
-		{
-			$table->dropColumn('discuss');
-			$table->dropColumn('maintain_position');
-			$table->dropColumn('order');
-			$table->dropColumn('database_question_id');
-			$table->dropColumn('question_group_id');
-			$table->dropColumn('test_id');
-		});
+        if (config('database.default') != 'sqlite') {
+            Schema::table('questions', function (Blueprint $table) {
+                $table->dropColumn('discuss');
+                $table->dropColumn('maintain_position');
+                $table->dropColumn('order');
+                $table->dropColumn('database_question_id');
+                $table->dropColumn('question_group_id');
+                $table->dropColumn('test_id');
+            });
 
-		/**
-		ALTER TABLE `question_groups`
-		DROP COLUMN `maintain_position`,
-		DROP COLUMN `order`,
-		DROP COLUMN `text`,
-		DROP COLUMN `database_question_id`,
-		DROP COLUMN `test_id`;
-		 */
+            /**
+             * ALTER TABLE `question_groups`
+             * DROP COLUMN `maintain_position`,
+             * DROP COLUMN `order`,
+             * DROP COLUMN `text`,
+             * DROP COLUMN `database_question_id`,
+             * DROP COLUMN `test_id`;
+             */
 
-		/**
-		ALTER TABLE `attachments`
-		DROP COLUMN `question_group_id`,
-		DROP COLUMN `question_id` ;
-		 */
-		Schema::table('attachments', function(Blueprint $table)
-		{
-			$table->dropColumn('question_id');
-			$table->dropColumn('question_group_id');
-		});
+            /**
+             * ALTER TABLE `attachments`
+             * DROP COLUMN `question_group_id`,
+             * DROP COLUMN `question_id` ;
+             */
+            Schema::table('attachments', function (Blueprint $table) {
+                $table->dropColumn('question_id');
+                $table->dropColumn('question_group_id');
+            });
 
-		/**
-		ALTER TABLE `question_groups`
-		DROP COLUMN `maintain_position`,
-		DROP COLUMN `order`,
-		DROP COLUMN `text`,
-		DROP COLUMN `database_question_id`,
-		DROP COLUMN `test_id`;
+            /**
+             * ALTER TABLE `question_groups`
+             * DROP COLUMN `maintain_position`,
+             * DROP COLUMN `order`,
+             * DROP COLUMN `text`,
+             * DROP COLUMN `database_question_id`,
+             * DROP COLUMN `test_id`;
+             *
+             * ALTER TABLE `question_groups`
+             * RENAME TO  `group_questions`;
+             */
+            Schema::drop('question_groups');
 
-		ALTER TABLE `question_groups`
-		RENAME TO  `group_questions`;
-		 */
-		Schema::drop('question_groups');
+            /**
+             * ALTER TABLE `test_correct`.`ranking_question_answers`
+             * DROP COLUMN `ranking_question_id` ;
+             */
+            Schema::table('ranking_question_answers', function (Blueprint $table) {
+                $table->dropColumn('ranking_question_id');
+                $table->dropColumn('order');
+                $table->dropColumn('correct_order');
+            });
 
-		/**
-		ALTER TABLE `test_correct`.`ranking_question_answers`
-		DROP COLUMN `ranking_question_id` ;
-		 */
-		Schema::table('ranking_question_answers', function(Blueprint $table)
-		{
-			$table->dropColumn('ranking_question_id');
-			$table->dropColumn('order');
-			$table->dropColumn('correct_order');
-		});
+            /**
+             * ALTER TABLE `test_correct`.`matching_question_answers`
+             * DROP COLUMN `matching_question_id` ;
+             */
+            Schema::table('matching_question_answers', function (Blueprint $table) {
+                $table->dropColumn('matching_question_id');
+                $table->dropColumn('order');
+            });
 
-		/**
-		ALTER TABLE `test_correct`.`matching_question_answers`
-		DROP COLUMN `matching_question_id` ;
-		 */
-		Schema::table('matching_question_answers', function(Blueprint $table)
-		{
-			$table->dropColumn('matching_question_id');
-			$table->dropColumn('order');
-		});
+            /**
+             * ALTER TABLE `test_correct`.`multiple_choice_question_answers`
+             * DROP COLUMN `multiple_choice_question_id` ;
+             */
+            Schema::table('multiple_choice_question_answers', function (Blueprint $table) {
+                $table->dropColumn('multiple_choice_question_id');
+                $table->dropColumn('order');
+            });
 
-		/**
-		ALTER TABLE `test_correct`.`multiple_choice_question_answers`
-		DROP COLUMN `multiple_choice_question_id` ;
-		 */
-		Schema::table('multiple_choice_question_answers', function(Blueprint $table)
-		{
-			$table->dropColumn('multiple_choice_question_id');
-			$table->dropColumn('order');
-		});
+            /**
+             * ALTER TABLE `test_correct`.`completion_question_answers`
+             * DROP COLUMN `completion_question_id` ;
+             */
+            Schema::table('completion_question_answers', function (Blueprint $table) {
+                $table->dropColumn('completion_question_id');
+            });
 
-		/**
-		ALTER TABLE `test_correct`.`completion_question_answers`
-		DROP COLUMN `completion_question_id` ;
-		 */
-		Schema::table('completion_question_answers', function(Blueprint $table)
-		{
-			$table->dropColumn('completion_question_id');
-		});
+            /**
+             * DROP TABLE IF EXISTS `database_questions` ;
+             */
+            Schema::drop('database_questions');
 
-		/**
+            /**
+             * ALTER TABLE `subjects`
+             * ADD CONSTRAINT `fk_subjects_base_subject1`
+             * FOREIGN KEY (`base_subject_id`)
+             * REFERENCES `base_subjects` (`id`)
+             * ON DELETE CASCADE
+             * ON UPDATE CASCADE;
+             */
+            Schema::table('subjects', function (Blueprint $table) {
+                $table->foreign('base_subject_id', 'fk_subjects_base_subject1')->references('id')->on('base_subjects')->onUpdate('CASCADE')->onDelete('CASCADE');
+            });
 
-		/**
-		DROP TABLE IF EXISTS `database_questions` ;
-		 */
-		Schema::drop('database_questions');
+            /**
+             * ALTER TABLE `tests`
+             * ADD CONSTRAINT `fk_tests_tests1`
+             * FOREIGN KEY (`system_test_id`)
+             * REFERENCES `tests` (`id`)
+             * ON DELETE CASCADE
+             * ON UPDATE CASCADE;
+             */
+            Schema::table('tests', function (Blueprint $table) {
+                $table->foreign('system_test_id', 'fk_tests_tests1')->references('id')->on('tests')->onUpdate('CASCADE')->onDelete('CASCADE');
+            });
 
-		/**
-		ALTER TABLE `subjects`
-		ADD CONSTRAINT `fk_subjects_base_subject1`
-		FOREIGN KEY (`base_subject_id`)
-		REFERENCES `base_subjects` (`id`)
-		ON DELETE CASCADE
-		ON UPDATE CASCADE;
-		 */
-		Schema::table('subjects', function(Blueprint $table)
-		{
-			$table->foreign('base_subject_id', 'fk_subjects_base_subject1')->references('id')->on('base_subjects')->onUpdate('CASCADE')->onDelete('CASCADE');
-		});
+            /**
+             * ALTER TABLE `questions`
+             * ADD CONSTRAINT `fk_questions_subjects1`
+             * FOREIGN KEY (`subject_id`)
+             * REFERENCES `subjects` (`id`)
+             * ON DELETE CASCADE
+             * ON UPDATE CASCADE,
+             * ADD CONSTRAINT `fk_questions_education_levels1`
+             * FOREIGN KEY (`education_level_id`)
+             * REFERENCES `education_levels` (`id`)
+             * ON DELETE CASCADE
+             * ON UPDATE CASCADE,
+             * ADD CONSTRAINT `fk_questions_questions1`
+             * FOREIGN KEY (`derived_question_id`)
+             * REFERENCES `questions` (`id`)
+             * ON DELETE NO ACTION
+             * ON UPDATE NO ACTION;
+             */
+            Schema::table('questions', function (Blueprint $table) {
+                $table->foreign('subject_id', 'fk_questions_subjects1')->references('id')->on('subjects')->onUpdate('CASCADE')->onDelete('CASCADE');
+                $table->foreign('education_level_id', 'fk_questions_education_levels1')->references('id')->on('education_levels')->onUpdate('CASCADE')->onDelete('CASCADE');
+                $table->foreign('derived_question_id', 'fk_questions_questions1')->references('id')->on('questions')->onUpdate('CASCADE')->onDelete('CASCADE');
+            });
 
-		/**
-		ALTER TABLE `tests`
-		ADD CONSTRAINT `fk_tests_tests1`
-		FOREIGN KEY (`system_test_id`)
-		REFERENCES `tests` (`id`)
-		ON DELETE CASCADE
-		ON UPDATE CASCADE;
-		 */
-		Schema::table('tests', function(Blueprint $table)
-		{
-			$table->foreign('system_test_id', 'fk_tests_tests1')->references('id')->on('tests')->onUpdate('CASCADE')->onDelete('CASCADE');
-		});
+            /**
+             * ALTER TABLE `question_groups`
+             * ADD CONSTRAINT `fk_group_questions_questions1`
+             * FOREIGN KEY (`id`)
+             * REFERENCES `questions` (`id`)
+             * ON DELETE CASCADE
+             * ON UPDATE CASCADE;
+             */
+            Schema::table('group_questions', function (Blueprint $table) {
+                $table->foreign('id', 'fk_group_questions_questions1')->references('id')->on('questions')->onUpdate('CASCADE')->onDelete('CASCADE');
+            });
 
-		/**
-		ALTER TABLE `questions`
-		ADD CONSTRAINT `fk_questions_subjects1`
-		FOREIGN KEY (`subject_id`)
-		REFERENCES `subjects` (`id`)
-		ON DELETE CASCADE
-		ON UPDATE CASCADE,
-		ADD CONSTRAINT `fk_questions_education_levels1`
-		FOREIGN KEY (`education_level_id`)
-		REFERENCES `education_levels` (`id`)
-		ON DELETE CASCADE
-		ON UPDATE CASCADE,
-		ADD CONSTRAINT `fk_questions_questions1`
-		FOREIGN KEY (`derived_question_id`)
-		REFERENCES `questions` (`id`)
-		ON DELETE NO ACTION
-		ON UPDATE NO ACTION;
-		 */
-		Schema::table('questions', function(Blueprint $table)
-		{
-			$table->foreign('subject_id', 'fk_questions_subjects1')->references('id')->on('subjects')->onUpdate('CASCADE')->onDelete('CASCADE');
-			$table->foreign('education_level_id', 'fk_questions_education_levels1')->references('id')->on('education_levels')->onUpdate('CASCADE')->onDelete('CASCADE');
-			$table->foreign('derived_question_id', 'fk_questions_questions1')->references('id')->on('questions')->onUpdate('CASCADE')->onDelete('CASCADE');
-		});
-
-		/**
-		ALTER TABLE `question_groups`
-		ADD CONSTRAINT `fk_group_questions_questions1`
-		FOREIGN KEY (`id`)
-		REFERENCES `questions` (`id`)
-		ON DELETE CASCADE
-		ON UPDATE CASCADE;
-		 */
-		Schema::table('group_questions', function(Blueprint $table)
-		{
-			$table->foreign('id', 'fk_group_questions_questions1')->references('id')->on('questions')->onUpdate('CASCADE')->onDelete('CASCADE');
-		});
-
-		/**
-		ALTER TABLE `school_location_ips`
-		ADD CONSTRAINT `fk_school_location_ips_school_locations1`
-		FOREIGN KEY (`school_location_id`)
-		REFERENCES `school_locations` (`id`)
-		ON DELETE CASCADE
-		ON UPDATE CASCADE;
-		 */
-		Schema::table('school_location_ips', function(Blueprint $table)
-		{
-			$table->foreign('school_location_id', 'fk_school_location_ips_school_locations1')->references('id')->on('school_locations')->onUpdate('CASCADE')->onDelete('CASCADE');
-		});
+            /**
+             * ALTER TABLE `school_location_ips`
+             * ADD CONSTRAINT `fk_school_location_ips_school_locations1`
+             * FOREIGN KEY (`school_location_id`)
+             * REFERENCES `school_locations` (`id`)
+             * ON DELETE CASCADE
+             * ON UPDATE CASCADE;
+             */
+            Schema::table('school_location_ips', function (Blueprint $table) {
+                $table->foreign('school_location_id', 'fk_school_location_ips_school_locations1')->references('id')->on('school_locations')->onUpdate('CASCADE')->onDelete('CASCADE');
+            });
+        }
 	}
 
 	/**

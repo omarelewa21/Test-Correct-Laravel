@@ -20,7 +20,6 @@ use Tests\TestCase;
 class FactorySchoolTest extends TestCase
 {
 
-    use DatabaseTransactions;
     use WithFaker;
 
     public function stappenplan_school()
@@ -91,8 +90,8 @@ class FactorySchoolTest extends TestCase
         //school manager role_id == 6
         $this->assertTrue($schoolLocation->users->last()->roles->contains(6));
 
-        //important: 1 account manager, 1 demoTeacher and 5 demoStudents are also created, so assert count + 8
-        $this->assertEquals($startcount+8, User::count());
+        //important: 1 account manager[role_id => 5], 1 schoolbeheerder [role_id => 6] and 1 SchoolManager [role_id => 6]
+        $this->assertEquals($startcount+3, User::count());
     }
     
     /** @test */

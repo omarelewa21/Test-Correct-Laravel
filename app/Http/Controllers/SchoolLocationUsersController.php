@@ -83,14 +83,14 @@ class SchoolLocationUsersController extends Controller {
             abort(403);
         }
 
-        $schoolLocationIds = SchoolLocation::where('school_id',Auth::user()->schoolLocation->school_id)
-            ->whereNotNull('school_id')->pluck('id');
+        $schoolLocationIdsBuilder = SchoolLocation::where('school_id',Auth::user()->schoolLocation->school_id)
+            ->whereNotNull('school_id')->select('id');
 
         $qbUsers = User::join('user_roles', function ($join) {
             $join->on('users.id', '=', 'user_roles.user_id')
                 ->where('user_roles.role_id', '=', 1); // teacher
 
-        })->whereIn('school_location_id', $schoolLocationIds)
+        })->whereIn('school_location_id', $schoolLocationIdsBuilder)
             ->where('demo', '<>', 1)
             ->where('school_location_id', '<>', Auth::user()->school_location_id)
             ->orderBy('name_first')

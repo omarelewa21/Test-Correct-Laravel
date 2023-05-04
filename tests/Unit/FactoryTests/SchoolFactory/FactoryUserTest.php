@@ -17,7 +17,6 @@ use Tests\TestCase;
 
 class FactoryUserTest extends TestCase
 {
-    use DatabaseTransactions;
     use WithFaker;
 
     /** @test */
@@ -168,6 +167,7 @@ class FactoryUserTest extends TestCase
         });
 
         $this->assertEquals(2, $createdUsers->count());
+
         $this->assertEquals('Student 1', $createdUsers->values()[0]->name);
         $this->assertEquals('S1', $createdUsers->values()[0]->abbreviation);
         $this->assertStringContainsString('Student1', $createdUsers->values()[0]->username);

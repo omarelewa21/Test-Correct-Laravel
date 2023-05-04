@@ -1,6 +1,6 @@
 <x-partials.overview-question-container :number="$number" :question="$question" :answer="$answer">
 
-    <div class="w-full space-y-3" x-data=""
+    <div class="w-full space-y-3" x-data="completionQuestion()"
          x-init="$el.querySelectorAll('input')
                 .forEach(function(el){
                     if(el.value == '') {
@@ -16,7 +16,7 @@
                  setTitlesOnLoad($el);
                  ">
 
-        <div>
+        <div class="completion-question-overview-container">
             <x-input.group class="body1 max-w-full flex-col" for="" x-data="">
                 {!! $html !!}
             </x-input.group>

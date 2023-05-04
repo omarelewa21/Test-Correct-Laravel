@@ -1,6 +1,6 @@
-<div cms id="cms-preview" class="flex flex-1 flex-col bg-lightGrey h-full overflow-auto"
+<div cms id="cms-preview" class="flex flex-1 flex-col bg-lightGrey h-full overflow-auto rounded-10"
 >
-    <div class="question-editor-preview-header flex w-full bg-white items-center pl-6 pr-3 py-4 fixed z-10">
+    <div class="question-editor-preview-header flex w-full bg-white items-center pl-6 pr-3 py-4 fixed z-10 rounded-t-10">
         <div class="bold flex items-center min-w-max space-x-2.5 text-lg">
             <x-icon.preview/>
             <span>{{ __('teacher.Vraag voorbeeld') }}:</span>

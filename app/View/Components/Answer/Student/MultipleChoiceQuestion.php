@@ -1,0 +1,70 @@
+<?php
+
+namespace tcCore\View\Components\Answer\Student;
+
+class MultipleChoiceQuestion extends QuestionComponent
+{
+    public mixed $answerStruct;
+    public array $arqStructure = [];
+    public bool $allOrNothingToggleActive = false;
+    public bool $trueFalseToggleActive = false;
+
+    protected function setAnswerStruct($question, $answer): void
+    {
+        $givenAnswerIds = collect(json_decode($answer->json))
+            ->filter()
+            ->keys();
+
+        if ($question->isSubType('ARQ')) {
+            $this->arqStructure = \tcCore\MultipleChoiceQuestion::getArqStructure();
+        }
+
+        $rating = $this->getTeacherRatingWithToggleData();
+
+        $this->answerStruct = $question->getCorrectAnswerStructure()
+            ->map(function ($link) use ($givenAnswerIds, $rating) {
+                $link->active = $givenAnswerIds->contains($link->multiple_choice_question_answer_id);
+                $link->toggleStatus = $this->getToggleStatus($link, $rating);
+                return $link;
+            });
+
+        if ($question->all_or_nothing) {
+            $correctIds = $this->answerStruct->filter(fn($link) => $link->score > 0)
+                ->map(fn($link) => $link->multiple_choice_question_answer_id);
+
+            $this->allOrNothingToggleActive = $this->getAllOrNothingToggleActive($correctIds, $givenAnswerIds, $rating);
+        }
+    }
+
+    /**
+     * @param $givenAnswerIds
+     * @param $link
+     * @return mixed
+     */
+    private function getToggleStatus($link, $rating): bool
+    {
+        if (!$this->question->isSubType('TrueFalse')) {
+            if (isset($rating->json[$link->order]) && is_bool($rating->json[$link->order])) {
+                return $rating->json[$link->order];
+            }
+            return $link->active && $link->score > 0;
+        }
+
+        if ($this->ratingHasBoolValueForKey($rating, $this->question->id)) {
+            $this->trueFalseToggleActive = $rating->json[$this->question->id];
+        }
+
+        return $link->active && $link->score > 0;
+    }
+
+    private function getAllOrNothingToggleActive($correctIds, $givenAnswerIds, $rating)
+    {
+        if ($correctIds->count() !== $givenAnswerIds->count()) {
+            return false;
+        }
+        if ($this->ratingHasBoolValueForKey($rating, $this->question->id)) {
+            return $rating->json[$this->question->id];
+        }
+        return $correctIds->diff($givenAnswerIds)->isEmpty();
+    }
+}

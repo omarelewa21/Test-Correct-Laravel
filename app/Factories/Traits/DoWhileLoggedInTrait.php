@@ -17,10 +17,15 @@ trait DoWhileLoggedInTrait
      */
     protected function doWhileLoggedIn(callable $callback, User $user)
     {
+        $oldUser = Auth::user();
         Auth::login($user);
         ActingAsHelper::getInstance()->setUser($user);
         $return = $callback();
         Auth::logout();
+
+        if ($oldUser) {
+            Auth::login($oldUser);
+        }
 
         return $return;
     }

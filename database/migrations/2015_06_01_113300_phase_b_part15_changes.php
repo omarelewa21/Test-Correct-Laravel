@@ -19,7 +19,7 @@ class PhaseBPart15Changes extends Migration {
             $table->integer('education_level_id')->unsigned()->index('fk_school_location_education_levels_education_levels1_idx');
             $table->timestamps();
             $table->softDeletes();
-            $table->primary(['school_location_id', 'education_level_id'], '');
+            $table->primary(['school_location_id', 'education_level_id'], 'pk_school_location_id_2');
             $table->foreign('school_location_id', 'fk_school_location_education_levels_school_locations1')->references('id')->on('school_locations')->onUpdate('CASCADE')->onDelete('CASCADE');
             $table->foreign('education_level_id', 'fk_school_location_education_levels_education_levels1')->references('id')->on('education_levels')->onUpdate('CASCADE')->onDelete('CASCADE');
         });

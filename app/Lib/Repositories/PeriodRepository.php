@@ -14,6 +14,12 @@ class PeriodRepository
          return $result;
     }
 
+    public static function getCurrentPeriods()
+    {
+        return Period::filtered()->where('start_date', '<=', now())
+            ->where('end_date', '>=', now())->get();
+    }
+
     public static function getCurrentOrPreviousPeriod()
     {
         $now = Carbon::now();

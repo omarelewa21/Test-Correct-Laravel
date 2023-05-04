@@ -3,11 +3,13 @@
     display: none !important;
 }
 
-#co-learning-teacher-page {
+#co-learning-teacher-page,
+#assessment-page {
     --drawer-width: 300px;
 }
 
-#co-learning-teacher-page .drawer-footer {
+#co-learning-teacher-page .drawer-footer,
+#assessment-page .drawer-footer {
     height: 70px;
     padding-top: 15px;
     padding-bottom: 15px;
@@ -15,17 +17,20 @@
     background-color: white;
 }
 
-#co-learning-teacher-page .drawer-content-head {
+#co-learning-teacher-page .drawer-content-head,
+#assessment-page .drawer-content-head {
     margin-top: 10px;
     padding: 10px 1.5rem 0.5rem; /*top, left+right, bottom */
     /*width: var(--drawer-width);*/
 }
 
-#co-learning-teacher-page .drawer-content-head div {
+#co-learning-teacher-page .drawer-content-head div,
+#assessment-page .drawer-content-head div {
     white-space: nowrap;
 }
 
-#co-learning-teacher-page .drawer-content {
+#co-learning-teacher-page .drawer-content,
+#assessment-page .drawer-content {
     max-height: calc(100vh - 190px);
     height: calc(100vh - 190px);
     /*width: var(--drawer-width);*/
@@ -35,16 +40,19 @@
     background-color: white;
 }
 
-#co-learning-teacher-page .student-info-container > * {
+#co-learning-teacher-page .student-info-container > *,
+#assessment-page .student-info-container > * {
     opacity: 100%;
 }
 
-#co-learning-teacher-page .student-info-container:hover {
-    background-color: rgba(0,77,245,0.05);
+#co-learning-teacher-page .student-info-container:hover,
+#assessment-page .student-info-container:hover {
+    background-color: rgba(0, 77, 245, 0.05);
     color: var(--teacher-primary);
 }
 
-#co-learning-teacher-page .student-info-container .student-name {
+#co-learning-teacher-page .student-info-container .student-name,
+#assessment-page .student-info-container .student-name {
     display: inline-block;
     width: 186px;
     max-width: 186px;
@@ -53,7 +61,8 @@
     white-space: nowrap;
 }
 
-#co-learning-teacher-page .student-info-container .show-on-smartboard {
+#co-learning-teacher-page .student-info-container .show-on-smartboard,
+#assessment-page .student-info-container .show-on-smartboard {
     position: absolute;
     width: 32px !important;
     height: 32px !important;
@@ -65,43 +74,53 @@
     border: 1px solid transparent !important;
 }
 
-#co-learning-teacher-page .student-info-container .show-on-smartboard svg {
+#co-learning-teacher-page .student-info-container .show-on-smartboard svg,
+#assessment-page .student-info-container .show-on-smartboard svg {
     position: absolute;
     top: 7px;
     left: 6px;
 }
 
-#co-learning-teacher-page .student-info-container.active .show-on-smartboard {
+#co-learning-teacher-page .student-info-container.active .show-on-smartboard,
+#assessment-page .student-info-container.active .show-on-smartboard {
     border: 1px solid blue !important;
     background-color: var(--primary) !important;
 }
 
 
 #co-learning-teacher-page .student-info-container.active .show-on-smartboard:hover,
-#co-learning-teacher-page .student-info-container.active .show-on-smartboard {
+#assessment-page .student-info-container.active .show-on-smartboard:hover,
+#co-learning-teacher-page .student-info-container.active .show-on-smartboard,
+#assessment-page .student-info-container.active .show-on-smartboard {
     color: white;
 }
 
 #co-learning-teacher-page .student-info-container .show-on-smartboard.disabled:hover,
-#co-learning-teacher-page .student-info-container .show-on-smartboard.disabled {
+#assessment-page .student-info-container .show-on-smartboard.disabled:hover,
+#co-learning-teacher-page .student-info-container .show-on-smartboard.disabled,
+#assessment-page .student-info-container .show-on-smartboard.disabled {
     color: var(--mid-grey);
 }
 
-#co-learning-teacher-page .student-info-container .show-on-smartboard:hover {
+#co-learning-teacher-page .student-info-container .show-on-smartboard:hover,
+#assessment-page .student-info-container .show-on-smartboard:hover {
     color: var(--teacher-primary);
 }
 
-#co-learning-teacher-page .student-info-container.active .student-name {
+#co-learning-teacher-page .student-info-container.active .student-name,
+#assessment-page .student-info-container.active .student-name {
     font-weight: bold;
     color: var(--teacher-primary);
-    font-family: "Nunito Bold";
 }
 
-#co-learning-teacher-page .hide-on-smartboard {
+#co-learning-teacher-page .hide-on-smartboard,
+#assessment-page .hide-on-smartboard {
     position: absolute;
     right: 20px;
 }
-#co-learning-teacher-page .hide-on-smartboard div {
+
+#co-learning-teacher-page .hide-on-smartboard div,
+#assessment-page .hide-on-smartboard div {
     width: 2.5rem;
     height: 2.5rem;
     border-radius: 9999px;
@@ -110,27 +129,31 @@
     align-items: center;
 
 }
-#co-learning-teacher-page .hide-on-smartboard svg {
+
+#co-learning-teacher-page .hide-on-smartboard svg,
+#assessment-page .hide-on-smartboard svg {
     position: absolute;
     top: 12px;
     left: 9px;
     color: var(--system-base);
 }
 
-#co-learning-teacher-page .answered-status-badge {
+#co-learning-teacher-page .answered-status-badge,
+#assessment-page .answered-status-badge {
     position: absolute;
     top: 7px;
     right: 70px;
 }
 
-    /* height:
-     *  Footer = 70px
-     *  content-head = 50px
-     *  header = 70px
-     * total = 190px
-    */
+/* height:
+ *  Footer = 70px
+ *  content-head = 50px
+ *  header = 70px
+ * total = 190px
+*/
 
-#co-learning-teacher-page #main-content-container {
+#co-learning-teacher-page #main-content-container,
+#assessment-page #main-content-container {
     top: 70px;
     display: flex;
     width: 100%;
@@ -140,22 +163,26 @@
     overflow: auto;
 }
 
-#co-learning-teacher-page .question-indicator .question-number {
+#co-learning-teacher-page .question-indicator .question-number,
+#assessment-page .question-indicator .question-number {
     border-color: var(--system-base);
     background: var(--system-base);
     color: white;
 }
 
-#co-learning-teacher-page .container-border-left-primary {
+#co-learning-teacher-page .container-border-left.primary,
+#assessment-page .container-border-left.primary {
     background-color: var(--primary);
 }
 
-#co-learning-teacher-page .container-border-left-student {
+#co-learning-teacher-page .container-border-left.student,
+#assessment-page .container-border-left.student {
     background-color: var(--secondary);
 }
 
-#co-learning-teacher-page .container-border-left-student,
-#co-learning-teacher-page .container-border-left-primary {
+#co-learning-teacher-page .container-border-left,
+#assessment-page .container-border-left {
+    background-color: var(--primary);
     position: absolute;
     width: 0.5rem;
     height: 100%;
@@ -165,37 +192,45 @@
     border-width: 0px;
 }
 
-#co-learning-teacher-page h4 {
+#co-learning-teacher-page h4,
+#assessment-page h4 {
     line-height: 1.33;
 }
 
-#co-learning-teacher-page .question-title {
+#co-learning-teacher-page .question-title,
+#assessment-page .question-title {
     padding-bottom: 13px;
 }
 
-#co-learning-teacher-page .question-bottom-line {
+#co-learning-teacher-page .question-bottom-line,
+#assessment-page .question-bottom-line {
     border-bottom: 3px solid var(--system-base);
 }
 
-#co-learning-teacher-page .word-count div {
+#co-learning-teacher-page .word-count div,
+#assessment-page .word-count div {
     display: flex;
 }
-#co-learning-teacher-page .word-count div div {
+
+#co-learning-teacher-page .word-count div div,
+#assessment-page .word-count div div {
     margin-right: 1rem;
 }
 
 
-
-#co-learning-teacher-page .badge-view {
-
+#co-learning-teacher-page .badge-view,
+#assessment-page .badge-view {
+    transition: 150ms ease background-color, 150ms ease color;
 }
 
-#co-learning-teacher-page .badge-view:hover {
+#co-learning-teacher-page .badge-view:hover,
+#assessment-page .badge-view:hover {
     background-color: #f3f7ff;
     color: var(--teacher-primary);
 }
 
-#co-learning-teacher-page .badge-view:hover:after {
+#co-learning-teacher-page .badge-view:hover:after,
+#assessment-page .badge-view:hover:after {
     content: '';
     border: 2px solid var(--teacher-primary);
     position: absolute;
@@ -207,9 +242,11 @@
 }
 
 
-#co-learning-teacher-page #header {
+#co-learning-teacher-page #header,
+#assessment-page #header {
     position: fixed;
     left: 0;
+    top: 0;
     width: 100%;
     color: white;
     z-index: 50;
@@ -220,13 +257,15 @@
 }
 
 
-#co-learning-teacher-page #header.maintenance-header-bg {
+#co-learning-teacher-page #header.maintenance-header-bg,
+#assessment-page #header.maintenance-header-bg {
     border-bottom: 4px solid var(--maintenance-header-bg);
     /*normal maintenance-header-bg not working with colearning background image gradient*/
 }
 
 
-#co-learning-teacher-page #header #start-screen-content .grid .co-learning-panel {
+#co-learning-teacher-page #header #start-screen-content .grid .co-learning-panel,
+#assessment-page #header #start-screen-content .grid .co-learning-panel {
     width: 307px;
     height: 321px;
     padding: 30px;
@@ -240,17 +279,23 @@
 }
 
 #co-learning-teacher-page #header #start-screen-content .grid .co-learning-panel.co-learning-restart.co-learning-previous-discussion-type,
-#co-learning-teacher-page #header #start-screen-content .grid .co-learning-panel:hover {
+#assessment-page #header #start-screen-content .grid .co-learning-panel.co-learning-restart.co-learning-previous-discussion-type,
+#co-learning-teacher-page #header #start-screen-content .grid .co-learning-panel:hover,
+#assessment-page #header #start-screen-content .grid .co-learning-panel:hover {
     box-shadow: 0 8px 16px 0 rgba(4, 31, 116, 0.3);
     border: solid 2px white;
     background-color: rgba(0, 77, 245, 0.9);
 }
 
-#co-learning-teacher-page #header #start-screen-content .grid .co-learning-panel.co-learning-restart {
+#co-learning-teacher-page #header #start-screen-content .grid .co-learning-panel.co-learning-restart,
+#assessment-page #header #start-screen-content .grid .co-learning-panel.co-learning-restart {
     height: 375px;
 }
 
-#co-learning-teacher-page #header #start-screen-content .grid .co-learning-panel #text-body {
+#co-learning-teacher-page #header #start-screen-content .grid .co-learning-panel #text-body,
+#co-learning-teacher-page #header #start-screen-content .grid .co-learning-panel .panel-body,
+#assessment-page #header #start-screen-content .grid .co-learning-panel #text-body,
+#assessment-page #header #start-screen-content .grid .co-learning-panel .panel-body {
     height: 91px;
     display: flex;
     flex-direction: column;
@@ -259,7 +304,8 @@
     text-align: center;
 }
 
-#co-learning-teacher-page .co-learning-tooltip {
+#co-learning-teacher-page .co-learning-tooltip,
+#assessment-page .co-learning-tooltip {
     position: fixed;
     width: 252px;
     height: 64px;
@@ -271,10 +317,32 @@
     z-index: 10;
     color: var(--system-base);
 }
-#co-learning-teacher-page .co-learning-tooltip:nth-child(1) {
+
+#co-learning-teacher-page .co-learning-tooltip:nth-child(1),
+#assessment-page .co-learning-tooltip:nth-child(1) {
     height: 22px;
 }
-#co-learning-teacher-page .co-learning-tooltip:nth-child(2) {
+
+#co-learning-teacher-page .co-learning-tooltip:nth-child(2),
+#assessment-page .co-learning-tooltip:nth-child(2) {
     height: 18px;
     font-size: 14px;
+}
+
+
+#assessment-page .multiple-choice .all-or-nothing-toggle {
+    position: absolute;
+    left: calc(50% + 2rem);
+    transform: translateY(-50%);
+}
+#assessment-page .multiple-choice .first-active .all-or-nothing-line {
+    right: -1rem;
+    position: absolute;
+    width: 10px;
+    border: solid 2px var(--primary);
+    border-left: none;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    top: 50%;
+    transition: height 50ms ease
 }

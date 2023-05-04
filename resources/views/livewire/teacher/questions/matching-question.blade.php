@@ -43,11 +43,11 @@
                 $errorAnswerClassRight = 'border-allred'
             @endphp
             @enderror
-            <x-drag-item id="mc-{{$answer->id}}" sortId="{{ $answer->order }}"
+            <x-drag-item id="mc-{{ $answer->id }}" sortId="{{ $answer->order }}"
                          wireKey="option-{{ $answer->id }}" selid="drag-box"
                          class="flex px-0 py-0 border-0 bg-system-white relative regular"
                          slotClasses="w-full mr-0 "
-                         dragClasses="absolute right-14 hover:text-primary transition"
+                         dragClasses="hover:text-primary transition"
                          dragIconClasses="cursor-move {{ isset($preview) ? 'text-midgrey hover:text-midgrey' : '' }}"
                          :useHandle="true"
                          :keepWidth="true"

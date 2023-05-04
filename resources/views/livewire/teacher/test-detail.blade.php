@@ -49,7 +49,7 @@
                         <x-button.back-round class="shrink-0" x-on:click="closeTestSlide"/>
                     @endif
                     <div class="flex text-lg bold w-[calc(100%-50px)]">
-                        <span class="truncate ">{{ __('Toets') }}: {{ $this->test->name }}</span>
+                        <span class="truncate" selid="test-detail-title">{{ __('Toets') }}: {{ $this->test->name }}</span>
                     </div>
                 </div>
 
@@ -94,7 +94,7 @@
             </div>
         @endempty
         <div class="flex w-full" x-show="testDetailBodyVisibility">
-            <div class="w-full mx-auto divide-y divide-secondary">
+            <div class="w-full mx-auto divide-y divide-secondary z-0">
                 {{-- Content --}}
                 <div class="flex flex-col py-4" style="min-height: 500px">
                     <x-grid class="mt-4">

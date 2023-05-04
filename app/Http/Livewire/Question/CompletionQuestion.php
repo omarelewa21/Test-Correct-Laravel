@@ -3,6 +3,7 @@
 namespace tcCore\Http\Livewire\Question;
 
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Livewire\Component;
 use tcCore\Answer;
 use tcCore\Http\Helpers\BaseHelper;
@@ -21,12 +22,13 @@ class CompletionQuestion extends Component
     public $answers;
     public $number;
     public $preventAnswerTransformation = true;
+    public $testTakeUuid;
 
     public function mount()
     {
         $this->answer = (array)json_decode($this->answers[$this->question->uuid]['answer']);
         foreach ($this->answer as $key => $val) {
-            $this->answer[$key] = BaseHelper::transformHtmlCharsReverse($val);
+            $this->answer[$key] = BaseHelper::transformHtmlCharsReverse($val, false);
         }
     }
 
@@ -53,22 +55,26 @@ class CompletionQuestion extends Component
         $question_text = $question->converted_question_html;
 
         $searchPattern = "/\[([0-9]+)\]/i";
-        $replacementFunction = function ($matches) use ($question) {
+        $replacementFunction = function ($matches) use ($question,) {
             $tag_id = $matches[1] - 1; // the completion_question_answers list is 1 based but the inputs need to be 0 based
             $events = sprintf('@blur="$refs.%s.scrollLeft = 0" @input="$event.target.setAttribute(\'title\', $event.target.value);"', 'comp_answer_' . $tag_id);
             $rsSpan = '';
             if (Auth::user()->text2speech) {
-                $events = sprintf('@focus="handleTextBoxFocusForReadspeaker(event,\'%s\')" @blur="$refs.%s.scrollLeft = 0;handleTextBoxBlurForReadspeaker(event,\'%s\')" @input="$event.target.setAttribute(\'title\', $event.target.value);"', $question->getKey(), 'comp_answer_' . $tag_id, $question->getKey());
+                $events = sprintf('@focus="handleTextBoxFocusForReadspeaker(event,\'%s\')" @blur="$refs.%s.scrollLeft = 0;handleTextBoxBlurForReadspeaker(event,\'%s\')" @input="$event.target.setAttribute(\'title\', $event.target.value)"', $question->getKey(), 'comp_answer_' . $tag_id, $question->getKey());
                 $rsSpan = '<span wire:ignore class="rs_placeholder"></span>';
             }
             return sprintf(
-                '<span><input x-on:contextmenu="$event.preventDefault()" spellcheck="false"   autocorrect="off" autocapitalize="none"  wire:model.lazy="answer.%d" class="form-input mb-2 truncate text-center overflow-ellipsis" type="text" id="%s" style="width: 120px" x-ref="%s" %s wire:key="%s"/>%s</span>',
+                '<span class="inline-flex max-w-full"><span class="absolute whitespace-nowrap" style="left: -9999px" x-ref="%s"></span> <input x-on:contextmenu="$event.preventDefault()" x-on:input="setInputWidth($el)" spellcheck="false" style="width: 120px"  autocorrect="off" autocapitalize="none"  wire:model.lazy="answer.%d"
+                            class="form-input mb-2 truncate text-center"  x-init="setInputWidth($el, true);"
+                            type="text" id="%s" x-ref="%s" %s wire:key="%s"/>%s</span>',
+
+                'comp_answer_' . $tag_id . '_span',
                 $tag_id,
                 'answer_' . $tag_id . '_' . $this->question->getKey(),
                 'comp_answer_' . $tag_id,
                 $events,
                 'comp_answer_' . $tag_id,
-                $rsSpan
+                $rsSpan,
             );
         };
 

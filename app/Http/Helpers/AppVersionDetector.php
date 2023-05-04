@@ -3,6 +3,7 @@ namespace tcCore\Http\Helpers;
 
 use Carbon\Carbon;
 use DateTime;
+use DateTimeZone;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
@@ -54,49 +55,71 @@ class AppVersionDetector
         ],
         "iOS" => [
             "ok" => [
-                "3.0.0",
-                "3.0.1",
                 "3.0.2",
                 "3.0.3",
                 "3.0.4",
                 "3.0.5",
                 "3.1.0",
+                "3.1.1",
+                "3.1.2",
+                "3.1.3",
+                "3.1.4",
+                "3.2.0",
+                "3.2.1",
+                "3.2.2",
+                "3.2.3",
+                "3.2.4",
             ],
             "needsUpdate" => [
+
             ],
             "needsUpdateDeadline" => [
+
             ],
         ],
         "ChromeOS" => [
             "ok" =>
             [
-                "3.0.0",
-                "3.0.1",
-                "3.0.2",
-                "3.0.3",
-                "3.0.4",
-                "3.0.5",
                 "3.1.0",
+                "3.1.10",
+                "3.1.20",
+                "3.1.30",
+                "3.1.40",
+                "3.1.50",
+                "3.2.0",
+                "3.2.10",
+                "3.2.20",
+                "3.2.30",
+                "3.2.40",
+                "3.2.50",
+                "3.3.0",
+                "3.3.10",
+                "3.3.20",
+                "3.3.30",
+                "3.3.40",
+                "3.3.50",
+                "3.4.0",
+                "3.4.10",
+                "3.4.20",
+                "3.4.30",
+                "3.4.40",
+                "3.4.50",
+                "3.5.0",
+                "3.5.10",
+                "3.5.20",
+                "3.5.30",
+                "3.5.40",
+                "3.5.50",
             ],
             "needsUpdate" => [
+                '3.0.0',
             ],
             "needsUpdateDeadline" => [
+                '3.0.0' => '1 juni 2023',
             ],
         ],
         "windowsElectron" => [
             "ok" => [
-                "3.3.0",
-                "3.3.0-beta.1",
-                "3.3.0-beta.2",
-                "3.3.0-beta.3",
-                "3.3.0-beta.4",
-                "3.3.0-beta.5",
-                "3.3.1",
-                "3.3.1-beta.1",
-                "3.3.1-beta.2",
-                "3.3.1-beta.3",
-                "3.3.1-beta.4",
-                "3.3.1-beta.5",
                 "3.3.2",
                 "3.3.2-beta.1",
                 "3.3.2-beta.2",
@@ -126,29 +149,49 @@ class AppVersionDetector
                 "3.4.0-beta.2",
                 "3.4.0-beta.3",
                 "3.4.0-beta.4",
-                "3.4.0-beta.5"
+                "3.4.0-beta.5",
+                "3.4.1",
+                "3.4.1-beta.1",
+                "3.4.1-beta.2",
+                "3.4.1-beta.3",
+                "3.4.1-beta.4",
+                "3.4.1-beta.5",
+                "3.4.2",
+                "3.4.2-beta.1",
+                "3.4.2-beta.2",
+                "3.4.2-beta.3",
+                "3.4.2-beta.4",
+                "3.4.2-beta.5",
+                "3.4.3",
+                "3.4.3-beta.1",
+                "3.4.3-beta.2",
+                "3.4.3-beta.3",
+                "3.4.3-beta.4",
+                "3.4.3-beta.5",
+                "3.4.4",
+                "3.4.4-beta.1",
+                "3.4.4-beta.2",
+                "3.4.4-beta.3",
+                "3.4.4-beta.4",
+                "3.4.4-beta.5",
+                "3.5.0",
+                "3.5.0-beta.1",
+                "3.5.0-beta.2",
+                "3.5.0-beta.3",
+                "3.5.0-beta.4",
+                "3.5.0-beta.5",
             ],
             "needsUpdate" => [
-
+                '3.3.0',
+                '3.3.1',
             ],
             "needsUpdateDeadline" => [
-
+                '3.3.0' => '28 april 2023',
+                '3.3.1' => '6 juni 2023',
             ],
         ],
         "macosElectron" => [
             "ok" => [
-                "3.3.0",
-                "3.3.0-beta.1",
-                "3.3.0-beta.2",
-                "3.3.0-beta.3",
-                "3.3.0-beta.4",
-                "3.3.0-beta.5",
-                "3.3.1",
-                "3.3.1-beta.1",
-                "3.3.1-beta.2",
-                "3.3.1-beta.3",
-                "3.3.1-beta.4",
-                "3.3.1-beta.5",
                 "3.3.2",
                 "3.3.2-beta.1",
                 "3.3.2-beta.2",
@@ -178,13 +221,45 @@ class AppVersionDetector
                 "3.4.0-beta.2",
                 "3.4.0-beta.3",
                 "3.4.0-beta.4",
-                "3.4.0-beta.5"
+                "3.4.0-beta.5",
+                "3.4.1",
+                "3.4.1-beta.1",
+                "3.4.1-beta.2",
+                "3.4.1-beta.3",
+                "3.4.1-beta.4",
+                "3.4.1-beta.5",
+                "3.4.2",
+                "3.4.2-beta.1",
+                "3.4.2-beta.2",
+                "3.4.2-beta.3",
+                "3.4.2-beta.4",
+                "3.4.2-beta.5",
+                "3.4.3",
+                "3.4.3-beta.1",
+                "3.4.3-beta.2",
+                "3.4.3-beta.3",
+                "3.4.3-beta.4",
+                "3.4.3-beta.5",
+                "3.4.4",
+                "3.4.4-beta.1",
+                "3.4.4-beta.2",
+                "3.4.4-beta.3",
+                "3.4.4-beta.4",
+                "3.4.4-beta.5",
+                "3.5.0",
+                "3.5.0-beta.1",
+                "3.5.0-beta.2",
+                "3.5.0-beta.3",
+                "3.5.0-beta.4",
+                "3.5.0-beta.5",
             ],
             "needsUpdate" => [
-
+                '3.3.0',
+                '3.3.1',
             ],
             "needsUpdateDeadline" => [
-
+                '3.3.0' => '28 april 2023',
+                '3.3.1' => '6 juni 2023',
             ],
         ]
     ];
@@ -439,7 +514,7 @@ class AppVersionDetector
             throw new Error("Preshared key is undefined. Key verification failed");
         }
         //get current date
-        $datetime = new DateTime();
+        $datetime = new DateTime('now', new DateTimeZone('UTC'));
         $hashDate = $datetime->format("Y-m-d");
         $hashUrl = strtok($_SERVER["REQUEST_URI"], '?');
 

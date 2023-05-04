@@ -30,33 +30,21 @@ abstract class FactoryQuestionOpen extends FactoryQuestion
         return $this;
     }
 
-    protected function definition()
+    /**
+     * @return string
+     */
+    public function questionType(): string
     {
-        return [
-            "add_to_database" => 1,
-            "answer" => "<p>voorbeeld antwoord: 3.14</p> ",
-            "bloom" => "",
-            "closeable" => 0,
-            "decimal_score" => 0,
-            "discuss" => 1,
-            "maintain_position" => 0,
-            "miller" => "",
-            "is_open_source_content" => 0,
-            "tags" => [
-            ],
-            "note_type" => "NONE",
-            "order" => 0,
-            "question" => '<p>voorbeeld vraag:</p> <p>wat is de waarde van pi</p> ',
-            "rtti" => "",
-            "score" => 5,
-            "subtype" => $this->questionSubType(),
-            "type" => "OpenQuestion",
-            "attainments" => [
-            ],
-            "test_id" => 0,
-            "all_or_nothing" => false,
-        ];
+        return "OpenQuestion";
     }
 
-    protected abstract function questionSubType();
+    public function answerDefinition(): string
+    {
+        return "<p>voorbeeld antwoord: 3.14</p> ";
+    }
+
+    public function questionDefinition(): string
+    {
+        return '<p>voorbeeld vraag:</p> <p>wat is de waarde van pi</p> ';
+    }
 }

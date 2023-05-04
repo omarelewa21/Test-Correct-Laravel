@@ -4,19 +4,32 @@ namespace Tests\Unit\Scopes;
 
 use tcCore\Attainment;
 use tcCore\EducationLevel;
+use tcCore\Factories\FactoryTest;
+use tcCore\FactoryScenarios\FactoryScenarioSchoolSimple;
 use tcCore\LearningGoal;
 use tcCore\User;
+use Tests\ScenarioLoader;
 use Tests\TestCase;
 
 class EductionLevelYearForStudentTest extends TestCase
 {
+    protected $loadScenario = FactoryScenarioSchoolSimple::class;
+    private User $teacherOne;
+    private User $studentOne;
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->teacherOne = ScenarioLoader::get('user');
+        $this->studentOne = ScenarioLoader::get('student1');
+    }
     /** @test */
     public function it_should_return_the_education_level_years_for_a_student()
     {
         /**
          * student one  is only in education_level_year 1
          */
-        $years = EducationLevel::yearsForStudent($this->getStudentOne());
+        $years = EducationLevel::yearsForStudent($this->studentOne);
         $this->assertCount(1, $years);
 
         $this->assertCount(
@@ -32,7 +45,7 @@ class EductionLevelYearForStudentTest extends TestCase
     {
         $this->assertEquals(
             LearningGoal::TYPE,
-            EducationLevel::getAttainmentType($this->getStudentOne())
+            EducationLevel::getAttainmentType($this->studentOne)
         );
     }
 
@@ -41,9 +54,13 @@ class EductionLevelYearForStudentTest extends TestCase
      */
     public function it_should_return_attainmentType_as_attainment_when_in_bovenbouw()
     {
+        $schoolClass = $this->studentOne->studentSchoolClasses->first();
+        $schoolClass->education_level_year = 4;
+        $schoolClass->save();
+
         $this->assertEquals(
             Attainment::TYPE,
-            EducationLevel::getAttainmentType(User::where('username', 'student_p_value_1@sobit.nl')->first())
+            EducationLevel::getAttainmentType($this->studentOne)
         );
     }
 
@@ -55,7 +72,8 @@ class EductionLevelYearForStudentTest extends TestCase
     {
         $this->assertEquals(
             $minAttainmentYear,
-            EducationLevel::firstWhere('name', $name)->min_attainment_year
+            EducationLevel::firstWhere('name', $name)->min_attainment_year,
+           "name $name, minAttainmentYear $minAttainmentYear"
         );
     }
 
@@ -65,15 +83,11 @@ class EductionLevelYearForStudentTest extends TestCase
             ['VWO', 4],
             ['Gymnasium', 4],
             ['Havo', 4],
-            ['Mavo / VMBO tl', 3],
+            ['Mavo / Vmbo tl', 3],
             ['Vmbo gl', 3],
             ['Vmbo kb', 3],
             ['Vmbo bb', 3],
             ['Havo/VWO', 3],
         ];
-
-
     }
-
-
 }

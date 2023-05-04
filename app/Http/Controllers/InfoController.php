@@ -2,8 +2,10 @@
 
 namespace tcCore\Http\Controllers;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 use tcCore\Deployment;
 use tcCore\Http\Requests\CreateDeploymentRequest;
@@ -23,6 +25,7 @@ use DOMDocument;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use tcCore\UserSystemSetting;
 
 class InfoController extends Controller
 {
@@ -89,6 +92,7 @@ class InfoController extends Controller
         }
         $info = Info::create($data->all());
         $info->saveRoleInfo($request->validated());
+
         return Response::make($info,200);
     }
 
@@ -108,6 +112,34 @@ class InfoController extends Controller
         }
 
         return Response::make(false, 500);
+
+    }
+
+    public function seenNewFeatures(){
+
+        $user = Auth::user();
+
+        if(!auth()->user()->isA('Teacher')) {
+            return Response::make(false, 401);
+        }
+
+        UserSystemSetting::setSetting($user,'newFeaturesSeen',Carbon::now()->timestamp);
+
+        return Response::make(true,200);
+
+    }
+
+    public function closedNewFeaturesMessage(){
+
+        $user = Auth::user();
+
+        if(!auth()->user()->isA('Teacher')) {
+            return Response::make(false, 401);
+        }
+
+        UserSystemSetting::setSetting($user,'closedNewFeaturesMessage',Carbon::now()->timestamp);
+
+        return Response::make(true,200);
 
     }
 

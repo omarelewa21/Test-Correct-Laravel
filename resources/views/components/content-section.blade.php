@@ -4,7 +4,7 @@
 ])
 <div {{ $attributes->merge(['class' => 'flex flex-col py-5 px-7 bg-white rounded-10 content-section']) }}
      @if($withUploadHandling)
-     @dragover.prevent="$el.classList.add('dragover')"
+     @dragover.prevent="if ($event.target.closest('.ck-editor__main') === null) { $el.classList.add('dragover') }"
      @dragleave.prevent="$el.classList.remove('dragover')"
      @drop.prevent="$el.classList.remove('dragover');  $dispatch('newfile', $event)"
      droppable

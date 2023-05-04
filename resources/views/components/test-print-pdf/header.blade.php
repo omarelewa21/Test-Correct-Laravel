@@ -18,11 +18,11 @@
                     }
                 }
             }
-            // const myFont = new FontFace('Nunito Bold', 'url(/fonts/nunito-bold.tff)');
+            // const myFont = new FontFace('Nunito', 'url(/fonts/Nunito-VariableFont_wght.ttf)');
             // await myFont.load();
             // document.fonts.add(myFont);
             //
-            // document.getElementsByClassName('header-text')[0].style.fontFamily = "Nunito Bold";
+            // document.getElementsByClassName('header-text')[0].style.fontFamily = "Nunito";
         }
     </script>
     <link rel="stylesheet" href="file://{{ public_path('/css/app_pdf.css') }}">

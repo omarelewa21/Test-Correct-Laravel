@@ -33,13 +33,14 @@ WebspellcheckerTlc = {
     },
     initWsc: function(editor,language){
         setTimeout(function () {
+
             var instance = WEBSPELLCHECKER.init({
-                container: editor.window.getFrame() ? editor.window.getFrame().$ : editor.element.$,
+                container: editor.ui._editableElements.get('main'),
                 spellcheckLang: language,
                 localization: 'nl'
             });
             instance.subscribe('problemCheckEnded', (event) => {
-                window.dispatchEvent(new CustomEvent('wsc-problems-count-updated-'+editor.name, {
+                window.dispatchEvent(new CustomEvent('wsc-problems-count-updated-'+editor.sourceElement.id, {
                     detail: { problemsCount: instance.getProblemsCount()}
                 }));
             });

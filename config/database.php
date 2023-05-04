@@ -78,7 +78,7 @@ return [
 
 		'sqlite' => [
 			'driver'   => 'sqlite',
-			'database' => ':memory:',database_path().'/seeds/test.db',
+			'database' => env('DB_DATABASE', database_path('database.sqlite')),//':memory:',database_path().'/seeds/test.db',
 			'prefix'   => '',
             'foreign_key_constraints' => true,
 		],

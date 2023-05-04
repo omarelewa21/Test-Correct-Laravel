@@ -19,6 +19,7 @@
 @import url("score-slider.css");
 @import url("co-learning.css");
 @import url("rs_tlc.css");
+@import url("assessment.css");
 
 
 @tailwind base;
@@ -67,34 +68,30 @@
     --header-height: 70px;
 
     --sidebar-width: 300px;
+    --active-sidebar-width: var(--sidebar-width);
     --sidebar-transition: .5s ease;
     --collapsed-sidebar-width: 24px;
 
-    --primary-gradient: linear-gradient(to right, var(--teacher-primary) 0%,var(--teacher-primary-light) 100%);
+    --primary-gradient: linear-gradient(to right, var(--teacher-primary) 0%, var(--teacher-primary-light) 100%);
 
     --button-gradient: linear-gradient(to right, #002096 0%, var(--teacher-primary-light) 100%),
-                       linear-gradient(to bottom, var(--teacher-primary), var(--teacher-primary));
+    linear-gradient(to bottom, var(--teacher-primary), var(--teacher-primary));
 
     --cta-gradient: linear-gradient(to right, var(--cta-primary-dark) 0%, var(--cta-primary) 100%),
-                    linear-gradient(to bottom, var(--cta-primary), var(--cta-primary));
+    linear-gradient(to bottom, var(--cta-primary), var(--cta-primary));
 }
 
 @font-face {
-    font-family: Nunito Bold;
-    src: url("../fonts/Nunito/Nunito-Bold.ttf");
-    font-weight: bold;
-}
-
-@font-face {
-    font-family: Nunito Regular;
-    src: url("../fonts/Nunito/Nunito-Regular.ttf");
-    font-weight: normal;
+    font-family: Nunito;
+    src: url("../fonts/Nunito/Nunito-VariableFont_wght.ttf");
+    font-weight: 100 900;
 }
 
 @font-face {
     font-family: Zilla Slab Regular;
     src: url("../fonts/Zilla_Slab/ZillaSlab-Regular.ttf");
 }
+
 @font-face {
     font-family: Zilla Slab Bold;
     src: url("../fonts/Zilla_Slab/ZillaSlab-Bold.ttf");
@@ -115,7 +112,7 @@
 }
 
 body {
-    font-family: Nunito Regular, sans-serif !important;
+    font-family: Nunito, sans-serif !important;
     background: var(--light-grey) !important;
     color: var(--system-base);
     touch-action: manipulation;
@@ -293,9 +290,11 @@ svg {
 .all-red {
     color: var(--all-red);
 }
+
 .bg-all-red {
     background: var(--all-red);
 }
+
 .border-all-red {
     border-color: var(--all-red);
 }
@@ -303,18 +302,23 @@ svg {
 .red-light {
     color: var(--red-light);
 }
+
 .bg-red-light {
     background: var(--red-light);
 }
+
 .border-red-light {
     border-color: var(--red-light);
 }
+
 .orange {
     color: var(--orange);
 }
+
 .bg-orange {
     background: var(--orange);
 }
+
 .border-orange {
     border-color: var(--orange);
 }
@@ -322,9 +326,11 @@ svg {
 .note {
     color: var(--note);
 }
+
 .bg-note {
     background: var(--note);
 }
+
 .border-note {
     border-color: var(--note);
 }
@@ -332,9 +338,11 @@ svg {
 .primary-hover:hover {
     color: var(--primary);
 }
+
 .bg-primary-hover:hover {
     background-color: var(--primary);
 }
+
 .border-primary-hover:hover {
     border-color: var(--primary);
 }
@@ -342,10 +350,12 @@ svg {
 .rounded-10 {
     border-radius: 10px;
 }
+
 .rounded-t-10 {
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
 }
+
 .rounded-b-10 {
     border-bottom-left-radius: 10px;
     border-bottom-right-radius: 10px;
@@ -353,14 +363,16 @@ svg {
 
 h1 {
     font-size: 2rem;
-    font-family: Nunito Bold;
+    font-family: Nunito;
+    font-weight: 700;
     line-height: 2rem;
     color: var(--system-base);
 }
 
 h2 {
     font-size: 1.75rem;
-    font-family: Nunito Bold;
+    font-family: Nunito;
+    font-weight: 700;
     line-height: 2rem;
     color: var(--system-base);
 }
@@ -371,34 +383,39 @@ h3 {
     line-height: 2rem;
     color: var(--system-base);
 }
+
 h3.bold {
     font-family: Zilla Slab Bold, serif;
 }
 
 h4 {
     font-size: 1.5rem;
-    font-family: Nunito Bold;
+    font-family: Nunito;
+    font-weight: 700;
     line-height: 1.5rem;
     color: var(--system-base);
 }
 
 h5 {
     font-size: 1.25rem;
-    font-family: Nunito Bold;
+    font-family: Nunito;
+    font-weight: 700;
     line-height: 1.25rem;
     color: var(--system-base);
 }
 
 h6 {
     font-size: 1.125rem;
-    font-family: Nunito Bold;
+    font-family: Nunito;
+    font-weight: 700;
     line-height: 1.125rem;
     color: var(--system-base);
 }
 
 h7 {
     font-size: 1rem;
-    font-family: Nunito Bold;
+    font-family: Nunito;
+    font-weight: 700;
     line-height: 1.5rem;
     color: var(--system-base);
 }
@@ -406,21 +423,21 @@ h7 {
 .body1 {
     font-size: 1.125rem;
     line-height: 1.5rem;
-    font-family: Nunito Regular;
+    font-family: Nunito;
 }
 
 .body2 {
     font-size: 1rem;
     line-height: 1.5rem;
-    font-family: Nunito Regular;
+    font-family: Nunito;
 }
 
 .bold {
-    font-family: Nunito Bold;
+    font-weight: 700;
 }
 
 .regular {
-    font-family: Nunito Regular;
+    font-family: Nunito;
 }
 
 .font-size-14 {
@@ -457,12 +474,15 @@ h7 {
 .rotate-svg-90 > svg {
     transform: rotate(90deg);
 }
+
 .rotate-svg-180 > svg {
     transform: rotate(180deg);
 }
+
 .rotate-svg-270 > svg {
     transform: rotate(270deg);
 }
+
 .rotate-svg-45 > svg {
     transform: rotate(45deg);
 }
@@ -499,16 +519,17 @@ h7 {
 .student-bg {
     background-image: linear-gradient(to top, var(--highlight-primary-mid-dark), var(--highlight-primary));
 }
+
 /* Hide browsealoud button*/
 button#browsealoud-button--launchpad {
-    display:none !important;
+    display: none !important;
 }
 
 body.modal-open {
     overflow-y: hidden;
 }
 
-#popover:before{
+#popover:before {
     content: "";
     position: absolute;
     bottom: 100%;
@@ -561,18 +582,21 @@ body.modal-open {
 }
 
 ol {
-    list-style: disk!important;
-    padding-left: 20px!important;
+    list-style: disk !important;
+    padding-left: 20px !important;
 }
+
 ul {
-    list-style: initial!important;
-    padding-left: 20px!important;
+    list-style: initial !important;
+    padding-left: 20px !important;
 }
+
 ul ul {
-    list-style: circle!important;
+    list-style: circle !important;
 }
+
 ul ul ul {
-    list-style: square!important;
+    list-style: square !important;
 }
 
 [browser], [electron], [ios], [chromebook] {
@@ -582,18 +606,23 @@ ul ul ul {
 .OK {
     color: var(--cta-primary);
 }
+
 .NEEDSUPDATE {
     color: var(--orange);
 }
+
 .NOTALLOWED {
     color: var(--all-red);
 }
+
 .main-shadow {
     box-shadow: var(--main-shadow);
 }
+
 .card-shadow {
     box-shadow: var(--card-shadow);
 }
+
 .small-shadow {
     box-shadow: var(--small-shadow);
 }
@@ -601,6 +630,7 @@ ul ul ul {
 .validate-red {
     color: var(--all-red);
 }
+
 .validate-green {
     color: var(--cta-primary);
 }
@@ -620,29 +650,34 @@ ul ul ul {
     border-left: 1px solid var(--blue-grey);
     border-bottom-left-radius: 4px;
     border-bottom: 1px solid var(--blue-grey);
-    left:-5px;
+    left: -5px;
     top: -1.8rem;
     content: ' ';
 }
 
 .draggable-mirror.sub-item-with-connecting-line::before,
-.sortable-grab.sub-item-with-connecting-line::before{
-    display:none;
+.sortable-grab.sub-item-with-connecting-line::before {
+    display: none;
 }
+
 .draggable--over.sub-item-with-connecting-line::before,
 .draggable--original.sub-item-with-connecting-line::before,
-.draggable-source--is-dragging.sub-item-with-connecting-line::before{
-    left:-7px;
+.draggable-source--is-dragging.sub-item-with-connecting-line::before {
+    left: -7px;
 }
-.questionContainer table{
+
+.questionContainer table {
     border-spacing: 0px;
 }
+
 .questionContainer table, .questionContainer th, .questionContainer td {
     border: 2px solid rgb(100, 99, 99);
 }
+
 .questionContainer th, .questionContainer td {
     padding: 0.1rem 0.2rem;
 }
+
 /* latin */
 @font-face {
     font-family: 'Nunito';
@@ -657,6 +692,7 @@ ul ul ul {
     background-color: var(--primary);
     color: white;
 }
+
 .grid-card .option-menu-active:hover {
     background-color: var(--primary-opacity-05);
     color: var(--system-base);
@@ -666,19 +702,22 @@ ul ul ul {
     width: 70%;
     background-color: white;
     border: 1px solid var(--light-grey);
-    height: 1rem;border-radius:4px;
+    height: 1rem;
+    border-radius: 4px;
     overflow: hidden;
-    display:block
+    display: block
 }
+
 .logout-progress-bar span {
-    display:block;
+    display: block;
     background-color: var(--cta-primary);
     height: 1rem;
-    transition:width 0.25s
+    transition: width 0.25s
 }
+
 .grid .grid-card.archived span,
 .grid .grid-card.archived h3 {
-    color: var(--note)!important;
+    color: var(--note) !important;
 }
 
 .co-learning-break {
@@ -743,10 +782,14 @@ ul ul ul {
 }
 
 .accordion-disabled :where(span,div,h4) {
-    color: var(--mid-grey)!important;
-    border-color: var(--mid-grey)!important;
+    color: var(--mid-grey) !important;
+    border-color: var(--mid-grey) !important;
 }
 
 .anychart-credits {
     display: none;
+}
+
+.accordion-block img {
+    width: auto;
 }

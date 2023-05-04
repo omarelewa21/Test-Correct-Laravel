@@ -50,6 +50,8 @@ Route::get('check_for_deployment_maintenance',['uses' => 'DeploymentMaintenanceC
 Route::group(['middleware' => ['api', 'bindings']], function() {
     Route::get('info', [tcCore\Http\Controllers\InfoController::class, 'index']);
     Route::post('info/removeDashboardInfo/{info}', [tcCore\Http\Controllers\InfoController::class,'removeDashboardInfo']);
+    Route::put('info/seenNewFeatures', [tcCore\Http\Controllers\InfoController::class,'seenNewFeatures']);
+    Route::put('info/closedNewFeaturesMessage', [tcCore\Http\Controllers\InfoController::class,'closedNewFeaturesMessage']);
 });
 
 Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bindings']], function(){
@@ -64,7 +66,6 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::post('info',[tcCore\Http\Controllers\InfoController::class,'store']);
     Route::put('info/{info}',[tcCore\Http\Controllers\InfoController::class,'update']);
     Route::delete('info/{info}',[tcCore\Http\Controllers\InfoController::class,'delete']);
-
 
     Route::get('role',[\tcCore\Http\Controllers\RolesController::class,'index']);
 
@@ -199,6 +200,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 
     Route::get('test_take/{test_take}/attainment/analysis','TestTakes\TestTakeAttainmentAnalysisController@index')->name('test_take_attainment_analysis.index');
     Route::get('test_take/{test_take}/attainment/{attainment}/analysis','TestTakes\TestTakeAttainmentAnalysisController@show')->name('test_take_attainment_analysis.show');
+    Route::get('test_take/{test_take}/learning_goal/{learning_goal}/analysis','TestTakes\TestTakeAttainmentAnalysisController@show')->name('test_take_attainment_analysis.show_learning_goal');
 
     Route::get('test_participant/{test_participant}/answers_status_and_questions2019',['uses' => 'TestParticipants\Answers2019Controller@getAnswersStatusAndQuestions']);
 	Route::get('test_participant/{test_participant}/{test_take}/answers_status_and_test_take2019',['uses' => 'TestParticipants\Answers2019Controller@getAnswersStatusAndTestTake']);

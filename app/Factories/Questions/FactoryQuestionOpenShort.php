@@ -4,7 +4,7 @@ namespace tcCore\Factories\Questions;
 
 class FactoryQuestionOpenShort extends FactoryQuestionOpen
 {
-    protected function questionSubType()
+    public function questionSubType(): string
     {
         return 'short';
     }

@@ -18,5 +18,6 @@ return [
     'city_required'            => 'A name for a city is required for the address',
     'username_required'        => 'E-mail address is required',
     'username_email'           => 'E-mail address is not valid',
+    'username_unique'          => 'E-mail address already in use',
     'domain_required'          => 'Workdomain is required',
 ];

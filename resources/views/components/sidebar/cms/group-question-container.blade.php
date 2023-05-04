@@ -6,6 +6,7 @@
      wire:sortable.item="{{ $question->uuid }}"
      wire:sortable-group="updateGroupItemsOrder"
      title="{{ __('cms.Open vraaggroep') }}"
+     uuid="{{ $question->uuid }}"
 >
     <div class="flex space-x-2 py-1.5 pl-6 pr-4 cursor-pointer group-question-title-container hover:bg-primary/5 hover:text-primary"
     >
@@ -57,7 +58,9 @@
             @endif
             <div class="flex h-full rounded-md hover:text-primary reorder"
                  title="{{ __('sidebar.reorder') }}"
-                 wire:sortable.handle>
+                 wire:sortable.handle
+                 wire:key="group-handle-{{ $testQuestion->uuid }}"
+            >
                 <x-icon.reorder/>
             </div>
             <div class="flex">

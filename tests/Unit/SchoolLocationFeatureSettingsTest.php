@@ -6,6 +6,7 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use tcCore\FeatureSetting;
 use tcCore\Http\Enums\TestPackages;
 use tcCore\SchoolLocation;
+use tcCore\User;
 use Tests\TestCase;
 
 class SchoolLocationFeatureSettingsTest extends TestCase
@@ -68,6 +69,33 @@ class SchoolLocationFeatureSettingsTest extends TestCase
         ], $availableOptions);
     }
 
+    /**
+     * @test
+     * @dataProvider booleanFeatureSettings
+     */
+    public function setAndGetBooleanFeatureSettings($booleanFeatureSetting)
+    {
+        $schoolLocation = $this->getSchoolLocationAndClearFeatureSetting();
+        $this->assertFalse($schoolLocation->{$booleanFeatureSetting});
+
+        $schoolLocation->{$booleanFeatureSetting} = true;
+
+        $this->assertTrue($schoolLocation->{$booleanFeatureSetting});
+    }
+
+    /**
+     * @test
+     * @dataProvider booleanFeatureSettings
+     */
+    public function canGetIssetFeatureSettings($booleanFeatureSetting)
+    {
+        $schoolLocation = $this->getSchoolLocationAndClearFeatureSetting();
+        $this->assertFalse($schoolLocation->{$booleanFeatureSetting});
+        $schoolLocation->{$booleanFeatureSetting} = true;
+        $this->assertTrue($schoolLocation->{$booleanFeatureSetting});
+
+    }
+
 
     /*
      * Dataproviders
@@ -95,7 +123,18 @@ class SchoolLocationFeatureSettingsTest extends TestCase
             'false string boolean' => ['false', \ValueError::class],
             'integer 0'            => [0, \ValueError::class],
             'integer 1'            => [1, \ValueError::class],
-            'null, TypeError'      => [null, \TypeError::class],
+        ];
+    }
+
+    public function booleanFeatureSettings()
+    {
+        return [
+            'allow_analyses' => ['allow_analyses'],
+            'allow_new_taken_tests_page' => ['allow_new_taken_tests_page'],
+            'allow_new_co_learning' => ['allow_new_co_learning'],
+            'allow_new_co_learning_teacher' => ['allow_new_co_learning_teacher'],
+            'allow_creathlon' => ['allow_creathlon'],
+            'allow_olympiade' => ['allow_olympiade'],
         ];
     }
 
@@ -108,6 +147,7 @@ class SchoolLocationFeatureSettingsTest extends TestCase
         if ($schoolLocation->testPackage !== TestPackages::None) {
             $schoolLocation->testPackage = false;
         }
+        $schoolLocation->featureSettings()->delete();
         return $schoolLocation;
     }
 }

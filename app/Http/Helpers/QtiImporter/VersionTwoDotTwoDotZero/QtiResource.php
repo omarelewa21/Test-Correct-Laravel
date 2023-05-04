@@ -365,7 +365,7 @@ class QtiResource
             $this->interaction = $nodes[0]->asXML();
 
             foreach ($nodes as $interaction) {
-                if (array_key_exists('patternMask',
+                if (is_array($interaction) && array_key_exists('patternMask',
                         $interaction) && $interaction['patternMask'] && $interaction['patternMask']->__toString()) {
                     $this->patternMask = $interaction['patternMask']->__toString();
                 }
@@ -432,7 +432,6 @@ class QtiResource
     private function handleQuestion()
     {
         $request = new CreateTestQuestionRequest();
-
 
         $request->merge([
             'question'               => $this->question_xml,

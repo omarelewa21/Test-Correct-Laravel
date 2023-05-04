@@ -21,8 +21,8 @@ class com_wiris_util_json_parser_JsonParse {
 			while(com_wiris_util_json_parser_JsonParse::isWhitespace($current = com_wiris_system_Utf8::charValueAt($jsonString, $i))) {
 				$i++;
 			}
-		}catch(Exception $»e) {
-			$_ex_ = ($»e instanceof HException) ? $»e->e : $»e;
+		}catch(Exception $ï¿½e) {
+			$_ex_ = ($ï¿½e instanceof HException) ? $ï¿½e->e : $ï¿½e;
 			$e = $_ex_;
 			{
 				throw new HException(new com_wiris_system_Exception("Provided JSON string did not contain a value", null));
@@ -30,7 +30,7 @@ class com_wiris_util_json_parser_JsonParse {
 		}
 		if($current === 123) {
 			$currentJType = com_wiris_util_json_parser_JType::$TYPE_OBJECT;
-			$currentContainer = new Hash();
+			$currentContainer = new WirisHash();
 			$i++;
 		} else {
 			if($current === 91) {
@@ -67,8 +67,8 @@ class com_wiris_util_json_parser_JsonParse {
 					$propertyName = $extracted->str;
 					$singleQuoteString = false;
 					unset($extracted);
-				}catch(Exception $»e) {
-					$_ex_ = ($»e instanceof HException) ? $»e->e : $»e;
+				}catch(Exception $ï¿½e) {
+					$_ex_ = ($ï¿½e instanceof HException) ? $ï¿½e->e : $ï¿½e;
 					$e2 = $_ex_;
 					{
 						throw new HException(new com_wiris_system_Exception(com_wiris_util_json_parser_JsonParse::buildErrorMessage($stateStack, "String did not have ending quote"), null));
@@ -86,8 +86,8 @@ class com_wiris_util_json_parser_JsonParse {
 						$value = $extracted->str;
 						$singleQuoteString = false;
 						unset($extracted);
-					}catch(Exception $»e) {
-						$_ex_ = ($»e instanceof HException) ? $»e->e : $»e;
+					}catch(Exception $ï¿½e) {
+						$_ex_ = ($ï¿½e instanceof HException) ? $ï¿½e->e : $ï¿½e;
 						$e2 = $_ex_;
 						{
 							throw new HException(new com_wiris_system_Exception(com_wiris_util_json_parser_JsonParse::buildErrorMessage($stateStack, "String did not have ending quote"), null));
@@ -132,8 +132,8 @@ class com_wiris_util_json_parser_JsonParse {
 							} else {
 								$value = Std::parseInt($valueString);
 							}
-						}catch(Exception $»e) {
-							$_ex_ = ($»e instanceof HException) ? $»e->e : $»e;
+						}catch(Exception $ï¿½e) {
+							$_ex_ = ($ï¿½e instanceof HException) ? $ï¿½e->e : $ï¿½e;
 							$e2 = $_ex_;
 							{
 								throw new HException(new com_wiris_system_Exception(com_wiris_util_json_parser_JsonParse::buildErrorMessage($stateStack, "\"" . $valueString . "\" expected to be a number, but wasn't"), null));
@@ -217,7 +217,7 @@ class com_wiris_util_json_parser_JsonParse {
 										if($current === 123) {
 											$stateStack->push(new com_wiris_util_json_parser_State($propertyName, $currentContainer, com_wiris_util_json_parser_JType::$TYPE_OBJECT));
 											$currentJType = com_wiris_util_json_parser_JType::$TYPE_OBJECT;
-											$currentContainer = new Hash();
+											$currentContainer = new WirisHash();
 											$i++;
 										} else {
 											if($current === 91) {
@@ -315,7 +315,7 @@ class com_wiris_util_json_parser_JsonParse {
 												if($current === 123) {
 													$stateStack->push(new com_wiris_util_json_parser_State(null, $currentContainer, com_wiris_util_json_parser_JType::$TYPE_ARRAY));
 													$currentJType = com_wiris_util_json_parser_JType::$TYPE_OBJECT;
-													$currentContainer = new Hash();
+													$currentContainer = new WirisHash();
 													$i++;
 												} else {
 													if($current === 91) {

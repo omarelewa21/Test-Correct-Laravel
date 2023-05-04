@@ -9,6 +9,7 @@
 namespace Tests\Traits;
 
 use tcCore\Test;
+use tcCore\User;
 
 trait TestTrait
 {
@@ -74,10 +75,15 @@ trait TestTrait
         $this->copyTestId = $testId;
     }
 
-    private function createTLCTest($attributes){
+    private function createTLCTest($attributes, $user = null){
+        if ($user == null) {
+            $user = User::where('username', 'd1@test-correct.nl')->first();
+        }
+
         $response = $this->post(
             'api-c/test',
-            static::getTeacherOneAuthRequestData(
+            static::getUserAuthRequestData(
+                $user,
                 $attributes
             )
         );

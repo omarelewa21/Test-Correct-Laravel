@@ -12,8 +12,6 @@ use Tests\TestCase;
 
 class QtiManifestTest extends TestCase
 {
-    use DatabaseTransactions;
-
     /** @test */
     public function it_has_a_collection_of_resources()
     {
@@ -121,7 +119,7 @@ class QtiManifestTest extends TestCase
     {
         $instance = (new QtiManifest)->setOriginalXml($this->getXml());
         $this->assertEquals(
-            'Test-maatwerktoetsen_v01 | Test item 370004 - 1.8-04',
+            'Test item 370004 - 1.8-04',
             $instance->getName()
         );
     }

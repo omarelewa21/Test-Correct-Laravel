@@ -25,7 +25,7 @@ return [
     'my_uploads'                                    => 'Mijn uploads',
     'my_planned_tests'                              => 'Mijn ingeplande toetsen',
     'surveillance'                                  => 'Surveilleren',
-    'open_assessments'                              => 'Lopende opdrachten',
+    'open_assignments'                              => 'Lopende opdrachten',
     'my_taken_tests'                                => 'Mijn afgenomen toetsen',
     'check_standardize'                             => 'Nakijken & normeren',
     'my_students'                                   => 'Mijn studenten',

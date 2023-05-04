@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
 use tcCore\Http\Controllers\GroupQuestionQuestionsController;
-use tcCore\Http\Controllers\RequestController;
 use tcCore\Http\Controllers\TestQuestionsController;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Helpers\ContentSourceHelper;
@@ -97,8 +96,8 @@ class Test extends BaseModel
         });
 
         static::saved(function (Test $test) {
-            $test->handleTestPublishing();
             $test->forwardPropertyChangesToDependentModels();
+            $test->handleTestPublishing();
             $test->handlePublishingQuestionsOfTest();
             TestAuthor::addExamAuthorToTest($test);
             TestAuthor::addNationalItemBankAuthorToTest($test);
@@ -207,7 +206,7 @@ class Test extends BaseModel
             $order = $movedTestQuestion->getAttribute('order');
         }
 
-        $testQuestions = $this->testQuestions()->orderBy('order')->get();
+        $testQuestions = $this->testQuestions()->with('test')->orderBy('order')->get();
 
         $i = 1;
         if ($movedTestQuestion !== null && $order) {
@@ -333,6 +332,14 @@ class Test extends BaseModel
         return $this->contentSourceFiltered(
             'published_creathlon',
             config('custom.creathlon_school_customercode'),
+            $query, $filters, $sorting);
+    }
+
+    public function scopeOlympiadeItemBankFiltered($query, $filters = [], $sorting = [])
+    {
+        return $this->contentSourceFiltered(
+            'published_olympiade',
+            config('custom.olympiade_school_customercode'),
             $query, $filters, $sorting);
     }
 
@@ -473,8 +480,7 @@ class Test extends BaseModel
     {
         $test = $this->replicate();
         $test->fill($attributes);
-
-        if(in_array($test->abbreviation, ContentSourceHelper::PUBLISHABLE_ABBREVIATIONS)) {
+        if(ContentSourceHelper::getPublishableAbbreviations()->contains($test->abbreviation)) {
             $test->abbreviation = 'COPY';
         }
 
@@ -499,9 +505,11 @@ class Test extends BaseModel
             return false;
         }
 
-        $this->load(['testQuestions' => function ($query) {
-            $query->orderBy('order');
-        }]);
+        $this->load([
+            'testQuestions' => fn($query) => $query->orderBy('order'),
+            'testQuestions.question',
+            'testQuestions.test'
+        ]);
 
         foreach ($this->testQuestions as $testQuestion) {
             if ($testQuestion->duplicate($test, [], false) === false) {
@@ -524,7 +532,10 @@ class Test extends BaseModel
 
         // existing testauthors duplicate
         $this->testAuthors()->pluck('user_id')->each(function ($userId) use ($test) {
-            TestAuthor::addAuthorToTest($test, $userId);
+            $test->testAuthors()->withTrashed()->updateOrCreate(
+                ['user_id' => $userId],
+                ['deleted_at' => null]
+            );
         });
 
         // add testauthor if author_id is not null
@@ -664,9 +675,9 @@ class Test extends BaseModel
                     break;
                 case 'base_subject_id':
                     if (is_array($value)) {
-                        $query->whereIn('tests.subject_id', Subject::whereIn('base_subject_id', $value)->pluck('id'));
+                        $query->whereIn('tests.subject_id', Subject::whereIn('base_subject_id', $value)->select('id'));
                     } else {
-                        $query->whereIn('tests.subject_id', Subject::where('base_subject_id', $value)->pluck('id'));
+                        $query->whereIn('tests.subject_id', Subject::where('base_subject_id', $value)->select('id'));
                     }
                     break;
                 case 'education_level_id':
@@ -847,7 +858,7 @@ class Test extends BaseModel
 
     public function isAssignment()
     {
-        return $this->test_kind_id == TestKind::ASSESSMENT_TYPE;
+        return $this->test_kind_id == TestKind::ASSIGNMENT_TYPE;
     }
 
     public function getAuthorsAsString()
@@ -910,19 +921,20 @@ class Test extends BaseModel
 
         return $this->testQuestions->sortBy('order')->flatMap(function ($testQuestion) {
             if ($testQuestion->question->type === 'GroupQuestion') {
-                return $testQuestion->question->groupQuestionQuestions->map(function ($item)  {
+                return $testQuestion->question->groupQuestionQuestions()->get()->map(function ($item)  {
                     return [
                         'id' => $item->question->getKey(),
-                        'question_type' => $item->question->canCheckAnswer() ? Question::TYPE_CLOSED : Question::TYPE_OPEN
+                        'question_type' => $item->question->canCheckAnswer() ? Question::TYPE_CLOSED : Question::TYPE_OPEN,
+                        'discuss' => $item->discuss,
                     ];
                 });
             }
             $questionType = $testQuestion->question->canCheckAnswer() ? Question::TYPE_CLOSED : Question::TYPE_OPEN;
-            return [['id' => $testQuestion->question->getKey(), 'question_type' => $questionType]];
+            return [['id' => $testQuestion->question->getKey(), 'question_type' => $questionType, 'discuss' => $testQuestion->discuss,]];
         })->mapWithKeys(function ($item, $key) use (&$orderOpenOnly) {
             return [$item['id'] => [
                 'order' => $key+1,
-                'order_open_only' => $item['question_type'] === Question::TYPE_OPEN ? ++$orderOpenOnly : null,
+                'order_open_only' => $item['question_type'] === Question::TYPE_OPEN && $item['discuss'] === 1 ? ++$orderOpenOnly : null,
                 ...$item,
             ]];
         })->toArray();
@@ -1171,7 +1183,7 @@ class Test extends BaseModel
             ->distinct()
             ->join('subjects as s', 'tests.subject_id', '=', 's.id')
             ->where('tests.scope', '=', $publishedTestScope)
-            ->whereIn('s.base_subject_id', Subject::filtered(['user_current' => $user->getKey()], [])->pluck('base_subject_id'))
+            ->whereIn('s.base_subject_id', Subject::filtered(['user_current' => $user->getKey()], [])->select('base_subject_id'))
             ->exists('s.base_subject_id');
     }
 
@@ -1185,9 +1197,11 @@ class Test extends BaseModel
 
     private function isFromAllowedTestPublisher($user): bool
     {
-        return ContentSourceHelper::allAllowedForUser($user)
-            ->map(fn($publisher) => 'published_' . $publisher)
-            ->contains($this->scope);
+        if($this->scope === null || $this->scope === '') {
+            return false;
+        }
+
+        return ContentSourceHelper::scopeIsAllowedForUser($user, $this->scope);
     }
 
     public function scopeOwner($query, SchoolLocation $schoolLocation)

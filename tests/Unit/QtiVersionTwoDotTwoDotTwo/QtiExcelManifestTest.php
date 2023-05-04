@@ -9,8 +9,6 @@ use Tests\TestCase;
 
 class QtiExcelManifestTest extends TestCase
 {
-    use DatabaseTransactions;
-
     /** @test */
     public function it_can_load_the_excel_file()
     {

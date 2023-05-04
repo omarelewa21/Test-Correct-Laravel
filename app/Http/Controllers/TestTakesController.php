@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use tcCore\AnswerRating;
 use tcCore\DiscussingParentQuestion;
@@ -659,22 +660,14 @@ class TestTakesController extends Controller
                 $query->where('type', 'STUDENT');
             }]);
 
+
             // Set next question
-            $questionId = null;
-            foreach ($testTake->discussingParentQuestions as $discussingParentQuestions) {
-                if ($questionId !== null) {
-                    $questionId .= '.';
-                }
-                $questionId .= $discussingParentQuestions->getAttribute('group_question_id');
-            }
-
-            if ($questionId !== null) {
-                $questionId .= '.';
-            }
-
-            $questionId .= $testTake->getAttribute('discussing_question_id');
-
-            $newQuestionIdParents = QuestionGatherer::getNextQuestionId($testTake->getAttribute('test_id'), $questionId, in_array($testTake->getAttribute('discussion_type'), ['OPEN_ONLY']));
+            $newQuestionIdParents = QuestionGatherer::getNextQuestionId(
+                $testTake->getAttribute('test_id'),
+                $testTake->getDottedDiscussingQuestionIdWithOptionalGroupQuestionId(),
+                $testTake->isDiscussionTypeOpenOnly(),
+                skipDoNotDiscuss: $testTake->studentsAreInNewCoLearningAndDiscussingTypeIsOpenOnly()
+            );
 
             $testTake->discussingParentQuestions()->delete();
             if ($newQuestionIdParents === false) {
@@ -691,7 +684,7 @@ class TestTakesController extends Controller
                 $newQuestionId = array_pop($newQuestionIdParentParts);
                 $discuss = QuestionGatherer::getQuestionOfTest($testTake->getAttribute('test_id'), $newQuestionIdParents, true);
                 $discuss = ($discuss instanceof Question) ? $discuss->getAttribute('discuss') == true : false;
-                $testTake->setAttribute('discussing_question_id', $newQuestionId);
+                $testTake->setAttribute('discussing_question_id', (int)$newQuestionId);
 
                 $level = 1;
 
@@ -712,7 +705,14 @@ class TestTakesController extends Controller
                     );
                 }
 
-                $testTake->setAttribute('has_next_question', (QuestionGatherer::getNextQuestionId($testTake->getAttribute('test_id'), $newQuestionIdParents, in_array($testTake->getAttribute('discussion_type'), ['OPEN_ONLY'])) !== false));
+                $testTake->setAttribute('has_next_question', (QuestionGatherer::getNextQuestionId(
+                        $testTake->getAttribute('test_id'),
+                        $newQuestionIdParents,
+                        $testTake->isDiscussionTypeOpenOnly(),
+                        skipDoNotDiscuss: $testTake->studentsAreInNewCoLearningAndDiscussingTypeIsOpenOnly()
+                    ) !== false),
+
+                );
 
                 // Generate for active students next answer_ratings
                 if ($discuss) {
@@ -790,11 +790,6 @@ class TestTakesController extends Controller
                             $testParticipant->save();
                         }
 
-                    }
-                }
-                if (auth()->user()->schoolLocation->allow_new_co_learning) {
-                    foreach ($testTake->testParticipants as $testParticipant) {
-                        CoLearningNextQuestion::dispatch($testParticipant->uuid);
                     }
                 }
             }
@@ -1329,4 +1324,6 @@ class TestTakesController extends Controller
 
         return Response::make($testTake);
     }
+
+
 }

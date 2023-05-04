@@ -3,6 +3,7 @@
 namespace tcCore\Http\Livewire\Teacher\Questions;
 
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Ramsey\Uuid\Uuid;
 use tcCore\Http\Helpers\BaseHelper;
@@ -99,6 +100,7 @@ class CmsClassify extends CmsBase
             $this->instance->cmsPropertyBag['answerCount']--;
         }
         $this->createAnswerStruct();
+        $this->instance->dirty = true;
     }
 
     public function deleteSubItem($keyId)
@@ -117,6 +119,8 @@ class CmsClassify extends CmsBase
             $this->instance->cmsPropertyBag['answerSubCount'][$key]--;
         }
         $this->createAnswerStruct();
+
+        $this->instance->dirty = true;
     }
 
     public function addAnswerItem()
@@ -141,6 +145,9 @@ class CmsClassify extends CmsBase
         $result = [];
         $nr = 0;
         foreach ($this->instance->cmsPropertyBag['answerStruct'] as $key => $value) {
+            if(is_object($value)){
+                $value = (array) $value;
+            }
             $result[$key] = (object)['id' => $key, 'order' => $nr + 1, 'left' => $value['left'], 'rights' => $value['rights']];
             if (!isset($this->instance->cmsPropertyBag['answerSubCount'][$key])) {
                 $this->instance->cmsPropertyBag['answerSubCount'][$key] = 1;
@@ -221,7 +228,7 @@ class CmsClassify extends CmsBase
             $corresponding = null;
 
             $q->matchingQuestionAnswers->each(function ($answer) use (&$corresponding, &$struct) {
-                if ($answer->type === 'LEFT') {
+                if (Str::upper($answer->type) === 'LEFT') {
                     if ($corresponding) {
                         $struct[$corresponding['id']] = $corresponding;
                         $this->instance->cmsPropertyBag['answerSubCount'][$corresponding['id']] = count($corresponding['rights']);

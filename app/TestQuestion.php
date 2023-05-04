@@ -1,18 +1,13 @@
 <?php namespace tcCore;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use tcCore\Exceptions\QuestionException;
 use tcCore\Http\Controllers\TestQuestionsController;
 use tcCore\Http\Helpers\ContentSourceHelper;
 use tcCore\Http\Helpers\QuestionHelper;
-use tcCore\Http\Requests\UpdateTestQuestionRequest;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Dyrynda\Database\Casts\EfficientUuid;
-use Dyrynda\Database\Support\GeneratesUuid;
 use Ramsey\Uuid\Uuid;
 use tcCore\Lib\Question\Factory;
 use tcCore\Traits\UuidTrait;
@@ -63,7 +58,6 @@ class TestQuestion extends BaseModel {
         parent::boot();
 
         static::saving(function(TestQuestion $testQuestion) {
-            $testQuestion->load('test');
             return $testQuestion->test->allowChange();
         });
 
@@ -118,22 +112,7 @@ class TestQuestion extends BaseModel {
 
         $totalData = array_merge($questionAttributes, $questionData);
         $question->fill($totalData);
-        $questionInstance = $question->getQuestionInstance();
-        if ($questionInstance->getAttribute('subject_id') === null) {
-            $questionInstance->setAttribute('subject_id', $test->subject->getKey());
-        }
-
-        if ($questionInstance->getAttribute('education_level_id') === null) {
-            $questionInstance->setAttribute('education_level_id', $test->educationLevel->getKey());
-        }
-
-        if ($questionInstance->getAttribute('education_level_year') === null) {
-            $questionInstance->setAttribute('education_level_year', $test->getAttribute('education_level_year'));
-        }
-
-        if ($questionInstance->getAttribute('draft') === null) {
-            $questionInstance->setAttribute('draft', $test->getAttribute('draft'));
-        }
+        Question::setAttributesFromParentModel($question, $test);
         
         if ($question->save()) {
             $testQuestion->setAttribute('question_id', $question->getKey());
@@ -145,7 +124,9 @@ class TestQuestion extends BaseModel {
 //                        $question->deleteAnswers($question);
 
                     // add new answers
-                    $testQuestion->question->addAnswers($testQuestion, $totalData['answers']);
+                    if (array_key_exists('answers', $totalData)) {
+                        $testQuestion->question->addAnswers($testQuestion, $totalData['answers']);
+                    }
                 }
                 $testQuestion->addCloneAttachmentsIfAppropriate($questionAttributes);
             } else {
@@ -267,7 +248,7 @@ class TestQuestion extends BaseModel {
 
     public function duplicateQuestionsIfPublishedContent($testQuestion): void
     {
-        if (in_array($testQuestion->question->scope, ContentSourceHelper::PUBLISHABLE_SCOPES)) {
+        if (ContentSourceHelper::getPublishableScopes()->contains($testQuestion->question->scope)) {
             $request = new Request();
             $request->merge(['scope' => null]);
 

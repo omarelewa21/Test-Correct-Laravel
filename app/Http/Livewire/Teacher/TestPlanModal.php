@@ -46,16 +46,17 @@ class TestPlanModal extends ModalComponent
     {
         $user = auth()->user();
         $rules = [
-            'request.date'            => 'required',
-            'request.time_end'        => 'sometimes',
-            'request.weight'          => 'required',
-            'request.period_id'       => 'required',
-            'request.school_classes'  => 'required',
-            'request.notify_students' => 'required|boolean',
-            'request.invigilators'    => 'required|min:1|array',
+            'request.date'                  => 'required',
+            'request.time_end'              => 'sometimes',
+            'request.allow_wsc'             => 'sometimes|boolean',
+            'request.weight'                => 'required',
+            'request.period_id'             => 'required',
+            'request.school_classes'        => 'required',
+            'request.notify_students'       => 'required|boolean',
+            'request.invigilators'          => 'required|min:1|array',
         ];
 
-        if ($this->isAssessmentType()) {
+        if ($this->isAssignmentType()) {
             $rules['request.time_end'] = 'required';
         }
 
@@ -92,7 +93,7 @@ class TestPlanModal extends ModalComponent
         $controller = new TemporaryLoginController();
         $request = new Request();
 
-        $action = $this->isAssessmentType() ? "Navigation.load('/test_takes/assessment_open_teacher')" : "Navigation.load('/test_takes/planned_teacher')";
+        $action = $this->isAssignmentType() ? "Navigation.load('/test_takes/assignment_open_teacher')" : "Navigation.load('/test_takes/planned_teacher')";
 
         $request->merge([
             'options' => [
@@ -118,12 +119,12 @@ class TestPlanModal extends ModalComponent
             });
         })->validate();
 
-        if ($this->isAssessmentType() && array_key_exists('time_end', $this->request) && $this->request['time_end']) {
+        if ($this->isAssignmentType() && array_key_exists('time_end', $this->request) && $this->request['time_end']) {
             $this->request['time_end'] = Carbon::parse($this->request['time_end'])->endOfDay();
         }
 
         $t->fill($this->request);
-        if ($this->isAssessmentType()) {
+        if ($this->isAssignmentType()) {
             $t->setAttribute('test_take_status_id', TestTakeStatus::STATUS_TAKING_TEST);
         }
 
@@ -148,10 +149,10 @@ class TestPlanModal extends ModalComponent
     {
         $this->dispatchBrowserEvent('after-planning-toast',
             [
-                'message'       => __($testTake->isAssessmentType() ? 'teacher.test_take_assignment_planned' : 'teacher.test_take_planned', ['testName' => $testTake->test->name]),
+                'message'       => __($testTake->isAssignmentType() ? 'teacher.test_take_assignment_planned' : 'teacher.test_take_planned', ['testName' => $testTake->test->name]),
                 'link'          => $testTake->directLink,
                 'takeUuid'      => $testTake->uuid,
-                'is_assessment' => $testTake->isAssessmentType()
+                'is_assignment' => $testTake->isAssignmentType()
             ]);
     }
 
@@ -169,14 +170,14 @@ class TestPlanModal extends ModalComponent
 
         $this->request['visible'] = 1;
         $this->request['date'] = now()->format('Y-m-d');
-        if ($this->isAssessmentType()) {
+        if ($this->isAssignmentType()) {
             $this->request['time_end'] = now()->endOfDay();
         }
         $this->request['period_id'] = $this->allowedPeriods->first()->getKey();
 //        $this->request['invigilators'] = [auth()->id()];
         $this->request['weight'] = 5;
         $this->request['test_id'] = $this->test->getKey();
-        $this->request['allow_inbrowser_testing'] = $this->isAssessmentType() ? 1 : 0;
+        $this->request['allow_inbrowser_testing'] = $this->isAssignmentType() ? 1 : 0;
         $this->request['invigilator_note'] = '';
         $this->request['scheduled_by'] = auth()->id();
         $this->request['test_kind_id'] = 3;
@@ -185,6 +186,7 @@ class TestPlanModal extends ModalComponent
         $this->request['guest_accounts'] = 0;
         $this->request['school_classes'] = [];
         $this->request['notify_students'] = true;
+        $this->request['allow_wsc'] = false;
 
         $this->request['invigilators'] = [$this->defaultInvigilator()];
         $this->request['owner_id'] = $this->defaultOwner();

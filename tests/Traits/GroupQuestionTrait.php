@@ -9,6 +9,7 @@
 namespace Tests\Traits;
 
 
+use tcCore\User;
 use Tests\Feature\CreateQuestionGroupWithinTestTest;
 
 
@@ -60,10 +61,14 @@ trait GroupQuestionTrait
         $response->assertStatus(200);
     }
 
-    private function createGroupQuestion($attributes){
+    private function createGroupQuestion($attributes, $user = null){
+        if ($user == null) {
+            $user = User::where('username', 'd1@test-correct.nl')->first();
+        }
         $response = $this->post(
             'api-c/test_question',
-            static::getTeacherOneAuthRequestData(
+            static::getUserAuthRequestData(
+                $user,
                 $attributes
             )
         );

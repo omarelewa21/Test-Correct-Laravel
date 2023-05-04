@@ -13,12 +13,12 @@
 }
 
 .notification  .title {
-    font-family: Nunito Bold;
+    font-weight: bold;
     font-size: 1rem;
 }
 
 .notification  .body {
-    font-family: Nunito Regular;
+    font-family: Nunito;
     font-size: 0.875rem;
     line-height: normal;
     display: block;

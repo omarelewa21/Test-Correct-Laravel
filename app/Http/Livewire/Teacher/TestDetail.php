@@ -104,13 +104,7 @@ class TestDetail extends Component
     public function toPlannedTest($takeUuid)
     {
         $testTake = TestTake::whereUuid($takeUuid)->first();
-        if ($testTake->isAssessmentType()) {
-            $url = sprintf("test_takes/assessment_open_teacher/%s", $takeUuid);
-        } else {
-            $url = sprintf("test_takes/view/%s", $takeUuid);
-        }
-        $options = TemporaryLogin::buildValidOptionObject('page', $url);
-        return auth()->user()->redirectToCakeWithTemporaryLogin($options);
+        return auth()->user()->redirectToCakeWithTemporaryLogin($testTake->getPlannedTestOptions());
     }
 
     private function setContext()
@@ -125,12 +119,17 @@ class TestDetail extends Component
         return false;
     }
 
+    /**
+     * always go back to teacher.tests route, but with or without params
+     *
+     * @return void
+     */
     private function setPreviousUrl()
     {
         $urlComponents = parse_url(url()->previous());
-        $this->previousUrl = url()->previous();
-        if (url($urlComponents['path']) !== route('teacher.tests')) {
-            $this->previousUrl = route('teacher.tests');
+        $this->previousUrl = url()->previous(); // with params
+        if (array_key_exists('path', $urlComponents) && url($urlComponents['path']) !== route('teacher.tests')) { //
+            $this->previousUrl = route('teacher.tests'); // without params
         }
     }
 }

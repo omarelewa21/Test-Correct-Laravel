@@ -10,7 +10,7 @@ class TestKind extends BaseModel
 
     use SoftDeletes, UuidTrait;
 
-    const ASSESSMENT_TYPE = 4;
+    const ASSIGNMENT_TYPE = 4;
 
     protected $casts = ['uuid' => EfficientUuid::class];
 

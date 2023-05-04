@@ -2,8 +2,10 @@
 
 namespace tcCore\Http\Controllers;
 
+use Barryvdh\Debugbar\Facades\Debugbar;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
+use tcCore\Http\Helpers\BaseHelper;
 
 class WirisIntegrationController extends Controller
 {
@@ -16,5 +18,19 @@ class WirisIntegrationController extends Controller
         // You can switch between the PHP integration and this hack by editing the CKEditor integration (config.js)
         //   and setting config.mathTypeParameters.serviceProviderProperties.server to either 'php' (the official integration) or 'java' (this hack)
         return Response::make('{"editorEnabled":true,"imageMathmlAttribute":"data-mathml","saveMode":"xml","base64savemode":"default","saveHandTraces":false,"parseModes":["latex"],"editorAttributes":"width=570, height=450, scroll=no, resizable=yes","editorUrl":"https://www.wiris.net/client/editor/editor","modalWindow":true,"modalWindowFullScreen":false,"CASEnabled":false,"CASMathmlAttribute":"alt","CASAttributes":"width=640, height=480, scroll=no, resizable=yes","hostPlatform":"unknown","versionPlatform":"unknown","enableAccessibility":true,"editorToolbar":"","chemEnabled":true,"imageFormat":"svg","editorParameters":{},"wirisPluginPerformance":true,"version":"7.26.0.1439"}', 200, array("content-type" => "application/json"));
+    }
+
+    public function showimage() {
+        if(class_exists('Barryvdh\Debugbar\Facades\Debugbar')) {
+            Debugbar::disable();
+        }
+        include(public_path().'/ckeditor_png/plugins/ckeditor_wiris/integration/showimage.php');
+    }
+
+    public function createimage() {
+        if(class_exists('Barryvdh\Debugbar\Facades\Debugbar')) {
+            Debugbar::disable();
+        }
+        include(public_path().'/ckeditor_png/plugins/ckeditor_wiris/integration/createimage.php');
     }
 }

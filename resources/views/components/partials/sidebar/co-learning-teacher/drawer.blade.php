@@ -45,7 +45,7 @@
             <x-icon.chevron class="-top-px relative"/>
         </button>
     </div>
-    <div class="flex flex-col w-full justify-between h-[calc(100vh-70px)] drawer-width">
+    <div class="flex flex-col w-full justify-between h-[calc(100vh-var(--header-height))] drawer-width">
         <div class="flex flex-col ">
 
             <div class="flex justify-between drawer-content-head border-b border-bluegrey"
@@ -58,7 +58,7 @@
                 </div>
                 <div x-ref="drawerContentHeadText2" class="flex">
                     <span class="bold">vraag {{ $this->openOnly ? $this->questionIndexOpenOnly : $this->questionIndex }}</span>
-                    <span>/{{  $this->openOnly ? $this->questionCountOpenOnly : $this->questionCount }}</span>
+                    <span>/{{  $this->questionCountFiltered }}</span>
                 </div>
             </div>
 
@@ -82,6 +82,7 @@
                                   :disabled="$this->atFirstQuestion"
                                   class="flex-shrink-0"
                                   x-ref="footerElement1"
+                                  wire:loading.attr="disabled"
             >
                 <x-icon.arrow-left/>
                 <span class="ml-2">{{ __('co-learning.previous') }}</span>
@@ -92,6 +93,7 @@
                               :disabled="$this->atLastQuestion"
                               class="px-4 flex-0 flex-shrink-0"
                               x-ref="footerElement2"
+                              wire:loading.attr="disabled"
             >
                 <span class="mr-2">{{ __('co-learning.next') }}</span>
                 <x-icon.arrow/>

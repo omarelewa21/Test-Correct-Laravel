@@ -132,7 +132,28 @@ class Info extends Model
             ->where('status', self::ACTIVE)
             ->where('show_from', '<=', Carbon::now())
             ->where('show_until', '>=', Carbon::now())
-            ->orderBy('show_from', 'asc')
+            ->orderBy('show_from', 'desc')
+            ->get();
+    }
+
+    public static function getLatestFeature()
+    {
+        return Info::where('type', '=', self::FEATURE_TYPE)
+            ->where('status', self::ACTIVE)
+            ->where('show_from', '<=', Carbon::now())
+            ->where('show_until', '>=', Carbon::now())
+            ->orderBy('created_at', 'desc')
+            ->first();
+    }
+
+    public function getIfFeatureNewToday()
+    {
+        $infos = new Info();
+        return $infos->where('type', '=', self::FEATURE_TYPE)
+            ->where('status', self::ACTIVE)
+            ->whereBetween('show_from', [Carbon::yesterday(),Carbon::today()])
+            ->where('show_until', '>=', Carbon::now())
+            ->orderBy('show_from', 'desc')
             ->get();
     }
 

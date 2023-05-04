@@ -56,43 +56,39 @@ abstract class BaseModel extends Model {
      * @param $attribute string Attribute to compare
      * @param $create callable Function called to create a link
      */
-    protected function syncTcRelation($entities, $wantedEntities, $attribute, $create) {
-        $deletedEntities = [];
-
-        if (!is_array($wantedEntities)) {
-            $wantedEntities = [$wantedEntities];
-        }
-        $wantedEntities = array_filter(array_unique($wantedEntities));
-
-        foreach($entities as $key => $entity) {
-            if ($entity->getAttribute('deleted_at') !== null) {
-                $deletedEntities[] = $entity;
-                unset($entities[$key]);
-            }
-        }
-
-        foreach($entities as $entity) {
-            if (!in_array($entity->getAttribute($attribute), $wantedEntities)) {
-                $entity->delete();
-            } elseif(($key = array_search($entity->getAttribute($attribute), $wantedEntities)) !== false) {
-                unset($wantedEntities[$key]);
-            }
-        }
-
-        foreach($deletedEntities as $entity) {
-            if (in_array($entity->getAttribute($attribute), $wantedEntities)) {
-                $entity->setAttribute('deleted_at', null);
-                $entity->save();
-
-                if(($key = array_search($entity->getAttribute($attribute), $wantedEntities)) !== false) {
-                    unset($wantedEntities[$key]);
-                }
-            }
-        }
-
-        foreach($wantedEntities as $entity) {
+    protected function syncTcRelation($entities, $wantedEntities, $attribute, $create)
+    {
+        // Convert to collections and filter out soft-deleted entities
+        $entityCollection = collect($entities)->reject(function ($entity) {
+            return $entity->deleted_at !== null;
+        });
+        $wantedCollection = collect($wantedEntities)->unique();
+    
+        // Find entities to be deleted
+        $entitiesToDelete = $entityCollection->reject(function ($entity) use ($attribute, $wantedCollection) {
+            return $wantedCollection->contains($entity->$attribute);
+        });
+    
+        // Delete entities
+        $entitiesToDelete->each(function ($entity) {
+            $entity->delete();
+        });
+    
+        // Find entities to be restored
+        $entitiesToRestore = $entityCollection->whereIn($attribute, $wantedCollection);
+    
+        // Restore entities
+        $entitiesToRestore->each(function ($entity) {
+            $entity->restore();
+        });
+    
+        // Find entities to be created
+        $entitiesToCreate = $wantedCollection->diff($entityCollection->pluck($attribute));
+    
+        // Create entities
+        $entitiesToCreate->each(function ($entity) use ($create) {
             $create($this, $entity);
-        }
+        });
     }
 
     public static function getPossibleEnumValues($column){

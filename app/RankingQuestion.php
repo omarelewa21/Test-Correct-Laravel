@@ -9,7 +9,8 @@ use Dyrynda\Database\Support\GeneratesUuid;
 use Ramsey\Uuid\Uuid;
 use tcCore\Traits\UuidTrait;
 
-class RankingQuestion extends Question implements QuestionInterface {
+class RankingQuestion extends Question implements QuestionInterface
+{
 
     use UuidTrait;
 
@@ -45,19 +46,23 @@ class RankingQuestion extends Question implements QuestionInterface {
      */
     protected $hidden = [];
 
-    public function question() {
+    public function question()
+    {
         return $this->belongsTo('tcCore\Question', $this->getKeyName());
     }
 
-    public function rankingQuestionAnswerLinks() {
+    public function rankingQuestionAnswerLinks()
+    {
         return $this->hasMany('tcCore\RankingQuestionAnswerLink', 'ranking_question_id');
     }
 
-    public function rankingQuestionAnswers() {
+    public function rankingQuestionAnswers()
+    {
         return $this->belongsToMany('tcCore\RankingQuestionAnswer', 'ranking_question_answer_links', 'ranking_question_id', 'ranking_question_answer_id')->withPivot([$this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn(), 'order', 'correct_order'])->wherePivot($this->getDeletedAtColumn(), null)->orderBy('ranking_question_answer_links.order');
     }
 
-    public function reorder(RankingQuestionAnswerLink $movedAnswer, $attribute) {
+    public function reorder(RankingQuestionAnswerLink $movedAnswer, $attribute)
+    {
         $answers = $this->rankingQuestionAnswerLinks()->orderBy($attribute)->get();
 
         $this->performReorder($answers, $movedAnswer, $attribute);
@@ -68,7 +73,8 @@ class RankingQuestion extends Question implements QuestionInterface {
         $this->load('rankingQuestionAnswers');
     }
 
-    public function duplicate(array $attributes, $ignore = null) {
+    public function duplicate(array $attributes, $ignore = null)
+    {
         $question = $this->replicate();
 
         $question->parentInstance = $this->parentInstance->duplicate($attributes, $ignore);
@@ -84,7 +90,7 @@ class RankingQuestion extends Question implements QuestionInterface {
             return false;
         }
 
-        foreach($this->rankingQuestionAnswerLinks as $rankingQuestionAnswerLink) {
+        foreach ($this->rankingQuestionAnswerLinks as $rankingQuestionAnswerLink) {
             if ($ignore instanceof RankingQuestionAnswer && $ignore->getKey() == $rankingQuestionAnswerLink->getAttribute('ranking_question_answer_id')) {
                 continue;
             }
@@ -95,7 +101,7 @@ class RankingQuestion extends Question implements QuestionInterface {
                 continue;
             }
 
-            if($rankingQuestionAnswerLink->duplicate($question, []) === false) {
+            if ($rankingQuestionAnswerLink->duplicate($question, []) === false) {
                 return false;
             }
         }
@@ -105,7 +111,7 @@ class RankingQuestion extends Question implements QuestionInterface {
 
     public function deleteAnswers()
     {
-        $this->rankingQuestionAnswerLinks->each(function($qAL){
+        $this->rankingQuestionAnswerLinks->each(function ($qAL) {
             if (!$qAL->delete()) {
                 throw new QuestionException('Failed to delete ranking question answer link', 422);
             }
@@ -124,8 +130,8 @@ class RankingQuestion extends Question implements QuestionInterface {
     public function addAnswers($mainQuestion, $answers)
     {
         $question = $this;
-        foreach($answers as $answerDetails) {
-            if($answerDetails['answer'] != '') {
+        foreach ($answers as $answerDetails) {
+            if ($answerDetails['answer'] != '') {
 
                 $rankingQuestionAnswer = new RankingQuestionAnswer();
 
@@ -149,20 +155,22 @@ class RankingQuestion extends Question implements QuestionInterface {
         return true;
     }
 
-    public function canCheckAnswer() {
+    public function canCheckAnswer()
+    {
         return true;
     }
 
-    public function checkAnswer($answer) {
+    public function checkAnswer($answer)
+    {
         $answers = json_decode($answer->getAttribute('json'), true);
-        if(!$answers) {
+        if (!$answers) {
             return 0;
         }
         asort($answers);
 
         $prev = null;
         $beforeAndAfterAnswers = [];
-        foreach($answers as $answerId => $order) {
+        foreach ($answers as $answerId => $order) {
             if ($prev) {
                 $beforeAndAfterAnswers[$prev]['before'] = $answerId;
                 $beforeAndAfterAnswers[$answerId] = ['after' => $prev, 'before' => null];
@@ -176,7 +184,7 @@ class RankingQuestion extends Question implements QuestionInterface {
         $rankingQuestionAnswers = $this->RankingQuestionAnswerLinks;
 
         $orderAnswers = [];
-        foreach($rankingQuestionAnswers as $rankingQuestionAnswer) {
+        foreach ($rankingQuestionAnswers as $rankingQuestionAnswer) {
             if (array_key_exists($rankingQuestionAnswer->getAttribute('order'), $orderAnswers)) {
                 return false;
             }
@@ -187,7 +195,7 @@ class RankingQuestion extends Question implements QuestionInterface {
         ksort($orderAnswers);
         $beforeAndAfter = [];
         $prev = null;
-        foreach($orderAnswers as $answerId) {
+        foreach ($orderAnswers as $answerId) {
             if ($prev) {
                 $beforeAndAfter[$prev]['before'] = $answerId;
                 $beforeAndAfter[$answerId] = ['after' => $prev, 'before' => null];
@@ -199,14 +207,14 @@ class RankingQuestion extends Question implements QuestionInterface {
         }
 
         $correct = 0;
-        foreach($beforeAndAfter as $key => $correctAnswer) {
+        foreach ($beforeAndAfter as $key => $correctAnswer) {
             if (array_key_exists($key, $beforeAndAfterAnswers) && $correctAnswer['after'] == $beforeAndAfterAnswers[$key]['after'] && $correctAnswer['before'] == $beforeAndAfterAnswers[$key]['before']) {
                 $correct++;
             }
         }
 
-        if($this->allOrNothingQuestion()){
-            if($correct == count($orderAnswers)){
+        if ($this->allOrNothingQuestion()) {
+            if ($correct == count($orderAnswers)) {
                 return $this->score;
             } else {
                 return 0;
@@ -221,15 +229,31 @@ class RankingQuestion extends Question implements QuestionInterface {
             $score = floor($score);
         }
 
-       return $score;
+        return $score;
     }
 
     public function needsToBeUpdated($request)
     {
         $totalData = $this->getTotalDataForTestQuestionUpdate($request);
-        if($this->isDirtyAnswerOptions($totalData)){
+        if ($this->isDirtyAnswerOptions($totalData)) {
             return true;
         }
         return parent::needsToBeUpdated($request);
+    }
+
+    public function getCorrectAnswerStructure()
+    {
+        return RankingQuestionAnswerLink::join(
+            'ranking_question_answers',
+            'ranking_question_answers.id',
+            '=',
+            'ranking_question_answer_links.ranking_question_answer_id'
+        )
+            ->selectRaw('ranking_question_answer_links.*, ranking_question_answers.answer')
+            ->orderBy('ranking_question_answer_links.correct_order', 'asc')
+            ->orderBy('ranking_question_answer_links.order', 'asc')
+            ->where('ranking_question_id', $this->getKey())
+            ->whereNull('ranking_question_answers.deleted_at')
+            ->get();
     }
 }
