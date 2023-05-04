@@ -5465,6 +5465,9 @@ video {
 .m-4{
   margin: 1rem;
 }
+.m-auto{
+  margin: auto;
+}
 .mx-10{
   margin-left: 2.5rem;
   margin-right: 2.5rem;
@@ -5884,6 +5887,9 @@ video {
 }
 .max-h-\[80vh\]{
   max-height: 80vh;
+}
+.max-h-full{
+  max-height: 100%;
 }
 .\!min-h-0{
   min-height: 0px !important;
@@ -6923,10 +6929,6 @@ video {
   --tw-border-opacity: 1;
   border-color: rgb(203 213 225 / var(--tw-border-opacity));
 }
-.border-student{
-  --tw-border-opacity: 1;
-  border-color: rgb(236 219 0 / var(--tw-border-opacity));
-}
 .border-sysbase{
   --tw-border-opacity: 1;
   border-color: rgb(4 31 116 / var(--tw-border-opacity));
@@ -6937,6 +6939,10 @@ video {
 .border-white{
   --tw-border-opacity: 1;
   border-color: rgb(255 255 255 / var(--tw-border-opacity));
+}
+.border-student{
+  --tw-border-opacity: 1;
+  border-color: rgb(236 219 0 / var(--tw-border-opacity));
 }
 .border-b-white\/25{
   border-bottom-color: rgb(255 255 255 / 0.25);
@@ -8369,11 +8375,6 @@ h2.student-testtake-answers-separator span {
   background-color: rgb(255 255 255 / var(--tw-bg-opacity)) !important;
 }
 
-.hover\:bg-\[\#F2F6FF\]:hover{
-  --tw-bg-opacity: 1;
-  background-color: rgb(242 246 255 / var(--tw-bg-opacity));
-}
-
 .hover\:bg-indigo-500:hover{
   --tw-bg-opacity: 1;
   background-color: rgb(99 102 241 / var(--tw-bg-opacity));
@@ -8400,6 +8401,11 @@ h2.student-testtake-answers-separator span {
 
 .hover\:bg-white\/20:hover{
   background-color: rgb(255 255 255 / 0.2);
+}
+
+.hover\:bg-\[\#F2F6FF\]:hover{
+  --tw-bg-opacity: 1;
+  background-color: rgb(242 246 255 / var(--tw-bg-opacity));
 }
 
 .hover\:font-bold:hover{

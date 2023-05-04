@@ -1293,17 +1293,6 @@ class TestTake extends BaseModel
             ->exists();
     }
 
-    /**
-     * Check if test take has non-active participants for co-learning
-     */
-    public function hasNonActiveParticipant(): bool
-    {
-        return !is_null(
-            $this->testParticipants->first(function ($participant) {
-                return is_null($participant->heartbeat_at) || strtotime($participant->heartbeat_at) < (time() - 10);
-            })
-        );
-    }
 
     /**
      * Check if test take is still allowed to review by students
