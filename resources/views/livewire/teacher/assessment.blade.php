@@ -119,7 +119,7 @@
 
                                     <div class="max-w-full">
                                         @if($this->currentQuestion->isType('Completion'))
-                                            {!! $this->currentQuestion->getDisplayableQuestionText()  !!}
+                                            {!! $this->getDisplayableCompletionQuestionText()  !!}
                                         @else
                                             {!! $this->currentQuestion->converted_question_html !!}
                                         @endif
