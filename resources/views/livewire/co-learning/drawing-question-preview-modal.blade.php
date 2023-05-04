@@ -24,18 +24,18 @@
                  class="w-full bg-white" alt="Drawing answer"
                  x-ref="drawingAnswer">
         </div>
-        <div style="position: absolute;  bottom: 19px; right: 67px;"
-             @click="zoomIn()"
-        >
-            <x-button.icon-circle>
-                <x-icon.plus/>
-            </x-button.icon-circle>
-        </div>
-        <div style="position: absolute; bottom: 19px; right: 19px;"
+        <div style="position: absolute; bottom: 19px; right: 67px;"
              @click="zoomOut()"
         >
             <x-button.icon-circle>
                 <x-icon.min/>
+            </x-button.icon-circle>
+        </div>
+        <div style="position: absolute;  bottom: 19px; right: 19px;"
+             @click="zoomIn()"
+        >
+            <x-button.icon-circle>
+                <x-icon.plus/>
             </x-button.icon-circle>
         </div>
     </div>

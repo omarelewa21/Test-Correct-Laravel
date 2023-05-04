@@ -8,6 +8,13 @@
     --drawer-width: 300px;
 }
 
+#co-learning-teacher-page img {
+    background-color: rgba(var(--light-grey-rgb), 1);
+    background-image: url(/pdf/images/loading-icon.gif);
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
 #co-learning-teacher-page .drawer-footer,
 #assessment-page .drawer-footer {
     height: 70px;
@@ -180,11 +187,13 @@
     background-color: var(--primary);
 }
 
+#co-learning-page .container-border-left.student,
 #co-learning-teacher-page .container-border-left.student,
 #assessment-page .container-border-left.student {
     background-color: var(--secondary);
 }
 
+#co-learning-page .container-border-left,
 #co-learning-teacher-page .container-border-left,
 #assessment-page .container-border-left {
     background-color: var(--primary);

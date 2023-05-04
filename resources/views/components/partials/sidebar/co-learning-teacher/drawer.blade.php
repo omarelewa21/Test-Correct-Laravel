@@ -63,7 +63,7 @@
 
             <div class="drawer-content overflow-auto">
                 @foreach($this->testParticipants as $testParticipant)
-                    @if($testParticipant->active)
+                    @if($this->testParticipantIsActive($testParticipant))
                         <x-partials.sidebar.co-learning-teacher.student-info-container
                                 :testParticipant="$testParticipant"
                                 :activeAnswerRating="$activeAnswerRating"
@@ -91,7 +91,6 @@
                               @click="resetToggles"
                               wire:key="lastQuestion.{{$this->testTake->discussing_question_id}}"
                               :disabled="$this->atLastQuestion"
-                              class="px-4 flex-0 flex-shrink-0"
                               x-ref="footerElement2"
                               wire:loading.attr="disabled"
             >

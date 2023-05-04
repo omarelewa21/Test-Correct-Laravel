@@ -59,7 +59,7 @@
                         <button x-ref="groupbtn" id="decr-grid-size" class="Secondary decrement"
                                 title="{{ __('drawing-modal.Verklein grid') }}" disabled>
                             <div>
-                                <x-icon.min-2/>
+                                <x-icon.min/>
                             </div>
                         </button>
                         <input type="number" id="grid-size" class="group-value" min="0.5" max="5" value="1" step="0.5"
@@ -68,7 +68,7 @@
                         <button id="incr-grid-size" class="Secondary increment"
                                 title="{{ __('drawing-modal.Vergroot grid') }}" disabled>
                             <div>
-                                <x-icon.plus-2/>
+                                <x-icon.plus/>
                             </div>
                         </button>
                     </div>
@@ -80,14 +80,14 @@
                     <div class="input-with-button-group" style="margin-right: .5rem">
                         <button id="decr-text-size" class="Secondary" title="{{ __('drawing-modal.Vergroot tekst') }}">
                             <div>
-                                <x-icon.min-2/>
+                                <x-icon.min/>
                             </div>
                         </button>
                         <input type="number" name="text-size" id="text-size" min="10" max="50" value="15" step="1"
                                autocomplete="off" title="{{ __('drawing-modal.Tekstgrootte') }}">
                         <button id="incr-text-size" class="Secondary" title="{{ __('drawing-modal.Verklein tekst') }}">
                             <div>
-                                <x-icon.plus-2/>
+                                <x-icon.plus/>
                             </div>
                         </button>
                     </div>
@@ -116,14 +116,14 @@
                     <div class="input-with-button-group">
                         <button id="decr-stroke" class="Secondary" title="{{ __('drawing-modal.Vergroot randdikte') }}">
                             <div>
-                                <x-icon.min-2/>
+                                <x-icon.min/>
                             </div>
                         </button>
                         <input type="number" name="stroke-width" id="stroke-width" min="0" max="100" value="1"
                                autocomplete="off" title="Randdikte">
                         <button id="incr-stroke" class="Secondary" title="{{ __('drawing-modal.Verklein randdikte') }}">
                             <div>
-                                <x-icon.plus-2/>
+                                <x-icon.plus/>
                             </div>
                         </button>
                     </div>
@@ -184,11 +184,11 @@
             </svg>
             <div id="zoom-component" class="percentfield-container">
                 <button id="decr-zoom" class="Secondary min-btn" title="{{ __('drawing-modal.Zoom uit') }}">
-                    <x-icon.min-2/>
+                    <x-icon.min/>
                 </button>
                 <input type="text" id="zoom-level" class="percentfield" value="100%" disabled>
                 <button id="incr-zoom" class="Secondary plus-btn" title="{{ __('drawing-modal.Zoom in') }}">
-                    <x-icon.plus-2/>
+                    <x-icon.plus/>
                 </button>
             </div>
             <div id="cursor-pos-container" class="coord-box flex items-end">
@@ -322,7 +322,7 @@
                         <x-icon.preview-off class="text-midgrey" style="display: none"/>
                     </button>
                     <button class="layer-btn add-layer-btn hidden" title="{{ __('drawing-modal.Laag toevoegen') }}">
-                        <x-icon.plus-2/>
+                        <x-icon.plus/>
                     </button>
                 </div>
             </div>

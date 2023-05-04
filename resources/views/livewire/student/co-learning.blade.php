@@ -1,6 +1,18 @@
 <div id="co-learning-page"
      class="flex flex-col w-full pt-12"
-     wire:poll.keep-alive.5000ms="updateHeartbeat()"
+     @if($pollingFallbackActive) wire:poll.keep-alive.5000ms="updateHeartbeat()" @endif
+     x-init="
+         pusher = Echo.connector.pusher
+         pusher.connection.bind('error', () => failureTest());
+         pusher.connection.bind('connected', () => PusherConnectionSuccesful = true);
+     "
+     x-data="{
+         PusherConnectionSuccesful: null,
+         failureTest: (e) => {
+            PusherConnectionSuccesful = false;
+            $wire.set('pollingFallbackActive', true);
+         },
+     }"
 >
 
     @if($this->coLearningFinished)
@@ -58,7 +70,7 @@
                     </div>
                 @endif
             </div>
-            <div class="flex items-center space-x-2">
+            <div class="flex items-center space-x-4">
                 <span><b class="bold">{{ __('co-learning.answer') }} {{ $this->answerFollowUpNumber }}</b>/{{ $this->numberOfAnswers }}</span>
                 <span><b class="bold">{{ __('co-learning.question') }} {{$this->questionFollowUpNumber}}</b>/{{$this->numberOfQuestions}}</span>
 
@@ -67,7 +79,7 @@
                                       wire:click="goToPreviousAnswerRating()"
                                       wire:loading.attr="disabled"
                     >
-                        <x-icon.arrow class=""/>
+                        <x-icon.chevron />
                         <span>{{ __('co-learning.previous_answer') }}</span>
                     </x-button.primary>
                 @elseif($nextAnswerAvailable)
@@ -76,7 +88,7 @@
                                           :disabled="!$this->enableNextQuestionButton"
                         >
                             <span>{{ __('co-learning.next_answer') }}</span>
-                            <x-icon.arrow/>
+                            <x-icon.chevron/>
                         </x-button.primary>
                 @endif
 
@@ -86,11 +98,15 @@
                     >
                         {{ __('co-learning.finish') }}
                     </x-button.cta>
+                @elseif($this->atLastQuestion)
+                    <x-button.cta :disabled="true"
+                    >
+                        {{ __('co-learning.finish') }}
+                    </x-button.cta>
                 @endif
 
             </div>
         @endif
     </footer>
-
 
 </div>

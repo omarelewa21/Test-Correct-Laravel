@@ -6,12 +6,10 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
-use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use tcCore\AnswerRating;
 use tcCore\DiscussingParentQuestion;
 use tcCore\Events\CoLearningForceTakenAway;
-use tcCore\Events\CoLearningNextQuestion;
 use tcCore\GroupQuestion;
 use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Helpers\DemoHelper;
@@ -1121,10 +1119,6 @@ class TestTakesController extends Controller
             if ($testTake->save() !== false) {
                 $this->hydrateTestTakeWithHasNextQuestionAttribute($testTake);
 
-                if (auth()->user()->schoolLocation->allow_new_co_learning) {
-                    $this->handleCoLearningForceTakeAway($testTake, $request);
-                }
-
                 return Response::make($testTake, 200);
             } else {
                 return Response::make('Failed to update test take', 500);
@@ -1279,13 +1273,6 @@ class TestTakesController extends Controller
             'code'        => $testTake->testTakeCode != null ? $testTake->testTakeCode->prefix . $testTake->testTakeCode->code : '',
             'directLink'  => $testTake->directLink
         ];
-    }
-
-    private function handleCoLearningForceTakeAway($testTake, $request)
-    {
-        if ($request->get('test_take_status_id') == 8 && !$request->get('skipped_discussion')) {
-            $testTake->testParticipants->each(fn($testParticipant) => CoLearningForceTakenAway::dispatch($testParticipant->uuid));
-        }
     }
 
     public function showForGrading($testTakeUuid, Request $request)

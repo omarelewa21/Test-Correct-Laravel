@@ -3,17 +3,17 @@
 namespace tcCore\Events;
 
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
+use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Auth;
 
-abstract class TestTakePresenceEvent implements ShouldBroadcastNow
+abstract class TestTakeEvent implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    protected $testTakeUuid;
+    public $testTakeUuid;
 
     /**
      * Create a new event instance.
@@ -28,17 +28,22 @@ abstract class TestTakePresenceEvent implements ShouldBroadcastNow
     /**
      * Get the channels the event should broadcast on.
      *
-     * @return PresenceChannel
+     * @return PrivateChannel
      */
     public function broadcastOn()
     {
-        return new PresenceChannel('presence-TestTake.'.$this->testTakeUuid);
+        return new PrivateChannel('TestTake.'.$this->testTakeUuid);
     }
 
-    public static function channelSignature($testTakeUuid)
+    public static function channelSignature(string $testTakeUuid)
     {
         $eventName = class_basename(get_called_class());
-        return "echo-presence:presence-TestTake.$testTakeUuid,.$eventName";
+
+        return "echo-private:TestTake.$testTakeUuid,.$eventName";
     }
 
+    public function broadcastAs()
+    {
+        return class_basename(get_called_class());
+    }
 }

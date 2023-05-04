@@ -81,7 +81,7 @@
                         class="new-button button-primary w-10 items-center justify-center flex"
                         x-on:click.stop="addQuestionToTestFromTestCard($el, @js($question->uuid), @js($showQuestionBankAddConfirmation) )"
                 >
-                    <x-icon.plus-2/>
+                    <x-icon.plus/>
                 </button>
             </div>
         </div>

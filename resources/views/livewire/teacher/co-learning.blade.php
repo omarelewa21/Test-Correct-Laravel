@@ -12,6 +12,7 @@
      async openStudentAnswer(id) {
         result = await $wire.call('showStudentAnswer',id);
         this.showStudentAnswer = result === true;
+        $dispatch('accordion-toggled')
      },
      }"
 >
@@ -21,23 +22,17 @@
     />
     @if($coLearningHasBeenStarted)
         <x-partials.sidebar.co-learning-teacher.drawer
-                wire:key="drawer-qi{{ $questionIndexOpenOnly }}-tpa{{  $testParticipantCountActive }}-aa-{{ $this->activeAnswerRating?->id ?? 'none' }}"
+                wire:key="drawer--{{ now()->timestamp }}"
                 :activeAnswerRating="$this->activeAnswerRating"
         />
 
         <div id="main-content-container"
              class="flex border-2 relative w-full justify-between overflow-auto "
-{{--                             wire:poll.keep-alive.5000ms="render()"--}}
+                             wire:poll.keep-alive.5000ms="render()"
         >
             <div class="flex flex-col w-full space-y-4 pt-10 px-[60px] pb-14"
                  wire:key="container-{{$this->testTake->discussing_question_id}}"
             >
-                <div class="flex flex-col">
-                    @js($this->testTake->id)
-                    @js($this->testTake->discussing_question_id)
-                    @js( $this->activeAnswerRating?->id ?? 'none' )
-                </div>
-
                 <x-accordion.container :active-container-key="'question'"
                                        :wire:key="'question-section-'.$this->discussingQuestion->id"
                 >
@@ -62,7 +57,19 @@
                         </x-slot:title>
                         <x-slot:body>
                             <div class="flex flex-col gap-2"
-                                 wire:key="question-block-{{  $this->discussingQuestion->uuid }}">
+                                 wire:key="question-block-{{  $this->discussingQuestion->uuid }}"
+                                 x-init="
+                                     elements = $el.querySelectorAll('img[src]').forEach((img) => {
+                                        if(img.naturalWidth <= 0) {
+                                           img.style.minHeight = '50px';
+                                           img.style.minWidth = '50px';
+                                            }
+                                        img.addEventListener('load', (event) => {
+                                            event.target.style.minHeight = 'unset';
+                                            event.target.style.minWidth = 'unset';
+                                        })
+                                     })
+                                 ">
                                 <div class="flex flex-wrap">
                                     @foreach($this->discussingQuestion->attachments as $attachment)
                                         <x-attachment.badge-view :attachment="$attachment"
@@ -122,7 +129,6 @@
                                             <span>@lang('co-learning.answer')</span>
                                             <span>:</span>
                                             <span class="ml-2">{{ $this->discussingQuestion->type_name }}</span>
-                                            <span class="ml-2">{{$this->activeAnswerRating->id}}</span>
                                         </h4>
                                         <h7 class="inline-block min-w-fit">{{ $this->discussingQuestion->score }}pt
                                         </h7>
@@ -150,7 +156,9 @@
                         </x-accordion.container>
                     </div>
                 @endif
+
             </div>
+
 
         </div>
     @endif

@@ -18,7 +18,7 @@
                           wire:click="$emit('openModal', 'teacher.test-start-create-modal')"
                           selid="create-new-test-button"
             >
-                <x-icon.plus-2/>
+                <x-icon.plus/>
                 <span>{{ __('general.create test') }}</span>
             </x-button.cta>
         </div>

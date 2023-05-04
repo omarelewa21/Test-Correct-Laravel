@@ -291,3 +291,18 @@ clearFilterPillsFromElement = (rootElement) => {
     let pills = rootElement.querySelectorAll('.filter-pill')
     pills.forEach(pill => pill.remove());
 }
+
+setHeightToAspectRatio = async (element) => {
+    aspectRatioWidth = 940;
+    aspectRatioHeight = 500;
+    aspectRatio = (aspectRatioHeight / aspectRatioWidth);
+
+    newHeight = (element.closest('#accordion-block, #answer-container').clientWidth-82) * aspectRatio;
+
+    if(newHeight <= 0) {
+        setTimeout (() => setHeightToAspectRatio(element), 50);
+        return;
+    }
+
+    element.style.height = newHeight + 'px';
+}
