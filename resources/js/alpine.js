@@ -1769,9 +1769,6 @@ document.addEventListener("alpine:init", () => {
         device,
         hasErrors,
         init() {
-            setTimeout(() => {
-                this.$wire.checkLoginFieldsForInput();
-            }, 250);
             this.setCurrentFocusInput();
 
             this.$watch('hasErrors', value => {
@@ -1787,7 +1784,9 @@ document.addEventListener("alpine:init", () => {
         setCurrentFocusInput (){
             let name = ('' != this.activeOverlay) ? this.activeOverlay : this.openTab;
             var finder = ('' != hasErrors) ? `[data-focus-tab-error = '${name}-${hasErrors[0]}']` :`[data-focus-tab = '${name}']`
-            setTimeout(() => this.$root.querySelector(finder)?.focus(), 250);
+            setTimeout(() => {
+                this.$root.querySelector(finder)?.focus()
+            }, 250);
         },
         changeActiveOverlay(activeOverlay = "") {
             this.activeOverlay = activeOverlay;
