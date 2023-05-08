@@ -90,8 +90,8 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             return;
         }
 
+        $this->setData();
         if ($this->headerCollapsed) {
-            $this->setData();
             $this->hydrateCurrentProperties();
         }
     }
