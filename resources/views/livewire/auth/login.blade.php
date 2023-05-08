@@ -418,14 +418,14 @@
                         <x-icon.arrow/>
                     </x-button.text-button>
                 </div>
-                <div browser wire:ignore>
+                <div x-show="Core.appType == ''" wire:ignore>
                         <x-button.text-button selid="login-create-account-btn" class="order-1" size="sm"
                                               type="link" href="https://www.test-correct.nl/welcome">
                             <span class="text-base">{{__('auth.Maak account')}}</span>
                             <x-icon.arrow/>
                         </x-button.text-button>
                 </div>
-                <div browser wire:ignore>
+                <div x-show="Core.appType == ''" wire:ignore x-show="Core.appType == ''">
                     <x-button.text-button selid="login-download-app-btn" size="sm" type="link" href="{{ $this->studentDownloadUrl }}">
                         <span class="text-base">{{__('auth.download')}}</span>
                         <x-icon.arrow/>
