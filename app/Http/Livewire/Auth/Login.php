@@ -436,7 +436,7 @@ class Login extends TCComponent
     public function emailEnteredForNoMailPresent()
     {
         // validate entered emailaddress
-        $this->rules['username'] = $this->getSchoolLocationAccptedEmailDomainRule();
+        $this->rules['username'] = $this->getSchoolLocationAcceptedEmailDomainRule();
 
         $this->validateOnly('username');
         if (User::where('username', $this->username)->exists()) {
@@ -483,7 +483,7 @@ class Login extends TCComponent
 
     public function returnToLogin() {}
 
-    private function getSchoolLocationAccptedEmailDomainRule()
+    private function getSchoolLocationAcceptedEmailDomainRule()
     {
         if ($this->uuid) {
             $eckId = optional(SamlMessage::whereUuid($this->uuid)->first())->eck_id;
