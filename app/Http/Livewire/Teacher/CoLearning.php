@@ -91,6 +91,12 @@ class CoLearning extends Component implements CollapsableHeader
             ->mapWithKeys(fn($testParticipant) => [$testParticipant['testparticipant_uuid'] => $testParticipant]);
     }
 
+    public function toggleStudentSpellcheck($val)
+    {
+        $this->testTake->enable_spellcheck_colearning = $val;
+        $this->testTake->save();
+    }
+
     public function joiningPresenceChannel($data)
     {
         $this->testParticipantsPresence = collect($this->testParticipantsPresence)->merge([$data['testparticipant_uuid'] => $data]);
@@ -139,6 +145,9 @@ class CoLearning extends Component implements CollapsableHeader
     public function hydrate()
     {
         $this->setTestTake();
+        if ($this->coLearningHasBeenStarted === false) {
+            return;
+        }
         $this->getTestParticipantsData();
     }
 
@@ -186,6 +195,7 @@ class CoLearning extends Component implements CollapsableHeader
         $this->coLearningHasBeenStarted = true;
         $this->headerCollapsed = true;
         $this->getStaticNavigationData();
+        $this->refreshComponentData();
     }
 
     public function nextDiscussionQuestion()
@@ -469,7 +479,7 @@ class CoLearning extends Component implements CollapsableHeader
     {
         $this->testParticipants = CoLearningHelper::getTestParticipantsWithStatusAndAbnormalities(
             $this->testTake->getKey(),
-            $this->discussingQuestion->getKey(),
+            $this->discussingQuestion?->getKey(),
         );
 
         $this->testParticipants

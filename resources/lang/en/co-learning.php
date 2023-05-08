@@ -56,4 +56,5 @@ return [
     'start_co_learning_session'     => 'Start CO-Learning session',
     'show-on-smartboard'            => 'Show on smartboard',
     'hide-from-smartboard'          => 'Hide on smartboard',
+    'spellchecker-for-students'     => 'Enable spellchecker for students',
 ];

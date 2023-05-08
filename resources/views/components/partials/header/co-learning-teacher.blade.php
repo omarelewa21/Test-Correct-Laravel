@@ -106,3 +106,20 @@
         </x-slot:additionalInfo>
     </x-partials.header.panel>
 @endsection
+
+@section('additionalInfo')
+    <div @class(["flex flex-col w-3/4 self-center divide-white divide-y border-t border-b border-white mt-6", 'border-b-white/25' => false])>
+        <div class="flex py-2 px-4 items-center justify-between">
+            <span>@lang('co-learning.spellchecker-for-students')</span>
+            @if($this->testTake->enable_spellcheck_colearning)
+                <x-input.toggle wire:click="toggleStudentSpellcheck($event.target.checked)" checked />
+            @else
+                <x-input.toggle wire:click="toggleStudentSpellcheck($event.target.checked)"/>
+            @endif
+
+{{--            <x-tooltip idle-classes="bg-transparent text-white border-white border">--}}
+{{--                <span class="text-left">todo</span>--}}
+{{--            </x-tooltip>--}}
+        </div>
+    </div>
+@endsection
