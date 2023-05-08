@@ -79,10 +79,12 @@ enum UserFeatureSetting: string implements FeatureSettingKey
 
     public static function initialValues(): Collection
     {
-        return collect(self::cases())
-            ->mapWithKeys(function ($enum) {
-                return [$enum->value => self::getInitialValue($enum)];
-            });
+        return collect(self::cases())->mapWithKeys(fn($enum) => [$enum->value => self::getInitialValue($enum)]);
+    }
+
+    public function initialValue(): mixed
+    {
+        return $this->castValue(self::getInitialValue($this));
     }
 
     private function validateAutoLogoutMinutes($value): bool

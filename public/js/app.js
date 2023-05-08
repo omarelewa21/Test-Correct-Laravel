@@ -10047,7 +10047,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         var newShape = makeNewSvgShapeWithSidebarEntry(shapeType, props, layerName, true, !(!drawingApp.isTeacher() && layerName === "question"));
         // Convert old dragging system (using SVGTransforms)
         // to new dragging system (all done with the SVG attributes of the element itself)
-        if (newShape.svg.type === 'path') newShape = letPathShapesUseRelativeCoords(newShape);
+        if (shapeIsPathShape(newShape) && pathShapeUsesAbsoluteCoords(newShape)) newShape = letPathShapesUseRelativeCoords(newShape);
         newShape = convertDragTransforms(newShape);
         Canvas.layers[layerName].shapes[shapeID] = newShape;
         if (isOldDrawing && layerName === "question") {
@@ -10062,18 +10062,25 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     }
     UI.svgLayerToRender.innerHTML = "";
   }
+  function shapeIsPathShape(shape) {
+    return shape.svg.type === 'path';
+  }
+  function pathShapeUsesAbsoluteCoords(shape) {
+    return shape.svg.mainElement.getDAttribute().contains("L");
+  }
   function letPathShapesUseRelativeCoords(shape) {
-    // const mainElement = shape.svg.mainElement;
-    // const oldDValue = convertDStringToArray(mainElement.getDAttribute());
-
-    // let newDValue = [],
-    //     startingPoint = oldDValue.shift();
-    // oldDValue.reduce((previousCommand, currentCommand) => {
-    //     newDValue.push(convertCommandFromAbsoluteToRelative(currentCommand, previousCommand));
-    //     return currentCommand;
-    // }, startingPoint);
-    // newDValue.unshift(startingPoint);
-    // mainElement.setD(newDValue.map((command) => `${command[0]} ${command[1].join(",")}`).join(" "));
+    var mainElement = shape.svg.mainElement;
+    var oldDValue = convertDStringToArray(mainElement.getDAttribute());
+    var newDValue = [],
+      startingPoint = oldDValue.shift();
+    oldDValue.reduce(function (previousCommand, currentCommand) {
+      newDValue.push(convertCommandFromAbsoluteToRelative(currentCommand, previousCommand));
+      return currentCommand;
+    }, startingPoint);
+    newDValue.unshift(startingPoint);
+    mainElement.setD(newDValue.map(function (command) {
+      return "".concat(command[0], " ").concat(command[1].join(","));
+    }).join(" "));
     return shape;
   }
 
@@ -10088,7 +10095,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
    * @returns {PathDStruct}
    */
   function convertDStringToArray(dValue) {
-    var commandMatcher = /([A-Za-z])(\s)([\-0-9.,])+/g; // Example: 'M -58.6,38.38'
+    var commandMatcher = /([A-Z])(\s)([\-0-9.,])+/g; // Example: 'M -58.6,38.38'
     var coordValueMatcher = /([\-.0-9])+/g; // Example: '-58.6'
     return dValue.match(commandMatcher).map(function (command) {
       return [command[0], command.match(coordValueMatcher).map(Number)];

@@ -309,9 +309,10 @@
                 <div class="content-section p-10 grid grid-cols-1 lg:grid-cols-2 gap-x-6 w-full">
                     <div class="border-b border-t border-bluegrey flex w-full items-center h-[50px] gap-2.5">
                         <x-input.toggle wire:model="featureSettings.assessment_skip_no_discrepancy_answer"
-                                        class="mr-2" />
-                        <x-icon.co-learning />
-                        <span class="bold">@lang('account.Sla antwoorden over die met CO-Learning zijn beoordeeld')</span>
+                                        class="mr-2 min-w-[var(--switch-width)]" />
+                        <x-icon.co-learning class="min-w-fit"/>
+                        <span class="bold inline-flex flex-shrink-1">@lang('account.Sla antwoorden over die met CO-Learning zijn beoordeeld')</span>
+                        <x-tooltip class="min-w-fit">@lang('assessment.discrepancies_toggle_tooltip')</x-tooltip>
                     </div>
                     <div class="border-b lg:border-t border-bluegrey flex w-full items-center h-[50px] gap-2.5">
                         <x-input.toggle wire:model="featureSettings.assessment_show_student_names" class="mr-2" />
