@@ -187,6 +187,7 @@ class CoLearning extends TCComponent implements CollapsableHeader
         $this->coLearningHasBeenStarted = true;
         $this->headerCollapsed = true;
         $this->getStaticNavigationData();
+        $this->refreshComponentData();
     }
 
     public function nextDiscussionQuestion()
