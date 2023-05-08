@@ -7270,6 +7270,7 @@ document.addEventListener("alpine:init", function () {
       halfPoints: array.halfPoints,
       drawerScoringDisabled: array.drawerScoringDisabled,
       pageUpdated: array.pageUpdated,
+      isCoLearningScore: array.isCoLearningScore,
       init: function init() {
         if (this.pageUpdated) {
           this.resetStoredData();
@@ -7305,6 +7306,10 @@ document.addEventListener("alpine:init", function () {
         return this.halfPoints ? Math.round(this.shadowScore * 2) / 2 : Math.round(this.shadowScore);
       },
       setNewScore: function setNewScore(newScore, state, firstTick) {
+        if (firstTick && this.isCoLearningScore) {
+          this.isCoLearningScore = false;
+          this.shadowScore = 0;
+        }
         if (firstTick && state === "off") {
           var _this$shadowScore;
           (_this$shadowScore = this.shadowScore) !== null && _this$shadowScore !== void 0 ? _this$shadowScore : this.shadowScore = 0;
@@ -7342,6 +7347,7 @@ document.addEventListener("alpine:init", function () {
       },
       updateScoringData: function updateScoringData(data) {
         Object.assign(this, data);
+        this.score = this.shadowScore = data.initialScore;
       }
     };
   });

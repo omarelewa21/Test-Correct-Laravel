@@ -76,7 +76,13 @@ abstract class EvaluationComponent extends TCComponent
         return $this->studentRatings()
             ->each(function ($answerRating) {
                 $answerRating->user ??= \tcCore\User::getDeletedNewUser();
-                $answerRating->displayRating = $this->currentQuestion->decimal_score ? (float)$answerRating->rating : (int)$answerRating->rating;
+                $rating = '-';
+                if (!is_null($answerRating->rating)) {
+                    $rating = $this->currentQuestion->decimal_score
+                        ? (float)$answerRating->rating
+                        : (int)$answerRating->rating;
+                }
+                $answerRating->displayRating = $rating;
             });
     }
 
