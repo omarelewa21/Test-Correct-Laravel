@@ -89,11 +89,7 @@
                         </div>
 
                         <div class="max-w-full">
-                            @if($question->isType('Completion'))
-                                {!! $question->getDisplayableQuestionText()  !!}
-                            @else
-                                {!! $question->converted_question_html !!}
-                            @endif
+                            {!! $questionText !!}
                         </div>
                     </div>
                 </x-slot:body>

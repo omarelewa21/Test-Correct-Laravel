@@ -758,4 +758,12 @@ class CoLearning extends TCComponent implements CollapsableHeader
         $this->getTestParticipantsData();
         $this->testParticipants->map(fn($participant) => $participant->syncedWithCurrentQuestion = false);
     }
+
+    private function getDisplayableQuestionText()
+    {
+        if ($this->discussingQuestion->isType('Completion')) {
+            return Blade::renderComponent(new CompletionQuestionConvertedHtml($this->discussingQuestion, 'assessment'));
+        }
+        return $this->discussingQuestion->converted_question_html;
+    }
 }

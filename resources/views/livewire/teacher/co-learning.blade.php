@@ -82,7 +82,7 @@
                                 </div>
 
                                 <div class="max-w-full">
-                                    {!! $this->discussingQuestion->getDisplayableQuestionText()  !!}
+                                    {!! $this->getDisplayableQuestionText()  !!}
                                 </div>
                             </div>
                         </x-slot:body>

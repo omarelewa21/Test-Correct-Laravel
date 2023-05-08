@@ -5,6 +5,7 @@ namespace tcCore\View\Components;
 use Illuminate\Support\Collection;
 use Illuminate\View\Component;
 use tcCore\CompletionQuestion;
+use tcCore\Question;
 
 class CompletionQuestionConvertedHtml extends Component
 {
@@ -14,11 +15,16 @@ class CompletionQuestionConvertedHtml extends Component
      * @return void
      */
     public function __construct(
-        private CompletionQuestion $question,
+        private Question $question,
         private string $context = 'student',
         private ?Collection $answers = null,
         private ?int $completionQuestionTagCount = 0,        // User for teacher co-learning
-    ){}
+    )
+    {
+        if (!$this->question->isType('completion')) {
+            throw new \Exception('Question must be of type Completion and subtype ');
+        }
+    }
 
     /**
      * Get modfied string for completion question.
@@ -35,7 +41,7 @@ class CompletionQuestionConvertedHtml extends Component
 
     /**
      * Transform question text gaps based on the context
-     * 
+     *
      * @return \Closure
      */
     public function transformTextGapsBasedOnContext()
@@ -50,7 +56,7 @@ class CompletionQuestionConvertedHtml extends Component
 
     /**
      * Transform question text gaps for assessment
-     * 
+     *
      * @return \Closure
      */
     public function transformTextGapsForAssessment()
@@ -73,7 +79,7 @@ class CompletionQuestionConvertedHtml extends Component
 
     /**
      * Transform question text gaps for teacher preview
-     * 
+     *
      * @return \Closure
      */
     public function transformTextGapsForPreview()
@@ -82,16 +88,22 @@ class CompletionQuestionConvertedHtml extends Component
             $tag_id = $matches[1] - 1;      // the completion_question_answers list is 1 based but the inputs need to be 0 based
             $answer = '';
             $rsSpan = '';
-            $events = sprintf('@blur="$refs.%s.scrollLeft = 0" @input="$event.target.setAttribute(\'title\', $event.target.value); $el.style.width = getInputWidth($el)"', 'comp_answer_' . $tag_id);
+            $events = sprintf(
+                '@blur="$refs.%s.scrollLeft = 0" @input="$event.target.setAttribute(\'title\', $event.target.value); $el.style.width = getInputWidth($el)"',
+                'comp_answer_' . $tag_id
+            );
             $context = $this->context;
             $question = $this->question;
-            return view('components.completion-question-converted-html', compact('tag_id', 'answer', 'events', 'rsSpan', 'context', 'question'));
+            return view(
+                'components.completion-question-converted-html',
+                compact('tag_id', 'answer', 'events', 'rsSpan', 'context', 'question')
+            );
         };
     }
 
     /**
      * Transform question text gaps for student
-     * 
+     *
      * @return \Closure
      */
     public function transformTextGapsForStudent()
@@ -104,16 +116,23 @@ class CompletionQuestionConvertedHtml extends Component
             $context = $this->context;
             $question = $this->question;
             if (auth()->user()->text2speech) {
-                $events = sprintf('@focus="handleTextBoxFocusForReadspeaker(event,\'%s\')" @blur="$el.scrollLeft = 0;handleTextBoxBlurForReadspeaker(event,\'%s\')" @input="$event.target.setAttribute(\'title\', $event.target.value); $el.style.width = getInputWidth($el)"', $question->getKey(), $question->getKey());
+                $events = sprintf(
+                    '@focus="handleTextBoxFocusForReadspeaker(event,\'%s\')" @blur="$el.scrollLeft = 0;handleTextBoxBlurForReadspeaker(event,\'%s\')" @input="$event.target.setAttribute(\'title\', $event.target.value); $el.style.width = getInputWidth($el)"',
+                    $question->getKey(),
+                    $question->getKey()
+                );
                 $rsSpan = '<span wire:ignore class="rs_placeholder"></span>';
             }
-            return view('components.completion-question-converted-html', compact('tag_id', 'answer', 'events', 'rsSpan', 'context', 'question'));
+            return view(
+                'components.completion-question-converted-html',
+                compact('tag_id', 'answer', 'events', 'rsSpan', 'context', 'question')
+            );
         };
     }
 
     /**
      * Transform question text gaps for teacher colearning
-     * 
+     *
      * @return \Closure
      */
     public function transformTextGapsForCoLearning()
@@ -127,7 +146,10 @@ class CompletionQuestionConvertedHtml extends Component
             $answers = $this->answers;
             $answer = $answers?->where('tag', $tag_id)?->first()?->answer ?? '';
             $context = 'teacher-colearning';
-            return view('components.completion-question-converted-html', compact('tag_id', 'question', 'answer', 'events', 'rsSpan', 'context'));
+            return view(
+                'components.completion-question-converted-html',
+                compact('tag_id', 'question', 'answer', 'events', 'rsSpan', 'context')
+            );
         };
     }
 }
