@@ -45,7 +45,7 @@
                     <div class="grid grid-cols-10 grid-flow-row w-full gap-4">
                         <x-input.group class="col-span-10 lg:col-span-7" :label="__('upload.Naam toets')">
                             <x-input.text wire:model.debounce.300ms="testInfo.name"
-                                          :error="in_array($this->testInfo['name'], $this->previousUploadedTestNames)"
+                                          :error="!$this->checkValidTestName()"
                             />
                         </x-input.group>
 
@@ -108,7 +108,7 @@
                                                  wire:key="form-{{ $this->formUuid }}"
                                 />
                             </div>
-                            @if(in_array($this->testInfo['name'], $this->previousUploadedTestNames))
+                            @if(!$this->checkValidTestName())
                             <div class="notification error stretched">
                                 <div class="title">@lang('upload.duplicate_test_name')</div>
                             </div>

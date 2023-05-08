@@ -19,12 +19,13 @@ use tcCore\FileManagementStatus;
 use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Http\Helpers\SchoolHelper;
 use tcCore\Http\Livewire\TCComponent;
+use tcCore\Http\Traits\Modal\TestActions;
 use tcCore\Subject;
 use tcCore\TestKind;
 
 class UploadTest extends TCComponent
 {
-    use WithFileUploads;
+    use WithFileUploads, TestActions;
 
     const CAKE_RETURN_ROUTE_SESSION_KEY = 'upload_test_cake_return_route';
     const LARAVEL_RETURN_ROUTE_SESSION_KEY = 'upload_test_laravel_return_route';
@@ -240,7 +241,7 @@ class UploadTest extends TCComponent
 
     public function finishProcess(bool $openSuccessModal = true)
     {
-        $this->validateTestName();
+        $this->validateTestName()->validate();
 
         $typedetails = $this->getTypeDetailsForFileManagementModel();
 
@@ -421,13 +422,12 @@ class UploadTest extends TCComponent
 
     private function validateTestName()
     {
-        Validator::make($this->testInfo, [
-            'name' => [
-                'required',
-                Rule::notIn($this->previousUploadedTestNames),
-            ]
-        ])->validate();
-
+        return Validator::make($this->testInfo, [
+            'name' => array_merge(
+                $this->getNameRulesDependingOnAction(),
+                [Rule::notIn($this->previousUploadedTestNames)]
+            )
+        ]);
     }
 
     /**
@@ -437,6 +437,11 @@ class UploadTest extends TCComponent
     {
         return collect($this->testInfo)
                 ->reject(fn($item) => filled($item))
-                ->isEmpty() && !in_array($this->testInfo['name'], $this->previousUploadedTestNames);
+                ->isEmpty() && $this->checkValidTestName();
+    }
+
+    public function checkValidTestName(): bool
+    {
+        return $this->validateTestName()->passes();
     }
 }
