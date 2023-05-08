@@ -1048,7 +1048,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             )
             // Convert old dragging system (using SVGTransforms)
             // to new dragging system (all done with the SVG attributes of the element itself)
-            if(newShape.svg.type === 'path')
+            if(shapeIsPathShape(newShape) && pathShapeUsesAbsoluteCoords(newShape))
                 newShape = letPathShapesUseRelativeCoords(newShape);
             newShape = convertDragTransforms(newShape);
 
@@ -1061,18 +1061,26 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         UI.svgLayerToRender.innerHTML = "";
     }
 
-    function letPathShapesUseRelativeCoords(shape) {
-        // const mainElement = shape.svg.mainElement;
-        // const oldDValue = convertDStringToArray(mainElement.getDAttribute());
+    function shapeIsPathShape(shape) {
+        return shape.svg.type === 'path';
+    }
 
-        // let newDValue = [],
-        //     startingPoint = oldDValue.shift();
-        // oldDValue.reduce((previousCommand, currentCommand) => {
-        //     newDValue.push(convertCommandFromAbsoluteToRelative(currentCommand, previousCommand));
-        //     return currentCommand;
-        // }, startingPoint);
-        // newDValue.unshift(startingPoint);
-        // mainElement.setD(newDValue.map((command) => `${command[0]} ${command[1].join(",")}`).join(" "));
+    function pathShapeUsesAbsoluteCoords(shape) {
+        return shape.svg.mainElement.getDAttribute().contains("L");
+    }
+
+    function letPathShapesUseRelativeCoords(shape) {
+        const mainElement = shape.svg.mainElement;
+        const oldDValue = convertDStringToArray(mainElement.getDAttribute());
+
+        let newDValue = [],
+            startingPoint = oldDValue.shift();
+        oldDValue.reduce((previousCommand, currentCommand) => {
+            newDValue.push(convertCommandFromAbsoluteToRelative(currentCommand, previousCommand));
+            return currentCommand;
+        }, startingPoint);
+        newDValue.unshift(startingPoint);
+        mainElement.setD(newDValue.map((command) => `${command[0]} ${command[1].join(",")}`).join(" "));
         return shape;
     }
 
@@ -1087,7 +1095,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
      * @returns {PathDStruct}
      */
     function convertDStringToArray(dValue) {
-        const commandMatcher = /([A-Za-z])(\s)([\-0-9.,])+/g; // Example: 'M -58.6,38.38'
+        const commandMatcher = /([A-Z])(\s)([\-0-9.,])+/g; // Example: 'M -58.6,38.38'
         const coordValueMatcher = /([\-.0-9])+/g; // Example: '-58.6'
         return dValue
             .match(commandMatcher)
