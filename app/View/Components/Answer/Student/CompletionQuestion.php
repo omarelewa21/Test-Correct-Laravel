@@ -47,6 +47,10 @@ class CompletionQuestion extends QuestionComponent
      */
     private function isToggleActiveForAnswer($givenAnswer, $correctAnswer): ?bool
     {
+        if ($this->question->isSubType('multi')) {
+            return $givenAnswer === $correctAnswer->answer;
+        }
+
         if (!$this->answer->answerRatings) {
             return null;
         }
