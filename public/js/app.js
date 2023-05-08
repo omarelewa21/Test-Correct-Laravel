@@ -6849,6 +6849,9 @@ document.addEventListener("alpine:init", function () {
         this.$el.querySelector(".group").firstElementChild.classList.add("text-primary");
         if (this.value !== "" && Object.keys(this.sources).includes(String(this.value))) {
           this.activateButton(this.$el.querySelector("[data-id='" + this.value + "']").parentElement);
+          if (!this.disabled) {
+            this.$dispatch("initial-toggle-tick");
+          }
         } else {
           this.value = this.$el.querySelector(".group").firstElementChild.dataset.id;
         }
@@ -7224,7 +7227,7 @@ document.addEventListener("alpine:init", function () {
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("loginScreen", function (openTab, activeOverlay, device) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("loginScreen", function (openTab, activeOverlay, device, hasErrors) {
     return {
       openTab: openTab,
       showPassword: false,
@@ -7233,12 +7236,13 @@ document.addEventListener("alpine:init", function () {
       showEntreePassword: false,
       activeOverlay: activeOverlay,
       device: device,
+      hasErrors: hasErrors,
       init: function init() {
         var _this31 = this;
-        setTimeout(function () {
-          _this31.$wire.checkLoginFieldsForInput();
-        }, 250);
         this.setCurrentFocusInput();
+        this.$watch('hasErrors', function (value) {
+          _this31.setCurrentFocusInput();
+        });
         this.$watch("activeOverlay", function (value) {
           _this31.setCurrentFocusInput();
         });
@@ -7248,10 +7252,11 @@ document.addEventListener("alpine:init", function () {
       },
       setCurrentFocusInput: function setCurrentFocusInput() {
         var _this32 = this;
-        var name = "" != this.activeOverlay ? this.activeOverlay : this.openTab;
+        var name = '' != this.activeOverlay ? this.activeOverlay : this.openTab;
+        var finder = '' != hasErrors ? "[data-focus-tab-error = '".concat(name, "-").concat(hasErrors[0], "']") : "[data-focus-tab = '".concat(name, "']");
         setTimeout(function () {
           var _this32$$root$querySe;
-          return (_this32$$root$querySe = _this32.$root.querySelector("[data-focus-tab='".concat(name, "']"))) === null || _this32$$root$querySe === void 0 ? void 0 : _this32$$root$querySe.focus();
+          (_this32$$root$querySe = _this32.$root.querySelector(finder)) === null || _this32$$root$querySe === void 0 ? void 0 : _this32$$root$querySe.focus();
         }, 250);
       },
       changeActiveOverlay: function changeActiveOverlay() {
@@ -7260,28 +7265,29 @@ document.addEventListener("alpine:init", function () {
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("assessment", function (array) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("assessment", function (score, maxScore, halfPoints, drawerScoringDisabled, pageUpdated) {
     return {
-      score: array.initialScore,
-      shadowScore: array.initialScore,
-      maxScore: array.maxScore,
-      halfPoints: array.halfPoints,
-      drawerScoringDisabled: array.drawerScoringDisabled,
-      pageUpdated: array.pageUpdated,
+      score: score,
+      shadowScore: score,
+      maxScore: maxScore,
+      halfPoints: halfPoints,
+      drawerScoringDisabled: drawerScoringDisabled,
       init: function init() {
-        if (this.pageUpdated) {
-          this.resetStoredData();
+        if (pageUpdated) {
+          this.$store.assessment.resetData(this.score, this.toggleCount());
         }
         if ((0,lodash__WEBPACK_IMPORTED_MODULE_5__.isString)(this.shadowScore)) {
-          this.shadowScore = this.isFloat(initialScore) ? parseFloat(initialScore) : parseInt(initialScore);
+          this.shadowScore = this.isFloat(score) ? parseFloat(score) : parseInt(score);
         }
       },
       toggleCount: function toggleCount() {
-        return document.querySelectorAll(".student-answer .slider-button-container:not(.disabled)").length;
+        return this.$root.querySelectorAll(".student-answer .slider-button-container:not(.disabled)").length;
+      },
+      initialToggleTicked: function initialToggleTicked() {
+        this.$store.assessment.togglesTicked++;
       },
       dispatchUpdateToNavigator: function dispatchUpdateToNavigator(navigator, updates) {
-        this.resetStoredData();
-        var navigatorElement = document.querySelector("#".concat(navigator, "-navigator"));
+        var navigatorElement = this.$root.querySelector("#".concat(navigator, "-navigator"));
         if (navigatorElement) {
           return navigatorElement.dispatchEvent(new CustomEvent("update-navigator", {
             detail: _objectSpread({}, updates)
@@ -7302,12 +7308,12 @@ document.addEventListener("alpine:init", function () {
       getCurrentScore: function getCurrentScore() {
         return this.halfPoints ? Math.round(this.shadowScore * 2) / 2 : Math.round(this.shadowScore);
       },
-      setNewScore: function setNewScore(newScore, state, firstTick) {
+      setNewScore: function setNewScore(score, state, firstTick) {
         if (firstTick && state === "off") {
           var _this$shadowScore;
           (_this$shadowScore = this.shadowScore) !== null && _this$shadowScore !== void 0 ? _this$shadowScore : this.shadowScore = 0;
         } else {
-          this.shadowScore = state === "on" ? this.shadowScore + newScore : this.shadowScore - newScore;
+          this.shadowScore = state === "on" ? this.shadowScore + score : this.shadowScore - score;
         }
         if (this.shadowScore < 0) this.shadowScore = 0;
         if (this.shadowScore > this.maxScore) this.shadowScore = this.maxScore;
@@ -7315,9 +7321,10 @@ document.addEventListener("alpine:init", function () {
       },
       updateAssessmentStore: function updateAssessmentStore() {
         this.$store.assessment.currentScore = this.score;
+        this.$store.assessment.togglesTicked++;
       },
       dispatchNewScoreToSlider: function dispatchNewScoreToSlider() {
-        document.querySelector(".score-slider-container").dispatchEvent(new CustomEvent("new-score", {
+        this.$root.querySelector(".score-slider-container").dispatchEvent(new CustomEvent("new-score", {
           detail: {
             score: this.score
           }
@@ -7330,16 +7337,6 @@ document.addEventListener("alpine:init", function () {
         if (event.hasOwnProperty("identifier")) {
           this.$wire.toggleValueUpdated(event.identifier, event.state);
         }
-      },
-      resetStoredData: function resetStoredData() {
-        var _this33 = this;
-        this.$store.assessment.resetData(this.score, this.toggleCount());
-        this.$nextTick(function () {
-          _this33.$store.assessment.toggleCount = _this33.toggleCount();
-        });
-      },
-      updateScoringData: function updateScoringData(data) {
-        Object.assign(this, data);
       }
     };
   });
@@ -7352,13 +7349,13 @@ document.addEventListener("alpine:init", function () {
       firstValue: firstValue,
       skipWatch: false,
       first: function first() {
-        var _this34 = this;
+        var _this33 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee8() {
           return _regeneratorRuntime().wrap(function _callee8$(_context8) {
             while (1) switch (_context8.prev = _context8.next) {
               case 0:
                 _context8.next = 2;
-                return _this34.updateCurrent(_this34.firstValue, "first");
+                return _this33.updateCurrent(_this33.firstValue, "first");
               case 2:
               case "end":
                 return _context8.stop();
@@ -7367,13 +7364,13 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       last: function last() {
-        var _this35 = this;
+        var _this34 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee9() {
           return _regeneratorRuntime().wrap(function _callee9$(_context9) {
             while (1) switch (_context9.prev = _context9.next) {
               case 0:
                 _context9.next = 2;
-                return _this35.updateCurrent(_this35.lastValue, "last");
+                return _this34.updateCurrent(_this34.lastValue, "last");
               case 2:
               case "end":
                 return _context9.stop();
@@ -7382,19 +7379,19 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       next: function next() {
-        var _this36 = this;
+        var _this35 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee10() {
           return _regeneratorRuntime().wrap(function _callee10$(_context10) {
             while (1) switch (_context10.prev = _context10.next) {
               case 0:
-                if (!(_this36.current >= _this36.lastValue)) {
+                if (!(_this35.current >= _this35.lastValue)) {
                   _context10.next = 2;
                   break;
                 }
                 return _context10.abrupt("return");
               case 2:
                 _context10.next = 4;
-                return _this36.updateCurrent(_this36.current + 1, "incr");
+                return _this35.updateCurrent(_this35.current + 1, "incr");
               case 4:
               case "end":
                 return _context10.stop();
@@ -7403,19 +7400,19 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       previous: function previous() {
-        var _this37 = this;
+        var _this36 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee11() {
           return _regeneratorRuntime().wrap(function _callee11$(_context11) {
             while (1) switch (_context11.prev = _context11.next) {
               case 0:
-                if (!(_this37.current <= _this37.firstValue)) {
+                if (!(_this36.current <= _this36.firstValue)) {
                   _context11.next = 2;
                   break;
                 }
                 return _context11.abrupt("return");
               case 2:
                 _context11.next = 4;
-                return _this37.updateCurrent(_this37.current - 1, "decr");
+                return _this36.updateCurrent(_this36.current - 1, "decr");
               case 4:
               case "end":
                 return _context11.stop();
@@ -7424,21 +7421,21 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       updateCurrent: function updateCurrent(value, action) {
-        var _this38 = this;
+        var _this37 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee12() {
           var response;
           return _regeneratorRuntime().wrap(function _callee12$(_context12) {
             while (1) switch (_context12.prev = _context12.next) {
               case 0:
-                _this38.$dispatch("assessment-drawer-tab-update", {
+                _this37.$dispatch("assessment-drawer-tab-update", {
                   tab: 1
                 });
                 _context12.next = 3;
-                return _this38.$wire[_this38.methodCall](value, action);
+                return _this37.$wire[_this37.methodCall](value, action);
               case 3:
                 response = _context12.sent;
                 if (response) {
-                  _this38.updateProperties(response);
+                  _this37.updateProperties(response);
                 }
               case 5:
               case "end":
@@ -7461,42 +7458,42 @@ document.addEventListener("alpine:init", function () {
       fixLineHeightCount: 0,
       fixInterval: null,
       init: function init() {
-        var _this39 = this;
+        var _this38 = this;
         this.placeAllOrNothingLines();
         this.fixLineHeight();
         this.$watch("expanded", function (value) {
-          return _this39.placeAllOrNothingLines();
+          return _this38.placeAllOrNothingLines();
         });
       },
       fixLineHeight: function fixLineHeight() {
-        var _this40 = this;
+        var _this39 = this;
         this.fixInterval = setInterval(function () {
-          _this40.placeAllOrNothingLines();
-          _this40.fixLineHeightCount++;
-          if (_this40.fixLineHeightCount >= 5) {
-            clearInterval(_this40.fixInterval);
+          _this39.placeAllOrNothingLines();
+          _this39.fixLineHeightCount++;
+          if (_this39.fixLineHeightCount >= 5) {
+            clearInterval(_this39.fixInterval);
           }
         }, 200);
       },
       placeAllOrNothingLines: function placeAllOrNothingLines() {
-        var _this41 = this;
+        var _this40 = this;
         this.$nextTick(function () {
-          var parent = _this41.$root.parentElement;
-          _this41.activeItems.map(function (item) {
+          var parent = _this40.$root.parentElement;
+          _this40.activeItems.map(function (item) {
             var el = parent.querySelector("[data-active-item='".concat(item, "']"));
-            var height = el.offsetTop + el.offsetHeight / 2 - _this41.$root.offsetHeight / 2;
-            if (_this41.$root !== parent.firstElementChild) {
-              height -= _this41.$root.offsetTop;
+            var height = el.offsetTop + el.offsetHeight / 2 - _this40.$root.offsetHeight / 2;
+            if (_this40.$root !== parent.firstElementChild) {
+              height -= _this40.$root.offsetTop;
             }
-            _this41.$root.querySelector("[data-line='".concat(item, "']")).style.height = height + "px";
+            _this40.$root.querySelector("[data-line='".concat(item, "']")).style.height = height + "px";
           });
-          if (_this41.withToggle) {
+          if (_this40.withToggle) {
             var toggleEl = parent.parentElement.querySelector(".all-or-nothing-toggle");
-            var firstEl = _this41.$root;
-            var lastEl = parent.querySelector("[data-active-item=\"".concat(_this41.activeItems.slice(-1), "\"]"));
-            var middle = _this41.middleOfElement(firstEl);
+            var firstEl = _this40.$root;
+            var lastEl = parent.querySelector("[data-active-item=\"".concat(_this40.activeItems.slice(-1), "\"]"));
+            var middle = _this40.middleOfElement(firstEl);
             if (lastEl) {
-              middle = (_this41.middleOfElement(firstEl) + _this41.middleOfElement(lastEl)) / 2;
+              middle = (_this40.middleOfElement(firstEl) + _this40.middleOfElement(lastEl)) / 2;
             }
             toggleEl.style.top = middle + "px";
           }
@@ -7508,7 +7505,6 @@ document.addEventListener("alpine:init", function () {
     };
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("assessmentDrawer", function () {
-    var inReview = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
     return {
       activeTab: 1,
       tabs: [1, 2, 3],
@@ -7516,7 +7512,6 @@ document.addEventListener("alpine:init", function () {
       container: null,
       clickedNext: false,
       tooltipTimeout: null,
-      inReview: inReview,
       init: function init() {
         this.container = this.$root.querySelector("#slide-container");
         this.tab(1);
@@ -7525,60 +7520,55 @@ document.addEventListener("alpine:init", function () {
         });
       },
       tab: function tab(index) {
-        var _this42 = this;
+        var _this41 = this;
         if (!this.tabs.includes(index)) return;
         this.activeTab = index;
-        this.closeTooltips();
         var slide = this.$root.querySelector(".slide-" + index);
         this.handleSlideHeight(slide);
         this.$nextTick(function () {
-          _this42.container.scroll({
+          _this41.container.scroll({
             top: 0,
             left: slide.offsetLeft,
             behavior: "smooth"
           });
-          setTimeout(function () {
-            var position = _this42.container.scrollLeft / 300 + 1;
-            if (!_this42.tabs.includes(position)) {
-              _this42.container.scroll({
-                left: slide.offsetLeft
-              });
-            }
-          }, 500);
         });
       },
       next: function next() {
-        var _this43 = this;
+        var _this42 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee14() {
           return _regeneratorRuntime().wrap(function _callee14$(_context14) {
             while (1) switch (_context14.prev = _context14.next) {
               case 0:
-                if (!_this43.needsToPerformActionsStill()) {
+                if (!(!_this42.$store.assessment.clearToProceed() && !_this42.clickedNext)) {
                   _context14.next = 4;
                   break;
                 }
-                _this43.$dispatch("scoring-elements-error");
-                _this43.clickedNext = true;
+                _this42.$dispatch("scoring-elements-error");
+                _this42.clickedNext = true;
                 return _context14.abrupt("return");
               case 4:
-                _this43.tab(1);
-                _context14.next = 7;
-                return _this43.$nextTick( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee13() {
+                _this42.tab(1);
+                _this42.$store.assessment.resetData();
+                _context14.next = 8;
+                return _this42.$nextTick( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee13() {
+                  var done;
                   return _regeneratorRuntime().wrap(function _callee13$(_context13) {
                     while (1) switch (_context13.prev = _context13.next) {
                       case 0:
-                        _this43.$store.assessment.resetData();
-                        _context13.next = 3;
-                        return _this43.$wire.next();
-                      case 3:
-                        _this43.clickedNext = false;
+                        _context13.next = 2;
+                        return _this42.$wire.next();
+                      case 2:
+                        done = _context13.sent;
+                        if (done) {
+                          _this42.clickedNext = false;
+                        }
                       case 4:
                       case "end":
                         return _context13.stop();
                     }
                   }, _callee13);
                 })));
-              case 7:
+              case 8:
               case "end":
                 return _context14.stop();
             }
@@ -7586,22 +7576,25 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       previous: function previous() {
-        var _this44 = this;
+        var _this43 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee16() {
           return _regeneratorRuntime().wrap(function _callee16$(_context16) {
             while (1) switch (_context16.prev = _context16.next) {
               case 0:
-                _this44.tab(1);
+                _this43.tab(1);
                 _context16.next = 3;
-                return _this44.$nextTick( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee15() {
+                return _this43.$nextTick( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee15() {
+                  var done;
                   return _regeneratorRuntime().wrap(function _callee15$(_context15) {
                     while (1) switch (_context15.prev = _context15.next) {
                       case 0:
-                        _this44.$store.assessment.resetData();
-                        _context15.next = 3;
-                        return _this44.$wire.previous();
-                      case 3:
-                        _this44.clickedNext = false;
+                        _context15.next = 2;
+                        return _this43.$wire.previous();
+                      case 2:
+                        done = _context15.sent;
+                        if (done) {
+                          _this43.clickedNext = false;
+                        }
                       case 4:
                       case "end":
                         return _context15.stop();
@@ -7638,13 +7631,10 @@ document.addEventListener("alpine:init", function () {
         this.$root.querySelectorAll(".tooltip-container").forEach(function (el) {
           el.dispatchEvent(new CustomEvent("close"));
         });
-      },
-      needsToPerformActionsStill: function needsToPerformActionsStill() {
-        return !this.inReview && !this.$store.assessment.clearToProceed() && !this.clickedNext;
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("scoreSlider", function (score, model, maxScore, halfPoints, disabled, coLearning, focusInput) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("scoreSlider", function (score, model, maxScore, halfPoints, disabled, coLearning) {
     return {
       score: score,
       model: model,
@@ -7655,7 +7645,6 @@ document.addEventListener("alpine:init", function () {
       skipSync: false,
       persistantScore: null,
       inputBox: null,
-      focusInput: focusInput,
       getSliderBackgroundSize: function getSliderBackgroundSize(el) {
         if (this.score === null) return 0;
         var min = el.min || 0;
@@ -7672,9 +7661,6 @@ document.addEventListener("alpine:init", function () {
         if (this.$wire[this.model] === this.score) return;
         this.$wire.sync(this.model, this.score);
         this.$store.assessment.currentScore = this.score;
-        this.$dispatch("slider-score-updated", {
-          score: this.score
-        });
       },
       noChangeEventFallback: function noChangeEventFallback() {
         if (this.score === null) {
@@ -7683,45 +7669,46 @@ document.addEventListener("alpine:init", function () {
         }
       },
       init: function init() {
-        var _this45 = this;
+        var _this44 = this;
+        // This echos custom JS from the template and for some reason it actually works;
         if (coLearning) {
           Livewire.hook("message.received", function (message, component) {
             var _message$updateQueue$;
             if (component.name === "student.co-learning" && ((_message$updateQueue$ = message.updateQueue[0]) === null || _message$updateQueue$ === void 0 ? void 0 : _message$updateQueue$.method) === "updateHeartbeat") {
-              var scoreInputElement = _this45.$root.querySelector("[x-ref='scoreInput']");
-              _this45.persistentScore = scoreInputElement !== null && scoreInputElement.value !== "" ? scoreInputElement.value : null;
+              var scoreInputElement = _this44.$root.querySelector("[x-ref='scoreInput']");
+              _this44.persistentScore = scoreInputElement !== null && scoreInputElement.value !== "" ? scoreInputElement.value : null;
             }
           });
           Livewire.hook("message.processed", function (message, component) {
             var _message$updateQueue$2;
             if (component.name === "student.co-learning" && ((_message$updateQueue$2 = message.updateQueue[0]) === null || _message$updateQueue$2 === void 0 ? void 0 : _message$updateQueue$2.method) === "updateHeartbeat") {
-              _this45.skipSync = true;
-              _this45.score = _this45.persistentScore;
+              _this44.skipSync = true;
+              _this44.score = _this44.persistentScore;
             }
           });
         }
         this.inputBox = this.$root.querySelector("[x-ref='scoreInput']");
         this.$watch("score", function (value, oldValue) {
-          _this45.markInputElementsClean();
-          if (_this45.disabled || value === oldValue || _this45.skipSync) {
-            _this45.skipSync = false;
+          _this44.markInputElementsClean();
+          if (_this44.disabled || value === oldValue || _this44.skipSync) {
+            _this44.skipSync = false;
             return;
           }
-          if (value >= _this45.maxScore) {
-            _this45.score = value = _this45.maxScore;
+          if (value >= _this44.maxScore) {
+            _this44.score = value = _this44.maxScore;
           }
           if (value <= 0) {
-            _this45.score = value = 0;
+            _this44.score = value = 0;
           }
-          _this45.score = value = _this45.halfPoints ? Math.round(value * 2) / 2 : Math.round(value);
-          var numberInput = _this45.$root.querySelector("[x-ref='score_slider_continuous_input']");
+          _this44.score = value = _this44.halfPoints ? Math.round(value * 2) / 2 : Math.round(value);
+          var numberInput = _this44.$root.querySelector("[x-ref='score_slider_continuous_input']");
           if (numberInput !== null) {
-            _this45.setSliderBackgroundSize(numberInput);
+            _this44.setSliderBackgroundSize(numberInput);
           }
         });
-        if (focusInput) {
+        if (!this.disabled) {
           this.$nextTick(function () {
-            _this45.inputBox.focus();
+            _this44.inputBox.focus();
           });
         }
       },
@@ -7742,7 +7729,7 @@ document.addEventListener("alpine:init", function () {
       minWidth: 120,
       maxWidth: 1000,
       setInputWidth: function setInputWidth(input) {
-        var _this46 = this;
+        var _this45 = this;
         var init = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
         var preview = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
         if (!init || preview) {
@@ -7753,8 +7740,8 @@ document.addEventListener("alpine:init", function () {
           if (!value) {
             return;
           }
-          _this46.$nextTick(function () {
-            _this46.calculateInputWidth(input);
+          _this45.$nextTick(function () {
+            _this45.calculateInputWidth(input);
           });
         });
       },
@@ -7784,19 +7771,12 @@ document.addEventListener("alpine:init", function () {
         this.$dispatch("updated-score", {
           score: scoreOptions[key]
         });
-        this.$store.assessment.currentScore = scoreOptions[key];
       },
       updatedScore: function updatedScore(score) {
-        this.fastOption = this.scoreOptions.indexOf(score);
+        this.fastOption = score ? this.scoreOptions.indexOf(score) : null;
       },
       init: function init() {
-        if (currentScore === null) {
-          return;
-        }
-        if (currentScore.toString().indexOf(".0") !== -1) {
-          var parsedScore = parseInt(currentScore);
-          this.fastOption = this.scoreOptions.indexOf(parsedScore);
-        }
+        this.fastOption = currentScore !== null ? this.scoreOptions.indexOf(currentScore) : null;
       }
     };
   });
@@ -7807,25 +7787,21 @@ document.addEventListener("alpine:init", function () {
       maxToolTipWidth: 384,
       height: 0,
       inModal: false,
-      show: false,
       init: function init() {
-        var _this47 = this;
+        var _this46 = this;
         this.setHeightProperty();
-        this.inModal = this.$root.closest("#modal-container") !== null;
+        this.inModal = this.$root.closest('#modal-container') !== null;
         this.$watch("tooltip", function (value) {
           if (value) {
             var ignoreLeft = false;
-            if (alwaysLeft || _this47.tooltipTooWideForPosition()) {
-              _this47.$refs.tooltipdiv.classList.remove("left-1/2", "-translate-x-1/2");
-              _this47.$refs.tooltipdiv.classList.add("right-0");
+            if (alwaysLeft || _this46.tooltipTooWideForPosition()) {
+              _this46.$refs.tooltipdiv.classList.remove("left-1/2", "-translate-x-1/2");
+              _this46.$refs.tooltipdiv.classList.add("right-0");
               ignoreLeft = true;
             }
-            _this47.$refs.tooltipdiv.style.top = _this47.getTop();
-            _this47.$refs.tooltipdiv.style.left = _this47.getLeft(ignoreLeft);
+            _this46.$refs.tooltipdiv.style.top = _this46.getTop();
+            _this46.$refs.tooltipdiv.style.left = _this46.getLeft(ignoreLeft);
           }
-        });
-        this.$nextTick(function () {
-          return _this47.show = true;
         });
       },
       getTop: function getTop() {
@@ -7841,7 +7817,7 @@ document.addEventListener("alpine:init", function () {
       },
       getLeft: function getLeft() {
         var ignoreLeft = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-        if (ignoreLeft) return "auto";
+        if (ignoreLeft) return 'auto';
         var left = this.$root.getBoundingClientRect().x + this.$root.offsetWidth / 2;
         if (this.inModal) {
           left -= this.getModalDimensions().left;
@@ -7856,79 +7832,20 @@ document.addEventListener("alpine:init", function () {
         this.$refs.tooltipdiv.style.left = this.getLeft();
       },
       setHeightProperty: function setHeightProperty() {
-        var _this48 = this;
+        var _this47 = this;
         this.tooltip = true;
         this.$nextTick(function () {
-          _this48.height = _this48.$refs.tooltipdiv.offsetHeight;
-          _this48.tooltip = false;
-          _this48.$refs.tooltipdiv.classList.remove("invisible");
+          _this47.height = _this47.$refs.tooltipdiv.offsetHeight;
+          _this47.tooltip = false;
+          _this47.$refs.tooltipdiv.classList.remove("invisible");
         });
       },
       tooltipTooWideForPosition: function tooltipTooWideForPosition() {
         return this.$el.getBoundingClientRect().left + this.maxToolTipWidth / 2 > window.innerWidth;
       },
       getModalDimensions: function getModalDimensions() {
-        var modal = document.querySelector("#modal-container");
+        var modal = document.querySelector('#modal-container');
         return modal.getBoundingClientRect();
-      }
-    };
-  });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("reviewNavigation", function (current) {
-    return {
-      showSlider: true,
-      scrollStep: 100,
-      totalScrollWidth: 0,
-      activeQuestion: current,
-      intersectionCountdown: null,
-      navScrollBar: null,
-      initialized: false,
-      init: function init() {
-        var _this49 = this;
-        this.navScrollBar = this.$root.querySelector('#navscrollbar');
-        this.$nextTick(function () {
-          _this49.$root.querySelector(".active").scrollIntoView({
-            behavior: "smooth"
-          });
-          _this49.totalScrollWidth = _this49.$root.offsetWidth;
-          _this49.resize();
-          _this49.initialized = true;
-        });
-      },
-      resize: function resize() {
-        this.scrollStep = window.innerWidth / 10;
-        var sliderButtons = this.$root.querySelector(".slider-buttons").offsetWidth * 2;
-        this.showSlider = this.$root.querySelector(".question-indicator").offsetWidth + sliderButtons >= this.$root.offsetWidth - 120;
-      },
-      scroll: function scroll(position) {
-        this.navScrollBar.scrollTo({
-          left: position,
-          behavior: "smooth"
-        });
-        this.startIntersectionCountdown();
-      },
-      start: function start() {
-        this.scroll(0);
-      },
-      end: function end() {
-        this.scroll(this.totalScrollWidth);
-      },
-      left: function left() {
-        this.scroll(this.navScrollBar.scrollLeft - this.scrollStep);
-      },
-      right: function right() {
-        this.scroll(this.navScrollBar.scrollLeft + this.scrollStep);
-      },
-      startIntersectionCountdown: function startIntersectionCountdown() {
-        var _this50 = this;
-        clearTimeout(this.intersectionCountdown);
-        this.intersectionCountdown = setTimeout(function () {
-          clearTimeout(_this50.intersectionCountdown);
-          var left = _this50.$root.querySelector(".active").offsetLeft;
-          _this50.navScrollBar.scrollTo({
-            left: left - (_this50.$root.getBoundingClientRect().left + 16),
-            behavior: "smooth"
-          });
-        }, 5000);
       }
     };
   });
@@ -7955,15 +7872,17 @@ document.addEventListener("alpine:init", function () {
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].store("assessment", {
     currentScore: null,
     toggleCount: 0,
+    togglesTicked: 0,
     clearToProceed: function clearToProceed() {
-      var valuedToggles = document.querySelectorAll('.student-answer .slider-button-container:not(disabled)[data-has-value="true"]').length;
-      return this.currentScore !== null && valuedToggles >= this.toggleCount;
+      return this.currentScore !== null && this.togglesTicked === this.toggleCount;
     },
     resetData: function resetData() {
       var score = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
       var toggleCount = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+      var togglesTicked = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
       this.currentScore = score;
       this.toggleCount = toggleCount;
+      this.togglesTicked = togglesTicked;
     }
   });
 });
@@ -8572,7 +8491,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "fc18ed69b446aeb8c8a5",
+  key: "662d128370816e2bbb66",
   cluster: "eu",
   forceTLS: true
 });
@@ -10047,7 +9966,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         var newShape = makeNewSvgShapeWithSidebarEntry(shapeType, props, layerName, true, !(!drawingApp.isTeacher() && layerName === "question"));
         // Convert old dragging system (using SVGTransforms)
         // to new dragging system (all done with the SVG attributes of the element itself)
-        if (newShape.svg.type === 'path') newShape = letPathShapesUseRelativeCoords(newShape);
+        if (shapeIsPathShape(newShape) && pathShapeUsesAbsoluteCoords(newShape)) newShape = letPathShapesUseRelativeCoords(newShape);
         newShape = convertDragTransforms(newShape);
         Canvas.layers[layerName].shapes[shapeID] = newShape;
         if (isOldDrawing && layerName === "question") {
@@ -10062,18 +9981,25 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     }
     UI.svgLayerToRender.innerHTML = "";
   }
+  function shapeIsPathShape(shape) {
+    return shape.svg.type === 'path';
+  }
+  function pathShapeUsesAbsoluteCoords(shape) {
+    return shape.svg.mainElement.getDAttribute().contains("L");
+  }
   function letPathShapesUseRelativeCoords(shape) {
-    // const mainElement = shape.svg.mainElement;
-    // const oldDValue = convertDStringToArray(mainElement.getDAttribute());
-
-    // let newDValue = [],
-    //     startingPoint = oldDValue.shift();
-    // oldDValue.reduce((previousCommand, currentCommand) => {
-    //     newDValue.push(convertCommandFromAbsoluteToRelative(currentCommand, previousCommand));
-    //     return currentCommand;
-    // }, startingPoint);
-    // newDValue.unshift(startingPoint);
-    // mainElement.setD(newDValue.map((command) => `${command[0]} ${command[1].join(",")}`).join(" "));
+    var mainElement = shape.svg.mainElement;
+    var oldDValue = convertDStringToArray(mainElement.getDAttribute());
+    var newDValue = [],
+      startingPoint = oldDValue.shift();
+    oldDValue.reduce(function (previousCommand, currentCommand) {
+      newDValue.push(convertCommandFromAbsoluteToRelative(currentCommand, previousCommand));
+      return currentCommand;
+    }, startingPoint);
+    newDValue.unshift(startingPoint);
+    mainElement.setD(newDValue.map(function (command) {
+      return "".concat(command[0], " ").concat(command[1].join(","));
+    }).join(" "));
     return shape;
   }
 
@@ -10088,7 +10014,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
    * @returns {PathDStruct}
    */
   function convertDStringToArray(dValue) {
-    var commandMatcher = /([A-Za-z])(\s)([\-0-9.,])+/g; // Example: 'M -58.6,38.38'
+    var commandMatcher = /([A-Z])(\s)([\-0-9.,])+/g; // Example: 'M -58.6,38.38'
     var coordValueMatcher = /([\-.0-9])+/g; // Example: '-58.6'
     return dValue.match(commandMatcher).map(function (command) {
       return [command[0], command.match(coordValueMatcher).map(Number)];
@@ -66963,6 +66889,32 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./resources/css/app_pdf.css":
+/*!***********************************!*\
+  !*** ./resources/css/app_pdf.css ***!
+  \***********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+// extracted by mini-css-extract-plugin
+
+
+/***/ }),
+
+/***/ "./resources/css/print-test-pdf.css":
+/*!******************************************!*\
+  !*** ./resources/css/print-test-pdf.css ***!
+  \******************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+// extracted by mini-css-extract-plugin
+
+
+/***/ }),
+
 /***/ "./node_modules/plyr/dist/plyr.min.js":
 /*!********************************************!*\
   !*** ./node_modules/plyr/dist/plyr.min.js ***!
@@ -76269,7 +76221,9 @@ module.exports = JSON.parse('{"name":"axios","version":"0.21.4","description":"P
 /******/ 		// [resolve, reject, Promise] = chunk loading, 0 = chunk loaded
 /******/ 		var installedChunks = {
 /******/ 			"/js/app": 0,
-/******/ 			"css/app": 0
+/******/ 			"css/app": 0,
+/******/ 			"css/app_pdf": 0,
+/******/ 			"css/print-test-pdf": 0
 /******/ 		};
 /******/ 		
 /******/ 		// no chunk on demand loading
@@ -76319,8 +76273,10 @@ module.exports = JSON.parse('{"name":"axios","version":"0.21.4","description":"P
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module depends on other loaded chunks and execution need to be delayed
-/******/ 	__webpack_require__.O(undefined, ["css/app"], () => (__webpack_require__("./resources/js/app.js")))
-/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["css/app"], () => (__webpack_require__("./resources/css/app.css")))
+/******/ 	__webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/js/app.js")))
+/******/ 	__webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/css/app.css")))
+/******/ 	__webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/css/app_pdf.css")))
+/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/css/print-test-pdf.css")))
 /******/ 	__webpack_exports__ = __webpack_require__.O(__webpack_exports__);
 /******/ 	
 /******/ })()

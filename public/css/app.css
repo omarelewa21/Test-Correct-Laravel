@@ -8063,7 +8063,7 @@ span.completion-response-object-container{
     pointer-events: none;
 }
 /*
-! tailwindcss v3.3.2 | MIT License | https://tailwindcss.com
+! tailwindcss v3.2.7 | MIT License | https://tailwindcss.com
 */
 
 
@@ -8095,7 +8095,6 @@ span.completion-response-object-container{
 3. Use a more readable tab size.
 4. Use the user's configured `sans` font-family by default.
 5. Use the user's configured `sans` font-feature-settings by default.
-6. Use the user's configured `sans` font-variation-settings by default.
 */
 
 
@@ -8107,7 +8106,6 @@ html {
      tab-size: 4; /* 3 */
   font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"; /* 4 */
   font-feature-settings: normal; /* 5 */
-  font-variation-settings: normal; /* 6 */
 }
 
 
@@ -8529,9 +8527,6 @@ video {
   --tw-pan-y:  ;
   --tw-pinch-zoom:  ;
   --tw-scroll-snap-strictness: proximity;
-  --tw-gradient-from-position:  ;
-  --tw-gradient-via-position:  ;
-  --tw-gradient-to-position:  ;
   --tw-ordinal:  ;
   --tw-slashed-zero:  ;
   --tw-numeric-figure:  ;
@@ -8580,9 +8575,6 @@ video {
   --tw-pan-y:  ;
   --tw-pinch-zoom:  ;
   --tw-scroll-snap-strictness: proximity;
-  --tw-gradient-from-position:  ;
-  --tw-gradient-via-position:  ;
-  --tw-gradient-to-position:  ;
   --tw-ordinal:  ;
   --tw-slashed-zero:  ;
   --tw-numeric-figure:  ;
@@ -8729,16 +8721,28 @@ video {
   position: sticky;
 }
 .-inset-2{
-  inset: -0.5rem;
+  top: -0.5rem;
+  right: -0.5rem;
+  bottom: -0.5rem;
+  left: -0.5rem;
 }
 .-inset-2\.5{
-  inset: -0.625rem;
+  top: -0.625rem;
+  right: -0.625rem;
+  bottom: -0.625rem;
+  left: -0.625rem;
 }
 .-inset-px{
-  inset: -1px;
+  top: -1px;
+  right: -1px;
+  bottom: -1px;
+  left: -1px;
 }
 .inset-0{
-  inset: 0px;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  left: 0px;
 }
 .inset-x-0{
   left: 0px;
@@ -8813,9 +8817,6 @@ video {
 }
 .left-2{
   left: 0.5rem;
-}
-.left-3{
-  left: 0.75rem;
 }
 .left-4{
   left: 1rem;
@@ -9247,18 +9248,6 @@ video {
 }
 .box-border{
   box-sizing: border-box;
-}
-.line-clamp-1{
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 1;
-}
-.line-clamp-2{
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
 }
 .block{
   display: block;
@@ -11389,6 +11378,18 @@ video {
 .ease-out{
   transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
 }
+.line-clamp-1{
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
+.line-clamp-2{
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
 
 :root {
     --cta-primary: #3ab753;
@@ -12156,10 +12157,6 @@ ul ul ul {
 
 .accordion-block img {
     width: auto;
-}
-
-.left-3 {
-    left: 3rem;
 }
 
 .first\:rounded-l-lg:first-child{
