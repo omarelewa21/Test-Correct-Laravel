@@ -2057,10 +2057,10 @@ document.addEventListener("alpine:init", () => {
             return (value - min) / (max - min) * 100;
         },
         setThumbOffset(el, score, maxScore) {
-            var offsetFromCenter = -12;
-            offsetFromCenter += (score/maxScore) * 24;
+            var offsetFromCenter = -45;
+            offsetFromCenter += (score/maxScore) * 90;
 
-            el.style.setProperty("--slider-thumb-offset", `${offsetFromCenter}px`);
+            el.style.setProperty("--slider-thumb-offset", `calc(${offsetFromCenter}% + 1px)`);
         },
         setSliderBackgroundSize(el) {
             el.style.setProperty("--slider-thumb-offset", `${25 / 100 * this.getSliderBackgroundSize(el) - 12.5}px`);

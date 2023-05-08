@@ -8,6 +8,10 @@
     --drawer-width: 300px;
 }
 
+#co-learning-teacher-page .drawing-question-img-container img {
+    background-image: none;
+}
+
 #co-learning-teacher-page img {
     background-color: rgba(var(--light-grey-rgb), 1);
     background-image: url(/pdf/images/loading-icon.gif);
@@ -79,9 +83,14 @@
     height: 32px !important;
     background: none;
     border-radius: 9999px;
-    transition: color 150ms ease-out, background-color 150ms ease-out, border-color 150ms ease-out;
+    transition: color 150ms ease-out, background-color 150ms ease-out, border-color 150ms ease-out, opacity 300ms ease-in-out;
     border: 1px solid transparent;
 }
+
+#co-learning-teacher-page .collapsed .student-info-container .show-on-smartboard {
+    opacity: 0%; /*opacity instead of visibilty for transition*/
+}
+
 #co-learning-teacher-page .student-info-container .show-on-smartboard:focus {
     border-color: rgba(0,77,245,0.15)
 }

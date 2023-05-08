@@ -96,6 +96,10 @@
     border: 1px solid transparent;
 }
 
+.score-slider-pill {
+    overflow: hidden;
+}
+
 .score-slider-container .score-slider-track-container:focus .score-slider-pill,
 .score-slider-container .score-slider-track-container:hover .score-slider-pill {
     border: 1px solid var(--teacher-primary);
