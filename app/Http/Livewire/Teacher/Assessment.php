@@ -56,8 +56,8 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     /* Context properties */
     public int $progress = 0;
     public int $maxAssessedValue = 1;
-
     public bool $openOnly;
+    public bool $isCoLearningScore = false;
 
     /* Lifecycle methods */
     protected function getListeners(): array
@@ -280,16 +280,16 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         $this->lastAnswerForQuestion = $this->students->search($answersForQuestion->last()->test_participant_id) + 1;
         $this->firstAnswerForQuestion = $this->students->search($answersForQuestion->first()->test_participant_id) + 1;
 
-        if (!$internal) {
-            $this->dispatchUpdateQuestionNavigatorEvent();
-        }
         $this->currentAnswer->load('answerRatings');
-
         $this->score = $this->handleAnswerScore();
         $this->feedback = $this->getFeedbackForCurrentAnswer();
         $this->answerPanel = true;
         $this->setUserOnAnswer($this->currentAnswer);
         $this->setProgress();
+
+        if (!$internal) {
+            $this->dispatchUpdateQuestionNavigatorEvent();
+        }
 
         return [
             'index' => $this->answerNavigationValue,
@@ -723,7 +723,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     protected function handleAnswerScore(): null|int|float
     {
         $ratings = $this->currentAnswerRatings()->whereNotNull('rating');
-
+        $this->isCoLearningScore = false;
         if (!$this->currentAnswer->isAnswered) {
             if ($ratings->where('type', AnswerRating::TYPE_TEACHER)->isEmpty()) {
                 $this->updateOrCreateAnswerRating(['rating' => 0]);
@@ -740,6 +740,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         }
 
         if ($ratings->where('type', AnswerRating::TYPE_STUDENT)->isNotEmpty()) {
+            $this->isCoLearningScore = true;
             return $this->getCoLearningScoreForCurrentAnswer();
         }
 
@@ -1098,6 +1099,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             'halfPoints'            => (bool)$this->currentQuestion?->decimal_score,
             'drawerScoringDisabled' => $this->drawerScoringDisabled,
             'pageUpdated'           => $this->updatePage,
+            'isCoLearningScore'     => $this->isCoLearningScore,
         ];
     }
 }

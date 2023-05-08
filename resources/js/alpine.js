@@ -1792,6 +1792,7 @@ document.addEventListener("alpine:init", () => {
         halfPoints: array.halfPoints,
         drawerScoringDisabled: array.drawerScoringDisabled,
         pageUpdated: array.pageUpdated,
+        isCoLearningScore: array.isCoLearningScore,
         init() {
             if (this.pageUpdated) {
                 this.resetStoredData();
@@ -1830,6 +1831,10 @@ document.addEventListener("alpine:init", () => {
                 : Math.round(this.shadowScore);
         },
         setNewScore(newScore, state, firstTick) {
+            if (firstTick && this.isCoLearningScore) {
+                this.isCoLearningScore = false
+                this.shadowScore = 0;
+            }
             if (firstTick && state === "off") {
                 this.shadowScore ??= 0;
             } else {
@@ -1868,6 +1873,7 @@ document.addEventListener("alpine:init", () => {
         },
         updateScoringData(data) {
             Object.assign(this, data);
+            this.score = this.shadowScore = data.initialScore
         }
     }));
     Alpine.data("assessmentNavigator", (current, total, methodCall, lastValue, firstValue) => ({
