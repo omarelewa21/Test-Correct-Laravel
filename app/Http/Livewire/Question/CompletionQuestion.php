@@ -3,6 +3,7 @@
 namespace tcCore\Http\Livewire\Question;
 
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Blade;
 use tcCore\Answer;
 use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Livewire\TCComponent;
@@ -10,6 +11,8 @@ use tcCore\Http\Traits\WithAttachments;
 use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithGroups;
 use tcCore\Http\Traits\WithNotepad;
+use tcCore\Http\Traits\WithUpdatingHandling;
+use tcCore\View\Components\CompletionQuestionConvertedHtml;
 
 class CompletionQuestion extends TCComponent
 {
@@ -48,25 +51,7 @@ class CompletionQuestion extends TCComponent
 
     private function completionHelper($question)
     {
-        $question->getQuestionHtml();
-
-        $question_text = $question->converted_question_html;
-
-        $searchPattern = "/\[([0-9]+)\]/i";
-        $replacementFunction = function ($matches) use ($question,) {
-            $tag_id = $matches[1] - 1; // the completion_question_answers list is 1 based but the inputs need to be 0 based
-            $events = '@blur="$el.scrollLeft = 0" @input="$event.target.setAttribute(\'title\', $event.target.value); $el.style.width = getInputWidth($el)"';
-            $rsSpan = '';
-            $answer = '';
-            $context = 'student';
-            if (Auth::user()->text2speech) {
-                $events = sprintf('@focus="handleTextBoxFocusForReadspeaker(event,\'%s\')" @blur="$el.scrollLeft = 0;handleTextBoxBlurForReadspeaker(event,\'%s\')" @input="$event.target.setAttribute(\'title\', $event.target.value); $el.style.width = getInputWidth($el)"', $question->getKey(), $question->getKey());
-                $rsSpan = '<span wire:ignore class="rs_placeholder"></span>';
-            }
-            return view('livewire.teacher.co-learning-completion-question-html', compact('tag_id', 'question', 'answer', 'events', 'rsSpan', 'context'));
-        };
-
-        return preg_replace_callback($searchPattern, $replacementFunction, $question_text);
+        return Blade::renderComponent(new CompletionQuestionConvertedHtml($question, $context='student'));
     }
 
     private function multiHelper($question)

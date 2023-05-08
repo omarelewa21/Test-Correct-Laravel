@@ -3,6 +3,7 @@
 namespace tcCore\Http\Livewire\Teacher;
 
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use tcCore\Answer;
@@ -15,6 +16,7 @@ use tcCore\Question;
 use tcCore\TestTake;
 use tcCore\TestTakeStatus;
 use tcCore\User;
+use tcCore\View\Components\CompletionQuestionConvertedHtml;
 
 class Assessment extends EvaluationComponent implements CollapsableHeader
 {
@@ -1104,5 +1106,10 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             'drawerScoringDisabled' => $this->drawerScoringDisabled,
             'pageUpdated'           => $this->updatePage,
         ];
+    }
+
+    public function getDisplayableCompletionQuestionText()
+    {
+        return Blade::renderComponent(new CompletionQuestionConvertedHtml($this->currentQuestion, $context='assessment'));
     }
 }
