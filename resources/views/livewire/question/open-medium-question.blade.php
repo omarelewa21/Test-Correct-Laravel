@@ -4,12 +4,16 @@
             {!! $question->converted_question_html  !!}
         </div>
         <div wire:ignore x-data="{
-                initializeEditor: function(el) {
-                    var editor = ClassicEditors[el.id];
-                    if (editor) {
-                        editor.destroy(true);
-                    }
-                    RichTextEditor.initClassicEditorForStudentplayer(el.id,'{{ $question->getKey() }}', $wire.allowWsc)
+                initializeEditor: async function(el) {
+                    let editor = ClassicEditors[el.id];
+                    let isFocused = editor && editor.ui.focusTracker.isFocused;                                                 // detect if the editor is in focus
+                    if (editor) editor.destroy(true);
+                    await RichTextEditor.initClassicEditorForStudentplayer(el.id,'{{ $question->getKey() }}', $wire.allowWsc)   // await for the editor to be initialized
+                    editor = ClassicEditors[el.id]                                                                              // get the new editor
+                    if (isFocused) editor.focus();                                                                              // if the editor was in focus, focus it again   
+                    editor.model.change( writer => {
+                        writer.setSelection( editor.model.document.getRoot(), 'end' );                                          // set the cursor to the end of the editor
+                    } );
                 }
             }"
         >
