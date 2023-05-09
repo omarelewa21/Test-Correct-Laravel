@@ -27,7 +27,7 @@
                         <x-icon.checkmark-small />
                     </x-button.cta>
                 </div>
-            <div>
+            </div>
         </x-slot>
     </x-modal>
 
