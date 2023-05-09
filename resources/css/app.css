@@ -28,7 +28,7 @@
 @tailwind utilities;
 
 :root {
-    --cta-primary: #3ab753;
+    --cta-primary: #3dbb56;
     --cta-primary-mid-dark: #27973D;
     --cta-primary-mid-dark-rgb: 39, 151, 61;
     --cta-primary-rgb: 58, 183, 83;
@@ -51,6 +51,7 @@
     --mid-grey: #929DAF;
     --mid-grey-rgb: 146, 157, 175;
     --light-grey: #F0F2F5;
+    --light-grey-rgb: 240, 242, 245;
     --blue-grey: #c3d0ed;
     --shadow-blue: #4D578F;
     --off-white: #f9faff;
@@ -58,10 +59,10 @@
     --red-light: #ffedeb;
     --note: #6b7789;
     --orange: #ff9d23;
-    --main-shadow: 0 3px 8px 0 rgba(4, 31, 116, 0.3);
-    --card-shadow: 0 3px 16px 0 rgba(4, 31, 116, 0.1);
-    --small-shadow: 0 1px 4px 0 rgba(4, 31, 116, 0.06);
-    --hover-shadow: 0 8px 16px 0 rgba(4, 31, 116, 0.2);
+    --main-shadow: 0 3px 8px 0 rgba(var(--system-base-rgb), 0.3);
+    --card-shadow: 0 3px 16px 0 rgba(var(--system-base-rgb), 0.1);
+    --small-shadow: 0 1px 4px 0 rgba(var(--system-base-rgb), 0.06);
+    --hover-shadow: 0 8px 16px 0 rgba(var(--system-base-rgb), 0.2);
     --white: #ffffff;
     --maintenance-header-bg: #ff6666;
     --deployment-testing-color: darkorange;
@@ -791,6 +792,13 @@ ul ul ul {
     display: none;
 }
 
+.accordion-block:not(.transparent) {
+    box-shadow: 0 3px 18px 0 rgba(var(--system-base-rgb), 0.1);
+}
 .accordion-block img {
     width: auto;
+}
+
+.left-3 {
+    left: 3rem;
 }

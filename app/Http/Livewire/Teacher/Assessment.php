@@ -795,6 +795,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             ->updateOrCreate([
                 'type'         => AnswerRating::TYPE_TEACHER,
                 'test_take_id' => $this->testTakeData->id,
+                'user_id'      => auth()->id(),
             ], $updates);
     }
 

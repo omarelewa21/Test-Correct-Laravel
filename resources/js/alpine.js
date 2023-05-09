@@ -1800,6 +1800,7 @@ document.addEventListener("alpine:init", () => {
             if (isString(this.shadowScore)) {
                 this.shadowScore = this.isFloat(initialScore) ? parseFloat(initialScore) : parseInt(initialScore);
             }
+            this.$nextTick(() => this.$dispatch("slider-score-updated", { score: this.score }));
         },
         toggleCount() {
             return document.querySelectorAll(".student-answer .slider-button-container:not(.disabled)").length;
@@ -1874,6 +1875,7 @@ document.addEventListener("alpine:init", () => {
         updateScoringData(data) {
             Object.assign(this, data);
             this.score = this.shadowScore = data.initialScore
+            this.$nextTick(() => this.$dispatch("slider-score-updated", { score: this.score }));
         }
     }));
     Alpine.data("assessmentNavigator", (current, total, methodCall, lastValue, firstValue) => ({
@@ -2274,12 +2276,16 @@ document.addEventListener("alpine:init", () => {
                 this.totalScrollWidth = this.$root.offsetWidth;
                 this.resize();
                 this.initialized = true;
+                this.slideToActiveQuestionBubble();
             });
         },
         resize() {
             this.scrollStep = window.innerWidth / 10;
             const sliderButtons = this.$root.querySelector(".slider-buttons").offsetWidth * 2;
             this.showSlider = (this.$root.querySelector(".question-indicator").offsetWidth + sliderButtons) >= (this.$root.offsetWidth - 120);
+            if (this.showSlider) {
+                this.slideToActiveQuestionBubble();
+            }
         },
         scroll(position) {
             this.navScrollBar.scrollTo({ left: position, behavior: "smooth" });
@@ -2297,15 +2303,18 @@ document.addEventListener("alpine:init", () => {
         right() {
             this.scroll(this.navScrollBar.scrollLeft + this.scrollStep);
         },
+        slideToActiveQuestionBubble() {
+            let left = this.$root.querySelector(".active").offsetLeft;
+            this.navScrollBar.scrollTo({
+                left: left - (this.$root.getBoundingClientRect().left + 16),
+                behavior: "smooth"
+            });
+        },
         startIntersectionCountdown() {
             clearTimeout(this.intersectionCountdown);
             this.intersectionCountdown = setTimeout(() => {
                 clearTimeout(this.intersectionCountdown);
-                let left = this.$root.querySelector(".active").offsetLeft;
-                this.navScrollBar.scrollTo({
-                    left: left - (this.$root.getBoundingClientRect().left + 16),
-                    behavior: "smooth"
-                });
+                this.slideToActiveQuestionBubble();
             }, 5000);
         }
     }));
