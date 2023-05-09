@@ -9,6 +9,7 @@ use tcCore\Events\TestTakeChangeDiscussingQuestion;
 use tcCore\Events\CoLearningForceTakenAway;
 use tcCore\Events\TestTakeCoLearningPresenceEvent;
 use tcCore\Events\TestTakeForceTakenAway;
+use tcCore\Events\TestTakeLeave;
 use tcCore\Events\TestTakePresenceEvent;
 use tcCore\Events\TestTakeStop;
 use tcCore\Http\Controllers\AnswerRatingsController;
@@ -76,6 +77,7 @@ class CoLearning extends TCComponent
         return [
             TestTakeCoLearningPresenceEvent::channelSignature(testTakeUuid: $this->testTake->uuid)  => 'render',
             TestTakeStop::channelSignature(testTakeUuid: $this->testTake->uuid)                     => 'redirectToTestTakesInReview',
+            TestTakeLeave::channelSignature(testTakeUuid: $this->testTake->uuid)                    => 'redirectToTestTakesToBeDiscussed',
             TestTakeChangeDiscussingQuestion::channelSignature(testTakeUuid: $this->testTake->uuid) => 'goToActiveQuestion',
             'UpdateAnswerRating'                                                                    => 'updateAnswerRating',
             'goToActiveQuestion',
@@ -88,7 +90,12 @@ class CoLearning extends TCComponent
         $this->discussingQuestionId = $this->testTake->discussing_question_id;
         $this->questionOrderList = $this->testTake->test->getQuestionOrderList();
 
-        $this->redirectIfNotStatusDiscussing();
+        if (!$this->testTake->schoolLocation->allow_new_co_learning_teacher) {
+            //if teacher is in old co-learning, polling needs to start, because the Pusher presence channel is not working in the old CO-Learning
+            $this->pollingFallbackActive = true;
+        }
+
+        $this->redirectIfTestTakeInIncorrectState();
 
         $this->testParticipant = $this->testTake->testParticipants()
             ->where('user_id', auth()->id())
@@ -115,7 +122,7 @@ class CoLearning extends TCComponent
 
     public function booted()
     {
-        $this->redirectIfNotStatusDiscussing();
+        $this->redirectIfTestTakeInIncorrectState();
     }
 
     public function redirectToTestTakesInReview()
@@ -385,10 +392,13 @@ class CoLearning extends TCComponent
         return (!$this->nextAnswerAvailable && isset($this->answerRating->rating));
     }
 
-    private function redirectIfNotStatusDiscussing()
+    private function redirectIfTestTakeInIncorrectState()
     {
+        if ($this->testTake->discussion_type !== 'OPEN_ONLY') {
+            return $this->redirectToTestTakesToBeDiscussed();
+        }
         if ($this->testTake->test_take_status_id < TestTakeStatus::STATUS_DISCUSSING) {
-            $this->redirectToTestTakesToBeDiscussed();
+            return $this->redirectToTestTakesToBeDiscussed();
         }
         if ($this->testTake->test_take_status_id > TestTakeStatus::STATUS_DISCUSSING) {
             return $this->redirectToTestTakesInReview();
@@ -397,7 +407,7 @@ class CoLearning extends TCComponent
 
     public function updateHeartbeat($skipRender = true)
     {
-        $this->redirectIfNotStatusDiscussing();
+        $this->redirectIfTestTakeInIncorrectState();
 
         if ($this->testTake->discussing_question_id !== $this->discussingQuestionId) {
             return $this->goToActiveQuestion();
