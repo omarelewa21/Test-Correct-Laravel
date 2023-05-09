@@ -81,6 +81,8 @@ class Login extends TCComponent
 //    public $entreeTab = false;
 
     public $showTestCode = false;
+    public $loginButtonDisabled = true;
+    public $guestLoginButtonDisabled = true;
     public $forgotPasswordButtonDisabled = true;
     public $connectEntreeButtonDisabled = true;
 
@@ -257,7 +259,11 @@ class Login extends TCComponent
 
     public function updated($name, $value)
     {
+        $this->checkLoginFieldsForInput();
+
         $this->couldBeEmail($this->forgotPasswordEmail) ? $this->forgotPasswordButtonDisabled = false : $this->forgotPasswordButtonDisabled = true;
+
+        $this->guestLoginButtonDisabled = !(filled($this->firstName) && filled($this->lastName) && count($this->testTakeCode) == 6);
 
         if ($this->couldBeEmail($this->entreeEmail) && filled($this->entreePassword)) {
             $this->connectEntreeButtonDisabled = false;
@@ -342,6 +348,22 @@ class Login extends TCComponent
             return redirect($this->studentDownloadUrl);
         }
         return redirect(route('onboarding.welcome'));
+    }
+
+    public function checkLoginFieldsForInput()
+    {
+        if ($this->couldBeEmail($this->username) && filled($this->password)) {
+            $this->loginButtonDisabled = false;
+
+            if ($this->showTestCode) {
+                $this->loginButtonDisabled = true;
+                if (count($this->testTakeCode) == 6) {
+                    $this->loginButtonDisabled = false;
+                }
+            }
+        } else {
+            $this->loginButtonDisabled = true;
+        }
     }
 
     public function samlMessageValid()
