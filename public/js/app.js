@@ -7662,7 +7662,6 @@ document.addEventListener("alpine:init", function () {
       },
       openFeedbackTab: function openFeedbackTab() {
         this.tab(2);
-        this.$nextTick(function () {});
       }
     };
   });

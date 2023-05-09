@@ -59,7 +59,7 @@
             </buttons>
         </div>
         <div id="slide-container"
-             class="slide-container | flex h-full max-w-[var(--sidebar-width)] overflow-x-hidden overflow-y-auto"
+             class="slide-container | flex h-full max-w-[var(--sidebar-width)] overflow-x-hidden overflow-y-auto hide-scrollbar"
              wire:ignore.self
              wire:key="slide-container-{{ $uniqueKey }}"
              x-on:scroll="closeTooltips()"
