@@ -56,7 +56,7 @@
                             </div>
                         </x-slot:title>
                         <x-slot:body>
-                            <div class="flex flex-col gap-2"
+                            <div class="flex flex-col gap-2 questionContainer"
                                  wire:key="question-block-{{  $this->discussingQuestion->uuid }}"
                                  x-init="
                                      elements = $el.querySelectorAll('img[src]').forEach((img) => {
@@ -103,7 +103,7 @@
                             </div>
                         </x-slot:title>
                         <x-slot:body>
-                            <div class="w-full" wire:key="answer-model-{{  $this->discussingQuestion->uuid }}">
+                            <div class="w-full questionContainer" wire:key="answer-model-{{  $this->discussingQuestion->uuid }}">
                                 <x-dynamic-component
                                         :component="'answer.teacher.'. str($this->discussingQuestion->type)->kebab()"
                                         :question="$this->discussingQuestion"

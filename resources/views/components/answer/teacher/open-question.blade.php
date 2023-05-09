@@ -7,6 +7,7 @@
                         :editor-id="$editorId"
                         :allowWsc="$question->isSubType('writing') ? $allowWsc : false"
                         :disabled="true"
+                        type="cms"
                 >
                     {!! $answerValue !!}
                 </x-input.rich-textarea>
