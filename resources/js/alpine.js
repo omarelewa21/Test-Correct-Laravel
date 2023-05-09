@@ -1438,6 +1438,7 @@ document.addEventListener("alpine:init", () => {
                 target.dataset.active = true;
                 target.firstElementChild.classList.add("text-primary");
                 this.handle.classList.remove("hidden");
+                this.handle.classList.add("block");
             });
         },
         resetButtons(target) {
@@ -2334,6 +2335,37 @@ document.addEventListener("alpine:init", () => {
             }, 5000);
         }
     }));
+
+    Alpine.data("drawingQuestionImagePreview", () => ({
+        maxTries: 10,
+        currentTry: 0,
+        init() {
+            this.setHeightToAspectRatio(this.$el);
+        },
+        setHeightToAspectRatio(element) {
+            const aspectRatioWidth = 940;
+            const aspectRatioHeight = 500;
+            const aspectRatio = (aspectRatioHeight / aspectRatioWidth);
+            const container = element.closest("#accordion-block, #answer-container");
+            if (!container) {
+                console.error('Trying to set drawing image preview aspect ratio on without valid container.');
+                return;
+            }
+
+            const newHeight = (container.clientWidth-82) * aspectRatio;
+
+            if (newHeight <= 0) {
+                if (this.currentTry <= this.maxTries) {
+                    setTimeout(() => this.setHeightToAspectRatio(element), 50);
+                    this.currentTry++;
+                }
+                return;
+            }
+
+            element.style.height = newHeight + "px";
+        }
+    }))
+
     Alpine.directive("global", function(el, { expression }) {
         let f = new Function("_", "$data", "_." + expression + " = $data;return;");
         f(window, el._x_dataStack[0]);

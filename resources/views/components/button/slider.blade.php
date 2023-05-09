@@ -24,7 +24,7 @@
      data-toggle-value="@js($toggleValue)"
         @class([
            $attributes->get('class'),
-           'slider-button-container',
+           'slider-button-container block',
            'disabled' => $disabled,
            ])
 >
@@ -33,7 +33,7 @@
             {{$label}}
         </label>
     @endif
-    <span class="relative">
+    <span class="relative block">
         <span :id="$id('slider-button')" @class(['flex', 'pointer-events-none' => $disabled])>
             @foreach($options as $id => $button)
                 <span style="width: {{$buttonWidth}}"
