@@ -4,18 +4,29 @@
             {!! $question->converted_question_html  !!}
         </div>
         <div wire:ignore x-data="{
-                initializeEditor: function(el) {
-                    var editor = ClassicEditors[el.id];
-                    if (editor) {
-                        editor.destroy(true);
-                    }
-                    RichTextEditor.initClassicEditorForStudentplayer(el.id,'{{ $question->getKey() }}', $wire.allowWsc)
+                allowWsc: @entangle('allowWsc'),
+                initializeEditor: async function(el) {
+                    let editor = ClassicEditors[el.id];
+                    let isFocused = editor && editor.ui.focusTracker.isFocused;                                                 // detect if the editor is in focus
+                    if (editor) editor.destroy(true);
+                    await RichTextEditor.initClassicEditorForStudentplayer(el.id,'{{ $question->getKey() }}', this.allowWsc)   // await for the editor to be initialized
+                    editor = ClassicEditors[el.id]                                                                              // get the new editor
+                    if (isFocused) editor.focus();                                                                              // if the editor was in focus, focus it again   
+                    editor.model.change( writer => {
+                        writer.setSelection( editor.model.document.getRoot(), 'end' );                                          // set the cursor to the end of the editor
+                    } );
                 }
             }"
         >
             <span>{!! __('test_take.instruction_open_question') !!}</span>
             <x-input.group class="w-full" label="" style="position: relative;">
-                <textarea id="{{ $editorId }}" name="{{ $editorId }}" wire:model.debounce.1000ms="answer" x-effect="initializeEditor($el)">
+                <textarea
+                    id="{{ $editorId }}"
+                    name="{{ $editorId }}"
+                    wire:model.debounce.1000ms="answer"
+                    x-init="!allowWsc && initializeEditor($el)"
+                    x-effect="allowWsc && initializeEditor($el)"
+                >
                     {!! $this->answer !!}
                 </textarea>
                 @if(Auth::user()->text2speech)
@@ -32,7 +43,7 @@
                         return;
                     }
                     ReadspeakerTlc.ckeditor.reattachReadableAreaAndDestroy('{{ $editorId }}');
-                    RichTextEditor.initClassicEditorForStudentplayer('{{$editorId}}','{{ $question->getKey() }}', @this.allowWsc);
+                    // RichTextEditor.initClassicEditorForStudentplayer('{{$editorId}}','{{ $question->getKey() }}', @this.allowWsc);
                 })
                 document.addEventListener('readspeaker_started', () => {
                     if(ReadspeakerTlc.guard.shouldNotDetachCkEditor(document.querySelector( '#{{ $editorId }}' ))){
