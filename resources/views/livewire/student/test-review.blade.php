@@ -37,11 +37,11 @@
                          x-on:resize.window.throttle="resize()"
                     >
                         <div class="slider-buttons left | flex relative pt-4 -top-px h-full z-10" x-show="showSlider">
-                            <button class="inline-flex base rotate-svg-180 w-8 h-8 rounded-full transition items-center justify-center transform focus:outline-none"
+                            <button class="note inline-flex base rotate-svg-180 w-8 h-8 rounded-full transition items-center justify-center transform focus:outline-none"
                                     x-on:click="start()">
                                 <x-icon.arrow-last />
                             </button>
-                            <button class="inline-flex base rotate-svg-180 w-8 h-8 rounded-full transition items-center justify-center transform focus:outline-none"
+                            <button class="note inline-flex base rotate-svg-180 w-8 h-8 rounded-full transition items-center justify-center transform focus:outline-none"
                                     x-on:click="left()">
                                 <x-icon.chevron />
                             </button>
@@ -55,15 +55,17 @@
                                     'flex flex-col gap-1 items-center',
                                 ])>
                                     <div @class([
-                                    'question-number | mt-px inline-flex rounded-full text-center justify-center items-center cursor-pointer hover:shadow-lg',
+                                    'question-number | relative mt-px inline-flex rounded-full text-center justify-center items-center cursor-pointer hover:shadow-lg',
                                     'active' => (int)$this->questionPosition === $loop->iteration,
                                     'done' => $answer->done,
-                                    'connector' => $answer->connector
                                 ])
                                          wire:click="loadQuestion(@js($loop->iteration))"
                                          x-on:click="$dispatch('assessment-drawer-tab-update', {tab: 1})"
                                     >
                                         <span class="align-middle px-1.5">@js($loop->iteration)</span>
+                                        @if($answer->connector)
+                                            <span class="connector"></span>
+                                        @endif
                                     </div>
                                     @if($answer->feedback->isNotEmpty())
                                         <x-icon.feedback-text class="inline-flex" />

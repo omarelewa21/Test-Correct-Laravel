@@ -34,7 +34,7 @@
                             'hover:text-primary hover:bg-primary/5 cursor-pointer' => !$feedbackTabDisabled,
                                 ])
                     @if(!$feedbackTabDisabled)
-                        x-on:click="tab(2)"
+                        x-on:click="openFeedbackTab()"
                         x-bind:class="{'primary border-primary': activeTab === 2}"
                     @endif
                     title="@lang('assessment.Feedback')"
