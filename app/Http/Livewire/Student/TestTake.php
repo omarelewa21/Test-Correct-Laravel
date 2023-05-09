@@ -5,6 +5,7 @@ namespace tcCore\Http\Livewire\Student;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
+use tcCore\Answer;
 use tcCore\Http\Helpers\BaseHelper;
 use tcCore\TemporaryLogin;
 use tcCore\TestParticipant;
@@ -209,23 +210,22 @@ class TestTake extends Component
         }
     }
 
-    public function doAllQuestionsHaveAnswers(): bool
+    public function getQuestionNumbersWithNoAnswer()
     {
-        $testParticipant = TestParticipant::findOrFail($this->testParticipantId);
-        $questionsWithNoAnswer = [];
-        foreach($testParticipant->answers as $answer) {
-            if (is_null($answer->json) || empty($answer->json)) {
-                $questionsWithNoAnswer[] = $answer->order;
-            }
-        }
+        $questionOrders = Answer::where(['test_participant_id' => $this->testParticipantId, 'done' => 0])
+            ->orderBy('order')->pluck('order')->toArray();
+
         $last = null;
-        if(count($questionsWithNoAnswer) > 1){
-            $last = array_pop($questionsWithNoAnswer);
+        if(count($questionOrders) > 1){
+            $last = array_pop($questionOrders);
         }
-        $this->questionsWithNoAnswer = implode(', ', $questionsWithNoAnswer);
-        if(null !== $last){
-            $this->questionsWithNoAnswer .= sprintf(' %s %d', __("test-take.and"),$last);
-        }
-        return empty($questionsWithNoAnswer);
+
+        return implode(', ', $questionOrders) . ($last ? sprintf(' %s %d', __("test-take.and"), $last) : '');
+    }
+
+    public function isAllAnswersDone(): bool
+    {
+        return Answer::where(['test_participant_id' => $this->testParticipantId, 'done' => 0])
+            ->doesntExist();
     }
 }
