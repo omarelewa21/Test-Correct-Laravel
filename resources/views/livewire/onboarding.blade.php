@@ -6,17 +6,17 @@
     </div>
 
     <div class="pt-12"
-         x-data="{step: @entangle('step'), validationErrors: @js(array_keys($errors->getMessages()))}"
+         x-data="{step: @entangle('step')}"
          x-init="
                 setCurrentFocusInput();
 
+                $watch('step', value => {
+                    setCurrentFocusInput()
+                });
                 function setCurrentFocusInput (){
-                    selector = (validationErrors != '') ? `[data-validation-error='${step}-${validationErrors[0]}']` : '#username';
-
-                    setTimeout(() => document.querySelector(selector)?.focus(), 250);
+                    setTimeout(() => document.querySelector(`[data-focus-tab='${step}']`)?.focus(), 250);
                 }
             "
-         wire:key="test-@js(now()->timestamp)"
          x-cloak>
         <div class="">
             <div class="relative px-3 sm:px-10">
@@ -92,7 +92,7 @@
                                         <div class="mb-4">
                                             <div class="input-group">
                                                 <input id="username" wire:model.lazy="registration.username" data-focus-tab="1"
-                                                       data-validation-error='1-registration.username'
+
                                                        class="form-input @error('registration.username') border-red @enderror"
                                                        >
                                                 <label for="username"
@@ -138,7 +138,6 @@
                                             </label>
                                             <input id="gender_different"
                                                    wire:model.lazy="registration.gender_different"
-                                                   data-validation-error='1-registration.gender_different'
                                                    class="form-input other-input flex flex-1 w-full"
                                                    style="min-width: 130px;"
                                                    :disabled="gender !== 'different'"
@@ -152,21 +151,18 @@
                                         <div class="name mb-4 space-y-4 md:space-y-0">
                                             <div class="input-group flex w-full md:w-auto mr-0 md:mr-4">
                                                 <input id="name_first" wire:model.lazy="registration.name_first"
-                                                       data-validation-error='1-registration.name_first'
                                                        class="form-input @error('registration.name_first') border-red @enderror">
                                                 <label for="name_first"
                                                        class="transition ease-in-out duration-150">{{ __("onboarding.Voornaam") }}</label>
                                             </div>
                                             <div class="input-group flex mr-4">
                                                 <input id="name_suffix" wire:model.lazy="registration.name_suffix"
-                                                       data-validation-error='1-registration.name_suffix'
                                                        class="form-input @error('registration.name_suffix') border-red @enderror">
                                                 <label for="name_suffix"
                                                        class="transition ease-in-out duration-150">{{ __("onboarding.Tussenv.") }}</label>
                                             </div>
                                             <div class="input-group flex flex-1">
                                                 <input id="name" wire:model.lazy="registration.name"
-                                                       data-validation-error='1-registration.name'
                                                        class="form-input md:w-full inline-block @error('registration.name') border-red @enderror">
                                                 <label for="name"
                                                        class="transition ease-in-out duration-150">{{ __("onboarding.Achternaam") }}</label>
@@ -182,10 +178,9 @@
                                                     <span class="text-sm mt-1">Min. 8 {{ __("onboarding.tekens") }}</span>
                                                 </div>
                                                 <input id="password"
-                                                       wire:model.lazy="password"
+                                                       wire:model="password"
                                                        class="form-input @error('password') border-red @enderror"
                                                        :type="showPassword ? 'text' : 'password'"
-                                                       data-validation-error='1-password'
                                                        x-model="password">
                                                 <label for="password"
                                                        class="transition ease-in-out duration-150">{{ __("onboarding.Creeër wachtwoord") }}</label>
@@ -197,7 +192,7 @@
                                             <div class="input-group relative md:flex-1 w-full mb-4 md:mb-0"
                                                  x-data="{showPassword: false}">
                                                 <input id="password_confirm"
-                                                       wire:model.lazy="password_confirmation"
+                                                       wire:model="password_confirmation"
                                                        :type="showPassword ? 'type' : 'password'"
                                                        class="form-input @error('password') border-red @enderror"
                                                 >
@@ -215,8 +210,7 @@
                                         @elseif($this->useDomainInsteadOfSubjects())
                                             <div class="mt-4">
                                                 <div class="input-group ">
-                                                    <input id="domain" wire:model.lazy="domain" type="text"
-                                                           data-validation-error='1-domain'
+                                                    <input id="domain" wire:model="domain" type="text"
                                                            class="form-input @error('domain') border-red @enderror">
                                                     <label for="domain"
                                                            class="transition ease-in-out duration-150">{{ __("onboarding.Jouw domein(en)") }}</label>
@@ -391,23 +385,21 @@
                                     <div class="input-group w-full">
                                         <input id="school_location"
                                                data-focus-tab="2"
-                                               wire:model.lazy="registration.school_location"
-                                               data-validation-error='2-registration.school_location'
+                                               wire:model="registration.school_location"
                                                class="form-input @error('registration.school_location') border-red @enderror">
                                         <label for="school_location"
                                                class="">{{ __("onboarding.Schoolnaam") }}</label>
                                     </div>
 {{--                                    <div class="input-group flex-0 w-full sm:w-auto sm:flex-1 sm:mr-4">--}}
 {{--                                        <input id="location_name"--}}
-{{--                                               wire:model.lazy="registration.location_name"--}}
+{{--                                               wire:model="registration.location_name"--}}
 {{--                                               class="form-input @error('registration.location_name') border-red @enderror">--}}
 {{--                                        <label for="location_name"--}}
 {{--                                               class="">{{ __("onboarding.Locatie") }}</label>--}}
 {{--                                    </div>--}}
                                     <div class="input-group flex-1">
                                         <input id="website_url"
-                                               wire:model.lazy="registration.website_url"
-                                               data-validation-error='2-registration.website_url'
+                                               wire:model="registration.website_url"
                                                class="form-input @error('registration.website_url') border-red @enderror">
                                         <label for="website_url"
                                                class="">{{ __("onboarding.Website") }}</label>
@@ -415,16 +407,14 @@
                                     <div class="flex w-full">
                                         <div class="input-group flex-1 mr-4">
                                             <input id="address"
-                                                   wire:model.lazy="registration.address"
-                                                   data-validation-error='2-registration.address'
+                                                   wire:model="registration.address"
                                                    class="form-input @error('registration.address') border-red @enderror">
                                             <label for="address"
                                                    class="">{{ __("onboarding.Bezoekadres") }}</label>
                                         </div>
                                         <div class="input-group w-28">
                                             <input id="house_number"
-                                                   wire:model.lazy="registration.house_number"
-                                                   data-validation-error='2-registration.house_number'
+                                                   wire:model="registration.house_number"
                                                    class="form-input  @error('registration.house_number') border-red @enderror">
                                             <label for="house_number"
                                                    class="">{{ __("onboarding.Huisnummer") }}</label>
@@ -434,16 +424,14 @@
                                     <div class="flex w-full">
                                         <div class="input-group w-28 mr-4">
                                             <input id="postcode"
-                                                   wire:model.lazy="registration.postcode"
-                                                   data-validation-error='2-registration.postcode'
+                                                   wire:model="registration.postcode"
                                                    class="form-input  @error('registration.postcode') border-red @enderror">
                                             <label for="postcode"
                                                    class="">{{ __("onboarding.Postcode") }}</label>
                                         </div>
                                         <div class="input-group flex-1">
                                             <input id="city"
-                                                   wire:model.lazy="registration.city"
-                                                   data-validation-error='2-registration.city'
+                                                   wire:model="registration.city"
                                                    class="form-input @error('registration.city') border-red @enderror">
                                             <label for="city"
                                                    class="">{{ __("onboarding.Plaatsnaam") }}</label>
