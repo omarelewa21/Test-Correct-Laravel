@@ -212,15 +212,8 @@ class TestTake extends TCComponent
 
     public function getQuestionNumbersWithNoAnswer()
     {
-        $questionOrders = Answer::where(['test_participant_id' => $this->testParticipantId, 'done' => 0])
-            ->orderBy('order')->pluck('order')->toArray();
-
-        $last = null;
-        if(count($questionOrders) > 1){
-            $last = array_pop($questionOrders);
-        }
-
-        return implode(', ', $questionOrders) . ($last ? sprintf(' %s %d', __("test-take.and"), $last) : '');
+        return Answer::where(['test_participant_id' => $this->testParticipantId, 'done' => 0])
+            ->orderBy('order')->pluck('order')->join(', ', ' '.__("test-take.and").' ');
     }
 
     public function isAllAnswersDone(): bool
