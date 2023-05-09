@@ -2067,9 +2067,11 @@ document.addEventListener("alpine:init", () => {
 
             return (value - min) / (max - min) * 100;
         },
-        setThumbOffset(el, score, maxScore) {
+        setThumbOffset() {
+            let el = document.querySelector('.score-slider-input');
+
             var offsetFromCenter = -45;
-            offsetFromCenter += (score/maxScore) * 90;
+            offsetFromCenter += (this.score/this.maxScore) * 90;
 
             el.style.setProperty("--slider-thumb-offset", `calc(${offsetFromCenter}% + 1px)`);
         },

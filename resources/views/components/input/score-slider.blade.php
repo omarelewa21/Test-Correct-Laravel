@@ -114,6 +114,7 @@
                    :step="halfPoints ? 0.5 : 1"
                    x-ref="scoreInput"
                    x-on:focusout="syncInput($el.value)"
+                   x-on:input="setThumbOffset(document.querySelector('.score-slider-input'), score, maxScore)"
                    autofocus
                    @disabled($disabled)
             >

@@ -15,8 +15,8 @@
         </div>
         <div id="word-count-{{ $editorId }}" wire:ignore class="word-count note text-sm mt-2"></div>
     @else
-        <x-input.group for="me" class="w-full disabled mt-2">
-            <div class="border border-bluegrey p-4 rounded-10 h-fit">
+        <x-input.group for="me" class="w-full disabled mt-2 border border-bluegrey rounded-10 ">
+            <div class="p-4 h-fit">
                 {!! $answerValue !!}
             </div>
         </x-input.group>
