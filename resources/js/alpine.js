@@ -2060,12 +2060,13 @@ document.addEventListener("alpine:init", () => {
             const min = el.min || 0;
             const max = el.max || 100;
             const value = el.value;
-
             return (value - min) / (max - min) * 100;
         },
         setSliderBackgroundSize(el) {
-            el.style.setProperty("--slider-thumb-offset", `${25 / 100 * this.getSliderBackgroundSize(el) - 12.5}px`);
-            el.style.setProperty("--slider-background-size", `${this.getSliderBackgroundSize(el)}%`);
+            this.$nextTick(() => {
+                el.style.setProperty("--slider-thumb-offset", `${25 / 100 * this.getSliderBackgroundSize(el) - 12.5}px`);
+                el.style.setProperty("--slider-background-size", `${this.getSliderBackgroundSize(el)}%`);
+            })
         },
         syncInput() {
             // Don't update if the value is the same;
@@ -2113,10 +2114,7 @@ document.addEventListener("alpine:init", () => {
 
                 this.score = value = this.halfPoints ? Math.round(value * 2) / 2 : Math.round(value);
 
-                const numberInput = this.$root.querySelector("[x-ref='score_slider_continuous_input']");
-                if (numberInput !== null) {
-                    this.setSliderBackgroundSize(numberInput);
-                }
+                this.updateContinuousSlider();
             });
             if (focusInput) {
                 this.$nextTick(() => {
@@ -2133,6 +2131,15 @@ document.addEventListener("alpine:init", () => {
             if (this.disabled) return;
             this.inputBox.classList.add("border-blue-grey");
             this.inputBox.classList.remove("border-allred");
+        },
+        getContinuousInput(){
+            return this.$root.querySelector("[x-ref='score_slider_continuous_input']");
+        },
+        updateContinuousSlider() {
+            const numberInput = this.getContinuousInput();
+            if (numberInput !== null) {
+                this.setSliderBackgroundSize(numberInput);
+            }
         }
     }));
 
