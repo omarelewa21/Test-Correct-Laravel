@@ -2039,6 +2039,9 @@ document.addEventListener("alpine:init", () => {
         needsToPerformActionsStill() {
             return !this.inReview && !this.$store.assessment.clearToProceed() && !this.clickedNext;
         },
+        openFeedbackTab() {
+            this.tab(2);
+        }
     }));
     Alpine.data("scoreSlider", (score, model, maxScore, halfPoints, disabled, coLearning, focusInput) => ({
         score,

@@ -7659,6 +7659,10 @@ document.addEventListener("alpine:init", function () {
       },
       needsToPerformActionsStill: function needsToPerformActionsStill() {
         return !this.inReview && !this.$store.assessment.clearToProceed() && !this.clickedNext;
+      },
+      openFeedbackTab: function openFeedbackTab() {
+        this.tab(2);
+        this.$nextTick(function () {});
       }
     };
   });
