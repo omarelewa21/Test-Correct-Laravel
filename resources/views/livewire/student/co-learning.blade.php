@@ -92,14 +92,10 @@
                         </x-button.primary>
                 @endif
 
-                @if($finishCoLearningButtonEnabled)
+                @if($this->atLastQuestion)
                     <x-button.cta wire:click="goToFinishedCoLearningPage"
                                   wire:loading.attr="disabled"
-                    >
-                        {{ __('co-learning.finish') }}
-                    </x-button.cta>
-                @elseif($this->atLastQuestion)
-                    <x-button.cta :disabled="true"
+                                  :disabled="!$finishCoLearningButtonEnabled"
                     >
                         {{ __('co-learning.finish') }}
                     </x-button.cta>
