@@ -173,6 +173,9 @@ class FactoryScenarioSchoolCoLearning extends FactoryScenarioSchool
 
     public function getData()
     {
+        $this->testTake->load(['test', 'test.testQuestions' => function($query) {
+            $query->orderBy('order', 'asc');
+        }]);
         return [... parent::getData(), 'test_take'=> $this->testTake];
     }
 
