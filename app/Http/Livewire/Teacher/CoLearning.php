@@ -14,6 +14,7 @@ use tcCore\DiscussingParentQuestion;
 use tcCore\DrawingQuestion;
 use tcCore\Events\TestTakeCoLearningPresenceEvent;
 use tcCore\Events\TestTakeForceTakenAway;
+use tcCore\Events\TestTakeLeave;
 use tcCore\Events\TestTakeStop;
 use tcCore\Http\Controllers\TestTakesController;
 use tcCore\Http\Enums\CoLearning\AbnormalitiesStatus;
@@ -154,10 +155,6 @@ class CoLearning extends Component implements CollapsableHeader
             throw new \Exception('Wrong discussion type');
         }
 
-        if ($discussionType === 'ALL') {
-            return CakeRedirectHelper::redirectToCake('test_takes.discussion', $this->testTake->uuid);
-        }
-
         $testTakeUpdateData = [];
         $resetProgress = $discussionType != $this->testTake->discussion_type;
         if ($this->testTakeStatusNeedsToBeUpdated()) {
@@ -183,10 +180,15 @@ class CoLearning extends Component implements CollapsableHeader
             $this->discussingQuestion = $this->testTake->discussingQuestion()->first();
         }
 
+        if ($discussionType === 'ALL') {
+            return CakeRedirectHelper::redirectToCake('test_takes.discussion', $this->testTake->uuid);
+        }
+
         //finally set bool to true
         $this->coLearningHasBeenStarted = true;
         $this->headerCollapsed = true;
         $this->getStaticNavigationData();
+        $this->refreshComponentData();
     }
 
     public function nextDiscussionQuestion()
@@ -198,6 +200,8 @@ class CoLearning extends Component implements CollapsableHeader
     /* start header methods */
     public function redirectBack()
     {
+        AfterResponse::$performAction[] = fn() => TestTakeLeave::dispatch($this->testTake->uuid);
+
         return TestTake::redirectToDetail(
             testTakeUuid: $this->testTake->uuid,
             returnRoute : Str::replaceFirst(config('app.base_url'), '', Livewire::originalUrl()),
@@ -481,7 +485,7 @@ class CoLearning extends Component implements CollapsableHeader
             ])
             ->whereNotNull('discussing_answer_rating_id')
             ->each(function ($participant) {
-                $participant->syncedWithCurrentQuestion = $participant->discussingAnswerRating->answer->question_id === $this->discussingQuestion?->id;
+                $participant->syncedWithCurrentQuestion = $participant->discussingAnswerRating?->answer->question_id === $this->discussingQuestion?->id;
             });
 
         $this->testParticipantCount = $this->testParticipants->count();
@@ -543,7 +547,7 @@ class CoLearning extends Component implements CollapsableHeader
 
         $searchPattern = "/\[([0-9]+)\]/i";
         $replacementFunction = function ($matches) use ($question, $answers) {
-            $this->completionQuestionTagCount++;
+            $this->completionQuestionTagCount = $this->completionQuestionTagCount + 1;
             $tag_id = $matches[1];
             $events = '';
             $rsSpan = '';
