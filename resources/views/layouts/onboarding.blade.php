@@ -7,8 +7,6 @@
     <title>Test-Correct</title>
 
     <!-- Alpine -->
-    <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
-
 
 {{--    <script src="/ckeditor/ckeditor.js" type="text/javascript"></script>--}}
 
@@ -18,19 +16,19 @@
     <!-- End Google Tag Manager -->
     @livewireStyles
     <link rel="stylesheet" href="{{ mix('/css/app.css') }}">
-    <link rel="stylesheet" href="/css/onboarding.css?v=25052022">
+{{--    <link rel="stylesheet" href="/css/onboarding.css?v=25052022">--}}
     @stack('page_styles')
 </head>
-<body id="body" class="antialiased font-sans bg-light-grey">
+<body id="body" class="antialiased font-sans bg-light-grey onboarding-page">
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-592V9J3" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 {{ $slot }}
 
 @livewireScripts
-{{--<script src="{{ mix('/js/app.js') }}"></script>--}}
+<script src="{{ mix('/js/app.js') }}"></script>
 @stack('page_scripts')
-{{--<script>--}}
-{{--    Alpine.start();--}}
-{{--</script>--}}
+<script>
+    Alpine.start();
+</script>
 </body>
 </html>

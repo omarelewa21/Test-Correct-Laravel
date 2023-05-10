@@ -102,7 +102,7 @@
                                             <span class="flex">Mevr.</span>
                                         </div>
                                         <div class="flex space-x-2 items-center flex-1 mb-2.5 hover:text-primary transition cursor-pointer"
-                                             @click="gender = 'different'; $nextTick(() => $el.querySelector('input').focus())"
+                                             @click="gender = 'different'; $nextTick(() => $root.querySelector('input').focus())"
                                              :class="gender === 'different' ? 'primary bold' : 'text-midgrey'"
                                         >
                                             <div class="flex">
@@ -721,7 +721,7 @@
                 show_new_item: false,
                 new_subject_item: '',
                 init() {
-                    this.subjects = JSON.parse(this.$el.parentNode.getAttribute('data-subjects'));
+                    this.subjects = JSON.parse(this.$root.parentNode.getAttribute('data-subjects'));
                     this.available_subject_options = this.subject_list_init;
                     this.filterAvailableSubjectOptions();
                     if (this.subjects.length > 0) {
@@ -749,7 +749,7 @@
                     call('syncSelectedSubjects', this.subjects);
                 },
                 toggleSubjects() {
-                    var div = this.$el.getElementsByClassName('subject_select_div')[0];
+                    var div = this.$root.getElementsByClassName('subject_select_div')[0];
                     if (div.classList.contains('show_subjects')) {
                         this.hideSubjects();
                         return;
@@ -762,8 +762,8 @@
                     this.active_subject_option = '';
                     this.filterAvailableSubjectOptions();
                     var label = document.getElementById('subjects_label');
-                    var div = this.$el.getElementsByClassName('subject_select_div')[0];
-                    var inner_div = this.$el.getElementsByClassName('subject_select_div_inner')[0];
+                    var div = this.$root.getElementsByClassName('subject_select_div')[0];
+                    var inner_div = this.$root.getElementsByClassName('subject_select_div_inner')[0];
                     inner_div.classList.add('subject_select_div_inner_open');
                     div.style.height = '190px';
                     div.classList.add('show_subjects');
@@ -775,8 +775,8 @@
                 },
                 hideSubjects() {
                     var label = document.getElementById('subjects_label');
-                    var div = this.$el.getElementsByClassName('subject_select_div')[0];
-                    var inner_div = this.$el.getElementsByClassName('subject_select_div_inner')[0];
+                    var div = this.$root.getElementsByClassName('subject_select_div')[0];
+                    var inner_div = this.$root.getElementsByClassName('subject_select_div_inner')[0];
                     div.style.height = '40px';
                     inner_div.classList.remove('subject_select_div_inner_open');
                     div.classList.remove('show_subjects');
@@ -883,7 +883,7 @@
                     this.scroll();
                 },
                 scroll() {
-                    var div = this.$el.getElementsByClassName('subject_item_active')[0];
+                    var div = this.$root.getElementsByClassName('subject_item_active')[0];
                     if (div == undefined) {
                         return;
                     }
@@ -893,15 +893,15 @@
                     this.showInput = true;
                 },
                 focusSearch() {
-                    var icon = this.$el.getElementsByClassName('icons-search-active')[0];
+                    var icon = this.$root.getElementsByClassName('icons-search-active')[0];
                     icon.classList.remove('hide-search');
-                    var icon = this.$el.getElementsByClassName('icons-search-inactive')[0];
+                    var icon = this.$root.getElementsByClassName('icons-search-inactive')[0];
                     icon.classList.add('hide-search');
                 },
                 loseFocusSearch() {
-                    var icon = this.$el.getElementsByClassName('icons-search-inactive')[0];
+                    var icon = this.$root.getElementsByClassName('icons-search-inactive')[0];
                     icon.classList.remove('hide-search');
-                    var icon = this.$el.getElementsByClassName('icons-search-active')[0];
+                    var icon = this.$root.getElementsByClassName('icons-search-active')[0];
                     icon.classList.add('hide-search');
                 },
                 filterAvailableSubjectOptions() {
