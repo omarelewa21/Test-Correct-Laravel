@@ -2823,13 +2823,22 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function getSessionLengthAttribute():int
     {
-        return session(
-            'extensionTime',
-            (int)UserFeatureSetting::getSetting(
-                user   : $this,
-                title  : UserFeatureSettingEnum::AUTO_LOGOUT_MINUTES,
-                default: UserFeatureSettingEnum::getInitialValue(UserFeatureSettingEnum::AUTO_LOGOUT_MINUTES),
-            ) * 60
+        $minutes = (int)UserFeatureSetting::getSetting(
+            user   : $this,
+            title  : UserFeatureSettingEnum::AUTO_LOGOUT_MINUTES,
+            default: UserFeatureSettingEnum::AUTO_LOGOUT_MINUTES->initialValue(),
         );
+        return session('extensionTime', $minutes * 60);
+    }
+
+    public function getNormalizationSettings()
+    {
+        return collect([
+            UserFeatureSettingEnum::GRADE_DEFAULT_STANDARD,
+            UserFeatureSettingEnum::GRADE_STANDARD_VALUE,
+            UserFeatureSettingEnum::GRADE_CESUUR_PERCENTAGE,
+        ])->mapWithKeys(function ($enum) {
+                return [$enum->value => UserFeatureSetting::getSetting($this, $enum, default: $enum->initialValue())];
+            });
     }
 }

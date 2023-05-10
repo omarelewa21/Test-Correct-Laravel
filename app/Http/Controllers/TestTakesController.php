@@ -563,6 +563,9 @@ class TestTakesController extends Controller
             $testTake = $testTake->toArray();
             unset($testTake['test_participants']);
             $testTake['questions'] = $questions;
+            if ($request->has('with') && in_array('normalization_settings', $request->get('with'))) {
+                $testTake['normalization_settings'] = Auth::user()->getNormalizationSettings();
+            }
 
             return $testTake;
         } elseif ($isInvigilator && $testTake->testTakeStatus->name == 'Discussing') {

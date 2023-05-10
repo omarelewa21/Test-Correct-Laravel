@@ -71,7 +71,7 @@
                             <div class="notification info stretched">
                                 <div class="title">
                                     @if($this->editRestriction === 'lvs')
-                                        <x-icon.questionmark />
+                                        <x-icon.entree />
                                     @endif
                                     <span>@lang('account.uneditable_title_'.$this->editRestriction)</span>
                                 </div>
@@ -239,7 +239,7 @@
                     </div>
                     <div class="border-b border-bluegrey flex w-full items-center h-[50px] gap-2.5 self-end">
                         <x-input.toggle wire:model="featureSettings.wsc_copy_subject_language" class="mr-2" />
-                        <x-icon.questionmark />
+                        <x-icon.text-align-left />
                         <span class="bold">@lang('account.Neem taal over van taalvak')</span>
                     </div>
                     <div class="border-b border-bluegrey flex w-full items-center h-[50px] gap-2.5 self-end">
@@ -250,7 +250,7 @@
 
                     <div class="flex justify-between items-center border-b border-bluegrey h-[50px]">
                         <div class="flex gap-2 items-center">
-                            <x-icon.questionmark />
+                            <x-icon.points />
                             <span class="bold">@lang('account.Aantal punten per vraag')</span>
                         </div>
                         <div class="flex gap-2 items-center">
@@ -290,7 +290,7 @@
                     </div>
                     <div class="flex justify-between items-center border-b border-bluegrey h-[50px]">
                         <div class="flex gap-2 items-center">
-                            <x-icon.questionmark />
+                            <x-icon.points />
                             <span class="bold">@lang('account.Weging van de toets')</span>
                         </div>
                         <div class="flex gap-2 items-center">

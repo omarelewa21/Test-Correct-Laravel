@@ -71,7 +71,6 @@ enum UserFeatureSetting: string implements FeatureSettingKey
     #[Initial('n_term')]
     case GRADE_DEFAULT_STANDARD = 'grade_default_standard';
     #[Initial(1)]
-    #[Type('int')]
     case GRADE_STANDARD_VALUE = 'grade_standard_value';
     #[Initial(50)]
     #[Type('int')]
