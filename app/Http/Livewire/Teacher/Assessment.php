@@ -340,13 +340,9 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         }
 
         if (!$this->onLastQuestionToAssess()) {
-            $newQuestionId = $this->questions->get((int)$this->questionNavigationValue)->id;
-
-            $newAnswerIndex = $this->students->search(
-                    $this->answers->where('question_id', $newQuestionId)->first()->test_participant_id
-                ) + 1;
-
-            $this->answerNavigationValue = $newAnswerIndex;
+            $currentAnswerIndex = $this->answers->search(fn($answer) => $answer->id === $this->currentAnswer->id);
+            $newAnswer = $this->answers->get($currentAnswerIndex + 1);
+            $this->answerNavigationValue = $this->students->search($newAnswer->test_participant_id) + 1;
 
             $this->dispatchUpdateQuestionNavigatorEvent(
                 $this->loadQuestion(position: (int)$this->questionNavigationValue + 1, action: 'incr')
@@ -374,12 +370,9 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         }
 
         if (!$this->onFirstQuestionToAssess()) {
-            $newQuestionId = $this->questions->get((int)$this->questionNavigationValue - 2)->id;
-            $newAnswerIndex = $this->students->search(
-                    $this->answers->where('question_id', $newQuestionId)->last()->test_participant_id
-                ) + 1;
-
-            $this->answerNavigationValue = $newAnswerIndex;
+            $currentAnswerIndex = $this->answers->search(fn($answer) => $answer->id === $this->currentAnswer->id);
+            $newAnswer = $this->answers->get($currentAnswerIndex - 1);
+            $this->answerNavigationValue = $this->students->search($newAnswer->test_participant_id) + 1;
 
             $this->dispatchUpdateQuestionNavigatorEvent(
                 $this->loadQuestion(position: (int)$this->questionNavigationValue - 1, action: 'decr')
