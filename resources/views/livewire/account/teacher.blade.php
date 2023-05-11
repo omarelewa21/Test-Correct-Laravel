@@ -34,7 +34,7 @@
                 <span class="flex justify-center">
                     @lang('account.account')
                     <x-animations.loading-fade loadProperty="changing"
-                                               class="bg-lightGrey flex items-center min-w-[60px]"
+                                               class="bg-lightGrey"
                                                color="blue"
                     />
                 </span>
@@ -43,7 +43,7 @@
                 <span class="flex justify-center">
                     @lang('header.Toetsen')
                     <x-animations.loading-fade loadProperty="changing"
-                                               class="bg-lightGrey flex items-center min-w-[60px]" />
+                                               class="bg-lightGrey min-w-[80px]" />
                 </span>
             </x-menu.tab.item>
         </x-menu.tab.container>
@@ -212,19 +212,6 @@
                         <div class="password | flex flex-col gap-2"
                              x-data="{showPassword: false}"
                         >
-                            <x-input.group label="{{ __('account.Jouw') }} {{  str(__('staff.Wachtwoord'))->lower() }}"
-                                           class="flex-1 relative"
-                            >
-                                <x-input.text class="w-full pr-10 dotsfont"
-                                              type="text"
-                                              value="PASSWORD"
-                                              disabled
-                                />
-
-                                <div class="absolute bottom-[9px] right-3 cursor-pointer">
-                                    <x-icon.preview-off x-show="!showPassword" class="text-midgrey" />
-                                </div>
-                            </x-input.group>
                             <div>
                                 <x-button.primary class="" wire:click="$emit('openModal', 'change-password')">
                                     <x-icon.edit />
@@ -249,7 +236,7 @@
                         </div>
                     </div>
 
-                    {{-- Language change loading skelleton --}}
+                    {{-- Language change loading skeleton --}}
                     <x-animations.loading-fade loadProperty="changing"
                                                class=" bg-white content-section p-10 grid grid-cols-1 lg:grid-cols-2 gap-6"
                     >
@@ -269,26 +256,19 @@
                         <div class="flex flex-col gap-4 col-span-1">
                             <div @class(['gender | flex gap-4 flex-wrap text-midgrey'])>
                                 <div class="flex space-x-2 items-center">
-                                    <div class="flex w-[46px] h-[46px] rounded-full bg-lightGrey items-center justify-center overflow-hidden">
-
-                                    </div>
+                                    <div class="flex w-[46px] h-[46px] rounded-full bg-lightGrey items-center justify-center overflow-hidden"></div>
                                     <span class="min-w-[30px]">
                                         <x-knightrider />
                                     </span>
                                 </div>
                                 <div class="flex space-x-2 items-center">
-                                    <div class="flex w-[46px] h-[46px] rounded-full bg-lightGrey items-center justify-center overflow-hidden">
-
-                                    </div>
+                                    <div class="flex w-[46px] h-[46px] rounded-full bg-lightGrey items-center justify-center overflow-hidden"></div>
                                     <span class="min-w-[30px]">
                                         <x-knightrider />
                                     </span>
                                 </div>
                                 <div class="flex flex-1 space-x-2 items-center">
-                                    <div class="flex w-[46px] min-w-[46px] h-[46px] rounded-full bg-lightGrey items-center justify-center overflow-hidden">
-
-                                    </div>
-
+                                    <div class="flex w-[46px] min-w-[46px] h-[46px] rounded-full bg-lightGrey items-center justify-center overflow-hidden"></div>
                                     <span class="min-w-[30px] w-full flex">
                                         <x-knightrider />
                                     </span>
@@ -318,28 +298,12 @@
 
                         <div class="flex flex-col gap-4 col-span-1 self-start">
                             <div class="picture | flex gap-4 items-center">
-                                <div class="flex w-[46px] h-[46px] rounded-full bg-lightGrey items-center justify-center overflow-hidden">
-
-                                </div>
-
-                                <div class="rounded-10 h-[40px] w-[250px] flex bg-lightGrey">
-
-                                </div>
+                                <div class="flex w-[46px] h-[46px] rounded-full bg-lightGrey items-center justify-center overflow-hidden"></div>
+                                <div class="rounded-10 h-[40px] w-[250px] flex bg-lightGrey"></div>
                             </div>
 
-                            <div class="password | flex flex-col gap-2"
-                                 x-data="{showPassword: false}"
-                            >
-                                <div class="flex w-full h-[64px] items-center">
-                                    <div class="flex-1">
-                                        <x-knightrider />
-                                    </div>
-                                </div>
-                                <div>
-                                    <div class="rounded-10 h-[40px] w-[250px] flex bg-lightGrey">
-
-                                    </div>
-                                </div>
+                            <div class="password | flex flex-col gap-2">
+                                <div class="rounded-10 h-[40px] w-[250px] flex bg-lightGrey"></div>
                             </div>
                         </div>
 
@@ -469,7 +433,9 @@
                                         class="mr-2 min-w-[var(--switch-width)]" />
                         <x-icon.co-learning class="min-w-fit" />
                         <span class="bold inline-flex flex-shrink-1">@lang('account.Sla antwoorden over die met CO-Learning zijn beoordeeld')</span>
-                        <x-tooltip class="min-w-fit">@lang('assessment.discrepancies_toggle_tooltip')</x-tooltip>
+                        <div class="min-w-fit">
+                            <x-tooltip >@lang('assessment.discrepancies_toggle_tooltip')</x-tooltip>
+                        </div>
                     </div>
                     <div class="border-b lg:border-t border-bluegrey flex w-full items-center h-[50px] gap-2.5">
                         <x-input.toggle wire:model="featureSettings.assessment_show_student_names" class="mr-2" />
