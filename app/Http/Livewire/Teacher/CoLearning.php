@@ -490,7 +490,7 @@ class CoLearning extends Component implements CollapsableHeader
             ])
             ->whereNotNull('discussing_answer_rating_id')
             ->each(function ($participant) {
-                $participant->syncedWithCurrentQuestion = $participant->discussingAnswerRating->answer->question_id === $this->discussingQuestion->id;
+                $participant->syncedWithCurrentQuestion = $participant->discussingAnswerRating?->answer->question_id === $this->discussingQuestion?->id;
             });
 
         $this->testParticipantCount = $this->testParticipants->count();

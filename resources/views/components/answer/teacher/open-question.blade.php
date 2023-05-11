@@ -8,7 +8,7 @@
                             if (editor) {
                                 editor.destroy(true);
                             }
-                            RichTextEditor.initClassicEditorForStudentplayer('{{  $editorId }}', '{{ $question->getKey() }}');
+                            RichTextEditor.initClassicEditorForStudentplayer('{{  $editorId }}', '{{ $question->getKey() }}', {{ $webSpellChecker }});
                             setTimeout(() => {
                                 RichTextEditor.setReadOnly(ClassicEditors['{{  $editorId }}']);
                             }, 100)

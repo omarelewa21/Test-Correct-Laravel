@@ -39,6 +39,7 @@
                                  :questionNumber="$questionOrderNumber"
                                  :answerNumber="$answerFollowUpNumber"
                                  :wire:key="'ar-'. $this->answerRating->getKey()"
+                                 :webSpellChecker="$this->testTake->enable_spellcheck_colearning"
                     />
                 </div>
             @endif

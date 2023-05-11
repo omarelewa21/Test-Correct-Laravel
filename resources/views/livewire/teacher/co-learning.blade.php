@@ -143,6 +143,7 @@
                                                 :answer="$this->activeAnswerRating->answer"
                                                 :editorId="'editor-'.$this->discussingQuestion->uuid.$this->activeAnswerRating->id"
                                                 :show-toggles="false"
+                                                :webSpellChecker="$this->testTake->enable_spellcheck_colearning"
                                         />
                                     </div>
                                 </x-slot:body>
