@@ -7989,7 +7989,7 @@ document.addEventListener("alpine:init", function () {
         this.setHeightToAspectRatio(this.$el);
       },
       setHeightToAspectRatio: function setHeightToAspectRatio(element) {
-        var _this53 = this;
+        var _this54 = this;
         var aspectRatioWidth = 940;
         var aspectRatioHeight = 500;
         var aspectRatio = aspectRatioHeight / aspectRatioWidth;
@@ -8002,7 +8002,7 @@ document.addEventListener("alpine:init", function () {
         if (newHeight <= 0) {
           if (this.currentTry <= this.maxTries) {
             setTimeout(function () {
-              return _this53.setHeightToAspectRatio(element);
+              return _this54.setHeightToAspectRatio(element);
             }, 50);
             this.currentTry++;
           }
@@ -10266,7 +10266,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     } finally {
       _iterator2.f();
     }
-    if (element.nodeName === "TEXT" && !attributes["data-textcontent"]) attributes["data-textcontent"] = element.textContent;
+    if (element.nodeName === "TEXT" && !attributes["data-textcontent"]) attributes["data-textcontent"] = encodeURI(element.textContent);
     return attributes;
   }
   function calculateCanvasBounds() {
@@ -13291,7 +13291,7 @@ var Text = /*#__PURE__*/function (_svgElement6) {
   }, {
     key: "setTextContent",
     value: function setTextContent(text) {
-      this.element.textContent = text;
+      this.element.textContent = decodeURI(text);
     }
 
     /**

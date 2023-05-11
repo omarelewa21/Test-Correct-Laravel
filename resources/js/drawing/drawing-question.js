@@ -1153,7 +1153,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         }
 
         if (element.nodeName === "TEXT" && !attributes["data-textcontent"])
-            attributes["data-textcontent"] = element.textContent;
+            attributes["data-textcontent"] = encodeURI(element.textContent);
         return attributes;
     }
 

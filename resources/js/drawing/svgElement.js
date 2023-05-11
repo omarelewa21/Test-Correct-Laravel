@@ -737,7 +737,7 @@ export class Text extends svgElement {
      * @param {string} text
      */
     setTextContent(text) {
-        this.element.textContent = text;
+        this.element.textContent = decodeURI(text);
     }
 
     /**
