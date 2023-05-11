@@ -1,7 +1,6 @@
 <main class="account-page"
-      x-data="{openTab: 'account', shimmer: false}"
+      x-data="accountSettings(@js($this->featureSettings['system_language']))"
       x-cloak
-      x-on:updated-language.window="$nextTick(() => setTimeout(() => shimmer = false, 5000))"
 >
     <header class="sticky flex flex-col justify-center top-0 w-full z-10">
         <div class="flex w-full px-4 items-center justify-center relative text-white z-10 h-[var(--header-height)] bg-gradient-to-r from-[var(--teacher-primary)] to-[var(--teacher-primary-light)] main-shadow">
@@ -27,18 +26,19 @@
         <div class="flex flex-col gap-8" x-show="openTab === 'account'">
             <div class="flex flex-col w-full gap-4">
                 <h2 class="flex">Test-Correct @lang('account.settings')</h2>
-                <div class="content-section p-10 grid grid-cols-1 lg:grid-cols-2 gap-6 w-full">
+                <div class="content-section relative p-10 grid grid-cols-1 lg:grid-cols-2 gap-6 w-full overflow-hidden">
                     <div class="system-lang | flex flex-col">
-                        <x-input.group :label="__('account.Systeem taal')">
-                            <x-input.select wire:model="featureSettings.system_language"
-                                            x-on:change="shimmer = true"
-                            >
-                                @foreach($this->systemLanguages as $key => $language)
-                                    <option value="{{ $key }}"
-                                            wire:key="system-language-option-{{ $key }}">{{ $language }}</option>
-                                @endforeach
-                            </x-input.select>
-                        </x-input.group>
+                        <div class="flex flex-col">
+                            <x-input.group :label="__('account.Systeem taal')">
+                                <x-input.select x-model="language"
+                                                x-on:change="startLanguageChange($event, 'featureSettings.system_language')">
+                                    @foreach($this->systemLanguages as $key => $language)
+                                        <option value="{{ $key }}"
+                                                wire:key="system-language-option-{{ $key }}">{{ $language }}</option>
+                                    @endforeach
+                                </x-input.select>
+                            </x-input.group>
+                        </div>
                     </div>
 
                     <div class="auto-logout | self-end">
@@ -60,12 +60,23 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="absolute inset-0 bg-white content-section p-10 grid grid-cols-1 lg:grid-cols-2 gap-6"
+                         x-show="changing"
+                         x-transition>
+                        <div class="h-[50px] flex items-center w-full">
+                            <x-knightrider />
+                        </div>
+                        <div class="h-[50px] flex items-center w-full">
+                            <x-knightrider />
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="flex flex-col w-full gap-4">
                 <h2 class="flex">@lang('account.Jouw profiel') - @lang('account.docent account')</h2>
 
-                <div class="content-section p-10 grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="content-section relative p-10 grid grid-cols-1 lg:grid-cols-2 gap-6">
                     @unless($this->canEditProfile)
                         <div class="col-span-1 lg:col-span-2">
                             <div class="notification info stretched">
@@ -201,6 +212,112 @@
                             <span class="bold">{{ $this->classes['string'] }}</span>
                         </div>
                     </div>
+                    <div class="absolute inset-0 bg-white content-section p-10 grid grid-cols-1 lg:grid-cols-2 gap-6"
+                         x-show="changing"
+                         x-transition
+                    >
+                        @unless($this->canEditProfile)
+                            <div class="col-span-1 lg:col-span-2">
+                                <div class="notification info stretched min-h-[58px] flex items-center w-full">
+                                    <x-knightrider />
+                                </div>
+                            </div>
+                        @endif
+
+                        <div class="flex flex-col gap-4 col-span-1">
+                            <div @class(['gender | flex gap-4 flex-wrap text-midgrey'])>
+                                <div class="flex space-x-2 items-center">
+                                    <div class="flex w-[46px] h-[46px] rounded-full bg-lightGrey items-center justify-center overflow-hidden">
+
+                                    </div>
+                                    <span class="min-w-[30px]">
+                                    <x-knightrider />
+                                </span>
+                                </div>
+                                <div class="flex space-x-2 items-center">
+                                    <div class="flex w-[46px] h-[46px] rounded-full bg-lightGrey items-center justify-center overflow-hidden">
+
+                                    </div>
+                                    <span class="min-w-[30px]">
+                                    <x-knightrider />
+                                </span>
+                                </div>
+                                <div class="flex flex-1 space-x-2 items-center">
+                                    <div class="flex w-[46px] min-w-[46px] h-[46px] rounded-full bg-lightGrey items-center justify-center overflow-hidden">
+
+                                    </div>
+
+                                    <span class="min-w-[30px] w-full flex">
+                                    <x-knightrider />
+                                </span>
+                                </div>
+                            </div>
+
+                            <div class="naw | flex flex-col gap-4">
+                                <div class="flex gap-4 h-[64px] items-center">
+                                    <div class="flex-1">
+                                        <x-knightrider />
+                                    </div>
+                                    <div class="flex min-w-[80px]">
+                                        <x-knightrider />
+                                    </div>
+                                    <div class="flex-1">
+                                        <x-knightrider />
+                                    </div>
+                                </div>
+
+                                <div class="flex w-full h-[64px] items-center">
+                                    <div class="flex-1">
+                                        <x-knightrider />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col gap-4 col-span-1">
+                            <div class="picture | flex gap-4 items-center">
+                                <div class="flex w-[46px] h-[46px] rounded-full bg-lightGrey items-center justify-center overflow-hidden">
+
+                                </div>
+
+                                <x-button.primary disabled size="sm" class="h-10">
+                                    <x-icon.upload />
+                                    <span>Profielfoto uploaden</span>
+                                </x-button.primary>
+                            </div>
+
+                            <div class="password | flex flex-col gap-2"
+                                 x-data="{showPassword: false}"
+                            >
+                                <div class="flex w-full h-[64px] items-center">
+                                    <div class="flex-1">
+                                        <x-knightrider />
+                                    </div>
+                                </div>
+                                <div>
+                                    <x-button.primary class="" wire:click="$emit('openModal', 'change-password')">
+                                        <x-icon.edit />
+                                        <span>@lang('header.Wachtwoord wijzigen')</span>
+                                    </x-button.primary>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col gap-4 col-span-1 ">
+                            <div class="subjects | flex flex-col gap-2">
+                                <span class="h-6 w-[100px]"><x-knightrider /></span>
+                                <span class="h-6"><x-knightrider /></span>
+                            </div>
+                            <div class="school-locations | flex flex-col gap-2">
+                                <span class="h-6 w-[100px]"><x-knightrider /></span>
+                                <span class="h-6"><x-knightrider /></span>
+                            </div>
+                            <div class="classes | flex flex-col gap-2">
+                                <span class="h-6 w-[100px]"><x-knightrider /></span>
+                                <span class="h-6"><x-knightrider /></span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -216,7 +333,7 @@
             <div class="flex flex-col w-full gap-4">
                 <h2 class="flex">@lang('account.Constructie')</h2>
 
-                <div class="content-section p-10 grid grid-cols-1 lg:grid-cols-2 gap-x-6 w-full">
+                <div class="content-section relative p-10 grid grid-cols-1 lg:grid-cols-2 gap-x-6 w-full">
                     <div class="default-lang | flex flex-col gap-1 border-b border-bluegrey">
                         <div class="flex items-center justify-between">
                             <span>@lang('account.Standaard taal')</span>
@@ -272,7 +389,7 @@
             <div class="flex flex-col w-full gap-4">
                 <h2 class="flex">@lang('account.Afname')</h2>
 
-                <div class="content-section p-10 grid grid-cols-1 lg:grid-cols-2 gap-x-6 w-full">
+                <div class="content-section relative p-10 grid grid-cols-1 lg:grid-cols-2 gap-x-6 w-full">
                     <div class="border-b border-t border-bluegrey flex w-full items-center h-[50px] gap-2.5">
                         <x-input.toggle wire:model="featureSettings.test_take_browser_testing" class="mr-2" />
                         <x-icon.web />
@@ -306,11 +423,11 @@
             <div class="flex flex-col w-full gap-4">
                 <h2 class="flex">@lang('account.Nakijken')</h2>
 
-                <div class="content-section p-10 grid grid-cols-1 lg:grid-cols-2 gap-x-6 w-full">
+                <div class="content-section relative p-10 grid grid-cols-1 lg:grid-cols-2 gap-x-6 w-full">
                     <div class="border-b border-t border-bluegrey flex w-full items-center h-[50px] gap-2.5">
                         <x-input.toggle wire:model="featureSettings.assessment_skip_no_discrepancy_answer"
                                         class="mr-2 min-w-[var(--switch-width)]" />
-                        <x-icon.co-learning class="min-w-fit"/>
+                        <x-icon.co-learning class="min-w-fit" />
                         <span class="bold inline-flex flex-shrink-1">@lang('account.Sla antwoorden over die met CO-Learning zijn beoordeeld')</span>
                         <x-tooltip class="min-w-fit">@lang('assessment.discrepancies_toggle_tooltip')</x-tooltip>
                     </div>
@@ -325,7 +442,7 @@
             <div class="flex flex-col w-full gap-4">
                 <h2 class="flex">@lang('account.Inzien')</h2>
 
-                <div class="content-section p-10 grid grid-cols-1 lg:grid-cols-2 gap-x-6 w-full">
+                <div class="content-section relative p-10 grid grid-cols-1 lg:grid-cols-2 gap-x-6 w-full">
                     <div class="border-b border-t border-bluegrey flex w-full items-center h-[50px] gap-2.5">
                         <x-input.toggle wire:model="featureSettings.review_show_grades" class="mr-2" />
                         <x-icon.grade />
@@ -342,7 +459,7 @@
             <div class="flex flex-col w-full gap-4">
                 <h2 class="flex">@lang('account.Becijferen en normeren')</h2>
 
-                <div class="content-section p-10 grid grid-cols-1 lg:grid-cols-2 gap-x-6 w-full">
+                <div class="content-section relative p-10 grid grid-cols-1 lg:grid-cols-2 gap-x-6 w-full">
                     <div class="default-lang | flex flex-col gap-1">
                         <div class="flex items-center justify-between">
                             <span>@lang('account.Standaard normering')</span>

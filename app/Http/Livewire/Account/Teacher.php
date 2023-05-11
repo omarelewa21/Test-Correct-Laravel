@@ -68,7 +68,6 @@ class Teacher extends Component
     {
         UserHelper::setSystemLanguage($this->user);
         $this->setSelectOptions();
-        $this->dispatchBrowserEvent('updated-language');
     }
 
     public function updatedUserData(mixed $value, string $name): void

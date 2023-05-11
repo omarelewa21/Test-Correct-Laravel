@@ -7932,6 +7932,34 @@ document.addEventListener("alpine:init", function () {
       }
     };
   });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("accountSettings", function (language) {
+    return {
+      openTab: 'account',
+      changing: false,
+      language: language,
+      init: function init() {},
+      startLanguageChange: function startLanguageChange(event, wireModelName) {
+        var _this51 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee17() {
+          return _regeneratorRuntime().wrap(function _callee17$(_context17) {
+            while (1) switch (_context17.prev = _context17.next) {
+              case 0:
+                _this51.changing = true;
+                _context17.next = 3;
+                return _this51.$wire.set(wireModelName, _this51.language);
+              case 3:
+                setTimeout(function () {
+                  return _this51.changing = false;
+                }, 1000);
+              case 4:
+              case "end":
+                return _context17.stop();
+            }
+          }, _callee17);
+        }))();
+      }
+    };
+  });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].directive("global", function (el, _ref4) {
     var expression = _ref4.expression;
     var f = new Function("_", "$data", "_." + expression + " = $data;return;");

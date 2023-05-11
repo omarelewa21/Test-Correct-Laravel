@@ -2303,6 +2303,20 @@ document.addEventListener("alpine:init", () => {
             }, 5000);
         }
     }));
+    Alpine.data("accountSettings", (language) => ({
+        openTab: 'account',
+        changing: false,
+        language,
+        init() {
+
+        },
+        async startLanguageChange(event, wireModelName) {
+            this.changing = true;
+            await this.$wire.set(wireModelName, this.language)
+            setTimeout(() => this.changing = false, 1000)
+
+        }
+    }));
     Alpine.directive("global", function(el, { expression }) {
         let f = new Function("_", "$data", "_." + expression + " = $data;return;");
         f(window, el._x_dataStack[0]);
