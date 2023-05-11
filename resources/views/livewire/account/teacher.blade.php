@@ -4,9 +4,20 @@
 >
     <header class="sticky flex flex-col justify-center top-0 w-full z-10">
         <div class="flex w-full px-4 items-center justify-center relative text-white z-10 h-[var(--header-height)] bg-gradient-to-r from-[var(--teacher-primary)] to-[var(--teacher-primary-light)] main-shadow">
-            <h4 class="text-white">@lang('account.account') @lang('account.settings')</h4>
+            <div class="relative flex justify-center items-center text-center">
+                <h4 class="text-white text-center duration-100 transition-opacity"
+                    x-on:language-loading-start.window="$el.classList.toggle('opacity-0')"
+                    x-on:language-loading-end.window="setTimeout(() => $el.classList.toggle('opacity-0'), 250)"
+                    wire:ignore.self
+                >@lang('account.account') @lang('account.settings')</h4>
 
-            <div class="absolute right-4 ">
+                <x-animations.loading-fade loadProperty="changing"
+                                           class="min-w-[250px] transform -translate-x-1/2 -translate-y-1/2 left-1/2 top-1/2"
+                                           color="blue"
+                />
+            </div>
+
+            <div class="absolute right-4">
                 <div class="flex items-center justify-center min-w-[40px] w-10 h-10 rounded-full bg-white/20 hover:scale-105 transition-transform cursor-pointer"
                      wire:click="redirectBack()"
                 >
@@ -15,17 +26,38 @@
             </div>
         </div>
 
-        <x-menu.tab.container class="w-full" :withTileEvents="true" max-width-class="max-w-[1040px] px-5">
-            <x-menu.tab.item tab="account" menu="openTab">@lang('account.account')</x-menu.tab.item>
-            <x-menu.tab.item tab="tests" menu="openTab">@lang('header.Toetsen')</x-menu.tab.item>
+        <x-menu.tab.container class="w-full"
+                              :withTileEvents="true"
+                              max-width-class="max-w-[1040px] px-5"
+                              x-bind:class="{'pointer-events-none': changing}">
+            <x-menu.tab.item tab="account" menu="openTab">
+                <span class="flex justify-center">
+                    @lang('account.account')
+                    <x-animations.loading-fade loadProperty="changing"
+                                               class="bg-lightGrey flex items-center min-w-[60px]"
+                                               color="blue"
+                    />
+                </span>
+            </x-menu.tab.item>
+            <x-menu.tab.item tab="tests" menu="openTab">
+                <span class="flex justify-center">
+                    @lang('header.Toetsen')
+                    <x-animations.loading-fade loadProperty="changing"
+                                               class="bg-lightGrey flex items-center min-w-[60px]" />
+                </span>
+            </x-menu.tab.item>
         </x-menu.tab.container>
     </header>
 
-    <div class="mx-auto max-w-[1040px] py-10 px-5 z-1">
+    <div class="mx-auto max-w-[1040px] py-10 px-5 z-1 isolate">
         {{-- Tab 'Account'--}}
         <div class="flex flex-col gap-8" x-show="openTab === 'account'">
             <div class="flex flex-col w-full gap-4">
-                <h2 class="flex">Test-Correct @lang('account.settings')</h2>
+                <div class="relative pl-0.5">
+                    <h2 class="flex">Test-Correct @lang('account.settings')</h2>
+                    <x-animations.loading-fade loadProperty="changing" class="bg-lightGrey w-1/2" />
+                </div>
+
                 <div class="content-section relative p-10 grid grid-cols-1 lg:grid-cols-2 gap-6 w-full overflow-hidden">
                     <div class="system-lang | flex flex-col">
                         <div class="flex flex-col">
@@ -61,20 +93,23 @@
                         </div>
                     </div>
 
-                    <div class="absolute inset-0 bg-white content-section p-10 grid grid-cols-1 lg:grid-cols-2 gap-6"
-                         x-show="changing"
-                         x-transition>
+                    <x-animations.loading-fade loadProperty="changing"
+                                               class=" bg-white content-section p-10 grid grid-cols-1 lg:grid-cols-2 gap-6"
+                    >
                         <div class="h-[50px] flex items-center w-full">
                             <x-knightrider />
                         </div>
                         <div class="h-[50px] flex items-center w-full">
                             <x-knightrider />
                         </div>
-                    </div>
+                    </x-animations.loading-fade>
                 </div>
             </div>
             <div class="flex flex-col w-full gap-4">
-                <h2 class="flex">@lang('account.Jouw profiel') - @lang('account.docent account')</h2>
+                <div class="relative pl-0.5">
+                    <h2 class="flex">@lang('account.Jouw profiel') - @lang('account.docent account')</h2>
+                    <x-animations.loading-fade loadProperty="changing" class="bg-lightGrey w-1/2" />
+                </div>
 
                 <div class="content-section relative p-10 grid grid-cols-1 lg:grid-cols-2 gap-6">
                     @unless($this->canEditProfile)
@@ -146,7 +181,8 @@
                                     <x-input.text class="w-full" wire:model.debounce="userData.name_first"
                                                   :disabled="!$this->canEditProfile" />
                                 </x-input.group>
-                                <x-input.group :label="__('onboarding.Tussenv.')">
+                                <x-input.group :label="__('onboarding.Tussenv.')"
+                                               title="{{ __('onboarding.Tussenvoegsel') }}">
                                     <x-input.text class="w-20" wire:model.debounce="userData.name_suffix"
                                                   :disabled="!$this->canEditProfile" />
                                 </x-input.group>
@@ -212,14 +248,20 @@
                             <span class="bold">{{ $this->classes['string'] }}</span>
                         </div>
                     </div>
-                    <div class="absolute inset-0 bg-white content-section p-10 grid grid-cols-1 lg:grid-cols-2 gap-6"
-                         x-show="changing"
-                         x-transition
+
+                    {{-- Language change loading skelleton --}}
+                    <x-animations.loading-fade loadProperty="changing"
+                                               class=" bg-white content-section p-10 grid grid-cols-1 lg:grid-cols-2 gap-6"
                     >
+
                         @unless($this->canEditProfile)
                             <div class="col-span-1 lg:col-span-2">
-                                <div class="notification info stretched min-h-[58px] flex items-center w-full">
-                                    <x-knightrider />
+                                <div @class([
+                                    'notification info stretched  flex items-center w-full',
+                                    'min-h-[58px]' => !$this->editRestriction === 'lvs',
+                                    'min-h-[90px]' => $this->editRestriction === 'lvs',
+                                    ])>
+                                    <x-knightrider color="blue" />
                                 </div>
                             </div>
                         @endif
@@ -231,16 +273,16 @@
 
                                     </div>
                                     <span class="min-w-[30px]">
-                                    <x-knightrider />
-                                </span>
+                                        <x-knightrider />
+                                    </span>
                                 </div>
                                 <div class="flex space-x-2 items-center">
                                     <div class="flex w-[46px] h-[46px] rounded-full bg-lightGrey items-center justify-center overflow-hidden">
 
                                     </div>
                                     <span class="min-w-[30px]">
-                                    <x-knightrider />
-                                </span>
+                                        <x-knightrider />
+                                    </span>
                                 </div>
                                 <div class="flex flex-1 space-x-2 items-center">
                                     <div class="flex w-[46px] min-w-[46px] h-[46px] rounded-full bg-lightGrey items-center justify-center overflow-hidden">
@@ -248,8 +290,8 @@
                                     </div>
 
                                     <span class="min-w-[30px] w-full flex">
-                                    <x-knightrider />
-                                </span>
+                                        <x-knightrider />
+                                    </span>
                                 </div>
                             </div>
 
@@ -274,16 +316,15 @@
                             </div>
                         </div>
 
-                        <div class="flex flex-col gap-4 col-span-1">
+                        <div class="flex flex-col gap-4 col-span-1 self-start">
                             <div class="picture | flex gap-4 items-center">
                                 <div class="flex w-[46px] h-[46px] rounded-full bg-lightGrey items-center justify-center overflow-hidden">
 
                                 </div>
 
-                                <x-button.primary disabled size="sm" class="h-10">
-                                    <x-icon.upload />
-                                    <span>Profielfoto uploaden</span>
-                                </x-button.primary>
+                                <div class="rounded-10 h-[40px] w-[250px] flex bg-lightGrey">
+
+                                </div>
                             </div>
 
                             <div class="password | flex flex-col gap-2"
@@ -295,10 +336,9 @@
                                     </div>
                                 </div>
                                 <div>
-                                    <x-button.primary class="" wire:click="$emit('openModal', 'change-password')">
-                                        <x-icon.edit />
-                                        <span>@lang('header.Wachtwoord wijzigen')</span>
-                                    </x-button.primary>
+                                    <div class="rounded-10 h-[40px] w-[250px] flex bg-lightGrey">
+
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -317,7 +357,7 @@
                                 <span class="h-6"><x-knightrider /></span>
                             </div>
                         </div>
-                    </div>
+                    </x-animations.loading-fade>
                 </div>
             </div>
         </div>
@@ -327,7 +367,7 @@
         <div class="flex flex-col gap-8" x-show="openTab === 'tests'">
             <div class="flex flex-col items-center w-full">
                 <h3 class="semi-bold">@lang('account.test_header_info_text')</h3>
-                <span class="text-sm">@lang('account.test_header_info_subtext')</span>
+                <span class="text-sm">@lang('account.test_header_info_subtext') {{ $this->locationName }}</span>
             </div>
 
             <div class="flex flex-col w-full gap-4">

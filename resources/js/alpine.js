@@ -2311,9 +2311,15 @@ document.addEventListener("alpine:init", () => {
 
         },
         async startLanguageChange(event, wireModelName) {
+            this.$dispatch('language-loading-start');
             this.changing = true;
             await this.$wire.set(wireModelName, this.language)
-            setTimeout(() => this.changing = false, 1000)
+            this.$nextTick(() => {
+                setTimeout(() => {
+                    this.changing = false;
+                    this.$dispatch('language-loading-end');
+                }, 1500)
+            })
 
         }
     }));

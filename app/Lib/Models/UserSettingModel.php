@@ -212,15 +212,13 @@ abstract class UserSettingModel extends Model
 
     private static function isJson($value): bool
     {
+        if (is_null($value)) return false;
         json_decode($value);
         return json_last_error() === JSON_ERROR_NONE;
     }
 
     private static function getTitleValue(string|FeatureSettingKey $title): string
     {
-        if ($title instanceof FeatureSettingKey) {
-            return $title->value;
-        }
-        return $title;
+        return $title instanceof FeatureSettingKey ? $title->value : $title;
     }
 }

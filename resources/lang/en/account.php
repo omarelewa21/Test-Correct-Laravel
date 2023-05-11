@@ -30,7 +30,7 @@ return [
     'Cijfers tonen'                                           => 'Show grades',
     'Toon antwoordmodel'                                      => 'Show correction model',
     'uneditable_title_lvs'                                    => 'Your profile information is copied from the connection between Entree and your student information system',
-    'uneditable_text_lvs'                                     => 'Your profile information is copied from the connection between Entree and your student information system. Your profile information is copied from the connection between Entree and your student information system. You can’t change that here. Go to that system to change your profile information.',
+    'uneditable_text_lvs'                                     => 'Your profile information is copied from the connection between Entree and your student information system. You can’t change that here. Go to that system to change your profile information.',
     'uneditable_title_license'                                => 'Your profile is managed by your school and can not be edited directly.',
     'Jouw scholen'                                            => '[0,1]Your school|[2,*]Your schools',
     'Jouw vakken'                                             => '[0,1]Your subject|[2,*]Your subjects',

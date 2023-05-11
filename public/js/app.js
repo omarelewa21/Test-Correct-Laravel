@@ -7944,14 +7944,18 @@ document.addEventListener("alpine:init", function () {
           return _regeneratorRuntime().wrap(function _callee17$(_context17) {
             while (1) switch (_context17.prev = _context17.next) {
               case 0:
+                _this51.$dispatch('language-loading-start');
                 _this51.changing = true;
-                _context17.next = 3;
+                _context17.next = 4;
                 return _this51.$wire.set(wireModelName, _this51.language);
-              case 3:
-                setTimeout(function () {
-                  return _this51.changing = false;
-                }, 1000);
               case 4:
+                _this51.$nextTick(function () {
+                  setTimeout(function () {
+                    _this51.changing = false;
+                    _this51.$dispatch('language-loading-end');
+                  }, 1500);
+                });
+              case 5:
               case "end":
                 return _context17.stop();
             }

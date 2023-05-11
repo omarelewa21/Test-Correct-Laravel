@@ -27,6 +27,7 @@ class Teacher extends Component
     public array $subjects;
     public array $locations;
     public array $classes;
+    public string $locationName;
     public Collection $systemLanguages;
     public Collection $wscLanguages;
     public Collection $gradingStandards;
@@ -95,7 +96,7 @@ class Teacher extends Component
         $schoolLocation = $this->user->schoolLocation;
         $this->canEditProfile = !$schoolLocation->lvs_active && !$schoolLocation->hasClientLicense();
         if (!$this->canEditProfile) {
-            $this->editRestriction = $schoolLocation->lvs_active ? 'lvs' : 'license';
+            $this->editRestriction = 'lvs';//$schoolLocation->lvs_active ? 'lvs' : 'license';
         }
     }
 
@@ -114,6 +115,8 @@ class Teacher extends Component
 
     private function setProfileSchoolLocationData(): void
     {
+        $this->user->load('schoolLocation:id,name');
+        $this->locationName = $this->user->schoolLocation->name;
         collect([
             'subjects'  => $this->user->subjects()->pluck('name'),
             'locations' => SchoolLocationUser::where('school_location_user.user_id', $this->user->getKey())
