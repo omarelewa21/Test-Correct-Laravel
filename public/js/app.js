@@ -7697,8 +7697,11 @@ document.addEventListener("alpine:init", function () {
         el.style.setProperty("--slider-thumb-offset", "calc(".concat(offsetFromCenter, "% + 1px)"));
       },
       setSliderBackgroundSize: function setSliderBackgroundSize(el) {
-        el.style.setProperty("--slider-thumb-offset", "".concat(25 / 100 * this.getSliderBackgroundSize(el) - 12.5, "px"));
-        el.style.setProperty("--slider-background-size", "".concat(this.getSliderBackgroundSize(el), "%"));
+        var _this47 = this;
+        this.$nextTick(function () {
+          el.style.setProperty("--slider-thumb-offset", "".concat(25 / 100 * _this47.getSliderBackgroundSize(el) - 12.5, "px"));
+          el.style.setProperty("--slider-background-size", "".concat(_this47.getSliderBackgroundSize(el), "%"));
+        });
       },
       syncInput: function syncInput() {
         // Don't update if the value is the same;
@@ -7716,45 +7719,42 @@ document.addEventListener("alpine:init", function () {
         }
       },
       init: function init() {
-        var _this47 = this;
+        var _this48 = this;
         if (coLearning) {
           Livewire.hook("message.received", function (message, component) {
             var _message$updateQueue$;
             if (component.name === "student.co-learning" && ((_message$updateQueue$ = message.updateQueue[0]) === null || _message$updateQueue$ === void 0 ? void 0 : _message$updateQueue$.method) === "updateHeartbeat") {
-              var scoreInputElement = _this47.$root.querySelector("[x-ref='scoreInput']");
-              _this47.persistentScore = scoreInputElement !== null && scoreInputElement.value !== "" ? scoreInputElement.value : null;
+              var scoreInputElement = _this48.$root.querySelector("[x-ref='scoreInput']");
+              _this48.persistentScore = scoreInputElement !== null && scoreInputElement.value !== "" ? scoreInputElement.value : null;
             }
           });
           Livewire.hook("message.processed", function (message, component) {
             var _message$updateQueue$2;
             if (component.name === "student.co-learning" && ((_message$updateQueue$2 = message.updateQueue[0]) === null || _message$updateQueue$2 === void 0 ? void 0 : _message$updateQueue$2.method) === "updateHeartbeat") {
-              _this47.skipSync = true;
-              _this47.score = _this47.persistentScore;
+              _this48.skipSync = true;
+              _this48.score = _this48.persistentScore;
             }
           });
         }
         this.inputBox = this.$root.querySelector("[x-ref='scoreInput']");
         this.$watch("score", function (value, oldValue) {
-          _this47.markInputElementsClean();
-          if (_this47.disabled || value === oldValue || _this47.skipSync) {
-            _this47.skipSync = false;
+          _this48.markInputElementsClean();
+          if (_this48.disabled || value === oldValue || _this48.skipSync) {
+            _this48.skipSync = false;
             return;
           }
-          if (value >= _this47.maxScore) {
-            _this47.score = value = _this47.maxScore;
+          if (value >= _this48.maxScore) {
+            _this48.score = value = _this48.maxScore;
           }
           if (value <= 0) {
-            _this47.score = value = 0;
+            _this48.score = value = 0;
           }
-          _this47.score = value = _this47.halfPoints ? Math.round(value * 2) / 2 : Math.round(value);
-          var numberInput = _this47.$root.querySelector("[x-ref='score_slider_continuous_input']");
-          if (numberInput !== null) {
-            _this47.setSliderBackgroundSize(numberInput);
-          }
+          _this48.score = value = _this48.halfPoints ? Math.round(value * 2) / 2 : Math.round(value);
+          _this48.updateContinuousSlider();
         });
         if (focusInput) {
           this.$nextTick(function () {
-            _this47.inputBox.focus();
+            _this48.inputBox.focus();
           });
         }
       },
@@ -7767,6 +7767,15 @@ document.addEventListener("alpine:init", function () {
         if (this.disabled) return;
         this.inputBox.classList.add("border-blue-grey");
         this.inputBox.classList.remove("border-allred");
+      },
+      getContinuousInput: function getContinuousInput() {
+        return this.$root.querySelector("[x-ref='score_slider_continuous_input']");
+      },
+      updateContinuousSlider: function updateContinuousSlider() {
+        var numberInput = this.getContinuousInput();
+        if (numberInput !== null) {
+          this.setSliderBackgroundSize(numberInput);
+        }
       }
     };
   });
@@ -7775,7 +7784,7 @@ document.addEventListener("alpine:init", function () {
       minWidth: 120,
       maxWidth: 1000,
       setInputWidth: function setInputWidth(input) {
-        var _this48 = this;
+        var _this49 = this;
         var init = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
         var preview = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
         if (!init || preview) {
@@ -7786,8 +7795,8 @@ document.addEventListener("alpine:init", function () {
           if (!value) {
             return;
           }
-          _this48.$nextTick(function () {
-            _this48.calculateInputWidth(input);
+          _this49.$nextTick(function () {
+            _this49.calculateInputWidth(input);
           });
         });
       },
@@ -7842,23 +7851,23 @@ document.addEventListener("alpine:init", function () {
       inModal: false,
       show: false,
       init: function init() {
-        var _this49 = this;
+        var _this50 = this;
         this.setHeightProperty();
         this.inModal = this.$root.closest("#modal-container") !== null;
         this.$watch("tooltip", function (value) {
           if (value) {
             var ignoreLeft = false;
-            if (alwaysLeft || _this49.tooltipTooWideForPosition()) {
-              _this49.$refs.tooltipdiv.classList.remove("left-1/2", "-translate-x-1/2");
-              _this49.$refs.tooltipdiv.classList.add("right-0");
+            if (alwaysLeft || _this50.tooltipTooWideForPosition()) {
+              _this50.$refs.tooltipdiv.classList.remove("left-1/2", "-translate-x-1/2");
+              _this50.$refs.tooltipdiv.classList.add("right-0");
               ignoreLeft = true;
             }
-            _this49.$refs.tooltipdiv.style.top = _this49.getTop();
-            _this49.$refs.tooltipdiv.style.left = _this49.getLeft(ignoreLeft);
+            _this50.$refs.tooltipdiv.style.top = _this50.getTop();
+            _this50.$refs.tooltipdiv.style.left = _this50.getLeft(ignoreLeft);
           }
         });
         this.$nextTick(function () {
-          return _this49.show = true;
+          return _this50.show = true;
         });
       },
       getTop: function getTop() {
@@ -7889,12 +7898,12 @@ document.addEventListener("alpine:init", function () {
         this.$refs.tooltipdiv.style.left = this.getLeft();
       },
       setHeightProperty: function setHeightProperty() {
-        var _this50 = this;
+        var _this51 = this;
         this.tooltip = true;
         this.$nextTick(function () {
-          _this50.height = _this50.$refs.tooltipdiv.offsetHeight;
-          _this50.tooltip = false;
-          _this50.$refs.tooltipdiv.classList.remove("invisible");
+          _this51.height = _this51.$refs.tooltipdiv.offsetHeight;
+          _this51.tooltip = false;
+          _this51.$refs.tooltipdiv.classList.remove("invisible");
         });
       },
       tooltipTooWideForPosition: function tooltipTooWideForPosition() {
@@ -7916,16 +7925,16 @@ document.addEventListener("alpine:init", function () {
       navScrollBar: null,
       initialized: false,
       init: function init() {
-        var _this51 = this;
+        var _this52 = this;
         this.navScrollBar = this.$root.querySelector('#navscrollbar');
         this.$nextTick(function () {
-          _this51.$root.querySelector(".active").scrollIntoView({
+          _this52.$root.querySelector(".active").scrollIntoView({
             behavior: "smooth"
           });
-          _this51.totalScrollWidth = _this51.$root.offsetWidth;
-          _this51.resize();
-          _this51.initialized = true;
-          _this51.slideToActiveQuestionBubble();
+          _this52.totalScrollWidth = _this52.$root.offsetWidth;
+          _this52.resize();
+          _this52.initialized = true;
+          _this52.slideToActiveQuestionBubble();
         });
       },
       resize: function resize() {
@@ -7963,11 +7972,11 @@ document.addEventListener("alpine:init", function () {
         });
       },
       startIntersectionCountdown: function startIntersectionCountdown() {
-        var _this52 = this;
+        var _this53 = this;
         clearTimeout(this.intersectionCountdown);
         this.intersectionCountdown = setTimeout(function () {
-          clearTimeout(_this52.intersectionCountdown);
-          _this52.slideToActiveQuestionBubble();
+          clearTimeout(_this53.intersectionCountdown);
+          _this53.slideToActiveQuestionBubble();
         }, 5000);
       }
     };
