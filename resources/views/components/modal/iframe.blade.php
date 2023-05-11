@@ -79,7 +79,7 @@
         </div>
         <div class="flex justify-end px-2.5">
             <div class="space-x-3">
-                <x-button.primary @click="show = false;">{{ __('drawing-modal.Sluiten') }}</x-button.primary>
+                <x-button.primary @click="show = false;"><span>{{ __('drawing-modal.Sluiten') }}</span></x-button.primary>
             </div>
         </div>
     </div>

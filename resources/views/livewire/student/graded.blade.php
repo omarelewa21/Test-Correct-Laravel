@@ -71,7 +71,9 @@
                                 </x-table.cell>
                                 @if($this->testTakeReviewable($testTake))
                                     <x-table.cell buttonCell class="text-right">
-                                        <x-button.cta>{{ __('student.review') }}</x-button.cta>
+                                        <x-button.cta>
+                                            <span>{{ __('student.review') }}</span>
+                                        </x-button.cta>
                                     </x-table.cell>
                                 @else
                                     <x-table.cell/>

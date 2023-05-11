@@ -65,7 +65,7 @@
                                             <span>{{__("student.Bespreken")}}</span>
                                         </x-button.cta>
 {{--                                    @else--}}
-{{--                                        <x-button.cta selid="dashboard-start-take-button" disabled>{{__("student.Bespreken")}}</x-button.cta>--}}
+{{--                                        <x-button.cta selid="dashboard-start-take-button" disabled><span>{{__("student.Bespreken")}}</span></x-button.cta>--}}
 {{--                                    @endif--}}
                                 </x-table.cell>
                             </x-table.row>
