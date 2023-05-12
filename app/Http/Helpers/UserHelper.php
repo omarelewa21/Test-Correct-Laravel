@@ -120,10 +120,10 @@ class UserHelper
 
         $user->setAttribute('temporaryLoginOptions', TemporaryLogin::getOptionsForUser($user));
 
-        $userSystemSettings = UserSystemSetting::getAll(user: $user, sessionStore: true);
+        $userSystemSettings = UserSystemSetting::getAll(user: $user, sessionStore: true, clean: true);
         $user->setAttribute('systemSettings', $userSystemSettings);
 
-        $user->setAttribute('featureSettings', UserFeatureSetting::getAll(user: $user, sessionStore: true));
+        $user->setAttribute('featureSettings', UserFeatureSetting::getAll(user: $user, sessionStore: true, clean: true));
 
         $latestFeatureTimestamp = (int) Info::getLatestFeature()?->created_at?->timestamp;
         $user->setAttribute('shouldShowNewFeaturePopup',

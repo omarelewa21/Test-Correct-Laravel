@@ -27,8 +27,10 @@ abstract class UserSettingModel extends Model
     public static function getAll(
         User $user,
         bool $sessionOnly = false,
-        bool $sessionStore = false
+        bool $sessionStore = false,
+        bool $clean = false,
     ): array {
+        if ($clean) static::clearSession($user);
         return static::retrieveSettings($user, $sessionOnly, $sessionStore);
     }
 
