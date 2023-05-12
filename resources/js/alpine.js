@@ -2047,6 +2047,15 @@ document.addEventListener("alpine:init", () => {
         },
         openFeedbackTab() {
             this.tab(2);
+            this.$nextTick(() => {
+                let editorDiv = this.$root.querySelector(".feedback textarea");
+                if (editorDiv) {
+                    let editor = ClassicEditors[editorDiv.getAttribute("name")];
+                    if (editor) {
+                        setTimeout(() => editor.focus(), 320); // Await slide animation, otherwise it breaks;
+                    }
+                }
+            });
         }
     }));
     Alpine.data("scoreSlider", (score, model, maxScore, halfPoints, disabled, coLearning, focusInput) => ({
