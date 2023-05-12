@@ -1,7 +1,7 @@
 <x-partials.co-learning-question-container :question="$question"
 >
     <div class="w-full flex items-center justify-center border border-blue-grey rounded-10">
-        <div class="relative w-full block " x-init="setHeightToAspectRatio($el)" wire:ignore.self>
+        <div class="relative w-full block " x-data="drawingQuestionImagePreview" x-init="setHeightToAspectRatio($el)" wire:ignore.self>
             @if($answered)
                 <img src="{{ $imgSrc }}"
                      class="block m-auto inset-0 absolute max-h-full"

@@ -10266,7 +10266,9 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     } finally {
       _iterator2.f();
     }
-    if (element.nodeName === "TEXT" && !attributes["data-textcontent"]) attributes["data-textcontent"] = element.textContent;
+    if (element.nodeName === "TEXT" && !attributes["data-textcontent"]) {
+      attributes["data-textcontent"] = encodeURI(element.textContent);
+    }
     return attributes;
   }
   function calculateCanvasBounds() {
@@ -13291,6 +13293,10 @@ var Text = /*#__PURE__*/function (_svgElement6) {
   }, {
     key: "setTextContent",
     value: function setTextContent(text) {
+      var shouldDecodeText = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+      if (shouldDecodeText) {
+        text = decodeURI(text);
+      }
       this.element.textContent = text;
     }
 
@@ -14063,7 +14069,7 @@ var Text = /*#__PURE__*/function (_svgShape4) {
           _this5.cancelConstruction();
           return;
         }
-        _this5.mainElement.setTextContent(text);
+        _this5.mainElement.setTextContent(text, false);
         _this5.mainElement.setFontFamily('Nunito');
         _this5.updateBorderElement();
         _this5.updateCornerElements();
