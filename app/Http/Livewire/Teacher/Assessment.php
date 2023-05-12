@@ -816,7 +816,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         $this->questionNavigationValue = $this->getNavigationValueForQuestion($previouslyAssessedQuestion);
         $this->answerNavigationValue = $this->students->search(
                 $this->answers
-                    ->discrepancyFiltered((bool)$this->assessmentContext['skipCoLearningNoDiscrepancies'])
+                    ->discrepancyFiltered((bool)$this->assessmentContext['assessment_skip_no_discrepancy_answer'])
                     ->where('question_id', $previouslyAssessedQuestion->id)
                     ->first()
                     ->test_participant_id
