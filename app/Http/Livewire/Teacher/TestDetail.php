@@ -3,15 +3,13 @@
 namespace tcCore\Http\Livewire\Teacher;
 
 use Illuminate\Support\Facades\Gate;
-use Livewire\Component;
 use tcCore\GroupQuestion;
+use tcCore\Http\Livewire\TCComponent;
 use tcCore\Question;
 use tcCore\Test;
 use tcCore\TestTake;
-use tcCore\TemporaryLogin;
-use Illuminate\Support\Arr;
 
-class TestDetail extends Component
+class TestDetail extends TCComponent
 {
     public $uuid;
     protected $test;

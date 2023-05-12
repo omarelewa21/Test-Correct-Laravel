@@ -3,10 +3,9 @@
 namespace tcCore\Http\Livewire;
 
 use Illuminate\Support\Str;
-use Livewire\Component;
 use tcCore\Tag;
 
-class TagManager extends Component
+class TagManager extends TCComponent
 {
     public $initWithTags = [];
     public $query;

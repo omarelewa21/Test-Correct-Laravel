@@ -24,9 +24,9 @@ $struct = [
         <div><h1>UWLR Grid</h1></div>
         <div class="flex-shrink-0">
             @if(\Illuminate\Support\Str::contains(url()->current(),'testwelcome'))
-                <x-button.cta class="" wire:click="deleteImportData">Delete Import data</x-button.cta>
+                <x-button.cta class="" wire:click="deleteImportData"><span>Delete Import data</span></x-button.cta>
             @endif
-            <x-button.primary class="" wire:click="newImport">Import</x-button.primary>
+            <x-button.primary class="" wire:click="newImport"><span>Import</span></x-button.primary>
         </div>
     </div>
 
@@ -252,7 +252,7 @@ $struct = [
                     </div>
                 </div>
 
-                <x-button.primary wire:click="startProcessingResult">Start</x-button.primary>
+                <x-button.primary wire:click="startProcessingResult"><span>Start</span></x-button.primary>
             </div>
         </x-slot>
         <x-slot name="actionButton">&nbsp;</x-slot>

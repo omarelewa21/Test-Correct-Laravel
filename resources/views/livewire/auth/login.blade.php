@@ -10,13 +10,17 @@
     </div>
 
     <div id="login-body" class="flex justify-center items-center flex-grow"
-         x-data="loginScreen(@entangle('login_tab'),@entangle('active_overlay'),@entangle('device'))"
-
+         x-data="loginScreen(
+                 @entangle('login_tab'),
+                 @entangle('active_overlay'),
+                 @entangle('device'),
+                 @js(array_keys($errors->getMessages()))
+                 )"
          wire:ignore.self
+         wire:key="has-errors-@js(implode(array_keys($errors->getMessages())))"
     >
+
         <div class="w-full max-w-[540px] mx-4 py-4">
-
-
             @if($tab == 'login')
                 {{-- top content block height:120px --}}
                 <div class="bg-white rounded-t-[10px] px-10 pt-[31px] pb-0 shadow-lg flex flex-col relative border-b border-secondary">
@@ -118,7 +122,8 @@
                                                                     x-show="(showPassword && !hoverPassword) || (!showPassword && hoverPassword)"/>
                                                 </div>
                                             </div>
-                                            <x-input.text wire:model.lazy="password"
+                                            <x-input.text data-focus-tab-error="1-password"
+                                                          wire:model.lazy="password"
                                                           selid="login-password"
                                                           x-bind:type="showPassword ? 'text' : 'password'"
                                                           class="pr-12 overflow-ellipsis"
@@ -261,7 +266,7 @@
                                         </div>
                                     @endif
                                     <div class="flex mt-auto pt-4">
-                                        <x-button.cta selid="login-btn" class="flex flex-grow justify-center" size="md">
+                                        <x-button.cta @click="setCurrentFocusInput();"  selid="login-btn" class="flex flex-grow justify-center" size="md">
                                             <span>{{ __('auth.log_in_verb') }}</span>
                                         </x-button.cta>
                                     </div>
@@ -281,7 +286,7 @@
                                         </x-input.group>
                                     </div>
                                     <x-input.group label="{{ __('auth.last_name')}}" class="mt-4">
-                                        <x-input.text selid="test-direct-lastname" wire:model.lazy="lastName" autofocus></x-input.text>
+                                        <x-input.text data-focus-tab-error="2-empty_guest_last_name" selid="test-direct-lastname" wire:model.lazy="lastName" autofocus></x-input.text>
                                     </x-input.group>
                                     <div class="flex-1 ">
                                         <div class="mx-auto flex flex-col">
@@ -375,8 +380,8 @@
                                     </div>
 
                                     <div class="flex mt-auto pt-4">
-                                        <x-button.cta selid="test-direct-login-btn" class="flex flex-grow justify-center" size="md">
-                                            <span>{{ __('auth.log_in_verb') }}</span>
+                                        <x-button.cta @click="setCurrentFocusInput();"  selid="test-direct-login-btn" class="flex flex-grow justify-center" size="md">
+                                           <span>{{ __('auth.log_in_verb') }}</span>
                                         </x-button.cta>
                                     </div>
                                 </form>
@@ -388,9 +393,9 @@
 
                         <div class="flex flex-col flex-1 space-y-2 items-center">
                             <div>
-                        <span>
-                            {{__('auth.do_you_have_an_entree_account')}}
-                        </span>
+                                <span>
+                                    {{__('auth.do_you_have_an_entree_account')}}
+                                </span>
                             </div>
                             <x-button.primary type="link" class="" size="md" selid="entree-login-btn"
                                               href="{{ route('saml2_login', ['entree','directlink' => $take]) }}">
@@ -409,14 +414,14 @@
                         <x-icon.arrow/>
                     </x-button.text-button>
                 </div>
-                <div browser wire:ignore>
+                <div x-show="Core.appType == ''" wire:ignore>
                         <x-button.text-button selid="login-create-account-btn" class="order-1" size="sm"
                                               type="link" href="https://www.test-correct.nl/welcome">
                             <span class="text-base">{{__('auth.Maak account')}}</span>
                             <x-icon.arrow/>
                         </x-button.text-button>
                 </div>
-                <div browser wire:ignore>
+                <div x-show="Core.appType == ''" wire:ignore x-show="Core.appType == ''">
                     <x-button.text-button selid="login-download-app-btn" size="sm" type="link" href="{{ $this->studentDownloadUrl }}">
                         <span class="text-base">{{__('auth.download')}}</span>
                         <x-icon.arrow/>
@@ -781,3 +786,4 @@
         }
     </script>
 @endpush
+

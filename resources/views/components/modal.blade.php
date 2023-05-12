@@ -1,4 +1,4 @@
-@props(['id', 'maxWidth', 'showCancelButton'=> true,])
+@props(['id', 'maxWidth', 'showCancelButton'=> true, 'customFooter'=> false, ])
 
 @php
     $id = $id ?? md5($attributes->wire('model'));
@@ -78,16 +78,20 @@
         <div class="px-2.5 body1 mb-5">
             {{ $body }}
         </div>
-        <div class="flex justify-end px-2.5">
-            <div class="space-x-3">
-                @if ($showCancelButton)
-                    <x-button.text-button @click="show = false" class="rotate-svg-180">
-                        <x-icon.chevron/>
-                        <span>{{ __("modal.Terug") }}</span>
-                    </x-button.text-button>
-                @endif
-                {{ $actionButton }}
+        @if ($customFooter)
+            {{ $customFooter }}
+        @else
+            <div class="flex justify-end px-2.5">
+                <div class="space-x-3">
+                    @if ($showCancelButton)
+                        <x-button.text-button @click="show = false" class="rotate-svg-180">
+                            <x-icon.chevron/>
+                            <span>{{ __("modal.Terug") }}</span>
+                        </x-button.text-button>
+                    @endif
+                    {{ $actionButton }}
+                </div>
             </div>
-        </div>
+        @endif
     </div>
 </div>

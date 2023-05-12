@@ -3,10 +3,10 @@
 namespace tcCore\Http\Livewire\Teacher;
 
 use Illuminate\Support\Facades\Auth;
-use LivewireUI\Modal\ModalComponent;
+use tcCore\Http\Livewire\TCModalComponent;
 use tcCore\SchoolLocation;
 
-class SchoollocationSwitcherModal extends ModalComponent
+class SchoollocationSwitcherModal extends TCModalComponent
 {
     public function switchToSchoolLocation($uuid) {
         $schoolLocation = SchoolLocation::whereUuid($uuid)->first();

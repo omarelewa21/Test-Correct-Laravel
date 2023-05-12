@@ -2,9 +2,9 @@
 
 namespace tcCore\Http\Livewire\CoLearning;
 
-use Livewire\Component;
+use tcCore\Http\Livewire\TCComponent;
 
-class Header extends Component
+class Header extends TCComponent
 {
     public $testName;
 

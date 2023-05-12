@@ -3,12 +3,11 @@
 namespace tcCore\Http\Livewire;
 
 use Illuminate\Support\Collection;
-use Livewire\Component;
 use tcCore\AnswerRating;
 use tcCore\Exceptions\AssessmentException;
 use tcCore\TestTake;
 
-abstract class EvaluationComponent extends Component
+abstract class EvaluationComponent extends TCComponent
 {
     /*Template properties*/
     public string $testName = '';
@@ -76,7 +75,14 @@ abstract class EvaluationComponent extends Component
     {
         return $this->studentRatings()
             ->each(function ($answerRating) {
-                $answerRating->displayRating = $this->currentQuestion->decimal_score ? (float)$answerRating->rating : (int)$answerRating->rating;
+                $answerRating->user ??= \tcCore\User::getDeletedNewUser();
+                $rating = '-';
+                if (!is_null($answerRating->rating)) {
+                    $rating = $this->currentQuestion->decimal_score
+                        ? (float)$answerRating->rating
+                        : (int)$answerRating->rating;
+                }
+                $answerRating->displayRating = $rating;
             });
     }
 

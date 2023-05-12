@@ -64,4 +64,14 @@ trait WithPlanningFeatures
         $plannable['show_grades'] = $featureSettings[UserFeatureSettingEnum::REVIEW_SHOW_GRADES->value];
         $plannable['show_correction_model'] = $featureSettings[UserFeatureSettingEnum::REVIEW_SHOW_CORRECTION_MODEL->value];
     }
+
+    /**
+     * Show spell checker toggle if user is allowed to use it and test contains writing questions.
+     *
+     * @return bool
+     */
+    public function showSpellCheckerToggle(): bool
+    {
+        return $this->test->getAllowWscForStudentsAttribute();
+    }
 }

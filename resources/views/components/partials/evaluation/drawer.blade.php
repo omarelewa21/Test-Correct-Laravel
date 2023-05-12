@@ -34,7 +34,7 @@
                             'hover:text-primary hover:bg-primary/5 cursor-pointer' => !$feedbackTabDisabled,
                                 ])
                     @if(!$feedbackTabDisabled)
-                        x-on:click="tab(2)"
+                        x-on:click="openFeedbackTab()"
                         x-bind:class="{'primary border-primary': activeTab === 2}"
                     @endif
                     title="@lang('assessment.Feedback')"
@@ -59,7 +59,7 @@
             </buttons>
         </div>
         <div id="slide-container"
-             class="slide-container | flex h-full max-w-[var(--sidebar-width)] overflow-x-hidden overflow-y-auto"
+             class="slide-container | flex h-full max-w-[var(--sidebar-width)] overflow-x-hidden overflow-y-auto hide-scrollbar"
              wire:ignore.self
              wire:key="slide-container-{{ $uniqueKey }}"
              x-on:scroll="closeTooltips()"

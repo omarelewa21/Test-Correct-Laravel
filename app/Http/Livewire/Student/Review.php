@@ -4,15 +4,15 @@ namespace tcCore\Http\Livewire\Student;
 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
-use Livewire\Component;
 use Livewire\WithPagination;
 use tcCore\Events\NewTestTakeReviewable;
+use tcCore\Http\Livewire\TCComponent;
 use tcCore\Http\Traits\WithSorting;
 use tcCore\Http\Traits\WithStudentTestTakes;
 use tcCore\TestTake;
 use tcCore\TestTakeStatus;
 
-class Review extends Component
+class Review extends TCComponent
 {
     use WithPagination, WithStudentTestTakes, WithSorting;
    

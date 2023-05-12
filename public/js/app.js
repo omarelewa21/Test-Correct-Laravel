@@ -6879,6 +6879,7 @@ document.addEventListener("alpine:init", function () {
           target.dataset.active = true;
           target.firstElementChild.classList.add("text-primary");
           _this25.handle.classList.remove("hidden");
+          _this25.handle.classList.add("block");
         });
       },
       resetButtons: function resetButtons(target) {
@@ -7224,7 +7225,7 @@ document.addEventListener("alpine:init", function () {
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("loginScreen", function (openTab, activeOverlay, device) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("loginScreen", function (openTab, activeOverlay, device, hasErrors) {
     return {
       openTab: openTab,
       showPassword: false,
@@ -7233,12 +7234,16 @@ document.addEventListener("alpine:init", function () {
       showEntreePassword: false,
       activeOverlay: activeOverlay,
       device: device,
+      hasErrors: hasErrors,
       init: function init() {
         var _this31 = this;
         setTimeout(function () {
           _this31.$wire.checkLoginFieldsForInput();
         }, 250);
         this.setCurrentFocusInput();
+        this.$watch('hasErrors', function (value) {
+          _this31.setCurrentFocusInput();
+        });
         this.$watch("activeOverlay", function (value) {
           _this31.setCurrentFocusInput();
         });
@@ -7248,10 +7253,11 @@ document.addEventListener("alpine:init", function () {
       },
       setCurrentFocusInput: function setCurrentFocusInput() {
         var _this32 = this;
-        var name = "" != this.activeOverlay ? this.activeOverlay : this.openTab;
+        var name = '' != this.activeOverlay ? this.activeOverlay : this.openTab;
+        var finder = '' != hasErrors ? "[data-focus-tab-error = '".concat(name, "-").concat(hasErrors[0], "']") : "[data-focus-tab = '".concat(name, "']");
         setTimeout(function () {
           var _this32$$root$querySe;
-          return (_this32$$root$querySe = _this32.$root.querySelector("[data-focus-tab='".concat(name, "']"))) === null || _this32$$root$querySe === void 0 ? void 0 : _this32$$root$querySe.focus();
+          return (_this32$$root$querySe = _this32.$root.querySelector(finder)) === null || _this32$$root$querySe === void 0 ? void 0 : _this32$$root$querySe.focus();
         }, 250);
       },
       changeActiveOverlay: function changeActiveOverlay() {
@@ -7268,13 +7274,20 @@ document.addEventListener("alpine:init", function () {
       halfPoints: array.halfPoints,
       drawerScoringDisabled: array.drawerScoringDisabled,
       pageUpdated: array.pageUpdated,
+      isCoLearningScore: array.isCoLearningScore,
       init: function init() {
+        var _this33 = this;
         if (this.pageUpdated) {
           this.resetStoredData();
         }
         if ((0,lodash__WEBPACK_IMPORTED_MODULE_5__.isString)(this.shadowScore)) {
           this.shadowScore = this.isFloat(initialScore) ? parseFloat(initialScore) : parseInt(initialScore);
         }
+        this.$nextTick(function () {
+          return _this33.$dispatch("slider-score-updated", {
+            score: _this33.score
+          });
+        });
       },
       toggleCount: function toggleCount() {
         return document.querySelectorAll(".student-answer .slider-button-container:not(.disabled)").length;
@@ -7303,6 +7316,10 @@ document.addEventListener("alpine:init", function () {
         return this.halfPoints ? Math.round(this.shadowScore * 2) / 2 : Math.round(this.shadowScore);
       },
       setNewScore: function setNewScore(newScore, state, firstTick) {
+        if (firstTick && this.isCoLearningScore) {
+          this.isCoLearningScore = false;
+          this.shadowScore = 0;
+        }
         if (firstTick && state === "off") {
           var _this$shadowScore;
           (_this$shadowScore = this.shadowScore) !== null && _this$shadowScore !== void 0 ? _this$shadowScore : this.shadowScore = 0;
@@ -7332,14 +7349,21 @@ document.addEventListener("alpine:init", function () {
         }
       },
       resetStoredData: function resetStoredData() {
-        var _this33 = this;
+        var _this34 = this;
         this.$store.assessment.resetData(this.score, this.toggleCount());
         this.$nextTick(function () {
-          _this33.$store.assessment.toggleCount = _this33.toggleCount();
+          _this34.$store.assessment.toggleCount = _this34.toggleCount();
         });
       },
       updateScoringData: function updateScoringData(data) {
+        var _this35 = this;
         Object.assign(this, data);
+        this.score = this.shadowScore = data.initialScore;
+        this.$nextTick(function () {
+          return _this35.$dispatch("slider-score-updated", {
+            score: _this35.score
+          });
+        });
       }
     };
   });
@@ -7352,13 +7376,13 @@ document.addEventListener("alpine:init", function () {
       firstValue: firstValue,
       skipWatch: false,
       first: function first() {
-        var _this34 = this;
+        var _this36 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee8() {
           return _regeneratorRuntime().wrap(function _callee8$(_context8) {
             while (1) switch (_context8.prev = _context8.next) {
               case 0:
                 _context8.next = 2;
-                return _this34.updateCurrent(_this34.firstValue, "first");
+                return _this36.updateCurrent(_this36.firstValue, "first");
               case 2:
               case "end":
                 return _context8.stop();
@@ -7367,13 +7391,13 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       last: function last() {
-        var _this35 = this;
+        var _this37 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee9() {
           return _regeneratorRuntime().wrap(function _callee9$(_context9) {
             while (1) switch (_context9.prev = _context9.next) {
               case 0:
                 _context9.next = 2;
-                return _this35.updateCurrent(_this35.lastValue, "last");
+                return _this37.updateCurrent(_this37.lastValue, "last");
               case 2:
               case "end":
                 return _context9.stop();
@@ -7382,19 +7406,19 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       next: function next() {
-        var _this36 = this;
+        var _this38 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee10() {
           return _regeneratorRuntime().wrap(function _callee10$(_context10) {
             while (1) switch (_context10.prev = _context10.next) {
               case 0:
-                if (!(_this36.current >= _this36.lastValue)) {
+                if (!(_this38.current >= _this38.lastValue)) {
                   _context10.next = 2;
                   break;
                 }
                 return _context10.abrupt("return");
               case 2:
                 _context10.next = 4;
-                return _this36.updateCurrent(_this36.current + 1, "incr");
+                return _this38.updateCurrent(_this38.current + 1, "incr");
               case 4:
               case "end":
                 return _context10.stop();
@@ -7403,19 +7427,19 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       previous: function previous() {
-        var _this37 = this;
+        var _this39 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee11() {
           return _regeneratorRuntime().wrap(function _callee11$(_context11) {
             while (1) switch (_context11.prev = _context11.next) {
               case 0:
-                if (!(_this37.current <= _this37.firstValue)) {
+                if (!(_this39.current <= _this39.firstValue)) {
                   _context11.next = 2;
                   break;
                 }
                 return _context11.abrupt("return");
               case 2:
                 _context11.next = 4;
-                return _this37.updateCurrent(_this37.current - 1, "decr");
+                return _this39.updateCurrent(_this39.current - 1, "decr");
               case 4:
               case "end":
                 return _context11.stop();
@@ -7424,21 +7448,21 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       updateCurrent: function updateCurrent(value, action) {
-        var _this38 = this;
+        var _this40 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee12() {
           var response;
           return _regeneratorRuntime().wrap(function _callee12$(_context12) {
             while (1) switch (_context12.prev = _context12.next) {
               case 0:
-                _this38.$dispatch("assessment-drawer-tab-update", {
+                _this40.$dispatch("assessment-drawer-tab-update", {
                   tab: 1
                 });
                 _context12.next = 3;
-                return _this38.$wire[_this38.methodCall](value, action);
+                return _this40.$wire[_this40.methodCall](value, action);
               case 3:
                 response = _context12.sent;
                 if (response) {
-                  _this38.updateProperties(response);
+                  _this40.updateProperties(response);
                 }
               case 5:
               case "end":
@@ -7461,42 +7485,42 @@ document.addEventListener("alpine:init", function () {
       fixLineHeightCount: 0,
       fixInterval: null,
       init: function init() {
-        var _this39 = this;
+        var _this41 = this;
         this.placeAllOrNothingLines();
         this.fixLineHeight();
         this.$watch("expanded", function (value) {
-          return _this39.placeAllOrNothingLines();
+          return _this41.placeAllOrNothingLines();
         });
       },
       fixLineHeight: function fixLineHeight() {
-        var _this40 = this;
+        var _this42 = this;
         this.fixInterval = setInterval(function () {
-          _this40.placeAllOrNothingLines();
-          _this40.fixLineHeightCount++;
-          if (_this40.fixLineHeightCount >= 5) {
-            clearInterval(_this40.fixInterval);
+          _this42.placeAllOrNothingLines();
+          _this42.fixLineHeightCount++;
+          if (_this42.fixLineHeightCount >= 5) {
+            clearInterval(_this42.fixInterval);
           }
         }, 200);
       },
       placeAllOrNothingLines: function placeAllOrNothingLines() {
-        var _this41 = this;
+        var _this43 = this;
         this.$nextTick(function () {
-          var parent = _this41.$root.parentElement;
-          _this41.activeItems.map(function (item) {
+          var parent = _this43.$root.parentElement;
+          _this43.activeItems.map(function (item) {
             var el = parent.querySelector("[data-active-item='".concat(item, "']"));
-            var height = el.offsetTop + el.offsetHeight / 2 - _this41.$root.offsetHeight / 2;
-            if (_this41.$root !== parent.firstElementChild) {
-              height -= _this41.$root.offsetTop;
+            var height = el.offsetTop + el.offsetHeight / 2 - _this43.$root.offsetHeight / 2;
+            if (_this43.$root !== parent.firstElementChild) {
+              height -= _this43.$root.offsetTop;
             }
-            _this41.$root.querySelector("[data-line='".concat(item, "']")).style.height = height + "px";
+            _this43.$root.querySelector("[data-line='".concat(item, "']")).style.height = height + "px";
           });
-          if (_this41.withToggle) {
+          if (_this43.withToggle) {
             var toggleEl = parent.parentElement.querySelector(".all-or-nothing-toggle");
-            var firstEl = _this41.$root;
-            var lastEl = parent.querySelector("[data-active-item=\"".concat(_this41.activeItems.slice(-1), "\"]"));
-            var middle = _this41.middleOfElement(firstEl);
+            var firstEl = _this43.$root;
+            var lastEl = parent.querySelector("[data-active-item=\"".concat(_this43.activeItems.slice(-1), "\"]"));
+            var middle = _this43.middleOfElement(firstEl);
             if (lastEl) {
-              middle = (_this41.middleOfElement(firstEl) + _this41.middleOfElement(lastEl)) / 2;
+              middle = (_this43.middleOfElement(firstEl) + _this43.middleOfElement(lastEl)) / 2;
             }
             toggleEl.style.top = middle + "px";
           }
@@ -7525,22 +7549,22 @@ document.addEventListener("alpine:init", function () {
         });
       },
       tab: function tab(index) {
-        var _this42 = this;
+        var _this44 = this;
         if (!this.tabs.includes(index)) return;
         this.activeTab = index;
         this.closeTooltips();
         var slide = this.$root.querySelector(".slide-" + index);
         this.handleSlideHeight(slide);
         this.$nextTick(function () {
-          _this42.container.scroll({
+          _this44.container.scroll({
             top: 0,
             left: slide.offsetLeft,
             behavior: "smooth"
           });
           setTimeout(function () {
-            var position = _this42.container.scrollLeft / 300 + 1;
-            if (!_this42.tabs.includes(position)) {
-              _this42.container.scroll({
+            var position = _this44.container.scrollLeft / 300 + 1;
+            if (!_this44.tabs.includes(position)) {
+              _this44.container.scroll({
                 left: slide.offsetLeft
               });
             }
@@ -7548,30 +7572,30 @@ document.addEventListener("alpine:init", function () {
         });
       },
       next: function next() {
-        var _this43 = this;
+        var _this45 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee14() {
           return _regeneratorRuntime().wrap(function _callee14$(_context14) {
             while (1) switch (_context14.prev = _context14.next) {
               case 0:
-                if (!_this43.needsToPerformActionsStill()) {
+                if (!_this45.needsToPerformActionsStill()) {
                   _context14.next = 4;
                   break;
                 }
-                _this43.$dispatch("scoring-elements-error");
-                _this43.clickedNext = true;
+                _this45.$dispatch("scoring-elements-error");
+                _this45.clickedNext = true;
                 return _context14.abrupt("return");
               case 4:
-                _this43.tab(1);
+                _this45.tab(1);
                 _context14.next = 7;
-                return _this43.$nextTick( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee13() {
+                return _this45.$nextTick( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee13() {
                   return _regeneratorRuntime().wrap(function _callee13$(_context13) {
                     while (1) switch (_context13.prev = _context13.next) {
                       case 0:
-                        _this43.$store.assessment.resetData();
+                        _this45.$store.assessment.resetData();
                         _context13.next = 3;
-                        return _this43.$wire.next();
+                        return _this45.$wire.next();
                       case 3:
-                        _this43.clickedNext = false;
+                        _this45.clickedNext = false;
                       case 4:
                       case "end":
                         return _context13.stop();
@@ -7586,22 +7610,22 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       previous: function previous() {
-        var _this44 = this;
+        var _this46 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee16() {
           return _regeneratorRuntime().wrap(function _callee16$(_context16) {
             while (1) switch (_context16.prev = _context16.next) {
               case 0:
-                _this44.tab(1);
+                _this46.tab(1);
                 _context16.next = 3;
-                return _this44.$nextTick( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee15() {
+                return _this46.$nextTick( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee15() {
                   return _regeneratorRuntime().wrap(function _callee15$(_context15) {
                     while (1) switch (_context15.prev = _context15.next) {
                       case 0:
-                        _this44.$store.assessment.resetData();
+                        _this46.$store.assessment.resetData();
                         _context15.next = 3;
-                        return _this44.$wire.previous();
+                        return _this46.$wire.previous();
                       case 3:
-                        _this44.clickedNext = false;
+                        _this46.clickedNext = false;
                       case 4:
                       case "end":
                         return _context15.stop();
@@ -7641,6 +7665,9 @@ document.addEventListener("alpine:init", function () {
       },
       needsToPerformActionsStill: function needsToPerformActionsStill() {
         return !this.inReview && !this.$store.assessment.clearToProceed() && !this.clickedNext;
+      },
+      openFeedbackTab: function openFeedbackTab() {
+        this.tab(2);
       }
     };
   });
@@ -7663,9 +7690,18 @@ document.addEventListener("alpine:init", function () {
         var value = el.value;
         return (value - min) / (max - min) * 100;
       },
+      setThumbOffset: function setThumbOffset() {
+        var el = document.querySelector('.score-slider-input');
+        var offsetFromCenter = -45;
+        offsetFromCenter += this.score / this.maxScore * 90;
+        el.style.setProperty("--slider-thumb-offset", "calc(".concat(offsetFromCenter, "% + 1px)"));
+      },
       setSliderBackgroundSize: function setSliderBackgroundSize(el) {
-        el.style.setProperty("--slider-thumb-offset", "".concat(25 / 100 * this.getSliderBackgroundSize(el) - 12.5, "px"));
-        el.style.setProperty("--slider-background-size", "".concat(this.getSliderBackgroundSize(el), "%"));
+        var _this47 = this;
+        this.$nextTick(function () {
+          el.style.setProperty("--slider-thumb-offset", "".concat(25 / 100 * _this47.getSliderBackgroundSize(el) - 12.5, "px"));
+          el.style.setProperty("--slider-background-size", "".concat(_this47.getSliderBackgroundSize(el), "%"));
+        });
       },
       syncInput: function syncInput() {
         // Don't update if the value is the same;
@@ -7683,45 +7719,42 @@ document.addEventListener("alpine:init", function () {
         }
       },
       init: function init() {
-        var _this45 = this;
+        var _this48 = this;
         if (coLearning) {
           Livewire.hook("message.received", function (message, component) {
             var _message$updateQueue$;
             if (component.name === "student.co-learning" && ((_message$updateQueue$ = message.updateQueue[0]) === null || _message$updateQueue$ === void 0 ? void 0 : _message$updateQueue$.method) === "updateHeartbeat") {
-              var scoreInputElement = _this45.$root.querySelector("[x-ref='scoreInput']");
-              _this45.persistentScore = scoreInputElement !== null && scoreInputElement.value !== "" ? scoreInputElement.value : null;
+              var scoreInputElement = _this48.$root.querySelector("[x-ref='scoreInput']");
+              _this48.persistentScore = scoreInputElement !== null && scoreInputElement.value !== "" ? scoreInputElement.value : null;
             }
           });
           Livewire.hook("message.processed", function (message, component) {
             var _message$updateQueue$2;
             if (component.name === "student.co-learning" && ((_message$updateQueue$2 = message.updateQueue[0]) === null || _message$updateQueue$2 === void 0 ? void 0 : _message$updateQueue$2.method) === "updateHeartbeat") {
-              _this45.skipSync = true;
-              _this45.score = _this45.persistentScore;
+              _this48.skipSync = true;
+              _this48.score = _this48.persistentScore;
             }
           });
         }
         this.inputBox = this.$root.querySelector("[x-ref='scoreInput']");
         this.$watch("score", function (value, oldValue) {
-          _this45.markInputElementsClean();
-          if (_this45.disabled || value === oldValue || _this45.skipSync) {
-            _this45.skipSync = false;
+          _this48.markInputElementsClean();
+          if (_this48.disabled || value === oldValue || _this48.skipSync) {
+            _this48.skipSync = false;
             return;
           }
-          if (value >= _this45.maxScore) {
-            _this45.score = value = _this45.maxScore;
+          if (value >= _this48.maxScore) {
+            _this48.score = value = _this48.maxScore;
           }
           if (value <= 0) {
-            _this45.score = value = 0;
+            _this48.score = value = 0;
           }
-          _this45.score = value = _this45.halfPoints ? Math.round(value * 2) / 2 : Math.round(value);
-          var numberInput = _this45.$root.querySelector("[x-ref='score_slider_continuous_input']");
-          if (numberInput !== null) {
-            _this45.setSliderBackgroundSize(numberInput);
-          }
+          _this48.score = value = _this48.halfPoints ? Math.round(value * 2) / 2 : Math.round(value);
+          _this48.updateContinuousSlider();
         });
         if (focusInput) {
           this.$nextTick(function () {
-            _this45.inputBox.focus();
+            _this48.inputBox.focus();
           });
         }
       },
@@ -7734,6 +7767,15 @@ document.addEventListener("alpine:init", function () {
         if (this.disabled) return;
         this.inputBox.classList.add("border-blue-grey");
         this.inputBox.classList.remove("border-allred");
+      },
+      getContinuousInput: function getContinuousInput() {
+        return this.$root.querySelector("[x-ref='score_slider_continuous_input']");
+      },
+      updateContinuousSlider: function updateContinuousSlider() {
+        var numberInput = this.getContinuousInput();
+        if (numberInput !== null) {
+          this.setSliderBackgroundSize(numberInput);
+        }
       }
     };
   });
@@ -7742,7 +7784,7 @@ document.addEventListener("alpine:init", function () {
       minWidth: 120,
       maxWidth: 1000,
       setInputWidth: function setInputWidth(input) {
-        var _this46 = this;
+        var _this49 = this;
         var init = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
         var preview = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
         if (!init || preview) {
@@ -7753,8 +7795,8 @@ document.addEventListener("alpine:init", function () {
           if (!value) {
             return;
           }
-          _this46.$nextTick(function () {
-            _this46.calculateInputWidth(input);
+          _this49.$nextTick(function () {
+            _this49.calculateInputWidth(input);
           });
         });
       },
@@ -7809,23 +7851,23 @@ document.addEventListener("alpine:init", function () {
       inModal: false,
       show: false,
       init: function init() {
-        var _this47 = this;
+        var _this50 = this;
         this.setHeightProperty();
         this.inModal = this.$root.closest("#modal-container") !== null;
         this.$watch("tooltip", function (value) {
           if (value) {
             var ignoreLeft = false;
-            if (alwaysLeft || _this47.tooltipTooWideForPosition()) {
-              _this47.$refs.tooltipdiv.classList.remove("left-1/2", "-translate-x-1/2");
-              _this47.$refs.tooltipdiv.classList.add("right-0");
+            if (alwaysLeft || _this50.tooltipTooWideForPosition()) {
+              _this50.$refs.tooltipdiv.classList.remove("left-1/2", "-translate-x-1/2");
+              _this50.$refs.tooltipdiv.classList.add("right-0");
               ignoreLeft = true;
             }
-            _this47.$refs.tooltipdiv.style.top = _this47.getTop();
-            _this47.$refs.tooltipdiv.style.left = _this47.getLeft(ignoreLeft);
+            _this50.$refs.tooltipdiv.style.top = _this50.getTop();
+            _this50.$refs.tooltipdiv.style.left = _this50.getLeft(ignoreLeft);
           }
         });
         this.$nextTick(function () {
-          return _this47.show = true;
+          return _this50.show = true;
         });
       },
       getTop: function getTop() {
@@ -7856,12 +7898,12 @@ document.addEventListener("alpine:init", function () {
         this.$refs.tooltipdiv.style.left = this.getLeft();
       },
       setHeightProperty: function setHeightProperty() {
-        var _this48 = this;
+        var _this51 = this;
         this.tooltip = true;
         this.$nextTick(function () {
-          _this48.height = _this48.$refs.tooltipdiv.offsetHeight;
-          _this48.tooltip = false;
-          _this48.$refs.tooltipdiv.classList.remove("invisible");
+          _this51.height = _this51.$refs.tooltipdiv.offsetHeight;
+          _this51.tooltip = false;
+          _this51.$refs.tooltipdiv.classList.remove("invisible");
         });
       },
       tooltipTooWideForPosition: function tooltipTooWideForPosition() {
@@ -7883,21 +7925,25 @@ document.addEventListener("alpine:init", function () {
       navScrollBar: null,
       initialized: false,
       init: function init() {
-        var _this49 = this;
+        var _this52 = this;
         this.navScrollBar = this.$root.querySelector('#navscrollbar');
         this.$nextTick(function () {
-          _this49.$root.querySelector(".active").scrollIntoView({
+          _this52.$root.querySelector(".active").scrollIntoView({
             behavior: "smooth"
           });
-          _this49.totalScrollWidth = _this49.$root.offsetWidth;
-          _this49.resize();
-          _this49.initialized = true;
+          _this52.totalScrollWidth = _this52.$root.offsetWidth;
+          _this52.resize();
+          _this52.initialized = true;
+          _this52.slideToActiveQuestionBubble();
         });
       },
       resize: function resize() {
         this.scrollStep = window.innerWidth / 10;
         var sliderButtons = this.$root.querySelector(".slider-buttons").offsetWidth * 2;
         this.showSlider = this.$root.querySelector(".question-indicator").offsetWidth + sliderButtons >= this.$root.offsetWidth - 120;
+        if (this.showSlider) {
+          this.slideToActiveQuestionBubble();
+        }
       },
       scroll: function scroll(position) {
         this.navScrollBar.scrollTo({
@@ -7918,49 +7964,51 @@ document.addEventListener("alpine:init", function () {
       right: function right() {
         this.scroll(this.navScrollBar.scrollLeft + this.scrollStep);
       },
+      slideToActiveQuestionBubble: function slideToActiveQuestionBubble() {
+        var left = this.$root.querySelector(".active").offsetLeft;
+        this.navScrollBar.scrollTo({
+          left: left - (this.$root.getBoundingClientRect().left + 16),
+          behavior: "smooth"
+        });
+      },
       startIntersectionCountdown: function startIntersectionCountdown() {
-        var _this50 = this;
+        var _this53 = this;
         clearTimeout(this.intersectionCountdown);
         this.intersectionCountdown = setTimeout(function () {
-          clearTimeout(_this50.intersectionCountdown);
-          var left = _this50.$root.querySelector(".active").offsetLeft;
-          _this50.navScrollBar.scrollTo({
-            left: left - (_this50.$root.getBoundingClientRect().left + 16),
-            behavior: "smooth"
-          });
+          clearTimeout(_this53.intersectionCountdown);
+          _this53.slideToActiveQuestionBubble();
         }, 5000);
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("accountSettings", function (language) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("drawingQuestionImagePreview", function () {
     return {
-      openTab: 'account',
-      changing: false,
-      language: language,
-      init: function init() {},
-      startLanguageChange: function startLanguageChange(event, wireModelName) {
-        var _this51 = this;
-        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee17() {
-          return _regeneratorRuntime().wrap(function _callee17$(_context17) {
-            while (1) switch (_context17.prev = _context17.next) {
-              case 0:
-                _this51.$dispatch('language-loading-start');
-                _this51.changing = true;
-                _context17.next = 4;
-                return _this51.$wire.set(wireModelName, _this51.language);
-              case 4:
-                _this51.$nextTick(function () {
-                  setTimeout(function () {
-                    _this51.changing = false;
-                    _this51.$dispatch('language-loading-end');
-                  }, 1500);
-                });
-              case 5:
-              case "end":
-                return _context17.stop();
-            }
-          }, _callee17);
-        }))();
+      maxTries: 10,
+      currentTry: 0,
+      init: function init() {
+        this.setHeightToAspectRatio(this.$el);
+      },
+      setHeightToAspectRatio: function setHeightToAspectRatio(element) {
+        var _this54 = this;
+        var aspectRatioWidth = 940;
+        var aspectRatioHeight = 500;
+        var aspectRatio = aspectRatioHeight / aspectRatioWidth;
+        var container = element.closest("#accordion-block, #answer-container");
+        if (!container) {
+          console.error('Trying to set drawing image preview aspect ratio on without valid container.');
+          return;
+        }
+        var newHeight = (container.clientWidth - 82) * aspectRatio;
+        if (newHeight <= 0) {
+          if (this.currentTry <= this.maxTries) {
+            setTimeout(function () {
+              return _this54.setHeightToAspectRatio(element);
+            }, 50);
+            this.currentTry++;
+          }
+          return;
+        }
+        element.style.height = newHeight + "px";
       }
     };
   });
@@ -8395,14 +8443,18 @@ window.plyrPlayer = {
 
 /**
  * Takes a dom div element and makes it resizable from all corners
- * 
+ *
  * @param {object} element
  * @param {string} attachmentType
  */
 window.makeResizableDiv = function (element) {
   var attachmentType = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
   var resizers = element.querySelectorAll('.resizer');
-  var minimum_size = 20;
+  var iframe = element.querySelector('.resizers iframe');
+  var minimum_size = 167;
+  var maximum_x = 1000;
+  var maximum_y = 1000;
+  var iframeTimeout = 0;
   var original_width = 0;
   var original_height = 0;
   var original_x = 0;
@@ -8422,48 +8474,53 @@ window.makeResizableDiv = function (element) {
       original_y = element.getBoundingClientRect().top;
       original_mouse_x = e.pageX;
       original_mouse_y = e.pageY;
+      maximum_x = document.body.offsetWidth;
+      maximum_y = document.body.offsetHeight;
       window.addEventListener('mousemove', resize);
       window.addEventListener('ontouchmove', resize);
       window.addEventListener('mouseup', stopResize);
       window.addEventListener('ontouchend', stopResize);
       function resize(e) {
+        if (attachmentType === 'pdf' || attachmentType === 'video') {
+          iframeTimeout = temporarilyDisablePointerEvents(iframe, iframeTimeout);
+        }
         if (currentResizer.classList.contains('bottom-right')) {
           width = original_width + (e.pageX - original_mouse_x);
           height = original_height + (e.pageY - original_mouse_y);
-          if (width > minimum_size) {
+          if (width > minimum_size && e.pageX <= maximum_x) {
             element.style.width = width + 'px';
           }
-          if (height > minimum_size) {
+          if (height > minimum_size && e.pageY <= maximum_y) {
             element.style.height = height + 'px';
           }
         } else if (currentResizer.classList.contains('bottom-left')) {
           height = original_height + (e.pageY - original_mouse_y);
           width = original_width - (e.pageX - original_mouse_x);
-          if (height > minimum_size) {
+          if (height > minimum_size && e.pageY <= maximum_y) {
             element.style.height = height + 'px';
           }
-          if (width > minimum_size) {
+          if (width > minimum_size && e.pageX > 0) {
             element.style.width = width + 'px';
             element.style.left = original_x + (e.pageX - original_mouse_x) + 'px';
           }
         } else if (currentResizer.classList.contains('top-right')) {
           width = original_width + (e.pageX - original_mouse_x);
           height = original_height - (e.pageY - original_mouse_y);
-          if (width > minimum_size) {
+          if (width > minimum_size && e.pageX <= maximum_x) {
             element.style.width = width + 'px';
           }
-          if (height > minimum_size) {
+          if (height > minimum_size && e.clientY > 0) {
             element.style.height = height + 'px';
             element.style.top = original_y + (e.pageY - original_mouse_y) + 'px';
           }
         } else {
           width = original_width - (e.pageX - original_mouse_x);
           height = original_height - (e.pageY - original_mouse_y);
-          if (width > minimum_size) {
+          if (width > minimum_size && e.pageX > 0) {
             element.style.width = width + 'px';
             element.style.left = original_x + (e.pageX - original_mouse_x) + 'px';
           }
-          if (height > minimum_size) {
+          if (height > minimum_size && e.clientY > 0) {
             element.style.height = height + 'px';
             element.style.top = original_y + (e.pageY - original_mouse_y) + 'px';
           }
@@ -8473,6 +8530,9 @@ window.makeResizableDiv = function (element) {
         if (attachmentType === 'image') {
           var ratio = original_height / original_width;
           element.style.height = ratio * width + 'px';
+        }
+        if (attachmentType === 'pdf' || attachmentType === 'video') {
+          resetTemporarilyDisabledPointerEvents(iframe, iframeTimeout);
         }
         window.removeEventListener('mousemove', resize);
         window.removeEventListener('touchmove', resize);
@@ -8486,7 +8546,7 @@ window.makeResizableDiv = function (element) {
 
 /**
  * Drag of attachment
- * 
+ *
  * @param {object} element
  */
 window.dragElement = function (element) {
@@ -8497,6 +8557,8 @@ window.dragElement = function (element) {
   var newTop, newLeft;
   var windowHeight = window.innerHeight;
   var windowWidth = window.innerWidth;
+  var iframe = element.querySelector('.resizers iframe');
+  var iframeTimeout = 0;
   if (document.getElementById(element.id + "drag")) {
     // if present, the header is where you move the DIV from:
     document.getElementById(element.id + "drag").onmousedown = dragMouseDown;
@@ -8522,6 +8584,7 @@ window.dragElement = function (element) {
     document.ontouchmove = elementDrag;
   }
   function elementDrag(e) {
+    iframeTimeout = temporarilyDisablePointerEvents(iframe, iframeTimeout);
     e = e || window.event;
 
     // calculate the new cursor position:
@@ -8562,7 +8625,30 @@ window.dragElement = function (element) {
     document.ontouchend = null;
     document.onmousemove = null;
     document.ontouchmove = null;
+    resetTemporarilyDisabledPointerEvents(iframe, iframeTimeout);
   }
+};
+var temporarilyDisablePointerEvents = function temporarilyDisablePointerEvents(element, timeout) {
+  var milliseconds = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 500;
+  if (!element) {
+    return false;
+  }
+  element.style.pointerEvents = 'none';
+  if (timeout) {
+    clearTimeout(timeout);
+  }
+  return setTimeout(function () {
+    resetTemporarilyDisabledPointerEvents(element, timeout);
+  }, milliseconds);
+};
+var resetTemporarilyDisabledPointerEvents = function resetTemporarilyDisabledPointerEvents(element, timeout) {
+  if (!element) {
+    return false;
+  }
+  if (timeout) {
+    clearTimeout(timeout);
+  }
+  element.style.pointerEvents = 'auto';
 };
 
 /***/ }),
@@ -8604,7 +8690,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "fc18ed69b446aeb8c8a5",
+  key: "662d128370816e2bbb66",
   cluster: "eu",
   forceTLS: true
 });
@@ -10180,7 +10266,9 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     } finally {
       _iterator2.f();
     }
-    if (element.nodeName === "TEXT" && !attributes["data-textcontent"]) attributes["data-textcontent"] = element.textContent;
+    if (element.nodeName === "TEXT" && !attributes["data-textcontent"]) {
+      attributes["data-textcontent"] = encodeURI(element.textContent);
+    }
     return attributes;
   }
   function calculateCanvasBounds() {
@@ -13205,6 +13293,10 @@ var Text = /*#__PURE__*/function (_svgElement6) {
   }, {
     key: "setTextContent",
     value: function setTextContent(text) {
+      var shouldDecodeText = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+      if (shouldDecodeText) {
+        text = decodeURI(text);
+      }
       this.element.textContent = text;
     }
 
@@ -13977,7 +14069,7 @@ var Text = /*#__PURE__*/function (_svgShape4) {
           _this5.cancelConstruction();
           return;
         }
-        _this5.mainElement.setTextContent(text);
+        _this5.mainElement.setTextContent(text, false);
         _this5.mainElement.setFontFamily('Nunito');
         _this5.updateBorderElement();
         _this5.updateCornerElements();
@@ -67002,6 +67094,32 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./resources/css/app_pdf.css":
+/*!***********************************!*\
+  !*** ./resources/css/app_pdf.css ***!
+  \***********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+// extracted by mini-css-extract-plugin
+
+
+/***/ }),
+
+/***/ "./resources/css/print-test-pdf.css":
+/*!******************************************!*\
+  !*** ./resources/css/print-test-pdf.css ***!
+  \******************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+// extracted by mini-css-extract-plugin
+
+
+/***/ }),
+
 /***/ "./node_modules/plyr/dist/plyr.min.js":
 /*!********************************************!*\
   !*** ./node_modules/plyr/dist/plyr.min.js ***!
@@ -76308,7 +76426,9 @@ module.exports = JSON.parse('{"name":"axios","version":"0.21.4","description":"P
 /******/ 		// [resolve, reject, Promise] = chunk loading, 0 = chunk loaded
 /******/ 		var installedChunks = {
 /******/ 			"/js/app": 0,
-/******/ 			"css/app": 0
+/******/ 			"css/app": 0,
+/******/ 			"css/app_pdf": 0,
+/******/ 			"css/print-test-pdf": 0
 /******/ 		};
 /******/ 		
 /******/ 		// no chunk on demand loading
@@ -76358,8 +76478,10 @@ module.exports = JSON.parse('{"name":"axios","version":"0.21.4","description":"P
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module depends on other loaded chunks and execution need to be delayed
-/******/ 	__webpack_require__.O(undefined, ["css/app"], () => (__webpack_require__("./resources/js/app.js")))
-/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["css/app"], () => (__webpack_require__("./resources/css/app.css")))
+/******/ 	__webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/js/app.js")))
+/******/ 	__webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/css/app.css")))
+/******/ 	__webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/css/app_pdf.css")))
+/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/css/print-test-pdf.css")))
 /******/ 	__webpack_exports__ = __webpack_require__.O(__webpack_exports__);
 /******/ 	
 /******/ })()

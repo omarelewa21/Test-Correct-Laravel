@@ -2,19 +2,14 @@
 
 namespace tcCore\Http\Livewire;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
-use Livewire\Component;
 use Livewire\WithPagination;
-use tcCore\Http\Controllers\TemporaryLoginController;
 use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\School;
 use tcCore\Traits\CanLogout;
 use tcCore\Traits\CanOrderGrid;
 
-class SchoolsGrid extends Component
+class SchoolsGrid extends TCComponent
 {
     use WithPagination;
     use CanLogout;

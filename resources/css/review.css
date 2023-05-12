@@ -27,7 +27,6 @@
     --rqn-number-color: var(--system-base);
     --rqn-border-color: var(--system-base);
     --rqn-background-color: transparent;
-    position: static;
     min-width: 30px;
     width: fit-content;
     transition: box-shadow ease-in-out 150ms;
@@ -53,13 +52,11 @@
     --rqn-background-color: var(--primary);
 }
 
-#student-test-review .nav-container .question-indicator .question-number.connector:after {
-    content: '';
+#student-test-review .nav-container .question-indicator .question-number .connector {
     position: absolute;
-    top: 15px;
     width: 8px;
     height: 3px;
-    left: 100%;
+    right: -11px;
     background: var(--system-base);
 }
 

@@ -2,15 +2,9 @@
 
 namespace tcCore\Http\Livewire\TestTakeOverviewPreview;
 
-use Illuminate\Routing\Route;
-use Illuminate\Support\Collection;
-use Livewire\Component;
-use tcCore\Answer;
-use tcCore\Http\Livewire\Student\TestTake;
-use tcCore\Question;
-use function Symfony\Component\String\s;
+use tcCore\Http\Livewire\TCComponent;
 
-class Navigation extends Component
+class Navigation extends TCComponent
 {
     public $nav;
     public $testTakeUuid;

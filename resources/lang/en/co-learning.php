@@ -1,4 +1,5 @@
 <?php
+
 return [
     'correct'                       => 'Correct',
     'incorrect'                     => 'Incorrect',
@@ -53,4 +54,6 @@ return [
     'close_colearning_text'         => 'Do you want to close CO-Learning and continue with it later, or do you want to finish the CO-Learning session?',
     'choose_method_subtitle'        => 'Choose your method',
     'start_co_learning_session'     => 'Start CO-Learning session',
+    'show-on-smartboard'            => 'Show on smartboard',
+    'hide-from-smartboard'          => 'Hide on smartboard',
 ];

@@ -3,6 +3,7 @@
 namespace tcCore\Http\Livewire\Teacher;
 
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use tcCore\Answer;
@@ -17,6 +18,7 @@ use tcCore\TestTake;
 use tcCore\TestTakeStatus;
 use tcCore\User;
 use tcCore\UserFeatureSetting;
+use tcCore\View\Components\CompletionQuestionConvertedHtml;
 
 class Assessment extends EvaluationComponent implements CollapsableHeader
 {
@@ -59,8 +61,8 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     /* Context properties */
     public int $progress = 0;
     public int $maxAssessedValue = 1;
-
     public bool $openOnly;
+    public bool $isCoLearningScore = false;
 
     /* Lifecycle methods */
     protected function getListeners(): array
@@ -93,8 +95,8 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             return;
         }
 
+        $this->setData();
         if ($this->headerCollapsed) {
-            $this->setData();
             $this->hydrateCurrentProperties();
         }
     }
@@ -283,16 +285,16 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         $this->lastAnswerForQuestion = $this->students->search($answersForQuestion->last()->test_participant_id) + 1;
         $this->firstAnswerForQuestion = $this->students->search($answersForQuestion->first()->test_participant_id) + 1;
 
-        if (!$internal) {
-            $this->dispatchUpdateQuestionNavigatorEvent();
-        }
         $this->currentAnswer->load('answerRatings');
-
         $this->score = $this->handleAnswerScore();
         $this->feedback = $this->getFeedbackForCurrentAnswer();
         $this->answerPanel = true;
         $this->setUserOnAnswer($this->currentAnswer);
         $this->setProgress();
+
+        if (!$internal) {
+            $this->dispatchUpdateQuestionNavigatorEvent();
+        }
 
         return [
             'index' => $this->answerNavigationValue,
@@ -340,13 +342,9 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         }
 
         if (!$this->onLastQuestionToAssess()) {
-            $newQuestionId = $this->questions->get((int)$this->questionNavigationValue)->id;
-
-            $newAnswerIndex = $this->students->search(
-                    $this->answers->where('question_id', $newQuestionId)->first()->test_participant_id
-                ) + 1;
-
-            $this->answerNavigationValue = $newAnswerIndex;
+            $currentAnswerIndex = $this->answers->search(fn($answer) => $answer->id === $this->currentAnswer->id);
+            $newAnswer = $this->answers->get($currentAnswerIndex + 1);
+            $this->answerNavigationValue = $this->students->search($newAnswer->test_participant_id) + 1;
 
             $this->dispatchUpdateQuestionNavigatorEvent(
                 $this->loadQuestion(position: (int)$this->questionNavigationValue + 1, action: 'incr')
@@ -374,12 +372,9 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         }
 
         if (!$this->onFirstQuestionToAssess()) {
-            $newQuestionId = $this->questions->get((int)$this->questionNavigationValue - 2)->id;
-            $newAnswerIndex = $this->students->search(
-                    $this->answers->where('question_id', $newQuestionId)->last()->test_participant_id
-                ) + 1;
-
-            $this->answerNavigationValue = $newAnswerIndex;
+            $currentAnswerIndex = $this->answers->search(fn($answer) => $answer->id === $this->currentAnswer->id);
+            $newAnswer = $this->answers->get($currentAnswerIndex - 1);
+            $this->answerNavigationValue = $this->students->search($newAnswer->test_participant_id) + 1;
 
             $this->dispatchUpdateQuestionNavigatorEvent(
                 $this->loadQuestion(position: (int)$this->questionNavigationValue - 1, action: 'decr')
@@ -724,7 +719,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     protected function handleAnswerScore(): null|int|float
     {
         $ratings = $this->currentAnswerRatings()->whereNotNull('rating');
-
+        $this->isCoLearningScore = false;
         if (!$this->currentAnswer->isAnswered) {
             if ($ratings->where('type', AnswerRating::TYPE_TEACHER)->isEmpty()) {
                 $this->updateOrCreateAnswerRating(['rating' => 0]);
@@ -741,6 +736,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         }
 
         if ($ratings->where('type', AnswerRating::TYPE_STUDENT)->isNotEmpty()) {
+            $this->isCoLearningScore = true;
             return $this->getCoLearningScoreForCurrentAnswer();
         }
 
@@ -795,6 +791,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             ->updateOrCreate([
                 'type'         => AnswerRating::TYPE_TEACHER,
                 'test_take_id' => $this->testTakeData->id,
+                'user_id'      => auth()->id(),
             ], $updates);
     }
 
@@ -818,7 +815,11 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     {
         $this->questionNavigationValue = $this->getNavigationValueForQuestion($previouslyAssessedQuestion);
         $this->answerNavigationValue = $this->students->search(
-                $this->answers->where('question_id', $previouslyAssessedQuestion->id)->first()->test_participant_id
+                $this->answers
+                    ->discrepancyFiltered((bool)$this->assessmentContext['skipCoLearningNoDiscrepancies'])
+                    ->where('question_id', $previouslyAssessedQuestion->id)
+                    ->first()
+                    ->test_participant_id
             ) + 1;
     }
 
@@ -1006,10 +1007,11 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
     private function setUserOnAnswer(Answer $answer): void
     {
-        $answer->user = $this->testTakeData->testParticipants->find($answer->test_participant_id)?->user;
-        if (!$answer->user) {
-            $answer->user = User::getDeletedNewUser();
-        }
+        $answer->user = $this->testTakeData
+            ->testParticipants
+            ->find($answer->test_participant_id)
+            ?->user ?? User::getDeletedNewUser();
+
         $answer->user->shortLastname = str(
             sprintf(
                 '%s %s',
@@ -1102,6 +1104,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             'halfPoints'            => (bool)$this->currentQuestion?->decimal_score,
             'drawerScoringDisabled' => $this->drawerScoringDisabled,
             'pageUpdated'           => $this->updatePage,
+            'isCoLearningScore'     => $this->isCoLearningScore,
         ];
     }
 
@@ -1116,5 +1119,10 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             title  : UserFeatureSettingEnum::tryFrom($setting),
             default: $this->assessmentContext[$setting]
         );
+    }
+
+    public function getDisplayableCompletionQuestionText()
+    {
+        return Blade::renderComponent(new CompletionQuestionConvertedHtml($this->currentQuestion, $context='assessment'));
     }
 }

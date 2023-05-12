@@ -4,7 +4,7 @@
             {{__('test-pdf.open-short-question-explanation')}}
         </div>
         <div class="relative">
-            <div class="children-block-pdf">
+            <div class="children-block-pdf questionContainer questionhtml">
                 {!!   $question->converted_question_html !!}
             </div>
             <div class="w-full mt-2 question-no-break-open-short">

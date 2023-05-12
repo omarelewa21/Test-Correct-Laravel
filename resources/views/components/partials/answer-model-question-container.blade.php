@@ -42,7 +42,7 @@
         @endif
     </div>
     @if($this->group)
-        <div class="mb-5" >{!! $this->group->question->converted_question_html !!}</div>
+        <div class="mb-5 group-question-description" >{!! $this->group->question->converted_question_html !!}&nbsp;</div>
     @endif
     <div class="flex flex-1 overview">
         <div class="questionContainer w-full">

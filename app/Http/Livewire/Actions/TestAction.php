@@ -3,11 +3,11 @@
 namespace tcCore\Http\Livewire\Actions;
 
 use Illuminate\Support\Str;
-use Livewire\Component;
 use Livewire\Livewire;
+use tcCore\Http\Livewire\TCComponent;
 use tcCore\Test;
 
-abstract class TestAction extends Component
+abstract class TestAction extends TCComponent
 {
     public $uuid;
     public $class;

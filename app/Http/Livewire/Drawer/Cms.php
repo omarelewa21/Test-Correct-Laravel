@@ -3,11 +3,11 @@
 namespace tcCore\Http\Livewire\Drawer;
 
 use Illuminate\Support\Facades\DB;
-use Livewire\Component;
 use tcCore\GroupQuestion;
 use tcCore\GroupQuestionQuestion;
 use tcCore\Http\Controllers\GroupQuestionQuestionsController;
 use tcCore\Http\Controllers\TestQuestionsController;
+use tcCore\Http\Livewire\TCComponent;
 use tcCore\Http\Livewire\Teacher\Questions\CmsFactory;
 use tcCore\Http\Traits\WithQueryStringSyncing;
 use tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager;
@@ -15,7 +15,7 @@ use tcCore\Question;
 use tcCore\Test;
 use tcCore\TestQuestion;
 
-class Cms extends Component
+class Cms extends TCComponent
 {
     use WithQueryStringSyncing;
     protected $queryString = [

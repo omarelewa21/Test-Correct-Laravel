@@ -1,8 +1,8 @@
 <x-partials.answer-model-question-container :number="$number" :question="$question" :answer="$answer">
     <div class="w-full">
         <div class="relative">
-            <div class="children-block-pdf">
-            {!!   $question->converted_question_html !!}
+            <div class="children-block-pdf questionContainer">
+            {!!   $question->converted_question_html !!}&nbsp;
             </div>
             <x-input.group for="me" class="w-full disabled mt-4 question-no-break-open-medium">
                 <x-input.mock-textarea-answered :question="$question"

@@ -4,19 +4,18 @@ namespace tcCore\Http\Livewire\Question;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use Livewire\Component;
 use tcCore\Answer;
 use tcCore\DrawingQuestion as DrawingQuestionModel;
 use tcCore\Http\Helpers\SvgHelper;
+use tcCore\Http\Livewire\TCComponent;
 use tcCore\Http\Traits\WithAttachments;
 use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithGroups;
 use tcCore\Http\Traits\WithNotepad;
-use tcCore\Http\Traits\WithUpdatingHandling;
 
-class DrawingQuestion extends Component
+class DrawingQuestion extends TCComponent
 {
-    use WithAttachments, WithNotepad, withCloseable, WithGroups, WithUpdatingHandling;
+    use WithAttachments, WithNotepad, withCloseable, WithGroups;
 
     public $question;
 

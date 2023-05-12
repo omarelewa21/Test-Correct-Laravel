@@ -2,19 +2,18 @@
 
 namespace tcCore\Http\Livewire\Question;
 
-use Livewire\Component;
 use tcCore\Answer;
 use tcCore\Http\Helpers\BaseHelper;
+use tcCore\Http\Livewire\TCComponent;
 use tcCore\Http\Traits\WithAttachments;
 use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithGroups;
 use tcCore\Http\Traits\WithNotepad;
-use tcCore\Http\Traits\WithUpdatingHandling;
 use tcCore\TestTake;
 
-class OpenQuestion extends Component
+class OpenQuestion extends TCComponent
 {
-    use WithAttachments, WithNotepad, withCloseable, WithGroups, WithUpdatingHandling;
+    use WithAttachments, WithNotepad, withCloseable, WithGroups;
 
     public $answer = '';
     public $question;
@@ -72,7 +71,6 @@ class OpenQuestion extends Component
 
     private function allowSpellChecker(): bool
     {
-        $testTake = TestTake::whereUuid($this->testTakeUuid)->first();
-        return $testTake->isAssignmentType() ? $testTake->allow_wsc : false;
+        return TestTake::whereUuid($this->testTakeUuid)->value('allow_wsc') && $this->question->isWritingAssignmentWithSpellCheckAvailable();
     }
 }

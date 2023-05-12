@@ -2,15 +2,12 @@
 
 namespace tcCore\Http\Livewire\Question;
 
-use Livewire\Component;
 use tcCore\Answer;
-use tcCore\Http\Traits\WithUpdatingHandling;
+use tcCore\Http\Livewire\TCComponent;
 use tcCore\Question;
 
-class Navigation extends Component
+class Navigation extends TCComponent
 {
-    use WithUpdatingHandling;
-
     public $nav;
     public $testTakeUuid;
     public $q;

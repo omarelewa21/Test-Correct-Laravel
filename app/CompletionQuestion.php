@@ -540,26 +540,4 @@ class CompletionQuestion extends Question implements QuestionInterface
             ->whereNull('completion_question_answers.deleted_at')
             ->get();
     }
-
-    public function getDisplayableQuestionText()
-    {
-        $question_text = $this->converted_question_html;
-        $searchPattern = "/\[([0-9]+)\]/i";
-        $replacementFunction = function ($matches) {
-            $tag_id = $matches[1];
-            return sprintf(
-                '<span class="inline-flex max-w-full">
-                            <input class="form-input mb-2 truncate text-center overflow-ellipsis" 
-                                    type="text" 
-                                    id="%s" 
-                                    style="width: 140px" 
-                                    disabled
-                            />
-                        </span>',
-                'answer_' . $tag_id,
-            );
-        };
-
-        return preg_replace_callback($searchPattern, $replacementFunction, $question_text);
-    }
 }

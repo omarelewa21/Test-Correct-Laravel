@@ -2,13 +2,15 @@
 
 namespace tcCore\Http\Livewire\Preview;
 
-use Livewire\Component;
+use tcCore\Http\Livewire\TCComponent;
+use Illuminate\Support\Facades\Blade;
 use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithNotepad;
 use tcCore\Http\Traits\WithPreviewAttachments;
 use tcCore\Http\Traits\WithPreviewGroups;
+use tcCore\View\Components\CompletionQuestionConvertedHtml;
 
-class CompletionQuestion extends Component
+class CompletionQuestion extends TCComponent
 {
     use WithPreviewAttachments, WithNotepad, withCloseable, WithPreviewGroups;
 
@@ -26,29 +28,7 @@ class CompletionQuestion extends Component
 
     private function completionHelper($question)
     {
-        $question->getQuestionHtml();
-
-        $question_text = $question->converted_question_html;
-
-        $searchPattern = "/\[([0-9]+)\]/i";
-        $replacementFunction = function ($matches) use ($question) {
-            $tag_id = $matches[1] - 1; // the completion_question_answers list is 1 based but the inputs need to be 0 based
-            $events = sprintf('@blur="$refs.%s.scrollLeft = 0" @input="$event.target.setAttribute(\'title\', $event.target.value);"', 'comp_answer_' . $tag_id);
-
-            return sprintf(
-                '<span class="inline-flex max-w-full"><span class="absolute whitespace-nowrap" style="left: -9999px" x-ref="%s"></span> <input x-on:contextmenu="$event.preventDefault()" x-on:input="setInputWidth($el)" spellcheck="false" style="width: 120px"  autocorrect="off" autocapitalize="none"  wire:model.lazy="answer.%d"
-                            class="form-input mb-2 truncate text-center"  x-init="setInputWidth($el, true);"
-                            type="text" id="%s" x-ref="%s" %s wire:key="%s"/></span>',
-                'comp_answer_' . $tag_id . '_span',
-                $tag_id,
-                'answer_' . $tag_id .'_'.$this->question->getKey(),
-                'comp_answer_' . $tag_id,
-                $events,
-                'comp_answer_' . $tag_id
-            );
-        };
-
-        return preg_replace_callback($searchPattern, $replacementFunction, $question_text);
+        return Blade::renderComponent(new CompletionQuestionConvertedHtml($question, $context='teacher-preview'));
     }
 
     private function multiHelper($question)

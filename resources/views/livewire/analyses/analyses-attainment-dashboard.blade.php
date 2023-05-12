@@ -25,7 +25,7 @@
                 <h3> {{ $this->getHelper()->getForUser()->name_full }}  </h3>
             @endif
         </div>
-        <x-button.primary class="hidden bg-purple-900 flex">Exporteren</x-button.primary>
+        <x-button.primary class="hidden bg-purple-900 flex"><span>Exporteren</span></x-button.primary>
     </div>
 @endsection
 

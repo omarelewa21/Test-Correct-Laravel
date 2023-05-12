@@ -2,17 +2,11 @@
 
 namespace tcCore\Http\Livewire\Student;
 
-use Illuminate\Support\Facades\Auth;
-use Livewire\Component;
-use Livewire\WithPagination;
 use tcCore\AppVersionInfo;
 use tcCore\Http\Helpers\AppVersionDetector;
-use tcCore\Http\Traits\WithStudentTestTakes;
-use tcCore\Info;
-use tcCore\Message;
-use tcCore\TemporaryLogin;
+use tcCore\Http\Livewire\TCComponent;
 
-class Splash extends Component
+class Splash extends TCComponent
 {
 
     public function mount()

@@ -1438,6 +1438,7 @@ document.addEventListener("alpine:init", () => {
                 target.dataset.active = true;
                 target.firstElementChild.classList.add("text-primary");
                 this.handle.classList.remove("hidden");
+                this.handle.classList.add("block");
             });
         },
         resetButtons(target) {
@@ -1756,7 +1757,7 @@ document.addEventListener("alpine:init", () => {
             Notify.notify(message, "error");
         }
     }));
-    Alpine.data("loginScreen", (openTab, activeOverlay, device) => ({
+    Alpine.data("loginScreen", (openTab, activeOverlay,device, hasErrors) => ({
         openTab,
         showPassword: false,
         hoverPassword: false,
@@ -1764,12 +1765,16 @@ document.addEventListener("alpine:init", () => {
         showEntreePassword: false,
         activeOverlay,
         device,
+        hasErrors,
         init() {
             setTimeout(() => {
                 this.$wire.checkLoginFieldsForInput();
             }, 250);
             this.setCurrentFocusInput();
 
+            this.$watch('hasErrors', value => {
+                this.setCurrentFocusInput();
+            });
             this.$watch("activeOverlay", value => {
                 this.setCurrentFocusInput();
             });
@@ -1777,9 +1782,10 @@ document.addEventListener("alpine:init", () => {
                 this.setCurrentFocusInput();
             });
         },
-        setCurrentFocusInput() {
-            let name = ("" != this.activeOverlay) ? this.activeOverlay : this.openTab;
-            setTimeout(() => this.$root.querySelector(`[data-focus-tab='${name}']`)?.focus(), 250);
+        setCurrentFocusInput (){
+            let name = ('' != this.activeOverlay) ? this.activeOverlay : this.openTab;
+            var finder = ('' != hasErrors) ? `[data-focus-tab-error = '${name}-${hasErrors[0]}']` :`[data-focus-tab = '${name}']`
+            setTimeout(() => this.$root.querySelector(finder)?.focus(), 250);
         },
         changeActiveOverlay(activeOverlay = "") {
             this.activeOverlay = activeOverlay;
@@ -1792,6 +1798,7 @@ document.addEventListener("alpine:init", () => {
         halfPoints: array.halfPoints,
         drawerScoringDisabled: array.drawerScoringDisabled,
         pageUpdated: array.pageUpdated,
+        isCoLearningScore: array.isCoLearningScore,
         init() {
             if (this.pageUpdated) {
                 this.resetStoredData();
@@ -1799,6 +1806,7 @@ document.addEventListener("alpine:init", () => {
             if (isString(this.shadowScore)) {
                 this.shadowScore = this.isFloat(initialScore) ? parseFloat(initialScore) : parseInt(initialScore);
             }
+            this.$nextTick(() => this.$dispatch("slider-score-updated", { score: this.score }));
         },
         toggleCount() {
             return document.querySelectorAll(".student-answer .slider-button-container:not(.disabled)").length;
@@ -1830,6 +1838,10 @@ document.addEventListener("alpine:init", () => {
                 : Math.round(this.shadowScore);
         },
         setNewScore(newScore, state, firstTick) {
+            if (firstTick && this.isCoLearningScore) {
+                this.isCoLearningScore = false
+                this.shadowScore = 0;
+            }
             if (firstTick && state === "off") {
                 this.shadowScore ??= 0;
             } else {
@@ -1868,6 +1880,8 @@ document.addEventListener("alpine:init", () => {
         },
         updateScoringData(data) {
             Object.assign(this, data);
+            this.score = this.shadowScore = data.initialScore
+            this.$nextTick(() => this.$dispatch("slider-score-updated", { score: this.score }));
         }
     }));
     Alpine.data("assessmentNavigator", (current, total, methodCall, lastValue, firstValue) => ({
@@ -2031,6 +2045,9 @@ document.addEventListener("alpine:init", () => {
         needsToPerformActionsStill() {
             return !this.inReview && !this.$store.assessment.clearToProceed() && !this.clickedNext;
         },
+        openFeedbackTab() {
+            this.tab(2);
+        }
     }));
     Alpine.data("scoreSlider", (score, model, maxScore, halfPoints, disabled, coLearning, focusInput) => ({
         score,
@@ -2049,12 +2066,21 @@ document.addEventListener("alpine:init", () => {
             const min = el.min || 0;
             const max = el.max || 100;
             const value = el.value;
-
             return (value - min) / (max - min) * 100;
         },
+        setThumbOffset() {
+            let el = document.querySelector('.score-slider-input');
+
+            var offsetFromCenter = -45;
+            offsetFromCenter += (this.score/this.maxScore) * 90;
+
+            el.style.setProperty("--slider-thumb-offset", `calc(${offsetFromCenter}% + 1px)`);
+        },
         setSliderBackgroundSize(el) {
-            el.style.setProperty("--slider-thumb-offset", `${25 / 100 * this.getSliderBackgroundSize(el) - 12.5}px`);
-            el.style.setProperty("--slider-background-size", `${this.getSliderBackgroundSize(el)}%`);
+            this.$nextTick(() => {
+                el.style.setProperty("--slider-thumb-offset", `${25 / 100 * this.getSliderBackgroundSize(el) - 12.5}px`);
+                el.style.setProperty("--slider-background-size", `${this.getSliderBackgroundSize(el)}%`);
+            })
         },
         syncInput() {
             // Don't update if the value is the same;
@@ -2102,10 +2128,7 @@ document.addEventListener("alpine:init", () => {
 
                 this.score = value = this.halfPoints ? Math.round(value * 2) / 2 : Math.round(value);
 
-                const numberInput = this.$root.querySelector("[x-ref='score_slider_continuous_input']");
-                if (numberInput !== null) {
-                    this.setSliderBackgroundSize(numberInput);
-                }
+                this.updateContinuousSlider();
             });
             if (focusInput) {
                 this.$nextTick(() => {
@@ -2122,6 +2145,15 @@ document.addEventListener("alpine:init", () => {
             if (this.disabled) return;
             this.inputBox.classList.add("border-blue-grey");
             this.inputBox.classList.remove("border-allred");
+        },
+        getContinuousInput(){
+            return this.$root.querySelector("[x-ref='score_slider_continuous_input']");
+        },
+        updateContinuousSlider() {
+            const numberInput = this.getContinuousInput();
+            if (numberInput !== null) {
+                this.setSliderBackgroundSize(numberInput);
+            }
         }
     }));
 
@@ -2268,12 +2300,16 @@ document.addEventListener("alpine:init", () => {
                 this.totalScrollWidth = this.$root.offsetWidth;
                 this.resize();
                 this.initialized = true;
+                this.slideToActiveQuestionBubble();
             });
         },
         resize() {
             this.scrollStep = window.innerWidth / 10;
             const sliderButtons = this.$root.querySelector(".slider-buttons").offsetWidth * 2;
             this.showSlider = (this.$root.querySelector(".question-indicator").offsetWidth + sliderButtons) >= (this.$root.offsetWidth - 120);
+            if (this.showSlider) {
+                this.slideToActiveQuestionBubble();
+            }
         },
         scroll(position) {
             this.navScrollBar.scrollTo({ left: position, behavior: "smooth" });
@@ -2291,15 +2327,18 @@ document.addEventListener("alpine:init", () => {
         right() {
             this.scroll(this.navScrollBar.scrollLeft + this.scrollStep);
         },
+        slideToActiveQuestionBubble() {
+            let left = this.$root.querySelector(".active").offsetLeft;
+            this.navScrollBar.scrollTo({
+                left: left - (this.$root.getBoundingClientRect().left + 16),
+                behavior: "smooth"
+            });
+        },
         startIntersectionCountdown() {
             clearTimeout(this.intersectionCountdown);
             this.intersectionCountdown = setTimeout(() => {
                 clearTimeout(this.intersectionCountdown);
-                let left = this.$root.querySelector(".active").offsetLeft;
-                this.navScrollBar.scrollTo({
-                    left: left - (this.$root.getBoundingClientRect().left + 16),
-                    behavior: "smooth"
-                });
+                this.slideToActiveQuestionBubble();
             }, 5000);
         }
     }));
@@ -2323,6 +2362,37 @@ document.addEventListener("alpine:init", () => {
 
         }
     }));
+
+    Alpine.data("drawingQuestionImagePreview", () => ({
+        maxTries: 10,
+        currentTry: 0,
+        init() {
+            this.setHeightToAspectRatio(this.$el);
+        },
+        setHeightToAspectRatio(element) {
+            const aspectRatioWidth = 940;
+            const aspectRatioHeight = 500;
+            const aspectRatio = (aspectRatioHeight / aspectRatioWidth);
+            const container = element.closest("#accordion-block, #answer-container");
+            if (!container) {
+                console.error('Trying to set drawing image preview aspect ratio on without valid container.');
+                return;
+            }
+
+            const newHeight = (container.clientWidth-82) * aspectRatio;
+
+            if (newHeight <= 0) {
+                if (this.currentTry <= this.maxTries) {
+                    setTimeout(() => this.setHeightToAspectRatio(element), 50);
+                    this.currentTry++;
+                }
+                return;
+            }
+
+            element.style.height = newHeight + "px";
+        }
+    }))
+
     Alpine.directive("global", function(el, { expression }) {
         let f = new Function("_", "$data", "_." + expression + " = $data;return;");
         f(window, el._x_dataStack[0]);

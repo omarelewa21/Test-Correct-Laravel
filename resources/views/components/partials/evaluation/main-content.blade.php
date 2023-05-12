@@ -75,7 +75,7 @@
                     </div>
                 </x-slot:title>
                 <x-slot:body>
-                    <div class="flex flex-col gap-2"
+                    <div class="flex flex-col gap-2 questionContainer w-full"
                          wire:key="question-block-{{  $question->uuid }}">
                         <div class="flex flex-wrap" wire:key="attachment-container-{{ $uniqueKey }}">
                             @foreach($question->attachments as $attachment)
@@ -89,11 +89,7 @@
                         </div>
 
                         <div class="max-w-full">
-                            @if($question->isType('Completion'))
-                                {!! $question->getDisplayableQuestionText()  !!}
-                            @else
-                                {!! $question->converted_question_html !!}
-                            @endif
+                            {!! $questionText !!}
                         </div>
                     </div>
                 </x-slot:body>
@@ -120,7 +116,7 @@
                         </div>
                     </x-slot:title>
                     <x-slot:body>
-                        <div class="w-full" wire:key="answer-model-{{$question->uuid}}">
+                        <div class="w-full questionContainer" wire:key="answer-model-{{$question->uuid}}">
                             <x-dynamic-component
                                     :component="'answer.teacher.'. str($question->type)->kebab()"
                                     :question="$question"

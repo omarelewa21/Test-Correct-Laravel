@@ -4,11 +4,14 @@ use Dyrynda\Database\Casts\EfficientUuid;
 use Exception;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Ramsey\Uuid\Uuid;
 use tcCore\Exceptions\QuestionException;
 use tcCore\Http\Enums\WscLanguage;
+use tcCore\Http\Controllers\QuestionsController;
 use tcCore\Http\Helpers\DemoHelper;
+use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Http\Traits\WithQuestionFilteredHelpers;
 use tcCore\Lib\Models\MtiBaseModel;
 use tcCore\Scopes\QuestionAttainmentScope;
@@ -399,7 +402,7 @@ class Question extends MtiBaseModel
                 continue;
             }
             $options = [];
-            if(isset($attributes['questionAttachmentOptions'][$questionAttachment->attachment_id])){
+            if (isset($attributes['questionAttachmentOptions'][$questionAttachment->attachment_id])) {
                 $options = [
                     'options' => json_encode($attributes['questionAttachmentOptions'][$questionAttachment->attachment_id])
                 ];
@@ -583,9 +586,9 @@ class Question extends MtiBaseModel
         }
     }
 
-    public function isDirtyAttachmentOptions($request) : bool
+    public function isDirtyAttachmentOptions($request): bool
     {
-        if(isset($request->all()['questionAttachmentOptions'])) {
+        if (isset($request->all()['questionAttachmentOptions'])) {
             return true;
         }
 
@@ -890,9 +893,7 @@ class Question extends MtiBaseModel
 //        return null;
     }
 
-    public function deleteAnswers()
-    {
-    }
+    public function deleteAnswers() {}
 
     /**
      * @param $mainQuestion TestQuestion|GroupQuestionQuestion
@@ -900,9 +901,7 @@ class Question extends MtiBaseModel
      * @return array
      * @throws \Exception
      */
-    public function addAnswers($mainQuestion, $answers)
-    {
-    }
+    public function addAnswers($mainQuestion, $answers) {}
 
     private function convertMatchingAnswers($answers)
     {
@@ -1117,7 +1116,7 @@ class Question extends MtiBaseModel
     protected function handleAttachmentOptionsSaving($request)
     {
         $this->questionAttachments->each(function ($questionAttachment) use ($request) {
-            if(isset($request['questionAttachmentOptions'][$questionAttachment->attachment_id])){
+            if (isset($request['questionAttachmentOptions'][$questionAttachment->attachment_id])) {
                 $questionAttachment->options = json_encode($request['questionAttachmentOptions'][$questionAttachment->attachment_id]);
             }
         });
@@ -1163,12 +1162,21 @@ class Question extends MtiBaseModel
     {
         $totalData = $this->getQuestionDataBeforeDuplicationByRequest($request);
 
+        $originalQuestionId = $this->getKey();
+
         $question = $this->duplicate($totalData);
         if ($question === false) {
             throw new QuestionException('Failed to duplicate question');
         }
         $this->duplicateQuestionKey = $question->getKey();
         $this->addQuestionToAuthor($question);
+
+        if ($totalData['draft'] === false && QuestionHelper::belongsOnlyToDraftTests(
+                questionId: $originalQuestionId,
+                excludeTestId: $request['test_id']
+            )) {
+            QuestionHelper::setToDraft($originalQuestionId);
+        }
     }
 
     public function onlyAddToDatabaseFieldNeedsToBeUpdated($request)
@@ -1551,9 +1559,9 @@ class Question extends MtiBaseModel
 
     private function addCurrentQuestionRelationToNewQuestion(Question $question, $relationName)
     {
-        $pivotTable = 'question'.Str::ucfirst($relationName);
+        $pivotTable = 'question' . Str::ucfirst($relationName);
 
-        if($this->$pivotTable && $question->$pivotTable()->doesntExist()){
+        if ($this->$pivotTable && $question->$pivotTable()->doesntExist()) {
             $params = $this->$pivotTable->map(function ($relation) use ($question) {
                 $relation->question_id = $question->getKey();
                 return $relation->toArray();
@@ -1600,7 +1608,7 @@ class Question extends MtiBaseModel
             collect($valuesPerTaxonomy)->each(function ($values, $column) use ($query, $valuesPerTaxonomy) {
                 $whereMethod = array_key_first($valuesPerTaxonomy) === $column ? 'whereIn' : 'orWhereIn';
                 $query->$whereMethod(
-                    'questions.'.$column,
+                    'questions.' . $column,
                     $values
                 );
             });

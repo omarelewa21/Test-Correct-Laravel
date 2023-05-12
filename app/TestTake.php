@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Ramsey\Uuid\Uuid;
-use tcCore\Events\CoLearningNextQuestion;
+use tcCore\Events\TestTakeChangeDiscussingQuestion;
 use tcCore\Events\InbrowserTestingUpdatedForTestParticipant;
 use tcCore\Events\NewTestTakeGraded;
 use tcCore\Events\NewTestTakeReviewable;
@@ -17,6 +17,7 @@ use tcCore\Events\TestTakeShowResultsChanged;
 use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Helpers\GlobalStateHelper;
+use tcCore\Http\Middleware\AfterResponse;
 use tcCore\Jobs\CountTeacherLastTestTaken;
 use tcCore\Jobs\CountTeacherTestDiscussed;
 use tcCore\Jobs\CountTeacherTestTaken;
@@ -116,7 +117,7 @@ class TestTake extends BaseModel
                 $testTake->setAttribute('test_id', $systemTestId);
             }
 
-            if ($testTake->testTakeStatus->name === 'Discussing' && $testTake->getAttribute('discussing_question_id') !== null) {
+            if ($testTake->test_take_status_id === TestTakeStatus::STATUS_DISCUSSING && $testTake->getAttribute('discussing_question_id') !== null) {
                 $testTake->setAttribute('is_discussed', true);
             }
 
@@ -226,9 +227,7 @@ class TestTake extends BaseModel
 
             if ($testTake->test_take_status_id === TestTakeStatus::STATUS_DISCUSSING) {
                 if ($testTake->studentsAreInNewCoLearningAndDiscussingTypeIsOpenOnly()) {
-                    foreach ($testTake->testParticipants as $testParticipant) {
-                        CoLearningNextQuestion::dispatch($testParticipant->uuid);
-                    }
+                    AfterResponse::$performAction[] = fn() => TestTakeChangeDiscussingQuestion::dispatch($testTake->uuid);
                 }
             }
 
@@ -261,7 +260,6 @@ class TestTake extends BaseModel
                     TestTakeOpenForInteraction::dispatch($testParticipant->uuid);
                 }
             }
-
             if (($testTake->testTakeStatus->name === 'Discussing' && $testTake->getAttribute('discussing_question_id') != $testTake->getOriginal('discussing_question_id'))
                 || ($testTake->testTakeStatus->name === 'Discussed' && $testTake->getAttribute('test_take_status_id') != $testTake->getOriginal('test_take_status_id'))) {
                 $inactiveTestParticipant = [];
@@ -1295,17 +1293,6 @@ class TestTake extends BaseModel
             ->exists();
     }
 
-    /**
-     * Check if test take has non-active participants for co-learning
-     */
-    public function hasNonActiveParticipant(): bool
-    {
-        return !is_null(
-            $this->testParticipants->first(function ($participant) {
-                return is_null($participant->heartbeat_at) || strtotime($participant->heartbeat_at) < (time() - 10);
-            })
-        );
-    }
 
     /**
      * Check if test take is still allowed to review by students

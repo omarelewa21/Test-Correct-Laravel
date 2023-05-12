@@ -4,12 +4,12 @@ namespace tcCore\Http\Livewire\Student;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
-use Livewire\Component;
 use tcCore\Http\Helpers\AppVersionDetector;
+use tcCore\Http\Livewire\TCComponent;
 use tcCore\Message;
 use tcCore\TemporaryLogin;
 
-class Header extends Component
+class Header extends TCComponent
 {
     public $logoUrl;
     public $user_name;

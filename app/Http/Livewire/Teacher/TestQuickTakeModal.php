@@ -3,10 +3,9 @@
 namespace tcCore\Http\Livewire\Teacher;
 
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
-use LivewireUI\Modal\ModalComponent;
 use Ramsey\Uuid\Uuid;
 use tcCore\Http\Enums\UserFeatureSetting as UserFeatureSettingEnum;
+use tcCore\Http\Livewire\TCModalComponent;
 use tcCore\Http\Traits\Modal\WithPlanningFeatures;
 use tcCore\Lib\Repositories\PeriodRepository;
 use tcCore\TemporaryLogin;
@@ -15,7 +14,7 @@ use tcCore\TestTake;
 use tcCore\TestTakeStatus;
 use tcCore\UserFeatureSetting;
 
-class TestQuickTakeModal extends ModalComponent
+class TestQuickTakeModal extends TCModalComponent
 {
     use WithPlanningFeatures;
 
@@ -51,7 +50,7 @@ class TestQuickTakeModal extends ModalComponent
                 'testTake.allow_inbrowser_testing' => 'required|boolean',
                 'testTake.guest_accounts'          => 'required|boolean',
                 'testTake.notify_students'         => 'required|boolean',
-
+                'testTake.allow_wsc'               => 'sometimes|required|boolean',
             ];
     }
 
@@ -76,6 +75,7 @@ class TestQuickTakeModal extends ModalComponent
         $this->testTake = new TestTake();
         $this->setFeatureSettingDefaults($this->testTake);
         $this->testTake->is_rtti_test_take = false;
+        $this->testTake->allow_wsc = false;
     }
 
     public function hydrate()

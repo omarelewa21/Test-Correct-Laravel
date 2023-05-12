@@ -60,7 +60,7 @@
                 <x-button.cta x-data="{}"
                               x-show="Alpine.store('questionBank').active"
                               x-on:click.stop="addQuestionToTestFromTestCard($el, '{{ $uuid }}', false );$el.disabled = true">
-                    <x-icon.plus-2/>
+                    <x-icon.plus/>
                     <span>{{ __('cms.Toevoegen') }}</span>
                 </x-button.cta>
             </div>

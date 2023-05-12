@@ -1,9 +1,9 @@
 @extends('components.partials.header.collapsable')
 
 @section('title')
-    <h6 class="text-white">@lang($this->headerCollapsed ? 'co-learning.co_learning' : 'start_co_learning_session')
+    <h6 class="text-white">@lang($this->headerCollapsed ? 'co-learning.co_learning' : 'co-learning.start_co_learning_session')
         : </h6>
-    <h4 class="text-white">{!!  clean($testName) !!}</h4>
+    <h4 class="text-white truncate" title="{!!  clean($testName) !!}">{!!  clean($testName) !!}</h4>
 @endsection
 
 @section('subtitle')
@@ -19,7 +19,7 @@
                       @class(['opacity-40' => !$atLastQuestion])
                       wire:click.prevent="finishCoLearning"
         >
-            {{ __('co-learning.complete') }}
+            <span>{{ __('co-learning.complete') }}</span>
             <x-icon.checkmark class="ml-2" />
         </x-button.cta>
     </div>

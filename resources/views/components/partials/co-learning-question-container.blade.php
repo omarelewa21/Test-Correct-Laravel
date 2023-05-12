@@ -2,7 +2,7 @@
 'question',
 ])
 
-<div class="flex flex-col p-8 sm:p-10 content-section rs_readable relative">
+<div class="flex flex-col p-8 sm:p-10 content-section rs_readable relative" id="answer-container">
     <div class="question-title flex flex-wrap items-center question-indicator border-bottom mb-6">
         <div class="inline-flex question-number rounded-full text-center justify-center items-center {!! $this->answered ? 'complete': 'incomplete' !!}">
             <span class="align-middle cursor-default">{{ $this->questionNumber }}</span>
@@ -52,7 +52,7 @@
             </div>
         {{--@endif--}}
     </div>
-    <div class="absolute w-0 h-full left-0 top-0 border-student border-4 rounded-10"></div>
+    <div class="container-border-left student"></div>
 {{--    <div x-on:contextmenu="$event.preventDefault()" class="absolute z-10 w-full h-full left-0 top-0"></div>--}}
 </div>
 

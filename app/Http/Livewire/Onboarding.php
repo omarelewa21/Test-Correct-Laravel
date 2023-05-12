@@ -3,11 +3,8 @@
 namespace tcCore\Http\Livewire;
 
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
-use Livewire\Component;
 use Ramsey\Uuid\Uuid;
 use tcCore\BaseSubject;
 use tcCore\DemoTeacherRegistration;
@@ -20,7 +17,7 @@ use tcCore\ShortcodeClick;
 use tcCore\TemporaryLogin;
 use tcCore\User;
 
-class Onboarding extends Component
+class Onboarding extends TCComponent
 {
 
     protected $allowedLevels = ['MBO','HO','PO','VO'];

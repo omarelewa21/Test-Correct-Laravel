@@ -503,6 +503,8 @@ class Test extends BaseModel
 
         $test->setAttribute('uuid', Uuid::uuid4());
 
+        $test->unsetRelation('testQuestions');
+
         if ($test->save() === false) {
             return false;
         }
@@ -1318,5 +1320,18 @@ class Test extends BaseModel
                 return collect([$testQuestion->question]);
             })
             ->values();
+    }
+
+    /**
+     * return true if allow_writing_assignment is allowed for the school location and there are writing assignments
+     *
+     * @return bool
+     */
+    public function getAllowWscForStudentsAttribute(): bool
+    {
+        $schoolLocation = Auth()->user()->schoolLocation;
+        return $schoolLocation->allow_writing_assignment
+            && $schoolLocation->allow_wsc
+            && $this->getWritingAssignmentsCount() > 0;
     }
 }

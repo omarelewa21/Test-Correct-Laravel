@@ -61,6 +61,14 @@ class MacrosServiceProvider extends ServiceProvider
             return $this->when($hideNonDescrepancy, fn($answers) => $answers->whereNot('hasDiscrepancy', false, true));
         });
 
+        //implements Eloquent Builder methods into
+        Collection::macro('onlyTrashed', function () {
+            return $this->whereNotNull('deleted_at');
+        });
+        Collection::macro('withoutTrashed', function () {
+            return $this->whereNull('deleted_at');
+        });
+
         URL::macro('referrer', function () {
             $path = Livewire::isLivewireRequest()
                 ? BaseHelper::getLivewireOriginalPath(request())

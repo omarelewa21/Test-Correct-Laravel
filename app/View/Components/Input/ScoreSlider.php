@@ -21,12 +21,8 @@ class ScoreSlider extends Component
         public bool           $focusInput = false,
         public bool           $hideThumb = false,
     ) {
-        if ($this->halfPoints && $this->maxScore > 7) {
-            $this->continuousScoreSlider = true;
-        }
-        if (!$this->halfPoints && $this->maxScore > 15) {
-            $this->continuousScoreSlider = true;
-        }
+        $this->setContinuousSliderValue();
+
         if (!$this->title) {
             $this->title = __('Score');
         }
@@ -35,5 +31,15 @@ class ScoreSlider extends Component
     public function render(): View
     {
         return view('components.input.score-slider');
+    }
+
+    private function setContinuousSliderValue(): void
+    {
+        if ($this->mode === 'small') {
+            $this->continuousScoreSlider = $this->halfPoints ? $this->maxScore > 5 : $this->maxScore > 10;
+            return;
+        }
+
+        $this->continuousScoreSlider = $this->halfPoints ? $this->maxScore > 7 : $this->maxScore > 15;
     }
 }

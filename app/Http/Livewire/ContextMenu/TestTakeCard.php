@@ -124,9 +124,8 @@ class TestTakeCard extends ContextMenuComponent
     {
         $testTake = TestTake::whereUuid($this->uuid)->with('test', 'testParticipants')->firstOrFail();
 
-        $pageAction = sprintf('TestTake.checkStartDiscussion("%s", %s, %s, %s)', $this->uuid,
+        $pageAction = sprintf('TestTake.checkStartDiscussionFromLaravel("%s", %s, %s)', $this->uuid,
             $testTake->test->hasOpenQuestion() ? 'false' : 'true',
-            $testTake->hasNonActiveParticipant() ? 'true' : 'false',
             auth()->user()->schoolLocation->allow_new_co_learning_teacher ? 'true' : 'false'
         );
 

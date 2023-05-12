@@ -2,7 +2,7 @@
     <span></span>
     @if($this->isInCms())
     <x-menu.context-menu.button x-on:click="addQuestionToTest($el, uuid, contextData.showQuestionBankAddConfirmation )">
-        <x-slot name="icon"><x-icon.plus-2/></x-slot>
+        <x-slot name="icon"><x-icon.plus/></x-slot>
         <x-slot name="text">{{ __('cms.Toevoegen') }}</x-slot>
     </x-menu.context-menu.button>
     @endif

@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
-use Livewire\Component;
 use Livewire\WithFileUploads;
 use Ramsey\Uuid\Uuid;
 use tcCore\Attachment;
@@ -28,6 +27,7 @@ use tcCore\Http\Enums\WscLanguage;
 use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Http\Interfaces\QuestionCms;
+use tcCore\Http\Livewire\TCComponent;
 use tcCore\Http\Requests\CreateAttachmentRequest;
 use tcCore\Http\Requests\CreateGroupQuestionQuestionRequest;
 use tcCore\Http\Requests\CreateTestQuestionRequest;
@@ -41,7 +41,7 @@ use tcCore\TestQuestion;
 use tcCore\TestTake;
 use tcCore\UserFeatureSetting;
 
-class OpenShort extends Component implements QuestionCms
+class OpenShort extends TCComponent implements QuestionCms
 {
     use WithFileUploads;
     use WithQueryStringSyncing;

@@ -170,7 +170,7 @@
          :class="{'pb-16 pt-1.5' : startCountdown}">
     </div>
 
-    <div class="fixed student-bg top-0 left-0 h-full w-full transition-all duration-500 py-[70px]"
+    <div class="fixed student-bg top-0 left-0 h-full w-full transition-all duration-500 py-[70px] z-1"
          x-show.transition.500ms="startCountdown"
     >
         <div class="w-full h-full px-4 lg:px-8 xl:px-12 transition-all duration-500">

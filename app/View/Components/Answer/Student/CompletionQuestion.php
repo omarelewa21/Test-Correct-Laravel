@@ -19,6 +19,7 @@ class CompletionQuestion extends QuestionComponent
         public Question $question,
         public Answer   $answer,
         public bool     $disabledToggle = false,
+        public bool     $showToggles = true,
         public bool     $inAssessment = false,
     ) {
         parent::__construct($question, $answer);
@@ -47,6 +48,10 @@ class CompletionQuestion extends QuestionComponent
      */
     private function isToggleActiveForAnswer($givenAnswer, $correctAnswer): ?bool
     {
+        if ($this->question->isSubType('multi')) {
+            return $givenAnswer === $correctAnswer->answer;
+        }
+
         if (!$this->answer->answerRatings) {
             return null;
         }

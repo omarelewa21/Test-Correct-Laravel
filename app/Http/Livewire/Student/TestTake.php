@@ -5,14 +5,15 @@ namespace tcCore\Http\Livewire\Student;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
+use tcCore\Answer;
 use tcCore\Http\Helpers\BaseHelper;
+use tcCore\Http\Livewire\TCComponent;
 use tcCore\TemporaryLogin;
 use tcCore\TestParticipant;
 use tcCore\TestTakeEvent;
 use tcCore\TestTakeEventType;
 
-
-class TestTake extends Component
+class TestTake extends TCComponent
 {
     const FALLBACK_EVENT_TYPE_ID = 3; //lost-focus
     public $testTakeUuid;
@@ -21,6 +22,7 @@ class TestTake extends Component
     public $testParticipantUuid;
     public $forceTakenAwayModal = false;
     public $browserTestingDisabledModal = false;
+    public string $questionsWithNoAnswer = '';
 
     /** @var int
      *  time in milliseconds a notification is shown
@@ -206,5 +208,17 @@ class TestTake extends Component
         if ($test->isAssignment()) {
             $this->dispatchBrowserEvent('show-to-dashboard');
         }
+    }
+
+    public function getQuestionNumbersWithNoAnswer()
+    {
+        return Answer::where(['test_participant_id' => $this->testParticipantId, 'done' => 0])
+            ->orderBy('order')->pluck('order')->join(', ', ' '.__("test-take.and").' ');
+    }
+
+    public function isAllAnswersDone(): bool
+    {
+        return Answer::where(['test_participant_id' => $this->testParticipantId, 'done' => 0])
+            ->doesntExist();
     }
 }
