@@ -2,6 +2,7 @@
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use tcCore\Lib\User\Roles;
@@ -88,7 +89,7 @@ abstract class Request extends FormRequest {
             $input->transform(function ($a) {
                 return self::filter($a);
             });
-        } elseif (is_bool($input) || is_int($input) || is_float($input)){
+        } elseif (is_bool($input) || is_int($input) || is_float($input) || $input instanceof UploadedFile){
             // we don't do anything.
             // And as a failsafe we fall back to the string
         } else {
