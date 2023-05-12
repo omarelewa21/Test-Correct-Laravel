@@ -26,6 +26,7 @@ use tcCore\Http\Helpers\ImportHelper;
 use tcCore\Http\Helpers\GlobalStateHelper;
 use tcCore\Http\Helpers\SchoolHelper;
 use tcCore\Http\Helpers\UserHelper;
+use tcCore\Http\Livewire\Account\UserData;
 use tcCore\Jobs\CountSchoolActiveTeachers;
 use tcCore\Jobs\CountSchoolLocationActiveTeachers;
 use tcCore\Jobs\CountSchoolLocationQuestions;
@@ -2840,5 +2841,17 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         ])->mapWithKeys(function ($enum) {
                 return [$enum->value => UserFeatureSetting::getSetting($this, $enum, default: $enum->initialValue())];
             });
+    }
+
+    public function getUserDataObject(): UserData
+    {
+        return new UserData([
+            'username'    => $this->username,
+            'uuid'        => $this->uuid,
+            'name_first'  => $this->name_first,
+            'name_suffix' => $this->name_suffix,
+            'name'        => $this->name,
+            'gender'      => $this->gender,
+        ]);
     }
 }

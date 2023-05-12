@@ -8942,9 +8942,6 @@ video {
 .bottom-8{
   bottom: 2rem;
 }
-.bottom-\[9px\]{
-  bottom: 9px;
-}
 .left-0{
   left: 0px;
 }
@@ -9849,9 +9846,6 @@ video {
 }
 .min-w-\[46px\]{
   min-width: 46px;
-}
-.min-w-\[60px\]{
-  min-width: 60px;
 }
 .min-w-\[70px\]{
   min-width: 70px;

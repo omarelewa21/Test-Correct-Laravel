@@ -102,15 +102,8 @@ class Teacher extends Component
 
     private function setUserData(User $user): void
     {
-        $this->userData = new UserData([
-            'username'    => $user->username,
-            'uuid'        => $user->uuid,
-            'name_first'  => $user->name_first,
-            'name_suffix' => $user->name_suffix,
-            'name'        => $user->name,
-            'gender'      => $user->gender,
-        ]);
         $this->user = $user;
+        $this->userData = $user->getUserDataObject();
     }
 
     private function setProfileSchoolLocationData(): void

@@ -64,16 +64,13 @@
         readspeakerLoadCore();
     </script>
 @endif
-@if (!is_null(Auth::user()) && Auth::user()->isA('teacher'))
-    <script>
-        Core.startUserLogoutInterval(true, @js(Auth::user()->sessionLength) ); // session check if extensionTime exists, else => session time will be 15 min
-    </script>
-@endif
 @stack('scripts')
 <script>
     Alpine.start();
     Core.init();
-
+    @if (!is_null(Auth::user()) && Auth::user()->isA('teacher'))
+        Core.startUserLogoutInterval(true, @js(Auth::user()->sessionLength) )
+    @endif
     window.processingRequest = false;
     window.cmsProcessTally = 0;
     Livewire.hook('message.sent', (message, component) => {
