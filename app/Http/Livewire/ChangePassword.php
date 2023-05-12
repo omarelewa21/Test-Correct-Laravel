@@ -4,11 +4,10 @@ namespace tcCore\Http\Livewire;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use LivewireUI\Modal\ModalComponent;
 use tcCore\Http\Traits\UserNotificationForController;
 use tcCore\User;
 
-class ChangePassword extends ModalComponent
+class ChangePassword extends TCModalComponent
 {
     use UserNotificationForController;
 
