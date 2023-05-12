@@ -3,7 +3,9 @@
         <div><h1>{{ __('school.schools') }}</h1></div>
         <div class="flex-shrink-0">
             @if($administrator)
-                <x-button.cta class="" wire:click="addNewSchool">{{ __('school.new-school') }}</x-button.cta>
+                <x-button.cta class="" wire:click="addNewSchool">
+                    <span>{{ __('school.new-school') }}</span>
+                </x-button.cta>
             @endif
         </div>
 
