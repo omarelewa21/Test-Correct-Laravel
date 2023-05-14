@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Livewire\TemporaryUploadedFile;
 use Livewire\WithFileUploads;
 use Ramsey\Uuid\Uuid;
@@ -427,6 +428,10 @@ class UploadTest extends TCComponent
                 $this->getNameRulesDependingOnAction(),
                 [Rule::notIn($this->previousUploadedTestNames)]
             )
+        ], [
+            'name.not_in' => __('upload.validation.name.not_in'),
+            'name.unique' => __('upload.validation.name.unique'),
+            'name.min:3'  => __('upload.validation.name.min'),
         ]);
     }
 
@@ -437,11 +442,22 @@ class UploadTest extends TCComponent
     {
         return collect($this->testInfo)
                 ->reject(fn($item) => filled($item))
-                ->isEmpty() && $this->checkValidTestName();
+                ->isEmpty() && $this->validateTestName()->passes();
     }
 
-    public function checkValidTestName(): bool
+    public function checkValidTestName(): array
     {
-        return $this->validateTestName()->passes();
+        try {
+            if(!empty($this->testInfo['name']))
+                $this->validateTestName()->validate();
+
+            return ['success' => true];
+
+        } catch (ValidationException $e) {
+            return [
+                'success' => false,
+                'message'  => $e->getMessage()
+            ];
+        }
     }
 }
