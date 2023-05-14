@@ -12,7 +12,7 @@
         {{-- Filters--}}
         <div class="flex flex-col py-4">
             <div class="flex w-full mt-2">
-                <div class="relative w-full">
+                <div class="relative flex w-full">
                     <x-input.group class="w-full">
                         <x-input.text class="w-full"
                                       placeholder="{{ __('cms.Search...') }}"
@@ -20,6 +20,14 @@
                         />
                         <x-icon.search class="absolute right-0 -top-2"/>
                     </x-input.group>
+
+                    @if($showTestQuestionToggle)
+                        <x-button.slider class="pl-2"
+                            :options="[false => __('general.tests'), true => __('general.questions')]"
+                            wire:model="showQuestionBank"
+                            buttonWidth="auto"
+                        />
+                    @endif
                 </div>
             </div>
             <div class="flex flex-wrap w-full gap-2 mt-2">
@@ -120,12 +128,24 @@
                 @endif
             </x-slot>
 
+        @if ($showTestQuestionToggle)
+            <x-slot name="cards">
+                @foreach($results as $test)
+                    @if($this->showQuestionBank)
+                        <x-grid.question-card-detail :testQuestion="$test" /> 
+                    @else
+                        <x-grid.test-card :test="$test" :mode="$cardMode ?? 'page'"/>
+                    @endif
+                @endforeach
+            </x-slot>
+            <livewire:context-menu.question-card>            
+        @else
             <x-slot name="cards">
                 @foreach($results as $test)
                     <x-grid.test-card :test="$test" :mode="$cardMode ?? 'page'"/>
                 @endforeach
             </x-slot>
-
+          @endif
             <livewire:context-menu.test-card/>
         </x-partials.overview-content-section>
 
