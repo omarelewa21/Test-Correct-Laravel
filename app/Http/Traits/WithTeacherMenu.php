@@ -78,14 +78,14 @@ trait WithTeacherMenu
                 'parameters' => route('teacher.tests')
             ]
         ];
-        $tiles['question-bank'] = [
-            'title'  => __('header.Vragenbank'),
-            'action' => [
-                'directive'  => 'wire',
-                'method'     => 'cakeRedirect',
-                'parameters' => 'tests.question_bank'
-            ]
-        ];
+        // $tiles['question-bank'] = [
+        //     'title'  => __('header.Vragenbank'),
+        //     'action' => [
+        //         'directive'  => 'wire',
+        //         'method'     => 'cakeRedirect',
+        //         'parameters' => 'tests.question_bank'
+        //     ]
+        // ];
         $tiles['my-uploads'] = [
             'title'  => __('header.Mijn uploads'),
             'action' => [
