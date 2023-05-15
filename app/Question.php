@@ -741,9 +741,11 @@ class Question extends MtiBaseModel
         $user = Auth::user();
         $query = $this->differentScenariosAndDemo($query, $filters);
 
-        [$query, $joins] = $this->handleSearchFilters($query, $filters);
+        $searchJoins = $this->handleSearchFilters($query, $filters);
+        $filterJoins = $this->handleFilterParams($query, $user, $filters);
 
-        $this->handleFilterParams($query, $user, $filters);
+        $joins = array_merge($searchJoins, $filterJoins);
+
         $this->handleFilteredSorting($query, $sorting);
         $this->handleQueryJoins($query, array_unique($joins));
 

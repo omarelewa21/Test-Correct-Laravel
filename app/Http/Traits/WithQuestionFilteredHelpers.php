@@ -21,6 +21,7 @@ trait WithQuestionFilteredHelpers
 {
     private function handleFilterParams(&$query, $user, $filters = [])
     {
+        $joins = [];
         foreach($filters as $key => $value) {
             switch($key) {
                 case 'base_subject_id':
@@ -184,6 +185,7 @@ trait WithQuestionFilteredHelpers
                     break;
             }
         }
+        return $joins;
     }
 
     private function handleFilteredSorting(&$query, $sorting = []): void
@@ -359,7 +361,7 @@ trait WithQuestionFilteredHelpers
     private function handleSearchFilters(&$query, $filters): array
     {
         if (!array_key_exists('search', $filters)) {
-            return [$query, []];
+            return [];
         }
 
         $searchValue = $filters['search'];
@@ -379,7 +381,7 @@ trait WithQuestionFilteredHelpers
 
         $joins = $this->getJoinsFromOpenQuestionSearch($query, $openQuestionOnly, $filters, $openQuestionDisabled, $openQuestion);
 
-        return [$query, $joins];
+        return $joins;
     }
 
     private function handlePublishedFilterParams(&$query, $filters = [])
