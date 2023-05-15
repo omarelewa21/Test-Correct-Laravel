@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Traits;
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use tcCore\BaseSubject;
@@ -28,43 +29,20 @@ trait WithQuestionFilteredHelpers
                     if(isset($filters['source'])){
                         switch($filters['source']){
                             case 'schoolLocation': // only my colleages and me
-                                if(is_array($value)) {
-                                    $subjectIdsBuilder = $user->subjects()->whereIn('base_subject_id', $value);
-                                } else {
-                                    $subjectIdsBuilder = $user->subjects()->where('base_subject_id','=',$value);
-                                }
-                                $subjectIdsBuilder->select('id');
-                                $query->whereIn('subject_id',$subjectIdsBuilder);
+                                $subjectIdsBuilder = $user->subjects();
                                 break;
                             case 'school': //  shared sections
-                                if(is_array($value)) {
-                                    $subjectIdsBuilder = $user->subjectsOnlyShared()->whereIn('base_subject_id', $value);
-                                } else {
-                                    $subjectIdsBuilder = $user->subjectsOnlyShared()->where('base_subject_id','=',$value);
-                                }
-                                $subjectIdsBuilder->select('id');
-                                $query->whereIn('subject_id',$subjectIdsBuilder);
+                                $subjectIdsBuilder = $user->subjectsOnlyShared();
                                 break;
                             default:
-                                if(is_array($value)) {
-                                    $subjectIdsBuilder = $user->subjectsIncludingShared()->whereIn('base_subject_id', $value);
-                                } else {
-                                    $subjectIdsBuilder = $user->subjectsIncludingShared()->where('base_subject_id','=',$value);
-                                }
-                                $subjectIdsBuilder->select('id');
-                                $query->whereIn('subject_id',$subjectIdsBuilder);
+                                $subjectIdsBuilder = $user->subjectsIncludingShared();
                                 break;
                         }
                     } else {
-                        if(is_array($value)) {
-                            $subjectIdsBuilder = $user->subjectsIncludingShared()->whereIn('base_subject_id', $value);
-                        } else {
-                            $subjectIdsBuilder = $user->subjectsIncludingShared()->where('base_subject_id','=',$value);
-                        }
-                        $subjectIdsBuilder->select('id');
-                        $query->whereIn('subject_id',$subjectIds);
+                        $subjectIdsBuilder = $user->subjectsIncludingShared();
                     }
-
+                    $subjectIdsBuilder->whereIn('base_subject_id', Arr::wrap($value))->select('subjects.id');
+                    $query->whereIn('subject_id',$subjectIdsBuilder->get());
                     break;
                 case 'source':
                     if(isset($filters['base_subject_id'])){
