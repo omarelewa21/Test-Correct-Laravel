@@ -1,4 +1,5 @@
 <?php
+
 return [
     'Bijlage toevoegen'                                                                      => 'Add attachment',
     'Of sleep je bijlage over dit vak'                                                       => 'Or drop the attachment here..',
@@ -228,4 +229,5 @@ return [
     'no_public_content_search_filters'                                                       => 'There is no public content for your school yet.',
     'no_items_search_filter'                                                                 => 'There are no more entries for these search filters.',
     'Sorry, er ging iets fout, probeer het nogmaals'                                         => 'Sorry, something went wrong. Please try again',
+    'half_point_validation_text'                                                             => 'You cannot assign a half point value to an answer option when \'Allow halve points review\' is disabled.',
 ];

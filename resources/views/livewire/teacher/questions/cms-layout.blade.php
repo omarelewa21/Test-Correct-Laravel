@@ -158,60 +158,15 @@
                     />
                 @endif
             </div>
-            <div class="{{ $this->getErrorBag()->isEmpty() ? 'mb-4' : '' }}">
-                {{ $this->getErrorBag() }}
-                @error('question.name')
-                <div class="notification error stretched mt-4">
-                    <span class="title">{{ $message }}</span>
-                </div>
-                @enderror
-                @error('question.question')
-                <div class="notification error stretched mt-4">
-                    <span class="title">{{ $message }}</span>
-                </div>
-                @enderror
-                @error('question.answer')
-                <div class="notification error stretched mt-4">
-                    <span class="title">{{ $message }}</span>
-                </div>
-                @enderror
-                @error('question.answers')
-                <div class="notification error stretched mt-4">
-                    <span class="title">{{ $message }}</span>
-                </div>
-                @enderror
 
-                @error('question.answers.*.*')
-                <div class="notification error stretched mt-4">
-                    <span class="title">{{ __('cms.De gemarkeerde velden zijn verplicht') }}</span>
-                </div>
-                @enderror
-
-                @error('question.score')
-                <div class="notification error stretched mt-4">
-                    <span class="title">{{ __('cms.Er dient minimaal 1 punt toegekend te worden') }}</span>
-                </div>
-                @enderror
-                @error('question.rtti')
-                <div class="notification warning stretched mt-4">
-                    <span class="title">{{ $message }}</span>
-                </div>
-                @enderror
-                @error('question.bloom')
-                <div class="notification warning stretched mt-4">
-                    <span class="title">{{ $message }}</span>
-                </div>
-                @enderror
-                @error('question.miller')
-                <div class="notification warning stretched mt-4">
-                    <span class="title">{{ $message }}</span>
-                </div>
-                @enderror
-                @error('question.answer_svg')
-                <div class="notification error stretched mt-4">
-                    <span class="title">{{ __('cms.drawing-question-required-answer') }}</span>
-                </div>
-                @enderror
+            <div @class(['flex flex-col gap-2', 'mb-4' => $this->getErrorBag()->isEmpty()])>
+                @if($errors->isNotEmpty())
+                    @foreach($errors->all() as $error)
+                        <div class="notification error stretched w-full">
+                            <span class="title">{{ $error }}</span>
+                        </div>
+                    @endforeach
+                @endif
 
                 @if($this->isGroupQuestion() && $this->isCarouselGroup() && $this->editModeForExistingQuestion())
                     @if(!$this->hasEnoughSubQuestionsAsCarousel())
