@@ -35,7 +35,7 @@ return [
     'Feedback toevoegen'                           => 'Feedback toevoegen',
     'current_session'                              => ":index/:totalQuestions vragen nagekeken<br>op :date",
     'no_answers'                                   => 'Er zijn geen antwoorden om na te kijken.',
-    'Toon de naam van studenten'                   => 'Toon de naam van studenten',
+    'Studentnamen tonen'                   => 'Studentnamen tonen',
     'Inline feedback toevoegen'                    => 'Inline feedback toevoegen',
     'Inline feedback wijzigen'                     => 'Inline feedback wijzigen',
     'Inline feedback verwijderen'                  => 'Inline feedback verwijderen',

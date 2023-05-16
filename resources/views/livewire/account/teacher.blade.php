@@ -7,13 +7,13 @@
             <div class="relative flex justify-center items-center text-center">
                 <h4 class="text-white text-center duration-100 transition-opacity"
                     x-on:language-loading-start.window="$el.classList.toggle('opacity-0')"
-                    x-on:language-loading-end.window="setTimeout(() => $el.classList.toggle('opacity-0'), 250)"
+                    x-on:language-loading-end.window="setTimeout(() => $el.classList.toggle('opacity-0'), 150)"
                     wire:ignore.self
                 >@lang('account.account') @lang('account.settings')</h4>
 
                 <x-animations.loading-fade loadProperty="changing"
                                            class="min-w-[250px] transform -translate-x-1/2 -translate-y-1/2 left-1/2 top-1/2"
-                                           color="blue"
+                                           color="white"
                 />
             </div>
 
@@ -34,8 +34,8 @@
                 <span class="flex justify-center">
                     @lang('account.account')
                     <x-animations.loading-fade loadProperty="changing"
-                                               class="bg-lightGrey"
-                                               color="blue"
+                                               class="bg-lightGrey px-1"
+                                               color="base"
                     />
                 </span>
             </x-menu.tab.item>
@@ -43,7 +43,9 @@
                 <span class="flex justify-center">
                     @lang('header.Toetsen')
                     <x-animations.loading-fade loadProperty="changing"
-                                               class="bg-lightGrey min-w-[80px]" />
+                                               class="bg-lightGrey min-w-[80px] px-1"
+                                               color="base"
+                    />
                 </span>
             </x-menu.tab.item>
         </x-menu.tab.container>
@@ -55,7 +57,7 @@
             <div class="flex flex-col w-full gap-4">
                 <div class="relative pl-0.5">
                     <h2 class="flex">Test-Correct @lang('account.settings')</h2>
-                    <x-animations.loading-fade loadProperty="changing" class="bg-lightGrey w-1/2" />
+                    <x-animations.loading-fade loadProperty="changing" class="bg-lightGrey w-1/2" color="base"/>
                 </div>
 
                 <div class="content-section relative p-10 grid grid-cols-1 lg:grid-cols-2 gap-6 w-full overflow-hidden">
@@ -108,7 +110,7 @@
             <div class="flex flex-col w-full gap-4">
                 <div class="relative pl-0.5">
                     <h2 class="flex">@lang('account.Jouw profiel') - @lang('account.docent account')</h2>
-                    <x-animations.loading-fade loadProperty="changing" class="bg-lightGrey w-1/2" />
+                    <x-animations.loading-fade loadProperty="changing" class="bg-lightGrey w-1/2" color="base"/>
                 </div>
 
                 <div class="content-section relative p-10 grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -361,12 +363,12 @@
                     <div class="border-b border-bluegrey flex w-full items-center h-[50px] gap-2.5 self-end">
                         <x-input.toggle wire:model="featureSettings.wsc_copy_subject_language" class="mr-2" />
                         <x-icon.text-align-left />
-                        <span class="bold">@lang('account.Neem taal over van taalvak')</span>
+                        <span class="bold">@lang('account.Taal van taalvak overnemen')</span>
                     </div>
                     <div class="border-b border-bluegrey flex w-full items-center h-[50px] gap-2.5 self-end">
                         <x-input.toggle wire:model="featureSettings.question_auto_score_completion" class="mr-2" />
                         <x-icon.autocheck />
-                        <span class="bold">@lang('account.Automatisch nakijken gatentektst vragen')</span>
+                        <span class="bold">@lang('account.Gatentektst vragen automatisch nakijken')</span>
                     </div>
 
                     <div class="flex justify-between items-center border-b border-bluegrey h-[50px]">
@@ -432,7 +434,7 @@
                         <x-input.toggle wire:model="featureSettings.assessment_skip_no_discrepancy_answer"
                                         class="mr-2 min-w-[var(--switch-width)]" />
                         <x-icon.co-learning class="min-w-fit" />
-                        <span class="bold inline-flex flex-shrink-1">@lang('account.Sla antwoorden over die met CO-Learning zijn beoordeeld')</span>
+                        <span class="bold inline-flex flex-shrink-1">@lang('account.Antwoorden met CO-Learning score overslaan')</span>
                         <div class="min-w-fit">
                             <x-tooltip >@lang('assessment.discrepancies_toggle_tooltip')</x-tooltip>
                         </div>
@@ -440,7 +442,7 @@
                     <div class="border-b lg:border-t border-bluegrey flex w-full items-center h-[50px] gap-2.5">
                         <x-input.toggle wire:model="featureSettings.assessment_show_student_names" class="mr-2" />
                         <x-icon.profile />
-                        <span class="bold">@lang('assessment.Toon de naam van studenten')</span>
+                        <span class="bold">@lang('assessment.Studentnamen tonen')</span>
                     </div>
                 </div>
             </div>
@@ -457,7 +459,7 @@
                     <div class="border-b lg:border-t border-bluegrey flex w-full items-center h-[50px] gap-2.5">
                         <x-input.toggle wire:model="featureSettings.review_show_correction_model" class="mr-2" />
                         <x-icon.discuss />
-                        <span class="bold">@lang('account.Toon antwoordmodel')</span>
+                        <span class="bold">@lang('account.Antwoordmodel tonen')</span>
                     </div>
                 </div>
             </div>

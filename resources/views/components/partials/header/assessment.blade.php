@@ -133,7 +133,7 @@
             </div>
         </div>
         <div @class(['flex py-1.5 px-4 items-center justify-between'])>
-            <span>@lang('assessment.Toon de naam van studenten')</span>
+            <span>@lang('assessment.Studentnamen tonen')</span>
             <div class="flex items-center gap-4">
                 <x-input.toggle wire:model="assessmentContext.assessment_show_student_names" />
                 <x-tooltip idle-classes="bg-transparent text-white border-white border">
