@@ -521,7 +521,9 @@ document.addEventListener("alpine:init", () => {
                     this.$store.questionBank.inGroup = false;
                 }
                 this.next(this.$refs.home);
-                this.$dispatch("backdrop");
+                if(!this.$store.cms.emptyState) {
+                    this.$dispatch("backdrop");
+                }
             }
         },
         addSubQuestionToNewGroup(shouldCheckDirty = true) {
@@ -1804,7 +1806,7 @@ document.addEventListener("alpine:init", () => {
                 this.resetStoredData();
             }
             if (isString(this.shadowScore)) {
-                this.shadowScore = this.isFloat(initialScore) ? parseFloat(initialScore) : parseInt(initialScore);
+                this.shadowScore = isFloat(initialScore) ? parseFloat(initialScore) : parseInt(initialScore);
             }
             this.$nextTick(() => this.$dispatch("slider-score-updated", { score: this.score }));
         },
@@ -1820,7 +1822,7 @@ document.addEventListener("alpine:init", () => {
             console.warn("No navigation component found for the specified name.");
         },
         toggleTicked(event) {
-            const parsedValue = this.isFloat(event.value) ? parseFloat(event.value) : parseInt(event.value);
+            const parsedValue = isFloat(event.value) ? parseFloat(event.value) : parseInt(event.value);
             this.setNewScore(parsedValue, event.state, event.firstTick);
 
             this.updateAssessmentStore();
@@ -1828,9 +1830,6 @@ document.addEventListener("alpine:init", () => {
             this.dispatchNewScoreToSlider();
 
             this.updateLivewireComponent(event);
-        },
-        isFloat(value) {
-            return parseFloat(value.match(/^-?\d*(\.\d+)?$/)) > 0;
         },
         getCurrentScore() {
             return this.halfPoints
@@ -2060,6 +2059,8 @@ document.addEventListener("alpine:init", () => {
         persistantScore: null,
         inputBox: null,
         focusInput,
+        bars: [],
+        halfTotal: false,
         getSliderBackgroundSize(el) {
             if (this.score === null) return 0;
 
@@ -2135,6 +2136,12 @@ document.addEventListener("alpine:init", () => {
                     this.inputBox.focus();
                 });
             }
+
+            this.bars = this.maxScore;
+            if (this.halfPoints) {
+                this.halfTotal = this.hasMaxDecimalScoreWithHalfPoint();
+                this.bars = this.maxScore / 0.5;
+            }
         },
         markInputElementsWithError() {
             if (this.disabled) return;
@@ -2154,6 +2161,16 @@ document.addEventListener("alpine:init", () => {
             if (numberInput !== null) {
                 this.setSliderBackgroundSize(numberInput);
             }
+        },
+        sliderPillClasses(value) {
+            const score = this.halfTotal ? this.score * 2 : this.score;
+            const first = ((value/2) + "").split(".")[1] === '5';
+            return value <= score
+                ? `bg-primary border-primary highlight ${first ? 'first' : 'second'}`
+                : `border-bluegrey opacity-100 ${first ? 'first' : 'second'}`;
+        },
+        hasMaxDecimalScoreWithHalfPoint() {
+            return isFloat(this.maxScore);
         }
     }));
 

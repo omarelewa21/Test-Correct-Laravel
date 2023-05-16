@@ -291,3 +291,8 @@ clearFilterPillsFromElement = (rootElement) => {
     let pills = rootElement.querySelectorAll('.filter-pill')
     pills.forEach(pill => pill.remove());
 }
+
+isFloat = (value) => {
+    const splitValues = (value + "").split(".")
+    return splitValues[1] !== undefined;
+};

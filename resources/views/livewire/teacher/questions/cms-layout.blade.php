@@ -159,6 +159,7 @@
                 @endif
             </div>
             <div class="{{ $this->getErrorBag()->isEmpty() ? 'mb-4' : '' }}">
+                {{ $this->getErrorBag() }}
                 @error('question.name')
                 <div class="notification error stretched mt-4">
                     <span class="title">{{ $message }}</span>

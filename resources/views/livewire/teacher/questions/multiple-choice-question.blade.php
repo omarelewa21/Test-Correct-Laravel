@@ -96,12 +96,13 @@
                                   wire:key="cmsPropertyBag.answerStruct.{{ $answer->id }}"
                                   title="{{ $answer->score }}"
                                   type="number"
-                                  :onlyInteger="true"
+                                  step="0.5"
+
                                   selid="score-field"
                                   :disabled="isset($preview)"
 
-                                  x-on:focusin="$el.value = (parseInt($el.value) === 0 ? '' : $el.value)"
-                                  x-on:focusout="$el.value = ($el.value === '' ? 0 : parseInt($el.value))"
+                                  x-on:focusin="$el.value = ((Math.round($el.value*2)/2) === 0 ? '' : $el.value)"
+                                  x-on:focusout="$el.value = ($el.value === '' ? 0 : (Math.round($el.value*2)/2) )"
                                   x-on:change="if(!$store.cms.dirty) $store.cms.dirty = true"
                                   x-on:store-current-question.window="syncInputValue('cmsPropertyBag.answerStruct.{{ $loop->index }}.score', $el.value)"
                     />

@@ -5428,7 +5428,42 @@ input.datepicker {
 }
 
 .score-slider-pill {
-    overflow: hidden;
+    position: relative;
+    /*overflow: hidden;*/
+}
+.score-slider-pill.first:not(:last-child) {
+    /*background-color: red;*/
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.score-slider-pill.first:not(:last-child)::after {
+    content: '';
+    background-color: var(--teacher-primary-light);
+    width: 0.375rem;
+    height: 0.375rem;
+    position: absolute;
+    right: -4px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    border-radius: 100%;
+}
+.score-slider-pill.first:not(.highlight):not(:last-child)::after {
+    background-color: var(--system-secondary);
+}
+.score-slider-pill.first:not(.highlight):not(:last-child) {
+    border-right-color: transparent;
+}
+.score-slider-pill.second:not(.highlight) {
+    border-left-color: transparent;
+}
+
+.score-slider-pill.second {
+    /*background-color: greenyellow;*/
+    margin-right: 0.125rem;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
 }
 
 .score-slider-container .score-slider-track-container:focus .score-slider-pill,
@@ -5447,6 +5482,7 @@ input.datepicker {
 .score-slider-container .score-slider-continuous-input::-ms-track:hover {
     border: 1px solid var(--teacher-primary);
 }
+
 
 
 /* score slider initial thumb */
