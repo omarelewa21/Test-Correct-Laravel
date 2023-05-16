@@ -61,7 +61,7 @@ trait WithQuestionFilteredHelpers
                             $subjectIdsBuilder = $user->subjectsIncludingShared()->where('base_subject_id','=',$value);
                         }
                         $subjectIdsBuilder->select('id');
-                        $query->whereIn('subject_id',$subjectIds);
+                        $query->whereIn('subject_id',$subjectIdsBuilder->get());
                     }
 
                     break;
