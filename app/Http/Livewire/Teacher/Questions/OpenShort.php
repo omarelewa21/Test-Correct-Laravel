@@ -1187,13 +1187,13 @@ class OpenShort extends TCComponent implements QuestionCms
 
     public function getAmountOfQuestionsProperty()
     {
-        return Test::whereUuid($this->testId)->first()->getAmountOfQuestions();
+        return Test::whereUuid($this->testId)->first()?->getAmountOfQuestions();
     }
 
     private function testHasNoQuestions()
     {
         $questionAmount = $this->getAmountOfQuestionsProperty();
-        return !!($questionAmount['regular'] === 0 && $questionAmount['group'] === 0);
+        return !$questionAmount || !!($questionAmount['regular'] === 0 && $questionAmount['group'] === 0);
     }
 
     private function testHasQuestions()
