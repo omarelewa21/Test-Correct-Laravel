@@ -1,7 +1,7 @@
 @props(['loadProperty', 'color' => 'grey'])
 <div {{ $attributes->except('class') }} @class(["absolute inset-0 flex items-center", $attributes->get('class')])
      x-show="{{ $loadProperty }}"
-     x-transition:enter="transition-opacity ease-out duration-200"
+     x-transition:enter="transition-opacity ease-out duration-50"
      x-transition:enter-start="opacity-0"
      x-transition:enter-end="opacity-100"
      x-transition:leave="transition-opacity ease-in duration-100"
