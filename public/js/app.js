@@ -8319,6 +8319,35 @@ clearFilterPillsFromElement = function clearFilterPillsFromElement(rootElement) 
   });
 };
 
+/**
+ * Detects fast successive events
+ * @param event event to detect
+ * @param callback function to execute on fast successive events
+ */
+detectFastSuccessiveEvents = function detectFastSuccessiveEvents(event, callback) {
+  // Check if the element was double-clicked
+  var currentTime = new Date().getTime();
+  if (currentTime - event.target.lastClickTime < 500) {
+    // Execute your callback
+    callback(event);
+  }
+
+  // Set the last click time to the current time
+  event.target.lastClickTime = currentTime;
+};
+
+/**
+ * Selects the inner text of the target element
+ * @param event
+ */
+selectTextContent = function selectTextContent(event) {
+  var range = document.createRange();
+  range.selectNodeContents(event.target);
+  var selection = window.getSelection();
+  selection.removeAllRanges();
+  selection.addRange(range);
+};
+
 /***/ }),
 
 /***/ "./resources/js/attachment.js":
@@ -8690,7 +8719,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "662d128370816e2bbb66",
+  key: "346b9b2cf30ab766e6a6",
   cluster: "eu",
   forceTLS: true
 });
