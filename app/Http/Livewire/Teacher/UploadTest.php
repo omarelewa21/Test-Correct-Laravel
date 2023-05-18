@@ -423,11 +423,15 @@ class UploadTest extends TCComponent
 
     private function validateTestName()
     {
+        $rules = $this->getNameRulesDependingOnAction();
+        if(!auth()->user()->isToetsenbakker()){
+            $rules[] = Rule::notIn($this->previousUploadedTestNames);
+            $rules[] = Rule::unique('file_managements', 'origname')
+                ->where('user_id', auth()->id());
+        }
+
         return Validator::make($this->testInfo, [
-            'name' => array_merge(
-                $this->getNameRulesDependingOnAction(),
-                [Rule::notIn($this->previousUploadedTestNames)]
-            )
+            'name' => $rules
         ], [
             'name.not_in' => __('upload.validation.name.not_in'),
             'name.unique' => __('upload.validation.name.unique'),
