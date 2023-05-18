@@ -22,6 +22,7 @@
                                                      sortableHandle="false"
                                                      wire:sortable-group.item="{{ $option->id }}"
                                                      selid="drag-block"
+                                                     @touchend="detectFastSuccessiveEvents($event, selectTextContent)"
                                                      class="{{ empty($option->answer) || $option->answer == ' ' ? 'hidden' : '' }}"
                                         >
                                             {{ html_entity_decode($option->answer) }}
@@ -71,6 +72,7 @@
                                     @if($answerStruct[$option->id] === '')
                                         <x-drag-item id="drag_item{{$question->getKey()}}-{{$option->id}}"
                                                      wire:key="option-{{ $option->id }}" sortableHandle="false"
+                                                     @touchend="detectFastSuccessiveEvents($event, selectTextContent)"
                                                      wire:sortable-group.item="{{ $option->id }}" selid="drag-block">
                                             {{ html_entity_decode($option->answer) }}
                                         </x-drag-item>
