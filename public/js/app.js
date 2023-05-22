@@ -7986,7 +7986,6 @@ document.addEventListener("alpine:init", function () {
       openTab: 'account',
       changing: false,
       language: language,
-      init: function init() {},
       startLanguageChange: function startLanguageChange(event, wireModelName) {
         var _this54 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee17() {

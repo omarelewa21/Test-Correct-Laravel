@@ -108,7 +108,7 @@ class Teacher extends Component
 
     private function setProfileSchoolLocationData(): void
     {
-        $this->user->load('schoolLocation:id,name');
+        $this->user->loadMissing('schoolLocation');
         $this->locationName = $this->user->schoolLocation->name;
         collect([
             'subjects'  => $this->user->subjects()->pluck('name'),
@@ -126,7 +126,7 @@ class Teacher extends Component
             'classes'   => $this->user->teacherSchoolClasses()->pluck('name'),
         ])->each(function (Collection $data, string $property) {
             $this->{$property}['count'] = $data->count();
-            $this->{$property}['string'] = $data->join(', ');
+            $this->{$property}['string'] = $data->map(fn($name) => html_entity_decode($name))->join(', ');
         });
     }
 

@@ -2346,9 +2346,6 @@ document.addEventListener("alpine:init", () => {
         openTab: 'account',
         changing: false,
         language,
-        init() {
-
-        },
         async startLanguageChange(event, wireModelName) {
             this.$dispatch('language-loading-start');
             this.changing = true;

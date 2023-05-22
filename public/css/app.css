@@ -1611,12 +1611,20 @@ input[type=number] {
     background-color: var(--kr-background-color);
 }
 
+.knightrider-container.base {
+    --kr-background-color: rgba(var(--system-base-rgb), .1);
+    --kr-bar-color: var(--system-base);
+}
 .knightrider-container.grey {
     --kr-background-color: var(--light-grey);
     --kr-bar-color: var(--mid-grey);
 }
+.knightrider-container.white {
+    --kr-background-color: rgba(255 255 255 / .1 );
+    --kr-bar-color: white;
+}
 .knightrider-container.blue {
-    --kr-background-color: var(--blue-grey);
+    --kr-background-color: var(--primary-opacity-10);
     --kr-bar-color: var(--primary);
 }
 .knightrider-container.yellow {
@@ -1627,7 +1635,6 @@ input[type=number] {
     --kr-background-color: var(--red-notification-border);
     --kr-bar-color: var(--all-red);
 }
-
 
 .knightrider-container .knightrider-bar {
     position: absolute;

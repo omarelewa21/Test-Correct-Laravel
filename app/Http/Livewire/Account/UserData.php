@@ -4,8 +4,8 @@ namespace tcCore\Http\Livewire\Account;
 
 class UserData implements \Livewire\Wireable
 {
-    public readonly string $username;
-    public readonly string $uuid;
+    public string $username;
+    public string $uuid;
     public string $name_first;
     public string $name;
     public ?string $gender;
@@ -30,6 +30,9 @@ class UserData implements \Livewire\Wireable
 
     public function toLivewire()
     {
+        foreach ($this as $property => $value) {
+            $this->$property = is_string($value) ? html_entity_decode($value) : $value;
+        }
         return get_object_vars($this);
     }
 
