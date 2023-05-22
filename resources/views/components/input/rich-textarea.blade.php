@@ -32,7 +32,10 @@
        }
 @endphp
 
-<div class="ckeditor-error rounded-10 @error($attributes->wire('model')->value) border border-allred @enderror"
+<div class="ckeditor-error"
+     @error($attributes->wire('model')->value)
+        style="--ck-color-toolbar-border: var(--all-red);--ck-color-base-border: var(--all-red);"
+     @enderror
      selid="ckeditor">
     <div wire:ignore @class(['ckeditor-disabled' => $disabled])>
         <textarea

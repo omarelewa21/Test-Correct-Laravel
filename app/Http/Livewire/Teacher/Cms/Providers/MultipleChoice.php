@@ -1,13 +1,13 @@
 <?php
 
-namespace tcCore\Http\Livewire\Teacher\Questions;
+namespace tcCore\Http\Livewire\Teacher\Cms\Providers;
 
 use Ramsey\Uuid\Uuid;
 use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Interfaces\QuestionCms;
 use tcCore\Http\Traits\WithCmsCustomRulesHandling;
 
-class CmsMultipleChoice extends CmsBase
+class MultipleChoice extends TypeProvider
 {
     use WithCmsCustomRulesHandling;
 

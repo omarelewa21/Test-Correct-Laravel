@@ -1,11 +1,12 @@
 <?php
 
-namespace tcCore\Http\Livewire\Teacher\Questions;
+namespace tcCore\Http\Livewire\Teacher\Cms\Providers;
 
 use Illuminate\Support\Str;
 use tcCore\Http\Helpers\SvgHelper;
+use tcCore\Http\Livewire\Teacher\Cms\Constructor;
 
-class CmsDrawing extends CmsBase
+class Drawing extends TypeProvider
 {
     public function getTranslationKey(): string
     {
@@ -163,7 +164,7 @@ class CmsDrawing extends CmsBase
 
     public function drawingToolName()
     {
-        if ($this->instance instanceof OpenShort) {
+        if ($this->instance instanceof Constructor) {
             if ($this->instance->action == 'edit') {
                 return $this->instance->groupQuestionQuestionId === '' ? $this->instance->testQuestionId : $this->instance->groupQuestionQuestionId;
             }

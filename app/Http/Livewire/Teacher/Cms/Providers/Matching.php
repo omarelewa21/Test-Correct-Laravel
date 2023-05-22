@@ -1,6 +1,6 @@
 <?php
 
-namespace tcCore\Http\Livewire\Teacher\Questions;
+namespace tcCore\Http\Livewire\Teacher\Cms\Providers;
 
 use Illuminate\Support\Str;
 use Ramsey\Uuid\Uuid;
@@ -8,7 +8,7 @@ use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Interfaces\QuestionCms;
 use tcCore\Http\Traits\WithCmsCustomRulesHandling;
 
-class CmsMatching extends CmsBase
+class Matching extends TypeProvider
 {
     use WithCmsCustomRulesHandling;
 

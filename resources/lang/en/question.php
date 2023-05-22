@@ -1,10 +1,7 @@
 <?php
+
 return [
-    'open-long-short'             => 'Open long & short',
-    'open-long-short_description' => 'Open answer by typing a short or long text',
-    'open-long_description'       => 'Open answer by typing a long text',
-    'open-short_description'      => 'Open answer by typing a short text',
-    'open-writing_description'    => 'Writing assignment answer by typing a text',
+    'open_description'            => 'Answer open questions including writing assignments',
     'completion'                  => 'Completion',
     'completion_description'      => 'Filling the gaps as answer',
     'drawing'                     => 'Drawing',
@@ -27,12 +24,13 @@ return [
     'infoscreen_description'      => 'Give additional information for a single or set of questions',
     'no_question_text'            => 'No question text',
 
-    'openquestionmedium'                   => 'Open long',
-    'openquestionshort'                    => 'Open short',
-    'openquestionlong'                     => 'Open long',
-    'openquestionopen'                     => 'Open long & short',
-    'openquestion'                         => 'Open long & short',
-    'openquestionwriting'                  => 'Writing assignment',
+    'openquestionmedium'                   => 'Write down',
+    'openquestionwrite'                    => 'Write down',
+    'openquestionshort'                    => 'Write down',
+    'openquestionlong'                     => 'Write down',
+    'openquestionopen'                     => 'Write down',
+    'openquestion'                         => 'Write down',
+    'openquestionwriting'                  => 'Write down',
     'multiplechoicequestion'               => 'Multiple choice',
     'multiplechoicequestionarq'            => 'ARQ',
     'multiplechoicequestionmultichoice'    => 'Multiple choice',

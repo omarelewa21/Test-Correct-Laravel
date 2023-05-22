@@ -34,7 +34,15 @@ class OpenQuestion extends Question implements QuestionInterface {
      *
      * @var array
      */
-    protected $fillable = ['subtype', 'answer', 'spell_check_available'];
+    protected $fillable = [
+        'subtype',
+        'answer',
+        'spell_check_available',
+        'text_formatting',
+        'mathml_functions',
+        'restrict_word_amount',
+        'max_words',
+    ];
 
     /**
      * The attributes excluded from the model's JSON form.

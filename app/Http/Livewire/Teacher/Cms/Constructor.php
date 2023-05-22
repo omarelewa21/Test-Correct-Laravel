@@ -1,8 +1,9 @@
 <?php
 
-namespace tcCore\Http\Livewire\Teacher\Questions;
+namespace tcCore\Http\Livewire\Teacher\Cms;
 
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
+use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -24,6 +25,12 @@ use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Http\Interfaces\QuestionCms;
 use tcCore\Http\Livewire\TCComponent;
+use tcCore\Http\Livewire\Teacher\Cms\Providers\Group;
+use tcCore\Http\Livewire\Teacher\Cms\Providers\InfoScreen;
+use tcCore\Http\Livewire\Teacher\Cms\Providers\MultipleChoice;
+use tcCore\Http\Livewire\Teacher\Cms\Providers\Open;
+use tcCore\Http\Livewire\Teacher\Cms\Providers\Ranking;
+use tcCore\Http\Livewire\Teacher\Cms\Providers\TrueFalse;
 use tcCore\Http\Requests\CreateAttachmentRequest;
 use tcCore\Http\Requests\CreateGroupQuestionQuestionRequest;
 use tcCore\Http\Requests\CreateTestQuestionRequest;
@@ -37,9 +44,10 @@ use tcCore\TestQuestion;
 use tcCore\TestTake;
 use tcCore\UserFeatureSetting;
 
-class OpenShort extends TCComponent implements QuestionCms
+class Constructor extends TCComponent implements QuestionCms
 {
-    use WithFileUploads, WithQueryStringSyncing;
+    use WithFileUploads;
+    use WithQueryStringSyncing;
 
     public $showSelectionOptionsModal = false;
 
@@ -101,7 +109,7 @@ class OpenShort extends TCComponent implements QuestionCms
     public $lang = 'nl_NL';
     private $lastSelectedLanguage;
     public $allowWsc = false;
-    const SETTING_LANG = 'spellchecker language';
+    public const SETTING_LANG = 'spellchecker language';
 
     protected $tags = [];
 
@@ -118,7 +126,6 @@ class OpenShort extends TCComponent implements QuestionCms
     protected $settingsGeneralPropertiesVisibility = [
         'autoCheckAnswer'                       => false,
         'autoCheckAnswerCaseSensitive'          => false,
-        'spellingCheckAvailableDuringAssessing' => false,
     ];
 
     public $testName = 'test_name';
@@ -136,7 +143,7 @@ class OpenShort extends TCComponent implements QuestionCms
     public $question;
 
     /**
-     * @var CmsInfoScreen|CmsMultipleChoice|CmsOpen|CmsRanking|CmsTrueFalse|null
+     * @var InfoScreen|MultipleChoice|Open|Ranking|TrueFalse|null
      */
     private $obj = '';
 
@@ -176,11 +183,11 @@ class OpenShort extends TCComponent implements QuestionCms
             'question.answer'   => __('cms.Antwoordmodel')
         ];
 
-        if ($this->obj instanceof CmsInfoScreen) {
+        if ($this->obj instanceof InfoScreen) {
             $return['question.question'] = __('cms.Informatietekst');
         }
 
-        if ($this->obj instanceof CmsGroup) {
+        if ($this->obj instanceof Group) {
             $return['question.name'] = __('cms.naam vraaggroep');
         }
 
@@ -319,7 +326,7 @@ class OpenShort extends TCComponent implements QuestionCms
     public function booted()
     {
         if (!$this->emptyState) {
-            $this->obj = CmsFactory::create($this);
+            $this->obj = TypeFactory::create($this);
         }
     }
 
@@ -345,7 +352,7 @@ class OpenShort extends TCComponent implements QuestionCms
         }
 
         $this->initializeContext($this->action, $this->type, $this->subtype, $activeTest);
-        $this->obj = CmsFactory::create($this);
+        $this->obj = TypeFactory::create($this);
         $this->initializePropertyBag($activeTest);
         $this->allowWsc = Auth::user()->schoolLocation->allow_wsc;
     }
@@ -381,7 +388,7 @@ class OpenShort extends TCComponent implements QuestionCms
 
         if (!method_exists(get_parent_class($this), $method) && !str_contains($method, 'hydrate')) {
             $errorMessage = sprintf('Method (%s) not found on parent, type is `%s` (%s) on file %s:%d', $method, $this->question['type'], $this->question['subtype'], __FILE__, __LINE__);
-            Bugsnag::notifyException(new \Exception($errorMessage));
+            Bugsnag::notifyException(new Exception($errorMessage));
         }
         return parent::__call($method, $arguments);
     }
@@ -516,7 +523,7 @@ class OpenShort extends TCComponent implements QuestionCms
 
     public function hasAllOrNothing()
     {
-        return $this->obj instanceof CmsMultipleChoice;
+        return $this->obj instanceof MultipleChoice;
     }
 
     public function showQuestionScore()
@@ -536,10 +543,10 @@ class OpenShort extends TCComponent implements QuestionCms
             $gqqm = GroupQuestionQuestionManager::getInstanceWithUuid($this->testQuestionId);
             $cgqqr = new CreateGroupQuestionQuestionRequest($this->question);
 
-            return (new GroupQuestionQuestionsController)->store($gqqm, $cgqqr);
+            return (new GroupQuestionQuestionsController())->store($gqqm, $cgqqr);
         }
 
-        return (new TestQuestionsController)->store(new CreateTestQuestionRequest($this->question));
+        return (new TestQuestionsController())->store(new CreateTestQuestionRequest($this->question));
     }
 
     private function handleAttachments($response)
@@ -561,7 +568,7 @@ class OpenShort extends TCComponent implements QuestionCms
         if ($this->emptyState) {
             return view('livewire.teacher.questions.cms-layout')->layout('layouts.cms');
         }
-        throw new \Exception('No template found for this question type.');
+        throw new Exception('No template found for this question type.');
     }
 
     public function handleExternalUpdatedProperty(array $incomingData)
@@ -648,14 +655,14 @@ class OpenShort extends TCComponent implements QuestionCms
             $groupQuestionQuestion = GroupQuestionQuestion::whereUuid($this->groupQuestionQuestionId)->first();
             $groupQuestionQuestionManager = GroupQuestionQuestionManager::getInstanceWithUuid($this->testQuestionId);
 
-            $response = (new GroupQuestionQuestionsController)->updateGeneric(
+            $response = (new GroupQuestionQuestionsController())->updateGeneric(
                 $groupQuestionQuestionManager,
                 $groupQuestionQuestion,
                 $request
             );
 
         } else {
-            $response = (new TestQuestionsController)->updateFromWithin(
+            $response = (new TestQuestionsController())->updateFromWithin(
                 TestQuestion::whereUUID($this->testQuestionId)->first(),
                 $request
             );
@@ -734,13 +741,13 @@ class OpenShort extends TCComponent implements QuestionCms
 
         if (!$this->isCloneRequest) {
             if ($this->isPartOfGroupQuestion()) {
-                $response = (new GroupAttachmentsController)
+                $response = (new GroupAttachmentsController())
                     ->destroy(
                         GroupQuestionQuestionManager::getInstanceWithUuid("{$this->testQuestionId}.{$this->groupQuestionQuestionId}"),
                         $attachment
                     );
             } else {
-                $response = (new AttachmentsController)
+                $response = (new AttachmentsController())
                     ->destroy(
                         TestQuestion::whereUuid($this->testQuestionId)->first(),
                         $attachment
@@ -819,13 +826,13 @@ class OpenShort extends TCComponent implements QuestionCms
     public function createAttachmentWithRequest(CreateAttachmentRequest $request, $response)
     {
         if ($this->isPartOfGroupQuestion()) {
-            return (new GroupAttachmentsController)
+            return (new GroupAttachmentsController())
                 ->store(
                     GroupQuestionQuestionManager::getInstanceWithUuid("{$response->original->group_question_question_path}.{$response->original->uuid}"),
                     $request
                 );
         }
-        return (new AttachmentsController)
+        return (new AttachmentsController())
             ->store(
                 TestQuestion::find($response->original->id),
                 $request
@@ -855,14 +862,14 @@ class OpenShort extends TCComponent implements QuestionCms
             $groupQuestionQuestion = GroupQuestionQuestion::whereUuid($this->groupQuestionQuestionId)->first();
             $groupQuestionQuestionManager = GroupQuestionQuestionManager::getInstanceWithUuid($this->testQuestionId);
 
-            $response = (new GroupQuestionQuestionsController)->destroy(
+            $response = (new GroupQuestionQuestionsController())->destroy(
                 $groupQuestionQuestionManager,
                 $groupQuestionQuestion
             );
         } else {
             $testQuestion = TestQuestion::whereUuid($this->testQuestionId)->firstOrFail();
 
-            $response = (new TestQuestionsController)->destroy($testQuestion);
+            $response = (new TestQuestionsController())->destroy($testQuestion);
         }
 
 
@@ -1227,7 +1234,7 @@ class OpenShort extends TCComponent implements QuestionCms
             $question = Question::whereUuid($args['questionUuid'])->first();
             try {
                 $this->groupQuestionQuestionId = $groupQuestion->groupQuestionQuestions()->firstWhere('question_id', $question->getKey())->uuid;
-            } catch(\Exception $e){
+            } catch(Exception $e){
                 // the groupQuestionQuestion could not be found and has probably to do with using the back button
                 // we therefor lead the user to the test page again with a notification
                 $this->resetToEmptyState();
@@ -1327,7 +1334,7 @@ class OpenShort extends TCComponent implements QuestionCms
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function validateFromDirtyModal()
     {

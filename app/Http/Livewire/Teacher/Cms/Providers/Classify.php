@@ -1,6 +1,6 @@
 <?php
 
-namespace tcCore\Http\Livewire\Teacher\Questions;
+namespace tcCore\Http\Livewire\Teacher\Cms\Providers;
 
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -11,7 +11,7 @@ use tcCore\Http\Interfaces\QuestionCms;
 use tcCore\Http\Traits\WithCmsCustomRulesHandling;
 use tcCore\MatchingQuestion;
 
-class CmsClassify extends CmsBase
+class Classify extends TypeProvider
 {
     use WithCmsCustomRulesHandling;
 

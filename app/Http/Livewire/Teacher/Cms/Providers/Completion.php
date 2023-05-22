@@ -1,11 +1,11 @@
 <?php
 
-namespace tcCore\Http\Livewire\Teacher\Questions;
+namespace tcCore\Http\Livewire\Teacher\Cms\Providers;
 
 use tcCore\CompletionQuestion;
 use tcCore\Http\Traits\WithCmsCompletionType;
 
-class CmsCompletion extends CmsBase
+class Completion extends TypeProvider
 {
     use WithCmsCompletionType;
 
@@ -21,18 +21,9 @@ class CmsCompletion extends CmsBase
         'autoCheckAnswerCaseSensitive' => true,
     ];
 
-    public function preparePropertyBag()
-    {
-        foreach ($this->questionOptions as $key => $value) {
-            $this->instance->question[$key] = $value;
-        }
-    }
-
     public function initializePropertyBag($q)
     {
-        foreach($this->questionOptions as $key => $val){
-            $this->instance->question[$key] = $q[$key];
-        }
+        parent::initializePropertyBag($q);
 
         $this->instance->question['question'] = CompletionQuestion::decodeCompletionTags($q);
     }

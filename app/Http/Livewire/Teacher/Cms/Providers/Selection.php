@@ -1,11 +1,11 @@
 <?php
 
-namespace tcCore\Http\Livewire\Teacher\Questions;
+namespace tcCore\Http\Livewire\Teacher\Cms\Providers;
 
 use tcCore\CompletionQuestion;
 use tcCore\Http\Traits\WithCmsCompletionType;
 
-class CmsSelection extends CmsBase
+class Selection extends TypeProvider
 {
     use WithCmsCompletionType;
 

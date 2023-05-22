@@ -1,8 +1,8 @@
 <?php
 
-namespace tcCore\Http\Livewire\Teacher\Questions;
+namespace tcCore\Http\Livewire\Teacher\Cms\Providers;
 
-class CmsInfoScreen extends CmsBase
+class InfoScreen extends TypeProvider
 {
     public $requiresAnswer = false;
 

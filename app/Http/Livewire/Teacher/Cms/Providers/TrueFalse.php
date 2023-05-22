@@ -1,13 +1,13 @@
 <?php
 
-namespace tcCore\Http\Livewire\Teacher\Questions;
+namespace tcCore\Http\Livewire\Teacher\Cms\Providers;
 
 use Illuminate\Support\Str;
 use tcCore\Http\Interfaces\QuestionCms;
 use tcCore\Http\Traits\WithCmsCustomRulesHandling;
 use tcCore\Rules\TrueFalseRule;
 
-class CmsTrueFalse extends CmsBase
+class TrueFalse extends TypeProvider
 {
     use WithCmsCustomRulesHandling;
 

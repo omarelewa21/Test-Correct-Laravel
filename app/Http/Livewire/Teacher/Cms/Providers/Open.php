@@ -1,18 +1,18 @@
 <?php
 
-namespace tcCore\Http\Livewire\Teacher\Questions;
+namespace tcCore\Http\Livewire\Teacher\Cms\Providers;
 
-use Illuminate\Support\Str;
+use tcCore\CompletionQuestion;
 
-class CmsOpen extends CmsBase
+class Open extends TypeProvider
 {
-    public function getTranslationKey(): string
-    {
-        if (Str::lower($this->instance->question['subtype']) == 'short') {
-            return __('cms.open-question-short');
-        }
-        return __('cms.open-question-medium');
-    }
+    protected $questionOptions = [
+        'spell_check_available' => false,
+        'text_formatting'       => false,
+        'mathml_functions'      => false,
+        'restrict_word_amount'  => false,
+        'max_words'             => null,
+    ];
 
     public function getTemplate(): string
     {

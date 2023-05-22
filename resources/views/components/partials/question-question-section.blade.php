@@ -1,4 +1,5 @@
-<x-upload.section uploadModel="uploads" :defaultFilepond="false" :multiple="true" :enableUpload="!isset($this->isPreview)">
+<x-upload.section uploadModel="uploads" :defaultFilepond="false" :multiple="true"
+                  :enableUpload="!isset($this->isPreview)">
     <x-slot name="files">
         <div id="attachment-badges" class="flex flex-wrap" wire:key="attachment-section-{{$this->uniqueQuestionKey}}">
             @foreach($this->attachments as $attachment)
@@ -32,22 +33,22 @@
                     />
                 @endif
             @endforeach
-            <x-attachment.dummy-badge model="uploads"/>
+            <x-attachment.dummy-badge model="uploads" />
         </div>
     </x-slot>
     <x-slot name="filepond">
         <x-button.add-attachment :disabled="isset($this->isPreview)">
             <x-slot name="text">
-                <x-icon.attachment/>
+                <x-icon.attachment />
                 <span selid="add-attachment-btn">{!! __('cms.Bijlage toevoegen')  !!}</span>
             </x-slot>
         </x-button.add-attachment>
     </x-slot>
 
     <x-slot name="title">
-        @if($this->obj instanceof \tcCore\Http\Livewire\Teacher\Questions\CmsGroup)
+        @if($this->obj instanceof \tcCore\Http\Livewire\Teacher\Cms\Providers\Group)
             {{ __('cms.bijlagen') }}
-        @elseif($this->obj instanceof \tcCore\Http\Livewire\Teacher\Questions\CmsInfoScreen)
+        @elseif($this->obj instanceof \tcCore\Http\Livewire\Teacher\Cms\Providers\InfoScreen)
             {{ __('cms.Informatietekst') }}
         @else
             {{ __('cms.Vraagstelling') }}

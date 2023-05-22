@@ -1,10 +1,10 @@
 <?php
 
-namespace tcCore\Http\Livewire\Teacher\Questions;
+namespace tcCore\Http\Livewire\Teacher\Cms\Providers;
 
 use tcCore\GroupQuestion;
 
-class CmsGroup extends CmsBase
+class Group extends TypeProvider
 {
     public $requiresAnswer = false;
 

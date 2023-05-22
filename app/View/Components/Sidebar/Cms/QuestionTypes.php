@@ -3,7 +3,7 @@
 namespace tcCore\View\Components\Sidebar\Cms;
 
 use Illuminate\View\Component;
-use tcCore\Http\Livewire\Teacher\Questions\CmsFactory;
+use tcCore\Http\Livewire\Teacher\Cms\TypeFactory;
 
 class QuestionTypes extends Component
 {
@@ -11,7 +11,7 @@ class QuestionTypes extends Component
 
     public function __construct()
     {
-        $this->questionTypes = CmsFactory::questionTypes();
+        $this->questionTypes = TypeFactory::questionTypes();
     }
 
     public function render(): string

@@ -1,14 +1,25 @@
 <?php
 
-namespace tcCore\Http\Livewire\Teacher\Questions;
+namespace tcCore\Http\Livewire\Teacher\Cms;
 
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use tcCore\Http\Interfaces\QuestionCms;
+use tcCore\Http\Livewire\Teacher\Cms\Providers\Arq;
+use tcCore\Http\Livewire\Teacher\Cms\Providers\Classify;
+use tcCore\Http\Livewire\Teacher\Cms\Providers\Completion;
+use tcCore\Http\Livewire\Teacher\Cms\Providers\Drawing;
+use tcCore\Http\Livewire\Teacher\Cms\Providers\Group;
+use tcCore\Http\Livewire\Teacher\Cms\Providers\InfoScreen;
+use tcCore\Http\Livewire\Teacher\Cms\Providers\Matching;
+use tcCore\Http\Livewire\Teacher\Cms\Providers\MultipleChoice;
+use tcCore\Http\Livewire\Teacher\Cms\Providers\Open;
+use tcCore\Http\Livewire\Teacher\Cms\Providers\Ranking;
+use tcCore\Http\Livewire\Teacher\Cms\Providers\Selection;
+use tcCore\Http\Livewire\Teacher\Cms\Providers\TrueFalse;
+use tcCore\Http\Livewire\Teacher\Cms\Providers\WritingAssignment;
 
-class CmsFactory
+class TypeFactory
 {
-
     private static $self;
 
     public static function create(QuestionCms $instance)
@@ -25,7 +36,9 @@ class CmsFactory
             return static::$self = new $lookup[$type]($instance);
         }
 
-        throw new \Exception(sprintf('CMS Factory could not resolve (sub) question type (type:%s, subtype: %s).',$type, $subType));
+        throw new \Exception(
+            sprintf('CMS Factory could not resolve (sub) question type (type:%s, subtype: %s).', $type, $subType)
+        );
     }
 
     /**
@@ -34,28 +47,23 @@ class CmsFactory
     private static function getLookup(): array
     {
         return [
-            'InfoscreenQuestion'     => CmsInfoScreen::class,
-            'RankingQuestion'        => CmsRanking::class,
-            'OpenQuestion'           => [
-                'short'   => CmsOpen::class,
-                'medium'  => CmsOpen::class,
-                'long'    => CmsOpen::class,
-                'writing' => CmsWritingAssignment::class,
-            ],
-            'DrawingQuestion'        => CmsDrawing::class,
-            'GroupQuestion'          => CmsGroup::class,
+            'InfoscreenQuestion'     => InfoScreen::class,
+            'RankingQuestion'        => Ranking::class,
+            'OpenQuestion'           => Open::class,
+            'DrawingQuestion'        => Drawing::class,
+            'GroupQuestion'          => Group::class,
             'MultipleChoiceQuestion' => [
-                'truefalse'      => CmsTrueFalse::class,
-                'multiplechoice' => CmsMultipleChoice::class,
-                'arq'            => CmsArq::class,
+                'truefalse'      => TrueFalse::class,
+                'multiplechoice' => MultipleChoice::class,
+                'arq'            => Arq::class,
             ],
             'CompletionQuestion'     => [
-                'multi'      => CmsSelection::class,
-                'completion' => CmsCompletion::class,
+                'multi'      => Selection::class,
+                'completion' => Completion::class,
             ],
             'MatchingQuestion'       => [
-                'matching' => CmsMatching::class,
-                'classify' => CmsClassify::class,
+                'matching' => Matching::class,
+                'classify' => Classify::class,
             ]
         ];
     }
@@ -67,16 +75,9 @@ class CmsFactory
                 [
                     'sticker'     => 'question-open',
                     'name'        => __('question.openquestionlong'),
-                    'description' => __('question.open-long_description'),
+                    'description' => __('question.open_description'),
                     'type'        => 'OpenQuestion',
-                    'subtype'     => 'medium',
-                ],
-                [
-                    'sticker'     => 'question-open',
-                    'name'        => __('question.openquestionshort'),
-                    'description' => __('question.open-short_description'),
-                    'type'        => 'OpenQuestion',
-                    'subtype'     => 'short',
+                    'subtype'     => 'write',
                 ],
                 [
                     'sticker'     => 'question-completion',
@@ -154,32 +155,12 @@ class CmsFactory
                 ]
             ]
         ];
-        if (Auth::user()->schoolLocation->allow_writing_assignment) {
-            array_splice($questionTypes['open'], '2', 0, [[
-                'sticker'     => 'question-open',
-                'name'        => __('question.openquestionwriting'),
-                'description' => __('question.open-writing_description'),
-                'type'        => 'OpenQuestion',
-                'subtype'     => 'writing',
-            ]]);
-        }
+
         return $questionTypes;
     }
 
     public static function findQuestionNameByTypes($type, $subtype)
     {
         return __('question.' . Str::lower($type . ($subtype ?? '')));
-
-//        if ($type === 'GroupQuestion') return __('question.groupquestion');
-//
-//        $question = collect(CmsFactory::questionTypes())->flatMap(function ($q) {
-//            return $q;
-//        })->filter(function($q) use ($type, $subtype) {
-//            return $q['type'] == $type && $q['subtype'] === $subtype;
-//        })->first();
-//
-//        return $question['name'];
     }
-
-
 }

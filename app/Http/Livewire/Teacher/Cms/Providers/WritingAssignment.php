@@ -1,11 +1,8 @@
 <?php
 
-namespace tcCore\Http\Livewire\Teacher\Questions;
+namespace tcCore\Http\Livewire\Teacher\Cms\Providers;
 
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
-
-class CmsWritingAssignment extends CmsBase
+class WritingAssignment extends TypeProvider
 {
     public $settingsGeneralPropertiesVisibility = [
         'spellingCheckAvailableDuringAssessing' => true,

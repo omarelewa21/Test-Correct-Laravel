@@ -530,7 +530,7 @@ document.addEventListener("alpine:init", () => {
         emitAddToOpenShortIfNecessary(shouldCheckDirty = true, group, newSubQuestion) {
             this.$dispatch("store-current-question");
             if (shouldCheckDirty && this.$store.cms.dirty) {
-                this.$wire.emitTo("teacher.questions.open-short", "addQuestionFromDirty", {
+                this.$wire.emitTo("teacher.cms.constructor", "addQuestionFromDirty", {
                     group,
                     newSubQuestion,
                     groupUuid: this.$store.questionBank.inGroup

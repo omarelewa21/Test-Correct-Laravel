@@ -256,7 +256,7 @@ RichTextEditor = {
         return config;
     },
     initForTeacher: function(editorId, lang, allowWsc = false) {
-        var editor = ClassicEditors[editorId];
+        const editor = ClassicEditors[editorId];
         if (editor) {
             editor.destroy(true);
         }

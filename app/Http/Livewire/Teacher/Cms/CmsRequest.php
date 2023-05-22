@@ -1,6 +1,6 @@
 <?php
 
-namespace tcCore\Http\Livewire\Teacher\Questions;
+namespace tcCore\Http\Livewire\Teacher\Cms;
 
 use tcCore\Http\Requests\Request;
 
