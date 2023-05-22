@@ -46,12 +46,6 @@ class CmsMultipleChoice extends CmsBase
 
             ];
     }
-    protected function getMessages()
-    {
-        return [
-            'question.amswers.*.integer'   => 'Ik wil kaas',
-        ];
-    }
 
     public function preparePropertyBag()
     {
