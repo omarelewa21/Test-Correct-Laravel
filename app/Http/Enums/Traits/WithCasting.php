@@ -31,5 +31,6 @@ trait WithCasting
         if ($this->getType() === 'int') {
             return (int)$value;
         }
+        return $value;
     }
 }
