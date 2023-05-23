@@ -506,7 +506,7 @@ class ImportHelper
                     $user_data = [
                         'external_id'        => $student_external_code,
                         'name_first'         => $student_name_first,
-//                        'name_suffix'        => $student_name_suffix,
+                        'name_suffix'        => $student_name_suffix,
                         'name'               => $student_name_last,
                         'eckid'              => $student_eckid,
                         'username'           => $student_email, // moet email zijn?
@@ -561,7 +561,7 @@ class ImportHelper
 
 
                         $user->name_first = $teacher_name_first;
-//                        $user->name_suffix = $teacher_name_suffix;
+                        $user->name_suffix = $teacher_name_suffix;
                         $user->name = $teacher_name_last;
                         $user->eckid = $teacher_eckid;
 
@@ -595,7 +595,7 @@ class ImportHelper
                                 'external_id'        => $teacher_external_code,
                                 'eckid'              => $teacher_eckid,
                                 'name_first'         => $teacher_name_first,
-//                                'name_suffix'        => $teacher_name_suffix,
+                                'name_suffix'        => $teacher_name_suffix,
                                 'name'               => $teacher_name_last,
                                 'username'           => $teacher_email,
                                 'school_location_id' => $school_location_id,
@@ -1177,7 +1177,7 @@ class ImportHelper
                 $restored = true;
             }
 
-            foreach (['eckid', 'name_first', 'name'] as $key) {
+            foreach (['eckid', 'name_first', 'name','name_suffix'] as $key) {
                 $user->$key = $user_data[$key];
             }
             if (!$restored && $user->isDirty() && $forRole === 'student') {

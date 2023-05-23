@@ -501,6 +501,8 @@ class Test extends BaseModel
 
         $test->setAttribute('uuid', Uuid::uuid4());
 
+        $test->unsetRelation('testQuestions');
+
         if ($test->save() === false) {
             return false;
         }
@@ -1284,5 +1286,50 @@ class Test extends BaseModel
     public function isStillInTheOven(): bool
     {
         return $this->owner_id === SchoolLocation::where('customer_code', config('custom.TB_customer_code'))->value('id');
+    }
+
+    /**
+     * General method to get all the questions of a test, including flattened groups.
+     * A callback can be provided to add properties to a question without having to
+     * copy the whole thing and make the changes required.
+     * @param $addPropertyCallback
+     */
+    public function getFlatQuestionList($addPropertyCallback = null)
+    {
+        return $this->testQuestions
+            ->sortBy('order')
+            ->flatMap(function ($testQuestion) use ($addPropertyCallback) {
+                $testQuestion->question->loadRelated();
+                if ($testQuestion->question->type === 'GroupQuestion') {
+                    $groupQuestion = $testQuestion->question;
+                    return $testQuestion->question->groupQuestionQuestions->map(
+                        function ($item) use ($addPropertyCallback, $groupQuestion) {
+                            $item->question->belongs_to_groupquestion_id = $groupQuestion->getKey();
+                            if (is_callable($addPropertyCallback)) {
+                                $addPropertyCallback($item);
+                            }
+                            return $item->question;
+                        }
+                    );
+                }
+                if (is_callable($addPropertyCallback)) {
+                    $addPropertyCallback($testQuestion);
+                }
+                return collect([$testQuestion->question]);
+            })
+            ->values();
+    }
+
+    /**
+     * return true if allow_writing_assignment is allowed for the school location and there are writing assignments
+     *
+     * @return bool
+     */
+    public function getAllowWscForStudentsAttribute(): bool
+    {
+        $schoolLocation = Auth()->user()->schoolLocation;
+        return $schoolLocation->allow_writing_assignment
+            && $schoolLocation->allow_wsc
+            && $this->getWritingAssignmentsCount() > 0;
     }
 }

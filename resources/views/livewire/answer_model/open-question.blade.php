@@ -2,11 +2,11 @@
     <div class="w-full">
         <div class="relative">
             <div class="children-block-pdf">
-            {!!   $question->converted_question_html !!}
+            {!!   $question->converted_question_html !!}&nbsp;
             </div>
             <x-input.group for="me" class="w-full disabled mt-4 question-no-break-open-short">
                 <x-input.mock-textarea :question="$question"
-                         disabled style="min-height:80px"
+                         disabled
                 ></x-input.mock-textarea>
             </x-input.group>
         </div>

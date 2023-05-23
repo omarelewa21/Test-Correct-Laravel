@@ -6,10 +6,10 @@ use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Livewire\Livewire;
-use LivewireUI\Modal\ModalComponent;
+use tcCore\Http\Livewire\TCModalComponent;
 use tcCore\Test;
 
-class TestDeleteModal extends ModalComponent
+class TestDeleteModal extends TCModalComponent
 {
     public string $uuid;
 

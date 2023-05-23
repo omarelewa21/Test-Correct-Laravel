@@ -2,9 +2,7 @@
 
 namespace tcCore\Http\Livewire;
 
-use Livewire\Component;
-
-class SelectMe extends Component
+class SelectMe extends TCComponent
 {
     public function render()
     {

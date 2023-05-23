@@ -19,7 +19,7 @@
                       @class(['opacity-40' => !$atLastQuestion])
                       wire:click.prevent="finishCoLearning"
         >
-            {{ __('co-learning.complete') }}
+            <span>{{ __('co-learning.complete') }}</span>
             <x-icon.checkmark class="ml-2" />
         </x-button.cta>
     </div>

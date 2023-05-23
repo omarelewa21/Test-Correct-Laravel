@@ -3,6 +3,7 @@
 /public/storage
 /public/vendor
 .env
+.env.testing
 .env.orig
 .env.staging
 .env.testing

@@ -2,14 +2,14 @@
 
 namespace tcCore\Http\Livewire\Preview;
 
-use Livewire\Component;
+use tcCore\Http\Livewire\TCComponent;
 use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithNotepad;
 use tcCore\Http\Traits\WithPreviewAttachments;
 use tcCore\Http\Traits\WithPreviewGroups;
 use tcCore\Http\Traits\WithQuestionTimer;
 
-class MultipleSelectQuestion extends Component
+class MultipleSelectQuestion extends TCComponent
 {
     use WithPreviewAttachments, WithNotepad, withCloseable, WithPreviewGroups;
 

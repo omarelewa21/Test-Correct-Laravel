@@ -2,7 +2,7 @@
     <div class="flex flex-1 justify-between">
         <div><h1>UWLR Fetcher</h1></div>
         <div class="flex-shrink-0">
-            <x-button.primary class="mb-8" wire:click="showGrid">Overzicht</x-button.primary>
+            <x-button.primary class="mb-8" wire:click="showGrid"><span>Overzicht</span></x-button.primary>
         </div>
     </div>
 
@@ -60,7 +60,7 @@
         <div class="flex flex-1 justify-between mt-8">
             <div><h1>Report for Identifier {{ $this->resultIdendifier }}</h1></div>
             <div class="flex-shrink-0">
-                <x-button.primary class="mb-8" wire:click="showGridWithModal">Details</x-button.primary>
+                <x-button.primary class="mb-8" wire:click="showGridWithModal"><span>Details</span></x-button.primary>
             </div>
         </div>
         <div class="content-section flex-1 p-8">

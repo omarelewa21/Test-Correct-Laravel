@@ -16,9 +16,11 @@ class CompletionQuestion extends QuestionComponent
     public $answerStruct;
 
     public function __construct(
-        Question    $question,
-        Answer      $answer,
-        public bool $showToggles = true,
+        public Question $question,
+        public Answer   $answer,
+        public bool     $disabledToggle = false,
+        public bool     $showToggles = true,
+        public bool     $inAssessment = false,
     ) {
         parent::__construct($question, $answer);
     }
@@ -46,6 +48,10 @@ class CompletionQuestion extends QuestionComponent
      */
     private function isToggleActiveForAnswer($givenAnswer, $correctAnswer): ?bool
     {
+        if ($this->question->isSubType('multi')) {
+            return $givenAnswer === $correctAnswer->answer;
+        }
+
         if (!$this->answer->answerRatings) {
             return null;
         }
@@ -118,4 +124,12 @@ class CompletionQuestion extends QuestionComponent
         return $answers;
     }
 
+    public function render()
+    {
+        if (!$this->inAssessment) {
+            return view("components.answer.student.completion-question");
+        }
+
+        return parent::render();
+    }
 }

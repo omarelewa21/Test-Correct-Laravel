@@ -4,9 +4,9 @@ namespace tcCore\Http\Livewire\Teacher;
 
 use Illuminate\Routing\Redirector;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use Livewire\Component;
 use Livewire\Livewire;
 use tcCore\AnswerRating;
 use tcCore\CompletionQuestion;
@@ -14,6 +14,7 @@ use tcCore\DiscussingParentQuestion;
 use tcCore\DrawingQuestion;
 use tcCore\Events\TestTakeCoLearningPresenceEvent;
 use tcCore\Events\TestTakeForceTakenAway;
+use tcCore\Events\TestTakeLeave;
 use tcCore\Events\TestTakeStop;
 use tcCore\Http\Controllers\TestTakesController;
 use tcCore\Http\Enums\CoLearning\AbnormalitiesStatus;
@@ -21,11 +22,13 @@ use tcCore\Http\Enums\CoLearning\RatingStatus;
 use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Http\Helpers\CoLearningHelper;
 use tcCore\Http\Interfaces\CollapsableHeader;
+use tcCore\Http\Livewire\TCComponent;
 use tcCore\Http\Middleware\AfterResponse;
 use tcCore\TestTake;
 use tcCore\TestTakeStatus;
+use tcCore\View\Components\CompletionQuestionConvertedHtml;
 
-class CoLearning extends Component implements CollapsableHeader
+class CoLearning extends TCComponent implements CollapsableHeader
 {
     const DISCUSSION_TYPE_ALL = 'ALL';
     const DISCUSSION_TYPE_OPEN_ONLY = 'OPEN_ONLY';
@@ -154,10 +157,6 @@ class CoLearning extends Component implements CollapsableHeader
             throw new \Exception('Wrong discussion type');
         }
 
-        if ($discussionType === 'ALL') {
-            return CakeRedirectHelper::redirectToCake('test_takes.discussion', $this->testTake->uuid);
-        }
-
         $testTakeUpdateData = [];
         $resetProgress = $discussionType != $this->testTake->discussion_type;
         if ($this->testTakeStatusNeedsToBeUpdated()) {
@@ -183,10 +182,15 @@ class CoLearning extends Component implements CollapsableHeader
             $this->discussingQuestion = $this->testTake->discussingQuestion()->first();
         }
 
+        if ($discussionType === 'ALL') {
+            return CakeRedirectHelper::redirectToCake('test_takes.discussion', $this->testTake->uuid);
+        }
+
         //finally set bool to true
         $this->coLearningHasBeenStarted = true;
         $this->headerCollapsed = true;
         $this->getStaticNavigationData();
+        $this->refreshComponentData();
     }
 
     public function nextDiscussionQuestion()
@@ -198,6 +202,8 @@ class CoLearning extends Component implements CollapsableHeader
     /* start header methods */
     public function redirectBack()
     {
+        AfterResponse::$performAction[] = fn() => TestTakeLeave::dispatch($this->testTake->uuid);
+
         return TestTake::redirectToDetail(
             testTakeUuid: $this->testTake->uuid,
             returnRoute : Str::replaceFirst(config('app.base_url'), '', Livewire::originalUrl()),
@@ -481,7 +487,7 @@ class CoLearning extends Component implements CollapsableHeader
             ])
             ->whereNotNull('discussing_answer_rating_id')
             ->each(function ($participant) {
-                $participant->syncedWithCurrentQuestion = $participant->discussingAnswerRating->answer->question_id === $this->discussingQuestion?->id;
+                $participant->syncedWithCurrentQuestion = $participant->discussingAnswerRating?->answer->question_id === $this->discussingQuestion?->id;
             });
 
         $this->testParticipantCount = $this->testParticipants->count();
@@ -533,32 +539,17 @@ class CoLearning extends Component implements CollapsableHeader
 
     private function convertCompletionQuestionToHtml(?Collection $answers = null)
     {
-        $question = $this->discussingQuestion;
-
-        $question->getQuestionHtml();
-
-        $question_text = $question->converted_question_html;
-
         $this->completionQuestionTagCount = 0;
+        $completionQuestionTagCount = &$this->completionQuestionTagCount;
 
-        $searchPattern = "/\[([0-9]+)\]/i";
-        $replacementFunction = function ($matches) use ($question, $answers) {
-            $this->completionQuestionTagCount++;
-            $tag_id = $matches[1];
-            $events = '';
-            $rsSpan = '';
-            return sprintf(
-                '<span><input x-on:contextmenu="$event.preventDefault()" spellcheck="false" value="%s"   autocorrect="off" autocapitalize="none" class="form-input mb-2 truncate text-center overflow-ellipsis" type="text" id="%s" style="width: 120px" x-ref="%s" %s wire:key="%s"/>%s</span>',
-                $answers?->where('tag', $tag_id)?->first()?->answer ?? '',
-                'answer_' . $tag_id . '_' . $question->getKey(),
-                'comp_answer_' . $tag_id,
-                $events,
-                'comp_answer_' . $tag_id,
-                $rsSpan
-            );
-        };
-
-        return preg_replace_callback($searchPattern, $replacementFunction, $question_text);
+        return Blade::renderComponent(
+            new CompletionQuestionConvertedHtml(
+                $this->testTake->discussingQuestion,
+                $context='teacher-colearning',
+                $answers,
+                $completionQuestionTagCount
+            )
+        );
     }
 
     protected function updateDiscussingQuestionIdOnTestTake(): bool
@@ -608,7 +599,7 @@ class CoLearning extends Component implements CollapsableHeader
                     )
                 )->mapWithKeys(function ($answer, $tag) {
                     $result = new \stdClass();
-                    $result->tag = (int)$tag + 1; //database value is 0 based, tags are 1 based
+                    $result->tag = intval($tag) + 1; //database value is 0 based, tags are 1 based
                     $result->answer = $answer;
                     return [$tag => $result];
                 });
@@ -769,5 +760,13 @@ class CoLearning extends Component implements CollapsableHeader
         $this->discussingQuestion = $this->testTake->discussingQuestion()->first();
         $this->getTestParticipantsData();
         $this->testParticipants->map(fn($participant) => $participant->syncedWithCurrentQuestion = false);
+    }
+
+    private function getDisplayableQuestionText()
+    {
+        if ($this->discussingQuestion->isType('Completion')) {
+            return Blade::renderComponent(new CompletionQuestionConvertedHtml($this->discussingQuestion, 'assessment'));
+        }
+        return $this->discussingQuestion->converted_question_html;
     }
 }

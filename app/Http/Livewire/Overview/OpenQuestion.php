@@ -2,13 +2,13 @@
 
 namespace tcCore\Http\Livewire\Overview;
 
-use Livewire\Component;
 use tcCore\Http\Helpers\BaseHelper;
+use tcCore\Http\Livewire\TCComponent;
 use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithGroups;
 use tcCore\Question;
 
-class OpenQuestion extends Component
+class OpenQuestion extends TCComponent
 {
     use WithCloseable, WithGroups;
 

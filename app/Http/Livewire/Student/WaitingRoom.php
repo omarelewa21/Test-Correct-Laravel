@@ -3,24 +3,19 @@
 namespace tcCore\Http\Livewire\Student;
 
 use Carbon\Carbon;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
-use Livewire\Component;
 use Ramsey\Uuid\Uuid;
 use tcCore\Http\Helpers\AllowedAppType;
 use tcCore\Http\Helpers\AppVersionDetector;
 use tcCore\Http\Livewire\CoLearning\CompletionQuestion;
-use tcCore\Http\Traits\WithStudentAppVersionHandling;
+use tcCore\Http\Livewire\TCComponent;
 use tcCore\Http\Traits\WithStudentTestTakes;
 use tcCore\TemporaryLogin;
-use tcCore\TestKind;
 use tcCore\TestParticipant;
 use tcCore\TestTake;
-use tcCore\TestTakeEvent;
 use tcCore\TestTakeStatus;
 
-class WaitingRoom extends Component
+class WaitingRoom extends TCComponent
 {
     use WithStudentTestTakes;
 
@@ -193,11 +188,15 @@ class WaitingRoom extends Component
 
     public function startReview()
     {
+        if (Auth::user()->schoolLocation->allow_new_reviewing) {
+            return redirect()->route('student.test-review', $this->take);
+        }
+
         $url = 'test_takes/glance/' . $this->take;
         $url = filled($this->origin) ? $url . '?origin=' . $this->origin : $url;
         $options = TemporaryLogin::buildValidOptionObject('page', $url);
 
-        Auth::user()->redirectToCakeWithTemporaryLogin($options);
+        return Auth::user()->redirectToCakeWithTemporaryLogin($options);
     }
 
     public function returnToGuestChoicePage()

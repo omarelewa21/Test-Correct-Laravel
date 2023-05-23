@@ -2,17 +2,10 @@
 
 namespace tcCore\Http\Livewire;
 
-use Artisaninweb\SoapWrapper\SoapWrapper;
-use Carbon\Carbon;
-use Livewire\Component;
-use tcCore\Http\Helpers\MagisterHelper;
-use tcCore\Http\Helpers\SomTodayHelper;
 use tcCore\Http\Helpers\UwlrImportHelper;
-use tcCore\Lib\Repositories\PeriodRepository;
 use tcCore\SchoolLocation;
-use tcCore\SchoolLocationSchoolYear;
 
-class UwlrFetcher extends Component
+class UwlrFetcher extends TCComponent
 {
 
     public $schoolYears = [];

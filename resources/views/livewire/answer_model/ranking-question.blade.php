@@ -1,6 +1,6 @@
 <x-partials.answer-model-question-container :number="$number" :question="$question" :answer="$answer">
     <div class="flex flex-1 flex-col space-y-2">
-        <div class="children-block-pdf">{!! $question->converted_question_html !!}</div>
+        <div class="children-block-pdf">{!! $question->converted_question_html !!}&nbsp;</div>
         <div class="flex flex-col pdf-100 max-w-max space-y-2 question-no-break-ranking-option">
             @foreach($answerStruct as $answer)
                 <div class="bg-light-grey mt-2 base border-light-grey border-2

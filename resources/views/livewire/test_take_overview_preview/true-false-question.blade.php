@@ -27,7 +27,7 @@
                 </div>
             </div>
             <div class="inline-block-pdf children-block-pdf w-full">
-                {!! $question->converted_question_html  !!}
+                {!! $question->converted_question_html  !!}&nbsp;
             </div>
         </div>
     </div>

@@ -3,19 +3,20 @@
 namespace tcCore\Http\Livewire\Question;
 
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
-use Livewire\Component;
+use Illuminate\Support\Facades\Blade;
 use tcCore\Answer;
 use tcCore\Http\Helpers\BaseHelper;
+use tcCore\Http\Livewire\TCComponent;
 use tcCore\Http\Traits\WithAttachments;
 use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithGroups;
 use tcCore\Http\Traits\WithNotepad;
 use tcCore\Http\Traits\WithUpdatingHandling;
+use tcCore\View\Components\CompletionQuestionConvertedHtml;
 
-class CompletionQuestion extends Component
+class CompletionQuestion extends TCComponent
 {
-    use WithAttachments, WithNotepad, withCloseable, WithGroups, WithUpdatingHandling;
+    use WithAttachments, WithNotepad, withCloseable, WithGroups;
 
     public $question;
     public $answer;
@@ -50,35 +51,7 @@ class CompletionQuestion extends Component
 
     private function completionHelper($question)
     {
-        $question->getQuestionHtml();
-
-        $question_text = $question->converted_question_html;
-
-        $searchPattern = "/\[([0-9]+)\]/i";
-        $replacementFunction = function ($matches) use ($question,) {
-            $tag_id = $matches[1] - 1; // the completion_question_answers list is 1 based but the inputs need to be 0 based
-            $events = sprintf('@blur="$refs.%s.scrollLeft = 0" @input="$event.target.setAttribute(\'title\', $event.target.value);"', 'comp_answer_' . $tag_id);
-            $rsSpan = '';
-            if (Auth::user()->text2speech) {
-                $events = sprintf('@focus="handleTextBoxFocusForReadspeaker(event,\'%s\')" @blur="$refs.%s.scrollLeft = 0;handleTextBoxBlurForReadspeaker(event,\'%s\')" @input="$event.target.setAttribute(\'title\', $event.target.value)"', $question->getKey(), 'comp_answer_' . $tag_id, $question->getKey());
-                $rsSpan = '<span wire:ignore class="rs_placeholder"></span>';
-            }
-            return sprintf(
-                '<span class="inline-flex max-w-full"><span class="absolute whitespace-nowrap" style="left: -9999px" x-ref="%s"></span> <input x-on:contextmenu="$event.preventDefault()" x-on:input="setInputWidth($el)" spellcheck="false" style="width: 120px"  autocorrect="off" autocapitalize="none"  wire:model.lazy="answer.%d"
-                            class="form-input mb-2 truncate text-center"  x-init="setInputWidth($el, true);"
-                            type="text" id="%s" x-ref="%s" %s wire:key="%s"/>%s</span>',
-
-                'comp_answer_' . $tag_id . '_span',
-                $tag_id,
-                'answer_' . $tag_id . '_' . $this->question->getKey(),
-                'comp_answer_' . $tag_id,
-                $events,
-                'comp_answer_' . $tag_id,
-                $rsSpan,
-            );
-        };
-
-        return preg_replace_callback($searchPattern, $replacementFunction, $question_text);
+        return Blade::renderComponent(new CompletionQuestionConvertedHtml($question, $context='student'));
     }
 
     private function multiHelper($question)

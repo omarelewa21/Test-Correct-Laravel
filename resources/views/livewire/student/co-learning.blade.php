@@ -1,5 +1,5 @@
 <div id="co-learning-page"
-     class="flex flex-col w-full pt-12"
+     class="flex flex-col w-full pt-12 pb-12"
      @if($pollingFallbackActive) wire:poll.keep-alive.5000ms="updateHeartbeat()" @endif
      x-init="
          pusher = Echo.connector.pusher
@@ -92,16 +92,12 @@
                         </x-button.primary>
                 @endif
 
-                @if($finishCoLearningButtonEnabled)
+                @if($this->atLastQuestion)
                     <x-button.cta wire:click="goToFinishedCoLearningPage"
                                   wire:loading.attr="disabled"
+                                  :disabled="!$finishCoLearningButtonEnabled"
                     >
-                        {{ __('co-learning.finish') }}
-                    </x-button.cta>
-                @elseif($this->atLastQuestion)
-                    <x-button.cta :disabled="true"
-                    >
-                        {{ __('co-learning.finish') }}
+                        <span>{{ __('co-learning.finish') }}</span>
                     </x-button.cta>
                 @endif
 

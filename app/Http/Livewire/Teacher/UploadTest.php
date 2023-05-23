@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
-use Livewire\Component;
 use Livewire\TemporaryUploadedFile;
 use Livewire\WithFileUploads;
 use Ramsey\Uuid\Uuid;
@@ -17,15 +16,16 @@ use tcCore\EducationLevel;
 use tcCore\Exceptions\UploadTestException;
 use tcCore\FileManagement;
 use tcCore\FileManagementStatus;
-use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Http\Helpers\SchoolHelper;
+use tcCore\Http\Livewire\TCComponent;
+use tcCore\Http\Traits\Modal\TestActions;
 use tcCore\Subject;
 use tcCore\TestKind;
 
-class UploadTest extends Component
+class UploadTest extends TCComponent
 {
-    use WithFileUploads;
+    use WithFileUploads, TestActions;
 
     const CAKE_RETURN_ROUTE_SESSION_KEY = 'upload_test_cake_return_route';
     const LARAVEL_RETURN_ROUTE_SESSION_KEY = 'upload_test_laravel_return_route';
@@ -241,7 +241,7 @@ class UploadTest extends Component
 
     public function finishProcess(bool $openSuccessModal = true)
     {
-        $this->validateTestName();
+        $this->validateTestName()->validate();
 
         $typedetails = $this->getTypeDetailsForFileManagementModel();
 
@@ -422,13 +422,12 @@ class UploadTest extends Component
 
     private function validateTestName()
     {
-        Validator::make($this->testInfo, [
-            'name' => [
-                'required',
-                Rule::notIn($this->previousUploadedTestNames),
-            ]
-        ])->validate();
-
+        return Validator::make($this->testInfo, [
+            'name' => array_merge(
+                $this->getNameRulesDependingOnAction(),
+                [Rule::notIn($this->previousUploadedTestNames)]
+            )
+        ]);
     }
 
     /**
@@ -438,6 +437,11 @@ class UploadTest extends Component
     {
         return collect($this->testInfo)
                 ->reject(fn($item) => filled($item))
-                ->isEmpty() && !in_array($this->testInfo['name'], $this->previousUploadedTestNames);
+                ->isEmpty() && $this->checkValidTestName();
+    }
+
+    public function checkValidTestName(): bool
+    {
+        return $this->validateTestName()->passes();
     }
 }

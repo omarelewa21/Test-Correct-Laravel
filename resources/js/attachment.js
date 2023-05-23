@@ -32,7 +32,7 @@ window.plyrPlayer = {
             player.on('playing', () => {
                 wire.registerPlayStart();
             });
-    
+
             player.on('pause', () => {
                 wire.audioStoreCurrentTime(attachmentUuid, player.currentTime);
             });
@@ -40,7 +40,7 @@ window.plyrPlayer = {
             player.on('playing', () => {
                 wire.set('pressedPlay', true);
             });
-    
+
             player.on('pause', () => {
                 wire.audioStoreCurrentTime(attachmentUuid, player.currentTime);
             });
@@ -125,13 +125,17 @@ window.plyrPlayer = {
 
 /**
  * Takes a dom div element and makes it resizable from all corners
- * 
+ *
  * @param {object} element
  * @param {string} attachmentType
  */
 window.makeResizableDiv = function(element, attachmentType='') {
     const resizers = element.querySelectorAll('.resizer')
-    const minimum_size = 20;
+    const iframe = element.querySelector('.resizers iframe');
+    const minimum_size = 167;
+    let maximum_x = 1000;
+    let maximum_y = 1000;
+    let iframeTimeout = 0;
     let original_width = 0;
     let original_height = 0;
     let original_x = 0;
@@ -153,29 +157,34 @@ window.makeResizableDiv = function(element, attachmentType='') {
             original_y = element.getBoundingClientRect().top;
             original_mouse_x = e.pageX;
             original_mouse_y = e.pageY;
+            maximum_x = document.body.offsetWidth;
+            maximum_y = document.body.offsetHeight;
             window.addEventListener('mousemove', resize)
             window.addEventListener('ontouchmove', resize)
             window.addEventListener('mouseup', stopResize)
             window.addEventListener('ontouchend', stopResize)
 
             function resize(e) {
+                if(attachmentType === 'pdf' || attachmentType === 'video') {
+                    iframeTimeout = temporarilyDisablePointerEvents(iframe, iframeTimeout);
+                }
                 if (currentResizer.classList.contains('bottom-right')) {
                     width = original_width + (e.pageX - original_mouse_x);
                     height = original_height + (e.pageY - original_mouse_y)
-                    if (width > minimum_size) {
+                    if (width > minimum_size && e.pageX <= maximum_x) {
                         element.style.width = width + 'px'
                     }
-                    if (height > minimum_size) {
+                    if (height > minimum_size && e.pageY <= maximum_y) {
                         element.style.height = height + 'px'
                     }
                 }
                 else if (currentResizer.classList.contains('bottom-left')) {
                     height = original_height + (e.pageY - original_mouse_y)
                     width = original_width - (e.pageX - original_mouse_x)
-                    if (height > minimum_size) {
+                    if (height > minimum_size && e.pageY <= maximum_y) {
                         element.style.height = height + 'px'
                     }
-                    if (width > minimum_size) {
+                    if (width > minimum_size && e.pageX > 0) {
                         element.style.width = width + 'px'
                         element.style.left = original_x + (e.pageX - original_mouse_x) + 'px'
                     }
@@ -183,10 +192,10 @@ window.makeResizableDiv = function(element, attachmentType='') {
                 else if (currentResizer.classList.contains('top-right')) {
                     width = original_width + (e.pageX - original_mouse_x)
                     height = original_height - (e.pageY - original_mouse_y)
-                    if (width > minimum_size) {
+                    if (width > minimum_size && e.pageX <= maximum_x) {
                         element.style.width = width + 'px'
                     }
-                    if (height > minimum_size) {
+                    if (height > minimum_size && e.clientY > 0) {
                         element.style.height = height + 'px'
                         element.style.top = original_y + (e.pageY - original_mouse_y) + 'px'
                     }
@@ -194,32 +203,36 @@ window.makeResizableDiv = function(element, attachmentType='') {
                 else {
                     width = original_width - (e.pageX - original_mouse_x)
                     height = original_height - (e.pageY - original_mouse_y)
-                    if (width > minimum_size) {
+                    if (width > minimum_size && e.pageX > 0) {
                         element.style.width = width + 'px'
                         element.style.left =  original_x + (e.pageX - original_mouse_x) + 'px'
                     }
-                    if (height > minimum_size) {
+                    if (height > minimum_size && e.clientY > 0) {
                         element.style.height = height + 'px'
                         element.style.top = original_y + (e.pageY - original_mouse_y) + 'px'
                     }
                 }
             }
-    
+
             function stopResize() {
                 if(attachmentType === 'image'){
                     let ratio = original_height/original_width;
                     element.style.height = (ratio * width) + 'px';
                 }
+                if(attachmentType === 'pdf' || attachmentType === 'video'){
+                    resetTemporarilyDisabledPointerEvents(iframe, iframeTimeout);
+                }
                 window.removeEventListener('mousemove', resize);
                 window.removeEventListener('touchmove', resize);
             }
+
         }
     }
 }
 
 /**
  * Drag of attachment
- * 
+ *
  * @param {object} element
  */
 window.dragElement = function (element) {
@@ -228,6 +241,9 @@ window.dragElement = function (element) {
 
     const windowHeight = window.innerHeight
     const windowWidth  = window.innerWidth
+
+    const iframe = element.querySelector('.resizers iframe');
+    let iframeTimeout = 0;
 
     if (document.getElementById(element.id + "drag")) {
         // if present, the header is where you move the DIV from:
@@ -256,8 +272,10 @@ window.dragElement = function (element) {
     }
 
     function elementDrag(e) {
+        iframeTimeout = temporarilyDisablePointerEvents(iframe, iframeTimeout);
+
         e = e || window.event;
-        
+
         // calculate the new cursor position:
         if (e.type === 'touchmove') {
             pos1 = pos3 - e.touches[0].clientX;
@@ -290,10 +308,37 @@ window.dragElement = function (element) {
 
         element.style.top = newTop + 'px';
         element.style.left = newLeft + 'px';
-        
+
         document.onmouseup = null;
         document.ontouchend = null;
         document.onmousemove = null;
         document.ontouchmove = null;
+
+        resetTemporarilyDisabledPointerEvents(iframe, iframeTimeout);
     }
+}
+
+let temporarilyDisablePointerEvents = (element, timeout, milliseconds = 500) => {
+    if(!element) {
+        return false;
+    }
+
+    element.style.pointerEvents = 'none';
+    if(timeout){
+        clearTimeout(timeout);
+    }
+    return setTimeout(() => {
+        resetTemporarilyDisabledPointerEvents(element, timeout);
+    }, milliseconds);
+}
+
+let resetTemporarilyDisabledPointerEvents = (element, timeout) => {
+    if(!element) {
+        return false;
+    }
+
+    if(timeout){
+        clearTimeout(timeout);
+    }
+    element.style.pointerEvents = 'auto';
 }

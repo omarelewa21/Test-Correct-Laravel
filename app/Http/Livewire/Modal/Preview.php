@@ -2,10 +2,13 @@
 
 namespace tcCore\Http\Livewire\Modal;
 
-use LivewireUI\Modal\ModalComponent;
+use tcCore\Http\Livewire\TCModalComponent;
+use tcCore\Http\Traits\WithUpdatingHandling;
 
-abstract class Preview extends ModalComponent
+abstract class Preview extends TCModalComponent
 {
+    use WithUpdatingHandling;
+
     public ?string $title = null;
 
     protected static array $maxWidths = [

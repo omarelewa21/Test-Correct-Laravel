@@ -91,10 +91,10 @@
             <div class="flex items-center px-6 pb-6">
                 <div class="ml-auto space-x-2">
                     <x-button.text-button @click="closePopup()" size="sm">
-                        {{ __('auth.cancel') }}
+                        <span>{{ __('auth.cancel') }}</span>
                     </x-button.text-button>
                     <x-button.cta @click="save()" size="sm">
-                        {{ __('cms.Toevoegen') }}
+                        <span>{{ __('cms.Toevoegen') }}</span>
                     </x-button.cta>
                 </div>
             </div>

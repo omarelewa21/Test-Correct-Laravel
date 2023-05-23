@@ -70,15 +70,17 @@
     --ck-dropdown-max-width: 200px;
 }
 
-.drawer .feedback .ck-dropdown__panel .ck.ck-form__header.ck-special-characters-navigation{
+.drawer .feedback .ck-dropdown__panel .ck.ck-form__header.ck-special-characters-navigation {
     height: auto;
     flex-wrap: wrap;
     justify-content: end;
 }
+
 .drawer .feedback .ckeditor-disabled .ck.ck-editor__main > .ck-editor__editable,
 .inline-feedback-modal .ckeditor-disabled .ck.ck-editor__main > .ck-editor__editable {
     --ck-color-base-background: white;
 }
+
 .drawer .feedback .ckeditor-disabled,
 .inline-feedback-modal .ckeditor-disabled {
     position: relative;
@@ -88,4 +90,12 @@
 .drawer .feedback .ckeditor-disabled,
 .inline-feedback-modal .ckeditor-disabled {
 
+}
+
+.progress-bar-background {
+    width: calc(100% - var(--active-sidebar-width));
+    transition: width var(--sidebar-transition)
+}
+.progress-bar-background .progress-bar {
+    transition: width 150ms ease-in
 }

@@ -44,4 +44,14 @@ trait WithPlanningFeatures
         }
         return $filters;
     }
+
+    /**
+     * Show spell checker toggle if user is allowed to use it and test contains writing questions.
+     * 
+     * @return bool
+     */
+    public function showSpellCheckerToggle(): bool
+    {
+        return $this->test->getAllowWscForStudentsAttribute();
+    }
 }

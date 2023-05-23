@@ -6,7 +6,7 @@
         </div>
         <div class="flex flex-col space-y-5 xl:space-y-0 xl:flex-row xl:space-x-5">
             <div class="flex flex-1 flex-col space-y-6 children-block-pdf">
-                {!! $question->converted_question_html !!}
+                {!! $question->converted_question_html !!}&nbsp;
             </div>
             <div class="flex flex-1 flex-col question-no-break-arq-option">
                 <div>

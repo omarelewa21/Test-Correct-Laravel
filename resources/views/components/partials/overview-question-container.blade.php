@@ -32,7 +32,7 @@
         @endif
     </div>
     @if($this->group)
-        <div class="mb-5" >{!! $this->group->question->converted_question_html !!}</div>
+        <div class="mb-5 questionhtml questionContainer" >{!! $this->group->question->converted_question_html !!}&nbsp;</div>
     @endif
     <div class="flex flex-1 overview">
         @if($question->closeable || ( !is_null($question->groupQuestion) && $question->groupQuestion->closeable) )

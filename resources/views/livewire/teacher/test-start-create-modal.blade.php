@@ -74,7 +74,9 @@
                     <div class="w-full text-center">{{__("cms.create_your_own_test")}}</div>
                     <small class="w-full text-center mb-4 mt-3">{{__("cms.setup_your_own_test")}}</small>
                     <div class="w-full text-center">
-                        <x-button.cta wire:click="$emit('openModal', 'teacher.test-create-modal')">{{__("cms.construct_test")}}</x-button.cta>
+                        <x-button.cta wire:click="$emit('openModal', 'teacher.test-create-modal')">
+                            <span>{{__("cms.construct_test")}}</span>
+                        </x-button.cta>
                     </div>
                 </div>
 
@@ -136,7 +138,9 @@
                     <div class="w-full text-center"
 
                     >
-                        <x-button.cta wire:click="goToUploadTest()">{{__("cms.upload_test")}}</x-button.cta>
+                        <x-button.cta wire:click="goToUploadTest()">
+                            <span>{{__("cms.upload_test")}}</span>
+                        </x-button.cta>
                     </div>
                 </div>
 

@@ -5,32 +5,27 @@ namespace tcCore\Http\Livewire\Auth;
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Crypt;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Password;
-use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-use Livewire\Component;
 use Ramsey\Uuid\Uuid;
-use tcCore\AppVersionInfo;
 use tcCore\FailedLogin;
 use tcCore\Http\Helpers\AppVersionDetector;
 use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Helpers\EntreeHelper;
 use tcCore\Http\Helpers\TestTakeCodeHelper;
+use tcCore\Http\Livewire\TCComponent;
 use tcCore\Http\Requests\Request;
 use tcCore\Jobs\SendForgotPasswordMail;
-use tcCore\LoginLog;
 use tcCore\SamlMessage;
 use tcCore\Services\EmailValidatorService;
 use tcCore\User;
 use tcCore\TestTake;
 use tcCore\TestTakeCode;
 
-class Login extends Component
+class Login extends TCComponent
 {
     public $doIHaveATcAccount = 1;
     public $doIHaveATcAccountChoice = null;
@@ -463,7 +458,7 @@ class Login extends Component
     public function emailEnteredForNoMailPresent()
     {
         // validate entered emailaddress
-        $this->rules['username'] = $this->getSchoolLocationAccptedEmailDomainRule();
+        $this->rules['username'] = $this->getSchoolLocationAcceptedEmailDomainRule();
 
         $this->validateOnly('username');
         if (User::where('username', $this->username)->exists()) {
@@ -510,7 +505,7 @@ class Login extends Component
 
     public function returnToLogin() {}
 
-    private function getSchoolLocationAccptedEmailDomainRule()
+    private function getSchoolLocationAcceptedEmailDomainRule()
     {
         if ($this->uuid) {
             $eckId = optional(SamlMessage::whereUuid($this->uuid)->first())->eck_id;
@@ -593,6 +588,7 @@ class Login extends Component
     public function updatedLoginTab()
     {
         $this->clearGuestMessages();
+        $this->resetErrorBag();
     }
 
     private function clearGuestMessages()

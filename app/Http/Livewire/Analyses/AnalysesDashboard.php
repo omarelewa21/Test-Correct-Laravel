@@ -2,8 +2,8 @@
 
 namespace tcCore\Http\Livewire\Analyses;
 
-use Livewire\Component;
 use tcCore\EducationLevel;
+use tcCore\Http\Livewire\TCComponent;
 use tcCore\LearningGoal;
 use tcCore\Lib\Repositories\PValueTaxonomyBloomRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyMillerRepository;
@@ -12,7 +12,7 @@ use tcCore\Period;
 use tcCore\User;
 
 
-abstract class AnalysesDashboard extends Component
+abstract class AnalysesDashboard extends TCComponent
 {
     const FILTER_SESSION_KEY = 'STUDENT_ANALYSES_FILTER';
 

@@ -2,11 +2,11 @@
 
 namespace tcCore\Http\Livewire\Teacher;
 
-use LivewireUI\Modal\ModalComponent;
+use tcCore\Http\Livewire\TCModalComponent;
 use tcCore\Question;
 use tcCore\Test;
 
-class TestPdfAttachmentsDownloadModal extends ModalComponent
+class TestPdfAttachmentsDownloadModal extends TCModalComponent
 {
     public string $uuid;
     public $test;

@@ -5,9 +5,10 @@
         @js($maxScore),
         @js($halfPoints),
         @js($disabled),
-        @js($coLearning)
+        @js($coLearning),
+        @js($focusInput)
      )"
-     x-on:updated-score.window="skipSync = true; score = $event.detail.score"
+     x-on:updated-score.window="skipSync = true; score = $event.detail.score; updateContinuousSlider()"
      x-on:new-score="score = $event.detail.score"
      x-on:scoring-elements-error.window="markInputElementsWithError()"
         {{ $attributes->except(['wire:model', 'class']) }}
@@ -20,10 +21,14 @@
         ])
 >
 
-    <span @class(['bold mb-1' => $mode === 'default', 'flex' => $mode === 'small'])>{{ __('Score') }}</span>
-
+    <div @class(['bold mb-1' => $mode === 'default', 'flex' => $mode === 'small'])>
+        <span>{{ $title }}</span>
+        @if($tooltip)
+            {{ $tooltip }}
+        @endif
+    </div>
     @if($mode === 'small')
-        <div class="flex gap-2 items-center w-full">
+        <div class="flex gap-2 items-center w-full slider-input-wrapper">
             @endif
             <div @class(['flex relative','min-w-[calc(10.375rem+12px)] max-w-[calc(16.75rem+30px)] h-12 score-slider-track-container' => $mode === 'default', 'w-full' => $mode === 'small'])>
                 <div x-show="score === null" class="score-slider-initial-handle"
@@ -35,12 +40,15 @@
                         <input type="range" min="0" max="{{$maxScore}}"
                                :step="halfPoints ? 0.5 : 1"
                                x-model="score"
-                               class="score-slider-continuous-input"
+                               class="score-slider-continuous-input hide-thumb"
                                x-ref="score_slider_continuous_input"
                                x-init="setSliderBackgroundSize($el); $nextTick(() => { setSliderBackgroundSize($el); })"
                                x-on:input="setSliderBackgroundSize($el)"
                                x-on:change="syncInput()"
+                               @if(!$hideThumb)
                                :class="{'hide-thumb': score === null}"
+                                @endif
+                                @disabled($disabled)
                         >
                     </div>
                 @else
@@ -76,13 +84,18 @@
                                min="0"
                                max="{{$maxScore}}"
                                :step="halfPoints ? 0.5 : 1"
-                               class="score-slider-input w-full"
+                               class="score-slider-input w-full hide-thumb"
                                x-model="score"
+                               @if(!$hideThumb)
                                :class="{'hide-thumb': score === null}"
                                x-on:click="noChangeEventFallback; $nextTick(() => { setThumbOffset($el, score, maxScore); }) "
                                x-on:input="setThumbOffset($el, score, maxScore);"
                                x-on:change="syncInput(); "
                                x-init="setThumbOffset($el, score, maxScore); $nextTick(() => { setThumbOffset($el, score, maxScore); })"
+                               @endif
+                               x-on:click="noChangeEventFallback"
+                               x-on:change="syncInput()"
+                                @disabled($disabled)
                         >
                     </div>
                 @endif
@@ -101,7 +114,9 @@
                    :step="halfPoints ? 0.5 : 1"
                    x-ref="scoreInput"
                    x-on:focusout="syncInput($el.value)"
+                   x-on:input="setThumbOffset(document.querySelector('.score-slider-input'), score, maxScore)"
                    autofocus
+                   @disabled($disabled)
             >
             @if($mode === 'small')
         </div>

@@ -634,7 +634,18 @@ class TestTakesController extends Controller
         ]);
         $testTake->test->append('has_pdf_attachments');
 
+        if($request->with_allowWSC) $testTake->test->append('allow_wsc_for_students');
+
+        if ($testTake->test_take_status_id === TestTakeStatus::STATUS_DISCUSSING) {
+            $this->hydrateTestTakeWithHasNextQuestionAttribute($testTake);
+            $hasNextQuestion = isset($testTake['has_next_question']) ? $testTake['has_next_question'] : false;
+        }
+
         $testTakeResponse = $this->showGeneric($testTake, $request);
+
+        if ($testTake->test_take_status_id === TestTakeStatus::STATUS_DISCUSSING) {
+            $testTakeResponse['has_next_question'] = $hasNextQuestion;
+        }
 
         if ($testTakeResponse === []) {
             return Response::make(

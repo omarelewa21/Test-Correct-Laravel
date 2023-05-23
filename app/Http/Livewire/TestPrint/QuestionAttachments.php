@@ -2,9 +2,9 @@
 
 namespace tcCore\Http\Livewire\TestPrint;
 
-use Livewire\Component;
+use tcCore\Http\Livewire\TCComponent;
 
-class QuestionAttachments extends Component
+class QuestionAttachments extends TCComponent
 {
     public $attachments;
     public $attachment_counters;

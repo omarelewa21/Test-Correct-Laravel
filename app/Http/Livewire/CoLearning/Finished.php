@@ -2,9 +2,9 @@
 
 namespace tcCore\Http\Livewire\CoLearning;
 
-use Livewire\Component;
+use tcCore\Http\Livewire\TCComponent;
 
-class Finished extends Component
+class Finished extends TCComponent
 {
     public function render()
     {

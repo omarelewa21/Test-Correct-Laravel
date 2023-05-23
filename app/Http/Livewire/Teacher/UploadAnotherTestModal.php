@@ -2,9 +2,9 @@
 
 namespace tcCore\Http\Livewire\Teacher;
 
-use LivewireUI\Modal\ModalComponent;
+use tcCore\Http\Livewire\TCModalComponent;
 
-class UploadAnotherTestModal extends ModalComponent
+class UploadAnotherTestModal extends TCModalComponent
 {
     public static function modalMaxWidthClass(): string
     {

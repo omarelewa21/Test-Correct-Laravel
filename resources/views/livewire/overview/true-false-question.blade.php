@@ -24,7 +24,7 @@
                     @endif
                 @endforeach
             </div>
-            <div>
+            <div class="questionhtml">
                 {!! $question->converted_question_html  !!}
             </div>
         </div>

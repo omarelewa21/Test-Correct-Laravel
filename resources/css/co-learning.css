@@ -8,6 +8,10 @@
     --drawer-width: 300px;
 }
 
+#co-learning-teacher-page .drawing-question-img-container img {
+    background-image: none;
+}
+
 #co-learning-teacher-page img {
     background-color: rgba(var(--light-grey-rgb), 1);
     background-image: url(/pdf/images/loading-icon.gif);
@@ -79,9 +83,14 @@
     height: 32px !important;
     background: none;
     border-radius: 9999px;
-    transition: color 150ms ease-out, background-color 150ms ease-out, border-color 150ms ease-out;
+    transition: color 150ms ease-out, background-color 150ms ease-out, border-color 150ms ease-out, opacity 300ms ease-in-out;
     border: 1px solid transparent;
 }
+
+#co-learning-teacher-page .collapsed .student-info-container .show-on-smartboard {
+    opacity: 0%; /*opacity instead of visibilty for transition*/
+}
+
 #co-learning-teacher-page .student-info-container .show-on-smartboard:focus {
     border-color: rgba(0,77,245,0.15)
 }
@@ -183,19 +192,22 @@
 }
 
 #co-learning-teacher-page .container-border-left.primary,
-#assessment-page .container-border-left.primary {
+#assessment-page .container-border-left.primary,
+#student-test-review .container-border-left.primary {
     background-color: var(--primary);
 }
 
 #co-learning-page .container-border-left.student,
 #co-learning-teacher-page .container-border-left.student,
-#assessment-page .container-border-left.student {
+#assessment-page .container-border-left.student,
+#student-test-review .container-border-left.student {
     background-color: var(--secondary);
 }
 
 #co-learning-page .container-border-left,
 #co-learning-teacher-page .container-border-left,
-#assessment-page .container-border-left {
+#assessment-page .container-border-left,
+#student-test-review .container-border-left {
     background-color: var(--primary);
     position: absolute;
     width: 0.5rem;
@@ -231,16 +243,18 @@
     margin-right: 1rem;
 }
 
+
 .badge-view {
-    transition: background-color 150ms ease, color 150ms ease, box-shadow 150ms ease;
+    transition: 150ms ease background-color, 150ms ease color, box-shadow 150ms ease;
 }
 
 .badge-view:hover {
     cursor: pointer;
     background-color: #f3f7ff;
     box-shadow: 0 3px 6px 0 rgba(4, 31, 116, 0.2);
-    color: var(--primary);
+    color: var(--teacher-primary);
 }
+
 .badge-view:hover .badge-title {
     color: var(--primary);
 }
@@ -295,8 +309,8 @@
 
 #co-learning-teacher-page #header #start-screen-content .grid .co-learning-panel.co-learning-restart.co-learning-previous-discussion-type,
 #assessment-page #header #start-screen-content .grid .co-learning-panel.co-learning-restart.co-learning-previous-discussion-type,
-#co-learning-teacher-page #header #start-screen-content .grid .co-learning-panel:hover,
-#assessment-page #header #start-screen-content .grid .co-learning-panel:hover {
+#co-learning-teacher-page #header #start-screen-content .grid .co-learning-panel:not(.disabled):hover,
+#assessment-page #header #start-screen-content .grid .co-learning-panel:not(.disabled):hover {
     box-shadow: 0 8px 16px 0 rgba(4, 31, 116, 0.3);
     border: solid 2px white;
     background-color: rgba(0, 77, 245, 0.9);
@@ -345,11 +359,13 @@
 /*}*/
 
 
+#student-test-review .multiple-choice .all-or-nothing-toggle,
 #assessment-page .multiple-choice .all-or-nothing-toggle {
     position: absolute;
     left: calc(50% + 2rem);
     transform: translateY(-50%);
 }
+#student-test-review .multiple-choice .first-active .all-or-nothing-line,
 #assessment-page .multiple-choice .first-active .all-or-nothing-line {
     right: -1rem;
     position: absolute;

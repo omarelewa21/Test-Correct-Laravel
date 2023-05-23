@@ -6,16 +6,15 @@ use Auth;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Validator;
-use LivewireUI\Modal\ModalComponent;
 use tcCore\Http\Controllers\TemporaryLoginController;
+use tcCore\Http\Livewire\TCModalComponent;
 use tcCore\Http\Traits\Modal\WithPlanningFeatures;
 use tcCore\Period;
-use tcCore\Subject;
 use tcCore\Teacher;
 use tcCore\TestTake;
 use tcCore\TestTakeStatus;
 
-class TestPlanModal extends ModalComponent
+class TestPlanModal extends TCModalComponent
 {
     use WithPlanningFeatures;
 

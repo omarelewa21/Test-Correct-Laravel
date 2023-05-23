@@ -2,15 +2,13 @@
 
 namespace tcCore\Http\Livewire\TestPrint;
 
-use Livewire\Component;
-use tcCore\Answer;
+use tcCore\Http\Livewire\TCComponent;
 use tcCore\Http\Traits\WithGroups;
 use tcCore\Question;
-use tcCore\Http\Traits\WithAttachments;
 use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithNotepad;
 
-class RankingQuestion extends Component
+class RankingQuestion extends TCComponent
 {
     use WithNotepad, WithCloseable, WithGroups;
 

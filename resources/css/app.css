@@ -20,6 +20,7 @@
 @import url("co-learning.css");
 @import url("rs_tlc.css");
 @import url("assessment.css");
+@import url("review.css");
 
 
 @tailwind base;
@@ -794,6 +795,19 @@ ul ul ul {
 .accordion-block {
     box-shadow: 0 3px 18px 0 rgba(var(--system-base-rgb), 0.1);
 }
+
 .accordion-block img {
     width: auto;
+}
+
+.left-3 {
+    left: 3rem;
+}
+
+.hide-scrollbar {
+    scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
 }

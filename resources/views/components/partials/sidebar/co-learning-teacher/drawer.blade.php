@@ -34,7 +34,6 @@
      }"
      x-cloak
      :class="{'collapsed': collapse}"
-     wire:key="{{ $attributes->get('wire:key') }}"
 >
     <div class="collapse-toggle vertical white z-10 cursor-pointer"
          @click="collapse = !collapse "
@@ -45,7 +44,9 @@
             <x-icon.chevron class="-top-px relative"/>
         </button>
     </div>
-    <div class="flex flex-col w-full justify-between h-[calc(100vh-var(--header-height))] drawer-width">
+    <div class="flex flex-col w-full justify-between h-[calc(100vh-var(--header-height))] drawer-width"
+         wire:key="{{ $attributes->get('wire:key') }}"
+    >
         <div class="flex flex-col ">
             <div class="flex justify-between drawer-content-head border-b border-bluegrey"
                  x-init="$nextTick(() => {fillSpaceBetweenElementsHorizontal('drawerContentHeadText1', 'drawerContentHeadText2');})"

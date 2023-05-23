@@ -3,15 +3,14 @@
 namespace tcCore\Http\Livewire\Student;
 
 use Illuminate\Support\Facades\Auth;
-use Livewire\Component;
 use Ramsey\Uuid\Uuid;
+use tcCore\Http\Livewire\TCComponent;
 use tcCore\Http\Traits\WithSorting;
 use tcCore\Http\Traits\WithStudentTestTakes;
-use tcCore\TestParticipant;
 use tcCore\TestTake;
 use tcCore\User;
 
-class GuestGradedOverview extends Component
+class GuestGradedOverview extends TCComponent
 {
     use WithStudentTestTakes, WithSorting;
 
