@@ -135,7 +135,7 @@
                                     </div>
                                 </x-slot:title>
                                 <x-slot:titleLeft>
-                                    <div class="ml-auto mr-6 relative top-0.5 flex gap-2 items-center">
+                                    <div class="ml-auto relative top-0.5 flex gap-2 items-center">
                                         <x-dynamic-component :component="$this->activeAnswerAnsweredStatus" />
                                     </div>
                                 </x-slot:titleLeft>
