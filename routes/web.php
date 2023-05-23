@@ -111,6 +111,10 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/co-learning/{test_take}', \tcCore\Http\Livewire\Teacher\CoLearning::class)->name('co-learning');
         Route::get('/assessment/{testTake}', \tcCore\Http\Livewire\Teacher\Assessment::class)->name('assessment');
+
+        //TODO remove if found after CKeditor Comments research:
+        Route::get('ckcomments', \tcCore\Http\Livewire\CkEditorComments::class)->name('ckcomments');
+        Route::get('ckcomments2', \tcCore\Http\Livewire\CkEditorCommentsSaveLoad::class)->name('ckcomments2');
     });
 
     Route::middleware(['dll', 'student'])->prefix('appapi')->name('appapi')->group(function () {

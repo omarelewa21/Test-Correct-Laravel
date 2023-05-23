@@ -164,8 +164,8 @@ RichTextEditor = {
         allowWsc,
         pluginsToAdd = [],
         removeItems = {
-            plugins: [],
-            items: []
+            plugins: ['Comments'],
+            items: ['comment']
         }) {
         let config = {
             autosave: {
@@ -175,6 +175,7 @@ RichTextEditor = {
                     editor.sourceElement.dispatchEvent(new Event("input"));
                 }
             },
+            licenseKey: '9K2tRUPoZobJydX6tm2HusZ/x1NCE/sghAv2zyuhaiEtxnbV9QKrhKjJvsI=',
             image: {
                 upload: {
                     types: ["jpeg", "png", "gif", "bmp", "webp", "tiff"]

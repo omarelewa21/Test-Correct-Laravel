@@ -38,3 +38,6 @@ smoothscroll.polyfill();
 
 import anychart from './AnyChart/anychart-base.min';
 anychart.licenseKey(process.env.MIX_ANYCHART_LICENSE_KEY);
+
+import {v4 as uuidv4} from 'uuid';
+window.uuidv4 = uuidv4;

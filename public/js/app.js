@@ -8012,6 +8012,60 @@ document.addEventListener("alpine:init", function () {
       }
     };
   });
+
+  /*Alpine.data("AnswerFeedbackComments", () => ({
+      commentEditor: null,
+      mainEditor: null,
+      init() {
+       },
+      SetupEditor()  {
+          ClassicEditor.create( document.querySelector( '#editor' ), {
+              extraPlugins: [ CommentsIntegration ],
+              licenseKey: '9K2tRUPoZobJydX6tm2HusZ/x1NCE/sghAv2zyuhaiEtxnbV9QKrhKjJvsI=',
+              toolbar: {
+                  items: [
+                      'comment',
+                  ]
+              }
+          } ).then( editor => {
+               ClassicEditors['answer-editor'] = editor;
+              mainEditor = editor;
+              this.mainEditor = editor;
+              window.ed = editor;
+               editor.plugins.get( 'CommentsOnly' ).isEnabled = true;
+               //Deactivate Sidebar/balloon
+              {{--    editor.plugins.get('AnnotationsUIs').deactivateAll();--}}
+               // After the editor is initialized, add an action to be performed after a button is clicked.
+              const commentsRepository = editor.plugins.get( 'CommentsRepository' );
+               commentsRepository = commentsRepository;
+              window.commentsRepository = commentsRepository;
+                  // Get the data on demand.
+              document.querySelector( '#get-data' ).addEventListener( 'click', () => {
+                  const editorData = editor.data.get();
+                  const commentThreadsData = commentsRepository.getCommentThreads( {
+                      skipNotAttached: true,
+                      skipEmpty: true,
+                      toJSON: true
+                  } );
+                  console.log(commentsRepository.getCommentThreads());
+                  // Now, use `editorData` and `commentThreadsData` to save the data in your application.
+                  // For example, you can set them as values of hidden input fields.
+                  console.log( editorData );
+                  console.log( editor.getData() );
+                  {{--        console.log( commentThreadsData );--}}
+              } );
+                 editor.on('selectionChange', (evt, data) => {console.log(evt, data)});
+               const focusItems = document.querySelectorAll('#sidebar > .button');
+               $nextTick(() => {
+                  for ( const item of focusItems ) {
+                      mainEditor.ui.focusTracker.add( item );
+                  }
+              })
+            } )
+              .catch( error => console.error( error ) );
+      }
+  }))*/
+
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].directive("global", function (el, _ref4) {
     var expression = _ref4.expression;
     var f = new Function("_", "$data", "_." + expression + " = $data;return;");
@@ -8668,6 +8722,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _smoothscroll_polyfill__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_smoothscroll_polyfill__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var _AnyChart_anychart_base_min__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./AnyChart/anychart-base.min */ "./resources/js/AnyChart/anychart-base.min.js");
 /* harmony import */ var _AnyChart_anychart_base_min__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_AnyChart_anychart_base_min__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var uuid__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/v4.js");
 /* provided dependency */ var process = __webpack_require__(/*! process/browser.js */ "./node_modules/process/browser.js");
 window._ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
 
@@ -8704,6 +8759,8 @@ FilePond.registerPlugin((filepond_plugin_file_validate_size__WEBPACK_IMPORTED_MO
 _smoothscroll_polyfill__WEBPACK_IMPORTED_MODULE_2___default().polyfill();
 
 _AnyChart_anychart_base_min__WEBPACK_IMPORTED_MODULE_3___default().licenseKey(process.env.MIX_ANYCHART_LICENSE_KEY);
+
+window.uuidv4 = uuid__WEBPACK_IMPORTED_MODULE_4__["default"];
 
 /***/ }),
 
@@ -15170,8 +15227,8 @@ RichTextEditor = {
     var _removeItems$plugins, _removeItems$toolbar;
     var pluginsToAdd = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
     var removeItems = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {
-      plugins: [],
-      items: []
+      plugins: ['Comments'],
+      items: ['comment']
     };
     var config = {
       autosave: {
@@ -15181,6 +15238,7 @@ RichTextEditor = {
           editor.sourceElement.dispatchEvent(new Event("input"));
         }
       },
+      licenseKey: '9K2tRUPoZobJydX6tm2HusZ/x1NCE/sghAv2zyuhaiEtxnbV9QKrhKjJvsI=',
       image: {
         upload: {
           types: ["jpeg", "png", "gif", "bmp", "webp", "tiff"]
@@ -15319,6 +15377,93 @@ RichTextEditor = {
     var wordCountPlugin = editor.plugins.get("WordCount");
     var wordCountWrapper = document.getElementById("word-count-" + editorId);
     wordCountWrapper.appendChild(wordCountPlugin.wordCountContainer);
+  },
+  initCommentTest: function initCommentTest(editorId, lang) {
+    var allowWsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+    var editor = ClassicEditors[editorId];
+    if (editor) {
+      editor.destroy(true);
+    }
+    return ClassicEditor.create(document.getElementById(editorId), this.getConfigForCommentTest(false)).then(function (editor) {
+      ClassicEditors[editorId] = editor;
+      // this.setupWordCounter(editor, editorId);
+    })["catch"](function (error) {
+      console.error(error);
+    });
+  },
+  getConfigForCommentTest: function getConfigForCommentTest(allowWsc) {
+    var _removeItems$plugins2, _removeItems$toolbar2;
+    var pluginsToAdd = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+    var removeItems = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {
+      plugins: ['wproofreader'],
+      items: [],
+      toolbar: ["outdent", "indent", "completion", "selection", "fontFamily", "fontBackgroundColor", "fontSize", "undo", "redo", "fontColor", "heading", "removeFormat", "wproofreader", "specialCharacters"]
+    };
+    var config = {
+      autosave: {
+        waitingTime: 300,
+        save: function save(editor) {
+          editor.updateSourceElement();
+          editor.sourceElement.dispatchEvent(new Event("input"));
+        }
+      },
+      sidebar: {
+        container: document.querySelector('#sidebar')
+      },
+      licenseKey: '9K2tRUPoZobJydX6tm2HusZ/x1NCE/sghAv2zyuhaiEtxnbV9QKrhKjJvsI='
+    };
+    config.removePlugins = (_removeItems$plugins2 = removeItems === null || removeItems === void 0 ? void 0 : removeItems.plugins) !== null && _removeItems$plugins2 !== void 0 ? _removeItems$plugins2 : [];
+    config.toolbar = {
+      removeItems: (_removeItems$toolbar2 = removeItems === null || removeItems === void 0 ? void 0 : removeItems.toolbar) !== null && _removeItems$toolbar2 !== void 0 ? _removeItems$toolbar2 : []
+    };
+    config.removePlugins.push("WProofreader");
+    var availablePlugins = ["Selection", "Completion"];
+    var pluginsToRemove = availablePlugins.filter(function (plugin) {
+      return !pluginsToAdd.includes(plugin);
+    });
+    config.removePlugins = [].concat(_toConsumableArray(config.removePlugins), _toConsumableArray(pluginsToRemove));
+    config.toolbar.removeItems = [].concat(_toConsumableArray(config.toolbar.removeItems), _toConsumableArray(config.removePlugins.map(function (item) {
+      return item.toLowerCase();
+    })));
+    return config;
+  },
+  appData: {
+    // Users data.
+    users: [{
+      id: '1486',
+      name: 'Docent 1'
+    }, {
+      id: '1487',
+      name: 'Ella Harper'
+    }],
+    // The ID of the current user.
+    userId: '1486',
+    // Comment threads data.
+    commentThreads: [{
+      threadId: 'thread-1',
+      comments: [{
+        commentId: 'comment-1',
+        authorId: 'user-1',
+        content: '<p>Are we sure we want to use a made-up disorder name?</p>',
+        createdAt: new Date('09/20/2018 14:21:53'),
+        attributes: {}
+      }, {
+        commentId: 'comment-2',
+        authorId: 'user-2',
+        content: '<p>Why not?</p>',
+        createdAt: new Date('09/21/2018 08:17:01'),
+        attributes: {}
+      }],
+      context: {
+        type: 'text',
+        value: 'Bilingual Personality Disorder'
+      },
+      resolvedAt: null,
+      resolvedBy: null,
+      attributes: {}
+    }],
+    // Editor initial data.
+    initialData: "<h2>\n             <comment-start name=\"thread-1\"></comment-start>\n             Bilingual Personality Disorder\n             <comment-end name=\"thread-1\"></comment-end>\n         </h2>\n         <p>\n             This may be the first time you hear about this made-up disorder but it actually isn\u2019t so far from the truth.\n             As recent studies show, the language you speak has more effects on you than you realize.\n             According to the studies, the language a person speaks affects their cognition,\n             behavior, emotions and hence <strong>their personality</strong>.\n         </p>\n         <p>\n             This shouldn\u2019t come as a surprise\n             <a href=\"https://en.wikipedia.org/wiki/Lateralization_of_brain_function\">since we already know</a>\n             that different regions of the brain become more active depending on the activity.\n             The structure, information and especially <strong>the culture</strong> of languages varies substantially\n             and the language a person speaks is an essential element of daily life.\n         </p>"
   }
 };
 

@@ -44,6 +44,10 @@ import PasteFromOffice from "@ckeditor/ckeditor5-paste-from-office/src/pastefrom
 import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
 import ButtonView from '@ckeditor/ckeditor5-ui/src/button/buttonview';
 
+import Comments from '@ckeditor/ckeditor5-comments/src/comments';
+import BlockToolbar from '@ckeditor/ckeditor5-ui/src/toolbar/block/blocktoolbar';
+
+
 class Completion extends Plugin {
     init() {
         const editor = this.editor;
@@ -187,15 +191,18 @@ Editor.builtinPlugins = [
     RemoveFormat,
     PasteFromOffice,
     WordCount,
-    WProofreader,
+    // WProofreader,
     Completion,
-    Selection
+    Selection,
+    Comments,
+    BlockToolbar
 ];
 
 // Editor configuration.
 Editor.defaultConfig = {
     toolbar: {
         items: [
+            'comment', '|',
             'completion',
             'selection',
             'bold',
@@ -224,7 +231,7 @@ Editor.defaultConfig = {
             'fontColor',
             'heading',
             'removeFormat',
-            'wproofreader',
+            // 'wproofreader',
         ]
     },
     language: 'nl',
@@ -274,6 +281,22 @@ Editor.defaultConfig = {
 
     ui: {
         viewportOffset: {top: 137}
+    },
+
+    comments: {
+        editorConfig: {
+            toolbar: {
+                items: [
+                    'bold',
+                    'italic',
+                    'underline',
+                    'strikethrough',
+                    'subscript',
+                    'superscript',
+                ]
+            },
+            extraPlugins: [ Bold, Italic, Underline ]
+        }
     }
 };
 
