@@ -49,8 +49,8 @@
     <x-slot name="footer">
         <div class="flex justify-end items-center">
             <div class="flex gap-4">
-                <x-button.text-button wire:click="close">{{ __('modal.sluiten') }}</x-button.text-button>
-                <x-button.cta @click="downloadPdfAttachment()">{{ __('cms.pdf_exporteren') }}</x-button.cta>
+                <x-button.text-button wire:click="close"><span>{{ __('modal.sluiten') }}</span></x-button.text-button>
+                <x-button.cta @click="downloadPdfAttachment()"><span>{{ __('cms.pdf_exporteren') }}</span></x-button.cta>
             </div>
         </div>
     </x-slot>

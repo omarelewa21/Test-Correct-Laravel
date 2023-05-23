@@ -171,12 +171,12 @@
 
                 <x-button.plus-circle class="py-4" @click="showNewQuestion($refs.type)"
                                       wire:loading.class="pointer-events-none" selid="create-new-question-btn">
-                    {{ __( 'cms.Nieuwe creeren' ) }}
+                    <span>{{ __( 'cms.Nieuwe creeren' ) }}</span>
                     <x-slot name="subtext">{{ __('cms.Stel een nieuwe vraag op') }}</x-slot>
                 </x-button.plus-circle>
 
                 <x-button.plus-circle class="py-4" @click="showQuestionBank()" selid="add-existing-question-btn">
-                    {{ __( 'cms.Bestaande toevoegen' ) }}
+                    <span>{{ __( 'cms.Bestaande toevoegen' ) }}</span>
                     <x-slot name="subtext">{{ __('cms.Verken en kies uit vragenbank') }}</x-slot>
                 </x-button.plus-circle>
                 <span></span>

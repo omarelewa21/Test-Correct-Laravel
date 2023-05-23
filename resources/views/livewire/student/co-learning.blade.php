@@ -97,7 +97,7 @@
                                   wire:loading.attr="disabled"
                                   :disabled="!$finishCoLearningButtonEnabled"
                     >
-                        {{ __('co-learning.finish') }}
+                        <span>{{ __('co-learning.finish') }}</span>
                     </x-button.cta>
                 @endif
 
