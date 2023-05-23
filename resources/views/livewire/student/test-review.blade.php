@@ -145,6 +145,7 @@
                                       :unique-key="$this->questionPosition"
         >
             <x-slot:slideOneContent>
+                @unless($this->currentQuestion->isType('infoscreen'))
                 <div class="score-slider | flex w-full relative"
                      wire:key="score-slider-{{  $this->questionPosition }}"
                 >
@@ -164,6 +165,7 @@
                         </x-slot:tooltip>
                     </x-input.score-slider>
                 </div>
+                @endif
                 @if($this->hasFeedback)
                     <div>
                         <x-button.text-button x-on:click="tab(2)" size="sm" class="text-base">
@@ -253,6 +255,4 @@
 
         </x-partials.evaluation.drawer>
     </div>
-    <x-notification />
-    @livewire('livewire-ui-modal')
 </main>
