@@ -2147,13 +2147,11 @@ document.addEventListener("alpine:init", () => {
         },
         markInputElementsWithError() {
             if (this.disabled) return;
-            this.inputBox.classList.add("border-allred");
-            this.inputBox.classList.remove("border-blue-grey");
+            this.inputBox.style.border = "1px solid var(--all-red)";
         },
         markInputElementsClean() {
             if (this.disabled) return;
-            this.inputBox.classList.add("border-blue-grey");
-            this.inputBox.classList.remove("border-allred");
+            this.inputBox.style.border = null;
         },
         getContinuousInput(){
             return this.$root.querySelector("[x-ref='score_slider_continuous_input']");
