@@ -20,6 +20,7 @@ use tcCore\LoginLog;
 use tcCore\Student;
 use tcCore\TemporaryLogin;
 use tcCore\User;
+use tcCore\UserFeatureSetting;
 use tcCore\UserSystemSetting;
 
 class UserHelper
@@ -50,11 +51,7 @@ class UserHelper
             return \Response::make("NEEDS_LOGIN_ENTREE", 403);
         }
 
-        if ($user->schoolLocation) {
-            session()->put('locale', $user->schoolLocation->school_language);
-            app()->setLocale(session('locale'));
-        }
-
+        self::setSystemLanguage($user);
         $hidden = self::getHiddenUserProperties($user);
         self::setAdditionalUserAttributes($user);
         self::handleTeacherEnvironment($user);
@@ -123,9 +120,10 @@ class UserHelper
 
         $user->setAttribute('temporaryLoginOptions', TemporaryLogin::getOptionsForUser($user));
 
-        $userSystemSettings = UserSystemSetting::getAll($user,false,true);
-
+        $userSystemSettings = UserSystemSetting::getAll(user: $user, sessionStore: true, clean: true);
         $user->setAttribute('systemSettings', $userSystemSettings);
+
+        $user->setAttribute('featureSettings', UserFeatureSetting::getAll(user: $user, sessionStore: true, clean: true));
 
         $latestFeatureTimestamp = (int) Info::getLatestFeature()?->created_at?->timestamp;
         $user->setAttribute('shouldShowNewFeaturePopup',
@@ -222,5 +220,11 @@ class UserHelper
                 }
             });
         return $results;
+    }
+
+    public static function setSystemLanguage($user): void
+    {
+        session()->put('locale', $user->getActiveLanguage(true));
+        app()->setLocale(session('locale'));
     }
 }

@@ -114,7 +114,7 @@
             </div>
         </div>
     </div>
-    <x-notification/>
+
     <div id="groupdetail" :style="{'left': groupDetailActive ? '0' : '100%'}" style="@if($this->groupQuestionDetail === null) display:none;@endif">
         <div>
             @if($this->groupQuestionDetail !== null)

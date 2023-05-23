@@ -2342,6 +2342,23 @@ document.addEventListener("alpine:init", () => {
             }, 5000);
         }
     }));
+    Alpine.data("accountSettings", (language) => ({
+        openTab: 'account',
+        changing: false,
+        language,
+        async startLanguageChange(event, wireModelName) {
+            this.$dispatch('language-loading-start');
+            this.changing = true;
+            await this.$wire.set(wireModelName, this.language)
+            this.$nextTick(() => {
+                setTimeout(() => {
+                    this.changing = false;
+                    this.$dispatch('language-loading-end');
+                }, 1500)
+            })
+
+        }
+    }));
 
     Alpine.data("drawingQuestionImagePreview", () => ({
         maxTries: 10,

@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
 use tcCore\Http\Controllers\GroupQuestionQuestionsController;
 use tcCore\Http\Controllers\TestQuestionsController;
+use tcCore\Http\Enums\WscLanguage;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Helpers\ContentSourceHelper;
 use tcCore\Jobs\CountTeacherTests;
@@ -38,6 +39,7 @@ class Test extends BaseModel
     protected $casts = [
         'uuid'  => EfficientUuid::class,
         'draft' => 'boolean',
+        'lang'  => WscLanguage::class,
     ];
 
     /**

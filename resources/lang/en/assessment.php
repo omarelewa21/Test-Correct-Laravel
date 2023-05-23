@@ -35,7 +35,7 @@ return [
     'Feedback toevoegen'                           => 'Add feedback',
     'current_session'                              => ":index/:totalQuestions questions assessed<br>on :date",
     'no_answers'                                   => 'There are no answers to asssess.',
-    'Toon de naam van studenten'                   => 'Show name of students',
+    'Studentnamen tonen'                   => 'Show name of students',
     'Inline feedback toevoegen'                    => 'Add inline feedback',
     'Inline feedback wijzigen'                     => 'Edit inline feedback',
     'Inline feedback verwijderen'                  => 'Remove inline feedback',

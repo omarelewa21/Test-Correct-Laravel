@@ -2,6 +2,8 @@
 
 namespace tcCore\Http\Enums\Taxonomy;
 
+use tcCore\Http\Enums\Traits\WithTaxonomyMethods;
+
 enum Rtti: string implements Taxonomy
 {
     use WithTaxonomyMethods;
