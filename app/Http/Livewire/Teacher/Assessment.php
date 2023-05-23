@@ -202,17 +202,23 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             'completionquestion',
             'multiplechoicequestion',
             'matchingquestion',
+            'rankingquestion',
         ]);
         $subTypes = collect([
             'multi',
             'completion',
             'truefalse',
             'multiplechoice',
+            'arq',
             'classify',
             'matching',
         ]);
 
         if ($types->contains(Str::lower($this->currentQuestion->type))) {
+            if($this->currentQuestion->subtype === null) {
+                return true;
+            }
+
             return $subTypes->contains(Str::lower($this->currentQuestion->subtype));
         }
 
