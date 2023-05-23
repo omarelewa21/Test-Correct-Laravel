@@ -5728,6 +5728,9 @@ video {
 .-mt-1{
   margin-top: -0.25rem;
 }
+.-mt-2{
+  margin-top: -0.5rem;
+}
 .-mt-4{
   margin-top: -1rem;
 }
@@ -5887,9 +5890,6 @@ video {
 .mt-px{
   margin-top: 1px;
 }
-.-mt-2{
-  margin-top: -0.5rem;
-}
 .box-border{
   box-sizing: border-box;
 }
@@ -6015,6 +6015,9 @@ video {
 }
 .h-\[3px\]{
   height: 3px;
+}
+.h-\[40px\]{
+  height: 40px;
 }
 .h-\[45vw\]{
   height: 45vw;
@@ -7276,10 +7279,6 @@ video {
 }
 .bg-white\/95{
   background-color: rgb(255 255 255 / 0.95);
-}
-.bg-red-500{
-  --tw-bg-opacity: 1;
-  background-color: rgb(239 68 68 / var(--tw-bg-opacity));
 }
 .bg-opacity-0{
   --tw-bg-opacity: 0;
@@ -8742,6 +8741,10 @@ h2.student-testtake-answers-separator span {
   background-color: rgb(67 56 202 / var(--tw-bg-opacity));
 }
 
+.active\:bg-primary\/10:active{
+  background-color: rgb(0 77 245 / 0.1);
+}
+
 .active\:text-gray-500:active{
   --tw-text-opacity: 1;
   color: rgb(107 114 128 / var(--tw-text-opacity));
@@ -8790,10 +8793,6 @@ h2.student-testtake-answers-separator span {
 
 .group:hover .group-hover\:opacity-\[0\.05\]{
   opacity: 0.05;
-}
-
-.group:focus .group-focus\:bg-primary\/10{
-  background-color: rgb(0 77 245 / 0.1);
 }
 
 .group:focus .group-focus\:bg-primary\/5{
