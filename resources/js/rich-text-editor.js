@@ -3,24 +3,24 @@ RichTextEditor = {
         console.log("this should implement student init // example is open-medium-question.blase.php");
     },
 
-    initStudentCoLearning: function(editorId, lang = "nl_NL", wsc = false) {
+    initStudentCoLearning: function(parameterBag) {
         return ClassicEditor
-            .create(document.querySelector("#" + editorId),
-                this.getConfigForStudent(wsc, [])
+            .create(document.querySelector("#" + parameterBag.editorId),
+                this.getConfigForStudent(parameterBag.wsc, [])
             )
             .then(editor => {
-                ClassicEditors[editorId] = editor;
-                this.setupWordCounter(editor, editorId);
-                WebspellcheckerTlc.forTeacherQuestion(editor, lang, wsc);
+                ClassicEditors[parameterBag.editorId] = editor;
+                this.setupWordCounter(editor, parameterBag.editorId);
+                WebspellcheckerTlc.forTeacherQuestion(editor, parameterBag.lang, parameterBag.wsc);
 
-                window.addEventListener("wsc-problems-count-updated-" + editorId, (e) => {
-                    let problemCountSpan = document.getElementById("problem-count-" + editorId);
+                window.addEventListener("wsc-problems-count-updated-" + parameterBag.editorId, (e) => {
+                    let problemCountSpan = document.getElementById("problem-count-" + parameterBag.editorId);
                     if (problemCountSpan) {
                         problemCountSpan.textContent = e.detail.problemsCount;
                     }
                 });
                 if (typeof ReadspeakerTlc != "undefined") {
-                    ReadspeakerTlc.ckeditor.addListenersForReadspeaker(editor, questionId, editorId);
+                    ReadspeakerTlc.ckeditor.addListenersForReadspeaker(editor, parameterBag.questionId, parameterBag.editorId);
                     ReadspeakerTlc.ckeditor.disableContextMenuOnCkeditor();
                 }
             })
@@ -30,20 +30,20 @@ RichTextEditor = {
     },
 
 
-    initSelectionCMS: function(editorId, lang = "nl_NL", allowWsc = false) {
-        var editor = ClassicEditors[editorId];
+    initSelectionCMS: function(parameterBag) {
+        var editor = ClassicEditors[parameterBag.editorId];
         if (editor) {
             editor.destroy(true);
         }
 
         return ClassicEditor
             .create(
-                document.getElementById(editorId),
-                this.getConfigForTeacher(allowWsc, ["Selection"])
+                document.getElementById(parameterBag.editorId),
+                this.getConfigForTeacher(parameterBag.allowWsc, ["Selection"])
             )
             .then(editor => {
-                ClassicEditors[editorId] = editor;
-                WebspellcheckerTlc.lang(editor, lang);
+                ClassicEditors[parameterBag.editorId] = editor;
+                WebspellcheckerTlc.lang(editor, parameterBag.lang);
                 // WebspellcheckerTlc.setEditorToReadOnly(editor);
                 this.setReadOnly(editor);
                 window.editor = editor;
@@ -52,21 +52,21 @@ RichTextEditor = {
                 console.error(error);
             });
     },
-    initCompletionCMS: function(editorId, lang, allowWsc = false) {
-        var editor = ClassicEditors[editorId];
+    initCompletionCMS: function(parameterBag) {
+        var editor = ClassicEditors[parameterBag.editorId];
         if (editor) {
             editor.destroy(true);
         }
 
         return ClassicEditor
             .create(
-                document.getElementById(editorId),
-                this.getConfigForTeacher(allowWsc, ["Completion"])
+                document.getElementById(parameterBag.editorId),
+                this.getConfigForTeacher(parameterBag.allowWsc, ["Completion"])
             )
             .then(editor => {
-                ClassicEditors[editorId] = editor;
+                ClassicEditors[parameterBag.editorId] = editor;
 
-                WebspellcheckerTlc.lang(editor, lang);
+                WebspellcheckerTlc.lang(editor, parameterBag.lang);
                 // WebspellcheckerTlc.setEditorToReadOnly(editor);
                 this.setReadOnly(editor);
             })
@@ -83,16 +83,16 @@ RichTextEditor = {
         textarea.dispatchEvent(new Event("input"));
     },
 
-    initClassicEditorForStudentplayer: function (editorId, questionId, allowWsc = false) {
+    initClassicEditorForStudentplayer: function(parameterBag) {
         return ClassicEditor
-            .create(document.querySelector("#" + editorId),
-                this.getConfigForStudent(allowWsc, [])
+            .create(document.querySelector("#" + parameterBag.editorId),
+                this.getConfigForStudent(parameterBag.allowWsc, [])
             )
             .then(editor => {
-                ClassicEditors[editorId] = editor;
-                this.setupWordCounter(editor, editorId);
+                ClassicEditors[parameterBag.editorId] = editor;
+                this.setupWordCounter(editor, parameterBag.editorId);
                 if (typeof ReadspeakerTlc != "undefined") {
-                    ReadspeakerTlc.ckeditor.addListenersForReadspeaker(editor, questionId, editorId);
+                    ReadspeakerTlc.ckeditor.addListenersForReadspeaker(editor, parameterBag.questionId, parameterBag.editorId);
                     ReadspeakerTlc.ckeditor.disableContextMenuOnCkeditor();
                 }
             })
@@ -100,14 +100,14 @@ RichTextEditor = {
                 console.error(error);
             });
     },
-    initClassicEditorForStudentPreviewplayer: function(editorId, questionId) {
+    initClassicEditorForStudentPreviewplayer: function(parameterBag) {
         return ClassicEditor
-            .create(document.querySelector("#" + editorId),
+            .create(document.querySelector("#" + parameterBag.editorId),
                 this.getConfigForStudent(false, [])
             )
             .then(editor => {
-                ClassicEditors[editorId] = editor;
-                this.setupWordCounter(editor, editorId);
+                ClassicEditors[parameterBag.editorId] = editor;
+                this.setupWordCounter(editor, parameterBag.editorId);
                 if (typeof ReadspeakerTlc != "undefined") {
                     ReadspeakerTlc.ckeditor.replaceReadableAreaByClone(editor);
                 }
@@ -163,10 +163,14 @@ RichTextEditor = {
     getConfigForTeacher: function(
         allowWsc,
         pluginsToAdd = [],
-        removeItems = {
+        removeItems = null,
+        maxWords = -1
+    ) {
+        removeItems ??= {
             plugins: [],
             items: []
-        }) {
+        };
+
         let config = {
             autosave: {
                 waitingTime: 300,
@@ -180,34 +184,34 @@ RichTextEditor = {
                     types: ["jpeg", "png", "gif", "bmp", "webp", "tiff"]
                 },
                 toolbar: [
-                    'imageTextAlternative',
+                    "imageTextAlternative",
                     // 'toggleImageCaption',
-                    '|',
-                    'imageStyle:inline',
+                    "|",
+                    "imageStyle:inline",
                     {
                         // Grouping into one drop-down.
-                        name: 'wrapText',
-                        title: 'Tekstterugloop',
+                        name: "wrapText",
+                        title: "Tekstterugloop",
                         items: [
-                            'imageStyle:alignLeft',
-                            'imageStyle:alignRight',
+                            "imageStyle:alignLeft",
+                            "imageStyle:alignRight"
                         ],
-                        defaultItem: 'imageStyle:alignLeft'
+                        defaultItem: "imageStyle:alignLeft"
                     },
                     {
                         // Grouping into one drop-down.
-                        name: 'breakText',
-                        title: 'Tekst onderbreken',
+                        name: "breakText",
+                        title: "Tekst onderbreken",
                         items: [
-                            'imageStyle:alignBlockLeft',
-                            'imageStyle:alignCenter',
-                            'imageStyle:alignBlockRight',
+                            "imageStyle:alignBlockLeft",
+                            "imageStyle:alignCenter",
+                            "imageStyle:alignBlockRight"
                         ],
-                        defaultItem: 'imageStyle:alignBlockLeft'
+                        defaultItem: "imageStyle:alignBlockLeft"
                     },
-                    'imageStyle:side',
-                    '|',
-                    'resizeImage'
+                    "imageStyle:side",
+                    "|",
+                    "resizeImage"
                 ]
             },
             simpleUpload: {
@@ -220,11 +224,12 @@ RichTextEditor = {
                     // Authorization: 'Bearer <JSON Web Token>'
                 }
             },
-            wordcount: {
+            wordCount: {
                 showWordCount: true,
                 showParagraphs: false,
                 showCharCount: true,
-                countSpacesAsChars: true
+                countSpacesAsChars: true,
+                maxWordCount: maxWords
             }
         };
         config.removePlugins = removeItems?.plugins ?? [];
@@ -255,20 +260,22 @@ RichTextEditor = {
 
         return config;
     },
-    initForTeacher: function(editorId, lang, allowWsc = false) {
-        const editor = ClassicEditors[editorId];
+    initForTeacher: function(parameterBag) {
+
+        const editor = ClassicEditors[parameterBag.editorId];
         if (editor) {
             editor.destroy(true);
         }
 
         return ClassicEditor
             .create(
-                document.getElementById(editorId),
-                this.getConfigForTeacher(allowWsc)
+                document.getElementById(parameterBag.editorId),
+                this.getConfigForTeacher(parameterBag.allowWsc, [], null, parameterBag.maxWords)
             )
             .then(editor => {
-                ClassicEditors[editorId] = editor;
-                WebspellcheckerTlc.lang(editor, lang);
+                ClassicEditors[parameterBag.editorId] = editor;
+                WebspellcheckerTlc.lang(editor, parameterBag.lang);
+                this.setupWordCounter(editor, parameterBag.editorId, parameterBag.maxWords, parameterBag.maxWordOverride);
                 // WebspellcheckerTlc.setEditorToReadOnly(editor);
                 this.setReadOnly(editor);
             })
@@ -276,8 +283,8 @@ RichTextEditor = {
                 console.error(error);
             });
     },
-    initAssessmentFeedback: function(editorId, lang, allowWsc = false) {
-        var editor = ClassicEditors[editorId];
+    initAssessmentFeedback: function(parameterBag) {
+        var editor = ClassicEditors[parameterBag.editorId];
         if (editor) {
             editor.destroy(true);
         }
@@ -296,7 +303,7 @@ RichTextEditor = {
                 "WordCount",
                 "WProofreader",
                 "Completion",
-                "Selection",
+                "Selection"
             ],
             toolbar: [
                 "outdent",
@@ -315,35 +322,35 @@ RichTextEditor = {
                 "specialCharacters"
             ]
         };
-        let config = this.getConfigForTeacher(allowWsc, [], itemsToRemove, true);
+        let config = this.getConfigForTeacher(parameterBag.allowWsc, [], itemsToRemove, true);
         config.toolbar.shouldNotGroupWhenFull = true;
 
         return ClassicEditor
             .create(
-                document.getElementById(editorId),
+                document.getElementById(parameterBag.editorId),
                 config
             )
             .then(editor => {
-                ClassicEditors[editorId] = editor;
+                ClassicEditors[parameterBag.editorId] = editor;
             })
             .catch(error => {
                 console.error(error);
             });
     },
-    initInlineFeedback: function(editorId, lang, allowWsc = false) {
-        let editor = ClassicEditors[editorId];
+    initInlineFeedback: function(parameterBag) {
+        let editor = ClassicEditors[parameterBag.editorId];
         if (editor) {
             editor.destroy(true);
         }
 
         return ClassicEditor
             .create(
-                document.getElementById(editorId),
-                this.getConfigForTeacher(allowWsc)
+                document.getElementById(parameterBag.editorId),
+                this.getConfigForTeacher(parameterBag.allowWsc)
             )
             .then(editor => {
-                ClassicEditors[editorId] = editor;
-                this.setupWordCounter(editor, editorId);
+                ClassicEditors[parameterBag.editorId] = editor;
+                this.setupWordCounter(editor, parameterBag.editorId);
             })
             .catch(error => {
                 console.error(error);
@@ -360,16 +367,34 @@ RichTextEditor = {
             });
         }
     },
-    writeContentToTexarea: function(editorId) {
+    writeContentToTextarea: function(editorId) {
         var editor = ClassicEditors[editorId];
         if (editor) {
             editor.updateSourceElement();
             editor.sourceElement.dispatchEvent(new Event("input"));
         }
     },
-    setupWordCounter: function(editor, editorId) {
+    setupWordCounter: function(editor, editorId, maxWords = null, override = false) {
         const wordCountPlugin = editor.plugins.get("WordCount");
         const wordCountWrapper = document.getElementById("word-count-" + editorId);
-        wordCountWrapper.appendChild(wordCountPlugin.wordCountContainer);
-    },
+        if (wordCountWrapper) {
+            wordCountWrapper.appendChild(wordCountPlugin.wordCountContainer);
+        }
+
+        if (maxWords) {
+            editor.maxWords = maxWords;
+
+            wordCountPlugin.on("update", (evt, stats) => {
+                console.log(evt);
+                console.log(override);
+                if (override) {
+                    return;
+                }
+                const limitExceeded = stats.words > editor.maxWords;
+
+
+                console.log(`Characters: ${stats.characters}\nWords:      ${stats.words}\nmax:      ${editor.maxWords}`);
+            });
+        }
+    }
 };

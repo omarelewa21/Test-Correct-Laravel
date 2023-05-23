@@ -49,7 +49,7 @@
                     if(ReadspeakerTlc.guard.shouldNotDetachCkEditor(document.querySelector( '#{{ $editorId }}' ))){
                         return;
                     }
-                    RichTextEditor.writeContentToTexarea('{{ $editorId }}');
+                    RichTextEditor.writeContentToTextarea('{{ $editorId }}');
                     ReadspeakerTlc.ckeditor.detachReadableAreaFromCkeditor('{{ $editorId }}');
                 })
             @endif

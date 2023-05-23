@@ -11,8 +11,12 @@ class OpenQuestion extends Question implements QuestionInterface {
     use UuidTrait;
 
     protected $casts = [
-        'uuid' => EfficientUuid::class,
+        'uuid'                  => EfficientUuid::class,
         'spell_check_available' => 'boolean',
+        'text_formatting'       => 'boolean',
+        'mathml_functions'      => 'boolean',
+        'restrict_word_amount'  => 'boolean',
+        'max_words'             => 'integer',
     ];
 
     /**

@@ -2373,6 +2373,39 @@ document.addEventListener("alpine:init", () => {
         }
     }))
 
+    Alpine.data("writeDownCms", (editorId, restrict_word_amount, maxWords) => ({
+        editor: null,
+        wordCounter: restrict_word_amount,
+        maxWords: maxWords,
+        wordContainer: null,
+        init() {
+            this.$nextTick(() => {
+                this.editor = ClassicEditors[editorId];
+                this.wordContainer = this.$root.querySelector(".ck-word-count__words");
+                this.$root.querySelector(".ck-word-count__characters")?.remove();
+                this.wordContainer.style.display = "flex";
+                this.wordContainer.parentElement.style.display = "flex";
+
+                this.addMaxWordsToWordCounter(this.maxWords);
+            });
+
+            this.$watch("maxWords", (value) => {
+                this.addMaxWordsToWordCounter(value);
+            });
+        },
+        addMaxWordsToWordCounter(value) {
+            const spanId = 'max-word-span';
+            this.$root.querySelector(`#${spanId}`)?.remove();
+
+            let element = document.createElement("span");
+            element.id = spanId;
+            element.innerHTML = `/${value ?? 0}`;
+            this.wordContainer.parentNode.insertBefore(element, this.wordContainer.nextSibling);
+
+            this.editor.maxWords = value;
+        }
+    }));
+
     Alpine.directive("global", function(el, { expression }) {
         let f = new Function("_", "$data", "_." + expression + " = $data;return;");
         f(window, el._x_dataStack[0]);
@@ -2405,6 +2438,7 @@ document.addEventListener("alpine:init", () => {
             this.toggleCount = toggleCount;
         }
     });
+    Alpine.store("editorMaxWords", {});
 });
 
 function getTitleForVideoUrl(videoUrl) {

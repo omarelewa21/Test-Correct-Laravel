@@ -8012,6 +8012,39 @@ document.addEventListener("alpine:init", function () {
       }
     };
   });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("writeDownCms", function (editorId, restrict_word_amount, maxWords) {
+    return {
+      editor: null,
+      wordCounter: restrict_word_amount,
+      maxWords: maxWords,
+      wordContainer: null,
+      init: function init() {
+        var _this55 = this;
+        this.$nextTick(function () {
+          var _this55$$root$querySe;
+          _this55.editor = ClassicEditors[editorId];
+          _this55.wordContainer = _this55.$root.querySelector(".ck-word-count__words");
+          (_this55$$root$querySe = _this55.$root.querySelector(".ck-word-count__characters")) === null || _this55$$root$querySe === void 0 ? void 0 : _this55$$root$querySe.remove();
+          _this55.wordContainer.style.display = "flex";
+          _this55.wordContainer.parentElement.style.display = "flex";
+          _this55.addMaxWordsToWordCounter(_this55.maxWords);
+        });
+        this.$watch("maxWords", function (value) {
+          _this55.addMaxWordsToWordCounter(value);
+        });
+      },
+      addMaxWordsToWordCounter: function addMaxWordsToWordCounter(value) {
+        var _this$$root$querySele2;
+        var spanId = 'max-word-span';
+        (_this$$root$querySele2 = this.$root.querySelector("#".concat(spanId))) === null || _this$$root$querySele2 === void 0 ? void 0 : _this$$root$querySele2.remove();
+        var element = document.createElement("span");
+        element.id = spanId;
+        element.innerHTML = "/".concat(value !== null && value !== void 0 ? value : 0);
+        this.wordContainer.parentNode.insertBefore(element, this.wordContainer.nextSibling);
+        this.editor.maxWords = value;
+      }
+    };
+  });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].directive("global", function (el, _ref4) {
     var expression = _ref4.expression;
     var f = new Function("_", "$data", "_." + expression + " = $data;return;");
@@ -8046,6 +8079,7 @@ document.addEventListener("alpine:init", function () {
       this.toggleCount = toggleCount;
     }
   });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].store("editorMaxWords", {});
 });
 function getTitleForVideoUrl(videoUrl) {
   return fetch("https://noembed.com/embed?url=" + videoUrl).then(function (response) {
@@ -15034,39 +15068,35 @@ RichTextEditor = {
   initStudent: function initStudent(editorId) {
     console.log("this should implement student init // example is open-medium-question.blase.php");
   },
-  initStudentCoLearning: function initStudentCoLearning(editorId) {
+  initStudentCoLearning: function initStudentCoLearning(parameterBag) {
     var _this = this;
-    var lang = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "nl_NL";
-    var wsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-    return ClassicEditor.create(document.querySelector("#" + editorId), this.getConfigForStudent(wsc, [])).then(function (editor) {
-      ClassicEditors[editorId] = editor;
-      _this.setupWordCounter(editor, editorId);
-      WebspellcheckerTlc.forTeacherQuestion(editor, lang, wsc);
-      window.addEventListener("wsc-problems-count-updated-" + editorId, function (e) {
-        var problemCountSpan = document.getElementById("problem-count-" + editorId);
+    return ClassicEditor.create(document.querySelector("#" + parameterBag.editorId), this.getConfigForStudent(parameterBag.wsc, [])).then(function (editor) {
+      ClassicEditors[parameterBag.editorId] = editor;
+      _this.setupWordCounter(editor, parameterBag.editorId);
+      WebspellcheckerTlc.forTeacherQuestion(editor, parameterBag.lang, parameterBag.wsc);
+      window.addEventListener("wsc-problems-count-updated-" + parameterBag.editorId, function (e) {
+        var problemCountSpan = document.getElementById("problem-count-" + parameterBag.editorId);
         if (problemCountSpan) {
           problemCountSpan.textContent = e.detail.problemsCount;
         }
       });
       if (typeof ReadspeakerTlc != "undefined") {
-        ReadspeakerTlc.ckeditor.addListenersForReadspeaker(editor, questionId, editorId);
+        ReadspeakerTlc.ckeditor.addListenersForReadspeaker(editor, parameterBag.questionId, parameterBag.editorId);
         ReadspeakerTlc.ckeditor.disableContextMenuOnCkeditor();
       }
     })["catch"](function (error) {
       console.error(error);
     });
   },
-  initSelectionCMS: function initSelectionCMS(editorId) {
+  initSelectionCMS: function initSelectionCMS(parameterBag) {
     var _this2 = this;
-    var lang = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "nl_NL";
-    var allowWsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-    var editor = ClassicEditors[editorId];
+    var editor = ClassicEditors[parameterBag.editorId];
     if (editor) {
       editor.destroy(true);
     }
-    return ClassicEditor.create(document.getElementById(editorId), this.getConfigForTeacher(allowWsc, ["Selection"])).then(function (editor) {
-      ClassicEditors[editorId] = editor;
-      WebspellcheckerTlc.lang(editor, lang);
+    return ClassicEditor.create(document.getElementById(parameterBag.editorId), this.getConfigForTeacher(parameterBag.allowWsc, ["Selection"])).then(function (editor) {
+      ClassicEditors[parameterBag.editorId] = editor;
+      WebspellcheckerTlc.lang(editor, parameterBag.lang);
       // WebspellcheckerTlc.setEditorToReadOnly(editor);
       _this2.setReadOnly(editor);
       window.editor = editor;
@@ -15074,16 +15104,15 @@ RichTextEditor = {
       console.error(error);
     });
   },
-  initCompletionCMS: function initCompletionCMS(editorId, lang) {
+  initCompletionCMS: function initCompletionCMS(parameterBag) {
     var _this3 = this;
-    var allowWsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-    var editor = ClassicEditors[editorId];
+    var editor = ClassicEditors[parameterBag.editorId];
     if (editor) {
       editor.destroy(true);
     }
-    return ClassicEditor.create(document.getElementById(editorId), this.getConfigForTeacher(allowWsc, ["Completion"])).then(function (editor) {
-      ClassicEditors[editorId] = editor;
-      WebspellcheckerTlc.lang(editor, lang);
+    return ClassicEditor.create(document.getElementById(parameterBag.editorId), this.getConfigForTeacher(parameterBag.allowWsc, ["Completion"])).then(function (editor) {
+      ClassicEditors[parameterBag.editorId] = editor;
+      WebspellcheckerTlc.lang(editor, parameterBag.lang);
       // WebspellcheckerTlc.setEditorToReadOnly(editor);
       _this3.setReadOnly(editor);
     })["catch"](function (error) {
@@ -15097,25 +15126,24 @@ RichTextEditor = {
     }, 300);
     textarea.dispatchEvent(new Event("input"));
   },
-  initClassicEditorForStudentplayer: function initClassicEditorForStudentplayer(editorId, questionId) {
+  initClassicEditorForStudentplayer: function initClassicEditorForStudentplayer(parameterBag) {
     var _this4 = this;
-    var allowWsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-    return ClassicEditor.create(document.querySelector("#" + editorId), this.getConfigForStudent(allowWsc, [])).then(function (editor) {
-      ClassicEditors[editorId] = editor;
-      _this4.setupWordCounter(editor, editorId);
+    return ClassicEditor.create(document.querySelector("#" + parameterBag.editorId), this.getConfigForStudent(parameterBag.allowWsc, [])).then(function (editor) {
+      ClassicEditors[parameterBag.editorId] = editor;
+      _this4.setupWordCounter(editor, parameterBag.editorId);
       if (typeof ReadspeakerTlc != "undefined") {
-        ReadspeakerTlc.ckeditor.addListenersForReadspeaker(editor, questionId, editorId);
+        ReadspeakerTlc.ckeditor.addListenersForReadspeaker(editor, parameterBag.questionId, parameterBag.editorId);
         ReadspeakerTlc.ckeditor.disableContextMenuOnCkeditor();
       }
     })["catch"](function (error) {
       console.error(error);
     });
   },
-  initClassicEditorForStudentPreviewplayer: function initClassicEditorForStudentPreviewplayer(editorId, questionId) {
+  initClassicEditorForStudentPreviewplayer: function initClassicEditorForStudentPreviewplayer(parameterBag) {
     var _this5 = this;
-    return ClassicEditor.create(document.querySelector("#" + editorId), this.getConfigForStudent(false, [])).then(function (editor) {
-      ClassicEditors[editorId] = editor;
-      _this5.setupWordCounter(editor, editorId);
+    return ClassicEditor.create(document.querySelector("#" + parameterBag.editorId), this.getConfigForStudent(false, [])).then(function (editor) {
+      ClassicEditors[parameterBag.editorId] = editor;
+      _this5.setupWordCounter(editor, parameterBag.editorId);
       if (typeof ReadspeakerTlc != "undefined") {
         ReadspeakerTlc.ckeditor.replaceReadableAreaByClone(editor);
       }
@@ -15167,9 +15195,11 @@ RichTextEditor = {
     return config;
   },
   getConfigForTeacher: function getConfigForTeacher(allowWsc) {
-    var _removeItems$plugins, _removeItems$toolbar;
+    var _removeItems, _removeItems$plugins, _removeItems2, _removeItems$toolbar, _removeItems3;
     var pluginsToAdd = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
-    var removeItems = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {
+    var removeItems = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+    var maxWords = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : -1;
+    (_removeItems = removeItems) !== null && _removeItems !== void 0 ? _removeItems : removeItems = {
       plugins: [],
       items: []
     };
@@ -15185,21 +15215,21 @@ RichTextEditor = {
         upload: {
           types: ["jpeg", "png", "gif", "bmp", "webp", "tiff"]
         },
-        toolbar: ['imageTextAlternative',
+        toolbar: ["imageTextAlternative",
         // 'toggleImageCaption',
-        '|', 'imageStyle:inline', {
+        "|", "imageStyle:inline", {
           // Grouping into one drop-down.
-          name: 'wrapText',
-          title: 'Tekstterugloop',
-          items: ['imageStyle:alignLeft', 'imageStyle:alignRight'],
-          defaultItem: 'imageStyle:alignLeft'
+          name: "wrapText",
+          title: "Tekstterugloop",
+          items: ["imageStyle:alignLeft", "imageStyle:alignRight"],
+          defaultItem: "imageStyle:alignLeft"
         }, {
           // Grouping into one drop-down.
-          name: 'breakText',
-          title: 'Tekst onderbreken',
-          items: ['imageStyle:alignBlockLeft', 'imageStyle:alignCenter', 'imageStyle:alignBlockRight'],
-          defaultItem: 'imageStyle:alignBlockLeft'
-        }, 'imageStyle:side', '|', 'resizeImage']
+          name: "breakText",
+          title: "Tekst onderbreken",
+          items: ["imageStyle:alignBlockLeft", "imageStyle:alignCenter", "imageStyle:alignBlockRight"],
+          defaultItem: "imageStyle:alignBlockLeft"
+        }, "imageStyle:side", "|", "resizeImage"]
       },
       simpleUpload: {
         uploadUrl: "/cms/ckeditor_upload/images",
@@ -15212,16 +15242,17 @@ RichTextEditor = {
         }
       },
 
-      wordcount: {
+      wordCount: {
         showWordCount: true,
         showParagraphs: false,
         showCharCount: true,
-        countSpacesAsChars: true
+        countSpacesAsChars: true,
+        maxWordCount: maxWords
       }
     };
-    config.removePlugins = (_removeItems$plugins = removeItems === null || removeItems === void 0 ? void 0 : removeItems.plugins) !== null && _removeItems$plugins !== void 0 ? _removeItems$plugins : [];
+    config.removePlugins = (_removeItems$plugins = (_removeItems2 = removeItems) === null || _removeItems2 === void 0 ? void 0 : _removeItems2.plugins) !== null && _removeItems$plugins !== void 0 ? _removeItems$plugins : [];
     config.toolbar = {
-      removeItems: (_removeItems$toolbar = removeItems === null || removeItems === void 0 ? void 0 : removeItems.toolbar) !== null && _removeItems$toolbar !== void 0 ? _removeItems$toolbar : []
+      removeItems: (_removeItems$toolbar = (_removeItems3 = removeItems) === null || _removeItems3 === void 0 ? void 0 : _removeItems3.toolbar) !== null && _removeItems$toolbar !== void 0 ? _removeItems$toolbar : []
     };
     if (allowWsc) {
       config.wproofreader = {
@@ -15250,25 +15281,24 @@ RichTextEditor = {
     })));
     return config;
   },
-  initForTeacher: function initForTeacher(editorId, lang) {
+  initForTeacher: function initForTeacher(parameterBag) {
     var _this6 = this;
-    var allowWsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-    var editor = ClassicEditors[editorId];
+    var editor = ClassicEditors[parameterBag.editorId];
     if (editor) {
       editor.destroy(true);
     }
-    return ClassicEditor.create(document.getElementById(editorId), this.getConfigForTeacher(allowWsc)).then(function (editor) {
-      ClassicEditors[editorId] = editor;
-      WebspellcheckerTlc.lang(editor, lang);
+    return ClassicEditor.create(document.getElementById(parameterBag.editorId), this.getConfigForTeacher(parameterBag.allowWsc, [], null, parameterBag.maxWords)).then(function (editor) {
+      ClassicEditors[parameterBag.editorId] = editor;
+      WebspellcheckerTlc.lang(editor, parameterBag.lang);
+      _this6.setupWordCounter(editor, parameterBag.editorId, parameterBag.maxWords, parameterBag.maxWordOverride);
       // WebspellcheckerTlc.setEditorToReadOnly(editor);
       _this6.setReadOnly(editor);
     })["catch"](function (error) {
       console.error(error);
     });
   },
-  initAssessmentFeedback: function initAssessmentFeedback(editorId, lang) {
-    var allowWsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-    var editor = ClassicEditors[editorId];
+  initAssessmentFeedback: function initAssessmentFeedback(parameterBag) {
+    var editor = ClassicEditors[parameterBag.editorId];
     if (editor) {
       editor.destroy(true);
     }
@@ -15276,24 +15306,23 @@ RichTextEditor = {
       plugins: ["Essentials", "FontFamily", "FontSize", "FontBackgroundColor", "Heading", "Indent", "FontColor", "RemoveFormat", "PasteFromOffice", "WordCount", "WProofreader", "Completion", "Selection"],
       toolbar: ["outdent", "indent", "completion", "selection", "fontFamily", "fontBackgroundColor", "fontSize", "undo", "redo", "fontColor", "heading", "removeFormat", "wproofreader", "specialCharacters"]
     };
-    var config = this.getConfigForTeacher(allowWsc, [], itemsToRemove, true);
+    var config = this.getConfigForTeacher(parameterBag.allowWsc, [], itemsToRemove, true);
     config.toolbar.shouldNotGroupWhenFull = true;
-    return ClassicEditor.create(document.getElementById(editorId), config).then(function (editor) {
-      ClassicEditors[editorId] = editor;
+    return ClassicEditor.create(document.getElementById(parameterBag.editorId), config).then(function (editor) {
+      ClassicEditors[parameterBag.editorId] = editor;
     })["catch"](function (error) {
       console.error(error);
     });
   },
-  initInlineFeedback: function initInlineFeedback(editorId, lang) {
+  initInlineFeedback: function initInlineFeedback(parameterBag) {
     var _this7 = this;
-    var allowWsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-    var editor = ClassicEditors[editorId];
+    var editor = ClassicEditors[parameterBag.editorId];
     if (editor) {
       editor.destroy(true);
     }
-    return ClassicEditor.create(document.getElementById(editorId), this.getConfigForTeacher(allowWsc)).then(function (editor) {
-      ClassicEditors[editorId] = editor;
-      _this7.setupWordCounter(editor, editorId);
+    return ClassicEditor.create(document.getElementById(parameterBag.editorId), this.getConfigForTeacher(parameterBag.allowWsc)).then(function (editor) {
+      ClassicEditors[parameterBag.editorId] = editor;
+      _this7.setupWordCounter(editor, parameterBag.editorId);
     })["catch"](function (error) {
       console.error(error);
     });
@@ -15308,7 +15337,7 @@ RichTextEditor = {
       });
     }
   },
-  writeContentToTexarea: function writeContentToTexarea(editorId) {
+  writeContentToTextarea: function writeContentToTextarea(editorId) {
     var editor = ClassicEditors[editorId];
     if (editor) {
       editor.updateSourceElement();
@@ -15316,9 +15345,25 @@ RichTextEditor = {
     }
   },
   setupWordCounter: function setupWordCounter(editor, editorId) {
+    var maxWords = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+    var override = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
     var wordCountPlugin = editor.plugins.get("WordCount");
     var wordCountWrapper = document.getElementById("word-count-" + editorId);
-    wordCountWrapper.appendChild(wordCountPlugin.wordCountContainer);
+    if (wordCountWrapper) {
+      wordCountWrapper.appendChild(wordCountPlugin.wordCountContainer);
+    }
+    if (maxWords) {
+      editor.maxWords = maxWords;
+      wordCountPlugin.on("update", function (evt, stats) {
+        console.log(evt);
+        console.log(override);
+        if (override) {
+          return;
+        }
+        var limitExceeded = stats.words > editor.maxWords;
+        console.log("Characters: ".concat(stats.characters, "\nWords:      ").concat(stats.words, "\nmax:      ").concat(editor.maxWords));
+      });
+    }
   }
 };
 

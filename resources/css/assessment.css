@@ -52,6 +52,9 @@
     flex-wrap: wrap;
     justify-content: end;
 }
+.drawer .ck.ck-editor .ck-editor__top {
+    top: 0;
+}
 
 .progress-bar-background {
     width: calc(100% - var(--active-sidebar-width));
