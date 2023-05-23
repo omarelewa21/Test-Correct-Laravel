@@ -36,6 +36,7 @@ class FactoryScenarioTestTestWithAllQuestionTypes extends FactoryScenarioTest
                     ->addImageAttachment()
                     ->addAudioAttachment()
                     ->addAudioAttachment(true, true, 250)
+                    ->addVideoAttachment()
                     ->addPdfAttachment(),
                 FactoryQuestionOpenLong::create(),
                 FactoryQuestionMultipleChoiceTrueFalse::create(),

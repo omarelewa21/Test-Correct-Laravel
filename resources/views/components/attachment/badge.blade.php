@@ -52,17 +52,17 @@
     </div>
     <div class="flex base items-center relative badge-title">
         @if($withNumber)
-            <span class="pl-2" x-text="index + ':'"></span>
+            <span class="pl-2 select-none" x-text="index + ':'"></span>
         @endif
         @if($type == 'video')
-            <span class="p-2 text-base max-w-[200px] truncate"
+            <span class="p-2 text-base max-w-[200px] truncate select-none"
                   :class="{'text-midgrey': resolvingTitle}"
                   :title="videoTitle"
                   x-text="videoTitle"
             >
         </span>
         @else
-            <span class="p-2 text-base max-w-[200px] truncate" title="{{ $title }}">
+            <span class="p-2 text-base max-w-[200px] truncate select-none" title="{{ $title }}">
             {{ $title }}
         </span>
         @endif

@@ -5824,8 +5824,9 @@ input.datepicker {
 
 #co-learning-teacher-page .hide-on-smartboard,
 #assessment-page .hide-on-smartboard {
-    position: absolute;
-    right: 20px;
+    position: relative;
+    isolation: isolate;
+    pointer-events: all;
 }
 
 #co-learning-teacher-page .hide-on-smartboard div,
@@ -5943,10 +5944,16 @@ input.datepicker {
     color: var(--teacher-primary);
 }
 
+.badge-view:active {
+    box-shadow: 0 2px 3px 0 rgba(4, 31, 116, 0.2);
+    background-color: rgba(var(--primary-rgb), 0.15);
+}
+
 .badge-view:hover .badge-title {
     color: var(--primary);
 }
 
+.badge-view:active:after,
 .badge-view:hover:after {
     content: '';
     border: 2px solid var(--teacher-primary);
@@ -11088,6 +11095,10 @@ video {
 }
 .bg-white\/95{
   background-color: rgb(255 255 255 / 0.95);
+}
+.bg-red-500{
+  --tw-bg-opacity: 1;
+  background-color: rgb(239 68 68 / var(--tw-bg-opacity));
 }
 .bg-opacity-0{
   --tw-bg-opacity: 0;

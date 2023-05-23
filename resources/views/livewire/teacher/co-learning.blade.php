@@ -138,6 +138,16 @@
                                     <div class="ml-auto relative top-0.5 flex gap-2 items-center">
                                         <x-dynamic-component :component="$this->activeAnswerAnsweredStatus" />
                                     </div>
+                                    <div class="hide-on-smartboard group"
+                                         @click.stop="showStudentAnswer = false"
+                                         wire:click.stop.prevent="resetActiveAnswer()"
+                                    >
+                                        <div class="group-hover:bg-primary group-hover:opacity-[0.05]"></div>
+                                        <template x-if="true">
+                                            <x-icon.on-smartboard-hide
+                                            />
+                                        </template>
+                                    </div>
                                 </x-slot:titleLeft>
                                 <x-slot:body>
                                     <div class="student-answer | w-full"

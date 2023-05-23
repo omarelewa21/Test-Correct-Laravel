@@ -5713,6 +5713,7 @@ document.addEventListener("alpine:init", function () {
       resolvingTitle: true,
       index: 1,
       mode: mode,
+      attachmentLoading: false,
       init: function init() {
         var _this6 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
@@ -5754,6 +5755,9 @@ document.addEventListener("alpine:init", function () {
         var parent = this.$root.parentElement;
         if (parent === null) return;
         this.index = Array.prototype.indexOf.call(parent.children, this.$el) + 1;
+      },
+      dispatchAttachmentLoading: function dispatchAttachmentLoading() {
+        window.dispatchEvent(new CustomEvent('attachment-preview-loading'));
       }
     };
   });
