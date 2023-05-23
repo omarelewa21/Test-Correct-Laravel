@@ -137,6 +137,13 @@
                                 <x-slot:titleLeft>
                                     <div class="ml-auto relative top-0.5 flex gap-2 items-center">
                                         <x-dynamic-component :component="$this->activeAnswerAnsweredStatus" />
+                                        <div class="relative w-[40px] h-[40px] flex items-center justify-center rounded-full hover:bg-primary/5 hover:text-primary active:bg-primary/10"
+                                             wire:click.stop="resetActiveAnswer()"
+                                             x-on:mouseenter="$el.closest('button').classList.remove('group')"
+                                             x-on:mouseleave="$el.closest('button').classList.add('group')"
+                                        >
+                                            <x-icon.on-smartboard-hide/>
+                                        </div>
                                     </div>
                                     <div class="hide-on-smartboard group"
                                          @click.stop="showStudentAnswer = false"
