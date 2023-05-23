@@ -82,7 +82,7 @@ class Teacher extends Component
     public function updatedFeatureSettingsGradeDefaultStandard(string $value): void
     {
         if ($enum = GradingStandard::tryFrom($value)) {
-            $this->handleUpdatedGradingStandard($enum);
+            $this->handleUpdatedGradingStandard($enum, true);
         }
     }
 
@@ -96,7 +96,7 @@ class Teacher extends Component
         $schoolLocation = $this->user->schoolLocation;
         $this->canEditProfile = !$schoolLocation->lvs_active && !$schoolLocation->hasClientLicense();
         if (!$this->canEditProfile) {
-            $this->editRestriction = 'lvs';//$schoolLocation->lvs_active ? 'lvs' : 'license';
+            $this->editRestriction = $schoolLocation->lvs_active ? 'lvs' : 'license';
         }
     }
 
@@ -183,11 +183,14 @@ class Teacher extends Component
 
     /**
      * @param GradingStandard $enum
+     * @param bool $clearValue
      * @return void
      */
-    private function handleUpdatedGradingStandard(GradingStandard $enum): void
+    private function handleUpdatedGradingStandard(GradingStandard $enum, bool $clearValue = false): void
     {
+        $newGradeStandardValue = $enum->initialValue();
         if ($enum === GradingStandard::CESUUR) {
+            $newGradeStandardValue = GradingStandard::N_TERM->initialValue();
             $this->featureSettings['grade_cesuur_percentage'] = UserFeatureSetting::getSetting(
                 user   : $this->user,
                 title  : UserFeatureSettingEnum::GRADE_CESUUR_PERCENTAGE,
@@ -195,6 +198,11 @@ class Teacher extends Component
             );
         } else {
             $this->featureSettings['grade_cesuur_percentage'] = null;
+        }
+
+        if ($clearValue) {
+            $this->featureSettings['grade_standard_value'] = $newGradeStandardValue;
+            $this->updatedFeatureSettings($newGradeStandardValue, 'grade_standard_value');
         }
     }
 }
