@@ -5887,6 +5887,9 @@ video {
 .mt-px{
   margin-top: 1px;
 }
+.-mt-2{
+  margin-top: -0.5rem;
+}
 .box-border{
   box-sizing: border-box;
 }
@@ -8783,6 +8786,18 @@ h2.student-testtake-answers-separator span {
 
 .group:hover .group-hover\:opacity-\[0\.05\]{
   opacity: 0.05;
+}
+
+.group:focus .group-focus\:bg-primary\/10{
+  background-color: rgb(0 77 245 / 0.1);
+}
+
+.group:focus .group-focus\:bg-primary\/5{
+  background-color: rgb(0 77 245 / 0.05);
+}
+
+.group:active .group-active\:bg-primary\/10{
+  background-color: rgb(0 77 245 / 0.1);
 }
 
 @media (min-width: 640px){

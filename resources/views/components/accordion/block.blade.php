@@ -3,13 +3,17 @@
      role="region"
      @class([
         $attributes->get('class'),
-        'accordion-block',
+        'accordion-block transition-shadow',
         'rounded-lg bg-white relative' => $mode === 'panel',
         'transparent' => $mode === 'transparent',
         'accordion-disabled' => $disabled
         ])
      x-bind:class="{' bg-primary/5 border-dashed border-primary border-4 rounded-10 -m-1 ': droppingFile}"
         {{ $attributes->except(['class', 'key', 'emitWhenSet']) }}
+     @if($mode === 'panel')
+        x-on:mouseenter="$el.classList.add('hover:shadow-hover')"
+        x-on:mouseleave="$el.classList.remove('hover:shadow-hover')"
+     @endif
 >
     @if($upload)
         <div x-data="fileUpload(@js($uploadModel), @js($uploadRules))"
@@ -30,10 +34,7 @@
                           'px-10 rounded-lg' => $mode === 'panel',
                           'border-b-3 border-sysbase' => $mode === 'transparent'
                           ])
-                        @if($mode === 'panel')
-                            x-on:mouseenter="if(!expanded) $el.classList.add('hover:shadow-hover')"
-                        x-on:mouseleave="$el.classList.remove('hover:shadow-hover')"
-                        @endif
+
                 >
                     <div class="flex gap-4 items-center w-full flex-wrap">
                         {{ $title }}
@@ -44,7 +45,7 @@
                               x-bind:title="expanded ? $el.dataset.transCollapse : $el.dataset.transExpand"
                               @class([
                                 'flex items-center justify-center rounded-full min-w-[40px] w-10 h-10 transition',
-                                'group-hover:bg-primary/5 group-active:bg-primary/10' => !$disabled
+                            'group-hover:bg-primary/5 group-active:bg-primary/10 group-focus:bg-primary/5' => !$disabled
                                 ])
                                 data-trans-collapse="@lang('general.inklappen')"
                                 data-trans-expand="@lang('general.uitklappen')"

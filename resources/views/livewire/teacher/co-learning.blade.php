@@ -56,7 +56,7 @@
                             </div>
                         </x-slot:title>
                         <x-slot:body>
-                            <div class="flex flex-col gap-2 questionContainer"
+                            <div class="flex flex-col questionContainer"
                                  wire:key="question-block-{{  $this->discussingQuestion->uuid }}"
                                  x-init="
                                      elements = $el.querySelectorAll('img[src]').forEach((img) => {
@@ -70,7 +70,7 @@
                                         })
                                      })
                                  ">
-                                <div class="flex flex-wrap">
+                                <div class="flex flex-wrap pb-2 -mt-2">
                                     @foreach($this->discussingQuestion->attachments as $attachment)
                                         <x-attachment.badge-view :attachment="$attachment"
                                                                  :title="$attachment->title"

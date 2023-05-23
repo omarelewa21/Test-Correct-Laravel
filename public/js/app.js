@@ -7124,8 +7124,9 @@ document.addEventListener("alpine:init", function () {
           this.$root.querySelectorAll(".slider-button-container").forEach(function (toggle) {
             return toggle.dispatchEvent(new CustomEvent("slider-toggle-rerender"));
           });
-          this.$el.classList.remove("hover:shadow-hover");
+          // this.$el.classList.remove("hover:shadow-hover");
         }
+
         if (this.emitWhenSet) {
           Livewire.emit("accordion-update", {
             key: key,
