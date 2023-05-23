@@ -220,6 +220,10 @@ class TestReview extends EvaluationComponent
             ->test
             ->getFlatQuestionList()
             ->filter(fn($question) => $this->answers->pluck('question_id')->contains($question->id))
+            ->each(function ($question) {
+                $question->sortOrder = $this->answers->search(fn($a) => $a->question_id === $question->id);
+            })
+            ->sortBy(['sortOrder'])
             ->values();
     }
 
@@ -230,7 +234,7 @@ class TestReview extends EvaluationComponent
             ->filter();
     }
 
-    private function openClosedPanels()
+    private function openClosedPanels(): void
     {
         $this->questionPanel = true;
         $this->answerPanel = true;
