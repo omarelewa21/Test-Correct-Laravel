@@ -7667,10 +7667,23 @@ document.addEventListener("alpine:init", function () {
         return !this.inReview && !this.$store.assessment.clearToProceed() && !this.clickedNext;
       },
       openFeedbackTab: function openFeedbackTab() {
+        var _this47 = this;
         this.tab(2);
+        this.$nextTick(function () {
+          var editorDiv = _this47.$root.querySelector(".feedback textarea");
+          if (editorDiv) {
+            var editor = ClassicEditors[editorDiv.getAttribute("name")];
+            if (editor) {
+              setTimeout(function () {
+                return editor.focus();
+              }, 320); // Await slide animation, otherwise it breaks;
+            }
+          }
+        });
       }
     };
   });
+
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("scoreSlider", function (score, model, maxScore, halfPoints, disabled, coLearning, focusInput) {
     return {
       score: score,
@@ -7697,10 +7710,10 @@ document.addEventListener("alpine:init", function () {
         el.style.setProperty("--slider-thumb-offset", "calc(".concat(offsetFromCenter, "% + 1px)"));
       },
       setSliderBackgroundSize: function setSliderBackgroundSize(el) {
-        var _this47 = this;
+        var _this48 = this;
         this.$nextTick(function () {
-          el.style.setProperty("--slider-thumb-offset", "".concat(25 / 100 * _this47.getSliderBackgroundSize(el) - 12.5, "px"));
-          el.style.setProperty("--slider-background-size", "".concat(_this47.getSliderBackgroundSize(el), "%"));
+          el.style.setProperty("--slider-thumb-offset", "".concat(25 / 100 * _this48.getSliderBackgroundSize(el) - 12.5, "px"));
+          el.style.setProperty("--slider-background-size", "".concat(_this48.getSliderBackgroundSize(el), "%"));
         });
       },
       syncInput: function syncInput() {
@@ -7719,54 +7732,52 @@ document.addEventListener("alpine:init", function () {
         }
       },
       init: function init() {
-        var _this48 = this;
+        var _this49 = this;
         if (coLearning) {
           Livewire.hook("message.received", function (message, component) {
             var _message$updateQueue$;
             if (component.name === "student.co-learning" && ((_message$updateQueue$ = message.updateQueue[0]) === null || _message$updateQueue$ === void 0 ? void 0 : _message$updateQueue$.method) === "updateHeartbeat") {
-              var scoreInputElement = _this48.$root.querySelector("[x-ref='scoreInput']");
-              _this48.persistentScore = scoreInputElement !== null && scoreInputElement.value !== "" ? scoreInputElement.value : null;
+              var scoreInputElement = _this49.$root.querySelector("[x-ref='scoreInput']");
+              _this49.persistentScore = scoreInputElement !== null && scoreInputElement.value !== "" ? scoreInputElement.value : null;
             }
           });
           Livewire.hook("message.processed", function (message, component) {
             var _message$updateQueue$2;
             if (component.name === "student.co-learning" && ((_message$updateQueue$2 = message.updateQueue[0]) === null || _message$updateQueue$2 === void 0 ? void 0 : _message$updateQueue$2.method) === "updateHeartbeat") {
-              _this48.skipSync = true;
-              _this48.score = _this48.persistentScore;
+              _this49.skipSync = true;
+              _this49.score = _this49.persistentScore;
             }
           });
         }
         this.inputBox = this.$root.querySelector("[x-ref='scoreInput']");
         this.$watch("score", function (value, oldValue) {
-          _this48.markInputElementsClean();
-          if (_this48.disabled || value === oldValue || _this48.skipSync) {
-            _this48.skipSync = false;
+          _this49.markInputElementsClean();
+          if (_this49.disabled || value === oldValue || _this49.skipSync) {
+            _this49.skipSync = false;
             return;
           }
-          if (value >= _this48.maxScore) {
-            _this48.score = value = _this48.maxScore;
+          if (value >= _this49.maxScore) {
+            _this49.score = value = _this49.maxScore;
           }
           if (value <= 0) {
-            _this48.score = value = 0;
+            _this49.score = value = 0;
           }
-          _this48.score = value = _this48.halfPoints ? Math.round(value * 2) / 2 : Math.round(value);
-          _this48.updateContinuousSlider();
+          _this49.score = value = _this49.halfPoints ? Math.round(value * 2) / 2 : Math.round(value);
+          _this49.updateContinuousSlider();
         });
         if (focusInput) {
           this.$nextTick(function () {
-            _this48.inputBox.focus();
+            _this49.inputBox.focus();
           });
         }
       },
       markInputElementsWithError: function markInputElementsWithError() {
         if (this.disabled) return;
-        this.inputBox.classList.add("border-allred");
-        this.inputBox.classList.remove("border-blue-grey");
+        this.inputBox.style.border = "1px solid var(--all-red)";
       },
       markInputElementsClean: function markInputElementsClean() {
         if (this.disabled) return;
-        this.inputBox.classList.add("border-blue-grey");
-        this.inputBox.classList.remove("border-allred");
+        this.inputBox.style.border = null;
       },
       getContinuousInput: function getContinuousInput() {
         return this.$root.querySelector("[x-ref='score_slider_continuous_input']");
@@ -7784,7 +7795,7 @@ document.addEventListener("alpine:init", function () {
       minWidth: 120,
       maxWidth: 1000,
       setInputWidth: function setInputWidth(input) {
-        var _this49 = this;
+        var _this50 = this;
         var init = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
         var preview = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
         if (!init || preview) {
@@ -7795,8 +7806,8 @@ document.addEventListener("alpine:init", function () {
           if (!value) {
             return;
           }
-          _this49.$nextTick(function () {
-            _this49.calculateInputWidth(input);
+          _this50.$nextTick(function () {
+            _this50.calculateInputWidth(input);
           });
         });
       },
@@ -7851,23 +7862,23 @@ document.addEventListener("alpine:init", function () {
       inModal: false,
       show: false,
       init: function init() {
-        var _this50 = this;
+        var _this51 = this;
         this.setHeightProperty();
         this.inModal = this.$root.closest("#modal-container") !== null;
         this.$watch("tooltip", function (value) {
           if (value) {
             var ignoreLeft = false;
-            if (alwaysLeft || _this50.tooltipTooWideForPosition()) {
-              _this50.$refs.tooltipdiv.classList.remove("left-1/2", "-translate-x-1/2");
-              _this50.$refs.tooltipdiv.classList.add("right-0");
+            if (alwaysLeft || _this51.tooltipTooWideForPosition()) {
+              _this51.$refs.tooltipdiv.classList.remove("left-1/2", "-translate-x-1/2");
+              _this51.$refs.tooltipdiv.classList.add("right-0");
               ignoreLeft = true;
             }
-            _this50.$refs.tooltipdiv.style.top = _this50.getTop();
-            _this50.$refs.tooltipdiv.style.left = _this50.getLeft(ignoreLeft);
+            _this51.$refs.tooltipdiv.style.top = _this51.getTop();
+            _this51.$refs.tooltipdiv.style.left = _this51.getLeft(ignoreLeft);
           }
         });
         this.$nextTick(function () {
-          return _this50.show = true;
+          return _this51.show = true;
         });
       },
       getTop: function getTop() {
@@ -7898,12 +7909,12 @@ document.addEventListener("alpine:init", function () {
         this.$refs.tooltipdiv.style.left = this.getLeft();
       },
       setHeightProperty: function setHeightProperty() {
-        var _this51 = this;
+        var _this52 = this;
         this.tooltip = true;
         this.$nextTick(function () {
-          _this51.height = _this51.$refs.tooltipdiv.offsetHeight;
-          _this51.tooltip = false;
-          _this51.$refs.tooltipdiv.classList.remove("invisible");
+          _this52.height = _this52.$refs.tooltipdiv.offsetHeight;
+          _this52.tooltip = false;
+          _this52.$refs.tooltipdiv.classList.remove("invisible");
         });
       },
       tooltipTooWideForPosition: function tooltipTooWideForPosition() {
@@ -7925,16 +7936,16 @@ document.addEventListener("alpine:init", function () {
       navScrollBar: null,
       initialized: false,
       init: function init() {
-        var _this52 = this;
+        var _this53 = this;
         this.navScrollBar = this.$root.querySelector('#navscrollbar');
         this.$nextTick(function () {
-          _this52.$root.querySelector(".active").scrollIntoView({
+          _this53.$root.querySelector(".active").scrollIntoView({
             behavior: "smooth"
           });
-          _this52.totalScrollWidth = _this52.$root.offsetWidth;
-          _this52.resize();
-          _this52.initialized = true;
-          _this52.slideToActiveQuestionBubble();
+          _this53.totalScrollWidth = _this53.$root.offsetWidth;
+          _this53.resize();
+          _this53.initialized = true;
+          _this53.slideToActiveQuestionBubble();
         });
       },
       resize: function resize() {
@@ -7972,11 +7983,11 @@ document.addEventListener("alpine:init", function () {
         });
       },
       startIntersectionCountdown: function startIntersectionCountdown() {
-        var _this53 = this;
+        var _this54 = this;
         clearTimeout(this.intersectionCountdown);
         this.intersectionCountdown = setTimeout(function () {
-          clearTimeout(_this53.intersectionCountdown);
-          _this53.slideToActiveQuestionBubble();
+          clearTimeout(_this54.intersectionCountdown);
+          _this54.slideToActiveQuestionBubble();
         }, 5000);
       }
     };

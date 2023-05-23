@@ -75,7 +75,9 @@
         <x-slot:title>{{ str(__('co-learning.open_questions_only'))->ucfirst() }}</x-slot:title>
         <x-slot:subtitle>
             <span>@lang('assessment.open_questions_text')</span>
-            <span class="text-sm text-white/90">@lang('assessment.Er zitten geen open vragen in deze toets.')</span>
+            @if($this->hasNoOpenQuestion)
+                <span class="text-sm text-white/90">@lang('assessment.Er zitten geen open vragen in deze toets.')</span>
+            @endif
         </x-slot:subtitle>
         <x-slot:button>
             <x-button.cta size="md"
