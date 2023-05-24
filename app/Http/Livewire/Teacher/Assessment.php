@@ -680,20 +680,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             return;
         }
 
-        if ($previousId = $this->testTakeData->fresh()->assessing_question_id) {
-            $previouslyAssessedQuestion = $this->questions->discussionTypeFiltered($this->openOnly)
-                ->where('id', $previousId)
-                ->first();
-            if ($previouslyAssessedQuestion) {
-                $this->setNavigationDataWithPreviouslyAssessedQuestion($previouslyAssessedQuestion);
-                return;
-            }
-        }
-
-        $firstAnswer = $this->answers->whereIn('question_id', $this->getQuestionIdsForCurrentAssessmentType())->first();
-        if ($reset) {
-            $firstAnswer = $this->getFirstAnswerWhichDoesntHaveATeacherOrSystemRating() ?? $this->answers->last();
-        }
+        $firstAnswer = $this->getFirstAnswerWhichDoesntHaveATeacherOrSystemRating() ?? $this->answers->last();
 
         $firstQuestionForAnswer = $this->questions->discussionTypeFiltered($this->openOnly)
             ->where('id', $firstAnswer->question_id)
@@ -718,11 +705,6 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             ->first();
 
         return $answer && $question && $answer->question_id === $question->id;
-    }
-
-    private function currentIndexIsAnInfoQuestion()
-    {
-        return $this->questions->get((int)$this->questionNavigationValue - 1)?->first()->isType('Infoscreen');
     }
 
     protected function handleAnswerScore(): null|int|float
@@ -814,22 +796,6 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             ->count();
 
         return $this->questions->discussionTypeFiltered($this->openOnly)->count() - $unansweredQuestionCount;
-    }
-
-    /**
-     * @param $previouslyAssessedQuestion
-     * @return void
-     */
-    private function setNavigationDataWithPreviouslyAssessedQuestion($previouslyAssessedQuestion): void
-    {
-        $this->questionNavigationValue = $this->getNavigationValueForQuestion($previouslyAssessedQuestion);
-        $this->answerNavigationValue = $this->students->search(
-                $this->answers
-                    ->discrepancyFiltered((bool)$this->assessmentContext['skipCoLearningNoDiscrepancies'])
-                    ->where('question_id', $previouslyAssessedQuestion->id)
-                    ->first()
-                    ->test_participant_id
-            ) + 1;
     }
 
     private function getQuestionIdsForCurrentAssessmentType()
@@ -977,11 +943,15 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
     private function getFirstAnswerWhichDoesntHaveATeacherOrSystemRating(): ?Answer
     {
-        return $this->answers->first(function ($answer) {
-            return $answer->answerRatings->doesntContain(function ($rating) {
-                return $rating->type === AnswerRating::TYPE_TEACHER || $rating->type === AnswerRating::TYPE_SYSTEM;
-            });
-        });
+        return $this->answers
+            ->filter(function ($answer) {
+                $needsAnswerRating = $this->questions->first(fn($q) => $q->id === $answer->question_id)->isDiscussionTypeOpen;
+                $hasNoAnswerRating = $answer->answerRatings->doesntContain(function ($rating) {
+                    return $rating->type === AnswerRating::TYPE_TEACHER || $rating->type === AnswerRating::TYPE_SYSTEM;
+                });
+                return $needsAnswerRating && $hasNoAnswerRating;
+            })
+            ->first();
     }
 
     /**
@@ -1119,6 +1089,6 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
     public function getDisplayableCompletionQuestionText()
     {
-        return Blade::renderComponent(new CompletionQuestionConvertedHtml($this->currentQuestion, $context='assessment'));
+        return Blade::renderComponent(new CompletionQuestionConvertedHtml($this->currentQuestion, 'assessment'));
     }
 }
