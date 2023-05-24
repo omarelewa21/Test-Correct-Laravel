@@ -435,12 +435,13 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         $this->openOnly = $testTake->assessment_type === 'OPEN_ONLY';
 
         $this->assessmentContext = [
-            'assessment_skip_no_discrepancy_answer' => $this->canUseDiscrepancyToggle() && $this->getSessionSettingValue('assessment_skip_no_discrepancy_answer'),
+            'assessment_skip_no_discrepancy_answer' => $this->getSkipDiscrepancyValue($testTake),
             'skippedCoLearning'                     => $testTake->skipped_discussion,
             'assessedAt'                            => $this->getFormattedAssessedAtDate($testTake),
             'assessmentType'                        => $testTake->assessment_type,
             'assessIndex'                           => $this->getAssessedQuestionsCount(),
-            'totalToAssess'                         => $this->questions->discussionTypeFiltered($this->openOnly)->count(),
+            'totalToAssess'                         => $this->questions->discussionTypeFiltered($this->openOnly)->count(
+            ),
             'assessment_show_student_names'         => $this->getSessionSettingValue('assessment_show_student_names'),
         ];
 
@@ -945,7 +946,8 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     {
         return $this->answers
             ->filter(function ($answer) {
-                $needsAnswerRating = $this->questions->first(fn($q) => $q->id === $answer->question_id)->isDiscussionTypeOpen;
+                $needsAnswerRating = $this->questions->first(fn($q) => $q->id === $answer->question_id
+                )->isDiscussionTypeOpen;
                 $hasNoAnswerRating = $answer->answerRatings->doesntContain(function ($rating) {
                     return $rating->type === AnswerRating::TYPE_TEACHER || $rating->type === AnswerRating::TYPE_SYSTEM;
                 });
@@ -1120,5 +1122,17 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         return Blade::renderComponent(
             new CompletionQuestionConvertedHtml($this->currentQuestion, $context = 'assessment')
         );
+    }
+
+    private function getSkipDiscrepancyValue(TestTake $testTake)
+    {
+        if ($testTake->skipped_discussion) {
+            return false;
+        }
+
+        if ($this->canUseDiscrepancyToggle()) {
+            return $this->getSessionSettingValue('assessment_skip_no_discrepancy_answer');
+        }
+        return false;
     }
 }
