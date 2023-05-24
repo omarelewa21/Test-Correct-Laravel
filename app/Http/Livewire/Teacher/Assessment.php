@@ -217,7 +217,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         ]);
 
         if ($types->contains(Str::lower($this->currentQuestion->type))) {
-            if($this->currentQuestion->subtype === null) {
+            if ($this->currentQuestion->subtype === null) {
                 return true;
             }
 
@@ -435,7 +435,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         $this->openOnly = $testTake->assessment_type === 'OPEN_ONLY';
 
         $this->assessmentContext = [
-            'assessment_skip_no_discrepancy_answer' => $this->getSessionSettingValue('assessment_skip_no_discrepancy_answer'),
+            'assessment_skip_no_discrepancy_answer' => $this->canUseDiscrepancyToggle() && $this->getSessionSettingValue('assessment_skip_no_discrepancy_answer'),
             'skippedCoLearning'                     => $testTake->skipped_discussion,
             'assessedAt'                            => $this->getFormattedAssessedAtDate($testTake),
             'assessmentType'                        => $testTake->assessment_type,
@@ -1075,6 +1075,21 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         return !$this->testTakeData->test->hasOpenQuestion();
     }
 
+    public function canUseDiscrepancyToggle()
+    {
+        return $this->questions
+            ->where('isDiscussionTypeOpen')
+            ->where(function ($question) {
+                return $this->answers
+                    ->where('question_id', $question->id)
+                    ->filter(function ($answer) {
+                        return !$answer->hasDiscrepancy;
+                    })
+                    ->isEmpty();
+            })
+            ->isNotEmpty();
+    }
+
     public function getScoringData(): array
     {
         return [
@@ -1102,6 +1117,8 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
     public function getDisplayableCompletionQuestionText()
     {
-        return Blade::renderComponent(new CompletionQuestionConvertedHtml($this->currentQuestion, 'assessment'));
+        return Blade::renderComponent(
+            new CompletionQuestionConvertedHtml($this->currentQuestion, $context = 'assessment')
+        );
     }
 }

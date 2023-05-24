@@ -7998,20 +7998,20 @@ document.addEventListener("alpine:init", function () {
       changing: false,
       language: language,
       startLanguageChange: function startLanguageChange(event, wireModelName) {
-        var _this54 = this;
+        var _this55 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee17() {
           return _regeneratorRuntime().wrap(function _callee17$(_context17) {
             while (1) switch (_context17.prev = _context17.next) {
               case 0:
-                _this54.$dispatch('language-loading-start');
-                _this54.changing = true;
+                _this55.$dispatch('language-loading-start');
+                _this55.changing = true;
                 _context17.next = 4;
-                return _this54.$wire.set(wireModelName, _this54.language);
+                return _this55.$wire.set(wireModelName, _this55.language);
               case 4:
-                _this54.$nextTick(function () {
+                _this55.$nextTick(function () {
                   setTimeout(function () {
-                    _this54.changing = false;
-                    _this54.$dispatch('language-loading-end');
+                    _this55.changing = false;
+                    _this55.$dispatch('language-loading-end');
                   }, 1500);
                 });
               case 5:
@@ -8031,7 +8031,7 @@ document.addEventListener("alpine:init", function () {
         this.setHeightToAspectRatio(this.$el);
       },
       setHeightToAspectRatio: function setHeightToAspectRatio(element) {
-        var _this55 = this;
+        var _this56 = this;
         var aspectRatioWidth = 940;
         var aspectRatioHeight = 500;
         var aspectRatio = aspectRatioHeight / aspectRatioWidth;
@@ -8044,7 +8044,7 @@ document.addEventListener("alpine:init", function () {
         if (newHeight <= 0) {
           if (this.currentTry <= this.maxTries) {
             setTimeout(function () {
-              return _this55.setHeightToAspectRatio(element);
+              return _this56.setHeightToAspectRatio(element);
             }, 50);
             this.currentTry++;
           }

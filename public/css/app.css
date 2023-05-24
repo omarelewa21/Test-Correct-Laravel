@@ -10966,6 +10966,9 @@ video {
   --tw-border-opacity: 1 !important;
   border-color: rgb(255 255 255 / var(--tw-border-opacity)) !important;
 }
+.\!border-white\/25{
+  border-color: rgb(255 255 255 / 0.25) !important;
+}
 .border-allred{
   --tw-border-opacity: 1;
   border-color: rgb(207 27 4 / var(--tw-border-opacity));
