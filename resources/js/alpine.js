@@ -2382,7 +2382,7 @@ document.addEventListener("alpine:init", () => {
             this.$nextTick(() => {
                 this.editor = ClassicEditors[editorId];
                 this.wordContainer = this.$root.querySelector(".ck-word-count__words");
-                this.$root.querySelector(".ck-word-count__characters")?.remove();
+                // this.$root.querySelector(".ck-word-count__characters")?.remove();
                 this.wordContainer.style.display = "flex";
                 this.wordContainer.parentElement.style.display = "flex";
 

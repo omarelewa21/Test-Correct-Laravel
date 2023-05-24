@@ -8021,10 +8021,9 @@ document.addEventListener("alpine:init", function () {
       init: function init() {
         var _this55 = this;
         this.$nextTick(function () {
-          var _this55$$root$querySe;
           _this55.editor = ClassicEditors[editorId];
           _this55.wordContainer = _this55.$root.querySelector(".ck-word-count__words");
-          (_this55$$root$querySe = _this55.$root.querySelector(".ck-word-count__characters")) === null || _this55$$root$querySe === void 0 ? void 0 : _this55$$root$querySe.remove();
+          // this.$root.querySelector(".ck-word-count__characters")?.remove();
           _this55.wordContainer.style.display = "flex";
           _this55.wordContainer.parentElement.style.display = "flex";
           _this55.addMaxWordsToWordCounter(_this55.maxWords);
@@ -15243,11 +15242,8 @@ RichTextEditor = {
       },
 
       wordCount: {
-        showWordCount: true,
-        showParagraphs: false,
-        showCharCount: true,
-        countSpacesAsChars: true,
-        maxWordCount: maxWords
+        displayCharacters: true,
+        displayWords: true
       }
     };
     config.removePlugins = (_removeItems$plugins = (_removeItems2 = removeItems) === null || _removeItems2 === void 0 ? void 0 : _removeItems2.plugins) !== null && _removeItems$plugins !== void 0 ? _removeItems$plugins : [];
@@ -15293,6 +15289,9 @@ RichTextEditor = {
       _this6.setupWordCounter(editor, parameterBag.editorId, parameterBag.maxWords, parameterBag.maxWordOverride);
       // WebspellcheckerTlc.setEditorToReadOnly(editor);
       _this6.setReadOnly(editor);
+      editor.model.document.on('change:data', function () {
+        console.log('kaas');
+      });
     })["catch"](function (error) {
       console.error(error);
     });
@@ -15354,14 +15353,15 @@ RichTextEditor = {
     }
     if (maxWords) {
       editor.maxWords = maxWords;
-      wordCountPlugin.on("update", function (evt, stats) {
-        console.log(evt);
-        console.log(override);
-        if (override) {
-          return;
+      wordCountPlugin.on("update", function (event, stats) {
+        console.log(stats.words, event.source.editor.maxWords);
+        var max = parseInt(event.source.editor.maxWords);
+        if (stats.words > max) {
+          event.source.editor.commands.get('undo').execute();
+          console.log('NEE JE MAG NIET MEER');
+        } else {
+          console.log('Niks aan het handje');
         }
-        var limitExceeded = stats.words > editor.maxWords;
-        console.log("Characters: ".concat(stats.characters, "\nWords:      ").concat(stats.words, "\nmax:      ").concat(editor.maxWords));
       });
     }
   }

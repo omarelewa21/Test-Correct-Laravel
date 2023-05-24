@@ -225,11 +225,8 @@ RichTextEditor = {
                 }
             },
             wordCount: {
-                showWordCount: true,
-                showParagraphs: false,
-                showCharCount: true,
-                countSpacesAsChars: true,
-                maxWordCount: maxWords
+                displayCharacters: true,
+                displayWords: true
             }
         };
         config.removePlugins = removeItems?.plugins ?? [];
@@ -278,6 +275,9 @@ RichTextEditor = {
                 this.setupWordCounter(editor, parameterBag.editorId, parameterBag.maxWords, parameterBag.maxWordOverride);
                 // WebspellcheckerTlc.setEditorToReadOnly(editor);
                 this.setReadOnly(editor);
+                editor.model.document.on('change:data', () => {
+                    console.log('kaas');
+                });
             })
             .catch(error => {
                 console.error(error);
@@ -384,16 +384,15 @@ RichTextEditor = {
         if (maxWords) {
             editor.maxWords = maxWords;
 
-            wordCountPlugin.on("update", (evt, stats) => {
-                console.log(evt);
-                console.log(override);
-                if (override) {
-                    return;
+            wordCountPlugin.on("update", (event, stats) => {
+                console.log(stats.words , event.source.editor.maxWords);
+                let max = parseInt(event.source.editor.maxWords);
+                if (stats.words > max) {
+                    event.source.editor.commands.get('undo').execute();
+                    console.log('NEE JE MAG NIET MEER')
+                } else {
+                    console.log('Niks aan het handje')
                 }
-                const limitExceeded = stats.words > editor.maxWords;
-
-
-                console.log(`Characters: ${stats.characters}\nWords:      ${stats.words}\nmax:      ${editor.maxWords}`);
             });
         }
     }
