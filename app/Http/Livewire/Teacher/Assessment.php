@@ -243,11 +243,14 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         TestTake::whereUuid($this->testTakeUuid)->update($updates);
 
         $this->setData();
+
+        $this->headerCollapsed = true;
+
         $this->start($reset);
 
         $this->storeAssessmentSessionContext($args);
 
-        return $this->headerCollapsed = true;
+        return true;
     }
 
     public function redirectBack()
