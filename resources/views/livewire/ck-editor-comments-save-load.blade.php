@@ -1,184 +1,15 @@
 <div>
-    <div style="margin: 20px;"
+    <div style="padding: 20px; padding-top: 150px; height: 100vh"
          wire:ignore
-         x-data="{
-         users: @js($users),
-         userId: '1486',
-         mainEditor: null,
-         commentEditor: null,
-         commentThreads: @js($this->commentThreads),
-         commentRepository: null,
-         activeThread: null,
-
-        async saveCommentThread() {
-        commentsRepository = mainEditor.plugins.get( 'CommentsRepository' );
-        console.dir(commentsRepository);
-        this.activeThread = commentsRepository.activeCommentThread;
-            if(this.activeThread) {
-                console.log('active thread');
-                await this.updateCommentThread();
-                return;
-            }
-            console.log('active thread 2');
-
-            await this.createCommentThread();
-
-        },
-
-        async updateCommentThread() {
-            const commentThread = commentsRepository.activeCommentThread;
-            console.log('updaetCommentThread');
-        },
-        async createCommentThread() {
-
-            var feedbackEditor = ClassicEditors['comment-editor'];
-
-            var comment = feedbackEditor.getData();
-
-            if(!comment || comment == '<p></p>') {
-                return;
-            }
-
-            var editor = ClassicEditors['answer-editor'];
-
-            editor.focus();
-
-            $nextTick(async () => {
-                if(editor.editing.view.hasDomSelection) {
-
-                    //created feedback record data
-                    var feedback = await $wire.call('createNewComment');
-                    console.log(feedback);
-
-                    var threadId = feedback.threadId;
-                    var commentId = feedback.commentId;
-
-                    commentsRepository = editor.plugins.get( 'CommentsRepository' );
-
-                    await editor.execute( 'addCommentThread', { threadId: threadId } );
-
-                    var lastCommentThread = commentsRepository.getCommentThreads()[commentsRepository.getCommentThreads().length-1];
-                    lastCommentThread.addComment({threadId: threadId, commentId: commentId, content: comment, authorId: '1486'});
-
-                }
+         x-data="CkEditorComments(
+            @js($users),
+            '1486',
+            'answer-editor',
+            'comment-editor',
+            @js($this->commentThreads)
+         )"
 
 
-            });
-
-        },
-        async deleteCommentThread(threadId) {
-            const result = await $wire.call('deleteCommentThread', threadId);
-            if(result) {
-                return commentsRepository.getCommentThread('thread-1').remove();
-            }
-            console.log('failed to delete answer feedback');
-        }
-
-     }"
-         x-init="
-    appData = {
-
-        // Users data.
-        users: @js($users),
-
-        // The ID of the current user.
-        userId: '1486',
-
-        // Comment threads data.
-        commentThreads: @js($this->commentThreads)
-
-    };
-
-class CommentsIntegration {
-    constructor( editor ) {
-        this.editor = editor;
-    }
-
-    static get requires() {
-        return [ 'CommentsRepository' ];
-    }
-
-    init() {
-        const usersPlugin = this.editor.plugins.get( 'Users' );
-        const commentsRepositoryPlugin = this.editor.plugins.get( 'CommentsRepository' );
-
-        // Load the users data.
-        for ( var user of users ) {
-            usersPlugin.addUser( user );
-        }
-
-        // Set the current user.
-        usersPlugin.defineMe( userId );
-
-        // Load the comment threads data.
-        for ( var commentThread of commentThreads ) {
-            commentsRepositoryPlugin.addCommentThread( commentThread );
-        }
-    }
-}
-
-ClassicEditor.create( document.querySelector( '#editor' ), {
-    extraPlugins: [ CommentsIntegration ],
-    licenseKey: '9K2tRUPoZobJydX6tm2HusZ/x1NCE/sghAv2zyuhaiEtxnbV9QKrhKjJvsI=',
-    toolbar: {
-        items: [
-            'comment',
-        ]
-    },
-    users: users,
-} ).then( editor => {
-
-    ClassicEditors['answer-editor'] = editor;
-    mainEditor = editor;
-    this.mainEditor = editor;
-    window.ed = editor;
-
-    editor.plugins.get( 'CommentsOnly' ).isEnabled = true;
-
-    //Deactivate Sidebar/balloon
-{{--    editor.plugins.get('AnnotationsUIs').deactivateAll();--}}
-
-    // After the editor is initialized, add an action to be performed after a button is clicked.
-    const commentsRepository = editor.plugins.get( 'CommentsRepository' );
-
-    window.commentsRepository = commentsRepository;
-
-
-
-
-    // Get the data on demand.
-    document.querySelector( '#get-data' ).addEventListener( 'click', () => {
-        const editorData = editor.data.get();
-        const commentThreadsData = commentsRepository.getCommentThreads( {
-            skipNotAttached: true,
-            skipEmpty: true,
-            toJSON: true
-        } );
-        console.log(commentsRepository.getCommentThreads());
-        // Now, use `editorData` and `commentThreadsData` to save the data in your application.
-        // For example, you can set them as values of hidden input fields.
-        console.log( editorData );
-        console.log( editor.getData() );
-        console.log( commentThreadsData );
-    } );
-
-
-
-    editor.on('selectionChange', (evt, data) => {console.log(evt, data)});
-
-    const focusItems = document.querySelectorAll('#sidebar > .button');
-
-    $nextTick(() => {
-        for ( var item of focusItems ) {
-{{--            mainEditor.ui.focusTracker.add( item );--}}
-        }
-    })
-
-
-} )
-.catch( error => console.error( error ) );
-
-            "
     >
         <style type="text/css">
 
@@ -189,30 +20,6 @@ ClassicEditor.create( document.querySelector( '#editor' ), {
             }
 
 
-
-            #container {
-                /* To create the column layout. */
-                display: flex;
-
-                /* To make the container relative to its children. */
-                position: relative;
-            }
-
-            #container .ck.ck-editor {
-                /* To stretch the editor to max 700px
-                    (just to look nice for this example but it can be any size). */
-                width: 100%;
-                max-width: 700px;
-            }
-
-            #sidebar {
-                /* Set some size for the sidebar (it can be any). */
-                min-width: 300px;
-
-                /* Add some distance. */
-                padding: 0 10px;
-            }
-
             .ck-content .ck-comment-marker {
                 background: rgba(0, 77, 245, 0.2);
             }
@@ -222,14 +29,62 @@ ClassicEditor.create( document.querySelector( '#editor' ), {
         </style>
 
 
-        <div id="container">
-            <textarea id="editor">{{ $answer }}</textarea>
-            <div id="sidebar">
-                <x-input.rich-textarea type="assessment-feedback" editor-id="comment-editor"> </x-input.rich-textarea>
+        <div id="container" class="flex justify-between h-full relative">
+            <div class="flex px-15">
+                <textarea id="editor">{{ $answer }}</textarea>
+            </div>
+            <div id="sidebar" class="flex flex-col h-full min-w-[var(--sidebar-width)] max-w-[var(--sidebar-width)] bg-white">
+                <div class="flex w-full justify-center gap-2 z-1" style="box-shadow: 0 3px 8px 0 rgba(4, 31, 116, 0.2);">
+                    <span class="h-[60px] flex justify-center items-center gap-2 bold">
+                        <x-icon.feedback-text/>
+                        <span>Feedback geven</span>
+                    </span>
+                </div>
+                <div class="w-full flex flex-col p-6 gap-4">
 
-                <x-button.cta {{--wire:click="createNewComment"--}} @click="saveCommentThread">opslaan</x-button.cta>
-                <x-button.secondary {{--wire:click="createNewComment"--}} @click="deleteCommentThread('thread-1')">delete</x-button.secondary>
+                    <div class="w-full">
+                        <div class="w-full">
+                            markeren
+                        </div>
+                        <div class="w-full flex justify-between gap-2">
+                            <x-icon.warning/>
+                            <x-button.colored-circle color="1"></x-button.colored-circle>
+                            <x-button.colored-circle color="2"></x-button.colored-circle>
+                            <x-button.colored-circle color="3"></x-button.colored-circle>
+                            <x-button.colored-circle color="4"></x-button.colored-circle>
+                            <x-button.colored-circle color="5"></x-button.colored-circle>
+                            <x-button.colored-circle color="6"></x-button.colored-circle>
+                            <x-button.colored-circle color="7"></x-button.colored-circle>
+                        </div>
+                    </div>
+                    <div class="w-full">
+                        <div class="w-full">
+                            Emoijen
+                        </div>
+                        <div class="w-full flex justify-between gap-2">
+                            <x-button.colored-circle color="cta">v</x-button.colored-circle>
+                            <x-button.colored-circle color="all-red">x</x-button.colored-circle>
+                            <x-button.colored-circle color="teacher-primary-light">?</x-button.colored-circle>
+                            {{-- feest --}}
+                            {{-- thumbs up --}}
+                            {{-- thumbs down= --}}
+                            <x-button.colored-circle color="cta"><x-icon.smiley-happy/> </x-button.colored-circle>
+                            <x-button.colored-circle color="orange"><x-icon.smiley-normal/> </x-button.colored-circle>
+                            <x-button.colored-circle color="red"><x-icon.smiley-sad/></x-button.colored-circle>
+                        </div>
+                    </div>
 
+                    <x-input.rich-textarea type="assessment-feedback" editor-id="comment-editor"> </x-input.rich-textarea>
+                    <div class="flex flex-row-reverse justify-start gap-2">
+                        <x-button.cta @click="saveCommentThread">
+                            <span>opslaan</span>
+                        </x-button.cta>
+                        <x-button.secondary @click="deleteCommentThread('thread-1')">
+                            <span>delete</span>
+                        </x-button.secondary>
+                    </div>
+
+                </div>
             </div>
         </div>
 

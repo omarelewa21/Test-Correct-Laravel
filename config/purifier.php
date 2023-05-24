@@ -24,7 +24,7 @@ return [
     'settings'      => [
         'default'           => [
             'HTML.Doctype'             => 'HTML 4.01 Transitional',
-            'HTML.Allowed'             => 'figure[style|class],h1,h2,h3,h4,h5,h6,b,strong,i,em,a[href|title],ul,ol,li,p[style],br,span[style|class],img[width|height|alt|src|style|class],table[cellspacing|cellpadding|style|border|style],tbody,tr,td[abbr],thead,s,sub,sup,u,math[xmlns|mathvariant|mathcolor|dir|class],msqrt[mathvariant|mathcolor],mn[mathvariant|mathcolor],msub[mathvariant|mathcolor],msup[mathvariant|mathcolor],mo[mathvariant|mathcolor|largeop],mfrac[bevelled|mathvariant|mathcolor],mrow[mathvariant|mathcolor],mi[mathvariant|mathcolor],mfenced[open|close|mathvariant|mathcolor],mroot[mathvariant|mathcolor],mover[mathvariant|mathcolor],munderover[mathvariant|mathcolor],mn[mathvariant|mathcolor],mtd[mathvariant|mathcolor],mtr[mathvariant|mathcolor],mtable[mathvariant|mathcolor],msrow[mathvariant|mathcolor],msline[mathvariant|mathcolor],mstack[mathvariant|mathcolor|charalign|stackalign],mlongdiv[mathvariant|mathcolor|charalign|charspacing|stackalign],msgroup[mathvariant|mathcolor],mstyle[mathvariant|mathcolor|displaystyle],mmultiscripts[mathvariant|mathcolor],mprescripts[mathvariant|mathcolor],none[mathvariant|mathcolor],msubsup[mathvariant|mathcolor],munder[mathvariant|mathcolor],menclose[mathvariant|mathcolor|notation],mtext[mathvariant|mathcolor],mspace[mathvariant|mathcolor|linebreak],blockquote[style]',
+            'HTML.Allowed'             => 'figure[style|class],h1,h2,h3,h4,h5,h6,b,strong,i,em,a[href|title],ul,ol,li,p[style],br,span[style|class],img[width|height|alt|src|style|class],table[cellspacing|cellpadding|style|border|style],tbody,tr,td[abbr],thead,s,sub,sup,u,math[xmlns|mathvariant|mathcolor|dir|class],msqrt[mathvariant|mathcolor],mn[mathvariant|mathcolor],msub[mathvariant|mathcolor],msup[mathvariant|mathcolor],mo[mathvariant|mathcolor|largeop],mfrac[bevelled|mathvariant|mathcolor],mrow[mathvariant|mathcolor],mi[mathvariant|mathcolor],mfenced[open|close|mathvariant|mathcolor],mroot[mathvariant|mathcolor],mover[mathvariant|mathcolor],munderover[mathvariant|mathcolor],mn[mathvariant|mathcolor],mtd[mathvariant|mathcolor],mtr[mathvariant|mathcolor],mtable[mathvariant|mathcolor],msrow[mathvariant|mathcolor],msline[mathvariant|mathcolor],mstack[mathvariant|mathcolor|charalign|stackalign],mlongdiv[mathvariant|mathcolor|charalign|charspacing|stackalign],msgroup[mathvariant|mathcolor],mstyle[mathvariant|mathcolor|displaystyle],mmultiscripts[mathvariant|mathcolor],mprescripts[mathvariant|mathcolor],none[mathvariant|mathcolor],msubsup[mathvariant|mathcolor],munder[mathvariant|mathcolor],menclose[mathvariant|mathcolor|notation],mtext[mathvariant|mathcolor],mspace[mathvariant|mathcolor|linebreak],blockquote[style],comment-start[name],comment-end[name],commentstart[name],commentend[name]',
             'CSS.AllowedProperties'    => 'font,font-size,font-weight,font-style,font-family,text-decoration,padding-left,color,background-color,text-align,width,height,border-style,border-width,margin,float',
             'AutoFormat.AutoParagraph' => false,
             'AutoFormat.RemoveEmpty'   => false,
@@ -141,6 +141,13 @@ return [
             ['menclose', 'Block', 'Flow', 'Common', ['mathvariant' => 'CDATA', 'mathcolor' => 'CDATA', 'notation' => 'CDATA']],
             ['mtext', 'Block', 'Flow', 'Common', ['mathvariant' => 'CDATA', 'mathcolor' => 'CDATA']],
             ['mspace', 'Block', 'Flow', 'Common', ['mathvariant' => 'CDATA', 'mathcolor' => 'CDATA', 'linebreak' => 'CDATA']],
+
+            //comments plugin
+            ['comment-start', 'Inline', 'Flow', 'Common', ['name' => 'Text']],
+            ['comment-end', 'Inline', 'Flow', 'Common', ['name' => 'Text']],
+            ['commentstart', 'Inline', 'Flow', 'Common', ['name' => 'Text']],
+            ['commentend', 'Inline', 'Flow', 'Common', ['name' => 'Text']],
+            ['h2', 'Inline', 'Flow', 'Common', ['name' => 'Text']],
         ],
     ],
 

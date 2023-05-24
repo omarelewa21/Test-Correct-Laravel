@@ -41,3 +41,6 @@ anychart.licenseKey(process.env.MIX_ANYCHART_LICENSE_KEY);
 
 import {v4 as uuidv4} from 'uuid';
 window.uuidv4 = uuidv4;
+
+import CommentsIntegration from "./CkEditor5CommentsIntegration";
+window.CommentsIntegration = CommentsIntegration;
