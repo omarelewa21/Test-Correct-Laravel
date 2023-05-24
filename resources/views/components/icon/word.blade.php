@@ -1,6 +1,6 @@
 <svg width="16" height="16" xmlns="http://www.w3.org/2000/svg">
     <defs>
-        <linearGradient x1="17.372%" y1="-6.51%" x2="82.628%" y2="106.51%" id="word-icon-color">
+        <linearGradient x1="17.372%" y1="-6.51%" x2="82.628%" y2="106.51%">
             <stop stop-color="#2368C4" offset="0%"/>
             <stop stop-color="#1A5DBE" offset="50%"/>
             <stop stop-color="#1146AC" offset="100%"/>

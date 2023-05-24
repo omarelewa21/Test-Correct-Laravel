@@ -275,6 +275,7 @@ document.addEventListener("alpine:init", () => {
         resolvingTitle: true,
         index: 1,
         mode: mode,
+        attachmentLoading: false,
         async init() {
             this.setIndex();
 
@@ -300,6 +301,9 @@ document.addEventListener("alpine:init", () => {
             const parent = this.$root.parentElement;
             if (parent === null) return;
             this.index = Array.prototype.indexOf.call(parent.children, this.$el) + 1;
+        },
+        dispatchAttachmentLoading() {
+            window.dispatchEvent(new CustomEvent('attachment-preview-loading'))
         }
     }));
 
@@ -1652,7 +1656,7 @@ document.addEventListener("alpine:init", () => {
             this.active = value ? this.id : null;
             if (value) {
                 this.$root.querySelectorAll(".slider-button-container").forEach(toggle => toggle.dispatchEvent(new CustomEvent("slider-toggle-rerender")));
-                this.$el.classList.remove("hover:shadow-hover");
+                // this.$el.classList.remove("hover:shadow-hover");
             }
             if (this.emitWhenSet) {
                 Livewire.emit("accordion-update", { key, value });
