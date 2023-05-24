@@ -135,6 +135,4 @@
             </div>
         </div>
     </div>
-
-    <x-notification/>
 </div>

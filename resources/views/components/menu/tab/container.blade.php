@@ -1,4 +1,4 @@
-@props(['withTileEvents' => false])
+@props(['withTileEvents' => false, 'maxWidthClass' => 'max-w-screen-2xl px-10'])
 @php
     $stickyClasses = $withTileEvents ? 'sticky-pseudo-bg' : 'top-0';
 @endphp
@@ -9,7 +9,7 @@
          x-on:tiles-shown.window="$el.style.top = '150px'"
      @endif
 >
-    <div class="w-full max-w-screen-2xl mx-auto px-10">
+    <div @class(["w-full mx-auto", $maxWidthClass ])>
         <div class="flex w-full h-12.5">
             {{ $slot }}
         </div>

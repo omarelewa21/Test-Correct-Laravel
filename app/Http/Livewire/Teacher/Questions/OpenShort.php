@@ -3,6 +3,7 @@
 namespace tcCore\Http\Livewire\Teacher\Questions;
 
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
+use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -13,6 +14,7 @@ use Illuminate\Validation\ValidationException;
 use Livewire\WithFileUploads;
 use Ramsey\Uuid\Uuid;
 use tcCore\Attachment;
+use tcCore\BaseSubject;
 use tcCore\GroupQuestionQuestion;
 use tcCore\Http\Controllers\GroupQuestionQuestions\AttachmentsController as GroupAttachmentsController;
 use tcCore\Http\Controllers\GroupQuestionQuestionsController;
@@ -20,6 +22,8 @@ use tcCore\Http\Controllers\TemporaryLoginController;
 use tcCore\Http\Controllers\TestQuestions\AttachmentsController;
 use tcCore\Http\Controllers\TestQuestionsController;
 use tcCore\Http\Controllers\TestsController;
+use tcCore\Http\Enums\UserFeatureSetting as UserFeatureSettingEnum;
+use tcCore\Http\Enums\WscLanguage;
 use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Http\Interfaces\QuestionCms;
@@ -39,7 +43,8 @@ use tcCore\UserFeatureSetting;
 
 class OpenShort extends TCComponent implements QuestionCms
 {
-    use WithFileUploads, WithQueryStringSyncing;
+    use WithFileUploads;
+    use WithQueryStringSyncing;
 
     public $showSelectionOptionsModal = false;
 
@@ -101,7 +106,8 @@ class OpenShort extends TCComponent implements QuestionCms
     public $lang = 'nl_NL';
     private $lastSelectedLanguage;
     public $allowWsc = false;
-    const SETTING_LANG = 'spellchecker language';
+    public $wscLanguages;
+    public const SETTING_LANG = 'spellchecker language';
 
     protected $tags = [];
 
@@ -220,10 +226,11 @@ class OpenShort extends TCComponent implements QuestionCms
             'learning_goals'           => [],
             'test_id'                  => '',
             'all_or_nothing'           => false,
-            'lang'                     => $this->lastSelectedLanguage,
+            'lang'                     => $this->lang,
             'add_to_database_disabled' => 0,
             'draft'                    => $activeTest->draft,
         ];
+        $this->question = array_merge($this->question, $this->featureSettingDefaults());
 
         $this->audioUploadOptions = [];
 
@@ -259,7 +266,6 @@ class OpenShort extends TCComponent implements QuestionCms
         $this->uniqueQuestionKey = $this->testQuestionId . $this->groupQuestionQuestionId . $this->action . $this->questionEditorId;
         $this->duplicateQuestion = false;
         $this->canDeleteTest = false;
-        $this->lang = $this->lastSelectedLanguage;
     }
 
 
@@ -323,10 +329,8 @@ class OpenShort extends TCComponent implements QuestionCms
         }
     }
 
-    public function updatedLang($value)
+    public function updatedLang($value): void
     {
-        UserFeatureSetting::setSetting(Auth::user(), self::SETTING_LANG, $value);
-        $this->lastSelectedLanguage = $value;
         $this->question['lang'] = $value;
     }
 
@@ -347,18 +351,19 @@ class OpenShort extends TCComponent implements QuestionCms
         $this->initializeContext($this->action, $this->type, $this->subtype, $activeTest);
         $this->obj = CmsFactory::create($this);
         $this->initializePropertyBag($activeTest);
-        $this->allowWsc = Auth::user()->schoolLocation->allow_wsc;
     }
 
     private function initialize($activeTest)
     {
-        $this->lastSelectedLanguage = $this->getTestLanguage();
+        $this->lang = $this->getDefaultWscLanguage();
         $this->resetQuestionProperties($activeTest);
         $this->canDeleteTest = $activeTest->canDelete(Auth::user());
         $this->testIsPublished = $activeTest->isPublished();
         $this->testName = $activeTest->name;
         $this->subjectId = $activeTest->subject_id;
         $this->educationLevelId = $activeTest->education_level_id;
+        $this->allowWsc = Auth::user()->schoolLocation->allow_wsc;
+        $this->wscLanguages = WscLanguage::casesWithDescription();
     }
 
     public function __call($method, $arguments = null)
@@ -381,7 +386,7 @@ class OpenShort extends TCComponent implements QuestionCms
 
         if (!method_exists(get_parent_class($this), $method) && !str_contains($method, 'hydrate')) {
             $errorMessage = sprintf('Method (%s) not found on parent, type is `%s` (%s) on file %s:%d', $method, $this->question['type'], $this->question['subtype'], __FILE__, __LINE__);
-            Bugsnag::notifyException(new \Exception($errorMessage));
+            Bugsnag::notifyException(new Exception($errorMessage));
         }
         return parent::__call($method, $arguments);
     }
@@ -536,10 +541,10 @@ class OpenShort extends TCComponent implements QuestionCms
             $gqqm = GroupQuestionQuestionManager::getInstanceWithUuid($this->testQuestionId);
             $cgqqr = new CreateGroupQuestionQuestionRequest($this->question);
 
-            return (new GroupQuestionQuestionsController)->store($gqqm, $cgqqr);
+            return (new GroupQuestionQuestionsController())->store($gqqm, $cgqqr);
         }
 
-        return (new TestQuestionsController)->store(new CreateTestQuestionRequest($this->question));
+        return (new TestQuestionsController())->store(new CreateTestQuestionRequest($this->question));
     }
 
     private function handleAttachments($response)
@@ -561,7 +566,7 @@ class OpenShort extends TCComponent implements QuestionCms
         if ($this->emptyState) {
             return view('livewire.teacher.questions.cms-layout')->layout('layouts.cms');
         }
-        throw new \Exception('No template found for this question type.');
+        throw new Exception('No template found for this question type.');
     }
 
     public function handleExternalUpdatedProperty(array $incomingData)
@@ -648,14 +653,14 @@ class OpenShort extends TCComponent implements QuestionCms
             $groupQuestionQuestion = GroupQuestionQuestion::whereUuid($this->groupQuestionQuestionId)->first();
             $groupQuestionQuestionManager = GroupQuestionQuestionManager::getInstanceWithUuid($this->testQuestionId);
 
-            $response = (new GroupQuestionQuestionsController)->updateGeneric(
+            $response = (new GroupQuestionQuestionsController())->updateGeneric(
                 $groupQuestionQuestionManager,
                 $groupQuestionQuestion,
                 $request
             );
 
         } else {
-            $response = (new TestQuestionsController)->updateFromWithin(
+            $response = (new TestQuestionsController())->updateFromWithin(
                 TestQuestion::whereUUID($this->testQuestionId)->first(),
                 $request
             );
@@ -734,13 +739,13 @@ class OpenShort extends TCComponent implements QuestionCms
 
         if (!$this->isCloneRequest) {
             if ($this->isPartOfGroupQuestion()) {
-                $response = (new GroupAttachmentsController)
+                $response = (new GroupAttachmentsController())
                     ->destroy(
                         GroupQuestionQuestionManager::getInstanceWithUuid("{$this->testQuestionId}.{$this->groupQuestionQuestionId}"),
                         $attachment
                     );
             } else {
-                $response = (new AttachmentsController)
+                $response = (new AttachmentsController())
                     ->destroy(
                         TestQuestion::whereUuid($this->testQuestionId)->first(),
                         $attachment
@@ -819,13 +824,13 @@ class OpenShort extends TCComponent implements QuestionCms
     public function createAttachmentWithRequest(CreateAttachmentRequest $request, $response)
     {
         if ($this->isPartOfGroupQuestion()) {
-            return (new GroupAttachmentsController)
+            return (new GroupAttachmentsController())
                 ->store(
                     GroupQuestionQuestionManager::getInstanceWithUuid("{$response->original->group_question_question_path}.{$response->original->uuid}"),
                     $request
                 );
         }
-        return (new AttachmentsController)
+        return (new AttachmentsController())
             ->store(
                 TestQuestion::find($response->original->id),
                 $request
@@ -855,14 +860,14 @@ class OpenShort extends TCComponent implements QuestionCms
             $groupQuestionQuestion = GroupQuestionQuestion::whereUuid($this->groupQuestionQuestionId)->first();
             $groupQuestionQuestionManager = GroupQuestionQuestionManager::getInstanceWithUuid($this->testQuestionId);
 
-            $response = (new GroupQuestionQuestionsController)->destroy(
+            $response = (new GroupQuestionQuestionsController())->destroy(
                 $groupQuestionQuestionManager,
                 $groupQuestionQuestion
             );
         } else {
             $testQuestion = TestQuestion::whereUuid($this->testQuestionId)->firstOrFail();
 
-            $response = (new TestQuestionsController)->destroy($testQuestion);
+            $response = (new TestQuestionsController())->destroy($testQuestion);
         }
 
 
@@ -1227,7 +1232,7 @@ class OpenShort extends TCComponent implements QuestionCms
             $question = Question::whereUuid($args['questionUuid'])->first();
             try {
                 $this->groupQuestionQuestionId = $groupQuestion->groupQuestionQuestions()->firstWhere('question_id', $question->getKey())->uuid;
-            } catch(\Exception $e){
+            } catch(Exception $e){
                 // the groupQuestionQuestion could not be found and has probably to do with using the back button
                 // we therefor lead the user to the test page again with a notification
                 $this->resetToEmptyState();
@@ -1327,7 +1332,7 @@ class OpenShort extends TCComponent implements QuestionCms
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function validateFromDirtyModal()
     {
@@ -1471,19 +1476,44 @@ class OpenShort extends TCComponent implements QuestionCms
         $this->testIsPublished = Test::whereUuid($this->testId)->first()->isPublished();
     }
 
-    private function getTestLanguage(): string
+    private function getTestLanguage(): ?WscLanguage
     {
-        if (UserFeatureSetting::hasSetting(Auth::user(), self::SETTING_LANG)) {
-            return UserFeatureSetting::getSetting(Auth::user(), self::SETTING_LANG);
-        }
-        $lang = Auth::user()->schoolLocation->wscLanguage;
-        UserFeatureSetting::setSetting(Auth::user(), self::SETTING_LANG, $lang);
-        return $lang;
+        return BaseSubject::join('subjects', 'subjects.base_subject_id', '=', 'base_subjects.id')
+            ->join('tests', 'tests.subject_id', '=', 'subjects.id')
+            ->whereIn('tests.id', Test::whereUuid($this->testId)->select('id'))
+            ->value('wsc_lang');
     }
 
     public function toPlannedTest($takeUuid)
     {
         $testTake = TestTake::whereUuid($takeUuid)->first();
         return auth()->user()->redirectToCakeWithTemporaryLogin($testTake->getPlannedTestOptions());
+    }
+
+    private function getDefaultWscLanguage()
+    {
+        if (UserFeatureSetting::getSetting(Auth::user(), UserFeatureSettingEnum::WSC_COPY_SUBJECT_LANGUAGE, default: true)) {
+            if ($subjectLanguage = $this->getTestLanguage()) {
+                return $subjectLanguage;
+            }
+        }
+
+        if ($language = UserFeatureSetting::getSetting(Auth::user(), UserFeatureSettingEnum::WSC_DEFAULT_LANGUAGE)) {
+            return $language;
+        }
+
+        return WscLanguage::DUTCH;
+    }
+
+    private function featureSettingDefaults(): array
+    {
+        $featureSettings = UserFeatureSettingEnum::initialValues()->merge(UserFeatureSetting::getAll(Auth::user()));
+
+        return [
+            'add_to_database'   => $featureSettings[UserFeatureSettingEnum::QUESTION_PUBLICLY_AVAILABLE->value],
+            'score'             => $featureSettings[UserFeatureSettingEnum::QUESTION_DEFAULT_POINTS->value],
+            'decimal_score'     => $featureSettings[UserFeatureSettingEnum::QUESTION_HALF_POINTS_POSSIBLE->value],
+            'auto_check_answer' => $featureSettings[UserFeatureSettingEnum::QUESTION_AUTO_SCORE_COMPLETION->value],
+        ];
     }
 }

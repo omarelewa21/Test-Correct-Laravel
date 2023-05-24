@@ -1,17 +1,4 @@
 <?php
-
-if (array_key_exists('HTTP_ACCEPT_LANGUAGE', $_SERVER)) {
-    $language = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
-    if ($language != 'nl') {
-        $lang = 'en';
-    } else {
-        $lang = $language;
-    }
-} else {
-    $lang = 'en';
-}
-
-$lang = 'nl'; // just to see if it works in dutch
 return [
 
     'url_login' => env('URL_LOGIN'),
@@ -92,7 +79,7 @@ return [
     |
     */
 
-    'locale' => $lang,
+    'locale' => \tcCore\Http\Helpers\BaseHelper::browserLanguage(),
 
     /*
     |--------------------------------------------------------------------------
