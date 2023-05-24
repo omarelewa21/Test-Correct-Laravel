@@ -10,6 +10,11 @@ use tcCore\Http\Enums\Attributes\Type;
 
 trait WithAttributes
 {
+    public function initialValue(): mixed
+    {
+        return $this->castValue(self::getInitialValue($this));
+    }
+
     public static function getInitialValue(self $enum): mixed
     {
         $instance = self::getAttributeInstance($enum, Initial::class);
