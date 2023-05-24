@@ -352,7 +352,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
         if (!$this->onLastQuestionToAssess()) {
             $currentAnswerIndex = $this->answers->search(fn($answer) => $answer->id === $this->currentAnswer->id);
-            $newAnswer = $this->answers->get($currentAnswerIndex + 1);
+            $newAnswer = $this->getClosestAvailableAnswer('incr', $this->answers, $currentAnswerIndex);
             $this->answerNavigationValue = $this->students->search($newAnswer->test_participant_id) + 1;
 
             $this->dispatchUpdateQuestionNavigatorEvent(
@@ -382,7 +382,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
         if (!$this->onFirstQuestionToAssess()) {
             $currentAnswerIndex = $this->answers->search(fn($answer) => $answer->id === $this->currentAnswer->id);
-            $newAnswer = $this->answers->get($currentAnswerIndex - 1);
+            $newAnswer = $this->getClosestAvailableAnswer('decr', $this->answers, $currentAnswerIndex);
             $this->answerNavigationValue = $this->students->search($newAnswer->test_participant_id) + 1;
 
             $this->dispatchUpdateQuestionNavigatorEvent(
