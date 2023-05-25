@@ -310,4 +310,19 @@ class Attachment extends BaseModel
         }
         return false;
     }
+
+    public static function convertYoutubeShortsLink($link)
+    {
+        $pattern = '/(?:https?:\/\/)?(?:www\.)?youtu(?:\.be|be\.com)\/shorts\/([a-zA-Z0-9_-]+)/i';
+
+        preg_match($pattern, $link, $matches);
+
+        if (!empty($matches)) {
+            $fullLink = 'https://www.youtube.com/watch?v=' . $matches[1];
+        } else {
+            $fullLink = $link;
+        }
+
+        return $fullLink;
+    }
 }

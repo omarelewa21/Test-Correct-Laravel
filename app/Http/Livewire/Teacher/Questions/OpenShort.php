@@ -779,6 +779,11 @@ class OpenShort extends TCComponent implements QuestionCms
     public function handleNewVideoAttachment($link)
     {
         if ($this->validateVideoLink($link)) {
+            if (preg_match('/(?:https?:\/\/)?(?:www\.)?youtu(?:\.be|be\.com)\/shorts\//i', $link)) {
+                // Link matches the YouTube Shorts pattern, so convert it to a full link
+                $link = Attachment::convertYoutubeShortsLink($link);
+            }
+
             $video = ['id' => Uuid::uuid4()->toString(), 'link' => $link];
             $this->videos[] = $video;
             $this->sortOrderAttachments[] = $video['id'];
