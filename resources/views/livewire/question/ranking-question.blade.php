@@ -27,6 +27,7 @@
                              wire:key="option-{{ $answer->value }}"
                              selid="drag-box"
                              sortableHandle="false"
+                             @touchend="detectFastSuccessiveEvents($event, selectTextContent)"
                 >
                     {{ html_entity_decode($answerText[$answer->value]) }}
                 </x-drag-item>
