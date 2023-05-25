@@ -211,7 +211,7 @@ trait WithAttachments
             return 'w-[80vw] h-[45vw]';
         }
 
-        return 'w-5/6 lg:w-4/6';
+        // return 'w-5/6 lg:w-4/6';
     }
 
     private function checkAttachmentTimeoutInSession()
