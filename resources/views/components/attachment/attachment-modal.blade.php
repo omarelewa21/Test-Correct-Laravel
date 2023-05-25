@@ -1,6 +1,6 @@
 @if($attachment)
     <div id="attachment-{{$attachment->uuid}}"
-        class="fixed z-30 mx-8 shadow-lg border border-blue-grey rounded-10 bg-black disable-swipe-navigation top-10 left-10 {{ $this->getAttachmentModalSize() }}"
+        class="fixed z-30 shadow-lg border border-blue-grey rounded-10 bg-black disable-swipe-navigation top-10 left-10 max-width-90 {{ $this->getAttachmentModalSize() }}"
         x-init="dragElement($el); @if($this->attachmentType != 'audio') makeAttachmentResizable($el, '{{$this->attachmentType}}'); @endif"
         wire:ignore
     >
