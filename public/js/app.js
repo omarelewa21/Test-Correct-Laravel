@@ -15041,7 +15041,7 @@ RichTextEditor = {
     return ClassicEditor.create(document.querySelector("#" + editorId), this.getConfigForStudent(wsc, [])).then(function (editor) {
       ClassicEditors[editorId] = editor;
       _this.setupWordCounter(editor, editorId);
-      WebspellcheckerTlc.forTeacherQuestion(editor, lang, wsc);
+      WebspellcheckerTlc.subscribeToProblemCounter(editor);
       window.addEventListener("wsc-problems-count-updated-" + editorId, function (e) {
         var problemCountSpan = document.getElementById("problem-count-" + editorId);
         if (problemCountSpan) {
@@ -15555,6 +15555,24 @@ WebspellcheckerTlc = {
         console.dir(e);
       }
     }, 1000);
+  },
+  subscribeToProblemCounter: function subscribeToProblemCounter(editor) {
+    var i = 0;
+    var problemTimer = setInterval(function () {
+      ++i;
+      if (i === 50) clearInterval(problemTimer);
+      if (typeof WEBSPELLCHECKER != "undefined") {
+        var instance = WEBSPELLCHECKER.getInstances().pop();
+        instance.subscribe('problemCheckEnded', function (event) {
+          window.dispatchEvent(new CustomEvent('wsc-problems-count-updated-' + editor.sourceElement.id, {
+            detail: {
+              problemsCount: instance.getProblemsCount()
+            }
+          }));
+        });
+        clearInterval(problemTimer);
+      }
+    }, 200);
   }
 };
 

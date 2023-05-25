@@ -11,7 +11,8 @@ RichTextEditor = {
             .then(editor => {
                 ClassicEditors[editorId] = editor;
                 this.setupWordCounter(editor, editorId);
-                WebspellcheckerTlc.forTeacherQuestion(editor, lang, wsc);
+
+                WebspellcheckerTlc.subscribeToProblemCounter(editor);
 
                 window.addEventListener("wsc-problems-count-updated-" + editorId, (e) => {
                     let problemCountSpan = document.getElementById("problem-count-" + editorId);
