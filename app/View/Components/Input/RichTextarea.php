@@ -12,20 +12,26 @@ class RichTextarea extends Component
         'editorId',
         'lang',
         'allowWsc',
+        'questionId',
         'maxWords',
         'maxWordOverride',
-        'questionId',
+        'restrictWords',
+        'textFormatting',
+        'mathmlFunctions',
     ];
 
     public function __construct(
         public readonly string|int $editorId,
-        public ?string             $type = 'student',
+        public ?string             $type = null,
         public ?bool               $disabled = false,
         public null|string|int     $questionId = null,
         public ?string             $lang = 'nl_NL',
         public ?bool               $allowWsc = false,
         public null|string|int     $maxWords = null,
-        public ?bool               $maxWordOverride = false,
+        public bool                $maxWordOverride = false,
+        public bool                $restrictWords = false,
+        public bool                $textFormatting = true,
+        public bool                $mathmlFunctions = true,
     ) {
         $this->initFunctionCall = sprintf('%s(%s)', $this->getInitMethod(), json_encode($this->getEditorConfig()));
     }
@@ -44,7 +50,7 @@ class RichTextarea extends Component
             'student-co-learning' => "RichTextEditor.initStudentCoLearning",
             'student-preview' => "RichTextEditor.initClassicEditorForStudentPreviewplayer",
             'assessment-feedback' => "RichTextEditor.initAssessmentFeedback",
-            default => "RichTextEditor.initClassicEditorForStudentplayer",
+            default => "RichTextEditor.initClassicEditorForStudentPlayer",
         };
     }
 
@@ -57,6 +63,6 @@ class RichTextarea extends Component
         foreach ($this->editorProperties as $key) {
             $config->put($key, $this->$key);
         }
-        return $config->filter()->toArray();
+        return $config->toArray();
     }
 }

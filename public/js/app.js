@@ -8023,7 +8023,6 @@ document.addEventListener("alpine:init", function () {
         this.$nextTick(function () {
           _this55.editor = ClassicEditors[editorId];
           _this55.wordContainer = _this55.$root.querySelector(".ck-word-count__words");
-          // this.$root.querySelector(".ck-word-count__characters")?.remove();
           _this55.wordContainer.style.display = "flex";
           _this55.wordContainer.parentElement.style.display = "flex";
           _this55.addMaxWordsToWordCounter(_this55.maxWords);
@@ -8039,7 +8038,7 @@ document.addEventListener("alpine:init", function () {
         var element = document.createElement("span");
         element.id = spanId;
         element.innerHTML = "/".concat(value !== null && value !== void 0 ? value : 0);
-        this.wordContainer.parentNode.insertBefore(element, this.wordContainer.nextSibling);
+        this.wordContainer.parentNode.append(element);
         this.editor.maxWords = value;
       }
     };
@@ -15057,6 +15056,10 @@ readspeakerLoadCore = function (_readspeakerLoadCore) {
   \******************************************/
 /***/ (() => {
 
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
+function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return exports; }; var exports = {}, Op = Object.prototype, hasOwn = Op.hasOwnProperty, defineProperty = Object.defineProperty || function (obj, key, desc) { obj[key] = desc.value; }, $Symbol = "function" == typeof Symbol ? Symbol : {}, iteratorSymbol = $Symbol.iterator || "@@iterator", asyncIteratorSymbol = $Symbol.asyncIterator || "@@asyncIterator", toStringTagSymbol = $Symbol.toStringTag || "@@toStringTag"; function define(obj, key, value) { return Object.defineProperty(obj, key, { value: value, enumerable: !0, configurable: !0, writable: !0 }), obj[key]; } try { define({}, ""); } catch (err) { define = function define(obj, key, value) { return obj[key] = value; }; } function wrap(innerFn, outerFn, self, tryLocsList) { var protoGenerator = outerFn && outerFn.prototype instanceof Generator ? outerFn : Generator, generator = Object.create(protoGenerator.prototype), context = new Context(tryLocsList || []); return defineProperty(generator, "_invoke", { value: makeInvokeMethod(innerFn, self, context) }), generator; } function tryCatch(fn, obj, arg) { try { return { type: "normal", arg: fn.call(obj, arg) }; } catch (err) { return { type: "throw", arg: err }; } } exports.wrap = wrap; var ContinueSentinel = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var IteratorPrototype = {}; define(IteratorPrototype, iteratorSymbol, function () { return this; }); var getProto = Object.getPrototypeOf, NativeIteratorPrototype = getProto && getProto(getProto(values([]))); NativeIteratorPrototype && NativeIteratorPrototype !== Op && hasOwn.call(NativeIteratorPrototype, iteratorSymbol) && (IteratorPrototype = NativeIteratorPrototype); var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(IteratorPrototype); function defineIteratorMethods(prototype) { ["next", "throw", "return"].forEach(function (method) { define(prototype, method, function (arg) { return this._invoke(method, arg); }); }); } function AsyncIterator(generator, PromiseImpl) { function invoke(method, arg, resolve, reject) { var record = tryCatch(generator[method], generator, arg); if ("throw" !== record.type) { var result = record.arg, value = result.value; return value && "object" == _typeof(value) && hasOwn.call(value, "__await") ? PromiseImpl.resolve(value.__await).then(function (value) { invoke("next", value, resolve, reject); }, function (err) { invoke("throw", err, resolve, reject); }) : PromiseImpl.resolve(value).then(function (unwrapped) { result.value = unwrapped, resolve(result); }, function (error) { return invoke("throw", error, resolve, reject); }); } reject(record.arg); } var previousPromise; defineProperty(this, "_invoke", { value: function value(method, arg) { function callInvokeWithMethodAndArg() { return new PromiseImpl(function (resolve, reject) { invoke(method, arg, resolve, reject); }); } return previousPromise = previousPromise ? previousPromise.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(innerFn, self, context) { var state = "suspendedStart"; return function (method, arg) { if ("executing" === state) throw new Error("Generator is already running"); if ("completed" === state) { if ("throw" === method) throw arg; return doneResult(); } for (context.method = method, context.arg = arg;;) { var delegate = context.delegate; if (delegate) { var delegateResult = maybeInvokeDelegate(delegate, context); if (delegateResult) { if (delegateResult === ContinueSentinel) continue; return delegateResult; } } if ("next" === context.method) context.sent = context._sent = context.arg;else if ("throw" === context.method) { if ("suspendedStart" === state) throw state = "completed", context.arg; context.dispatchException(context.arg); } else "return" === context.method && context.abrupt("return", context.arg); state = "executing"; var record = tryCatch(innerFn, self, context); if ("normal" === record.type) { if (state = context.done ? "completed" : "suspendedYield", record.arg === ContinueSentinel) continue; return { value: record.arg, done: context.done }; } "throw" === record.type && (state = "completed", context.method = "throw", context.arg = record.arg); } }; } function maybeInvokeDelegate(delegate, context) { var methodName = context.method, method = delegate.iterator[methodName]; if (undefined === method) return context.delegate = null, "throw" === methodName && delegate.iterator["return"] && (context.method = "return", context.arg = undefined, maybeInvokeDelegate(delegate, context), "throw" === context.method) || "return" !== methodName && (context.method = "throw", context.arg = new TypeError("The iterator does not provide a '" + methodName + "' method")), ContinueSentinel; var record = tryCatch(method, delegate.iterator, context.arg); if ("throw" === record.type) return context.method = "throw", context.arg = record.arg, context.delegate = null, ContinueSentinel; var info = record.arg; return info ? info.done ? (context[delegate.resultName] = info.value, context.next = delegate.nextLoc, "return" !== context.method && (context.method = "next", context.arg = undefined), context.delegate = null, ContinueSentinel) : info : (context.method = "throw", context.arg = new TypeError("iterator result is not an object"), context.delegate = null, ContinueSentinel); } function pushTryEntry(locs) { var entry = { tryLoc: locs[0] }; 1 in locs && (entry.catchLoc = locs[1]), 2 in locs && (entry.finallyLoc = locs[2], entry.afterLoc = locs[3]), this.tryEntries.push(entry); } function resetTryEntry(entry) { var record = entry.completion || {}; record.type = "normal", delete record.arg, entry.completion = record; } function Context(tryLocsList) { this.tryEntries = [{ tryLoc: "root" }], tryLocsList.forEach(pushTryEntry, this), this.reset(!0); } function values(iterable) { if (iterable) { var iteratorMethod = iterable[iteratorSymbol]; if (iteratorMethod) return iteratorMethod.call(iterable); if ("function" == typeof iterable.next) return iterable; if (!isNaN(iterable.length)) { var i = -1, next = function next() { for (; ++i < iterable.length;) if (hasOwn.call(iterable, i)) return next.value = iterable[i], next.done = !1, next; return next.value = undefined, next.done = !0, next; }; return next.next = next; } } return { next: doneResult }; } function doneResult() { return { value: undefined, done: !0 }; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, defineProperty(Gp, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), defineProperty(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, toStringTagSymbol, "GeneratorFunction"), exports.isGeneratorFunction = function (genFun) { var ctor = "function" == typeof genFun && genFun.constructor; return !!ctor && (ctor === GeneratorFunction || "GeneratorFunction" === (ctor.displayName || ctor.name)); }, exports.mark = function (genFun) { return Object.setPrototypeOf ? Object.setPrototypeOf(genFun, GeneratorFunctionPrototype) : (genFun.__proto__ = GeneratorFunctionPrototype, define(genFun, toStringTagSymbol, "GeneratorFunction")), genFun.prototype = Object.create(Gp), genFun; }, exports.awrap = function (arg) { return { __await: arg }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, asyncIteratorSymbol, function () { return this; }), exports.AsyncIterator = AsyncIterator, exports.async = function (innerFn, outerFn, self, tryLocsList, PromiseImpl) { void 0 === PromiseImpl && (PromiseImpl = Promise); var iter = new AsyncIterator(wrap(innerFn, outerFn, self, tryLocsList), PromiseImpl); return exports.isGeneratorFunction(outerFn) ? iter : iter.next().then(function (result) { return result.done ? result.value : iter.next(); }); }, defineIteratorMethods(Gp), define(Gp, toStringTagSymbol, "Generator"), define(Gp, iteratorSymbol, function () { return this; }), define(Gp, "toString", function () { return "[object Generator]"; }), exports.keys = function (val) { var object = Object(val), keys = []; for (var key in object) keys.push(key); return keys.reverse(), function next() { for (; keys.length;) { var key = keys.pop(); if (key in object) return next.value = key, next.done = !1, next; } return next.done = !0, next; }; }, exports.values = values, Context.prototype = { constructor: Context, reset: function reset(skipTempReset) { if (this.prev = 0, this.next = 0, this.sent = this._sent = undefined, this.done = !1, this.delegate = null, this.method = "next", this.arg = undefined, this.tryEntries.forEach(resetTryEntry), !skipTempReset) for (var name in this) "t" === name.charAt(0) && hasOwn.call(this, name) && !isNaN(+name.slice(1)) && (this[name] = undefined); }, stop: function stop() { this.done = !0; var rootRecord = this.tryEntries[0].completion; if ("throw" === rootRecord.type) throw rootRecord.arg; return this.rval; }, dispatchException: function dispatchException(exception) { if (this.done) throw exception; var context = this; function handle(loc, caught) { return record.type = "throw", record.arg = exception, context.next = loc, caught && (context.method = "next", context.arg = undefined), !!caught; } for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i], record = entry.completion; if ("root" === entry.tryLoc) return handle("end"); if (entry.tryLoc <= this.prev) { var hasCatch = hasOwn.call(entry, "catchLoc"), hasFinally = hasOwn.call(entry, "finallyLoc"); if (hasCatch && hasFinally) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } else if (hasCatch) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); } else { if (!hasFinally) throw new Error("try statement without catch or finally"); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } } } }, abrupt: function abrupt(type, arg) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc <= this.prev && hasOwn.call(entry, "finallyLoc") && this.prev < entry.finallyLoc) { var finallyEntry = entry; break; } } finallyEntry && ("break" === type || "continue" === type) && finallyEntry.tryLoc <= arg && arg <= finallyEntry.finallyLoc && (finallyEntry = null); var record = finallyEntry ? finallyEntry.completion : {}; return record.type = type, record.arg = arg, finallyEntry ? (this.method = "next", this.next = finallyEntry.finallyLoc, ContinueSentinel) : this.complete(record); }, complete: function complete(record, afterLoc) { if ("throw" === record.type) throw record.arg; return "break" === record.type || "continue" === record.type ? this.next = record.arg : "return" === record.type ? (this.rval = this.arg = record.arg, this.method = "return", this.next = "end") : "normal" === record.type && afterLoc && (this.next = afterLoc), ContinueSentinel; }, finish: function finish(finallyLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.finallyLoc === finallyLoc) return this.complete(entry.completion, entry.afterLoc), resetTryEntry(entry), ContinueSentinel; } }, "catch": function _catch(tryLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc === tryLoc) { var record = entry.completion; if ("throw" === record.type) { var thrown = record.arg; resetTryEntry(entry); } return thrown; } } throw new Error("illegal catch attempt"); }, delegateYield: function delegateYield(iterable, resultName, nextLoc) { return this.delegate = { iterator: values(iterable), resultName: resultName, nextLoc: nextLoc }, "next" === this.method && (this.arg = undefined), ContinueSentinel; } }, exports; }
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
@@ -15064,15 +15067,11 @@ function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symb
 function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
 function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
 RichTextEditor = {
-  initStudent: function initStudent(editorId) {
-    console.log("this should implement student init // example is open-medium-question.blase.php");
-  },
   initStudentCoLearning: function initStudentCoLearning(parameterBag) {
     var _this = this;
-    return ClassicEditor.create(document.querySelector("#" + parameterBag.editorId), this.getConfigForStudent(parameterBag.wsc, [])).then(function (editor) {
-      ClassicEditors[parameterBag.editorId] = editor;
-      _this.setupWordCounter(editor, parameterBag.editorId);
-      WebspellcheckerTlc.forTeacherQuestion(editor, parameterBag.lang, parameterBag.wsc);
+    return this.createStudentEditor(parameterBag, function (editor) {
+      _this.setupWordCounter(editor, parameterBag);
+      WebspellcheckerTlc.forTeacherQuestion(editor, parameterBag.lang, parameterBag.allowWsc);
       window.addEventListener("wsc-problems-count-updated-" + parameterBag.editorId, function (e) {
         var problemCountSpan = document.getElementById("problem-count-" + parameterBag.editorId);
         if (problemCountSpan) {
@@ -15083,76 +15082,70 @@ RichTextEditor = {
         ReadspeakerTlc.ckeditor.addListenersForReadspeaker(editor, parameterBag.questionId, parameterBag.editorId);
         ReadspeakerTlc.ckeditor.disableContextMenuOnCkeditor();
       }
-    })["catch"](function (error) {
-      console.error(error);
     });
   },
   initSelectionCMS: function initSelectionCMS(parameterBag) {
     var _this2 = this;
-    var editor = ClassicEditors[parameterBag.editorId];
-    if (editor) {
-      editor.destroy(true);
-    }
-    return ClassicEditor.create(document.getElementById(parameterBag.editorId), this.getConfigForTeacher(parameterBag.allowWsc, ["Selection"])).then(function (editor) {
-      ClassicEditors[parameterBag.editorId] = editor;
+    parameterBag.pluginsToAdd = ['Selection'];
+    return this.createTeacherEditor(parameterBag, function (editor) {
       WebspellcheckerTlc.lang(editor, parameterBag.lang);
-      // WebspellcheckerTlc.setEditorToReadOnly(editor);
       _this2.setReadOnly(editor);
       window.editor = editor;
-    })["catch"](function (error) {
-      console.error(error);
     });
   },
   initCompletionCMS: function initCompletionCMS(parameterBag) {
     var _this3 = this;
-    var editor = ClassicEditors[parameterBag.editorId];
-    if (editor) {
-      editor.destroy(true);
-    }
-    return ClassicEditor.create(document.getElementById(parameterBag.editorId), this.getConfigForTeacher(parameterBag.allowWsc, ["Completion"])).then(function (editor) {
-      ClassicEditors[parameterBag.editorId] = editor;
+    parameterBag.pluginsToAdd = ["Completion"];
+    return this.createTeacherEditor(parameterBag, function (editor) {
       WebspellcheckerTlc.lang(editor, parameterBag.lang);
-      // WebspellcheckerTlc.setEditorToReadOnly(editor);
       _this3.setReadOnly(editor);
-    })["catch"](function (error) {
-      console.error(error);
     });
   },
-  sendInputEventToEditor: function sendInputEventToEditor(editorId, e) {
-    var textarea = document.getElementById(editorId);
-    setTimeout(function () {
-      textarea.value = e.editor.getData();
-    }, 300);
-    textarea.dispatchEvent(new Event("input"));
-  },
-  initClassicEditorForStudentplayer: function initClassicEditorForStudentplayer(parameterBag) {
+  initClassicEditorForStudentPlayer: function initClassicEditorForStudentPlayer(parameterBag) {
     var _this4 = this;
-    return ClassicEditor.create(document.querySelector("#" + parameterBag.editorId), this.getConfigForStudent(parameterBag.allowWsc, [])).then(function (editor) {
-      ClassicEditors[parameterBag.editorId] = editor;
-      _this4.setupWordCounter(editor, parameterBag.editorId);
+    return this.createStudentEditor(parameterBag, function (editor) {
+      _this4.setupWordCounter(editor, parameterBag);
       if (typeof ReadspeakerTlc != "undefined") {
         ReadspeakerTlc.ckeditor.addListenersForReadspeaker(editor, parameterBag.questionId, parameterBag.editorId);
         ReadspeakerTlc.ckeditor.disableContextMenuOnCkeditor();
       }
-    })["catch"](function (error) {
-      console.error(error);
     });
   },
   initClassicEditorForStudentPreviewplayer: function initClassicEditorForStudentPreviewplayer(parameterBag) {
     var _this5 = this;
-    return ClassicEditor.create(document.querySelector("#" + parameterBag.editorId), this.getConfigForStudent(false, [])).then(function (editor) {
-      ClassicEditors[parameterBag.editorId] = editor;
-      _this5.setupWordCounter(editor, parameterBag.editorId);
+    return this.createStudentEditor(parameterBag, function (editor) {
+      _this5.setupWordCounter(editor, parameterBag);
       if (typeof ReadspeakerTlc != "undefined") {
         ReadspeakerTlc.ckeditor.replaceReadableAreaByClone(editor);
       }
       editor.isReadOnly = true;
-    })["catch"](function (error) {
-      console.error(error);
     });
   },
-  getConfigForStudent: function getConfigForStudent(allowWsc) {
-    var pluginsToAdd = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+  initForTeacher: function initForTeacher(parameterBag) {
+    var _this6 = this;
+    return this.createTeacherEditor(parameterBag, function (editor) {
+      WebspellcheckerTlc.lang(editor, parameterBag.lang);
+      _this6.setupWordCounter(editor, parameterBag);
+      _this6.setReadOnly(editor);
+    });
+  },
+  initAssessmentFeedback: function initAssessmentFeedback(parameterBag) {
+    parameterBag.removeItems = {
+      plugins: ["Essentials", "FontFamily", "FontSize", "FontBackgroundColor", "Heading", "Indent", "FontColor", "RemoveFormat", "PasteFromOffice", "WordCount", "WProofreader", "Completion", "Selection"],
+      toolbar: ["outdent", "indent", "completion", "selection", "fontFamily", "fontBackgroundColor", "fontSize", "undo", "redo", "fontColor", "heading", "removeFormat", "wproofreader", "specialCharacters"]
+    };
+    parameterBag.shouldNotGroupWhenFull = true;
+    return this.createTeacherEditor(parameterBag);
+  },
+  initInlineFeedback: function initInlineFeedback(parameterBag) {
+    var _this7 = this;
+    return this.createStudentEditor(parameterBag, function (editor) {
+      return _this7.setupWordCounter(editor, parameterBag);
+    });
+  },
+  getConfigForStudent: function getConfigForStudent(parameterBag) {
+    var _parameterBag$plugins;
+    (_parameterBag$plugins = parameterBag.pluginsToAdd) !== null && _parameterBag$plugins !== void 0 ? _parameterBag$plugins : parameterBag.pluginsToAdd = [];
     var config = {
       autosave: {
         waitingTime: 300,
@@ -15161,44 +15154,34 @@ RichTextEditor = {
           editor.sourceElement.dispatchEvent(new Event("input"));
         }
       },
-      wordcount: {
-        showWordCount: true,
-        showParagraphs: false,
-        showCharCount: true,
-        countSpacesAsChars: true
-      }
+      wordCount: {
+        displayCharacters: false
+      },
+      wproofreader: this.getWproofreaderConfig()
     };
+    config.removePlugins = ["Selection", "Completion", "ImageUpload", "Image", "ImageToolbar"];
     config.toolbar = {
-      removeItems: []
+      removeItems: ["selection", "completion", "imageUpload", "image"]
     };
-    if (allowWsc) {
-      config.wproofreader = {
-        autoSearch: false,
-        autoDestroy: true,
-        autocorrect: false,
-        autocomplete: false,
-        actionItems: ["addWord", "ignoreAll", "ignore", "settings", "toggle", "proofreadDialog"],
-        enableBadgeButton: true,
-        serviceProtocol: "https",
-        servicePort: "80",
-        serviceHost: "wsc.test-correct.nl",
-        servicePath: "wscservice/api",
-        srcUrl: "https://wsc.test-correct.nl/wscservice/wscbundle/wscbundle.js"
-      };
-      config.removePlugins = ["Selection", "Completion", "ImageUpload", "Image"];
-      config.toolbar.removeItems = ["selection", "completion", "imageUpload", "image"];
-    } else {
-      config.removePlugins = ["WProofreader", "Selection", "Completion", "ImageUpload", "Image"];
-      config.toolbar.removeItems = ["wproofreader", "selection", "completion", "imageUpload", "image"];
+    if (!parameterBag.allowWsc) {
+      delete config.wproofreader;
+      config.removePlugins.push("WProofreader");
+      config.toolbar.removeItems.push("wproofreader");
+    }
+    if (!parameterBag.textFormatting) {
+      config.removePlugins.push("Bold", "BlockQuote", "FontFamily", "FontSize", "FontBackgroundColor", "Heading", "Indent", "Italic", "List", "Strikethrough", "FontColor", "Subscript", "Superscript", "BlockQuote", "Table", "TableCaption", "TableCellProperties", "TableProperties", "TableToolbar", "Underline", "RemoveFormat");
+      config.toolbar.removeItems.push("bold", "italic", "underline", "strikethrough", "subscript", "superscript", "bulletedList", "numberedList", "blockQuote", "outdent", "indent", "insertTable", "fontFamily", "fontBackgroundColor", "fontSize", "fontColor", "heading", "removeFormat");
+    }
+    if (!parameterBag.mathmlFunctions) {
+      config.removePlugins.push("MathType", "ChemType", "SpecialCharactersTLC");
+      config.toolbar.removeItems.push("MathType", "ChemType", "specialCharacters");
     }
     return config;
   },
-  getConfigForTeacher: function getConfigForTeacher(allowWsc) {
-    var _removeItems, _removeItems$plugins, _removeItems2, _removeItems$toolbar, _removeItems3;
-    var pluginsToAdd = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
-    var removeItems = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-    var maxWords = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : -1;
-    (_removeItems = removeItems) !== null && _removeItems !== void 0 ? _removeItems : removeItems = {
+  getConfigForTeacher: function getConfigForTeacher(parameterBag) {
+    var _parameterBag$plugins2, _parameterBag$removeI, _parameterBag$removeI2, _parameterBag$removeI3, _parameterBag$removeI4, _parameterBag$removeI5;
+    (_parameterBag$plugins2 = parameterBag.pluginsToAdd) !== null && _parameterBag$plugins2 !== void 0 ? _parameterBag$plugins2 : parameterBag.pluginsToAdd = [];
+    (_parameterBag$removeI = parameterBag.removeItems) !== null && _parameterBag$removeI !== void 0 ? _parameterBag$removeI : parameterBag.removeItems = {
       plugins: [],
       items: []
     };
@@ -15244,32 +15227,23 @@ RichTextEditor = {
       wordCount: {
         displayCharacters: true,
         displayWords: true
-      }
+      },
+      wproofreader: this.getWproofreaderConfig()
     };
-    config.removePlugins = (_removeItems$plugins = (_removeItems2 = removeItems) === null || _removeItems2 === void 0 ? void 0 : _removeItems2.plugins) !== null && _removeItems$plugins !== void 0 ? _removeItems$plugins : [];
+    config.removePlugins = (_parameterBag$removeI2 = (_parameterBag$removeI3 = parameterBag.removeItems) === null || _parameterBag$removeI3 === void 0 ? void 0 : _parameterBag$removeI3.plugins) !== null && _parameterBag$removeI2 !== void 0 ? _parameterBag$removeI2 : [];
     config.toolbar = {
-      removeItems: (_removeItems$toolbar = (_removeItems3 = removeItems) === null || _removeItems3 === void 0 ? void 0 : _removeItems3.toolbar) !== null && _removeItems$toolbar !== void 0 ? _removeItems$toolbar : []
+      removeItems: (_parameterBag$removeI4 = (_parameterBag$removeI5 = parameterBag.removeItems) === null || _parameterBag$removeI5 === void 0 ? void 0 : _parameterBag$removeI5.toolbar) !== null && _parameterBag$removeI4 !== void 0 ? _parameterBag$removeI4 : []
     };
-    if (allowWsc) {
-      config.wproofreader = {
-        autoSearch: false,
-        autoDestroy: true,
-        autocorrect: false,
-        autocomplete: false,
-        actionItems: ["addWord", "ignoreAll", "ignore", "settings", "toggle", "proofreadDialog"],
-        enableBadgeButton: true,
-        serviceProtocol: "https",
-        servicePort: "80",
-        serviceHost: "wsc.test-correct.nl",
-        servicePath: "wscservice/api",
-        srcUrl: "https://wsc.test-correct.nl/wscservice/wscbundle/wscbundle.js"
-      };
-    } else {
+    if (!parameterBag.allowWsc) {
+      delete config.wproofreader;
       config.removePlugins.push("WProofreader");
+    }
+    if (parameterBag.shouldNotGroupWhenFull) {
+      config.toolbar.shouldNotGroupWhenFull = true;
     }
     var availablePlugins = ["Selection", "Completion"];
     var pluginsToRemove = availablePlugins.filter(function (plugin) {
-      return !pluginsToAdd.includes(plugin);
+      return !parameterBag.pluginsToAdd.includes(plugin);
     });
     config.removePlugins = [].concat(_toConsumableArray(config.removePlugins), _toConsumableArray(pluginsToRemove));
     config.toolbar.removeItems = [].concat(_toConsumableArray(config.toolbar.removeItems), _toConsumableArray(config.removePlugins.map(function (item) {
@@ -15277,54 +15251,12 @@ RichTextEditor = {
     })));
     return config;
   },
-  initForTeacher: function initForTeacher(parameterBag) {
-    var _this6 = this;
-    var editor = ClassicEditors[parameterBag.editorId];
-    if (editor) {
-      editor.destroy(true);
-    }
-    return ClassicEditor.create(document.getElementById(parameterBag.editorId), this.getConfigForTeacher(parameterBag.allowWsc, [], null, parameterBag.maxWords)).then(function (editor) {
-      ClassicEditors[parameterBag.editorId] = editor;
-      WebspellcheckerTlc.lang(editor, parameterBag.lang);
-      _this6.setupWordCounter(editor, parameterBag.editorId, parameterBag.maxWords, parameterBag.maxWordOverride);
-      // WebspellcheckerTlc.setEditorToReadOnly(editor);
-      _this6.setReadOnly(editor);
-      editor.model.document.on('change:data', function () {
-        console.log('kaas');
-      });
-    })["catch"](function (error) {
-      console.error(error);
-    });
-  },
-  initAssessmentFeedback: function initAssessmentFeedback(parameterBag) {
-    var editor = ClassicEditors[parameterBag.editorId];
-    if (editor) {
-      editor.destroy(true);
-    }
-    var itemsToRemove = {
-      plugins: ["Essentials", "FontFamily", "FontSize", "FontBackgroundColor", "Heading", "Indent", "FontColor", "RemoveFormat", "PasteFromOffice", "WordCount", "WProofreader", "Completion", "Selection"],
-      toolbar: ["outdent", "indent", "completion", "selection", "fontFamily", "fontBackgroundColor", "fontSize", "undo", "redo", "fontColor", "heading", "removeFormat", "wproofreader", "specialCharacters"]
-    };
-    var config = this.getConfigForTeacher(parameterBag.allowWsc, [], itemsToRemove, true);
-    config.toolbar.shouldNotGroupWhenFull = true;
-    return ClassicEditor.create(document.getElementById(parameterBag.editorId), config).then(function (editor) {
-      ClassicEditors[parameterBag.editorId] = editor;
-    })["catch"](function (error) {
-      console.error(error);
-    });
-  },
-  initInlineFeedback: function initInlineFeedback(parameterBag) {
-    var _this7 = this;
-    var editor = ClassicEditors[parameterBag.editorId];
-    if (editor) {
-      editor.destroy(true);
-    }
-    return ClassicEditor.create(document.getElementById(parameterBag.editorId), this.getConfigForTeacher(parameterBag.allowWsc)).then(function (editor) {
-      ClassicEditors[parameterBag.editorId] = editor;
-      _this7.setupWordCounter(editor, parameterBag.editorId);
-    })["catch"](function (error) {
-      console.error(error);
-    });
+  sendInputEventToEditor: function sendInputEventToEditor(editorId, e) {
+    var textarea = document.getElementById(editorId);
+    setTimeout(function () {
+      textarea.value = e.editor.getData();
+    }, 300);
+    textarea.dispatchEvent(new Event("input"));
   },
   /** @TODO: this method should be refactored to setReadOnlyIfApplicable  but it has a reference in readspeaker_tlc.js which i dont want to test 1 day before deployment.*/
   setReadOnly: function setReadOnly(editor) {
@@ -15343,27 +15275,145 @@ RichTextEditor = {
       editor.sourceElement.dispatchEvent(new Event("input"));
     }
   },
-  setupWordCounter: function setupWordCounter(editor, editorId) {
-    var maxWords = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-    var override = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
+  setupWordCounter: function setupWordCounter(editor, parameterBag) {
+    var _this8 = this;
     var wordCountPlugin = editor.plugins.get("WordCount");
-    var wordCountWrapper = document.getElementById("word-count-" + editorId);
+    var wordCountWrapper = document.getElementById("word-count-" + parameterBag.editorId);
     if (wordCountWrapper) {
       wordCountWrapper.appendChild(wordCountPlugin.wordCountContainer);
+      window.dispatchEvent(new CustomEvent("updated-word-count-plugin-container"));
     }
-    if (maxWords) {
-      editor.maxWords = maxWords;
-      wordCountPlugin.on("update", function (event, stats) {
-        console.log(stats.words, event.source.editor.maxWords);
-        var max = parseInt(event.source.editor.maxWords);
-        if (stats.words > max) {
-          event.source.editor.commands.get('undo').execute();
-          console.log('NEE JE MAG NIET MEER');
-        } else {
-          console.log('Niks aan het handje');
+    editor.maxWords = parameterBag.maxWords;
+    editor.maxWordOverride = parameterBag.maxWordOverride;
+    this.handleInputWithMaxWords(editor);
+    editor.updateMaxWords = function (value) {
+      editor.maxWords = parseInt(value);
+      _this8.handleInputWithMaxWords(editor);
+    };
+    editor.model.document.on("change:data", function (event, batch) {
+      _this8.handleInputWithMaxWords(editor, event);
+    });
+    editor.editing.view.document.on("paste", function (event, data) {
+      if (_this8.hasNoWordLimit(editor)) return;
+      var wc = editor.plugins.get("WordCount");
+      var maxWords = parseInt(editor.maxWords);
+      if (wc.words >= maxWords) {
+        data.preventDefault();
+        event.stop();
+      } else {
+        editor.pasted = true;
+        editor.prePasteData = editor.getData();
+      }
+    });
+    editor.editing.view.document.on("keydown", function (event, data) {
+      if (_this8.hasNoWordLimit(editor)) return;
+      if (!editor.disableSpacers) return;
+
+      /* Disable spacebar and enter inputs so new words cannot be created;*/
+      if ([32, 13].includes(data.keyCode)) {
+        data.preventDefault();
+        event.stop();
+      }
+    });
+  },
+  handleInputWithMaxWords: function handleInputWithMaxWords(editor) {
+    if (this.hasNoWordLimit(editor)) return;
+    if (editor.preventUpdateLoop) {
+      editor.preventUpdateLoop = false;
+      return;
+    }
+    var input = editor.commands.get("input");
+    var wc = editor.plugins.get("WordCount");
+    var maxWords = parseInt(editor.maxWords);
+    editor.disableSpacers = wc.words >= maxWords;
+    if (wc.words > maxWords) {
+      input.forceDisabled("maxword-lock");
+      handlePastedData();
+    } else {
+      input.clearForceDisabled("maxword-lock");
+    }
+    function handlePastedData() {
+      if (!editor.pasted) return;
+      editor.setData(editor.prePasteData);
+      editor.preventUpdateLoop = true;
+      editor.pasted = false;
+      setTimeout(function () {
+        editor.model.change(function (writer) {
+          writer.setSelection(editor.model.document.getRoot(), "end");
+        });
+      }, 1);
+    }
+  },
+  hasNoWordLimit: function hasNoWordLimit(editor) {
+    return editor.maxWords === null || editor.maxWordOverride;
+  },
+  getWproofreaderConfig: function getWproofreaderConfig() {
+    return {
+      autoSearch: false,
+      autoDestroy: true,
+      autocorrect: false,
+      autocomplete: false,
+      actionItems: ["addWord", "ignoreAll", "ignore", "settings", "toggle", "proofreadDialog"],
+      enableBadgeButton: true,
+      serviceProtocol: "https",
+      servicePort: "80",
+      serviceHost: "wsc.test-correct.nl",
+      servicePath: "wscservice/api",
+      srcUrl: "https://wsc.test-correct.nl/wscservice/wscbundle/wscbundle.js"
+    };
+  },
+  createEditor: function createEditor(editorId, config) {
+    var resolveCallback = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+    var editor = ClassicEditors[editorId];
+    if (editor) editor.destroy(true);
+    return ClassicEditor.create(document.getElementById(editorId), config).then(function (editor) {
+      ClassicEditors[editorId] = editor;
+      if (typeof resolveCallback === "function") {
+        resolveCallback(editor);
+      }
+    })["catch"](function (error) {
+      console.error(error);
+    });
+  },
+  createTeacherEditor: function createTeacherEditor(parameterBag) {
+    var _arguments = arguments,
+      _this9 = this;
+    return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
+      var resolveCallback;
+      return _regeneratorRuntime().wrap(function _callee$(_context) {
+        while (1) switch (_context.prev = _context.next) {
+          case 0:
+            resolveCallback = _arguments.length > 1 && _arguments[1] !== undefined ? _arguments[1] : null;
+            _context.next = 3;
+            return _this9.createEditor(parameterBag.editorId, _this9.getConfigForTeacher(parameterBag), resolveCallback);
+          case 3:
+            return _context.abrupt("return", _context.sent);
+          case 4:
+          case "end":
+            return _context.stop();
         }
-      });
-    }
+      }, _callee);
+    }))();
+  },
+  createStudentEditor: function createStudentEditor(parameterBag) {
+    var _arguments2 = arguments,
+      _this10 = this;
+    return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
+      var resolveCallback;
+      return _regeneratorRuntime().wrap(function _callee2$(_context2) {
+        while (1) switch (_context2.prev = _context2.next) {
+          case 0:
+            resolveCallback = _arguments2.length > 1 && _arguments2[1] !== undefined ? _arguments2[1] : null;
+            _context2.next = 3;
+            return _this10.createEditor(parameterBag.editorId, _this10.getConfigForStudent(parameterBag), resolveCallback);
+          case 3:
+            return _context2.abrupt("return", _context2.sent);
+          case 4:
+          case "end":
+            return _context2.stop();
+        }
+      }, _callee2);
+    }))();
   }
 };
 

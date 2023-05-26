@@ -2382,7 +2382,6 @@ document.addEventListener("alpine:init", () => {
             this.$nextTick(() => {
                 this.editor = ClassicEditors[editorId];
                 this.wordContainer = this.$root.querySelector(".ck-word-count__words");
-                // this.$root.querySelector(".ck-word-count__characters")?.remove();
                 this.wordContainer.style.display = "flex";
                 this.wordContainer.parentElement.style.display = "flex";
 
@@ -2400,7 +2399,8 @@ document.addEventListener("alpine:init", () => {
             let element = document.createElement("span");
             element.id = spanId;
             element.innerHTML = `/${value ?? 0}`;
-            this.wordContainer.parentNode.insertBefore(element, this.wordContainer.nextSibling);
+
+            this.wordContainer.parentNode.append(element);
 
             this.editor.maxWords = value;
         }

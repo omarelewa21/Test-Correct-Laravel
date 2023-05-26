@@ -41,7 +41,7 @@
                 </x-input.toggle-row-with-title>
             </div>
             <div class="">
-                <x-input.toggle-row-with-title x-model="maxWords">
+                <x-input.toggle-row-with-title wire:model="question.text_formatting">
                     <x-icon.font class="min-w-fit" />
                     <span class="regular">@lang('cms.text_formatting')</span>
                     <x-slot:toolTip>@lang('cms.text_formatting_tooltip')</x-slot:toolTip>

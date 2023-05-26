@@ -9,7 +9,7 @@
                     let editor = ClassicEditors[el.id];
                     let isFocused = editor && editor.ui.focusTracker.isFocused;                                                 // detect if the editor is in focus
                     if (editor) editor.destroy(true);
-                    await RichTextEditor.initClassicEditorForStudentplayer(el.id,'{{ $question->getKey() }}', this.allowWsc)   // await for the editor to be initialized
+                    await RichTextEditor.initClassicEditorForStudentPlayer(el.id,'{{ $question->getKey() }}', this.allowWsc)   // await for the editor to be initialized
                     editor = ClassicEditors[el.id]                                                                              // get the new editor
                     if (isFocused) editor.focus();                                                                              // if the editor was in focus, focus it again   
                     editor.model.change( writer => {
@@ -43,7 +43,7 @@
                         return;
                     }
                     ReadspeakerTlc.ckeditor.reattachReadableAreaAndDestroy('{{ $editorId }}');
-                    // RichTextEditor.initClassicEditorForStudentplayer('{{$editorId}}','{{ $question->getKey() }}', @this.allowWsc);
+                    // RichTextEditor.initClassicEditorForStudentPlayer('{{$editorId}}','{{ $question->getKey() }}', @this.allowWsc);
                 })
                 document.addEventListener('readspeaker_started', () => {
                     if(ReadspeakerTlc.guard.shouldNotDetachCkEditor(document.querySelector( '#{{ $editorId }}' ))){

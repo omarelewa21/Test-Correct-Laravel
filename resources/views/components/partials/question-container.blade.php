@@ -3,11 +3,17 @@
 'number',
 ])
 <div x-cloak
-     x-data="{ showMe: false, progressBar: false, startTime: 0, endTime: 1, progress: 0 }"
+     x-data="{ showMe: false, progressBar: false, startTime: 0, endTime: 1, progress: 0, dispatchEditorReinitializer: false }"
      x-init="
+
         $watch('showMe', () => {
             if(showMe) {
                 $dispatch('visible-component', {el: $el});
+                if(dispatchEditorReinitializer) {
+                    $dispatch('reinitialize-editor-editor-{{$question->id}}')
+                }
+
+                dispatchEditorReinitializer = true;
                 return;
             }
          })

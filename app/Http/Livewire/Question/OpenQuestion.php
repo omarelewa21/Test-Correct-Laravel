@@ -13,7 +13,10 @@ use tcCore\TestTake;
 
 class OpenQuestion extends TCComponent
 {
-    use WithAttachments, WithNotepad, withCloseable, WithGroups;
+    use WithAttachments;
+    use withCloseable;
+    use WithGroups;
+    use WithNotepad;
 
     public $answer = '';
     public $question;
@@ -25,7 +28,7 @@ class OpenQuestion extends TCComponent
 
     public function mount()
     {
-        $this->editorId = 'editor_'.$this->question->id;
+        $this->editorId = 'editor-'.$this->question->id;
 
         $temp = (array) json_decode($this->answers[$this->question->uuid]['answer']);
         if (key_exists('value', $temp)) {
@@ -48,8 +51,8 @@ class OpenQuestion extends TCComponent
 
     public function render()
     {
+        return view('livewire.question.open-question');
         if ($this->question->isSubType('short')) {
-            return view('livewire.question.open-question');
         }
 
         return view('livewire.question.open-medium-question');
