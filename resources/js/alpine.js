@@ -2062,7 +2062,7 @@ document.addEventListener("alpine:init", () => {
             });
         }
     }));
-    Alpine.data("scoreSlider", (score, model, maxScore, halfPoints, disabled, coLearning, focusInput) => ({
+    Alpine.data("scoreSlider", (score, model, maxScore, halfPoints, disabled, coLearning, focusInput, continuousSlider) => ({
         score,
         model,
         maxScore,
@@ -2073,6 +2073,7 @@ document.addEventListener("alpine:init", () => {
         persistantScore: null,
         inputBox: null,
         focusInput,
+        continuousSlider,
         getSliderBackgroundSize(el) {
             if (this.score === null) return 0;
 
@@ -2082,6 +2083,10 @@ document.addEventListener("alpine:init", () => {
             return (value - min) / (max - min) * 100;
         },
         setThumbOffset() {
+            if(continuousSlider) {
+                return;
+            }
+
             let el = document.querySelector('.score-slider-input');
 
             var offsetFromCenter = -40;
