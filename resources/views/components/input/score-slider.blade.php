@@ -8,8 +8,8 @@
         @js($coLearning),
         @js($focusInput)
      )"
-     x-on:updated-score.window="skipSync = true; score = $event.detail.score; updateContinuousSlider()"
-     x-on:new-score="score = $event.detail.score"
+     x-on:updated-score.window="skipSync = true; score = $event.detail.score; updateContinuousSlider(); setThumbOffset($el, score, maxScore);"
+     x-on:new-score="score = $event.detail.score; setThumbOffset($el, score, maxScore);"
      x-on:scoring-elements-error.window="markInputElementsWithError()"
         {{ $attributes->except(['wire:model', 'class']) }}
         @class([
