@@ -7139,6 +7139,15 @@ video {
   --tw-border-opacity: 1;
   border-color: rgb(255 255 255 / var(--tw-border-opacity));
 }
+.border-\[color\:rgba\(0_77_245_0\.15\)\]{
+  border-color: rgba(0 77 245 0.15);
+}
+.border-\[color\:rgba\(0\2c 77\2c 245\2c 0\.15\)\]{
+  border-color: rgba(0,77,245,0.15);
+}
+.border-\[color\:rgba\(0\2c 77\2c 245\2c 15\)\]{
+  border-color: rgba(0,77,245,15);
+}
 .border-l-student{
   --tw-border-opacity: 1;
   border-left-color: rgb(236 219 0 / var(--tw-border-opacity));
@@ -8795,8 +8804,21 @@ h2.student-testtake-answers-separator span {
   opacity: 0.05;
 }
 
+.group:focus .group-focus\:border{
+  border-width: 1px;
+}
+
+.group:focus .group-focus\:border-\[color\:rgba\(0\2c 77\2c 245\2c 0\.15\)\]{
+  border-color: rgba(0,77,245,0.15);
+}
+
 .group:focus .group-focus\:bg-primary\/5{
   background-color: rgb(0 77 245 / 0.05);
+}
+
+.group:focus .group-focus\:text-primary{
+  --tw-text-opacity: 1;
+  color: rgb(0 77 245 / var(--tw-text-opacity));
 }
 
 .group:active .group-active\:bg-primary\/10{

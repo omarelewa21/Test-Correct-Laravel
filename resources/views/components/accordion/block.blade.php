@@ -45,7 +45,7 @@
                               x-bind:title="expanded ? $el.dataset.transCollapse : $el.dataset.transExpand"
                               @class([
                                 'flex items-center justify-center rounded-full min-w-[40px] w-10 h-10 transition',
-                            'group-hover:bg-primary/5 group-active:bg-primary/10 group-focus:bg-primary/5' => !$disabled
+                            'group-hover:bg-primary/5 group-active:bg-primary/10 group-focus:bg-primary/5 group-focus:text-primary group-focus:border group-focus:border-[color:rgba(0,77,245,0.15)]' => !$disabled
                                 ])
                                 data-trans-collapse="@lang('general.inklappen')"
                                 data-trans-expand="@lang('general.uitklappen')"
