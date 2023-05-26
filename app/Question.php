@@ -756,11 +756,11 @@ class Question extends MtiBaseModel
 
     public function scopePublishedFiltered($query, $filters = [], $sorting = [])
     {
-        [$query, $joins] = $this->handleSearchFilters($query, $filters);
+        [$searchJoins] = $this->handleSearchFilters($query, $filters);
 
         $this->handlePublishedFilterParams($query, $filters);
         $this->handleFilteredSorting($query, $sorting);
-        $this->handleQueryJoins($query, array_unique($joins));
+        $this->handleQueryJoins($query, array_unique($searchJoins));
         return $query;
     }
 
