@@ -1,8 +1,8 @@
 @if($attachment)
     <div
         id="attachment"
-        class="fixed top-5 left-5 z-30 shadow-lg border border-blue-grey rounded-10 bg-black {{ $this->getAttachmentModalSize() }}" 
-        @if($this->attachmentType != 'audio') x-init="makeResizableDiv($el, '{{$this->attachmentType}}')" @endif
+        class="fixed top-5 left-5 z-30 mx-8 shadow-lg border border-blue-grey rounded-10 bg-black {{ $this->getAttachmentModalSize() }}" 
+        @if($this->attachmentType != 'audio') x-init="makeAttachmentResizable($el, '{{$this->attachmentType}}')" @endif
         wire:ignore
     >
         <div class="box-border w-full h-full @if($this->attachmentType != 'audio') resizers @endif">
@@ -13,13 +13,13 @@
             <div class='resizer bottom-left'></div>
             <div class='resizer bottom-right'></div>
 
-            <div class="flex-col relative w-full h-full rounded-10 ">
+            <div class="flex-col relative w-full h-full rounded-10 overflow-auto @if($this->attachmentType == 'image') image-max-height max-h-[80vh] @endif">
                 <div class="flex absolute top-0 right-0 justify-end space-x-2">
                     <x-button.primary wire:click="closeAttachmentModal">
                         <x-icon.close class="text-white"/>
                     </x-button.primary>
                 </div>
-                <div class="flex w-full h-full rounded-10 attachment-iframe-wrapper @if($this->attachmentType == 'image') max-h-[80vh] @endif">
+                <div class="flex w-full h-full rounded-10 attachment-iframe-wrapper">
                     @if($this->attachmentType == 'video')
                         <iframe class="w-full h-full" src="{{ $attachment->getVideoLink() }}"></iframe>
                     @elseif($this->attachmentType == 'pdf')
@@ -28,8 +28,8 @@
                     @elseif($this->attachmentType == 'audio')
                         <x-attachment.preview-audio :attachment="$attachment" :questionId="$questionId"/>
                     @else
-                        <img class="w-full h-full"
-                                src="{{ route('teacher.preview.question-attachment-show', ['attachment' => $attachment->uuid, 'question' => $questionId], false) }}" alt=""/>
+                        <img src="{{ route('teacher.preview.question-attachment-show', ['attachment' => $attachment->uuid, 'question' => $questionId], false) }}"
+                            alt=""/>
                     @endif
                 </div>
             </div>

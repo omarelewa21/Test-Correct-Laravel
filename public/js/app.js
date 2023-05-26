@@ -8499,7 +8499,7 @@ window.plyrPlayer = {
  * @param {object} element
  * @param {string} attachmentType
  */
-window.makeResizableDiv = function (element) {
+window.makeAttachmentResizable = function (element) {
   var attachmentType = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
   var resizers = element.querySelectorAll('.resizer');
   var iframe = element.querySelector('.resizers iframe');
@@ -8514,6 +8514,7 @@ window.makeResizableDiv = function (element) {
   var original_mouse_x = 0;
   var original_mouse_y = 0;
   var width, height;
+  var img, originalImageWidth, originalImageHeight; // Specific for image attachments
   var _loop = function _loop() {
     var currentResizer = resizers[i];
     currentResizer.addEventListener('mousedown', resizeMouseDown);
@@ -8532,62 +8533,85 @@ window.makeResizableDiv = function (element) {
       window.addEventListener('ontouchmove', resize);
       window.addEventListener('mouseup', stopResize);
       window.addEventListener('ontouchend', stopResize);
+
+      /*************************** Main *****************************/
       function resize(e) {
         if (attachmentType === 'pdf' || attachmentType === 'video') {
           iframeTimeout = temporarilyDisablePointerEvents(iframe, iframeTimeout);
+        } else if (attachmentType === 'image') {
+          setImageProperties(element);
         }
-        if (currentResizer.classList.contains('bottom-right')) {
-          width = original_width + (e.pageX - original_mouse_x);
-          height = original_height + (e.pageY - original_mouse_y);
-          if (width > minimum_size && e.pageX <= maximum_x) {
-            element.style.width = width + 'px';
-          }
-          if (height > minimum_size && e.pageY <= maximum_y) {
-            element.style.height = height + 'px';
-          }
-        } else if (currentResizer.classList.contains('bottom-left')) {
-          height = original_height + (e.pageY - original_mouse_y);
-          width = original_width - (e.pageX - original_mouse_x);
-          if (height > minimum_size && e.pageY <= maximum_y) {
-            element.style.height = height + 'px';
-          }
-          if (width > minimum_size && e.pageX > 0) {
-            element.style.width = width + 'px';
-            element.style.left = original_x + (e.pageX - original_mouse_x) + 'px';
-          }
-        } else if (currentResizer.classList.contains('top-right')) {
-          width = original_width + (e.pageX - original_mouse_x);
-          height = original_height - (e.pageY - original_mouse_y);
-          if (width > minimum_size && e.pageX <= maximum_x) {
-            element.style.width = width + 'px';
-          }
-          if (height > minimum_size && e.clientY > 0) {
-            element.style.height = height + 'px';
-            element.style.top = original_y + (e.pageY - original_mouse_y) + 'px';
-          }
-        } else {
-          width = original_width - (e.pageX - original_mouse_x);
-          height = original_height - (e.pageY - original_mouse_y);
-          if (width > minimum_size && e.pageX > 0) {
-            element.style.width = width + 'px';
-            element.style.left = original_x + (e.pageX - original_mouse_x) + 'px';
-          }
-          if (height > minimum_size && e.clientY > 0) {
-            element.style.height = height + 'px';
-            element.style.top = original_y + (e.pageY - original_mouse_y) + 'px';
-          }
-        }
+        if (currentResizer.classList.contains('bottom-right')) resizeBottomRight(e);else if (currentResizer.classList.contains('bottom-left')) resizeBottomLeft(e);else if (currentResizer.classList.contains('top-right')) resizeTopRight(e);else resizeTopLeft(e);
+        if (attachmentType === 'image') setImageWidthAndHeight(element);
       }
       function stopResize() {
-        if (attachmentType === 'image') {
-          var ratio = original_height / original_width;
-          element.style.height = ratio * width + 'px';
-        }
         if (attachmentType === 'pdf' || attachmentType === 'video') {
           resetTemporarilyDisabledPointerEvents(iframe, iframeTimeout);
         }
         window.removeEventListener('mousemove', resize);
         window.removeEventListener('touchmove', resize);
+      }
+
+      /*************************** Helpers *****************************/
+      function resizeBottomRight(e) {
+        width = original_width + (e.pageX - original_mouse_x);
+        height = original_height + (e.pageY - original_mouse_y);
+        if (width > minimum_size && e.pageX <= maximum_x) {
+          element.style.width = width + 'px';
+        }
+        if (height > minimum_size && e.pageY <= maximum_y) {
+          element.style.height = height + 'px';
+        }
+      }
+      function resizeBottomLeft(e) {
+        width = original_width - (e.pageX - original_mouse_x);
+        height = original_height + (e.pageY - original_mouse_y);
+        if (width > minimum_size && e.pageX > 0) {
+          element.style.width = width + 'px';
+          element.style.left = original_x + (e.pageX - original_mouse_x) + 'px';
+        }
+        if (height > minimum_size && e.pageY <= maximum_y) {
+          element.style.height = height + 'px';
+        }
+      }
+      function resizeTopRight(e) {
+        width = original_width + (e.pageX - original_mouse_x);
+        height = original_height - (e.pageY - original_mouse_y);
+        if (width > minimum_size && e.pageX <= maximum_x) {
+          element.style.width = width + 'px';
+        }
+        if (height > minimum_size && e.clientY > 0) {
+          element.style.height = height + 'px';
+          element.style.top = original_y + (e.pageY - original_mouse_y) + 'px';
+        }
+      }
+      function resizeTopLeft(e) {
+        width = original_width - (e.pageX - original_mouse_x);
+        height = original_height - (e.pageY - original_mouse_y);
+        if (width > minimum_size && e.pageX > 0) {
+          element.style.width = width + 'px';
+          element.style.left = original_x + (e.pageX - original_mouse_x) + 'px';
+        }
+        if (height > minimum_size && e.clientY > 0) {
+          element.style.height = height + 'px';
+          element.style.top = original_y + (e.pageY - original_mouse_y) + 'px';
+        }
+      }
+      function setImageProperties() {
+        if (typeof img === 'undefined') {
+          img = element.querySelector('img');
+          originalImageWidth = img.width;
+          originalImageHeight = img.height;
+          img.style.maxWidth = 'initial'; // Remove max width to keep aspect ratio - by default img takes max-width of 100%
+          img.closest('.image-max-height').style.maxHeight = 'initial'; // Remove max height from parent dev to allow img expands if bigger than the parent when resized
+        }
+      }
+
+      function setImageWidthAndHeight() {
+        img.style.height = originalImageHeight + 'px';
+        img.style.width = originalImageWidth + 'px';
+        img.style.marginLeft = 'auto';
+        img.style.marginRight = 'auto';
       }
     }
   };
@@ -8742,7 +8766,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "662d128370816e2bbb66",
+  key: "346b9b2cf30ab766e6a6",
   cluster: "eu",
   forceTLS: true
 });

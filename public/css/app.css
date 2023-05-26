@@ -12782,6 +12782,10 @@ ul ul ul {
     scrollbar-width: none;
 }
 
+.max-width-90 {
+    max-width: 90%;
+}
+
 .hide-scrollbar::-webkit-scrollbar {
     display: none;
 }
