@@ -2086,6 +2086,13 @@ document.addEventListener("alpine:init", () => {
             if(continuousSlider) {
                 return;
             }
+            if(this.score > this.maxScore) {
+                this.score = this.maxScore;
+            }
+            if (this.score < 0) {
+                this.score = 0;
+            }
+
 
             let el = document.querySelector('.score-slider-input');
 

@@ -241,6 +241,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         ];
         if ($reset) {
             $updates['assessing_question_id'] = null;
+            $updates['assessing_answer_index'] = null;
         }
         TestTake::whereUuid($this->testTakeUuid)->update($updates);
 
@@ -532,6 +533,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     {
         $this->currentAnswer = $answer;
         $this->answerNavigationValue = $index;
+        TestTake::whereUuid($this->testTakeUuid)->update(['assessing_answer_index' => $index]);
     }
 
     /**
@@ -681,14 +683,37 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             return;
         }
 
+        if (!$this->openOnly) {
+            $previousId = $this->testTakeData->fresh()->assessing_question_id;
+
+            if (!$previousId) {
+                $this->setNavigationDataToStartPosition();
+                return;
+            }
+
+            $previouslyAssessedQuestion = $this->questions
+                ->discussionTypeFiltered($this->openOnly)
+                ->where('id', $previousId)
+                ->first();
+
+            $previousAnswerIndex = $this->getPreviouslyAssessedAnswerIndex($previouslyAssessedQuestion);
+
+            $firstUnscoredAnswer = $this->getFirstAnswerWhichDoesntHaveATeacherOrSystemRating();
+            if ($this->previouslyAssessedQuestionHasUnscoredOpenQuestionAnswerBeforeIt(
+                $previouslyAssessedQuestion,
+                $firstUnscoredAnswer
+            )) {
+                $this->setNavigationDataWithFirstUnscoredAnswer($firstUnscoredAnswer);
+                return;
+            }
+
+            $this->setNavigationDataWithPreviouslyAssessedQuestion($previouslyAssessedQuestion, $previousAnswerIndex);
+            return;
+        }
+
+
         $firstAnswer = $this->getFirstAnswerWhichDoesntHaveATeacherOrSystemRating() ?? $this->answers->last();
-
-        $firstQuestionForAnswer = $this->questions->discussionTypeFiltered($this->openOnly)
-            ->where('id', $firstAnswer->question_id)
-            ->first();
-
-        $this->questionNavigationValue = $this->getNavigationValueForQuestion($firstQuestionForAnswer);
-        $this->answerNavigationValue = $this->students->search($firstAnswer->test_participant_id) + 1;
+        $this->setNavigationDataWithFirstUnscoredAnswer($firstAnswer);
     }
 
     private function validQueryStringPropertiesForNavigation(): bool
@@ -797,6 +822,19 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             ->count();
 
         return $this->questions->discussionTypeFiltered($this->openOnly)->count() - $unansweredQuestionCount;
+    }
+
+    private function setNavigationDataWithPreviouslyAssessedQuestion($previouslyAssessedQuestion, $answerIndex): void
+    {
+        $this->questionNavigationValue = $this->getNavigationValueForQuestion($previouslyAssessedQuestion);
+
+        $this->answerNavigationValue = $answerIndex ?? $this->students->search(
+            $this->answers
+                ->discrepancyFiltered((bool)$this->assessmentContext['assessment_skip_no_discrepancy_answer'])
+                ->where('question_id', $previouslyAssessedQuestion->id)
+                ->first()
+                ->test_participant_id
+        ) + 1;
     }
 
     private function getQuestionIdsForCurrentAssessmentType()
@@ -945,6 +983,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     private function getFirstAnswerWhichDoesntHaveATeacherOrSystemRating(): ?Answer
     {
         return $this->answers
+            ->discrepancyFiltered((bool)$this->assessmentContext['assessment_skip_no_discrepancy_answer'])
             ->filter(function ($answer) {
                 $needsAnswerRating = $this->questions->first(fn($q) => $q->id === $answer->question_id
                 )->isDiscussionTypeOpen;
@@ -1135,4 +1174,81 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         }
         return false;
     }
+
+    private function getDefaultAnswerIndexForPreviouslyAssessedQuestion($previouslyAssessedQuestion): int
+    {
+        return $this->students->search(
+                $this->getAnswersForCurrentQuestion($previouslyAssessedQuestion)->first()->test_paricipant_id
+            ) + 1;
+    }
+
+    /**
+     * @param $previouslyAssessedQuestion
+     * @return bool
+     */
+    private function previouslyAssessedQuestionHasUnscoredOpenQuestionAnswerBeforeIt(
+        $previouslyAssessedQuestion,
+        $firstUnscoredAnswer
+    ): bool {
+        if (!$firstUnscoredAnswer) {
+            return false;
+        }
+
+        $previouslyAssessedQuestionPosition = $this->questions
+            ->discussionTypeFiltered($this->openOnly)
+            ->search(fn($question) => $question->id === $previouslyAssessedQuestion->id);
+
+        $firstUnscoredAnswerQuestionPosition = $this->questions
+            ->discussionTypeFiltered($this->openOnly)
+            ->search(fn($question) => $question->id === $this->questions
+                    ->where('id', $firstUnscoredAnswer->question_id)
+                    ->first()->id
+            );
+
+        return $firstUnscoredAnswerQuestionPosition < $previouslyAssessedQuestionPosition;
+    }
+
+    private function setNavigationDataWithFirstUnscoredAnswer(Answer $firstAnswer)
+    {
+        $firstQuestionForAnswer = $this->getQuestionForAnswer($firstAnswer);
+
+        $this->questionNavigationValue = $this->getNavigationValueForQuestion($firstQuestionForAnswer);
+        $this->answerNavigationValue = $this->students->search($firstAnswer->test_participant_id) + 1;
+    }
+
+    /**
+     * @return void
+     */
+    private function setNavigationDataToStartPosition(): void
+    {
+        $firstAnswer = $this->answers
+            ->discrepancyFiltered((bool)$this->assessmentContext['assessment_skip_no_discrepancy_answer'])
+            ->first();
+
+        $firstQuestionForAnswer = $this->getQuestionForAnswer($firstAnswer);
+
+        $this->questionNavigationValue = $this->getNavigationValueForQuestion($firstQuestionForAnswer);
+        $this->answerNavigationValue = $this->students->search($firstAnswer->test_participant_id) + 1;
+    }
+
+    private function getQuestionForAnswer(Answer $answer): ?Question
+    {
+        return $this->questions
+            ->discussionTypeFiltered($this->openOnly)
+            ->first(fn($question) => $question->id === $answer->question_id);
+    }
+
+    /**
+     * @param $previouslyAssessedQuestion
+     * @return int
+     */
+    private function getPreviouslyAssessedAnswerIndex($previouslyAssessedQuestion): int
+    {
+        $previousAnswerIndex = $this->testTakeData->fresh()->assessing_answer_index;
+
+        return $previousAnswerIndex ?? $this->getDefaultAnswerIndexForPreviouslyAssessedQuestion(
+            $previouslyAssessedQuestion
+        );
+    }
+
 }
