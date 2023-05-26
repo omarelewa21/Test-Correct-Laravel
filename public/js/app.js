@@ -7708,6 +7708,12 @@ document.addEventListener("alpine:init", function () {
         if (continuousSlider) {
           return;
         }
+        if (this.score > this.maxScore) {
+          this.score = this.maxScore;
+        }
+        if (this.score < 0) {
+          this.score = 0;
+        }
         var el = document.querySelector('.score-slider-input');
         var offsetFromCenter = -40;
         offsetFromCenter += this.score / this.maxScore * 80;
