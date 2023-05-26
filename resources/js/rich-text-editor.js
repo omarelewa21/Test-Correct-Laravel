@@ -69,6 +69,7 @@ RichTextEditor = {
                 WebspellcheckerTlc.lang(editor, lang);
                 // WebspellcheckerTlc.setEditorToReadOnly(editor);
                 this.setReadOnly(editor);
+                window.editor = editor;
             })
             .catch(error => {
                 console.error(error);

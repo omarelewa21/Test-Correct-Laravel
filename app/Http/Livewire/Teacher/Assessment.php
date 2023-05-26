@@ -883,7 +883,8 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
         $multiplier = $assessedAnswers->filter(fn($item, $key) => $key <= $maxAssessedValue)->count();
 
-        $newPercentage = floor($percentagePerAnswer * $multiplier);
+        $floatPercentage = $percentagePerAnswer * $multiplier;
+        $newPercentage = $floatPercentage > 99.99 ? 100 : floor($floatPercentage);
 
         if ($newPercentage > $this->progress) {
             $this->progress = $newPercentage;

@@ -103,6 +103,7 @@ return [
     'Kies een waarde'                                                                        => 'Select an option',
     'Geen resultaat gevonden'                                                                => 'No results found',
     'Selectievak toevoegen'                                                                  => 'Add selection item',
+    'Gatentekst toevoegen'                                                                   => 'Gatentekst toevoegen',
     'Antwoordopties'                                                                         => 'Answer options',
     'Optie toevoegen'                                                                        => 'Add options',
     'Toevoegen'                                                                              => 'Add',

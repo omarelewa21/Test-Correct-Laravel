@@ -126,6 +126,130 @@ document.addEventListener("alpine:init", () => {
             // })
         }
     }));
+    Alpine.data("completionOptions", (entangle) => ({
+        showPopup: entangle.value,
+        editorId: entangle.editorId,
+        hasError: { empty: [] },
+        data: {
+            elements: []
+        },
+        maxOptions: 10,
+        minOptions: 1,
+
+        init() {
+            for (let i = 0; i < this.minOptions; i++) {
+                this.addRow();
+            }
+        },
+
+        initWithCompletion() {
+            let editor = window.editor;
+            // let selection = editor.data.stringify(editor.model.getSelectedContent(editor.model.document.selection));
+
+            let selection = "";
+            let range = editor.model.document.selection.getFirstRange();
+            for (const value of range.getItems()) {
+                selection = selection + value.data;
+            }
+            let text = selection
+                .trim()
+                .replace("[", "")
+                .replace("]", "");
+
+
+            let content = text;
+            if (text.contains("|")) {
+                content = text.split("|");
+            }
+
+            let currentDataRows = this.data.elements.length;
+
+            if (!Array.isArray(content)) {
+                this.data.elements[0].value = content;
+                return;
+            }
+
+            content.forEach((word, key) => {
+                if (key === currentDataRows) {
+                    this.addRow();
+                    currentDataRows++;
+                }
+                this.data.elements[key].value = word.trim();
+            });
+        },
+
+        addRow(value = "" ) {
+            let component = {
+                id: this.data.elements.length,
+                value: value,
+                correct: true
+            };
+            this.data.elements.push(component);
+        },
+
+        trash(event, element) {
+            event.stopPropagation();
+            this.data.elements = this.data.elements.filter(el => el.id != element.id);
+            this.data.elements.forEach((el, key) => el.id = key);
+        },
+
+        insertDataInEditor: function() {
+
+            let result = "[" + this.data.elements.map( (item) => item.value).join("|") + "]";
+
+            let lw = livewire.find(document.getElementById("cms").getAttribute("wire:id"));
+            lw.set("showSelectionOptionsModal", true);
+
+            window.editor.model.change(writer => {
+                window.editor.model.insertContent(
+                    writer.createText(result)
+                );
+            });
+
+            setTimeout(() => {
+                this.$wire.setQuestionProperty("question", window.editor.getData());
+            }, 300);
+        },
+        validateInput: function() {
+            const emptyFields = this.data.elements.filter(element => element.value === "");
+
+            if (emptyFields.length !== 0 ) {
+                this.hasError.empty = emptyFields.map(item => item.id);
+
+                Notify.notify("Niet alle velden zijn (correct) ingevuld", "error");
+                return false;
+            }
+
+            return true;
+        },
+        save() {
+            if (!this.validateInput()) {
+                return;
+            }
+
+            this.insertDataInEditor();
+
+            this.closePopup();
+        },
+        disabled() {
+            if (this.data.elements.length >= this.maxOptions) {
+                return true;
+            }
+            return !!this.data.elements.find(element => element.value === "");
+        },
+        closePopup() {
+            this.showPopup = false;
+            this.data.elements = [];
+            this.init();
+        },
+        canDelete() {
+            return this.data.elements.length <= 1;
+        },
+        resetHasError() {
+            this.hasError.empty = [];
+        }
+    }));
+
     Alpine.data("selectionOptions", (entangle) => ({
         showPopup: entangle.value,
         editorId: entangle.editorId,
