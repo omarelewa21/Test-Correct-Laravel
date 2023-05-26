@@ -2080,8 +2080,8 @@ document.addEventListener("alpine:init", () => {
         setThumbOffset() {
             let el = document.querySelector('.score-slider-input');
 
-            var offsetFromCenter = -45;
-            offsetFromCenter += (this.score/this.maxScore) * 90;
+            var offsetFromCenter = -40;
+            offsetFromCenter += (this.score/this.maxScore) * 80;
 
             el.style.setProperty("--slider-thumb-offset", `calc(${offsetFromCenter}% + 1px)`);
         },
