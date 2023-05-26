@@ -95,8 +95,8 @@ class AnalysesAttainmentDashboard extends AnalysesDashboard
     public function redirectBack()
     {
         return redirect(
-            $this->getHelper()->getRouteForSubjectShow(
-                Subject::whereUuid($this->subject)->first()
+            $this->getHelper()->getRouteForSubjectShowByUuid(
+               $this->subject
             )
         );
     }
@@ -114,9 +114,25 @@ class AnalysesAttainmentDashboard extends AnalysesDashboard
                 $this->getTeachersByFilterValues(),
                 $this->getIsLearningGoalFilter()
             );
+        $attainmentResults = PValueTimeSeriesWeekRepository::getForStudentBySubjectForAttainment(
+            $this->getHelper()->getForUser(),
+            Subject::whereUuid($this->subject)->first(),
+            $this->getPeriodsByFilterValues(),
+            $this->getEducationLevelYearsByFilterValues(),
+            $this->getTeachersByFilterValues(),
+//            $this->getIsLearningGoalFilter(),
+            $this->attainment
+        );
 
         $set = [];
         $names = [];
+        foreach ($attainmentResults as $result) {
+            if (!in_array($result->name, $names)) {
+                $names[] = $result->name;
+            }
+            $set[$result->week_date][] = $result->score ?? 'missing';// $prevScore;
+        }
+
         foreach($results as $result) {
             if (!in_array($result->id, $names)) {
                 $names[] = $result->id;
@@ -129,7 +145,8 @@ class AnalysesAttainmentDashboard extends AnalysesDashboard
         })->values()->toArray();
 
         $eindtermen = collect($names)->map(function ($id) {
-            return Attainment::withoutGlobalScope(AttainmentScope::class)->find($id)->name;
+            $attainment = Attainment::withoutGlobalScope(AttainmentScope::class)->find($id);
+            return $attainment? $attainment->name : __('student.attainment total');
         })->toArray();
 
         return [false, $newSet, $eindtermen];

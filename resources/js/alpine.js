@@ -1132,8 +1132,20 @@ document.addEventListener("alpine:init", () => {
                 chart.interactivity().hoverMode("single");
 
                 this.subjects.forEach((el, index) => {
+                    const totalDefinitions = [
+                        "Vak totaal",
+                        "Subject total",
+                        "Attainement total",
+                        "Eindterm totaal",
+                    ];
+                    let strokeWidth = 2;
+                    let strokeColor = this.colors[index];
                     let cnt = index + 1;
                     let mapping = table.mapAs();
+                    if (totalDefinitions.includes(el)) {
+                        strokeWidth = 3;
+                        strokeColor = "var(--system-base)";
+                    }
                     mapping.addField("value", cnt);
 
                     let series = chart.plot(0).line(mapping);
@@ -1149,7 +1161,7 @@ document.addEventListener("alpine:init", () => {
                     marker1.size(4);
                     marker1.type("circle");
 
-                    series.normal().stroke(this.colors[index], 2);
+                    series.normal().stroke(strokeColor, strokeWidth);
                     series.connectMissingPoints(true);
                 });
 

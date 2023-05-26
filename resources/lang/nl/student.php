@@ -172,6 +172,7 @@ return [
     'description'                                              => 'Omschrijving',
     'eindterm'                                                 => 'eindterm',
     'subject total'                                            => 'Vak totaal',
+    'attainment total'                                         => 'Eindterm totaal',
     'percentage per subsubeindterm'                            => 'Percentage per subsubeindterm',
     'percentage per subsubleerdoel'                            => 'Percentage per subsubleerdoel',
     'ontwikkeling percentage over tijd'                        => 'Ontwikkeling percentage over tijd',
