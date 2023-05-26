@@ -6,7 +6,8 @@
         @js($halfPoints),
         @js($disabled),
         @js($coLearning),
-        @js($focusInput)
+        @js($focusInput),
+        @js($continuousScoreSlider)
      )"
      x-on:updated-score.window="skipSync = true; score = $event.detail.score; updateContinuousSlider(); setThumbOffset($el, score, maxScore);"
      x-on:new-score="score = $event.detail.score; setThumbOffset($el, score, maxScore);"

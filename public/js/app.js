@@ -7684,7 +7684,7 @@ document.addEventListener("alpine:init", function () {
     };
   });
 
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("scoreSlider", function (score, model, maxScore, halfPoints, disabled, coLearning, focusInput) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("scoreSlider", function (score, model, maxScore, halfPoints, disabled, coLearning, focusInput, continuousSlider) {
     return {
       score: score,
       model: model,
@@ -7696,6 +7696,7 @@ document.addEventListener("alpine:init", function () {
       persistantScore: null,
       inputBox: null,
       focusInput: focusInput,
+      continuousSlider: continuousSlider,
       getSliderBackgroundSize: function getSliderBackgroundSize(el) {
         if (this.score === null) return 0;
         var min = el.min || 0;
@@ -7704,6 +7705,9 @@ document.addEventListener("alpine:init", function () {
         return (value - min) / (max - min) * 100;
       },
       setThumbOffset: function setThumbOffset() {
+        if (continuousSlider) {
+          return;
+        }
         var el = document.querySelector('.score-slider-input');
         var offsetFromCenter = -40;
         offsetFromCenter += this.score / this.maxScore * 80;
