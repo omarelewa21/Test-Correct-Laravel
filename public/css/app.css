@@ -5830,8 +5830,18 @@ input.datepicker {
     opacity: 0%; /*opacity instead of visibilty for transition*/
 }
 
+#co-learning-teacher-page .student-info-container .show-on-smartboard:active {
+    background-color: rgba(var(--primary-rgb), 0.1);
+}
+
+#co-learning-teacher-page .student-info-container .show-on-smartboard:hover,
 #co-learning-teacher-page .student-info-container .show-on-smartboard:focus {
-    border-color: rgba(0,77,245,0.15)
+    background-color: rgba(0,77,245,0.05);
+    color: var(--teacher-primary);
+}
+
+#co-learning-teacher-page .student-info-container .show-on-smartboard:focus {
+    border: 1px solid rgba(0,77,245,0.15);
 }
 
 #co-learning-teacher-page .student-info-container .show-on-smartboard svg,
@@ -5990,7 +6000,7 @@ input.datepicker {
 
 .badge-view:hover {
     cursor: pointer;
-    background-color: #f3f7ff;
+    /*background-color: #f3f7ff;*/
     box-shadow: 0 3px 6px 0 rgba(4, 31, 116, 0.2);
     color: var(--teacher-primary);
 }
@@ -13065,12 +13075,30 @@ ul ul ul {
   opacity: 0.05;
 }
 
+.group:focus .group-focus\:border{
+  border-width: 1px;
+}
+
+.group:focus .group-focus\:border-\[color\:rgba\(0\2c 77\2c 245\2c 0\.15\)\]{
+  border-color: rgba(0,77,245,0.15);
+}
+
 .group:focus .group-focus\:bg-primary\/5{
   background-color: rgb(0 77 245 / 0.05);
 }
 
+.group:focus .group-focus\:text-primary{
+  --tw-text-opacity: 1;
+  color: rgb(0 77 245 / var(--tw-text-opacity));
+}
+
 .group:active .group-active\:bg-primary\/10{
   background-color: rgb(0 77 245 / 0.1);
+}
+
+.group:active .group-active\:text-primary{
+  --tw-text-opacity: 1;
+  color: rgb(0 77 245 / var(--tw-text-opacity));
 }
 
 @media (min-width: 640px){
