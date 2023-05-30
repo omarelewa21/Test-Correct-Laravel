@@ -287,13 +287,13 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         );
         if (!$answerForCurrentStudent) {
             $answerForCurrentStudent = $this->retrieveAnswerBasedOnAction($action, $answersForQuestion);
-            $value = $this->students->search($answerForCurrentStudent->test_participant_id) + 1;
+            $value = $this->getAnswerIndex($answerForCurrentStudent);
         }
 
         $this->setComponentAnswerProperties($answerForCurrentStudent, $value);
 
-        $this->lastAnswerForQuestion = $this->students->search($answersForQuestion->last()->test_participant_id) + 1;
-        $this->firstAnswerForQuestion = $this->students->search($answersForQuestion->first()->test_participant_id) + 1;
+        $this->lastAnswerForQuestion = $this->getAnswerIndex($answersForQuestion->last());
+        $this->firstAnswerForQuestion = $this->getAnswerIndex($answersForQuestion->first());
 
         $this->currentAnswer->load('answerRatings');
         $this->score = $this->handleAnswerScore();
@@ -354,7 +354,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         if (!$this->onLastQuestionToAssess()) {
             $currentAnswerIndex = $this->answers->search(fn($answer) => $answer->id === $this->currentAnswer->id);
             $newAnswer = $this->getClosestAvailableAnswer('incr', $this->answers, $currentAnswerIndex);
-            $this->answerNavigationValue = $this->students->search($newAnswer->test_participant_id) + 1;
+            $this->answerNavigationValue = $this->getAnswerIndex($newAnswer);
 
             $this->dispatchUpdateQuestionNavigatorEvent(
                 $this->loadQuestion(position: (int)$this->questionNavigationValue + 1, action: 'incr')
@@ -384,7 +384,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         if (!$this->onFirstQuestionToAssess()) {
             $currentAnswerIndex = $this->answers->search(fn($answer) => $answer->id === $this->currentAnswer->id);
             $newAnswer = $this->getClosestAvailableAnswer('decr', $this->answers, $currentAnswerIndex);
-            $this->answerNavigationValue = $this->students->search($newAnswer->test_participant_id) + 1;
+            $this->answerNavigationValue = $this->getAnswerIndex($newAnswer);
 
             $this->dispatchUpdateQuestionNavigatorEvent(
                 $this->loadQuestion(position: (int)$this->questionNavigationValue - 1, action: 'decr')
@@ -701,7 +701,8 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             $firstUnscoredAnswer = $this->getFirstAnswerWhichDoesntHaveATeacherOrSystemRating();
             if ($this->previouslyAssessedQuestionHasUnscoredOpenQuestionAnswerBeforeIt(
                 $previouslyAssessedQuestion,
-                $firstUnscoredAnswer
+                $firstUnscoredAnswer,
+                $previousAnswerIndex
             )) {
                 $this->setNavigationDataWithFirstUnscoredAnswer($firstUnscoredAnswer);
                 return;
@@ -828,13 +829,12 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     {
         $this->questionNavigationValue = $this->getNavigationValueForQuestion($previouslyAssessedQuestion);
 
-        $this->answerNavigationValue = $answerIndex ?? $this->students->search(
+        $this->answerNavigationValue = $answerIndex ?? $this->getAnswerIndex(
             $this->answers
                 ->discrepancyFiltered((bool)$this->assessmentContext['assessment_skip_no_discrepancy_answer'])
                 ->where('question_id', $previouslyAssessedQuestion->id)
                 ->first()
-                ->test_participant_id
-        ) + 1;
+        );
     }
 
     private function getQuestionIdsForCurrentAssessmentType()
@@ -1177,9 +1177,9 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
     private function getDefaultAnswerIndexForPreviouslyAssessedQuestion($previouslyAssessedQuestion): int
     {
-        return $this->students->search(
-                $this->getAnswersForCurrentQuestion($previouslyAssessedQuestion)->first()->test_paricipant_id
-            ) + 1;
+        return $this->getAnswerIndex(
+                $this->getAnswersForCurrentQuestion($previouslyAssessedQuestion)->first()
+            );
     }
 
     /**
@@ -1188,7 +1188,8 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
      */
     private function previouslyAssessedQuestionHasUnscoredOpenQuestionAnswerBeforeIt(
         $previouslyAssessedQuestion,
-        $firstUnscoredAnswer
+        $firstUnscoredAnswer,
+        $previousAnswerIndex
     ): bool {
         if (!$firstUnscoredAnswer) {
             return false;
@@ -1204,6 +1205,9 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
                     ->where('id', $firstUnscoredAnswer->question_id)
                     ->first()->id
             );
+        if ($firstUnscoredAnswerQuestionPosition === $previouslyAssessedQuestionPosition) {
+            return $this->getAnswerIndex($firstUnscoredAnswer) < $previousAnswerIndex;
+        }
 
         return $firstUnscoredAnswerQuestionPosition < $previouslyAssessedQuestionPosition;
     }
@@ -1213,7 +1217,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         $firstQuestionForAnswer = $this->getQuestionForAnswer($firstAnswer);
 
         $this->questionNavigationValue = $this->getNavigationValueForQuestion($firstQuestionForAnswer);
-        $this->answerNavigationValue = $this->students->search($firstAnswer->test_participant_id) + 1;
+        $this->answerNavigationValue = $this->getAnswerIndex($firstAnswer);
     }
 
     /**
@@ -1228,7 +1232,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         $firstQuestionForAnswer = $this->getQuestionForAnswer($firstAnswer);
 
         $this->questionNavigationValue = $this->getNavigationValueForQuestion($firstQuestionForAnswer);
-        $this->answerNavigationValue = $this->students->search($firstAnswer->test_participant_id) + 1;
+        $this->answerNavigationValue = $this->getAnswerIndex($firstAnswer);
     }
 
     private function getQuestionForAnswer(Answer $answer): ?Question
@@ -1249,6 +1253,15 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         return $previousAnswerIndex ?? $this->getDefaultAnswerIndexForPreviouslyAssessedQuestion(
             $previouslyAssessedQuestion
         );
+    }
+
+    /**
+     * @param Answer $answer
+     * @return int
+     */
+    private function getAnswerIndex(Answer $answer): int
+    {
+        return $this->students->search($answer->test_participant_id) + 1;
     }
 
 }
