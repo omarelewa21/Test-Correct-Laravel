@@ -4,12 +4,14 @@
      showStudentAnswer: false,
      showAnswerModel: false,
      showQuestion: true,
+     activeStudentAnswer: null,
      resetToggles() {
         this.showStudentAnswer = false;
         this.showAnswerModel = false;
         this.showQuestion = true;
      },
      async openStudentAnswer(id) {
+        this.activeStudentAnswer = id;
         result = await $wire.call('showStudentAnswer',id);
         this.showStudentAnswer = result === true;
         $dispatch('accordion-toggled')
@@ -28,7 +30,7 @@
 
         <div id="main-content-container"
              class="flex border-2 relative w-full justify-between overflow-auto "
-                             wire:poll.keep-alive.5000ms="render()"
+                             {{--wire:poll.keep-alive.5000ms="render()"--}}
         >
             <div class="flex flex-col w-full space-y-4 pt-10 px-[60px] pb-14"
                  wire:key="container-{{$this->testTake->discussing_question_id}}"
@@ -138,6 +140,7 @@
                                     <div class="ml-auto relative top-0.5 flex gap-2 items-center">
                                         <x-dynamic-component :component="$this->activeAnswerAnsweredStatus" />
                                         <div class="relative w-[40px] h-[40px] flex items-center justify-center rounded-full hover:bg-primary/5 hover:text-primary active:bg-primary/10"
+                                             @click="activeStudentAnswer = null"
                                              wire:click.stop="resetActiveAnswer()"
                                              x-on:mouseenter="$el.closest('button').classList.remove('group')"
                                              x-on:mouseleave="$el.closest('button').classList.add('group')"
