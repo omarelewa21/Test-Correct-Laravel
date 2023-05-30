@@ -28,10 +28,10 @@ class RichTextarea extends Component
         public ?string             $lang = 'nl_NL',
         public ?bool               $allowWsc = false,
         public null|string|int     $maxWords = null,
-        public bool                $maxWordOverride = false,
-        public bool                $restrictWords = false,
-        public bool                $textFormatting = true,
-        public bool                $mathmlFunctions = true,
+        public ?bool               $maxWordOverride = false,
+        public ?bool               $restrictWords = false,
+        public ?bool               $textFormatting = true,
+        public ?bool               $mathmlFunctions = true,
     ) {
         $this->initFunctionCall = sprintf('%s(%s)', $this->getInitMethod(), json_encode($this->getEditorConfig()));
     }

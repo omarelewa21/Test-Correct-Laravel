@@ -8,7 +8,7 @@
     >
         <div class="fixed left-0 w-full px-8 xl:px-28 flex-col pt-4 z-10 bg-light-grey" id="overviewQuestionNav">
             <div>
-                <livewire:overview.navigation :nav="$nav" :testTakeUuid="$uuid" :playerUrl="$playerUrl"/>
+                <livewire:student-player.overview.navigation :nav="$nav" :testTakeUuid="$uuid" :playerUrl="$playerUrl"/>
             </div>
 
             <div class="nav-overflow left-0 fixed w-full h-12"></div>
@@ -26,21 +26,21 @@
             @foreach($data as  $key => $testQuestion)
                 <div class="flex flex-col space-y-4">
                     @if($testQuestion->type === 'MultipleChoiceQuestion' && $testQuestion->selectable_answers > 1 && $testQuestion->subtype != 'ARQ')
-                        <livewire:overview.multiple-select-question
+                        <livewire:student-player.overview.multiple-select-question
                                 :question="$testQuestion"
                                 :number="++$key"
                                 :answers="$answers"
                                 wire:key="'q-'.$testQuestion->uuid'"
                         />
                     @elseif($testQuestion->type === 'MultipleChoiceQuestion')
-                        <livewire:overview.multiple-choice-question
+                        <livewire:student-player.overview.multiple-choice-question
                                 :question="$testQuestion"
                                 :number="++$key"
                                 :answers="$answers"
                                 wire:key="'q-'.$testQuestion->uuid'"
                         />
                     @elseif($testQuestion->type === 'OpenQuestion')
-                        <livewire:overview.open-question
+                        <livewire:student-player.overview.open-question
                                 :question="$testQuestion"
                                 :number="++$key"
                                 :answers="$answers"
@@ -55,35 +55,35 @@
                                 wire:key="'q-'.$testQuestion->uuid'"
                         />
                     @elseif($testQuestion->type === 'CompletionQuestion')
-                        <livewire:overview.completion-question
+                        <livewire:student-player.overview.completion-question
                                 :question="$testQuestion"
                                 :number="++$key"
                                 :answers="$answers"
                                 wire:key="'q-'.$testQuestion->uuid'"
                         />
                     @elseif($testQuestion->type === 'RankingQuestion')
-                        <livewire:overview.ranking-question
+                        <livewire:student-player.overview.ranking-question
                                 :question="$testQuestion"
                                 :number="++$key"
                                 :answers="$answers"
                                 wire:key="'q-'.$testQuestion->uuid'"
                         />
                     @elseif($testQuestion->type === 'InfoscreenQuestion')
-                        <livewire:overview.info-screen-question
+                        <livewire:student-player.overview.info-screen-question
                                 :question="$testQuestion"
                                 :number="++$key"
                                 :answers="$answers"
                                 wire:key="'q-'.$testQuestion->uuid"
                         />
                     @elseif($testQuestion->type === 'DrawingQuestion')
-                        <livewire:overview.drawing-question
+                        <livewire:student-player.overview.drawing-question
                                 :question="$testQuestion"
                                 :number="++$key"
                                 :answers="$answers"
                                 wire:key="'q-'.$testQuestion->uuid"
                         />
                     @elseif($testQuestion->type === 'MatrixQuestion')
-                        <livewire:overview.matrix-question
+                        <livewire:student-player.overview.matrix-question
                                 :question="$testQuestion"
                                 :number="++$key"
                                 :answers="$answers"
