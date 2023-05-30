@@ -333,7 +333,7 @@
         <div class="flex flex-col gap-8" x-show="openTab === 'tests'">
             <div class="flex flex-col items-center w-full">
                 <h3 class="semi-bold">@lang('account.test_header_info_text')</h3>
-                <span class="text-sm">@lang('account.test_header_info_subtext') {{ $this->locationName }}</span>
+{{--                <span class="text-sm">@lang('account.test_header_info_subtext') {{ $this->locationName }}</span>--}}
             </div>
 
             <div class="flex flex-col w-full gap-4">
