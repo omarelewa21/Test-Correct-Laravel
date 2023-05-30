@@ -55,6 +55,10 @@ class Onboarding extends Component
 
 
     protected $queryString = ['step', 'email', 'confirmed', 'ref','entree_message', 'level'];
+    /**
+     * @var true
+     */
+    public bool $setFocusOnError = false;
 
     protected function messages(){
         return [
@@ -222,6 +226,7 @@ class Onboarding extends Component
 
     public function step1()
     {
+        $this->setFocusOnError = true;
         $this->validate();
         if (!$this->checkInputForLength() && !$this->warningStepOneConfirmed) {
             $this->warningStepOneConfirmed = true;
@@ -241,6 +246,7 @@ class Onboarding extends Component
 
     public function step2()
     {
+        $this->setFocusOnError = true;
         $this->validate();
         if (!$this->checkInputForLength() && !$this->warningStepTwoConfirmed) {
             $this->warningStepTwoConfirmed = true;

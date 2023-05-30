@@ -14,10 +14,9 @@
                  @entangle('login_tab'),
                  @entangle('active_overlay'),
                  @entangle('device'),
-                 @js(array_keys($errors->getMessages()))
+                 @entangle('errorKeys'),
                  )"
          wire:ignore.self
-         wire:key="has-errors-@js(implode(array_keys($errors->getMessages())))"
     >
         <div class="w-full max-w-[540px] mx-4 py-4">
             @if($tab == 'login')
@@ -109,7 +108,7 @@
                                                           data-focus-tab="1"
                                                           id="login-username"
                                                           selid="login-username"
-                                                          wire:model.lazy="username" autofocus
+                                                          wire:model.lazy="username"
                                             ></x-input.text>
                                         </x-input.group>
                                         <x-input.group label="{{ __('auth.password')}}" class="flex-1 relative">
@@ -176,7 +175,8 @@
                                         </div>
 
                                     </div>
-                                    <div class="error-section">
+
+                                    <div class="error-section" wire:key="has-errors-@js(implode(array_keys($errors->getMessages())))">
                                         @error('username')
                                         <div class="notification error stretched mt-4">
                                             <span class="title">{{ $message }}</span>
@@ -283,7 +283,7 @@
                                       class="flex-col flex flex-1 justify-start">
                                     <div class="flex flex-col md:flex-row space-y-4 md:space-x-4 md:space-y-0">
                                         <x-input.group label="{{ __('auth.first_name')}}" class="w-full">
-                                            <x-input.text data-focus-tab-error="2-empty_guest_first_name" data-focus-tab="2" selid="test-direct-firstname" wire:model.lazy="firstName" autofocus></x-input.text>
+                                            <x-input.text data-focus-tab-error="2-empty_guest_first_name" data-focus-tab="2" selid="test-direct-firstname" wire:model.lazy="firstName"></x-input.text>
                                         </x-input.group>
                                         <x-input.group label="{{ __('auth.suffix')}}" class="w-28">
                                             <x-input.text selid="test-direct-suffix" wire:model.lazy="suffix"></x-input.text>

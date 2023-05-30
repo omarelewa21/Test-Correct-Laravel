@@ -1769,27 +1769,45 @@ document.addEventListener("alpine:init", () => {
         device,
         hasErrors,
         init() {
-            this.setCurrentFocusInput();
+            // this.setInitialFocusInput();
 
             this.$watch('hasErrors', value => {
                 this.setCurrentFocusInput();
             });
             this.$watch("activeOverlay", value => {
-                this.setCurrentFocusInput();
+                this.setInitialFocusInput();
             });
             this.$watch("openTab", value => {
-                this.setCurrentFocusInput();
+                this.setInitialFocusInput();
             });
         },
-        setCurrentFocusInput (){
+        setInitialFocusInput (){
             let name = ('' != this.activeOverlay) ? this.activeOverlay : this.openTab;
-            var finder = ('' != hasErrors) ? `[data-focus-tab-error = '${name}-${hasErrors[0]}']` :`[data-focus-tab = '${name}']`
+            var finder = `[data-focus-tab = '${name}']`
+            setTimeout(() => {
+                this.$root.querySelector(finder)?.focus()
+            }, 250);
+        },
+        setCurrentFocusInput (){
+            this.getErrors();
+
+            if('' == hasErrors) {
+                return;
+            }
+            let firstError = hasErrors[0] == 'invalid_user' ? 'password' : hasErrors[0];
+            let name = ('' != this.activeOverlay) ? this.activeOverlay : this.openTab;
+            var finder = `[data-focus-tab-error = '${name}-${firstError}']`
+
             setTimeout(() => {
                 this.$root.querySelector(finder)?.focus()
             }, 250);
         },
         changeActiveOverlay(activeOverlay = "") {
             this.activeOverlay = activeOverlay;
+        },
+        getErrors() {
+            hasErrors = this.$wire.get('errorKeys');
+            console.log(hasErrors);
         }
     }));
     Alpine.data("assessment", (score, maxScore, halfPoints, drawerScoringDisabled, pageUpdated) => ({

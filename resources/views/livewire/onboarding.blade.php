@@ -6,13 +6,15 @@
     </div>
 
     <div class="pt-12"
-         x-data="{step: @entangle('step'), validationErrors: ''}"
+         x-data="{step: @entangle('step'), validationErrors: '', setFocusOnError: @entangle('setFocusOnError')}"
          x-init="
                 setTimeout(() => document.querySelector('#username')?.focus(), 250);
 
                 Livewire.hook('message.processed', (message, component) => {
                     validationErrors = Object.keys(component.serverMemo.errors);
-                    setCurrentFocusInput();
+                    if(setFocusOnError) {
+                        setCurrentFocusInput();
+                    }
                 })
 
                 function setCurrentFocusInput (){
@@ -25,7 +27,6 @@
                     setTimeout(() => document.querySelector(selector)?.focus(), 250);
                 }
             "
-{{--         wire:key="test-@js(now()->timestamp)"--}}
          x-cloak>
         <div class="">
             <div class="relative px-3 sm:px-10">

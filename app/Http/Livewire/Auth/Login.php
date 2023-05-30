@@ -105,12 +105,23 @@ class Login extends Component
 
     public $studentDownloadUrl = 'https://www.test-correct.nl/student/';
 
+    public $errorKeys = [];
+
     protected $listeners = ['open-auth-modal' => 'openAuthModal', 'password_reset' => 'passwordReset'];
 
     protected $rules = [
         'username' => 'required|email',
         'password' => 'required',
     ];
+
+    public function getCustomValidator(): Login|m
+    {
+        return $this->withValidator(function (\Illuminate\Validation\Validator $validator) {
+            $validator->after(function ($validator) {
+                $this->errorKeys = array_keys($validator->failed());
+            });
+        });
+    }
 
     protected function messages(): array
     {
@@ -148,7 +159,8 @@ class Login extends Component
         }
 
         $this->username = trim($this->username);
-        $credentials = $this->validate();
+
+        $credentials = $this->getCustomValidator()->validate();
 
         if (!auth()->attempt($credentials)) {
             if ($this->requireCaptcha) {
@@ -158,11 +170,13 @@ class Login extends Component
             }
             $this->createFailedLogin();
             $this->addError('invalid_user', __('auth.failed'));
+            $this->errorKeys = ['invalid_user'];
             return;
         }
 
         if ((Auth()->user()->isA('teacher') || Auth()->user()->isA('student')) && EntreeHelper::shouldPromptForEntree(auth()->user())) {
             auth()->logout();
+            $this->errorKeys = ['should_first_go_to_entree'];
             return $this->addError('should_first_go_to_entree', __('auth.should_first_login_using_entree'));
         }
 
@@ -197,6 +211,7 @@ class Login extends Component
         }
 
         if (!$this->isTestTakeCodeCorrectFormat()) {
+            $this->errorKeys = ['invalid_test_code'];
             return $this->addError('invalid_test_code', __('auth.test_code_invalid'));
         }
 
@@ -204,10 +219,12 @@ class Login extends Component
 
         $testTakeCode = $testCodeHelper->getTestTakeCodeIfExists($this->testTakeCode);
         if (!$testTakeCode || !$testTakeCode->testTake) {
+            $this->errorKeys[] = 'no_test_found_with_code';
             return $this->addError('no_test_found_with_code', __('auth.no_test_found_with_code'));
         }
 
         if (!$testTakeCode->testTake->guest_accounts) {
+            $this->errorKeys[] = 'guest_account_not_allowed';
             return $this->addError('guest_account_not_allowed', __('auth.guest_account_not_allowed'));
         }
 
@@ -215,6 +232,7 @@ class Login extends Component
 
         $error = $testCodeHelper->handleGuestLogin($this->gatherGuestData(), $testTakeCode);
         if (!empty($error)) {
+            $this->errorKeys[] = $error[0];
             return $this->addError($error[0], $error[0]);
         }
     }
@@ -262,6 +280,18 @@ class Login extends Component
 
     public function updated($name, $value)
     {
+        switch ($name) {
+            case 'firstName':
+                $this->validateGuestFirstName();
+                break;
+            case 'lastName':
+                $this->validateGuestLastName();
+                break;
+            default:
+                $this->validateOnly($name);
+        }
+
+
         $this->couldBeEmail($this->forgotPasswordEmail) ? $this->forgotPasswordButtonDisabled = false : $this->forgotPasswordButtonDisabled = true;
 
         if ($this->couldBeEmail($this->entreeEmail) && filled($this->entreePassword)) {
@@ -527,16 +557,34 @@ class Login extends Component
     private function filledInNecessaryGuestInformation()
     {
         $hasNoError = true;
+        $this->errorKeys = [];
+        $this->validateGuestFirstName($hasNoError, true);
+        $this->validateGuestLastName($hasNoError, true);
+
+        return $hasNoError;
+    }
+
+    private function validateGuestFirstName(&$hasNoError = true, $focusOnInputWithError = false)
+    {
         if (blank($this->firstName)) {
+            if ($focusOnInputWithError) {
+                array_unshift($this->errorKeys, 'empty_guest_first_name');
+            }
             $this->addError('empty_guest_first_name', __('auth.empty_guest_first_name'));
             $hasNoError = false;
         }
+    }
+
+    private function validateGuestLastName(&$hasNoError = true, $focusOnInputWithError = false)
+    {
         if (blank($this->lastName)) {
+            if ($focusOnInputWithError) {
+                $this->errorKeys[] = 'empty_guest_last_name';
+            }
             $this->addError('empty_guest_last_name', __('auth.empty_guest_last_name'));
+
             $hasNoError = false;
         }
-
-        return $hasNoError;
     }
 
     public function updating(&$name, &$value)
