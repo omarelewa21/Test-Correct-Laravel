@@ -28,7 +28,7 @@ class CompletionQuestion extends TCComponent
 
     private function completionHelper($question)
     {
-        return Blade::renderComponent(new CompletionQuestionConvertedHtml($question, $context='teacher-preview'));
+        return Blade::renderComponent(new CompletionQuestionConvertedHtml($question, 'teacher-preview'));
     }
 
     private function multiHelper($question)
