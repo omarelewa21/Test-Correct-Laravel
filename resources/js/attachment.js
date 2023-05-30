@@ -143,7 +143,7 @@ window.makeAttachmentResizable = function(element, attachmentType='') {
     let original_mouse_x = 0;
     let original_mouse_y = 0;
     let width, height;
-    let img, originalImageWidth, originalImageHeight;             // Specific for image attachments
+    let img, imgWidthHeightRatio;             // Specific for image attachments
 
     for (let i = 0;i < resizers.length; i++) {
         const currentResizer = resizers[i];
@@ -239,17 +239,19 @@ window.makeAttachmentResizable = function(element, attachmentType='') {
             function setImageProperties(){
                 if(typeof img === 'undefined'){
                     img = element.querySelector('img');
-                    originalImageWidth = img.width;
-                    originalImageHeight = img.height;
-                    img.style.maxWidth = 'initial';             // Remove max width to keep aspect ratio - by default img takes max-width of 100%
+                    imgWidthHeightRatio = img.height / img.width;                   // Used to keep aspect ratio when resizing
+                    img.style.maxWidth = 'initial';                                 // Remove max width to keep aspect ratio - by default img takes max-width of 100%
                     img.closest('.image-max-height').style.maxHeight = 'initial';   // Remove max height from parent dev to allow img expands if bigger than the parent when resized
                 }
             }
             function setImageWidthAndHeight(){
-                img.style.height = originalImageHeight + 'px';
-                img.style.width = originalImageWidth + 'px';
-                img.style.marginLeft  = 'auto';
-                img.style.marginRight = 'auto';
+                let imgParentHeight = img.parentElement.getBoundingClientRect().height;
+                img.style.width = '100%';
+                img.style.height = img.width * imgWidthHeightRatio + 'px';
+                if(imgParentHeight > img.height){
+                    img.style.height = '100%';
+                    img.style.width = img.height / imgWidthHeightRatio + 'px';
+                }
             }
         }
     }
