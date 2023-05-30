@@ -53,6 +53,8 @@ class TestPlanModal extends TCModalComponent
             'request.school_classes'        => 'required',
             'request.notify_students'       => 'required|boolean',
             'request.invigilators'          => 'required|min:1|array',
+            'request.show_grades'             => 'sometimes|boolean',
+            'request.show_correction_model'   => 'sometimes|boolean',
         ];
 
         if ($this->isAssignmentType()) {
