@@ -251,7 +251,7 @@
 
 .badge-view:hover {
     cursor: pointer;
-    background-color: #f3f7ff;
+    /*background-color: #f3f7ff;*/
     box-shadow: 0 3px 6px 0 rgba(4, 31, 116, 0.2);
     color: var(--teacher-primary);
 }
