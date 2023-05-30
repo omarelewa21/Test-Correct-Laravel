@@ -7667,24 +7667,11 @@ document.addEventListener("alpine:init", function () {
         return !this.inReview && !this.$store.assessment.clearToProceed() && !this.clickedNext;
       },
       openFeedbackTab: function openFeedbackTab() {
-        var _this47 = this;
         this.tab(2);
-        this.$nextTick(function () {
-          var editorDiv = _this47.$root.querySelector(".feedback textarea");
-          if (editorDiv) {
-            var editor = ClassicEditors[editorDiv.getAttribute("name")];
-            if (editor) {
-              setTimeout(function () {
-                return editor.focus();
-              }, 320); // Await slide animation, otherwise it breaks;
-            }
-          }
-        });
       }
     };
   });
-
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("scoreSlider", function (score, model, maxScore, halfPoints, disabled, coLearning, focusInput, continuousSlider) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("scoreSlider", function (score, model, maxScore, halfPoints, disabled, coLearning, focusInput) {
     return {
       score: score,
       model: model,
@@ -7696,7 +7683,6 @@ document.addEventListener("alpine:init", function () {
       persistantScore: null,
       inputBox: null,
       focusInput: focusInput,
-      continuousSlider: continuousSlider,
       getSliderBackgroundSize: function getSliderBackgroundSize(el) {
         if (this.score === null) return 0;
         var min = el.min || 0;
@@ -7705,25 +7691,16 @@ document.addEventListener("alpine:init", function () {
         return (value - min) / (max - min) * 100;
       },
       setThumbOffset: function setThumbOffset() {
-        if (continuousSlider) {
-          return;
-        }
-        if (this.score > this.maxScore) {
-          this.score = this.maxScore;
-        }
-        if (this.score < 0) {
-          this.score = 0;
-        }
         var el = document.querySelector('.score-slider-input');
-        var offsetFromCenter = -40;
-        offsetFromCenter += this.score / this.maxScore * 80;
+        var offsetFromCenter = -45;
+        offsetFromCenter += this.score / this.maxScore * 90;
         el.style.setProperty("--slider-thumb-offset", "calc(".concat(offsetFromCenter, "% + 1px)"));
       },
       setSliderBackgroundSize: function setSliderBackgroundSize(el) {
-        var _this48 = this;
+        var _this47 = this;
         this.$nextTick(function () {
-          el.style.setProperty("--slider-thumb-offset", "".concat(25 / 100 * _this48.getSliderBackgroundSize(el) - 12.5, "px"));
-          el.style.setProperty("--slider-background-size", "".concat(_this48.getSliderBackgroundSize(el), "%"));
+          el.style.setProperty("--slider-thumb-offset", "".concat(25 / 100 * _this47.getSliderBackgroundSize(el) - 12.5, "px"));
+          el.style.setProperty("--slider-background-size", "".concat(_this47.getSliderBackgroundSize(el), "%"));
         });
       },
       syncInput: function syncInput() {
@@ -7742,52 +7719,54 @@ document.addEventListener("alpine:init", function () {
         }
       },
       init: function init() {
-        var _this49 = this;
+        var _this48 = this;
         if (coLearning) {
           Livewire.hook("message.received", function (message, component) {
             var _message$updateQueue$;
             if (component.name === "student.co-learning" && ((_message$updateQueue$ = message.updateQueue[0]) === null || _message$updateQueue$ === void 0 ? void 0 : _message$updateQueue$.method) === "updateHeartbeat") {
-              var scoreInputElement = _this49.$root.querySelector("[x-ref='scoreInput']");
-              _this49.persistentScore = scoreInputElement !== null && scoreInputElement.value !== "" ? scoreInputElement.value : null;
+              var scoreInputElement = _this48.$root.querySelector("[x-ref='scoreInput']");
+              _this48.persistentScore = scoreInputElement !== null && scoreInputElement.value !== "" ? scoreInputElement.value : null;
             }
           });
           Livewire.hook("message.processed", function (message, component) {
             var _message$updateQueue$2;
             if (component.name === "student.co-learning" && ((_message$updateQueue$2 = message.updateQueue[0]) === null || _message$updateQueue$2 === void 0 ? void 0 : _message$updateQueue$2.method) === "updateHeartbeat") {
-              _this49.skipSync = true;
-              _this49.score = _this49.persistentScore;
+              _this48.skipSync = true;
+              _this48.score = _this48.persistentScore;
             }
           });
         }
         this.inputBox = this.$root.querySelector("[x-ref='scoreInput']");
         this.$watch("score", function (value, oldValue) {
-          _this49.markInputElementsClean();
-          if (_this49.disabled || value === oldValue || _this49.skipSync) {
-            _this49.skipSync = false;
+          _this48.markInputElementsClean();
+          if (_this48.disabled || value === oldValue || _this48.skipSync) {
+            _this48.skipSync = false;
             return;
           }
-          if (value >= _this49.maxScore) {
-            _this49.score = value = _this49.maxScore;
+          if (value >= _this48.maxScore) {
+            _this48.score = value = _this48.maxScore;
           }
           if (value <= 0) {
-            _this49.score = value = 0;
+            _this48.score = value = 0;
           }
-          _this49.score = value = _this49.halfPoints ? Math.round(value * 2) / 2 : Math.round(value);
-          _this49.updateContinuousSlider();
+          _this48.score = value = _this48.halfPoints ? Math.round(value * 2) / 2 : Math.round(value);
+          _this48.updateContinuousSlider();
         });
         if (focusInput) {
           this.$nextTick(function () {
-            _this49.inputBox.focus();
+            _this48.inputBox.focus();
           });
         }
       },
       markInputElementsWithError: function markInputElementsWithError() {
         if (this.disabled) return;
-        this.inputBox.style.border = "1px solid var(--all-red)";
+        this.inputBox.classList.add("border-allred");
+        this.inputBox.classList.remove("border-blue-grey");
       },
       markInputElementsClean: function markInputElementsClean() {
         if (this.disabled) return;
-        this.inputBox.style.border = null;
+        this.inputBox.classList.add("border-blue-grey");
+        this.inputBox.classList.remove("border-allred");
       },
       getContinuousInput: function getContinuousInput() {
         return this.$root.querySelector("[x-ref='score_slider_continuous_input']");
@@ -7805,7 +7784,7 @@ document.addEventListener("alpine:init", function () {
       minWidth: 120,
       maxWidth: 1000,
       setInputWidth: function setInputWidth(input) {
-        var _this50 = this;
+        var _this49 = this;
         var init = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
         var preview = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
         if (!init || preview) {
@@ -7816,8 +7795,8 @@ document.addEventListener("alpine:init", function () {
           if (!value) {
             return;
           }
-          _this50.$nextTick(function () {
-            _this50.calculateInputWidth(input);
+          _this49.$nextTick(function () {
+            _this49.calculateInputWidth(input);
           });
         });
       },
@@ -7872,23 +7851,23 @@ document.addEventListener("alpine:init", function () {
       inModal: false,
       show: false,
       init: function init() {
-        var _this51 = this;
+        var _this50 = this;
         this.setHeightProperty();
         this.inModal = this.$root.closest("#modal-container") !== null;
         this.$watch("tooltip", function (value) {
           if (value) {
             var ignoreLeft = false;
-            if (alwaysLeft || _this51.tooltipTooWideForPosition()) {
-              _this51.$refs.tooltipdiv.classList.remove("left-1/2", "-translate-x-1/2");
-              _this51.$refs.tooltipdiv.classList.add("right-0");
+            if (alwaysLeft || _this50.tooltipTooWideForPosition()) {
+              _this50.$refs.tooltipdiv.classList.remove("left-1/2", "-translate-x-1/2");
+              _this50.$refs.tooltipdiv.classList.add("right-0");
               ignoreLeft = true;
             }
-            _this51.$refs.tooltipdiv.style.top = _this51.getTop();
-            _this51.$refs.tooltipdiv.style.left = _this51.getLeft(ignoreLeft);
+            _this50.$refs.tooltipdiv.style.top = _this50.getTop();
+            _this50.$refs.tooltipdiv.style.left = _this50.getLeft(ignoreLeft);
           }
         });
         this.$nextTick(function () {
-          return _this51.show = true;
+          return _this50.show = true;
         });
       },
       getTop: function getTop() {
@@ -7919,12 +7898,12 @@ document.addEventListener("alpine:init", function () {
         this.$refs.tooltipdiv.style.left = this.getLeft();
       },
       setHeightProperty: function setHeightProperty() {
-        var _this52 = this;
+        var _this51 = this;
         this.tooltip = true;
         this.$nextTick(function () {
-          _this52.height = _this52.$refs.tooltipdiv.offsetHeight;
-          _this52.tooltip = false;
-          _this52.$refs.tooltipdiv.classList.remove("invisible");
+          _this51.height = _this51.$refs.tooltipdiv.offsetHeight;
+          _this51.tooltip = false;
+          _this51.$refs.tooltipdiv.classList.remove("invisible");
         });
       },
       tooltipTooWideForPosition: function tooltipTooWideForPosition() {
@@ -7946,16 +7925,16 @@ document.addEventListener("alpine:init", function () {
       navScrollBar: null,
       initialized: false,
       init: function init() {
-        var _this53 = this;
+        var _this52 = this;
         this.navScrollBar = this.$root.querySelector('#navscrollbar');
         this.$nextTick(function () {
-          _this53.$root.querySelector(".active").scrollIntoView({
+          _this52.$root.querySelector(".active").scrollIntoView({
             behavior: "smooth"
           });
-          _this53.totalScrollWidth = _this53.$root.offsetWidth;
-          _this53.resize();
-          _this53.initialized = true;
-          _this53.slideToActiveQuestionBubble();
+          _this52.totalScrollWidth = _this52.$root.offsetWidth;
+          _this52.resize();
+          _this52.initialized = true;
+          _this52.slideToActiveQuestionBubble();
         });
       },
       resize: function resize() {
@@ -7993,43 +7972,12 @@ document.addEventListener("alpine:init", function () {
         });
       },
       startIntersectionCountdown: function startIntersectionCountdown() {
-        var _this54 = this;
+        var _this53 = this;
         clearTimeout(this.intersectionCountdown);
         this.intersectionCountdown = setTimeout(function () {
-          clearTimeout(_this54.intersectionCountdown);
-          _this54.slideToActiveQuestionBubble();
+          clearTimeout(_this53.intersectionCountdown);
+          _this53.slideToActiveQuestionBubble();
         }, 5000);
-      }
-    };
-  });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("accountSettings", function (language) {
-    return {
-      openTab: 'account',
-      changing: false,
-      language: language,
-      startLanguageChange: function startLanguageChange(event, wireModelName) {
-        var _this55 = this;
-        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee17() {
-          return _regeneratorRuntime().wrap(function _callee17$(_context17) {
-            while (1) switch (_context17.prev = _context17.next) {
-              case 0:
-                _this55.$dispatch('language-loading-start');
-                _this55.changing = true;
-                _context17.next = 4;
-                return _this55.$wire.set(wireModelName, _this55.language);
-              case 4:
-                _this55.$nextTick(function () {
-                  setTimeout(function () {
-                    _this55.changing = false;
-                    _this55.$dispatch('language-loading-end');
-                  }, 1500);
-                });
-              case 5:
-              case "end":
-                return _context17.stop();
-            }
-          }, _callee17);
-        }))();
       }
     };
   });
@@ -8041,7 +7989,7 @@ document.addEventListener("alpine:init", function () {
         this.setHeightToAspectRatio(this.$el);
       },
       setHeightToAspectRatio: function setHeightToAspectRatio(element) {
-        var _this56 = this;
+        var _this54 = this;
         var aspectRatioWidth = 940;
         var aspectRatioHeight = 500;
         var aspectRatio = aspectRatioHeight / aspectRatioWidth;
@@ -8054,13 +8002,28 @@ document.addEventListener("alpine:init", function () {
         if (newHeight <= 0) {
           if (this.currentTry <= this.maxTries) {
             setTimeout(function () {
-              return _this56.setHeightToAspectRatio(element);
+              return _this54.setHeightToAspectRatio(element);
             }, 50);
             this.currentTry++;
           }
           return;
         }
         element.style.height = newHeight + "px";
+      }
+    };
+  });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("CompletionInput", function () {
+    return {
+      previousValue: "",
+      minWidth: 120,
+      getInputWidth: function getInputWidth(el) {
+        var maxWidth = el.parentNode.closest("div").offsetWidth;
+        maxWidth = maxWidth > 1000 ? 1000 : maxWidth;
+        if (el.scrollWidth > maxWidth) return maxWidth + "px";
+        if (el.value.length === 0) return this.minWidth + "px";
+        this.previousValue = el.value;
+        var newWidth = el.value.length >= this.previousValue.length ? el.scrollWidth + 2 : el.scrollWidth - 5;
+        return (newWidth < this.minWidth ? this.minWidth : newWidth) + 'px';
       }
     };
   });
@@ -8499,7 +8462,7 @@ window.plyrPlayer = {
  * @param {object} element
  * @param {string} attachmentType
  */
-window.makeAttachmentResizable = function (element) {
+window.makeResizableDiv = function (element) {
   var attachmentType = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
   var resizers = element.querySelectorAll('.resizer');
   var iframe = element.querySelector('.resizers iframe');
@@ -8514,7 +8477,6 @@ window.makeAttachmentResizable = function (element) {
   var original_mouse_x = 0;
   var original_mouse_y = 0;
   var width, height;
-  var img, originalImageWidth, originalImageHeight; // Specific for image attachments
   var _loop = function _loop() {
     var currentResizer = resizers[i];
     currentResizer.addEventListener('mousedown', resizeMouseDown);
@@ -8533,85 +8495,62 @@ window.makeAttachmentResizable = function (element) {
       window.addEventListener('ontouchmove', resize);
       window.addEventListener('mouseup', stopResize);
       window.addEventListener('ontouchend', stopResize);
-
-      /*************************** Main *****************************/
       function resize(e) {
         if (attachmentType === 'pdf' || attachmentType === 'video') {
           iframeTimeout = temporarilyDisablePointerEvents(iframe, iframeTimeout);
-        } else if (attachmentType === 'image') {
-          setImageProperties(element);
         }
-        if (currentResizer.classList.contains('bottom-right')) resizeBottomRight(e);else if (currentResizer.classList.contains('bottom-left')) resizeBottomLeft(e);else if (currentResizer.classList.contains('top-right')) resizeTopRight(e);else resizeTopLeft(e);
-        if (attachmentType === 'image') setImageWidthAndHeight(element);
+        if (currentResizer.classList.contains('bottom-right')) {
+          width = original_width + (e.pageX - original_mouse_x);
+          height = original_height + (e.pageY - original_mouse_y);
+          if (width > minimum_size && e.pageX <= maximum_x) {
+            element.style.width = width + 'px';
+          }
+          if (height > minimum_size && e.pageY <= maximum_y) {
+            element.style.height = height + 'px';
+          }
+        } else if (currentResizer.classList.contains('bottom-left')) {
+          height = original_height + (e.pageY - original_mouse_y);
+          width = original_width - (e.pageX - original_mouse_x);
+          if (height > minimum_size && e.pageY <= maximum_y) {
+            element.style.height = height + 'px';
+          }
+          if (width > minimum_size && e.pageX > 0) {
+            element.style.width = width + 'px';
+            element.style.left = original_x + (e.pageX - original_mouse_x) + 'px';
+          }
+        } else if (currentResizer.classList.contains('top-right')) {
+          width = original_width + (e.pageX - original_mouse_x);
+          height = original_height - (e.pageY - original_mouse_y);
+          if (width > minimum_size && e.pageX <= maximum_x) {
+            element.style.width = width + 'px';
+          }
+          if (height > minimum_size && e.clientY > 0) {
+            element.style.height = height + 'px';
+            element.style.top = original_y + (e.pageY - original_mouse_y) + 'px';
+          }
+        } else {
+          width = original_width - (e.pageX - original_mouse_x);
+          height = original_height - (e.pageY - original_mouse_y);
+          if (width > minimum_size && e.pageX > 0) {
+            element.style.width = width + 'px';
+            element.style.left = original_x + (e.pageX - original_mouse_x) + 'px';
+          }
+          if (height > minimum_size && e.clientY > 0) {
+            element.style.height = height + 'px';
+            element.style.top = original_y + (e.pageY - original_mouse_y) + 'px';
+          }
+        }
       }
       function stopResize() {
+        if (attachmentType === 'image') {
+          var ratio = original_height / original_width;
+          element.style.height = ratio * width + 'px';
+        }
         if (attachmentType === 'pdf' || attachmentType === 'video') {
           resetTemporarilyDisabledPointerEvents(iframe, iframeTimeout);
         }
         window.removeEventListener('mousemove', resize);
         window.removeEventListener('touchmove', resize);
-      }
-
-      /*************************** Helpers *****************************/
-      function resizeBottomRight(e) {
-        width = original_width + (e.pageX - original_mouse_x);
-        height = original_height + (e.pageY - original_mouse_y);
-        if (width > minimum_size && e.pageX <= maximum_x) {
-          element.style.width = width + 'px';
-        }
-        if (height > minimum_size && e.pageY <= maximum_y) {
-          element.style.height = height + 'px';
-        }
-      }
-      function resizeBottomLeft(e) {
-        width = original_width - (e.pageX - original_mouse_x);
-        height = original_height + (e.pageY - original_mouse_y);
-        if (width > minimum_size && e.pageX > 0) {
-          element.style.width = width + 'px';
-          element.style.left = original_x + (e.pageX - original_mouse_x) + 'px';
-        }
-        if (height > minimum_size && e.pageY <= maximum_y) {
-          element.style.height = height + 'px';
-        }
-      }
-      function resizeTopRight(e) {
-        width = original_width + (e.pageX - original_mouse_x);
-        height = original_height - (e.pageY - original_mouse_y);
-        if (width > minimum_size && e.pageX <= maximum_x) {
-          element.style.width = width + 'px';
-        }
-        if (height > minimum_size && e.clientY > 0) {
-          element.style.height = height + 'px';
-          element.style.top = original_y + (e.pageY - original_mouse_y) + 'px';
-        }
-      }
-      function resizeTopLeft(e) {
-        width = original_width - (e.pageX - original_mouse_x);
-        height = original_height - (e.pageY - original_mouse_y);
-        if (width > minimum_size && e.pageX > 0) {
-          element.style.width = width + 'px';
-          element.style.left = original_x + (e.pageX - original_mouse_x) + 'px';
-        }
-        if (height > minimum_size && e.clientY > 0) {
-          element.style.height = height + 'px';
-          element.style.top = original_y + (e.pageY - original_mouse_y) + 'px';
-        }
-      }
-      function setImageProperties() {
-        if (typeof img === 'undefined') {
-          img = element.querySelector('img');
-          originalImageWidth = img.width;
-          originalImageHeight = img.height;
-          img.style.maxWidth = 'initial'; // Remove max width to keep aspect ratio - by default img takes max-width of 100%
-          img.closest('.image-max-height').style.maxHeight = 'initial'; // Remove max height from parent dev to allow img expands if bigger than the parent when resized
-        }
-      }
-
-      function setImageWidthAndHeight() {
-        img.style.height = originalImageHeight + 'px';
-        img.style.width = originalImageWidth + 'px';
-        img.style.marginLeft = 'auto';
-        img.style.marginRight = 'auto';
       }
     }
   };
@@ -8766,7 +8705,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "346b9b2cf30ab766e6a6",
+  key: "fc18ed69b446aeb8c8a5",
   cluster: "eu",
   forceTLS: true
 });
@@ -15642,12 +15581,6 @@ WebspellcheckerTlc = {
   \**********************************************************/
 /***/ (() => {
 
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
 window.LivewireUIModal = function () {
   return {
     show: false,
@@ -15731,39 +15664,6 @@ window.LivewireUIModal = function () {
           _this.modalWidth = _this.getActiveComponentModalAttribute('maxWidthClass');
         }, 300);
       }
-      this.$nextTick(function () {
-        var _this$$refs$id;
-        var focusable = (_this$$refs$id = _this.$refs[id]) === null || _this$$refs$id === void 0 ? void 0 : _this$$refs$id.querySelector('[autofocus]');
-        if (focusable) {
-          setTimeout(function () {
-            focusable.focus();
-          }, focusableTimeout);
-        }
-      });
-    },
-    focusables: function focusables() {
-      var selector = 'a, button, input, textarea, select, details, [tabindex]:not([tabindex=\'-1\'])';
-      return _toConsumableArray(this.$el.querySelectorAll(selector)).filter(function (el) {
-        return !el.hasAttribute('disabled');
-      });
-    },
-    firstFocusable: function firstFocusable() {
-      return this.focusables()[0];
-    },
-    lastFocusable: function lastFocusable() {
-      return this.focusables().slice(-1)[0];
-    },
-    nextFocusable: function nextFocusable() {
-      return this.focusables()[this.nextFocusableIndex()] || this.firstFocusable();
-    },
-    prevFocusable: function prevFocusable() {
-      return this.focusables()[this.prevFocusableIndex()] || this.lastFocusable();
-    },
-    nextFocusableIndex: function nextFocusableIndex() {
-      return (this.focusables().indexOf(document.activeElement) + 1) % (this.focusables().length + 1);
-    },
-    prevFocusableIndex: function prevFocusableIndex() {
-      return Math.max(0, this.focusables().indexOf(document.activeElement)) - 1;
     },
     setShowPropertyTo: function setShowPropertyTo(show) {
       var _this2 = this;
@@ -67170,32 +67070,6 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
-/***/ "./resources/css/app_pdf.css":
-/*!***********************************!*\
-  !*** ./resources/css/app_pdf.css ***!
-  \***********************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-// extracted by mini-css-extract-plugin
-
-
-/***/ }),
-
-/***/ "./resources/css/print-test-pdf.css":
-/*!******************************************!*\
-  !*** ./resources/css/print-test-pdf.css ***!
-  \******************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-// extracted by mini-css-extract-plugin
-
-
-/***/ }),
-
 /***/ "./node_modules/plyr/dist/plyr.min.js":
 /*!********************************************!*\
   !*** ./node_modules/plyr/dist/plyr.min.js ***!
@@ -76502,9 +76376,7 @@ module.exports = JSON.parse('{"name":"axios","version":"0.21.4","description":"P
 /******/ 		// [resolve, reject, Promise] = chunk loading, 0 = chunk loaded
 /******/ 		var installedChunks = {
 /******/ 			"/js/app": 0,
-/******/ 			"css/app": 0,
-/******/ 			"css/app_pdf": 0,
-/******/ 			"css/print-test-pdf": 0
+/******/ 			"css/app": 0
 /******/ 		};
 /******/ 		
 /******/ 		// no chunk on demand loading
@@ -76554,10 +76426,8 @@ module.exports = JSON.parse('{"name":"axios","version":"0.21.4","description":"P
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module depends on other loaded chunks and execution need to be delayed
-/******/ 	__webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/js/app.js")))
-/******/ 	__webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/css/app.css")))
-/******/ 	__webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/css/app_pdf.css")))
-/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/css/print-test-pdf.css")))
+/******/ 	__webpack_require__.O(undefined, ["css/app"], () => (__webpack_require__("./resources/js/app.js")))
+/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["css/app"], () => (__webpack_require__("./resources/css/app.css")))
 /******/ 	__webpack_exports__ = __webpack_require__.O(__webpack_exports__);
 /******/ 	
 /******/ })()

@@ -2412,6 +2412,24 @@ document.addEventListener("alpine:init", () => {
             element.style.height = newHeight + "px";
         }
     }))
+    Alpine.data("CompletionInput", () => ({
+        previousValue: "",
+        minWidth: 120,
+        getInputWidth(el) {
+            let maxWidth = el.parentNode.closest("div").offsetWidth;
+            maxWidth = maxWidth > 1000 ? 1000 : maxWidth;
+
+            if (el.scrollWidth > maxWidth) return maxWidth + "px";
+            if (el.value.length === 0) return this.minWidth + "px";
+
+            this.previousValue = el.value;
+            let newWidth = (el.value.length >= this.previousValue.length)
+                ? el.scrollWidth + 2
+                : el.scrollWidth - 5;
+
+            return (newWidth < this.minWidth ? this.minWidth : newWidth ) + 'px';
+        }
+    }))
 
     Alpine.directive("global", function(el, { expression }) {
         let f = new Function("_", "$data", "_." + expression + " = $data;return;");
