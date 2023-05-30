@@ -91,8 +91,18 @@
     opacity: 0%; /*opacity instead of visibilty for transition*/
 }
 
+#co-learning-teacher-page .student-info-container .show-on-smartboard:active {
+    background-color: rgba(var(--primary-rgb), 0.1);
+}
+
+#co-learning-teacher-page .student-info-container .show-on-smartboard:hover,
 #co-learning-teacher-page .student-info-container .show-on-smartboard:focus {
-    border-color: rgba(0,77,245,0.15)
+    background-color: rgba(0,77,245,0.05);
+    color: var(--teacher-primary);
+}
+
+#co-learning-teacher-page .student-info-container .show-on-smartboard:focus {
+    border: 1px solid rgba(0,77,245,0.15);
 }
 
 #co-learning-teacher-page .student-info-container .show-on-smartboard svg,

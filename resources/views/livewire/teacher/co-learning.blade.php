@@ -142,7 +142,7 @@
                                              x-on:mouseenter="$el.closest('button').classList.remove('group')"
                                              x-on:mouseleave="$el.closest('button').classList.add('group')"
                                         >
-                                            <x-icon.on-smartboard-hide/>
+                                            <x-icon.on-smartboard-hide title="{{ __('co-learning.hide-from-smartboard') }}"/>
                                         </div>
                                     </div>
                                 </x-slot:titleLeft>
