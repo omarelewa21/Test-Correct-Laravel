@@ -282,11 +282,14 @@ class Login extends Component
     {
         switch ($name) {
             case 'firstName':
+                $this->resetErrorBag();
                 $this->validateGuestFirstName();
                 break;
             case 'lastName':
                 $this->validateGuestLastName();
                 break;
+            case 'username':
+                $this->resetErrorBag();
             default:
                 $this->validateOnly($name);
         }

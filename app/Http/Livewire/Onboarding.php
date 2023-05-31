@@ -394,6 +394,7 @@ class Onboarding extends Component
     public function updated($propertyName)
     {
         $this->btnDisabled = false;
+        $this->setFocusOnError = false;
 //
 //        $this->btnStepOneDisabledCheck();
 //        $this->btnStepTwoDisabledCheck();

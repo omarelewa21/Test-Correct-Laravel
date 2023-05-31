@@ -13,18 +13,21 @@
                       data-focus-tab-error="{{$tab}}-invalid_test_code"
                       x-on:input="testCodeInput($el)"
                       x-on:paste.prevent="handlePaste($event, $el)"
+                      x-on:focus="$el.select()"
         />
         <x-input.text class="w-10 text-center test-code" type="number"
                       max="9" maxlength="1" wire:model.defer="testTakeCode.1"
                       x-ref="testCode_2"
                       x-on:input="testCodeInput($el)"
                       x-on:keydown.backspace.prevent="testCodeBackspace($el)"
+                      x-on:focus="$el.select()"
         />
         <x-input.text class="w-10 text-center test-code" type="number"
                       max="9" maxlength="1" wire:model.defer="testTakeCode.2"
                       x-ref="testCode_3"
                       x-on:input="testCodeInput($el)"
                       x-on:keydown.backspace.prevent="testCodeBackspace($el)"
+                      x-on:focus="$el.select()"
         />
         <div class="h-5 w-px bg-blue-grey"></div>
         <x-input.text class="w-10 text-center test-code" type="number"
@@ -32,12 +35,14 @@
                       x-ref="testCode_4"
                       x-on:input="testCodeInput($el)"
                       x-on:keydown.backspace.prevent="testCodeBackspace($el)"
+                      x-on:focus="$el.select()"
         />
         <x-input.text class="w-10 text-center test-code" type="number"
                       max="9" maxlength="1" wire:model.defer="testTakeCode.4"
                       x-ref="testCode_5"
                       x-on:input="testCodeInput($el)"
                       x-on:keydown.backspace.prevent="testCodeBackspace($el)"
+                      x-on:focus="$el.select()"
         />
         <x-input.text class="w-10 text-center test-code" type="number"
                       max="9" maxlength="1" wire:model="testTakeCode.5"
@@ -45,6 +50,7 @@
                       data-focus-tab-error="{{$tab}}-no_test_found_with_code"
                       x-on:input="testCodeInput($el)"
                       x-on:keydown.backspace.prevent="testCodeBackspace($el);"
+                      x-on:focus="$el.select()"
         />
     </div>
     @push('scripts')
