@@ -3,29 +3,20 @@
 namespace tcCore\Http\Livewire\StudentPlayer\Overview;
 
 use tcCore\Answer;
-use tcCore\Http\Livewire\TCComponent;
 use tcCore\Http\Traits\WithAttachments;
-use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithGroups;
 use tcCore\Http\Traits\WithNotepad;
 use tcCore\Question;
+use tcCore\Http\Livewire\StudentPlayer\DrawingQuestion as AbstractDrawingQuestion;
 
-class DrawingQuestion extends TCComponent
+class DrawingQuestion extends AbstractDrawingQuestion
 {
-    use WithAttachments, WithNotepad, WithCloseable, WithGroups;
+    use WithAttachments;
+    use WithGroups;
+    use WithNotepad;
 
-    public $question;
 
-    public $number;
-
-    public $drawingModalOpened = false;
-
-    public $answers;
-
-    public $answer;
     public $answered;
-
-    public $additionalText;
 
     public function mount()
     {
@@ -46,7 +37,7 @@ class DrawingQuestion extends TCComponent
 
     public function render()
     {
-        return view('livewire.overview.drawing-question');
+        return view('livewire.student-player.overview.drawing-question');
     }
 
     public function isQuestionFullyAnswered(): bool

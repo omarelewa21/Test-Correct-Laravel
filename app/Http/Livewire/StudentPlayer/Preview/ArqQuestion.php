@@ -14,4 +14,8 @@ class ArqQuestion extends AbstractArqQuestion
     use WithPreviewGroups;
 
     public $testId;
+    public function render()
+    {
+        return view('livewire.student-player.preview.arq-question');
+    }
 }

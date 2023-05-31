@@ -9,5 +9,8 @@ class ArqQuestion extends AbstractArqQuestion
 {
     use WithGroups;
 
-    protected $listeners = ['questionUpdated' => 'questionUpdated'];
+    public function render()
+    {
+        return view('livewire.student-player.overview.arq-question');
+    }
 }

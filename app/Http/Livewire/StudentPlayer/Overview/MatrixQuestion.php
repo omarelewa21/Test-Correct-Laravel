@@ -41,7 +41,7 @@ class MatrixQuestion extends TCComponent
 
     public function render()
     {
-        return view('livewire.overview.matrix-question');
+        return view('livewire.student-player.overview.matrix-question');
     }
 
     public function isQuestionFullyAnswered(): bool

@@ -7,7 +7,7 @@
         @if($testParticipant->intense)
             <livewire:student.intense-observer :deviceId="$testParticipant->user_id" :sessionId="$testParticipant->id"></livewire:student.intense-observer>
         @endif
-        <livewire:student-player.question..navigation  :nav="$nav" :testTakeUuid="$uuid"/>
+        <livewire:student-player.question.navigation  :nav="$nav" :testTakeUuid="$uuid"/>
 
 
         <div class="test-take-questions">
@@ -19,7 +19,7 @@
             @foreach($data as  $key => $testQuestion)
                 <div selid="testtake-question">
                     @if($testQuestion->type === 'MultipleChoiceQuestion' && $testQuestion->selectable_answers > 1 && $testQuestion->subtype != 'ARQ')
-                        <livewire:student-player.question..multiple-select-question
+                        <livewire:student-player.question.multiple-select-question
                             :question="$testQuestion"
                             :number="++$key"
                             :answers="$answers"
@@ -27,7 +27,7 @@
                             wire:key="'q-'.$testQuestion->uuid'"
                         />
                     @elseif($testQuestion->type === 'MultipleChoiceQuestion')
-                        <livewire:student-player.question..multiple-choice-question
+                        <livewire:student-player.question.multiple-choice-question
                             :question="$testQuestion"
                             :number="++$key"
                             :answers="$answers"
@@ -43,7 +43,7 @@
                             wire:key="'q-'.$testQuestion->uuid'q-'"
                         />
                     @elseif($testQuestion->type === 'MatchingQuestion')
-                        @php $componentName = sprintf('question.matching-question%s', strtolower($testQuestion->subtype) === 'classify' ? '-classify' : '') @endphp
+                        @php $componentName = sprintf('student-player.question.matching-question%s', strtolower($testQuestion->subtype) === 'classify' ? '-classify' : '') @endphp
                         <livewire:is :component="$componentName"
                             :question="$testQuestion"
                             :number="++$key"

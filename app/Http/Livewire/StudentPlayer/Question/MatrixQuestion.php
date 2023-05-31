@@ -37,7 +37,7 @@ class MatrixQuestion extends TCComponent
 
     public function render()
     {
-        return view('livewire.question.matrix-question');
+        return view('livewire.student-player.question.matrix-question');
     }
 
     public function updatingAnswer($value)

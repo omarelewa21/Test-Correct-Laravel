@@ -2,44 +2,27 @@
 
 namespace tcCore\Http\Livewire\StudentPlayer\Question;
 
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use tcCore\Answer;
 use tcCore\DrawingQuestion as DrawingQuestionModel;
-use tcCore\Http\Helpers\SvgHelper;
-use tcCore\Http\Livewire\TCComponent;
 use tcCore\Http\Traits\WithAttachments;
-use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithGroups;
 use tcCore\Http\Traits\WithNotepad;
+use tcCore\Http\Livewire\StudentPlayer\DrawingQuestion as AbstractDrawingQuestion;
 
-class DrawingQuestion extends TCComponent
+class DrawingQuestion extends AbstractDrawingQuestion
 {
-    use WithAttachments, WithNotepad, withCloseable, WithGroups;
-
-    public $question;
-
-    public $number;
-
-    public $drawingModalOpened = false;
-
-    public $answers;
-
-    public $answer;
-
-    public $additionalText;
+    use WithAttachments;
+    use WithGroups;
+    use WithNotepad;
 
     public $playerInstance;
-
     public $backgroundImage = null;
-
     public $answer_svg = null;
     public $question_svg = null;
     public $grid_svg = '0.00';
     public $grid = '0';
-
     public $usesNewDrawingTool = false;
-
     public $testTakeUuid;
 
     protected function getListeners()
@@ -51,15 +34,7 @@ class DrawingQuestion extends TCComponent
 
     public function mount()
     {
-        $this->initPlayerInstance();
-
-        $svgHelper = new SvgHelper($this->question->uuid);
-
-        $this->question_svg = $svgHelper->getQuestionSvg($this->question);
-
-        $this->grid_svg = $this->question->grid_svg;
-        $this->grid = $this->question->grid;
-        $this->backgroundImage = $this->question->getBackgroundImage();
+        parent::mount();
 
         $answer = Answer::where('id', $this->answers[$this->question->uuid]['id'])
             ->where('question_id', $this->question->id)
@@ -76,25 +51,10 @@ class DrawingQuestion extends TCComponent
             }
         }
 
-        $this->usesNewDrawingTool = Auth::user()->schoolLocation()->value('allow_new_drawing_question');
-    }
-
-    private function getQuestionSvg(SvgHelper $svgHelper, $q)
-    {
-        if ($svgHelper->getQuestionLayerFromSVG()) {
-            return $svgHelper->getQuestionLayerFromSVG(true);
-        }
-        return $q['question_svg'];
-    }
-
-    public function questionUpdated($uuid)
-    {
-        $this->uuid = $uuid;
     }
 
     public function updatedAnswer($value)
     {
-
         $this->answer = $this->saveImageAndReturnUrl($value);
 
         $json = json_encode([
@@ -112,7 +72,7 @@ class DrawingQuestion extends TCComponent
 
     public function render()
     {
-        return view('livewire.question.drawing-question');
+        return view('livewire.student-player.question.drawing-question');
     }
 
     private function saveImageAndReturnUrl($image)
@@ -126,12 +86,7 @@ class DrawingQuestion extends TCComponent
         return $answer->uuid;
     }
 
-    private function initPlayerInstance()
-    {
-        $this->playerInstance = 'eppi_' . rand(1000, 9999999);
-    }
-
-    public function handleUpdateDrawingData($data)
+    public function handleUpdateDrawingData($data): void
     {
         $svg = sprintf('<svg viewBox="%s %s %s %s" class="w-full h-full" id="" xmlns="http://www.w3.org/2000/svg">
                     <defs><style>%s</style></defs>

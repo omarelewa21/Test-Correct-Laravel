@@ -12,4 +12,9 @@ class ArqQuestion extends AbstractArqQuestion
     use WithAttachments;
     use WithGroups;
     use WithNotepad;
+
+    public function render()
+    {
+        return view('livewire.student-player.question.arq-question');
+    }
 }

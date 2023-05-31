@@ -12,34 +12,9 @@ use tcCore\Http\Traits\WithQuestionTimer;
 
 abstract class InfoScreenQuestion extends TCComponent
 {
-    use WithAttachments, WithNotepad, withCloseable, WithGroups;
+    use withCloseable;
 
     public $question;
-
     public $number;
-
     public $answers;
-
-    public $answer = '';
-
-    public $testTakeUuid;
-
-    public function mount()
-    {
-        if($this->answers[$this->question->uuid]['answered']) {
-            $this->answer = 'seen';
-        }
-    }
-
-    public function render()
-    {
-        return view('livewire.question.info-screen-question');
-    }
-
-    public function markAsSeen($questionUuid)
-    {
-        $json = json_encode('seen');
-        Answer::updateJson($this->answers[$questionUuid]['id'], $json);
-    }
-
 }

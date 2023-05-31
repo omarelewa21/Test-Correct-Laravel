@@ -72,6 +72,6 @@ class MultipleSelectQuestion extends TCComponent
 
     public function render()
     {
-        return view('livewire.question.multiple-select-question');
+        return view('livewire.student-player.question.multiple-select-question');
     }
 }

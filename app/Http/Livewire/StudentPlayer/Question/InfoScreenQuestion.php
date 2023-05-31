@@ -3,43 +3,34 @@
 namespace tcCore\Http\Livewire\StudentPlayer\Question;
 
 use tcCore\Answer;
-use tcCore\Http\Livewire\TCComponent;
 use tcCore\Http\Traits\WithAttachments;
-use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithGroups;
 use tcCore\Http\Traits\WithNotepad;
-use tcCore\Http\Traits\WithQuestionTimer;
+use tcCore\Http\Livewire\StudentPlayer\InfoScreenQuestion as AbstractInfoScreenQuestion;
 
-class InfoScreenQuestion extends TCComponent
+class InfoScreenQuestion extends AbstractInfoScreenQuestion
 {
-    use WithAttachments, WithNotepad, withCloseable, WithGroups;
-
-    public $question;
-
-    public $number;
-
-    public $answers;
+    use WithAttachments;
+    use WithGroups;
+    use WithNotepad;
 
     public $answer = '';
-
     public $testTakeUuid;
 
     public function mount()
     {
-        if($this->answers[$this->question->uuid]['answered']) {
+        if ($this->answers[$this->question->uuid]['answered']) {
             $this->answer = 'seen';
         }
     }
 
     public function render()
     {
-        return view('livewire.question.info-screen-question');
+        return view('livewire.student-player.question.info-screen-question');
     }
 
-    public function markAsSeen($questionUuid)
+    public function markAsSeen($questionUuid): void
     {
-        $json = json_encode('seen');
-        Answer::updateJson($this->answers[$questionUuid]['id'], $json);
+        Answer::updateJson($this->answers[$questionUuid]['id'], json_encode('seen'));
     }
-
 }

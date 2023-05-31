@@ -57,7 +57,7 @@ class MultipleSelectQuestion extends TCComponent
 
     public function render()
     {
-        return view('livewire.overview.multiple-select-question');
+        return view('livewire.student-player.overview.multiple-select-question');
     }
 
     public function isQuestionFullyAnswered(): bool

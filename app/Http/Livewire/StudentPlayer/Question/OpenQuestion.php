@@ -51,7 +51,7 @@ class OpenQuestion extends TCComponent
 
     public function render()
     {
-        return view('livewire.student-plauer.question.open-question');
+        return view('livewire.student-player.question.open-question');
     }
 
     /**

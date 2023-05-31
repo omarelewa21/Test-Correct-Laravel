@@ -53,7 +53,7 @@ class RankingQuestion extends TCComponent
 
     public function render()
     {
-        return view('livewire.overview.ranking-question');
+        return view('livewire.student-player.overview.ranking-question');
     }
 
     public function isQuestionFullyAnswered(): bool

@@ -2,47 +2,23 @@
 
 namespace tcCore\Http\Livewire\StudentPlayer\Overview;
 
-use tcCore\Http\Livewire\TCComponent;
-use tcCore\Http\Traits\WithAttachments;
-use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithGroups;
-use tcCore\Http\Traits\WithNotepad;
 use tcCore\Question;
+use tcCore\Http\Livewire\StudentPlayer\MatchingQuestion as AbstractMatchingQuestionAlias;
 
-class MatchingQuestion extends TCComponent
+class MatchingQuestion extends AbstractMatchingQuestionAlias
 {
-    use WithAttachments, WithNotepad, WithCloseable, WithGroups;
+    use WithGroups;
 
-    public $answer;
     public $answered;
-    public $question;
-    public $number;
-
-    public $answers;
-    public $answerStruct;
-
-    public $shuffledAnswers;
 
     public function mount()
     {
-        $this->question->loadRelated();
+        parent::mount();
         $this->answered = $this->answers[$this->question->uuid]['answered'];
-
-        $this->answerStruct = json_decode($this->answers[$this->question->uuid]['answer'], true);
-
         if ($this->answers[$this->question->uuid]['answer']) {
             $this->answer = true;
         }
-
-        if(!$this->answerStruct) {
-            foreach($this->question->matchingQuestionAnswers as $key => $value) {
-                if ($value->correct_answer_id !== null) {
-                    $this->answerStruct[$value->id] = "";
-                }
-            }
-        }
-
-        $this->shuffledAnswers = $this->question->matchingQuestionAnswers->shuffle();
 
         if(!is_null($this->question->belongs_to_groupquestion_id)){
             $this->question->groupQuestion = Question::find($this->question->belongs_to_groupquestion_id);
@@ -51,7 +27,7 @@ class MatchingQuestion extends TCComponent
 
     public function render()
     {
-        return view('livewire.overview.matching-question');
+        return view('livewire.student-player.overview.matching-question');
     }
 
     public function isQuestionFullyAnswered(): bool

@@ -21,14 +21,4 @@ abstract class ArqQuestion extends TCComponent
     {
         $this->uuid = $uuid;
     }
-
-    public function render()
-    {
-        $template = str(get_called_class())
-            ->replace(class_basename(get_called_class()), str(class_basename(get_called_class()))->kebab())
-            ->lower()
-            ->replace('\\', '.')
-            ->replace('tccore.http.', '');
-        return view($template);
-    }
 }

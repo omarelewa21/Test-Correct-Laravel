@@ -43,7 +43,7 @@ abstract class Navigation extends TCComponent
 
     public function render()
     {
-        return view('livewire.question.navigation');
+        return view('livewire.student-player.question.navigation');
     }
 
     private function getDetailsFirstQuestion()

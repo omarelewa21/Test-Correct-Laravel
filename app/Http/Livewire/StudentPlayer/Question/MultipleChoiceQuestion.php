@@ -73,11 +73,11 @@ class MultipleChoiceQuestion extends TCComponent
     public function render()
     {
         if ($this->question->subtype == 'ARQ') {
-            return view('livewire.question.arq-question');
+            return view('livewire.student-player.question.arq-question');
         } elseif ($this->question->subtype == 'TrueFalse') {
-            return view('livewire.question.true-false-question');
+            return view('livewire.student-player.question.true-false-question');
         }
 
-        return view('livewire.question.multiple-choice-question');
+        return view('livewire.student-player.question.multiple-choice-question');
     }
 }
