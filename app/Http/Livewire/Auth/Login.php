@@ -198,7 +198,7 @@ class Login extends Component
 //        }
 
         $expiration_date = $user->password_expiration_date;
-        if($expiration_date && $expiration_date->lessThan(Carbon::now())) {
+        if ($expiration_date && $expiration_date->lessThan(Carbon::now())) {
             return $this->emit('openModal', 'force-password-change-modal');
         }
         return $this->redirect($route);
@@ -350,10 +350,10 @@ class Login extends Component
         if (count($this->testTakeCode) != 6) {
             return false;
         }
+        $validValues = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
         foreach ($this->testTakeCode as $key => $value) {
-            $value = (int)$value;
-            if ($value === null || !is_int($value) || Str::length($value) != 1) {
+            if(! in_array($value, $validValues)) {
                 return false;
             }
         }
@@ -519,7 +519,9 @@ class Login extends Component
         $this->resetErrorBag();
     }
 
-    public function returnToLogin() {}
+    public function returnToLogin()
+    {
+    }
 
     private function getSchoolLocationAccptedEmailDomainRule()
     {
