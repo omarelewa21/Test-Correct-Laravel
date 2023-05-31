@@ -2,20 +2,17 @@
 
 namespace tcCore\Http\Livewire\StudentPlayer\Preview;
 
-use tcCore\Http\Livewire\TCComponent;
 use tcCore\Question;
+use tcCore\Http\Livewire\StudentPlayer\Navigation as AbstractNavigation;
 
-class Navigation extends TCComponent
+class Navigation extends AbstractNavigation
 {
-    public $nav;
     public $testId;
-    public $q;
-    public $queryString = ['q'];
     public $startTime;
 
     public $lastQuestionInGroup = [];
     public $groupQuestionIdsForQuestions = [];
-    public $closeableGroups = [];
+
 
     protected $listeners = [
         'redirect-from-closing-a-question' => 'redirectFromClosedQuestion',
@@ -26,102 +23,22 @@ class Navigation extends TCComponent
 
     public function mount()
     {
-        if (!$this->q) {
-            $this->q = 1;
-        }
-        $this->dispatchBrowserEvent('current-updated', ['current' => $this->q]);
-
-        $questions = Question::find(collect($this->nav)->pluck('id'));
-
-        foreach ($this->nav as $key => $question) {
-            $question = $questions->first(function($item) use ($question) {
-                return $item->id === $question['id'];
-            });
-//            $question = Question::find($question['id']);
-            $this->groupQuestionIdsForQuestions[$question->getKey()] = 0;
-            if($question['is_subquestion']) {
-                $groupId = $question->getGroupQuestionIdByTest($this->testId);
-                $this->groupQuestionIdsForQuestions[$question->getKey()] = $groupId;
-                $this->lastQuestionInGroup[$groupId] = $question->getKey();
-                $this->closeableGroups[$groupId] = (bool) Question::whereId($groupId)->value('closeable');
-            }
-        }
-        $this->nav = collect($this->nav);
+        parent::mount();
         $this->startTime = time();
     }
-
 
     public function render()
     {
         return view('livewire.student-player.preview.navigation');
     }
 
-    private function getDetailsFirstQuestion()
-    {
-        return ['data' => ['prev' => false, 'next' => true, 'turnin' => false]];
-    }
-
-    private function getDetailsLastQuestion()
-    {
-        return ['data' => ['prev' => true, 'next' => false, 'turnin' => true]];
-    }
-
-    private function getDetailsQuestion()
-    {
-        return ['data' => ['prev' => true, 'next' => true, 'turnin' => false]];
-    }
-
-    public function previousQuestion()
-    {
-        if ($this->q > 1) {
-            $this->goToQuestion($this->q - 1);
-        }
-
-        $details = $this->getDetailsQuestion();
-        if ($this->q == 1) {
-            $details = $this->getDetailsFirstQuestion();
-        }
-        $this->dispatchBrowserEvent('update-footer-navigation', $details);
-
-    }
-
-    public function nextQuestion()
-    {
-        if ($this->q < $this->nav->count()) {
-            $this->goToQuestion($this->q + 1);
-        }
-
-        $details = $this->getDetailsQuestion();
-        if ($this->q == $this->nav->count()) {
-            $details = $this->getDetailsLastQuestion();
-        }
-        $this->dispatchBrowserEvent('update-footer-navigation', $details);
-    }
-
     public function toOverview($currentQuestion)
     {
-        $isThisQuestion = $this->nav[$this->q - 1];
-
-        if ($isThisQuestion['group']['closeable'] && !$isThisQuestion['group']['closed']) {
-            $this->dispatchBrowserEvent('close-this-group', $currentQuestion);
-        } elseif ($isThisQuestion['closeable'] && !$isThisQuestion['closed']) {
-            $this->dispatchBrowserEvent('close-this-question', $currentQuestion);
-        } else {
+        $canGoAway = parent::toOverview($currentQuestion);
+        if ($canGoAway) {
             return redirect()->to(route('student.test-take-overview', $this->testTakeUuid));
         }
-    }
-
-    public function updateQuestionIndicatorColor()
-    {
-        $newNav = $this->nav->map(function ($item, $key) {
-            $q = $this->q;
-            if ($key == --$q) {
-                $item['answered'] = true;
-                return $item;
-            }
-            return $item;
-        });
-        $this->nav = $newNav;
+        return false;
     }
 
     public function checkIfCurrentQuestionIsInfoscreen($question)
@@ -187,5 +104,29 @@ class Navigation extends TCComponent
         });
 
         $this->nav = $newNav;
+    }
+
+    /**
+     * @return void
+     */
+    protected function fillPropertiesByNav(): void
+    {
+        $questions = Question::find(collect($this->nav)->pluck('id'));
+
+        foreach ($this->nav as $key => $question) {
+            $question = $questions->first(function($item) use ($question) {
+                return $item->id === $question['id'];
+            });
+
+            $this->groupQuestionIdsForQuestions[$question->getKey()] = 0;
+            if($question['is_subquestion']) {
+                $groupId = $question->getGroupQuestionIdByTest($this->testId);
+                $this->groupQuestionIdsForQuestions[$question->getKey()] = $groupId;
+                $this->lastQuestionInGroup[$groupId] = $question->getKey();
+                $this->closeableGroups[$groupId] = (bool) Question::whereId($groupId)->value('closeable');
+            }
+        }
+        $this->nav = collect($this->nav);
+
     }
 }

@@ -2,97 +2,42 @@
 
 namespace tcCore\Http\Livewire\StudentPlayer\Overview;
 
-use tcCore\Answer;
-use tcCore\Http\Livewire\TCComponent;
-use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithGroups;
 use tcCore\Question;
+use tcCore\Http\Livewire\StudentPlayer\MultipleChoiceQuestion as AbstractMultipleChoiceQuestionAlias;
 
-class MultipleChoiceQuestion extends TCComponent
+class MultipleChoiceQuestion extends AbstractMultipleChoiceQuestionAlias
 {
-    use WithCloseable, WithGroups;
-
-    public $question;
+    use WithGroups;
 
     public $queryString = ['q'];
-
     public $q;
-
-    public $answer = '';
     public $answered;
 
-    public $answers;
-
-    public $answerStruct;
-    public $shuffledKeys;
-
-    public $number;
-
-    public $arqStructure = [];
-
-    public $answerText;
 
     public function mount()
     {
-        $this->arqStructure = \tcCore\MultipleChoiceQuestion::getArqStructure();
-
-        if (!empty(json_decode($this->answers[$this->question->uuid]['answer']))) {
-            $this->answerStruct = json_decode($this->answers[$this->question->uuid]['answer'], true);
-            $this->answer = array_keys($this->answerStruct, 1)[0];
-        } else {
-            $this->question->multipleChoiceQuestionAnswers->each(function ($answers) use (&$map) {
-                $this->answerStruct[$answers->id] = 0;
-            });
-        }
-
-        $this->shuffledKeys = array_keys($this->answerStruct);
-        if (!$this->question->isCitoQuestion()) {
-            if ($this->question->subtype != 'ARQ' && $this->question->subtype != 'TrueFalse'  && !$this->question->fix_order) {
-                shuffle($this->shuffledKeys);
-            }
-        }
-
-        $this->question->multipleChoiceQuestionAnswers->each(function ($answers) use (&$map) {
-            $this->answerText[$answers->id] = $answers->answer;
-        });
+        parent::mount();
 
         $this->answered = $this->answers[$this->question->uuid]['answered'];
 
-        if(!is_null($this->question->belongs_to_groupquestion_id)){
+        if (!is_null($this->question->belongs_to_groupquestion_id)) {
             $this->question->groupQuestion = Question::find($this->question->belongs_to_groupquestion_id);
         }
     }
 
-    public function updatedAnswer($value)
-    {
-        $this->answerStruct = array_fill_keys(array_keys($this->answerStruct), 0);
-        $this->answerStruct[$value] = 1;
-
-        $json = json_encode($this->answerStruct);
-
-        Answer::where([
-            ['id', $this->answers[$this->question->uuid]['id']],
-            ['question_id', $this->question->id],
-        ])->update(['json' => $json]);
-
-
-//        $this->emitUp('updateAnswer', $this->uuid, $this->answerStruct);
-    }
-
     public function render()
     {
-        if ($this->question->subtype == 'ARQ') {
-            return view('livewire.student-player.overview.arq-question');
-        } elseif ($this->question->subtype == 'TrueFalse') {
-            return view('livewire.student-player.overview.true-false-question');
-
-        }
-
-        return view('livewire.student-player.overview.multiple-choice-question');
+        return view('livewire.student-player.preview.' . $this->getTemplateName());
     }
 
     public function isQuestionFullyAnswered(): bool
     {
         return true;
+    }
+
+    protected function setAnswerStruct($whenHasAnswerCallback = null): void
+    {
+        parent::setAnswerStruct(fn() => $this->answer = array_keys($this->answerStruct, 1)[0]);
     }
 }

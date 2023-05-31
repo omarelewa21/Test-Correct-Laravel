@@ -2,17 +2,12 @@
 
 namespace tcCore\Http\Livewire\StudentPlayer;
 
-use Illuminate\Support\Str;
-use tcCore\Answer;
 use tcCore\Http\Livewire\TCComponent;
-use tcCore\Http\Traits\WithAttachments;
 use tcCore\Http\Traits\WithCloseable;
-use tcCore\Http\Traits\WithGroups;
-use tcCore\Http\Traits\WithNotepad;
 
 abstract class MatrixQuestion extends TCComponent
 {
-    use WithAttachments, WithNotepad, withCloseable, WithGroups;
+    use withCloseable;
 
     public $question;
     public $number;
@@ -28,25 +23,5 @@ abstract class MatrixQuestion extends TCComponent
     {
         $this->subQuestions = $this->question->matrixQuestionSubQuestions;
         $this->questionAnswers = $this->question->matrixQuestionAnswers;
-
-        if (!empty(json_decode($this->answers[$this->question->uuid]['answer']))) {
-            $this->answerStruct = json_decode($this->answers[$this->question->uuid]['answer'], true);
-        }
-
-    }
-
-    public function render()
-    {
-        return view('livewire.question.matrix-question');
-    }
-
-    public function updatingAnswer($value)
-    {
-        $answerIds = Str::of($value)->explode(':');
-        $this->answerStruct[$answerIds[0]] = $answerIds[1];
-
-        $json = json_encode($this->answerStruct);
-
-        Answer::updateJson($this->answers[$this->question->uuid]['id'], $json);
     }
 }

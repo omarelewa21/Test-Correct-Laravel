@@ -5,10 +5,7 @@ namespace tcCore\Http\Livewire\StudentPlayer;
 use Illuminate\Support\Str;
 use tcCore\Answer;
 use tcCore\Http\Livewire\TCComponent;
-use tcCore\Http\Traits\WithAttachments;
 use tcCore\Http\Traits\WithCloseable;
-use tcCore\Http\Traits\WithGroups;
-use tcCore\Http\Traits\WithNotepad;
 
 abstract class MatchingQuestion extends TCComponent
 {

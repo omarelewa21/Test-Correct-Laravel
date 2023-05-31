@@ -9,10 +9,8 @@ use tcCore\Question;
 abstract class Navigation extends TCComponent
 {
     public $nav;
-    public $testTakeUuid;
     public $q;
     public $queryString = ['q'];
-    public $startTime;
     public $isOverview = false;
 
     public $lastQuestionInGroup = [];
@@ -30,14 +28,8 @@ abstract class Navigation extends TCComponent
         if (!$this->q) {
             $this->q = 1;
         }
-        $this->dispatchBrowserEvent('current-updated', ['current' => $this->q]);
 
-        foreach ($this->nav as $key => $q) {
-            if ($q['group']['closeable']) {
-                $this->lastQuestionInGroup[$q['group']['id']] = $key + 1;
-            }
-        }
-        $this->startTime = time();
+        $this->fillPropertiesByNav();
     }
 
 
@@ -90,22 +82,22 @@ abstract class Navigation extends TCComponent
 
     public function toOverview($currentQuestion)
     {
-        $this->checkIfCurrentQuestionIsInfoscreen($this->q);
-
         $isThisQuestion = $this->nav[$this->q - 1];
 
         if ($isThisQuestion['group']['closeable'] && !$isThisQuestion['group']['closed']) {
             $this->dispatchBrowserEvent('close-this-group', 'toOverview');
+            return false;
         } elseif ($isThisQuestion['closeable'] && !$isThisQuestion['closed']) {
             $this->dispatchBrowserEvent('close-this-question', 'toOverview');
-        } else {
-            $this->dispatchBrowserEvent('show-loader', ['route' => route('student.test-take-overview', $this->testTakeUuid)]);
+            return false;
         }
+
         return true;
     }
 
-    public function updateQuestionIndicatorColor($questionNumber)
+    public function updateQuestionIndicatorColor($questionNumber = null)
     {
+        $questionNumber ??= $this->q;
         $newNav = $this->nav->map(function ($item, $key) use ($questionNumber) {
             if ($key + 1 == $questionNumber) {
                 $item['answered'] = true;
@@ -218,5 +210,17 @@ abstract class Navigation extends TCComponent
     public function redirectTo($route)
     {
         return redirect()->to($route);
+    }
+
+    /**
+     * @return void
+     */
+    protected function fillPropertiesByNav(): void
+    {
+        foreach ($this->nav as $key => $q) {
+            if ($q['group']['closeable']) {
+                $this->lastQuestionInGroup[$q['group']['id']] = $key + 1;
+            }
+        }
     }
 }

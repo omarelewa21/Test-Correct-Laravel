@@ -2,58 +2,31 @@
 
 namespace tcCore\Http\Livewire\StudentPlayer;
 
-use tcCore\Answer;
 use tcCore\Http\Livewire\TCComponent;
-use tcCore\Http\Traits\WithAttachments;
+use tcCore\Http\Traits\Questions\WithMultipleChoiceStructure;
 use tcCore\Http\Traits\WithCloseable;
-use tcCore\Http\Traits\WithGroups;
-use tcCore\Http\Traits\WithNotepad;
 
 abstract class MultipleChoiceQuestion extends TCComponent
 {
-    use WithAttachments, WithNotepad, withCloseable, WithGroups;
+    use withCloseable;
+    use WithMultipleChoiceStructure;
 
     public $question;
-
     public $answer = '';
-
     public $answers;
-
     public $answerStruct;
     public $shuffledKeys;
-
     public $number;
-
     public $arqStructure = [];
-
-    protected $listeners = ['questionUpdated' => 'questionUpdated'];
-
     public $answerText;
-
-    public $testTakeUuid;
-
 
     public function mount()
     {
         $this->arqStructure = \tcCore\MultipleChoiceQuestion::getArqStructure();
 
-        if (!empty(json_decode($this->answers[$this->question->uuid]['answer']))) {
-            $this->answerStruct = json_decode($this->answers[$this->question->uuid]['answer'], true);
-            if ($this->question->subtype == 'ARQ' || $this->question->subtype == 'TrueFalse') {
-                $this->answer = array_keys($this->answerStruct, 1)[0];
-            }
-        } else {
-            $this->question->multipleChoiceQuestionAnswers->each(function ($answers) use (&$map) {
-                $this->answerStruct[$answers->id] = 0;
-            });
-        }
+        $this->setAnswerStruct();
 
-        $this->shuffledKeys = array_keys($this->answerStruct);
-        if (!$this->question->isCitoQuestion()) {
-            if ($this->question->subtype != 'ARQ' && $this->question->subtype != 'TrueFalse' && !$this->question->fix_order) {
-                shuffle($this->shuffledKeys);
-            }
-        }
+        $this->shuffleKeys();
 
         $this->question->multipleChoiceQuestionAnswers->each(function ($answers) use (&$map) {
             $this->answerText[$answers->id] = $answers->answer;
@@ -64,20 +37,55 @@ abstract class MultipleChoiceQuestion extends TCComponent
     {
         $this->answerStruct = array_fill_keys(array_keys($this->answerStruct), 0);
         $this->answerStruct[$value] = 1;
-
-        $json = json_encode($this->answerStruct);
-
-        Answer::updateJson($this->answers[$this->question->uuid]['id'], $json);
     }
 
-    public function render()
+    /**
+     * @return void
+     */
+    protected function shuffleKeys(): void
     {
-        if ($this->question->subtype == 'ARQ') {
-            return view('livewire.question.arq-question');
-        } elseif ($this->question->subtype == 'TrueFalse') {
-            return view('livewire.question.true-false-question');
+        $this->shuffledKeys = array_keys($this->answerStruct);
+        if (!$this->question->isCitoQuestion()) {
+            if ($this->question->subtype != 'ARQ' && $this->question->subtype != 'TrueFalse' && !$this->question->fix_order) {
+                shuffle($this->shuffledKeys);
+            }
         }
+    }
 
-        return view('livewire.question.multiple-choice-question');
+    protected function setAnswerStruct($whenHasAnswerCallback = null): void
+    {
+        if ($this->hasGivenAnswer()) {
+            $this->answerStruct = $this->getStructFromAnswer();
+            if (!is_null($whenHasAnswerCallback) && is_callable($whenHasAnswerCallback)) {
+                $whenHasAnswerCallback();
+            }
+        } else {
+            $this->setDefaultStruct();
+        }
+    }
+
+    protected function getTemplateName(): string
+    {
+        return str($this->question->subtype)
+            ->replace('ARQ', 'arq')
+            ->kebab()
+            ->append('-question');
+    }
+
+    final protected function hasGivenAnswer(): bool
+    {
+        return !empty(json_decode($this->answers[$this->question->uuid]['answer']));
+    }
+
+    final protected function getStructFromAnswer(): array
+    {
+        return json_decode($this->answers[$this->question->uuid]['answer'], true);
+    }
+
+    final protected function setDefaultStruct(): void
+    {
+        $this->question->multipleChoiceQuestionAnswers->each(function ($answers) use (&$map) {
+            $this->answerStruct[$answers->id] = 0;
+        });
     }
 }

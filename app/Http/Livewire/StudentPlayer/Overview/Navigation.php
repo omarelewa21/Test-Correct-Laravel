@@ -2,30 +2,15 @@
 
 namespace tcCore\Http\Livewire\StudentPlayer\Overview;
 
-use tcCore\Http\Livewire\TCComponent;
+use tcCore\Http\Livewire\StudentPlayer\Navigation as AbstractNavigation;
 
-class Navigation extends TCComponent
+class Navigation extends AbstractNavigation
 {
-    public $nav;
     public $testTakeUuid;
-    public $q;
-    public $queryString = ['q'];
     public $playerUrl;
     public $useSlider   ;
     public $lastQuestionInGroup = [];
     public $isOverview = true;
-
-    public function mount()
-    {
-        if (!$this->q) {
-            $this->q = 1;
-        }
-        foreach ($this->nav as $key => $q) {
-            if ($q['group']['closeable']) {
-                $this->lastQuestionInGroup[$q['group']['id']] = $key+1;
-            }
-        }
-    }
 
 
     public function render()

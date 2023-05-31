@@ -15,6 +15,17 @@ class MatchingQuestion extends AbstractMatchingQuestionAlias
 
     public $testId;
 
+    public function mount(){
+        $this->question->loadRelated();
+
+        foreach ($this->question->matchingQuestionAnswers as $key => $value) {
+            if ($value->correct_answer_id !== null) {
+                $this->answerStruct[$value->id] = "";
+            }
+        }
+        $this->shuffledAnswers = $this->question->matchingQuestionAnswers->shuffle();
+    }
+
     protected function matchingUpdateValueOrder($dbstring, $values, $struct = null)
     {
         return parent::matchingUpdateValueOrder($dbstring, $values, $this->answerStruct);

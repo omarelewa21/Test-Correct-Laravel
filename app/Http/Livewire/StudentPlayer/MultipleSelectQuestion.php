@@ -3,53 +3,14 @@
 namespace tcCore\Http\Livewire\StudentPlayer;
 
 use tcCore\Answer;
-use tcCore\Http\Livewire\TCComponent;
-use tcCore\Http\Traits\WithAttachments;
-use tcCore\Http\Traits\WithCloseable;
-use tcCore\Http\Traits\WithGroups;
-use tcCore\Http\Traits\WithNotepad;
 
-abstract class MultipleSelectQuestion extends TCComponent
+abstract class MultipleSelectQuestion extends MultipleChoiceQuestion
 {
-    use WithAttachments, WithNotepad, withCloseable, WithGroups;
-
-    public $question;
-
-    public $answer = '';
-
-    public $answers;
-
-    public $answerStruct;
-
-    public $number;
-
-    public $answerText;
-    public $shuffledKeys;
-
-    public $testTakeUuid;
-
     public function mount()
     {
         $this->selectable_answers = $this->question->selectable_answers;
 
-        if (!empty(json_decode($this->answers[$this->question->uuid]['answer']))) {
-            $this->answerStruct = json_decode($this->answers[$this->question->uuid]['answer'], true);
-        } else {
-            $this->question->multipleChoiceQuestionAnswers->each(function ($answers) use (&$map) {
-                $this->answerStruct[$answers->id] = 0;
-            });
-        }
-
-        $this->shuffledKeys = array_keys($this->answerStruct);
-        if (!$this->question->isCitoQuestion()) {
-            if ($this->question->subtype != 'ARQ' && $this->question->subtype != 'TrueFalse' && !$this->question->fix_order) {
-                shuffle($this->shuffledKeys);
-            }
-        }
-
-        $this->question->multipleChoiceQuestionAnswers->each(function ($answers) use (&$map) {
-            $this->answerText[$answers->id] = $answers->answer;
-        });
+        parent::mount();
     }
 
     public function updatedAnswer($value)
@@ -62,16 +23,7 @@ abstract class MultipleSelectQuestion extends TCComponent
                 $this->answerStruct[$value] = 1;
             }
         }
-
-        $json = json_encode($this->answerStruct);
-
-        Answer::updateJson($this->answers[$this->question->uuid]['id'], $json);
-
         $this->answer = '';
     }
 
-    public function render()
-    {
-        return view('livewire.question.multiple-select-question');
-    }
 }
