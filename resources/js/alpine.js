@@ -2420,13 +2420,14 @@ document.addEventListener("alpine:init", () => {
             maxWidth = maxWidth > 1000 ? 1000 : maxWidth;
 
             if (el.scrollWidth > maxWidth) return maxWidth + "px";
-            if (el.value.length === 0) return this.minWidth + "px";
+            if (el.value.length === 0 || el.value.length <= 10) return this.minWidth + "px";
 
-            this.previousValue = el.value;
+            const safari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
             let newWidth = (el.value.length >= this.previousValue.length)
-                ? el.scrollWidth + 2
+                ? el.scrollWidth + (safari ? 25 : 2)
                 : el.scrollWidth - 5;
 
+            this.previousValue = el.value;
             return (newWidth < this.minWidth ? this.minWidth : newWidth ) + 'px';
         }
     }))

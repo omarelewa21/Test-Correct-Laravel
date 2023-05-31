@@ -89,7 +89,7 @@ class CompletionQuestionConvertedHtml extends Component
             $answer = '';
             $rsSpan = '';
             $events = sprintf(
-                '@blur="$refs.%s.scrollLeft = 0" @input="$event.target.setAttribute(\'title\', $event.target.value);"',
+                '@blur="$refs.%s.scrollLeft = 0" @input="$event.target.setAttribute(\'title\', $event.target.value); $el.style.width = getInputWidth($el)"',
                 'comp_answer_' . $tag_id
             );
             $context = $this->context;

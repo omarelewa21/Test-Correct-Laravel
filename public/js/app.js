@@ -8020,9 +8020,10 @@ document.addEventListener("alpine:init", function () {
         var maxWidth = el.parentNode.closest("div").offsetWidth;
         maxWidth = maxWidth > 1000 ? 1000 : maxWidth;
         if (el.scrollWidth > maxWidth) return maxWidth + "px";
-        if (el.value.length === 0) return this.minWidth + "px";
+        if (el.value.length === 0 || el.value.length <= 10) return this.minWidth + "px";
+        var safari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+        var newWidth = el.value.length >= this.previousValue.length ? el.scrollWidth + (safari ? 25 : 2) : el.scrollWidth - 5;
         this.previousValue = el.value;
-        var newWidth = el.value.length >= this.previousValue.length ? el.scrollWidth + 2 : el.scrollWidth - 5;
         return (newWidth < this.minWidth ? this.minWidth : newWidth) + 'px';
       }
     };

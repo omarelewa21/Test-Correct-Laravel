@@ -12,7 +12,7 @@
         {!! $events !!}
         :style="{width: getInputWidth($el)}"
         wire:key="{{'comp_answer_' . $tag_id}}"
-        @keyup="$el.style.width = getInputWidth($el)"
+{{--        @keyup="$el.style.width = getInputWidth($el)"--}}
         @resize.window="$el.style.width = getInputWidth($el)"
     />
     {!! $rsSpan !!}
