@@ -12,12 +12,12 @@
     background-image: none;
 }
 
-#co-learning-teacher-page img {
-    background-color: rgba(var(--light-grey-rgb), 1);
-    background-image: url(/pdf/images/loading-icon.gif);
-    background-position: center;
-    background-repeat: no-repeat;
-}
+/*#co-learning-teacher-page img {*/
+/*    background-color: rgba(var(--light-grey-rgb), 1);*/
+/*    background-image: url(/pdf/images/loading-icon.gif);*/
+/*    background-position: center;*/
+/*    background-repeat: no-repeat;*/
+/*}*/
 
 #co-learning-teacher-page .drawer-footer,
 #assessment-page .drawer-footer {
