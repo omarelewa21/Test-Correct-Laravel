@@ -2366,6 +2366,19 @@ document.addEventListener("alpine:init", () => {
                         'comment',
                     ]
                 },
+                wproofreader: {
+                    autoSearch: false,
+                    autoDestroy: true,
+                    autocorrect: false,
+                    autocomplete: false,
+                    actionItems: ["addWord", "ignoreAll", "ignore", "settings", "toggle", "proofreadDialog"],
+                    enableBadgeButton: true,
+                    serviceProtocol: "https",
+                    servicePort: "80",
+                    serviceHost: "wsc.test-correct.nl",
+                    servicePath: "wscservice/api",
+                    srcUrl: "https://wsc.test-correct.nl/wscservice/wscbundle/wscbundle.js"
+                },
                 users: users,
             } ).then( editor => {
 
@@ -2428,22 +2441,33 @@ document.addEventListener("alpine:init", () => {
             console.dir(this.commentsRepository.activeCommentThread); //focusTracking Required!
 
 
-            return;
             this.activeThread = this.commentsRepository.activeCommentThread;
-            if(this.activeThread) {
-                console.log('active thread');
-                await this.updateCommentThread();
-                return;
+            if(this.activeThread){
+                console.log(this.activeThread);
             }
-            console.log('active thread 2');
 
             await this.createCommentThread();
 
         },
 
-        async updateCommentThread() {
+        async updateCommentThread(threadId) {
+            this.commentsRepository = this.answerEditor.plugins.get( 'CommentsRepository' );
+
             const commentThread = this.commentsRepository.activeCommentThread;
-            console.log('updaetCommentThread');
+
+            const threadEditor = window.ClassicEditors[threadId];
+
+                console.log('livewire call');
+                this.$wire.call('updateCommentThread', {threadId: threadId, message: threadEditor.getData(), answer: this.answerEditor.getData()});
+                threadEditor.data.set('<p></p>')
+
+
+
+            console.log('updaetCommentThread', commentThread);
+            console.log('updaetCommentThread', threadId);
+
+
+
         },
         async createCommentThread() {
 
@@ -2452,20 +2476,24 @@ document.addEventListener("alpine:init", () => {
             var feedbackEditor = this.commentEditor;
 
             var comment = feedbackEditor.getData();
-
+            console.log(comment);
+            console.log(' bieb 1');
             if(!comment || comment == '<p></p>') {
                 return;
             }
+            console.log(' bieb 1');
 
-            var editor = this.answerEditor
+            var editor = ClassicEditors['answer-editor']
 
             editor.focus();
 
-            $nextTick(async () => {
+            this.$nextTick(async () => {
+                console.log(editor.editing.view.hasDomSelection, 'hasselectgion')
+                return;
                 if(editor.editing.view.hasDomSelection) {
 
                     //created feedback record data
-                    var feedback = await $wire.call('createNewComment');
+                    var feedback = await this.$wire.call('createNewComment');
                     console.log(feedback);
 
                     var threadId = feedback.threadId;
@@ -2475,8 +2503,8 @@ document.addEventListener("alpine:init", () => {
 
                     await editor.execute( 'addCommentThread', { threadId: threadId } );
 
-                    var lastCommentThread = commentsRepository.getCommentThreads()[commentsRepository.getCommentThreads().length-1];
-                    lastCommentThread.addComment({threadId: threadId, commentId: commentId, content: comment, authorId: '1486'});
+                    var newCommentThread = commentsRepository.getCommentThreads().filter((thread) => { return thread.id == threadId});
+                    newCommentThread.addComment({threadId: threadId, commentId: commentId, content: comment, authorId: '1486'});
 
                 }
 
@@ -2485,14 +2513,18 @@ document.addEventListener("alpine:init", () => {
 
         },
         async deleteCommentThread(threadId) {
-            const result = await $wire.call('deleteCommentThread', threadId);
+
+            const result = await this.$wire.call('deleteCommentThread', threadId);
             if(result) {
-                return commentsRepository.getCommentThread('thread-1').remove();
+                commentsRepository.getCommentThread(threadId).remove();
+                const answerText = this.answerEditor.getData();
+                await this.$wire.call('updateAnswerText', answerText);
+                return;
             }
             console.log('failed to delete answer feedback');
         },
         setFocusTracking() {
-            const commentButtons = document.querySelectorAll('#sidebar > .button');
+            const commentButtons = document.querySelectorAll('#sidebar .button');
 
             setTimeout(()=> {
                 this.getEditors();

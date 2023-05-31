@@ -45,8 +45,6 @@ import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
 import ButtonView from '@ckeditor/ckeditor5-ui/src/button/buttonview';
 
 import Comments from '@ckeditor/ckeditor5-comments/src/comments';
-import BlockToolbar from '@ckeditor/ckeditor5-ui/src/toolbar/block/blocktoolbar';
-
 
 class Completion extends Plugin {
     init() {
@@ -191,18 +189,17 @@ Editor.builtinPlugins = [
     RemoveFormat,
     PasteFromOffice,
     WordCount,
-    // WProofreader,
+    WProofreader,
     Completion,
     Selection,
     Comments,
-    BlockToolbar
 ];
 
 // Editor configuration.
 Editor.defaultConfig = {
+    licenseKey: '9K2tRUPoZobJydX6tm2HusZ/x1NCE/sghAv2zyuhaiEtxnbV9QKrhKjJvsI=',
     toolbar: {
         items: [
-            'comment', '|',
             'completion',
             'selection',
             'bold',
@@ -282,22 +279,6 @@ Editor.defaultConfig = {
     ui: {
         viewportOffset: {top: 137}
     },
-
-    comments: {
-        editorConfig: {
-            toolbar: {
-                items: [
-                    'bold',
-                    'italic',
-                    'underline',
-                    'strikethrough',
-                    'subscript',
-                    'superscript',
-                ]
-            },
-            extraPlugins: [ Bold, Italic, Underline ]
-        }
-    }
 };
 
 export default Editor;
