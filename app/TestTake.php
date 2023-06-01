@@ -257,7 +257,8 @@ class TestTake extends BaseModel
                         $testParticipant->save();
                     }
                     AnswerChecker::checkAnswerOfParticipant($testParticipant);
-                    TestTakeOpenForInteraction::dispatch($testParticipant->uuid);
+
+                    AfterResponse::$performAction[] = fn() => TestTakeOpenForInteraction::dispatch($testParticipant->uuid);
                 }
             }
             if (($testTake->testTakeStatus->name === 'Discussing' && $testTake->getAttribute('discussing_question_id') != $testTake->getOriginal('discussing_question_id'))

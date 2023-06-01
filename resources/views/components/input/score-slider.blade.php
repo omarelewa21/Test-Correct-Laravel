@@ -32,8 +32,13 @@
         <div class="flex gap-2 items-center w-full slider-input-wrapper">
             @endif
             <div @class(['flex relative','min-w-[calc(10.375rem+12px)] max-w-[calc(16.75rem+30px)] h-12 score-slider-track-container' => $mode === 'default', 'w-full' => $mode === 'small'])>
-                <div x-show="score === null" class="score-slider-initial-handle"
-                    @click="score = 0; syncInput()"
+                <div x-show="score === null"
+                     @class([
+                        "score-slider-initial-handle",
+                        "score-slider-initial-handle-offset" => !$continuousScoreSlider,
+                     ])
+                     @click="score = 0; syncInput()"
+                     @mousedown="score = 0; syncInput(); document.querySelector('#slide-container input[type=range]').focus()"
                 ></div>
                 @if($continuousScoreSlider)
                     <div class="flex w-full h-full justify-between items-center pl-[12px] pr-[15px]"

@@ -119,6 +119,10 @@
 
 
 /* score slider initial thumb */
+.score-slider-container .score-slider-initial-handle-offset {
+    transform: translate(calc(-40% + 1px));
+}
+
 .score-slider-container .score-slider-initial-handle {
     position: absolute;
     width: 1.5rem;
@@ -131,7 +135,6 @@
     box-shadow: 0 2px 4px 0 rgba(4, 31, 116, 0.3);
     z-index: 1;
     top: calc(50% - 0.75rem);
-    transform: translate(-12px);
 }
 
 .score-slider-container .score-slider-initial-handle:hover {
