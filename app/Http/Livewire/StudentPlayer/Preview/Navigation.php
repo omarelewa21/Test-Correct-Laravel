@@ -12,6 +12,8 @@ class Navigation extends AbstractNavigation
 
     public $lastQuestionInGroup = [];
     public $groupQuestionIdsForQuestions = [];
+    public $closeableGroups = [];
+
 
 
     protected $listeners = [
@@ -34,76 +36,10 @@ class Navigation extends AbstractNavigation
 
     public function toOverview($currentQuestion)
     {
-        $canGoAway = parent::toOverview($currentQuestion);
-        if ($canGoAway) {
+        if (parent::toOverview($currentQuestion)) {
             return redirect()->to(route('student.test-take-overview', $this->testTakeUuid));
         }
         return false;
-    }
-
-    public function checkIfCurrentQuestionIsInfoscreen($question)
-    {
-        $questionUuid = $this->nav[$question - 1]['uuid'];
-        if (Question::whereUuid($questionUuid)->first()->type === 'InfoscreenQuestion') {
-            $this->dispatchBrowserEvent('mark-infoscreen-as-seen', $questionUuid);
-            $this->updateQuestionIndicatorColor();
-        }
-    }
-
-    public function goToQuestion($question)
-    {
-            $this->q = $question;
-
-            $details = $this->getDetailsQuestion();
-            if ($this->q == 1) {
-                $details = $this->getDetailsFirstQuestion();
-            }
-
-            if ($this->q == $this->nav->count()) {
-                $details = $this->getDetailsLastQuestion();
-            }
-
-            $this->dispatchBrowserEvent('update-footer-navigation', $details);
-
-            $this->dispatchBrowserEvent('current-updated', ['current' => $this->q]);
-
-    }
-
-    public function redirectFromClosedQuestion($navInfo)
-    {
-        $this->updateNavWithClosedQuestion($navInfo['closed_question']);
-        $this->goToQuestion($navInfo['next_question']);
-    }
-
-    public function redirectFromClosedGroup($navInfo)
-    {
-        $this->updateNavWithClosedGroup($navInfo['closed_group']);
-        $this->goToQuestion($navInfo['next_question']);
-    }
-
-    public function updateNavWithClosedQuestion($question)
-    {
-        $newNav = $this->nav->map(function ($item) use ($question) {
-            if ($item['id'] == $question) {
-                $item['closed'] = true;
-                return $item;
-            }
-            return $item;
-        });
-        $this->nav = $newNav;
-    }
-
-    public function updateNavWithClosedGroup($groupId)
-    {
-        $newNav = $this->nav->map(function ($item) use ($groupId) {
-            if ($item['group']['id'] == $groupId) {
-                $item['group']['closed'] = true;
-                return $item;
-            }
-            return $item;
-        });
-
-        $this->nav = $newNav;
     }
 
     /**

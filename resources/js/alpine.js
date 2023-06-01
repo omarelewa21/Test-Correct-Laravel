@@ -1651,6 +1651,7 @@ document.addEventListener("alpine:init", () => {
         set expanded(value) {
             this.active = value ? this.id : null;
             if (value) {
+                this.$dispatch('block-expanded', {id: this.id});
                 this.$root.querySelectorAll(".slider-button-container").forEach(toggle => toggle.dispatchEvent(new CustomEvent("slider-toggle-rerender")));
                 this.$el.classList.remove("hover:shadow-hover");
             }

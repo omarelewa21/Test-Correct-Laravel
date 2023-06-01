@@ -2,17 +2,17 @@
 
 namespace tcCore\Factories\Questions;
 
-class FactoryQuestionOpenLong extends FactoryQuestionOpen
+class FactoryQuestionOpenWriting extends FactoryQuestionOpen
 {
     public function questionSubType(): string
     {
-        return 'medium'; //question Open-long == subtype medium
+        return 'writing';
     }
 
     public function attributeDefaults(): array
     {
         return [
-            'spell_check_available' => false,
+            'spell_check_available' => true,
             'text_formatting'       => true,
             'mathml_functions'      => true,
             'restrict_word_amount'  => false,

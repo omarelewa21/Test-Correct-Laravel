@@ -43,11 +43,6 @@ abstract class DrawingQuestion extends TCComponent
         $this->usesNewDrawingTool = Auth::user()->schoolLocation()->value('allow_new_drawing_question');
     }
 
-    public function render()
-    {
-        return view('livewire.question.drawing-question');
-    }
-
     private function initPlayerInstance()
     {
         $this->playerInstance = 'eppi_' . rand(1000, 9999999);

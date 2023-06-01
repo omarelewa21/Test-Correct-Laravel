@@ -3,12 +3,13 @@
 namespace tcCore\Http\Livewire\StudentPlayer\Overview;
 
 use tcCore\Http\Traits\WithGroups;
-use tcCore\Question;
-use tcCore\Http\Livewire\StudentPlayer\MultipleChoiceQuestion as AbstractMultipleChoiceQuestionAlias;
+use tcCore\Http\Traits\WithStudentPlayerOverview;
+use tcCore\Http\Livewire\StudentPlayer\MultipleChoiceQuestion as AbstractMultipleChoiceQuestion;
 
-class MultipleChoiceQuestion extends AbstractMultipleChoiceQuestionAlias
+class MultipleChoiceQuestion extends AbstractMultipleChoiceQuestion
 {
     use WithGroups;
+    use WithStudentPlayerOverview;
 
     public $queryString = ['q'];
     public $q;
@@ -18,17 +19,11 @@ class MultipleChoiceQuestion extends AbstractMultipleChoiceQuestionAlias
     public function mount()
     {
         parent::mount();
-
-        $this->answered = $this->answers[$this->question->uuid]['answered'];
-
-        if (!is_null($this->question->belongs_to_groupquestion_id)) {
-            $this->question->groupQuestion = Question::find($this->question->belongs_to_groupquestion_id);
-        }
     }
 
     public function render()
     {
-        return view('livewire.student-player.preview.' . $this->getTemplateName());
+        return view('livewire.student-player.overview.' . $this->getTemplateName());
     }
 
     public function isQuestionFullyAnswered(): bool

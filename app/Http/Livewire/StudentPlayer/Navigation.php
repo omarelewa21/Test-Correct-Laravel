@@ -32,12 +32,6 @@ abstract class Navigation extends TCComponent
         $this->fillPropertiesByNav();
     }
 
-
-    public function render()
-    {
-        return view('livewire.student-player.question.navigation');
-    }
-
     private function getDetailsFirstQuestion()
     {
         return ['data' => ['prev' => false, 'next' => true, 'turnin' => false]];
@@ -119,29 +113,6 @@ abstract class Navigation extends TCComponent
 
     public function goToQuestion($nextQuestion)
     {
-        if($nextQuestion == 'toOverview'){
-            return $this->dispatchBrowserEvent('show-loader', ['route' => route('student.test-take-overview', $this->testTakeUuid)]);
-        }
-
-        if (!$this->nav->has($nextQuestion - 1)) {
-            return;
-        }
-
-        $this->checkIfCurrentQuestionIsInfoscreen($this->q);
-
-        $currentQuestion = $this->nav[$this->q - 1];
-
-        $this->registerTimeForQuestion($currentQuestion);
-
-        if ($this->nav[$nextQuestion - 1]['group']['id'] != $currentQuestion['group']['id'] && $currentQuestion['group']['closeable'] && !$currentQuestion['group']['closed']) {
-            $this->dispatchBrowserEvent('close-this-group', $nextQuestion);
-            return;
-        }
-        if ($currentQuestion['closeable'] && !$currentQuestion['closed']) {
-            $this->dispatchBrowserEvent('close-this-question', $nextQuestion);
-            return;
-        }
-
         $this->q = $nextQuestion;
 
         $details = $this->getDetailsQuestion();
@@ -182,13 +153,13 @@ abstract class Navigation extends TCComponent
         $this->nav = $newNav;
     }
 
-    public function updateNavWithClosedGroup($groupId)
+    public function updateNavWithClosedGroup($groupId, $callable = null)
     {
-        $newNav = $this->nav->map(function ($item) use ($groupId) {
+        $newNav = $this->nav->map(function ($item) use ($callable, $groupId) {
             if ($item['group']['id'] == $groupId) {
                 $item['group']['closed'] = true;
-                if ($item['closeable']) {
-                    $item['closed'] = true;
+                if (!is_null($callable) && is_callable($callable)) {
+                    $callable($item);
                 }
                 return $item;
             }
@@ -196,15 +167,6 @@ abstract class Navigation extends TCComponent
         });
 
         $this->nav = $newNav;
-    }
-
-    private function registerTimeForQuestion($question)
-    {
-        Answer::registerTime(
-            $question['answer_id'],
-            time() - $this->startTime
-        );
-        $this->startTime = time();
     }
 
     public function redirectTo($route)

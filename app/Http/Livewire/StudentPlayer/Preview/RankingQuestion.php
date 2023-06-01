@@ -2,48 +2,18 @@
 
 namespace tcCore\Http\Livewire\StudentPlayer\Preview;
 
-use tcCore\Http\Livewire\TCComponent;
-use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithNotepad;
 use tcCore\Http\Traits\WithPreviewAttachments;
 use tcCore\Http\Traits\WithPreviewGroups;
+use tcCore\Http\Livewire\StudentPlayer\RankingQuestion as AbstractRankingQuestion;
 
-class RankingQuestion extends TCComponent
+class RankingQuestion extends AbstractRankingQuestion
 {
-    use WithPreviewAttachments, WithNotepad, withCloseable, WithPreviewGroups;
+    use WithNotepad;
+    use WithPreviewAttachments;
+    use WithPreviewGroups;
 
-    public $uuid;
-    public $answer;
-    public $question;
     public $testId;
-    public $number;
-    public $answers;
-    public $answerStruct;
-    public $answerText = [];
-
-    public function questionUpdated($uuid, $answer)
-    {
-        $this->uuid = $uuid;
-        $this->answer = $answer;
-
-    }
-
-    public function mount()
-    {
-        $result = [];
-
-        foreach($this->question->rankingQuestionAnswers as $key => $value) {
-            $result[] = (object)['order' => $key + 1, 'value' => $value->id];
-        }
-        shuffle($result);
-
-        $this->answerStruct = ($result);
-
-        collect($this->question->rankingQuestionAnswers->each(function($answers) use (&$map) {
-             $this->answerText[$answers->id] = $answers->answer;
-        }));
-    }
-
 
     public function render()
     {
@@ -56,19 +26,14 @@ class RankingQuestion extends TCComponent
         $this->createAnswerStruct();
     }
 
-    public function createAnswerStruct()
+    protected function setAnswerStruct(): void
     {
         $result = [];
-
-        collect($this->answerStruct)->each(function ($value, $key) use (&$result) {
-            $result[] = (object)['order' => $key + 1, 'value' => $value['value']];
-        })->toArray();
+        foreach ($this->question->rankingQuestionAnswers as $key => $value) {
+            $result[] = (object)['order' => $key + 1, 'value' => $value->id];
+        }
+        shuffle($result);
 
         $this->answerStruct = ($result);
-    }
-
-    public function hydrateAnswerStruct()
-    {
-        $this->createAnswerStruct();
     }
 }

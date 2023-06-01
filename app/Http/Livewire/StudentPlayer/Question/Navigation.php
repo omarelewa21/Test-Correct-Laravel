@@ -35,26 +35,22 @@ class Navigation extends AbstractNavigation
     {
         $this->checkIfCurrentQuestionIsInfoscreen($this->q);
 
-        $canGoAway = parent::toOverview($currentQuestion);
-        if ($canGoAway) {
-            $this->dispatchBrowserEvent('show-loader', ['route' => route('student.test-take-overview', $this->testTakeUuid)]);
+        if (parent::toOverview($currentQuestion)) {
+            $this->dispatchBrowserEvent(
+                'show-loader',
+                ['route' => route('student.test-take-overview', $this->testTakeUuid)]
+            );
         }
         return true;
     }
 
-    public function checkIfCurrentQuestionIsInfoscreen($question)
-    {
-        $questionUuid = $this->nav[$question - 1]['uuid'];
-        if (Question::whereUuid($questionUuid)->first()->type === 'InfoscreenQuestion') {
-            $this->dispatchBrowserEvent('mark-infoscreen-as-seen', $questionUuid);
-            $this->updateQuestionIndicatorColor($question);
-        }
-    }
-
     public function goToQuestion($nextQuestion)
     {
-        if($nextQuestion == 'toOverview'){
-            return $this->dispatchBrowserEvent('show-loader', ['route' => route('student.test-take-overview', $this->testTakeUuid)]);
+        if ($nextQuestion == 'toOverview') {
+            return $this->dispatchBrowserEvent(
+                'show-loader',
+                ['route' => route('student.test-take-overview', $this->testTakeUuid)]
+            );
         }
 
         if (!$this->nav->has($nextQuestion - 1)) {
@@ -76,60 +72,16 @@ class Navigation extends AbstractNavigation
             return;
         }
 
-        $this->q = $nextQuestion;
-
-        $details = $this->getDetailsQuestion();
-        if ($this->q == 1) {
-            $details = $this->getDetailsFirstQuestion();
-        }
-        if ($this->q == $this->nav->count()) {
-            $details = $this->getDetailsLastQuestion();
-        }
-
-        $this->dispatchBrowserEvent('update-footer-navigation', $details);
-
-        $this->dispatchBrowserEvent('current-updated', ['current' => $this->q]);
-
+        parent::goToQuestion($nextQuestion);
     }
 
-    public function redirectFromClosedQuestion($navInfo)
+    public function updateNavWithClosedGroup($groupId, $callable = null)
     {
-        $this->updateNavWithClosedQuestion($navInfo['closed_question']);
-        $this->goToQuestion($navInfo['next_question']);
-    }
-
-    public function redirectFromClosedGroup($navInfo)
-    {
-        $this->updateNavWithClosedGroup($navInfo['closed_group']);
-        $this->goToQuestion($navInfo['next_question']);
-    }
-
-    public function updateNavWithClosedQuestion($question)
-    {
-        $newNav = $this->nav->map(function ($item) use ($question) {
-            if ($item['id'] == $question) {
+        parent::updateNavWithClosedGroup($groupId, function ($item) {
+            if ($item['closeable']) {
                 $item['closed'] = true;
-                return $item;
             }
-            return $item;
         });
-        $this->nav = $newNav;
-    }
-
-    public function updateNavWithClosedGroup($groupId)
-    {
-        $newNav = $this->nav->map(function ($item) use ($groupId) {
-            if ($item['group']['id'] == $groupId) {
-                $item['group']['closed'] = true;
-                if ($item['closeable']) {
-                    $item['closed'] = true;
-                }
-                return $item;
-            }
-            return $item;
-        });
-
-        $this->nav = $newNav;
     }
 
     private function registerTimeForQuestion($question)
@@ -139,10 +91,5 @@ class Navigation extends AbstractNavigation
             time() - $this->startTime
         );
         $this->startTime = time();
-    }
-
-    public function redirectTo($route)
-    {
-        return redirect()->to($route);
     }
 }

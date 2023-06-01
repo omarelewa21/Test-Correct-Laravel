@@ -56,4 +56,5 @@ return [
     'start_co_learning_session'     => 'Start CO-Learning sessie',
     'show-on-smartboard'            => 'Toon op smartboard',
     'hide-from-smartboard'          => 'Verberg op smartboard',
+    'Taalfouten'                    => 'Taalfouten',
 ];

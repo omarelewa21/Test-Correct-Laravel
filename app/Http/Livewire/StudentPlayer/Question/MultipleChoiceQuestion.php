@@ -6,9 +6,9 @@ use tcCore\Answer;
 use tcCore\Http\Traits\WithAttachments;
 use tcCore\Http\Traits\WithGroups;
 use tcCore\Http\Traits\WithNotepad;
-use tcCore\Http\Livewire\StudentPlayer\MultipleChoiceQuestion as AbstractMultipleChoiceQuestionAlias;
+use tcCore\Http\Livewire\StudentPlayer\MultipleChoiceQuestion as AbstractMultipleChoiceQuestion;
 
-class MultipleChoiceQuestion extends AbstractMultipleChoiceQuestionAlias
+class MultipleChoiceQuestion extends AbstractMultipleChoiceQuestion
 {
     use WithAttachments;
     use WithGroups;

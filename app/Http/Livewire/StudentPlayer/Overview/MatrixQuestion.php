@@ -3,12 +3,13 @@
 namespace tcCore\Http\Livewire\StudentPlayer\Overview;
 
 use tcCore\Http\Traits\WithGroups;
-use tcCore\Question;
+use tcCore\Http\Traits\WithStudentPlayerOverview;
 use tcCore\Http\Livewire\StudentPlayer\MatrixQuestion as AbstractMatrixQuestion;
 
 class MatrixQuestion extends AbstractMatrixQuestion
 {
     use WithGroups;
+    use WithStudentPlayerOverview;
 
     public $answered;
     public function mount()
@@ -17,13 +18,7 @@ class MatrixQuestion extends AbstractMatrixQuestion
 
         if (!empty(json_decode($this->answers[$this->question->uuid]['answer']))) {
             $this->answerStruct = json_decode($this->answers[$this->question->uuid]['answer'], true);
-            $this->answered = true;
         }
-
-        if(!is_null($this->question->belongs_to_groupquestion_id)){
-            $this->question->groupQuestion = Question::find($this->question->belongs_to_groupquestion_id);
-        }
-
     }
 
     public function render()

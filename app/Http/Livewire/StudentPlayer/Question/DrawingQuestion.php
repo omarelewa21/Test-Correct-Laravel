@@ -67,7 +67,7 @@ class DrawingQuestion extends AbstractDrawingQuestion
         Answer::updateJson($this->answers[$this->question->uuid]['id'], $json);
 
         $this->drawingModalOpened = false;
-        $this->emitTo('question.navigation', 'current-question-answered', $this->number);
+        $this->emitTo('student-player.question.navigation', 'current-question-answered', $this->number);
     }
 
     public function render()

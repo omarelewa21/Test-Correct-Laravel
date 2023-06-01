@@ -79,10 +79,4 @@ abstract class MatchingQuestion extends TCComponent
         }
         return $dbstring;
     }
-
-
-    public function render()
-    {
-        return view('livewire.student-player.question.matching-question');
-    }
 }

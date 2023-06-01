@@ -12,7 +12,7 @@ use tcCore\Http\Traits\WithQuestionTimer;
 
 abstract class RankingQuestion extends TCComponent
 {
-    use WithAttachments, WithNotepad, withCloseable, WithGroups;
+    use withCloseable;
 
     public $uuid;
     public $answer;
@@ -20,54 +20,13 @@ abstract class RankingQuestion extends TCComponent
     public $number;
     public $answers;
     public $answerStruct;
-    public $testTakeUuid;
     public $answerText = [];
 
     public function mount()
     {
-        $this->answerStruct = (array)json_decode($this->answers[$this->question->uuid]['answer']);
+        $this->setAnswerStruct();
 
-        $result = [];
-        if(empty($this->answerStruct)) {
-            foreach($this->question->rankingQuestionAnswers as $key => $value) {
-                $result[] = (object)['order' => $key + 1, 'value' => $value->id];
-            }
-            shuffle($result);
-        } else {
-            collect($this->answerStruct)->each(function ($value, $key) use (&$result) {
-                $result[] = (object)['order' => $value + 1, 'value' => $key];
-            })->toArray();
-        }
-        $this->answerStruct = ($result);
-
-        collect($this->question->rankingQuestionAnswers->each(function($answers) use (&$map) {
-             $this->answerText[$answers->id] = $answers->answer;
-        }));
-    }
-
-    public function updateOrder($value)
-    {
-        $this->answerStruct = $value;
-
-        $result = (object)[];
-
-        collect($value)->each(function ($object, $key) use (&$result) {
-            $result->{$object['value']} = $object['order']-1;
-        });
-
-        $json = json_encode($result);
-
-        Answer::updateJson($this->answers[$this->question->uuid]['id'], $json);
-
-        $this->createAnswerStruct();
-        $this->emitTo('question.navigation','current-question-answered', $this->number);
-    }
-
-
-    public function render()
-    {
-        $this->dispatchDragItemWidth();
-        return view('livewire.question.ranking-question');
+        $this->setAnswerTexts();
     }
 
     public function createAnswerStruct()
@@ -86,8 +45,30 @@ abstract class RankingQuestion extends TCComponent
         $this->createAnswerStruct();
     }
 
-    public function dispatchDragItemWidth()
+    protected function setAnswerStruct(): void
     {
-        $this->dispatchBrowserEvent('add-width-to-drag-item');
+        $this->answerStruct = (array)json_decode($this->answers[$this->question->uuid]['answer']);
+
+        $result = [];
+        if (empty($this->answerStruct)) {
+            foreach ($this->question->rankingQuestionAnswers as $key => $value) {
+                $result[] = (object)['order' => $key + 1, 'value' => $value->id];
+            }
+            shuffle($result);
+        } else {
+            collect($this->answerStruct)->each(function ($value, $key) use (&$result) {
+                $result[] = (object)['order' => $value + 1, 'value' => $key];
+            })->toArray();
+        }
+        $this->answerStruct = ($result);
+    }
+
+    protected function setAnswerTexts(): void
+    {
+        collect(
+            $this->question->rankingQuestionAnswers->each(function ($answers) use (&$map) {
+                $this->answerText[$answers->id] = $answers->answer;
+            })
+        );
     }
 }

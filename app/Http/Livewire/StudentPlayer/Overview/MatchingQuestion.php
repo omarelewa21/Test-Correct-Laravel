@@ -4,9 +4,9 @@ namespace tcCore\Http\Livewire\StudentPlayer\Overview;
 
 use tcCore\Http\Traits\WithGroups;
 use tcCore\Question;
-use tcCore\Http\Livewire\StudentPlayer\MatchingQuestion as AbstractMatchingQuestionAlias;
+use tcCore\Http\Livewire\StudentPlayer\MatchingQuestion as AbstractMatchingQuestion;
 
-class MatchingQuestion extends AbstractMatchingQuestionAlias
+class MatchingQuestion extends AbstractMatchingQuestion
 {
     use WithGroups;
 

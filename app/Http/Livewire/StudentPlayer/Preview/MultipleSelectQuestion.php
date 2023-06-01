@@ -7,9 +7,9 @@ use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithNotepad;
 use tcCore\Http\Traits\WithPreviewAttachments;
 use tcCore\Http\Traits\WithPreviewGroups;
-use tcCore\Http\Livewire\StudentPlayer\MultipleSelectQuestion as AbstractMultipleSelectQuestionAlias;
+use tcCore\Http\Livewire\StudentPlayer\MultipleSelectQuestion as AbstractMultipleSelectQuestion;
 
-class MultipleSelectQuestion extends AbstractMultipleSelectQuestionAlias
+class MultipleSelectQuestion extends AbstractMultipleSelectQuestion
 {
     use WithNotepad;
     use WithPreviewAttachments;

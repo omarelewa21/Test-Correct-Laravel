@@ -2,26 +2,20 @@
 
 namespace tcCore\Http\Livewire\StudentPlayer\Overview;
 
-use tcCore\Http\Livewire\TCComponent;
-use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithGroups;
-use tcCore\Question;
-use tcCore\Http\Livewire\StudentPlayer\MultipleSelectQuestion as AbstractMultipleSelectQuestionAlias;
+use tcCore\Http\Traits\WithStudentPlayerOverview;
+use tcCore\Http\Livewire\StudentPlayer\MultipleSelectQuestion as AbstractMultipleSelectQuestion;
 
-class MultipleSelectQuestion extends AbstractMultipleSelectQuestionAlias
+class MultipleSelectQuestion extends AbstractMultipleSelectQuestion
 {
     use WithGroups;
+    use WithStudentPlayerOverview;
 
     public $answered;
 
     public function mount()
     {
         parent::mount();
-        $this->answered = $this->answers[$this->question->uuid]['answered'];
-
-        if(!is_null($this->question->belongs_to_groupquestion_id)){
-            $this->question->groupQuestion = Question::find($this->question->belongs_to_groupquestion_id);
-        }
     }
 
     public function render()

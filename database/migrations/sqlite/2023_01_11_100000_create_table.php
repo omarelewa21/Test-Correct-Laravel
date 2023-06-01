@@ -2634,6 +2634,11 @@ class CreateTable extends Migration
             $table->string('subtype', 45)->nullable();
             $table->text('answer');
             $table->efficientUuid('uuid')->index()->unique()->nullable();
+            $table->boolean('spell_check_available')->nullable();
+            $table->boolean('text_formatting')->nullable();
+            $table->boolean('mathml_functions')->nullable();
+            $table->boolean('restrict_word_amount')->nullable();
+            $table->integer('max_words')->nullable();
 //            $table->foreign('id')->references('id')->on('questions');
         });
     }

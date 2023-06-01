@@ -9,7 +9,8 @@
         'accordion-disabled' => $disabled
         ])
      x-bind:class="{' bg-primary/5 border-dashed border-primary border-4 rounded-10 -m-1 ': droppingFile}"
-        {{ $attributes->except(['class', 'key', 'emitWhenSet']) }}
+     {{ $attributes->except(['class', 'key', 'emitWhenSet']) }}
+     :data-block-id="id"
 >
     @if($upload)
         <div x-data="fileUpload(@js($uploadModel), @js($uploadRules))"
@@ -62,6 +63,7 @@
 
             <div x-show="expanded"
                  x-collapse
+
             >
                 <div @class(['accordion-content-slot | pt-4 flex max-w-full', 'border-t-3 border-sysbase mx-10 pb-10' => $mode === 'panel'])>
                     {{ $body }}

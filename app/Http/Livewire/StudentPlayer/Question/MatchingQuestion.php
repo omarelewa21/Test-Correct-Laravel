@@ -6,9 +6,9 @@ use tcCore\Answer;
 use tcCore\Http\Traits\WithAttachments;
 use tcCore\Http\Traits\WithGroups;
 use tcCore\Http\Traits\WithNotepad;
-use tcCore\Http\Livewire\StudentPlayer\MatchingQuestion as AbstractMatchingQuestionAlias;
+use tcCore\Http\Livewire\StudentPlayer\MatchingQuestion as AbstractMatchingQuestion;
 
-class MatchingQuestion extends AbstractMatchingQuestionAlias
+class MatchingQuestion extends AbstractMatchingQuestion
 {
     use WithAttachments;
     use WithGroups;
@@ -35,7 +35,7 @@ class MatchingQuestion extends AbstractMatchingQuestionAlias
 
         Answer::updateJson($this->answers[$this->question->uuid]['id'], $json);
 
-        $this->emitTo('question.navigation', 'current-question-answered', $this->number);
+        $this->emitTo('student-player.question.navigation', 'current-question-answered', $this->number);
     }
 
     public function render()

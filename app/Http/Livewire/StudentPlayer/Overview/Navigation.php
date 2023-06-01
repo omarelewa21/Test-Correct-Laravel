@@ -18,9 +18,9 @@ class Navigation extends AbstractNavigation
         return view('livewire.student-player.question.navigation');
     }
 
-    public function goToQuestion($question)
+    public function goToQuestion($nextQuestion)
     {
-        return redirect()->to($this->playerUrl.'?q='.$question);
+        return redirect()->to($this->playerUrl.'?q='.$nextQuestion);
     }
 
 }

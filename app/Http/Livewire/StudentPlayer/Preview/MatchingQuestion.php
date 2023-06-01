@@ -5,9 +5,9 @@ namespace tcCore\Http\Livewire\StudentPlayer\Preview;
 use tcCore\Http\Traits\WithNotepad;
 use tcCore\Http\Traits\WithPreviewAttachments;
 use tcCore\Http\Traits\WithPreviewGroups;
-use tcCore\Http\Livewire\StudentPlayer\MatchingQuestion as AbstractMatchingQuestionAlias;
+use tcCore\Http\Livewire\StudentPlayer\MatchingQuestion as AbstractMatchingQuestion;
 
-class MatchingQuestion extends AbstractMatchingQuestionAlias
+class MatchingQuestion extends AbstractMatchingQuestion
 {
     use WithNotepad;
     use WithPreviewAttachments;

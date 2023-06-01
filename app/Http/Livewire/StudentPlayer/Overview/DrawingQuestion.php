@@ -3,18 +3,14 @@
 namespace tcCore\Http\Livewire\StudentPlayer\Overview;
 
 use tcCore\Answer;
-use tcCore\Http\Traits\WithAttachments;
 use tcCore\Http\Traits\WithGroups;
-use tcCore\Http\Traits\WithNotepad;
-use tcCore\Question;
+use tcCore\Http\Traits\WithStudentPlayerOverview;
 use tcCore\Http\Livewire\StudentPlayer\DrawingQuestion as AbstractDrawingQuestion;
 
 class DrawingQuestion extends AbstractDrawingQuestion
 {
-    use WithAttachments;
     use WithGroups;
-    use WithNotepad;
-
+    use WithStudentPlayerOverview;
 
     public $answered;
 
@@ -26,12 +22,6 @@ class DrawingQuestion extends AbstractDrawingQuestion
         if ($answer->json) {
             $this->answer = json_decode($answer->json)->answer;
             $this->additionalText = json_decode($answer->json)->additional_text;
-        }
-
-        $this->answered = $this->answers[$this->question->uuid]['answered'];
-
-        if(!is_null($this->question->belongs_to_groupquestion_id)){
-            $this->question->groupQuestion = Question::find($this->question->belongs_to_groupquestion_id);
         }
     }
 

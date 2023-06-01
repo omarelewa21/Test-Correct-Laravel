@@ -7121,6 +7121,9 @@ document.addEventListener("alpine:init", function () {
       set expanded(value) {
         this.active = value ? this.id : null;
         if (value) {
+          this.$dispatch('block-expanded', {
+            id: this.id
+          });
           this.$root.querySelectorAll(".slider-button-container").forEach(function (toggle) {
             return toggle.dispatchEvent(new CustomEvent("slider-toggle-rerender"));
           });

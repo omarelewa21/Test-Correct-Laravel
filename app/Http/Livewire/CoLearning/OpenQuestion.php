@@ -15,15 +15,7 @@ class OpenQuestion extends CoLearningQuestion
 
     public function render()
     {
-        if($this->question->subtype === 'short'){
-            return view('livewire.co-learning.open-short-question');
-        }
-
-        if($this->question->subtype === 'writing'){
-            $this->webSpellChecker = true;
-        }
-
-        return view('livewire.co-learning.open-long-writing-question');
+        return view('livewire.co-learning.open-question');
     }
 
     public function isQuestionFullyAnswered(): bool
