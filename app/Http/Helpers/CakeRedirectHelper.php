@@ -95,7 +95,7 @@ class CakeRedirectHelper
                         return str($subValue)->contains($url);
                     });
                 }
-                return str($value)->contains($url);
+                return str($url)->contains($value);
 
             })
             ->keys()

@@ -6,10 +6,11 @@
         @js($halfPoints),
         @js($disabled),
         @js($coLearning),
-        @js($focusInput)
+        @js($focusInput),
+        @js($continuousScoreSlider)
      )"
-     x-on:updated-score.window="skipSync = true; score = $event.detail.score; updateContinuousSlider()"
-     x-on:new-score="score = $event.detail.score"
+     x-on:updated-score.window="skipSync = true; score = $event.detail.score; updateContinuousSlider(); setThumbOffset();"
+     x-on:new-score="score = $event.detail.score; setThumbOffset();"
      x-on:scoring-elements-error.window="markInputElementsWithError()"
         {{ $attributes->except(['wire:model', 'class']) }}
         @class([
@@ -88,10 +89,10 @@
                                x-model="score"
                                @if(!$hideThumb)
                                :class="{'hide-thumb': score === null}"
-                               x-on:click="noChangeEventFallback; $nextTick(() => { setThumbOffset($el, score, maxScore); }) "
-                               x-on:input="setThumbOffset($el, score, maxScore);"
+                               x-on:click="noChangeEventFallback; $nextTick(() => { setThumbOffset(); }) "
+                               x-on:input="setThumbOffset();"
                                x-on:change="syncInput(); "
-                               x-init="setThumbOffset($el, score, maxScore); $nextTick(() => { setThumbOffset($el, score, maxScore); })"
+                               x-init="setThumbOffset(); $nextTick(() => { setThumbOffset(); })"
                                @endif
                                x-on:click="noChangeEventFallback"
                                x-on:change="syncInput()"

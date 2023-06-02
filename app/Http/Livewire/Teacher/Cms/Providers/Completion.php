@@ -21,6 +21,15 @@ class Completion extends TypeProvider
         'autoCheckAnswerCaseSensitive' => true,
     ];
 
+    public function preparePropertyBag()
+    {
+        foreach ($this->questionOptions as $key => $value) {
+            if (!array_key_exists($key, $this->instance->question)) {
+                $this->instance->question[$key] = $value;
+            }
+        }
+    }
+
     public function initializePropertyBag($q)
     {
         parent::initializePropertyBag($q);

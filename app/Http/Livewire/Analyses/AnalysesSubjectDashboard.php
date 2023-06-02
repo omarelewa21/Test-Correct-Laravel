@@ -185,23 +185,41 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
                 $this->getTeachersByFilterValues(),
                 $this->getIsLearningGoalFilter()
             );
+        $subjectResults = PValueTimeSeriesWeekRepository::getForStudentBySubjectForSubject(
+            $this->getHelper()->getForUser(),
+            $this->getPeriodsByFilterValues(),
+            $this->getEducationLevelYearsByFilterValues(),
+            $this->getTeachersByFilterValues(),
+            $this->subject,
+        );
 
         $set = [];
         $names = [];
+        foreach ($subjectResults as $result) {
+            if (!in_array($result->name, $names)) {
+                $names[] = $result->name;
+            }
+            $set[$result->week_date][] = $result->score ?? 'missing';// $prevScore;
+        }
+
         foreach ($results as $result) {
             if (!in_array($result->id, $names)) {
                 $names[] = $result->id;
             }
-            $set[$result->week_date][] =  $result->score ?? 'missing';// $prevScore;
+            $set[$result->week_date][] = $result->score ?? 'missing';// $prevScore;
         }
+
+
 
         $newSet = collect($set)->map(function ($arr, $key) {
             return [$key, ...$arr];
         })->values()->toArray();
 
         $eindtermen = collect($names)->map(function ($id) {
-            return Attainment::withoutGlobalScope(AttainmentScope::class)->find($id)->name;
+            $eindterm = Attainment::withoutGlobalScope(AttainmentScope::class)->find($id);
+            return $eindterm ? $eindterm->name : __('student.subject total');
         })->toArray();
+
 
         return [false, $newSet, $eindtermen];
     }

@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Hash;
 use tcCore\Http\Traits\UserNotificationForController;
 use tcCore\User;
 
-class ChangePassword extends TCComponent
+class ChangePassword extends TCModalComponent
 {
     use UserNotificationForController;
 
@@ -20,7 +20,7 @@ class ChangePassword extends TCComponent
         return [
             'currentPassword'   => 'required',
             'newPasswordRepeat' => 'required|same:newPassword',
-            'newPassword'       => 'required|'. User::getPasswordLengthRule(),
+            'newPassword'       => 'required|' . User::getPasswordLengthRule(),
         ];
     }
 
@@ -61,11 +61,18 @@ class ChangePassword extends TCComponent
         $user->password = $this->newPassword;
         $user->save();
         $this->sendPasswordChangedMail($user);
-        return $this->dispatchBrowserEvent('password-changed-success', __('auth.password_changed_success'));
+
+        $this->dispatchBrowserEvent('notify', ['message' => __('auth.password_changed_success')]);
+        $this->closeModal();
     }
 
     public function updated()
     {
         $this->clearValidation();
+    }
+
+    public static function modalMaxWidth(): string
+    {
+        return 'md';
     }
 }

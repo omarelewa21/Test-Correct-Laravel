@@ -34,6 +34,10 @@ class PValueTimeSeriesWeekRepository
 
     public static function getForStudentBySubject(User $user, $periods, $educationLevelYears, $teachers)
     {
+        return static::getForStudentBySubjectQueryBuilder($user, $periods, $educationLevelYears, $teachers)->get();
+    }
+    private static function getForStudentBySubjectQueryBuilder(User $user, $periods, $educationLevelYears, $teachers)
+    {
         $dates = PValueRepository::convertPeriodsToStartAndEndDate($periods, $user);
 
         return Subject::filterForStudentCurrentSchoolYear($user)
@@ -42,7 +46,11 @@ class PValueTimeSeriesWeekRepository
                 $join->on('gen_date', '=', 'p_value_created_at')
                     ->on('subjects.id', '=', 'p_value_query.subject_id');
             })->orderByRaw('name, gen_date')
-            ->selectRaw("name, STR_TO_DATE(CONCAT(gen_date,' Monday'), '%X%V %W') as week_date, score")->get();
+            ->selectRaw("name, STR_TO_DATE(CONCAT(gen_date,' Monday'), '%X%V %W') as week_date, score");
+    }
+
+    public static function getForStudentBySubjectForSubject(User $user, $periods, $educationLevelYears, $teachers, Subject $forSubject) {
+        return self::getForStudentBySubjectQueryBuilder($user, $periods, $educationLevelYears, $teachers)->where('subjects.id', $forSubject->id)->get();
     }
 
     private static function getScoresWithSubjectId(User $user, $periods, $educationLevelYears, $teachers)
@@ -65,6 +73,7 @@ class PValueTimeSeriesWeekRepository
 
     public static function getForStudentForSubjectByAttainment(User $user, Subject $subject, $periods, $educationLevelYears, $teachers, $isLearningGoal)
     {
+
         $dates = PValueRepository::convertPeriodsToStartAndEndDate($periods, $user);
 
         return Attainment::withoutGlobalScope(AttainmentScope::class)
@@ -76,7 +85,7 @@ class PValueTimeSeriesWeekRepository
             ->leftJoinSub(self::getScoresWithAttainmentId($user, $periods, $educationLevelYears, $teachers), 'p_value_query', function ($join) {
                 $join->on('gen_date', '=', 'p_value_created_at')
                     ->on('attainments.id', '=', 'p_value_query.attainment_id');
-            })->orderByRaw('attainments.id , gen_date')
+            })->orderByRaw('attainments.code , gen_date')
             ->selectRaw("attainments.id, STR_TO_DATE(CONCAT(gen_date,' Monday'), '%X%V %W') as week_date, score")->get();
     }
 

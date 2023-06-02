@@ -32,6 +32,7 @@
             </svg>
         </div>
         <div class="user-menu" x-cloak x-ref="user_menu" x-cloak="" x-show="userMenu" x-transition.origin.top @click.outside="userMenu = false">
+            <a  id="user_account_settings" class="cursor-pointer" wire:click="laravelRedirect('{{ route('users.account', url()->referrer() , absolute: false) }}')">@lang('account.account') @lang('account.settings')</a>
             @if ($this->showSchoolSwitcher)
                 <a  id="user_school_locations" class="cursor-pointer" wire:click="$emit('openModal', 'teacher.schoollocation-switcher-modal')">{{ __('general.Wissel van school') }}</a>
             @endif

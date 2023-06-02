@@ -14,6 +14,7 @@ use Illuminate\Validation\ValidationException;
 use Livewire\WithFileUploads;
 use Ramsey\Uuid\Uuid;
 use tcCore\Attachment;
+use tcCore\BaseSubject;
 use tcCore\GroupQuestionQuestion;
 use tcCore\Http\Controllers\GroupQuestionQuestions\AttachmentsController as GroupAttachmentsController;
 use tcCore\Http\Controllers\GroupQuestionQuestionsController;
@@ -21,6 +22,8 @@ use tcCore\Http\Controllers\TemporaryLoginController;
 use tcCore\Http\Controllers\TestQuestions\AttachmentsController;
 use tcCore\Http\Controllers\TestQuestionsController;
 use tcCore\Http\Controllers\TestsController;
+use tcCore\Http\Enums\UserFeatureSetting as UserFeatureSettingEnum;
+use tcCore\Http\Enums\WscLanguage;
 use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Http\Interfaces\QuestionCms;
@@ -109,6 +112,7 @@ class Constructor extends TCComponent implements QuestionCms
     public $lang = 'nl_NL';
     private $lastSelectedLanguage;
     public $allowWsc = false;
+    public $wscLanguages;
     public const SETTING_LANG = 'spellchecker language';
 
     protected $tags = [];
@@ -227,10 +231,11 @@ class Constructor extends TCComponent implements QuestionCms
             'learning_goals'           => [],
             'test_id'                  => '',
             'all_or_nothing'           => false,
-            'lang'                     => $this->lastSelectedLanguage,
+            'lang'                     => $this->lang,
             'add_to_database_disabled' => 0,
             'draft'                    => $activeTest->draft,
         ];
+        $this->question = array_merge($this->question, $this->featureSettingDefaults());
 
         $this->audioUploadOptions = [];
 
@@ -266,7 +271,6 @@ class Constructor extends TCComponent implements QuestionCms
         $this->uniqueQuestionKey = $this->testQuestionId . $this->groupQuestionQuestionId . $this->action . $this->questionEditorId;
         $this->duplicateQuestion = false;
         $this->canDeleteTest = false;
-        $this->lang = $this->lastSelectedLanguage;
     }
 
 
@@ -330,10 +334,8 @@ class Constructor extends TCComponent implements QuestionCms
         }
     }
 
-    public function updatedLang($value)
+    public function updatedLang($value): void
     {
-        UserFeatureSetting::setSetting(Auth::user(), self::SETTING_LANG, $value);
-        $this->lastSelectedLanguage = $value;
         $this->question['lang'] = $value;
     }
 
@@ -354,18 +356,19 @@ class Constructor extends TCComponent implements QuestionCms
         $this->initializeContext($this->action, $this->type, $this->subtype, $activeTest);
         $this->obj = TypeFactory::create($this);
         $this->initializePropertyBag($activeTest);
-        $this->allowWsc = Auth::user()->schoolLocation->allow_wsc;
     }
 
     private function initialize($activeTest)
     {
-        $this->lastSelectedLanguage = $this->getTestLanguage();
+        $this->lang = $this->getDefaultWscLanguage();
         $this->resetQuestionProperties($activeTest);
         $this->canDeleteTest = $activeTest->canDelete(Auth::user());
         $this->testIsPublished = $activeTest->isPublished();
         $this->testName = $activeTest->name;
         $this->subjectId = $activeTest->subject_id;
         $this->educationLevelId = $activeTest->education_level_id;
+        $this->allowWsc = Auth::user()->schoolLocation->allow_wsc;
+        $this->wscLanguages = WscLanguage::casesWithDescription();
     }
 
     public function __call($method, $arguments = null)
@@ -1194,13 +1197,13 @@ class Constructor extends TCComponent implements QuestionCms
 
     public function getAmountOfQuestionsProperty()
     {
-        return Test::whereUuid($this->testId)->first()->getAmountOfQuestions();
+        return Test::whereUuid($this->testId)->first()?->getAmountOfQuestions();
     }
 
     private function testHasNoQuestions()
     {
         $questionAmount = $this->getAmountOfQuestionsProperty();
-        return !!($questionAmount['regular'] === 0 && $questionAmount['group'] === 0);
+        return !$questionAmount || !!($questionAmount['regular'] === 0 && $questionAmount['group'] === 0);
     }
 
     private function testHasQuestions()
@@ -1478,19 +1481,44 @@ class Constructor extends TCComponent implements QuestionCms
         $this->testIsPublished = Test::whereUuid($this->testId)->first()->isPublished();
     }
 
-    private function getTestLanguage(): string
+    private function getTestLanguage(): ?WscLanguage
     {
-        if (UserFeatureSetting::hasSetting(Auth::user(), self::SETTING_LANG)) {
-            return UserFeatureSetting::getSetting(Auth::user(), self::SETTING_LANG);
-        }
-        $lang = Auth::user()->schoolLocation->wscLanguage;
-        UserFeatureSetting::setSetting(Auth::user(), self::SETTING_LANG, $lang);
-        return $lang;
+        return BaseSubject::join('subjects', 'subjects.base_subject_id', '=', 'base_subjects.id')
+            ->join('tests', 'tests.subject_id', '=', 'subjects.id')
+            ->whereIn('tests.id', Test::whereUuid($this->testId)->select('id'))
+            ->value('wsc_lang');
     }
 
     public function toPlannedTest($takeUuid)
     {
         $testTake = TestTake::whereUuid($takeUuid)->first();
         return auth()->user()->redirectToCakeWithTemporaryLogin($testTake->getPlannedTestOptions());
+    }
+
+    private function getDefaultWscLanguage()
+    {
+        if (UserFeatureSetting::getSetting(Auth::user(), UserFeatureSettingEnum::WSC_COPY_SUBJECT_LANGUAGE, default: true)) {
+            if ($subjectLanguage = $this->getTestLanguage()) {
+                return $subjectLanguage;
+            }
+        }
+
+        if ($language = UserFeatureSetting::getSetting(Auth::user(), UserFeatureSettingEnum::WSC_DEFAULT_LANGUAGE)) {
+            return $language;
+        }
+
+        return WscLanguage::DUTCH;
+    }
+
+    private function featureSettingDefaults(): array
+    {
+        $featureSettings = UserFeatureSettingEnum::initialValues()->merge(UserFeatureSetting::getAll(Auth::user()));
+
+        return [
+            'add_to_database'   => $featureSettings[UserFeatureSettingEnum::QUESTION_PUBLICLY_AVAILABLE->value],
+            'score'             => $featureSettings[UserFeatureSettingEnum::QUESTION_DEFAULT_POINTS->value],
+            'decimal_score'     => $featureSettings[UserFeatureSettingEnum::QUESTION_HALF_POINTS_POSSIBLE->value],
+            'auto_check_answer' => $featureSettings[UserFeatureSettingEnum::QUESTION_AUTO_SCORE_COMPLETION->value],
+        ];
     }
 }

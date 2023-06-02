@@ -25,7 +25,7 @@ class OpenQuestion extends CoLearningQuestion
 
     protected function handleGetAnswerData()
     {
-        $temp = (array) json_decode($this->answerRating->answer->json);
+        $temp = (array)json_decode($this->answerRating->answer->json);
         if (key_exists('value', $temp)) {
             $this->answer = $temp['value'];
         }

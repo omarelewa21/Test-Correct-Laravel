@@ -11,8 +11,6 @@
             x-init="init()"
             x-on:close.stop="setShowPropertyTo(false)"
             x-on:keydown.escape.window="closeModalOnEscape()"
-            x-on:keydown.tab.prevent="$event.shiftKey || nextFocusable().focus()"
-            x-on:keydown.shift.tab.prevent="prevFocusable().focus()"
             x-show="show"
             class="fixed inset-0 z-10 overflow-y-auto"
             style="display: none;"
@@ -47,6 +45,8 @@
                     x-bind:class="modalWidth"
                     class="inline-block w-full align-bottom bg-white rounded-lg text-left shadow-xl transform transition-all sm:align-middle sm:w-full"
                     id="modal-container"
+                    x-trap.noscroll.inert="show && showActiveComponent"
+                    aria-modal="true"
                     :style="{'height': modalWidth === 'modal-full-screen' ? '93vh' : 'auto'}"
             >
                 @forelse($components as $id => $component)

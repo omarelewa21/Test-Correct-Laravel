@@ -56,5 +56,8 @@ return [
     'start_co_learning_session'     => 'Start CO-Learning session',
     'show-on-smartboard'            => 'Show on smartboard',
     'hide-from-smartboard'          => 'Hide on smartboard',
+    'spellchecker-for-students'     => 'Enable spellchecker for students',
+    'spellchecker-for-students-tt'  => 'This allows students to use a spell and grammar checker while reviewing student answers',
+    'open-question-options'         => 'Options for open questions',
     'Taalfouten'                    => 'Language errors',
 ];

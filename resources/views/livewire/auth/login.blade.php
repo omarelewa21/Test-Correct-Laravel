@@ -777,7 +777,6 @@
         <x-modal.auth-create-account maxWidth="lg" wire:model="showAuthModal"/>
     </div>
     <x-login-notification />
-    @livewire('livewire-ui-modal')
 </div>
 
 @push('scripts')
