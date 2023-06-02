@@ -12,12 +12,12 @@
     background-image: none;
 }
 
-#co-learning-teacher-page img {
-    background-color: rgba(var(--light-grey-rgb), 1);
-    background-image: url(/pdf/images/loading-icon.gif);
-    background-position: center;
-    background-repeat: no-repeat;
-}
+/*#co-learning-teacher-page img {*/
+/*    background-color: rgba(var(--light-grey-rgb), 1);*/
+/*    background-image: url(/pdf/images/loading-icon.gif);*/
+/*    background-position: center;*/
+/*    background-repeat: no-repeat;*/
+/*}*/
 
 #co-learning-teacher-page .drawer-footer,
 #assessment-page .drawer-footer {
@@ -91,8 +91,18 @@
     opacity: 0%; /*opacity instead of visibilty for transition*/
 }
 
+#co-learning-teacher-page .student-info-container .show-on-smartboard:active {
+    background-color: rgba(var(--primary-rgb), 0.1);
+}
+
+#co-learning-teacher-page .student-info-container .show-on-smartboard:hover,
 #co-learning-teacher-page .student-info-container .show-on-smartboard:focus {
-    border-color: rgba(0,77,245,0.15)
+    background-color: rgba(0,77,245,0.05);
+    color: var(--teacher-primary);
+}
+
+#co-learning-teacher-page .student-info-container .show-on-smartboard:focus {
+    border: 1px solid rgba(0,77,245,0.15);
 }
 
 #co-learning-teacher-page .student-info-container .show-on-smartboard svg,
@@ -136,8 +146,9 @@
 
 #co-learning-teacher-page .hide-on-smartboard,
 #assessment-page .hide-on-smartboard {
-    position: absolute;
-    right: 20px;
+    position: relative;
+    isolation: isolate;
+    pointer-events: all;
 }
 
 #co-learning-teacher-page .hide-on-smartboard div,
@@ -250,15 +261,21 @@
 
 .badge-view:hover {
     cursor: pointer;
-    background-color: #f3f7ff;
+    /*background-color: #f3f7ff;*/
     box-shadow: 0 3px 6px 0 rgba(4, 31, 116, 0.2);
     color: var(--teacher-primary);
+}
+
+.badge-view:active {
+    box-shadow: 0 2px 3px 0 rgba(4, 31, 116, 0.2);
+    background-color: rgba(var(--primary-rgb), 0.15);
 }
 
 .badge-view:hover .badge-title {
     color: var(--primary);
 }
 
+.badge-view:active:after,
 .badge-view:hover:after {
     content: '';
     border: 2px solid var(--teacher-primary);

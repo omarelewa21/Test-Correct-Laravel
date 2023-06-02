@@ -38,7 +38,7 @@
     --primary-rgb: 0, 77, 245;
     --primary-opacity-10: rgba(0, 77, 245, 0.1);
     --primary-opacity-05: rgba(0, 77, 245, 0.05);
-    --primary-light: #F5F7FF;
+    --primary-light: #E6EDFA;
     --teacher-primary: #004df5;
     --teacher-primary-light: #4781ff;
     --secondary: #ECDB00;
@@ -57,12 +57,14 @@
     --off-white: #f9faff;
     --all-red: #cf1b04;
     --red-light: #ffedeb;
+    --red-notification-border: #ebccc8;
     --note: #6b7789;
     --orange: #ff9d23;
     --main-shadow: 0 3px 8px 0 rgba(var(--system-base-rgb), 0.3);
     --card-shadow: 0 3px 16px 0 rgba(var(--system-base-rgb), 0.1);
     --small-shadow: 0 1px 4px 0 rgba(var(--system-base-rgb), 0.06);
     --hover-shadow: 0 8px 16px 0 rgba(var(--system-base-rgb), 0.2);
+    --content-box-shadow: 0 3px 6px 0 rgba(var(--system-base-rgb), 0.1);
     --white: #ffffff;
     --maintenance-header-bg: #ff6666;
     --deployment-testing-color: darkorange;
@@ -97,6 +99,11 @@
 @font-face {
     font-family: Zilla Slab Bold;
     src: url("../fonts/Zilla_Slab/ZillaSlab-Bold.ttf");
+}
+
+@font-face {
+    font-family: Zilla Slab SemiBold;
+    src: url("../fonts/Zilla_Slab/ZillaSlab-SemiBold.ttf");
 }
 
 @font-face {
@@ -389,6 +396,9 @@ h3 {
 h3.bold {
     font-family: Zilla Slab Bold, serif;
 }
+h3.semi-bold {
+    font-family: Zilla Slab SemiBold, serif;
+}
 
 h4 {
     font-size: 1.5rem;
@@ -505,7 +515,7 @@ h7 {
 .content-section {
     background: white;
     border-radius: 10px;
-    box-shadow: 0 3px 18px 0 rgba(77, 87, 143, 0.1);
+    box-shadow: var(--content-box-shadow)
 }
 
 .divider {
@@ -792,7 +802,7 @@ ul ul ul {
     display: none;
 }
 
-.accordion-block {
+.accordion-block:not(.transparent) {
     box-shadow: 0 3px 18px 0 rgba(var(--system-base-rgb), 0.1);
 }
 
@@ -806,6 +816,10 @@ ul ul ul {
 
 .hide-scrollbar {
     scrollbar-width: none;
+}
+
+.max-width-90 {
+    max-width: 90%;
 }
 
 .hide-scrollbar::-webkit-scrollbar {

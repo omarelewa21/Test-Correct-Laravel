@@ -371,6 +371,4 @@
             </x-accordion.block>
         </x-accordion.container>
     </div>
-    <x-notification/>
-    @livewire('livewire-ui-modal');
 </div>

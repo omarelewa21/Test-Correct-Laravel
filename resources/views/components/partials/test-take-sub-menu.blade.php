@@ -25,7 +25,7 @@
         @if(!$disabled)
         <x-button.text-button class="{{ $active === 'graded' ? 'active' : '' }}" type="link" href="{{ route('student.test-takes', ['tab' => 'graded']) }}"><span>{{ __('student.results') }}</span></x-button.text-button>
         @else
-        <x-button.text-button class="{{ $active === 'graded' ? 'active' : '' }}" @endif type="link" disabled class="cursor-pointer"><span>{{ __('student.results') }}</span></x-button.text-button>
+        <x-button.text-button class="{{ $active === 'graded' ? 'active' : '' }}" type="link" disabled class="cursor-pointer"><span>{{ __('student.results') }}</span></x-button.text-button>
         @endif
     </div>
 </div>

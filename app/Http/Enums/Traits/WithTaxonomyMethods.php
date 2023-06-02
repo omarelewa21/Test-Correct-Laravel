@@ -1,6 +1,6 @@
 <?php
 
-namespace tcCore\Http\Enums\Taxonomy;
+namespace tcCore\Http\Enums\Traits;
 
 trait WithTaxonomyMethods
 {

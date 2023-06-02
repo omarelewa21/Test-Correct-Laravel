@@ -24,7 +24,9 @@ class CmsCompletion extends CmsBase
     public function preparePropertyBag()
     {
         foreach ($this->questionOptions as $key => $value) {
-            $this->instance->question[$key] = $value;
+            if (!array_key_exists($key, $this->instance->question)) {
+                $this->instance->question[$key] = $value;
+            }
         }
     }
 

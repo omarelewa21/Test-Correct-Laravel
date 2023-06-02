@@ -2,6 +2,7 @@
     'student-info-container flex px-6 items-center h-10 justify-between flex-shrink-0 cursor-pointer',
     'active' => !is_null($activeAnswerRating) ? $testParticipant->discussing_answer_rating_id === $activeAnswerRating->id : false
     ])
+     x-bind:class="{active: activeStudentAnswer == {{ $testParticipant->discussing_answer_rating_id }}}"
      id="student-info-container-{{$testParticipant->uuid}}"
      wire:key="testParticipant-{{$testParticipant->uuid . $this->discussingQuestion->id }}"
      x-data="{
@@ -56,7 +57,6 @@
                 @class([
                    'show-on-smartboard',
                    'absolute -right-1 text-sysbase hover:text-primary',
-                   'active' => $smartboardButtonActive,
                    'disabled' => $smartboardButtonDisabled,
                 ])
                 @disabled($smartboardButtonDisabled)

@@ -43,7 +43,9 @@
                         return;
                     }
                     ReadspeakerTlc.ckeditor.reattachReadableAreaAndDestroy('{{ $editorId }}');
-                    // RichTextEditor.initClassicEditorForStudentplayer('{{$editorId}}','{{ $question->getKey() }}', @this.allowWsc);
+                    @if(!$this->question->isSubType('writing'))
+                        RichTextEditor.initClassicEditorForStudentplayer('{{$editorId}}','{{ $question->getKey() }}', @this.allowWsc);
+                    @endif
                 })
                 document.addEventListener('readspeaker_started', () => {
                     if(ReadspeakerTlc.guard.shouldNotDetachCkEditor(document.querySelector( '#{{ $editorId }}' ))){

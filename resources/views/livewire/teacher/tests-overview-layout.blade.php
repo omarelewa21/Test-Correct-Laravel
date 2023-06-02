@@ -134,6 +134,5 @@
 @hasSection('detailSlide')
     @yield('detailSlide')
 @endif
-<x-notification/>
 <x-after-planning-toast/>
 </div> {{-- This closing tag closes the container that is included on line 1 --}}

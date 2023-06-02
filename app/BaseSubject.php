@@ -1,6 +1,7 @@
 <?php namespace tcCore;
 
 use Illuminate\Support\Facades\Auth;
+use tcCore\Http\Enums\WscLanguage;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Dyrynda\Database\Casts\EfficientUuid;
@@ -13,7 +14,8 @@ class BaseSubject extends BaseModel {
     use UuidTrait;
 
     protected $casts = [
-        'uuid' => EfficientUuid::class,
+        'uuid'     => EfficientUuid::class,
+        'wsc_lang' => WscLanguage::class,
     ];
 
     /**

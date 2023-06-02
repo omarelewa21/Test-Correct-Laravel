@@ -123,7 +123,6 @@ document.addEventListener('alpine:init', () => {
                     }
                 }
             }, timeout);
-            // alert(this.$wire.activeRoute.main == '');
         },
         resetActiveState() {
             if (this.$wire.activeRoute.sub !== '') {

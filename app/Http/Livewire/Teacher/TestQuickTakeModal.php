@@ -4,6 +4,7 @@ namespace tcCore\Http\Livewire\Teacher;
 
 use Carbon\Carbon;
 use Ramsey\Uuid\Uuid;
+use tcCore\Http\Enums\UserFeatureSetting as UserFeatureSettingEnum;
 use tcCore\Http\Livewire\TCModalComponent;
 use tcCore\Http\Traits\Modal\WithPlanningFeatures;
 use tcCore\Lib\Repositories\PeriodRepository;
@@ -11,6 +12,7 @@ use tcCore\TemporaryLogin;
 use tcCore\Test;
 use tcCore\TestTake;
 use tcCore\TestTakeStatus;
+use tcCore\UserFeatureSetting;
 
 class TestQuickTakeModal extends TCModalComponent
 {
@@ -49,6 +51,8 @@ class TestQuickTakeModal extends TCModalComponent
                 'testTake.guest_accounts'          => 'required|boolean',
                 'testTake.notify_students'         => 'required|boolean',
                 'testTake.allow_wsc'               => 'sometimes|required|boolean',
+                'testTake.show_grades'             => 'sometimes|boolean',
+                'testTake.show_correction_model'   => 'sometimes|boolean',
             ];
     }
 
@@ -58,7 +62,7 @@ class TestQuickTakeModal extends TCModalComponent
         if (!$this->testTake->guest_accounts) {
             $conditionalRules['selectedClasses'] = 'required';
         }
-        if($this->rttiExportAllowed) {
+        if ($this->rttiExportAllowed) {
             $conditionalRules['testTake.is_rtti_test_take'] = 'required';
         }
         return $conditionalRules;
@@ -71,12 +75,7 @@ class TestQuickTakeModal extends TCModalComponent
         $this->testName = $this->test->name;
 
         $this->testTake = new TestTake();
-        /* The only editable settings */
-        $this->testTake->weight = 5;
-        $this->testTake->allow_inbrowser_testing = $this->isAssignmentType();
-        $this->testTake->guest_accounts = false;
-        $this->testTake->notify_students = false;
-        $this->rttiExportAllowed = $this->isRttiExportAllowed();
+        $this->setFeatureSettingDefaults($this->testTake);
         $this->testTake->is_rtti_test_take = false;
         $this->testTake->allow_wsc = false;
     }
