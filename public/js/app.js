@@ -15353,7 +15353,7 @@ RichTextEditor = {
       },
 
       wordCount: {
-        displayCharacters: true,
+        displayCharacters: false,
         displayWords: true
       },
       wproofreader: this.getWproofreaderConfig()
