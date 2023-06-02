@@ -11,6 +11,7 @@ class FileManagementStatus extends BaseModel {
     use SoftDeletes;
 
     const STATUS_PROVIDED = 14;
+    const STATUS_CANCELLED = 13;
     
     /**
      * The attributes that should be mutated to dates.

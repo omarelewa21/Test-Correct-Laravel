@@ -4,8 +4,10 @@ namespace tcCore\Http\Livewire\Teacher;
 
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Carbon\Carbon;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -426,8 +428,14 @@ class UploadTest extends TCComponent
         $rules = $this->getNameRulesDependingOnAction();
         if(!auth()->user()->isToetsenbakker()){
             $rules[] = Rule::notIn($this->previousUploadedTestNames);
-            $rules[] = Rule::unique('file_managements', 'origname')
-                ->where('user_id', auth()->id());
+            $rules[] = Rule::unique('file_managements', 'name')
+                ->where(function(Builder $query){
+                    $query->where('user_id', auth()->id())
+                        ->whereExists(fn(Builder $query) => $query->select(DB::raw(1))
+                            ->from('file_management_statuses as fms')
+                            ->whereColumn('fms.id', 'file_managements.file_management_status_id')
+                            ->where('fms.id', '<>', FileManagementStatus::STATUS_CANCELLED));
+                });
         }
 
         return Validator::make($this->testInfo, [
