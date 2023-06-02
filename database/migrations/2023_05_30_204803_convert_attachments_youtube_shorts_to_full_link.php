@@ -16,11 +16,12 @@ return new class extends Migration
     {
         Attachment::where('type', 'video')
             ->whereNotNull('link')
-            ->get()
-            ->each(function ($attachment) {
-                $attachment->update([
-                    'link' => Attachment::convertYoutubeShortsLink($attachment->link)
-                ]);
+            ->chunkById(100, function ($attachments) {
+                foreach ($attachments as $attachment) {
+                    $attachment->update([
+                        'link' => Attachment::convertYoutubeShortsLink($attachment->link)
+                    ]);
+                }
             });
     }
 
