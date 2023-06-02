@@ -47,4 +47,14 @@ abstract class FactoryQuestionOpen extends FactoryQuestion
     {
         return '<p>voorbeeld vraag:</p> <p>wat is de waarde van pi</p> ';
     }
+    public function definition()
+    {
+        return array_merge(
+            parent::definition(),
+            $this->attributeDefaults()
+        );
+    }
+
+    abstract public function questionSubType(): string;
+    abstract public function attributeDefaults(): array;
 }

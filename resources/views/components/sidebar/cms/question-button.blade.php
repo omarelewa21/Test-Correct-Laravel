@@ -1,7 +1,7 @@
 <div class="relative drag-item question-button flex items-center cursor-pointer bold py-2 bg-white transition-colors hover:text-primary pl-6 pr-4 {{ $active ? 'question-active' : '' }}"
      @click="$store.cms.processing = true;
              $dispatch('store-current-question');
-             $wire.emitTo('teacher.questions.open-short','showQuestion',
+             $wire.emitTo('teacher.cms.constructor','showQuestion',
              {
                 'testQuestionUuid':'{{ $testQuestion ? $testQuestion->uuid : null }}',
                 'questionUuid': '{{ $question->uuid }}',

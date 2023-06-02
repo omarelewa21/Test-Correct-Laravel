@@ -15,6 +15,7 @@ use tcCore\Factories\Questions\FactoryQuestionMultipleChoiceARQ;
 use tcCore\Factories\Questions\FactoryQuestionMultipleChoiceTrueFalse;
 use tcCore\Factories\Questions\FactoryQuestionOpenLong;
 use tcCore\Factories\Questions\FactoryQuestionOpenShort;
+use tcCore\Factories\Questions\FactoryQuestionOpenWriting;
 use tcCore\Factories\Questions\FactoryQuestionRanking;
 
 /**
@@ -51,6 +52,7 @@ class FactoryScenarioTestTestWithAllQuestionTypes extends FactoryScenarioTest
                         FactoryQuestionOpenLong::create()
                             ->setProperties(['question' => '<p>I am part of a group!</p>']),
                     ]),
+                FactoryQuestionOpenWriting::create(),
             ]);
     }
 }

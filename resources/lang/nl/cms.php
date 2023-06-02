@@ -1,4 +1,5 @@
 <?php
+
 return [
     'Bijlage toevoegen'                                                                      => 'Bijlage toevoegen',
     'Of sleep je bijlage over dit vak'                                                       => 'Of sleep je bijlage over dit vak',
@@ -227,4 +228,12 @@ return [
     'no_public_content_search_filters'                                                       => 'Er is nog geen openbare content voor uw school.',
     'no_items_search_filter'                                                                 => 'Er zijn geen items meer voor deze zoekfilters.',
     'Sorry, er ging iets fout, probeer het nogmaals'                                         => 'Sorry, er ging iets fout probeer het nogmaals',
+    'text_formatting'                                                                        => 'Tekst opmaak opties',
+    'text_formatting_tooltip'                                                                => 'Hiermee hebben studenten de mogelijkheid om de opmaak van hun antwoord aan te passen.',
+    'mathml_functions'                                                                       => 'Formules en speciale tekens beschikbaar',
+    'mathml_functions_tooltip'                                                               => 'Hiermee kunnen studenten formules uitschrijven en gebruik maken van wiskundige symbolen.',
+    'restrict_word_amount'                                                                   => 'Max. aantal woorden',
+    'spell_check_available'                                                                  => 'Spellingscontrole beschikbaar',
+    'spell_check_available_tooltip'                                                          => 'Hiermee kunnen leerlingen tijdens hun toets gebruiken maken van spellingscontrole. Deze onderstreept alle woorden die niet correct zijn geschreven.',
+    'Antwoord opties voor student'                                                           => 'Antwoord opties voor student',
 ];

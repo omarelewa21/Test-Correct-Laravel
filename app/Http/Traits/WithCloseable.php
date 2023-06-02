@@ -42,9 +42,9 @@ trait WithCloseable
                 'closed_question' => $this->question->getKey(),
                 'next_question'   => $nextQuestion
             ];
-            $this->emitTo('question.navigation', 'redirect-from-closing-a-question', $navInfo);
+            $this->emitTo('student-player.question.navigation', 'redirect-from-closing-a-question', $navInfo);
         } else {
-            $this->emitTo('question.navigation', 'update-nav-with-closed-question', $this->question->getKey());
+            $this->emitTo('student-player.question.navigation', 'update-nav-with-closed-question', $this->question->getKey());
         }
     }
 
@@ -79,9 +79,9 @@ trait WithCloseable
                 'next_question'   => $nextQuestion
             ];
 
-            $this->emitTo('question.navigation', 'redirect-from-closing-a-group', $navInfo);
+            $this->emitTo('student-player.question.navigation', 'redirect-from-closing-a-group', $navInfo);
         } else {
-            $this->emitTo('question.navigation', 'update-nav-with-closed-group', $this->group->id);
+            $this->emitTo('student-player.question.navigation', 'update-nav-with-closed-group', $this->group->id);
         }
     }
 }

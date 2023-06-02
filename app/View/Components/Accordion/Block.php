@@ -15,7 +15,7 @@ class Block extends Component
         public string     $uploadModel = '',
         public array      $uploadRules = [],
         public ?string    $coloredBorderClass = null,
-        public string     $mode = 'panel'
+        public string     $mode = 'panel',
     ) {}
 
     public function render(): View

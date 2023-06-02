@@ -127,7 +127,7 @@
 }
 
 /* ckeditor5-image/theme/imageresize.css */
-.questionContainer .image.image_resized ,
+.questionContainer .image.image_resized,
 .ck-content .image.image_resized {
     max-width: 100%;
     display: block;
@@ -135,19 +135,19 @@
 }
 
 /* ckeditor5-image/theme/imageresize.css */
-.questionContainer .image.image_resized img ,
+.questionContainer .image.image_resized img,
 .ck-content .image.image_resized img {
     width: 100%;
 }
 
 /* ckeditor5-image/theme/imageresize.css */
-.questionContainer .image.image_resized > figcaption ,
+.questionContainer .image.image_resized > figcaption,
 .ck-content .image.image_resized > figcaption {
     display: block;
 }
 
 /* ckeditor5-image/theme/imagecaption.css */
-.questionContainer .image > figcaption ,
+.questionContainer .image > figcaption,
 .ck-content .image > figcaption {
     display: table-caption;
     caption-side: bottom;
@@ -160,7 +160,7 @@
 }
 
 /* ckeditor5-image/theme/image.css */
-.questionContainer .image ,
+.questionContainer .image,
 .ck-content .image {
     display: table;
     clear: both;
@@ -170,7 +170,7 @@
 }
 
 /* ckeditor5-image/theme/image.css */
-.questionContainer .image img ,
+.questionContainer .image img,
 .ck-content .image img {
     display: block;
     margin: 0 auto;
@@ -179,7 +179,7 @@
 }
 
 /* ckeditor5-image/theme/image.css */
-.questionContainer .image-inline ,
+.questionContainer .image-inline,
 .ck-content .image-inline {
     /*
      * Normally, the .image-inline would have "display: inline-block" and "img { width: 100% }" (to follow the wrapper while resizing).;
@@ -192,7 +192,7 @@
 }
 
 /* ckeditor5-image/theme/image.css */
-.questionContainer .image-inline picture ,
+.questionContainer .image-inline picture,
 .ck-content .image-inline picture {
     display: flex;
 }
@@ -224,7 +224,7 @@
 }
 
 /* ckeditor5-image/theme/imagestyle.css */
-.questionContainer .image-style-side ,
+.questionContainer .image-style-side,
 .ck-content .image-style-side {
     float: right;
     margin-left: var(--ck-image-style-spacing);
@@ -232,35 +232,35 @@
 }
 
 /* ckeditor5-image/theme/imagestyle.css */
-.questionContainer .image-style-align-left ,
+.questionContainer .image-style-align-left,
 .ck-content .image-style-align-left {
     float: left;
     margin-right: var(--ck-image-style-spacing);
 }
 
 /* ckeditor5-image/theme/imagestyle.css */
-.questionContainer .image-style-align-center ,
+.questionContainer .image-style-align-center,
 .ck-content .image-style-align-center {
     margin-left: auto;
     margin-right: auto;
 }
 
 /* ckeditor5-image/theme/imagestyle.css */
-.questionContainer .image-style-align-right ,
+.questionContainer .image-style-align-right,
 .ck-content .image-style-align-right {
     float: right;
     margin-left: var(--ck-image-style-spacing);
 }
 
 /* ckeditor5-image/theme/imagestyle.css */
-.questionContainer .image-style-block-align-right ,
+.questionContainer .image-style-block-align-right,
 .ck-content .image-style-block-align-right {
     margin-right: 0;
     margin-left: auto;
 }
 
 /* ckeditor5-image/theme/imagestyle.css */
-.questionContainer .image-style-block-align-left ,
+.questionContainer .image-style-block-align-left,
 .ck-content .image-style-block-align-left {
     margin-left: 0;
     margin-right: auto;
@@ -286,13 +286,13 @@
 }
 
 /* ckeditor5-image/theme/imagestyle.css */
-.questionContainer .image-inline.image-style-align-left ,
+.questionContainer .image-inline.image-style-align-left,
 .ck-content .image-inline.image-style-align-left {
     margin-right: var(--ck-inline-image-style-spacing);
 }
 
 /* ckeditor5-image/theme/imagestyle.css */
-.questionContainer .image-inline.image-style-align-right ,
+.questionContainer .image-inline.image-style-align-right,
 .ck-content .image-inline.image-style-align-right {
     margin-left: var(--ck-inline-image-style-spacing);
 }
@@ -534,14 +534,60 @@
 }
 
 .ck.ck-editor .ck-editor__top {
+    top: 1px;
     position: absolute;
     max-width: 100%;
     width: 100%;
 }
+
 .ck.ck-editor .ck-editor__main {
-    padding-top:40px;
+    padding-top: 40px;
+}
+
+.ck.ck-icon.ck-button__icon {
+    color: var(--system-base);
+}
+
+.ck {
+    --ck-color-button-on-background: var(--primary-opacity-05);
+    --ck-color-button-on-hover-background: var(--primary-opacity-10);
+    --ck-color-button-default-hover-background: var(--primary-opacity-05);
+    --ck-color-toolbar-background: white;
+    --ck-color-button-default-active-background: var(--primary-opacity-10);
+    --ck-color-button-on-active-background: var(--primary-opacity-10);
+    --ck-focus-ring: 1px solid var(--primary);
+}
+
+.ck.ck-button:not(.ck-disabled) {
+    cursor: pointer;
+}
+
+.ck.ck-button:active,
+.ck.ck-button:not(.ck-disabled):active,
+.ck.ck-button.ck-on:not(.ck-disabled):active {
+    border: none;
+    box-shadow: none;
+}
+
+.ck-button:hover .ck.ck-icon.ck-button__icon,
+.ck-button:active .ck.ck-icon.ck-button__icon {
+    color: var(--primary)
+}
+
+.ck-on .ck.ck-icon.ck-button__icon {
+    color: var(--primary);
+}
+
+.ck.ck-editor__main > .ck-editor__editable {
+    --ck-color-base-background: var(--off-white);
+}
+
+.ckeditor-disabled .ck.ck-editor__main > .ck-editor__editable {
+    --ck-color-base-background: white;
 }
 
 .ckeditor-disabled {
     --ck-color-toolbar-background: white;
+    position: relative;
+    pointer-events: none;
 }

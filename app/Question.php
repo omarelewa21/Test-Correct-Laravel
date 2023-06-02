@@ -1007,7 +1007,7 @@ class Question extends MtiBaseModel
 
     public function getCaptionAttribute()
     {
-        return __('test_take.' . Str::snake($this->type));;
+        return $this->type_name;
     }
 
     public function getQuestionCount()

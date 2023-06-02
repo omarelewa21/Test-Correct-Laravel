@@ -85,6 +85,7 @@
                                             :inAssessment="true"
                                             :editorId="'editor-'.$this->currentQuestion->uuid.$this->currentAnswer->uuid"
                                             :disabled-toggle="true"
+                                            :webSpellChecker="$this->currentQuestion->spell_check_available"
                                     />
                                 </div>
                             </x-slot:body>

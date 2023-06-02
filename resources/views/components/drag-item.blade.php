@@ -23,11 +23,6 @@
     {{ $attributes }}
     @if($keepWidth)
      x-data=""
-     {{-- RR: Disabled the tabchange-width-mess because we switched to a different draggable library which should not have the issue of losing width when dragging; --}}
-{{--     :style="'width:' +$el.parentElement?.offsetWidth+'px'"--}}
-{{--     @tabchange.window="console.log('kaas');$nextTick(() => {$el.style.width = $el.parentElement?.offsetWidth+'px'})"--}}
-{{--     @resize.window="$el.style.width = 'auto'"--}}
-{{--     @resize.window.debounce.75ms="$el.style.width = $el.parentElement?.offsetWidth+'px'"--}}
      @endif
 >
     <span id="span_{{ $attributes->get('id') }}"

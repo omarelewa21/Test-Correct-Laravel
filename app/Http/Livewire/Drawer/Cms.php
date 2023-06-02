@@ -8,7 +8,7 @@ use tcCore\GroupQuestionQuestion;
 use tcCore\Http\Controllers\GroupQuestionQuestionsController;
 use tcCore\Http\Controllers\TestQuestionsController;
 use tcCore\Http\Livewire\TCComponent;
-use tcCore\Http\Livewire\Teacher\Questions\CmsFactory;
+use tcCore\Http\Livewire\Teacher\Cms\TypeFactory;
 use tcCore\Http\Traits\WithQueryStringSyncing;
 use tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager;
 use tcCore\Question;
@@ -141,7 +141,7 @@ class Cms extends TCComponent
     public function showQuestion($testQuestionUuid, $questionUuid, $subQuestion, $shouldSave = true)
     {
         $this->emitTo(
-            'teacher.questions.open-short',
+            'teacher.cms.constructor',
             'showQuestion',
             [
                 'testQuestionUuid' => $testQuestionUuid,
@@ -155,7 +155,7 @@ class Cms extends TCComponent
     public function addQuestion($type, $subtype)
     {
         $this->emitTo(
-            'teacher.questions.open-short',
+            'teacher.cms.constructor',
             'addQuestion',
             [
                 'type'       => $type,
@@ -330,7 +330,7 @@ class Cms extends TCComponent
         $this->subtype = '';
         $this->action = 'add';
         $this->emptyStateActive = true;
-        $this->emitTo('teacher.questions.open-short', 'showEmpty');
+        $this->emitTo('teacher.cms.constructor', 'showEmpty');
     }
 
     public function handleCmsInit()
@@ -381,7 +381,7 @@ class Cms extends TCComponent
 
     private function setQuestionNameString($type, $subtype)
     {
-        $this->newQuestionTypeName = $subtype === 'group' ? __('cms.group-question') : CmsFactory::findQuestionNameByTypes($type, $subtype);
+        $this->newQuestionTypeName = $subtype === 'group' ? __('cms.group-question') : TypeFactory::findQuestionNameByTypes($type, $subtype);
     }
 
     public function newGroupId($uuid)

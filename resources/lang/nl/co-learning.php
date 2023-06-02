@@ -59,4 +59,5 @@ return [
     'spellchecker-for-students'     => 'Spelling controle aanzetten voor studenten',
     'spellchecker-for-students-tt'  => 'Hiermee kunnen studenten gebruik maken van spellings- en grammaticacontrole tijdens het beoordelen van student antwoorden',
     'open-question-options'         => 'Opties voor open vragen',
+    'Taalfouten'                    => 'Taalfouten',
 ];
