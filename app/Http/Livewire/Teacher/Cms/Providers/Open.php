@@ -2,8 +2,6 @@
 
 namespace tcCore\Http\Livewire\Teacher\Cms\Providers;
 
-use tcCore\CompletionQuestion;
-
 class Open extends TypeProvider
 {
     protected $questionOptions = [

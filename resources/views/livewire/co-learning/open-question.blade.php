@@ -4,7 +4,7 @@
             <x-input.group for="me" class="w-full disabled mt-4" >
                 <x-input.rich-textarea
                         type="student-co-learning"
-                        :allowWsc="$this->question->spell_check_available"
+                        :allowWsc="$webSpellChecker"
                         :editor-id="'ar-'.$answerRatingId"
                         :restrictWords="$this->question->restrict_word_amount"
                         :maxWords="$this->question->max_words"
@@ -18,7 +18,7 @@
                 <div class="flex space-x-2 text-midgrey">
                     <div id="word-count-ar-{{$answerRatingId}}" class="word-count"></div>
                 </div>
-                @if($this->question->spell_check_available)
+                @if($webSpellChecker)
                 <div class="text-midgrey">
                     <span id="problem-count-ar-{{$answerRatingId}}"></span>
                     <span>@lang('co-learning.Taalfouten')</span>

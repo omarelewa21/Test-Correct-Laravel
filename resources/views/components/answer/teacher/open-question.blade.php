@@ -14,7 +14,7 @@
         <x-input.group for="me" class="w-full disabled mt-4">
             <x-input.rich-textarea
                     type="student-co-learning"
-                    :allowWsc="$question->spell_check_available"
+                    :allowWsc="$webSpellChecker"
                     :editor-id="$editorId"
                     :restrictWords="$question->restrict_word_amount"
                     :maxWords="$question->max_words"
@@ -30,7 +30,7 @@
                 </div>
 
             </div>
-            @if($question->spell_check_available)
+            @if($webSpellChecker)
                 <div class="text-midgrey">
                     <span id="problem-count-{{ $editorId }}"></span>
                     <span>@lang('co-learning.Taalfouten')</span>

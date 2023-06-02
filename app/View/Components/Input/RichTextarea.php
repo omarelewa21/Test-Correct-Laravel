@@ -3,6 +3,7 @@
 namespace tcCore\View\Components\Input;
 
 use Illuminate\View\Component;
+use tcCore\Http\Enums\WscLanguage;
 
 class RichTextarea extends Component
 {
@@ -21,18 +22,19 @@ class RichTextarea extends Component
     ];
 
     public function __construct(
-        public readonly string|int $editorId,
-        public ?string             $type = null,
-        public ?bool               $disabled = false,
-        public null|string|int     $questionId = null,
-        public ?string             $lang = 'nl_NL',
-        public ?bool               $allowWsc = false,
-        public null|string|int     $maxWords = null,
-        public ?bool               $maxWordOverride = false,
-        public ?bool               $restrictWords = false,
-        public ?bool               $textFormatting = true,
-        public ?bool               $mathmlFunctions = true,
+        public readonly string|int     $editorId,
+        public ?string                 $type = null,
+        public ?bool                   $disabled = false,
+        public null|string|int         $questionId = null,
+        public null|string|WscLanguage $lang = 'nl_NL',
+        public ?bool                   $allowWsc = false,
+        public null|string|int         $maxWords = null,
+        public ?bool                   $maxWordOverride = false,
+        public ?bool                   $restrictWords = false,
+        public ?bool                   $textFormatting = true,
+        public ?bool                   $mathmlFunctions = true,
     ) {
+        $this->lang ??= WscLanguage::DUTCH;
         $this->initFunctionCall = sprintf('%s(%s)', $this->getInitMethod(), json_encode($this->getEditorConfig()));
     }
 
