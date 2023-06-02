@@ -13,6 +13,8 @@ class DrawingQuestion extends AbstractDrawingQuestion
     use WithPreviewAttachments;
     use WithPreviewGroups;
 
+    public $testId;
+
     public function updatedAnswer($value)
     {
         $this->drawingModalOpened = false;
