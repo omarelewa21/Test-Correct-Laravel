@@ -67,7 +67,7 @@ class TestTakeCard extends ContextMenuComponent
 
         $testTake->refresh();
 
-        $testTake->fill(['test_take_status_id' => TestTakeStatus::STATUS_DISCUSSED]);
+        $testTake->fill(['test_take_status_id' => TestTakeStatus::STATUS_DISCUSSED, 'skipped_discussion' => true]);
         $testTake->save();
 
         $this->openTestTake();

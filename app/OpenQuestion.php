@@ -11,8 +11,12 @@ class OpenQuestion extends Question implements QuestionInterface {
     use UuidTrait;
 
     protected $casts = [
-        'uuid' => EfficientUuid::class,
+        'uuid'                  => EfficientUuid::class,
         'spell_check_available' => 'boolean',
+        'text_formatting'       => 'boolean',
+        'mathml_functions'      => 'boolean',
+        'restrict_word_amount'  => 'boolean',
+        'max_words'             => 'integer',
     ];
 
     /**
@@ -34,7 +38,15 @@ class OpenQuestion extends Question implements QuestionInterface {
      *
      * @var array
      */
-    protected $fillable = ['subtype', 'answer', 'spell_check_available'];
+    protected $fillable = [
+        'subtype',
+        'answer',
+        'spell_check_available',
+        'text_formatting',
+        'mathml_functions',
+        'restrict_word_amount',
+        'max_words',
+    ];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -83,15 +95,8 @@ class OpenQuestion extends Question implements QuestionInterface {
         return false;
     }
 
-    public function checkAnswer($answer) {
+    public function checkAnswer($answer)
+    {
         return false;
-    }
-
-    public function getCaptionAttribute() {
-        if ($this->subtype === 'writing') {
-            return __('test_take.writing_assignment_question');
-        }
-
-        return parent::getCaptionAttribute();
     }
 }

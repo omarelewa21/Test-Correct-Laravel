@@ -266,7 +266,7 @@ class TestTakeEvent extends BaseModel {
                         )
                     ) {
                         $metadata['software'] = VirtualMachineSoftwares::unknown->value . ', vendor: '
-                            . $metadata['vendor'] . ' & Hypervisor: ' . $metadata['hypervisorVendor'];
+                            . $metadata['cpuInfo']['vendor'] . ' & Hypervisor: ' . $metadata['cpuInfo']['hypervisorVendor'];
                     }
                 } elseif (array_key_exists('type', $metadata) && $metadata['type'] === VirtualMachineDetectionTypes::macos->value) {
                   $metadata['software'] = VirtualMachineSoftwares::macosvm->value;

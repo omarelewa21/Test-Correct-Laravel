@@ -35,13 +35,14 @@
                          x-data="reviewNavigation(@js($this->questionPosition))"
                          x-bind:class="{'invisible': !initialized }"
                          x-on:resize.window.throttle="resize()"
+                         wire:ignore.self
                     >
                         <div class="slider-buttons left | flex relative pt-4 -top-px h-full z-10" x-show="showSlider">
-                            <button class="note inline-flex base rotate-svg-180 w-8 h-8 rounded-full transition items-center justify-center transform focus:outline-none"
+                            <button class="inline-flex base rotate-svg-180 w-8 h-8 rounded-full transition items-center justify-center transform focus:outline-none"
                                     x-on:click="start()">
                                 <x-icon.arrow-last />
                             </button>
-                            <button class="note inline-flex base rotate-svg-180 w-8 h-8 rounded-full transition items-center justify-center transform focus:outline-none"
+                            <button class="inline-flex base rotate-svg-180 w-8 h-8 rounded-full transition items-center justify-center transform focus:outline-none"
                                     x-on:click="left()">
                                 <x-icon.chevron />
                             </button>
@@ -144,6 +145,7 @@
                                       :unique-key="$this->questionPosition"
         >
             <x-slot:slideOneContent>
+                @unless($this->currentQuestion->isType('infoscreen'))
                 <div class="score-slider | flex w-full relative"
                      wire:key="score-slider-{{  $this->questionPosition }}"
                 >
@@ -163,6 +165,7 @@
                         </x-slot:tooltip>
                     </x-input.score-slider>
                 </div>
+                @endif
                 @if($this->hasFeedback)
                     <div>
                         <x-button.text-button x-on:click="tab(2)" size="sm" class="text-base">
@@ -252,6 +255,4 @@
 
         </x-partials.evaluation.drawer>
     </div>
-    <x-notification />
-    @livewire('livewire-ui-modal')
 </main>

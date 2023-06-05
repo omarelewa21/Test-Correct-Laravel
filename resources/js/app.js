@@ -291,3 +291,32 @@ clearFilterPillsFromElement = (rootElement) => {
     let pills = rootElement.querySelectorAll('.filter-pill')
     pills.forEach(pill => pill.remove());
 }
+
+/**
+ * Detects fast successive events
+ * @param event event to detect
+ * @param callback function to execute on fast successive events
+ */
+detectFastSuccessiveEvents = function (event, callback) {
+    // Check if the element was double-clicked
+    const currentTime = new Date().getTime();
+    if (currentTime - event.target.lastClickTime < 500) {
+        // Execute your callback
+        callback(event);
+    }
+
+    // Set the last click time to the current time
+    event.target.lastClickTime = currentTime;
+}
+
+/**
+ * Selects the inner text of the target element
+ * @param event
+ */
+selectTextContent = function (event) {
+    const range = document.createRange();
+    range.selectNodeContents(event.target);
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+}

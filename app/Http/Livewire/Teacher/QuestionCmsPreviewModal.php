@@ -8,8 +8,8 @@ use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Http\Interfaces\QuestionCms;
 use tcCore\Http\Livewire\TCModalComponent;
-use tcCore\Http\Livewire\Teacher\Questions\CmsFactory;
-use tcCore\Http\Livewire\Teacher\Questions\CmsMultipleChoice;
+use tcCore\Http\Livewire\Teacher\Cms\Providers\MultipleChoice;
+use tcCore\Http\Livewire\Teacher\Cms\TypeFactory;
 use tcCore\Question;
 
 class QuestionCmsPreviewModal extends TCModalComponent implements QuestionCms
@@ -84,7 +84,7 @@ class QuestionCmsPreviewModal extends TCModalComponent implements QuestionCms
 
     public function booted()
     {
-        $this->obj = CmsFactory::create($this);
+        $this->obj = TypeFactory::create($this);
         $this->questionModel = Question::whereUuid($this->question['uuid'])->first();
     }
 
@@ -151,7 +151,7 @@ class QuestionCmsPreviewModal extends TCModalComponent implements QuestionCms
         $this->uniqueQuestionKey = $question->uuid;
         $this->isCito = $question->isCitoQuestion();
 
-        $this->obj = CmsFactory::create($this);
+        $this->obj = TypeFactory::create($this);
 
         if ($this->obj && method_exists($this->obj, 'preparePropertyBag')) {
             $this->obj->preparePropertyBag();
@@ -221,7 +221,7 @@ class QuestionCmsPreviewModal extends TCModalComponent implements QuestionCms
 
     public function hasAllOrNothing()
     {
-        return $this->obj instanceof CmsMultipleChoice;
+        return $this->obj instanceof MultipleChoice;
     }
 
     public function _showQuestionScore()

@@ -48,7 +48,7 @@
                                 <div class="question-indicator items-center flex gap-4">
                                     <h4 class="flex items-center flex-wrap" selid="questiontitle">
                                         <span>@lang('co-learning.answer')</span>
-                                        @if($this->assessmentContext['showStudentNames'])
+                                        @if($this->assessmentContext['assessment_show_student_names'])
                                             <span class="ml-2 truncate max-w-[170px]">{{ $this->currentAnswer->user->name_first }}</span>
                                             <span x-bind:class="{'ml-2': $el.previousElementSibling.offsetWidth < 170}">{{ $this->currentAnswer->user->shortLastname }}</span>
                                         @endif
@@ -85,6 +85,7 @@
                                             :inAssessment="true"
                                             :editorId="'editor-'.$this->currentQuestion->uuid.$this->currentAnswer->uuid"
                                             :disabled-toggle="true"
+                                            :webSpellChecker="$this->currentQuestion->spell_check_available"
                                     />
                                 </div>
                             </x-slot:body>

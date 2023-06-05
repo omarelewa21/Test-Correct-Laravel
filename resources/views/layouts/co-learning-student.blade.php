@@ -5,10 +5,6 @@
         {{ $slot  }}
     </main>
 
-
-
-    <x-notification/>
-    @livewire('livewire-ui-modal')
     @push('scripts')
         <script>
             addCSRFTokenToEcho('{{ csrf_token() }}');

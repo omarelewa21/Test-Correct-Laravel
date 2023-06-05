@@ -9,7 +9,7 @@ use tcCore\Question;
 class OpenQuestion extends QuestionComponent
 {
     public string $answerValue;
-    public bool $allowWsc = false;
+    public bool $webSpellChecker = false;
 
     public function __construct(
         public Question $question,
@@ -17,7 +17,6 @@ class OpenQuestion extends QuestionComponent
     )
     {
         parent::__construct($question);
-        $this->allowWsc = auth()->user()->schoolLocation->allow_wsc;
     }
 
     protected function setAnswerStruct($question): void

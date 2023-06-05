@@ -5,6 +5,4 @@
         @endif
         {{ $slot }}
     </div>
-    <x-notification/>
-    @livewire('livewire-ui-modal')
 </x-layouts.base>

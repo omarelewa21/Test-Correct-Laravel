@@ -420,7 +420,7 @@ var App = function (prefix, width, backgroundImage) {
                         window.parent.Loading.hide();
                         window.parent.drawingCallback();
                     } else {
-                        alert('Er ging iets mis');
+                        Notify.notify('Er ging iets mis', 'error');
                     }
                 }
             );

@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Ramsey\Uuid\Uuid;
 use tcCore\Exceptions\QuestionException;
+use tcCore\Http\Enums\WscLanguage;
 use tcCore\Http\Controllers\QuestionsController;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Helpers\QuestionHelper;
@@ -34,6 +35,7 @@ class Question extends MtiBaseModel
         'all_or_nothing'           => 'boolean',
         'add_to_database_disabled' => 'boolean',
         'draft'                    => 'boolean',
+        'lang'                     => WscLanguage::class,
     ];
 
     public $mtiBaseClass = 'tcCore\Question';
@@ -741,9 +743,11 @@ class Question extends MtiBaseModel
         $user = Auth::user();
         $query = $this->differentScenariosAndDemo($query, $filters);
 
-        [$query, $joins] = $this->handleSearchFilters($query, $filters);
+        $searchJoins = $this->handleSearchFilters($query, $filters);
+        $filterJoins = $this->handleFilterParams($query, $user, $filters);
 
-        $this->handleFilterParams($query, $user, $filters);
+        $joins = array_merge($searchJoins, $filterJoins);
+
         $this->handleFilteredSorting($query, $sorting);
         $this->handleQueryJoins($query, array_unique($joins));
 
@@ -752,11 +756,11 @@ class Question extends MtiBaseModel
 
     public function scopePublishedFiltered($query, $filters = [], $sorting = [])
     {
-        [$query, $joins] = $this->handleSearchFilters($query, $filters);
+        $searchJoins = $this->handleSearchFilters($query, $filters);
 
         $this->handlePublishedFilterParams($query, $filters);
         $this->handleFilteredSorting($query, $sorting);
-        $this->handleQueryJoins($query, array_unique($joins));
+        $this->handleQueryJoins($query, array_unique($searchJoins));
         return $query;
     }
 
@@ -1003,7 +1007,7 @@ class Question extends MtiBaseModel
 
     public function getCaptionAttribute()
     {
-        return __('test_take.' . Str::snake($this->type));;
+        return $this->type_name;
     }
 
     public function getQuestionCount()

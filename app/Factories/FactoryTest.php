@@ -13,6 +13,7 @@ use tcCore\Factories\Questions\FactoryQuestionMultipleChoiceARQ;
 use tcCore\Factories\Questions\FactoryQuestionMultipleChoiceTrueFalse;
 use tcCore\Factories\Questions\FactoryQuestionOpenLong;
 use tcCore\Factories\Questions\FactoryQuestionOpenShort;
+use tcCore\Factories\Questions\FactoryQuestionOpenWriting;
 use tcCore\Factories\Questions\FactoryQuestionRanking;
 use tcCore\Factories\Traits\PropertyGetableByName;
 use tcCore\Period;
@@ -106,6 +107,7 @@ class FactoryTest
             FactoryQuestionCompletionMulti::create(),
             FactoryQuestionMatchingMatching::create(),
             FactoryQuestionMatchingClassify::create(),
+            FactoryQuestionOpenWriting::create(),
         ]);
 
         return $this;

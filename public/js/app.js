@@ -5410,84 +5410,6 @@ function _typeof(obj){"@babel/helpers - typeof";return _typeof="function"==typeo
 
 /***/ }),
 
-/***/ "./resources/js/CkEditor5CommentsIntegration.js":
-/*!******************************************************!*\
-  !*** ./resources/js/CkEditor5CommentsIntegration.js ***!
-  \******************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
-function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
-function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
-function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
-var CommentsIntegration = /*#__PURE__*/function () {
-  function CommentsIntegration(editor) {
-    _classCallCheck(this, CommentsIntegration);
-    this.editor = editor;
-  }
-  _createClass(CommentsIntegration, [{
-    key: "init",
-    value: function init() {
-      var usersPlugin = this.editor.plugins.get('Users');
-      var commentsRepositoryPlugin = this.editor.plugins.get('CommentsRepository');
-
-      // Load the users data.
-      var _iterator = _createForOfIteratorHelper(CommentsIntegration.staticUsers),
-        _step;
-      try {
-        for (_iterator.s(); !(_step = _iterator.n()).done;) {
-          var user = _step.value;
-          usersPlugin.addUser(user);
-        }
-
-        // Set the current user.
-      } catch (err) {
-        _iterator.e(err);
-      } finally {
-        _iterator.f();
-      }
-      usersPlugin.defineMe(CommentsIntegration.staticUserId);
-
-      // Load the comment threads data.
-      var _iterator2 = _createForOfIteratorHelper(CommentsIntegration.staticCommentThreads),
-        _step2;
-      try {
-        for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
-          var commentThread = _step2.value;
-          commentsRepositoryPlugin.addCommentThread(commentThread);
-        }
-      } catch (err) {
-        _iterator2.e(err);
-      } finally {
-        _iterator2.f();
-      }
-    }
-  }], [{
-    key: "requires",
-    get: function get() {
-      return ['CommentsRepository'];
-    }
-  }]);
-  return CommentsIntegration;
-}();
-_defineProperty(CommentsIntegration, "staticUserId", null);
-_defineProperty(CommentsIntegration, "staticUsers", null);
-_defineProperty(CommentsIntegration, "staticCommentThreads", null);
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (CommentsIntegration);
-
-/***/ }),
-
 /***/ "./resources/js/alpine.js":
 /*!********************************!*\
   !*** ./resources/js/alpine.js ***!
@@ -5791,6 +5713,7 @@ document.addEventListener("alpine:init", function () {
       resolvingTitle: true,
       index: 1,
       mode: mode,
+      attachmentLoading: false,
       init: function init() {
         var _this6 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
@@ -5832,6 +5755,9 @@ document.addEventListener("alpine:init", function () {
         var parent = this.$root.parentElement;
         if (parent === null) return;
         this.index = Array.prototype.indexOf.call(parent.children, this.$el) + 1;
+      },
+      dispatchAttachmentLoading: function dispatchAttachmentLoading() {
+        window.dispatchEvent(new CustomEvent('attachment-preview-loading'));
       }
     };
   });
@@ -6090,7 +6016,7 @@ document.addEventListener("alpine:init", function () {
         var newSubQuestion = arguments.length > 2 ? arguments[2] : undefined;
         this.$dispatch("store-current-question");
         if (shouldCheckDirty && this.$store.cms.dirty) {
-          this.$wire.emitTo("teacher.questions.open-short", "addQuestionFromDirty", {
+          this.$wire.emitTo("teacher.cms.constructor", "addQuestionFromDirty", {
             group: group,
             newSubQuestion: newSubQuestion,
             groupUuid: this.$store.questionBank.inGroup
@@ -7199,11 +7125,15 @@ document.addEventListener("alpine:init", function () {
       set expanded(value) {
         this.active = value ? this.id : null;
         if (value) {
+          this.$dispatch('block-expanded', {
+            id: this.id
+          });
           this.$root.querySelectorAll(".slider-button-container").forEach(function (toggle) {
             return toggle.dispatchEvent(new CustomEvent("slider-toggle-rerender"));
           });
-          this.$el.classList.remove("hover:shadow-hover");
+          // this.$el.classList.remove("hover:shadow-hover");
         }
+
         if (this.emitWhenSet) {
           Livewire.emit("accordion-update", {
             key: key,
@@ -7745,11 +7675,24 @@ document.addEventListener("alpine:init", function () {
         return !this.inReview && !this.$store.assessment.clearToProceed() && !this.clickedNext;
       },
       openFeedbackTab: function openFeedbackTab() {
+        var _this47 = this;
         this.tab(2);
+        this.$nextTick(function () {
+          var editorDiv = _this47.$root.querySelector(".feedback textarea");
+          if (editorDiv) {
+            var editor = ClassicEditors[editorDiv.getAttribute("name")];
+            if (editor) {
+              setTimeout(function () {
+                return editor.focus();
+              }, 320); // Await slide animation, otherwise it breaks;
+            }
+          }
+        });
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("scoreSlider", function (score, model, maxScore, halfPoints, disabled, coLearning, focusInput) {
+
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("scoreSlider", function (score, model, maxScore, halfPoints, disabled, coLearning, focusInput, continuousSlider) {
     return {
       score: score,
       model: model,
@@ -7761,6 +7704,7 @@ document.addEventListener("alpine:init", function () {
       persistantScore: null,
       inputBox: null,
       focusInput: focusInput,
+      continuousSlider: continuousSlider,
       getSliderBackgroundSize: function getSliderBackgroundSize(el) {
         if (this.score === null) return 0;
         var min = el.min || 0;
@@ -7769,16 +7713,25 @@ document.addEventListener("alpine:init", function () {
         return (value - min) / (max - min) * 100;
       },
       setThumbOffset: function setThumbOffset() {
+        if (continuousSlider) {
+          return;
+        }
+        if (this.score > this.maxScore) {
+          this.score = this.maxScore;
+        }
+        if (this.score < 0) {
+          this.score = 0;
+        }
         var el = document.querySelector('.score-slider-input');
-        var offsetFromCenter = -45;
-        offsetFromCenter += this.score / this.maxScore * 90;
+        var offsetFromCenter = -40;
+        offsetFromCenter += this.score / this.maxScore * 80;
         el.style.setProperty("--slider-thumb-offset", "calc(".concat(offsetFromCenter, "% + 1px)"));
       },
       setSliderBackgroundSize: function setSliderBackgroundSize(el) {
-        var _this47 = this;
+        var _this48 = this;
         this.$nextTick(function () {
-          el.style.setProperty("--slider-thumb-offset", "".concat(25 / 100 * _this47.getSliderBackgroundSize(el) - 12.5, "px"));
-          el.style.setProperty("--slider-background-size", "".concat(_this47.getSliderBackgroundSize(el), "%"));
+          el.style.setProperty("--slider-thumb-offset", "".concat(25 / 100 * _this48.getSliderBackgroundSize(el) - 12.5, "px"));
+          el.style.setProperty("--slider-background-size", "".concat(_this48.getSliderBackgroundSize(el), "%"));
         });
       },
       syncInput: function syncInput() {
@@ -7797,54 +7750,52 @@ document.addEventListener("alpine:init", function () {
         }
       },
       init: function init() {
-        var _this48 = this;
+        var _this49 = this;
         if (coLearning) {
           Livewire.hook("message.received", function (message, component) {
             var _message$updateQueue$;
             if (component.name === "student.co-learning" && ((_message$updateQueue$ = message.updateQueue[0]) === null || _message$updateQueue$ === void 0 ? void 0 : _message$updateQueue$.method) === "updateHeartbeat") {
-              var scoreInputElement = _this48.$root.querySelector("[x-ref='scoreInput']");
-              _this48.persistentScore = scoreInputElement !== null && scoreInputElement.value !== "" ? scoreInputElement.value : null;
+              var scoreInputElement = _this49.$root.querySelector("[x-ref='scoreInput']");
+              _this49.persistentScore = scoreInputElement !== null && scoreInputElement.value !== "" ? scoreInputElement.value : null;
             }
           });
           Livewire.hook("message.processed", function (message, component) {
             var _message$updateQueue$2;
             if (component.name === "student.co-learning" && ((_message$updateQueue$2 = message.updateQueue[0]) === null || _message$updateQueue$2 === void 0 ? void 0 : _message$updateQueue$2.method) === "updateHeartbeat") {
-              _this48.skipSync = true;
-              _this48.score = _this48.persistentScore;
+              _this49.skipSync = true;
+              _this49.score = _this49.persistentScore;
             }
           });
         }
         this.inputBox = this.$root.querySelector("[x-ref='scoreInput']");
         this.$watch("score", function (value, oldValue) {
-          _this48.markInputElementsClean();
-          if (_this48.disabled || value === oldValue || _this48.skipSync) {
-            _this48.skipSync = false;
+          _this49.markInputElementsClean();
+          if (_this49.disabled || value === oldValue || _this49.skipSync) {
+            _this49.skipSync = false;
             return;
           }
-          if (value >= _this48.maxScore) {
-            _this48.score = value = _this48.maxScore;
+          if (value >= _this49.maxScore) {
+            _this49.score = value = _this49.maxScore;
           }
           if (value <= 0) {
-            _this48.score = value = 0;
+            _this49.score = value = 0;
           }
-          _this48.score = value = _this48.halfPoints ? Math.round(value * 2) / 2 : Math.round(value);
-          _this48.updateContinuousSlider();
+          _this49.score = value = _this49.halfPoints ? Math.round(value * 2) / 2 : Math.round(value);
+          _this49.updateContinuousSlider();
         });
         if (focusInput) {
           this.$nextTick(function () {
-            _this48.inputBox.focus();
+            _this49.inputBox.focus();
           });
         }
       },
       markInputElementsWithError: function markInputElementsWithError() {
         if (this.disabled) return;
-        this.inputBox.classList.add("border-allred");
-        this.inputBox.classList.remove("border-blue-grey");
+        this.inputBox.style.border = "1px solid var(--all-red)";
       },
       markInputElementsClean: function markInputElementsClean() {
         if (this.disabled) return;
-        this.inputBox.classList.add("border-blue-grey");
-        this.inputBox.classList.remove("border-allred");
+        this.inputBox.style.border = null;
       },
       getContinuousInput: function getContinuousInput() {
         return this.$root.querySelector("[x-ref='score_slider_continuous_input']");
@@ -7862,7 +7813,7 @@ document.addEventListener("alpine:init", function () {
       minWidth: 120,
       maxWidth: 1000,
       setInputWidth: function setInputWidth(input) {
-        var _this49 = this;
+        var _this50 = this;
         var init = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
         var preview = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
         if (!init || preview) {
@@ -7873,8 +7824,8 @@ document.addEventListener("alpine:init", function () {
           if (!value) {
             return;
           }
-          _this49.$nextTick(function () {
-            _this49.calculateInputWidth(input);
+          _this50.$nextTick(function () {
+            _this50.calculateInputWidth(input);
           });
         });
       },
@@ -7929,23 +7880,23 @@ document.addEventListener("alpine:init", function () {
       inModal: false,
       show: false,
       init: function init() {
-        var _this50 = this;
+        var _this51 = this;
         this.setHeightProperty();
         this.inModal = this.$root.closest("#modal-container") !== null;
         this.$watch("tooltip", function (value) {
           if (value) {
             var ignoreLeft = false;
-            if (alwaysLeft || _this50.tooltipTooWideForPosition()) {
-              _this50.$refs.tooltipdiv.classList.remove("left-1/2", "-translate-x-1/2");
-              _this50.$refs.tooltipdiv.classList.add("right-0");
+            if (alwaysLeft || _this51.tooltipTooWideForPosition()) {
+              _this51.$refs.tooltipdiv.classList.remove("left-1/2", "-translate-x-1/2");
+              _this51.$refs.tooltipdiv.classList.add("right-0");
               ignoreLeft = true;
             }
-            _this50.$refs.tooltipdiv.style.top = _this50.getTop();
-            _this50.$refs.tooltipdiv.style.left = _this50.getLeft(ignoreLeft);
+            _this51.$refs.tooltipdiv.style.top = _this51.getTop();
+            _this51.$refs.tooltipdiv.style.left = _this51.getLeft(ignoreLeft);
           }
         });
         this.$nextTick(function () {
-          return _this50.show = true;
+          return _this51.show = true;
         });
       },
       getTop: function getTop() {
@@ -7976,12 +7927,12 @@ document.addEventListener("alpine:init", function () {
         this.$refs.tooltipdiv.style.left = this.getLeft();
       },
       setHeightProperty: function setHeightProperty() {
-        var _this51 = this;
+        var _this52 = this;
         this.tooltip = true;
         this.$nextTick(function () {
-          _this51.height = _this51.$refs.tooltipdiv.offsetHeight;
-          _this51.tooltip = false;
-          _this51.$refs.tooltipdiv.classList.remove("invisible");
+          _this52.height = _this52.$refs.tooltipdiv.offsetHeight;
+          _this52.tooltip = false;
+          _this52.$refs.tooltipdiv.classList.remove("invisible");
         });
       },
       tooltipTooWideForPosition: function tooltipTooWideForPosition() {
@@ -8003,16 +7954,16 @@ document.addEventListener("alpine:init", function () {
       navScrollBar: null,
       initialized: false,
       init: function init() {
-        var _this52 = this;
+        var _this53 = this;
         this.navScrollBar = this.$root.querySelector('#navscrollbar');
         this.$nextTick(function () {
-          _this52.$root.querySelector(".active").scrollIntoView({
+          _this53.$root.querySelector(".active").scrollIntoView({
             behavior: "smooth"
           });
-          _this52.totalScrollWidth = _this52.$root.offsetWidth;
-          _this52.resize();
-          _this52.initialized = true;
-          _this52.slideToActiveQuestionBubble();
+          _this53.totalScrollWidth = _this53.$root.offsetWidth;
+          _this53.resize();
+          _this53.initialized = true;
+          _this53.slideToActiveQuestionBubble();
         });
       },
       resize: function resize() {
@@ -8050,263 +8001,43 @@ document.addEventListener("alpine:init", function () {
         });
       },
       startIntersectionCountdown: function startIntersectionCountdown() {
-        var _this53 = this;
+        var _this54 = this;
         clearTimeout(this.intersectionCountdown);
         this.intersectionCountdown = setTimeout(function () {
-          clearTimeout(_this53.intersectionCountdown);
-          _this53.slideToActiveQuestionBubble();
+          clearTimeout(_this54.intersectionCountdown);
+          _this54.slideToActiveQuestionBubble();
         }, 5000);
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("CkEditorComments", function (users, userId, answerEditorId, commentEditorId, commentThreads) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("accountSettings", function (language) {
     return {
-      users: users,
-      userId: userId,
-      answerEditor: null,
-      answerEditorId: answerEditorId,
-      commentEditor: null,
-      commentEditorId: commentEditorId,
-      commentThreads: commentThreads,
-      commentRepository: null,
-      activeThread: null,
-      init: function init() {
-        var _this54 = this;
-        window.CommentsIntegration.staticUserId = userId;
-        window.CommentsIntegration.staticUsers = users;
-        window.CommentsIntegration.staticCommentThreads = commentThreads;
-        ClassicEditor.create(document.querySelector('#editor'), {
-          extraPlugins: [window.CommentsIntegration],
-          licenseKey: '9K2tRUPoZobJydX6tm2HusZ/x1NCE/sghAv2zyuhaiEtxnbV9QKrhKjJvsI=',
-          toolbar: {
-            items: ['comment']
-          },
-          wproofreader: {
-            autoSearch: false,
-            autoDestroy: true,
-            autocorrect: false,
-            autocomplete: false,
-            actionItems: ["addWord", "ignoreAll", "ignore", "settings", "toggle", "proofreadDialog"],
-            enableBadgeButton: true,
-            serviceProtocol: "https",
-            servicePort: "80",
-            serviceHost: "wsc.test-correct.nl",
-            servicePath: "wscservice/api",
-            srcUrl: "https://wsc.test-correct.nl/wscservice/wscbundle/wscbundle.js"
-          },
-          users: users
-        }).then(function (editor) {
-          ClassicEditors['answer-editor'] = editor;
-          _this54.answerEditor = editor;
-
-          //console available
-          _this54.mainEditor = editor;
-          editor.plugins.get('CommentsOnly').isEnabled = true;
-
-          //Deactivate Sidebar/balloon
-          //editor.plugins.get('AnnotationsUIs').deactivateAll();
-
-          // After the editor is initialized, add an action to be performed after a button is clicked.
-          var commentsRepository = editor.plugins.get('CommentsRepository');
-          window.commentsRepository = commentsRepository;
-
-          // Get the data on demand.
-          document.querySelector('#get-data').addEventListener('click', function () {
-            //get comment threads as json:
-            var commentThreadsData = _this54.commentThreads = commentsRepository.getCommentThreads({
-              skipNotAttached: true,
-              skipEmpty: true,
-              toJSON: true
-            });
-
-            // Now, use `editorData` and `commentThreadsData` to save the data in your application.
-            // For example, you can set them as values of hidden input fields.
-
-            console.log(editor.getData()); //same as //console.log( editor.data.get() );
-
-            //objects
-            console.log(commentsRepository.getCommentThreads());
-            //jsonified objects
-            console.log(commentThreadsData);
-          });
-          editor.on('selectionChange', function (evt, data) {
-            console.log(evt, data);
-          });
-        })["catch"](function (error) {
-          return console.error(error);
-        });
-        this.setFocusTracking();
-      },
-      saveCommentThread: function saveCommentThread() {
+      openTab: 'account',
+      changing: false,
+      language: language,
+      startLanguageChange: function startLanguageChange(event, wireModelName) {
         var _this55 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee17() {
           return _regeneratorRuntime().wrap(function _callee17$(_context17) {
             while (1) switch (_context17.prev = _context17.next) {
               case 0:
-                _this55.getEditors();
-                _this55.commentsRepository = _this55.answerEditor.plugins.get('CommentsRepository');
-                console.dir(_this55.commentsRepository);
-                console.dir(_this55.commentsRepository.activeCommentThread); //focusTracking Required!
-
-                _this55.activeThread = _this55.commentsRepository.activeCommentThread;
-                if (_this55.activeThread) {
-                  console.log(_this55.activeThread);
-                }
-                _context17.next = 8;
-                return _this55.createCommentThread();
-              case 8:
+                _this55.$dispatch('language-loading-start');
+                _this55.changing = true;
+                _context17.next = 4;
+                return _this55.$wire.set(wireModelName, _this55.language);
+              case 4:
+                _this55.$nextTick(function () {
+                  setTimeout(function () {
+                    _this55.changing = false;
+                    _this55.$dispatch('language-loading-end');
+                  }, 1500);
+                });
+              case 5:
               case "end":
                 return _context17.stop();
             }
           }, _callee17);
         }))();
-      },
-      updateCommentThread: function updateCommentThread(threadId) {
-        var _this56 = this;
-        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee18() {
-          var commentThread, threadEditor;
-          return _regeneratorRuntime().wrap(function _callee18$(_context18) {
-            while (1) switch (_context18.prev = _context18.next) {
-              case 0:
-                _this56.commentsRepository = _this56.answerEditor.plugins.get('CommentsRepository');
-                commentThread = _this56.commentsRepository.activeCommentThread;
-                threadEditor = window.ClassicEditors[threadId];
-                console.log('livewire call');
-                _this56.$wire.call('updateCommentThread', {
-                  threadId: threadId,
-                  message: threadEditor.getData(),
-                  answer: _this56.answerEditor.getData()
-                });
-                threadEditor.data.set('<p></p>');
-                console.log('updaetCommentThread', commentThread);
-                console.log('updaetCommentThread', threadId);
-              case 8:
-              case "end":
-                return _context18.stop();
-            }
-          }, _callee18);
-        }))();
-      },
-      createCommentThread: function createCommentThread() {
-        var _this57 = this;
-        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee20() {
-          var feedbackEditor, comment, editor;
-          return _regeneratorRuntime().wrap(function _callee20$(_context20) {
-            while (1) switch (_context20.prev = _context20.next) {
-              case 0:
-                _this57.getEditors();
-                feedbackEditor = _this57.commentEditor;
-                comment = feedbackEditor.getData();
-                console.log(comment);
-                console.log(' bieb 1');
-                if (!(!comment || comment == '<p></p>')) {
-                  _context20.next = 7;
-                  break;
-                }
-                return _context20.abrupt("return");
-              case 7:
-                console.log(' bieb 1');
-                editor = ClassicEditors['answer-editor'];
-                editor.focus();
-                _this57.$nextTick( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee19() {
-                  var feedback, threadId, commentId, newCommentThread;
-                  return _regeneratorRuntime().wrap(function _callee19$(_context19) {
-                    while (1) switch (_context19.prev = _context19.next) {
-                      case 0:
-                        console.log(editor.editing.view.hasDomSelection, 'hasselectgion');
-                        return _context19.abrupt("return");
-                      case 5:
-                        feedback = _context19.sent;
-                        console.log(feedback);
-                        threadId = feedback.threadId;
-                        commentId = feedback.commentId;
-                        _this57.commentsRepository = editor.plugins.get('CommentsRepository');
-                        _context19.next = 12;
-                        return editor.execute('addCommentThread', {
-                          threadId: threadId
-                        });
-                      case 12:
-                        newCommentThread = commentsRepository.getCommentThreads().filter(function (thread) {
-                          return thread.id == threadId;
-                        });
-                        newCommentThread.addComment({
-                          threadId: threadId,
-                          commentId: commentId,
-                          content: comment,
-                          authorId: '1486'
-                        });
-                      case 14:
-                      case "end":
-                        return _context19.stop();
-                    }
-                  }, _callee19);
-                })));
-              case 11:
-              case "end":
-                return _context20.stop();
-            }
-          }, _callee20);
-        }))();
-      },
-      deleteCommentThread: function deleteCommentThread(threadId) {
-        var _this58 = this;
-        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee21() {
-          var result, answerText;
-          return _regeneratorRuntime().wrap(function _callee21$(_context21) {
-            while (1) switch (_context21.prev = _context21.next) {
-              case 0:
-                _context21.next = 2;
-                return _this58.$wire.call('deleteCommentThread', threadId);
-              case 2:
-                result = _context21.sent;
-                if (!result) {
-                  _context21.next = 9;
-                  break;
-                }
-                commentsRepository.getCommentThread(threadId).remove();
-                answerText = _this58.answerEditor.getData();
-                _context21.next = 8;
-                return _this58.$wire.call('updateAnswerText', answerText);
-              case 8:
-                return _context21.abrupt("return");
-              case 9:
-                console.log('failed to delete answer feedback');
-              case 10:
-              case "end":
-                return _context21.stop();
-            }
-          }, _callee21);
-        }))();
-      },
-      setFocusTracking: function setFocusTracking() {
-        var _this59 = this;
-        var commentButtons = document.querySelectorAll('#sidebar .button');
-        setTimeout(function () {
-          _this59.getEditors();
-
-          //cannot use the this. editors because of errors about being a proxy
-          var answerEditor = ClassicEditors[_this59.answerEditorId];
-          var commentEditor = ClassicEditors[_this59.commentEditorId];
-          var _iterator2 = _createForOfIteratorHelper(commentButtons),
-            _step2;
-          try {
-            for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
-              var buttonElement = _step2.value;
-              answerEditor.ui.focusTracker.add(buttonElement);
-              commentEditor.ui.focusTracker.add(buttonElement);
-            }
-          } catch (err) {
-            _iterator2.e(err);
-          } finally {
-            _iterator2.f();
-          }
-          answerEditor.ui.focusTracker.add(commentEditor.sourceElement.parentElement.querySelector('.ck.ck-content'));
-          commentEditor.ui.focusTracker.add(answerEditor.sourceElement.parentElement.querySelector('.ck.ck-content'));
-        }, 1000);
-      },
-      getEditors: function getEditors() {
-        this.commentEditor = ClassicEditors[this.commentEditorId];
-        this.answerEditor = ClassicEditors[this.answerEditorId];
       }
     };
   });
@@ -8318,7 +8049,7 @@ document.addEventListener("alpine:init", function () {
         this.setHeightToAspectRatio(this.$el);
       },
       setHeightToAspectRatio: function setHeightToAspectRatio(element) {
-        var _this60 = this;
+        var _this56 = this;
         var aspectRatioWidth = 940;
         var aspectRatioHeight = 500;
         var aspectRatio = aspectRatioHeight / aspectRatioWidth;
@@ -8331,7 +8062,7 @@ document.addEventListener("alpine:init", function () {
         if (newHeight <= 0) {
           if (this.currentTry <= this.maxTries) {
             setTimeout(function () {
-              return _this60.setHeightToAspectRatio(element);
+              return _this56.setHeightToAspectRatio(element);
             }, 50);
             this.currentTry++;
           }
@@ -8341,8 +8072,55 @@ document.addEventListener("alpine:init", function () {
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].directive("global", function (el, _ref5) {
-    var expression = _ref5.expression;
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("CompletionInput", function () {
+    return {
+      previousValue: "",
+      minWidth: 120,
+      getInputWidth: function getInputWidth(el) {
+        var maxWidth = el.parentNode.closest("div").offsetWidth;
+        maxWidth = maxWidth > 1000 ? 1000 : maxWidth;
+        if (el.scrollWidth > maxWidth) return maxWidth + "px";
+        if (el.value.length === 0 || el.value.length <= 10) return this.minWidth + "px";
+        var safari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+        var newWidth = el.value.length >= this.previousValue.length ? el.scrollWidth + (safari ? 25 : 2) : el.scrollWidth - 5;
+        this.previousValue = el.value;
+        return (newWidth < this.minWidth ? this.minWidth : newWidth) + 'px';
+      }
+    };
+  });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("writeDownCms", function (editorId, restrict_word_amount, maxWords) {
+    return {
+      editor: null,
+      wordCounter: restrict_word_amount,
+      maxWords: maxWords,
+      wordContainer: null,
+      init: function init() {
+        var _this57 = this;
+        this.$nextTick(function () {
+          _this57.editor = ClassicEditors[editorId];
+          _this57.wordContainer = _this57.$root.querySelector(".ck-word-count__words");
+          _this57.wordContainer.style.display = "flex";
+          _this57.wordContainer.parentElement.style.display = "flex";
+          _this57.addMaxWordsToWordCounter(_this57.maxWords);
+        });
+        this.$watch("maxWords", function (value) {
+          _this57.addMaxWordsToWordCounter(value);
+        });
+      },
+      addMaxWordsToWordCounter: function addMaxWordsToWordCounter(value) {
+        var _this$$root$querySele2;
+        var spanId = 'max-word-span';
+        (_this$$root$querySele2 = this.$root.querySelector("#".concat(spanId))) === null || _this$$root$querySele2 === void 0 ? void 0 : _this$$root$querySele2.remove();
+        var element = document.createElement("span");
+        element.id = spanId;
+        element.innerHTML = "/".concat(value !== null && value !== void 0 ? value : 0);
+        this.wordContainer.parentNode.append(element);
+        this.editor.maxWords = value;
+      }
+    };
+  });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].directive("global", function (el, _ref4) {
+    var expression = _ref4.expression;
     var f = new Function("_", "$data", "_." + expression + " = $data;return;");
     f(window, el._x_dataStack[0]);
   });
@@ -8375,6 +8153,7 @@ document.addEventListener("alpine:init", function () {
       this.toggleCount = toggleCount;
     }
   });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].store("editorMaxWords", {});
 });
 function getTitleForVideoUrl(videoUrl) {
   return fetch("https://noembed.com/embed?url=" + videoUrl).then(function (response) {
@@ -8648,6 +8427,35 @@ clearFilterPillsFromElement = function clearFilterPillsFromElement(rootElement) 
   });
 };
 
+/**
+ * Detects fast successive events
+ * @param event event to detect
+ * @param callback function to execute on fast successive events
+ */
+detectFastSuccessiveEvents = function detectFastSuccessiveEvents(event, callback) {
+  // Check if the element was double-clicked
+  var currentTime = new Date().getTime();
+  if (currentTime - event.target.lastClickTime < 500) {
+    // Execute your callback
+    callback(event);
+  }
+
+  // Set the last click time to the current time
+  event.target.lastClickTime = currentTime;
+};
+
+/**
+ * Selects the inner text of the target element
+ * @param event
+ */
+selectTextContent = function selectTextContent(event) {
+  var range = document.createRange();
+  range.selectNodeContents(event.target);
+  var selection = window.getSelection();
+  selection.removeAllRanges();
+  selection.addRange(range);
+};
+
 /***/ }),
 
 /***/ "./resources/js/attachment.js":
@@ -8776,7 +8584,7 @@ window.plyrPlayer = {
  * @param {object} element
  * @param {string} attachmentType
  */
-window.makeResizableDiv = function (element) {
+window.makeAttachmentResizable = function (element) {
   var attachmentType = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
   var resizers = element.querySelectorAll('.resizer');
   var iframe = element.querySelector('.resizers iframe');
@@ -8791,6 +8599,7 @@ window.makeResizableDiv = function (element) {
   var original_mouse_x = 0;
   var original_mouse_y = 0;
   var width, height;
+  var img, originalImageWidth, originalImageHeight; // Specific for image attachments
   var _loop = function _loop() {
     var currentResizer = resizers[i];
     currentResizer.addEventListener('mousedown', resizeMouseDown);
@@ -8809,62 +8618,85 @@ window.makeResizableDiv = function (element) {
       window.addEventListener('ontouchmove', resize);
       window.addEventListener('mouseup', stopResize);
       window.addEventListener('ontouchend', stopResize);
+
+      /*************************** Main *****************************/
       function resize(e) {
         if (attachmentType === 'pdf' || attachmentType === 'video') {
           iframeTimeout = temporarilyDisablePointerEvents(iframe, iframeTimeout);
+        } else if (attachmentType === 'image') {
+          setImageProperties(element);
         }
-        if (currentResizer.classList.contains('bottom-right')) {
-          width = original_width + (e.pageX - original_mouse_x);
-          height = original_height + (e.pageY - original_mouse_y);
-          if (width > minimum_size && e.pageX <= maximum_x) {
-            element.style.width = width + 'px';
-          }
-          if (height > minimum_size && e.pageY <= maximum_y) {
-            element.style.height = height + 'px';
-          }
-        } else if (currentResizer.classList.contains('bottom-left')) {
-          height = original_height + (e.pageY - original_mouse_y);
-          width = original_width - (e.pageX - original_mouse_x);
-          if (height > minimum_size && e.pageY <= maximum_y) {
-            element.style.height = height + 'px';
-          }
-          if (width > minimum_size && e.pageX > 0) {
-            element.style.width = width + 'px';
-            element.style.left = original_x + (e.pageX - original_mouse_x) + 'px';
-          }
-        } else if (currentResizer.classList.contains('top-right')) {
-          width = original_width + (e.pageX - original_mouse_x);
-          height = original_height - (e.pageY - original_mouse_y);
-          if (width > minimum_size && e.pageX <= maximum_x) {
-            element.style.width = width + 'px';
-          }
-          if (height > minimum_size && e.clientY > 0) {
-            element.style.height = height + 'px';
-            element.style.top = original_y + (e.pageY - original_mouse_y) + 'px';
-          }
-        } else {
-          width = original_width - (e.pageX - original_mouse_x);
-          height = original_height - (e.pageY - original_mouse_y);
-          if (width > minimum_size && e.pageX > 0) {
-            element.style.width = width + 'px';
-            element.style.left = original_x + (e.pageX - original_mouse_x) + 'px';
-          }
-          if (height > minimum_size && e.clientY > 0) {
-            element.style.height = height + 'px';
-            element.style.top = original_y + (e.pageY - original_mouse_y) + 'px';
-          }
-        }
+        if (currentResizer.classList.contains('bottom-right')) resizeBottomRight(e);else if (currentResizer.classList.contains('bottom-left')) resizeBottomLeft(e);else if (currentResizer.classList.contains('top-right')) resizeTopRight(e);else resizeTopLeft(e);
+        if (attachmentType === 'image') setImageWidthAndHeight(element);
       }
       function stopResize() {
-        if (attachmentType === 'image') {
-          var ratio = original_height / original_width;
-          element.style.height = ratio * width + 'px';
-        }
         if (attachmentType === 'pdf' || attachmentType === 'video') {
           resetTemporarilyDisabledPointerEvents(iframe, iframeTimeout);
         }
         window.removeEventListener('mousemove', resize);
         window.removeEventListener('touchmove', resize);
+      }
+
+      /*************************** Helpers *****************************/
+      function resizeBottomRight(e) {
+        width = original_width + (e.pageX - original_mouse_x);
+        height = original_height + (e.pageY - original_mouse_y);
+        if (width > minimum_size && e.pageX <= maximum_x) {
+          element.style.width = width + 'px';
+        }
+        if (height > minimum_size && e.pageY <= maximum_y) {
+          element.style.height = height + 'px';
+        }
+      }
+      function resizeBottomLeft(e) {
+        width = original_width - (e.pageX - original_mouse_x);
+        height = original_height + (e.pageY - original_mouse_y);
+        if (width > minimum_size && e.pageX > 0) {
+          element.style.width = width + 'px';
+          element.style.left = original_x + (e.pageX - original_mouse_x) + 'px';
+        }
+        if (height > minimum_size && e.pageY <= maximum_y) {
+          element.style.height = height + 'px';
+        }
+      }
+      function resizeTopRight(e) {
+        width = original_width + (e.pageX - original_mouse_x);
+        height = original_height - (e.pageY - original_mouse_y);
+        if (width > minimum_size && e.pageX <= maximum_x) {
+          element.style.width = width + 'px';
+        }
+        if (height > minimum_size && e.clientY > 0) {
+          element.style.height = height + 'px';
+          element.style.top = original_y + (e.pageY - original_mouse_y) + 'px';
+        }
+      }
+      function resizeTopLeft(e) {
+        width = original_width - (e.pageX - original_mouse_x);
+        height = original_height - (e.pageY - original_mouse_y);
+        if (width > minimum_size && e.pageX > 0) {
+          element.style.width = width + 'px';
+          element.style.left = original_x + (e.pageX - original_mouse_x) + 'px';
+        }
+        if (height > minimum_size && e.clientY > 0) {
+          element.style.height = height + 'px';
+          element.style.top = original_y + (e.pageY - original_mouse_y) + 'px';
+        }
+      }
+      function setImageProperties() {
+        if (typeof img === 'undefined') {
+          img = element.querySelector('img');
+          originalImageWidth = img.width;
+          originalImageHeight = img.height;
+          img.style.maxWidth = 'initial'; // Remove max width to keep aspect ratio - by default img takes max-width of 100%
+          img.closest('.image-max-height').style.maxHeight = 'initial'; // Remove max height from parent dev to allow img expands if bigger than the parent when resized
+        }
+      }
+
+      function setImageWidthAndHeight() {
+        img.style.height = originalImageHeight + 'px';
+        img.style.width = originalImageWidth + 'px';
+        img.style.marginLeft = 'auto';
+        img.style.marginRight = 'auto';
       }
     }
   };
@@ -8997,8 +8829,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _smoothscroll_polyfill__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_smoothscroll_polyfill__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var _AnyChart_anychart_base_min__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./AnyChart/anychart-base.min */ "./resources/js/AnyChart/anychart-base.min.js");
 /* harmony import */ var _AnyChart_anychart_base_min__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_AnyChart_anychart_base_min__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var uuid__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/v4.js");
-/* harmony import */ var _CkEditor5CommentsIntegration__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./CkEditor5CommentsIntegration */ "./resources/js/CkEditor5CommentsIntegration.js");
 /* provided dependency */ var process = __webpack_require__(/*! process/browser.js */ "./node_modules/process/browser.js");
 window._ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
 
@@ -9021,7 +8851,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "662d128370816e2bbb66",
+  key: "fc18ed69b446aeb8c8a5",
   cluster: "eu",
   forceTLS: true
 });
@@ -9035,10 +8865,6 @@ FilePond.registerPlugin((filepond_plugin_file_validate_size__WEBPACK_IMPORTED_MO
 _smoothscroll_polyfill__WEBPACK_IMPORTED_MODULE_2___default().polyfill();
 
 _AnyChart_anychart_base_min__WEBPACK_IMPORTED_MODULE_3___default().licenseKey(process.env.MIX_ANYCHART_LICENSE_KEY);
-
-window.uuidv4 = uuid__WEBPACK_IMPORTED_MODULE_4__["default"];
-
-window.CommentsIntegration = _CkEditor5CommentsIntegration__WEBPACK_IMPORTED_MODULE_5__["default"];
 
 /***/ }),
 
@@ -15167,7 +14993,6 @@ document.addEventListener('alpine:init', function () {
             }
           }
         }, timeout);
-        // alert(this.$wire.activeRoute.main == '');
       },
       resetActiveState: function resetActiveState() {
         if (this.$wire.activeRoute.sub !== '') {
@@ -15359,6 +15184,10 @@ readspeakerLoadCore = function (_readspeakerLoadCore) {
   \******************************************/
 /***/ (() => {
 
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
+function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return exports; }; var exports = {}, Op = Object.prototype, hasOwn = Op.hasOwnProperty, defineProperty = Object.defineProperty || function (obj, key, desc) { obj[key] = desc.value; }, $Symbol = "function" == typeof Symbol ? Symbol : {}, iteratorSymbol = $Symbol.iterator || "@@iterator", asyncIteratorSymbol = $Symbol.asyncIterator || "@@asyncIterator", toStringTagSymbol = $Symbol.toStringTag || "@@toStringTag"; function define(obj, key, value) { return Object.defineProperty(obj, key, { value: value, enumerable: !0, configurable: !0, writable: !0 }), obj[key]; } try { define({}, ""); } catch (err) { define = function define(obj, key, value) { return obj[key] = value; }; } function wrap(innerFn, outerFn, self, tryLocsList) { var protoGenerator = outerFn && outerFn.prototype instanceof Generator ? outerFn : Generator, generator = Object.create(protoGenerator.prototype), context = new Context(tryLocsList || []); return defineProperty(generator, "_invoke", { value: makeInvokeMethod(innerFn, self, context) }), generator; } function tryCatch(fn, obj, arg) { try { return { type: "normal", arg: fn.call(obj, arg) }; } catch (err) { return { type: "throw", arg: err }; } } exports.wrap = wrap; var ContinueSentinel = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var IteratorPrototype = {}; define(IteratorPrototype, iteratorSymbol, function () { return this; }); var getProto = Object.getPrototypeOf, NativeIteratorPrototype = getProto && getProto(getProto(values([]))); NativeIteratorPrototype && NativeIteratorPrototype !== Op && hasOwn.call(NativeIteratorPrototype, iteratorSymbol) && (IteratorPrototype = NativeIteratorPrototype); var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(IteratorPrototype); function defineIteratorMethods(prototype) { ["next", "throw", "return"].forEach(function (method) { define(prototype, method, function (arg) { return this._invoke(method, arg); }); }); } function AsyncIterator(generator, PromiseImpl) { function invoke(method, arg, resolve, reject) { var record = tryCatch(generator[method], generator, arg); if ("throw" !== record.type) { var result = record.arg, value = result.value; return value && "object" == _typeof(value) && hasOwn.call(value, "__await") ? PromiseImpl.resolve(value.__await).then(function (value) { invoke("next", value, resolve, reject); }, function (err) { invoke("throw", err, resolve, reject); }) : PromiseImpl.resolve(value).then(function (unwrapped) { result.value = unwrapped, resolve(result); }, function (error) { return invoke("throw", error, resolve, reject); }); } reject(record.arg); } var previousPromise; defineProperty(this, "_invoke", { value: function value(method, arg) { function callInvokeWithMethodAndArg() { return new PromiseImpl(function (resolve, reject) { invoke(method, arg, resolve, reject); }); } return previousPromise = previousPromise ? previousPromise.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(innerFn, self, context) { var state = "suspendedStart"; return function (method, arg) { if ("executing" === state) throw new Error("Generator is already running"); if ("completed" === state) { if ("throw" === method) throw arg; return doneResult(); } for (context.method = method, context.arg = arg;;) { var delegate = context.delegate; if (delegate) { var delegateResult = maybeInvokeDelegate(delegate, context); if (delegateResult) { if (delegateResult === ContinueSentinel) continue; return delegateResult; } } if ("next" === context.method) context.sent = context._sent = context.arg;else if ("throw" === context.method) { if ("suspendedStart" === state) throw state = "completed", context.arg; context.dispatchException(context.arg); } else "return" === context.method && context.abrupt("return", context.arg); state = "executing"; var record = tryCatch(innerFn, self, context); if ("normal" === record.type) { if (state = context.done ? "completed" : "suspendedYield", record.arg === ContinueSentinel) continue; return { value: record.arg, done: context.done }; } "throw" === record.type && (state = "completed", context.method = "throw", context.arg = record.arg); } }; } function maybeInvokeDelegate(delegate, context) { var methodName = context.method, method = delegate.iterator[methodName]; if (undefined === method) return context.delegate = null, "throw" === methodName && delegate.iterator["return"] && (context.method = "return", context.arg = undefined, maybeInvokeDelegate(delegate, context), "throw" === context.method) || "return" !== methodName && (context.method = "throw", context.arg = new TypeError("The iterator does not provide a '" + methodName + "' method")), ContinueSentinel; var record = tryCatch(method, delegate.iterator, context.arg); if ("throw" === record.type) return context.method = "throw", context.arg = record.arg, context.delegate = null, ContinueSentinel; var info = record.arg; return info ? info.done ? (context[delegate.resultName] = info.value, context.next = delegate.nextLoc, "return" !== context.method && (context.method = "next", context.arg = undefined), context.delegate = null, ContinueSentinel) : info : (context.method = "throw", context.arg = new TypeError("iterator result is not an object"), context.delegate = null, ContinueSentinel); } function pushTryEntry(locs) { var entry = { tryLoc: locs[0] }; 1 in locs && (entry.catchLoc = locs[1]), 2 in locs && (entry.finallyLoc = locs[2], entry.afterLoc = locs[3]), this.tryEntries.push(entry); } function resetTryEntry(entry) { var record = entry.completion || {}; record.type = "normal", delete record.arg, entry.completion = record; } function Context(tryLocsList) { this.tryEntries = [{ tryLoc: "root" }], tryLocsList.forEach(pushTryEntry, this), this.reset(!0); } function values(iterable) { if (iterable) { var iteratorMethod = iterable[iteratorSymbol]; if (iteratorMethod) return iteratorMethod.call(iterable); if ("function" == typeof iterable.next) return iterable; if (!isNaN(iterable.length)) { var i = -1, next = function next() { for (; ++i < iterable.length;) if (hasOwn.call(iterable, i)) return next.value = iterable[i], next.done = !1, next; return next.value = undefined, next.done = !0, next; }; return next.next = next; } } return { next: doneResult }; } function doneResult() { return { value: undefined, done: !0 }; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, defineProperty(Gp, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), defineProperty(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, toStringTagSymbol, "GeneratorFunction"), exports.isGeneratorFunction = function (genFun) { var ctor = "function" == typeof genFun && genFun.constructor; return !!ctor && (ctor === GeneratorFunction || "GeneratorFunction" === (ctor.displayName || ctor.name)); }, exports.mark = function (genFun) { return Object.setPrototypeOf ? Object.setPrototypeOf(genFun, GeneratorFunctionPrototype) : (genFun.__proto__ = GeneratorFunctionPrototype, define(genFun, toStringTagSymbol, "GeneratorFunction")), genFun.prototype = Object.create(Gp), genFun; }, exports.awrap = function (arg) { return { __await: arg }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, asyncIteratorSymbol, function () { return this; }), exports.AsyncIterator = AsyncIterator, exports.async = function (innerFn, outerFn, self, tryLocsList, PromiseImpl) { void 0 === PromiseImpl && (PromiseImpl = Promise); var iter = new AsyncIterator(wrap(innerFn, outerFn, self, tryLocsList), PromiseImpl); return exports.isGeneratorFunction(outerFn) ? iter : iter.next().then(function (result) { return result.done ? result.value : iter.next(); }); }, defineIteratorMethods(Gp), define(Gp, toStringTagSymbol, "Generator"), define(Gp, iteratorSymbol, function () { return this; }), define(Gp, "toString", function () { return "[object Generator]"; }), exports.keys = function (val) { var object = Object(val), keys = []; for (var key in object) keys.push(key); return keys.reverse(), function next() { for (; keys.length;) { var key = keys.pop(); if (key in object) return next.value = key, next.done = !1, next; } return next.done = !0, next; }; }, exports.values = values, Context.prototype = { constructor: Context, reset: function reset(skipTempReset) { if (this.prev = 0, this.next = 0, this.sent = this._sent = undefined, this.done = !1, this.delegate = null, this.method = "next", this.arg = undefined, this.tryEntries.forEach(resetTryEntry), !skipTempReset) for (var name in this) "t" === name.charAt(0) && hasOwn.call(this, name) && !isNaN(+name.slice(1)) && (this[name] = undefined); }, stop: function stop() { this.done = !0; var rootRecord = this.tryEntries[0].completion; if ("throw" === rootRecord.type) throw rootRecord.arg; return this.rval; }, dispatchException: function dispatchException(exception) { if (this.done) throw exception; var context = this; function handle(loc, caught) { return record.type = "throw", record.arg = exception, context.next = loc, caught && (context.method = "next", context.arg = undefined), !!caught; } for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i], record = entry.completion; if ("root" === entry.tryLoc) return handle("end"); if (entry.tryLoc <= this.prev) { var hasCatch = hasOwn.call(entry, "catchLoc"), hasFinally = hasOwn.call(entry, "finallyLoc"); if (hasCatch && hasFinally) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } else if (hasCatch) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); } else { if (!hasFinally) throw new Error("try statement without catch or finally"); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } } } }, abrupt: function abrupt(type, arg) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc <= this.prev && hasOwn.call(entry, "finallyLoc") && this.prev < entry.finallyLoc) { var finallyEntry = entry; break; } } finallyEntry && ("break" === type || "continue" === type) && finallyEntry.tryLoc <= arg && arg <= finallyEntry.finallyLoc && (finallyEntry = null); var record = finallyEntry ? finallyEntry.completion : {}; return record.type = type, record.arg = arg, finallyEntry ? (this.method = "next", this.next = finallyEntry.finallyLoc, ContinueSentinel) : this.complete(record); }, complete: function complete(record, afterLoc) { if ("throw" === record.type) throw record.arg; return "break" === record.type || "continue" === record.type ? this.next = record.arg : "return" === record.type ? (this.rval = this.arg = record.arg, this.method = "return", this.next = "end") : "normal" === record.type && afterLoc && (this.next = afterLoc), ContinueSentinel; }, finish: function finish(finallyLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.finallyLoc === finallyLoc) return this.complete(entry.completion, entry.afterLoc), resetTryEntry(entry), ContinueSentinel; } }, "catch": function _catch(tryLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc === tryLoc) { var record = entry.completion; if ("throw" === record.type) { var thrown = record.arg; resetTryEntry(entry); } return thrown; } } throw new Error("illegal catch attempt"); }, delegateYield: function delegateYield(iterable, resultName, nextLoc) { return this.delegate = { iterator: values(iterable), resultName: resultName, nextLoc: nextLoc }, "next" === this.method && (this.arg = undefined), ContinueSentinel; } }, exports; }
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
@@ -15366,101 +15195,85 @@ function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symb
 function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
 function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
 RichTextEditor = {
-  initStudent: function initStudent(editorId) {
-    console.log("this should implement student init // example is open-medium-question.blase.php");
-  },
-  initStudentCoLearning: function initStudentCoLearning(editorId) {
+  initStudentCoLearning: function initStudentCoLearning(parameterBag) {
     var _this = this;
-    var lang = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "nl_NL";
-    var wsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-    return ClassicEditor.create(document.querySelector("#" + editorId), this.getConfigForStudent(wsc, [])).then(function (editor) {
-      ClassicEditors[editorId] = editor;
-      _this.setupWordCounter(editor, editorId);
-      WebspellcheckerTlc.forTeacherQuestion(editor, lang, wsc);
-      window.addEventListener("wsc-problems-count-updated-" + editorId, function (e) {
-        var problemCountSpan = document.getElementById("problem-count-" + editorId);
+    return this.createStudentEditor(parameterBag, function (editor) {
+      _this.setupWordCounter(editor, parameterBag);
+      WebspellcheckerTlc.forTeacherQuestion(editor, parameterBag.lang, parameterBag.allowWsc);
+      window.addEventListener("wsc-problems-count-updated-" + parameterBag.editorId, function (e) {
+        var problemCountSpan = document.getElementById("problem-count-" + parameterBag.editorId);
         if (problemCountSpan) {
           problemCountSpan.textContent = e.detail.problemsCount;
         }
       });
       if (typeof ReadspeakerTlc != "undefined") {
-        ReadspeakerTlc.ckeditor.addListenersForReadspeaker(editor, questionId, editorId);
+        ReadspeakerTlc.ckeditor.addListenersForReadspeaker(editor, parameterBag.questionId, parameterBag.editorId);
         ReadspeakerTlc.ckeditor.disableContextMenuOnCkeditor();
       }
-    })["catch"](function (error) {
-      console.error(error);
     });
   },
-  initSelectionCMS: function initSelectionCMS(editorId) {
+  initSelectionCMS: function initSelectionCMS(parameterBag) {
     var _this2 = this;
-    var lang = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "nl_NL";
-    var allowWsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-    var editor = ClassicEditors[editorId];
-    if (editor) {
-      editor.destroy(true);
-    }
-    return ClassicEditor.create(document.getElementById(editorId), this.getConfigForTeacher(allowWsc, ["Selection"])).then(function (editor) {
-      ClassicEditors[editorId] = editor;
-      WebspellcheckerTlc.lang(editor, lang);
-      // WebspellcheckerTlc.setEditorToReadOnly(editor);
+    parameterBag.pluginsToAdd = ['Selection'];
+    return this.createTeacherEditor(parameterBag, function (editor) {
+      WebspellcheckerTlc.lang(editor, parameterBag.lang);
       _this2.setReadOnly(editor);
       window.editor = editor;
-    })["catch"](function (error) {
-      console.error(error);
     });
   },
-  initCompletionCMS: function initCompletionCMS(editorId, lang) {
+  initCompletionCMS: function initCompletionCMS(parameterBag) {
     var _this3 = this;
-    var allowWsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-    var editor = ClassicEditors[editorId];
-    if (editor) {
-      editor.destroy(true);
-    }
-    return ClassicEditor.create(document.getElementById(editorId), this.getConfigForTeacher(allowWsc, ["Completion"])).then(function (editor) {
-      ClassicEditors[editorId] = editor;
-      WebspellcheckerTlc.lang(editor, lang);
-      // WebspellcheckerTlc.setEditorToReadOnly(editor);
+    parameterBag.pluginsToAdd = ["Completion"];
+    return this.createTeacherEditor(parameterBag, function (editor) {
+      WebspellcheckerTlc.lang(editor, parameterBag.lang);
       _this3.setReadOnly(editor);
-    })["catch"](function (error) {
-      console.error(error);
     });
   },
-  sendInputEventToEditor: function sendInputEventToEditor(editorId, e) {
-    var textarea = document.getElementById(editorId);
-    setTimeout(function () {
-      textarea.value = e.editor.getData();
-    }, 300);
-    textarea.dispatchEvent(new Event("input"));
-  },
-  initClassicEditorForStudentplayer: function initClassicEditorForStudentplayer(editorId, questionId) {
+  initClassicEditorForStudentPlayer: function initClassicEditorForStudentPlayer(parameterBag) {
     var _this4 = this;
-    var allowWsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-    return ClassicEditor.create(document.querySelector("#" + editorId), this.getConfigForStudent(allowWsc, [])).then(function (editor) {
-      ClassicEditors[editorId] = editor;
-      _this4.setupWordCounter(editor, editorId);
+    return this.createStudentEditor(parameterBag, function (editor) {
+      _this4.setupWordCounter(editor, parameterBag);
       if (typeof ReadspeakerTlc != "undefined") {
-        ReadspeakerTlc.ckeditor.addListenersForReadspeaker(editor, questionId, editorId);
+        ReadspeakerTlc.ckeditor.addListenersForReadspeaker(editor, parameterBag.questionId, parameterBag.editorId);
         ReadspeakerTlc.ckeditor.disableContextMenuOnCkeditor();
       }
-    })["catch"](function (error) {
-      console.error(error);
     });
   },
-  initClassicEditorForStudentPreviewplayer: function initClassicEditorForStudentPreviewplayer(editorId, questionId) {
+  initClassicEditorForStudentPreviewplayer: function initClassicEditorForStudentPreviewplayer(parameterBag) {
     var _this5 = this;
-    return ClassicEditor.create(document.querySelector("#" + editorId), this.getConfigForStudent(false, [])).then(function (editor) {
-      ClassicEditors[editorId] = editor;
-      _this5.setupWordCounter(editor, editorId);
+    return this.createStudentEditor(parameterBag, function (editor) {
+      _this5.setupWordCounter(editor, parameterBag);
       if (typeof ReadspeakerTlc != "undefined") {
         ReadspeakerTlc.ckeditor.replaceReadableAreaByClone(editor);
       }
       editor.isReadOnly = true;
-    })["catch"](function (error) {
-      console.error(error);
     });
   },
-  getConfigForStudent: function getConfigForStudent(allowWsc) {
-    var pluginsToAdd = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+  initForTeacher: function initForTeacher(parameterBag) {
+    var _this6 = this;
+    return this.createTeacherEditor(parameterBag, function (editor) {
+      WebspellcheckerTlc.lang(editor, parameterBag.lang);
+      _this6.setupWordCounter(editor, parameterBag);
+      _this6.setReadOnly(editor);
+    });
+  },
+  initAssessmentFeedback: function initAssessmentFeedback(parameterBag) {
+    parameterBag.removeItems = {
+      plugins: ["Essentials", "FontFamily", "FontSize", "FontBackgroundColor", "Heading", "Indent", "FontColor", "RemoveFormat", "PasteFromOffice", "WordCount", "WProofreader", "Completion", "Selection"],
+      toolbar: ["outdent", "indent", "completion", "selection", "fontFamily", "fontBackgroundColor", "fontSize", "undo", "redo", "fontColor", "heading", "removeFormat", "wproofreader", "specialCharacters"]
+    };
+    parameterBag.shouldNotGroupWhenFull = true;
+    return this.createTeacherEditor(parameterBag);
+  },
+  initInlineFeedback: function initInlineFeedback(parameterBag) {
+    var _this7 = this;
+    return this.createStudentEditor(parameterBag, function (editor) {
+      return _this7.setupWordCounter(editor, parameterBag);
+    });
+  },
+  getConfigForStudent: function getConfigForStudent(parameterBag) {
+    var _parameterBag$plugins;
+    (_parameterBag$plugins = parameterBag.pluginsToAdd) !== null && _parameterBag$plugins !== void 0 ? _parameterBag$plugins : parameterBag.pluginsToAdd = [];
     var config = {
       autosave: {
         waitingTime: 300,
@@ -15469,44 +15282,36 @@ RichTextEditor = {
           editor.sourceElement.dispatchEvent(new Event("input"));
         }
       },
-      wordcount: {
-        showWordCount: true,
-        showParagraphs: false,
-        showCharCount: true,
-        countSpacesAsChars: true
-      }
+      wordCount: {
+        displayCharacters: false
+      },
+      wproofreader: this.getWproofreaderConfig()
     };
+    config.removePlugins = ["Selection", "Completion", "ImageUpload", "Image", "ImageToolbar"];
     config.toolbar = {
-      removeItems: []
+      removeItems: ["selection", "completion", "imageUpload", "image"]
     };
-    if (allowWsc) {
-      config.wproofreader = {
-        autoSearch: false,
-        autoDestroy: true,
-        autocorrect: false,
-        autocomplete: false,
-        actionItems: ["addWord", "ignoreAll", "ignore", "settings", "toggle", "proofreadDialog"],
-        enableBadgeButton: true,
-        serviceProtocol: "https",
-        servicePort: "80",
-        serviceHost: "wsc.test-correct.nl",
-        servicePath: "wscservice/api",
-        srcUrl: "https://wsc.test-correct.nl/wscservice/wscbundle/wscbundle.js"
-      };
-      config.removePlugins = ["Selection", "Completion", "ImageUpload", "Image"];
-      config.toolbar.removeItems = ["selection", "completion", "imageUpload", "image"];
-    } else {
-      config.removePlugins = ["WProofreader", "Selection", "Completion", "ImageUpload", "Image"];
-      config.toolbar.removeItems = ["wproofreader", "selection", "completion", "imageUpload", "image"];
+    if (!parameterBag.allowWsc) {
+      delete config.wproofreader;
+      config.removePlugins.push("WProofreader");
+      config.toolbar.removeItems.push("wproofreader");
+    }
+    if (!parameterBag.textFormatting) {
+      config.removePlugins.push("Bold", "BlockQuote", "FontFamily", "FontSize", "FontBackgroundColor", "Heading", "Indent", "Italic", "List", "Strikethrough", "FontColor", "Subscript", "Superscript", "BlockQuote", "Table", "TableCaption", "TableCellProperties", "TableProperties", "TableToolbar", "Underline", "RemoveFormat");
+      config.toolbar.removeItems.push("bold", "italic", "underline", "strikethrough", "subscript", "superscript", "bulletedList", "numberedList", "blockQuote", "outdent", "indent", "insertTable", "fontFamily", "fontBackgroundColor", "fontSize", "fontColor", "heading", "removeFormat");
+    }
+    if (!parameterBag.mathmlFunctions) {
+      config.removePlugins.push("MathType", "ChemType", "SpecialCharactersTLC");
+      config.toolbar.removeItems.push("MathType", "ChemType", "specialCharacters");
     }
     return config;
   },
-  getConfigForTeacher: function getConfigForTeacher(allowWsc) {
-    var _removeItems$plugins, _removeItems$toolbar;
-    var pluginsToAdd = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
-    var removeItems = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {
-      plugins: ['Comments'],
-      items: ['comment']
+  getConfigForTeacher: function getConfigForTeacher(parameterBag) {
+    var _parameterBag$plugins2, _parameterBag$removeI, _parameterBag$removeI2, _parameterBag$removeI3, _parameterBag$removeI4, _parameterBag$removeI5;
+    (_parameterBag$plugins2 = parameterBag.pluginsToAdd) !== null && _parameterBag$plugins2 !== void 0 ? _parameterBag$plugins2 : parameterBag.pluginsToAdd = [];
+    (_parameterBag$removeI = parameterBag.removeItems) !== null && _parameterBag$removeI !== void 0 ? _parameterBag$removeI : parameterBag.removeItems = {
+      plugins: [],
+      items: []
     };
     var config = {
       autosave: {
@@ -15516,26 +15321,25 @@ RichTextEditor = {
           editor.sourceElement.dispatchEvent(new Event("input"));
         }
       },
-      licenseKey: '9K2tRUPoZobJydX6tm2HusZ/x1NCE/sghAv2zyuhaiEtxnbV9QKrhKjJvsI=',
       image: {
         upload: {
           types: ["jpeg", "png", "gif", "bmp", "webp", "tiff"]
         },
-        toolbar: ['imageTextAlternative',
+        toolbar: ["imageTextAlternative",
         // 'toggleImageCaption',
-        '|', 'imageStyle:inline', {
+        "|", "imageStyle:inline", {
           // Grouping into one drop-down.
-          name: 'wrapText',
-          title: 'Tekstterugloop',
-          items: ['imageStyle:alignLeft', 'imageStyle:alignRight'],
-          defaultItem: 'imageStyle:alignLeft'
+          name: "wrapText",
+          title: "Tekstterugloop",
+          items: ["imageStyle:alignLeft", "imageStyle:alignRight"],
+          defaultItem: "imageStyle:alignLeft"
         }, {
           // Grouping into one drop-down.
-          name: 'breakText',
-          title: 'Tekst onderbreken',
-          items: ['imageStyle:alignBlockLeft', 'imageStyle:alignCenter', 'imageStyle:alignBlockRight'],
-          defaultItem: 'imageStyle:alignBlockLeft'
-        }, 'imageStyle:side', '|', 'resizeImage']
+          name: "breakText",
+          title: "Tekst onderbreken",
+          items: ["imageStyle:alignBlockLeft", "imageStyle:alignCenter", "imageStyle:alignBlockRight"],
+          defaultItem: "imageStyle:alignBlockLeft"
+        }, "imageStyle:side", "|", "resizeImage"]
       },
       simpleUpload: {
         uploadUrl: "/cms/ckeditor_upload/images",
@@ -15548,37 +15352,26 @@ RichTextEditor = {
         }
       },
 
-      wordcount: {
-        showWordCount: true,
-        showParagraphs: false,
-        showCharCount: true,
-        countSpacesAsChars: true
-      }
+      wordCount: {
+        displayCharacters: true,
+        displayWords: true
+      },
+      wproofreader: this.getWproofreaderConfig()
     };
-    config.removePlugins = (_removeItems$plugins = removeItems === null || removeItems === void 0 ? void 0 : removeItems.plugins) !== null && _removeItems$plugins !== void 0 ? _removeItems$plugins : [];
+    config.removePlugins = (_parameterBag$removeI2 = (_parameterBag$removeI3 = parameterBag.removeItems) === null || _parameterBag$removeI3 === void 0 ? void 0 : _parameterBag$removeI3.plugins) !== null && _parameterBag$removeI2 !== void 0 ? _parameterBag$removeI2 : [];
     config.toolbar = {
-      removeItems: (_removeItems$toolbar = removeItems === null || removeItems === void 0 ? void 0 : removeItems.toolbar) !== null && _removeItems$toolbar !== void 0 ? _removeItems$toolbar : []
+      removeItems: (_parameterBag$removeI4 = (_parameterBag$removeI5 = parameterBag.removeItems) === null || _parameterBag$removeI5 === void 0 ? void 0 : _parameterBag$removeI5.toolbar) !== null && _parameterBag$removeI4 !== void 0 ? _parameterBag$removeI4 : []
     };
-    if (allowWsc) {
-      config.wproofreader = {
-        autoSearch: false,
-        autoDestroy: true,
-        autocorrect: false,
-        autocomplete: false,
-        actionItems: ["addWord", "ignoreAll", "ignore", "settings", "toggle", "proofreadDialog"],
-        enableBadgeButton: true,
-        serviceProtocol: "https",
-        servicePort: "80",
-        serviceHost: "wsc.test-correct.nl",
-        servicePath: "wscservice/api",
-        srcUrl: "https://wsc.test-correct.nl/wscservice/wscbundle/wscbundle.js"
-      };
-    } else {
+    if (!parameterBag.allowWsc) {
+      delete config.wproofreader;
       config.removePlugins.push("WProofreader");
+    }
+    if (parameterBag.shouldNotGroupWhenFull) {
+      config.toolbar.shouldNotGroupWhenFull = true;
     }
     var availablePlugins = ["Selection", "Completion"];
     var pluginsToRemove = availablePlugins.filter(function (plugin) {
-      return !pluginsToAdd.includes(plugin);
+      return !parameterBag.pluginsToAdd.includes(plugin);
     });
     config.removePlugins = [].concat(_toConsumableArray(config.removePlugins), _toConsumableArray(pluginsToRemove));
     config.toolbar.removeItems = [].concat(_toConsumableArray(config.toolbar.removeItems), _toConsumableArray(config.removePlugins.map(function (item) {
@@ -15586,53 +15379,12 @@ RichTextEditor = {
     })));
     return config;
   },
-  initForTeacher: function initForTeacher(editorId, lang) {
-    var _this6 = this;
-    var allowWsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-    var editor = ClassicEditors[editorId];
-    if (editor) {
-      editor.destroy(true);
-    }
-    return ClassicEditor.create(document.getElementById(editorId), this.getConfigForTeacher(allowWsc)).then(function (editor) {
-      ClassicEditors[editorId] = editor;
-      WebspellcheckerTlc.lang(editor, lang);
-      // WebspellcheckerTlc.setEditorToReadOnly(editor);
-      _this6.setReadOnly(editor);
-    })["catch"](function (error) {
-      console.error(error);
-    });
-  },
-  initAssessmentFeedback: function initAssessmentFeedback(editorId, lang) {
-    var allowWsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-    var editor = ClassicEditors[editorId];
-    if (editor) {
-      editor.destroy(true);
-    }
-    var itemsToRemove = {
-      plugins: ["Essentials", "FontFamily", "FontSize", "FontBackgroundColor", "Heading", "Indent", "FontColor", "RemoveFormat", "PasteFromOffice", "WordCount", "WProofreader", "Completion", "Selection"],
-      toolbar: ["outdent", "indent", "completion", "selection", "fontFamily", "fontBackgroundColor", "fontSize", "undo", "redo", "fontColor", "heading", "removeFormat", "wproofreader", "specialCharacters"]
-    };
-    var config = this.getConfigForTeacher(allowWsc, [], itemsToRemove, true);
-    config.toolbar.shouldNotGroupWhenFull = true;
-    return ClassicEditor.create(document.getElementById(editorId), config).then(function (editor) {
-      ClassicEditors[editorId] = editor;
-    })["catch"](function (error) {
-      console.error(error);
-    });
-  },
-  initInlineFeedback: function initInlineFeedback(editorId, lang) {
-    var _this7 = this;
-    var allowWsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-    var editor = ClassicEditors[editorId];
-    if (editor) {
-      editor.destroy(true);
-    }
-    return ClassicEditor.create(document.getElementById(editorId), this.getConfigForTeacher(allowWsc)).then(function (editor) {
-      ClassicEditors[editorId] = editor;
-      _this7.setupWordCounter(editor, editorId);
-    })["catch"](function (error) {
-      console.error(error);
-    });
+  sendInputEventToEditor: function sendInputEventToEditor(editorId, e) {
+    var textarea = document.getElementById(editorId);
+    setTimeout(function () {
+      textarea.value = e.editor.getData();
+    }, 300);
+    textarea.dispatchEvent(new Event("input"));
   },
   /** @TODO: this method should be refactored to setReadOnlyIfApplicable  but it has a reference in readspeaker_tlc.js which i dont want to test 1 day before deployment.*/
   setReadOnly: function setReadOnly(editor) {
@@ -15644,17 +15396,152 @@ RichTextEditor = {
       });
     }
   },
-  writeContentToTexarea: function writeContentToTexarea(editorId) {
+  writeContentToTextarea: function writeContentToTextarea(editorId) {
     var editor = ClassicEditors[editorId];
     if (editor) {
       editor.updateSourceElement();
       editor.sourceElement.dispatchEvent(new Event("input"));
     }
   },
-  setupWordCounter: function setupWordCounter(editor, editorId) {
+  setupWordCounter: function setupWordCounter(editor, parameterBag) {
+    var _this8 = this;
     var wordCountPlugin = editor.plugins.get("WordCount");
-    var wordCountWrapper = document.getElementById("word-count-" + editorId);
-    wordCountWrapper.appendChild(wordCountPlugin.wordCountContainer);
+    var wordCountWrapper = document.getElementById("word-count-" + parameterBag.editorId);
+    if (wordCountWrapper) {
+      wordCountWrapper.appendChild(wordCountPlugin.wordCountContainer);
+      window.dispatchEvent(new CustomEvent("updated-word-count-plugin-container"));
+    }
+    editor.maxWords = parameterBag.maxWords;
+    editor.maxWordOverride = parameterBag.maxWordOverride;
+    this.handleInputWithMaxWords(editor);
+    editor.updateMaxWords = function (value) {
+      editor.maxWords = parseInt(value);
+      _this8.handleInputWithMaxWords(editor);
+    };
+    editor.model.document.on("change:data", function (event, batch) {
+      _this8.handleInputWithMaxWords(editor, event);
+    });
+    editor.editing.view.document.on("paste", function (event, data) {
+      if (_this8.hasNoWordLimit(editor)) return;
+      var wc = editor.plugins.get("WordCount");
+      var maxWords = parseInt(editor.maxWords);
+      if (wc.words >= maxWords) {
+        data.preventDefault();
+        event.stop();
+      } else {
+        editor.pasted = true;
+        editor.prePasteData = editor.getData();
+      }
+    });
+    editor.editing.view.document.on("keydown", function (event, data) {
+      if (_this8.hasNoWordLimit(editor)) return;
+      if (!editor.disableSpacers) return;
+
+      /* Disable spacebar and enter inputs so new words cannot be created;*/
+      if ([32, 13].includes(data.keyCode)) {
+        data.preventDefault();
+        event.stop();
+      }
+    });
+  },
+  handleInputWithMaxWords: function handleInputWithMaxWords(editor) {
+    if (this.hasNoWordLimit(editor)) return;
+    if (editor.preventUpdateLoop) {
+      editor.preventUpdateLoop = false;
+      return;
+    }
+    var input = editor.commands.get("input");
+    var wc = editor.plugins.get("WordCount");
+    var maxWords = parseInt(editor.maxWords);
+    editor.disableSpacers = wc.words >= maxWords;
+    if (wc.words > maxWords) {
+      input.forceDisabled("maxword-lock");
+      handlePastedData();
+    } else {
+      input.clearForceDisabled("maxword-lock");
+    }
+    function handlePastedData() {
+      if (!editor.pasted) return;
+      editor.setData(editor.prePasteData);
+      editor.preventUpdateLoop = true;
+      editor.pasted = false;
+      setTimeout(function () {
+        editor.model.change(function (writer) {
+          writer.setSelection(editor.model.document.getRoot(), "end");
+        });
+      }, 1);
+    }
+  },
+  hasNoWordLimit: function hasNoWordLimit(editor) {
+    return editor.maxWords === null || editor.maxWordOverride;
+  },
+  getWproofreaderConfig: function getWproofreaderConfig() {
+    return {
+      autoSearch: false,
+      autoDestroy: true,
+      autocorrect: false,
+      autocomplete: false,
+      actionItems: ["addWord", "ignoreAll", "ignore", "settings", "toggle", "proofreadDialog"],
+      enableBadgeButton: true,
+      serviceProtocol: "https",
+      servicePort: "80",
+      serviceHost: "wsc.test-correct.nl",
+      servicePath: "wscservice/api",
+      srcUrl: "https://wsc.test-correct.nl/wscservice/wscbundle/wscbundle.js"
+    };
+  },
+  createEditor: function createEditor(editorId, config) {
+    var resolveCallback = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+    var editor = ClassicEditors[editorId];
+    if (editor) editor.destroy(true);
+    return ClassicEditor.create(document.getElementById(editorId), config).then(function (editor) {
+      ClassicEditors[editorId] = editor;
+      if (typeof resolveCallback === "function") {
+        resolveCallback(editor);
+      }
+    })["catch"](function (error) {
+      console.error(error);
+    });
+  },
+  createTeacherEditor: function createTeacherEditor(parameterBag) {
+    var _arguments = arguments,
+      _this9 = this;
+    return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
+      var resolveCallback;
+      return _regeneratorRuntime().wrap(function _callee$(_context) {
+        while (1) switch (_context.prev = _context.next) {
+          case 0:
+            resolveCallback = _arguments.length > 1 && _arguments[1] !== undefined ? _arguments[1] : null;
+            _context.next = 3;
+            return _this9.createEditor(parameterBag.editorId, _this9.getConfigForTeacher(parameterBag), resolveCallback);
+          case 3:
+            return _context.abrupt("return", _context.sent);
+          case 4:
+          case "end":
+            return _context.stop();
+        }
+      }, _callee);
+    }))();
+  },
+  createStudentEditor: function createStudentEditor(parameterBag) {
+    var _arguments2 = arguments,
+      _this10 = this;
+    return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
+      var resolveCallback;
+      return _regeneratorRuntime().wrap(function _callee2$(_context2) {
+        while (1) switch (_context2.prev = _context2.next) {
+          case 0:
+            resolveCallback = _arguments2.length > 1 && _arguments2[1] !== undefined ? _arguments2[1] : null;
+            _context2.next = 3;
+            return _this10.createEditor(parameterBag.editorId, _this10.getConfigForStudent(parameterBag), resolveCallback);
+          case 3:
+            return _context2.abrupt("return", _context2.sent);
+          case 4:
+          case "end":
+            return _context2.stop();
+        }
+      }, _callee2);
+    }))();
   }
 };
 
@@ -15846,7 +15733,6 @@ WebspellcheckerTlc = {
     editor.on('resize', function (event) {
       WebspellcheckerTlc.triggerWsc(editor, language);
     });
-    editor.focus();
   },
   lang: function lang(editor, language) {
     var i = 0;
@@ -15902,12 +15788,6 @@ WebspellcheckerTlc = {
   \**********************************************************/
 /***/ (() => {
 
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
 window.LivewireUIModal = function () {
   return {
     show: false,
@@ -15991,39 +15871,6 @@ window.LivewireUIModal = function () {
           _this.modalWidth = _this.getActiveComponentModalAttribute('maxWidthClass');
         }, 300);
       }
-      this.$nextTick(function () {
-        var _this$$refs$id;
-        var focusable = (_this$$refs$id = _this.$refs[id]) === null || _this$$refs$id === void 0 ? void 0 : _this$$refs$id.querySelector('[autofocus]');
-        if (focusable) {
-          setTimeout(function () {
-            focusable.focus();
-          }, focusableTimeout);
-        }
-      });
-    },
-    focusables: function focusables() {
-      var selector = 'a, button, input, textarea, select, details, [tabindex]:not([tabindex=\'-1\'])';
-      return _toConsumableArray(this.$el.querySelectorAll(selector)).filter(function (el) {
-        return !el.hasAttribute('disabled');
-      });
-    },
-    firstFocusable: function firstFocusable() {
-      return this.focusables()[0];
-    },
-    lastFocusable: function lastFocusable() {
-      return this.focusables().slice(-1)[0];
-    },
-    nextFocusable: function nextFocusable() {
-      return this.focusables()[this.nextFocusableIndex()] || this.firstFocusable();
-    },
-    prevFocusable: function prevFocusable() {
-      return this.focusables()[this.prevFocusableIndex()] || this.lastFocusable();
-    },
-    nextFocusableIndex: function nextFocusableIndex() {
-      return (this.focusables().indexOf(document.activeElement) + 1) % (this.focusables().length + 1);
-    },
-    prevFocusableIndex: function prevFocusableIndex() {
-      return Math.max(0, this.focusables().indexOf(document.activeElement)) - 1;
     },
     setShowPropertyTo: function setShowPropertyTo(show) {
       var _this2 = this;
@@ -67430,32 +67277,6 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
-/***/ "./resources/css/app_pdf.css":
-/*!***********************************!*\
-  !*** ./resources/css/app_pdf.css ***!
-  \***********************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-// extracted by mini-css-extract-plugin
-
-
-/***/ }),
-
-/***/ "./resources/css/print-test-pdf.css":
-/*!******************************************!*\
-  !*** ./resources/css/print-test-pdf.css ***!
-  \******************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-// extracted by mini-css-extract-plugin
-
-
-/***/ }),
-
 /***/ "./node_modules/plyr/dist/plyr.min.js":
 /*!********************************************!*\
   !*** ./node_modules/plyr/dist/plyr.min.js ***!
@@ -76762,9 +76583,7 @@ module.exports = JSON.parse('{"name":"axios","version":"0.21.4","description":"P
 /******/ 		// [resolve, reject, Promise] = chunk loading, 0 = chunk loaded
 /******/ 		var installedChunks = {
 /******/ 			"/js/app": 0,
-/******/ 			"css/app": 0,
-/******/ 			"css/app_pdf": 0,
-/******/ 			"css/print-test-pdf": 0
+/******/ 			"css/app": 0
 /******/ 		};
 /******/ 		
 /******/ 		// no chunk on demand loading
@@ -76814,10 +76633,8 @@ module.exports = JSON.parse('{"name":"axios","version":"0.21.4","description":"P
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module depends on other loaded chunks and execution need to be delayed
-/******/ 	__webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/js/app.js")))
-/******/ 	__webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/css/app.css")))
-/******/ 	__webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/css/app_pdf.css")))
-/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/css/print-test-pdf.css")))
+/******/ 	__webpack_require__.O(undefined, ["css/app"], () => (__webpack_require__("./resources/js/app.js")))
+/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["css/app"], () => (__webpack_require__("./resources/css/app.css")))
 /******/ 	__webpack_exports__ = __webpack_require__.O(__webpack_exports__);
 /******/ 	
 /******/ })()

@@ -275,6 +275,7 @@ document.addEventListener("alpine:init", () => {
         resolvingTitle: true,
         index: 1,
         mode: mode,
+        attachmentLoading: false,
         async init() {
             this.setIndex();
 
@@ -300,6 +301,9 @@ document.addEventListener("alpine:init", () => {
             const parent = this.$root.parentElement;
             if (parent === null) return;
             this.index = Array.prototype.indexOf.call(parent.children, this.$el) + 1;
+        },
+        dispatchAttachmentLoading() {
+            window.dispatchEvent(new CustomEvent('attachment-preview-loading'))
         }
     }));
 
@@ -530,7 +534,7 @@ document.addEventListener("alpine:init", () => {
         emitAddToOpenShortIfNecessary(shouldCheckDirty = true, group, newSubQuestion) {
             this.$dispatch("store-current-question");
             if (shouldCheckDirty && this.$store.cms.dirty) {
-                this.$wire.emitTo("teacher.questions.open-short", "addQuestionFromDirty", {
+                this.$wire.emitTo("teacher.cms.constructor", "addQuestionFromDirty", {
                     group,
                     newSubQuestion,
                     groupUuid: this.$store.questionBank.inGroup
@@ -1651,8 +1655,9 @@ document.addEventListener("alpine:init", () => {
         set expanded(value) {
             this.active = value ? this.id : null;
             if (value) {
+                this.$dispatch('block-expanded', {id: this.id});
                 this.$root.querySelectorAll(".slider-button-container").forEach(toggle => toggle.dispatchEvent(new CustomEvent("slider-toggle-rerender")));
-                this.$el.classList.remove("hover:shadow-hover");
+                // this.$el.classList.remove("hover:shadow-hover");
             }
             if (this.emitWhenSet) {
                 Livewire.emit("accordion-update", { key, value });
@@ -2047,9 +2052,18 @@ document.addEventListener("alpine:init", () => {
         },
         openFeedbackTab() {
             this.tab(2);
+            this.$nextTick(() => {
+                let editorDiv = this.$root.querySelector(".feedback textarea");
+                if (editorDiv) {
+                    let editor = ClassicEditors[editorDiv.getAttribute("name")];
+                    if (editor) {
+                        setTimeout(() => editor.focus(), 320); // Await slide animation, otherwise it breaks;
+                    }
+                }
+            });
         }
     }));
-    Alpine.data("scoreSlider", (score, model, maxScore, halfPoints, disabled, coLearning, focusInput) => ({
+    Alpine.data("scoreSlider", (score, model, maxScore, halfPoints, disabled, coLearning, focusInput, continuousSlider) => ({
         score,
         model,
         maxScore,
@@ -2060,6 +2074,7 @@ document.addEventListener("alpine:init", () => {
         persistantScore: null,
         inputBox: null,
         focusInput,
+        continuousSlider,
         getSliderBackgroundSize(el) {
             if (this.score === null) return 0;
 
@@ -2069,10 +2084,21 @@ document.addEventListener("alpine:init", () => {
             return (value - min) / (max - min) * 100;
         },
         setThumbOffset() {
+            if(continuousSlider) {
+                return;
+            }
+            if(this.score > this.maxScore) {
+                this.score = this.maxScore;
+            }
+            if (this.score < 0) {
+                this.score = 0;
+            }
+
+
             let el = document.querySelector('.score-slider-input');
 
-            var offsetFromCenter = -45;
-            offsetFromCenter += (this.score/this.maxScore) * 90;
+            var offsetFromCenter = -40;
+            offsetFromCenter += (this.score/this.maxScore) * 80;
 
             el.style.setProperty("--slider-thumb-offset", `calc(${offsetFromCenter}% + 1px)`);
         },
@@ -2138,13 +2164,11 @@ document.addEventListener("alpine:init", () => {
         },
         markInputElementsWithError() {
             if (this.disabled) return;
-            this.inputBox.classList.add("border-allred");
-            this.inputBox.classList.remove("border-blue-grey");
+            this.inputBox.style.border = "1px solid var(--all-red)";
         },
         markInputElementsClean() {
             if (this.disabled) return;
-            this.inputBox.classList.add("border-blue-grey");
-            this.inputBox.classList.remove("border-allred");
+            this.inputBox.style.border = null;
         },
         getContinuousInput(){
             return this.$root.querySelector("[x-ref='score_slider_continuous_input']");
@@ -2340,6 +2364,23 @@ document.addEventListener("alpine:init", () => {
                 clearTimeout(this.intersectionCountdown);
                 this.slideToActiveQuestionBubble();
             }, 5000);
+        }
+    }));
+    Alpine.data("accountSettings", (language) => ({
+        openTab: 'account',
+        changing: false,
+        language,
+        async startLanguageChange(event, wireModelName) {
+            this.$dispatch('language-loading-start');
+            this.changing = true;
+            await this.$wire.set(wireModelName, this.language)
+            this.$nextTick(() => {
+                setTimeout(() => {
+                    this.changing = false;
+                    this.$dispatch('language-loading-end');
+                }, 1500)
+            })
+
         }
     }));
     Alpine.data("CkEditorComments", (users, userId, answerEditorId, commentEditorId, commentThreads) => ({
@@ -2580,6 +2621,58 @@ document.addEventListener("alpine:init", () => {
             element.style.height = newHeight + "px";
         }
     }))
+    Alpine.data("CompletionInput", () => ({
+        previousValue: "",
+        minWidth: 120,
+        getInputWidth(el) {
+            let maxWidth = el.parentNode.closest("div").offsetWidth;
+            maxWidth = maxWidth > 1000 ? 1000 : maxWidth;
+
+            if (el.scrollWidth > maxWidth) return maxWidth + "px";
+            if (el.value.length === 0 || el.value.length <= 10) return this.minWidth + "px";
+
+            const safari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+            let newWidth = (el.value.length >= this.previousValue.length)
+                ? el.scrollWidth + (safari ? 25 : 2)
+                : el.scrollWidth - 5;
+
+            this.previousValue = el.value;
+            return (newWidth < this.minWidth ? this.minWidth : newWidth ) + 'px';
+        }
+    }))
+
+    Alpine.data("writeDownCms", (editorId, restrict_word_amount, maxWords) => ({
+        editor: null,
+        wordCounter: restrict_word_amount,
+        maxWords: maxWords,
+        wordContainer: null,
+        init() {
+            this.$nextTick(() => {
+                this.editor = ClassicEditors[editorId];
+                this.wordContainer = this.$root.querySelector(".ck-word-count__words");
+                this.wordContainer.style.display = "flex";
+                this.wordContainer.parentElement.style.display = "flex";
+
+                this.addMaxWordsToWordCounter(this.maxWords);
+            });
+
+            this.$watch("maxWords", (value) => {
+                this.addMaxWordsToWordCounter(value);
+            });
+        },
+        addMaxWordsToWordCounter(value) {
+            const spanId = 'max-word-span';
+            this.$root.querySelector(`#${spanId}`)?.remove();
+
+            let element = document.createElement("span");
+            element.id = spanId;
+            element.innerHTML = `/${value ?? 0}`;
+
+            this.wordContainer.parentNode.append(element);
+
+            this.editor.maxWords = value;
+        }
+    }));
 
     Alpine.directive("global", function(el, { expression }) {
         let f = new Function("_", "$data", "_." + expression + " = $data;return;");
@@ -2613,6 +2706,7 @@ document.addEventListener("alpine:init", () => {
             this.toggleCount = toggleCount;
         }
     });
+    Alpine.store("editorMaxWords", {});
 });
 
 function getTitleForVideoUrl(videoUrl) {
