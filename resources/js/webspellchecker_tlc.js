@@ -34,7 +34,7 @@ WebspellcheckerTlc = {
         setTimeout(function () {
 
             var instance = WEBSPELLCHECKER.init({
-                container: editor.ui._editableElements.get('main'),
+                container: editor.ui.getEditableElement('main'),
                 spellcheckLang: language,
                 localization: 'nl'
             });

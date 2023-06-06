@@ -35,7 +35,7 @@ return [
     'Feedback toevoegen'                           => 'Feedback toevoegen',
     'current_session'                              => ":index/:totalQuestions vragen nagekeken<br>op :date",
     'no_answers'                                   => 'Er zijn geen antwoorden om na te kijken.',
-    'Studentnamen tonen'                   => 'Studentnamen tonen',
+    'Studentnamen tonen'                           => 'Studentnamen tonen',
     'Inline feedback toevoegen'                    => 'Inline feedback toevoegen',
     'Inline feedback wijzigen'                     => 'Inline feedback wijzigen',
     'Inline feedback verwijderen'                  => 'Inline feedback verwijderen',
@@ -43,4 +43,5 @@ return [
     'Er zitten geen open vragen in deze toets.'    => 'Er zitten geen open vragen in deze toets.',
     'Inline feedback schrijven in antwoord'        => 'Inline feedback schrijven in antwoord',
     'Inline feedback bekijken'                     => 'Inline feedback bekijken',
+    'scored_by_one_student'                        => 'Let op: gescoord door één student.',
 ];
