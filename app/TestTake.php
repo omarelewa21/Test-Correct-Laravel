@@ -500,7 +500,7 @@ class TestTake extends BaseModel
     public function saveSchoolClassTestTakeParticipants()
     {
         $testTakeParticipantFactory = new Factory(new TestParticipant());
-        $testParticipants = $testTakeParticipantFactory->generateMany($this->getKey(), ['school_class_ids' => $this->schoolClasses, 'test_take_status_id' => with(TestTakeStatus::where('name', 'Planned')->first())->getKey()]);
+        $testParticipants = $testTakeParticipantFactory->generateMany($this, ['school_class_ids' => $this->schoolClasses, 'test_take_status_id' => with(TestTakeStatus::where('name', 'Planned')->first())->getKey()]);
         $this->testParticipants()->saveMany($testParticipants);
         $this->schoolClasses = null;
     }
