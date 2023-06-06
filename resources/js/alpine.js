@@ -1,6 +1,7 @@
 import Alpine from "alpinejs";
 import Choices from "choices.js";
 import Intersect from "@alpinejs/intersect";
+import focus from "@alpinejs/focus";
 import Clipboard from "@ryangjchandler/alpine-clipboard";
 import collapse from "@alpinejs/collapse";
 import { isString } from "lodash";
@@ -9,6 +10,7 @@ window.Alpine = Alpine;
 Alpine.plugin(Clipboard);
 Alpine.plugin(Intersect);
 Alpine.plugin(collapse);
+Alpine.plugin(focus);
 
 document.addEventListener("alpine:init", () => {
     Alpine.data("questionIndicator", () => ({

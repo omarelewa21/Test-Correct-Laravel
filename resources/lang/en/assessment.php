@@ -43,4 +43,5 @@ return [
     'Er zitten geen open vragen in deze toets.'    => 'There are no open questions in this test.',
     'Inline feedback schrijven in antwoord'        => 'Write inline feedback in answer',
     'Inline feedback bekijken'                     => 'View inline feedback',
+    'scored_by_one_student'                        => 'Notice: scored by one student.',
 ];

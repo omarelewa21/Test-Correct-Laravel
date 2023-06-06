@@ -88,6 +88,8 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         }
 
         $this->setTemplateVariables();
+
+        $this->createAnswerRatingsForUnansweredQuestions();
     }
 
     public function booted(): void
@@ -360,12 +362,15 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         }
 
         if (!$this->onLastQuestionToAssess()) {
-            $currentAnswerIndex = $this->answers
-                ->discrepancyFiltered($this->skipNoDiscrepancies)
+            $currentAnswerIndex = $this->answersWithDiscrepancyFilter()
                 ->search(fn($answer) => $answer->id === $this->currentAnswer->id);
             $newAnswer = $this->getClosestAvailableAnswer('incr', $this->answers, $currentAnswerIndex);
             if (!$newAnswer) {
-                \Bugsnag::notifyException(new AssessmentException('Trying to use the \'next\' button , but there\'s no next answer available.'));
+                \Bugsnag::notifyException(
+                    new AssessmentException(
+                        'Trying to use the \'next\' button , but there\'s no next answer available.'
+                    )
+                );
                 return true;
             }
             $this->answerNavigationValue = $this->getAnswerIndex($newAnswer);
@@ -456,7 +461,8 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             'assessedAt'                            => $this->getFormattedAssessedAtDate($testTake),
             'assessmentType'                        => $testTake->assessment_type,
             'assessIndex'                           => $this->getAssessedQuestionsCount(),
-            'totalToAssess'                         => $this->questions->discussionTypeFiltered($this->openOnly)->count(),
+            'totalToAssess'                         => $this->questions->discussionTypeFiltered($this->openOnly)->count(
+            ),
             'assessment_show_student_names'         => $this->getSessionSettingValue('assessment_show_student_names'),
         ];
 
@@ -504,8 +510,8 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     private function getAnswersForCurrentQuestion(?Question $question = null): Collection
     {
         $question ??= $this->currentQuestion;
-        return $this->answers->where('question_id', $question->getKey())
-            ->discrepancyFiltered($this->skipNoDiscrepancies)
+        return $this->answersWithDiscrepancyFilter()
+            ->where('question_id', $question->getKey())
             ->values();
     }
 
@@ -514,8 +520,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
      */
     private function getAvailableAnswersForCurrentStudent(): Collection
     {
-        return $this->answers
-            ->discrepancyFiltered($this->getSkipNoDiscrepanciesValue())
+        return $this->answersWithDiscrepancyFilter()
             ->where('test_participant_id', $this->currentAnswer->test_participant_id)
             ->values();
     }
@@ -640,8 +645,8 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
      */
     private function getClosestAvailableAnswer(string $action, Collection $answers, int $currentIndex): ?Answer
     {
-        $answers = $answers->whereIn('question_id', $this->getQuestionIdsForCurrentAssessmentType())
-            ->discrepancyFiltered($this->skipNoDiscrepancies);
+        $answers = $this->answersWithDiscrepancyFilter($answers)
+            ->whereIn('question_id', $this->getQuestionIdsForCurrentAssessmentType());
         if ($action === 'last') {
             return $answers->last();
         }
@@ -730,8 +735,8 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             return;
         }
 
-
-        $firstAnswer = $this->getFirstAnswerWhichDoesntHaveATeacherOrSystemRating() ?? $this->answers->last();
+        $firstAnswer = $this->getFirstAnswerWhichDoesntHaveATeacherOrSystemRating(
+        ) ?? $this->answersWithDiscrepancyFilter()->last();
         $this->setNavigationDataWithFirstUnscoredAnswer($firstAnswer);
     }
 
@@ -745,8 +750,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             (int)$this->questionNavigationValue - 1
         );
         $participantId = $this->students->get((int)$this->answerNavigationValue - 1);
-        $answer = $this->answers
-            ->discrepancyFiltered($this->getSkipNoDiscrepanciesValue())
+        $answer = $this->answersWithDiscrepancyFilter()
             ->where('question_id', $question->id)
             ->where('test_participant_id', $participantId)
             ->first();
@@ -775,7 +779,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
         if ($ratings->where('type', AnswerRating::TYPE_STUDENT)->isNotEmpty()) {
             $this->isCoLearningScore = true;
-            if ($this->currentAnswer->hasDiscrepancy) {
+            if ($this->currentAnswer->hasDiscrepancy === true || $this->currentAnswer->hasDiscrepancy === null) {
                 return null;
             }
             return $this->getCoLearningScoreForCurrentAnswer();
@@ -810,9 +814,8 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
     private function onLastQuestionToAssess(): bool
     {
-        $lastPossibleQuestion = $this->answers
+        $lastPossibleQuestion = $this->answersWithDiscrepancyFilter()
                 ->whereIn('question_id', $this->getQuestionIdsForCurrentAssessmentType())
-                ->discrepancyFiltered($this->skipNoDiscrepancies)
                 ->last()
                 ?->question_id === $this->currentQuestion->id;
 
@@ -859,8 +862,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         $this->questionNavigationValue = $this->getNavigationValueForQuestion($previouslyAssessedQuestion);
 
         $this->answerNavigationValue = $answerIndex ?? $this->getAnswerIndex(
-            $this->answers
-                ->discrepancyFiltered($this->skipNoDiscrepancies)
+            $this->answersWithDiscrepancyFilter()
                 ->where('question_id', $previouslyAssessedQuestion->id)
                 ->first()
         );
@@ -874,7 +876,8 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     protected function currentAnswerCoLearningRatingsHasNoDiscrepancy(?Answer $answer = null): bool
     {
         $answer ??= $this->currentAnswer;
-        return $answer->answerRatings->where('type', AnswerRating::TYPE_STUDENT)
+        return $answer->answerRatings
+                ->where('type', AnswerRating::TYPE_STUDENT)
                 ->keyBy('rating')
                 ->count() === 1;
     }
@@ -948,8 +951,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
      */
     private function getProgressPropertiesForCalculation(): array
     {
-        $filteredAnswers = $this->answers
-            ->discrepancyFiltered($this->skipNoDiscrepancies);
+        $filteredAnswers = $this->answersWithDiscrepancyFilter();
 
         $percentagePerAnswer = 1 / $filteredAnswers->count() * 100;
 
@@ -1011,8 +1013,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
     private function getFirstAnswerWhichDoesntHaveATeacherOrSystemRating(): ?Answer
     {
-        return $this->answers
-            ->discrepancyFiltered($this->skipNoDiscrepancies)
+        return $this->answersWithDiscrepancyFilter()
             ->filter(function ($answer) {
                 $needsAnswerRating = $this->questions->first(fn($q) => $q->id === $answer->question_id
                 )->isDiscussionTypeOpen;
@@ -1100,8 +1101,11 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             ])
             ->flatMap(function ($participant) {
                 return $participant->answers->map(function ($answer) {
-                    $coLearningRatings = $answer->answerRatings->where('type', AnswerRating::TYPE_STUDENT);
-                    $answer->hasDiscrepancy = $coLearningRatings
+                    $coLearningRatings = $answer->answerRatings->whereNotNull('rating')->where(
+                        'type',
+                        AnswerRating::TYPE_STUDENT
+                    );
+                    $answer->hasDiscrepancy = $coLearningRatings->count() > 1
                         ? !$this->currentAnswerCoLearningRatingsHasNoDiscrepancy($answer)
                         : null;
 
@@ -1153,7 +1157,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
                 return $this->answers
                     ->where('question_id', $question->id)
                     ->filter(function ($answer) {
-                        return !$answer->hasDiscrepancy;
+                        return $answer->hasDiscrepancy === false;
                     })
                     ->isEmpty();
             })
@@ -1207,8 +1211,8 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     private function getDefaultAnswerIndexForPreviouslyAssessedQuestion($previouslyAssessedQuestion): int
     {
         return $this->getAnswerIndex(
-                $this->getAnswersForCurrentQuestion($previouslyAssessedQuestion)->first()
-            );
+            $this->getAnswersForCurrentQuestion($previouslyAssessedQuestion)->first()
+        );
     }
 
     /**
@@ -1254,9 +1258,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
      */
     private function setNavigationDataToStartPosition(): void
     {
-        $firstAnswer = $this->answers
-            ->discrepancyFiltered($this->skipNoDiscrepancies)
-            ->first();
+        $firstAnswer = $this->answersWithDiscrepancyFilter()->first();
 
         $firstQuestionForAnswer = $this->getQuestionForAnswer($firstAnswer);
 
@@ -1303,4 +1305,38 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             : $this->skipNoDiscrepancies;
     }
 
+    public function getDiscrepancyTranslationKey(): string
+    {
+        if ($this->currentAnswerCoLearningRatingsHasNoDiscrepancy()) {
+            return 'assessment.no_discrepancy';
+        }
+        if ($this->studentRatings()->whereNotNull('rating')->count() >= 2) {
+            return 'assessment.discrepancy';
+        }
+
+        return 'assessment.scored_by_one_student';
+    }
+
+    private function answersWithDiscrepancyFilter(Collection $answers = null): Collection
+    {
+        $answers ??= $this->answers;
+        return $answers->discrepancyFiltered($this->getSkipNoDiscrepanciesValue())
+            ->when($this->openOnly, function ($answers) {
+                return $answers->reject(fn($answer) => !$answer->isAnswered);
+            });
+    }
+
+    private function createAnswerRatingsForUnansweredQuestions()
+    {
+        $this->answers->where(fn($answer) => $answer->isAnswered === false)
+            ->each(function ($answer) {
+                $answer->answerRatings()
+                    ->firstOrcreate([
+                        'type'         => AnswerRating::TYPE_TEACHER,
+                        'test_take_id' => $this->testTakeData->id,
+                        'user_id'      => auth()->id(),
+                        'rating'       => 0,
+                    ]);
+            });
+    }
 }
