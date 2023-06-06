@@ -548,15 +548,11 @@ class CoLearning extends TCComponent implements CollapsableHeader
 
     private function convertCompletionQuestionToHtml(?Collection $answers = null)
     {
-        $this->completionQuestionTagCount = 0;
-        $completionQuestionTagCount = &$this->completionQuestionTagCount;
-
         return Blade::renderComponent(
             new CompletionQuestionConvertedHtml(
                 $this->testTake->discussingQuestion,
-                $context='teacher-colearning',
-                $answers,
-                $completionQuestionTagCount
+                'teacher-colearning',
+                $answers
             )
         );
     }
@@ -631,9 +627,7 @@ class CoLearning extends TCComponent implements CollapsableHeader
         }
         if ($this->discussingQuestion instanceof CompletionQuestion) {
             $givenAnswersCount = collect(json_decode($this->activeAnswerRating->answer->json, true))->count();
-            $this->activeAnswerAnsweredStatus = (
-                $givenAnswersCount === $this->completionQuestionTagCount
-            )
+            $this->activeAnswerAnsweredStatus = $givenAnswersCount === $this->discussingQuestion->completionQuestionAnswers()->count()
                 ? 'answered'
                 : 'partly-answered';
             return;
