@@ -19,7 +19,7 @@ class User
     public static function fromModel(\tcCore\User $user)
     {
         return (array) new static(
-            $user->id,
+            $user->uuid,
             $user->nameFull,
             $user->isA('teacher') ? 'teacher' : 'student'
         );

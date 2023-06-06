@@ -117,7 +117,31 @@ RichTextEditor = {
             (editor) => this.setupWordCounter(editor, parameterBag)
         );
     },
+    initAnswerFeedback: function(parameterBag) {
+        //todo:
 
+        return this.createStudentEditor(
+            parameterBag,
+            (editor) => {
+                WebspellcheckerTlc.lang(editor, parameterBag.lang);
+                this.setupWordCounter(editor, parameterBag);
+                this.setCommentsOnly(editor); //replaces read-only
+                this.setAnswerFeedbackEventListeners(editor);
+            }
+        )
+    },
+    setAnswerFeedbackEventListeners: function (editor) {
+        editor.ui.view.editable.element.onblur = (e) => {
+            //create a temporary commentThread to mark the selection while creating a new comment
+            editor.execute( 'addCommentThread', { threadId: window.uuidv4() } );
+        }
+        editor.ui.view.editable.element.onmouseup = (e) => {
+            if(window.getSelection().toString() !== '') {
+                dispatchEvent(new CustomEvent('assessment-drawer-tab-update', {detail: {tab: 2}}));
+                setTimeout(console.log('select feedback editor here') ,100)
+            }
+        }
+    },
     getConfigForStudent: function(parameterBag) {
         parameterBag.pluginsToAdd ??= [];
 
@@ -195,6 +219,17 @@ RichTextEditor = {
             config.toolbar.removeItems.push("MathType", "ChemType", "specialCharacters");
         }
 
+        if (parameterBag.commentThreads != undefined) {
+            config.extraPlugins = [ CommentsIntegration ];
+
+            config.commentsIntegration = {
+                userId: parameterBag.userId,
+                users: parameterBag.users,
+                commentThreads: parameterBag.commentThreads,
+            };
+        }
+        console.dir(config)
+
         return config;
     },
     getConfigForTeacher: function(parameterBag) {
@@ -266,6 +301,16 @@ RichTextEditor = {
         config.removePlugins = parameterBag.removeItems?.plugins ?? [];
         config.toolbar = { removeItems: parameterBag.removeItems?.toolbar ?? [] };
 
+        if (parameterBag.commentThreads != undefined) {
+            config.extraPlugins = [ CommentsIntegration ];
+
+            config.commentsIntegration = {
+                userId: parameterBag.userId,
+                users: parameterBag.users,
+                commentThreads: parameterBag.commentThreads,
+            };
+        }
+
         if (!parameterBag.allowWsc) {
             delete config.wproofreader;
             config.removePlugins.push("WProofreader");
@@ -299,6 +344,9 @@ RichTextEditor = {
                 element.setAttribute("contenteditable", false);
             });
         }
+    },
+    setCommentsOnly: function(editor) {
+        editor.plugins.get( 'CommentsOnly' ).isEnabled = true;
     },
     writeContentToTextarea: function(editorId) {
         var editor = ClassicEditors[editorId];

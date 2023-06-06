@@ -2401,7 +2401,6 @@ document.addEventListener("alpine:init", () => {
 
             ClassicEditor.create( document.querySelector( '#editor' ), {
                 extraPlugins: [ window.CommentsIntegration ],
-                licenseKey: '9K2tRUPoZobJydX6tm2HusZ/x1NCE/sghAv2zyuhaiEtxnbV9QKrhKjJvsI=',
                 toolbar: {
                     items: [
                         'comment',
@@ -2494,14 +2493,13 @@ document.addEventListener("alpine:init", () => {
         async updateCommentThread(threadId) {
             this.commentsRepository = this.answerEditor.plugins.get( 'CommentsRepository' );
 
+            //todo this is null unless focus is propely managed and the same.
             const commentThread = this.commentsRepository.activeCommentThread;
 
             const threadEditor = window.ClassicEditors[threadId];
 
                 console.log('livewire call');
-                this.$wire.call('updateCommentThread', {threadId: threadId, message: threadEditor.getData(), answer: this.answerEditor.getData()});
-                threadEditor.data.set('<p></p>')
-
+                this.$wire.call('updateExistingComment', {threadId: threadId, message: threadEditor.getData()});
 
 
             console.log('updaetCommentThread', commentThread);
@@ -2530,7 +2528,7 @@ document.addEventListener("alpine:init", () => {
 
             this.$nextTick(async () => {
                 console.log(editor.editing.view.hasDomSelection, 'hasselectgion')
-                return;
+
                 if(editor.editing.view.hasDomSelection) {
 
                     //created feedback record data
@@ -2544,8 +2542,13 @@ document.addEventListener("alpine:init", () => {
 
                     await editor.execute( 'addCommentThread', { threadId: threadId } );
 
-                    var newCommentThread = commentsRepository.getCommentThreads().filter((thread) => { return thread.id == threadId});
-                    newCommentThread.addComment({threadId: threadId, commentId: commentId, content: comment, authorId: '1486'});
+                    var newCommentThread = commentsRepository.getCommentThreads().filter((thread) => { return thread.id == threadId})[0];
+                    console.dir(newCommentThread);
+                    newCommentThread.addComment({threadId: threadId, commentId: commentId, content: comment, authorId: this.userId});
+
+                    var updatedAnswerText = editor.getData();
+
+                    this.$wire.call('saveNewComment', {threadId: threadId, message: comment, answer: updatedAnswerText});
 
                 }
 
@@ -2590,6 +2593,180 @@ document.addEventListener("alpine:init", () => {
             this.answerEditor = ClassicEditors[this.answerEditorId];
         }
 
+    }));
+    Alpine.data("AnswerFeedback", (answerEditorId, feedbackEditorId, userId) => ({
+        answerEditorId: answerEditorId,
+        feedbackEditorId: feedbackEditorId,
+        commentRepository: null,
+        activeThread: null,
+        userId,
+        init() {
+
+            // ClassicEditor.create( document.querySelector( '#editor' ), {
+            //
+            // } ).then( editor => {
+            //
+            //     ClassicEditors['answer-editor'] = editor;
+            //
+            //     this.answerEditor = editor;
+            //
+            //     //console available
+            //     this.mainEditor = editor;
+            //
+            //     editor.plugins.get( 'CommentsOnly' ).isEnabled = true;
+            //
+            //     //Deactivate Sidebar/balloon
+            //     //editor.plugins.get('AnnotationsUIs').deactivateAll();
+            //
+            //     // After the editor is initialized, add an action to be performed after a button is clicked.
+            //     const commentsRepository = editor.plugins.get( 'CommentsRepository' );
+            //
+            //     window.commentsRepository = commentsRepository;
+            //
+            //     editor.on('selectionChange', (evt, data) => {console.log(evt, data)});
+            // } )
+            //     .catch( error => console.error( error ) );
+
+            this.setFocusTracking();
+
+
+            /*document.querySelector( '#get-data' ).addEventListener( 'click', () => {
+
+                //get comment threads as json:
+                const commentThreadsData = this.commentThreads = commentsRepository.getCommentThreads( {
+                    skipNotAttached: true,
+                    skipEmpty: true,
+                    toJSON: true
+                } );
+
+                // Now, use `editorData` and `commentThreadsData` to save the data in your application.
+                // For example, you can set them as values of hidden input fields.
+
+                console.log( editor.getData() ); //same as //console.log( editor.data.get() );
+
+                //objects
+                console.log(commentsRepository.getCommentThreads());
+                //jsonified objects
+                console.log( commentThreadsData );
+            } );
+*/
+        },
+        async saveCommentThread() {
+
+            this.commentsRepository = this.answerEditor.plugins.get( 'CommentsRepository' );
+
+            //activeCommentThread is not needed when creating new comment Threads
+            // console.dir(this.commentsRepository.activeCommentThread); //focusTracking Required!
+
+            // this.activeThread = this.answerEditor.plugins.get( 'CommentsRepository' ).activeCommentThread;
+            // if(this.activeThread){
+            //     console.log(this.activeThread);
+            // }
+
+            await this.createCommentThread();
+
+        },
+
+        async updateCommentThread(threadId) {
+            this.commentsRepository = this.answerEditor.plugins.get( 'CommentsRepository' );
+
+            //todo this is null unless focus is propely managed and the same.
+            const commentThread = this.commentsRepository.activeCommentThread;
+
+            const threadEditor = window.ClassicEditors[threadId];
+
+                console.log('livewire call');
+                this.$wire.call('updateExistingComment', {threadId: threadId, message: threadEditor.getData()});
+
+
+            console.log('updaetCommentThread', commentThread);
+            console.log('updaetCommentThread', threadId);
+
+
+
+        },
+        async createCommentThread() {
+
+            const answerEditor = ClassicEditors[this.answerEditorId];
+            const feedbackEditor = ClassicEditors[this.feedbackEditorId];
+
+            var comment = feedbackEditor.getData();
+            console.log(comment);
+            console.log(' bieb 1');
+            if(!comment || comment == '<p></p>') {
+                return;
+            }
+            console.log(' bieb 1');
+
+            answerEditor.focus();
+
+            this.$nextTick(async () => {
+                console.log(answerEditor.editing.view.hasDomSelection, 'hasselectgion')
+
+                if(answerEditor.editing.view.hasDomSelection) {
+
+                    //created feedback record data
+                    var feedback = await this.$wire.call('createNewComment');
+                    console.log(feedback);
+
+                    var threadId = feedback.threadId;
+                    var commentId = feedback.commentId;
+
+                    await answerEditor.execute( 'addCommentThread', { threadId: threadId } );
+
+                    var newCommentThread = answerEditor.plugins.get( 'CommentsRepository' ).getCommentThreads().filter((thread) => { return thread.id == threadId})[0];
+                    console.dir(newCommentThread);
+                    console.log('this.userId: ')
+                    console.log(this.userId)
+                    newCommentThread.addComment({threadId: threadId, commentId: commentId, content: comment, authorId: this.userId});
+
+                    var updatedAnswerText = answerEditor.getData();
+
+                    this.$wire.call('saveNewComment', {threadId: threadId, message: comment, answer: updatedAnswerText});
+
+                }
+
+
+            });
+
+        },
+        async deleteCommentThread(threadId) {
+
+            const result = await this.$wire.call('deleteCommentThread', threadId);
+            if(result) {
+                commentsRepository.getCommentThread(threadId).remove();
+                const answerText = this.answerEditor.getData();
+                await this.$wire.call('updateAnswerText', answerText);
+                return;
+            }
+            console.log('failed to delete answer feedback');
+        },
+        setFocusTracking() {
+            // const commentButtons = document.querySelectorAll('#sidebar .button');
+
+            setTimeout(()=> {
+
+                //cannot use the this. editors because of errors about being a (alpine) proxy
+                const answerEditor = ClassicEditors[this.answerEditorId];
+                const feedbackEditor = ClassicEditors[this.feedbackEditorId];
+
+                // for ( var buttonElement of commentButtons ) {
+                //     answerEditor.ui.focusTracker.add( buttonElement );
+                //     feedbackEditor.ui.focusTracker.add( buttonElement );
+                // }
+
+                answerEditor.ui.focusTracker.add( feedbackEditor.sourceElement.parentElement.querySelector('.ck.ck-content') );
+                feedbackEditor.ui.focusTracker.add( answerEditor.sourceElement.parentElement.querySelector('.ck.ck-content') );
+
+            },1000)
+
+        },
+        get answerEditor() {
+            return ClassicEditors[this.answerEditorId];
+        },
+        get feedbackEditor() {
+            return ClassicEditors[this.feedbackEditorId];
+        }
     }));
 
     Alpine.data("drawingQuestionImagePreview", () => ({

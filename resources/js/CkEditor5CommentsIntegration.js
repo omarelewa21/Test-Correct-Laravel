@@ -1,7 +1,4 @@
 class CommentsIntegration {
-    static staticUserId = null;
-    static staticUsers = null;
-    static staticCommentThreads = null;
 
     constructor( editor ) {
         this.editor = editor;
@@ -15,16 +12,18 @@ class CommentsIntegration {
         const usersPlugin = this.editor.plugins.get( 'Users' );
         const commentsRepositoryPlugin = this.editor.plugins.get( 'CommentsRepository' );
 
+        const config = this.editor.config.get('commentsIntegration');
+
         // Load the users data.
-        for ( var user of CommentsIntegration.staticUsers ) {
+        for ( var user of config.users ) {
             usersPlugin.addUser( user );
         }
 
         // Set the current user.
-        usersPlugin.defineMe( CommentsIntegration.staticUserId );
+        usersPlugin.defineMe( config.userId );
 
         // Load the comment threads data.
-        for ( var commentThread of CommentsIntegration.staticCommentThreads ) {
+        for ( var commentThread of config.commentThreads ) {
             commentsRepositoryPlugin.addCommentThread( commentThread );
         }
     }

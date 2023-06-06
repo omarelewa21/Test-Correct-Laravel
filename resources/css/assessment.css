@@ -63,3 +63,11 @@
 .progress-bar-background .progress-bar {
     transition: width 150ms ease-in
 }
+
+/* ckeditor comments */
+.ck-balloon-panel:has(.ck-thread.ck-thread--active) {
+    display: none;
+}
+.ck-thread.ck-thread--active {
+    display: none;
+}

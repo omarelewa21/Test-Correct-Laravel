@@ -5,11 +5,12 @@
      x-on:update-navigation.window="dispatchUpdateToNavigator($event.detail.navigator, $event.detail.updates)"
      x-on:update-scoring-data.window="updateScoringData($event.detail)"
      x-on:slider-toggle-value-updated.window="toggleTicked($event.detail)"
-     wire:key="page-{{ $this->questionNavigationValue.$this->answerNavigationValue.$this->updatePage }}"
+     wire:key="page-{{ $this->questionNavigationValue.'-'.$this->answerNavigationValue.$this->updatePage }}"
 >
-    <x-partials.header.assessment :testName="$testName" />
+    <x-partials.header.assessment :testName="$testName"/>
     @if($this->headerCollapsed)
-        <div class="flex min-h-[calc(100vh-var(--header-height))] relative">
+        <div class="flex min-h-[calc(100vh-var(--header-height))] relative"
+             x-data="AnswerFeedback(@js('editor-'.$this->questionNavigationValue.'-'.$this->answerNavigationValue), @js('feedback-editor-'.$this->questionNavigationValue.'-'.$this->answerNavigationValue), @js(auth()->user()->uuid))">
             <x-partials.evaluation.main-content :question="$this->currentQuestion"
                                                 :group="$this->currentGroup"
                                                 :unique-key="$this->questionNavigationValue.$this->answerNavigationValue"
@@ -37,12 +38,12 @@
                 </x-slot:subHeader>
                 <x-slot:answerBlock>
                     <x-accordion.container :active-container-key="$this->answerPanel ? 'answer' : ''"
-                                           :wire:key="'answer-section-'.$this->questionNavigationValue.$this->answerNavigationValue"
+                                           :wire:key="'answer-section-'.$this->questionNavigationValue.'-'.$this->answerNavigationValue"
                     >
                         <x-accordion.block key="answer"
                                            :coloredBorderClass="'student'"
                                            :emitWhenSet="true"
-                                           :wire:key="'answer-section-block-'.$this->questionNavigationValue.$this->answerNavigationValue"
+                                           :wire:key="'answer-section-block-'.$this->questionNavigationValue.'-'.$this->answerNavigationValue"
                         >
                             <x-slot:title>
                                 <div class="question-indicator items-center flex gap-4">
@@ -64,26 +65,26 @@
                                         <x-tooltip class="w-[40px] h-[30px]" :icon-height="true" :icon-width="true">
                                             <x-slot:idleIcon>
                                                 <span class="flex items-center" x-show="!tooltip" x-cloak>
-                                                    <x-icon.profile />
-                                                    <x-icon.i-letter />
+                                                    <x-icon.profile/>
+                                                    <x-icon.i-letter/>
                                                 </span>
                                             </x-slot:idleIcon>
                                             {{ $this->currentAnswer->user->nameFull }}
                                         </x-tooltip>
                                     </span>
-                                    <x-dynamic-component :component="$this->currentAnswer->answeredStatus" />
+                                    <x-dynamic-component :component="$this->currentAnswer->answeredStatus"/>
                                 </div>
                             </x-slot:titleLeft>
                             <x-slot:body>
                                 <div class="student-answer | w-full | questionContainer"
-                                     wire:key="student-answer-{{$this->currentQuestion->uuid.$this->currentAnswer->uuid}}"
+                                     wire:key="student-answer-{{$this->currentQuestion->uuid.'-'.$this->currentAnswer->uuid}}"
                                 >
                                     <x-dynamic-component
                                             :component="'answer.student.'. str($this->currentQuestion->type)->kebab()"
                                             :question="$this->currentQuestion"
                                             :answer="$this->currentAnswer"
                                             :inAssessment="true"
-                                            :editorId="'editor-'.$this->currentQuestion->uuid.$this->currentAnswer->uuid"
+                                            :editorId="'editor-'.$this->questionNavigationValue.'-'.$this->answerNavigationValue"
                                             :disabled-toggle="true"
                                             :webSpellChecker="$this->currentQuestion->spell_check_available"
                                     />
@@ -100,7 +101,7 @@
                                           :feedback-tab-disabled="false"
                                           :co-learning-enabled="$this->showCoLearningScoreToggle"
                                           :in-review="false"
-                                          :unique-key="$this->questionNavigationValue.$this->answerNavigationValue"
+                                          :unique-key="$this->questionNavigationValue.'-'.$this->answerNavigationValue"
             >
                 <x-slot:slideOneContent>
                     @if($this->showCoLearningScoreToggle)
@@ -108,7 +109,7 @@
                              title="@lang('assessment.score_assigned'): @js($this->coLearningScoredValue)"
                              x-cloak
                         >
-                            <x-input.toggle disabled checked />
+                            <x-input.toggle disabled checked/>
                             <span class="bold text-base">@lang('assessment.Score uit CO-Learning')</span>
                             <x-tooltip>@lang('assessment.colearning_score_tooltip')</x-tooltip>
                         </div>
@@ -118,7 +119,7 @@
                                           'info' => $this->currentAnswerCoLearningRatingsHasNoDiscrepancy(),
                                           ])
                         >
-                            <x-icon.co-learning />
+                            <x-icon.co-learning/>
                             <span class="bold">@lang($this->currentAnswerCoLearningRatingsHasNoDiscrepancy() ? 'assessment.no_discrepancy' : 'assessment.discrepancy')</span>
                         </div>
                     @endif
@@ -127,14 +128,14 @@
                              title="@lang('assessment.score_assigned'): @js($this->automaticallyScoredValue)"
                              x-cloak
                         >
-                            <x-input.toggle disabled checked />
+                            <x-input.toggle disabled checked/>
                             <span class="bold text-base">@lang('assessment.Automatisch nakijken')</span>
                             <x-tooltip>@lang('assessment.closed_question_checked_tooltip')</x-tooltip>
                         </div>
                     @endif
                     @if($this->showScoreSlider)
                         <div class="score-slider | flex w-full"
-                             wire:key="score-slider-{{  $this->questionNavigationValue.$this->answerNavigationValue }}"
+                             wire:key="score-slider-{{  $this->questionNavigationValue.'-'.$this->answerNavigationValue }}"
                         >
                             <x-input.score-slider modelName="score"
                                                   :maxScore="$this->currentQuestion->score"
@@ -148,7 +149,7 @@
                     @endif
                     @if($this->showFastScoring)
                         <div class="fast-scoring | flex flex-col w-full gap-2"
-                             wire:key="fast-scoring-{{  $this->questionNavigationValue.$this->answerNavigationValue }}"
+                             wire:key="fast-scoring-{{  $this->questionNavigationValue.'-'.$this->answerNavigationValue }}"
                              x-data="fastScoring(
                                      @js($this->fastScoringOptions->map->value),
                                      @js($this->score),
@@ -184,33 +185,67 @@
                 </x-slot:slideOneContent>
 
                 <x-slot:slideTwoContent>
-                    <span class="flex ">@lang('assessment.Feedback toevoegen')</span>
+                    <div x-data="{addFeedbackOpen: true, givenFeedbackOpen: true}" class="space-y-4">
+                        <div class="space-y-4">
+                            <span class="flex bold border-t border-blue-grey pt-2 justify-between items-center" >
+                                <span>@lang('assessment.Feedback toevoegen')</span>
+                                {{-- todo make accordion functional --}}
+                                <span class="w-4 h-4 flex justify-center items-center" :class="addFeedbackOpen ? 'rotate-svg-90' : ''" @click="addFeedbackOpen =! addFeedbackOpen"><x-icon.chevron></x-icon.chevron></span>
+                            </span>
 
-                    <div class="flex w-full flex-col gap-2"
-                         wire:key="feedback-editor-{{  $this->questionNavigationValue.$this->answerNavigationValue }}"
-                    >
-                        <x-input.rich-textarea type="assessment-feedback"
-                                               :editorId="'feedback-editor'. $this->questionNavigationValue.$this->answerNavigationValue"
-                                               wire:model.debounce.300ms="feedback"
-                                               :disabled="$this->currentQuestion->isSubType('writing')"
-
-                        />
-                        @if($this->currentQuestion->isSubType('writing'))
-                            <x-button.primary class="!p-0 justify-center"
-                                              wire:click="$emit('openModal', 'teacher.inline-feedback-modal', {answer: '{{  $this->currentAnswer->uuid }}' } );"
+                            <div class="flex w-full flex-col gap-2" x-show="addFeedbackOpen"
+                                 wire:key="feedback-editor-{{  $this->questionNavigationValue.'-'.$this->answerNavigationValue }}"
                             >
-                                <span>@lang($this->hasFeedback ? 'assessment.Inline feedback wijzigen' : 'assessment.Inline feedback toevoegen')</span>
-                                <x-icon.chevron />
-                            </x-button.primary>
-                            @if($this->hasFeedback)
-                                <x-button.text-button class="!p-0 justify-center"
-                                                      wire:click="deleteFeedback"
-                                >
-                                    <span>@lang('assessment.Inline feedback verwijderen')</span>
-                                    <x-icon.chevron />
-                                </x-button.text-button>
-                            @endif
-                        @endif
+                                <span>@lang('assessment.Feedback schrijven')</span>
+                                {{--TODO ONLY for open question add new configuration with connection to the comments editor --}}
+                                @if($this->currentQuestion->type === 'OpenQuestion')
+                                    <x-input.rich-textarea type="assessment-feedback"
+                                                           :editorId="'feedback-editor-'. $this->questionNavigationValue.'-'.$this->answerNavigationValue"
+                                            {{--:disabled="$this->currentQuestion->isSubType('writing')"--}}
+                                    />
+                                    <x-button.cta @click="saveCommentThread">save</x-button.cta>
+                                @else
+                                <x-input.rich-textarea type="assessment-feedback"
+                                                       :editorId="'feedback-editor-'. $this->questionNavigationValue.'-'.$this->answerNavigationValue"
+                                                       wire:model.debounce.300ms="feedback"
+                                                       {{--:disabled="$this->currentQuestion->isSubType('writing')"--}}
+                                />
+                                @endif
+
+
+                                {{--@if($this->currentQuestion->isSubType('writing'))
+                                    <x-button.primary class="!p-0 justify-center"
+                                                      wire:click="$emit('openModal', 'teacher.inline-feedback-modal', {answer: '{{  $this->currentAnswer->uuid }}' } );"
+                                    >
+                                        <span>@lang($this->hasFeedback ? 'assessment.Inline feedback wijzigen' : 'assessment.Inline feedback toevoegen')</span>
+                                        <x-icon.chevron/>
+                                    </x-button.primary>
+                                    @if($this->hasFeedback)
+                                        <x-button.text-button class="!p-0 justify-center"
+                                                              wire:click="deleteFeedback"
+                                        >
+                                            <span>@lang('assessment.Inline feedback verwijderen')</span>
+                                            <x-icon.chevron/>
+                                        </x-button.text-button>
+                                    @endif
+
+                                @endif--}}
+                            </div>
+                        </div>
+                        <div class="space-y-4">
+                            <span class="flex bold border-t border-blue-grey pt-2 justify-between items-center" >
+                                <span>@lang('assessment.Gegeven feedback')</span>
+                                {{-- todo make accordion functional --}}
+                                <span class="w-4 h-4 flex justify-center items-center" :class="givenFeedbackOpen ? 'rotate-svg-90' : ''" @click="givenFeedbackOpen =! givenFeedbackOpen"><x-icon.chevron></x-icon.chevron></span>
+                            </span>
+
+                            <div class="flex w-full flex-col gap-2" x-show="givenFeedbackOpen"
+                                 wire:key="feedback-editor-{{  $this->questionNavigationValue.'-'.$this->answerNavigationValue }}"
+                            >
+                                {{--TODO ONLY for open question add new configuration with connection to the comments editor --}}
+                                here come given feedback editors...
+                            </div>
+                        </div>
                     </div>
                 </x-slot:slideTwoContent>
 
@@ -218,7 +253,7 @@
                     <span class="flex ">@lang('assessment.CO-Learning scores')</span>
                     @if(!$this->currentAnswerCoLearningRatingsHasNoDiscrepancy())
                         <div class="notification py-0 px-4 gap-6 flex items-center warning">
-                            <x-icon.co-learning />
+                            <x-icon.co-learning/>
                             <span class="bold">@lang('assessment.discrepancy')</span>
                         </div>
                     @endif
@@ -227,7 +262,7 @@
                             @foreach($this->coLearningRatings() as $rating )
                                 <div class="flex py-[7px] pl-3 pr-4 items-center border-l-4 border-l-student border border-bluegrey rounded-r-md rounded-l-sm">
                                     <div class="flex items-center justify-center w-[30px] min-w-[30px] h-[30px] border-bluegrey border bg-off-white overflow-hidden rounded-full">
-                                        <x-icon.profile class="scale-150 text-sysbase relative top-1" />
+                                        <x-icon.profile class="scale-150 text-sysbase relative top-1"/>
                                     </div>
                                     <span class="ml-2 truncate pr-2">{{ $rating->user->nameFull }}</span>
                                     <span class="ml-auto">{{ $rating->displayRating }}</span>
@@ -242,21 +277,21 @@
                                           x-on:click="previous"
                                           wire:target="previous,next"
                                           wire:loading.attr="disabled"
-                                          wire:key="previous-button-{{  $this->questionNavigationValue.$this->answerNavigationValue }}"
+                                          wire:key="previous-button-{{  $this->questionNavigationValue.'-'.$this->answerNavigationValue }}"
                                           :disabled="$this->onBeginningOfAssessment()"
                     >
-                        <x-icon.chevron class="rotate-180" />
+                        <x-icon.chevron class="rotate-180"/>
                         <span>@lang('pagination.previous')</span>
                     </x-button.text-button>
                     <x-button.primary size="sm"
                                       x-on:click="next"
                                       wire:target="previous,next"
                                       wire:loading.attr="disabled"
-                                      wire:key="next-button-{{  $this->questionNavigationValue.$this->answerNavigationValue }}"
+                                      wire:key="next-button-{{  $this->questionNavigationValue.'-'.$this->answerNavigationValue }}"
                                       :disabled="$this->finalAnswerReached()"
                     >
                         <span>@lang('pagination.next')</span>
-                        <x-icon.chevron />
+                        <x-icon.chevron/>
                     </x-button.primary>
                 </x-slot:buttons>
             </x-partials.evaluation.drawer>

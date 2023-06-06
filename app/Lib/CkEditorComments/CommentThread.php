@@ -63,7 +63,7 @@ class CommentThread
         return (array) new static(
             $answerFeedback->thread_id,
             [
-                (array) new Comment($answerFeedback->comment_id, $answerFeedback->user_id, $answerFeedback->message, $answerFeedback->updated_at)
+                (array) new Comment($answerFeedback->comment_id, $answerFeedback->user->uuid, $answerFeedback->message, $answerFeedback->updated_at)
             ],
             null,
             null,

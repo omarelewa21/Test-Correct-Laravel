@@ -5410,6 +5410,81 @@ function _typeof(obj){"@babel/helpers - typeof";return _typeof="function"==typeo
 
 /***/ }),
 
+/***/ "./resources/js/CkEditor5CommentsIntegration.js":
+/*!******************************************************!*\
+  !*** ./resources/js/CkEditor5CommentsIntegration.js ***!
+  \******************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
+function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+var CommentsIntegration = /*#__PURE__*/function () {
+  function CommentsIntegration(editor) {
+    _classCallCheck(this, CommentsIntegration);
+    this.editor = editor;
+  }
+  _createClass(CommentsIntegration, [{
+    key: "init",
+    value: function init() {
+      var usersPlugin = this.editor.plugins.get('Users');
+      var commentsRepositoryPlugin = this.editor.plugins.get('CommentsRepository');
+      var config = this.editor.config.get('commentsIntegration');
+
+      // Load the users data.
+      var _iterator = _createForOfIteratorHelper(config.users),
+        _step;
+      try {
+        for (_iterator.s(); !(_step = _iterator.n()).done;) {
+          var user = _step.value;
+          usersPlugin.addUser(user);
+        }
+
+        // Set the current user.
+      } catch (err) {
+        _iterator.e(err);
+      } finally {
+        _iterator.f();
+      }
+      usersPlugin.defineMe(config.userId);
+
+      // Load the comment threads data.
+      var _iterator2 = _createForOfIteratorHelper(config.commentThreads),
+        _step2;
+      try {
+        for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+          var commentThread = _step2.value;
+          commentsRepositoryPlugin.addCommentThread(commentThread);
+        }
+      } catch (err) {
+        _iterator2.e(err);
+      } finally {
+        _iterator2.f();
+      }
+    }
+  }], [{
+    key: "requires",
+    get: function get() {
+      return ['CommentsRepository'];
+    }
+  }]);
+  return CommentsIntegration;
+}();
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (CommentsIntegration);
+
+/***/ }),
+
 /***/ "./resources/js/alpine.js":
 /*!********************************!*\
   !*** ./resources/js/alpine.js ***!
@@ -8041,6 +8116,499 @@ document.addEventListener("alpine:init", function () {
       }
     };
   });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("CkEditorComments", function (users, userId, answerEditorId, commentEditorId, commentThreads) {
+    return {
+      users: users,
+      userId: userId,
+      answerEditor: null,
+      answerEditorId: answerEditorId,
+      commentEditor: null,
+      commentEditorId: commentEditorId,
+      commentThreads: commentThreads,
+      commentRepository: null,
+      activeThread: null,
+      init: function init() {
+        var _this56 = this;
+        window.CommentsIntegration.staticUserId = userId;
+        window.CommentsIntegration.staticUsers = users;
+        window.CommentsIntegration.staticCommentThreads = commentThreads;
+        ClassicEditor.create(document.querySelector('#editor'), {
+          extraPlugins: [window.CommentsIntegration],
+          toolbar: {
+            items: ['comment']
+          },
+          wproofreader: {
+            autoSearch: false,
+            autoDestroy: true,
+            autocorrect: false,
+            autocomplete: false,
+            actionItems: ["addWord", "ignoreAll", "ignore", "settings", "toggle", "proofreadDialog"],
+            enableBadgeButton: true,
+            serviceProtocol: "https",
+            servicePort: "80",
+            serviceHost: "wsc.test-correct.nl",
+            servicePath: "wscservice/api",
+            srcUrl: "https://wsc.test-correct.nl/wscservice/wscbundle/wscbundle.js"
+          },
+          users: users
+        }).then(function (editor) {
+          ClassicEditors['answer-editor'] = editor;
+          _this56.answerEditor = editor;
+
+          //console available
+          _this56.mainEditor = editor;
+          editor.plugins.get('CommentsOnly').isEnabled = true;
+
+          //Deactivate Sidebar/balloon
+          //editor.plugins.get('AnnotationsUIs').deactivateAll();
+
+          // After the editor is initialized, add an action to be performed after a button is clicked.
+          var commentsRepository = editor.plugins.get('CommentsRepository');
+          window.commentsRepository = commentsRepository;
+
+          // Get the data on demand.
+          document.querySelector('#get-data').addEventListener('click', function () {
+            //get comment threads as json:
+            var commentThreadsData = _this56.commentThreads = commentsRepository.getCommentThreads({
+              skipNotAttached: true,
+              skipEmpty: true,
+              toJSON: true
+            });
+
+            // Now, use `editorData` and `commentThreadsData` to save the data in your application.
+            // For example, you can set them as values of hidden input fields.
+
+            console.log(editor.getData()); //same as //console.log( editor.data.get() );
+
+            //objects
+            console.log(commentsRepository.getCommentThreads());
+            //jsonified objects
+            console.log(commentThreadsData);
+          });
+          editor.on('selectionChange', function (evt, data) {
+            console.log(evt, data);
+          });
+        })["catch"](function (error) {
+          return console.error(error);
+        });
+        this.setFocusTracking();
+      },
+      saveCommentThread: function saveCommentThread() {
+        var _this57 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee18() {
+          return _regeneratorRuntime().wrap(function _callee18$(_context18) {
+            while (1) switch (_context18.prev = _context18.next) {
+              case 0:
+                _this57.getEditors();
+                _this57.commentsRepository = _this57.answerEditor.plugins.get('CommentsRepository');
+                console.dir(_this57.commentsRepository);
+                console.dir(_this57.commentsRepository.activeCommentThread); //focusTracking Required!
+
+                _this57.activeThread = _this57.commentsRepository.activeCommentThread;
+                if (_this57.activeThread) {
+                  console.log(_this57.activeThread);
+                }
+                _context18.next = 8;
+                return _this57.createCommentThread();
+              case 8:
+              case "end":
+                return _context18.stop();
+            }
+          }, _callee18);
+        }))();
+      },
+      updateCommentThread: function updateCommentThread(threadId) {
+        var _this58 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee19() {
+          var commentThread, threadEditor;
+          return _regeneratorRuntime().wrap(function _callee19$(_context19) {
+            while (1) switch (_context19.prev = _context19.next) {
+              case 0:
+                _this58.commentsRepository = _this58.answerEditor.plugins.get('CommentsRepository');
+
+                //todo this is null unless focus is propely managed and the same.
+                commentThread = _this58.commentsRepository.activeCommentThread;
+                threadEditor = window.ClassicEditors[threadId];
+                console.log('livewire call');
+                _this58.$wire.call('updateExistingComment', {
+                  threadId: threadId,
+                  message: threadEditor.getData()
+                });
+                console.log('updaetCommentThread', commentThread);
+                console.log('updaetCommentThread', threadId);
+              case 7:
+              case "end":
+                return _context19.stop();
+            }
+          }, _callee19);
+        }))();
+      },
+      createCommentThread: function createCommentThread() {
+        var _this59 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee21() {
+          var feedbackEditor, comment, editor;
+          return _regeneratorRuntime().wrap(function _callee21$(_context21) {
+            while (1) switch (_context21.prev = _context21.next) {
+              case 0:
+                _this59.getEditors();
+                feedbackEditor = _this59.commentEditor;
+                comment = feedbackEditor.getData();
+                console.log(comment);
+                console.log(' bieb 1');
+                if (!(!comment || comment == '<p></p>')) {
+                  _context21.next = 7;
+                  break;
+                }
+                return _context21.abrupt("return");
+              case 7:
+                console.log(' bieb 1');
+                editor = ClassicEditors['answer-editor'];
+                editor.focus();
+                _this59.$nextTick( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee20() {
+                  var feedback, threadId, commentId, newCommentThread, updatedAnswerText;
+                  return _regeneratorRuntime().wrap(function _callee20$(_context20) {
+                    while (1) switch (_context20.prev = _context20.next) {
+                      case 0:
+                        console.log(editor.editing.view.hasDomSelection, 'hasselectgion');
+                        if (!editor.editing.view.hasDomSelection) {
+                          _context20.next = 16;
+                          break;
+                        }
+                        _context20.next = 4;
+                        return _this59.$wire.call('createNewComment');
+                      case 4:
+                        feedback = _context20.sent;
+                        console.log(feedback);
+                        threadId = feedback.threadId;
+                        commentId = feedback.commentId;
+                        _this59.commentsRepository = editor.plugins.get('CommentsRepository');
+                        _context20.next = 11;
+                        return editor.execute('addCommentThread', {
+                          threadId: threadId
+                        });
+                      case 11:
+                        newCommentThread = commentsRepository.getCommentThreads().filter(function (thread) {
+                          return thread.id == threadId;
+                        })[0];
+                        console.dir(newCommentThread);
+                        newCommentThread.addComment({
+                          threadId: threadId,
+                          commentId: commentId,
+                          content: comment,
+                          authorId: _this59.userId
+                        });
+                        updatedAnswerText = editor.getData();
+                        _this59.$wire.call('saveNewComment', {
+                          threadId: threadId,
+                          message: comment,
+                          answer: updatedAnswerText
+                        });
+                      case 16:
+                      case "end":
+                        return _context20.stop();
+                    }
+                  }, _callee20);
+                })));
+              case 11:
+              case "end":
+                return _context21.stop();
+            }
+          }, _callee21);
+        }))();
+      },
+      deleteCommentThread: function deleteCommentThread(threadId) {
+        var _this60 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee22() {
+          var result, answerText;
+          return _regeneratorRuntime().wrap(function _callee22$(_context22) {
+            while (1) switch (_context22.prev = _context22.next) {
+              case 0:
+                _context22.next = 2;
+                return _this60.$wire.call('deleteCommentThread', threadId);
+              case 2:
+                result = _context22.sent;
+                if (!result) {
+                  _context22.next = 9;
+                  break;
+                }
+                commentsRepository.getCommentThread(threadId).remove();
+                answerText = _this60.answerEditor.getData();
+                _context22.next = 8;
+                return _this60.$wire.call('updateAnswerText', answerText);
+              case 8:
+                return _context22.abrupt("return");
+              case 9:
+                console.log('failed to delete answer feedback');
+              case 10:
+              case "end":
+                return _context22.stop();
+            }
+          }, _callee22);
+        }))();
+      },
+      setFocusTracking: function setFocusTracking() {
+        var _this61 = this;
+        var commentButtons = document.querySelectorAll('#sidebar .button');
+        setTimeout(function () {
+          _this61.getEditors();
+
+          //cannot use the this. editors because of errors about being a proxy
+          var answerEditor = ClassicEditors[_this61.answerEditorId];
+          var commentEditor = ClassicEditors[_this61.commentEditorId];
+          var _iterator2 = _createForOfIteratorHelper(commentButtons),
+            _step2;
+          try {
+            for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+              var buttonElement = _step2.value;
+              answerEditor.ui.focusTracker.add(buttonElement);
+              commentEditor.ui.focusTracker.add(buttonElement);
+            }
+          } catch (err) {
+            _iterator2.e(err);
+          } finally {
+            _iterator2.f();
+          }
+          answerEditor.ui.focusTracker.add(commentEditor.sourceElement.parentElement.querySelector('.ck.ck-content'));
+          commentEditor.ui.focusTracker.add(answerEditor.sourceElement.parentElement.querySelector('.ck.ck-content'));
+        }, 1000);
+      },
+      getEditors: function getEditors() {
+        this.commentEditor = ClassicEditors[this.commentEditorId];
+        this.answerEditor = ClassicEditors[this.answerEditorId];
+      }
+    };
+  });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("AnswerFeedback", function (answerEditorId, feedbackEditorId, userId) {
+    return {
+      answerEditorId: answerEditorId,
+      feedbackEditorId: feedbackEditorId,
+      commentRepository: null,
+      activeThread: null,
+      userId: userId,
+      init: function init() {
+        // ClassicEditor.create( document.querySelector( '#editor' ), {
+        //
+        // } ).then( editor => {
+        //
+        //     ClassicEditors['answer-editor'] = editor;
+        //
+        //     this.answerEditor = editor;
+        //
+        //     //console available
+        //     this.mainEditor = editor;
+        //
+        //     editor.plugins.get( 'CommentsOnly' ).isEnabled = true;
+        //
+        //     //Deactivate Sidebar/balloon
+        //     //editor.plugins.get('AnnotationsUIs').deactivateAll();
+        //
+        //     // After the editor is initialized, add an action to be performed after a button is clicked.
+        //     const commentsRepository = editor.plugins.get( 'CommentsRepository' );
+        //
+        //     window.commentsRepository = commentsRepository;
+        //
+        //     editor.on('selectionChange', (evt, data) => {console.log(evt, data)});
+        // } )
+        //     .catch( error => console.error( error ) );
+
+        this.setFocusTracking();
+
+        /*document.querySelector( '#get-data' ).addEventListener( 'click', () => {
+             //get comment threads as json:
+            const commentThreadsData = this.commentThreads = commentsRepository.getCommentThreads( {
+                skipNotAttached: true,
+                skipEmpty: true,
+                toJSON: true
+            } );
+             // Now, use `editorData` and `commentThreadsData` to save the data in your application.
+            // For example, you can set them as values of hidden input fields.
+             console.log( editor.getData() ); //same as //console.log( editor.data.get() );
+             //objects
+            console.log(commentsRepository.getCommentThreads());
+            //jsonified objects
+            console.log( commentThreadsData );
+        } );
+        */
+      },
+      saveCommentThread: function saveCommentThread() {
+        var _this62 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee23() {
+          return _regeneratorRuntime().wrap(function _callee23$(_context23) {
+            while (1) switch (_context23.prev = _context23.next) {
+              case 0:
+                _this62.commentsRepository = _this62.answerEditor.plugins.get('CommentsRepository');
+
+                //activeCommentThread is not needed when creating new comment Threads
+                // console.dir(this.commentsRepository.activeCommentThread); //focusTracking Required!
+
+                // this.activeThread = this.answerEditor.plugins.get( 'CommentsRepository' ).activeCommentThread;
+                // if(this.activeThread){
+                //     console.log(this.activeThread);
+                // }
+                _context23.next = 3;
+                return _this62.createCommentThread();
+              case 3:
+              case "end":
+                return _context23.stop();
+            }
+          }, _callee23);
+        }))();
+      },
+      updateCommentThread: function updateCommentThread(threadId) {
+        var _this63 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee24() {
+          var commentThread, threadEditor;
+          return _regeneratorRuntime().wrap(function _callee24$(_context24) {
+            while (1) switch (_context24.prev = _context24.next) {
+              case 0:
+                _this63.commentsRepository = _this63.answerEditor.plugins.get('CommentsRepository');
+
+                //todo this is null unless focus is propely managed and the same.
+                commentThread = _this63.commentsRepository.activeCommentThread;
+                threadEditor = window.ClassicEditors[threadId];
+                console.log('livewire call');
+                _this63.$wire.call('updateExistingComment', {
+                  threadId: threadId,
+                  message: threadEditor.getData()
+                });
+                console.log('updaetCommentThread', commentThread);
+                console.log('updaetCommentThread', threadId);
+              case 7:
+              case "end":
+                return _context24.stop();
+            }
+          }, _callee24);
+        }))();
+      },
+      createCommentThread: function createCommentThread() {
+        var _this64 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee26() {
+          var answerEditor, feedbackEditor, comment;
+          return _regeneratorRuntime().wrap(function _callee26$(_context26) {
+            while (1) switch (_context26.prev = _context26.next) {
+              case 0:
+                answerEditor = ClassicEditors[_this64.answerEditorId];
+                feedbackEditor = ClassicEditors[_this64.feedbackEditorId];
+                comment = feedbackEditor.getData();
+                console.log(comment);
+                console.log(' bieb 1');
+                if (!(!comment || comment == '<p></p>')) {
+                  _context26.next = 7;
+                  break;
+                }
+                return _context26.abrupt("return");
+              case 7:
+                console.log(' bieb 1');
+                answerEditor.focus();
+                _this64.$nextTick( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee25() {
+                  var feedback, threadId, commentId, newCommentThread, updatedAnswerText;
+                  return _regeneratorRuntime().wrap(function _callee25$(_context25) {
+                    while (1) switch (_context25.prev = _context25.next) {
+                      case 0:
+                        console.log(answerEditor.editing.view.hasDomSelection, 'hasselectgion');
+                        if (!answerEditor.editing.view.hasDomSelection) {
+                          _context25.next = 17;
+                          break;
+                        }
+                        _context25.next = 4;
+                        return _this64.$wire.call('createNewComment');
+                      case 4:
+                        feedback = _context25.sent;
+                        console.log(feedback);
+                        threadId = feedback.threadId;
+                        commentId = feedback.commentId;
+                        _context25.next = 10;
+                        return answerEditor.execute('addCommentThread', {
+                          threadId: threadId
+                        });
+                      case 10:
+                        newCommentThread = answerEditor.plugins.get('CommentsRepository').getCommentThreads().filter(function (thread) {
+                          return thread.id == threadId;
+                        })[0];
+                        console.dir(newCommentThread);
+                        console.log('this.userId: ');
+                        console.log(_this64.userId);
+                        newCommentThread.addComment({
+                          threadId: threadId,
+                          commentId: commentId,
+                          content: comment,
+                          authorId: _this64.userId
+                        });
+                        updatedAnswerText = answerEditor.getData();
+                        _this64.$wire.call('saveNewComment', {
+                          threadId: threadId,
+                          message: comment,
+                          answer: updatedAnswerText
+                        });
+                      case 17:
+                      case "end":
+                        return _context25.stop();
+                    }
+                  }, _callee25);
+                })));
+              case 10:
+              case "end":
+                return _context26.stop();
+            }
+          }, _callee26);
+        }))();
+      },
+      deleteCommentThread: function deleteCommentThread(threadId) {
+        var _this65 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee27() {
+          var result, answerText;
+          return _regeneratorRuntime().wrap(function _callee27$(_context27) {
+            while (1) switch (_context27.prev = _context27.next) {
+              case 0:
+                _context27.next = 2;
+                return _this65.$wire.call('deleteCommentThread', threadId);
+              case 2:
+                result = _context27.sent;
+                if (!result) {
+                  _context27.next = 9;
+                  break;
+                }
+                commentsRepository.getCommentThread(threadId).remove();
+                answerText = _this65.answerEditor.getData();
+                _context27.next = 8;
+                return _this65.$wire.call('updateAnswerText', answerText);
+              case 8:
+                return _context27.abrupt("return");
+              case 9:
+                console.log('failed to delete answer feedback');
+              case 10:
+              case "end":
+                return _context27.stop();
+            }
+          }, _callee27);
+        }))();
+      },
+      setFocusTracking: function setFocusTracking() {
+        var _this66 = this;
+        // const commentButtons = document.querySelectorAll('#sidebar .button');
+
+        setTimeout(function () {
+          //cannot use the this. editors because of errors about being a (alpine) proxy
+          var answerEditor = ClassicEditors[_this66.answerEditorId];
+          var feedbackEditor = ClassicEditors[_this66.feedbackEditorId];
+
+          // for ( var buttonElement of commentButtons ) {
+          //     answerEditor.ui.focusTracker.add( buttonElement );
+          //     feedbackEditor.ui.focusTracker.add( buttonElement );
+          // }
+
+          answerEditor.ui.focusTracker.add(feedbackEditor.sourceElement.parentElement.querySelector('.ck.ck-content'));
+          feedbackEditor.ui.focusTracker.add(answerEditor.sourceElement.parentElement.querySelector('.ck.ck-content'));
+        }, 1000);
+      },
+      get answerEditor() {
+        return ClassicEditors[this.answerEditorId];
+      },
+      get feedbackEditor() {
+        return ClassicEditors[this.feedbackEditorId];
+      }
+    };
+  });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("drawingQuestionImagePreview", function () {
     return {
       maxTries: 10,
@@ -8049,7 +8617,7 @@ document.addEventListener("alpine:init", function () {
         this.setHeightToAspectRatio(this.$el);
       },
       setHeightToAspectRatio: function setHeightToAspectRatio(element) {
-        var _this56 = this;
+        var _this67 = this;
         var aspectRatioWidth = 940;
         var aspectRatioHeight = 500;
         var aspectRatio = aspectRatioHeight / aspectRatioWidth;
@@ -8062,7 +8630,7 @@ document.addEventListener("alpine:init", function () {
         if (newHeight <= 0) {
           if (this.currentTry <= this.maxTries) {
             setTimeout(function () {
-              return _this56.setHeightToAspectRatio(element);
+              return _this67.setHeightToAspectRatio(element);
             }, 50);
             this.currentTry++;
           }
@@ -8095,16 +8663,16 @@ document.addEventListener("alpine:init", function () {
       maxWords: maxWords,
       wordContainer: null,
       init: function init() {
-        var _this57 = this;
+        var _this68 = this;
         this.$nextTick(function () {
-          _this57.editor = ClassicEditors[editorId];
-          _this57.wordContainer = _this57.$root.querySelector(".ck-word-count__words");
-          _this57.wordContainer.style.display = "flex";
-          _this57.wordContainer.parentElement.style.display = "flex";
-          _this57.addMaxWordsToWordCounter(_this57.maxWords);
+          _this68.editor = ClassicEditors[editorId];
+          _this68.wordContainer = _this68.$root.querySelector(".ck-word-count__words");
+          _this68.wordContainer.style.display = "flex";
+          _this68.wordContainer.parentElement.style.display = "flex";
+          _this68.addMaxWordsToWordCounter(_this68.maxWords);
         });
         this.$watch("maxWords", function (value) {
-          _this57.addMaxWordsToWordCounter(value);
+          _this68.addMaxWordsToWordCounter(value);
         });
       },
       addMaxWordsToWordCounter: function addMaxWordsToWordCounter(value) {
@@ -8119,8 +8687,8 @@ document.addEventListener("alpine:init", function () {
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].directive("global", function (el, _ref4) {
-    var expression = _ref4.expression;
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].directive("global", function (el, _ref6) {
+    var expression = _ref6.expression;
     var f = new Function("_", "$data", "_." + expression + " = $data;return;");
     f(window, el._x_dataStack[0]);
   });
@@ -8829,6 +9397,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _smoothscroll_polyfill__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_smoothscroll_polyfill__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var _AnyChart_anychart_base_min__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./AnyChart/anychart-base.min */ "./resources/js/AnyChart/anychart-base.min.js");
 /* harmony import */ var _AnyChart_anychart_base_min__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_AnyChart_anychart_base_min__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var uuid__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/v4.js");
+/* harmony import */ var _CkEditor5CommentsIntegration__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./CkEditor5CommentsIntegration */ "./resources/js/CkEditor5CommentsIntegration.js");
 /* provided dependency */ var process = __webpack_require__(/*! process/browser.js */ "./node_modules/process/browser.js");
 window._ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
 
@@ -8851,7 +9421,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "fc18ed69b446aeb8c8a5",
+  key: "662d128370816e2bbb66",
   cluster: "eu",
   forceTLS: true
 });
@@ -8865,6 +9435,10 @@ FilePond.registerPlugin((filepond_plugin_file_validate_size__WEBPACK_IMPORTED_MO
 _smoothscroll_polyfill__WEBPACK_IMPORTED_MODULE_2___default().polyfill();
 
 _AnyChart_anychart_base_min__WEBPACK_IMPORTED_MODULE_3___default().licenseKey(process.env.MIX_ANYCHART_LICENSE_KEY);
+
+window.uuidv4 = uuid__WEBPACK_IMPORTED_MODULE_4__["default"];
+
+window.CommentsIntegration = _CkEditor5CommentsIntegration__WEBPACK_IMPORTED_MODULE_5__["default"];
 
 /***/ }),
 
@@ -15271,6 +15845,35 @@ RichTextEditor = {
       return _this7.setupWordCounter(editor, parameterBag);
     });
   },
+  initAnswerFeedback: function initAnswerFeedback(parameterBag) {
+    var _this8 = this;
+    //todo:
+
+    return this.createStudentEditor(parameterBag, function (editor) {
+      WebspellcheckerTlc.lang(editor, parameterBag.lang);
+      _this8.setupWordCounter(editor, parameterBag);
+      _this8.setCommentsOnly(editor); //replaces read-only
+      _this8.setAnswerFeedbackEventListeners(editor);
+    });
+  },
+  setAnswerFeedbackEventListeners: function setAnswerFeedbackEventListeners(editor) {
+    editor.ui.view.editable.element.onblur = function (e) {
+      //create a temporary commentThread to mark the selection while creating a new comment
+      editor.execute('addCommentThread', {
+        threadId: window.uuidv4()
+      });
+    };
+    editor.ui.view.editable.element.onmouseup = function (e) {
+      if (window.getSelection().toString() !== '') {
+        dispatchEvent(new CustomEvent('assessment-drawer-tab-update', {
+          detail: {
+            tab: 2
+          }
+        }));
+        setTimeout(console.log('select feedback editor here'), 100);
+      }
+    };
+  },
   getConfigForStudent: function getConfigForStudent(parameterBag) {
     var _parameterBag$plugins;
     (_parameterBag$plugins = parameterBag.pluginsToAdd) !== null && _parameterBag$plugins !== void 0 ? _parameterBag$plugins : parameterBag.pluginsToAdd = [];
@@ -15304,6 +15907,15 @@ RichTextEditor = {
       config.removePlugins.push("MathType", "ChemType", "SpecialCharactersTLC");
       config.toolbar.removeItems.push("MathType", "ChemType", "specialCharacters");
     }
+    if (parameterBag.commentThreads != undefined) {
+      config.extraPlugins = [CommentsIntegration];
+      config.commentsIntegration = {
+        userId: parameterBag.userId,
+        users: parameterBag.users,
+        commentThreads: parameterBag.commentThreads
+      };
+    }
+    console.dir(config);
     return config;
   },
   getConfigForTeacher: function getConfigForTeacher(parameterBag) {
@@ -15362,6 +15974,14 @@ RichTextEditor = {
     config.toolbar = {
       removeItems: (_parameterBag$removeI4 = (_parameterBag$removeI5 = parameterBag.removeItems) === null || _parameterBag$removeI5 === void 0 ? void 0 : _parameterBag$removeI5.toolbar) !== null && _parameterBag$removeI4 !== void 0 ? _parameterBag$removeI4 : []
     };
+    if (parameterBag.commentThreads != undefined) {
+      config.extraPlugins = [CommentsIntegration];
+      config.commentsIntegration = {
+        userId: parameterBag.userId,
+        users: parameterBag.users,
+        commentThreads: parameterBag.commentThreads
+      };
+    }
     if (!parameterBag.allowWsc) {
       delete config.wproofreader;
       config.removePlugins.push("WProofreader");
@@ -15396,6 +16016,9 @@ RichTextEditor = {
       });
     }
   },
+  setCommentsOnly: function setCommentsOnly(editor) {
+    editor.plugins.get('CommentsOnly').isEnabled = true;
+  },
   writeContentToTextarea: function writeContentToTextarea(editorId) {
     var editor = ClassicEditors[editorId];
     if (editor) {
@@ -15404,7 +16027,7 @@ RichTextEditor = {
     }
   },
   setupWordCounter: function setupWordCounter(editor, parameterBag) {
-    var _this8 = this;
+    var _this9 = this;
     var wordCountPlugin = editor.plugins.get("WordCount");
     var wordCountWrapper = document.getElementById("word-count-" + parameterBag.editorId);
     if (wordCountWrapper) {
@@ -15416,13 +16039,13 @@ RichTextEditor = {
     this.handleInputWithMaxWords(editor);
     editor.updateMaxWords = function (value) {
       editor.maxWords = parseInt(value);
-      _this8.handleInputWithMaxWords(editor);
+      _this9.handleInputWithMaxWords(editor);
     };
     editor.model.document.on("change:data", function (event, batch) {
-      _this8.handleInputWithMaxWords(editor, event);
+      _this9.handleInputWithMaxWords(editor, event);
     });
     editor.editing.view.document.on("paste", function (event, data) {
-      if (_this8.hasNoWordLimit(editor)) return;
+      if (_this9.hasNoWordLimit(editor)) return;
       var wc = editor.plugins.get("WordCount");
       var maxWords = parseInt(editor.maxWords);
       if (wc.words >= maxWords) {
@@ -15434,7 +16057,7 @@ RichTextEditor = {
       }
     });
     editor.editing.view.document.on("keydown", function (event, data) {
-      if (_this8.hasNoWordLimit(editor)) return;
+      if (_this9.hasNoWordLimit(editor)) return;
       if (!editor.disableSpacers) return;
 
       /* Disable spacebar and enter inputs so new words cannot be created;*/
@@ -15505,7 +16128,7 @@ RichTextEditor = {
   },
   createTeacherEditor: function createTeacherEditor(parameterBag) {
     var _arguments = arguments,
-      _this9 = this;
+      _this10 = this;
     return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
       var resolveCallback;
       return _regeneratorRuntime().wrap(function _callee$(_context) {
@@ -15513,7 +16136,7 @@ RichTextEditor = {
           case 0:
             resolveCallback = _arguments.length > 1 && _arguments[1] !== undefined ? _arguments[1] : null;
             _context.next = 3;
-            return _this9.createEditor(parameterBag.editorId, _this9.getConfigForTeacher(parameterBag), resolveCallback);
+            return _this10.createEditor(parameterBag.editorId, _this10.getConfigForTeacher(parameterBag), resolveCallback);
           case 3:
             return _context.abrupt("return", _context.sent);
           case 4:
@@ -15525,7 +16148,7 @@ RichTextEditor = {
   },
   createStudentEditor: function createStudentEditor(parameterBag) {
     var _arguments2 = arguments,
-      _this10 = this;
+      _this11 = this;
     return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
       var resolveCallback;
       return _regeneratorRuntime().wrap(function _callee2$(_context2) {
@@ -15533,7 +16156,7 @@ RichTextEditor = {
           case 0:
             resolveCallback = _arguments2.length > 1 && _arguments2[1] !== undefined ? _arguments2[1] : null;
             _context2.next = 3;
-            return _this10.createEditor(parameterBag.editorId, _this10.getConfigForStudent(parameterBag), resolveCallback);
+            return _this11.createEditor(parameterBag.editorId, _this11.getConfigForStudent(parameterBag), resolveCallback);
           case 3:
             return _context2.abrupt("return", _context2.sent);
           case 4:
@@ -15788,6 +16411,12 @@ WebspellcheckerTlc = {
   \**********************************************************/
 /***/ (() => {
 
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
 window.LivewireUIModal = function () {
   return {
     show: false,
@@ -15871,6 +16500,39 @@ window.LivewireUIModal = function () {
           _this.modalWidth = _this.getActiveComponentModalAttribute('maxWidthClass');
         }, 300);
       }
+      this.$nextTick(function () {
+        var _this$$refs$id;
+        var focusable = (_this$$refs$id = _this.$refs[id]) === null || _this$$refs$id === void 0 ? void 0 : _this$$refs$id.querySelector('[autofocus]');
+        if (focusable) {
+          setTimeout(function () {
+            focusable.focus();
+          }, focusableTimeout);
+        }
+      });
+    },
+    focusables: function focusables() {
+      var selector = 'a, button, input, textarea, select, details, [tabindex]:not([tabindex=\'-1\'])';
+      return _toConsumableArray(this.$el.querySelectorAll(selector)).filter(function (el) {
+        return !el.hasAttribute('disabled');
+      });
+    },
+    firstFocusable: function firstFocusable() {
+      return this.focusables()[0];
+    },
+    lastFocusable: function lastFocusable() {
+      return this.focusables().slice(-1)[0];
+    },
+    nextFocusable: function nextFocusable() {
+      return this.focusables()[this.nextFocusableIndex()] || this.firstFocusable();
+    },
+    prevFocusable: function prevFocusable() {
+      return this.focusables()[this.prevFocusableIndex()] || this.lastFocusable();
+    },
+    nextFocusableIndex: function nextFocusableIndex() {
+      return (this.focusables().indexOf(document.activeElement) + 1) % (this.focusables().length + 1);
+    },
+    prevFocusableIndex: function prevFocusableIndex() {
+      return Math.max(0, this.focusables().indexOf(document.activeElement)) - 1;
     },
     setShowPropertyTo: function setShowPropertyTo(show) {
       var _this2 = this;
@@ -67277,6 +67939,32 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./resources/css/app_pdf.css":
+/*!***********************************!*\
+  !*** ./resources/css/app_pdf.css ***!
+  \***********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+// extracted by mini-css-extract-plugin
+
+
+/***/ }),
+
+/***/ "./resources/css/print-test-pdf.css":
+/*!******************************************!*\
+  !*** ./resources/css/print-test-pdf.css ***!
+  \******************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+// extracted by mini-css-extract-plugin
+
+
+/***/ }),
+
 /***/ "./node_modules/plyr/dist/plyr.min.js":
 /*!********************************************!*\
   !*** ./node_modules/plyr/dist/plyr.min.js ***!
@@ -76583,7 +77271,9 @@ module.exports = JSON.parse('{"name":"axios","version":"0.21.4","description":"P
 /******/ 		// [resolve, reject, Promise] = chunk loading, 0 = chunk loaded
 /******/ 		var installedChunks = {
 /******/ 			"/js/app": 0,
-/******/ 			"css/app": 0
+/******/ 			"css/app": 0,
+/******/ 			"css/app_pdf": 0,
+/******/ 			"css/print-test-pdf": 0
 /******/ 		};
 /******/ 		
 /******/ 		// no chunk on demand loading
@@ -76633,8 +77323,10 @@ module.exports = JSON.parse('{"name":"axios","version":"0.21.4","description":"P
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module depends on other loaded chunks and execution need to be delayed
-/******/ 	__webpack_require__.O(undefined, ["css/app"], () => (__webpack_require__("./resources/js/app.js")))
-/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["css/app"], () => (__webpack_require__("./resources/css/app.css")))
+/******/ 	__webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/js/app.js")))
+/******/ 	__webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/css/app.css")))
+/******/ 	__webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/css/app_pdf.css")))
+/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/css/print-test-pdf.css")))
 /******/ 	__webpack_exports__ = __webpack_require__.O(__webpack_exports__);
 /******/ 	
 /******/ })()

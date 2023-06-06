@@ -1,9 +1,12 @@
 <div>
+    <div wire:ignore>@json($users)
+    @js($userId)</div>
+
     <div style="padding: 20px; padding-top: 150px; height: 100vh"
          wire:ignore
          x-data="CkEditorComments(
             @js($users),
-            '1486',
+            @js($userId),
             'answer-editor',
             'comment-editor',
             @js($this->commentThreads)
@@ -119,7 +122,7 @@ console.log(temp);
                             console.log('focus')
                             console.log(threadId)
                             setTimeout(() => {
-                                                        this.commentsRepository.setActiveCommentThread(threadId);
+                                this.commentsRepository.setActiveCommentThread(threadId);
                             },50)
                         })
 

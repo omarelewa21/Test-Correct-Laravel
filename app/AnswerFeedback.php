@@ -29,11 +29,13 @@ class AnswerFeedback extends Model
         'comment_id'
     ];
 
-    public function answer(){
+    public function answer()
+    {
         return $this->belongsTo(Answer::class);
     }
 
-    public function user(){
+    public function user()
+    {
         return $this->belongsTo(User::class);
     }
 
@@ -43,12 +45,14 @@ class AnswerFeedback extends Model
      * @param $answerId
      * @return array
      */
-    public static function getCommentThreadsByAnswerId($answerId) : array
+    public static function getCommentThreadsByAnswerId($answerId): array
     {
         $answerIds = Arr::wrap($answerId);
 
-        return self::whereIn('answer_id', $answerIds)->get()->map(function ($answerFeedback) {
-            return (array) CommentThread::getByModel($answerFeedback);
-        })->toArray();
+        return self::whereIn('answer_id', $answerIds)->with('user:id,uuid')
+            ->where('comment_id', '<>', 'null')->get()
+            ->map(function ($answerFeedback) {
+                return (array)CommentThread::getByModel($answerFeedback);
+            })->toArray();
     }
 }

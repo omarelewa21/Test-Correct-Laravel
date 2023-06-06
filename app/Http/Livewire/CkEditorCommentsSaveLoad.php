@@ -20,6 +20,7 @@ class CkEditorCommentsSaveLoad extends TCComponent
     //Users has to contain at least the id and the name of ALL users that will be shown
     //  at the start only add teacher or
     public $users;
+    public $userId;
     protected $commentThreads;
     public $answerModel;
 
@@ -71,6 +72,7 @@ class CkEditorCommentsSaveLoad extends TCComponent
 
     public function render()
     {
+        $this->userId = auth()->user()->uuid;
         $this->commentThreads = $this->getCommentThreads();
 
         return view('livewire.ck-editor-comments-save-load')->layout('layouts.base');
@@ -82,7 +84,7 @@ class CkEditorCommentsSaveLoad extends TCComponent
 
         $newComment = AnswerFeedback::create([
             'answer_id' => 999,
-            'user_id' => 1486,
+            'user_id' => auth()->id(),
             'message' => '',
             'thread_id' => Uuid::uuid4(),
             'comment_id' => Uuid::uuid4(),
@@ -91,7 +93,18 @@ class CkEditorCommentsSaveLoad extends TCComponent
         return ['threadId' => $newComment->thread_id, 'commentId' => $newComment->comment_id];
     }
 
-
+    public function saveNewComment($data)
+    {
+        //update answers_feedback data
+        $this->updateAnswerFeedback(
+            threadId: $data['threadId'],
+            commentText: $data['message'],
+        );
+        //update answer text
+        $this->updateAnswer(
+            updatedAnswerText: $data['answer']
+        );
+    }
 
 
     public function deleteCommentThread($threadId)
@@ -101,11 +114,12 @@ class CkEditorCommentsSaveLoad extends TCComponent
         return $result > 0;
     }
 
-    public function updateCommentThread($data)
+    public function updateExistingComment($data)
     {
+        //dont update answer text when just editing the comment values? answer doesnt change.
 //        $this->updateAnswer(
-//            value: $data['answer']
-//        ); //allways update answerHtml? // only needed when adding new comment threads
+//            updatedAnswerText: $data['answer']
+//        );
 
         $this->updateAnswerFeedback(
             threadId: $data['threadId'],
@@ -115,7 +129,8 @@ class CkEditorCommentsSaveLoad extends TCComponent
 
     public function updateAnswerText($answerText)
     {
-
+        //update answer text
+        $this->updateAnswer($answerText);
     }
 
     public function getCommentThreads() {
@@ -126,17 +141,17 @@ class CkEditorCommentsSaveLoad extends TCComponent
 
 
 
-    public function updateAnswer($value)
+    public function updateAnswer($updatedAnswerText)
     {
-        $value = str_replace('comment-start', 'commentstart', $value);
-        $value = str_replace('comment-end', 'commentend', $value);
+        $updatedAnswerText = str_replace('comment-start', 'commentstart', $updatedAnswerText);
+        $updatedAnswerText = str_replace('comment-end', 'commentend', $updatedAnswerText);
 
-        $json = json_encode((object) ['value' => clean($value)]);
+        $purifiedAnswerTextJson = json_encode((object) ['value' => clean($updatedAnswerText)]);
 
-        $json = str_replace('commentstart', 'comment-start', $json);
-        $json = str_replace('commentend', 'comment-end', $json);
+        $purifiedAnswerTextJson = str_replace('commentstart', 'comment-start', $purifiedAnswerTextJson);
+        $purifiedAnswerTextJson = str_replace('commentend', 'comment-end', $purifiedAnswerTextJson);
 
-        Answer::updateJson($this->answerModel->getKey(), $json);
+        Answer::updateJson($this->answerModel->getKey(), $purifiedAnswerTextJson);
     }
 
     public function updateAnswerFeedback($threadId, $commentText)
