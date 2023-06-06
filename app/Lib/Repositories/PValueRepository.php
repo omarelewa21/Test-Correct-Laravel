@@ -388,7 +388,7 @@ class PValueRepository
             ->groupBy('subject_id');
 
         return Subject::filterForStudentCurrentSchoolYear($user)
-            ->selectRaw('t2.*, subjects.id, subjects.name')
+            ->selectRaw('t2.*, subjects.id, subjects.uuid, subjects.name')
             ->leftJoinSub($pValueQuery, 't2', function ($join) {
                 $join->on('subjects.id', '=', 't2.subject_id');
             })
