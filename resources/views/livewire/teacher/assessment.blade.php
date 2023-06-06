@@ -160,8 +160,8 @@
                                           'info' => $this->currentAnswerCoLearningRatingsHasNoDiscrepancy(),
                                           ])
                         >
-                            <x-icon.co-learning />
-                            <span class="bold">@lang($this->currentAnswerCoLearningRatingsHasNoDiscrepancy() ? 'assessment.no_discrepancy' : 'assessment.discrepancy')</span>
+                            <x-icon.co-learning class="min-w-min"/>
+                            <span class="bold">@lang($this->getDiscrepancyTranslationKey())</span>
                         </div>
                     @endif
                     @if($this->showAutomaticallyScoredToggle)
