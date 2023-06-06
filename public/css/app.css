@@ -8503,6 +8503,10 @@ span.completion-response-object-container{
     top: 0;
 }
 
+#assessment-page {
+    --ck-z-default: 0;
+}
+
 .progress-bar-background {
     width: calc(100% - var(--active-sidebar-width));
     transition: width var(--sidebar-transition)
@@ -8531,12 +8535,14 @@ span.completion-response-object-container{
     z-index: 1;
 }
 
-#student-test-review .question-indicator .question-number {
+#student-test-review .question-indicator .question-number ,
+#assessment-page .question-indicator .question-number {
     color: white;
     background-color: var(--system-base);
 }
 
-#student-test-review .nav-container .question-indicator .question-number {
+#student-test-review .nav-container .question-indicator .question-number ,
+#assessment-page .nav-container .question-indicator .question-number {
     --rqn-number-color: var(--system-base);
     --rqn-border-color: var(--system-base);
     --rqn-background-color: transparent;
@@ -8551,22 +8557,26 @@ span.completion-response-object-container{
     background-color: var(--rqn-background-color);
 }
 
-#student-test-review .nav-container .question-indicator .question-number.done {
+#student-test-review .nav-container .question-indicator .question-number.done ,
+#assessment-page .nav-container .question-indicator .question-number.done {
     --rqn-number-color: white;
     --rqn-background-color: var(--system-base);
 }
 
-#student-test-review .nav-container .question-indicator .question-number.active {
+#student-test-review .nav-container .question-indicator .question-number.active ,
+#assessment-page .nav-container .question-indicator .question-number.active {
     --rqn-border-color: var(--primary);
     --rqn-number-color: var(--primary);
 }
 
-#student-test-review .nav-container .question-indicator .question-number.done.active {
+#student-test-review .nav-container .question-indicator .question-number.done.active ,
+#assessment-page .nav-container .question-indicator .question-number.done.active {
     --rqn-number-color: white;
     --rqn-background-color: var(--primary);
 }
 
-#student-test-review .nav-container .question-indicator .question-number .connector {
+#student-test-review .nav-container .question-indicator .question-number .connector ,
+#assessment-page .nav-container .question-indicator .question-number .connector {
     position: absolute;
     width: 8px;
     height: 3px;
@@ -8574,7 +8584,8 @@ span.completion-response-object-container{
     background: var(--system-base);
 }
 
-#student-test-review .nav-container .question-indicator {
+#student-test-review .nav-container .question-indicator ,
+#assessment-page .nav-container .question-indicator {
     display: flex;
     align-items: flex-start;
 }
@@ -9292,9 +9303,6 @@ video {
 .-right-4{
   right: -1rem;
 }
-.-right-6{
-  right: -1.5rem;
-}
 .-right-px{
   right: -1px;
 }
@@ -9421,9 +9429,6 @@ video {
 .top-\[-100px\]{
   top: -100px;
 }
-.top-\[100px\]{
-  top: 100px;
-}
 .top-\[14px\]{
   top: 14px;
 }
@@ -9435,9 +9440,6 @@ video {
 }
 .top-\[93px\]{
   top: 93px;
-}
-.top-\[calc\(var\(--header-height\)\+4px\)\]{
-  top: calc(var(--header-height) + 4px);
 }
 .top-\[var\(--header-height\)\]{
   top: var(--header-height);
@@ -9941,9 +9943,6 @@ video {
 }
 .h-\[calc\(100vh-var\(--header-height\)\)\]{
   height: calc(100vh - var(--header-height));
-}
-.h-\[calc\(1rem-2px\)\]{
-  height: calc(1rem - 2px);
 }
 .h-\[var\(--header-height\)\]{
   height: var(--header-height);
@@ -10903,10 +10902,6 @@ video {
   border-top-left-radius: 0.125rem;
   border-bottom-left-radius: 0.125rem;
 }
-.rounded-r-full{
-  border-top-right-radius: 9999px;
-  border-bottom-right-radius: 9999px;
-}
 .rounded-r-md{
   border-top-right-radius: 0.375rem;
   border-bottom-right-radius: 0.375rem;
@@ -10953,10 +10948,6 @@ video {
 }
 .border-\[3px\]{
   border-width: 3px;
-}
-.border-y{
-  border-top-width: 1px;
-  border-bottom-width: 1px;
 }
 .border-b{
   border-bottom-width: 1px;
@@ -11210,9 +11201,6 @@ video {
 }
 .bg-white\/20{
   background-color: rgb(255 255 255 / 0.2);
-}
-.bg-white\/50{
-  background-color: rgb(255 255 255 / 0.5);
 }
 .bg-white\/75{
   background-color: rgb(255 255 255 / 0.75);

@@ -18,12 +18,14 @@
     z-index: 1;
 }
 
-#student-test-review .question-indicator .question-number {
+#student-test-review .question-indicator .question-number ,
+#assessment-page .question-indicator .question-number {
     color: white;
     background-color: var(--system-base);
 }
 
-#student-test-review .nav-container .question-indicator .question-number {
+#student-test-review .nav-container .question-indicator .question-number ,
+#assessment-page .nav-container .question-indicator .question-number {
     --rqn-number-color: var(--system-base);
     --rqn-border-color: var(--system-base);
     --rqn-background-color: transparent;
@@ -37,22 +39,26 @@
     background-color: var(--rqn-background-color);
 }
 
-#student-test-review .nav-container .question-indicator .question-number.done {
+#student-test-review .nav-container .question-indicator .question-number.done ,
+#assessment-page .nav-container .question-indicator .question-number.done {
     --rqn-number-color: white;
     --rqn-background-color: var(--system-base);
 }
 
-#student-test-review .nav-container .question-indicator .question-number.active {
+#student-test-review .nav-container .question-indicator .question-number.active ,
+#assessment-page .nav-container .question-indicator .question-number.active {
     --rqn-border-color: var(--primary);
     --rqn-number-color: var(--primary);
 }
 
-#student-test-review .nav-container .question-indicator .question-number.done.active {
+#student-test-review .nav-container .question-indicator .question-number.done.active ,
+#assessment-page .nav-container .question-indicator .question-number.done.active {
     --rqn-number-color: white;
     --rqn-background-color: var(--primary);
 }
 
-#student-test-review .nav-container .question-indicator .question-number .connector {
+#student-test-review .nav-container .question-indicator .question-number .connector ,
+#assessment-page .nav-container .question-indicator .question-number .connector {
     position: absolute;
     width: 8px;
     height: 3px;
@@ -60,7 +66,8 @@
     background: var(--system-base);
 }
 
-#student-test-review .nav-container .question-indicator {
+#student-test-review .nav-container .question-indicator ,
+#assessment-page .nav-container .question-indicator {
     display: flex;
     align-items: flex-start;
 }

@@ -20,6 +20,8 @@ use tcCore\User;
 use tcCore\UserFeatureSetting;
 use tcCore\View\Components\CompletionQuestionConvertedHtml;
 
+use function Termwind\renderUsing;
+
 class Assessment extends EvaluationComponent implements CollapsableHeader
 {
     /*Template properties*/
@@ -310,9 +312,9 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         $this->setUserOnAnswer($this->currentAnswer);
         $this->setProgress();
 
-        if (!$internal) {
+//        if (!$internal) {
             $this->dispatchUpdateQuestionNavigatorEvent();
-        }
+//        }
 
         return [
             'index' => $this->answerNavigationValue,
@@ -482,6 +484,21 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         $this->students = $this->getStudents();
 
         $this->maxAssessedValue = $this->testTakeData->fresh()->max_assessed_answer_index ?? 1;
+
+        $this->questions->each(function ($question) {
+            if (!$question->isDiscussionTypeOpen) {
+                $question->doneAssessing = true;
+                return;
+            }
+            $question->doneAssessing = $this->answers
+                ->where('question_id', $question->id)
+                ->where(function ($answer) {
+                    if ($answer->hasDiscrepancy === false) {
+                        return false;
+                    }
+                    return $answer->teacherRatings()->isNotEmpty();
+                });
+        });
     }
 
     protected function start(bool $reset = false): void
@@ -669,7 +686,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         $this->dispatchUpdateNavigatorEvent('answer', $answerUpdates);
     }
 
-    private function dispatchUpdateQuestionNavigatorEvent(array|null $questionUpdates = null)
+    private function dispatchUpdateQuestionNavigatorEvent(array|null $questionUpdates = null): void
     {
         $questionUpdates ??= [
             'index' => $this->questionNavigationValue,
@@ -912,6 +929,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
     private function setProgress(): void
     {
+        return;
         [$percentagePerAnswer, $assessedAnswers] = $this->getProgressPropertiesForCalculation();
 
         $currentAnswerIndexOfAllAnswers = $this->answers->search(function ($answer) {

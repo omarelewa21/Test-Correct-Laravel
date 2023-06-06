@@ -18,21 +18,63 @@
                                                 :question-panel="$this->questionPanel"
                                                 :answer-model-panel="$this->answerModelPanel"
                                                 :show-correction-model="true"
+                                                class="mt-20"
             >
                 <x-slot:subHeader>
-                    <div class="progress-bar-container | fixed-sub-header-container h-4 bg-white/50 border-bluegrey border-y fixed top-[calc(var(--header-height)+4px)] left-0 z-1">
-                        <span @class([
-                                'progress-bar | sticky top-[100px] flex items-center justify-end absolute left-0 h-[calc(1rem-2px)] bg-primary pr-2',
-                                'rounded-r-full' => $this->progress < 100
-                             ])
-                              style="width: @js($this->progress)%;"
+                    {{-- Question necklace navigation  --}}
+                    <div class="nav-container | fixed-sub-header-container h-20 bg-lightGrey border-bluegrey border-b top-[var(--header-height)] z-1"
+                    >
+                        <div class="flex w-full h-full px-15 items-center invisible overflow-hidden"
+                             x-data="reviewNavigation(@js($this->questionNavigationValue))"
+                             x-bind:class="{'invisible': !initialized }"
+                             x-on:resize.window.throttle="resize()"
+                             wire:ignore.self
                         >
-                            <span @class([
-                                'text-xs',
-                                'text-sysbase absolute -right-6' => $this->progress <= 5,
-                                'text-white' => $this->progress > 5,
-                            ])>@js($this->progress)%</span>
-                        </span>
+                            <div class="slider-buttons left | flex relative pt-4 -top-px h-full z-10" x-show="showSlider">
+                                <button class="inline-flex base rotate-svg-180 w-8 h-8 rounded-full transition items-center justify-center transform focus:outline-none"
+                                        x-on:click="start()">
+                                    <x-icon.arrow-last />
+                                </button>
+                                <button class="inline-flex base rotate-svg-180 w-8 h-8 rounded-full transition items-center justify-center transform focus:outline-none"
+                                        x-on:click="left()">
+                                    <x-icon.chevron />
+                                </button>
+                            </div>
+                            <div id="navscrollbar"
+                                 class="question-indicator gap-2 pt-4 h-full"
+                                 x-bind:class="{'overflow-x-auto px-3' : showSlider}"
+                            >
+                                @foreach($this->questions as $question)
+                                    <div @class([
+                                    'flex flex-col gap-1 items-center',
+                                ])>
+                                        <div @class([
+                                    'question-number | relative mt-px inline-flex rounded-full text-center justify-center items-center cursor-pointer hover:shadow-lg',
+                                    'done' => $question->doneAssessing,
+                                    'active' => (int)$this->questionNavigationValue === $loop->iteration,
+                                ])
+                                             x-on:click="loadQuestion(@js($loop->iteration))"
+                                        >
+                                            <span class="align-middle px-1.5">@js($loop->iteration)</span>
+                                            @if($question->connector)
+                                                <span class="connector"></span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                            <div class="slider-buttons right | flex relative pt-4 -top-px h-full z-10"
+                                 x-show="showSlider">
+                                <button class="inline-flex base w-8 h-8 rounded-full transition items-center justify-center transform focus:outline-none"
+                                        x-on:click="right()">
+                                    <x-icon.chevron />
+                                </button>
+                                <button class="inline-flex base w-8 h-8 rounded-full transition items-center justify-center transform focus:outline-none"
+                                        x-on:click="end()">
+                                    <x-icon.arrow-last />
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </x-slot:subHeader>
                 <x-slot:answerBlock>

@@ -56,6 +56,10 @@
     top: 0;
 }
 
+#assessment-page {
+    --ck-z-default: 0;
+}
+
 .progress-bar-background {
     width: calc(100% - var(--active-sidebar-width));
     transition: width var(--sidebar-transition)
