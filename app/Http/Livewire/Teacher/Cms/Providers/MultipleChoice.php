@@ -23,7 +23,6 @@ class MultipleChoice extends TypeProvider
             $this->instance->cmsPropertyBag['answerStruct'] = [];
             $this->instance->cmsPropertyBag['answerCount'] = 2;
         }
-
     }
 
     public function showQuestionScore()
@@ -36,10 +35,14 @@ class MultipleChoice extends TypeProvider
         $rules +=
             [
                 'question.answers'          => 'required|array|min:2',
-                'question.answers.*.score'  => 'required|integer',
+                'question.answers.*.score'  => [
+                    'required',
+                    'min:0',
+                    $this->instance->question['decimal_score'] ? 'numeric' : 'integer'
+                ],
                 'question.answers.*.answer' => 'required',
                 'question.answers.*.order'  => 'required',
-                'question.score'            => 'required|integer|min:1',
+                'question.score'            => 'required|numeric|min:1',
 
             ];
     }
@@ -47,8 +50,6 @@ class MultipleChoice extends TypeProvider
     public function preparePropertyBag()
     {
         $this->createAnswerStruct();
-
-
     }
 
     public function initializePropertyBag($q)
@@ -64,14 +65,15 @@ class MultipleChoice extends TypeProvider
                 return [
                     'order'  => $answer['order'],
                     'answer' => BaseHelper::transformHtmlChars($answer['answer']),
-                    'score'  => (int)$answer['score'],
+                    'score'  => (float)$answer['score'],
                 ];
             })
             ->toArray();
         unset($this->instance->question['answer']);
         $this->instance->question['score'] = collect($this->instance->cmsPropertyBag['answerStruct'])->sum('score');
-        $this->instance->question['selectable_answers'] = collect($this->instance->cmsPropertyBag['answerStruct'])->where('score', '>', 0)->count();
-
+        $this->instance->question['selectable_answers'] = collect(
+            $this->instance->cmsPropertyBag['answerStruct']
+        )->where('score', '>', 0)->count();
     }
 
     public function createAnswerStruct()
@@ -81,18 +83,22 @@ class MultipleChoice extends TypeProvider
         collect($this->instance->cmsPropertyBag['answerStruct'])->each(function ($value, $key) use (&$result) {
             $value = (array)$value;
 
-            if(array_key_exists('id',$value)) {
+            if (array_key_exists('id', $value)) {
                 $result[] = (object)[
                     'id'     => $value['id'],
                     'order'  => $key + 1,
                     'answer' => $value['answer'],
-                    'score'  => (int)$value['score']
+                    'score'  => (float)$value['score']
                 ];
             }
         })->toArray();
 
         if (count($this->instance->cmsPropertyBag['answerStruct']) < $this->instance->cmsPropertyBag['answerCount']) {
-            for ($i = count($this->instance->cmsPropertyBag['answerStruct']); $i < $this->instance->cmsPropertyBag['answerCount']; $i++) {
+            for (
+                $i = count(
+                    $this->instance->cmsPropertyBag['answerStruct']
+                ); $i < $this->instance->cmsPropertyBag['answerCount']; $i++
+            ) {
                 $result[] = (object)[
                     'id'     => Uuid::uuid4(),
                     'order'  => $i + 1,
@@ -119,9 +125,10 @@ class MultipleChoice extends TypeProvider
             $this->instance->cmsPropertyBag['answerStruct'][((int)$item['value']) - 1]['order'] = $item['order'];
         }
 
-        $this->instance->cmsPropertyBag['answerStruct'] = array_values(collect($this->instance->cmsPropertyBag['answerStruct'])->sortBy('order')->toArray());
+        $this->instance->cmsPropertyBag['answerStruct'] = array_values(
+            collect($this->instance->cmsPropertyBag['answerStruct'])->sortBy('order')->toArray()
+        );
         $this->createAnswerStruct();
-
     }
 
     public function canDelete()
@@ -173,14 +180,16 @@ class MultipleChoice extends TypeProvider
         if (empty($this->instance->cmsPropertyBag['answerStruct'])) {
             $q = $this->getQuestion();
 
-            $this->instance->cmsPropertyBag['answerStruct'] = $q->multipleChoiceQuestionAnswers->map(function ($answer, $key) {
-                return [
-                    'id'     => Uuid::uuid4(),
-                    'order'  => $key + 1,
-                    'score'  => $answer->score,
-                    'answer' => BaseHelper::transformHtmlCharsReverse($answer->answer,false),
-                ];
-            })->toArray();
+            $this->instance->cmsPropertyBag['answerStruct'] = $q->multipleChoiceQuestionAnswers->map(
+                function ($answer, $key) {
+                    return [
+                        'id'     => Uuid::uuid4(),
+                        'order'  => $key + 1,
+                        'score'  => $answer->score,
+                        'answer' => BaseHelper::transformHtmlCharsReverse($answer->answer, false),
+                    ];
+                }
+            )->toArray();
         }
         $this->instance->cmsPropertyBag['answerCount'] = count($this->instance->cmsPropertyBag['answerStruct']);
     }

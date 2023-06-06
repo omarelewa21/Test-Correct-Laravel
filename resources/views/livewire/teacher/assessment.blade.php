@@ -137,10 +137,10 @@
                              wire:key="score-slider-{{  $this->questionNavigationValue.$this->answerNavigationValue }}"
                         >
                             <x-input.score-slider modelName="score"
+                                                  mode="small"
                                                   :maxScore="$this->currentQuestion->score"
                                                   :score="$this->score"
                                                   :halfPoints="$this->currentQuestion->decimal_score"
-                                                  mode="small"
                                                   :disabled="$this->drawerScoringDisabled"
                                                   :focus-input="true"
                             />
