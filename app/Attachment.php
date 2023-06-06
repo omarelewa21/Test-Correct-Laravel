@@ -248,7 +248,7 @@ class Attachment extends BaseModel
                         break;
                 }
             }
-            return sprintf('https://www.youtube.com/embed/%s?rel=0&start=%d', $matches['video_id'], $t);
+            return sprintf('https://www.youtube-nocookie.com/embed/%s?rel=0&start=%d', $matches['video_id'], $t);
         }
 
         preg_match($vimeoRegex, $this->link, $matches);
