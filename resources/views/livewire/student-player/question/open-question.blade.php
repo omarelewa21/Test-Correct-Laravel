@@ -19,6 +19,7 @@
                             :maxWords="$this->question->max_words"
                             :textFormatting="$this->question->text_formatting"
                             :mathmlFunctions="$this->question->mathml_functions"
+                            :enableGrammar="false"
                     />
 
                     <div id="word-count-{{ $editorId }}"
