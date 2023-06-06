@@ -4,11 +4,14 @@ namespace tcCore\Http\Livewire\Teacher;
 
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Carbon\Carbon;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Livewire\TemporaryUploadedFile;
 use Livewire\WithFileUploads;
 use Ramsey\Uuid\Uuid;
@@ -406,11 +409,25 @@ class UploadTest extends TCComponent
 
     private function validateTestName()
     {
+        $rules = $this->getNameRulesDependingOnAction();
+        if(!auth()->user()->isToetsenbakker()){
+            $rules[] = Rule::notIn($this->previousUploadedTestNames);
+            $rules[] = Rule::unique('file_managements', 'name')
+                ->where(function(Builder $query){
+                    $query->where('user_id', auth()->id())
+                        ->whereExists(fn(Builder $query) => $query->select(DB::raw(1))
+                            ->from('file_management_statuses as fms')
+                            ->whereColumn('fms.id', 'file_managements.file_management_status_id')
+                            ->where('fms.id', '<>', FileManagementStatus::STATUS_CANCELLED));
+                });
+        }
+
         return Validator::make($this->testInfo, [
-            'name' => array_merge(
-                $this->getNameRulesDependingOnAction(),
-                [Rule::notIn($this->previousUploadedTestNames)]
-            )
+            'name' => $rules
+        ], [
+            'name.not_in' => __('upload.validation.name.not_in'),
+            'name.unique' => __('upload.validation.name.unique'),
+            'name.min:3'  => __('upload.validation.name.min'),
         ]);
     }
 
@@ -421,11 +438,22 @@ class UploadTest extends TCComponent
     {
         return collect($this->testInfo)
                 ->reject(fn($item) => filled($item))
-                ->isEmpty() && $this->checkValidTestName();
+                ->isEmpty() && $this->validateTestName()->passes();
     }
 
-    public function checkValidTestName(): bool
+    public function checkValidTestName(): array
     {
-        return $this->validateTestName()->passes();
+        try {
+            if(!empty($this->testInfo['name']))
+                $this->validateTestName()->validate();
+
+            return ['success' => true];
+
+        } catch (ValidationException $e) {
+            return [
+                'success' => false,
+                'message'  => $e->getMessage()
+            ];
+        }
     }
 }

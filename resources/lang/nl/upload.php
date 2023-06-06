@@ -40,5 +40,11 @@ return [
     'Overnemen'                            => 'Overnemen',
     'Niet overnemen'                       => 'Niet overnemen',
     'multiple_tests_uploaded'              => '{0} Toetsen geüpload|{1} Toets geüpload|[2,*] Toetsen geüpload',
-    'duplicate_test_name'                  => 'Je kunt geen test uploaden met dezelfde naam als een andere test die je eerder hebt geüpload of gemaakt. Wijzig de naam van de test en probeer het opnieuw.',
+    'validation'                           => [
+        'name'  => [
+            'min'      => 'De testnaam moet minimaal 3 tekens lang zijn.',
+            'not_in'   => 'Je kunt geen test uploaden met dezelfde naam als een andere test die je eerder hebt geüpload. Wijzig de naam van de test en probeer het opnieuw.',
+            'unique'   => 'Je kunt geen test uploaden met dezelfde naam als een andere test die je eerder hebt gemaakt. Wijzig de naam van de test en probeer het opnieuw.',
+        ],
+    ],
 ];
