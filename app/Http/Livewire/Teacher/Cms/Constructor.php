@@ -795,6 +795,7 @@ class Constructor extends TCComponent implements QuestionCms
     public function handleNewVideoAttachment($link)
     {
         if ($this->validateVideoLink($link)) {
+            $link = Attachment::convertYoutubeShortsLink($link);
             $video = ['id' => Uuid::uuid4()->toString(), 'link' => $link];
             $this->videos[] = $video;
             $this->sortOrderAttachments[] = $video['id'];
