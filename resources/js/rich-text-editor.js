@@ -403,9 +403,13 @@ RichTextEditor = {
         };
     },
 
-    createEditor(editorId, config, resolveCallback = null) {
+    async createEditor(editorId, config, resolveCallback = null) {
         let editor = ClassicEditors[editorId];
-        if (editor) editor.destroy(true);
+        try {
+            if (editor) await editor.destroy(true);
+        } catch (e) {
+            console.warn('An issue occurred while destroying an existing editor.')
+        }
 
         return ClassicEditor
             .create(

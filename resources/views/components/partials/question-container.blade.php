@@ -3,18 +3,12 @@
 'number',
 ])
 <div x-cloak
-     x-data="{ showMe: false, progressBar: false, startTime: 0, endTime: 1, progress: 0, dispatchEditorReinitializer: false }"
+     x-data="{ showMe: false, progressBar: false, startTime: 0, endTime: 1, progress: 0 }"
      x-init="
-
-        $watch('showMe', () => {
-            if(showMe) {
+        $watch('showMe', (value) => {
+            if(value) {
                 $dispatch('visible-component', {el: $el});
-                if(dispatchEditorReinitializer) {
-                    $dispatch('reinitialize-editor-editor-{{$question->id}}')
-                }
-
-                dispatchEditorReinitializer = true;
-                return;
+                $dispatch('reinitialize-editor-editor-{{$question->id}}')
             }
          })
          @if(isset($this->reinitializedTimeoutData) && !empty($this->reinitializedTimeoutData))

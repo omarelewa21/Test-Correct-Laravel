@@ -15491,41 +15491,47 @@ RichTextEditor = {
     };
   },
   createEditor: function createEditor(editorId, config) {
-    var resolveCallback = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-    var editor = ClassicEditors[editorId];
-    if (editor) editor.destroy(true);
-    return ClassicEditor.create(document.getElementById(editorId), config).then(function (editor) {
-      ClassicEditors[editorId] = editor;
-      if (typeof resolveCallback === "function") {
-        resolveCallback(editor);
-      }
-    })["catch"](function (error) {
-      console.error(error);
-    });
-  },
-  createTeacherEditor: function createTeacherEditor(parameterBag) {
-    var _arguments = arguments,
-      _this9 = this;
+    var _arguments = arguments;
     return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
-      var resolveCallback;
+      var resolveCallback, editor;
       return _regeneratorRuntime().wrap(function _callee$(_context) {
         while (1) switch (_context.prev = _context.next) {
           case 0:
-            resolveCallback = _arguments.length > 1 && _arguments[1] !== undefined ? _arguments[1] : null;
-            _context.next = 3;
-            return _this9.createEditor(parameterBag.editorId, _this9.getConfigForTeacher(parameterBag), resolveCallback);
-          case 3:
-            return _context.abrupt("return", _context.sent);
-          case 4:
+            resolveCallback = _arguments.length > 2 && _arguments[2] !== undefined ? _arguments[2] : null;
+            editor = ClassicEditors[editorId];
+            _context.prev = 2;
+            if (!editor) {
+              _context.next = 6;
+              break;
+            }
+            _context.next = 6;
+            return editor.destroy(true);
+          case 6:
+            _context.next = 11;
+            break;
+          case 8:
+            _context.prev = 8;
+            _context.t0 = _context["catch"](2);
+            console.warn('An issue occurred while destroying an existing editor.');
+          case 11:
+            return _context.abrupt("return", ClassicEditor.create(document.getElementById(editorId), config).then(function (editor) {
+              ClassicEditors[editorId] = editor;
+              if (typeof resolveCallback === "function") {
+                resolveCallback(editor);
+              }
+            })["catch"](function (error) {
+              console.error(error);
+            }));
+          case 12:
           case "end":
             return _context.stop();
         }
-      }, _callee);
+      }, _callee, null, [[2, 8]]);
     }))();
   },
-  createStudentEditor: function createStudentEditor(parameterBag) {
+  createTeacherEditor: function createTeacherEditor(parameterBag) {
     var _arguments2 = arguments,
-      _this10 = this;
+      _this9 = this;
     return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
       var resolveCallback;
       return _regeneratorRuntime().wrap(function _callee2$(_context2) {
@@ -15533,7 +15539,7 @@ RichTextEditor = {
           case 0:
             resolveCallback = _arguments2.length > 1 && _arguments2[1] !== undefined ? _arguments2[1] : null;
             _context2.next = 3;
-            return _this10.createEditor(parameterBag.editorId, _this10.getConfigForStudent(parameterBag), resolveCallback);
+            return _this9.createEditor(parameterBag.editorId, _this9.getConfigForTeacher(parameterBag), resolveCallback);
           case 3:
             return _context2.abrupt("return", _context2.sent);
           case 4:
@@ -15541,6 +15547,26 @@ RichTextEditor = {
             return _context2.stop();
         }
       }, _callee2);
+    }))();
+  },
+  createStudentEditor: function createStudentEditor(parameterBag) {
+    var _arguments3 = arguments,
+      _this10 = this;
+    return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
+      var resolveCallback;
+      return _regeneratorRuntime().wrap(function _callee3$(_context3) {
+        while (1) switch (_context3.prev = _context3.next) {
+          case 0:
+            resolveCallback = _arguments3.length > 1 && _arguments3[1] !== undefined ? _arguments3[1] : null;
+            _context3.next = 3;
+            return _this10.createEditor(parameterBag.editorId, _this10.getConfigForStudent(parameterBag), resolveCallback);
+          case 3:
+            return _context3.abrupt("return", _context3.sent);
+          case 4:
+          case "end":
+            return _context3.stop();
+        }
+      }, _callee3);
     }))();
   }
 };
