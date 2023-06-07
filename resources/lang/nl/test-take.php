@@ -1,4 +1,5 @@
 <?php
+
 return [
     'Toets inleveren'                                                                                                                                  => 'Toets inleveren',
     'Weet je zeker dat je de toets wilt inleveren?'                                                                                                    => 'Weet je zeker dat je de toets wilt inleveren?',
@@ -38,4 +39,9 @@ return [
     'not-all-questions-answered'                                                                                                                       => 'De volgende vragen zijn niet beantwoord: ',
     'not-all-questions-answered-extension'                                                                                                             => 'Afgesloten vragen kunnen niet meer beantwoord worden.',
     'and'                                                                                                                                              => 'en',
+    'Afname gepland op'                                                                                                                                => 'Afname gepland op',
+    'Gepland door'                                                                                                                                     => 'Gepland door',
+    'Afnemen'                                                                                                                                          => 'Afnemen',
+    'Klas'                                                                                     => '{0} Klassen|{1} Klas|[2,*] Klassen',
+    'Surveillant'                                                                                     => '{0} Surveillanten|{1} Surveillant|[2,*] Surveillanten',
 ];

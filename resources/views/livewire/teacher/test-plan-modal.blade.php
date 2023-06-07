@@ -75,13 +75,13 @@
             @endif
             <div class="input-section" x-data>
                 <div class="name flex">
-                    <label for="teachers_and_classes">{{ __('Klassen') }}</label>
+                    <label for="teachers_and_classes">{{ __('teacher.Klassen') }}</label>
                 </div>
                 <div class="name flex mb-4">
                     <x-input.choices-select :multiple="true"
                                             :options="$this->schoolClasses"
                                             :withSearch="true"
-                                            placeholderText="{!!  __('teacher.Klassen') !!}"
+                                            placeholderText="{{ __('teacher.Klassen') }}"
                                             wire:model="request.school_classes"
                                             filterContainer="selected_classes"
                                             id="teachers_and_classes"

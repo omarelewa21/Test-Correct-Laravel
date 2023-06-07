@@ -1327,11 +1327,11 @@ class TestTakesController extends Controller
         return Response::make($testTake);
     }
 
-    public function openDetail(TestTake $testTake)
+    public function openDetail(TestTake $testTake, Request $request)
     {
         $stage = $testTake->determineTestTakeStage();
         if ($stage === 'planned') {
-            return redirect(route('teacher.test-take.planned', $testTake->uuid));
+            return redirect(route('teacher.test-take.planned', $testTake->uuid). '?' . $request->getQueryString());
         }
         return TestTake::redirectToDetail($testTake->uuid, url()->referrer());
     }

@@ -390,6 +390,11 @@ class TestTake extends BaseModel
         return $this->belongsTo('tcCore\User')->withTrashed();
     }
 
+    public function scheduledByUser()
+    {
+        return $this->belongsTo(User::class, 'scheduled_by')->withTrashed();
+    }
+
     public function retakeTestTake()
     {
         return $this->belongsTo('tcCore\TestTake', 'retake_test_take_id');

@@ -1,4 +1,5 @@
 <?php
+
 return [
     'Toets inleveren'                                                                                                                                  => 'Hand in test',
     'Weet je zeker dat je de toets wilt inleveren?'                                                                                                    => 'Are you sure you want to hand in the test?',
@@ -39,4 +40,10 @@ return [
     'not-all-questions-answered'                                                                                                                       => 'The following questions have not been answered: ',
     'not-all-questions-answered-extension'                                                                                                             => 'Locked questions can not be answered anymore.',
     'and'                                                                                                                                              => 'and',
+    'Afname gepland op'                                                                                                                                => 'Scheduled',
+    'Gepland door'                                                                                                                                     => 'Scheduled by',
+    'Afnemen'                                                                                                                                          => 'Start',
+    'Klas'                                                                                     => '{0} Classes|{1} Clas|[2,*] Classes',
+    'Surveillant'                                                                                     => '{0} Invigilators|{1} Invigilator|[2,*] Invigilators',
+
 ];

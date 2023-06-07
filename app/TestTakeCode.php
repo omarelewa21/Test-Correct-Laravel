@@ -3,6 +3,7 @@
 namespace tcCore;
 
 use Dyrynda\Database\Casts\EfficientUuid;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use tcCore\Traits\UuidTrait;
@@ -55,5 +56,15 @@ class TestTakeCode extends Model
         return User::join('test_takes', 'test_takes.user_id', '=', 'users.id')
             ->where('test_takes.id', $this->test_take_id)
             ->value('users.school_location_id');
+    }
+
+    protected function displayCode(): Attribute
+    {
+        return Attribute::make(
+            get: function ($value, $attributes) {
+                $codes = str_split($attributes['code'], 3);
+                return sprintf("%s %s %s", $attributes['prefix'], $codes[0], $codes[1]);
+            }
+        );
     }
 }
