@@ -196,7 +196,8 @@
 }
 
 #co-learning-teacher-page .question-indicator .question-number,
-#assessment-page .question-indicator .question-number {
+#assessment-page .question-indicator .question-number,
+#student-test-review .question-indicator .question-number {
     border-color: var(--system-base);
     background: var(--system-base);
     color: white;

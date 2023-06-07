@@ -108,6 +108,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
     public function render()
     {
+        $this->setNecklaceNavigationDataOnQuestion();
         return view('livewire.teacher.assessment')->layout('layouts.assessment');
     }
 
@@ -490,21 +491,6 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         $this->students = $this->getStudents();
 
         $this->maxAssessedValue = $this->testTakeData->fresh()->max_assessed_answer_index ?? 1;
-
-        $this->questions->each(function ($question) {
-            if (!$question->isDiscussionTypeOpen) {
-                $question->doneAssessing = true;
-                return;
-            }
-            $question->doneAssessing = $this->answers
-                ->where('question_id', $question->id)
-                ->where(function ($answer) {
-                    if ($answer->hasDiscrepancy === false) {
-                        return false;
-                    }
-                    return $answer->teacherRatings()->isNotEmpty();
-                });
-        });
     }
 
     protected function start(bool $reset = false): void
@@ -603,7 +589,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
     private function getCurrentParticipantId()
     {
-        return $this->students->get($this->answerNavigationValue - 1);
+        return $this->students->get((int)$this->answerNavigationValue - 1);
     }
 
     /**
@@ -1313,9 +1299,6 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         return $this->students->search($answer->test_participant_id) + 1;
     }
 
-    /**
-     * @return bool
-     */
     private function getSkipNoDiscrepanciesValue(): bool
     {
         return $this->skipBooted
@@ -1356,5 +1339,42 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
                         'rating'       => 0,
                     ]);
             });
+    }
+
+    private function setNecklaceNavigationDataOnQuestion(): void
+    {
+        $enabledQuestionIds = $this->getQuestionIdsForCurrentAssessmentType();
+        $this->questions->each(function ($question) use ($enabledQuestionIds) {
+            $answers = $this->answersWithDiscrepancyFilter()->where('question_id', $question->id);
+            $question->navEnabled = $enabledQuestionIds->contains($question->id) && $answers->where('test_participant_id', $this->getCurrentParticipantId())->isNotEmpty();
+
+            if (!$question->isDiscussionTypeOpen) {
+                $question->doneAssessing = true;
+                return;
+            }
+            $question->doneAssessing = $answers
+                ->where(fn($answer) => $answer->hasDiscrepancy === false ? false : $answer->teacherRatings()->isEmpty())
+                ->isEmpty();
+        });
+
+        $this->addGroupConnectorPropertyToQuestionIfNecessary();
+    }
+
+    public function getTitleTagForNavigation(Question $question): string
+    {
+        if ($this->openOnly && !$question->isDiscussionTypeOpen) {
+            return __('assessment.disabled_nav_closed_question');
+        }
+        return __('assessment.disabled_nav_no_answer');
+    }
+
+    private function addGroupConnectorPropertyToQuestionIfNecessary(): void
+    {
+        $this->questions
+            ->whereNotNull('belongs_to_groupquestion_id')
+            ->groupBy('belongs_to_groupquestion_id')
+            ->each(fn($group) => $group->pop())
+            ->flatten()
+            ->each(fn($question) => $question->connector = true);
     }
 }

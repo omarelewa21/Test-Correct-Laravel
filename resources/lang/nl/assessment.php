@@ -44,4 +44,6 @@ return [
     'Inline feedback schrijven in antwoord'        => 'Inline feedback schrijven in antwoord',
     'Inline feedback bekijken'                     => 'Inline feedback bekijken',
     'scored_by_one_student'                        => 'Let op: gescoord door één student.',
+    'disabled_nav_closed_question'                 => 'Dit is een gesloten vraag die automatisch wordt nagekeken.',
+    'disabled_nav_no_answer'                       => 'Er is geen antwoord beschikbaar voor de huidige student.',
 ];

@@ -7,12 +7,13 @@
      x-on:slider-toggle-value-updated.window="toggleTicked($event.detail)"
      wire:key="page-{{ $this->questionNavigationValue.$this->answerNavigationValue.$this->updatePage }}"
 >
+
     <x-partials.header.assessment :testName="$testName" />
     @if($this->headerCollapsed)
         <div class="flex min-h-[calc(100vh-var(--header-height))] relative">
             <x-partials.evaluation.main-content :question="$this->currentQuestion"
                                                 :group="$this->currentGroup"
-                                                :unique-key="$this->questionNavigationValue.$this->answerNavigationValue"
+                                                :unique-key="$this->questionNavigationValue.$this->answerNavigationValue.$this->headerCollapsed"
                                                 :navigation-value="$this->questionNavigationValue"
                                                 :group-panel="$this->groupPanel"
                                                 :question-panel="$this->questionPanel"
@@ -21,39 +22,24 @@
                                                 class="mt-20"
             >
                 <x-slot:subHeader>
-                    {{-- Question necklace navigation  --}}
-                    <div class="nav-container | fixed-sub-header-container h-20 bg-lightGrey border-bluegrey border-b top-[var(--header-height)] z-1"
-                    >
-                        <div class="flex w-full h-full px-15 items-center invisible overflow-hidden"
-                             x-data="reviewNavigation(@js($this->questionNavigationValue))"
-                             x-bind:class="{'invisible': !initialized }"
-                             x-on:resize.window.throttle="resize()"
-                             wire:ignore.self
-                        >
-                            <div class="slider-buttons left | flex relative pt-4 -top-px h-full z-10" x-show="showSlider">
-                                <button class="inline-flex base rotate-svg-180 w-8 h-8 rounded-full transition items-center justify-center transform focus:outline-none"
-                                        x-on:click="start()">
-                                    <x-icon.arrow-last />
-                                </button>
-                                <button class="inline-flex base rotate-svg-180 w-8 h-8 rounded-full transition items-center justify-center transform focus:outline-none"
-                                        x-on:click="left()">
-                                    <x-icon.chevron />
-                                </button>
-                            </div>
-                            <div id="navscrollbar"
-                                 class="question-indicator gap-2 pt-4 h-full"
-                                 x-bind:class="{'overflow-x-auto px-3' : showSlider}"
-                            >
+                    <div class="nav-container | fixed-sub-header-container h-20 bg-lightGrey border-bluegrey border-b top-[var(--header-height)] z-1">
+                        <x-partials.necklace-navigation :position="$this->questionNavigationValue">
+                            <x-slot:loopSlot>
                                 @foreach($this->questions as $question)
-                                    <div @class([
-                                    'flex flex-col gap-1 items-center',
-                                ])>
+                                    <div @class(['flex flex-col gap-1 items-center'])>
                                         <div @class([
-                                    'question-number | relative mt-px inline-flex rounded-full text-center justify-center items-center cursor-pointer hover:shadow-lg',
-                                    'done' => $question->doneAssessing,
-                                    'active' => (int)$this->questionNavigationValue === $loop->iteration,
-                                ])
-                                             x-on:click="loadQuestion(@js($loop->iteration))"
+                                            'question-number | relative mt-px inline-flex rounded-full text-center justify-center items-center cursor-default',
+                                            'done'           => true,
+                                            'system-rated'   => !$question->isDiscussionTypeOpen,
+                                            'fully-rated'    => $question->isDiscussionTypeOpen && $question->doneAssessing,
+                                            'active'         => (int)$this->questionNavigationValue === $loop->iteration,
+                                            'cursor-pointer' => $question->navEnabled
+                                        ])
+                                             @if($question->navEnabled)
+                                                 x-on:click="loadQuestion(@js($loop->iteration))"
+                                             @else
+                                                 title="{{ $this->getTitleTagForNavigation($question) }}"
+                                                @endif
                                         >
                                             <span class="align-middle px-1.5">@js($loop->iteration)</span>
                                             @if($question->connector)
@@ -62,19 +48,8 @@
                                         </div>
                                     </div>
                                 @endforeach
-                            </div>
-                            <div class="slider-buttons right | flex relative pt-4 -top-px h-full z-10"
-                                 x-show="showSlider">
-                                <button class="inline-flex base w-8 h-8 rounded-full transition items-center justify-center transform focus:outline-none"
-                                        x-on:click="right()">
-                                    <x-icon.chevron />
-                                </button>
-                                <button class="inline-flex base w-8 h-8 rounded-full transition items-center justify-center transform focus:outline-none"
-                                        x-on:click="end()">
-                                    <x-icon.arrow-last />
-                                </button>
-                            </div>
-                        </div>
+                            </x-slot:loopSlot>
+                        </x-partials.necklace-navigation>
                     </div>
                 </x-slot:subHeader>
                 <x-slot:answerBlock>
@@ -160,7 +135,7 @@
                                           'info' => $this->currentAnswerCoLearningRatingsHasNoDiscrepancy(),
                                           ])
                         >
-                            <x-icon.co-learning class="min-w-min"/>
+                            <x-icon.co-learning class="min-w-min" />
                             <span class="bold">@lang($this->getDiscrepancyTranslationKey())</span>
                         </div>
                     @endif

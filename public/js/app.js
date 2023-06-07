@@ -8853,7 +8853,6 @@ document.addEventListener("alpine:init", function () {
       loadQuestion: function loadQuestion(number) {
         var _this55 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee17() {
-          var data;
           return _regeneratorRuntime().wrap(function _callee17$(_context17) {
             while (1) switch (_context17.prev = _context17.next) {
               case 0:
@@ -8863,8 +8862,6 @@ document.addEventListener("alpine:init", function () {
                 _context17.next = 3;
                 return _this55.$wire.loadQuestion(number);
               case 3:
-                data = _context17.sent;
-              case 4:
               case "end":
                 return _context17.stop();
             }

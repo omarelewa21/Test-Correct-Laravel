@@ -51,6 +51,8 @@ class FactoryScenarioTestTestWithAllQuestionTypes extends FactoryScenarioTest
                     ->addQuestions([
                         FactoryQuestionOpenLong::create()
                             ->setProperties(['question' => '<p>I am part of a group!</p>']),
+                        FactoryQuestionMultipleChoice::create()
+                            ->setProperties(['question' => '<p>Multiple choice sub question!</p>'])
                     ]),
                 FactoryQuestionOpenWriting::create(),
             ]);
