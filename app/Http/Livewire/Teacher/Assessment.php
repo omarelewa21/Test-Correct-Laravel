@@ -67,6 +67,8 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     public bool $isCoLearningScore = false;
     public bool $skipNoDiscrepancies = false;
 
+    public $answerFeedback = [];
+
     /* Lifecycle methods */
     protected function getListeners(): array
     {
@@ -94,6 +96,8 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
     public function booted(): void
     {
+        $this->getSortedAnswerFeedback();
+
         if ($this->skipBooted) {
             return;
         }
@@ -1308,11 +1312,6 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
     //TODO complete CKeditor comments Feedback implementation:
 
-    public function  tempab()
-    {
-        $this->updateAnswer('<p><comment-start name="7088d66c-88d8-4327-9021-7f77c84c514d:8dc91"></comment-start>oke<comment-end name="7088d66c-88d8-4327-9021-7f77c84c514d:8dc91"></comment-end>&nbsp;</p><p><comment-start name="thread-1"></comment-start>comment1<comment-end name="thread-1"></comment-end></p><p>esyyes</p><p>&nbsp;</p><p>sukade, biefstuk, feta, burrito,&nbsp;</p><p>wagyu, koffie, salade</p><p>&nbsp;</p><p>Trust but verify</p><p>~ Ronald Reagan</p>');
-    }
-
     public function createNewComment()
     {
         $newComment = AnswerFeedback::create([
@@ -1382,5 +1381,38 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     public function updateAnswerFeedback($threadId, $commentText)
     {
         AnswerFeedback::where('thread_id', '=', $threadId)->update(['message' => $commentText]);
+    }
+
+    public function getSortedAnswerFeedback()
+    {
+        $this->answerFeedback = $this->currentAnswer->feedback->fresh()->sortBy(function ($feedback) {
+            return $feedback->comment_id !== null;
+        }) ?? [];
+    }
+
+    public function getCommentMarkerStylesProperty() : string
+    {
+        return $this->answerFeedback->reduce(function ($carry, $feedback) {
+            return $carry = $carry . <<<STYLE
+                .ck-comment-marker[data-comment="{$feedback->thread_id}"]{
+                            --ck-color-comment-marker: {$feedback->color} !important;
+                            --ck-color-comment-marker-active: {$feedback->color} !important;
+                        }
+            STYLE;
+
+        }, '');
+    }
+
+    public function updateCommentColor($data)
+    {
+        if(!isset($data['threadId']) || !isset($data['color'])) {
+            return false;
+        }
+
+        AnswerFeedback::where('thread_id', '=', $data['threadId'])
+            ->update(['comment_color' => $data['color']]);
+
+        $this->getSortedAnswerFeedback();
+
     }
 }

@@ -135,7 +135,7 @@ class CkEditorCommentsSaveLoad extends TCComponent
 
     public function getCommentThreads() {
 
-        return AnswerFeedback::getCommentThreadsByAnswerId($this->answerId);
+        return AnswerFeedback::getCommentsData($this->answerId);
     }
 
 

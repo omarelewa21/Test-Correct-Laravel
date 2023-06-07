@@ -8386,6 +8386,7 @@ document.addEventListener("alpine:init", function () {
       activeThread: null,
       userId: userId,
       init: function init() {
+        var _this62 = this;
         // ClassicEditor.create( document.querySelector( '#editor' ), {
         //
         // } ).then( editor => {
@@ -8412,6 +8413,10 @@ document.addEventListener("alpine:init", function () {
         //     .catch( error => console.error( error ) );
 
         this.setFocusTracking();
+        document.addEventListener('comment-color-updated', function (event) {
+          //todo update comment color
+          _this62.$wire.updateCommentColor(event.detail);
+        });
 
         /*document.querySelector( '#get-data' ).addEventListener( 'click', () => {
              //get comment threads as json:
@@ -8431,12 +8436,12 @@ document.addEventListener("alpine:init", function () {
         */
       },
       saveCommentThread: function saveCommentThread() {
-        var _this62 = this;
+        var _this63 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee23() {
           return _regeneratorRuntime().wrap(function _callee23$(_context23) {
             while (1) switch (_context23.prev = _context23.next) {
               case 0:
-                _this62.commentsRepository = _this62.answerEditor.plugins.get('CommentsRepository');
+                _this63.commentsRepository = _this63.answerEditor.plugins.get('CommentsRepository');
 
                 //activeCommentThread is not needed when creating new comment Threads
                 // console.dir(this.commentsRepository.activeCommentThread); //focusTracking Required!
@@ -8446,7 +8451,7 @@ document.addEventListener("alpine:init", function () {
                 //     console.log(this.activeThread);
                 // }
                 _context23.next = 3;
-                return _this62.createCommentThread();
+                return _this63.createCommentThread();
               case 3:
               case "end":
                 return _context23.stop();
@@ -8455,19 +8460,19 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       updateCommentThread: function updateCommentThread(threadId) {
-        var _this63 = this;
+        var _this64 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee24() {
           var commentThread, threadEditor;
           return _regeneratorRuntime().wrap(function _callee24$(_context24) {
             while (1) switch (_context24.prev = _context24.next) {
               case 0:
-                _this63.commentsRepository = _this63.answerEditor.plugins.get('CommentsRepository');
+                _this64.commentsRepository = _this64.answerEditor.plugins.get('CommentsRepository');
 
                 //todo this is null unless focus is propely managed and the same.
-                commentThread = _this63.commentsRepository.activeCommentThread;
+                commentThread = _this64.commentsRepository.activeCommentThread;
                 threadEditor = window.ClassicEditors[threadId];
                 console.log('livewire call');
-                _this63.$wire.call('updateExistingComment', {
+                _this64.$wire.call('updateExistingComment', {
                   threadId: threadId,
                   message: threadEditor.getData()
                 });
@@ -8481,14 +8486,14 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       createCommentThread: function createCommentThread() {
-        var _this64 = this;
+        var _this65 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee26() {
           var answerEditor, feedbackEditor, comment;
           return _regeneratorRuntime().wrap(function _callee26$(_context26) {
             while (1) switch (_context26.prev = _context26.next) {
               case 0:
-                answerEditor = ClassicEditors[_this64.answerEditorId];
-                feedbackEditor = ClassicEditors[_this64.feedbackEditorId];
+                answerEditor = ClassicEditors[_this65.answerEditorId];
+                feedbackEditor = ClassicEditors[_this65.feedbackEditorId];
                 comment = feedbackEditor.getData();
                 console.log(comment);
                 console.log(' bieb 1');
@@ -8500,7 +8505,7 @@ document.addEventListener("alpine:init", function () {
               case 7:
                 console.log(' bieb 1');
                 answerEditor.focus();
-                _this64.$nextTick( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee25() {
+                _this65.$nextTick( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee25() {
                   var feedback, threadId, commentId, newCommentThread, updatedAnswerText;
                   return _regeneratorRuntime().wrap(function _callee25$(_context25) {
                     while (1) switch (_context25.prev = _context25.next) {
@@ -8511,7 +8516,7 @@ document.addEventListener("alpine:init", function () {
                           break;
                         }
                         _context25.next = 4;
-                        return _this64.$wire.call('createNewComment');
+                        return _this65.$wire.call('createNewComment');
                       case 4:
                         feedback = _context25.sent;
                         console.log(feedback);
@@ -8527,15 +8532,15 @@ document.addEventListener("alpine:init", function () {
                         })[0];
                         console.dir(newCommentThread);
                         console.log('this.userId: ');
-                        console.log(_this64.userId);
+                        console.log(_this65.userId);
                         newCommentThread.addComment({
                           threadId: threadId,
                           commentId: commentId,
                           content: comment,
-                          authorId: _this64.userId
+                          authorId: _this65.userId
                         });
                         updatedAnswerText = answerEditor.getData();
-                        _this64.$wire.call('saveNewComment', {
+                        _this65.$wire.call('saveNewComment', {
                           threadId: threadId,
                           message: comment,
                           answer: updatedAnswerText
@@ -8554,14 +8559,14 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       deleteCommentThread: function deleteCommentThread(threadId) {
-        var _this65 = this;
+        var _this66 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee27() {
           var result, answerText;
           return _regeneratorRuntime().wrap(function _callee27$(_context27) {
             while (1) switch (_context27.prev = _context27.next) {
               case 0:
                 _context27.next = 2;
-                return _this65.$wire.call('deleteCommentThread', threadId);
+                return _this66.$wire.call('deleteCommentThread', threadId);
               case 2:
                 result = _context27.sent;
                 if (!result) {
@@ -8569,9 +8574,9 @@ document.addEventListener("alpine:init", function () {
                   break;
                 }
                 commentsRepository.getCommentThread(threadId).remove();
-                answerText = _this65.answerEditor.getData();
+                answerText = _this66.answerEditor.getData();
                 _context27.next = 8;
-                return _this65.$wire.call('updateAnswerText', answerText);
+                return _this66.$wire.call('updateAnswerText', answerText);
               case 8:
                 return _context27.abrupt("return");
               case 9:
@@ -8584,13 +8589,13 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       setFocusTracking: function setFocusTracking() {
-        var _this66 = this;
+        var _this67 = this;
         // const commentButtons = document.querySelectorAll('#sidebar .button');
 
         setTimeout(function () {
           //cannot use the this. editors because of errors about being a (alpine) proxy
-          var answerEditor = ClassicEditors[_this66.answerEditorId];
-          var feedbackEditor = ClassicEditors[_this66.feedbackEditorId];
+          var answerEditor = ClassicEditors[_this67.answerEditorId];
+          var feedbackEditor = ClassicEditors[_this67.feedbackEditorId];
 
           // for ( var buttonElement of commentButtons ) {
           //     answerEditor.ui.focusTracker.add( buttonElement );
@@ -8617,7 +8622,7 @@ document.addEventListener("alpine:init", function () {
         this.setHeightToAspectRatio(this.$el);
       },
       setHeightToAspectRatio: function setHeightToAspectRatio(element) {
-        var _this67 = this;
+        var _this68 = this;
         var aspectRatioWidth = 940;
         var aspectRatioHeight = 500;
         var aspectRatio = aspectRatioHeight / aspectRatioWidth;
@@ -8630,7 +8635,7 @@ document.addEventListener("alpine:init", function () {
         if (newHeight <= 0) {
           if (this.currentTry <= this.maxTries) {
             setTimeout(function () {
-              return _this67.setHeightToAspectRatio(element);
+              return _this68.setHeightToAspectRatio(element);
             }, 50);
             this.currentTry++;
           }
@@ -8663,16 +8668,16 @@ document.addEventListener("alpine:init", function () {
       maxWords: maxWords,
       wordContainer: null,
       init: function init() {
-        var _this68 = this;
+        var _this69 = this;
         this.$nextTick(function () {
-          _this68.editor = ClassicEditors[editorId];
-          _this68.wordContainer = _this68.$root.querySelector(".ck-word-count__words");
-          _this68.wordContainer.style.display = "flex";
-          _this68.wordContainer.parentElement.style.display = "flex";
-          _this68.addMaxWordsToWordCounter(_this68.maxWords);
+          _this69.editor = ClassicEditors[editorId];
+          _this69.wordContainer = _this69.$root.querySelector(".ck-word-count__words");
+          _this69.wordContainer.style.display = "flex";
+          _this69.wordContainer.parentElement.style.display = "flex";
+          _this69.addMaxWordsToWordCounter(_this69.maxWords);
         });
         this.$watch("maxWords", function (value) {
-          _this68.addMaxWordsToWordCounter(value);
+          _this69.addMaxWordsToWordCounter(value);
         });
       },
       addMaxWordsToWordCounter: function addMaxWordsToWordCounter(value) {

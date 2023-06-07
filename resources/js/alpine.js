@@ -2629,6 +2629,10 @@ document.addEventListener("alpine:init", () => {
 
             this.setFocusTracking();
 
+            document.addEventListener('comment-color-updated', (event) => {
+                //todo update comment color
+                this.$wire.updateCommentColor(event.detail);
+            });
 
             /*document.querySelector( '#get-data' ).addEventListener( 'click', () => {
 

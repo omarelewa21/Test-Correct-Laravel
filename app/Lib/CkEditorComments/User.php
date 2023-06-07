@@ -2,27 +2,35 @@
 
 namespace tcCore\Lib\CkEditorComments;
 
+use tcCore\AnswerFeedback;
+
 /**
  * Data transfer object for use with CKeditor5 Comment plugin
  */
 class User
 {
-    public function __construct(
-        public string $id, //userId
-        public string $name, //userName
-        public string $role = 'teacher',
-//        public string $avatar = 'https://randomuser.me/api/portraits/thumb/men/26.jpg',
-    )
-    {
-    }
-
     public static function fromModel(\tcCore\User $user)
     {
-        return (array) new static(
-            $user->uuid,
-            $user->nameFull,
-            $user->isA('teacher') ? 'teacher' : 'student'
-        );
+        return [
+            "id"   => $user->uuid,
+            "name" => $user->nameFull,
+            "role" => $user->isA('teacher') ? 'teacher' : 'student'
+        ];
+    }
+
+    public static function getByAnswerId($answerId)
+    {
+        return AnswerFeedback::where('answer_id', '=', $answerId)
+            ->select('user_id')->distinct()
+            ->with(['user', 'user.roles'])
+            ->get()
+            ->map(function ($feedback) {
+                return [
+                    "id"   => $feedback->user->uuid,
+                    'name' => $feedback->user->nameFull,
+                    'role' => $feedback->user->isA('teacher') ? 'teacher' : 'student'
+                ];
+            })->toArray();
     }
 
 }

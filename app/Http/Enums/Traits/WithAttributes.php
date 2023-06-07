@@ -5,6 +5,7 @@ namespace tcCore\Http\Enums\Traits;
 use Illuminate\Support\Collection;
 use ReflectionClassConstant;
 use tcCore\Http\Enums\Attributes\Description;
+use tcCore\Http\Enums\Attributes\HexColor;
 use tcCore\Http\Enums\Attributes\Initial;
 use tcCore\Http\Enums\Attributes\Type;
 
@@ -48,6 +49,15 @@ trait WithAttributes
             return null;
         }
         return $instance->type;
+    }
+
+    public function getHexColorCode()
+    {
+        $instance = self::getAttributeInstance($this, HexColor::class);
+        if (!$instance) {
+            return null;
+        }
+        return $instance->hexValue;
     }
 
     private static function getAttributeInstance(self $enum, $attributeClass)

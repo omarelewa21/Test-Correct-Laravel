@@ -79,6 +79,24 @@
                                 <div class="student-answer | w-full | questionContainer"
                                      wire:key="student-answer-{{$this->currentQuestion->uuid.'-'.$this->currentAnswer->uuid}}"
                                 >
+                                    <style>
+                                        :root {
+                                            --active-comment-color: #ff00aa;
+                                            --ck-color-comment-marker-active: var(--active-comment-color);
+                                        }
+
+                                        .ck.ck-editor__main .ck-comment-marker {
+                                            border-top: 0;
+                                            border-bottom: 0;
+                                        }
+
+                                        .ck.ck-editor__main .ck-comment-marker.ck-comment-marker--active{
+                                            color: var(--teacher-primary);
+                                        }
+                                    </style>
+                                    <style id="commentMarkerStyles">
+                                        {!!  $this->commentMarkerStyles !!}
+                                    </style>
                                     <x-dynamic-component
                                             :component="'answer.student.'. str($this->currentQuestion->type)->kebab()"
                                             :question="$this->currentQuestion"
@@ -244,6 +262,29 @@
                             >
                                 {{--TODO ONLY for open question add new configuration with connection to the comments editor --}}
                                 here come given feedback editors...
+                                @foreach($answerFeedback as $comment)
+                                    <x-input.comment-color-picker :comment-thread-id="$comment->thread_id"></x-input.comment-color-picker>
+                                    <div class="flex w-full flex-col border rounded-sm relative bg-white">
+                                        <div class="flex justify-between px-4 pt-2">
+                                            <div class="flex flex-wrap">
+                                                <div class="h-8 w-8 content-fit">
+                                                    <x-icon.profile/>
+                                                </div>
+                                                <div class="flex flex-col">
+                                                    <span>A.Turing</span>
+                                                    <span class="text-[12px]">date</span>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <x-icon.options/>
+                                            </div>
+                                        </div>
+                                        <div class="line-clamp-3 max-h-[70px] mb-3 w-full px-4 ">
+                                            {!!  $comment->message !!}
+                                        </div>
+                                        <div class="absolute h-full w-0 border-2 border-primary rounded-l-sm left-0 top-0"></div>
+                                    </div>
+                                @endforeach
                             </div>
                         </div>
                     </div>

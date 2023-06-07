@@ -22,13 +22,12 @@ class CommentEditor extends RichTextarea
         ?bool                   $restrictWords = false,
         ?bool                   $textFormatting = true,
         ?bool                   $mathmlFunctions = true,
+        null|string|int         $answerId = null,
     ) {
         $this->userId = auth()->user()->uuid;
-        $this->users = [
-            (array) CommentUser::fromModel(User::find(1486)),
-            (array) CommentUser::fromModel(User::find(1485)),
-        ];
-        $this->commentThreads = AnswerFeedback::getCommentThreadsByAnswerId(265);
+
+        $this->users = CommentUser::getByAnswerId($answerId);
+        $this->commentThreads = AnswerFeedback::getCommentsData($answerId);
 
         $this->editorProperties[] = 'userId';
         $this->editorProperties[] = 'users';

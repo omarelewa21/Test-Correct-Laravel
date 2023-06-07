@@ -21,6 +21,7 @@
                     :textFormatting="$question->text_formatting"
                     :mathmlFunctions="$question->mathml_functions"
                     :lang="$question->lang"
+                    :answerId="$answer->getKey()"
             >{!! $answerValue !!}</x-input.comment-editor>
             @else
             <x-input.rich-textarea

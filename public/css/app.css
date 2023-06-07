@@ -9972,6 +9972,9 @@ video {
 .h-screen{
   height: 100vh;
 }
+.h-\[70px\]{
+  height: 70px;
+}
 .max-h-0{
   max-height: 0px;
 }
@@ -9995,6 +9998,9 @@ video {
 }
 .max-h-full{
   max-height: 100%;
+}
+.max-h-\[70px\]{
+  max-height: 70px;
 }
 .\!min-h-0{
   min-height: 0px !important;
@@ -10861,6 +10867,9 @@ video {
 .overflow-ellipsis{
   text-overflow: ellipsis;
 }
+.text-clip{
+  text-overflow: clip;
+}
 .whitespace-nowrap{
   white-space: nowrap;
 }
@@ -10903,6 +10912,9 @@ video {
 }
 .rounded-xl{
   border-radius: 0.75rem;
+}
+.rounded-\[2px\]{
+  border-radius: 2px;
 }
 .rounded-b-\[10px\]{
   border-bottom-right-radius: 10px;
@@ -11004,6 +11016,9 @@ video {
 }
 .border-t-3{
   border-top-width: 3px;
+}
+.border-l-2{
+  border-left-width: 2px;
 }
 .border-dashed{
   border-style: dashed;
@@ -11678,6 +11693,9 @@ video {
 .pt-\[70px\]{
   padding-top: 70px;
 }
+.pb-3{
+  padding-bottom: 0.75rem;
+}
 .text-left{
   text-align: left;
 }
@@ -11743,6 +11761,9 @@ video {
 .text-xs{
   font-size: 0.75rem;
   line-height: 1rem;
+}
+.text-\[12px\]{
+  font-size: 12px;
 }
 .font-bold{
   font-weight: 700;
@@ -12054,6 +12075,12 @@ video {
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
+}
+.line-clamp-3{
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
 }
 
 :root {
