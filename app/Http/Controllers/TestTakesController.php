@@ -12,6 +12,7 @@ use tcCore\DiscussingParentQuestion;
 use tcCore\Events\CoLearningForceTakenAway;
 use tcCore\GroupQuestion;
 use tcCore\Http\Helpers\BaseHelper;
+use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Requests\NormalizeTestTakeRequest;
 use tcCore\Lib\Question\QuestionGatherer;
@@ -1326,5 +1327,12 @@ class TestTakesController extends Controller
         return Response::make($testTake);
     }
 
-
+    public function openDetail(TestTake $testTake)
+    {
+        $stage = $testTake->determineTestTakeStage();
+        if ($stage === 'planned') {
+            return redirect(route('teacher.test-take.planned', $testTake->uuid));
+        }
+        return TestTake::redirectToDetail($testTake->uuid, url()->referrer());
+    }
 }
