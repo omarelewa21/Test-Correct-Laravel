@@ -7,32 +7,49 @@
      x-on:slider-toggle-value-updated.window="toggleTicked($event.detail)"
      wire:key="page-{{ $this->questionNavigationValue.$this->answerNavigationValue.$this->updatePage }}"
 >
+
     <x-partials.header.assessment :testName="$testName" />
     @if($this->headerCollapsed)
         <div class="flex min-h-[calc(100vh-var(--header-height))] relative">
             <x-partials.evaluation.main-content :question="$this->currentQuestion"
                                                 :group="$this->currentGroup"
-                                                :unique-key="$this->questionNavigationValue.$this->answerNavigationValue"
+                                                :unique-key="$this->questionNavigationValue.$this->answerNavigationValue.$this->headerCollapsed"
                                                 :navigation-value="$this->questionNavigationValue"
                                                 :group-panel="$this->groupPanel"
                                                 :question-panel="$this->questionPanel"
                                                 :answer-model-panel="$this->answerModelPanel"
                                                 :show-correction-model="true"
+                                                class="mt-20"
             >
                 <x-slot:subHeader>
-                    <div class="progress-bar-container | fixed-sub-header-container h-4 bg-white/50 border-bluegrey border-y fixed top-[calc(var(--header-height)+4px)] left-0 z-1">
-                        <span @class([
-                                'progress-bar | sticky top-[100px] flex items-center justify-end absolute left-0 h-[calc(1rem-2px)] bg-primary pr-2',
-                                'rounded-r-full' => $this->progress < 100
-                             ])
-                              style="width: @js($this->progress)%;"
-                        >
-                            <span @class([
-                                'text-xs',
-                                'text-sysbase absolute -right-6' => $this->progress <= 5,
-                                'text-white' => $this->progress > 5,
-                            ])>@js($this->progress)%</span>
-                        </span>
+                    <div class="nav-container | fixed-sub-header-container h-20 bg-lightGrey border-bluegrey border-b top-[var(--header-height)] z-1">
+                        <x-partials.necklace-navigation :position="$this->questionNavigationValue">
+                            <x-slot:loopSlot>
+                                @foreach($this->questions as $question)
+                                    <div @class(['flex flex-col gap-1 items-center'])>
+                                        <div @class([
+                                            'question-number | relative mt-px inline-flex rounded-full text-center justify-center items-center cursor-default',
+                                            'done'           => true,
+                                            'system-rated'   => !$question->isDiscussionTypeOpen,
+                                            'fully-rated'    => $question->isDiscussionTypeOpen && $question->doneAssessing,
+                                            'active'         => (int)$this->questionNavigationValue === $loop->iteration,
+                                            'cursor-pointer' => $question->navEnabled
+                                        ])
+                                             @if($question->navEnabled)
+                                                 x-on:click="loadQuestion(@js($loop->iteration))"
+                                             @else
+                                                 title="{{ $this->getTitleTagForNavigation($question) }}"
+                                                @endif
+                                        >
+                                            <span class="align-middle px-1.5">@js($loop->iteration)</span>
+                                            @if($question->connector)
+                                                <span class="connector"></span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </x-slot:loopSlot>
+                        </x-partials.necklace-navigation>
                     </div>
                 </x-slot:subHeader>
                 <x-slot:answerBlock>
@@ -118,7 +135,7 @@
                                           'info' => $this->currentAnswerCoLearningRatingsHasNoDiscrepancy(),
                                           ])
                         >
-                            <x-icon.co-learning class="min-w-min"/>
+                            <x-icon.co-learning class="min-w-min" />
                             <span class="bold">@lang($this->getDiscrepancyTranslationKey())</span>
                         </div>
                     @endif

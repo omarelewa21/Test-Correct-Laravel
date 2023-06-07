@@ -8849,6 +8849,24 @@ document.addEventListener("alpine:init", function () {
           clearTimeout(_this54.intersectionCountdown);
           _this54.slideToActiveQuestionBubble();
         }, 5000);
+      },
+      loadQuestion: function loadQuestion(number) {
+        var _this55 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee17() {
+          return _regeneratorRuntime().wrap(function _callee17$(_context17) {
+            while (1) switch (_context17.prev = _context17.next) {
+              case 0:
+                _this55.$dispatch('assessment-drawer-tab-update', {
+                  tab: 1
+                });
+                _context17.next = 3;
+                return _this55.$wire.loadQuestion(number);
+              case 3:
+              case "end":
+                return _context17.stop();
+            }
+          }, _callee17);
+        }))();
       }
     };
   });
@@ -8858,27 +8876,27 @@ document.addEventListener("alpine:init", function () {
       changing: false,
       language: language,
       startLanguageChange: function startLanguageChange(event, wireModelName) {
-        var _this55 = this;
-        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee17() {
-          return _regeneratorRuntime().wrap(function _callee17$(_context17) {
-            while (1) switch (_context17.prev = _context17.next) {
+        var _this56 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee18() {
+          return _regeneratorRuntime().wrap(function _callee18$(_context18) {
+            while (1) switch (_context18.prev = _context18.next) {
               case 0:
-                _this55.$dispatch('language-loading-start');
-                _this55.changing = true;
-                _context17.next = 4;
-                return _this55.$wire.set(wireModelName, _this55.language);
+                _this56.$dispatch('language-loading-start');
+                _this56.changing = true;
+                _context18.next = 4;
+                return _this56.$wire.set(wireModelName, _this56.language);
               case 4:
-                _this55.$nextTick(function () {
+                _this56.$nextTick(function () {
                   setTimeout(function () {
-                    _this55.changing = false;
-                    _this55.$dispatch('language-loading-end');
+                    _this56.changing = false;
+                    _this56.$dispatch('language-loading-end');
                   }, 1500);
                 });
               case 5:
               case "end":
-                return _context17.stop();
+                return _context18.stop();
             }
-          }, _callee17);
+          }, _callee18);
         }))();
       }
     };
@@ -8891,7 +8909,7 @@ document.addEventListener("alpine:init", function () {
         this.setHeightToAspectRatio(this.$el);
       },
       setHeightToAspectRatio: function setHeightToAspectRatio(element) {
-        var _this56 = this;
+        var _this57 = this;
         var aspectRatioWidth = 940;
         var aspectRatioHeight = 500;
         var aspectRatio = aspectRatioHeight / aspectRatioWidth;
@@ -8904,7 +8922,7 @@ document.addEventListener("alpine:init", function () {
         if (newHeight <= 0) {
           if (this.currentTry <= this.maxTries) {
             setTimeout(function () {
-              return _this56.setHeightToAspectRatio(element);
+              return _this57.setHeightToAspectRatio(element);
             }, 50);
             this.currentTry++;
           }
@@ -8937,16 +8955,16 @@ document.addEventListener("alpine:init", function () {
       maxWords: maxWords,
       wordContainer: null,
       init: function init() {
-        var _this57 = this;
+        var _this58 = this;
         this.$nextTick(function () {
-          _this57.editor = ClassicEditors[editorId];
-          _this57.wordContainer = _this57.$root.querySelector(".ck-word-count__words");
-          _this57.wordContainer.style.display = "flex";
-          _this57.wordContainer.parentElement.style.display = "flex";
-          _this57.addMaxWordsToWordCounter(_this57.maxWords);
+          _this58.editor = ClassicEditors[editorId];
+          _this58.wordContainer = _this58.$root.querySelector(".ck-word-count__words");
+          _this58.wordContainer.style.display = "flex";
+          _this58.wordContainer.parentElement.style.display = "flex";
+          _this58.addMaxWordsToWordCounter(_this58.maxWords);
         });
         this.$watch("maxWords", function (value) {
-          _this57.addMaxWordsToWordCounter(value);
+          _this58.addMaxWordsToWordCounter(value);
         });
       },
       addMaxWordsToWordCounter: function addMaxWordsToWordCounter(value) {

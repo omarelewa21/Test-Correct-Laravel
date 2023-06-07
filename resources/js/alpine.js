@@ -2395,6 +2395,10 @@ document.addEventListener("alpine:init", () => {
                 clearTimeout(this.intersectionCountdown);
                 this.slideToActiveQuestionBubble();
             }, 5000);
+        },
+        async loadQuestion(number) {
+            this.$dispatch('assessment-drawer-tab-update', {tab: 1})
+            await this.$wire.loadQuestion(number);
         }
     }));
     Alpine.data("accountSettings", (language) => ({
