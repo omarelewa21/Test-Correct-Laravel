@@ -6840,7 +6840,9 @@ document.addEventListener("alpine:init", function () {
                 _this13.$store.questionBank.inGroup = false;
               case 8:
                 _this13.next(_this13.$refs.home);
-                _this13.$dispatch("backdrop");
+                if (!_this13.$store.cms.emptyState) {
+                  _this13.$dispatch("backdrop");
+                }
               case 10:
               case "end":
                 return _context2.stop();
@@ -7459,8 +7461,15 @@ document.addEventListener("alpine:init", function () {
         chart.scroller().outline;
         chart.interactivity().hoverMode("single");
         this.subjects.forEach(function (el, index) {
+          var totalDefinitions = ["Vak totaal", "Subject total", "Attainement total", "Eindterm totaal"];
+          var strokeWidth = 2;
+          var strokeColor = _this23.colors[index];
           var cnt = index + 1;
           var mapping = table.mapAs();
+          if (totalDefinitions.includes(el)) {
+            strokeWidth = 3;
+            strokeColor = "var(--system-base)";
+          }
           mapping.addField("value", cnt);
           var series = chart.plot(0).line(mapping);
           series.name(el);
@@ -7472,7 +7481,7 @@ document.addEventListener("alpine:init", function () {
           marker1.enabled(true);
           marker1.size(4);
           marker1.type("circle");
-          series.normal().stroke(_this23.colors[index], 2);
+          series.normal().stroke(strokeColor, strokeWidth);
           series.connectMissingPoints(true);
         });
         chart.title("");
@@ -8131,7 +8140,7 @@ document.addEventListener("alpine:init", function () {
           this.resetStoredData();
         }
         if ((0,lodash__WEBPACK_IMPORTED_MODULE_6__.isString)(this.shadowScore)) {
-          this.shadowScore = this.isFloat(initialScore) ? parseFloat(initialScore) : parseInt(initialScore);
+          this.shadowScore = isFloat(initialScore) ? parseFloat(initialScore) : parseInt(initialScore);
         }
         this.$nextTick(function () {
           return _this33.$dispatch("slider-score-updated", {
@@ -8153,14 +8162,11 @@ document.addEventListener("alpine:init", function () {
         console.warn("No navigation component found for the specified name.");
       },
       toggleTicked: function toggleTicked(event) {
-        var parsedValue = this.isFloat(event.value) ? parseFloat(event.value) : parseInt(event.value);
+        var parsedValue = isFloat(event.value) ? parseFloat(event.value) : parseInt(event.value);
         this.setNewScore(parsedValue, event.state, event.firstTick);
         this.updateAssessmentStore();
         this.dispatchNewScoreToSlider();
         this.updateLivewireComponent(event);
-      },
-      isFloat: function isFloat(value) {
-        return parseFloat(value.match(/^-?\d*(\.\d+)?$/)) > 0;
       },
       getCurrentScore: function getCurrentScore() {
         return this.halfPoints ? Math.round(this.shadowScore * 2) / 2 : Math.round(this.shadowScore);
@@ -8547,6 +8553,8 @@ document.addEventListener("alpine:init", function () {
       inputBox: null,
       focusInput: focusInput,
       continuousSlider: continuousSlider,
+      bars: [],
+      halfTotal: false,
       getSliderBackgroundSize: function getSliderBackgroundSize(el) {
         if (this.score === null) return 0;
         var min = el.min || 0;
@@ -8630,6 +8638,12 @@ document.addEventListener("alpine:init", function () {
             _this49.inputBox.focus();
           });
         }
+        this.bars = this.maxScore;
+        console.log(this.halfPoints);
+        if (this.halfPoints) {
+          this.halfTotal = this.hasMaxDecimalScoreWithHalfPoint();
+          this.bars = this.maxScore / 0.5;
+        }
       },
       markInputElementsWithError: function markInputElementsWithError() {
         if (this.disabled) return;
@@ -8647,6 +8661,14 @@ document.addEventListener("alpine:init", function () {
         if (numberInput !== null) {
           this.setSliderBackgroundSize(numberInput);
         }
+      },
+      sliderPillClasses: function sliderPillClasses(value) {
+        var score = this.halfTotal || this.halfPoints ? this.score * 2 : this.score;
+        var first = (value / 2 + "").split(".")[1] === '5';
+        return value <= score ? "bg-primary border-primary highlight ".concat(first ? 'first' : 'second') : "border-bluegrey opacity-100 ".concat(first ? 'first' : 'second');
+      },
+      hasMaxDecimalScoreWithHalfPoint: function hasMaxDecimalScoreWithHalfPoint() {
+        return isFloat(this.maxScore);
       }
     };
   });
@@ -9286,7 +9308,10 @@ clearFilterPillsFromElement = function clearFilterPillsFromElement(rootElement) 
     return pill.remove();
   });
 };
-
+isFloat = function isFloat(value) {
+  var splitValues = (value + "").split(".");
+  return splitValues[1] !== undefined;
+};
 /**
  * Detects fast successive events
  * @param event event to detect

@@ -20,7 +20,6 @@
         </x-input.toggle-row-with-title>
 
         <x-input.toggle-row-with-title wire:model="question.fix_order"
-                                       class="flex-1"
                                        :disabled="isset($preview)">
             <span class="bold"> {{ __('cms.fix_order') }}</span>
         </x-input.toggle-row-with-title>

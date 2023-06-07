@@ -2201,7 +2201,7 @@ document.addEventListener("alpine:init", () => {
             }
         },
         sliderPillClasses(value) {
-            const score = this.halfTotal ? this.score * 2 : this.score;
+            const score = this.halfTotal || this.halfPoints ? this.score * 2 : this.score;
             const first = ((value/2) + "").split(".")[1] === '5';
             return value <= score
                 ? `bg-primary border-primary highlight ${first ? 'first' : 'second'}`

@@ -63,23 +63,13 @@
 
                         @if($halfPoints)
                             <template x-for="scoreOption in bars">
-{{--                                <div class="flex relative rounded-10 h-3 min-w-6 flex-grow border score-slider-pill"--}}
-{{--                                     :class="scoreOption <= score ? 'bg-primary border-primary' : 'border-bluegrey bg-offwhite'"--}}
-{{--                                >--}}
-                                    <div class="score-slider-pill | rounded-10 h-3 min-w-[1rem] flex-grow -mt-[1px] -ml-[1px] border"
-                                         :class="sliderPillClasses(scoreOption)"
-                                    ></div>
-{{--                                    <div class="mid-point-dot | h-[0.375rem] w-[0.375rem] rounded-full absolute bottom-1/2 translate-y-1/2 right-1/2 translate-x-1/2 "--}}
-{{--                                         :class="scoreOption <= score ? 'bg-teacherPrimaryLight' : 'bg-system-secondary'"--}}
-{{--                                    ></div>--}}
-{{--                                    <div class="half-second | rounded-10 h-3 min-w-[1rem] flex-grow -mt-[1px]"--}}
-{{--                                         :class="scoreOption <= score ? 'border bg-primary border-primary' : 'opacity-100'"--}}
-{{--                                    ></div>--}}
-{{--                                </div>--}}
+                                <div class="score-slider-pill | rounded-10 h-3 min-w-[1rem] flex-grow -mt-[1px] -ml-[1px] border"
+                                     :class="sliderPillClasses(scoreOption)"
+                                ></div>
                             </template>
                         @else
                             <template x-for="scoreOption in bars">
-                                <div class="rounded-10 h-3 min-w-[1rem] flex-grow border score-slider-pill"
+                                <div class="score-slider-pill | rounded-10 h-3 min-w-[1rem] flex-grow border"
                                      :class="scoreOption <= score ? 'bg-primary border-primary' : 'bg-offwhite border-bluegrey'"
                                 ></div>
                             </template>
@@ -93,7 +83,7 @@
                                class="score-slider-input w-full hide-thumb"
                                x-model="score"
                                @if(!$hideThumb)
-                               :class="{'hide-thumb': score === null}"
+                                   :class="{'hide-thumb': score === null}"
                                x-on:click="noChangeEventFallback; $nextTick(() => { setThumbOffset(); }) "
                                x-on:input="setThumbOffset();"
                                x-on:change="syncInput(); "
