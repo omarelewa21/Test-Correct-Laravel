@@ -9459,7 +9459,7 @@ window.makeAttachmentResizable = function (element) {
   var original_mouse_x = 0;
   var original_mouse_y = 0;
   var width, height;
-  var img, originalImageWidth, originalImageHeight; // Specific for image attachments
+  var img, imgWidthHeightRatio; // Specific for image attachments
   var _loop = function _loop() {
     var currentResizer = resizers[i];
     currentResizer.addEventListener('mousedown', resizeMouseDown);
@@ -9545,18 +9545,20 @@ window.makeAttachmentResizable = function (element) {
       function setImageProperties() {
         if (typeof img === 'undefined') {
           img = element.querySelector('img');
-          originalImageWidth = img.width;
-          originalImageHeight = img.height;
+          imgWidthHeightRatio = img.height / img.width; // Used to keep aspect ratio when resizing
           img.style.maxWidth = 'initial'; // Remove max width to keep aspect ratio - by default img takes max-width of 100%
           img.closest('.image-max-height').style.maxHeight = 'initial'; // Remove max height from parent dev to allow img expands if bigger than the parent when resized
         }
       }
 
       function setImageWidthAndHeight() {
-        img.style.height = originalImageHeight + 'px';
-        img.style.width = originalImageWidth + 'px';
-        img.style.marginLeft = 'auto';
-        img.style.marginRight = 'auto';
+        var imgParentHeight = img.parentElement.getBoundingClientRect().height;
+        img.style.width = '100%';
+        img.style.height = img.width * imgWidthHeightRatio + 'px';
+        if (imgParentHeight > img.height) {
+          img.style.height = '100%';
+          img.style.width = img.height / imgWidthHeightRatio + 'px';
+        }
       }
     }
   };
