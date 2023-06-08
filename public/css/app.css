@@ -13037,6 +13037,11 @@ ul ul ul {
   color: rgb(31 41 55 / var(--tw-text-opacity));
 }
 
+.active\:text-primary:active{
+  --tw-text-opacity: 1;
+  color: rgb(0 77 245 / var(--tw-text-opacity));
+}
+
 .group:last-child .group-last\:border-r-0{
   border-right-width: 0px;
 }
