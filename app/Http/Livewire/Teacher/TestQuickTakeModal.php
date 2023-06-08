@@ -50,7 +50,6 @@ class TestQuickTakeModal extends TCModalComponent
                 'testTake.allow_inbrowser_testing' => 'required|boolean',
                 'testTake.guest_accounts'          => 'required|boolean',
                 'testTake.notify_students'         => 'required|boolean',
-                'testTake.allow_wsc'               => 'sometimes|required|boolean',
                 'testTake.show_grades'             => 'sometimes|boolean',
                 'testTake.show_correction_model'   => 'sometimes|boolean',
             ];
@@ -77,7 +76,6 @@ class TestQuickTakeModal extends TCModalComponent
         $this->testTake = new TestTake();
         $this->setFeatureSettingDefaults($this->testTake);
         $this->testTake->is_rtti_test_take = false;
-        $this->testTake->allow_wsc = false;
     }
 
     public function hydrate()
