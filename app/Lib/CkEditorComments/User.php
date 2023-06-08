@@ -20,7 +20,9 @@ class User
 
     public static function getByAnswerId($answerId)
     {
-        return AnswerFeedback::where('answer_id', '=', $answerId)
+        $user = auth()->user();
+
+        $temp = AnswerFeedback::where('answer_id', '=', $answerId)
             ->select('user_id')->distinct()
             ->with(['user', 'user.roles'])
             ->get()
@@ -30,7 +32,18 @@ class User
                     'name' => $feedback->user->nameFull,
                     'role' => $feedback->user->isA('teacher') ? 'teacher' : 'student'
                 ];
-            })->toArray();
+            })->when(function ($collection) {
+                //the authenticated user has to be always available in the users data
+                return $collection->collect()->where('id', '=', auth()->user()->uuid)->isEmpty();
+            }, function ($collection) use ($user) {
+                $collection->add([
+                    "id"   => $user->uuid,
+                    'name' => $user->nameFull,
+                    'role' => $user->isA('teacher') ? 'teacher' : 'student'
+                ]);
+            });
+
+        return $temp;
     }
 
 }

@@ -67,7 +67,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     public bool $isCoLearningScore = false;
     public bool $skipNoDiscrepancies = false;
 
-    public $answerFeedback = [];
+    public $answerFeedback;
 
     /* Lifecycle methods */
     protected function getListeners(): array
@@ -96,7 +96,9 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
     public function booted(): void
     {
-        $this->getSortedAnswerFeedback();
+        if ($this->headerCollapsed) {
+            $this->getSortedAnswerFeedback();
+        }
 
         if ($this->skipBooted) {
             return;
@@ -1387,11 +1389,13 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     {
         $this->answerFeedback = $this->currentAnswer->feedback->fresh()->sortBy(function ($feedback) {
             return $feedback->comment_id !== null;
-        }) ?? [];
+        });
     }
 
     public function getCommentMarkerStylesProperty() : string
     {
+        $this->getSortedAnswerFeedback();
+
         return $this->answerFeedback->reduce(function ($carry, $feedback) {
             return $carry = $carry . <<<STYLE
                 .ck-comment-marker[data-comment="{$feedback->thread_id}"]{

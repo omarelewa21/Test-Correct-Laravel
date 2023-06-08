@@ -13,6 +13,7 @@
     >
         <x-input.group for="me" class="w-full disabled mt-4">
             @if($studentAnswer) {{--TODO: make property that differiate between editor with comments and without --}}
+            @js($answer->getKey())
             <x-input.comment-editor
                     :allowWsc="$webSpellChecker"
                     :editor-id="$editorId"

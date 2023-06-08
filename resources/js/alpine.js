@@ -2634,6 +2634,7 @@ document.addEventListener("alpine:init", () => {
                 this.$wire.updateCommentColor(event.detail);
             });
 
+
             /*document.querySelector( '#get-data' ).addEventListener( 'click', () => {
 
                 //get comment threads as json:
