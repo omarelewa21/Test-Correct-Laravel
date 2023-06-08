@@ -362,24 +362,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         }
 
         if (!$this->onLastQuestionToAssess()) {
-            $currentAnswerIndex = $this->answersWithDiscrepancyFilter()
-                ->search(fn($answer) => $answer->id === $this->currentAnswer->id);
-            $newAnswer = $this->getClosestAvailableAnswer('incr', $this->answers, $currentAnswerIndex);
-            if (!$newAnswer) {
-                \Bugsnag::notifyException(
-                    new AssessmentException(
-                        'Trying to use the \'next\' button , but there\'s no next answer available.'
-                    )
-                );
-                return true;
-            }
-            $this->answerNavigationValue = $this->getAnswerIndex($newAnswer);
-            $this->currentAnswer = $newAnswer;
-
-            $this->dispatchUpdateQuestionNavigatorEvent(
-                $this->loadQuestion(position: (int)$this->questionNavigationValue + 1, action: 'incr')
-            );
-            return true;
+            return $this->loadAnyNextAnswerWithAction('incr');
         }
 
         throw new AssessmentException('You somehow managed to get this far? Go get a medal you magnificent beast!');
@@ -402,14 +385,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         }
 
         if (!$this->onFirstQuestionToAssess()) {
-            $currentAnswerIndex = $this->answers->search(fn($answer) => $answer->id === $this->currentAnswer->id);
-            $newAnswer = $this->getClosestAvailableAnswer('decr', $this->answers, $currentAnswerIndex);
-            $this->answerNavigationValue = $this->getAnswerIndex($newAnswer);
-
-            $this->dispatchUpdateQuestionNavigatorEvent(
-                $this->loadQuestion(position: (int)$this->questionNavigationValue - 1, action: 'decr')
-            );
-            return true;
+            return $this->loadAnyNextAnswerWithAction('decr');
         }
 
         throw new AssessmentException(
@@ -1338,5 +1314,30 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
                         'rating'       => 0,
                     ]);
             });
+    }
+
+    /**
+     * @return true
+     * @throws AssessmentException
+     */
+    private function loadAnyNextAnswerWithAction(string $action): bool
+    {
+        $currentAnswerIndex = $this->answers->search(fn($answer) => $answer->id === $this->currentAnswer->id);
+        $newAnswer = $this->getClosestAvailableAnswer($action, $this->answers, $currentAnswerIndex);
+        if (!$newAnswer) {
+            \Bugsnag::notifyException(
+                new AssessmentException(
+                    sprintf('Trying to use the \'%s\' button , but there\'s no next answer available.', $action)
+                )
+            );
+            return true;
+        }
+        $this->answerNavigationValue = $this->getAnswerIndex($newAnswer);
+        $this->currentAnswer = $newAnswer;
+
+        $this->dispatchUpdateQuestionNavigatorEvent(
+            $this->loadQuestion(position: $this->getNavigationValueForQuestion($newAnswer->question), action: $action)
+        );
+        return true;
     }
 }
