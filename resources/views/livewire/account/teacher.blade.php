@@ -433,9 +433,9 @@
                     <div class="border-b border-t border-bluegrey flex w-full items-center h-[50px] gap-2.5">
                         <x-input.toggle wire:model="featureSettings.assessment_skip_no_discrepancy_answer"
                                         class="mr-2 min-w-[var(--switch-width)]" />
-                        <x-icon.co-learning class="min-w-fit" />
+                        <x-icon.co-learning class="min-w-[1rem]" />
                         <span class="bold inline-flex flex-shrink-1">@lang('account.Antwoorden met CO-Learning score overslaan')</span>
-                        <div class="min-w-fit">
+                        <div class="min-w-min">
                             <x-tooltip >@lang('assessment.discrepancies_toggle_tooltip')</x-tooltip>
                         </div>
                     </div>

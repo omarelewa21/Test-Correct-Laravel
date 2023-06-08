@@ -2,23 +2,23 @@
 
 namespace tcCore\Http\Enums;
 
-use tcCore\Http\Enums\Attributes\HexColor;
+use tcCore\Http\Enums\Attributes\Color;
 use tcCore\Http\Enums\Traits\WithAttributes;
 
 enum CommentMarkerColor: string
 {
     use WithAttributes;
 
-    #[HexColor('#004df566')]
+    #[Color(0, 77, 245)]
     case BLUE = 'blue';
-    #[HexColor('#75de8a')]
+    #[Color(117, 222, 138)]
     case GREEN = 'green';
-    #[HexColor('#dd84ff')]
+    #[Color(221, 132, 255)]
     case PURPLE = 'purple';
-    #[HexColor('#ffd084')]
+    #[Color(255, 208, 132 )]
     case ORANGE = 'orange';
-    #[HexColor('#ff8484')]
+    #[Color(255, 132, 132)]
     case RED = 'red';
-    #[HexColor('#84ffe0')]
+    #[Color(132, 255, 224)]
     case MINT = 'mint';
 }

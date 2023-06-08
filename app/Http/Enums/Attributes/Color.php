@@ -5,9 +5,11 @@ namespace tcCore\Http\Enums\Attributes;
 use Attribute;
 
 #[Attribute]
-class HexColor
+class Color
 {
     public function __construct(
-        public string $hexValue,
+        public int $red,
+        public int $green,
+        public int $blue,
     ) {}
 }

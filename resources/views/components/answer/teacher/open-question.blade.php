@@ -11,8 +11,9 @@
          }"
          x-on:block-expanded.window="handleExpand($event)"
     >
+
         <x-input.group for="me" class="w-full disabled mt-4">
-            @if($studentAnswer) {{--TODO: make property that differiate between editor with comments and without --}}
+            @if($studentAnswer)
             @js($answer->getKey())
             <x-input.comment-editor
                     :allowWsc="$webSpellChecker"
@@ -23,6 +24,7 @@
                     :mathmlFunctions="$question->mathml_functions"
                     :lang="$question->lang"
                     :answerId="$answer->getKey()"
+                    :commentMarkerStyles="$commentMarkerStyles"
             >{!! $answerValue !!}</x-input.comment-editor>
             @else
             <x-input.rich-textarea

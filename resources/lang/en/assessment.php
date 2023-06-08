@@ -45,4 +45,5 @@ return [
     'Inline feedback bekijken'                     => 'View inline feedback',
     'Gegeven feedback'                             => 'Attached feedback',
     'Feedback schrijven'                           => 'Write feedback',
+    'scored_by_one_student'                        => 'Notice: scored by one student.',
 ];

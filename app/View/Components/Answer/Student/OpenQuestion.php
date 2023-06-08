@@ -15,6 +15,7 @@ class OpenQuestion extends QuestionComponent
         public Answer   $answer,
         public string $editorId,
         public bool $webSpellChecker = false,
+        public string $commentMarkerStyles = '',
     )
     {
         parent::__construct($question, $answer);

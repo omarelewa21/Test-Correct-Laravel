@@ -79,24 +79,6 @@
                                 <div class="student-answer | w-full | questionContainer"
                                      wire:key="student-answer-{{$this->currentQuestion->uuid.'-'.$this->currentAnswer->uuid}}"
                                 >
-                                    <style>
-                                        :root {
-                                            --active-comment-color: #ff00aa;
-                                            --ck-color-comment-marker-active: var(--active-comment-color);
-                                        }
-
-                                        .ck.ck-editor__main .ck-comment-marker {
-                                            border-top: 0;
-                                            border-bottom: 0;
-                                        }
-
-                                        .ck.ck-editor__main .ck-comment-marker.ck-comment-marker--active{
-                                            color: var(--teacher-primary);
-                                        }
-                                    </style>
-                                    <style id="commentMarkerStyles">
-                                        {!!  $this->commentMarkerStyles !!}
-                                    </style>
                                     <x-dynamic-component
                                             :component="'answer.student.'. str($this->currentQuestion->type)->kebab()"
                                             :question="$this->currentQuestion"
@@ -105,6 +87,7 @@
                                             :editorId="'editor-'.$this->questionNavigationValue.'-'.$this->answerNavigationValue"
                                             :disabled-toggle="true"
                                             :webSpellChecker="$this->currentQuestion->spell_check_available"
+                                            :commentMarkerStyles="$this->commentMarkerStyles"
                                     />
                                 </div>
                             </x-slot:body>
@@ -137,8 +120,8 @@
                                           'info' => $this->currentAnswerCoLearningRatingsHasNoDiscrepancy(),
                                           ])
                         >
-                            <x-icon.co-learning/>
-                            <span class="bold">@lang($this->currentAnswerCoLearningRatingsHasNoDiscrepancy() ? 'assessment.no_discrepancy' : 'assessment.discrepancy')</span>
+                            <x-icon.co-learning class="min-w-min"/>
+                            <span class="bold">@lang($this->getDiscrepancyTranslationKey())</span>
                         </div>
                     @endif
                     @if($this->showAutomaticallyScoredToggle)

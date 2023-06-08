@@ -23,7 +23,9 @@ class CommentEditor extends RichTextarea
         ?bool                   $textFormatting = true,
         ?bool                   $mathmlFunctions = true,
         null|string|int         $answerId = null,
-    ) {
+        public string           $commentMarkerStyles = '',
+    )
+    {
         $this->userId = auth()->user()->uuid;
 
         $this->users = CommentUser::getByAnswerId($answerId);

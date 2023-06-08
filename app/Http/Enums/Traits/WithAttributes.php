@@ -5,7 +5,7 @@ namespace tcCore\Http\Enums\Traits;
 use Illuminate\Support\Collection;
 use ReflectionClassConstant;
 use tcCore\Http\Enums\Attributes\Description;
-use tcCore\Http\Enums\Attributes\HexColor;
+use tcCore\Http\Enums\Attributes\Color;
 use tcCore\Http\Enums\Attributes\Initial;
 use tcCore\Http\Enums\Attributes\Type;
 
@@ -51,13 +51,33 @@ trait WithAttributes
         return $instance->type;
     }
 
-    public function getHexColorCode()
+    public function getHexColorCode($opacity = 1)
     {
-        $instance = self::getAttributeInstance($this, HexColor::class);
+        $instance = self::getAttributeInstance($this, Color::class);
         if (!$instance) {
             return null;
         }
-        return $instance->hexValue;
+
+        $red = dechex($instance->red);
+        $green = dechex($instance->green);
+        $blue = dechex($instance->blue);
+
+        if($opacity >= 1) {
+            return sprintf('#%s%s%s', $red, $green, $blue);
+        }
+
+        $opacity = dechex(round($opacity*255));
+
+        return sprintf('#%s%s%s%s', $red, $green, $blue, $opacity);
+    }
+
+    public function getRgbColorCode($opacity = 1)
+    {
+        $instance = self::getAttributeInstance($this, Color::class);
+        if (!$instance) {
+            return null;
+        }
+        return sprintf('rgba(%s,%s,%s,%s)', $instance->red, $instance->green, $instance->blue, $opacity);
     }
 
     private static function getAttributeInstance(self $enum, $attributeClass)
