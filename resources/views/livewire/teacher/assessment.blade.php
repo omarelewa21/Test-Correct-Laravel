@@ -10,7 +10,11 @@
     <x-partials.header.assessment :testName="$testName"/>
     @if($this->headerCollapsed)
         <div class="flex min-h-[calc(100vh-var(--header-height))] relative"
-             x-data="AnswerFeedback(@js('editor-'.$this->questionNavigationValue.'-'.$this->answerNavigationValue), @js('feedback-editor-'.$this->questionNavigationValue.'-'.$this->answerNavigationValue), @js(auth()->user()->uuid))">
+             x-data="AnswerFeedback(
+                @js('editor-'.$this->questionNavigationValue.'-'.$this->answerNavigationValue),
+                @js('feedback-editor-'.$this->questionNavigationValue.'-'.$this->answerNavigationValue),
+                @js(auth()->user()->uuid)
+             )">
             <x-partials.evaluation.main-content :question="$this->currentQuestion"
                                                 :group="$this->currentGroup"
                                                 :unique-key="$this->questionNavigationValue.$this->answerNavigationValue"
@@ -190,21 +194,21 @@
                         <div class="space-y-4">
                             <span class="flex bold border-t border-blue-grey pt-2 justify-between items-center" >
                                 <span>@lang('assessment.Feedback toevoegen')</span>
-                                {{-- todo make accordion functional --}}
                                 <span class="w-4 h-4 flex justify-center items-center" :class="addFeedbackOpen ? 'rotate-svg-90' : ''" @click="addFeedbackOpen =! addFeedbackOpen"><x-icon.chevron></x-icon.chevron></span>
                             </span>
 
-                            <div class="flex w-full flex-col gap-2" x-show="addFeedbackOpen"
+                            <div class="flex w-full flex-col gap-2" x-show="addFeedbackOpen" x-collapse
                                  wire:key="feedback-editor-{{  $this->questionNavigationValue.'-'.$this->answerNavigationValue }}"
                             >
                                 <span>@lang('assessment.Feedback schrijven')</span>
-                                {{--TODO ONLY for open question add new configuration with connection to the comments editor --}}
                                 @if($this->currentQuestion->type === 'OpenQuestion')
                                     <x-input.rich-textarea type="assessment-feedback"
                                                            :editorId="'feedback-editor-'. $this->questionNavigationValue.'-'.$this->answerNavigationValue"
-                                            {{--:disabled="$this->currentQuestion->isSubType('writing')"--}}
                                     />
-                                    <x-button.cta @click="saveCommentThread">save</x-button.cta>
+                                    <div class="flex justify-end space-x-4 h-fit">
+                                        <x-button.text-button size="sm">@lang('modal.annuleren')</x-button.text-button>
+                                        <x-button.cta class="block" @click="createCommentThread">@lang('general.save')</x-button.cta>
+                                    </div>
                                 @else
                                 <x-input.rich-textarea type="assessment-feedback"
                                                        :editorId="'feedback-editor-'. $this->questionNavigationValue.'-'.$this->answerNavigationValue"
@@ -213,6 +217,8 @@
                                 />
                                 @endif
 
+
+                                {{-- TODO: make exception for existing writing assignments? --}}
 
                                 {{--@if($this->currentQuestion->isSubType('writing'))
                                     <x-button.primary class="!p-0 justify-center"
@@ -233,43 +239,50 @@
                                 @endif--}}
                             </div>
                         </div>
+                        @if($this->currentQuestion->type === 'OpenQuestion')
                         <div class="space-y-4">
                             <span class="flex bold border-t border-blue-grey pt-2 justify-between items-center" >
                                 <span>@lang('assessment.Gegeven feedback')</span>
                                 {{-- todo make accordion functional --}}
-                                <span class="w-4 h-4 flex justify-center items-center" :class="givenFeedbackOpen ? 'rotate-svg-90' : ''" @click="givenFeedbackOpen =! givenFeedbackOpen"><x-icon.chevron></x-icon.chevron></span>
+                                <span class="w-4 h-4 flex justify-center items-center" :class="givenFeedbackOpen ? 'rotate-svg-90' : ''" @click="givenFeedbackOpen =! givenFeedbackOpen">
+                                    <x-icon.chevron></x-icon.chevron>
+                                </span>
                             </span>
 
-                            <div class="flex w-full flex-col gap-2" x-show="givenFeedbackOpen"
+                            <div class="flex w-full flex-col gap-2" x-show="givenFeedbackOpen" x-collapse
                                  wire:key="feedback-editor-{{  $this->questionNavigationValue.'-'.$this->answerNavigationValue }}"
                             >
                                 {{--TODO ONLY for open question add new configuration with connection to the comments editor --}}
-                                here come given feedback editors...
                                 @foreach($answerFeedback as $comment)
                                     <x-input.comment-color-picker :comment-thread-id="$comment->thread_id"></x-input.comment-color-picker>
-                                    <div class="flex w-full flex-col border rounded-sm relative bg-white">
+                                    <div class="flex w-full flex-col border rounded-sm relative bg-white" data-thread-id="{{$comment->thread_id}}">
                                         <div class="flex justify-between px-4 pt-2">
-                                            <div class="flex flex-wrap">
-                                                <div class="h-8 w-8 content-fit">
-                                                    <x-icon.profile/>
+                                            <div class="flex flex-wrap space-x-2">
+                                                <div class="h-[30px] w-[30px] flex items-center justify-center border rounded-full border-bluegrey overflow-hidden">
+                                                    <x-icon.profile class="scale-[1.7] translate-y-0.5 opacity-50"/>
                                                 </div>
                                                 <div class="flex flex-col">
-                                                    <span>A.Turing</span>
-                                                    <span class="text-[12px]">date</span>
+                                                    <span class="leading-none">{{ $comment->user->nameFull }}</span>
+                                                    <span class="text-[12px]">{{ $comment->updated_at->format('j M. \'y') }}</span>
                                                 </div>
                                             </div>
-                                            <div>
+                                            <div @click="deleteCommentThread(@js($comment->thread_id), @js($comment->uuid))">
                                                 <x-icon.options/>
                                             </div>
                                         </div>
                                         <div class="line-clamp-3 max-h-[70px] mb-3 w-full px-4 ">
                                             {!!  $comment->message !!}
                                         </div>
-                                        <div class="absolute h-full w-0 border-2 border-primary rounded-l-sm left-0 top-0"></div>
+                                        <div @class([
+                                        "absolute h-full w-0 border-2 rounded-l-sm left-0 top-0",
+                                        "border-primary" => $comment->user->isA('teacher'),
+                                        "border-student" => !$comment->user->isA('teacher'),
+                                        ])></div>
                                     </div>
                                 @endforeach
                             </div>
                         </div>
+                            @endif
                     </div>
                 </x-slot:slideTwoContent>
 

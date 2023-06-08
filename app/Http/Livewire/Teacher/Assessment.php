@@ -1376,27 +1376,33 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         $this->updateAnswer(
             updatedAnswerText: $data['answer']
         );
+
+        $this->getSortedAnswerFeedback();
     }
 
 
-    public function deleteCommentThread($threadId)
+    public function deleteCommentThread($threadId, $answerFeedbackUuid)
     {
+        if(!$threadId) {
+            $result = AnswerFeedback::whereUuid($answerFeedbackUuid)->delete();
+            return $result > 0;
+        }
+
         $result = AnswerFeedback::where('thread_id', $threadId)->delete();
+
+        $this->getSortedAnswerFeedback();
 
         return $result > 0;
     }
 
     public function updateExistingComment($data)
     {
-        //dont update answer text when just editing the comment values? answer doesnt change.
-//        $this->updateAnswer(
-//            updatedAnswerText: $data['answer']
-//        );
-
         $this->updateAnswerFeedback(
             threadId: $data['threadId'],
             commentText: $data['message'],
         );
+
+        $this->getSortedAnswerFeedback();
     }
 
     public function updateAnswerText($answerText)
@@ -1429,8 +1435,10 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             return;
         }
 
-        $this->answerFeedback = $this->currentAnswer->feedback->fresh()->sortBy(function ($feedback) {
+        $this->answerFeedback = $this->currentAnswer->feedback()->with('user')->get()->sortBy(function ($feedback) {
             return $feedback->comment_id !== null;
+        })->filter(function ($feedback) {
+            return $feedback->message;
         });
     }
 
@@ -1443,8 +1451,8 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         return $this->answerFeedback->reduce(function ($carry, $feedback) {
             return $carry = $carry . <<<STYLE
                 .ck-comment-marker[data-comment="{$feedback->thread_id}"]{
-                            --ck-color-comment-marker: {$feedback->color} !important;
-                            --ck-color-comment-marker-active: {$feedback->color} !important;
+                            --ck-color-comment-marker: {$feedback->getColor(0.4)} !important;
+                            --ck-color-comment-marker-active: {$feedback->getColor(0.4)} !important;
                         }
             STYLE;
 
@@ -1462,5 +1470,6 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
         $this->getSortedAnswerFeedback();
 
+        return $this->commentMarkerStyles;
     }
 }

@@ -65,8 +65,8 @@
 }
 
 /* ckeditor comments */
-.ck-balloon-panel:has(.ck-thread.ck-thread--active) {
-    display: none;
+.ck.ck-balloon-panel {
+    display: none !important;
 }
 .ck-thread.ck-thread--active {
     display: none;

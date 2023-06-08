@@ -52,7 +52,10 @@ class AnswerFeedback extends Model
         $answerIds = Arr::wrap($answerId);
 
         return self::whereIn('answer_id', $answerIds)->with('user:id,uuid')
-            ->where('comment_id', '<>', 'null')->get()
+            ->where('comment_id', '<>', 'null')
+            ->where('message', '<>', 'null')
+            ->where('message', '<>', '')
+            ->get()
             ->map(function ($answerFeedback) {
                 return [
                     "threadId"   => $answerFeedback->thread_id,
@@ -71,12 +74,13 @@ class AnswerFeedback extends Model
             })->toArray();
     }
 
-    public function getColorAttribute()
+    public function getColor($opacity = 1)
     {
+
         if(!isset($this->comment_color)) {
-            return CommentMarkerColor::BLUE->getHexColorCode();
+            return CommentMarkerColor::BLUE->getRgbColorCode($opacity);
         }
 
-        return CommentMarkerColor::tryFrom($this->comment_color)->getHexColorCode();
+        return CommentMarkerColor::tryFrom($this->comment_color)->getRgbColorCode($opacity);
     }
 }
