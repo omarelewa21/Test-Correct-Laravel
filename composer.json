@@ -17,6 +17,7 @@
 		"dyrynda/laravel-efficient-uuid": "^4.1",
 		"dyrynda/laravel-model-uuid": "^6.2",
 		"fideloper/proxy": "^4.0",
+		"hisorange/browser-detect": "^4.5",
 		"iio/libmergepdf": "^4.0",
 		"laravel/framework": "^9.0",
 		"laravel/legacy-factories": "^1.3",
