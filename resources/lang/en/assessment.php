@@ -45,5 +45,5 @@ return [
     'Inline feedback bekijken'                     => 'View inline feedback',
     'scored_by_one_student'                        => 'Notice: scored by one student.',
     'disabled_nav_closed_question'                 => 'This is a closed question and scored automatically.',
-    'disabled_nav_no_answer'                       => 'There is no answer available for the current student.',
+    'disabled_nav_no_answer'                       => 'There are no answers available for this question.',
 ];

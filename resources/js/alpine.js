@@ -2369,7 +2369,7 @@ document.addEventListener("alpine:init", () => {
         },
         async loadQuestion(number) {
             this.$dispatch('assessment-drawer-tab-update', {tab: 1})
-            await this.$wire.loadQuestion(number);
+            await this.$wire.loadQuestionFromNav(number);
         }
     }));
     Alpine.data("accountSettings", (language) => ({

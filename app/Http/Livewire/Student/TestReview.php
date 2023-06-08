@@ -240,4 +240,9 @@ class TestReview extends EvaluationComponent
         $this->answerPanel = true;
     }
 
+    public function loadQuestionFromNav($position): bool
+    {
+        $this->loadQuestion($position);
+        return true;
+    }
 }

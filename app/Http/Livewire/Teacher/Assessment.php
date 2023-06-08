@@ -1320,7 +1320,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         $enabledQuestionIds = $this->getQuestionIdsForCurrentAssessmentType();
         $this->questions->each(function ($question) use ($enabledQuestionIds) {
             $answers = $this->answersWithDiscrepancyFilter()->where('question_id', $question->id);
-            $question->navEnabled = $enabledQuestionIds->contains($question->id) && $answers->where('test_participant_id', $this->getCurrentParticipantId())->isNotEmpty();
+            $question->navEnabled = $enabledQuestionIds->contains($question->id) && $answers->where('question_id', $question->id)->isNotEmpty();
 
             if (!$question->isDiscussionTypeOpen) {
                 $question->doneAssessing = true;
@@ -1374,6 +1374,27 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         $this->dispatchUpdateQuestionNavigatorEvent(
             $this->loadQuestion(position: $this->getNavigationValueForQuestion($newAnswer->question), action: $action)
         );
+        return true;
+    }
+
+    public function loadQuestionFromNav($position): bool
+    {
+        $nextQuestion = $this->questions->discussionTypeFiltered($this->openOnly)->get($position - 1);
+        if (!$nextQuestion) {
+            return false;
+        }
+
+        $answersForQuestion = $this->getAnswersForCurrentQuestion($nextQuestion);
+        $hasAnswerForCurrentStudent = $answersForQuestion
+            ->where('test_participant_id', $this->getCurrentParticipantId())
+            ->first();
+
+        if (!$hasAnswerForCurrentStudent) {
+            $firstAvailableAnswer = $answersForQuestion->first();
+            $this->setComponentAnswerProperties($firstAvailableAnswer, $this->getAnswerIndex($firstAvailableAnswer));
+        }
+
+        $this->loadQuestion($position);
         return true;
     }
 }

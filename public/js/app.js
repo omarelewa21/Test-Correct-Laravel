@@ -8860,7 +8860,7 @@ document.addEventListener("alpine:init", function () {
                   tab: 1
                 });
                 _context17.next = 3;
-                return _this55.$wire.loadQuestion(number);
+                return _this55.$wire.loadQuestionFromNav(number);
               case 3:
               case "end":
                 return _context17.stop();
