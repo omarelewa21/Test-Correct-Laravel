@@ -42,6 +42,10 @@ return [
     'Afname gepland op'                                                                                                                                => 'Afname gepland op',
     'Gepland door'                                                                                                                                     => 'Gepland door',
     'Afnemen'                                                                                                                                          => 'Afnemen',
-    'Klas'                                                                                     => '{0} Klassen|{1} Klas|[2,*] Klassen',
-    'Surveillant'                                                                                     => '{0} Surveillanten|{1} Surveillant|[2,*] Surveillanten',
+    'Klas'                                                                                                                                             => '{0} Klassen|{1} Klas|[2,*] Klassen',
+    'Surveillant'                                                                                                                                      => '{0} Surveillanten|{1} Surveillant|[2,*] Surveillanten',
+    'Studenten'                                                                                                                                        => 'Studenten',
+    'Studenten toevoegen'                                                                                                                              => 'Studenten toevoegen',
+    'Wijzig instellingen'                                                                                                                               => 'Wijzig instellingen',
+
 ];

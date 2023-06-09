@@ -219,23 +219,4 @@ class TestPlanModal extends TCModalComponent
     {
         return $this->allowedInvigilators->contains(fn($user) => $user['value'] === $this->test->author_id);
     }
-
-    private function getAllowedTeachers()
-    {
-//        /*TODO: Fix this check for published items */
-        if (filled($this->test->scope)) {
-            $query = Teacher::getTeacherUsersForSchoolLocationByBaseSubjectInCurrentYear(Auth::user()->schoolLocation, $this->test->subject()->value('base_subject_id'));
-        } else {
-            $query = Teacher::getTeacherUsersForSchoolLocationBySubjectInCurrentYear(Auth::user()->schoolLocation, $this->test->subject_id);
-        }
-
-        return $query->get()->map(fn($teacher) => ['value' => $teacher->id, 'label' => $teacher->name_full]);
-    }
-
-    private function getAllowedInvigilators()
-    {
-        // invigilators shouldn't be restricted to subject, those users could get to the test anyway
-        $query = Teacher::getTeacherUsersForSchoolLocationInCurrentYear(Auth::user()->schoolLocation);
-        return $query->get()->map(fn($teacher) => ['value' => $teacher->id, 'label' => $teacher->name_full]);
-    }
 }

@@ -555,3 +555,71 @@ input[type=number] {
     border-top-left-radius: var(--ck-border-radius) !important;
     border-top-right-radius: var(--ck-border-radius) !important;
 }
+
+/* Customize the label (the container) */
+.checkbox-container {
+    display: block;
+    position: relative;
+    width: 24px;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* Hide the browser's default checkbox */
+.checkbox-container input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+/* Create a custom checkbox */
+.checkbox-container .checkmark {
+    position: relative;
+    display:flex;
+    top: 0;
+    left: 0;
+    height: 24px;
+    width: 24px;
+    background-color: rgba(var(--system-secondary-rgb), 0.5);
+    border: 1px solid var(--blue-grey);
+    border-radius: 8px;
+    transition: background-color 100ms ease-in-out, border-color 100ms ease-in-out;
+    color: white;
+    justify-content: center;
+    align-items: center;
+}
+
+/* On mouse-over, add a grey background color */
+.checkbox-container:hover input ~ .checkmark {
+    border-color: var(--primary);
+}
+.checkbox-container:active input ~ .checkmark {
+    background-color: rgba(var(--system-secondary-rgb), 0.8);
+}
+
+/* When the checkbox is checked, add a blue background */
+.checkbox-container input:checked ~ .checkmark {
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+
+/* Create the checkmark/indicator (hidden when not checked) */
+.checkmark > svg {
+    position: absolute;
+    display: none;
+}
+
+/* Show the checkmark when checked */
+.checkbox-container input:checked ~ .checkmark > svg {
+    display: block;
+}
+
+/* Style the checkmark/indicator */
+.checkbox-container .checkmark > svg {
+
+}

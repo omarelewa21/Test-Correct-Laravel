@@ -43,7 +43,10 @@ return [
     'Afname gepland op'                                                                                                                                => 'Scheduled',
     'Gepland door'                                                                                                                                     => 'Scheduled by',
     'Afnemen'                                                                                                                                          => 'Start',
-    'Klas'                                                                                     => '{0} Classes|{1} Clas|[2,*] Classes',
-    'Surveillant'                                                                                     => '{0} Invigilators|{1} Invigilator|[2,*] Invigilators',
-
+    'Klas'                                                                                                                                             => '{0} Classes|{1} Clas|[2,*] Classes',
+    'Surveillant'                                                                                                                                      => '{0} Invigilators|{1} Invigilator|[2,*] Invigilators',
+    'Studenten'                                                                                                                                        => 'Students',
+    'Studenten toevoegen'                                                                                                                              => 'Add Students',
+    'Wijzig instellingen'                                                                                                                              => 'Edit settings',
+    ''                                                                                                                              => 'Edit settings',
 ];

@@ -107,21 +107,21 @@
                                             id="choices_invigilators"
                                             wire:key='allowed-invigilators'
                                             hasErrors="{{ $this->getErrorBag()->has('request.invigilators') ? 'true': '' }}"
-                                                                />
+                    />
 
-                                                                <div id="selected_invigilators" wire:ignore class="space-x-4 ml-4"></div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="input-section">
-                                                            <div class="toggles | flex flex-col lg:flex-row lg:gap-x-4 flex-wrap mb-4">
-                                                                <x-input.toggle-row-with-title wire:model="request.allow_inbrowser_testing"
-                                                                                               :toolTip="__('teacher.inbrowser_testing_tooltip')"
-                                                                                               :disabled="$this->isAssignmentType() || !auth()->user()->schoolLocation->allow_inbrowser_testing"
-                                                                                               containerClass="border-t w-full lg:w-[calc(50%-0.5rem)]"
-                                                                                               selid="plan-modal-allow-browser"
-                                                                >
-                                                                    <x-icon.web/>
-                                                                    <span class="bold">{{ __('teacher.Browsertoetsen toestaan') }} </span>
+                    <div id="selected_invigilators" wire:ignore class="space-x-4 ml-4"></div>
+                </div>
+            </div>
+            <div class="input-section">
+                <div class="toggles | flex flex-col lg:flex-row lg:gap-x-4 flex-wrap mb-4">
+                    <x-input.toggle-row-with-title wire:model="request.allow_inbrowser_testing"
+                                                   :toolTip="__('teacher.inbrowser_testing_tooltip')"
+                                                   :disabled="$this->isAssignmentType() || !auth()->user()->schoolLocation->allow_inbrowser_testing"
+                                                   containerClass="border-t w-full lg:w-[calc(50%-0.5rem)]"
+                                                   selid="plan-modal-allow-browser"
+                    >
+                        <x-icon.web/>
+                        <span class="bold">{{ __('teacher.Browsertoetsen toestaan') }} </span>
                     </x-input.toggle-row-with-title>
                     <x-input.toggle-row-with-title wire:model="request.guest_accounts"
                                                    :toolTip="__('teacher.guest_accounts_tooltip')"

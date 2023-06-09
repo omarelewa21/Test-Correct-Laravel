@@ -167,12 +167,28 @@
     border-radius: 10px;
     cursor: default;
     align-items: center;
+    transition: background-color 150ms ease-in-out, color 150ms ease-in-out;
+}
+
+.filter-pill.enabled {
+    --filter-pill-background-color: rgba(var(--system-secondary-rgb), .5);
+}
+
+.filter-pill.disabled {
+    --filter-pill-background-color: rgba(var(--system-secondary-rgb), .2);
+    --filter-pill-text-color: var(--note);
 }
 
 .filter-pill > svg {
     display: flex;
     color: var(--mid-grey);
     cursor: pointer;
+}
+.filter-pill.enabled > svg {
+    cursor: default;
+}
+.filter-pill.disabled > svg {
+    color: var(--system-base);
 }
 
 .has-error > .custom-choices {

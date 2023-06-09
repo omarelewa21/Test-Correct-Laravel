@@ -5,6 +5,7 @@ namespace tcCore\Http\Traits\Modal;
 use Illuminate\Support\Facades\Auth;
 use tcCore\Http\Enums\UserFeatureSetting as UserFeatureSettingEnum;
 use tcCore\SchoolClass;
+use tcCore\Teacher;
 use tcCore\UserFeatureSetting;
 
 trait WithPlanningFeatures
@@ -16,9 +17,36 @@ trait WithPlanningFeatures
         $this->rttiExportAllowed = $this->isRttiExportAllowed();
     }
 
+    protected function rules(): array
+    {
+        return $this->getConditionalRules() + [
+                'testTake.weight'                  => 'required|numeric',
+                'testTake.allow_inbrowser_testing' => 'required|boolean',
+                'testTake.guest_accounts'          => 'required|boolean',
+                'testTake.notify_students'         => 'required|boolean',
+                'testTake.allow_wsc'               => 'sometimes|required|boolean',
+                'testTake.show_grades'             => 'sometimes|boolean',
+                'testTake.show_correction_model'   => 'sometimes|boolean',
+                'testTake.time_start'              => 'sometimes|date',
+                'testTake.time_end'                => 'sometimes|date',
+            ];
+    }
+
+    private function getConditionalRules(): array
+    {
+        $conditionalRules = [];
+        if (!$this->testTake->guest_accounts) {
+            $conditionalRules['selectedClasses'] = 'required';
+        }
+        if ($this->rttiExportAllowed) {
+            $conditionalRules['testTake.is_rtti_test_take'] = 'required';
+        }
+        return $conditionalRules;
+    }
+
     public function isRttiExportAllowed(): bool
     {
-        return !! Auth::user()->schoolLocation->is_rtti_school_location;
+        return !!Auth::user()->schoolLocation->is_rtti_school_location;
     }
 
     public function getSchoolClassesProperty()
@@ -73,5 +101,31 @@ trait WithPlanningFeatures
     public function showSpellCheckerToggle(): bool
     {
         return $this->test->getAllowWscForStudentsAttribute();
+    }
+
+
+    protected function getAllowedTeachers()
+    {
+//        /*TODO: Fix this check for published items */
+        if (filled($this->test->scope)) {
+            $query = Teacher::getTeacherUsersForSchoolLocationByBaseSubjectInCurrentYear(
+                Auth::user()->schoolLocation,
+                $this->test->subject()->value('base_subject_id')
+            );
+        } else {
+            $query = Teacher::getTeacherUsersForSchoolLocationBySubjectInCurrentYear(
+                Auth::user()->schoolLocation,
+                $this->test->subject_id
+            );
+        }
+
+        return $query->get()->map(fn($teacher) => ['value' => $teacher->id, 'label' => $teacher->name_full]);
+    }
+
+    protected function getAllowedInvigilators()
+    {
+        // invigilators shouldn't be restricted to subject, those users could get to the test anyway
+        $query = Teacher::getTeacherUsersForSchoolLocationInCurrentYear(Auth::user()->schoolLocation);
+        return $query->get()->map(fn($teacher) => ['value' => $teacher->id, 'label' => $teacher->name_full]);
     }
 }

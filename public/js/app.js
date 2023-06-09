@@ -5757,7 +5757,7 @@ document.addEventListener("alpine:init", function () {
         this.index = Array.prototype.indexOf.call(parent.children, this.$el) + 1;
       },
       dispatchAttachmentLoading: function dispatchAttachmentLoading() {
-        window.dispatchEvent(new CustomEvent('attachment-preview-loading'));
+        window.dispatchEvent(new CustomEvent("attachment-preview-loading"));
       }
     };
   });
@@ -7125,7 +7125,7 @@ document.addEventListener("alpine:init", function () {
       set expanded(value) {
         this.active = value ? this.id : null;
         if (value) {
-          this.$dispatch('block-expanded', {
+          this.$dispatch("block-expanded", {
             id: this.id
           });
           this.$root.querySelectorAll(".slider-button-container").forEach(function (toggle) {
@@ -7249,7 +7249,7 @@ document.addEventListener("alpine:init", function () {
           _this31.$wire.checkLoginFieldsForInput();
         }, 250);
         this.setCurrentFocusInput();
-        this.$watch('hasErrors', function (value) {
+        this.$watch("hasErrors", function (value) {
           _this31.setCurrentFocusInput();
         });
         this.$watch("activeOverlay", function (value) {
@@ -7261,8 +7261,8 @@ document.addEventListener("alpine:init", function () {
       },
       setCurrentFocusInput: function setCurrentFocusInput() {
         var _this32 = this;
-        var name = '' != this.activeOverlay ? this.activeOverlay : this.openTab;
-        var finder = '' != hasErrors ? "[data-focus-tab-error = '".concat(name, "-").concat(hasErrors[0], "']") : "[data-focus-tab = '".concat(name, "']");
+        var name = "" != this.activeOverlay ? this.activeOverlay : this.openTab;
+        var finder = "" != hasErrors ? "[data-focus-tab-error = '".concat(name, "-").concat(hasErrors[0], "']") : "[data-focus-tab = '".concat(name, "']");
         setTimeout(function () {
           var _this32$$root$querySe;
           return (_this32$$root$querySe = _this32.$root.querySelector(finder)) === null || _this32$$root$querySe === void 0 ? void 0 : _this32$$root$querySe.focus();
@@ -7722,7 +7722,7 @@ document.addEventListener("alpine:init", function () {
         if (this.score < 0) {
           this.score = 0;
         }
-        var el = document.querySelector('.score-slider-input');
+        var el = document.querySelector(".score-slider-input");
         var offsetFromCenter = -40;
         offsetFromCenter += this.score / this.maxScore * 80;
         el.style.setProperty("--slider-thumb-offset", "calc(".concat(offsetFromCenter, "% + 1px)"));
@@ -7955,7 +7955,7 @@ document.addEventListener("alpine:init", function () {
       initialized: false,
       init: function init() {
         var _this53 = this;
-        this.navScrollBar = this.$root.querySelector('#navscrollbar');
+        this.navScrollBar = this.$root.querySelector("#navscrollbar");
         this.$nextTick(function () {
           _this53.$root.querySelector(".active").scrollIntoView({
             behavior: "smooth"
@@ -8012,7 +8012,7 @@ document.addEventListener("alpine:init", function () {
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("accountSettings", function (language) {
     return {
-      openTab: 'account',
+      openTab: "account",
       changing: false,
       language: language,
       startLanguageChange: function startLanguageChange(event, wireModelName) {
@@ -8021,7 +8021,7 @@ document.addEventListener("alpine:init", function () {
           return _regeneratorRuntime().wrap(function _callee17$(_context17) {
             while (1) switch (_context17.prev = _context17.next) {
               case 0:
-                _this55.$dispatch('language-loading-start');
+                _this55.$dispatch("language-loading-start");
                 _this55.changing = true;
                 _context17.next = 4;
                 return _this55.$wire.set(wireModelName, _this55.language);
@@ -8029,7 +8029,7 @@ document.addEventListener("alpine:init", function () {
                 _this55.$nextTick(function () {
                   setTimeout(function () {
                     _this55.changing = false;
-                    _this55.$dispatch('language-loading-end');
+                    _this55.$dispatch("language-loading-end");
                   }, 1500);
                 });
               case 5:
@@ -8055,7 +8055,7 @@ document.addEventListener("alpine:init", function () {
         var aspectRatio = aspectRatioHeight / aspectRatioWidth;
         var container = element.closest("#accordion-block, #answer-container");
         if (!container) {
-          console.error('Trying to set drawing image preview aspect ratio on without valid container.');
+          console.error("Trying to set drawing image preview aspect ratio on without valid container.");
           return;
         }
         var newHeight = (container.clientWidth - 82) * aspectRatio;
@@ -8084,7 +8084,7 @@ document.addEventListener("alpine:init", function () {
         var safari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
         var newWidth = el.value.length >= this.previousValue.length ? el.scrollWidth + (safari ? 25 : 2) : el.scrollWidth - 5;
         this.previousValue = el.value;
-        return (newWidth < this.minWidth ? this.minWidth : newWidth) + 'px';
+        return (newWidth < this.minWidth ? this.minWidth : newWidth) + "px";
       }
     };
   });
@@ -8109,13 +8109,94 @@ document.addEventListener("alpine:init", function () {
       },
       addMaxWordsToWordCounter: function addMaxWordsToWordCounter(value) {
         var _this$$root$querySele2;
-        var spanId = 'max-word-span';
+        var spanId = "max-word-span";
         (_this$$root$querySele2 = this.$root.querySelector("#".concat(spanId))) === null || _this$$root$querySele2 === void 0 ? void 0 : _this$$root$querySele2.remove();
         var element = document.createElement("span");
         element.id = spanId;
         element.innerHTML = "/".concat(value !== null && value !== void 0 ? value : 0);
         this.wordContainer.parentNode.append(element);
         this.editor.maxWords = value;
+      }
+    };
+  });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("multiDropdownSelect", function (options) {
+    return {
+      options: options,
+      open: false,
+      openSubs: [],
+      checkedParents: [],
+      checkedItems: [],
+      query: "",
+      init: function init() {
+        var _this58 = this;
+        this.$watch("query", function (value) {
+          return _this58.search(value);
+        });
+      },
+      subToggle: function subToggle(uuid) {
+        this.openSubs = this.toggle(this.openSubs, uuid);
+      },
+      parentToggle: function parentToggle(element, uuid) {
+        var _this59 = this;
+        var checked = this.checkedParents.includes(uuid);
+        element.querySelector("input[type=\"checkbox\"]").checked = !checked;
+        this.checkedParents = this.toggle(this.checkedParents, uuid);
+        var index = this.options.findIndex(function (item) {
+          return item.value === uuid;
+        });
+        this.options[index].children.forEach(function (child) {
+          _this59.checkedItems = _this59[checked ? "remove" : "add"](_this59.checkedItems, child.value);
+        });
+        this.$root.querySelectorAll("[data-parent-id=\"".concat(uuid, "\"] input[type=\"checkbox\"]")).forEach(function (child) {
+          return child.checked = !checked;
+        });
+      },
+      childToggle: function childToggle(element, uuid) {
+        var checked = this.checkedItems.includes(uuid);
+        element.querySelector("input[type=\"checkbox\"]").checked = !checked;
+        this.checkedItems = this.toggle(this.checkedItems, uuid);
+      },
+      toggle: function toggle(list, value) {
+        if (!list.includes(value)) {
+          return this.add(list, value);
+        }
+        return this.remove(list, value);
+      },
+      add: function add(list, value) {
+        if (list.includes(value)) return list;
+        list.push(value);
+        return list;
+      },
+      remove: function remove(list, value) {
+        return list.filter(function (item) {
+          return item !== value;
+        });
+      },
+      search: function search(value) {
+        var _this60 = this;
+        if (value.length === 0) return this.showAllOptions();
+        this.hideAllOptions();
+        var results = this.options.filter(function (parent) {
+          return parent.label.toLowerCase().includes(value);
+        }).map(function (item) {
+          return item.value;
+        });
+        results.forEach(function (item) {
+          return _this60.showOption(".parent[data-id=\"".concat(item, "\"]"));
+        });
+      },
+      showOption: function showOption(selector) {
+        this.$root.querySelector(selector).style.display = "block";
+      },
+      showAllOptions: function showAllOptions() {
+        this.$root.querySelectorAll(".parent").forEach(function (el) {
+          return el.style.display = "block";
+        });
+      },
+      hideAllOptions: function hideAllOptions() {
+        this.$root.querySelectorAll(".parent").forEach(function (el) {
+          return el.style.display = "none";
+        });
       }
     };
   });
@@ -8143,7 +8224,7 @@ document.addEventListener("alpine:init", function () {
     currentScore: null,
     toggleCount: 0,
     clearToProceed: function clearToProceed() {
-      var valuedToggles = document.querySelectorAll('.student-answer .slider-button-container:not(disabled)[data-has-value="true"]').length;
+      var valuedToggles = document.querySelectorAll(".student-answer .slider-button-container:not(disabled)[data-has-value=\"true\"]").length;
       return this.currentScore !== null && valuedToggles >= this.toggleCount;
     },
     resetData: function resetData() {
