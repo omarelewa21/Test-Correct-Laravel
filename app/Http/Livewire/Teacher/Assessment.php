@@ -1362,14 +1362,14 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             'comment_id' => Uuid::uuid4(),
         ]);
 
-        return ['threadId' => $newComment->thread_id, 'commentId' => $newComment->comment_id];
+        return ['threadId' => $newComment->thread_id, 'commentId' => $newComment->comment_id, 'uuid' => $newComment->uuid];
     }
 
     public function saveNewComment($data)
     {
         //update answers_feedback data
         $this->updateAnswerFeedback(
-            threadId: $data['threadId'],
+            uuid: $data['uuid'],
             commentText: $data['message'],
         );
         //update answer text
@@ -1398,7 +1398,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     public function updateExistingComment($data)
     {
         $this->updateAnswerFeedback(
-            threadId: $data['threadId'],
+            uuid: $data['uuid'],
             commentText: $data['message'],
         );
 
@@ -1424,9 +1424,9 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         Answer::updateJson($this->currentAnswer->getKey(), $purifiedAnswerTextJson);
     }
 
-    public function updateAnswerFeedback($threadId, $commentText)
+    public function updateAnswerFeedback($uuid, $commentText)
     {
-        AnswerFeedback::where('thread_id', '=', $threadId)->update(['message' => $commentText]);
+        AnswerFeedback::whereUuid($uuid)->update(['message' => $commentText]);
     }
 
     public function getSortedAnswerFeedback()
@@ -1471,5 +1471,10 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         $this->getSortedAnswerFeedback();
 
         return $this->commentMarkerStyles;
+    }
+
+    public function setContextValues($uuid, $contextData): bool
+    {
+        return true;
     }
 }

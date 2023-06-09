@@ -240,7 +240,7 @@
                             </div>
                         </div>
                         @if($this->currentQuestion->type === 'OpenQuestion')
-                        <div class="space-y-4">
+                        <div class="space-y-4 relative">
                             <span class="flex bold border-t border-blue-grey pt-2 justify-between items-center" >
                                 <span>@lang('assessment.Gegeven feedback')</span>
                                 {{-- todo make accordion functional --}}
@@ -251,34 +251,80 @@
 
                             <div class="flex w-full flex-col gap-2" x-show="givenFeedbackOpen" x-collapse
                                  wire:key="feedback-editor-{{  $this->questionNavigationValue.'-'.$this->answerNavigationValue }}"
+                                 x-data="{
+                                    editingComment: null,
+                                 }"
                             >
                                 {{--TODO ONLY for open question add new configuration with connection to the comments editor --}}
+
+                                <x-menu.context-menu.base context="answer-feedback">
+                                    <x-menu.context-menu.button @click="console.log('open edit version of card for uuid:', uuid); editingComment = uuid;">
+                                        <x-slot:icon><x-icon.edit/></x-slot:icon>
+                                        <x-slot:text>@lang('cms.Wijzigen')</x-slot:text>
+                                    </x-menu.context-menu.button>
+                                    <x-menu.context-menu.button @click="deleteCommentThread(null, uuid)">
+                                        <x-slot:icon><x-icon.trash/></x-slot:icon>
+                                        <x-slot:text>@lang('cms.Verwijderen')</x-slot:text>
+                                    </x-menu.context-menu.button>
+
+                                </x-menu.context-menu.base>
                                 @foreach($answerFeedback as $comment)
+
+                                    {{-- TODO:MAKE COMPONENT: START COMMENT CARD --}}
                                     <x-input.comment-color-picker :comment-thread-id="$comment->thread_id"></x-input.comment-color-picker>
-                                    <div class="flex w-full flex-col border rounded-sm relative bg-white" data-thread-id="{{$comment->thread_id}}">
+                                    <div @class([
+                                        "answer-feedback-card context-menu-container",
+                                        "answer-feedback-card-teacher" => $comment->user->isA('teacher'),
+                                        "answer-feedback-card-student" => !$comment->user->isA('teacher'),
+                                        ])
+                                         data-thread-id="{{$comment->thread_id}}"
+                                         x-init="
+                                         $el.addEventListener('mouseenter', (e) => {
+                                            setActiveCommentThread($el.dataset.threadId);
+                                         });
+                                         $el.addEventListener('mouseleave', (e) => {
+                                            clearActiveCommentThread();
+                                         });
+
+                                         "
+                                    >
                                         <div class="flex justify-between px-4 pt-2">
                                             <div class="flex flex-wrap space-x-2">
-                                                <div class="h-[30px] w-[30px] flex items-center justify-center border rounded-full border-bluegrey overflow-hidden">
-                                                    <x-icon.profile class="scale-[1.7] translate-y-0.5 opacity-50"/>
-                                                </div>
+                                                <x-icon.profile-circle/>
                                                 <div class="flex flex-col">
                                                     <span class="leading-none">{{ $comment->user->nameFull }}</span>
                                                     <span class="text-[12px]">{{ $comment->updated_at->format('j M. \'y') }}</span>
                                                 </div>
                                             </div>
-                                            <div @click="deleteCommentThread(@js($comment->thread_id), @js($comment->uuid))">
-                                                <x-icon.options/>
+                                            <div style="margin-right: -14px;">
+                                                <x-button.options id="comment-options-button-{{$comment->uuid}}"
+                                                                  context="answer-feedback"
+                                                                  :uuid="$comment->uuid"
+                                                                  size="sm"
+                                                >
+                                                </x-button.options>
                                             </div>
                                         </div>
-                                        <div class="line-clamp-3 max-h-[70px] mb-3 w-full px-4 ">
+
+                                        <div class="line-clamp-3 max-h-[70px] mb-3 w-full px-4 " x-show="editingComment !== '{{$comment->uuid}}'">
                                             {!!  $comment->message !!}
                                         </div>
-                                        <div @class([
-                                        "absolute h-full w-0 border-2 rounded-l-sm left-0 top-0",
-                                        "border-primary" => $comment->user->isA('teacher'),
-                                        "border-student" => !$comment->user->isA('teacher'),
-                                        ])></div>
+                                        <div class="flex flex-col" x-show="editingComment === '{{$comment->uuid}}'">
+                                            <x-input.rich-textarea type="assessment-feedback"
+                                                                   :editorId="'update-' . $comment->uuid"
+                                            >
+                                                {{ $comment->message }}
+                                            </x-input.rich-textarea>
+                                            <div class="flex justify-end space-x-4 h-fit">
+                                                <x-button.text-button size="sm" @click="editingComment = null">@lang('modal.annuleren')</x-button.text-button>
+                                                <x-button.cta class="block" @click="updateCommentThread('{{$comment->uuid}}', '{{$comment->thread_id}}')">@lang('general.save')</x-button.cta>
+                                            </div>
+                                        </div>
+
+                                        <div class="answer-feedback-card-line"></div>
                                     </div>
+                                    {{-- TODO:MAKE COMPONENT: END COMMENT CARD --}}
+
                                 @endforeach
                             </div>
                         </div>

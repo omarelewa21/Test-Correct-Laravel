@@ -59,7 +59,7 @@ class CommentEditor extends RichTextarea
 
     protected function getInitMethod()
     {
-        return "RichTextEditor.initAnswerFeedback";
+        return "RichTextEditor.initAnswerEditorWithComments";
     }
 
 }

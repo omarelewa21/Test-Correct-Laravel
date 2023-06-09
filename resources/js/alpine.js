@@ -1569,7 +1569,7 @@ document.addEventListener("alpine:init", () => {
         showEvent: context + "-context-menu-show",
         closeEvent: context + "-context-menu-close",
         init() {
-            this.gridCard = this.$root.closest(".grid-card");
+            this.gridCard = this.$root.closest(".context-menu-container");
         },
         handle() {
             this.menuOpen = !this.menuOpen;
@@ -1608,6 +1608,11 @@ document.addEventListener("alpine:init", () => {
         init() {
             this.menuCard = this.$root.closest("#context-menu-base");
             this.bodyPage = this.$root.closest(".divide-secondary");
+            if(!this.bodyPage) {
+                this.bodyPage = this.$root.closest("body");
+                this.menuOffsetMarginTop -= 10;
+                this.menuOffsetMarginLeft -= 24;
+            }
         },
         preventMenuFallOffScreen() {
             if (this.menuCard.offsetTop + this.menuCard.offsetHeight >= this.bodyPage.offsetHeight + this.bodyPage.offsetTop) {
@@ -2401,14 +2406,6 @@ document.addEventListener("alpine:init", () => {
 
                 styleTagElement.innerHTML = await this.$wire.updateCommentColor(event.detail);
             });
-            this.$watch('activeThread', (value) => {
-                const commentsRepository = ClassicEditors[this.answerEditorId].plugins.get( 'CommentsRepository' );
-                commentsRepository.setActiveCommentThread(value)
-                this.$dispatch("assessment-drawer-tab-update", { tab: 2 });
-
-                let activeFeedbackElement = document.querySelector('[data-thread-id="'+value+'"]');
-
-            });
         },
         async saveCommentThread() {
 
@@ -2426,22 +2423,23 @@ document.addEventListener("alpine:init", () => {
 
         },
 
-        async updateCommentThread(threadId) {
-            this.commentsRepository = this.answerEditor.plugins.get( 'CommentsRepository' );
+        async updateCommentThread(answerFeedbackUuid, threadId) {
+            const answerEditor = ClassicEditors[this.answerEditorId];
+            const answerFeedbackEditor = ClassicEditors['update-'+answerFeedbackUuid];
 
-            //todo this is null unless focus is propely managed and the same.
-            const commentThread = this.commentsRepository.activeCommentThread;
+            // get edited comment text
+            console.log(answerFeedbackEditor.getData());
 
-            const threadEditor = window.ClassicEditors[threadId];
+            // let commentsRepository = answerEditor.plugins.get( 'CommentsRepository' );
+            // //todo this is null unless focus is propely managed and the same.
+            // const commentThread = commentsRepository.activeCommentThread;
+            // // todo make sure the active comment is highlighted while in the editor
+            // commentsRepository.setActiveCommentThread(threadId);
 
-                console.log('livewire call');
-                this.$wire.call('updateExistingComment', {threadId: threadId, message: threadEditor.getData()});
-
-
-            console.log('updaetCommentThread', commentThread);
-            console.log('updaetCommentThread', threadId);
-
-
+            this.$wire.call('updateExistingComment', {
+                uuid: answerFeedbackUuid,
+                message: answerFeedbackEditor.getData()
+            });
 
         },
         async createCommentThread() {
@@ -2461,7 +2459,8 @@ document.addEventListener("alpine:init", () => {
 
             this.$nextTick(async () => {
                 console.log(answerEditor.editing.view.hasDomSelection, 'hasselectgion')
-
+                console.log(answerEditor.plugins.get( 'CommentsRepository' ).activeCommentThread, 'hasselectgion2')
+return;
                 if(answerEditor.editing.view.hasDomSelection) {
 
                     //created feedback record data
@@ -2469,6 +2468,7 @@ document.addEventListener("alpine:init", () => {
 
                     var threadId = feedback.threadId;
                     var commentId = feedback.commentId;
+                    var answerFeedbackUuid = feedback.uuid;
 
                     await answerEditor.execute( 'addCommentThread', { threadId: threadId } );
 
@@ -2478,7 +2478,7 @@ document.addEventListener("alpine:init", () => {
 
                     var updatedAnswerText = answerEditor.getData();
 
-                    this.$wire.saveNewComment({threadId: threadId, message: comment, answer: updatedAnswerText});
+                    this.$wire.saveNewComment({uuid: answerFeedbackUuid, message: comment, answer: updatedAnswerText});
 
                 }
 
@@ -2510,6 +2510,23 @@ document.addEventListener("alpine:init", () => {
                 return;
             }
             console.log('failed to delete answer feedback');
+        },
+        setActiveCommentThread(threadId) {
+            const answerEditor = ClassicEditors[this.answerEditorId];
+            let commentsRepository = answerEditor.plugins.get( 'CommentsRepository' );
+            commentsRepository.setActiveCommentThread(threadId);
+            this.activeThread = threadId;
+
+            if(false) {
+                this.$dispatch("assessment-drawer-tab-update", { tab: 2 });
+            }
+
+
+        },
+        clearActiveCommentThread() {
+            const answerEditor = ClassicEditors[this.answerEditorId];
+            let commentsRepository = answerEditor.plugins.get( 'CommentsRepository' );
+            commentsRepository.setActiveCommentThread(null);
         },
         setFocusTracking() {
             // const commentButtons = document.querySelectorAll('#sidebar .button');

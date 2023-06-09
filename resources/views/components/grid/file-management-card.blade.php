@@ -1,4 +1,4 @@
-<div {{ $attributes->merge(['class' => 'grid-card bg-white p-6 rounded-10 card-shadow hover:text-primary cursor-pointer relative', 'selid' => 'file-management-card']) }}
+<div {{ $attributes->merge(['class' => 'grid-card context-menu-container bg-white p-6 rounded-10 card-shadow hover:text-primary cursor-pointer relative', 'selid' => 'file-management-card']) }}
      wire:loading.class="hidden"
      wire:target="filters,clearFilters,$set"
      wire:click="openDetail(@js($file->uuid))"

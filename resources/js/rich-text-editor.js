@@ -74,52 +74,54 @@ RichTextEditor = {
         )
     },
     initAssessmentFeedback: function(parameterBag) {
-        parameterBag.removeItems = {
-            plugins: [
-                "Essentials",
-                "FontFamily",
-                "FontSize",
-                "FontBackgroundColor",
-                "Heading",
-                "Indent",
-                "FontColor",
-                "RemoveFormat",
-                "PasteFromOffice",
-                "WordCount",
-                "WProofreader",
-                "Completion",
-                "Selection"
-            ],
-            toolbar: [
-                "outdent",
-                "indent",
-                "completion",
-                "selection",
-                "fontFamily",
-                "fontBackgroundColor",
-                "fontSize",
-                "undo",
-                "redo",
-                "fontColor",
-                "heading",
-                "removeFormat",
-                "wproofreader",
-                "specialCharacters"
-            ]
-        };
+        this.setAnswerFeedbackItemsToRemove(parameterBag);
         parameterBag.shouldNotGroupWhenFull = true;
 
-        return this.createTeacherEditor(parameterBag);
-    },
-    initInlineFeedback: function(parameterBag) {
-        return this.createStudentEditor(
+        return this.createTeacherEditor(
             parameterBag,
-            (editor) => this.setupWordCounter(editor, parameterBag)
         );
     },
-    initAnswerFeedback: function(parameterBag) {
-        //todo:
+    initUpdateAnswerFeedbackEditor: function(parameterBag) {
+        this.setAnswerFeedbackItemsToRemove(parameterBag);
+        parameterBag.shouldNotGroupWhenFull = true;
 
+        return this.createTeacherEditor(
+            parameterBag,
+            (editor) => {
+                // editor.ui.view.editable.element.onfocus = (e) => {
+                //
+                //     //todo set active comment thread
+                //     dispatchEvent(new CustomEvent('set-active-comment-thread', {detail: {threadId:  }}))
+                //     window.ClassicEditors[''];
+                // }
+                editor.ui.view.editable.element.onblur = (e) => {
+                    dispatchEvent(new CustomEvent('clear-active-comment-thread'))
+                }
+            }
+        );
+    },
+    initCreateAnswerFeedbackEditor: function(parameterBag) {
+        this.setAnswerFeedbackItemsToRemove(parameterBag);
+        parameterBag.shouldNotGroupWhenFull = true;
+
+        return this.createTeacherEditor(
+            parameterBag,
+            (editor) => {
+                window.addEventListener('answer-feedback-focus-feedback-editor', () => {
+                    editor.focus();
+                })
+            }
+        );
+    },
+    // initInlineFeedback: function(parameterBag) {
+    //     return this.createStudentEditor(
+    //         parameterBag,
+    //         (editor) => this.setupWordCounter(editor, parameterBag)
+    //     );
+    // },
+    initAnswerEditorWithComments: function(parameterBag) {
+
+        //todo:
         return this.createStudentEditor(
             parameterBag,
             (editor) => {
@@ -133,11 +135,16 @@ RichTextEditor = {
     setAnswerFeedbackEventListeners: function (editor) {
         editor.ui.view.editable.element.onblur = (e) => {
             //create a temporary commentThread to mark the selection while creating a new comment
-            editor.execute( 'addCommentThread', { threadId: window.uuidv4() } );
+            // editor.execute( 'addCommentThread', { threadId: window.uuidv4() } );
         }
         editor.ui.view.editable.element.onmouseup = (e) => {
             if(window.getSelection().toString() !== '') {
                 dispatchEvent(new CustomEvent('assessment-drawer-tab-update', {detail: {tab: 2}}));
+                editor.execute( 'addCommentThread', { threadId: window.uuidv4() } );
+
+                dispatchEvent(new CustomEvent('answer-feedback-focus-feedback-editor'));
+
+
                 setTimeout(console.log('select feedback editor here') ,100)
             }
         }
@@ -484,5 +491,40 @@ RichTextEditor = {
             this.getConfigForStudent(parameterBag),
             resolveCallback
         );
-    }
+    },
+    setAnswerFeedbackItemsToRemove: function (parameterBag) {
+        parameterBag.removeItems = {
+            plugins: [
+                "Essentials",
+                "FontFamily",
+                "FontSize",
+                "FontBackgroundColor",
+                "Heading",
+                "Indent",
+                "FontColor",
+                "RemoveFormat",
+                "PasteFromOffice",
+                "WordCount",
+                "WProofreader",
+                "Completion",
+                "Selection"
+            ],
+            toolbar: [
+                "outdent",
+                "indent",
+                "completion",
+                "selection",
+                "fontFamily",
+                "fontBackgroundColor",
+                "fontSize",
+                "undo",
+                "redo",
+                "fontColor",
+                "heading",
+                "removeFormat",
+                "wproofreader",
+                "specialCharacters"
+            ]
+        };
+    },
 };

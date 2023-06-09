@@ -7938,7 +7938,7 @@ document.addEventListener("alpine:init", function () {
       showEvent: context + "-context-menu-show",
       closeEvent: context + "-context-menu-close",
       init: function init() {
-        this.gridCard = this.$root.closest(".grid-card");
+        this.gridCard = this.$root.closest(".context-menu-container");
       },
       handle: function handle() {
         this.menuOpen = !this.menuOpen;
@@ -7978,6 +7978,11 @@ document.addEventListener("alpine:init", function () {
       init: function init() {
         this.menuCard = this.$root.closest("#context-menu-base");
         this.bodyPage = this.$root.closest(".divide-secondary");
+        if (!this.bodyPage) {
+          this.bodyPage = this.$root.closest("body");
+          this.menuOffsetMarginTop -= 10;
+          this.menuOffsetMarginLeft -= 24;
+        }
       },
       preventMenuFallOffScreen: function preventMenuFallOffScreen() {
         if (this.menuCard.offsetTop + this.menuCard.offsetHeight >= this.bodyPage.offsetHeight + this.bodyPage.offsetTop) {
@@ -8993,15 +8998,7 @@ document.addEventListener("alpine:init", function () {
                     return _ref4.apply(this, arguments);
                   };
                 }());
-                _this56.$watch('activeThread', function (value) {
-                  var commentsRepository = ClassicEditors[_this56.answerEditorId].plugins.get('CommentsRepository');
-                  commentsRepository.setActiveCommentThread(value);
-                  _this56.$dispatch("assessment-drawer-tab-update", {
-                    tab: 2
-                  });
-                  var activeFeedbackElement = document.querySelector('[data-thread-id="' + value + '"]');
-                });
-              case 3:
+              case 2:
               case "end":
                 return _context19.stop();
             }
@@ -9032,26 +9029,28 @@ document.addEventListener("alpine:init", function () {
           }, _callee20);
         }))();
       },
-      updateCommentThread: function updateCommentThread(threadId) {
+      updateCommentThread: function updateCommentThread(answerFeedbackUuid, threadId) {
         var _this58 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee21() {
-          var commentThread, threadEditor;
+          var answerEditor, answerFeedbackEditor;
           return _regeneratorRuntime().wrap(function _callee21$(_context21) {
             while (1) switch (_context21.prev = _context21.next) {
               case 0:
-                _this58.commentsRepository = _this58.answerEditor.plugins.get('CommentsRepository');
+                answerEditor = ClassicEditors[_this58.answerEditorId];
+                answerFeedbackEditor = ClassicEditors['update-' + answerFeedbackUuid]; // get edited comment text
+                console.log(answerFeedbackEditor.getData());
 
-                //todo this is null unless focus is propely managed and the same.
-                commentThread = _this58.commentsRepository.activeCommentThread;
-                threadEditor = window.ClassicEditors[threadId];
-                console.log('livewire call');
+                // let commentsRepository = answerEditor.plugins.get( 'CommentsRepository' );
+                // //todo this is null unless focus is propely managed and the same.
+                // const commentThread = commentsRepository.activeCommentThread;
+                // // todo make sure the active comment is highlighted while in the editor
+                // commentsRepository.setActiveCommentThread(threadId);
+
                 _this58.$wire.call('updateExistingComment', {
-                  threadId: threadId,
-                  message: threadEditor.getData()
+                  uuid: answerFeedbackUuid,
+                  message: answerFeedbackEditor.getData()
                 });
-                console.log('updaetCommentThread', commentThread);
-                console.log('updaetCommentThread', threadId);
-              case 7:
+              case 4:
               case "end":
                 return _context21.stop();
             }
@@ -9079,26 +9078,23 @@ document.addEventListener("alpine:init", function () {
                 console.log(' bieb 1');
                 answerEditor.focus();
                 _this59.$nextTick( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee22() {
-                  var feedback, threadId, commentId, newCommentThread, updatedAnswerText;
+                  var feedback, threadId, commentId, answerFeedbackUuid, newCommentThread, updatedAnswerText;
                   return _regeneratorRuntime().wrap(function _callee22$(_context22) {
                     while (1) switch (_context22.prev = _context22.next) {
                       case 0:
                         console.log(answerEditor.editing.view.hasDomSelection, 'hasselectgion');
-                        if (!answerEditor.editing.view.hasDomSelection) {
-                          _context22.next = 13;
-                          break;
-                        }
-                        _context22.next = 4;
-                        return _this59.$wire.createNewComment();
-                      case 4:
+                        console.log(answerEditor.plugins.get('CommentsRepository').activeCommentThread, 'hasselectgion2');
+                        return _context22.abrupt("return");
+                      case 6:
                         feedback = _context22.sent;
                         threadId = feedback.threadId;
                         commentId = feedback.commentId;
-                        _context22.next = 9;
+                        answerFeedbackUuid = feedback.uuid;
+                        _context22.next = 12;
                         return answerEditor.execute('addCommentThread', {
                           threadId: threadId
                         });
-                      case 9:
+                      case 12:
                         newCommentThread = answerEditor.plugins.get('CommentsRepository').getCommentThreads().filter(function (thread) {
                           return thread.id == threadId;
                         })[0];
@@ -9110,11 +9106,11 @@ document.addEventListener("alpine:init", function () {
                         });
                         updatedAnswerText = answerEditor.getData();
                         _this59.$wire.saveNewComment({
-                          threadId: threadId,
+                          uuid: answerFeedbackUuid,
                           message: comment,
                           answer: updatedAnswerText
                         });
-                      case 13:
+                      case 16:
                       case "end":
                         return _context22.stop();
                     }
@@ -9169,6 +9165,18 @@ document.addEventListener("alpine:init", function () {
             }
           }, _callee24);
         }))();
+      },
+      setActiveCommentThread: function setActiveCommentThread(threadId) {
+        var answerEditor = ClassicEditors[this.answerEditorId];
+        var commentsRepository = answerEditor.plugins.get('CommentsRepository');
+        commentsRepository.setActiveCommentThread(threadId);
+        this.activeThread = threadId;
+        if (false) {}
+      },
+      clearActiveCommentThread: function clearActiveCommentThread() {
+        var answerEditor = ClassicEditors[this.answerEditorId];
+        var commentsRepository = answerEditor.plugins.get('CommentsRepository');
+        commentsRepository.setActiveCommentThread(null);
       },
       setFocusTracking: function setFocusTracking() {
         var _this61 = this;
@@ -16419,36 +16427,54 @@ RichTextEditor = {
     });
   },
   initAssessmentFeedback: function initAssessmentFeedback(parameterBag) {
-    parameterBag.removeItems = {
-      plugins: ["Essentials", "FontFamily", "FontSize", "FontBackgroundColor", "Heading", "Indent", "FontColor", "RemoveFormat", "PasteFromOffice", "WordCount", "WProofreader", "Completion", "Selection"],
-      toolbar: ["outdent", "indent", "completion", "selection", "fontFamily", "fontBackgroundColor", "fontSize", "undo", "redo", "fontColor", "heading", "removeFormat", "wproofreader", "specialCharacters"]
-    };
+    this.setAnswerFeedbackItemsToRemove(parameterBag);
     parameterBag.shouldNotGroupWhenFull = true;
     return this.createTeacherEditor(parameterBag);
   },
-  initInlineFeedback: function initInlineFeedback(parameterBag) {
-    var _this7 = this;
-    return this.createStudentEditor(parameterBag, function (editor) {
-      return _this7.setupWordCounter(editor, parameterBag);
+  initUpdateAnswerFeedbackEditor: function initUpdateAnswerFeedbackEditor(parameterBag) {
+    this.setAnswerFeedbackItemsToRemove(parameterBag);
+    parameterBag.shouldNotGroupWhenFull = true;
+    return this.createTeacherEditor(parameterBag, function (editor) {
+      // editor.ui.view.editable.element.onfocus = (e) => {
+      //
+      //     //todo set active comment thread
+      //     dispatchEvent(new CustomEvent('set-active-comment-thread', {detail: {threadId:  }}))
+      //     window.ClassicEditors[''];
+      // }
+      editor.ui.view.editable.element.onblur = function (e) {
+        dispatchEvent(new CustomEvent('clear-active-comment-thread'));
+      };
     });
   },
-  initAnswerFeedback: function initAnswerFeedback(parameterBag) {
-    var _this8 = this;
+  initCreateAnswerFeedbackEditor: function initCreateAnswerFeedbackEditor(parameterBag) {
+    this.setAnswerFeedbackItemsToRemove(parameterBag);
+    parameterBag.shouldNotGroupWhenFull = true;
+    return this.createTeacherEditor(parameterBag, function (editor) {
+      window.addEventListener('answer-feedback-focus-feedback-editor', function () {
+        editor.focus();
+      });
+    });
+  },
+  // initInlineFeedback: function(parameterBag) {
+  //     return this.createStudentEditor(
+  //         parameterBag,
+  //         (editor) => this.setupWordCounter(editor, parameterBag)
+  //     );
+  // },
+  initAnswerEditorWithComments: function initAnswerEditorWithComments(parameterBag) {
+    var _this7 = this;
     //todo:
-
     return this.createStudentEditor(parameterBag, function (editor) {
       WebspellcheckerTlc.lang(editor, parameterBag.lang);
-      _this8.setupWordCounter(editor, parameterBag);
-      _this8.setCommentsOnly(editor); //replaces read-only
-      _this8.setAnswerFeedbackEventListeners(editor);
+      _this7.setupWordCounter(editor, parameterBag);
+      _this7.setCommentsOnly(editor); //replaces read-only
+      _this7.setAnswerFeedbackEventListeners(editor);
     });
   },
   setAnswerFeedbackEventListeners: function setAnswerFeedbackEventListeners(editor) {
     editor.ui.view.editable.element.onblur = function (e) {
       //create a temporary commentThread to mark the selection while creating a new comment
-      editor.execute('addCommentThread', {
-        threadId: window.uuidv4()
-      });
+      // editor.execute( 'addCommentThread', { threadId: window.uuidv4() } );
     };
     editor.ui.view.editable.element.onmouseup = function (e) {
       if (window.getSelection().toString() !== '') {
@@ -16457,6 +16483,10 @@ RichTextEditor = {
             tab: 2
           }
         }));
+        editor.execute('addCommentThread', {
+          threadId: window.uuidv4()
+        });
+        dispatchEvent(new CustomEvent('answer-feedback-focus-feedback-editor'));
         setTimeout(console.log('select feedback editor here'), 100);
       }
     };
@@ -16614,7 +16644,7 @@ RichTextEditor = {
     }
   },
   setupWordCounter: function setupWordCounter(editor, parameterBag) {
-    var _this9 = this;
+    var _this8 = this;
     var wordCountPlugin = editor.plugins.get("WordCount");
     var wordCountWrapper = document.getElementById("word-count-" + parameterBag.editorId);
     if (wordCountWrapper) {
@@ -16626,13 +16656,13 @@ RichTextEditor = {
     this.handleInputWithMaxWords(editor);
     editor.updateMaxWords = function (value) {
       editor.maxWords = parseInt(value);
-      _this9.handleInputWithMaxWords(editor);
+      _this8.handleInputWithMaxWords(editor);
     };
     editor.model.document.on("change:data", function (event, batch) {
-      _this9.handleInputWithMaxWords(editor, event);
+      _this8.handleInputWithMaxWords(editor, event);
     });
     editor.editing.view.document.on("paste", function (event, data) {
-      if (_this9.hasNoWordLimit(editor)) return;
+      if (_this8.hasNoWordLimit(editor)) return;
       var wc = editor.plugins.get("WordCount");
       var maxWords = parseInt(editor.maxWords);
       if (wc.words >= maxWords) {
@@ -16644,7 +16674,7 @@ RichTextEditor = {
       }
     });
     editor.editing.view.document.on("keydown", function (event, data) {
-      if (_this9.hasNoWordLimit(editor)) return;
+      if (_this8.hasNoWordLimit(editor)) return;
       if (!editor.disableSpacers) return;
 
       /* Disable spacebar and enter inputs so new words cannot be created;*/
@@ -16715,7 +16745,7 @@ RichTextEditor = {
   },
   createTeacherEditor: function createTeacherEditor(parameterBag) {
     var _arguments = arguments,
-      _this10 = this;
+      _this9 = this;
     return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
       var resolveCallback;
       return _regeneratorRuntime().wrap(function _callee$(_context) {
@@ -16723,7 +16753,7 @@ RichTextEditor = {
           case 0:
             resolveCallback = _arguments.length > 1 && _arguments[1] !== undefined ? _arguments[1] : null;
             _context.next = 3;
-            return _this10.createEditor(parameterBag.editorId, _this10.getConfigForTeacher(parameterBag), resolveCallback);
+            return _this9.createEditor(parameterBag.editorId, _this9.getConfigForTeacher(parameterBag), resolveCallback);
           case 3:
             return _context.abrupt("return", _context.sent);
           case 4:
@@ -16735,7 +16765,7 @@ RichTextEditor = {
   },
   createStudentEditor: function createStudentEditor(parameterBag) {
     var _arguments2 = arguments,
-      _this11 = this;
+      _this10 = this;
     return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
       var resolveCallback;
       return _regeneratorRuntime().wrap(function _callee2$(_context2) {
@@ -16743,7 +16773,7 @@ RichTextEditor = {
           case 0:
             resolveCallback = _arguments2.length > 1 && _arguments2[1] !== undefined ? _arguments2[1] : null;
             _context2.next = 3;
-            return _this11.createEditor(parameterBag.editorId, _this11.getConfigForStudent(parameterBag), resolveCallback);
+            return _this10.createEditor(parameterBag.editorId, _this10.getConfigForStudent(parameterBag), resolveCallback);
           case 3:
             return _context2.abrupt("return", _context2.sent);
           case 4:
@@ -16752,6 +16782,12 @@ RichTextEditor = {
         }
       }, _callee2);
     }))();
+  },
+  setAnswerFeedbackItemsToRemove: function setAnswerFeedbackItemsToRemove(parameterBag) {
+    parameterBag.removeItems = {
+      plugins: ["Essentials", "FontFamily", "FontSize", "FontBackgroundColor", "Heading", "Indent", "FontColor", "RemoveFormat", "PasteFromOffice", "WordCount", "WProofreader", "Completion", "Selection"],
+      toolbar: ["outdent", "indent", "completion", "selection", "fontFamily", "fontBackgroundColor", "fontSize", "undo", "redo", "fontColor", "heading", "removeFormat", "wproofreader", "specialCharacters"]
+    };
   }
 };
 

@@ -56,6 +56,8 @@ class RichTextarea extends Component
             'student-co-learning' => "RichTextEditor.initStudentCoLearning",
             'student-preview' => "RichTextEditor.initClassicEditorForStudentPreviewplayer",
             'assessment-feedback' => "RichTextEditor.initAssessmentFeedback",
+            'create-answer-feedback' => "RichTextEditor.initCreateAnswerFeedbackEditor",
+            'update-answer-feedback' => "RichTextEditor.initUpdateAnswerFeedbackEditor",
             default => "RichTextEditor.initClassicEditorForStudentPlayer",
         };
     }

@@ -9,7 +9,7 @@
             --ck-color-comment-marker-active: var(--active-comment-color);
         }
 
-        .ck.ck-editor__main .ck-comment-marker {
+        .ck.ck-editor__main p > .ck-comment-marker {
             border: 1px solid transparent;
             display: inline-block;
             margin-top: 12px;
@@ -36,7 +36,7 @@
             }, 200)
 
             $el.addEventListener('click', () => {
-                activeThread = thread.threadId;
+                setActiveCommentThread(thread.threadId);
             });
         ">
             <x-icon.feedback-text/>
