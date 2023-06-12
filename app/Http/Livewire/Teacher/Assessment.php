@@ -1437,9 +1437,11 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
         $this->answerFeedback = $this->currentAnswer->feedback()->with('user')->get()->sortBy(function ($feedback) {
             return $feedback->comment_id !== null;
-        })->filter(function ($feedback) {
-            return $feedback->message;
         });
+        //also show empty comments
+//        ->filter(function ($feedback) {
+//            return $feedback->message;
+//        });
     }
 
     public function getCommentMarkerStylesProperty() : string
@@ -1467,6 +1469,19 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
         AnswerFeedback::where('thread_id', '=', $data['threadId'])
             ->update(['comment_color' => $data['color']]);
+
+        $this->getSortedAnswerFeedback();
+
+        return $this->commentMarkerStyles;
+    }
+    public function updateCommentEmoji($data)
+    {
+        if(!isset($data['uuid']) || !isset($data['emoji'])) {
+            return false;
+        }
+
+        AnswerFeedback::whereUuid($data['uuid'])
+            ->update(['comment_emoji' => $data['emoji']]);
 
         $this->getSortedAnswerFeedback();
 

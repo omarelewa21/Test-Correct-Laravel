@@ -56,6 +56,12 @@
     transition: 100ms ease-in-out;
 }
 
+button.button {
+    -webkit-user-select: none;
+       -moz-user-select: none;
+            user-select: none;
+}
+
 .button:focus {
     outline: none;
 }
@@ -218,6 +224,7 @@ button.cta-button:disabled, a.cta-button:disabled {
 .cta-button > *,
 .primary-button > * {
     z-index: 3;
+    position: relative;
 }
 
 .primary-button:hover,
@@ -8607,30 +8614,35 @@ span.completion-response-object-container{
     border-radius: 2px 10px 10px 2px;
     padding: 1px;
     border-left: 1px !important;
+    transition: margin-left 300ms linear, margin-right 300ms linear;
+    box-shadow: 1px 2px 4px 0 rgba(4, 31, 116, 0.15);
 }
 
 .answer-feedback-card:hover,
 .answer-feedback-card:active,
+.answer-feedback-card-active,
 .answer-feedback-card:focus {
     border-width: 2px;
+    --tw-border-opacity: 1;
+    border-color: rgb(0 77 245 / var(--tw-border-opacity));
     padding: 0px;
     padding-left: 1px !important;
 }
 
-
-.answer-feedback-card-teacher.answer-feedback-card:hover,
-.answer-feedback-card-teacher.answer-feedback-card:active,
-.answer-feedback-card-teacher.answer-feedback-card:focus {
-    --tw-border-opacity: 1;
-    border-color: rgb(0 77 245 / var(--tw-border-opacity));
+.answer-feedback-card:hover {
+    background-color: #f3f7ff;
 }
 
-.answer-feedback-card-student.answer-feedback-card:hover,
-.answer-feedback-card-student.answer-feedback-card:active,
-.answer-feedback-card-student.answer-feedback-card:focus {
-    --tw-border-opacity: 1;
-    border-color: rgb(236 219 0 / var(--tw-border-opacity));
+.answer-feedback-card-active {
+    margin-left: -1rem;
+    margin-right: -1rem;
+    width: auto;
 }
+
+.answer-feedback-card:is(:hover, :active, .active, :focus) :is(.feedback-card-message, .feedback-card-datetime, .feedback-card-name) {
+    color: var(--teacher-primary);
+}
+
 
 .answer-feedback-card-line {
     position: absolute;
@@ -8656,6 +8668,32 @@ span.completion-response-object-container{
 .answer-feedback-card-student .answer-feedback-card-line {
     border-color: rgb(var(--student-rgb));
 }
+
+
+/* label color primary when hovering... */
+.comment-emoji-picker,
+.comment-color-picker {
+    margin-bottom: 1.5rem;
+    width: 100%;
+}
+
+.comment-emoji-picker:is(:hover, :active, :focus) .comment-emoji-picker-label,
+.comment-color-picker:is(:hover, :active, :focus) .comment-color-picker-label {
+    color: var(--teacher-Primary);
+}
+
+.comment-emoji-picker-label,
+.comment-color-picker-label {
+    margin-bottom: 5px;
+    margin-top: 0.5rem;
+    width: 100%;
+}
+
+.comment-color-picker-label.disabled {
+    color: var(--mid-grey) !important;
+}
+
+
 /*
 ! tailwindcss v3.2.7 | MIT License | https://tailwindcss.com
 */
@@ -9861,6 +9899,12 @@ video {
 .mt-px{
   margin-top: 1px;
 }
+.mb-\[5px\]{
+  margin-bottom: 5px;
+}
+.-mr-\[14px\]{
+  margin-right: -14px;
+}
 .box-border{
   box-sizing: border-box;
 }
@@ -10044,6 +10088,9 @@ video {
 }
 .h-screen{
   height: 100vh;
+}
+.h-\[34px\]{
+  height: 34px;
 }
 .max-h-0{
   max-height: 0px;
@@ -10289,6 +10336,9 @@ video {
 }
 .w-px{
   width: 1px;
+}
+.w-9{
+  width: 2.25rem;
 }
 .min-w-\[110px\]{
   min-width: 110px;

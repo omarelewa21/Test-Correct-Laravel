@@ -2406,6 +2406,12 @@ document.addEventListener("alpine:init", () => {
 
                 styleTagElement.innerHTML = await this.$wire.updateCommentColor(event.detail);
             });
+            document.addEventListener('comment-emoji-updated', async (event) => {
+
+                let styleTagElement = document.querySelector('#commentMarkerStyles');
+
+                styleTagElement.innerHTML = await this.$wire.updateCommentEmoji(event.detail);
+            });
         },
         async saveCommentThread() {
 
@@ -2449,11 +2455,11 @@ document.addEventListener("alpine:init", () => {
 
             var comment = feedbackEditor.getData();
             console.log(comment);
-            console.log(' bieb 1');
+            console.log('createCommentThread: before early return if comment is empty');
             if(!comment || comment == '<p></p>') {
                 return;
             }
-            console.log(' bieb 1');
+            console.log('createCommentThread: comment is not empty');
 
             answerEditor.focus();
 
@@ -2511,16 +2517,42 @@ return;
             }
             console.log('failed to delete answer feedback');
         },
-        setActiveCommentThread(threadId) {
+        initCommentIcon(el, thread) {
+            let threadElementsList = null;
+
+            setTimeout(() => {
+                const commentMarkers = document.querySelectorAll(`[data-comment='` + thread.threadId+ `']`);
+                const lastCommentMarker = commentMarkers[commentMarkers.length-1];
+
+                el.style.top = (lastCommentMarker.offsetTop - 15) + 'px';
+                el.style.left = (lastCommentMarker.offsetWidth + lastCommentMarker.offsetLeft - 5) + 'px';
+
+                threadElementsList = [...commentMarkers, el];
+
+                threadElementsList.forEach((threadElement) => {
+                    threadElement.addEventListener('click', () => {
+                        this.setActiveCommentThread(thread.threadId, thread.uuid);
+                    });
+                });
+
+            }, 200)
+        },
+        setActiveCommentThread(threadId, answerFeedbackUuid = null) {
             const answerEditor = ClassicEditors[this.answerEditorId];
             let commentsRepository = answerEditor.plugins.get( 'CommentsRepository' );
             commentsRepository.setActiveCommentThread(threadId);
             this.activeThread = threadId;
 
+            if(answerFeedbackUuid) {
+                console.log('now disptachiung: updated-active-comment: ' + answerFeedbackUuid)
+                this.$dispatch("assessment-drawer-tab-update", { tab: 2 });
+
+                this.$dispatch("updated-active-comment", { uuid:  answerFeedbackUuid })
+            }
+
             if(false) {
                 this.$dispatch("assessment-drawer-tab-update", { tab: 2 });
             }
-
 
         },
         clearActiveCommentThread() {

@@ -11,28 +11,33 @@
     @apply flex w-full flex-col border relative bg-white;
     border-radius: 2px 10px 10px 2px;
     padding: 1px;
-    border-left: 1px !important
+    border-left: 1px !important;
+    transition: margin-left 300ms linear, margin-right 300ms linear;
+    box-shadow: 1px 2px 4px 0 rgba(4, 31, 116, 0.15);
 }
 
 .answer-feedback-card:hover,
 .answer-feedback-card:active,
+.answer-feedback-card-active,
 .answer-feedback-card:focus {
-    @apply border-2 p-0;
+    @apply border-2 p-0 border-primary;
     padding-left: 1px !important;
 }
 
-
-.answer-feedback-card-teacher.answer-feedback-card:hover,
-.answer-feedback-card-teacher.answer-feedback-card:active,
-.answer-feedback-card-teacher.answer-feedback-card:focus {
-    @apply border-primary;
+.answer-feedback-card:hover {
+    background-color: #f3f7ff;
 }
 
-.answer-feedback-card-student.answer-feedback-card:hover,
-.answer-feedback-card-student.answer-feedback-card:active,
-.answer-feedback-card-student.answer-feedback-card:focus {
-    @apply border-student;
+.answer-feedback-card-active {
+    margin-left: -1rem;
+    margin-right: -1rem;
+    width: auto;
 }
+
+.answer-feedback-card:is(:hover, :active, .active, :focus) :is(.feedback-card-message, .feedback-card-datetime, .feedback-card-name) {
+    color: var(--teacher-primary);
+}
+
 
 .answer-feedback-card-line {
     @apply absolute w-0 border-2 rounded-l-sm -top-px -left-px h-[calc(100%+2px)];
@@ -50,3 +55,25 @@
 .answer-feedback-card-student .answer-feedback-card-line {
     border-color: rgb(var(--student-rgb));
 }
+
+
+/* label color primary when hovering... */
+.comment-emoji-picker,
+.comment-color-picker {
+    @apply w-full mb-6;
+}
+
+.comment-emoji-picker:is(:hover, :active, :focus) .comment-emoji-picker-label,
+.comment-color-picker:is(:hover, :active, :focus) .comment-color-picker-label {
+    color: var(--teacher-Primary);
+}
+
+.comment-emoji-picker-label,
+.comment-color-picker-label {
+    @apply w-full mb-[5px] mt-2;
+}
+
+.comment-color-picker-label.disabled {
+    color: var(--mid-grey) !important;
+}
+

@@ -33,6 +33,7 @@ return [
     'carousel_explainer'                           => 'Only taken questions are shown',
     'Feedback'                                     => 'Feedback',
     'Feedback toevoegen'                           => 'Add feedback',
+    'Feedback schrijven'                           => 'Write feedback',
     'current_session'                              => ":index/:totalQuestions questions assessed<br>on :date",
     'no_answers'                                   => 'There are no answers to asssess.',
     'Studentnamen tonen'                           => 'Show name of students',
@@ -46,4 +47,6 @@ return [
     'Gegeven feedback'                             => 'Attached feedback',
     'Feedback schrijven'                           => 'Write feedback',
     'scored_by_one_student'                        => 'Notice: scored by one student.',
+    'emoji invoegen'                               => 'Insert emoji',
+    'tekst markeren'                               => 'Mark text',
 ];

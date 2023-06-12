@@ -3,6 +3,7 @@
 namespace tcCore\View\Components\input;
 
 use Illuminate\View\Component;
+use tcCore\Http\Enums\CommentMarkerColor;
 
 class CommentColorPicker extends Component
 {
@@ -15,7 +16,7 @@ class CommentColorPicker extends Component
      */
     public function __construct(
         public ?string $commentThreadId = '',
-        public ?string $color = null,
+        public CommentMarkerColor $value = CommentMarkerColor::BLUE,
     )
     {
         if($this->commentThreadId === null) {

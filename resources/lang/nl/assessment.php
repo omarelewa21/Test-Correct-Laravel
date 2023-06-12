@@ -33,6 +33,7 @@ return [
     'carousel_explainer'                           => 'Alleen de afgenomen vragen worden getoond',
     'Feedback'                                     => 'Feedback',
     'Feedback toevoegen'                           => 'Feedback toevoegen',
+    'Feedback schrijven'                           => 'Feedback schrijven',
     'current_session'                              => ":index/:totalQuestions vragen nagekeken<br>op :date",
     'no_answers'                                   => 'Er zijn geen antwoorden om na te kijken.',
     'Studentnamen tonen'                           => 'Studentnamen tonen',
@@ -46,4 +47,6 @@ return [
     'Gegeven feedback'                             => 'Gegeven feedback',
     'Feedback schrijven'                           => 'Feedback schrijven',
     'scored_by_one_student'                        => 'Let op: gescoord door één student.',
+    'emoji invoegen'                               => 'Emoji invoegen',
+    'tekst markeren'                               => 'Tekst Markeren',
 ];

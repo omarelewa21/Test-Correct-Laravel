@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Arr;
 use tcCore\Http\Enums\Attributes\HexColor;
+use tcCore\Http\Enums\CommentEmoji;
 use tcCore\Http\Enums\CommentMarkerColor;
 use tcCore\Lib\CkEditorComments\CommentThread;
 use tcCore\Traits\UuidTrait;
@@ -60,16 +61,18 @@ class AnswerFeedback extends Model
                 return [
                     "threadId"   => $answerFeedback->thread_id,
                     "comments"   => [[
-                        "commentId"  => $answerFeedback->comment_id,
-                        "authorId"   => $answerFeedback->user->uuid,
-                        "content"    => $answerFeedback->message,
-                        "createdAt"  => $answerFeedback->created_at->format("Y-m-d H:i:s"),
-                        "attributes" => null,
-                    ]],
+                                         "commentId"  => $answerFeedback->comment_id,
+                                         "authorId"   => $answerFeedback->user->uuid,
+                                         "content"    => $answerFeedback->message,
+                                         "createdAt"  => $answerFeedback->created_at->format("Y-m-d H:i:s"),
+                                         "attributes" => null,
+                                     ]],
                     "context"    => null,
                     "resolvedAt" => null,
                     "resolvedBy" => null,
                     "attributes" => [],
+                    "uuid"       => $answerFeedback->uuid,
+                    "iconName"   => CommentEmoji::tryFrom($answerFeedback->comment_emoji)?->getIconComponentName()
                 ];
             })->toArray();
     }

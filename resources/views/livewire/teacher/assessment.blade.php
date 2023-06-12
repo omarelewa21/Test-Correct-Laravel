@@ -206,8 +206,12 @@
                                                            :editorId="'feedback-editor-'. $this->questionNavigationValue.'-'.$this->answerNavigationValue"
                                     />
                                     <div class="flex justify-end space-x-4 h-fit">
-                                        <x-button.text-button size="sm">@lang('modal.annuleren')</x-button.text-button>
-                                        <x-button.cta class="block" @click="createCommentThread">@lang('general.save')</x-button.cta>
+                                        <x-button.text-button size="sm">
+                                            <span>@lang('modal.annuleren')</span>
+                                        </x-button.text-button>
+                                        <x-button.cta class="block" @click="createCommentThread">
+                                            <span>@lang('general.save')</span>
+                                        </x-button.cta>
                                     </div>
                                 @else
                                 <x-input.rich-textarea type="assessment-feedback"
@@ -254,11 +258,26 @@
                                  x-data="{
                                     editingComment: null,
                                  }"
+                                 x-on:updated-active-comment.window="editingComment = $event.detail.uuid; "
+                                 x-init="
+                                    $watch('editingComment', (value) => {
+
+                                /*TODO fix scrolling to card*/
+{{--                                        setTimeout(() => {--}}
+{{--                                            var temp = $el.querySelector(`[data-uuid='${value}']`);--}}
+{{--                                            $el.scrollTo({--}}
+{{--                                                top: '600px',--}}
+{{--                                                behavior: 'smooth'--}}
+{{--                                            });--}}
+{{--                                        }, 200);--}}
+                                    });
+
+                                 "
                             >
                                 {{--TODO ONLY for open question add new configuration with connection to the comments editor --}}
 
                                 <x-menu.context-menu.base context="answer-feedback">
-                                    <x-menu.context-menu.button @click="console.log('open edit version of card for uuid:', uuid); editingComment = uuid;">
+                                    <x-menu.context-menu.button @click="editingComment = uuid;">
                                         <x-slot:icon><x-icon.edit/></x-slot:icon>
                                         <x-slot:text>@lang('cms.Wijzigen')</x-slot:text>
                                     </x-menu.context-menu.button>
@@ -271,32 +290,38 @@
                                 @foreach($answerFeedback as $comment)
 
                                     {{-- TODO:MAKE COMPONENT: START COMMENT CARD --}}
-                                    <x-input.comment-color-picker :comment-thread-id="$comment->thread_id"></x-input.comment-color-picker>
                                     <div @class([
                                         "answer-feedback-card context-menu-container",
                                         "answer-feedback-card-teacher" => $comment->user->isA('teacher'),
                                         "answer-feedback-card-student" => !$comment->user->isA('teacher'),
                                         ])
-                                         data-thread-id="{{$comment->thread_id}}"
-                                         x-init="
-                                         $el.addEventListener('mouseenter', (e) => {
-                                            setActiveCommentThread($el.dataset.threadId);
-                                         });
-                                         $el.addEventListener('mouseleave', (e) => {
-                                            clearActiveCommentThread();
-                                         });
-
-                                         "
+                                        x-bind:class="editingComment === '{{$comment->uuid}}' ? 'answer-feedback-card-active' : ''"
+                                        data-thread-id="{{$comment->thread_id}}"
+                                        data-uuid="{{$comment->uuid}}"
+                                        x-init="
+                                            $el.addEventListener('mouseenter', (e) => {
+                                               setActiveCommentThread($el.dataset.threadId);
+                                            });
+                                            $el.addEventListener('mouseleave', (e) => {
+                                               clearActiveCommentThread();
+                                            });
+                                        "
                                     >
                                         <div class="flex justify-between px-4 pt-2">
                                             <div class="flex flex-wrap space-x-2">
-                                                <x-icon.profile-circle/>
+                                                <x-icon.profile-circle class="text-base"/>
                                                 <div class="flex flex-col">
-                                                    <span class="leading-none">{{ $comment->user->nameFull }}</span>
-                                                    <span class="text-[12px]">{{ $comment->updated_at->format('j M. \'y') }}</span>
+                                                    <span class="leading-none bold feedback-card-name">{{ $comment->user->nameFull }}</span>
+                                                    <span class="text-[12px] feedback-card-datetime">{{ $comment->updated_at->format('j M. \'y') }}</span>
                                                 </div>
                                             </div>
-                                            <div style="margin-right: -14px;">
+                                            <div class="flex items-center justify-center -mr-[14px]">
+                                                <span class="flex items-center justify-center w-9 h-[34px]">
+
+                                                    {{-- todo show emoji here --}}
+                                                    <x-button.colored-circle color="cta"><x-icon.smiley-happy/> </x-button.colored-circle>
+
+                                                </span>
                                                 <x-button.options id="comment-options-button-{{$comment->uuid}}"
                                                                   context="answer-feedback"
                                                                   :uuid="$comment->uuid"
@@ -306,18 +331,28 @@
                                             </div>
                                         </div>
 
-                                        <div class="line-clamp-3 max-h-[70px] mb-3 w-full px-4 " x-show="editingComment !== '{{$comment->uuid}}'">
+                                        <div class="line-clamp-3 max-h-[70px] mb-3 w-full px-4 feedback-card-message" x-show="editingComment !== '{{$comment->uuid}}'">
                                             {!!  $comment->message !!}
                                         </div>
-                                        <div class="flex flex-col" x-show="editingComment === '{{$comment->uuid}}'">
+                                        <div class="flex flex-col mx-4" x-show="editingComment === '{{$comment->uuid}}'">
+
+                                            <x-input.comment-color-picker :comment-thread-id="$comment->thread_id"></x-input.comment-color-picker>
+
+                                            <x-input.comment-emoji-picker :comment-uuid="$comment->uuid"></x-input.comment-emoji-picker>
+
+                                            <span class="">@lang('assessment.Feedback schrijven')</span>
                                             <x-input.rich-textarea type="assessment-feedback"
                                                                    :editorId="'update-' . $comment->uuid"
                                             >
                                                 {{ $comment->message }}
                                             </x-input.rich-textarea>
-                                            <div class="flex justify-end space-x-4 h-fit">
-                                                <x-button.text-button size="sm" @click="editingComment = null">@lang('modal.annuleren')</x-button.text-button>
-                                                <x-button.cta class="block" @click="updateCommentThread('{{$comment->uuid}}', '{{$comment->thread_id}}')">@lang('general.save')</x-button.cta>
+                                            <div class="flex justify-end space-x-4 h-fit mt-2 mb-4">
+                                                <x-button.text-button size="sm" @click="editingComment = null">
+                                                    <span>@lang('modal.annuleren')</span>
+                                                </x-button.text-button>
+                                                <x-button.cta class="block" @click="updateCommentThread('{{$comment->uuid}}', '{{$comment->thread_id}}')">
+                                                    <span>@lang('general.save')</span>
+                                                </x-button.cta>
                                             </div>
                                         </div>
 

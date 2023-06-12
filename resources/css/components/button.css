@@ -10,6 +10,10 @@
     transition: 100ms ease-in-out;
 }
 
+button.button {
+    user-select: none;
+}
+
 .button:focus {
     outline: none;
 }
@@ -172,6 +176,7 @@ button.cta-button:disabled, a.cta-button:disabled {
 .cta-button > *,
 .primary-button > * {
     z-index: 3;
+    position: relative;
 }
 
 .primary-button:hover,

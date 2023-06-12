@@ -4,10 +4,11 @@ namespace tcCore\Http\Enums;
 
 use tcCore\Http\Enums\Attributes\Color;
 use tcCore\Http\Enums\Traits\WithAttributes;
+use tcCore\Http\Enums\Traits\WithColorAttribute;
 
 enum CommentMarkerColor: string
 {
-    use WithAttributes;
+    use WithAttributes, WithColorAttribute;
 
     #[Color(0, 77, 245)]
     case BLUE = 'blue';
