@@ -59,7 +59,7 @@ class QuestionHelper extends BaseHelper
         return 0;
     }
     
-    public function getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($question, $isNewQuestion = false)
+    public function getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($question, $isNewQuestion = false, $markAllAnswersAsCorrect=false)
     {
         $obj = (object) [
             'answers'   => [],
@@ -69,6 +69,8 @@ class QuestionHelper extends BaseHelper
             'status'    => false,
             'message'   => ""
         ];
+
+
         $question = preg_replace_callback(
             '/\[(.*?)\]/i',
             function ($matches) use ($isNewQuestion, $obj, $error) {
@@ -108,6 +110,12 @@ class QuestionHelper extends BaseHelper
             },
             $question
         );
+
+        if ($markAllAnswersAsCorrect) {
+            foreach ($obj->answers as $key => $answer) {
+                $obj->answers[$key]['correct'] = 1;
+            }
+        }
 
         return [
             "error"     => $error->status ? $error->message : false,

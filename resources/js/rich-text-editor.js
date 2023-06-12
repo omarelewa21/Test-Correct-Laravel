@@ -36,6 +36,7 @@ RichTextEditor = {
             (editor) => {
                 WebspellcheckerTlc.lang(editor, parameterBag.lang);
                 this.setReadOnly(editor);
+                window.editor = editor;
             }
         );
     },

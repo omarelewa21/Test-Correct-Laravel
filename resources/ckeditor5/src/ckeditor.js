@@ -60,31 +60,12 @@ class Completion extends Plugin {
             });
 
             button.on('execute', () => {
-                editor.model.change(writer => {
-                    let selection = '';
-                    let range = editor.model.document.selection.getFirstRange()
-                    for(const value of range.getItems()){
-                        selection = selection + value.data;
-                    }
+                let lw = livewire.find(document.getElementById('cms').getAttribute('wire:id'));
+                lw.set('showSelectionOptionsModal', true)
+                // Create the event
+                var event = new CustomEvent("initwithselection");
 
-                    let firstChar = selection[0];
-                    let lastChar = selection[selection.length - 1];
-
-                    if (firstChar == " ") {
-                        firstChar = " [";
-                    } else {
-                        firstChar = "[";
-                    }
-                    if (lastChar == " ") {
-                        lastChar = "] ";
-                    } else {
-                        lastChar = "]";
-                    }
-
-                    editor.model.insertContent(
-                        writer.createText(firstChar + selection + lastChar)
-                    );
-                });
+                window.dispatchEvent(event);
             });
 
             return button;
