@@ -4,7 +4,10 @@
     <div>
         <x-input.multi-dropdown-select :options="$this->dropdownData"
                                        :title="__('teacher.Klassen en studenten')"
+                                       containerId="c_and_s_container-{{ $this->testTakeUuid }}"
         />
+
+        <div id="c_and_s_container-{{ $this->testTakeUuid }}"></div>
 
     </div>
 
@@ -27,7 +30,7 @@
             <div class="flex w-full relative flex-wrap gap-2">
                 @forelse($this->participants as $participant)
                     <div @class([
-                        'filter-pill px-4 gap-2',
+                        'filter-pill px-4 gap-2 h-10',
                         'disabled' => !$participant->present,
                         'enabled' => $participant->present
                         ])

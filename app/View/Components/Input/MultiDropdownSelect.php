@@ -11,6 +11,7 @@ class MultiDropdownSelect extends Component
     public function __construct(
         public string $title,
         public iterable $options,
+        public ?string $containerId = 'multi-select'
     ) {}
 
     public function render(): View

@@ -5426,6 +5426,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _alpinejs_collapse__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @alpinejs/collapse */ "./node_modules/@alpinejs/collapse/dist/module.esm.js");
 /* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
 /* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(lodash__WEBPACK_IMPORTED_MODULE_5__);
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 function _iterableToArrayLimit(arr, i) { var _i = null == arr ? null : "undefined" != typeof Symbol && arr[Symbol.iterator] || arr["@@iterator"]; if (null != _i) { var _s, _e, _x, _r, _arr = [], _n = !0, _d = !1; try { if (_x = (_i = _i.call(arr)).next, 0 === i) { if (Object(_i) !== _i) return; _n = !1; } else for (; !(_n = (_s = _x.call(_i)).done) && (_arr.push(_s.value), _arr.length !== i); _n = !0); } catch (err) { _d = !0, _e = err; } finally { try { if (!_n && null != _i["return"] && (_r = _i["return"](), Object(_r) !== _r)) return; } finally { if (_d) throw _e; } } return _arr; } }
@@ -8119,42 +8123,70 @@ document.addEventListener("alpine:init", function () {
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("multiDropdownSelect", function (options) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("multiDropdownSelect", function (options, containerId) {
     return {
       options: options,
       open: false,
       openSubs: [],
       checkedParents: [],
-      checkedItems: [],
+      checkedChildren: [],
       query: "",
+      searchEmpty: false,
+      pillContainer: null,
       init: function init() {
         var _this58 = this;
+        this.pillContainer = document.querySelector("#".concat(containerId));
         this.$watch("query", function (value) {
           return _this58.search(value);
+        });
+        this.$watch("open", function (value) {
+          if (value) {
+            var dropdown = _this58.$root.querySelector(".dropdown");
+            var top = _this58.$root.getBoundingClientRect().top + _this58.$root.offsetHeight + 16 + parseInt(dropdown.style.maxHeight);
+            var property = top >= screen.availHeight ? "bottom" : "top";
+            dropdown.style[property] = _this58.$root.offsetHeight + 8 + "px";
+          }
         });
       },
       subToggle: function subToggle(uuid) {
         this.openSubs = this.toggle(this.openSubs, uuid);
       },
-      parentToggle: function parentToggle(element, uuid) {
+      parentToggle: function parentToggle(element, parent) {
         var _this59 = this;
-        var checked = this.checkedParents.includes(uuid);
-        element.querySelector("input[type=\"checkbox\"]").checked = !checked;
-        this.checkedParents = this.toggle(this.checkedParents, uuid);
+        var removePill = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+        var checked = this.handleCheckbox(this.checkedParents, parent.value, element);
+        this.checkedParents = this.toggle(this.checkedParents, parent.value);
         var index = this.options.findIndex(function (item) {
-          return item.value === uuid;
+          return item.value === parent.value;
         });
         this.options[index].children.forEach(function (child) {
-          _this59.checkedItems = _this59[checked ? "remove" : "add"](_this59.checkedItems, child.value);
+          _this59.checkedChildren = _this59[checked ? "remove" : "add"](_this59.checkedChildren, child.value);
         });
-        this.$root.querySelectorAll("[data-parent-id=\"".concat(uuid, "\"] input[type=\"checkbox\"]")).forEach(function (child) {
+        this.$root.querySelectorAll("[data-parent-id=\"".concat(parent.value, "\"] input[type=\"checkbox\"]")).forEach(function (child) {
           return child.checked = !checked;
         });
+        this.handleActiveFilters();
       },
-      childToggle: function childToggle(element, uuid) {
-        var checked = this.checkedItems.includes(uuid);
-        element.querySelector("input[type=\"checkbox\"]").checked = !checked;
-        this.checkedItems = this.toggle(this.checkedItems, uuid);
+      childToggle: function childToggle(element, child) {
+        var removePill = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+        var checked = this.handleCheckbox(this.checkedChildren, child.value, element);
+        this.checkedChildren = this.toggle(this.checkedChildren, child.value);
+        var parent = this.options.find(function (parent) {
+          return parent.value === child.customProperties.parentId;
+        });
+        if (checked) {
+          if (this.checkedParents.includes(parent.value)) {
+            this.checkedParents = this.remove(this.checkedParents, parent.value);
+            this.$root.querySelector("[data-id=\"".concat(parent.value, "\"] input[type=\"checkbox\"]")).checked = !checked;
+          }
+        }
+        if (!checked) {
+          if (this.checkedChildrenCount(parent) === parent.children.length) {
+            this.checkedParents = this.add(this.checkedParents, parent.value);
+            this.$root.querySelector("[data-id=\"".concat(parent.value, "\"] input[type=\"checkbox\"]")).checked = !checked;
+          }
+        }
+        this.handleActiveFilters();
       },
       toggle: function toggle(list, value) {
         if (!list.includes(value)) {
@@ -8172,31 +8204,141 @@ document.addEventListener("alpine:init", function () {
           return item !== value;
         });
       },
-      search: function search(value) {
+      handleCheckbox: function handleCheckbox(list, value, element) {
+        var checked = list.includes(value);
+        element.querySelector("input[type=\"checkbox\"]").checked = !checked;
+        return checked;
+      },
+      parentPartiallyToggled: function parentPartiallyToggled(parent) {
+        if (this.checkedParents.includes(parent.value)) {
+          return false;
+        }
+        var result = this.checkedChildrenCount(parent);
+        if (result === 0) return false;
+        return result < parent.children.length;
+      },
+      checkedChildrenCount: function checkedChildrenCount(parent) {
         var _this60 = this;
-        if (value.length === 0) return this.showAllOptions();
+        return parent.children.filter(function (child) {
+          return _this60.checkedChildren.includes(child.value);
+        }).length;
+      },
+      search: function search(value) {
+        var _this61 = this;
+        if (value.length === 0) {
+          this.searchEmpty = false;
+          this.showAllOptions();
+          return;
+        }
         this.hideAllOptions();
-        var results = this.options.filter(function (parent) {
-          return parent.label.toLowerCase().includes(value);
-        }).map(function (item) {
-          return item.value;
-        });
+        var results = this.searchParentsAndChildsLabels(value);
+        this.searchEmpty = results.length === 0;
         results.forEach(function (item) {
-          return _this60.showOption(".parent[data-id=\"".concat(item, "\"]"));
+          return _this61.showOption(item);
         });
       },
-      showOption: function showOption(selector) {
-        this.$root.querySelector(selector).style.display = "block";
+      showOption: function showOption(identifier) {
+        this.$root.querySelector(".option[data-id=\"".concat(identifier, "\"]")).style.display = "flex";
       },
       showAllOptions: function showAllOptions() {
-        this.$root.querySelectorAll(".parent").forEach(function (el) {
-          return el.style.display = "block";
+        this.$root.querySelectorAll(".option").forEach(function (el) {
+          return el.style.display = "flex";
         });
       },
       hideAllOptions: function hideAllOptions() {
-        this.$root.querySelectorAll(".parent").forEach(function (el) {
+        this.$root.querySelectorAll(".option").forEach(function (el) {
           return el.style.display = "none";
         });
+      },
+      searchParentsAndChildsLabels: function searchParentsAndChildsLabels(value) {
+        var parentResults = this.getParentSearchMatches(value);
+        var childResults = this.getChildSearchMatches(value, parentResults);
+        return parentResults.concat(childResults);
+      },
+      getParentSearchMatches: function getParentSearchMatches(value) {
+        return this.options.filter(function (parent) {
+          var uuids = [];
+          if (parent.label.toLowerCase().includes(value)) {
+            uuids.push(parent.value);
+            return true;
+          }
+          var childMatch = parent.children.find(function (child) {
+            return child.label.toLowerCase().includes(value);
+          });
+          return childMatch !== undefined;
+        }).map(function (item) {
+          return item.value;
+        });
+      },
+      getChildSearchMatches: function getChildSearchMatches(value, parentUuids) {
+        return this.options.flatMap(function (parent) {
+          if (!parentUuids.includes(parent.value)) {
+            return null;
+          }
+          var matchingChildren = parent.children.filter(function (child) {
+            return child.label.toLowerCase().includes(value);
+          });
+          /* If no search result for individual students,
+              but a parent is found, return all children */
+          return matchingChildren.length > 0 ? matchingChildren : parent.children;
+        }).filter(Boolean).map(function (item) {
+          return item.value;
+        });
+      },
+      toggleDropdown: function toggleDropdown() {
+        if (this.open) return this.closeDropdown();
+        this.openDropdown();
+      },
+      openDropdown: function openDropdown() {
+        this.open = true;
+      },
+      closeDropdown: function closeDropdown() {
+        this.open = false;
+      },
+      createFilterPill: function createFilterPill(item) {
+        if (this.pillContainer === null) return;
+        if (this.pillContainer.querySelector("#pill-".concat(item.value))) return;
+        var element = this.$root.querySelector("#filter-pill-template").content.firstElementChild.cloneNode(true);
+        element.id = "pill-".concat(item.value);
+        element.selectComponent = this.$root;
+        element.item = item;
+        element.classList.add("filter-pill");
+        element.firstElementChild.innerHTML = item.label;
+        element.dataset.order = this.pillContainer.childElementCount + 1;
+        return this.pillContainer.appendChild(element);
+      },
+      removeFilterPill: function removeFilterPill(event) {
+        var _event$item$customPro;
+        event.element.remove();
+        var toggleFunction = ((_event$item$customPro = event.item.customProperties) === null || _event$item$customPro === void 0 ? void 0 : _event$item$customPro.parent) === false ? "childToggle" : "parentToggle";
+        this[toggleFunction](this.$root.querySelector("[data-id=\"".concat(event.item.value, "\"]")), event.item);
+      },
+      handleActiveFilters: function handleActiveFilters() {
+        var _this62 = this;
+        var currentPillIds = Array.from(this.pillContainer.childNodes).map(function (pill) {
+          return pill.item.value;
+        });
+        var currentlyChecked = this.checkedParents.concat(this.checkedChildren);
+        var pillIdsToCreate = currentlyChecked.filter(function (uuid) {
+          return currentPillIds.contains(uuid);
+        });
+        var pillIdsToRemove = currentPillIds.filter(function (uuid) {
+          return currentlyChecked.contains(uuid);
+        });
+        pillIdsToRemove.forEach(function (uuid) {
+          var _this62$pillContainer;
+          (_this62$pillContainer = _this62.pillContainer.querySelector("#pill-".concat(uuid))) === null || _this62$pillContainer === void 0 ? void 0 : _this62$pillContainer.remove();
+        });
+        this.options.flatMap(function (parent) {
+          return [parent].concat(_toConsumableArray(parent.children));
+        }).filter(function (item) {
+          var _item$customPropertie;
+          if (((_item$customPropertie = item.customProperties) === null || _item$customPropertie === void 0 ? void 0 : _item$customPropertie.parent) === false) {
+            return !_this62.checkedParents.includes(item.customProperties.parentId) && _this62.checkedChildren.includes(item.value);
+          }
+          return _this62.checkedParents.includes(item.value);
+        });
+        debugger;
       }
     };
   });
@@ -8535,6 +8677,9 @@ selectTextContent = function selectTextContent(event) {
   var selection = window.getSelection();
   selection.removeAllRanges();
   selection.addRange(range);
+};
+Array.prototype.contains = function (key) {
+  return this.includes(key);
 };
 
 /***/ }),

@@ -2466,39 +2466,68 @@ document.addEventListener("alpine:init", () => {
         }
     }));
 
-    Alpine.data("multiDropdownSelect", (options) => ({
+    Alpine.data("multiDropdownSelect", (options, containerId) => ({
         options,
         open: false,
         openSubs: [],
         checkedParents: [],
-        checkedItems: [],
+        checkedChildren: [],
         query: "",
+        searchEmpty: false,
+        pillContainer: null,
         init() {
+            this.pillContainer = document.querySelector(`#${containerId}`);
             this.$watch("query", value => this.search(value));
+            this.$watch("open", value => {
+                if (value) {
+                    const dropdown = this.$root.querySelector(".dropdown");
+                    const top = this.$root.getBoundingClientRect().top
+                        + this.$root.offsetHeight
+                        + 16
+                        + parseInt(dropdown.style.maxHeight);
+                    const property = top >= screen.availHeight ? "bottom" : "top";
+                    dropdown.style[property] = this.$root.offsetHeight + 8 + "px";
+                }
+            });
         },
         subToggle(uuid) {
             this.openSubs = this.toggle(this.openSubs, uuid);
         },
-        parentToggle(element, uuid) {
-            const checked = this.checkedParents.includes(uuid);
-            element.querySelector("input[type=\"checkbox\"]").checked = !checked;
+        parentToggle(element, parent, removePill = false) {
+            const checked = this.handleCheckbox(this.checkedParents, parent.value, element);
+            this.checkedParents = this.toggle(this.checkedParents, parent.value);
 
-            this.checkedParents = this.toggle(this.checkedParents, uuid);
-
-            const index = this.options.findIndex(item => item.value === uuid);
+            const index = this.options.findIndex(item => item.value === parent.value);
 
             this.options[index].children.forEach((child) => {
-                this.checkedItems = this[checked ? "remove" : "add"](this.checkedItems, child.value);
+                this.checkedChildren = this[checked ? "remove" : "add"](this.checkedChildren, child.value);
             });
 
-            this.$root.querySelectorAll(`[data-parent-id="${uuid}"] input[type="checkbox"]`)
+            this.$root.querySelectorAll(`[data-parent-id="${parent.value}"] input[type="checkbox"]`)
                 .forEach(child => child.checked = !checked);
-        },
-        childToggle(element, uuid) {
-            const checked = this.checkedItems.includes(uuid);
-            element.querySelector("input[type=\"checkbox\"]").checked = !checked;
 
-            this.checkedItems = this.toggle(this.checkedItems, uuid);
+            this.handleActiveFilters();
+        },
+        childToggle(element, child, removePill = false) {
+            const checked = this.handleCheckbox(this.checkedChildren, child.value, element);
+            this.checkedChildren = this.toggle(this.checkedChildren, child.value);
+
+            const parent = this.options.find(parent => parent.value === child.customProperties.parentId);
+
+            if (checked) {
+                if (this.checkedParents.includes(parent.value)) {
+                    this.checkedParents = this.remove(this.checkedParents, parent.value);
+                    this.$root.querySelector(`[data-id="${parent.value}"] input[type="checkbox"]`).checked = !checked;
+                }
+            }
+
+            if (!checked) {
+                if (this.checkedChildrenCount(parent) === parent.children.length) {
+                    this.checkedParents = this.add(this.checkedParents, parent.value);
+                    this.$root.querySelector(`[data-id="${parent.value}"] input[type="checkbox"]`).checked = !checked;
+                }
+            }
+            this.handleActiveFilters();
         },
         toggle(list, value) {
             if (!list.includes(value)) {
@@ -2514,27 +2543,139 @@ document.addEventListener("alpine:init", () => {
         remove(list, value) {
             return list.filter((item) => item !== value);
         },
+        handleCheckbox(list, value, element) {
+            const checked = list.includes(value);
+            element.querySelector("input[type=\"checkbox\"]").checked = !checked;
+            return checked;
+        },
+        parentPartiallyToggled(parent) {
+            if (this.checkedParents.includes(parent.value)) {
+                return false;
+            }
+
+            const result = this.checkedChildrenCount(parent);
+            if (result === 0) return false;
+
+            return result < parent.children.length;
+        },
+        checkedChildrenCount(parent) {
+            return parent.children.filter((child) => this.checkedChildren.includes(child.value)).length;
+        },
         search(value) {
-            if (value.length === 0) return this.showAllOptions();
+            if (value.length === 0) {
+                this.searchEmpty = false;
+                this.showAllOptions();
+                return;
+            }
 
             this.hideAllOptions();
 
-            let results = this.options
-                .filter(parent => {
-                    return parent.label.toLowerCase().includes(value);
-                })
-                .map(item => item.value);
-
-            results.forEach(item => this.showOption(`.parent[data-id="${item}"]`));
+            const results = this.searchParentsAndChildsLabels(value);
+            this.searchEmpty = results.length === 0;
+            results.forEach(item => this.showOption(item));
         },
-        showOption(selector) {
-            this.$root.querySelector(selector).style.display = "block";
+        showOption(identifier) {
+            this.$root.querySelector(`.option[data-id="${identifier}"]`).style.display = "flex";
         },
         showAllOptions() {
-            this.$root.querySelectorAll(".parent").forEach(el => el.style.display = "block");
+            this.$root.querySelectorAll(".option").forEach(el => el.style.display = "flex");
         },
         hideAllOptions() {
-            this.$root.querySelectorAll(".parent").forEach(el => el.style.display = "none");
+            this.$root.querySelectorAll(".option").forEach(el => el.style.display = "none");
+        },
+        searchParentsAndChildsLabels: function(value) {
+            let parentResults = this.getParentSearchMatches(value);
+            let childResults = this.getChildSearchMatches(value, parentResults);
+            return parentResults.concat(childResults);
+        },
+        getParentSearchMatches(value) {
+            return this.options
+                .filter(parent => {
+                    let uuids = [];
+                    if (parent.label.toLowerCase().includes(value)) {
+                        uuids.push(parent.value);
+                        return true;
+                    }
+                    let childMatch = parent.children.find(child => {
+                        return child.label.toLowerCase().includes(value);
+                    });
+                    return childMatch !== undefined;
+                }).map(item => item.value);
+        },
+        getChildSearchMatches(value, parentUuids) {
+            return this.options.flatMap(parent => {
+                if (!parentUuids.includes(parent.value)) {
+                    return null;
+                }
+                let matchingChildren = parent.children.filter(child => {
+                    return child.label.toLowerCase().includes(value);
+                });
+                /* If no search result for individual students,
+                    but a parent is found, return all children */
+                return matchingChildren.length > 0 ? matchingChildren : parent.children;
+            })
+                .filter(Boolean)
+                .map(item => item.value);
+        },
+        toggleDropdown() {
+            if (this.open) return this.closeDropdown();
+            this.openDropdown();
+        },
+        openDropdown() {
+            this.open = true;
+        },
+        closeDropdown() {
+            this.open = false;
+        },
+        createFilterPill(item) {
+            if (this.pillContainer === null) return;
+            if (this.pillContainer.querySelector(`#pill-${item.value}`)) return;
+
+            const element = this.$root.querySelector("#filter-pill-template").content.firstElementChild.cloneNode(true);
+
+            element.id = `pill-${item.value}`;
+            element.selectComponent = this.$root;
+            element.item = item;
+            element.classList.add("filter-pill");
+            element.firstElementChild.innerHTML = item.label;
+            element.dataset.order = this.pillContainer.childElementCount + 1;
+
+            return this.pillContainer.appendChild(element);
+        },
+        removeFilterPill(event) {
+            event.element.remove();
+            const toggleFunction = event.item.customProperties?.parent === false
+                ? "childToggle"
+                : "parentToggle";
+
+            this[toggleFunction](
+                this.$root.querySelector(`[data-id="${event.item.value}"]`),
+                event.item
+            );
+        },
+        handleActiveFilters() {
+            let currentPillIds = Array.from(this.pillContainer.childNodes).map(pill => pill.item.value);
+            let currentlyChecked = this.checkedParents.concat(this.checkedChildren);
+
+            let pillIdsToCreate = currentlyChecked.filter(uuid => currentPillIds.contains(uuid));
+            let pillIdsToRemove = currentPillIds.filter(uuid => currentlyChecked.contains(uuid));
+
+            pillIdsToRemove.forEach((uuid) => {
+                this.pillContainer.querySelector(`#pill-${uuid}`)?.remove();
+            });
+
+            this.options.flatMap(parent => {
+                return [parent, ...parent.children];
+            }).filter(item => {
+                if (item.customProperties?.parent === false) {
+                    return (!this.checkedParents.includes(item.customProperties.parentId) && this.checkedChildren.includes(item.value));
+                }
+                return this.checkedParents.includes(item.value);
+            })
+            debugger;
+
+
+
         }
     }));
 
