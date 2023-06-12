@@ -95,7 +95,7 @@ class AnalysesAttainmentDashboard extends AnalysesDashboard
     public function redirectBack()
     {
         return redirect(
-            $this->getHelper()->getRouteForSubjectShowByUuid(
+            $this->getHelper()->getRouteForSubjectShow(
                $this->subject
             )
         );
