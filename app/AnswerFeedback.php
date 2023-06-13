@@ -54,8 +54,6 @@ class AnswerFeedback extends Model
 
         return self::whereIn('answer_id', $answerIds)->with('user:id,uuid')
             ->where('comment_id', '<>', 'null')
-            ->where('message', '<>', 'null')
-            ->where('message', '<>', '')
             ->get()
             ->map(function ($answerFeedback) {
                 return [
@@ -63,7 +61,7 @@ class AnswerFeedback extends Model
                     "comments"   => [[
                                          "commentId"  => $answerFeedback->comment_id,
                                          "authorId"   => $answerFeedback->user->uuid,
-                                         "content"    => $answerFeedback->message,
+                                         "content"    => $answerFeedback->message ?: '<p></p>', //ckeditor-comments doesn't allow empty comments
                                          "createdAt"  => $answerFeedback->created_at->format("Y-m-d H:i:s"),
                                          "attributes" => null,
                                      ]],

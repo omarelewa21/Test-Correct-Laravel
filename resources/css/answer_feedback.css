@@ -20,8 +20,14 @@
 .answer-feedback-card:active,
 .answer-feedback-card-active,
 .answer-feedback-card:focus {
-    @apply border-2 p-0 border-primary;
+    @apply border-primary;
     padding-left: 1px !important;
+}
+
+.answer-feedback-card:active,
+.answer-feedback-card-active,
+.answer-feedback-card:focus {
+    @apply border-2 p-0;
 }
 
 .answer-feedback-card:hover {
@@ -43,7 +49,6 @@
     @apply absolute w-0 border-2 rounded-l-sm -top-px -left-px h-[calc(100%+2px)];
 }
 
-.answer-feedback-card:hover .answer-feedback-card-line,
 .answer-feedback-card:active .answer-feedback-card-line,
 .answer-feedback-card:focus .answer-feedback-card-line {
     @apply h-[calc(100%+4px)] -top-[2px]

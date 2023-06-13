@@ -8494,7 +8494,7 @@ span.completion-response-object-container{
 }
 
 .drawer .feedback .ck.ck-editor__main {
-    padding-top: 76px;
+    padding-top: 39px;
 }
 
 .drawer .feedback .ck-dropdown {
@@ -8622,11 +8622,16 @@ span.completion-response-object-container{
 .answer-feedback-card:active,
 .answer-feedback-card-active,
 .answer-feedback-card:focus {
-    border-width: 2px;
     --tw-border-opacity: 1;
     border-color: rgb(0 77 245 / var(--tw-border-opacity));
-    padding: 0px;
     padding-left: 1px !important;
+}
+
+.answer-feedback-card:active,
+.answer-feedback-card-active,
+.answer-feedback-card:focus {
+    border-width: 2px;
+    padding: 0px;
 }
 
 .answer-feedback-card:hover {
@@ -8655,7 +8660,6 @@ span.completion-response-object-container{
     border-width: 2px;
 }
 
-.answer-feedback-card:hover .answer-feedback-card-line,
 .answer-feedback-card:active .answer-feedback-card-line,
 .answer-feedback-card:focus .answer-feedback-card-line {
     top: -2px;
@@ -9731,6 +9735,9 @@ video {
 .-mr-4{
   margin-right: -1rem;
 }
+.-mr-\[14px\]{
+  margin-right: -14px;
+}
 .-mt-1{
   margin-top: -0.25rem;
 }
@@ -9781,6 +9788,9 @@ video {
 }
 .mb-\[110px\]{
   margin-bottom: 110px;
+}
+.mb-\[5px\]{
+  margin-bottom: 5px;
 }
 .mb-\[60px\]{
   margin-bottom: 60px;
@@ -9898,12 +9908,6 @@ video {
 }
 .mt-px{
   margin-top: 1px;
-}
-.mb-\[5px\]{
-  margin-bottom: 5px;
-}
-.-mr-\[14px\]{
-  margin-right: -14px;
 }
 .box-border{
   box-sizing: border-box;
@@ -10028,6 +10032,9 @@ video {
 .h-\[333px\]{
   height: 333px;
 }
+.h-\[34px\]{
+  height: 34px;
+}
 .h-\[3px\]{
   height: 3px;
 }
@@ -10088,9 +10095,6 @@ video {
 }
 .h-screen{
   height: 100vh;
-}
-.h-\[34px\]{
-  height: 34px;
 }
 .max-h-0{
   max-height: 0px;
@@ -10245,6 +10249,9 @@ video {
 .w-80{
   width: 20rem;
 }
+.w-9{
+  width: 2.25rem;
+}
 .w-\[0\.375rem\]{
   width: 0.375rem;
 }
@@ -10336,9 +10343,6 @@ video {
 }
 .w-px{
   width: 1px;
-}
-.w-9{
-  width: 2.25rem;
 }
 .min-w-\[110px\]{
   min-width: 110px;
@@ -10662,6 +10666,11 @@ video {
   -webkit-user-select: none;
      -moz-user-select: none;
           user-select: none;
+}
+.select-all{
+  -webkit-user-select: all;
+     -moz-user-select: all;
+          user-select: all;
 }
 .resize-none{
   resize: none;

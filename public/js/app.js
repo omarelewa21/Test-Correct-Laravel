@@ -8980,6 +8980,7 @@ document.addEventListener("alpine:init", function () {
           return _regeneratorRuntime().wrap(function _callee20$(_context20) {
             while (1) switch (_context20.prev = _context20.next) {
               case 0:
+                console.log(answerEditorId, feedbackEditorId);
                 _this56.setFocusTracking();
                 document.addEventListener('comment-color-updated', /*#__PURE__*/function () {
                   var _ref4 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee18(event) {
@@ -9023,7 +9024,7 @@ document.addEventListener("alpine:init", function () {
                     return _ref5.apply(this, arguments);
                   };
                 }());
-              case 3:
+              case 4:
               case "end":
                 return _context20.stop();
             }
@@ -9062,20 +9063,17 @@ document.addEventListener("alpine:init", function () {
             while (1) switch (_context22.prev = _context22.next) {
               case 0:
                 answerEditor = ClassicEditors[_this58.answerEditorId];
-                answerFeedbackEditor = ClassicEditors['update-' + answerFeedbackUuid]; // get edited comment text
-                console.log(answerFeedbackEditor.getData());
-
-                // let commentsRepository = answerEditor.plugins.get( 'CommentsRepository' );
-                // //todo this is null unless focus is propely managed and the same.
-                // const commentThread = commentsRepository.activeCommentThread;
-                // // todo make sure the active comment is highlighted while in the editor
-                // commentsRepository.setActiveCommentThread(threadId);
-
-                _this58.$wire.call('updateExistingComment', {
+                answerFeedbackEditor = ClassicEditors['update-' + answerFeedbackUuid];
+                _context22.next = 4;
+                return _this58.$wire.call('updateExistingComment', {
                   uuid: answerFeedbackUuid,
                   message: answerFeedbackEditor.getData()
                 });
               case 4:
+                _this58.$dispatch('updated-active-comment', {
+                  uuid: null
+                });
+              case 5:
               case "end":
                 return _context22.stop();
             }
@@ -9085,63 +9083,69 @@ document.addEventListener("alpine:init", function () {
       createCommentThread: function createCommentThread() {
         var _this59 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee24() {
-          var answerEditor, feedbackEditor, comment;
+          var answerEditor, feedbackEditor, comment, comment_color, comment_emoji;
           return _regeneratorRuntime().wrap(function _callee24$(_context24) {
             while (1) switch (_context24.prev = _context24.next) {
               case 0:
                 answerEditor = ClassicEditors[_this59.answerEditorId];
                 feedbackEditor = ClassicEditors[_this59.feedbackEditorId];
-                comment = feedbackEditor.getData();
-                console.log(comment);
-                console.log('createCommentThread: before early return if comment is empty');
-                if (!(!comment || comment == '<p></p>')) {
-                  _context24.next = 7;
-                  break;
-                }
-                return _context24.abrupt("return");
-              case 7:
-                console.log('createCommentThread: comment is not empty');
+                comment = feedbackEditor.getData(); //todo ADD COLOR AND EMOJI PICKER AND GET THE ACTIVE VALUES HERE!
+                comment_color = null; //todo correct enum value or NULL
+                comment_emoji = null;
                 answerEditor.focus();
                 _this59.$nextTick( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee23() {
-                  var feedback, threadId, commentId, answerFeedbackUuid, newCommentThread, updatedAnswerText;
+                  var feedback, newCommentThread, updatedAnswerText;
                   return _regeneratorRuntime().wrap(function _callee23$(_context23) {
                     while (1) switch (_context23.prev = _context23.next) {
                       case 0:
                         console.log(answerEditor.editing.view.hasDomSelection, 'hasselectgion');
                         console.log(answerEditor.plugins.get('CommentsRepository').activeCommentThread, 'hasselectgion2');
-                        return _context23.abrupt("return");
-                      case 6:
+                        if (!(answerEditor.editing.view.hasDomSelection && false)) {
+                          _context23.next = 13;
+                          break;
+                        }
+                        _context23.next = 5;
+                        return _this59.$wire.createNewComment();
+                      case 5:
                         feedback = _context23.sent;
-                        threadId = feedback.threadId;
-                        commentId = feedback.commentId;
-                        answerFeedbackUuid = feedback.uuid;
-                        _context23.next = 12;
+                        _context23.next = 8;
                         return answerEditor.execute('addCommentThread', {
-                          threadId: threadId
+                          threadId: feedback.threadId
                         });
-                      case 12:
+                      case 8:
                         newCommentThread = answerEditor.plugins.get('CommentsRepository').getCommentThreads().filter(function (thread) {
-                          return thread.id == threadId;
+                          return thread.id == feedback.threadId;
                         })[0];
                         newCommentThread.addComment({
-                          threadId: threadId,
-                          commentId: commentId,
+                          threadId: feedback.threadId,
+                          commentId: feedback.commentId,
                           content: comment,
                           authorId: _this59.userId
                         });
                         updatedAnswerText = answerEditor.getData();
                         _this59.$wire.saveNewComment({
-                          uuid: answerFeedbackUuid,
+                          uuid: feedback.uuid,
                           message: comment,
-                          answer: updatedAnswerText
-                        });
+                          comment_color: comment_color,
+                          comment_emoji: comment_emoji
+                        }, updatedAnswerText);
+                        return _context23.abrupt("return");
+                      case 13:
+                        _context23.next = 15;
+                        return _this59.$wire.createNewComment({
+                          message: comment,
+                          comment_color: null,
+                          comment_emoji: null
+                        }, false);
+                      case 15:
+                        feedback = _context23.sent;
                       case 16:
                       case "end":
                         return _context23.stop();
                     }
                   }, _callee23);
                 })));
-              case 10:
+              case 7:
               case "end":
                 return _context24.stop();
             }
@@ -9214,7 +9218,6 @@ document.addEventListener("alpine:init", function () {
         commentsRepository.setActiveCommentThread(threadId);
         this.activeThread = threadId;
         if (answerFeedbackUuid) {
-          console.log('now disptachiung: updated-active-comment: ' + answerFeedbackUuid);
           this.$dispatch("assessment-drawer-tab-update", {
             tab: 2
           });
@@ -9231,20 +9234,17 @@ document.addEventListener("alpine:init", function () {
       },
       setFocusTracking: function setFocusTracking() {
         var _this62 = this;
-        // const commentButtons = document.querySelectorAll('#sidebar .button');
-
         setTimeout(function () {
-          //cannot use the this. editors because of errors about being a (alpine) proxy
           var answerEditor = ClassicEditors[_this62.answerEditorId];
           var feedbackEditor = ClassicEditors[_this62.feedbackEditorId];
-
-          // for ( var buttonElement of commentButtons ) {
-          //     answerEditor.ui.focusTracker.add( buttonElement );
-          //     feedbackEditor.ui.focusTracker.add( buttonElement );
-          // }
-
+          var feedbackEditorSaveButton = document.querySelector('#' + _this62.feedbackEditorId + '-save');
+          var feedbackEditorCancelButton = document.querySelector('#' + _this62.feedbackEditorId + '-cancel');
           answerEditor.ui.focusTracker.add(feedbackEditor.sourceElement.parentElement.querySelector('.ck.ck-content'));
+          answerEditor.ui.focusTracker.add(feedbackEditorSaveButton);
+          answerEditor.ui.focusTracker.add(feedbackEditorCancelButton);
           feedbackEditor.ui.focusTracker.add(answerEditor.sourceElement.parentElement.querySelector('.ck.ck-content'));
+          feedbackEditor.ui.focusTracker.add(feedbackEditorSaveButton);
+          feedbackEditor.ui.focusTracker.add(feedbackEditorCancelButton);
         }, 1000);
       },
       get answerEditor() {
@@ -9668,6 +9668,12 @@ selectTextContent = function selectTextContent(event) {
   var selection = window.getSelection();
   selection.removeAllRanges();
   selection.addRange(range);
+};
+debug = function debug() {
+  var seconds = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 2;
+  setTimeout(function () {
+    debugger;
+  }, seconds * 1000);
 };
 
 /***/ }),
@@ -16483,27 +16489,32 @@ RichTextEditor = {
     return this.createTeacherEditor(parameterBag);
   },
   initUpdateAnswerFeedbackEditor: function initUpdateAnswerFeedbackEditor(parameterBag) {
+    var _this7 = this;
     this.setAnswerFeedbackItemsToRemove(parameterBag);
     parameterBag.shouldNotGroupWhenFull = true;
     return this.createTeacherEditor(parameterBag, function (editor) {
-      // editor.ui.view.editable.element.onfocus = (e) => {
-      //
-      //     //todo set active comment thread
-      //     dispatchEvent(new CustomEvent('set-active-comment-thread', {detail: {threadId:  }}))
-      //     window.ClassicEditors[''];
-      // }
-      editor.ui.view.editable.element.onblur = function (e) {
-        dispatchEvent(new CustomEvent('clear-active-comment-thread'));
-      };
+      window.addEventListener('updated-active-comment', function (event) {
+        if (parameterBag.editorId.contains(event.detail.uuid)) {
+          setTimeout(function () {
+            //set focus to editor
+            editor.focus();
+            //select all text in the editor
+            editor.execute('selectAll');
+          }, 100);
+        }
+      });
+      _this7.hideWProofreaderChevron(parameterBag.allowWsc, editor);
     });
   },
   initCreateAnswerFeedbackEditor: function initCreateAnswerFeedbackEditor(parameterBag) {
+    var _this8 = this;
     this.setAnswerFeedbackItemsToRemove(parameterBag);
     parameterBag.shouldNotGroupWhenFull = true;
     return this.createTeacherEditor(parameterBag, function (editor) {
       window.addEventListener('answer-feedback-focus-feedback-editor', function () {
         editor.focus();
       });
+      _this8.hideWProofreaderChevron(parameterBag.allowWsc, editor);
     });
   },
   // initInlineFeedback: function(parameterBag) {
@@ -16513,13 +16524,13 @@ RichTextEditor = {
   //     );
   // },
   initAnswerEditorWithComments: function initAnswerEditorWithComments(parameterBag) {
-    var _this7 = this;
+    var _this9 = this;
     //todo:
     return this.createStudentEditor(parameterBag, function (editor) {
       WebspellcheckerTlc.lang(editor, parameterBag.lang);
-      _this7.setupWordCounter(editor, parameterBag);
-      _this7.setCommentsOnly(editor); //replaces read-only
-      _this7.setAnswerFeedbackEventListeners(editor);
+      _this9.setupWordCounter(editor, parameterBag);
+      _this9.setCommentsOnly(editor); //replaces read-only
+      _this9.setAnswerFeedbackEventListeners(editor);
     });
   },
   setAnswerFeedbackEventListeners: function setAnswerFeedbackEventListeners(editor) {
@@ -16541,6 +16552,20 @@ RichTextEditor = {
         setTimeout(console.log('select feedback editor here'), 100);
       }
     };
+  },
+  hideWProofreaderChevron: function hideWProofreaderChevron(allowWsc, editor) {
+    if (!allowWsc) {
+      return;
+    }
+    var callback = function callback(element) {
+      return element.innerHTML == 'WProofreader' && element.classList.contains('ck-tooltip__text');
+    };
+
+    // const elements = Array.from(document.getElementsByTagName('span'))
+    var elements = Array.from(editor.editing.view.getDomRoot().closest('.ck-editor').getElementsByTagName('span'));
+    elements.filter(callback).forEach(function (element) {
+      return element.parentElement.parentElement.querySelector('.ck-dropdown__arrow').style.display = 'none';
+    });
   },
   getConfigForStudent: function getConfigForStudent(parameterBag) {
     var _parameterBag$plugins;
@@ -16583,7 +16608,6 @@ RichTextEditor = {
         commentThreads: parameterBag.commentThreads
       };
     }
-    console.dir(config);
     return config;
   },
   getConfigForTeacher: function getConfigForTeacher(parameterBag) {
@@ -16642,6 +16666,9 @@ RichTextEditor = {
     config.toolbar = {
       removeItems: (_parameterBag$removeI4 = (_parameterBag$removeI5 = parameterBag.removeItems) === null || _parameterBag$removeI5 === void 0 ? void 0 : _parameterBag$removeI5.toolbar) !== null && _parameterBag$removeI4 !== void 0 ? _parameterBag$removeI4 : []
     };
+    if (parameterBag.toolbar) {
+      config.toolbar.items = parameterBag.toolbar;
+    }
     if (parameterBag.commentThreads != undefined) {
       config.extraPlugins = [CommentsIntegration];
       config.commentsIntegration = {
@@ -16695,7 +16722,7 @@ RichTextEditor = {
     }
   },
   setupWordCounter: function setupWordCounter(editor, parameterBag) {
-    var _this8 = this;
+    var _this10 = this;
     var wordCountPlugin = editor.plugins.get("WordCount");
     var wordCountWrapper = document.getElementById("word-count-" + parameterBag.editorId);
     if (wordCountWrapper) {
@@ -16707,13 +16734,13 @@ RichTextEditor = {
     this.handleInputWithMaxWords(editor);
     editor.updateMaxWords = function (value) {
       editor.maxWords = parseInt(value);
-      _this8.handleInputWithMaxWords(editor);
+      _this10.handleInputWithMaxWords(editor);
     };
     editor.model.document.on("change:data", function (event, batch) {
-      _this8.handleInputWithMaxWords(editor, event);
+      _this10.handleInputWithMaxWords(editor, event);
     });
     editor.editing.view.document.on("paste", function (event, data) {
-      if (_this8.hasNoWordLimit(editor)) return;
+      if (_this10.hasNoWordLimit(editor)) return;
       var wc = editor.plugins.get("WordCount");
       var maxWords = parseInt(editor.maxWords);
       if (wc.words >= maxWords) {
@@ -16725,7 +16752,7 @@ RichTextEditor = {
       }
     });
     editor.editing.view.document.on("keydown", function (event, data) {
-      if (_this8.hasNoWordLimit(editor)) return;
+      if (_this10.hasNoWordLimit(editor)) return;
       if (!editor.disableSpacers) return;
 
       /* Disable spacebar and enter inputs so new words cannot be created;*/
@@ -16796,7 +16823,7 @@ RichTextEditor = {
   },
   createTeacherEditor: function createTeacherEditor(parameterBag) {
     var _arguments = arguments,
-      _this9 = this;
+      _this11 = this;
     return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
       var resolveCallback;
       return _regeneratorRuntime().wrap(function _callee$(_context) {
@@ -16804,7 +16831,7 @@ RichTextEditor = {
           case 0:
             resolveCallback = _arguments.length > 1 && _arguments[1] !== undefined ? _arguments[1] : null;
             _context.next = 3;
-            return _this9.createEditor(parameterBag.editorId, _this9.getConfigForTeacher(parameterBag), resolveCallback);
+            return _this11.createEditor(parameterBag.editorId, _this11.getConfigForTeacher(parameterBag), resolveCallback);
           case 3:
             return _context.abrupt("return", _context.sent);
           case 4:
@@ -16816,7 +16843,7 @@ RichTextEditor = {
   },
   createStudentEditor: function createStudentEditor(parameterBag) {
     var _arguments2 = arguments,
-      _this10 = this;
+      _this12 = this;
     return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
       var resolveCallback;
       return _regeneratorRuntime().wrap(function _callee2$(_context2) {
@@ -16824,7 +16851,7 @@ RichTextEditor = {
           case 0:
             resolveCallback = _arguments2.length > 1 && _arguments2[1] !== undefined ? _arguments2[1] : null;
             _context2.next = 3;
-            return _this10.createEditor(parameterBag.editorId, _this10.getConfigForStudent(parameterBag), resolveCallback);
+            return _this12.createEditor(parameterBag.editorId, _this12.getConfigForStudent(parameterBag), resolveCallback);
           case 3:
             return _context2.abrupt("return", _context2.sent);
           case 4:
@@ -16836,9 +16863,10 @@ RichTextEditor = {
   },
   setAnswerFeedbackItemsToRemove: function setAnswerFeedbackItemsToRemove(parameterBag) {
     parameterBag.removeItems = {
-      plugins: ["Essentials", "FontFamily", "FontSize", "FontBackgroundColor", "Heading", "Indent", "FontColor", "RemoveFormat", "PasteFromOffice", "WordCount", "WProofreader", "Completion", "Selection"],
-      toolbar: ["outdent", "indent", "completion", "selection", "fontFamily", "fontBackgroundColor", "fontSize", "undo", "redo", "fontColor", "heading", "removeFormat", "wproofreader", "specialCharacters"]
+      plugins: ["FontFamily", "FontSize", "FontBackgroundColor", "Heading", "Indent", "FontColor", "RemoveFormat", "PasteFromOffice", "WordCount", "Completion", "Selection"],
+      toolbar: ["outdent", "indent", "completion", "selection", "fontFamily", "fontBackgroundColor", "fontSize", "fontColor", "heading", "removeFormat", "specialCharacters", "insertTable", "imageUpload", 'underline', 'strikethrough', 'subscript', 'superscript', 'bulletedList', 'numberedList', 'blockQuote']
     };
+    parameterBag.toolbar = ["undo", "redo", "|", "bold", "italic", 'MathType', 'ChemType', 'wproofreader'];
   }
 };
 

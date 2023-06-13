@@ -43,6 +43,7 @@ import WProofreader from "@webspellchecker/wproofreader-ckeditor5/src/wproofread
 import PasteFromOffice from "@ckeditor/ckeditor5-paste-from-office/src/pastefromoffice";
 import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
 import ButtonView from '@ckeditor/ckeditor5-ui/src/button/buttonview';
+import SelectAll from "@ckeditor/ckeditor5-select-all/src/selectall.js";
 
 import Comments from '@ckeditor/ckeditor5-comments/src/comments';
 
@@ -193,6 +194,7 @@ Editor.builtinPlugins = [
     Completion,
     Selection,
     Comments,
+    SelectAll,
 ];
 
 // Editor configuration.

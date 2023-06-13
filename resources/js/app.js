@@ -320,3 +320,9 @@ selectTextContent = function (event) {
     selection.removeAllRanges();
     selection.addRange(range);
 }
+
+debug = function (seconds = 2) {
+    setTimeout(() => {
+        debugger;
+    }, seconds * 1000);
+}

@@ -2397,7 +2397,7 @@ document.addEventListener("alpine:init", () => {
         activeThread: null,
         userId,
         async init() {
-
+            console.log(answerEditorId, feedbackEditorId)
             this.setFocusTracking();
 
             document.addEventListener('comment-color-updated', async (event) => {
@@ -2433,20 +2433,13 @@ document.addEventListener("alpine:init", () => {
             const answerEditor = ClassicEditors[this.answerEditorId];
             const answerFeedbackEditor = ClassicEditors['update-'+answerFeedbackUuid];
 
-            // get edited comment text
-            console.log(answerFeedbackEditor.getData());
 
-            // let commentsRepository = answerEditor.plugins.get( 'CommentsRepository' );
-            // //todo this is null unless focus is propely managed and the same.
-            // const commentThread = commentsRepository.activeCommentThread;
-            // // todo make sure the active comment is highlighted while in the editor
-            // commentsRepository.setActiveCommentThread(threadId);
-
-            this.$wire.call('updateExistingComment', {
+            await this.$wire.call('updateExistingComment', {
                 uuid: answerFeedbackUuid,
                 message: answerFeedbackEditor.getData()
             });
 
+            this.$dispatch('updated-active-comment', {uuid: null});
         },
         async createCommentThread() {
 
@@ -2454,42 +2447,48 @@ document.addEventListener("alpine:init", () => {
             const feedbackEditor = ClassicEditors[this.feedbackEditorId];
 
             var comment = feedbackEditor.getData();
-            console.log(comment);
-            console.log('createCommentThread: before early return if comment is empty');
-            if(!comment || comment == '<p></p>') {
-                return;
-            }
-            console.log('createCommentThread: comment is not empty');
+
+            //todo ADD COLOR AND EMOJI PICKER AND GET THE ACTIVE VALUES HERE!
+            var comment_color = null; //todo correct enum value or NULL
+            var comment_emoji = null;
+
+
 
             answerEditor.focus();
 
             this.$nextTick(async () => {
                 console.log(answerEditor.editing.view.hasDomSelection, 'hasselectgion')
                 console.log(answerEditor.plugins.get( 'CommentsRepository' ).activeCommentThread, 'hasselectgion2')
-return;
-                if(answerEditor.editing.view.hasDomSelection) {
+
+                if(answerEditor.editing.view.hasDomSelection && false) {
 
                     //created feedback record data
                     var feedback = await this.$wire.createNewComment();
 
-                    var threadId = feedback.threadId;
-                    var commentId = feedback.commentId;
-                    var answerFeedbackUuid = feedback.uuid;
+                    await answerEditor.execute( 'addCommentThread', { threadId: feedback.threadId } );
 
-                    await answerEditor.execute( 'addCommentThread', { threadId: threadId } );
+                    var newCommentThread = answerEditor.plugins.get( 'CommentsRepository' ).getCommentThreads().filter((thread) => { return thread.id == feedback.threadId})[0];
 
-                    var newCommentThread = answerEditor.plugins.get( 'CommentsRepository' ).getCommentThreads().filter((thread) => { return thread.id == threadId})[0];
-
-                    newCommentThread.addComment({threadId: threadId, commentId: commentId, content: comment, authorId: this.userId});
+                    newCommentThread.addComment({threadId: feedback.threadId, commentId: feedback.commentId, content: comment, authorId: this.userId});
 
                     var updatedAnswerText = answerEditor.getData();
 
-                    this.$wire.saveNewComment({uuid: answerFeedbackUuid, message: comment, answer: updatedAnswerText});
+                    this.$wire.saveNewComment({
+                        uuid: feedback.uuid,
+                        message: comment,
+                        comment_color: comment_color,
+                        comment_emoji: comment_emoji,
+                    }, updatedAnswerText);
 
+                    return;
                 }
 
                 //todo add general comment without link to the answer text
-
+                var feedback = await this.$wire.createNewComment({
+                    message: comment,
+                    comment_color: null,
+                    comment_emoji: null,
+                }, false);
 
 
             });
@@ -2544,9 +2543,8 @@ return;
             this.activeThread = threadId;
 
             if(answerFeedbackUuid) {
-                console.log('now disptachiung: updated-active-comment: ' + answerFeedbackUuid)
-                this.$dispatch("assessment-drawer-tab-update", { tab: 2 });
 
+                this.$dispatch("assessment-drawer-tab-update", { tab: 2 });
                 this.$dispatch("updated-active-comment", { uuid:  answerFeedbackUuid })
             }
 
@@ -2561,24 +2559,23 @@ return;
             commentsRepository.setActiveCommentThread(null);
         },
         setFocusTracking() {
-            // const commentButtons = document.querySelectorAll('#sidebar .button');
-
             setTimeout(()=> {
 
-                //cannot use the this. editors because of errors about being a (alpine) proxy
                 const answerEditor = ClassicEditors[this.answerEditorId];
                 const feedbackEditor = ClassicEditors[this.feedbackEditorId];
 
-                // for ( var buttonElement of commentButtons ) {
-                //     answerEditor.ui.focusTracker.add( buttonElement );
-                //     feedbackEditor.ui.focusTracker.add( buttonElement );
-                // }
+                const feedbackEditorSaveButton = document.querySelector('#' + this.feedbackEditorId + '-save');
+                const feedbackEditorCancelButton = document.querySelector('#' + this.feedbackEditorId + '-cancel');
 
                 answerEditor.ui.focusTracker.add( feedbackEditor.sourceElement.parentElement.querySelector('.ck.ck-content') );
+                answerEditor.ui.focusTracker.add( feedbackEditorSaveButton );
+                answerEditor.ui.focusTracker.add( feedbackEditorCancelButton );
+
                 feedbackEditor.ui.focusTracker.add( answerEditor.sourceElement.parentElement.querySelector('.ck.ck-content') );
+                feedbackEditor.ui.focusTracker.add( feedbackEditorSaveButton );
+                feedbackEditor.ui.focusTracker.add( feedbackEditorCancelButton );
 
             },1000)
-
         },
         get answerEditor() {
             return ClassicEditors[this.answerEditorId];

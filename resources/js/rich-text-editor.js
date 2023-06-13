@@ -88,16 +88,19 @@ RichTextEditor = {
         return this.createTeacherEditor(
             parameterBag,
             (editor) => {
-                // editor.ui.view.editable.element.onfocus = (e) => {
-                //
-                //     //todo set active comment thread
-                //     dispatchEvent(new CustomEvent('set-active-comment-thread', {detail: {threadId:  }}))
-                //     window.ClassicEditors[''];
-                // }
-                editor.ui.view.editable.element.onblur = (e) => {
-                    dispatchEvent(new CustomEvent('clear-active-comment-thread'))
-                }
-            }
+                window.addEventListener('updated-active-comment', (event) => {
+                    if(parameterBag.editorId.contains(event.detail.uuid)) {
+                        setTimeout(() => {
+                            //set focus to editor
+                            editor.focus();
+                            //select all text in the editor
+                            editor.execute('selectAll');
+                        },100)
+                    }
+                });
+                this.hideWProofreaderChevron(parameterBag.allowWsc, editor);
+
+            },
         );
     },
     initCreateAnswerFeedbackEditor: function(parameterBag) {
@@ -109,7 +112,8 @@ RichTextEditor = {
             (editor) => {
                 window.addEventListener('answer-feedback-focus-feedback-editor', () => {
                     editor.focus();
-                })
+                });
+                this.hideWProofreaderChevron(parameterBag.allowWsc, editor);
             }
         );
     },
@@ -148,6 +152,24 @@ RichTextEditor = {
                 setTimeout(console.log('select feedback editor here') ,100)
             }
         }
+    },
+    hideWProofreaderChevron: function (allowWsc, editor) {
+
+        if(!allowWsc) {
+            return;
+        }
+
+        const callback = (element) => {
+            return element.innerHTML == 'WProofreader' && element.classList.contains('ck-tooltip__text')
+        }
+
+        // const elements = Array.from(document.getElementsByTagName('span'))
+        const elements = Array.from(editor.editing.view.getDomRoot().closest('.ck-editor').getElementsByTagName('span'))
+
+        elements.filter(callback).forEach((element) => {
+            return element.parentElement.parentElement.querySelector('.ck-dropdown__arrow').style.display = 'none';
+        });
+
     },
     getConfigForStudent: function(parameterBag) {
         parameterBag.pluginsToAdd ??= [];
@@ -235,7 +257,6 @@ RichTextEditor = {
                 commentThreads: parameterBag.commentThreads,
             };
         }
-        console.dir(config)
 
         return config;
     },
@@ -306,7 +327,12 @@ RichTextEditor = {
             wproofreader: this.getWproofreaderConfig(),
         };
         config.removePlugins = parameterBag.removeItems?.plugins ?? [];
-        config.toolbar = { removeItems: parameterBag.removeItems?.toolbar ?? [] };
+        config.toolbar = {
+            removeItems: parameterBag.removeItems?.toolbar ?? [],
+        };
+        if(parameterBag.toolbar) {
+            config.toolbar.items = parameterBag.toolbar;
+        }
 
         if (parameterBag.commentThreads != undefined) {
             config.extraPlugins = [ CommentsIntegration ];
@@ -495,7 +521,6 @@ RichTextEditor = {
     setAnswerFeedbackItemsToRemove: function (parameterBag) {
         parameterBag.removeItems = {
             plugins: [
-                "Essentials",
                 "FontFamily",
                 "FontSize",
                 "FontBackgroundColor",
@@ -505,7 +530,6 @@ RichTextEditor = {
                 "RemoveFormat",
                 "PasteFromOffice",
                 "WordCount",
-                "WProofreader",
                 "Completion",
                 "Selection"
             ],
@@ -517,14 +541,30 @@ RichTextEditor = {
                 "fontFamily",
                 "fontBackgroundColor",
                 "fontSize",
-                "undo",
-                "redo",
                 "fontColor",
                 "heading",
                 "removeFormat",
-                "wproofreader",
-                "specialCharacters"
+                "specialCharacters",
+                "insertTable",
+                "imageUpload",
+                'underline',
+                'strikethrough',
+                'subscript',
+                'superscript',
+                'bulletedList',
+                'numberedList',
+                'blockQuote',
             ]
         };
+        parameterBag.toolbar = [
+            "undo",
+            "redo",
+            "|",
+            "bold",
+            "italic",
+            'MathType',
+            'ChemType',
+            'wproofreader',
+        ]
     },
 };

@@ -1352,29 +1352,32 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
     //TODO complete CKeditor comments Feedback implementation:
 
-    public function createNewComment()
+    public function createNewComment($commentData, $createCommentIds = true)
     {
-        $newComment = AnswerFeedback::create([
+        $newComment = AnswerFeedback::create(array_merge([
             'answer_id' => $this->currentAnswer->getKey(),
             'user_id' => auth()->id(),
             'message' => '',
-            'thread_id' => Uuid::uuid4(),
-            'comment_id' => Uuid::uuid4(),
-        ]);
+            'thread_id' => $createCommentIds ? Uuid::uuid4() : null,
+            'comment_id' => $createCommentIds ? Uuid::uuid4() : null,
+        ], $commentData));
+
+        if(!$createCommentIds) {
+            $this->getSortedAnswerFeedback();
+        }
 
         return ['threadId' => $newComment->thread_id, 'commentId' => $newComment->comment_id, 'uuid' => $newComment->uuid];
     }
 
-    public function saveNewComment($data)
+    public function saveNewComment($data, $answer)
     {
         //update answers_feedback data
         $this->updateAnswerFeedback(
-            uuid: $data['uuid'],
-            commentText: $data['message'],
+            ...$data
         );
         //update answer text
         $this->updateAnswer(
-            updatedAnswerText: $data['answer']
+            answer: $data['answer']
         );
 
         $this->getSortedAnswerFeedback();
@@ -1399,7 +1402,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     {
         $this->updateAnswerFeedback(
             uuid: $data['uuid'],
-            commentText: $data['message'],
+            message: $data['message'],
         );
 
         $this->getSortedAnswerFeedback();
@@ -1411,12 +1414,12 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         $this->updateAnswer($answerText);
     }
 
-    public function updateAnswer($updatedAnswerText)
+    public function updateAnswer($answer)
     {
-        $updatedAnswerText = str_replace('comment-start', 'commentstart', $updatedAnswerText);
-        $updatedAnswerText = str_replace('comment-end', 'commentend', $updatedAnswerText);
+        $answer = str_replace('comment-start', 'commentstart', $answer);
+        $answer = str_replace('comment-end', 'commentend', $answer);
 
-        $purifiedAnswerTextJson = json_encode((object) ['value' => clean($updatedAnswerText)]);
+        $purifiedAnswerTextJson = json_encode((object) ['value' => clean($answer)]);
 
         $purifiedAnswerTextJson = str_replace('commentstart', 'comment-start', $purifiedAnswerTextJson);
         $purifiedAnswerTextJson = str_replace('commentend', 'comment-end', $purifiedAnswerTextJson);
@@ -1424,9 +1427,9 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         Answer::updateJson($this->currentAnswer->getKey(), $purifiedAnswerTextJson);
     }
 
-    public function updateAnswerFeedback($uuid, $commentText)
+    public function updateAnswerFeedback($uuid, $message)
     {
-        AnswerFeedback::whereUuid($uuid)->update(['message' => $commentText]);
+        AnswerFeedback::whereUuid($uuid)->update(['message' => $message]);
     }
 
     public function getSortedAnswerFeedback()
