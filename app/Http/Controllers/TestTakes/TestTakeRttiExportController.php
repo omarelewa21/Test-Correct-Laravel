@@ -21,6 +21,8 @@ use tcCore\TestTake;
 class TestTakeRttiExportController extends Controller
 {
 
+    protected $questionAr = [];
+
     public function store(TestTake $testTake, Request $request)
     {
         require app_path('/Lib/rtti_api/autoload.php');
@@ -142,13 +144,14 @@ class TestTakeRttiExportController extends Controller
     {
         $i = 1;
         $toetsOnderdelenAr = [];
+        $this->questionAr = [];
 
         $testTake->test->testQuestions->each(function(TestQuestion $testQuestion) use (&$toetsOnderdelenAr, &$i){
             $question = $testQuestion->question;
 
             if ($question->parentInstance->type == 'GroupQuestion') {
 
-                foreach ($question->parentInstance->groupQuestionQuestions as $item) {
+                foreach ($question->groupQuestionQuestions as $item) {
                     if (null === $item->question->score) {
                         $score = 0;
                     } else {
@@ -165,6 +168,8 @@ class TestTakeRttiExportController extends Controller
                             ],
                         ],
                     ];
+
+                    $this->questionAr[] = $item->getKey();
 
                     $i++;
                 }
@@ -185,7 +190,7 @@ class TestTakeRttiExportController extends Controller
                         ],
                     ],
                 ];
-
+                $this->questionAr[] = $question->getKey();
                 $i++;
             }
         });
@@ -203,8 +208,8 @@ class TestTakeRttiExportController extends Controller
         $afnames = [];
         $testTake->testParticipants->each(function(TestParticipant $participant) use (&$afnames, $testCode, $testTake){
             $resArray = [];
-
-            $participant->answers->each(function(Answer $answer) use (&$resArray, $testCode, $testTake){
+            $foundQuestionIds = [];
+            $participant->answers->each(function(Answer $answer) use (&$resArray, $testCode, $testTake, &$foundQuestionIds){
                 $resArray['resultaat'][] = [
                     'key' => $answer->getKey(),
                     'afnamedatum' => $testTake->time_start->format('Y-m-d'),
@@ -212,10 +217,28 @@ class TestTakeRttiExportController extends Controller
                     'toetsonderdeelcode' => $answer->question_id,
                     'score' => $answer->final_rating ?? 6.0
                 ];
+                $foundQuestionIds[] = $answer->question_id;
             });
 
             if (empty($resArray)) {
                 return; // next please
+            }
+
+            /**
+             * In case the student did not get the question as it was from a carrousel question, the default score is 'X' in order to skip it for this student
+             * as per the documentation of RTTI (see also ticket TCP-3145)
+             */
+            $leftOverQuestionIds = collect($this->questionAr)->diff(collect($foundQuestionIds));
+            if($leftOverQuestionIds){
+                foreach($leftOverQuestionIds as $qId){
+                    $resArray['resultaat'][] = [
+                        'key' => Str::random(9),
+                        'afnamedatum' => $testTake->time_start->format('Y-m-d'),
+                        'toetscode' => $testCode,
+                        'toetsonderdeelcode' => $qId,
+                        'score' => 'X',
+                    ];
+                }
             }
 
             $af = [
