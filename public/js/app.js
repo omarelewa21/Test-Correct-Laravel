@@ -15234,6 +15234,9 @@ RichTextEditor = {
     return this.createStudentEditor(parameterBag, function (editor) {
       _this4.setupWordCounter(editor, parameterBag);
       if (typeof ReadspeakerTlc != "undefined") {
+        editor.editing.view.document.on('change:isFocused', function (evt, data, isFocused) {
+          isFocused ? rsTlcEvents.handleCkeditorFocusForReadspeaker(evt.target, parameterBag.questionId, parameterBag.editorId) : rsTlcEvents.handleCkeditorBlurForReadspeaker(evt.target, parameterBag.questionId, parameterBag.editorId);
+        });
         ReadspeakerTlc.ckeditor.addListenersForReadspeaker(editor, parameterBag.questionId, parameterBag.editorId);
         ReadspeakerTlc.ckeditor.disableContextMenuOnCkeditor();
       }
@@ -15568,6 +15571,13 @@ RichTextEditor = {
         }
       }, _callee3);
     }))();
+  },
+  writeContentToTexarea: function writeContentToTexarea(editorId) {
+    var editor = ClassicEditors[editorId];
+    if (editor) {
+      editor.updateSourceElement();
+      editor.sourceElement.dispatchEvent(new Event("input"));
+    }
   }
 };
 

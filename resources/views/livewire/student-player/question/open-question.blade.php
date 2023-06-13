@@ -13,6 +13,7 @@
                             type="student"
                             wire:key="textarea_{{ $question->id }}"
                             wire:model.debounce.1000ms="answer"
+                            :question-id="$this->question->id"
                             :allowWsc="$this->question->spell_check_available"
                             :editor-id="$this->editorId"
                             :restrictWords="$this->question->restrict_word_amount"
@@ -30,7 +31,11 @@
                     ></div>
 
                     @if(Auth::user()->text2speech)
-                        <div wire:ignore class="rspopup_tlc hidden rsbtn_popup_tlc_{{$question->id}}"  ><div class="rspopup_play rspopup_btn rs_skip" role="button" tabindex="0" aria-label="Lees voor" data-rslang="title/arialabel:listen" data-rsevent-id="rs_340375" title="Lees voor"></div></div>
+                        <div wire:ignore class="rspopup_tlc hidden rsbtn_popup_tlc_{{$question->id}}">
+                            <div class="rspopup_play rspopup_btn rs_skip" role="button" tabindex="0"
+                                 aria-label="Lees voor" data-rslang="title/arialabel:listen" data-rsevent-id="rs_340375"
+                                 title="Lees voor"></div>
+                        </div>
                     @endif
                 </x-input.group>
             </div>
@@ -38,18 +43,36 @@
         @push('scripts')
             <script>
                 @if(!is_null(Auth::user())&&Auth::user()->text2speech)
-                    document.addEventListener('readspeaker_opened', () => {
-                        if(ReadspeakerTlc.guard.shouldNotCreateHiddenTextarea({{ $question->id }})){
-                            return;
-                        }
-                        var textarea = document.querySelector('#textarea_{{ $question->id }}')
-                        ReadspeakerTlc.hiddenElement.createHiddenDivTextArea(textarea);
-                    })
-                    document.addEventListener('trigger_livewire_rerender', () => {
-                        @this.render();
-                    })
+                document.addEventListener('readspeaker_closed', () => {
+                    if(ReadspeakerTlc.guard.shouldNotReinitCkeditor(document.querySelector( '#{{ $editorId }}' ))){
+                        return;
+                    }
+                    ReadspeakerTlc.ckeditor.reattachReadableAreaAndDestroy('{{ $editorId }}');
+                    dispatchEvent(new CustomEvent('reinitialize-editor-{{ $editorId }}'));
+                })
+                document.addEventListener('readspeaker_started', () => {
+                    if(ReadspeakerTlc.guard.shouldNotDetachCkEditor(document.querySelector( '#{{ $editorId }}' ))){
+                        return;
+                    }
+                    RichTextEditor.writeContentToTexarea('{{ $editorId }}');
+                    ReadspeakerTlc.ckeditor.detachReadableAreaFromCkeditor('{{ $editorId }}');
+                })
                 @endif
             </script>
+{{--            <script>--}}
+{{--                @if(!is_null(Auth::user())&&Auth::user()->text2speech)--}}
+{{--                    document.addEventListener('readspeaker_opened', () => {--}}
+{{--                        if(ReadspeakerTlc.guard.shouldNotCreateHiddenTextarea({{ $question->id }})){--}}
+{{--                            return;--}}
+{{--                        }--}}
+{{--                        var textarea = document.querySelector('#textarea_{{ $question->id }}')--}}
+{{--                        ReadspeakerTlc.hiddenElement.createHiddenDivTextArea(textarea);--}}
+{{--                    })--}}
+{{--                    document.addEventListener('trigger_livewire_rerender', () => {--}}
+{{--                        @this.render();--}}
+{{--                    })--}}
+{{--                @endif--}}
+{{--            </script>--}}
         @endpush
     </div>
     <x-attachment.attachment-modal :attachment="$attachment" :answerId="$answerId"/>
