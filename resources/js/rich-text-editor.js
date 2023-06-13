@@ -46,6 +46,11 @@ RichTextEditor = {
             (editor) => {
                 this.setupWordCounter(editor, parameterBag);
                 if (typeof ReadspeakerTlc != "undefined") {
+                    editor.editing.view.document.on( 'change:isFocused', ( evt, data, isFocused ) => {
+                        isFocused
+                            ? rsTlcEvents.handleCkeditorFocusForReadspeaker(evt.target,parameterBag.questionId, parameterBag.editorId)
+                            : rsTlcEvents.handleCkeditorBlurForReadspeaker(evt.target,parameterBag.questionId, parameterBag.editorId);
+                    });
                     ReadspeakerTlc.ckeditor.addListenersForReadspeaker(editor, parameterBag.questionId, parameterBag.editorId);
                     ReadspeakerTlc.ckeditor.disableContextMenuOnCkeditor();
                 }
@@ -442,5 +447,12 @@ RichTextEditor = {
             this.getConfigForStudent(parameterBag),
             resolveCallback
         );
-    }
+    },
+    writeContentToTexarea: function(editorId) {
+        var editor = ClassicEditors[editorId];
+        if (editor) {
+            editor.updateSourceElement();
+            editor.sourceElement.dispatchEvent(new Event("input"));
+        }
+    },
 };

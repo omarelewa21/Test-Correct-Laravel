@@ -48,7 +48,7 @@ ReadspeakerTlc = function(){
             }
             handleFocusForReadspeaker();
             ckeditorNode.editorId = editorId;
-            var correction = {x:-15,y:-16};
+            var correction = {x:-15,y:2};
             var p = popup.getRsbtnPopupTlcElement(questionId,ckeditorNode,correction);
             if(p == null){
                 return;
