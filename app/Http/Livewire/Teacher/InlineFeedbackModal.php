@@ -31,6 +31,10 @@ class InlineFeedbackModal extends TCModalComponent
         return 'modal-full-screen';
     }
 
+    public static function destroyOnClose(): bool
+    {
+        return true;
+    }
     public function updatedFeedback(): void
     {
         $this->answer

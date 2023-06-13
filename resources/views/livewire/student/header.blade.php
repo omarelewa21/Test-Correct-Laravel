@@ -1,6 +1,5 @@
 <header id="header" class="header sticky top-0 w-full content-center z-10 main-shadow @if(\tcCore\Http\Helpers\GlobalStateHelper::getInstance()->hasActiveMaintenance()) maintenance-header-bg @endif @if(\tcCore\Http\Helpers\GlobalStateHelper::getInstance()->isOnDeploymentTesting()) deployment-testing-marker @endif"
-        x-data="{activeIcon: null, showKnowledgebankModal: @entangle('showKnowledgebankModal'), showChangePasswordModal: @entangle('showChangePasswordModal')}"
-        @password-changed-success.window="showChangePasswordModal = false;"
+        x-data="{activeIcon: null, showKnowledgebankModal: @entangle('showKnowledgebankModal')}"
 >
     <div class="py-2.5 px-6 flex h-full items-center">
         <div class="relative">
@@ -106,7 +105,7 @@
                     {{ __('auth.logout') }}
                 </x-dropdown.item>
                 @if(!Auth::user()->guest)
-                    <x-dropdown.item wire:click="$set('showChangePasswordModal', true)">
+                    <x-dropdown.item wire:click="$emit('openModal', 'change-password')">
                         {{ __('header.change_password') }}
                     </x-dropdown.item>
                 @endif
@@ -114,7 +113,6 @@
         </div>
     </div>
 
-    <x-modal.change-password wire:model="showChangePasswordModal"/>
     @if($this->showKnowledgebankModal)
         <x-modal.iframe wire:model="showKnowledgebankModal" maxWidth="7xl"/>
     @endif

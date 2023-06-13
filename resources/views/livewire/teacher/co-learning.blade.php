@@ -4,12 +4,14 @@
      showStudentAnswer: false,
      showAnswerModel: false,
      showQuestion: true,
+     activeStudentAnswer: null,
      resetToggles() {
         this.showStudentAnswer = false;
         this.showAnswerModel = false;
         this.showQuestion = true;
      },
      async openStudentAnswer(id) {
+        this.activeStudentAnswer = id;
         result = await $wire.call('showStudentAnswer',id);
         this.showStudentAnswer = result === true;
         $dispatch('accordion-toggled')
@@ -56,7 +58,7 @@
                             </div>
                         </x-slot:title>
                         <x-slot:body>
-                            <div class="flex flex-col gap-2 questionContainer"
+                            <div class="flex flex-col questionContainer"
                                  wire:key="question-block-{{  $this->discussingQuestion->uuid }}"
                                  x-init="
                                      elements = $el.querySelectorAll('img[src]').forEach((img) => {
@@ -70,7 +72,7 @@
                                         })
                                      })
                                  ">
-                                <div class="flex flex-wrap">
+                                <div class="flex flex-wrap pb-2 -mt-2">
                                     @foreach($this->discussingQuestion->attachments as $attachment)
                                         <x-attachment.badge-view :attachment="$attachment"
                                                                  :title="$attachment->title"
@@ -135,8 +137,16 @@
                                     </div>
                                 </x-slot:title>
                                 <x-slot:titleLeft>
-                                    <div class="ml-auto mr-6 relative top-0.5 flex gap-2 items-center">
+                                    <div class="ml-auto relative top-0.5 flex gap-2 items-center">
                                         <x-dynamic-component :component="$this->activeAnswerAnsweredStatus" />
+                                        <div class="relative w-[40px] h-[40px] flex items-center justify-center rounded-full hover:bg-primary/5 hover:text-primary active:bg-primary/10"
+                                             @click="activeStudentAnswer = null"
+                                             wire:click.stop="resetActiveAnswer()"
+                                             x-on:mouseenter="$el.closest('button').classList.remove('group')"
+                                             x-on:mouseleave="$el.closest('button').classList.add('group')"
+                                        >
+                                            <x-icon.on-smartboard-hide title="{{ __('co-learning.hide-from-smartboard') }}"/>
+                                        </div>
                                     </div>
                                 </x-slot:titleLeft>
                                 <x-slot:body>
@@ -149,6 +159,7 @@
                                                 :answer="$this->activeAnswerRating->answer"
                                                 :editorId="'editor-'.$this->discussingQuestion->uuid.$this->activeAnswerRating->id"
                                                 :show-toggles="false"
+                                                :webSpellChecker="$this->testTake->enable_spellcheck_colearning"
                                         />
                                     </div>
                                 </x-slot:body>

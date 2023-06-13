@@ -1,7 +1,7 @@
 @if($attachment)
     <div id="attachment-{{$attachment->uuid}}"
-        class="fixed z-30 shadow-lg border border-blue-grey rounded-10 bg-black disable-swipe-navigation inset-x-0 top-10 left-10 {{ $this->getAttachmentModalSize() }}"
-        x-init="dragElement($el); @if($this->attachmentType != 'audio') makeResizableDiv($el, '{{$this->attachmentType}}') @endif"
+        class="fixed z-30 shadow-lg border border-blue-grey rounded-10 bg-black disable-swipe-navigation top-10 left-10 max-width-90 {{ $this->getAttachmentModalSize() }}"
+        x-init="dragElement($el); @if($this->attachmentType != 'audio') makeAttachmentResizable($el, '{{$this->attachmentType}}'); @endif"
         wire:ignore
     >
         <div class="box-border w-full h-full @if($this->attachmentType != 'audio') resizers @endif">
@@ -12,7 +12,7 @@
             <div class='resizer bottom-left'></div>
             <div class='resizer bottom-right'></div>
 
-            <div class="flex-col relative h-full rounded-10">
+            <div class="flex-col relative w-full h-full rounded-10 overflow-auto @if($this->attachmentType == 'image') image-max-height max-h-[80vh] @endif">
                 <div class="flex absolute top-0 right-0 justify-end space-x-2 z-10" style="-webkit-transform: translateZ(10px);">
                     <x-button.secondary id="attachment-{{$attachment->uuid}}drag" class="rotate-svg-45" selid="drag-attachment-btn">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
@@ -25,7 +25,7 @@
                         <x-icon.close class="text-white"/>
                     </x-button.primary>
                 </div>
-                <div class="flex w-full h-full rounded-10 attachment-iframe-wrapper @if($this->attachmentType == 'image') max-h-[80vh] @endif">
+                <div class="flex w-full h-full rounded-10 attachment-iframe-wrapper">
                     @if($this->attachmentType == 'video')
                         <iframe class="w-full h-full" src="{{ $attachment->getVideoLink() }}" selid="youtube-attachment"></iframe>
                     @elseif($this->attachmentType == 'pdf')
@@ -34,8 +34,8 @@
                     @elseif($this->attachmentType == 'audio')
                         <x-attachment.audio :attachment="$attachment" />
                     @else
-                            <img class="w-full h-full block" selid="image-attachment"
-                                src="{{ route('student.answer-attachment-show', ['attachment' => $attachment, 'answer' => $answerId], false) }}" alt=""/>
+                        <img src="{{ route('student.answer-attachment-show', ['attachment' => $attachment, 'answer' => $answerId], false) }}"
+                            selid="image-attachment" alt=""/>
                     @endif
                 </div>
             </div>

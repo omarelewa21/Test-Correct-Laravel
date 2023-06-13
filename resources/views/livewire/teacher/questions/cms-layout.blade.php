@@ -133,22 +133,18 @@
              selid="tabcontainer"
         >
             <div class="flex justify-end py-5" wire:ignore>
-                @if(\Illuminate\Support\Facades\Auth::user()->schoolLocation->allow_wsc)
+                @if($this->allowWsc)
                     <div class="flex items-center relative left-4 gap-4 mr-4" wire:ignore
                          wire:key="wsc-language-component-{{ $this->uniqueQuestionKey }}-{{$question['lang']}}">
                         <label>
                             {{ __('lang.language') }}
                         </label>
-                        <x-input.select
-                                wire:model="lang"
+                        <x-input.select wire:model="lang"
                                 @change="changeEditorWscLanguage($event.target.value);"
                         >
-                            <option value="nl_NL">{{ __('lang.nl_NL') }}</option>
-                            <option value="en_GB">{{ __('lang.en_GB') }}</option>
-                            <option value="fr_FR">{{ __('lang.fr_FR') }}</option>
-                            <option value="de_DE">{{ __('lang.de_DE') }}</option>
-                            <option value="es_ES">{{ __('lang.es_ES') }}</option>
-                            <option value="it_IT">{{ __('lang.it_IT') }}</option>
+                            @foreach($this->wscLanguages as $key => $language)
+                                <option value="{{ $key }}">{{ $language }}</option>
+                            @endforeach
                         </x-input.select>
                     </div>
                 @endif
@@ -300,13 +296,13 @@
 
                     <div class="general-settings-grid">
                         @if($action == 'edit' && !$isCloneRequest)
-                            <div class="border-b flex w-full justify-between items-center py-2">
+                            <div class="border-b border-bluegrey flex w-full justify-between items-center py-2">
                                 <div class="flex items-center space-x-2.5">
                                     <span class="bold text-base">{{ __('cms.unieke id') }}</span>
                                     <span class="ml-10 text-base">{{ $questionId }}</span>
                                 </div>
                             </div>
-                            <div class="border-b flex w-full justify-between items-center py-2">
+                            <div class="border-b border-bluegrey flex w-full justify-between items-center py-2">
                                 <div class="flex items-center space-x-2.5">
                                     <span class="bold text-base">{{ __('cms.auteur(s)') }}</span>
                                     <span class="ml-10 text-base">{{ $authors }}</span>
@@ -317,7 +313,7 @@
                         @if($this->isSettingsGeneralPropertyVisible('closeable'))
                             <x-input.toggle-row-with-title wire:model="question.closeable"
                                                            :toolTip="__('cms.close_after_answer_tooltip_text')"
-                                                           class="{{ $this->isSettingsGeneralPropertyDisabled('closeable') ? 'text-disabled' : '' }}"
+                                                           class="{{ $this->isSettingsGeneralPropertyDisabled('closeable') ? 'text-disabled' : 'kaas' }}"
                                                            :disabled="$this->isSettingsGeneralPropertyDisabled('closeable')"
                             >
                                 <x-icon.locked></x-icon.locked>
@@ -360,7 +356,8 @@
                         @endif
 
                         @if($this->isSettingsGeneralPropertyVisible('allowNotes'))
-                            <x-input.toggle-radio-row-with-title wire:model="question.note_type" value-on="TEXT"
+                            <x-input.toggle-radio-row-with-title wire:model="question.note_type"
+                                                                 value-on="TEXT"
                                                                  value-off="NONE"
                                                                  class="{{ $this->isSettingsGeneralPropertyDisabled('allowNotes') ? 'text-disabled' : '' }}"
                                                                  :disabled="$this->isSettingsGeneralPropertyDisabled('allowNotes')"
@@ -377,16 +374,6 @@
                             >
                                 <x-icon.half-points/>
                                 <span class="bold @if($this->isSettingsGeneralPropertyDisabled('decimalOption')) disabled @endif"> {{ __('cms.Halve puntenbeoordeling mogelijk') }}</span>
-                            </x-input.toggle-row-with-title>
-                        @endif
-
-                        @if($this->isSettingsGeneralPropertyVisible('spellingCheckAvailableDuringAssessing'))
-                            <x-input.toggle-row-with-title wire:model="question.spell_check_available"
-                                                           class="{{ $this->isSettingsGeneralPropertyDisabled('spellingCheckAvailableDuringAssessing') ? 'text-disabled' : '' }}"
-                                                           :disabled="$this->isSettingsGeneralPropertyDisabled('spellingCheckAvailableDuringAssessing')"
-                            >
-                                <x-icon.autocheck/>
-                                <span class="bold @if($this->isSettingsGeneralPropertyDisabled('spellingCheckAvailableDuringAssessing')) disabled @endif"> {{ __('cms.Taalcontrole beschikbaar tijdens nakijken') }}</span>
                             </x-input.toggle-row-with-title>
                         @endif
 
@@ -538,7 +525,7 @@
                         <x-slot name="title">{{ __('cms.Statistiek') }}</x-slot>
                         <div class="grid grid-cols-2 gap-4">
                             @if($action == 'edit')
-                                <div class="border-b flex w-full justify-between items-center py-2">
+                                <div class="border-b border-bluegrey flex w-full justify-between items-center py-2">
                                     <div class="flex items-center space-x-2.5">
                                         <div class="flex items-center space-x-2.5">
                                             <span class="bold text-base">{{ __('cms.unieke id') }}</span>
@@ -546,7 +533,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="border-b flex w-full justify-between items-center py-2">
+                                <div class="border-b border-bluegrey flex w-full justify-between items-center py-2">
                                     <div class="flex items-center space-x-2.5">
                                         <div class="flex items-center space-x-2.5">
                                             <span class="bold text-base">{{ __('cms.auteur(s)') }}</span>

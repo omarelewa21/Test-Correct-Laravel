@@ -13,7 +13,7 @@ use tcCore\Factories\Questions\FactoryQuestionOpenShort;
 use tcCore\FactoryScenarios\FactoryScenarioSchoolSimple;
 use tcCore\Http\Controllers\AuthorsController;
 use tcCore\Http\Controllers\TestQuestionsController;
-use tcCore\Http\Livewire\Teacher\Questions\CmsRequest;
+use tcCore\Http\Livewire\Teacher\Cms\CmsRequest;
 use tcCore\Question;
 use tcCore\SchoolLocation;
 use tcCore\Subject;

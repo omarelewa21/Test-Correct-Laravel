@@ -14,6 +14,7 @@ class OpenQuestion extends QuestionComponent
         public Question $question,
         public Answer   $answer,
         public string $editorId,
+        public bool $webSpellChecker = false,
     )
     {
         parent::__construct($question, $answer);

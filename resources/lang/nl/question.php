@@ -1,10 +1,7 @@
 <?php
+
 return [
-    'open-long-short'             => 'Open lang & kort',
-    'open-long-short_description' => 'Open antwoord door tekst typen, lang of kort',
-    'open-long_description'       => 'Open antwoord door een lange tekst te typen',
-    'open-short_description'      => 'Open antwoord door een korte tekst te typen',
-    'open-writing_description'    => 'Schrijfopdracht antwoord door een tekst te typen',
+    'open_description'            => 'Open vraag beantwoorden voor o.a. schrijfopdrachten',
     'completion'                  => 'Gatentekst',
     'completion_description'      => 'Gaten in tekst invullen als antwoord',
     'drawing'                     => 'Teken',
@@ -27,12 +24,13 @@ return [
     'infoscreen_description'      => 'Geef extra informatie voor een vraag of set vragen',
     'no_question_text'            => 'Geen vraagtekst',
 
-    'openquestionmedium'                   => 'Open lang',
-    'openquestionshort'                    => 'Open kort',
-    'openquestionlong'                     => 'Open lang',
-    'openquestionopen'                     => 'Open lang & kort',
-    'openquestion'                         => 'Open lang & kort',
-    'openquestionwriting'                  => 'Schrijfopdracht',
+    'openquestionmedium'                   => 'Schrijf op',
+    'openquestionwrite'                   => 'Schrijf op',
+    'openquestionshort'                    => 'Schrijf op',
+    'openquestionlong'                     => 'Schrijf op',
+    'openquestionopen'                     => 'Schrijf op',
+    'openquestion'                         => 'Schrijf op',
+    'openquestionwriting'                  => 'Schrijf op',
     'multiplechoicequestion'               => 'Meerkeuze',
     'multiplechoicequestionarq'            => 'ARQ',
     'multiplechoicequestionmultichoice'    => 'Meerkeuze',

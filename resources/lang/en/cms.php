@@ -1,4 +1,5 @@
 <?php
+
 return [
     'Bijlage toevoegen'                                                                      => 'Add attachment',
     'Of sleep je bijlage over dit vak'                                                       => 'Or drop the attachment here..',
@@ -228,4 +229,12 @@ return [
     'no_public_content_search_filters'                                                       => 'There is no public content for your school yet.',
     'no_items_search_filter'                                                                 => 'There are no more entries for these search filters.',
     'Sorry, er ging iets fout, probeer het nogmaals'                                         => 'Sorry, something went wrong. Please try again',
+    'text_formatting'                                                                        => 'Text formatting options',
+    'text_formatting_tooltip'                                                                => 'This allows students to choose how to format their written answer.',
+    'mathml_functions'                                                                       => 'Formulas and special characters available',
+    'mathml_functions_tooltip'                                                               => 'This allows students to use our math and chem editor, making it possible to write down formulas.',
+    'restrict_word_amount'                                                                   => 'Max. amount of words',
+    'spell_check_available'                                                                  => 'Spellchecker available',
+    'spell_check_available_tooltip'                                                          => 'This allows the students to use a spellchecker during their test. The spellchecker will automatically underline all words that are written incorrectly.',
+    'Antwoord opties voor student'                                                           => 'Answer options for student',
 ];

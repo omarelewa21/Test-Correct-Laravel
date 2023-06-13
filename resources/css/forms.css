@@ -99,7 +99,7 @@ textarea {
     background-color: var(--off-white);
     background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAAJBAMAAAAbVLtZAAAABGdBTUEAALGPC/xhBQAAACBjSFJN%20AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAALVBMVEV7ibYPKXpvf6/+/v7/%20//8MJngEH3Rqeq1wgLD9/f5kdan7+/0nP4hjdKmhq8sFhwJhAAAAAWJLR0QEj2jZUQAAAAlwSFlz%20AAAAYAAAAGAA8GtCzwAAAAd0SU1FB+UBGQoCDds8it0AAABLSURBVAjXY2BUdnFxVmRgCEs3cTFP%20C2BoS6v0LEtrYJiVlrUrLWsCg+eytGNpKx0YXOampeVOAdKe19JuugBpl1lZU8C050sXFwcAN68Y%20ZfYz1FUAAAAldEVYdGRhdGU6Y3JlYXRlADIwMjEtMDEtMjVUMTA6MDI6MTIrMDA6MDCg/O9HAAAA%20JXRFWHRkYXRlOm1vZGlmeQAyMDIxLTAxLTI1VDEwOjAyOjEyKzAwOjAw0aFX+wAAAABJRU5ErkJg%20gg==), linear-gradient(to bottom, var(--off-white) 0%, var(--off-white) 100%);
     background-repeat: no-repeat, repeat;
-    background-position: right 1.5rem top 50%, 0 0;
+    background-position: right 1rem top 50%, 0 0;
     background-size: .75em auto, 100%;
 }
 

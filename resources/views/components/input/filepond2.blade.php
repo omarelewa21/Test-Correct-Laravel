@@ -8,7 +8,7 @@
         post.setOptions({
             server: {
                 process:(fieldName, file, metadata, load, error, progress, abort, transfer, options) => {
-                    console.log(file);
+
                     @this.upload('{{ $attributes->whereStartsWith('wire:model')->first() }}', file, load, error, progress)
                 },
                 revert: (filename, load) => {

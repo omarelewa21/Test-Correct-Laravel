@@ -4,5 +4,4 @@
     <main class="">
         {{ $slot }}
     </main>
-    @livewire('livewire-ui-modal')
 </x-layouts.base>

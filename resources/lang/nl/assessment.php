@@ -12,7 +12,7 @@ return [
     'continuously_saved_tooltip'                   => 'Je hoeft niet actief op te slaan en kan later altijd verder gaan waar je was gebleven.',
     'closed_question_checked_tooltip'              => 'Alle gesloten vragen worden automatisch nagekeken en beoordeeld o.b.v. het correctie-/antwoordmodel. Wel zo handig, want dit scheelt een hoop van jouw waardevolle tijd. Voor de gatentekst kun je zelf aangeven of deze automatisch moet worden nagekeken.',
     'colearning_score_tooltip'                     => 'Scores die studenten hebben gegeven aan antwoorden worden getoond tijdens het nakijken. Als er geen discrepanties zijn kent het systeem deze score toe aan het antwoord',
-    'discrepancies_toggle_tooltip'                 => 'Wanneer twee studenten dezelfde score toekennen aan een antwoord, zou de docent meestal dezelfde score toekennen. Je kunt ervoor kiezen om deze antwoord over te slaan tijdens het nakijken.',
+    'discrepancies_toggle_tooltip'                 => 'Wanneer twee studenten dezelfde score toekennen aan een antwoord, zou de docent meestal dezelfde score toekennen. Je kunt ervoor kiezen om deze antwoord over te slaan tijdens het nakijken. Overslaan is uitgeschakeld wanneer geen CO-Learning heeft plaatsgevonden of discrepantie is ontstaan.',
     'Nakijken'                                     => 'Nakijken',
     'Score uit CO-Learning'                        => 'Score uit CO-Learning',
     'Automatisch nakijken'                         => 'Automatisch nakijken',
@@ -35,7 +35,7 @@ return [
     'Feedback toevoegen'                           => 'Feedback toevoegen',
     'current_session'                              => ":index/:totalQuestions vragen nagekeken<br>op :date",
     'no_answers'                                   => 'Er zijn geen antwoorden om na te kijken.',
-    'Toon de naam van studenten'                   => 'Toon de naam van studenten',
+    'Studentnamen tonen'                           => 'Studentnamen tonen',
     'Inline feedback toevoegen'                    => 'Inline feedback toevoegen',
     'Inline feedback wijzigen'                     => 'Inline feedback wijzigen',
     'Inline feedback verwijderen'                  => 'Inline feedback verwijderen',
@@ -43,4 +43,5 @@ return [
     'Er zitten geen open vragen in deze toets.'    => 'Er zitten geen open vragen in deze toets.',
     'Inline feedback schrijven in antwoord'        => 'Inline feedback schrijven in antwoord',
     'Inline feedback bekijken'                     => 'Inline feedback bekijken',
+    'scored_by_one_student'                        => 'Let op: gescoord door één student.',
 ];

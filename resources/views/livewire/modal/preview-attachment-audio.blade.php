@@ -5,6 +5,7 @@
          x-init="$nextTick(() => {
                     controls = ['play', 'progress', 'current-time', 'mute', 'volume'];
                     player = plyrPlayer.renderWithoutConstraints($refs.player);
+                    window.attachmentPreviewLoaded()
                 })"
     >
         <div class="w-3/4">

@@ -37,5 +37,4 @@
             </div>
         </footer>
     @endisset
-    @livewire('livewire-ui-modal')
 </x-layouts.base>

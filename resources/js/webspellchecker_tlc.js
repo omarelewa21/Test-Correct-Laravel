@@ -8,7 +8,6 @@ WebspellcheckerTlc = {
             editor.on('resize', function (event) {
                 WebspellcheckerTlc.triggerWsc(editor,language);
             });
-            editor.focus();
         },
     lang: function(editor, language) {
         var i = 0;
@@ -35,7 +34,7 @@ WebspellcheckerTlc = {
         setTimeout(function () {
 
             var instance = WEBSPELLCHECKER.init({
-                container: editor.ui._editableElements.get('main'),
+                container: editor.ui.getEditableElement('main'),
                 spellcheckLang: language,
                 localization: 'nl'
             });

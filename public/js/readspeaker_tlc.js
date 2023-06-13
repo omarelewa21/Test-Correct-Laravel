@@ -972,7 +972,7 @@ ReadspeakerTlc = function(){
             var editor = ClassicEditors[editorId];
             replaceReadableAreaByClone(editor);
             window.classicEditorDetached = true;
-            return element;
+            return editor;
         }
         function replaceReadableAreaByClone(editor)
         {

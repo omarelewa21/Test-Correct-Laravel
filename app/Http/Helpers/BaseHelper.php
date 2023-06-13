@@ -49,6 +49,7 @@ class BaseHelper
         $sessionHash = $user->generateSessionHash();
         $user->setSessionHash($sessionHash);
 
+        UserHelper::setSystemLanguage($user);
         UserHelper::setAdditionalUserAttributes($user);
         UserHelper::handleTeacherEnvironment($user);
 
@@ -212,5 +213,16 @@ class BaseHelper
         }
 
         return collect(explode('/', $mime))->first();
+    }
+
+    public static function browserLanguage(): string
+    {
+        $lang = 'nl';
+        if (array_key_exists('HTTP_ACCEPT_LANGUAGE', $_SERVER)) {
+            $language = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
+            $lang = $language === 'en' ? 'en' : 'nl';
+        }
+
+        return $lang;
     }
 }
