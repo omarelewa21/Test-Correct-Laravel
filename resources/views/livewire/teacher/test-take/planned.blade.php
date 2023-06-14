@@ -5,9 +5,12 @@
         <x-input.multi-dropdown-select :options="$this->dropdownData"
                                        :title="__('teacher.Klassen en studenten')"
                                        containerId="c_and_s_container-{{ $this->testTakeUuid }}"
+                                       :label="'kaas'"
         />
 
-        <div id="c_and_s_container-{{ $this->testTakeUuid }}"></div>
+        <div id="c_and_s_container-{{ $this->testTakeUuid }}"
+             class="flex gap-2 flex-wrap"
+        ></div>
 
     </div>
 

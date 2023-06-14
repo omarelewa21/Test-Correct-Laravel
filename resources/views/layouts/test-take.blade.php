@@ -55,10 +55,12 @@
             <x-button.icon>
                 <x-icon.settings/>
             </x-button.icon>
-            <x-button.student x-on:click="testCodePopup = !testCodePopup">
-                <span>{{ $this->testTake->testTakeCode->displayCode }}</span>
-                <x-icon.screen-expand/>
-            </x-button.student>
+            @if($this->testTake->testTakeCode)
+                <x-button.student x-on:click="testCodePopup = !testCodePopup">
+                    <span>{{ $this->testTake->testTakeCode->displayCode }}</span>
+                    <x-icon.screen-expand/>
+                </x-button.student>
+            @endif
             <x-button.cta>
                 <span>@lang('test-take.Afnemen')</span>
                 <x-icon.arrow/>
@@ -70,6 +72,7 @@
         @endif
     </div>
 
+    @if($this->testTake->testTakeCode)
     <div class="test-code-popup | fixed bg-student rounded-10 top-[75px] right-12 z-10 flex items-center px-4 py-2"
          x-show="testCodePopup"
          x-cloak
@@ -81,5 +84,6 @@
                             x-on:click="testCodePopup = false"
         />
     </div>
+    @endif
 </div>
 

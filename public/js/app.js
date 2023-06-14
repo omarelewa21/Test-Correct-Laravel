@@ -8123,9 +8123,10 @@ document.addEventListener("alpine:init", function () {
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("multiDropdownSelect", function (options, containerId) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("multiDropdownSelect", function (options, containerId, wireModel) {
     return {
       options: options,
+      wireModel: wireModel,
       open: false,
       openSubs: [],
       checkedParents: [],
@@ -8133,6 +8134,7 @@ document.addEventListener("alpine:init", function () {
       query: "",
       searchEmpty: false,
       pillContainer: null,
+      searchFocussed: false,
       init: function init() {
         var _this58 = this;
         this.pillContainer = document.querySelector("#".concat(containerId));
@@ -8140,53 +8142,42 @@ document.addEventListener("alpine:init", function () {
           return _this58.search(value);
         });
         this.$watch("open", function (value) {
-          if (value) {
-            var dropdown = _this58.$root.querySelector(".dropdown");
-            var top = _this58.$root.getBoundingClientRect().top + _this58.$root.offsetHeight + 16 + parseInt(dropdown.style.maxHeight);
-            var property = top >= screen.availHeight ? "bottom" : "top";
-            dropdown.style[property] = _this58.$root.offsetHeight + 8 + "px";
-          }
+          if (value) _this58.handleDropdownLocation();
         });
+        this.registerSelectedItemsOnComponent();
       },
-      subToggle: function subToggle(uuid) {
+      subClick: function subClick(uuid) {
         this.openSubs = this.toggle(this.openSubs, uuid);
       },
-      parentToggle: function parentToggle(element, parent) {
+      parentClick: function parentClick(element, parent) {
         var _this59 = this;
-        var removePill = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-        var checked = this.handleCheckbox(this.checkedParents, parent.value, element);
+        var checked = !this.checkedParents.includes(parent.value);
+        element.querySelector("input[type=\"checkbox\"]").checked = checked;
         this.checkedParents = this.toggle(this.checkedParents, parent.value);
-        var index = this.options.findIndex(function (item) {
-          return item.value === parent.value;
+        parent.children.filter(function (child) {
+          return child.disabled !== true;
+        }).forEach(function (child) {
+          _this59[checked ? "childAdd" : "childRemove"](child);
+          checked ? _this59.disableBrothersFromOtherMothers(child) : _this59.enableBrothersFromOtherMothers(child);
         });
-        this.options[index].children.forEach(function (child) {
-          _this59.checkedChildren = _this59[checked ? "remove" : "add"](_this59.checkedChildren, child.value);
+        this.$root.querySelectorAll("[data-parent-id=\"".concat(parent.value, "\"][data-disabled=\"false\"] input[type=\"checkbox\"]")).forEach(function (child) {
+          return child.checked = checked;
         });
-        this.$root.querySelectorAll("[data-parent-id=\"".concat(parent.value, "\"] input[type=\"checkbox\"]")).forEach(function (child) {
-          return child.checked = !checked;
-        });
+        this.registerParentsBasedOnDisabledChildren();
         this.handleActiveFilters();
+        this.syncInput();
       },
-      childToggle: function childToggle(element, child) {
-        var removePill = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-        var checked = this.handleCheckbox(this.checkedChildren, child.value, element);
-        this.checkedChildren = this.toggle(this.checkedChildren, child.value);
+      childClick: function childClick(element, child) {
+        var checked = !this.checkedChildrenContains(child);
+        element.querySelector("input[type=\"checkbox\"]").checked = checked;
+        this.childToggle(child);
+        checked ? this.disableBrothersFromOtherMothers(child) : this.enableBrothersFromOtherMothers(child);
         var parent = this.options.find(function (parent) {
           return parent.value === child.customProperties.parentId;
         });
-        if (checked) {
-          if (this.checkedParents.includes(parent.value)) {
-            this.checkedParents = this.remove(this.checkedParents, parent.value);
-            this.$root.querySelector("[data-id=\"".concat(parent.value, "\"] input[type=\"checkbox\"]")).checked = !checked;
-          }
-        }
-        if (!checked) {
-          if (this.checkedChildrenCount(parent) === parent.children.length) {
-            this.checkedParents = this.add(this.checkedParents, parent.value);
-            this.$root.querySelector("[data-id=\"".concat(parent.value, "\"] input[type=\"checkbox\"]")).checked = !checked;
-          }
-        }
+        this.handleParentStateWhenChildsChange(parent, checked);
         this.handleActiveFilters();
+        this.syncInput();
       },
       toggle: function toggle(list, value) {
         if (!list.includes(value)) {
@@ -8204,23 +8195,38 @@ document.addEventListener("alpine:init", function () {
           return item !== value;
         });
       },
-      handleCheckbox: function handleCheckbox(list, value, element) {
-        var checked = list.includes(value);
-        element.querySelector("input[type=\"checkbox\"]").checked = !checked;
-        return checked;
+      childToggle: function childToggle(child) {
+        if (this.checkedChildrenContains(child)) {
+          return this.childRemove(child);
+        }
+        return this.childAdd(child);
+      },
+      childAdd: function childAdd(child) {
+        if (this.checkedChildrenContains(child)) return;
+        this.checkedChildren.push({
+          value: child.value,
+          parent: child.customProperties.parentId
+        });
+      },
+      childRemove: function childRemove(child) {
+        this.checkedChildren = _.reject(this.checkedChildren, function (item) {
+          return item.value === child.value && item.parent === child.customProperties.parentId;
+        });
       },
       parentPartiallyToggled: function parentPartiallyToggled(parent) {
-        if (this.checkedParents.includes(parent.value)) {
+        var result = this.checkedChildrenCount(parent);
+        if (this.checkedParents.includes(parent.value) || result === 0) {
           return false;
         }
-        var result = this.checkedChildrenCount(parent);
-        if (result === 0) return false;
-        return result < parent.children.length;
+        return result < parent.children.filter(function (child) {
+          return child.disabled !== true;
+        }).length;
+        // return result < parent.children.length;
       },
       checkedChildrenCount: function checkedChildrenCount(parent) {
         var _this60 = this;
         return parent.children.filter(function (child) {
-          return _this60.checkedChildren.includes(child.value);
+          return _this60.checkedChildrenContains(child);
         }).length;
       },
       search: function search(value) {
@@ -8257,9 +8263,7 @@ document.addEventListener("alpine:init", function () {
       },
       getParentSearchMatches: function getParentSearchMatches(value) {
         return this.options.filter(function (parent) {
-          var uuids = [];
           if (parent.label.toLowerCase().includes(value)) {
-            uuids.push(parent.value);
             return true;
           }
           var childMatch = parent.children.find(function (child) {
@@ -8278,8 +8282,7 @@ document.addEventListener("alpine:init", function () {
           var matchingChildren = parent.children.filter(function (child) {
             return child.label.toLowerCase().includes(value);
           });
-          /* If no search result for individual students,
-              but a parent is found, return all children */
+          /* If no search result for individual students, but a parent is found, return all children */
           return matchingChildren.length > 0 ? matchingChildren : parent.children;
         }).filter(Boolean).map(function (item) {
           return item.value;
@@ -8296,49 +8299,138 @@ document.addEventListener("alpine:init", function () {
         this.open = false;
       },
       createFilterPill: function createFilterPill(item) {
+        var _item$customPropertie;
         if (this.pillContainer === null) return;
-        if (this.pillContainer.querySelector("#pill-".concat(item.value))) return;
+        var identifier = ((_item$customPropertie = item.customProperties) === null || _item$customPropertie === void 0 ? void 0 : _item$customPropertie.parent) === false ? item.value + item.customProperties.parentId : item.value;
+        if (this.pillContainer.querySelector("#pill-".concat(identifier))) return;
         var element = this.$root.querySelector("#filter-pill-template").content.firstElementChild.cloneNode(true);
-        element.id = "pill-".concat(item.value);
+        element.id = "pill-".concat(identifier);
         element.selectComponent = this.$root;
         element.item = item;
-        element.classList.add("filter-pill");
+        element.classList.add("filter-pill", 'self-end', 'h-10');
         element.firstElementChild.innerHTML = item.label;
-        element.dataset.order = this.pillContainer.childElementCount + 1;
         return this.pillContainer.appendChild(element);
       },
       removeFilterPill: function removeFilterPill(event) {
         var _event$item$customPro;
         event.element.remove();
-        var toggleFunction = ((_event$item$customPro = event.item.customProperties) === null || _event$item$customPro === void 0 ? void 0 : _event$item$customPro.parent) === false ? "childToggle" : "parentToggle";
-        this[toggleFunction](this.$root.querySelector("[data-id=\"".concat(event.item.value, "\"]")), event.item);
+        var toggleFunction = ((_event$item$customPro = event.item.customProperties) === null || _event$item$customPro === void 0 ? void 0 : _event$item$customPro.parent) === false ? "childClick" : "parentClick";
+        this[toggleFunction](this.$root.querySelector("[data-id=\"".concat(event.item.value, "\"][data-parent-id=\"").concat(event.item.customProperties.parentId, "\"]")), event.item);
       },
       handleActiveFilters: function handleActiveFilters() {
         var _this62 = this;
         var currentPillIds = Array.from(this.pillContainer.childNodes).map(function (pill) {
+          if (!_this62.isParent(pill.item)) {
+            return pill.item.value + pill.item.customProperties.parentId;
+          }
           return pill.item.value;
         });
-        var currentlyChecked = this.checkedParents.concat(this.checkedChildren);
-        var pillIdsToCreate = currentlyChecked.filter(function (uuid) {
-          return currentPillIds.contains(uuid);
-        });
+        var currentlyChecked = this.checkedParents.concat(this.checkedChildren.map(function (child) {
+          return child.value + child.parent;
+        }));
         var pillIdsToRemove = currentPillIds.filter(function (uuid) {
-          return currentlyChecked.contains(uuid);
-        });
-        pillIdsToRemove.forEach(function (uuid) {
-          var _this62$pillContainer;
-          (_this62$pillContainer = _this62.pillContainer.querySelector("#pill-".concat(uuid))) === null || _this62$pillContainer === void 0 ? void 0 : _this62$pillContainer.remove();
+          return !currentlyChecked.contains(uuid);
         });
         this.options.flatMap(function (parent) {
           return [parent].concat(_toConsumableArray(parent.children));
         }).filter(function (item) {
-          var _item$customPropertie;
-          if (((_item$customPropertie = item.customProperties) === null || _item$customPropertie === void 0 ? void 0 : _item$customPropertie.parent) === false) {
-            return !_this62.checkedParents.includes(item.customProperties.parentId) && _this62.checkedChildren.includes(item.value);
+          if (_this62.isParent(item)) return _this62.checkedParents.includes(item.value);
+          if (_this62.checkedParents.includes(item.customProperties.parentId)) {
+            pillIdsToRemove.push(item.value + item.customProperties.parentId);
           }
-          return _this62.checkedParents.includes(item.value);
+          return !_this62.checkedParents.includes(item.customProperties.parentId) && _this62.checkedChildrenContains(item);
+        }).forEach(function (item) {
+          return _this62.createFilterPill(item);
         });
-        debugger;
+        var that = this;
+        pillIdsToRemove.forEach(function (uuid) {
+          var _that$pillContainer$q;
+          (_that$pillContainer$q = that.pillContainer.querySelector("#pill-".concat(uuid))) === null || _that$pillContainer$q === void 0 ? void 0 : _that$pillContainer$q.remove();
+        });
+      },
+      handleDropdownLocation: function handleDropdownLocation() {
+        var dropdown = this.$root.querySelector(".dropdown");
+        var top = this.$root.getBoundingClientRect().top + this.$root.offsetHeight + 16 + parseInt(dropdown.style.maxHeight);
+        var property = top >= screen.availHeight ? "bottom" : "top";
+        dropdown.style[property] = this.$root.offsetHeight + 8 + "px";
+      },
+      handleParentStateWhenChildsChange: function handleParentStateWhenChildsChange(parent, checked) {
+        if (checked && this.checkedChildrenCount(parent) === parent.children.filter(function (child) {
+          return child.disabled !== true;
+        }).length) {
+          this.checkedParents = this.add(this.checkedParents, parent.value);
+          this.$root.querySelector("[data-id=\"".concat(parent.value, "\"][data-parent-id=\"").concat(parent.value, "\"] input[type=\"checkbox\"]")).checked = checked;
+        }
+        if (!checked && this.checkedParents.includes(parent.value)) {
+          this.checkedParents = this.remove(this.checkedParents, parent.value);
+          this.$root.querySelector("[data-id=\"".concat(parent.value, "\"] input[type=\"checkbox\"]")).checked = checked;
+        }
+      },
+      registerSelectedItemsOnComponent: function registerSelectedItemsOnComponent() {
+        var _this63 = this;
+        var checkedChildValues = this.options.flatMap(function (parent) {
+          return _toConsumableArray(parent.children);
+        }).filter(function (item) {
+          var _item$customPropertie2;
+          return ((_item$customPropertie2 = item.customProperties) === null || _item$customPropertie2 === void 0 ? void 0 : _item$customPropertie2.selected) === true;
+        });
+        this.$nextTick(function () {
+          checkedChildValues.forEach(function (item) {
+            _this63.childClick(_this63.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.customProperties.parentId, "\"]")), item);
+          });
+          _this63.registerParentsBasedOnDisabledChildren();
+          _this63.handleActiveFilters();
+        });
+      },
+      syncInput: function syncInput() {
+        if (!this.wireModel.value) return;
+        this.$wire.sync(this.wireModel.value, {
+          parents: this.checkedParents,
+          children: this.checkedChildren
+        });
+      },
+      checkedChildrenContains: function checkedChildrenContains(child) {
+        return this.checkedChildren.some(function (item) {
+          var _child$customProperti;
+          return item.value === child.value && item.parent === ((_child$customProperti = child.customProperties) === null || _child$customProperti === void 0 ? void 0 : _child$customProperti.parentId);
+        });
+      },
+      disableBrothersFromOtherMothers: function disableBrothersFromOtherMothers(child) {
+        this.options.flatMap(function (parents) {
+          return _toConsumableArray(parents.children);
+        }).filter(function (item) {
+          return item.value === child.value && item.customProperties.parentId !== child.customProperties.parentId;
+        }).forEach(function (item) {
+          return item.disabled = true;
+        });
+      },
+      enableBrothersFromOtherMothers: function enableBrothersFromOtherMothers(child) {
+        this.options.flatMap(function (parents) {
+          return _toConsumableArray(parents.children);
+        }).filter(function (item) {
+          return item.value === child.value && item.customProperties.parentId !== child.customProperties.parentId;
+        }).forEach(function (item) {
+          return item.disabled = false;
+        });
+      },
+      isParent: function isParent(item) {
+        var _item$customPropertie3;
+        return !((_item$customPropertie3 = item.customProperties) !== null && _item$customPropertie3 !== void 0 && _item$customPropertie3.parent) === false;
+      },
+      registerParentsBasedOnDisabledChildren: function registerParentsBasedOnDisabledChildren() {
+        var _this64 = this;
+        this.options.filter(function (item) {
+          return item.children.some(function (child) {
+            return child.disabled === true;
+          });
+        }).forEach(function (item) {
+          if (_this64.checkedChildrenCount(item) === item.children.filter(function (child) {
+            return child.disabled !== true;
+          }).length) {
+            _this64.checkedParents = _this64.add(_this64.checkedParents, item.value);
+            _this64.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.value, "\"] input[type=\"checkbox\"]")).checked = true;
+          }
+        });
       }
     };
   });

@@ -2466,8 +2466,9 @@ document.addEventListener("alpine:init", () => {
         }
     }));
 
-    Alpine.data("multiDropdownSelect", (options, containerId) => ({
+    Alpine.data("multiDropdownSelect", (options, containerId, wireModel) => ({
         options,
+        wireModel,
         open: false,
         openSubs: [],
         checkedParents: [],
@@ -2475,59 +2476,49 @@ document.addEventListener("alpine:init", () => {
         query: "",
         searchEmpty: false,
         pillContainer: null,
+        searchFocussed: false,
         init() {
             this.pillContainer = document.querySelector(`#${containerId}`);
             this.$watch("query", value => this.search(value));
             this.$watch("open", value => {
-                if (value) {
-                    const dropdown = this.$root.querySelector(".dropdown");
-                    const top = this.$root.getBoundingClientRect().top
-                        + this.$root.offsetHeight
-                        + 16
-                        + parseInt(dropdown.style.maxHeight);
-                    const property = top >= screen.availHeight ? "bottom" : "top";
-                    dropdown.style[property] = this.$root.offsetHeight + 8 + "px";
-                }
+                if (value) this.handleDropdownLocation();
             });
+
+            this.registerSelectedItemsOnComponent();
         },
-        subToggle(uuid) {
+        subClick(uuid) {
             this.openSubs = this.toggle(this.openSubs, uuid);
         },
-        parentToggle(element, parent, removePill = false) {
-            const checked = this.handleCheckbox(this.checkedParents, parent.value, element);
+        parentClick(element, parent) {
+            const checked = !this.checkedParents.includes(parent.value);
+            element.querySelector("input[type=\"checkbox\"]").checked = checked;
+
             this.checkedParents = this.toggle(this.checkedParents, parent.value);
 
-            const index = this.options.findIndex(item => item.value === parent.value);
-
-            this.options[index].children.forEach((child) => {
-                this.checkedChildren = this[checked ? "remove" : "add"](this.checkedChildren, child.value);
+            parent.children.filter(child => child.disabled !== true).forEach((child) => {
+                this[checked ? "childAdd" : "childRemove"](child);
+                checked ? this.disableBrothersFromOtherMothers(child) : this.enableBrothersFromOtherMothers(child);
             });
 
-            this.$root.querySelectorAll(`[data-parent-id="${parent.value}"] input[type="checkbox"]`)
-                .forEach(child => child.checked = !checked);
+            this.$root.querySelectorAll(`[data-parent-id="${parent.value}"][data-disabled="false"] input[type="checkbox"]`)
+                .forEach(child => child.checked = checked);
 
+            this.registerParentsBasedOnDisabledChildren();
             this.handleActiveFilters();
+            this.syncInput();
         },
-        childToggle(element, child, removePill = false) {
-            const checked = this.handleCheckbox(this.checkedChildren, child.value, element);
-            this.checkedChildren = this.toggle(this.checkedChildren, child.value);
+        childClick(element, child) {
+            const checked = !this.checkedChildrenContains(child);
+            element.querySelector("input[type=\"checkbox\"]").checked = checked;
+            this.childToggle(child);
+
+            checked ? this.disableBrothersFromOtherMothers(child) : this.enableBrothersFromOtherMothers(child);
 
             const parent = this.options.find(parent => parent.value === child.customProperties.parentId);
+            this.handleParentStateWhenChildsChange(parent, checked);
 
-            if (checked) {
-                if (this.checkedParents.includes(parent.value)) {
-                    this.checkedParents = this.remove(this.checkedParents, parent.value);
-                    this.$root.querySelector(`[data-id="${parent.value}"] input[type="checkbox"]`).checked = !checked;
-                }
-            }
-
-            if (!checked) {
-                if (this.checkedChildrenCount(parent) === parent.children.length) {
-                    this.checkedParents = this.add(this.checkedParents, parent.value);
-                    this.$root.querySelector(`[data-id="${parent.value}"] input[type="checkbox"]`).checked = !checked;
-                }
-            }
             this.handleActiveFilters();
+            this.syncInput();
         },
         toggle(list, value) {
             if (!list.includes(value)) {
@@ -2543,23 +2534,29 @@ document.addEventListener("alpine:init", () => {
         remove(list, value) {
             return list.filter((item) => item !== value);
         },
-        handleCheckbox(list, value, element) {
-            const checked = list.includes(value);
-            element.querySelector("input[type=\"checkbox\"]").checked = !checked;
-            return checked;
+        childToggle(child) {
+            if(this.checkedChildrenContains(child)) {
+                return this.childRemove(child)
+            }
+            return this.childAdd(child);
+        },
+        childAdd(child) {
+            if(this.checkedChildrenContains(child)) return;
+            this.checkedChildren.push({ value: child.value, parent: child.customProperties.parentId });
+        },
+        childRemove(child) {
+            this.checkedChildren = _.reject(this.checkedChildren, item => item.value === child.value && item.parent === child.customProperties.parentId);
         },
         parentPartiallyToggled(parent) {
-            if (this.checkedParents.includes(parent.value)) {
+            const result = this.checkedChildrenCount(parent);
+            if (this.checkedParents.includes(parent.value) || result === 0) {
                 return false;
             }
-
-            const result = this.checkedChildrenCount(parent);
-            if (result === 0) return false;
-
-            return result < parent.children.length;
+            return result < parent.children.filter(child => child.disabled !== true).length;
+            // return result < parent.children.length;
         },
         checkedChildrenCount(parent) {
-            return parent.children.filter((child) => this.checkedChildren.includes(child.value)).length;
+            return parent.children.filter((child) => this.checkedChildrenContains(child) ).length;
         },
         search(value) {
             if (value.length === 0) {
@@ -2591,9 +2588,7 @@ document.addEventListener("alpine:init", () => {
         getParentSearchMatches(value) {
             return this.options
                 .filter(parent => {
-                    let uuids = [];
                     if (parent.label.toLowerCase().includes(value)) {
-                        uuids.push(parent.value);
                         return true;
                     }
                     let childMatch = parent.children.find(child => {
@@ -2610,8 +2605,7 @@ document.addEventListener("alpine:init", () => {
                 let matchingChildren = parent.children.filter(child => {
                     return child.label.toLowerCase().includes(value);
                 });
-                /* If no search result for individual students,
-                    but a parent is found, return all children */
+                /* If no search result for individual students, but a parent is found, return all children */
                 return matchingChildren.length > 0 ? matchingChildren : parent.children;
             })
                 .filter(Boolean)
@@ -2629,53 +2623,128 @@ document.addEventListener("alpine:init", () => {
         },
         createFilterPill(item) {
             if (this.pillContainer === null) return;
-            if (this.pillContainer.querySelector(`#pill-${item.value}`)) return;
+            const identifier = item.customProperties?.parent === false ? item.value + item.customProperties.parentId : item.value;
+
+            if (this.pillContainer.querySelector(`#pill-${identifier}`)) return;
 
             const element = this.$root.querySelector("#filter-pill-template").content.firstElementChild.cloneNode(true);
 
-            element.id = `pill-${item.value}`;
+            element.id = `pill-${identifier}`;
             element.selectComponent = this.$root;
             element.item = item;
-            element.classList.add("filter-pill");
+            element.classList.add("filter-pill", 'self-end', 'h-10');
             element.firstElementChild.innerHTML = item.label;
-            element.dataset.order = this.pillContainer.childElementCount + 1;
 
             return this.pillContainer.appendChild(element);
         },
         removeFilterPill(event) {
             event.element.remove();
             const toggleFunction = event.item.customProperties?.parent === false
-                ? "childToggle"
-                : "parentToggle";
+                ? "childClick"
+                : "parentClick";
 
             this[toggleFunction](
-                this.$root.querySelector(`[data-id="${event.item.value}"]`),
+                this.$root.querySelector(`[data-id="${event.item.value}"][data-parent-id="${event.item.customProperties.parentId}"]`),
                 event.item
             );
         },
         handleActiveFilters() {
-            let currentPillIds = Array.from(this.pillContainer.childNodes).map(pill => pill.item.value);
-            let currentlyChecked = this.checkedParents.concat(this.checkedChildren);
-
-            let pillIdsToCreate = currentlyChecked.filter(uuid => currentPillIds.contains(uuid));
-            let pillIdsToRemove = currentPillIds.filter(uuid => currentlyChecked.contains(uuid));
-
-            pillIdsToRemove.forEach((uuid) => {
-                this.pillContainer.querySelector(`#pill-${uuid}`)?.remove();
+            let currentPillIds = Array.from(this.pillContainer.childNodes).map(pill => {
+                if (!this.isParent(pill.item)) {
+                    return pill.item.value + pill.item.customProperties.parentId;
+                }
+                return pill.item.value;
             });
 
-            this.options.flatMap(parent => {
-                return [parent, ...parent.children];
-            }).filter(item => {
-                if (item.customProperties?.parent === false) {
-                    return (!this.checkedParents.includes(item.customProperties.parentId) && this.checkedChildren.includes(item.value));
+            let currentlyChecked = this.checkedParents.concat(this.checkedChildren.map(child => child.value+child.parent));
+
+            let pillIdsToRemove = currentPillIds.filter(uuid => !currentlyChecked.contains(uuid));
+
+            this.options.flatMap(parent => [parent, ...parent.children])
+                .filter(item => {
+                    if (this.isParent(item)) return this.checkedParents.includes(item.value);
+
+                    if (this.checkedParents.includes(item.customProperties.parentId)) {
+                        pillIdsToRemove.push(item.value + item.customProperties.parentId);
+                    }
+                    return (!this.checkedParents.includes(item.customProperties.parentId) && this.checkedChildrenContains(item));
+                })
+                .forEach((item) => this.createFilterPill(item));
+
+            let that = this;
+            pillIdsToRemove.forEach((uuid) => {
+                that.pillContainer.querySelector(`#pill-${uuid}`)?.remove();
+            });
+        },
+        handleDropdownLocation() {
+            const dropdown = this.$root.querySelector(".dropdown");
+            const top = this.$root.getBoundingClientRect().top
+                + this.$root.offsetHeight
+                + 16
+                + parseInt(dropdown.style.maxHeight);
+            const property = top >= screen.availHeight ? "bottom" : "top";
+            dropdown.style[property] = this.$root.offsetHeight + 8 + "px";
+        },
+        handleParentStateWhenChildsChange(parent, checked) {
+            if (checked && this.checkedChildrenCount(parent) === parent.children.filter(child => child.disabled !== true).length) {
+                this.checkedParents = this.add(this.checkedParents, parent.value);
+                this.$root.querySelector(`[data-id="${parent.value}"][data-parent-id="${parent.value}"] input[type="checkbox"]`).checked = checked;
+            }
+
+            if (!checked && this.checkedParents.includes(parent.value)) {
+                this.checkedParents = this.remove(this.checkedParents, parent.value);
+                this.$root.querySelector(`[data-id="${parent.value}"] input[type="checkbox"]`).checked = checked;
+            }
+        },
+        registerSelectedItemsOnComponent() {
+            const checkedChildValues = this.options.flatMap(parent => [...parent.children])
+                .filter(item => item.customProperties?.selected === true);
+
+            this.$nextTick(() => {
+                checkedChildValues.forEach(item => {
+                    this.childClick(
+                        this.$root.querySelector(`[data-id="${item.value}"][data-parent-id="${item.customProperties.parentId}"]`),
+                        item
+                    );
+                });
+                this.registerParentsBasedOnDisabledChildren();
+                this.handleActiveFilters();
+            });
+        },
+        syncInput() {
+            if (!this.wireModel.value) return;
+            this.$wire.sync(this.wireModel.value, {
+                parents: this.checkedParents,
+                children: this.checkedChildren,
+            });
+        },
+        checkedChildrenContains(child) {
+            return this.checkedChildren.some(item => {
+                return item.value === child.value && item.parent === child.customProperties?.parentId;
+            });
+        },
+        disableBrothersFromOtherMothers(child) {
+            this.options.flatMap(parents => [...parents.children])
+                .filter(item => item.value === child.value && item.customProperties.parentId !== child.customProperties.parentId)
+                .forEach(item => item.disabled = true);
+        },
+        enableBrothersFromOtherMothers(child) {
+            this.options.flatMap(parents => [...parents.children])
+                .filter(item => item.value === child.value && item.customProperties.parentId !== child.customProperties.parentId)
+                .forEach(item => item.disabled = false);
+        },
+        isParent(item) {
+            return !item.customProperties?.parent === false;
+        },
+        registerParentsBasedOnDisabledChildren() {
+            this.options.filter(item => {
+                return item.children.some(child => child.disabled === true);
+            }).forEach(item => {
+                if(this.checkedChildrenCount(item) === item.children.filter(child => child.disabled !== true).length) {
+                    this.checkedParents = this.add(this.checkedParents, item.value);
+                    this.$root.querySelector(`[data-id="${item.value}"][data-parent-id="${item.value}"] input[type="checkbox"]`).checked = true;
                 }
-                return this.checkedParents.includes(item.value);
-            })
-            debugger;
-
-
-
+            });
         }
     }));
 

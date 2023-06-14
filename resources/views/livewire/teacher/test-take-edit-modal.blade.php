@@ -53,25 +53,16 @@
                 </div>
             </div>
 
-            <div class="students-classes | input-section" x-data>
-                <div class="name flex">
-                    <label for="teachers_and_classes">{{ __('teacher.Klassen') }}</label>
-                </div>
-                <div class="name flex">
-                    <x-input.choices-select :multiple="true"
-                                            :options="$this->schoolClasses"
-                                            :withSearch="true"
-                                            placeholderText="{{ __('teacher.Klassen') }}"
-                                            wire:model="selectedSchoolClasses"
-                                            filterContainer="selected_classes"
-                                            id="teachers_and_classes"
-                                            wire:key='school-classes'
-                                            hasErrors="{{ $this->getErrorBag()->has('request.school_classes') ? 'true': '' }}"
-                                            selid="plan-modal-classes-select"
-                    />
-                    <div id="selected_classes" wire:ignore class="space-x-4 ml-4"></div>
-
-                </div>
+            <div class="students-classes | input-section flex gap-2" wire:ignore>
+                <x-input.multi-dropdown-select :options="$this->schoolClasses"
+                                               :title="__('teacher.Klassen en studenten')"
+                                               containerId="c_and_s_edit-container-{{ $this->testTake->uuid }}"
+                                               :label="__('teacher.Klassen en studenten')"
+                                               wire:model.defer="classesAndStudents"
+                />
+                <div id="c_and_s_edit-container-{{ $this->testTake->uuid }}"
+                     class="flex gap-2 flex-wrap"
+                ></div>
             </div>
 
             <div class="invigilators | input-section" x-data>
@@ -147,7 +138,8 @@
                           selid="plan-modal-plan-btn"
                           onClick="this.disabled = true;"
                           wire:loading.attr="disabled"
-                          wire:target="planNext"
+                          wire:target="save"
+                          wire:click="save"
             >
                 <x-icon.checkmark/>
                 <span>@lang('test-take.Wijzig instellingen')</span>

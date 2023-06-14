@@ -50,7 +50,7 @@ class Planned extends TestTakeComponent
             ],
             [
                 'title' => __('test-take.Gepland door'),
-                'data'  => $this->testTake->scheduledByUser->getFullNameWithAbbreviatedFirstName(),
+                'data'  => $this->testTake->scheduledByUser?->getFullNameWithAbbreviatedFirstName(),
             ],
             [
                 'title' => trans_choice('test-take.Klas', $schoolClasses->count()),
