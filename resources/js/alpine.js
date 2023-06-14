@@ -2624,6 +2624,31 @@ document.addEventListener("alpine:init", () => {
             this.editor.maxWords = value;
         }
     }));
+    Alpine.data("openQuestionStudentPlayer", (editorId) => ({
+        editorId,
+        init() {
+            this.$watch("showMe", value => {
+                if (!value) return;
+
+                this.$nextTick(() => {
+                    var editor = ClassicEditors[editorId];
+                    if (!editor) {
+                        return;
+                    }
+                    this.setFocus(editor);
+                    if (!editor.ui.focusTracker.isFocused) {
+                        setTimeout(() => this.setFocus(editor), 100);
+                    }
+                });
+            });
+        },
+        setFocus(editor) {
+            editor.focus();
+            editor.model.change(writer => {
+                writer.setSelection(editor.model.document.getRoot(), 'end');
+            });
+        }
+    }));
 
     Alpine.directive("global", function(el, { expression }) {
         let f = new Function("_", "$data", "_." + expression + " = $data;return;");

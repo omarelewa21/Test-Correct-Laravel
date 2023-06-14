@@ -1,5 +1,7 @@
 <x-partials.question-container :number="$number" :question="$question">
-    <div class="w-full">
+    <div class="w-full"
+         x-data="openQuestionStudentPlayer(@js($this->editorId))"
+    >
         <div>
             <div questionHtml wire:ignore style="width: 100%; display: inline-block">{!!   $question->converted_question_html !!}</div>
             <div class="flex-col relative mt-4">
@@ -15,6 +17,7 @@
                             wire:model.debounce.1000ms="answer"
                             :question-id="$this->question->id"
                             :allowWsc="$this->question->spell_check_available"
+                            :lang="$this->question->lang"
                             :editor-id="$this->editorId"
                             :restrictWords="$this->question->restrict_word_amount"
                             :maxWords="$this->question->max_words"
