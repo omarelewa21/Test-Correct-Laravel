@@ -8119,6 +8119,35 @@ document.addEventListener("alpine:init", function () {
       }
     };
   });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("openQuestionStudentPlayer", function (editorId) {
+    return {
+      editorId: editorId,
+      init: function init() {
+        var _this58 = this;
+        this.$watch("showMe", function (value) {
+          if (!value) return;
+          _this58.$nextTick(function () {
+            var editor = ClassicEditors[editorId];
+            if (!editor) {
+              return;
+            }
+            _this58.setFocus(editor);
+            if (!editor.ui.focusTracker.isFocused) {
+              setTimeout(function () {
+                return _this58.setFocus(editor);
+              }, 100);
+            }
+          });
+        });
+      },
+      setFocus: function setFocus(editor) {
+        editor.focus();
+        editor.model.change(function (writer) {
+          writer.setSelection(editor.model.document.getRoot(), 'end');
+        });
+      }
+    };
+  });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].directive("global", function (el, _ref4) {
     var expression = _ref4.expression;
     var f = new Function("_", "$data", "_." + expression + " = $data;return;");
