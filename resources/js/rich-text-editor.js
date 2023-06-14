@@ -43,6 +43,7 @@ RichTextEditor = {
         return this.createStudentEditor(
             parameterBag,
             (editor) => {
+                WebspellcheckerTlc.lang(editor, parameterBag.lang)
                 this.setupWordCounter(editor, parameterBag);
                 if (typeof ReadspeakerTlc != "undefined") {
                     editor.editing.view.document.on( 'change:isFocused', ( evt, data, isFocused ) => {
@@ -60,6 +61,7 @@ RichTextEditor = {
         return this.createStudentEditor(
             parameterBag,
             (editor) => {
+                WebspellcheckerTlc.lang(editor, parameterBag.lang)
                 this.setupWordCounter(editor, parameterBag);
                 if (typeof ReadspeakerTlc != "undefined") {
                     ReadspeakerTlc.ckeditor.replaceReadableAreaByClone(editor);

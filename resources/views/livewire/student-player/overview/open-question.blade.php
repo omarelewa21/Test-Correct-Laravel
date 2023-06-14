@@ -10,12 +10,14 @@
                         type="student"
                         wire:key="textarea_{{ $question->id }}"
                         :allowWsc="$this->question->spell_check_available"
+                        :lang="$this->question->lang"
                         :editor-id="$this->editorId"
                         :restrictWords="$this->question->restrict_word_amount"
                         :maxWords="$this->question->max_words"
                         :textFormatting="$this->question->text_formatting"
                         :mathmlFunctions="$this->question->mathml_functions"
                         :disabled="true"
+                        :enableGrammar="false"
                 >{!!  $this->answer !!}</x-input.rich-textarea>
             </x-input.group>
             <div id="word-count-{{ $editorId }}"
