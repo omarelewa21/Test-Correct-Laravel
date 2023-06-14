@@ -139,7 +139,7 @@ RichTextEditor = {
             wordCount: {
                 displayCharacters: false
             },
-            wproofreader: this.getWproofreaderConfig()
+            wproofreader: this.getWproofreaderConfig(parameterBag.enableGrammar)
         };
 
         config.removePlugins = ["Selection", "Completion", "ImageUpload", "Image", "ImageToolbar"];
@@ -394,7 +394,7 @@ RichTextEditor = {
     hasNoWordLimit(editor) {
         return editor.maxWords === null || editor.maxWordOverride;
     },
-    getWproofreaderConfig: function() {
+    getWproofreaderConfig: function(enableGrammar = true) {
         return {
             autoSearch: false,
             autoDestroy: true,
@@ -406,7 +406,8 @@ RichTextEditor = {
             servicePort: "80",
             serviceHost: "wsc.test-correct.nl",
             servicePath: "wscservice/api",
-            srcUrl: "https://wsc.test-correct.nl/wscservice/wscbundle/wscbundle.js"
+            srcUrl: "https://wsc.test-correct.nl/wscservice/wscbundle/wscbundle.js",
+            enableGrammar: enableGrammar
         };
     },
 
