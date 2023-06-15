@@ -49,7 +49,8 @@
 			"Aacotroneo\\Saml2\\Saml2Auth"
 		],
 		"files": [
-			"_overrides/Saml2Auth.php"
+			"_overrides/Saml2Auth.php",
+			"app/Http/helpers.php"
 		],
 		"psr-4": {
 			"tcCore\\": "app/",
