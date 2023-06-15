@@ -2740,7 +2740,9 @@ document.addEventListener("alpine:init", () => {
             this.options.filter(item => {
                 return item.children.some(child => child.disabled === true);
             }).forEach(item => {
-                if(this.checkedChildrenCount(item) === item.children.filter(child => child.disabled !== true).length) {
+                const enabledChildren = item.children.filter(child => child.disabled !== true).length;
+                if (enabledChildren === 0) return;
+                if(this.checkedChildrenCount(item) === enabledChildren) {
                     this.checkedParents = this.add(this.checkedParents, item.value);
                     this.$root.querySelector(`[data-id="${item.value}"][data-parent-id="${item.value}"] input[type="checkbox"]`).checked = true;
                 }

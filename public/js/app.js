@@ -8424,9 +8424,11 @@ document.addEventListener("alpine:init", function () {
             return child.disabled === true;
           });
         }).forEach(function (item) {
-          if (_this64.checkedChildrenCount(item) === item.children.filter(function (child) {
+          var enabledChildren = item.children.filter(function (child) {
             return child.disabled !== true;
-          }).length) {
+          }).length;
+          if (enabledChildren === 0) return;
+          if (_this64.checkedChildrenCount(item) === enabledChildren) {
             _this64.checkedParents = _this64.add(_this64.checkedParents, item.value);
             _this64.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.value, "\"] input[type=\"checkbox\"]")).checked = true;
           }
