@@ -13,15 +13,17 @@
     <div x-data="writeDownCms(@js($answerEditorId),@js((bool)$this->question['restrict_word_amount']), @entangle('question.max_words'))">
         <div class="border-b border-bluegrey note text-center text-sm uppercase">@lang('cms.Antwoord opties voor student')</div>
         <div class="general-settings-grid mb-6">
-            <div class="">
-                <x-input.toggle-row-with-title wire:model="question.spell_check_available"
-                                               :disabled="isset($preview)"
-                >
-                    <x-icon.spellcheck class="min-w-fit" />
-                    <span class="regular">@lang('cms.spell_check_available')</span>
-                    <x-slot:toolTip>@lang('cms.spell_check_available_tooltip')</x-slot:toolTip>
-                </x-input.toggle-row-with-title>
-            </div>
+            @if(settings()->canUseCmsWscWriteDownToggle())
+                <div class="">
+                    <x-input.toggle-row-with-title wire:model="question.spell_check_available"
+                                                   :disabled="isset($preview)"
+                    >
+                        <x-icon.spellcheck class="min-w-fit" />
+                        <span class="regular">@lang('cms.spell_check_available')</span>
+                        <x-slot:toolTip>@lang('cms.spell_check_available_tooltip')</x-slot:toolTip>
+                    </x-input.toggle-row-with-title>
+                </div>
+            @endif
             <div class="">
                 <x-input.toggle-row-with-title wire:model="question.mathml_functions"
                                                :disabled="isset($preview)"
