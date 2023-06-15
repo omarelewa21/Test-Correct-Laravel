@@ -34,6 +34,7 @@ class TestTakeRttiExportController extends Controller
         $informationError = null;
         $result = null;
         $rttiExportLog = null;
+        $leerresultatenVerzoek = [];
         try {
             $testCode = sprintf(
                 '%s|%s|%s|%s',
