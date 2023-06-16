@@ -1,7 +1,7 @@
 @if($attachment)
     <div id="attachment-{{$attachment->uuid}}"
-        class="fixed z-30 shadow-lg border border-blue-grey rounded-10 bg-black disable-swipe-navigation top-10 left-10 max-width-90 {{ $this->getAttachmentModalSize() }}"
-        x-init="dragElement($el); @if($this->attachmentType != 'audio') makeAttachmentResizable($el, '{{$this->attachmentType}}'); @endif"
+        class="fixed z-30 shadow-lg border border-blue-grey rounded-10 bg-sysbase/30 disable-swipe-navigation top-10 left-10 max-width-90 {{ $this->getAttachmentModalSize() }}"
+         x-data="attachmentModal(@js($this->attachmentType))"
         wire:ignore
     >
         <div class="box-border w-full h-full @if($this->attachmentType != 'audio') resizers @endif">
@@ -35,7 +35,12 @@
                         <x-attachment.audio :attachment="$attachment" />
                     @else
                         <img src="{{ route('student.answer-attachment-show', ['attachment' => $attachment, 'answer' => $answerId], false) }}"
-                            selid="image-attachment" alt=""/>
+                             selid="image-attachment"
+                             alt="@lang('cms.bijlage')"
+                             style="object-fit: contain; transition: opacity 150ms ease"
+                             x-on:load="imageLoaded()"
+                             :style="{'width': imageWidth, 'height': imageHeight}"
+                        />
                     @endif
                 </div>
             </div>
