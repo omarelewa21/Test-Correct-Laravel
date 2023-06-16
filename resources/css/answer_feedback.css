@@ -16,31 +16,74 @@
     box-shadow: 1px 2px 4px 0 rgba(4, 31, 116, 0.15);
 }
 
+/*
+ * Hover state: allways
+ * Active state: closed cards, activate a card
+ * Editing state:  opened card
+*/
+.answer-feedback-card-active,
+.answer-feedback-card-editing,
+.answer-feedback-card-hovering {}
+
+/* couples of programmatically added states and their native version */
+.answer-feedback-card-hovering,
+ .answer-feedback-card:hover {}
+
+.answer-feedback-card-active {} /* the active styling is overwritten by editing state */
+
+answer-feedback-card-editing {}
+.answer-feedback-card:active,
+.answer-feedback-card:focus {}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.answer-feedback-card-focussed,
+.answer-feedback-card-editing,
+.answer-feedback-card-hovering,
 .answer-feedback-card:hover,
 .answer-feedback-card:active,
-.answer-feedback-card-active,
 .answer-feedback-card:focus {
     @apply border-primary;
-    padding-left: 1px !important;
 }
 
-.answer-feedback-card:active,
 .answer-feedback-card-active,
+.answer-feedback-card-editing,
+.answer-feedback-card:active,
 .answer-feedback-card:focus {
-    @apply border-2 p-0;
+    @apply border-2;
+    padding: 0 0 0 1px !important;
+
 }
 
+.answer-feedback-card-hovering,
 .answer-feedback-card:hover {
     background-color: #f3f7ff;
 }
 
-.answer-feedback-card-active {
+.answer-feedback-card-editing {
     margin-left: -1rem;
     margin-right: -1rem;
     width: auto;
 }
 
-.answer-feedback-card:is(:hover, :active, .active, :focus) :is(.feedback-card-message, .feedback-card-datetime, .feedback-card-name) {
+.answer-feedback-card:hover :is(.feedback-card-message, .feedback-card-datetime, .feedback-card-name) {
     color: var(--teacher-primary);
 }
 
@@ -69,7 +112,8 @@
 }
 
 .comment-emoji-picker:is(:hover, :active, :focus) .comment-emoji-picker-label,
-.comment-color-picker:is(:hover, :active, :focus) .comment-color-picker-label {
+.comment-color-picker:is(:hover, :active, :focus) .comment-color-picker-label,
+.comment-feedback-editor:is(:hover, :active, :focus) .comment-feedback-editor-label {
     color: var(--teacher-Primary);
 }
 
@@ -82,3 +126,20 @@
     color: var(--mid-grey) !important;
 }
 
+
+
+.comment-editor .ck.ck-editor__main p > .ck-comment-marker {
+    border: 1px solid transparent;
+}
+.comment-editor  .ck.ck-editor__main .ck-content > * {
+    line-height: 2;
+}
+
+
+.comment-editor .ck.ck-editor__main .ck-comment-marker.ck-comment-marker--active{
+    color: var(--teacher-primary);
+}
+
+.comment-editor .ck.ck-editor__main .ck-comment-marker.ck-comment-marker--active{
+    border: 1px solid var(--ck-color-comment-marker);
+}

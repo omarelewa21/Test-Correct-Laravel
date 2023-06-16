@@ -272,9 +272,8 @@
                                 <div class="flex w-full flex-col gap-2" x-show="givenFeedbackOpen" x-collapse
                                      wire:key="feedback-editor-{{  $this->questionNavigationValue.'-'.$this->answerNavigationValue }}"
                                      x-data="{
-                                    editingComment: null,
+
                                  }"
-                                     x-on:updated-active-comment.window="editingComment = $event.detail.uuid; "
                                      x-init="
                                     $watch('editingComment', (value) => {
 
@@ -293,7 +292,7 @@
                                     {{--TODO ONLY for open question add new configuration with connection to the comments editor --}}
 
                                     <x-menu.context-menu.base context="answer-feedback">
-                                        <x-menu.context-menu.button @click="editingComment = uuid;">
+                                        <x-menu.context-menu.button @click="setEditingComment(uuid)">
                                             <x-slot:icon>
                                                 <x-icon.edit/>
                                             </x-slot:icon>
@@ -315,15 +314,23 @@
                                         "answer-feedback-card-teacher" => $comment->user->isA('teacher'),
                                         "answer-feedback-card-student" => !$comment->user->isA('teacher'),
                                         ])
-                                             x-bind:class="editingComment === '{{$comment->uuid}}' ? 'answer-feedback-card-active' : ''"
+                                             x-bind:class="{
+                                             'answer-feedback-card-editing': editingComment === '{{$comment->uuid}}',
+                                             'answer-feedback-card-focussed': activeComment === '{{$comment->uuid}}',
+                                             'answer-feedback-card-hovering': hoveringComment === '{{$comment->uuid}}',
+                                             }"
                                              data-thread-id="{{$comment->thread_id}}"
                                              data-uuid="{{$comment->uuid}}"
                                              x-init="
+
+                                            $el.addEventListener('click', (e) => {
+                                                setActiveComment('{{$comment->thread_id}}',  '{{$comment->uuid}}');
+                                            });
                                             $el.addEventListener('mouseenter', (e) => {
-                                               setActiveCommentThread($el.dataset.threadId);
+                                                setHoveringComment('{{$comment->thread_id}}',  '{{$comment->uuid}}');
                                             });
                                             $el.addEventListener('mouseleave', (e) => {
-                                               clearActiveCommentThread();
+                                               clearHoveringComment();
                                             });
                                         "
                                         >
@@ -366,13 +373,16 @@
                                                 <x-input.comment-emoji-picker
                                                         :comment-uuid="$comment->uuid"></x-input.comment-emoji-picker>
 
-                                                <span class="">@lang('assessment.Feedback schrijven')</span>
-                                                <x-input.rich-textarea type="update-answer-feedback"
-                                                                       :editorId="'update-' . $comment->uuid"
-                                                                       :allow-wsc="true"
-                                                >
-                                                    {{ $comment->message }}
-                                                </x-input.rich-textarea>
+                                                <div class="comment-feedback-editor">
+                                                    <span class="comment-feedback-editor-label">@lang('assessment.Feedback schrijven')</span>
+                                                    <x-input.rich-textarea type="update-answer-feedback"
+                                                                           :editorId="'update-' . $comment->uuid"
+                                                                           :allow-wsc="true"
+                                                    >
+                                                        {{ $comment->message }}
+                                                    </x-input.rich-textarea>
+                                                </div>
+
                                                 <div class="flex justify-end space-x-4 h-fit mt-2 mb-4">
                                                     <x-button.text-button size="sm" @click="editingComment = null">
                                                         <span>@lang('modal.annuleren')</span>

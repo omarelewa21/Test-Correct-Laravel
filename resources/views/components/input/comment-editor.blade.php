@@ -1,4 +1,4 @@
-<div class="ckeditor-error relative"
+<div class="ckeditor-error relative comment-editor"
      @error($attributes->wire('model')->value)
         style="--ck-color-toolbar-border: var(--all-red);--ck-color-base-border: var(--all-red);"
      @enderror
@@ -9,19 +9,8 @@
             --ck-color-comment-marker-active: var(--active-comment-color);
         }
 
-        .ck.ck-editor__main p > .ck-comment-marker {
-            border: 1px solid transparent;
-        }
-        .ck.ck-editor__main .ck-content > * {
-            line-height: 2;
-        }
-
-        .ck.ck-editor__main .ck-comment-marker.ck-comment-marker--active{
-            color: var(--teacher-primary);
-            border: 1px solid var(--ck-color-comment-marker);
-        }
-
     </style>
+    <style id="hoveringCommentMarkerStyle">{{-- filled with javascript --}}</style>
     <style id="commentMarkerStyles">
         {!!  $commentMarkerStyles !!}
     </style>
@@ -37,7 +26,7 @@
                         <x-dynamic-component :component="$thread['iconName']"> </x-dynamic-component>
                     </span>
                 @else
-                    <x-icon.feedback/>
+                    <x-icon.feedback x-bind:class="{'text-primary': hoveringComment?.uuid === '{{ $thread['uuid'] }}' }" />
                 @endif
             </div>
         @endforeach

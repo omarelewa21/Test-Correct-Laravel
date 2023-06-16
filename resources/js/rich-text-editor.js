@@ -88,16 +88,7 @@ RichTextEditor = {
         return this.createTeacherEditor(
             parameterBag,
             (editor) => {
-                window.addEventListener('updated-active-comment', (event) => {
-                    if(parameterBag.editorId.contains(event.detail.uuid)) {
-                        setTimeout(() => {
-                            //set focus to editor
-                            editor.focus();
-                            //select all text in the editor
-                            editor.execute('selectAll');
-                        },100)
-                    }
-                });
+
                 this.hideWProofreaderChevron(parameterBag.allowWsc, editor);
 
             },

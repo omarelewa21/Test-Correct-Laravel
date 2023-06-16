@@ -8618,33 +8618,74 @@ span.completion-response-object-container{
     box-shadow: 1px 2px 4px 0 rgba(4, 31, 116, 0.15);
 }
 
+/*
+ * Hover state: allways
+ * Active state: closed cards, activate a card
+ * Editing state:  opened card
+*/
+.answer-feedback-card-active,
+.answer-feedback-card-editing,
+.answer-feedback-card-hovering {}
+
+/* couples of programmatically added states and their native version */
+.answer-feedback-card-hovering,
+ .answer-feedback-card:hover {}
+
+.answer-feedback-card-active {} /* the active styling is overwritten by editing state */
+
+answer-feedback-card-editing {}
+.answer-feedback-card:active,
+.answer-feedback-card:focus {}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.answer-feedback-card-focussed,
+.answer-feedback-card-editing,
+.answer-feedback-card-hovering,
 .answer-feedback-card:hover,
 .answer-feedback-card:active,
-.answer-feedback-card-active,
 .answer-feedback-card:focus {
     --tw-border-opacity: 1;
     border-color: rgb(0 77 245 / var(--tw-border-opacity));
-    padding-left: 1px !important;
 }
 
-.answer-feedback-card:active,
 .answer-feedback-card-active,
+.answer-feedback-card-editing,
+.answer-feedback-card:active,
 .answer-feedback-card:focus {
     border-width: 2px;
-    padding: 0px;
+    padding: 0 0 0 1px !important;
 }
 
+.answer-feedback-card-hovering,
 .answer-feedback-card:hover {
     background-color: #f3f7ff;
 }
 
-.answer-feedback-card-active {
+.answer-feedback-card-editing {
     margin-left: -1rem;
     margin-right: -1rem;
     width: auto;
 }
 
-.answer-feedback-card:is(:hover, :active, .active, :focus) :is(.feedback-card-message, .feedback-card-datetime, .feedback-card-name) {
+.answer-feedback-card:hover :is(.feedback-card-message, .feedback-card-datetime, .feedback-card-name) {
     color: var(--teacher-primary);
 }
 
@@ -8682,7 +8723,8 @@ span.completion-response-object-container{
 }
 
 .comment-emoji-picker:is(:hover, :active, :focus) .comment-emoji-picker-label,
-.comment-color-picker:is(:hover, :active, :focus) .comment-color-picker-label {
+.comment-color-picker:is(:hover, :active, :focus) .comment-color-picker-label,
+.comment-feedback-editor:is(:hover, :active, :focus) .comment-feedback-editor-label {
     color: var(--teacher-Primary);
 }
 
@@ -8698,8 +8740,22 @@ span.completion-response-object-container{
 }
 
 
+
+.comment-editor .ck.ck-editor__main p > .ck-comment-marker {
+    border: 1px solid transparent;
+}
+.comment-editor  .ck.ck-editor__main .ck-content > * {
+    line-height: 2;
+}
+
+
+.comment-editor .ck.ck-editor__main .ck-comment-marker.ck-comment-marker--active{
+    color: var(--teacher-primary);
+    border: 1px solid var(--ck-color-comment-marker);
+}
+
 /*
-! tailwindcss v3.2.7 | MIT License | https://tailwindcss.com
+! tailwindcss v3.3.2 | MIT License | https://tailwindcss.com
 */
 
 
@@ -8731,6 +8787,7 @@ span.completion-response-object-container{
 3. Use a more readable tab size.
 4. Use the user's configured `sans` font-family by default.
 5. Use the user's configured `sans` font-feature-settings by default.
+6. Use the user's configured `sans` font-variation-settings by default.
 */
 
 
@@ -8742,6 +8799,7 @@ html {
      tab-size: 4; /* 3 */
   font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"; /* 4 */
   font-feature-settings: normal; /* 5 */
+  font-variation-settings: normal; /* 6 */
 }
 
 
@@ -9163,6 +9221,9 @@ video {
   --tw-pan-y:  ;
   --tw-pinch-zoom:  ;
   --tw-scroll-snap-strictness: proximity;
+  --tw-gradient-from-position:  ;
+  --tw-gradient-via-position:  ;
+  --tw-gradient-to-position:  ;
   --tw-ordinal:  ;
   --tw-slashed-zero:  ;
   --tw-numeric-figure:  ;
@@ -9211,6 +9272,9 @@ video {
   --tw-pan-y:  ;
   --tw-pinch-zoom:  ;
   --tw-scroll-snap-strictness: proximity;
+  --tw-gradient-from-position:  ;
+  --tw-gradient-via-position:  ;
+  --tw-gradient-to-position:  ;
   --tw-ordinal:  ;
   --tw-slashed-zero:  ;
   --tw-numeric-figure:  ;
@@ -9357,28 +9421,16 @@ video {
   position: sticky;
 }
 .-inset-2{
-  top: -0.5rem;
-  right: -0.5rem;
-  bottom: -0.5rem;
-  left: -0.5rem;
+  inset: -0.5rem;
 }
 .-inset-2\.5{
-  top: -0.625rem;
-  right: -0.625rem;
-  bottom: -0.625rem;
-  left: -0.625rem;
+  inset: -0.625rem;
 }
 .-inset-px{
-  top: -1px;
-  right: -1px;
-  bottom: -1px;
-  left: -1px;
+  inset: -1px;
 }
 .inset-0{
-  top: 0px;
-  right: 0px;
-  bottom: 0px;
-  left: 0px;
+  inset: 0px;
 }
 .inset-x-0{
   left: 0px;
@@ -9911,6 +9963,24 @@ video {
 }
 .box-border{
   box-sizing: border-box;
+}
+.line-clamp-1{
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
+.line-clamp-2{
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+.line-clamp-3{
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
 }
 .block{
   display: block;
@@ -10667,11 +10737,6 @@ video {
      -moz-user-select: none;
           user-select: none;
 }
-.select-all{
-  -webkit-user-select: all;
-     -moz-user-select: all;
-          user-select: all;
-}
 .resize-none{
   resize: none;
 }
@@ -11413,12 +11478,12 @@ video {
   background-image: linear-gradient(to right, var(--tw-gradient-stops));
 }
 .from-\[var\(--teacher-primary\)\]{
-  --tw-gradient-from: var(--teacher-primary);
-  --tw-gradient-to: rgb(255 255 255 / 0);
+  --tw-gradient-from: var(--teacher-primary) var(--tw-gradient-from-position);
+  --tw-gradient-to: rgb(255 255 255 / 0) var(--tw-gradient-to-position);
   --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
 }
 .to-\[var\(--teacher-primary-light\)\]{
-  --tw-gradient-to: var(--teacher-primary-light);
+  --tw-gradient-to: var(--teacher-primary-light) var(--tw-gradient-to-position);
 }
 .fill-current{
   fill: currentColor;
@@ -12191,24 +12256,6 @@ video {
 }
 .ease-out{
   transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
-}
-.line-clamp-1{
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 1;
-}
-.line-clamp-2{
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-}
-.line-clamp-3{
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
 }
 
 :root {

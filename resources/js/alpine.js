@@ -2395,6 +2395,9 @@ document.addEventListener("alpine:init", () => {
         feedbackEditorId: feedbackEditorId,
         commentRepository: null,
         activeThread: null,
+        editingComment: null,
+        activeComment: null,
+        hoveringComment: null,
         userId,
         async init() {
             console.log(answerEditorId, feedbackEditorId)
@@ -2439,7 +2442,7 @@ document.addEventListener("alpine:init", () => {
                 message: answerFeedbackEditor.getData()
             });
 
-            this.$dispatch('updated-active-comment', {uuid: null});
+            this.setEditingComment(null);
         },
         async createCommentThread() {
 
@@ -2517,8 +2520,7 @@ document.addEventListener("alpine:init", () => {
             console.log('failed to delete answer feedback');
         },
         initCommentIcon(el, thread) {
-            let threadElementsList = null;
-
+            let commentThreadElements = null;
             setTimeout(() => {
                 const commentMarkers = document.querySelectorAll(`[data-comment='` + thread.threadId+ `']`);
                 const lastCommentMarker = commentMarkers[commentMarkers.length-1];
@@ -2526,28 +2528,85 @@ document.addEventListener("alpine:init", () => {
                 el.style.top = (lastCommentMarker.offsetTop - 15) + 'px';
                 el.style.left = (lastCommentMarker.offsetWidth + lastCommentMarker.offsetLeft - 5) + 'px';
 
-                threadElementsList = [...commentMarkers, el];
+                el.setAttribute('data-uuid', thread.uuid);
+                el.setAttribute('data-threadId', thread.threadId);
 
-                threadElementsList.forEach((threadElement) => {
+                commentThreadElements = [...commentMarkers, el];
+
+
+                //todo
+                // set hover listener  (mouseover enter leave)
+                // set active listener (check if editing is null first)
+
+                //set click event listener on all comment markers and the icon.
+                commentThreadElements.forEach((threadElement) => {
                     threadElement.addEventListener('click', () => {
                         this.setActiveCommentThread(thread.threadId, thread.uuid);
+                    });
+                    threadElement.addEventListener('mouseenter', (e) => {
+                        this.setHoveringComment(thread.threadId, thread.uuid);
+                    });
+                    threadElement.addEventListener('mouseleave', (e) => {
+                        this.clearHoveringComment();
                     });
                 });
 
             }, 200)
         },
+        setHoveringComment(threadId, answerFeedbackUuid) {
+            this.hoveringComment = {threadId: threadId, uuid: answerFeedbackUuid };
+            this.setHoveringCommentMarkerStyle();
+        },
+        clearHoveringComment() {
+            this.hoveringComment = null;
+            this.setHoveringCommentMarkerStyle(true);
+        },
+        setHoveringCommentMarkerStyle(removeStyling = false) {
+            const styleTag = document.querySelector('#hoveringCommentMarkerStyle');
+
+            if(removeStyling || this.hoveringComment.threadId === null) {
+                styleTag.innerHTML = '';
+                return;
+            }
+
+            styleTag.innerHTML = '' +
+                '.ck-comment-marker[data-comment="'+ this.hoveringComment.threadId +'"] { color: var(--teacher-primary); }' +
+                'div[data-threadid="'+this.hoveringComment.threadId+'"] svg { color: var(--teacher-primary); }';
+
+        },
+        setActiveComment (threadId, answerFeedbackUuid) {
+            if(this.editingComment !== null) {
+                /* when editing, no other comment can be activated */
+                return;
+            }
+            this.activeComment = {threadId: threadId, uuid: answerFeedbackUuid };
+
+        },
+        clearActiveComment() {
+            this.activeComment = null;
+            this.setHoveringCommentMarkerStyle(true);
+        },
+
+        /* ckeditor active comment thread */
         setActiveCommentThread(threadId, answerFeedbackUuid = null) {
             const answerEditor = ClassicEditors[this.answerEditorId];
             let commentsRepository = answerEditor.plugins.get( 'CommentsRepository' );
             commentsRepository.setActiveCommentThread(threadId);
             this.activeThread = threadId;
 
+
             if(answerFeedbackUuid) {
 
                 this.$dispatch("assessment-drawer-tab-update", { tab: 2 });
-                this.$dispatch("updated-active-comment", { uuid:  answerFeedbackUuid })
+
+
+
+                this.setFocussedComment(answerFeedbackUuid);
+                // this.focussedComment = answerFeedbackUuid; //these two lines are the same:
+                // this.$dispatch("updated-focussed-comment", { uuid:  answerFeedbackUuid })
             }
 
+            //todo rework drawer event to scroll to correct element
             if(false) {
                 this.$dispatch("assessment-drawer-tab-update", { tab: 2 });
             }
@@ -2582,6 +2641,13 @@ document.addEventListener("alpine:init", () => {
         },
         get feedbackEditor() {
             return ClassicEditors[this.feedbackEditorId];
+        },
+        setFocussedComment (AnswerFeedbackUuid) {
+            this.focussedComment = AnswerFeedbackUuid ?? null;
+        },
+        setEditingComment (AnswerFeedbackUuid) {
+            this.focussedComment = null;
+            this.editingComment = AnswerFeedbackUuid ?? null;
         }
     }));
 

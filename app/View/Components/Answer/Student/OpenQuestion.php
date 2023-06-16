@@ -32,20 +32,5 @@ class OpenQuestion extends QuestionComponent
             " ".chr(194).chr(160),
             $this->answerValue
         );
-
-//        $haystack2 = Str::substr($this->answerValue, 287, 8);
-//        $tempie = [];
-//        foreach(str_split($haystack2, 1) as $value) {
-//            $tempie[] = ord($value);
-//        }
-//        dd($tempie, str_split($haystack2, 1)[3], str_split($haystack2, 1)[4]);
-//
-//        $needle = "<p> </p>";
-//$haystack = (string) "<p>".chr(160)."</p>";
-//        $temp = Str::contains($needle, $haystack);
-//        var_dump(chr(255));
-//        dd($this->answerValue, $haystack2, $temp, chr(255), chr(160), "<p>".chr(160)."</p>");
-//
-//        dd($this->answerValue);
     }
 }
