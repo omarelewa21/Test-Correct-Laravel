@@ -25,7 +25,7 @@ return [
     'check_correct_text'                   => 'Vergeet niet aan te geven of je (uitwerk-)bijlagen hebt aangeleverd.',
     'Toets uploaden'                       => 'Uploadverzoek indienen',
     'Toets geupload'                       => 'Upload verzoek ingediend',
-    'test_upload_succes_modal_text'        => 'Je toets in in goede orde ontvangen. Je kan de status van je aanvraag bekijken bij \'Toetsen\' onder \'Mijn uploads\'. We streven ernaar om de toetsen zo snel mogelijk te digitaliseren en klaar te zetten voor gebruik.',
+    'test_upload_succes_modal_text'        => 'Je toets is in goede orde ontvangen. Je kan de status van je aanvraag bekijken bij \'Toetsen\' onder \'Mijn uploads\'. We streven ernaar om de toetsen zo snel mogelijk te digitaliseren en klaar te zetten voor gebruik.',
     'upload_rule_extension'                => 'Bestanden van het type .%s zijn niet toegestaan.',
     'upload_rule_size'                     => 'Het bestand \'%s\' is te groot om te kunnen uploaden.',
     'question_model_tooltip'               => 'Het vraagmodel bevat de toetsvragen en is verplicht. Deze kan samen met de antwoorden in één document geleverd worden of je levert deze apart aan.',
