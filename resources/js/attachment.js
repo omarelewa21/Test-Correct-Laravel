@@ -1,4 +1,5 @@
 import Plyr from 'plyr';
+import Alpine from "alpinejs";
 
 
 window.plyrPlayer = {
@@ -130,6 +131,7 @@ window.plyrPlayer = {
  * @param {string} attachmentType
  */
 window.makeAttachmentResizable = function(element, attachmentType='') {
+    if (attachmentType === 'audio') return;
     const resizers = element.querySelectorAll('.resizer')
     const iframe = element.querySelector('.resizers iframe');
     const minimum_size = 167;
@@ -143,7 +145,7 @@ window.makeAttachmentResizable = function(element, attachmentType='') {
     let original_mouse_x = 0;
     let original_mouse_y = 0;
     let width, height;
-    let img, originalImageWidth, originalImageHeight;             // Specific for image attachments
+    let img;             // Specific for image attachments
 
     for (let i = 0;i < resizers.length; i++) {
         const currentResizer = resizers[i];
@@ -161,40 +163,46 @@ window.makeAttachmentResizable = function(element, attachmentType='') {
             maximum_x = document.body.offsetWidth;
             maximum_y = document.body.offsetHeight;
 
+            if(attachmentType === 'image') {
+                setImageProperties(element);
+            }
+
             window.addEventListener('mousemove', resize)
             window.addEventListener('ontouchmove', resize)
             window.addEventListener('mouseup', stopResize)
             window.addEventListener('ontouchend', stopResize)
 
 
-            /*************************** Main *****************************/ 
+            /*************************** Main *****************************/
             function resize(e) {
                 if(attachmentType === 'pdf' || attachmentType === 'video') {
                     iframeTimeout = temporarilyDisablePointerEvents(iframe, iframeTimeout);
-                } else if(attachmentType === 'image') {
-                    setImageProperties(element);
                 }
 
                 if (currentResizer.classList.contains('bottom-right')) resizeBottomRight(e);
                 else if (currentResizer.classList.contains('bottom-left')) resizeBottomLeft(e);
                 else if (currentResizer.classList.contains('top-right')) resizeTopRight(e);
                 else resizeTopLeft(e);
-
-                if(attachmentType === 'image') setImageWidthAndHeight(element);
             }
             function stopResize() {
                 if(attachmentType === 'pdf' || attachmentType === 'video'){
                     resetTemporarilyDisabledPointerEvents(iframe, iframeTimeout);
                 }
+                if(attachmentType === 'image') {
+                    scaleModalAndImageToRatio();
+                }
                 window.removeEventListener('mousemove', resize);
                 window.removeEventListener('touchmove', resize);
+                window.removeEventListener('mouseup', stopResize)
+                window.removeEventListener('ontouchend', stopResize)
             }
 
 
-            /*************************** Helpers *****************************/ 
+            /*************************** Helpers *****************************/
             function resizeBottomRight(e) {
                 width = original_width + (e.pageX - original_mouse_x);
                 height = original_height + (e.pageY - original_mouse_y)
+
                 if (width > minimum_size && e.pageX <= maximum_x) {
                     element.style.width = width + 'px'
                 }
@@ -239,17 +247,21 @@ window.makeAttachmentResizable = function(element, attachmentType='') {
             function setImageProperties(){
                 if(typeof img === 'undefined'){
                     img = element.querySelector('img');
-                    originalImageWidth = img.width;
-                    originalImageHeight = img.height;
-                    img.style.maxWidth = 'initial';             // Remove max width to keep aspect ratio - by default img takes max-width of 100%
                     img.closest('.image-max-height').style.maxHeight = 'initial';   // Remove max height from parent dev to allow img expands if bigger than the parent when resized
                 }
+                img.style.opacity = '0';
             }
-            function setImageWidthAndHeight(){
-                img.style.height = originalImageHeight + 'px';
-                img.style.width = originalImageWidth + 'px';
-                img.style.marginLeft  = 'auto';
-                img.style.marginRight = 'auto';
+            function scaleModalAndImageToRatio() {
+                /*  Rule of thumb: The image cannot become larger than the 'pulled' size of the parent. */
+                const current = element.getBoundingClientRect();
+                const [newWidth, newHeight] = calculateMaxAspectRatioFit(current.width , current.height, img.naturalWidth , img.naturalHeight);
+
+                img.style.width = newWidth + 'px';
+                img.style.height = newHeight + 'px';
+
+                element.style.width = 'auto';
+                element.style.height = 'auto';
+                img.style.opacity = '1';
             }
         }
     }
@@ -367,3 +379,56 @@ let resetTemporarilyDisabledPointerEvents = (element, timeout) => {
     }
     element.style.pointerEvents = 'auto';
 }
+
+document.addEventListener("alpine:init", () => {
+    Alpine.data("attachmentModal", (attachmentType) => ({
+        maxHeight: 0,
+        maxWidth: 0,
+        image: null,
+        imageLayout: "square",
+        imageWidth: 0,
+        imageHeight: 0,
+        attachmentType,
+        init() {
+            if (attachmentType === "image") {
+                this.maxHeight = window.innerHeight * 0.8;
+                this.maxWidth = window.innerWidth * 0.9;
+                this.image = this.$root.querySelector("img");
+                this.imageLoaded();
+            }
+            dragElement(this.$el);
+            makeAttachmentResizable(this.$el, attachmentType);
+        },
+        imageLoaded() {
+            if (attachmentType !== "image" || !(this.image.naturalWidth > 0)) return;
+
+            this.$root.style.width = "auto";
+            this.$root.style.height = "auto";
+
+            const [maxWidth, maxHeight] = calculateMaxAspectRatioFit(
+                this.maxWidth,
+                this.maxHeight,
+                this.image.naturalWidth,
+                this.image.naturalHeight
+            );
+            this.imageWidth = this.getImageWidth(maxWidth);
+            this.imageHeight = this.getImageHeight(maxHeight);
+        },
+        getImageWidth(maxWidth) {
+            return (this.image.naturalWidth > maxWidth ? maxWidth : this.image.naturalWidth) + 'px'
+        },
+        getImageHeight(maxHeight) {
+            return (this.image.naturalHeight > maxHeight ? maxHeight : this.image.naturalHeight) + "px";
+        },
+
+    }));
+});
+
+let calculateMaxAspectRatioFit = (maxWidth, maxHeight, imageWidth, imageHeight) => {
+    const scale = Math.min(maxWidth / imageWidth, maxHeight / imageHeight);
+
+    let newMaxWidth = Math.floor(imageWidth * scale),
+        newMaxHeight = Math.floor(imageHeight * scale);
+
+    return [newMaxWidth, newMaxHeight];
+};
