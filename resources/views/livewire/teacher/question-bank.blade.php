@@ -5,6 +5,7 @@
         @entangle('inGroup'),
         @entangle('inTestBankContext')
     )"
+     @if (!$inTestBankContext) :style="`max-height: ${maxHeight}`" @endif
      @question-added.window="Notify.notify('{{ __('cms.question_added') }}');"
      @question-removed.window="Notify.notify('{{ __('cms.question_deleted') }}')"
      group-container
