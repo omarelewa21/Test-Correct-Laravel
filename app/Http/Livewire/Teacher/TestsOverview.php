@@ -10,7 +10,6 @@ use tcCore\EducationLevel;
 use tcCore\Http\Livewire\OverviewComponent;
 use tcCore\Http\Helpers\Choices\Choice;
 use tcCore\Lib\Repositories\TaxonomyRepository;
-use tcCore\Question;
 use tcCore\Subject;
 use tcCore\TemporaryLogin;
 use tcCore\Test;
@@ -37,7 +36,7 @@ class TestsOverview extends OverviewComponent
     public $file = '';
     public $selected = [];
     public $mode;
-    public $showTestQuestionToggle = true;
+    public $inTestBankContext = true;
     public $showQuestionBank = false;
     protected array $filterableAttributes = [
         'name'                      => '',
@@ -55,6 +54,7 @@ class TestsOverview extends OverviewComponent
         'test-added'          => '$refresh',
         'testSettingsUpdated' => '$refresh',
         'test-updated'        => '$refresh',
+        'showTestBank',
     ];
 
     public function mount()
@@ -69,10 +69,9 @@ class TestsOverview extends OverviewComponent
     public function render()
     {
         if($this->showQuestionBank)
-            $results = $this->getQuestionBank();
-        else
-            $results = $this->getDatasource();
+            return view('livewire.teacher.question-bank-overview')->layout('layouts.app-teacher');
 
+        $results = $this->getDatasource();
         return view('livewire.teacher.tests-overview')->layout('layouts.app-teacher')->with(compact(['results']));
     }
 
@@ -147,27 +146,7 @@ class TestsOverview extends OverviewComponent
             $this->cleanFilterForSearch($filters, 'personal'),
             $this->sorting
         )
-        ->where('tests.author_id', auth()->id());
-    }
-
-    private function getQuestionBank()
-    {
-        $filters = $this->filters;
-        $searchTerm = $filters['name'];     // Assuming 'name' is the key for the search filter in the filters array
-
-        return Question::filtered(
-            $this->cleanFilterForSearch($filters, 'personal'),
-            $this->sorting
-        )
-        ->when(!empty($searchTerm), function ($query) use ($searchTerm) {
-            $query->where('question', 'LIKE', '%' . $searchTerm . '%');
-        })
-        ->paginate(9);
-    }
-    
-    public function testContainsQuestion($questionId)
-    {
-        return false;
+            ->where('tests.author_id', auth()->id());
     }
 
     private function getUmbrellaDatasource()
@@ -347,14 +326,10 @@ class TestsOverview extends OverviewComponent
     public function getMessageKey($resultsCount): string
     {
         if ($resultsCount > 0 || $this->hasActiveFilters()) {
-            return $this->showQuestionBank
-                ? 'general.number-of-questions'
-                : 'general.number-of-tests';
+            return 'general.number-of-tests';
         }
 
-        return $this->showQuestionBank
-            ? 'general.number-of-questions-all' . $this->openTab
-            : 'general.number-of-tests-all' . $this->openTab;
+        return 'general.number-of-tests-' . $this->openTab;
     }
 
     /**
@@ -418,5 +393,16 @@ class TestsOverview extends OverviewComponent
     public function getTaxonomiesProperty()
     {
         return TaxonomyRepository::choicesOptions();
+    }
+
+    public function showTestBank()
+    {
+        $this->showQuestionBank = false;
+    }
+
+    public function updatedShowQuestionBank($value)
+    {
+        if($value === false)
+            $this->emitSelf('testSettingsUpdated');
     }
 }

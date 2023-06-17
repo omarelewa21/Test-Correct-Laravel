@@ -41,6 +41,8 @@ class QuestionBank extends TCComponent
     public $inGroup = false;
     public $active;
     public $groupQuestionDetail;
+    public $inTestBankContext = false;
+    public $showQuestionBank = true;
 
     protected string $filterIdentifyingAttribute = 'testId';
     protected array $filterableAttributes = [
@@ -69,13 +71,19 @@ class QuestionBank extends TCComponent
         $this->initialiseContentSourceTabs();
 
         $this->itemsPerPage = QuestionBank::ITEM_INCREMENT;
-        $this->setTestProperty();
-        $this->setAddedQuestionIdsArray();
+        if(!$this->inTestBankContext){
+            $this->setTestProperty();
+            $this->setAddedQuestionIdsArray();
+        }
+
         $this->setFilters();
     }
 
     public function render()
     {
+        if($this->inTestBankContext && !$this->showQuestionBank)
+            $this->emit('showTestBank');
+        
         return view('livewire.teacher.question-bank');
     }
 
@@ -137,7 +145,7 @@ class QuestionBank extends TCComponent
 
     public function booted()
     {
-        $this->setTestProperty();
+        if(!$this->inTestBankContext) $this->setTestProperty();
     }
 
     private function setTestProperty()

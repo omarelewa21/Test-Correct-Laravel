@@ -21,10 +21,11 @@
                         <x-icon.search class="absolute right-0 -top-2"/>
                     </x-input.group>
 
-                    @if($showTestQuestionToggle)
+                    @if($inTestBankContext)
                         <x-button.slider class="pl-2"
                             :options="[false => __('general.tests'), true => __('general.questions')]"
                             wire:model="showQuestionBank"
+                            :initialStatus="false"
                             buttonWidth="auto"
                         />
                     @endif
@@ -128,24 +129,12 @@
                 @endif
             </x-slot>
 
-        @if ($showTestQuestionToggle)
-            <x-slot name="cards">
-                @foreach($results as $test)
-                    @if($this->showQuestionBank)
-                        <x-grid.question-card-detail :testQuestion="$test" /> 
-                    @else
-                        <x-grid.test-card :test="$test" :mode="$cardMode ?? 'page'"/>
-                    @endif
-                @endforeach
-            </x-slot>
-            <livewire:context-menu.question-card>            
-        @else
             <x-slot name="cards">
                 @foreach($results as $test)
                     <x-grid.test-card :test="$test" :mode="$cardMode ?? 'page'"/>
                 @endforeach
             </x-slot>
-          @endif
+
             <livewire:context-menu.test-card/>
         </x-partials.overview-content-section>
 

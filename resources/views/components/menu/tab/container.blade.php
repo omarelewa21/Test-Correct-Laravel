@@ -2,7 +2,7 @@
 @php
     $stickyClasses = $withTileEvents ? 'sticky-pseudo-bg' : 'top-0';
 @endphp
-<div {{ $attributes->merge(['class' => 'border-b border-secondary sticky bg-lightGrey z-1 ' . $stickyClasses]) }}
+<div x-ref="tab-container" {{ $attributes->merge(['class' => 'border-b border-secondary sticky bg-lightGrey z-1' . $stickyClasses]) }}
      @if($withTileEvents)
          style="transition: top 0.3s linear;top: 150px"
          x-on:tiles-hidden.window="$el.style.top = '100px'"

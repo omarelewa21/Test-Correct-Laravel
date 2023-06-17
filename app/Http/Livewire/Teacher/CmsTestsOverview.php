@@ -20,7 +20,7 @@ class CmsTestsOverview extends TestsOverview
 
     protected string $filterIdentifyingAttribute = 'cmsTestUuid';
 
-    public $showTestQuestionToggle = false;             // Show the test & question toggle
+    public $inTestBankContext = false;
 
     protected function getListeners()
     {

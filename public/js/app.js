@@ -7905,7 +7905,8 @@ document.addEventListener("alpine:init", function () {
         this.bodyPage = this.$root.closest(".divide-secondary");
       },
       preventMenuFallOffScreen: function preventMenuFallOffScreen() {
-        if (this.menuCard.offsetTop + this.menuCard.offsetHeight >= this.bodyPage.offsetHeight + this.bodyPage.offsetTop) {
+        var _this$menuCard, _this$menuCard2, _this$bodyPage, _this$bodyPage2;
+        if (((_this$menuCard = this.menuCard) === null || _this$menuCard === void 0 ? void 0 : _this$menuCard.offsetTop) + ((_this$menuCard2 = this.menuCard) === null || _this$menuCard2 === void 0 ? void 0 : _this$menuCard2.offsetHeight) >= ((_this$bodyPage = this.bodyPage) === null || _this$bodyPage === void 0 ? void 0 : _this$bodyPage.offsetHeight) + ((_this$bodyPage2 = this.bodyPage) === null || _this$bodyPage2 === void 0 ? void 0 : _this$bodyPage2.offsetTop)) {
           this.$root.style.top = this.detailCoordsTop + this.menuOffsetMarginTop - (this.menuCard.offsetHeight - this.gridCardOffsetHeight) - 25 + "px";
           this.$root.style.left = this.detailCoordsLeft - this.menuCard.offsetWidth - 50 + "px";
         }
@@ -8961,8 +8962,142 @@ document.addEventListener("alpine:init", function () {
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].directive("global", function (el, _ref4) {
-    var expression = _ref4.expression;
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('questionBank', function (openTab, inGroup, inTestBankContext) {
+    return {
+      questionBankOpenTab: openTab,
+      inGroup: inGroup,
+      groupDetail: null,
+      bodyVisibility: true,
+      inTestBankContext: inTestBankContext,
+      maxHeight: 'calc(100vh - var(--header-height))',
+      init: function init() {
+        var _this58 = this;
+        this.groupDetail = this.$el.querySelector('#groupdetail');
+        this.$watch('showBank', function (value) {
+          if (value === 'questions') {
+            _this58.$wire.loadSharedFilters();
+          }
+        });
+        this.$watch('$store.questionBank.inGroup', function (value) {
+          _this58.inGroup = value;
+        });
+        this.$watch('$store.questionBank.active', function (value) {
+          if (value) {
+            _this58.$wire.setAddedQuestionIdsArray();
+          } else {
+            _this58.closeGroupDetailQb();
+          }
+        });
+        this.showGroupDetailsQb = /*#__PURE__*/function () {
+          var _ref4 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee18(groupQuestionUuid) {
+            var inTest,
+              readyForSlide,
+              _args18 = arguments;
+            return _regeneratorRuntime().wrap(function _callee18$(_context18) {
+              while (1) switch (_context18.prev = _context18.next) {
+                case 0:
+                  inTest = _args18.length > 1 && _args18[1] !== undefined ? _args18[1] : false;
+                  _context18.next = 3;
+                  return _this58.$wire.showGroupDetails(groupQuestionUuid, inTest);
+                case 3:
+                  readyForSlide = _context18.sent;
+                  if (readyForSlide) {
+                    if (_this58.inTestBankContext) {
+                      _this58.$refs['tab-container'].style.display = 'none';
+                      _this58.$refs['main-container'].style.height = '100vh';
+                    } else {
+                      _this58.maxHeight = _this58.groupDetail.offsetHeight + 'px';
+                    }
+                    _this58.groupDetail.style.left = 0;
+                    _this58.$refs['main-container'].scrollTo({
+                      top: 0,
+                      behavior: 'smooth'
+                    });
+                    _this58.$el.scrollTo({
+                      top: 0,
+                      behavior: 'smooth'
+                    });
+                    _this58.$nextTick(function () {
+                      setTimeout(function () {
+                        _this58.bodyVisibility = false;
+                        if (_this58.inTestBankContext) {
+                          _this58.groupDetail.style.position = 'relative';
+                        } else {
+                          handleVerticalScroll(_this58.$el.closest('.slide-container'));
+                        }
+                      }, 500);
+                    });
+                  }
+                case 5:
+                case "end":
+                  return _context18.stop();
+              }
+            }, _callee18);
+          }));
+          return function (_x2) {
+            return _ref4.apply(this, arguments);
+          };
+        }();
+        this.closeGroupDetailQb = function () {
+          if (!_this58.bodyVisibility) {
+            _this58.bodyVisibility = true;
+            _this58.maxHeight = 'calc(100vh - var(--header-height))';
+            _this58.groupDetail.style.left = '100%';
+            if (_this58.inTestBankContext) {
+              _this58.groupDetail.style.position = 'absolute';
+              _this58.$refs['tab-container'].style.display = 'block';
+            }
+            _this58.$nextTick(function () {
+              _this58.$wire.clearGroupDetails();
+              setTimeout(function () {
+                if (!_this58.inTestBankContext) {
+                  handleVerticalScroll(_this58.$el.closest('.slide-container'));
+                }
+              }, 250);
+            });
+          }
+        };
+        this.addQuestionToTest = /*#__PURE__*/function () {
+          var _ref5 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee19(button, questionUuid) {
+            var showQuestionBankAddConfirmation,
+              enableButton,
+              _args19 = arguments;
+            return _regeneratorRuntime().wrap(function _callee19$(_context19) {
+              while (1) switch (_context19.prev = _context19.next) {
+                case 0:
+                  showQuestionBankAddConfirmation = _args19.length > 2 && _args19[2] !== undefined ? _args19[2] : false;
+                  if (!showQuestionBankAddConfirmation) {
+                    _context19.next = 3;
+                    break;
+                  }
+                  return _context19.abrupt("return", _this58.$wire.emit('openModal', 'teacher.add-sub-question-confirmation-modal', {
+                    questionUuid: questionUuid
+                  }));
+                case 3:
+                  button.disabled = true;
+                  _context19.next = 6;
+                  return _this58.$wire.handleCheckboxClick(questionUuid);
+                case 6:
+                  enableButton = _context19.sent;
+                  if (enableButton) {
+                    button.disabled = false;
+                  }
+                  return _context19.abrupt("return", true);
+                case 9:
+                case "end":
+                  return _context19.stop();
+              }
+            }, _callee19);
+          }));
+          return function (_x3, _x4) {
+            return _ref5.apply(this, arguments);
+          };
+        }();
+      }
+    };
+  });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].directive("global", function (el, _ref6) {
+    var expression = _ref6.expression;
     var f = new Function("_", "$data", "_." + expression + " = $data;return;");
     f(window, el._x_dataStack[0]);
   });
@@ -9693,7 +9828,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "fc18ed69b446aeb8c8a5",
+  key: "346b9b2cf30ab766e6a6",
   cluster: "eu",
   forceTLS: true
 });
@@ -68119,6 +68254,32 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./resources/css/app_pdf.css":
+/*!***********************************!*\
+  !*** ./resources/css/app_pdf.css ***!
+  \***********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+// extracted by mini-css-extract-plugin
+
+
+/***/ }),
+
+/***/ "./resources/css/print-test-pdf.css":
+/*!******************************************!*\
+  !*** ./resources/css/print-test-pdf.css ***!
+  \******************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+// extracted by mini-css-extract-plugin
+
+
+/***/ }),
+
 /***/ "./node_modules/plyr/dist/plyr.min.js":
 /*!********************************************!*\
   !*** ./node_modules/plyr/dist/plyr.min.js ***!
@@ -77425,7 +77586,9 @@ module.exports = JSON.parse('{"name":"axios","version":"0.21.4","description":"P
 /******/ 		// [resolve, reject, Promise] = chunk loading, 0 = chunk loaded
 /******/ 		var installedChunks = {
 /******/ 			"/js/app": 0,
-/******/ 			"css/app": 0
+/******/ 			"css/app": 0,
+/******/ 			"css/app_pdf": 0,
+/******/ 			"css/print-test-pdf": 0
 /******/ 		};
 /******/ 		
 /******/ 		// no chunk on demand loading
@@ -77475,8 +77638,10 @@ module.exports = JSON.parse('{"name":"axios","version":"0.21.4","description":"P
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module depends on other loaded chunks and execution need to be delayed
-/******/ 	__webpack_require__.O(undefined, ["css/app"], () => (__webpack_require__("./resources/js/app.js")))
-/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["css/app"], () => (__webpack_require__("./resources/css/app.css")))
+/******/ 	__webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/js/app.js")))
+/******/ 	__webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/css/app.css")))
+/******/ 	__webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/css/app_pdf.css")))
+/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/css/print-test-pdf.css")))
 /******/ 	__webpack_exports__ = __webpack_require__.O(__webpack_exports__);
 /******/ 	
 /******/ })()

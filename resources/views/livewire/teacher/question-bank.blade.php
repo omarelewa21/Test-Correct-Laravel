@@ -1,64 +1,10 @@
 <div id="question-bank"
      class="flex flex-col relative w-full min-h-full bg-lightGrey border-t border-secondary overflow-auto overflow-x-hidden"
-     x-data="{
-        questionBankOpenTab: @entangle('openTab'),
-        inGroup: @entangle('inGroup'),
-        groupDetail: null,
-        bodyVisibility: true,
-        maxHeight: 'calc(100vh - var(--header-height))'
-        }"
-     :style="`max-height: ${maxHeight}`"
-     x-init="
-        groupDetail = $el.querySelector('#groupdetail');
-        $watch('showBank', value => {
-            if (value === 'questions') {
-                $wire.loadSharedFilters();
-            }
-        });
-        $watch('$store.questionBank.inGroup', value => inGroup = value);
-        $watch('$store.questionBank.active', value => {
-           //if true, the wire method also makes the html rerender, but only calling the render didn't cut it
-           value ? $wire.setAddedQuestionIdsArray() : closeGroupDetailQb();
-        });
-        showGroupDetailsQb = async (groupQuestionUuid, inTest = false) => {
-            let readyForSlide = await $wire.showGroupDetails(groupQuestionUuid, inTest);
-
-            if (readyForSlide) {
-                groupDetail.style.left = 0;
-                $el.closest('.drawer').scrollTo({top: 0, behavior: 'smooth'});
-                $el.scrollTo({top: 0, behavior: 'smooth'});
-                maxHeight = groupDetail.offsetHeight + 'px';
-                $nextTick(() => {
-                    setTimeout(() => {
-                        bodyVisibility = false;
-                        handleVerticalScroll($el.closest('.slide-container'));
-                    }, 250);
-                })
-            }
-        }
-
-        closeGroupDetailQb = () => {
-            if (!bodyVisibility) {
-                bodyVisibility = true;
-                maxHeight = 'calc(100vh - var(--header-height))';
-                groupDetail.style.left = '100%';
-                $nextTick(() => {
-                    $wire.clearGroupDetails();
-                    setTimeout(() => {
-                        handleVerticalScroll($el.closest('.slide-container'));
-                    }, 250);
-                })
-            }
-
-        }
-        addQuestionToTest = async (button, questionUuid, showQuestionBankAddConfirmation = false) => {
-            if(showQuestionBankAddConfirmation) return $wire.emit('openModal', 'teacher.add-sub-question-confirmation-modal', {questionUuid: questionUuid});
-            button.disabled = true;
-            var enableButton = await $wire.handleCheckboxClick(questionUuid);
-            if (enableButton) button.disabled = false;
-            return true;
-        }
-        "
+     x-data="questionBank(
+        @entangle('openTab'),
+        @entangle('inGroup'),
+        @entangle('inTestBankContext')
+    )"
      @question-added.window="Notify.notify('{{ __('cms.question_added') }}');"
      @question-removed.window="Notify.notify('{{ __('cms.question_deleted') }}')"
      group-container
@@ -74,7 +20,7 @@
     </x-menu.tab.container>
 
 
-    <div class="flex w-full main" x-show="bodyVisibility" x-cloak>
+    <div class="flex w-full main @if($inTestBankContext) max-w-screen-2xl mx-auto @endif" x-show="bodyVisibility" x-cloak>
         <div class="w-full  mx-auto z-0">
             <div class="mx-8 divide-y divide-secondary"
                  x-data="{filterLoading: false}"
@@ -100,8 +46,16 @@
                                           placeholder="{{ __('cms.Search...') }}"
                                           wire:model.debounce.300ms="filters.search"
                             />
-                            <x-icon.search class="absolute right-0 -top-2"/>
+                            @if(!$inTestBankContext) <x-icon.search class="absolute right-0 -top-2"/> @endif
                         </div>
+                        @if($inTestBankContext)
+                            <x-button.slider class="pl-2"
+                                :options="[false => __('general.tests'), true => __('general.questions')]"
+                                :initialStatus="true"
+                                wire:model="showQuestionBank"
+                                buttonWidth="auto"
+                            />
+                        @endif
                     </div>
                     <div class="flex w-full items-center">
                         <div class="flex flex-wrap w-full space-x-2 items-center" x-cloak>
@@ -185,9 +139,26 @@
 
                 {{-- Content --}}
                 <div class="flex flex-col py-4" style="min-height: 500px">
-                    <div class="flex">
-                        <span class="note text-sm">{{ $this->resultCount }} resultaten </span>
-                    </div>
+                    @if ($inTestBankContext)
+                        <div class="flex justify-between">
+                            <span class="note text-sm">{{ $this->resultCount }} resultaten </span>
+                            @if(!auth()->user()->isValidExamCoordinator())
+                                <div class="flex space-x-2.5">
+                                    <x-button.cta class="px-4"
+                                                wire:click="$emit('openModal', 'teacher.test-start-create-modal')"
+                                                selid="create-new-test-button"
+                                    >
+                                        <x-icon.plus/>
+                                        <span>{{ __('general.create test') }}</span>
+                                    </x-button.cta>
+                                </div>
+                            @endif
+                        </div>
+                    @else
+                        <div class="flex">
+                            <span class="note text-sm">{{ $this->resultCount }} resultaten </span>
+                        </div>
+                    @endif
 
                     <x-grid class="mt-4" x-show="filterLoading" x-cloak>
                         @foreach(range(1,6) as $value)
