@@ -141,7 +141,7 @@
                 <div class="flex flex-col py-4" style="min-height: 500px">
                     @if ($inTestBankContext)
                         <div class="flex justify-between">
-                            <span class="note text-sm">{{ $this->resultCount }} resultaten </span>
+                            <span class="note text-sm">{{ $this->resultCount }} @lang('cms.resultaten') </span>
                             @if(!auth()->user()->isValidExamCoordinator())
                                 <div class="flex space-x-2.5">
                                     <x-button.cta class="px-4"
@@ -156,7 +156,7 @@
                         </div>
                     @else
                         <div class="flex">
-                            <span class="note text-sm">{{ $this->resultCount }} resultaten </span>
+                            <span class="note text-sm">{{ $this->resultCount }} @lang('cms.resultaten') </span>
                         </div>
                     @endif
 

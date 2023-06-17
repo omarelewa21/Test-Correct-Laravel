@@ -236,4 +236,5 @@ return [
     'spell_check_available'                                                                  => 'Spellingscontrole beschikbaar',
     'spell_check_available_tooltip'                                                          => 'Hiermee kunnen leerlingen tijdens hun toets gebruiken maken van spellingscontrole. Deze onderstreept alle woorden die niet correct zijn geschreven.',
     'Antwoord opties voor student'                                                           => 'Antwoord opties voor student',
+    'resultaten'                                                                             => 'resultaten',
 ];
