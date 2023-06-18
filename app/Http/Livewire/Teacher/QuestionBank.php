@@ -81,9 +81,6 @@ class QuestionBank extends TCComponent
 
     public function render()
     {
-        if($this->inTestBankContext && !$this->showQuestionBank)
-            $this->emit('showTestBank');
-        
         return view('livewire.teacher.question-bank');
     }
 
@@ -413,5 +410,10 @@ class QuestionBank extends TCComponent
     public function getTaxonomiesProperty()
     {
         return TaxonomyRepository::choicesOptions();
+    }
+
+    public function updatingShowQuestionBank($value)
+    {
+        if(!$value) $this->emitUp('showTestBank');
     }
 }

@@ -398,11 +398,6 @@ class TestsOverview extends OverviewComponent
     public function showTestBank()
     {
         $this->showQuestionBank = false;
-    }
-
-    public function updatedShowQuestionBank($value)
-    {
-        if($value === false)
-            $this->emitSelf('testSettingsUpdated');
+        $this->render();
     }
 }
