@@ -1,11 +1,9 @@
 {
-    "/js/app.js": "/js/app.js?id=78d666040d5c6985a3ca180f146ad6ad",
-    "/css/app.css": "/css/app.css?id=1771516965275b71fea26bb437514342",
-    "/css/app_pdf.css": "/css/app_pdf.css?id=3b502bd3058f6ff70685b1319e64dbb1",
-    "/css/print-test-pdf.css": "/css/print-test-pdf.css?id=399967153b307c3b1684a1838949c77f",
-    "/js/ckeditor.js": "/js/ckeditor.js?id=e7960494bed6736116735b85104cb073",
-    "/js/ckeditor.js.map": "/js/ckeditor.js.map?id=cafb8c1da89a9ca82d337fd8514e9ac8",
-    "/js/readspeaker_tlc.js": "/js/readspeaker_tlc.js?id=017b74e36de3c4049ed9293bfb1773b4",
+    "/js/app.js": "/js/app.js?id=6f11122eedf89e42f1d33f12b79ba9b1",
+    "/css/app.css": "/css/app.css?id=feb73edc93fd54e6f5e64754ba9d9b37",
+    "/js/ckeditor.js": "/js/ckeditor.js?id=5df04c76af70007bfc4380b7519c8f36",
+    "/js/ckeditor.js.map": "/js/ckeditor.js.map?id=493c5e9c11fb94a07a4c35fc7937eefc",
+    "/js/readspeaker_tlc.js": "/js/readspeaker_tlc.js?id=d9374b47e7e8e5fba677e0952f9a01d9",
     "/css/rs_tlc.css": "/css/rs_tlc.css?id=95258143d6fd9f705fcc2c0369c5e402",
     "/css/rs_tlc_pdf.css": "/css/rs_tlc_pdf.css?id=1e09c8ed0d711245f9c8cfd52130e783"
 }

@@ -8,8 +8,6 @@
         wire:ignore
     >
         <div @class(['box-border w-full h-full', 'resizers' => $this->attachmentType != 'audio'])>
-            <div class="hidden lg:w-4/6 h-[80vh] w-[80vw]"></div>
-
             <div class='resizer top-left'></div>
             <div class='resizer top-right'></div>
             <div class='resizer bottom-left'></div>
