@@ -9310,6 +9310,14 @@ selectTextContent = function selectTextContent(event) {
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var plyr__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! plyr */ "./node_modules/plyr/dist/plyr.min.js");
 /* harmony import */ var plyr__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(plyr__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var alpinejs__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! alpinejs */ "./node_modules/alpinejs/dist/module.esm.js");
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
+function _iterableToArrayLimit(arr, i) { var _i = null == arr ? null : "undefined" != typeof Symbol && arr[Symbol.iterator] || arr["@@iterator"]; if (null != _i) { var _s, _e, _x, _r, _arr = [], _n = !0, _d = !1; try { if (_x = (_i = _i.call(arr)).next, 0 === i) { if (Object(_i) !== _i) return; _n = !1; } else for (; !(_n = (_s = _x.call(_i)).done) && (_arr.push(_s.value), _arr.length !== i); _n = !0); } catch (err) { _d = !0, _e = err; } finally { try { if (!_n && null != _i["return"] && (_r = _i["return"](), Object(_r) !== _r)) return; } finally { if (_d) throw _e; } } return _arr; } }
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
 
 window.plyrPlayer = {
   disableElem: function disableElem(elem) {
@@ -9428,6 +9436,7 @@ window.plyrPlayer = {
  */
 window.makeAttachmentResizable = function (element) {
   var attachmentType = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
+  if (attachmentType === 'audio') return;
   var resizers = element.querySelectorAll('.resizer');
   var iframe = element.querySelector('.resizers iframe');
   var minimum_size = 167;
@@ -9441,7 +9450,7 @@ window.makeAttachmentResizable = function (element) {
   var original_mouse_x = 0;
   var original_mouse_y = 0;
   var width, height;
-  var img, originalImageWidth, originalImageHeight; // Specific for image attachments
+  var img; // Specific for image attachments
   var _loop = function _loop() {
     var currentResizer = resizers[i];
     currentResizer.addEventListener('mousedown', resizeMouseDown);
@@ -9456,6 +9465,9 @@ window.makeAttachmentResizable = function (element) {
       original_mouse_y = e.pageY;
       maximum_x = document.body.offsetWidth;
       maximum_y = document.body.offsetHeight;
+      if (attachmentType === 'image') {
+        setImageProperties(element);
+      }
       window.addEventListener('mousemove', resize);
       window.addEventListener('ontouchmove', resize);
       window.addEventListener('mouseup', stopResize);
@@ -9465,18 +9477,20 @@ window.makeAttachmentResizable = function (element) {
       function resize(e) {
         if (attachmentType === 'pdf' || attachmentType === 'video') {
           iframeTimeout = temporarilyDisablePointerEvents(iframe, iframeTimeout);
-        } else if (attachmentType === 'image') {
-          setImageProperties(element);
         }
         if (currentResizer.classList.contains('bottom-right')) resizeBottomRight(e);else if (currentResizer.classList.contains('bottom-left')) resizeBottomLeft(e);else if (currentResizer.classList.contains('top-right')) resizeTopRight(e);else resizeTopLeft(e);
-        if (attachmentType === 'image') setImageWidthAndHeight(element);
       }
       function stopResize() {
         if (attachmentType === 'pdf' || attachmentType === 'video') {
           resetTemporarilyDisabledPointerEvents(iframe, iframeTimeout);
         }
+        if (attachmentType === 'image') {
+          scaleModalAndImageToRatio();
+        }
         window.removeEventListener('mousemove', resize);
         window.removeEventListener('touchmove', resize);
+        window.removeEventListener('mouseup', stopResize);
+        window.removeEventListener('ontouchend', stopResize);
       }
 
       /*************************** Helpers *****************************/
@@ -9527,18 +9541,23 @@ window.makeAttachmentResizable = function (element) {
       function setImageProperties() {
         if (typeof img === 'undefined') {
           img = element.querySelector('img');
-          originalImageWidth = img.width;
-          originalImageHeight = img.height;
-          img.style.maxWidth = 'initial'; // Remove max width to keep aspect ratio - by default img takes max-width of 100%
           img.closest('.image-max-height').style.maxHeight = 'initial'; // Remove max height from parent dev to allow img expands if bigger than the parent when resized
         }
-      }
 
-      function setImageWidthAndHeight() {
-        img.style.height = originalImageHeight + 'px';
-        img.style.width = originalImageWidth + 'px';
-        img.style.marginLeft = 'auto';
-        img.style.marginRight = 'auto';
+        img.style.opacity = '0';
+      }
+      function scaleModalAndImageToRatio() {
+        /*  Rule of thumb: The image cannot become larger than the 'pulled' size of the parent. */
+        var current = element.getBoundingClientRect();
+        var _calculateMaxAspectRa = calculateMaxAspectRatioFit(current.width, current.height, img.naturalWidth, img.naturalHeight),
+          _calculateMaxAspectRa2 = _slicedToArray(_calculateMaxAspectRa, 2),
+          newWidth = _calculateMaxAspectRa2[0],
+          newHeight = _calculateMaxAspectRa2[1];
+        img.style.width = newWidth + 'px';
+        img.style.height = newHeight + 'px';
+        element.style.width = 'auto';
+        element.style.height = 'auto';
+        img.style.opacity = '1';
       }
     }
   };
@@ -9652,6 +9671,52 @@ var resetTemporarilyDisabledPointerEvents = function resetTemporarilyDisabledPoi
     clearTimeout(timeout);
   }
   element.style.pointerEvents = 'auto';
+};
+document.addEventListener("alpine:init", function () {
+  alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data("attachmentModal", function (attachmentType, inPreview) {
+    return {
+      maxHeight: 0,
+      maxWidth: 0,
+      image: null,
+      imageWidth: 0,
+      imageHeight: 0,
+      attachmentType: attachmentType,
+      inPreview: inPreview,
+      init: function init() {
+        if (attachmentType === "image") {
+          this.maxHeight = window.innerHeight * 0.8;
+          this.maxWidth = window.innerWidth * 0.9;
+          this.image = this.$root.querySelector("img");
+          this.imageLoaded();
+        }
+        dragElement(this.$el);
+        makeAttachmentResizable(this.$el, attachmentType);
+      },
+      imageLoaded: function imageLoaded() {
+        if (attachmentType !== "image" || !(this.image.naturalWidth > 0)) return;
+        this.$root.style.width = "auto";
+        this.$root.style.height = "auto";
+        var _calculateMaxAspectRa3 = calculateMaxAspectRatioFit(this.maxWidth, this.maxHeight, this.image.naturalWidth, this.image.naturalHeight),
+          _calculateMaxAspectRa4 = _slicedToArray(_calculateMaxAspectRa3, 2),
+          maxWidth = _calculateMaxAspectRa4[0],
+          maxHeight = _calculateMaxAspectRa4[1];
+        this.imageWidth = this.getImageWidth(maxWidth);
+        this.imageHeight = this.getImageHeight(maxHeight);
+      },
+      getImageWidth: function getImageWidth(maxWidth) {
+        return (this.image.naturalWidth > maxWidth ? maxWidth : this.image.naturalWidth) + 'px';
+      },
+      getImageHeight: function getImageHeight(maxHeight) {
+        return (this.image.naturalHeight > maxHeight ? maxHeight : this.image.naturalHeight) + "px";
+      }
+    };
+  });
+});
+var calculateMaxAspectRatioFit = function calculateMaxAspectRatioFit(maxWidth, maxHeight, imageWidth, imageHeight) {
+  var scale = Math.min(maxWidth / imageWidth, maxHeight / imageHeight);
+  var newMaxWidth = Math.floor(imageWidth * scale),
+    newMaxHeight = Math.floor(imageHeight * scale);
+  return [newMaxWidth, newMaxHeight];
 };
 
 /***/ }),

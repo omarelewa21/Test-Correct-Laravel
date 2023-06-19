@@ -11197,6 +11197,9 @@ video {
   --tw-bg-opacity: 1;
   background-color: rgb(4 31 116 / var(--tw-bg-opacity));
 }
+.bg-sysbase\/30{
+  background-color: rgb(4 31 116 / 0.3);
+}
 .bg-teacherPrimaryLight{
   --tw-bg-opacity: 1;
   background-color: rgb(71 129 255 / var(--tw-bg-opacity));

@@ -385,7 +385,6 @@ document.addEventListener("alpine:init", () => {
         maxHeight: 0,
         maxWidth: 0,
         image: null,
-        imageLayout: "square",
         imageWidth: 0,
         imageHeight: 0,
         attachmentType,
