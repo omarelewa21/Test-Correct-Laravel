@@ -6,21 +6,36 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\View\AnonymousComponent;
 use tcCore\Http\Helpers\CakeRedirectHelper;
-use tcCore\Http\Helpers\Choices\ChildChoice;
-use tcCore\Http\Helpers\Choices\ParentChoice;
 use tcCore\Http\Livewire\Teacher\TestTake\TestTake as TestTakeComponent;
-use tcCore\SchoolClass;
 use tcCore\TestTake as TestTakeModel;
 
 class Planned extends TestTakeComponent
 {
     public $dropdownData = [];
     public $selected = [];
+    public Collection $invigilators;
 
     public function mount(TestTakeModel $testTake)
     {
         parent::mount($testTake);
-        $this->dropdownData();
+        $this->invigilators = $this->testTake
+            ->invigilatorUsers
+            ->map(function ($user) {
+                $user->displayName = $user->getFullNameWithAbbreviatedFirstName();
+                return $user;
+            });
+    }
+
+    public function refresh()
+    {
+        $this->fillGridData();
+        $this->setStudentData();
+        $this->invigilators = $this->testTake
+            ->invigilatorUsers
+            ->map(function ($user) {
+                $user->displayName = $user->getFullNameWithAbbreviatedFirstName();
+                return $user;
+            });
     }
 
     public function redirectToOverview()
@@ -99,25 +114,5 @@ class Planned extends TestTakeComponent
             });
     }
 
-    public function dropdowndata()
-    {
-        $classes = SchoolClass::filtered(['user_id' => auth()->id(), 'current' => true])->get();
-        $this->dropdownData = $classes->map(function ($class) {
-            return ParentChoice::build(
-                value           : $class->uuid,
-                label           : $class->name,
-                customProperties: ['parentId' => $class->uuid],
-                children        : $class->studentUsers->map(function ($student) use ($class) {
-                    return ChildChoice::build(
-                        value           : $student->uuid,
-                        label           : $student->name_full,
-                        customProperties: [
-                            'parentId'    => $class->uuid,
-                            'parentLabel' => $class->name,
-                        ]
-                    );
-                })
-            );
-        })->toArray();
-    }
+    public function removeInvigilator($invigilatorUserUuid) {}
 }

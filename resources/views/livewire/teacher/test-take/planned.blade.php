@@ -1,19 +1,6 @@
 @extends('layouts.test-take')
 
 @section('kaas')
-    <div>
-        <x-input.multi-dropdown-select :options="$this->dropdownData"
-                                       :title="__('teacher.Klassen en studenten')"
-                                       containerId="c_and_s_container-{{ $this->testTakeUuid }}"
-                                       :label="'kaas'"
-        />
-
-        <div id="c_and_s_container-{{ $this->testTakeUuid }}"
-             class="flex gap-2 flex-wrap"
-        ></div>
-
-    </div>
-
     <div class="flex flex-col py-5 px-7 bg-white rounded-10 content-section"
          x-data="{plannedTab: 'students'}"
          x-cloak
@@ -31,36 +18,62 @@
              class="flex flex-col w-full pt-5"
         >
             <div class="flex w-full relative flex-wrap gap-2">
-                @forelse($this->participants as $participant)
-                    <div @class([
-                        'filter-pill px-4 gap-2 h-10',
-                        'disabled' => !$participant->present,
-                        'enabled' => $participant->present
-                        ])
-                         @unless($participant->present)
-                            wire:click="removeParticipant(@js($participant->uuid))"
-                         @endif
-                         wire:key="participant-{{ $participant->uuid }}-@js($participant->present)"
-                    >
-                        <span>{{ $participant->name }}</span>
-                        <x-icon.close-small/>
-                    </div>
-                @empty
+                @if($this->initialized)
+                    @forelse($this->participants as $participant)
+                        <div @class([
+                            'filter-pill px-4 gap-2 h-10',
+                            'disabled' => !$participant->present,
+                            'enabled' => $participant->present
+                            ])
+                             @unless($participant->present)
+                                 wire:click="removeParticipant(@js($participant->uuid))"
+                             @endif
+                             wire:key="participant-{{ $participant->uuid }}-@js($participant->present)"
+                        >
+                            <span>{{ $participant->name }}</span>
+                            <x-icon.close-small />
+                        </div>
+                    @empty
+                        <span>@lang('general.unavailable')</span>
+                    @endforelse
+                @else
                     <div class="flex w-full h-full items-center justify-center">
-                        <x-icon.loading-large class="animate-spin"/>
+                        <x-icon.loading-large class="animate-spin" />
                     </div>
-                @endforelse
+                @endif
             </div>
 
             @if($this->initialized)
-                <x-button.text-button wire:click="$emit('openModal','teacher.test-take-edit-modal', {testTake: '{{ $this->testTake->uuid }}' })">
-                    <x-icon.plus/>
+                <x-button.text-button
+                        wire:click="$emit('openModal','teacher.test-take-edit-modal', {testTake: '{{ $this->testTake->uuid }}' })">
+                    <x-icon.plus />
                     <span>@lang('test-take.Studenten toevoegen')</span>
                 </x-button.text-button>
             @endif
         </div>
-        <div x-show="plannedTab === 'invigilators'">
-            Invi's
+        <div x-show="plannedTab === 'invigilators'"
+             class="flex flex-col w-full pt-5"
+        >
+            <div class="flex w-full relative flex-wrap gap-2">
+                @forelse($this->invigilators as $invigilator)
+                    <div class="filter-pill px-4 gap-2 h-10 enabled"
+                         wire:click="removeInvigilator(@js($invigilator->uuid))"
+                         wire:key="invigilator-{{ $invigilator->uuid }}"
+                    >
+                        <span wire:ignore.self>{{ $invigilator->getFullNameWithAbbreviatedFirstName() }}</span>
+                        <x-icon.close-small />
+                    </div>
+                @empty
+                    <span>@lang('general.unavailable')</span>
+                @endforelse
+            </div>
+
+            <x-button.text-button
+                    wire:click="$emit('openModal','teacher.test-take-edit-modal', {testTake: '{{ $this->testTake->uuid }}' })">
+                <x-icon.plus />
+                <span>@lang('test-take.Surveillanten toevoegen')</span>
+            </x-button.text-button>
+
         </div>
     </div>
 @endsection

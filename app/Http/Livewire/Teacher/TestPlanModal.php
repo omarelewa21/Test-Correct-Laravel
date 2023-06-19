@@ -87,6 +87,11 @@ class TestPlanModal extends TCModalComponent
         ];
     }
 
+    public function updatingRequestDate($value)
+    {
+
+    }
+
     public function plan()
     {
         $this->planTest();

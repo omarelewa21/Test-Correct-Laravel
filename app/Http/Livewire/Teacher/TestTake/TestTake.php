@@ -27,6 +27,7 @@ abstract class TestTake extends TCComponent
             TestTakePresenceEvent::channelHereSignature($this->testTake->uuid)    => 'initializingPresenceChannel',
             TestTakePresenceEvent::channelJoiningSignature($this->testTake->uuid) => 'joiningPresenceChannel',
             TestTakePresenceEvent::channelLeavingSignature($this->testTake->uuid) => 'leavingPresenceChannel',
+            'refresh'                                                             => 'refresh'
         ];
     }
 
@@ -52,6 +53,7 @@ abstract class TestTake extends TCComponent
         $template = class_basename(get_called_class());
         return view('livewire.teacher.test-take.' . $template)->layout('layouts.app-teacher');
     }
+    abstract public function refresh();
 
     abstract public function redirectToOverview();
 
@@ -84,7 +86,8 @@ abstract class TestTake extends TCComponent
     {
         try {
             $participant->delete();
-        } catch (\Exception) {}
+        } catch (\Exception) {
+        }
     }
 
     private function handlePresenceEventUpdate(Collection $presentUserUuids)

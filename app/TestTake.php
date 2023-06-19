@@ -491,11 +491,12 @@ class TestTake extends BaseModel
         return $this;
     }
 
-    private function saveInvigilators()
+    public function saveInvigilators($newInvigilators = null)
     {
+        $newInvigilators ??= $this->invigilators;
         $invigilators = $this->invigilators()->withTrashed()->get();
 
-        $this->syncTcRelation($invigilators, $this->invigilators, 'user_id', function ($takeTake, $invigilator) {
+        $this->syncTcRelation($invigilators, $newInvigilators, 'user_id', function ($takeTake, $invigilator) {
             Invigilator::create(['user_id' => $invigilator, 'test_take_id' => $takeTake->getKey()]);
         });
 

@@ -28,7 +28,7 @@ trait WithPlanningFeatures
                 'testTake.show_grades'             => 'sometimes|boolean',
                 'testTake.show_correction_model'   => 'sometimes|boolean',
                 'testTake.time_start'              => 'sometimes|date',
-                'testTake.time_end'                => 'sometimes|date',
+                'testTake.time_end'                => 'sometimes|nullable|date',
             ];
     }
 

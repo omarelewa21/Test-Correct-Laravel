@@ -46,6 +46,6 @@ return [
     'Surveillant'                                                                                                                                      => '{0} Surveillanten|{1} Surveillant|[2,*] Surveillanten',
     'Studenten'                                                                                                                                        => 'Studenten',
     'Studenten toevoegen'                                                                                                                              => 'Studenten toevoegen',
-    'Wijzig instellingen'                                                                                                                               => 'Wijzig instellingen',
-
+    'Wijzig instellingen'                                                                                                                              => 'Wijzig instellingen',
+    'Surveillanten toevoegen'                                                                                                                          => 'Surveillanten toevoegen',
 ];

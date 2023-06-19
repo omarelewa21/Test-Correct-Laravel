@@ -52,7 +52,7 @@
     <div class="flex flex-col w-full mx-auto px-[90px] py-10 gap-6">
         <div class="w-full flex justify-end gap-2">
             <livewire:actions.test-make-pdf :uuid="$this->testTake->test->uuid" :wire:key="'make-pdf-'.$this->testTake->test->uuid"/>
-            <x-button.icon>
+            <x-button.icon wire:click="$emit('openModal','teacher.test-take-edit-modal', {testTake: '{{ $this->testTake->uuid }}' })">
                 <x-icon.settings/>
             </x-button.icon>
             @if($this->testTake->testTakeCode)

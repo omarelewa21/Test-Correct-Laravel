@@ -802,7 +802,7 @@ document.addEventListener("alpine:init", () => {
             return innerHtml;
         },
         createFilterPill(item) {
-            const element = document.getElementById("filter-pill-template").content.firstElementChild.cloneNode(true);
+            const element = this.$root.parentElement.querySelector("#filter-pill-template").content.firstElementChild.cloneNode(true);
 
             element.id = `filter-${this.$root.dataset.modelName}-${item.value}`;
             element.classList.add("filter-pill");
@@ -2466,9 +2466,10 @@ document.addEventListener("alpine:init", () => {
         }
     }));
 
-    Alpine.data("multiDropdownSelect", (options, containerId, wireModel) => ({
+    Alpine.data("multiDropdownSelect", (options, containerId, wireModel, labels) => ({
         options,
         wireModel,
+        labels,
         open: false,
         openSubs: [],
         checkedParents: [],
@@ -2516,6 +2517,7 @@ document.addEventListener("alpine:init", () => {
 
             const parent = this.options.find(parent => parent.value === child.customProperties.parentId);
             this.handleParentStateWhenChildsChange(parent, checked);
+            this.registerParentsBasedOnDisabledChildren();
 
             this.handleActiveFilters();
             this.syncInput();
@@ -2737,16 +2739,18 @@ document.addEventListener("alpine:init", () => {
             return !item.customProperties?.parent === false;
         },
         registerParentsBasedOnDisabledChildren() {
-            this.options.filter(item => {
-                return item.children.some(child => child.disabled === true);
-            }).forEach(item => {
+            this.options.forEach(item => {
                 const enabledChildren = item.children.filter(child => child.disabled !== true).length;
                 if (enabledChildren === 0) return;
-                if(this.checkedChildrenCount(item) === enabledChildren) {
-                    this.checkedParents = this.add(this.checkedParents, item.value);
-                    this.$root.querySelector(`[data-id="${item.value}"][data-parent-id="${item.value}"] input[type="checkbox"]`).checked = true;
-                }
+
+                const enabled = this.checkedChildrenCount(item) === enabledChildren;
+                this.checkedParents = this[enabled ? 'add' : 'remove'](this.checkedParents, item.value);
+                this.$root.querySelector(`[data-id="${item.value}"][data-parent-id="${item.value}"] input[type="checkbox"]`).checked = enabled;
+                
             });
+        },
+        parentDisabled(parent) {
+            return parent.children.filter(child => child.disabled !== true).length === 0;
         }
     }));
 

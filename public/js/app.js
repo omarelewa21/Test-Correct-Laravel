@@ -6305,7 +6305,7 @@ document.addEventListener("alpine:init", function () {
         return innerHtml;
       },
       createFilterPill: function createFilterPill(item) {
-        var element = document.getElementById("filter-pill-template").content.firstElementChild.cloneNode(true);
+        var element = this.$root.parentElement.querySelector("#filter-pill-template").content.firstElementChild.cloneNode(true);
         element.id = "filter-".concat(this.$root.dataset.modelName, "-").concat(item.value);
         element.classList.add("filter-pill");
         element.dataset.filter = this.$root.dataset.modelName;
@@ -8123,10 +8123,11 @@ document.addEventListener("alpine:init", function () {
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("multiDropdownSelect", function (options, containerId, wireModel) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("multiDropdownSelect", function (options, containerId, wireModel, labels) {
     return {
       options: options,
       wireModel: wireModel,
+      labels: labels,
       open: false,
       openSubs: [],
       checkedParents: [],
@@ -8176,6 +8177,7 @@ document.addEventListener("alpine:init", function () {
           return parent.value === child.customProperties.parentId;
         });
         this.handleParentStateWhenChildsChange(parent, checked);
+        this.registerParentsBasedOnDisabledChildren();
         this.handleActiveFilters();
         this.syncInput();
       },
@@ -8419,20 +8421,20 @@ document.addEventListener("alpine:init", function () {
       },
       registerParentsBasedOnDisabledChildren: function registerParentsBasedOnDisabledChildren() {
         var _this64 = this;
-        this.options.filter(function (item) {
-          return item.children.some(function (child) {
-            return child.disabled === true;
-          });
-        }).forEach(function (item) {
+        this.options.forEach(function (item) {
           var enabledChildren = item.children.filter(function (child) {
             return child.disabled !== true;
           }).length;
           if (enabledChildren === 0) return;
-          if (_this64.checkedChildrenCount(item) === enabledChildren) {
-            _this64.checkedParents = _this64.add(_this64.checkedParents, item.value);
-            _this64.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.value, "\"] input[type=\"checkbox\"]")).checked = true;
-          }
+          var enabled = _this64.checkedChildrenCount(item) === enabledChildren;
+          _this64.checkedParents = _this64[enabled ? 'add' : 'remove'](_this64.checkedParents, item.value);
+          _this64.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.value, "\"] input[type=\"checkbox\"]")).checked = enabled;
         });
+      },
+      parentDisabled: function parentDisabled(parent) {
+        return parent.children.filter(function (child) {
+          return child.disabled !== true;
+        }).length === 0;
       }
     };
   });

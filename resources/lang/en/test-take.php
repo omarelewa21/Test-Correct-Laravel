@@ -48,5 +48,5 @@ return [
     'Studenten'                                                                                                                                        => 'Students',
     'Studenten toevoegen'                                                                                                                              => 'Add Students',
     'Wijzig instellingen'                                                                                                                              => 'Edit settings',
-    ''                                                                                                                              => 'Edit settings',
+    'Surveillanten toevoegen'                                                                                                                              => 'Add invigilators',
 ];

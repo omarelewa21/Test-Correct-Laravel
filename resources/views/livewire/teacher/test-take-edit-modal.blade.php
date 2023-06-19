@@ -23,13 +23,13 @@
             <div class="dates-weight | flex flex-wrap gap-4 w-full">
                 <div class="flex flex-1 space-x-4">
                     <x-input.group class="flex flex-1" label="{{ __('teacher.Datum') }}">
-                        <x-input.datepicker wire:model="testTake.time_start" locale="nl" minDate="today" class="bg-offwhite" />
+                        <x-input.datepicker wire:model="timeStart" locale="nl" minDate="today" class="bg-offwhite" />
                     </x-input.group>
 
 
                     @if ($this->isAssignmentType())
                         <x-input.group class="flex flex-1" label="{{ __('teacher.Datum tot') }}">
-                            <x-input.datepicker wire:model="testTake.time_end" locale="nl" minDate="today" />
+                            <x-input.datepicker wire:model="timeEnd" locale="nl" minDate="today" />
                         </x-input.group>
                     @endif
                 </div>
@@ -46,7 +46,7 @@
                         <input
                                 type="text"
                                 style="max-width: 100px"
-                                class=" form-input @error('request.weight') border-red @enderror"
+                                class=" form-input @error('testTake.weight') border-red @enderror"
                                 wire:model="testTake.weight"
                                 autocomplete="off"
                         ></x-input.group>
@@ -78,7 +78,7 @@
                                             filterContainer="selected_invigilators"
                                             id="choices_invigilators"
                                             wire:key='allowed-invigilators'
-                                            hasErrors="{{ $this->getErrorBag()->has('request.invigilators') ? 'true': '' }}"
+                                            hasErrors="{{ $this->getErrorBag()->has('testTake.invigilators') ? 'true': '' }}"
                     />
 
                     <div id="selected_invigilators" wire:ignore class="space-x-4 ml-4"></div>
@@ -87,7 +87,7 @@
 
             <div class="input-section">
                 <div class="toggles | flex flex-col lg:flex-row lg:gap-x-4 flex-wrap">
-                    <x-input.toggle-row-with-title wire:model="request.allow_inbrowser_testing"
+                    <x-input.toggle-row-with-title wire:model="testTake.allow_inbrowser_testing"
                                                    :toolTip="__('teacher.inbrowser_testing_tooltip')"
                                                    :disabled="$this->isAssignmentType() || !auth()->user()->schoolLocation->allow_inbrowser_testing"
                                                    containerClass="border-t w-full lg:w-[calc(50%-0.5rem)]"
@@ -96,18 +96,18 @@
                         <x-icon.web />
                         <span class="bold">{{ __('teacher.Browsertoetsen toestaan') }} </span>
                     </x-input.toggle-row-with-title>
-                    <x-input.toggle-row-with-title wire:model="request.guest_accounts"
+                    <x-input.toggle-row-with-title wire:model="testTake.guest_accounts"
                                                    :toolTip="__('teacher.guest_accounts_tooltip')"
                                                    :tooltipAlwaysLeft="true"
                                                    :disabled="!auth()->user()->schoolLocation->allow_guest_accounts"
                                                    containerClass="lg:border-t w-full lg:w-[calc(50%-0.5rem)]"
-                                                   :error="$this->getErrorBag()->has('request.school_classes')"
+                                                   :error="$this->getErrorBag()->has('testTake.school_classes')"
                     >
                         <x-icon.test-direct />
                         <span class="bold">{{ __('teacher.Test-Direct toestaan') }} </span>
                     </x-input.toggle-row-with-title>
                     @if($rttiExportAllowed)
-                        <x-input.toggle-row-with-title wire:model="request.is_rtti_test_take"
+                        <x-input.toggle-row-with-title wire:model="testTake.is_rtti_test_take"
                                                        :toolTip="__('teacher.exporteer_naar_rtti_online_tooltip')"
                                                        containerClass="border-t w-full lg:w-[calc(50%-0.5rem)]"
                         >
@@ -120,7 +120,7 @@
             <div class="input-section">
                 <div class="name flex mb-4 space-x-4">
                     <x-input.group class="w-full" label="{{ __('teacher.Notities voor Surveillant') }}">
-                        <x-input.textarea class="w-full" wire:model="request.invigilator_note">
+                        <x-input.textarea class="w-full" wire:model="testTake.invigilator_note">
                         </x-input.textarea>
                     </x-input.group>
                 </div>

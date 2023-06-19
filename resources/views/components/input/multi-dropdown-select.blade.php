@@ -1,4 +1,4 @@
-<div x-data="multiDropdownSelect(@js($options), @js($containerId), @js($attributes->wire('model')))"
+<div x-data="multiDropdownSelect(@js($options), @js($containerId), @js($attributes->wire('model')), @js($itemLabels))"
      x-cloak
      @class(['relative', $attributes->get('class')])
      wire:ignore
@@ -41,13 +41,17 @@
                  x-bind:data-id="option.value"
                  x-bind:data-parent-id="option.value"
             >
-                <div class="flex w-full justify-between items-center pl-6 pr-4 hover:text-primary hover:bg-primary/5 active:bg-primary/10"
-                     x-on:click="subClick(option.value)"
+                <div class="flex w-full justify-between items-center pl-6 pr-4 "
+                     x-on:click="if(!parentDisabled(option)) subClick(option.value)"
+                     x-bind:class="parentDisabled(option) ? 'opacity-50' : 'hover:text-primary hover:bg-primary/5 active:bg-primary/10'"
+                     x-bind:title="parentDisabled(option) ? labels.parent_disabled : 'Open'"
                 >
                     <div class="flex py-3 gap-2 items-center"
-                         x-on:click.prevent.stop="parentClick($el, option)"
+                         x-on:click.prevent.stop="if(!parentDisabled(option)) parentClick($el, option)"
                     >
-                        <div class="relative isolate">
+                        <div class="relative isolate"
+                             x-bind:class="{'checkbox-disabled': parentDisabled(option)}"
+                        >
                             <x-input.checkbox />
                             <span x-show="parentPartiallyToggled(option)"
                                   class="checkbox-container absolute top-0 left-0"
@@ -72,10 +76,10 @@
                              x-bind:data-id="child.value"
                              x-bind:data-parent-id="child.customProperties.parentId"
                              x-bind:data-disabled="child.disabled === true ? 'true' : 'false'"
-                             x-bind:class="child.disabled === true ? 'opacity-50' : 'hover:text-primary hover:bg-primary/5 active:bg-primary/10'"
-                             x-bind:title="child.disabled === true ? 'Deze student is al geselecteerd in een andere klas.' : child.label"
+                             x-bind:class="child.disabled === true ? 'opacity-50 checkbox-disabled' : 'hover:text-primary hover:bg-primary/5 active:bg-primary/10'"
+                             x-bind:title="child.disabled === true ? labels.child_disabled : child.label"
                         >
-                            <x-input.checkbox x-bind:class="{'pointer-events-none': child.disabled === true}"/>
+                            <x-input.checkbox/>
                             <span x-text="child.label"></span>
                         </div>
                     </template>
