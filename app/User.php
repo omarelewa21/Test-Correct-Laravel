@@ -2698,7 +2698,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function getFormalNameAttribute()
     {
-        return sprintf('%s.%s %s', mb_substr($this->name_first, 0, 1, 'utf-8'), $this->name_suffix, mb_convert_encoding($this->name, 'utf-8'));
+        return sprintf('%s. %s %s', mb_substr($this->name_first, 0, 1, 'utf-8'), $this->name_suffix, mb_convert_encoding($this->name, 'utf-8'));
     }
 
     public function getFormalNameWithCurrentSchoolLocationShortAttribute()
