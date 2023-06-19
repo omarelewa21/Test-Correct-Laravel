@@ -72,10 +72,6 @@ class TestPlanModal extends TCModalComponent
             $rules['request.owner_id'] = 'required';
         }
 
-        if($this->rttiExportAllowed) {
-            $rules['request.is_rtti_test_take'] = 'required';
-        }
-
         return $rules;
     }
 
