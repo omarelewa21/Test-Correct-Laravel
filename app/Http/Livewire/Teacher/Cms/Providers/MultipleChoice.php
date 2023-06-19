@@ -23,6 +23,7 @@ class MultipleChoice extends TypeProvider
             $this->instance->cmsPropertyBag['answerStruct'] = [];
             $this->instance->cmsPropertyBag['answerCount'] = 2;
         }
+
     }
 
     public function showQuestionScore()
@@ -121,12 +122,16 @@ class MultipleChoice extends TypeProvider
     // Multiple Choice
     public function updateMCOrder($value)
     {
+        $options = $this->instance->cmsPropertyBag['answerStruct'];
         foreach ($value as $item) {
-            $this->instance->cmsPropertyBag['answerStruct'][((int)$item['value']) - 1]['order'] = $item['order'];
+            $index = (int)$item['value'] - 1;
+            is_array($options[$index])
+                ? $options[$index]['order'] = $item['order']
+                : $options[$index]->order = $item['order'];
         }
 
         $this->instance->cmsPropertyBag['answerStruct'] = array_values(
-            collect($this->instance->cmsPropertyBag['answerStruct'])->sortBy('order')->toArray()
+            collect($options)->sortBy('order')->toArray()
         );
         $this->createAnswerStruct();
     }
