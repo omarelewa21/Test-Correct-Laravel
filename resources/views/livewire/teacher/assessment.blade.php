@@ -10,13 +10,12 @@
     <x-partials.header.assessment :testName="$testName"/>
     @if($this->headerCollapsed)
         <div class="flex min-h-[calc(100vh-var(--header-height))] relative"
-             @if($this->currentQuestion->type === 'OpenQuestion')
-             x-data="AnswerFeedback(
+                 x-data="AnswerFeedback(
                 @js('editor-'.$this->questionNavigationValue.'-'.$this->answerNavigationValue),
                 @js('feedback-editor-'.$this->questionNavigationValue.'-'.$this->answerNavigationValue),
-                @js(auth()->user()->uuid)
+                @js(auth()->user()->uuid),
+                @js($this->currentQuestion->type)
              )"
-             @endif
         >
             <x-partials.evaluation.main-content :question="$this->currentQuestion"
                                                 :group="$this->currentGroup"
@@ -193,16 +192,26 @@
                 </x-slot:slideOneContent>
 
                 <x-slot:slideTwoContent>
-                    <div x-data="{addFeedbackOpen: true, givenFeedbackOpen: true}" class="space-y-4">
+                    <div x-data="{}"
+                         class="space-y-4"
+                         x-on:answer-feedback-focus-feedback-editor.window="dropdownOpened = 'add-feedback'"
+                    >
                         <div class="space-y-4">
-                            <span class="flex bold border-t border-blue-grey pt-2 justify-between items-center">
+                            <span class="flex bold border-t border-blue-grey pt-2 justify-between items-center"
+                                  @if($this->currentQuestion->type === 'OpenQuestion')
+                                  :class="editingComment !== null ? 'text-midgrey' : ''"
+                                  @endif
+                            >
                                 <span>@lang('assessment.Feedback toevoegen')</span>
                                 <span class="w-4 h-4 flex justify-center items-center"
-                                      :class="addFeedbackOpen ? 'rotate-svg-90' : ''"
-                                      @click="addFeedbackOpen =! addFeedbackOpen"><x-icon.chevron></x-icon.chevron></span>
+                                      :class="dropdownOpened === 'add-feedback' ? 'rotate-svg-90' : ''"
+                                      @click="dropdownOpened = toggleFeedbackAccordion(dropdownOpened, 'add-feedback');">
+                                    <x-icon.chevron></x-icon.chevron>
+                                </span>
                             </span>
 
-                            <div class="flex w-full flex-col gap-2" x-show="addFeedbackOpen" x-collapse
+                            <div class="flex w-full flex-col gap-2" x-show="dropdownOpened === 'add-feedback'"
+                                 x-collapse
                                  wire:key="feedback-editor-{{  $this->questionNavigationValue.'-'.$this->answerNavigationValue }}"
                             >
                                 <span>@lang('assessment.Feedback schrijven')</span>
@@ -212,10 +221,12 @@
                                                            :allowWsc="true" {{-- TODO determine when to allow web spell checker... --}}
                                     />
                                     <div class="flex justify-end space-x-4 h-fit">
-                                        <x-button.text-button size="sm" :id="'feedback-editor-'. $this->questionNavigationValue.'-'.$this->answerNavigationValue.'-cancel'">
+                                        <x-button.text-button size="sm"
+                                                              :id="'feedback-editor-'. $this->questionNavigationValue.'-'.$this->answerNavigationValue.'-cancel'">
                                             <span>@lang('modal.annuleren')</span>
                                         </x-button.text-button>
-                                        <x-button.cta class="block" @click="createCommentThread" :id="'feedback-editor-'. $this->questionNavigationValue.'-'.$this->answerNavigationValue.'-save'">
+                                        <x-button.cta class="block" @click="createCommentThread"
+                                                      :id="'feedback-editor-'. $this->questionNavigationValue.'-'.$this->answerNavigationValue.'-save'">
                                             <span>@lang('general.save')</span>
                                         </x-button.cta>
                                     </div>
@@ -255,49 +266,38 @@
                                     "flex bold border-t border-blue-grey pt-2 justify-between items-center",
                                     'text-midgrey' => $answerFeedback->isEmpty(),
                                   ])
-                                  x-init="givenFeedbackOpen = @js($answerFeedback->isNotEmpty())"
+                                  x-init="dropdownOpened = @js($answerFeedback->isNotEmpty()) ? dropdownOpened : 'add-feedback'"
                             >
                                 <span>@lang('assessment.Gegeven feedback')</span>
-                                {{-- todo make accordion functional --}}
                                 <span class="w-4 h-4 flex justify-center items-center"
-                                      :class="givenFeedbackOpen ? 'rotate-svg-90' : ''"
+                                      :class="dropdownOpened === 'given-feedback' ? 'rotate-svg-90' : ''"
                                       @unless($answerFeedback->isEmpty())
-                                          @click="givenFeedbackOpen =! givenFeedbackOpen"
+                                          @click="dropdownOpened = (dropdownOpened === 'given-feedback' ? null : 'given-feedback')"
                                       @endif
                                 >
                                     <x-icon.chevron></x-icon.chevron>
                                 </span>
                             </span>
 
-                                <div class="flex w-full flex-col gap-2" x-show="givenFeedbackOpen" x-collapse
+                                <div class="flex w-auto flex-col gap-2 given-feedback-container -m-4"
+                                     x-show="dropdownOpened === 'given-feedback'"
+                                     x-collapse
                                      wire:key="feedback-editor-{{  $this->questionNavigationValue.'-'.$this->answerNavigationValue }}"
-                                     x-data="{
-
-                                 }"
-                                     x-init="
-                                    $watch('editingComment', (value) => {
-
-                                /*TODO fix scrolling to card*/
-{{--                                        setTimeout(() => {--}}
-{{--                                            var temp = $el.querySelector(`[data-uuid='${value}']`);--}}
-{{--                                            $el.scrollTo({--}}
-{{--                                                top: '600px',--}}
-{{--                                                behavior: 'smooth'--}}
-{{--                                            });--}}
-{{--                                        }, 200);--}}
-                                    });
-
-                                 "
+                                     x-data="{}"
+                                     x-init=""
                                 >
                                     {{--TODO ONLY for open question add new configuration with connection to the comments editor --}}
 
                                     <x-menu.context-menu.base context="answer-feedback">
-                                        <x-menu.context-menu.button @click="setEditingComment(uuid)">
-                                            <x-slot:icon>
-                                                <x-icon.edit/>
-                                            </x-slot:icon>
-                                            <x-slot:text>@lang('cms.Wijzigen')</x-slot:text>
-                                        </x-menu.context-menu.button>
+                                        <div x-show="editingComment === null">
+                                            <x-menu.context-menu.button @click="setEditingComment(uuid)">
+                                                <x-slot:icon>
+                                                    <x-icon.edit/>
+                                                </x-slot:icon>
+                                                <x-slot:text>@lang('cms.Wijzigen')</x-slot:text>
+                                            </x-menu.context-menu.button>
+                                        </div>
+
                                         <x-menu.context-menu.button @click="deleteCommentThread(null, uuid)">
                                             <x-slot:icon>
                                                 <x-icon.trash/>
@@ -308,95 +308,7 @@
                                     </x-menu.context-menu.base>
                                     @foreach($answerFeedback as $comment)
 
-                                        {{-- TODO:MAKE COMPONENT: START COMMENT CARD --}}
-                                        <div @class([
-                                        "answer-feedback-card context-menu-container",
-                                        "answer-feedback-card-teacher" => $comment->user->isA('teacher'),
-                                        "answer-feedback-card-student" => !$comment->user->isA('teacher'),
-                                        ])
-                                             x-bind:class="{
-                                             'answer-feedback-card-editing': editingComment === '{{$comment->uuid}}',
-                                             'answer-feedback-card-focussed': activeComment === '{{$comment->uuid}}',
-                                             'answer-feedback-card-hovering': hoveringComment === '{{$comment->uuid}}',
-                                             }"
-                                             data-thread-id="{{$comment->thread_id}}"
-                                             data-uuid="{{$comment->uuid}}"
-                                             x-init="
-
-                                            $el.addEventListener('click', (e) => {
-                                                setActiveComment('{{$comment->thread_id}}',  '{{$comment->uuid}}');
-                                            });
-                                            $el.addEventListener('mouseenter', (e) => {
-                                                setHoveringComment('{{$comment->thread_id}}',  '{{$comment->uuid}}');
-                                            });
-                                            $el.addEventListener('mouseleave', (e) => {
-                                               clearHoveringComment();
-                                            });
-                                        "
-                                        >
-                                            <div class="flex justify-between px-4 pt-2">
-                                                <div class="flex flex-wrap space-x-2">
-                                                    <x-icon.profile-circle class="text-base"/>
-                                                    <div class="flex flex-col">
-                                                        <span class="leading-none bold feedback-card-name">{{ $comment->user->nameFull }}</span>
-                                                        <span class="text-[12px] feedback-card-datetime">{{ $comment->updated_at->format('j M. \'y') }}</span>
-                                                    </div>
-                                                </div>
-                                                <div class="flex items-center justify-center -mr-[14px]">
-                                                <span class="flex items-center justify-center w-9 h-[34px]">
-
-                                                    @if($comment->comment_emoji)
-                                                        <x-dynamic-component :component="\tcCore\Http\Enums\CommentEmoji::tryFrom($comment->comment_emoji)?->getIconComponentName()">
-                                                        </x-dynamic-component>
-                                                    @endif
-
-                                                </span>
-                                                    <x-button.options id="comment-options-button-{{$comment->uuid}}"
-                                                                      context="answer-feedback"
-                                                                      :uuid="$comment->uuid"
-                                                                      size="sm"
-                                                    >
-                                                    </x-button.options>
-                                                </div>
-                                            </div>
-
-                                            <div class="line-clamp-3 max-h-[70px] mb-3 w-full px-4 feedback-card-message"
-                                                 x-show="editingComment !== '{{$comment->uuid}}'">
-                                                {!!  $comment->message !!}
-                                            </div>
-                                            <div class="flex flex-col mx-4"
-                                                 x-show="editingComment === '{{$comment->uuid}}'">
-
-                                                <x-input.comment-color-picker
-                                                        :comment-thread-id="$comment->thread_id"></x-input.comment-color-picker>
-
-                                                <x-input.comment-emoji-picker
-                                                        :comment-uuid="$comment->uuid"></x-input.comment-emoji-picker>
-
-                                                <div class="comment-feedback-editor">
-                                                    <span class="comment-feedback-editor-label">@lang('assessment.Feedback schrijven')</span>
-                                                    <x-input.rich-textarea type="update-answer-feedback"
-                                                                           :editorId="'update-' . $comment->uuid"
-                                                                           :allow-wsc="true"
-                                                    >
-                                                        {{ $comment->message }}
-                                                    </x-input.rich-textarea>
-                                                </div>
-
-                                                <div class="flex justify-end space-x-4 h-fit mt-2 mb-4">
-                                                    <x-button.text-button size="sm" @click="editingComment = null">
-                                                        <span>@lang('modal.annuleren')</span>
-                                                    </x-button.text-button>
-                                                    <x-button.cta class="block"
-                                                                  @click="updateCommentThread('{{$comment->uuid}}', '{{$comment->thread_id}}')">
-                                                        <span>@lang('general.save')</span>
-                                                    </x-button.cta>
-                                                </div>
-                                            </div>
-
-                                            <div class="answer-feedback-card-line"></div>
-                                        </div>
-                                        {{-- TODO:MAKE COMPONENT: END COMMENT CARD --}}
+                                        <x-partials.answer-feedback-card :comment="$comment"/>
 
                                     @endforeach
                                 </div>

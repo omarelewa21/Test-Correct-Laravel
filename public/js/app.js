@@ -8506,19 +8506,33 @@ document.addEventListener("alpine:init", function () {
           document.documentElement.style.setProperty("--active-sidebar-width", value ? "var(--collapsed-sidebar-width)" : "var(--sidebar-width)");
         });
       },
+      getSlideElementByIndex: function getSlideElementByIndex(index) {
+        return this.$root.querySelector(".slide-" + index);
+      },
       tab: function tab(index) {
         var _this44 = this;
+        var commentUuid = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
         if (!this.tabs.includes(index)) return;
         this.activeTab = index;
         this.closeTooltips();
-        var slide = this.$root.querySelector(".slide-" + index);
+        var slide = this.getSlideElementByIndex(index);
         this.handleSlideHeight(slide);
         this.$nextTick(function () {
-          _this44.container.scroll({
-            top: 0,
-            left: slide.offsetLeft,
-            behavior: "smooth"
-          });
+          if (commentUuid) {
+            var commentCard = document.querySelector('[data-uuid="' + commentUuid + '"].answer-feedback-card');
+            var cardTop = commentCard.getBoundingClientRect().y - _this44.container.getBoundingClientRect().y;
+            _this44.container.scroll({
+              top: cardTop,
+              left: slide.offsetLeft,
+              behavior: "smooth"
+            });
+          } else {
+            _this44.container.scroll({
+              top: 0,
+              left: slide.offsetLeft,
+              behavior: "smooth"
+            });
+          }
           setTimeout(function () {
             var position = _this44.container.scrollLeft / 300 + 1;
             if (!_this44.tabs.includes(position)) {
@@ -8596,6 +8610,10 @@ document.addEventListener("alpine:init", function () {
             }
           }, _callee16);
         }))();
+      },
+      fixSlideHeightByIndex: function fixSlideHeightByIndex(index) {
+        var slide = this.$root.closest(".slide-" + index);
+        this.handleSlideHeight(slide);
       },
       handleSlideHeight: function handleSlideHeight(slide) {
         if (slide.offsetHeight > this.container.offsetHeight) {
@@ -8991,7 +9009,7 @@ document.addEventListener("alpine:init", function () {
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("AnswerFeedback", function (answerEditorId, feedbackEditorId, userId) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("AnswerFeedback", function (answerEditorId, feedbackEditorId, userId, questionType) {
     return {
       answerEditorId: answerEditorId,
       feedbackEditorId: feedbackEditorId,
@@ -9000,14 +9018,22 @@ document.addEventListener("alpine:init", function () {
       editingComment: null,
       activeComment: null,
       hoveringComment: null,
+      dropdownOpened: null,
       userId: userId,
+      questionType: questionType,
       init: function init() {
         var _this56 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee20() {
           return _regeneratorRuntime().wrap(function _callee20$(_context20) {
             while (1) switch (_context20.prev = _context20.next) {
               case 0:
-                console.log(answerEditorId, feedbackEditorId);
+                _this56.dropdownOpened = questionType === 'OpenQuestion' ? 'given-feedback' : 'add-feedback';
+                if (!(questionType !== 'openQuestion')) {
+                  _context20.next = 3;
+                  break;
+                }
+                return _context20.abrupt("return");
+              case 3:
                 _this56.setFocusTracking();
                 document.addEventListener('comment-color-updated', /*#__PURE__*/function () {
                   var _ref4 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee18(event) {
@@ -9051,89 +9077,75 @@ document.addEventListener("alpine:init", function () {
                     return _ref5.apply(this, arguments);
                   };
                 }());
-              case 4:
+                document.addEventListener('mousedown', function (e) {
+                  if (_this56.activeComment === null) {
+                    return;
+                  }
+                  //check for click outside 1. comment markers, 2. comment marker icons, 3. comment cards.
+                  if (e.srcElement.closest('.ck-comment-marker') || e.srcElement.closest('.answer-feedback-comment-icons') || e.srcElement.closest('.given-feedback-container')) {
+                    return;
+                  }
+                  _this56.clearActiveComment();
+                });
+              case 7:
               case "end":
                 return _context20.stop();
             }
           }, _callee20);
         }))();
       },
-      saveCommentThread: function saveCommentThread() {
+      updateCommentThread: function updateCommentThread(answerFeedbackUuid, threadId) {
         var _this57 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee21() {
+          var answerEditor, answerFeedbackEditor;
           return _regeneratorRuntime().wrap(function _callee21$(_context21) {
             while (1) switch (_context21.prev = _context21.next) {
               case 0:
-                _this57.commentsRepository = _this57.answerEditor.plugins.get('CommentsRepository');
-
-                //activeCommentThread is not needed when creating new comment Threads
-                // console.dir(this.commentsRepository.activeCommentThread); //focusTracking Required!
-
-                // this.activeThread = this.answerEditor.plugins.get( 'CommentsRepository' ).activeCommentThread;
-                // if(this.activeThread){
-                //     console.log(this.activeThread);
-                // }
-                _context21.next = 3;
-                return _this57.createCommentThread();
-              case 3:
+                answerEditor = ClassicEditors[_this57.answerEditorId];
+                answerFeedbackEditor = ClassicEditors['update-' + answerFeedbackUuid];
+                _context21.next = 4;
+                return _this57.$wire.call('updateExistingComment', {
+                  uuid: answerFeedbackUuid,
+                  message: answerFeedbackEditor.getData()
+                });
+              case 4:
+                _this57.setEditingComment(null);
+              case 5:
               case "end":
                 return _context21.stop();
             }
           }, _callee21);
         }))();
       },
-      updateCommentThread: function updateCommentThread(answerFeedbackUuid, threadId) {
+      createCommentThread: function createCommentThread() {
         var _this58 = this;
-        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee22() {
-          var answerEditor, answerFeedbackEditor;
-          return _regeneratorRuntime().wrap(function _callee22$(_context22) {
-            while (1) switch (_context22.prev = _context22.next) {
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee23() {
+          var answerEditor, feedbackEditor, comment, comment_color, comment_emoji;
+          return _regeneratorRuntime().wrap(function _callee23$(_context23) {
+            while (1) switch (_context23.prev = _context23.next) {
               case 0:
                 answerEditor = ClassicEditors[_this58.answerEditorId];
-                answerFeedbackEditor = ClassicEditors['update-' + answerFeedbackUuid];
-                _context22.next = 4;
-                return _this58.$wire.call('updateExistingComment', {
-                  uuid: answerFeedbackUuid,
-                  message: answerFeedbackEditor.getData()
-                });
-              case 4:
-                _this58.setEditingComment(null);
-              case 5:
-              case "end":
-                return _context22.stop();
-            }
-          }, _callee22);
-        }))();
-      },
-      createCommentThread: function createCommentThread() {
-        var _this59 = this;
-        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee24() {
-          var answerEditor, feedbackEditor, comment, comment_color, comment_emoji;
-          return _regeneratorRuntime().wrap(function _callee24$(_context24) {
-            while (1) switch (_context24.prev = _context24.next) {
-              case 0:
-                answerEditor = ClassicEditors[_this59.answerEditorId];
-                feedbackEditor = ClassicEditors[_this59.feedbackEditorId];
+                feedbackEditor = ClassicEditors[_this58.feedbackEditorId];
                 comment = feedbackEditor.getData(); //todo ADD COLOR AND EMOJI PICKER AND GET THE ACTIVE VALUES HERE!
                 comment_color = null; //todo correct enum value or NULL
                 comment_emoji = null;
                 answerEditor.focus();
-                _this59.$nextTick( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee23() {
+                _this58.$nextTick( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee22() {
                   var feedback, newCommentThread, updatedAnswerText;
-                  return _regeneratorRuntime().wrap(function _callee23$(_context23) {
-                    while (1) switch (_context23.prev = _context23.next) {
+                  return _regeneratorRuntime().wrap(function _callee22$(_context22) {
+                    while (1) switch (_context22.prev = _context22.next) {
                       case 0:
                         console.log(answerEditor.editing.view.hasDomSelection, 'hasselectgion');
                         console.log(answerEditor.plugins.get('CommentsRepository').activeCommentThread, 'hasselectgion2');
                         if (!(answerEditor.editing.view.hasDomSelection && false)) {
-                          _context23.next = 13;
+                          _context22.next = 13;
                           break;
                         }
-                        _context23.next = 5;
-                        return _this59.$wire.createNewComment();
+                        _context22.next = 5;
+                        return _this58.$wire.createNewComment();
                       case 5:
-                        feedback = _context23.sent;
-                        _context23.next = 8;
+                        feedback = _context22.sent;
+                        _context22.next = 8;
                         return answerEditor.execute('addCommentThread', {
                           threadId: feedback.threadId
                         });
@@ -9145,83 +9157,79 @@ document.addEventListener("alpine:init", function () {
                           threadId: feedback.threadId,
                           commentId: feedback.commentId,
                           content: comment,
-                          authorId: _this59.userId
+                          authorId: _this58.userId
                         });
                         updatedAnswerText = answerEditor.getData();
-                        _this59.$wire.saveNewComment({
+                        _this58.$wire.saveNewComment({
                           uuid: feedback.uuid,
                           message: comment,
                           comment_color: comment_color,
                           comment_emoji: comment_emoji
                         }, updatedAnswerText);
-                        return _context23.abrupt("return");
+                        return _context22.abrupt("return");
                       case 13:
-                        _context23.next = 15;
-                        return _this59.$wire.createNewComment({
-                          message: comment,
-                          comment_color: null,
-                          comment_emoji: null
-                        }, false);
-                      case 15:
-                        feedback = _context23.sent;
-                      case 16:
+                        console.error('fix saving linked comment first');
+                        return _context22.abrupt("return");
+                      case 17:
+                        feedback = _context22.sent;
+                      case 18:
                       case "end":
-                        return _context23.stop();
+                        return _context22.stop();
                     }
-                  }, _callee23);
+                  }, _callee22);
                 })));
               case 7:
+              case "end":
+                return _context23.stop();
+            }
+          }, _callee23);
+        }))();
+      },
+      deleteCommentThread: function deleteCommentThread(threadId, feedbackId) {
+        var _this59 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee24() {
+          var answerEditor, commentsRepository, thread, result, answerText;
+          return _regeneratorRuntime().wrap(function _callee24$(_context24) {
+            while (1) switch (_context24.prev = _context24.next) {
+              case 0:
+                if (!(threadId === null)) {
+                  _context24.next = 5;
+                  break;
+                }
+                _context24.next = 3;
+                return _this59.$wire.deleteCommentThread(null, feedbackId);
+              case 3:
+                _this59.$wire.render();
+                return _context24.abrupt("return");
+              case 5:
+                answerEditor = ClassicEditors[_this59.answerEditorId];
+                commentsRepository = answerEditor.plugins.get('CommentsRepository');
+                thread = commentsRepository.getCommentThread(threadId);
+                _context24.next = 10;
+                return _this59.$wire.deleteCommentThread(threadId, feedbackId);
+              case 10:
+                result = _context24.sent;
+                if (!result) {
+                  _context24.next = 17;
+                  break;
+                }
+                commentsRepository.getCommentThread(threadId).remove();
+                answerText = answerEditor.getData();
+                _context24.next = 16;
+                return _this59.$wire.updateAnswerText(answerText);
+              case 16:
+                return _context24.abrupt("return");
+              case 17:
+                console.log('failed to delete answer feedback');
+              case 18:
               case "end":
                 return _context24.stop();
             }
           }, _callee24);
         }))();
       },
-      deleteCommentThread: function deleteCommentThread(threadId, feedbackId) {
-        var _this60 = this;
-        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee25() {
-          var answerEditor, commentsRepository, thread, result, answerText;
-          return _regeneratorRuntime().wrap(function _callee25$(_context25) {
-            while (1) switch (_context25.prev = _context25.next) {
-              case 0:
-                if (!(threadId === null)) {
-                  _context25.next = 5;
-                  break;
-                }
-                _context25.next = 3;
-                return _this60.$wire.deleteCommentThread(null, feedbackId);
-              case 3:
-                _this60.$wire.render();
-                return _context25.abrupt("return");
-              case 5:
-                answerEditor = ClassicEditors[_this60.answerEditorId];
-                commentsRepository = answerEditor.plugins.get('CommentsRepository');
-                thread = commentsRepository.getCommentThread(threadId);
-                _context25.next = 10;
-                return _this60.$wire.deleteCommentThread(threadId, feedbackId);
-              case 10:
-                result = _context25.sent;
-                if (!result) {
-                  _context25.next = 17;
-                  break;
-                }
-                commentsRepository.getCommentThread(threadId).remove();
-                answerText = answerEditor.getData();
-                _context25.next = 16;
-                return _this60.$wire.updateAnswerText(answerText);
-              case 16:
-                return _context25.abrupt("return");
-              case 17:
-                console.log('failed to delete answer feedback');
-              case 18:
-              case "end":
-                return _context25.stop();
-            }
-          }, _callee25);
-        }))();
-      },
       initCommentIcon: function initCommentIcon(el, thread) {
-        var _this61 = this;
+        var _this60 = this;
         var commentThreadElements = null;
         setTimeout(function () {
           var commentMarkers = document.querySelectorAll("[data-comment='" + thread.threadId + "']");
@@ -9232,20 +9240,16 @@ document.addEventListener("alpine:init", function () {
           el.setAttribute('data-threadId', thread.threadId);
           commentThreadElements = [].concat(_toConsumableArray(commentMarkers), [el]);
 
-          //todo
-          // set hover listener  (mouseover enter leave)
-          // set active listener (check if editing is null first)
-
           //set click event listener on all comment markers and the icon.
           commentThreadElements.forEach(function (threadElement) {
             threadElement.addEventListener('click', function () {
-              _this61.setActiveCommentThread(thread.threadId, thread.uuid);
+              _this60.setActiveComment(thread.threadId, thread.uuid);
             });
             threadElement.addEventListener('mouseenter', function (e) {
-              _this61.setHoveringComment(thread.threadId, thread.uuid);
+              _this60.setHoveringComment(thread.threadId, thread.uuid);
             });
             threadElement.addEventListener('mouseleave', function (e) {
-              _this61.clearHoveringComment();
+              _this60.clearHoveringComment();
             });
           });
         }, 200);
@@ -9270,6 +9274,16 @@ document.addEventListener("alpine:init", function () {
         }
         styleTag.innerHTML = '' + '.ck-comment-marker[data-comment="' + this.hoveringComment.threadId + '"] { color: var(--teacher-primary); }' + 'div[data-threadid="' + this.hoveringComment.threadId + '"] svg { color: var(--teacher-primary); }';
       },
+      setActiveCommentMarkerStyle: function setActiveCommentMarkerStyle() {
+        var _this$activeComment, _this$activeComment2;
+        var removeStyling = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+        var styleTag = document.querySelector('#activeCommentMarkerStyle');
+        if (removeStyling || ((_this$activeComment = this.activeComment) === null || _this$activeComment === void 0 ? void 0 : _this$activeComment.threadId) === null) {
+          styleTag.innerHTML = '';
+          return;
+        }
+        styleTag.innerHTML = '' + '.ck-comment-marker[data-comment="' + ((_this$activeComment2 = this.activeComment) === null || _this$activeComment2 === void 0 ? void 0 : _this$activeComment2.threadId) + '"] { ' + '   border: 1px solid var(--ck-color-comment-marker-border) !important; ' + '} ';
+      },
       setActiveComment: function setActiveComment(threadId, answerFeedbackUuid) {
         if (this.editingComment !== null) {
           /* when editing, no other comment can be activated */
@@ -9279,41 +9293,23 @@ document.addEventListener("alpine:init", function () {
           threadId: threadId,
           uuid: answerFeedbackUuid
         };
+        this.setActiveCommentMarkerStyle();
+        this.$dispatch("assessment-drawer-tab-update", {
+          tab: 2,
+          uuid: answerFeedbackUuid
+        });
       },
       clearActiveComment: function clearActiveComment() {
         this.activeComment = null;
-        this.setHoveringCommentMarkerStyle(true);
-      },
-      /* ckeditor active comment thread */setActiveCommentThread: function setActiveCommentThread(threadId) {
-        var answerFeedbackUuid = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-        var answerEditor = ClassicEditors[this.answerEditorId];
-        var commentsRepository = answerEditor.plugins.get('CommentsRepository');
-        commentsRepository.setActiveCommentThread(threadId);
-        this.activeThread = threadId;
-        if (answerFeedbackUuid) {
-          this.$dispatch("assessment-drawer-tab-update", {
-            tab: 2
-          });
-          this.setFocussedComment(answerFeedbackUuid);
-          // this.focussedComment = answerFeedbackUuid; //these two lines are the same:
-          // this.$dispatch("updated-focussed-comment", { uuid:  answerFeedbackUuid })
-        }
-
-        //todo rework drawer event to scroll to correct element
-        if (false) {}
-      },
-      clearActiveCommentThread: function clearActiveCommentThread() {
-        var answerEditor = ClassicEditors[this.answerEditorId];
-        var commentsRepository = answerEditor.plugins.get('CommentsRepository');
-        commentsRepository.setActiveCommentThread(null);
+        this.setActiveCommentMarkerStyle(true);
       },
       setFocusTracking: function setFocusTracking() {
-        var _this62 = this;
+        var _this61 = this;
         setTimeout(function () {
-          var answerEditor = ClassicEditors[_this62.answerEditorId];
-          var feedbackEditor = ClassicEditors[_this62.feedbackEditorId];
-          var feedbackEditorSaveButton = document.querySelector('#' + _this62.feedbackEditorId + '-save');
-          var feedbackEditorCancelButton = document.querySelector('#' + _this62.feedbackEditorId + '-cancel');
+          var answerEditor = ClassicEditors[_this61.answerEditorId];
+          var feedbackEditor = ClassicEditors[_this61.feedbackEditorId];
+          var feedbackEditorSaveButton = document.querySelector('#' + _this61.feedbackEditorId + '-save');
+          var feedbackEditorCancelButton = document.querySelector('#' + _this61.feedbackEditorId + '-cancel');
           answerEditor.ui.focusTracker.add(feedbackEditor.sourceElement.parentElement.querySelector('.ck.ck-content'));
           answerEditor.ui.focusTracker.add(feedbackEditorSaveButton);
           answerEditor.ui.focusTracker.add(feedbackEditorCancelButton);
@@ -9328,12 +9324,30 @@ document.addEventListener("alpine:init", function () {
       get feedbackEditor() {
         return ClassicEditors[this.feedbackEditorId];
       },
-      setFocussedComment: function setFocussedComment(AnswerFeedbackUuid) {
-        this.focussedComment = AnswerFeedbackUuid !== null && AnswerFeedbackUuid !== void 0 ? AnswerFeedbackUuid : null;
-      },
       setEditingComment: function setEditingComment(AnswerFeedbackUuid) {
-        this.focussedComment = null;
+        var _this62 = this;
+        this.activeComment = null;
         this.editingComment = AnswerFeedbackUuid !== null && AnswerFeedbackUuid !== void 0 ? AnswerFeedbackUuid : null;
+        setTimeout(function () {
+          _this62.fixSlideHeightByIndex(2);
+        }, 100);
+      },
+      toggleFeedbackAccordion: function toggleFeedbackAccordion(currentToggleState, name) {
+        if (this.editingComment !== null) {
+          return;
+        }
+        ;
+        if (currentToggleState === name) {
+          return null;
+        }
+        if (questionType === 'OpenQuestion' && name === 'add-feedback') {
+          try {
+            this.setFocusTracking();
+          } catch (e) {
+            //
+          }
+        }
+        return name;
       }
     };
   });
@@ -16584,7 +16598,9 @@ RichTextEditor = {
     parameterBag.shouldNotGroupWhenFull = true;
     return this.createTeacherEditor(parameterBag, function (editor) {
       window.addEventListener('answer-feedback-focus-feedback-editor', function () {
-        editor.focus();
+        setTimeout(function () {
+          editor.focus();
+        }, 100);
       });
       _this8.hideWProofreaderChevron(parameterBag.allowWsc, editor);
     });
@@ -16610,20 +16626,28 @@ RichTextEditor = {
       //create a temporary commentThread to mark the selection while creating a new comment
       // editor.execute( 'addCommentThread', { threadId: window.uuidv4() } );
     };
-    editor.ui.view.editable.element.onmouseup = function (e) {
-      if (window.getSelection().toString() !== '') {
-        dispatchEvent(new CustomEvent('assessment-drawer-tab-update', {
-          detail: {
-            tab: 2
-          }
-        }));
-        editor.execute('addCommentThread', {
-          threadId: window.uuidv4()
-        });
-        dispatchEvent(new CustomEvent('answer-feedback-focus-feedback-editor'));
-        setTimeout(console.log('select feedback editor here'), 100);
+    document.addEventListener('mouseup', function (e) {
+      if (window.getSelection().focusNode.parentElement.closest('.comment-editor') !== null) {
+        //selection is in the answer comment editor
+        if (window.getSelection().toString() !== '') {
+          dispatchEvent(new CustomEvent('assessment-drawer-tab-update', {
+            detail: {
+              tab: 2
+            }
+          }));
+
+          //todo open 'feedback toevoegen' and close 'gegeven feedback'
+          console.error('TODO: open feedback toevoegen and close gegeven feedback');
+          //focus the create a comment editor
+          dispatchEvent(new CustomEvent('answer-feedback-focus-feedback-editor'));
+          setTimeout(function () {
+            editor.execute('addCommentThread', {
+              threadId: window.uuidv4()
+            });
+          }, 200);
+        }
       }
-    };
+    });
   },
   hideWProofreaderChevron: function hideWProofreaderChevron(allowWsc, editor) {
     if (!allowWsc) {

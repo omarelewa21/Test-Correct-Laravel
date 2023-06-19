@@ -8,12 +8,16 @@
 }
 
 .answer-feedback-card {
-    @apply flex w-full flex-col border relative bg-white;
+    @apply flex w-auto flex-col border relative bg-white;
     border-radius: 2px 10px 10px 2px;
     padding: 1px;
     border-left: 1px !important;
     transition: margin-left 300ms linear, margin-right 300ms linear;
     box-shadow: 1px 2px 4px 0 rgba(4, 31, 116, 0.15);
+    margin-left: 1rem;
+    margin-right: 1rem;
+    cursor: pointer;
+
 }
 
 /*
@@ -54,7 +58,7 @@ answer-feedback-card-editing {}
 
 
 
-.answer-feedback-card-focussed,
+.answer-feedback-card-active,
 .answer-feedback-card-editing,
 .answer-feedback-card-hovering,
 .answer-feedback-card:hover,
@@ -78,9 +82,8 @@ answer-feedback-card-editing {}
 }
 
 .answer-feedback-card-editing {
-    margin-left: -1rem;
-    margin-right: -1rem;
-    width: auto;
+    margin-left: 0;
+    margin-right: 0;
 }
 
 .answer-feedback-card:hover :is(.feedback-card-message, .feedback-card-datetime, .feedback-card-name) {
@@ -127,19 +130,10 @@ answer-feedback-card-editing {}
 }
 
 
-
 .comment-editor .ck.ck-editor__main p > .ck-comment-marker {
     border: 1px solid transparent;
+    cursor: pointer;
 }
 .comment-editor  .ck.ck-editor__main .ck-content > * {
     line-height: 2;
-}
-
-
-.comment-editor .ck.ck-editor__main .ck-comment-marker.ck-comment-marker--active{
-    color: var(--teacher-primary);
-}
-
-.comment-editor .ck.ck-editor__main .ck-comment-marker.ck-comment-marker--active{
-    border: 1px solid var(--ck-color-comment-marker);
 }

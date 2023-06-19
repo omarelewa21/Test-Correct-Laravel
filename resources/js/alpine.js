@@ -1992,14 +1992,26 @@ document.addEventListener("alpine:init", () => {
                 document.documentElement.style.setProperty("--active-sidebar-width", value ? "var(--collapsed-sidebar-width)" : "var(--sidebar-width)");
             });
         },
-        tab(index) {
+        getSlideElementByIndex: function (index) {
+            return this.$root.querySelector(".slide-" + index);
+        },
+        tab(index, commentUuid = null) {
             if (!this.tabs.includes(index)) return;
             this.activeTab = index;
             this.closeTooltips();
-            const slide = this.$root.querySelector(".slide-" + index);
+            const slide = this.getSlideElementByIndex(index);
             this.handleSlideHeight(slide);
             this.$nextTick(() => {
-                this.container.scroll({ top: 0, left: slide.offsetLeft, behavior: "smooth" });
+                if(commentUuid){
+                    const commentCard = document.querySelector('[data-uuid="'+commentUuid+'"].answer-feedback-card')
+
+                    let cardTop = commentCard.getBoundingClientRect().y - this.container.getBoundingClientRect().y;
+
+                    this.container.scroll({ top: cardTop,  left: slide.offsetLeft, behavior: "smooth" });
+                } else {
+                    this.container.scroll({ top: 0, left: slide.offsetLeft, behavior: "smooth" });
+                }
+
                 setTimeout(() => {
                     const position = (this.container.scrollLeft / 300) + 1;
                     if (!this.tabs.includes(position)) {
@@ -2029,6 +2041,10 @@ document.addEventListener("alpine:init", () => {
                 await this.$wire.previous();
                 this.clickedNext = false;
             });
+        },
+        fixSlideHeightByIndex(index) {
+            let slide = this.$root.closest(".slide-" + index);
+            this.handleSlideHeight(slide);
         },
         handleSlideHeight(slide) {
             if (slide.offsetHeight > this.container.offsetHeight) {
@@ -2390,7 +2406,7 @@ document.addEventListener("alpine:init", () => {
 
         }
     }));
-    Alpine.data("AnswerFeedback", (answerEditorId, feedbackEditorId, userId) => ({
+    Alpine.data("AnswerFeedback", (answerEditorId, feedbackEditorId, userId, questionType) => ({
         answerEditorId: answerEditorId,
         feedbackEditorId: feedbackEditorId,
         commentRepository: null,
@@ -2398,9 +2414,15 @@ document.addEventListener("alpine:init", () => {
         editingComment: null,
         activeComment: null,
         hoveringComment: null,
+        dropdownOpened: null,
         userId,
+        questionType,
         async init() {
-            console.log(answerEditorId, feedbackEditorId)
+            this.dropdownOpened = questionType === 'OpenQuestion' ? 'given-feedback' : 'add-feedback';
+
+            if(questionType !== 'openQuestion') {
+                return;
+            }
             this.setFocusTracking();
 
             document.addEventListener('comment-color-updated', async (event) => {
@@ -2415,21 +2437,21 @@ document.addEventListener("alpine:init", () => {
 
                 styleTagElement.innerHTML = await this.$wire.updateCommentEmoji(event.detail);
             });
-        },
-        async saveCommentThread() {
 
-            this.commentsRepository = this.answerEditor.plugins.get( 'CommentsRepository' );
 
-            //activeCommentThread is not needed when creating new comment Threads
-            // console.dir(this.commentsRepository.activeCommentThread); //focusTracking Required!
-
-            // this.activeThread = this.answerEditor.plugins.get( 'CommentsRepository' ).activeCommentThread;
-            // if(this.activeThread){
-            //     console.log(this.activeThread);
-            // }
-
-            await this.createCommentThread();
-
+            document.addEventListener('mousedown', (e) => {
+                if(this.activeComment === null) {
+                    return;
+                }
+                //check for click outside 1. comment markers, 2. comment marker icons, 3. comment cards.
+                if( e.srcElement.closest('.ck-comment-marker') ||
+                    e.srcElement.closest('.answer-feedback-comment-icons') ||
+                    e.srcElement.closest('.given-feedback-container')
+                ) {
+                    return;
+                }
+                this.clearActiveComment()
+            })
         },
 
         async updateCommentThread(answerFeedbackUuid, threadId) {
@@ -2486,6 +2508,9 @@ document.addEventListener("alpine:init", () => {
                     return;
                 }
 
+                console.error('fix saving linked comment first')
+                return;
+
                 //todo add general comment without link to the answer text
                 var feedback = await this.$wire.createNewComment({
                     message: comment,
@@ -2533,15 +2558,10 @@ document.addEventListener("alpine:init", () => {
 
                 commentThreadElements = [...commentMarkers, el];
 
-
-                //todo
-                // set hover listener  (mouseover enter leave)
-                // set active listener (check if editing is null first)
-
                 //set click event listener on all comment markers and the icon.
                 commentThreadElements.forEach((threadElement) => {
                     threadElement.addEventListener('click', () => {
-                        this.setActiveCommentThread(thread.threadId, thread.uuid);
+                        this.setActiveComment(thread.threadId, thread.uuid);
                     });
                     threadElement.addEventListener('mouseenter', (e) => {
                         this.setHoveringComment(thread.threadId, thread.uuid);
@@ -2574,48 +2594,33 @@ document.addEventListener("alpine:init", () => {
                 'div[data-threadid="'+this.hoveringComment.threadId+'"] svg { color: var(--teacher-primary); }';
 
         },
+        setActiveCommentMarkerStyle(removeStyling = false) {
+            const styleTag = document.querySelector('#activeCommentMarkerStyle');
+
+            if(removeStyling || this.activeComment?.threadId === null) {
+                styleTag.innerHTML = '';
+                return;
+            }
+
+            styleTag.innerHTML = '' +
+                '.ck-comment-marker[data-comment="'+ this.activeComment?.threadId +'"] { ' +
+                '   border: 1px solid var(--ck-color-comment-marker-border) !important; ' +
+                '} ';
+
+        },
         setActiveComment (threadId, answerFeedbackUuid) {
             if(this.editingComment !== null) {
                 /* when editing, no other comment can be activated */
                 return;
             }
             this.activeComment = {threadId: threadId, uuid: answerFeedbackUuid };
+            this.setActiveCommentMarkerStyle();
 
+            this.$dispatch("assessment-drawer-tab-update", { tab: 2, uuid: answerFeedbackUuid });
         },
         clearActiveComment() {
             this.activeComment = null;
-            this.setHoveringCommentMarkerStyle(true);
-        },
-
-        /* ckeditor active comment thread */
-        setActiveCommentThread(threadId, answerFeedbackUuid = null) {
-            const answerEditor = ClassicEditors[this.answerEditorId];
-            let commentsRepository = answerEditor.plugins.get( 'CommentsRepository' );
-            commentsRepository.setActiveCommentThread(threadId);
-            this.activeThread = threadId;
-
-
-            if(answerFeedbackUuid) {
-
-                this.$dispatch("assessment-drawer-tab-update", { tab: 2 });
-
-
-
-                this.setFocussedComment(answerFeedbackUuid);
-                // this.focussedComment = answerFeedbackUuid; //these two lines are the same:
-                // this.$dispatch("updated-focussed-comment", { uuid:  answerFeedbackUuid })
-            }
-
-            //todo rework drawer event to scroll to correct element
-            if(false) {
-                this.$dispatch("assessment-drawer-tab-update", { tab: 2 });
-            }
-
-        },
-        clearActiveCommentThread() {
-            const answerEditor = ClassicEditors[this.answerEditorId];
-            let commentsRepository = answerEditor.plugins.get( 'CommentsRepository' );
-            commentsRepository.setActiveCommentThread(null);
+            this.setActiveCommentMarkerStyle(true);
         },
         setFocusTracking() {
             setTimeout(()=> {
@@ -2642,12 +2647,27 @@ document.addEventListener("alpine:init", () => {
         get feedbackEditor() {
             return ClassicEditors[this.feedbackEditorId];
         },
-        setFocussedComment (AnswerFeedbackUuid) {
-            this.focussedComment = AnswerFeedbackUuid ?? null;
-        },
         setEditingComment (AnswerFeedbackUuid) {
-            this.focussedComment = null;
+            this.activeComment = null;
             this.editingComment = AnswerFeedbackUuid ?? null;
+            setTimeout(() => {
+                this.fixSlideHeightByIndex(2);
+            },100)
+        },
+        toggleFeedbackAccordion (currentToggleState, name) {
+            if(this.editingComment !== null) { return; };
+
+            if(currentToggleState === name) {
+                return null;
+            }
+            if(questionType === 'OpenQuestion' && name === 'add-feedback') {
+                try {
+                    this.setFocusTracking();
+                } catch (e) {
+                    //
+                }
+            }
+            return name;
         }
     }));
 

@@ -1457,6 +1457,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             return $carry = $carry . <<<STYLE
                 .ck-comment-marker[data-comment="{$feedback->thread_id}"]{
                             --ck-color-comment-marker: {$feedback->getColor(0.4)} !important;
+                            --ck-color-comment-marker-border: {$feedback->getColor()} !important;
                             --ck-color-comment-marker-active: {$feedback->getColor(0.4)} !important;
                         }
             STYLE;

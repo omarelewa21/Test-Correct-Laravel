@@ -2,7 +2,7 @@
      x-data="assessmentDrawer(@js($inReview))"
      x-cloak
      x-bind:class="{'collapsed': collapse}"
-     x-on:assessment-drawer-tab-update.window="tab($event.detail.tab)"
+     x-on:assessment-drawer-tab-update.window="tab($event.detail.tab, $event.detail?.uuid)"
      x-on:resize.window.throttle="handleResize"
      wire:key="evaluation-drawer-{{ $uniqueKey }}"
 >

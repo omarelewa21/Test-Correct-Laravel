@@ -11,11 +11,12 @@
 
     </style>
     <style id="hoveringCommentMarkerStyle">{{-- filled with javascript --}}</style>
+    <style id="activeCommentMarkerStyle">{{-- filled with javascript --}}</style>
     <style id="commentMarkerStyles">
         {!!  $commentMarkerStyles !!}
     </style>
 
-    <div >
+    <div class="answer-feedback-comment-icons">
         @foreach($commentThreads as $thread)
             <div class="absolute z-10 cursor-pointer" id="icon-{{ $thread['threadId'] }}" x-init="
             initCommentIcon($el, @js($thread));

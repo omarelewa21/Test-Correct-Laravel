@@ -102,7 +102,9 @@ RichTextEditor = {
             parameterBag,
             (editor) => {
                 window.addEventListener('answer-feedback-focus-feedback-editor', () => {
-                    editor.focus();
+                    setTimeout(() => {
+                        editor.focus();
+                    }, 100)
                 });
                 this.hideWProofreaderChevron(parameterBag.allowWsc, editor);
             }
@@ -131,18 +133,27 @@ RichTextEditor = {
         editor.ui.view.editable.element.onblur = (e) => {
             //create a temporary commentThread to mark the selection while creating a new comment
             // editor.execute( 'addCommentThread', { threadId: window.uuidv4() } );
+
         }
-        editor.ui.view.editable.element.onmouseup = (e) => {
-            if(window.getSelection().toString() !== '') {
-                dispatchEvent(new CustomEvent('assessment-drawer-tab-update', {detail: {tab: 2}}));
-                editor.execute( 'addCommentThread', { threadId: window.uuidv4() } );
+        document.addEventListener('mouseup', (e) => {
+            if(window.getSelection().focusNode.parentElement.closest('.comment-editor') !== null) {
+                //selection is in the answer comment editor
+                if(window.getSelection().toString() !== '') {
+                    dispatchEvent(new CustomEvent('assessment-drawer-tab-update', {detail: {tab: 2}}));
 
-                dispatchEvent(new CustomEvent('answer-feedback-focus-feedback-editor'));
 
+                    //todo open 'feedback toevoegen' and close 'gegeven feedback'
+                    console.error('TODO: open feedback toevoegen and close gegeven feedback')
+                    //focus the create a comment editor
+                    dispatchEvent(new CustomEvent('answer-feedback-focus-feedback-editor'));
 
-                setTimeout(console.log('select feedback editor here') ,100)
+                    setTimeout(() => {
+                        editor.execute( 'addCommentThread', { threadId: window.uuidv4() } );
+
+                    }, 200)
+                }
             }
-        }
+        })
     },
     hideWProofreaderChevron: function (allowWsc, editor) {
 
