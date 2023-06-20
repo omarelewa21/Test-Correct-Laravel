@@ -14,7 +14,11 @@
 {{--                            @click="$dispatch('comment-color-updated', { threadId: '{{$commentThreadId}}', color: '{{$case->value}}' })"--}}
 {{--                    ></x-button.colored-circle>--}}
 
-                    <x-input.color-picker-radio :color="$case->getRgbColorCode()" />
+                    <x-input.color-picker-radio :color="$case"
+                                                :threadId="$commentThreadId"
+                                                :uuid="$uuid"
+                                                :checked="$case->value === $value->value"
+                    />
                 @else
                     <x-button.colored-circle
                             :color="$case->getRgbColorCode()"

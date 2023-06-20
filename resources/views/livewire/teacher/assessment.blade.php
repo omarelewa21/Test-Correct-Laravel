@@ -196,7 +196,7 @@
                          class="space-y-4"
                          x-on:answer-feedback-focus-feedback-editor.window="dropdownOpened = 'add-feedback'"
                     >
-                        <div class="space-y-4">
+                        <div class="space-y-4 answer-feedback-add-comment">
                             <span class="flex bold border-t border-blue-grey pt-2 justify-between items-center"
                                   @if($this->inlineFeedbackEnabled)
                                   :class="editingComment !== null ? 'text-midgrey' : ''"
@@ -215,10 +215,14 @@
                                  wire:key="feedback-editor-{{  $this->questionNavigationValue.'-'.$this->answerNavigationValue }}"
                             >
 
-                                @if($this->inlineFeedbackEnabled)
+                                @if($this->inlineFeedbackEnabled )
 
                                     <x-input.comment-color-picker
-                                            :comment-thread-id="'wubwub'"></x-input.comment-color-picker>
+                                            comment-thread-id="new-thread-id"
+                                            uuid="create-a-comment"
+                                            :value="'blue'"
+                                    >
+                                    </x-input.comment-color-picker>
 
                                     <x-input.comment-emoji-picker
                                             :comment-uuid="'wubwub'"></x-input.comment-emoji-picker>

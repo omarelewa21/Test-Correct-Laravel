@@ -9042,11 +9042,12 @@ document.addEventListener("alpine:init", function () {
                       while (1) switch (_context18.prev = _context18.next) {
                         case 0:
                           styleTagElement = document.querySelector('#commentMarkerStyles');
-                          _context18.next = 3;
+                          console.log('does it hit');
+                          _context18.next = 4;
                           return _this56.$wire.updateCommentColor(event.detail);
-                        case 3:
-                          styleTagElement.innerHTML = _context18.sent;
                         case 4:
+                          styleTagElement.innerHTML = _context18.sent;
+                        case 5:
                         case "end":
                           return _context18.stop();
                       }
@@ -9094,23 +9095,30 @@ document.addEventListener("alpine:init", function () {
           }, _callee20);
         }))();
       },
-      updateCommentThread: function updateCommentThread(answerFeedbackUuid, threadId) {
+      updateCommentThread: function updateCommentThread(element) {
         var _this57 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee21() {
-          var answerEditor, answerFeedbackEditor;
+          var _answerFeedbackCardEl, _answerFeedbackCardEl2, _answerFeedbackCardEl3, _answerFeedbackCardEl4;
+          var answerFeedbackCardElement, answerFeedbackUuid, comment_color, comment_emoji, answerFeedbackEditor;
           return _regeneratorRuntime().wrap(function _callee21$(_context21) {
             while (1) switch (_context21.prev = _context21.next) {
               case 0:
-                answerEditor = ClassicEditors[_this57.answerEditorId];
+                console.log(_this57.answerEditorId);
+                answerFeedbackCardElement = element.closest('.answer-feedback-card');
+                console.log(answerFeedbackCardElement);
+                answerFeedbackUuid = answerFeedbackCardElement.dataset.uuid;
+                comment_color = (_answerFeedbackCardEl = answerFeedbackCardElement.querySelector('.comment-color-picker input:checked')) === null || _answerFeedbackCardEl === void 0 ? void 0 : (_answerFeedbackCardEl2 = _answerFeedbackCardEl.dataset) === null || _answerFeedbackCardEl2 === void 0 ? void 0 : _answerFeedbackCardEl2.color; //todo fix getting checked emoji
+                comment_emoji = (_answerFeedbackCardEl3 = answerFeedbackCardElement.querySelector('.comment-emoji-picker input:checked')) === null || _answerFeedbackCardEl3 === void 0 ? void 0 : (_answerFeedbackCardEl4 = _answerFeedbackCardEl3.dataset) === null || _answerFeedbackCardEl4 === void 0 ? void 0 : _answerFeedbackCardEl4.color;
+                console.log(comment_emoji);
                 answerFeedbackEditor = ClassicEditors['update-' + answerFeedbackUuid];
-                _context21.next = 4;
+                _context21.next = 10;
                 return _this57.$wire.call('updateExistingComment', {
                   uuid: answerFeedbackUuid,
                   message: answerFeedbackEditor.getData()
                 });
-              case 4:
+              case 10:
                 _this57.setEditingComment(null);
-              case 5:
+              case 11:
               case "end":
                 return _context21.stop();
             }
@@ -9120,15 +9128,19 @@ document.addEventListener("alpine:init", function () {
       createCommentThread: function createCommentThread() {
         var _this58 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee23() {
-          var answerEditor, feedbackEditor, comment, comment_color, comment_emoji;
+          var _addCommentElement$qu, _addCommentElement$qu2, _addCommentElement$qu3, _addCommentElement$qu4;
+          var addCommentElement, comment_color, comment_emoji, answerEditor, feedbackEditor, comment;
           return _regeneratorRuntime().wrap(function _callee23$(_context23) {
             while (1) switch (_context23.prev = _context23.next) {
               case 0:
+                addCommentElement = _this58.$el.closest('.answer-feedback-add-comment');
+                comment_color = (_addCommentElement$qu = addCommentElement.querySelector('.comment-color-picker input:checked')) === null || _addCommentElement$qu === void 0 ? void 0 : (_addCommentElement$qu2 = _addCommentElement$qu.dataset) === null || _addCommentElement$qu2 === void 0 ? void 0 : _addCommentElement$qu2.color; //todo fix getting checked emoji
+                comment_emoji = (_addCommentElement$qu3 = addCommentElement.querySelector('.comment-emoji-picker input:checked')) === null || _addCommentElement$qu3 === void 0 ? void 0 : (_addCommentElement$qu4 = _addCommentElement$qu3.dataset) === null || _addCommentElement$qu4 === void 0 ? void 0 : _addCommentElement$qu4.color;
+                console.log(comment_color);
+                console.log(comment_emoji);
                 answerEditor = ClassicEditors[_this58.answerEditorId];
                 feedbackEditor = ClassicEditors[_this58.feedbackEditorId];
-                comment = feedbackEditor.getData(); //todo ADD COLOR AND EMOJI PICKER AND GET THE ACTIVE VALUES HERE!
-                comment_color = null; //todo correct enum value or NULL
-                comment_emoji = null;
+                comment = feedbackEditor.getData();
                 answerEditor.focus();
                 _this58.$nextTick( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee22() {
                   var feedback, newCommentThread, updatedAnswerText;
@@ -9178,7 +9190,7 @@ document.addEventListener("alpine:init", function () {
                     }
                   }, _callee22);
                 })));
-              case 7:
+              case 10:
               case "end":
                 return _context23.stop();
             }

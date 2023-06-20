@@ -1493,6 +1493,6 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
     public function getInlineFeedbackEnabledProperty() : bool
     {
-        return $this->currentQuestion->type = "OpenQuestion";
+        return $this->currentQuestion->type === "OpenQuestion";
     }
 }

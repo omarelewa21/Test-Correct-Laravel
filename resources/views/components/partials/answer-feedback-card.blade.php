@@ -61,7 +61,10 @@
          x-show="editingComment === '{{$comment->uuid}}'">
 
         <x-input.comment-color-picker
-                :comment-thread-id="$comment->thread_id"></x-input.comment-color-picker>
+                :comment-thread-id="$comment->thread_id"
+                :value="$comment->comment_color"
+                :uuid="$comment->uuid"
+        ></x-input.comment-color-picker>
 
         <x-input.comment-emoji-picker
                 :comment-uuid="$comment->uuid"></x-input.comment-emoji-picker>
@@ -81,7 +84,7 @@
                 <span>@lang('modal.annuleren')</span>
             </x-button.text-button>
             <x-button.cta class="block"
-                          @click="updateCommentThread('{{$comment->uuid}}', '{{$comment->thread_id}}')">
+                          @click="updateCommentThread($el)">
                 <span>@lang('general.save')</span>
             </x-button.cta>
         </div>

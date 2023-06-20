@@ -154,6 +154,8 @@ answer-feedback-card-editing {}
     position: relative;
     display: block;
     cursor: pointer;
+    width: 1.5rem;
+    height: 1.5rem;
 }
 
 .color-picker-radio input {

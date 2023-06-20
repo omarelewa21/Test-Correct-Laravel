@@ -2428,7 +2428,7 @@ document.addEventListener("alpine:init", () => {
             document.addEventListener('comment-color-updated', async (event) => {
 
                 let styleTagElement = document.querySelector('#commentMarkerStyles');
-
+                console.log('does it hit')
                 styleTagElement.innerHTML = await this.$wire.updateCommentColor(event.detail);
             });
             document.addEventListener('comment-emoji-updated', async (event) => {
@@ -2453,11 +2453,21 @@ document.addEventListener("alpine:init", () => {
                 this.clearActiveComment()
             })
         },
+        async updateCommentThread(element) {
+            console.log(this.answerEditorId);
 
-        async updateCommentThread(answerFeedbackUuid, threadId) {
-            const answerEditor = ClassicEditors[this.answerEditorId];
+            let answerFeedbackCardElement = element.closest('.answer-feedback-card');
+            console.log(answerFeedbackCardElement);
+
+            let answerFeedbackUuid = answerFeedbackCardElement.dataset.uuid;
+
+            let comment_color = answerFeedbackCardElement.querySelector('.comment-color-picker input:checked')?.dataset?.color;
+            //todo fix getting checked emoji
+            let comment_emoji = answerFeedbackCardElement.querySelector('.comment-emoji-picker input:checked')?.dataset?.color;
+
+            console.log(comment_emoji);
+
             const answerFeedbackEditor = ClassicEditors['update-'+answerFeedbackUuid];
-
 
             await this.$wire.call('updateExistingComment', {
                 uuid: answerFeedbackUuid,
@@ -2468,16 +2478,20 @@ document.addEventListener("alpine:init", () => {
         },
         async createCommentThread() {
 
+            let addCommentElement = this.$el.closest('.answer-feedback-add-comment')
+
+            let comment_color = addCommentElement.querySelector('.comment-color-picker input:checked')?.dataset?.color;
+
+            //todo fix getting checked emoji
+            let comment_emoji = addCommentElement.querySelector('.comment-emoji-picker input:checked')?.dataset?.color;
+            console.log(comment_color);
+            console.log(comment_emoji);
+
+
             const answerEditor = ClassicEditors[this.answerEditorId];
             const feedbackEditor = ClassicEditors[this.feedbackEditorId];
 
             var comment = feedbackEditor.getData();
-
-            //todo ADD COLOR AND EMOJI PICKER AND GET THE ACTIVE VALUES HERE!
-            var comment_color = null; //todo correct enum value or NULL
-            var comment_emoji = null;
-
-
 
             answerEditor.focus();
 
@@ -2514,7 +2528,7 @@ document.addEventListener("alpine:init", () => {
                 //todo add general comment without link to the answer text
                 var feedback = await this.$wire.createNewComment({
                     message: comment,
-                    comment_color: null,
+                    // comment_color: null, //no comment color when its a general ticket.
                     comment_emoji: null,
                 }, false);
 

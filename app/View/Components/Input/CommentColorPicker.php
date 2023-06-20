@@ -16,9 +16,18 @@ class CommentColorPicker extends Component
      */
     public function __construct(
         public ?string $commentThreadId = '',
-        public CommentMarkerColor $value = CommentMarkerColor::BLUE,
+        public string $uuid = '',
+        public CommentMarkerColor|string|null $value,
     )
     {
+        if(is_string($this->value)) {
+            $this->value = CommentMarkerColor::tryFrom($this->value);
+        }
+
+        if($this->value === null) {
+            $this->value = CommentMarkerColor::BLUE;
+        }
+
         if($this->commentThreadId === null) {
             $this->disabled = true;
         }
