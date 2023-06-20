@@ -3,6 +3,7 @@
         @foreach($textPartialArray as $textPartial)
             {!!$textPartial!!}
         @endforeach
+
         <span class="inline-flex flex-col mx-1 mb-1">
             <span class="bold w-full flex justify-center mb-1 ">
                 @if ($studentAnswer)
@@ -11,9 +12,11 @@
                 </span>
                 @else
                     @foreach( $answerStruct as $option)
-                        <span class="inline-flex mx-1 relative px-2.5 py-0.5 rounded-10 bg-offwhite border border-bluegrey bold items-center gap-1 w-min align-middle">
-                {!! $option->answer !!}
-                 </span>
+                        @if ($option->tag ==  $answerIndex+1 )
+                            <span class="inline-flex mx-1 relative px-2.5 py-0.5 rounded-10 bg-offwhite border border-bluegrey bold items-center gap-1 w-min align-middle">
+                                {!! $option->answer !!}
+                             </span>
+                        @endif
                     @endforeach
                 @endif
 
