@@ -144,4 +144,4 @@
     @yield('detailSlide')
 @endif
 <x-after-planning-toast/>
-</div></div> {{-- This closing tag closes the container that is included on line 1 --}}
+</div> @if($inTestBankContext) </div> @endif {{-- This closing tag closes the container that is included on line 1 --}}
