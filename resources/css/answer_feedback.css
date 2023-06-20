@@ -137,3 +137,48 @@ answer-feedback-card-editing {}
 .comment-editor  .ck.ck-editor__main .ck-content > * {
     line-height: 2;
 }
+
+
+
+
+.color-picker-radio.color-picker-radio-container:hover .color-picker-circle {
+    /* hover state */
+    /* show blue grey ring, white border */
+    border-color: white;
+    outline: 2px solid rgba(var(--primary-rgb), 0.5);
+    box-shadow: inset 0 0 0 2px var(--all-white), 0 0 0 2px rgba(0, 77, 245, 0.5);
+}
+
+.color-picker-radio.color-picker-radio-container {
+    /* set dimensions for the radio facade */
+    position: relative;
+    display: block;
+    cursor: pointer;
+}
+
+.color-picker-radio input {
+    /* hide input */
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.color-picker-radio input:checked ~ .color-picker-circle {
+    /* show focus ring when checked */
+    outline: 2px solid var(--all-Base);
+    border: 2px solid white;
+}
+
+.color-picker-radio .color-picker-circle {
+    /* create fake css input circle */
+    /* all-base border */
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 1.5rem;
+    width: 1.5rem;
+    border-radius: 9999px;
+    border: 2px solid var(--all-Base);
+    outline: 2px solid transparent;
+
+}

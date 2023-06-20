@@ -9216,7 +9216,7 @@ document.addEventListener("alpine:init", function () {
                 commentsRepository.getCommentThread(threadId).remove();
                 answerText = answerEditor.getData();
                 _context24.next = 16;
-                return _this59.$wire.updateAnswerText(answerText);
+                return _this59.$wire.updateAnswer(answerText);
               case 16:
                 return _context24.abrupt("return");
               case 17:

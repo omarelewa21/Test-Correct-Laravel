@@ -2539,7 +2539,7 @@ document.addEventListener("alpine:init", () => {
             if(result) {
                 commentsRepository.getCommentThread(threadId).remove();
                 const answerText = answerEditor.getData();
-                await this.$wire.updateAnswerText(answerText);
+                await this.$wire.updateAnswer(answerText);
                 return;
             }
             console.log('failed to delete answer feedback');

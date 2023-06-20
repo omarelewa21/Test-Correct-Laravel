@@ -9,10 +9,12 @@
         <div class="flex w-full justify-between">
             @foreach(\tcCore\Http\Enums\CommentMarkerColor::cases() as $case)
                 @unless($disabled)
-                    <x-button.colored-circle
-                            :color="$case->getRgbColorCode()"
-                            @click="$dispatch('comment-color-updated', { threadId: '{{$commentThreadId}}', color: '{{$case->value}}' })"
-                    ></x-button.colored-circle>
+{{--                    <x-button.colored-circle--}}
+{{--                            :color="$case->getRgbColorCode()"--}}
+{{--                            @click="$dispatch('comment-color-updated', { threadId: '{{$commentThreadId}}', color: '{{$case->value}}' })"--}}
+{{--                    ></x-button.colored-circle>--}}
+
+                    <x-input.color-picker-radio :color="$case->getRgbColorCode()" />
                 @else
                     <x-button.colored-circle
                             :color="$case->getRgbColorCode()"

@@ -198,7 +198,7 @@
                     >
                         <div class="space-y-4">
                             <span class="flex bold border-t border-blue-grey pt-2 justify-between items-center"
-                                  @if($this->currentQuestion->type === 'OpenQuestion')
+                                  @if($this->inlineFeedbackEnabled)
                                   :class="editingComment !== null ? 'text-midgrey' : ''"
                                   @endif
                             >
@@ -214,8 +214,16 @@
                                  x-collapse
                                  wire:key="feedback-editor-{{  $this->questionNavigationValue.'-'.$this->answerNavigationValue }}"
                             >
-                                <span>@lang('assessment.Feedback schrijven')</span>
-                                @if($this->currentQuestion->type === 'OpenQuestion')
+
+                                @if($this->inlineFeedbackEnabled)
+
+                                    <x-input.comment-color-picker
+                                            :comment-thread-id="'wubwub'"></x-input.comment-color-picker>
+
+                                    <x-input.comment-emoji-picker
+                                            :comment-uuid="'wubwub'"></x-input.comment-emoji-picker>
+
+                                    <span>@lang('assessment.Feedback schrijven')</span>
                                     <x-input.rich-textarea type="create-answer-feedback"
                                                            :editorId="'feedback-editor-'. $this->questionNavigationValue.'-'.$this->answerNavigationValue"
                                                            :allowWsc="true" {{-- TODO determine when to allow web spell checker... --}}
@@ -231,6 +239,7 @@
                                         </x-button.cta>
                                     </div>
                                 @else
+                                    <span>@lang('assessment.Feedback schrijven')</span>
                                     <x-input.rich-textarea type="assessment-feedback"
                                                            :editorId="'feedback-editor-'. $this->questionNavigationValue.'-'.$this->answerNavigationValue"
                                                            wire:model.debounce.300ms="feedback"
@@ -260,7 +269,7 @@
                                 @endif--}}
                             </div>
                         </div>
-                        @if($this->currentQuestion->type === 'OpenQuestion')
+                        @if($this->inlineFeedbackEnabled)
                             <div class="space-y-4 relative">
                             <span @class([
                                     "flex bold border-t border-blue-grey pt-2 justify-between items-center",

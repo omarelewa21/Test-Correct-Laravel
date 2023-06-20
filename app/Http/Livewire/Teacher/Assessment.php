@@ -1408,12 +1408,6 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         $this->getSortedAnswerFeedback();
     }
 
-    public function updateAnswerText($answerText)
-    {
-        //update answer text
-        $this->updateAnswer($answerText);
-    }
-
     public function updateAnswer($answer)
     {
         $answer = str_replace('comment-start', 'commentstart', $answer);
@@ -1441,10 +1435,6 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         $this->answerFeedback = $this->currentAnswer->feedback()->with('user')->get()->sortBy(function ($feedback) {
             return $feedback->comment_id !== null;
         });
-        //also show empty comments
-//        ->filter(function ($feedback) {
-//            return $feedback->message;
-//        });
     }
 
     public function getCommentMarkerStylesProperty() : string
@@ -1478,6 +1468,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
         return $this->commentMarkerStyles;
     }
+
     public function updateCommentEmoji($data)
     {
         if(!isset($data['uuid']) || !isset($data['emoji'])) {
@@ -1492,8 +1483,16 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         return $this->commentMarkerStyles;
     }
 
+    /**
+     * Context Menu won't work without this method present.
+     */
     public function setContextValues($uuid, $contextData): bool
     {
         return true;
+    }
+
+    public function getInlineFeedbackEnabledProperty() : bool
+    {
+        return $this->currentQuestion->type = "OpenQuestion";
     }
 }
