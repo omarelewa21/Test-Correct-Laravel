@@ -82,14 +82,6 @@ abstract class TestTake extends TCComponent
         $this->handlePresenceEventUpdate(collect($event)->where('student', true)->pluck('uuid'));
     }
 
-    public function removeParticipant(TestParticipant $participant)
-    {
-        try {
-            $participant->delete();
-        } catch (\Exception) {
-        }
-    }
-
     private function handlePresenceEventUpdate(Collection $presentUserUuids)
     {
         $this->initialized = true;

@@ -139,7 +139,7 @@ button.cta-button:focus::after, a.cta-button:focus::after {
 button.cta-button:disabled, a.cta-button:disabled {
     background: var(--light-grey);
     color: var(--mid-grey);
-    box-shadow: 0 1px 4px 0 rgba(4, 31, 116, 0.06);
+    box-shadow: 0 1px 4px 0 rgba(4, 31, 116, 0.06), 0 1px 4px 0 rgba(4, 31, 116, 0.1);;
 }
 
 .primary-button.btn-disabled {
@@ -9560,6 +9560,9 @@ video {
 .top-\[var\(--header-height\)\]{
   top: var(--header-height);
 }
+.-top-4{
+  top: -1rem;
+}
 .isolate{
   isolation: isolate;
 }
@@ -10648,6 +10651,9 @@ video {
 .\!cursor-default{
   cursor: default !important;
 }
+.\!cursor-pointer{
+  cursor: pointer !important;
+}
 .cursor-default{
   cursor: default;
 }
@@ -11382,6 +11388,9 @@ video {
 }
 .bg-white\/95{
   background-color: rgb(255 255 255 / 0.95);
+}
+.bg-white\/80{
+  background-color: rgb(255 255 255 / 0.8);
 }
 .bg-opacity-0{
   --tw-bg-opacity: 0;

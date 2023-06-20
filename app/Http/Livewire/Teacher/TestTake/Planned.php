@@ -7,7 +7,10 @@ use Illuminate\Support\Facades\Blade;
 use Illuminate\View\AnonymousComponent;
 use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Http\Livewire\Teacher\TestTake\TestTake as TestTakeComponent;
+use tcCore\Invigilator;
+use tcCore\TestParticipant;
 use tcCore\TestTake as TestTakeModel;
+use tcCore\User;
 
 class Planned extends TestTakeComponent
 {
@@ -18,24 +21,14 @@ class Planned extends TestTakeComponent
     public function mount(TestTakeModel $testTake)
     {
         parent::mount($testTake);
-        $this->invigilators = $this->testTake
-            ->invigilatorUsers
-            ->map(function ($user) {
-                $user->displayName = $user->getFullNameWithAbbreviatedFirstName();
-                return $user;
-            });
+        $this->setInvigilators();
     }
 
     public function refresh()
     {
         $this->fillGridData();
         $this->setStudentData();
-        $this->invigilators = $this->testTake
-            ->invigilatorUsers
-            ->map(function ($user) {
-                $user->displayName = $user->getFullNameWithAbbreviatedFirstName();
-                return $user;
-            });
+        $this->setInvigilators();
     }
 
     public function redirectToOverview()
@@ -49,8 +42,8 @@ class Planned extends TestTakeComponent
             'test:id,name,uuid,subject_id',
             'test.subject:id,name',
             'scheduledByUser:id,name,name_first,name_suffix',
-            'user:id,name,name_first,name_suffix',
-            'invigilatorUsers:id,name,name_first,name_suffix',
+            'user:id,name,name_first,name_suffix,uuid',
+            'invigilatorUsers:id,name,name_first,name_suffix,uuid',
 
         ]);
         $schoolClasses = $this->testTake->schoolClasses()->get('name');
@@ -114,5 +107,43 @@ class Planned extends TestTakeComponent
             });
     }
 
-    public function removeInvigilator($invigilatorUserUuid) {}
+    private function setInvigilators(): void
+    {
+        $this->invigilators = $this->testTake
+            ->invigilatorUsers
+            ->map(function ($user) {
+                $user->displayName = $user->getFullNameWithAbbreviatedFirstName();
+                return $user;
+            });
+    }
+
+    public function removeParticipant(TestParticipant $participant)
+    {
+        try {
+            $participant->delete();
+        } catch (\Exception) {
+        }
+    }
+
+    public function removeInvigilator(User $invigilatorUser): void
+    {
+        try {
+            Invigilator::whereTestTakeId($this->testTake->id)
+                ->whereUserId($invigilatorUser->getKey())
+                ->delete();
+        } catch (\Exception) {
+        }
+        $this->fillGridData();
+        $this->setInvigilators();
+    }
+
+    public function canStartTestTake(): bool
+    {
+        return $this->testTake->time_start->isToday();
+    }
+
+    public function startTake()
+    {
+        
+    }
 }

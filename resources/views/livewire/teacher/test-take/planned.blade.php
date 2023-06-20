@@ -1,6 +1,34 @@
 @extends('layouts.test-take')
 
-@section('kaas')
+@section('cta')
+    <div class="flex flex-col justify-center">
+        @if($this->canStartTestTake())
+            <x-button.cta wire:click="startTake">
+                <span>@lang('test-take.Afnemen')</span>
+                <x-icon.arrow/>
+            </x-button.cta>
+        @else
+            <span class="bold text-lg">toetsafname is niet vandaag gepland</span>
+        @endif
+    </div>
+@endsection
+
+@section('action-buttons')
+    <x-button.cta class="order-1"
+                  :disabled="!$this->canStartTestTake()"
+                  wire:click="startTake"
+    >
+        <span>@lang('test-take.Afnemen')</span>
+        <x-icon.arrow/>
+    </x-button.cta>
+    <x-button.icon wire:click="$emit('openModal','teacher.test-take-edit-modal', {testTake: '{{ $this->testTake->uuid }}' })"
+                   class="order-3"
+    >
+        <x-icon.settings/>
+    </x-button.icon>
+@endsection
+
+@section('students')
     <div class="flex flex-col py-5 px-7 bg-white rounded-10 content-section"
          x-data="{plannedTab: 'students'}"
          x-cloak
@@ -56,12 +84,14 @@
         >
             <div class="flex w-full relative flex-wrap gap-2">
                 @forelse($this->invigilators as $invigilator)
-                    <div class="filter-pill px-4 gap-2 h-10 enabled"
-                         wire:click="removeInvigilator(@js($invigilator->uuid))"
+                    <div class="filter-pill px-4 gap-2 h-10 enabled transition-opacity"
                          wire:key="invigilator-{{ $invigilator->uuid }}"
                     >
-                        <span wire:ignore.self>{{ $invigilator->getFullNameWithAbbreviatedFirstName() }}</span>
-                        <x-icon.close-small />
+                        <span>{{ $invigilator->getFullNameWithAbbreviatedFirstName() }}</span>
+                        <x-icon.close-small class="!cursor-pointer"
+                                            x-on:click="$el.style.opacity = '75%'"
+                                            wire:click="removeInvigilator(@js($invigilator->uuid))"
+                        />
                     </div>
                 @empty
                     <span>@lang('general.unavailable')</span>

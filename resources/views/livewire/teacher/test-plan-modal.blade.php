@@ -151,7 +151,7 @@
                     @if($rttiExportAllowed)
                         <x-input.toggle-row-with-title wire:model="request.is_rtti_test_take"
                                                        :toolTip="__('teacher.exporteer_naar_rtti_online_tooltip')"
-                                                       containerClass="border-t w-full lg:w-[calc(50%-0.5rem)]"
+                                                       containerClass="w-full lg:w-[calc(50%-0.5rem)]"
                         >
                             <x-icon.export />
                             <span class="bold">{{ __('teacher.Exporteer naar RTTI Online') }} </span>
