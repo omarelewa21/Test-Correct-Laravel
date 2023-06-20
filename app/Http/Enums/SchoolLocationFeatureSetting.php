@@ -31,6 +31,9 @@ enum SchoolLocationFeatureSetting: string
     case ALLOW_NEW_ASSESSMENT = 'allow_new_assessment';
     case ALLOW_NEW_REVIEWING = 'allow_new_reviewing';
 
+    #[Type('bool')]
+    case ALLOW_NEW_TEST_TAKE_DETAIL_PAGE = 'allow_new_test_take_detail_page';
+
 
     public static function validateTestPackage(TestPackages|string $testPackage): string|false
     {

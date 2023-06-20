@@ -67,9 +67,9 @@ class TestQuickTakeModal extends TCModalComponent
 
     public function plan()
     {
+        $this->setDefaultTestTakeSettings();
         $this->validate();
 
-        $this->setDefaultTestTakeSettings();
         $this->testTake->save();
 
         $this->dispatchBrowserEvent('notify', ['message' => __('teacher.testtake planned')]);

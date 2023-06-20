@@ -72,10 +72,12 @@ class TestTakeEditModal extends TCModalComponent
         if (empty($this->classesAndStudents['children'])) {
             $conditionalRules['testTake.guest_accounts'] = 'accepted';
         }
+        $conditionalRules['testTake.invigilator_note'] = 'sometimes|string';
         return $conditionalRules;
     }
 
-    protected function getMessages() {
+    protected function getMessages()
+    {
         return [
             'testTake.guest_accounts.accepted' => __('validation.school_class_or_guest_accounts_required')
         ];
@@ -147,7 +149,9 @@ class TestTakeEditModal extends TCModalComponent
     private function getSelectedUserIds(): Collection
     {
         $userUuids = collect($this->classesAndStudents['children'])->pluck('value');
-        if ($userUuids->isEmpty()) return collect();
+        if ($userUuids->isEmpty()) {
+            return collect();
+        }
         return User::whereUuidIn($userUuids)
             ->distinct()
             ->get(['id', 'uuid'])
@@ -157,7 +161,9 @@ class TestTakeEditModal extends TCModalComponent
     private function getSelectedClasses(): Collection
     {
         $schoolClassUuids = collect($this->classesAndStudents['children'])->pluck('parent');
-        if ($schoolClassUuids->isEmpty()) return collect();
+        if ($schoolClassUuids->isEmpty()) {
+            return collect();
+        }
         return SchoolClass::whereUuidIn($schoolClassUuids)
             ->get(['id', 'uuid'])
             ->mapWithKeys(fn($class) => [$class->uuid => $class->id]);
@@ -165,7 +171,9 @@ class TestTakeEditModal extends TCModalComponent
 
     private function deleteParticipants(Collection $participantsToDelete): void
     {
-        if ($participantsToDelete->isEmpty()) return;
+        if ($participantsToDelete->isEmpty()) {
+            return;
+        }
         TestParticipant::whereIn('user_id', $participantsToDelete->pluck('user_id'))
             ->whereTestTakeId($this->testTake->id)
             ->delete();
@@ -183,14 +191,16 @@ class TestTakeEditModal extends TCModalComponent
     {
         $newParticipants = $participantsToCreate->map(function ($proposal) {
             return [
+                'test_take_id'            => $this->testTake->id,
                 'user_id'                 => $proposal['userId'],
                 'school_class_id'         => $proposal['classId'],
                 'test_take_status_id'     => TestTakeStatus::STATUS_PLANNED,
                 'allow_inbrowser_testing' => $this->testTake->allow_inbrowser_testing,
+                'deleted_at'              => null
             ];
-        });
+        })->toArray();
 
-        $this->testTake->testParticipants()->createMany($newParticipants);
+        TestParticipant::upsert($newParticipants, ['test_take_id', 'user_id', 'school_class_id']);
     }
 
     /**
@@ -270,7 +280,7 @@ class TestTakeEditModal extends TCModalComponent
         $this->testTake->time_end = Carbon::parse($this->timeEnd)->addHours(2);
     }
 
-    private function handleInvigilators()
+    private function handleInvigilators(): void
     {
         $this->testTake->saveInvigilators($this->selectedInvigilators);
         unset($this->testTake->invigilators);

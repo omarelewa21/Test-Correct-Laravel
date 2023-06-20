@@ -169,35 +169,14 @@ class TestTake extends BaseModel
             if ($testTake->testTakeStatus->name === 'Taking test' && $testTake->getAttribute('test_take_status_id') != $testTake->getOriginal('test_take_status_id')) {
                 $testTakeEvent = new TestTakeEvent();
                 $testTakeEvent->setAttribute('test_take_event_type_id', TestTakeEventType::where('name', '=', 'Start')->value('id'));
-
                 $testTake->testTakeEvents()->save($testTakeEvent);
 
-                $heartbeatDate = Carbon::now();
-                $heartbeatDate->subSeconds(30);
+                $testTake->testParticipants()->update([
+                    'test_take_status_id' => TestTakeStatus::STATUS_TEST_NOT_TAKEN
+                ]);
 
-                //test_take_status_id is the ID of 'Taking test'
-                $testParticipantTestTakeStatus = $testTake->getAttribute('test_take_status_id');
-
-                $testNotTakenId = TestTakeStatus::where('name', 'Test not taken')->value('id');
-
-                $testTake->load('testParticipants', 'testParticipants.schoolClass', 'testParticipants.schoolClass.schoolLocation');
                 foreach ($testTake->testParticipants as $testParticipant) {
-                    // If school location of the test participant is not activated, do not allow switching to state Taking test of Discussing.
-                    $activated = $testParticipant->schoolClass->schoolLocation->getAttribute('activated');
-
-                    //Disabled setting TestParticipant status to 3 if there is an recent heartbeat.
-                    // As this is done by the testparticipant actively the moment the student chooses a player
-                    //-Roan 20211008
-//                    if ($activated == true && $testParticipant->getAttribute('heartbeat_at') !== null && $testParticipant->getAttribute('heartbeat_at') >= $heartbeatDate) {
-//                        $testParticipant->setAttribute('test_take_status_id', $testParticipantTestTakeStatus);
-//                    } else {
-//                        $testParticipant->setAttribute('test_take_status_id', $testNotTakenId);
-//                    }
-                    $testParticipant->setAttribute('test_take_status_id', $testNotTakenId);
-
-                    $testParticipant->save();
-
-                    TestTakeOpenForInteraction::dispatch($testParticipant->uuid);
+                    AfterResponse::$performAction[] = fn() => TestTakeOpenForInteraction::dispatch($testParticipant->uuid);
                 }
             }
 
@@ -1393,4 +1372,9 @@ class TestTake extends BaseModel
         );
     }
 
+    public function startTake(): void
+    {
+        $this->test_take_status_id = TestTakeStatus::STATUS_TAKING_TEST;
+        $this->save();
+    }
 }

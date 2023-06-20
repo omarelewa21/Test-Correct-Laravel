@@ -101,6 +101,7 @@ textarea {
     background-repeat: no-repeat, repeat;
     background-position: right 1rem top 50%, 0 0;
     background-size: .75em auto, 100%;
+    transition: border-color 150ms ease-in-out;
 }
 
 .input-group select.disabled {

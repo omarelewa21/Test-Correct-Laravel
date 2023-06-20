@@ -104,7 +104,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         'keep_out_of_school_location_report',
         'main_phonenumber', 'internetaddress', 'show_exam_material', 'show_cito_quick_test_start', 'show_national_item_bank',
         'allow_wsc', 'allow_writing_assignment', 'license_type',
-        'auto_uwlr_import','auto_uwlr_import_status','auto_uwlr_last_import',
+        'auto_uwlr_import','auto_uwlr_import_status','auto_uwlr_last_import','allow_new_test_take_detail_page',
     ];
 
     /**

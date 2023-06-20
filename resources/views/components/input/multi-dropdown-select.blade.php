@@ -13,7 +13,7 @@
     >
         <input type="text"
                placeholder="{{ $title }}"
-               class="h-10 pl-4 pr-8 cursor-pointer placeholder-sysbase border rounded-10 focus:placeholder-primary focus:bg-primary/5 focus:outline-none hover:border-primary"
+               class="h-10 pl-4 pr-8 cursor-pointer placeholder-sysbase placeholder:text-base border rounded-10 focus:placeholder-primary focus:bg-primary/5 focus:outline-none hover:border-primary transition-colors"
                x-model="query"
                x-on:click.stop="if(!open) openDropdown()"
                x-bind:class="{
@@ -25,7 +25,7 @@
                x-on:blur="searchFocussed = false;"
         >
         <x-icon.chevron-small class="absolute right-5 transform transition-transform pointer-events-none"
-                              x-bind:class="open ? 'rotate-90'  : '-rotate-90'"
+                              x-bind:class="open ? '-rotate-90'  : 'rotate-90'"
                               opacity="1"
         />
     </div>
@@ -37,11 +37,11 @@
          style="min-width: 300px;height:max-content; max-height: 315px; box-shadow: var(--popover-shadow)"
     >
         <template x-for="option in options">
-            <div class="parent option flex-col flex cursor-pointer bold"
+            <div class="parent option flex-col flex cursor-pointer bold text-base"
                  x-bind:data-id="option.value"
                  x-bind:data-parent-id="option.value"
             >
-                <div class="flex w-full justify-between items-center pl-6 pr-4 "
+                <div class="flex w-full justify-between items-center pl-6 pr-4 transition-colors"
                      x-on:click="if(!parentDisabled(option)) subClick(option.value)"
                      x-bind:class="parentDisabled(option) ? 'opacity-50' : 'hover:text-primary hover:bg-primary/5 active:bg-primary/10'"
                      x-bind:title="parentDisabled(option) ? labels.parent_disabled : 'Open'"
@@ -71,7 +71,7 @@
 
                 <div x-show="openSubs.includes(option.value)" x-collapse.duration.150ms>
                     <template x-for="child in option.children">
-                        <div class="child option | flex gap-2 py-3 w-full pl-14 items-center"
+                        <div class="child option | flex gap-2 py-3 w-full pl-14 items-center transition-colors"
                              x-on:click.prevent.stop="if(child.disabled !== true) childClick($el, child)"
                              x-bind:data-id="child.value"
                              x-bind:data-parent-id="child.customProperties.parentId"

@@ -7,7 +7,10 @@ use Illuminate\Support\Facades\Blade;
 use Illuminate\View\AnonymousComponent;
 use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Http\Livewire\Teacher\TestTake\TestTake as TestTakeComponent;
+use tcCore\Http\Livewire\Teacher\TestTakeWarningModal;
 use tcCore\Invigilator;
+use tcCore\Log;
+use tcCore\TestKind;
 use tcCore\TestParticipant;
 use tcCore\TestTake as TestTakeModel;
 use tcCore\User;
@@ -16,7 +19,7 @@ class Planned extends TestTakeComponent
 {
     public $dropdownData = [];
     public $selected = [];
-    public Collection $invigilators;
+    public Collection $invigilatorUsers;
 
     public function mount(TestTakeModel $testTake)
     {
@@ -24,7 +27,7 @@ class Planned extends TestTakeComponent
         $this->setInvigilators();
     }
 
-    public function refresh()
+    public function refresh(): void
     {
         $this->fillGridData();
         $this->setStudentData();
@@ -39,10 +42,11 @@ class Planned extends TestTakeComponent
     public function fillGridData()
     {
         $this->testTake->load([
-            'test:id,name,uuid,subject_id',
+            'test:id,name,uuid,subject_id,test_kind_id',
             'test.subject:id,name',
             'scheduledByUser:id,name,name_first,name_suffix',
             'user:id,name,name_first,name_suffix,uuid',
+            'invigilators:test_take_id,user_id,uuid',
             'invigilatorUsers:id,name,name_first,name_suffix,uuid',
 
         ]);
@@ -90,6 +94,20 @@ class Planned extends TestTakeComponent
                 ),
             ],
         ];
+
+        if ($this->testTake->test->test_kind_id === TestKind::ASSIGNMENT_TYPE) {
+            array_splice(
+                $this->gridData,
+                1,
+                0,
+
+                [
+                    'title' => __('test-take.Beschikbaar tot'),
+                    'data'  => $this->testTake->time_end->format('d-m-Y'),
+                ]
+
+            );
+        }
     }
 
     protected function setStudentData(): void
@@ -104,34 +122,47 @@ class Planned extends TestTakeComponent
             ->each(function ($participant) {
                 $participant->name = $participant->user->name_full;
                 $participant->present = $this->activeParticipantUuids->contains($participant->user->uuid);
+                $participant->user->setAppends([]); /* Disables unnecessary append queries */
             });
     }
 
     private function setInvigilators(): void
     {
-        $this->invigilators = $this->testTake
+        $this->invigilatorUsers = $this->testTake
+            ->load([
+                'invigilators:test_take_id,user_id,uuid',
+                'invigilatorUsers:id,name,name_first,name_suffix,uuid',
+            ])
             ->invigilatorUsers
             ->map(function ($user) {
+                $invigilator = $this->testTake
+                    ->invigilators
+                    ->first(fn($invigilator) => $invigilator->user_id === $user->id);
+                $user->invigilator_uuid = $invigilator->uuid;
                 $user->displayName = $user->getFullNameWithAbbreviatedFirstName();
+
+                $user->setAppends([]);
+                $invigilator->setAppends([]);
+
                 return $user;
             });
     }
 
-    public function removeParticipant(TestParticipant $participant)
+    public function removeParticipant($participantUuid): void
     {
         try {
-            $participant->delete();
-        } catch (\Exception) {
+            TestParticipant::whereUuid($participantUuid)->delete();
+        } catch (\Exception $e) {
+            Log::error($e);
         }
     }
 
-    public function removeInvigilator(User $invigilatorUser): void
+    public function removeInvigilator($invigilatorUuid): void
     {
         try {
-            Invigilator::whereTestTakeId($this->testTake->id)
-                ->whereUserId($invigilatorUser->getKey())
-                ->delete();
-        } catch (\Exception) {
+            Invigilator::whereUuid($invigilatorUuid)->delete();
+        } catch (\Exception $e) {
+            Log::error($e);
         }
         $this->fillGridData();
         $this->setInvigilators();
@@ -142,8 +173,30 @@ class Planned extends TestTakeComponent
         return $this->testTake->time_start->isToday();
     }
 
-    public function startTake()
+    public function startTake(): void
     {
-        
+        $warnings = collect([
+            'browser_testing' => $this->testTake->allow_inbrowser_testing,
+            'guest_accounts' => $this->testTake->guest_accounts,
+            'participants_incomplete' => $this->participants->count() !== $this->activeParticipantUuids->count(),
+        ])->filter();
+
+        if ($warnings->isNotEmpty()) {
+            $this->emit(
+                'openModal',
+                'teacher.test-take-warning-modal',
+                ['testTake' => $this->testTakeUuid, 'warnings' => $warnings]
+            );
+            return;
+        }
+
+        $this->testTake->startTake();
+        CakeRedirectHelper::redirectToCake('planned.surveillance');
+    }
+
+    public function setDataPropertiesForTemplate(): void
+    {
+        $this->setStudentData();
+        $this->setInvigilators();
     }
 }

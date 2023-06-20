@@ -44,6 +44,7 @@ trait WithStudentTestTakes
                     $query->where('test_takes.time_end', '>=', now());
                 });
             })
+            ->whereNull('test_participants.deleted_at')
             ->orderBy($orderColumn, $orderDirection);
 
         return $paginateBy ? $takePlannedQuery->paginate($paginateBy) : $takePlannedQuery->take($amount)->get();

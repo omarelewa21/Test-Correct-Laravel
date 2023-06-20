@@ -620,6 +620,10 @@ document.addEventListener("alpine:init", () => {
             this.activeFiltersContainer = document.getElementById(filterContainer);
             this.multiple = multiple === 1;
             this.$nextTick(() => {
+                let helper = this.$root.querySelector('#text-length-helper');
+                let minWidth = helper.offsetWidth;
+                helper.style.display = 'none';
+
                 let choices = new Choices(
                     this.$root.querySelector("select"),
                     this.getChoicesConfig()
@@ -641,6 +645,7 @@ document.addEventListener("alpine:init", () => {
                     choices.setChoices(options);
 
                     this.handleActiveFilters(choices.getValue());
+                    this.handleContainerWidth(minWidth);
                 };
 
                 refreshChoices();
@@ -856,6 +861,11 @@ document.addEventListener("alpine:init", () => {
         },
         getRemoveEventName: function() {
             return "removeFrom" + this.$root.getAttribute("wire:key");
+        },
+        handleContainerWidth(minWidth) {
+            if(this.$root.classList.contains("super")) return
+            this.$root.querySelector('input.choices__input[type="search"]').style.width = minWidth + 16 +'px';
+            this.$root.querySelector('input.choices__input[type="search"]').style.minWidth = 'auto';
         }
     }));
 

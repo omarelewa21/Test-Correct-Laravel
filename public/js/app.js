@@ -6111,6 +6111,9 @@ document.addEventListener("alpine:init", function () {
         this.activeFiltersContainer = document.getElementById(filterContainer);
         this.multiple = multiple === 1;
         this.$nextTick(function () {
+          var helper = _this17.$root.querySelector('#text-length-helper');
+          var minWidth = helper.offsetWidth;
+          helper.style.display = 'none';
           var choices = new (choices_js__WEBPACK_IMPORTED_MODULE_1___default())(_this17.$root.querySelector("select"), _this17.getChoicesConfig());
           var refreshChoices = function refreshChoices() {
             var selection = _this17.multiple ? _this17.value : [_this17.value];
@@ -6131,6 +6134,7 @@ document.addEventListener("alpine:init", function () {
             });
             choices.setChoices(options);
             _this17.handleActiveFilters(choices.getValue());
+            _this17.handleContainerWidth(minWidth);
           };
           refreshChoices();
           _this17.$refs.select.addEventListener("choice", function (event) {
@@ -6357,6 +6361,11 @@ document.addEventListener("alpine:init", function () {
       },
       getRemoveEventName: function getRemoveEventName() {
         return "removeFrom" + this.$root.getAttribute("wire:key");
+      },
+      handleContainerWidth: function handleContainerWidth(minWidth) {
+        if (this.$root.classList.contains("super")) return;
+        this.$root.querySelector('input.choices__input[type="search"]').style.width = minWidth + 16 + 'px';
+        this.$root.querySelector('input.choices__input[type="search"]').style.minWidth = 'auto';
       }
     };
   });

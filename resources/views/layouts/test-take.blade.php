@@ -7,6 +7,7 @@
             setTimeout(() => urlCopied = false, 2000)
         }
      })"
+     x-on:keyup.escape="testCodePopup = false"
 >
     <div class="breadcrumbs | flex w-full border-b border-secondary sticky z-1 sticky-pseudo-bg  h-[50px] items-center">
         <div class="w-full mx-auto px-[90px] z-1">
@@ -29,7 +30,7 @@
         </div>
     </div>
 
-    <div class="w-full mx-auto px-[90px] border-b border-secondary bg-gradient-to-t from-white to-lightGrey"
+    <div class="test-info | w-full mx-auto px-[90px] border-b border-secondary bg-gradient-to-t from-white to-lightGrey"
          style="--tw-gradient-to: #F0F2F5 80%;--tw-gradient-from: #fff -20%;"
     >
         <div class="w-full">
@@ -55,17 +56,18 @@
         </div>
     </div>
 
-    <div class="flex flex-col w-full mx-auto px-[90px] py-10 gap-6">
+    <div class="students | flex flex-col w-full mx-auto px-[90px] py-10 gap-6">
         <div class="w-full flex flex-row-reverse gap-2">
             {{-- Use the 'order-' class to sort the buttons in the correct order --}}
-
             @hasSection('action-buttons')
                 @yield('action-buttons')
             @endif
+
             <livewire:actions.test-make-pdf :uuid="$this->testTake->test->uuid"
                                             :wire:key="'make-pdf-'.$this->testTake->test->uuid"
                                             class="order-4"
             />
+
             @if($this->testTake->testTakeCode)
                 <x-button.student x-on:click="testCodePopup = true" class="order-2">
                     <span>{{ $this->testTake->testTakeCode->displayCode }}</span>
@@ -84,7 +86,7 @@
          x-show="testCodePopup"
          x-cloak
          x-transition
-         x-on:click.outside="testCodePopup = false"
+         x-on:click.escape.outside="testCodePopup = false"
          style="box-shadow: 0 3px 6px 0 rgba(var(--system-base-rgb), 0.2);"
     >
         <span class="bold text-[64px] leading-none">{{ $this->testTake->testTakeCode->displayCode }}</span>
@@ -100,7 +102,7 @@
              class="absolute -top-4 text-sm bold px-2 py-0.5 bg-white/80 border border-secondary rounded"
              style="box-shadow:0 3px 3px 0 rgba(4, 31, 116, 0.1);"
         >
-            <span>toets URL gekopieerd</span>
+            <span>@lang('test-take.toets URL gekopieerd')</span>
         </div>
     </div>
     @endif

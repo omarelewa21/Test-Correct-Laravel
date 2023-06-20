@@ -48,7 +48,7 @@ abstract class TestTake extends TCComponent
     public function render()
     {
         if ($this->initialized) {
-            $this->setStudentData();
+            $this->setDataPropertiesForTemplate();
         }
         $template = class_basename(get_called_class());
         return view('livewire.teacher.test-take.' . $template)->layout('layouts.app-teacher');
@@ -56,6 +56,7 @@ abstract class TestTake extends TCComponent
     abstract public function refresh();
 
     abstract public function redirectToOverview();
+    abstract public function setDataPropertiesForTemplate(): void;
 
     public function back()
     {

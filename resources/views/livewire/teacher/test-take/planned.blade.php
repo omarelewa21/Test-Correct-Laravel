@@ -5,10 +5,10 @@
         @if($this->canStartTestTake())
             <x-button.cta wire:click="startTake">
                 <span>@lang('test-take.Afnemen')</span>
-                <x-icon.arrow/>
+                <x-icon.arrow />
             </x-button.cta>
         @else
-            <span class="bold text-lg">toetsafname is niet vandaag gepland</span>
+            <span class="bold text-lg">@lang('test-take.toetsafname is niet vandaag gepland')</span>
         @endif
     </div>
 @endsection
@@ -19,12 +19,13 @@
                   wire:click="startTake"
     >
         <span>@lang('test-take.Afnemen')</span>
-        <x-icon.arrow/>
+        <x-icon.arrow />
     </x-button.cta>
-    <x-button.icon wire:click="$emit('openModal','teacher.test-take-edit-modal', {testTake: '{{ $this->testTake->uuid }}' })"
-                   class="order-3"
+    <x-button.icon
+            wire:click="$emit('openModal','teacher.test-take-edit-modal', {testTake: '{{ $this->testTake->uuid }}' })"
+            class="order-3"
     >
-        <x-icon.settings/>
+        <x-icon.settings />
     </x-button.icon>
 @endsection
 
@@ -49,20 +50,23 @@
                 @if($this->initialized)
                     @forelse($this->participants as $participant)
                         <div @class([
-                            'filter-pill px-4 gap-2 h-10',
+                            'filter-pill px-4 gap-2 h-10 transition-opacity',
                             'disabled' => !$participant->present,
                             'enabled' => $participant->present
                             ])
-                             @unless($participant->present)
-                                 wire:click="removeParticipant(@js($participant->uuid))"
-                             @endif
                              wire:key="participant-{{ $participant->uuid }}-@js($participant->present)"
                         >
                             <span>{{ $participant->name }}</span>
-                            <x-icon.close-small />
+                            @if($participant->present)
+                                <x-icon.close-small />
+                            @else
+                                <x-icon.close-small wire:click="removeParticipant('{{ $participant->uuid }}')"
+                                                    x-on:click="$el.parentElement.style.opacity = '75%'"
+                                />
+                            @endif
                         </div>
                     @empty
-                        <span>@lang('general.unavailable')</span>
+                        <span>@lang('test-take.Geen studenten beschikbaar')</span>
                     @endforelse
                 @else
                     <div class="flex w-full h-full items-center justify-center">
@@ -83,18 +87,18 @@
              class="flex flex-col w-full pt-5"
         >
             <div class="flex w-full relative flex-wrap gap-2">
-                @forelse($this->invigilators as $invigilator)
-                    <div class="filter-pill px-4 gap-2 h-10 enabled transition-opacity"
-                         wire:key="invigilator-{{ $invigilator->uuid }}"
+                @forelse($this->invigilatorUsers as $invigilatorUser)
+                    <div class="filter-pill px-4 gap-2 h-10 disabled transition-opacity"
+                         wire:key="invigilator-{{ $invigilatorUser->uuid }}"
                     >
-                        <span>{{ $invigilator->getFullNameWithAbbreviatedFirstName() }}</span>
+                        <span class="text-sysbase">{{ $invigilatorUser->getFullNameWithAbbreviatedFirstName() }}</span>
                         <x-icon.close-small class="!cursor-pointer"
-                                            x-on:click="$el.style.opacity = '75%'"
-                                            wire:click="removeInvigilator(@js($invigilator->uuid))"
+                                            x-on:click="$el.parentElement.style.opacity = '75%'"
+                                            wire:click="removeInvigilator('{{ $invigilatorUser->invigilator_uuid }}')"
                         />
                     </div>
                 @empty
-                    <span>@lang('general.unavailable')</span>
+                    <span>@lang('test-take.Geen surveillanten beschikbaar')</span>
                 @endforelse
             </div>
 

@@ -1137,6 +1137,7 @@ textarea {
     background-repeat: no-repeat, repeat;
     background-position: right 1rem top 50%, 0 0;
     background-size: .75em auto, 100%;
+    transition: border-color 150ms ease-in-out;
 }
 
 .input-group select.disabled {
@@ -4239,18 +4240,24 @@ input[type=number] {
     margin-top: 8px;
     background-color: white;
     border-radius: 10px;
-    border-color: transparent;
+    border: none;
     box-shadow: var(--main-shadow);
-    min-width: 100px;
-    max-width: 250px;
+    min-width: 200px;
+    max-width: 350px;
     width: -moz-max-content;
     width: max-content;
     will-change: filter;
     z-index: 10;
 }
 
+.custom-choices .choices__list .choices__item.choices__item--choice {
+    font-size: 1rem;
+    font-weight: bold;
+    padding-block: 12px;
+}
 .custom-choices .choices__list .choices__item.choices__item--choice.choices__item--selectable {
     padding-right: 10px;
+    transition: color 150ms ease-in-out, background-color 150ms ease-in-out, border-color 150ms ease-in-out;
 }
 
 .custom-choices .choices__list .choices__item.choices__item--choice.is-selected.choices__item--selectable {
@@ -4258,9 +4265,13 @@ input[type=number] {
     font-weight: bold !important;
 }
 
-.custom-choices .choices__list .choices__item.choices__item--choice.choices__item--selectable.is-highlighted {
-    background-color: white;
+.custom-choices .choices__list .choices__item.choices__item--choice.choices__item--selectable.is-highlighted,
+.custom-choices .choices__list .choices__item.choices__item--choice.choices__item--selectable:hover {
+    background-color: var(--primary-opacity-05);
     color: var(--primary);
+}
+.custom-choices .choices__list .choices__item.choices__item--choice.choices__item--selectable:active {
+    background-color: var(--primary-opacity-10);
 }
 
 .custom-choices .choices__inner .choices__input::-moz-placeholder {
@@ -4275,6 +4286,8 @@ input[type=number] {
 
 .custom-choices .choices__inner .choices__input {
     margin-bottom: 0;
+    padding-top: 5px;
+    padding-left: 0;
 }
 
 .custom-choices .choices__list .choices__input {
@@ -4293,19 +4306,21 @@ input[type=number] {
 .custom-choices .choices__list[aria-expanded] .choices__item--selectable::before,
 .custom-choices .choices__list--dropdown .choices__item--selectable.is-selected::after,
 .custom-choices .choices__list[aria-expanded] .choices__item--selectable.is-selected::after {
+    --ccleft: 24px;
     content: '';
     position: absolute;
-    left: 10px;
+    left: var(--ccleft);
     top: 50%;
     transform: translateY(-50%);
-    width: 20px;
-    height: 20px;
-    border-radius: 0.375rem;
+    width: 24px;
+    height: 24px;
+    border-radius: 0.5rem;
+    transition: color 150ms ease-in-out, background-color 150ms ease-in-out, border-color 150ms ease-in-out;
 }
 
 .custom-choices .choices__list--dropdown .choices__item--selectable::before,
 .custom-choices .choices__list[aria-expanded] .choices__item--selectable::before {
-    background-color: var(--off-white);
+    background-color: rgba(var(--system-secondary-rgb), 0.5);
     border: 1px solid var(--blue-grey);
 }
 
@@ -4327,7 +4342,8 @@ input[type=number] {
 
 .custom-choices .choices__list--dropdown .choices__item--selectable,
 .custom-choices .choices__list[aria-expanded] .choices__item--selectable {
-    padding-left: 2.5rem;
+    --ccpadding-left: 3.5rem;
+    padding-left: var(--ccpadding-left);
 }
 
 .filter-pill {
@@ -4447,7 +4463,7 @@ input[type=number] {
 .super.custom-choices .choices__list--dropdown .choices__item--selectable.is-highlighted,
 .super.custom-choices .choices__list[aria-expanded] .choices__item--selectable.is-highlighted {
     color: var(--primary);
-    background-color: var(--primary-light);
+    background-color: var(--primary-opacity-05);
 }
 
 .super .is-open + .choices-select-chevron {
@@ -4458,8 +4474,12 @@ input[type=number] {
 }
 
 .custom-choices .choices__list .choices__item.child {
-    margin-left: 30px;
+    --ccpadding-left: calc(3.5rem + 24px);
 }
+.custom-choices .choices__list .choices__item.child::before {
+    --ccleft: calc(24px + 24px);
+}
+
 .flatpickr-calendar {
   background: transparent;
   opacity: 0;
@@ -9422,6 +9442,9 @@ video {
 .-top-3{
   top: -0.75rem;
 }
+.-top-4{
+  top: -1rem;
+}
 .-top-px{
   top: -1px;
 }
@@ -9559,9 +9582,6 @@ video {
 }
 .top-\[var\(--header-height\)\]{
   top: var(--header-height);
-}
-.-top-4{
-  top: -1rem;
 }
 .isolate{
   isolation: isolate;
@@ -11386,11 +11406,11 @@ video {
 .bg-white\/75{
   background-color: rgb(255 255 255 / 0.75);
 }
-.bg-white\/95{
-  background-color: rgb(255 255 255 / 0.95);
-}
 .bg-white\/80{
   background-color: rgb(255 255 255 / 0.8);
+}
+.bg-white\/95{
+  background-color: rgb(255 255 255 / 0.95);
 }
 .bg-opacity-0{
   --tw-bg-opacity: 0;
@@ -13020,6 +13040,16 @@ ul ul ul {
 
 .hide-scrollbar::-webkit-scrollbar {
     display: none;
+}
+
+.placeholder\:text-base::-moz-placeholder{
+  font-size: 1rem;
+  line-height: 1.5rem;
+}
+
+.placeholder\:text-base::placeholder{
+  font-size: 1rem;
+  line-height: 1.5rem;
 }
 
 .first\:rounded-l-lg:first-child{

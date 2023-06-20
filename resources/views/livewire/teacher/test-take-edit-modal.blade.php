@@ -3,7 +3,7 @@
         <h2>@lang('test-take.Wijzig instellingen')</h2>
     </x-slot:title>
     <x-slot:content>
-        <div class="flex flex-col gap-4">
+        <div class="flex flex-col gap-4 text-base">
             @if($errors->isNotEmpty())
                 <div class="flex flex-col gap-2.5 w-full">
                     @foreach($errors->all() as $error)
