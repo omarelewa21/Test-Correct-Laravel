@@ -38,7 +38,6 @@ class MultipleChoice extends TypeProvider
                 'question.answers'          => 'required|array|min:2',
                 'question.answers.*.score'  => [
                     'required',
-                    'min:0',
                     $this->instance->question['decimal_score'] ? 'numeric' : 'integer'
                 ],
                 'question.answers.*.answer' => 'required',
@@ -71,7 +70,7 @@ class MultipleChoice extends TypeProvider
             })
             ->toArray();
         unset($this->instance->question['answer']);
-        $this->instance->question['score'] = collect($this->instance->cmsPropertyBag['answerStruct'])->sum('score');
+        $this->instance->question['score'] = collect($this->instance->cmsPropertyBag['answerStruct'])->where('score','>',0)->sum('score');
         $this->instance->question['selectable_answers'] = collect(
             $this->instance->cmsPropertyBag['answerStruct']
         )->where('score', '>', 0)->count();
