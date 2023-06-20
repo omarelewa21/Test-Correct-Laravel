@@ -71,13 +71,21 @@ class Test extends BaseModel
      */
     protected $hidden = [];
 
-    protected $sortableColumns = ['id', 'name', 'abbreviation', 'subject', 'education_level', 'education_level_year', 'period_id', 'test_kind_id', 'status', 'author', 'question_count', 'kind'];
+    /**
+     * The attributes that should be purified.
+     * 
+     * @var array
+     */
+    protected $purifyAttributes = ['name', 'abbreviation', 'introduction'];
 
-    public static function boot()
+    protected $sortableColumns = ['id', 'name', 'abbreviation', 'subject', 'education_level', 'education_level_year', 'period_id', 'test_kind_id', 'status', 'author', 'question_count', 'kind'];
+    
+    public static function booted()
     {
-        parent::boot();
+        parent::booted();
 
         static::creating(function (Test $test) {
+            parent::creating($test);
             $test->draft = true;
         });
 

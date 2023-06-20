@@ -3,12 +3,31 @@
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use tcCore\Casts\PurifyAttributeCast;
 use tcCore\Lib\User\Roles;
+use tcCore\Http\Requests\Request;
 
 abstract class BaseModel extends Model
 {
-
     protected $exceptCloneModelOnly = [];
+    protected $purifyAttributes = [];
+
+    public static function booted()
+    {
+        static::retrieved(function ($model) {
+            foreach ($model->purifyAttributes as $attribute) {
+                $model->mergeCasts([
+                    $attribute => PurifyAttributeCast::class,
+                ]);
+            }
+        });
+
+        static::creating(function ($model) {
+            foreach ($model->purifyAttributes as $attribute) {
+                $model->mutateAttributeIfNeeded($attribute);
+            }
+        });
+    }
 
     public function hasAttribute($attr)
     {
@@ -113,5 +132,19 @@ abstract class BaseModel extends Model
             $enum[] = $v;
         }
         return $enum;
+    }
+
+    /**
+     * Mutate model attribute when not in cast
+     * 
+     * @param string $attribute 
+     */
+    public function mutateAttributeIfNeeded($attribute)
+    {
+        if(!in_array($attribute, $this->casts)){
+            $value = $this->$attribute;
+            Request::filter($value);
+            $this->setAttribute($attribute, $value);
+        }
     }
 }
