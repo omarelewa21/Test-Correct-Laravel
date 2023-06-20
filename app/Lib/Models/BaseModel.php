@@ -139,7 +139,7 @@ abstract class BaseModel extends Model
      * 
      * @param string $attribute 
      */
-    public function mutateAttributeIfNeeded($attribute)
+    protected function mutateAttributeIfNeeded($attribute)
     {
         if(!in_array($attribute, $this->casts)){
             $value = $this->$attribute;
