@@ -229,4 +229,13 @@ return [
     'no_items_search_filter'                                                                 => 'Er zijn geen items meer voor deze zoekfilters.',
     'Sorry, er ging iets fout, probeer het nogmaals'                                         => 'Sorry, er ging iets fout probeer het nogmaals',
     'half_point_validation_text'                                                             => 'Het is niet mogelijk om een antwoord optie een half punt toe te kennen als \'Halve puntenbeoordeling mogelijk\' uit staat.',
+    'numeric_validation_text'                                                                => 'Het aantal punten per antwoord dient numeriek te zijn en groter dan 0',
+    'text_formatting'                                                                        => 'Tekst opmaak opties',
+    'text_formatting_tooltip'                                                                => 'Hiermee hebben studenten de mogelijkheid om de opmaak van hun antwoord aan te passen.',
+    'mathml_functions'                                                                       => 'Formules en speciale tekens beschikbaar',
+    'mathml_functions_tooltip'                                                               => 'Hiermee kunnen studenten formules uitschrijven en gebruik maken van wiskundige symbolen.',
+    'restrict_word_amount'                                                                   => 'Max. aantal woorden',
+    'spell_check_available'                                                                  => 'Spellingscontrole beschikbaar',
+    'spell_check_available_tooltip'                                                          => 'Hiermee kunnen leerlingen tijdens hun toets gebruiken maken van spellingscontrole. Deze onderstreept alle woorden die niet correct zijn geschreven.',
+    'Antwoord opties voor student'                                                           => 'Antwoord opties voor student',
 ];

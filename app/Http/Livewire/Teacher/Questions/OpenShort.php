@@ -194,7 +194,8 @@ class OpenShort extends TCComponent implements QuestionCms
             'question.bloom.required'  => __('cms.bloom warning'),
             'question.miller.required' => __('cms.miller warning'),
             'question.answers.*.score' => [
-                'integer' => __('cms.half_point_validation_text')
+                'integer' => __('cms.half_point_validation_text'),
+                'numeric' => __('cms.numeric_validation_text'),
             ],
             'question.answers.*.*'     => __('cms.De gemarkeerde velden zijn verplicht'),
             'question.score'           => __('cms.Er dient minimaal 1 punt toegekend te worden'),
