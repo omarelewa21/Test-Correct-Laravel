@@ -80,12 +80,11 @@ class Test extends BaseModel
 
     protected $sortableColumns = ['id', 'name', 'abbreviation', 'subject', 'education_level', 'education_level_year', 'period_id', 'test_kind_id', 'status', 'author', 'question_count', 'kind'];
     
-    public static function booted()
+    public static function boot()
     {
-        parent::booted();
+        parent::boot();
 
         static::creating(function (Test $test) {
-            parent::creating($test);
             $test->draft = true;
         });
 
