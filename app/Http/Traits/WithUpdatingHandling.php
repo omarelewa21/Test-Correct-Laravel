@@ -34,13 +34,12 @@ trait WithUpdatingHandling
      */
     private function skipFieldTransformation($name)
     {
-        if(isset($this->preventFieldTransformation)){
-            if(is_array($this->preventFieldTransformation)){
-                return in_array($name, $this->preventFieldTransformation);
-            }
-            return is_bool($this->preventFieldTransformation) ? $this->preventFieldTransformation : false;
-        }
+        if (!isset($this->preventFieldTransformation)) 
+            return false;
 
-        return false;
+        if (is_array($this->preventFieldTransformation))
+            return in_array($name, $this->preventFieldTransformation);
+
+        return is_bool($this->preventFieldTransformation) ? $this->preventFieldTransformation : false;
     }
 }
