@@ -1557,6 +1557,7 @@ document.addEventListener("alpine:init", () => {
         },
         clickButton(target) {
             this.activateButton(target);
+            this.markInputElementsClean();
 
             const oldValue = this.value;
             this.value = target.firstElementChild.dataset.id;
