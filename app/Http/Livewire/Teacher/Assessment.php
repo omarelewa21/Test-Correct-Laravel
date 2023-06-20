@@ -65,6 +65,8 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     public bool $isCoLearningScore = false;
     public bool $skipNoDiscrepancies = false;
 
+    public bool $webSpellCheckerEnabled;
+
     /* Lifecycle methods */
     protected function getListeners(): array
     {
@@ -90,6 +92,8 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         $this->setTemplateVariables();
 
         $this->createAnswerRatingsForUnansweredQuestions();
+
+        $this->setWebspellcheckerEnabled();
     }
 
     public function booted(): void
@@ -1339,5 +1343,10 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             $this->loadQuestion(position: $this->getNavigationValueForQuestion($newAnswer->question), action: $action)
         );
         return true;
+    }
+
+    public function setWebspellcheckerEnabled(): void
+    {
+        $this->webSpellCheckerEnabled = auth()->user()->schoolLocation()->value('allow_wsc');
     }
 }
