@@ -24,7 +24,7 @@ abstract class BaseModel extends Model
 
         static::creating(function ($model) {
             foreach ($model->purifyAttributes as $attribute) {
-                $model->mutateAttributeIfNeeded($attribute);
+                $model->purifyAttributeIfNeeded($attribute);
             }
         });
     }
@@ -135,11 +135,11 @@ abstract class BaseModel extends Model
     }
 
     /**
-     * Mutate model attribute when not in cast
+     * purify model attribute when not in cast
      * 
      * @param string $attribute 
      */
-    protected function mutateAttributeIfNeeded($attribute)
+    protected function purifyAttributeIfNeeded($attribute)
     {
         if(!in_array($attribute, $this->casts)){
             $value = $this->$attribute;
