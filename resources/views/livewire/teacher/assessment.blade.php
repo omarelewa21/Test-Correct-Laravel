@@ -135,7 +135,7 @@
                                           'info' => $this->currentAnswerCoLearningRatingsHasNoDiscrepancy(),
                                           ])
                         >
-                            <x-icon.co-learning class="min-w-min" />
+                            <x-icon.co-learning class="min-w-[1rem]" />
                             <span class="bold">@lang($this->getDiscrepancyTranslationKey())</span>
                         </div>
                     @endif
