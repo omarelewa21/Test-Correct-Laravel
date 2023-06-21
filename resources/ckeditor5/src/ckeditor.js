@@ -141,7 +141,8 @@ function SpecialCharactersTLC(editor) {
         {title: 'U accent grave', character: 'ù'},
         {title: 'E accent grave', character: 'è️'},
         {title: 'A accent grave', character: 'à'},
-        {title: 'I accent grave', character: 'ì️'}
+        {title: 'I accent grave', character: 'ì️'},
+        {title: 'Ohm', character: 'Ω'},
     ]);
 }
 
