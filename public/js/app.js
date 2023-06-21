@@ -9693,7 +9693,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "fc18ed69b446aeb8c8a5",
+  key: "346b9b2cf30ab766e6a6",
   cluster: "eu",
   forceTLS: true
 });
@@ -16095,6 +16095,7 @@ RichTextEditor = {
     var _this6 = this;
     return this.createTeacherEditor(parameterBag, function (editor) {
       WebspellcheckerTlc.lang(editor, parameterBag.lang);
+      WebspellcheckerTlc.handleSpellCheckerOnOff(editor, parameterBag.isSpellCheckerEnabled);
       _this6.setupWordCounter(editor, parameterBag);
       _this6.setReadOnly(editor);
     });
@@ -16619,6 +16620,33 @@ WebspellcheckerTlc = {
         console.dir(e);
       }
     }, 1000);
+  },
+  /**
+   * This function is used to handle the spellchecker on/off button and store it in user session 
+   * @param {object} editor
+   */
+  handleSpellCheckerOnOff: function handleSpellCheckerOnOff(editor) {
+    var initialStatus = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+    spellChecker = editor.plugins.get('WProofreader');
+    spellChecker.isEnabled = initialStatus; // set initial status
+    this.captureSpellCheckerOnOff(spellChecker);
+  },
+  captureSpellCheckerOnOff: function captureSpellCheckerOnOff(spellChecker) {
+    var _this = this;
+    currentState = spellChecker.isEnabled;
+    spellChecker.on('change', function () {
+      if (spellChecker.isEnabled != currentState) {
+        currentState = spellChecker.isEnabled;
+        _this.storeIsSpellCheckerOnOffInSession(currentState);
+      }
+    });
+  },
+  storeIsSpellCheckerOnOffInSession: function storeIsSpellCheckerOnOffInSession(isSpellCheckerEnabled) {
+    window.dispatchEvent(new CustomEvent('store-to-session', {
+      'detail': {
+        isSpellCheckerEnabled: isSpellCheckerEnabled
+      }
+    }));
   }
 };
 
@@ -68119,6 +68147,32 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./resources/css/app_pdf.css":
+/*!***********************************!*\
+  !*** ./resources/css/app_pdf.css ***!
+  \***********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+// extracted by mini-css-extract-plugin
+
+
+/***/ }),
+
+/***/ "./resources/css/print-test-pdf.css":
+/*!******************************************!*\
+  !*** ./resources/css/print-test-pdf.css ***!
+  \******************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+// extracted by mini-css-extract-plugin
+
+
+/***/ }),
+
 /***/ "./node_modules/plyr/dist/plyr.min.js":
 /*!********************************************!*\
   !*** ./node_modules/plyr/dist/plyr.min.js ***!
@@ -77425,7 +77479,9 @@ module.exports = JSON.parse('{"name":"axios","version":"0.21.4","description":"P
 /******/ 		// [resolve, reject, Promise] = chunk loading, 0 = chunk loaded
 /******/ 		var installedChunks = {
 /******/ 			"/js/app": 0,
-/******/ 			"css/app": 0
+/******/ 			"css/app": 0,
+/******/ 			"css/app_pdf": 0,
+/******/ 			"css/print-test-pdf": 0
 /******/ 		};
 /******/ 		
 /******/ 		// no chunk on demand loading
@@ -77475,8 +77531,10 @@ module.exports = JSON.parse('{"name":"axios","version":"0.21.4","description":"P
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module depends on other loaded chunks and execution need to be delayed
-/******/ 	__webpack_require__.O(undefined, ["css/app"], () => (__webpack_require__("./resources/js/app.js")))
-/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["css/app"], () => (__webpack_require__("./resources/css/app.css")))
+/******/ 	__webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/js/app.js")))
+/******/ 	__webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/css/app.css")))
+/******/ 	__webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/css/app_pdf.css")))
+/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/css/print-test-pdf.css")))
 /******/ 	__webpack_exports__ = __webpack_require__.O(__webpack_exports__);
 /******/ 	
 /******/ })()
