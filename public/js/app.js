@@ -16059,6 +16059,7 @@ RichTextEditor = {
     parameterBag.pluginsToAdd = ['Selection'];
     return this.createTeacherEditor(parameterBag, function (editor) {
       WebspellcheckerTlc.lang(editor, parameterBag.lang);
+      WebspellcheckerTlc.handleSpellCheckerOnOff(editor, parameterBag.isSpellCheckerEnabled);
       _this2.setReadOnly(editor);
       window.editor = editor;
     });
@@ -16068,6 +16069,7 @@ RichTextEditor = {
     parameterBag.pluginsToAdd = ["Completion"];
     return this.createTeacherEditor(parameterBag, function (editor) {
       WebspellcheckerTlc.lang(editor, parameterBag.lang);
+      WebspellcheckerTlc.handleSpellCheckerOnOff(editor, parameterBag.isSpellCheckerEnabled);
       _this3.setReadOnly(editor);
     });
   },
