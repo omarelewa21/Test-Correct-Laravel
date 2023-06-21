@@ -49,6 +49,31 @@ WebspellcheckerTlc = {
                 console.dir(e);
             }
         }, 1000);
-    }
+    },
 
+    /**
+     * This function is used to handle the spellchecker on/off button and store it in user session 
+     * @param {object} editor
+     */
+    handleSpellCheckerOnOff: function(editor, initialStatus=true){
+        spellChecker = editor.plugins.get('WProofreader');
+        spellChecker.isEnabled = initialStatus;         // set initial status
+        this.captureSpellCheckerOnOff(spellChecker);
+    },
+    captureSpellCheckerOnOff: function(spellChecker){
+        currentState = spellChecker.isEnabled;
+        spellChecker.on('change', () => {
+            if(spellChecker.isEnabled != currentState){
+                currentState = spellChecker.isEnabled;
+                this.storeIsSpellCheckerOnOffInSession(currentState);
+            }
+        });
+    },
+    storeIsSpellCheckerOnOffInSession: function(isSpellCheckerEnabled){
+        window.dispatchEvent(
+            new CustomEvent('store-to-session', {'detail': {
+                isSpellCheckerEnabled: isSpellCheckerEnabled
+            }})
+        );
+    }
 }
