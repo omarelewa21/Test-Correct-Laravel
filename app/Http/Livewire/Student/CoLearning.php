@@ -4,6 +4,7 @@ namespace tcCore\Http\Livewire\Student;
 
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Redirector;
 use tcCore\AnswerRating;
 use tcCore\Events\TestTakeChangeDiscussingQuestion;
 use tcCore\Events\CoLearningForceTakenAway;
@@ -95,7 +96,9 @@ class CoLearning extends TCComponent
             $this->pollingFallbackActive = true;
         }
 
-        $this->redirectIfTestTakeInIncorrectState();
+        if($this->redirectIfTestTakeInIncorrectState() instanceof Redirector) {
+            return false;
+        };
 
         $this->testParticipant = $this->testTake->testParticipants()
             ->where('user_id', auth()->id())
@@ -122,7 +125,9 @@ class CoLearning extends TCComponent
 
     public function booted()
     {
-        $this->redirectIfTestTakeInIncorrectState();
+        if($this->redirectIfTestTakeInIncorrectState() instanceof Redirector) {
+            return false;
+        };
     }
 
     public function redirectToTestTakesInReview()
@@ -133,6 +138,11 @@ class CoLearning extends TCComponent
     public function redirectToTestTakesToBeDiscussed()
     {
         return redirect()->route('student.test-takes', ['tab' => 'discuss']);
+    }
+
+    public function redirectToWaitingRoom()
+    {
+        return redirect()->route('student.waiting-room', ['take' => $this->testTake->uuid]);
     }
 
     public function getEnableNextQuestionButtonProperty(): bool
@@ -392,8 +402,11 @@ class CoLearning extends TCComponent
         return (!$this->nextAnswerAvailable && isset($this->answerRating->rating));
     }
 
-    private function redirectIfTestTakeInIncorrectState()
+    private function redirectIfTestTakeInIncorrectState() : Redirector|false
     {
+        if ($this->testTake->discussing_question_id === null) {
+            return $this->redirectToWaitingRoom();
+        }
         if ($this->testTake->discussion_type !== 'OPEN_ONLY') {
             return $this->redirectToTestTakesToBeDiscussed();
         }
@@ -403,11 +416,14 @@ class CoLearning extends TCComponent
         if ($this->testTake->test_take_status_id > TestTakeStatus::STATUS_DISCUSSING) {
             return $this->redirectToTestTakesInReview();
         }
+        return false;
     }
 
     public function updateHeartbeat($skipRender = true)
     {
-        $this->redirectIfTestTakeInIncorrectState();
+        if($this->redirectIfTestTakeInIncorrectState() instanceof Redirector) {
+            return false;
+        };
 
         if ($this->testTake->discussing_question_id !== $this->discussingQuestionId) {
             return $this->goToActiveQuestion();

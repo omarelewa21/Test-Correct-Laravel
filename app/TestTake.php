@@ -257,8 +257,6 @@ class TestTake extends BaseModel
                         $testParticipant->save();
                     }
                     AnswerChecker::checkAnswerOfParticipant($testParticipant);
-
-                    AfterResponse::$performAction[] = fn() => TestTakeOpenForInteraction::dispatch($testParticipant->uuid);
                 }
             }
             if (($testTake->testTakeStatus->name === 'Discussing' && $testTake->getAttribute('discussing_question_id') != $testTake->getOriginal('discussing_question_id'))
@@ -270,6 +268,7 @@ class TestTake extends BaseModel
                         $inactiveTestParticipant[] = $testParticipant->getAttribute('user_id');
                     }
 
+                    AfterResponse::$performAction[] = fn() => TestTakeOpenForInteraction::dispatch($testParticipant->uuid);
                 }
                 AnswerRating::where('test_take_id', $testTake->getKey())->whereIn('answer_id', function ($query) use ($testTake) {
                     $answer = new Answer();
