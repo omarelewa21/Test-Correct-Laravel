@@ -2424,17 +2424,23 @@ document.addEventListener("alpine:init", () => {
                 return;
             }
             this.setFocusTracking();
+            console.log('waarom niet3')
 
             document.addEventListener('comment-color-updated', async (event) => {
+                console.log('coolor1')
+
                 let styleTagElement = document.querySelector('#commentMarkerStyles');
                 styleTagElement.innerHTML = await this.$wire.updateCommentColor(event.detail);
             });
 
             document.addEventListener('comment-emoji-updated', async (event) => {
+                console.log('emoji')
                 let styleTagElement = document.querySelector('#commentMarkerStyles');
 
                 styleTagElement.innerHTML = await this.$wire.updateCommentEmoji(event.detail);
             });
+
+            document.addEventListener('new-comment-color-updated', (event) => this.updateNewCommentMarkerStyles(event?.detail?.color));
 
 
             document.addEventListener('mousedown', (e) => {
@@ -2452,17 +2458,14 @@ document.addEventListener("alpine:init", () => {
             })
         },
         async updateCommentThread(element) {
-            console.log(this.answerEditorId);
-
             let answerFeedbackCardElement = element.closest('.answer-feedback-card');
-            console.log(answerFeedbackCardElement);
 
             let answerFeedbackUuid = answerFeedbackCardElement.dataset.uuid;
 
             let comment_color = answerFeedbackCardElement.querySelector('.comment-color-picker input:checked')?.dataset?.color;
-            //todo fix getting checked emoji
-            let comment_emoji = answerFeedbackCardElement.querySelector('.comment-emoji-picker input:checked')?.dataset?.color;
+            let comment_emoji = answerFeedbackCardElement.querySelector('.comment-emoji-picker input:checked')?.dataset?.emoji;
 
+            console.log(comment_color);
             console.log(comment_emoji);
 
             const answerFeedbackEditor = ClassicEditors['update-'+answerFeedbackUuid];
@@ -2481,10 +2484,7 @@ document.addEventListener("alpine:init", () => {
             let comment_color = addCommentElement.querySelector('.comment-color-picker input:checked')?.dataset?.color;
 
             //todo fix getting checked emoji
-            let comment_emoji = addCommentElement.querySelector('.comment-emoji-picker input:checked')?.dataset?.color;
-            console.log(comment_color);
-            console.log(comment_emoji);
-
+            let comment_emoji = addCommentElement.querySelector('.comment-emoji-picker input:checked')?.dataset?.emoji;
 
             const answerEditor = ClassicEditors[this.answerEditorId];
             const feedbackEditor = ClassicEditors[this.feedbackEditorId];
@@ -2497,10 +2497,10 @@ document.addEventListener("alpine:init", () => {
                 console.log(answerEditor.editing.view.hasDomSelection, 'hasselectgion')
                 console.log(answerEditor.plugins.get( 'CommentsRepository' ).activeCommentThread, 'hasselectgion2')
 
-                if(answerEditor.editing.view.hasDomSelection && false) {
+                if(answerEditor.plugins.get( 'CommentsRepository' ).activeCommentThread) {
 
                     //created feedback record data
-                    var feedback = await this.$wire.createNewComment();
+                    var feedback = await this.$wire.createNewComment([]);
 
                     await answerEditor.execute( 'addCommentThread', { threadId: feedback.threadId } );
 
@@ -2552,6 +2552,13 @@ document.addEventListener("alpine:init", () => {
                 commentsRepository.getCommentThread(threadId).remove();
                 const answerText = answerEditor.getData();
                 await this.$wire.updateAnswer(answerText);
+
+                //delete icon positioned over the ckeditor
+                let deletedThreadIcon = document.querySelector('.answer-feedback-comment-icons #icon-'+threadId);
+                if(deletedThreadIcon) {
+                    deletedThreadIcon.remove();
+                }
+
                 return;
             }
             console.log('failed to delete answer feedback');
@@ -2567,6 +2574,15 @@ document.addEventListener("alpine:init", () => {
 
                 el.setAttribute('data-uuid', thread.uuid);
                 el.setAttribute('data-threadId', thread.threadId);
+
+                let iconTemplate = null;
+                if(thread.iconName === null) {
+                    iconTemplate = document.querySelector('#default-icon')
+                } else {
+                    iconTemplate = document.querySelector('#'+thread.iconName.replace('icon.', ''))
+                }
+
+                el.appendChild(document.importNode(iconTemplate.content, true));
 
                 commentThreadElements = [...commentMarkers, el];
 
@@ -2592,6 +2608,20 @@ document.addEventListener("alpine:init", () => {
         clearHoveringComment() {
             this.hoveringComment = null;
             this.setHoveringCommentMarkerStyle(true);
+        },
+        updateNewCommentMarkerStyles(color) {
+            const styleTag = document.querySelector('#addFeedbackMarkerStyles');
+
+            let colorCode = 'rgba(var(--primary-rgb), 0.4)';
+            if(color) {
+                colorCode = color;
+            }
+            styleTag.innerHTML = '\n' +
+                '        :root {\n' +
+                '            --active-comment-color: '+ colorCode +'; /* default color, overwrite when color picker is used */\n' +
+                '            --ck-color-comment-marker-active: var(--active-comment-color);\n' +
+                '        }\n' +
+                '    ';
         },
         setHoveringCommentMarkerStyle(removeStyling = false) {
             const styleTag = document.querySelector('#hoveringCommentMarkerStyle');
@@ -2647,6 +2677,16 @@ document.addEventListener("alpine:init", () => {
                 answerEditor.ui.focusTracker.add( feedbackEditorSaveButton );
                 answerEditor.ui.focusTracker.add( feedbackEditorCancelButton );
 
+                //keep focus when clicking on the emoji and color pickers
+                document.querySelectorAll('.answer-feedback-add-comment .emoji-picker-radio, .answer-feedback-add-comment .color-picker-radio input').forEach((element) => {
+                    answerEditor.ui.focusTracker.add( element );
+                    feedbackEditor.ui.focusTracker.add( element );
+                })
+                document.querySelectorAll('.answer-feedback-add-comment .emoji-picker-radio, .answer-feedback-add-comment .emoji-picker-radio input').forEach((element) => {
+                    answerEditor.ui.focusTracker.add( element );
+                    feedbackEditor.ui.focusTracker.add( element );
+                })
+
                 feedbackEditor.ui.focusTracker.add( answerEditor.sourceElement.parentElement.querySelector('.ck.ck-content') );
                 feedbackEditor.ui.focusTracker.add( feedbackEditorSaveButton );
                 feedbackEditor.ui.focusTracker.add( feedbackEditorCancelButton );
@@ -2680,6 +2720,25 @@ document.addEventListener("alpine:init", () => {
                 }
             }
             return name;
+        },
+        resetAddNewAnswerFeedback() {
+            //find default/blue color picker and enable it.
+            let defaultColorPicker = document.querySelector('.answer-feedback-add-comment .comment-color-picker [data-color="blue"]');
+            defaultColorPicker.checked = true;
+
+            //find checked emoji picker, uncheck
+            let checkedEmojiPicker = document.querySelector('.answer-feedback-add-comment .comment-emoji-picker input:checked');
+            if (checkedEmojiPicker !== null) {
+                checkedEmojiPicker.checked = false;
+            }
+
+            //answerFeedbackeditor reset text
+            const answerEditor = ClassicEditors[this.feedbackEditorId];
+            answerEditor.setData('<p></p>');
+
+            this.updateNewCommentMarkerStyles(null);
+
+            //todo does annuleren close the accordion?
         }
     }));
 

@@ -8777,6 +8777,8 @@ answer-feedback-card-editing {}
     /* hide input */
     position: absolute;
     opacity: 0;
+    width: 28px;
+    height: 28px;
     cursor: pointer;
 }
 
@@ -8791,7 +8793,8 @@ answer-feedback-card-editing {}
 
 .emoji-picker-radio input:checked ~ .emoji-picker-circle {
     background-color: rgba(var(--primary-rgb), 0.15);
-    border: 2px solid var(--primary);
+    border: 2px solid var(--light-grey);
+    outline: 2px solid var(--teacher-Primary);
     border-radius: 6px;
     box-shadow: inset 0 0 0 2px var(--all-white), 0 0 0 2px var(--teacher-primary);
 }
@@ -8807,6 +8810,16 @@ answer-feedback-card-editing {}
     left: 0;
     height: 1.5rem;
     width: 1.5rem;
+    border: 2px solid transparent;
+    outline: 2px solid transparent;
+}
+
+.emoji-picker-radio svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin-left: -2px;
+    margin-top: -2px;
 }
 
 .color-picker-radio .color-picker-circle {
@@ -8821,6 +8834,14 @@ answer-feedback-card-editing {}
     border: 2px solid var(--all-Base);
     outline: 2px solid transparent;
 
+}
+
+
+.emoji-picker-radio svg,
+.emoji-picker-radio span,
+.color-picker-radio svg,
+.color-picker-radio span {
+    pointer-events: none;
 }
 /*
 ! tailwindcss v3.3.2 | MIT License | https://tailwindcss.com
@@ -10160,6 +10181,9 @@ video {
 }
 .h-\[275px\]{
   height: 275px;
+}
+.h-\[28px\]{
+  height: 28px;
 }
 .h-\[300px\]{
   height: 300px;

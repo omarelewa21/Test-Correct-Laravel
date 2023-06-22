@@ -1377,7 +1377,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         );
         //update answer text
         $this->updateAnswer(
-            answer: $data['answer']
+            answer: $answer
         );
 
         $this->getSortedAnswerFeedback();
@@ -1421,9 +1421,13 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         Answer::updateJson($this->currentAnswer->getKey(), $purifiedAnswerTextJson);
     }
 
-    public function updateAnswerFeedback($uuid, $message)
+    public function updateAnswerFeedback($uuid, $message, $comment_color = null, $comment_emoji = null)
     {
-        AnswerFeedback::whereUuid($uuid)->update(['message' => $message]);
+        AnswerFeedback::whereUuid($uuid)->update([
+            'message' => $message,
+            'comment_color' => $comment_color,
+            'comment_emoji' => $comment_emoji,
+        ]);
     }
 
     public function getSortedAnswerFeedback()
@@ -1438,6 +1442,24 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     }
 
     public function getCommentMarkerStylesProperty() : string
+    {
+        if(!isset($this->answerFeedback)) {
+            return '';
+        }
+
+        return $this->answerFeedback->reduce(function ($carry, $feedback) {
+            return $carry = $carry . <<<STYLE
+                p .ck-comment-marker[data-comment="{$feedback->thread_id}"]{
+                            --ck-color-comment-marker: {$feedback->getColor(0.4)} !important;
+                            --ck-color-comment-marker-border: {$feedback->getColor()} !important;
+                            --ck-color-comment-marker-active: {$feedback->getColor(0.4)} !important;
+                        }
+            STYLE;
+
+        }, '');
+    }
+
+    public function getInitialCommentMarkerStylesProperty() : string
     {
         if(!isset($this->answerFeedback)) {
             return '';
@@ -1480,7 +1502,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             ->update(['comment_emoji' => $data['emoji']]);
 
         $this->getSortedAnswerFeedback();
-
+logger($this->commentMarkerStyles);
         return $this->commentMarkerStyles;
     }
 

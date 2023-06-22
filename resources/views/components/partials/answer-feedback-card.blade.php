@@ -35,19 +35,20 @@
             </div>
         </div>
         <div class="flex items-center justify-center -mr-[14px]">
-                                                <span class="flex items-center justify-center w-9 h-[34px]">
+            <span class="flex items-center justify-center w-9 h-[34px]">
 
-                                                    @if($comment->comment_emoji)
-                                                        <x-dynamic-component
-                                                                :component="\tcCore\Http\Enums\CommentEmoji::tryFrom($comment->comment_emoji)?->getIconComponentName()">
-                                                        </x-dynamic-component>
-                                                    @endif
+                @if($comment->comment_emoji)
+                    <x-dynamic-component
+                            :component="\tcCore\Http\Enums\CommentEmoji::tryFrom($comment->comment_emoji)?->getIconComponentName()">
+                    </x-dynamic-component>
+                @endif
 
-                                                </span>
+            </span>
             <x-button.options id="comment-options-button-{{$comment->uuid}}"
                               context="answer-feedback"
                               :uuid="$comment->uuid"
                               size="sm"
+                              context-data-json="{!! json_encode(['threadId' => $comment->thread_id]) !!}"
             >
             </x-button.options>
         </div>

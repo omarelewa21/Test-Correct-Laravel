@@ -9035,18 +9035,20 @@ document.addEventListener("alpine:init", function () {
                 return _context20.abrupt("return");
               case 3:
                 _this56.setFocusTracking();
+                console.log('waarom niet3');
                 document.addEventListener('comment-color-updated', /*#__PURE__*/function () {
                   var _ref4 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee18(event) {
                     var styleTagElement;
                     return _regeneratorRuntime().wrap(function _callee18$(_context18) {
                       while (1) switch (_context18.prev = _context18.next) {
                         case 0:
+                          console.log('coolor1');
                           styleTagElement = document.querySelector('#commentMarkerStyles');
-                          _context18.next = 3;
+                          _context18.next = 4;
                           return _this56.$wire.updateCommentColor(event.detail);
-                        case 3:
-                          styleTagElement.innerHTML = _context18.sent;
                         case 4:
+                          styleTagElement.innerHTML = _context18.sent;
+                        case 5:
                         case "end":
                           return _context18.stop();
                       }
@@ -9062,12 +9064,13 @@ document.addEventListener("alpine:init", function () {
                     return _regeneratorRuntime().wrap(function _callee19$(_context19) {
                       while (1) switch (_context19.prev = _context19.next) {
                         case 0:
+                          console.log('emoji');
                           styleTagElement = document.querySelector('#commentMarkerStyles');
-                          _context19.next = 3;
+                          _context19.next = 4;
                           return _this56.$wire.updateCommentEmoji(event.detail);
-                        case 3:
-                          styleTagElement.innerHTML = _context19.sent;
                         case 4:
+                          styleTagElement.innerHTML = _context19.sent;
+                        case 5:
                         case "end":
                           return _context19.stop();
                       }
@@ -9077,6 +9080,10 @@ document.addEventListener("alpine:init", function () {
                     return _ref5.apply(this, arguments);
                   };
                 }());
+                document.addEventListener('new-comment-color-updated', function (event) {
+                  var _event$detail;
+                  return _this56.updateNewCommentMarkerStyles(event === null || event === void 0 ? void 0 : (_event$detail = event.detail) === null || _event$detail === void 0 ? void 0 : _event$detail.color);
+                });
                 document.addEventListener('mousedown', function (e) {
                   if (_this56.activeComment === null) {
                     return;
@@ -9087,7 +9094,7 @@ document.addEventListener("alpine:init", function () {
                   }
                   _this56.clearActiveComment();
                 });
-              case 7:
+              case 9:
               case "end":
                 return _context20.stop();
             }
@@ -9102,22 +9109,21 @@ document.addEventListener("alpine:init", function () {
           return _regeneratorRuntime().wrap(function _callee21$(_context21) {
             while (1) switch (_context21.prev = _context21.next) {
               case 0:
-                console.log(_this57.answerEditorId);
                 answerFeedbackCardElement = element.closest('.answer-feedback-card');
-                console.log(answerFeedbackCardElement);
                 answerFeedbackUuid = answerFeedbackCardElement.dataset.uuid;
-                comment_color = (_answerFeedbackCardEl = answerFeedbackCardElement.querySelector('.comment-color-picker input:checked')) === null || _answerFeedbackCardEl === void 0 ? void 0 : (_answerFeedbackCardEl2 = _answerFeedbackCardEl.dataset) === null || _answerFeedbackCardEl2 === void 0 ? void 0 : _answerFeedbackCardEl2.color; //todo fix getting checked emoji
-                comment_emoji = (_answerFeedbackCardEl3 = answerFeedbackCardElement.querySelector('.comment-emoji-picker input:checked')) === null || _answerFeedbackCardEl3 === void 0 ? void 0 : (_answerFeedbackCardEl4 = _answerFeedbackCardEl3.dataset) === null || _answerFeedbackCardEl4 === void 0 ? void 0 : _answerFeedbackCardEl4.color;
+                comment_color = (_answerFeedbackCardEl = answerFeedbackCardElement.querySelector('.comment-color-picker input:checked')) === null || _answerFeedbackCardEl === void 0 ? void 0 : (_answerFeedbackCardEl2 = _answerFeedbackCardEl.dataset) === null || _answerFeedbackCardEl2 === void 0 ? void 0 : _answerFeedbackCardEl2.color;
+                comment_emoji = (_answerFeedbackCardEl3 = answerFeedbackCardElement.querySelector('.comment-emoji-picker input:checked')) === null || _answerFeedbackCardEl3 === void 0 ? void 0 : (_answerFeedbackCardEl4 = _answerFeedbackCardEl3.dataset) === null || _answerFeedbackCardEl4 === void 0 ? void 0 : _answerFeedbackCardEl4.emoji;
+                console.log(comment_color);
                 console.log(comment_emoji);
                 answerFeedbackEditor = ClassicEditors['update-' + answerFeedbackUuid];
-                _context21.next = 10;
+                _context21.next = 9;
                 return _this57.$wire.call('updateExistingComment', {
                   uuid: answerFeedbackUuid,
                   message: answerFeedbackEditor.getData()
                 });
-              case 10:
+              case 9:
                 _this57.setEditingComment(null);
-              case 11:
+              case 10:
               case "end":
                 return _context21.stop();
             }
@@ -9134,9 +9140,7 @@ document.addEventListener("alpine:init", function () {
               case 0:
                 addCommentElement = _this58.$el.closest('.answer-feedback-add-comment');
                 comment_color = (_addCommentElement$qu = addCommentElement.querySelector('.comment-color-picker input:checked')) === null || _addCommentElement$qu === void 0 ? void 0 : (_addCommentElement$qu2 = _addCommentElement$qu.dataset) === null || _addCommentElement$qu2 === void 0 ? void 0 : _addCommentElement$qu2.color; //todo fix getting checked emoji
-                comment_emoji = (_addCommentElement$qu3 = addCommentElement.querySelector('.comment-emoji-picker input:checked')) === null || _addCommentElement$qu3 === void 0 ? void 0 : (_addCommentElement$qu4 = _addCommentElement$qu3.dataset) === null || _addCommentElement$qu4 === void 0 ? void 0 : _addCommentElement$qu4.color;
-                console.log(comment_color);
-                console.log(comment_emoji);
+                comment_emoji = (_addCommentElement$qu3 = addCommentElement.querySelector('.comment-emoji-picker input:checked')) === null || _addCommentElement$qu3 === void 0 ? void 0 : (_addCommentElement$qu4 = _addCommentElement$qu3.dataset) === null || _addCommentElement$qu4 === void 0 ? void 0 : _addCommentElement$qu4.emoji;
                 answerEditor = ClassicEditors[_this58.answerEditorId];
                 feedbackEditor = ClassicEditors[_this58.feedbackEditorId];
                 comment = feedbackEditor.getData();
@@ -9148,12 +9152,12 @@ document.addEventListener("alpine:init", function () {
                       case 0:
                         console.log(answerEditor.editing.view.hasDomSelection, 'hasselectgion');
                         console.log(answerEditor.plugins.get('CommentsRepository').activeCommentThread, 'hasselectgion2');
-                        if (!(answerEditor.editing.view.hasDomSelection && false)) {
+                        if (!answerEditor.plugins.get('CommentsRepository').activeCommentThread) {
                           _context22.next = 13;
                           break;
                         }
                         _context22.next = 5;
-                        return _this58.$wire.createNewComment();
+                        return _this58.$wire.createNewComment([]);
                       case 5:
                         feedback = _context22.sent;
                         _context22.next = 8;
@@ -9189,7 +9193,7 @@ document.addEventListener("alpine:init", function () {
                     }
                   }, _callee22);
                 })));
-              case 10:
+              case 8:
               case "end":
                 return _context23.stop();
             }
@@ -9199,7 +9203,7 @@ document.addEventListener("alpine:init", function () {
       deleteCommentThread: function deleteCommentThread(threadId, feedbackId) {
         var _this59 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee24() {
-          var answerEditor, commentsRepository, thread, result, answerText;
+          var answerEditor, commentsRepository, thread, result, answerText, deletedThreadIcon;
           return _regeneratorRuntime().wrap(function _callee24$(_context24) {
             while (1) switch (_context24.prev = _context24.next) {
               case 0:
@@ -9221,7 +9225,7 @@ document.addEventListener("alpine:init", function () {
               case 10:
                 result = _context24.sent;
                 if (!result) {
-                  _context24.next = 17;
+                  _context24.next = 19;
                   break;
                 }
                 commentsRepository.getCommentThread(threadId).remove();
@@ -9229,10 +9233,15 @@ document.addEventListener("alpine:init", function () {
                 _context24.next = 16;
                 return _this59.$wire.updateAnswer(answerText);
               case 16:
+                //delete icon positioned over the ckeditor
+                deletedThreadIcon = document.querySelector('.answer-feedback-comment-icons #icon-' + threadId);
+                if (deletedThreadIcon) {
+                  deletedThreadIcon.remove();
+                }
                 return _context24.abrupt("return");
-              case 17:
+              case 19:
                 console.log('failed to delete answer feedback');
-              case 18:
+              case 20:
               case "end":
                 return _context24.stop();
             }
@@ -9249,6 +9258,13 @@ document.addEventListener("alpine:init", function () {
           el.style.left = lastCommentMarker.offsetWidth + lastCommentMarker.offsetLeft - 5 + 'px';
           el.setAttribute('data-uuid', thread.uuid);
           el.setAttribute('data-threadId', thread.threadId);
+          var iconTemplate = null;
+          if (thread.iconName === null) {
+            iconTemplate = document.querySelector('#default-icon');
+          } else {
+            iconTemplate = document.querySelector('#' + thread.iconName.replace('icon.', ''));
+          }
+          el.appendChild(document.importNode(iconTemplate.content, true));
           commentThreadElements = [].concat(_toConsumableArray(commentMarkers), [el]);
 
           //set click event listener on all comment markers and the icon.
@@ -9275,6 +9291,14 @@ document.addEventListener("alpine:init", function () {
       clearHoveringComment: function clearHoveringComment() {
         this.hoveringComment = null;
         this.setHoveringCommentMarkerStyle(true);
+      },
+      updateNewCommentMarkerStyles: function updateNewCommentMarkerStyles(color) {
+        var styleTag = document.querySelector('#addFeedbackMarkerStyles');
+        var colorCode = 'rgba(var(--primary-rgb), 0.4)';
+        if (color) {
+          colorCode = color;
+        }
+        styleTag.innerHTML = '\n' + '        :root {\n' + '            --active-comment-color: ' + colorCode + '; /* default color, overwrite when color picker is used */\n' + '            --ck-color-comment-marker-active: var(--active-comment-color);\n' + '        }\n' + '    ';
       },
       setHoveringCommentMarkerStyle: function setHoveringCommentMarkerStyle() {
         var removeStyling = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
@@ -9324,6 +9348,16 @@ document.addEventListener("alpine:init", function () {
           answerEditor.ui.focusTracker.add(feedbackEditor.sourceElement.parentElement.querySelector('.ck.ck-content'));
           answerEditor.ui.focusTracker.add(feedbackEditorSaveButton);
           answerEditor.ui.focusTracker.add(feedbackEditorCancelButton);
+
+          //keep focus when clicking on the emoji and color pickers
+          document.querySelectorAll('.answer-feedback-add-comment .emoji-picker-radio, .answer-feedback-add-comment .color-picker-radio input').forEach(function (element) {
+            answerEditor.ui.focusTracker.add(element);
+            feedbackEditor.ui.focusTracker.add(element);
+          });
+          document.querySelectorAll('.answer-feedback-add-comment .emoji-picker-radio, .answer-feedback-add-comment .emoji-picker-radio input').forEach(function (element) {
+            answerEditor.ui.focusTracker.add(element);
+            feedbackEditor.ui.focusTracker.add(element);
+          });
           feedbackEditor.ui.focusTracker.add(answerEditor.sourceElement.parentElement.querySelector('.ck.ck-content'));
           feedbackEditor.ui.focusTracker.add(feedbackEditorSaveButton);
           feedbackEditor.ui.focusTracker.add(feedbackEditorCancelButton);
@@ -9359,9 +9393,28 @@ document.addEventListener("alpine:init", function () {
           }
         }
         return name;
+      },
+      resetAddNewAnswerFeedback: function resetAddNewAnswerFeedback() {
+        //find default/blue color picker and enable it.
+        var defaultColorPicker = document.querySelector('.answer-feedback-add-comment .comment-color-picker [data-color="blue"]');
+        defaultColorPicker.checked = true;
+
+        //find checked emoji picker, uncheck
+        var checkedEmojiPicker = document.querySelector('.answer-feedback-add-comment .comment-emoji-picker input:checked');
+        if (checkedEmojiPicker !== null) {
+          checkedEmojiPicker.checked = false;
+        }
+
+        //answerFeedbackeditor reset text
+        var answerEditor = ClassicEditors[this.feedbackEditorId];
+        answerEditor.setData('<p></p>');
+        this.updateNewCommentMarkerStyles(null);
+
+        //todo does annuleren close the accordion?
       }
     };
   });
+
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("drawingQuestionImagePreview", function () {
     return {
       maxTries: 10,

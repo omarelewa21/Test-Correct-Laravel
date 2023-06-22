@@ -93,7 +93,7 @@
                                             :editorId="'editor-'.$this->questionNavigationValue.'-'.$this->answerNavigationValue"
                                             :disabled-toggle="true"
                                             :webSpellChecker="$this->currentQuestion->spell_check_available"
-                                            :commentMarkerStyles="$this->commentMarkerStyles"
+                                            :commentMarkerStyles="$this->initialCommentMarkerStyles"
                                     />
                                 </div>
                             </x-slot:body>
@@ -218,27 +218,29 @@
                                 @if($this->inlineFeedbackEnabled )
 
                                     <x-input.comment-color-picker
-                                            commentThreadId="new-thread-id"
-                                            uuid="create-a-comment"
+                                            commentThreadId="new-comment"
+                                            uuid="new-comment"
                                     ></x-input.comment-color-picker>
 
 
                                     <x-input.comment-emoji-picker
-                                            commentThreadId="new-thread-id"
-                                            uuid="create-a-comment"
+                                            commentThreadId="new-comment"
+                                            uuid="new-comment"
                                     ></x-input.comment-emoji-picker>
 
                                     <span>@lang('assessment.Feedback schrijven')</span>
                                     <x-input.rich-textarea type="create-answer-feedback"
                                                            :editorId="'feedback-editor-'. $this->questionNavigationValue.'-'.$this->answerNavigationValue"
-                                                           :allowWsc="true" {{-- TODO determine when to allow web spell checker... --}}
+                                                           :allowWsc="auth()->user()->schoolLocation->allow_wsc" {{-- TODO determine when to allow web spell checker... --}}
                                     />
                                     <div class="flex justify-end space-x-4 h-fit">
                                         <x-button.text-button size="sm"
+                                                              @click="resetAddNewAnswerFeedback()"
                                                               :id="'feedback-editor-'. $this->questionNavigationValue.'-'.$this->answerNavigationValue.'-cancel'">
                                             <span>@lang('modal.annuleren')</span>
                                         </x-button.text-button>
-                                        <x-button.cta class="block" @click="createCommentThread"
+                                        <x-button.cta class="block"
+                                                      @click="createCommentThread"
                                                       :id="'feedback-editor-'. $this->questionNavigationValue.'-'.$this->answerNavigationValue.'-save'">
                                             <span>@lang('general.save')</span>
                                         </x-button.cta>
@@ -312,7 +314,7 @@
                                             </x-menu.context-menu.button>
                                         </div>
 
-                                        <x-menu.context-menu.button @click="deleteCommentThread(null, uuid)">
+                                        <x-menu.context-menu.button @click="deleteCommentThread(contextData?.threadId, uuid)">
                                             <x-slot:icon>
                                                 <x-icon.trash/>
                                             </x-slot:icon>
