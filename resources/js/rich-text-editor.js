@@ -323,6 +323,10 @@ RichTextEditor = {
             window.dispatchEvent(new CustomEvent("updated-word-count-plugin-container"));
         }
 
+        if(!parameterBag.restrictWords || [null, 0].includes(parameterBag.maxWords)) {
+            return;
+        }
+
         editor.maxWords = parameterBag.maxWords;
         editor.maxWordOverride = parameterBag.maxWordOverride;
         this.handleInputWithMaxWords(editor);
