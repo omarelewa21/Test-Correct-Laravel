@@ -16554,6 +16554,7 @@ RichTextEditor = {
       _this8.handleInputWithMaxWords(editor);
     };
     editor.model.document.on("change:data", function (event, batch) {
+      if (_this8.hasNoWordLimit(editor)) return;
       var wc = editor.plugins.get("WordCount");
       if (wc.words > editor.maxWords) {
         editor.execute('undo');

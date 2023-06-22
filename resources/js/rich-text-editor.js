@@ -332,6 +332,8 @@ RichTextEditor = {
             this.handleInputWithMaxWords(editor);
         };
         editor.model.document.on("change:data", (event, batch) => {
+
+            if (this.hasNoWordLimit(editor)) return;
             let wc = editor.plugins.get("WordCount");
 
             if (wc.words > editor.maxWords) {
