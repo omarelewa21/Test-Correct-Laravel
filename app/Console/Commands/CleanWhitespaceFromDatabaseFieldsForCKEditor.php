@@ -76,7 +76,7 @@ class CleanWhitespaceFromDatabaseFieldsForCKEditor extends Command
         foreach ($this->cleaningTablesAndFields as $tableAndField) {
             $table = $tableAndField['table'];
             $field = $tableAndField['field'];
-            $backupField = sprintf('%s_backup_%s', $field, time());
+            $backupField = sprintf('%s_backup_%s', $field, date('YmdHis'));
             $this->info("creating backup for table $table and field $field");
             DB::statement("ALTER TABLE $table ADD COLUMN $backupField LONGTEXT");
             DB::statement("UPDATE $table SET $backupField = $field");
