@@ -332,6 +332,12 @@ RichTextEditor = {
             this.handleInputWithMaxWords(editor);
         };
         editor.model.document.on("change:data", (event, batch) => {
+            let wc = editor.plugins.get("WordCount");
+
+            if (wc.words > editor.maxWords) {
+                editor.execute('undo');
+            }
+
             this.handleInputWithMaxWords(editor, event);
         });
         editor.editing.view.document.on("paste", (event, data) => {
@@ -339,12 +345,13 @@ RichTextEditor = {
             let wc = editor.plugins.get("WordCount");
             let maxWords = parseInt(editor.maxWords);
 
-            if (wc.words >= maxWords) {
+            if (wc.words >= maxWords) { //always the old number of words. never triggers when pasting at 49/50 words
                 data.preventDefault();
                 event.stop();
             } else {
                 editor.pasted = true;
                 editor.prePasteData = editor.getData();
+                editor.prePasteWc = wc.words;
             }
         });
         editor.editing.view.document.on("keydown", (event, data) => {
@@ -366,6 +373,7 @@ RichTextEditor = {
         }
 
         const input = editor.commands.get("input");
+        const enterKeyCommand = editor.commands.get("enter");
         const wc = editor.plugins.get("WordCount");
         const maxWords = parseInt(editor.maxWords);
 
@@ -373,15 +381,23 @@ RichTextEditor = {
 
         if (wc.words > maxWords) {
             input.forceDisabled("maxword-lock");
+            enterKeyCommand.forceDisabled("maxword-lock");
             handlePastedData();
         } else {
+            if (wc.words == maxWords ) {
+                enterKeyCommand.forceDisabled("maxword-lock");
+            } else {
+                enterKeyCommand.clearForceDisabled("maxword-lock");
+            }
             input.clearForceDisabled("maxword-lock");
+            editor.pasted = false;
         }
 
         function handlePastedData() {
             if (!editor.pasted) return;
 
             editor.setData(editor.prePasteData);
+
             editor.preventUpdateLoop = true;
             editor.pasted = false;
             setTimeout(() => {
@@ -389,7 +405,11 @@ RichTextEditor = {
                     writer.setSelection(editor.model.document.getRoot(), "end");
                 });
             }, 1);
+            editor.disableSpacers = editor.prePasteWc >= maxWords;
 
+            if(editor.prePasteWc < maxWords) {
+                input.clearForceDisabled('maxword-lock');
+            }
         }
     },
     hasNoWordLimit(editor) {
