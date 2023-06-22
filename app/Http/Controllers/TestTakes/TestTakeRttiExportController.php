@@ -74,6 +74,13 @@ class TestTakeRttiExportController extends Controller
                 $client->soap_defencoding = 'UTF-8';
                 $client->decode_utf8 = FALSE;
 
+                $rttiExportLog ??= RttiExportLog::create([
+                    'test_take_id' => $testTake->getKey(),
+                    'user_id' => Auth::id(),
+                    'export' => print_r($leerresultatenVerzoek,true),
+                    'reference' => sprintf('rtti-%s-%s',Date('YmdHis'),Str::random(5)),
+                ]);
+
 
                 $result = $client->call(
                     'BrengLeerresultaten', [
@@ -106,16 +113,11 @@ class TestTakeRttiExportController extends Controller
 //            ]);
 //        }
 
-        $rttiExportLog ??= RttiExportLog::create([
-            'test_take_id' => $testTake->getKey(),
-            'user_id' => Auth::id(),
-            'export' => print_r($leerresultatenVerzoek,true),
-            'result' => var_export($client->request,true),
-            'error' => $client->getError(),
-            'has_errors' => (bool) $client->getError(),
-            'response' => $client->response,
-            'reference' => sprintf('rtti-%s-%s',Date('YmdHis'),Str::random(5)),
-        ]);
+        $rttiExportLog->result = var_export($client->request,true);
+        $rttiExportLog->error = $client->getError();
+        $rttiExportLog->has_errors = (bool) $client->getError();
+        $rttiExportLog->response = $client->response;
+        $rttiExportLog->save();
 
 
         // if there was an error, please send an email to support
