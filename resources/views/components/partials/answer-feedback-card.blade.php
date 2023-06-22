@@ -67,7 +67,10 @@
         ></x-input.comment-color-picker>
 
         <x-input.comment-emoji-picker
-                :comment-uuid="$comment->uuid"></x-input.comment-emoji-picker>
+                :comment-thread-id="$comment->uuid"
+                :uuid="$comment->uuid"
+                :value="$comment->comment_emoji"
+        ></x-input.comment-emoji-picker>
 
         <div class="comment-feedback-editor">
             <span class="comment-feedback-editor-label">@lang('assessment.Feedback schrijven')</span>

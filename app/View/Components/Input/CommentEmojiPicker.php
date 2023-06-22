@@ -14,11 +14,14 @@ class CommentEmojiPicker extends Component
      * @return void
      */
     public function __construct(
-        public ?string $commentUuid = '',
-        public ?CommentEmoji $emoji = null,
+        public ?string $commentThreadId = '',
+        public string $uuid,
+        public CommentEmoji|string|null $value = null,
     )
     {
-        //
+        if(is_string($this->value)) {
+            $this->value = CommentEmoji::tryFrom($this->value);
+        }
     }
 
     /**

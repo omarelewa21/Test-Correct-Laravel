@@ -218,14 +218,15 @@
                                 @if($this->inlineFeedbackEnabled )
 
                                     <x-input.comment-color-picker
-                                            comment-thread-id="new-thread-id"
+                                            commentThreadId="new-thread-id"
                                             uuid="create-a-comment"
-                                            :value="'blue'"
-                                    >
-                                    </x-input.comment-color-picker>
+                                    ></x-input.comment-color-picker>
+
 
                                     <x-input.comment-emoji-picker
-                                            :comment-uuid="'wubwub'"></x-input.comment-emoji-picker>
+                                            commentThreadId="new-thread-id"
+                                            uuid="create-a-comment"
+                                    ></x-input.comment-emoji-picker>
 
                                     <span>@lang('assessment.Feedback schrijven')</span>
                                     <x-input.rich-textarea type="create-answer-feedback"

@@ -9028,7 +9028,7 @@ document.addEventListener("alpine:init", function () {
             while (1) switch (_context20.prev = _context20.next) {
               case 0:
                 _this56.dropdownOpened = questionType === 'OpenQuestion' ? 'given-feedback' : 'add-feedback';
-                if (!(questionType !== 'openQuestion')) {
+                if (!(questionType !== 'OpenQuestion')) {
                   _context20.next = 3;
                   break;
                 }
@@ -9042,12 +9042,11 @@ document.addEventListener("alpine:init", function () {
                       while (1) switch (_context18.prev = _context18.next) {
                         case 0:
                           styleTagElement = document.querySelector('#commentMarkerStyles');
-                          console.log('does it hit');
-                          _context18.next = 4;
+                          _context18.next = 3;
                           return _this56.$wire.updateCommentColor(event.detail);
-                        case 4:
+                        case 3:
                           styleTagElement.innerHTML = _context18.sent;
-                        case 5:
+                        case 4:
                         case "end":
                           return _context18.stop();
                       }

@@ -16,8 +16,8 @@ class CommentColorPicker extends Component
      */
     public function __construct(
         public ?string $commentThreadId = '',
-        public string $uuid = '',
-        public CommentMarkerColor|string|null $value,
+        public string $uuid,
+        public CommentMarkerColor|string|null $value = null,
     )
     {
         if(is_string($this->value)) {

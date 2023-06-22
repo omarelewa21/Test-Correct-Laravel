@@ -1471,6 +1471,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
     public function updateCommentEmoji($data)
     {
+        logger($data);
         if(!isset($data['uuid']) || !isset($data['emoji'])) {
             return false;
         }

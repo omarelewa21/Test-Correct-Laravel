@@ -2420,19 +2420,17 @@ document.addEventListener("alpine:init", () => {
         async init() {
             this.dropdownOpened = questionType === 'OpenQuestion' ? 'given-feedback' : 'add-feedback';
 
-            if(questionType !== 'openQuestion') {
+            if(questionType !== 'OpenQuestion') {
                 return;
             }
             this.setFocusTracking();
 
             document.addEventListener('comment-color-updated', async (event) => {
-
                 let styleTagElement = document.querySelector('#commentMarkerStyles');
-                console.log('does it hit')
                 styleTagElement.innerHTML = await this.$wire.updateCommentColor(event.detail);
             });
-            document.addEventListener('comment-emoji-updated', async (event) => {
 
+            document.addEventListener('comment-emoji-updated', async (event) => {
                 let styleTagElement = document.querySelector('#commentMarkerStyles');
 
                 styleTagElement.innerHTML = await this.$wire.updateCommentEmoji(event.detail);
