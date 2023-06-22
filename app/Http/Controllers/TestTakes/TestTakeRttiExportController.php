@@ -35,7 +35,7 @@ class TestTakeRttiExportController extends Controller
         $result = null;
         $rttiExportLog = null;
         $leerresultatenVerzoek = [];
-//        try {
+        try {
             $testCode = sprintf(
                 '%s|%s|%s|%s',
                 $testTake->test->name,
@@ -46,7 +46,7 @@ class TestTakeRttiExportController extends Controller
 
             // START SETTING DATA FOR SCHOOL SECTION
             $externalMainCode = $this->getExternalMainCode($testTake);
-//            try {
+            try {
                 $auth['aut:autorisatie'] = [
                     'autorisatiesleutel' => config('rtti.autorisatiesleutel'),
                     'klantcode' => config('rtti.klantcode'),
@@ -88,30 +88,30 @@ class TestTakeRttiExportController extends Controller
                             ], 'http://www.edustandaard.nl/leerresultaten/2/leerresultaten', 'leer:leerresultaten_verzoek', $auth
                 );
 
-//            } catch (\Exception $e) {
-//                $rttiExportLog = RttiExportLog::create([
-//                    'test_take_id' => $testTake->getKey(),
-//                    'user_id' => Auth::id(),
-//                    'export' => print_r($leerresultatenVerzoek,true),
-//                    'result' => ($result) ? var_export($result,true) : '',
-//                    'error' => 'Fatal error '.$e->getMessage(),
-//                    'has_errors' => true,
-//                    'response' => $client->response,
-//                    'reference' => sprintf('rtti-%s-%s',Date('YmdHis'),Str::random(5)),
-//                ]);
-//            }
-//
-//        } catch (\Exception $e) {
-//            $rttiExportLog = RttiExportLog::create([
-//                'test_take_id' => $testTake->getKey(),
-//                'user_id' => Auth::id(),
-//                'export' => print_r($leerresultatenVerzoek,true),
-//                'error' => 'Fatal unknown error',
-//                'has_errors' => true,
-//                'response' => $client->response,
-//                'reference' => sprintf('rtti-%s-%s',Date('YmdHis'),Str::random(5)),
-//            ]);
-//        }
+            } catch (\Exception $e) {
+                $rttiExportLog = RttiExportLog::create([
+                    'test_take_id' => $testTake->getKey(),
+                    'user_id' => Auth::id(),
+                    'export' => print_r($leerresultatenVerzoek,true),
+                    'result' => ($result) ? var_export($result,true) : '',
+                    'error' => 'Fatal error '.$e->getMessage(),
+                    'has_errors' => true,
+                    'response' => $client->response,
+                    'reference' => sprintf('rtti-%s-%s',Date('YmdHis'),Str::random(5)),
+                ]);
+            }
+
+        } catch (\Exception $e) {
+            $rttiExportLog = RttiExportLog::create([
+                'test_take_id' => $testTake->getKey(),
+                'user_id' => Auth::id(),
+                'export' => print_r($leerresultatenVerzoek,true),
+                'error' => 'Fatal unknown error',
+                'has_errors' => true,
+                'response' => $client->response,
+                'reference' => sprintf('rtti-%s-%s',Date('YmdHis'),Str::random(5)),
+            ]);
+        }
 
         $rttiExportLog->result = var_export($client->request,true);
         $rttiExportLog->error = $client->getError();
