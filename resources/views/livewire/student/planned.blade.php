@@ -36,7 +36,7 @@
                     <x-table.heading width="60px" textAlign="right" class="hidden lg:table-cell">
                         {{ __('student.weight') }}
                     </x-table.heading>
-                    <x-table.heading width="120px">{{ __('student.type') }}</x-table.heading>
+                    <x-table.heading width="120px">{{ __('student.info') }}</x-table.heading>
                     <x-table.heading width="125px"></x-table.heading>
                 </x-slot>
                 <x-slot name="body">
