@@ -205,5 +205,5 @@ return [
             'redo'                                              => 'Inhaaltoets',
         ],
     ],
-
+    'info'                                                     => 'Info',
 ];

@@ -167,4 +167,5 @@ return [
             'redo'                                              => 'Make-up test',
         ],
     ],
+    'info'                                                     => 'Info',
 ];
