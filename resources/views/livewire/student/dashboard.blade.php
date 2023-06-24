@@ -68,7 +68,7 @@
                                 <x-table.heading width="130px">{{ __('student.subject') }}</x-table.heading>
                                 <x-table.heading width="105px"
                                                  textAlign="right">{{ __('student.take_date') }}</x-table.heading>
-                                <x-table.heading width="120px">{{ __('student.type') }}</x-table.heading>
+                                <x-table.heading width="120px">{{ __('student.info') }}</x-table.heading>
                                 <x-table.heading width="125px"></x-table.heading>
                             </x-slot>
                             <x-slot name="body">
@@ -84,7 +84,7 @@
                                             @endif
                                         </x-table.cell>
                                         <x-table.cell>
-                                            <x-partials.test-take-type-label :type="$testTake->retake"/>
+                                            <x-partials.before-take-info-labels :$testTake />
                                         </x-table.cell>
                                         <x-table.cell class="text-right" buttonCell>
                                             <x-partials.start-take-button :timeStart="$testTake->time_start"
