@@ -1,4 +1,7 @@
+@props(['tooltip' => ''])
+
 <svg {{ $attributes }} width="18" height="16" viewBox="0 0 18 16" xmlns="http://www.w3.org/2000/svg">
+    <title>{{$tooltip}}</title>
     <g fill="none" fill-rule="evenodd">
         <g transform="translate(.5 .5)">
             <g fill="#27973D">
