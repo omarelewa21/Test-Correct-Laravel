@@ -23,23 +23,27 @@ abstract class TestTakeInfoLabels extends Component
         return [
             [
                 'icon-name' => 'app',
-                'show' => $this->showAppIcon(),
-                'path' => 'components.icon.arrow-last'
+                'show'      => $this->showAppIcon(),
+                'path'      => 'components.icon.app-logo',
+                'props'     => ['tooltip' => $this->getTooltip('app')],
             ],
             [
                 'icon-name' => 'web',
-                'show' => $this->showWebIcon(),
-                'path' => 'components.icon.arrow-last'
+                'show'      => $this->showWebIcon(),
+                'path'      => 'components.icon.web',
+                'props'     => ['tooltip' => $this->getTooltip('web')],
             ],
             [
                 'icon-name' => 'test-direct',
-                'show' => $this->showTestDirectIcon(),
-                'path' => 'components.icon.arrow-last'
+                'show'      => $this->showTestDirectIcon(),
+                'path'      => 'components.icon.test-direct',
+                'props'     => ['tooltip' => $this->getTooltip('test-direct')],
             ],
             [
                 'icon-name' => 'redo',
-                'show' => $this->showRedoIcon(),
-                'path' => 'components.icon.arrow-last'
+                'show'      => $this->showRedoIcon(),
+                'path'      => 'components.icon.redo',
+                'props'     => ['tooltip' => $this->getTooltip('redo')],
             ],
         ];
     }
@@ -48,4 +52,5 @@ abstract class TestTakeInfoLabels extends Component
     abstract protected function showWebIcon(): bool;
     abstract protected function showTestDirectIcon(): bool;
     abstract protected function showRedoIcon(): bool;
+    abstract protected function getTooltip(string $iconName): string;
 }
