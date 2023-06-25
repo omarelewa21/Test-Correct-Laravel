@@ -202,6 +202,7 @@ return [
         'after-test-take'                                      => [
             'app'                                               => 'Gemaakt in app',
             'web'                                               => 'Gemaakt in browser',
+            'test-direct'                                       => 'Afgenomen via gastaccount',
             'redo'                                              => 'Inhaaltoets',
         ],
     ],

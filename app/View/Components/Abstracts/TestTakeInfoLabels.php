@@ -3,12 +3,13 @@
 namespace tcCore\View\Components\Abstracts;
 
 use Illuminate\View\Component;
+use tcCore\TestTake;
 
 abstract class TestTakeInfoLabels extends Component
 {
     public array $icons;
 
-    protected function __construct()
+    protected function __construct(protected TestTake $testTake)
     {
         $this->icons = $this->setUpIcons();
     }

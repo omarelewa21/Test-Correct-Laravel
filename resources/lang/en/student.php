@@ -164,6 +164,7 @@ return [
         'after-test-take'                                      => [
             'app'                                               => 'Taken in app',
             'web'                                               => 'Taken in browser',
+            'test-direct'                                       => 'Taken via guest account',
             'redo'                                              => 'Make-up test',
         ],
     ],
