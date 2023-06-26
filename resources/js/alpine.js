@@ -2003,11 +2003,7 @@ document.addEventListener("alpine:init", () => {
             this.handleSlideHeight(slide);
             this.$nextTick(() => {
                 if(commentUuid){
-                    const commentCard = document.querySelector('[data-uuid="'+commentUuid+'"].answer-feedback-card')
-
-                    let cardTop = commentCard.getBoundingClientRect().y - this.container.getBoundingClientRect().y;
-
-                    this.container.scroll({ top: cardTop,  left: slide.offsetLeft, behavior: "smooth" });
+                    this.scrollToCommentCard(commentUuid);
                 } else {
                     this.container.scroll({ top: 0, left: slide.offsetLeft, behavior: "smooth" });
                 }
@@ -2019,6 +2015,13 @@ document.addEventListener("alpine:init", () => {
                     }
                 }, 500);
             });
+        },
+        scrollToCommentCard (commentUuid) {
+            const commentCard = document.querySelector('[data-uuid="'+commentUuid+'"].answer-feedback-card')
+
+            let cardTop = commentCard.getBoundingClientRect().y - this.container.getBoundingClientRect().y;
+
+            this.container.scroll({ top: cardTop,  left: slide.offsetLeft, behavior: "smooth" });
         },
         async next() {
             if (this.needsToPerformActionsStill()) {
@@ -2406,7 +2409,7 @@ document.addEventListener("alpine:init", () => {
 
         }
     }));
-    Alpine.data("AnswerFeedback", (answerEditorId, feedbackEditorId, userId, questionType) => ({
+    Alpine.data("AnswerFeedback", (answerEditorId, feedbackEditorId, userId, questionType, viewOnly) => ({
         answerEditorId: answerEditorId,
         feedbackEditorId: feedbackEditorId,
         commentRepository: null,
@@ -2417,6 +2420,7 @@ document.addEventListener("alpine:init", () => {
         dropdownOpened: null,
         userId,
         questionType,
+        viewOnly,
         async init() {
             this.dropdownOpened = questionType === 'OpenQuestion' ? 'given-feedback' : 'add-feedback';
 
@@ -2424,18 +2428,19 @@ document.addEventListener("alpine:init", () => {
                 return;
             }
             this.setFocusTracking();
-            console.log('waarom niet3')
 
             document.addEventListener('comment-color-updated', async (event) => {
-                console.log('coolor1')
-
                 let styleTagElement = document.querySelector('#commentMarkerStyles');
+
                 styleTagElement.innerHTML = await this.$wire.updateCommentColor(event.detail);
             });
 
             document.addEventListener('comment-emoji-updated', async (event) => {
-                console.log('emoji')
                 let styleTagElement = document.querySelector('#commentMarkerStyles');
+
+                let el = document.querySelector('#icon-' + event.detail.threadId)
+
+                this.addOrReplaceIconByName(el, event.detail.iconName)
 
                 styleTagElement.innerHTML = await this.$wire.updateCommentEmoji(event.detail);
             });
@@ -2465,9 +2470,6 @@ document.addEventListener("alpine:init", () => {
             let comment_color = answerFeedbackCardElement.querySelector('.comment-color-picker input:checked')?.dataset?.color;
             let comment_emoji = answerFeedbackCardElement.querySelector('.comment-emoji-picker input:checked')?.dataset?.emoji;
 
-            console.log(comment_color);
-            console.log(comment_emoji);
-
             const answerFeedbackEditor = ClassicEditors['update-'+answerFeedbackUuid];
 
             await this.$wire.call('updateExistingComment', {
@@ -2483,7 +2485,6 @@ document.addEventListener("alpine:init", () => {
 
             let comment_color = addCommentElement.querySelector('.comment-color-picker input:checked')?.dataset?.color;
 
-            //todo fix getting checked emoji
             let comment_emoji = addCommentElement.querySelector('.comment-emoji-picker input:checked')?.dataset?.emoji;
 
             const answerEditor = ClassicEditors[this.answerEditorId];
@@ -2494,8 +2495,6 @@ document.addEventListener("alpine:init", () => {
             answerEditor.focus();
 
             this.$nextTick(async () => {
-                console.log(answerEditor.editing.view.hasDomSelection, 'hasselectgion')
-                console.log(answerEditor.plugins.get( 'CommentsRepository' ).activeCommentThread, 'hasselectgion2')
 
                 if(answerEditor.plugins.get( 'CommentsRepository' ).activeCommentThread) {
 
@@ -2510,31 +2509,40 @@ document.addEventListener("alpine:init", () => {
 
                     var updatedAnswerText = answerEditor.getData();
 
-                    this.$wire.saveNewComment({
+                    let commentStyles = await this.$wire.saveNewComment({
                         uuid: feedback.uuid,
                         message: comment,
                         comment_color: comment_color,
                         comment_emoji: comment_emoji,
                     }, updatedAnswerText);
 
+                    await this.createCommentIcon({
+                        uuid: feedback.uuid,
+                        threadId: feedback.threadId,
+                        iconName: await this.$wire.call('getIconNameByEmojiValue', comment_emoji),
+                    })
+
+                    document.querySelector('#commentMarkerStyles').innerHTML = commentStyles;
                     return;
                 }
 
-                console.error('fix saving linked comment first')
-                return;
-
-                //todo add general comment without link to the answer text
                 var feedback = await this.$wire.createNewComment({
                     message: comment,
                     // comment_color: null, //no comment color when its a general ticket.
                     comment_emoji: null,
                 }, false);
 
+                //todo go to gegeven feedback
+                this.$dispatch('answer-feedback-show-comments');
+
+                //todo fix scrolling and activating correct card:
+                //scrollToCommentCard(feedback.uuid);
 
             });
 
         },
         async deleteCommentThread(threadId, feedbackId) {
+
 
             if(threadId === null) {
                 await this.$wire.deleteCommentThread(null, feedbackId);
@@ -2549,19 +2557,25 @@ document.addEventListener("alpine:init", () => {
 
             const result = await this.$wire.deleteCommentThread(threadId, feedbackId);
             if(result) {
-                commentsRepository.getCommentThread(threadId).remove();
-                const answerText = answerEditor.getData();
-                await this.$wire.updateAnswer(answerText);
-
                 //delete icon positioned over the ckeditor
                 let deletedThreadIcon = document.querySelector('.answer-feedback-comment-icons #icon-'+threadId);
                 if(deletedThreadIcon) {
                     deletedThreadIcon.remove();
                 }
 
+                commentsRepository.getCommentThread(threadId).remove();
+                const answerText = answerEditor.getData();
+                await this.$wire.updateAnswer(answerText);
+
                 return;
             }
-            console.log('failed to delete answer feedback');
+            console.error('failed to delete answer feedback');
+        },
+        initCommentIcons(commentThreads) {
+            //create icon container
+            commentThreads.forEach((thread) => {
+                this.createCommentIcon(thread);
+            })
         },
         initCommentIcon(el, thread) {
             let commentThreadElements = null;
@@ -2575,14 +2589,7 @@ document.addEventListener("alpine:init", () => {
                 el.setAttribute('data-uuid', thread.uuid);
                 el.setAttribute('data-threadId', thread.threadId);
 
-                let iconTemplate = null;
-                if(thread.iconName === null) {
-                    iconTemplate = document.querySelector('#default-icon')
-                } else {
-                    iconTemplate = document.querySelector('#'+thread.iconName.replace('icon.', ''))
-                }
-
-                el.appendChild(document.importNode(iconTemplate.content, true));
+                this.addOrReplaceIconByName(el, thread.iconName);
 
                 commentThreadElements = [...commentMarkers, el];
 
@@ -2600,6 +2607,31 @@ document.addEventListener("alpine:init", () => {
                 });
 
             }, 200)
+        },
+        createCommentIcon (thread) {
+            let el = document.querySelector('.answer-feedback-comment-icons');
+            let iconId = "icon-"+thread.threadId;
+            let iconWrapper = document.createElement('div');
+            iconWrapper.classList.add('absolute');
+            iconWrapper.classList.add('z-10');
+            iconWrapper.classList.add('cursor-pointer');
+            iconWrapper.id = iconId;
+            el.appendChild(iconWrapper)
+
+            this.initCommentIcon(iconWrapper, thread);
+        },
+        addOrReplaceIconByName (el, iconName) {
+            //reset div
+            el.innerHTML = '';
+
+            let iconTemplate = null;
+            if(iconName === null) {
+                iconTemplate = document.querySelector('#default-icon')
+            } else {
+                iconTemplate = document.querySelector('#'+iconName.replace('icon.', ''))
+            }
+
+            el.appendChild(document.importNode(iconTemplate.content, true));
         },
         setHoveringComment(threadId, answerFeedbackUuid) {
             this.hoveringComment = {threadId: threadId, uuid: answerFeedbackUuid };
@@ -2665,6 +2697,9 @@ document.addEventListener("alpine:init", () => {
             this.setActiveCommentMarkerStyle(true);
         },
         setFocusTracking() {
+            if(viewOnly) {
+                return;
+            }
             setTimeout(()=> {
 
                 const answerEditor = ClassicEditors[this.answerEditorId];
@@ -2739,6 +2774,7 @@ document.addEventListener("alpine:init", () => {
             this.updateNewCommentMarkerStyles(null);
 
             //todo does annuleren close the accordion?
+            console.warn('todo does annuleren close the accordion?');
         }
     }));
 

@@ -9,16 +9,16 @@
        @unless($disabled)
            @if($threadId === 'new-comment')
                @click="$dispatch('new-comment-color-updated', { color: '{{$color->getRgbColorCode(0.4)}}' })"
-       @else
-           @click="$dispatch('comment-color-updated', { threadId: '{{$threadId}}', color: '{{$color->value}}' })"
-        @endif
-        @endif
+           @else
+               @click="$dispatch('comment-color-updated', { threadId: '{{$threadId}}', color: '{{$color->value}}' })"
+           @endif
+       @endif
 >
     <input type="radio"
            name="color-picker-{{$uuid}}"
            @checked(!$disabled && $checked)
            data-color="{{$color->value}}"
-            @disabled($disabled)
+           @disabled($disabled)
     >
     <span class="color-picker-circle" style="background-color: {{$color->getRgbColorCode()}};"
     ></span>

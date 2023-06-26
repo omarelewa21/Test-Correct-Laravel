@@ -9,9 +9,7 @@ class RichTextarea extends Component
 {
     public string $initFunctionCall;
 
-    public $commentThreads;
-    public $users;
-    public $userId;
+
 
     protected array $editorProperties = [
         'editorId',

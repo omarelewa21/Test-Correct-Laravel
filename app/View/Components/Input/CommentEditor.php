@@ -10,6 +10,10 @@ use tcCore\User;
 
 class CommentEditor extends RichTextarea
 {
+    public $commentThreads;
+    public $users;
+    public $userId;
+
     public function __construct(
         string|int              $editorId,
         ?string                 $type = null,

@@ -93,7 +93,7 @@
                                             :editorId="'editor-'.$this->questionNavigationValue.'-'.$this->answerNavigationValue"
                                             :disabled-toggle="true"
                                             :webSpellChecker="$this->currentQuestion->spell_check_available"
-                                            :commentMarkerStyles="$this->initialCommentMarkerStyles"
+                                            :commentMarkerStyles="$this->commentMarkerStyles"
                                     />
                                 </div>
                             </x-slot:body>
@@ -195,6 +195,7 @@
                     <div x-data="{}"
                          class="space-y-4"
                          x-on:answer-feedback-focus-feedback-editor.window="dropdownOpened = 'add-feedback'"
+                         x-on:answer-feedback-show-comments.window="dropdownOpened = 'given-feedback'"
                     >
                         <div class="space-y-4 answer-feedback-add-comment">
                             <span class="flex bold border-t border-blue-grey pt-2 justify-between items-center"
@@ -226,6 +227,7 @@
                                     <x-input.comment-emoji-picker
                                             commentThreadId="new-comment"
                                             uuid="new-comment"
+                                            :new-comment="true"
                                     ></x-input.comment-emoji-picker>
 
                                     <span>@lang('assessment.Feedback schrijven')</span>
@@ -280,14 +282,14 @@
                             <div class="space-y-4 relative">
                             <span @class([
                                     "flex bold border-t border-blue-grey pt-2 justify-between items-center",
-                                    'text-midgrey' => $answerFeedback->isEmpty(),
+                                    'text-midgrey' => !$this->hasFeedback,
                                   ])
-                                  x-init="dropdownOpened = @js($answerFeedback->isNotEmpty()) ? dropdownOpened : 'add-feedback'"
+                                  x-init="dropdownOpened = @js($this->hasFeedback) ? dropdownOpened : 'add-feedback'"
                             >
                                 <span>@lang('assessment.Gegeven feedback')</span>
                                 <span class="w-4 h-4 flex justify-center items-center"
                                       :class="dropdownOpened === 'given-feedback' ? 'rotate-svg-90' : ''"
-                                      @unless($answerFeedback->isEmpty())
+                                      @unless(!$this->hasFeedback)
                                           @click="dropdownOpened = (dropdownOpened === 'given-feedback' ? null : 'given-feedback')"
                                       @endif
                                 >
@@ -314,7 +316,7 @@
                                             </x-menu.context-menu.button>
                                         </div>
 
-                                        <x-menu.context-menu.button @click="deleteCommentThread(contextData?.threadId, uuid)">
+                                        <x-menu.context-menu.button @click="closeMenu(); deleteCommentThread(contextData?.threadId, uuid)">
                                             <x-slot:icon>
                                                 <x-icon.trash/>
                                             </x-slot:icon>

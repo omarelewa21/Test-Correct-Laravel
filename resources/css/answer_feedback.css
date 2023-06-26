@@ -9,6 +9,7 @@
 
 .answer-feedback-card {
     @apply flex w-auto flex-col border relative bg-white;
+    border-color: var(--blue-grey);
     border-radius: 2px 10px 10px 2px;
     padding: 1px;
     border-left: 1px !important;
@@ -19,43 +20,6 @@
     cursor: pointer;
 
 }
-
-/*
- * Hover state: allways
- * Active state: closed cards, activate a card
- * Editing state:  opened card
-*/
-.answer-feedback-card-active,
-.answer-feedback-card-editing,
-.answer-feedback-card-hovering {}
-
-/* couples of programmatically added states and their native version */
-.answer-feedback-card-hovering,
- .answer-feedback-card:hover {}
-
-.answer-feedback-card-active {} /* the active styling is overwritten by editing state */
-
-answer-feedback-card-editing {}
-.answer-feedback-card:active,
-.answer-feedback-card:focus {}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 .answer-feedback-card-active,
@@ -73,7 +37,6 @@ answer-feedback-card-editing {}
 .answer-feedback-card:focus {
     @apply border-2;
     padding: 0 0 0 1px !important;
-
 }
 
 .answer-feedback-card-hovering,
@@ -92,12 +55,24 @@ answer-feedback-card-editing {}
 
 
 .answer-feedback-card-line {
-    @apply absolute w-0 border-2 rounded-l-sm -top-px -left-px h-[calc(100%+2px)];
+    @apply absolute w-0 border-2 rounded-l-sm -top-px left-0 h-[calc(100%+2px)];
 }
 
-.answer-feedback-card:active .answer-feedback-card-line,
-.answer-feedback-card:focus .answer-feedback-card-line {
+.answer-feedback-card-active .answer-feedback-card-line {
     @apply h-[calc(100%+4px)] -top-[2px]
+}
+.answer-feedback-card-editing::after,
+.answer-feedback-card-active::after {
+    content: '';
+    position: absolute;
+    box-sizing: content-box;
+    border: 3px solid var(--primary);
+    border-radius: 2px 10px 10px 2px;
+    left: 0;
+    top: -3px;
+    width: calc(100% - 3px);
+    height: 100%;
+    pointer-events: none;
 }
 
 .answer-feedback-card-teacher .answer-feedback-card-line {

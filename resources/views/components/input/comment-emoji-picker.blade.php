@@ -8,6 +8,7 @@
                                         :threadId="$commentThreadId"
                                         :uuid="$uuid"
                                         :checked="$case->value === $value?->value"
+                                        :new-comment="$newComment"
             >
             </x-input.emoji-picker-radio>
 

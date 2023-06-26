@@ -1,5 +1,12 @@
 <main id="student-test-review"
       class="min-h-full w-full review"
+      x-data="AnswerFeedback(
+                @js('editor-'.$this->currentQuestion->uuid.$this->currentAnswer->uuid),
+                @js(null),
+                @js(auth()->user()->uuid),
+                @js($this->currentQuestion->type),
+                @js(true)
+             )"
 >
     <header id="header" @class(['flex items-center py-2.5 px-6'])>
         <x-button.back-round wire:click="redirectBack()"
@@ -127,6 +134,8 @@
                                         :answer="$this->currentAnswer"
                                         :disabledToggle="true"
                                         :editorId="'editor-'.$this->currentQuestion->uuid.$this->currentAnswer->uuid"
+                                        :webSpellChecker="$this->currentQuestion->spell_check_available"
+                                        :commentMarkerStyles="$this->commentMarkerStyles"
                                 />
                             </div>
                         </x-slot:body>
@@ -176,20 +185,61 @@
                 @endif
             </x-slot:slideOneContent>
             <x-slot:slideTwoContent>
-                <span class="flex bold">@lang('review.Gegeven feedback')</span>
+                @unless($this->inlineFeedbackEnabled)
+                    <span class="flex bold">@lang('review.Gegeven feedback')</span>
 
-                <div class="flex w-full flex-col gap-2"
-                     wire:key="feedback-editor-{{  $this->questionPosition }}"
-                >
-                    @if($this->hasFeedback)
-                        <x-button.primary class="!p-0 justify-center"
-                                          wire:click="$emit('openModal', 'teacher.inline-feedback-modal', {answer: '{{  $this->currentAnswer->uuid }}', disabled: true });"
+                    <div class="flex w-full flex-col gap-2"
+                         wire:key="feedback-editor-{{  $this->questionPosition }}"
+                    >
+                        {{-- TODO determine what to do with old feedback --}}
+                        @if($this->hasFeedback)
+                            {{-- old way of showing feedback --}}
+                            <x-button.primary class="!p-0 justify-center"
+                                              wire:click="$emit('openModal', 'teacher.inline-feedback-modal', {answer: '{{  $this->currentAnswer->uuid }}', disabled: true });"
+                            >
+                                <span>@lang('review.Bekijk feedback')</span>
+                                <x-icon.chevron/>
+                            </x-button.primary>
+                        @endif
+                    </div>
+                @else
+
+                    {{--TODO ONLY for open question add new configuration with connection to the comments editor --}}
+                    <div class="space-y-4 relative">
+                            <span @class([
+                                    "flex bold border-t border-blue-grey pt-2 justify-between items-center",
+                                    'text-midgrey' => !$this->hasFeedback,
+                                  ])
+                                  x-init="dropdownOpened = @js($this->hasFeedback) ? dropdownOpened : 'add-feedback'"
+                            >
+                                <span>@lang('assessment.Gegeven feedback')</span>
+                                <span class="w-4 h-4 flex justify-center items-center"
+                                      :class="dropdownOpened === 'given-feedback' ? 'rotate-svg-90' : ''"
+                                      @unless(!$this->hasFeedback)
+                                          @click="dropdownOpened = (dropdownOpened === 'given-feedback' ? null : 'given-feedback')"
+                                      @endif
+                                >
+                                    <x-icon.chevron></x-icon.chevron>
+                                </span>
+                            </span>
+
+                        <div class="flex w-auto flex-col gap-2 given-feedback-container -m-4"
+                             x-show="dropdownOpened === 'given-feedback'"
+                             x-collapse
+                             wire:key="feedback-editor-{{  $this->questionPosition }}"
+                             x-data="{}"
+                             x-init=""
                         >
-                            <span>@lang('review.Bekijk feedback')</span>
-                            <x-icon.chevron />
-                        </x-button.primary>
-                    @endif
-                </div>
+
+                            @foreach($answerFeedback as $comment)
+
+                                <x-partials.answer-feedback-card :comment="$comment" :viewOnly="true"/>
+
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
             </x-slot:slideTwoContent>
 
             <x-slot:slideThreeContent>

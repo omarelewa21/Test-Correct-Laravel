@@ -1,5 +1,7 @@
 @props([
-    'comment'
+    'comment',
+    'viewOnly' => false,
+
 ])
 
 <div @class([
@@ -14,6 +16,7 @@
      }"
      data-thread-id="{{$comment->thread_id}}"
      data-uuid="{{$comment->uuid}}"
+     wire:key="comment-{{$comment->uuid}}"
      x-init="
          $el.addEventListener('click', (e) => {
              setActiveComment('{{$comment->thread_id}}',  '{{$comment->uuid}}');
@@ -34,8 +37,12 @@
                 <span class="text-[12px] feedback-card-datetime">{{ $comment->updated_at->format('j M. \'y') }}</span>
             </div>
         </div>
-        <div class="flex items-center justify-center -mr-[14px]">
-            <span class="flex items-center justify-center w-9 h-[34px]">
+        <div @class(["flex items-center justify-center", "-mr-[14px]" => !$viewOnly])>
+            <span @class([
+            "flex items-center justify-center h-[34px]",
+            "w-9" => !$viewOnly,
+            "w-6" => $viewOnly,
+            ])>
 
                 @if($comment->comment_emoji)
                     <x-dynamic-component
@@ -44,13 +51,15 @@
                 @endif
 
             </span>
-            <x-button.options id="comment-options-button-{{$comment->uuid}}"
-                              context="answer-feedback"
-                              :uuid="$comment->uuid"
-                              size="sm"
-                              context-data-json="{!! json_encode(['threadId' => $comment->thread_id]) !!}"
-            >
-            </x-button.options>
+            @unless($viewOnly)
+                <x-button.options id="comment-options-button-{{$comment->uuid}}"
+                                                     context="answer-feedback"
+                                                     :uuid="$comment->uuid"
+                                                     size="sm"
+                                                     context-data-json="{!! json_encode(['threadId' => $comment->thread_id]) !!}"
+                >
+                </x-button.options>
+            @endif
         </div>
     </div>
 
@@ -68,7 +77,7 @@
         ></x-input.comment-color-picker>
 
         <x-input.comment-emoji-picker
-                :comment-thread-id="$comment->uuid"
+                :comment-thread-id="$comment->thread_id"
                 :uuid="$comment->uuid"
                 :value="$comment->comment_emoji"
         ></x-input.comment-emoji-picker>

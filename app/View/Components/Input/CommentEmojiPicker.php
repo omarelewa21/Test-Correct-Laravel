@@ -17,6 +17,7 @@ class CommentEmojiPicker extends Component
         public ?string $commentThreadId = '',
         public string $uuid,
         public CommentEmoji|string|null $value = null,
+        public bool $newComment = false,
     )
     {
         if(is_string($this->value)) {

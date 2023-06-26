@@ -4,10 +4,16 @@
     'threadId' => '',
     'checked' => false,
     'disabled' => false,
+    'newComment',
 ])
 <label class="emoji-picker-radio emoji-picker-radio-container"
-       @unless($disabled)
-           @click="$dispatch('comment-emoji-updated', { uuid: '{{$uuid}}', emoji: '{{$emoji->value}}' })"
+       @unless($disabled || $newComment)
+           @click="$dispatch('comment-emoji-updated', {
+           uuid: '{{$uuid}}',
+           threadId: '{{$threadId}}',
+           emoji: '{{$emoji->value}}',
+           iconName: '{{$emoji->getIconComponentName()}}',
+           })"
        @endif
 >
     <input type="radio"

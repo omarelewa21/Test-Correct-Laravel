@@ -29,6 +29,8 @@ class TestReview extends EvaluationComponent
 
     public function booted(): void
     {
+        $this->getSortedAnswerFeedback();
+
         if ($this->skipBooted) {
             return;
         }
