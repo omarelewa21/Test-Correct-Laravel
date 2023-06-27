@@ -34,7 +34,7 @@
                       style="{{ $double ? 'max-width: 145px; width: 145px' : 'max-width: 160px; width: 160px' }}"
                       title="{{ $question->title }}">{{ $question->title }}</span>
                 <div class="flex note text-sm regular justify-between">
-                    <span class="truncate max-w-[100px]">{{ $question->typeName }}</span>
+                    <span class="truncate max-w-[100px]" selid="specified-type-name">{{ $question->typeName }}</span>
                     <div class="flex items-center space-x-2">
                         <span class="flex">{{ $question->score }}pt</span>
                         <div class="flex items-center space-x-1 @if($question->attachmentCount === 0) invisible @endif">

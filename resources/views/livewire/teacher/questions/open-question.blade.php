@@ -12,9 +12,9 @@
 @section('question-cms-answer')
     <div x-data="writeDownCms(@js($answerEditorId),@js((bool)$this->question['restrict_word_amount']), @entangle('question.max_words'))">
         <div class="border-b border-bluegrey note text-center text-sm uppercase">@lang('cms.Antwoord opties voor student')</div>
-        <div class="general-settings-grid mb-6">
+        <div class="open-question-settings | general-settings-grid mb-6">
             @if(settings()->canUseCmsWscWriteDownToggle())
-                <div class="">
+                <div class="spell_check_available">
                     <x-input.toggle-row-with-title wire:model="question.spell_check_available"
                                                    :disabled="isset($preview)"
                     >
@@ -24,7 +24,7 @@
                     </x-input.toggle-row-with-title>
                 </div>
             @endif
-            <div class="">
+            <div class="mathml_functions">
                 <x-input.toggle-row-with-title wire:model="question.mathml_functions"
                                                :disabled="isset($preview)"
                 >
@@ -33,22 +33,25 @@
                     <x-slot:toolTip>@lang('cms.mathml_functions_tooltip')</x-slot:toolTip>
                 </x-input.toggle-row-with-title>
             </div>
-            <div class="">
+            <div>
                 <x-input.toggle-row-with-title wire:model="question.restrict_word_amount"
                                                x-on:change="wordCounter = !wordCounter"
                                                :disabled="isset($preview)"
+                                               container-class="restrict_word_amount"
                 >
                     <x-icon.text-align-left class="min-w-[1rem]" />
                     <span class="regular">@lang('cms.restrict_word_amount')</span>
-                    <x-input.text type="number"
-                                  value="10"
-                                  class="w-20 ml-auto text-center"
-                                  wire:model="question.max_words"
-                                  :disabled="isset($preview)"
-                    />
+                    <span class=" max_words">
+                        <x-input.text type="number"
+                                      value="10"
+                                      class="w-20 ml-auto text-center"
+                                      wire:model="question.max_words"
+                                      :disabled="isset($preview)"
+                        />
+                    </span>
                 </x-input.toggle-row-with-title>
             </div>
-            <div class="">
+            <div class="text_formatting">
                 <x-input.toggle-row-with-title wire:model="question.text_formatting"
                                                :disabled="isset($preview)"
                 >
