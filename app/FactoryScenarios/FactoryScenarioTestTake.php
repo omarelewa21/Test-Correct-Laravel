@@ -32,13 +32,7 @@ abstract class FactoryScenarioTestTake
 
     public static function createTestTake(User $user = null, ?string $testName = null, ?Test $test = null): TestTake
     {
-        $factory = new static;
-
-        $factory->user = $user;
-        $factory->testName = $testName;
-        $factory->test = $test ?? $factory->createTest();
-
-        return $factory->createFactoryTestTake()->testTake;
+        return static::create($user, $testName, $test)->testTakeFactory->testTake;
     }
 
     public function getTestId(): int
