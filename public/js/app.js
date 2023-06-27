@@ -7957,11 +7957,13 @@ document.addEventListener("alpine:init", function () {
     };
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("contextMenuButton", function (context, uuid, contextData) {
+    var preventLivewireCall = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
     return {
       menuOpen: false,
       uuid: uuid,
       contextData: contextData,
       context: context,
+      preventLivewireCall: preventLivewireCall,
       gridCard: null,
       showEvent: context + "-context-menu-show",
       closeEvent: context + "-context-menu-close",
@@ -7979,7 +7981,8 @@ document.addEventListener("alpine:init", function () {
               top: this.gridCard.offsetTop,
               left: this.gridCard.offsetLeft + this.gridCard.offsetWidth
             },
-            contextData: this.contextData
+            contextData: this.contextData,
+            preventLivewireCall: this.preventLivewireCall
           });
         } else {
           this.$dispatch(this.closeEvent);
@@ -8041,13 +8044,18 @@ document.addEventListener("alpine:init", function () {
                 _this29.gridCardOffsetHeight = detail.coords.gridCardOffsetHeight;
                 _this29.$root.style.top = _this29.detailCoordsTop + _this29.menuOffsetMarginTop + "px";
                 _this29.$root.style.left = _this29.detailCoordsLeft - _this29.menuOffsetMarginLeft + "px";
-                _context7.next = 10;
+                if (detail !== null && detail !== void 0 && detail.preventLivewireCall) {
+                  _context7.next = 13;
+                  break;
+                }
+                _context7.next = 11;
                 return _this29.$wire.setContextValues(_this29.uuid, _this29.contextData);
-              case 10:
+              case 11:
                 readyForShow = _context7.sent;
                 if (readyForShow) _this29.contextMenuOpen = true;
-                _this29.contextMenuOpen = true;
               case 13:
+                _this29.contextMenuOpen = true;
+              case 14:
               case "end":
                 return _context7.stop();
             }
@@ -8507,19 +8515,19 @@ document.addEventListener("alpine:init", function () {
         });
       },
       getSlideElementByIndex: function getSlideElementByIndex(index) {
-        return this.$root.querySelector(".slide-" + index);
+        return this.$root.closest('.drawer').querySelector(".slide-" + index);
       },
       tab: function tab(index) {
         var _this44 = this;
-        var commentUuid = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+        var answerFeedbackCommentUuid = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
         if (!this.tabs.includes(index)) return;
         this.activeTab = index;
         this.closeTooltips();
         var slide = this.getSlideElementByIndex(index);
         this.handleSlideHeight(slide);
         this.$nextTick(function () {
-          if (commentUuid) {
-            _this44.scrollToCommentCard(commentUuid);
+          if (answerFeedbackCommentUuid) {
+            _this44.scrollToCommentCard(answerFeedbackCommentUuid);
           } else {
             _this44.container.scroll({
               top: 0,
@@ -8537,40 +8545,44 @@ document.addEventListener("alpine:init", function () {
           }, 500);
         });
       },
-      scrollToCommentCard: function scrollToCommentCard(commentUuid) {
-        var commentCard = document.querySelector('[data-uuid="' + commentUuid + '"].answer-feedback-card');
-        var cardTop = commentCard.getBoundingClientRect().y - this.container.getBoundingClientRect().y;
-        this.container.scroll({
-          top: cardTop,
-          left: slide.offsetLeft,
-          behavior: "smooth"
-        });
+      scrollToCommentCard: function scrollToCommentCard(answerFeedbackUuid) {
+        var _this45 = this;
+        var commentCard = document.querySelector('[data-uuid="' + answerFeedbackUuid + '"].answer-feedback-card');
+        var slide = this.getSlideElementByIndex(2);
+        var cardTop = commentCard.offsetTop;
+        setTimeout(function () {
+          _this45.container.scroll({
+            top: cardTop,
+            left: slide.offsetLeft,
+            behavior: "smooth"
+          });
+        }, 150);
       },
       next: function next() {
-        var _this45 = this;
+        var _this46 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee14() {
           return _regeneratorRuntime().wrap(function _callee14$(_context14) {
             while (1) switch (_context14.prev = _context14.next) {
               case 0:
-                if (!_this45.needsToPerformActionsStill()) {
+                if (!_this46.needsToPerformActionsStill()) {
                   _context14.next = 4;
                   break;
                 }
-                _this45.$dispatch("scoring-elements-error");
-                _this45.clickedNext = true;
+                _this46.$dispatch("scoring-elements-error");
+                _this46.clickedNext = true;
                 return _context14.abrupt("return");
               case 4:
-                _this45.tab(1);
+                _this46.tab(1);
                 _context14.next = 7;
-                return _this45.$nextTick( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee13() {
+                return _this46.$nextTick( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee13() {
                   return _regeneratorRuntime().wrap(function _callee13$(_context13) {
                     while (1) switch (_context13.prev = _context13.next) {
                       case 0:
-                        _this45.$store.assessment.resetData();
+                        _this46.$store.assessment.resetData();
                         _context13.next = 3;
-                        return _this45.$wire.next();
+                        return _this46.$wire.next();
                       case 3:
-                        _this45.clickedNext = false;
+                        _this46.clickedNext = false;
                       case 4:
                       case "end":
                         return _context13.stop();
@@ -8585,22 +8597,22 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       previous: function previous() {
-        var _this46 = this;
+        var _this47 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee16() {
           return _regeneratorRuntime().wrap(function _callee16$(_context16) {
             while (1) switch (_context16.prev = _context16.next) {
               case 0:
-                _this46.tab(1);
+                _this47.tab(1);
                 _context16.next = 3;
-                return _this46.$nextTick( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee15() {
+                return _this47.$nextTick( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee15() {
                   return _regeneratorRuntime().wrap(function _callee15$(_context15) {
                     while (1) switch (_context15.prev = _context15.next) {
                       case 0:
-                        _this46.$store.assessment.resetData();
+                        _this47.$store.assessment.resetData();
                         _context15.next = 3;
-                        return _this46.$wire.previous();
+                        return _this47.$wire.previous();
                       case 3:
-                        _this46.clickedNext = false;
+                        _this47.clickedNext = false;
                       case 4:
                       case "end":
                         return _context15.stop();
@@ -8614,9 +8626,10 @@ document.addEventListener("alpine:init", function () {
           }, _callee16);
         }))();
       },
-      fixSlideHeightByIndex: function fixSlideHeightByIndex(index) {
+      fixSlideHeightByIndex: function fixSlideHeightByIndex(index, AnswerFeedbackUuid) {
         var slide = this.$root.closest(".slide-" + index);
         this.handleSlideHeight(slide);
+        if (AnswerFeedbackUuid) this.scrollToCommentCard(AnswerFeedbackUuid);
       },
       handleSlideHeight: function handleSlideHeight(slide) {
         if (slide.offsetHeight > this.container.offsetHeight) {
@@ -8646,10 +8659,10 @@ document.addEventListener("alpine:init", function () {
         return !this.inReview && !this.$store.assessment.clearToProceed() && !this.clickedNext;
       },
       openFeedbackTab: function openFeedbackTab() {
-        var _this47 = this;
+        var _this48 = this;
         this.tab(2);
         this.$nextTick(function () {
-          var editorDiv = _this47.$root.querySelector(".feedback textarea");
+          var editorDiv = _this48.$root.querySelector(".feedback textarea");
           if (editorDiv) {
             var editor = ClassicEditors[editorDiv.getAttribute("name")];
             if (editor) {
@@ -8699,10 +8712,10 @@ document.addEventListener("alpine:init", function () {
         el.style.setProperty("--slider-thumb-offset", "calc(".concat(offsetFromCenter, "% + 1px)"));
       },
       setSliderBackgroundSize: function setSliderBackgroundSize(el) {
-        var _this48 = this;
+        var _this49 = this;
         this.$nextTick(function () {
-          el.style.setProperty("--slider-thumb-offset", "".concat(25 / 100 * _this48.getSliderBackgroundSize(el) - 12.5, "px"));
-          el.style.setProperty("--slider-background-size", "".concat(_this48.getSliderBackgroundSize(el), "%"));
+          el.style.setProperty("--slider-thumb-offset", "".concat(25 / 100 * _this49.getSliderBackgroundSize(el) - 12.5, "px"));
+          el.style.setProperty("--slider-background-size", "".concat(_this49.getSliderBackgroundSize(el), "%"));
         });
       },
       syncInput: function syncInput() {
@@ -8721,42 +8734,42 @@ document.addEventListener("alpine:init", function () {
         }
       },
       init: function init() {
-        var _this49 = this;
+        var _this50 = this;
         if (coLearning) {
           Livewire.hook("message.received", function (message, component) {
             var _message$updateQueue$;
             if (component.name === "student.co-learning" && ((_message$updateQueue$ = message.updateQueue[0]) === null || _message$updateQueue$ === void 0 ? void 0 : _message$updateQueue$.method) === "updateHeartbeat") {
-              var scoreInputElement = _this49.$root.querySelector("[x-ref='scoreInput']");
-              _this49.persistentScore = scoreInputElement !== null && scoreInputElement.value !== "" ? scoreInputElement.value : null;
+              var scoreInputElement = _this50.$root.querySelector("[x-ref='scoreInput']");
+              _this50.persistentScore = scoreInputElement !== null && scoreInputElement.value !== "" ? scoreInputElement.value : null;
             }
           });
           Livewire.hook("message.processed", function (message, component) {
             var _message$updateQueue$2;
             if (component.name === "student.co-learning" && ((_message$updateQueue$2 = message.updateQueue[0]) === null || _message$updateQueue$2 === void 0 ? void 0 : _message$updateQueue$2.method) === "updateHeartbeat") {
-              _this49.skipSync = true;
-              _this49.score = _this49.persistentScore;
+              _this50.skipSync = true;
+              _this50.score = _this50.persistentScore;
             }
           });
         }
         this.inputBox = this.$root.querySelector("[x-ref='scoreInput']");
         this.$watch("score", function (value, oldValue) {
-          _this49.markInputElementsClean();
-          if (_this49.disabled || value === oldValue || _this49.skipSync) {
-            _this49.skipSync = false;
+          _this50.markInputElementsClean();
+          if (_this50.disabled || value === oldValue || _this50.skipSync) {
+            _this50.skipSync = false;
             return;
           }
-          if (value >= _this49.maxScore) {
-            _this49.score = value = _this49.maxScore;
+          if (value >= _this50.maxScore) {
+            _this50.score = value = _this50.maxScore;
           }
           if (value <= 0) {
-            _this49.score = value = 0;
+            _this50.score = value = 0;
           }
-          _this49.score = value = _this49.halfPoints ? Math.round(value * 2) / 2 : Math.round(value);
-          _this49.updateContinuousSlider();
+          _this50.score = value = _this50.halfPoints ? Math.round(value * 2) / 2 : Math.round(value);
+          _this50.updateContinuousSlider();
         });
         if (focusInput) {
           this.$nextTick(function () {
-            _this49.inputBox.focus();
+            _this50.inputBox.focus();
           });
         }
       },
@@ -8784,7 +8797,7 @@ document.addEventListener("alpine:init", function () {
       minWidth: 120,
       maxWidth: 1000,
       setInputWidth: function setInputWidth(input) {
-        var _this50 = this;
+        var _this51 = this;
         var init = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
         var preview = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
         if (!init || preview) {
@@ -8795,8 +8808,8 @@ document.addEventListener("alpine:init", function () {
           if (!value) {
             return;
           }
-          _this50.$nextTick(function () {
-            _this50.calculateInputWidth(input);
+          _this51.$nextTick(function () {
+            _this51.calculateInputWidth(input);
           });
         });
       },
@@ -8851,23 +8864,23 @@ document.addEventListener("alpine:init", function () {
       inModal: false,
       show: false,
       init: function init() {
-        var _this51 = this;
+        var _this52 = this;
         this.setHeightProperty();
         this.inModal = this.$root.closest("#modal-container") !== null;
         this.$watch("tooltip", function (value) {
           if (value) {
             var ignoreLeft = false;
-            if (alwaysLeft || _this51.tooltipTooWideForPosition()) {
-              _this51.$refs.tooltipdiv.classList.remove("left-1/2", "-translate-x-1/2");
-              _this51.$refs.tooltipdiv.classList.add("right-0");
+            if (alwaysLeft || _this52.tooltipTooWideForPosition()) {
+              _this52.$refs.tooltipdiv.classList.remove("left-1/2", "-translate-x-1/2");
+              _this52.$refs.tooltipdiv.classList.add("right-0");
               ignoreLeft = true;
             }
-            _this51.$refs.tooltipdiv.style.top = _this51.getTop();
-            _this51.$refs.tooltipdiv.style.left = _this51.getLeft(ignoreLeft);
+            _this52.$refs.tooltipdiv.style.top = _this52.getTop();
+            _this52.$refs.tooltipdiv.style.left = _this52.getLeft(ignoreLeft);
           }
         });
         this.$nextTick(function () {
-          return _this51.show = true;
+          return _this52.show = true;
         });
       },
       getTop: function getTop() {
@@ -8898,12 +8911,12 @@ document.addEventListener("alpine:init", function () {
         this.$refs.tooltipdiv.style.left = this.getLeft();
       },
       setHeightProperty: function setHeightProperty() {
-        var _this52 = this;
+        var _this53 = this;
         this.tooltip = true;
         this.$nextTick(function () {
-          _this52.height = _this52.$refs.tooltipdiv.offsetHeight;
-          _this52.tooltip = false;
-          _this52.$refs.tooltipdiv.classList.remove("invisible");
+          _this53.height = _this53.$refs.tooltipdiv.offsetHeight;
+          _this53.tooltip = false;
+          _this53.$refs.tooltipdiv.classList.remove("invisible");
         });
       },
       tooltipTooWideForPosition: function tooltipTooWideForPosition() {
@@ -8925,16 +8938,16 @@ document.addEventListener("alpine:init", function () {
       navScrollBar: null,
       initialized: false,
       init: function init() {
-        var _this53 = this;
+        var _this54 = this;
         this.navScrollBar = this.$root.querySelector('#navscrollbar');
         this.$nextTick(function () {
-          _this53.$root.querySelector(".active").scrollIntoView({
+          _this54.$root.querySelector(".active").scrollIntoView({
             behavior: "smooth"
           });
-          _this53.totalScrollWidth = _this53.$root.offsetWidth;
-          _this53.resize();
-          _this53.initialized = true;
-          _this53.slideToActiveQuestionBubble();
+          _this54.totalScrollWidth = _this54.$root.offsetWidth;
+          _this54.resize();
+          _this54.initialized = true;
+          _this54.slideToActiveQuestionBubble();
         });
       },
       resize: function resize() {
@@ -8972,11 +8985,11 @@ document.addEventListener("alpine:init", function () {
         });
       },
       startIntersectionCountdown: function startIntersectionCountdown() {
-        var _this54 = this;
+        var _this55 = this;
         clearTimeout(this.intersectionCountdown);
         this.intersectionCountdown = setTimeout(function () {
-          clearTimeout(_this54.intersectionCountdown);
-          _this54.slideToActiveQuestionBubble();
+          clearTimeout(_this55.intersectionCountdown);
+          _this55.slideToActiveQuestionBubble();
         }, 5000);
       }
     };
@@ -8987,20 +9000,20 @@ document.addEventListener("alpine:init", function () {
       changing: false,
       language: language,
       startLanguageChange: function startLanguageChange(event, wireModelName) {
-        var _this55 = this;
+        var _this56 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee17() {
           return _regeneratorRuntime().wrap(function _callee17$(_context17) {
             while (1) switch (_context17.prev = _context17.next) {
               case 0:
-                _this55.$dispatch('language-loading-start');
-                _this55.changing = true;
+                _this56.$dispatch('language-loading-start');
+                _this56.changing = true;
                 _context17.next = 4;
-                return _this55.$wire.set(wireModelName, _this55.language);
+                return _this56.$wire.set(wireModelName, _this56.language);
               case 4:
-                _this55.$nextTick(function () {
+                _this56.$nextTick(function () {
                   setTimeout(function () {
-                    _this55.changing = false;
-                    _this55.$dispatch('language-loading-end');
+                    _this56.changing = false;
+                    _this56.$dispatch('language-loading-end');
                   }, 1500);
                 });
               case 5:
@@ -9026,30 +9039,29 @@ document.addEventListener("alpine:init", function () {
       questionType: questionType,
       viewOnly: viewOnly,
       init: function init() {
-        var _this56 = this;
+        var _this57 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee20() {
           return _regeneratorRuntime().wrap(function _callee20$(_context20) {
             while (1) switch (_context20.prev = _context20.next) {
               case 0:
-                _this56.dropdownOpened = questionType === 'OpenQuestion' ? 'given-feedback' : 'add-feedback';
+                _this57.dropdownOpened = questionType === 'OpenQuestion' ? 'given-feedback' : 'add-feedback';
                 if (!(questionType !== 'OpenQuestion')) {
                   _context20.next = 3;
                   break;
                 }
                 return _context20.abrupt("return");
               case 3:
-                _this56.setFocusTracking();
+                _this57.setFocusTracking();
                 document.addEventListener('comment-color-updated', /*#__PURE__*/function () {
                   var _ref4 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee18(event) {
-                    var styleTagElement;
+                    var styleTagElement, colorWithOpacity, color;
                     return _regeneratorRuntime().wrap(function _callee18$(_context18) {
                       while (1) switch (_context18.prev = _context18.next) {
                         case 0:
-                          styleTagElement = document.querySelector('#commentMarkerStyles');
-                          _context18.next = 3;
-                          return _this56.$wire.updateCommentColor(event.detail);
-                        case 3:
-                          styleTagElement.innerHTML = _context18.sent;
+                          styleTagElement = document.querySelector('#temporaryCommentMarkerStyles');
+                          colorWithOpacity = event.detail.color;
+                          color = colorWithOpacity.replace('0.4', '1');
+                          styleTagElement.innerHTML = "p .ck-comment-marker[data-comment=\"".concat(event.detail.threadId, "\"]{\n") + "                            --ck-color-comment-marker: ".concat(colorWithOpacity, " !important;\n") + /* opacity .4 */"                            --ck-color-comment-marker-border: ".concat(color, " !important;\n") + /* opacity 1.0 */"                            --ck-color-comment-marker-active: ".concat(colorWithOpacity, " !important;\n") + /* opacity .4 */"                        }";
                         case 4:
                         case "end":
                           return _context18.stop();
@@ -9062,18 +9074,21 @@ document.addEventListener("alpine:init", function () {
                 }());
                 document.addEventListener('comment-emoji-updated', /*#__PURE__*/function () {
                   var _ref5 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee19(event) {
-                    var styleTagElement, el;
+                    var ckeditorIconWrapper, cardIconWrapper;
                     return _regeneratorRuntime().wrap(function _callee19$(_context19) {
                       while (1) switch (_context19.prev = _context19.next) {
                         case 0:
-                          styleTagElement = document.querySelector('#commentMarkerStyles');
-                          el = document.querySelector('#icon-' + event.detail.threadId);
-                          _this56.addOrReplaceIconByName(el, event.detail.iconName);
-                          _context19.next = 5;
-                          return _this56.$wire.updateCommentEmoji(event.detail);
-                        case 5:
-                          styleTagElement.innerHTML = _context19.sent;
-                        case 6:
+                          // let styleTagElement = document.querySelector('#commentMarkerStyles');
+                          ckeditorIconWrapper = document.querySelector('#icon-' + event.detail.threadId);
+                          cardIconWrapper = document.querySelector('[data-uuid="' + event.detail.uuid + '"].answer-feedback-card-icon');
+                          if (ckeditorIconWrapper) _this57.addOrReplaceIconByName(ckeditorIconWrapper, event.detail.iconName);
+                          if (cardIconWrapper) {
+                            _this57.addOrReplaceIconByName(cardIconWrapper, event.detail.iconName);
+                            cardIconWrapper.querySelector('span').style = '';
+                          }
+
+                          //TODO Replace wire call with only visualy changing color/emoji
+                        case 4:
                         case "end":
                           return _context19.stop();
                       }
@@ -9085,17 +9100,17 @@ document.addEventListener("alpine:init", function () {
                 }());
                 document.addEventListener('new-comment-color-updated', function (event) {
                   var _event$detail;
-                  return _this56.updateNewCommentMarkerStyles(event === null || event === void 0 ? void 0 : (_event$detail = event.detail) === null || _event$detail === void 0 ? void 0 : _event$detail.color);
+                  return _this57.updateNewCommentMarkerStyles(event === null || event === void 0 ? void 0 : (_event$detail = event.detail) === null || _event$detail === void 0 ? void 0 : _event$detail.color);
                 });
                 document.addEventListener('mousedown', function (e) {
-                  if (_this56.activeComment === null) {
+                  if (_this57.activeComment === null) {
                     return;
                   }
                   //check for click outside 1. comment markers, 2. comment marker icons, 3. comment cards.
                   if (e.srcElement.closest('.ck-comment-marker') || e.srcElement.closest('.answer-feedback-comment-icons') || e.srcElement.closest('.given-feedback-container')) {
                     return;
                   }
-                  _this56.clearActiveComment();
+                  _this57.clearActiveComment();
                 });
               case 8:
               case "end":
@@ -9105,10 +9120,10 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       updateCommentThread: function updateCommentThread(element) {
-        var _this57 = this;
+        var _this58 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee21() {
           var _answerFeedbackCardEl, _answerFeedbackCardEl2, _answerFeedbackCardEl3, _answerFeedbackCardEl4;
-          var answerFeedbackCardElement, answerFeedbackUuid, comment_color, comment_emoji, answerFeedbackEditor;
+          var answerFeedbackCardElement, answerFeedbackUuid, comment_color, comment_emoji, answerFeedbackEditor, commentStyles;
           return _regeneratorRuntime().wrap(function _callee21$(_context21) {
             while (1) switch (_context21.prev = _context21.next) {
               case 0:
@@ -9118,13 +9133,18 @@ document.addEventListener("alpine:init", function () {
                 comment_emoji = (_answerFeedbackCardEl3 = answerFeedbackCardElement.querySelector('.comment-emoji-picker input:checked')) === null || _answerFeedbackCardEl3 === void 0 ? void 0 : (_answerFeedbackCardEl4 = _answerFeedbackCardEl3.dataset) === null || _answerFeedbackCardEl4 === void 0 ? void 0 : _answerFeedbackCardEl4.emoji;
                 answerFeedbackEditor = ClassicEditors['update-' + answerFeedbackUuid];
                 _context21.next = 7;
-                return _this57.$wire.call('updateExistingComment', {
+                return _this58.$wire.call('updateExistingComment', {
                   uuid: answerFeedbackUuid,
-                  message: answerFeedbackEditor.getData()
+                  message: answerFeedbackEditor.getData(),
+                  comment_emoji: comment_emoji,
+                  comment_color: comment_color
                 });
               case 7:
-                _this57.setEditingComment(null);
-              case 8:
+                commentStyles = _context21.sent;
+                document.querySelector('#commentMarkerStyles').innerHTML = commentStyles;
+                _this58.cancelEditingComment(answerFeedbackCardElement.dataset.threadId);
+                // this.setEditingComment(null);
+              case 10:
               case "end":
                 return _context21.stop();
             }
@@ -9132,21 +9152,21 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       createCommentThread: function createCommentThread() {
-        var _this58 = this;
+        var _this59 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee23() {
           var _addCommentElement$qu, _addCommentElement$qu2, _addCommentElement$qu3, _addCommentElement$qu4;
           var addCommentElement, comment_color, comment_emoji, answerEditor, feedbackEditor, comment;
           return _regeneratorRuntime().wrap(function _callee23$(_context23) {
             while (1) switch (_context23.prev = _context23.next) {
               case 0:
-                addCommentElement = _this58.$el.closest('.answer-feedback-add-comment');
+                addCommentElement = _this59.$el.closest('.answer-feedback-add-comment');
                 comment_color = (_addCommentElement$qu = addCommentElement.querySelector('.comment-color-picker input:checked')) === null || _addCommentElement$qu === void 0 ? void 0 : (_addCommentElement$qu2 = _addCommentElement$qu.dataset) === null || _addCommentElement$qu2 === void 0 ? void 0 : _addCommentElement$qu2.color;
                 comment_emoji = (_addCommentElement$qu3 = addCommentElement.querySelector('.comment-emoji-picker input:checked')) === null || _addCommentElement$qu3 === void 0 ? void 0 : (_addCommentElement$qu4 = _addCommentElement$qu3.dataset) === null || _addCommentElement$qu4 === void 0 ? void 0 : _addCommentElement$qu4.emoji;
-                answerEditor = ClassicEditors[_this58.answerEditorId];
-                feedbackEditor = ClassicEditors[_this58.feedbackEditorId];
+                answerEditor = ClassicEditors[_this59.answerEditorId];
+                feedbackEditor = ClassicEditors[_this59.feedbackEditorId];
                 comment = feedbackEditor.getData();
                 answerEditor.focus();
-                _this58.$nextTick( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee22() {
+                _this59.$nextTick( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee22() {
                   var feedback, newCommentThread, updatedAnswerText, commentStyles;
                   return _regeneratorRuntime().wrap(function _callee22$(_context22) {
                     while (1) switch (_context22.prev = _context22.next) {
@@ -9156,7 +9176,7 @@ document.addEventListener("alpine:init", function () {
                           break;
                         }
                         _context22.next = 3;
-                        return _this58.$wire.createNewComment([]);
+                        return _this59.$wire.createNewComment([]);
                       case 3:
                         feedback = _context22.sent;
                         _context22.next = 6;
@@ -9171,11 +9191,11 @@ document.addEventListener("alpine:init", function () {
                           threadId: feedback.threadId,
                           commentId: feedback.commentId,
                           content: comment,
-                          authorId: _this58.userId
+                          authorId: _this59.userId
                         });
                         updatedAnswerText = answerEditor.getData();
                         _context22.next = 11;
-                        return _this58.$wire.saveNewComment({
+                        return _this59.$wire.saveNewComment({
                           uuid: feedback.uuid,
                           message: comment,
                           comment_color: comment_color,
@@ -9183,11 +9203,11 @@ document.addEventListener("alpine:init", function () {
                         }, updatedAnswerText);
                       case 11:
                         commentStyles = _context22.sent;
-                        _context22.t0 = _this58;
+                        _context22.t0 = _this59;
                         _context22.t1 = feedback.uuid;
                         _context22.t2 = feedback.threadId;
                         _context22.next = 17;
-                        return _this58.$wire.call('getIconNameByEmojiValue', comment_emoji);
+                        return _this59.$wire.call('getIconNameByEmojiValue', comment_emoji);
                       case 17:
                         _context22.t3 = _context22.sent;
                         _context22.t4 = {
@@ -9202,19 +9222,20 @@ document.addEventListener("alpine:init", function () {
                         return _context22.abrupt("return");
                       case 23:
                         _context22.next = 25;
-                        return _this58.$wire.createNewComment({
+                        return _this59.$wire.createNewComment({
                           message: comment,
-                          // comment_color: null, //no comment color when its a general ticket.
-                          comment_emoji: null
+                          comment_color: null,
+                          //no comment color when its a general ticket.
+                          comment_emoji: comment_emoji
                         }, false);
                       case 25:
                         feedback = _context22.sent;
                         //todo go to gegeven feedback
-                        _this58.$dispatch('answer-feedback-show-comments');
+                        _this59.$dispatch('answer-feedback-show-comments');
 
                         //todo fix scrolling and activating correct card:
-                        //scrollToCommentCard(feedback.uuid);
-                      case 27:
+                        _this59.scrollToCommentCard(feedback.uuid);
+                      case 28:
                       case "end":
                         return _context22.stop();
                     }
@@ -9228,7 +9249,7 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       deleteCommentThread: function deleteCommentThread(threadId, feedbackId) {
-        var _this59 = this;
+        var _this60 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee24() {
           var answerEditor, commentsRepository, thread, result, deletedThreadIcon, answerText;
           return _regeneratorRuntime().wrap(function _callee24$(_context24) {
@@ -9239,16 +9260,16 @@ document.addEventListener("alpine:init", function () {
                   break;
                 }
                 _context24.next = 3;
-                return _this59.$wire.deleteCommentThread(null, feedbackId);
+                return _this60.$wire.deleteCommentThread(null, feedbackId);
               case 3:
-                _this59.$wire.render();
+                _this60.$wire.render();
                 return _context24.abrupt("return");
               case 5:
-                answerEditor = ClassicEditors[_this59.answerEditorId];
+                answerEditor = ClassicEditors[_this60.answerEditorId];
                 commentsRepository = answerEditor.plugins.get('CommentsRepository');
                 thread = commentsRepository.getCommentThread(threadId);
                 _context24.next = 10;
-                return _this59.$wire.deleteCommentThread(threadId, feedbackId);
+                return _this60.$wire.deleteCommentThread(threadId, feedbackId);
               case 10:
                 result = _context24.sent;
                 if (!result) {
@@ -9263,7 +9284,7 @@ document.addEventListener("alpine:init", function () {
                 commentsRepository.getCommentThread(threadId).remove();
                 answerText = answerEditor.getData();
                 _context24.next = 18;
-                return _this59.$wire.updateAnswer(answerText);
+                return _this60.$wire.updateAnswer(answerText);
               case 18:
                 return _context24.abrupt("return");
               case 19:
@@ -9276,14 +9297,14 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       initCommentIcons: function initCommentIcons(commentThreads) {
-        var _this60 = this;
-        //create icon container
+        var _this61 = this;
+        //create icon wrapper and append icon inside it
         commentThreads.forEach(function (thread) {
-          _this60.createCommentIcon(thread);
+          _this61.createCommentIcon(thread);
         });
       },
       initCommentIcon: function initCommentIcon(el, thread) {
-        var _this61 = this;
+        var _this62 = this;
         var commentThreadElements = null;
         setTimeout(function () {
           var commentMarkers = document.querySelectorAll("[data-comment='" + thread.threadId + "']");
@@ -9292,19 +9313,19 @@ document.addEventListener("alpine:init", function () {
           el.style.left = lastCommentMarker.offsetWidth + lastCommentMarker.offsetLeft - 5 + 'px';
           el.setAttribute('data-uuid', thread.uuid);
           el.setAttribute('data-threadId', thread.threadId);
-          _this61.addOrReplaceIconByName(el, thread.iconName);
+          _this62.addOrReplaceIconByName(el, thread.iconName);
           commentThreadElements = [].concat(_toConsumableArray(commentMarkers), [el]);
 
           //set click event listener on all comment markers and the icon.
           commentThreadElements.forEach(function (threadElement) {
             threadElement.addEventListener('click', function () {
-              _this61.setActiveComment(thread.threadId, thread.uuid);
+              _this62.setActiveComment(thread.threadId, thread.uuid);
             });
             threadElement.addEventListener('mouseenter', function (e) {
-              _this61.setHoveringComment(thread.threadId, thread.uuid);
+              _this62.setHoveringComment(thread.threadId, thread.uuid);
             });
             threadElement.addEventListener('mouseleave', function (e) {
-              _this61.clearHoveringComment();
+              _this62.clearHoveringComment();
             });
           });
         }, 200);
@@ -9321,10 +9342,9 @@ document.addEventListener("alpine:init", function () {
         this.initCommentIcon(iconWrapper, thread);
       },
       addOrReplaceIconByName: function addOrReplaceIconByName(el, iconName) {
-        //reset div
         el.innerHTML = '';
         var iconTemplate = null;
-        if (iconName === null) {
+        if (iconName === null || iconName === '') {
           iconTemplate = document.querySelector('#default-icon');
         } else {
           iconTemplate = document.querySelector('#' + iconName.replace('icon.', ''));
@@ -9341,6 +9361,42 @@ document.addEventListener("alpine:init", function () {
       clearHoveringComment: function clearHoveringComment() {
         this.hoveringComment = null;
         this.setHoveringCommentMarkerStyle(true);
+      },
+      cancelEditingComment: function cancelEditingComment(threadId, AnswerFeedbackUuid) {
+        var originalIconName = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+        var originalColor = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
+        this.setEditingComment(null);
+
+        //reset radio buttons !!!
+        //todo reset emoji and color radio buttons
+        // replace document with specific card
+        console.log(originalColor);
+        if (originalColor) {
+          document.querySelector('[data-uuid="' + AnswerFeedbackUuid + "\"].answer-feedback-card .comment-color-picker [data-color=\"".concat(originalColor, "\"]")).checked = true;
+        }
+        if (originalIconName !== false) {
+          if (!originalIconName) {
+            document.querySelector('[data-uuid="' + AnswerFeedbackUuid + "\"].answer-feedback-card .comment-emoji-picker input:checked").checked = false;
+          } else {
+            document.querySelector('[data-uuid="' + AnswerFeedbackUuid + "\"].answer-feedback-card .comment-emoji-picker [data-iconName=\"".concat(originalIconName, "\"]")).checked = true;
+          }
+        }
+
+        //reset temporary styling
+        document.querySelector('#temporaryCommentMarkerStyles').innerHTML = '';
+
+        //reset icon
+        var ckeditorIconWrapper = document.querySelector('#icon-' + threadId);
+        var cardIconWrapper = document.querySelector('[data-uuid="' + AnswerFeedbackUuid + '"].answer-feedback-card-icon');
+        if (ckeditorIconWrapper) this.addOrReplaceIconByName(ckeditorIconWrapper, originalIconName);
+        if (cardIconWrapper) {
+          if (!originalIconName) {
+            cardIconWrapper.innerHTML = '';
+            return;
+          }
+          this.addOrReplaceIconByName(cardIconWrapper, originalIconName);
+          cardIconWrapper.querySelector('span').style = '';
+        }
       },
       updateNewCommentMarkerStyles: function updateNewCommentMarkerStyles(color) {
         var styleTag = document.querySelector('#addFeedbackMarkerStyles');
@@ -9389,31 +9445,39 @@ document.addEventListener("alpine:init", function () {
         this.setActiveCommentMarkerStyle(true);
       },
       setFocusTracking: function setFocusTracking() {
-        var _this62 = this;
+        var _this63 = this;
         if (viewOnly) {
           return;
         }
         setTimeout(function () {
-          var answerEditor = ClassicEditors[_this62.answerEditorId];
-          var feedbackEditor = ClassicEditors[_this62.feedbackEditorId];
-          var feedbackEditorSaveButton = document.querySelector('#' + _this62.feedbackEditorId + '-save');
-          var feedbackEditorCancelButton = document.querySelector('#' + _this62.feedbackEditorId + '-cancel');
-          answerEditor.ui.focusTracker.add(feedbackEditor.sourceElement.parentElement.querySelector('.ck.ck-content'));
-          answerEditor.ui.focusTracker.add(feedbackEditorSaveButton);
-          answerEditor.ui.focusTracker.add(feedbackEditorCancelButton);
+          try {
+            var answerEditor = ClassicEditors[_this63.answerEditorId];
+            var feedbackEditor = ClassicEditors[_this63.feedbackEditorId];
+            var feedbackEditorSaveButton = document.querySelector('#' + _this63.feedbackEditorId + '-save');
+            var feedbackEditorCancelButton = document.querySelector('#' + _this63.feedbackEditorId + '-cancel');
+            answerEditor.ui.focusTracker.add(feedbackEditor.sourceElement.parentElement.querySelector('.ck.ck-content'));
+            answerEditor.ui.focusTracker.add(feedbackEditorSaveButton);
+            answerEditor.ui.focusTracker.add(feedbackEditorCancelButton);
 
-          //keep focus when clicking on the emoji and color pickers
-          document.querySelectorAll('.answer-feedback-add-comment .emoji-picker-radio, .answer-feedback-add-comment .color-picker-radio input').forEach(function (element) {
-            answerEditor.ui.focusTracker.add(element);
-            feedbackEditor.ui.focusTracker.add(element);
-          });
-          document.querySelectorAll('.answer-feedback-add-comment .emoji-picker-radio, .answer-feedback-add-comment .emoji-picker-radio input').forEach(function (element) {
-            answerEditor.ui.focusTracker.add(element);
-            feedbackEditor.ui.focusTracker.add(element);
-          });
-          feedbackEditor.ui.focusTracker.add(answerEditor.sourceElement.parentElement.querySelector('.ck.ck-content'));
-          feedbackEditor.ui.focusTracker.add(feedbackEditorSaveButton);
-          feedbackEditor.ui.focusTracker.add(feedbackEditorCancelButton);
+            //keep focus when clicking on the emoji and color pickers
+            document.querySelectorAll('.answer-feedback-add-comment .emoji-picker-radio, .answer-feedback-add-comment .color-picker-radio input').forEach(function (element) {
+              answerEditor.ui.focusTracker.add(element);
+              feedbackEditor.ui.focusTracker.add(element);
+            });
+            document.querySelectorAll('.answer-feedback-add-comment .emoji-picker-radio, .answer-feedback-add-comment .emoji-picker-radio input').forEach(function (element) {
+              answerEditor.ui.focusTracker.add(element);
+              feedbackEditor.ui.focusTracker.add(element);
+            });
+            feedbackEditor.ui.focusTracker.add(answerEditor.sourceElement.parentElement.querySelector('.ck.ck-content'));
+            feedbackEditor.ui.focusTracker.add(feedbackEditorSaveButton);
+            feedbackEditor.ui.focusTracker.add(feedbackEditorCancelButton);
+          } catch (exception) {
+            // ignore focusTracker error when trying to add element that is already registered
+            // there is no way to preventively check if the element is already registered
+            if (!exception.message.contains('focustracker-add-element-already-exist')) {
+              throw exception;
+            }
+          }
         }, 1000);
       },
       get answerEditor() {
@@ -9423,11 +9487,11 @@ document.addEventListener("alpine:init", function () {
         return ClassicEditors[this.feedbackEditorId];
       },
       setEditingComment: function setEditingComment(AnswerFeedbackUuid) {
-        var _this63 = this;
+        var _this64 = this;
         this.activeComment = null;
         this.editingComment = AnswerFeedbackUuid !== null && AnswerFeedbackUuid !== void 0 ? AnswerFeedbackUuid : null;
         setTimeout(function () {
-          _this63.fixSlideHeightByIndex(2);
+          _this64.fixSlideHeightByIndex(2, AnswerFeedbackUuid);
         }, 100);
       },
       toggleFeedbackAccordion: function toggleFeedbackAccordion(currentToggleState, name) {
@@ -9476,7 +9540,7 @@ document.addEventListener("alpine:init", function () {
         this.setHeightToAspectRatio(this.$el);
       },
       setHeightToAspectRatio: function setHeightToAspectRatio(element) {
-        var _this64 = this;
+        var _this65 = this;
         var aspectRatioWidth = 940;
         var aspectRatioHeight = 500;
         var aspectRatio = aspectRatioHeight / aspectRatioWidth;
@@ -9489,7 +9553,7 @@ document.addEventListener("alpine:init", function () {
         if (newHeight <= 0) {
           if (this.currentTry <= this.maxTries) {
             setTimeout(function () {
-              return _this64.setHeightToAspectRatio(element);
+              return _this65.setHeightToAspectRatio(element);
             }, 50);
             this.currentTry++;
           }
@@ -9522,16 +9586,16 @@ document.addEventListener("alpine:init", function () {
       maxWords: maxWords,
       wordContainer: null,
       init: function init() {
-        var _this65 = this;
+        var _this66 = this;
         this.$nextTick(function () {
-          _this65.editor = ClassicEditors[editorId];
-          _this65.wordContainer = _this65.$root.querySelector(".ck-word-count__words");
-          _this65.wordContainer.style.display = "flex";
-          _this65.wordContainer.parentElement.style.display = "flex";
-          _this65.addMaxWordsToWordCounter(_this65.maxWords);
+          _this66.editor = ClassicEditors[editorId];
+          _this66.wordContainer = _this66.$root.querySelector(".ck-word-count__words");
+          _this66.wordContainer.style.display = "flex";
+          _this66.wordContainer.parentElement.style.display = "flex";
+          _this66.addMaxWordsToWordCounter(_this66.maxWords);
         });
         this.$watch("maxWords", function (value) {
-          _this65.addMaxWordsToWordCounter(value);
+          _this66.addMaxWordsToWordCounter(value);
         });
       },
       addMaxWordsToWordCounter: function addMaxWordsToWordCounter(value) {
@@ -16753,8 +16817,6 @@ RichTextEditor = {
             }
           }));
 
-          //todo open 'feedback toevoegen' and close 'gegeven feedback'
-          console.error('TODO: open feedback toevoegen and close gegeven feedback');
           //focus the create a comment editor
           dispatchEvent(new CustomEvent('answer-feedback-focus-feedback-editor'));
           setTimeout(function () {

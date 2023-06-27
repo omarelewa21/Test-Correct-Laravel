@@ -52,8 +52,6 @@ class CommentEditor extends RichTextarea
             $textFormatting,
             $mathmlFunctions,
         );
-
-        //todo....
     }
 
     public function render()

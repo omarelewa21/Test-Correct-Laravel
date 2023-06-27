@@ -141,9 +141,6 @@ RichTextEditor = {
                 if(window.getSelection().toString() !== '') {
                     dispatchEvent(new CustomEvent('assessment-drawer-tab-update', {detail: {tab: 2}}));
 
-
-                    //todo open 'feedback toevoegen' and close 'gegeven feedback'
-                    console.error('TODO: open feedback toevoegen and close gegeven feedback')
                     //focus the create a comment editor
                     dispatchEvent(new CustomEvent('answer-feedback-focus-feedback-editor'));
 

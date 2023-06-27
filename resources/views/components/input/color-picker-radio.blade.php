@@ -10,7 +10,7 @@
            @if($threadId === 'new-comment')
                @click="$dispatch('new-comment-color-updated', { color: '{{$color->getRgbColorCode(0.4)}}' })"
            @else
-               @click="$dispatch('comment-color-updated', { threadId: '{{$threadId}}', color: '{{$color->value}}' })"
+               @click="$dispatch('comment-color-updated', { threadId: '{{$threadId}}', color: '{{$color->getRgbColorCode(0.4)}}' })"
            @endif
        @endif
 >

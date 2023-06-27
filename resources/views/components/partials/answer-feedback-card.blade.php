@@ -3,6 +3,9 @@
     'viewOnly' => false,
 
 ])
+@php
+    $iconName = \tcCore\Http\Enums\CommentEmoji::tryFrom($comment->comment_emoji)?->getIconComponentName() ?? '';
+@endphp
 
 <div @class([
          "answer-feedback-card context-menu-container",
@@ -39,14 +42,16 @@
         </div>
         <div @class(["flex items-center justify-center", "-mr-[14px]" => !$viewOnly])>
             <span @class([
-            "flex items-center justify-center h-[34px]",
+            "answer-feedback-card-icon | flex items-center justify-center h-[34px]",
             "w-9" => !$viewOnly,
             "w-6" => $viewOnly,
-            ])>
+            ])
+            data-uuid="{{$comment->uuid}}"
+            >
 
                 @if($comment->comment_emoji)
                     <x-dynamic-component
-                            :component="\tcCore\Http\Enums\CommentEmoji::tryFrom($comment->comment_emoji)?->getIconComponentName()">
+                            :component="$iconName">
                     </x-dynamic-component>
                 @endif
 
@@ -56,7 +61,7 @@
                                                      context="answer-feedback"
                                                      :uuid="$comment->uuid"
                                                      size="sm"
-                                                     context-data-json="{!! json_encode(['threadId' => $comment->thread_id]) !!}"
+                                                     context-data-json="{!! json_encode(['threadId' => $comment->thread_id, 'preventLivewireCall' => true]) !!}"
                 >
                 </x-button.options>
             @endif
@@ -93,7 +98,9 @@
         </div>
 
         <div class="flex justify-end space-x-4 h-fit mt-2 mb-4">
-            <x-button.text-button size="sm" @click="editingComment = null">
+            <x-button.text-button size="sm"
+                                  @click="cancelEditingComment('{{$comment->thread_id}}','{{$comment->uuid}}', '{{$iconName}}', '{{$comment->comment_color}}')"
+            >
                 <span>@lang('modal.annuleren')</span>
             </x-button.text-button>
             <x-button.cta class="block"

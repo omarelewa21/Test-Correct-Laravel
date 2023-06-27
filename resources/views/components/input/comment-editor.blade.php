@@ -11,6 +11,7 @@
     </style>
     <style id="hoveringCommentMarkerStyle" wire:ignore>{{-- filled with javascript --}}</style>
     <style id="activeCommentMarkerStyle" wire:ignore>{{-- filled with javascript --}}</style>
+    <style id="temporaryCommentMarkerStyles">{{-- filled with javascript --}}</style>
     <style id="commentMarkerStyles">
         {!!  $commentMarkerStyles !!}
     </style>

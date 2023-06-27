@@ -20,6 +20,7 @@
            name="emoji-picker-{{$uuid}}"
            @checked(!$disabled && $checked)
            data-emoji="{{$emoji->value}}"
+           data-iconName="{{$emoji->getIconComponentName()}}"
            @disabled($disabled)
     >
     <span class="emoji-picker-circle emoji-picker-rectangle"

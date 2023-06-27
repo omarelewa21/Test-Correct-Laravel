@@ -9,6 +9,7 @@ use tcCore\AnswerFeedback;
 use tcCore\AnswerRating;
 use tcCore\Exceptions\AssessmentException;
 use tcCore\Http\Enums\CommentEmoji;
+use tcCore\Http\Enums\CommentMarkerColor;
 use tcCore\TestTake;
 
 abstract class EvaluationComponent extends TCComponent
@@ -202,12 +203,11 @@ abstract class EvaluationComponent extends TCComponent
 
     public function updateExistingComment($data)
     {
-        $this->updateAnswerFeedback(
-            uuid: $data['uuid'],
-            message: $data['message'],
-        );
+        $this->updateAnswerFeedback(...$data); //using named parameter splat operation
 
         $this->getSortedAnswerFeedback();
+
+        return $this->getCommentMarkerStylesProperty();
     }
 
     public function updateAnswer($answer)
@@ -279,7 +279,7 @@ abstract class EvaluationComponent extends TCComponent
 
         return $this->answerFeedback->reduce(function ($carry, $feedback) {
             return $carry = $carry . <<<STYLE
-                p .ck-comment-marker[data-comment="{$feedback->thread_id}"]{
+                .ck-comment-marker[data-comment="{$feedback->thread_id}"]{
                             --ck-color-comment-marker: {$feedback->getColor(0.4)} !important;
                             --ck-color-comment-marker-border: {$feedback->getColor()} !important;
                             --ck-color-comment-marker-active: {$feedback->getColor(0.4)} !important;
@@ -306,6 +306,10 @@ abstract class EvaluationComponent extends TCComponent
     public function getIconNameByEmojiValue($emojiValue)
     {
         return CommentEmoji::tryFrom($emojiValue)?->getIconComponentName();
+    }
+    public function getColorCodeByColorValue($colorName, $opacity = 1)
+    {
+        return CommentMarkerColor::tryFrom($colorName)?->getRgbColorCode($opacity);
     }
 
 }

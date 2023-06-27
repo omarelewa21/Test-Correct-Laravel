@@ -1560,11 +1560,12 @@ document.addEventListener("alpine:init", () => {
     ));
 
 
-    Alpine.data("contextMenuButton", (context, uuid, contextData) => ({
+    Alpine.data("contextMenuButton", (context, uuid, contextData, preventLivewireCall = false) => ({
         menuOpen: false,
         uuid,
         contextData,
         context,
+        preventLivewireCall,
         gridCard: null,
         showEvent: context + "-context-menu-show",
         closeEvent: context + "-context-menu-close",
@@ -1582,7 +1583,8 @@ document.addEventListener("alpine:init", () => {
                         top: this.gridCard.offsetTop,
                         left: this.gridCard.offsetLeft + this.gridCard.offsetWidth
                     },
-                    contextData: this.contextData
+                    contextData: this.contextData,
+                    preventLivewireCall: this.preventLivewireCall
                 });
             } else {
                 this.$dispatch(this.closeEvent);
@@ -1638,9 +1640,10 @@ document.addEventListener("alpine:init", () => {
 
             this.$root.style.top = (this.detailCoordsTop + this.menuOffsetMarginTop) + "px";
             this.$root.style.left = (this.detailCoordsLeft - this.menuOffsetMarginLeft) + "px";
-
-            let readyForShow = await this.$wire.setContextValues(this.uuid, this.contextData);
-            if (readyForShow) this.contextMenuOpen = true;
+            if(! detail?.preventLivewireCall) {
+                let readyForShow = await this.$wire.setContextValues(this.uuid, this.contextData);
+                if (readyForShow) this.contextMenuOpen = true;
+            }
             this.contextMenuOpen = true;
         },
         closeMenu() {
@@ -1993,17 +1996,17 @@ document.addEventListener("alpine:init", () => {
             });
         },
         getSlideElementByIndex: function (index) {
-            return this.$root.querySelector(".slide-" + index);
+            return this.$root.closest('.drawer').querySelector(".slide-" + index);
         },
-        tab(index, commentUuid = null) {
+        tab(index, answerFeedbackCommentUuid = null) {
             if (!this.tabs.includes(index)) return;
             this.activeTab = index;
             this.closeTooltips();
             const slide = this.getSlideElementByIndex(index);
             this.handleSlideHeight(slide);
             this.$nextTick(() => {
-                if(commentUuid){
-                    this.scrollToCommentCard(commentUuid);
+                if(answerFeedbackCommentUuid){
+                    this.scrollToCommentCard(answerFeedbackCommentUuid);
                 } else {
                     this.container.scroll({ top: 0, left: slide.offsetLeft, behavior: "smooth" });
                 }
@@ -2016,12 +2019,13 @@ document.addEventListener("alpine:init", () => {
                 }, 500);
             });
         },
-        scrollToCommentCard (commentUuid) {
-            const commentCard = document.querySelector('[data-uuid="'+commentUuid+'"].answer-feedback-card')
-
-            let cardTop = commentCard.getBoundingClientRect().y - this.container.getBoundingClientRect().y;
-
-            this.container.scroll({ top: cardTop,  left: slide.offsetLeft, behavior: "smooth" });
+        scrollToCommentCard (answerFeedbackUuid) {
+            const commentCard = document.querySelector('[data-uuid="'+answerFeedbackUuid+'"].answer-feedback-card')
+            const slide = this.getSlideElementByIndex(2);
+            let cardTop = commentCard.offsetTop;
+            setTimeout(() => {
+                this.container.scroll({ top: cardTop,  left: slide.offsetLeft, behavior: "smooth" });
+            }, 150)
         },
         async next() {
             if (this.needsToPerformActionsStill()) {
@@ -2045,9 +2049,11 @@ document.addEventListener("alpine:init", () => {
                 this.clickedNext = false;
             });
         },
-        fixSlideHeightByIndex(index) {
+        fixSlideHeightByIndex(index, AnswerFeedbackUuid) {
             let slide = this.$root.closest(".slide-" + index);
             this.handleSlideHeight(slide);
+
+            if(AnswerFeedbackUuid) this.scrollToCommentCard(AnswerFeedbackUuid);
         },
         handleSlideHeight(slide) {
             if (slide.offsetHeight > this.container.offsetHeight) {
@@ -2430,19 +2436,31 @@ document.addEventListener("alpine:init", () => {
             this.setFocusTracking();
 
             document.addEventListener('comment-color-updated', async (event) => {
-                let styleTagElement = document.querySelector('#commentMarkerStyles');
+                let styleTagElement = document.querySelector('#temporaryCommentMarkerStyles');
 
-                styleTagElement.innerHTML = await this.$wire.updateCommentColor(event.detail);
+                let colorWithOpacity = event.detail.color;
+                let color = colorWithOpacity.replace('0.4', '1');
+
+                styleTagElement.innerHTML = `p .ck-comment-marker[data-comment="${event.detail.threadId}"]{\n` +
+                    `                            --ck-color-comment-marker: ${colorWithOpacity} !important;\n` + /* opacity .4 */
+                    `                            --ck-color-comment-marker-border: ${color} !important;\n` + /* opacity 1.0 */
+                    `                            --ck-color-comment-marker-active: ${colorWithOpacity} !important;\n` + /* opacity .4 */
+                    `                        }`
             });
 
             document.addEventListener('comment-emoji-updated', async (event) => {
-                let styleTagElement = document.querySelector('#commentMarkerStyles');
+                // let styleTagElement = document.querySelector('#commentMarkerStyles');
 
-                let el = document.querySelector('#icon-' + event.detail.threadId)
+                let ckeditorIconWrapper = document.querySelector('#icon-' + event.detail.threadId)
+                let cardIconWrapper = document.querySelector('[data-uuid="'+event.detail.uuid+'"].answer-feedback-card-icon')
 
-                this.addOrReplaceIconByName(el, event.detail.iconName)
+                if(ckeditorIconWrapper) this.addOrReplaceIconByName(ckeditorIconWrapper, event.detail.iconName);
+                if(cardIconWrapper) {
+                    this.addOrReplaceIconByName(cardIconWrapper, event.detail.iconName);
+                    cardIconWrapper.querySelector('span').style = '';
+                }
 
-                styleTagElement.innerHTML = await this.$wire.updateCommentEmoji(event.detail);
+//TODO Replace wire call with only visualy changing color/emoji
             });
 
             document.addEventListener('new-comment-color-updated', (event) => this.updateNewCommentMarkerStyles(event?.detail?.color));
@@ -2472,12 +2490,16 @@ document.addEventListener("alpine:init", () => {
 
             const answerFeedbackEditor = ClassicEditors['update-'+answerFeedbackUuid];
 
-            await this.$wire.call('updateExistingComment', {
+            let commentStyles = await this.$wire.call('updateExistingComment', {
                 uuid: answerFeedbackUuid,
-                message: answerFeedbackEditor.getData()
+                message: answerFeedbackEditor.getData(),
+                comment_emoji: comment_emoji,
+                comment_color: comment_color,
             });
+            document.querySelector('#commentMarkerStyles').innerHTML = commentStyles;
 
-            this.setEditingComment(null);
+            this.cancelEditingComment(answerFeedbackCardElement.dataset.threadId)
+            // this.setEditingComment(null);
         },
         async createCommentThread() {
 
@@ -2519,7 +2541,7 @@ document.addEventListener("alpine:init", () => {
                     await this.createCommentIcon({
                         uuid: feedback.uuid,
                         threadId: feedback.threadId,
-                        iconName: await this.$wire.call('getIconNameByEmojiValue', comment_emoji),
+                        iconName: await this.$wire.call('getIconNameByEmojiValue', comment_emoji), //todo see if this call can be removed
                     })
 
                     document.querySelector('#commentMarkerStyles').innerHTML = commentStyles;
@@ -2528,15 +2550,15 @@ document.addEventListener("alpine:init", () => {
 
                 var feedback = await this.$wire.createNewComment({
                     message: comment,
-                    // comment_color: null, //no comment color when its a general ticket.
-                    comment_emoji: null,
+                    comment_color: null, //no comment color when its a general ticket.
+                    comment_emoji: comment_emoji,
                 }, false);
 
                 //todo go to gegeven feedback
                 this.$dispatch('answer-feedback-show-comments');
 
                 //todo fix scrolling and activating correct card:
-                //scrollToCommentCard(feedback.uuid);
+                this.scrollToCommentCard(feedback.uuid);
 
             });
 
@@ -2572,7 +2594,7 @@ document.addEventListener("alpine:init", () => {
             console.error('failed to delete answer feedback');
         },
         initCommentIcons(commentThreads) {
-            //create icon container
+            //create icon wrapper and append icon inside it
             commentThreads.forEach((thread) => {
                 this.createCommentIcon(thread);
             })
@@ -2621,16 +2643,14 @@ document.addEventListener("alpine:init", () => {
             this.initCommentIcon(iconWrapper, thread);
         },
         addOrReplaceIconByName (el, iconName) {
-            //reset div
             el.innerHTML = '';
 
             let iconTemplate = null;
-            if(iconName === null) {
+            if(iconName === null || iconName === '') {
                 iconTemplate = document.querySelector('#default-icon')
             } else {
                 iconTemplate = document.querySelector('#'+iconName.replace('icon.', ''))
             }
-
             el.appendChild(document.importNode(iconTemplate.content, true));
         },
         setHoveringComment(threadId, answerFeedbackUuid) {
@@ -2640,6 +2660,43 @@ document.addEventListener("alpine:init", () => {
         clearHoveringComment() {
             this.hoveringComment = null;
             this.setHoveringCommentMarkerStyle(true);
+        },
+        cancelEditingComment(threadId, AnswerFeedbackUuid, originalIconName = false, originalColor = false) {
+            this.setEditingComment(null);
+
+            //reset radio buttons !!!
+            //todo reset emoji and color radio buttons
+            // replace document with specific card
+            console.log(originalColor)
+            if(originalColor) {
+                document.querySelector('[data-uuid="'+AnswerFeedbackUuid+`"].answer-feedback-card .comment-color-picker [data-color="${originalColor}"]`).checked = true;
+            }
+            if(originalIconName !== false) {
+                if(!originalIconName) {
+                    document.querySelector('[data-uuid="'+AnswerFeedbackUuid+`"].answer-feedback-card .comment-emoji-picker input:checked`).checked = false;
+                } else {
+                    document.querySelector('[data-uuid="'+AnswerFeedbackUuid+`"].answer-feedback-card .comment-emoji-picker [data-iconName="${originalIconName}"]`).checked = true;
+                }
+            }
+
+            //reset temporary styling
+            document.querySelector('#temporaryCommentMarkerStyles').innerHTML = '';
+
+            //reset icon
+            let ckeditorIconWrapper = document.querySelector('#icon-' + threadId)
+            let cardIconWrapper = document.querySelector('[data-uuid="'+AnswerFeedbackUuid+'"].answer-feedback-card-icon')
+
+            if(ckeditorIconWrapper) this.addOrReplaceIconByName(ckeditorIconWrapper, originalIconName);
+            if(cardIconWrapper) {
+                if(!originalIconName) {
+                    cardIconWrapper.innerHTML = '';
+                    return;
+                }
+
+                this.addOrReplaceIconByName(cardIconWrapper, originalIconName);
+                cardIconWrapper.querySelector('span').style = '';
+            }
+
         },
         updateNewCommentMarkerStyles(color) {
             const styleTag = document.querySelector('#addFeedbackMarkerStyles');
@@ -2701,30 +2758,37 @@ document.addEventListener("alpine:init", () => {
                 return;
             }
             setTimeout(()=> {
+                try {
+                    const answerEditor = ClassicEditors[this.answerEditorId];
+                    const feedbackEditor = ClassicEditors[this.feedbackEditorId];
 
-                const answerEditor = ClassicEditors[this.answerEditorId];
-                const feedbackEditor = ClassicEditors[this.feedbackEditorId];
+                    const feedbackEditorSaveButton = document.querySelector('#' + this.feedbackEditorId + '-save');
+                    const feedbackEditorCancelButton = document.querySelector('#' + this.feedbackEditorId + '-cancel');
 
-                const feedbackEditorSaveButton = document.querySelector('#' + this.feedbackEditorId + '-save');
-                const feedbackEditorCancelButton = document.querySelector('#' + this.feedbackEditorId + '-cancel');
+                    answerEditor.ui.focusTracker.add( feedbackEditor.sourceElement.parentElement.querySelector('.ck.ck-content') );
+                    answerEditor.ui.focusTracker.add( feedbackEditorSaveButton );
+                    answerEditor.ui.focusTracker.add( feedbackEditorCancelButton );
 
-                answerEditor.ui.focusTracker.add( feedbackEditor.sourceElement.parentElement.querySelector('.ck.ck-content') );
-                answerEditor.ui.focusTracker.add( feedbackEditorSaveButton );
-                answerEditor.ui.focusTracker.add( feedbackEditorCancelButton );
+                    //keep focus when clicking on the emoji and color pickers
+                    document.querySelectorAll('.answer-feedback-add-comment .emoji-picker-radio, .answer-feedback-add-comment .color-picker-radio input').forEach((element) => {
+                        answerEditor.ui.focusTracker.add( element );
+                        feedbackEditor.ui.focusTracker.add( element );
+                    })
+                    document.querySelectorAll('.answer-feedback-add-comment .emoji-picker-radio, .answer-feedback-add-comment .emoji-picker-radio input').forEach((element) => {
+                        answerEditor.ui.focusTracker.add( element );
+                        feedbackEditor.ui.focusTracker.add( element );
+                    })
 
-                //keep focus when clicking on the emoji and color pickers
-                document.querySelectorAll('.answer-feedback-add-comment .emoji-picker-radio, .answer-feedback-add-comment .color-picker-radio input').forEach((element) => {
-                    answerEditor.ui.focusTracker.add( element );
-                    feedbackEditor.ui.focusTracker.add( element );
-                })
-                document.querySelectorAll('.answer-feedback-add-comment .emoji-picker-radio, .answer-feedback-add-comment .emoji-picker-radio input').forEach((element) => {
-                    answerEditor.ui.focusTracker.add( element );
-                    feedbackEditor.ui.focusTracker.add( element );
-                })
-
-                feedbackEditor.ui.focusTracker.add( answerEditor.sourceElement.parentElement.querySelector('.ck.ck-content') );
-                feedbackEditor.ui.focusTracker.add( feedbackEditorSaveButton );
-                feedbackEditor.ui.focusTracker.add( feedbackEditorCancelButton );
+                    feedbackEditor.ui.focusTracker.add( answerEditor.sourceElement.parentElement.querySelector('.ck.ck-content') );
+                    feedbackEditor.ui.focusTracker.add( feedbackEditorSaveButton );
+                    feedbackEditor.ui.focusTracker.add( feedbackEditorCancelButton );
+                } catch (exception) {
+                    // ignore focusTracker error when trying to add element that is already registered
+                    // there is no way to preventively check if the element is already registered
+                    if(!exception.message.contains('focustracker-add-element-already-exist')) {
+                        throw exception;
+                    }
+                }
 
             },1000)
         },
@@ -2738,7 +2802,7 @@ document.addEventListener("alpine:init", () => {
             this.activeComment = null;
             this.editingComment = AnswerFeedbackUuid ?? null;
             setTimeout(() => {
-                this.fixSlideHeightByIndex(2);
+                this.fixSlideHeightByIndex(2, AnswerFeedbackUuid);
             },100)
         },
         toggleFeedbackAccordion (currentToggleState, name) {

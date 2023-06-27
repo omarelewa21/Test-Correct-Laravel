@@ -29,7 +29,9 @@ class AnswerFeedback extends Model
         'user_id',
         'message',
         'thread_id',
-        'comment_id'
+        'comment_id',
+        'comment_color',
+        'comment_emoji',
     ];
 
     public function answer()
