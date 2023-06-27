@@ -1759,7 +1759,7 @@ document.addEventListener("alpine:init", () => {
             this.bodyPage = this.$root.closest(".divide-secondary");
         },
         preventMenuFallOffScreen() {
-            if (this.menuCard.offsetTop + this.menuCard.offsetHeight >= this.bodyPage.offsetHeight + this.bodyPage.offsetTop) {
+            if (this.menuCard?.offsetTop + this.menuCard?.offsetHeight >= this.bodyPage?.offsetHeight + this.bodyPage?.offsetTop) {
                 this.$root.style.top = (this.detailCoordsTop + this.menuOffsetMarginTop - (this.menuCard.offsetHeight - this.gridCardOffsetHeight) - 25) + "px";
                 this.$root.style.left = (this.detailCoordsLeft - this.menuCard.offsetWidth - 50) + "px";
             }
@@ -2603,6 +2603,8 @@ document.addEventListener("alpine:init", () => {
         }
     }));
 
+
+
     Alpine.data("writeDownCms", (editorId, restrict_word_amount, maxWords) => ({
         editor: null,
         wordCounter: restrict_word_amount,
@@ -2946,6 +2948,94 @@ document.addEventListener("alpine:init", () => {
         },
         parentDisabled(parent) {
             return parent.children.filter(child => child.disabled !== true).length === 0;
+        }
+    }));
+
+    Alpine.data('questionBank', (openTab, inGroup, inTestBankContext) => ({
+        questionBankOpenTab: openTab,
+        inGroup: inGroup,
+        groupDetail: null,
+        bodyVisibility: true,
+        inTestBankContext: inTestBankContext,
+        maxHeight: 'calc(100vh - var(--header-height))',
+        init() {
+            this.groupDetail = this.$el.querySelector('#groupdetail');
+        
+            this.$watch('showBank', value => {
+                if (value === 'questions') {
+                    this.$wire.loadSharedFilters();
+                }
+            });
+        
+            this.$watch('$store.questionBank.inGroup', value => {
+                this.inGroup = value;
+            });
+        
+            this.$watch('$store.questionBank.active', value => {
+                if (value) {
+                    this.$wire.setAddedQuestionIdsArray();
+                } else {
+                    this.closeGroupDetailQb();
+                }
+            });
+        
+            this.showGroupDetailsQb = async (groupQuestionUuid, inTest = false) => {
+                let readyForSlide = await this.$wire.showGroupDetails(groupQuestionUuid, inTest);
+
+                if (readyForSlide) {
+                    if (this.inTestBankContext) {
+                        this.$refs['tab-container'].style.display = 'none';
+                        this.$refs['main-container'].style.height = '100vh';
+                    } else {
+                        this.maxHeight = this.groupDetail.offsetHeight + 'px';
+                    }
+                    this.groupDetail.style.left = 0;
+                    this.$refs['main-container'].scrollTo({top: 0, behavior: 'smooth'});
+                    this.$el.scrollTo({top: 0, behavior: 'smooth'});    
+                    this.$nextTick(() => {
+                        setTimeout(() => {
+                            this.bodyVisibility = false;
+                            if (this.inTestBankContext) {
+                                this.groupDetail.style.position = 'relative';
+                            } else {
+                                handleVerticalScroll(this.$el.closest('.slide-container'));
+                            }
+                        }, 500);
+                    })
+                }
+            };
+        
+            this.closeGroupDetailQb = () => {
+                if (!this.bodyVisibility) {
+                    this.bodyVisibility = true;
+                    this.maxHeight = 'calc(100vh - var(--header-height))';
+                    this.groupDetail.style.left = '100%';
+                    if (this.inTestBankContext) {
+                        this.groupDetail.style.position = 'absolute';
+                        this.$refs['tab-container'].style.display = 'block';
+                    }
+                    this.$nextTick(() => {
+                        this.$wire.clearGroupDetails();
+                        setTimeout(() => {
+                            if (!this.inTestBankContext) {
+                                handleVerticalScroll(this.$el.closest('.slide-container'));
+                            }
+                        }, 250);
+                    })
+                }
+            };
+        
+            this.addQuestionToTest = async (button, questionUuid, showQuestionBankAddConfirmation = false) => {
+                if (showQuestionBankAddConfirmation) {
+                    return this.$wire.emit('openModal', 'teacher.add-sub-question-confirmation-modal', {questionUuid: questionUuid});
+                }
+                button.disabled = true;
+                var enableButton = await this.$wire.handleCheckboxClick(questionUuid);
+                if (enableButton) {
+                    button.disabled = false;
+                }
+                return true;
+            };
         }
     }));
 

@@ -36,6 +36,8 @@ class TestsOverview extends OverviewComponent
     public $file = '';
     public $selected = [];
     public $mode;
+    public $inTestBankContext = true;
+    public $showQuestionBank = false;
     protected array $filterableAttributes = [
         'name'                      => '',
         'education_level_year'      => [],
@@ -52,6 +54,7 @@ class TestsOverview extends OverviewComponent
         'test-added'          => '$refresh',
         'testSettingsUpdated' => '$refresh',
         'test-updated'        => '$refresh',
+        'showTestBank',
     ];
 
     public function mount()
@@ -65,8 +68,10 @@ class TestsOverview extends OverviewComponent
 
     public function render()
     {
-        $results = $this->getDatasource();
+        if($this->showQuestionBank)
+            return view('livewire.teacher.question-bank-overview')->layout('layouts.app-teacher');
 
+        $results = $this->getDatasource();
         return view('livewire.teacher.tests-overview')->layout('layouts.app-teacher')->with(compact(['results']));
     }
 
@@ -388,5 +393,11 @@ class TestsOverview extends OverviewComponent
     public function getTaxonomiesProperty()
     {
         return TaxonomyRepository::choicesOptions();
+    }
+
+    public function showTestBank()
+    {
+        $this->showQuestionBank = false;
+        $this->render();
     }
 }

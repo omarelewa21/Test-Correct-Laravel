@@ -1,6 +1,7 @@
 @props(['withTileEvents' => false, 'maxWidthClass' => 'max-w-screen-2xl px-10'])
 
-<div @class([
+<div x-ref="tab-container"
+     @class([
       'border-b border-secondary sticky z-1',
       $attributes->get('class'),
       'sticky-pseudo-bg' => $withTileEvents,
