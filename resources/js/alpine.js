@@ -429,7 +429,7 @@ document.addEventListener("alpine:init", () => {
             this.index = Array.prototype.indexOf.call(parent.children, this.$el) + 1;
         },
         dispatchAttachmentLoading() {
-            window.dispatchEvent(new CustomEvent('attachment-preview-loading'))
+            window.dispatchEvent(new CustomEvent("attachment-preview-loading"));
         }
     }));
 
@@ -748,6 +748,10 @@ document.addEventListener("alpine:init", () => {
             this.activeFiltersContainer = document.getElementById(filterContainer);
             this.multiple = multiple === 1;
             this.$nextTick(() => {
+                let helper = this.$root.querySelector('#text-length-helper');
+                let minWidth = helper.offsetWidth;
+                helper.style.display = 'none';
+
                 let choices = new Choices(
                     this.$root.querySelector("select"),
                     this.getChoicesConfig()
@@ -769,6 +773,7 @@ document.addEventListener("alpine:init", () => {
                     choices.setChoices(options);
 
                     this.handleActiveFilters(choices.getValue());
+                    this.handleContainerWidth(minWidth);
                 };
 
                 refreshChoices();
@@ -930,7 +935,7 @@ document.addEventListener("alpine:init", () => {
             return innerHtml;
         },
         createFilterPill(item) {
-            const element = document.getElementById("filter-pill-template").content.firstElementChild.cloneNode(true);
+            const element = this.$root.parentElement.querySelector("#filter-pill-template").content.firstElementChild.cloneNode(true);
 
             element.id = `filter-${this.$root.dataset.modelName}-${item.value}`;
             element.classList.add("filter-pill");
@@ -984,6 +989,11 @@ document.addEventListener("alpine:init", () => {
         },
         getRemoveEventName: function() {
             return "removeFrom" + this.$root.getAttribute("wire:key");
+        },
+        handleContainerWidth(minWidth) {
+            if(this.$root.classList.contains("super")) return
+            this.$root.querySelector('input.choices__input[type="search"]').style.width = minWidth + 16 +'px';
+            this.$root.querySelector('input.choices__input[type="search"]').style.minWidth = 'auto';
         }
     }));
 
@@ -1796,7 +1806,7 @@ document.addEventListener("alpine:init", () => {
         set expanded(value) {
             this.active = value ? this.id : null;
             if (value) {
-                this.$dispatch('block-expanded', {id: this.id});
+                this.$dispatch("block-expanded", { id: this.id });
                 this.$root.querySelectorAll(".slider-button-container").forEach(toggle => toggle.dispatchEvent(new CustomEvent("slider-toggle-rerender")));
                 // this.$el.classList.remove("hover:shadow-hover");
             }
@@ -1903,7 +1913,7 @@ document.addEventListener("alpine:init", () => {
             Notify.notify(message, "error");
         }
     }));
-    Alpine.data("loginScreen", (openTab, activeOverlay,device, hasErrors) => ({
+    Alpine.data("loginScreen", (openTab, activeOverlay, device, hasErrors) => ({
         openTab,
         showPassword: false,
         hoverPassword: false,
@@ -1918,7 +1928,7 @@ document.addEventListener("alpine:init", () => {
             }, 250);
             this.setCurrentFocusInput();
 
-            this.$watch('hasErrors', value => {
+            this.$watch("hasErrors", value => {
                 this.setCurrentFocusInput();
             });
             this.$watch("activeOverlay", value => {
@@ -1928,9 +1938,9 @@ document.addEventListener("alpine:init", () => {
                 this.setCurrentFocusInput();
             });
         },
-        setCurrentFocusInput (){
-            let name = ('' != this.activeOverlay) ? this.activeOverlay : this.openTab;
-            var finder = ('' != hasErrors) ? `[data-focus-tab-error = '${name}-${hasErrors[0]}']` :`[data-focus-tab = '${name}']`
+        setCurrentFocusInput() {
+            let name = ("" != this.activeOverlay) ? this.activeOverlay : this.openTab;
+            var finder = ("" != hasErrors) ? `[data-focus-tab-error = '${name}-${hasErrors[0]}']` : `[data-focus-tab = '${name}']`;
             setTimeout(() => this.$root.querySelector(finder)?.focus(), 250);
         },
         changeActiveOverlay(activeOverlay = "") {
@@ -1982,7 +1992,7 @@ document.addEventListener("alpine:init", () => {
         },
         setNewScore(newScore, state, firstTick) {
             if (firstTick && this.isCoLearningScore) {
-                this.isCoLearningScore = false
+                this.isCoLearningScore = false;
                 this.shadowScore = 0;
             }
             if (firstTick && state === "off") {
@@ -2023,7 +2033,7 @@ document.addEventListener("alpine:init", () => {
         },
         updateScoringData(data) {
             Object.assign(this, data);
-            this.score = this.shadowScore = data.initialScore
+            this.score = this.shadowScore = data.initialScore;
             this.$nextTick(() => this.$dispatch("slider-score-updated", { score: this.score }));
         }
     }));
@@ -2224,10 +2234,10 @@ document.addEventListener("alpine:init", () => {
             return (value - min) / (max - min) * 100;
         },
         setThumbOffset() {
-            if(continuousSlider) {
+            if (continuousSlider) {
                 return;
             }
-            if(this.score > this.maxScore) {
+            if (this.score > this.maxScore) {
                 this.score = this.maxScore;
             }
             if (this.score < 0) {
@@ -2235,10 +2245,10 @@ document.addEventListener("alpine:init", () => {
             }
 
 
-            let el = document.querySelector('.score-slider-input');
+            let el = document.querySelector(".score-slider-input");
 
             var offsetFromCenter = -40;
-            offsetFromCenter += (this.score/this.maxScore) * 80;
+            offsetFromCenter += (this.score / this.maxScore) * 80;
 
             el.style.setProperty("--slider-thumb-offset", `calc(${offsetFromCenter}% + 1px)`);
         },
@@ -2246,7 +2256,7 @@ document.addEventListener("alpine:init", () => {
             this.$nextTick(() => {
                 el.style.setProperty("--slider-thumb-offset", `${25 / 100 * this.getSliderBackgroundSize(el) - 12.5}px`);
                 el.style.setProperty("--slider-background-size", `${this.getSliderBackgroundSize(el)}%`);
-            })
+            });
         },
         syncInput() {
             // Don't update if the value is the same;
@@ -2316,7 +2326,7 @@ document.addEventListener("alpine:init", () => {
             if (this.disabled) return;
             this.inputBox.style.border = null;
         },
-        getContinuousInput(){
+        getContinuousInput() {
             return this.$root.querySelector("[x-ref='score_slider_continuous_input']");
         },
         updateContinuousSlider() {
@@ -2474,7 +2484,7 @@ document.addEventListener("alpine:init", () => {
         navScrollBar: null,
         initialized: false,
         init() {
-            this.navScrollBar = this.$root.querySelector('#navscrollbar');
+            this.navScrollBar = this.$root.querySelector("#navscrollbar");
             this.$nextTick(() => {
                 this.$root.querySelector(".active").scrollIntoView({ behavior: "smooth" });
                 this.totalScrollWidth = this.$root.offsetWidth;
@@ -2527,19 +2537,19 @@ document.addEventListener("alpine:init", () => {
         }
     }));
     Alpine.data("accountSettings", (language) => ({
-        openTab: 'account',
+        openTab: "account",
         changing: false,
         language,
         async startLanguageChange(event, wireModelName) {
-            this.$dispatch('language-loading-start');
+            this.$dispatch("language-loading-start");
             this.changing = true;
-            await this.$wire.set(wireModelName, this.language)
+            await this.$wire.set(wireModelName, this.language);
             this.$nextTick(() => {
                 setTimeout(() => {
                     this.changing = false;
-                    this.$dispatch('language-loading-end');
-                }, 1500)
-            })
+                    this.$dispatch("language-loading-end");
+                }, 1500);
+            });
 
         }
     }));
@@ -2556,11 +2566,11 @@ document.addEventListener("alpine:init", () => {
             const aspectRatio = (aspectRatioHeight / aspectRatioWidth);
             const container = element.closest("#accordion-block, #answer-container");
             if (!container) {
-                console.error('Trying to set drawing image preview aspect ratio on without valid container.');
+                console.error("Trying to set drawing image preview aspect ratio on without valid container.");
                 return;
             }
 
-            const newHeight = (container.clientWidth-82) * aspectRatio;
+            const newHeight = (container.clientWidth - 82) * aspectRatio;
 
             if (newHeight <= 0) {
                 if (this.currentTry <= this.maxTries) {
@@ -2572,7 +2582,7 @@ document.addEventListener("alpine:init", () => {
 
             element.style.height = newHeight + "px";
         }
-    }))
+    }));
     Alpine.data("CompletionInput", () => ({
         previousValue: "",
         minWidth: 120,
@@ -2589,9 +2599,9 @@ document.addEventListener("alpine:init", () => {
                 : el.scrollWidth - 5;
 
             this.previousValue = el.value;
-            return (newWidth < this.minWidth ? this.minWidth : newWidth ) + 'px';
+            return (newWidth < this.minWidth ? this.minWidth : newWidth) + "px";
         }
-    }))
+    }));
 
     Alpine.data("writeDownCms", (editorId, restrict_word_amount, maxWords) => ({
         editor: null,
@@ -2613,7 +2623,7 @@ document.addEventListener("alpine:init", () => {
             });
         },
         addMaxWordsToWordCounter(value) {
-            const spanId = 'max-word-span';
+            const spanId = "max-word-span";
             this.$root.querySelector(`#${spanId}`)?.remove();
 
             let element = document.createElement("span");
@@ -2651,6 +2661,294 @@ document.addEventListener("alpine:init", () => {
         }
     }));
 
+    Alpine.data("multiDropdownSelect", (options, containerId, wireModel, labels) => ({
+        options,
+        wireModel,
+        labels,
+        open: false,
+        openSubs: [],
+        checkedParents: [],
+        checkedChildren: [],
+        query: "",
+        searchEmpty: false,
+        pillContainer: null,
+        searchFocussed: false,
+        init() {
+            this.pillContainer = document.querySelector(`#${containerId}`);
+            this.$watch("query", value => this.search(value));
+            this.$watch("open", value => {
+                if (value) this.handleDropdownLocation();
+            });
+
+            this.registerSelectedItemsOnComponent();
+        },
+        subClick(uuid) {
+            this.openSubs = this.toggle(this.openSubs, uuid);
+        },
+        parentClick(element, parent) {
+            const checked = !this.checkedParents.includes(parent.value);
+            element.querySelector("input[type=\"checkbox\"]").checked = checked;
+
+            this.checkedParents = this.toggle(this.checkedParents, parent.value);
+
+            parent.children.filter(child => child.disabled !== true).forEach((child) => {
+                this[checked ? "childAdd" : "childRemove"](child);
+                checked ? this.disableBrothersFromOtherMothers(child) : this.enableBrothersFromOtherMothers(child);
+            });
+
+            this.$root.querySelectorAll(`[data-parent-id="${parent.value}"][data-disabled="false"] input[type="checkbox"]`)
+                .forEach(child => child.checked = checked);
+
+            this.registerParentsBasedOnDisabledChildren();
+            this.handleActiveFilters();
+            this.syncInput();
+        },
+        childClick(element, child) {
+            const checked = !this.checkedChildrenContains(child);
+            element.querySelector("input[type=\"checkbox\"]").checked = checked;
+            this.childToggle(child);
+
+            checked ? this.disableBrothersFromOtherMothers(child) : this.enableBrothersFromOtherMothers(child);
+
+            const parent = this.options.find(parent => parent.value === child.customProperties.parentId);
+            this.handleParentStateWhenChildsChange(parent, checked);
+            this.registerParentsBasedOnDisabledChildren();
+
+            this.handleActiveFilters();
+            this.syncInput();
+        },
+        toggle(list, value) {
+            if (!list.includes(value)) {
+                return this.add(list, value);
+            }
+            return this.remove(list, value);
+        },
+        add(list, value) {
+            if (list.includes(value)) return list;
+            list.push(value);
+            return list;
+        },
+        remove(list, value) {
+            return list.filter((item) => item !== value);
+        },
+        childToggle(child) {
+            if(this.checkedChildrenContains(child)) {
+                return this.childRemove(child)
+            }
+            return this.childAdd(child);
+        },
+        childAdd(child) {
+            if(this.checkedChildrenContains(child)) return;
+            this.checkedChildren.push({ value: child.value, parent: child.customProperties.parentId });
+        },
+        childRemove(child) {
+            this.checkedChildren = _.reject(this.checkedChildren, item => item.value === child.value && item.parent === child.customProperties.parentId);
+        },
+        parentPartiallyToggled(parent) {
+            const result = this.checkedChildrenCount(parent);
+            if (this.checkedParents.includes(parent.value) || result === 0) {
+                return false;
+            }
+            return result < parent.children.filter(child => child.disabled !== true).length;
+            // return result < parent.children.length;
+        },
+        checkedChildrenCount(parent) {
+            return parent.children.filter((child) => this.checkedChildrenContains(child) ).length;
+        },
+        search(value) {
+            if (value.length === 0) {
+                this.searchEmpty = false;
+                this.showAllOptions();
+                return;
+            }
+
+            this.hideAllOptions();
+
+            const results = this.searchParentsAndChildsLabels(value);
+            this.searchEmpty = results.length === 0;
+            results.forEach(item => this.showOption(item));
+        },
+        showOption(identifier) {
+            this.$root.querySelector(`.option[data-id="${identifier}"]`).style.display = "flex";
+        },
+        showAllOptions() {
+            this.$root.querySelectorAll(".option").forEach(el => el.style.display = "flex");
+        },
+        hideAllOptions() {
+            this.$root.querySelectorAll(".option").forEach(el => el.style.display = "none");
+        },
+        searchParentsAndChildsLabels: function(value) {
+            let parentResults = this.getParentSearchMatches(value);
+            let childResults = this.getChildSearchMatches(value, parentResults);
+            return parentResults.concat(childResults);
+        },
+        getParentSearchMatches(value) {
+            return this.options
+                .filter(parent => {
+                    if (parent.label.toLowerCase().includes(value)) {
+                        return true;
+                    }
+                    let childMatch = parent.children.find(child => {
+                        return child.label.toLowerCase().includes(value);
+                    });
+                    return childMatch !== undefined;
+                }).map(item => item.value);
+        },
+        getChildSearchMatches(value, parentUuids) {
+            return this.options.flatMap(parent => {
+                if (!parentUuids.includes(parent.value)) {
+                    return null;
+                }
+                let matchingChildren = parent.children.filter(child => {
+                    return child.label.toLowerCase().includes(value);
+                });
+                /* If no search result for individual students, but a parent is found, return all children */
+                return matchingChildren.length > 0 ? matchingChildren : parent.children;
+            })
+                .filter(Boolean)
+                .map(item => item.value);
+        },
+        toggleDropdown() {
+            if (this.open) return this.closeDropdown();
+            this.openDropdown();
+        },
+        openDropdown() {
+            this.open = true;
+        },
+        closeDropdown() {
+            this.open = false;
+        },
+        createFilterPill(item) {
+            if (this.pillContainer === null) return;
+            const identifier = item.customProperties?.parent === false ? item.value + item.customProperties.parentId : item.value;
+
+            if (this.pillContainer.querySelector(`#pill-${identifier}`)) return;
+
+            const element = this.$root.querySelector("#filter-pill-template").content.firstElementChild.cloneNode(true);
+
+            element.id = `pill-${identifier}`;
+            element.selectComponent = this.$root;
+            element.item = item;
+            element.classList.add("filter-pill", 'self-end', 'h-10');
+            element.firstElementChild.innerHTML = item.label;
+
+            return this.pillContainer.appendChild(element);
+        },
+        removeFilterPill(event) {
+            event.element.remove();
+            const toggleFunction = event.item.customProperties?.parent === false
+                ? "childClick"
+                : "parentClick";
+
+            this[toggleFunction](
+                this.$root.querySelector(`[data-id="${event.item.value}"][data-parent-id="${event.item.customProperties.parentId}"]`),
+                event.item
+            );
+        },
+        handleActiveFilters() {
+            let currentPillIds = Array.from(this.pillContainer.childNodes).map(pill => {
+                if (!this.isParent(pill.item)) {
+                    return pill.item.value + pill.item.customProperties.parentId;
+                }
+                return pill.item.value;
+            });
+
+            let currentlyChecked = this.checkedParents.concat(this.checkedChildren.map(child => child.value+child.parent));
+
+            let pillIdsToRemove = currentPillIds.filter(uuid => !currentlyChecked.contains(uuid));
+
+            this.options.flatMap(parent => [parent, ...parent.children])
+                .filter(item => {
+                    if (this.isParent(item)) return this.checkedParents.includes(item.value);
+
+                    if (this.checkedParents.includes(item.customProperties.parentId)) {
+                        pillIdsToRemove.push(item.value + item.customProperties.parentId);
+                    }
+                    return (!this.checkedParents.includes(item.customProperties.parentId) && this.checkedChildrenContains(item));
+                })
+                .forEach((item) => this.createFilterPill(item));
+
+            let that = this;
+            pillIdsToRemove.forEach((uuid) => {
+                that.pillContainer.querySelector(`#pill-${uuid}`)?.remove();
+            });
+        },
+        handleDropdownLocation() {
+            const dropdown = this.$root.querySelector(".dropdown");
+            const top = this.$root.getBoundingClientRect().top
+                + this.$root.offsetHeight
+                + 16
+                + parseInt(dropdown.style.maxHeight);
+            const property = top >= screen.availHeight ? "bottom" : "top";
+            dropdown.style[property] = this.$root.offsetHeight + 8 + "px";
+        },
+        handleParentStateWhenChildsChange(parent, checked) {
+            if (checked && this.checkedChildrenCount(parent) === parent.children.filter(child => child.disabled !== true).length) {
+                this.checkedParents = this.add(this.checkedParents, parent.value);
+                this.$root.querySelector(`[data-id="${parent.value}"][data-parent-id="${parent.value}"] input[type="checkbox"]`).checked = checked;
+            }
+
+            if (!checked && this.checkedParents.includes(parent.value)) {
+                this.checkedParents = this.remove(this.checkedParents, parent.value);
+                this.$root.querySelector(`[data-id="${parent.value}"] input[type="checkbox"]`).checked = checked;
+            }
+        },
+        registerSelectedItemsOnComponent() {
+            const checkedChildValues = this.options.flatMap(parent => [...parent.children])
+                .filter(item => item.customProperties?.selected === true);
+
+            this.$nextTick(() => {
+                checkedChildValues.forEach(item => {
+                    this.childClick(
+                        this.$root.querySelector(`[data-id="${item.value}"][data-parent-id="${item.customProperties.parentId}"]`),
+                        item
+                    );
+                });
+                this.registerParentsBasedOnDisabledChildren();
+                this.handleActiveFilters();
+            });
+        },
+        syncInput() {
+            if (!this.wireModel.value) return;
+            this.$wire.sync(this.wireModel.value, {
+                parents: this.checkedParents,
+                children: this.checkedChildren,
+            });
+        },
+        checkedChildrenContains(child) {
+            return this.checkedChildren.some(item => {
+                return item.value === child.value && item.parent === child.customProperties?.parentId;
+            });
+        },
+        disableBrothersFromOtherMothers(child) {
+            this.options.flatMap(parents => [...parents.children])
+                .filter(item => item.value === child.value && item.customProperties.parentId !== child.customProperties.parentId)
+                .forEach(item => item.disabled = true);
+        },
+        enableBrothersFromOtherMothers(child) {
+            this.options.flatMap(parents => [...parents.children])
+                .filter(item => item.value === child.value && item.customProperties.parentId !== child.customProperties.parentId)
+                .forEach(item => item.disabled = false);
+        },
+        isParent(item) {
+            return !item.customProperties?.parent === false;
+        },
+        registerParentsBasedOnDisabledChildren() {
+            this.options.forEach(item => {
+                const enabledChildren = item.children.filter(child => child.disabled !== true).length;
+                if (enabledChildren === 0) return;
+
+                const enabled = this.checkedChildrenCount(item) === enabledChildren;
+                this.checkedParents = this[enabled ? 'add' : 'remove'](this.checkedParents, item.value);
+                this.$root.querySelector(`[data-id="${item.value}"][data-parent-id="${item.value}"] input[type="checkbox"]`).checked = enabled;
+                
+            });
+        },
+        parentDisabled(parent) {
+            return parent.children.filter(child => child.disabled !== true).length === 0;
+        }
+    }));
+
     Alpine.directive("global", function(el, { expression }) {
         let f = new Function("_", "$data", "_." + expression + " = $data;return;");
         f(window, el._x_dataStack[0]);
@@ -2675,7 +2973,7 @@ document.addEventListener("alpine:init", () => {
         currentScore: null,
         toggleCount: 0,
         clearToProceed() {
-            const valuedToggles = document.querySelectorAll('.student-answer .slider-button-container:not(disabled)[data-has-value="true"]').length;
+            const valuedToggles = document.querySelectorAll(".student-answer .slider-button-container:not(disabled)[data-has-value=\"true\"]").length;
             return this.currentScore !== null && valuedToggles >= this.toggleCount;
         },
         resetData(score = null, toggleCount = 0) {

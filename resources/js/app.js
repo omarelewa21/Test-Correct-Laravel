@@ -324,3 +324,8 @@ selectTextContent = function (event) {
     selection.removeAllRanges();
     selection.addRange(range);
 }
+
+Array.prototype.contains = function (key)
+{
+    return this.includes(key);
+}

@@ -62,17 +62,23 @@
     margin-top: 8px;
     background-color: white;
     border-radius: 10px;
-    border-color: transparent;
+    border: none;
     box-shadow: var(--main-shadow);
-    min-width: 100px;
-    max-width: 250px;
+    min-width: 200px;
+    max-width: 350px;
     width: max-content;
     will-change: filter;
     z-index: 10;
 }
 
+.custom-choices .choices__list .choices__item.choices__item--choice {
+    font-size: 1rem;
+    font-weight: bold;
+    padding-block: 12px;
+}
 .custom-choices .choices__list .choices__item.choices__item--choice.choices__item--selectable {
     padding-right: 10px;
+    transition: color 150ms ease-in-out, background-color 150ms ease-in-out, border-color 150ms ease-in-out;
 }
 
 .custom-choices .choices__list .choices__item.choices__item--choice.is-selected.choices__item--selectable {
@@ -80,9 +86,13 @@
     font-weight: bold !important;
 }
 
-.custom-choices .choices__list .choices__item.choices__item--choice.choices__item--selectable.is-highlighted {
-    background-color: white;
+.custom-choices .choices__list .choices__item.choices__item--choice.choices__item--selectable.is-highlighted,
+.custom-choices .choices__list .choices__item.choices__item--choice.choices__item--selectable:hover {
+    background-color: var(--primary-opacity-05);
     color: var(--primary);
+}
+.custom-choices .choices__list .choices__item.choices__item--choice.choices__item--selectable:active {
+    background-color: var(--primary-opacity-10);
 }
 
 .custom-choices .choices__inner .choices__input::placeholder {
@@ -92,6 +102,8 @@
 
 .custom-choices .choices__inner .choices__input {
     margin-bottom: 0;
+    padding-top: 5px;
+    padding-left: 0;
 }
 
 .custom-choices .choices__list .choices__input {
@@ -110,19 +122,21 @@
 .custom-choices .choices__list[aria-expanded] .choices__item--selectable::before,
 .custom-choices .choices__list--dropdown .choices__item--selectable.is-selected::after,
 .custom-choices .choices__list[aria-expanded] .choices__item--selectable.is-selected::after {
+    --ccleft: 24px;
     content: '';
     position: absolute;
-    left: 10px;
+    left: var(--ccleft);
     top: 50%;
     transform: translateY(-50%);
-    width: 20px;
-    height: 20px;
-    border-radius: 0.375rem;
+    width: 24px;
+    height: 24px;
+    border-radius: 0.5rem;
+    transition: color 150ms ease-in-out, background-color 150ms ease-in-out, border-color 150ms ease-in-out;
 }
 
 .custom-choices .choices__list--dropdown .choices__item--selectable::before,
 .custom-choices .choices__list[aria-expanded] .choices__item--selectable::before {
-    background-color: var(--off-white);
+    background-color: rgba(var(--system-secondary-rgb), 0.5);
     border: 1px solid var(--blue-grey);
 }
 
@@ -144,7 +158,8 @@
 
 .custom-choices .choices__list--dropdown .choices__item--selectable,
 .custom-choices .choices__list[aria-expanded] .choices__item--selectable {
-    padding-left: 2.5rem;
+    --ccpadding-left: 3.5rem;
+    padding-left: var(--ccpadding-left);
 }
 
 .filter-pill {
@@ -167,12 +182,28 @@
     border-radius: 10px;
     cursor: default;
     align-items: center;
+    transition: background-color 150ms ease-in-out, color 150ms ease-in-out;
+}
+
+.filter-pill.enabled {
+    --filter-pill-background-color: rgba(var(--system-secondary-rgb), .5);
+}
+
+.filter-pill.disabled {
+    --filter-pill-background-color: rgba(var(--system-secondary-rgb), .2);
+    --filter-pill-text-color: var(--note);
 }
 
 .filter-pill > svg {
     display: flex;
     color: var(--mid-grey);
     cursor: pointer;
+}
+.filter-pill.enabled > svg {
+    cursor: default;
+}
+.filter-pill.disabled > svg {
+    color: var(--system-base);
 }
 
 .has-error > .custom-choices {
@@ -242,7 +273,7 @@
 .super.custom-choices .choices__list--dropdown .choices__item--selectable.is-highlighted,
 .super.custom-choices .choices__list[aria-expanded] .choices__item--selectable.is-highlighted {
     color: var(--primary);
-    background-color: var(--primary-light);
+    background-color: var(--primary-opacity-05);
 }
 
 .super .is-open + .choices-select-chevron {
@@ -253,5 +284,8 @@
 }
 
 .custom-choices .choices__list .choices__item.child {
-    margin-left: 30px;
+    --ccpadding-left: calc(3.5rem + 24px);
+}
+.custom-choices .choices__list .choices__item.child::before {
+    --ccleft: calc(24px + 24px);
 }

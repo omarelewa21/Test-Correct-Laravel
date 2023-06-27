@@ -112,6 +112,8 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/co-learning/{test_take}', \tcCore\Http\Livewire\Teacher\CoLearning::class)->name('co-learning');
         Route::get('/assessment/{testTake}', \tcCore\Http\Livewire\Teacher\Assessment::class)->name('assessment');
+        Route::get('/test-take/{testTake}', [\tcCore\Http\Controllers\TestTakesController::class, 'openDetail'])->name('test-take.open-detail');
+        Route::get('/test-take/planned/{testTake}', \tcCore\Http\Livewire\Teacher\TestTake\Planned::class)->name('test-take.planned');
     });
 
     Route::middleware(['dll', 'student'])->prefix('appapi')->name('appapi')->group(function () {

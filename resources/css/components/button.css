@@ -93,7 +93,7 @@ button.cta-button:focus::after, a.cta-button:focus::after {
 button.cta-button:disabled, a.cta-button:disabled {
     background: var(--light-grey);
     color: var(--mid-grey);
-    box-shadow: 0 1px 4px 0 rgba(4, 31, 116, 0.06);
+    box-shadow: 0 1px 4px 0 rgba(4, 31, 116, 0.06), 0 1px 4px 0 rgba(4, 31, 116, 0.1);;
 }
 
 .primary-button.btn-disabled {
@@ -113,6 +113,7 @@ button.cta-button:disabled, a.cta-button:disabled {
 }
 
 .cta-button:disabled.cta-button::after,
+.student-button:disabled.student-button::after,
 .primary-button:disabled.primary-button::after {
     content: none;
 }
@@ -129,6 +130,7 @@ button.cta-button:disabled, a.cta-button:disabled {
 }
 
 .cta-button::after,
+.student-button::after,
 .primary-button::after {
     content: '';
     background-size: 115% 110%;
@@ -153,10 +155,18 @@ button.cta-button:disabled, a.cta-button:disabled {
     background-image: linear-gradient(to left, #4ad866 0%, var(--cta-primary-dark) 100%), linear-gradient(to bottom, var(--cta-primary), var(--cta-primary));
 }
 
+.student-button::after {
+    background-image: linear-gradient(to right, var(--highlight-primary-mid-dark) 1%, #f4f1d2), linear-gradient(to bottom, var(--teacher-highlight-primary), var(--teacher-highlight-primary));
+}
+
 .cta-button:hover::after,
 .cta-button:active::after,
 .cta-button:focus::after,
 .cta-button:focus-visible::after,
+.student-button:hover::after,
+.student-button:active::after,
+.student-button:focus::after,
+.student-button:focus-visible::after,
 .primary-button:hover::after,
 .primary-button:active::after,
 .primary-button:focus::after,
@@ -165,11 +175,13 @@ button.cta-button:disabled, a.cta-button:disabled {
 }
 
 .cta-button,
+.student-button,
 .primary-button {
     isolation: isolate;
 }
 
 .cta-button > *,
+.student-button > *,
 .primary-button > * {
     z-index: 3;
 }
@@ -236,36 +248,28 @@ button.cta-button:disabled, a.cta-button:disabled {
 }
 
 .student-button {
+    position: relative;
     color: var(--system-base);
-    background-color: var(--secondary);
-    background-image: radial-gradient(ellipse farthest-side at 10% 10%, rgba(195, 208, 237, .5) 0, rgba(195, 208, 237, 0) 100%);
-    background-size: 0px 0px;
-    background-repeat: no-repeat;
-    box-shadow: 0 1px 2px 1px rgba(0, 0, 0, .15);
-    transition: color 0.3s cubic-bezier(.215, .61, .355, 1);
-}
-
-.student-button:hover {
-    background-color: rgb(203, 219, 253);
-    background-size: 100% 100%;
-    box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.1);
+    background-color: var(--teacher-highlight-primary);
     transition: all 0.3s cubic-bezier(.215, .61, .355, 1);
-}
-
-.student-button:active {
-    background: linear-gradient(90deg, rgba(239, 244, 254, 1) 0%, rgba(233, 239, 250, 1) 100%);
-    box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.1);
-}
-
-.student-button:focus {
-    background: var(--system-student);
-    border: 1px solid #99AACE;
+    justify-content: center;
+    background-size: 115% 110%; /*compensate for transparent border*/
+    background-position-x: center;
 }
 
 .student-button:disabled {
     background: var(--light-grey);
     color: var(--mid-grey);
     box-shadow: none;
+}
+
+.student-button:focus::after,
+.student-button:focus-visible::after {
+    border: solid 2px #c1ae00;
+}
+
+.student-button:active::after {
+    box-shadow: 0 1px 3px 0 rgba(var(--system-base-rgb), 0.4);
 }
 
 .select-button {

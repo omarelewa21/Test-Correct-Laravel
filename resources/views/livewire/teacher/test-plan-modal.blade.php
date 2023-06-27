@@ -75,13 +75,13 @@
             @endif
             <div class="input-section" x-data>
                 <div class="name flex">
-                    <label for="teachers_and_classes">{{ __('Klassen') }}</label>
+                    <label for="teachers_and_classes">{{ __('teacher.Klassen') }}</label>
                 </div>
                 <div class="name flex mb-4">
                     <x-input.choices-select :multiple="true"
                                             :options="$this->schoolClasses"
                                             :withSearch="true"
-                                            placeholderText="{!!  __('teacher.Klassen') !!}"
+                                            placeholderText="{{ __('teacher.Klassen') }}"
                                             wire:model="request.school_classes"
                                             filterContainer="selected_classes"
                                             id="teachers_and_classes"
@@ -108,6 +108,7 @@
                                             wire:key='allowed-invigilators'
                                             hasErrors="{{ $this->getErrorBag()->has('request.invigilators') ? 'true': '' }}"
                     />
+
                     <div id="selected_invigilators" wire:ignore class="space-x-4 ml-4"></div>
                 </div>
             </div>
@@ -142,7 +143,7 @@
                     @if($rttiExportAllowed)
                         <x-input.toggle-row-with-title wire:model="request.is_rtti_test_take"
                                                        :toolTip="__('teacher.exporteer_naar_rtti_online_tooltip')"
-                                                       containerClass="border-t w-full lg:w-[calc(50%-0.5rem)]"
+                                                       containerClass="w-full lg:w-[calc(50%-0.5rem)]"
                         >
                             <x-icon.export />
                             <span class="bold">{{ __('teacher.Exporteer naar RTTI Online') }} </span>
