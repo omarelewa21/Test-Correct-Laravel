@@ -199,7 +199,7 @@ Editor.builtinPlugins = [
 
 // Editor configuration.
 Editor.defaultConfig = {
-    licenseKey: '9K2tRUPoZobJydX6tm2HusZ/x1NCE/sghAv2zyuhaiEtxnbV9QKrhKjJvsI=',
+    licenseKey: window.MIX_CKEDITOR_LICENSE_KEY,
     toolbar: {
         items: [
             'completion',

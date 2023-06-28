@@ -8,7 +8,7 @@
     <title version="{{ \tcCore\Http\Helpers\BaseHelper::getCurrentVersion() }}">Test-Correct</title>
     <link rel="icon" href="{{ asset('img/icons/Logo-Test-Correct-recolored-icon-only.svg') }}" />
 
-    <script src="{{ mix('/js/ckeditor.js') }}" type="text/javascript"></script>
+
 
     @livewireStyles
     <link rel="stylesheet" href="{{ mix('/css/app.css') }}">
@@ -53,7 +53,7 @@
     })
 </script>
 <script src="{{ mix('/js/app.js') }}"></script>
-
+<script src="{{ mix('/js/ckeditor.js') }}" type="text/javascript"></script>
 <script src="https://www.wiris.net/client/plugins/app/WIRISplugins.js?viewer=image"></script>
 
 @if(!is_null(Auth::user())&&Auth::user()->text2speech)

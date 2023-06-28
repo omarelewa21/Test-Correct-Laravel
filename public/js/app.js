@@ -10355,6 +10355,7 @@ window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   forceTLS: true
 });
 window.$ = window.jQuery = __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js");
+window.MIX_CKEDITOR_LICENSE_KEY = "q11N5LxlUjUp2pDthuTmPmy/+cmatL0lY7nh6aX+nhhODyekK1g8YW5CKA==";
 window.FilePond = __webpack_require__(/*! filepond */ "./node_modules/filepond/dist/filepond.js");
 
 FilePond.registerPlugin((filepond_plugin_file_validate_size__WEBPACK_IMPORTED_MODULE_1___default()));

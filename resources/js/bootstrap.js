@@ -28,6 +28,8 @@ window.Echo = new Echo({
 });
 window.$ = window.jQuery = require('jquery');
 
+window.MIX_CKEDITOR_LICENSE_KEY = process.env.MIX_CKEDITOR_LICENSE_KEY;
+
 window.FilePond = require('filepond');
 import FilePondPluginFileValidateSize from 'filepond-plugin-file-validate-size';
 FilePond.registerPlugin(FilePondPluginFileValidateSize);
