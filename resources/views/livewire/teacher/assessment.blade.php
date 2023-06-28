@@ -14,7 +14,9 @@
                 @js('editor-'.$this->questionNavigationValue.'-'.$this->answerNavigationValue),
                 @js('feedback-editor-'.$this->questionNavigationValue.'-'.$this->answerNavigationValue),
                 @js(auth()->user()->uuid),
-                @js($this->currentQuestion->type)
+                @js($this->currentQuestion->type),
+                @js(false),
+                @js($this->hasFeedback)
              )"
         >
             <x-partials.evaluation.main-content :question="$this->currentQuestion"
@@ -237,7 +239,7 @@
                                     />
                                     <div class="flex justify-end space-x-4 h-fit">
                                         <x-button.text-button size="sm"
-                                                              @click="resetAddNewAnswerFeedback()"
+                                                              @click="resetAddNewAnswerFeedback(true)"
                                                               :id="'feedback-editor-'. $this->questionNavigationValue.'-'.$this->answerNavigationValue.'-cancel'">
                                             <span>@lang('modal.annuleren')</span>
                                         </x-button.text-button>
@@ -256,42 +258,45 @@
                                     />
                                 @endif
 
-
-                                {{-- TODO: make exception for existing writing assignments? --}}
-
-                                {{--@if($this->currentQuestion->isSubType('writing'))
-                                    <x-button.primary class="!p-0 justify-center"
-                                                      wire:click="$emit('openModal', 'teacher.inline-feedback-modal', {answer: '{{  $this->currentAnswer->uuid }}' } );"
-                                    >
-                                        <span>@lang($this->hasFeedback ? 'assessment.Inline feedback wijzigen' : 'assessment.Inline feedback toevoegen')</span>
-                                        <x-icon.chevron/>
-                                    </x-button.primary>
-                                    @if($this->hasFeedback)
-                                        <x-button.text-button class="!p-0 justify-center"
-                                                              wire:click="deleteFeedback"
-                                        >
-                                            <span>@lang('assessment.Inline feedback verwijderen')</span>
-                                            <x-icon.chevron/>
-                                        </x-button.text-button>
-                                    @endif
-
-                                @endif--}}
                             </div>
                         </div>
-                        @if($this->inlineFeedbackEnabled)
+
+                        {{-- TODO: make exception for existing writing assignments? --}}
+                        @if($this->currentQuestion->isSubType('writing'))
+                            <div class="border-2 border-dashed border-red-500">
+                                @js('TODO: find out what to do with writing assignments')
+                                <x-button.primary class="!p-0 justify-center"
+                                                  wire:click="$emit('openModal', 'teacher.inline-feedback-modal', {answer: '{{  $this->currentAnswer->uuid }}' } );"
+                                >
+                                    <span>@lang($this->hasFeedback ? 'assessment.Inline feedback wijzigen' : 'assessment.Inline feedback toevoegen')</span>
+                                    <x-icon.chevron/>
+                                </x-button.primary>
+                                @if($this->hasFeedback)
+                                    <x-button.text-button class="!p-0 justify-center"
+                                                          wire:click="deleteFeedback"
+                                    >
+                                        <span>@lang('assessment.Inline feedback verwijderen')</span>
+                                        <x-icon.chevron/>
+                                    </x-button.text-button>
+                                @endif
+                            </div>
+                        @endif
+                        {{-- TODO: make exception for existing writing assignments? --}}
+
+                    @if($this->inlineFeedbackEnabled)
+                            {{-- TODO ONLY for open question 'write down'  --}}
+
                             <div class="space-y-4 relative">
                             <span @class([
                                     "flex bold border-t border-blue-grey pt-2 justify-between items-center",
-                                    'text-midgrey' => !$this->hasFeedback,
                                   ])
-                                  x-init="dropdownOpened = @js($this->hasFeedback) ? dropdownOpened : 'add-feedback'"
+                                  :class="{'text-midgrey': !hasFeedback}"
+                                  x-init="dropdownOpened = hasFeedback ? dropdownOpened : 'add-feedback'"
                             >
                                 <span>@lang('assessment.Gegeven feedback')</span>
                                 <span class="w-4 h-4 flex justify-center items-center"
                                       :class="dropdownOpened === 'given-feedback' ? 'rotate-svg-90' : ''"
-                                      @unless(!$this->hasFeedback)
-                                          @click="dropdownOpened = (dropdownOpened === 'given-feedback' ? null : 'given-feedback')"
-                                      @endif
+                                      @click="dropdownOpened = (!hasFeedback) ? dropdownOpened : (dropdownOpened === 'given-feedback' ? null : 'given-feedback')"
                                 >
                                     <x-icon.chevron></x-icon.chevron>
                                 </span>
@@ -304,7 +309,6 @@
                                      x-data="{}"
                                      x-init=""
                                 >
-                                    {{--TODO ONLY for open question add new configuration with connection to the comments editor --}}
 
                                     <x-menu.context-menu.base context="answer-feedback">
                                         <div x-show="editingComment === null">

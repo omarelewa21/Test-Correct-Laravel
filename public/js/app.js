@@ -9026,6 +9026,7 @@ document.addEventListener("alpine:init", function () {
     };
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("AnswerFeedback", function (answerEditorId, feedbackEditorId, userId, questionType, viewOnly) {
+    var hasFeedback = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : false;
     return {
       answerEditorId: answerEditorId,
       feedbackEditorId: feedbackEditorId,
@@ -9035,6 +9036,7 @@ document.addEventListener("alpine:init", function () {
       activeComment: null,
       hoveringComment: null,
       dropdownOpened: null,
+      hasFeedback: hasFeedback,
       userId: userId,
       questionType: questionType,
       viewOnly: viewOnly,
@@ -9172,7 +9174,7 @@ document.addEventListener("alpine:init", function () {
                     while (1) switch (_context22.prev = _context22.next) {
                       case 0:
                         if (!answerEditor.plugins.get('CommentsRepository').activeCommentThread) {
-                          _context22.next = 23;
+                          _context22.next = 27;
                           break;
                         }
                         _context22.next = 3;
@@ -9219,23 +9221,34 @@ document.addEventListener("alpine:init", function () {
                         return _context22.t0.createCommentIcon.call(_context22.t0, _context22.t4);
                       case 21:
                         document.querySelector('#commentMarkerStyles').innerHTML = commentStyles;
+                        _this59.resetAddNewAnswerFeedback();
+                        _this59.hasFeedback = true;
+
+                        //todo go to gegeven feedback
+                        _this59.$dispatch('answer-feedback-show-comments');
+
+                        //todo fix scrolling and activating correct card:
+                        _this59.scrollToCommentCard(feedback.uuid);
                         return _context22.abrupt("return");
-                      case 23:
-                        _context22.next = 25;
+                      case 27:
+                        _context22.next = 29;
                         return _this59.$wire.createNewComment({
                           message: comment,
                           comment_color: null,
                           //no comment color when its a general ticket.
                           comment_emoji: comment_emoji
                         }, false);
-                      case 25:
+                      case 29:
                         feedback = _context22.sent;
+                        _this59.hasFeedback = true;
+                        _this59.resetAddNewAnswerFeedback();
+
                         //todo go to gegeven feedback
                         _this59.$dispatch('answer-feedback-show-comments');
 
                         //todo fix scrolling and activating correct card:
                         _this59.scrollToCommentCard(feedback.uuid);
-                      case 28:
+                      case 34:
                       case "end":
                         return _context22.stop();
                     }
@@ -9273,7 +9286,7 @@ document.addEventListener("alpine:init", function () {
               case 10:
                 result = _context24.sent;
                 if (!result) {
-                  _context24.next = 19;
+                  _context24.next = 20;
                   break;
                 }
                 //delete icon positioned over the ckeditor
@@ -9286,10 +9299,11 @@ document.addEventListener("alpine:init", function () {
                 _context24.next = 18;
                 return _this60.$wire.updateAnswer(answerText);
               case 18:
+                _this60.setEditingComment(null);
                 return _context24.abrupt("return");
-              case 19:
-                console.error('failed to delete answer feedback');
               case 20:
+                console.error('failed to delete answer feedback');
+              case 21:
               case "end":
                 return _context24.stop();
             }
@@ -9365,32 +9379,29 @@ document.addEventListener("alpine:init", function () {
       cancelEditingComment: function cancelEditingComment(threadId, AnswerFeedbackUuid) {
         var originalIconName = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
         var originalColor = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
+        //reset temporary styling
+        document.querySelector('#temporaryCommentMarkerStyles').innerHTML = '';
         this.setEditingComment(null);
 
-        //reset radio buttons !!!
-        //todo reset emoji and color radio buttons
-        // replace document with specific card
-        console.log(originalColor);
+        //reset radio buttons
         if (originalColor) {
           document.querySelector('[data-uuid="' + AnswerFeedbackUuid + "\"].answer-feedback-card .comment-color-picker [data-color=\"".concat(originalColor, "\"]")).checked = true;
         }
-        if (originalIconName !== false) {
-          if (!originalIconName) {
-            document.querySelector('[data-uuid="' + AnswerFeedbackUuid + "\"].answer-feedback-card .comment-emoji-picker input:checked").checked = false;
-          } else {
-            document.querySelector('[data-uuid="' + AnswerFeedbackUuid + "\"].answer-feedback-card .comment-emoji-picker [data-iconName=\"".concat(originalIconName, "\"]")).checked = true;
-          }
+        if (originalIconName === false) return; /* false is unset, but null is a valid value */
+
+        if (originalIconName === null || originalIconName === '') {
+          var emojiPicker = document.querySelector('[data-uuid="' + AnswerFeedbackUuid + "\"].answer-feedback-card .comment-emoji-picker input:checked");
+          if (emojiPicker) emojiPicker.checked = false;
+        } else {
+          document.querySelector('[data-uuid="' + AnswerFeedbackUuid + "\"].answer-feedback-card .comment-emoji-picker [data-iconName=\"".concat(originalIconName, "\"]")).checked = true;
         }
 
-        //reset temporary styling
-        document.querySelector('#temporaryCommentMarkerStyles').innerHTML = '';
-
-        //reset icon
+        //reset icon to the original if originalIconName is given (null is also valid)
         var ckeditorIconWrapper = document.querySelector('#icon-' + threadId);
         var cardIconWrapper = document.querySelector('[data-uuid="' + AnswerFeedbackUuid + '"].answer-feedback-card-icon');
         if (ckeditorIconWrapper) this.addOrReplaceIconByName(ckeditorIconWrapper, originalIconName);
         if (cardIconWrapper) {
-          if (!originalIconName) {
+          if (originalIconName === null || originalIconName === '') {
             cardIconWrapper.innerHTML = '';
             return;
           }
@@ -9512,6 +9523,7 @@ document.addEventListener("alpine:init", function () {
         return name;
       },
       resetAddNewAnswerFeedback: function resetAddNewAnswerFeedback() {
+        var cancelAddingNewComment = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
         //find default/blue color picker and enable it.
         var defaultColorPicker = document.querySelector('.answer-feedback-add-comment .comment-color-picker [data-color="blue"]');
         defaultColorPicker.checked = true;
@@ -9526,9 +9538,10 @@ document.addEventListener("alpine:init", function () {
         var answerEditor = ClassicEditors[this.feedbackEditorId];
         answerEditor.setData('<p></p>');
         this.updateNewCommentMarkerStyles(null);
-
-        //todo does annuleren close the accordion?
-        console.warn('todo does annuleren close the accordion?');
+        if (cancelAddingNewComment) {
+          //todo does annuleren close the accordion?
+          console.warn('todo does annuleren close the accordion?');
+        }
       }
     };
   });

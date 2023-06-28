@@ -8655,6 +8655,38 @@ span.completion-response-object-container{
     color: var(--teacher-primary);
 }
 
+.feedback-card-message {
+    position: relative;
+    transition: height 300ms ease-in-out;
+    width: 100%;
+    margin-bottom: 0.75rem;
+    padding: 0px 1rem;
+}
+
+.feedback-card-message .line-clamp-chevron {
+    position: absolute;
+    width: 13px;
+    height: 16px;
+    bottom: 0px;
+    right: 16px;
+}
+
+.feedback-card-message .line-clamp-chevron > svg {
+    transform: translate(2px, -5px) rotate(90deg);
+}
+
+.feedback-card-message.expanded-card .line-clamp-chevron > svg {
+    transform: translate(2px, -6px) rotate(270deg);
+}
+
+.feedback-card-message .feedback-card-message-text {
+    overflow-x: hidden;
+}
+
+.feedback-card-message.text-overflow-card .feedback-card-message-text {
+    width: calc(100% - 13px);
+
+}
 
 .answer-feedback-card-line {
     position: absolute;
@@ -8671,18 +8703,33 @@ span.completion-response-object-container{
     top: -2px;
     height: calc(100% + 4px);
 }
+
+.answer-feedback-card-hovering::after,
+.answer-feedback-card:hover::after,
 .answer-feedback-card-editing::after,
 .answer-feedback-card-active::after {
     content: '';
     position: absolute;
     box-sizing: content-box;
-    border: 3px solid var(--primary);
-    border-radius: 2px 10px 10px 2px;
-    left: 0;
-    top: -3px;
-    width: calc(100% - 3px);
     height: 100%;
     pointer-events: none;
+    border-radius: 2px 10px 10px 2px;
+    left: 0;
+}
+
+
+.answer-feedback-card-editing::after,
+.answer-feedback-card-active::after {
+    border: 3px solid var(--primary);
+    top: -3px;
+    width: calc(100% - 3px);
+}
+
+.answer-feedback-card-hovering::after,
+.answer-feedback-card:hover::after {
+    border: 1px solid var(--primary);
+    top: -1px;
+    width: calc(100% - 1px);
 }
 
 .answer-feedback-card-teacher .answer-feedback-card-line {
@@ -10237,6 +10284,9 @@ video {
 .h-screen{
   height: 100vh;
 }
+.h-\[13px\]{
+  height: 13px;
+}
 .max-h-0{
   max-height: 0px;
 }
@@ -10263,6 +10313,9 @@ video {
 }
 .max-h-full{
   max-height: 100%;
+}
+.max-h-\[72px\]{
+  max-height: 72px;
 }
 .\!min-h-0{
   min-height: 0px !important;
@@ -10481,6 +10534,9 @@ video {
 }
 .w-px{
   width: 1px;
+}
+.w-\[13px\]{
+  width: 13px;
 }
 .min-w-\[110px\]{
   min-width: 110px;
@@ -12288,6 +12344,11 @@ video {
 }
 .transition-transform{
   transition-property: transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+.transition-\[height\]{
+  transition-property: height;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
 }

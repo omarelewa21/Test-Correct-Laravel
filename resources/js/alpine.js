@@ -2415,7 +2415,7 @@ document.addEventListener("alpine:init", () => {
 
         }
     }));
-    Alpine.data("AnswerFeedback", (answerEditorId, feedbackEditorId, userId, questionType, viewOnly) => ({
+    Alpine.data("AnswerFeedback", (answerEditorId, feedbackEditorId, userId, questionType, viewOnly, hasFeedback = false) => ({
         answerEditorId: answerEditorId,
         feedbackEditorId: feedbackEditorId,
         commentRepository: null,
@@ -2424,6 +2424,7 @@ document.addEventListener("alpine:init", () => {
         activeComment: null,
         hoveringComment: null,
         dropdownOpened: null,
+        hasFeedback,
         userId,
         questionType,
         viewOnly,
@@ -2545,6 +2546,16 @@ document.addEventListener("alpine:init", () => {
                     })
 
                     document.querySelector('#commentMarkerStyles').innerHTML = commentStyles;
+
+                    this.resetAddNewAnswerFeedback();
+
+                    this.hasFeedback = true;
+
+                    //todo go to gegeven feedback
+                    this.$dispatch('answer-feedback-show-comments');
+
+                    //todo fix scrolling and activating correct card:
+                    this.scrollToCommentCard(feedback.uuid);
                     return;
                 }
 
@@ -2553,6 +2564,10 @@ document.addEventListener("alpine:init", () => {
                     comment_color: null, //no comment color when its a general ticket.
                     comment_emoji: comment_emoji,
                 }, false);
+
+                this.hasFeedback = true;
+
+                this.resetAddNewAnswerFeedback();
 
                 //todo go to gegeven feedback
                 this.$dispatch('answer-feedback-show-comments');
@@ -2588,6 +2603,8 @@ document.addEventListener("alpine:init", () => {
                 commentsRepository.getCommentThread(threadId).remove();
                 const answerText = answerEditor.getData();
                 await this.$wire.updateAnswer(answerText);
+
+                this.setEditingComment(null);
 
                 return;
             }
@@ -2662,33 +2679,32 @@ document.addEventListener("alpine:init", () => {
             this.setHoveringCommentMarkerStyle(true);
         },
         cancelEditingComment(threadId, AnswerFeedbackUuid, originalIconName = false, originalColor = false) {
-            this.setEditingComment(null);
-
-            //reset radio buttons !!!
-            //todo reset emoji and color radio buttons
-            // replace document with specific card
-            console.log(originalColor)
-            if(originalColor) {
-                document.querySelector('[data-uuid="'+AnswerFeedbackUuid+`"].answer-feedback-card .comment-color-picker [data-color="${originalColor}"]`).checked = true;
-            }
-            if(originalIconName !== false) {
-                if(!originalIconName) {
-                    document.querySelector('[data-uuid="'+AnswerFeedbackUuid+`"].answer-feedback-card .comment-emoji-picker input:checked`).checked = false;
-                } else {
-                    document.querySelector('[data-uuid="'+AnswerFeedbackUuid+`"].answer-feedback-card .comment-emoji-picker [data-iconName="${originalIconName}"]`).checked = true;
-                }
-            }
-
             //reset temporary styling
             document.querySelector('#temporaryCommentMarkerStyles').innerHTML = '';
 
-            //reset icon
+            this.setEditingComment(null);
+
+            //reset radio buttons
+            if(originalColor) {
+                document.querySelector('[data-uuid="'+AnswerFeedbackUuid+`"].answer-feedback-card .comment-color-picker [data-color="${originalColor}"]`).checked = true;
+            }
+
+            if(originalIconName === false) return; /* false is unset, but null is a valid value */
+
+            if(originalIconName === null || originalIconName === '') {
+                let emojiPicker = document.querySelector('[data-uuid="'+AnswerFeedbackUuid+`"].answer-feedback-card .comment-emoji-picker input:checked`)
+                if(emojiPicker) emojiPicker.checked = false;
+            } else {
+                document.querySelector('[data-uuid="'+AnswerFeedbackUuid+`"].answer-feedback-card .comment-emoji-picker [data-iconName="${originalIconName}"]`).checked = true;
+            }
+
+            //reset icon to the original if originalIconName is given (null is also valid)
             let ckeditorIconWrapper = document.querySelector('#icon-' + threadId)
             let cardIconWrapper = document.querySelector('[data-uuid="'+AnswerFeedbackUuid+'"].answer-feedback-card-icon')
 
             if(ckeditorIconWrapper) this.addOrReplaceIconByName(ckeditorIconWrapper, originalIconName);
             if(cardIconWrapper) {
-                if(!originalIconName) {
+                if(originalIconName === null || originalIconName === '') {
                     cardIconWrapper.innerHTML = '';
                     return;
                 }
@@ -2820,7 +2836,7 @@ document.addEventListener("alpine:init", () => {
             }
             return name;
         },
-        resetAddNewAnswerFeedback() {
+        resetAddNewAnswerFeedback(cancelAddingNewComment = false) {
             //find default/blue color picker and enable it.
             let defaultColorPicker = document.querySelector('.answer-feedback-add-comment .comment-color-picker [data-color="blue"]');
             defaultColorPicker.checked = true;
@@ -2837,8 +2853,10 @@ document.addEventListener("alpine:init", () => {
 
             this.updateNewCommentMarkerStyles(null);
 
-            //todo does annuleren close the accordion?
-            console.warn('todo does annuleren close the accordion?');
+            if(cancelAddingNewComment) {
+                //todo does annuleren close the accordion?
+                console.warn('todo does annuleren close the accordion?');
+            }
         }
     }));
 

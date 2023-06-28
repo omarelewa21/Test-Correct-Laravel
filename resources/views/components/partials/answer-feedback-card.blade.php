@@ -23,6 +23,8 @@
      x-init="
          $el.addEventListener('click', (e) => {
              setActiveComment('{{$comment->thread_id}}',  '{{$comment->uuid}}');
+
+             if(textOverflow === true && editingComment !== '{{$comment->uuid}}') {expanded = ! expanded; console.log(expanded)};
          });
          $el.addEventListener('mouseenter', (e) => {
              setHoveringComment('{{$comment->thread_id}}',  '{{$comment->uuid}}');
@@ -31,6 +33,15 @@
             clearHoveringComment();
          });
      "
+     x-data="{
+             expanded: false,
+             textOverflow: false,
+             setTextOverflow(timeout = 0) {
+                 lineHeight = 24;
+                 height = $el.querySelector('.feedback-card-message-text').scrollHeight;
+                 this.textOverflow = (height > ( 3 * lineHeight ));
+             }
+         }"
 >
     <div class="flex justify-between px-4 pt-2">
         <div class="flex flex-wrap space-x-2">
@@ -68,9 +79,25 @@
         </div>
     </div>
 
-    <div class="line-clamp-3 max-h-[70px] mb-3 w-full px-4 feedback-card-message"
-         x-show="editingComment !== '{{$comment->uuid}}'">
-        {!!  $comment->message !!}
+    <div x-init="
+            setTextOverflow();
+         "
+         class="feedback-card-message"
+         :class="{ 'expanded-card': expanded, 'text-overflow-card': textOverflow }"
+         x-show="editingComment !== '{{$comment->uuid}}'"
+    >
+        <div class="feedback-card-message-text"
+             :class="{
+                'line-clamp-3 max-h-[72px]': ! expanded,
+             }"
+        >
+            {!!  $comment->message !!}
+        </div>
+        <div class="line-clamp-chevron"
+             x-show="textOverflow"
+        >
+            <x-icon.chevron/>
+        </div>
     </div>
     <div class="flex flex-col mx-4"
          x-show="editingComment === '{{$comment->uuid}}'">
@@ -99,12 +126,12 @@
 
         <div class="flex justify-end space-x-4 h-fit mt-2 mb-4">
             <x-button.text-button size="sm"
-                                  @click="cancelEditingComment('{{$comment->thread_id}}','{{$comment->uuid}}', '{{$iconName}}', '{{$comment->comment_color}}')"
+                                  @click.stop="cancelEditingComment('{{$comment->thread_id}}','{{$comment->uuid}}', '{{$iconName}}', '{{$comment->comment_color}}')"
             >
                 <span>@lang('modal.annuleren')</span>
             </x-button.text-button>
             <x-button.cta class="block"
-                          @click="updateCommentThread($el)">
+                          @click.stop="await updateCommentThread($el); $nextTick(()=>setTextOverflow())">
                 <span>@lang('general.save')</span>
             </x-button.cta>
         </div>
