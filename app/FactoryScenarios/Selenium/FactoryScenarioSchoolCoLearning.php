@@ -1,6 +1,6 @@
 <?php
 
-namespace tcCore\FactoryScenarios;
+namespace tcCore\FactoryScenarios\Selenium;
 
 use Carbon\Carbon;
 use Illuminate\Support\Str;
@@ -11,8 +11,10 @@ use tcCore\Factories\FactorySchoolLocation;
 use tcCore\Factories\FactorySchoolYear;
 use tcCore\Factories\FactorySection;
 use tcCore\Factories\FactoryUser;
+use tcCore\FactoryScenarios\FactoryScenarioSchool;
+use tcCore\FactoryScenarios\FactoryScenarioTestTakeTaken;
+use tcCore\FactoryScenarios\FactoryScenarioTestTestWithOpenQuestions;
 use tcCore\School;
-use tcCore\SchoolLocation;
 use tcCore\Test;
 use tcCore\TestTake;
 use tcCore\User;
@@ -30,22 +32,23 @@ class FactoryScenarioSchoolCoLearning extends FactoryScenarioSchool
     protected $baseSubjectId;
 
     protected $schoolClassName;
-    private Test $test;
+    protected Test $test;
 
-    private TestTake $testTake;
+    protected TestTake $testTake;
+    protected static string $prefix = 'CoLearning';
 
     public function __construct()
     {
         parent::__construct();
 
-        $this->schoolName = 'CoLearningSchool';
-        $this->schoolLocationName = 'CoLearningSchoolLocation';
+        $this->schoolName = self::$prefix.'School';
+        $this->schoolLocationName = self::$prefix.'SchoolLocation';
 
         $this->baseSubjectId = 1;
         $this->subjectName = 'Nederlandse gramatica';
         $this->sectionName = 'Nederlands';
 
-        $this->schoolClassName = 'CoLearningKlas';
+        $this->schoolClassName = self::$prefix.'Klas';
     }
 
     /**
@@ -83,33 +86,33 @@ class FactoryScenarioSchoolCoLearning extends FactoryScenarioSchool
         $studentIterator = $factory->getStudentIteratorNumber();
 
         $teacherSchoolLocation = FactoryUser::createTeacher($schoolLocation, false, [
-            'username' => sprintf('CoLearning_Docent%d@test-correct.test', ++$docentIterator),
-            'name'     => sprintf('CoLearning Docent %d', $docentIterator),
+            'username' => sprintf('%s_Docent%d@test-correct.test', self::$prefix, ++$docentIterator),
+            'name'     => sprintf('%s Docent %d', self::$prefix, $docentIterator),
         ])->user;
         //create school class with teacher and students records, add the teacher-user, create student-users
         $schoolClassLocation = FactorySchoolClass::create($schoolYearLocation, 1, $factory->schoolClassName)
             ->addTeacher($teacherSchoolLocation, $section->subjects()->first())
             ->addStudent(FactoryUser::createStudent($schoolLocation, [
-                'username' => sprintf('CoLearning_Student%d@test-correct.test', ++$studentIterator),
-                'name'     => sprintf('CoLearning Student %d', $studentIterator),
+                'username' => sprintf('%s_Student%d@test-correct.test',self::$prefix, ++$studentIterator),
+                'name'     => sprintf('%s Student %d',self::$prefix, $studentIterator),
             ])->user)->addStudent(FactoryUser::createStudent($schoolLocation, [
-                'username' => sprintf('CoLearning_Student%d@test-correct.test', ++$studentIterator),
-                'name'     => sprintf('CoLearning Student %d', $studentIterator),
+                'username' => sprintf('%s_Student%d@test-correct.test',self::$prefix, ++$studentIterator),
+                'name'     => sprintf('%s Student %d',self::$prefix, $studentIterator),
             ])->user)->addStudent(FactoryUser::createStudent($schoolLocation, [
-                'username' => sprintf('CoLearning_Student%d@test-correct.test', ++$studentIterator),
-                'name'     => sprintf('CoLearning Student %d', $studentIterator),
+                'username' => sprintf('%s_Student%d@test-correct.test',self::$prefix, ++$studentIterator),
+                'name'     => sprintf('%s Student %d',self::$prefix, $studentIterator),
             ])->user)->addStudent(FactoryUser::createStudent($schoolLocation, [
-                'username' => sprintf('CoLearning_Student%d@test-correct.test', ++$studentIterator),
-                'name'     => sprintf('CoLearning Student %d', $studentIterator),
+                'username' => sprintf('%s_Student%d@test-correct.test',self::$prefix, ++$studentIterator),
+                'name'     => sprintf('%s Student %d',self::$prefix, $studentIterator),
             ])->user)->addStudent(FactoryUser::createStudent($schoolLocation, [
-                'username' => sprintf('CoLearning_Student%d@test-correct.test', ++$studentIterator),
-                'name'     => sprintf('CoLearning Student %d', $studentIterator),
+                'username' => sprintf('%s_Student%d@test-correct.test',self::$prefix, ++$studentIterator),
+                'name'     => sprintf('%s Student %d',self::$prefix, $studentIterator),
             ])->user);
 
         $factory->school = $school->refresh();
         $factory->schools->add($school);
 
-        $factory->createCoLearningTestTake($teacherSchoolLocation);
+        $factory->createTestTake($teacherSchoolLocation);
 
         $schoolLocation->allow_new_co_learning = true;
         $schoolLocation->allow_new_co_learning_teacher = true;
@@ -130,7 +133,7 @@ class FactoryScenarioSchoolCoLearning extends FactoryScenarioSchool
 
     protected function getUserIteratorNumber($needle)
     {
-        $users = User::where('username', 'LIKE', 'CoLearning%')->get()->map->username;
+        $users = User::where('username', 'LIKE', self::$prefix.'%')->get()->map->username;
 
         return $users->filter(fn($username) => Str::contains($username, $needle))
             ->reduce(function ($carry, $username) use ($needle) {
@@ -144,7 +147,7 @@ class FactoryScenarioSchoolCoLearning extends FactoryScenarioSchool
 
     protected function getSchoolIteratorNumber()
     {
-        $schools = School::where('name', 'LIKE', 'CoLearning%')->get()->map->name;
+        $schools = School::where('name', 'LIKE', self::$prefix.'%')->get()->map->name;
 
         return $schools->reduce(function ($carry, $name) {
             $iterator = Str::afterLast($name, 'School');
@@ -155,20 +158,21 @@ class FactoryScenarioSchoolCoLearning extends FactoryScenarioSchool
         }, 0);
     }
 
-    protected function createCoLearningTestTake(User $teacherUser)
+    protected function createTestTake(User $teacherUser): void
     {
         //create test
         $this->test = $test = FactoryScenarioTestTestWithOpenQuestions::createTest(
-            user: $teacherUser,
-            testName: 'CO-Learning Test open questions . ' . Carbon::now()->format('ymd-Hi'),
+            testName: self::$prefix.' Test open questions . ' . Carbon::now()->format('ymd-Hi'),
+            user    : $teacherUser,
         );
 
         //create taken testtake
         $this->testTake = FactoryScenarioTestTakeTaken::createTestTake(
-            user: $teacherUser,
-            test: $test,
+            user    : $teacherUser,
             testName: $test->name,
+            test    : $test,
         );
+        $this->testTake->subject_name = $this->test->subject()->value('name');
     }
 
     public function getData()

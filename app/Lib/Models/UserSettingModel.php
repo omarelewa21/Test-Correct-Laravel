@@ -49,7 +49,7 @@ abstract class UserSettingModel extends Model
         mixed                    $default = null,
     ): mixed {
         $value = static::retrieveSetting($user, $title, $sessionOnly, $sessionStore);
-        if ($title instanceof FeatureSettingKey) {
+        if ($title instanceof FeatureSettingKey && $value !== null) {
             $value = $title->castValue($value);
         }
         return $value ?? $default;

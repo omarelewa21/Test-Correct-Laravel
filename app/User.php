@@ -2613,7 +2613,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             return $language instanceof SystemLanguage ? $language->value : $language;
         }
 
-        if ($language = UserFeatureSetting::getSetting($this, UserFeatureSettingEnum::SYSTEM_LANGUAGE)) {
+        if ($language = UserFeatureSetting::getSetting($this, UserFeatureSettingEnum::SYSTEM_LANGUAGE, default: null)) {
             return $language->value;
         }
 
