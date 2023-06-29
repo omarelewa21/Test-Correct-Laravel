@@ -9,7 +9,9 @@ class RichTextarea extends Component
 {
     public string $initFunctionCall;
 
-    private array $editorProperties = [
+
+
+    protected array $editorProperties = [
         'editorId',
         'lang',
         'allowWsc',
@@ -45,7 +47,7 @@ class RichTextarea extends Component
         return view('components.input.rich-textarea');
     }
 
-    private function getInitMethod()
+    protected function getInitMethod()
     {
         return match ($this->type) {
             'cms' => "RichTextEditor.initForTeacher",
@@ -54,6 +56,8 @@ class RichTextarea extends Component
             'student-co-learning' => "RichTextEditor.initStudentCoLearning",
             'student-preview' => "RichTextEditor.initClassicEditorForStudentPreviewplayer",
             'assessment-feedback' => "RichTextEditor.initAssessmentFeedback",
+            'create-answer-feedback' => "RichTextEditor.initCreateAnswerFeedbackEditor",
+            'update-answer-feedback' => "RichTextEditor.initUpdateAnswerFeedbackEditor",
             default => "RichTextEditor.initClassicEditorForStudentPlayer",
         };
     }
@@ -61,7 +65,7 @@ class RichTextarea extends Component
     /**
      * @return array
      */
-    private function getEditorConfig(): array
+    protected function getEditorConfig(): array
     {
         $config = collect();
         foreach ($this->editorProperties as $key) {

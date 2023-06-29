@@ -43,6 +43,9 @@ import WProofreader from "@webspellchecker/wproofreader-ckeditor5/src/wproofread
 import PasteFromOffice from "@ckeditor/ckeditor5-paste-from-office/src/pastefromoffice";
 import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
 import ButtonView from '@ckeditor/ckeditor5-ui/src/button/buttonview';
+import SelectAll from "@ckeditor/ckeditor5-select-all/src/selectall.js";
+
+import Comments from '@ckeditor/ckeditor5-comments/src/comments';
 
 class Completion extends Plugin {
     init() {
@@ -171,11 +174,14 @@ Editor.builtinPlugins = [
     WordCount,
     WProofreader,
     Completion,
-    Selection
+    Selection,
+    Comments,
+    SelectAll,
 ];
 
 // Editor configuration.
 Editor.defaultConfig = {
+    licenseKey: window.MIX_CKEDITOR_LICENSE_KEY,
     toolbar: {
         items: [
             'completion',
@@ -206,7 +212,7 @@ Editor.defaultConfig = {
             'fontColor',
             'heading',
             'removeFormat',
-            'wproofreader',
+            // 'wproofreader',
         ]
     },
     language: 'nl',
@@ -256,7 +262,7 @@ Editor.defaultConfig = {
 
     ui: {
         viewportOffset: {top: 137}
-    }
+    },
 };
 
 export default Editor;

@@ -1709,16 +1709,17 @@ document.addEventListener("alpine:init", () => {
     ));
 
 
-    Alpine.data("contextMenuButton", (context, uuid, contextData) => ({
+    Alpine.data("contextMenuButton", (context, uuid, contextData, preventLivewireCall = false) => ({
         menuOpen: false,
         uuid,
         contextData,
         context,
+        preventLivewireCall,
         gridCard: null,
         showEvent: context + "-context-menu-show",
         closeEvent: context + "-context-menu-close",
         init() {
-            this.gridCard = this.$root.closest(".grid-card");
+            this.gridCard = this.$root.closest(".context-menu-container");
         },
         handle() {
             this.menuOpen = !this.menuOpen;
@@ -1731,7 +1732,8 @@ document.addEventListener("alpine:init", () => {
                         top: this.gridCard.offsetTop,
                         left: this.gridCard.offsetLeft + this.gridCard.offsetWidth
                     },
-                    contextData: this.contextData
+                    contextData: this.contextData,
+                    preventLivewireCall: this.preventLivewireCall
                 });
             } else {
                 this.$dispatch(this.closeEvent);
@@ -1757,6 +1759,11 @@ document.addEventListener("alpine:init", () => {
         init() {
             this.menuCard = this.$root.closest("#context-menu-base");
             this.bodyPage = this.$root.closest(".divide-secondary");
+            if(!this.bodyPage) {
+                this.bodyPage = this.$root.closest("body");
+                this.menuOffsetMarginTop -= 10;
+                this.menuOffsetMarginLeft -= 24;
+            }
         },
         preventMenuFallOffScreen() {
             if (this.menuCard?.offsetTop + this.menuCard?.offsetHeight >= this.bodyPage?.offsetHeight + this.bodyPage?.offsetTop) {
@@ -1782,9 +1789,10 @@ document.addEventListener("alpine:init", () => {
 
             this.$root.style.top = (this.detailCoordsTop + this.menuOffsetMarginTop) + "px";
             this.$root.style.left = (this.detailCoordsLeft - this.menuOffsetMarginLeft) + "px";
-
-            let readyForShow = await this.$wire.setContextValues(this.uuid, this.contextData);
-            if (readyForShow) this.contextMenuOpen = true;
+            if(! detail?.preventLivewireCall) {
+                let readyForShow = await this.$wire.setContextValues(this.uuid, this.contextData);
+                if (readyForShow) this.contextMenuOpen = true;
+            }
             this.contextMenuOpen = true;
         },
         closeMenu() {
@@ -2133,14 +2141,22 @@ document.addEventListener("alpine:init", () => {
                 document.documentElement.style.setProperty("--active-sidebar-width", value ? "var(--collapsed-sidebar-width)" : "var(--sidebar-width)");
             });
         },
-        tab(index) {
+        getSlideElementByIndex: function (index) {
+            return this.$root.closest('.drawer').querySelector(".slide-" + index);
+        },
+        tab(index, answerFeedbackCommentUuid = null) {
             if (!this.tabs.includes(index)) return;
             this.activeTab = index;
             this.closeTooltips();
-            const slide = this.$root.querySelector(".slide-" + index);
+            const slide = this.getSlideElementByIndex(index);
             this.handleSlideHeight(slide);
             this.$nextTick(() => {
-                this.container.scroll({ top: 0, left: slide.offsetLeft, behavior: "smooth" });
+                if(answerFeedbackCommentUuid){
+                    this.scrollToCommentCard(answerFeedbackCommentUuid);
+                } else {
+                    this.container.scroll({ top: 0, left: slide.offsetLeft, behavior: "smooth" });
+                }
+
                 setTimeout(() => {
                     const position = (this.container.scrollLeft / 300) + 1;
                     if (!this.tabs.includes(position)) {
@@ -2148,6 +2164,14 @@ document.addEventListener("alpine:init", () => {
                     }
                 }, 500);
             });
+        },
+        scrollToCommentCard (answerFeedbackUuid) {
+            const commentCard = document.querySelector('[data-uuid="'+answerFeedbackUuid+'"].answer-feedback-card')
+            const slide = this.getSlideElementByIndex(2);
+            let cardTop = commentCard.offsetTop;
+            setTimeout(() => {
+                this.container.scroll({ top: cardTop,  left: slide.offsetLeft, behavior: "smooth" });
+            }, 150)
         },
         async next() {
             if (this.needsToPerformActionsStill()) {
@@ -2170,6 +2194,12 @@ document.addEventListener("alpine:init", () => {
                 await this.$wire.previous();
                 this.clickedNext = false;
             });
+        },
+        fixSlideHeightByIndex(index, AnswerFeedbackUuid) {
+            let slide = this.$root.closest(".slide-" + index);
+            this.handleSlideHeight(slide);
+
+            if(AnswerFeedbackUuid) this.scrollToCommentCard(AnswerFeedbackUuid);
         },
         handleSlideHeight(slide) {
             if (slide.offsetHeight > this.container.offsetHeight) {
@@ -2551,6 +2581,446 @@ document.addEventListener("alpine:init", () => {
                 }, 1500);
             });
 
+        }
+    }));
+    Alpine.data("AnswerFeedback", (answerEditorId, feedbackEditorId, userId, questionType, viewOnly, hasFeedback = false) => ({
+        answerEditorId: answerEditorId,
+        feedbackEditorId: feedbackEditorId,
+        commentRepository: null,
+        activeThread: null,
+        editingComment: null,
+        activeComment: null,
+        hoveringComment: null,
+        dropdownOpened: null,
+        userId,
+        questionType,
+        viewOnly,
+        hasFeedback,
+        async init() {
+            this.dropdownOpened = questionType === 'OpenQuestion' ? 'given-feedback' : 'add-feedback';
+
+            if(questionType !== 'OpenQuestion') {
+                return;
+            }
+            this.setFocusTracking();
+
+            document.addEventListener('comment-color-updated', async (event) => {
+                let styleTagElement = document.querySelector('#temporaryCommentMarkerStyles');
+
+                let colorWithOpacity = event.detail.color;
+                let color = colorWithOpacity.replace('0.4', '1');
+
+                styleTagElement.innerHTML = `p .ck-comment-marker[data-comment="${event.detail.threadId}"]{\n` +
+                    `                            --ck-color-comment-marker: ${colorWithOpacity} !important;\n` + /* opacity .4 */
+                    `                            --ck-color-comment-marker-border: ${color} !important;\n` + /* opacity 1.0 */
+                    `                            --ck-color-comment-marker-active: ${colorWithOpacity} !important;\n` + /* opacity .4 */
+                    `                        }`
+            });
+
+            document.addEventListener('comment-emoji-updated', async (event) => {
+                let ckeditorIconWrapper = document.querySelector('#icon-' + event.detail.threadId)
+                let cardIconWrapper = document.querySelector('[data-uuid="'+event.detail.uuid+'"].answer-feedback-card-icon')
+
+                if(ckeditorIconWrapper) this.addOrReplaceIconByName(ckeditorIconWrapper, event.detail.iconName);
+                if(cardIconWrapper) {
+                    this.addOrReplaceIconByName(cardIconWrapper, event.detail.iconName);
+                    cardIconWrapper.querySelector('span').style = '';
+                }
+            });
+
+            document.addEventListener('new-comment-color-updated', (event) => this.updateNewCommentMarkerStyles(event?.detail?.color));
+
+
+            document.addEventListener('mousedown', (e) => {
+                if(this.activeComment === null) {
+                    return;
+                }
+                //check for click outside 1. comment markers, 2. comment marker icons, 3. comment cards.
+                if( e.srcElement.closest('.ck-comment-marker') ||
+                    e.srcElement.closest('.answer-feedback-comment-icons') ||
+                    e.srcElement.closest('.given-feedback-container')
+                ) {
+                    return;
+                }
+                this.clearActiveComment()
+            })
+        },
+        async updateCommentThread(element) {
+            let answerFeedbackCardElement = element.closest('.answer-feedback-card');
+
+            let answerFeedbackUuid = answerFeedbackCardElement.dataset.uuid;
+
+            let comment_color = answerFeedbackCardElement.querySelector('.comment-color-picker input:checked')?.dataset?.color;
+            let comment_emoji = answerFeedbackCardElement.querySelector('.comment-emoji-picker input:checked')?.dataset?.emoji;
+
+            const answerFeedbackEditor = ClassicEditors['update-'+answerFeedbackUuid];
+
+            let commentStyles = await this.$wire.call('updateExistingComment', {
+                uuid: answerFeedbackUuid,
+                message: answerFeedbackEditor.getData(),
+                comment_emoji: comment_emoji,
+                comment_color: comment_color,
+            });
+            document.querySelector('#commentMarkerStyles').innerHTML = commentStyles;
+
+            this.cancelEditingComment(answerFeedbackCardElement.dataset.threadId)
+        },
+        async createCommentThread() {
+
+            let addCommentElement = this.$el.closest('.answer-feedback-add-comment')
+
+            let comment_color = addCommentElement.querySelector('.comment-color-picker input:checked')?.dataset?.color;
+
+            let comment_emoji = addCommentElement.querySelector('.comment-emoji-picker input:checked')?.dataset?.emoji;
+            let comment_iconName = addCommentElement.querySelector('.comment-emoji-picker input:checked')?.dataset?.iconname;
+
+            const answerEditor = ClassicEditors[this.answerEditorId];
+            const feedbackEditor = ClassicEditors[this.feedbackEditorId];
+
+            var comment = feedbackEditor.getData() || '<p></p>';
+
+            answerEditor.focus();
+
+            this.$nextTick(async () => {
+
+                if(answerEditor.plugins.get( 'CommentsRepository' ).activeCommentThread) {
+
+                    //created feedback record data
+                    var feedback = await this.$wire.createNewComment([]);
+
+                    await answerEditor.execute( 'addCommentThread', { threadId: feedback.threadId } );
+
+                    var newCommentThread = answerEditor.plugins.get( 'CommentsRepository' ).getCommentThreads().filter((thread) => { return thread.id == feedback.threadId})[0];
+
+                    newCommentThread.addComment({threadId: feedback.threadId, commentId: feedback.commentId, content: comment, authorId: this.userId});
+
+                    var updatedAnswerText = answerEditor.getData();
+
+                    let commentStyles = await this.$wire.saveNewComment({
+                        uuid: feedback.uuid,
+                        message: comment,
+                        comment_color: comment_color,
+                        comment_emoji: comment_emoji,
+                    }, updatedAnswerText);
+
+                    await this.createCommentIcon({
+                        uuid: feedback.uuid,
+                        threadId: feedback.threadId,
+                        iconName: comment_iconName,
+                    })
+
+                    document.querySelector('#commentMarkerStyles').innerHTML = commentStyles;
+
+                    this.resetAddNewAnswerFeedback();
+
+                    this.hasFeedback = true;
+
+                    this.$dispatch('answer-feedback-show-comments');
+
+                    this.scrollToCommentCard(feedback.uuid);
+                    return;
+                }
+
+                var feedback = await this.$wire.createNewComment({
+                    message: comment,
+                    comment_color: null, //no comment color when its a general ticket.
+                    comment_emoji: comment_emoji,
+                }, false);
+
+                this.hasFeedback = true;
+
+                this.resetAddNewAnswerFeedback();
+
+                this.$dispatch('answer-feedback-show-comments');
+
+                this.scrollToCommentCard(feedback.uuid);
+            });
+
+        },
+        async deleteCommentThread(threadId, feedbackId) {
+
+
+            if(threadId === null) {
+                await this.$wire.deleteCommentThread(null, feedbackId);
+                this.$wire.render();
+                return;
+            }
+            const answerEditor = ClassicEditors[this.answerEditorId];
+
+            let commentsRepository = answerEditor.plugins.get( 'CommentsRepository' );
+
+            let thread = commentsRepository.getCommentThread(threadId);
+
+            const result = await this.$wire.deleteCommentThread(threadId, feedbackId);
+            if(result) {
+                //delete icon positioned over the ckeditor
+                let deletedThreadIcon = document.querySelector('.answer-feedback-comment-icons #icon-'+threadId);
+                if(deletedThreadIcon) {
+                    deletedThreadIcon.remove();
+                }
+
+                commentsRepository.getCommentThread(threadId).remove();
+                const answerText = answerEditor.getData();
+                await this.$wire.updateAnswer(answerText);
+
+                this.setEditingComment(null);
+
+                return;
+            }
+            console.error('failed to delete answer feedback');
+        },
+        initCommentIcons(commentThreads) {
+            //create icon wrapper and append icon inside it
+            commentThreads.forEach((thread) => {
+                this.createCommentIcon(thread);
+            })
+        },
+        initCommentIcon(el, thread) {
+            let commentThreadElements = null;
+            setTimeout(() => {
+                const commentMarkers = document.querySelectorAll(`[data-comment='` + thread.threadId+ `']`);
+                const lastCommentMarker = commentMarkers[commentMarkers.length-1];
+
+                el.style.top = (lastCommentMarker.offsetTop - 15) + 'px';
+                el.style.left = (lastCommentMarker.offsetWidth + lastCommentMarker.offsetLeft - 5) + 'px';
+
+                el.setAttribute('data-uuid', thread.uuid);
+                el.setAttribute('data-threadId', thread.threadId);
+
+                this.addOrReplaceIconByName(el, thread.iconName);
+
+                commentThreadElements = [...commentMarkers, el];
+
+                //set click event listener on all comment markers and the icon.
+                commentThreadElements.forEach((threadElement) => {
+                    threadElement.addEventListener('click', () => {
+                        this.setActiveComment(thread.threadId, thread.uuid);
+                    });
+                    threadElement.addEventListener('mouseenter', (e) => {
+                        this.setHoveringComment(thread.threadId, thread.uuid);
+                    });
+                    threadElement.addEventListener('mouseleave', (e) => {
+                        this.clearHoveringComment();
+                    });
+                });
+
+            }, 200)
+        },
+        createCommentIcon (thread) {
+            let el = document.querySelector('.answer-feedback-comment-icons');
+            let iconId = "icon-"+thread.threadId;
+            let iconWrapper = document.createElement('div');
+            iconWrapper.classList.add('absolute');
+            iconWrapper.classList.add('z-10');
+            iconWrapper.classList.add('cursor-pointer');
+            iconWrapper.id = iconId;
+            el.appendChild(iconWrapper)
+
+            this.initCommentIcon(iconWrapper, thread);
+        },
+        addOrReplaceIconByName (el, iconName) {
+            el.innerHTML = '';
+
+            let iconTemplate = null;
+            if(iconName === null || iconName === '') {
+                iconTemplate = document.querySelector('#default-icon')
+            } else {
+                iconTemplate = document.querySelector('#'+iconName.replace('icon.', ''))
+            }
+            el.appendChild(document.importNode(iconTemplate.content, true));
+        },
+        setHoveringComment(threadId, answerFeedbackUuid) {
+            this.hoveringComment = {threadId: threadId, uuid: answerFeedbackUuid };
+            this.setHoveringCommentMarkerStyle();
+        },
+        clearHoveringComment() {
+            this.hoveringComment = null;
+            this.setHoveringCommentMarkerStyle(true);
+        },
+        cancelEditingComment(threadId, AnswerFeedbackUuid, originalIconName = false, originalColor = false) {
+            //reset temporary styling
+            document.querySelector('#temporaryCommentMarkerStyles').innerHTML = '';
+
+            this.setEditingComment(null);
+
+            //reset radio buttons
+            if(originalColor) {
+                document.querySelector('[data-uuid="'+AnswerFeedbackUuid+`"].answer-feedback-card .comment-color-picker [data-color="${originalColor}"]`).checked = true;
+            }
+
+            if(originalIconName === false) return; /* false is unset, but null is a valid value */
+
+            if(originalIconName === null || originalIconName === '') {
+                let emojiPicker = document.querySelector('[data-uuid="'+AnswerFeedbackUuid+`"].answer-feedback-card .comment-emoji-picker input:checked`)
+                if(emojiPicker) emojiPicker.checked = false;
+            } else {
+                document.querySelector('[data-uuid="'+AnswerFeedbackUuid+`"].answer-feedback-card .comment-emoji-picker [data-iconName="${originalIconName}"]`).checked = true;
+            }
+
+            //reset icon to the original if originalIconName is given (null is also valid)
+            let ckeditorIconWrapper = document.querySelector('#icon-' + threadId)
+            let cardIconWrapper = document.querySelector('[data-uuid="'+AnswerFeedbackUuid+'"].answer-feedback-card-icon')
+
+            if(ckeditorIconWrapper) this.addOrReplaceIconByName(ckeditorIconWrapper, originalIconName);
+            if(cardIconWrapper) {
+                if(originalIconName === null || originalIconName === '') {
+                    cardIconWrapper.innerHTML = '';
+                    return;
+                }
+
+                this.addOrReplaceIconByName(cardIconWrapper, originalIconName);
+                cardIconWrapper.querySelector('span').style = '';
+            }
+
+        },
+        updateNewCommentMarkerStyles(color) {
+            const styleTag = document.querySelector('#addFeedbackMarkerStyles');
+
+            let colorCode = 'rgba(var(--primary-rgb), 0.4)';
+            if(color) {
+                colorCode = color;
+            }
+            styleTag.innerHTML = '\n' +
+                '        :root {\n' +
+                '            --active-comment-color: '+ colorCode +'; /* default color, overwrite when color picker is used */\n' +
+                '            --ck-color-comment-marker-active: var(--active-comment-color);\n' +
+                '        }\n' +
+                '    ';
+        },
+        setHoveringCommentMarkerStyle(removeStyling = false) {
+            const styleTag = document.querySelector('#hoveringCommentMarkerStyle');
+
+            if(removeStyling || this.hoveringComment.threadId === null) {
+                styleTag.innerHTML = '';
+                return;
+            }
+
+            styleTag.innerHTML = '' +
+                '.ck-comment-marker[data-comment="'+ this.hoveringComment.threadId +'"] { color: var(--teacher-primary); }' +
+                'div[data-threadid="'+this.hoveringComment.threadId+'"] svg { color: var(--teacher-primary); }';
+
+        },
+        setActiveCommentMarkerStyle(removeStyling = false) {
+            const styleTag = document.querySelector('#activeCommentMarkerStyle');
+
+            if(removeStyling || this.activeComment?.threadId === null) {
+                styleTag.innerHTML = '';
+                return;
+            }
+
+            styleTag.innerHTML = '' +
+                '.ck-comment-marker[data-comment="'+ this.activeComment?.threadId +'"] { ' +
+                '   border: 1px solid var(--ck-color-comment-marker-border) !important; ' +
+                '} ';
+
+        },
+        setActiveComment (threadId, answerFeedbackUuid) {
+            if(this.editingComment !== null) {
+                /* when editing, no other comment can be activated */
+                return;
+            }
+            this.activeComment = {threadId: threadId, uuid: answerFeedbackUuid };
+            this.setActiveCommentMarkerStyle();
+
+            this.$dispatch('answer-feedback-show-comments');
+            this.$dispatch("assessment-drawer-tab-update", { tab: 2, uuid: answerFeedbackUuid });
+        },
+        clearActiveComment() {
+            this.activeComment = null;
+            this.setActiveCommentMarkerStyle(true);
+        },
+        setFocusTracking() {
+            if(viewOnly) {
+                return;
+            }
+            setTimeout(()=> {
+                try {
+                    const answerEditor = ClassicEditors[this.answerEditorId];
+                    const feedbackEditor = ClassicEditors[this.feedbackEditorId];
+
+                    const feedbackEditorSaveButton = document.querySelector('#' + this.feedbackEditorId + '-save');
+                    const feedbackEditorCancelButton = document.querySelector('#' + this.feedbackEditorId + '-cancel');
+
+                    answerEditor.ui.focusTracker.add( feedbackEditor.sourceElement.parentElement.querySelector('.ck.ck-content') );
+                    answerEditor.ui.focusTracker.add( feedbackEditorSaveButton );
+                    answerEditor.ui.focusTracker.add( feedbackEditorCancelButton );
+
+                    //keep focus when clicking on the emoji and color pickers
+                    document.querySelectorAll('.answer-feedback-add-comment .emoji-picker-radio, .answer-feedback-add-comment .color-picker-radio input').forEach((element) => {
+                        answerEditor.ui.focusTracker.add( element );
+                        feedbackEditor.ui.focusTracker.add( element );
+                    })
+                    document.querySelectorAll('.answer-feedback-add-comment .emoji-picker-radio, .answer-feedback-add-comment .emoji-picker-radio input').forEach((element) => {
+                        answerEditor.ui.focusTracker.add( element );
+                        feedbackEditor.ui.focusTracker.add( element );
+                    })
+
+                    feedbackEditor.ui.focusTracker.add( answerEditor.sourceElement.parentElement.querySelector('.ck.ck-content') );
+                    feedbackEditor.ui.focusTracker.add( feedbackEditorSaveButton );
+                    feedbackEditor.ui.focusTracker.add( feedbackEditorCancelButton );
+                } catch (exception) {
+                    // ignore focusTracker error when trying to add element that is already registered
+                    // there is no way to preventively check if the element is already registered
+                    if(!exception.message.contains('focustracker-add-element-already-exist')) {
+                        throw exception;
+                    }
+                }
+
+            },1000)
+        },
+        get answerEditor() {
+            return ClassicEditors[this.answerEditorId];
+        },
+        get feedbackEditor() {
+            return ClassicEditors[this.feedbackEditorId];
+        },
+        setEditingComment (AnswerFeedbackUuid) {
+            this.activeComment = null;
+            this.editingComment = AnswerFeedbackUuid ?? null;
+            setTimeout(() => {
+                this.fixSlideHeightByIndex(2, AnswerFeedbackUuid);
+            },100)
+        },
+        toggleFeedbackAccordion (name, forceOpenAccordion = false) {
+            if(this.editingComment !== null) {
+                this.dropdownOpened ='given-feedback';
+                return;
+            };
+
+            if(this.dropdownOpened === name && !forceOpenAccordion) {
+                this.dropdownOpened = null;
+                return;
+            }
+            if(questionType === 'OpenQuestion' && name === 'add-feedback') {
+                try {
+                    this.setFocusTracking();
+                } catch (e) {
+                    //
+                }
+            }
+            this.dropdownOpened = name;
+        },
+        resetAddNewAnswerFeedback(cancelAddingNewComment = false) {
+            //find default/blue color picker and enable it.
+            let defaultColorPicker = document.querySelector('.answer-feedback-add-comment .comment-color-picker [data-color="blue"]');
+            defaultColorPicker.checked = true;
+
+            //find checked emoji picker, uncheck
+            let checkedEmojiPicker = document.querySelector('.answer-feedback-add-comment .comment-emoji-picker input:checked');
+            if (checkedEmojiPicker !== null) {
+                checkedEmojiPicker.checked = false;
+            }
+
+            //answerFeedbackeditor reset text
+            const answerEditor = ClassicEditors[this.feedbackEditorId];
+            answerEditor.setData('<p></p>');
+
+            this.updateNewCommentMarkerStyles(null);
+
+            if(cancelAddingNewComment) {
+                //todo does annuleren close the accordion?
+                console.warn('todo does annuleren close the accordion?');
+            }
         }
     }));
 

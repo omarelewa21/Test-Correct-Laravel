@@ -329,3 +329,9 @@ Array.prototype.contains = function (key)
 {
     return this.includes(key);
 }
+
+debug = function (seconds = 2) {
+    setTimeout(() => {
+        debugger;
+    }, seconds * 1000);
+}
