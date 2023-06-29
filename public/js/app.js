@@ -9036,10 +9036,10 @@ document.addEventListener("alpine:init", function () {
       activeComment: null,
       hoveringComment: null,
       dropdownOpened: null,
-      hasFeedback: hasFeedback,
       userId: userId,
       questionType: questionType,
       viewOnly: viewOnly,
+      hasFeedback: hasFeedback,
       init: function init() {
         var _this57 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee20() {
@@ -9080,7 +9080,6 @@ document.addEventListener("alpine:init", function () {
                     return _regeneratorRuntime().wrap(function _callee19$(_context19) {
                       while (1) switch (_context19.prev = _context19.next) {
                         case 0:
-                          // let styleTagElement = document.querySelector('#commentMarkerStyles');
                           ckeditorIconWrapper = document.querySelector('#icon-' + event.detail.threadId);
                           cardIconWrapper = document.querySelector('[data-uuid="' + event.detail.uuid + '"].answer-feedback-card-icon');
                           if (ckeditorIconWrapper) _this57.addOrReplaceIconByName(ckeditorIconWrapper, event.detail.iconName);
@@ -9088,8 +9087,6 @@ document.addEventListener("alpine:init", function () {
                             _this57.addOrReplaceIconByName(cardIconWrapper, event.detail.iconName);
                             cardIconWrapper.querySelector('span').style = '';
                           }
-
-                          //TODO Replace wire call with only visualy changing color/emoji
                         case 4:
                         case "end":
                           return _context19.stop();
@@ -9145,7 +9142,6 @@ document.addEventListener("alpine:init", function () {
                 commentStyles = _context21.sent;
                 document.querySelector('#commentMarkerStyles').innerHTML = commentStyles;
                 _this58.cancelEditingComment(answerFeedbackCardElement.dataset.threadId);
-                // this.setEditingComment(null);
               case 10:
               case "end":
                 return _context21.stop();
@@ -9156,17 +9152,18 @@ document.addEventListener("alpine:init", function () {
       createCommentThread: function createCommentThread() {
         var _this59 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee23() {
-          var _addCommentElement$qu, _addCommentElement$qu2, _addCommentElement$qu3, _addCommentElement$qu4;
-          var addCommentElement, comment_color, comment_emoji, answerEditor, feedbackEditor, comment;
+          var _addCommentElement$qu, _addCommentElement$qu2, _addCommentElement$qu3, _addCommentElement$qu4, _addCommentElement$qu5, _addCommentElement$qu6;
+          var addCommentElement, comment_color, comment_emoji, comment_iconName, answerEditor, feedbackEditor, comment;
           return _regeneratorRuntime().wrap(function _callee23$(_context23) {
             while (1) switch (_context23.prev = _context23.next) {
               case 0:
                 addCommentElement = _this59.$el.closest('.answer-feedback-add-comment');
                 comment_color = (_addCommentElement$qu = addCommentElement.querySelector('.comment-color-picker input:checked')) === null || _addCommentElement$qu === void 0 ? void 0 : (_addCommentElement$qu2 = _addCommentElement$qu.dataset) === null || _addCommentElement$qu2 === void 0 ? void 0 : _addCommentElement$qu2.color;
                 comment_emoji = (_addCommentElement$qu3 = addCommentElement.querySelector('.comment-emoji-picker input:checked')) === null || _addCommentElement$qu3 === void 0 ? void 0 : (_addCommentElement$qu4 = _addCommentElement$qu3.dataset) === null || _addCommentElement$qu4 === void 0 ? void 0 : _addCommentElement$qu4.emoji;
+                comment_iconName = (_addCommentElement$qu5 = addCommentElement.querySelector('.comment-emoji-picker input:checked')) === null || _addCommentElement$qu5 === void 0 ? void 0 : (_addCommentElement$qu6 = _addCommentElement$qu5.dataset) === null || _addCommentElement$qu6 === void 0 ? void 0 : _addCommentElement$qu6.iconname;
                 answerEditor = ClassicEditors[_this59.answerEditorId];
                 feedbackEditor = ClassicEditors[_this59.feedbackEditorId];
-                comment = feedbackEditor.getData();
+                comment = feedbackEditor.getData() || '<p></p>';
                 answerEditor.focus();
                 _this59.$nextTick( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee22() {
                   var feedback, newCommentThread, updatedAnswerText, commentStyles;
@@ -9174,7 +9171,7 @@ document.addEventListener("alpine:init", function () {
                     while (1) switch (_context22.prev = _context22.next) {
                       case 0:
                         if (!answerEditor.plugins.get('CommentsRepository').activeCommentThread) {
-                          _context22.next = 27;
+                          _context22.next = 20;
                           break;
                         }
                         _context22.next = 3;
@@ -9205,56 +9202,40 @@ document.addEventListener("alpine:init", function () {
                         }, updatedAnswerText);
                       case 11:
                         commentStyles = _context22.sent;
-                        _context22.t0 = _this59;
-                        _context22.t1 = feedback.uuid;
-                        _context22.t2 = feedback.threadId;
-                        _context22.next = 17;
-                        return _this59.$wire.call('getIconNameByEmojiValue', comment_emoji);
-                      case 17:
-                        _context22.t3 = _context22.sent;
-                        _context22.t4 = {
-                          uuid: _context22.t1,
-                          threadId: _context22.t2,
-                          iconName: _context22.t3
-                        };
-                        _context22.next = 21;
-                        return _context22.t0.createCommentIcon.call(_context22.t0, _context22.t4);
-                      case 21:
+                        _context22.next = 14;
+                        return _this59.createCommentIcon({
+                          uuid: feedback.uuid,
+                          threadId: feedback.threadId,
+                          iconName: comment_iconName
+                        });
+                      case 14:
                         document.querySelector('#commentMarkerStyles').innerHTML = commentStyles;
                         _this59.resetAddNewAnswerFeedback();
                         _this59.hasFeedback = true;
-
-                        //todo go to gegeven feedback
                         _this59.$dispatch('answer-feedback-show-comments');
-
-                        //todo fix scrolling and activating correct card:
                         _this59.scrollToCommentCard(feedback.uuid);
                         return _context22.abrupt("return");
-                      case 27:
-                        _context22.next = 29;
+                      case 20:
+                        _context22.next = 22;
                         return _this59.$wire.createNewComment({
                           message: comment,
                           comment_color: null,
                           //no comment color when its a general ticket.
                           comment_emoji: comment_emoji
                         }, false);
-                      case 29:
+                      case 22:
                         feedback = _context22.sent;
                         _this59.hasFeedback = true;
                         _this59.resetAddNewAnswerFeedback();
-
-                        //todo go to gegeven feedback
                         _this59.$dispatch('answer-feedback-show-comments');
-
-                        //todo fix scrolling and activating correct card:
                         _this59.scrollToCommentCard(feedback.uuid);
-                      case 34:
+                      case 27:
                       case "end":
                         return _context22.stop();
                     }
                   }, _callee22);
                 })));
-              case 8:
+              case 9:
               case "end":
                 return _context23.stop();
             }
@@ -9446,6 +9427,7 @@ document.addEventListener("alpine:init", function () {
           uuid: answerFeedbackUuid
         };
         this.setActiveCommentMarkerStyle();
+        this.$dispatch('answer-feedback-show-comments');
         this.$dispatch("assessment-drawer-tab-update", {
           tab: 2,
           uuid: answerFeedbackUuid
@@ -9505,13 +9487,16 @@ document.addEventListener("alpine:init", function () {
           _this64.fixSlideHeightByIndex(2, AnswerFeedbackUuid);
         }, 100);
       },
-      toggleFeedbackAccordion: function toggleFeedbackAccordion(currentToggleState, name) {
+      toggleFeedbackAccordion: function toggleFeedbackAccordion(name) {
+        var forceOpenAccordion = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
         if (this.editingComment !== null) {
+          this.dropdownOpened = 'given-feedback';
           return;
         }
         ;
-        if (currentToggleState === name) {
-          return null;
+        if (this.dropdownOpened === name && !forceOpenAccordion) {
+          this.dropdownOpened = null;
+          return;
         }
         if (questionType === 'OpenQuestion' && name === 'add-feedback') {
           try {
@@ -9520,7 +9505,7 @@ document.addEventListener("alpine:init", function () {
             //
           }
         }
-        return name;
+        this.dropdownOpened = name;
       },
       resetAddNewAnswerFeedback: function resetAddNewAnswerFeedback() {
         var cancelAddingNewComment = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
@@ -16780,15 +16765,14 @@ RichTextEditor = {
     return this.createTeacherEditor(parameterBag);
   },
   initUpdateAnswerFeedbackEditor: function initUpdateAnswerFeedbackEditor(parameterBag) {
-    var _this7 = this;
     this.setAnswerFeedbackItemsToRemove(parameterBag);
     parameterBag.shouldNotGroupWhenFull = true;
     return this.createTeacherEditor(parameterBag, function (editor) {
-      _this7.hideWProofreaderChevron(parameterBag.allowWsc, editor);
+
+      // this.hideWProofreaderChevron(parameterBag.allowWsc, editor);
     });
   },
   initCreateAnswerFeedbackEditor: function initCreateAnswerFeedbackEditor(parameterBag) {
-    var _this8 = this;
     this.setAnswerFeedbackItemsToRemove(parameterBag);
     parameterBag.shouldNotGroupWhenFull = true;
     return this.createTeacherEditor(parameterBag, function (editor) {
@@ -16797,23 +16781,17 @@ RichTextEditor = {
           editor.focus();
         }, 100);
       });
-      _this8.hideWProofreaderChevron(parameterBag.allowWsc, editor);
+      // this.hideWProofreaderChevron(parameterBag.allowWsc, editor);
     });
   },
-  // initInlineFeedback: function(parameterBag) {
-  //     return this.createStudentEditor(
-  //         parameterBag,
-  //         (editor) => this.setupWordCounter(editor, parameterBag)
-  //     );
-  // },
+
   initAnswerEditorWithComments: function initAnswerEditorWithComments(parameterBag) {
-    var _this9 = this;
-    //todo:
+    var _this7 = this;
     return this.createStudentEditor(parameterBag, function (editor) {
       WebspellcheckerTlc.lang(editor, parameterBag.lang);
-      _this9.setupWordCounter(editor, parameterBag);
-      _this9.setCommentsOnly(editor); //replaces read-only
-      _this9.setAnswerFeedbackEventListeners(editor);
+      _this7.setupWordCounter(editor, parameterBag);
+      _this7.setCommentsOnly(editor); //replaces read-only
+      _this7.setAnswerFeedbackEventListeners(editor);
     });
   },
   setAnswerFeedbackEventListeners: function setAnswerFeedbackEventListeners(editor) {
@@ -16822,40 +16800,48 @@ RichTextEditor = {
       // editor.execute( 'addCommentThread', { threadId: window.uuidv4() } );
     };
     document.addEventListener('mouseup', function (e) {
-      if (window.getSelection().focusNode.parentElement.closest('.comment-editor') !== null) {
-        //selection is in the answer comment editor
-        if (window.getSelection().toString() !== '') {
-          dispatchEvent(new CustomEvent('assessment-drawer-tab-update', {
-            detail: {
-              tab: 2
-            }
-          }));
+      var _window$getSelection$, _window$getSelection$2;
+      /*
+       * selection is in the answer comment editor
+       * selection is not empty
+       * selection is on the assessment screen
+       * */
+      if (((_window$getSelection$ = window.getSelection().focusNode) === null || _window$getSelection$ === void 0 ? void 0 : (_window$getSelection$2 = _window$getSelection$.parentElement) === null || _window$getSelection$2 === void 0 ? void 0 : _window$getSelection$2.closest('.comment-editor')) !== null && document.querySelector('#assessment-page') !== null && window.getSelection().toString() !== '') {
+        dispatchEvent(new CustomEvent('assessment-drawer-tab-update', {
+          detail: {
+            tab: 2
+          }
+        }));
 
-          //focus the create a comment editor
-          dispatchEvent(new CustomEvent('answer-feedback-focus-feedback-editor'));
-          setTimeout(function () {
-            editor.execute('addCommentThread', {
-              threadId: window.uuidv4()
-            });
-          }, 200);
-        }
+        //focus the create a comment editor
+        dispatchEvent(new CustomEvent('answer-feedback-focus-feedback-editor'));
+        setTimeout(function () {
+          editor.execute('addCommentThread', {
+            threadId: window.uuidv4()
+          });
+        }, 200);
       }
     });
   },
-  hideWProofreaderChevron: function hideWProofreaderChevron(allowWsc, editor) {
-    if (!allowWsc) {
-      return;
-    }
-    var callback = function callback(element) {
-      return element.innerHTML == 'WProofreader' && element.classList.contains('ck-tooltip__text');
-    };
-
-    // const elements = Array.from(document.getElementsByTagName('span'))
-    var elements = Array.from(editor.editing.view.getDomRoot().closest('.ck-editor').getElementsByTagName('span'));
-    elements.filter(callback).forEach(function (element) {
-      return element.parentElement.parentElement.querySelector('.ck-dropdown__arrow').style.display = 'none';
-    });
-  },
+  //only needed when webspellchecker has to be re-added to the inline-feedback comment editors
+  // hideWProofreaderChevron: function (allowWsc, editor) {
+  //
+  //     if(!allowWsc) {
+  //         return;
+  //     }
+  //
+  //     const callback = (element) => {
+  //         return element.innerHTML == 'WProofreader' && element.classList.contains('ck-tooltip__text')
+  //     }
+  //
+  //     // const elements = Array.from(document.getElementsByTagName('span'))
+  //     const elements = Array.from(editor.editing.view.getDomRoot().closest('.ck-editor').getElementsByTagName('span'))
+  //
+  //     elements.filter(callback).forEach((element) => {
+  //         return element.parentElement.parentElement.querySelector('.ck-dropdown__arrow').style.display = 'none';
+  //     });
+  //
+  // },
   getConfigForStudent: function getConfigForStudent(parameterBag) {
     var _parameterBag$plugins;
     (_parameterBag$plugins = parameterBag.pluginsToAdd) !== null && _parameterBag$plugins !== void 0 ? _parameterBag$plugins : parameterBag.pluginsToAdd = [];
@@ -17011,7 +16997,7 @@ RichTextEditor = {
     }
   },
   setupWordCounter: function setupWordCounter(editor, parameterBag) {
-    var _this10 = this;
+    var _this8 = this;
     var wordCountPlugin = editor.plugins.get("WordCount");
     var wordCountWrapper = document.getElementById("word-count-" + parameterBag.editorId);
     if (wordCountWrapper) {
@@ -17023,13 +17009,13 @@ RichTextEditor = {
     this.handleInputWithMaxWords(editor);
     editor.updateMaxWords = function (value) {
       editor.maxWords = parseInt(value);
-      _this10.handleInputWithMaxWords(editor);
+      _this8.handleInputWithMaxWords(editor);
     };
     editor.model.document.on("change:data", function (event, batch) {
-      _this10.handleInputWithMaxWords(editor, event);
+      _this8.handleInputWithMaxWords(editor, event);
     });
     editor.editing.view.document.on("paste", function (event, data) {
-      if (_this10.hasNoWordLimit(editor)) return;
+      if (_this8.hasNoWordLimit(editor)) return;
       var wc = editor.plugins.get("WordCount");
       var maxWords = parseInt(editor.maxWords);
       if (wc.words >= maxWords) {
@@ -17041,7 +17027,7 @@ RichTextEditor = {
       }
     });
     editor.editing.view.document.on("keydown", function (event, data) {
-      if (_this10.hasNoWordLimit(editor)) return;
+      if (_this8.hasNoWordLimit(editor)) return;
       if (!editor.disableSpacers) return;
 
       /* Disable spacebar and enter inputs so new words cannot be created;*/
@@ -17112,7 +17098,7 @@ RichTextEditor = {
   },
   createTeacherEditor: function createTeacherEditor(parameterBag) {
     var _arguments = arguments,
-      _this11 = this;
+      _this9 = this;
     return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
       var resolveCallback;
       return _regeneratorRuntime().wrap(function _callee$(_context) {
@@ -17120,7 +17106,7 @@ RichTextEditor = {
           case 0:
             resolveCallback = _arguments.length > 1 && _arguments[1] !== undefined ? _arguments[1] : null;
             _context.next = 3;
-            return _this11.createEditor(parameterBag.editorId, _this11.getConfigForTeacher(parameterBag), resolveCallback);
+            return _this9.createEditor(parameterBag.editorId, _this9.getConfigForTeacher(parameterBag), resolveCallback);
           case 3:
             return _context.abrupt("return", _context.sent);
           case 4:
@@ -17132,7 +17118,7 @@ RichTextEditor = {
   },
   createStudentEditor: function createStudentEditor(parameterBag) {
     var _arguments2 = arguments,
-      _this12 = this;
+      _this10 = this;
     return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
       var resolveCallback;
       return _regeneratorRuntime().wrap(function _callee2$(_context2) {
@@ -17140,7 +17126,7 @@ RichTextEditor = {
           case 0:
             resolveCallback = _arguments2.length > 1 && _arguments2[1] !== undefined ? _arguments2[1] : null;
             _context2.next = 3;
-            return _this12.createEditor(parameterBag.editorId, _this12.getConfigForStudent(parameterBag), resolveCallback);
+            return _this10.createEditor(parameterBag.editorId, _this10.getConfigForStudent(parameterBag), resolveCallback);
           case 3:
             return _context2.abrupt("return", _context2.sent);
           case 4:

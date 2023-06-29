@@ -1,7 +1,6 @@
 @props([
     'comment',
     'viewOnly' => false,
-
 ])
 @php
     $iconName = \tcCore\Http\Enums\CommentEmoji::tryFrom($comment->comment_emoji)?->getIconComponentName() ?? '';
@@ -24,7 +23,7 @@
          $el.addEventListener('click', (e) => {
              setActiveComment('{{$comment->thread_id}}',  '{{$comment->uuid}}');
 
-             if(textOverflow === true && editingComment !== '{{$comment->uuid}}') {expanded = ! expanded; console.log(expanded)};
+             if(textOverflow === true && editingComment !== '{{$comment->uuid}}') {expanded = ! expanded;};
          });
          $el.addEventListener('mouseenter', (e) => {
              setHoveringComment('{{$comment->thread_id}}',  '{{$comment->uuid}}');
@@ -118,7 +117,6 @@
             <span class="comment-feedback-editor-label">@lang('assessment.Feedback schrijven')</span>
             <x-input.rich-textarea type="update-answer-feedback"
                                    :editorId="'update-' . $comment->uuid"
-                                   :allow-wsc="true"
             >
                 {{ $comment->message }}
             </x-input.rich-textarea>

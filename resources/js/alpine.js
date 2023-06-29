@@ -2424,10 +2424,10 @@ document.addEventListener("alpine:init", () => {
         activeComment: null,
         hoveringComment: null,
         dropdownOpened: null,
-        hasFeedback,
         userId,
         questionType,
         viewOnly,
+        hasFeedback,
         async init() {
             this.dropdownOpened = questionType === 'OpenQuestion' ? 'given-feedback' : 'add-feedback';
 
@@ -2450,8 +2450,6 @@ document.addEventListener("alpine:init", () => {
             });
 
             document.addEventListener('comment-emoji-updated', async (event) => {
-                // let styleTagElement = document.querySelector('#commentMarkerStyles');
-
                 let ckeditorIconWrapper = document.querySelector('#icon-' + event.detail.threadId)
                 let cardIconWrapper = document.querySelector('[data-uuid="'+event.detail.uuid+'"].answer-feedback-card-icon')
 
@@ -2460,8 +2458,6 @@ document.addEventListener("alpine:init", () => {
                     this.addOrReplaceIconByName(cardIconWrapper, event.detail.iconName);
                     cardIconWrapper.querySelector('span').style = '';
                 }
-
-//TODO Replace wire call with only visualy changing color/emoji
             });
 
             document.addEventListener('new-comment-color-updated', (event) => this.updateNewCommentMarkerStyles(event?.detail?.color));
@@ -2500,7 +2496,6 @@ document.addEventListener("alpine:init", () => {
             document.querySelector('#commentMarkerStyles').innerHTML = commentStyles;
 
             this.cancelEditingComment(answerFeedbackCardElement.dataset.threadId)
-            // this.setEditingComment(null);
         },
         async createCommentThread() {
 
@@ -2509,11 +2504,12 @@ document.addEventListener("alpine:init", () => {
             let comment_color = addCommentElement.querySelector('.comment-color-picker input:checked')?.dataset?.color;
 
             let comment_emoji = addCommentElement.querySelector('.comment-emoji-picker input:checked')?.dataset?.emoji;
+            let comment_iconName = addCommentElement.querySelector('.comment-emoji-picker input:checked')?.dataset?.iconname;
 
             const answerEditor = ClassicEditors[this.answerEditorId];
             const feedbackEditor = ClassicEditors[this.feedbackEditorId];
 
-            var comment = feedbackEditor.getData();
+            var comment = feedbackEditor.getData() || '<p></p>';
 
             answerEditor.focus();
 
@@ -2542,7 +2538,7 @@ document.addEventListener("alpine:init", () => {
                     await this.createCommentIcon({
                         uuid: feedback.uuid,
                         threadId: feedback.threadId,
-                        iconName: await this.$wire.call('getIconNameByEmojiValue', comment_emoji), //todo see if this call can be removed
+                        iconName: comment_iconName,
                     })
 
                     document.querySelector('#commentMarkerStyles').innerHTML = commentStyles;
@@ -2551,10 +2547,8 @@ document.addEventListener("alpine:init", () => {
 
                     this.hasFeedback = true;
 
-                    //todo go to gegeven feedback
                     this.$dispatch('answer-feedback-show-comments');
 
-                    //todo fix scrolling and activating correct card:
                     this.scrollToCommentCard(feedback.uuid);
                     return;
                 }
@@ -2569,12 +2563,9 @@ document.addEventListener("alpine:init", () => {
 
                 this.resetAddNewAnswerFeedback();
 
-                //todo go to gegeven feedback
                 this.$dispatch('answer-feedback-show-comments');
 
-                //todo fix scrolling and activating correct card:
                 this.scrollToCommentCard(feedback.uuid);
-
             });
 
         },
@@ -2763,6 +2754,7 @@ document.addEventListener("alpine:init", () => {
             this.activeComment = {threadId: threadId, uuid: answerFeedbackUuid };
             this.setActiveCommentMarkerStyle();
 
+            this.$dispatch('answer-feedback-show-comments');
             this.$dispatch("assessment-drawer-tab-update", { tab: 2, uuid: answerFeedbackUuid });
         },
         clearActiveComment() {
@@ -2821,11 +2813,15 @@ document.addEventListener("alpine:init", () => {
                 this.fixSlideHeightByIndex(2, AnswerFeedbackUuid);
             },100)
         },
-        toggleFeedbackAccordion (currentToggleState, name) {
-            if(this.editingComment !== null) { return; };
+        toggleFeedbackAccordion (name, forceOpenAccordion = false) {
+            if(this.editingComment !== null) {
+                this.dropdownOpened ='given-feedback';
+                return;
+            };
 
-            if(currentToggleState === name) {
-                return null;
+            if(this.dropdownOpened === name && !forceOpenAccordion) {
+                this.dropdownOpened = null;
+                return;
             }
             if(questionType === 'OpenQuestion' && name === 'add-feedback') {
                 try {
@@ -2834,7 +2830,7 @@ document.addEventListener("alpine:init", () => {
                     //
                 }
             }
-            return name;
+            this.dropdownOpened = name;
         },
         resetAddNewAnswerFeedback(cancelAddingNewComment = false) {
             //find default/blue color picker and enable it.

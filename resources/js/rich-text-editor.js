@@ -89,7 +89,7 @@ RichTextEditor = {
             parameterBag,
             (editor) => {
 
-                this.hideWProofreaderChevron(parameterBag.allowWsc, editor);
+                // this.hideWProofreaderChevron(parameterBag.allowWsc, editor);
 
             },
         );
@@ -106,19 +106,11 @@ RichTextEditor = {
                         editor.focus();
                     }, 100)
                 });
-                this.hideWProofreaderChevron(parameterBag.allowWsc, editor);
+                // this.hideWProofreaderChevron(parameterBag.allowWsc, editor);
             }
         );
     },
-    // initInlineFeedback: function(parameterBag) {
-    //     return this.createStudentEditor(
-    //         parameterBag,
-    //         (editor) => this.setupWordCounter(editor, parameterBag)
-    //     );
-    // },
     initAnswerEditorWithComments: function(parameterBag) {
-
-        //todo:
         return this.createStudentEditor(
             parameterBag,
             (editor) => {
@@ -136,40 +128,46 @@ RichTextEditor = {
 
         }
         document.addEventListener('mouseup', (e) => {
-            if(window.getSelection().focusNode.parentElement.closest('.comment-editor') !== null) {
-                //selection is in the answer comment editor
-                if(window.getSelection().toString() !== '') {
-                    dispatchEvent(new CustomEvent('assessment-drawer-tab-update', {detail: {tab: 2}}));
+            /*
+             * selection is in the answer comment editor
+             * selection is not empty
+             * selection is on the assessment screen
+             * */
+            if (window.getSelection().focusNode?.parentElement?.closest('.comment-editor') !== null
+                && document.querySelector('#assessment-page') !== null
+                && window.getSelection().toString() !== ''
+            ) {
+                dispatchEvent(new CustomEvent('assessment-drawer-tab-update', {detail: {tab: 2}}));
 
-                    //focus the create a comment editor
-                    dispatchEvent(new CustomEvent('answer-feedback-focus-feedback-editor'));
+                //focus the create a comment editor
+                dispatchEvent(new CustomEvent('answer-feedback-focus-feedback-editor'));
 
-                    setTimeout(() => {
-                        editor.execute( 'addCommentThread', { threadId: window.uuidv4() } );
+                setTimeout(() => {
+                    editor.execute('addCommentThread', {threadId: window.uuidv4()});
 
-                    }, 200)
-                }
+                }, 200);
             }
         })
     },
-    hideWProofreaderChevron: function (allowWsc, editor) {
-
-        if(!allowWsc) {
-            return;
-        }
-
-        const callback = (element) => {
-            return element.innerHTML == 'WProofreader' && element.classList.contains('ck-tooltip__text')
-        }
-
-        // const elements = Array.from(document.getElementsByTagName('span'))
-        const elements = Array.from(editor.editing.view.getDomRoot().closest('.ck-editor').getElementsByTagName('span'))
-
-        elements.filter(callback).forEach((element) => {
-            return element.parentElement.parentElement.querySelector('.ck-dropdown__arrow').style.display = 'none';
-        });
-
-    },
+    //only needed when webspellchecker has to be re-added to the inline-feedback comment editors
+    // hideWProofreaderChevron: function (allowWsc, editor) {
+    //
+    //     if(!allowWsc) {
+    //         return;
+    //     }
+    //
+    //     const callback = (element) => {
+    //         return element.innerHTML == 'WProofreader' && element.classList.contains('ck-tooltip__text')
+    //     }
+    //
+    //     // const elements = Array.from(document.getElementsByTagName('span'))
+    //     const elements = Array.from(editor.editing.view.getDomRoot().closest('.ck-editor').getElementsByTagName('span'))
+    //
+    //     elements.filter(callback).forEach((element) => {
+    //         return element.parentElement.parentElement.querySelector('.ck-dropdown__arrow').style.display = 'none';
+    //     });
+    //
+    // },
     getConfigForStudent: function(parameterBag) {
         parameterBag.pluginsToAdd ??= [];
 

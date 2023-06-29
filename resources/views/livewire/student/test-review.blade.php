@@ -5,7 +5,8 @@
                 @js(null),
                 @js(auth()->user()->uuid),
                 @js($this->currentQuestion->type),
-                @js(true)
+                @js(true),
+                @js($this->hasFeedback)
              )"
 >
     <header id="header" @class(['flex items-center py-2.5 px-6'])>
@@ -215,9 +216,7 @@
                                 <span>@lang('assessment.Gegeven feedback')</span>
                                 <span class="w-4 h-4 flex justify-center items-center"
                                       :class="dropdownOpened === 'given-feedback' ? 'rotate-svg-90' : ''"
-                                      @unless(!$this->hasFeedback)
-                                          @click="dropdownOpened = (dropdownOpened === 'given-feedback' ? null : 'given-feedback')"
-                                      @endif
+                                      @click="toggleFeedbackAccordion('given-feedback')"
                                 >
                                     <x-icon.chevron></x-icon.chevron>
                                 </span>

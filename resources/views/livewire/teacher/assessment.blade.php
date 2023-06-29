@@ -196,8 +196,8 @@
                 <x-slot:slideTwoContent>
                     <div x-data="{}"
                          class="space-y-4"
-                         x-on:answer-feedback-focus-feedback-editor.window="dropdownOpened = 'add-feedback'"
-                         x-on:answer-feedback-show-comments.window="dropdownOpened = 'given-feedback'"
+                         x-on:answer-feedback-focus-feedback-editor.window="toggleFeedbackAccordion('add-feedback', true)"
+                         x-on:answer-feedback-show-comments.window="toggleFeedbackAccordion('given-feedback', true)"
                     >
                         <div class="space-y-4 answer-feedback-add-comment">
                             <span class="flex bold border-t border-blue-grey pt-2 justify-between items-center"
@@ -208,7 +208,7 @@
                                 <span>@lang('assessment.Feedback toevoegen')</span>
                                 <span class="w-4 h-4 flex justify-center items-center"
                                       :class="dropdownOpened === 'add-feedback' ? 'rotate-svg-90' : ''"
-                                      @click="dropdownOpened = toggleFeedbackAccordion(dropdownOpened, 'add-feedback');">
+                                      @click="toggleFeedbackAccordion('add-feedback');">
                                     <x-icon.chevron></x-icon.chevron>
                                 </span>
                             </span>
@@ -235,7 +235,6 @@
                                     <span>@lang('assessment.Feedback schrijven')</span>
                                     <x-input.rich-textarea type="create-answer-feedback"
                                                            :editorId="'feedback-editor-'. $this->questionNavigationValue.'-'.$this->answerNavigationValue"
-                                                           :allowWsc="auth()->user()->schoolLocation->allow_wsc" {{-- TODO determine when to allow web spell checker... --}}
                                     />
                                     <div class="flex justify-end space-x-4 h-fit">
                                         <x-button.text-button size="sm"
@@ -254,7 +253,7 @@
                                     <x-input.rich-textarea type="assessment-feedback"
                                                            :editorId="'feedback-editor-'. $this->questionNavigationValue.'-'.$this->answerNavigationValue"
                                                            wire:model.debounce.300ms="feedback"
-                                            {{--:disabled="$this->currentQuestion->isSubType('writing')"--}}
+                                            :disabled="$this->currentQuestion->isSubType('writing')" {{-- todo find out what to do with writing assignment exceptions --}}
                                     />
                                 @endif
 
@@ -262,7 +261,7 @@
                         </div>
 
                         {{-- TODO: make exception for existing writing assignments? --}}
-                        @if($this->currentQuestion->isSubType('writing'))
+                        {{--@if($this->currentQuestion->isSubType('writing'))
                             <div class="border-2 border-dashed border-red-500">
                                 @js('TODO: find out what to do with writing assignments')
                                 <x-button.primary class="!p-0 justify-center"
@@ -280,12 +279,10 @@
                                     </x-button.text-button>
                                 @endif
                             </div>
-                        @endif
+                        @endif--}}
                         {{-- TODO: make exception for existing writing assignments? --}}
 
                     @if($this->inlineFeedbackEnabled)
-                            {{-- TODO ONLY for open question 'write down'  --}}
-
                             <div class="space-y-4 relative">
                             <span @class([
                                     "flex bold border-t border-blue-grey pt-2 justify-between items-center",
@@ -296,7 +293,7 @@
                                 <span>@lang('assessment.Gegeven feedback')</span>
                                 <span class="w-4 h-4 flex justify-center items-center"
                                       :class="dropdownOpened === 'given-feedback' ? 'rotate-svg-90' : ''"
-                                      @click="dropdownOpened = (!hasFeedback) ? dropdownOpened : (dropdownOpened === 'given-feedback' ? null : 'given-feedback')"
+                                      @click="toggleFeedbackAccordion('given-feedback')"
                                 >
                                     <x-icon.chevron></x-icon.chevron>
                                 </span>
