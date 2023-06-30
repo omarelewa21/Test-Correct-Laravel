@@ -36,57 +36,57 @@ class TestTakeRttiExportController extends Controller
         $rttiExportLog = null;
         $leerresultatenVerzoek = [];
 //        try {
-            $testCode = sprintf(
-                '%s|%s|%s|%s',
-                $testTake->test->name,
-                $testTake->test->subject->abbreviation,
-                optional($firstSchoolClass)->name,
-                $testTake->test->getKey()
-            );
+        $testCode = sprintf(
+            '%s|%s|%s|%s',
+            $testTake->test->name,
+            $testTake->test->subject->abbreviation,
+            optional($firstSchoolClass)->name,
+            $testTake->test->getKey()
+        );
 
-            // START SETTING DATA FOR SCHOOL SECTION
-            $externalMainCode = $this->getExternalMainCode($testTake);
+        // START SETTING DATA FOR SCHOOL SECTION
+        $externalMainCode = $this->getExternalMainCode($testTake);
 //            try {
-                $auth['aut:autorisatie'] = [
-                    'autorisatiesleutel' => config('rtti.autorisatiesleutel'),
-                    'klantcode' => config('rtti.klantcode'),
-                    'klantnaam' => config('rtti.klantnaam')
-                ];
+        $auth['aut:autorisatie'] = [
+            'autorisatiesleutel' => config('rtti.autorisatiesleutel'),
+            'klantcode' => config('rtti.klantcode'),
+            'klantnaam' => config('rtti.klantnaam')
+        ];
 
-                // getToetsen needs to be run before the get toetsafnames
-                $toetsen = $this->getToetsenForRttiExport($testTake, $testCode);
-                $toetsAfnames = $this->getToetsafnamesForRttiExport($testTake, $testCode);
+        // getToetsen needs to be run before the get toetsafnames
+        $toetsen = $this->getToetsenForRttiExport($testTake, $testCode);
+        $toetsAfnames = $this->getToetsafnamesForRttiExport($testTake, $testCode);
 
-                $leerresultatenVerzoek = [
-                    'school' => [
-                        'aanmaakdatum' => Carbon::now()->toAtomString(),
-                        'dependancecode' => $testTake->schoolLocation->external_sub_code,
-                        'brincode' => $externalMainCode,
-                        'schooljaar' => $this->getSchoolYearForRttiExport($testTake),
-                    ],
-                    'toetsafnames' => $toetsAfnames,
-                    'toetsen' => $toetsen,
-                ];
+        $leerresultatenVerzoek = [
+            'school' => [
+                'aanmaakdatum' => Carbon::now()->toAtomString(),
+                'dependancecode' => $testTake->schoolLocation->external_sub_code,
+                'brincode' => $externalMainCode,
+                'schooljaar' => $this->getSchoolYearForRttiExport($testTake),
+            ],
+            'toetsafnames' => $toetsAfnames,
+            'toetsen' => $toetsen,
+        ];
 
-                $client = new \nusoap_client(
-                    config('rtti.wsdl_url'), true
-                );
-                $client->soap_defencoding = 'UTF-8';
-                $client->decode_utf8 = FALSE;
+        $client = new \nusoap_client(
+            config('rtti.wsdl_url'), true
+        );
+        $client->soap_defencoding = 'UTF-8';
+        $client->decode_utf8 = FALSE;
 
-                $rttiExportLog ??= RttiExportLog::create([
-                    'test_take_id' => $testTake->getKey(),
-                    'user_id' => Auth::id(),
-                    'export' => print_r($leerresultatenVerzoek,true),
-                    'reference' => sprintf('rtti-%s-%s',Date('YmdHis'),Str::random(5)),
-                ]);
+        $rttiExportLog ??= RttiExportLog::create([
+            'test_take_id' => $testTake->getKey(),
+            'user_id' => Auth::id(),
+            'export' => print_r($leerresultatenVerzoek,true),
+            'reference' => sprintf('rtti-%s-%s',Date('YmdHis'),Str::random(5)),
+        ]);
 
 
-                $result = $client->call(
-                    'BrengLeerresultaten', [
-                                'leerresultaten_verzoek' => $leerresultatenVerzoek,
-                            ], 'http://www.edustandaard.nl/leerresultaten/2/leerresultaten', 'leer:leerresultaten_verzoek', $auth
-                );
+        $result = $client->call(
+            'BrengLeerresultaten', [
+            'leerresultaten_verzoek' => $leerresultatenVerzoek,
+        ], 'http://www.edustandaard.nl/leerresultaten/2/leerresultaten', 'leer:leerresultaten_verzoek', $auth
+        );
 
 //            } catch (\Exception $e) {
 //                $rttiExportLog = RttiExportLog::create([
@@ -100,7 +100,7 @@ class TestTakeRttiExportController extends Controller
 //                    'reference' => sprintf('rtti-%s-%s',Date('YmdHis'),Str::random(5)),
 //                ]);
 //            }
-//
+
 //        } catch (\Exception $e) {
 //            $rttiExportLog = RttiExportLog::create([
 //                'test_take_id' => $testTake->getKey(),
