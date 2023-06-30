@@ -5656,7 +5656,42 @@ input.datepicker {
 }
 
 .score-slider-pill {
-    overflow: hidden;
+    position: relative;
+    /*overflow: hidden;*/
+}
+.score-slider-pill.first:not(:last-child) {
+    /*background-color: red;*/
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.score-slider-pill.first:not(:last-child)::after {
+    content: '';
+    background-color: var(--teacher-primary-light);
+    width: 0.375rem;
+    height: 0.375rem;
+    position: absolute;
+    right: -4px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    border-radius: 100%;
+}
+.score-slider-pill.first:not(.highlight):not(:last-child)::after {
+    background-color: var(--system-secondary);
+}
+.score-slider-pill.first:not(.highlight):not(:last-child) {
+    border-right-color: transparent;
+}
+.score-slider-pill.second:not(.highlight) {
+    border-left-color: transparent;
+}
+
+.score-slider-pill.second {
+    /*background-color: greenyellow;*/
+    margin-right: 0.125rem;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
 }
 
 .score-slider-container .score-slider-track-container:focus .score-slider-pill,
@@ -5677,7 +5712,12 @@ input.datepicker {
 }
 
 
+
 /* score slider initial thumb */
+.score-slider-container .score-slider-initial-handle-offset {
+    transform: translate(calc(-40% + 1px));
+}
+
 .score-slider-container .score-slider-initial-handle {
     position: absolute;
     width: 1.5rem;
@@ -5690,7 +5730,6 @@ input.datepicker {
     box-shadow: 0 2px 4px 0 rgba(4, 31, 116, 0.3);
     z-index: 1;
     top: calc(50% - 0.75rem);
-    transform: translate(-12px);
 }
 
 .score-slider-container .score-slider-initial-handle:hover {
@@ -6112,7 +6151,8 @@ input.datepicker {
 }
 
 #co-learning-teacher-page .question-indicator .question-number,
-#assessment-page .question-indicator .question-number {
+#assessment-page .question-indicator .question-number,
+#student-test-review .question-indicator .question-number {
     border-color: var(--system-base);
     background: var(--system-base);
     color: white;
@@ -8632,6 +8672,10 @@ span.completion-response-object-container{
     top: 0;
 }
 
+#assessment-page {
+    --ck-z-default: 0;
+}
+
 .progress-bar-background {
     width: calc(100% - var(--active-sidebar-width));
     transition: width var(--sidebar-transition)
@@ -8640,6 +8684,17 @@ span.completion-response-object-container{
     transition: width 150ms ease-in
 }
 
+#necklace-navigation .question-indicator .question-number.done.system-rated,
+#necklace-navigation .question-indicator .question-number.system-rated {
+    --rqn-border-color: transparent;
+    --rqn-background-color: rgba(var(--cta-primary-rgb), 0.5);
+}
+
+#necklace-navigation .question-indicator .question-number.done.fully-rated,
+#necklace-navigation .question-indicator .question-number.fully-rated {
+    --rqn-border-color: transparent;
+    --rqn-background-color: var(--cta-primary);
+}
 #student-test-review #header {
     position: sticky;
     width: 100%;
@@ -8660,12 +8715,9 @@ span.completion-response-object-container{
     z-index: 1;
 }
 
-#student-test-review .question-indicator .question-number {
+#necklace-navigation .question-indicator .question-number {
     color: white;
     background-color: var(--system-base);
-}
-
-#student-test-review .nav-container .question-indicator .question-number {
     --rqn-number-color: var(--system-base);
     --rqn-border-color: var(--system-base);
     --rqn-background-color: transparent;
@@ -8674,28 +8726,28 @@ span.completion-response-object-container{
     width: fit-content;
     transition: box-shadow ease-in-out 150ms;
     margin-right: auto;
-
     color: var(--rqn-number-color);
     border-color: var(--rqn-border-color);
     background-color: var(--rqn-background-color);
 }
 
-#student-test-review .nav-container .question-indicator .question-number.done {
+#necklace-navigation .question-indicator .question-number.done {
     --rqn-number-color: white;
     --rqn-background-color: var(--system-base);
 }
 
-#student-test-review .nav-container .question-indicator .question-number.active {
+#necklace-navigation .question-indicator .question-number.active {
     --rqn-border-color: var(--primary);
     --rqn-number-color: var(--primary);
 }
 
-#student-test-review .nav-container .question-indicator .question-number.done.active {
+#necklace-navigation .question-indicator .question-number.done.active {
     --rqn-number-color: white;
     --rqn-background-color: var(--primary);
+    --rqn-border-color: var(--primary);
 }
 
-#student-test-review .nav-container .question-indicator .question-number .connector {
+#necklace-navigation .question-indicator .question-number .connector {
     position: absolute;
     width: 8px;
     height: 3px;
@@ -8703,7 +8755,7 @@ span.completion-response-object-container{
     background: var(--system-base);
 }
 
-#student-test-review .nav-container .question-indicator {
+#necklace-navigation .question-indicator {
     display: flex;
     align-items: flex-start;
 }
@@ -8717,7 +8769,7 @@ span.completion-response-object-container{
 
 
 /*
-! tailwindcss v3.2.7 | MIT License | https://tailwindcss.com
+! tailwindcss v3.3.2 | MIT License | https://tailwindcss.com
 */
 
 
@@ -8749,6 +8801,7 @@ span.completion-response-object-container{
 3. Use a more readable tab size.
 4. Use the user's configured `sans` font-family by default.
 5. Use the user's configured `sans` font-feature-settings by default.
+6. Use the user's configured `sans` font-variation-settings by default.
 */
 
 
@@ -8760,6 +8813,7 @@ html {
      tab-size: 4; /* 3 */
   font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"; /* 4 */
   font-feature-settings: normal; /* 5 */
+  font-variation-settings: normal; /* 6 */
 }
 
 
@@ -9181,6 +9235,9 @@ video {
   --tw-pan-y:  ;
   --tw-pinch-zoom:  ;
   --tw-scroll-snap-strictness: proximity;
+  --tw-gradient-from-position:  ;
+  --tw-gradient-via-position:  ;
+  --tw-gradient-to-position:  ;
   --tw-ordinal:  ;
   --tw-slashed-zero:  ;
   --tw-numeric-figure:  ;
@@ -9229,6 +9286,9 @@ video {
   --tw-pan-y:  ;
   --tw-pinch-zoom:  ;
   --tw-scroll-snap-strictness: proximity;
+  --tw-gradient-from-position:  ;
+  --tw-gradient-via-position:  ;
+  --tw-gradient-to-position:  ;
   --tw-ordinal:  ;
   --tw-slashed-zero:  ;
   --tw-numeric-figure:  ;
@@ -9375,28 +9435,16 @@ video {
   position: sticky;
 }
 .-inset-2{
-  top: -0.5rem;
-  right: -0.5rem;
-  bottom: -0.5rem;
-  left: -0.5rem;
+  inset: -0.5rem;
 }
 .-inset-2\.5{
-  top: -0.625rem;
-  right: -0.625rem;
-  bottom: -0.625rem;
-  left: -0.625rem;
+  inset: -0.625rem;
 }
 .-inset-px{
-  top: -1px;
-  right: -1px;
-  bottom: -1px;
-  left: -1px;
+  inset: -1px;
 }
 .inset-0{
-  top: 0px;
-  right: 0px;
-  bottom: 0px;
-  left: 0px;
+  inset: 0px;
 }
 .inset-x-0{
   left: 0px;
@@ -9420,9 +9468,6 @@ video {
 }
 .-right-4{
   right: -1rem;
-}
-.-right-6{
-  right: -1.5rem;
 }
 .-right-px{
   right: -1px;
@@ -9450,9 +9495,6 @@ video {
 }
 .bottom-0{
   bottom: 0px;
-}
-.bottom-1\/2{
-  bottom: 50%;
 }
 .bottom-3{
   bottom: 0.75rem;
@@ -9559,9 +9601,6 @@ video {
 .top-\[-100px\]{
   top: -100px;
 }
-.top-\[100px\]{
-  top: 100px;
-}
 .top-\[14px\]{
   top: 14px;
 }
@@ -9576,9 +9615,6 @@ video {
 }
 .top-\[93px\]{
   top: 93px;
-}
-.top-\[calc\(var\(--header-height\)\+4px\)\]{
-  top: calc(var(--header-height) + 4px);
 }
 .top-\[var\(--header-height\)\]{
   top: var(--header-height);
@@ -9678,6 +9714,10 @@ video {
 }
 .m-auto{
   margin: auto;
+}
+.mx-1{
+  margin-left: 0.25rem;
+  margin-right: 0.25rem;
 }
 .mx-10{
   margin-left: 2.5rem;
@@ -9933,6 +9973,18 @@ video {
 .box-border{
   box-sizing: border-box;
 }
+.line-clamp-1{
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
+.line-clamp-2{
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
 .block{
   display: block;
 }
@@ -10032,9 +10084,6 @@ video {
 .h-80{
   height: 20rem;
 }
-.h-\[0\.375rem\]{
-  height: 0.375rem;
-}
 .h-\[14px\]{
   height: 14px;
 }
@@ -10091,9 +10140,6 @@ video {
 }
 .h-\[calc\(100vh-var\(--header-height\)\)\]{
   height: calc(100vh - var(--header-height));
-}
-.h-\[calc\(1rem-2px\)\]{
-  height: calc(1rem - 2px);
 }
 .h-\[var\(--header-height\)\]{
   height: var(--header-height);
@@ -10264,9 +10310,6 @@ video {
 .w-80{
   width: 20rem;
 }
-.w-\[0\.375rem\]{
-  width: 0.375rem;
-}
 .w-\[100px\]{
   width: 100px;
 }
@@ -10352,6 +10395,10 @@ video {
 .w-max{
   width: -moz-max-content;
   width: max-content;
+}
+.w-min{
+  width: -moz-min-content;
+  width: min-content;
 }
 .w-px{
   width: 1px;
@@ -10894,11 +10941,6 @@ video {
   margin-right: calc(2rem * var(--tw-space-x-reverse));
   margin-left: calc(2rem * calc(1 - var(--tw-space-x-reverse)));
 }
-.space-x-\[0\.125rem\] > :not([hidden]) ~ :not([hidden]){
-  --tw-space-x-reverse: 0;
-  margin-right: calc(0.125rem * var(--tw-space-x-reverse));
-  margin-left: calc(0.125rem * calc(1 - var(--tw-space-x-reverse)));
-}
 .space-y-0 > :not([hidden]) ~ :not([hidden]){
   --tw-space-y-reverse: 0;
   margin-top: calc(0px * calc(1 - var(--tw-space-y-reverse)));
@@ -11081,10 +11123,6 @@ video {
   border-top-left-radius: 0.125rem;
   border-bottom-left-radius: 0.125rem;
 }
-.rounded-r-full{
-  border-top-right-radius: 9999px;
-  border-bottom-right-radius: 9999px;
-}
 .rounded-r-md{
   border-top-right-radius: 0.375rem;
   border-bottom-right-radius: 0.375rem;
@@ -11131,10 +11169,6 @@ video {
 }
 .border-\[3px\]{
   border-width: 3px;
-}
-.border-y{
-  border-top-width: 1px;
-  border-bottom-width: 1px;
 }
 .border-b{
   border-bottom-width: 1px;
@@ -11280,10 +11314,6 @@ video {
   --tw-bg-opacity: 1;
   background-color: rgb(207 27 4 / var(--tw-bg-opacity));
 }
-.bg-black{
-  --tw-bg-opacity: 1;
-  background-color: rgb(0 0 0 / var(--tw-bg-opacity));
-}
 .bg-bluegrey{
   --tw-bg-opacity: 1;
   background-color: rgb(195 208 237 / var(--tw-bg-opacity));
@@ -11386,9 +11416,8 @@ video {
   --tw-bg-opacity: 1;
   background-color: rgb(4 31 116 / var(--tw-bg-opacity));
 }
-.bg-teacherPrimaryLight{
-  --tw-bg-opacity: 1;
-  background-color: rgb(71 129 255 / var(--tw-bg-opacity));
+.bg-sysbase\/30{
+  background-color: rgb(4 31 116 / 0.3);
 }
 .bg-transparent{
   background-color: transparent;
@@ -11399,9 +11428,6 @@ video {
 }
 .bg-white\/20{
   background-color: rgb(255 255 255 / 0.2);
-}
-.bg-white\/50{
-  background-color: rgb(255 255 255 / 0.5);
 }
 .bg-white\/75{
   background-color: rgb(255 255 255 / 0.75);
@@ -11425,8 +11451,8 @@ video {
   background-image: linear-gradient(to top, var(--tw-gradient-stops));
 }
 .from-\[var\(--teacher-primary\)\]{
-  --tw-gradient-from: var(--teacher-primary);
-  --tw-gradient-to: rgb(255 255 255 / 0);
+  --tw-gradient-from: var(--teacher-primary) var(--tw-gradient-from-position);
+  --tw-gradient-to: rgb(255 255 255 / 0) var(--tw-gradient-to-position);
   --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
 }
 .from-white{
@@ -11435,7 +11461,7 @@ video {
   --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
 }
 .to-\[var\(--teacher-primary-light\)\]{
-  --tw-gradient-to: var(--teacher-primary-light);
+  --tw-gradient-to: var(--teacher-primary-light) var(--tw-gradient-to-position);
 }
 .to-lightGrey{
   --tw-gradient-to: #F0F2F5;
@@ -12227,18 +12253,6 @@ video {
 }
 .ease-out{
   transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
-}
-.line-clamp-1{
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 1;
-}
-.line-clamp-2{
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
 }
 
 :root {

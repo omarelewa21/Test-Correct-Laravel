@@ -89,7 +89,7 @@ abstract class Request extends FormRequest {
             $input->transform(function ($a) {
                 return self::filter($a);
             });
-        } elseif (is_bool($input) || is_int($input) || is_float($input) || $input instanceof UploadedFile){
+        } elseif (is_bool($input) || is_int($input) || is_float($input) || $input instanceof UploadedFile || is_null($input)){
             // we don't do anything.
             // And as a failsafe we fall back to the string
         } else {

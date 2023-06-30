@@ -5,6 +5,7 @@ use iio\libmergepdf\Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use tcCore\Exceptions\AnalysesPolicyException;
+use tcCore\Http\Helpers\RequestCacheHelper;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Dyrynda\Database\Casts\EfficientUuid;
@@ -194,26 +195,29 @@ class EducationLevel extends BaseModel
 
     public static function getLatestEducationLevelAndEducationLevelYearForStudent(User $student)
     {
-        $latestSchoolClassForStudent = $student->studentSchoolClasses()
-            ->orderBy('school_classes.created_at', 'desc')
-            ->with('educationLevel')
-            ->first();
-        if (null === $latestSchoolClassForStudent) {
-            Bugsnag::notifyException(new \Exception(
-                'cannot find a school_class for student with id ' . $student->id
-            ));
+        return RequestCacheHelper::get($student->getKey(), function() use ($student) {
+            $latestSchoolClassForStudent = $student->studentSchoolClasses()
+                ->orderBy('school_classes.created_at', 'desc')
+                ->with('educationLevel')
+                ->first();
+            if (null === $latestSchoolClassForStudent) {
+                Bugsnag::notifyException(new \Exception(
+                    'cannot find a school_class for student with id ' . $student->id
+                ));
 
-            throw new AnalysesPolicyException(__('exception.analyses.no_school_class_for_student'));
-        }
-        $min = 1;
+                throw new AnalysesPolicyException(__('exception.analyses.no_school_class_for_student'));
+            }
+            $min = 1;
 
-        if ($latestSchoolClassForStudent->educationLevel->min_attainment_year <= $latestSchoolClassForStudent->education_level_year) {
-            $min = $latestSchoolClassForStudent->educationLevel->min_attainment_year;
-        }
-        return [
-            'education_level_id'    => $latestSchoolClassForStudent->education_level_id,
-            'education_level_years' => collect(range($min, $latestSchoolClassForStudent->education_level_year)),
-        ];
+            if ($latestSchoolClassForStudent->educationLevel->min_attainment_year <= $latestSchoolClassForStudent->education_level_year) {
+                $min = $latestSchoolClassForStudent->educationLevel->min_attainment_year;
+            }
+            return [
+                'education_level_id'    => $latestSchoolClassForStudent->education_level_id,
+                'education_level_years' => collect(range($min, $latestSchoolClassForStudent->education_level_year)),
+            ];
+        });
+
     }
 
     public static function getStartAndEndDateForLatestEducationLevelForStudent(User $student)

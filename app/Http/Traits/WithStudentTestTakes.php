@@ -34,6 +34,7 @@ trait WithStudentTestTakes
             )
             ->where('test_participants.user_id', Auth::id())
             ->where('test_takes.test_take_status_id', '<=', TestTakeStatus::STATUS_TAKING_TEST)
+            ->whereNull('test_participants.deleted_at')
             ->where(function ($query) {
                 $query->where(function ($query) {
                     // dit is voor de toetsen.
@@ -46,6 +47,7 @@ trait WithStudentTestTakes
             })
             ->whereNull('test_participants.deleted_at')
             ->orderBy($orderColumn, $orderDirection);
+
 
         return $paginateBy ? $takePlannedQuery->paginate($paginateBy) : $takePlannedQuery->take($amount)->get();
     }

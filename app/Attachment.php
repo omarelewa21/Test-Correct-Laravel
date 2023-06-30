@@ -1,6 +1,7 @@
 <?php namespace tcCore;
 
 use Dyrynda\Database\Casts\EfficientUuid;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Support\Str;
 use Livewire\TemporaryUploadedFile;
 use Monolog\Handler\IFTTTHandler;
@@ -109,6 +110,19 @@ class Attachment extends BaseModel
             'question_id')->withPivot([
             $this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()
         ])->wherePivot($this->getDeletedAtColumn(), null);
+    }
+
+    /**
+     * Convert youtube short link to full link
+     *
+     * @return \Illuminate\Database\Eloquent\Casts\Attribute
+     */
+    protected function link(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => static::convertYoutubeShortsLink($value),
+            set: fn ($value) => static::convertYoutubeShortsLink($value),
+        );
     }
 
     /**
@@ -234,7 +248,7 @@ class Attachment extends BaseModel
                         break;
                 }
             }
-            return sprintf('https://www.youtube.com/embed/%s?rel=0&start=%d', $matches['video_id'], $t);
+            return sprintf('https://www.youtube-nocookie.com/embed/%s?rel=0&start=%d', $matches['video_id'], $t);
         }
 
         preg_match($vimeoRegex, $this->link, $matches);
@@ -309,5 +323,13 @@ class Attachment extends BaseModel
             return $options->$setting;
         }
         return false;
+    }
+
+    public static function convertYoutubeShortsLink($link)
+    {
+        $pattern = '/(?:https?:\/\/)?(?:www\.)?youtu(?:\.be|be\.com)\/shorts\/([a-zA-Z0-9_-]+)/i';
+        preg_match($pattern, $link, $matches);
+
+        return empty($matches) ? $link : sprintf("https://www.youtube.com/watch?v=%s", $matches[1]);
     }
 }

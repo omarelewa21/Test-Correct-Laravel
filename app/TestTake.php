@@ -236,7 +236,8 @@ class TestTake extends BaseModel
                         $testParticipant->save();
                     }
                     AnswerChecker::checkAnswerOfParticipant($testParticipant);
-                    TestTakeOpenForInteraction::dispatch($testParticipant->uuid);
+
+                    AfterResponse::$performAction[] = fn() => TestTakeOpenForInteraction::dispatch($testParticipant->uuid);
                 }
             }
             if (($testTake->testTakeStatus->name === 'Discussing' && $testTake->getAttribute('discussing_question_id') != $testTake->getOriginal('discussing_question_id'))
@@ -485,7 +486,7 @@ class TestTake extends BaseModel
     public function saveSchoolClassTestTakeParticipants()
     {
         $testTakeParticipantFactory = new Factory(new TestParticipant());
-        $testParticipants = $testTakeParticipantFactory->generateMany($this->getKey(), ['school_class_ids' => $this->schoolClasses, 'test_take_status_id' => with(TestTakeStatus::where('name', 'Planned')->first())->getKey()]);
+        $testParticipants = $testTakeParticipantFactory->generateMany($this, ['school_class_ids' => $this->schoolClasses, 'test_take_status_id' => with(TestTakeStatus::where('name', 'Planned')->first())->getKey()]);
         $this->testParticipants()->saveMany($testParticipants);
         $this->schoolClasses = null;
     }

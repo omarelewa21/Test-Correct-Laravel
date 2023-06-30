@@ -70,8 +70,8 @@ class MacrosServiceProvider extends ServiceProvider
         Collection::macro('discussionTypeFiltered', function (bool $openOnly) {
             return $this->when($openOnly, fn($questions) => $questions->where('isDiscussionTypeOpen', true));
         });
-        Collection::macro('discrepancyFiltered', function (bool $hideNonDescrepancy) {
-            return $this->when($hideNonDescrepancy, fn($answers) => $answers->whereNot('hasDiscrepancy', false, true));
+        Collection::macro('discrepancyFiltered', function (bool $hideNonDiscrepancy) {
+            return $this->when($hideNonDiscrepancy, fn($answers) => $answers->whereNot('hasDiscrepancy', false, true));
         });
 
         //implements Eloquent Builder methods into

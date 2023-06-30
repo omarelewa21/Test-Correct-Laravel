@@ -52,7 +52,6 @@ class TestQuickTakeModal extends TCModalComponent
         $this->testTake = new TestTake();
         $this->setFeatureSettingDefaults($this->testTake);
         $this->testTake->is_rtti_test_take = false;
-        $this->testTake->allow_wsc = false;
     }
 
     public function hydrate()

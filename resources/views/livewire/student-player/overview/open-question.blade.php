@@ -9,7 +9,8 @@
                 <x-input.rich-textarea
                         type="student"
                         wire:key="textarea_{{ $question->id }}"
-                        :allowWsc="$this->question->spell_check_available"
+                        :allowWsc="false"
+                        :lang="$this->question->lang"
                         :editor-id="$this->editorId"
                         :restrictWords="$this->question->restrict_word_amount"
                         :maxWords="$this->question->max_words"

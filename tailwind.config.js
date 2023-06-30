@@ -15,7 +15,14 @@ module.exports = {
         "max-w-modal",
         "max-w-[720px]",
         "mx-8",
-        "bg-teacher-primary-light"
+        "bg-teacher-primary-light",
+        "w-3/4",
+        "h-1/2",
+        "w-5/6",
+        "lg:w-4/6",
+        "h-[80vh]",
+        "w-[80vw]",
+        "h-[45vw]"
     ],
     theme: {
         extend: {

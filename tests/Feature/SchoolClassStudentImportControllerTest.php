@@ -1,11 +1,9 @@
 <?php
 
-use Illuminate\Contracts\Debug\ExceptionHandler;
-use Illuminate\Foundation\Testing\WithoutMiddleware;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
+namespace Tests\Feature;
+
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Support\Facades\Hash;
-use tcCore\Exceptions\Handler;
+use tcCore\FactoryScenarios\FactoryScenarioClassImportCake;
 use tcCore\SchoolClass;
 use tcCore\SchoolLocation;
 use tcCore\Student;
@@ -36,180 +34,175 @@ class SchoolClassStudentImportControllerTest extends TestCase
                 'username'    => "carloschéoep+K999jjanssen@hotmail.com",
             ]],
         ]));
-        
-        $this->assertEquals(422, $response->getStatusCode());
-         
-        $decodedResponse = $response->decodeResponseJson();
-         
-        $this->assertArrayHasKey('data.0.username', $decodedResponse['errors']);
-        $this->assertEquals('The data.0.username must be a valid email address.', $decodedResponse['errors']['data.0.username'][0]);
-        $this->assertStringContainsString('The email address contains invalid or international characters', $decodedResponse['errors']['data.0.username'][1]);
 
+        $response->assertStatus(422)
+            ->assertJsonValidationErrorFor('data.0.username');
     }
-    
-        /** @test */
-    public function it_can_import_a_user_rejects_international_characters_various() {
-        
+
+    /** @test */
+    public function it_can_import_a_user_rejects_international_characters_various()
+    {
+
         $this->assertCount(0, User::whereUsername("carloschoep+K999jjanssen@hotmail.com")->get());
 
         $countStudentsBefore = \tcCore\Student::count();
 
         $response = $this->post(
-                route(
-                        'school_classes.import', [
-            'schoolLocation' => SchoolLocation::find(3)->uuid,
-            'schoolClass' => SchoolClass::find(3)->uuid
-                ])
-                , static::getSchoolBeheerderAuthRequestData([
-                    'data' => [[
-                    'external_id' => "123451",
-                    'name_first' => "Jan1",
-                    'name_suffix' => "",
-                    'name' => "Janssen1",
-                    'username' => "140965ä@test-correct.nl"
-                        ]]
+            route(
+                'school_classes.import', [
+                'schoolLocation' => SchoolLocation::find(3)->uuid,
+                'schoolClass'    => SchoolClass::find(3)->uuid
+            ])
+            , static::getSchoolBeheerderAuthRequestData([
+            'data' => [[
+                'external_id' => "123451",
+                'name_first'  => "Jan1",
+                'name_suffix' => "",
+                'name'        => "Janssen1",
+                'username'    => "140965ä@test-correct.nl"
+            ]]
         ]));
-        
+
         $this->assertEquals(422, $response->getStatusCode());
 
         $response = $this->post(
-                route(
-                        'school_classes.import', [
-            'schoolLocation' => SchoolLocation::find(3)->uuid,
-            'schoolClass' => SchoolClass::find(3)->uuid
-                ])
-                , static::getSchoolBeheerderAuthRequestData([
-                    'data' => [[
-                    'external_id' => "123452",
-                    'name_first' => "Jan2",
-                    'name_suffix' => "",
-                    'name' => "Janssen2",
-                    'username' => "140907ö@test-correct.nl"
-        ]]]));
-        
-        $this->assertEquals(422, $response->getStatusCode());
-        
-        $response = $this->post(
-                route(
-                        'school_classes.import', [
-            'schoolLocation' => SchoolLocation::find(3)->uuid,
-            'schoolClass' => SchoolClass::find(3)->uuid
-                ])
-                , static::getSchoolBeheerderAuthRequestData([
-                    'data' => [[
-                    'external_id' => "123453",
-                    'name_first' => "Jan3",
-                    'name_suffix' => "",
-                    'name' => "Janssen3",
-                    'username' => "140990û@test-correct.nl"
-        ]]]));
-        
-        $this->assertEquals(422, $response->getStatusCode());
-        
-        $response = $this->post(
-                route(
-                        'school_classes.import', [
-            'schoolLocation' => SchoolLocation::find(3)->uuid,
-            'schoolClass' => SchoolClass::find(3)->uuid
-                ])
-                , static::getSchoolBeheerderAuthRequestData([
-                    'data' => [[
-                    'external_id' => "123454",
-                    'name_first' => "Jan4",
-                    'name_suffix' => "",
-                    'name' => "Janssen4",
-                    'username' => "140922é@test-correct.nl",
-        ]]]));
-        
-        $this->assertEquals(422, $response->getStatusCode());
-        
-        $response = $this->post(
-                route(
-                        'school_classes.import', [
-            'schoolLocation' => SchoolLocation::find(3)->uuid,
-            'schoolClass' => SchoolClass::find(3)->uuid
-                ])
-                , static::getSchoolBeheerderAuthRequestData([
-                    'data' => [[
-                    'external_id' => "123455",
-                    'name_first' => "Jan5",
-                    'name_suffix' => "",
-                    'name' => "Janssen5",
-                    'username' => "140991è@test-correct.nl",
-        ]]]));
-        
-        $this->assertEquals(422, $response->getStatusCode());
-        
-        $response = $this->post(
-                route(
-                        'school_classes.import', [
-            'schoolLocation' => SchoolLocation::find(3)->uuid,
-            'schoolClass' => SchoolClass::find(3)->uuid
-                ])
-                , static::getSchoolBeheerderAuthRequestData([
-                    'data' => [[
-                    'external_id' => "123456",
-                    'name_first' => "Jan6",
-                    'name_suffix' => "",
-                    'name' => "Janssen6",
-                    'username' => "140878á@test-correct.nl",
-        ]]]));
-        
-        $this->assertEquals(422, $response->getStatusCode());
-        
-        $response = $this->post(
-                route(
-                        'school_classes.import', [
-            'schoolLocation' => SchoolLocation::find(3)->uuid,
-            'schoolClass' => SchoolClass::find(3)->uuid
-                ])
-                , static::getSchoolBeheerderAuthRequestData([
-                    'data' => [[
-                    'external_id' => "123457",
-                    'name_first' => "Jan7",
-                    'name_suffix' => "",
-                    'name' => "Janssen7",
-                    'username' => "141507ë@test-correct.nl",
-        ]]]));
-        
-        $this->assertEquals(422, $response->getStatusCode());
-   
-        $response = $this->post(
-        route(
-        'school_classes.import', [
-        'schoolLocation' => SchoolLocation::find(3)->uuid,
-        'schoolClass' => SchoolClass::find(3)->uuid
-        ])
-        , static::getSchoolBeheerderAuthRequestData([
-        'data' => [[
-        'external_id' => "123459",
-        'name_first' => "Jan9",
-        'name_suffix' => "",
-        'name' => "Janssen9",
-        'username' => "1405&#x26;52@test-correct.nl",
-        ]]]));
+            route(
+                'school_classes.import', [
+                'schoolLocation' => SchoolLocation::find(3)->uuid,
+                'schoolClass'    => SchoolClass::find(3)->uuid
+            ])
+            , static::getSchoolBeheerderAuthRequestData([
+            'data' => [[
+                'external_id' => "123452",
+                'name_first'  => "Jan2",
+                'name_suffix' => "",
+                'name'        => "Janssen2",
+                'username'    => "140907ö@test-correct.nl"
+            ]]]));
 
         $this->assertEquals(422, $response->getStatusCode());
-        
+
         $response = $this->post(
-                route(
-                        'school_classes.import', [
-            'schoolLocation' => SchoolLocation::find(3)->uuid,
-            'schoolClass' => SchoolClass::find(3)->uuid
-                ])
-                , static::getSchoolBeheerderAuthRequestData([
-                    'data' => [[
-                    'external_id' => "123458",
-                    'name_first' => "Jan8",
-                    'name_suffix' => "",
-                    'name' => "Janssen8",
-                    'usern&amp;ame' => "140841@test-correct.nl",
-        ]]]));
-        
+            route(
+                'school_classes.import', [
+                'schoolLocation' => SchoolLocation::find(3)->uuid,
+                'schoolClass'    => SchoolClass::find(3)->uuid
+            ])
+            , static::getSchoolBeheerderAuthRequestData([
+            'data' => [[
+                'external_id' => "123453",
+                'name_first'  => "Jan3",
+                'name_suffix' => "",
+                'name'        => "Janssen3",
+                'username'    => "140990û@test-correct.nl"
+            ]]]));
+
+        $this->assertEquals(422, $response->getStatusCode());
+
+        $response = $this->post(
+            route(
+                'school_classes.import', [
+                'schoolLocation' => SchoolLocation::find(3)->uuid,
+                'schoolClass'    => SchoolClass::find(3)->uuid
+            ])
+            , static::getSchoolBeheerderAuthRequestData([
+            'data' => [[
+                'external_id' => "123454",
+                'name_first'  => "Jan4",
+                'name_suffix' => "",
+                'name'        => "Janssen4",
+                'username'    => "140922é@test-correct.nl",
+            ]]]));
+
+        $this->assertEquals(422, $response->getStatusCode());
+
+        $response = $this->post(
+            route(
+                'school_classes.import', [
+                'schoolLocation' => SchoolLocation::find(3)->uuid,
+                'schoolClass'    => SchoolClass::find(3)->uuid
+            ])
+            , static::getSchoolBeheerderAuthRequestData([
+            'data' => [[
+                'external_id' => "123455",
+                'name_first'  => "Jan5",
+                'name_suffix' => "",
+                'name'        => "Janssen5",
+                'username'    => "140991è@test-correct.nl",
+            ]]]));
+
+        $this->assertEquals(422, $response->getStatusCode());
+
+        $response = $this->post(
+            route(
+                'school_classes.import', [
+                'schoolLocation' => SchoolLocation::find(3)->uuid,
+                'schoolClass'    => SchoolClass::find(3)->uuid
+            ])
+            , static::getSchoolBeheerderAuthRequestData([
+            'data' => [[
+                'external_id' => "123456",
+                'name_first'  => "Jan6",
+                'name_suffix' => "",
+                'name'        => "Janssen6",
+                'username'    => "140878á@test-correct.nl",
+            ]]]));
+
+        $this->assertEquals(422, $response->getStatusCode());
+
+        $response = $this->post(
+            route(
+                'school_classes.import', [
+                'schoolLocation' => SchoolLocation::find(3)->uuid,
+                'schoolClass'    => SchoolClass::find(3)->uuid
+            ])
+            , static::getSchoolBeheerderAuthRequestData([
+            'data' => [[
+                'external_id' => "123457",
+                'name_first'  => "Jan7",
+                'name_suffix' => "",
+                'name'        => "Janssen7",
+                'username'    => "141507ë@test-correct.nl",
+            ]]]));
+
+        $this->assertEquals(422, $response->getStatusCode());
+
+        $response = $this->post(
+            route(
+                'school_classes.import', [
+                'schoolLocation' => SchoolLocation::find(3)->uuid,
+                'schoolClass'    => SchoolClass::find(3)->uuid
+            ])
+            , static::getSchoolBeheerderAuthRequestData([
+            'data' => [[
+                'external_id' => "123459",
+                'name_first'  => "Jan9",
+                'name_suffix' => "",
+                'name'        => "Janssen9",
+                'username'    => "1405&#x26;52@test-correct.nl",
+            ]]]));
+
+        $this->assertEquals(422, $response->getStatusCode());
+
+        $response = $this->post(
+            route(
+                'school_classes.import', [
+                'schoolLocation' => SchoolLocation::find(3)->uuid,
+                'schoolClass'    => SchoolClass::find(3)->uuid
+            ])
+            , static::getSchoolBeheerderAuthRequestData([
+            'data' => [[
+                'external_id'   => "123458",
+                'name_first'    => "Jan8",
+                'name_suffix'   => "",
+                'name'          => "Janssen8",
+                'usern&amp;ame' => "140841@test-correct.nl",
+            ]]]));
+
         $this->assertEquals(422, $response->getStatusCode());
     }
 
-    
+
     /** @test */
     public function it_can_import_a_user()
     {
@@ -232,7 +225,7 @@ class SchoolClassStudentImportControllerTest extends TestCase
                 'username'    => "carloschoep+K999jjanssen@hotmail.com",
             ]],
         ]))->assertSuccessful();
-        $this->assertEquals('1 studenten zijn toegevoegd', $response->decodeResponseJson());
+        $this->assertEquals('"1 studenten zijn toegevoegd"', $response->getContent());
 
         $this->assertCount(1, User::whereUsername("carloschoep+K999jjanssen@hotmail.com")->get());
         $this->assertCount(++$countStudentsBefore, Student::get());
@@ -241,7 +234,7 @@ class SchoolClassStudentImportControllerTest extends TestCase
             User::whereUsername("carloschoep+K999jjanssen@hotmail.com")->first()->students()->first()->class_id
         );
     }
-    
+
     /** @test */
     public function it_can_import_a_user_with_class()
     {
@@ -257,20 +250,20 @@ class SchoolClassStudentImportControllerTest extends TestCase
             ])
             , static::getSchoolBeheerderAuthRequestData([
             'data' => [[
-                'external_id' => "12345",
-                'name_first'  => "Jan",
-                'name_suffix' => "",
-                'name'        => "Janssen",
-                'username'    => "carloschoep+K999jjanssen@hotmail.com",
-                'school_class_name'=>"Biologie"
+                'external_id'       => "12345",
+                'name_first'        => "Jan",
+                'name_suffix'       => "",
+                'name'              => "Janssen",
+                'username'          => "carloschoep+K999jjanssen@hotmail.com",
+                'school_class_name' => "Biologie"
             ]],
         ]))->assertSuccessful();
-        $this->assertEquals('1 studenten zijn toegevoegd', $response->decodeResponseJson());
+        $this->assertEquals('"1 studenten zijn toegevoegd"', $response->getContent());
 
         $this->assertCount(1, User::whereUsername("carloschoep+K999jjanssen@hotmail.com")->get());
         $this->assertCount(++$countStudentsBefore, Student::get());
         $this->assertEquals(
-            8,
+            3,
             User::whereUsername("carloschoep+K999jjanssen@hotmail.com")->first()->students()->first()->class_id
         );
     }
@@ -278,7 +271,7 @@ class SchoolClassStudentImportControllerTest extends TestCase
     /** @test */
     public function it_cannot_import_users_with_multiple_classes_unkown_class()
     {
-        $usernames = ["jansen@hotmail.com","marien@hotmail.com","pietersen@hotmail.com","scholten@hotmail.com","klaassen@hotmail.com"];
+        $usernames = ["jansen@hotmail.com", "marien@hotmail.com", "pietersen@hotmail.com", "scholten@hotmail.com", "klaassen@hotmail.com"];
         foreach ($usernames as $username) {
             $this->assertCount(0, User::whereUsername($username)->get());
         }
@@ -293,48 +286,48 @@ class SchoolClassStudentImportControllerTest extends TestCase
                 'schoolClass'    => $schoolClass->uuid
             ])
             , static::getSchoolBeheerderAuthRequestData([
-            'data' => [ 
-                        [
-                        "external_id"=> "12345",
-                        "name_first"=> "Jan",
-                        "name_suffix"=> "",
-                        "name"=> "Jansen",
-                        "username"=> "jansen@hotmail.com",
-                        "school_class_name"=> "Biologie"
-                        ],
-                        [
-                        "external_id"=> "234567",
-                        "name_first"=> "Marie",
-                        "name_suffix"=> "",
-                        "name"=> "Marien",
-                        "username"=> "marien@hotmail.com",
-                        "school_class_name"=> "Biologie"
-                        ],
-                        [
-                        "external_id"=> "32134",
-                        "name_first"=> "Piet",
-                        "name_suffix"=> "",
-                        "name"=> "Pietersen",
-                        "username"=> "pietersen@hotmail.com",
-                        "school_class_name"=> "Klas1"
-                        ],
-                        [
-                        "external_id"=> "23432",
-                        "name_first"=> "Karin",
-                        "name_suffix"=> "",
-                        "name"=> "Scholten",
-                        "username"=> "scholten@hotmail.com",
-                        "school_class_name"=> "Klas1"
-                        ],
-                        [
-                        "external_id"=> "5432",
-                        "name_first"=> "Klaas",
-                        "name_suffix"=> "",
-                        "name"=> "Klaassen",
-                        "username"=> "klaassen@hotmail.com",
-                        "school_class_name"=> "Klas1"
-                        ]
-                    ],
+            'data' => [
+                [
+                    "external_id"       => "12345",
+                    "name_first"        => "Jan",
+                    "name_suffix"       => "",
+                    "name"              => "Jansen",
+                    "username"          => "jansen@hotmail.com",
+                    "school_class_name" => "Biologie"
+                ],
+                [
+                    "external_id"       => "234567",
+                    "name_first"        => "Marie",
+                    "name_suffix"       => "",
+                    "name"              => "Marien",
+                    "username"          => "marien@hotmail.com",
+                    "school_class_name" => "Biologie"
+                ],
+                [
+                    "external_id"       => "32134",
+                    "name_first"        => "Piet",
+                    "name_suffix"       => "",
+                    "name"              => "Pietersen",
+                    "username"          => "pietersen@hotmail.com",
+                    "school_class_name" => "Klas1"
+                ],
+                [
+                    "external_id"       => "23432",
+                    "name_first"        => "Karin",
+                    "name_suffix"       => "",
+                    "name"              => "Scholten",
+                    "username"          => "scholten@hotmail.com",
+                    "school_class_name" => "Klas1"
+                ],
+                [
+                    "external_id"       => "5432",
+                    "name_first"        => "Klaas",
+                    "name_suffix"       => "",
+                    "name"              => "Klaassen",
+                    "username"          => "klaassen@hotmail.com",
+                    "school_class_name" => "Klas1"
+                ]
+            ],
         ]));
         $response->assertStatus(422);
     }
@@ -342,7 +335,7 @@ class SchoolClassStudentImportControllerTest extends TestCase
     /** @test */
     public function it_can_import_users_with_multiple_classes()
     {
-        $usernames = ["jansen@hotmail.com","marien@hotmail.com","pietersen@hotmail.com","scholten@hotmail.com","klaassen@hotmail.com"];
+        $usernames = ["jansen@hotmail.com", "marien@hotmail.com", "pietersen@hotmail.com", "scholten@hotmail.com", "klaassen@hotmail.com"];
         foreach ($usernames as $username) {
             $this->assertCount(0, User::whereUsername($username)->get());
         }
@@ -361,7 +354,7 @@ class SchoolClassStudentImportControllerTest extends TestCase
         $klas1->demo = 0;
 
         $klas1->save();
-        $biologie = $schoolLocation->schoolClasses()->where('name','Biologie')->first();
+        $biologie = $schoolLocation->schoolClasses()->where('name', 'Biologie')->first();
         $this->assertNotNull($biologie);
 
         $response = $this->post(
@@ -371,55 +364,55 @@ class SchoolClassStudentImportControllerTest extends TestCase
                 'schoolClass'    => $schoolClass->uuid
             ])
             , static::getSchoolBeheerderAuthRequestData([
-            'data' => [ 
-                        [
-                        "external_id"=> "12345",
-                        "name_first"=> "Jan",
-                        "name_suffix"=> "",
-                        "name"=> "Jansen",
-                        "username"=> "jansen@hotmail.com",
-                        "school_class_name"=> "Biologie"
-                        ],
-                        [
-                        "external_id"=> "234567",
-                        "name_first"=> "Marie",
-                        "name_suffix"=> "",
-                        "name"=> "Marien",
-                        "username"=> "marien@hotmail.com",
-                        "school_class_name"=> "Biologie"
-                        ],
-                        [
-                        "external_id"=> "32134",
-                        "name_first"=> "Piet",
-                        "name_suffix"=> "",
-                        "name"=> "Pietersen",
-                        "username"=> "pietersen@hotmail.com",
-                        "school_class_name"=> "Klas1"
-                        ],
-                        [
-                        "external_id"=> "23432",
-                        "name_first"=> "Karin",
-                        "name_suffix"=> "",
-                        "name"=> "Scholten",
-                        "username"=> "scholten@hotmail.com",
-                        "school_class_name"=> "Klas1"
-                        ],
-                        [
-                        "external_id"=> "5432",
-                        "name_first"=> "Klaas",
-                        "name_suffix"=> "",
-                        "name"=> "Klaassen",
-                        "username"=> "klaassen@hotmail.com",
-                        "school_class_name"=> "Klas1"
-                        ]
-                    ],
+            'data' => [
+                [
+                    "external_id"       => "12345",
+                    "name_first"        => "Jan",
+                    "name_suffix"       => "",
+                    "name"              => "Jansen",
+                    "username"          => "jansen@hotmail.com",
+                    "school_class_name" => "Biologie"
+                ],
+                [
+                    "external_id"       => "234567",
+                    "name_first"        => "Marie",
+                    "name_suffix"       => "",
+                    "name"              => "Marien",
+                    "username"          => "marien@hotmail.com",
+                    "school_class_name" => "Biologie"
+                ],
+                [
+                    "external_id"       => "32134",
+                    "name_first"        => "Piet",
+                    "name_suffix"       => "",
+                    "name"              => "Pietersen",
+                    "username"          => "pietersen@hotmail.com",
+                    "school_class_name" => "Klas1"
+                ],
+                [
+                    "external_id"       => "23432",
+                    "name_first"        => "Karin",
+                    "name_suffix"       => "",
+                    "name"              => "Scholten",
+                    "username"          => "scholten@hotmail.com",
+                    "school_class_name" => "Klas1"
+                ],
+                [
+                    "external_id"       => "5432",
+                    "name_first"        => "Klaas",
+                    "name_suffix"       => "",
+                    "name"              => "Klaassen",
+                    "username"          => "klaassen@hotmail.com",
+                    "school_class_name" => "Klas1"
+                ]
+            ],
         ]))->assertSuccessful();
-        $this->assertEquals('5 studenten zijn toegevoegd', $response->decodeResponseJson());
+        $this->assertEquals('"5 studenten zijn toegevoegd"', $response->getContent());
 
         foreach ($usernames as $username) {
             $this->assertCount(1, User::whereUsername($username)->get());
         }
-        $this->assertCount(($countStudentsBefore+5), Student::get());
+        $this->assertCount(($countStudentsBefore + 5), Student::get());
         $this->assertEquals(
             $biologie->id,
             User::whereUsername("jansen@hotmail.com")->first()->students()->first()->class_id
@@ -442,10 +435,10 @@ class SchoolClassStudentImportControllerTest extends TestCase
         );
     }
 
-        /** @test */
+    /** @test */
     public function it_cannot_import_users_with_multiple_classes_twice()
     {
-        $usernames = ["jansen@hotmail.com","marien@hotmail.com","pietersen@hotmail.com","scholten@hotmail.com","klaassen@hotmail.com"];
+        $usernames = ["jansen@hotmail.com", "marien@hotmail.com", "pietersen@hotmail.com", "scholten@hotmail.com", "klaassen@hotmail.com"];
         foreach ($usernames as $username) {
             $this->assertCount(0, User::whereUsername($username)->get());
         }
@@ -464,7 +457,7 @@ class SchoolClassStudentImportControllerTest extends TestCase
         $klas1->demo = 0;
 
         $klas1->save();
-        $biologie = $schoolLocation->schoolClasses()->where('name','Biologie')->first();
+        $biologie = $schoolLocation->schoolClasses()->where('name', 'Biologie')->first();
         $this->assertNotNull($biologie);
 
         $response = $this->post(
@@ -474,7 +467,7 @@ class SchoolClassStudentImportControllerTest extends TestCase
                 'schoolClass'    => $schoolClass->uuid
             ])
             , static::getSchoolBeheerderAuthRequestData($this->getMultipleClassData()))->assertSuccessful();
-        $this->assertEquals('5 studenten zijn toegevoegd', $response->decodeResponseJson());
+        $this->assertEquals('"5 studenten zijn toegevoegd"', $response->getContent());
         $response = $this->post(
             route(
                 'school_classes.import', [
@@ -482,8 +475,8 @@ class SchoolClassStudentImportControllerTest extends TestCase
                 'schoolClass'    => $schoolClass->uuid
             ])
             , static::getSchoolBeheerderAuthRequestData($this->getMultipleClassData()));
-        $response->assertStatus(422); 
-        dump($response->decodeResponseJson());
+        $response->assertStatus(422);
+
         $this->assertCount(5, $response->decodeResponseJson()['errors']);
 
     }
@@ -516,7 +509,7 @@ class SchoolClassStudentImportControllerTest extends TestCase
                 'username'    => "carloschoep+K1000jjanssen@hotmail.com",
             ]],
         ]))->assertSuccessful();
-        $this->assertEquals('2 studenten zijn toegevoegd', $response->decodeResponseJson());
+        $this->assertEquals('"2 studenten zijn toegevoegd"', $response->getContent());
 
         $this->assertCount(1, User::whereUsername("carloschoep+K999jjanssen@hotmail.com")->get());
         $this->assertCount(1, User::whereUsername("carloschoep+K1000jjanssen@hotmail.com")->get());
@@ -558,8 +551,8 @@ class SchoolClassStudentImportControllerTest extends TestCase
 
         $decodedResponse = $response->decodeResponseJson();
         $requiredErrors = [
-            'data.0.username'   => 'Deze import bevat dubbele emailadressen',
-            'data.1.username'   => 'Deze import bevat dubbele emailadressen',
+            'data.0.username' => 'Deze import bevat dubbele emailadressen voor dezelfde klas.',
+            'data.1.username' => 'Deze import bevat dubbele emailadressen voor dezelfde klas.',
         ];
 
         foreach ($requiredErrors as $errorField => $errorMessage) {
@@ -594,8 +587,8 @@ class SchoolClassStudentImportControllerTest extends TestCase
                 'schoolClass'    => SchoolClass::find(3)->uuid
             ])
             , static::getSchoolBeheerderAuthRequestData([
-            'data' => [ [
-                'external_id' => "12346",
+            'data' => [[
+                'external_id' => "12345",
                 'name_first'  => "Janus",
                 'name_suffix' => "",
                 'name'        => "Janssens",
@@ -605,7 +598,7 @@ class SchoolClassStudentImportControllerTest extends TestCase
 
         $decodedResponse = $response->decodeResponseJson();
         $requiredErrors = [
-            'data.0.username'   => 'The data.0.username has already been taken.',
+            'data.0.username' => 'The data.0.username has already been taken.',
         ];
 
         foreach ($requiredErrors as $errorField => $errorMessage) {
@@ -641,8 +634,8 @@ class SchoolClassStudentImportControllerTest extends TestCase
 
         $decodedResponse = $response->decodeResponseJson();
         $requiredErrors = [
-            'data.0.external_id'   => 'Deze import bevat dubbele studentennummers',
-            'data.1.external_id'   => 'Deze import bevat dubbele studentennummers',
+            'data.0.external_id' => 'Deze import bevat dubbele studentennummers voor dezelfde klas.',
+            'data.1.external_id' => 'Deze import bevat dubbele studentennummers voor dezelfde klas.',
         ];
 
         foreach ($requiredErrors as $errorField => $errorMessage) {
@@ -670,9 +663,9 @@ class SchoolClassStudentImportControllerTest extends TestCase
                 'username'    => "thisOne@hotmail.com",
             ]],
         ]))->assertSuccessful();
-       // put schoolbeheerder in school_location one;
-        $user = User::where('username','=',static::USER_SCHOOLBEHEERDER)->get()->first();
-        $user->school_location_id =1;
+        // put schoolbeheerder in school_location one;
+        $user = User::where('username', '=', static::USER_SCHOOLBEHEERDER)->get()->first();
+        $user->school_location_id = 1;
         $user->save();
 
 
@@ -694,7 +687,6 @@ class SchoolClassStudentImportControllerTest extends TestCase
     }
 
 
-
     /** @test */
     public function the_username_cannot_be_used_for_users_in_diffent_school_locations()
     {
@@ -714,8 +706,8 @@ class SchoolClassStudentImportControllerTest extends TestCase
             ]],
         ]))->assertSuccessful();
         // put schoolbeheerder in school_location one;
-        $user = User::where('username','=',static::USER_SCHOOLBEHEERDER)->get()->first();
-        $user->school_location_id =1;
+        $user = User::where('username', '=', static::USER_SCHOOLBEHEERDER)->get()->first();
+        $user->school_location_id = 1;
         $user->save();
 
 
@@ -739,7 +731,6 @@ class SchoolClassStudentImportControllerTest extends TestCase
     }
 
 
-
     /** @test */
     public function when_importing_the_same_users_in_the_same_class_twice_it_fails()
     {
@@ -758,7 +749,7 @@ class SchoolClassStudentImportControllerTest extends TestCase
                 'name_suffix' => "",
                 'name'        => "Janssen",
                 'username'    => "thisOne@hotmail.com",
-            ], ],
+            ],],
         ]))->assertSuccessful();
 
 
@@ -778,7 +769,7 @@ class SchoolClassStudentImportControllerTest extends TestCase
                 'name_suffix' => "",
                 'name'        => "Janssen",
                 'username'    => "thisOne@hotmail.com",
-            ], ],
+            ],],
         ]))->assertStatus(422);
 
         $this->assertEquals($beforeCountStudents, Student::count());
@@ -801,7 +792,7 @@ class SchoolClassStudentImportControllerTest extends TestCase
                 'name_suffix' => "",
                 'name'        => "Janssen",
                 'username'    => "thisOne@hotmail.com",
-            ], ],
+            ],],
         ]))->assertSuccessful();
 
         $beforeCountStudents = Student::count();
@@ -825,7 +816,7 @@ class SchoolClassStudentImportControllerTest extends TestCase
                 'name_suffix' => "",
                 'name'        => "Janssen",
                 'username'    => "thisOne@hotmail.com",
-            ], ],
+            ],],
         ]))->assertSuccessful();
 
         $this->assertEquals(++$beforeCountStudents, Student::count());
@@ -849,7 +840,7 @@ class SchoolClassStudentImportControllerTest extends TestCase
                 'name_suffix' => "",
                 'name'        => "Janssen",
                 'username'    => "thisOne@hotmail.com",
-            ], ],
+            ],],
         ]))->assertSuccessful();
 
         $response = $this->post(
@@ -859,29 +850,26 @@ class SchoolClassStudentImportControllerTest extends TestCase
                 'schoolClass'    => SchoolClass::find(3)->uuid
             ])
             , static::getSchoolBeheerderAuthRequestData([
-            'data' => [  [
+            'data' => [[
                 'external_id' => "12345",
                 'name_first'  => "Janus",
                 'name_suffix' => "",
                 'name'        => "oepsi",
                 'username'    => "other@hotmail.com",
-            ], ],
-        ]))->assertStatus(422);
+            ],],
+        ]))->assertStatus(422)
+            ->assertJsonValidationErrorFor('data.0.external_id');
 
-        $decodedResponse = $response->decodeResponseJson();
-        $requiredErrors = [
-            'data.0.external_id'   => 'The data.0.external id has already been taken.',
-        ];
-
-        foreach ($requiredErrors as $errorField => $errorMessage) {
-            $this->assertArrayHasKey($errorField, $decodedResponse['errors']);
-            $this->assertEquals($errorMessage, $decodedResponse['errors'][$errorField][0]);
-        }
+        $this->assertStringContainsString(
+            __('validation.unique', ['attribute' => 'data.0.external id']),
+            $response->getContent()
+        );
     }
 
     /** @test */
     public function it_should_return_required_column_validation_errors_for_required_fields()
     {
+        $fields = ['data.0.username', 'data.0.name_first', 'data.0.name'];
         $response = $this->post(
             route(
                 'school_classes.import', [
@@ -896,66 +884,362 @@ class SchoolClassStudentImportControllerTest extends TestCase
                 "Janssen",
                 "carloschoep+K999jjanssen@hotmail.com",
             ]],
-        ]))->assertStatus(422);
-        $decodedResponse = $response->decodeResponseJson();
+        ]))->assertStatus(422)
+            ->assertJsonValidationErrors($fields);
 
-        $requiredErrors = [
-            'data.0.username'   => 'The data.0.username field is required.',
-            'data.0.name_first' => 'The data.0.name_first field is required.',
-            'data.0.name'       => 'The data.0.name field is required.',
-        ];
-
-        foreach ($requiredErrors as $errorField => $errorMessage) {
-            $this->assertArrayHasKey($errorField, $decodedResponse['errors']);
-            $this->assertEquals($errorMessage, $decodedResponse['errors'][$errorField][0]);
-        }
+        collect($fields)->each(function ($field) use ($response) {
+            $this->assertStringContainsString(
+                __('validation.required', ['attribute' => $field]),
+                $response->getContent()
+            );
+        });
     }
 
     private function getMultipleClassData()
     {
         return [
-            'data' => [ 
-                        [
-                        "external_id"=> "12345",
-                        "name_first"=> "Jan",
-                        "name_suffix"=> "",
-                        "name"=> "Jansen",
-                        "username"=> "jansen@hotmail.com",
-                        "school_class_name"=> "Biologie"
-                        ],
-                        [
-                        "external_id"=> "234567",
-                        "name_first"=> "Marie",
-                        "name_suffix"=> "",
-                        "name"=> "Marien",
-                        "username"=> "marien@hotmail.com",
-                        "school_class_name"=> "Biologie"
-                        ],
-                        [
-                        "external_id"=> "32134",
-                        "name_first"=> "Piet",
-                        "name_suffix"=> "",
-                        "name"=> "Pietersen",
-                        "username"=> "pietersen@hotmail.com",
-                        "school_class_name"=> "Klas1"
-                        ],
-                        [
-                        "external_id"=> "23432",
-                        "name_first"=> "Karin",
-                        "name_suffix"=> "",
-                        "name"=> "Scholten",
-                        "username"=> "scholten@hotmail.com",
-                        "school_class_name"=> "Klas1"
-                        ],
-                        [
-                        "external_id"=> "5432",
-                        "name_first"=> "Klaas",
-                        "name_suffix"=> "",
-                        "name"=> "Klaassen",
-                        "username"=> "klaassen@hotmail.com",
-                        "school_class_name"=> "Klas1"
-                        ]
-                    ],
+            'data' => [
+                [
+                    "external_id"       => "12345",
+                    "name_first"        => "Jan",
+                    "name_suffix"       => "",
+                    "name"              => "Jansen",
+                    "username"          => "jansen@hotmail.com",
+                    "school_class_name" => "Biologie"
+                ],
+                [
+                    "external_id"       => "234567",
+                    "name_first"        => "Marie",
+                    "name_suffix"       => "",
+                    "name"              => "Marien",
+                    "username"          => "marien@hotmail.com",
+                    "school_class_name" => "Biologie"
+                ],
+                [
+                    "external_id"       => "32134",
+                    "name_first"        => "Piet",
+                    "name_suffix"       => "",
+                    "name"              => "Pietersen",
+                    "username"          => "pietersen@hotmail.com",
+                    "school_class_name" => "Klas1"
+                ],
+                [
+                    "external_id"       => "23432",
+                    "name_first"        => "Karin",
+                    "name_suffix"       => "",
+                    "name"              => "Scholten",
+                    "username"          => "scholten@hotmail.com",
+                    "school_class_name" => "Klas1"
+                ],
+                [
+                    "external_id"       => "5432",
+                    "name_first"        => "Klaas",
+                    "name_suffix"       => "",
+                    "name"              => "Klaassen",
+                    "username"          => "klaassen@hotmail.com",
+                    "school_class_name" => "Klas1"
+                ]
+            ],
         ];
+    }
+
+
+    private function classImportScenarioDataProvider(): array
+    {
+        return [
+            1  => [
+                'data'       => [
+                    [
+                        'external_id'       => 'aSTUDENTNR S-1-20221109E2',
+                        'name_first'        => 'S-1-20221109E2',
+                        'name_suffix'       => 'TV-1-20221109E2',
+                        'name'              => 'AchterN-1-20221109E2',
+                        'username'          => 'acarloschoep+S-1-20221109E2@hotmail.com',
+                        'school_class_name' => 'KLASIMPORTER',
+                    ],
+                    [
+                        'external_id'       => 'aSTUDENTNR S-2-20221109E2',
+                        'name_first'        => 'S-2-20221109E2',
+                        'name_suffix'       => 'TV-2-20221109E2',
+                        'name'              => 'AchterN-2-20221109E2',
+                        'username'          => 'acarloschoep+S-2-20221109E2@hotmail.com',
+                        'school_class_name' => 'KLASIMPORTER',
+                    ]
+                ],
+                'statusCode' => 200,
+            ],
+            2  => [
+                'data'       => [
+                    [
+                        'external_id'       => 'aANDERSTUDENTNR S-1-20221109E2',
+                        'name_first'        => 'S-1-20221109E2',
+                        'name_suffix'       => 'TV-1-20221109E2',
+                        'name'              => 'AchterN-1-20221109E2',
+                        'username'          => 'acarloschoep+S-1-20221109E2@hotmail.com',
+                        'school_class_name' => 'KLASIMPORTER',
+                    ],
+                    [
+                        'external_id'       => 'aANDERSTUDENTNR S-2-20221109E2',
+                        'name_first'        => 'S-2-20221109E2',
+                        'name_suffix'       => 'TV-2-20221109E2',
+                        'name'              => 'AchterN-2-20221109E2',
+                        'username'          => 'acarloschoep+S-2-20221109E2@hotmail.com',
+                        'school_class_name' => 'KLASIMPORTER',
+                    ]
+                ],
+                'statusCode' => 422,
+            ],
+            3  => [
+                'data'       => [
+                    [
+                        'external_id'       => 'aSTUDENTNR S-1-20221109E2',
+                        'name_first'        => 'S-1-20221109E2',
+                        'name_suffix'       => 'TV-1-20221109E2',
+                        'name'              => 'AchterN-1-20221109E2',
+                        'username'          => 'acarloschoep+ANDERS-1-20221109E2@hotmail.com',
+                        'school_class_name' => 'KLASIMPORTER',
+                    ],
+                    [
+                        'external_id'       => 'aSTUDENTNR S-2-20221109E2',
+                        'name_first'        => 'S-2-20221109E2',
+                        'name_suffix'       => 'TV-2-20221109E2',
+                        'name'              => 'AchterN-2-20221109E2',
+                        'username'          => 'acarloschoep+ANDERS-2-20221109E2@hotmail.com',
+                        'school_class_name' => 'KLASIMPORTER',
+                    ]
+                ],
+                'statusCode' => 422,
+            ],
+            5  => [
+                'data'       => [
+                    [
+                        'external_id'       => 'aSTUDENTNR S-1-20221109E2',
+                        'name_first'        => 'S-1-20221109E2',
+                        'name_suffix'       => 'TV-1-20221109E2',
+                        'name'              => 'AchterN-1-20221109E2',
+                        'username'          => 'acarloschoep+S-1-20221109E2@hotmail.com',
+                        'school_class_name' => 'ANDEREKLASIMPORTER',
+                    ],
+                    [
+                        'external_id'       => 'aSTUDENTNR S-2-20221109E2',
+                        'name_first'        => 'S-2-20221109E2',
+                        'name_suffix'       => 'TV-2-20221109E2',
+                        'name'              => 'AchterN-2-20221109E2',
+                        'username'          => 'acarloschoep+S-2-20221109E2@hotmail.com',
+                        'school_class_name' => 'ANDEREKLASIMPORTER',
+                    ]
+                ],
+                'statusCode' => 200,
+            ],
+            6  => [
+                'data'       => [
+                    [
+                        'external_id'       => 'aSTUDENTNR S--20221109E2',
+                        'name_first'        => 'S--20221109E2',
+                        'name_suffix'       => 'TV--20221109E2',
+                        'name'              => 'AchterN--20221109E2',
+                        'username'          => 'acarloschoep+S--20221109E2@hotmail.com',
+                        'school_class_name' => 'KLASIMPORTER',
+                    ],
+                    [
+                        'external_id'       => 'aSTUDENTNR S--20221109E2',
+                        'name_first'        => 'S--20221109E2',
+                        'name_suffix'       => 'TV--20221109E2',
+                        'name'              => 'AchterN--20221109E2',
+                        'username'          => 'acarloschoep+S--20221109E2@hotmail.com',
+                        'school_class_name' => 'KLASIMPORTER',
+                    ]
+                ],
+                'statusCode' => 422,
+            ],
+            7  => [
+                'data'       => [
+                    [
+                        'external_id'       => 'aSTUDENTNR S--20221109E2',
+                        'name_first'        => 'S--20221109E2',
+                        'name_suffix'       => 'TV--20221109E2',
+                        'name'              => 'AchterN--20221109E2',
+                        'username'          => 'acarloschoep+S--20221109E2@hotmail.com',
+                        'school_class_name' => 'KLASIMPORTER',
+                    ],
+                    [
+                        'external_id'       => 'aANDERSTUDENTNR S--20221109E2',
+                        'name_first'        => 'S--20221109E2',
+                        'name_suffix'       => 'TV--20221109E2',
+                        'name'              => 'AchterN--20221109E2',
+                        'username'          => 'acarloschoep+S--20221109E2@hotmail.com',
+                        'school_class_name' => 'KLASIMPORTER',
+                    ]
+                ],
+                'statusCode' => 422,
+            ],
+            8  => [
+                'data'       => [
+                    [
+                        'external_id'       => 'aSTUDENTNR S--20221109E2',
+                        'name_first'        => 'S--20221109E2',
+                        'name_suffix'       => 'TV--20221109E2',
+                        'name'              => 'AchterN--20221109E2',
+                        'username'          => 'acarloschoep+S--20221109E2@hotmail.com',
+                        'school_class_name' => 'KLASIMPORTER',
+                    ],
+                    [
+                        'external_id'       => 'aSTUDENTNR S--20221109E2',
+                        'name_first'        => 'S--20221109E2',
+                        'name_suffix'       => 'TV--20221109E2',
+                        'name'              => 'AchterN--20221109E2',
+                        'username'          => 'acarloschoep+ANDERS--20221109E2@hotmail.com',
+                        'school_class_name' => 'KLASIMPORTER',
+                    ]
+                ],
+                'statusCode' => 422,
+            ],
+            11 => [
+                'data'       => [
+                    [
+                        'external_id'       => 'aSTUDENTNR S-1-20221109E2',
+                        'name_first'        => 'S-1-20221109E2',
+                        'name_suffix'       => 'TV-1-20221109E2',
+                        'name'              => 'AchterN-1-20221109E2',
+                        'username'          => 'acarloschoep+S-1-20221109E2@hotmail.com',
+                        'school_class_name' => 'ANDEREKLAS2IMPORTER',
+                    ],
+                    [
+                        'external_id'       => 'aSTUDENTNR S-1-20221109E2',
+                        'name_first'        => 'S-1-20221109E2',
+                        'name_suffix'       => 'TV-1-20221109E2',
+                        'name'              => 'AchterN-1-20221109E2',
+                        'username'          => 'acarloschoep+S-1-20221109E2@hotmail.com',
+                        'school_class_name' => 'ANDEREKLAS3IMPORTER',
+                    ]
+                ],
+                'statusCode' => 200,
+            ],
+            12 => [
+                'data'       => [
+                    [
+                        'external_id'       => 'aSTUDENTNR S-1-20221109E2',
+                        'name_first'        => 'S-1-20221109E2',
+                        'name_suffix'       => 'TV-1-20221109E2',
+                        'name'              => 'AchterN-1-20221109E2',
+                        'username'          => 'acarloschoep+S-1-20221109E2@hotmail.com',
+                        'school_class_name' => 'ANDEREKLAS4IMPORTER',
+                    ]
+                ],
+                'statusCode' => 200,
+            ],
+            14 => [
+                'data'       => [
+                    [
+                        'external_id'       => 'aSTUDENTNR S-1-20221109E2',
+                        'name_first'        => 'S-1-20221109E2',
+                        'name_suffix'       => 'TV-1-20221109E2',
+                        'name'              => 'AchterN-1-20221109E2',
+                        'username'          => 'acarloschoep+S-1-20221109E2@hotmail.com',
+                        'school_class_name' => 'NIETBESTAANDEKLAS',
+                    ]
+                ],
+                'statusCode' => 422,
+            ],
+            15 => [
+                'data'       => [
+                    [
+                        'external_id'       => 'aSTUDENTNR S-1-20221109E2',
+                        'name_first'        => 'S-1-20221109E2',
+                        'name_suffix'       => 'ANDERTV-1-20221109E2',
+                        'name'              => 'ANDERAchterN-1-20221109E2',
+                        'username'          => 'acarloschoep+S-1-20221109E2@hotmail.com',
+                        'school_class_name' => 'ANDEREKLAS5IMPORTER',
+                    ]
+                ],
+                'statusCode' => 200,
+            ],
+            16 => [
+                'data'       => [
+                    [
+
+                        'name_first'        => 'S-3-20221109E2',
+                        'name_suffix'       => 'TV-3-20221109E2',
+                        'name'              => 'AchterN-3-20221109E2',
+                        'username'          => 'acarloschoep+S-3-20221109E2@hotmail.com',
+                        'school_class_name' => 'KLASIMPORTER',
+                    ]
+                ],
+                'statusCode' => 200,
+            ],
+            17 => [
+                'data'       => [
+                    [
+                        'external_id'       => 'aSTUDENTNR S-3-20221109E2',
+                        'name_first'        => 'S-3-20221109E2',
+                        'name_suffix'       => 'TV-3-20221109E2',
+                        'name'              => 'AchterN-3-20221109E2',
+                        'username'          => 'acarloschoep+S-3-20221109E2@hotmail.com',
+                        'school_class_name' => 'ANDEREKLASIMPORTER',
+                    ]
+                ],
+                'statusCode' => 200,
+            ],
+        ];
+    }
+
+    /**
+     * @test
+     */
+    public function can_setup_test_scenario_in_test_db()
+    {
+        $classCount = SchoolClass::count();
+        $classes = FactoryScenarioClassImportCake::create(
+            SchoolLocation::find(1)
+        )->schoolClasses;
+
+        $this->assertDatabaseCount('school_classes', $classCount + 11);
+        $classes->each(function ($class) {
+            $this->assertInstanceOf(SchoolClass::class, $class);
+        });
+    }
+    /** @test */
+    public function can_trash_classes_if_they_already_exist()
+    {
+        $classCount = SchoolClass::count();
+        $classes = FactoryScenarioClassImportCake::create(
+            SchoolLocation::find(1)
+        )->schoolClasses;
+
+        $firstClass = $classes->first();
+        $this->assertDatabaseCount('school_classes', $classCount + 11);
+        $classes->each(function ($class) {
+            $this->assertInstanceOf(SchoolClass::class, $class);
+        });
+
+        $newclasses = FactoryScenarioClassImportCake::create(
+            SchoolLocation::find(1),
+            true
+        )->schoolClasses;
+
+        $this->assertDatabaseMissing('school_classes', $firstClass->toArray());
+        $this->assertDatabaseCount('school_classes', $classCount + 11);
+        $this->assertNotEquals($classes, $newclasses);
+        $newclasses->each(function ($class) {
+            $this->assertInstanceOf(SchoolClass::class, $class);
+        });
+    }
+
+    /** @test */
+    public function can_get_correct_statuses_per_scenario()
+    {
+        FactoryScenarioClassImportCake::create(SchoolLocation::find(3), true);
+        $scenarios = $this->classImportScenarioDataProvider();
+
+        collect($scenarios)->each(function ($scenario) use ($scenarios) {
+            dump(__CLASS__ ." scenario: ". array_search($scenario, $scenarios));
+            $response = $this->post(
+                route('school_classes.import_with_classes', ['schoolLocation' => SchoolLocation::find(3)->uuid]),
+                static::getSchoolBeheerderAuthRequestData(['data' => $scenario['data']])
+            )->assertStatus($scenario['statusCode']);
+//            if (array_search($scenario, $scenarios) === 2) {
+//                dump($response);
+//            }
+        });
     }
 }

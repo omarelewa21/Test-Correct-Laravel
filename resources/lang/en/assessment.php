@@ -35,7 +35,7 @@ return [
     'Feedback toevoegen'                           => 'Add feedback',
     'current_session'                              => ":index/:totalQuestions questions assessed<br>on :date",
     'no_answers'                                   => 'There are no answers to asssess.',
-    'Studentnamen tonen'                   => 'Show name of students',
+    'Studentnamen tonen'                           => 'Show name of students',
     'Inline feedback toevoegen'                    => 'Add inline feedback',
     'Inline feedback wijzigen'                     => 'Edit inline feedback',
     'Inline feedback verwijderen'                  => 'Remove inline feedback',
@@ -43,4 +43,7 @@ return [
     'Er zitten geen open vragen in deze toets.'    => 'There are no open questions in this test.',
     'Inline feedback schrijven in antwoord'        => 'Write inline feedback in answer',
     'Inline feedback bekijken'                     => 'View inline feedback',
+    'scored_by_one_student'                        => 'Notice: scored by one student.',
+    'disabled_nav_closed_question'                 => 'This is a closed question and scored automatically.',
+    'disabled_nav_no_answer'                       => 'There are no answers available for this question.',
 ];

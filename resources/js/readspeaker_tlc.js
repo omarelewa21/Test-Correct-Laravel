@@ -48,7 +48,7 @@ ReadspeakerTlc = function(){
             }
             handleFocusForReadspeaker();
             ckeditorNode.editorId = editorId;
-            var correction = {x:-15,y:-16};
+            var correction = {x:-15,y:2};
             var p = popup.getRsbtnPopupTlcElement(questionId,ckeditorNode,correction);
             if(p == null){
                 return;
@@ -578,13 +578,14 @@ ReadspeakerTlc = function(){
             hidden_div.style.height = obj.offsetHeight+'px';
             hidden_div.style.width = obj.offsetWidth+'px';
             hidden_div.style.display = 'inline-flex';
+            hidden_div.style.position = 'absolute';
             hidden_div.classList.add('rs-click-listen');
             hidden_div.classList.add('rs-shadow-input');
             hidden_div.classList.add('form-input');
             hidden_div.classList.add('overflow-ellipsis');
             hidden_div.classList.add('prevent-select');
-            obj.classList.add('hidden');
-            obj.classList.add('readspeaker_hidden_element');
+            obj.classList.remove('hidden');
+            obj.classList.remove('readspeaker_hidden_element');
             var container = obj.closest('.completion-question-container');
             if(container){
                 rspkr.rs_tlc_container = container;

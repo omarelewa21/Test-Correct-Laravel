@@ -292,6 +292,10 @@ clearFilterPillsFromElement = (rootElement) => {
     pills.forEach(pill => pill.remove());
 }
 
+isFloat = (value) => {
+    const splitValues = (value + "").split(".")
+    return splitValues[1] !== undefined;
+};
 /**
  * Detects fast successive events
  * @param event event to detect
