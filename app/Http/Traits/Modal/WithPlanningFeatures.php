@@ -24,7 +24,6 @@ trait WithPlanningFeatures
                 'testTake.allow_inbrowser_testing' => 'required|boolean',
                 'testTake.guest_accounts'          => 'required|boolean',
                 'testTake.notify_students'         => 'required|boolean',
-                'testTake.allow_wsc'               => 'sometimes|required|boolean',
                 'testTake.show_grades'             => 'sometimes|boolean',
                 'testTake.show_correction_model'   => 'sometimes|boolean',
                 'testTake.time_start'              => 'sometimes|date',

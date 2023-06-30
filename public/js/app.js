@@ -6290,6 +6290,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _alpinejs_collapse__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @alpinejs/collapse */ "./node_modules/@alpinejs/collapse/dist/module.esm.js");
 /* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
 /* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(lodash__WEBPACK_IMPORTED_MODULE_6__);
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 function _iterableToArrayLimit(arr, i) { var _i = null == arr ? null : "undefined" != typeof Symbol && arr[Symbol.iterator] || arr["@@iterator"]; if (null != _i) { var _s, _e, _x, _r, _arr = [], _n = !0, _d = !1; try { if (_x = (_i = _i.call(arr)).next, 0 === i) { if (Object(_i) !== _i) return; _n = !1; } else for (; !(_n = (_s = _x.call(_i)).done) && (_arr.push(_s.value), _arr.length !== i); _n = !0); } catch (err) { _d = !0, _e = err; } finally { try { if (!_n && null != _i["return"] && (_r = _i["return"](), Object(_r) !== _r)) return; } finally { if (_d) throw _e; } } return _arr; } }
@@ -6750,7 +6754,7 @@ document.addEventListener("alpine:init", function () {
         this.index = Array.prototype.indexOf.call(parent.children, this.$el) + 1;
       },
       dispatchAttachmentLoading: function dispatchAttachmentLoading() {
-        window.dispatchEvent(new CustomEvent('attachment-preview-loading'));
+        window.dispatchEvent(new CustomEvent("attachment-preview-loading"));
       }
     };
   });
@@ -7102,6 +7106,9 @@ document.addEventListener("alpine:init", function () {
         this.activeFiltersContainer = document.getElementById(filterContainer);
         this.multiple = multiple === 1;
         this.$nextTick(function () {
+          var helper = _this19.$root.querySelector('#text-length-helper');
+          var minWidth = helper.offsetWidth;
+          helper.style.display = 'none';
           var choices = new (choices_js__WEBPACK_IMPORTED_MODULE_1___default())(_this19.$root.querySelector("select"), _this19.getChoicesConfig());
           var refreshChoices = function refreshChoices() {
             var selection = _this19.multiple ? _this19.value : [_this19.value];
@@ -7122,6 +7129,7 @@ document.addEventListener("alpine:init", function () {
             });
             choices.setChoices(options);
             _this19.handleActiveFilters(choices.getValue());
+            _this19.handleContainerWidth(minWidth);
           };
           refreshChoices();
           _this19.$refs.select.addEventListener("choice", function (event) {
@@ -7296,7 +7304,7 @@ document.addEventListener("alpine:init", function () {
         return innerHtml;
       },
       createFilterPill: function createFilterPill(item) {
-        var element = document.getElementById("filter-pill-template").content.firstElementChild.cloneNode(true);
+        var element = this.$root.parentElement.querySelector("#filter-pill-template").content.firstElementChild.cloneNode(true);
         element.id = "filter-".concat(this.$root.dataset.modelName, "-").concat(item.value);
         element.classList.add("filter-pill");
         element.dataset.filter = this.$root.dataset.modelName;
@@ -7348,6 +7356,11 @@ document.addEventListener("alpine:init", function () {
       },
       getRemoveEventName: function getRemoveEventName() {
         return "removeFrom" + this.$root.getAttribute("wire:key");
+      },
+      handleContainerWidth: function handleContainerWidth(minWidth) {
+        if (this.$root.classList.contains("super")) return;
+        this.$root.querySelector('input.choices__input[type="search"]').style.width = minWidth + 16 + 'px';
+        this.$root.querySelector('input.choices__input[type="search"]').style.minWidth = 'auto';
       }
     };
   });
@@ -8128,7 +8141,7 @@ document.addEventListener("alpine:init", function () {
       set expanded(value) {
         this.active = value ? this.id : null;
         if (value) {
-          this.$dispatch('block-expanded', {
+          this.$dispatch("block-expanded", {
             id: this.id
           });
           this.$root.querySelectorAll(".slider-button-container").forEach(function (toggle) {
@@ -8252,7 +8265,7 @@ document.addEventListener("alpine:init", function () {
           _this33.$wire.checkLoginFieldsForInput();
         }, 250);
         this.setCurrentFocusInput();
-        this.$watch('hasErrors', function (value) {
+        this.$watch("hasErrors", function (value) {
           _this33.setCurrentFocusInput();
         });
         this.$watch("activeOverlay", function (value) {
@@ -8264,8 +8277,8 @@ document.addEventListener("alpine:init", function () {
       },
       setCurrentFocusInput: function setCurrentFocusInput() {
         var _this34 = this;
-        var name = '' != this.activeOverlay ? this.activeOverlay : this.openTab;
-        var finder = '' != hasErrors ? "[data-focus-tab-error = '".concat(name, "-").concat(hasErrors[0], "']") : "[data-focus-tab = '".concat(name, "']");
+        var name = "" != this.activeOverlay ? this.activeOverlay : this.openTab;
+        var finder = "" != hasErrors ? "[data-focus-tab-error = '".concat(name, "-").concat(hasErrors[0], "']") : "[data-focus-tab = '".concat(name, "']");
         setTimeout(function () {
           var _this34$$root$querySe;
           return (_this34$$root$querySe = _this34.$root.querySelector(finder)) === null || _this34$$root$querySe === void 0 ? void 0 : _this34$$root$querySe.focus();
@@ -8724,7 +8737,7 @@ document.addEventListener("alpine:init", function () {
         if (this.score < 0) {
           this.score = 0;
         }
-        var el = document.querySelector('.score-slider-input');
+        var el = document.querySelector(".score-slider-input");
         var offsetFromCenter = -40;
         offsetFromCenter += this.score / this.maxScore * 80;
         el.style.setProperty("--slider-thumb-offset", "calc(".concat(offsetFromCenter, "% + 1px)"));
@@ -8970,7 +8983,7 @@ document.addEventListener("alpine:init", function () {
       initialized: false,
       init: function init() {
         var _this55 = this;
-        this.navScrollBar = this.$root.querySelector('#navscrollbar');
+        this.navScrollBar = this.$root.querySelector("#navscrollbar");
         this.$nextTick(function () {
           _this55.$root.querySelector(".active").scrollIntoView({
             behavior: "smooth"
@@ -9045,7 +9058,7 @@ document.addEventListener("alpine:init", function () {
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("accountSettings", function (language) {
     return {
-      openTab: 'account',
+      openTab: "account",
       changing: false,
       language: language,
       startLanguageChange: function startLanguageChange(event, wireModelName) {
@@ -9054,7 +9067,7 @@ document.addEventListener("alpine:init", function () {
           return _regeneratorRuntime().wrap(function _callee18$(_context18) {
             while (1) switch (_context18.prev = _context18.next) {
               case 0:
-                _this58.$dispatch('language-loading-start');
+                _this58.$dispatch("language-loading-start");
                 _this58.changing = true;
                 _context18.next = 4;
                 return _this58.$wire.set(wireModelName, _this58.language);
@@ -9062,7 +9075,7 @@ document.addEventListener("alpine:init", function () {
                 _this58.$nextTick(function () {
                   setTimeout(function () {
                     _this58.changing = false;
-                    _this58.$dispatch('language-loading-end');
+                    _this58.$dispatch("language-loading-end");
                   }, 1500);
                 });
               case 5:
@@ -9088,7 +9101,7 @@ document.addEventListener("alpine:init", function () {
         var aspectRatio = aspectRatioHeight / aspectRatioWidth;
         var container = element.closest("#accordion-block, #answer-container");
         if (!container) {
-          console.error('Trying to set drawing image preview aspect ratio on without valid container.');
+          console.error("Trying to set drawing image preview aspect ratio on without valid container.");
           return;
         }
         var newHeight = (container.clientWidth - 82) * aspectRatio;
@@ -9117,7 +9130,7 @@ document.addEventListener("alpine:init", function () {
         var safari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
         var newWidth = el.value.length >= this.previousValue.length ? el.scrollWidth + (safari ? 25 : 2) : el.scrollWidth - 5;
         this.previousValue = el.value;
-        return (newWidth < this.minWidth ? this.minWidth : newWidth) + 'px';
+        return (newWidth < this.minWidth ? this.minWidth : newWidth) + "px";
       }
     };
   });
@@ -9142,7 +9155,7 @@ document.addEventListener("alpine:init", function () {
       },
       addMaxWordsToWordCounter: function addMaxWordsToWordCounter(value) {
         var _this$$root$querySele2;
-        var spanId = 'max-word-span';
+        var spanId = "max-word-span";
         (_this$$root$querySele2 = this.$root.querySelector("#".concat(spanId))) === null || _this$$root$querySele2 === void 0 ? void 0 : _this$$root$querySele2.remove();
         var element = document.createElement("span");
         element.id = spanId;
@@ -9181,6 +9194,321 @@ document.addEventListener("alpine:init", function () {
       }
     };
   });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("multiDropdownSelect", function (options, containerId, wireModel, labels) {
+    return {
+      options: options,
+      wireModel: wireModel,
+      labels: labels,
+      open: false,
+      openSubs: [],
+      checkedParents: [],
+      checkedChildren: [],
+      query: "",
+      searchEmpty: false,
+      pillContainer: null,
+      searchFocussed: false,
+      init: function init() {
+        var _this62 = this;
+        this.pillContainer = document.querySelector("#".concat(containerId));
+        this.$watch("query", function (value) {
+          return _this62.search(value);
+        });
+        this.$watch("open", function (value) {
+          if (value) _this62.handleDropdownLocation();
+        });
+        this.registerSelectedItemsOnComponent();
+      },
+      subClick: function subClick(uuid) {
+        this.openSubs = this.toggle(this.openSubs, uuid);
+      },
+      parentClick: function parentClick(element, parent) {
+        var _this63 = this;
+        var checked = !this.checkedParents.includes(parent.value);
+        element.querySelector("input[type=\"checkbox\"]").checked = checked;
+        this.checkedParents = this.toggle(this.checkedParents, parent.value);
+        parent.children.filter(function (child) {
+          return child.disabled !== true;
+        }).forEach(function (child) {
+          _this63[checked ? "childAdd" : "childRemove"](child);
+          checked ? _this63.disableBrothersFromOtherMothers(child) : _this63.enableBrothersFromOtherMothers(child);
+        });
+        this.$root.querySelectorAll("[data-parent-id=\"".concat(parent.value, "\"][data-disabled=\"false\"] input[type=\"checkbox\"]")).forEach(function (child) {
+          return child.checked = checked;
+        });
+        this.registerParentsBasedOnDisabledChildren();
+        this.handleActiveFilters();
+        this.syncInput();
+      },
+      childClick: function childClick(element, child) {
+        var checked = !this.checkedChildrenContains(child);
+        element.querySelector("input[type=\"checkbox\"]").checked = checked;
+        this.childToggle(child);
+        checked ? this.disableBrothersFromOtherMothers(child) : this.enableBrothersFromOtherMothers(child);
+        var parent = this.options.find(function (parent) {
+          return parent.value === child.customProperties.parentId;
+        });
+        this.handleParentStateWhenChildsChange(parent, checked);
+        this.registerParentsBasedOnDisabledChildren();
+        this.handleActiveFilters();
+        this.syncInput();
+      },
+      toggle: function toggle(list, value) {
+        if (!list.includes(value)) {
+          return this.add(list, value);
+        }
+        return this.remove(list, value);
+      },
+      add: function add(list, value) {
+        if (list.includes(value)) return list;
+        list.push(value);
+        return list;
+      },
+      remove: function remove(list, value) {
+        return list.filter(function (item) {
+          return item !== value;
+        });
+      },
+      childToggle: function childToggle(child) {
+        if (this.checkedChildrenContains(child)) {
+          return this.childRemove(child);
+        }
+        return this.childAdd(child);
+      },
+      childAdd: function childAdd(child) {
+        if (this.checkedChildrenContains(child)) return;
+        this.checkedChildren.push({
+          value: child.value,
+          parent: child.customProperties.parentId
+        });
+      },
+      childRemove: function childRemove(child) {
+        this.checkedChildren = _.reject(this.checkedChildren, function (item) {
+          return item.value === child.value && item.parent === child.customProperties.parentId;
+        });
+      },
+      parentPartiallyToggled: function parentPartiallyToggled(parent) {
+        var result = this.checkedChildrenCount(parent);
+        if (this.checkedParents.includes(parent.value) || result === 0) {
+          return false;
+        }
+        return result < parent.children.filter(function (child) {
+          return child.disabled !== true;
+        }).length;
+        // return result < parent.children.length;
+      },
+      checkedChildrenCount: function checkedChildrenCount(parent) {
+        var _this64 = this;
+        return parent.children.filter(function (child) {
+          return _this64.checkedChildrenContains(child);
+        }).length;
+      },
+      search: function search(value) {
+        var _this65 = this;
+        if (value.length === 0) {
+          this.searchEmpty = false;
+          this.showAllOptions();
+          return;
+        }
+        this.hideAllOptions();
+        var results = this.searchParentsAndChildsLabels(value);
+        this.searchEmpty = results.length === 0;
+        results.forEach(function (item) {
+          return _this65.showOption(item);
+        });
+      },
+      showOption: function showOption(identifier) {
+        this.$root.querySelector(".option[data-id=\"".concat(identifier, "\"]")).style.display = "flex";
+      },
+      showAllOptions: function showAllOptions() {
+        this.$root.querySelectorAll(".option").forEach(function (el) {
+          return el.style.display = "flex";
+        });
+      },
+      hideAllOptions: function hideAllOptions() {
+        this.$root.querySelectorAll(".option").forEach(function (el) {
+          return el.style.display = "none";
+        });
+      },
+      searchParentsAndChildsLabels: function searchParentsAndChildsLabels(value) {
+        var parentResults = this.getParentSearchMatches(value);
+        var childResults = this.getChildSearchMatches(value, parentResults);
+        return parentResults.concat(childResults);
+      },
+      getParentSearchMatches: function getParentSearchMatches(value) {
+        return this.options.filter(function (parent) {
+          if (parent.label.toLowerCase().includes(value)) {
+            return true;
+          }
+          var childMatch = parent.children.find(function (child) {
+            return child.label.toLowerCase().includes(value);
+          });
+          return childMatch !== undefined;
+        }).map(function (item) {
+          return item.value;
+        });
+      },
+      getChildSearchMatches: function getChildSearchMatches(value, parentUuids) {
+        return this.options.flatMap(function (parent) {
+          if (!parentUuids.includes(parent.value)) {
+            return null;
+          }
+          var matchingChildren = parent.children.filter(function (child) {
+            return child.label.toLowerCase().includes(value);
+          });
+          /* If no search result for individual students, but a parent is found, return all children */
+          return matchingChildren.length > 0 ? matchingChildren : parent.children;
+        }).filter(Boolean).map(function (item) {
+          return item.value;
+        });
+      },
+      toggleDropdown: function toggleDropdown() {
+        if (this.open) return this.closeDropdown();
+        this.openDropdown();
+      },
+      openDropdown: function openDropdown() {
+        this.open = true;
+      },
+      closeDropdown: function closeDropdown() {
+        this.open = false;
+      },
+      createFilterPill: function createFilterPill(item) {
+        var _item$customPropertie;
+        if (this.pillContainer === null) return;
+        var identifier = ((_item$customPropertie = item.customProperties) === null || _item$customPropertie === void 0 ? void 0 : _item$customPropertie.parent) === false ? item.value + item.customProperties.parentId : item.value;
+        if (this.pillContainer.querySelector("#pill-".concat(identifier))) return;
+        var element = this.$root.querySelector("#filter-pill-template").content.firstElementChild.cloneNode(true);
+        element.id = "pill-".concat(identifier);
+        element.selectComponent = this.$root;
+        element.item = item;
+        element.classList.add("filter-pill", 'self-end', 'h-10');
+        element.firstElementChild.innerHTML = item.label;
+        return this.pillContainer.appendChild(element);
+      },
+      removeFilterPill: function removeFilterPill(event) {
+        var _event$item$customPro;
+        event.element.remove();
+        var toggleFunction = ((_event$item$customPro = event.item.customProperties) === null || _event$item$customPro === void 0 ? void 0 : _event$item$customPro.parent) === false ? "childClick" : "parentClick";
+        this[toggleFunction](this.$root.querySelector("[data-id=\"".concat(event.item.value, "\"][data-parent-id=\"").concat(event.item.customProperties.parentId, "\"]")), event.item);
+      },
+      handleActiveFilters: function handleActiveFilters() {
+        var _this66 = this;
+        var currentPillIds = Array.from(this.pillContainer.childNodes).map(function (pill) {
+          if (!_this66.isParent(pill.item)) {
+            return pill.item.value + pill.item.customProperties.parentId;
+          }
+          return pill.item.value;
+        });
+        var currentlyChecked = this.checkedParents.concat(this.checkedChildren.map(function (child) {
+          return child.value + child.parent;
+        }));
+        var pillIdsToRemove = currentPillIds.filter(function (uuid) {
+          return !currentlyChecked.contains(uuid);
+        });
+        this.options.flatMap(function (parent) {
+          return [parent].concat(_toConsumableArray(parent.children));
+        }).filter(function (item) {
+          if (_this66.isParent(item)) return _this66.checkedParents.includes(item.value);
+          if (_this66.checkedParents.includes(item.customProperties.parentId)) {
+            pillIdsToRemove.push(item.value + item.customProperties.parentId);
+          }
+          return !_this66.checkedParents.includes(item.customProperties.parentId) && _this66.checkedChildrenContains(item);
+        }).forEach(function (item) {
+          return _this66.createFilterPill(item);
+        });
+        var that = this;
+        pillIdsToRemove.forEach(function (uuid) {
+          var _that$pillContainer$q;
+          (_that$pillContainer$q = that.pillContainer.querySelector("#pill-".concat(uuid))) === null || _that$pillContainer$q === void 0 ? void 0 : _that$pillContainer$q.remove();
+        });
+      },
+      handleDropdownLocation: function handleDropdownLocation() {
+        var dropdown = this.$root.querySelector(".dropdown");
+        var top = this.$root.getBoundingClientRect().top + this.$root.offsetHeight + 16 + parseInt(dropdown.style.maxHeight);
+        var property = top >= screen.availHeight ? "bottom" : "top";
+        dropdown.style[property] = this.$root.offsetHeight + 8 + "px";
+      },
+      handleParentStateWhenChildsChange: function handleParentStateWhenChildsChange(parent, checked) {
+        if (checked && this.checkedChildrenCount(parent) === parent.children.filter(function (child) {
+          return child.disabled !== true;
+        }).length) {
+          this.checkedParents = this.add(this.checkedParents, parent.value);
+          this.$root.querySelector("[data-id=\"".concat(parent.value, "\"][data-parent-id=\"").concat(parent.value, "\"] input[type=\"checkbox\"]")).checked = checked;
+        }
+        if (!checked && this.checkedParents.includes(parent.value)) {
+          this.checkedParents = this.remove(this.checkedParents, parent.value);
+          this.$root.querySelector("[data-id=\"".concat(parent.value, "\"] input[type=\"checkbox\"]")).checked = checked;
+        }
+      },
+      registerSelectedItemsOnComponent: function registerSelectedItemsOnComponent() {
+        var _this67 = this;
+        var checkedChildValues = this.options.flatMap(function (parent) {
+          return _toConsumableArray(parent.children);
+        }).filter(function (item) {
+          var _item$customPropertie2;
+          return ((_item$customPropertie2 = item.customProperties) === null || _item$customPropertie2 === void 0 ? void 0 : _item$customPropertie2.selected) === true;
+        });
+        this.$nextTick(function () {
+          checkedChildValues.forEach(function (item) {
+            _this67.childClick(_this67.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.customProperties.parentId, "\"]")), item);
+          });
+          _this67.registerParentsBasedOnDisabledChildren();
+          _this67.handleActiveFilters();
+        });
+      },
+      syncInput: function syncInput() {
+        if (!this.wireModel.value) return;
+        this.$wire.sync(this.wireModel.value, {
+          parents: this.checkedParents,
+          children: this.checkedChildren
+        });
+      },
+      checkedChildrenContains: function checkedChildrenContains(child) {
+        return this.checkedChildren.some(function (item) {
+          var _child$customProperti;
+          return item.value === child.value && item.parent === ((_child$customProperti = child.customProperties) === null || _child$customProperti === void 0 ? void 0 : _child$customProperti.parentId);
+        });
+      },
+      disableBrothersFromOtherMothers: function disableBrothersFromOtherMothers(child) {
+        this.options.flatMap(function (parents) {
+          return _toConsumableArray(parents.children);
+        }).filter(function (item) {
+          return item.value === child.value && item.customProperties.parentId !== child.customProperties.parentId;
+        }).forEach(function (item) {
+          return item.disabled = true;
+        });
+      },
+      enableBrothersFromOtherMothers: function enableBrothersFromOtherMothers(child) {
+        this.options.flatMap(function (parents) {
+          return _toConsumableArray(parents.children);
+        }).filter(function (item) {
+          return item.value === child.value && item.customProperties.parentId !== child.customProperties.parentId;
+        }).forEach(function (item) {
+          return item.disabled = false;
+        });
+      },
+      isParent: function isParent(item) {
+        var _item$customPropertie3;
+        return !((_item$customPropertie3 = item.customProperties) !== null && _item$customPropertie3 !== void 0 && _item$customPropertie3.parent) === false;
+      },
+      registerParentsBasedOnDisabledChildren: function registerParentsBasedOnDisabledChildren() {
+        var _this68 = this;
+        this.options.forEach(function (item) {
+          var enabledChildren = item.children.filter(function (child) {
+            return child.disabled !== true;
+          }).length;
+          if (enabledChildren === 0) return;
+          var enabled = _this68.checkedChildrenCount(item) === enabledChildren;
+          _this68.checkedParents = _this68[enabled ? 'add' : 'remove'](_this68.checkedParents, item.value);
+          _this68.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.value, "\"] input[type=\"checkbox\"]")).checked = enabled;
+        });
+      },
+      parentDisabled: function parentDisabled(parent) {
+        return parent.children.filter(function (child) {
+          return child.disabled !== true;
+        }).length === 0;
+      }
+    };
+  });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].directive("global", function (el, _ref4) {
     var expression = _ref4.expression;
     var f = new Function("_", "$data", "_." + expression + " = $data;return;");
@@ -9205,7 +9533,7 @@ document.addEventListener("alpine:init", function () {
     currentScore: null,
     toggleCount: 0,
     clearToProceed: function clearToProceed() {
-      var valuedToggles = document.querySelectorAll('.student-answer .slider-button-container:not(disabled)[data-has-value="true"]').length;
+      var valuedToggles = document.querySelectorAll(".student-answer .slider-button-container:not(disabled)[data-has-value=\"true\"]").length;
       return this.currentScore !== null && valuedToggles >= this.toggleCount;
     },
     resetData: function resetData() {
@@ -9519,6 +9847,9 @@ selectTextContent = function selectTextContent(event) {
   var selection = window.getSelection();
   selection.removeAllRanges();
   selection.addRange(range);
+};
+Array.prototype.contains = function (key) {
+  return this.includes(key);
 };
 
 /***/ }),
@@ -9980,7 +10311,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "662d128370816e2bbb66",
+  key: "fc18ed69b446aeb8c8a5",
   cluster: "eu",
   forceTLS: true
 });
@@ -16545,6 +16876,9 @@ RichTextEditor = {
     if (wordCountWrapper) {
       wordCountWrapper.appendChild(wordCountPlugin.wordCountContainer);
       window.dispatchEvent(new CustomEvent("updated-word-count-plugin-container"));
+    }
+    if (!parameterBag.restrictWords || [null, 0].includes(parameterBag.maxWords)) {
+      return;
     }
     editor.maxWords = parameterBag.maxWords;
     editor.maxWordOverride = parameterBag.maxWordOverride;
@@ -68498,32 +68832,6 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
-/***/ "./resources/css/app_pdf.css":
-/*!***********************************!*\
-  !*** ./resources/css/app_pdf.css ***!
-  \***********************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-// extracted by mini-css-extract-plugin
-
-
-/***/ }),
-
-/***/ "./resources/css/print-test-pdf.css":
-/*!******************************************!*\
-  !*** ./resources/css/print-test-pdf.css ***!
-  \******************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-// extracted by mini-css-extract-plugin
-
-
-/***/ }),
-
 /***/ "./node_modules/plyr/dist/plyr.min.js":
 /*!********************************************!*\
   !*** ./node_modules/plyr/dist/plyr.min.js ***!
@@ -77830,9 +78138,7 @@ module.exports = JSON.parse('{"name":"axios","version":"0.21.4","description":"P
 /******/ 		// [resolve, reject, Promise] = chunk loading, 0 = chunk loaded
 /******/ 		var installedChunks = {
 /******/ 			"/js/app": 0,
-/******/ 			"css/app": 0,
-/******/ 			"css/app_pdf": 0,
-/******/ 			"css/print-test-pdf": 0
+/******/ 			"css/app": 0
 /******/ 		};
 /******/ 		
 /******/ 		// no chunk on demand loading
@@ -77882,10 +78188,8 @@ module.exports = JSON.parse('{"name":"axios","version":"0.21.4","description":"P
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module depends on other loaded chunks and execution need to be delayed
-/******/ 	__webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/js/app.js")))
-/******/ 	__webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/css/app.css")))
-/******/ 	__webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/css/app_pdf.css")))
-/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/css/print-test-pdf.css")))
+/******/ 	__webpack_require__.O(undefined, ["css/app"], () => (__webpack_require__("./resources/js/app.js")))
+/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["css/app"], () => (__webpack_require__("./resources/css/app.css")))
 /******/ 	__webpack_exports__ = __webpack_require__.O(__webpack_exports__);
 /******/ 	
 /******/ })()
