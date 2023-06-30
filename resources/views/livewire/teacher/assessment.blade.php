@@ -261,6 +261,7 @@
                                           wire:loading.attr="disabled"
                                           wire:key="previous-button-{{  $this->questionNavigationValue.$this->answerNavigationValue }}"
                                           :disabled="$this->onBeginningOfAssessment()"
+                                          selid="assessment-footer-previous"
                     >
                         <x-icon.chevron class="rotate-180" />
                         <span>@lang('pagination.previous')</span>
@@ -271,6 +272,7 @@
                                       wire:loading.attr="disabled"
                                       wire:key="next-button-{{  $this->questionNavigationValue.$this->answerNavigationValue }}"
                                       :disabled="$this->finalAnswerReached()"
+                                      selid="assessment-footer-next"
                     >
                         <span>@lang('pagination.next')</span>
                         <x-icon.chevron />

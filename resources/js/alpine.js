@@ -2142,7 +2142,7 @@ document.addEventListener("alpine:init", () => {
         async next() {
             if (this.needsToPerformActionsStill()) {
                 this.$dispatch("scoring-elements-error");
-                this.clickedNext = true;
+                this.$store.assessment.errorState = this.clickedNext = true;
                 return;
             }
 
@@ -2150,7 +2150,7 @@ document.addEventListener("alpine:init", () => {
             await this.$nextTick(async () => {
                 this.$store.assessment.resetData();
                 await this.$wire.next();
-                this.clickedNext = false;
+                this.$store.assessment.errorState = this.clickedNext = false;
             });
         },
         async previous() {
@@ -2672,6 +2672,7 @@ document.addEventListener("alpine:init", () => {
         inGroup: false
     });
     Alpine.store("assessment", {
+        errorState: false,
         currentScore: null,
         toggleCount: 0,
         clearToProceed() {

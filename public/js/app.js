@@ -8590,7 +8590,7 @@ document.addEventListener("alpine:init", function () {
                   break;
                 }
                 _this47.$dispatch("scoring-elements-error");
-                _this47.clickedNext = true;
+                _this47.$store.assessment.errorState = _this47.clickedNext = true;
                 return _context14.abrupt("return");
               case 4:
                 _this47.tab(1);
@@ -8603,7 +8603,7 @@ document.addEventListener("alpine:init", function () {
                         _context13.next = 3;
                         return _this47.$wire.next();
                       case 3:
-                        _this47.clickedNext = false;
+                        _this47.$store.assessment.errorState = _this47.clickedNext = false;
                       case 4:
                       case "end":
                         return _context13.stop();
@@ -9202,6 +9202,7 @@ document.addEventListener("alpine:init", function () {
     inGroup: false
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].store("assessment", {
+    errorState: false,
     currentScore: null,
     toggleCount: 0,
     clearToProceed: function clearToProceed() {

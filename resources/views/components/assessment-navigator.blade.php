@@ -14,7 +14,7 @@
      wire:ignore
 >
     <div class="flex gap-2">
-        <button class="flex w-[22px] h-[22px] items-center justify-center rounded-full transition-colors"
+        <button class="first | flex w-[22px] h-[22px] items-center justify-center rounded-full transition-colors"
                 x-on:click="first()"
                 x-bind:disabled="current === firstValue"
                 x-bind:class="current === firstValue ? 'text-white/20' : 'hover:bg-white/20' "
@@ -22,7 +22,7 @@
         >
             <x-icon.arrow-last class="inline-flex rotate-180 -top-px relative" />
         </button>
-        <button class="flex w-[22px] h-[22px] items-center justify-center rounded-full transition-colors"
+        <button class="previous | flex w-[22px] h-[22px] items-center justify-center rounded-full transition-colors"
                 x-on:click="previous()"
                 x-bind:disabled="current === firstValue"
                 x-bind:class="current === firstValue ? 'text-white/20' : 'hover:bg-white/20' "
@@ -43,14 +43,14 @@
         <span class="inline-flex" x-text="total"></span>
     </div>
     <div class="flex gap-2">
-        <button class="flex w-[22px] h-[22px] items-center justify-center rounded-full transition-colors"
+        <button class="next | flex w-[22px] h-[22px] items-center justify-center rounded-full transition-colors"
                 x-on:click="next()"
                 x-bind:disabled="current === lastValue"
                 x-bind:class="current === lastValue ? 'text-white/20' : 'hover:bg-white/20' "
         >
             <x-icon.chevron class="inline-flex" />
         </button>
-        <button class="flex w-[22px] h-[22px] items-center justify-center rounded-full transition-colors"
+        <button class="last |  w-[22px] h-[22px] items-center justify-center rounded-full transition-colors"
                 x-on:click="last()"
                 x-bind:disabled="current === lastValue"
                 x-bind:class="current === lastValue ? 'text-white/20' : 'hover:bg-white/20' "
