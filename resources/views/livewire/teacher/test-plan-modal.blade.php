@@ -108,7 +108,6 @@
                                             wire:key='allowed-invigilators'
                                             hasErrors="{{ $this->getErrorBag()->has('request.invigilators') ? 'true': '' }}"
                     />
-
                     <div id="selected_invigilators" wire:ignore class="space-x-4 ml-4"></div>
                 </div>
             </div>

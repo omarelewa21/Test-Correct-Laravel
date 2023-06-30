@@ -72,7 +72,7 @@ class TestTakeEditModal extends TCModalComponent
         if (empty($this->classesAndStudents['children'])) {
             $conditionalRules['testTake.guest_accounts'] = 'accepted';
         }
-        $conditionalRules['testTake.invigilator_note'] = 'sometimes|string';
+        $conditionalRules['testTake.invigilator_note'] = 'sometimes';
         return $conditionalRules;
     }
 

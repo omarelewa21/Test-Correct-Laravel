@@ -6273,81 +6273,6 @@ function _typeof(obj){"@babel/helpers - typeof";return _typeof="function"==typeo
 
 /***/ }),
 
-/***/ "./resources/js/CkEditor5CommentsIntegration.js":
-/*!******************************************************!*\
-  !*** ./resources/js/CkEditor5CommentsIntegration.js ***!
-  \******************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
-function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
-function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
-function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
-var CommentsIntegration = /*#__PURE__*/function () {
-  function CommentsIntegration(editor) {
-    _classCallCheck(this, CommentsIntegration);
-    this.editor = editor;
-  }
-  _createClass(CommentsIntegration, [{
-    key: "init",
-    value: function init() {
-      var usersPlugin = this.editor.plugins.get('Users');
-      var commentsRepositoryPlugin = this.editor.plugins.get('CommentsRepository');
-      var config = this.editor.config.get('commentsIntegration');
-
-      // Load the users data.
-      var _iterator = _createForOfIteratorHelper(config.users),
-        _step;
-      try {
-        for (_iterator.s(); !(_step = _iterator.n()).done;) {
-          var user = _step.value;
-          usersPlugin.addUser(user);
-        }
-
-        // Set the current user.
-      } catch (err) {
-        _iterator.e(err);
-      } finally {
-        _iterator.f();
-      }
-      usersPlugin.defineMe(config.userId);
-
-      // Load the comment threads data.
-      var _iterator2 = _createForOfIteratorHelper(config.commentThreads),
-        _step2;
-      try {
-        for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
-          var commentThread = _step2.value;
-          commentsRepositoryPlugin.addCommentThread(commentThread);
-        }
-      } catch (err) {
-        _iterator2.e(err);
-      } finally {
-        _iterator2.f();
-      }
-    }
-  }], [{
-    key: "requires",
-    get: function get() {
-      return ['CommentsRepository'];
-    }
-  }]);
-  return CommentsIntegration;
-}();
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (CommentsIntegration);
-
-/***/ }),
-
 /***/ "./resources/js/alpine.js":
 /*!********************************!*\
   !*** ./resources/js/alpine.js ***!
@@ -8103,18 +8028,16 @@ document.addEventListener("alpine:init", function () {
     };
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("contextMenuButton", function (context, uuid, contextData) {
-    var preventLivewireCall = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
     return {
       menuOpen: false,
       uuid: uuid,
       contextData: contextData,
       context: context,
-      preventLivewireCall: preventLivewireCall,
       gridCard: null,
       showEvent: context + "-context-menu-show",
       closeEvent: context + "-context-menu-close",
       init: function init() {
-        this.gridCard = this.$root.closest(".context-menu-container");
+        this.gridCard = this.$root.closest(".grid-card");
       },
       handle: function handle() {
         this.menuOpen = !this.menuOpen;
@@ -8127,8 +8050,7 @@ document.addEventListener("alpine:init", function () {
               top: this.gridCard.offsetTop,
               left: this.gridCard.offsetLeft + this.gridCard.offsetWidth
             },
-            contextData: this.contextData,
-            preventLivewireCall: this.preventLivewireCall
+            contextData: this.contextData
           });
         } else {
           this.$dispatch(this.closeEvent);
@@ -8155,15 +8077,9 @@ document.addEventListener("alpine:init", function () {
       init: function init() {
         this.menuCard = this.$root.closest("#context-menu-base");
         this.bodyPage = this.$root.closest(".divide-secondary");
-        if (!this.bodyPage) {
-          this.bodyPage = this.$root.closest("body");
-          this.menuOffsetMarginTop -= 10;
-          this.menuOffsetMarginLeft -= 24;
-        }
       },
       preventMenuFallOffScreen: function preventMenuFallOffScreen() {
-        var _this$menuCard, _this$menuCard2, _this$bodyPage, _this$bodyPage2;
-        if (((_this$menuCard = this.menuCard) === null || _this$menuCard === void 0 ? void 0 : _this$menuCard.offsetTop) + ((_this$menuCard2 = this.menuCard) === null || _this$menuCard2 === void 0 ? void 0 : _this$menuCard2.offsetHeight) >= ((_this$bodyPage = this.bodyPage) === null || _this$bodyPage === void 0 ? void 0 : _this$bodyPage.offsetHeight) + ((_this$bodyPage2 = this.bodyPage) === null || _this$bodyPage2 === void 0 ? void 0 : _this$bodyPage2.offsetTop)) {
+        if (this.menuCard.offsetTop + this.menuCard.offsetHeight >= this.bodyPage.offsetHeight + this.bodyPage.offsetTop) {
           this.$root.style.top = this.detailCoordsTop + this.menuOffsetMarginTop - (this.menuCard.offsetHeight - this.gridCardOffsetHeight) - 25 + "px";
           this.$root.style.left = this.detailCoordsLeft - this.menuCard.offsetWidth - 50 + "px";
         }
@@ -8191,18 +8107,13 @@ document.addEventListener("alpine:init", function () {
                 _this31.gridCardOffsetHeight = detail.coords.gridCardOffsetHeight;
                 _this31.$root.style.top = _this31.detailCoordsTop + _this31.menuOffsetMarginTop + "px";
                 _this31.$root.style.left = _this31.detailCoordsLeft - _this31.menuOffsetMarginLeft + "px";
-                if (detail !== null && detail !== void 0 && detail.preventLivewireCall) {
-                  _context7.next = 13;
-                  break;
-                }
-                _context7.next = 11;
+                _context7.next = 10;
                 return _this31.$wire.setContextValues(_this31.uuid, _this31.contextData);
-              case 11:
+              case 10:
                 readyForShow = _context7.sent;
                 if (readyForShow) _this31.contextMenuOpen = true;
-              case 13:
                 _this31.contextMenuOpen = true;
-              case 14:
+              case 13:
               case "end":
                 return _context7.stop();
             }
@@ -8658,27 +8569,19 @@ document.addEventListener("alpine:init", function () {
           document.documentElement.style.setProperty("--active-sidebar-width", value ? "var(--collapsed-sidebar-width)" : "var(--sidebar-width)");
         });
       },
-      getSlideElementByIndex: function getSlideElementByIndex(index) {
-        return this.$root.closest('.drawer').querySelector(".slide-" + index);
-      },
       tab: function tab(index) {
         var _this46 = this;
-        var answerFeedbackCommentUuid = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
         if (!this.tabs.includes(index)) return;
         this.activeTab = index;
         this.closeTooltips();
-        var slide = this.getSlideElementByIndex(index);
+        var slide = this.$root.querySelector(".slide-" + index);
         this.handleSlideHeight(slide);
         this.$nextTick(function () {
-          if (answerFeedbackCommentUuid) {
-            _this46.scrollToCommentCard(answerFeedbackCommentUuid);
-          } else {
-            _this46.container.scroll({
-              top: 0,
-              left: slide.offsetLeft,
-              behavior: "smooth"
-            });
-          }
+          _this46.container.scroll({
+            top: 0,
+            left: slide.offsetLeft,
+            behavior: "smooth"
+          });
           setTimeout(function () {
             var position = _this46.container.scrollLeft / 300 + 1;
             if (!_this46.tabs.includes(position)) {
@@ -8689,44 +8592,31 @@ document.addEventListener("alpine:init", function () {
           }, 500);
         });
       },
-      scrollToCommentCard: function scrollToCommentCard(answerFeedbackUuid) {
-        var _this47 = this;
-        var commentCard = document.querySelector('[data-uuid="' + answerFeedbackUuid + '"].answer-feedback-card');
-        var slide = this.getSlideElementByIndex(2);
-        var cardTop = commentCard.offsetTop;
-        setTimeout(function () {
-          _this47.container.scroll({
-            top: cardTop,
-            left: slide.offsetLeft,
-            behavior: "smooth"
-          });
-        }, 150);
-      },
       next: function next() {
-        var _this48 = this;
+        var _this47 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee14() {
           return _regeneratorRuntime().wrap(function _callee14$(_context14) {
             while (1) switch (_context14.prev = _context14.next) {
               case 0:
-                if (!_this48.needsToPerformActionsStill()) {
+                if (!_this47.needsToPerformActionsStill()) {
                   _context14.next = 4;
                   break;
                 }
-                _this48.$dispatch("scoring-elements-error");
-                _this48.clickedNext = true;
+                _this47.$dispatch("scoring-elements-error");
+                _this47.clickedNext = true;
                 return _context14.abrupt("return");
               case 4:
-                _this48.tab(1);
+                _this47.tab(1);
                 _context14.next = 7;
-                return _this48.$nextTick( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee13() {
+                return _this47.$nextTick( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee13() {
                   return _regeneratorRuntime().wrap(function _callee13$(_context13) {
                     while (1) switch (_context13.prev = _context13.next) {
                       case 0:
-                        _this48.$store.assessment.resetData();
+                        _this47.$store.assessment.resetData();
                         _context13.next = 3;
-                        return _this48.$wire.next();
+                        return _this47.$wire.next();
                       case 3:
-                        _this48.clickedNext = false;
+                        _this47.clickedNext = false;
                       case 4:
                       case "end":
                         return _context13.stop();
@@ -8741,22 +8631,22 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       previous: function previous() {
-        var _this49 = this;
+        var _this48 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee16() {
           return _regeneratorRuntime().wrap(function _callee16$(_context16) {
             while (1) switch (_context16.prev = _context16.next) {
               case 0:
-                _this49.tab(1);
+                _this48.tab(1);
                 _context16.next = 3;
-                return _this49.$nextTick( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee15() {
+                return _this48.$nextTick( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee15() {
                   return _regeneratorRuntime().wrap(function _callee15$(_context15) {
                     while (1) switch (_context15.prev = _context15.next) {
                       case 0:
-                        _this49.$store.assessment.resetData();
+                        _this48.$store.assessment.resetData();
                         _context15.next = 3;
-                        return _this49.$wire.previous();
+                        return _this48.$wire.previous();
                       case 3:
-                        _this49.clickedNext = false;
+                        _this48.clickedNext = false;
                       case 4:
                       case "end":
                         return _context15.stop();
@@ -8769,11 +8659,6 @@ document.addEventListener("alpine:init", function () {
             }
           }, _callee16);
         }))();
-      },
-      fixSlideHeightByIndex: function fixSlideHeightByIndex(index, AnswerFeedbackUuid) {
-        var slide = this.$root.closest(".slide-" + index);
-        this.handleSlideHeight(slide);
-        if (AnswerFeedbackUuid) this.scrollToCommentCard(AnswerFeedbackUuid);
       },
       handleSlideHeight: function handleSlideHeight(slide) {
         if (slide.offsetHeight > this.container.offsetHeight) {
@@ -8803,10 +8688,10 @@ document.addEventListener("alpine:init", function () {
         return !this.inReview && !this.$store.assessment.clearToProceed() && !this.clickedNext;
       },
       openFeedbackTab: function openFeedbackTab() {
-        var _this50 = this;
+        var _this49 = this;
         this.tab(2);
         this.$nextTick(function () {
-          var editorDiv = _this50.$root.querySelector(".feedback textarea");
+          var editorDiv = _this49.$root.querySelector(".feedback textarea");
           if (editorDiv) {
             var editor = ClassicEditors[editorDiv.getAttribute("name")];
             if (editor) {
@@ -8858,10 +8743,10 @@ document.addEventListener("alpine:init", function () {
         el.style.setProperty("--slider-thumb-offset", "calc(".concat(offsetFromCenter, "% + 1px)"));
       },
       setSliderBackgroundSize: function setSliderBackgroundSize(el) {
-        var _this51 = this;
+        var _this50 = this;
         this.$nextTick(function () {
-          el.style.setProperty("--slider-thumb-offset", "".concat(25 / 100 * _this51.getSliderBackgroundSize(el) - 12.5, "px"));
-          el.style.setProperty("--slider-background-size", "".concat(_this51.getSliderBackgroundSize(el), "%"));
+          el.style.setProperty("--slider-thumb-offset", "".concat(25 / 100 * _this50.getSliderBackgroundSize(el) - 12.5, "px"));
+          el.style.setProperty("--slider-background-size", "".concat(_this50.getSliderBackgroundSize(el), "%"));
         });
       },
       syncInput: function syncInput() {
@@ -8880,42 +8765,42 @@ document.addEventListener("alpine:init", function () {
         }
       },
       init: function init() {
-        var _this52 = this;
+        var _this51 = this;
         if (coLearning) {
           Livewire.hook("message.received", function (message, component) {
             var _message$updateQueue$;
             if (component.name === "student.co-learning" && ((_message$updateQueue$ = message.updateQueue[0]) === null || _message$updateQueue$ === void 0 ? void 0 : _message$updateQueue$.method) === "updateHeartbeat") {
-              var scoreInputElement = _this52.$root.querySelector("[x-ref='scoreInput']");
-              _this52.persistentScore = scoreInputElement !== null && scoreInputElement.value !== "" ? scoreInputElement.value : null;
+              var scoreInputElement = _this51.$root.querySelector("[x-ref='scoreInput']");
+              _this51.persistentScore = scoreInputElement !== null && scoreInputElement.value !== "" ? scoreInputElement.value : null;
             }
           });
           Livewire.hook("message.processed", function (message, component) {
             var _message$updateQueue$2;
             if (component.name === "student.co-learning" && ((_message$updateQueue$2 = message.updateQueue[0]) === null || _message$updateQueue$2 === void 0 ? void 0 : _message$updateQueue$2.method) === "updateHeartbeat") {
-              _this52.skipSync = true;
-              _this52.score = _this52.persistentScore;
+              _this51.skipSync = true;
+              _this51.score = _this51.persistentScore;
             }
           });
         }
         this.inputBox = this.$root.querySelector("[x-ref='scoreInput']");
         this.$watch("score", function (value, oldValue) {
-          _this52.markInputElementsClean();
-          if (_this52.disabled || value === oldValue || _this52.skipSync) {
-            _this52.skipSync = false;
+          _this51.markInputElementsClean();
+          if (_this51.disabled || value === oldValue || _this51.skipSync) {
+            _this51.skipSync = false;
             return;
           }
-          if (value >= _this52.maxScore) {
-            _this52.score = value = _this52.maxScore;
+          if (value >= _this51.maxScore) {
+            _this51.score = value = _this51.maxScore;
           }
           if (value <= 0) {
-            _this52.score = value = 0;
+            _this51.score = value = 0;
           }
-          _this52.score = value = _this52.halfPoints ? Math.round(value * 2) / 2 : Math.round(value);
-          _this52.updateContinuousSlider();
+          _this51.score = value = _this51.halfPoints ? Math.round(value * 2) / 2 : Math.round(value);
+          _this51.updateContinuousSlider();
         });
         if (focusInput) {
           this.$nextTick(function () {
-            _this52.inputBox.focus();
+            _this51.inputBox.focus();
           });
         }
         this.bars = this.maxScore;
@@ -8956,7 +8841,7 @@ document.addEventListener("alpine:init", function () {
       minWidth: 120,
       maxWidth: 1000,
       setInputWidth: function setInputWidth(input) {
-        var _this53 = this;
+        var _this52 = this;
         var init = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
         var preview = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
         if (!init || preview) {
@@ -8967,8 +8852,8 @@ document.addEventListener("alpine:init", function () {
           if (!value) {
             return;
           }
-          _this53.$nextTick(function () {
-            _this53.calculateInputWidth(input);
+          _this52.$nextTick(function () {
+            _this52.calculateInputWidth(input);
           });
         });
       },
@@ -9023,23 +8908,23 @@ document.addEventListener("alpine:init", function () {
       inModal: false,
       show: false,
       init: function init() {
-        var _this54 = this;
+        var _this53 = this;
         this.setHeightProperty();
         this.inModal = this.$root.closest("#modal-container") !== null;
         this.$watch("tooltip", function (value) {
           if (value) {
             var ignoreLeft = false;
-            if (alwaysLeft || _this54.tooltipTooWideForPosition()) {
-              _this54.$refs.tooltipdiv.classList.remove("left-1/2", "-translate-x-1/2");
-              _this54.$refs.tooltipdiv.classList.add("right-0");
+            if (alwaysLeft || _this53.tooltipTooWideForPosition()) {
+              _this53.$refs.tooltipdiv.classList.remove("left-1/2", "-translate-x-1/2");
+              _this53.$refs.tooltipdiv.classList.add("right-0");
               ignoreLeft = true;
             }
-            _this54.$refs.tooltipdiv.style.top = _this54.getTop();
-            _this54.$refs.tooltipdiv.style.left = _this54.getLeft(ignoreLeft);
+            _this53.$refs.tooltipdiv.style.top = _this53.getTop();
+            _this53.$refs.tooltipdiv.style.left = _this53.getLeft(ignoreLeft);
           }
         });
         this.$nextTick(function () {
-          return _this54.show = true;
+          return _this53.show = true;
         });
       },
       getTop: function getTop() {
@@ -9070,12 +8955,12 @@ document.addEventListener("alpine:init", function () {
         this.$refs.tooltipdiv.style.left = this.getLeft();
       },
       setHeightProperty: function setHeightProperty() {
-        var _this55 = this;
+        var _this54 = this;
         this.tooltip = true;
         this.$nextTick(function () {
-          _this55.height = _this55.$refs.tooltipdiv.offsetHeight;
-          _this55.tooltip = false;
-          _this55.$refs.tooltipdiv.classList.remove("invisible");
+          _this54.height = _this54.$refs.tooltipdiv.offsetHeight;
+          _this54.tooltip = false;
+          _this54.$refs.tooltipdiv.classList.remove("invisible");
         });
       },
       tooltipTooWideForPosition: function tooltipTooWideForPosition() {
@@ -9097,16 +8982,16 @@ document.addEventListener("alpine:init", function () {
       navScrollBar: null,
       initialized: false,
       init: function init() {
-        var _this56 = this;
+        var _this55 = this;
         this.navScrollBar = this.$root.querySelector("#navscrollbar");
         this.$nextTick(function () {
-          _this56.$root.querySelector(".active").scrollIntoView({
+          _this55.$root.querySelector(".active").scrollIntoView({
             behavior: "smooth"
           });
-          _this56.totalScrollWidth = _this56.$root.offsetWidth;
-          _this56.resize();
-          _this56.initialized = true;
-          _this56.slideToActiveQuestionBubble();
+          _this55.totalScrollWidth = _this55.$root.offsetWidth;
+          _this55.resize();
+          _this55.initialized = true;
+          _this55.slideToActiveQuestionBubble();
         });
       },
       resize: function resize() {
@@ -9144,24 +9029,24 @@ document.addEventListener("alpine:init", function () {
         });
       },
       startIntersectionCountdown: function startIntersectionCountdown() {
-        var _this57 = this;
+        var _this56 = this;
         clearTimeout(this.intersectionCountdown);
         this.intersectionCountdown = setTimeout(function () {
-          clearTimeout(_this57.intersectionCountdown);
-          _this57.slideToActiveQuestionBubble();
+          clearTimeout(_this56.intersectionCountdown);
+          _this56.slideToActiveQuestionBubble();
         }, 5000);
       },
       loadQuestion: function loadQuestion(number) {
-        var _this58 = this;
+        var _this57 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee17() {
           return _regeneratorRuntime().wrap(function _callee17$(_context17) {
             while (1) switch (_context17.prev = _context17.next) {
               case 0:
-                _this58.$dispatch('assessment-drawer-tab-update', {
+                _this57.$dispatch('assessment-drawer-tab-update', {
                   tab: 1
                 });
                 _context17.next = 3;
-                return _this58.$wire.loadQuestionFromNav(number);
+                return _this57.$wire.loadQuestionFromNav(number);
               case 3:
               case "end":
                 return _context17.stop();
@@ -9177,20 +9062,20 @@ document.addEventListener("alpine:init", function () {
       changing: false,
       language: language,
       startLanguageChange: function startLanguageChange(event, wireModelName) {
-        var _this59 = this;
+        var _this58 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee18() {
           return _regeneratorRuntime().wrap(function _callee18$(_context18) {
             while (1) switch (_context18.prev = _context18.next) {
               case 0:
-                _this59.$dispatch("language-loading-start");
-                _this59.changing = true;
+                _this58.$dispatch("language-loading-start");
+                _this58.changing = true;
                 _context18.next = 4;
-                return _this59.$wire.set(wireModelName, _this59.language);
+                return _this58.$wire.set(wireModelName, _this58.language);
               case 4:
-                _this59.$nextTick(function () {
+                _this58.$nextTick(function () {
                   setTimeout(function () {
-                    _this59.changing = false;
-                    _this59.$dispatch("language-loading-end");
+                    _this58.changing = false;
+                    _this58.$dispatch("language-loading-end");
                   }, 1500);
                 });
               case 5:
@@ -9202,511 +9087,6 @@ document.addEventListener("alpine:init", function () {
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("AnswerFeedback", function (answerEditorId, feedbackEditorId, userId, questionType, viewOnly) {
-    var hasFeedback = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : false;
-    return {
-      answerEditorId: answerEditorId,
-      feedbackEditorId: feedbackEditorId,
-      commentRepository: null,
-      activeThread: null,
-      editingComment: null,
-      activeComment: null,
-      hoveringComment: null,
-      dropdownOpened: null,
-      userId: userId,
-      questionType: questionType,
-      viewOnly: viewOnly,
-      hasFeedback: hasFeedback,
-      init: function init() {
-        var _this60 = this;
-        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee21() {
-          return _regeneratorRuntime().wrap(function _callee21$(_context21) {
-            while (1) switch (_context21.prev = _context21.next) {
-              case 0:
-                _this60.dropdownOpened = questionType === 'OpenQuestion' ? 'given-feedback' : 'add-feedback';
-                if (!(questionType !== 'OpenQuestion')) {
-                  _context21.next = 3;
-                  break;
-                }
-                return _context21.abrupt("return");
-              case 3:
-                _this60.setFocusTracking();
-                document.addEventListener('comment-color-updated', /*#__PURE__*/function () {
-                  var _ref4 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee19(event) {
-                    var styleTagElement, colorWithOpacity, color;
-                    return _regeneratorRuntime().wrap(function _callee19$(_context19) {
-                      while (1) switch (_context19.prev = _context19.next) {
-                        case 0:
-                          styleTagElement = document.querySelector('#temporaryCommentMarkerStyles');
-                          colorWithOpacity = event.detail.color;
-                          color = colorWithOpacity.replace('0.4', '1');
-                          styleTagElement.innerHTML = "p .ck-comment-marker[data-comment=\"".concat(event.detail.threadId, "\"]{\n") + "                            --ck-color-comment-marker: ".concat(colorWithOpacity, " !important;\n") + /* opacity .4 */"                            --ck-color-comment-marker-border: ".concat(color, " !important;\n") + /* opacity 1.0 */"                            --ck-color-comment-marker-active: ".concat(colorWithOpacity, " !important;\n") + /* opacity .4 */"                        }";
-                        case 4:
-                        case "end":
-                          return _context19.stop();
-                      }
-                    }, _callee19);
-                  }));
-                  return function (_x2) {
-                    return _ref4.apply(this, arguments);
-                  };
-                }());
-                document.addEventListener('comment-emoji-updated', /*#__PURE__*/function () {
-                  var _ref5 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee20(event) {
-                    var ckeditorIconWrapper, cardIconWrapper;
-                    return _regeneratorRuntime().wrap(function _callee20$(_context20) {
-                      while (1) switch (_context20.prev = _context20.next) {
-                        case 0:
-                          ckeditorIconWrapper = document.querySelector('#icon-' + event.detail.threadId);
-                          cardIconWrapper = document.querySelector('[data-uuid="' + event.detail.uuid + '"].answer-feedback-card-icon');
-                          if (ckeditorIconWrapper) _this60.addOrReplaceIconByName(ckeditorIconWrapper, event.detail.iconName);
-                          if (cardIconWrapper) {
-                            _this60.addOrReplaceIconByName(cardIconWrapper, event.detail.iconName);
-                            cardIconWrapper.querySelector('span').style = '';
-                          }
-                        case 4:
-                        case "end":
-                          return _context20.stop();
-                      }
-                    }, _callee20);
-                  }));
-                  return function (_x3) {
-                    return _ref5.apply(this, arguments);
-                  };
-                }());
-                document.addEventListener('new-comment-color-updated', function (event) {
-                  var _event$detail;
-                  return _this60.updateNewCommentMarkerStyles(event === null || event === void 0 ? void 0 : (_event$detail = event.detail) === null || _event$detail === void 0 ? void 0 : _event$detail.color);
-                });
-                document.addEventListener('mousedown', function (e) {
-                  if (_this60.activeComment === null) {
-                    return;
-                  }
-                  //check for click outside 1. comment markers, 2. comment marker icons, 3. comment cards.
-                  if (e.srcElement.closest('.ck-comment-marker') || e.srcElement.closest('.answer-feedback-comment-icons') || e.srcElement.closest('.given-feedback-container')) {
-                    return;
-                  }
-                  _this60.clearActiveComment();
-                });
-              case 8:
-              case "end":
-                return _context21.stop();
-            }
-          }, _callee21);
-        }))();
-      },
-      updateCommentThread: function updateCommentThread(element) {
-        var _this61 = this;
-        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee22() {
-          var _answerFeedbackCardEl, _answerFeedbackCardEl2, _answerFeedbackCardEl3, _answerFeedbackCardEl4;
-          var answerFeedbackCardElement, answerFeedbackUuid, comment_color, comment_emoji, answerFeedbackEditor, commentStyles;
-          return _regeneratorRuntime().wrap(function _callee22$(_context22) {
-            while (1) switch (_context22.prev = _context22.next) {
-              case 0:
-                answerFeedbackCardElement = element.closest('.answer-feedback-card');
-                answerFeedbackUuid = answerFeedbackCardElement.dataset.uuid;
-                comment_color = (_answerFeedbackCardEl = answerFeedbackCardElement.querySelector('.comment-color-picker input:checked')) === null || _answerFeedbackCardEl === void 0 ? void 0 : (_answerFeedbackCardEl2 = _answerFeedbackCardEl.dataset) === null || _answerFeedbackCardEl2 === void 0 ? void 0 : _answerFeedbackCardEl2.color;
-                comment_emoji = (_answerFeedbackCardEl3 = answerFeedbackCardElement.querySelector('.comment-emoji-picker input:checked')) === null || _answerFeedbackCardEl3 === void 0 ? void 0 : (_answerFeedbackCardEl4 = _answerFeedbackCardEl3.dataset) === null || _answerFeedbackCardEl4 === void 0 ? void 0 : _answerFeedbackCardEl4.emoji;
-                answerFeedbackEditor = ClassicEditors['update-' + answerFeedbackUuid];
-                _context22.next = 7;
-                return _this61.$wire.call('updateExistingComment', {
-                  uuid: answerFeedbackUuid,
-                  message: answerFeedbackEditor.getData(),
-                  comment_emoji: comment_emoji,
-                  comment_color: comment_color
-                });
-              case 7:
-                commentStyles = _context22.sent;
-                document.querySelector('#commentMarkerStyles').innerHTML = commentStyles;
-                _this61.cancelEditingComment(answerFeedbackCardElement.dataset.threadId);
-              case 10:
-              case "end":
-                return _context22.stop();
-            }
-          }, _callee22);
-        }))();
-      },
-      createCommentThread: function createCommentThread() {
-        var _this62 = this;
-        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee24() {
-          var _addCommentElement$qu, _addCommentElement$qu2, _addCommentElement$qu3, _addCommentElement$qu4, _addCommentElement$qu5, _addCommentElement$qu6;
-          var addCommentElement, comment_color, comment_emoji, comment_iconName, answerEditor, feedbackEditor, comment;
-          return _regeneratorRuntime().wrap(function _callee24$(_context24) {
-            while (1) switch (_context24.prev = _context24.next) {
-              case 0:
-                addCommentElement = _this62.$el.closest('.answer-feedback-add-comment');
-                comment_color = (_addCommentElement$qu = addCommentElement.querySelector('.comment-color-picker input:checked')) === null || _addCommentElement$qu === void 0 ? void 0 : (_addCommentElement$qu2 = _addCommentElement$qu.dataset) === null || _addCommentElement$qu2 === void 0 ? void 0 : _addCommentElement$qu2.color;
-                comment_emoji = (_addCommentElement$qu3 = addCommentElement.querySelector('.comment-emoji-picker input:checked')) === null || _addCommentElement$qu3 === void 0 ? void 0 : (_addCommentElement$qu4 = _addCommentElement$qu3.dataset) === null || _addCommentElement$qu4 === void 0 ? void 0 : _addCommentElement$qu4.emoji;
-                comment_iconName = (_addCommentElement$qu5 = addCommentElement.querySelector('.comment-emoji-picker input:checked')) === null || _addCommentElement$qu5 === void 0 ? void 0 : (_addCommentElement$qu6 = _addCommentElement$qu5.dataset) === null || _addCommentElement$qu6 === void 0 ? void 0 : _addCommentElement$qu6.iconname;
-                answerEditor = ClassicEditors[_this62.answerEditorId];
-                feedbackEditor = ClassicEditors[_this62.feedbackEditorId];
-                comment = feedbackEditor.getData() || '<p></p>';
-                answerEditor.focus();
-                _this62.$nextTick( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee23() {
-                  var feedback, newCommentThread, updatedAnswerText, commentStyles;
-                  return _regeneratorRuntime().wrap(function _callee23$(_context23) {
-                    while (1) switch (_context23.prev = _context23.next) {
-                      case 0:
-                        if (!answerEditor.plugins.get('CommentsRepository').activeCommentThread) {
-                          _context23.next = 20;
-                          break;
-                        }
-                        _context23.next = 3;
-                        return _this62.$wire.createNewComment([]);
-                      case 3:
-                        feedback = _context23.sent;
-                        _context23.next = 6;
-                        return answerEditor.execute('addCommentThread', {
-                          threadId: feedback.threadId
-                        });
-                      case 6:
-                        newCommentThread = answerEditor.plugins.get('CommentsRepository').getCommentThreads().filter(function (thread) {
-                          return thread.id == feedback.threadId;
-                        })[0];
-                        newCommentThread.addComment({
-                          threadId: feedback.threadId,
-                          commentId: feedback.commentId,
-                          content: comment,
-                          authorId: _this62.userId
-                        });
-                        updatedAnswerText = answerEditor.getData();
-                        _context23.next = 11;
-                        return _this62.$wire.saveNewComment({
-                          uuid: feedback.uuid,
-                          message: comment,
-                          comment_color: comment_color,
-                          comment_emoji: comment_emoji
-                        }, updatedAnswerText);
-                      case 11:
-                        commentStyles = _context23.sent;
-                        _context23.next = 14;
-                        return _this62.createCommentIcon({
-                          uuid: feedback.uuid,
-                          threadId: feedback.threadId,
-                          iconName: comment_iconName
-                        });
-                      case 14:
-                        document.querySelector('#commentMarkerStyles').innerHTML = commentStyles;
-                        _this62.resetAddNewAnswerFeedback();
-                        _this62.hasFeedback = true;
-                        _this62.$dispatch('answer-feedback-show-comments');
-                        _this62.scrollToCommentCard(feedback.uuid);
-                        return _context23.abrupt("return");
-                      case 20:
-                        _context23.next = 22;
-                        return _this62.$wire.createNewComment({
-                          message: comment,
-                          comment_color: null,
-                          //no comment color when its a general ticket.
-                          comment_emoji: comment_emoji
-                        }, false);
-                      case 22:
-                        feedback = _context23.sent;
-                        _this62.hasFeedback = true;
-                        _this62.resetAddNewAnswerFeedback();
-                        _this62.$dispatch('answer-feedback-show-comments');
-                        _this62.scrollToCommentCard(feedback.uuid);
-                      case 27:
-                      case "end":
-                        return _context23.stop();
-                    }
-                  }, _callee23);
-                })));
-              case 9:
-              case "end":
-                return _context24.stop();
-            }
-          }, _callee24);
-        }))();
-      },
-      deleteCommentThread: function deleteCommentThread(threadId, feedbackId) {
-        var _this63 = this;
-        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee25() {
-          var answerEditor, commentsRepository, thread, result, deletedThreadIcon, answerText;
-          return _regeneratorRuntime().wrap(function _callee25$(_context25) {
-            while (1) switch (_context25.prev = _context25.next) {
-              case 0:
-                if (!(threadId === null)) {
-                  _context25.next = 5;
-                  break;
-                }
-                _context25.next = 3;
-                return _this63.$wire.deleteCommentThread(null, feedbackId);
-              case 3:
-                _this63.$wire.render();
-                return _context25.abrupt("return");
-              case 5:
-                answerEditor = ClassicEditors[_this63.answerEditorId];
-                commentsRepository = answerEditor.plugins.get('CommentsRepository');
-                thread = commentsRepository.getCommentThread(threadId);
-                _context25.next = 10;
-                return _this63.$wire.deleteCommentThread(threadId, feedbackId);
-              case 10:
-                result = _context25.sent;
-                if (!result) {
-                  _context25.next = 20;
-                  break;
-                }
-                //delete icon positioned over the ckeditor
-                deletedThreadIcon = document.querySelector('.answer-feedback-comment-icons #icon-' + threadId);
-                if (deletedThreadIcon) {
-                  deletedThreadIcon.remove();
-                }
-                commentsRepository.getCommentThread(threadId).remove();
-                answerText = answerEditor.getData();
-                _context25.next = 18;
-                return _this63.$wire.updateAnswer(answerText);
-              case 18:
-                _this63.setEditingComment(null);
-                return _context25.abrupt("return");
-              case 20:
-                console.error('failed to delete answer feedback');
-              case 21:
-              case "end":
-                return _context25.stop();
-            }
-          }, _callee25);
-        }))();
-      },
-      initCommentIcons: function initCommentIcons(commentThreads) {
-        var _this64 = this;
-        //create icon wrapper and append icon inside it
-        commentThreads.forEach(function (thread) {
-          _this64.createCommentIcon(thread);
-        });
-      },
-      initCommentIcon: function initCommentIcon(el, thread) {
-        var _this65 = this;
-        var commentThreadElements = null;
-        setTimeout(function () {
-          var commentMarkers = document.querySelectorAll("[data-comment='" + thread.threadId + "']");
-          var lastCommentMarker = commentMarkers[commentMarkers.length - 1];
-          el.style.top = lastCommentMarker.offsetTop - 15 + 'px';
-          el.style.left = lastCommentMarker.offsetWidth + lastCommentMarker.offsetLeft - 5 + 'px';
-          el.setAttribute('data-uuid', thread.uuid);
-          el.setAttribute('data-threadId', thread.threadId);
-          _this65.addOrReplaceIconByName(el, thread.iconName);
-          commentThreadElements = [].concat(_toConsumableArray(commentMarkers), [el]);
-
-          //set click event listener on all comment markers and the icon.
-          commentThreadElements.forEach(function (threadElement) {
-            threadElement.addEventListener('click', function () {
-              _this65.setActiveComment(thread.threadId, thread.uuid);
-            });
-            threadElement.addEventListener('mouseenter', function (e) {
-              _this65.setHoveringComment(thread.threadId, thread.uuid);
-            });
-            threadElement.addEventListener('mouseleave', function (e) {
-              _this65.clearHoveringComment();
-            });
-          });
-        }, 200);
-      },
-      createCommentIcon: function createCommentIcon(thread) {
-        var el = document.querySelector('.answer-feedback-comment-icons');
-        var iconId = "icon-" + thread.threadId;
-        var iconWrapper = document.createElement('div');
-        iconWrapper.classList.add('absolute');
-        iconWrapper.classList.add('z-10');
-        iconWrapper.classList.add('cursor-pointer');
-        iconWrapper.id = iconId;
-        el.appendChild(iconWrapper);
-        this.initCommentIcon(iconWrapper, thread);
-      },
-      addOrReplaceIconByName: function addOrReplaceIconByName(el, iconName) {
-        el.innerHTML = '';
-        var iconTemplate = null;
-        if (iconName === null || iconName === '') {
-          iconTemplate = document.querySelector('#default-icon');
-        } else {
-          iconTemplate = document.querySelector('#' + iconName.replace('icon.', ''));
-        }
-        el.appendChild(document.importNode(iconTemplate.content, true));
-      },
-      setHoveringComment: function setHoveringComment(threadId, answerFeedbackUuid) {
-        this.hoveringComment = {
-          threadId: threadId,
-          uuid: answerFeedbackUuid
-        };
-        this.setHoveringCommentMarkerStyle();
-      },
-      clearHoveringComment: function clearHoveringComment() {
-        this.hoveringComment = null;
-        this.setHoveringCommentMarkerStyle(true);
-      },
-      cancelEditingComment: function cancelEditingComment(threadId, AnswerFeedbackUuid) {
-        var originalIconName = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-        var originalColor = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
-        //reset temporary styling
-        document.querySelector('#temporaryCommentMarkerStyles').innerHTML = '';
-        this.setEditingComment(null);
-
-        //reset radio buttons
-        if (originalColor) {
-          document.querySelector('[data-uuid="' + AnswerFeedbackUuid + "\"].answer-feedback-card .comment-color-picker [data-color=\"".concat(originalColor, "\"]")).checked = true;
-        }
-        if (originalIconName === false) return; /* false is unset, but null is a valid value */
-
-        if (originalIconName === null || originalIconName === '') {
-          var emojiPicker = document.querySelector('[data-uuid="' + AnswerFeedbackUuid + "\"].answer-feedback-card .comment-emoji-picker input:checked");
-          if (emojiPicker) emojiPicker.checked = false;
-        } else {
-          document.querySelector('[data-uuid="' + AnswerFeedbackUuid + "\"].answer-feedback-card .comment-emoji-picker [data-iconName=\"".concat(originalIconName, "\"]")).checked = true;
-        }
-
-        //reset icon to the original if originalIconName is given (null is also valid)
-        var ckeditorIconWrapper = document.querySelector('#icon-' + threadId);
-        var cardIconWrapper = document.querySelector('[data-uuid="' + AnswerFeedbackUuid + '"].answer-feedback-card-icon');
-        if (ckeditorIconWrapper) this.addOrReplaceIconByName(ckeditorIconWrapper, originalIconName);
-        if (cardIconWrapper) {
-          if (originalIconName === null || originalIconName === '') {
-            cardIconWrapper.innerHTML = '';
-            return;
-          }
-          this.addOrReplaceIconByName(cardIconWrapper, originalIconName);
-          cardIconWrapper.querySelector('span').style = '';
-        }
-      },
-      updateNewCommentMarkerStyles: function updateNewCommentMarkerStyles(color) {
-        var styleTag = document.querySelector('#addFeedbackMarkerStyles');
-        var colorCode = 'rgba(var(--primary-rgb), 0.4)';
-        if (color) {
-          colorCode = color;
-        }
-        styleTag.innerHTML = '\n' + '        :root {\n' + '            --active-comment-color: ' + colorCode + '; /* default color, overwrite when color picker is used */\n' + '            --ck-color-comment-marker-active: var(--active-comment-color);\n' + '        }\n' + '    ';
-      },
-      setHoveringCommentMarkerStyle: function setHoveringCommentMarkerStyle() {
-        var removeStyling = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-        var styleTag = document.querySelector('#hoveringCommentMarkerStyle');
-        if (removeStyling || this.hoveringComment.threadId === null) {
-          styleTag.innerHTML = '';
-          return;
-        }
-        styleTag.innerHTML = '' + '.ck-comment-marker[data-comment="' + this.hoveringComment.threadId + '"] { color: var(--teacher-primary); }' + 'div[data-threadid="' + this.hoveringComment.threadId + '"] svg { color: var(--teacher-primary); }';
-      },
-      setActiveCommentMarkerStyle: function setActiveCommentMarkerStyle() {
-        var _this$activeComment, _this$activeComment2;
-        var removeStyling = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-        var styleTag = document.querySelector('#activeCommentMarkerStyle');
-        if (removeStyling || ((_this$activeComment = this.activeComment) === null || _this$activeComment === void 0 ? void 0 : _this$activeComment.threadId) === null) {
-          styleTag.innerHTML = '';
-          return;
-        }
-        styleTag.innerHTML = '' + '.ck-comment-marker[data-comment="' + ((_this$activeComment2 = this.activeComment) === null || _this$activeComment2 === void 0 ? void 0 : _this$activeComment2.threadId) + '"] { ' + '   border: 1px solid var(--ck-color-comment-marker-border) !important; ' + '} ';
-      },
-      setActiveComment: function setActiveComment(threadId, answerFeedbackUuid) {
-        if (this.editingComment !== null) {
-          /* when editing, no other comment can be activated */
-          return;
-        }
-        this.activeComment = {
-          threadId: threadId,
-          uuid: answerFeedbackUuid
-        };
-        this.setActiveCommentMarkerStyle();
-        this.$dispatch('answer-feedback-show-comments');
-        this.$dispatch("assessment-drawer-tab-update", {
-          tab: 2,
-          uuid: answerFeedbackUuid
-        });
-      },
-      clearActiveComment: function clearActiveComment() {
-        this.activeComment = null;
-        this.setActiveCommentMarkerStyle(true);
-      },
-      setFocusTracking: function setFocusTracking() {
-        var _this66 = this;
-        if (viewOnly) {
-          return;
-        }
-        setTimeout(function () {
-          try {
-            var answerEditor = ClassicEditors[_this66.answerEditorId];
-            var feedbackEditor = ClassicEditors[_this66.feedbackEditorId];
-            var feedbackEditorSaveButton = document.querySelector('#' + _this66.feedbackEditorId + '-save');
-            var feedbackEditorCancelButton = document.querySelector('#' + _this66.feedbackEditorId + '-cancel');
-            answerEditor.ui.focusTracker.add(feedbackEditor.sourceElement.parentElement.querySelector('.ck.ck-content'));
-            answerEditor.ui.focusTracker.add(feedbackEditorSaveButton);
-            answerEditor.ui.focusTracker.add(feedbackEditorCancelButton);
-
-            //keep focus when clicking on the emoji and color pickers
-            document.querySelectorAll('.answer-feedback-add-comment .emoji-picker-radio, .answer-feedback-add-comment .color-picker-radio input').forEach(function (element) {
-              answerEditor.ui.focusTracker.add(element);
-              feedbackEditor.ui.focusTracker.add(element);
-            });
-            document.querySelectorAll('.answer-feedback-add-comment .emoji-picker-radio, .answer-feedback-add-comment .emoji-picker-radio input').forEach(function (element) {
-              answerEditor.ui.focusTracker.add(element);
-              feedbackEditor.ui.focusTracker.add(element);
-            });
-            feedbackEditor.ui.focusTracker.add(answerEditor.sourceElement.parentElement.querySelector('.ck.ck-content'));
-            feedbackEditor.ui.focusTracker.add(feedbackEditorSaveButton);
-            feedbackEditor.ui.focusTracker.add(feedbackEditorCancelButton);
-          } catch (exception) {
-            // ignore focusTracker error when trying to add element that is already registered
-            // there is no way to preventively check if the element is already registered
-            if (!exception.message.contains('focustracker-add-element-already-exist')) {
-              throw exception;
-            }
-          }
-        }, 1000);
-      },
-      get answerEditor() {
-        return ClassicEditors[this.answerEditorId];
-      },
-      get feedbackEditor() {
-        return ClassicEditors[this.feedbackEditorId];
-      },
-      setEditingComment: function setEditingComment(AnswerFeedbackUuid) {
-        var _this67 = this;
-        this.activeComment = null;
-        this.editingComment = AnswerFeedbackUuid !== null && AnswerFeedbackUuid !== void 0 ? AnswerFeedbackUuid : null;
-        setTimeout(function () {
-          _this67.fixSlideHeightByIndex(2, AnswerFeedbackUuid);
-        }, 100);
-      },
-      toggleFeedbackAccordion: function toggleFeedbackAccordion(name) {
-        var forceOpenAccordion = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-        if (this.editingComment !== null) {
-          this.dropdownOpened = 'given-feedback';
-          return;
-        }
-        ;
-        if (this.dropdownOpened === name && !forceOpenAccordion) {
-          this.dropdownOpened = null;
-          return;
-        }
-        if (questionType === 'OpenQuestion' && name === 'add-feedback') {
-          try {
-            this.setFocusTracking();
-          } catch (e) {
-            //
-          }
-        }
-        this.dropdownOpened = name;
-      },
-      resetAddNewAnswerFeedback: function resetAddNewAnswerFeedback() {
-        var cancelAddingNewComment = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-        //find default/blue color picker and enable it.
-        var defaultColorPicker = document.querySelector('.answer-feedback-add-comment .comment-color-picker [data-color="blue"]');
-        defaultColorPicker.checked = true;
-
-        //find checked emoji picker, uncheck
-        var checkedEmojiPicker = document.querySelector('.answer-feedback-add-comment .comment-emoji-picker input:checked');
-        if (checkedEmojiPicker !== null) {
-          checkedEmojiPicker.checked = false;
-        }
-
-        //answerFeedbackeditor reset text
-        var answerEditor = ClassicEditors[this.feedbackEditorId];
-        answerEditor.setData('<p></p>');
-        this.updateNewCommentMarkerStyles(null);
-        if (cancelAddingNewComment) {
-          //todo does annuleren close the accordion?
-          console.warn('todo does annuleren close the accordion?');
-        }
-      }
-    };
-  });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("drawingQuestionImagePreview", function () {
     return {
       maxTries: 10,
@@ -9715,7 +9095,7 @@ document.addEventListener("alpine:init", function () {
         this.setHeightToAspectRatio(this.$el);
       },
       setHeightToAspectRatio: function setHeightToAspectRatio(element) {
-        var _this68 = this;
+        var _this59 = this;
         var aspectRatioWidth = 940;
         var aspectRatioHeight = 500;
         var aspectRatio = aspectRatioHeight / aspectRatioWidth;
@@ -9728,7 +9108,7 @@ document.addEventListener("alpine:init", function () {
         if (newHeight <= 0) {
           if (this.currentTry <= this.maxTries) {
             setTimeout(function () {
-              return _this68.setHeightToAspectRatio(element);
+              return _this59.setHeightToAspectRatio(element);
             }, 50);
             this.currentTry++;
           }
@@ -9761,16 +9141,16 @@ document.addEventListener("alpine:init", function () {
       maxWords: maxWords,
       wordContainer: null,
       init: function init() {
-        var _this69 = this;
+        var _this60 = this;
         this.$nextTick(function () {
-          _this69.editor = ClassicEditors[editorId];
-          _this69.wordContainer = _this69.$root.querySelector(".ck-word-count__words");
-          _this69.wordContainer.style.display = "flex";
-          _this69.wordContainer.parentElement.style.display = "flex";
-          _this69.addMaxWordsToWordCounter(_this69.maxWords);
+          _this60.editor = ClassicEditors[editorId];
+          _this60.wordContainer = _this60.$root.querySelector(".ck-word-count__words");
+          _this60.wordContainer.style.display = "flex";
+          _this60.wordContainer.parentElement.style.display = "flex";
+          _this60.addMaxWordsToWordCounter(_this60.maxWords);
         });
         this.$watch("maxWords", function (value) {
-          _this69.addMaxWordsToWordCounter(value);
+          _this60.addMaxWordsToWordCounter(value);
         });
       },
       addMaxWordsToWordCounter: function addMaxWordsToWordCounter(value) {
@@ -9789,18 +9169,18 @@ document.addEventListener("alpine:init", function () {
     return {
       editorId: editorId,
       init: function init() {
-        var _this70 = this;
+        var _this61 = this;
         this.$watch("showMe", function (value) {
           if (!value) return;
-          _this70.$nextTick(function () {
+          _this61.$nextTick(function () {
             var editor = ClassicEditors[editorId];
             if (!editor) {
               return;
             }
-            _this70.setFocus(editor);
+            _this61.setFocus(editor);
             if (!editor.ui.focusTracker.isFocused) {
               setTimeout(function () {
-                return _this70.setFocus(editor);
+                return _this61.setFocus(editor);
               }, 100);
             }
           });
@@ -9828,13 +9208,13 @@ document.addEventListener("alpine:init", function () {
       pillContainer: null,
       searchFocussed: false,
       init: function init() {
-        var _this71 = this;
+        var _this62 = this;
         this.pillContainer = document.querySelector("#".concat(containerId));
         this.$watch("query", function (value) {
-          return _this71.search(value);
+          return _this62.search(value);
         });
         this.$watch("open", function (value) {
-          if (value) _this71.handleDropdownLocation();
+          if (value) _this62.handleDropdownLocation();
         });
         this.registerSelectedItemsOnComponent();
       },
@@ -9842,15 +9222,15 @@ document.addEventListener("alpine:init", function () {
         this.openSubs = this.toggle(this.openSubs, uuid);
       },
       parentClick: function parentClick(element, parent) {
-        var _this72 = this;
+        var _this63 = this;
         var checked = !this.checkedParents.includes(parent.value);
         element.querySelector("input[type=\"checkbox\"]").checked = checked;
         this.checkedParents = this.toggle(this.checkedParents, parent.value);
         parent.children.filter(function (child) {
           return child.disabled !== true;
         }).forEach(function (child) {
-          _this72[checked ? "childAdd" : "childRemove"](child);
-          checked ? _this72.disableBrothersFromOtherMothers(child) : _this72.enableBrothersFromOtherMothers(child);
+          _this63[checked ? "childAdd" : "childRemove"](child);
+          checked ? _this63.disableBrothersFromOtherMothers(child) : _this63.enableBrothersFromOtherMothers(child);
         });
         this.$root.querySelectorAll("[data-parent-id=\"".concat(parent.value, "\"][data-disabled=\"false\"] input[type=\"checkbox\"]")).forEach(function (child) {
           return child.checked = checked;
@@ -9917,13 +9297,13 @@ document.addEventListener("alpine:init", function () {
         // return result < parent.children.length;
       },
       checkedChildrenCount: function checkedChildrenCount(parent) {
-        var _this73 = this;
+        var _this64 = this;
         return parent.children.filter(function (child) {
-          return _this73.checkedChildrenContains(child);
+          return _this64.checkedChildrenContains(child);
         }).length;
       },
       search: function search(value) {
-        var _this74 = this;
+        var _this65 = this;
         if (value.length === 0) {
           this.searchEmpty = false;
           this.showAllOptions();
@@ -9933,7 +9313,7 @@ document.addEventListener("alpine:init", function () {
         var results = this.searchParentsAndChildsLabels(value);
         this.searchEmpty = results.length === 0;
         results.forEach(function (item) {
-          return _this74.showOption(item);
+          return _this65.showOption(item);
         });
       },
       showOption: function showOption(identifier) {
@@ -10011,9 +9391,9 @@ document.addEventListener("alpine:init", function () {
         this[toggleFunction](this.$root.querySelector("[data-id=\"".concat(event.item.value, "\"][data-parent-id=\"").concat(event.item.customProperties.parentId, "\"]")), event.item);
       },
       handleActiveFilters: function handleActiveFilters() {
-        var _this75 = this;
+        var _this66 = this;
         var currentPillIds = Array.from(this.pillContainer.childNodes).map(function (pill) {
-          if (!_this75.isParent(pill.item)) {
+          if (!_this66.isParent(pill.item)) {
             return pill.item.value + pill.item.customProperties.parentId;
           }
           return pill.item.value;
@@ -10027,13 +9407,13 @@ document.addEventListener("alpine:init", function () {
         this.options.flatMap(function (parent) {
           return [parent].concat(_toConsumableArray(parent.children));
         }).filter(function (item) {
-          if (_this75.isParent(item)) return _this75.checkedParents.includes(item.value);
-          if (_this75.checkedParents.includes(item.customProperties.parentId)) {
+          if (_this66.isParent(item)) return _this66.checkedParents.includes(item.value);
+          if (_this66.checkedParents.includes(item.customProperties.parentId)) {
             pillIdsToRemove.push(item.value + item.customProperties.parentId);
           }
-          return !_this75.checkedParents.includes(item.customProperties.parentId) && _this75.checkedChildrenContains(item);
+          return !_this66.checkedParents.includes(item.customProperties.parentId) && _this66.checkedChildrenContains(item);
         }).forEach(function (item) {
-          return _this75.createFilterPill(item);
+          return _this66.createFilterPill(item);
         });
         var that = this;
         pillIdsToRemove.forEach(function (uuid) {
@@ -10060,7 +9440,7 @@ document.addEventListener("alpine:init", function () {
         }
       },
       registerSelectedItemsOnComponent: function registerSelectedItemsOnComponent() {
-        var _this76 = this;
+        var _this67 = this;
         var checkedChildValues = this.options.flatMap(function (parent) {
           return _toConsumableArray(parent.children);
         }).filter(function (item) {
@@ -10069,10 +9449,10 @@ document.addEventListener("alpine:init", function () {
         });
         this.$nextTick(function () {
           checkedChildValues.forEach(function (item) {
-            _this76.childClick(_this76.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.customProperties.parentId, "\"]")), item);
+            _this67.childClick(_this67.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.customProperties.parentId, "\"]")), item);
           });
-          _this76.registerParentsBasedOnDisabledChildren();
-          _this76.handleActiveFilters();
+          _this67.registerParentsBasedOnDisabledChildren();
+          _this67.handleActiveFilters();
         });
       },
       syncInput: function syncInput() {
@@ -10111,15 +9491,15 @@ document.addEventListener("alpine:init", function () {
         return !((_item$customPropertie3 = item.customProperties) !== null && _item$customPropertie3 !== void 0 && _item$customPropertie3.parent) === false;
       },
       registerParentsBasedOnDisabledChildren: function registerParentsBasedOnDisabledChildren() {
-        var _this77 = this;
+        var _this68 = this;
         this.options.forEach(function (item) {
           var enabledChildren = item.children.filter(function (child) {
             return child.disabled !== true;
           }).length;
           if (enabledChildren === 0) return;
-          var enabled = _this77.checkedChildrenCount(item) === enabledChildren;
-          _this77.checkedParents = _this77[enabled ? 'add' : 'remove'](_this77.checkedParents, item.value);
-          _this77.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.value, "\"] input[type=\"checkbox\"]")).checked = enabled;
+          var enabled = _this68.checkedChildrenCount(item) === enabledChildren;
+          _this68.checkedParents = _this68[enabled ? 'add' : 'remove'](_this68.checkedParents, item.value);
+          _this68.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.value, "\"] input[type=\"checkbox\"]")).checked = enabled;
         });
       },
       parentDisabled: function parentDisabled(parent) {
@@ -10129,142 +9509,8 @@ document.addEventListener("alpine:init", function () {
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('questionBank', function (openTab, inGroup, inTestBankContext) {
-    return {
-      questionBankOpenTab: openTab,
-      inGroup: inGroup,
-      groupDetail: null,
-      bodyVisibility: true,
-      inTestBankContext: inTestBankContext,
-      maxHeight: 'calc(100vh - var(--header-height))',
-      init: function init() {
-        var _this78 = this;
-        this.groupDetail = this.$el.querySelector('#groupdetail');
-        this.$watch('showBank', function (value) {
-          if (value === 'questions') {
-            _this78.$wire.loadSharedFilters();
-          }
-        });
-        this.$watch('$store.questionBank.inGroup', function (value) {
-          _this78.inGroup = value;
-        });
-        this.$watch('$store.questionBank.active', function (value) {
-          if (value) {
-            _this78.$wire.setAddedQuestionIdsArray();
-          } else {
-            _this78.closeGroupDetailQb();
-          }
-        });
-        this.showGroupDetailsQb = /*#__PURE__*/function () {
-          var _ref7 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee26(groupQuestionUuid) {
-            var inTest,
-              readyForSlide,
-              _args26 = arguments;
-            return _regeneratorRuntime().wrap(function _callee26$(_context26) {
-              while (1) switch (_context26.prev = _context26.next) {
-                case 0:
-                  inTest = _args26.length > 1 && _args26[1] !== undefined ? _args26[1] : false;
-                  _context26.next = 3;
-                  return _this78.$wire.showGroupDetails(groupQuestionUuid, inTest);
-                case 3:
-                  readyForSlide = _context26.sent;
-                  if (readyForSlide) {
-                    if (_this78.inTestBankContext) {
-                      _this78.$refs['tab-container'].style.display = 'none';
-                      _this78.$refs['main-container'].style.height = '100vh';
-                    } else {
-                      _this78.maxHeight = _this78.groupDetail.offsetHeight + 'px';
-                    }
-                    _this78.groupDetail.style.left = 0;
-                    _this78.$refs['main-container'].scrollTo({
-                      top: 0,
-                      behavior: 'smooth'
-                    });
-                    _this78.$el.scrollTo({
-                      top: 0,
-                      behavior: 'smooth'
-                    });
-                    _this78.$nextTick(function () {
-                      setTimeout(function () {
-                        _this78.bodyVisibility = false;
-                        if (_this78.inTestBankContext) {
-                          _this78.groupDetail.style.position = 'relative';
-                        } else {
-                          handleVerticalScroll(_this78.$el.closest('.slide-container'));
-                        }
-                      }, 500);
-                    });
-                  }
-                case 5:
-                case "end":
-                  return _context26.stop();
-              }
-            }, _callee26);
-          }));
-          return function (_x4) {
-            return _ref7.apply(this, arguments);
-          };
-        }();
-        this.closeGroupDetailQb = function () {
-          if (!_this78.bodyVisibility) {
-            _this78.bodyVisibility = true;
-            _this78.maxHeight = 'calc(100vh - var(--header-height))';
-            _this78.groupDetail.style.left = '100%';
-            if (_this78.inTestBankContext) {
-              _this78.groupDetail.style.position = 'absolute';
-              _this78.$refs['tab-container'].style.display = 'block';
-            }
-            _this78.$nextTick(function () {
-              _this78.$wire.clearGroupDetails();
-              setTimeout(function () {
-                if (!_this78.inTestBankContext) {
-                  handleVerticalScroll(_this78.$el.closest('.slide-container'));
-                }
-              }, 250);
-            });
-          }
-        };
-        this.addQuestionToTest = /*#__PURE__*/function () {
-          var _ref8 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee27(button, questionUuid) {
-            var showQuestionBankAddConfirmation,
-              enableButton,
-              _args27 = arguments;
-            return _regeneratorRuntime().wrap(function _callee27$(_context27) {
-              while (1) switch (_context27.prev = _context27.next) {
-                case 0:
-                  showQuestionBankAddConfirmation = _args27.length > 2 && _args27[2] !== undefined ? _args27[2] : false;
-                  if (!showQuestionBankAddConfirmation) {
-                    _context27.next = 3;
-                    break;
-                  }
-                  return _context27.abrupt("return", _this78.$wire.emit('openModal', 'teacher.add-sub-question-confirmation-modal', {
-                    questionUuid: questionUuid
-                  }));
-                case 3:
-                  button.disabled = true;
-                  _context27.next = 6;
-                  return _this78.$wire.handleCheckboxClick(questionUuid);
-                case 6:
-                  enableButton = _context27.sent;
-                  if (enableButton) {
-                    button.disabled = false;
-                  }
-                  return _context27.abrupt("return", true);
-                case 9:
-                case "end":
-                  return _context27.stop();
-              }
-            }, _callee27);
-          }));
-          return function (_x5, _x6) {
-            return _ref8.apply(this, arguments);
-          };
-        }();
-      }
-    };
-  });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].directive("global", function (el, _ref9) {
-    var expression = _ref9.expression;
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].directive("global", function (el, _ref4) {
+    var expression = _ref4.expression;
     var f = new Function("_", "$data", "_." + expression + " = $data;return;");
     f(window, el._x_dataStack[0]);
   });
@@ -10604,12 +9850,6 @@ selectTextContent = function selectTextContent(event) {
 };
 Array.prototype.contains = function (key) {
   return this.includes(key);
-};
-debug = function debug() {
-  var seconds = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 2;
-  setTimeout(function () {
-    debugger;
-  }, seconds * 1000);
 };
 
 /***/ }),
@@ -11049,8 +10289,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _smoothscroll_polyfill__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_smoothscroll_polyfill__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var _AnyChart_anychart_base_min__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./AnyChart/anychart-base.min */ "./resources/js/AnyChart/anychart-base.min.js");
 /* harmony import */ var _AnyChart_anychart_base_min__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_AnyChart_anychart_base_min__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var uuid__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/v4.js");
-/* harmony import */ var _CkEditor5CommentsIntegration__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./CkEditor5CommentsIntegration */ "./resources/js/CkEditor5CommentsIntegration.js");
 /* provided dependency */ var process = __webpack_require__(/*! process/browser.js */ "./node_modules/process/browser.js");
 window._ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
 
@@ -11073,12 +10311,11 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "662d128370816e2bbb66",
+  key: "fc18ed69b446aeb8c8a5",
   cluster: "eu",
   forceTLS: true
 });
 window.$ = window.jQuery = __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js");
-window.MIX_CKEDITOR_LICENSE_KEY = "q11N5LxlUjUp2pDthuTmPmy/+cmatL0lY7nh6aX+nhhODyekK1g8YW5CKA==";
 window.FilePond = __webpack_require__(/*! filepond */ "./node_modules/filepond/dist/filepond.js");
 
 FilePond.registerPlugin((filepond_plugin_file_validate_size__WEBPACK_IMPORTED_MODULE_1___default()));
@@ -11088,10 +10325,6 @@ FilePond.registerPlugin((filepond_plugin_file_validate_size__WEBPACK_IMPORTED_MO
 _smoothscroll_polyfill__WEBPACK_IMPORTED_MODULE_2___default().polyfill();
 
 _AnyChart_anychart_base_min__WEBPACK_IMPORTED_MODULE_3___default().licenseKey(process.env.MIX_ANYCHART_LICENSE_KEY);
-
-window.uuidv4 = uuid__WEBPACK_IMPORTED_MODULE_4__["default"];
-
-window.CommentsIntegration = _CkEditor5CommentsIntegration__WEBPACK_IMPORTED_MODULE_5__["default"];
 
 /***/ }),
 
@@ -17491,88 +16724,19 @@ RichTextEditor = {
     });
   },
   initAssessmentFeedback: function initAssessmentFeedback(parameterBag) {
-    this.setAnswerFeedbackItemsToRemove(parameterBag);
+    parameterBag.removeItems = {
+      plugins: ["Essentials", "FontFamily", "FontSize", "FontBackgroundColor", "Heading", "Indent", "FontColor", "RemoveFormat", "PasteFromOffice", "WordCount", "WProofreader", "Completion", "Selection"],
+      toolbar: ["outdent", "indent", "completion", "selection", "fontFamily", "fontBackgroundColor", "fontSize", "undo", "redo", "fontColor", "heading", "removeFormat", "wproofreader", "specialCharacters"]
+    };
     parameterBag.shouldNotGroupWhenFull = true;
     return this.createTeacherEditor(parameterBag);
   },
-  initUpdateAnswerFeedbackEditor: function initUpdateAnswerFeedbackEditor(parameterBag) {
-    this.setAnswerFeedbackItemsToRemove(parameterBag);
-    parameterBag.shouldNotGroupWhenFull = true;
-    return this.createTeacherEditor(parameterBag, function (editor) {
-
-      // this.hideWProofreaderChevron(parameterBag.allowWsc, editor);
-    });
-  },
-  initCreateAnswerFeedbackEditor: function initCreateAnswerFeedbackEditor(parameterBag) {
-    this.setAnswerFeedbackItemsToRemove(parameterBag);
-    parameterBag.shouldNotGroupWhenFull = true;
-    return this.createTeacherEditor(parameterBag, function (editor) {
-      window.addEventListener('answer-feedback-focus-feedback-editor', function () {
-        setTimeout(function () {
-          editor.focus();
-        }, 100);
-      });
-      // this.hideWProofreaderChevron(parameterBag.allowWsc, editor);
-    });
-  },
-
-  initAnswerEditorWithComments: function initAnswerEditorWithComments(parameterBag) {
+  initInlineFeedback: function initInlineFeedback(parameterBag) {
     var _this7 = this;
     return this.createStudentEditor(parameterBag, function (editor) {
-      WebspellcheckerTlc.lang(editor, parameterBag.lang);
-      _this7.setupWordCounter(editor, parameterBag);
-      _this7.setCommentsOnly(editor); //replaces read-only
-      _this7.setAnswerFeedbackEventListeners(editor);
+      return _this7.setupWordCounter(editor, parameterBag);
     });
   },
-  setAnswerFeedbackEventListeners: function setAnswerFeedbackEventListeners(editor) {
-    editor.ui.view.editable.element.onblur = function (e) {
-      //create a temporary commentThread to mark the selection while creating a new comment
-      // editor.execute( 'addCommentThread', { threadId: window.uuidv4() } );
-    };
-    document.addEventListener('mouseup', function (e) {
-      var _window$getSelection$, _window$getSelection$2;
-      /*
-       * selection is in the answer comment editor
-       * selection is not empty
-       * selection is on the assessment screen
-       * */
-      if (((_window$getSelection$ = window.getSelection().focusNode) === null || _window$getSelection$ === void 0 ? void 0 : (_window$getSelection$2 = _window$getSelection$.parentElement) === null || _window$getSelection$2 === void 0 ? void 0 : _window$getSelection$2.closest('.comment-editor')) !== null && document.querySelector('#assessment-page') !== null && window.getSelection().toString() !== '') {
-        dispatchEvent(new CustomEvent('assessment-drawer-tab-update', {
-          detail: {
-            tab: 2
-          }
-        }));
-
-        //focus the create a comment editor
-        dispatchEvent(new CustomEvent('answer-feedback-focus-feedback-editor'));
-        setTimeout(function () {
-          editor.execute('addCommentThread', {
-            threadId: window.uuidv4()
-          });
-        }, 200);
-      }
-    });
-  },
-  //only needed when webspellchecker has to be re-added to the inline-feedback comment editors
-  // hideWProofreaderChevron: function (allowWsc, editor) {
-  //
-  //     if(!allowWsc) {
-  //         return;
-  //     }
-  //
-  //     const callback = (element) => {
-  //         return element.innerHTML == 'WProofreader' && element.classList.contains('ck-tooltip__text')
-  //     }
-  //
-  //     // const elements = Array.from(document.getElementsByTagName('span'))
-  //     const elements = Array.from(editor.editing.view.getDomRoot().closest('.ck-editor').getElementsByTagName('span'))
-  //
-  //     elements.filter(callback).forEach((element) => {
-  //         return element.parentElement.parentElement.querySelector('.ck-dropdown__arrow').style.display = 'none';
-  //     });
-  //
-  // },
   getConfigForStudent: function getConfigForStudent(parameterBag) {
     var _parameterBag$plugins;
     (_parameterBag$plugins = parameterBag.pluginsToAdd) !== null && _parameterBag$plugins !== void 0 ? _parameterBag$plugins : parameterBag.pluginsToAdd = [];
@@ -17605,14 +16769,6 @@ RichTextEditor = {
     if (!parameterBag.mathmlFunctions) {
       config.removePlugins.push("MathType", "ChemType", "SpecialCharactersTLC");
       config.toolbar.removeItems.push("MathType", "ChemType", "specialCharacters");
-    }
-    if (parameterBag.commentThreads != undefined) {
-      config.extraPlugins = [CommentsIntegration];
-      config.commentsIntegration = {
-        userId: parameterBag.userId,
-        users: parameterBag.users,
-        commentThreads: parameterBag.commentThreads
-      };
     }
     return config;
   },
@@ -17672,17 +16828,6 @@ RichTextEditor = {
     config.toolbar = {
       removeItems: (_parameterBag$removeI4 = (_parameterBag$removeI5 = parameterBag.removeItems) === null || _parameterBag$removeI5 === void 0 ? void 0 : _parameterBag$removeI5.toolbar) !== null && _parameterBag$removeI4 !== void 0 ? _parameterBag$removeI4 : []
     };
-    if (parameterBag.toolbar) {
-      config.toolbar.items = parameterBag.toolbar;
-    }
-    if (parameterBag.commentThreads != undefined) {
-      config.extraPlugins = [CommentsIntegration];
-      config.commentsIntegration = {
-        userId: parameterBag.userId,
-        users: parameterBag.users,
-        commentThreads: parameterBag.commentThreads
-      };
-    }
     if (!parameterBag.allowWsc) {
       delete config.wproofreader;
       config.removePlugins.push("WProofreader");
@@ -17716,9 +16861,6 @@ RichTextEditor = {
         element.setAttribute("contenteditable", false);
       });
     }
-  },
-  setCommentsOnly: function setCommentsOnly(editor) {
-    editor.plugins.get('CommentsOnly').isEnabled = true;
   },
   writeContentToTextarea: function writeContentToTextarea(editorId) {
     var editor = ClassicEditors[editorId];
@@ -17923,13 +17065,6 @@ RichTextEditor = {
       editor.updateSourceElement();
       editor.sourceElement.dispatchEvent(new Event("input"));
     }
-  },
-  setAnswerFeedbackItemsToRemove: function setAnswerFeedbackItemsToRemove(parameterBag) {
-    parameterBag.removeItems = {
-      plugins: ["FontFamily", "FontSize", "FontBackgroundColor", "Heading", "Indent", "FontColor", "RemoveFormat", "PasteFromOffice", "WordCount", "Completion", "Selection"],
-      toolbar: ["outdent", "indent", "completion", "selection", "fontFamily", "fontBackgroundColor", "fontSize", "fontColor", "heading", "removeFormat", "specialCharacters", "insertTable", "imageUpload", 'underline', 'strikethrough', 'subscript', 'superscript', 'bulletedList', 'numberedList', 'blockQuote']
-    };
-    parameterBag.toolbar = ["undo", "redo", "|", "bold", "italic", 'MathType', 'ChemType', 'wproofreader'];
   }
 };
 
@@ -69697,32 +68832,6 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
-/***/ "./resources/css/app_pdf.css":
-/*!***********************************!*\
-  !*** ./resources/css/app_pdf.css ***!
-  \***********************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-// extracted by mini-css-extract-plugin
-
-
-/***/ }),
-
-/***/ "./resources/css/print-test-pdf.css":
-/*!******************************************!*\
-  !*** ./resources/css/print-test-pdf.css ***!
-  \******************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-// extracted by mini-css-extract-plugin
-
-
-/***/ }),
-
 /***/ "./node_modules/plyr/dist/plyr.min.js":
 /*!********************************************!*\
   !*** ./node_modules/plyr/dist/plyr.min.js ***!
@@ -79029,9 +78138,7 @@ module.exports = JSON.parse('{"name":"axios","version":"0.21.4","description":"P
 /******/ 		// [resolve, reject, Promise] = chunk loading, 0 = chunk loaded
 /******/ 		var installedChunks = {
 /******/ 			"/js/app": 0,
-/******/ 			"css/app": 0,
-/******/ 			"css/app_pdf": 0,
-/******/ 			"css/print-test-pdf": 0
+/******/ 			"css/app": 0
 /******/ 		};
 /******/ 		
 /******/ 		// no chunk on demand loading
@@ -79081,10 +78188,8 @@ module.exports = JSON.parse('{"name":"axios","version":"0.21.4","description":"P
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module depends on other loaded chunks and execution need to be delayed
-/******/ 	__webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/js/app.js")))
-/******/ 	__webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/css/app.css")))
-/******/ 	__webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/css/app_pdf.css")))
-/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/css/print-test-pdf.css")))
+/******/ 	__webpack_require__.O(undefined, ["css/app"], () => (__webpack_require__("./resources/js/app.js")))
+/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["css/app"], () => (__webpack_require__("./resources/css/app.css")))
 /******/ 	__webpack_exports__ = __webpack_require__.O(__webpack_exports__);
 /******/ 	
 /******/ })()
