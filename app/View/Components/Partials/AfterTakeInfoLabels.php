@@ -3,29 +3,29 @@
 namespace tcCore\View\Components\partials;
 
 use Illuminate\Support\Facades\Auth;
+use tcCore\TestParticipant;
 use tcCore\TestTake;
 use tcCore\View\Components\Abstracts\TestTakeInfoLabels;
 
 class AfterTakeInfoLabels extends TestTakeInfoLabels
 {
-    /**
-     * Create a new component instance.
-     *
-     * @return void
-     */
-    public function __construct(protected TestTake $testTake)
+    protected TestParticipant $testParticipant;
+
+    protected function __construct(protected TestTake $testTake)
     {
+        $this->testParticipant = $testTake->testParticipants()->where('user_id', Auth::id())->first();
+
         parent::__construct($testTake);
     }
 
     protected function showAppIcon(): bool
     {
-        return true;
+        return $this->testParticipant->testTakeEvents()->where('is_in_browser', false)->exists();
     }
 
     protected function showWebIcon(): bool
     {
-        return true;
+        return $this->testParticipant->testTakeEvents()->where('is_in_browser', true)->exists();
     }
 
     protected function showTestDirectIcon(): bool
@@ -35,7 +35,7 @@ class AfterTakeInfoLabels extends TestTakeInfoLabels
 
     protected function showRedoIcon(): bool
     {
-        return $this->testTake->retake;
+        return $this->testTake->retake ?? false;
     }
 
     protected function getTooltip(string $iconName): string

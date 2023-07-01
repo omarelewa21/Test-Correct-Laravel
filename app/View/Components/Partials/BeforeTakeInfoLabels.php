@@ -23,7 +23,7 @@ class BeforeTakeInfoLabels extends TestTakeInfoLabels
 
     protected function showRedoIcon(): bool
     {
-        return $this->testTake->retake;
+        return $this->testTake->retake ?? false;
     }
 
     protected function getTooltip(string $iconName): string
