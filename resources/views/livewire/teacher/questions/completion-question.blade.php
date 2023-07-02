@@ -1,6 +1,6 @@
 @extends($preview ?? 'livewire.teacher.questions.cms-layout')
 @section('question-cms-question')
-    <x-input.rich-textarea
+    <x-input.completion-textarea
             wire:model.debounce.1000ms="question.question"
             editorId="{{ $questionEditorId }}"
             type="cms-completion"

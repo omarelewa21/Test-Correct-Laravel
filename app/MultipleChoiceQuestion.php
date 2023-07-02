@@ -149,13 +149,14 @@ class MultipleChoiceQuestion extends Question implements QuestionInterface
         }
 
         foreach ($multipleChoiceQuestionAnswers as $multipleChoiceQuestionAnswer) {
-            if ($multipleChoiceQuestionAnswer->score > 0) {
+            $questionAnswerScore = $multipleChoiceQuestionAnswer->getAttribute('score');
+            if ($questionAnswerScore > 0) {
                 $countCorrectAnswers++;
+                $maxScore += $questionAnswerScore;
             }
             if (array_key_exists($multipleChoiceQuestionAnswer->getKey(), $answers) && $answers[$multipleChoiceQuestionAnswer->getKey()] == 1) {
-                $score += $multipleChoiceQuestionAnswer->getAttribute('score');
+                $score += $questionAnswerScore;
             }
-            $maxScore += $multipleChoiceQuestionAnswer->getAttribute('score');
         }
 
 

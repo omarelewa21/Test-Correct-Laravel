@@ -107,7 +107,10 @@ class TestQuestion extends BaseModel {
         $qHelper = new QuestionHelper();
         $questionData = [];
         if ($questionAttributes['type'] == 'CompletionQuestion') {
-            $questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($questionAttributes['question']);
+            $questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion(
+                question: $questionAttributes['question'],
+                markAllAnswersAsCorrect: $questionAttributes['subtype'] === 'completion'
+            );
         }
 
         $totalData = array_merge($questionAttributes, $questionData);

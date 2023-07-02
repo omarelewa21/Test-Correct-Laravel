@@ -29,7 +29,10 @@ enum SchoolLocationFeatureSetting: string
     case ALLOW_OLYMPIADE = 'allow_olympiade';
     #[Type('bool')]
     case ALLOW_NEW_ASSESSMENT = 'allow_new_assessment';
+    #[Type('bool')]
     case ALLOW_NEW_REVIEWING = 'allow_new_reviewing';
+    #[Type('bool')]
+    case ALLOW_CMS_WRITE_DOWN_WSC_TOGGLE = 'allow_cms_write_down_wsc_toggle';
 
 
     public static function validateTestPackage(TestPackages|string $testPackage): string|false

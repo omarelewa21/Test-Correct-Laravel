@@ -182,7 +182,10 @@ class GroupQuestionQuestion extends BaseModel
         $qHelper = new QuestionHelper();
         $questionData = [];
         if ($questionProperties['type'] == 'CompletionQuestion') {
-            $questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($questionProperties['question']);
+            $questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion(
+                question: $questionProperties['question'],
+                markAllAnswersAsCorrect: $questionProperties['subtype'] == 'completion'
+            );
         }
         $totalData = array_merge($questionProperties, $questionData);
         $question->fill($totalData);

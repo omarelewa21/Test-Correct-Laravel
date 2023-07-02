@@ -17,6 +17,12 @@ class Open extends TypeProvider
         return 'open-question';
     }
 
+    public function updatedQuestionRestrictWordAmount(bool $value) {
+        if ($value && !$this->instance->question['max_words']) {
+            $this->instance->question['max_words'] = 50;
+        }
+    }
+
     public function updated($name, $value)
     {
         if ($name === 'question.subtype') {

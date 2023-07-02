@@ -8,7 +8,7 @@ use Illuminate\View\View;
 class ScoreSlider extends Component
 {
     public function __construct(
-        public int            $maxScore,
+        public int|float      $maxScore,
         public null|int|float $score,
         public string         $modelName,
         public bool           $halfPoints = true,

@@ -110,7 +110,14 @@ trait TestActions
                     if (auth()->user()->isToetsenbakker()){
                         $query->whereRaw('1 = 0'); // This will return no results when the user is a Toetsenbakker to allow for duplicate test names
                     } else {
-                        $query->where(['is_system_test' => 0, 'deleted_at' => null, 'author_id' => auth()->id()]);
+                        // This will return all tests that are not system tests and are not deleted and are owned by the current user's school location
+                        $query->where(['is_system_test' => 0, 'deleted_at' => null])
+                            ->whereExists(function (Builder $query){
+                                $query->select(DB::raw(1))
+                                    ->from('users')
+                                    ->whereRaw('tests.author_id = users.id')
+                                    ->where('users.school_location_id', auth()->user()->school_location_id);
+                            });
                     }
                 })
                 ->when(isset($this->testUuid), fn ($query) =>

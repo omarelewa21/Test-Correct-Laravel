@@ -6,18 +6,32 @@ use tcCore\SchoolLocation;
 
 class PeriodRepository
 {
+
+    private static $currentPeriod = null;
+    private static $currentPeriods = null;
+    private static $previousPeriod = null;
+    private static $periodsOfCurrentOrPreviousSchoolYear = null;
+
     public static function getCurrentPeriod()
     {
-        $now = Carbon::now();
-        $result = Period::filtered()->where('start_date', '<=', $now->toDateString())->where('end_date', '>=',
-            $now->toDateString())->first();
-         return $result;
+        if (static::$currentPeriod === null) {
+            $now = Carbon::now();
+            static::$currentPeriod = Period::filtered()->where('start_date', '<=', $now->toDateString())->where('end_date', '>=',
+                $now->toDateString())->first();
+        }
+        return static::$currentPeriod;
+
     }
 
     public static function getCurrentPeriods()
     {
-        return Period::filtered()->where('start_date', '<=', now())
-            ->where('end_date', '>=', now())->get();
+        if (static::$currentPeriods === null) {
+            static::$currentPeriods = Period::filtered()
+                ->where('start_date', '<=', now())
+                ->where('end_date', '>=', now())
+                ->get();
+        }
+        return static::$currentPeriods;
     }
 
     public static function getCurrentOrPreviousPeriod()
@@ -37,25 +51,34 @@ class PeriodRepository
 
     public static function getPreviousPeriod()
     {
-        $current = self::getCurrentPeriod();
-        $maxDate = Period::filtered()->max('end_date');
-        return Period::filtered()
-            ->where('start_date', '<=', $maxDate)
-            ->where('end_date', '>=', $maxDate)
-            ->where('id','<>',$current->getKey())
-            ->first();
+        if (static::$previousPeriod === null) {
+            static::setPreviousPeriod();
+
+            $current = self::getCurrentPeriod();
+            $maxDate = Period::filtered()->max('end_date');
+            static::$previousPeriod = Period::filtered()
+                ->where('start_date', '<=', $maxDate)
+                ->where('end_date', '>=', $maxDate)
+                ->where('id', '<>', $current->getKey())
+                ->first();
+        }
+
+        return static::$previousPeriod;
     }
 
     public static function getPeriodsOfCurrentOrPreviousSchoolYear()
     {
-        $period = static::getCurrentOrPreviousPeriod();
+        if (static::$periodsOfCurrentOrPreviousSchoolYear === null) {
+            $period = static::getCurrentOrPreviousPeriod();
+            static::$periodsOfCurrentOrPreviousSchoolYear = Period::filtered()
+                ->where('school_year_id', $period->getAttribute('school_year_id'))
+                ->get();
+        }
 
-        $results = Period::filtered()->where('school_year_id', $period->getAttribute('school_year_id'))->get();
-
-        return $results;
+        return static::$periodsOfCurrentOrPreviousSchoolYear;
     }
 
-    public static function getCurrentPeriodForSchoolLocation($schoolLocation, $logger = false, $thowException = true)
+    public static function getCurrentPeriodForSchoolLocation($schoolLocation, $logger = false, $throwException = true)
     {
         $schoolYears = $schoolLocation->schoolLocationSchoolYears->map(function ($l) {
             return $l->school_year_id;
@@ -76,7 +99,7 @@ class PeriodRepository
                 $logger->addToLog($msg);
             }
 
-            if (!$thowException) {
+            if (!$throwException) {
                 return false;
             }
 
