@@ -131,7 +131,7 @@ class WaitingRoom extends TCComponent
         }
 
         if ($stage === 'discuss') {
-            $this->isTakeOpen = $testTakeStatus == TestTakeStatus::STATUS_DISCUSSING;
+            $this->isTakeOpen = $testTakeStatus == TestTakeStatus::STATUS_DISCUSSING && $this->waitingTestTake->fresh()->discussing_question_id !== null;
         }
 
         if ($stage === 'review') {

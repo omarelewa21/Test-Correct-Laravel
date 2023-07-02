@@ -15,7 +15,7 @@ class GuestChoice
      */
     public function handle($request, Closure $next)
     {
-        if($request->query('take') === session()->get('guest_take')) {
+        if($request->query('take', false) && $request->query('take') === session()->get('guest_take')) {
             return $next($request);
         }
 

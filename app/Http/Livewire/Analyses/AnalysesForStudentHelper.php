@@ -16,10 +16,12 @@ class AnalysesForStudentHelper
         return route('student.analyses.show');
     }
 
-    public function getRouteForSubjectShow(Subject $subject)
+
+
+    public function getRouteForSubjectShow($subjectUuid)
     {
         return route('student.analyses.subject.show', [
-            'subject' => $subject->uuid,
+            'subject' => $subjectUuid,
         ]);
     }
 

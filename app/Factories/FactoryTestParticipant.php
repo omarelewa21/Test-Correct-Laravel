@@ -124,6 +124,6 @@ class FactoryTestParticipant
     {
         $this->participantsData['test_take_status_id'] = $testTake->getAttribute('test_take_status_id');
         $testTakeParticipantFactory = new Factory(new TestParticipant());
-        return $testTakeParticipantFactory->generateMany($testTake->getKey(), $this->participantsData);
+        return $testTakeParticipantFactory->generateMany($testTake, $this->participantsData);
     }
 }

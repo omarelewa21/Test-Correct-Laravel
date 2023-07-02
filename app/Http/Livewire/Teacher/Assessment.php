@@ -65,6 +65,8 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     public bool $isCoLearningScore = false;
     public bool $skipNoDiscrepancies = false;
 
+    public bool $webSpellCheckerEnabled;
+
     /* Lifecycle methods */
     protected function getListeners(): array
     {
@@ -90,6 +92,8 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         $this->setTemplateVariables();
 
         $this->createAnswerRatingsForUnansweredQuestions();
+
+        $this->setWebspellcheckerEnabled();
     }
 
     public function booted(): void
@@ -106,6 +110,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
     public function render()
     {
+        $this->setNecklaceNavigationDataOnQuestion();
         return view('livewire.teacher.assessment')->layout('layouts.assessment');
     }
 
@@ -312,9 +317,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         $this->setUserOnAnswer($this->currentAnswer);
         $this->setProgress();
 
-        if (!$internal) {
-            $this->dispatchUpdateQuestionNavigatorEvent();
-        }
+        $this->dispatchUpdateQuestionNavigatorEvent();
 
         return [
             'index' => $this->answerNavigationValue,
@@ -562,7 +565,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
     private function getCurrentParticipantId()
     {
-        return $this->students->get($this->answerNavigationValue - 1);
+        return $this->students->get((int)$this->answerNavigationValue - 1);
     }
 
     /**
@@ -650,7 +653,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         $this->dispatchUpdateNavigatorEvent('answer', $answerUpdates);
     }
 
-    private function dispatchUpdateQuestionNavigatorEvent(array|null $questionUpdates = null)
+    private function dispatchUpdateQuestionNavigatorEvent(array|null $questionUpdates = null): void
     {
         $questionUpdates ??= [
             'index' => $this->questionNavigationValue,
@@ -891,6 +894,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
     private function setProgress(): void
     {
+        return;
         [$percentagePerAnswer, $assessedAnswers] = $this->getProgressPropertiesForCalculation();
 
         $currentAnswerIndexOfAllAnswers = $this->answers->search(function ($answer) {
@@ -905,7 +909,8 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
         $multiplier = $assessedAnswers->filter(fn($item, $key) => $key <= $maxAssessedValue)->count();
 
-        $newPercentage = floor($percentagePerAnswer * $multiplier);
+        $floatPercentage = $percentagePerAnswer * $multiplier;
+        $newPercentage = $floatPercentage > 99.99 ? 100 : floor($floatPercentage);
 
         if ($newPercentage > $this->progress) {
             $this->progress = $newPercentage;
@@ -1271,9 +1276,6 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         return $this->students->search($answer->test_participant_id) + 1;
     }
 
-    /**
-     * @return bool
-     */
     private function getSkipNoDiscrepanciesValue(): bool
     {
         return $this->skipBooted
@@ -1316,10 +1318,43 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             });
     }
 
-    /**
-     * @return true
-     * @throws AssessmentException
-     */
+    private function setNecklaceNavigationDataOnQuestion(): void
+    {
+        $enabledQuestionIds = $this->getQuestionIdsForCurrentAssessmentType();
+        $this->questions->each(function ($question) use ($enabledQuestionIds) {
+            $answers = $this->answersWithDiscrepancyFilter()->where('question_id', $question->id);
+            $question->navEnabled = $enabledQuestionIds->contains($question->id) && $answers->where('question_id', $question->id)->isNotEmpty();
+
+            if (!$question->isDiscussionTypeOpen) {
+                $question->doneAssessing = true;
+                return;
+            }
+            $question->doneAssessing = $answers
+                ->where(fn($answer) => $answer->hasDiscrepancy === false ? false : $answer->teacherRatings()->isEmpty())
+                ->isEmpty();
+        });
+
+        $this->addGroupConnectorPropertyToQuestionIfNecessary();
+    }
+
+    public function getTitleTagForNavigation(Question $question): string
+    {
+        if ($this->openOnly && !$question->isDiscussionTypeOpen) {
+            return __('assessment.disabled_nav_closed_question');
+        }
+        return __('assessment.disabled_nav_no_answer');
+    }
+
+    private function addGroupConnectorPropertyToQuestionIfNecessary(): void
+    {
+        $this->questions
+            ->whereNotNull('belongs_to_groupquestion_id')
+            ->groupBy('belongs_to_groupquestion_id')
+            ->each(fn($group) => $group->pop())
+            ->flatten()
+            ->each(fn($question) => $question->connector = true);
+    }
+
     private function loadAnyNextAnswerWithAction(string $action): bool
     {
         $currentAnswerIndex = $this->answers->search(fn($answer) => $answer->id === $this->currentAnswer->id);
@@ -1339,5 +1374,31 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             $this->loadQuestion(position: $this->getNavigationValueForQuestion($newAnswer->question), action: $action)
         );
         return true;
+    }
+
+    public function loadQuestionFromNav($position): bool
+    {
+        $nextQuestion = $this->questions->discussionTypeFiltered($this->openOnly)->get($position - 1);
+        if (!$nextQuestion) {
+            return false;
+        }
+
+        $answersForQuestion = $this->getAnswersForCurrentQuestion($nextQuestion);
+        $hasAnswerForCurrentStudent = $answersForQuestion
+            ->where('test_participant_id', $this->getCurrentParticipantId())
+            ->first();
+
+        if (!$hasAnswerForCurrentStudent) {
+            $firstAvailableAnswer = $answersForQuestion->first();
+            $this->setComponentAnswerProperties($firstAvailableAnswer, $this->getAnswerIndex($firstAvailableAnswer));
+        }
+
+        $this->loadQuestion($position);
+        return true;
+    }
+
+    public function setWebspellcheckerEnabled(): void
+    {
+        $this->webSpellCheckerEnabled = auth()->user()->schoolLocation()->value('allow_wsc');
     }
 }

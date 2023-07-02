@@ -19,6 +19,7 @@ class RichTextarea extends Component
         'restrictWords',
         'textFormatting',
         'mathmlFunctions',
+        'enableGrammar',
     ];
 
     public function __construct(
@@ -33,6 +34,7 @@ class RichTextarea extends Component
         public ?bool                   $restrictWords = false,
         public ?bool                   $textFormatting = true,
         public ?bool                   $mathmlFunctions = true,
+        public ?bool                   $enableGrammar = true,
     ) {
         $this->lang ??= WscLanguage::DUTCH;
         $this->initFunctionCall = sprintf('%s(%s)', $this->getInitMethod(), json_encode($this->getEditorConfig()));

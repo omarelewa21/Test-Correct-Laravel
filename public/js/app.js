@@ -6388,25 +6388,24 @@ document.addEventListener("alpine:init", function () {
     };
   });
 
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("selectionOptions", function (entangle) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("completionOptions", function (entangle) {
     return {
       showPopup: entangle.value,
       editorId: entangle.editorId,
       hasError: {
-        empty: [],
-        "false": []
+        empty: []
       },
       data: {
         elements: []
       },
       maxOptions: 10,
-      minOptions: 2,
+      minOptions: 1,
       init: function init() {
         for (var i = 0; i < this.minOptions; i++) {
           this.addRow();
         }
       },
-      initWithSelection: function initWithSelection() {
+      initWithCompletion: function initWithCompletion() {
         var _this3 = this;
         var editor = window.editor;
         // let selection = editor.data.stringify(editor.model.getSelectedContent(editor.model.document.selection));
@@ -6431,7 +6430,6 @@ document.addEventListener("alpine:init", function () {
           content = text.split("|");
         }
         var currentDataRows = this.data.elements.length;
-        this.data.elements[0].checked = "true";
         if (!Array.isArray(content)) {
           this.data.elements[0].value = content;
           return;
@@ -6442,6 +6440,135 @@ document.addEventListener("alpine:init", function () {
             currentDataRows++;
           }
           _this3.data.elements[key].value = word.trim();
+        });
+      },
+      addRow: function addRow() {
+        var value = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "";
+        var component = {
+          id: this.data.elements.length,
+          value: value,
+          correct: true
+        };
+        this.data.elements.push(component);
+      },
+      trash: function trash(event, element) {
+        event.stopPropagation();
+        this.data.elements = this.data.elements.filter(function (el) {
+          return el.id != element.id;
+        });
+        this.data.elements.forEach(function (el, key) {
+          return el.id = key;
+        });
+      },
+      insertDataInEditor: function insertDataInEditor() {
+        var _this4 = this;
+        var result = "[" + this.data.elements.map(function (item) {
+          return item.value;
+        }).join("|") + "]";
+        var lw = livewire.find(document.getElementById("cms").getAttribute("wire:id"));
+        lw.set("showSelectionOptionsModal", true);
+        window.editor.model.change(function (writer) {
+          window.editor.model.insertContent(writer.createText(result));
+        });
+        setTimeout(function () {
+          _this4.$wire.setQuestionProperty("question", window.editor.getData());
+        }, 300);
+      },
+      validateInput: function validateInput() {
+        var emptyFields = this.data.elements.filter(function (element) {
+          return element.value === "";
+        });
+        if (emptyFields.length !== 0) {
+          this.hasError.empty = emptyFields.map(function (item) {
+            return item.id;
+          });
+          Notify.notify("Niet alle velden zijn (correct) ingevuld", "error");
+          return false;
+        }
+        return true;
+      },
+      save: function save() {
+        if (!this.validateInput()) {
+          return;
+        }
+        this.insertDataInEditor();
+        this.closePopup();
+      },
+      disabled: function disabled() {
+        if (this.data.elements.length >= this.maxOptions) {
+          return true;
+        }
+        return !!this.data.elements.find(function (element) {
+          return element.value === "";
+        });
+      },
+      closePopup: function closePopup() {
+        this.showPopup = false;
+        this.data.elements = [];
+        this.init();
+      },
+      canDelete: function canDelete() {
+        return this.data.elements.length <= 1;
+      },
+      resetHasError: function resetHasError() {
+        this.hasError.empty = [];
+      }
+    };
+  });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("selectionOptions", function (entangle) {
+    return {
+      showPopup: entangle.value,
+      editorId: entangle.editorId,
+      hasError: {
+        empty: [],
+        "false": []
+      },
+      data: {
+        elements: []
+      },
+      maxOptions: 10,
+      minOptions: 2,
+      init: function init() {
+        for (var i = 0; i < this.minOptions; i++) {
+          this.addRow();
+        }
+      },
+      initWithSelection: function initWithSelection() {
+        var _this5 = this;
+        var editor = window.editor;
+        // let selection = editor.data.stringify(editor.model.getSelectedContent(editor.model.document.selection));
+
+        var selection = "";
+        var range = editor.model.document.selection.getFirstRange();
+        var _iterator2 = _createForOfIteratorHelper(range.getItems()),
+          _step2;
+        try {
+          for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+            var value = _step2.value;
+            selection = selection + value.data;
+          }
+        } catch (err) {
+          _iterator2.e(err);
+        } finally {
+          _iterator2.f();
+        }
+        var text = selection.trim().replace("[", "").replace("]", "");
+        var content = text;
+        if (text.contains("|")) {
+          content = text.split("|");
+        }
+        var currentDataRows = this.data.elements.length;
+        this.data.elements[0].checked = "true";
+        if (!Array.isArray(content)) {
+          this.data.elements[0].value = content;
+          return;
+        }
+        content.forEach(function (word, key) {
+          if (key === currentDataRows) {
+            _this5.addRow();
+            currentDataRows++;
+          }
+          _this5.data.elements[key].value = word.trim();
         });
       },
       addRow: function addRow() {
@@ -6464,10 +6591,10 @@ document.addEventListener("alpine:init", function () {
         });
       },
       toggleChecked: function toggleChecked(event, element) {
-        var _this4 = this;
+        var _this6 = this;
         this.$nextTick(function () {
           if (element.checked == "true") {
-            _this4.data.elements = _this4.data.elements.map(function (item) {
+            _this6.data.elements = _this6.data.elements.map(function (item) {
               item.checked = item.id == element.id ? "true" : "false";
               return item;
             });
@@ -6475,7 +6602,7 @@ document.addEventListener("alpine:init", function () {
         });
       },
       insertDataInEditor: function insertDataInEditor() {
-        var _this5 = this;
+        var _this7 = this;
         var correct = this.data.elements.find(function (el) {
           return el.value != "" && el.checked == "true";
         });
@@ -6492,7 +6619,7 @@ document.addEventListener("alpine:init", function () {
           window.editor.model.insertContent(writer.createText(result));
         });
         setTimeout(function () {
-          _this5.$wire.setQuestionProperty("question", window.editor.getData());
+          _this7.$wire.setQuestionProperty("question", window.editor.getData());
         }, 300);
       },
       validateInput: function validateInput() {
@@ -6557,19 +6684,19 @@ document.addEventListener("alpine:init", function () {
       mode: mode,
       attachmentLoading: false,
       init: function init() {
-        var _this6 = this;
+        var _this8 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
           var fetchedTitle;
           return _regeneratorRuntime().wrap(function _callee$(_context) {
             while (1) switch (_context.prev = _context.next) {
               case 0:
-                _this6.setIndex();
-                _this6.$watch("options", function (value) {
+                _this8.setIndex();
+                _this8.$watch("options", function (value) {
                   if (value) {
-                    var pWidth = _this6.$refs.optionscontainer.parentElement.offsetWidth;
-                    var pPos = _this6.$refs.optionscontainer.parentElement.getBoundingClientRect().left;
+                    var pWidth = _this8.$refs.optionscontainer.parentElement.offsetWidth;
+                    var pPos = _this8.$refs.optionscontainer.parentElement.getBoundingClientRect().left;
                     if (pWidth + pPos < 288) {
-                      _this6.$refs.optionscontainer.classList.remove("right-0");
+                      _this8.$refs.optionscontainer.classList.remove("right-0");
                     }
                   }
                 });
@@ -6581,10 +6708,10 @@ document.addEventListener("alpine:init", function () {
                 return getTitleForVideoUrl(videoUrl);
               case 5:
                 fetchedTitle = _context.sent;
-                _this6.videoTitle = fetchedTitle || videoUrl;
-                _this6.resolvingTitle = false;
+                _this8.videoTitle = fetchedTitle || videoUrl;
+                _this8.resolvingTitle = false;
                 if (mode === "edit") {
-                  _this6.$wire.setVideoTitle(videoUrl, _this6.videoTitle);
+                  _this8.$wire.setVideoTitle(videoUrl, _this8.videoTitle);
                 }
               case 9:
               case "end":
@@ -6619,7 +6746,7 @@ document.addEventListener("alpine:init", function () {
       toolName: null,
       isPreview: isPreview,
       init: function init() {
-        var _this7 = this;
+        var _this9 = this;
         this.toolName = "drawingTool_".concat(questionId);
         if (Object.getOwnPropertyNames(window).includes(this.toolName)) {
           delete window[this.toolName];
@@ -6630,12 +6757,12 @@ document.addEventListener("alpine:init", function () {
         }
         this.$watch("show", function (show) {
           if (show) {
-            toolName.Canvas.data.answer = _this7.answerSvg;
-            toolName.Canvas.data.question = _this7.questionSvg;
-            _this7.handleGrid(toolName);
+            toolName.Canvas.data.answer = _this9.answerSvg;
+            toolName.Canvas.data.question = _this9.questionSvg;
+            _this9.handleGrid(toolName);
             toolName.drawingApp.init();
           } else {
-            var component = getClosestLivewireComponentByAttribute(_this7.$root, "questionComponent");
+            var component = getClosestLivewireComponentByAttribute(_this9.$root, "questionComponent");
             component.call("render");
           }
         });
@@ -6687,18 +6814,18 @@ document.addEventListener("alpine:init", function () {
       pollingInterval: 2500,
       // Milliseconds;
       init: function init() {
-        var _this8 = this;
+        var _this10 = this;
         this.slideWidth = this.$root.offsetWidth;
         this.drawer = this.$root.closest(".drawer");
         this.setActiveSlideProperty(this.$root.scrollLeft);
         setTimeout(function () {
-          _this8.handleVerticalScroll(_this8.$root.firstElementChild);
-          _this8.scrollActiveQuestionIntoView();
+          _this10.handleVerticalScroll(_this10.$root.firstElementChild);
+          _this10.scrollActiveQuestionIntoView();
         }, 400);
         this.poll(this.pollingInterval);
         this.$watch("$store.cms.handledAllRequests", function (value) {
           if (value) {
-            _this8.checkActiveSlide();
+            _this10.checkActiveSlide();
           }
         });
       },
@@ -6742,7 +6869,7 @@ document.addEventListener("alpine:init", function () {
         this.$store.cms.scrollPos = 0;
       },
       handleVerticalScroll: function handleVerticalScroll(el) {
-        var _this9 = this;
+        var _this11 = this;
         if (el.getAttribute("x-ref") !== this.activeSlide) return;
         if (!this.$store.questionBank.active) {
           this.$refs.questionEditorSidebar.style.minHeight = "auto";
@@ -6756,32 +6883,32 @@ document.addEventListener("alpine:init", function () {
           this.drawer.classList.remove("overflow-auto");
         }
         this.$nextTick(function () {
-          _this9.$refs.questionEditorSidebar.style.minHeight = _this9.drawer.offsetHeight + "px";
-          _this9.$refs.questionEditorSidebar.style.height = el.offsetHeight + "px";
+          _this11.$refs.questionEditorSidebar.style.minHeight = _this11.drawer.offsetHeight + "px";
+          _this11.$refs.questionEditorSidebar.style.height = el.offsetHeight + "px";
         });
       },
       setNextSlide: function setNextSlide(toInsert) {
         this.$root.insertBefore(toInsert, this.$refs.type.nextElementSibling);
       },
       showNewQuestion: function showNewQuestion(container) {
-        var _this10 = this;
+        var _this12 = this;
         this.setNextSlide(this.$refs.newquestion);
         this.$nextTick(function () {
-          _this10.next(container);
+          _this12.next(container);
         });
       },
       showQuestionBank: function showQuestionBank() {
-        var _this11 = this;
+        var _this13 = this;
         this.setNextSlide(this.$refs.questionbank);
         this.$nextTick(function () {
-          _this11.drawer.classList.add("fullscreen");
-          var boundingRect = _this11.$refs.questionbank.getBoundingClientRect();
-          _this11.scroll(boundingRect.x + boundingRect.width);
-          _this11.$store.questionBank.active = true;
+          _this13.drawer.classList.add("fullscreen");
+          var boundingRect = _this13.$refs.questionbank.getBoundingClientRect();
+          _this13.scroll(boundingRect.x + boundingRect.width);
+          _this13.$store.questionBank.active = true;
         });
       },
       hideQuestionBank: function hideQuestionBank() {
-        var _this12 = this;
+        var _this14 = this;
         this.$root.querySelectorAll(".slide-container").forEach(function (slide) {
           slide.classList.add("opacity-0");
         });
@@ -6792,17 +6919,17 @@ document.addEventListener("alpine:init", function () {
           this.$store.questionBank.inGroup = false;
         }
         this.$nextTick(function () {
-          _this12.drawer.classList.remove("fullscreen");
-          _this12.home();
+          _this14.drawer.classList.remove("fullscreen");
+          _this14.home();
           // this.scroll(container.parentElement.firstElementChild.offsetWidth);
           setTimeout(function () {
-            _this12.$root.querySelectorAll(".slide-container").forEach(function (slide) {
+            _this14.$root.querySelectorAll(".slide-container").forEach(function (slide) {
               slide.classList.remove("opacity-0");
             });
-            _this12.$wire.emitTo("drawer.cms", "refreshDrawer");
-            _this12.$dispatch("resize");
+            _this14.$wire.emitTo("drawer.cms", "refreshDrawer");
+            _this14.$dispatch("resize");
           }, 400);
-          _this12.$wire.emitTo("drawer.cms", "refreshDrawer");
+          _this14.$wire.emitTo("drawer.cms", "refreshDrawer");
         });
       },
       addQuestionToGroup: function addQuestionToGroup(uuid) {
@@ -6817,7 +6944,7 @@ document.addEventListener("alpine:init", function () {
       },
       showAddQuestionSlide: function showAddQuestionSlide() {
         var _arguments = arguments,
-          _this13 = this;
+          _this15 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
           var shouldCheckDirty, clearGroupUuid, questionBankLivewireComponent;
           return _regeneratorRuntime().wrap(function _callee2$(_context2) {
@@ -6825,7 +6952,7 @@ document.addEventListener("alpine:init", function () {
               case 0:
                 shouldCheckDirty = _arguments.length > 0 && _arguments[0] !== undefined ? _arguments[0] : true;
                 clearGroupUuid = _arguments.length > 1 && _arguments[1] !== undefined ? _arguments[1] : true;
-                if (!_this13.emitAddToOpenShortIfNecessary(shouldCheckDirty, false, false)) {
+                if (!_this15.emitAddToOpenShortIfNecessary(shouldCheckDirty, false, false)) {
                   _context2.next = 10;
                   break;
                 }
@@ -6833,14 +6960,16 @@ document.addEventListener("alpine:init", function () {
                   _context2.next = 8;
                   break;
                 }
-                questionBankLivewireComponent = Livewire.find(_this13.drawer.querySelector("#question-bank").getAttribute("wire:id"));
+                questionBankLivewireComponent = Livewire.find(_this15.drawer.querySelector("#question-bank").getAttribute("wire:id"));
                 _context2.next = 7;
                 return questionBankLivewireComponent.clearInGroupProperty();
               case 7:
-                _this13.$store.questionBank.inGroup = false;
+                _this15.$store.questionBank.inGroup = false;
               case 8:
-                _this13.next(_this13.$refs.home);
-                _this13.$dispatch("backdrop");
+                _this15.next(_this15.$refs.home);
+                if (!_this15.$store.cms.emptyState) {
+                  _this15.$dispatch("backdrop");
+                }
               case 10:
               case "end":
                 return _context2.stop();
@@ -6872,33 +7001,33 @@ document.addEventListener("alpine:init", function () {
         this.$store.questionBank.inGroup = false;
       },
       handleResizing: function handleResizing() {
-        var _this14 = this;
+        var _this16 = this;
         clearTimeout(this.resizeTimout);
         if (this.$store.questionBank.active) {
           if (!this.resizing) this.resizing = true;
           this.resizeTimout = setTimeout(function () {
-            _this14.$root.scrollLeft = _this14.$refs.questionbank.offsetLeft;
-            _this14.resizing = false;
+            _this16.$root.scrollLeft = _this16.$refs.questionbank.offsetLeft;
+            _this16.resizing = false;
           }, 500);
         }
       },
       scrollActiveQuestionIntoView: function scrollActiveQuestionIntoView() {
-        var _this15 = this;
+        var _this17 = this;
         if (this.activeSlide !== "home") return;
         clearTimeout(this.scrollTimeout);
         this.scrollTimeout = setTimeout(function () {
-          var activeQuestion = _this15.$refs.home.querySelector(".question-button.question-active");
-          activeQuestion || (activeQuestion = _this15.$refs.home.querySelector(".group-active"));
-          if (activeQuestion === null) return clearTimeout(_this15.scrollTimeout);
+          var activeQuestion = _this17.$refs.home.querySelector(".question-button.question-active");
+          activeQuestion || (activeQuestion = _this17.$refs.home.querySelector(".group-active"));
+          if (activeQuestion === null) return clearTimeout(_this17.scrollTimeout);
           var top = activeQuestion.getBoundingClientRect().top;
           var screenWithBottomMargin = window.screen.height - 200;
           if (top >= screenWithBottomMargin) {
-            _this15.drawer.scrollTo({
+            _this17.drawer.scrollTo({
               top: top - screenWithBottomMargin / 2,
               behavior: "smooth"
             });
           }
-          clearTimeout(_this15.scrollTimeout);
+          clearTimeout(_this17.scrollTimeout);
         }, 750);
       },
       setActiveSlideProperty: function setActiveSlideProperty(position) {
@@ -6906,13 +7035,13 @@ document.addEventListener("alpine:init", function () {
         this.activeSlide = this.slides[index];
       },
       poll: function poll(interval) {
-        var _this16 = this;
+        var _this18 = this;
         setTimeout(function () {
-          if (_this16.activeSlide !== "questionbank") {
-            var el = _this16.$root.querySelector("[x-ref=\"".concat(_this16.activeSlide, "\"]"));
-            if (el !== null) _this16.handleVerticalScroll(el);
+          if (_this18.activeSlide !== "questionbank") {
+            var el = _this18.$root.querySelector("[x-ref=\"".concat(_this18.activeSlide, "\"]"));
+            if (el !== null) _this18.handleVerticalScroll(el);
           }
-          _this16.poll(interval);
+          _this18.poll(interval);
         }, interval);
       },
       getScrollToProperties: function getScrollToProperties(position) {
@@ -6943,19 +7072,19 @@ document.addEventListener("alpine:init", function () {
       init: function init() {
         var _window,
           _window$registeredEve,
-          _this17 = this;
+          _this19 = this;
         // some new fancy way of setting a value when undefined
         (_window$registeredEve = (_window = window).registeredEventHandlers) !== null && _window$registeredEve !== void 0 ? _window$registeredEve : _window.registeredEventHandlers = [];
         this.activeFiltersContainer = document.getElementById(filterContainer);
         this.multiple = multiple === 1;
         this.$nextTick(function () {
-          var choices = new (choices_js__WEBPACK_IMPORTED_MODULE_1___default())(_this17.$root.querySelector("select"), _this17.getChoicesConfig());
+          var choices = new (choices_js__WEBPACK_IMPORTED_MODULE_1___default())(_this19.$root.querySelector("select"), _this19.getChoicesConfig());
           var refreshChoices = function refreshChoices() {
-            var selection = _this17.multiple ? _this17.value : [_this17.value];
-            var options = _typeof(_this17.options) === "object" ? Object.values(_this17.options) : _this17.options;
-            _this17.setActiveGroupsOnInit();
+            var selection = _this19.multiple ? _this19.value : [_this19.value];
+            var options = _typeof(_this19.options) === "object" ? Object.values(_this19.options) : _this19.options;
+            _this19.setActiveGroupsOnInit();
             choices.clearStore();
-            _this17.addPlaceholderValues(choices);
+            _this19.addPlaceholderValues(choices);
             options = options.map(function (_ref) {
               var value = _ref.value,
                 label = _ref.label,
@@ -6968,42 +7097,42 @@ document.addEventListener("alpine:init", function () {
               };
             });
             choices.setChoices(options);
-            _this17.handleActiveFilters(choices.getValue());
+            _this19.handleActiveFilters(choices.getValue());
           };
           refreshChoices();
-          _this17.$refs.select.addEventListener("choice", function (event) {
-            var eventValue = _this17.getValidatedEventValue(event);
+          _this19.$refs.select.addEventListener("choice", function (event) {
+            var eventValue = _this19.getValidatedEventValue(event);
             var choice = event.detail.choice;
-            if (!Array.isArray(_this17.value)) {
-              _this17.value = eventValue;
+            if (!Array.isArray(_this19.value)) {
+              _this19.value = eventValue;
               return;
             }
-            if (_this17.isAParentChoice(choice)) {
-              _this17.handleGroupItemChoice(choice);
+            if (_this19.isAParentChoice(choice)) {
+              _this19.handleGroupItemChoice(choice);
             }
-            if (isUnselectedRegularOrChildChoice.call(_this17)) {
+            if (isUnselectedRegularOrChildChoice.call(_this19)) {
               var _choice$customPropert;
-              _this17.removeFilterItem(choices.getValue().find(function (value) {
+              _this19.removeFilterItem(choices.getValue().find(function (value) {
                 return value.value === choice.value;
               }));
-              if (_this17.value.includes((_choice$customPropert = choice.customProperties) === null || _choice$customPropert === void 0 ? void 0 : _choice$customPropert.parentId)) {
-                _this17.removeFilterItemByValue(choice.customProperties.parentId);
-                _this17.activeGroups = _this17.activeGroups.filter(function (groupId) {
+              if (_this19.value.includes((_choice$customPropert = choice.customProperties) === null || _choice$customPropert === void 0 ? void 0 : _choice$customPropert.parentId)) {
+                _this19.removeFilterItemByValue(choice.customProperties.parentId);
+                _this19.activeGroups = _this19.activeGroups.filter(function (groupId) {
                   return groupId !== choice.customProperties.parentId;
                 });
               }
             }
-            _this17.wireModel = _this17.value;
+            _this19.wireModel = _this19.value;
             refreshChoices();
             function isUnselectedRegularOrChildChoice() {
               return this.value.includes(eventValue) && (this.isAChildChoice(choice) || this.isARegularChoice(choice));
             }
           });
-          _this17.$refs.select.addEventListener("change", function () {
-            if (!Array.isArray(_this17.value)) return;
-            _this17.value = choices.getValue(true);
+          _this19.$refs.select.addEventListener("change", function () {
+            if (!Array.isArray(_this19.value)) return;
+            _this19.value = choices.getValue(true);
           });
-          var eventName = _this17.getRemoveEventName();
+          var eventName = _this19.getRemoveEventName();
           if (!window.registeredEventHandlers.includes(eventName)) {
             window.registeredEventHandlers.push(eventName);
             window.addEventListener(eventName, function (event) {
@@ -7011,43 +7140,43 @@ document.addEventListener("alpine:init", function () {
               var choice = choices.getValue().filter(function (choice) {
                 return choice.value === event.detail.value;
               })[0];
-              if (_this17.isAParentChoice(choice)) {
-                _this17.handleGroupItemChoice(choice);
+              if (_this19.isAParentChoice(choice)) {
+                _this19.handleGroupItemChoice(choice);
               } else {
-                _this17.removeFilterItem(choice);
+                _this19.removeFilterItem(choice);
               }
               refreshChoices();
             });
           }
-          _this17.$watch("value", function () {
+          _this19.$watch("value", function () {
             return refreshChoices();
           });
-          _this17.$watch("options", function () {
+          _this19.$watch("options", function () {
             return refreshChoices();
           });
-          _this17.$refs.select.addEventListener("showDropdown", function () {
-            if (_this17.$root.querySelector(".is-active") && _this17.$root.classList.contains("super")) {
-              _this17.$refs.chevron.style.left = _this17.$root.querySelector(".is-active").offsetWidth - 25 + "px";
+          _this19.$refs.select.addEventListener("showDropdown", function () {
+            if (_this19.$root.querySelector(".is-active") && _this19.$root.classList.contains("super")) {
+              _this19.$refs.chevron.style.left = _this19.$root.querySelector(".is-active").offsetWidth - 25 + "px";
             }
           });
-          _this17.$refs.select.addEventListener("hideDropdown", function () {
-            _this17.$refs.chevron.style.left = "auto";
+          _this19.$refs.select.addEventListener("hideDropdown", function () {
+            _this19.$refs.chevron.style.left = "auto";
           });
         });
       },
       setActiveGroupsOnInit: function setActiveGroupsOnInit() {
-        var _this18 = this;
+        var _this20 = this;
         if (this.activeGroups.length) {
           this.activeGroups.forEach(function (value) {
-            return _this18.clearFilterPill(value);
+            return _this20.clearFilterPill(value);
           });
         }
         this.activeGroups = [];
         this.options.forEach(function (option) {
           var _option$customPropert;
           if (((_option$customPropert = option.customProperties) === null || _option$customPropert === void 0 ? void 0 : _option$customPropert.parent) === true) {
-            if (_this18.value.includes(option.value)) {
-              _this18.activeGroups.push(option.value);
+            if (_this20.value.includes(option.value)) {
+              _this20.activeGroups.push(option.value);
             }
           }
         });
@@ -7056,7 +7185,7 @@ document.addEventListener("alpine:init", function () {
         });
       },
       handleGroupItemChoice: function handleGroupItemChoice(choice) {
-        var _this19 = this;
+        var _this21 = this;
         var parentId = choice.customProperties.parentId;
         var childValues = this.options.filter(function (option) {
           return option.customProperties.parent === false && parentId === option.customProperties.parentId;
@@ -7070,8 +7199,8 @@ document.addEventListener("alpine:init", function () {
         }
         var valuesToSplice = _.union(childValues, [choice.value]);
         valuesToSplice.forEach(function (val) {
-          if (_this19.value.includes(val)) {
-            _this19.removeFilterItemByValue(val);
+          if (_this21.value.includes(val)) {
+            _this21.removeFilterItemByValue(val);
           }
         });
         this.activeGroups = this.activeGroups.filter(function (groupId) {
@@ -7101,7 +7230,7 @@ document.addEventListener("alpine:init", function () {
         return "[data-filter=\"".concat(this.$root.dataset.modelName, "\"][data-filter-value=\"").concat(item, "\"]");
       },
       handleActiveFilters: function handleActiveFilters(choicesValues) {
-        var _this20 = this;
+        var _this22 = this;
         if (!Array.isArray(this.value)) return;
         var valuesToCreatePillsFor = this.value;
         if (this.activeGroups.length) {
@@ -7110,11 +7239,11 @@ document.addEventListener("alpine:init", function () {
             if (((_value$customProperti = value.customProperties) === null || _value$customProperti === void 0 ? void 0 : _value$customProperti.parent) === true) {
               return true;
             }
-            if (!_this20.activeGroups.includes((_value$customProperti2 = value.customProperties) === null || _value$customProperti2 === void 0 ? void 0 : _value$customProperti2.parentId)) {
+            if (!_this22.activeGroups.includes((_value$customProperti2 = value.customProperties) === null || _value$customProperti2 === void 0 ? void 0 : _value$customProperti2.parentId)) {
               return true;
             }
-            if (!_this20.needsFilterPill(value.value)) {
-              _this20.clearFilterPill(value.value);
+            if (!_this22.needsFilterPill(value.value)) {
+              _this22.clearFilterPill(value.value);
             }
             return false;
           }).map(function (item) {
@@ -7122,12 +7251,12 @@ document.addEventListener("alpine:init", function () {
           });
         }
         valuesToCreatePillsFor.forEach(function (item) {
-          if (_this20.needsFilterPill(item)) {
+          if (_this22.needsFilterPill(item)) {
             var cItem = choicesValues.find(function (value) {
               return value.value === item;
             });
             if (typeof cItem !== "undefined") {
-              _this20.createFilterPill(cItem);
+              _this22.createFilterPill(cItem);
             }
           }
         });
@@ -7208,20 +7337,20 @@ document.addEventListener("alpine:init", function () {
         this.updateGraph();
       },
       updateGraph: function updateGraph() {
-        var _this21 = this;
+        var _this23 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
-          var _yield$_this21$$wire$, _yield$_this21$$wire$2;
+          var _yield$_this23$$wire$, _yield$_this23$$wire$2;
           return _regeneratorRuntime().wrap(function _callee3$(_context3) {
             while (1) switch (_context3.prev = _context3.next) {
               case 0:
                 _context3.next = 2;
-                return _this21.$wire.call("getDataForGraph");
+                return _this23.$wire.call("getDataForGraph");
               case 2:
-                _yield$_this21$$wire$ = _context3.sent;
-                _yield$_this21$$wire$2 = _slicedToArray(_yield$_this21$$wire$, 2);
-                _this21.showEmptyState = _yield$_this21$$wire$2[0];
-                _this21.data = _yield$_this21$$wire$2[1];
-                _this21.renderGraph();
+                _yield$_this23$$wire$ = _context3.sent;
+                _yield$_this23$$wire$2 = _slicedToArray(_yield$_this23$$wire$, 2);
+                _this23.showEmptyState = _yield$_this23$$wire$2[0];
+                _this23.data = _yield$_this23$$wire$2[1];
+                _this23.renderGraph();
               case 7:
               case "end":
                 return _context3.stop();
@@ -7388,21 +7517,21 @@ document.addEventListener("alpine:init", function () {
         this.updateGraph();
       },
       updateGraph: function updateGraph() {
-        var _this22 = this;
+        var _this24 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4() {
-          var _yield$_this22$$wire$, _yield$_this22$$wire$2;
+          var _yield$_this24$$wire$, _yield$_this24$$wire$2;
           return _regeneratorRuntime().wrap(function _callee4$(_context4) {
             while (1) switch (_context4.prev = _context4.next) {
               case 0:
                 _context4.next = 2;
-                return _this22.$wire.call("getDataForSubjectTimeSeriesGraph");
+                return _this24.$wire.call("getDataForSubjectTimeSeriesGraph");
               case 2:
-                _yield$_this22$$wire$ = _context4.sent;
-                _yield$_this22$$wire$2 = _slicedToArray(_yield$_this22$$wire$, 3);
-                _this22.showEmptyState = _yield$_this22$$wire$2[0];
-                _this22.data = _yield$_this22$$wire$2[1];
-                _this22.subjects = _yield$_this22$$wire$2[2];
-                _this22.renderGraph();
+                _yield$_this24$$wire$ = _context4.sent;
+                _yield$_this24$$wire$2 = _slicedToArray(_yield$_this24$$wire$, 3);
+                _this24.showEmptyState = _yield$_this24$$wire$2[0];
+                _this24.data = _yield$_this24$$wire$2[1];
+                _this24.subjects = _yield$_this24$$wire$2[2];
+                _this24.renderGraph();
               case 8:
               case "end":
                 return _context4.stop();
@@ -7411,7 +7540,7 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       renderGraph: function renderGraph() {
-        var _this23 = this;
+        var _this25 = this;
         var cssSelector = "#" + this.modelId + ">div:not(.empty-state)";
         this.$root.querySelectorAll(cssSelector).forEach(function (node) {
           return node.remove();
@@ -7459,8 +7588,15 @@ document.addEventListener("alpine:init", function () {
         chart.scroller().outline;
         chart.interactivity().hoverMode("single");
         this.subjects.forEach(function (el, index) {
+          var totalDefinitions = ["Vak totaal", "Subject total", "Attainement total", "Eindterm totaal"];
+          var strokeWidth = 2;
+          var strokeColor = _this25.colors[index];
           var cnt = index + 1;
           var mapping = table.mapAs();
+          if (totalDefinitions.includes(el)) {
+            strokeWidth = 3;
+            strokeColor = "var(--system-base)";
+          }
           mapping.addField("value", cnt);
           var series = chart.plot(0).line(mapping);
           series.name(el);
@@ -7472,7 +7608,7 @@ document.addEventListener("alpine:init", function () {
           marker1.enabled(true);
           marker1.size(4);
           marker1.type("circle");
-          series.normal().stroke(_this23.colors[index], 2);
+          series.normal().stroke(strokeColor, strokeWidth);
           series.connectMissingPoints(true);
         });
         chart.title("");
@@ -7492,20 +7628,20 @@ document.addEventListener("alpine:init", function () {
         this.updateGraph();
       },
       updateGraph: function updateGraph() {
-        var _this24 = this;
+        var _this26 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5() {
-          var _yield$_this24$$wire$, _yield$_this24$$wire$2;
+          var _yield$_this26$$wire$, _yield$_this26$$wire$2;
           return _regeneratorRuntime().wrap(function _callee5$(_context5) {
             while (1) switch (_context5.prev = _context5.next) {
               case 0:
                 _context5.next = 2;
-                return _this24.$wire.call("getDataForGraph");
+                return _this26.$wire.call("getDataForGraph");
               case 2:
-                _yield$_this24$$wire$ = _context5.sent;
-                _yield$_this24$$wire$2 = _slicedToArray(_yield$_this24$$wire$, 2);
-                _this24.showEmptyState = _yield$_this24$$wire$2[0];
-                _this24.data = _yield$_this24$$wire$2[1];
-                _this24.renderGraph();
+                _yield$_this26$$wire$ = _context5.sent;
+                _yield$_this26$$wire$2 = _slicedToArray(_yield$_this26$$wire$, 2);
+                _this26.showEmptyState = _yield$_this26$$wire$2[0];
+                _this26.data = _yield$_this26$$wire$2[1];
+                _this26.renderGraph();
               case 7:
               case "end":
                 return _context5.stop();
@@ -7701,6 +7837,7 @@ document.addEventListener("alpine:init", function () {
       },
       clickButton: function clickButton(target) {
         this.activateButton(target);
+        this.markInputElementsClean();
         var oldValue = this.value;
         this.value = target.firstElementChild.dataset.id;
         this.$root.dataset.hasValue = this.value !== null;
@@ -7717,15 +7854,15 @@ document.addEventListener("alpine:init", function () {
         this.activateButton(target);
       },
       activateButton: function activateButton(target) {
-        var _this25 = this;
+        var _this27 = this;
         this.$nextTick(function () {
-          _this25.resetButtons(target);
-          _this25.buttonPosition = target.offsetLeft + "px";
-          _this25.buttonWidth = target.offsetWidth + "px";
+          _this27.resetButtons(target);
+          _this27.buttonPosition = target.offsetLeft + "px";
+          _this27.buttonWidth = target.offsetWidth + "px";
           target.dataset.active = true;
           target.firstElementChild.classList.add("text-primary");
-          _this25.handle.classList.remove("hidden");
-          _this25.handle.classList.add("block");
+          _this27.handle.classList.remove("hidden");
+          _this27.handle.classList.add("block");
         });
       },
       resetButtons: function resetButtons(target) {
@@ -7734,13 +7871,13 @@ document.addEventListener("alpine:init", function () {
         });
       },
       setHandle: function setHandle() {
-        var _this26 = this;
+        var _this28 = this;
         this.handle = this.$el.querySelector(".slider-button-handle");
 
         /* Add transition classes later so it doesn't flicker the initial value setting */
         this.$nextTick(function () {
           setTimeout(function () {
-            _this26.handle.classList.add("transition-all", "ease-in-out", "duration-150");
+            _this28.handle.classList.add("transition-all", "ease-in-out", "duration-150");
           }, 200);
         });
       },
@@ -7776,13 +7913,13 @@ document.addEventListener("alpine:init", function () {
         }
       },
       updateGraph: function updateGraph(forceUpdate) {
-        var _this27 = this;
+        var _this29 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee6() {
-          var method, _yield$_this27$$wire$, _yield$_this27$$wire$2;
+          var method, _yield$_this29$$wire$, _yield$_this29$$wire$2;
           return _regeneratorRuntime().wrap(function _callee6$(_context6) {
             while (1) switch (_context6.prev = _context6.next) {
               case 0:
-                if (!(!_this27.data || forceUpdate)) {
+                if (!(!_this29.data || forceUpdate)) {
                   _context6.next = 10;
                   break;
                 }
@@ -7791,13 +7928,13 @@ document.addEventListener("alpine:init", function () {
                   method = "getDataForGeneralGraph";
                 }
                 _context6.next = 5;
-                return _this27.$wire.call(method, _this27.modelId, _this27.taxonomy);
+                return _this29.$wire.call(method, _this29.modelId, _this29.taxonomy);
               case 5:
-                _yield$_this27$$wire$ = _context6.sent;
-                _yield$_this27$$wire$2 = _slicedToArray(_yield$_this27$$wire$, 2);
-                _this27.showEmptyState = _yield$_this27$$wire$2[0];
-                _this27.data = _yield$_this27$$wire$2[1];
-                _this27.renderGraph();
+                _yield$_this29$$wire$ = _context6.sent;
+                _yield$_this29$$wire$2 = _slicedToArray(_yield$_this29$$wire$, 2);
+                _this29.showEmptyState = _yield$_this29$$wire$2[0];
+                _this29.data = _yield$_this29$$wire$2[1];
+                _this29.renderGraph();
               case 10:
               case "end":
                 return _context6.stop();
@@ -7912,34 +8049,34 @@ document.addEventListener("alpine:init", function () {
         }
       },
       handleIncomingEvent: function handleIncomingEvent(detail) {
-        var _this28 = this;
+        var _this30 = this;
         if (!this.contextMenuOpen) return this.openMenu(detail);
         this.closeMenu();
         setTimeout(function () {
-          _this28.openMenu(detail);
+          _this30.openMenu(detail);
         }, 150);
       },
       openMenu: function openMenu(detail) {
-        var _this29 = this;
+        var _this31 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee7() {
           var readyForShow;
           return _regeneratorRuntime().wrap(function _callee7$(_context7) {
             while (1) switch (_context7.prev = _context7.next) {
               case 0:
-                _this29.uuid = detail.uuid;
-                _this29.correspondingButton = detail.button;
-                _this29.contextData = detail.contextData;
-                _this29.detailCoordsTop = detail.coords.top;
-                _this29.detailCoordsLeft = detail.coords.left;
-                _this29.gridCardOffsetHeight = detail.coords.gridCardOffsetHeight;
-                _this29.$root.style.top = _this29.detailCoordsTop + _this29.menuOffsetMarginTop + "px";
-                _this29.$root.style.left = _this29.detailCoordsLeft - _this29.menuOffsetMarginLeft + "px";
+                _this31.uuid = detail.uuid;
+                _this31.correspondingButton = detail.button;
+                _this31.contextData = detail.contextData;
+                _this31.detailCoordsTop = detail.coords.top;
+                _this31.detailCoordsLeft = detail.coords.left;
+                _this31.gridCardOffsetHeight = detail.coords.gridCardOffsetHeight;
+                _this31.$root.style.top = _this31.detailCoordsTop + _this31.menuOffsetMarginTop + "px";
+                _this31.$root.style.left = _this31.detailCoordsLeft - _this31.menuOffsetMarginLeft + "px";
                 _context7.next = 10;
-                return _this29.$wire.setContextValues(_this29.uuid, _this29.contextData);
+                return _this31.$wire.setContextValues(_this31.uuid, _this31.contextData);
               case 10:
                 readyForShow = _context7.sent;
-                if (readyForShow) _this29.contextMenuOpen = true;
-                _this29.contextMenuOpen = true;
+                if (readyForShow) _this31.contextMenuOpen = true;
+                _this31.contextMenuOpen = true;
               case 13:
               case "end":
                 return _context7.stop();
@@ -8005,24 +8142,24 @@ document.addEventListener("alpine:init", function () {
         }
       },
       uploadFiles: function uploadFiles(files) {
-        var _this30 = this;
+        var _this32 = this;
         var $this = this;
         this.isUploading = true;
         var dummyContainer = this.$root.querySelector("#upload-dummies");
         Array.from(files).forEach(function (file, key) {
-          if (!_this30.fileHasAllowedExtension(file)) {
-            _this30.handleIncorrectFileUpload(file);
+          if (!_this32.fileHasAllowedExtension(file)) {
+            _this32.handleIncorrectFileUpload(file);
             return;
           }
-          if (_this30.fileTooLarge(file)) {
-            _this30.handleTooLargeOfAfile(file);
+          if (_this32.fileTooLarge(file)) {
+            _this32.handleTooLargeOfAfile(file);
             return;
           }
           var badgeId = "upload-badge-".concat(key);
           var loadingBadge = $this.createLoadingBadge(file, badgeId);
           dummyContainer.append(loadingBadge);
           $this.progress[badgeId] = 0;
-          $this.$wire.upload(_this30.uploadModel, file, function (success) {
+          $this.$wire.upload(_this32.uploadModel, file, function (success) {
             $this.progress[badgeId] = 0;
             dummyContainer.querySelector("#".concat(badgeId)).remove();
           }, function (error) {
@@ -8087,28 +8224,28 @@ document.addEventListener("alpine:init", function () {
       device: device,
       hasErrors: hasErrors,
       init: function init() {
-        var _this31 = this;
+        var _this33 = this;
         setTimeout(function () {
-          _this31.$wire.checkLoginFieldsForInput();
+          _this33.$wire.checkLoginFieldsForInput();
         }, 250);
         this.setCurrentFocusInput();
         this.$watch('hasErrors', function (value) {
-          _this31.setCurrentFocusInput();
+          _this33.setCurrentFocusInput();
         });
         this.$watch("activeOverlay", function (value) {
-          _this31.setCurrentFocusInput();
+          _this33.setCurrentFocusInput();
         });
         this.$watch("openTab", function (value) {
-          _this31.setCurrentFocusInput();
+          _this33.setCurrentFocusInput();
         });
       },
       setCurrentFocusInput: function setCurrentFocusInput() {
-        var _this32 = this;
+        var _this34 = this;
         var name = '' != this.activeOverlay ? this.activeOverlay : this.openTab;
         var finder = '' != hasErrors ? "[data-focus-tab-error = '".concat(name, "-").concat(hasErrors[0], "']") : "[data-focus-tab = '".concat(name, "']");
         setTimeout(function () {
-          var _this32$$root$querySe;
-          return (_this32$$root$querySe = _this32.$root.querySelector(finder)) === null || _this32$$root$querySe === void 0 ? void 0 : _this32$$root$querySe.focus();
+          var _this34$$root$querySe;
+          return (_this34$$root$querySe = _this34.$root.querySelector(finder)) === null || _this34$$root$querySe === void 0 ? void 0 : _this34$$root$querySe.focus();
         }, 250);
       },
       changeActiveOverlay: function changeActiveOverlay() {
@@ -8127,16 +8264,16 @@ document.addEventListener("alpine:init", function () {
       pageUpdated: array.pageUpdated,
       isCoLearningScore: array.isCoLearningScore,
       init: function init() {
-        var _this33 = this;
+        var _this35 = this;
         if (this.pageUpdated) {
           this.resetStoredData();
         }
         if ((0,lodash__WEBPACK_IMPORTED_MODULE_6__.isString)(this.shadowScore)) {
-          this.shadowScore = this.isFloat(initialScore) ? parseFloat(initialScore) : parseInt(initialScore);
+          this.shadowScore = isFloat(initialScore) ? parseFloat(initialScore) : parseInt(initialScore);
         }
         this.$nextTick(function () {
-          return _this33.$dispatch("slider-score-updated", {
-            score: _this33.score
+          return _this35.$dispatch("slider-score-updated", {
+            score: _this35.score
           });
         });
       },
@@ -8154,14 +8291,11 @@ document.addEventListener("alpine:init", function () {
         console.warn("No navigation component found for the specified name.");
       },
       toggleTicked: function toggleTicked(event) {
-        var parsedValue = this.isFloat(event.value) ? parseFloat(event.value) : parseInt(event.value);
+        var parsedValue = isFloat(event.value) ? parseFloat(event.value) : parseInt(event.value);
         this.setNewScore(parsedValue, event.state, event.firstTick);
         this.updateAssessmentStore();
         this.dispatchNewScoreToSlider();
         this.updateLivewireComponent(event);
-      },
-      isFloat: function isFloat(value) {
-        return parseFloat(value.match(/^-?\d*(\.\d+)?$/)) > 0;
       },
       getCurrentScore: function getCurrentScore() {
         return this.halfPoints ? Math.round(this.shadowScore * 2) / 2 : Math.round(this.shadowScore);
@@ -8200,19 +8334,19 @@ document.addEventListener("alpine:init", function () {
         }
       },
       resetStoredData: function resetStoredData() {
-        var _this34 = this;
+        var _this36 = this;
         this.$store.assessment.resetData(this.score, this.toggleCount());
         this.$nextTick(function () {
-          _this34.$store.assessment.toggleCount = _this34.toggleCount();
+          _this36.$store.assessment.toggleCount = _this36.toggleCount();
         });
       },
       updateScoringData: function updateScoringData(data) {
-        var _this35 = this;
+        var _this37 = this;
         Object.assign(this, data);
         this.score = this.shadowScore = data.initialScore;
         this.$nextTick(function () {
-          return _this35.$dispatch("slider-score-updated", {
-            score: _this35.score
+          return _this37.$dispatch("slider-score-updated", {
+            score: _this37.score
           });
         });
       }
@@ -8227,13 +8361,13 @@ document.addEventListener("alpine:init", function () {
       firstValue: firstValue,
       skipWatch: false,
       first: function first() {
-        var _this36 = this;
+        var _this38 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee8() {
           return _regeneratorRuntime().wrap(function _callee8$(_context8) {
             while (1) switch (_context8.prev = _context8.next) {
               case 0:
                 _context8.next = 2;
-                return _this36.updateCurrent(_this36.firstValue, "first");
+                return _this38.updateCurrent(_this38.firstValue, "first");
               case 2:
               case "end":
                 return _context8.stop();
@@ -8242,13 +8376,13 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       last: function last() {
-        var _this37 = this;
+        var _this39 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee9() {
           return _regeneratorRuntime().wrap(function _callee9$(_context9) {
             while (1) switch (_context9.prev = _context9.next) {
               case 0:
                 _context9.next = 2;
-                return _this37.updateCurrent(_this37.lastValue, "last");
+                return _this39.updateCurrent(_this39.lastValue, "last");
               case 2:
               case "end":
                 return _context9.stop();
@@ -8257,19 +8391,19 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       next: function next() {
-        var _this38 = this;
+        var _this40 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee10() {
           return _regeneratorRuntime().wrap(function _callee10$(_context10) {
             while (1) switch (_context10.prev = _context10.next) {
               case 0:
-                if (!(_this38.current >= _this38.lastValue)) {
+                if (!(_this40.current >= _this40.lastValue)) {
                   _context10.next = 2;
                   break;
                 }
                 return _context10.abrupt("return");
               case 2:
                 _context10.next = 4;
-                return _this38.updateCurrent(_this38.current + 1, "incr");
+                return _this40.updateCurrent(_this40.current + 1, "incr");
               case 4:
               case "end":
                 return _context10.stop();
@@ -8278,19 +8412,19 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       previous: function previous() {
-        var _this39 = this;
+        var _this41 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee11() {
           return _regeneratorRuntime().wrap(function _callee11$(_context11) {
             while (1) switch (_context11.prev = _context11.next) {
               case 0:
-                if (!(_this39.current <= _this39.firstValue)) {
+                if (!(_this41.current <= _this41.firstValue)) {
                   _context11.next = 2;
                   break;
                 }
                 return _context11.abrupt("return");
               case 2:
                 _context11.next = 4;
-                return _this39.updateCurrent(_this39.current - 1, "decr");
+                return _this41.updateCurrent(_this41.current - 1, "decr");
               case 4:
               case "end":
                 return _context11.stop();
@@ -8299,21 +8433,21 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       updateCurrent: function updateCurrent(value, action) {
-        var _this40 = this;
+        var _this42 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee12() {
           var response;
           return _regeneratorRuntime().wrap(function _callee12$(_context12) {
             while (1) switch (_context12.prev = _context12.next) {
               case 0:
-                _this40.$dispatch("assessment-drawer-tab-update", {
+                _this42.$dispatch("assessment-drawer-tab-update", {
                   tab: 1
                 });
                 _context12.next = 3;
-                return _this40.$wire[_this40.methodCall](value, action);
+                return _this42.$wire[_this42.methodCall](value, action);
               case 3:
                 response = _context12.sent;
                 if (response) {
-                  _this40.updateProperties(response);
+                  _this42.updateProperties(response);
                 }
               case 5:
               case "end":
@@ -8336,42 +8470,42 @@ document.addEventListener("alpine:init", function () {
       fixLineHeightCount: 0,
       fixInterval: null,
       init: function init() {
-        var _this41 = this;
+        var _this43 = this;
         this.placeAllOrNothingLines();
         this.fixLineHeight();
         this.$watch("expanded", function (value) {
-          return _this41.placeAllOrNothingLines();
+          return _this43.placeAllOrNothingLines();
         });
       },
       fixLineHeight: function fixLineHeight() {
-        var _this42 = this;
+        var _this44 = this;
         this.fixInterval = setInterval(function () {
-          _this42.placeAllOrNothingLines();
-          _this42.fixLineHeightCount++;
-          if (_this42.fixLineHeightCount >= 5) {
-            clearInterval(_this42.fixInterval);
+          _this44.placeAllOrNothingLines();
+          _this44.fixLineHeightCount++;
+          if (_this44.fixLineHeightCount >= 5) {
+            clearInterval(_this44.fixInterval);
           }
         }, 200);
       },
       placeAllOrNothingLines: function placeAllOrNothingLines() {
-        var _this43 = this;
+        var _this45 = this;
         this.$nextTick(function () {
-          var parent = _this43.$root.parentElement;
-          _this43.activeItems.map(function (item) {
+          var parent = _this45.$root.parentElement;
+          _this45.activeItems.map(function (item) {
             var el = parent.querySelector("[data-active-item='".concat(item, "']"));
-            var height = el.offsetTop + el.offsetHeight / 2 - _this43.$root.offsetHeight / 2;
-            if (_this43.$root !== parent.firstElementChild) {
-              height -= _this43.$root.offsetTop;
+            var height = el.offsetTop + el.offsetHeight / 2 - _this45.$root.offsetHeight / 2;
+            if (_this45.$root !== parent.firstElementChild) {
+              height -= _this45.$root.offsetTop;
             }
-            _this43.$root.querySelector("[data-line='".concat(item, "']")).style.height = height + "px";
+            _this45.$root.querySelector("[data-line='".concat(item, "']")).style.height = height + "px";
           });
-          if (_this43.withToggle) {
+          if (_this45.withToggle) {
             var toggleEl = parent.parentElement.querySelector(".all-or-nothing-toggle");
-            var firstEl = _this43.$root;
-            var lastEl = parent.querySelector("[data-active-item=\"".concat(_this43.activeItems.slice(-1), "\"]"));
-            var middle = _this43.middleOfElement(firstEl);
+            var firstEl = _this45.$root;
+            var lastEl = parent.querySelector("[data-active-item=\"".concat(_this45.activeItems.slice(-1), "\"]"));
+            var middle = _this45.middleOfElement(firstEl);
             if (lastEl) {
-              middle = (_this43.middleOfElement(firstEl) + _this43.middleOfElement(lastEl)) / 2;
+              middle = (_this45.middleOfElement(firstEl) + _this45.middleOfElement(lastEl)) / 2;
             }
             toggleEl.style.top = middle + "px";
           }
@@ -8400,22 +8534,22 @@ document.addEventListener("alpine:init", function () {
         });
       },
       tab: function tab(index) {
-        var _this44 = this;
+        var _this46 = this;
         if (!this.tabs.includes(index)) return;
         this.activeTab = index;
         this.closeTooltips();
         var slide = this.$root.querySelector(".slide-" + index);
         this.handleSlideHeight(slide);
         this.$nextTick(function () {
-          _this44.container.scroll({
+          _this46.container.scroll({
             top: 0,
             left: slide.offsetLeft,
             behavior: "smooth"
           });
           setTimeout(function () {
-            var position = _this44.container.scrollLeft / 300 + 1;
-            if (!_this44.tabs.includes(position)) {
-              _this44.container.scroll({
+            var position = _this46.container.scrollLeft / 300 + 1;
+            if (!_this46.tabs.includes(position)) {
+              _this46.container.scroll({
                 left: slide.offsetLeft
               });
             }
@@ -8423,30 +8557,30 @@ document.addEventListener("alpine:init", function () {
         });
       },
       next: function next() {
-        var _this45 = this;
+        var _this47 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee14() {
           return _regeneratorRuntime().wrap(function _callee14$(_context14) {
             while (1) switch (_context14.prev = _context14.next) {
               case 0:
-                if (!_this45.needsToPerformActionsStill()) {
+                if (!_this47.needsToPerformActionsStill()) {
                   _context14.next = 4;
                   break;
                 }
-                _this45.$dispatch("scoring-elements-error");
-                _this45.clickedNext = true;
+                _this47.$dispatch("scoring-elements-error");
+                _this47.clickedNext = true;
                 return _context14.abrupt("return");
               case 4:
-                _this45.tab(1);
+                _this47.tab(1);
                 _context14.next = 7;
-                return _this45.$nextTick( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee13() {
+                return _this47.$nextTick( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee13() {
                   return _regeneratorRuntime().wrap(function _callee13$(_context13) {
                     while (1) switch (_context13.prev = _context13.next) {
                       case 0:
-                        _this45.$store.assessment.resetData();
+                        _this47.$store.assessment.resetData();
                         _context13.next = 3;
-                        return _this45.$wire.next();
+                        return _this47.$wire.next();
                       case 3:
-                        _this45.clickedNext = false;
+                        _this47.clickedNext = false;
                       case 4:
                       case "end":
                         return _context13.stop();
@@ -8461,22 +8595,22 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       previous: function previous() {
-        var _this46 = this;
+        var _this48 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee16() {
           return _regeneratorRuntime().wrap(function _callee16$(_context16) {
             while (1) switch (_context16.prev = _context16.next) {
               case 0:
-                _this46.tab(1);
+                _this48.tab(1);
                 _context16.next = 3;
-                return _this46.$nextTick( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee15() {
+                return _this48.$nextTick( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee15() {
                   return _regeneratorRuntime().wrap(function _callee15$(_context15) {
                     while (1) switch (_context15.prev = _context15.next) {
                       case 0:
-                        _this46.$store.assessment.resetData();
+                        _this48.$store.assessment.resetData();
                         _context15.next = 3;
-                        return _this46.$wire.previous();
+                        return _this48.$wire.previous();
                       case 3:
-                        _this46.clickedNext = false;
+                        _this48.clickedNext = false;
                       case 4:
                       case "end":
                         return _context15.stop();
@@ -8518,10 +8652,10 @@ document.addEventListener("alpine:init", function () {
         return !this.inReview && !this.$store.assessment.clearToProceed() && !this.clickedNext;
       },
       openFeedbackTab: function openFeedbackTab() {
-        var _this47 = this;
+        var _this49 = this;
         this.tab(2);
         this.$nextTick(function () {
-          var editorDiv = _this47.$root.querySelector(".feedback textarea");
+          var editorDiv = _this49.$root.querySelector(".feedback textarea");
           if (editorDiv) {
             var editor = ClassicEditors[editorDiv.getAttribute("name")];
             if (editor) {
@@ -8548,6 +8682,8 @@ document.addEventListener("alpine:init", function () {
       inputBox: null,
       focusInput: focusInput,
       continuousSlider: continuousSlider,
+      bars: [],
+      halfTotal: false,
       getSliderBackgroundSize: function getSliderBackgroundSize(el) {
         if (this.score === null) return 0;
         var min = el.min || 0;
@@ -8571,10 +8707,10 @@ document.addEventListener("alpine:init", function () {
         el.style.setProperty("--slider-thumb-offset", "calc(".concat(offsetFromCenter, "% + 1px)"));
       },
       setSliderBackgroundSize: function setSliderBackgroundSize(el) {
-        var _this48 = this;
+        var _this50 = this;
         this.$nextTick(function () {
-          el.style.setProperty("--slider-thumb-offset", "".concat(25 / 100 * _this48.getSliderBackgroundSize(el) - 12.5, "px"));
-          el.style.setProperty("--slider-background-size", "".concat(_this48.getSliderBackgroundSize(el), "%"));
+          el.style.setProperty("--slider-thumb-offset", "".concat(25 / 100 * _this50.getSliderBackgroundSize(el) - 12.5, "px"));
+          el.style.setProperty("--slider-background-size", "".concat(_this50.getSliderBackgroundSize(el), "%"));
         });
       },
       syncInput: function syncInput() {
@@ -8593,43 +8729,48 @@ document.addEventListener("alpine:init", function () {
         }
       },
       init: function init() {
-        var _this49 = this;
+        var _this51 = this;
         if (coLearning) {
           Livewire.hook("message.received", function (message, component) {
             var _message$updateQueue$;
             if (component.name === "student.co-learning" && ((_message$updateQueue$ = message.updateQueue[0]) === null || _message$updateQueue$ === void 0 ? void 0 : _message$updateQueue$.method) === "updateHeartbeat") {
-              var scoreInputElement = _this49.$root.querySelector("[x-ref='scoreInput']");
-              _this49.persistentScore = scoreInputElement !== null && scoreInputElement.value !== "" ? scoreInputElement.value : null;
+              var scoreInputElement = _this51.$root.querySelector("[x-ref='scoreInput']");
+              _this51.persistentScore = scoreInputElement !== null && scoreInputElement.value !== "" ? scoreInputElement.value : null;
             }
           });
           Livewire.hook("message.processed", function (message, component) {
             var _message$updateQueue$2;
             if (component.name === "student.co-learning" && ((_message$updateQueue$2 = message.updateQueue[0]) === null || _message$updateQueue$2 === void 0 ? void 0 : _message$updateQueue$2.method) === "updateHeartbeat") {
-              _this49.skipSync = true;
-              _this49.score = _this49.persistentScore;
+              _this51.skipSync = true;
+              _this51.score = _this51.persistentScore;
             }
           });
         }
         this.inputBox = this.$root.querySelector("[x-ref='scoreInput']");
         this.$watch("score", function (value, oldValue) {
-          _this49.markInputElementsClean();
-          if (_this49.disabled || value === oldValue || _this49.skipSync) {
-            _this49.skipSync = false;
+          _this51.markInputElementsClean();
+          if (_this51.disabled || value === oldValue || _this51.skipSync) {
+            _this51.skipSync = false;
             return;
           }
-          if (value >= _this49.maxScore) {
-            _this49.score = value = _this49.maxScore;
+          if (value >= _this51.maxScore) {
+            _this51.score = value = _this51.maxScore;
           }
           if (value <= 0) {
-            _this49.score = value = 0;
+            _this51.score = value = 0;
           }
-          _this49.score = value = _this49.halfPoints ? Math.round(value * 2) / 2 : Math.round(value);
-          _this49.updateContinuousSlider();
+          _this51.score = value = _this51.halfPoints ? Math.round(value * 2) / 2 : Math.round(value);
+          _this51.updateContinuousSlider();
         });
         if (focusInput) {
           this.$nextTick(function () {
-            _this49.inputBox.focus();
+            _this51.inputBox.focus();
           });
+        }
+        this.bars = this.maxScore;
+        if (this.halfPoints) {
+          this.halfTotal = this.hasMaxDecimalScoreWithHalfPoint();
+          this.bars = this.maxScore / 0.5;
         }
       },
       markInputElementsWithError: function markInputElementsWithError() {
@@ -8648,6 +8789,14 @@ document.addEventListener("alpine:init", function () {
         if (numberInput !== null) {
           this.setSliderBackgroundSize(numberInput);
         }
+      },
+      sliderPillClasses: function sliderPillClasses(value) {
+        var score = this.halfTotal || this.halfPoints ? this.score * 2 : this.score;
+        var first = (value / 2 + "").split(".")[1] === '5';
+        return value <= score ? "bg-primary border-primary highlight ".concat(first ? 'first' : 'second') : "border-bluegrey opacity-100 ".concat(first ? 'first' : 'second');
+      },
+      hasMaxDecimalScoreWithHalfPoint: function hasMaxDecimalScoreWithHalfPoint() {
+        return isFloat(this.maxScore);
       }
     };
   });
@@ -8656,7 +8805,7 @@ document.addEventListener("alpine:init", function () {
       minWidth: 120,
       maxWidth: 1000,
       setInputWidth: function setInputWidth(input) {
-        var _this50 = this;
+        var _this52 = this;
         var init = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
         var preview = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
         if (!init || preview) {
@@ -8667,8 +8816,8 @@ document.addEventListener("alpine:init", function () {
           if (!value) {
             return;
           }
-          _this50.$nextTick(function () {
-            _this50.calculateInputWidth(input);
+          _this52.$nextTick(function () {
+            _this52.calculateInputWidth(input);
           });
         });
       },
@@ -8723,23 +8872,23 @@ document.addEventListener("alpine:init", function () {
       inModal: false,
       show: false,
       init: function init() {
-        var _this51 = this;
+        var _this53 = this;
         this.setHeightProperty();
         this.inModal = this.$root.closest("#modal-container") !== null;
         this.$watch("tooltip", function (value) {
           if (value) {
             var ignoreLeft = false;
-            if (alwaysLeft || _this51.tooltipTooWideForPosition()) {
-              _this51.$refs.tooltipdiv.classList.remove("left-1/2", "-translate-x-1/2");
-              _this51.$refs.tooltipdiv.classList.add("right-0");
+            if (alwaysLeft || _this53.tooltipTooWideForPosition()) {
+              _this53.$refs.tooltipdiv.classList.remove("left-1/2", "-translate-x-1/2");
+              _this53.$refs.tooltipdiv.classList.add("right-0");
               ignoreLeft = true;
             }
-            _this51.$refs.tooltipdiv.style.top = _this51.getTop();
-            _this51.$refs.tooltipdiv.style.left = _this51.getLeft(ignoreLeft);
+            _this53.$refs.tooltipdiv.style.top = _this53.getTop();
+            _this53.$refs.tooltipdiv.style.left = _this53.getLeft(ignoreLeft);
           }
         });
         this.$nextTick(function () {
-          return _this51.show = true;
+          return _this53.show = true;
         });
       },
       getTop: function getTop() {
@@ -8770,12 +8919,12 @@ document.addEventListener("alpine:init", function () {
         this.$refs.tooltipdiv.style.left = this.getLeft();
       },
       setHeightProperty: function setHeightProperty() {
-        var _this52 = this;
+        var _this54 = this;
         this.tooltip = true;
         this.$nextTick(function () {
-          _this52.height = _this52.$refs.tooltipdiv.offsetHeight;
-          _this52.tooltip = false;
-          _this52.$refs.tooltipdiv.classList.remove("invisible");
+          _this54.height = _this54.$refs.tooltipdiv.offsetHeight;
+          _this54.tooltip = false;
+          _this54.$refs.tooltipdiv.classList.remove("invisible");
         });
       },
       tooltipTooWideForPosition: function tooltipTooWideForPosition() {
@@ -8797,16 +8946,16 @@ document.addEventListener("alpine:init", function () {
       navScrollBar: null,
       initialized: false,
       init: function init() {
-        var _this53 = this;
+        var _this55 = this;
         this.navScrollBar = this.$root.querySelector('#navscrollbar');
         this.$nextTick(function () {
-          _this53.$root.querySelector(".active").scrollIntoView({
+          _this55.$root.querySelector(".active").scrollIntoView({
             behavior: "smooth"
           });
-          _this53.totalScrollWidth = _this53.$root.offsetWidth;
-          _this53.resize();
-          _this53.initialized = true;
-          _this53.slideToActiveQuestionBubble();
+          _this55.totalScrollWidth = _this55.$root.offsetWidth;
+          _this55.resize();
+          _this55.initialized = true;
+          _this55.slideToActiveQuestionBubble();
         });
       },
       resize: function resize() {
@@ -8844,12 +8993,30 @@ document.addEventListener("alpine:init", function () {
         });
       },
       startIntersectionCountdown: function startIntersectionCountdown() {
-        var _this54 = this;
+        var _this56 = this;
         clearTimeout(this.intersectionCountdown);
         this.intersectionCountdown = setTimeout(function () {
-          clearTimeout(_this54.intersectionCountdown);
-          _this54.slideToActiveQuestionBubble();
+          clearTimeout(_this56.intersectionCountdown);
+          _this56.slideToActiveQuestionBubble();
         }, 5000);
+      },
+      loadQuestion: function loadQuestion(number) {
+        var _this57 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee17() {
+          return _regeneratorRuntime().wrap(function _callee17$(_context17) {
+            while (1) switch (_context17.prev = _context17.next) {
+              case 0:
+                _this57.$dispatch('assessment-drawer-tab-update', {
+                  tab: 1
+                });
+                _context17.next = 3;
+                return _this57.$wire.loadQuestionFromNav(number);
+              case 3:
+              case "end":
+                return _context17.stop();
+            }
+          }, _callee17);
+        }))();
       }
     };
   });
@@ -8859,27 +9026,27 @@ document.addEventListener("alpine:init", function () {
       changing: false,
       language: language,
       startLanguageChange: function startLanguageChange(event, wireModelName) {
-        var _this55 = this;
-        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee17() {
-          return _regeneratorRuntime().wrap(function _callee17$(_context17) {
-            while (1) switch (_context17.prev = _context17.next) {
+        var _this58 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee18() {
+          return _regeneratorRuntime().wrap(function _callee18$(_context18) {
+            while (1) switch (_context18.prev = _context18.next) {
               case 0:
-                _this55.$dispatch('language-loading-start');
-                _this55.changing = true;
-                _context17.next = 4;
-                return _this55.$wire.set(wireModelName, _this55.language);
+                _this58.$dispatch('language-loading-start');
+                _this58.changing = true;
+                _context18.next = 4;
+                return _this58.$wire.set(wireModelName, _this58.language);
               case 4:
-                _this55.$nextTick(function () {
+                _this58.$nextTick(function () {
                   setTimeout(function () {
-                    _this55.changing = false;
-                    _this55.$dispatch('language-loading-end');
+                    _this58.changing = false;
+                    _this58.$dispatch('language-loading-end');
                   }, 1500);
                 });
               case 5:
               case "end":
-                return _context17.stop();
+                return _context18.stop();
             }
-          }, _callee17);
+          }, _callee18);
         }))();
       }
     };
@@ -8892,7 +9059,7 @@ document.addEventListener("alpine:init", function () {
         this.setHeightToAspectRatio(this.$el);
       },
       setHeightToAspectRatio: function setHeightToAspectRatio(element) {
-        var _this56 = this;
+        var _this59 = this;
         var aspectRatioWidth = 940;
         var aspectRatioHeight = 500;
         var aspectRatio = aspectRatioHeight / aspectRatioWidth;
@@ -8905,7 +9072,7 @@ document.addEventListener("alpine:init", function () {
         if (newHeight <= 0) {
           if (this.currentTry <= this.maxTries) {
             setTimeout(function () {
-              return _this56.setHeightToAspectRatio(element);
+              return _this59.setHeightToAspectRatio(element);
             }, 50);
             this.currentTry++;
           }
@@ -8938,16 +9105,16 @@ document.addEventListener("alpine:init", function () {
       maxWords: maxWords,
       wordContainer: null,
       init: function init() {
-        var _this57 = this;
+        var _this60 = this;
         this.$nextTick(function () {
-          _this57.editor = ClassicEditors[editorId];
-          _this57.wordContainer = _this57.$root.querySelector(".ck-word-count__words");
-          _this57.wordContainer.style.display = "flex";
-          _this57.wordContainer.parentElement.style.display = "flex";
-          _this57.addMaxWordsToWordCounter(_this57.maxWords);
+          _this60.editor = ClassicEditors[editorId];
+          _this60.wordContainer = _this60.$root.querySelector(".ck-word-count__words");
+          _this60.wordContainer.style.display = "flex";
+          _this60.wordContainer.parentElement.style.display = "flex";
+          _this60.addMaxWordsToWordCounter(_this60.maxWords);
         });
         this.$watch("maxWords", function (value) {
-          _this57.addMaxWordsToWordCounter(value);
+          _this60.addMaxWordsToWordCounter(value);
         });
       },
       addMaxWordsToWordCounter: function addMaxWordsToWordCounter(value) {
@@ -8962,6 +9129,35 @@ document.addEventListener("alpine:init", function () {
       }
     };
   });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("openQuestionStudentPlayer", function (editorId) {
+    return {
+      editorId: editorId,
+      init: function init() {
+        var _this61 = this;
+        this.$watch("showMe", function (value) {
+          if (!value) return;
+          _this61.$nextTick(function () {
+            var editor = ClassicEditors[editorId];
+            if (!editor) {
+              return;
+            }
+            _this61.setFocus(editor);
+            if (!editor.ui.focusTracker.isFocused) {
+              setTimeout(function () {
+                return _this61.setFocus(editor);
+              }, 100);
+            }
+          });
+        });
+      },
+      setFocus: function setFocus(editor) {
+        editor.focus();
+        editor.model.change(function (writer) {
+          writer.setSelection(editor.model.document.getRoot(), 'end');
+        });
+      }
+    };
+  });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('questionBank', function (openTab, inGroup, inTestBankContext) {
     return {
       questionBankOpenTab: openTab,
@@ -8971,123 +9167,123 @@ document.addEventListener("alpine:init", function () {
       inTestBankContext: inTestBankContext,
       maxHeight: 'calc(100vh - var(--header-height))',
       init: function init() {
-        var _this58 = this;
+        var _this62 = this;
         this.groupDetail = this.$el.querySelector('#groupdetail');
         this.$watch('showBank', function (value) {
           if (value === 'questions') {
-            _this58.$wire.loadSharedFilters();
+            _this62.$wire.loadSharedFilters();
           }
         });
         this.$watch('$store.questionBank.inGroup', function (value) {
-          _this58.inGroup = value;
+          _this62.inGroup = value;
         });
         this.$watch('$store.questionBank.active', function (value) {
           if (value) {
-            _this58.$wire.setAddedQuestionIdsArray();
+            _this62.$wire.setAddedQuestionIdsArray();
           } else {
-            _this58.closeGroupDetailQb();
+            _this62.closeGroupDetailQb();
           }
         });
         this.showGroupDetailsQb = /*#__PURE__*/function () {
-          var _ref4 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee18(groupQuestionUuid) {
+          var _ref4 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee19(groupQuestionUuid) {
             var inTest,
               readyForSlide,
-              _args18 = arguments;
-            return _regeneratorRuntime().wrap(function _callee18$(_context18) {
-              while (1) switch (_context18.prev = _context18.next) {
+              _args19 = arguments;
+            return _regeneratorRuntime().wrap(function _callee19$(_context19) {
+              while (1) switch (_context19.prev = _context19.next) {
                 case 0:
-                  inTest = _args18.length > 1 && _args18[1] !== undefined ? _args18[1] : false;
-                  _context18.next = 3;
-                  return _this58.$wire.showGroupDetails(groupQuestionUuid, inTest);
+                  inTest = _args19.length > 1 && _args19[1] !== undefined ? _args19[1] : false;
+                  _context19.next = 3;
+                  return _this62.$wire.showGroupDetails(groupQuestionUuid, inTest);
                 case 3:
-                  readyForSlide = _context18.sent;
+                  readyForSlide = _context19.sent;
                   if (readyForSlide) {
-                    if (_this58.inTestBankContext) {
-                      _this58.$refs['tab-container'].style.display = 'none';
-                      _this58.$refs['main-container'].style.height = '100vh';
+                    if (_this62.inTestBankContext) {
+                      _this62.$refs['tab-container'].style.display = 'none';
+                      _this62.$refs['main-container'].style.height = '100vh';
                     } else {
-                      _this58.maxHeight = _this58.groupDetail.offsetHeight + 'px';
+                      _this62.maxHeight = _this62.groupDetail.offsetHeight + 'px';
                     }
-                    _this58.groupDetail.style.left = 0;
-                    _this58.$refs['main-container'].scrollTo({
+                    _this62.groupDetail.style.left = 0;
+                    _this62.$refs['main-container'].scrollTo({
                       top: 0,
                       behavior: 'smooth'
                     });
-                    _this58.$el.scrollTo({
+                    _this62.$el.scrollTo({
                       top: 0,
                       behavior: 'smooth'
                     });
-                    _this58.$nextTick(function () {
+                    _this62.$nextTick(function () {
                       setTimeout(function () {
-                        _this58.bodyVisibility = false;
-                        if (_this58.inTestBankContext) {
-                          _this58.groupDetail.style.position = 'relative';
+                        _this62.bodyVisibility = false;
+                        if (_this62.inTestBankContext) {
+                          _this62.groupDetail.style.position = 'relative';
                         } else {
-                          handleVerticalScroll(_this58.$el.closest('.slide-container'));
+                          handleVerticalScroll(_this62.$el.closest('.slide-container'));
                         }
                       }, 500);
                     });
                   }
                 case 5:
                 case "end":
-                  return _context18.stop();
+                  return _context19.stop();
               }
-            }, _callee18);
+            }, _callee19);
           }));
           return function (_x2) {
             return _ref4.apply(this, arguments);
           };
         }();
         this.closeGroupDetailQb = function () {
-          if (!_this58.bodyVisibility) {
-            _this58.bodyVisibility = true;
-            _this58.maxHeight = 'calc(100vh - var(--header-height))';
-            _this58.groupDetail.style.left = '100%';
-            if (_this58.inTestBankContext) {
-              _this58.groupDetail.style.position = 'absolute';
-              _this58.$refs['tab-container'].style.display = 'block';
+          if (!_this62.bodyVisibility) {
+            _this62.bodyVisibility = true;
+            _this62.maxHeight = 'calc(100vh - var(--header-height))';
+            _this62.groupDetail.style.left = '100%';
+            if (_this62.inTestBankContext) {
+              _this62.groupDetail.style.position = 'absolute';
+              _this62.$refs['tab-container'].style.display = 'block';
             }
-            _this58.$nextTick(function () {
-              _this58.$wire.clearGroupDetails();
+            _this62.$nextTick(function () {
+              _this62.$wire.clearGroupDetails();
               setTimeout(function () {
-                if (!_this58.inTestBankContext) {
-                  handleVerticalScroll(_this58.$el.closest('.slide-container'));
+                if (!_this62.inTestBankContext) {
+                  handleVerticalScroll(_this62.$el.closest('.slide-container'));
                 }
               }, 250);
             });
           }
         };
         this.addQuestionToTest = /*#__PURE__*/function () {
-          var _ref5 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee19(button, questionUuid) {
+          var _ref5 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee20(button, questionUuid) {
             var showQuestionBankAddConfirmation,
               enableButton,
-              _args19 = arguments;
-            return _regeneratorRuntime().wrap(function _callee19$(_context19) {
-              while (1) switch (_context19.prev = _context19.next) {
+              _args20 = arguments;
+            return _regeneratorRuntime().wrap(function _callee20$(_context20) {
+              while (1) switch (_context20.prev = _context20.next) {
                 case 0:
-                  showQuestionBankAddConfirmation = _args19.length > 2 && _args19[2] !== undefined ? _args19[2] : false;
+                  showQuestionBankAddConfirmation = _args20.length > 2 && _args20[2] !== undefined ? _args20[2] : false;
                   if (!showQuestionBankAddConfirmation) {
-                    _context19.next = 3;
+                    _context20.next = 3;
                     break;
                   }
-                  return _context19.abrupt("return", _this58.$wire.emit('openModal', 'teacher.add-sub-question-confirmation-modal', {
+                  return _context20.abrupt("return", _this62.$wire.emit('openModal', 'teacher.add-sub-question-confirmation-modal', {
                     questionUuid: questionUuid
                   }));
                 case 3:
                   button.disabled = true;
-                  _context19.next = 6;
-                  return _this58.$wire.handleCheckboxClick(questionUuid);
+                  _context20.next = 6;
+                  return _this62.$wire.handleCheckboxClick(questionUuid);
                 case 6:
-                  enableButton = _context19.sent;
+                  enableButton = _context20.sent;
                   if (enableButton) {
                     button.disabled = false;
                   }
-                  return _context19.abrupt("return", true);
+                  return _context20.abrupt("return", true);
                 case 9:
                 case "end":
-                  return _context19.stop();
+                  return _context20.stop();
               }
-            }, _callee19);
+            }, _callee20);
           }));
           return function (_x3, _x4) {
             return _ref5.apply(this, arguments);
@@ -9403,7 +9599,10 @@ clearFilterPillsFromElement = function clearFilterPillsFromElement(rootElement) 
     return pill.remove();
   });
 };
-
+isFloat = function isFloat(value) {
+  var splitValues = (value + "").split(".");
+  return splitValues[1] !== undefined;
+};
 /**
  * Detects fast successive events
  * @param event event to detect
@@ -9445,6 +9644,14 @@ selectTextContent = function selectTextContent(event) {
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var plyr__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! plyr */ "./node_modules/plyr/dist/plyr.min.js");
 /* harmony import */ var plyr__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(plyr__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var alpinejs__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! alpinejs */ "./node_modules/alpinejs/dist/module.esm.js");
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
+function _iterableToArrayLimit(arr, i) { var _i = null == arr ? null : "undefined" != typeof Symbol && arr[Symbol.iterator] || arr["@@iterator"]; if (null != _i) { var _s, _e, _x, _r, _arr = [], _n = !0, _d = !1; try { if (_x = (_i = _i.call(arr)).next, 0 === i) { if (Object(_i) !== _i) return; _n = !1; } else for (; !(_n = (_s = _x.call(_i)).done) && (_arr.push(_s.value), _arr.length !== i); _n = !0); } catch (err) { _d = !0, _e = err; } finally { try { if (!_n && null != _i["return"] && (_r = _i["return"](), Object(_r) !== _r)) return; } finally { if (_d) throw _e; } } return _arr; } }
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
 
 window.plyrPlayer = {
   disableElem: function disableElem(elem) {
@@ -9563,6 +9770,7 @@ window.plyrPlayer = {
  */
 window.makeAttachmentResizable = function (element) {
   var attachmentType = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
+  if (attachmentType === 'audio') return;
   var resizers = element.querySelectorAll('.resizer');
   var iframe = element.querySelector('.resizers iframe');
   var minimum_size = 167;
@@ -9576,7 +9784,7 @@ window.makeAttachmentResizable = function (element) {
   var original_mouse_x = 0;
   var original_mouse_y = 0;
   var width, height;
-  var img, originalImageWidth, originalImageHeight; // Specific for image attachments
+  var img; // Specific for image attachments
   var _loop = function _loop() {
     var currentResizer = resizers[i];
     currentResizer.addEventListener('mousedown', resizeMouseDown);
@@ -9591,6 +9799,9 @@ window.makeAttachmentResizable = function (element) {
       original_mouse_y = e.pageY;
       maximum_x = document.body.offsetWidth;
       maximum_y = document.body.offsetHeight;
+      if (attachmentType === 'image') {
+        setImageProperties(element);
+      }
       window.addEventListener('mousemove', resize);
       window.addEventListener('ontouchmove', resize);
       window.addEventListener('mouseup', stopResize);
@@ -9600,18 +9811,20 @@ window.makeAttachmentResizable = function (element) {
       function resize(e) {
         if (attachmentType === 'pdf' || attachmentType === 'video') {
           iframeTimeout = temporarilyDisablePointerEvents(iframe, iframeTimeout);
-        } else if (attachmentType === 'image') {
-          setImageProperties(element);
         }
         if (currentResizer.classList.contains('bottom-right')) resizeBottomRight(e);else if (currentResizer.classList.contains('bottom-left')) resizeBottomLeft(e);else if (currentResizer.classList.contains('top-right')) resizeTopRight(e);else resizeTopLeft(e);
-        if (attachmentType === 'image') setImageWidthAndHeight(element);
       }
       function stopResize() {
         if (attachmentType === 'pdf' || attachmentType === 'video') {
           resetTemporarilyDisabledPointerEvents(iframe, iframeTimeout);
         }
+        if (attachmentType === 'image') {
+          scaleModalAndImageToRatio();
+        }
         window.removeEventListener('mousemove', resize);
         window.removeEventListener('touchmove', resize);
+        window.removeEventListener('mouseup', stopResize);
+        window.removeEventListener('ontouchend', stopResize);
       }
 
       /*************************** Helpers *****************************/
@@ -9662,18 +9875,23 @@ window.makeAttachmentResizable = function (element) {
       function setImageProperties() {
         if (typeof img === 'undefined') {
           img = element.querySelector('img');
-          originalImageWidth = img.width;
-          originalImageHeight = img.height;
-          img.style.maxWidth = 'initial'; // Remove max width to keep aspect ratio - by default img takes max-width of 100%
           img.closest('.image-max-height').style.maxHeight = 'initial'; // Remove max height from parent dev to allow img expands if bigger than the parent when resized
         }
-      }
 
-      function setImageWidthAndHeight() {
-        img.style.height = originalImageHeight + 'px';
-        img.style.width = originalImageWidth + 'px';
-        img.style.marginLeft = 'auto';
-        img.style.marginRight = 'auto';
+        img.style.opacity = '0';
+      }
+      function scaleModalAndImageToRatio() {
+        /*  Rule of thumb: The image cannot become larger than the 'pulled' size of the parent. */
+        var current = element.getBoundingClientRect();
+        var _calculateMaxAspectRa = calculateMaxAspectRatioFit(current.width, current.height, img.naturalWidth, img.naturalHeight),
+          _calculateMaxAspectRa2 = _slicedToArray(_calculateMaxAspectRa, 2),
+          newWidth = _calculateMaxAspectRa2[0],
+          newHeight = _calculateMaxAspectRa2[1];
+        img.style.width = newWidth + 'px';
+        img.style.height = newHeight + 'px';
+        element.style.width = 'auto';
+        element.style.height = 'auto';
+        img.style.opacity = '1';
       }
     }
   };
@@ -9787,6 +10005,51 @@ var resetTemporarilyDisabledPointerEvents = function resetTemporarilyDisabledPoi
     clearTimeout(timeout);
   }
   element.style.pointerEvents = 'auto';
+};
+document.addEventListener("alpine:init", function () {
+  alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data("attachmentModal", function (attachmentType) {
+    return {
+      maxHeight: 0,
+      maxWidth: 0,
+      image: null,
+      imageWidth: 0,
+      imageHeight: 0,
+      attachmentType: attachmentType,
+      init: function init() {
+        if (attachmentType === "image") {
+          this.maxHeight = window.innerHeight * 0.8;
+          this.maxWidth = window.innerWidth * 0.9;
+          this.image = this.$root.querySelector("img");
+          this.imageLoaded();
+        }
+        dragElement(this.$el);
+        makeAttachmentResizable(this.$el, attachmentType);
+      },
+      imageLoaded: function imageLoaded() {
+        if (attachmentType !== "image" || !(this.image.naturalWidth > 0)) return;
+        this.$root.style.width = "auto";
+        this.$root.style.height = "auto";
+        var _calculateMaxAspectRa3 = calculateMaxAspectRatioFit(this.maxWidth, this.maxHeight, this.image.naturalWidth, this.image.naturalHeight),
+          _calculateMaxAspectRa4 = _slicedToArray(_calculateMaxAspectRa3, 2),
+          maxWidth = _calculateMaxAspectRa4[0],
+          maxHeight = _calculateMaxAspectRa4[1];
+        this.imageWidth = this.getImageWidth(maxWidth);
+        this.imageHeight = this.getImageHeight(maxHeight);
+      },
+      getImageWidth: function getImageWidth(maxWidth) {
+        return (this.image.naturalWidth > maxWidth ? maxWidth : this.image.naturalWidth) + 'px';
+      },
+      getImageHeight: function getImageHeight(maxHeight) {
+        return (this.image.naturalHeight > maxHeight ? maxHeight : this.image.naturalHeight) + "px";
+      }
+    };
+  });
+});
+var calculateMaxAspectRatioFit = function calculateMaxAspectRatioFit(maxWidth, maxHeight, imageWidth, imageHeight) {
+  var scale = Math.min(maxWidth / imageWidth, maxHeight / imageHeight);
+  var newMaxWidth = Math.floor(imageWidth * scale),
+    newMaxHeight = Math.floor(imageHeight * scale);
+  return [newMaxWidth, newMaxHeight];
 };
 
 /***/ }),
@@ -16176,7 +16439,7 @@ RichTextEditor = {
     var _this = this;
     return this.createStudentEditor(parameterBag, function (editor) {
       _this.setupWordCounter(editor, parameterBag);
-      WebspellcheckerTlc.forTeacherQuestion(editor, parameterBag.lang, parameterBag.allowWsc);
+      WebspellcheckerTlc.subscribeToProblemCounter(editor);
       window.addEventListener("wsc-problems-count-updated-" + parameterBag.editorId, function (e) {
         var problemCountSpan = document.getElementById("problem-count-" + parameterBag.editorId);
         if (problemCountSpan) {
@@ -16204,13 +16467,18 @@ RichTextEditor = {
     return this.createTeacherEditor(parameterBag, function (editor) {
       WebspellcheckerTlc.lang(editor, parameterBag.lang);
       _this3.setReadOnly(editor);
+      window.editor = editor;
     });
   },
   initClassicEditorForStudentPlayer: function initClassicEditorForStudentPlayer(parameterBag) {
     var _this4 = this;
     return this.createStudentEditor(parameterBag, function (editor) {
+      WebspellcheckerTlc.lang(editor, parameterBag.lang);
       _this4.setupWordCounter(editor, parameterBag);
       if (typeof ReadspeakerTlc != "undefined") {
+        editor.editing.view.document.on('change:isFocused', function (evt, data, isFocused) {
+          isFocused ? rsTlcEvents.handleCkeditorFocusForReadspeaker(evt.target, parameterBag.questionId, parameterBag.editorId) : rsTlcEvents.handleCkeditorBlurForReadspeaker(evt.target, parameterBag.questionId, parameterBag.editorId);
+        });
         ReadspeakerTlc.ckeditor.addListenersForReadspeaker(editor, parameterBag.questionId, parameterBag.editorId);
         ReadspeakerTlc.ckeditor.disableContextMenuOnCkeditor();
       }
@@ -16219,6 +16487,7 @@ RichTextEditor = {
   initClassicEditorForStudentPreviewplayer: function initClassicEditorForStudentPreviewplayer(parameterBag) {
     var _this5 = this;
     return this.createStudentEditor(parameterBag, function (editor) {
+      WebspellcheckerTlc.lang(editor, parameterBag.lang);
       _this5.setupWordCounter(editor, parameterBag);
       if (typeof ReadspeakerTlc != "undefined") {
         ReadspeakerTlc.ckeditor.replaceReadableAreaByClone(editor);
@@ -16262,7 +16531,7 @@ RichTextEditor = {
       wordCount: {
         displayCharacters: false
       },
-      wproofreader: this.getWproofreaderConfig()
+      wproofreader: this.getWproofreaderConfig(parameterBag.enableGrammar)
     };
     config.removePlugins = ["Selection", "Completion", "ImageUpload", "Image", "ImageToolbar"];
     config.toolbar = {
@@ -16330,7 +16599,7 @@ RichTextEditor = {
       },
 
       wordCount: {
-        displayCharacters: true,
+        displayCharacters: false,
         displayWords: true
       },
       wproofreader: this.getWproofreaderConfig()
@@ -16388,6 +16657,9 @@ RichTextEditor = {
       wordCountWrapper.appendChild(wordCountPlugin.wordCountContainer);
       window.dispatchEvent(new CustomEvent("updated-word-count-plugin-container"));
     }
+    if (!parameterBag.restrictWords || [null, 0].includes(parameterBag.maxWords)) {
+      return;
+    }
     editor.maxWords = parameterBag.maxWords;
     editor.maxWordOverride = parameterBag.maxWordOverride;
     this.handleInputWithMaxWords(editor);
@@ -16396,6 +16668,11 @@ RichTextEditor = {
       _this8.handleInputWithMaxWords(editor);
     };
     editor.model.document.on("change:data", function (event, batch) {
+      if (_this8.hasNoWordLimit(editor)) return;
+      var wc = editor.plugins.get("WordCount");
+      if (wc.words > editor.maxWords) {
+        editor.execute('undo');
+      }
       _this8.handleInputWithMaxWords(editor, event);
     });
     editor.editing.view.document.on("paste", function (event, data) {
@@ -16403,11 +16680,13 @@ RichTextEditor = {
       var wc = editor.plugins.get("WordCount");
       var maxWords = parseInt(editor.maxWords);
       if (wc.words >= maxWords) {
+        //always the old number of words. never triggers when pasting at 49/50 words
         data.preventDefault();
         event.stop();
       } else {
         editor.pasted = true;
         editor.prePasteData = editor.getData();
+        editor.prePasteWc = wc.words;
       }
     });
     editor.editing.view.document.on("keydown", function (event, data) {
@@ -16428,14 +16707,22 @@ RichTextEditor = {
       return;
     }
     var input = editor.commands.get("input");
+    var enterKeyCommand = editor.commands.get("enter");
     var wc = editor.plugins.get("WordCount");
     var maxWords = parseInt(editor.maxWords);
     editor.disableSpacers = wc.words >= maxWords;
     if (wc.words > maxWords) {
       input.forceDisabled("maxword-lock");
+      enterKeyCommand.forceDisabled("maxword-lock");
       handlePastedData();
     } else {
+      if (wc.words == maxWords) {
+        enterKeyCommand.forceDisabled("maxword-lock");
+      } else {
+        enterKeyCommand.clearForceDisabled("maxword-lock");
+      }
       input.clearForceDisabled("maxword-lock");
+      editor.pasted = false;
     }
     function handlePastedData() {
       if (!editor.pasted) return;
@@ -16447,12 +16734,17 @@ RichTextEditor = {
           writer.setSelection(editor.model.document.getRoot(), "end");
         });
       }, 1);
+      editor.disableSpacers = editor.prePasteWc >= maxWords;
+      if (editor.prePasteWc < maxWords) {
+        input.clearForceDisabled('maxword-lock');
+      }
     }
   },
   hasNoWordLimit: function hasNoWordLimit(editor) {
     return editor.maxWords === null || editor.maxWordOverride;
   },
   getWproofreaderConfig: function getWproofreaderConfig() {
+    var enableGrammar = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
     return {
       autoSearch: false,
       autoDestroy: true,
@@ -16464,45 +16756,52 @@ RichTextEditor = {
       servicePort: "80",
       serviceHost: "wsc.test-correct.nl",
       servicePath: "wscservice/api",
-      srcUrl: "https://wsc.test-correct.nl/wscservice/wscbundle/wscbundle.js"
+      srcUrl: "https://wsc.test-correct.nl/wscservice/wscbundle/wscbundle.js",
+      enableGrammar: enableGrammar
     };
   },
   createEditor: function createEditor(editorId, config) {
-    var resolveCallback = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-    var editor = ClassicEditors[editorId];
-    if (editor) editor.destroy(true);
-    return ClassicEditor.create(document.getElementById(editorId), config).then(function (editor) {
-      ClassicEditors[editorId] = editor;
-      if (typeof resolveCallback === "function") {
-        resolveCallback(editor);
-      }
-    })["catch"](function (error) {
-      console.error(error);
-    });
-  },
-  createTeacherEditor: function createTeacherEditor(parameterBag) {
-    var _arguments = arguments,
-      _this9 = this;
+    var _arguments = arguments;
     return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
-      var resolveCallback;
+      var resolveCallback, editor;
       return _regeneratorRuntime().wrap(function _callee$(_context) {
         while (1) switch (_context.prev = _context.next) {
           case 0:
-            resolveCallback = _arguments.length > 1 && _arguments[1] !== undefined ? _arguments[1] : null;
-            _context.next = 3;
-            return _this9.createEditor(parameterBag.editorId, _this9.getConfigForTeacher(parameterBag), resolveCallback);
-          case 3:
-            return _context.abrupt("return", _context.sent);
-          case 4:
+            resolveCallback = _arguments.length > 2 && _arguments[2] !== undefined ? _arguments[2] : null;
+            editor = ClassicEditors[editorId];
+            _context.prev = 2;
+            if (!editor) {
+              _context.next = 6;
+              break;
+            }
+            _context.next = 6;
+            return editor.destroy(true);
+          case 6:
+            _context.next = 11;
+            break;
+          case 8:
+            _context.prev = 8;
+            _context.t0 = _context["catch"](2);
+            console.warn('An issue occurred while destroying an existing editor.');
+          case 11:
+            return _context.abrupt("return", ClassicEditor.create(document.getElementById(editorId), config).then(function (editor) {
+              ClassicEditors[editorId] = editor;
+              if (typeof resolveCallback === "function") {
+                resolveCallback(editor);
+              }
+            })["catch"](function (error) {
+              console.error(error);
+            }));
+          case 12:
           case "end":
             return _context.stop();
         }
-      }, _callee);
+      }, _callee, null, [[2, 8]]);
     }))();
   },
-  createStudentEditor: function createStudentEditor(parameterBag) {
+  createTeacherEditor: function createTeacherEditor(parameterBag) {
     var _arguments2 = arguments,
-      _this10 = this;
+      _this9 = this;
     return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
       var resolveCallback;
       return _regeneratorRuntime().wrap(function _callee2$(_context2) {
@@ -16510,7 +16809,7 @@ RichTextEditor = {
           case 0:
             resolveCallback = _arguments2.length > 1 && _arguments2[1] !== undefined ? _arguments2[1] : null;
             _context2.next = 3;
-            return _this10.createEditor(parameterBag.editorId, _this10.getConfigForStudent(parameterBag), resolveCallback);
+            return _this9.createEditor(parameterBag.editorId, _this9.getConfigForTeacher(parameterBag), resolveCallback);
           case 3:
             return _context2.abrupt("return", _context2.sent);
           case 4:
@@ -16519,6 +16818,33 @@ RichTextEditor = {
         }
       }, _callee2);
     }))();
+  },
+  createStudentEditor: function createStudentEditor(parameterBag) {
+    var _arguments3 = arguments,
+      _this10 = this;
+    return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
+      var resolveCallback;
+      return _regeneratorRuntime().wrap(function _callee3$(_context3) {
+        while (1) switch (_context3.prev = _context3.next) {
+          case 0:
+            resolveCallback = _arguments3.length > 1 && _arguments3[1] !== undefined ? _arguments3[1] : null;
+            _context3.next = 3;
+            return _this10.createEditor(parameterBag.editorId, _this10.getConfigForStudent(parameterBag), resolveCallback);
+          case 3:
+            return _context3.abrupt("return", _context3.sent);
+          case 4:
+          case "end":
+            return _context3.stop();
+        }
+      }, _callee3);
+    }))();
+  },
+  writeContentToTexarea: function writeContentToTexarea(editorId) {
+    var editor = ClassicEditors[editorId];
+    if (editor) {
+      editor.updateSourceElement();
+      editor.sourceElement.dispatchEvent(new Event("input"));
+    }
   }
 };
 
@@ -16754,6 +17080,24 @@ WebspellcheckerTlc = {
         console.dir(e);
       }
     }, 1000);
+  },
+  subscribeToProblemCounter: function subscribeToProblemCounter(editor) {
+    var i = 0;
+    var problemTimer = setInterval(function () {
+      ++i;
+      if (i === 50) clearInterval(problemTimer);
+      if (typeof WEBSPELLCHECKER != "undefined") {
+        var instance = WEBSPELLCHECKER.getInstances().pop();
+        instance.subscribe('problemCheckEnded', function (event) {
+          window.dispatchEvent(new CustomEvent('wsc-problems-count-updated-' + editor.sourceElement.id, {
+            detail: {
+              problemsCount: instance.getProblemsCount()
+            }
+          }));
+        });
+        clearInterval(problemTimer);
+      }
+    }, 200);
   }
 };
 

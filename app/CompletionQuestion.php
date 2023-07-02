@@ -420,7 +420,10 @@ class CompletionQuestion extends Question implements QuestionInterface
         $qHelper = new QuestionHelper();
         if (!$this->questionData) {
             $questionHtml = $request->input('question');
-            $this->questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($questionHtml);
+            $this->questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion(
+                question:$questionHtml,
+                markAllAnswersAsCorrect: $this->isSubType('completion')
+            );
             if (empty($this->questionData['question'])) {
                 $this->questionData = false;
                 return [];
@@ -447,9 +450,9 @@ class CompletionQuestion extends Question implements QuestionInterface
             }
         }
 
-        if ($subType == 'completion' && strstr($questionString, '|')) {
-            $validator->errors()->add($fieldPreFix . 'question', 'U kunt geen |-teken gebruiken in de tekst of antwoord mogelijkheden');
-        }
+//        if ($subType == 'completion' && strstr($questionString, '|')) {
+//            $validator->errors()->add($fieldPreFix . 'question', 'U kunt geen |-teken gebruiken in de tekst of antwoord mogelijkheden');
+//        }
 
         $check = false;
         $errorMessage = "U heeft het verkeerde formaat van de vraag ingevoerd, zorg ervoor dat elk haakje '[' gesloten is en er geen overlap tussen haakjes is.";
@@ -473,7 +476,12 @@ class CompletionQuestion extends Question implements QuestionInterface
         }
 
         $qHelper = new QuestionHelper();
-        $questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($questionString, true);
+
+        $questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion(
+            question: $questionString,
+            isNewQuestion: true,
+            markAllAnswersAsCorrect:  $subType === 'completion'
+        );
 
         foreach ($questionData['answers'] as $answer) {
             if (trim($answer['answer']) == '') {
@@ -523,7 +531,7 @@ class CompletionQuestion extends Question implements QuestionInterface
     public function isFullyAnswered(Answer $answer): bool
     {
         $givenAnswersCount = collect(json_decode($answer->json, true))->count();
-        return $givenAnswersCount === $this->completionQuestionAnswers()->where('correct', true)->count();
+        return $givenAnswersCount === $this->completionQuestionAnswers()->where('correct', true)->get()->unique('tag')->count();
     }
 
     public function getCorrectAnswerStructure()

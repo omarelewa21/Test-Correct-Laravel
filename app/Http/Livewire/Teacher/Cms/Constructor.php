@@ -198,12 +198,19 @@ class Constructor extends TCComponent implements QuestionCms
         return $return;
     }
 
-    protected function getMessages()
+    protected function getMessages(): array
     {
         return [
             'question.rtti.required'   => __('cms.rtti warning'),
             'question.bloom.required'  => __('cms.bloom warning'),
             'question.miller.required' => __('cms.miller warning'),
+            'question.answers.*.score' => [
+                'integer' => __('cms.half_point_validation_text'),
+                'numeric' => __('cms.numeric_validation_text'),
+            ],
+            'question.answers.*.*'     => __('cms.De gemarkeerde velden zijn verplicht'),
+            'question.score'           => __('cms.Er dient minimaal 1 punt toegekend te worden'),
+            'question.answer_svg'      => __('cms.drawing-question-required-answer'),
         ];
     }
 
@@ -789,6 +796,7 @@ class Constructor extends TCComponent implements QuestionCms
     public function handleNewVideoAttachment($link)
     {
         if ($this->validateVideoLink($link)) {
+            $link = Attachment::convertYoutubeShortsLink($link);
             $video = ['id' => Uuid::uuid4()->toString(), 'link' => $link];
             $this->videos[] = $video;
             $this->sortOrderAttachments[] = $video['id'];

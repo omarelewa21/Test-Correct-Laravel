@@ -56,10 +56,26 @@
     top: 0;
 }
 
+#assessment-page {
+    --ck-z-default: 0;
+}
+
 .progress-bar-background {
     width: calc(100% - var(--active-sidebar-width));
     transition: width var(--sidebar-transition)
 }
 .progress-bar-background .progress-bar {
     transition: width 150ms ease-in
+}
+
+#necklace-navigation .question-indicator .question-number.done.system-rated,
+#necklace-navigation .question-indicator .question-number.system-rated {
+    --rqn-border-color: transparent;
+    --rqn-background-color: rgba(var(--cta-primary-rgb), 0.5);
+}
+
+#necklace-navigation .question-indicator .question-number.done.fully-rated,
+#necklace-navigation .question-indicator .question-number.fully-rated {
+    --rqn-border-color: transparent;
+    --rqn-background-color: var(--cta-primary);
 }

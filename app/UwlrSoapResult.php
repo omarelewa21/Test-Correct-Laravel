@@ -235,7 +235,7 @@ class UwlrSoapResult extends Model
             $this->getStamnummerIfAppropriate($leerling),
             // external_id gets harvested from de entree attributes on account matching; //$leerling['key'], //leeStamNummer,
             $leerling['achternaam'], //leeAchternaam,
-            array_key_exists('tussenvoegsel', $leerling) ? $leerling['tussenvoegsel'] : '', //leeTussenvoegsels,
+            array_key_exists('tussenvoegsel', $leerling) ? $leerling['tussenvoegsel'] : (array_key_exists('voorvoegsel', $leerling) ? $leerling['voorvoegsel'] : ''), //leeTussenvoegsels,
             $leerling['roepnaam'],//leeVoornaam,
             array_key_exists('email', $leerling) ? $leerling['email'] : '', //email student,
             array_key_exists('eckid', $leerling) ? $leerling['eckid'] : (array_key_exists('key',
@@ -244,7 +244,7 @@ class UwlrSoapResult extends Model
             '', //vakNaam,
             $this->getStamnummerIfAppropriate($leerkracht),
             array_key_exists('achternaam', $leerkracht) ? $leerkracht['achternaam'] : '', //docAchternaam,
-            array_key_exists('tussenvoegsel', $leerkracht) ? $leerkracht['tussenvoegsel'] : '',//docTussenvoegsels,
+            array_key_exists('tussenvoegsel', $leerkracht) ? $leerkracht['tussenvoegsel'] : (array_key_exists('voorvoegsel', $leerkracht) ? $leerkracht['voorvoegsel'] : ''),//docTussenvoegsels,
             array_key_exists('roepnaam', $leerkracht) ? $leerkracht['roepnaam'] : '', //docVoornaam,
             array_key_exists('email', $leerkracht) ? $leerkracht['email'] : '', //docEmail,
             array_key_exists('eckid', $leerkracht) ? $leerkracht['eckid'] : (array_key_exists('key',
@@ -253,6 +253,8 @@ class UwlrSoapResult extends Model
 
         ];
     }
+
+
 
     /**
      * @param $leerling
