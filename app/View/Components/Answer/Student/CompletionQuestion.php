@@ -76,7 +76,7 @@ class CompletionQuestion extends QuestionComponent
     private function createCompletionAnswerStruct(mixed $answers, $correctAnswers, $answer)
     {
         return $correctAnswers->map(function ($link, $key) use ($answer, $answers, $correctAnswers) {
-            $score = $this->question->score / $correctAnswers->where('correct', 1)->count();
+            $score = $this->question->score / $correctAnswers->where('correct', 1)->unique('tag')->count();
             return $this->setAnswerPropertiesOnObject($link, $key, $link, $answers, $score);
         });
     }

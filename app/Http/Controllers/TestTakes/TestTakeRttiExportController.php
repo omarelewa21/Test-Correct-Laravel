@@ -21,6 +21,8 @@ use tcCore\TestTake;
 class TestTakeRttiExportController extends Controller
 {
 
+    protected $questionAr = [];
+
     public function store(TestTake $testTake, Request $request)
     {
         require app_path('/Lib/rtti_api/autoload.php');
@@ -32,83 +34,90 @@ class TestTakeRttiExportController extends Controller
         $informationError = null;
         $result = null;
         $rttiExportLog = null;
-        try {
-            $testCode = sprintf(
-                '%s|%s|%s|%s',
-                $testTake->test->name,
-                $testTake->test->subject->abbreviation,
-                optional($firstSchoolClass)->name,
-                $testTake->test->getKey()
-            );
+        $leerresultatenVerzoek = [];
+//        try {
+        $testCode = sprintf(
+            '%s|%s|%s|%s',
+            $testTake->test->name,
+            $testTake->test->subject->abbreviation,
+            optional($firstSchoolClass)->name,
+            $testTake->test->getKey()
+        );
 
-            // START SETTING DATA FOR SCHOOL SECTION
-            $externalMainCode = $this->getExternalMainCode($testTake);
-            try {
-                $auth['aut:autorisatie'] = [
-                    'autorisatiesleutel' => config('rtti.autorisatiesleutel'),
-                    'klantcode' => config('rtti.klantcode'),
-                    'klantnaam' => config('rtti.klantnaam')
-                ];
+        // START SETTING DATA FOR SCHOOL SECTION
+        $externalMainCode = $this->getExternalMainCode($testTake);
+//            try {
+        $auth['aut:autorisatie'] = [
+            'autorisatiesleutel' => config('rtti.autorisatiesleutel'),
+            'klantcode' => config('rtti.klantcode'),
+            'klantnaam' => config('rtti.klantnaam')
+        ];
 
-                $leerresultatenVerzoek = [
-                    'school' => [
-                        'aanmaakdatum' => Carbon::now()->toAtomString(),
-                        'dependancecode' => $testTake->schoolLocation->external_sub_code,
-                        'brincode' => $externalMainCode,
-                        'schooljaar' => $this->getSchoolYearForRttiExport($testTake),
-                    ],
-                    'toetsafnames' => $this->getToetsafnamesForRttiExport($testTake, $testCode),
-                    'toetsen' => $this->getToetsenForRttiExport($testTake, $testCode),
-                ];
+        // getToetsen needs to be run before the get toetsafnames
+        $toetsen = $this->getToetsenForRttiExport($testTake, $testCode);
+        $toetsAfnames = $this->getToetsafnamesForRttiExport($testTake, $testCode);
 
-                $client = new \nusoap_client(
-                    config('rtti.wsdl_url'), true
-                );
-                $client->soap_defencoding = 'UTF-8';
-                $client->decode_utf8 = FALSE;
+        $leerresultatenVerzoek = [
+            'school' => [
+                'aanmaakdatum' => Carbon::now()->toAtomString(),
+                'dependancecode' => $testTake->schoolLocation->external_sub_code,
+                'brincode' => $externalMainCode,
+                'schooljaar' => $this->getSchoolYearForRttiExport($testTake),
+            ],
+            'toetsafnames' => $toetsAfnames,
+            'toetsen' => $toetsen,
+        ];
 
-
-                $result = $client->call(
-                    'BrengLeerresultaten', [
-                                'leerresultaten_verzoek' => $leerresultatenVerzoek,
-                            ], 'http://www.edustandaard.nl/leerresultaten/2/leerresultaten', 'leer:leerresultaten_verzoek', $auth
-                );
-
-            } catch (\Exception $e) {
-                $rttiExportLog = RttiExportLog::create([
-                    'test_take_id' => $testTake->getKey(),
-                    'user_id' => Auth::id(),
-                    'export' => print_r($leerresultatenVerzoek,true),
-                    'result' => ($result) ? var_export($result,true) : '',
-                    'error' => 'Fatal error '.$e->getMessage(),
-                    'has_errors' => true,
-                    'response' => $client->response,
-                    'reference' => sprintf('rtti-%s-%s',Date('YmdHis'),Str::random(5)),
-                ]);
-            }
-
-        } catch (\Exception $e) {
-            $rttiExportLog = RttiExportLog::create([
-                'test_take_id' => $testTake->getKey(),
-                'user_id' => Auth::id(),
-                'export' => print_r($leerresultatenVerzoek,true),
-                'error' => 'Fatal unknown error',
-                'has_errors' => true,
-                'response' => $client->response,
-                'reference' => sprintf('rtti-%s-%s',Date('YmdHis'),Str::random(5)),
-            ]);
-        }
+        $client = new \nusoap_client(
+            config('rtti.wsdl_url'), true
+        );
+        $client->soap_defencoding = 'UTF-8';
+        $client->decode_utf8 = FALSE;
 
         $rttiExportLog ??= RttiExportLog::create([
             'test_take_id' => $testTake->getKey(),
             'user_id' => Auth::id(),
             'export' => print_r($leerresultatenVerzoek,true),
-            'result' => var_export($client->request,true),
-            'error' => $client->getError(),
-            'has_errors' => (bool) $client->getError(),
-            'response' => $client->response,
             'reference' => sprintf('rtti-%s-%s',Date('YmdHis'),Str::random(5)),
         ]);
+
+
+        $result = $client->call(
+            'BrengLeerresultaten', [
+            'leerresultaten_verzoek' => $leerresultatenVerzoek,
+        ], 'http://www.edustandaard.nl/leerresultaten/2/leerresultaten', 'leer:leerresultaten_verzoek', $auth
+        );
+
+//            } catch (\Exception $e) {
+//                $rttiExportLog = RttiExportLog::create([
+//                    'test_take_id' => $testTake->getKey(),
+//                    'user_id' => Auth::id(),
+//                    'export' => print_r($leerresultatenVerzoek,true),
+//                    'result' => ($result) ? var_export($result,true) : '',
+//                    'error' => 'Fatal error '.$e->getMessage(),
+//                    'has_errors' => true,
+//                    'response' => $client->response,
+//                    'reference' => sprintf('rtti-%s-%s',Date('YmdHis'),Str::random(5)),
+//                ]);
+//            }
+
+//        } catch (\Exception $e) {
+//            $rttiExportLog = RttiExportLog::create([
+//                'test_take_id' => $testTake->getKey(),
+//                'user_id' => Auth::id(),
+//                'export' => print_r($leerresultatenVerzoek,true),
+//                'error' => 'Fatal unknown error',
+//                'has_errors' => true,
+//                'response' => $client->response,
+//                'reference' => sprintf('rtti-%s-%s',Date('YmdHis'),Str::random(5)),
+//            ]);
+//        }
+
+        $rttiExportLog->result = var_export($client->request,true);
+        $rttiExportLog->error = $client->getError();
+        $rttiExportLog->has_errors = (bool) $client->getError();
+        $rttiExportLog->response = $client->response;
+        $rttiExportLog->save();
 
 
         // if there was an error, please send an email to support
@@ -142,13 +151,15 @@ class TestTakeRttiExportController extends Controller
     {
         $i = 1;
         $toetsOnderdelenAr = [];
+        $this->questionAr = [];
 
         $testTake->test->testQuestions->each(function(TestQuestion $testQuestion) use (&$toetsOnderdelenAr, &$i){
             $question = $testQuestion->question;
 
             if ($question->parentInstance->type == 'GroupQuestion') {
 
-                foreach ($question->parentInstance->groupQuestionQuestions as $item) {
+                foreach ($question->groupQuestionQuestions as $item) {
+
                     if (null === $item->question->score) {
                         $score = 0;
                     } else {
@@ -157,14 +168,16 @@ class TestTakeRttiExportController extends Controller
 
                     $toetsOnderdelenAr['toetsonderdeel'][] = [
                         'toetsonderdeelvolgnummer' => $i,
-                        'toetsonderdeelcode' => ['!' => $item->getKey()],
+                        'toetsonderdeelcode' => ['!' => $item->question->getKey()],
                         'toetsonderdeelnormering' => [
-                            'toetsniveau' => ['!' => $item->parentInstance->rtti],
+                            'toetsniveau' => ['!' => $item->question->parentInstance->rtti],
                             'norm' => [
                                 'eindnormwaarde' => $score
                             ],
                         ],
                     ];
+
+                    $this->questionAr[] = $item->question->getKey();
 
                     $i++;
                 }
@@ -185,7 +198,7 @@ class TestTakeRttiExportController extends Controller
                         ],
                     ],
                 ];
-
+                $this->questionAr[] = $question->getKey();
                 $i++;
             }
         });
@@ -203,8 +216,8 @@ class TestTakeRttiExportController extends Controller
         $afnames = [];
         $testTake->testParticipants->each(function(TestParticipant $participant) use (&$afnames, $testCode, $testTake){
             $resArray = [];
-
-            $participant->answers->each(function(Answer $answer) use (&$resArray, $testCode, $testTake){
+            $foundQuestionIds = [];
+            $participant->answers->each(function(Answer $answer) use (&$resArray, $testCode, $testTake, &$foundQuestionIds){
                 $resArray['resultaat'][] = [
                     'key' => $answer->getKey(),
                     'afnamedatum' => $testTake->time_start->format('Y-m-d'),
@@ -212,10 +225,28 @@ class TestTakeRttiExportController extends Controller
                     'toetsonderdeelcode' => $answer->question_id,
                     'score' => $answer->final_rating ?? 6.0
                 ];
+                $foundQuestionIds[] = $answer->question_id;
             });
 
             if (empty($resArray)) {
                 return; // next please
+            }
+
+            /**
+             * In case the student did not get the question as it was from a carrousel question, the default score is 'X' in order to skip it for this student
+             * as per the documentation of RTTI (see also ticket TCP-3145)
+             */
+            $leftOverQuestionIds = collect($this->questionAr)->diff(collect($foundQuestionIds));
+            if($leftOverQuestionIds){
+                foreach($leftOverQuestionIds as $qId){
+                    $resArray['resultaat'][] = [
+                        'key' => Str::random(9),
+                        'afnamedatum' => $testTake->time_start->format('Y-m-d'),
+                        'toetscode' => $testCode,
+                        'toetsonderdeelcode' => $qId,
+                        'score' => 'X',
+                    ];
+                }
             }
 
             $af = [

@@ -82,7 +82,9 @@ class TestQuestionsController extends Controller {
                 $qHelper = new QuestionHelper();
                 $questionData = [];
                 if($request->get('type') == 'CompletionQuestion') {
-                    $questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($request->input('question'));
+                    $questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion(
+                        $request->input('question')
+                    );
                 }
                 $totalData = array_merge($request->all(),$questionData);
                 $question = Question::find($request->get('question_id'));

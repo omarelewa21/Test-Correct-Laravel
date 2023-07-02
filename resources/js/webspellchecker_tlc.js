@@ -50,6 +50,22 @@ WebspellcheckerTlc = {
             }
         }, 1000);
     },
+    subscribeToProblemCounter: function (editor) {
+        let i = 0;
+        let problemTimer = setInterval(function() {
+            ++i;
+            if (i === 50) clearInterval(problemTimer);
+            if(typeof WEBSPELLCHECKER != "undefined"){
+                let instance = WEBSPELLCHECKER.getInstances().pop();
+                instance.subscribe('problemCheckEnded', (event) => {
+                    window.dispatchEvent(new CustomEvent('wsc-problems-count-updated-'+editor.sourceElement.id, {
+                        detail: { problemsCount: instance.getProblemsCount()}
+                    }));
+                });
+                clearInterval(problemTimer);
+            }
+        }, 200);
+    },
 
     /**
      * This function is used to handle the spellchecker on/off button and store it in user session 

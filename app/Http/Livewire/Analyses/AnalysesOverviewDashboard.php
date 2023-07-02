@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Livewire\Analyses;
 
+use Ramsey\Uuid\Uuid;
 use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Lib\Repositories\PValueRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyBloomRepository;
@@ -29,8 +30,11 @@ class AnalysesOverviewDashboard extends AnalysesDashboard
     {
     }
 
+
+
     public function getDataForGraph()
     {
+
         $result = PValueRepository::getPValueForStudentBySubject(
             $this->getHelper()->getForUser(),
             $this->getPeriodsByFilterValues(),
@@ -42,12 +46,16 @@ class AnalysesOverviewDashboard extends AnalysesDashboard
 
         $this->dataValues = $result->map(function ($pValue) {
 
+
+
             $link = false;
             if ($pValue->subject_id) {
                 $link = $this->getHelper()->getRouteForSubjectShow(
-                    Subject::findOrFail($pValue->subject_id)
+                    $pValue->uuid
+//                    Subject::findOrFail($pValue->subject_id)
                 );
             }
+
 
             return (object)[
                 'x'       => htmlspecialchars_decode($pValue->name),

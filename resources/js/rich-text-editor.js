@@ -4,7 +4,7 @@ RichTextEditor = {
             parameterBag,
             (editor) => {
                 this.setupWordCounter(editor, parameterBag);
-                WebspellcheckerTlc.forTeacherQuestion(editor, parameterBag.lang, parameterBag.allowWsc);
+                WebspellcheckerTlc.subscribeToProblemCounter(editor);
                 window.addEventListener("wsc-problems-count-updated-" + parameterBag.editorId, (e) => {
                     let problemCountSpan = document.getElementById("problem-count-" + parameterBag.editorId);
                     if (problemCountSpan) {
@@ -38,6 +38,7 @@ RichTextEditor = {
                 WebspellcheckerTlc.lang(editor, parameterBag.lang);
                 WebspellcheckerTlc.handleSpellCheckerOnOff(editor, parameterBag.isSpellCheckerEnabled);
                 this.setReadOnly(editor);
+                window.editor = editor;
             }
         );
     },
@@ -45,8 +46,14 @@ RichTextEditor = {
         return this.createStudentEditor(
             parameterBag,
             (editor) => {
+                WebspellcheckerTlc.lang(editor, parameterBag.lang)
                 this.setupWordCounter(editor, parameterBag);
                 if (typeof ReadspeakerTlc != "undefined") {
+                    editor.editing.view.document.on( 'change:isFocused', ( evt, data, isFocused ) => {
+                        isFocused
+                            ? rsTlcEvents.handleCkeditorFocusForReadspeaker(evt.target,parameterBag.questionId, parameterBag.editorId)
+                            : rsTlcEvents.handleCkeditorBlurForReadspeaker(evt.target,parameterBag.questionId, parameterBag.editorId);
+                    });
                     ReadspeakerTlc.ckeditor.addListenersForReadspeaker(editor, parameterBag.questionId, parameterBag.editorId);
                     ReadspeakerTlc.ckeditor.disableContextMenuOnCkeditor();
                 }
@@ -57,6 +64,7 @@ RichTextEditor = {
         return this.createStudentEditor(
             parameterBag,
             (editor) => {
+                WebspellcheckerTlc.lang(editor, parameterBag.lang)
                 this.setupWordCounter(editor, parameterBag);
                 if (typeof ReadspeakerTlc != "undefined") {
                     ReadspeakerTlc.ckeditor.replaceReadableAreaByClone(editor);
@@ -135,7 +143,7 @@ RichTextEditor = {
             wordCount: {
                 displayCharacters: false
             },
-            wproofreader: this.getWproofreaderConfig()
+            wproofreader: this.getWproofreaderConfig(parameterBag.enableGrammar)
         };
 
         config.removePlugins = ["Selection", "Completion", "ImageUpload", "Image", "ImageToolbar"];
@@ -261,7 +269,7 @@ RichTextEditor = {
                 }
             },
             wordCount: {
-                displayCharacters: true,
+                displayCharacters: false,
                 displayWords: true
             },
             wproofreader: this.getWproofreaderConfig(),
@@ -318,6 +326,10 @@ RichTextEditor = {
             window.dispatchEvent(new CustomEvent("updated-word-count-plugin-container"));
         }
 
+        if(!parameterBag.restrictWords || [null, 0].includes(parameterBag.maxWords)) {
+            return;
+        }
+
         editor.maxWords = parameterBag.maxWords;
         editor.maxWordOverride = parameterBag.maxWordOverride;
         this.handleInputWithMaxWords(editor);
@@ -327,6 +339,14 @@ RichTextEditor = {
             this.handleInputWithMaxWords(editor);
         };
         editor.model.document.on("change:data", (event, batch) => {
+
+            if (this.hasNoWordLimit(editor)) return;
+            let wc = editor.plugins.get("WordCount");
+
+            if (wc.words > editor.maxWords) {
+                editor.execute('undo');
+            }
+
             this.handleInputWithMaxWords(editor, event);
         });
         editor.editing.view.document.on("paste", (event, data) => {
@@ -334,12 +354,13 @@ RichTextEditor = {
             let wc = editor.plugins.get("WordCount");
             let maxWords = parseInt(editor.maxWords);
 
-            if (wc.words >= maxWords) {
+            if (wc.words >= maxWords) { //always the old number of words. never triggers when pasting at 49/50 words
                 data.preventDefault();
                 event.stop();
             } else {
                 editor.pasted = true;
                 editor.prePasteData = editor.getData();
+                editor.prePasteWc = wc.words;
             }
         });
         editor.editing.view.document.on("keydown", (event, data) => {
@@ -361,6 +382,7 @@ RichTextEditor = {
         }
 
         const input = editor.commands.get("input");
+        const enterKeyCommand = editor.commands.get("enter");
         const wc = editor.plugins.get("WordCount");
         const maxWords = parseInt(editor.maxWords);
 
@@ -368,15 +390,23 @@ RichTextEditor = {
 
         if (wc.words > maxWords) {
             input.forceDisabled("maxword-lock");
+            enterKeyCommand.forceDisabled("maxword-lock");
             handlePastedData();
         } else {
+            if (wc.words == maxWords ) {
+                enterKeyCommand.forceDisabled("maxword-lock");
+            } else {
+                enterKeyCommand.clearForceDisabled("maxword-lock");
+            }
             input.clearForceDisabled("maxword-lock");
+            editor.pasted = false;
         }
 
         function handlePastedData() {
             if (!editor.pasted) return;
 
             editor.setData(editor.prePasteData);
+
             editor.preventUpdateLoop = true;
             editor.pasted = false;
             setTimeout(() => {
@@ -384,13 +414,17 @@ RichTextEditor = {
                     writer.setSelection(editor.model.document.getRoot(), "end");
                 });
             }, 1);
+            editor.disableSpacers = editor.prePasteWc >= maxWords;
 
+            if(editor.prePasteWc < maxWords) {
+                input.clearForceDisabled('maxword-lock');
+            }
         }
     },
     hasNoWordLimit(editor) {
         return editor.maxWords === null || editor.maxWordOverride;
     },
-    getWproofreaderConfig: function() {
+    getWproofreaderConfig: function(enableGrammar = true) {
         return {
             autoSearch: false,
             autoDestroy: true,
@@ -402,13 +436,18 @@ RichTextEditor = {
             servicePort: "80",
             serviceHost: "wsc.test-correct.nl",
             servicePath: "wscservice/api",
-            srcUrl: "https://wsc.test-correct.nl/wscservice/wscbundle/wscbundle.js"
+            srcUrl: "https://wsc.test-correct.nl/wscservice/wscbundle/wscbundle.js",
+            enableGrammar: enableGrammar
         };
     },
 
-    createEditor(editorId, config, resolveCallback = null) {
+    async createEditor(editorId, config, resolveCallback = null) {
         let editor = ClassicEditors[editorId];
-        if (editor) editor.destroy(true);
+        try {
+            if (editor) await editor.destroy(true);
+        } catch (e) {
+            console.warn('An issue occurred while destroying an existing editor.')
+        }
 
         return ClassicEditor
             .create(
@@ -439,5 +478,12 @@ RichTextEditor = {
             this.getConfigForStudent(parameterBag),
             resolveCallback
         );
-    }
+    },
+    writeContentToTexarea: function(editorId) {
+        var editor = ClassicEditors[editorId];
+        if (editor) {
+            editor.updateSourceElement();
+            editor.sourceElement.dispatchEvent(new Event("input"));
+        }
+    },
 };

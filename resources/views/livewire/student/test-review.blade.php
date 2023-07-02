@@ -29,39 +29,17 @@
         >
             <x-slot:subHeader>
                 {{-- Question necklace navigation  --}}
-                <div class="nav-container | fixed-sub-header-container h-20 bg-lightGrey border-bluegrey border-b top-[var(--header-height)]"
-                >
-                    <div class="flex w-full h-full px-15 items-center invisible overflow-hidden"
-                         x-data="reviewNavigation(@js($this->questionPosition))"
-                         x-bind:class="{'invisible': !initialized }"
-                         x-on:resize.window.throttle="resize()"
-                         wire:ignore.self
-                    >
-                        <div class="slider-buttons left | flex relative pt-4 -top-px h-full z-10" x-show="showSlider">
-                            <button class="inline-flex base rotate-svg-180 w-8 h-8 rounded-full transition items-center justify-center transform focus:outline-none"
-                                    x-on:click="start()">
-                                <x-icon.arrow-last />
-                            </button>
-                            <button class="inline-flex base rotate-svg-180 w-8 h-8 rounded-full transition items-center justify-center transform focus:outline-none"
-                                    x-on:click="left()">
-                                <x-icon.chevron />
-                            </button>
-                        </div>
-                        <div id="navscrollbar"
-                             class="question-indicator gap-2 pt-4 h-full"
-                             x-bind:class="{'overflow-x-auto px-3' : showSlider}"
-                        >
+                <div class="nav-container | fixed-sub-header-container h-20 bg-lightGrey border-bluegrey border-b top-[var(--header-height)]">
+                    <x-partials.necklace-navigation :position="$this->questionPosition">
+                        <x-slot:loopSlot>
                             @foreach($this->answers as $answer)
-                                <div @class([
-                                    'flex flex-col gap-1 items-center',
-                                ])>
+                                <div @class(['flex flex-col gap-1 items-center'])>
                                     <div @class([
-                                    'question-number | relative mt-px inline-flex rounded-full text-center justify-center items-center cursor-pointer hover:shadow-lg',
-                                    'active' => (int)$this->questionPosition === $loop->iteration,
-                                    'done' => $answer->done,
-                                ])
-                                         wire:click="loadQuestion(@js($loop->iteration))"
-                                         x-on:click="$dispatch('assessment-drawer-tab-update', {tab: 1})"
+                                            'question-number | relative mt-px inline-flex rounded-full text-center justify-center items-center cursor-pointer hover:shadow-lg',
+                                            'active' => (int)$this->questionPosition === $loop->iteration,
+                                            'done'   => $answer->done,
+                                        ])
+                                         x-on:click="loadQuestion(@js($loop->iteration))"
                                     >
                                         <span class="align-middle px-1.5">@js($loop->iteration)</span>
                                         @if($answer->connector)
@@ -73,19 +51,8 @@
                                     @endif
                                 </div>
                             @endforeach
-                        </div>
-                        <div class="slider-buttons right | flex relative pt-4 -top-px h-full z-10"
-                             x-show="showSlider">
-                            <button class="inline-flex base w-8 h-8 rounded-full transition items-center justify-center transform focus:outline-none"
-                                    x-on:click="right()">
-                                <x-icon.chevron />
-                            </button>
-                            <button class="inline-flex base w-8 h-8 rounded-full transition items-center justify-center transform focus:outline-none"
-                                    x-on:click="end()">
-                                <x-icon.arrow-last />
-                            </button>
-                        </div>
-                    </div>
+                        </x-slot:loopSlot>
+                    </x-partials.necklace-navigation>
                 </div>
             </x-slot:subHeader>
 

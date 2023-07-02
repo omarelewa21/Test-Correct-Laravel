@@ -33,7 +33,7 @@ class GuestUserChoosingPage extends TCComponent
 
     public function mount()
     {
-        if (!Uuid::isValid($this->take)) {
+        if (!$this->take || !Uuid::isValid($this->take)) {
             return redirect(route('auth.login'));
         }
         $this->handleKnownGuests();

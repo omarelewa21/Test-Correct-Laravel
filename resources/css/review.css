@@ -18,12 +18,12 @@
     z-index: 1;
 }
 
-#student-test-review .question-indicator .question-number {
+#necklace-navigation .question-indicator .question-number {
     color: white;
     background-color: var(--system-base);
 }
 
-#student-test-review .nav-container .question-indicator .question-number {
+#necklace-navigation .question-indicator .question-number {
     --rqn-number-color: var(--system-base);
     --rqn-border-color: var(--system-base);
     --rqn-background-color: transparent;
@@ -31,28 +31,28 @@
     width: fit-content;
     transition: box-shadow ease-in-out 150ms;
     margin-right: auto;
-
     color: var(--rqn-number-color);
     border-color: var(--rqn-border-color);
     background-color: var(--rqn-background-color);
 }
 
-#student-test-review .nav-container .question-indicator .question-number.done {
+#necklace-navigation .question-indicator .question-number.done {
     --rqn-number-color: white;
     --rqn-background-color: var(--system-base);
 }
 
-#student-test-review .nav-container .question-indicator .question-number.active {
+#necklace-navigation .question-indicator .question-number.active {
     --rqn-border-color: var(--primary);
     --rqn-number-color: var(--primary);
 }
 
-#student-test-review .nav-container .question-indicator .question-number.done.active {
+#necklace-navigation .question-indicator .question-number.done.active {
     --rqn-number-color: white;
     --rqn-background-color: var(--primary);
+    --rqn-border-color: var(--primary);
 }
 
-#student-test-review .nav-container .question-indicator .question-number .connector {
+#necklace-navigation .question-indicator .question-number .connector {
     position: absolute;
     width: 8px;
     height: 3px;
@@ -60,7 +60,7 @@
     background: var(--system-base);
 }
 
-#student-test-review .nav-container .question-indicator {
+#necklace-navigation .question-indicator {
     display: flex;
     align-items: flex-start;
 }

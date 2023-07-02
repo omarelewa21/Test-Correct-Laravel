@@ -4,7 +4,6 @@ namespace tcCore\View\Components;
 
 use Illuminate\Support\Collection;
 use Illuminate\View\Component;
-use tcCore\CompletionQuestion;
 use tcCore\Question;
 
 class CompletionQuestionConvertedHtml extends Component
@@ -15,10 +14,9 @@ class CompletionQuestionConvertedHtml extends Component
      * @return void
      */
     public function __construct(
-        private Question $question,
-        private string $context = 'student',
-        private ?Collection $answers = null,
-        private ?int $completionQuestionTagCount = 0,        // User for teacher co-learning
+        private readonly Question    $question,
+        private readonly string      $context = 'student',
+        private readonly ?Collection $answers = null,
     )
     {
         if (!$this->question->isType('completion')) {
@@ -138,7 +136,6 @@ class CompletionQuestionConvertedHtml extends Component
     public function transformTextGapsForCoLearning()
     {
         return function ($matches) {
-            $this->completionQuestionTagCount++;
             $tag_id = $matches[1];
             $events = '@input="$el.style.width = getInputWidth($el)"';
             $rsSpan = '';

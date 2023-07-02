@@ -27,7 +27,7 @@ class MultipleChoiceQuestion extends AbstractMultipleChoiceQuestion
 
     public function render()
     {
-        return view('livewire.student-player.preview.' . $this->getTemplateName());
+        return view('livewire.student-player.question.' . $this->getTemplateName());
     }
 
     protected function setAnswerStruct($whenHasAnswerCallback = null): void
