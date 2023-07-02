@@ -19,6 +19,7 @@ use tcCore\Lib\Question\QuestionGatherer;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Ramsey\Uuid\Uuid;
 use tcCore\Lib\Repositories\TaxonomyRepository;
+use tcCore\Traits\ModelAttributePurifyTrait;
 use tcCore\Traits\PublishesTestsTrait;
 use tcCore\Traits\UserPublishing;
 use tcCore\Traits\UuidTrait;
@@ -33,6 +34,7 @@ class Test extends BaseModel
     use PublishesTestsTrait;
     use UserContentAccessTrait;
     use UserPublishing;
+    use ModelAttributePurifyTrait;
 
     const NATIONAL_ITEMBANK_SCOPES = ['cito', 'exam', 'ldt'];
 
@@ -70,13 +72,6 @@ class Test extends BaseModel
      * @var array
      */
     protected $hidden = [];
-
-    /**
-     * The attributes that should be purified.
-     * 
-     * @var array
-     */
-    protected $purifyAttributes = ['name', 'abbreviation', 'introduction'];
 
     protected $sortableColumns = ['id', 'name', 'abbreviation', 'subject', 'education_level', 'education_level_year', 'period_id', 'test_kind_id', 'status', 'author', 'question_count', 'kind'];
     

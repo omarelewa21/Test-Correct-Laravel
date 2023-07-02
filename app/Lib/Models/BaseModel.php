@@ -4,12 +4,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use tcCore\Lib\User\Roles;
-use tcCore\Traits\ModelAttributePurifyTrait;
 
 abstract class BaseModel extends Model
 {
-    use ModelAttributePurifyTrait;
-
     protected $exceptCloneModelOnly = [];
 
     public function hasAttribute($attr)
