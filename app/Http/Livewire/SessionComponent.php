@@ -6,6 +6,8 @@ use tcCore\Http\Livewire\TCComponent;
 
 class SessionComponent extends TCComponent
 {
+    protected $allowedSessionKeys = ['isSpellCheckerEnabled'];
+
     public function render()
     {
         return view('livewire.session-component');
@@ -16,7 +18,9 @@ class SessionComponent extends TCComponent
         if(!is_array($params)) return;
 
         foreach($params as $key => $value) {
-            session([$key => $value]);
+            if(in_array($key, $this->allowedSessionKeys)) {
+                $this->store($key, $value);
+            };
         }
     }
 }
