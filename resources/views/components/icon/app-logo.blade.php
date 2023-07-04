@@ -1,6 +1,6 @@
 @props(['tooltip' => ''])
 
-<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+<svg {{ $attributes }} xmlns="http://www.w3.org/2000/svg" width="16" height="16">
     <title>{{$tooltip}}</title>
     <g fill="none" fill-rule="evenodd" transform="translate(1 1)">
         <path fill="currentColor" d="M1.797 11.326c1.317-1.055 3.902-.836 5.333.364 1.218 1.023 3.216 1.191 4.504.565-.004-.03-1.736 1.639-4.818 1.592-3.083-.046-4.652-2.055-5.02-2.521Z"/>
