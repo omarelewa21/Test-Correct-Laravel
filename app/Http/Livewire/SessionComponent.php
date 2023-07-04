@@ -3,10 +3,11 @@
 namespace tcCore\Http\Livewire;
 
 use tcCore\Http\Livewire\TCComponent;
+use tcCore\UserFeatureSetting;
 
 class SessionComponent extends TCComponent
 {
-    protected $allowedSessionKeys = ['isSpellCheckerEnabled'];
+    protected $allowedKeys = ['isSpellCheckerEnabled'];
 
     public function render()
     {
@@ -18,9 +19,18 @@ class SessionComponent extends TCComponent
         if(!is_array($params)) return;
 
         foreach($params as $key => $value) {
-            if(in_array($key, $this->allowedSessionKeys)) {
-                $this->store($key, $value);
+            if(!in_array($key, $this->allowedKeys)) continue;
+
+            match ($key) {
+                'isSpellCheckerEnabled' => $this->storeIsSpellCheckerEnabled($value),
             };
         }
+    }
+
+    public function storeIsSpellCheckerEnabled($value)
+    {
+        if(!auth()->user()->isA('teacher') || !is_bool($value)) return;
+
+        UserFeatureSetting::setSetting(auth()->user(), 'spellchecker_enabled', $value);
     }
 }

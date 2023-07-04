@@ -4,6 +4,7 @@ namespace tcCore\View\Components\Input;
 
 use Illuminate\View\Component;
 use tcCore\Http\Enums\WscLanguage;
+use tcCore\UserFeatureSetting;
 
 class RichTextarea extends Component
 {
@@ -39,7 +40,7 @@ class RichTextarea extends Component
         public ?bool                   $enableGrammar = true,
     ) {
         $this->lang ??= WscLanguage::DUTCH;
-        $this->isSpellCheckerEnabled = session('isSpellCheckerEnabled', true);
+        $this->isSpellCheckerEnabled = $this->getIsSpellCheckerEnabled();
         $this->initFunctionCall = sprintf('%s(%s)', $this->getInitMethod(), json_encode($this->getEditorConfig()));
     }
 
@@ -71,5 +72,12 @@ class RichTextarea extends Component
             $config->put($key, $this->$key);
         }
         return $config->toArray();
+    }
+
+    private function getIsSpellCheckerEnabled(): bool
+    {
+        if(!auth()->user()->isA('teacher')) return true;
+
+        return UserFeatureSetting::getSetting(auth()->user(), 'spellchecker_enabled', false, false, true);
     }
 }
