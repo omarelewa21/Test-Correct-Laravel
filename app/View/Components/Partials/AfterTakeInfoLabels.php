@@ -20,12 +20,12 @@ class AfterTakeInfoLabels extends TestTakeInfoLabels
 
     protected function showAppIcon(): bool
     {
-        return $this->testParticipant->testTakeEvents()->where('is_in_browser', false)->exists();
+        return $this->testParticipant->testTakeEvents()->whereJsonContains('metadata->device', 'app')->exists();
     }
 
     protected function showWebIcon(): bool
     {
-        return $this->testParticipant->testTakeEvents()->where('is_in_browser', true)->exists();
+        return $this->testParticipant->testTakeEvents()->whereJsonContains('metadata->device', 'browser')->exists();
     }
 
     protected function showTestDirectIcon(): bool

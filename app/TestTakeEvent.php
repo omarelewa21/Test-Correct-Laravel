@@ -61,10 +61,6 @@ class TestTakeEvent extends BaseModel {
             if ($testTakeEvent->shouldIgnoreEventRegistration()) {
                 return false;
             }
-
-            if(session()->has('isInBrowser')) {
-                $testTakeEvent->is_in_browser = session()->get('isInBrowser');
-            }
         });
 
         static::created(function(TestTakeEvent $testTakeEvent) {
