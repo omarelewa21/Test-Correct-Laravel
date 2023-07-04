@@ -73,6 +73,8 @@ class Test extends BaseModel
      */
     protected $hidden = [];
 
+    protected $fieldsToDecodeOnRetrieval = ['name', 'abbreviation', 'introduction'];
+
     protected $sortableColumns = ['id', 'name', 'abbreviation', 'subject', 'education_level', 'education_level_year', 'period_id', 'test_kind_id', 'status', 'author', 'question_count', 'kind'];
     
     public static function boot()

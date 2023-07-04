@@ -6,15 +6,28 @@ use Illuminate\Support\Arr;
 use tcCore\Http\Requests\Request;
 use tcCore\Casts\PurifyAttributeCast;
 
+/**
+ * Trait ModelAttributePurifyTrait - Purify model attributes before storing them in database and decode them when retrieving.
+ * 
+ * To add custom ignore fields, add a customPurifyIgnoreFields array in your model.
+ * 
+ * To add casted fields, add a fieldsToDecodeOnRetrieval array in your model.
+ */
 trait ModelAttributePurifyTrait
 {
+    /**
+     * default fields to ignore when purifying attributes
+     * @var array
+     */
     protected $purifyIgnoreFields = ['id', 'created_at', 'updated_at', 'deleted_at', 'uuid'];
-    protected $customPurifyIgnoreFields = [];
+
 
     public static function booted()
     {
         static::retrieved(function ($model) {
-            foreach($model->getAttributesToPurify() as $attribute) {
+            if(!isset($model->fieldsToDecodeOnRetrieval)) return;
+
+            foreach($model->fieldsToDecodeOnRetrieval as $attribute) {
                 $model->mergeCasts([
                     $attribute => PurifyAttributeCast::class,
                 ]);
@@ -22,7 +35,7 @@ trait ModelAttributePurifyTrait
         });
 
         static::creating(function ($model) {
-            foreach ($model->getAttributesToPurify() as $attribute) {
+            foreach ($model->getAttributesToPurifyBeforeStoring() as $attribute) {
                 $model->purifyAttributeIfNeeded($attribute);
             }
         });
@@ -45,9 +58,12 @@ trait ModelAttributePurifyTrait
      * 
      * @return array
      */
-    protected function getAttributesToPurify(): array
+    protected function getAttributesToPurifyBeforeStoring(): array
     {
-        $ignoreFields = array_merge($this->purifyIgnoreFields, $this->customPurifyIgnoreFields, array_keys($this->casts));
+        $ignoreFields = array_merge($this->purifyIgnoreFields, array_keys($this->casts));
+        if(isset($this->customPurifyIgnoreFields)) {
+            $ignoreFields = array_merge($ignoreFields, $this->customPurifyIgnoreFields);
+        }
 
         return array_keys(
             Arr::where($this->getAttributes(), fn($value, $key) => !in_array($key, $ignoreFields))
