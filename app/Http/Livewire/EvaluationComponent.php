@@ -3,6 +3,7 @@
 namespace tcCore\Http\Livewire;
 
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\DB;
 use Ramsey\Uuid\Uuid;
 use tcCore\Answer;
@@ -335,5 +336,14 @@ SQL;
             }, "UPDATE `answers_feedback` SET `order` = CASE \n") . ' ELSE `order` END';
 
         DB::statement($sequel);
+    }
+
+    public function getEditingCommentData($commentUuid)
+    {
+        $comment = AnswerFeedback::whereUuid($commentUuid)->first();
+        $iconName = CommentEmoji::tryFrom($comment->comment_emoji)?->getIconComponentName() ?? '';
+logger('test');
+        return ['message' => $comment->message, 'comment_color' => $comment->comment_color, 'iconName' => $iconName];
+
     }
 }

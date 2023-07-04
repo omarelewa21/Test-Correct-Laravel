@@ -8669,6 +8669,7 @@ span.completion-response-object-container{
     height: 16px;
     bottom: 0px;
     right: 16px;
+    color: var(--all-Base);
 }
 
 .feedback-card-message .line-clamp-chevron > svg {

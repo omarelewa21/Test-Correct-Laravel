@@ -4,6 +4,7 @@
 ])
 @php
     $iconName = \tcCore\Http\Enums\CommentEmoji::tryFrom($comment->comment_emoji)?->getIconComponentName() ?? '';
+    $hash = hash('md5',$comment->message . '-' . $comment->comment_color . '-' . $comment->comment_emoji);
 @endphp
 
 <div @class([
@@ -18,7 +19,7 @@
      }"
      data-thread-id="{{$comment->thread_id}}"
      data-uuid="{{$comment->uuid}}"
-     wire:key="comment-{{$comment->uuid}}"
+     wire:key="comment-{{$comment->uuid}}-{{$hash}}"
      x-init="
          $el.addEventListener('click', (e) => {
              setActiveComment('{{$comment->thread_id}}',  '{{$comment->uuid}}');
@@ -46,7 +47,7 @@
         <div class="flex space-x-2">
             <x-icon.profile-circle class="text-base flex-shrink-0"/>
             <div class="flex flex-col">
-                <span class="leading-none bold feedback-card-name truncate w-[125px]">{{ $comment->user->nameFull }} dit si eenlangenaam</span>
+                <span class="leading-none bold feedback-card-name truncate w-[125px]">{{ $comment->user->nameFull }}</span>
                 <span class="text-[12px] feedback-card-datetime">{{ $comment->updated_at->format('j M. \'y') }}</span>
             </div>
         </div>
@@ -99,10 +100,10 @@
         </div>
     </div>
     <template x-if="editingComment === '{{$comment->uuid}}'">
-        <div class="flex flex-col mx-4"
-             {{--x-show="editingComment === '{{$comment->uuid}}'"--}}
+        <div class="flex flex-col mx-4 feedback-card-editing-section"
+             x-show="editingComment === '{{$comment->uuid}}'"
+             x-cloak
         >
-
             <x-input.comment-color-picker
                     :comment-thread-id="$comment->thread_id"
                     :value="$comment->comment_color"
