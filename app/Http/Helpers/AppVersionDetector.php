@@ -280,6 +280,7 @@ class AppVersionDetector
         if(is_object($headers)){
             $headers = (array) $headers;
         }
+//        dd($headers);
 
 
         /**
@@ -323,12 +324,24 @@ class AppVersionDetector
                 if ($lowerPart0 == "windows" || $lowerPart0 == "chromebook") {
                     $appType["os"] = self::$osConversion[$lowerPart0];
                     $appType["app_version"] = $parts[1];
+                } else if (str::contains($lowerPart0, "mac os x")) {
+                    $appType["os"] = 'macOs';
                 }
             }
         }
 
         return $appType;
     }
+
+    public static function osIsWindows() {
+        return self::detect()['os'] == 'windows';
+    }
+
+    public static function osIsMac() {
+        return self::detect()['os'] == 'macOs';
+    }
+
+
 
     public static function isInBrowser($headers = false)
     {
