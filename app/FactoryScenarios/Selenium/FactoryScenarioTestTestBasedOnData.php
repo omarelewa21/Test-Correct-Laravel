@@ -4,6 +4,7 @@ namespace tcCore\FactoryScenarios\Selenium;
 
 use Carbon\Carbon;
 use tcCore\Factories\FactoryTest;
+use tcCore\Factories\Interfaces\FactoryQuestion;
 use tcCore\Factories\Questions\FactoryQuestionCompletionCompletion;
 use tcCore\Factories\Questions\FactoryQuestionCompletionMulti;
 use tcCore\Factories\Questions\FactoryQuestionGroup;
@@ -29,9 +30,13 @@ use tcCore\User;
 class FactoryScenarioTestTestBasedOnData extends FactoryScenarioTest
 {
     protected static array $testData = [];
+    private static FactoryQuestion $questionFactory;
 
-    public static function create(string $testName = null, User $user = null, string $testDataJson = null): FactoryScenarioTest
-    {
+    public static function create(
+        string $testName = null,
+        User   $user = null,
+        string $testDataJson = null
+    ): FactoryScenarioTest {
         self::$testData = json_decode($testDataJson, true);
         return parent::create($testName, $user);
     }
@@ -51,19 +56,13 @@ class FactoryScenarioTestTestBasedOnData extends FactoryScenarioTest
         }
 
         return collect(self::$testData['questions'])->map(function ($question) {
-            if (!isset(self::questionLookup()[$question['type']])) {
-                throw new \Exception('Unsupported question type added to test factory');
-            }
-
-            $class = self::questionLookup()[$question['type']];
-            if (isset($question['settings'])) {
-                $class->setProperties($question['settings']);
-            }
-            return $class;
+            self::validateQuestionRequest($question['type']);
+            $questionFactory = self::retrieveQuestionFactory($question);
+            return self::forwardProperties($questionFactory, $question);
         })->toArray();
     }
 
-    private static function questionLookup()
+    private static function questionLookup(): array
     {
         return [
             'WriteDown'               => FactoryQuestionWriteDown::create(),
@@ -78,5 +77,50 @@ class FactoryScenarioTestTestBasedOnData extends FactoryScenarioTest
             'MultipleChoice'          => FactoryQuestionMultipleChoice::create(),
             'Ranking'                 => FactoryQuestionRanking::create(),
         ];
+    }
+
+    public function getTestModel()
+    {
+        $test = $this->testFactory->getTestModel();
+        $test->loadMissing(['testQuestions', 'testQuestions.question']);
+        $test->questions = $test->testQuestions
+            ->map(function ($testQuestion) {
+                $question = $testQuestion->question;
+                unset($testQuestion->question);
+                return $question;
+            });
+        return $test;
+    }
+
+    private static function validateQuestionRequest($type): void
+    {
+        if (!isset(self::questionLookup()[$type])) {
+            throw new \Exception('Unsupported question type added to test factory');
+        }
+    }
+
+    private static function retrieveQuestionFactory($question): FactoryQuestion
+    {
+        return self::questionLookup()[$question['type']];
+    }
+
+    private static function forwardProperties(FactoryQuestion $questionFactory, $question): FactoryQuestion
+    {
+        $properties = $questionFactory->definition();
+        if (isset($question['settings'])) {
+            $properties += collect($question['settings'])->mapWithKeys(function ($value, $key) {
+                return [str($key)->snake()->value => $value];
+            })->toArray();
+        }
+
+        foreach ($question as $key => $value) {
+            if (array_key_exists($key, $properties)) {
+                if (!is_array($value)) {
+                    $properties[$key] = $value;
+                }
+            }
+        }
+
+        return $questionFactory->setProperties($properties);
     }
 }
