@@ -1,19 +1,20 @@
 <?php namespace tcCore\Http\Controllers;
 
-use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Response;
-use tcCore\Http\Enums\TestPackages;
-use tcCore\Http\Requests\CreateSchoolLocationRequest;
-use tcCore\Http\Requests\SchoolLocationAddDefaultSubjectsAndSectionsRequest;
-use tcCore\Http\Requests\UpdateSchoolLocationRequest;
-use tcCore\School;
-use tcCore\SchoolLocation;
-use tcCore\SchoolLocationSection;
-use tcCore\SchoolLocationSharedSection;
-use tcCore\Section;
 use tcCore\User;
+use tcCore\School;
+use tcCore\Section;
+use tcCore\SchoolLocation;
+use Illuminate\Http\Request;
+use tcCore\SchoolLocationSection;
+use Illuminate\Support\Facades\DB;
+use tcCore\Http\Enums\TestPackages;
+use Illuminate\Support\Facades\Auth;
+use tcCore\SchoolLocationSharedSection;
+use Illuminate\Support\Facades\Response;
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
+use tcCore\Http\Requests\CreateSchoolLocationRequest;
+use tcCore\Http\Requests\UpdateSchoolLocationRequest;
+use tcCore\Http\Requests\SchoolLocationAddDefaultSubjectsAndSectionsRequest;
 
 class SchoolLocationsController extends Controller {
     /**
@@ -111,6 +112,11 @@ class SchoolLocationsController extends Controller {
         }
         $schoolLocation->fill($request->all());
 
+        
+        DB::table('feature_settings')
+            ->where('settingable_id', $schoolLocation->id)
+            ->update(['settingable_id_user' => '1']);
+            
         if ($schoolLocation->save() !== false) {
             return Response::make($schoolLocation, 200);
             

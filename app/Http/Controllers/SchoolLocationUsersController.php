@@ -28,6 +28,23 @@ class SchoolLocationUsersController extends Controller {
             ];
         });
     }
+    public function indexSchoolsTeacher(Request $request)
+    {
+        $userId= $request['user_id'];
+        $user =User::find($userId);
+        return $user->allowedSchoolLocations->map(function($location) {
+            return (array) [
+                'name' => $location->name,
+            ];
+        });
+    }
+
+    public function indexSchoolsTeacherUuid(Request $request)
+    {
+        $userId= $request['user_id'];
+        $user =User::find($userId);
+        return $user->allowedSchoolLocations;
+    }
 
     public function update(Request $request)
     {
