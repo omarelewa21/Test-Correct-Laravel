@@ -286,6 +286,10 @@ class QuestionBank extends TCComponent
             return;
         }
 
+        if($this->inTestBankContext) {
+            $this->filters = $this->filterableAttributes;
+            return;
+        }
         $this->filters = $this->defaultFilters();
     }
 
