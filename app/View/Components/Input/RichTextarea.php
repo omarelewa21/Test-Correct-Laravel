@@ -9,6 +9,7 @@ use tcCore\UserFeatureSetting;
 class RichTextarea extends Component
 {
     public string $initFunctionCall;
+    public bool $isSpellCheckerEnabled;
 
     private array $editorProperties = [
         'editorId',
@@ -36,7 +37,6 @@ class RichTextarea extends Component
         public ?bool                   $restrictWords = false,
         public ?bool                   $textFormatting = true,
         public ?bool                   $mathmlFunctions = true,
-        public ?bool                   $isSpellCheckerEnabled = true,
         public ?bool                   $enableGrammar = true,
     ) {
         $this->lang ??= WscLanguage::DUTCH;
