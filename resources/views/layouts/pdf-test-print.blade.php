@@ -26,7 +26,7 @@
     @stack('styling')
 
 </head>
-<body id="body" class="min-h-screen test-print-pdf">
+<body id="body" class="ck-content min-h-screen test-print-pdf">
 {{ $slot }}
 
 
