@@ -16,7 +16,7 @@ class CompletionQuestion extends AbstractCompletionQuestion
     use WithGroups;
     use WithNotepad;
 
-    public $preventAnswerTransformation = true;
+    public $preventFieldTransformation = true;
     public $testTakeUuid;
 
     public function mount()
