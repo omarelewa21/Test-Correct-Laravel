@@ -2006,20 +2006,19 @@ document.addEventListener("alpine:init", () => {
             const slide = this.getSlideElementByIndex(index);
             this.handleSlideHeight(slide);
             await this.$nextTick();
-            // await this.$nextTick(async () => {
-                if(answerFeedbackCommentUuid){
-                    await this.scrollToCommentCard(answerFeedbackCommentUuid);
-                } else {
-                    await smoothScroll(this.container, 0, slide.offsetLeft)
-                }
 
-                setTimeout(() => {
-                    const position = (this.container.scrollLeft / 300) + 1;
-                    if (!this.tabs.includes(position)) {
-                        this.container.scrollTo({ left: slide.offsetLeft });
-                    }
-                }, 500);
-            // });
+            if (answerFeedbackCommentUuid) {
+                await this.scrollToCommentCard(answerFeedbackCommentUuid);
+            } else {
+                await smoothScroll(this.container, 0, slide.offsetLeft)
+            }
+
+            setTimeout(() => {
+                const position = (this.container.scrollLeft / 300) + 1;
+                if (!this.tabs.includes(position)) {
+                    this.container.scrollTo({left: slide.offsetLeft});
+                }
+            }, 500);
         },
         async scrollToCommentCard (answerFeedbackUuid) {
             const commentCard = document.querySelector('[data-uuid="'+answerFeedbackUuid+'"].answer-feedback-card')

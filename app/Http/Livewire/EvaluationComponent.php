@@ -342,7 +342,7 @@ SQL;
     {
         $comment = AnswerFeedback::whereUuid($commentUuid)->first();
         $iconName = CommentEmoji::tryFrom($comment->comment_emoji)?->getIconComponentName() ?? '';
-logger('test');
+
         return ['message' => $comment->message, 'comment_color' => $comment->comment_color, 'iconName' => $iconName];
 
     }
