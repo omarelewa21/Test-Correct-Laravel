@@ -335,3 +335,34 @@ debug = function (seconds = 2) {
         debugger;
     }, seconds * 1000);
 }
+
+smoothScroll = function smoothScroll(scrollContainer, offsetTop = 0, offsetLeft = 0) {
+    scrollContainer.scrollTo({
+        top: offsetTop,
+        left: offsetLeft,
+        behavior: 'smooth'
+    });
+
+    return new Promise((resolve, reject) => {
+        const failed = setTimeout(() => {
+            if( (scrollContainer.offsetHeight + scrollContainer.scrollTop) === scrollContainer.scrollHeight) {
+                return resolve();
+            }
+            reject();
+        }, 2000);
+
+        const scrollHandler = () => {
+            if (scrollContainer.scrollTop === offsetTop) {
+                scrollContainer.removeEventListener("scroll", scrollHandler);
+                clearTimeout(failed);
+                resolve();
+            }
+        };
+        if (scrollContainer.scrollTop === offsetTop) {
+            clearTimeout(failed);
+            resolve();
+        } else {
+            scrollContainer.addEventListener("scroll", scrollHandler);
+        }
+    });
+}

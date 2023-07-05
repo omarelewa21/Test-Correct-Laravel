@@ -4,6 +4,7 @@
 ])
 @php
     $iconName = \tcCore\Http\Enums\CommentEmoji::tryFrom($comment->comment_emoji)?->getIconComponentName() ?? '';
+    $hash = hash('md5',$comment->message . '-' . $comment->comment_color . '-' . $comment->comment_emoji);
 @endphp
 
 <div @class([
@@ -12,18 +13,18 @@
          "answer-feedback-card-student" => !$comment->user->isA('teacher'),
      ])
      x-bind:class="{
-         'answer-feedback-card-editing': editingComment === '{{$comment->uuid}}',
+         'answer-feedback-card-editing': $store.answerFeedback.editingComment === '{{$comment->uuid}}',
          'answer-feedback-card-active': activeComment?.uuid === '{{$comment->uuid}}',
          'answer-feedback-card-hovering': hoveringComment?.uuid === '{{$comment->uuid}}',
      }"
      data-thread-id="{{$comment->thread_id}}"
      data-uuid="{{$comment->uuid}}"
-     wire:key="comment-{{$comment->uuid}}"
+     wire:key="comment-{{$comment->uuid}}-{{$hash}}"
      x-init="
          $el.addEventListener('click', (e) => {
              setActiveComment('{{$comment->thread_id}}',  '{{$comment->uuid}}');
 
-             if(textOverflow === true && editingComment !== '{{$comment->uuid}}') {expanded = ! expanded;};
+             if(textOverflow && $store.answerFeedback.editingComment !== '{{$comment->uuid}}') {expanded = ! expanded;};
          });
          $el.addEventListener('mouseenter', (e) => {
              setHoveringComment('{{$comment->thread_id}}',  '{{$comment->uuid}}');
@@ -42,11 +43,11 @@
              }
          }"
 >
-    <div class="flex justify-between px-4 pt-2">
-        <div class="flex flex-wrap space-x-2">
-            <x-icon.profile-circle class="text-base"/>
+    <div class="flex justify-between px-4 pt-2 w-full">
+        <div class="flex space-x-2">
+            <x-icon.profile-circle class="text-base flex-shrink-0"/>
             <div class="flex flex-col">
-                <span class="leading-none bold feedback-card-name">{{ $comment->user->nameFull }}</span>
+                <span class="leading-none bold feedback-card-name truncate w-[125px]">{{ $comment->user->nameFull }}</span>
                 <span class="text-[12px] feedback-card-datetime">{{ $comment->updated_at->format('j M. \'y') }}</span>
             </div>
         </div>
@@ -83,7 +84,7 @@
          "
          class="feedback-card-message"
          :class="{ 'expanded-card': expanded, 'text-overflow-card': textOverflow }"
-         x-show="editingComment !== '{{$comment->uuid}}'"
+         x-show="$store.answerFeedback.editingComment !== '{{$comment->uuid}}'"
     >
         <div class="feedback-card-message-text"
              :class="{
@@ -98,42 +99,47 @@
             <x-icon.chevron/>
         </div>
     </div>
-    <div class="flex flex-col mx-4"
-         x-show="editingComment === '{{$comment->uuid}}'">
+    <template x-if="$store.answerFeedback.editingComment === '{{$comment->uuid}}'">
+        <div class="flex flex-col mx-4 feedback-card-editing-section"
+             x-show="$store.answerFeedback.editingComment === '{{$comment->uuid}}'"
+             x-cloak
+        >
+            <x-input.comment-color-picker
+                    :comment-thread-id="$comment->thread_id"
+                    :value="$comment->comment_color"
+                    :uuid="$comment->uuid"
+            ></x-input.comment-color-picker>
 
-        <x-input.comment-color-picker
-                :comment-thread-id="$comment->thread_id"
-                :value="$comment->comment_color"
-                :uuid="$comment->uuid"
-        ></x-input.comment-color-picker>
+            <x-input.comment-emoji-picker
+                    :comment-thread-id="$comment->thread_id"
+                    :uuid="$comment->uuid"
+                    :value="$comment->comment_emoji"
+            ></x-input.comment-emoji-picker>
 
-        <x-input.comment-emoji-picker
-                :comment-thread-id="$comment->thread_id"
-                :uuid="$comment->uuid"
-                :value="$comment->comment_emoji"
-        ></x-input.comment-emoji-picker>
+            <div class="comment-feedback-editor">
+                <span class="comment-feedback-editor-label">@lang('assessment.Feedback schrijven')</span>
+                <x-input.rich-textarea type="update-answer-feedback"
+                                       :editorId="'update-' . $comment->uuid"
+                >
+                    {{ $comment->message }}
+                </x-input.rich-textarea>
+            </div>
 
-        <div class="comment-feedback-editor">
-            <span class="comment-feedback-editor-label">@lang('assessment.Feedback schrijven')</span>
-            <x-input.rich-textarea type="update-answer-feedback"
-                                   :editorId="'update-' . $comment->uuid"
-            >
-                {{ $comment->message }}
-            </x-input.rich-textarea>
+            <div class="flex justify-end space-x-4 h-fit mt-2 mb-4">
+                <x-button.text-button size="sm"
+                                      @click.stop="cancelEditingComment('{{$comment->thread_id}}','{{$comment->uuid}}', '{{$iconName}}', '{{$comment->comment_color}}')"
+                >
+                    <span>@lang('modal.annuleren')</span>
+                </x-button.text-button>
+                <x-button.cta class="block"
+                              @click.stop="await updateCommentThread($el); $nextTick(()=>setTextOverflow())">
+                    <span>@lang('general.save')</span>
+                </x-button.cta>
+            </div>
+
+
         </div>
-
-        <div class="flex justify-end space-x-4 h-fit mt-2 mb-4">
-            <x-button.text-button size="sm"
-                                  @click.stop="cancelEditingComment('{{$comment->thread_id}}','{{$comment->uuid}}', '{{$iconName}}', '{{$comment->comment_color}}')"
-            >
-                <span>@lang('modal.annuleren')</span>
-            </x-button.text-button>
-            <x-button.cta class="block"
-                          @click.stop="await updateCommentThread($el); $nextTick(()=>setTextOverflow())">
-                <span>@lang('general.save')</span>
-            </x-button.cta>
-        </div>
-    </div>
+    </template>
 
     <div class="answer-feedback-card-line"></div>
 </div>

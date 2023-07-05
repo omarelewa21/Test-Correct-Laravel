@@ -3,6 +3,8 @@
 namespace tcCore\Http\Livewire;
 
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\DB;
 use Ramsey\Uuid\Uuid;
 use tcCore\Answer;
 use tcCore\AnswerFeedback;
@@ -172,6 +174,10 @@ abstract class EvaluationComponent extends TCComponent
 
     public function saveNewComment($data, $answer)
     {
+        //todo update order values of answerFeedback
+        $this->updateAnswerFeedbackOrder($answer);
+        //todo update order values of answerFeedback
+
         //update answers_feedback data
         $this->updateAnswerFeedback(
             ...$data
@@ -268,6 +274,8 @@ abstract class EvaluationComponent extends TCComponent
 
         $this->answerFeedback = $this->currentAnswer->feedback()->with('user')->get()->sortBy(function ($feedback) {
             return $feedback->comment_id !== null;
+        })->sortBy(function ($feedback) {
+            return $feedback->order;
         });
     }
 
@@ -312,4 +320,30 @@ abstract class EvaluationComponent extends TCComponent
         return CommentMarkerColor::tryFrom($colorName)?->getRgbColorCode($opacity);
     }
 
+    public function updateAnswerFeedbackOrder($answer)
+    {
+        $answerFeedback = $this->answerFeedback->whereNotNull('thread_id')->pluck('thread_id');
+
+        preg_match_all('/(?:comment\-start name="{1})(\S+):|(?:comment\-start name="{1})(\S+)"/m', $answer, $matches);
+
+        $result = collect($matches[1])->mapWithKeys(fn($item, $key) => [$key => $item === '' ? $matches[2][$key] : $item]);
+
+        $sequel = $result->filter(fn($item) => $answerFeedback->contains($item))->reduce(function ($carry, $item, $key) {
+                $carry .= <<<SQL
+        WHEN `thread_id` = "$item" THEN $key \n
+SQL;
+                return $carry;
+            }, "UPDATE `answers_feedback` SET `order` = CASE \n") . ' ELSE `order` END';
+
+        DB::statement($sequel);
+    }
+
+    public function getEditingCommentData($commentUuid)
+    {
+        $comment = AnswerFeedback::whereUuid($commentUuid)->first();
+        $iconName = CommentEmoji::tryFrom($comment->comment_emoji)?->getIconComponentName() ?? '';
+logger('test');
+        return ['message' => $comment->message, 'comment_color' => $comment->comment_color, 'iconName' => $iconName];
+
+    }
 }

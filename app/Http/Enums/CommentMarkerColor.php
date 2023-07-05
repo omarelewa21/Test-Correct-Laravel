@@ -10,7 +10,7 @@ enum CommentMarkerColor: string
 {
     use WithAttributes, WithColorAttribute;
 
-    #[Color(0, 77, 245)]
+    #[Color(71, 129, 255)]
     case BLUE = 'blue';
     #[Color(117, 222, 138)]
     case GREEN = 'green';

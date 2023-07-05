@@ -1724,6 +1724,7 @@ document.addEventListener("alpine:init", () => {
         handle() {
             this.menuOpen = !this.menuOpen;
             if (this.menuOpen) {
+                this.gridCard = this.$root.closest(".context-menu-container");
                 this.$dispatch(this.showEvent, {
                     uuid: this.uuid,
                     button: this.$root,
@@ -2144,36 +2145,42 @@ document.addEventListener("alpine:init", () => {
         getSlideElementByIndex: function (index) {
             return this.$root.closest('.drawer').querySelector(".slide-" + index);
         },
-        tab(index, answerFeedbackCommentUuid = null) {
+        async tab(index, answerFeedbackCommentUuid = null) {
             if (!this.tabs.includes(index)) return;
             this.activeTab = index;
             this.closeTooltips();
             const slide = this.getSlideElementByIndex(index);
             this.handleSlideHeight(slide);
-            this.$nextTick(() => {
+            await this.$nextTick();
+            // await this.$nextTick(async () => {
                 if(answerFeedbackCommentUuid){
-                    this.scrollToCommentCard(answerFeedbackCommentUuid);
+                    await this.scrollToCommentCard(answerFeedbackCommentUuid);
                 } else {
-                    this.container.scroll({ top: 0, left: slide.offsetLeft, behavior: "smooth" });
+                    await smoothScroll(this.container, 0, slide.offsetLeft)
                 }
 
                 setTimeout(() => {
                     const position = (this.container.scrollLeft / 300) + 1;
                     if (!this.tabs.includes(position)) {
-                        this.container.scroll({ left: slide.offsetLeft });
+                        this.container.scrollTo({ left: slide.offsetLeft });
                     }
                 }, 500);
-            });
+            // });
         },
-        scrollToCommentCard (answerFeedbackUuid) {
+        async scrollToCommentCard (answerFeedbackUuid) {
             const commentCard = document.querySelector('[data-uuid="'+answerFeedbackUuid+'"].answer-feedback-card')
             const slide = this.getSlideElementByIndex(2);
             let cardTop = commentCard.offsetTop;
-            setTimeout(() => {
-                this.container.scroll({ top: cardTop,  left: slide.offsetLeft, behavior: "smooth" });
-            }, 150)
+
+            let count = 0;
+            await smoothScroll(this.container, cardTop, slide.offsetLeft);
         },
         async next() {
+            // if(this.$store.answerFeedback.feedbackBeingEdited()) {
+            //     this.$store.answerFeedback.openConfirmationModal();
+            //     this.$wire.emit('openModal', 'modal.confirm-still-editing-comment-modal');
+            // }
+            // return;
             if (this.needsToPerformActionsStill()) {
                 this.$dispatch("scoring-elements-error");
                 this.clickedNext = true;
@@ -2188,6 +2195,11 @@ document.addEventListener("alpine:init", () => {
             });
         },
         async previous() {
+            // if(this.$store.answerFeedback.feedbackBeingEdited()) {
+            //     this.$wire.emit('openModal', 'modal.confirm-still-editing-comment-modal');
+            //
+            // }
+            // return;
             this.tab(1);
             await this.$nextTick(async () => {
                 this.$store.assessment.resetData();
@@ -2196,7 +2208,7 @@ document.addEventListener("alpine:init", () => {
             });
         },
         fixSlideHeightByIndex(index, AnswerFeedbackUuid) {
-            let slide = this.$root.closest(".slide-" + index);
+            let slide = document.querySelector(".slide-" + index);
             this.handleSlideHeight(slide);
 
             if(AnswerFeedbackUuid) this.scrollToCommentCard(AnswerFeedbackUuid);
@@ -2229,16 +2241,16 @@ document.addEventListener("alpine:init", () => {
             return !this.inReview && !this.$store.assessment.clearToProceed() && !this.clickedNext;
         },
         openFeedbackTab() {
-            this.tab(2);
-            this.$nextTick(() => {
-                let editorDiv = this.$root.querySelector(".feedback textarea");
-                if (editorDiv) {
-                    let editor = ClassicEditors[editorDiv.getAttribute("name")];
-                    if (editor) {
-                        setTimeout(() => editor.focus(), 320); // Await slide animation, otherwise it breaks;
+            this.tab(2)
+                .then((response) => {
+                    let editorDiv = this.$root.querySelector(".feedback textarea");
+                    if (editorDiv) {
+                        let editor = ClassicEditors[editorDiv.getAttribute("name")];
+                        if (editor) {
+                            setTimeout(() => editor.focus(), 320); // Await slide animation, otherwise it breaks;
+                        }
                     }
-                }
-            });
+                });
         }
     }));
     Alpine.data("scoreSlider", (score, model, maxScore, halfPoints, disabled, coLearning, focusInput, continuousSlider) => ({
@@ -2588,7 +2600,6 @@ document.addEventListener("alpine:init", () => {
         feedbackEditorId: feedbackEditorId,
         commentRepository: null,
         activeThread: null,
-        editingComment: null,
         activeComment: null,
         hoveringComment: null,
         dropdownOpened: null,
@@ -2644,6 +2655,8 @@ document.addEventListener("alpine:init", () => {
                 }
                 this.clearActiveComment()
             })
+
+            this.preventOpeningModalFromBreakingDrawer();
         },
         async updateCommentThread(element) {
             let answerFeedbackCardElement = element.closest('.answer-feedback-card');
@@ -2915,15 +2928,14 @@ document.addEventListener("alpine:init", () => {
 
         },
         setActiveComment (threadId, answerFeedbackUuid) {
-            if(this.editingComment !== null) {
+            this.$dispatch('answer-feedback-show-comments');
+            this.$dispatch("assessment-drawer-tab-update", { tab: 2, uuid: answerFeedbackUuid });
+            if(this.$store.answerFeedback.feedbackBeingEdited()) {
                 /* when editing, no other comment can be activated */
                 return;
             }
             this.activeComment = {threadId: threadId, uuid: answerFeedbackUuid };
             this.setActiveCommentMarkerStyle();
-
-            this.$dispatch('answer-feedback-show-comments');
-            this.$dispatch("assessment-drawer-tab-update", { tab: 2, uuid: answerFeedbackUuid });
         },
         clearActiveComment() {
             this.activeComment = null;
@@ -2976,13 +2988,13 @@ document.addEventListener("alpine:init", () => {
         },
         setEditingComment (AnswerFeedbackUuid) {
             this.activeComment = null;
-            this.editingComment = AnswerFeedbackUuid ?? null;
+            this.$store.answerFeedback.editingComment = AnswerFeedbackUuid ?? null;
             setTimeout(() => {
                 this.fixSlideHeightByIndex(2, AnswerFeedbackUuid);
             },100)
         },
         toggleFeedbackAccordion (name, forceOpenAccordion = false) {
-            if(this.editingComment !== null) {
+            if(this.$store.answerFeedback.feedbackBeingEdited()) {
                 this.dropdownOpened ='given-feedback';
                 return;
             };
@@ -3021,7 +3033,20 @@ document.addEventListener("alpine:init", () => {
                 //todo does annuleren close the accordion?
                 console.warn('todo does annuleren close the accordion?');
             }
-        }
+        },
+        preventOpeningModalFromBreakingDrawer () {
+            var observer = new MutationObserver(function (mutations) {
+                mutations.forEach(function (mutation) {
+                    if (mutation.attributeName == "class" && mutation.target.classList.contains('overflow-y-hidden')) {
+                        mutation.target.classList.remove('overflow-y-hidden');
+                    }
+                });
+            });
+            observer.observe(
+                document.querySelector('body'),
+                {attributes: true}
+            );
+        },
     }));
 
     Alpine.data("drawingQuestionImagePreview", () => ({
@@ -3542,6 +3567,16 @@ document.addEventListener("alpine:init", () => {
         }
     });
     Alpine.store("editorMaxWords", {});
+    Alpine.store("answerFeedback", {
+        editingComment: null,
+        feedbackBeingEdited() {
+            if(this.editingComment === null) return false;
+            return this.editingComment;
+        },
+        openConfirmationModal() {
+            this.$wire.emit('openModal', 'modal.confirm-still-editing-comment-modal');
+        }
+    });
 });
 
 function getTitleForVideoUrl(videoUrl) {
