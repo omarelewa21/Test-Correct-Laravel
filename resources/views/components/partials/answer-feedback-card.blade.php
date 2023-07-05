@@ -13,7 +13,7 @@
          "answer-feedback-card-student" => !$comment->user->isA('teacher'),
      ])
      x-bind:class="{
-         'answer-feedback-card-editing': editingComment === '{{$comment->uuid}}',
+         'answer-feedback-card-editing': $store.answerFeedback.editingComment === '{{$comment->uuid}}',
          'answer-feedback-card-active': activeComment?.uuid === '{{$comment->uuid}}',
          'answer-feedback-card-hovering': hoveringComment?.uuid === '{{$comment->uuid}}',
      }"
@@ -24,7 +24,7 @@
          $el.addEventListener('click', (e) => {
              setActiveComment('{{$comment->thread_id}}',  '{{$comment->uuid}}');
 
-             if(textOverflow === true && editingComment !== '{{$comment->uuid}}') {expanded = ! expanded;};
+             if(textOverflow && $store.answerFeedback.editingComment !== '{{$comment->uuid}}') {expanded = ! expanded;};
          });
          $el.addEventListener('mouseenter', (e) => {
              setHoveringComment('{{$comment->thread_id}}',  '{{$comment->uuid}}');
@@ -84,7 +84,7 @@
          "
          class="feedback-card-message"
          :class="{ 'expanded-card': expanded, 'text-overflow-card': textOverflow }"
-         x-show="editingComment !== '{{$comment->uuid}}'"
+         x-show="$store.answerFeedback.editingComment !== '{{$comment->uuid}}'"
     >
         <div class="feedback-card-message-text"
              :class="{
@@ -99,9 +99,9 @@
             <x-icon.chevron/>
         </div>
     </div>
-    <template x-if="editingComment === '{{$comment->uuid}}'">
+    <template x-if="$store.answerFeedback.editingComment === '{{$comment->uuid}}'">
         <div class="flex flex-col mx-4 feedback-card-editing-section"
-             x-show="editingComment === '{{$comment->uuid}}'"
+             x-show="$store.answerFeedback.editingComment === '{{$comment->uuid}}'"
              x-cloak
         >
             <x-input.comment-color-picker

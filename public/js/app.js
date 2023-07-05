@@ -8633,6 +8633,11 @@ document.addEventListener("alpine:init", function () {
           return _regeneratorRuntime().wrap(function _callee18$(_context18) {
             while (1) switch (_context18.prev = _context18.next) {
               case 0:
+                // if(this.$store.answerFeedback.feedbackBeingEdited()) {
+                //     this.$wire.emit('openModal', 'modal.confirm-still-editing-comment-modal');
+                //
+                // }
+                // return;
                 _this47.tab(1);
                 _context18.next = 3;
                 return _this47.$nextTick( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee17() {
@@ -9062,11 +9067,9 @@ document.addEventListener("alpine:init", function () {
       feedbackEditorId: feedbackEditorId,
       commentRepository: null,
       activeThread: null,
-      editingComment: null,
       activeComment: null,
       hoveringComment: null,
       dropdownOpened: null,
-      editingCommentLoaded: false,
       userId: userId,
       questionType: questionType,
       viewOnly: viewOnly,
@@ -9142,7 +9145,8 @@ document.addEventListener("alpine:init", function () {
                   }
                   _this57.clearActiveComment();
                 });
-              case 8:
+                _this57.preventOpeningModalFromBreakingDrawer();
+              case 9:
               case "end":
                 return _context22.stop();
             }
@@ -9449,7 +9453,12 @@ document.addEventListener("alpine:init", function () {
         styleTag.innerHTML = '' + '.ck-comment-marker[data-comment="' + ((_this$activeComment2 = this.activeComment) === null || _this$activeComment2 === void 0 ? void 0 : _this$activeComment2.threadId) + '"] { ' + '   border: 1px solid var(--ck-color-comment-marker-border) !important; ' + '} ';
       },
       setActiveComment: function setActiveComment(threadId, answerFeedbackUuid) {
-        if (this.editingComment !== null) {
+        this.$dispatch('answer-feedback-show-comments');
+        this.$dispatch("assessment-drawer-tab-update", {
+          tab: 2,
+          uuid: answerFeedbackUuid
+        });
+        if (this.$store.answerFeedback.feedbackBeingEdited()) {
           /* when editing, no other comment can be activated */
           return;
         }
@@ -9458,11 +9467,6 @@ document.addEventListener("alpine:init", function () {
           uuid: answerFeedbackUuid
         };
         this.setActiveCommentMarkerStyle();
-        this.$dispatch('answer-feedback-show-comments');
-        this.$dispatch("assessment-drawer-tab-update", {
-          tab: 2,
-          uuid: answerFeedbackUuid
-        });
       },
       clearActiveComment: function clearActiveComment() {
         this.activeComment = null;
@@ -9513,14 +9517,14 @@ document.addEventListener("alpine:init", function () {
       setEditingComment: function setEditingComment(AnswerFeedbackUuid) {
         var _this64 = this;
         this.activeComment = null;
-        this.editingComment = AnswerFeedbackUuid !== null && AnswerFeedbackUuid !== void 0 ? AnswerFeedbackUuid : null;
+        this.$store.answerFeedback.editingComment = AnswerFeedbackUuid !== null && AnswerFeedbackUuid !== void 0 ? AnswerFeedbackUuid : null;
         setTimeout(function () {
           _this64.fixSlideHeightByIndex(2, AnswerFeedbackUuid);
         }, 100);
       },
       toggleFeedbackAccordion: function toggleFeedbackAccordion(name) {
         var forceOpenAccordion = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-        if (this.editingComment !== null) {
+        if (this.$store.answerFeedback.feedbackBeingEdited()) {
           this.dropdownOpened = 'given-feedback';
           return;
         }
@@ -9558,6 +9562,18 @@ document.addEventListener("alpine:init", function () {
           //todo does annuleren close the accordion?
           console.warn('todo does annuleren close the accordion?');
         }
+      },
+      preventOpeningModalFromBreakingDrawer: function preventOpeningModalFromBreakingDrawer() {
+        var observer = new MutationObserver(function (mutations) {
+          mutations.forEach(function (mutation) {
+            if (mutation.attributeName == "class" && mutation.target.classList.contains('overflow-y-hidden')) {
+              mutation.target.classList.remove('overflow-y-hidden');
+            }
+          });
+        });
+        observer.observe(document.querySelector('body'), {
+          attributes: true
+        });
       }
     };
   });
@@ -9674,6 +9690,16 @@ document.addEventListener("alpine:init", function () {
     }
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].store("editorMaxWords", {});
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].store("answerFeedback", {
+    editingComment: null,
+    feedbackBeingEdited: function feedbackBeingEdited() {
+      if (this.editingComment === null) return false;
+      return this.editingComment;
+    },
+    openConfirmationModal: function openConfirmationModal() {
+      this.$wire.emit('openModal', 'modal.confirm-still-editing-comment-modal');
+    }
+  });
 });
 function getTitleForVideoUrl(videoUrl) {
   return fetch("https://noembed.com/embed?url=" + videoUrl).then(function (response) {

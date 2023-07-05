@@ -192,9 +192,8 @@
                     <div class="flex w-full flex-col gap-2"
                          wire:key="feedback-editor-{{  $this->questionPosition }}"
                     >
-                        {{-- TODO determine what to do with old feedback --}}
+                        {{-- all non-inline-comments are shown in a full ckeditor modal --}}
                         @if($this->hasFeedback)
-                            {{-- old way of showing feedback --}}
                             <x-button.primary class="!p-0 justify-center"
                                               wire:click="$emit('openModal', 'teacher.inline-feedback-modal', {answer: '{{  $this->currentAnswer->uuid }}', disabled: true });"
                             >
@@ -204,8 +203,7 @@
                         @endif
                     </div>
                 @else
-
-                    {{--TODO ONLY for open question add new configuration with connection to the comments editor --}}
+                    {{-- only for 'open_question' / 'write down' question --}}
                     <div class="space-y-4 relative">
                             <span @class([
                                     "flex bold border-t border-blue-grey pt-2 justify-between items-center",

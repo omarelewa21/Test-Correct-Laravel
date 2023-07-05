@@ -2030,6 +2030,11 @@ document.addEventListener("alpine:init", () => {
             await smoothScroll(this.container, cardTop, slide.offsetLeft);
         },
         async next() {
+            // if(this.$store.answerFeedback.feedbackBeingEdited()) {
+            //     this.$store.answerFeedback.openConfirmationModal();
+            //     this.$wire.emit('openModal', 'modal.confirm-still-editing-comment-modal');
+            // }
+            // return;
             if (this.needsToPerformActionsStill()) {
                 this.$dispatch("scoring-elements-error");
                 this.clickedNext = true;
@@ -2044,6 +2049,11 @@ document.addEventListener("alpine:init", () => {
             });
         },
         async previous() {
+            // if(this.$store.answerFeedback.feedbackBeingEdited()) {
+            //     this.$wire.emit('openModal', 'modal.confirm-still-editing-comment-modal');
+            //
+            // }
+            // return;
             this.tab(1);
             await this.$nextTick(async () => {
                 this.$store.assessment.resetData();
@@ -2422,11 +2432,9 @@ document.addEventListener("alpine:init", () => {
         feedbackEditorId: feedbackEditorId,
         commentRepository: null,
         activeThread: null,
-        editingComment: null,
         activeComment: null,
         hoveringComment: null,
         dropdownOpened: null,
-        editingCommentLoaded: false,
         userId,
         questionType,
         viewOnly,
@@ -2479,6 +2487,8 @@ document.addEventListener("alpine:init", () => {
                 }
                 this.clearActiveComment()
             })
+
+            this.preventOpeningModalFromBreakingDrawer();
         },
         async updateCommentThread(element) {
             let answerFeedbackCardElement = element.closest('.answer-feedback-card');
@@ -2750,15 +2760,14 @@ document.addEventListener("alpine:init", () => {
 
         },
         setActiveComment (threadId, answerFeedbackUuid) {
-            if(this.editingComment !== null) {
+            this.$dispatch('answer-feedback-show-comments');
+            this.$dispatch("assessment-drawer-tab-update", { tab: 2, uuid: answerFeedbackUuid });
+            if(this.$store.answerFeedback.feedbackBeingEdited()) {
                 /* when editing, no other comment can be activated */
                 return;
             }
             this.activeComment = {threadId: threadId, uuid: answerFeedbackUuid };
             this.setActiveCommentMarkerStyle();
-
-            this.$dispatch('answer-feedback-show-comments');
-            this.$dispatch("assessment-drawer-tab-update", { tab: 2, uuid: answerFeedbackUuid });
         },
         clearActiveComment() {
             this.activeComment = null;
@@ -2811,13 +2820,13 @@ document.addEventListener("alpine:init", () => {
         },
         setEditingComment (AnswerFeedbackUuid) {
             this.activeComment = null;
-            this.editingComment = AnswerFeedbackUuid ?? null;
+            this.$store.answerFeedback.editingComment = AnswerFeedbackUuid ?? null;
             setTimeout(() => {
                 this.fixSlideHeightByIndex(2, AnswerFeedbackUuid);
             },100)
         },
         toggleFeedbackAccordion (name, forceOpenAccordion = false) {
-            if(this.editingComment !== null) {
+            if(this.$store.answerFeedback.feedbackBeingEdited()) {
                 this.dropdownOpened ='given-feedback';
                 return;
             };
@@ -2856,7 +2865,20 @@ document.addEventListener("alpine:init", () => {
                 //todo does annuleren close the accordion?
                 console.warn('todo does annuleren close the accordion?');
             }
-        }
+        },
+        preventOpeningModalFromBreakingDrawer () {
+            var observer = new MutationObserver(function (mutations) {
+                mutations.forEach(function (mutation) {
+                    if (mutation.attributeName == "class" && mutation.target.classList.contains('overflow-y-hidden')) {
+                        mutation.target.classList.remove('overflow-y-hidden');
+                    }
+                });
+            });
+            observer.observe(
+                document.querySelector('body'),
+                {attributes: true}
+            );
+        },
     }));
 
     Alpine.data("drawingQuestionImagePreview", () => ({
@@ -2974,6 +2996,16 @@ document.addEventListener("alpine:init", () => {
         }
     });
     Alpine.store("editorMaxWords", {});
+    Alpine.store("answerFeedback", {
+        editingComment: null,
+        feedbackBeingEdited() {
+            if(this.editingComment === null) return false;
+            return this.editingComment;
+        },
+        openConfirmationModal() {
+            this.$wire.emit('openModal', 'modal.confirm-still-editing-comment-modal');
+        }
+    });
 });
 
 function getTitleForVideoUrl(videoUrl) {

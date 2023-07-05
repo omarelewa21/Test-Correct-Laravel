@@ -202,7 +202,7 @@
                         <div class="space-y-4 answer-feedback-add-comment">
                             <span class="flex bold border-t border-blue-grey pt-2 justify-between items-center"
                                   @if($this->inlineFeedbackEnabled)
-                                  :class="editingComment !== null ? 'text-midgrey' : ''"
+                                  :class="$store.answerFeedback.editingComment !== null ? 'text-midgrey' : ''"
                                   @endif
                             >
                                 <span>@lang('assessment.Feedback toevoegen')</span>
@@ -218,7 +218,7 @@
                                  wire:key="feedback-editor-{{  $this->questionNavigationValue.'-'.$this->answerNavigationValue }}"
                             >
 
-                                @if($this->inlineFeedbackEnabled )
+                                @if($this->inlineFeedbackEnabled ) {{-- only enabled for open_question aka 'write down' --}}
 
                                     <x-input.comment-color-picker
                                             commentThreadId="new-comment"
@@ -308,7 +308,7 @@
                                 >
 
                                     <x-menu.context-menu.base context="answer-feedback">
-                                        <div x-show="editingComment === null">
+                                        <div x-show="$store.answerFeedback.editingComment === null">
                                             <x-menu.context-menu.button @click="setEditingComment(uuid)">
                                                 <x-slot:icon>
                                                     <x-icon.edit/>
