@@ -23,28 +23,24 @@ abstract class TestTakeInfoLabels extends Component
     {
         return [
             [
-                'icon-name' => 'app',
+                'name'      => 'app-logo',
                 'show'      => $this->showAppIcon(),
-                'path'      => 'components.icon.app-logo',
-                'props'     => ['tooltip' => $this->getTooltip('app')],
+                'tooltip'   => $this->getTooltip('app'),
             ],
             [
-                'icon-name' => 'web',
+                'name'      => 'web',
                 'show'      => $this->showWebIcon(),
-                'path'      => 'components.icon.web',
-                'props'     => ['tooltip' => $this->getTooltip('web')],
+                'tooltip'   => $this->getTooltip('web'),
             ],
             [
-                'icon-name' => 'test-direct',
+                'name'      => 'test-direct',
                 'show'      => $this->showTestDirectIcon(),
-                'path'      => 'components.icon.test-direct',
-                'props'     => ['tooltip' => $this->getTooltip('test-direct')],
+                'tooltip'   => $this->getTooltip('test-direct'),
             ],
             [
-                'icon-name' => 'redo',
+                'name'      => 'redo',
                 'show'      => $this->showRedoIcon(),
-                'path'      => 'components.icon.redo',
-                'props'     => ['tooltip' => $this->getTooltip('redo')],
+                'tooltip'   => $this->getTooltip('redo'),
             ],
         ];
     }
