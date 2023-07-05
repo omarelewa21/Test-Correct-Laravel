@@ -6,7 +6,7 @@
 
 </head>
 
-<body leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" style="word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space; padding-left: 20px;
+<body class="ck-content" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" style="word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space; padding-left: 20px;
     padding-right: 20px;
     box-sizing: border-box;
     background-color: #ffffff;

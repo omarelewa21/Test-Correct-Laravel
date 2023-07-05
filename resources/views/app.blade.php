@@ -19,7 +19,7 @@
 
 </head>
 
-<body class="bg-light-grey">
+<body class="ck-content bg-light-grey">
 <header class="py-5 bg-white onboarding-header">
     <div class="max-w-2xl mx-auto grid grid-cols-3 gap-y-4 mid-grey">
         <div class="col-span-3">

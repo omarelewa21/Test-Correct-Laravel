@@ -44,7 +44,7 @@
     </style>
 </head>
 
-<body>
+<body class="ck-content ">
 
 <div id="background"></div>
 

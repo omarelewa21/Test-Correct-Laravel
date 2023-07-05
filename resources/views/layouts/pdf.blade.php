@@ -40,7 +40,7 @@
 
 
 </head>
-<body id="body" class="flex flex-col min-h-screen">
+<body id="body" class="ck-content flex flex-col min-h-screen">
 {{ $slot }}
 
 
