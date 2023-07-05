@@ -39,8 +39,8 @@
 }
 
 label {
-    font-family: Nunito;
     font-weight: normal;
+    transition: color 150ms ease-in-out, font-weight 150ms ease-in-out;
 }
 
 input {
@@ -48,15 +48,18 @@ input {
     font-weight: normal;
 }
 
-.input-group:hover input {
+.input-group:hover input,
+.input-group label {
     transition: ease-in-out 150ms;
 }
 
-input:focus + label, textarea:focus + label, select:focus + label {
-    font-family: Nunito;
+input:not(:disabled, .disabled):hover + label, textarea:not(:disabled, .disabled):hover + label, .select:not(:disabled, .disabled):hover + label {
+    color: var(--primary);
+}
+
+input:focus + label, textarea:focus + label, .select[aria-expanded="true"] + label {
     font-weight: bold;
     color: var(--primary);
-    transition: 150ms ease-in-out;
 }
 
 .other-input {
@@ -616,11 +619,13 @@ input[type=number] {
     align-items: center;
 }
 
-.checkbox-disabled .checkbox-container:is(:active, :hover, :focus) input ~ .checkmark {
+.checkbox-disabled .checkbox-container:is(:active, :hover, :focus) input:not(:checked) ~ .checkmark {
     background-color: rgba(var(--system-secondary-rgb), 0.5);
     border: 1px solid var(--blue-grey);
 }
 
+.group\/parent:hover :not(.checkbox-disabled) .checkbox-container input ~ .checkmark,
+.group\/child:hover:not(.checkbox-disabled) .checkbox-container input ~ .checkmark,
 .checkbox-container:hover input ~ .checkmark {
     border-color: var(--primary);
 }
@@ -644,6 +649,13 @@ input[type=number] {
     display: block;
 }
 
-.checkbox-container .checkmark > svg {
+.multi-dropdown-select:hover {
+    transition: color 150ms ease-in-out;
+}
+.multi-dropdown-select:hover .dropdown-label {
+    color: var(--primary);
+}
 
+.flatpickr:hover + label {
+    color: var(--primary);
 }

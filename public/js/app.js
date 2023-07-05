@@ -7105,10 +7105,11 @@ document.addEventListener("alpine:init", function () {
         (_window$registeredEve = (_window = window).registeredEventHandlers) !== null && _window$registeredEve !== void 0 ? _window$registeredEve : _window.registeredEventHandlers = [];
         this.activeFiltersContainer = document.getElementById(filterContainer);
         this.multiple = multiple === 1;
+        var label = document.querySelector("[for=\"".concat(this.$root.querySelector("select").id, "\"]"));
         this.$nextTick(function () {
-          var helper = _this19.$root.querySelector('#text-length-helper');
+          var helper = _this19.$root.querySelector("#text-length-helper");
           var minWidth = helper.offsetWidth;
-          helper.style.display = 'none';
+          helper.style.display = "none";
           var choices = new (choices_js__WEBPACK_IMPORTED_MODULE_1___default())(_this19.$root.querySelector("select"), _this19.getChoicesConfig());
           var refreshChoices = function refreshChoices() {
             var selection = _this19.multiple ? _this19.value : [_this19.value];
@@ -7190,9 +7191,19 @@ document.addEventListener("alpine:init", function () {
             if (_this19.$root.querySelector(".is-active") && _this19.$root.classList.contains("super")) {
               _this19.$refs.chevron.style.left = _this19.$root.querySelector(".is-active").offsetWidth - 25 + "px";
             }
+            label === null || label === void 0 ? void 0 : label.classList.add("text-primary", "bold");
           });
           _this19.$refs.select.addEventListener("hideDropdown", function () {
             _this19.$refs.chevron.style.left = "auto";
+            label === null || label === void 0 ? void 0 : label.classList.remove("text-primary", "bold");
+          });
+          _this19.$root.addEventListener("mouseover", function () {
+            label === null || label === void 0 ? void 0 : label.classList.add("text-primary");
+          });
+          _this19.$root.addEventListener("mouseout", function () {
+            if (!_this19.$root.querySelector(".choices__list.choices__list--dropdown.is-active")) {
+              label === null || label === void 0 ? void 0 : label.classList.remove("text-primary");
+            }
           });
         });
       },
@@ -7359,8 +7370,8 @@ document.addEventListener("alpine:init", function () {
       },
       handleContainerWidth: function handleContainerWidth(minWidth) {
         if (this.$root.classList.contains("super")) return;
-        this.$root.querySelector('input.choices__input[type="search"]').style.width = minWidth + 16 + 'px';
-        this.$root.querySelector('input.choices__input[type="search"]').style.minWidth = 'auto';
+        this.$root.querySelector("input.choices__input[type=\"search\"]").style.width = minWidth + 16 + "px";
+        this.$root.querySelector("input.choices__input[type=\"search\"]").style.minWidth = "auto";
       }
     };
   });
@@ -8828,8 +8839,8 @@ document.addEventListener("alpine:init", function () {
       },
       sliderPillClasses: function sliderPillClasses(value) {
         var score = this.halfTotal || this.halfPoints ? this.score * 2 : this.score;
-        var first = (value / 2 + "").split(".")[1] === '5';
-        return value <= score ? "bg-primary border-primary highlight ".concat(first ? 'first' : 'second') : "border-bluegrey opacity-100 ".concat(first ? 'first' : 'second');
+        var first = (value / 2 + "").split(".")[1] === "5";
+        return value <= score ? "bg-primary border-primary highlight ".concat(first ? "first" : "second") : "border-bluegrey opacity-100 ".concat(first ? "first" : "second");
       },
       hasMaxDecimalScoreWithHalfPoint: function hasMaxDecimalScoreWithHalfPoint() {
         return isFloat(this.maxScore);
@@ -9042,7 +9053,7 @@ document.addEventListener("alpine:init", function () {
           return _regeneratorRuntime().wrap(function _callee17$(_context17) {
             while (1) switch (_context17.prev = _context17.next) {
               case 0:
-                _this57.$dispatch('assessment-drawer-tab-update', {
+                _this57.$dispatch("assessment-drawer-tab-update", {
                   tab: 1
                 });
                 _context17.next = 3;
@@ -9189,13 +9200,13 @@ document.addEventListener("alpine:init", function () {
       setFocus: function setFocus(editor) {
         editor.focus();
         editor.model.change(function (writer) {
-          writer.setSelection(editor.model.document.getRoot(), 'end');
+          writer.setSelection(editor.model.document.getRoot(), "end");
         });
       }
     };
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("multiDropdownSelect", function (options, containerId, wireModel, labels) {
-    return {
+    return _objectSpread({
       options: options,
       wireModel: wireModel,
       labels: labels,
@@ -9215,6 +9226,7 @@ document.addEventListener("alpine:init", function () {
         });
         this.$watch("open", function (value) {
           if (value) _this62.handleDropdownLocation();
+          if (!value) _this62.query = "";
         });
         this.registerSelectedItemsOnComponent();
       },
@@ -9230,7 +9242,7 @@ document.addEventListener("alpine:init", function () {
           return child.disabled !== true;
         }).forEach(function (child) {
           _this63[checked ? "childAdd" : "childRemove"](child);
-          checked ? _this63.disableBrothersFromOtherMothers(child) : _this63.enableBrothersFromOtherMothers(child);
+          checked ? _this63.checkAndDisableBrothersFromOtherMothers(child) : _this63.uncheckAndEnableBrothersFromOtherMothers(child);
         });
         this.$root.querySelectorAll("[data-parent-id=\"".concat(parent.value, "\"][data-disabled=\"false\"] input[type=\"checkbox\"]")).forEach(function (child) {
           return child.checked = checked;
@@ -9243,7 +9255,7 @@ document.addEventListener("alpine:init", function () {
         var checked = !this.checkedChildrenContains(child);
         element.querySelector("input[type=\"checkbox\"]").checked = checked;
         this.childToggle(child);
-        checked ? this.disableBrothersFromOtherMothers(child) : this.enableBrothersFromOtherMothers(child);
+        checked ? this.checkAndDisableBrothersFromOtherMothers(child) : this.uncheckAndEnableBrothersFromOtherMothers(child);
         var parent = this.options.find(function (parent) {
           return parent.value === child.customProperties.parentId;
         });
@@ -9317,7 +9329,9 @@ document.addEventListener("alpine:init", function () {
         });
       },
       showOption: function showOption(identifier) {
-        this.$root.querySelector(".option[data-id=\"".concat(identifier, "\"]")).style.display = "flex";
+        this.$root.querySelectorAll(".option[data-id=\"".concat(identifier, "\"]")).forEach(function (element) {
+          element.style.display = "flex";
+        });
       },
       showAllOptions: function showAllOptions() {
         this.$root.querySelectorAll(".option").forEach(function (el) {
@@ -9361,16 +9375,6 @@ document.addEventListener("alpine:init", function () {
           return item.value;
         });
       },
-      toggleDropdown: function toggleDropdown() {
-        if (this.open) return this.closeDropdown();
-        this.openDropdown();
-      },
-      openDropdown: function openDropdown() {
-        this.open = true;
-      },
-      closeDropdown: function closeDropdown() {
-        this.open = false;
-      },
       createFilterPill: function createFilterPill(item) {
         var _item$customPropertie;
         if (this.pillContainer === null) return;
@@ -9380,7 +9384,7 @@ document.addEventListener("alpine:init", function () {
         element.id = "pill-".concat(identifier);
         element.selectComponent = this.$root;
         element.item = item;
-        element.classList.add("filter-pill", 'self-end', 'h-10');
+        element.classList.add("filter-pill", "self-end", "h-10");
         element.firstElementChild.innerHTML = item.label;
         return this.pillContainer.appendChild(element);
       },
@@ -9468,22 +9472,26 @@ document.addEventListener("alpine:init", function () {
           return item.value === child.value && item.parent === ((_child$customProperti = child.customProperties) === null || _child$customProperti === void 0 ? void 0 : _child$customProperti.parentId);
         });
       },
-      disableBrothersFromOtherMothers: function disableBrothersFromOtherMothers(child) {
+      checkAndDisableBrothersFromOtherMothers: function checkAndDisableBrothersFromOtherMothers(child) {
+        var _this68 = this;
         this.options.flatMap(function (parents) {
           return _toConsumableArray(parents.children);
         }).filter(function (item) {
           return item.value === child.value && item.customProperties.parentId !== child.customProperties.parentId;
         }).forEach(function (item) {
-          return item.disabled = true;
+          _this68.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.customProperties.parentId, "\"] input[type=\"checkbox\"]")).checked = true;
+          item.disabled = true;
         });
       },
-      enableBrothersFromOtherMothers: function enableBrothersFromOtherMothers(child) {
+      uncheckAndEnableBrothersFromOtherMothers: function uncheckAndEnableBrothersFromOtherMothers(child) {
+        var _this69 = this;
         this.options.flatMap(function (parents) {
           return _toConsumableArray(parents.children);
         }).filter(function (item) {
           return item.value === child.value && item.customProperties.parentId !== child.customProperties.parentId;
         }).forEach(function (item) {
-          return item.disabled = false;
+          _this69.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.customProperties.parentId, "\"] input[type=\"checkbox\"]")).checked = false;
+          item.disabled = false;
         });
       },
       isParent: function isParent(item) {
@@ -9491,15 +9499,15 @@ document.addEventListener("alpine:init", function () {
         return !((_item$customPropertie3 = item.customProperties) !== null && _item$customPropertie3 !== void 0 && _item$customPropertie3.parent) === false;
       },
       registerParentsBasedOnDisabledChildren: function registerParentsBasedOnDisabledChildren() {
-        var _this68 = this;
+        var _this70 = this;
         this.options.forEach(function (item) {
           var enabledChildren = item.children.filter(function (child) {
             return child.disabled !== true;
           }).length;
           if (enabledChildren === 0) return;
-          var enabled = _this68.checkedChildrenCount(item) === enabledChildren;
-          _this68.checkedParents = _this68[enabled ? 'add' : 'remove'](_this68.checkedParents, item.value);
-          _this68.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.value, "\"] input[type=\"checkbox\"]")).checked = enabled;
+          var enabled = _this70.checkedChildrenCount(item) === enabledChildren;
+          _this70.checkedParents = _this70[enabled ? "add" : "remove"](_this70.checkedParents, item.value);
+          _this70.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.value, "\"] input[type=\"checkbox\"]")).checked = enabled;
         });
       },
       parentDisabled: function parentDisabled(parent) {
@@ -9507,7 +9515,53 @@ document.addEventListener("alpine:init", function () {
           return child.disabled !== true;
         }).length === 0;
       }
-    };
+    }, selectFunctions);
+  });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("singleSelect", function (containerId) {
+    var entangleValue = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+    return _objectSpread(_objectSpread({
+      containerId: containerId,
+      entangleValue: entangleValue !== null && entangleValue !== void 0 ? entangleValue : null,
+      baseValue: null,
+      open: false
+    }, selectFunctions), {}, {
+      selectedText: null,
+      init: function init() {
+        var _this71 = this;
+        this.selectedText = this.$root.querySelector("span.selected").dataset.selectText;
+        if (this.value) {
+          var option = this.$root.querySelector("[data-value=\"".concat(this.value, "\"]"));
+          if (!option) {
+            console.warn("Incorrect value specified in selectbox.");
+            return;
+          }
+          this.selectedText = option.dataset.label;
+        }
+        this.$watch("open", function (value) {
+          if (value) _this71.handleDropdownLocation();
+        });
+      },
+      get value() {
+        var _this$entangleValue;
+        return (_this$entangleValue = this.entangleValue) !== null && _this$entangleValue !== void 0 ? _this$entangleValue : this.baseValue;
+      },
+      set value(newValue) {
+        if (this.entangleValue) {
+          this.entangleValue = newValue;
+        } else {
+          this.baseValue = newValue;
+        }
+      },
+      active: function active(value) {
+        var _this$value;
+        return value === ((_this$value = this.value) === null || _this$value === void 0 ? void 0 : _this$value.toString());
+      },
+      activateSelect: function activateSelect(value, label) {
+        this.value = value;
+        this.selectedText = label;
+        this.closeDropdown();
+      }
+    });
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].directive("global", function (el, _ref4) {
     var expression = _ref4.expression;
@@ -9555,6 +9609,24 @@ function getTitleForVideoUrl(videoUrl) {
     return null;
   });
 }
+var selectFunctions = {
+  handleDropdownLocation: function handleDropdownLocation() {
+    var dropdown = this.$root.querySelector(".dropdown");
+    var top = this.$root.getBoundingClientRect().top + this.$root.offsetHeight + 16 + parseInt(dropdown.style.maxHeight);
+    var property = top >= screen.availHeight ? "bottom" : "top";
+    dropdown.style[property] = this.$root.offsetHeight + 8 + "px";
+  },
+  toggleDropdown: function toggleDropdown() {
+    if (this.open) return this.closeDropdown();
+    this.openDropdown();
+  },
+  openDropdown: function openDropdown() {
+    this.open = true;
+  },
+  closeDropdown: function closeDropdown() {
+    this.open = false;
+  }
+};
 
 /***/ }),
 
@@ -16068,6 +16140,15 @@ document.addEventListener('alpine:init', function () {
           dateFormat: "Y-m-d",
           onChange: function onChange(date, dateString) {
             _this.wireModel = _this.value = _this.mode == 'range' ? dateString.split(' t/m ') : dateString; //split t/m or to
+          },
+
+          onOpen: function onOpen() {
+            var _this$$root$parentEle;
+            (_this$$root$parentEle = _this.$root.parentElement.querySelector('label')) === null || _this$$root$parentEle === void 0 ? void 0 : _this$$root$parentEle.classList.add('text-primary', 'bold');
+          },
+          onClose: function onClose() {
+            var _this$$root$parentEle2;
+            (_this$$root$parentEle2 = _this.$root.parentElement.querySelector('label')) === null || _this$$root$parentEle2 === void 0 ? void 0 : _this$$root$parentEle2.classList.remove('text-primary', 'bold');
           }
         });
       },

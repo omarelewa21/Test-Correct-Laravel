@@ -6,7 +6,7 @@
 ])
 
 <div wire:ignore
-     {{ $attributes->merge(['class' => 'inline-flex rounded-10 relative', 'style' => 'max-width: 100%;']) }}
+     {{ $attributes->merge(['class' => 'flatpickr | inline-flex rounded-10 relative', 'style' => 'max-width: 100%;']) }}
      x-data="flatpickr(
                 @entangle($attributes->wire('model')),
                 '{{$multiple ? 'range' : 'single' }}',

@@ -60,15 +60,17 @@
                     <x-animations.loading-fade loadProperty="changing" class="bg-lightGrey w-1/2" color="base"/>
                 </div>
 
-                <div class="content-section relative p-10 grid grid-cols-1 lg:grid-cols-2 gap-6 w-full overflow-hidden">
+                <div class="content-section relative p-10 grid grid-cols-1 lg:grid-cols-2 gap-6 w-full ">
                     <div class="system-lang | flex flex-col">
                         <div class="flex flex-col">
                             <x-input.group :label="__('account.Systeem taal')">
                                 <x-input.select x-model="language"
                                                 x-on:change="startLanguageChange($event, 'featureSettings.system_language')">
                                     @foreach($this->systemLanguages as $key => $language)
-                                        <option value="{{ $key }}"
-                                                wire:key="system-language-option-{{ $key }}">{{ $language }}</option>
+                                        <x-input.option :value="$key"
+                                                        :label="$language"
+                                                        wire:key="system-language-option-{{ $key }}"
+                                        />
                                     @endforeach
                                 </x-input.select>
                             </x-input.group>
@@ -348,8 +350,9 @@
                         <x-input.group class="mb-[7px]">
                             <x-input.select wire:model="featureSettings.wsc_default_language">
                                 @foreach($this->wscLanguages as $key => $language)
-                                    <option value="{{ $key }}"
-                                            wire:key="wsc-language-option-{{ $key }}">{{ $language }}</option>
+                                    <x-input.option :value="$key" :label="$language"
+                                                    wire:key="wsc-language-option-{{ $key }}"
+                                    />
                                 @endforeach
                             </x-input.select>
                         </x-input.group>
@@ -476,8 +479,10 @@
                             <x-input.group class="flex-1">
                                 <x-input.select wire:model="featureSettings.grade_default_standard">
                                     @foreach($this->gradingStandards as $key => $standard)
-                                        <option value="{{ $key }}"
-                                                wire:key="grading-standard-option-{{ $key }}">{{ $standard }}</option>
+                                        <x-input.option :value="$key"
+                                                        :label="$standard"
+                                                        wire:key="grading-standard-option-{{ $key }}"
+                                        />
                                     @endforeach
                                 </x-input.select>
                             </x-input.group>

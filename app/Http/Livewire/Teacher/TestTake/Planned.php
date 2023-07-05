@@ -21,6 +21,8 @@ class Planned extends TestTakeComponent
     public $selected = [];
     public Collection $invigilatorUsers;
 
+    public $activeSelect = 'string-14371dbf-a00c-4373-9597-146ff91d0008';
+
     public function mount(TestTakeModel $testTake)
     {
         parent::mount($testTake);
@@ -112,7 +114,7 @@ class Planned extends TestTakeComponent
 
     protected function setStudentData(): void
     {
-        $this->testTake->load([
+        $this->testTake->loadMissing([
             'testParticipants',
             'testParticipants.user:id,name,name_first,name_suffix,uuid'
         ]);
@@ -120,7 +122,7 @@ class Planned extends TestTakeComponent
         $this->participants = $this->testTake
             ->testParticipants
             ->each(function ($participant) {
-                $participant->name = $participant->user->name_full;
+                $participant->name = html_entity_decode($participant->user->name_full);
                 $participant->present = $this->activeParticipantUuids->contains($participant->user->uuid);
                 $participant->user->setAppends([]); /* Disables unnecessary append queries */
             });

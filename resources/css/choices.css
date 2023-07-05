@@ -196,14 +196,15 @@
 
 .filter-pill > svg {
     display: flex;
-    color: var(--mid-grey);
+    color: var(--system-base);
     cursor: pointer;
 }
 .filter-pill.enabled > svg {
+    color: var(--system-base);
     cursor: default;
 }
 .filter-pill.disabled > svg {
-    color: var(--system-base);
+    color: var(--mid-grey);
 }
 
 .has-error > .custom-choices {
