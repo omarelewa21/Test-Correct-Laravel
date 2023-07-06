@@ -2071,6 +2071,9 @@ document.addEventListener("alpine:init", () => {
                 this.clickedNext = false;
             });
         },
+        async navigate(methodName) {
+            this[methodName]();
+        },
         fixSlideHeightByIndex(index, AnswerFeedbackUuid) {
             let slide = document.querySelector(".slide-" + index);
             this.handleSlideHeight(slide);
@@ -3011,9 +3014,9 @@ document.addEventListener("alpine:init", () => {
         navigationRoot: null,
         navigationMethod: null,
         feedbackBeingEdited() {
-            if(this.navigatorRootElement) {
-                this.navigatorRootElement = null;
-                this.navigationMethodUsed = null;
+            if(this.navigationRoot) {
+                this.navigationRoot = null;
+                this.navigationMethod = null;
                 return false;
             }
             if(this.editingComment === null) {
@@ -3022,10 +3025,8 @@ document.addEventListener("alpine:init", () => {
             return this.editingComment;
         },
         openConfirmationModal(navigatorRootElement, methodName) {
-            //todo transform 'action' into action
-            this.navigationRoot = navigationRoot;
+            this.navigationRoot = navigatorRootElement;
             this.navigationMethod = methodName;
-            console.log(this.navigationRoot);
             Livewire.emit('openModal', 'modal.confirm-still-editing-comment-modal');
         },
         continueAction() {
