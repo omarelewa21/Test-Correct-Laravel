@@ -174,9 +174,7 @@ abstract class EvaluationComponent extends TCComponent
 
     public function saveNewComment($data, $answer)
     {
-        //todo update order values of answerFeedback
         $this->updateAnswerFeedbackOrder($answer);
-        //todo update order values of answerFeedback
 
         //update answers_feedback data
         $this->updateAnswerFeedback(
@@ -218,15 +216,16 @@ abstract class EvaluationComponent extends TCComponent
 
     public function updateAnswer($answer)
     {
+        //purifier cannot handle comment-start and comment-end tags and breaks the answer text.
         $answer = str_replace('comment-start', 'commentstart', $answer);
         $answer = str_replace('comment-end', 'commentend', $answer);
 
-        $purifiedAnswerTextJson = json_encode((object) ['value' => clean($answer)]);
+        $purifiedAnswerText = clean($answer);
 
-        $purifiedAnswerTextJson = str_replace('commentstart', 'comment-start', $purifiedAnswerTextJson);
-        $purifiedAnswerTextJson = str_replace('commentend', 'comment-end', $purifiedAnswerTextJson);
+        $purifiedAnswerText = str_replace('commentstart', 'comment-start', $purifiedAnswerText);
+        $purifiedAnswerText = str_replace('commentend', 'comment-end', $purifiedAnswerText);
 
-        Answer::updateJson($this->currentAnswer->getKey(), $purifiedAnswerTextJson);
+        Answer::whereId($this->currentAnswer->getKey())->update(['commented_answer' => $purifiedAnswerText]);
     }
 
     public function updateAnswerFeedback($uuid, $message, $comment_color = null, $comment_emoji = null)
@@ -342,7 +341,7 @@ SQL;
     {
         $comment = AnswerFeedback::whereUuid($commentUuid)->first();
         $iconName = CommentEmoji::tryFrom($comment->comment_emoji)?->getIconComponentName() ?? '';
-logger('test');
+
         return ['message' => $comment->message, 'comment_color' => $comment->comment_color, 'iconName' => $iconName];
 
     }

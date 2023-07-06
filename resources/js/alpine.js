@@ -2054,18 +2054,33 @@ document.addEventListener("alpine:init", () => {
         firstValue,
         skipWatch: false,
         async first() {
+            if(this.$store.answerFeedback.feedbackBeingEdited()) {
+                return this.$store.answerFeedback.openConfirmationModal(this.$root, 'first');
+            }
             await this.updateCurrent(this.firstValue, "first");
         },
         async last() {
+            if(this.$store.answerFeedback.feedbackBeingEdited()) {
+                return this.$store.answerFeedback.openConfirmationModal(this.$root, 'last');
+            }
             await this.updateCurrent(this.lastValue, "last");
         },
         async next() {
             if (this.current >= this.lastValue) return;
+            if(this.$store.answerFeedback.feedbackBeingEdited()) {
+                return this.$store.answerFeedback.openConfirmationModal(this.$root, 'next');
+            }
             await this.updateCurrent(this.current + 1, "incr");
         },
         async previous() {
             if (this.current <= this.firstValue) return;
+            if(this.$store.answerFeedback.feedbackBeingEdited()) {
+                return this.$store.answerFeedback.openConfirmationModal(this.$root, 'previous');
+            }
             await this.updateCurrent(this.current - 1, "decr");
+        },
+        async navigate(methodName) {
+            await this[methodName]();
         },
         async updateCurrent(value, action) {
             this.$dispatch("assessment-drawer-tab-update", { tab: 1 });
@@ -2152,20 +2167,19 @@ document.addEventListener("alpine:init", () => {
             const slide = this.getSlideElementByIndex(index);
             this.handleSlideHeight(slide);
             await this.$nextTick();
-            // await this.$nextTick(async () => {
-                if(answerFeedbackCommentUuid){
-                    await this.scrollToCommentCard(answerFeedbackCommentUuid);
-                } else {
-                    await smoothScroll(this.container, 0, slide.offsetLeft)
-                }
 
-                setTimeout(() => {
-                    const position = (this.container.scrollLeft / 300) + 1;
-                    if (!this.tabs.includes(position)) {
-                        this.container.scrollTo({ left: slide.offsetLeft });
-                    }
-                }, 500);
-            // });
+            if (answerFeedbackCommentUuid) {
+                await this.scrollToCommentCard(answerFeedbackCommentUuid);
+            } else {
+                await smoothScroll(this.container, 0, slide.offsetLeft)
+            }
+
+            setTimeout(() => {
+                const position = (this.container.scrollLeft / 300) + 1;
+                if (!this.tabs.includes(position)) {
+                    this.container.scrollTo({left: slide.offsetLeft});
+                }
+            }, 500);
         },
         async scrollToCommentCard (answerFeedbackUuid) {
             const commentCard = document.querySelector('[data-uuid="'+answerFeedbackUuid+'"].answer-feedback-card')
@@ -2176,11 +2190,9 @@ document.addEventListener("alpine:init", () => {
             await smoothScroll(this.container, cardTop, slide.offsetLeft);
         },
         async next() {
-            // if(this.$store.answerFeedback.feedbackBeingEdited()) {
-            //     this.$store.answerFeedback.openConfirmationModal();
-            //     this.$wire.emit('openModal', 'modal.confirm-still-editing-comment-modal');
-            // }
-            // return;
+            if(this.$store.answerFeedback.feedbackBeingEdited()) {
+                return this.$store.answerFeedback.openConfirmationModal(this.$root, 'next');
+            }
             if (this.needsToPerformActionsStill()) {
                 this.$dispatch("scoring-elements-error");
                 this.clickedNext = true;
@@ -2195,17 +2207,18 @@ document.addEventListener("alpine:init", () => {
             });
         },
         async previous() {
-            // if(this.$store.answerFeedback.feedbackBeingEdited()) {
-            //     this.$wire.emit('openModal', 'modal.confirm-still-editing-comment-modal');
-            //
-            // }
-            // return;
+            if(this.$store.answerFeedback.feedbackBeingEdited()) {
+                return this.$store.answerFeedback.openConfirmationModal(this.$root, 'previous');
+            }
             this.tab(1);
             await this.$nextTick(async () => {
                 this.$store.assessment.resetData();
                 await this.$wire.previous();
                 this.clickedNext = false;
             });
+        },
+        async navigate(methodName) {
+            await this[methodName]();
         },
         fixSlideHeightByIndex(index, AnswerFeedbackUuid) {
             let slide = document.querySelector(".slide-" + index);
@@ -2835,7 +2848,7 @@ document.addEventListener("alpine:init", () => {
             el.innerHTML = '';
 
             let iconTemplate = null;
-            if(iconName === null || iconName === '') {
+            if(iconName === null || iconName === '' || iconName === undefined) {
                 iconTemplate = document.querySelector('#default-icon')
             } else {
                 iconTemplate = document.querySelector('#'+iconName.replace('icon.', ''))
@@ -3030,8 +3043,7 @@ document.addEventListener("alpine:init", () => {
             this.updateNewCommentMarkerStyles(null);
 
             if(cancelAddingNewComment) {
-                //todo does annuleren close the accordion?
-                console.warn('todo does annuleren close the accordion?');
+                window.dispatchEvent(new CustomEvent('answer-feedback-show-comments'));
             }
         },
         preventOpeningModalFromBreakingDrawer () {
@@ -3569,12 +3581,34 @@ document.addEventListener("alpine:init", () => {
     Alpine.store("editorMaxWords", {});
     Alpine.store("answerFeedback", {
         editingComment: null,
+        navigationRoot: null,
+        navigationMethod: null,
         feedbackBeingEdited() {
-            if(this.editingComment === null) return false;
+            if(this.navigationRoot) {
+                this.navigationRoot = null;
+                this.navigationMethod = null;
+                return false;
+            }
+            if(this.editingComment === null) {
+                return false;
+            }
             return this.editingComment;
         },
-        openConfirmationModal() {
-            this.$wire.emit('openModal', 'modal.confirm-still-editing-comment-modal');
+        openConfirmationModal(navigatorRootElement, methodName) {
+            this.navigationRoot = navigatorRootElement;
+            this.navigationMethod = methodName;
+            Livewire.emit('openModal', 'modal.confirm-still-editing-comment-modal');
+        },
+        continueAction() {
+            this.editingComment = null;
+            this.navigationRoot.dispatchEvent(new CustomEvent('continue-navigation', {detail: {method: this.navigationMethod}}))
+            Livewire.emit('closeModal');
+        },
+        cancelAction() {
+            this.navigationRoot = null;
+            this.navigationMethod = null;
+            window.dispatchEvent(new CustomEvent('assessment-drawer-tab-update', {detail: {tab: 2, uuid: this.editingComment}}));
+            Livewire.emit('closeModal');
         }
     });
 });

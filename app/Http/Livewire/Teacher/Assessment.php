@@ -1087,7 +1087,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     {
         return $this->testTakeData->testParticipants
             ->load([
-                'answers:id,uuid,test_participant_id,question_id,json,order,final_rating,done',
+                'answers:id,uuid,test_participant_id,question_id,json,order,final_rating,done,commented_answer',
                 'answers.answerRatings:id,answer_id,type,rating,advise,user_id',
                 'answers.answerRatings.user:id,name,name_first,name_suffix',
             ])

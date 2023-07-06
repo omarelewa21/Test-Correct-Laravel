@@ -25,7 +25,7 @@ class OpenQuestion extends QuestionComponent
 
     protected function setAnswerStruct($question, $answer): void
     {
-        $this->answerValue = json_decode($this->answer->json)->value ?? '';
+        $this->answerValue = $answer->commented_answer ?? json_decode($this->answer->json)->value ?? '';
 
         $this->answerValue = Str::replace(
             chr(194).chr(160),
