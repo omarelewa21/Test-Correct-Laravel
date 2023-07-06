@@ -1908,18 +1908,33 @@ document.addEventListener("alpine:init", () => {
         firstValue,
         skipWatch: false,
         async first() {
+            if(this.$store.answerFeedback.feedbackBeingEdited()) {
+                return this.$store.answerFeedback.openConfirmationModal(this.$root, 'first');
+            }
             await this.updateCurrent(this.firstValue, "first");
         },
         async last() {
+            if(this.$store.answerFeedback.feedbackBeingEdited()) {
+                return this.$store.answerFeedback.openConfirmationModal(this.$root, 'last');
+            }
             await this.updateCurrent(this.lastValue, "last");
         },
         async next() {
             if (this.current >= this.lastValue) return;
+            if(this.$store.answerFeedback.feedbackBeingEdited()) {
+                return this.$store.answerFeedback.openConfirmationModal(this.$root, 'next');
+            }
             await this.updateCurrent(this.current + 1, "incr");
         },
         async previous() {
             if (this.current <= this.firstValue) return;
+            if(this.$store.answerFeedback.feedbackBeingEdited()) {
+                return this.$store.answerFeedback.openConfirmationModal(this.$root, 'previous');
+            }
             await this.updateCurrent(this.current - 1, "decr");
+        },
+        async navigate(methodName) {
+            this[methodName]();
         },
         async updateCurrent(value, action) {
             this.$dispatch("assessment-drawer-tab-update", { tab: 1 });
@@ -2029,11 +2044,9 @@ document.addEventListener("alpine:init", () => {
             await smoothScroll(this.container, cardTop, slide.offsetLeft);
         },
         async next() {
-            // if(this.$store.answerFeedback.feedbackBeingEdited()) {
-            //     this.$store.answerFeedback.openConfirmationModal();
-            //     this.$wire.emit('openModal', 'modal.confirm-still-editing-comment-modal');
-            // }
-            // return;
+            if(this.$store.answerFeedback.feedbackBeingEdited()) {
+                return this.$store.answerFeedback.openConfirmationModal(this.$root, 'next');
+            }
             if (this.needsToPerformActionsStill()) {
                 this.$dispatch("scoring-elements-error");
                 this.clickedNext = true;
@@ -2048,11 +2061,9 @@ document.addEventListener("alpine:init", () => {
             });
         },
         async previous() {
-            // if(this.$store.answerFeedback.feedbackBeingEdited()) {
-            //     this.$wire.emit('openModal', 'modal.confirm-still-editing-comment-modal');
-            //
-            // }
-            // return;
+            if(this.$store.answerFeedback.feedbackBeingEdited()) {
+                return this.$store.answerFeedback.openConfirmationModal(this.$root, 'previous');
+            }
             this.tab(1);
             await this.$nextTick(async () => {
                 this.$store.assessment.resetData();
@@ -2997,12 +3008,36 @@ document.addEventListener("alpine:init", () => {
     Alpine.store("editorMaxWords", {});
     Alpine.store("answerFeedback", {
         editingComment: null,
+        navigationRoot: null,
+        navigationMethod: null,
         feedbackBeingEdited() {
-            if(this.editingComment === null) return false;
+            if(this.navigatorRootElement) {
+                this.navigatorRootElement = null;
+                this.navigationMethodUsed = null;
+                return false;
+            }
+            if(this.editingComment === null) {
+                return false;
+            }
             return this.editingComment;
         },
-        openConfirmationModal() {
-            this.$wire.emit('openModal', 'modal.confirm-still-editing-comment-modal');
+        openConfirmationModal(navigatorRootElement, methodName) {
+            //todo transform 'action' into action
+            this.navigationRoot = navigationRoot;
+            this.navigationMethod = methodName;
+            console.log(this.navigationRoot);
+            Livewire.emit('openModal', 'modal.confirm-still-editing-comment-modal');
+        },
+        continueAction() {
+            this.editingComment = null;
+            this.navigationRoot.dispatchEvent(new CustomEvent('continue-navigation', {detail: {method: this.navigationMethod}}))
+            Livewire.emit('closeModal');
+        },
+        cancelAction() {
+            this.navigationRoot = null;
+            this.navigationMethod = null;
+            window.dispatchEvent(new CustomEvent('assessment-drawer-tab-update', {detail: {tab: 2, uuid: this.editingComment}}));
+            Livewire.emit('closeModal');
         }
     });
 });
