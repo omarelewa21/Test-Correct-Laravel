@@ -1,18 +1,19 @@
 <?php namespace tcCore\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Response;
-use tcCore\Http\Helpers\DemoHelper;
-use tcCore\Http\Requests;
-use tcCore\Http\Requests\DuplicateTestRequest;
-use tcCore\SchoolLocation;
 use tcCore\Test;
+use tcCore\User;
+use tcCore\Http\Requests;
+use tcCore\SchoolLocation;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use tcCore\Http\Helpers\DemoHelper;
+use Illuminate\Support\Facades\Auth;
 use tcCore\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Response;
 use tcCore\Http\Requests\CreateTestRequest;
 use tcCore\Http\Requests\UpdateTestRequest;
-use tcCore\User;
+use tcCore\Http\Requests\DuplicateTestRequest;
 
 class SchoolLocationUsersController extends Controller {
 
@@ -33,9 +34,7 @@ class SchoolLocationUsersController extends Controller {
         $userId= $request['user_id'];
         $user =User::find($userId);
         return $user->allowedSchoolLocations->map(function($location) {
-            return (array) [
-                'name' => $location->name,
-            ];
+            return $location->name;
         });
     }
 
@@ -44,6 +43,19 @@ class SchoolLocationUsersController extends Controller {
         $userId= $request['user_id'];
         $user =User::find($userId);
         return $user->allowedSchoolLocations;
+    }
+
+    public function indexfeatureTeacher(Request $request)
+    {
+        $userId= $request['user_id'];
+        $user =User::find($userId);
+        $userSchoolId=$user->school_location_id; 
+        $result = DB::table('feature_settings')
+        ->where('settingable_id', $userSchoolId)
+        ->where('settingable_id_user', $userId)
+        ->orderByRaw("CASE WHEN value = 'allow_new_assessment' THEN 0 ELSE 1 END, title")
+        ->get();
+        return $result;
     }
 
     public function update(Request $request)

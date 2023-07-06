@@ -394,6 +394,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 
     Route::get('school_location_teacher', 'SchoolLocationUsersController@indexSchoolsTeacher')->name('school_location_teacher.indexSchoolsTeacher');
     Route::get('school_location_teacher_Uuid', 'SchoolLocationUsersController@indexSchoolsTeacherUuid')->name('school_location_teacher_Uuid.indexSchoolsTeacherUuid');
+    Route::get('feature_teacher', 'SchoolLocationUsersController@indexfeatureTeacher')->name('feature_teacher.indexfeatureTeacher');
     Route::get('school_location_user', 'SchoolLocationUsersController@index')->name('school_location_user.index');
     Route::put('school_location_user', 'SchoolLocationUsersController@update')->name('school_location_user.update');
     Route::post('school_location_user', 'SchoolLocationUsersController@store')->name('school_location_user.store');

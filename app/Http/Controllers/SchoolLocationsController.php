@@ -112,17 +112,87 @@ class SchoolLocationsController extends Controller {
         }
         $schoolLocation->fill($request->all());
 
-        
-        DB::table('feature_settings')
-            ->where('settingable_id', $schoolLocation->id)
-            ->update(['settingable_id_user' => '1']);
-            
+        if(isset($request->userId))
+        {
+            $checkExistNewAssessment=DB::table('feature_settings')->where('settingable_id', $schoolLocation->id)->where('value', 0)->
+            where('title',$request->allow_new_assessment)->where('settingable_id_user', $request->userId)->latest()->first();
+
+            if(isset($checkExistNewAssessment) )
+            {
+                $checkExistNewAssessment->delete();
+            }elseif( $request->allow_new_assessment != null )
+            {
+                DB::table('feature_settings')->insert(
+                    [
+                        'title'=>'allow_new_assessment',
+                        'value' => 0,
+                        'settingable_id' => $schoolLocation->id, 
+                        'settingable_type' => 'tcCore\SchoolLocation',
+                        'settingable_id_user' => $request->userId,
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ]
+                    );
+                     DB::table('feature_settings')->where('settingable_id', $schoolLocation->id)->where('value',1)->delete();
+            }
+
+            $checkExistCoLearning=DB::table('feature_settings')->where('settingable_id', $schoolLocation->id)->where('value', 0)->where('title',$request->allow_new_co_learning_teacher)->where('settingable_id_user', $request->userId)->latest()->first();
+
+            if(isset($checkExistCoLearning) )
+            {
+
+                $checkExistCoLearning->delete();
+            }elseif($request->allow_new_co_learning_teacher != null){
+                DB::table('feature_settings')->insert(
+                    [
+                        'title'=>'allow_new_co_learning_teacher',
+                        'value' => 0,
+                        'settingable_id' => $schoolLocation->id, 
+                        'settingable_type' => 'tcCore\SchoolLocation',
+                        'settingable_id_user' => $request->userId,
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ]
+                );
+                DB::table('feature_settings')->where('settingable_id', $schoolLocation->id)->where('value',1)->delete();
+                
+             }
+        }else{
+            if($schoolLocation['feature_settings']['allow_new_assessment'] == 1 && $schoolLocation['feature_settings']['allow_new_co_learning_teacher'] == 1)
+            {
+                DB::table('feature_settings')->where('settingable_id', $schoolLocation->id)->where('value', 0)->delete();
+                DB::table('feature_settings')->where('settingable_id', $schoolLocation->id)->update(
+                    [
+                        'settingable_id_user'=>0
+                    ]
+                );
+            }
+            elseif($schoolLocation['feature_settings']['allow_new_assessment'] == 1 && $schoolLocation['feature_settings']['allow_new_co_learning_teacher'] == 0)
+            {
+                DB::table('feature_settings')->where('settingable_id', $schoolLocation->id)->where('value', 0)->where('title','allow_new_assessment')->delete();
+                DB::table('feature_settings')->where('settingable_id', $schoolLocation->id)->where('title','allow_new_assessment')->update(
+                    [
+                        'settingable_id_user'=>0
+                    ]
+                );
+            }
+            elseif($schoolLocation['feature_settings']['allow_new_assessment'] == 0 && $schoolLocation['feature_settings']['allow_new_co_learning_teacher'] == 1)
+            {
+                DB::table('feature_settings')->where('settingable_id', $schoolLocation->id)->where('value', 0)->where('title','allow_new_co_learning_teacher')->delete();
+                DB::table('feature_settings')->where('settingable_id', $schoolLocation->id)->where('title','allow_new_co_learning_teacher')->update(
+                    [
+                        'settingable_id_user'=>0
+                    ]
+                );
+            }
+        }
+        // DB::table('feature_settings')->where('settingable_id', $schoolLocation->id)->delete();
         if ($schoolLocation->save() !== false) {
             return Response::make($schoolLocation, 200);
             
         } else {
             return Response::make('Failed to update school location', 500);
-        }
+        }    
     }
 
     /**
