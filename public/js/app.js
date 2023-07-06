@@ -9067,9 +9067,9 @@ document.addEventListener("alpine:init", function () {
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("accountSettings", function (language) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("accountSettings", function (openTab, language) {
     return {
-      openTab: "account",
+      openTab: openTab,
       changing: false,
       language: language,
       startLanguageChange: function startLanguageChange(event, wireModelName) {
@@ -9080,16 +9080,17 @@ document.addEventListener("alpine:init", function () {
               case 0:
                 _this58.$dispatch("language-loading-start");
                 _this58.changing = true;
-                _context18.next = 4;
-                return _this58.$wire.set(wireModelName, _this58.language);
-              case 4:
+                _this58.language = event.target.dataset.value;
+                _context18.next = 5;
+                return _this58.$wire.call("$set", wireModelName, event.target.dataset.value);
+              case 5:
                 _this58.$nextTick(function () {
                   setTimeout(function () {
                     _this58.changing = false;
                     _this58.$dispatch("language-loading-end");
                   }, 1500);
                 });
-              case 5:
+              case 6:
               case "end":
                 return _context18.stop();
             }
@@ -9206,7 +9207,7 @@ document.addEventListener("alpine:init", function () {
     };
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("multiDropdownSelect", function (options, containerId, wireModel, labels) {
-    return _objectSpread({
+    return _objectSpread(_objectSpread({
       options: options,
       wireModel: wireModel,
       labels: labels,
@@ -9515,7 +9516,14 @@ document.addEventListener("alpine:init", function () {
           return child.disabled !== true;
         }).length === 0;
       }
-    }, selectFunctions);
+    }, selectFunctions), {}, {
+      get openProperty() {
+        return this.open;
+      },
+      set openProperty(value) {
+        this.open = value;
+      }
+    });
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("singleSelect", function (containerId) {
     var entangleValue = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
@@ -9523,21 +9531,14 @@ document.addEventListener("alpine:init", function () {
       containerId: containerId,
       entangleValue: entangleValue !== null && entangleValue !== void 0 ? entangleValue : null,
       baseValue: null,
-      open: false
+      singleSelectOpen: false,
+      selectedText: null
     }, selectFunctions), {}, {
-      selectedText: null,
       init: function init() {
         var _this71 = this;
         this.selectedText = this.$root.querySelector("span.selected").dataset.selectText;
-        if (this.value) {
-          var option = this.$root.querySelector("[data-value=\"".concat(this.value, "\"]"));
-          if (!option) {
-            console.warn("Incorrect value specified in selectbox.");
-            return;
-          }
-          this.selectedText = option.dataset.label;
-        }
-        this.$watch("open", function (value) {
+        this.setActiveStartingValue();
+        this.$watch("singleSelectOpen", function (value) {
           if (value) _this71.handleDropdownLocation();
         });
       },
@@ -9546,7 +9547,7 @@ document.addEventListener("alpine:init", function () {
         return (_this$entangleValue = this.entangleValue) !== null && _this$entangleValue !== void 0 ? _this$entangleValue : this.baseValue;
       },
       set value(newValue) {
-        if (this.entangleValue) {
+        if (this.entangleValue !== undefined) {
           this.entangleValue = newValue;
         } else {
           this.baseValue = newValue;
@@ -9556,10 +9557,37 @@ document.addEventListener("alpine:init", function () {
         var _this$value;
         return value === ((_this$value = this.value) === null || _this$value === void 0 ? void 0 : _this$value.toString());
       },
-      activateSelect: function activateSelect(value, label) {
-        this.value = value;
-        this.selectedText = label;
+      activateSelect: function activateSelect(element) {
+        var value = element.dataset.value,
+          label = element.dataset.label;
         this.closeDropdown();
+        if (this.value === value) return;
+        this.value = value;
+        element.dispatchEvent(new Event("change", {
+          bubbles: true
+        }));
+        this.selectedText = label;
+      },
+      setActiveStartingValue: function setActiveStartingValue() {
+        if (this.value === null) {
+          if (this.$root.getAttribute("x-model")) {
+            this.value = this[this.$root.getAttribute("x-model")];
+          }
+        }
+        if (this.value !== null) {
+          var option = this.$root.querySelector("[data-value=\"".concat(this.value, "\"]"));
+          if (!option) {
+            console.warn("Incorrect value specified in selectbox.");
+            return;
+          }
+          this.selectedText = option.dataset.label;
+        }
+      },
+      get openProperty() {
+        return this.singleSelectOpen;
+      },
+      set openProperty(value) {
+        this.singleSelectOpen = value;
       }
     });
   });
@@ -9617,14 +9645,14 @@ var selectFunctions = {
     dropdown.style[property] = this.$root.offsetHeight + 8 + "px";
   },
   toggleDropdown: function toggleDropdown() {
-    if (this.open) return this.closeDropdown();
+    if (this.singleSelectOpen) return this.closeDropdown();
     this.openDropdown();
   },
   openDropdown: function openDropdown() {
-    this.open = true;
+    this.singleSelectOpen = true;
   },
   closeDropdown: function closeDropdown() {
-    this.open = false;
+    this.singleSelectOpen = false;
   }
 };
 
@@ -16418,7 +16446,8 @@ document.addEventListener('alpine:init', function () {
       menuButtonsWithoutItems: null,
       activeMenuItem: null,
       init: function init() {
-        var _this = this;
+        var _this = this,
+          _this$$refs$chat_butt;
         var navBar = this.$refs.nav_bar;
         this.bottom = this.$refs.menu_bottom;
         var tiles = this.$refs.tiles;
@@ -16485,7 +16514,7 @@ document.addEventListener('alpine:init', function () {
         this.$refs.support_button.addEventListener('click', function (event) {
           _this.supportMenuShow();
         });
-        this.$refs.chat_button.addEventListener('click', function (event) {
+        (_this$$refs$chat_butt = this.$refs.chat_button) === null || _this$$refs$chat_butt === void 0 ? void 0 : _this$$refs$chat_butt.addEventListener('click', function (event) {
           _this.openHubspotWidget();
         });
       },

@@ -11,16 +11,14 @@
         <div class="w-full flex gap-4">
             <div class="flex-1">
                 <x-input.group class="mb-4 input-group w-full" label="{{ __('teacher.examenvak') }}">
-                    <x-input.select disabled class="w-full">
-                        <option>{{ $base_subject }}</option>
-                    </x-input.select>
+                    <x-input.text class="w-full" value="{{ $base_subject }}" :disabled="true"/>
                 </x-input.group>
             </div>
             <div class="flex-1">
                 <x-input.group class="mb-4 input-group w-full" label="{{ __('teacher.kies een vak') }}">
                     <x-input.select class="w-full" wire:model="request.subject_id">
                         @foreach($this->allowedSubjectsForExamnSubjects as $key => $value)
-                            <option value="{{ $key }}">{{ $value }}</option>
+                            <x-input.option :value="$key" :label="$value"/>
                         @endforeach
                     </x-input.select>
                 </x-input.group>

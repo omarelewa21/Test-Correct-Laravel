@@ -2547,21 +2547,21 @@ document.addEventListener("alpine:init", () => {
             await this.$wire.loadQuestionFromNav(number);
         }
     }));
-    Alpine.data("accountSettings", (language) => ({
-        openTab: "account",
+    Alpine.data("accountSettings", (openTab, language) => ({
+        openTab,
         changing: false,
         language,
         async startLanguageChange(event, wireModelName) {
             this.$dispatch("language-loading-start");
             this.changing = true;
-            await this.$wire.set(wireModelName, this.language);
+            this.language = event.target.dataset.value;
+            await this.$wire.call("$set", wireModelName, event.target.dataset.value);
             this.$nextTick(() => {
                 setTimeout(() => {
                     this.changing = false;
                     this.$dispatch("language-loading-end");
                 }, 1500);
             });
-
         }
     }));
 
@@ -2961,28 +2961,26 @@ document.addEventListener("alpine:init", () => {
         parentDisabled(parent) {
             return parent.children.filter(child => child.disabled !== true).length === 0;
         },
-        ...selectFunctions
+        ...selectFunctions,
+        get openProperty() {
+            return this.open;
+        },
+        set openProperty(value) {
+            this.open = value;
+        }
     }));
     Alpine.data("singleSelect", (containerId, entangleValue = null) => ({
         containerId,
         entangleValue: entangleValue ?? null,
         baseValue: null,
-        open: false,
-        ...selectFunctions,
+        singleSelectOpen: false,
         selectedText: null,
+        ...selectFunctions,
         init() {
             this.selectedText = this.$root.querySelector("span.selected").dataset.selectText;
+            this.setActiveStartingValue();
 
-            if (this.value) {
-                const option = this.$root.querySelector(`[data-value="${this.value}"]`);
-                if (!option) {
-                    console.warn("Incorrect value specified in selectbox.");
-                    return;
-                }
-                this.selectedText = option.dataset.label;
-            }
-
-            this.$watch("open", value => {
+            this.$watch("singleSelectOpen", value => {
                 if (value) this.handleDropdownLocation();
             });
         },
@@ -2990,7 +2988,7 @@ document.addEventListener("alpine:init", () => {
             return this.entangleValue ?? this.baseValue;
         },
         set value(newValue) {
-            if (this.entangleValue) {
+            if (this.entangleValue !== undefined) {
                 this.entangleValue = newValue;
             } else {
                 this.baseValue = newValue;
@@ -2999,10 +2997,37 @@ document.addEventListener("alpine:init", () => {
         active(value) {
             return value === this.value?.toString();
         },
-        activateSelect(value, label) {
-            this.value = value;
-            this.selectedText = label;
+        activateSelect(element) {
+            const value = element.dataset.value,
+                label = element.dataset.label;
             this.closeDropdown();
+
+            if (this.value === value) return;
+            this.value = value;
+            element.dispatchEvent(new Event("change", { bubbles: true }));
+            this.selectedText = label;
+        },
+        setActiveStartingValue() {
+            if (this.value === null) {
+                if (this.$root.getAttribute("x-model")) {
+                    this.value = this[this.$root.getAttribute("x-model")];
+                }
+            }
+
+            if (this.value !== null) {
+                const option = this.$root.querySelector(`[data-value="${this.value}"]`);
+                if (!option) {
+                    console.warn("Incorrect value specified in selectbox.");
+                    return;
+                }
+                this.selectedText = option.dataset.label;
+            }
+        },
+        get openProperty() {
+            return this.singleSelectOpen;
+        },
+        set openProperty(value) {
+            this.singleSelectOpen = value;
         }
 
     }));
@@ -3063,13 +3088,13 @@ const selectFunctions = {
         dropdown.style[property] = this.$root.offsetHeight + 8 + "px";
     },
     toggleDropdown() {
-        if (this.open) return this.closeDropdown();
+        if (this.singleSelectOpen) return this.closeDropdown();
         this.openDropdown();
     },
     openDropdown() {
-        this.open = true;
+        this.singleSelectOpen = true;
     },
     closeDropdown() {
-        this.open = false;
+        this.singleSelectOpen = false;
     }
 };

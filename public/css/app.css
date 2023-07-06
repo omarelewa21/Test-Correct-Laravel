@@ -10422,6 +10422,10 @@ video {
 .w-px{
   width: 1px;
 }
+.\!w-fit{
+  width: -moz-fit-content !important;
+  width: fit-content !important;
+}
 .min-w-\[110px\]{
   min-width: 110px;
 }

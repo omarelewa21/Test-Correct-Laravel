@@ -2,7 +2,7 @@
       x-bind:class="active($el.dataset.value) && 'text-primary'"
       data-value="{{ $value }}"
       data-label="{{ $label }}"
-      x-on:click.stop="activateSelect(@js($value), @js($label)); $root.dispatchEvent(new Event('change', {bubbles: true}))"
+      x-on:click.stop="activateSelect($el);"
       {{ $attributes }}
 >
     <span class="label">{{ $label }}</span>

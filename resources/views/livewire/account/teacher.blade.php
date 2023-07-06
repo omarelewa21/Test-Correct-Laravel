@@ -1,5 +1,5 @@
 <main class="account-page"
-      x-data="accountSettings(@js($this->featureSettings['system_language']))"
+      x-data="accountSettings(@entangle('openTab').defer, @js($this->featureSettings['system_language']))"
       x-cloak
 >
     <header class="sticky flex flex-col justify-center top-0 w-full z-10">
@@ -25,28 +25,28 @@
                 </div>
             </div>
         </div>
-
         <x-menu.tab.container class="w-full"
                               :withTileEvents="true"
                               max-width-class="max-w-[1040px] px-5"
-                              x-bind:class="{'pointer-events-none': changing}">
-            <x-menu.tab.item tab="account" menu="openTab">
-                <span class="flex justify-center">
-                    @lang('account.account')
-                    <x-animations.loading-fade loadProperty="changing"
-                                               class="bg-lightGrey px-1"
-                                               color="base"
-                    />
-                </span>
+                              x-bind:class="{'pointer-events-none': changing}"
+        >
+            <x-menu.tab.item tab="account" menu="openTab" x-bind:wire:key="'open-account-'+openTab">
+                    <span class="flex justify-center">
+                        @lang('account.account')
+                        <x-animations.loading-fade loadProperty="changing"
+                                                   class="bg-lightGrey px-1"
+                                                   color="base"
+                        />
+                    </span>
             </x-menu.tab.item>
-            <x-menu.tab.item tab="tests" menu="openTab">
-                <span class="flex justify-center">
-                    @lang('header.Toetsen')
-                    <x-animations.loading-fade loadProperty="changing"
-                                               class="bg-lightGrey min-w-[80px] px-1"
-                                               color="base"
-                    />
-                </span>
+            <x-menu.tab.item tab="tests" menu="openTab" x-bind:wire:key="'open-tests-'+openTab">
+                    <span class="flex justify-center">
+                        @lang('header.Toetsen')
+                        <x-animations.loading-fade loadProperty="changing"
+                                                   class="bg-lightGrey min-w-[80px] px-1"
+                                                   color="base"
+                        />
+                    </span>
             </x-menu.tab.item>
         </x-menu.tab.container>
     </header>
@@ -57,19 +57,19 @@
             <div class="flex flex-col w-full gap-4">
                 <div class="relative pl-0.5">
                     <h2 class="flex">Test-Correct @lang('account.settings')</h2>
-                    <x-animations.loading-fade loadProperty="changing" class="bg-lightGrey w-1/2" color="base"/>
+                    <x-animations.loading-fade loadProperty="changing" class="bg-lightGrey w-1/2" color="base" />
                 </div>
 
                 <div class="content-section relative p-10 grid grid-cols-1 lg:grid-cols-2 gap-6 w-full ">
                     <div class="system-lang | flex flex-col">
                         <div class="flex flex-col">
-                            <x-input.group :label="__('account.Systeem taal')">
-                                <x-input.select x-model="language"
-                                                x-on:change="startLanguageChange($event, 'featureSettings.system_language')">
+                            <x-input.group :label="__('account.Systeem taal')"
+                                           x-on:change="startLanguageChange($event, 'featureSettings.system_language')"
+                            >
+                                <x-input.select wire:model.defer="featureSettings.system_language">
                                     @foreach($this->systemLanguages as $key => $language)
                                         <x-input.option :value="$key"
                                                         :label="$language"
-                                                        wire:key="system-language-option-{{ $key }}"
                                         />
                                     @endforeach
                                 </x-input.select>
@@ -112,7 +112,7 @@
             <div class="flex flex-col w-full gap-4">
                 <div class="relative pl-0.5">
                     <h2 class="flex">@lang('account.Jouw profiel') - @lang('account.docent account')</h2>
-                    <x-animations.loading-fade loadProperty="changing" class="bg-lightGrey w-1/2" color="base"/>
+                    <x-animations.loading-fade loadProperty="changing" class="bg-lightGrey w-1/2" color="base" />
                 </div>
 
                 <div class="content-section relative p-10 grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -248,10 +248,10 @@
                         @unless($this->canEditProfile)
                             <div class="col-span-1 lg:col-span-2">
                                 <div @class([
-                                    'notification info stretched  flex items-center w-full',
-                                    'min-h-[58px]' => !$this->editRestriction === 'lvs',
-                                    'min-h-[90px]' => $this->editRestriction === 'lvs',
-                                    ])>
+                                        'notification info stretched  flex items-center w-full',
+                                        'min-h-[58px]' => !$this->editRestriction === 'lvs',
+                                        'min-h-[90px]' => $this->editRestriction === 'lvs',
+                                        ])>
                                     <x-knightrider color="blue" />
                                 </div>
                             </div>
@@ -262,20 +262,20 @@
                                 <div class="flex space-x-2 items-center">
                                     <div class="flex w-[46px] h-[46px] rounded-full bg-lightGrey items-center justify-center overflow-hidden"></div>
                                     <span class="min-w-[30px]">
-                                        <x-knightrider />
-                                    </span>
+                                            <x-knightrider />
+                                        </span>
                                 </div>
                                 <div class="flex space-x-2 items-center">
                                     <div class="flex w-[46px] h-[46px] rounded-full bg-lightGrey items-center justify-center overflow-hidden"></div>
                                     <span class="min-w-[30px]">
-                                        <x-knightrider />
-                                    </span>
+                                            <x-knightrider />
+                                        </span>
                                 </div>
                                 <div class="flex flex-1 space-x-2 items-center">
                                     <div class="flex w-[46px] min-w-[46px] h-[46px] rounded-full bg-lightGrey items-center justify-center overflow-hidden"></div>
                                     <span class="min-w-[30px] w-full flex">
-                                        <x-knightrider />
-                                    </span>
+                                            <x-knightrider />
+                                        </span>
                                 </div>
                             </div>
 
@@ -335,7 +335,7 @@
         <div class="flex flex-col gap-8" x-show="openTab === 'tests'">
             <div class="flex flex-col items-center w-full">
                 <h3 class="semi-bold">@lang('account.test_header_info_text')</h3>
-{{--                <span class="text-sm">@lang('account.test_header_info_subtext') {{ $this->locationName }}</span>--}}
+                {{--                <span class="text-sm">@lang('account.test_header_info_subtext') {{ $this->locationName }}</span>--}}
             </div>
 
             <div class="flex flex-col w-full gap-4">
@@ -350,9 +350,7 @@
                         <x-input.group class="mb-[7px]">
                             <x-input.select wire:model="featureSettings.wsc_default_language">
                                 @foreach($this->wscLanguages as $key => $language)
-                                    <x-input.option :value="$key" :label="$language"
-                                                    wire:key="wsc-language-option-{{ $key }}"
-                                    />
+                                    <x-input.option :value="$key" :label="$language" />
                                 @endforeach
                             </x-input.select>
                         </x-input.group>
@@ -439,7 +437,7 @@
                         <x-icon.co-learning class="min-w-[1rem]" />
                         <span class="bold inline-flex flex-shrink-1">@lang('account.Antwoorden met CO-Learning score overslaan')</span>
                         <div class="min-w-min">
-                            <x-tooltip >@lang('assessment.discrepancies_toggle_tooltip')</x-tooltip>
+                            <x-tooltip>@lang('assessment.discrepancies_toggle_tooltip')</x-tooltip>
                         </div>
                     </div>
                     <div class="border-b lg:border-t border-bluegrey flex w-full items-center h-[50px] gap-2.5">
@@ -481,7 +479,6 @@
                                     @foreach($this->gradingStandards as $key => $standard)
                                         <x-input.option :value="$key"
                                                         :label="$standard"
-                                                        wire:key="grading-standard-option-{{ $key }}"
                                         />
                                     @endforeach
                                 </x-input.select>

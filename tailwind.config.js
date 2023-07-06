@@ -49,7 +49,8 @@ module.exports = {
                 "6": "6px"
             },
             width: {
-                "50": "12.5rem"
+                "50": "12.5rem",
+                "auto": "auto",
             },
             height: {
                 "12.5": "3.125rem"
