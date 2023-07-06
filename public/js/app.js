@@ -9373,7 +9373,7 @@ document.addEventListener("alpine:init", function () {
       addOrReplaceIconByName: function addOrReplaceIconByName(el, iconName) {
         el.innerHTML = '';
         var iconTemplate = null;
-        if (iconName === null || iconName === '') {
+        if (iconName === null || iconName === '' || iconName === undefined) {
           iconTemplate = document.querySelector('#default-icon');
         } else {
           iconTemplate = document.querySelector('#' + iconName.replace('icon.', ''));

@@ -79,6 +79,6 @@
                 name="{{ $editorId }}"
                 @disabled($disabled)
                 x-on:reinitialize-editor-{{ $editorId }}.window="{{ $initFunctionCall }}"
-        > {!! $slot ?? '' !!} </textarea>
+        > {{ $slot ?? '' }} </textarea>
     </div>
 </div>

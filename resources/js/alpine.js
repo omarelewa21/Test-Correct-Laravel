@@ -2666,7 +2666,7 @@ document.addEventListener("alpine:init", () => {
             el.innerHTML = '';
 
             let iconTemplate = null;
-            if(iconName === null || iconName === '') {
+            if(iconName === null || iconName === '' || iconName === undefined) {
                 iconTemplate = document.querySelector('#default-icon')
             } else {
                 iconTemplate = document.querySelector('#'+iconName.replace('icon.', ''))
