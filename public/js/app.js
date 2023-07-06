@@ -8444,8 +8444,9 @@ document.addEventListener("alpine:init", function () {
           return _regeneratorRuntime().wrap(function _callee12$(_context12) {
             while (1) switch (_context12.prev = _context12.next) {
               case 0:
-                _this40[methodName]();
-              case 1:
+                _context12.next = 2;
+                return _this40[methodName]();
+              case 2:
               case "end":
                 return _context12.stop();
             }
@@ -8712,8 +8713,9 @@ document.addEventListener("alpine:init", function () {
           return _regeneratorRuntime().wrap(function _callee20$(_context20) {
             while (1) switch (_context20.prev = _context20.next) {
               case 0:
-                _this49[methodName]();
-              case 1:
+                _context20.next = 2;
+                return _this49[methodName]();
+              case 2:
               case "end":
                 return _context20.stop();
             }
@@ -9617,8 +9619,7 @@ document.addEventListener("alpine:init", function () {
         answerEditor.setData('<p></p>');
         this.updateNewCommentMarkerStyles(null);
         if (cancelAddingNewComment) {
-          //todo does annuleren close the accordion?
-          console.warn('todo does annuleren close the accordion?');
+          window.dispatchEvent(new CustomEvent('answer-feedback-show-comments'));
         }
       },
       preventOpeningModalFromBreakingDrawer: function preventOpeningModalFromBreakingDrawer() {

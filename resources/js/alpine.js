@@ -1934,7 +1934,7 @@ document.addEventListener("alpine:init", () => {
             await this.updateCurrent(this.current - 1, "decr");
         },
         async navigate(methodName) {
-            this[methodName]();
+            await this[methodName]();
         },
         async updateCurrent(value, action) {
             this.$dispatch("assessment-drawer-tab-update", { tab: 1 });
@@ -2072,7 +2072,7 @@ document.addEventListener("alpine:init", () => {
             });
         },
         async navigate(methodName) {
-            this[methodName]();
+            await this[methodName]();
         },
         fixSlideHeightByIndex(index, AnswerFeedbackUuid) {
             let slide = document.querySelector(".slide-" + index);
@@ -2875,8 +2875,7 @@ document.addEventListener("alpine:init", () => {
             this.updateNewCommentMarkerStyles(null);
 
             if(cancelAddingNewComment) {
-                //todo does annuleren close the accordion?
-                console.warn('todo does annuleren close the accordion?');
+                window.dispatchEvent(new CustomEvent('answer-feedback-show-comments'));
             }
         },
         preventOpeningModalFromBreakingDrawer () {
