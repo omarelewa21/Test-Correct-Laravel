@@ -17,7 +17,7 @@
         {{ $attributes->except(['id','class', 'wire:model']) }}
 >
     <span class="selected"
-          x-bind:class="value !== null ? 'text-sysbase' : 'text-midgrey italic'"
+          x-bind:class="['', null].includes(value) ? 'text-midgrey italic' : 'text-sysbase'"
           data-select-text="{{ __('test-take.Selecteer...') }}"
           x-text="selectedText"
     ></span>

@@ -25,7 +25,6 @@ abstract class CompletionQuestion extends TCComponent
 
     public function mount(): void
     {
-        $this->answer = (array)json_decode($this->answers[$this->question->uuid]['answer']);
         if(!$this->answer) {
             foreach($this->question->completionQuestionAnswers as $key => $value) {
                 $this->answer[$key] = "";

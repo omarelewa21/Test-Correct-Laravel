@@ -153,7 +153,7 @@ return [
     'Wijzigen'                                                                               => 'Change',
     'Inplannen'                                                                              => 'Schedule',
     'Kopie maken'                                                                            => 'Create copy',
-    'PDF maken'                                                                              => 'PDF',
+    'Exporteren naar PDF'                                                                              => 'PDF',
     'voorbeeld'                                                                              => 'Preview',
     'vraag'                                                                                  => ':count question|:count questions',
     'group-question-count'                                                                   => ':count group question|:count group questions',

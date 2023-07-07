@@ -91,10 +91,6 @@ class Test extends BaseModel
             if ((count($dirty) > 1 && array_key_exists('system_test_id', $dirty)) || (count($dirty) > 0 && !array_key_exists('system_test_id', $dirty)) && !$test->getAttribute('is_system_test')) {
                 $test->setAttribute('system_test_id', null);
             }
-            if($test->isDirty('draft') && $test->isDraft() ) {
-
-            }
-
         });
 
         static::saved(function (Test $test) {
@@ -531,6 +527,7 @@ class Test extends BaseModel
         if ($isSystemTest) {
             $test->setAttribute('is_system_test', 1);
             $test->setAttribute('system_test_id', $this->getKey());
+            $test->setAttribute('draft', $this->draft);
             $test->save();
         }
 

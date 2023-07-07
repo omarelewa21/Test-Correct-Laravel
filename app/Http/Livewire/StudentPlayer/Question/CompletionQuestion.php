@@ -19,6 +19,12 @@ class CompletionQuestion extends AbstractCompletionQuestion
     public $preventAnswerTransformation = true;
     public $testTakeUuid;
 
+    public function mount(): void
+    {
+        $this->answer = (array)json_decode($this->answers[$this->question->uuid]['answer']);
+        parent::mount();
+    }
+
     public function updatedAnswer($value, $field)
     {
         $this->answer[$field] = $value;

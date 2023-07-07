@@ -7,32 +7,32 @@
 >
     @if($label)
         <span class="dropdown-label | transition-all"
-              x-bind:class="{'text-primary bold': searchFocussed || open}"
+              x-bind:class="{'text-primary bold': searchFocussed || multiSelectOpen}"
         >{{ $label }}</span>
     @endif
     <div class="flex relative items-center w-fit hover:text-primary cursor-pointer"
          x-on:click="toggleDropdown()"
     >
         <input type="text"
-               :placeholder="open ? labels.placeholder_open : labels.placeholder_closed"
+               :placeholder="multiSelectOpen ? labels.placeholder_open : labels.placeholder_closed"
                class="h-10 w-[200px] pl-4 pr-8 cursor-pointer placeholder-sysbase placeholder:text-base border rounded-10 focus:placeholder-note focus:bg-primary/5 focus:outline-none hover:border-primary transition-colors"
                x-model="query"
-               x-on:click.stop="if(!open) openDropdown()"
+               x-on:click.stop="if(!multiSelectOpen) openDropdown()"
                x-bind:class="{
-                'bg-offwhite border-primary placeholder-primary hover:placeholder-sysbase' :  open,
-                'bg-offwhite border-bluegrey': !open,
-                'bg-primary/5 border-primary': !open && (checkedParents.length !== 0 || checkedChildren.length !== 0)
+                'bg-offwhite border-primary placeholder-primary hover:placeholder-sysbase' :  multiSelectOpen,
+                'bg-offwhite border-bluegrey': !multiSelectOpen,
+                'bg-primary/5 border-primary': !multiSelectOpen && (checkedParents.length !== 0 || checkedChildren.length !== 0)
                }"
                x-on:focus="searchFocussed = true;"
                x-on:blur="searchFocussed = false;"
         >
         <x-icon.chevron-small class="absolute right-5 transform transition-transform pointer-events-none"
-                              x-bind:class="open ? '-rotate-90'  : 'rotate-90'"
+                              x-bind:class="multiSelectOpen ? '-rotate-90'  : 'rotate-90'"
                               opacity="1"
         />
     </div>
 
-    <div x-show="open"
+    <div x-show="multiSelectOpen"
          x-transition
          x-on:click.outside="closeDropdown()"
          class="dropdown | absolute overflow-scroll bg-white rounded-10 z-10 py-2 "

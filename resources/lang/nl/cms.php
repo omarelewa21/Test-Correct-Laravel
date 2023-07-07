@@ -152,7 +152,7 @@ return [
     'Wijzigen'                                                                               => 'Wijzigen',
     'Inplannen'                                                                              => 'Inplannen',
     'Kopie maken'                                                                            => 'Kopie maken',
-    'PDF maken'                                                                              => 'PDF maken',
+    'Exporteren naar PDF'                                                                              => 'Exporteren naar PDF',
     'voorbeeld'                                                                              => 'Voorbeeld',
     'vraag'                                                                                  => ':count vraag|:count vragen',
     'group-question-count'                                                                   => ':count vraaggroep|:count vraaggroepen',

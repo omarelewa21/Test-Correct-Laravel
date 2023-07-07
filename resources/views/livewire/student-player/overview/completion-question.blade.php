@@ -23,7 +23,10 @@
                         @foreach($textPartialArray as $textPartial){{--
                         --}}{!!$textPartial!!}{{-- Do not format this file. It causes unfixable/unwanted whitespaces.
                     --}}@endforeach
-                        <x-input.select class="!w-fit mb-1 mr-1 text-base" wire:model="answer.{{ $answerIndex }}">
+                        <x-input.select class="!w-fit mb-1 mr-1 text-base"
+                                        wire:model="answer.{{ $answerIndex }}"
+                                        :error="empty($this->answer[$answerIndex])"
+                        >
                             @foreach($options[$answerIndex + 1] as $key => $option)
                                 <x-input.option :value="$key" :label="$option" />
                             @endforeach

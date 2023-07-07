@@ -15,6 +15,11 @@ class CompletionQuestion extends AbstractCompletionQuestion
     public $answered;
     public $searchPattern = "/\[([0-9]+)\]/i";
 
+    public function mount(): void
+    {
+        $this->answer = (array)json_decode($this->answers[$this->question->uuid]['answer']);
+        parent::mount();
+    }
 
     public function render()
     {

@@ -2676,7 +2676,7 @@ document.addEventListener("alpine:init", () => {
         options,
         wireModel,
         labels,
-        open: false,
+        multiSelectOpen: false,
         openSubs: [],
         checkedParents: [],
         checkedChildren: [],
@@ -2687,7 +2687,7 @@ document.addEventListener("alpine:init", () => {
         init() {
             this.pillContainer = document.querySelector(`#${containerId}`);
             this.$watch("query", value => this.search(value));
-            this.$watch("open", value => {
+            this.$watch("multiSelectOpen", value => {
                 if (value) this.handleDropdownLocation();
                 if (!value) this.query = "";
             });
@@ -2962,11 +2962,15 @@ document.addEventListener("alpine:init", () => {
             return parent.children.filter(child => child.disabled !== true).length === 0;
         },
         ...selectFunctions,
-        get openProperty() {
-            return this.open;
+        toggleDropdown() {
+            if (this.multiSelectOpen) return this.closeDropdown();
+            this.openDropdown();
         },
-        set openProperty(value) {
-            this.open = value;
+        openDropdown() {
+            this.multiSelectOpen = true;
+        },
+        closeDropdown() {
+            this.multiSelectOpen = false;
         }
     }));
     Alpine.data("singleSelect", (containerId, entangleValue = null) => ({
@@ -3023,11 +3027,15 @@ document.addEventListener("alpine:init", () => {
                 this.selectedText = option.dataset.label;
             }
         },
-        get openProperty() {
-            return this.singleSelectOpen;
+        toggleDropdown() {
+            if (this.singleSelectOpen) return this.closeDropdown();
+            this.openDropdown();
         },
-        set openProperty(value) {
-            this.singleSelectOpen = value;
+        openDropdown() {
+            this.singleSelectOpen = true;
+        },
+        closeDropdown() {
+            this.singleSelectOpen = false;
         }
 
     }));
@@ -3087,14 +3095,4 @@ const selectFunctions = {
         const property = top >= screen.availHeight ? "bottom" : "top";
         dropdown.style[property] = this.$root.offsetHeight + 8 + "px";
     },
-    toggleDropdown() {
-        if (this.singleSelectOpen) return this.closeDropdown();
-        this.openDropdown();
-    },
-    openDropdown() {
-        this.singleSelectOpen = true;
-    },
-    closeDropdown() {
-        this.singleSelectOpen = false;
-    }
 };

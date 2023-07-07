@@ -9211,7 +9211,7 @@ document.addEventListener("alpine:init", function () {
       options: options,
       wireModel: wireModel,
       labels: labels,
-      open: false,
+      multiSelectOpen: false,
       openSubs: [],
       checkedParents: [],
       checkedChildren: [],
@@ -9225,7 +9225,7 @@ document.addEventListener("alpine:init", function () {
         this.$watch("query", function (value) {
           return _this62.search(value);
         });
-        this.$watch("open", function (value) {
+        this.$watch("multiSelectOpen", function (value) {
           if (value) _this62.handleDropdownLocation();
           if (!value) _this62.query = "";
         });
@@ -9517,11 +9517,15 @@ document.addEventListener("alpine:init", function () {
         }).length === 0;
       }
     }, selectFunctions), {}, {
-      get openProperty() {
-        return this.open;
+      toggleDropdown: function toggleDropdown() {
+        if (this.multiSelectOpen) return this.closeDropdown();
+        this.openDropdown();
       },
-      set openProperty(value) {
-        this.open = value;
+      openDropdown: function openDropdown() {
+        this.multiSelectOpen = true;
+      },
+      closeDropdown: function closeDropdown() {
+        this.multiSelectOpen = false;
       }
     });
   });
@@ -9583,11 +9587,15 @@ document.addEventListener("alpine:init", function () {
           this.selectedText = option.dataset.label;
         }
       },
-      get openProperty() {
-        return this.singleSelectOpen;
+      toggleDropdown: function toggleDropdown() {
+        if (this.singleSelectOpen) return this.closeDropdown();
+        this.openDropdown();
       },
-      set openProperty(value) {
-        this.singleSelectOpen = value;
+      openDropdown: function openDropdown() {
+        this.singleSelectOpen = true;
+      },
+      closeDropdown: function closeDropdown() {
+        this.singleSelectOpen = false;
       }
     });
   });
@@ -9643,16 +9651,6 @@ var selectFunctions = {
     var top = this.$root.getBoundingClientRect().top + this.$root.offsetHeight + 16 + parseInt(dropdown.style.maxHeight);
     var property = top >= screen.availHeight ? "bottom" : "top";
     dropdown.style[property] = this.$root.offsetHeight + 8 + "px";
-  },
-  toggleDropdown: function toggleDropdown() {
-    if (this.singleSelectOpen) return this.closeDropdown();
-    this.openDropdown();
-  },
-  openDropdown: function openDropdown() {
-    this.singleSelectOpen = true;
-  },
-  closeDropdown: function closeDropdown() {
-    this.singleSelectOpen = false;
   }
 };
 

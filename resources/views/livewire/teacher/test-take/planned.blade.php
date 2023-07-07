@@ -24,24 +24,13 @@
     <x-button.icon
             wire:click="$emit('openModal','teacher.test-take-edit-modal', {testTake: '{{ $this->testTake->uuid }}' })"
             class="order-3"
+            title="{{ __('teacher.Toets instellingen') }}"
     >
         <x-icon.settings />
     </x-button.icon>
 @endsection
 
 @section('students')
-    <div class="flex">
-        <div>
-            @if($this->initialized)
-                <x-input.select wire:model="activeSelect">
-                    @foreach($this->participants as $participant)
-                        <x-input.option :value="'string-'.$participant->uuid" :label="$participant->name" />
-                    @endforeach
-                </x-input.select>
-            @endif
-        </div>
-
-    </div>
     <div class="flex flex-col py-5 px-7 bg-white rounded-10 content-section"
          x-data="{plannedTab: 'students'}"
          x-cloak
