@@ -1,6 +1,6 @@
 <?php
 
-namespace tcCore\View\Components\partials;
+namespace tcCore\View\Components\Partials;
 
 use Illuminate\Support\Facades\Auth;
 use tcCore\TestParticipant;

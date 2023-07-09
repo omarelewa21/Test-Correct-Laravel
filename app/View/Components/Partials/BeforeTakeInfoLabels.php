@@ -1,6 +1,6 @@
 <?php
 
-namespace tcCore\View\Components\partials;
+namespace tcCore\View\Components\Partials;
 
 use tcCore\View\Components\Abstracts\TestTakeInfoLabels;
 
