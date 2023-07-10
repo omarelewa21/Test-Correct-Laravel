@@ -230,4 +230,5 @@
         </div>
         <span class="invisible"></span>
     </div>
+    @livewire('session-component')
 </div>

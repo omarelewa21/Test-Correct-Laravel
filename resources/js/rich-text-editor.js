@@ -24,6 +24,7 @@ RichTextEditor = {
             parameterBag,
             (editor) => {
                 WebspellcheckerTlc.lang(editor, parameterBag.lang);
+                WebspellcheckerTlc.handleSpellCheckerOnOff(editor, parameterBag.isSpellCheckerEnabled);
                 this.setReadOnly(editor);
                 window.editor = editor;
             }
@@ -35,6 +36,7 @@ RichTextEditor = {
             parameterBag,
             (editor) => {
                 WebspellcheckerTlc.lang(editor, parameterBag.lang);
+                WebspellcheckerTlc.handleSpellCheckerOnOff(editor, parameterBag.isSpellCheckerEnabled);
                 this.setReadOnly(editor);
                 window.editor = editor;
             }
@@ -76,6 +78,7 @@ RichTextEditor = {
             parameterBag,
             (editor) => {
                 WebspellcheckerTlc.lang(editor, parameterBag.lang);
+                WebspellcheckerTlc.handleSpellCheckerOnOff(editor, parameterBag.isSpellCheckerEnabled);
                 this.setupWordCounter(editor, parameterBag);
                 this.setReadOnly(editor);
             }
