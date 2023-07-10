@@ -5,6 +5,7 @@ namespace tcCore\Http\Livewire\Teacher;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Validator;
+use Ramsey\Uuid\Uuid;
 use tcCore\Http\Controllers\FileManagementUsersController;
 use tcCore\Http\Helpers\Choices\ChildChoice;
 use tcCore\Http\Helpers\Choices\ParentChoice;
@@ -38,6 +39,14 @@ class TestTakeEditModal extends TCModalComponent
         'children' => []
     ];
 
+    protected function validationAttributes(): array
+    {
+        return [
+            'testTake.weight'                  => str(__('teacher.Weging'))->lower(),
+            'testTake.allow_inbrowser_testing' => __('teacher.Browsertoetsen toestaan'),
+            'testTake.guest_accounts'          => __('teacher.Test-Direct toestaan'),
+        ];
+    }
 
     public function mount(TestTake $testTake)
     {
@@ -73,6 +82,7 @@ class TestTakeEditModal extends TCModalComponent
             $conditionalRules['testTake.guest_accounts'] = 'accepted';
         }
         $conditionalRules['testTake.invigilator_note'] = 'sometimes';
+        $conditionalRules['testTake.period_id'] = 'sometimes';
         return $conditionalRules;
     }
 
@@ -97,16 +107,16 @@ class TestTakeEditModal extends TCModalComponent
         return $classes->map(function ($class) use ($participantUserUuids) {
             return ParentChoice::build(
                 value           : $class->uuid,
-                label           : $class->name,
+                label           : html_entity_decode($class->name),
                 customProperties: ['parentId' => $class->uuid],
                 children        : $class->studentUsers->map(
                     function ($studentUser) use ($participantUserUuids, $class) {
                         return ChildChoice::build(
                             value           : $studentUser->uuid,
-                            label           : $studentUser->name_full,
+                            label           : html_entity_decode($studentUser->name_full),
                             customProperties: [
                                 'parentId'    => $class->uuid,
-                                'parentLabel' => $class->name,
+                                'parentLabel' => html_entity_decode($class->name),
                                 'selected'    => $participantUserUuids->get($studentUser->uuid) === $class->id
                             ]
                         );
@@ -177,7 +187,6 @@ class TestTakeEditModal extends TCModalComponent
         TestParticipant::whereIn('user_id', $participantsToDelete->pluck('user_id'))
             ->whereTestTakeId($this->testTake->id)
             ->delete();
-//        TestParticipant::destroy($participantsToDelete->pluck('id'));
     }
 
     private function updateParticipants(Collection $participantsToUpdate, Collection $participantProposals): void
@@ -196,7 +205,8 @@ class TestTakeEditModal extends TCModalComponent
                 'school_class_id'         => $proposal['classId'],
                 'test_take_status_id'     => TestTakeStatus::STATUS_PLANNED,
                 'allow_inbrowser_testing' => $this->testTake->allow_inbrowser_testing,
-                'deleted_at'              => null
+                'deleted_at'              => null,
+                'uuid'                    => Uuid::uuid4(),
             ];
         })->toArray();
 

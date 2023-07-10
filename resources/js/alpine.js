@@ -180,7 +180,7 @@ document.addEventListener("alpine:init", () => {
             });
         },
 
-        addRow(value = "" ) {
+        addRow(value = "") {
             let component = {
                 id: this.data.elements.length,
                 value: value,
@@ -197,7 +197,7 @@ document.addEventListener("alpine:init", () => {
 
         insertDataInEditor: function() {
 
-            let result = "[" + this.data.elements.map( (item) => item.value).join("|") + "]";
+            let result = "[" + this.data.elements.map((item) => item.value).join("|") + "]";
 
             let lw = livewire.find(document.getElementById("cms").getAttribute("wire:id"));
             lw.set("showSelectionOptionsModal", true);
@@ -215,7 +215,7 @@ document.addEventListener("alpine:init", () => {
         validateInput: function() {
             const emptyFields = this.data.elements.filter(element => element.value === "");
 
-            if (emptyFields.length !== 0 ) {
+            if (emptyFields.length !== 0) {
                 this.hasError.empty = emptyFields.map(item => item.id);
 
                 Notify.notify("Niet alle velden zijn (correct) ingevuld", "error");
@@ -651,7 +651,7 @@ document.addEventListener("alpine:init", () => {
                     this.$store.questionBank.inGroup = false;
                 }
                 this.next(this.$refs.home);
-                if(!this.$store.cms.emptyState) {
+                if (!this.$store.cms.emptyState) {
                     this.$dispatch("backdrop");
                 }
             }
@@ -747,10 +747,11 @@ document.addEventListener("alpine:init", () => {
 
             this.activeFiltersContainer = document.getElementById(filterContainer);
             this.multiple = multiple === 1;
+            const label = document.querySelector(`[for="${this.$root.querySelector("select").id}"]`);
             this.$nextTick(() => {
-                let helper = this.$root.querySelector('#text-length-helper');
+                let helper = this.$root.querySelector("#text-length-helper");
                 let minWidth = helper.offsetWidth;
-                helper.style.display = 'none';
+                helper.style.display = "none";
 
                 let choices = new Choices(
                     this.$root.querySelector("select"),
@@ -833,11 +834,21 @@ document.addEventListener("alpine:init", () => {
                     if (this.$root.querySelector(".is-active") && this.$root.classList.contains("super")) {
                         this.$refs.chevron.style.left = (this.$root.querySelector(".is-active").offsetWidth - 25) + "px";
                     }
+                    label?.classList.add("text-primary", "bold");
                 });
                 this.$refs.select.addEventListener("hideDropdown", () => {
                     this.$refs.chevron.style.left = "auto";
+                    label?.classList.remove("text-primary", "bold");
                 });
 
+                this.$root.addEventListener("mouseover", () => {
+                    label?.classList.add("text-primary");
+                });
+                this.$root.addEventListener("mouseout", () => {
+                    if (!this.$root.querySelector(".choices__list.choices__list--dropdown.is-active")) {
+                        label?.classList.remove("text-primary");
+                    }
+                });
             });
         },
         setActiveGroupsOnInit() {
@@ -991,9 +1002,9 @@ document.addEventListener("alpine:init", () => {
             return "removeFrom" + this.$root.getAttribute("wire:key");
         },
         handleContainerWidth(minWidth) {
-            if(this.$root.classList.contains("super")) return
-            this.$root.querySelector('input.choices__input[type="search"]').style.width = minWidth + 16 +'px';
-            this.$root.querySelector('input.choices__input[type="search"]').style.minWidth = 'auto';
+            if (this.$root.classList.contains("super")) return;
+            this.$root.querySelector("input.choices__input[type=\"search\"]").style.width = minWidth + 16 + "px";
+            this.$root.querySelector("input.choices__input[type=\"search\"]").style.minWidth = "auto";
         }
     }));
 
@@ -1278,7 +1289,7 @@ document.addEventListener("alpine:init", () => {
                         "Vak totaal",
                         "Subject total",
                         "Attainement total",
-                        "Eindterm totaal",
+                        "Eindterm totaal"
                     ];
                     let strokeWidth = 2;
                     let strokeColor = this.colors[index];
@@ -2392,10 +2403,10 @@ document.addEventListener("alpine:init", () => {
         },
         sliderPillClasses(value) {
             const score = this.halfTotal || this.halfPoints ? this.score * 2 : this.score;
-            const first = ((value/2) + "").split(".")[1] === '5';
+            const first = ((value / 2) + "").split(".")[1] === "5";
             return value <= score
-                ? `bg-primary border-primary highlight ${first ? 'first' : 'second'}`
-                : `border-bluegrey opacity-100 ${first ? 'first' : 'second'}`;
+                ? `bg-primary border-primary highlight ${first ? "first" : "second"}`
+                : `border-bluegrey opacity-100 ${first ? "first" : "second"}`;
         },
         hasMaxDecimalScoreWithHalfPoint() {
             return isFloat(this.maxScore);
@@ -2587,18 +2598,19 @@ document.addEventListener("alpine:init", () => {
             }, 5000);
         },
         async loadQuestion(number) {
-            this.$dispatch('assessment-drawer-tab-update', {tab: 1})
+            this.$dispatch("assessment-drawer-tab-update", { tab: 1 });
             await this.$wire.loadQuestionFromNav(number);
         }
     }));
-    Alpine.data("accountSettings", (language) => ({
-        openTab: "account",
+    Alpine.data("accountSettings", (openTab, language) => ({
+        openTab,
         changing: false,
         language,
         async startLanguageChange(event, wireModelName) {
             this.$dispatch("language-loading-start");
             this.changing = true;
-            await this.$wire.set(wireModelName, this.language);
+            this.language = event.target.dataset.value;
+            await this.$wire.call("$set", wireModelName, event.target.dataset.value);
             this.$nextTick(() => {
                 setTimeout(() => {
                     this.changing = false;
@@ -3110,8 +3122,6 @@ document.addEventListener("alpine:init", () => {
         }
     }));
 
-
-
     Alpine.data("writeDownCms", (editorId, restrict_word_amount, maxWords) => ({
         editor: null,
         wordCounter: restrict_word_amount,
@@ -3165,7 +3175,7 @@ document.addEventListener("alpine:init", () => {
         setFocus(editor) {
             editor.focus();
             editor.model.change(writer => {
-                writer.setSelection(editor.model.document.getRoot(), 'end');
+                writer.setSelection(editor.model.document.getRoot(), "end");
             });
         }
     }));
@@ -3174,7 +3184,7 @@ document.addEventListener("alpine:init", () => {
         options,
         wireModel,
         labels,
-        open: false,
+        multiSelectOpen: false,
         openSubs: [],
         checkedParents: [],
         checkedChildren: [],
@@ -3185,8 +3195,9 @@ document.addEventListener("alpine:init", () => {
         init() {
             this.pillContainer = document.querySelector(`#${containerId}`);
             this.$watch("query", value => this.search(value));
-            this.$watch("open", value => {
+            this.$watch("multiSelectOpen", value => {
                 if (value) this.handleDropdownLocation();
+                if (!value) this.query = "";
             });
 
             this.registerSelectedItemsOnComponent();
@@ -3202,7 +3213,7 @@ document.addEventListener("alpine:init", () => {
 
             parent.children.filter(child => child.disabled !== true).forEach((child) => {
                 this[checked ? "childAdd" : "childRemove"](child);
-                checked ? this.disableBrothersFromOtherMothers(child) : this.enableBrothersFromOtherMothers(child);
+                checked ? this.checkAndDisableBrothersFromOtherMothers(child) : this.uncheckAndEnableBrothersFromOtherMothers(child);
             });
 
             this.$root.querySelectorAll(`[data-parent-id="${parent.value}"][data-disabled="false"] input[type="checkbox"]`)
@@ -3217,7 +3228,7 @@ document.addEventListener("alpine:init", () => {
             element.querySelector("input[type=\"checkbox\"]").checked = checked;
             this.childToggle(child);
 
-            checked ? this.disableBrothersFromOtherMothers(child) : this.enableBrothersFromOtherMothers(child);
+            checked ? this.checkAndDisableBrothersFromOtherMothers(child) : this.uncheckAndEnableBrothersFromOtherMothers(child);
 
             const parent = this.options.find(parent => parent.value === child.customProperties.parentId);
             this.handleParentStateWhenChildsChange(parent, checked);
@@ -3241,13 +3252,13 @@ document.addEventListener("alpine:init", () => {
             return list.filter((item) => item !== value);
         },
         childToggle(child) {
-            if(this.checkedChildrenContains(child)) {
-                return this.childRemove(child)
+            if (this.checkedChildrenContains(child)) {
+                return this.childRemove(child);
             }
             return this.childAdd(child);
         },
         childAdd(child) {
-            if(this.checkedChildrenContains(child)) return;
+            if (this.checkedChildrenContains(child)) return;
             this.checkedChildren.push({ value: child.value, parent: child.customProperties.parentId });
         },
         childRemove(child) {
@@ -3262,7 +3273,7 @@ document.addEventListener("alpine:init", () => {
             // return result < parent.children.length;
         },
         checkedChildrenCount(parent) {
-            return parent.children.filter((child) => this.checkedChildrenContains(child) ).length;
+            return parent.children.filter((child) => this.checkedChildrenContains(child)).length;
         },
         search(value) {
             if (value.length === 0) {
@@ -3278,7 +3289,9 @@ document.addEventListener("alpine:init", () => {
             results.forEach(item => this.showOption(item));
         },
         showOption(identifier) {
-            this.$root.querySelector(`.option[data-id="${identifier}"]`).style.display = "flex";
+            this.$root.querySelectorAll(`.option[data-id="${identifier}"]`).forEach(element => {
+                element.style.display = "flex";
+            });
         },
         showAllOptions() {
             this.$root.querySelectorAll(".option").forEach(el => el.style.display = "flex");
@@ -3317,16 +3330,6 @@ document.addEventListener("alpine:init", () => {
                 .filter(Boolean)
                 .map(item => item.value);
         },
-        toggleDropdown() {
-            if (this.open) return this.closeDropdown();
-            this.openDropdown();
-        },
-        openDropdown() {
-            this.open = true;
-        },
-        closeDropdown() {
-            this.open = false;
-        },
         createFilterPill(item) {
             if (this.pillContainer === null) return;
             const identifier = item.customProperties?.parent === false ? item.value + item.customProperties.parentId : item.value;
@@ -3338,7 +3341,7 @@ document.addEventListener("alpine:init", () => {
             element.id = `pill-${identifier}`;
             element.selectComponent = this.$root;
             element.item = item;
-            element.classList.add("filter-pill", 'self-end', 'h-10');
+            element.classList.add("filter-pill", "self-end", "h-10");
             element.firstElementChild.innerHTML = item.label;
 
             return this.pillContainer.appendChild(element);
@@ -3362,7 +3365,7 @@ document.addEventListener("alpine:init", () => {
                 return pill.item.value;
             });
 
-            let currentlyChecked = this.checkedParents.concat(this.checkedChildren.map(child => child.value+child.parent));
+            let currentlyChecked = this.checkedParents.concat(this.checkedChildren.map(child => child.value + child.parent));
 
             let pillIdsToRemove = currentPillIds.filter(uuid => !currentlyChecked.contains(uuid));
 
@@ -3421,7 +3424,7 @@ document.addEventListener("alpine:init", () => {
             if (!this.wireModel.value) return;
             this.$wire.sync(this.wireModel.value, {
                 parents: this.checkedParents,
-                children: this.checkedChildren,
+                children: this.checkedChildren
             });
         },
         checkedChildrenContains(child) {
@@ -3429,15 +3432,25 @@ document.addEventListener("alpine:init", () => {
                 return item.value === child.value && item.parent === child.customProperties?.parentId;
             });
         },
-        disableBrothersFromOtherMothers(child) {
+        checkAndDisableBrothersFromOtherMothers(child) {
             this.options.flatMap(parents => [...parents.children])
                 .filter(item => item.value === child.value && item.customProperties.parentId !== child.customProperties.parentId)
-                .forEach(item => item.disabled = true);
+                .forEach(item => {
+                    this.$root.querySelector(
+                        `[data-id="${item.value}"][data-parent-id="${item.customProperties.parentId}"] input[type="checkbox"]`
+                    ).checked = true;
+                    item.disabled = true;
+                });
         },
-        enableBrothersFromOtherMothers(child) {
+        uncheckAndEnableBrothersFromOtherMothers(child) {
             this.options.flatMap(parents => [...parents.children])
                 .filter(item => item.value === child.value && item.customProperties.parentId !== child.customProperties.parentId)
-                .forEach(item => item.disabled = false);
+                .forEach(item => {
+                    this.$root.querySelector(
+                        `[data-id="${item.value}"][data-parent-id="${item.customProperties.parentId}"] input[type="checkbox"]`
+                    ).checked = false;
+                    item.disabled = false;
+                });
         },
         isParent(item) {
             return !item.customProperties?.parent === false;
@@ -3448,16 +3461,91 @@ document.addEventListener("alpine:init", () => {
                 if (enabledChildren === 0) return;
 
                 const enabled = this.checkedChildrenCount(item) === enabledChildren;
-                this.checkedParents = this[enabled ? 'add' : 'remove'](this.checkedParents, item.value);
+                this.checkedParents = this[enabled ? "add" : "remove"](this.checkedParents, item.value);
                 this.$root.querySelector(`[data-id="${item.value}"][data-parent-id="${item.value}"] input[type="checkbox"]`).checked = enabled;
-                
+
             });
         },
         parentDisabled(parent) {
             return parent.children.filter(child => child.disabled !== true).length === 0;
+        },
+        ...selectFunctions,
+        toggleDropdown() {
+            if (this.multiSelectOpen) return this.closeDropdown();
+            this.openDropdown();
+        },
+        openDropdown() {
+            this.multiSelectOpen = true;
+        },
+        closeDropdown() {
+            this.multiSelectOpen = false;
         }
     }));
+    Alpine.data("singleSelect", (containerId, entangleValue = null) => ({
+        containerId,
+        entangleValue: entangleValue ?? null,
+        baseValue: null,
+        singleSelectOpen: false,
+        selectedText: null,
+        ...selectFunctions,
+        init() {
+            this.selectedText = this.$root.querySelector("span.selected").dataset.selectText;
+            this.setActiveStartingValue();
 
+            this.$watch("singleSelectOpen", value => {
+                if (value) this.handleDropdownLocation();
+            });
+        },
+        get value() {
+            return this.entangleValue ?? this.baseValue;
+        },
+        set value(newValue) {
+            if (this.entangleValue !== undefined) {
+                this.entangleValue = newValue;
+            } else {
+                this.baseValue = newValue;
+            }
+        },
+        active(value) {
+            return value === this.value?.toString();
+        },
+        activateSelect(element) {
+            const value = element.dataset.value,
+                label = element.dataset.label;
+            this.closeDropdown();
+            if (this.value === value) return;
+            this.value = value;
+            element.dispatchEvent(new Event("change", { bubbles: true }));
+            this.selectedText = label;
+        },
+        setActiveStartingValue() {
+            if (this.value === null) {
+                if (this.$root.getAttribute("x-model")) {
+                    this.value = this[this.$root.getAttribute("x-model")];
+                }
+            }
+
+            if (this.value !== null) {
+                const option = this.$root.querySelector(`[data-value="${this.value}"]`);
+                if (!option) {
+                    console.warn("Incorrect value specified in selectbox.");
+                    return;
+                }
+                this.selectedText = option.dataset.label;
+            }
+        },
+        toggleDropdown() {
+            if (this.singleSelectOpen) return this.closeDropdown();
+            this.openDropdown();
+        },
+        openDropdown() {
+            this.singleSelectOpen = true;
+        },
+        closeDropdown() {
+            this.singleSelectOpen = false;
+        }
+
+    }));
     Alpine.data('questionBank', (openTab, inGroup, inTestBankContext) => ({
         questionBankOpenTab: openTab,
         inGroup: inGroup,
@@ -3467,17 +3555,17 @@ document.addEventListener("alpine:init", () => {
         maxHeight: 'calc(100vh - var(--header-height))',
         init() {
             this.groupDetail = this.$el.querySelector('#groupdetail');
-        
+
             this.$watch('showBank', value => {
                 if (value === 'questions') {
                     this.$wire.loadSharedFilters();
                 }
             });
-        
+
             this.$watch('$store.questionBank.inGroup', value => {
                 this.inGroup = value;
             });
-        
+
             this.$watch('$store.questionBank.active', value => {
                 if (value) {
                     this.$wire.setAddedQuestionIdsArray();
@@ -3485,7 +3573,7 @@ document.addEventListener("alpine:init", () => {
                     this.closeGroupDetailQb();
                 }
             });
-        
+
             this.showGroupDetailsQb = async (groupQuestionUuid, inTest = false) => {
                 let readyForSlide = await this.$wire.showGroupDetails(groupQuestionUuid, inTest);
 
@@ -3498,7 +3586,7 @@ document.addEventListener("alpine:init", () => {
                     }
                     this.groupDetail.style.left = 0;
                     this.$refs['main-container'].scrollTo({top: 0, behavior: 'smooth'});
-                    this.$el.scrollTo({top: 0, behavior: 'smooth'});    
+                    this.$el.scrollTo({top: 0, behavior: 'smooth'});
                     this.$nextTick(() => {
                         setTimeout(() => {
                             this.bodyVisibility = false;
@@ -3511,7 +3599,7 @@ document.addEventListener("alpine:init", () => {
                     })
                 }
             };
-        
+
             this.closeGroupDetailQb = () => {
                 if (!this.bodyVisibility) {
                     this.bodyVisibility = true;
@@ -3531,7 +3619,7 @@ document.addEventListener("alpine:init", () => {
                     })
                 }
             };
-        
+
             this.addQuestionToTest = async (button, questionUuid, showQuestionBankAddConfirmation = false) => {
                 if (showQuestionBankAddConfirmation) {
                     return this.$wire.emit('openModal', 'teacher.add-sub-question-confirmation-modal', {questionUuid: questionUuid});
@@ -3545,6 +3633,7 @@ document.addEventListener("alpine:init", () => {
             };
         }
     }));
+
 
     Alpine.directive("global", function(el, { expression }) {
         let f = new Function("_", "$data", "_." + expression + " = $data;return;");
@@ -3623,3 +3712,15 @@ function getTitleForVideoUrl(videoUrl) {
             return null;
         });
 }
+
+const selectFunctions = {
+    handleDropdownLocation() {
+        const dropdown = this.$root.querySelector(".dropdown");
+        const top = this.$root.getBoundingClientRect().top
+            + this.$root.offsetHeight
+            + 16
+            + parseInt(dropdown.style.maxHeight);
+        const property = top >= screen.availHeight ? "bottom" : "top";
+        dropdown.style[property] = this.$root.offsetHeight + 8 + "px";
+    },
+};

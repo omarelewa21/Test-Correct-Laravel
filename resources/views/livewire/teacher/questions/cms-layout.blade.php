@@ -140,10 +140,10 @@
                             {{ __('lang.language') }}
                         </label>
                         <x-input.select wire:model="lang"
-                                @change="changeEditorWscLanguage($event.target.value);"
+                                @change="changeEditorWscLanguage($event.target.dataset.value);"
                         >
                             @foreach($this->wscLanguages as $key => $language)
-                                <option value="{{ $key }}">{{ $language }}</option>
+                                <x-input.option :value="$key" :label="$language"/>
                             @endforeach
                         </x-input.select>
                     </div>

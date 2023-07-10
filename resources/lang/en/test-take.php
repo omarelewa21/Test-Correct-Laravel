@@ -60,4 +60,6 @@ return [
     'toets URL gekopieerd'                                                                                                                             => 'test URL copied',
     'Geen studenten beschikbaar'                                                                                                                       => 'No students available',
     'Geen surveillanten beschikbaar'                                                                                                                   => 'No invigilators available',
+    'Al geselecteerd'                                                                                                                                  => 'Already selected',
+    'Selecteer...'                                                                                                                                     => 'Select...',
 ];

@@ -14,7 +14,7 @@
      x-on:add-question-to-test="addQuestionToTest($event.detail.button, $event.detail.questionUuid, $event.detail.showQuestionBankAddConfirmation)"
      wire:ignore.self
 >
-    <x-menu.tab.container>
+    <x-menu.tab.container class="bg-lightGrey">
         <x-menu.tab.allowed-content-sources :content-sources="$allowedTabs"
                                             menu="questionBankOpenTab"
         ></x-menu.tab.allowed-content-sources>

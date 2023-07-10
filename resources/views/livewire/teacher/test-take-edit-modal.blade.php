@@ -37,18 +37,17 @@
                     <x-input.group class="flex flex-1" label="{{ __('teacher.Periode') }}">
                         <x-input.select class="w-full" wire:model="testTake.period_id">
                             @foreach($allowedPeriods as $period)
-                                <option value="{{ $period->uuid }}">{{ $period->name }}</option>
+                                <x-input.option :value="$period->id" :label="$period->name" />
                             @endforeach
                         </x-input.select>
                     </x-input.group>
 
                     <x-input.group class="flex" label="{{ __('teacher.Weging') }}">
-                        <input
-                                type="text"
-                                style="max-width: 100px"
-                                class=" form-input @error('testTake.weight') border-red @enderror"
-                                wire:model="testTake.weight"
-                                autocomplete="off"
+                        <input type="number"
+                               style="max-width: 100px"
+                               class=" form-input @error('testTake.weight') border-red @enderror"
+                               wire:model="testTake.weight"
+                               autocomplete="off"
                         ></x-input.group>
                 </div>
             </div>
@@ -59,6 +58,7 @@
                                                containerId="c_and_s_edit-container-{{ $this->testTake->uuid }}"
                                                :label="__('teacher.Klassen en studenten')"
                                                wire:model.defer="classesAndStudents"
+                                               :item-labels="['child_disabled' => __('test-take.Already selected')]"
                 />
                 <div id="c_and_s_edit-container-{{ $this->testTake->uuid }}"
                      class="flex gap-2 flex-wrap"
@@ -141,7 +141,7 @@
                           wire:target="save"
                           wire:click="save"
             >
-                <x-icon.checkmark/>
+                <x-icon.checkmark />
                 <span>@lang('test-take.Wijzig instellingen')</span>
             </x-button.cta>
         </div>

@@ -24,6 +24,7 @@
     <x-button.icon
             wire:click="$emit('openModal','teacher.test-take-edit-modal', {testTake: '{{ $this->testTake->uuid }}' })"
             class="order-3"
+            title="{{ __('teacher.Toets instellingen') }}"
     >
         <x-icon.settings />
     </x-button.icon>
@@ -57,13 +58,10 @@
                              wire:key="participant-{{ $participant->uuid }}-@js($participant->present)"
                         >
                             <span>{{ $participant->name }}</span>
-                            @if($participant->present)
-                                <x-icon.close-small />
-                            @else
-                                <x-icon.close-small wire:click="removeParticipant('{{ $participant->uuid }}')"
-                                                    x-on:click="$el.parentElement.style.opacity = '75%'"
-                                />
-                            @endif
+                            <x-icon.close-small class="!text-sysbase"
+                                                wire:click="removeParticipant('{{ $participant->uuid }}')"
+                                                x-on:click="$el.parentElement.style.opacity = '75%'"
+                            />
                         </div>
                     @empty
                         <span>@lang('test-take.Geen studenten beschikbaar')</span>
@@ -88,10 +86,10 @@
         >
             <div class="flex w-full relative flex-wrap gap-2">
                 @forelse($this->invigilatorUsers as $invigilatorUser)
-                    <div class="filter-pill px-4 gap-2 h-10 disabled transition-opacity"
+                    <div class="filter-pill px-4 gap-2 h-10 enabled transition-opacity"
                          wire:key="invigilator-{{ $invigilatorUser->uuid }}"
                     >
-                        <span class="text-sysbase">{{ $invigilatorUser->getFullNameWithAbbreviatedFirstName() }}</span>
+                        <span>{{ $invigilatorUser->getFullNameWithAbbreviatedFirstName() }}</span>
                         <x-icon.close-small class="!cursor-pointer"
                                             x-on:click="$el.parentElement.style.opacity = '75%'"
                                             wire:click="removeInvigilator('{{ $invigilatorUser->invigilator_uuid }}')"

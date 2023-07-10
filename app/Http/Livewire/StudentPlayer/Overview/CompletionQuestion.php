@@ -15,28 +15,15 @@ class CompletionQuestion extends AbstractCompletionQuestion
     public $answered;
     public $searchPattern = "/\[([0-9]+)\]/i";
 
-    public function mount()
+    public function mount(): void
     {
         $this->answer = (array)json_decode($this->answers[$this->question->uuid]['answer']);
-        foreach ($this->answer as $key => $val) {
-            $this->answer[$key] = BaseHelper::transformHtmlCharsReverse($val, false);
-        }
-    }
-
-    protected function multiHelper($createOptionCallback = null)
-    {
-        return parent::multiHelper(function ($matches, $answers) {
-            return sprintf(
-                '<select wire:model="answer.%s" class="form-input text-base disabled max-w-full overflow-ellipsis overflow-hidden" selid="testtake-select" disabled>%s</select>',
-                $matches[1],
-                $this->getOptions($answers)
-            );
-        });
+        parent::mount();
     }
 
     public function render()
     {
-        return view('livewire.student-player.overview.completion-question', ['html' => $this->getHtml()]);
+        return view('livewire.student-player.overview.completion-question');
     }
 
     public function isQuestionFullyAnswered(): bool

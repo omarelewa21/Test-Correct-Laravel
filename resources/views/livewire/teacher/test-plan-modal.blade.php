@@ -37,7 +37,7 @@
                         <x-input.group class="flex flex-1" label="{{ __('teacher.Periode') }}">
                             <x-input.select class="w-full" wire:model="request.period_id">
                                 @foreach($allowedPeriods as $period)
-                                    <option value="{{ $period->uuid }}">{{ $period->name }}</option>
+                                    <x-input.option :value="$period->id" :label="$period->name"/>
                                 @endforeach
                             </x-input.select>
                         </x-input.group>

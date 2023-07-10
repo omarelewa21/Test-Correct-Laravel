@@ -1082,8 +1082,8 @@ button.cta-button:disabled, a.cta-button:disabled {
 }
 
 label {
-    font-family: Nunito;
     font-weight: normal;
+    transition: color 150ms ease-in-out, font-weight 150ms ease-in-out;
 }
 
 input {
@@ -1091,15 +1091,18 @@ input {
     font-weight: normal;
 }
 
-.input-group:hover input {
+.input-group:hover input,
+.input-group label {
     transition: ease-in-out 150ms;
 }
 
-input:focus + label, textarea:focus + label, select:focus + label {
-    font-family: Nunito;
+input:not(:disabled, .disabled):hover + label, textarea:not(:disabled, .disabled):hover + label, .select:not(:disabled, .disabled):hover + label {
+    color: var(--primary);
+}
+
+input:focus + label, textarea:focus + label, .select[aria-expanded="true"] + label {
     font-weight: bold;
     color: var(--primary);
-    transition: 150ms ease-in-out;
 }
 
 .other-input {
@@ -1661,11 +1664,13 @@ input[type=number] {
     align-items: center;
 }
 
-.checkbox-disabled .checkbox-container:is(:active, :hover, :focus) input ~ .checkmark {
+.checkbox-disabled .checkbox-container:is(:active, :hover, :focus) input:not(:checked) ~ .checkmark {
     background-color: rgba(var(--system-secondary-rgb), 0.5);
     border: 1px solid var(--blue-grey);
 }
 
+.group\/parent:hover :not(.checkbox-disabled) .checkbox-container input ~ .checkmark,
+.group\/child:hover:not(.checkbox-disabled) .checkbox-container input ~ .checkmark,
 .checkbox-container:hover input ~ .checkmark {
     border-color: var(--primary);
 }
@@ -1689,8 +1694,15 @@ input[type=number] {
     display: block;
 }
 
-.checkbox-container .checkmark > svg {
+.multi-dropdown-select:hover {
+    transition: color 150ms ease-in-out;
+}
+.multi-dropdown-select:hover .dropdown-label {
+    color: var(--primary);
+}
 
+.flatpickr:hover + label {
+    color: var(--primary);
 }
 .primary-gradient {
     background: linear-gradient(to right, var(--primary) 0%, var(--teacher-primary-light) 100%);
@@ -4387,14 +4399,15 @@ input[type=number] {
 
 .filter-pill > svg {
     display: flex;
-    color: var(--mid-grey);
+    color: var(--system-base);
     cursor: pointer;
 }
 .filter-pill.enabled > svg {
+    color: var(--system-base);
     cursor: default;
 }
 .filter-pill.disabled > svg {
-    color: var(--system-base);
+    color: var(--mid-grey);
 }
 
 .has-error > .custom-choices {
@@ -9924,6 +9937,9 @@ video {
 .top-\[var\(--header-height\)\]{
   top: var(--header-height);
 }
+.top-px{
+  top: 1px;
+}
 .isolate{
   isolation: isolate;
 }
@@ -10558,6 +10574,10 @@ video {
 .\!w-4{
   width: 1rem !important;
 }
+.\!w-fit{
+  width: -moz-fit-content !important;
+  width: fit-content !important;
+}
 .w-0{
   width: 0px;
 }
@@ -10660,6 +10680,9 @@ video {
 .w-\[170px\]{
   width: 170px;
 }
+.w-\[200px\]{
+  width: 200px;
+}
 .w-\[22px\]{
   width: 22px;
 }
@@ -10749,6 +10772,9 @@ video {
 }
 .min-w-\[125px\]{
   min-width: 125px;
+}
+.min-w-\[150px\]{
+  min-width: 150px;
 }
 .min-w-\[15rem\]{
   min-width: 15rem;
@@ -11495,9 +11521,6 @@ video {
 .rounded-tr-md{
   border-top-right-radius: 0.375rem;
 }
-.\!border{
-  border-width: 1px !important;
-}
 .\!border-0{
   border-width: 0px !important;
 }
@@ -12149,6 +12172,9 @@ video {
 .pr-0\.5{
   padding-right: 0.125rem;
 }
+.pr-1{
+  padding-right: 0.25rem;
+}
 .pr-10{
   padding-right: 2.5rem;
 }
@@ -12371,6 +12397,10 @@ video {
   --tw-text-opacity: 1 !important;
   color: rgb(0 77 245 / var(--tw-text-opacity)) !important;
 }
+.\!text-sysbase{
+  --tw-text-opacity: 1 !important;
+  color: rgb(4 31 116 / var(--tw-text-opacity)) !important;
+}
 .\!text-white{
   --tw-text-opacity: 1 !important;
   color: rgb(255 255 255 / var(--tw-text-opacity)) !important;
@@ -12519,6 +12549,9 @@ video {
 .opacity-50{
   opacity: 0.5;
 }
+.opacity-60{
+  opacity: 0.6;
+}
 .opacity-75{
   opacity: 0.75;
 }
@@ -12581,6 +12614,11 @@ video {
   transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, -webkit-backdrop-filter;
   transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
   transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, -webkit-backdrop-filter;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+.transition-\[background-color\]{
+  transition-property: background-color;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
 }
@@ -13663,14 +13701,14 @@ ul ul ul {
   text-decoration-line: underline;
 }
 
-.focus\:placeholder-primary:focus::-moz-placeholder{
+.focus\:placeholder-note:focus::-moz-placeholder{
   --tw-placeholder-opacity: 1;
-  color: rgb(0 77 245 / var(--tw-placeholder-opacity));
+  color: rgb(107 119 137 / var(--tw-placeholder-opacity));
 }
 
-.focus\:placeholder-primary:focus::placeholder{
+.focus\:placeholder-note:focus::placeholder{
   --tw-placeholder-opacity: 1;
-  color: rgb(0 77 245 / var(--tw-placeholder-opacity));
+  color: rgb(107 119 137 / var(--tw-placeholder-opacity));
 }
 
 .focus\:outline-none:focus{
@@ -13736,6 +13774,10 @@ ul ul ul {
   border-color: rgb(0 77 245 / var(--tw-border-opacity));
 }
 
+.group\/chevron:hover .group-hover\/chevron\:bg-primary\/5{
+  background-color: rgb(0 77 245 / 0.05);
+}
+
 .group:hover .group-hover\:bg-primary{
   --tw-bg-opacity: 1;
   background-color: rgb(0 77 245 / var(--tw-bg-opacity));
@@ -13743,6 +13785,11 @@ ul ul ul {
 
 .group:hover .group-hover\:bg-primary\/5{
   background-color: rgb(0 77 245 / 0.05);
+}
+
+.group\/select:hover .group-hover\/select\:text-primary{
+  --tw-text-opacity: 1;
+  color: rgb(0 77 245 / var(--tw-text-opacity));
 }
 
 .group:hover .group-hover\:text-primary{
@@ -13760,6 +13807,11 @@ ul ul ul {
 
 .group:hover .group-hover\:opacity-\[0\.05\]{
   opacity: 0.05;
+}
+
+.group\/row:hover .group-hover\/row\:hover\:text-primary:hover{
+  --tw-text-opacity: 1;
+  color: rgb(0 77 245 / var(--tw-text-opacity));
 }
 
 .group:focus .group-focus\:border{

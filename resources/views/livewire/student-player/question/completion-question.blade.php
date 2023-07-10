@@ -6,9 +6,27 @@
          id="completion_{{ $question->id }}"
     >
         <div questionHtml wire:ignore>
-            <x-input.group class="body1 max-w-full flex-col questionhtml" for="">
-                {!! $html !!}
-            </x-input.group>
+            <div class="flex flex-wrap co-learning-completion">
+                @if($this->question->isSubType('multi'))
+                    <div class="flex flex-wrap items-center">
+                        @foreach($questionTextPartials as $answerIndex => $textPartialArray)
+                            @foreach($textPartialArray as $textPartial){{--
+                        --}}{!!$textPartial!!}{{-- Do not format this file. It causes unfixable/unwanted whitespaces.
+                    --}}@endforeach
+                            <x-input.select class="!w-fit mb-1 mr-1 text-base" wire:model="answer.{{ $answerIndex }}">
+                                @foreach($options[$answerIndex + 1] as $key => $option)
+                                    <x-input.option :value="$key" :label="$option" />
+                                @endforeach
+                            </x-input.select>
+                        @endforeach
+                        @foreach($questionTextPartialFinal as $textPartial){{--
+                    --}}{!!$textPartial!!}{{--
+                 --}}@endforeach
+                    </div>
+                @else
+                    <x-completion-question-converted-html :question="$this->question"/>
+                @endif
+            </div>
             <div wire:ignore class="rspopup_tlc hidden rsbtn_popup_tlc_{{$question->id}}"  ><div class="rspopup_play rspopup_btn rs_skip" role="button" tabindex="0" aria-label="Lees voor" data-rslang="title/arialabel:listen" data-rsevent-id="rs_340375" title="Lees voor"></div></div>
         </div>
         @push('scripts')
