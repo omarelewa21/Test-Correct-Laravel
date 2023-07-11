@@ -3,7 +3,7 @@
 @endphp
 <span id="{{ $containerId }}"
      @class([
-         'select | inline-flex relative min-w-[150px] w-full w-auto h-10 rounded-lg border bg-offwhite items-center pl-4 pr-10 cursor-pointer group/select hover:border-primary transition-colors select-none',
+         'single-select | inline-flex relative min-w-[150px] w-full w-auto h-10 rounded-lg border bg-offwhite items-center pl-4 pr-10 cursor-pointer group/select hover:border-primary transition-colors select-none',
          $attributes->get('class'),
          'border-bluegrey' => !$error,
          'border-allred' => $error,

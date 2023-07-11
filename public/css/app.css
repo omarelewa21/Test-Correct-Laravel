@@ -1096,11 +1096,11 @@ input {
     transition: ease-in-out 150ms;
 }
 
-input:not(:disabled, .disabled):hover + label, textarea:not(:disabled, .disabled):hover + label, .select:not(:disabled, .disabled):hover + label {
+input:not(:disabled, .disabled):hover + label, textarea:not(:disabled, .disabled):hover + label, .single-select:not(:disabled, .disabled):hover + label {
     color: var(--primary);
 }
 
-input:focus + label, textarea:focus + label, .select[aria-expanded="true"] + label {
+input:focus + label, textarea:focus + label, .single-select[aria-expanded="true"] + label {
     font-weight: bold;
     color: var(--primary);
 }
@@ -1697,12 +1697,17 @@ input[type=number] {
 .multi-dropdown-select:hover {
     transition: color 150ms ease-in-out;
 }
+
 .multi-dropdown-select:hover .dropdown-label {
     color: var(--primary);
 }
 
 .flatpickr:hover + label {
     color: var(--primary);
+}
+
+.single-select .dropdown {
+    -ms-overflow-style: none;
 }
 .primary-gradient {
     background: linear-gradient(to right, var(--primary) 0%, var(--teacher-primary-light) 100%);
