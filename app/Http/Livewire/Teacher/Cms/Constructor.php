@@ -115,6 +115,8 @@ class Constructor extends TCComponent implements QuestionCms
     public $wscLanguages;
     public const SETTING_LANG = 'spellchecker language';
 
+    public const ALLOWED_QUESTION_PROPERTIES_TO_UPDATE = ['question'];
+
     protected $tags = [];
 
     public $testIsPublished;
@@ -1057,7 +1059,9 @@ class Constructor extends TCComponent implements QuestionCms
 
     public function setQuestionProperty($property, $value)
     {
-        $this->question[$property] = $value;
+        if(in_array($property,self::ALLOWED_QUESTION_PROPERTIES_TO_UPDATE)) {
+            $this->question[$property] = $value;
+        }
     }
 
     public function showQuestion($args)
