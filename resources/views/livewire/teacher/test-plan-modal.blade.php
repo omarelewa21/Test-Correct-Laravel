@@ -170,7 +170,7 @@
                 {{--                    <span>{{__('teacher.Volgende Inplannen')}}</span>--}}
                 {{--                    <x-icon.chevron/>--}}
                 {{--                </x-button.primary>--}}
-                <x-button.cta size="sm" wire:click="planNext" selid="plan-modal-plan-btn"  wire:loading.attr="disabled" onClick='this.disabled = true;' wire:target="planNext">
+                <x-button.cta size="sm" wire:click="planNext" selid="plan-modal-plan-btn"  wire:loading.attr="disabled" onClick="this.disabled = true;" wire:target="planNext" onDblClick="return false">
                     <x-icon.checkmark wire:loading.remove wire:target="planNext"/>
                     <span wire:loading.remove wire:target="planNext">{{__('teacher.Inplannen')}}</span>
                     <span wire:loading wire:target="planNext">{{ __('cms.one_moment_please') }}</span>

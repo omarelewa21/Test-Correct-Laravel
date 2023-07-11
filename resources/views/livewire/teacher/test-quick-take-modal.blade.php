@@ -89,7 +89,7 @@
                 <span>{{ __("teacher.Annuleer") }}</span>
             </x-button.text-button>
 
-            <x-button.cta wire:click="plan" size="sm" wire:loading.attr="disabled" wire:target="plan" onClick='this.disabled = true;'>
+            <x-button.cta wire:click="plan" size="sm" wire:loading.attr="disabled" wire:target="plan" onClick="this.disabled = true;" onDblClick="return false">
                 <x-icon.checkmark  wire:loading.remove wire:target="plan"/>
                 <span wire:loading.remove wire:target="plan">{{ __("regular-staff.Toets afnemen") }}</span>
                 <span wire:loading wire:target="plan">{{ __('cms.one_moment_please') }}</span>
