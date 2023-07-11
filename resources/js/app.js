@@ -326,9 +326,9 @@ debug = function (seconds = 2) {
         debugger;
     }, seconds * 1000);
 }
-
+_smoothscroll_timeout = null;
 smoothScroll = function smoothScroll(scrollContainer, offsetTop = 0, offsetLeft = 0) {
-    scrollContainer.scrollTo({
+    scrollContainer.scroll({
         top: offsetTop,
         left: offsetLeft,
         behavior: 'smooth'

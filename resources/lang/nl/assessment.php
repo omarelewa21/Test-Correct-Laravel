@@ -48,5 +48,5 @@ return [
     'Feedback schrijven'                           => 'Feedback schrijven',
     'scored_by_one_student'                        => 'Let op: gescoord door één student.',
     'emoji invoegen'                               => 'Emoji invoegen',
-    'tekst markeren'                               => 'Tekst Markeren',
+    'tekst markeren'                               => 'Tekst markeren',
 ];
