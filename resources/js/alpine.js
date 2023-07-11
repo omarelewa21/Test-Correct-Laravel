@@ -2644,6 +2644,7 @@ document.addEventListener("alpine:init", () => {
                 return;
             }
             this.setFocusTracking();
+            this.createFocusableButtons();
 
             document.addEventListener('comment-color-updated', async (event) => {
                 let styleTagElement = document.querySelector('#temporaryCommentMarkerStyles');
@@ -2669,8 +2670,9 @@ document.addEventListener("alpine:init", () => {
                 }
             });
 
-            document.addEventListener('new-comment-color-updated', (event) => this.updateNewCommentMarkerStyles(event?.detail?.color));
-
+            window.addEventListener('new-comment-color-updated',
+                (event) => this.updateNewCommentMarkerStyles(event?.detail?.color)
+            );
 
             document.addEventListener('mousedown', (e) => {
                 if(this.activeComment === null) {
@@ -2980,12 +2982,7 @@ document.addEventListener("alpine:init", () => {
                     const answerEditor = ClassicEditors[this.answerEditorId];
                     const feedbackEditor = ClassicEditors[this.feedbackEditorId];
 
-                    const feedbackEditorSaveButton = document.querySelector('#' + this.feedbackEditorId + '-save');
-                    const feedbackEditorCancelButton = document.querySelector('#' + this.feedbackEditorId + '-cancel');
-
                     answerEditor.ui.focusTracker.add( feedbackEditor.sourceElement.parentElement.querySelector('.ck.ck-content') );
-                    answerEditor.ui.focusTracker.add( feedbackEditorSaveButton );
-                    answerEditor.ui.focusTracker.add( feedbackEditorCancelButton );
 
                     //keep focus when clicking on the emoji and color pickers
                     document.querySelectorAll('.answer-feedback-add-comment .emoji-picker-radio, .answer-feedback-add-comment .color-picker-radio input').forEach((element) => {
@@ -2998,8 +2995,7 @@ document.addEventListener("alpine:init", () => {
                     })
 
                     feedbackEditor.ui.focusTracker.add( answerEditor.sourceElement.parentElement.querySelector('.ck.ck-content') );
-                    feedbackEditor.ui.focusTracker.add( feedbackEditorSaveButton );
-                    feedbackEditor.ui.focusTracker.add( feedbackEditorCancelButton );
+
                 } catch (exception) {
                     // ignore focusTracker error when trying to add element that is already registered
                     // there is no way to preventively check if the element is already registered
@@ -3015,6 +3011,77 @@ document.addEventListener("alpine:init", () => {
         },
         get feedbackEditor() {
             return ClassicEditors[this.feedbackEditorId];
+        },
+        createFocusableButtons() {
+            setTimeout(() => {
+                try {
+                    const answerEditor = ClassicEditors[this.answerEditorId];
+                    const buttonWrapper = document.querySelector('#saveNewFeedbackButtonWrapper');
+
+                    if(buttonWrapper.children.length > 0) {
+                        return;
+                    }
+
+                    //text cancel button:
+                    const textCancelButton = new window.CkEditorButtonView(new window.CkEditorLocale('nl'));
+                    textCancelButton.set({
+                        label: buttonWrapper.dataset.cancelTranslation,
+                        classList: 'text-button button-sm',
+                        eventName: 'cancel',
+                    });
+                    textCancelButton.render();
+
+                    answerEditor.ui.focusTracker.add(textCancelButton.element);
+                    buttonWrapper.appendChild(textCancelButton.element);
+
+                    //CTA save button:
+                    const saveButtonCta = new window.CkEditorButtonView(new window.CkEditorLocale('nl'));
+                    saveButtonCta.set({
+                        label: buttonWrapper.dataset.saveTranslation,
+                        classList: 'cta-button button-sm',
+                        eventName: 'save',
+                    });
+                    saveButtonCta.render();
+
+                    answerEditor.ui.focusTracker.add(saveButtonCta.element);
+                    buttonWrapper.appendChild(saveButtonCta.element);
+
+                } catch (exception) {
+                    //
+                }
+            }, 1000);
+        },
+        createCommentColorRadioButton(el, rgb, colorName, checked) {
+            const answerEditor = ClassicEditors[this.answerEditorId];
+
+            const radiobutton = new window.CkEditorRadioWithColorView(new window.CkEditorLocale('nl'));
+            radiobutton.set({
+                rgb: rgb.replace('rgba(', '').replace(',0.4)',''),
+                colorName: colorName,
+            });
+            radiobutton.render();
+
+            answerEditor.ui.focusTracker.add(radiobutton.element);
+
+            el.appendChild(radiobutton.element)
+
+            radiobutton.element.querySelector('input').checked = checked;
+
+        },
+        createCommentIconRadioButton(el, iconName, emojiValue, checked) {
+            const answerEditor = ClassicEditors[this.answerEditorId];
+
+            const radiobuttonIcon = new window.CkEditorRadioWithIconView(new window.CkEditorLocale('nl'));
+            radiobuttonIcon.set({
+                iconName: iconName,
+                emojiValue: emojiValue,
+            });
+            radiobuttonIcon.render();
+            el.appendChild(radiobuttonIcon.element)
+
+            radiobuttonIcon.element.querySelector('span').appendChild(
+                document.importNode(el.querySelector('template').content, true)
+            );
         },
         setEditingComment (AnswerFeedbackUuid) {
             this.activeComment = null;

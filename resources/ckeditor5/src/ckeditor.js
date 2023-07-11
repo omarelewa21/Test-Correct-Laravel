@@ -43,9 +43,15 @@ import WProofreader from "@webspellchecker/wproofreader-ckeditor5/src/wproofread
 import PasteFromOffice from "@ckeditor/ckeditor5-paste-from-office/src/pastefromoffice";
 import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
 import ButtonView from '@ckeditor/ckeditor5-ui/src/button/buttonview';
+import {View} from "@ckeditor/ckeditor5-ui";
 import SelectAll from "@ckeditor/ckeditor5-select-all/src/selectall.js";
+window.buttonView = ButtonView;
+import Locale from '@ckeditor/ckeditor5-utils/src/locale';
 
 import Comments from '@ckeditor/ckeditor5-comments/src/comments';
+import CkEditorRadioWithColor from "../../js/CkEditorRadioInputWithColorView";
+import CkEditorRadioWithIcon from "../../js/CkEditorRadioInputWithIconView";
+import CkEditor5Button from "../../js/CkEditorButtonView";
 
 class Completion extends Plugin {
     init() {
@@ -104,6 +110,12 @@ class Selection extends Plugin {
 
     }
 }
+
+//ckeditor comments plugin buttons and radio inputs
+window.CkEditorLocale = Locale;
+window.CkEditorButtonView = CkEditor5Button;
+window.CkEditorRadioWithColorView = CkEditorRadioWithColor;
+window.CkEditorRadioWithIconView = CkEditorRadioWithIcon;
 
 function SpecialCharactersTLC(editor) {
     editor.plugins.get('SpecialCharacters').addItems('Vreemde tekens', [
@@ -181,7 +193,6 @@ Editor.builtinPlugins = [
 
 // Editor configuration.
 Editor.defaultConfig = {
-    licenseKey: window.MIX_CKEDITOR_LICENSE_KEY,
     toolbar: {
         items: [
             'completion',

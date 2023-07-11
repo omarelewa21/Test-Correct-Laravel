@@ -16,7 +16,7 @@
         <g transform="translate(-1158.000000, -314.000000)">
             <g transform="translate(1125.000000, 70.000000)">
                 <g transform="translate(23.000000, 126.000000)">
-                    <g transform="translate(0.000000, 41.000000)" filter="url(#filter-1)">
+                    <g transform="translate(0.000000, 41.000000)">
                         <g transform="translate(16.000000, 50.000000)">
                             <g transform="translate(0.000000, 29.000000)">
                                 <g transform="translate(0.000000, 4.000000)">

@@ -122,6 +122,8 @@ RichTextEditor = {
         );
     },
     initAnswerEditorWithComments: function(parameterBag) {
+        parameterBag.enableCommentsPlugin = true;
+
         return this.createStudentEditor(
             parameterBag,
             (editor) => {
@@ -256,6 +258,12 @@ RichTextEditor = {
             config.toolbar.removeItems.push("MathType", "ChemType", "specialCharacters");
         }
 
+        if(!parameterBag.enableCommentsPlugin) {
+            config.removePlugins.push("Comments");
+        } else {
+            config.licenseKey = process.env.MIX_CKEDITOR_LICENSE_KEY;
+        }
+
         if (parameterBag.commentThreads != undefined) {
             config.extraPlugins = [ CommentsIntegration ];
 
@@ -340,6 +348,12 @@ RichTextEditor = {
         };
         if(parameterBag.toolbar) {
             config.toolbar.items = parameterBag.toolbar;
+        }
+
+        if(!parameterBag.enableCommentsPlugin) {
+            config.removePlugins.push("Comments");
+        } else {
+            config.licenseKey = process.env.MIX_CKEDITOR_LICENSE_KEY;
         }
 
         if (parameterBag.commentThreads != undefined) {

@@ -50,5 +50,5 @@ return [
     'disabled_nav_closed_question'                 => 'Dit is een gesloten vraag die automatisch wordt nagekeken.',
     'disabled_nav_no_answer'                       => 'Er zijn geen antwoorden beschikbaar voor deze vraag.',
     'emoji invoegen'                               => 'Emoji invoegen',
-    'tekst markeren'                               => 'Tekst Markeren',
+    'tekst markeren'                               => 'Tekst markeren',
 ];

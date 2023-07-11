@@ -9148,6 +9148,7 @@ document.addEventListener("alpine:init", function () {
                 return _context24.abrupt("return");
               case 3:
                 _this59.setFocusTracking();
+                _this59.createFocusableButtons();
                 document.addEventListener('comment-color-updated', /*#__PURE__*/function () {
                   var _ref4 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee22(event) {
                     var styleTagElement, colorWithOpacity, color;
@@ -9191,7 +9192,7 @@ document.addEventListener("alpine:init", function () {
                     return _ref5.apply(this, arguments);
                   };
                 }());
-                document.addEventListener('new-comment-color-updated', function (event) {
+                window.addEventListener('new-comment-color-updated', function (event) {
                   var _event$detail;
                   return _this59.updateNewCommentMarkerStyles(event === null || event === void 0 ? void 0 : (_event$detail = event.detail) === null || _event$detail === void 0 ? void 0 : _event$detail.color);
                 });
@@ -9206,7 +9207,7 @@ document.addEventListener("alpine:init", function () {
                   _this59.clearActiveComment();
                 });
                 _this59.preventOpeningModalFromBreakingDrawer();
-              case 9:
+              case 10:
               case "end":
                 return _context24.stop();
             }
@@ -9541,11 +9542,7 @@ document.addEventListener("alpine:init", function () {
           try {
             var answerEditor = ClassicEditors[_this65.answerEditorId];
             var feedbackEditor = ClassicEditors[_this65.feedbackEditorId];
-            var feedbackEditorSaveButton = document.querySelector('#' + _this65.feedbackEditorId + '-save');
-            var feedbackEditorCancelButton = document.querySelector('#' + _this65.feedbackEditorId + '-cancel');
             answerEditor.ui.focusTracker.add(feedbackEditor.sourceElement.parentElement.querySelector('.ck.ck-content'));
-            answerEditor.ui.focusTracker.add(feedbackEditorSaveButton);
-            answerEditor.ui.focusTracker.add(feedbackEditorCancelButton);
 
             //keep focus when clicking on the emoji and color pickers
             document.querySelectorAll('.answer-feedback-add-comment .emoji-picker-radio, .answer-feedback-add-comment .color-picker-radio input').forEach(function (element) {
@@ -9557,8 +9554,6 @@ document.addEventListener("alpine:init", function () {
               feedbackEditor.ui.focusTracker.add(element);
             });
             feedbackEditor.ui.focusTracker.add(answerEditor.sourceElement.parentElement.querySelector('.ck.ck-content'));
-            feedbackEditor.ui.focusTracker.add(feedbackEditorSaveButton);
-            feedbackEditor.ui.focusTracker.add(feedbackEditorCancelButton);
           } catch (exception) {
             // ignore focusTracker error when trying to add element that is already registered
             // there is no way to preventively check if the element is already registered
@@ -9574,12 +9569,71 @@ document.addEventListener("alpine:init", function () {
       get feedbackEditor() {
         return ClassicEditors[this.feedbackEditorId];
       },
-      setEditingComment: function setEditingComment(AnswerFeedbackUuid) {
+      createFocusableButtons: function createFocusableButtons() {
         var _this66 = this;
+        setTimeout(function () {
+          try {
+            var answerEditor = ClassicEditors[_this66.answerEditorId];
+            var buttonWrapper = document.querySelector('#saveNewFeedbackButtonWrapper');
+            if (buttonWrapper.children.length > 0) {
+              return;
+            }
+
+            //text cancel button:
+            var textCancelButton = new window.CkEditorButtonView(new window.CkEditorLocale('nl'));
+            textCancelButton.set({
+              label: buttonWrapper.dataset.cancelTranslation,
+              classList: 'text-button button-sm',
+              eventName: 'cancel'
+            });
+            textCancelButton.render();
+            answerEditor.ui.focusTracker.add(textCancelButton.element);
+            buttonWrapper.appendChild(textCancelButton.element);
+
+            //CTA save button:
+            var saveButtonCta = new window.CkEditorButtonView(new window.CkEditorLocale('nl'));
+            saveButtonCta.set({
+              label: buttonWrapper.dataset.saveTranslation,
+              classList: 'cta-button button-sm',
+              eventName: 'save'
+            });
+            saveButtonCta.render();
+            answerEditor.ui.focusTracker.add(saveButtonCta.element);
+            buttonWrapper.appendChild(saveButtonCta.element);
+          } catch (exception) {
+            //
+          }
+        }, 1000);
+      },
+      createCommentColorRadioButton: function createCommentColorRadioButton(el, rgb, colorName, checked) {
+        var answerEditor = ClassicEditors[this.answerEditorId];
+        var radiobutton = new window.CkEditorRadioWithColorView(new window.CkEditorLocale('nl'));
+        radiobutton.set({
+          rgb: rgb.replace('rgba(', '').replace(',0.4)', ''),
+          colorName: colorName
+        });
+        radiobutton.render();
+        answerEditor.ui.focusTracker.add(radiobutton.element);
+        el.appendChild(radiobutton.element);
+        radiobutton.element.querySelector('input').checked = checked;
+      },
+      createCommentIconRadioButton: function createCommentIconRadioButton(el, iconName, emojiValue, checked) {
+        var answerEditor = ClassicEditors[this.answerEditorId];
+        var radiobuttonIcon = new window.CkEditorRadioWithIconView(new window.CkEditorLocale('nl'));
+        radiobuttonIcon.set({
+          iconName: iconName,
+          emojiValue: emojiValue
+        });
+        radiobuttonIcon.render();
+        el.appendChild(radiobuttonIcon.element);
+        radiobuttonIcon.element.querySelector('span').appendChild(document.importNode(el.querySelector('template').content, true));
+      },
+      setEditingComment: function setEditingComment(AnswerFeedbackUuid) {
+        var _this67 = this;
         this.activeComment = null;
         this.$store.answerFeedback.editingComment = AnswerFeedbackUuid !== null && AnswerFeedbackUuid !== void 0 ? AnswerFeedbackUuid : null;
         setTimeout(function () {
-          _this66.fixSlideHeightByIndex(2, AnswerFeedbackUuid);
+          _this67.fixSlideHeightByIndex(2, AnswerFeedbackUuid);
         }, 100);
       },
       toggleFeedbackAccordion: function toggleFeedbackAccordion(name) {
@@ -9644,7 +9698,7 @@ document.addEventListener("alpine:init", function () {
         this.setHeightToAspectRatio(this.$el);
       },
       setHeightToAspectRatio: function setHeightToAspectRatio(element) {
-        var _this67 = this;
+        var _this68 = this;
         var aspectRatioWidth = 940;
         var aspectRatioHeight = 500;
         var aspectRatio = aspectRatioHeight / aspectRatioWidth;
@@ -9657,7 +9711,7 @@ document.addEventListener("alpine:init", function () {
         if (newHeight <= 0) {
           if (this.currentTry <= this.maxTries) {
             setTimeout(function () {
-              return _this67.setHeightToAspectRatio(element);
+              return _this68.setHeightToAspectRatio(element);
             }, 50);
             this.currentTry++;
           }
@@ -9690,16 +9744,16 @@ document.addEventListener("alpine:init", function () {
       maxWords: maxWords,
       wordContainer: null,
       init: function init() {
-        var _this68 = this;
+        var _this69 = this;
         this.$nextTick(function () {
-          _this68.editor = ClassicEditors[editorId];
-          _this68.wordContainer = _this68.$root.querySelector(".ck-word-count__words");
-          _this68.wordContainer.style.display = "flex";
-          _this68.wordContainer.parentElement.style.display = "flex";
-          _this68.addMaxWordsToWordCounter(_this68.maxWords);
+          _this69.editor = ClassicEditors[editorId];
+          _this69.wordContainer = _this69.$root.querySelector(".ck-word-count__words");
+          _this69.wordContainer.style.display = "flex";
+          _this69.wordContainer.parentElement.style.display = "flex";
+          _this69.addMaxWordsToWordCounter(_this69.maxWords);
         });
         this.$watch("maxWords", function (value) {
-          _this68.addMaxWordsToWordCounter(value);
+          _this69.addMaxWordsToWordCounter(value);
         });
       },
       addMaxWordsToWordCounter: function addMaxWordsToWordCounter(value) {
@@ -10097,10 +10151,11 @@ debug = function debug() {
     debugger;
   }, seconds * 1000);
 };
+_smoothscroll_timeout = null;
 smoothScroll = function smoothScroll(scrollContainer) {
   var offsetTop = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
   var offsetLeft = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
-  scrollContainer.scrollTo({
+  scrollContainer.scroll({
     top: offsetTop,
     left: offsetLeft,
     behavior: 'smooth'
@@ -16964,6 +17019,7 @@ RichTextEditor = {
 
   initAnswerEditorWithComments: function initAnswerEditorWithComments(parameterBag) {
     var _this7 = this;
+    parameterBag.enableCommentsPlugin = true;
     return this.createStudentEditor(parameterBag, function (editor) {
       WebspellcheckerTlc.lang(editor, parameterBag.lang);
       _this7.setupWordCounter(editor, parameterBag);
@@ -17052,6 +17108,11 @@ RichTextEditor = {
       config.removePlugins.push("MathType", "ChemType", "SpecialCharactersTLC");
       config.toolbar.removeItems.push("MathType", "ChemType", "specialCharacters");
     }
+    if (!parameterBag.enableCommentsPlugin) {
+      config.removePlugins.push("Comments");
+    } else {
+      config.licenseKey = "q11N5LxlUjUp2pDthuTmPmy/+cmatL0lY7nh6aX+nhhODyekK1g8YW5CKA==";
+    }
     if (parameterBag.commentThreads != undefined) {
       config.extraPlugins = [CommentsIntegration];
       config.commentsIntegration = {
@@ -17120,6 +17181,11 @@ RichTextEditor = {
     };
     if (parameterBag.toolbar) {
       config.toolbar.items = parameterBag.toolbar;
+    }
+    if (!parameterBag.enableCommentsPlugin) {
+      config.removePlugins.push("Comments");
+    } else {
+      config.licenseKey = "q11N5LxlUjUp2pDthuTmPmy/+cmatL0lY7nh6aX+nhhODyekK1g8YW5CKA==";
     }
     if (parameterBag.commentThreads != undefined) {
       config.extraPlugins = [CommentsIntegration];

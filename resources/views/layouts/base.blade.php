@@ -11,7 +11,7 @@
 
 
     @livewireStyles
-    <link rel="stylesheet" href="{{ mix('/css/app.css') }}">
+    <link rel="stylesheet" href="{{ mix('/css/app.css') }}" id="app-css-stylesheet">
     @if(config('bugsnag.browser_key') != '')
         <script src="//d2wy8f7a9ursnm.cloudfront.net/v7/bugsnag.min.js"></script>
         <script>
@@ -27,6 +27,7 @@
 
 </head>
 <body id="body" class="ck-content flex flex-col min-h-screen">
+
 {{ $slot }}
 
 @livewireScripts
@@ -80,6 +81,22 @@
     Livewire.hook('message.processed', (message, component) => {
         window.processingRequest = false
     });
+</script>
+<script>
+    {{-- Place custom styles at the end of the head to overload default ckeditor styling --}}
+    var loadDeferredStyles = function() {
+        document.querySelector('head').appendChild(document.querySelector('#app-css-stylesheet'))
+    };
+    var raf = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
+        window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
+    if (raf) {
+        raf(function () {
+            window.setTimeout(loadDeferredStyles, 0);
+        });
+    }
+    else {
+        window.addEventListener('load', loadDeferredStyles);
+    }
 </script>
 </body>
 </html>

@@ -18,6 +18,7 @@ class CommentEmojiPicker extends Component
         public string $uuid,
         public CommentEmoji|string|null $value = null,
         public bool $newComment = false,
+        public bool $useCkEditorView = false,
     )
     {
         if(is_string($this->value)) {

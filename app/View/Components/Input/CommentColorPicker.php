@@ -18,6 +18,7 @@ class CommentColorPicker extends Component
         public ?string $commentThreadId = '',
         public string $uuid,
         public CommentMarkerColor|string|null $value = null,
+        public bool $useCkEditorView = false,
     )
     {
         if(is_string($this->value)) {

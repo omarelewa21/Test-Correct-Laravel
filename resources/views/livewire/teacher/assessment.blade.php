@@ -240,6 +240,7 @@
                                     <x-input.comment-color-picker
                                             commentThreadId="new-comment"
                                             uuid="new-comment"
+                                            :useCkEditorView="true"
                                     ></x-input.comment-color-picker>
 
 
@@ -247,23 +248,21 @@
                                             commentThreadId="new-comment"
                                             uuid="new-comment"
                                             :new-comment="true"
+                                            :useCkEditorView="true"
                                     ></x-input.comment-emoji-picker>
 
                                     <span>@lang('assessment.Feedback schrijven')</span>
                                     <x-input.rich-textarea type="create-answer-feedback"
                                                            :editorId="'feedback-editor-'. $this->questionNavigationValue.'-'.$this->answerNavigationValue"
                                     />
-                                    <div class="flex justify-end space-x-4 h-fit">
-                                        <x-button.text-button size="sm"
-                                                              @click="resetAddNewAnswerFeedback(true)"
-                                                              :id="'feedback-editor-'. $this->questionNavigationValue.'-'.$this->answerNavigationValue.'-cancel'">
-                                            <span>@lang('modal.annuleren')</span>
-                                        </x-button.text-button>
-                                        <x-button.cta class="block"
-                                                      @click="createCommentThread"
-                                                      :id="'feedback-editor-'. $this->questionNavigationValue.'-'.$this->answerNavigationValue.'-save'">
-                                            <span>@lang('general.save')</span>
-                                        </x-button.cta>
+                                    <div class="flex justify-end space-x-4 h-fit mt-2 mb-2"
+                                         x-on:button-cancel-clicked="resetAddNewAnswerFeedback(true)"
+                                         x-on:button-save-clicked="createCommentThread"
+                                         wire:ignore
+                                         id="saveNewFeedbackButtonWrapper"
+                                         data-save-translation="@lang('general.save')"
+                                         data-cancel-translation="@lang('modal.annuleren')"
+                                    > {{-- filled by javascript with Ckeditor view components, cancel and save button --}}
                                     </div>
                                 @else
                                     <span>@lang('assessment.Feedback schrijven')</span>
