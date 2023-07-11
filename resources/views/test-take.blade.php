@@ -17,7 +17,7 @@
                 </style>
             @endpush
             @foreach($data as  $key => $testQuestion)
-                <div selid="testtake-question">
+                <div selid="testtake-question" class="test-take-question-{{ $key + 1 }}">
                     @if($testQuestion->type === 'MultipleChoiceQuestion' && $testQuestion->selectable_answers > 1 && $testQuestion->subtype != 'ARQ')
                         <livewire:student-player.question.multiple-select-question
                             :question="$testQuestion"
