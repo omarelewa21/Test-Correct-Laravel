@@ -2650,12 +2650,77 @@ document.addEventListener("alpine:init", () => {
             });
         }
     }));
+    Alpine.data("studentPlayerQuestionContainer", (number, questionId, reinitializedTimeoutData) => ({
+        showMe: false,
+        progressBar: false,
+        startTime: 0,
+        endTime: 1,
+        progress: 0,
+        number,
+        questionId,
+        reinitializedTimeoutData,
+        init() {
+            this.$watch("showMe", (value) => {
+                if (value) {
+                    this.$dispatch("visible-component", { el: this.$el });
+                    this.$dispatch("reinitialize-editor-editor-");
+                }
+            });
+            if (this.reinitializedTimeoutData && this.reinitializedTimeoutData.length) {
+                this.$nextTick(() => {
+                    this.startTimeout(this.reinitializedTimeoutData)
+                });
+            }
+        },
+        currentUpdated(current) {
+            this.showMe = (this.number == current);
+            if(this.showMe) this.$wire.updateAnswerIdForTestParticipant();
+        },
+        refreshQuestion(eventData) {
+            if (eventData.indexOf(this.number) !== -1) {
+                this.$wire.set('closed', true);
+            }
+        },
+        closeThisQuestion(eventData) {
+            if(!this.showMe) return;
+            this.$wire.set('showCloseQuestionModal', true);
+            this.$wire.set('nextQuestion', eventData);
+        },
+        closeThisGroup(eventData) {
+            if(!this.showMe) return;
+            this.$wire.set('showCloseGroupModal', true);
+            this.$wire.set('nextQuestion', eventData);
+        },
+        startTimeout(eventData) {
+            this.progressBar = true;
+            this.startTime = eventData.timeout;
+            if (eventData.timeLeft) {
+                this.progress = eventData.timeLeft;
+            } else {
+                this.$wire.registerExpirationTime(eventData.attachment);
+                this.progress = this.startTime;
+            }
+            let timer = setInterval(function() {
+                this.progress -= 1;
+
+                if (this.progress === 0) {
+                    this.showMe ? this.$wire.closeQuestion(this.number + 1) : this.$wire.closeQuestion();
+                    clearInterval(timer);
+                    this.progressBar = false;
+                }
+            }, 1000);
+
+        },
+        markInfoscreenAsSeen(eventData, questionUuid) {
+            if(questionUuid !== eventData) return;
+            this.$wire.markAsSeen(eventData)
+        }
+    }));
 
     Alpine.directive("global", function(el, { expression }) {
         let f = new Function("_", "$data", "_." + expression + " = $data;return;");
         f(window, el._x_dataStack[0]);
     });
-
     Alpine.store("cms", {
         loading: false,
         processing: false,

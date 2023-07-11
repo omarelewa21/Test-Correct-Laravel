@@ -9181,6 +9181,75 @@ document.addEventListener("alpine:init", function () {
       }
     };
   });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("studentPlayerQuestionContainer", function (number, questionId, reinitializedTimeoutData) {
+    return {
+      showMe: false,
+      progressBar: false,
+      startTime: 0,
+      endTime: 1,
+      progress: 0,
+      number: number,
+      questionId: questionId,
+      reinitializedTimeoutData: reinitializedTimeoutData,
+      init: function init() {
+        var _this62 = this;
+        this.$watch("showMe", function (value) {
+          if (value) {
+            _this62.$dispatch("visible-component", {
+              el: _this62.$el
+            });
+            _this62.$dispatch("reinitialize-editor-editor-");
+          }
+        });
+        if (this.reinitializedTimeoutData && this.reinitializedTimeoutData.length) {
+          this.$nextTick(function () {
+            _this62.startTimeout(_this62.reinitializedTimeoutData);
+          });
+        }
+      },
+      currentUpdated: function currentUpdated(current) {
+        this.showMe = this.number == current;
+        if (this.showMe) this.$wire.updateAnswerIdForTestParticipant();
+      },
+      refreshQuestion: function refreshQuestion(eventData) {
+        if (eventData.indexOf(this.number) !== -1) {
+          this.$wire.set('closed', true);
+        }
+      },
+      closeThisQuestion: function closeThisQuestion(eventData) {
+        if (!this.showMe) return;
+        this.$wire.set('showCloseQuestionModal', true);
+        this.$wire.set('nextQuestion', eventData);
+      },
+      closeThisGroup: function closeThisGroup(eventData) {
+        if (!this.showMe) return;
+        this.$wire.set('showCloseGroupModal', true);
+        this.$wire.set('nextQuestion', eventData);
+      },
+      startTimeout: function startTimeout(eventData) {
+        this.progressBar = true;
+        this.startTime = eventData.timeout;
+        if (eventData.timeLeft) {
+          this.progress = eventData.timeLeft;
+        } else {
+          this.$wire.registerExpirationTime(eventData.attachment);
+          this.progress = this.startTime;
+        }
+        var timer = setInterval(function () {
+          this.progress -= 1;
+          if (this.progress === 0) {
+            this.showMe ? this.$wire.closeQuestion(this.number + 1) : this.$wire.closeQuestion();
+            clearInterval(timer);
+            this.progressBar = false;
+          }
+        }, 1000);
+      },
+      markInfoscreenAsSeen: function markInfoscreenAsSeen(eventData, questionUuid) {
+        if (questionUuid !== eventData) return;
+        this.$wire.markAsSeen(eventData);
+      }
+    };
+  });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].directive("global", function (el, _ref4) {
     var expression = _ref4.expression;
     var f = new Function("_", "$data", "_." + expression + " = $data;return;");
