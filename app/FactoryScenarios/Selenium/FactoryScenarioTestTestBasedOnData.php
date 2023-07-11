@@ -30,7 +30,6 @@ use tcCore\User;
 class FactoryScenarioTestTestBasedOnData extends FactoryScenarioTest
 {
     protected static array $testData = [];
-    private static FactoryQuestion $questionFactory;
 
     public static function create(
         string $testName = null,
@@ -108,11 +107,11 @@ class FactoryScenarioTestTestBasedOnData extends FactoryScenarioTest
     {
         $properties = $questionFactory->definition();
         if (isset($question['settings'])) {
-            $properties += collect($question['settings'])->mapWithKeys(function ($value, $key) {
-                return [str($key)->snake()->value => $value];
-            })->toArray();
+            $properties = array_merge(
+                $properties,
+                self::getSnakeCaseKeyedArray($question['settings'])
+            );
         }
-
         foreach ($question as $key => $value) {
             if (array_key_exists($key, $properties)) {
                 if (!is_array($value)) {
@@ -121,6 +120,14 @@ class FactoryScenarioTestTestBasedOnData extends FactoryScenarioTest
             }
         }
 
+        unset($properties['type']);
         return $questionFactory->setProperties($properties);
+    }
+
+    private static function getSnakeCaseKeyedArray($settings): array
+    {
+        return collect($settings)->mapWithKeys(function ($value, $key) {
+            return [str($key)->snake()->value => $value];
+        })->toArray();
     }
 }
