@@ -1789,6 +1789,11 @@ document.addEventListener("alpine:init", () => {
         droppingFile: false,
         init() {
             this.id = this.containerId + "-" + key;
+            this.$watch('expanded', (value) => {
+                setTimeout(() => {
+                    this.$el.querySelector('[block-body]').style.overflow = value ? 'visible' : 'hidden';
+                }, 100);
+            });
         },
         get expanded() {
             return this.active === this.id;
