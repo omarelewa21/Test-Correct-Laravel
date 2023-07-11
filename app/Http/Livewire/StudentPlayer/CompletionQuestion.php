@@ -26,8 +26,8 @@ abstract class CompletionQuestion extends TCComponent
     public function mount(): void
     {
         if(!$this->answer) {
-            foreach($this->question->completionQuestionAnswers as $key => $value) {
-                $this->answer[$key] = "";
+            foreach($this->question->completionQuestionAnswers as $value) {
+                $this->answer[$value->tag] = "";
             }
         }
         foreach ($this->answer as $key => $val) {
