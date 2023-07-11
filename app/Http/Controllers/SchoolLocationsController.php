@@ -110,16 +110,20 @@ class SchoolLocationsController extends Controller {
                 SchoolLocationSharedSection::where('section_id', $sharedSection->section_id)->delete();
             });
         }
-        $schoolLocation->fill($request->all());
-
         if(isset($request->userId))
         {
             $checkExistNewAssessment=DB::table('feature_settings')->where('settingable_id', $schoolLocation->id)->where('value', 0)->
             where('title',$request->allow_new_assessment)->where('settingable_id_user', $request->userId)->latest()->first();
 
             if(isset($checkExistNewAssessment) )
-            {
-                $checkExistNewAssessment->delete();
+            {   
+                DB::table('feature_settings')
+                ->where('settingable_id', $schoolLocation->id)
+                ->where('value', 0)
+                ->where('title','=','allow_new_assessment')
+                ->where('settingable_id_user', $request->userId)
+                ->delete();
+                // $checkExistNewAssessment->delete();
             }elseif( $request->allow_new_assessment != null )
             {
                 DB::table('feature_settings')->insert(
@@ -133,15 +137,18 @@ class SchoolLocationsController extends Controller {
                         'updated_at' => now()
                     ]
                     );
-                     DB::table('feature_settings')->where('settingable_id', $schoolLocation->id)->where('value',1)->delete();
+                DB::table('feature_settings')->where('settingable_id', $schoolLocation->id)->where('title','=','allow_new_assessment')->where('value',1)->delete();
             }
-
             $checkExistCoLearning=DB::table('feature_settings')->where('settingable_id', $schoolLocation->id)->where('value', 0)->where('title',$request->allow_new_co_learning_teacher)->where('settingable_id_user', $request->userId)->latest()->first();
 
             if(isset($checkExistCoLearning) )
             {
-
-                $checkExistCoLearning->delete();
+                DB::table('feature_settings')
+                ->where('settingable_id', $schoolLocation->id)
+                ->where('value', 0)
+                ->where('title','=','allow_new_co_learning_teacher')
+                ->where('settingable_id_user', $request->userId)
+                ->delete();
             }elseif($request->allow_new_co_learning_teacher != null){
                 DB::table('feature_settings')->insert(
                     [
@@ -153,11 +160,11 @@ class SchoolLocationsController extends Controller {
                         'created_at' => now(),
                         'updated_at' => now()
                     ]
-                );
-                DB::table('feature_settings')->where('settingable_id', $schoolLocation->id)->where('value',1)->delete();
-                
+                    );
+                DB::table('feature_settings')->where('settingable_id', $schoolLocation->id)->where('title','=','allow_new_co_learning_teacher')->where('value',1)->delete();
              }
         }else{
+            $schoolLocation->fill($request->all()); 
             if($schoolLocation['feature_settings']['allow_new_assessment'] == 1 && $schoolLocation['feature_settings']['allow_new_co_learning_teacher'] == 1)
             {
                 DB::table('feature_settings')->where('settingable_id', $schoolLocation->id)->where('value', 0)->delete();
@@ -184,7 +191,7 @@ class SchoolLocationsController extends Controller {
                         'settingable_id_user'=>0
                     ]
                 );
-            }
+            }   
         }
         // DB::table('feature_settings')->where('settingable_id', $schoolLocation->id)->delete();
         if ($schoolLocation->save() !== false) {
