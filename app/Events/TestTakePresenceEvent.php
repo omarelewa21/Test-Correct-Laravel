@@ -36,12 +36,12 @@ abstract class TestTakePresenceEvent implements ShouldBroadcastNow
      */
     public function broadcastOn(): PresenceChannel
     {
-        return new PresenceChannel('presence-TestTake.' . $this->testTakeUuid);
+        return new PresenceChannel(sprintf('presence-TestTake%s.%s', static::$channelSuffix, $this->testTakeUuid));
     }
 
     private static function channelBase($uuid): string
     {
-        return sprintf("echo-presence:presence-TestTake%s.%s,", self::$channelSuffix, $uuid);
+        return sprintf("echo-presence:presence-TestTake%s.%s,", static::$channelSuffix, $uuid);
     }
 
     public static function channelSignature($testTakeUuid): string

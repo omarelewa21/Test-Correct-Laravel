@@ -1709,6 +1709,10 @@ input[type=number] {
 .single-select .dropdown {
     -ms-overflow-style: none;
 }
+.single-select .dropdown::-webkit-scrollbar {
+    display: none;
+}
+
 .primary-gradient {
     background: linear-gradient(to right, var(--primary) 0%, var(--teacher-primary-light) 100%);
 }
@@ -11620,10 +11624,6 @@ video {
 .border-current{
   border-color: currentColor;
 }
-.border-gray-100{
-  --tw-border-opacity: 1;
-  border-color: rgb(243 244 246 / var(--tw-border-opacity));
-}
 .border-gray-200{
   --tw-border-opacity: 1;
   border-color: rgb(229 231 235 / var(--tw-border-opacity));
@@ -12209,9 +12209,6 @@ video {
 }
 .pr-8{
   padding-right: 2rem;
-}
-.pr-9{
-  padding-right: 2.25rem;
 }
 .pr-\[15px\]{
   padding-right: 15px;
