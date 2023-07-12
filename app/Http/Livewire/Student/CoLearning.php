@@ -250,6 +250,10 @@ class CoLearning extends TCComponent
 
         $this->questionOrderNumber = $this->questionOrderList[$currentQuestionId];
         $this->numberOfQuestions = $testTakeQuestionsCollection->reduce(function ($carry, $question) use ($currentQuestionId) {
+            if($question->belongs_to_carousel) {
+                //carousel questions are not discussed during co-learning
+                return $carry;
+            }
             if ($question->discuss === 0) {
                 return $carry;
             }
