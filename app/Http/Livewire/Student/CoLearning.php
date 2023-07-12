@@ -87,7 +87,7 @@ class CoLearning extends TCComponent
 
     public function mount(TestTake $test_take)
     {
-        $this->testTake = $test_take;
+        $this->testTake = $test_take->load('discussingQuestion');
         $this->discussingQuestionId = $this->testTake->discussing_question_id;
         $this->questionOrderList = $this->testTake->test->getQuestionOrderList();
 
