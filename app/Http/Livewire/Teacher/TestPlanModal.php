@@ -31,6 +31,8 @@ class TestPlanModal extends TCModalComponent
     public $selectedClassesContainerId;
     public $selectedInvigilatorsContrainerId;
 
+    public $clickDisabled = false;
+
     public function mount($testUuid)
     {
         $this->test = Test::whereUuid($testUuid)->first();
@@ -119,6 +121,8 @@ class TestPlanModal extends TCModalComponent
                 }
             });
         })->validate();
+
+        $this->clickDisabled = true;
 
         if ($this->isAssignmentType() && array_key_exists('time_end', $this->request) && $this->request['time_end']) {
             $this->request['time_end'] = Carbon::parse($this->request['time_end'])->endOfDay();
