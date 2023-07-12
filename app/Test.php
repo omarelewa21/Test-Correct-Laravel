@@ -926,11 +926,11 @@ class Test extends BaseModel
 
         return $this->testQuestions->sortBy('order')->flatMap(function ($testQuestion) {
             if ($testQuestion->question->type === 'GroupQuestion') {
-                return $testQuestion->question->groupQuestionQuestions()->get()->map(function ($item)  {
+                return $testQuestion->question->groupQuestionQuestions()->get()->map(function ($item) use ($testQuestion) {
                     return [
                         'id' => $item->question->getKey(),
                         'question_type' => $item->question->canCheckAnswer() ? Question::TYPE_CLOSED : Question::TYPE_OPEN,
-                        'discuss' => $item->discuss,
+                        'discuss'       => (!$testQuestion->question->isCarouselQuestion()) && $item->discuss,
                     ];
                 });
             }
