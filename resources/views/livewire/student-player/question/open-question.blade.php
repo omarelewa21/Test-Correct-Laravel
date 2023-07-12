@@ -59,38 +59,18 @@
                         return;
                     }
                     RichTextEditor.writeContentToTextarea('{{ $editorId }}');
-                    {{--const editor = ClassicEditors['{{ $editorId }}'];--}}
-                    // editor.ui.getEditableElement().setAttribute('aria-label', 'kaas is lekker');
                     ReadspeakerTlc.ckeditor.detachReadableAreaFromCkeditor('{{ $editorId }}');
                 })
                 document.addEventListener('readspeaker_opened', () => {
                     if(ReadspeakerTlc.guard.shouldNotCreateHiddenTextarea({{ $question->id }})){
                         return;
                     }
-{{--                    var textarea = document.querySelector('#{{ $editorId }}')--}}
-//                     ReadspeakerTlc.hiddenElement.createHiddenDivTextArea(textarea);
+                    const textarea = document.querySelector('#{{ $editorId }}')
                     const editor = ClassicEditors['{{ $editorId }}'];
-                    editor.ui.getEditableElement().setAttribute('aria-label', editor.getData());
-                })
-                document.addEventListener('trigger_livewire_rerender', () => {
-{{--                    @this.render();--}}
+                    ReadspeakerTlc.rsTlcEvents.fixAriaLabelsForCkeditor(textarea, editor);
                 })
                 @endif
             </script>
-{{--            <script>--}}
-{{--                @if(!is_null(Auth::user())&&Auth::user()->text2speech)--}}
-{{--                    document.addEventListener('readspeaker_opened', () => {--}}
-{{--                        if(ReadspeakerTlc.guard.shouldNotCreateHiddenTextarea({{ $question->id }})){--}}
-{{--                            return;--}}
-{{--                        }--}}
-{{--                        var textarea = document.querySelector('#textarea_{{ $question->id }}')--}}
-{{--                        ReadspeakerTlc.hiddenElement.createHiddenDivTextArea(textarea);--}}
-{{--                    })--}}
-{{--                    document.addEventListener('trigger_livewire_rerender', () => {--}}
-{{--                        @this.render();--}}
-{{--                    })--}}
-{{--                @endif--}}
-{{--            </script>--}}
         @endpush
     </div>
     <x-attachment.attachment-modal :attachment="$attachment" :answerId="$answerId"/>

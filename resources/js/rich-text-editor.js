@@ -1,4 +1,6 @@
-RichTextEditor = {
+import {modelElementToPlainText} from "../ckeditor5/node_modules/@ckeditor/ckeditor5-word-count/src/utils.js";
+
+window.RichTextEditor = {
     initStudentCoLearning: function(parameterBag) {
         return this.createStudentEditor(
             parameterBag,
@@ -621,4 +623,7 @@ RichTextEditor = {
             'wproofreader',
         ]
     },
+    getPlainText(editor) {
+        return modelElementToPlainText(editor.model.document.getRoot());
+    }
 };
