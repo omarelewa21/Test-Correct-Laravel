@@ -51,8 +51,8 @@ RichTextEditor = {
                 if (typeof ReadspeakerTlc != "undefined") {
                     editor.editing.view.document.on( 'change:isFocused', ( evt, data, isFocused ) => {
                         isFocused
-                            ? rsTlcEvents.handleCkeditorFocusForReadspeaker(evt.target,parameterBag.questionId, parameterBag.editorId)
-                            : rsTlcEvents.handleCkeditorBlurForReadspeaker(evt.target,parameterBag.questionId, parameterBag.editorId);
+                            ? rsTlcEvents.handleCkeditorFocusForReadspeaker(editor.sourceElement.nextElementSibling,parameterBag.questionId, parameterBag.editorId)
+                            : rsTlcEvents.handleCkeditorBlurForReadspeaker(editor.sourceElement.nextElementSibling,parameterBag.questionId, parameterBag.editorId);
                     });
                     ReadspeakerTlc.ckeditor.addListenersForReadspeaker(editor, parameterBag.questionId, parameterBag.editorId);
                     ReadspeakerTlc.ckeditor.disableContextMenuOnCkeditor();
@@ -404,9 +404,10 @@ RichTextEditor = {
         editor.plugins.get( 'CommentsOnly' ).isEnabled = true;
     },
     writeContentToTextarea: function(editorId) {
-        var editor = ClassicEditors[editorId];
+        const editor = ClassicEditors[editorId];
         if (editor) {
             editor.updateSourceElement();
+            // editor.sourceElement.parentElement.classList.add('rs_skip');
             editor.sourceElement.dispatchEvent(new Event("input"));
         }
     },
@@ -570,13 +571,6 @@ RichTextEditor = {
             this.getConfigForStudent(parameterBag),
             resolveCallback
         );
-    },
-    writeContentToTexarea: function(editorId) {
-        var editor = ClassicEditors[editorId];
-        if (editor) {
-            editor.updateSourceElement();
-            editor.sourceElement.dispatchEvent(new Event("input"));
-        }
     },
     setAnswerFeedbackItemsToRemove: function (parameterBag) {
         parameterBag.removeItems = {
