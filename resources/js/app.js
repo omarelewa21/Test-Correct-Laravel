@@ -326,17 +326,29 @@ debug = function (seconds = 2) {
         debugger;
     }, seconds * 1000);
 }
-_smoothscroll_timeout = null;
+
 smoothScroll = function smoothScroll(scrollContainer, offsetTop = 0, offsetLeft = 0) {
     scrollContainer.scroll({
         top: offsetTop,
         left: offsetLeft,
         behavior: 'smooth'
     });
+    if(window.smoothscroll_promise === undefined) {
+        window.smoothscroll_promise = 0
+        console.log('init', window.smoothscroll_promise)
+    };
+
+    window.smoothscroll_promise = window.smoothscroll_promise++;
+    let promiseIterator = window.smoothscroll_promise;
 
     return new Promise((resolve, reject) => {
         const failed = setTimeout(() => {
             if( (scrollContainer.offsetHeight + scrollContainer.scrollTop) === scrollContainer.scrollHeight) {
+                return resolve();
+            }
+            console.log('failed', promiseIterator, window.smoothscroll_promise)
+            if(promiseIterator < window.smoothscroll_promise) {
+                console.log('promiseIterator', promiseIterator, window.smoothscroll_promise)
                 return resolve();
             }
             reject();

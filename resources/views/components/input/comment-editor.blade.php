@@ -73,7 +73,6 @@
     <div wire:ignore @class(['ckeditor-disabled' => $disabled, 'relative'])>
         <textarea
                 {{ $attributes->merge(['class' => 'form-input resize-none']) }}
-                x-data=""
                 x-init="{{ $initFunctionCall }}"
                 id="{{ $editorId }}"
                 name="{{ $editorId }}"

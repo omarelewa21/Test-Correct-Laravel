@@ -10151,7 +10151,6 @@ debug = function debug() {
     debugger;
   }, seconds * 1000);
 };
-_smoothscroll_timeout = null;
 smoothScroll = function smoothScroll(scrollContainer) {
   var offsetTop = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
   var offsetLeft = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
@@ -10160,9 +10159,21 @@ smoothScroll = function smoothScroll(scrollContainer) {
     left: offsetLeft,
     behavior: 'smooth'
   });
+  if (window.smoothscroll_promise === undefined) {
+    window.smoothscroll_promise = 0;
+    console.log('init', window.smoothscroll_promise);
+  }
+  ;
+  window.smoothscroll_promise = window.smoothscroll_promise++;
+  var promiseIterator = window.smoothscroll_promise;
   return new Promise(function (resolve, reject) {
     var failed = setTimeout(function () {
       if (scrollContainer.offsetHeight + scrollContainer.scrollTop === scrollContainer.scrollHeight) {
+        return resolve();
+      }
+      console.log('failed', promiseIterator, window.smoothscroll_promise);
+      if (promiseIterator < window.smoothscroll_promise) {
+        console.log('promiseIterator', promiseIterator, window.smoothscroll_promise);
         return resolve();
       }
       reject();
@@ -16933,7 +16944,8 @@ RichTextEditor = {
     var _this = this;
     return this.createStudentEditor(parameterBag, function (editor) {
       _this.setupWordCounter(editor, parameterBag);
-      WebspellcheckerTlc.forTeacherQuestion(editor, parameterBag.lang, parameterBag.allowWsc);
+      WebspellcheckerTlc.subscribeToProblemCounter(editor);
+      WebspellcheckerTlc.lang(editor, parameterBag.lang);
       window.addEventListener("wsc-problems-count-updated-" + parameterBag.editorId, function (e) {
         var problemCountSpan = document.getElementById("problem-count-" + parameterBag.editorId);
         if (problemCountSpan) {
@@ -17567,16 +17579,6 @@ function shouldSwipeDirectionBeReturned(target) {
 /***/ (() => {
 
 WebspellcheckerTlc = {
-  forTeacherQuestion: function forTeacherQuestion(editor, language) {
-    var wsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
-    if (!wsc) {
-      return;
-    }
-    WebspellcheckerTlc.initWsc(editor, language);
-    editor.on('resize', function (event) {
-      WebspellcheckerTlc.triggerWsc(editor, language);
-    });
-  },
   lang: function lang(editor, language) {
     var i = 0;
     var timer = setInterval(function () {
@@ -17595,31 +17597,24 @@ WebspellcheckerTlc = {
       editor.ui.view.editable.element.setAttribute('contenteditable', false);
     }, 3000);
   },
-  triggerWsc: function triggerWsc(editor, language) {
-    if (editor.element.$.parentNode.getElementsByClassName('wsc_badge').length == 0) {
-      WebspellcheckerTlc.initWsc(editor, language);
-    }
-  },
-  initWsc: function initWsc(editor, language) {
-    setTimeout(function () {
-      var instance = WEBSPELLCHECKER.init({
-        container: editor.ui.getEditableElement('main'),
-        spellcheckLang: language,
-        localization: 'nl'
-      });
-      instance.subscribe('problemCheckEnded', function (event) {
-        window.dispatchEvent(new CustomEvent('wsc-problems-count-updated-' + editor.sourceElement.id, {
-          detail: {
-            problemsCount: instance.getProblemsCount()
-          }
-        }));
-      });
-      try {
-        instance.setLang(language);
-      } catch (e) {
-        console.dir(e);
+  subscribeToProblemCounter: function subscribeToProblemCounter(editor) {
+    var i = 0;
+    var problemTimer = setInterval(function () {
+      ++i;
+      if (i === 50) clearInterval(problemTimer);
+      if (typeof WEBSPELLCHECKER != "undefined") {
+        var instance = WEBSPELLCHECKER.getInstances().pop();
+        if (instance == undefined) return;
+        instance.subscribe('problemCheckEnded', function (event) {
+          window.dispatchEvent(new CustomEvent('wsc-problems-count-updated-' + editor.sourceElement.id, {
+            detail: {
+              problemsCount: instance.getProblemsCount()
+            }
+          }));
+        });
+        clearInterval(problemTimer);
       }
-    }, 1000);
+    }, 200);
   }
 };
 

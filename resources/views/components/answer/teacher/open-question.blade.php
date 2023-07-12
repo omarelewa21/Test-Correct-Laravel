@@ -13,7 +13,7 @@
     >
 
         <x-input.group for="me" class="w-full disabled mt-4">
-            @if($studentAnswer)
+            @if($studentAnswer && $enableComments)
             <x-input.comment-editor
                     :allowWsc="$webSpellChecker"
                     :editor-id="$editorId"

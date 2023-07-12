@@ -96,6 +96,7 @@
                                             :disabled-toggle="true"
                                             :webSpellChecker="$this->currentQuestion->spell_check_available"
                                             :commentMarkerStyles="$this->commentMarkerStyles"
+                                            :enableComments="true"
                                     />
                                 </div>
                             </x-slot:body>
