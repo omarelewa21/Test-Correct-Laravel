@@ -3,6 +3,7 @@
      x-data="reviewNavigation(@js($position))"
      x-bind:class="{'invisible': !initialized }"
      x-on:resize.window.throttle="resize()"
+     x-on:continue-navigation="Alpine.$data($el)[$event.detail.method](...$event.detail.args)"
      wire:ignore.self
 >
     <div class="slider-buttons left | flex relative pt-4 -top-px h-full z-10"

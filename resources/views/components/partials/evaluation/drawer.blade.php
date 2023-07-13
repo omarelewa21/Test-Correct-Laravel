@@ -3,7 +3,7 @@
      x-cloak
      x-bind:class="{'collapsed': collapse}"
      x-on:assessment-drawer-tab-update.window="tab($event.detail.tab, $event.detail?.uuid)"
-     x-on:continue-navigation="navigate($event.detail.method);"
+     x-on:continue-navigation="Alpine.$data($el)[$event.detail.method]()"
      x-on:resize.window.throttle="handleResize"
      wire:key="evaluation-drawer-{{ $uniqueKey }}"
 >

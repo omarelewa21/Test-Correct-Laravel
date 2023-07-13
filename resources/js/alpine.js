@@ -2095,9 +2095,6 @@ document.addEventListener("alpine:init", () => {
             }
             await this.updateCurrent(this.current - 1, "decr");
         },
-        async navigate(methodName) {
-            await this[methodName]();
-        },
         async updateCurrent(value, action) {
             this.$dispatch("assessment-drawer-tab-update", { tab: 1 });
             let response = await this.$wire[this.methodCall](value, action);
@@ -2232,9 +2229,6 @@ document.addEventListener("alpine:init", () => {
                 await this.$wire.previous();
                 this.clickedNext = false;
             });
-        },
-        async navigate(methodName) {
-            await this[methodName]();
         },
         fixSlideHeightByIndex(index, AnswerFeedbackUuid) {
             let slide = document.querySelector(".slide-" + index);
@@ -2603,9 +2597,13 @@ document.addEventListener("alpine:init", () => {
             }, 5000);
         },
         async loadQuestion(number) {
+            if(this.$store.answerFeedback.feedbackBeingEdited()) {
+                return this.$store.answerFeedback.openConfirmationModal(this.$root, 'loadQuestion', number);
+            }
+
             this.$dispatch("assessment-drawer-tab-update", { tab: 1 });
             await this.$wire.loadQuestionFromNav(number);
-        }
+        },
     }));
     Alpine.data("accountSettings", (openTab, language) => ({
         openTab,
@@ -2825,9 +2823,6 @@ document.addEventListener("alpine:init", () => {
                 let threadId = iconWrapper.dataset.threadid;
                 this.calculateIconPosition(iconWrapper, threadId);
             });
-            debounce(function () {
-                console.log('hier')
-            }, 1000)();
         },
         calculateIconPosition(iconWrapper, threadId) {
             const commentMarkers = document.querySelectorAll(`[data-comment='` + threadId + `']`);
@@ -3769,6 +3764,7 @@ document.addEventListener("alpine:init", () => {
         editingComment: null,
         navigationRoot: null,
         navigationMethod: null,
+        navigationArgs: null,
         feedbackBeingEdited() {
             if(this.navigationRoot) {
                 this.navigationRoot = null;
@@ -3780,14 +3776,15 @@ document.addEventListener("alpine:init", () => {
             }
             return this.editingComment;
         },
-        openConfirmationModal(navigatorRootElement, methodName) {
+        openConfirmationModal(navigatorRootElement, methodName, methodArgs = null) {
             this.navigationRoot = navigatorRootElement;
             this.navigationMethod = methodName;
+            this.navigationArgs = methodArgs;
             Livewire.emit('openModal', 'modal.confirm-still-editing-comment-modal');
         },
         continueAction() {
             this.editingComment = null;
-            this.navigationRoot.dispatchEvent(new CustomEvent('continue-navigation', {detail: {method: this.navigationMethod}}))
+            this.navigationRoot.dispatchEvent(new CustomEvent('continue-navigation', {detail: {method: this.navigationMethod, args: [this.navigationArgs]}}))
             Livewire.emit('closeModal');
         },
         cancelAction() {

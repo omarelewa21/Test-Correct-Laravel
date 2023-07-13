@@ -8975,7 +8975,7 @@ span.completion-response-object-container{
 }
 
 
-.comment-editor .ck.ck-editor__main p > .ck-comment-marker {
+.comment-editor .ck.ck-editor__main p .ck-comment-marker {
     border: 1px solid transparent;
     cursor: pointer;
 }

@@ -19,7 +19,7 @@
                 @js(false),
                 @js($this->hasFeedback)
              )"
-             x-on:resize.window="repositionAnswerFeedbackIcons()"
+             x-on:resize.window.debounce.50ms="repositionAnswerFeedbackIcons()"
         >
             <x-partials.evaluation.main-content :question="$this->currentQuestion"
                                                 :group="$this->currentGroup"
