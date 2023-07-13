@@ -45,6 +45,7 @@ trait WithStudentTestTakes
                     $query->where('test_takes.time_end', '>=', now());
                 });
             })
+            ->whereNull('test_participants.deleted_at')
             ->orderBy($orderColumn, $orderDirection);
 
 
@@ -123,6 +124,7 @@ trait WithStudentTestTakes
                     $groupQuestion = $testQuestion->question;
                     return $testQuestion->question->groupQuestionQuestions->map(function ($item) use($groupQuestion){
                         $item->question->belongs_to_groupquestion_id = $groupQuestion->getKey();
+                        $item->question->belongs_to_carousel = $groupQuestion->isCarouselQuestion();
                         $item->question->discuss = $item->discuss;
                         return $item->question;
                     });

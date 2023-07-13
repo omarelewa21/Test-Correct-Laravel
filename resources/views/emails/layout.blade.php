@@ -298,7 +298,7 @@
     </style>
 </head>
 
-<body leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" style="word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space;">
+<body class="ck-content" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" style="word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space;">
 
 <table id="wrapper" border="0" width="500px" cellpadding="0" cellspacing="0" style="background:white; width: 500px; margin-left: auto; margin-right: auto; margin: 0px auto;">
    <thead id="header">

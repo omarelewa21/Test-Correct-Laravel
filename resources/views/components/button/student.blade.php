@@ -8,7 +8,7 @@ $rotateClass = $rotateIcon ? ('rotate-svg-' . $rotateIcon) : '';
 $size = 'button-' . $size;
 ?>
 
-<button {{ $attributes->merge(['class' => 'button student-button space-x-2.5 focus:outline-none ' . $rotateClass . ' ' .$size]) }}
+<button {{ $attributes->merge(['class' => 'button student-button space-x-2.5' . $rotateClass . ' ' .$size]) }}
         @if($disabled)
             disabled
         @endif

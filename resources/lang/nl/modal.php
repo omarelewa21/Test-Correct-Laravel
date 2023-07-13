@@ -14,5 +14,7 @@ return [
     'logout_warning_title'                 => 'Let op! Je wordt automatisch uitgelogd',
     'logout_warning_text'                  => 'Je bent al langere tijd inactief op Test-Correct en wordt over 30 seconden automatisch uitgelogd om de veiligheid van je account te garanderen. Wil je je sessie verlengen met 15 minuten?',
     'extend_session'                       => 'Sessie verlengen',
+    'Feedback_in_bewerking_title'          => 'Feedback nog in bewerking',
+    'Feedback_in_bewerking_text'           => 'Er is nog feedback in bewerking, weet je zeker dat je door wilt gaan zonder de aanpassingen op te slaan?',
 ];
 

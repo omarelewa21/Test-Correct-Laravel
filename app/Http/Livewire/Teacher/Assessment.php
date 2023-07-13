@@ -6,9 +6,12 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
+use Ramsey\Uuid\Uuid;
 use tcCore\Answer;
+use tcCore\AnswerFeedback;
 use tcCore\AnswerRating;
 use tcCore\Exceptions\AssessmentException;
+use tcCore\Http\Enums\CommentEmoji;
 use tcCore\Http\Enums\UserFeatureSetting as UserFeatureSettingEnum;
 use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Http\Interfaces\CollapsableHeader;
@@ -67,6 +70,8 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
     public bool $webSpellCheckerEnabled;
 
+    public $answerFeedback;
+
     /* Lifecycle methods */
     protected function getListeners(): array
     {
@@ -98,6 +103,10 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
     public function booted(): void
     {
+        if ($this->headerCollapsed) {
+            $this->getSortedAnswerFeedback();
+        }
+
         if ($this->skipBooted) {
             return;
         }
@@ -310,7 +319,6 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         $this->lastAnswerForQuestion = $this->getAnswerIndex($answersForQuestion->last());
         $this->firstAnswerForQuestion = $this->getAnswerIndex($answersForQuestion->first());
 
-        $this->currentAnswer->load('answerRatings');
         $this->score = $this->handleAnswerScore();
         $this->feedback = $this->getFeedbackForCurrentAnswer();
         $this->answerPanel = true;
@@ -534,8 +542,11 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     private function setComponentAnswerProperties(Answer $answer, int $index): void
     {
         $this->currentAnswer = $answer;
+        $this->currentAnswer->load('answerRatings');
         $this->answerNavigationValue = $index;
         TestTake::whereUuid($this->testTakeUuid)->update(['assessing_answer_index' => $index]);
+
+        $this->getSortedAnswerFeedback();
     }
 
     /**
@@ -1076,7 +1087,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     {
         return $this->testTakeData->testParticipants
             ->load([
-                'answers:id,uuid,test_participant_id,question_id,json,order,final_rating,done',
+                'answers:id,uuid,test_participant_id,question_id,json,order,final_rating,done,commented_answer',
                 'answers.answerRatings:id,answer_id,type,rating,advise,user_id',
                 'answers.answerRatings.user:id,name,name_first,name_suffix',
             ])
@@ -1367,8 +1378,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             );
             return true;
         }
-        $this->answerNavigationValue = $this->getAnswerIndex($newAnswer);
-        $this->currentAnswer = $newAnswer;
+        $this->setComponentAnswerProperties($newAnswer, $this->getAnswerIndex($newAnswer));
 
         $this->dispatchUpdateQuestionNavigatorEvent(
             $this->loadQuestion(position: $this->getNavigationValueForQuestion($newAnswer->question), action: $action)

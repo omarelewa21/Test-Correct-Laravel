@@ -7,7 +7,6 @@ use tcCore\Lib\User\Roles;
 
 abstract class BaseModel extends Model
 {
-
     protected $exceptCloneModelOnly = [];
 
     public function hasAttribute($attr)

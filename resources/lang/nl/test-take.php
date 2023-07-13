@@ -1,4 +1,5 @@
 <?php
+
 return [
     'Toets inleveren'                                                                                                                                  => 'Toets inleveren',
     'Weet je zeker dat je de toets wilt inleveren?'                                                                                                    => 'Weet je zeker dat je de toets wilt inleveren?',
@@ -38,4 +39,26 @@ return [
     'not-all-questions-answered'                                                                                                                       => 'De volgende vragen zijn niet beantwoord: ',
     'not-all-questions-answered-extension'                                                                                                             => 'Afgesloten vragen kunnen niet meer beantwoord worden.',
     'and'                                                                                                                                              => 'en',
+    'Afname gepland op'                                                                                                                                => 'Afname gepland op',
+    'Gepland door'                                                                                                                                     => 'Gepland door',
+    'Afnemen'                                                                                                                                          => 'Afnemen',
+    'Klas'                                                                                                                                             => '{0} Klassen|{1} Klas|[2,*] Klassen',
+    'Surveillant'                                                                                                                                      => '{0} Surveillanten|{1} Surveillant|[2,*] Surveillanten',
+    'Studenten'                                                                                                                                        => 'Studenten',
+    'Studenten toevoegen'                                                                                                                              => 'Studenten toevoegen',
+    'Wijzig instellingen'                                                                                                                              => 'Wijzig instellingen',
+    'Surveillanten toevoegen'                                                                                                                          => 'Surveillanten toevoegen',
+    'Weet u het zeker'                                                                                                                                 => 'Weet u het zeker',
+    'Beveiligde student app niet verplicht'                                                                                                            => 'Beveiligde student app niet verplicht',
+    'De student kan de toets in de browser maken. Bij toetsen in de browser kunnen wij het gebruik van andere apps niet blokkeren.'                    => 'De student kan de toets in de browser maken. Bij toetsen in de browser kunnen wij het gebruik van andere apps niet blokkeren.',
+    'Test-Direct toestaan'                                                                                                                             => 'Test-Direct toestaan',
+    'De student kan inloggen met een Test-Direct account (en de toetscode) om de toets te maken, beoordelen, in te zien, en het cijfer te bekijken.'   => 'De student kan inloggen met een Test-Direct account (en de toetscode) om de toets te maken, beoordelen, in te zien, en het cijfer te bekijken.',
+    'Niet alle Studenten zijn aanwezig.'                                                                                                               => 'Niet alle Studenten zijn aanwezig.',
+    'Beschikbaar tot'                                                                                                                                  => 'Beschikbaar tot',
+    'toetsafname is niet vandaag gepland'                                                                                                              => 'toetsafname is niet vandaag gepland',
+    'toets URL gekopieerd'                                                                                                                             => 'toets URL gekopieerd',
+    'Geen studenten beschikbaar'                                                                                                                       => 'Geen studenten beschikbaar',
+    'Geen surveillanten beschikbaar'                                                                                                                   => 'Geen surveillanten beschikbaar',
+    'Al geselecteerd'                                                                                                                                  => 'Al geselecteerd',
+    'Selecteer...'                                                                                                                                     => 'Selecteer...',
 ];

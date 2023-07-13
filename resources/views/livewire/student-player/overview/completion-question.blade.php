@@ -17,9 +17,28 @@
                  ">
 
         <div class="completion-question-overview-container">
-            <x-input.group class="body1 max-w-full flex-col" for="" x-data="">
-                {!! $html !!}
-            </x-input.group>
+            @if($this->question->isSubType('multi'))
+                <div class="flex flex-wrap items-center">
+                    @foreach($questionTextPartials as $answerIndex => $textPartialArray)
+                        @foreach($textPartialArray as $textPartial){{--
+                        --}}{!!$textPartial!!}{{-- Do not format this file. It causes unfixable/unwanted whitespaces.
+                    --}}@endforeach
+                        <x-input.select class="!w-fit mb-1 mr-1 text-base"
+                                        wire:model="answer.{{ $answerIndex + 1 }}"
+                                        :error="empty($this->answer[$answerIndex + 1])"
+                        >
+                            @foreach($options[$answerIndex + 1] as $key => $option)
+                                <x-input.option :value="$option" :label="$option" />
+                            @endforeach
+                        </x-input.select>
+                    @endforeach
+                    @foreach($questionTextPartialFinal as $textPartial){{--
+                    --}}{!!$textPartial!!}{{--
+                 --}}@endforeach
+                </div>
+            @else
+                <x-completion-question-converted-html :question="$this->question"/>
+            @endif
         </div>
     </div>
 </x-partials.overview-question-container>

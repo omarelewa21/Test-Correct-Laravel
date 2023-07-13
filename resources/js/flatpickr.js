@@ -20,6 +20,12 @@ document.addEventListener('alpine:init', () => {
                 dateFormat: "Y-m-d",
                 onChange: (date, dateString) => {
                    this.wireModel = this.value = this.mode == 'range' ? dateString.split(' t/m ') : dateString; //split t/m or to
+                },
+                onOpen: () => {
+                    this.$root.parentElement.querySelector('label')?.classList.add('text-primary','bold');
+                },
+                onClose: () => {
+                    this.$root.parentElement.querySelector('label')?.classList.remove('text-primary','bold');
                 }
             })
         },

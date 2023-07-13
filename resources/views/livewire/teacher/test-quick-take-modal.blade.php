@@ -63,7 +63,7 @@
                 @if($rttiExportAllowed)
                     <x-input.toggle-row-with-title wire:model="testTake.is_rtti_test_take"
                                                    :toolTip="__('teacher.exporteer_naar_rtti_online_tooltip')"
-                                                   containerClass="border-t w-full lg:w-[calc(50%-0.5rem)]"
+                                                   containerClass="w-full lg:w-[calc(50%-0.5rem)]"
                     >
                         <x-icon.export />
                         <span class="bold">{{ __('teacher.Exporteer naar RTTI Online') }} </span>
@@ -89,7 +89,7 @@
                 <span>{{ __("teacher.Annuleer") }}</span>
             </x-button.text-button>
 
-            <x-button.cta wire:click="plan" size="sm" wire:loading.attr="disabled" wire:target="plan" onClick='this.disabled = true;'>
+            <x-button.cta wire:click="plan" size="sm" wire:loading.attr="disabled" wire:target="plan" onClick="this.disabled = true;" :disabled="$clickDisabled">
                 <x-icon.checkmark  wire:loading.remove wire:target="plan"/>
                 <span wire:loading.remove wire:target="plan">{{ __("regular-staff.Toets afnemen") }}</span>
                 <span wire:loading wire:target="plan">{{ __('cms.one_moment_please') }}</span>

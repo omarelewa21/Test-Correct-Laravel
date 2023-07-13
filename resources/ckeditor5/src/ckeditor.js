@@ -43,6 +43,15 @@ import WProofreader from "@webspellchecker/wproofreader-ckeditor5/src/wproofread
 import PasteFromOffice from "@ckeditor/ckeditor5-paste-from-office/src/pastefromoffice";
 import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
 import ButtonView from '@ckeditor/ckeditor5-ui/src/button/buttonview';
+import {View} from "@ckeditor/ckeditor5-ui";
+import SelectAll from "@ckeditor/ckeditor5-select-all/src/selectall.js";
+window.buttonView = ButtonView;
+import Locale from '@ckeditor/ckeditor5-utils/src/locale';
+
+import Comments from '@ckeditor/ckeditor5-comments/src/comments';
+import CkEditorRadioWithColor from "../../js/CkEditorRadioInputWithColorView";
+import CkEditorRadioWithIcon from "../../js/CkEditorRadioInputWithIconView";
+import CkEditor5Button from "../../js/CkEditorButtonView";
 
 class Completion extends Plugin {
     init() {
@@ -102,6 +111,12 @@ class Selection extends Plugin {
     }
 }
 
+//ckeditor comments plugin buttons and radio inputs
+window.CkEditorLocale = Locale;
+window.CkEditorButtonView = CkEditor5Button;
+window.CkEditorRadioWithColorView = CkEditorRadioWithColor;
+window.CkEditorRadioWithIconView = CkEditorRadioWithIcon;
+
 function SpecialCharactersTLC(editor) {
     editor.plugins.get('SpecialCharacters').addItems('Vreemde tekens', [
         {title: 'Ringel S', character: 'ß'},
@@ -122,7 +137,8 @@ function SpecialCharactersTLC(editor) {
         {title: 'U accent grave', character: 'ù'},
         {title: 'E accent grave', character: 'è️'},
         {title: 'A accent grave', character: 'à'},
-        {title: 'I accent grave', character: 'ì️'}
+        {title: 'I accent grave', character: 'ì️'},
+        {title: 'Ohm', character: 'Ω'},
     ]);
 }
 
@@ -170,7 +186,9 @@ Editor.builtinPlugins = [
     WordCount,
     WProofreader,
     Completion,
-    Selection
+    Selection,
+    Comments,
+    SelectAll,
 ];
 
 // Editor configuration.
@@ -205,7 +223,7 @@ Editor.defaultConfig = {
             'fontColor',
             'heading',
             'removeFormat',
-            'wproofreader',
+            // 'wproofreader',
         ]
     },
     language: 'nl',
@@ -255,7 +273,7 @@ Editor.defaultConfig = {
 
     ui: {
         viewportOffset: {top: 137}
-    }
+    },
 };
 
 export default Editor;

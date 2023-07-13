@@ -2,19 +2,21 @@
 
 namespace tcCore\View\Components\Answer\Student;
 
+use Illuminate\Support\Str;
 use tcCore\Question;
 use tcCore\Answer;
+use function PHPUnit\Framework\stringContains;
 
 class OpenQuestion extends QuestionComponent
 {
     public string $answerValue;
-    public bool $allowWsc = false;
 
     public function __construct(
         public Question $question,
         public Answer   $answer,
         public string $editorId,
         public bool $webSpellChecker = false,
+        public string $commentMarkerStyles = '',
     )
     {
         parent::__construct($question, $answer);
@@ -23,6 +25,12 @@ class OpenQuestion extends QuestionComponent
 
     protected function setAnswerStruct($question, $answer): void
     {
-        $this->answerValue = json_decode($this->answer->json)->value ?? '';
+        $this->answerValue = $answer->commented_answer ?? json_decode($this->answer->json)->value ?? '';
+
+        $this->answerValue = Str::replace(
+            chr(194).chr(160),
+            " ".chr(194).chr(160),
+            $this->answerValue
+        );
     }
 }

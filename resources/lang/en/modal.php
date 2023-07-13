@@ -14,4 +14,6 @@ return [
     'logout_warning_title'                 => 'Attention! You will automatically be logged out',
     'logout_warning_text'                  => 'You have been inactive on Test-Correct for a long time and will be automatically logged out in 30 seconds to guarantee the security of your account. Do you want to extend your session by 15 minutes?',
     'extend_session'                       => 'Extend session',
+    'Feedback_in_bewerking_title'          => 'Feedback still being edited',
+    'Feedback_in_bewerking_text'           => 'There is feedback still being edited. Are you sure you want to continue without saving the changes?',
 ];

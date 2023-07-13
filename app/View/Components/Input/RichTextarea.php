@@ -4,12 +4,16 @@ namespace tcCore\View\Components\Input;
 
 use Illuminate\View\Component;
 use tcCore\Http\Enums\WscLanguage;
+use tcCore\UserFeatureSetting;
 
 class RichTextarea extends Component
 {
     public string $initFunctionCall;
+    public bool $isSpellCheckerEnabled;
 
-    private array $editorProperties = [
+
+
+    protected array $editorProperties = [
         'editorId',
         'lang',
         'allowWsc',
@@ -19,6 +23,7 @@ class RichTextarea extends Component
         'restrictWords',
         'textFormatting',
         'mathmlFunctions',
+        'isSpellCheckerEnabled',
         'enableGrammar',
     ];
 
@@ -37,6 +42,7 @@ class RichTextarea extends Component
         public ?bool                   $enableGrammar = true,
     ) {
         $this->lang ??= WscLanguage::DUTCH;
+        $this->isSpellCheckerEnabled = $this->getIsSpellCheckerEnabled();
         $this->initFunctionCall = sprintf('%s(%s)', $this->getInitMethod(), json_encode($this->getEditorConfig()));
     }
 
@@ -45,7 +51,7 @@ class RichTextarea extends Component
         return view('components.input.rich-textarea');
     }
 
-    private function getInitMethod()
+    protected function getInitMethod()
     {
         return match ($this->type) {
             'cms' => "RichTextEditor.initForTeacher",
@@ -54,6 +60,8 @@ class RichTextarea extends Component
             'student-co-learning' => "RichTextEditor.initStudentCoLearning",
             'student-preview' => "RichTextEditor.initClassicEditorForStudentPreviewplayer",
             'assessment-feedback' => "RichTextEditor.initAssessmentFeedback",
+            'create-answer-feedback' => "RichTextEditor.initCreateAnswerFeedbackEditor",
+            'update-answer-feedback' => "RichTextEditor.initUpdateAnswerFeedbackEditor",
             default => "RichTextEditor.initClassicEditorForStudentPlayer",
         };
     }
@@ -61,12 +69,19 @@ class RichTextarea extends Component
     /**
      * @return array
      */
-    private function getEditorConfig(): array
+    protected function getEditorConfig(): array
     {
         $config = collect();
         foreach ($this->editorProperties as $key) {
             $config->put($key, $this->$key);
         }
         return $config->toArray();
+    }
+
+    private function getIsSpellCheckerEnabled(): bool
+    {
+        if(!auth()->user()->isA('teacher')) return true;
+
+        return UserFeatureSetting::getSetting(auth()->user(), 'spellchecker_enabled', false, false, true);
     }
 }

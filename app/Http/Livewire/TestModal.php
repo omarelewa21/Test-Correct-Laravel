@@ -13,6 +13,8 @@ abstract class TestModal extends TCModalComponent
 
     public $request = [];
 
+    public $preventFieldTransformation = true;
+
     public function mount()
     {
         $this->setAllowedProperties();

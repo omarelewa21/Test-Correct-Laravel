@@ -51,7 +51,7 @@ return [
     'Instellingen'                                                                             => 'Instellingen',
     'Construeren'                                                                              => 'Construeren',
     'Voorbeeld'                                                                                => 'Voorbeeld',
-    'PDF maken'                                                                                => 'PDF maken',
+    'Exporteren naar PDF'                                                                                => 'Exporteren naar PDF',
     'Kopie maken'                                                                              => 'Kopie maken',
     'Je hebt het vak, niveau en/of leerjaar van de toets aangepast.'                           => 'Je hebt het vak, niveau en/of leerjaar van de toets aangepast. Is deze verandering een verbetering
                     van de toets of is het een nieuwe toets?',

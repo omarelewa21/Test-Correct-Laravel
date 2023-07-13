@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Livewire\Livewire;
+use Ramsey\Uuid\Uuid;
 use tcCore\Http\Helpers\BaseHelper;
 
 class MacrosServiceProvider extends ServiceProvider
@@ -38,6 +39,18 @@ class MacrosServiceProvider extends ServiceProvider
                     'label' => ($labelCallback) ? $labelCallback($value) : $value->name
                 ];
             });
+        });
+        EloquentBuilder::macro('whereUuidIn', function (array|Collection $uuids) {
+            $uuidSearchString = collect($uuids)
+                ->map(function ($uuid) {
+                    if (!Uuid::isValid($uuid)) {
+                        throw new \Exception('Trying to search with a non-uuid.');
+                    }
+                    return sprintf("unhex('%s')", str($uuid)->replace('-', ''));
+                })
+                ->join(', ');
+            $whereClause = sprintf("%s.uuid in (%s)", $this->getModel()->getTable(), $uuidSearchString);
+            return $this->whereRaw($whereClause);
         });
 
         Str::macro('dotToPascal', function ($string) {

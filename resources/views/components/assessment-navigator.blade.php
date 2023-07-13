@@ -11,6 +11,7 @@
      x-data="assessmentNavigator(@js((int)$current),@js($total),@js($methodCall), @js($last), @js($first))"
      x-cloak
      x-on:update-navigator="updateProperties($event.detail)"
+     x-on:continue-navigation="navigate($event.detail.method);"
      wire:ignore
 >
     <div class="flex gap-2">

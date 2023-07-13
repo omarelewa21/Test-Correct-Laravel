@@ -4,11 +4,14 @@
     'highlight' => false,
     'when' => true
 ])
-@php
-    if ($highlight) $attributes->setAttributes(['class' => $attributes->get('class') . ' group']);
-@endphp
+
 @if($when)
-    <div {{ $attributes->merge(['class' => 'flex items-center relative hover:text-primary hover:bg-primary/5 px-2 cursor-pointer transition']) }}
+    <div {{ $attributes->except('class') }}
+         @class([
+              'flex items-center relative hover:text-primary hover:bg-primary/5 active:text-primary active:bg-primary/10 px-2 cursor-pointer transition',
+              $attributes->get('class'),
+              'group' => $highlight,
+            ])
          x-on:click="{{ $menu }} = '{{ $tab }}'"
     >
         @if($highlight)

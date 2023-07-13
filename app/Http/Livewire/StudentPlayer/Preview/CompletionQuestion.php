@@ -17,24 +17,8 @@ class CompletionQuestion extends AbstractCompletionQuestion
 
     public function updatedAnswer($value, $field) {}
 
-    protected function completionHelper($context = 'teacher-preview'): string
-    {
-        return parent::completionHelper($context);
-    }
-
-    protected function multiHelper($createOptionCallback = null)
-    {
-        return parent::multiHelper(function ($matches, $answers) {
-            return sprintf(
-                '<select wire:model="answer.%s" class="form-input text-base max-w-full overflow-ellipsis overflow-hidden" @change="$event.target.setAttribute(\'title\', $event.target.value);" selid="testtake-select">%s</select>',
-                $matches[1],
-                $this->getOptions($answers)
-            );
-        });
-    }
-
     public function render()
     {
-        return view('livewire.student-player.preview.completion-question', ['html' => $this->getHtml()]);
+        return view('livewire.student-player.preview.completion-question');
     }
 }

@@ -12,7 +12,7 @@
         {{-- Filters--}}
         <div class="flex flex-col py-4">
             <div class="flex w-full mt-2">
-                <div class="relative w-full">
+                <div class="relative flex w-full">
                     <x-input.group class="w-full">
                         <x-input.text class="w-full"
                                       placeholder="{{ __('cms.Search...') }}"
@@ -20,6 +20,15 @@
                         />
                         <x-icon.search class="absolute right-0 -top-2"/>
                     </x-input.group>
+
+                    @if($inTestBankContext)
+                        <x-button.slider class="pl-2"
+                            :options="[false => __('general.tests'), true => __('general.questions')]"
+                            wire:model="showQuestionBank"
+                            :initialStatus="false"
+                            buttonWidth="auto"
+                        />
+                    @endif
                 </div>
             </div>
             <div class="flex flex-wrap w-full gap-2 mt-2">
@@ -135,4 +144,4 @@
     @yield('detailSlide')
 @endif
 <x-after-planning-toast/>
-</div> {{-- This closing tag closes the container that is included on line 1 --}}
+</div> @if($inTestBankContext) </div> @endif {{-- This closing tag closes the container that is included on line 1 --}}

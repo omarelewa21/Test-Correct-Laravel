@@ -1,0 +1,275 @@
+
+/* ckeditor comments */
+.ck.ck-balloon-panel {
+    display: none !important;
+}
+.ck-thread.ck-thread--active {
+    display: none;
+}
+
+.answer-feedback-card {
+    @apply flex w-auto flex-col border relative bg-white;
+    border-color: var(--blue-grey);
+    border-radius: 2px 10px 10px 2px;
+    padding: 1px;
+    border-left: 1px !important;
+    transition: margin-left 300ms linear, margin-right 300ms linear;
+    box-shadow: 1px 2px 4px 0 rgba(4, 31, 116, 0.15);
+    margin-left: 1rem;
+    margin-right: 1rem;
+    cursor: pointer;
+
+}
+
+
+.answer-feedback-card-active,
+.answer-feedback-card-editing,
+.answer-feedback-card-hovering,
+.answer-feedback-card:hover,
+.answer-feedback-card:active,
+.answer-feedback-card:focus {
+    @apply border-primary;
+}
+
+.answer-feedback-card-active,
+.answer-feedback-card-editing,
+.answer-feedback-card:active,
+.answer-feedback-card:focus {
+    @apply border-2;
+    padding: 0 0 0 1px !important;
+}
+
+.answer-feedback-card-hovering,
+.answer-feedback-card:hover {
+    background-color: #f3f7ff;
+}
+
+.answer-feedback-card-editing {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.answer-feedback-card:hover :is(.feedback-card-message, .feedback-card-datetime, .feedback-card-name) {
+    color: var(--teacher-primary);
+}
+
+.feedback-card-message {
+    position: relative;
+    transition: height 300ms ease-in-out;
+    width: 100%;
+    margin-bottom: 0.75rem;
+    padding: 0px 1rem;
+}
+
+.feedback-card-message .line-clamp-chevron {
+    position: absolute;
+    width: 13px;
+    height: 16px;
+    bottom: 0px;
+    right: 16px;
+    color: var(--all-Base);
+}
+
+.feedback-card-message .line-clamp-chevron > svg {
+    transform: translate(2px, -5px) rotate(90deg);
+}
+
+.feedback-card-message.expanded-card .line-clamp-chevron > svg {
+    transform: translate(2px, -6px) rotate(270deg);
+}
+
+.feedback-card-message .feedback-card-message-text {
+    overflow-x: hidden;
+}
+
+.feedback-card-message.text-overflow-card .feedback-card-message-text {
+    width: calc(100% - 13px);
+
+}
+
+.answer-feedback-card-line {
+    @apply absolute w-0 border-2 rounded-l-sm -top-px left-0 h-[calc(100%+2px)];
+}
+
+.answer-feedback-card-active .answer-feedback-card-line {
+    @apply h-[calc(100%+4px)] -top-[2px]
+}
+
+.answer-feedback-card-hovering::after,
+.answer-feedback-card:hover::after,
+.answer-feedback-card-editing::after,
+.answer-feedback-card-active::after {
+    content: '';
+    position: absolute;
+    box-sizing: content-box;
+    height: 100%;
+    pointer-events: none;
+    border-radius: 2px 10px 10px 2px;
+    left: 0;
+}
+
+
+.answer-feedback-card-editing::after,
+.answer-feedback-card-active::after {
+    border: 3px solid var(--primary);
+    top: -3px;
+    width: calc(100% - 3px);
+}
+
+.answer-feedback-card-hovering::after,
+.answer-feedback-card:hover::after {
+    border: 1px solid var(--primary);
+    top: -1px;
+    width: calc(100% - 1px);
+}
+
+.answer-feedback-card-teacher .answer-feedback-card-line {
+    border-color: rgb(var(--primary-rgb));
+}
+.answer-feedback-card-student .answer-feedback-card-line {
+    border-color: rgb(var(--student-rgb));
+}
+
+
+/* label color primary when hovering... */
+.comment-emoji-picker,
+.comment-color-picker {
+    @apply w-full mb-6;
+}
+
+.comment-emoji-picker:is(:hover, :active, :focus, :focus-within) .comment-emoji-picker-label,
+.comment-color-picker:is(:hover, :active, :focus, :focus-within) .comment-color-picker-label,
+.comment-feedback-editor:is(:hover, :active, :focus, :focus-within) .comment-feedback-editor-label {
+    color: var(--teacher-Primary);
+}
+
+.comment-emoji-picker:is(:active, :focus, :focus-within) .comment-emoji-picker-label,
+.comment-color-picker:is(:active, :focus, :focus-within) .comment-color-picker-label,
+.comment-feedback-editor:is(:active, :focus, :focus-within) .comment-feedback-editor-label {
+    font-weight: bold;
+}
+
+.comment-emoji-picker-label,
+.comment-color-picker-label {
+    @apply w-full mb-[5px] mt-2;
+}
+
+.comment-color-picker-label.disabled {
+    color: var(--mid-grey) !important;
+}
+
+
+.comment-editor .ck.ck-editor__main p > .ck-comment-marker {
+    border: 1px solid transparent;
+    cursor: pointer;
+}
+.comment-editor  .ck.ck-editor__main .ck-content > * {
+    line-height: 2;
+}
+
+
+
+/* COMMENT COLOR PICKER */
+
+.color-picker-radio.color-picker-radio-container:hover .color-picker-circle {
+    /* hover state */
+    /* show blue grey ring, white border */
+    border-color: white;
+    outline: 2px solid rgba(var(--primary-rgb), 0.5);
+    box-shadow: inset 0 0 0 2px var(--all-white), 0 0 0 2px rgba(0, 77, 245, 0.5);
+}
+
+.emoji-picker-radio.emoji-picker-radio-container:hover .emoji-picker-circle {
+    border-color: transparent;
+    background-color: rgba(var(--primary-rgb), 0.15);
+    outline: 2px solid rgba(var(--primary-rgb), 0.5);
+}
+
+.emoji-picker-radio.emoji-picker-radio-container,
+.color-picker-radio.color-picker-radio-container {
+    /* set dimensions for the radio facade */
+    position: relative;
+    display: block;
+    cursor: pointer;
+    width: 28px;
+    height: 28px;
+}
+
+.emoji-picker-radio input,
+.color-picker-radio input {
+    /* hide input */
+    position: absolute;
+    opacity: 0;
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+}
+
+.color-picker-radio input:disabled ~ .color-picker-circle,
+.color-picker-radio.color-picker-radio-container:hover input:disabled ~ .color-picker-circle {
+    opacity: 50%;
+    cursor: unset;
+    border-color: var(--all-Base);
+    outline: 2px solid transparent;
+    box-shadow: unset;
+}
+
+.emoji-picker-radio .emoji-picker-circle {
+    border-radius: 6px;
+}
+
+.emoji-picker-radio input:checked ~ .emoji-picker-circle {
+    background-color: rgba(var(--primary-rgb), 0.15);
+    border: 2px solid var(--light-grey);
+    outline: 2px solid var(--teacher-Primary);
+    box-shadow: inset 0 0 0 2px var(--all-white), 0 0 0 2px var(--teacher-primary);
+}
+
+.color-picker-radio input:checked ~ .color-picker-circle {
+    /* show focus ring when checked */
+    outline: 3px solid var(--teacher-Primary);
+    border: 2px solid white;
+}
+/*.slide-2,*/
+/*.slide-2 * {*/
+/*    overflow: visible !important;*/
+/*}*/
+
+.emoji-picker-radio .emoji-picker-circle {
+    position: absolute;
+    z-index: 1;
+    height: 26px;
+    width: 26px;
+    border: 2px solid transparent;
+    outline: 2px solid transparent;
+    top: 1px;
+    left: 1px;
+}
+
+.emoji-picker-radio svg {
+    position: absolute;
+    top: -1px;
+    left: -1px;
+}
+
+.color-picker-radio .color-picker-circle {
+    /* create fake css input circle */
+    /* all-base border */
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    height: 1.5rem;
+    width: 1.5rem;
+    border-radius: 9999px;
+    border: 2px solid var(--all-Base);
+    outline: 2px solid transparent;
+
+}
+
+
+.emoji-picker-radio svg,
+.emoji-picker-radio span,
+.color-picker-radio svg,
+.color-picker-radio span {
+    pointer-events: none;
+}

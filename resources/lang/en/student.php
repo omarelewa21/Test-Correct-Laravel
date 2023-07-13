@@ -154,4 +154,19 @@ return [
     'tooltip_taxonomy_graph'                                   => '{0} no data available |{1}P :p_value based on one question| [2,*] P :p_value base on :count_questions questions',
     'discussing_test'                                          => 'Discussing test',
     'review_test'                                              => 'Reviewing test',
+    'icons-tooltip'                                            => [
+        'before-test-take'                                     => [
+            'app'                                               => 'Take in app',
+            'web'                                               => 'Take in browser allowed',
+            'test-direct'                                       => 'Take via Test-Direct allowed',
+            'redo'                                              => 'Make-up test',
+        ],
+        'after-test-take'                                      => [
+            'app'                                               => 'Taken in app',
+            'web'                                               => 'Taken in browser',
+            'test-direct'                                       => 'Taken via guest account',
+            'redo'                                              => 'Make-up test',
+        ],
+    ],
+    'info'                                                     => 'Info',
 ];

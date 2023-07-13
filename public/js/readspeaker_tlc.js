@@ -46,6 +46,7 @@ ReadspeakerTlc = function(){
             if(rspkr.rs_tlc_prevent_ckeditor_focus){
                 return;
             }
+            ClassicEditors[editorId].ui.getEditableElement().setAttribute('aria-label', 'kaas is lekker');
             handleFocusForReadspeaker();
             ckeditorNode.editorId = editorId;
             var correction = {x:-15,y:2};
@@ -302,7 +303,20 @@ ReadspeakerTlc = function(){
             handlePopupChange,
             addListenersToPopup,
             handleCkeditorTableCellFocusForReadspeaker,
-            addListenerCkeditorTableCellFocusForReadspeaker
+            addListenerCkeditorTableCellFocusForReadspeaker,
+            fixAriaLabelsForCkeditor:fixAriaLabelsForCkeditor,
+        }
+
+        function fixAriaLabelsForCkeditor(textarea, editor) {
+            textarea.nextElementSibling
+                ?.querySelector(".ck-toolbar.ck-toolbar_grouping")
+                ?.setAttribute("aria-label", "");
+
+            editor.ui.getEditableElement()
+                ?.setAttribute(
+                    "aria-label",
+                    RichTextEditor.getPlainText(editor)
+                );
         }
     }();
     clickListen = function(){
@@ -1058,7 +1072,7 @@ ReadspeakerTlc = function(){
         {
             var oldEl = document.getElementById('there_can_only_be_one');
             var possibleTextarea = false;
-            var textareaId = 'textarea_'+id;
+            var textareaId = 'editor-'+id;
             var currentTextarea = document.querySelector('#'+textareaId);
             if(currentTextarea && !util.checkElementInActiveQuestion(currentTextarea)){
                 return true;
@@ -1132,7 +1146,7 @@ ReadspeakerTlc = function(){
     }
 }();
 ReadSpeaker.q(function() {
-    console.log('rs_tlc initialized!');
+    // console.log('rs_tlc initialized!');
     rspkr.rs_tlc_play_started = false;
     ReadspeakerTlc.register.registerTlcClickListenActive();
     rspkr.rs_tlc_prevent_close = false;
@@ -1171,7 +1185,7 @@ window.rsConf = {
                 focusedElements[0].classList.remove('rs-cl-tabbable');
             },
             close: function() {
-                console.log('Player closed and callback fired!');
+                // console.log('Player closed and callback fired!');
                 ReadspeakerTlc.clickListen.deactivateClickTap();
                 ReadspeakerTlc.player.hideRsPlayer();
                 rspkr.rs_tlc_prevent_ckeditor_focus = false;
@@ -1185,19 +1199,19 @@ window.rsConf = {
                 }));
             },
             stop: function() {
-                console.log('Player stopped and callback fired!');
+                // console.log('Player stopped and callback fired!');
                 ReadspeakerTlc.clickListen.deactivateClickTap();
                 rspkr.ui.getActivePlayer().close();
             },
             open: function() {
-                console.log('Open callback fired!');
+                // console.log('Open callback fired!');
                 window.document.dispatchEvent(new Event("readspeaker_opened", {
                     bubbles: true,
                     cancelable: true
                 }));
             },
             play: function() {
-                console.log('Play callback fired!');
+                // console.log('Play callback fired!');
                 rspkr.rs_tlc_play_started = true;
                 rspkr.rs_tlc_prevent_close = false;
                 ReadspeakerTlc.player.showRsPlayer();
@@ -1208,7 +1222,7 @@ window.rsConf = {
                 ReadspeakerTlc.player.sliderForIpad();
             },
             pause: function() {
-                console.log('Pause callback fired!');
+                // console.log('Pause callback fired!');
                 rspkr.rs_tlc_play_started = false;
             }
         }
