@@ -1327,4 +1327,9 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         return $user->isA('Administrator');
     }
 
+    public function addDefaultSettings()
+    {
+        SchoolLocationFeatureSetting::settingToDefaultSchool()->each(fn($setting) => $this->{$setting->value} = true);
+    }
+
 }

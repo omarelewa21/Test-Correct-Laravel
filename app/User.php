@@ -2613,7 +2613,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             return $language instanceof SystemLanguage ? $language->value : $language;
         }
 
-        if ($language = UserFeatureSetting::getSetting($this, UserFeatureSettingEnum::SYSTEM_LANGUAGE)) {
+        if ($language = UserFeatureSetting::getSetting($this, UserFeatureSettingEnum::SYSTEM_LANGUAGE, default: null)) {
             return $language->value;
         }
 
@@ -2811,7 +2811,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     private function setForcePasswordChangeIfRequired(): void
     {
         if (app()->runningInConsole()) return;
-        if (!$this->isDirty(['password'])) {
+        if (!$this->isDirty(['password']) || $this->isDirty('password_expiration_date')) {
             return;
         }
 
