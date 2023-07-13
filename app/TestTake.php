@@ -1,17 +1,20 @@
 <?php namespace tcCore;
 
 use Carbon\Carbon;
+use Dyrynda\Database\Casts\EfficientUuid;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Ramsey\Uuid\Uuid;
-use tcCore\Events\TestTakeChangeDiscussingQuestion;
 use tcCore\Events\InbrowserTestingUpdatedForTestParticipant;
 use tcCore\Events\NewTestTakeGraded;
+use tcCore\Events\NewTestTakePlanned;
 use tcCore\Events\NewTestTakeReviewable;
+use tcCore\Events\TestTakeChangeDiscussingQuestion;
 use tcCore\Events\TestTakeOpenForInteraction;
 use tcCore\Events\TestTakeShowResultsChanged;
 use tcCore\Http\Helpers\CakeRedirectHelper;
@@ -25,12 +28,8 @@ use tcCore\Jobs\SendTestPlannedMail;
 use tcCore\Jobs\SendTestRatedMail;
 use tcCore\Lib\Answer\AnswerChecker;
 use tcCore\Lib\Models\BaseModel;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use tcCore\Jobs\SendExceptionMail;
 use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\Lib\TestParticipant\Factory;
-use Dyrynda\Database\Casts\EfficientUuid;
-use tcCore\Events\NewTestTakePlanned;
 use tcCore\Scopes\ArchivedScope;
 use tcCore\Traits\Archivable;
 use tcCore\Traits\UuidTrait;
@@ -350,13 +349,13 @@ class TestTake extends BaseModel
         });
 
         static::created(function (TestTake $testTake) {
-            if ($testTake->schoolClasses !== null) {
-                $testTake->saveSchoolClassTestTakeParticipants();
-                $testTake->dispatchNewTestTakePlannedEvent();
-            }
-            if ($testTake->notify_students && GlobalStateHelper::getInstance()->isQueueAllowed()) {
-                Queue::later(300, new SendTestPlannedMail($testTake->getKey()));
-            }
+                if ($testTake->schoolClasses !== null) {
+                    $testTake->saveSchoolClassTestTakeParticipants();
+                    $testTake->dispatchNewTestTakePlannedEvent();
+                }
+                if ($testTake->notify_students && GlobalStateHelper::getInstance()->isQueueAllowed()) {
+                    Queue::later(300, new SendTestPlannedMail($testTake->getKey()));
+                }
         });
 
         static::deleted(function (TestTake $testTake) {
@@ -511,7 +510,7 @@ class TestTake extends BaseModel
         $this->testParticipants()->join('users', 'users.id', '=', 'test_participants.user_id')
             ->select('users.uuid')->distinct()->get()->pluck('uuid')
             ->each(function ($userUuid) {
-                NewTestTakePlanned::dispatch($userUuid);
+                AfterResponse::$performAction[] =  fn() => NewTestTakePlanned::dispatch($userUuid);
             });
     }
 
@@ -913,7 +912,7 @@ class TestTake extends BaseModel
         if ($this->isDirty('allow_inbrowser_testing')) {
             $this->testParticipants()->update(['allow_inbrowser_testing' => $this->allow_inbrowser_testing]);
             $this->testParticipants->each(function ($participant) {
-                InbrowserTestingUpdatedForTestParticipant::dispatch($participant->uuid);
+                AfterResponse::$performAction[] = fn() => InbrowserTestingUpdatedForTestParticipant::dispatch($participant->uuid);
             });
         }
     }
