@@ -9371,7 +9371,7 @@ document.addEventListener("alpine:init", function () {
                 if (deletedThreadIcon) {
                   deletedThreadIcon.remove();
                 }
-                commentsRepository.getCommentThread(threadId).remove();
+                thread.remove();
                 answerText = answerEditor.getData();
                 _context28.next = 18;
                 return _this62.$wire.updateAnswer(answerText);
@@ -9514,34 +9514,37 @@ document.addEventListener("alpine:init", function () {
         styleTag.innerHTML = '' + '.ck-comment-marker[data-comment="' + ((_this$activeComment2 = this.activeComment) === null || _this$activeComment2 === void 0 ? void 0 : _this$activeComment2.threadId) + '"] { ' + '   border: 1px solid var(--ck-color-comment-marker-border) !important; ' + '} ';
       },
       setActiveComment: function setActiveComment(threadId, answerFeedbackUuid) {
+        var _this65 = this;
         this.$dispatch('answer-feedback-show-comments');
-        this.$dispatch("assessment-drawer-tab-update", {
-          tab: 2,
-          uuid: answerFeedbackUuid
-        });
-        if (this.$store.answerFeedback.feedbackBeingEdited()) {
-          /* when editing, no other comment can be activated */
-          return;
-        }
-        this.activeComment = {
-          threadId: threadId,
-          uuid: answerFeedbackUuid
-        };
-        this.setActiveCommentMarkerStyle();
+        setTimeout(function () {
+          _this65.$dispatch("assessment-drawer-tab-update", {
+            tab: 2,
+            uuid: answerFeedbackUuid
+          });
+          if (_this65.$store.answerFeedback.feedbackBeingEdited()) {
+            /* when editing, no other comment can be activated */
+            return;
+          }
+          _this65.activeComment = {
+            threadId: threadId,
+            uuid: answerFeedbackUuid
+          };
+          _this65.setActiveCommentMarkerStyle();
+        }, 300);
       },
       clearActiveComment: function clearActiveComment() {
         this.activeComment = null;
         this.setActiveCommentMarkerStyle(true);
       },
       setFocusTracking: function setFocusTracking() {
-        var _this65 = this;
+        var _this66 = this;
         if (viewOnly) {
           return;
         }
         setTimeout(function () {
           try {
-            var answerEditor = ClassicEditors[_this65.answerEditorId];
-            var feedbackEditor = ClassicEditors[_this65.feedbackEditorId];
+            var answerEditor = ClassicEditors[_this66.answerEditorId];
+            var feedbackEditor = ClassicEditors[_this66.feedbackEditorId];
             answerEditor.ui.focusTracker.add(feedbackEditor.sourceElement.parentElement.querySelector('.ck.ck-content'));
 
             //keep focus when clicking on the emoji and color pickers
@@ -9570,10 +9573,10 @@ document.addEventListener("alpine:init", function () {
         return ClassicEditors[this.feedbackEditorId];
       },
       createFocusableButtons: function createFocusableButtons() {
-        var _this66 = this;
+        var _this67 = this;
         setTimeout(function () {
           try {
-            var answerEditor = ClassicEditors[_this66.answerEditorId];
+            var answerEditor = ClassicEditors[_this67.answerEditorId];
             var buttonWrapper = document.querySelector('#saveNewFeedbackButtonWrapper');
             if (buttonWrapper.children.length > 0) {
               return;
@@ -9629,11 +9632,11 @@ document.addEventListener("alpine:init", function () {
         radiobuttonIcon.element.querySelector('span').appendChild(document.importNode(el.querySelector('template').content, true));
       },
       setEditingComment: function setEditingComment(AnswerFeedbackUuid) {
-        var _this67 = this;
+        var _this68 = this;
         this.activeComment = null;
         this.$store.answerFeedback.editingComment = AnswerFeedbackUuid !== null && AnswerFeedbackUuid !== void 0 ? AnswerFeedbackUuid : null;
         setTimeout(function () {
-          _this67.fixSlideHeightByIndex(2, AnswerFeedbackUuid);
+          _this68.fixSlideHeightByIndex(2, AnswerFeedbackUuid);
         }, 100);
       },
       toggleFeedbackAccordion: function toggleFeedbackAccordion(name) {
@@ -9698,7 +9701,7 @@ document.addEventListener("alpine:init", function () {
         this.setHeightToAspectRatio(this.$el);
       },
       setHeightToAspectRatio: function setHeightToAspectRatio(element) {
-        var _this68 = this;
+        var _this69 = this;
         var aspectRatioWidth = 940;
         var aspectRatioHeight = 500;
         var aspectRatio = aspectRatioHeight / aspectRatioWidth;
@@ -9711,7 +9714,7 @@ document.addEventListener("alpine:init", function () {
         if (newHeight <= 0) {
           if (this.currentTry <= this.maxTries) {
             setTimeout(function () {
-              return _this68.setHeightToAspectRatio(element);
+              return _this69.setHeightToAspectRatio(element);
             }, 50);
             this.currentTry++;
           }
@@ -9744,16 +9747,16 @@ document.addEventListener("alpine:init", function () {
       maxWords: maxWords,
       wordContainer: null,
       init: function init() {
-        var _this69 = this;
+        var _this70 = this;
         this.$nextTick(function () {
-          _this69.editor = ClassicEditors[editorId];
-          _this69.wordContainer = _this69.$root.querySelector(".ck-word-count__words");
-          _this69.wordContainer.style.display = "flex";
-          _this69.wordContainer.parentElement.style.display = "flex";
-          _this69.addMaxWordsToWordCounter(_this69.maxWords);
+          _this70.editor = ClassicEditors[editorId];
+          _this70.wordContainer = _this70.$root.querySelector(".ck-word-count__words");
+          _this70.wordContainer.style.display = "flex";
+          _this70.wordContainer.parentElement.style.display = "flex";
+          _this70.addMaxWordsToWordCounter(_this70.maxWords);
         });
         this.$watch("maxWords", function (value) {
-          _this69.addMaxWordsToWordCounter(value);
+          _this70.addMaxWordsToWordCounter(value);
         });
       },
       addMaxWordsToWordCounter: function addMaxWordsToWordCounter(value) {
@@ -10151,42 +10154,40 @@ debug = function debug() {
     debugger;
   }, seconds * 1000);
 };
+window.smoothScrollFailedTimeout = null;
 smoothScroll = function smoothScroll(scrollContainer) {
   var offsetTop = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
   var offsetLeft = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
+  var retry = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
   scrollContainer.scroll({
     top: offsetTop,
     left: offsetLeft,
     behavior: 'smooth'
   });
-  if (window.smoothscroll_promise === undefined) {
-    window.smoothscroll_promise = 0;
-    console.log('init', window.smoothscroll_promise);
+  if (window.smoothScrollFailedTimeout) {
+    clearTimeout(window.smoothScrollFailedTimeout);
+    window.smoothScrollFailedTimeout = null;
   }
-  ;
-  window.smoothscroll_promise = window.smoothscroll_promise++;
-  var promiseIterator = window.smoothscroll_promise;
   return new Promise(function (resolve, reject) {
-    var failed = setTimeout(function () {
+    window.smoothScrollFailedTimeout = setTimeout(function () {
       if (scrollContainer.offsetHeight + scrollContainer.scrollTop === scrollContainer.scrollHeight) {
         return resolve();
       }
-      console.log('failed', promiseIterator, window.smoothscroll_promise);
-      if (promiseIterator < window.smoothscroll_promise) {
-        console.log('promiseIterator', promiseIterator, window.smoothscroll_promise);
-        return resolve();
+      if (retry) {
+        return reject();
       }
-      reject();
-    }, 2000);
+      smoothScroll(scrollContainer, offsetTop, offsetLeft, true);
+      resolve();
+    }, 1000);
     var scrollHandler = function scrollHandler() {
       if (scrollContainer.scrollTop === offsetTop) {
         scrollContainer.removeEventListener("scroll", scrollHandler);
-        clearTimeout(failed);
+        clearTimeout(window.smoothScrollFailedTimeout);
         resolve();
       }
     };
     if (scrollContainer.scrollTop === offsetTop) {
-      clearTimeout(failed);
+      clearTimeout(window.smoothScrollFailedTimeout);
       resolve();
     } else {
       scrollContainer.addEventListener("scroll", scrollHandler);
