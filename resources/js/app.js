@@ -335,31 +335,41 @@ debug = function (seconds = 2) {
         debugger;
     }, seconds * 1000);
 }
-_smoothscroll_timeout = null;
-smoothScroll = function smoothScroll(scrollContainer, offsetTop = 0, offsetLeft = 0) {
+window.smoothScrollFailedTimeout = null;
+
+smoothScroll = function smoothScroll(scrollContainer, offsetTop = 0, offsetLeft = 0, retry = false) {
     scrollContainer.scroll({
         top: offsetTop,
         left: offsetLeft,
         behavior: 'smooth'
     });
 
+    if(window.smoothScrollFailedTimeout) {
+        clearTimeout(window.smoothScrollFailedTimeout);
+        window.smoothScrollFailedTimeout = null;
+    }
+
     return new Promise((resolve, reject) => {
-        const failed = setTimeout(() => {
+        window.smoothScrollFailedTimeout = setTimeout(() => {
             if( (scrollContainer.offsetHeight + scrollContainer.scrollTop) === scrollContainer.scrollHeight) {
                 return resolve();
             }
-            reject();
-        }, 2000);
+            if(retry) {
+                return reject();
+            }
+            smoothScroll(scrollContainer, offsetTop, offsetLeft, true);
+            resolve();
+        }, 1000);
 
         const scrollHandler = () => {
             if (scrollContainer.scrollTop === offsetTop) {
                 scrollContainer.removeEventListener("scroll", scrollHandler);
-                clearTimeout(failed);
+                clearTimeout(window.smoothScrollFailedTimeout);
                 resolve();
             }
         };
         if (scrollContainer.scrollTop === offsetTop) {
-            clearTimeout(failed);
+            clearTimeout(window.smoothScrollFailedTimeout);
             resolve();
         } else {
             scrollContainer.addEventListener("scroll", scrollHandler);

@@ -2803,8 +2803,7 @@ document.addEventListener("alpine:init", () => {
                 if(deletedThreadIcon) {
                     deletedThreadIcon.remove();
                 }
-
-                commentsRepository.getCommentThread(threadId).remove();
+                thread.remove();
                 const answerText = answerEditor.getData();
                 await this.$wire.updateAnswer(answerText);
 
@@ -2985,13 +2984,15 @@ document.addEventListener("alpine:init", () => {
         },
         setActiveComment (threadId, answerFeedbackUuid) {
             this.$dispatch('answer-feedback-show-comments');
-            this.$dispatch("assessment-drawer-tab-update", { tab: 2, uuid: answerFeedbackUuid });
-            if(this.$store.answerFeedback.feedbackBeingEdited()) {
-                /* when editing, no other comment can be activated */
-                return;
-            }
-            this.activeComment = {threadId: threadId, uuid: answerFeedbackUuid };
-            this.setActiveCommentMarkerStyle();
+            setTimeout(() => {
+                this.$dispatch("assessment-drawer-tab-update", { tab: 2, uuid: answerFeedbackUuid });
+                if(this.$store.answerFeedback.feedbackBeingEdited()) {
+                    /* when editing, no other comment can be activated */
+                    return;
+                }
+                this.activeComment = {threadId: threadId, uuid: answerFeedbackUuid };
+                this.setActiveCommentMarkerStyle();
+            }, 300);
         },
         clearActiveComment() {
             this.activeComment = null;

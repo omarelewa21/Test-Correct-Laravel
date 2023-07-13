@@ -114,6 +114,7 @@
                                             :disabled-toggle="true"
                                             :webSpellChecker="$this->webSpellCheckerEnabled"
                                             :commentMarkerStyles="$this->commentMarkerStyles"
+                                            :enableComments="true"
                                     />
                                 </div>
                             </x-slot:body>

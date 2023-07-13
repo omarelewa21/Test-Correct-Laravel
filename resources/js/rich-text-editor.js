@@ -5,6 +5,7 @@ RichTextEditor = {
             (editor) => {
                 this.setupWordCounter(editor, parameterBag);
                 WebspellcheckerTlc.subscribeToProblemCounter(editor);
+                WebspellcheckerTlc.lang(editor, parameterBag.lang);
                 window.addEventListener("wsc-problems-count-updated-" + parameterBag.editorId, (e) => {
                     let problemCountSpan = document.getElementById("problem-count-" + parameterBag.editorId);
                     if (problemCountSpan) {
