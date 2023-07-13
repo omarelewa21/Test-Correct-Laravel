@@ -2663,7 +2663,7 @@ document.addEventListener("alpine:init", () => {
             this.$watch("showMe", (value) => {
                 if (value) {
                     this.$dispatch("visible-component", { el: this.$el });
-                    this.$dispatch("reinitialize-editor-editor-");
+                    this.$dispatch("reinitialize-editor-editor-" + this.questionId);
                 }
             });
             if (this.reinitializedTimeoutData && this.reinitializedTimeoutData.length) {
