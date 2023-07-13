@@ -24,11 +24,11 @@
                         --}}{!!$textPartial!!}{{-- Do not format this file. It causes unfixable/unwanted whitespaces.
                     --}}@endforeach
                         <x-input.select class="!w-fit mb-1 mr-1 text-base"
-                                        wire:model="answer.{{ $answerIndex }}"
-                                        :error="empty($this->answer[$answerIndex])"
+                                        wire:model="answer.{{ $answerIndex + 1 }}"
+                                        :error="empty($this->answer[$answerIndex + 1])"
                         >
                             @foreach($options[$answerIndex + 1] as $key => $option)
-                                <x-input.option :value="$key" :label="$option" />
+                                <x-input.option :value="$option" :label="$option" />
                             @endforeach
                         </x-input.select>
                     @endforeach
