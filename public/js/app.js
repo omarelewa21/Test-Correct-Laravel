@@ -9589,42 +9589,63 @@ document.addEventListener("alpine:init", function () {
           _this67.createCommentIcon(thread);
         });
       },
-      initCommentIcon: function initCommentIcon(el, thread) {
+      repositionAnswerFeedbackIcons: function repositionAnswerFeedbackIcons() {
         var _this68 = this;
+        var answerFeedbackCommentIcons = document.querySelectorAll('.answer-feedback-comment-icon');
+        answerFeedbackCommentIcons.forEach(function (iconWrapper) {
+          var threadId = iconWrapper.dataset.threadid;
+          _this68.calculateIconPosition(iconWrapper, threadId);
+        });
+        debounce(function () {
+          console.log('hier');
+        }, 1000)();
+      },
+      calculateIconPosition: function calculateIconPosition(iconWrapper, threadId) {
+        var commentMarkers = document.querySelectorAll("[data-comment='" + threadId + "']");
+        var lastCommentMarker = commentMarkers[commentMarkers.length - 1];
+        iconWrapper.style.top = lastCommentMarker.offsetTop - 15 /* adjust icon alignment */ + lastCommentMarker.offsetHeight - 24 /* adjust to last line of marker */ + 'px';
+        var lastCommentMarkerClientRects = lastCommentMarker.getClientRects();
+        var lastCommentMarkerParentClientRects = lastCommentMarker.offsetParent.getClientRects();
+        var lastCommentMarkerLineClientRight = lastCommentMarkerClientRects[lastCommentMarkerClientRects.length - 1].right;
+        var lastCommentMarkerLineParentClientLeft = lastCommentMarkerParentClientRects[lastCommentMarkerParentClientRects.length - 1].left;
+        var lastCommentMarkerLineOffsetLeft = lastCommentMarkerLineClientRight - lastCommentMarkerLineParentClientLeft;
+        iconWrapper.style.left = lastCommentMarkerLineOffsetLeft - 5 + 'px';
+      },
+      initCommentIcon: function initCommentIcon(iconWrapper, thread) {
+        var _this69 = this;
         var commentThreadElements = null;
         setTimeout(function () {
+          _this69.calculateIconPosition(iconWrapper, thread.threadId);
           var commentMarkers = document.querySelectorAll("[data-comment='" + thread.threadId + "']");
-          var lastCommentMarker = commentMarkers[commentMarkers.length - 1];
-          el.style.top = lastCommentMarker.offsetTop - 15 + 'px';
-          el.style.left = lastCommentMarker.offsetWidth + lastCommentMarker.offsetLeft - 5 + 'px';
-          el.setAttribute('data-uuid', thread.uuid);
-          el.setAttribute('data-threadId', thread.threadId);
-          _this68.addOrReplaceIconByName(el, thread.iconName);
-          commentThreadElements = [].concat(_toConsumableArray(commentMarkers), [el]);
+          iconWrapper.setAttribute('data-uuid', thread.uuid);
+          iconWrapper.setAttribute('data-threadId', thread.threadId);
+          _this69.addOrReplaceIconByName(iconWrapper, thread.iconName);
+          commentThreadElements = [].concat(_toConsumableArray(commentMarkers), [iconWrapper]);
 
           //set click event listener on all comment markers and the icon.
           commentThreadElements.forEach(function (threadElement) {
             threadElement.addEventListener('click', function () {
-              _this68.setActiveComment(thread.threadId, thread.uuid);
+              _this69.setActiveComment(thread.threadId, thread.uuid);
             });
             threadElement.addEventListener('mouseenter', function (e) {
-              _this68.setHoveringComment(thread.threadId, thread.uuid);
+              _this69.setHoveringComment(thread.threadId, thread.uuid);
             });
             threadElement.addEventListener('mouseleave', function (e) {
-              _this68.clearHoveringComment();
+              _this69.clearHoveringComment();
             });
           });
         }, 200);
       },
       createCommentIcon: function createCommentIcon(thread) {
-        var el = document.querySelector('.answer-feedback-comment-icons');
+        var commentIconsContainer = document.querySelector('.answer-feedback-comment-icons');
         var iconId = "icon-" + thread.threadId;
         var iconWrapper = document.createElement('div');
         iconWrapper.classList.add('absolute');
         iconWrapper.classList.add('z-10');
         iconWrapper.classList.add('cursor-pointer');
+        iconWrapper.classList.add('answer-feedback-comment-icon');
         iconWrapper.id = iconId;
-        el.appendChild(iconWrapper);
+        commentIconsContainer.appendChild(iconWrapper);
         this.initCommentIcon(iconWrapper, thread);
       },
       addOrReplaceIconByName: function addOrReplaceIconByName(el, iconName) {
@@ -9729,14 +9750,14 @@ document.addEventListener("alpine:init", function () {
         this.setActiveCommentMarkerStyle(true);
       },
       setFocusTracking: function setFocusTracking() {
-        var _this69 = this;
+        var _this70 = this;
         if (viewOnly) {
           return;
         }
         setTimeout(function () {
           try {
-            var answerEditor = ClassicEditors[_this69.answerEditorId];
-            var feedbackEditor = ClassicEditors[_this69.feedbackEditorId];
+            var answerEditor = ClassicEditors[_this70.answerEditorId];
+            var feedbackEditor = ClassicEditors[_this70.feedbackEditorId];
             answerEditor.ui.focusTracker.add(feedbackEditor.sourceElement.parentElement.querySelector('.ck.ck-content'));
 
             //keep focus when clicking on the emoji and color pickers
@@ -9765,10 +9786,10 @@ document.addEventListener("alpine:init", function () {
         return ClassicEditors[this.feedbackEditorId];
       },
       createFocusableButtons: function createFocusableButtons() {
-        var _this70 = this;
+        var _this71 = this;
         setTimeout(function () {
           try {
-            var answerEditor = ClassicEditors[_this70.answerEditorId];
+            var answerEditor = ClassicEditors[_this71.answerEditorId];
             var buttonWrapper = document.querySelector('#saveNewFeedbackButtonWrapper');
             if (buttonWrapper.children.length > 0) {
               return;
@@ -9824,11 +9845,11 @@ document.addEventListener("alpine:init", function () {
         radiobuttonIcon.element.querySelector('span').appendChild(document.importNode(el.querySelector('template').content, true));
       },
       setEditingComment: function setEditingComment(AnswerFeedbackUuid) {
-        var _this71 = this;
+        var _this72 = this;
         this.activeComment = null;
         this.$store.answerFeedback.editingComment = AnswerFeedbackUuid !== null && AnswerFeedbackUuid !== void 0 ? AnswerFeedbackUuid : null;
         setTimeout(function () {
-          _this71.fixSlideHeightByIndex(2, AnswerFeedbackUuid);
+          _this72.fixSlideHeightByIndex(2, AnswerFeedbackUuid);
         }, 100);
       },
       toggleFeedbackAccordion: function toggleFeedbackAccordion(name) {
@@ -9893,7 +9914,7 @@ document.addEventListener("alpine:init", function () {
         this.setHeightToAspectRatio(this.$el);
       },
       setHeightToAspectRatio: function setHeightToAspectRatio(element) {
-        var _this72 = this;
+        var _this73 = this;
         var aspectRatioWidth = 940;
         var aspectRatioHeight = 500;
         var aspectRatio = aspectRatioHeight / aspectRatioWidth;
@@ -9906,7 +9927,7 @@ document.addEventListener("alpine:init", function () {
         if (newHeight <= 0) {
           if (this.currentTry <= this.maxTries) {
             setTimeout(function () {
-              return _this72.setHeightToAspectRatio(element);
+              return _this73.setHeightToAspectRatio(element);
             }, 50);
             this.currentTry++;
           }
@@ -9939,16 +9960,16 @@ document.addEventListener("alpine:init", function () {
       maxWords: maxWords,
       wordContainer: null,
       init: function init() {
-        var _this73 = this;
+        var _this74 = this;
         this.$nextTick(function () {
-          _this73.editor = ClassicEditors[editorId];
-          _this73.wordContainer = _this73.$root.querySelector(".ck-word-count__words");
-          _this73.wordContainer.style.display = "flex";
-          _this73.wordContainer.parentElement.style.display = "flex";
-          _this73.addMaxWordsToWordCounter(_this73.maxWords);
+          _this74.editor = ClassicEditors[editorId];
+          _this74.wordContainer = _this74.$root.querySelector(".ck-word-count__words");
+          _this74.wordContainer.style.display = "flex";
+          _this74.wordContainer.parentElement.style.display = "flex";
+          _this74.addMaxWordsToWordCounter(_this74.maxWords);
         });
         this.$watch("maxWords", function (value) {
-          _this73.addMaxWordsToWordCounter(value);
+          _this74.addMaxWordsToWordCounter(value);
         });
       },
       addMaxWordsToWordCounter: function addMaxWordsToWordCounter(value) {
@@ -9967,18 +9988,18 @@ document.addEventListener("alpine:init", function () {
     return {
       editorId: editorId,
       init: function init() {
-        var _this74 = this;
+        var _this75 = this;
         this.$watch("showMe", function (value) {
           if (!value) return;
-          _this74.$nextTick(function () {
+          _this75.$nextTick(function () {
             var editor = ClassicEditors[editorId];
             if (!editor) {
               return;
             }
-            _this74.setFocus(editor);
+            _this75.setFocus(editor);
             if (!editor.ui.focusTracker.isFocused) {
               setTimeout(function () {
-                return _this74.setFocus(editor);
+                return _this75.setFocus(editor);
               }, 100);
             }
           });
@@ -10006,14 +10027,14 @@ document.addEventListener("alpine:init", function () {
       pillContainer: null,
       searchFocussed: false,
       init: function init() {
-        var _this75 = this;
+        var _this76 = this;
         this.pillContainer = document.querySelector("#".concat(containerId));
         this.$watch("query", function (value) {
-          return _this75.search(value);
+          return _this76.search(value);
         });
         this.$watch("multiSelectOpen", function (value) {
-          if (value) _this75.handleDropdownLocation();
-          if (!value) _this75.query = "";
+          if (value) _this76.handleDropdownLocation();
+          if (!value) _this76.query = "";
         });
         this.registerSelectedItemsOnComponent();
       },
@@ -10021,15 +10042,15 @@ document.addEventListener("alpine:init", function () {
         this.openSubs = this.toggle(this.openSubs, uuid);
       },
       parentClick: function parentClick(element, parent) {
-        var _this76 = this;
+        var _this77 = this;
         var checked = !this.checkedParents.includes(parent.value);
         element.querySelector("input[type=\"checkbox\"]").checked = checked;
         this.checkedParents = this.toggle(this.checkedParents, parent.value);
         parent.children.filter(function (child) {
           return child.disabled !== true;
         }).forEach(function (child) {
-          _this76[checked ? "childAdd" : "childRemove"](child);
-          checked ? _this76.checkAndDisableBrothersFromOtherMothers(child) : _this76.uncheckAndEnableBrothersFromOtherMothers(child);
+          _this77[checked ? "childAdd" : "childRemove"](child);
+          checked ? _this77.checkAndDisableBrothersFromOtherMothers(child) : _this77.uncheckAndEnableBrothersFromOtherMothers(child);
         });
         this.$root.querySelectorAll("[data-parent-id=\"".concat(parent.value, "\"][data-disabled=\"false\"] input[type=\"checkbox\"]")).forEach(function (child) {
           return child.checked = checked;
@@ -10096,13 +10117,13 @@ document.addEventListener("alpine:init", function () {
         // return result < parent.children.length;
       },
       checkedChildrenCount: function checkedChildrenCount(parent) {
-        var _this77 = this;
+        var _this78 = this;
         return parent.children.filter(function (child) {
-          return _this77.checkedChildrenContains(child);
+          return _this78.checkedChildrenContains(child);
         }).length;
       },
       search: function search(value) {
-        var _this78 = this;
+        var _this79 = this;
         if (value.length === 0) {
           this.searchEmpty = false;
           this.showAllOptions();
@@ -10112,7 +10133,7 @@ document.addEventListener("alpine:init", function () {
         var results = this.searchParentsAndChildsLabels(value);
         this.searchEmpty = results.length === 0;
         results.forEach(function (item) {
-          return _this78.showOption(item);
+          return _this79.showOption(item);
         });
       },
       showOption: function showOption(identifier) {
@@ -10182,9 +10203,9 @@ document.addEventListener("alpine:init", function () {
         this[toggleFunction](this.$root.querySelector("[data-id=\"".concat(event.item.value, "\"][data-parent-id=\"").concat(event.item.customProperties.parentId, "\"]")), event.item);
       },
       handleActiveFilters: function handleActiveFilters() {
-        var _this79 = this;
+        var _this80 = this;
         var currentPillIds = Array.from(this.pillContainer.childNodes).map(function (pill) {
-          if (!_this79.isParent(pill.item)) {
+          if (!_this80.isParent(pill.item)) {
             return pill.item.value + pill.item.customProperties.parentId;
           }
           return pill.item.value;
@@ -10198,13 +10219,13 @@ document.addEventListener("alpine:init", function () {
         this.options.flatMap(function (parent) {
           return [parent].concat(_toConsumableArray(parent.children));
         }).filter(function (item) {
-          if (_this79.isParent(item)) return _this79.checkedParents.includes(item.value);
-          if (_this79.checkedParents.includes(item.customProperties.parentId)) {
+          if (_this80.isParent(item)) return _this80.checkedParents.includes(item.value);
+          if (_this80.checkedParents.includes(item.customProperties.parentId)) {
             pillIdsToRemove.push(item.value + item.customProperties.parentId);
           }
-          return !_this79.checkedParents.includes(item.customProperties.parentId) && _this79.checkedChildrenContains(item);
+          return !_this80.checkedParents.includes(item.customProperties.parentId) && _this80.checkedChildrenContains(item);
         }).forEach(function (item) {
-          return _this79.createFilterPill(item);
+          return _this80.createFilterPill(item);
         });
         var that = this;
         pillIdsToRemove.forEach(function (uuid) {
@@ -10231,7 +10252,7 @@ document.addEventListener("alpine:init", function () {
         }
       },
       registerSelectedItemsOnComponent: function registerSelectedItemsOnComponent() {
-        var _this80 = this;
+        var _this81 = this;
         var checkedChildValues = this.options.flatMap(function (parent) {
           return _toConsumableArray(parent.children);
         }).filter(function (item) {
@@ -10240,10 +10261,10 @@ document.addEventListener("alpine:init", function () {
         });
         this.$nextTick(function () {
           checkedChildValues.forEach(function (item) {
-            _this80.childClick(_this80.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.customProperties.parentId, "\"]")), item);
+            _this81.childClick(_this81.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.customProperties.parentId, "\"]")), item);
           });
-          _this80.registerParentsBasedOnDisabledChildren();
-          _this80.handleActiveFilters();
+          _this81.registerParentsBasedOnDisabledChildren();
+          _this81.handleActiveFilters();
         });
       },
       syncInput: function syncInput() {
@@ -10260,24 +10281,24 @@ document.addEventListener("alpine:init", function () {
         });
       },
       checkAndDisableBrothersFromOtherMothers: function checkAndDisableBrothersFromOtherMothers(child) {
-        var _this81 = this;
-        this.options.flatMap(function (parents) {
-          return _toConsumableArray(parents.children);
-        }).filter(function (item) {
-          return item.value === child.value && item.customProperties.parentId !== child.customProperties.parentId;
-        }).forEach(function (item) {
-          _this81.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.customProperties.parentId, "\"] input[type=\"checkbox\"]")).checked = true;
-          item.disabled = true;
-        });
-      },
-      uncheckAndEnableBrothersFromOtherMothers: function uncheckAndEnableBrothersFromOtherMothers(child) {
         var _this82 = this;
         this.options.flatMap(function (parents) {
           return _toConsumableArray(parents.children);
         }).filter(function (item) {
           return item.value === child.value && item.customProperties.parentId !== child.customProperties.parentId;
         }).forEach(function (item) {
-          _this82.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.customProperties.parentId, "\"] input[type=\"checkbox\"]")).checked = false;
+          _this82.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.customProperties.parentId, "\"] input[type=\"checkbox\"]")).checked = true;
+          item.disabled = true;
+        });
+      },
+      uncheckAndEnableBrothersFromOtherMothers: function uncheckAndEnableBrothersFromOtherMothers(child) {
+        var _this83 = this;
+        this.options.flatMap(function (parents) {
+          return _toConsumableArray(parents.children);
+        }).filter(function (item) {
+          return item.value === child.value && item.customProperties.parentId !== child.customProperties.parentId;
+        }).forEach(function (item) {
+          _this83.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.customProperties.parentId, "\"] input[type=\"checkbox\"]")).checked = false;
           item.disabled = false;
         });
       },
@@ -10286,15 +10307,15 @@ document.addEventListener("alpine:init", function () {
         return !((_item$customPropertie3 = item.customProperties) !== null && _item$customPropertie3 !== void 0 && _item$customPropertie3.parent) === false;
       },
       registerParentsBasedOnDisabledChildren: function registerParentsBasedOnDisabledChildren() {
-        var _this83 = this;
+        var _this84 = this;
         this.options.forEach(function (item) {
           var enabledChildren = item.children.filter(function (child) {
             return child.disabled !== true;
           }).length;
           if (enabledChildren === 0) return;
-          var enabled = _this83.checkedChildrenCount(item) === enabledChildren;
-          _this83.checkedParents = _this83[enabled ? "add" : "remove"](_this83.checkedParents, item.value);
-          _this83.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.value, "\"] input[type=\"checkbox\"]")).checked = enabled;
+          var enabled = _this84.checkedChildrenCount(item) === enabledChildren;
+          _this84.checkedParents = _this84[enabled ? "add" : "remove"](_this84.checkedParents, item.value);
+          _this84.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.value, "\"] input[type=\"checkbox\"]")).checked = enabled;
         });
       },
       parentDisabled: function parentDisabled(parent) {
@@ -10325,11 +10346,11 @@ document.addEventListener("alpine:init", function () {
       selectedText: null
     }, selectFunctions), {}, {
       init: function init() {
-        var _this84 = this;
+        var _this85 = this;
         this.selectedText = this.$root.querySelector("span.selected").dataset.selectText;
         this.setActiveStartingValue();
         this.$watch("singleSelectOpen", function (value) {
-          if (value) _this84.handleDropdownLocation();
+          if (value) _this85.handleDropdownLocation();
         });
       },
       get value() {
@@ -10394,21 +10415,21 @@ document.addEventListener("alpine:init", function () {
       inTestBankContext: inTestBankContext,
       maxHeight: 'calc(100vh - var(--header-height))',
       init: function init() {
-        var _this85 = this;
+        var _this86 = this;
         this.groupDetail = this.$el.querySelector('#groupdetail');
         this.$watch('showBank', function (value) {
           if (value === 'questions') {
-            _this85.$wire.loadSharedFilters();
+            _this86.$wire.loadSharedFilters();
           }
         });
         this.$watch('$store.questionBank.inGroup', function (value) {
-          _this85.inGroup = value;
+          _this86.inGroup = value;
         });
         this.$watch('$store.questionBank.active', function (value) {
           if (value) {
-            _this85.$wire.setAddedQuestionIdsArray();
+            _this86.$wire.setAddedQuestionIdsArray();
           } else {
-            _this85.closeGroupDetailQb();
+            _this86.closeGroupDetailQb();
           }
         });
         this.showGroupDetailsQb = /*#__PURE__*/function () {
@@ -10421,32 +10442,32 @@ document.addEventListener("alpine:init", function () {
                 case 0:
                   inTest = _args30.length > 1 && _args30[1] !== undefined ? _args30[1] : false;
                   _context30.next = 3;
-                  return _this85.$wire.showGroupDetails(groupQuestionUuid, inTest);
+                  return _this86.$wire.showGroupDetails(groupQuestionUuid, inTest);
                 case 3:
                   readyForSlide = _context30.sent;
                   if (readyForSlide) {
-                    if (_this85.inTestBankContext) {
-                      _this85.$refs['tab-container'].style.display = 'none';
-                      _this85.$refs['main-container'].style.height = '100vh';
+                    if (_this86.inTestBankContext) {
+                      _this86.$refs['tab-container'].style.display = 'none';
+                      _this86.$refs['main-container'].style.height = '100vh';
                     } else {
-                      _this85.maxHeight = _this85.groupDetail.offsetHeight + 'px';
+                      _this86.maxHeight = _this86.groupDetail.offsetHeight + 'px';
                     }
-                    _this85.groupDetail.style.left = 0;
-                    _this85.$refs['main-container'].scrollTo({
+                    _this86.groupDetail.style.left = 0;
+                    _this86.$refs['main-container'].scrollTo({
                       top: 0,
                       behavior: 'smooth'
                     });
-                    _this85.$el.scrollTo({
+                    _this86.$el.scrollTo({
                       top: 0,
                       behavior: 'smooth'
                     });
-                    _this85.$nextTick(function () {
+                    _this86.$nextTick(function () {
                       setTimeout(function () {
-                        _this85.bodyVisibility = false;
-                        if (_this85.inTestBankContext) {
-                          _this85.groupDetail.style.position = 'relative';
+                        _this86.bodyVisibility = false;
+                        if (_this86.inTestBankContext) {
+                          _this86.groupDetail.style.position = 'relative';
                         } else {
-                          handleVerticalScroll(_this85.$el.closest('.slide-container'));
+                          handleVerticalScroll(_this86.$el.closest('.slide-container'));
                         }
                       }, 500);
                     });
@@ -10462,19 +10483,19 @@ document.addEventListener("alpine:init", function () {
           };
         }();
         this.closeGroupDetailQb = function () {
-          if (!_this85.bodyVisibility) {
-            _this85.bodyVisibility = true;
-            _this85.maxHeight = 'calc(100vh - var(--header-height))';
-            _this85.groupDetail.style.left = '100%';
-            if (_this85.inTestBankContext) {
-              _this85.groupDetail.style.position = 'absolute';
-              _this85.$refs['tab-container'].style.display = 'block';
+          if (!_this86.bodyVisibility) {
+            _this86.bodyVisibility = true;
+            _this86.maxHeight = 'calc(100vh - var(--header-height))';
+            _this86.groupDetail.style.left = '100%';
+            if (_this86.inTestBankContext) {
+              _this86.groupDetail.style.position = 'absolute';
+              _this86.$refs['tab-container'].style.display = 'block';
             }
-            _this85.$nextTick(function () {
-              _this85.$wire.clearGroupDetails();
+            _this86.$nextTick(function () {
+              _this86.$wire.clearGroupDetails();
               setTimeout(function () {
-                if (!_this85.inTestBankContext) {
-                  handleVerticalScroll(_this85.$el.closest('.slide-container'));
+                if (!_this86.inTestBankContext) {
+                  handleVerticalScroll(_this86.$el.closest('.slide-container'));
                 }
               }, 250);
             });
@@ -10493,13 +10514,13 @@ document.addEventListener("alpine:init", function () {
                     _context31.next = 3;
                     break;
                   }
-                  return _context31.abrupt("return", _this85.$wire.emit('openModal', 'teacher.add-sub-question-confirmation-modal', {
+                  return _context31.abrupt("return", _this86.$wire.emit('openModal', 'teacher.add-sub-question-confirmation-modal', {
                     questionUuid: questionUuid
                   }));
                 case 3:
                   button.disabled = true;
                   _context31.next = 6;
-                  return _this85.$wire.handleCheckboxClick(questionUuid);
+                  return _this86.$wire.handleCheckboxClick(questionUuid);
                 case 6:
                   enableButton = _context31.sent;
                   if (enableButton) {
@@ -10946,6 +10967,17 @@ smoothScroll = function smoothScroll(scrollContainer) {
       scrollContainer.addEventListener("scroll", scrollHandler);
     }
   });
+};
+debounce = function debounce(func) {
+  var time = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 100;
+  return function (time) {
+    var time = time;
+    window.debounceTimeout;
+    return function (event) {
+      if (window.debounceTimeout) clearTimeout(window.debounceTimeout);
+      window.debounceTimeout = setTimeout(func, time, event);
+    };
+  }(time);
 };
 
 /***/ }),
@@ -17449,8 +17481,7 @@ document.addEventListener('alpine:init', function () {
       menuButtonsWithoutItems: null,
       activeMenuItem: null,
       init: function init() {
-        var _this = this,
-          _this$$refs$chat_butt;
+        var _this = this;
         var navBar = this.$refs.nav_bar;
         this.bottom = this.$refs.menu_bottom;
         var tiles = this.$refs.tiles;
@@ -17517,7 +17548,7 @@ document.addEventListener('alpine:init', function () {
         this.$refs.support_button.addEventListener('click', function (event) {
           _this.supportMenuShow();
         });
-        (_this$$refs$chat_butt = this.$refs.chat_button) === null || _this$$refs$chat_butt === void 0 ? void 0 : _this$$refs$chat_butt.addEventListener('click', function (event) {
+        this.$refs.chat_button.addEventListener('click', function (event) {
           _this.openHubspotWidget();
         });
       },
@@ -17773,6 +17804,7 @@ RichTextEditor = {
     return this.createStudentEditor(parameterBag, function (editor) {
       _this.setupWordCounter(editor, parameterBag);
       WebspellcheckerTlc.subscribeToProblemCounter(editor);
+      WebspellcheckerTlc.lang(editor, parameterBag.lang);
       window.addEventListener("wsc-problems-count-updated-" + parameterBag.editorId, function (e) {
         var problemCountSpan = document.getElementById("problem-count-" + parameterBag.editorId);
         if (problemCountSpan) {
@@ -17790,7 +17822,6 @@ RichTextEditor = {
     parameterBag.pluginsToAdd = ['Selection'];
     return this.createTeacherEditor(parameterBag, function (editor) {
       WebspellcheckerTlc.lang(editor, parameterBag.lang);
-      WebspellcheckerTlc.handleSpellCheckerOnOff(editor, parameterBag.isSpellCheckerEnabled);
       _this2.setReadOnly(editor);
       window.editor = editor;
     });
@@ -17800,20 +17831,14 @@ RichTextEditor = {
     parameterBag.pluginsToAdd = ["Completion"];
     return this.createTeacherEditor(parameterBag, function (editor) {
       WebspellcheckerTlc.lang(editor, parameterBag.lang);
-      WebspellcheckerTlc.handleSpellCheckerOnOff(editor, parameterBag.isSpellCheckerEnabled);
       _this3.setReadOnly(editor);
-      window.editor = editor;
     });
   },
   initClassicEditorForStudentPlayer: function initClassicEditorForStudentPlayer(parameterBag) {
     var _this4 = this;
     return this.createStudentEditor(parameterBag, function (editor) {
-      WebspellcheckerTlc.lang(editor, parameterBag.lang);
       _this4.setupWordCounter(editor, parameterBag);
       if (typeof ReadspeakerTlc != "undefined") {
-        editor.editing.view.document.on('change:isFocused', function (evt, data, isFocused) {
-          isFocused ? rsTlcEvents.handleCkeditorFocusForReadspeaker(evt.target, parameterBag.questionId, parameterBag.editorId) : rsTlcEvents.handleCkeditorBlurForReadspeaker(evt.target, parameterBag.questionId, parameterBag.editorId);
-        });
         ReadspeakerTlc.ckeditor.addListenersForReadspeaker(editor, parameterBag.questionId, parameterBag.editorId);
         ReadspeakerTlc.ckeditor.disableContextMenuOnCkeditor();
       }
@@ -17822,7 +17847,6 @@ RichTextEditor = {
   initClassicEditorForStudentPreviewplayer: function initClassicEditorForStudentPreviewplayer(parameterBag) {
     var _this5 = this;
     return this.createStudentEditor(parameterBag, function (editor) {
-      WebspellcheckerTlc.lang(editor, parameterBag.lang);
       _this5.setupWordCounter(editor, parameterBag);
       if (typeof ReadspeakerTlc != "undefined") {
         ReadspeakerTlc.ckeditor.replaceReadableAreaByClone(editor);
@@ -17834,7 +17858,6 @@ RichTextEditor = {
     var _this6 = this;
     return this.createTeacherEditor(parameterBag, function (editor) {
       WebspellcheckerTlc.lang(editor, parameterBag.lang);
-      WebspellcheckerTlc.handleSpellCheckerOnOff(editor, parameterBag.isSpellCheckerEnabled);
       _this6.setupWordCounter(editor, parameterBag);
       _this6.setReadOnly(editor);
     });
@@ -17937,7 +17960,7 @@ RichTextEditor = {
       wordCount: {
         displayCharacters: false
       },
-      wproofreader: this.getWproofreaderConfig(parameterBag.enableGrammar)
+      wproofreader: this.getWproofreaderConfig()
     };
     config.removePlugins = ["Selection", "Completion", "ImageUpload", "Image", "ImageToolbar"];
     config.toolbar = {
@@ -18018,7 +18041,7 @@ RichTextEditor = {
       },
 
       wordCount: {
-        displayCharacters: false,
+        displayCharacters: true,
         displayWords: true
       },
       wproofreader: this.getWproofreaderConfig()
@@ -18095,9 +18118,6 @@ RichTextEditor = {
       wordCountWrapper.appendChild(wordCountPlugin.wordCountContainer);
       window.dispatchEvent(new CustomEvent("updated-word-count-plugin-container"));
     }
-    if (!parameterBag.restrictWords || [null, 0].includes(parameterBag.maxWords)) {
-      return;
-    }
     editor.maxWords = parameterBag.maxWords;
     editor.maxWordOverride = parameterBag.maxWordOverride;
     this.handleInputWithMaxWords(editor);
@@ -18106,11 +18126,6 @@ RichTextEditor = {
       _this8.handleInputWithMaxWords(editor);
     };
     editor.model.document.on("change:data", function (event, batch) {
-      if (_this8.hasNoWordLimit(editor)) return;
-      var wc = editor.plugins.get("WordCount");
-      if (wc.words > editor.maxWords) {
-        editor.execute('undo');
-      }
       _this8.handleInputWithMaxWords(editor, event);
     });
     editor.editing.view.document.on("paste", function (event, data) {
@@ -18118,13 +18133,11 @@ RichTextEditor = {
       var wc = editor.plugins.get("WordCount");
       var maxWords = parseInt(editor.maxWords);
       if (wc.words >= maxWords) {
-        //always the old number of words. never triggers when pasting at 49/50 words
         data.preventDefault();
         event.stop();
       } else {
         editor.pasted = true;
         editor.prePasteData = editor.getData();
-        editor.prePasteWc = wc.words;
       }
     });
     editor.editing.view.document.on("keydown", function (event, data) {
@@ -18145,22 +18158,14 @@ RichTextEditor = {
       return;
     }
     var input = editor.commands.get("input");
-    var enterKeyCommand = editor.commands.get("enter");
     var wc = editor.plugins.get("WordCount");
     var maxWords = parseInt(editor.maxWords);
     editor.disableSpacers = wc.words >= maxWords;
     if (wc.words > maxWords) {
       input.forceDisabled("maxword-lock");
-      enterKeyCommand.forceDisabled("maxword-lock");
       handlePastedData();
     } else {
-      if (wc.words == maxWords) {
-        enterKeyCommand.forceDisabled("maxword-lock");
-      } else {
-        enterKeyCommand.clearForceDisabled("maxword-lock");
-      }
       input.clearForceDisabled("maxword-lock");
-      editor.pasted = false;
     }
     function handlePastedData() {
       if (!editor.pasted) return;
@@ -18172,17 +18177,12 @@ RichTextEditor = {
           writer.setSelection(editor.model.document.getRoot(), "end");
         });
       }, 1);
-      editor.disableSpacers = editor.prePasteWc >= maxWords;
-      if (editor.prePasteWc < maxWords) {
-        input.clearForceDisabled('maxword-lock');
-      }
     }
   },
   hasNoWordLimit: function hasNoWordLimit(editor) {
     return editor.maxWords === null || editor.maxWordOverride;
   },
   getWproofreaderConfig: function getWproofreaderConfig() {
-    var enableGrammar = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
     return {
       autoSearch: false,
       autoDestroy: true,
@@ -18194,52 +18194,45 @@ RichTextEditor = {
       servicePort: "80",
       serviceHost: "wsc.test-correct.nl",
       servicePath: "wscservice/api",
-      srcUrl: "https://wsc.test-correct.nl/wscservice/wscbundle/wscbundle.js",
-      enableGrammar: enableGrammar
+      srcUrl: "https://wsc.test-correct.nl/wscservice/wscbundle/wscbundle.js"
     };
   },
   createEditor: function createEditor(editorId, config) {
-    var _arguments = arguments;
+    var resolveCallback = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+    var editor = ClassicEditors[editorId];
+    if (editor) editor.destroy(true);
+    return ClassicEditor.create(document.getElementById(editorId), config).then(function (editor) {
+      ClassicEditors[editorId] = editor;
+      if (typeof resolveCallback === "function") {
+        resolveCallback(editor);
+      }
+    })["catch"](function (error) {
+      console.error(error);
+    });
+  },
+  createTeacherEditor: function createTeacherEditor(parameterBag) {
+    var _arguments = arguments,
+      _this9 = this;
     return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
-      var resolveCallback, editor;
+      var resolveCallback;
       return _regeneratorRuntime().wrap(function _callee$(_context) {
         while (1) switch (_context.prev = _context.next) {
           case 0:
-            resolveCallback = _arguments.length > 2 && _arguments[2] !== undefined ? _arguments[2] : null;
-            editor = ClassicEditors[editorId];
-            _context.prev = 2;
-            if (!editor) {
-              _context.next = 6;
-              break;
-            }
-            _context.next = 6;
-            return editor.destroy(true);
-          case 6:
-            _context.next = 11;
-            break;
-          case 8:
-            _context.prev = 8;
-            _context.t0 = _context["catch"](2);
-            console.warn('An issue occurred while destroying an existing editor.');
-          case 11:
-            return _context.abrupt("return", ClassicEditor.create(document.getElementById(editorId), config).then(function (editor) {
-              ClassicEditors[editorId] = editor;
-              if (typeof resolveCallback === "function") {
-                resolveCallback(editor);
-              }
-            })["catch"](function (error) {
-              console.error(error);
-            }));
-          case 12:
+            resolveCallback = _arguments.length > 1 && _arguments[1] !== undefined ? _arguments[1] : null;
+            _context.next = 3;
+            return _this9.createEditor(parameterBag.editorId, _this9.getConfigForTeacher(parameterBag), resolveCallback);
+          case 3:
+            return _context.abrupt("return", _context.sent);
+          case 4:
           case "end":
             return _context.stop();
         }
-      }, _callee, null, [[2, 8]]);
+      }, _callee);
     }))();
   },
-  createTeacherEditor: function createTeacherEditor(parameterBag) {
+  createStudentEditor: function createStudentEditor(parameterBag) {
     var _arguments2 = arguments,
-      _this9 = this;
+      _this10 = this;
     return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
       var resolveCallback;
       return _regeneratorRuntime().wrap(function _callee2$(_context2) {
@@ -18247,7 +18240,7 @@ RichTextEditor = {
           case 0:
             resolveCallback = _arguments2.length > 1 && _arguments2[1] !== undefined ? _arguments2[1] : null;
             _context2.next = 3;
-            return _this9.createEditor(parameterBag.editorId, _this9.getConfigForTeacher(parameterBag), resolveCallback);
+            return _this10.createEditor(parameterBag.editorId, _this10.getConfigForStudent(parameterBag), resolveCallback);
           case 3:
             return _context2.abrupt("return", _context2.sent);
           case 4:
@@ -18256,33 +18249,6 @@ RichTextEditor = {
         }
       }, _callee2);
     }))();
-  },
-  createStudentEditor: function createStudentEditor(parameterBag) {
-    var _arguments3 = arguments,
-      _this10 = this;
-    return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
-      var resolveCallback;
-      return _regeneratorRuntime().wrap(function _callee3$(_context3) {
-        while (1) switch (_context3.prev = _context3.next) {
-          case 0:
-            resolveCallback = _arguments3.length > 1 && _arguments3[1] !== undefined ? _arguments3[1] : null;
-            _context3.next = 3;
-            return _this10.createEditor(parameterBag.editorId, _this10.getConfigForStudent(parameterBag), resolveCallback);
-          case 3:
-            return _context3.abrupt("return", _context3.sent);
-          case 4:
-          case "end":
-            return _context3.stop();
-        }
-      }, _callee3);
-    }))();
-  },
-  writeContentToTexarea: function writeContentToTexarea(editorId) {
-    var editor = ClassicEditors[editorId];
-    if (editor) {
-      editor.updateSourceElement();
-      editor.sourceElement.dispatchEvent(new Event("input"));
-    }
   },
   setAnswerFeedbackItemsToRemove: function setAnswerFeedbackItemsToRemove(parameterBag) {
     parameterBag.removeItems = {
@@ -18472,16 +18438,6 @@ function shouldSwipeDirectionBeReturned(target) {
 /***/ (() => {
 
 WebspellcheckerTlc = {
-  forTeacherQuestion: function forTeacherQuestion(editor, language) {
-    var wsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
-    if (!wsc) {
-      return;
-    }
-    WebspellcheckerTlc.initWsc(editor, language);
-    editor.on('resize', function (event) {
-      WebspellcheckerTlc.triggerWsc(editor, language);
-    });
-  },
   lang: function lang(editor, language) {
     var i = 0;
     var timer = setInterval(function () {
@@ -18500,32 +18456,6 @@ WebspellcheckerTlc = {
       editor.ui.view.editable.element.setAttribute('contenteditable', false);
     }, 3000);
   },
-  triggerWsc: function triggerWsc(editor, language) {
-    if (editor.element.$.parentNode.getElementsByClassName('wsc_badge').length == 0) {
-      WebspellcheckerTlc.initWsc(editor, language);
-    }
-  },
-  initWsc: function initWsc(editor, language) {
-    setTimeout(function () {
-      var instance = WEBSPELLCHECKER.init({
-        container: editor.ui.getEditableElement('main'),
-        spellcheckLang: language,
-        localization: 'nl'
-      });
-      instance.subscribe('problemCheckEnded', function (event) {
-        window.dispatchEvent(new CustomEvent('wsc-problems-count-updated-' + editor.sourceElement.id, {
-          detail: {
-            problemsCount: instance.getProblemsCount()
-          }
-        }));
-      });
-      try {
-        instance.setLang(language);
-      } catch (e) {
-        console.dir(e);
-      }
-    }, 1000);
-  },
   subscribeToProblemCounter: function subscribeToProblemCounter(editor) {
     var i = 0;
     var problemTimer = setInterval(function () {
@@ -18533,6 +18463,7 @@ WebspellcheckerTlc = {
       if (i === 50) clearInterval(problemTimer);
       if (typeof WEBSPELLCHECKER != "undefined") {
         var instance = WEBSPELLCHECKER.getInstances().pop();
+        if (instance == undefined) return;
         instance.subscribe('problemCheckEnded', function (event) {
           window.dispatchEvent(new CustomEvent('wsc-problems-count-updated-' + editor.sourceElement.id, {
             detail: {
@@ -18543,33 +18474,6 @@ WebspellcheckerTlc = {
         clearInterval(problemTimer);
       }
     }, 200);
-  },
-  /**
-   * This function is used to handle the spellchecker on/off button and store it in user session 
-   * @param {object} editor
-   */
-  handleSpellCheckerOnOff: function handleSpellCheckerOnOff(editor) {
-    var initialStatus = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-    spellChecker = editor.plugins.get('WProofreader');
-    spellChecker.isEnabled = initialStatus; // set initial status
-    this.captureSpellCheckerOnOff(spellChecker);
-  },
-  captureSpellCheckerOnOff: function captureSpellCheckerOnOff(spellChecker) {
-    var _this = this;
-    currentState = spellChecker.isEnabled;
-    spellChecker.on('change', function () {
-      if (spellChecker.isEnabled != currentState) {
-        currentState = spellChecker.isEnabled;
-        _this.storeIsSpellCheckerOnOffInSession(currentState);
-      }
-    });
-  },
-  storeIsSpellCheckerOnOffInSession: function storeIsSpellCheckerOnOffInSession(isSpellCheckerEnabled) {
-    window.dispatchEvent(new CustomEvent('store-to-session', {
-      'detail': {
-        isSpellCheckerEnabled: isSpellCheckerEnabled
-      }
-    }));
   }
 };
 

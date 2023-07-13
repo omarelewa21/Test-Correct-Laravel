@@ -2820,21 +2820,44 @@ document.addEventListener("alpine:init", () => {
                 this.createCommentIcon(thread);
             })
         },
-        initCommentIcon(el, thread) {
+        repositionAnswerFeedbackIcons() {
+            let answerFeedbackCommentIcons = document.querySelectorAll('.answer-feedback-comment-icon');
+            answerFeedbackCommentIcons.forEach((iconWrapper) => {
+                let threadId = iconWrapper.dataset.threadid;
+                this.calculateIconPosition(iconWrapper, threadId);
+            });
+            debounce(function () {
+                console.log('hier')
+            }, 1000)();
+        },
+        calculateIconPosition(iconWrapper, threadId) {
+            const commentMarkers = document.querySelectorAll(`[data-comment='` + threadId + `']`);
+            const lastCommentMarker = commentMarkers[commentMarkers.length-1];
+
+            iconWrapper.style.top = (lastCommentMarker.offsetTop - 15 /* adjust icon alignment */ + lastCommentMarker.offsetHeight - 24 /* adjust to last line of marker */) + 'px';
+
+            let lastCommentMarkerClientRects = lastCommentMarker.getClientRects();
+            let lastCommentMarkerParentClientRects = lastCommentMarker.offsetParent.getClientRects();
+
+            let lastCommentMarkerLineClientRight = lastCommentMarkerClientRects[lastCommentMarkerClientRects.length-1].right;
+            let lastCommentMarkerLineParentClientLeft = lastCommentMarkerParentClientRects[lastCommentMarkerParentClientRects.length-1].left;
+
+            let lastCommentMarkerLineOffsetLeft = lastCommentMarkerLineClientRight - lastCommentMarkerLineParentClientLeft;
+
+            iconWrapper.style.left = (lastCommentMarkerLineOffsetLeft - 5) + 'px';
+        },
+        initCommentIcon(iconWrapper, thread) {
             let commentThreadElements = null;
             setTimeout(() => {
-                const commentMarkers = document.querySelectorAll(`[data-comment='` + thread.threadId+ `']`);
-                const lastCommentMarker = commentMarkers[commentMarkers.length-1];
+                this.calculateIconPosition(iconWrapper, thread.threadId)
+                const commentMarkers = document.querySelectorAll(`[data-comment='` + thread.threadId + `']`);
 
-                el.style.top = (lastCommentMarker.offsetTop - 15) + 'px';
-                el.style.left = (lastCommentMarker.offsetWidth + lastCommentMarker.offsetLeft - 5) + 'px';
+                iconWrapper.setAttribute('data-uuid', thread.uuid);
+                iconWrapper.setAttribute('data-threadId', thread.threadId);
 
-                el.setAttribute('data-uuid', thread.uuid);
-                el.setAttribute('data-threadId', thread.threadId);
+                this.addOrReplaceIconByName(iconWrapper, thread.iconName);
 
-                this.addOrReplaceIconByName(el, thread.iconName);
-
-                commentThreadElements = [...commentMarkers, el];
+                commentThreadElements = [...commentMarkers, iconWrapper];
 
                 //set click event listener on all comment markers and the icon.
                 commentThreadElements.forEach((threadElement) => {
@@ -2852,14 +2875,15 @@ document.addEventListener("alpine:init", () => {
             }, 200)
         },
         createCommentIcon (thread) {
-            let el = document.querySelector('.answer-feedback-comment-icons');
+            let commentIconsContainer = document.querySelector('.answer-feedback-comment-icons');
             let iconId = "icon-"+thread.threadId;
             let iconWrapper = document.createElement('div');
             iconWrapper.classList.add('absolute');
             iconWrapper.classList.add('z-10');
             iconWrapper.classList.add('cursor-pointer');
+            iconWrapper.classList.add('answer-feedback-comment-icon');
             iconWrapper.id = iconId;
-            el.appendChild(iconWrapper)
+            commentIconsContainer.appendChild(iconWrapper)
 
             this.initCommentIcon(iconWrapper, thread);
         },

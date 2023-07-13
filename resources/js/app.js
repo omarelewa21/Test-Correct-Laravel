@@ -366,3 +366,11 @@ smoothScroll = function smoothScroll(scrollContainer, offsetTop = 0, offsetLeft 
         }
     });
 }
+debounce = function debounce(func, time = 100){
+    var time = time;
+    window.debounceTimeout;
+    return function(event){
+        if(window.debounceTimeout) clearTimeout(window.debounceTimeout);
+        window.debounceTimeout = setTimeout(func, time, event);
+    };
+}
