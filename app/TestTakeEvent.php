@@ -4,6 +4,7 @@ use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Support\Facades\Auth;
 use tcCore\Events\NewTestTakeEventAdded;
 use tcCore\Events\RemoveFraudDetectionNotification;
+use tcCore\Http\Middleware\AfterResponse;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Dyrynda\Database\Casts\EfficientUuid;
@@ -64,12 +65,12 @@ class TestTakeEvent extends BaseModel {
         });
 
         static::created(function(TestTakeEvent $testTakeEvent) {
-            NewTestTakeEventAdded::dispatch($testTakeEvent->testTake->uuid);
+            AfterResponse::$performAction[] = fn() => NewTestTakeEventAdded::dispatch($testTakeEvent->testTake->uuid);
         });
 
         static::saved(function(TestTakeEvent $testTakeEvent) {
             if ($testTakeEvent->confirmed == 1 && $testTakeEvent->getOriginal('confirmed') == 0) {
-                RemoveFraudDetectionNotification::dispatch($testTakeEvent->testParticipant->uuid);
+                AfterResponse::$performAction[] = fn() => RemoveFraudDetectionNotification::dispatch($testTakeEvent->testParticipant->uuid);
             }
         });
     }
