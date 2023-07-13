@@ -295,7 +295,7 @@ class TestTake extends BaseModel
                 }
 
                 $testTake->testParticipants->each(function ($participant) {
-                    NewTestTakeGraded::dispatch($participant->user()->value('uuid'));
+                    AfterResponse::$performAction[] = fn() => NewTestTakeGraded::dispatch($participant->user()->value('uuid'));
                 });
             }
 
@@ -904,10 +904,10 @@ class TestTake extends BaseModel
     private function handleShowResultChanges()
     {
         if ($this->wasChanged('show_results')) {
-            TestTakeShowResultsChanged::dispatch($this->uuid);
+            AfterResponse::$performAction[] = fn() => TestTakeShowResultsChanged::dispatch($this->uuid);
 
             $this->testParticipants->each(function($participant) {
-                NewTestTakeReviewable::dispatch($participant->user()->value('uuid'));
+                AfterResponse::$performAction[] = fn() => NewTestTakeReviewable::dispatch($participant->user()->value('uuid'));
             });
         }
     }

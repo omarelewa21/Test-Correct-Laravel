@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Response;
 use tcCore\AnswerRating;
 use tcCore\Events\InbrowserTestingUpdatedForTestParticipant;
 use tcCore\Http\Controllers\Controller;
+use tcCore\Http\Middleware\AfterResponse;
 use tcCore\Http\Requests\CreateTestParticipantRequest;
 use tcCore\Http\Requests\HeartbeatTestParticipantRequest;
 use tcCore\Http\Requests\IndexTestParticipantsRequest;
@@ -431,7 +432,7 @@ class TestParticipantsController extends Controller
             if ($testTake->id === $testParticipant->test_take_id) {
                 if ($testTake->isAllowedToView(auth()->user())) {
                     $testParticipant->update(['allow_inbrowser_testing' => ! $testParticipant->allow_inbrowser_testing]);
-                    InbrowserTestingUpdatedForTestParticipant::dispatch($testParticipant->uuid);
+                    AfterResponse::$performAction[] = fn() => InbrowserTestingUpdatedForTestParticipant::dispatch($testParticipant->uuid);
                 }
             }
         }
