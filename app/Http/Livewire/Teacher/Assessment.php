@@ -62,7 +62,6 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     protected $students;
 
     /* Context properties */
-    public int $progress = 0;
     public int $maxAssessedValue = 1;
     public bool $openOnly;
     public bool $isCoLearningScore = false;
@@ -323,7 +322,6 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         $this->feedback = $this->getFeedbackForCurrentAnswer();
         $this->answerPanel = true;
         $this->setUserOnAnswer($this->currentAnswer);
-        $this->setProgress();
 
         $this->dispatchUpdateQuestionNavigatorEvent();
 
@@ -903,29 +901,17 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         return $this->currentQuestion->isSubType('writing') ? '' : $feedback;
     }
 
-    private function setProgress(): void
+    public function assessedAllAnswers(): bool
     {
-        return;
-        [$percentagePerAnswer, $assessedAnswers] = $this->getProgressPropertiesForCalculation();
+        $filteredAnswers = $this->answersWithDiscrepancyFilter();
+        $assessedAnswerCount = $filteredAnswers->where(function ($answer) {
+            if ($answer->answerRatings->where('type', '!=', AnswerRating::TYPE_STUDENT)->isNotEmpty()) {
+                return true;
+            }
+            return $answer->hasDiscrepancy === false;
+        })->count();
 
-        $currentAnswerIndexOfAllAnswers = $this->answers->search(function ($answer) {
-            return $answer->id === $this->currentAnswer->id;
-        });
-
-        $maxAssessedValue = max($currentAnswerIndexOfAllAnswers, $this->maxAssessedValue);
-
-        if ($maxAssessedValue > $this->maxAssessedValue) {
-            $this->updateMaxAssessedValue($maxAssessedValue);
-        }
-
-        $multiplier = $assessedAnswers->filter(fn($item, $key) => $key <= $maxAssessedValue)->count();
-
-        $floatPercentage = $percentagePerAnswer * $multiplier;
-        $newPercentage = $floatPercentage > 99.99 ? 100 : floor($floatPercentage);
-
-        if ($newPercentage > $this->progress) {
-            $this->progress = $newPercentage;
-        }
+        return $filteredAnswers->count() === $assessedAnswerCount;
     }
 
     private function getCoLearningScoreForCurrentAnswer(): float|int
@@ -936,25 +922,6 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             ->avg('rating');
 
         return $this->currentQuestion->decimal_score ? floor(($rating * 2) / 2) : (int)round($rating);
-    }
-
-    /**
-     * @return array
-     */
-    private function getProgressPropertiesForCalculation(): array
-    {
-        $filteredAnswers = $this->answersWithDiscrepancyFilter();
-
-        $percentagePerAnswer = 1 / $filteredAnswers->count() * 100;
-
-        $assessedAnswers = $filteredAnswers->where(function ($answer) {
-            if ($answer->answerRatings->where('type', '!=', AnswerRating::TYPE_STUDENT)->isNotEmpty()) {
-                return true;
-            }
-            return $answer->hasDiscrepancy === false;
-        });
-
-        return [$percentagePerAnswer, $assessedAnswers];
     }
 
     private function getNavigationValueForQuestion(Question $question): int
