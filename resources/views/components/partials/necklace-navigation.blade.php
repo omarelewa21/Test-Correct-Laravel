@@ -1,4 +1,4 @@
-<div class="flex w-full h-full px-15 items-center invisible overflow-hidden"
+<div class="flex w-full h-full px-15 items-center invisible overflow-hidden select-none"
      id="necklace-navigation"
      x-data="reviewNavigation(@js($position))"
      x-bind:class="{'invisible': !initialized }"

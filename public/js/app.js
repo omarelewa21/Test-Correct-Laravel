@@ -8721,10 +8721,10 @@ document.addEventListener("alpine:init", function () {
                 _this47.activeTab = index;
                 _this47.closeTooltips();
                 slide = _this47.getSlideElementByIndex(index);
-                _this47.handleSlideHeight(slide);
-                _context13.next = 9;
+                _context13.next = 8;
                 return _this47.$nextTick();
-              case 9:
+              case 8:
+                _this47.handleSlideHeight(slide);
                 if (!answerFeedbackCommentUuid) {
                   _context13.next = 14;
                   break;
@@ -9367,12 +9367,14 @@ document.addEventListener("alpine:init", function () {
                   var _event$detail;
                   return _this61.updateNewCommentMarkerStyles(event === null || event === void 0 ? void 0 : (_event$detail = event.detail) === null || _event$detail === void 0 ? void 0 : _event$detail.color);
                 });
-                document.addEventListener('mousedown', function (e) {
+                document.addEventListener('mousedown', function (event) {
+                  _this61.resetCommentColorPickerFocusState(event);
+                  _this61.resetCommentEmojiPickerFocusState(event);
                   if (_this61.activeComment === null) {
                     return;
                   }
                   //check for click outside 1. comment markers, 2. comment marker icons, 3. comment cards.
-                  if (e.srcElement.closest('.ck-comment-marker') || e.srcElement.closest('.answer-feedback-comment-icons') || e.srcElement.closest('.given-feedback-container')) {
+                  if (event.srcElement.closest(':is(.ck-comment-marker, .answer-feedback-comment-icons, .given-feedback-container)')) {
                     return;
                   }
                   _this61.clearActiveComment();
@@ -9384,6 +9386,24 @@ document.addEventListener("alpine:init", function () {
             }
           }, _callee23);
         }))();
+      },
+      resetCommentColorPickerFocusState: function resetCommentColorPickerFocusState(event) {
+        if (event.srcElement.closest('.comment-color-picker')) {
+          return;
+        }
+        var commentColorPickerCKEditorElement = document.querySelector('.comment-color-picker[ckEditorElement].picker-focussed');
+        if (commentColorPickerCKEditorElement) {
+          commentColorPickerCKEditorElement.classList.remove('picker-focussed');
+        }
+      },
+      resetCommentEmojiPickerFocusState: function resetCommentEmojiPickerFocusState(event) {
+        if (event.srcElement.closest('.comment-emoji-picker')) {
+          return;
+        }
+        var commentEmojiPickerCKEditorElement = document.querySelector('.comment-emoji-picker[ckEditorElement].picker-focussed');
+        if (commentEmojiPickerCKEditorElement) {
+          commentEmojiPickerCKEditorElement.classList.remove('picker-focussed');
+        }
       },
       updateCommentThread: function updateCommentThread(element) {
         var _this62 = this;
@@ -9570,10 +9590,12 @@ document.addEventListener("alpine:init", function () {
         var answerFeedbackCommentIcons = document.querySelectorAll('.answer-feedback-comment-icon');
         answerFeedbackCommentIcons.forEach(function (iconWrapper) {
           var threadId = iconWrapper.dataset.threadid;
-          _this66.calculateIconPosition(iconWrapper, threadId);
+          var threadUuid = iconWrapper.dataset.uuid;
+          _this66.setIconPositionAndEventListenersForThread(iconWrapper, threadId, threadUuid);
         });
       },
-      calculateIconPosition: function calculateIconPosition(iconWrapper, threadId) {
+      setIconPositionAndEventListenersForThread: function setIconPositionAndEventListenersForThread(iconWrapper, threadId, answerFeedbackUuid) {
+        var _this67 = this;
         var commentMarkers = document.querySelectorAll("[data-comment='" + threadId + "']");
         var lastCommentMarker = commentMarkers[commentMarkers.length - 1];
         iconWrapper.style.top = lastCommentMarker.offsetTop - 15 /* adjust icon alignment */ + lastCommentMarker.offsetHeight - 24 /* adjust to last line of marker */ + 'px';
@@ -9583,30 +9605,37 @@ document.addEventListener("alpine:init", function () {
         var lastCommentMarkerLineParentClientLeft = lastCommentMarkerParentClientRects[lastCommentMarkerParentClientRects.length - 1].left;
         var lastCommentMarkerLineOffsetLeft = lastCommentMarkerLineClientRight - lastCommentMarkerLineParentClientLeft;
         iconWrapper.style.left = lastCommentMarkerLineOffsetLeft - 5 + 'px';
+
+        //(re)set comment marker and icon eventListeners
+        var commentThreadElements = null;
+        commentThreadElements = [].concat(_toConsumableArray(commentMarkers), [iconWrapper]);
+        var clickEventHandler = function clickEventHandler(event) {
+          _this67.setActiveComment(threadId, answerFeedbackUuid);
+        };
+        var mouseEnterEventHandler = function mouseEnterEventHandler(event) {
+          _this67.setHoveringComment(threadId, answerFeedbackUuid);
+        };
+        var mouseLeaveEventHandler = function mouseLeaveEventHandler(event) {
+          _this67.clearHoveringComment();
+        };
+
+        //set click event listener on all comment markers and the icon.
+        commentThreadElements.forEach(function (threadElement) {
+          threadElement.removeEventListener('click', clickEventHandler);
+          threadElement.removeEventListener('mouseenter', mouseEnterEventHandler);
+          threadElement.removeEventListener('mouseleave', mouseLeaveEventHandler);
+          threadElement.addEventListener('click', clickEventHandler);
+          threadElement.addEventListener('mouseenter', mouseEnterEventHandler);
+          threadElement.addEventListener('mouseleave', mouseLeaveEventHandler);
+        });
       },
       initCommentIcon: function initCommentIcon(iconWrapper, thread) {
-        var _this67 = this;
-        var commentThreadElements = null;
+        var _this68 = this;
         setTimeout(function () {
-          _this67.calculateIconPosition(iconWrapper, thread.threadId);
-          var commentMarkers = document.querySelectorAll("[data-comment='" + thread.threadId + "']");
+          _this68.setIconPositionAndEventListenersForThread(iconWrapper, thread.threadId, thread.uuid);
           iconWrapper.setAttribute('data-uuid', thread.uuid);
           iconWrapper.setAttribute('data-threadId', thread.threadId);
-          _this67.addOrReplaceIconByName(iconWrapper, thread.iconName);
-          commentThreadElements = [].concat(_toConsumableArray(commentMarkers), [iconWrapper]);
-
-          //set click event listener on all comment markers and the icon.
-          commentThreadElements.forEach(function (threadElement) {
-            threadElement.addEventListener('click', function () {
-              _this67.setActiveComment(thread.threadId, thread.uuid);
-            });
-            threadElement.addEventListener('mouseenter', function (e) {
-              _this67.setHoveringComment(thread.threadId, thread.uuid);
-            });
-            threadElement.addEventListener('mouseleave', function (e) {
-              _this67.clearHoveringComment();
-            });
-          });
+          _this68.addOrReplaceIconByName(iconWrapper, thread.iconName);
         }, 200);
       },
       createCommentIcon: function createCommentIcon(thread) {
@@ -9686,6 +9715,9 @@ document.addEventListener("alpine:init", function () {
       setHoveringCommentMarkerStyle: function setHoveringCommentMarkerStyle() {
         var removeStyling = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
         var styleTag = document.querySelector('#hoveringCommentMarkerStyle');
+        if (!styleTag) {
+          return;
+        }
         if (removeStyling || this.hoveringComment.threadId === null) {
           styleTag.innerHTML = '';
           return;
@@ -9696,6 +9728,9 @@ document.addEventListener("alpine:init", function () {
         var _this$activeComment, _this$activeComment2;
         var removeStyling = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
         var styleTag = document.querySelector('#activeCommentMarkerStyle');
+        if (!styleTag) {
+          return;
+        }
         if (removeStyling || ((_this$activeComment = this.activeComment) === null || _this$activeComment === void 0 ? void 0 : _this$activeComment.threadId) === null) {
           styleTag.innerHTML = '';
           return;
@@ -9703,22 +9738,22 @@ document.addEventListener("alpine:init", function () {
         styleTag.innerHTML = '' + '.ck-comment-marker[data-comment="' + ((_this$activeComment2 = this.activeComment) === null || _this$activeComment2 === void 0 ? void 0 : _this$activeComment2.threadId) + '"] { ' + '   border: 1px solid var(--ck-color-comment-marker-border) !important; ' + '} ';
       },
       setActiveComment: function setActiveComment(threadId, answerFeedbackUuid) {
-        var _this68 = this;
+        var _this69 = this;
         this.$dispatch('answer-feedback-show-comments');
         setTimeout(function () {
-          _this68.$dispatch("assessment-drawer-tab-update", {
+          _this69.$dispatch("assessment-drawer-tab-update", {
             tab: 2,
             uuid: answerFeedbackUuid
           });
-          if (_this68.$store.answerFeedback.feedbackBeingEdited()) {
+          if (_this69.$store.answerFeedback.feedbackBeingEdited()) {
             /* when editing, no other comment can be activated */
             return;
           }
-          _this68.activeComment = {
+          _this69.activeComment = {
             threadId: threadId,
             uuid: answerFeedbackUuid
           };
-          _this68.setActiveCommentMarkerStyle();
+          _this69.setActiveCommentMarkerStyle();
         }, 300);
       },
       clearActiveComment: function clearActiveComment() {
@@ -9726,14 +9761,14 @@ document.addEventListener("alpine:init", function () {
         this.setActiveCommentMarkerStyle(true);
       },
       setFocusTracking: function setFocusTracking() {
-        var _this69 = this;
+        var _this70 = this;
         if (viewOnly) {
           return;
         }
         setTimeout(function () {
           try {
-            var answerEditor = ClassicEditors[_this69.answerEditorId];
-            var feedbackEditor = ClassicEditors[_this69.feedbackEditorId];
+            var answerEditor = ClassicEditors[_this70.answerEditorId];
+            var feedbackEditor = ClassicEditors[_this70.feedbackEditorId];
             answerEditor.ui.focusTracker.add(feedbackEditor.sourceElement.parentElement.querySelector('.ck.ck-content'));
 
             //keep focus when clicking on the emoji and color pickers
@@ -9762,10 +9797,10 @@ document.addEventListener("alpine:init", function () {
         return ClassicEditors[this.feedbackEditorId];
       },
       createFocusableButtons: function createFocusableButtons() {
-        var _this70 = this;
+        var _this71 = this;
         setTimeout(function () {
           try {
-            var answerEditor = ClassicEditors[_this70.answerEditorId];
+            var answerEditor = ClassicEditors[_this71.answerEditorId];
             var buttonWrapper = document.querySelector('#saveNewFeedbackButtonWrapper');
             if (buttonWrapper.children.length > 0) {
               return;
@@ -9821,32 +9856,57 @@ document.addEventListener("alpine:init", function () {
         radiobuttonIcon.element.querySelector('span').appendChild(document.importNode(el.querySelector('template').content, true));
       },
       setEditingComment: function setEditingComment(AnswerFeedbackUuid) {
-        var _this71 = this;
+        var _this72 = this;
         this.activeComment = null;
         this.$store.answerFeedback.editingComment = AnswerFeedbackUuid !== null && AnswerFeedbackUuid !== void 0 ? AnswerFeedbackUuid : null;
         setTimeout(function () {
-          _this71.fixSlideHeightByIndex(2, AnswerFeedbackUuid);
+          _this72.fixSlideHeightByIndex(2, AnswerFeedbackUuid);
         }, 100);
       },
       toggleFeedbackAccordion: function toggleFeedbackAccordion(name) {
-        var forceOpenAccordion = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-        if (this.$store.answerFeedback.feedbackBeingEdited()) {
-          this.dropdownOpened = 'given-feedback';
-          return;
-        }
-        ;
-        if (this.dropdownOpened === name && !forceOpenAccordion) {
-          this.dropdownOpened = null;
-          return;
-        }
-        if (questionType === 'OpenQuestion' && name === 'add-feedback') {
-          try {
-            this.setFocusTracking();
-          } catch (e) {
-            //
-          }
-        }
-        this.dropdownOpened = name;
+        var _arguments3 = arguments,
+          _this73 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee28() {
+          var forceOpenAccordion;
+          return _regeneratorRuntime().wrap(function _callee28$(_context28) {
+            while (1) switch (_context28.prev = _context28.next) {
+              case 0:
+                forceOpenAccordion = _arguments3.length > 1 && _arguments3[1] !== undefined ? _arguments3[1] : false;
+                if (!_this73.$store.answerFeedback.feedbackBeingEdited()) {
+                  _context28.next = 4;
+                  break;
+                }
+                _this73.dropdownOpened = 'given-feedback';
+                return _context28.abrupt("return");
+              case 4:
+                ;
+                if (!(_this73.dropdownOpened === name && !forceOpenAccordion)) {
+                  _context28.next = 8;
+                  break;
+                }
+                _this73.dropdownOpened = null;
+                return _context28.abrupt("return");
+              case 8:
+                if (questionType === 'OpenQuestion' && name === 'add-feedback') {
+                  try {
+                    _this73.setFocusTracking();
+                  } catch (e) {
+                    //
+                  }
+                }
+                _this73.dropdownOpened = name;
+                _context28.next = 12;
+                return _this73.$nextTick();
+              case 12:
+                setTimeout(function () {
+                  _this73.fixSlideHeightByIndex(2);
+                }, 293);
+              case 13:
+              case "end":
+                return _context28.stop();
+            }
+          }, _callee28);
+        }))();
       },
       resetAddNewAnswerFeedback: function resetAddNewAnswerFeedback() {
         var cancelAddingNewComment = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
@@ -9890,7 +9950,7 @@ document.addEventListener("alpine:init", function () {
         this.setHeightToAspectRatio(this.$el);
       },
       setHeightToAspectRatio: function setHeightToAspectRatio(element) {
-        var _this72 = this;
+        var _this74 = this;
         var aspectRatioWidth = 940;
         var aspectRatioHeight = 500;
         var aspectRatio = aspectRatioHeight / aspectRatioWidth;
@@ -9903,7 +9963,7 @@ document.addEventListener("alpine:init", function () {
         if (newHeight <= 0) {
           if (this.currentTry <= this.maxTries) {
             setTimeout(function () {
-              return _this72.setHeightToAspectRatio(element);
+              return _this74.setHeightToAspectRatio(element);
             }, 50);
             this.currentTry++;
           }
@@ -9936,16 +9996,16 @@ document.addEventListener("alpine:init", function () {
       maxWords: maxWords,
       wordContainer: null,
       init: function init() {
-        var _this73 = this;
+        var _this75 = this;
         this.$nextTick(function () {
-          _this73.editor = ClassicEditors[editorId];
-          _this73.wordContainer = _this73.$root.querySelector(".ck-word-count__words");
-          _this73.wordContainer.style.display = "flex";
-          _this73.wordContainer.parentElement.style.display = "flex";
-          _this73.addMaxWordsToWordCounter(_this73.maxWords);
+          _this75.editor = ClassicEditors[editorId];
+          _this75.wordContainer = _this75.$root.querySelector(".ck-word-count__words");
+          _this75.wordContainer.style.display = "flex";
+          _this75.wordContainer.parentElement.style.display = "flex";
+          _this75.addMaxWordsToWordCounter(_this75.maxWords);
         });
         this.$watch("maxWords", function (value) {
-          _this73.addMaxWordsToWordCounter(value);
+          _this75.addMaxWordsToWordCounter(value);
         });
       },
       addMaxWordsToWordCounter: function addMaxWordsToWordCounter(value) {
@@ -9964,18 +10024,18 @@ document.addEventListener("alpine:init", function () {
     return {
       editorId: editorId,
       init: function init() {
-        var _this74 = this;
+        var _this76 = this;
         this.$watch("showMe", function (value) {
           if (!value) return;
-          _this74.$nextTick(function () {
+          _this76.$nextTick(function () {
             var editor = ClassicEditors[editorId];
             if (!editor) {
               return;
             }
-            _this74.setFocus(editor);
+            _this76.setFocus(editor);
             if (!editor.ui.focusTracker.isFocused) {
               setTimeout(function () {
-                return _this74.setFocus(editor);
+                return _this76.setFocus(editor);
               }, 100);
             }
           });
@@ -10003,14 +10063,14 @@ document.addEventListener("alpine:init", function () {
       pillContainer: null,
       searchFocussed: false,
       init: function init() {
-        var _this75 = this;
+        var _this77 = this;
         this.pillContainer = document.querySelector("#".concat(containerId));
         this.$watch("query", function (value) {
-          return _this75.search(value);
+          return _this77.search(value);
         });
         this.$watch("multiSelectOpen", function (value) {
-          if (value) _this75.handleDropdownLocation();
-          if (!value) _this75.query = "";
+          if (value) _this77.handleDropdownLocation();
+          if (!value) _this77.query = "";
         });
         this.registerSelectedItemsOnComponent();
       },
@@ -10018,15 +10078,15 @@ document.addEventListener("alpine:init", function () {
         this.openSubs = this.toggle(this.openSubs, uuid);
       },
       parentClick: function parentClick(element, parent) {
-        var _this76 = this;
+        var _this78 = this;
         var checked = !this.checkedParents.includes(parent.value);
         element.querySelector("input[type=\"checkbox\"]").checked = checked;
         this.checkedParents = this.toggle(this.checkedParents, parent.value);
         parent.children.filter(function (child) {
           return child.disabled !== true;
         }).forEach(function (child) {
-          _this76[checked ? "childAdd" : "childRemove"](child);
-          checked ? _this76.checkAndDisableBrothersFromOtherMothers(child) : _this76.uncheckAndEnableBrothersFromOtherMothers(child);
+          _this78[checked ? "childAdd" : "childRemove"](child);
+          checked ? _this78.checkAndDisableBrothersFromOtherMothers(child) : _this78.uncheckAndEnableBrothersFromOtherMothers(child);
         });
         this.$root.querySelectorAll("[data-parent-id=\"".concat(parent.value, "\"][data-disabled=\"false\"] input[type=\"checkbox\"]")).forEach(function (child) {
           return child.checked = checked;
@@ -10093,13 +10153,13 @@ document.addEventListener("alpine:init", function () {
         // return result < parent.children.length;
       },
       checkedChildrenCount: function checkedChildrenCount(parent) {
-        var _this77 = this;
+        var _this79 = this;
         return parent.children.filter(function (child) {
-          return _this77.checkedChildrenContains(child);
+          return _this79.checkedChildrenContains(child);
         }).length;
       },
       search: function search(value) {
-        var _this78 = this;
+        var _this80 = this;
         if (value.length === 0) {
           this.searchEmpty = false;
           this.showAllOptions();
@@ -10109,7 +10169,7 @@ document.addEventListener("alpine:init", function () {
         var results = this.searchParentsAndChildsLabels(value);
         this.searchEmpty = results.length === 0;
         results.forEach(function (item) {
-          return _this78.showOption(item);
+          return _this80.showOption(item);
         });
       },
       showOption: function showOption(identifier) {
@@ -10179,9 +10239,9 @@ document.addEventListener("alpine:init", function () {
         this[toggleFunction](this.$root.querySelector("[data-id=\"".concat(event.item.value, "\"][data-parent-id=\"").concat(event.item.customProperties.parentId, "\"]")), event.item);
       },
       handleActiveFilters: function handleActiveFilters() {
-        var _this79 = this;
+        var _this81 = this;
         var currentPillIds = Array.from(this.pillContainer.childNodes).map(function (pill) {
-          if (!_this79.isParent(pill.item)) {
+          if (!_this81.isParent(pill.item)) {
             return pill.item.value + pill.item.customProperties.parentId;
           }
           return pill.item.value;
@@ -10195,13 +10255,13 @@ document.addEventListener("alpine:init", function () {
         this.options.flatMap(function (parent) {
           return [parent].concat(_toConsumableArray(parent.children));
         }).filter(function (item) {
-          if (_this79.isParent(item)) return _this79.checkedParents.includes(item.value);
-          if (_this79.checkedParents.includes(item.customProperties.parentId)) {
+          if (_this81.isParent(item)) return _this81.checkedParents.includes(item.value);
+          if (_this81.checkedParents.includes(item.customProperties.parentId)) {
             pillIdsToRemove.push(item.value + item.customProperties.parentId);
           }
-          return !_this79.checkedParents.includes(item.customProperties.parentId) && _this79.checkedChildrenContains(item);
+          return !_this81.checkedParents.includes(item.customProperties.parentId) && _this81.checkedChildrenContains(item);
         }).forEach(function (item) {
-          return _this79.createFilterPill(item);
+          return _this81.createFilterPill(item);
         });
         var that = this;
         pillIdsToRemove.forEach(function (uuid) {
@@ -10228,7 +10288,7 @@ document.addEventListener("alpine:init", function () {
         }
       },
       registerSelectedItemsOnComponent: function registerSelectedItemsOnComponent() {
-        var _this80 = this;
+        var _this82 = this;
         var checkedChildValues = this.options.flatMap(function (parent) {
           return _toConsumableArray(parent.children);
         }).filter(function (item) {
@@ -10237,10 +10297,10 @@ document.addEventListener("alpine:init", function () {
         });
         this.$nextTick(function () {
           checkedChildValues.forEach(function (item) {
-            _this80.childClick(_this80.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.customProperties.parentId, "\"]")), item);
+            _this82.childClick(_this82.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.customProperties.parentId, "\"]")), item);
           });
-          _this80.registerParentsBasedOnDisabledChildren();
-          _this80.handleActiveFilters();
+          _this82.registerParentsBasedOnDisabledChildren();
+          _this82.handleActiveFilters();
         });
       },
       syncInput: function syncInput() {
@@ -10257,24 +10317,24 @@ document.addEventListener("alpine:init", function () {
         });
       },
       checkAndDisableBrothersFromOtherMothers: function checkAndDisableBrothersFromOtherMothers(child) {
-        var _this81 = this;
+        var _this83 = this;
         this.options.flatMap(function (parents) {
           return _toConsumableArray(parents.children);
         }).filter(function (item) {
           return item.value === child.value && item.customProperties.parentId !== child.customProperties.parentId;
         }).forEach(function (item) {
-          _this81.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.customProperties.parentId, "\"] input[type=\"checkbox\"]")).checked = true;
+          _this83.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.customProperties.parentId, "\"] input[type=\"checkbox\"]")).checked = true;
           item.disabled = true;
         });
       },
       uncheckAndEnableBrothersFromOtherMothers: function uncheckAndEnableBrothersFromOtherMothers(child) {
-        var _this82 = this;
+        var _this84 = this;
         this.options.flatMap(function (parents) {
           return _toConsumableArray(parents.children);
         }).filter(function (item) {
           return item.value === child.value && item.customProperties.parentId !== child.customProperties.parentId;
         }).forEach(function (item) {
-          _this82.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.customProperties.parentId, "\"] input[type=\"checkbox\"]")).checked = false;
+          _this84.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.customProperties.parentId, "\"] input[type=\"checkbox\"]")).checked = false;
           item.disabled = false;
         });
       },
@@ -10283,15 +10343,15 @@ document.addEventListener("alpine:init", function () {
         return !((_item$customPropertie3 = item.customProperties) !== null && _item$customPropertie3 !== void 0 && _item$customPropertie3.parent) === false;
       },
       registerParentsBasedOnDisabledChildren: function registerParentsBasedOnDisabledChildren() {
-        var _this83 = this;
+        var _this85 = this;
         this.options.forEach(function (item) {
           var enabledChildren = item.children.filter(function (child) {
             return child.disabled !== true;
           }).length;
           if (enabledChildren === 0) return;
-          var enabled = _this83.checkedChildrenCount(item) === enabledChildren;
-          _this83.checkedParents = _this83[enabled ? "add" : "remove"](_this83.checkedParents, item.value);
-          _this83.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.value, "\"] input[type=\"checkbox\"]")).checked = enabled;
+          var enabled = _this85.checkedChildrenCount(item) === enabledChildren;
+          _this85.checkedParents = _this85[enabled ? "add" : "remove"](_this85.checkedParents, item.value);
+          _this85.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.value, "\"] input[type=\"checkbox\"]")).checked = enabled;
         });
       },
       parentDisabled: function parentDisabled(parent) {
@@ -10322,11 +10382,11 @@ document.addEventListener("alpine:init", function () {
       selectedText: null
     }, selectFunctions), {}, {
       init: function init() {
-        var _this84 = this;
+        var _this86 = this;
         this.selectedText = this.$root.querySelector("span.selected").dataset.selectText;
         this.setActiveStartingValue();
         this.$watch("singleSelectOpen", function (value) {
-          if (value) _this84.handleDropdownLocation();
+          if (value) _this86.handleDropdownLocation();
         });
       },
       get value() {
@@ -10391,123 +10451,123 @@ document.addEventListener("alpine:init", function () {
       inTestBankContext: inTestBankContext,
       maxHeight: 'calc(100vh - var(--header-height))',
       init: function init() {
-        var _this85 = this;
+        var _this87 = this;
         this.groupDetail = this.$el.querySelector('#groupdetail');
         this.$watch('showBank', function (value) {
           if (value === 'questions') {
-            _this85.$wire.loadSharedFilters();
+            _this87.$wire.loadSharedFilters();
           }
         });
         this.$watch('$store.questionBank.inGroup', function (value) {
-          _this85.inGroup = value;
+          _this87.inGroup = value;
         });
         this.$watch('$store.questionBank.active', function (value) {
           if (value) {
-            _this85.$wire.setAddedQuestionIdsArray();
+            _this87.$wire.setAddedQuestionIdsArray();
           } else {
-            _this85.closeGroupDetailQb();
+            _this87.closeGroupDetailQb();
           }
         });
         this.showGroupDetailsQb = /*#__PURE__*/function () {
-          var _ref7 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee28(groupQuestionUuid) {
+          var _ref7 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee29(groupQuestionUuid) {
             var inTest,
               readyForSlide,
-              _args28 = arguments;
-            return _regeneratorRuntime().wrap(function _callee28$(_context28) {
-              while (1) switch (_context28.prev = _context28.next) {
+              _args29 = arguments;
+            return _regeneratorRuntime().wrap(function _callee29$(_context29) {
+              while (1) switch (_context29.prev = _context29.next) {
                 case 0:
-                  inTest = _args28.length > 1 && _args28[1] !== undefined ? _args28[1] : false;
-                  _context28.next = 3;
-                  return _this85.$wire.showGroupDetails(groupQuestionUuid, inTest);
+                  inTest = _args29.length > 1 && _args29[1] !== undefined ? _args29[1] : false;
+                  _context29.next = 3;
+                  return _this87.$wire.showGroupDetails(groupQuestionUuid, inTest);
                 case 3:
-                  readyForSlide = _context28.sent;
+                  readyForSlide = _context29.sent;
                   if (readyForSlide) {
-                    if (_this85.inTestBankContext) {
-                      _this85.$refs['tab-container'].style.display = 'none';
-                      _this85.$refs['main-container'].style.height = '100vh';
+                    if (_this87.inTestBankContext) {
+                      _this87.$refs['tab-container'].style.display = 'none';
+                      _this87.$refs['main-container'].style.height = '100vh';
                     } else {
-                      _this85.maxHeight = _this85.groupDetail.offsetHeight + 'px';
+                      _this87.maxHeight = _this87.groupDetail.offsetHeight + 'px';
                     }
-                    _this85.groupDetail.style.left = 0;
-                    _this85.$refs['main-container'].scrollTo({
+                    _this87.groupDetail.style.left = 0;
+                    _this87.$refs['main-container'].scrollTo({
                       top: 0,
                       behavior: 'smooth'
                     });
-                    _this85.$el.scrollTo({
+                    _this87.$el.scrollTo({
                       top: 0,
                       behavior: 'smooth'
                     });
-                    _this85.$nextTick(function () {
+                    _this87.$nextTick(function () {
                       setTimeout(function () {
-                        _this85.bodyVisibility = false;
-                        if (_this85.inTestBankContext) {
-                          _this85.groupDetail.style.position = 'relative';
+                        _this87.bodyVisibility = false;
+                        if (_this87.inTestBankContext) {
+                          _this87.groupDetail.style.position = 'relative';
                         } else {
-                          handleVerticalScroll(_this85.$el.closest('.slide-container'));
+                          handleVerticalScroll(_this87.$el.closest('.slide-container'));
                         }
                       }, 500);
                     });
                   }
                 case 5:
                 case "end":
-                  return _context28.stop();
+                  return _context29.stop();
               }
-            }, _callee28);
+            }, _callee29);
           }));
           return function (_x4) {
             return _ref7.apply(this, arguments);
           };
         }();
         this.closeGroupDetailQb = function () {
-          if (!_this85.bodyVisibility) {
-            _this85.bodyVisibility = true;
-            _this85.maxHeight = 'calc(100vh - var(--header-height))';
-            _this85.groupDetail.style.left = '100%';
-            if (_this85.inTestBankContext) {
-              _this85.groupDetail.style.position = 'absolute';
-              _this85.$refs['tab-container'].style.display = 'block';
+          if (!_this87.bodyVisibility) {
+            _this87.bodyVisibility = true;
+            _this87.maxHeight = 'calc(100vh - var(--header-height))';
+            _this87.groupDetail.style.left = '100%';
+            if (_this87.inTestBankContext) {
+              _this87.groupDetail.style.position = 'absolute';
+              _this87.$refs['tab-container'].style.display = 'block';
             }
-            _this85.$nextTick(function () {
-              _this85.$wire.clearGroupDetails();
+            _this87.$nextTick(function () {
+              _this87.$wire.clearGroupDetails();
               setTimeout(function () {
-                if (!_this85.inTestBankContext) {
-                  handleVerticalScroll(_this85.$el.closest('.slide-container'));
+                if (!_this87.inTestBankContext) {
+                  handleVerticalScroll(_this87.$el.closest('.slide-container'));
                 }
               }, 250);
             });
           }
         };
         this.addQuestionToTest = /*#__PURE__*/function () {
-          var _ref8 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee29(button, questionUuid) {
+          var _ref8 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee30(button, questionUuid) {
             var showQuestionBankAddConfirmation,
               enableButton,
-              _args29 = arguments;
-            return _regeneratorRuntime().wrap(function _callee29$(_context29) {
-              while (1) switch (_context29.prev = _context29.next) {
+              _args30 = arguments;
+            return _regeneratorRuntime().wrap(function _callee30$(_context30) {
+              while (1) switch (_context30.prev = _context30.next) {
                 case 0:
-                  showQuestionBankAddConfirmation = _args29.length > 2 && _args29[2] !== undefined ? _args29[2] : false;
+                  showQuestionBankAddConfirmation = _args30.length > 2 && _args30[2] !== undefined ? _args30[2] : false;
                   if (!showQuestionBankAddConfirmation) {
-                    _context29.next = 3;
+                    _context30.next = 3;
                     break;
                   }
-                  return _context29.abrupt("return", _this85.$wire.emit('openModal', 'teacher.add-sub-question-confirmation-modal', {
+                  return _context30.abrupt("return", _this87.$wire.emit('openModal', 'teacher.add-sub-question-confirmation-modal', {
                     questionUuid: questionUuid
                   }));
                 case 3:
                   button.disabled = true;
-                  _context29.next = 6;
-                  return _this85.$wire.handleCheckboxClick(questionUuid);
+                  _context30.next = 6;
+                  return _this87.$wire.handleCheckboxClick(questionUuid);
                 case 6:
-                  enableButton = _context29.sent;
+                  enableButton = _context30.sent;
                   if (enableButton) {
                     button.disabled = false;
                   }
-                  return _context29.abrupt("return", true);
+                  return _context30.abrupt("return", true);
                 case 9:
                 case "end":
-                  return _context29.stop();
+                  return _context30.stop();
               }
-            }, _callee29);
+            }, _callee30);
           }));
           return function (_x5, _x6) {
             return _ref8.apply(this, arguments);
@@ -17909,7 +17969,8 @@ RichTextEditor = {
        * selection is not empty
        * selection is on the assessment screen
        * */
-      if (((_window$getSelection$ = window.getSelection().focusNode) === null || _window$getSelection$ === void 0 ? void 0 : (_window$getSelection$2 = _window$getSelection$.parentElement) === null || _window$getSelection$2 === void 0 ? void 0 : _window$getSelection$2.closest('.comment-editor')) !== null && document.querySelector('#assessment-page') !== null && window.getSelection().toString() !== '') {
+      if (((_window$getSelection$ = window.getSelection().focusNode) === null || _window$getSelection$ === void 0 ? void 0 : (_window$getSelection$2 = _window$getSelection$.parentElement) === null || _window$getSelection$2 === void 0 ? void 0 : _window$getSelection$2.closest('.comment-editor')) !== null && document.querySelector('#assessment-page') !== null && window.getSelection().toString() !== '' && !(e.target.closest('.answer-feedback-comment-icon') || e.target.closest('.ck-comment-marker'))) {
+        console.log(e, 'mouseup');
         dispatchEvent(new CustomEvent('assessment-drawer-tab-update', {
           detail: {
             tab: 2

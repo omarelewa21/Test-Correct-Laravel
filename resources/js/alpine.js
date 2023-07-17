@@ -2178,8 +2178,8 @@ document.addEventListener("alpine:init", () => {
             this.activeTab = index;
             this.closeTooltips();
             const slide = this.getSlideElementByIndex(index);
-            this.handleSlideHeight(slide);
             await this.$nextTick();
+            this.handleSlideHeight(slide);
 
             if (answerFeedbackCommentUuid) {
                 await this.scrollToCommentCard(answerFeedbackCommentUuid);
@@ -2672,21 +2672,39 @@ document.addEventListener("alpine:init", () => {
                 (event) => this.updateNewCommentMarkerStyles(event?.detail?.color)
             );
 
-            document.addEventListener('mousedown', (e) => {
+            document.addEventListener('mousedown', (event) => {
+                this.resetCommentColorPickerFocusState(event);
+                this.resetCommentEmojiPickerFocusState(event);
+
                 if(this.activeComment === null) {
                     return;
                 }
                 //check for click outside 1. comment markers, 2. comment marker icons, 3. comment cards.
-                if( e.srcElement.closest('.ck-comment-marker') ||
-                    e.srcElement.closest('.answer-feedback-comment-icons') ||
-                    e.srcElement.closest('.given-feedback-container')
-                ) {
+                if( event.srcElement.closest(':is(.ck-comment-marker, .answer-feedback-comment-icons, .given-feedback-container)') ) {
                     return;
                 }
                 this.clearActiveComment()
             })
 
             this.preventOpeningModalFromBreakingDrawer();
+        },
+        resetCommentColorPickerFocusState(event) {
+            if (event.srcElement.closest('.comment-color-picker')) {
+                return;
+            }
+            let commentColorPickerCKEditorElement = document.querySelector('.comment-color-picker[ckEditorElement].picker-focussed');
+            if (commentColorPickerCKEditorElement) {
+                commentColorPickerCKEditorElement.classList.remove('picker-focussed');
+            }
+        },
+        resetCommentEmojiPickerFocusState(event) {
+            if (event.srcElement.closest('.comment-emoji-picker')) {
+                return;
+            }
+            let commentEmojiPickerCKEditorElement = document.querySelector('.comment-emoji-picker[ckEditorElement].picker-focussed');
+            if (commentEmojiPickerCKEditorElement) {
+                commentEmojiPickerCKEditorElement.classList.remove('picker-focussed');
+            }
         },
         async updateCommentThread(element) {
             let answerFeedbackCardElement = element.closest('.answer-feedback-card');
@@ -2821,10 +2839,11 @@ document.addEventListener("alpine:init", () => {
             let answerFeedbackCommentIcons = document.querySelectorAll('.answer-feedback-comment-icon');
             answerFeedbackCommentIcons.forEach((iconWrapper) => {
                 let threadId = iconWrapper.dataset.threadid;
-                this.calculateIconPosition(iconWrapper, threadId);
+                let threadUuid = iconWrapper.dataset.uuid;
+                this.setIconPositionAndEventListenersForThread(iconWrapper, threadId, threadUuid);
             });
         },
-        calculateIconPosition(iconWrapper, threadId) {
+        setIconPositionAndEventListenersForThread(iconWrapper, threadId, answerFeedbackUuid) {
             const commentMarkers = document.querySelectorAll(`[data-comment='` + threadId + `']`);
             const lastCommentMarker = commentMarkers[commentMarkers.length-1];
 
@@ -2839,33 +2858,40 @@ document.addEventListener("alpine:init", () => {
             let lastCommentMarkerLineOffsetLeft = lastCommentMarkerLineClientRight - lastCommentMarkerLineParentClientLeft;
 
             iconWrapper.style.left = (lastCommentMarkerLineOffsetLeft - 5) + 'px';
+
+            //(re)set comment marker and icon eventListeners
+            let commentThreadElements = null;
+            commentThreadElements = [...commentMarkers, iconWrapper];
+
+            let clickEventHandler = (event) => {
+                this.setActiveComment(threadId, answerFeedbackUuid);
+            }
+            let mouseEnterEventHandler = (event) => {
+                this.setHoveringComment(threadId, answerFeedbackUuid);
+            }
+            let mouseLeaveEventHandler = (event) => {
+                this.clearHoveringComment();
+            }
+
+            //set click event listener on all comment markers and the icon.
+            commentThreadElements.forEach((threadElement) => {
+                threadElement.removeEventListener('click', clickEventHandler);
+                threadElement.removeEventListener('mouseenter', mouseEnterEventHandler);
+                threadElement.removeEventListener('mouseleave', mouseLeaveEventHandler);
+                threadElement.addEventListener('click', clickEventHandler);
+                threadElement.addEventListener('mouseenter', mouseEnterEventHandler);
+                threadElement.addEventListener('mouseleave', mouseLeaveEventHandler);
+            });
+
         },
         initCommentIcon(iconWrapper, thread) {
-            let commentThreadElements = null;
             setTimeout(() => {
-                this.calculateIconPosition(iconWrapper, thread.threadId)
-                const commentMarkers = document.querySelectorAll(`[data-comment='` + thread.threadId + `']`);
+                this.setIconPositionAndEventListenersForThread(iconWrapper, thread.threadId, thread.uuid);
 
                 iconWrapper.setAttribute('data-uuid', thread.uuid);
                 iconWrapper.setAttribute('data-threadId', thread.threadId);
 
                 this.addOrReplaceIconByName(iconWrapper, thread.iconName);
-
-                commentThreadElements = [...commentMarkers, iconWrapper];
-
-                //set click event listener on all comment markers and the icon.
-                commentThreadElements.forEach((threadElement) => {
-                    threadElement.addEventListener('click', () => {
-                        this.setActiveComment(thread.threadId, thread.uuid);
-                    });
-                    threadElement.addEventListener('mouseenter', (e) => {
-                        this.setHoveringComment(thread.threadId, thread.uuid);
-                    });
-                    threadElement.addEventListener('mouseleave', (e) => {
-                        this.clearHoveringComment();
-                    });
-                });
-
             }, 200)
         },
         createCommentIcon (thread) {
@@ -2952,6 +2978,9 @@ document.addEventListener("alpine:init", () => {
         },
         setHoveringCommentMarkerStyle(removeStyling = false) {
             const styleTag = document.querySelector('#hoveringCommentMarkerStyle');
+            if(!styleTag) {
+                return;
+            }
 
             if(removeStyling || this.hoveringComment.threadId === null) {
                 styleTag.innerHTML = '';
@@ -2965,6 +2994,9 @@ document.addEventListener("alpine:init", () => {
         },
         setActiveCommentMarkerStyle(removeStyling = false) {
             const styleTag = document.querySelector('#activeCommentMarkerStyle');
+            if(!styleTag) {
+                return;
+            }
 
             if(removeStyling || this.activeComment?.threadId === null) {
                 styleTag.innerHTML = '';
@@ -3110,7 +3142,7 @@ document.addEventListener("alpine:init", () => {
                 this.fixSlideHeightByIndex(2, AnswerFeedbackUuid);
             },100)
         },
-        toggleFeedbackAccordion (name, forceOpenAccordion = false) {
+        async toggleFeedbackAccordion (name, forceOpenAccordion = false) {
             if(this.$store.answerFeedback.feedbackBeingEdited()) {
                 this.dropdownOpened ='given-feedback';
                 return;
@@ -3128,6 +3160,10 @@ document.addEventListener("alpine:init", () => {
                 }
             }
             this.dropdownOpened = name;
+            await this.$nextTick();
+            setTimeout(() => {
+                this.fixSlideHeightByIndex(2);
+            }, 293);
         },
         resetAddNewAnswerFeedback(cancelAddingNewComment = false) {
             //find default/blue color picker and enable it.

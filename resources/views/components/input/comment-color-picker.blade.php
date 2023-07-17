@@ -1,7 +1,4 @@
-<div class="comment-color-picker">
-    <div class="comment-color-picker-label  @if($disabled) disabled @endif ">
-        @lang('assessment.tekst markeren')
-    </div>
+<div class="comment-color-picker" @if($useCkEditorView) x-on:click="$el.classList.add('picker-focussed')" ckEditorElement @endif>
     <div class="w-full flex justify-between gap-4" @if($useCkEditorView) wire:ignore @endif>
         <span @class(['text-midgrey' => $disabled])>
             <x-icon.marker></x-icon.marker>
@@ -28,4 +25,7 @@
         </div>
 
     </div>
+    <label class="comment-color-picker-label  @if($disabled) disabled @endif ">
+        @lang('assessment.tekst markeren')
+    </label>
 </div>
