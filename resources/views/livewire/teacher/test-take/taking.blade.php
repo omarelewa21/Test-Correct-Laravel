@@ -2,27 +2,22 @@
 
 @section('cta')
     <div class="flex flex-col justify-center">
-        @if($this->canStartTestTake())
-            <x-button.cta wire:click="startTake">
-                <span>@lang('test-take.Afnemen')</span>
-                <x-icon.arrow />
-            </x-button.cta>
-        @else
-            <span class="bold text-lg">@lang('test-take.toetsafname is niet vandaag gepland')</span>
-        @endif
+        <x-button.cta wire:click="surveillance">
+            <span>@lang('header.Surveilleren')</span>
+            <x-icon.arrow />
+        </x-button.cta>
     </div>
 @endsection
 
 @section('action-buttons')
     <x-button.cta class="order-1"
-                  :disabled="!$this->canStartTestTake()"
-                  wire:click="startTake"
+                  wire:click="surveillance"
     >
-        <span>@lang('test-take.Afnemen')</span>
+        <span>@lang('header.Surveilleren')</span>
         <x-icon.arrow />
     </x-button.cta>
     <x-button.icon
-            wire:click="$emit('openModal','teacher.test-take-edit-modal', {testTake: '{{ $this->testTake->uuid }}' })"
+            :disabled="true"
             class="order-3"
             title="{{ __('teacher.Toets instellingen') }}"
     >
@@ -60,10 +55,6 @@
                                  wire:key="participant-{{ $participant->uuid }}-@js($participant->present)"
                             >
                                 <span>{{ $participant->name }}</span>
-                                <x-icon.close-small class="!text-sysbase"
-                                                    wire:click="removeParticipant('{{ $participant->uuid }}')"
-                                                    x-on:click="$el.parentElement.style.opacity = '75%'"
-                                />
                             </div>
                         @empty
                             <span>@lang('test-take.Geen studenten beschikbaar')</span>
@@ -74,14 +65,6 @@
                         </div>
                     @endif
                 </div>
-
-                @if($this->initialized)
-                    <x-button.text-button
-                            wire:click="$emit('openModal','teacher.test-take-edit-modal', {testTake: '{{ $this->testTake->uuid }}' })">
-                        <x-icon.plus />
-                        <span>@lang('test-take.Studenten toevoegen')</span>
-                    </x-button.text-button>
-                @endif
             </div>
             <div x-show="plannedTab === 'invigilators'"
                  class="flex flex-col w-full pt-5"
@@ -92,22 +75,11 @@
                              wire:key="invigilator-{{ $invigilatorUser->uuid }}"
                         >
                             <span>{{ $invigilatorUser->getFullNameWithAbbreviatedFirstName() }}</span>
-                            <x-icon.close-small class="!cursor-pointer"
-                                                x-on:click="$el.parentElement.style.opacity = '75%'"
-                                                wire:click="removeInvigilator('{{ $invigilatorUser->invigilator_uuid }}')"
-                            />
                         </div>
                     @empty
                         <span>@lang('test-take.Geen surveillanten beschikbaar')</span>
                     @endforelse
                 </div>
-
-                <x-button.text-button
-                        wire:click="$emit('openModal','teacher.test-take-edit-modal', {testTake: '{{ $this->testTake->uuid }}' })">
-                    <x-icon.plus />
-                    <span>@lang('test-take.Surveillanten toevoegen')</span>
-                </x-button.text-button>
-
             </div>
         </div>
     </div>

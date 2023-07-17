@@ -22,6 +22,8 @@ class NavigationBarHelper
             'tests.question-bank'                 => ['main' => 'tests', 'sub' => 'question-bank'],
             'teacher.file-management.testuploads' => ['main' => 'tests', 'sub' => 'my-uploads'],
             'teacher.test-take.planned'           => ['main' => 'planned', 'sub' => 'planned-tests'],
+            'teacher.test-take.taking'            => ['main' => 'planned', 'sub' => 'planned-tests'],
+            'teacher.test-take.taken'             => ['main' => 'taken', 'sub' => ''],
             'planned.invigilating'                => ['main' => 'planned', 'sub' => 'invigilating'],
             'planned.ongoing-assignments'         => ['main' => 'planned', 'sub' => 'ongoing-assignments'],
 

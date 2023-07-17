@@ -25,7 +25,6 @@
                         </span>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
@@ -50,7 +49,10 @@
                 @endif
                 <div class="divider flex flex-1"></div>
             </div>
-            <div class="flex w-full justify-center -mt-5 pointer-events-none">
+            <div @class([
+                  'flex w-full justify-center -mt-5 pointer-events-none',
+                  'opacity-50' => $this->testTake->time_start->lt(now())
+                  ])>
                 <x-illustrations.waiting-room />
             </div>
         </div>

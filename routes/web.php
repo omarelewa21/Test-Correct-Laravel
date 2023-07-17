@@ -113,7 +113,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/co-learning/{test_take}', \tcCore\Http\Livewire\Teacher\CoLearning::class)->name('co-learning');
         Route::get('/assessment/{testTake}', \tcCore\Http\Livewire\Teacher\Assessment::class)->name('assessment');
         Route::get('/test-take/{testTake}', [\tcCore\Http\Controllers\TestTakesController::class, 'openDetail'])->name('test-take.open-detail');
-        Route::get('/test-take/planned/{testTake}', \tcCore\Http\Livewire\Teacher\TestTake\Planned::class)->name('test-take.planned');
+        Route::get('/test-take/planned/{testTake}', \tcCore\Http\Livewire\Teacher\TestTake\Planned::class)->name('test-take.planned')->middleware('testTakeStatus:1');
+        Route::get('/test-take/taking/{testTake}', \tcCore\Http\Livewire\Teacher\TestTake\Taking::class)->name('test-take.taking')->middleware('testTakeStatus:3');
+        Route::get('/test-take/taken/{testTake}', \tcCore\Http\Livewire\Teacher\TestTake\Taken::class)->name('test-take.taken')->middleware('testTakeStatus:6,7,8');
     });
 
     Route::middleware(['dll', 'student'])->prefix('appapi')->name('appapi')->group(function () {

@@ -62,4 +62,5 @@ return [
     'Geen surveillanten beschikbaar'                                                                                                                   => 'No invigilators available',
     'Al geselecteerd'                                                                                                                                  => 'Already selected',
     'Selecteer...'                                                                                                                                     => 'Select...',
+    'Wachtkamer'                                                                                                                                       => 'Waiting room',
 ];

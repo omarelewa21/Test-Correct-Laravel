@@ -1327,10 +1327,16 @@ class TestTakesController extends Controller
 
     public function openDetail(TestTake $testTake, Request $request)
     {
-        $stage = $testTake->determineTestTakeStage();
-        if ($stage === 'planned') {
+        if ($testTake->test_take_status_id === TestTakeStatus::STATUS_PLANNED) {
             return redirect(route('teacher.test-take.planned', $testTake->uuid). '?' . $request->getQueryString());
         }
+        if ($testTake->test_take_status_id === TestTakeStatus::STATUS_TAKING_TEST) {
+            return redirect(route('teacher.test-take.taking', $testTake->uuid). '?' . $request->getQueryString());
+        }
+        if ($testTake->test_take_status_id >= TestTakeStatus::STATUS_TAKEN) {
+            return redirect(route('teacher.test-take.taken', $testTake->uuid). '?' . $request->getQueryString());
+        }
+
         return TestTake::redirectToDetail($testTake->uuid, url()->referrer());
     }
 }

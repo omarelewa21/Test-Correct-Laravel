@@ -61,4 +61,5 @@ return [
     'Geen surveillanten beschikbaar'                                                                                                                   => 'Geen surveillanten beschikbaar',
     'Al geselecteerd'                                                                                                                                  => 'Al geselecteerd',
     'Selecteer...'                                                                                                                                     => 'Selecteer...',
+    'Wachtkamer'                                                                                                                                       => 'Wachtkamer',
 ];
