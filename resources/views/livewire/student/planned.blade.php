@@ -36,7 +36,7 @@
                     <x-table.heading width="60px" textAlign="right" class="hidden lg:table-cell">
                         {{ __('student.weight') }}
                     </x-table.heading>
-                    <x-table.heading width="120px">{{ __('student.type') }}</x-table.heading>
+                    <x-table.heading width="120px">{{ __('student.info') }}</x-table.heading>
                     <x-table.heading width="125px"></x-table.heading>
                 </x-slot>
                 <x-slot name="body">
@@ -67,7 +67,7 @@
                                     class="text-right hidden lg:table-cell">{{ $testTake->weight }}
                             </x-table.cell>
                             <x-table.cell>
-                                <x-partials.test-take-type-label :type="$testTake->retake"/>
+                                <x-partials.before-take-info-labels :$testTake />
                             </x-table.cell>
                             <x-table.cell buttonCell class="text-right">
                                 <x-partials.start-take-button :timeStart="$testTake->time_start"

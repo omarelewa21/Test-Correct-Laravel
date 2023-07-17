@@ -64,7 +64,7 @@
 
             <div x-show="expanded"
                  x-collapse
-
+                 block-body
             >
                 <div @class(['accordion-content-slot | pt-4 flex max-w-full', 'border-t-3 border-sysbase mx-10 pb-10' => $mode === 'panel'])>
                     {{ $body }}

@@ -36,15 +36,13 @@
             @if ($this->showSchoolSwitcher)
                 <a  id="user_school_locations" class="cursor-pointer" wire:click="$emit('openModal', 'teacher.schoollocation-switcher-modal')">{{ __('general.Wissel van school') }}</a>
             @endif
-            <a href="{{ route('auth.login') }}">{{__('header.Uitloggen')}}</a>
             <a class="cursor-pointer" wire:click="cakeRedirect('update-password')">{{__('header.Wachtwoord wijzigen')}}</a>
             <a href="https://support.test-correct.nl/knowledge" target="_blank">{{__('header.Supportpagina')}}</a>
             <a class="cursor-pointer" wire:click="cakeRedirect('delay-auto-logout')">{{__('header.Automatisch uitloggen uitstellen')}}</a>
             @if(Auth::user()->isToetsenbakker())
                 <a class="cursor-pointer" wire:click="laravelRedirect('{{route('teacher.file-management.testuploads')}}')">{{__('header.Te verwerken Toetsen')}}</a>
-            @else
-                <a class="cursor-pointer" wire:click="cakeRedirect('tests.my_uploads_with_popup')">{{__('header.Uploaden toets')}}</a>
             @endif
+            <a href="{{ route('auth.login') }}">{{__('header.Uitloggen')}}</a>
         </div>
         <div class="support-menu" x-ref="support_menu" x-cloak="" x-show="supportMenu" x-transition="" @click.outside="supportmenu = false">
             <a class="cursor-pointer" wire:click="cakeRedirect('knowledge_base')">{{__('header.Kennisbank')}}</a>

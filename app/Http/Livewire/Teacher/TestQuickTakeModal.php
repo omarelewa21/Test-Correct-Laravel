@@ -25,6 +25,8 @@ class TestQuickTakeModal extends TCModalComponent
     public $testTake;
     public $selectedClasses = [];
 
+    public $clickDisabled = false;
+
 
     protected function messages(): array
     {
@@ -87,9 +89,9 @@ class TestQuickTakeModal extends TCModalComponent
 
     public function plan()
     {
-        $this->validate();
-
         $this->setDefaultTestTakeSettings();
+        $this->validate();
+        $this->clickDisabled = true;
         $this->testTake->save();
 
         $this->dispatchBrowserEvent('notify', ['message' => __('teacher.testtake planned')]);

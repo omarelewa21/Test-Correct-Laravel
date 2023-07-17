@@ -49,7 +49,6 @@ trait WithAttributes
         }
         return $instance->type;
     }
-
     private static function getAttributeInstance(self $enum, $attributeClass)
     {
         $ref = new ReflectionClassConstant(self::class, $enum->name);

@@ -11,7 +11,21 @@
          }"
          x-on:block-expanded.window="handleExpand($event)"
     >
+
         <x-input.group for="me" class="w-full disabled mt-4">
+            @if($studentAnswer)
+            <x-input.comment-editor
+                    :allowWsc="$webSpellChecker"
+                    :editor-id="$editorId"
+                    :restrictWords="$question->restrict_word_amount"
+                    :maxWords="$question->max_words"
+                    :textFormatting="$question->text_formatting"
+                    :mathmlFunctions="$question->mathml_functions"
+                    :lang="$question->lang"
+                    :answerId="$answer->getKey()"
+                    :commentMarkerStyles="$commentMarkerStyles"
+            >{!! $answerValue !!}</x-input.comment-editor>
+            @else
             <x-input.rich-textarea
                     type="student-co-learning"
                     :allowWsc="$webSpellChecker"
@@ -23,6 +37,7 @@
                     :lang="$question->lang"
                     :disabled="true"
             >{!! $answerValue !!}</x-input.rich-textarea>
+            @endif
         </x-input.group>
         <div class="flex justify-between" wire:ignore>
             <div class="flex space-x-2 text-midgrey">

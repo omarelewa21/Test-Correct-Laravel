@@ -1,4 +1,6 @@
-RichTextEditor = {
+import {modelElementToPlainText} from "../ckeditor5/node_modules/@ckeditor/ckeditor5-word-count/src/utils.js";
+
+window.RichTextEditor = {
     initStudentCoLearning: function(parameterBag) {
         return this.createStudentEditor(
             parameterBag,
@@ -24,6 +26,7 @@ RichTextEditor = {
             parameterBag,
             (editor) => {
                 WebspellcheckerTlc.lang(editor, parameterBag.lang);
+                WebspellcheckerTlc.handleSpellCheckerOnOff(editor, parameterBag.isSpellCheckerEnabled);
                 this.setReadOnly(editor);
                 window.editor = editor;
             }
@@ -35,6 +38,7 @@ RichTextEditor = {
             parameterBag,
             (editor) => {
                 WebspellcheckerTlc.lang(editor, parameterBag.lang);
+                WebspellcheckerTlc.handleSpellCheckerOnOff(editor, parameterBag.isSpellCheckerEnabled);
                 this.setReadOnly(editor);
                 window.editor = editor;
             }
@@ -49,8 +53,8 @@ RichTextEditor = {
                 if (typeof ReadspeakerTlc != "undefined") {
                     editor.editing.view.document.on( 'change:isFocused', ( evt, data, isFocused ) => {
                         isFocused
-                            ? rsTlcEvents.handleCkeditorFocusForReadspeaker(evt.target,parameterBag.questionId, parameterBag.editorId)
-                            : rsTlcEvents.handleCkeditorBlurForReadspeaker(evt.target,parameterBag.questionId, parameterBag.editorId);
+                            ? rsTlcEvents.handleCkeditorFocusForReadspeaker(editor.sourceElement.nextElementSibling,parameterBag.questionId, parameterBag.editorId)
+                            : rsTlcEvents.handleCkeditorBlurForReadspeaker(editor.sourceElement.nextElementSibling,parameterBag.questionId, parameterBag.editorId);
                     });
                     ReadspeakerTlc.ckeditor.addListenersForReadspeaker(editor, parameterBag.questionId, parameterBag.editorId);
                     ReadspeakerTlc.ckeditor.disableContextMenuOnCkeditor();
@@ -76,56 +80,109 @@ RichTextEditor = {
             parameterBag,
             (editor) => {
                 WebspellcheckerTlc.lang(editor, parameterBag.lang);
+                WebspellcheckerTlc.handleSpellCheckerOnOff(editor, parameterBag.isSpellCheckerEnabled);
                 this.setupWordCounter(editor, parameterBag);
                 this.setReadOnly(editor);
             }
         )
     },
     initAssessmentFeedback: function(parameterBag) {
-        parameterBag.removeItems = {
-            plugins: [
-                "Essentials",
-                "FontFamily",
-                "FontSize",
-                "FontBackgroundColor",
-                "Heading",
-                "Indent",
-                "FontColor",
-                "RemoveFormat",
-                "PasteFromOffice",
-                "WordCount",
-                "WProofreader",
-                "Completion",
-                "Selection"
-            ],
-            toolbar: [
-                "outdent",
-                "indent",
-                "completion",
-                "selection",
-                "fontFamily",
-                "fontBackgroundColor",
-                "fontSize",
-                "undo",
-                "redo",
-                "fontColor",
-                "heading",
-                "removeFormat",
-                "wproofreader",
-                "specialCharacters"
-            ]
-        };
+        this.setAnswerFeedbackItemsToRemove(parameterBag);
         parameterBag.shouldNotGroupWhenFull = true;
 
-        return this.createTeacherEditor(parameterBag);
-    },
-    initInlineFeedback: function(parameterBag) {
-        return this.createStudentEditor(
+        return this.createTeacherEditor(
             parameterBag,
-            (editor) => this.setupWordCounter(editor, parameterBag)
         );
     },
+    initUpdateAnswerFeedbackEditor: function(parameterBag) {
+        this.setAnswerFeedbackItemsToRemove(parameterBag);
+        parameterBag.shouldNotGroupWhenFull = true;
 
+        return this.createTeacherEditor(
+            parameterBag,
+            (editor) => {
+
+                // this.hideWProofreaderChevron(parameterBag.allowWsc, editor);
+
+            },
+        );
+    },
+    initCreateAnswerFeedbackEditor: function(parameterBag) {
+        this.setAnswerFeedbackItemsToRemove(parameterBag);
+        parameterBag.shouldNotGroupWhenFull = true;
+
+        return this.createTeacherEditor(
+            parameterBag,
+            (editor) => {
+                window.addEventListener('answer-feedback-focus-feedback-editor', () => {
+                    setTimeout(() => {
+                        editor.focus();
+                    }, 100)
+                });
+                // this.hideWProofreaderChevron(parameterBag.allowWsc, editor);
+            }
+        );
+    },
+    initAnswerEditorWithComments: function(parameterBag) {
+        parameterBag.enableCommentsPlugin = true;
+
+        return this.createStudentEditor(
+            parameterBag,
+            (editor) => {
+                WebspellcheckerTlc.lang(editor, parameterBag.lang);
+                this.setupWordCounter(editor, parameterBag);
+                this.setCommentsOnly(editor); //replaces read-only
+                this.setAnswerFeedbackEventListeners(editor);
+            }
+        )
+    },
+    setAnswerFeedbackEventListeners: function (editor) {
+        editor.ui.view.editable.element.onblur = (e) => {
+            //create a temporary commentThread to mark the selection while creating a new comment
+            // editor.execute( 'addCommentThread', { threadId: window.uuidv4() } );
+
+        }
+        document.addEventListener('mouseup', (e) => {
+            /*
+             * selection is in the answer comment editor
+             * selection is not empty
+             * selection is on the assessment screen
+             * */
+            if (window.getSelection().focusNode?.parentElement?.closest('.comment-editor') !== null
+                && document.querySelector('#assessment-page') !== null
+                && window.getSelection().toString() !== ''
+            ) {
+                dispatchEvent(new CustomEvent('assessment-drawer-tab-update', {detail: {tab: 2}}));
+
+                //focus the create a comment editor
+                dispatchEvent(new CustomEvent('answer-feedback-focus-feedback-editor'));
+
+                setTimeout(() => {
+                    editor.execute('addCommentThread', {threadId: window.uuidv4()});
+
+                }, 200);
+            }
+        })
+    },
+    //only needed when webspellchecker has to be re-added to the inline-feedback comment editors
+    // hideWProofreaderChevron: function (allowWsc, editor) {
+    //
+    //     if(!allowWsc) {
+    //         return;
+    //     }
+    //
+    //     const callback = (element) => {
+    //         return element.innerHTML == 'WProofreader' && element.classList.contains('ck-tooltip__text')
+    //     }
+    //
+    //     // const elements = Array.from(document.getElementsByTagName('span'))
+    //     const elements = Array.from(editor.editing.view.getDomRoot().closest('.ck-editor').getElementsByTagName('span'))
+    //
+    //     elements.filter(callback).forEach((element) => {
+    //         return element.parentElement.parentElement.querySelector('.ck-dropdown__arrow').style.display = 'none';
+    //     });
+    //
+    // },
     getConfigForStudent: function(parameterBag) {
         parameterBag.pluginsToAdd ??= [];
 
@@ -203,6 +260,22 @@ RichTextEditor = {
             config.toolbar.removeItems.push("MathType", "ChemType", "specialCharacters");
         }
 
+        if(!parameterBag.enableCommentsPlugin) {
+            config.removePlugins.push("Comments");
+        } else {
+            config.licenseKey = process.env.MIX_CKEDITOR_LICENSE_KEY;
+        }
+
+        if (parameterBag.commentThreads != undefined) {
+            config.extraPlugins = [ CommentsIntegration ];
+
+            config.commentsIntegration = {
+                userId: parameterBag.userId,
+                users: parameterBag.users,
+                commentThreads: parameterBag.commentThreads,
+            };
+        }
+
         return config;
     },
     getConfigForTeacher: function(parameterBag) {
@@ -272,7 +345,28 @@ RichTextEditor = {
             wproofreader: this.getWproofreaderConfig(),
         };
         config.removePlugins = parameterBag.removeItems?.plugins ?? [];
-        config.toolbar = { removeItems: parameterBag.removeItems?.toolbar ?? [] };
+        config.toolbar = {
+            removeItems: parameterBag.removeItems?.toolbar ?? [],
+        };
+        if(parameterBag.toolbar) {
+            config.toolbar.items = parameterBag.toolbar;
+        }
+
+        if(!parameterBag.enableCommentsPlugin) {
+            config.removePlugins.push("Comments");
+        } else {
+            config.licenseKey = process.env.MIX_CKEDITOR_LICENSE_KEY;
+        }
+
+        if (parameterBag.commentThreads != undefined) {
+            config.extraPlugins = [ CommentsIntegration ];
+
+            config.commentsIntegration = {
+                userId: parameterBag.userId,
+                users: parameterBag.users,
+                commentThreads: parameterBag.commentThreads,
+            };
+        }
 
         if (!parameterBag.allowWsc) {
             delete config.wproofreader;
@@ -308,10 +402,14 @@ RichTextEditor = {
             });
         }
     },
+    setCommentsOnly: function(editor) {
+        editor.plugins.get( 'CommentsOnly' ).isEnabled = true;
+    },
     writeContentToTextarea: function(editorId) {
-        var editor = ClassicEditors[editorId];
+        const editor = ClassicEditors[editorId];
         if (editor) {
             editor.updateSourceElement();
+            // editor.sourceElement.parentElement.classList.add('rs_skip');
             editor.sourceElement.dispatchEvent(new Event("input"));
         }
     },
@@ -476,11 +574,56 @@ RichTextEditor = {
             resolveCallback
         );
     },
-    writeContentToTexarea: function(editorId) {
-        var editor = ClassicEditors[editorId];
-        if (editor) {
-            editor.updateSourceElement();
-            editor.sourceElement.dispatchEvent(new Event("input"));
-        }
+    setAnswerFeedbackItemsToRemove: function (parameterBag) {
+        parameterBag.removeItems = {
+            plugins: [
+                "FontFamily",
+                "FontSize",
+                "FontBackgroundColor",
+                "Heading",
+                "Indent",
+                "FontColor",
+                "RemoveFormat",
+                "PasteFromOffice",
+                "WordCount",
+                "Completion",
+                "Selection"
+            ],
+            toolbar: [
+                "outdent",
+                "indent",
+                "completion",
+                "selection",
+                "fontFamily",
+                "fontBackgroundColor",
+                "fontSize",
+                "fontColor",
+                "heading",
+                "removeFormat",
+                "specialCharacters",
+                "insertTable",
+                "imageUpload",
+                'underline',
+                'strikethrough',
+                'subscript',
+                'superscript',
+                'bulletedList',
+                'numberedList',
+                'blockQuote',
+            ]
+        };
+        parameterBag.toolbar = [
+            "undo",
+            "redo",
+            "|",
+            "bold",
+            "italic",
+            'MathType',
+            'ChemType',
+            'wproofreader',
+        ]
     },
+    getPlainText(editor) {
+        return modelElementToPlainText(editor.model.document.getRoot());
+    }
 };

@@ -152,7 +152,7 @@ return [
     'Wijzigen'                                                                               => 'Wijzigen',
     'Inplannen'                                                                              => 'Inplannen',
     'Kopie maken'                                                                            => 'Kopie maken',
-    'PDF maken'                                                                              => 'PDF maken',
+    'Exporteren naar PDF'                                                                              => 'Exporteren naar PDF',
     'voorbeeld'                                                                              => 'Voorbeeld',
     'vraag'                                                                                  => ':count vraag|:count vragen',
     'group-question-count'                                                                   => ':count vraaggroep|:count vraaggroepen',
@@ -239,4 +239,5 @@ return [
     'spell_check_available'                                                                  => 'Spellingscontrole beschikbaar',
     'spell_check_available_tooltip'                                                          => 'Hiermee kunnen leerlingen tijdens hun toets gebruiken maken van spellingscontrole. Deze onderstreept alle woorden die niet correct zijn geschreven.',
     'Antwoord opties voor student'                                                           => 'Antwoord opties voor student',
+    'resultaten'                                                                             => 'resultaten',
 ];

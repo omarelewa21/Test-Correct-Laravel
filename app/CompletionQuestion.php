@@ -138,7 +138,7 @@ class CompletionQuestion extends Question implements QuestionInterface
         }
 
         $completionQuestionAnswers = $this->completionQuestionAnswers->groupBy('tag');
-        $tags = [];
+        unset($this->completionQuestionAnswers);
 
         if (!$completionQuestionAnswers) {
             return false;
@@ -161,7 +161,6 @@ class CompletionQuestion extends Question implements QuestionInterface
                 return false;
             }
         }
-
         return true;
     }
 

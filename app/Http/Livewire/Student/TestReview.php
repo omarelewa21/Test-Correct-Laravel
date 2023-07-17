@@ -29,6 +29,8 @@ class TestReview extends EvaluationComponent
 
     public function booted(): void
     {
+        $this->getSortedAnswerFeedback();
+
         if ($this->skipBooted) {
             return;
         }
@@ -75,6 +77,8 @@ class TestReview extends EvaluationComponent
         $this->handleAnswerFeedback();
         $this->openClosedPanels();
         $this->score = $this->handleAnswerScore();
+
+        $this->getSortedAnswerFeedback(); //todo it is duplicated now, also in booted. but in booted is too early
 
         return true;
     }

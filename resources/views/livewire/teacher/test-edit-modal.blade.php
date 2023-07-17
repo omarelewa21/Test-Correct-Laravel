@@ -24,7 +24,7 @@
                                 wire:model="request.test_kind_id"
                         >
                             @foreach($allowedTestKinds as $type)
-                                <option value="{{ $type->id }}">{{ __('teacher.test-type-'.$type->name)  }}</option>
+                                <x-input.option :value="$type->id" :label="__('teacher.test-type-'.$type->name)"/>
                             @endforeach
                         </x-input.select>
                         <label for="type"
@@ -37,7 +37,7 @@
 
                         >
                             @foreach($allowedSubjects as $subject)
-                                <option value="{{ $subject->id }}">{!! $subject->name !!}</option>
+                                <x-input.option :value="$subject->id" :label="$subject->name"/>
                             @endforeach
                         </x-input.select>
                         <label for="test_kind"
@@ -62,7 +62,7 @@
                                 wire:model="request.period_id"
                         >
                             @foreach($allowedPeriods as $period)
-                                <option value="{{ $period->id }}">{{ $period->name }}</option>
+                                <x-input.option :value="$period->id" :label="$period->name"/>
                             @endforeach
                         </x-input.select>
                         <label for="period"
@@ -74,7 +74,7 @@
                                 wire:model="request.education_level_id"
                         >
                             @foreach($allowedEductionLevels as $educationLevel)
-                                <option value="{{ $educationLevel->id }}">{{ $educationLevel->name }}</option>
+                                <x-input.option :value="$educationLevel->id" :label=" $educationLevel->name "/>
                             @endforeach
                         </x-input.select>
                         <label for="name_suffix"
@@ -86,7 +86,7 @@
                                 wire:model="request.education_level_year"
                         >
                             @foreach(range(1,$this->maxEducationLevelYear) as $levelYear)
-                                <option value="{{ $levelYear }}">{{ $levelYear }}</option>
+                                <x-input.option :value="$levelYear" :label="$levelYear"/>
                             @endforeach
                         </x-input.select>
                         <label for="period"

@@ -31,6 +31,7 @@ class Teacher extends Component
     public Collection $systemLanguages;
     public Collection $wscLanguages;
     public Collection $gradingStandards;
+    public string $openTab = 'account';
 
     protected function getRules(): array
     {
@@ -49,6 +50,7 @@ class Teacher extends Component
     public function hydrate(): void
     {
         $this->user = User::whereUuid($this->userData->uuid)->first();
+        app()->setLocale(session('locale'));
     }
 
     public function dehydrate(): void

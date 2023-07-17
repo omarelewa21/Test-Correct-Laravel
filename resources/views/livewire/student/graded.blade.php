@@ -32,7 +32,7 @@
                         >
                             {{ __('student.take_date') }}
                         </x-table.heading>
-                        <x-table.heading width="120px">{{ __('student.type') }}</x-table.heading>
+                        <x-table.heading width="120px">{{ __('student.info') }}</x-table.heading>
                         <x-table.heading width="70px">{{ __('student.grade') }}</x-table.heading>
                         <x-table.heading width="120px"></x-table.heading>
                     </x-slot>
@@ -52,7 +52,7 @@
                                     @endif
                                 </x-table.cell>
                                 <x-table.cell>
-                                    <x-partials.test-take-type-label :type="$testTake->retake"/>
+                                    <x-partials.after-take-info-labels :$testTake />
                                 </x-table.cell>
                                 <x-table.cell class="text-center">
                                     @if(!$testTake->show_grades)
