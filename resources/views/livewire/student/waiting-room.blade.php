@@ -65,10 +65,13 @@
                         @else
                             <div class="divider flex flex-1"></div>
                             <div class="flex flex-col justify-center">
-                                <x-button.download-app/>
-                                <x-button.cta disabled class="mx-4">
-                                    <span>{{ __('Toets starten niet mogelijk') }}</span>
-                                </x-button.cta>
+                                @if(session('isInBrowser', true) && (\tcCore\Http\Helpers\AppVersionDetector::osIsMac() || \tcCore\Http\Helpers\AppVersionDetector::osIsWindows()))
+                                    <x-button.download-app class="mx-4"/>
+                                @else
+                                    <x-button.cta disabled class="mx-4">
+                                        <span>{{ __('Toets starten niet mogelijk') }}</span>
+                                    </x-button.cta>
+                                @endif
                             </div>
                             <div class="divider flex flex-1"></div>
                         @endif

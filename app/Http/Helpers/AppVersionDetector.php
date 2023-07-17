@@ -341,7 +341,9 @@ class AppVersionDetector
         return self::detect()['os'] == 'macOs';
     }
 
-
+    public static function osIsChromebook() {
+        return self::detect()['os'] == 'ChromeOS';
+    }
 
     public static function isInBrowser($headers = false)
     {
