@@ -69,10 +69,11 @@
             </span>
             @unless($viewOnly)
                 <x-button.options id="comment-options-button-{{$comment->uuid}}"
-                                                     context="answer-feedback"
-                                                     :uuid="$comment->uuid"
-                                                     size="sm"
-                                                     context-data-json="{!! json_encode(['threadId' => $comment->thread_id, 'preventLivewireCall' => true]) !!}"
+                                  context="answer-feedback"
+                                  :uuid="$comment->uuid"
+                                  size="sm"
+                                  context-data-json="{!! json_encode(['threadId' => $comment->thread_id]) !!}"
+                                  :prevent-livewire-call="true"
                 >
                 </x-button.options>
             @endif

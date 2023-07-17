@@ -18,6 +18,7 @@
 
     <div class="answer-feedback-comment-icons"
          x-init="initCommentIcons(@js($commentThreads))"
+         x-on:accordion-toggled.window="setTimeout(()=>repositionAnswerFeedbackIcons(), 100)"
     >
         <template id="checkmark-emoji">
                 <span class="inline-block" style="scale: calc(2 / 3);">
@@ -73,7 +74,6 @@
     <div wire:ignore @class(['ckeditor-disabled' => $disabled, 'relative'])>
         <textarea
                 {{ $attributes->merge(['class' => 'form-input resize-none']) }}
-                x-data=""
                 x-init="{{ $initFunctionCall }}"
                 id="{{ $editorId }}"
                 name="{{ $editorId }}"

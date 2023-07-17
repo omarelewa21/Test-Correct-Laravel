@@ -2095,9 +2095,6 @@ document.addEventListener("alpine:init", () => {
             }
             await this.updateCurrent(this.current - 1, "decr");
         },
-        async navigate(methodName) {
-            await this[methodName]();
-        },
         async updateCurrent(value, action) {
             this.$dispatch("assessment-drawer-tab-update", { tab: 1 });
             let response = await this.$wire[this.methodCall](value, action);
@@ -2181,8 +2178,8 @@ document.addEventListener("alpine:init", () => {
             this.activeTab = index;
             this.closeTooltips();
             const slide = this.getSlideElementByIndex(index);
-            this.handleSlideHeight(slide);
             await this.$nextTick();
+            this.handleSlideHeight(slide);
 
             if (answerFeedbackCommentUuid) {
                 await this.scrollToCommentCard(answerFeedbackCommentUuid);
@@ -2232,9 +2229,6 @@ document.addEventListener("alpine:init", () => {
                 await this.$wire.previous();
                 this.clickedNext = false;
             });
-        },
-        async navigate(methodName) {
-            await this[methodName]();
         },
         fixSlideHeightByIndex(index, AnswerFeedbackUuid) {
             let slide = document.querySelector(".slide-" + index);
@@ -2603,9 +2597,13 @@ document.addEventListener("alpine:init", () => {
             }, 5000);
         },
         async loadQuestion(number) {
+            if(this.$store.answerFeedback.feedbackBeingEdited()) {
+                return this.$store.answerFeedback.openConfirmationModal(this.$root, 'loadQuestion', number);
+            }
+
             this.$dispatch("assessment-drawer-tab-update", { tab: 1 });
             await this.$wire.loadQuestionFromNav(number);
-        }
+        },
     }));
     Alpine.data("accountSettings", (openTab, language) => ({
         openTab,
@@ -2674,21 +2672,39 @@ document.addEventListener("alpine:init", () => {
                 (event) => this.updateNewCommentMarkerStyles(event?.detail?.color)
             );
 
-            document.addEventListener('mousedown', (e) => {
+            document.addEventListener('mousedown', (event) => {
+                this.resetCommentColorPickerFocusState(event);
+                this.resetCommentEmojiPickerFocusState(event);
+
                 if(this.activeComment === null) {
                     return;
                 }
                 //check for click outside 1. comment markers, 2. comment marker icons, 3. comment cards.
-                if( e.srcElement.closest('.ck-comment-marker') ||
-                    e.srcElement.closest('.answer-feedback-comment-icons') ||
-                    e.srcElement.closest('.given-feedback-container')
-                ) {
+                if( event.srcElement.closest(':is(.ck-comment-marker, .answer-feedback-comment-icons, .given-feedback-container)') ) {
                     return;
                 }
                 this.clearActiveComment()
             })
 
             this.preventOpeningModalFromBreakingDrawer();
+        },
+        resetCommentColorPickerFocusState(event) {
+            if (event.srcElement.closest('.comment-color-picker')) {
+                return;
+            }
+            let commentColorPickerCKEditorElement = document.querySelector('.comment-color-picker[ckEditorElement].picker-focussed');
+            if (commentColorPickerCKEditorElement) {
+                commentColorPickerCKEditorElement.classList.remove('picker-focussed');
+            }
+        },
+        resetCommentEmojiPickerFocusState(event) {
+            if (event.srcElement.closest('.comment-emoji-picker')) {
+                return;
+            }
+            let commentEmojiPickerCKEditorElement = document.querySelector('.comment-emoji-picker[ckEditorElement].picker-focussed');
+            if (commentEmojiPickerCKEditorElement) {
+                commentEmojiPickerCKEditorElement.classList.remove('picker-focussed');
+            }
         },
         async updateCommentThread(element) {
             let answerFeedbackCardElement = element.closest('.answer-feedback-card');
@@ -2803,8 +2819,7 @@ document.addEventListener("alpine:init", () => {
                 if(deletedThreadIcon) {
                     deletedThreadIcon.remove();
                 }
-
-                commentsRepository.getCommentThread(threadId).remove();
+                thread.remove();
                 const answerText = answerEditor.getData();
                 await this.$wire.updateAnswer(answerText);
 
@@ -2820,46 +2835,75 @@ document.addEventListener("alpine:init", () => {
                 this.createCommentIcon(thread);
             })
         },
-        initCommentIcon(el, thread) {
+        repositionAnswerFeedbackIcons() {
+            let answerFeedbackCommentIcons = document.querySelectorAll('.answer-feedback-comment-icon');
+            answerFeedbackCommentIcons.forEach((iconWrapper) => {
+                let threadId = iconWrapper.dataset.threadid;
+                let threadUuid = iconWrapper.dataset.uuid;
+                this.setIconPositionAndEventListenersForThread(iconWrapper, threadId, threadUuid);
+            });
+        },
+        setIconPositionAndEventListenersForThread(iconWrapper, threadId, answerFeedbackUuid) {
+            const commentMarkers = document.querySelectorAll(`[data-comment='` + threadId + `']`);
+            const lastCommentMarker = commentMarkers[commentMarkers.length-1];
+
+            iconWrapper.style.top = (lastCommentMarker.offsetTop - 15 /* adjust icon alignment */ + lastCommentMarker.offsetHeight - 24 /* adjust to last line of marker */) + 'px';
+
+            let lastCommentMarkerClientRects = lastCommentMarker.getClientRects();
+            let lastCommentMarkerParentClientRects = lastCommentMarker.offsetParent.getClientRects();
+
+            let lastCommentMarkerLineClientRight = lastCommentMarkerClientRects[lastCommentMarkerClientRects.length-1].right;
+            let lastCommentMarkerLineParentClientLeft = lastCommentMarkerParentClientRects[lastCommentMarkerParentClientRects.length-1].left;
+
+            let lastCommentMarkerLineOffsetLeft = lastCommentMarkerLineClientRight - lastCommentMarkerLineParentClientLeft;
+
+            iconWrapper.style.left = (lastCommentMarkerLineOffsetLeft - 5) + 'px';
+
+            //(re)set comment marker and icon eventListeners
             let commentThreadElements = null;
+            commentThreadElements = [...commentMarkers, iconWrapper];
+
+            let clickEventHandler = (event) => {
+                this.setActiveComment(threadId, answerFeedbackUuid);
+            }
+            let mouseEnterEventHandler = (event) => {
+                this.setHoveringComment(threadId, answerFeedbackUuid);
+            }
+            let mouseLeaveEventHandler = (event) => {
+                this.clearHoveringComment();
+            }
+
+            //set click event listener on all comment markers and the icon.
+            commentThreadElements.forEach((threadElement) => {
+                threadElement.removeEventListener('click', clickEventHandler);
+                threadElement.removeEventListener('mouseenter', mouseEnterEventHandler);
+                threadElement.removeEventListener('mouseleave', mouseLeaveEventHandler);
+                threadElement.addEventListener('click', clickEventHandler);
+                threadElement.addEventListener('mouseenter', mouseEnterEventHandler);
+                threadElement.addEventListener('mouseleave', mouseLeaveEventHandler);
+            });
+
+        },
+        initCommentIcon(iconWrapper, thread) {
             setTimeout(() => {
-                const commentMarkers = document.querySelectorAll(`[data-comment='` + thread.threadId+ `']`);
-                const lastCommentMarker = commentMarkers[commentMarkers.length-1];
+                this.setIconPositionAndEventListenersForThread(iconWrapper, thread.threadId, thread.uuid);
 
-                el.style.top = (lastCommentMarker.offsetTop - 15) + 'px';
-                el.style.left = (lastCommentMarker.offsetWidth + lastCommentMarker.offsetLeft - 5) + 'px';
+                iconWrapper.setAttribute('data-uuid', thread.uuid);
+                iconWrapper.setAttribute('data-threadId', thread.threadId);
 
-                el.setAttribute('data-uuid', thread.uuid);
-                el.setAttribute('data-threadId', thread.threadId);
-
-                this.addOrReplaceIconByName(el, thread.iconName);
-
-                commentThreadElements = [...commentMarkers, el];
-
-                //set click event listener on all comment markers and the icon.
-                commentThreadElements.forEach((threadElement) => {
-                    threadElement.addEventListener('click', () => {
-                        this.setActiveComment(thread.threadId, thread.uuid);
-                    });
-                    threadElement.addEventListener('mouseenter', (e) => {
-                        this.setHoveringComment(thread.threadId, thread.uuid);
-                    });
-                    threadElement.addEventListener('mouseleave', (e) => {
-                        this.clearHoveringComment();
-                    });
-                });
-
+                this.addOrReplaceIconByName(iconWrapper, thread.iconName);
             }, 200)
         },
         createCommentIcon (thread) {
-            let el = document.querySelector('.answer-feedback-comment-icons');
+            let commentIconsContainer = document.querySelector('.answer-feedback-comment-icons');
             let iconId = "icon-"+thread.threadId;
             let iconWrapper = document.createElement('div');
             iconWrapper.classList.add('absolute');
             iconWrapper.classList.add('z-10');
             iconWrapper.classList.add('cursor-pointer');
+            iconWrapper.classList.add('answer-feedback-comment-icon');
             iconWrapper.id = iconId;
-            el.appendChild(iconWrapper)
+            commentIconsContainer.appendChild(iconWrapper)
 
             this.initCommentIcon(iconWrapper, thread);
         },
@@ -2934,6 +2978,9 @@ document.addEventListener("alpine:init", () => {
         },
         setHoveringCommentMarkerStyle(removeStyling = false) {
             const styleTag = document.querySelector('#hoveringCommentMarkerStyle');
+            if(!styleTag) {
+                return;
+            }
 
             if(removeStyling || this.hoveringComment.threadId === null) {
                 styleTag.innerHTML = '';
@@ -2947,6 +2994,9 @@ document.addEventListener("alpine:init", () => {
         },
         setActiveCommentMarkerStyle(removeStyling = false) {
             const styleTag = document.querySelector('#activeCommentMarkerStyle');
+            if(!styleTag) {
+                return;
+            }
 
             if(removeStyling || this.activeComment?.threadId === null) {
                 styleTag.innerHTML = '';
@@ -2961,13 +3011,15 @@ document.addEventListener("alpine:init", () => {
         },
         setActiveComment (threadId, answerFeedbackUuid) {
             this.$dispatch('answer-feedback-show-comments');
-            this.$dispatch("assessment-drawer-tab-update", { tab: 2, uuid: answerFeedbackUuid });
-            if(this.$store.answerFeedback.feedbackBeingEdited()) {
-                /* when editing, no other comment can be activated */
-                return;
-            }
-            this.activeComment = {threadId: threadId, uuid: answerFeedbackUuid };
-            this.setActiveCommentMarkerStyle();
+            setTimeout(() => {
+                this.$dispatch("assessment-drawer-tab-update", { tab: 2, uuid: answerFeedbackUuid });
+                if(this.$store.answerFeedback.feedbackBeingEdited()) {
+                    /* when editing, no other comment can be activated */
+                    return;
+                }
+                this.activeComment = {threadId: threadId, uuid: answerFeedbackUuid };
+                this.setActiveCommentMarkerStyle();
+            }, 300);
         },
         clearActiveComment() {
             this.activeComment = null;
@@ -3090,7 +3142,7 @@ document.addEventListener("alpine:init", () => {
                 this.fixSlideHeightByIndex(2, AnswerFeedbackUuid);
             },100)
         },
-        toggleFeedbackAccordion (name, forceOpenAccordion = false) {
+        async toggleFeedbackAccordion (name, forceOpenAccordion = false) {
             if(this.$store.answerFeedback.feedbackBeingEdited()) {
                 this.dropdownOpened ='given-feedback';
                 return;
@@ -3108,6 +3160,10 @@ document.addEventListener("alpine:init", () => {
                 }
             }
             this.dropdownOpened = name;
+            await this.$nextTick();
+            setTimeout(() => {
+                this.fixSlideHeightByIndex(2);
+            }, 293);
         },
         resetAddNewAnswerFeedback(cancelAddingNewComment = false) {
             //find default/blue color picker and enable it.
@@ -3811,6 +3867,7 @@ document.addEventListener("alpine:init", () => {
         editingComment: null,
         navigationRoot: null,
         navigationMethod: null,
+        navigationArgs: null,
         feedbackBeingEdited() {
             if(this.navigationRoot) {
                 this.navigationRoot = null;
@@ -3822,14 +3879,15 @@ document.addEventListener("alpine:init", () => {
             }
             return this.editingComment;
         },
-        openConfirmationModal(navigatorRootElement, methodName) {
+        openConfirmationModal(navigatorRootElement, methodName, methodArgs = null) {
             this.navigationRoot = navigatorRootElement;
             this.navigationMethod = methodName;
+            this.navigationArgs = methodArgs;
             Livewire.emit('openModal', 'modal.confirm-still-editing-comment-modal');
         },
         continueAction() {
             this.editingComment = null;
-            this.navigationRoot.dispatchEvent(new CustomEvent('continue-navigation', {detail: {method: this.navigationMethod}}))
+            this.navigationRoot.dispatchEvent(new CustomEvent('continue-navigation', {detail: {method: this.navigationMethod, args: [this.navigationArgs]}}))
             Livewire.emit('closeModal');
         },
         cancelAction() {

@@ -53,6 +53,7 @@ class CkEditorRadioWithIcon extends View {
                     'emoji-picker-radio emoji-picker-radio-container',
                     bind.to( 'labelClass' )
                 ],
+                tabindex: -1,
             },
             on: {
                 mousedown: bind.to( evt => {
@@ -74,17 +75,6 @@ class CkEditorRadioWithIcon extends View {
      */
     focus() {
         this.element.focus();
-    }
-
-    render() {
-        super.render();
-
-        // Create a temporary element to parse the icon string into an element.
-        // const div = document.createElement('div');
-        // div.innerHTML = this.icon.trim();
-        // const iconNode = div.firstChild;
-        //
-        // this.iconNode = iconNode;
     }
 }
 

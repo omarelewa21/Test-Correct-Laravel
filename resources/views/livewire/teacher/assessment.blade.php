@@ -19,6 +19,7 @@
                 @js(false),
                 @js($this->hasFeedback)
              )"
+             x-on:resize.window.debounce.50ms="repositionAnswerFeedbackIcons()"
         >
             <x-partials.evaluation.main-content :question="$this->currentQuestion"
                                                 :group="$this->currentGroup"
@@ -113,6 +114,7 @@
                                             :disabled-toggle="true"
                                             :webSpellChecker="$this->webSpellCheckerEnabled"
                                             :commentMarkerStyles="$this->commentMarkerStyles"
+                                            :enableComments="true"
                                     />
                                 </div>
                             </x-slot:body>
@@ -212,31 +214,32 @@
 
                 <x-slot:slideTwoContent>
                     <div x-data="{}"
-                         class="space-y-4"
                          x-on:answer-feedback-focus-feedback-editor.window="toggleFeedbackAccordion('add-feedback', true)"
                          x-on:answer-feedback-show-comments.window="toggleFeedbackAccordion('given-feedback', true)"
                     >
-                        <div class="space-y-4 answer-feedback-add-comment">
-                            <span class="flex bold border-t border-blue-grey pt-2 justify-between items-center"
-                                  @if($this->inlineFeedbackEnabled)
+                        @if($this->inlineFeedbackEnabled)
+                        <div class="answer-feedback-add-comment">
+                            <button class="flex bold border-t border-blue-grey py-2 justify-between items-center w-full group"
                                   :class="$store.answerFeedback.editingComment !== null ? 'text-midgrey' : ''"
-                                  @endif
+                                  @click="toggleFeedbackAccordion('add-feedback')"
+
                             >
                                 <span>@lang('assessment.Feedback toevoegen')</span>
-                                <span class="w-4 h-4 flex justify-center items-center"
+                                <span class="w-6 h-6 rounded-full flex justify-center items-center transition -mr-0.5
+                                                group-hover:bg-primary/5
+                                                group-active:bg-primary/10
+                                                group-focus:bg-primary/5 group-focus:text-primary group-focus:border group-focus:border-[color:rgba(0,77,245,0.15)]
+                                    "
                                       :class="dropdownOpened === 'add-feedback' ? 'rotate-svg-90' : ''"
-                                      @click="toggleFeedbackAccordion('add-feedback');">
+                                >
                                     <x-icon.chevron></x-icon.chevron>
                                 </span>
-                            </span>
+                            </button>
 
-                            <div class="flex w-full flex-col gap-2" x-show="dropdownOpened === 'add-feedback'"
+                            <div class="flex w-full flex-col" x-show="dropdownOpened === 'add-feedback'"
                                  x-collapse
                                  wire:key="feedback-editor-{{  $this->questionNavigationValue.'-'.$this->answerNavigationValue }}"
                             >
-
-                                @if($this->inlineFeedbackEnabled ) {{-- only enabled for open_question aka 'write down' --}}
-
                                     <x-input.comment-color-picker
                                             commentThreadId="new-comment"
                                             uuid="new-comment"
@@ -251,11 +254,20 @@
                                             :useCkEditorView="true"
                                     ></x-input.comment-emoji-picker>
 
-                                    <span>@lang('assessment.Feedback schrijven')</span>
-                                    <x-input.rich-textarea type="create-answer-feedback"
-                                                           :editorId="'feedback-editor-'. $this->questionNavigationValue.'-'.$this->answerNavigationValue"
-                                    />
-                                    <div class="flex justify-end space-x-4 h-fit mt-2 mb-2"
+                                    <div class="comment-feedback-editor"
+                                            x-on:click="$el.classList.add('editor-focussed')"
+                                    >
+                                        <label class="comment-feedback-editor-label flex"
+                                               x-on:click="ClassicEditors['feedback-editor-{{  $this->questionNavigationValue.'-'.$this->answerNavigationValue }}'].focus()"
+                                        >
+                                            @lang('assessment.Feedback schrijven')
+                                        </label>
+                                        <x-input.rich-textarea type="create-answer-feedback"
+                                                               :editorId="'feedback-editor-'. $this->questionNavigationValue.'-'.$this->answerNavigationValue"
+                                        />
+                                    </div>
+
+                                    <div class="flex justify-end space-x-4 h-fit mt-2 mb-6"
                                          x-on:button-cancel-clicked="resetAddNewAnswerFeedback(true)"
                                          x-on:button-save-clicked="createCommentThread"
                                          wire:ignore
@@ -264,15 +276,6 @@
                                          data-cancel-translation="@lang('modal.annuleren')"
                                     > {{-- filled by javascript with Ckeditor view components, cancel and save button --}}
                                     </div>
-                                @else
-                                    <span>@lang('assessment.Feedback schrijven')</span>
-                                    <x-input.rich-textarea type="assessment-feedback"
-                                                           :editorId="'feedback-editor-'. $this->questionNavigationValue.'-'.$this->answerNavigationValue"
-                                                           wire:model.debounce.300ms="feedback"
-                                            :disabled="$this->currentQuestion->isSubType('writing')" {{-- todo find out what to do with writing assignment exceptions --}}
-                                    />
-                                @endif
-
                             </div>
                         </div>
 
@@ -298,24 +301,25 @@
                         @endif--}}
                         {{-- TODO: make exception for existing writing assignments? --}}
 
-                    @if($this->inlineFeedbackEnabled)
-                            <div class="space-y-4 relative">
-                            <span @class([
-                                    "flex bold border-t border-blue-grey pt-2 justify-between items-center",
-                                  ])
-                                  :class="{'text-midgrey': !hasFeedback}"
-                                  x-init="dropdownOpened = hasFeedback ? dropdownOpened : 'add-feedback'"
-                            >
-                                <span>@lang('assessment.Gegeven feedback')</span>
-                                <span class="w-4 h-4 flex justify-center items-center"
-                                      :class="dropdownOpened === 'given-feedback' ? 'rotate-svg-90' : ''"
-                                      @click="toggleFeedbackAccordion('given-feedback')"
+                            <div class="answer-feedback-given-comments | relative">
+                                <button class="flex bold border-t border-blue-grey py-2 justify-between items-center w-full group"
+                                        :class="{'text-midgrey': !hasFeedback}"
+                                        x-init="dropdownOpened = hasFeedback ? dropdownOpened : 'add-feedback'"
+                                        @click="toggleFeedbackAccordion('given-feedback')"
                                 >
-                                    <x-icon.chevron></x-icon.chevron>
-                                </span>
-                            </span>
+                                    <span>@lang('assessment.Gegeven feedback')</span>
+                                    <span class="w-6 h-6 rounded-full flex justify-center items-center transition -mr-0.5
+                                                group-hover:bg-primary/5
+                                                group-active:bg-primary/10
+                                                group-focus:bg-primary/5 group-focus:text-primary group-focus:border group-focus:border-[color:rgba(0,77,245,0.15)]
+                                    "
+                                          :class="dropdownOpened === 'given-feedback' ? 'rotate-svg-90' : ''"
+                                    >
+                                        <x-icon.chevron></x-icon.chevron>
+                                    </span>
+                                </button>
 
-                                <div class="flex w-auto flex-col gap-2 given-feedback-container -m-4"
+                                <div class="flex w-auto flex-col gap-2 given-feedback-container -mx-4"
                                      x-show="dropdownOpened === 'given-feedback'"
                                      x-collapse
                                      wire:key="feedback-editor-{{  $this->questionNavigationValue.'-'.$this->answerNavigationValue }}"
@@ -347,6 +351,15 @@
 
                                     @endforeach
                                 </div>
+                            </div>
+                        @else
+                            <div class="flex w-full flex-col gap-2">
+                                <span>@lang('assessment.Feedback schrijven')</span>
+                                <x-input.rich-textarea type="assessment-feedback"
+                                                       :editorId="'feedback-editor-'. $this->questionNavigationValue.'-'.$this->answerNavigationValue"
+                                                       wire:model.debounce.300ms="feedback"
+                                                       :disabled="$this->currentQuestion->isSubType('writing')" {{-- todo find out what to do with writing assignment exceptions --}}
+                                />
                             </div>
                         @endif
                     </div>

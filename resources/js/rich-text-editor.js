@@ -7,6 +7,7 @@ window.RichTextEditor = {
             (editor) => {
                 this.setupWordCounter(editor, parameterBag);
                 WebspellcheckerTlc.subscribeToProblemCounter(editor);
+                WebspellcheckerTlc.lang(editor, parameterBag.lang);
                 window.addEventListener("wsc-problems-count-updated-" + parameterBag.editorId, (e) => {
                     let problemCountSpan = document.getElementById("problem-count-" + parameterBag.editorId);
                     if (problemCountSpan) {
@@ -151,7 +152,9 @@ window.RichTextEditor = {
             if (window.getSelection().focusNode?.parentElement?.closest('.comment-editor') !== null
                 && document.querySelector('#assessment-page') !== null
                 && window.getSelection().toString() !== ''
+                && !(e.target.closest('.answer-feedback-comment-icon') || e.target.closest('.ck-comment-marker'))
             ) {
+                console.log(e, 'mouseup');
                 dispatchEvent(new CustomEvent('assessment-drawer-tab-update', {detail: {tab: 2}}));
 
                 //focus the create a comment editor

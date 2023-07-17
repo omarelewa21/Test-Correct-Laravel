@@ -5967,6 +5967,10 @@ video {
   margin-top: 2rem;
   margin-bottom: 2rem;
 }
+.-mx-4{
+  margin-left: -1rem;
+  margin-right: -1rem;
+}
 .-mb-2{
   margin-bottom: -0.5rem;
 }
@@ -6167,6 +6171,15 @@ video {
 }
 .mt-px{
   margin-top: 1px;
+}
+.mb-24{
+  margin-bottom: 6rem;
+}
+.-mr-0{
+  margin-right: -0px;
+}
+.-mr-0\.5{
+  margin-right: -0.125rem;
 }
 .box-border{
   box-sizing: border-box;
@@ -9290,6 +9303,23 @@ h2.student-testtake-answers-separator span {
 
 .group:last-child .group-last\:border-r-0{
   border-right-width: 0px;
+}
+
+.group:focus-within .group-focus-within\:border{
+  border-width: 1px;
+}
+
+.group:focus-within .group-focus-within\:border-\[color\:rgba\(0\2c 77\2c 245\2c 0\.15\)\]{
+  border-color: rgba(0,77,245,0.15);
+}
+
+.group:focus-within .group-focus-within\:bg-primary\/5{
+  background-color: rgb(0 77 245 / 0.05);
+}
+
+.group:focus-within .group-focus-within\:text-primary{
+  --tw-text-opacity: 1;
+  color: rgb(0 77 245 / var(--tw-text-opacity));
 }
 
 .group:hover .group-hover\:border-primary{

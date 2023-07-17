@@ -104,6 +104,7 @@
                                         :editorId="'editor-'.$this->currentQuestion->uuid.$this->currentAnswer->uuid"
                                         :webSpellChecker="$this->currentQuestion->spell_check_available"
                                         :commentMarkerStyles="$this->commentMarkerStyles"
+                                        :enableComments="true"
                                 />
                             </div>
                         </x-slot:body>
@@ -171,23 +172,25 @@
                     </div>
                 @else
                     {{-- only for 'open_question' / 'write down' question --}}
-                    <div class="space-y-4 relative">
-                            <span @class([
-                                    "flex bold border-t border-blue-grey pt-2 justify-between items-center",
-                                    'text-midgrey' => !$this->hasFeedback,
-                                  ])
-                                  x-init="dropdownOpened = @js($this->hasFeedback) ? dropdownOpened : 'add-feedback'"
+                    <div class="answer-feedback-given-comments relative">
+                        <button class="flex bold border-t border-blue-grey py-2 justify-between items-center w-full group"
+                                :class="{'text-midgrey': !hasFeedback}"
+                                x-init="dropdownOpened = @js($this->hasFeedback) ? dropdownOpened : ''"
+                                @click="toggleFeedbackAccordion('given-feedback')"
+                        >
+                            <span>@lang('assessment.Gegeven feedback')</span>
+                            <span class="w-6 h-6 rounded-full flex justify-center items-center transition -mr-0.5
+                                                group-hover:bg-primary/5
+                                                group-active:bg-primary/10
+                                                group-focus:bg-primary/5 group-focus:text-primary group-focus:border group-focus:border-[color:rgba(0,77,245,0.15)]
+                                    "
+                                  :class="dropdownOpened === 'given-feedback' ? 'rotate-svg-90' : ''"
                             >
-                                <span>@lang('assessment.Gegeven feedback')</span>
-                                <span class="w-4 h-4 flex justify-center items-center"
-                                      :class="dropdownOpened === 'given-feedback' ? 'rotate-svg-90' : ''"
-                                      @click="toggleFeedbackAccordion('given-feedback')"
-                                >
-                                    <x-icon.chevron></x-icon.chevron>
-                                </span>
-                            </span>
+                                        <x-icon.chevron></x-icon.chevron>
+                                    </span>
+                        </button>
 
-                        <div class="flex w-auto flex-col gap-2 given-feedback-container -m-4"
+                        <div class="flex w-auto flex-col gap-2 given-feedback-container -mx-4"
                              x-show="dropdownOpened === 'given-feedback'"
                              x-collapse
                              wire:key="feedback-editor-{{  $this->questionPosition }}"
