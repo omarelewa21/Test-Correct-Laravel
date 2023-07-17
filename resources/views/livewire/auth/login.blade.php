@@ -211,8 +211,7 @@
                                         @enderror
 
                                         @if($requireCaptcha)
-                                            <div
-                                                    x-on:refresh-captcha.window="$refs.captcha.firstElementChild.setAttribute('src','/captcha/image?_=1333294957&_='+Math.random());">
+                                            <div x-on:refresh-captcha.window="$refs.captcha.firstElementChild.setAttribute('src', $event.detail.src );">
                                                 <div class="notification error stretched mt-4">
                                                     <div class="flex items-center space-x-3">
                                                         <x-icon.exclamation/>
@@ -222,7 +221,7 @@
                                                 </div>
                                                 <div class="mt-2 inline-flex flex-col items-center space-y-1">
                                                     <div x-ref="captcha" wire:ignore>
-                                                        @captcha
+                                                        <img src="{{ captcha_src() }}" alt="captcha">
                                                     </div>
                                                     <input type="text" id="captcha"
                                                            class="form-input @error('captcha') border-all-red @enderror"

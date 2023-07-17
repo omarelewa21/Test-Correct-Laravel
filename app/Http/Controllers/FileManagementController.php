@@ -66,7 +66,7 @@ class FileManagementController extends Controller
     protected function sendInvite(FileManagement $fileManagement)
     {
         Queue::push(new SendToetsenbakkerInviteMail($fileManagement->getKey()));
-//        dispatch_now(new SendToetsenbakkerInviteMail($fileManagement->getKey()));
+//        dispatch_sync(new SendToetsenbakkerInviteMail($fileManagement->getKey()));
     }
 
     public function update(UpdateFileManagementRequest $request, FileManagement $fileManagement)

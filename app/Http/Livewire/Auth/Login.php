@@ -150,7 +150,7 @@ class Login extends TCComponent
         if (!auth()->attempt($credentials)) {
             if ($this->requireCaptcha) {
                 $this->reset('captcha');
-                $this->dispatchBrowserEvent('refresh-captcha');
+                $this->dispatchBrowserEvent('refresh-captcha', ['src' => captcha_src()]);
                 return;
             }
             $this->createFailedLogin();
@@ -243,17 +243,16 @@ class Login extends TCComponent
 
     private function validateCaptcha()
     {
-        $validateCaptcha = Validator::make(['captcha' => $this->captcha], ['captcha' => 'required|captcha']);
 
-        if ($validateCaptcha->fails()) {
+        if (!captcha_check($this->captcha)) {
             $this->reset('captcha');
             $this->addError('captcha', __('auth.incorrect_captcha'));
-            $this->dispatchBrowserEvent('refresh-captcha');
+            $this->dispatchBrowserEvent('refresh-captcha', ['src' => captcha_src()]);
             return false;
         }
 
-        $rulesWithCaptcha = array_merge($this->rules, ['captcha' => 'required|captcha']);
-        $this->validate($rulesWithCaptcha);
+//        $rulesWithCaptcha = array_merge($this->rules, ['captcha' => 'required|captcha']);
+        $this->validate();
         return true;
     }
 
@@ -440,7 +439,7 @@ class Login extends TCComponent
         if (!auth()->attempt($credentials)) {
             if ($this->requireCaptcha) {
                 $this->reset('captcha');
-                $this->dispatchBrowserEvent('refresh-captcha');
+                $this->dispatchBrowserEvent('refresh-captcha', ['src' => captcha_src()]);
                 return;
             }
             $this->createFailedLogin();

@@ -219,7 +219,7 @@ class UsersController extends Controller
 
         foreach ($users as $userId => $userData) {
             Queue::push(new SendWelcomeMail($userId, $request->get('url')));
-//            dispatch_now(new SendWelcomeMail($userId, $request->get('url')));
+//            dispatch_sync(new SendWelcomeMail($userId, $request->get('url')));
         }
 
         return Response::make($users, 200);

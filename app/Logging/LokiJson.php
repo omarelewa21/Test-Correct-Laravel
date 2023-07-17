@@ -13,6 +13,7 @@ namespace tcCore\Logging;
 
 use Monolog\Formatter\NormalizerFormatter;
 
+use Monolog\LogRecord;
 use Throwable;
 
 /**
@@ -74,29 +75,31 @@ class LokiJson extends NormalizerFormatter
      * {@inheritDoc}
      * @noinspection UnsupportedStringOffsetOperationsInspection
      */
-    public function format(array $record): string
+    public function format(LogRecord $record): string
     {
         $normalized = $this->normalize($record);
+        if (!($normalized instanceof LogRecord)) {
+            $normalized = new LogRecord(...$normalized);
+        }
 
         // Add default context
 
         //Request was from Cake
-        if (request()->ip() == config('cake_laravel_filter.remote_addr')) {
-            $normalized['ip'] = request()->header('cakeRealIP',request()->ip());
+        $isCakeRequest = request()->ip() == config('cake_laravel_filter.remote_addr');
+        $normalized->ip = $isCakeRequest
+            ? request()->header('cakeRealIP', request()->ip())
+            : request()->ip();
 
-            if (request()->header('cakeUrlPath', null)) {
-                $normalized['cake_url_path'] = request()->header('cakeUrlPath', null);
-            }
-        } else {
-            $normalized['ip'] = request()->ip();
+        if ($isCakeRequest && request()->header('cakeUrlPath', null)) {
+            $normalized->cake_url_path = request()->header('cakeUrlPath', null);
         }
 
-        $normalized['request_path'] = request()->path();
-        $normalized['request_method'] = request()->method();
-        $normalized['action'] = class_basename(request()->route()?->getAction()['controller']);
+        $normalized->request_path = request()->path();
+        $normalized->request_method = request()->method();
+        $normalized->action = class_basename(request()->route()?->getAction()['controller']);
 
         # Store GET parameters in logs
-        $normalized = array_merge($normalized, array_map(
+        $normalized = array_merge($normalized->toArray(), array_map(
                     function($v) {try { return $v->getKey();
                 } catch (\Throwable $th) {
                     return $v;
@@ -187,7 +190,7 @@ class LokiJson extends NormalizerFormatter
      *
      * @return mixed
      */
-    protected function normalize($data, int $depth = 0)
+    protected function normalize(mixed $data, int $depth = 0): mixed
     {
         if ($depth > $this->maxNormalizeDepth) {
             return 'Over '.$this->maxNormalizeDepth.' levels deep, aborting normalization';

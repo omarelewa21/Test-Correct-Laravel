@@ -32,14 +32,9 @@ class TestParticipant extends BaseModel
         'allow_inbrowser_testing' => 'boolean',
         'started_in_new_player'   => 'boolean',
         'available_for_guests'    => 'boolean',
+        'deleted_at'              => 'datetime',
+        'heartbeat_at'            => 'datetime',
     ];
-
-    /**
-     * The attributes that should be mutated to dates.
-     *
-     * @var array
-     */
-    protected $dates = ['deleted_at', 'heartbeat_at'];
 
     /**
      * The database table used by the model.

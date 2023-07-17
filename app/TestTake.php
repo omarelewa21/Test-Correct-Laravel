@@ -50,15 +50,14 @@ class TestTake extends BaseModel
         'uuid'              => EfficientUuid::class,
         'notify_students'   => 'boolean',
         'show_grades'       => 'boolean',
-        'returned_to_taken' => 'boolean'
+        'returned_to_taken' => 'boolean',
+        'deleted_at'        => 'datetime',
+        'time_start'        => 'datetime',
+        'time_end'          => 'datetime',
+        'show_results'      => 'datetime',
+        'exported_to_rtti'  => 'datetime',
+        'assessed_at'       => 'datetime',
     ];
-
-    /**
-     * The attributes that should be mutated to dates.
-     *
-     * @var array
-     */
-    protected $dates = ['deleted_at', 'time_start', 'time_end', 'show_results', 'exported_to_rtti', 'assessed_at'];
 
     /**
      * The database table used by the model.

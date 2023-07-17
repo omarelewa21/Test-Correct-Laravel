@@ -36,6 +36,7 @@ class Question extends MtiBaseModel
         'add_to_database_disabled' => 'boolean',
         'draft'                    => 'boolean',
         'lang'                     => WscLanguage::class,
+        'deleted_at'               => 'datetime',
     ];
 
     public $mtiBaseClass = 'tcCore\Question';
@@ -46,13 +47,6 @@ class Question extends MtiBaseModel
     const TYPE_CLOSED = 'CLOSED';
 
     const INLINE_IMAGE_PATTERN = '/custom/imageload.php?filename=';
-
-    /**
-     * The attributes that should be mutated to dates.
-     *
-     * @var array
-     */
-    protected $dates = ['deleted_at'];
 
     /**
      * The database table used by the model.

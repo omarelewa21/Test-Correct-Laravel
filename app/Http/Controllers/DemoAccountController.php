@@ -152,7 +152,7 @@ class DemoAccountController extends Controller
                 $teacher->trashed() ? $teacher->restore() : $teacher->save();
 
                 try {
-                    dispatch_now(new SendWelcomeMail($user->getKey()));
+                    dispatch_sync(new SendWelcomeMail($user->getKey()));
                 } catch (\Throwable $th) {
                     Bugsnag::notifyException($th);
                 }
