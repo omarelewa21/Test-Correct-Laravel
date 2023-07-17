@@ -8,6 +8,7 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Symfony\Component\Uid\Uuid;
 use tcCore\Factories\FactorySchoolLocation;
 use tcCore\FactoryScenarios\FactoryScenarioSchoolSimple;
 use tcCore\Http\Helpers\EntreeHelper;
@@ -507,12 +508,8 @@ class EntreeHelperTest extends TestCase
 
     protected function getTeacherInSchoolLocation(SchoolLocation $sl, $secondTeacher = false)
     {
-        $userIds = collect(DB::select(DB::raw('Select user_id from school_location_user where school_location_id = ' . $sl->getKey())))->map(function ($a) {
-            return $a->user_id;
-        });
-        $userIds = collect(DB::select(DB::raw('select user_id from user_roles where role_id=1 AND user_id IN (' . implode(',', $userIds->toArray()) . ')')))->map(function ($a) {
-            return $a->user_id;
-        });
+        $userIds = $this->getSchoolLocationUserIds($sl);
+        $userIds = $this->getUsersOfRoleWithIds($userIds, 1);
         if ($secondTeacher) {
             return User::whereIn('id', $userIds)->orderBy('created_at', 'desc')->get()[1];
         }
@@ -521,12 +518,9 @@ class EntreeHelperTest extends TestCase
 
     protected function getStudentInSchoolLocation(SchoolLocation $sl)
     {
-        $userIds = collect(DB::select(DB::raw('Select user_id from school_location_user where school_location_id = ' . $sl->getKey())))->map(function ($a) {
-            return $a->user_id;
-        });
-        $userIds = collect(DB::select(DB::raw('select user_id from user_roles where role_id=3 AND user_id IN (' . implode(',', $userIds->toArray()) . ')')))->map(function ($a) {
-            return $a->user_id;
-        });
+        $userIds = $this->getSchoolLocationUserIds($sl);
+        $userIds = $this->getUsersOfRoleWithIds($userIds, 3);
+
         return User::whereIn('id', $userIds)->orderBy('created_at', 'desc')->first();
     }
 
@@ -1341,7 +1335,8 @@ class EntreeHelperTest extends TestCase
     public function it_should_transfer_external_id_in_entree_helper()
     {
         $location = SchoolLocation::where('external_main_code', '99DE')->where('external_sub_code', '00')->first();
-        $userIds = collect(DB::select(DB::raw('select user_id from user_roles where role_id = 1')))->map(function ($a) {
+        $expression = DB::raw('select user_id from user_roles where role_id = 1');
+        $userIds = collect(DB::select($expression->getValue(DB::connection()->getQueryGrammar())))->map(function ($a) {
             return $a->user_id;
         });
 
@@ -1378,5 +1373,40 @@ class EntreeHelperTest extends TestCase
         $externalIdUser = User::where('id', $checkOldUser->id)->first();
         $externalIdUser->refresh();
         $this->assertEquals($externalIdUser->external_id, 'test_gmw1');
+    }
+
+    /**
+     * @param SchoolLocation $sl
+     * @return \Illuminate\Support\Collection
+     */
+    private function getSchoolLocationUserIds(SchoolLocation $sl): \Illuminate\Support\Collection
+    {
+        $expression = DB::raw('Select user_id from school_location_user where school_location_id = ' . $sl->getKey());
+        return collect(
+            DB::select($expression->getValue(DB::connection()->getQueryGrammar()))
+        )->map(function ($a) {
+            return $a->user_id;
+        });
+    }
+
+    /**
+     * @param \Illuminate\Support\Collection $userIds
+     * @return \Illuminate\Support\Collection
+     */
+    private function getUsersOfRoleWithIds(\Illuminate\Support\Collection $userIds, int $roleId): \Illuminate\Support\Collection
+    {
+        $expression = DB::raw(
+            'select user_id from user_roles where role_id=' . $roleId . ' AND user_id IN (' . implode(
+                ',',
+                $userIds->toArray()
+            ) . ')'
+        );
+        return collect(
+            DB::select(
+                $expression->getValue(DB::connection()->getQueryGrammar())
+            )
+        )->map(function ($a) {
+            return $a->user_id;
+        });
     }
 }

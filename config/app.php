@@ -174,6 +174,7 @@ return [
         //Pdf renderer
         Barryvdh\Snappy\ServiceProvider::class,
         tcCore\Providers\MacrosServiceProvider::class,
+        Mews\Captcha\CaptchaServiceProvider::class,
     ],
 
     /*
@@ -227,7 +228,7 @@ return [
         'Bugsnag' => Bugsnag\BugsnagLaravel\Facades\Bugsnag::class,
         'PDF' => Barryvdh\Snappy\Facades\SnappyPdf::class,
         'SnappyImage' => Barryvdh\Snappy\Facades\SnappyImage::class,
-
+        'Captcha' => Mews\Captcha\Facades\Captcha::class,
     ],
     'debug_blacklist' => [
         '_ENV' => [

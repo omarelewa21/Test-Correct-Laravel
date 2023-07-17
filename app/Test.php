@@ -39,17 +39,11 @@ class Test extends BaseModel
     const NATIONAL_ITEMBANK_SCOPES = ['cito', 'exam', 'ldt'];
 
     protected $casts = [
-        'uuid'  => EfficientUuid::class,
-        'draft' => 'boolean',
-        'lang'  => WscLanguage::class,
+        'uuid'       => EfficientUuid::class,
+        'draft'      => 'boolean',
+        'lang'       => WscLanguage::class,
+        'deleted_at' => 'datetime',
     ];
-
-    /**
-     * The attributes that should be mutated to dates.
-     *
-     * @var array
-     */
-    protected $dates = ['deleted_at'];
 
     /**
      * The database table used by the model.

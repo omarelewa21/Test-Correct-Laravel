@@ -18,7 +18,11 @@ class FileManagementStatus extends BaseModel {
      *
      * @var array
      */
-    protected $dates = ['deleted_at', 'created_at','updated_at'];
+    protected $casts = [
+        'deleted_at' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
 
     protected $guarded = [];
 
