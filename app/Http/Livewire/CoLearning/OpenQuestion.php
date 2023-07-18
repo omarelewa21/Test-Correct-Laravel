@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Livewire\CoLearning;
 
+use Illuminate\Support\Str;
 use Livewire\Component;
 use tcCore\Answer;
 use tcCore\AnswerRating;
@@ -12,6 +13,9 @@ use tcCore\Question;
 class OpenQuestion extends CoLearningQuestion
 {
     public bool $webSpellChecker = false;
+    public bool $inlineFeedbackEnabled = false;
+    public string $commentMarkerStyles = '';
+    public string $answerId;
 
     public function render()
     {
@@ -25,9 +29,12 @@ class OpenQuestion extends CoLearningQuestion
 
     protected function handleGetAnswerData()
     {
-        $temp = (array)json_decode($this->answerRating->answer->json);
-        if (key_exists('value', $temp)) {
-            $this->answer = $temp['value'];
-        }
+        $this->answer = $this->answerRating->answer->commented_answer ?? json_decode($this->answerRating->answer->json)->value ?? '';
+
+        $this->answer = Str::replace(
+            chr(194).chr(160),
+            " ".chr(194).chr(160),
+            $this->answer
+        );
     }
 }

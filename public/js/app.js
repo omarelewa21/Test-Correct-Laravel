@@ -8685,9 +8685,10 @@ document.addEventListener("alpine:init", function () {
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("assessmentDrawer", function () {
     var inReview = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+    var tabs = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [1, 2, 3];
     return {
       activeTab: 1,
-      tabs: [1, 2, 3],
+      tabs: tabs,
       collapse: false,
       container: null,
       clickedNext: false,
@@ -8695,7 +8696,7 @@ document.addEventListener("alpine:init", function () {
       inReview: inReview,
       init: function init() {
         this.container = this.$root.querySelector("#slide-container");
-        this.tab(1);
+        this.tab(this.tabs[0]);
         this.$watch("collapse", function (value) {
           document.documentElement.style.setProperty("--active-sidebar-width", value ? "var(--collapsed-sidebar-width)" : "var(--sidebar-width)");
         });
@@ -8756,17 +8757,25 @@ document.addEventListener("alpine:init", function () {
       scrollToCommentCard: function scrollToCommentCard(answerFeedbackUuid) {
         var _this48 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee14() {
-          var commentCard, slide, cardTop, count;
+          var commentCard, slide, cardTop;
           return _regeneratorRuntime().wrap(function _callee14$(_context14) {
             while (1) switch (_context14.prev = _context14.next) {
               case 0:
                 commentCard = document.querySelector('[data-uuid="' + answerFeedbackUuid + '"].answer-feedback-card');
                 slide = _this48.getSlideElementByIndex(2);
                 cardTop = commentCard.offsetTop;
-                count = 0;
+                if (!(slide.offsetHeight <= _this48.container.offsetHeight)) {
+                  _context14.next = 7;
+                  break;
+                }
                 _context14.next = 6;
-                return smoothScroll(_this48.container, cardTop, slide.offsetLeft);
+                return smoothScroll(_this48.container, 0, slide.offsetLeft);
               case 6:
+                return _context14.abrupt("return", _context14.sent);
+              case 7:
+                _context14.next = 9;
+                return smoothScroll(_this48.container, cardTop, slide.offsetLeft);
+              case 9:
               case "end":
                 return _context14.stop();
             }
@@ -8868,7 +8877,7 @@ document.addEventListener("alpine:init", function () {
         }
       },
       handleResize: function handleResize() {
-        var slide = this.$root.querySelector(".slide-" + this.activeTab);
+        var slide = this.$root.querySelector(".slide-" + this.activeTab) || this.$root.querySelector(".slide-2");
         this.handleSlideHeight(slide);
       },
       closeTooltips: function closeTooltips() {
@@ -17958,33 +17967,38 @@ RichTextEditor = {
     });
   },
   setAnswerFeedbackEventListeners: function setAnswerFeedbackEventListeners(editor) {
-    editor.ui.view.editable.element.onblur = function (e) {
-      //create a temporary commentThread to mark the selection while creating a new comment
-      // editor.execute( 'addCommentThread', { threadId: window.uuidv4() } );
+    var focusIsInCommentEditor = function focusIsInCommentEditor() {
+      var _window$getSelection$, _window$getSelection$2;
+      return ((_window$getSelection$ = window.getSelection().focusNode) === null || _window$getSelection$ === void 0 ? void 0 : (_window$getSelection$2 = _window$getSelection$.parentElement) === null || _window$getSelection$2 === void 0 ? void 0 : _window$getSelection$2.closest('.comment-editor')) !== null;
+    };
+    var selectionIsNotEmpty = function selectionIsNotEmpty() {
+      return window.getSelection().toString() !== '';
     };
     document.addEventListener('mouseup', function (e) {
-      var _window$getSelection$, _window$getSelection$2;
       /*
        * selection is in the answer comment editor
        * selection is not empty
        * selection is on the assessment screen
        * */
-      if (((_window$getSelection$ = window.getSelection().focusNode) === null || _window$getSelection$ === void 0 ? void 0 : (_window$getSelection$2 = _window$getSelection$.parentElement) === null || _window$getSelection$2 === void 0 ? void 0 : _window$getSelection$2.closest('.comment-editor')) !== null && document.querySelector('#assessment-page') !== null && window.getSelection().toString() !== '' && !(e.target.closest('.answer-feedback-comment-icon') || e.target.closest('.ck-comment-marker'))) {
-        console.log(e, 'mouseup');
-        dispatchEvent(new CustomEvent('assessment-drawer-tab-update', {
-          detail: {
-            tab: 2
-          }
-        }));
-
-        //focus the create a comment editor
-        dispatchEvent(new CustomEvent('answer-feedback-focus-feedback-editor'));
-        setTimeout(function () {
-          editor.execute('addCommentThread', {
-            threadId: window.uuidv4()
-          });
-        }, 200);
+      if (!(focusIsInCommentEditor() && selectionIsNotEmpty())) {
+        return;
       }
+      editor.plugins.get('CommentsRepository').getCommentThreads().forEach(function (comment) {
+        return comment.comments.length === 0 ? comment.remove() : '';
+      });
+      dispatchEvent(new CustomEvent('assessment-drawer-tab-update', {
+        detail: {
+          tab: 2
+        }
+      }));
+
+      //focus the create a comment editor
+      dispatchEvent(new CustomEvent('answer-feedback-focus-feedback-editor'));
+      setTimeout(function () {
+        editor.execute('addCommentThread', {
+          threadId: window.uuidv4()
+        });
+      }, 200);
     });
   },
   //only needed when webspellchecker has to be re-added to the inline-feedback comment editors

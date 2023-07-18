@@ -1,4 +1,4 @@
-<div class="flex flex-col w-full">
+<div class="flex flex-col w-full" spellcheck="false">
     <div class="w-full"
          wire:ignore
          x-data="{

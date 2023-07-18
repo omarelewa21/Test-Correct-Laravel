@@ -17,11 +17,14 @@ use tcCore\Http\Controllers\AnswerRatingsController;
 use tcCore\Http\Controllers\TestTakeLaravelController;
 use tcCore\Http\Livewire\CoLearning\CompletionQuestion;
 use tcCore\Http\Livewire\TCComponent;
+use tcCore\Http\Traits\WithInlineFeedback;
 use tcCore\TestTake;
 use tcCore\TestTakeStatus;
 
 class CoLearning extends TCComponent
 {
+    use WithInlineFeedback;
+
     const SESSION_KEY = 'co-learning-answer-options';
 
     public ?TestTake $testTake;
@@ -109,6 +112,10 @@ class CoLearning extends TCComponent
             $this->getAnswerRatings();
             $this->necessaryAmountOfAnswerRatings = $this->answerRatings->count() ?: 1;
         }
+
+        $this->answerFeedbackFilter = function ($answerFeedback) {
+            return $answerFeedback->user_id === auth()->user()->id;
+        };
     }
 
     public function render()
@@ -128,6 +135,8 @@ class CoLearning extends TCComponent
         if($this->redirectIfTestTakeInIncorrectState() instanceof Redirector) {
             return false;
         };
+
+        $this->getSortedAnswerFeedback();
     }
 
     public function redirectToTestTakesInReview()
@@ -350,6 +359,7 @@ class CoLearning extends TCComponent
         if ($this->answerRatings->isNotEmpty()) {
             $this->getQuestionAndAnswerNavigationData();
         }
+        $this->getSortedAnswerFeedback();
     }
 
     private function checkIfStudentCanFinishCoLearning(): void
@@ -461,4 +471,15 @@ class CoLearning extends TCComponent
         }
     }
 
+    //alias property name for inline feedback
+    public function getCurrentQuestionProperty()
+    {
+        return $this->testTake->discussingQuestion;
+    }
+
+    //alias property name for inline feedback
+    public function getCurrentAnswerProperty()
+    {
+        return $this->answerRating->answer;
+    }
 }

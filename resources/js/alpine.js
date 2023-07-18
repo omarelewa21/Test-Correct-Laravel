@@ -2155,9 +2155,9 @@ document.addEventListener("alpine:init", () => {
             return element.offsetTop + (element.offsetHeight / 2);
         }
     }));
-    Alpine.data("assessmentDrawer", (inReview = false) => ({
+    Alpine.data("assessmentDrawer", (inReview = false, tabs = [1,2,3]) => ({
         activeTab: 1,
-        tabs: [1, 2, 3],
+        tabs: tabs,
         collapse: false,
         container: null,
         clickedNext: false,
@@ -2165,7 +2165,7 @@ document.addEventListener("alpine:init", () => {
         inReview,
         init() {
             this.container = this.$root.querySelector("#slide-container");
-            this.tab(1);
+            this.tab(this.tabs[0]);
             this.$watch("collapse", (value) => {
                 document.documentElement.style.setProperty("--active-sidebar-width", value ? "var(--collapsed-sidebar-width)" : "var(--sidebar-width)");
             });
@@ -2199,7 +2199,10 @@ document.addEventListener("alpine:init", () => {
             const slide = this.getSlideElementByIndex(2);
             let cardTop = commentCard.offsetTop;
 
-            let count = 0;
+            if(slide.offsetHeight <= this.container.offsetHeight) {
+                return await smoothScroll(this.container, 0, slide.offsetLeft);
+            }
+
             await smoothScroll(this.container, cardTop, slide.offsetLeft);
         },
         async next() {
@@ -2246,7 +2249,7 @@ document.addEventListener("alpine:init", () => {
             }
         },
         handleResize() {
-            const slide = this.$root.querySelector(".slide-" + this.activeTab);
+            const slide = this.$root.querySelector(".slide-" + this.activeTab) || this.$root.querySelector(".slide-2");
             this.handleSlideHeight(slide);
         },
         closeTooltips() {

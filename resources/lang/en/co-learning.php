@@ -60,4 +60,5 @@ return [
     'spellchecker-for-students-tt'  => 'This allows students to use a spell and grammar checker while reviewing student answers',
     'open-question-options'         => 'Options for open questions',
     'Taalfouten'                    => 'Language errors',
+    'feedback geven'                => 'Give feedback',
 ];

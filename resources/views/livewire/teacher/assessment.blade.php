@@ -238,7 +238,8 @@
 
                             <div class="flex w-full flex-col" x-show="dropdownOpened === 'add-feedback'"
                                  x-collapse
-                                 wire:key="feedback-editor-{{  $this->questionNavigationValue.'-'.$this->answerNavigationValue }}"
+                                 wire:key="add-comment-container-{{  $this->questionNavigationValue.'-'.$this->answerNavigationValue }}"
+                                 wire:ignore
                             >
                                     <x-input.comment-color-picker
                                             commentThreadId="new-comment"
@@ -269,8 +270,8 @@
 
                                     <div class="flex justify-end space-x-4 h-fit mt-2 mb-6"
                                          x-on:button-cancel-clicked="resetAddNewAnswerFeedback(true)"
-                                         x-on:button-save-clicked="createCommentThread"
-                                         wire:ignore
+                                         x-on:button-save-clicked="createCommentThread()"
+                                         wire:key="add-comment-buttons-{{$this->questionNavigationValue.'-'.$this->answerNavigationValue}}"
                                          id="saveNewFeedbackButtonWrapper"
                                          data-save-translation="@lang('general.save')"
                                          data-cancel-translation="@lang('modal.annuleren')"

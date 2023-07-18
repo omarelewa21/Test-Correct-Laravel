@@ -4,9 +4,12 @@ namespace tcCore\Http\Livewire\Student;
 
 use Illuminate\Support\Collection;
 use tcCore\Http\Livewire\EvaluationComponent;
+use tcCore\Http\Traits\WithInlineFeedback;
 
 class TestReview extends EvaluationComponent
 {
+    use WithInlineFeedback;
+
     /*Template properties*/
     public string $reviewableUntil = '';
 

@@ -273,3 +273,7 @@
 .color-picker-radio span {
     pointer-events: none;
 }
+
+#co-learning-page ~ .drawer {
+    height: calc(100vh - var(--header-height) - 70px);
+}
