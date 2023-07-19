@@ -1,12 +1,6 @@
 <div id="test-take-page"
      class="flex flex-col w-full"
-     x-data="{testCodePopup: false, urlCopied: false, urlCopiedTimeout: null}"
-     x-init="$watch('urlCopied', value => {
-        if(value) {
-            clearTimeout(urlCopiedTimeout);
-            setTimeout(() => urlCopied = false, 2000)
-        }
-     })"
+     x-data="testTakePage"
      x-on:keyup.escape="testCodePopup = false"
 >
     <div class="breadcrumbs | flex w-full border-b border-secondary sticky z-1 sticky-pseudo-bg  h-[50px] items-center">
@@ -19,7 +13,7 @@
                         <span class="truncate gap-2" selid="test-detail-title">
                             <x-button.text-button size="sm"
                                                   wire:click="redirectToOverview()"
-                            >@lang('header.Mijn ingeplande toetsen')</x-button.text-button>
+                            >{{ $this->breadcrumbTitle() }}</x-button.text-button>
                             <x-icon.chevron-small opacity="1" />
                             <span>{!! $this->testTake->test->name !!}</span>
                         </span>
@@ -40,6 +34,9 @@
                         <h6>{!! $data['data'] !!}</h6>
                     </div>
                 @endforeach
+                @hasSection('gridData')
+                    @yield('gridData')
+                @endif
             </div>
 
             <div class="flex w-full items-center gap-4">
@@ -58,28 +55,37 @@
         </div>
     </div>
 
-    <div class="students | flex flex-col w-full mx-auto px-[90px] py-10 gap-6">
-        <div class="w-full flex flex-row-reverse gap-2">
-            {{-- Use the 'order-' class to sort the buttons in the correct order --}}
-            @hasSection('action-buttons')
-                @yield('action-buttons')
+    <div class="page-content | flex flex-col w-full mx-auto px-[90px] py-10 gap-6">
+        <div class="flex  flex-wrap">
+            @hasSection('studentNames')
+                @yield('studentNames')
             @endif
+            <div class="flex flex-row-reverse flex-wrap gap-2 items-start ml-auto">
+                {{-- Use the 'order-' class to sort the buttons in the correct order --}}
+                @hasSection('action-buttons')
+                    @yield('action-buttons')
+                @endif
 
-            <livewire:actions.test-make-pdf :uuid="$this->testTake->test->uuid"
-                                            :wire:key="'make-pdf-'.$this->testTake->test->uuid"
-                                            class="order-4"
-            />
+                <livewire:actions.test-make-pdf :uuid="$this->testTake->test->uuid"
+                                                :wire:key="'make-pdf-'.$this->testTake->test->uuid"
+                                                class="order-4"
+                />
 
-            @if($this->testTake->testTakeCode)
-                <x-button.student x-on:click="testCodePopup = true" class="order-2">
-                    <span>{{ $this->testTake->testTakeCode->displayCode }}</span>
-                    <x-icon.screen-expand/>
-                </x-button.student>
-            @endif
+                @if($this->testTake->testTakeCode)
+                    <x-button.student x-on:click="testCodePopup = true" class="order-2 px-4">
+                        <span>{{ $this->testTake->testTakeCode->displayCode }}</span>
+                        <x-icon.screen-expand/>
+                    </x-button.student>
+                @endif
+            </div>
         </div>
 
-        @hasSection('students')
-            @yield('students')
+        @hasSection('waitingRoom')
+            @yield('waitingRoom')
+        @endif
+
+        @hasSection('results')
+            @yield('results')
         @endif
     </div>
 

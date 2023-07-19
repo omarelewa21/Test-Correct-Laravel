@@ -41,4 +41,9 @@ class Taking extends TestTakeComponent
     {
         CakeRedirectHelper::redirectToCake('planned.surveillance');
     }
+
+    public function breadcrumbTitle(): string
+    {
+        return __('general.Mijn afgenomen toetsen');
+    }
 }

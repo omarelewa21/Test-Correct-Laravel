@@ -28,7 +28,7 @@
 @section('students')
     <div class="flex flex-col gap-4">
         <h2>@lang('test-take.Wachtkamer')</h2>
-        <div class="flex flex-col py-5 px-7 bg-white rounded-10 content-section"
+        <div class="flex flex-col py-5 px-7 bg-white rounded-10 content-section relative"
              x-data="{plannedTab: 'students'}"
              x-cloak
         >
@@ -40,6 +40,10 @@
                     @lang('student.invigilators')
                 </x-menu.tab.item>
             </x-menu.tab.container>
+
+            <span class="absolute right-10 top-6 z-1">
+                <x-tooltip>@lang('test-take.waiting-room-tooltip')</x-tooltip>
+            </span>
 
             <div x-show="plannedTab === 'students'"
                  class="flex flex-col w-full pt-5"

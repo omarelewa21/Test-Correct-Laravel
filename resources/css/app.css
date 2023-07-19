@@ -832,3 +832,7 @@ ul ul ul {
 .hide-scrollbar::-webkit-scrollbar {
     display: none;
 }
+
+.results-grid {
+    grid-template-columns: minmax(100px, auto) repeat(4, min-content) auto;
+}

@@ -3,29 +3,21 @@
 namespace tcCore\Http\Livewire\Teacher\TestTake;
 
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Blade;
-use Illuminate\View\AnonymousComponent;
 use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Http\Livewire\Teacher\TestTake\TestTake as TestTakeComponent;
-use tcCore\Http\Livewire\Teacher\TestTakeWarningModal;
 use tcCore\Invigilator;
 use tcCore\Log;
-use tcCore\TestKind;
 use tcCore\TestParticipant;
 use tcCore\TestTake as TestTakeModel;
-use tcCore\User;
 
 class Planned extends TestTakeComponent
 {
-    public $dropdownData = [];
-    public $selected = [];
     public Collection $invigilatorUsers;
-
-    public $activeSelect = 'string-14371dbf-a00c-4373-9597-146ff91d0008';
 
     public function mount(TestTakeModel $testTake): void
     {
         parent::mount($testTake);
+        $this->setStudentData();
     }
 
     public function refresh(): void
@@ -84,5 +76,10 @@ class Planned extends TestTakeComponent
 
         $this->testTake->startTake();
         CakeRedirectHelper::redirectToCake('planned.surveillance');
+    }
+
+    public function breadcrumbTitle(): string
+    {
+        return __('header.Mijn ingeplande toetsen');
     }
 }

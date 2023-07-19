@@ -60,6 +60,7 @@ abstract class TestTake extends TCComponent
     abstract public function refresh();
 
     abstract public function redirectToOverview();
+    abstract public function breadcrumbTitle(): string;
 
     public function back()
     {
@@ -137,7 +138,7 @@ abstract class TestTake extends TCComponent
         $this->setInvigilators();
     }
 
-    protected function fillGridData()
+    protected function fillGridData(): void
     {
         $this->testTake->load([
             'test:id,name,uuid,subject_id,test_kind_id',

@@ -26,10 +26,10 @@ class MultiDropdownSelect extends Component
     private function setItemLabels()
     {
         $defaults = [
-            'parent_disabled' => __('general.unavailable'),
-            'child_disabled'  => __('general.unavailable'),
-            'placeholder_open'  => __('cms.Search...'),
-            'placeholder_closed'  => __('test-take.Selecteer...'),
+            'parent_disabled'    => __('general.unavailable'),
+            'child_disabled'     => __('general.unavailable'),
+            'placeholder_open'   => __('cms.Search...'),
+            'placeholder_closed' => __('test-take.Selecteer...'),
         ];
         $this->itemLabels = array_merge($defaults, $this->itemLabels ?? []);
     }

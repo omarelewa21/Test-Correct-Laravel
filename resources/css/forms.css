@@ -667,3 +667,7 @@ input[type=number] {
 .single-select .dropdown::-webkit-scrollbar {
     display: none;
 }
+
+.select-error > .multi-dropdown-select .select-input {
+    border-color: var(--all-red);
+}

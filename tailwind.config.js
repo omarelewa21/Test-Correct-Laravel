@@ -54,7 +54,8 @@ module.exports = {
                 "auto": "auto",
             },
             height: {
-                "12.5": "3.125rem"
+                "12.5": "3.125rem",
+                "15": "3.75rem",
             },
             zIndex: {
                 "1": 1

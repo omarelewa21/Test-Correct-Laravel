@@ -50,7 +50,9 @@ class TestTake extends BaseModel
         'uuid'              => EfficientUuid::class,
         'notify_students'   => 'boolean',
         'show_grades'       => 'boolean',
-        'returned_to_taken' => 'boolean'
+        'returned_to_taken' => 'boolean',
+        'review_active'     => 'boolean',
+        'results_published' => 'datetime',
     ];
 
     /**
@@ -72,7 +74,7 @@ class TestTake extends BaseModel
      *
      * @var array
      */
-    protected $fillable = ['test_id', 'test_take_status_id', 'period_id', 'retake', 'retake_test_take_id', 'time_start', 'time_end', 'location', 'weight', 'note', 'invigilator_note', 'show_results', 'discussion_type', 'is_rtti_test_take', 'exported_to_rtti', 'allow_inbrowser_testing', 'guest_accounts', 'skipped_discussion', 'notify_students', 'user_id', 'scheduled_by', 'show_grades', 'returned_to_taken', 'discussing_question_id', 'assessed_at', 'assessment_type', 'assessing_question_id', 'allow_wsc', 'max_assessed_answer_index', 'show_correction_model', 'enable_spellcheck_colearning', 'assessing_answer_index'];
+    protected $fillable = ['test_id', 'test_take_status_id', 'period_id', 'retake', 'retake_test_take_id', 'time_start', 'time_end', 'location', 'weight', 'note', 'invigilator_note', 'show_results', 'discussion_type', 'is_rtti_test_take', 'exported_to_rtti', 'allow_inbrowser_testing', 'guest_accounts', 'skipped_discussion', 'notify_students', 'user_id', 'scheduled_by', 'show_grades', 'returned_to_taken', 'discussing_question_id', 'assessed_at', 'assessment_type', 'assessing_question_id', 'allow_wsc', 'max_assessed_answer_index', 'show_correction_model', 'enable_spellcheck_colearning', 'assessing_answer_index', 'review_active', 'results_published'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -489,10 +491,14 @@ class TestTake extends BaseModel
         $this->schoolClasses = null;
     }
 
-    public function dispatchNewTestTakePlannedEvent()
+    public function dispatchNewTestTakePlannedEvent(): void
     {
-        $this->testParticipants()->join('users', 'users.id', '=', 'test_participants.user_id')
-            ->select('users.uuid')->distinct()->get()->pluck('uuid')
+        $this->testParticipants()
+            ->join('users', 'users.id', '=', 'test_participants.user_id')
+            ->select('users.uuid')
+            ->distinct()
+            ->get()
+            ->pluck('uuid')
             ->each(function ($userUuid) {
                 AfterResponse::$performAction[] =  fn() => NewTestTakePlanned::dispatch($userUuid);
             });
