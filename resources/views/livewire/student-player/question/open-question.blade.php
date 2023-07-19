@@ -32,6 +32,7 @@
                          wire:ignore
                          class="word-count note text-sm mt-2"
                          x-show="wordCounter"
+                         x-on:selected-word-count.window="addSelectedWordCountToWordCounter($event.detail.wordCount)"
                     ></div>
 
                     @if(Auth::user()->text2speech)

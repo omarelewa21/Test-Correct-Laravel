@@ -10,7 +10,9 @@
     />
 @endsection
 @section('question-cms-answer')
-    <div x-data="writeDownCms(@js($answerEditorId),@js((bool)$this->question['restrict_word_amount']), @entangle('question.max_words'))">
+    <div x-data="writeDownCms(@js($answerEditorId),@js((bool)$this->question['restrict_word_amount']), @entangle('question.max_words'))"
+        x-on:selected-word-count.window="addSelectedWordCountToWordCounter($event.detail.wordCount)"
+    >
         <div class="border-b border-bluegrey note text-center text-sm uppercase">@lang('cms.Antwoord opties voor student')</div>
         <div class="general-settings-grid mb-6">
             @if(settings()->canUseCmsWscWriteDownToggle())
@@ -73,6 +75,7 @@
              wire:ignore
              class="word-count note text-sm mt-2"
              x-show="wordCounter"
-        ></div>
+        >
+        </div>
     </div>
 @endsection

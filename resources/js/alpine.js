@@ -3224,6 +3224,19 @@ document.addEventListener("alpine:init", () => {
             this.wordContainer.parentNode.append(element);
 
             this.editor.maxWords = value;
+        },
+        addSelectedWordCountToWordCounter(selectedWordCount=0) {
+            const spanId = "selected-word-span";
+            this.$root.querySelector(`#${spanId}`)?.remove();
+
+            if(selectedWordCount === 0) return;
+
+            let element = document.createElement("strong");
+            element.id = spanId;
+            element.classList.add("ml-4");
+            element.innerHTML = `Geselecteerde woorden: ${selectedWordCount}`;
+
+            this.wordContainer.parentNode.append(element);
         }
     }));
     Alpine.data("openQuestionStudentPlayer", (editorId) => ({
