@@ -3,7 +3,7 @@
 'number',
 ])
 <div x-cloak
-     x-data="studentPlayerQuestionContainer(@js($number),@js($question->id), @js($this->reinitializedTimeoutData))"
+     x-data="studentPlayerQuestionContainer(@js($number),@js($question->id), @js($this->reinitializedTimeoutData ?? null))"
      x-show="showMe"
      x-transition:enter="transition duration-200"
      x-transition:enter-start="opacity-0 delay-200"
