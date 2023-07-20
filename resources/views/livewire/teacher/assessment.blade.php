@@ -400,17 +400,30 @@
                         <x-icon.chevron class="rotate-180"/>
                         <span>@lang('pagination.previous')</span>
                     </x-button.text-button>
-                    <x-button.primary size="sm"
-                                      x-on:click="next"
-                                      wire:target="previous,next"
+
+                    @if($this->finalAnswerReached() && $this->assessedAllAnswers())
+                        <x-button.cta size="sm"
+                                      wire:click="redirectBack"
+                                      wire:target="redirectBack,previous,next"
                                       wire:loading.attr="disabled"
                                       wire:key="next-button-{{  $this->questionNavigationValue.'-'.$this->answerNavigationValue }}"
-                                      :disabled="$this->finalAnswerReached()"
-                                      selid="assessment-footer-next"
-                    >
-                        <span>@lang('pagination.next')</span>
-                        <x-icon.chevron/>
-                    </x-button.primary>
+                                      selid="assessment-footer-finish"
+                        >
+                            <span>@lang('co-learning.finish')</span>
+                        </x-button.cta>
+                    @else
+                        <x-button.primary size="sm"
+                                          x-on:click="next"
+                                          wire:target="previous,next"
+                                          wire:loading.attr="disabled"
+                                          wire:key="next-button-{{  $this->questionNavigationValue.'-'.$this->answerNavigationValue }}"
+                                          :disabled="$this->finalAnswerReached()"
+                                          selid="assessment-footer-next"
+                        >
+                            <span>@lang('pagination.next')</span>
+                            <x-icon.chevron/>
+                        </x-button.primary>
+                    @endif
                 </x-slot:buttons>
             </x-partials.evaluation.drawer>
         </div>
