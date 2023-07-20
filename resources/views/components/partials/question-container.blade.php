@@ -21,7 +21,6 @@
 >
     <div class="flex justify-end space-x-4 mt-6">
         @if(!$this->closed )
-            <x-attachment.attachments-button :question="$question" :blockAttachments="$this->blockAttachments"></x-attachment.attachments-button>
             <x-question.notepad-button :question="$question" ></x-question.notepad-button>
         @endif
     </div>
@@ -51,6 +50,9 @@
         </div>
         <div class="flex flex-1 flex-col">
             @if(!$this->closed)
+                <div class="flex flex-wrap">
+                    <x-attachment.student-buttons-container :question="$question" :group="$this->group" :blockAttachments="$this->blockAttachments"/>
+                </div>
                 @if($this->group)
                     <div class="mb-5 questionContainer" questionHtml wire:ignore>{!! $this->group->question->converted_question_html !!}</div>
                 @endif

@@ -100,6 +100,7 @@ trait WithAttachments
 
         $this->questionAttachment = null;
         $this->attachment = null;
+        return true;
     }
 
     public function audioIsPlayedOnce()
