@@ -22,6 +22,8 @@ class Taken extends TestTakeComponent
     public bool $showStudentNames = true;
     public bool $reviewActive = false;
 
+    public Collection $participantResults;
+
     /* Lifecycle methods */
     public function mount(TestTakeModel $testTake): void
     {
@@ -31,8 +33,12 @@ class Taken extends TestTakeComponent
         $this->setTakenTestData();
         $this->setStudentData();
 
-        $this->showWaitingRoom = $this->testTakeStatusId === TestTakeStatus::STATUS_TAKEN;
+        $this->showWaitingRoom = in_array(
+            $this->testTakeStatusId,
+            [TestTakeStatus::STATUS_TAKEN, TestTakeStatus::STATUS_DISCUSSING]
+        );
         $this->reviewActive = $this->testTake->review_active;
+        $this->setParticipantResults();
     }
 
     public function updatedReviewActive(bool $value): void
@@ -57,11 +63,15 @@ class Taken extends TestTakeComponent
     public function getButtonType(string $context): string
     {
         $contexts = [
-            TestTakeStatus::STATUS_TAKEN     => [
+            TestTakeStatus::STATUS_TAKEN      => [
                 'CO-Learning' => 'cta',
                 'Assessment'  => 'primary'
             ],
-            TestTakeStatus::STATUS_DISCUSSED => [
+            TestTakeStatus::STATUS_DISCUSSING => [
+                'CO-Learning' => 'cta',
+                'Assessment'  => 'primary'
+            ],
+            TestTakeStatus::STATUS_DISCUSSED  => [
                 'CO-Learning' => 'primary',
                 'Assessment'  => 'cta'
             ]
@@ -80,11 +90,12 @@ class Taken extends TestTakeComponent
     {
         return __('header.Afgenomen');
     }
+
     /* Button actions */
     public function startCoLearning(): Redirector|RedirectResponse|bool
     {
         if ($this->showWaitingRoom) {
-            return redirect()->route('teacher.co-learning', $this->testTakeUuid);
+            return redirect()->route('teacher.co-learning', ['test_take' => $this->testTakeUuid, 'started' => 'false']);
         }
 
         return $this->showWaitingRoom = true;
@@ -104,7 +115,7 @@ class Taken extends TestTakeComponent
             'questionCount'      => $questionsOfTest->count(),
             'discussedQuestions' => $this->discussedQuestions($questionsOfTest),
             'assessedQuestions'  => $this->assessedQuestions(),
-            'questionsToAssess'  => $this->questionsToAssess(),
+            'questionsToAssess'  => $questionsOfTest->count(),
         ];
     }
 
@@ -127,8 +138,13 @@ class Taken extends TestTakeComponent
 
     private function assessedQuestions(): int
     {
-        return AnswerRating::where('test_take_id', $this->testTake->id)
-            ->where('type', '!=', AnswerRating::TYPE_STUDENT)
+        return AnswerRating::join('answers', 'answers.id', '=', 'answer_ratings.answer_id')
+            ->where('answer_ratings.test_take_id', $this->testTake->id)
+            ->where('answer_ratings.type', '!=', AnswerRating::TYPE_STUDENT)
+            ->selectRaw('answers.question_id, count(answer_ratings.id) as timesRated')
+            ->groupBy('answers.question_id')
+            ->get()
+            ->where('timesRated', $this->testTake->testParticipants->count())
             ->count();
     }
 
@@ -143,5 +159,24 @@ class Taken extends TestTakeComponent
                 AnswerChecker::checkAnswerOfParticipant($participant);
             }
         }
+    }
+
+    private function setParticipantResults(): void
+    {
+        $this->testTake->loadMissing([
+            'testParticipants',
+            'testParticipants.user:id,name,name_first,name_suffix,uuid',
+            'testParticipants.answers',
+            'testParticipants.answers.answerRatings',
+        ]);
+
+        $this->participants = $this->testTake
+            ->testParticipants
+            ->each(function ($participant) {
+                $participant->user->setAppends([]);
+                $participant->name = html_entity_decode($participant->user->name_full);
+
+                $participant;
+            });
     }
 }

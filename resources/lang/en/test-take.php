@@ -78,4 +78,5 @@ return [
     'Inhaaldatum'                                                                                                                                      => 'Date',
     'waiting-room-tooltip'                                                                                                                             => 'The waiting room shows who is currently attending for the test take or CO-Learning session. You can add students and invigilators before the test take.',
     'Resultaten overzicht'                                                                                                                             => 'Results overview',
+    'CO-Learning starten'                                                                                                                              => 'Start CO-Learning',
 ];

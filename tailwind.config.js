@@ -68,6 +68,9 @@ module.exports = {
             },
             padding: {
                 "15": "3.75rem"
+            },
+            borderRadius: {
+                "10": "10px",
             }
         },
         keyframes: {
