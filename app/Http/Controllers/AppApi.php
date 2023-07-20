@@ -5,8 +5,10 @@ namespace tcCore\Http\Controllers;
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
+use tcCore\Http\Helpers\AppVersionDetector;
 use tcCore\Http\Requests\AppApiFraudEventRequest;
 use tcCore\Http\Requests\AppApiHandInRequest;
+use tcCore\Http\Requests\AppApiVersionRequest;
 use tcCore\TestParticipant;
 use tcCore\TestTakeEvent;
 use tcCore\TestTakeEventType;
@@ -56,5 +58,10 @@ class AppApi extends Controller
 
         $testParticipant->testTake->testTakeEvents()->save($testTakeEvent);
         return Response::json($response);
+    }
+
+    public function versionInfo(AppApiVersionRequest $request) {
+        $res = AppVersionDetector::checkVersionDeadline();
+        return Response::json($res);
     }
 }
