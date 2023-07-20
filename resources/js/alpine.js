@@ -3225,7 +3225,7 @@ document.addEventListener("alpine:init", () => {
 
             this.editor.maxWords = value;
         },
-        addSelectedWordCountToWordCounter(selectedWordCount=0) {
+        addSelectedWordCountToWordCounter(selectedWordCount=0, text='Geselecteerde woorden') {
             const spanId = "selected-word-span";
             this.$root.querySelector(`#${spanId}`)?.remove();
 
@@ -3234,7 +3234,7 @@ document.addEventListener("alpine:init", () => {
             let element = document.createElement("strong");
             element.id = spanId;
             element.classList.add("ml-4");
-            element.innerHTML = `Geselecteerde woorden: ${selectedWordCount}`;
+            element.innerHTML = `${text}: ${selectedWordCount}`;
 
             this.wordContainer.parentNode.append(element);
         }

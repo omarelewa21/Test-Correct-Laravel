@@ -26,7 +26,7 @@
                          wire:ignore
                          class="word-count note text-sm mt-2"
                          x-show="wordCounter"
-                         x-on:selected-word-count.window="addSelectedWordCountToWordCounter($event.detail.wordCount)"
+                         x-on:selected-word-count.window="addSelectedWordCountToWordCounter($event.detail.wordCount, '@lang('question.selected_words')')"
                     ></div>
                 </x-input.group>
             </div>

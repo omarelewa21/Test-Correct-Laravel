@@ -11,7 +11,7 @@
 @endsection
 @section('question-cms-answer')
     <div x-data="writeDownCms(@js($answerEditorId),@js((bool)$this->question['restrict_word_amount']), @entangle('question.max_words'))"
-        x-on:selected-word-count.window="addSelectedWordCountToWordCounter($event.detail.wordCount)"
+        x-on:selected-word-count.window="addSelectedWordCountToWordCounter($event.detail.wordCount, '@lang('question.selected_words')')"
     >
         <div class="border-b border-bluegrey note text-center text-sm uppercase">@lang('cms.Antwoord opties voor student')</div>
         <div class="general-settings-grid mb-6">
