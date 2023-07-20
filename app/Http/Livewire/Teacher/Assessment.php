@@ -1138,7 +1138,13 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
     public function getHasNoOpenQuestionProperty(): bool
     {
-        return !$this->testTakeData->test->hasOpenQuestion();
+        return !$this->testTakeData->test->hasOpenQuestion()
+            || $this->answersWithDiscrepancyFilter(
+                $this->answers->whereIn(
+                    'question_id',
+                    $this->questions->discussionTypeFiltered(true)->pluck('id')
+                )
+            )->isEmpty();
     }
 
     public function canUseDiscrepancyToggle()
