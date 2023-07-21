@@ -406,7 +406,7 @@
                                       wire:click="redirectBack"
                                       wire:target="redirectBack,previous,next"
                                       wire:loading.attr="disabled"
-                                      wire:key="next-button-{{  $this->questionNavigationValue.'-'.$this->answerNavigationValue }}"
+                                      wire:key="next-button-{{  $this->questionNavigationValue.'-'.$this->answerNavigationValue .'='.$this->assessedAllAnswers() }}"
                                       selid="assessment-footer-finish"
                         >
                             <span>@lang('co-learning.finish')</span>
@@ -416,7 +416,7 @@
                                           x-on:click="next"
                                           wire:target="previous,next"
                                           wire:loading.attr="disabled"
-                                          wire:key="next-button-{{  $this->questionNavigationValue.'-'.$this->answerNavigationValue }}"
+                                          wire:key="next-button-{{  $this->questionNavigationValue.'-'.$this->answerNavigationValue.'='.$this->assessedAllAnswers() }}"
                                           :disabled="$this->finalAnswerReached()"
                                           selid="assessment-footer-next"
                         >

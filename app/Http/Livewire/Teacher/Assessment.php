@@ -903,9 +903,13 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
     public function assessedAllAnswers(): bool
     {
+        if (!$this->finalAnswerReached()) {
+            return false;
+        }
         $filteredAnswers = $this->answersWithDiscrepancyFilter();
         $assessedAnswerCount = $filteredAnswers->where(function ($answer) {
-            if ($answer->answerRatings->where('type', '!=', AnswerRating::TYPE_STUDENT)->isNotEmpty()) {
+            $answer->load('answerRatings');
+            if ($answer->answerRatings->fresh()->where('type', '!=', AnswerRating::TYPE_STUDENT)->isNotEmpty()) {
                 return true;
             }
             return $answer->hasDiscrepancy === false;
