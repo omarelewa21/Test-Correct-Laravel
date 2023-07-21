@@ -116,6 +116,7 @@ class Taken extends TestTakeComponent
             'discussedQuestions' => $this->discussedQuestions($questionsOfTest),
             'assessedQuestions'  => $this->assessedQuestions(),
             'questionsToAssess'  => $questionsOfTest->count(),
+            'maxScore'           => $questionsOfTest->sum('score')
         ];
     }
 
@@ -170,13 +171,54 @@ class Taken extends TestTakeComponent
             'testParticipants.answers.answerRatings',
         ]);
 
-        $this->participants = $this->testTake
+        $this->participantResults = $this->testTake
             ->testParticipants
             ->each(function ($participant) {
                 $participant->user->setAppends([]);
                 $participant->name = html_entity_decode($participant->user->name_full);
-
-                $participant;
+                $participant->score = $this->getScoreForParticipant($participant);
+                $participant->discrepancies = $this->getDiscrepanciesForParticipant($participant);
+                $participant->rated = $this->getRatedQuestionsForParticipant($participant);
             });
+    }
+
+    protected function getPusherListeners(): array
+    {
+        if ($this->showWaitingRoom) {
+            return parent::getPusherListeners();
+        }
+        return [];
+    }
+
+    private function getScoreForParticipant(TestParticipant $participant): mixed
+    {
+        return $participant->answers->sum(function ($answer) {
+            $rating = $answer->answerRatings->first(function ($rating) {
+                if ($rating->type === AnswerRating::TYPE_TEACHER) {
+                    return $rating;
+                };
+                if ($rating->type === AnswerRating::TYPE_SYSTEM) {
+                    return $rating;
+                }
+                return $rating;
+            });
+            return $rating->rating;
+        });
+    }
+
+    private function getDiscrepanciesForParticipant(TestParticipant $participant)
+    {
+        return $participant->answers->sum(function ($answer) {
+            return (int)$answer->hasCoLearningDiscrepancy();
+        });
+    }
+
+    private function getRatedQuestionsForParticipant(TestParticipant $participant): int
+    {
+        return $participant->answers->sum(function ($answer) {
+            return (int)$answer->answerRatings
+                ->whereIn('type', [AnswerRating::TYPE_TEACHER, AnswerRating::TYPE_SYSTEM])
+                ->isNotEmpty();
+        });
     }
 }

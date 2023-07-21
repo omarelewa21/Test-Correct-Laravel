@@ -13567,7 +13567,7 @@ ul ul ul {
 }
 
 .results-grid {
-    grid-template-columns: minmax(150px, 300px) repeat(3, min-content) auto;
+    grid-template-columns: minmax(150px, 300px) repeat(3, min-content) minmax(305px,auto);
 }
 
 .results-grid .grid-item {

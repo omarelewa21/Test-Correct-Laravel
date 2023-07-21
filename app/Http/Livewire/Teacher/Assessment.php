@@ -866,10 +866,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     protected function currentAnswerCoLearningRatingsHasNoDiscrepancy(?Answer $answer = null): bool
     {
         $answer ??= $this->currentAnswer;
-        return $answer->answerRatings
-                ->where('type', AnswerRating::TYPE_STUDENT)
-                ->keyBy('rating')
-                ->count() === 1;
+        return !$answer->hasCoLearningDiscrepancy();
     }
 
     public function coLearningRatings(): Collection

@@ -190,6 +190,7 @@
                             shadow.style.top = $root.querySelector(`[data-row='${value}'] .grid-item`)?.offsetTop + 'px'
                         }
                      })"
+                     wire:ignore
                 >
                     <div x-ref="shadowBox" x-show="rowHover !== null" class="shadow-box "></div>
 
@@ -201,19 +202,25 @@
 
                     <div class="col-span-5 h-[3px] bg-sysbase my-2 mx-5"></div>
 
-                    @foreach($this->participants as $participant)
+                    @foreach($this->participantResults as $participant)
                         <div class="grid-row contents group/row hover:text-primary hover:shadow-lg"
                              x-on:mouseover="rowHover = $el.dataset.row"
                              x-on:mouseout="rowHover = null"
                              data-row="{{ $loop->iteration }}"
                         >
                             <div class="grid-item flex items-center group-hover/row:bg-offwhite pr-1.5 pl-5 col-start-1 h-15 rounded-l-10">{{ $participant->name }}</div>
-                            <div class="grid-item flex items-center group-hover/row:bg-offwhite px-1.5">0/0</div>
-                            <div class="grid-item flex items-center group-hover/row:bg-offwhite px-1.5">0/0</div>
-                            <div class="grid-item flex items-center group-hover/row:bg-offwhite px-1.5">0</div>
-                            <div class="grid-item flex items-center group-hover/row:bg-offwhite pl-1.5 pr-5 rounded-r-10">
-                                <div class="flex items-center justify-between w-full">
-                                    <div class="flex items-center gap-2">
+                            <div class="grid-item flex items-center group-hover/row:bg-offwhite px-1.5 justify-end">
+                                <span>{{ $participant->rated }}</span>/<span>{{ $this->takenTestData['questionCount'] }}</span>
+                            </div>
+                            <div class="grid-item flex items-center group-hover/row:bg-offwhite px-1.5 justify-end">
+                                <span>{{ $participant->score }}</span>/<span>{{ $this->takenTestData['maxScore'] }}</span>
+                            </div>
+                            <div class="grid-item flex items-center group-hover/row:bg-offwhite px-1.5 justify-end">
+                                <span>{{ $participant->discrepancies }}</span>
+                            </div>
+                            <div class="grid-item flex items-center group-hover/row:bg-offwhite pl-1.5 pr-5 rounded-r-10 truncate">
+                                <div class="flex items-center justify-between w-full ">
+                                    <div class="flex items-center gap-2 truncate">
                                         <div class="flex items-center gap-2 text-sysbase">
                                             <x-tooltip class="w-[40px] h-[30px]" :icon-height="true" :icon-width="true">
                                                 <x-slot:idleIcon>
@@ -233,7 +240,7 @@
                                     </div>
                                     <div class="flex items-center gap-4">
                                         <div class="flex items-center gap-2">
-                                            <x-button.icon>
+                                            <x-button.icon wire:click="$emit('openModal', 'message-create-modal', {receiver: '{{ $participant->user->uuid }}'})">
                                                 <x-icon.envelope class="w-4 h-4" />
                                             </x-button.icon>
                                             <x-button.icon>

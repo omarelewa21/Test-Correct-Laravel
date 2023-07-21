@@ -291,4 +291,17 @@ class Answer extends BaseModel
     {
         return $this->answerRatings->where('type', AnswerRating::TYPE_TEACHER);
     }
+
+    public function hasCoLearningDiscrepancy(): bool
+    {
+        $ratings = $this->answerRatings->where('type', AnswerRating::TYPE_STUDENT);
+
+        if ($ratings->count() < 2) {
+            return false;
+        }
+
+        return $ratings
+                ->keyBy('rating')
+                ->count() !== 1;
+    }
 }

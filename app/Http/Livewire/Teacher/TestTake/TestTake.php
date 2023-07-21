@@ -26,12 +26,7 @@ abstract class TestTake extends TCComponent
 
     protected function getListeners(): array
     {
-        return [
-            TestTakePresenceEvent::channelHereSignature($this->testTake->uuid)    => 'initializingPresenceChannel',
-            TestTakePresenceEvent::channelJoiningSignature($this->testTake->uuid) => 'joiningPresenceChannel',
-            TestTakePresenceEvent::channelLeavingSignature($this->testTake->uuid) => 'leavingPresenceChannel',
-            'refresh'                                                             => 'refresh'
-        ];
+        return $this->getPusherListeners() + ['refresh' => 'refresh'];
     }
 
     public function mount(TestTakeModel $testTake): void
@@ -57,9 +52,11 @@ abstract class TestTake extends TCComponent
         $template = str(class_basename(get_called_class()))->lower();
         return view('livewire.teacher.test-take.' . $template)->layout('layouts.app-teacher');
     }
+
     abstract public function refresh();
 
     abstract public function redirectToOverview();
+
     abstract public function breadcrumbTitle(): string;
 
     public function back()
@@ -207,6 +204,15 @@ abstract class TestTake extends TCComponent
 
             );
         }
+    }
+
+    protected function getPusherListeners(): array
+    {
+        return [
+            TestTakePresenceEvent::channelHereSignature($this->testTake->uuid) => 'initializingPresenceChannel',
+            TestTakePresenceEvent::channelJoiningSignature($this->testTake->uuid) => 'joiningPresenceChannel',
+            TestTakePresenceEvent::channelLeavingSignature($this->testTake->uuid) => 'leavingPresenceChannel',
+        ];
     }
 
 }
