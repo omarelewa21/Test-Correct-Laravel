@@ -77,5 +77,6 @@ return [
     'Inhaaldatum'                                                                                                                                      => 'Inhaaldatum',
     'waiting-room-tooltip'                                                                                                                             => 'De wachtkamer laat zien wie er momenteel aanwezig is om mee te doen met de toestafname of CO-Learing sessie. Je kan vóór de afname nog studenten en surveillanten toevoegen.',
     'Resultaten overzicht'                                                                                                                             => 'Resultaten overzicht',
-    'CO-Learning starten'                                                                                                                                => 'CO-Learning starten',
+    'CO-Learning starten'                                                                                                                              => 'CO-Learning starten',
+    'Nakijken'                                                                                                                                         => 'Nakijken',
 ];

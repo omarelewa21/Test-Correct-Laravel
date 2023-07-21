@@ -2,11 +2,19 @@
 
 namespace tcCore\Http\Livewire;
 
+use tcCore\Message;
 use tcCore\User;
 
 class MessageCreateModal extends TCModalComponent
 {
     public User $receiver;
+    public string $subject = '';
+    public string $message = '';
+
+    protected array $rules = [
+        'subject' => 'required',
+        'message' => 'required'
+    ];
 
     public function mount(User $receiver)
     {
@@ -21,5 +29,22 @@ class MessageCreateModal extends TCModalComponent
     public static function modalMaxWidth(): string
     {
         return 'xl';
+    }
+
+    public function send()
+    {
+        $this->validate();
+
+        $message = new Message();
+        $message->fill([
+            'subject' => $this->subject,
+            'message' => $this->message,
+            'to'      => [$this->receiver->id],
+            'user_id' => auth()->id(),
+        ]);
+        $message->save();
+
+        $this->dispatchBrowserEvent('notify', ['message' => __('message.Bericht verzonden')]);
+        $this->closeModal();
     }
 }

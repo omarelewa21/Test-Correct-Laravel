@@ -240,10 +240,14 @@
                                     </div>
                                     <div class="flex items-center gap-4">
                                         <div class="flex items-center gap-2">
-                                            <x-button.icon wire:click="$emit('openModal', 'message-create-modal', {receiver: '{{ $participant->user->uuid }}'})">
+                                            <x-button.icon wire:click="$emit('openModal', 'message-create-modal', {receiver: '{{ $participant->user->uuid }}'})"
+                                                           :title="__('message.Stuur bericht')"
+                                            >
                                                 <x-icon.envelope class="w-4 h-4" />
                                             </x-button.icon>
-                                            <x-button.icon>
+                                            <x-button.icon wire:click="assessParticipant('{{ $participant->uuid }}')"
+                                                           :title="__('test-take.Nakijken')"
+                                            >
                                                 <x-icon.review />
                                             </x-button.icon>
                                         </div>

@@ -106,6 +106,14 @@ class Taken extends TestTakeComponent
         return redirect()->route('teacher.assessment', $this->testTakeUuid);
     }
 
+    public function assessParticipant(string $participantUuid): Redirector|RedirectResponse
+    {
+        return redirect()->route(
+            'teacher.assessment',
+            ['testTake' => $this->testTakeUuid, 'participant' => $participantUuid]
+        );
+    }
+
     /* Protected methods */
     protected function setTakenTestData(): void
     {

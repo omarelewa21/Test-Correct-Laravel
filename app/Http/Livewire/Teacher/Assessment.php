@@ -17,6 +17,7 @@ use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Http\Interfaces\CollapsableHeader;
 use tcCore\Http\Livewire\EvaluationComponent;
 use tcCore\Question;
+use tcCore\TestParticipant;
 use tcCore\TestTake;
 use tcCore\TestTakeStatus;
 use tcCore\User;
@@ -44,10 +45,12 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         'referrer'                => ['except' => '', 'as' => 'r'],
         'questionNavigationValue' => ['except' => '', 'as' => 'qi'],
         'answerNavigationValue'   => ['except' => '', 'as' => 'ai'],
+        'participant'             => ['except' => ''],
     ];
     public string $referrer = '';
     public string $questionNavigationValue = '';
     public string $answerNavigationValue = '';
+    public string $participant = '';
 
     /* Navigation properties */
     public $questionCount;
@@ -67,10 +70,11 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     public bool $openOnly;
     public bool $isCoLearningScore = false;
     public bool $skipNoDiscrepancies = false;
-
     public bool $webSpellCheckerEnabled;
-
     public $answerFeedback;
+
+    public bool $singleParticipantState = false;
+    protected ?TestParticipant $testParticipant = null;
 
     /* Lifecycle methods */
     protected function getListeners(): array
@@ -83,6 +87,11 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     public function mount(TestTake $testTake): void
     {
         $this->testTakeUuid = $testTake->uuid;
+
+        if ($this->participant) {
+            $this->singleParticipantState = true;
+            $this->testParticipant = TestParticipant::whereUuid($this->participant)->firstOrFail();
+        }
 
         $this->headerCollapsed = Session::has("assessment-started-$this->testTakeUuid");
         $this->setData();
@@ -1042,6 +1051,10 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     {
         $this->setUserOnAnswer($this->currentAnswer);
         $this->currentQuestion = $this->questions->get((int)$this->questionNavigationValue - 1);
+
+        if ($this->participant) {
+            $this->testParticipant = TestParticipant::whereUuid($this->participant)->firstOrFail();
+        }
     }
 
     private function setUserOnAnswer(Answer $answer): void
