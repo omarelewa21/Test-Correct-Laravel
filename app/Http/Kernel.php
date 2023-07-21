@@ -23,6 +23,7 @@ use tcCore\Http\Middleware\AuthorizeBinds;
 use tcCore\Http\Middleware\BugsnagRequestId;
 use tcCore\Http\Middleware\CakeLaravelFilter;
 use tcCore\Http\Middleware\CheckForDeploymentMaintenance;
+use tcCore\Http\Middleware\DevelopmentOnly;
 use tcCore\Http\Middleware\DuplicateLogin;
 use tcCore\Http\Middleware\DuplicateLoginLivewire;
 use tcCore\Http\Middleware\EncryptCookies;
@@ -76,6 +77,7 @@ class Kernel extends HttpKernel
         'throttle'              => ThrottleRequests::class,
         'accountManager'        => AuthenticatedAsAccountManager::class,
         'administrator'         => AuthenticatedAsAdministrator::class,
+        'development'           => DevelopmentOnly::class,
     ];
 
     /**

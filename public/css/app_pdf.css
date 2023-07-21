@@ -72,72 +72,66 @@ button.button {
     cursor: default !important;
 }
 
-button.cta-button, a.cta-button {
+.button-gradient.primary-button {
+    --button-text-color: white;
+    --button-background-color: var(--teacher-primary);
+    --button-background-gradient: linear-gradient(to right, #002096 0%, var(--teacher-primary-light) 100%), linear-gradient(to bottom, var(--teacher-primary), var(--teacher-primary));
+    --button-focus-border-color: #002096;
+}
+.button-gradient.cta-button {
+    --button-text-color: white;
+    --button-background-color: var(--cta-primary);
+    --button-background-gradient: linear-gradient(to left, #4ad866 0%, var(--cta-primary-dark) 100%), linear-gradient(to bottom, var(--cta-primary), var(--cta-primary));
+    --button-focus-border-color: var(--cta-primary-dark);
+}
+
+.button-gradient.secondary-button {
+    --button-text-color: var(--system-base);
+    --button-background-color: var(--blue-grey);
+    --button-background-gradient: linear-gradient(to right, #8aa1d3 1%, var(--primary-light)), linear-gradient(to bottom, var(--blue-grey), var(--blue-grey));
+    --button-focus-border-color: #738bc0;
+}
+
+.button-gradient.student-button {
+    --button-text-color: var(--system-base);
+    --button-background-color: var(--teacher-highlight-primary);
+    --button-background-gradient: linear-gradient(to right, var(--highlight-primary-mid-dark) 1%, #f4f1d2), linear-gradient(to bottom, var(--teacher-highlight-primary), var(--teacher-highlight-primary));
+    --button-focus-border-color: #c1ae00;
+}
+
+
+/* Variable color classes */
+.button-gradient {
+    color: var(--button-text-color);
+    background-color: var(--button-background-color);
+}
+.button-gradient::after {
+    background-image: var(--button-background-gradient);
+}
+.button-gradient:is(:focus, :focus-visible)::after {
+    border: solid 2px var(--button-focus-border-color);
+}
+
+.button-gradient {
+    isolation: isolate;
     position: relative;
-    color: white;
-    background-color: rgba(var(--cta-primary-rgb), 1);
-    transition: all 0.3s cubic-bezier(.215, .61, .355, 1);
-    background-size: calc(100% + 4px) calc(100% + 4px); /*compensate for transparent border*/
-    background-position-x: center;
-}
-
-button.cta-button:hover::after, a.cta-button:hover::after {
-    box-shadow: 0 3px 6px 0 rgba(4, 31, 116, 0.3);
-    transition: all 0.3s cubic-bezier(.215, .61, .355, 1);
-}
-
-button.cta-button:active::after, a.cta-button:active::after {
-    box-shadow: 0 1px 3px 0 rgba(4, 31, 116, 0.4);
-}
-
-button.cta-button:focus-visible::after, a.cta-button:focus-visible::after,
-button.cta-button:focus::after, a.cta-button:focus::after {
-    box-shadow: 0 3px 6px 0 rgba(4, 31, 116, 0.3);
-    border: 2px solid var(--cta-primary-dark);
-}
-
-button.cta-button:disabled, a.cta-button:disabled {
-    background: var(--light-grey);
-    color: var(--mid-grey);
-    box-shadow: 0 1px 4px 0 rgba(4, 31, 116, 0.06), 0 1px 4px 0 rgba(4, 31, 116, 0.1);;
-}
-
-.primary-button.btn-disabled {
-    background: var(--light-grey);
-    color: var(--mid-grey);
-    box-shadow: none;
-}
-
-.primary-button.btn-disabled:hover {
-    background: var(--light-grey);
-    color: var(--mid-grey);
-    box-shadow: none;
-}
-
-.primary-button.btn-disabled:focus {
-    border: none;
-}
-
-.cta-button:disabled.cta-button::after,
-.student-button:disabled.student-button::after,
-.primary-button:disabled.primary-button::after {
-    content: none;
-}
-
-
-.primary-button {
-    position: relative;
-    color: white;
-    background-color: rgba(0, 77, 245, 1);
-    transition: all 0.3s cubic-bezier(.215, .61, .355, 1);
-    justify-content: center;
     background-size: 115% 110%; /*compensate for transparent border*/
     background-position-x: center;
+    transition: all 0.3s cubic-bezier(.215, .61, .355, 1);
+    justify-content: center;
+
+    --button-text-color: unset;
+    --button-background-color: unset;
+    --button-background-gradient: unset;
+    --button-focus-border-color: unset;
 }
 
-.cta-button::after,
-.student-button::after,
-.primary-button::after {
+.button-gradient > * {
+    z-index: 3;
+    position: relative;
+}
+
+.button-gradient::after {
     content: '';
     background-size: 115% 110%;
     background-position-x: center;
@@ -153,131 +147,46 @@ button.cta-button:disabled, a.cta-button:disabled {
     box-sizing: content-box;
 }
 
-.primary-button::after {
-    background-image: linear-gradient(to right, #002096 0%, var(--teacher-primary-light) 100%), linear-gradient(to bottom, var(--teacher-primary), var(--teacher-primary));
-}
-
-.cta-button::after {
-    background-image: linear-gradient(to left, #4ad866 0%, var(--cta-primary-dark) 100%), linear-gradient(to bottom, var(--cta-primary), var(--cta-primary));
-}
-
-.student-button::after {
-    background-image: linear-gradient(to right, var(--highlight-primary-mid-dark) 1%, #f4f1d2), linear-gradient(to bottom, var(--teacher-highlight-primary), var(--teacher-highlight-primary));
-}
-
-.cta-button:hover::after,
-.cta-button:active::after,
-.cta-button:focus::after,
-.cta-button:focus-visible::after,
-.student-button:hover::after,
-.student-button:active::after,
-.student-button:focus::after,
-.student-button:focus-visible::after,
-.primary-button:hover::after,
-.primary-button:active::after,
-.primary-button:focus::after,
-.primary-button:focus-visible::after {
+.button-gradient:is(:hover,:active,:focus,:focus-visible)::after {
     opacity: 1;
 }
 
-.cta-button,
-.student-button,
-.primary-button {
-    isolation: isolate;
-}
-
-.cta-button > *,
-.student-button > *,
-.primary-button > * {
-    z-index: 3;
-    position: relative;
-}
-
-.primary-button:hover,
-.primary-button:active,
-.primary-button:focus {
-    background-color: rgba(0, 77, 245, 0);
-    outline: none;
-}
-
-.primary-button:hover::after {
-    box-shadow: 0 3px 6px 0 rgba(var(--system-base-rgb), 0.3);
-}
-
-.primary-button:focus::after,
-.primary-button:focus-visible::after {
-    border: solid 2px #002096;
-    box-shadow: 0 3px 6px 0 rgba(var(--system-base-rgb), 0.3);
-}
-
-.primary-button:active::after {
+.button-gradient:active::after {
     box-shadow: 0 1px 3px 0 rgba(var(--system-base-rgb), 0.4);
 }
 
+.button-gradient:is(:focus, :focus-visible, :hover)::after {
+    box-shadow: 0 3px 6px 0 rgba(var(--system-base-rgb), 0.3);
+}
 
-.primary-button:disabled {
+.button-gradient:disabled {
     background: var(--light-grey);
     color: var(--mid-grey);
     box-shadow: 0 1px 4px 0 rgba(4, 31, 116, 0.06);
 }
 
-.secondary-button {
-    color: var(--system-base);
-    background-color: var(--blue-grey);
-    background-image: radial-gradient(ellipse farthest-side at 10% 10%, rgba(195, 208, 237, .5) 0, rgba(195, 208, 237, 0) 100%);
-    background-size: 0px 0px;
-    background-repeat: no-repeat;
-    box-shadow: 0 1px 2px 1px rgba(0, 0, 0, .15);
-    transition: color 0.3s cubic-bezier(.215, .61, .355, 1);
+.button-gradient:disabled::after {
+    content: none;
 }
 
-.secondary-button:hover {
-    background-color: rgb(203, 219, 253);
-    background-size: 100% 100%;
-    box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.1);
-    transition: all 0.3s cubic-bezier(.215, .61, .355, 1);
+/* <start> left over old specific styling of the primary button after refactoring */
+.primary-button:is(:hover, :active, :focus) {
+    background-color: rgba(0, 77, 245, 0);
+    outline: none;
 }
 
-.secondary-button:active {
-    background: linear-gradient(90deg, rgba(239, 244, 254, 1) 0%, rgba(233, 239, 250, 1) 100%);
-    box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.1);
-}
-
-.secondary-button:focus {
-    background: var(--system-secondary);
-    border: 1px solid #99AACE;
-}
-
-.secondary-button:disabled {
+.primary-button.btn-disabled:hover {
     background: var(--light-grey);
     color: var(--mid-grey);
     box-shadow: none;
 }
 
-.student-button {
-    position: relative;
-    color: var(--system-base);
-    background-color: var(--teacher-highlight-primary);
-    transition: all 0.3s cubic-bezier(.215, .61, .355, 1);
-    justify-content: center;
-    background-size: 115% 110%; /*compensate for transparent border*/
-    background-position-x: center;
+.primary-button.btn-disabled:focus {
+    border: none;
 }
+/* <end> left over old specific styling of the primary button after refactoring */
 
-.student-button:disabled {
-    background: var(--light-grey);
-    color: var(--mid-grey);
-    box-shadow: none;
-}
 
-.student-button:focus::after,
-.student-button:focus-visible::after {
-    border: solid 2px #c1ae00;
-}
-
-.student-button:active::after {
-    box-shadow: 0 1px 3px 0 rgba(var(--system-base-rgb), 0.4);
-}
 
 .select-button {
     border-radius: 10px;
@@ -7011,6 +6920,9 @@ video {
 }
 .grid-cols-4{
   grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.grid-cols-6{
+  grid-template-columns: repeat(6, minmax(0, 1fr));
 }
 .grid-cols-\[min-content\2c auto\]{
   grid-template-columns: min-content auto;

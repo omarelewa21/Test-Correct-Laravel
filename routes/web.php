@@ -146,3 +146,7 @@ Route::middleware(['guestChoice'])->group(function () {
     Route::get('/guest-choice', tcCore\Http\Livewire\Student\GuestUserChoosingPage::class)->name('guest-choice');
     Route::get('/guest-graded-overview', tcCore\Http\Livewire\Student\GuestGradedOverview::class)->name('guest-graded-overview');
 });
+
+Route::middleware(['development'])->group(function () {
+    Route::get('styleguide', \tcCore\Http\Livewire\ComponentStyleguide::class)->name('development.styleguide');
+});
