@@ -1114,7 +1114,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
                 $this->answers->whereIn(
                     'question_id',
                     $this->questions->discussionTypeFiltered(true)->pluck('id')
-                )
+                )->reject(fn($answer) => !$answer->isAnswered)
             )->isEmpty();
     }
 
