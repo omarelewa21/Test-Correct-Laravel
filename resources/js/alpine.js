@@ -2835,6 +2835,9 @@ document.addEventListener("alpine:init", () => {
         initCommentIcons(commentThreads) {
             //create icon wrapper and append icon inside it
             commentThreads.forEach((thread) => {
+                if(!thread.currentUser) {
+                    return;
+                }
                 this.createCommentIcon(thread);
             })
         },
@@ -2977,7 +2980,12 @@ document.addEventListener("alpine:init", () => {
                 '            --active-comment-color: '+ colorCode +'; /* default color, overwrite when color picker is used */\n' +
                 '            --ck-color-comment-marker-active: var(--active-comment-color);\n' +
                 '        }\n' +
-                '    ';
+                '    .ck-comment-marker[data-comment="new-comment-thread"]{\n' +
+                '            --active-comment-color: '+ colorCode +'; /* default color, overwrite when color picker is used */\n' +
+                '            --ck-color-comment-marker: var(--active-comment-color);\n' +
+                '            --ck-color-comment-marker-active: var(--active-comment-color);\n' +
+                '            cursor: pointer !important;\n' +
+                '        }';
         },
         setHoveringCommentMarkerStyle(removeStyling = false) {
             const styleTag = document.querySelector('#hoveringCommentMarkerStyle');

@@ -5,7 +5,12 @@
      selid="ckeditor">
     <style id="addFeedbackMarkerStyles">
         :root {
-            --active-comment-color: rgba(var(--primary-rgb), 0.4); /* default color, overwrite when color picker is used */
+            --active-comment-color: rgba(71,129,255, 0.4); /* default color, overwrite when color picker is used */
+            --ck-color-comment-marker-active: var(--active-comment-color);
+        }
+        .ck-comment-marker[data-comment="new-comment-thread"]{
+            --active-comment-color: rgba(71,129,255, 0.4); /* default color, overwrite when color picker is used */
+            --ck-color-comment-marker: var(--active-comment-color);
             --ck-color-comment-marker-active: var(--active-comment-color);
         }
     </style>

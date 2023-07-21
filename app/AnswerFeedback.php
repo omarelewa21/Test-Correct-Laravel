@@ -72,7 +72,8 @@ class AnswerFeedback extends Model
                     "resolvedBy" => null,
                     "attributes" => [],
                     "uuid"       => $answerFeedback->uuid,
-                    "iconName"   => CommentEmoji::tryFrom($answerFeedback->comment_emoji)?->getIconComponentName()
+                    "iconName"   => CommentEmoji::tryFrom($answerFeedback->comment_emoji)?->getIconComponentName(),
+                    "currentUser" => auth()->user()->getKey() === $answerFeedback->user->getKey() ? true : false,
                 ];
             })->toArray();
     }

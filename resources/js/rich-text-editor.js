@@ -140,25 +140,21 @@ RichTextEditor = {
         let selectionIsNotEmpty = () => window.getSelection().toString() !== '';
 
         document.addEventListener('mouseup', (e) => {
-            /*
-             * selection is in the answer comment editor
-             * selection is not empty
-             * selection is on the assessment screen
-             * */
             if(!(focusIsInCommentEditor() && selectionIsNotEmpty())) {
                 return;
             }
-
-            editor.plugins.get('CommentsRepository').getCommentThreads().forEach((comment) => comment.comments.length === 0 ? comment.remove() : '')
 
             dispatchEvent(new CustomEvent('assessment-drawer-tab-update', {detail: {tab: 2}}));
 
             //focus the create a comment editor
             dispatchEvent(new CustomEvent('answer-feedback-focus-feedback-editor'));
 
-            setTimeout(() => {
-                editor.execute('addCommentThread', {threadId: window.uuidv4()});
+            //remove the previous temporary thread if it exists
+            editor.plugins.get('CommentsRepository').getCommentThread('new-comment-thread')?.remove();
 
+            setTimeout(() => {
+                //add a temporary thread with a specific name that can be found by JS
+                editor.execute('addCommentThread', {threadId: 'new-comment-thread'});
             }, 200);
 
         })

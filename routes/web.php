@@ -41,6 +41,8 @@ Route::get('/wiris/showimage', [\tcCore\Http\Controllers\WirisIntegrationControl
 Route::get('/get_app_version', [\tcCore\Http\Helpers\AppVersionDetector::class, 'getAppVersion']);
 Route::get('/directlink/{testTakeUuid}', [\tcCore\Http\Controllers\TestTakeLaravelController::class, 'directLink'])->name('take.directLink');
 
+Route::get('styleguide', \tcCore\Http\Livewire\ComponentStyleguide::class)->name('styleguide');
+
 if (\tcCore\Http\Helpers\BaseHelper::notProduction()) {
     Route::get('entree/testSession', \tcCore\Http\Controllers\EntreeTestSession::class);
 }

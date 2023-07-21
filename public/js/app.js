@@ -9591,6 +9591,9 @@ document.addEventListener("alpine:init", function () {
         var _this65 = this;
         //create icon wrapper and append icon inside it
         commentThreads.forEach(function (thread) {
+          if (!thread.currentUser) {
+            return;
+          }
           _this65.createCommentIcon(thread);
         });
       },
@@ -9719,7 +9722,7 @@ document.addEventListener("alpine:init", function () {
         if (color) {
           colorCode = color;
         }
-        styleTag.innerHTML = '\n' + '        :root {\n' + '            --active-comment-color: ' + colorCode + '; /* default color, overwrite when color picker is used */\n' + '            --ck-color-comment-marker-active: var(--active-comment-color);\n' + '        }\n' + '    ';
+        styleTag.innerHTML = '\n' + '        :root {\n' + '            --active-comment-color: ' + colorCode + '; /* default color, overwrite when color picker is used */\n' + '            --ck-color-comment-marker-active: var(--active-comment-color);\n' + '        }\n' + '    .ck-comment-marker[data-comment="new-comment-thread"]{\n' + '            --active-comment-color: ' + colorCode + '; /* default color, overwrite when color picker is used */\n' + '            --ck-color-comment-marker: var(--active-comment-color);\n' + '            --ck-color-comment-marker-active: var(--active-comment-color);\n' + '            cursor: pointer !important;\n' + '        }';
       },
       setHoveringCommentMarkerStyle: function setHoveringCommentMarkerStyle() {
         var removeStyling = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
@@ -17975,17 +17978,10 @@ RichTextEditor = {
       return window.getSelection().toString() !== '';
     };
     document.addEventListener('mouseup', function (e) {
-      /*
-       * selection is in the answer comment editor
-       * selection is not empty
-       * selection is on the assessment screen
-       * */
+      var _editor$plugins$get$g;
       if (!(focusIsInCommentEditor() && selectionIsNotEmpty())) {
         return;
       }
-      editor.plugins.get('CommentsRepository').getCommentThreads().forEach(function (comment) {
-        return comment.comments.length === 0 ? comment.remove() : '';
-      });
       dispatchEvent(new CustomEvent('assessment-drawer-tab-update', {
         detail: {
           tab: 2
@@ -17994,9 +17990,13 @@ RichTextEditor = {
 
       //focus the create a comment editor
       dispatchEvent(new CustomEvent('answer-feedback-focus-feedback-editor'));
+
+      //remove the previous temporary thread if it exists
+      (_editor$plugins$get$g = editor.plugins.get('CommentsRepository').getCommentThread('new-comment-thread')) === null || _editor$plugins$get$g === void 0 ? void 0 : _editor$plugins$get$g.remove();
       setTimeout(function () {
+        //add a temporary thread with a specific name that can be found by JS
         editor.execute('addCommentThread', {
-          threadId: window.uuidv4()
+          threadId: 'new-comment-thread'
         });
       }, 200);
     });

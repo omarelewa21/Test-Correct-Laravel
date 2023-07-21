@@ -277,3 +277,7 @@
 #co-learning-page ~ .drawer {
     height: calc(100vh - var(--header-height) - 70px);
 }
+
+.with-inline-feedback .ck-fake-panel {
+    display: none;
+}

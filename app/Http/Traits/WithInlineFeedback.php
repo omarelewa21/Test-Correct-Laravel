@@ -19,7 +19,7 @@ trait WithInlineFeedback {
     public function createNewComment($commentData, $createCommentIds = true)
     {
         $newComment = AnswerFeedback::create(array_merge([
-            'answer_id' => $this->currentAnswer->getKey(),
+            'answer_id' => $this->getCurrentAnswer()->getKey(),
             'user_id' => auth()->id(),
             'message' => '',
             'thread_id' => $createCommentIds ? Uuid::uuid4() : null,
@@ -86,7 +86,7 @@ trait WithInlineFeedback {
         $purifiedAnswerText = str_replace('commentstart', 'comment-start', $purifiedAnswerText);
         $purifiedAnswerText = str_replace('commentend', 'comment-end', $purifiedAnswerText);
 
-        Answer::whereId($this->currentAnswer->getKey())->update(['commented_answer' => $purifiedAnswerText]);
+        Answer::whereId($this->getCurrentAnswer()->getKey())->update(['commented_answer' => $purifiedAnswerText]);
     }
 
     public function updateAnswerFeedback($uuid, $message, $comment_color = null, $comment_emoji = null)
@@ -128,15 +128,24 @@ trait WithInlineFeedback {
 
     public function getSortedAnswerFeedback()
     {
-        if($this->currentQuestion->type !== 'OpenQuestion') {
+        if($this->getCurrentQuestion()->type !== 'OpenQuestion') {
             return;
         }
 
-        $this->answerFeedback = $this->currentAnswer->feedback()->with('user')->get()->sortBy(function ($feedback) {
+        $this->answerFeedback = $this->getCurrentAnswer()->feedback()->with('user')->get()->sortBy(function ($feedback) {
             return $feedback->comment_id !== null;
         })->sortBy(function ($feedback) {
             return $feedback->order;
-        })->when(isset($this->answerFeedbackFilter), function ($collection) {
+        });
+
+//        ->when(isset($this->answerFeedbackFilter), function ($collection) {
+//                    return $collection->filter($this->answerFeedbackFilter);
+//                })
+    }
+
+    public function filterSortedAnswerFeedback($answerFeedback)
+    {
+        return $answerFeedback->when(isset($this->answerFeedbackFilter), function ($collection) {
             return $collection->filter($this->answerFeedbackFilter);
         });
     }
@@ -147,7 +156,14 @@ trait WithInlineFeedback {
             return '';
         }
 
-        return $this->answerFeedback->reduce(function ($carry, $feedback) {
+        if(true /* todo in co learning only show their own comments, and create other ways to filter: all, students, teacher */) {
+            $visibleAnswerFeedback = $this->answerFeedback->filter(fn ($af) => $af->user_id === auth()->user()->id);
+            $notVisibleAnswerFeedback = $this->answerFeedback->filter(fn ($af) => $af->user_id !== auth()->user()->id);
+        } else {
+            $visibleAnswerFeedback = $this->answerFeedback;
+            $notVisibleAnswerFeedback = collect();
+        }
+        $styleHtml =  $visibleAnswerFeedback->reduce(function ($carry, $feedback) {
             return $carry = $carry . <<<STYLE
                 .ck-comment-marker[data-comment="{$feedback->thread_id}"]{
                             --ck-color-comment-marker: {$feedback->getColor(0.4)} !important;
@@ -157,6 +173,21 @@ trait WithInlineFeedback {
             STYLE;
 
         }, '');
+        $styleHtml .=  $notVisibleAnswerFeedback->reduce(function ($carry, $feedback) {
+            return $carry = $carry . <<<STYLE
+                 .ck-comment-marker[data-comment="{$feedback->thread_id}"]{
+                            --ck-color-comment-marker: transparent !important;
+                            --ck-color-comment-marker-border: transparent !important;
+                            --ck-color-comment-marker-active: transparent !important;
+                            background: none !important;
+                            border: none !important;
+                            cursor: text !important;
+                        } 
+            STYLE;
+
+        }, '');
+
+        return $styleHtml;
     }
 
     /**
@@ -170,7 +201,7 @@ trait WithInlineFeedback {
 
     public function getInlineFeedbackEnabledProperty() : bool
     {
-        return $this->currentQuestion->type === "OpenQuestion";
+        return $this->getCurrentQuestion()->type === "OpenQuestion";
     }
 
     public function getIconNameByEmojiValue($emojiValue)
@@ -210,6 +241,16 @@ SQL;
     }
 
     public function getHasFeedbackProperty() {
-        return $this->answerFeedback->isNotEmpty();
+        return $this->filterSortedAnswerFeedback($this->answerFeedback)->isNotEmpty();
+    }
+
+    public function getCurrentAnswer()
+    {
+        return $this->currentAnswer ?? $this->answerRating->answer;
+    }
+
+    public function getCurrentQuestion()
+    {
+        return $this->currentQuestion ?? $this->testTake->discussingQuestion;
     }
 }

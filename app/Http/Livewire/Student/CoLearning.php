@@ -112,10 +112,6 @@ class CoLearning extends TCComponent
             $this->getAnswerRatings();
             $this->necessaryAmountOfAnswerRatings = $this->answerRatings->count() ?: 1;
         }
-
-        $this->answerFeedbackFilter = function ($answerFeedback) {
-            return $answerFeedback->user_id === auth()->user()->id;
-        };
     }
 
     public function render()
@@ -137,6 +133,10 @@ class CoLearning extends TCComponent
         };
 
         $this->getSortedAnswerFeedback();
+
+        $this->answerFeedbackFilter = function ($answerFeedback) {
+            return $answerFeedback->user_id === auth()->id();
+        };
     }
 
     public function redirectToTestTakesInReview()
@@ -359,6 +359,7 @@ class CoLearning extends TCComponent
         if ($this->answerRatings->isNotEmpty()) {
             $this->getQuestionAndAnswerNavigationData();
         }
+        logger(__METHOD__);
         $this->getSortedAnswerFeedback();
     }
 
@@ -477,9 +478,4 @@ class CoLearning extends TCComponent
         return $this->testTake->discussingQuestion;
     }
 
-    //alias property name for inline feedback
-    public function getCurrentAnswerProperty()
-    {
-        return $this->answerRating->answer;
-    }
 }

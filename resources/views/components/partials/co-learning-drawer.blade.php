@@ -1,5 +1,4 @@
 <div class="drawer short-drawer | right flex isolate overflow-hidden flex-shrink-0"
-{{--     x-data="assessmentDrawer(@js($inReview))"--}}
      x-data="assessmentDrawer(@js(false), @js([2]))"
      x-cloak
      x-bind:class="{'collapsed': collapse}"
@@ -7,6 +6,7 @@
      x-on:continue-navigation="Alpine.$data($el)[$event.detail.method]()" {{-- not yet used listener --}}
      x-on:resize.window.throttle="handleResize" {{-- not yet used listener --}}
      wire:key="colearning-drawer-{{ $uniqueKey }}"
+     wire:ignore
 >
     <div class="collapse-toggle vertical white z-10 cursor-pointer"
          @click="collapse = !collapse;"
