@@ -18180,45 +18180,39 @@ window.RichTextEditor = {
   addSelectedWordCounter: function addSelectedWordCounter(editor) {
     var selection = editor.model.document.selection;
     var selectedWordCount = 0;
-    selection.on('change:range', function () {
-      if (selection.isCollapsed) {
-        if (selectedWordCount !== 0) {
-          selectedWordCount = 0;
-          dispatchEvent(new CustomEvent('selected-word-count', {
-            detail: {
-              wordCount: selectedWordCount,
-              editorId: editor.sourceElement.id
-            }
-          }));
-        }
-        return;
+    var fireEventIfWordCountChanged = function fireEventIfWordCountChanged() {
+      var wordCount = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+      if (selectedWordCount !== wordCount) {
+        selectedWordCount = wordCount;
+        dispatchEvent(new CustomEvent('selected-word-count', {
+          detail: {
+            wordCount: selectedWordCount,
+            editorId: editor.sourceElement.id
+          }
+        }));
       }
+    };
+    selection.on('change:range', function () {
+      if (selection.isCollapsed) return fireEventIfWordCountChanged(); // No selection.
+
       var range = selection.getFirstRange();
+      var wordCount = 0;
       var _iterator = _createForOfIteratorHelper(range.getItems()),
         _step;
       try {
         for (_iterator.s(); !(_step = _iterator.n()).done;) {
           var item = _step.value;
           if (!item.is('textProxy')) continue;
-          var text = item.data;
-          var wordCount = text.split(' ').filter(function (word) {
+          wordCount += item.data.split(' ').filter(function (word) {
             return word !== '';
           }).length;
-          if (selectedWordCount !== wordCount) {
-            selectedWordCount = wordCount;
-            dispatchEvent(new CustomEvent('selected-word-count', {
-              detail: {
-                wordCount: selectedWordCount,
-                editorId: editor.sourceElement.id
-              }
-            }));
-          }
         }
       } catch (err) {
         _iterator.e(err);
       } finally {
         _iterator.f();
       }
+      fireEventIfWordCountChanged(wordCount);
     });
   },
   getWproofreaderConfig: function getWproofreaderConfig() {

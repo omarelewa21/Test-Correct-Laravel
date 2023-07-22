@@ -524,26 +524,25 @@ window.RichTextEditor = {
     addSelectedWordCounter(editor) {
         const selection = editor.model.document.selection;
         let selectedWordCount = 0;
-        selection.on('change:range', () => {
-            if (selection.isCollapsed) {
-                if(selectedWordCount !== 0){
-                    selectedWordCount = 0;
-                    dispatchEvent(new CustomEvent('selected-word-count', {detail: {wordCount: selectedWordCount, editorId: editor.sourceElement.id}}));
-                }
-                return;
+        let fireEventIfWordCountChanged = (wordCount=0) => {
+            if(selectedWordCount !== wordCount){
+                selectedWordCount = wordCount;
+                dispatchEvent(new CustomEvent('selected-word-count', {detail: {wordCount: selectedWordCount, editorId: editor.sourceElement.id}}));
             }
+        }
+
+        selection.on('change:range', () => {
+            if (selection.isCollapsed) return fireEventIfWordCountChanged();    // No selection.
 
             const range = selection.getFirstRange();
+            let wordCount = 0;
             for (const item of range.getItems()) {
                 if (!item.is('textProxy')) continue;
 
-                const text = item.data;
-                const wordCount = text.split(' ').filter(word => word !== '').length;
-                if(selectedWordCount !== wordCount){
-                    selectedWordCount = wordCount;
-                    dispatchEvent(new CustomEvent('selected-word-count', {detail: {wordCount: selectedWordCount, editorId: editor.sourceElement.id}}));
-                }
+                wordCount += item.data.split(' ').filter(word => word !== '').length;
             }
+
+            fireEventIfWordCountChanged(wordCount);
         } );
     },
     getWproofreaderConfig: function(enableGrammar = true) {
