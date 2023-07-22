@@ -9937,17 +9937,17 @@ document.addEventListener("alpine:init", function () {
         this.wordContainer.parentNode.append(element);
         this.editor.maxWords = value;
       },
-      addSelectedWordCountToWordCounter: function addSelectedWordCountToWordCounter() {
+      addSelectedWordCounter: function addSelectedWordCounter(eventDetails) {
         var _this$$root$querySele3;
-        var selectedWordCount = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
         var text = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'Geselecteerde woorden';
+        if (eventDetails.editorId !== this.editor.sourceElement.id) return;
         var spanId = "selected-word-span";
         (_this$$root$querySele3 = this.$root.querySelector("#".concat(spanId))) === null || _this$$root$querySele3 === void 0 ? void 0 : _this$$root$querySele3.remove();
-        if (selectedWordCount === 0) return;
+        if (eventDetails.wordCount === 0) return;
         var element = document.createElement("strong");
         element.id = spanId;
         element.classList.add("ml-4");
-        element.innerHTML = "".concat(text, ": ").concat(selectedWordCount);
+        element.innerHTML = "".concat(text, ": ").concat(eventDetails.wordCount);
         this.wordContainer.parentNode.append(element);
       }
     };
@@ -18090,7 +18090,7 @@ window.RichTextEditor = {
       wordCountWrapper.appendChild(wordCountPlugin.wordCountContainer);
       window.dispatchEvent(new CustomEvent("updated-word-count-plugin-container"));
     }
-    this.addSelectedWordCountToWordCounter(editor);
+    this.addSelectedWordCounter(editor);
     if (!parameterBag.restrictWords || [null, 0].includes(parameterBag.maxWords)) {
       return;
     }
@@ -18177,17 +18177,20 @@ window.RichTextEditor = {
   hasNoWordLimit: function hasNoWordLimit(editor) {
     return editor.maxWords === null || editor.maxWordOverride;
   },
-  addSelectedWordCountToWordCounter: function addSelectedWordCountToWordCounter(editor) {
+  addSelectedWordCounter: function addSelectedWordCounter(editor) {
     var selection = editor.model.document.selection;
     var selectedWordCount = 0;
     selection.on('change:range', function () {
       if (selection.isCollapsed) {
-        selectedWordCount = 0;
-        dispatchEvent(new CustomEvent('selected-word-count', {
-          detail: {
-            wordCount: selectedWordCount
-          }
-        }));
+        if (selectedWordCount !== 0) {
+          selectedWordCount = 0;
+          dispatchEvent(new CustomEvent('selected-word-count', {
+            detail: {
+              wordCount: selectedWordCount,
+              editorId: editor.sourceElement.id
+            }
+          }));
+        }
         return;
       }
       var range = selection.getFirstRange();
@@ -18205,7 +18208,8 @@ window.RichTextEditor = {
             selectedWordCount = wordCount;
             dispatchEvent(new CustomEvent('selected-word-count', {
               detail: {
-                wordCount: selectedWordCount
+                wordCount: selectedWordCount,
+                editorId: editor.sourceElement.id
               }
             }));
           }

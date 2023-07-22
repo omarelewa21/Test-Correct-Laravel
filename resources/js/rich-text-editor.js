@@ -420,7 +420,8 @@ window.RichTextEditor = {
             wordCountWrapper.appendChild(wordCountPlugin.wordCountContainer);
             window.dispatchEvent(new CustomEvent("updated-word-count-plugin-container"));
         }
-        this.addSelectedWordCountToWordCounter(editor);
+
+        this.addSelectedWordCounter(editor);
 
         if(!parameterBag.restrictWords || [null, 0].includes(parameterBag.maxWords)) {
             return;
@@ -520,13 +521,15 @@ window.RichTextEditor = {
     hasNoWordLimit(editor) {
         return editor.maxWords === null || editor.maxWordOverride;
     },
-    addSelectedWordCountToWordCounter(editor) {
+    addSelectedWordCounter(editor) {
         const selection = editor.model.document.selection;
         let selectedWordCount = 0;
-        selection.on('change:range', () => {    
+        selection.on('change:range', () => {
             if (selection.isCollapsed) {
-                selectedWordCount = 0;
-                dispatchEvent(new CustomEvent('selected-word-count', {detail: {wordCount: selectedWordCount}}));
+                if(selectedWordCount !== 0){
+                    selectedWordCount = 0;
+                    dispatchEvent(new CustomEvent('selected-word-count', {detail: {wordCount: selectedWordCount, editorId: editor.sourceElement.id}}));
+                }
                 return;
             }
 
@@ -538,7 +541,7 @@ window.RichTextEditor = {
                 const wordCount = text.split(' ').filter(word => word !== '').length;
                 if(selectedWordCount !== wordCount){
                     selectedWordCount = wordCount;
-                    dispatchEvent(new CustomEvent('selected-word-count', {detail: {wordCount: selectedWordCount}}));
+                    dispatchEvent(new CustomEvent('selected-word-count', {detail: {wordCount: selectedWordCount, editorId: editor.sourceElement.id}}));
                 }
             }
         } );

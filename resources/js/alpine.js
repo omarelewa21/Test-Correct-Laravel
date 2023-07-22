@@ -3225,16 +3225,18 @@ document.addEventListener("alpine:init", () => {
 
             this.editor.maxWords = value;
         },
-        addSelectedWordCountToWordCounter(selectedWordCount=0, text='Geselecteerde woorden') {
+        addSelectedWordCounter(eventDetails, text='Geselecteerde woorden') {
+            if(eventDetails.editorId !== this.editor.sourceElement.id) return;
+
             const spanId = "selected-word-span";
             this.$root.querySelector(`#${spanId}`)?.remove();
 
-            if(selectedWordCount === 0) return;
+            if(eventDetails.wordCount === 0) return;
 
             let element = document.createElement("strong");
             element.id = spanId;
             element.classList.add("ml-4");
-            element.innerHTML = `${text}: ${selectedWordCount}`;
+            element.innerHTML = `${text}: ${eventDetails.wordCount}`;
 
             this.wordContainer.parentNode.append(element);
         }
