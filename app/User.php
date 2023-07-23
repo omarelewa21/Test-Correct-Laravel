@@ -103,7 +103,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     protected $fillable = [
         'sales_organization_id', 'school_id', 'school_location_id', 'username', 'name_first', 'name_suffix', 'name',
         'password', 'external_id', 'gender', 'time_dispensation', 'text2speech', 'abbreviation', 'note', 'demo',
-        'invited_by', 'account_verified', 'test_take_code_id', 'guest', 'send_welcome_email', 'is_examcoordinator', 'is_examcoordinator_for', 'password_expiration_date'
+        'invited_by', 'account_verified', 'test_take_code_id', 'guest', 'send_welcome_email', 'is_examcoordinator', 'is_examcoordinator_for', 'password_expiration_date','has_package'
     ];
 
 

@@ -1,4 +1,6 @@
-<?php namespace tcCore\Http\Controllers;
+<?php
+
+namespace tcCore\Http\Controllers;
 
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Carbon\Carbon;
@@ -51,9 +53,39 @@ class UsersController extends Controller
      */
     public function index(Request $request)
     {
-        $users = User::filtered($request->get('filter', []), $request->get('order', []))->with('salesOrganization');
+        if (isset($request->get('filter')['has_package'])) {
+            if ($request->get('filter')['has_package'] == 0)
+                $users = User::filtered($request->get('filter', []), $request->get('order', []))->with('salesOrganization');
+            elseif ($request->get('filter')['has_package'] == 1)
+                $users = User::filtered($request->get('filter', []), $request->get('order', []))->with('salesOrganization')->where('has_package', 1);
+            elseif ($request->get('filter')['has_package'] == 2)
+                $users = User::filtered($request->get('filter', []), $request->get('order', []))->with('salesOrganization')->where('has_package', 0);
+        } elseif (isset($request->get('filter')['trial_status'])) {
+            $usersStatus = TrialPeriod::get();
+            $usersWithMoreThan14Days = []; // Array to store user IDs with more than 14 days remaining
+            $usersWithMoreThan0Days = []; // Array to store user IDs with more than 0 days remaining
+            foreach ($usersStatus as $userStatus) {
+                $daysRemaining = $userStatus->updated_at->diffInDays($userStatus->trial_until);
 
-
+                if ($daysRemaining >= 1 && $daysRemaining <= 15) {
+                    // If days remaining is greater than 14, store the user ID in the array
+                    $usersWithMoreThan14Days[] = $userStatus->user_id;
+                } else {
+                    $usersWithMoreThan0Days[] = $userStatus->user_id;
+                }
+            }
+            if ($request->get('filter')['trial_status'] == 0)
+                $users = User::filtered($request->get('filter', []), $request->get('order', []))->with('salesOrganization');
+            elseif ($request->get('filter')['trial_status'] == 1)
+                $users = User::whereNotIn('id', $usersWithMoreThan14Days)->whereNotIn('id', $usersWithMoreThan0Days)->filtered($request->get('filter', []), $request->get('order', []))->with('salesOrganization');
+            elseif ($request->get('filter')['trial_status'] == 2)
+                $users = User::whereIn('id', $usersWithMoreThan14Days)->filtered($request->get('filter', []), $request->get('order', []))->with('salesOrganization');
+            elseif ($request->get('filter')['trial_status'] == 3)
+                $users = User::whereIn('id', $usersWithMoreThan0Days)->filtered($request->get('filter', []), $request->get('order', []))->with('salesOrganization');
+        } else {
+            $users = User::filtered($request->get('filter', []), $request->get('order', []))->with('salesOrganization');
+        }
+        
         if (is_array($request->get('with')) && in_array('school_location', $request->get('with'))) {
             $users->with('school.schoolLocations', 'schoolLocation');
         }
@@ -123,7 +155,8 @@ class UsersController extends Controller
             $userFactory = new Factory(new User());
             $newUser = $userFactory->generate(
                 $data = array_merge(
-                    $request->validated(), [
+                    $request->validated(),
+                    [
                         'name_first'         => $user->name_first,
                         'name_suffix'        => $user->name_suffix,
                         'name'               => $user->name,
@@ -145,19 +178,18 @@ class UsersController extends Controller
             $newUser->save();
 
             // we can always get the old user by checking the creation date of the new user and use that to see the vervallenDATETIME of the old user
-            $user->username = sprintf('vervallen-%d-%s-%s', $newUser->created_at->format('YmdHis'),$newUser->getKey(), explode('@', $user->username)[1]);
+            $user->username = sprintf('vervallen-%d-%s-%s', $newUser->created_at->format('YmdHis'), $newUser->getKey(), explode('@', $user->username)[1]);
             $user->save();
 
             // if there are email confirmations waiting, move them to the new user
-            if(EmailConfirmation::where('user_id',$user->getKey())->count()){
-                EmailConfirmation::where('user_id',$user->getKey())->update(['user_id' => $newUser->getKey()]);
+            if (EmailConfirmation::where('user_id', $user->getKey())->count()) {
+                EmailConfirmation::where('user_id', $user->getKey())->update(['user_id' => $newUser->getKey()]);
             }
 
             $user->delete();
 
             DB::table('onboarding_wizard_user_steps')->where('user_id', $user->getKey())->update(['user_id' => $newUser->getKey()]);
             DB::table('onboarding_wizard_user_states')->where('user_id', $user->getKey())->update(['user_id' => $newUser->getKey()]);
-
         } catch (\Exception $e) {
             DB::rollBack();
             return Response::make('Failed to switch school location of teacher,' . print_r($e->getMessage(), true), 500);
@@ -182,7 +214,7 @@ class UsersController extends Controller
         $data = $request->all();
 
         if (!Auth::user()->isA(['Administrator', 'Account manager']) && Auth::user()->school_location_id !== null) {
-            $data['school_location_id'] = ActingAsHelper::getInstance()->getUser()->school_location_id;//SchoolHelper::getTempTeachersSchoolLocation()->getKey();
+            $data['school_location_id'] = ActingAsHelper::getInstance()->getUser()->school_location_id; //SchoolHelper::getTempTeachersSchoolLocation()->getKey();
         }
 
         $user = (new UserHelper())->createUserFromData($data);
@@ -219,7 +251,7 @@ class UsersController extends Controller
 
         foreach ($users as $userId => $userData) {
             Queue::push(new SendWelcomeMail($userId, $request->get('url')));
-//            dispatch_now(new SendWelcomeMail($userId, $request->get('url')));
+            //            dispatch_now(new SendWelcomeMail($userId, $request->get('url')));
         }
 
         return Response::make($users, 200);
@@ -264,20 +296,21 @@ class UsersController extends Controller
      */
     public function show(User $user, Requests\ShowUserRequest $request)
     {
-        $user->load('roles',
-                            'studentSchoolClasses',
-                            'managerSchoolClasses',
-                            'mentorSchoolClasses',
-                            'ownTeachers',
-                            'ownTeachers.schoolClass',
-                            'ownTeachers.subject',
-                            'teacher.schoolClass',
-                            'teacher.subject',
-                            'salesOrganization',
-                            'school.schoolLocations',
-                            'schoolLocation',
-                            'trialPeriods'
-                    );
+        $user->load(
+            'roles',
+            'studentSchoolClasses',
+            'managerSchoolClasses',
+            'mentorSchoolClasses',
+            'ownTeachers',
+            'ownTeachers.schoolClass',
+            'ownTeachers.subject',
+            'teacher.schoolClass',
+            'teacher.subject',
+            'salesOrganization',
+            'school.schoolLocations',
+            'schoolLocation',
+            'trialPeriods'
+        );
 
         if (is_array($request->get('with')) && in_array('studentSubjectAverages', $request->get('with'))) {
             AverageRatingRepository::getSubjectAveragesOfStudents(Collection::make([$user]));
@@ -332,14 +365,13 @@ class UsersController extends Controller
             $user->load(['testParticipants' => function ($query) {
                 $query->select(['test_participants.*', 'test_takes.uuid as test_take_uuid', 'test_takes.time_start', 'test_takes.test_take_status_id AS test_take_test_take_status_id', 'tests.name', 'test_takes.show_grades'])->join('test_takes', 'test_participants.test_take_id', '=', 'test_takes.id')->join('tests', 'test_takes.test_id', '=', 'tests.id')->orderBy('test_takes.time_start', 'DESC');
             }]);
-
         }
 
         if (Auth::user()->isA('Support') && is_array($request->get('with')) && in_array('sessionHash', $request->get('with'))) {
             $user->makeVisible('session_hash');
         }
 
-        if($this->hasTeacherRole($user)){
+        if ($this->hasTeacherRole($user)) {
             $externalId = $this->getExternalIdForSchoolLocationOfLoggedInUser($user);
             $user->teacher_external_id = $externalId;
         }
@@ -436,7 +468,7 @@ class UsersController extends Controller
         // 20190515 security issue with users deleting users just by id, see trello
         // for safety now disabled
         // @TODO fix security issue with deletion of users (as well update/ add and such)
-//	    return Response::make($user,200);
+        //	    return Response::make($user,200);
 
         try {
             if ($user->delete()) {
@@ -445,24 +477,23 @@ class UsersController extends Controller
             } else {
                 return Response::make('Failed to delete user', 500);
             }
-        }catch(\Exception $e){
-            return Response::make($e->getMessage(),403);
+        } catch (\Exception $e) {
+            return Response::make($e->getMessage(), 403);
         }
     }
 
     public function temporaryLogin(Request $request, $tlid)
     {
-        $temporaryLogin = TemporaryLogin::whereUuid($tlid)->where('created_at','>', Carbon::now()->subSeconds(10))->first();
+        $temporaryLogin = TemporaryLogin::whereUuid($tlid)->where('created_at', '>', Carbon::now()->subSeconds(10))->first();
         if (!$temporaryLogin) {
             return;
         }
 
         $user = User::where('id', $temporaryLogin->user_id)->first();
-//        $temporaryLogin->forceDelete();
+        //        $temporaryLogin->forceDelete();
 
         Auth::login($user);
-        return (new UserHelper())->handleAfterLoginValidation(Auth::user(),true);
-
+        return (new UserHelper())->handleAfterLoginValidation(Auth::user(), true);
     }
 
     public function isAccountVerified(Request $request)
@@ -474,22 +505,23 @@ class UsersController extends Controller
         return Response::make(null, 204);
     }
 
-    public function toggleAccountVerified(User $user) {
+    public function toggleAccountVerified(User $user)
+    {
         $user->toggleVerified();
         if ($user->account_verified) {
-            return new JsonResponse(['account_verified'=> $user->account_verified->format('Y-m-d H:i:s')]);
+            return new JsonResponse(['account_verified' => $user->account_verified->format('Y-m-d H:i:s')]);
         }
 
-        return new JsonResponse(['account_verified'=> '']);
+        return new JsonResponse(['account_verified' => '']);
     }
 
-    public function import(UserImportRequest $request,$type)
+    public function import(UserImportRequest $request, $type)
     {
         $userRoles = [];
-        if($type=='teacher'){
+        if ($type == 'teacher') {
             $userRoles  = [1];
         }
-        if($type=='student'){
+        if ($type == 'student') {
             $userRoles  = [3];
         }
         $defaultData = [
@@ -499,16 +531,16 @@ class UsersController extends Controller
 
         DB::beginTransaction();
         try {
-            $users = collect($request->all()['data'])->map(function ($row) use ($defaultData,$type) {
+            $users = collect($request->all()['data'])->map(function ($row) use ($defaultData, $type) {
                 $attributes = array_merge($row, $defaultData);
 
                 $user = User::where('username', $attributes['username'])->first();
                 if ($user) {
-                        if ($user->isA('teacher')&&$type=='teacher') {
-                            $this->handleExternalId($user,$attributes);
-                        }else {
-                            throw new \Exception('conflict: exists but not teacher');
-                        }
+                    if ($user->isA('teacher') && $type == 'teacher') {
+                        $this->handleExternalId($user, $attributes);
+                    } else {
+                        throw new \Exception('conflict: exists but not teacher');
+                    }
                 } else {
                     $userFactory = new Factory(new User());
                     $user = $userFactory->generate(
@@ -530,22 +562,22 @@ class UsersController extends Controller
         return Response::make($users, 200);
     }
 
-    protected function handleExternalId(&$user,$attributes)
+    protected function handleExternalId(&$user, $attributes)
     {
-        if(!array_key_exists('external_id',$attributes)){
+        if (!array_key_exists('external_id', $attributes)) {
             return;
         }
-        if(!array_key_exists('school_location_id',$attributes)){
+        if (!array_key_exists('school_location_id', $attributes)) {
             return;
         }
         $schoolLocations = $user->allowedSchoolLocations;
-        foreach ($schoolLocations as $schoolLocation){
-            if($schoolLocation->pivot->external_id == $attributes['external_id']&&$attributes['school_location_id']==$schoolLocation->id){
+        foreach ($schoolLocations as $schoolLocation) {
+            if ($schoolLocation->pivot->external_id == $attributes['external_id'] && $attributes['school_location_id'] == $schoolLocation->id) {
                 return;
             }
         }
-        foreach ($schoolLocations as $schoolLocation){
-            if((is_null($schoolLocation->pivot->external_id) || $schoolLocation->pivot->external_id == '') && $attributes['school_location_id']==$schoolLocation->id){
+        foreach ($schoolLocations as $schoolLocation) {
+            if ((is_null($schoolLocation->pivot->external_id) || $schoolLocation->pivot->external_id == '') && $attributes['school_location_id'] == $schoolLocation->id) {
                 $user->allowedSchoolLocations()->detach($schoolLocation);
             }
         }
@@ -555,8 +587,8 @@ class UsersController extends Controller
 
     protected function getExternalIdForSchoolLocationOfLoggedInUser(User $user)
     {
-        $allowedSchoolLocation = $user->allowedSchoolLocations()->wherePivot('school_location_id',Auth::user()->school_location_id)->first();
-        if(is_null($allowedSchoolLocation)){
+        $allowedSchoolLocation = $user->allowedSchoolLocations()->wherePivot('school_location_id', Auth::user()->school_location_id)->first();
+        if (is_null($allowedSchoolLocation)) {
             return $user->external_id;
         }
         return $allowedSchoolLocation->pivot->external_id;
@@ -564,8 +596,8 @@ class UsersController extends Controller
 
     public function hasTeacherRole($user)
     {
-        foreach($user->roles as $role){
-            if($role->name=='Teacher'){
+        foreach ($user->roles as $role) {
+            if ($role->name == 'Teacher') {
                 return true;
             }
         }
@@ -577,8 +609,8 @@ class UsersController extends Controller
         $records = [
             'userGeneralTermsLog' => $user->generalTermsLog,
             'trialPeriod' => $user->trialPeriodsWithSchoolLocationCheck
-            ];
-        return Response::make($records,200);
+        ];
+        return Response::make($records, 200);
     }
 
     public function setGeneralTermsLogAcceptedAtForUser(User $user)
@@ -621,7 +653,8 @@ class UsersController extends Controller
     public function updateTrialDate(Request $request, User $user)
     {
         $tp = TrialPeriod::whereUuid($request->get('user_trial_period_uuid'))->get();
-        if($tp->count()) {
+        DB::table('users')->where('id', $user->id)->update(['has_package' => $request->get('has_package')]);
+        if ($tp->count()) {
             $tp->first()->update([
                 'trial_until' => Carbon::parse($request->get('date'))->startOfDay()
             ]);
@@ -645,6 +678,6 @@ class UsersController extends Controller
             return redirect()->to(url()->previous());
         }
 
-        return view('account-settings', ['role' => 'teacher','user' => Auth::user()]);
+        return view('account-settings', ['role' => 'teacher', 'user' => Auth::user()]);
     }
 }
