@@ -489,21 +489,35 @@ h7 {
 
 /*NOG VERWERKEN IN CSS FILES*/
 
+.rotate-svg-45 > svg {
+    transform: rotate(45deg);
+}
+
 .rotate-svg-90 > svg {
     transform: rotate(90deg);
+}
+
+.rotate-svg-135 > svg {
+    transform: rotate(135deg);
 }
 
 .rotate-svg-180 > svg {
     transform: rotate(180deg);
 }
 
+.rotate-svg-225 > svg {
+    transform: rotate(225deg);
+}
+
 .rotate-svg-270 > svg {
     transform: rotate(270deg);
 }
 
-.rotate-svg-45 > svg {
-    transform: rotate(45deg);
+.rotate-svg-315 > svg {
+    transform: rotate(315deg);
 }
+
+
 
 /*.dropdown-items-container {*/
 /*    border: solid 1px var(--light-grey);*/

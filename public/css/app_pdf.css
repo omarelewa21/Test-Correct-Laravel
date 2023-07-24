@@ -26,14 +26,28 @@ button.button {
 
 .button-sm {
     min-height: 40px;
+    min-width: 40px;
 }
 
 .button-md {
     min-height: 50px;
+    min-width: 50px;
 }
 
 .button-lg {
     min-height: 60px;
+    min-width: 60px;
+}
+
+.icon-button {
+    height: 2.5rem;
+    width: 2.5rem;
+    justify-content: center;
+    padding: 0px;
+}
+
+.text-button:is(.button-sm, .button-md, .button-lg) {
+    min-width: unset;
 }
 
 .text-button {
@@ -47,7 +61,7 @@ button.button {
     color: var(--primary);
 }
 
-.text-button.text-button-hover-bg:hover {
+.text-button.text-button-hover-bg:enabled:hover {
     background: var(--primary-opacity-05);
 }
 
@@ -55,7 +69,7 @@ button.button {
     color: var(--primary);
 }
 
-.text-button.text-button-hover-bg:active {
+.text-button.text-button-hover-bg:enabled:active {
     background: var(--primary-opacity-10);
 }
 
@@ -72,57 +86,66 @@ button.button {
     cursor: default !important;
 }
 
-button.cta-button, a.cta-button {
-    color: white;
-    background-color: rgba(var(--cta-primary-rgb), 1);
+.button-gradient.primary-button {
+    --button-text-color: white;
+    --button-background-color: var(--teacher-primary);
+    --button-background-gradient: linear-gradient(to right, #002096 0%, var(--teacher-primary-light) 100%), linear-gradient(to bottom, var(--teacher-primary), var(--teacher-primary));
+    --button-focus-border-color: #002096;
+}
+.button-gradient.cta-button {
+    --button-text-color: white;
+    --button-background-color: var(--cta-primary);
+    --button-background-gradient: linear-gradient(to left, #4ad866 0%, var(--cta-primary-dark) 100%), linear-gradient(to bottom, var(--cta-primary), var(--cta-primary));
+    --button-focus-border-color: var(--cta-primary-dark);
 }
 
-.cta-button:hover::after {
-    box-shadow: 0 3px 6px 0 rgba(4, 31, 116, 0.3);
+.button-gradient.secondary-button {
+    --button-text-color: var(--system-base);
+    --button-background-color: var(--blue-grey);
+    --button-background-gradient: linear-gradient(to right, #8aa1d3 1%, var(--primary-light)), linear-gradient(to bottom, var(--blue-grey), var(--blue-grey));
+    --button-focus-border-color: #738bc0;
+}
+
+.button-gradient.student-button {
+    --button-text-color: var(--system-base);
+    --button-background-color: var(--teacher-highlight-primary);
+    --button-background-gradient: linear-gradient(to right, var(--highlight-primary-mid-dark) 1%, #f4f1d2), linear-gradient(to bottom, var(--teacher-highlight-primary), var(--teacher-highlight-primary));
+    --button-focus-border-color: #c1ae00;
+}
+
+
+/* Variable color classes */
+.button-gradient {
+    color: var(--button-text-color);
+    background-color: var(--button-background-color);
+}
+.button-gradient::after {
+    background-image: var(--button-background-gradient);
+}
+.button-gradient:is(:focus, :focus-visible)::after {
+    border: solid 2px var(--button-focus-border-color);
+}
+
+.button-gradient {
+    isolation: isolate;
+    position: relative;
+    background-size: 115% 110%; /*compensate for transparent border*/
+    background-position-x: center;
     transition: all 0.3s cubic-bezier(.215, .61, .355, 1);
+    justify-content: center;
+
+    --button-text-color: unset;
+    --button-background-color: unset;
+    --button-background-gradient: unset;
+    --button-focus-border-color: unset;
 }
 
-.cta-button:active::after {
-    box-shadow: 0 1px 3px 0 rgba(4, 31, 116, 0.4);
+.button-gradient > * {
+    z-index: 3;
+    position: relative;
 }
 
-.cta-button:is(:focus, :focus-visible)::after {
-    box-shadow: 0 3px 6px 0 rgba(4, 31, 116, 0.3);
-    border: 2px solid var(--cta-primary-dark);
-}
-
-.cta-button:disabled {
-    background: var(--light-grey);
-    color: var(--mid-grey);
-    box-shadow: 0 1px 4px 0 rgba(4, 31, 116, 0.06);
-}
-
-.primary-button.btn-disabled {
-    background: var(--light-grey);
-    color: var(--mid-grey);
-    box-shadow: none;
-}
-
-.primary-button.btn-disabled:hover {
-    background: var(--light-grey);
-    color: var(--mid-grey);
-    box-shadow: none;
-}
-
-.primary-button.btn-disabled:focus {
-    border: none;
-}
-
-:is(.cta-button,.student-button,.secondary-button,.primary-button):disabled::after {
-    content: none;
-}
-
-.primary-button {
-    color: white;
-    background-color: rgba(0, 77, 245, 1);
-}
-
-:is(.cta-button,.student-button,.secondary-button,.primary-button)::after {
+.button-gradient::after {
     content: '';
     background-size: 115% 110%;
     background-position-x: center;
@@ -138,109 +161,52 @@ button.cta-button, a.cta-button {
     box-sizing: content-box;
 }
 
-.primary-button::after {
-    background-image: linear-gradient(to right, #002096 0%, var(--teacher-primary-light) 100%), linear-gradient(to bottom, var(--teacher-primary), var(--teacher-primary));
-}
-
-.cta-button::after {
-    background-image: linear-gradient(to left, #4ad866 0%, var(--cta-primary-dark) 100%), linear-gradient(to bottom, var(--cta-primary), var(--cta-primary));
-}
-
-.student-button::after {
-    background-image: linear-gradient(to right, var(--highlight-primary-mid-dark) 1%, #f4f1d2), linear-gradient(to bottom, var(--teacher-highlight-primary), var(--teacher-highlight-primary));
-}
-
-.secondary-button::after {
-    background-image: linear-gradient(to right, #8aa1d3 1%, var(--primary-light)), linear-gradient(to bottom, var(--blue-grey), var(--blue-grey));
-}
-
-:is(.cta-button,.student-button,.secondary-button,.primary-button):is(:hover,:active,:focus,:focus-visible)::after {
+.button-gradient:is(:hover,:active,:focus,:focus-visible)::after {
     opacity: 1;
 }
 
-:is(.cta-button,.student-button,.secondary-button,.primary-button) {
-    isolation: isolate;
-    position: relative;
-    background-size: 115% 110%; /*compensate for transparent border*/
-    background-position-x: center;
-    transition: all 0.3s cubic-bezier(.215, .61, .355, 1);
-    justify-content: center;
+.button-gradient:active::after {
+    box-shadow: 0 1px 3px 0 rgba(var(--system-base-rgb), 0.4);
 }
 
-:is(.cta-button,.student-button,.secondary-button,.primary-button) > * {
-    z-index: 3;
-    position: relative;
+.button-gradient:is(:focus, :focus-visible, :hover)::after {
+    box-shadow: 0 3px 6px 0 rgba(var(--system-base-rgb), 0.3);
 }
 
+.button-gradient:disabled {
+    background: var(--light-grey);
+    /*
+     * text color was: var(--mid-grey), but the new color is visually the same with 0.5 opacity
+     * but Full-color icons need an opacity of 0.5 to match the disabled text color
+    */
+    color: rgb(37, 59, 95);
+    opacity: 0.5;
+
+    box-shadow: 0 1px 4px 0 rgba(4, 31, 116, 0.06);
+}
+
+.button-gradient:disabled::after {
+    content: none;
+}
+
+/* <start> left over old specific styling of the primary button after refactoring */
 .primary-button:is(:hover, :active, :focus) {
     background-color: rgba(0, 77, 245, 0);
     outline: none;
 }
 
-.primary-button:hover::after {
-    box-shadow: 0 3px 6px 0 rgba(var(--system-base-rgb), 0.3);
-}
-
-.primary-button:focus::after,
-.primary-button:focus-visible::after {
-    border: solid 2px #002096;
-    box-shadow: 0 3px 6px 0 rgba(var(--system-base-rgb), 0.3);
-}
-
-.primary-button:active::after {
-    box-shadow: 0 1px 3px 0 rgba(var(--system-base-rgb), 0.4);
-}
-
-.primary-button:disabled {
+.primary-button.btn-disabled:hover {
     background: var(--light-grey);
     color: var(--mid-grey);
-    box-shadow: 0 1px 4px 0 rgba(4, 31, 116, 0.06);
+    box-shadow: none;
 }
 
-.secondary-button {
-    color: var(--system-base);
-    background-color: var(--blue-grey);
+.primary-button.btn-disabled:focus {
+    border: none;
 }
+/* <end> left over old specific styling of the primary button after refactoring */
 
-.secondary-button:hover::after {
-    box-shadow: 0 3px 6px 0 rgba(var(--system-base-rgb), 0.3);
-}
 
-.secondary-button:focus::after,
-.secondary-button:focus-visible::after {
-    border: solid 2px #738bc0;
-    box-shadow: 0 3px 6px 0 rgba(var(--system-base-rgb), 0.3);
-}
-
-.secondary-button:active::after {
-    box-shadow: 0 1px 3px 0 rgba(var(--system-base-rgb), 0.4);
-}
-
-.secondary-button:disabled {
-    background: var(--light-grey);
-    color: var(--mid-grey);
-    box-shadow: 0 1px 4px 0 rgba(4, 31, 116, 0.06);
-}
-
-.student-button {
-    color: var(--system-base);
-    background-color: var(--teacher-highlight-primary);
-}
-
-.student-button:disabled {
-    background: var(--light-grey);
-    color: var(--mid-grey);
-    box-shadow: 0 1px 4px 0 rgba(4, 31, 116, 0.06);
-}
-
-.student-button:focus::after,
-.student-button:focus-visible::after {
-    border: solid 2px #c1ae00;
-}
-
-.student-button:active::after {
-    box-shadow: 0 1px 3px 0 rgba(var(--system-base-rgb), 0.4);
-}
 
 .select-button {
     border-radius: 10px;
@@ -4351,7 +4317,6 @@ input[type=number] {
     --primary-opacity-10: rgba(0, 77, 245, 0.1);
     --primary-opacity-05: rgba(0, 77, 245, 0.05);
     --primary-light: #e6edfa;
-    --primary-light-rgb: 230, 237, 250;
     --teacher-primary: #004df5;
     --teacher-primary-light: #4781ff;
     --secondary: #ECDB00;
@@ -5859,6 +5824,9 @@ video {
 .-m-1{
   margin: -0.25rem;
 }
+.-m-4{
+  margin: -1rem;
+}
 .m-1{
   margin: 0.25rem;
 }
@@ -5867,10 +5835,6 @@ video {
 }
 .m-auto{
   margin: auto;
-}
-.-mx-4{
-  margin-left: -1rem;
-  margin-right: -1rem;
 }
 .mx-1{
   margin-left: 0.25rem;
@@ -5895,10 +5859,6 @@ video {
 .mx-5{
   margin-left: 1.25rem;
   margin-right: 1.25rem;
-}
-.mx-6{
-  margin-left: 1.5rem;
-  margin-right: 1.5rem;
 }
 .mx-8{
   margin-left: 2rem;
@@ -5956,12 +5916,6 @@ video {
 }
 .-ml-px{
   margin-left: -1px;
-}
-.-mr-0{
-  margin-right: -0px;
-}
-.-mr-0\.5{
-  margin-right: -0.125rem;
 }
 .-mr-4{
   margin-right: -1rem;
@@ -6142,9 +6096,6 @@ video {
 }
 .mt-px{
   margin-top: 1px;
-}
-.-mb-1{
-  margin-bottom: -0.25rem;
 }
 .box-border{
   box-sizing: border-box;
@@ -6613,6 +6564,9 @@ video {
 .w-px{
   width: 1px;
 }
+.w-64{
+  width: 16rem;
+}
 .min-w-\[110px\]{
   min-width: 110px;
 }
@@ -6842,6 +6796,14 @@ video {
   --tw-rotate: 90deg;
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
+.rotate-0{
+  --tw-rotate: 0deg;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+.rotate-45{
+  --tw-rotate: 45deg;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
 .scale-100{
   --tw-scale-x: 1;
   --tw-scale-y: 1;
@@ -6990,14 +6952,11 @@ video {
 .grid-cols-4{
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
-.grid-cols-\[min-content\2c auto\]{
-  grid-template-columns: min-content auto;
-}
-.grid-cols-5{
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-}
 .grid-cols-6{
   grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+.grid-cols-\[min-content\2c auto\]{
+  grid-template-columns: min-content auto;
 }
 .grid-cols-7{
   grid-template-columns: repeat(7, minmax(0, 1fr));
@@ -7019,6 +6978,9 @@ video {
 }
 .flex-wrap{
   flex-wrap: wrap;
+}
+.place-content-center{
+  place-content: center;
 }
 .content-center{
   align-content: center;
@@ -7117,11 +7079,6 @@ video {
 }
 .gap-y-4{
   row-gap: 1rem;
-}
-.-space-y-1 > :not([hidden]) ~ :not([hidden]){
-  --tw-space-y-reverse: 0;
-  margin-top: calc(-0.25rem * calc(1 - var(--tw-space-y-reverse)));
-  margin-bottom: calc(-0.25rem * var(--tw-space-y-reverse));
 }
 .space-x-0 > :not([hidden]) ~ :not([hidden]){
   --tw-space-x-reverse: 0;
@@ -7536,6 +7493,10 @@ video {
 .border-white{
   --tw-border-opacity: 1;
   border-color: rgb(255 255 255 / var(--tw-border-opacity));
+}
+.border-student{
+  --tw-border-opacity: 1;
+  border-color: rgb(236 219 0 / var(--tw-border-opacity));
 }
 .border-b-white\/25{
   border-bottom-color: rgb(255 255 255 / 0.25);
@@ -8093,9 +8054,6 @@ video {
 }
 .pt-20{
   padding-top: 5rem;
-}
-.pt-3{
-  padding-top: 0.75rem;
 }
 .pt-4{
   padding-top: 1rem;

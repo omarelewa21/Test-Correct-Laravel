@@ -1,4 +1,6 @@
-RichTextEditor = {
+import {modelElementToPlainText} from "../ckeditor5/node_modules/@ckeditor/ckeditor5-word-count/src/utils.js";
+
+window.RichTextEditor = {
     initStudentCoLearning: function(parameterBag) {
         return this.createStudentEditor(
             parameterBag,
@@ -52,8 +54,8 @@ RichTextEditor = {
                 if (typeof ReadspeakerTlc != "undefined") {
                     editor.editing.view.document.on( 'change:isFocused', ( evt, data, isFocused ) => {
                         isFocused
-                            ? rsTlcEvents.handleCkeditorFocusForReadspeaker(evt.target,parameterBag.questionId, parameterBag.editorId)
-                            : rsTlcEvents.handleCkeditorBlurForReadspeaker(evt.target,parameterBag.questionId, parameterBag.editorId);
+                            ? rsTlcEvents.handleCkeditorFocusForReadspeaker(editor.sourceElement.nextElementSibling,parameterBag.questionId, parameterBag.editorId)
+                            : rsTlcEvents.handleCkeditorBlurForReadspeaker(editor.sourceElement.nextElementSibling,parameterBag.questionId, parameterBag.editorId);
                     });
                     ReadspeakerTlc.ckeditor.addListenersForReadspeaker(editor, parameterBag.questionId, parameterBag.editorId);
                     ReadspeakerTlc.ckeditor.disableContextMenuOnCkeditor();
@@ -401,9 +403,10 @@ RichTextEditor = {
         editor.plugins.get( 'CommentsOnly' ).isEnabled = true;
     },
     writeContentToTextarea: function(editorId) {
-        var editor = ClassicEditors[editorId];
+        const editor = ClassicEditors[editorId];
         if (editor) {
             editor.updateSourceElement();
+            // editor.sourceElement.parentElement.classList.add('rs_skip');
             editor.sourceElement.dispatchEvent(new Event("input"));
         }
     },
@@ -568,13 +571,6 @@ RichTextEditor = {
             resolveCallback
         );
     },
-    writeContentToTexarea: function(editorId) {
-        var editor = ClassicEditors[editorId];
-        if (editor) {
-            editor.updateSourceElement();
-            editor.sourceElement.dispatchEvent(new Event("input"));
-        }
-    },
     setAnswerFeedbackItemsToRemove: function (parameterBag) {
         parameterBag.removeItems = {
             plugins: [
@@ -624,4 +620,7 @@ RichTextEditor = {
             'wproofreader',
         ]
     },
+    getPlainText(editor) {
+        return modelElementToPlainText(editor.model.document.getRoot());
+    }
 };

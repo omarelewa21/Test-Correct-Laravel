@@ -3304,9 +3304,10 @@ document.addEventListener("alpine:init", () => {
                     if (!editor) {
                         return;
                     }
-                    this.setFocus(editor);
                     if (!editor.ui.focusTracker.isFocused) {
-                        setTimeout(() => this.setFocus(editor), 100);
+                        setTimeout(() => {
+                            this.setFocus(editor);
+                        }, 300);
                     }
                 });
             });
