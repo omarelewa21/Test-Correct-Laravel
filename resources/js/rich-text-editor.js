@@ -424,6 +424,8 @@ window.RichTextEditor = {
             window.dispatchEvent(new CustomEvent("updated-word-count-plugin-container"));
         }
 
+        this.addSelectedWordCounter(editor);
+
         if(!parameterBag.restrictWords || [null, 0].includes(parameterBag.maxWords)) {
             return;
         }
@@ -521,6 +523,30 @@ window.RichTextEditor = {
     },
     hasNoWordLimit(editor) {
         return editor.maxWords === null || editor.maxWordOverride;
+    },
+    addSelectedWordCounter(editor) {
+        const selection = editor.model.document.selection;
+        let selectedWordCount = 0;
+        let fireEventIfWordCountChanged = (wordCount=0) => {
+            if(selectedWordCount !== wordCount){
+                selectedWordCount = wordCount;
+                dispatchEvent(new CustomEvent('selected-word-count', {detail: {wordCount: selectedWordCount, editorId: editor.sourceElement.id}}));
+            }
+        }
+
+        selection.on('change:range', () => {
+            if (selection.isCollapsed) return fireEventIfWordCountChanged();    // No selection.
+
+            const range = selection.getFirstRange();
+            let wordCount = 0;
+            for (const item of range.getItems()) {
+                if (!item.is('textProxy')) continue;
+
+                wordCount += item.data.split(' ').filter(word => word !== '').length;
+            }
+
+            fireEventIfWordCountChanged(wordCount);
+        } );
     },
     getWproofreaderConfig: function(enableGrammar = true) {
         return {
