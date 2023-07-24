@@ -8,8 +8,6 @@ use tcCore\Http\Traits\WithInlineFeedback;
 
 class TestReview extends EvaluationComponent
 {
-    use WithInlineFeedback;
-
     /*Template properties*/
     public string $reviewableUntil = '';
 
@@ -32,8 +30,6 @@ class TestReview extends EvaluationComponent
 
     public function booted(): void
     {
-        $this->getSortedAnswerFeedback();
-
         if ($this->skipBooted) {
             return;
         }

@@ -146,7 +146,7 @@ window.RichTextEditor = {
                 return;
             }
 
-            dispatchEvent(new CustomEvent('assessment-drawer-tab-update', {detail: {tab: 2}}));
+            dispatchEvent(new CustomEvent('answer-feedback-drawer-tab-update', {detail: {tab: 2}}));
 
             //focus the create a comment editor
             dispatchEvent(new CustomEvent('answer-feedback-focus-feedback-editor'));

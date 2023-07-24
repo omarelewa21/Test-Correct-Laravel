@@ -59,21 +59,22 @@ class AnswerFeedback extends Model
             ->get()
             ->map(function ($answerFeedback) {
                 return [
-                    "threadId"   => $answerFeedback->thread_id,
-                    "comments"   => [[
-                                         "commentId"  => $answerFeedback->comment_id,
-                                         "authorId"   => $answerFeedback->user->uuid,
-                                         "content"    => $answerFeedback->message ?: '<p></p>', //ckeditor-comments doesn't allow empty comments
-                                         "createdAt"  => $answerFeedback->created_at->format("Y-m-d H:i:s"),
-                                         "attributes" => null,
-                                     ]],
-                    "context"    => null,
-                    "resolvedAt" => null,
-                    "resolvedBy" => null,
-                    "attributes" => [],
-                    "uuid"       => $answerFeedback->uuid,
-                    "iconName"   => CommentEmoji::tryFrom($answerFeedback->comment_emoji)?->getIconComponentName(),
+                    "threadId"    => $answerFeedback->thread_id,
+                    "comments"    => [[
+                                          "commentId"  => $answerFeedback->comment_id,
+                                          "authorId"   => $answerFeedback->user->uuid,
+                                          "content"    => $answerFeedback->message ?: '<p></p>', //ckeditor-comments doesn't allow empty comments
+                                          "createdAt"  => $answerFeedback->created_at->format("Y-m-d H:i:s"),
+                                          "attributes" => null,
+                                      ]],
+                    "context"     => null,
+                    "resolvedAt"  => null,
+                    "resolvedBy"  => null,
+                    "attributes"  => [],
+                    "uuid"        => $answerFeedback->uuid,
+                    "iconName"    => CommentEmoji::tryFrom($answerFeedback->comment_emoji)?->getIconComponentName(),
                     "currentUser" => auth()->user()->getKey() === $answerFeedback->user->getKey() ? true : false,
+                    "role"        => $answerFeedback->user->isA('teacher') ? 'teacher' : 'student',
                 ];
             })->toArray();
     }

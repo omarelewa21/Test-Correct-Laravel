@@ -56,6 +56,7 @@
                                      :inlineFeedbackEnabled="$this->testTake->enable_comments_colearning"
                                      :commentMarkerStyles="$this->commentMarkerStyles"
                                      :answerId="$this->answerRating->answer->getKey()"
+                                     :answerFeedbackFilter="$this->answerFeedbackFilter"
                         />
                     </div>
                 @endif
@@ -87,7 +88,7 @@
                         </div>
                     @endif
                     <div class="flex content-center justify-between">
-                        <x-button.secondary>
+                        <x-button.secondary x-on:click.stop="$dispatch('answer-feedback-drawer-tab-update', {tab: 2} ); $dispatch('answer-feedback-focus-feedback-editor');">
                             <x-icon.feedback-text/>
                             <span>@lang('assessment.Feedback')</span>
                         </x-button.secondary>

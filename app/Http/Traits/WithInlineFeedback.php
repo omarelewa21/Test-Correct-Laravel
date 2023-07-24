@@ -6,15 +6,38 @@ use Illuminate\Support\Facades\DB;
 use Ramsey\Uuid\Uuid;
 use tcCore\Answer;
 use tcCore\AnswerFeedback;
+use tcCore\Http\Enums\AnswerFeedbackFilter;
 use tcCore\Http\Enums\CommentEmoji;
 use tcCore\Http\Enums\CommentMarkerColor;
+use tcCore\Http\Livewire\Student\CoLearning;
+use tcCore\Http\Livewire\Student\TestReview;
 
 trait WithInlineFeedback {
     //TODO complete CKeditor comments Feedback implementation:
 
     /* Inline Feedback comments */
     public $answerFeedback;
-    protected $answerFeedbackFilter;
+    public AnswerFeedbackFilter $answerFeedbackFilter;
+
+    public function mountWithInlineFeedback()
+    {
+        $this->initAnswerFeedbackFilter();
+    }
+
+    public function bootWithInlineFeedback()
+    {
+        if(!isset($this->answerFeedbackFilter)) {
+            $this->initAnswerFeedbackFilter();
+        }
+    }
+
+    public function bootedWithInlineFeedback()
+    {
+        if ((method_exists($this, 'headerCollapsed') && $this->headerCollapsed) || !method_exists($this, 'headerCollapsed')) {
+            $this->getSortedAnswerFeedback();
+        }
+
+    }
 
     public function createNewComment($commentData, $createCommentIds = true)
     {
@@ -138,16 +161,22 @@ trait WithInlineFeedback {
             return $feedback->order;
         });
 
-//        ->when(isset($this->answerFeedbackFilter), function ($collection) {
-//                    return $collection->filter($this->answerFeedbackFilter);
-//                })
     }
 
     public function filterSortedAnswerFeedback($answerFeedback)
     {
-        return $answerFeedback->when(isset($this->answerFeedbackFilter), function ($collection) {
-            return $collection->filter($this->answerFeedbackFilter);
-        });
+        switch ($this->answerFeedbackFilter) {
+            case AnswerFeedbackFilter::STUDENTS:
+                return $this->answerFeedback->filter(fn($af) => $af->user->isA('student'));
+            case AnswerFeedbackFilter::TEACHERS:
+                return $this->answerFeedback->filter(fn($af) => $af->user->isA('teacher'));
+            case AnswerFeedbackFilter::CURRENT_USER:
+                return $this->answerFeedback->filter(fn($af) => $af->user_id === auth()->id());
+            case AnswerFeedbackFilter::ALL:
+            default:
+                return $this->answerFeedback;
+        }
+
     }
 
     public function getCommentMarkerStylesProperty() : string
@@ -156,13 +185,26 @@ trait WithInlineFeedback {
             return '';
         }
 
-        if(true /* todo in co learning only show their own comments, and create other ways to filter: all, students, teacher */) {
-            $visibleAnswerFeedback = $this->answerFeedback->filter(fn ($af) => $af->user_id === auth()->user()->id);
-            $notVisibleAnswerFeedback = $this->answerFeedback->filter(fn ($af) => $af->user_id !== auth()->user()->id);
-        } else {
-            $visibleAnswerFeedback = $this->answerFeedback;
-            $notVisibleAnswerFeedback = collect();
+        switch($this->answerFeedbackFilter) {
+            case AnswerFeedbackFilter::STUDENTS:
+                $visibleAnswerFeedback = $this->answerFeedback->filter(fn($af) => $af->user->isA('student'));
+                $notVisibleAnswerFeedback = $this->answerFeedback->filter(fn($af) => ! $af->user->isA('student'));
+                break;
+            case AnswerFeedbackFilter::TEACHERS:
+                $visibleAnswerFeedback = $this->answerFeedback->filter(fn($af) => $af->user->isA('teacher'));
+                $notVisibleAnswerFeedback = $this->answerFeedback->filter(fn($af) => ! $af->user->isA('teacher'));
+                break;
+            case AnswerFeedbackFilter::CURRENT_USER:
+                $visibleAnswerFeedback = $this->answerFeedback->filter(fn($af) => $af->user_id === auth()->id());
+                $notVisibleAnswerFeedback = $this->answerFeedback->filter(fn($af) => $af->user_id !== auth()->id());
+                break;
+            case AnswerFeedbackFilter::ALL:
+            default:
+                $visibleAnswerFeedback = $this->answerFeedback;
+                $notVisibleAnswerFeedback = collect();
+                break;
         }
+
         $styleHtml =  $visibleAnswerFeedback->reduce(function ($carry, $feedback) {
             return $carry = $carry . <<<STYLE
                 .ck-comment-marker[data-comment="{$feedback->thread_id}"]{
@@ -252,5 +294,20 @@ SQL;
     public function getCurrentQuestion()
     {
         return $this->currentQuestion ?? $this->testTake->discussingQuestion;
+    }
+
+    public function initAnswerFeedbackFilter() : void
+    {
+
+        if(static::class === CoLearning::class) {
+            $this->answerFeedbackFilter = AnswerFeedbackFilter::CURRENT_USER;
+            return;
+        }
+        $this->answerFeedbackFilter = AnswerFeedbackFilter::ALL;
+    }
+
+    public function setAnswerFeedbackFilter(string $filter) : void
+    {
+        $this->answerFeedbackFilter = AnswerFeedbackFilter::tryFrom($filter);
     }
 }

@@ -115,6 +115,7 @@
                                             :webSpellChecker="$this->webSpellCheckerEnabled"
                                             :commentMarkerStyles="$this->commentMarkerStyles"
                                             :enableComments="true"
+                                            :answerFeedbackFilter="$this->answerFeedbackFilter"
                                     />
                                 </div>
                             </x-slot:body>
@@ -346,7 +347,15 @@
                                         </x-menu.context-menu.button>
 
                                     </x-menu.context-menu.base>
-                                    @foreach($answerFeedback as $comment)
+
+                                    <div class="flex "> {{-- TODO REMOVE TEMPORARY BUTTONS --}}
+                                        <x-button.primary wire:click="setAnswerFeedbackFilter('teachers')"><span>Teachers</span></x-button.primary>
+                                        <x-button.primary wire:click="setAnswerFeedbackFilter('students')"><span>Students</span></x-button.primary>
+                                        <x-button.primary wire:click="setAnswerFeedbackFilter('all')"><span>ALL</span></x-button.primary>
+                                    </div>
+
+
+                                    @foreach($this->filterSortedAnswerFeedback($answerFeedback) as $comment)
 
                                         <x-partials.answer-feedback-card :comment="$comment"/>
 
@@ -359,7 +368,7 @@
                                 <x-input.rich-textarea type="assessment-feedback"
                                                        :editorId="'feedback-editor-'. $this->questionNavigationValue.'-'.$this->answerNavigationValue"
                                                        wire:model.debounce.300ms="feedback"
-                                                       :disabled="$this->currentQuestion->isSubType('writing')" {{-- todo find out what to do with writing assignment exceptions --}}
+                                        {{-- :disabled="$this->currentQuestion->isSubType('writing')"  todo find out what to do with writing assignment exceptions --}}
                                 />
                             </div>
                         @endif

@@ -22,8 +22,8 @@
     </style>
 
     <div class="answer-feedback-comment-icons"
-         x-init="initCommentIcons(@js($commentThreads))"
-         x-on:accordion-toggled.window="setTimeout(()=>repositionAnswerFeedbackIcons(), 100)"
+         x-init="initCommentIcons(@js($commentThreads), @js($answerFeedbackFilter))"
+         x-on:drawer-collapse.window="setTimeout(()=>repositionAnswerFeedbackIcons(), 500)" {{-- timeout same time as transition duration of the drawer --}}
     >
         <template id="checkmark-emoji">
                 <span class="inline-block" style="scale: calc(2 / 3);">

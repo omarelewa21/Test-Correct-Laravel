@@ -105,6 +105,7 @@
                                         :webSpellChecker="$this->currentQuestion->spell_check_available"
                                         :commentMarkerStyles="$this->commentMarkerStyles"
                                         :enableComments="true"
+                                        :answerFeedbackFilter="$this->answerFeedbackFilter"
                                 />
                             </div>
                         </x-slot:body>
@@ -146,7 +147,7 @@
                 @endif
                 @if($this->hasFeedback)
                     <div>
-                        <x-button.text-button x-on:click="tab(2)" size="sm" class="text-base">
+                        <x-button.text-button x-on:click="tab(2, true)" size="sm" class="text-base">
                             <x-icon.feedback-text />
                             <span>@lang('review.Bekijk feedback')</span>
                         </x-button.text-button>

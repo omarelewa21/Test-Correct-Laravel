@@ -15,6 +15,7 @@ use tcCore\Events\TestTakePresenceEvent;
 use tcCore\Events\TestTakeStop;
 use tcCore\Http\Controllers\AnswerRatingsController;
 use tcCore\Http\Controllers\TestTakeLaravelController;
+use tcCore\Http\Enums\AnswerFeedbackFilter;
 use tcCore\Http\Livewire\CoLearning\CompletionQuestion;
 use tcCore\Http\Livewire\TCComponent;
 use tcCore\Http\Traits\WithInlineFeedback;
@@ -132,11 +133,7 @@ class CoLearning extends TCComponent
             return false;
         };
 
-        $this->getSortedAnswerFeedback();
-
-        $this->answerFeedbackFilter = function ($answerFeedback) {
-            return $answerFeedback->user_id === auth()->id();
-        };
+        $this->answerFeedbackFilter = AnswerFeedbackFilter::CURRENT_USER;
     }
 
     public function redirectToTestTakesInReview()

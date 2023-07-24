@@ -2096,7 +2096,7 @@ document.addEventListener("alpine:init", () => {
             await this.updateCurrent(this.current - 1, "decr");
         },
         async updateCurrent(value, action) {
-            this.$dispatch("assessment-drawer-tab-update", { tab: 1 });
+            this.$dispatch("answer-feedback-drawer-tab-update", { tab: 1 });
             let response = await this.$wire[this.methodCall](value, action);
             if (response) {
                 this.updateProperties(response);
@@ -2167,13 +2167,14 @@ document.addEventListener("alpine:init", () => {
             this.container = this.$root.querySelector("#slide-container");
             this.tab(this.tabs[0]);
             this.$watch("collapse", (value) => {
+                window.dispatchEvent(new CustomEvent('drawer-collapse', { detail: value }));
                 document.documentElement.style.setProperty("--active-sidebar-width", value ? "var(--collapsed-sidebar-width)" : "var(--sidebar-width)");
             });
         },
         getSlideElementByIndex: function (index) {
             return this.$root.closest('.drawer').querySelector(".slide-" + index);
         },
-        async tab(index, answerFeedbackCommentUuid = null) {
+        async tab(index, openDrawer = false, answerFeedbackCommentUuid = null) {
             if (!this.tabs.includes(index)) return;
             this.activeTab = index;
             this.closeTooltips();
@@ -2185,6 +2186,9 @@ document.addEventListener("alpine:init", () => {
                 await this.scrollToCommentCard(answerFeedbackCommentUuid);
             } else {
                 await smoothScroll(this.container, 0, slide.offsetLeft)
+            }
+            if(openDrawer) {
+                this.collapse = false;
             }
 
             setTimeout(() => {
@@ -2604,7 +2608,7 @@ document.addEventListener("alpine:init", () => {
                 return this.$store.answerFeedback.openConfirmationModal(this.$root, 'loadQuestion', number);
             }
 
-            this.$dispatch("assessment-drawer-tab-update", { tab: 1 });
+            this.$dispatch("answer-feedback-drawer-tab-update", { tab: 1 });
             await this.$wire.loadQuestionFromNav(number);
         },
     }));
@@ -2832,10 +2836,15 @@ document.addEventListener("alpine:init", () => {
             }
             console.error('failed to delete answer feedback');
         },
-        initCommentIcons(commentThreads) {
+        initCommentIcons(commentThreads, answerFeedbackFilter = 'all') {
             //create icon wrapper and append icon inside it
             commentThreads.forEach((thread) => {
-                if(!thread.currentUser) {
+                console.log(answerFeedbackFilter, thread.currentUser)
+                if(
+                    (answerFeedbackFilter === 'current_user' && !thread.currentUser)
+                    || (answerFeedbackFilter === 'students' && thread.role !== 'student')
+                    || (answerFeedbackFilter === 'teachers' && thread.role !== 'teacher')
+                ) {
                     return;
                 }
                 this.createCommentIcon(thread);
@@ -3023,7 +3032,7 @@ document.addEventListener("alpine:init", () => {
         setActiveComment (threadId, answerFeedbackUuid) {
             this.$dispatch('answer-feedback-show-comments');
             setTimeout(() => {
-                this.$dispatch("assessment-drawer-tab-update", { tab: 2, uuid: answerFeedbackUuid });
+                this.$dispatch("answer-feedback-drawer-tab-update", { tab: 2, uuid: answerFeedbackUuid });
                 if(this.$store.answerFeedback.feedbackBeingEdited()) {
                     /* when editing, no other comment can be activated */
                     return;
@@ -3838,7 +3847,7 @@ document.addEventListener("alpine:init", () => {
         cancelAction() {
             this.navigationRoot = null;
             this.navigationMethod = null;
-            window.dispatchEvent(new CustomEvent('assessment-drawer-tab-update', {detail: {tab: 2, uuid: this.editingComment}}));
+            window.dispatchEvent(new CustomEvent('answer-feedback-drawer-tab-update', {detail: {tab: 2, uuid: this.editingComment}}));
             Livewire.emit('closeModal');
         }
     });

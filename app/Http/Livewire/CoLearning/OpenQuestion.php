@@ -5,7 +5,9 @@ namespace tcCore\Http\Livewire\CoLearning;
 use Illuminate\Support\Str;
 use Livewire\Component;
 use tcCore\Answer;
+use tcCore\AnswerFeedback;
 use tcCore\AnswerRating;
+use tcCore\Http\Enums\AnswerFeedbackFilter;
 use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithGroups;
 use tcCore\Question;
@@ -16,6 +18,7 @@ class OpenQuestion extends CoLearningQuestion
     public bool $inlineFeedbackEnabled = false;
     public string $commentMarkerStyles = '';
     public string $answerId;
+    public AnswerFeedbackFilter $answerFeedbackFilter = AnswerFeedbackFilter::ALL;
 
     public function render()
     {

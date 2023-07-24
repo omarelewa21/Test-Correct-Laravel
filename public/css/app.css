@@ -8877,17 +8877,19 @@ span.completion-response-object-container{
 .comment-emoji-picker,
 .comment-color-picker {
     margin-bottom: 1.5rem;
+    display: flex;
     width: 100%;
+    flex-direction: column-reverse;
 }
 
-.comment-emoji-picker:is(:hover, :active, :focus, :focus-within) .comment-emoji-picker-label,
-.comment-color-picker:is(:hover, :active, :focus, :focus-within) .comment-color-picker-label,
+.comment-emoji-picker:is(:hover, :active, :focus, :focus-within, .picker-focussed) .comment-emoji-picker-label,
+.comment-color-picker:is(:hover, :active, :focus, :focus-within, .picker-focussed) .comment-color-picker-label,
 .comment-feedback-editor:is(:hover, :active, :focus, :focus-within) .comment-feedback-editor-label {
     color: var(--teacher-Primary);
 }
 
-.comment-emoji-picker:is(:active, :focus, :focus-within) .comment-emoji-picker-label,
-.comment-color-picker:is(:active, :focus, :focus-within) .comment-color-picker-label,
+.comment-emoji-picker:is(:active, :focus, :focus-within, .picker-focussed) .comment-emoji-picker-label,
+.comment-color-picker:is(:active, :focus, :focus-within, .picker-focussed) .comment-color-picker-label,
 .comment-feedback-editor:is(:active, :focus, :focus-within) .comment-feedback-editor-label {
     font-weight: bold;
 }
@@ -8895,7 +8897,6 @@ span.completion-response-object-container{
 .comment-emoji-picker-label,
 .comment-color-picker-label {
     margin-bottom: 5px;
-    margin-top: 0.5rem;
     width: 100%;
 }
 
@@ -8904,7 +8905,7 @@ span.completion-response-object-container{
 }
 
 
-.comment-editor .ck.ck-editor__main p > .ck-comment-marker {
+.comment-editor .ck.ck-editor__main p .ck-comment-marker {
     border: 1px solid transparent;
     cursor: pointer;
 }
@@ -9017,6 +9018,14 @@ span.completion-response-object-container{
 .color-picker-radio svg,
 .color-picker-radio span {
     pointer-events: none;
+}
+
+#co-learning-page ~ .drawer {
+    height: calc(100vh - var(--header-height) - 70px);
+}
+
+.with-inline-feedback .ck-fake-panel {
+    display: none;
 }
 /*
 ! tailwindcss v3.3.2 | MIT License | https://tailwindcss.com
@@ -9965,9 +9974,6 @@ video {
 .-m-1{
   margin: -0.25rem;
 }
-.-m-4{
-  margin: -1rem;
-}
 .m-1{
   margin: 0.25rem;
 }
@@ -9976,6 +9982,10 @@ video {
 }
 .m-auto{
   margin: auto;
+}
+.-mx-4{
+  margin-left: -1rem;
+  margin-right: -1rem;
 }
 .mx-1{
   margin-left: 0.25rem;
@@ -10000,6 +10010,10 @@ video {
 .mx-5{
   margin-left: 1.25rem;
   margin-right: 1.25rem;
+}
+.mx-6{
+  margin-left: 1.5rem;
+  margin-right: 1.5rem;
 }
 .mx-8{
   margin-left: 2rem;
@@ -10057,6 +10071,12 @@ video {
 }
 .-ml-px{
   margin-left: -1px;
+}
+.-mr-0{
+  margin-right: -0px;
+}
+.-mr-0\.5{
+  margin-right: -0.125rem;
 }
 .-mr-4{
   margin-right: -1rem;
@@ -11093,14 +11113,11 @@ video {
 .grid-cols-6{
   grid-template-columns: repeat(6, minmax(0, 1fr));
 }
-.grid-cols-7{
-  grid-template-columns: repeat(7, minmax(0, 1fr));
+.grid-cols-8{
+  grid-template-columns: repeat(8, minmax(0, 1fr));
 }
 .grid-cols-\[min-content\2c auto\]{
   grid-template-columns: min-content auto;
-}
-.grid-cols-8{
-  grid-template-columns: repeat(8, minmax(0, 1fr));
 }
 .flex-row{
   flex-direction: row;
@@ -11730,10 +11747,6 @@ video {
   --tw-bg-opacity: 1;
   background-color: rgb(254 202 202 / var(--tw-bg-opacity));
 }
-.bg-red-400{
-  --tw-bg-opacity: 1;
-  background-color: rgb(248 113 113 / var(--tw-bg-opacity));
-}
 .bg-secondary{
   --tw-bg-opacity: 1;
   background-color: rgb(206 218 243 / var(--tw-bg-opacity));
@@ -12188,6 +12201,9 @@ video {
 }
 .pt-20{
   padding-top: 5rem;
+}
+.pt-3{
+  padding-top: 0.75rem;
 }
 .pt-4{
   padding-top: 1rem;
@@ -12644,6 +12660,7 @@ video {
     --primary-opacity-10: rgba(0, 77, 245, 0.1);
     --primary-opacity-05: rgba(0, 77, 245, 0.05);
     --primary-light: #E6EDFA;
+    --primary-light-rgb: 230, 237, 250;
     --teacher-primary: #004df5;
     --teacher-primary-light: #4781ff;
     --student: #ECDB00;

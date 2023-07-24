@@ -26,6 +26,7 @@
                             :lang="$this->question->lang"
                             :commentMarkerStyles="$commentMarkerStyles"
                             :answerId="$answerId"
+                            :answerFeedbackFilter="$answerFeedbackFilter"
                     >{!! $this->answer !!}</x-input.comment-editor>
                 @endif
             </x-input.group>
