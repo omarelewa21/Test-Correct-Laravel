@@ -10,6 +10,7 @@ use Illuminate\Support\Str;
 
 abstract class AllowedAppType
 {
+    // these strings are also used in the apps and therefore should not be changed
     const OK = "OK";
     const NEEDSUPDATE = "NEEDSUPDATE";
     const NOTALLOWED = "NOTALLOWED";
@@ -70,12 +71,33 @@ class AppVersionDetector
                 "3.2.2",
                 "3.2.3",
                 "3.2.4",
+                "4.0.0",
+                "4.0.1",
+                "4.0.2",
+                "4.0.3",
+                "4.0.4",
+                "4.0.5",
+                "4.1.0",
+                "4.1.0",
+                "4.1.1",
+                "4.1.2",
+                "4.1.3",
+                "4.1.4",
+                "4.1.5",
+                "4.2.0",
+                "4.2.1",
+                "4.2.2",
+                "4.2.3",
+                "4.2.4",
+                "4.2.5",
             ],
             "needsUpdate" => [
-
+                "0.0.1",
+                "0.0.2"
             ],
             "needsUpdateDeadline" => [
-
+                "0.0.1" => "31 december 2023",
+                "0.0.2" => "20 juli 2023"
             ],
         ],
         "ChromeOS" => [
@@ -111,147 +133,115 @@ class AppVersionDetector
                 "3.5.30",
                 "3.5.40",
                 "3.5.50",
+                "4.0.0",
+                "4.0.1",
+                "4.0.2",
+                "4.0.3",
+                "4.0.4",
+                "4.0.5",
+                "4.1.0",
+                "4.1.0",
+                "4.1.1",
+                "4.1.2",
+                "4.1.3",
+                "4.1.4",
+                "4.1.5",
+                "4.2.0",
+                "4.2.1",
+                "4.2.2",
+                "4.2.3",
+                "4.2.4",
+                "4.2.5",
             ],
             "needsUpdate" => [
+                "0.0.1",
+                "0.0.2"
             ],
             "needsUpdateDeadline" => [
+                "0.0.1" => "31 december 2023",
+                "0.0.2" => "20 juli 2023"
             ],
         ],
         "windowsElectron" => [
             "ok" => [
                 "3.3.2",
-                "3.3.2-beta.1",
-                "3.3.2-beta.2",
-                "3.3.2-beta.3",
-                "3.3.2-beta.4",
-                "3.3.2-beta.5",
                 "3.3.3",
-                "3.3.3-beta.1",
-                "3.3.3-beta.2",
-                "3.3.3-beta.3",
-                "3.3.3-beta.4",
-                "3.3.3-beta.5",
                 "3.3.4",
-                "3.3.4-beta.1",
-                "3.3.4-beta.2",
-                "3.3.4-beta.3",
-                "3.3.4-beta.4",
-                "3.3.4-beta.5",
                 "3.3.5",
-                "3.3.5-beta.1",
-                "3.3.5-beta.2",
-                "3.3.5-beta.3",
-                "3.3.5-beta.4",
-                "3.3.5-beta.5",
                 "3.4.0",
-                "3.4.0-beta.1",
-                "3.4.0-beta.2",
-                "3.4.0-beta.3",
-                "3.4.0-beta.4",
-                "3.4.0-beta.5",
                 "3.4.1",
-                "3.4.1-beta.1",
-                "3.4.1-beta.2",
-                "3.4.1-beta.3",
-                "3.4.1-beta.4",
-                "3.4.1-beta.5",
                 "3.4.2",
-                "3.4.2-beta.1",
-                "3.4.2-beta.2",
-                "3.4.2-beta.3",
-                "3.4.2-beta.4",
-                "3.4.2-beta.5",
                 "3.4.3",
-                "3.4.3-beta.1",
-                "3.4.3-beta.2",
-                "3.4.3-beta.3",
-                "3.4.3-beta.4",
-                "3.4.3-beta.5",
                 "3.4.4",
-                "3.4.4-beta.1",
-                "3.4.4-beta.2",
-                "3.4.4-beta.3",
-                "3.4.4-beta.4",
-                "3.4.4-beta.5",
                 "3.5.0",
-                "3.5.0-beta.1",
-                "3.5.0-beta.2",
-                "3.5.0-beta.3",
-                "3.5.0-beta.4",
-                "3.5.0-beta.5",
+                "4.0.0",
+                "4.0.1",
+                "4.0.2",
+                "4.0.3",
+                "4.0.4",
+                "4.0.5",
+                "4.1.0",
+                "4.1.0",
+                "4.1.1",
+                "4.1.2",
+                "4.1.3",
+                "4.1.4",
+                "4.1.5",
+                "4.2.0",
+                "4.2.1",
+                "4.2.2",
+                "4.2.3",
+                "4.2.4",
+                "4.2.5",
             ],
             "needsUpdate" => [
+                "0.0.1",
+                "0.0.2"
             ],
             "needsUpdateDeadline" => [
-
+                "0.0.1" => "31 december 2023",
+                "0.0.2" => "20 juli 2023"
             ],
         ],
         "macosElectron" => [
             "ok" => [
                 "3.3.2",
-                "3.3.2-beta.1",
-                "3.3.2-beta.2",
-                "3.3.2-beta.3",
-                "3.3.2-beta.4",
-                "3.3.2-beta.5",
                 "3.3.3",
-                "3.3.3-beta.1",
-                "3.3.3-beta.2",
-                "3.3.3-beta.3",
-                "3.3.3-beta.4",
-                "3.3.3-beta.5",
                 "3.3.4",
-                "3.3.4-beta.1",
-                "3.3.4-beta.2",
-                "3.3.4-beta.3",
-                "3.3.4-beta.4",
-                "3.3.4-beta.5",
                 "3.3.5",
-                "3.3.5-beta.1",
-                "3.3.5-beta.2",
-                "3.3.5-beta.3",
-                "3.3.5-beta.4",
-                "3.3.5-beta.5",
                 "3.4.0",
-                "3.4.0-beta.1",
-                "3.4.0-beta.2",
-                "3.4.0-beta.3",
-                "3.4.0-beta.4",
-                "3.4.0-beta.5",
                 "3.4.1",
-                "3.4.1-beta.1",
-                "3.4.1-beta.2",
-                "3.4.1-beta.3",
-                "3.4.1-beta.4",
-                "3.4.1-beta.5",
                 "3.4.2",
-                "3.4.2-beta.1",
-                "3.4.2-beta.2",
-                "3.4.2-beta.3",
-                "3.4.2-beta.4",
-                "3.4.2-beta.5",
                 "3.4.3",
-                "3.4.3-beta.1",
-                "3.4.3-beta.2",
-                "3.4.3-beta.3",
-                "3.4.3-beta.4",
-                "3.4.3-beta.5",
                 "3.4.4",
-                "3.4.4-beta.1",
-                "3.4.4-beta.2",
-                "3.4.4-beta.3",
-                "3.4.4-beta.4",
-                "3.4.4-beta.5",
                 "3.5.0",
-                "3.5.0-beta.1",
-                "3.5.0-beta.2",
-                "3.5.0-beta.3",
-                "3.5.0-beta.4",
-                "3.5.0-beta.5",
+                "4.0.0",
+                "4.0.1",
+                "4.0.2",
+                "4.0.3",
+                "4.0.4",
+                "4.0.5",
+                "4.1.0",
+                "4.1.0",
+                "4.1.1",
+                "4.1.2",
+                "4.1.3",
+                "4.1.4",
+                "4.1.5",
+                "4.2.0",
+                "4.2.1",
+                "4.2.2",
+                "4.2.3",
+                "4.2.4",
+                "4.2.5",
             ],
             "needsUpdate" => [
+                "0.0.1",
+                "0.0.2"
             ],
             "needsUpdateDeadline" => [
+                "0.0.1" => "31 december 2023",
+                "0.0.2" => "20 juli 2023"
             ],
         ]
     ];
@@ -372,7 +362,7 @@ class AppVersionDetector
         return $version;
     }
 
-    public static function needsUpdateDeadline($headers = false)
+    public static function needsUpdateDeadline($headers = false): \Carbon\Carbon | false
     {
         if (!$headers) {
             $headers = self::getAllHeaders();
@@ -397,7 +387,6 @@ class AppVersionDetector
                     'nl',
                     self::$allowedVersions[$version["os"]]["needsUpdateDeadline"][$version["app_version"]]
                 );
-                return $date->isoFormat('LL');
             } catch(\Throwable $e){
                 $date = Carbon::createFromLocaleIsoFormat(
                     'MMMM YYYY',
@@ -405,7 +394,7 @@ class AppVersionDetector
                     self::$allowedVersions[$version["os"]]["needsUpdateDeadline"][$version["app_version"]]
                 );
             }
-            return $date->isoFormat('MMMM YYYY');
+            return $date;
 
         }
         return false;
@@ -595,5 +584,26 @@ class AppVersionDetector
     public function getAppVersion(){
         AppVersionDetector::handleHeaderCheck();
         return ['TLCVersion' => session('TLCVersion', null)];
+    }
+
+    public static function checkVersionDeadline() 
+    {
+        if (!self::verifyKeyHeader()) {
+            return [
+                "allowed" => AllowedAppType::NOTALLOWED,
+                "deadline" => false
+            ];
+        }
+        $headers = self::getallheaders();
+        $allowed = self::isVersionAllowed($headers);
+        $deadline = self::needsUpdateDeadline($headers);
+        if ($deadline !== false) {
+            $deadline = $deadline->getTimestamp();
+        }
+
+        return [
+            "allowed" => $allowed,
+            "deadline" => $deadline
+        ];
     }
 }

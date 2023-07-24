@@ -39,6 +39,7 @@ Route::post('/wiris/createimage', [\tcCore\Http\Controllers\WirisIntegrationCont
 Route::post('/wiris/showimage', [\tcCore\Http\Controllers\WirisIntegrationController::class, 'showimage']);
 Route::get('/wiris/showimage', [\tcCore\Http\Controllers\WirisIntegrationController::class, 'showimage']);
 Route::get('/get_app_version', [\tcCore\Http\Helpers\AppVersionDetector::class, 'getAppVersion']);
+Route::get('/appapi/version_info', [\tcCore\Http\Controllers\AppApi::class, 'versionInfo']);
 Route::get('/directlink/{testTakeUuid}', [\tcCore\Http\Controllers\TestTakeLaravelController::class, 'directLink'])->name('take.directLink');
 
 if (\tcCore\Http\Helpers\BaseHelper::notProduction()) {
