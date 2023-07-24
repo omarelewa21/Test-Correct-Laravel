@@ -24,14 +24,25 @@ button.button {
 
 .button-sm {
     min-height: 40px;
+    min-width: 40px;
 }
 
 .button-md {
     min-height: 50px;
+    min-width: 50px;
 }
 
 .button-lg {
     min-height: 60px;
+    min-width: 60px;
+}
+
+.icon-button {
+    @apply h-10 w-10 p-0 justify-center;
+}
+
+.text-button:is(.button-sm, .button-md, .button-lg) {
+    min-width: unset;
 }
 
 .text-button {
@@ -45,7 +56,7 @@ button.button {
     color: var(--primary);
 }
 
-.text-button.text-button-hover-bg:hover {
+.text-button.text-button-hover-bg:enabled:hover {
     background: var(--primary-opacity-05);
 }
 
@@ -53,7 +64,7 @@ button.button {
     color: var(--primary);
 }
 
-.text-button.text-button-hover-bg:active {
+.text-button.text-button-hover-bg:enabled:active {
     background: var(--primary-opacity-10);
 }
 
@@ -159,7 +170,13 @@ button.button {
 
 .button-gradient:disabled {
     background: var(--light-grey);
-    color: var(--mid-grey);
+    /*
+     * text color was: var(--mid-grey), but the new color is visually the same with 0.5 opacity
+     * but Full-color icons need an opacity of 0.5 to match the disabled text color
+    */
+    color: rgb(37, 59, 95);
+    opacity: 0.5;
+
     box-shadow: 0 1px 4px 0 rgba(4, 31, 116, 0.06);
 }
 

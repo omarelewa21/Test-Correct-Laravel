@@ -72,14 +72,28 @@ button.button {
 
 .button-sm {
     min-height: 40px;
+    min-width: 40px;
 }
 
 .button-md {
     min-height: 50px;
+    min-width: 50px;
 }
 
 .button-lg {
     min-height: 60px;
+    min-width: 60px;
+}
+
+.icon-button {
+    height: 2.5rem;
+    width: 2.5rem;
+    justify-content: center;
+    padding: 0px;
+}
+
+.text-button:is(.button-sm, .button-md, .button-lg) {
+    min-width: unset;
 }
 
 .text-button {
@@ -93,7 +107,7 @@ button.button {
     color: var(--primary);
 }
 
-.text-button.text-button-hover-bg:hover {
+.text-button.text-button-hover-bg:enabled:hover {
     background: var(--primary-opacity-05);
 }
 
@@ -101,7 +115,7 @@ button.button {
     color: var(--primary);
 }
 
-.text-button.text-button-hover-bg:active {
+.text-button.text-button-hover-bg:enabled:active {
     background: var(--primary-opacity-10);
 }
 
@@ -207,7 +221,13 @@ button.button {
 
 .button-gradient:disabled {
     background: var(--light-grey);
-    color: var(--mid-grey);
+    /*
+     * text color was: var(--mid-grey), but the new color is visually the same with 0.5 opacity
+     * but Full-color icons need an opacity of 0.5 to match the disabled text color
+    */
+    color: rgb(37, 59, 95);
+    opacity: 0.5;
+
     box-shadow: 0 1px 4px 0 rgba(4, 31, 116, 0.06);
 }
 
@@ -10906,8 +10926,16 @@ video {
   --tw-rotate: -90deg;
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
+.rotate-0{
+  --tw-rotate: 0deg;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
 .rotate-180{
   --tw-rotate: 180deg;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+.rotate-45{
+  --tw-rotate: 45deg;
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 .rotate-90{
@@ -11065,8 +11093,14 @@ video {
 .grid-cols-6{
   grid-template-columns: repeat(6, minmax(0, 1fr));
 }
+.grid-cols-7{
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
 .grid-cols-\[min-content\2c auto\]{
   grid-template-columns: min-content auto;
+}
+.grid-cols-8{
+  grid-template-columns: repeat(8, minmax(0, 1fr));
 }
 .flex-row{
   flex-direction: row;
@@ -11082,6 +11116,9 @@ video {
 }
 .flex-wrap{
   flex-wrap: wrap;
+}
+.place-content-center{
+  place-content: center;
 }
 .content-center{
   align-content: center;
@@ -13055,21 +13092,35 @@ h7 {
 
 /*NOG VERWERKEN IN CSS FILES*/
 
+.rotate-svg-45 > svg {
+    transform: rotate(45deg);
+}
+
 .rotate-svg-90 > svg {
     transform: rotate(90deg);
+}
+
+.rotate-svg-135 > svg {
+    transform: rotate(135deg);
 }
 
 .rotate-svg-180 > svg {
     transform: rotate(180deg);
 }
 
+.rotate-svg-225 > svg {
+    transform: rotate(225deg);
+}
+
 .rotate-svg-270 > svg {
     transform: rotate(270deg);
 }
 
-.rotate-svg-45 > svg {
-    transform: rotate(45deg);
+.rotate-svg-315 > svg {
+    transform: rotate(315deg);
 }
+
+
 
 /*.dropdown-items-container {*/
 /*    border: solid 1px var(--light-grey);*/
