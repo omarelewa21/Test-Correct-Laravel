@@ -51,4 +51,5 @@ return [
     'disabled_nav_no_answer'                       => 'There are no answers available for this question.',
     'emoji invoegen'                               => 'Insert emoji',
     'tekst markeren'                               => 'Mark text',
+    'all'                                          => 'All'
 ];

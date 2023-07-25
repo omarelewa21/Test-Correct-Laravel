@@ -76,8 +76,9 @@
         </template>
     </div>
 
-    <div wire:ignore @class(['ckeditor-disabled' => $disabled, 'relative'])>
+    <div wire:ignore  @class(['ckeditor-disabled' => $disabled, 'relative'])>
         <textarea
+                wire:key="comment-editor-{{$answerFeedbackFilter}}"
                 {{ $attributes->merge(['class' => 'form-input resize-none']) }}
                 x-init="{{ $initFunctionCall }}"
                 id="{{ $editorId }}"

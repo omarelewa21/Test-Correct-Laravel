@@ -103,7 +103,7 @@
                             </x-slot:titleLeft>
                             <x-slot:body>
                                 <div class="student-answer | w-full | questionContainer"
-                                     wire:key="student-answer-{{$this->currentQuestion->uuid.'-'.$this->currentAnswer->uuid}}"
+                                     wire:key="student-answer-{{$this->currentQuestion->uuid.'-'.$this->currentAnswer->uuid}}-{{$this->answerFeedbackFilter}}"
                                 >
                                     <x-dynamic-component
                                             :component="'answer.student.'. str($this->currentQuestion->type)->kebab()"
@@ -348,14 +348,17 @@
 
                                     </x-menu.context-menu.base>
 
-                                    <div class="flex "> {{-- TODO REMOVE TEMPORARY BUTTONS --}}
-                                        <x-button.primary wire:click="setAnswerFeedbackFilter('teachers')"><span>Teachers</span></x-button.primary>
-                                        <x-button.primary wire:click="setAnswerFeedbackFilter('students')"><span>Students</span></x-button.primary>
-                                        <x-button.primary wire:click="setAnswerFeedbackFilter('all')"><span>ALL</span></x-button.primary>
+                                    <div class="flex mx-auto "
+                                         x-on:multi-slider-toggle-value-updated.window="$wire.setAnswerFeedbackFilter($event.detail.value)"
+                                    >
+                                        <x-button.slider initial-status="all"
+                                                         buttonWidth="auto"
+                                                         :options="['students' => __('auth.Student'), 'teachers' => __('auth.Docent'), 'all' => __('assessment.all')]"
+                                        />
                                     </div>
 
 
-                                    @foreach($this->filterSortedAnswerFeedback($answerFeedback) as $comment)
+                                    @foreach($answerFeedback->filter->visible as $comment)
 
                                         <x-partials.answer-feedback-card :comment="$comment"/>
 

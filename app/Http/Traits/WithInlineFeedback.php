@@ -33,10 +33,9 @@ trait WithInlineFeedback {
 
     public function bootedWithInlineFeedback()
     {
-        if ((method_exists($this, 'headerCollapsed') && $this->headerCollapsed) || !method_exists($this, 'headerCollapsed')) {
+        if ((property_exists($this, 'headerCollapsed') && $this->headerCollapsed) || !property_exists($this, 'headerCollapsed')) {
             $this->getSortedAnswerFeedback();
         }
-
     }
 
     public function createNewComment($commentData, $createCommentIds = true)
@@ -159,24 +158,25 @@ trait WithInlineFeedback {
             return $feedback->comment_id !== null;
         })->sortBy(function ($feedback) {
             return $feedback->order;
+        })->map(function ($feedback) {
+            switch ($this->answerFeedbackFilter) {
+                case AnswerFeedbackFilter::STUDENTS:
+                    $feedback->visible = $feedback->user->isA('student');
+                    break;
+                case AnswerFeedbackFilter::TEACHERS:
+                    $feedback->visible = $feedback->user->isA('teacher');
+                    break;
+                case AnswerFeedbackFilter::CURRENT_USER:
+                    $feedback->visible = $feedback->user_id === auth()->id();
+                    break;
+                case AnswerFeedbackFilter::ALL:
+                default:
+                    $feedback->visible = true;
+                    break;
+            }
+
+            return $feedback;
         });
-
-    }
-
-    public function filterSortedAnswerFeedback($answerFeedback)
-    {
-        switch ($this->answerFeedbackFilter) {
-            case AnswerFeedbackFilter::STUDENTS:
-                return $this->answerFeedback->filter(fn($af) => $af->user->isA('student'));
-            case AnswerFeedbackFilter::TEACHERS:
-                return $this->answerFeedback->filter(fn($af) => $af->user->isA('teacher'));
-            case AnswerFeedbackFilter::CURRENT_USER:
-                return $this->answerFeedback->filter(fn($af) => $af->user_id === auth()->id());
-            case AnswerFeedbackFilter::ALL:
-            default:
-                return $this->answerFeedback;
-        }
-
     }
 
     public function getCommentMarkerStylesProperty() : string
@@ -185,37 +185,16 @@ trait WithInlineFeedback {
             return '';
         }
 
-        switch($this->answerFeedbackFilter) {
-            case AnswerFeedbackFilter::STUDENTS:
-                $visibleAnswerFeedback = $this->answerFeedback->filter(fn($af) => $af->user->isA('student'));
-                $notVisibleAnswerFeedback = $this->answerFeedback->filter(fn($af) => ! $af->user->isA('student'));
-                break;
-            case AnswerFeedbackFilter::TEACHERS:
-                $visibleAnswerFeedback = $this->answerFeedback->filter(fn($af) => $af->user->isA('teacher'));
-                $notVisibleAnswerFeedback = $this->answerFeedback->filter(fn($af) => ! $af->user->isA('teacher'));
-                break;
-            case AnswerFeedbackFilter::CURRENT_USER:
-                $visibleAnswerFeedback = $this->answerFeedback->filter(fn($af) => $af->user_id === auth()->id());
-                $notVisibleAnswerFeedback = $this->answerFeedback->filter(fn($af) => $af->user_id !== auth()->id());
-                break;
-            case AnswerFeedbackFilter::ALL:
-            default:
-                $visibleAnswerFeedback = $this->answerFeedback;
-                $notVisibleAnswerFeedback = collect();
-                break;
-        }
-
-        $styleHtml =  $visibleAnswerFeedback->reduce(function ($carry, $feedback) {
-            return $carry = $carry . <<<STYLE
+        return  $this->answerFeedback->reduce(function ($carry, $feedback) {
+            if($feedback->visible) {
+                return $carry = $carry . <<<STYLE
                 .ck-comment-marker[data-comment="{$feedback->thread_id}"]{
                             --ck-color-comment-marker: {$feedback->getColor(0.4)} !important;
                             --ck-color-comment-marker-border: {$feedback->getColor()} !important;
                             --ck-color-comment-marker-active: {$feedback->getColor(0.4)} !important;
                         }
             STYLE;
-
-        }, '');
-        $styleHtml .=  $notVisibleAnswerFeedback->reduce(function ($carry, $feedback) {
+            }
             return $carry = $carry . <<<STYLE
                  .ck-comment-marker[data-comment="{$feedback->thread_id}"]{
                             --ck-color-comment-marker: transparent !important;
@@ -228,8 +207,6 @@ trait WithInlineFeedback {
             STYLE;
 
         }, '');
-
-        return $styleHtml;
     }
 
     /**
@@ -283,7 +260,7 @@ SQL;
     }
 
     public function getHasFeedbackProperty() {
-        return $this->filterSortedAnswerFeedback($this->answerFeedback)->isNotEmpty();
+        return $this->answerFeedback->filter->visible->isNotEmpty();
     }
 
     public function getCurrentAnswer()
@@ -298,7 +275,6 @@ SQL;
 
     public function initAnswerFeedbackFilter() : void
     {
-
         if(static::class === CoLearning::class) {
             $this->answerFeedbackFilter = AnswerFeedbackFilter::CURRENT_USER;
             return;
@@ -309,5 +285,6 @@ SQL;
     public function setAnswerFeedbackFilter(string $filter) : void
     {
         $this->answerFeedbackFilter = AnswerFeedbackFilter::tryFrom($filter);
+        $this->getSortedAnswerFeedback();
     }
 }

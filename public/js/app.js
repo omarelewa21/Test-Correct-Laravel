@@ -7939,9 +7939,10 @@ document.addEventListener("alpine:init", function () {
       init: function init() {
         this.setHandle();
         if (initialStatus !== null) {
-          this.value = (0,lodash__WEBPACK_IMPORTED_MODULE_6__.isString)(initialStatus) ? this.sources.indexOf(initialStatus) : +initialStatus;
+          this.value = (0,lodash__WEBPACK_IMPORTED_MODULE_6__.isString)(initialStatus) ? this.sources[initialStatus] ? initialStatus : this.sources.indexOf(initialStatus) : +initialStatus;
         }
         this.bootComponent();
+        this.preventFractionalPixels();
       },
       rerender: function rerender() {
         this.bootComponent();
@@ -7965,11 +7966,16 @@ document.addEventListener("alpine:init", function () {
         this.value = target.firstElementChild.dataset.id;
         this.$root.dataset.hasValue = this.value !== null;
         if (oldValue !== this.value) {
+          /* dispatch with a static (question score) value, not value/key of button-option, only works with true/false  */
           this.$dispatch("slider-toggle-value-updated", {
             value: this.$root.dataset.toggleValue,
             state: parseInt(this.value) === 1 ? "on" : "off",
             firstTick: oldValue === null,
             identifier: this.identifier
+          });
+          this.$dispatch("multi-slider-toggle-value-updated", {
+            value: target.firstElementChild.dataset.id,
+            firstTick: oldValue === null
           });
         }
       },
@@ -8018,6 +8024,14 @@ document.addEventListener("alpine:init", function () {
           falseOptions.forEach(function (el) {
             return el.classList.remove("!border-allred");
           });
+        }
+      },
+      preventFractionalPixels: function preventFractionalPixels() {
+        if (this.buttonWidth === "auto") {
+          var containerWidth = this.$root.offsetWidth;
+          var sourceCount = Object.entries(sources).length;
+          var dividableWidth = Math.round(containerWidth / sourceCount) * sourceCount;
+          this.$root.style.width = dividableWidth + 'px';
         }
       }
     };
@@ -9317,6 +9331,8 @@ document.addEventListener("alpine:init", function () {
       activeComment: null,
       hoveringComment: null,
       dropdownOpened: null,
+      commentTagsEventListener: null,
+      /*todo implement or remove, replace eventlistener on every element with one that handles all*/
       userId: userId,
       questionType: questionType,
       viewOnly: viewOnly,
@@ -9599,12 +9615,22 @@ document.addEventListener("alpine:init", function () {
         var answerFeedbackFilter = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'all';
         //create icon wrapper and append icon inside it
         commentThreads.forEach(function (thread) {
-          console.log(answerFeedbackFilter, thread.currentUser);
           if (answerFeedbackFilter === 'current_user' && !thread.currentUser || answerFeedbackFilter === 'students' && thread.role !== 'student' || answerFeedbackFilter === 'teachers' && thread.role !== 'teacher') {
             return;
           }
           _this65.createCommentIcon(thread);
         });
+
+        //create global event listener for comment icon click
+        this.createCommentTagsEventListener();
+      },
+      createCommentTagsEventListener: function createCommentTagsEventListener() {
+        //todo create a event listener and remove previous using data from the component
+        this.commentTagsEventListener;
+
+        //add click event listener to comment editor container element
+        // check for each click if the target is one of the visible comment uuids
+        // register hover event, register click event
       },
       repositionAnswerFeedbackIcons: function repositionAnswerFeedbackIcons() {
         var _this66 = this;

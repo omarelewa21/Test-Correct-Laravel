@@ -1555,10 +1555,16 @@ document.addEventListener("alpine:init", () => {
         init() {
             this.setHandle();
             if (initialStatus !== null) {
-                this.value = isString(initialStatus) ? this.sources.indexOf(initialStatus) : +initialStatus;
+                this.value = isString(initialStatus)
+                    ? (this.sources[initialStatus]
+                        ? initialStatus
+                        : this.sources.indexOf(initialStatus))
+                    : +initialStatus;
             }
 
             this.bootComponent();
+
+            this.preventFractionalPixels();
         },
         rerender() {
             this.bootComponent();
@@ -1585,11 +1591,16 @@ document.addEventListener("alpine:init", () => {
 
             this.$root.dataset.hasValue = this.value !== null;
             if (oldValue !== this.value) {
+                /* dispatch with a static (question score) value, not value/key of button-option, only works with true/false  */
                 this.$dispatch("slider-toggle-value-updated", {
                     value: this.$root.dataset.toggleValue,
                     state: parseInt(this.value) === 1 ? "on" : "off",
                     firstTick: oldValue === null,
                     identifier: this.identifier
+                });
+                this.$dispatch("multi-slider-toggle-value-updated", {
+                    value: target.firstElementChild.dataset.id,
+                    firstTick: oldValue === null,
                 });
             }
         },
@@ -1632,6 +1643,15 @@ document.addEventListener("alpine:init", () => {
             const falseOptions = this.$root.querySelectorAll(".slider-option[data-active=\"false\"]");
             if (falseOptions.length === 2) {
                 falseOptions.forEach(el => el.classList.remove("!border-allred"));
+            }
+        },
+        preventFractionalPixels() {
+            if(this.buttonWidth === "auto") {
+                let containerWidth = this.$root.offsetWidth;
+                let sourceCount = Object.entries(sources).length;
+                let dividableWidth = Math.round(containerWidth / sourceCount) * sourceCount;
+
+                this.$root.style.width = dividableWidth + 'px';
             }
         }
     }));
@@ -2638,6 +2658,7 @@ document.addEventListener("alpine:init", () => {
         activeComment: null,
         hoveringComment: null,
         dropdownOpened: null,
+        commentTagsEventListener: null, /*todo implement or remove, replace eventlistener on every element with one that handles all*/
         userId,
         questionType,
         viewOnly,
@@ -2839,7 +2860,6 @@ document.addEventListener("alpine:init", () => {
         initCommentIcons(commentThreads, answerFeedbackFilter = 'all') {
             //create icon wrapper and append icon inside it
             commentThreads.forEach((thread) => {
-                console.log(answerFeedbackFilter, thread.currentUser)
                 if(
                     (answerFeedbackFilter === 'current_user' && !thread.currentUser)
                     || (answerFeedbackFilter === 'students' && thread.role !== 'student')
@@ -2849,6 +2869,18 @@ document.addEventListener("alpine:init", () => {
                 }
                 this.createCommentIcon(thread);
             })
+
+            //create global event listener for comment icon click
+            this.createCommentTagsEventListener();
+        },
+        createCommentTagsEventListener() {
+            //todo create a event listener and remove previous using data from the component
+            this.commentTagsEventListener;
+
+            //add click event listener to comment editor container element
+            // check for each click if the target is one of the visible comment uuids
+            // register hover event, register click event
+
         },
         repositionAnswerFeedbackIcons() {
             let answerFeedbackCommentIcons = document.querySelectorAll('.answer-feedback-comment-icon');

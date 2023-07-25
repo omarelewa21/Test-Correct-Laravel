@@ -244,7 +244,7 @@
                             </x-menu.context-menu.button>
 
                         </x-menu.context-menu.base>
-                        @foreach($this->filterSortedAnswerFeedback($answerFeedback) as $comment)
+                        @foreach($answerFeedback->filter->visible as $comment)
 
                             <x-partials.answer-feedback-card :comment="$comment"/>
 

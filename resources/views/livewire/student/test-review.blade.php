@@ -94,7 +94,7 @@
                         </x-slot:titleLeft>
                         <x-slot:body>
                             <div class="student-answer | w-full | questionContainer"
-                                 wire:key="student-answer-{{$this->currentQuestion->uuid.$this->currentAnswer->uuid}}"
+                                 wire:key="student-answer-{{$this->currentQuestion->uuid.$this->currentAnswer->uuid}}-{{$this->answerFeedbackFilter}}"
                             >
                                 <x-dynamic-component
                                         :component="'answer.student.'. str($this->currentQuestion->type)->kebab()"
@@ -198,8 +198,16 @@
                              x-data="{}"
                              x-init=""
                         >
+                            <div class="flex mx-auto "
+                                x-on:multi-slider-toggle-value-updated.window="$wire.setAnswerFeedbackFilter($event.detail.value)"
+                            >
+                                <x-button.slider initial-status="all"
+                                                 buttonWidth="auto"
+                                    :options="['students' => 'students', 'teachers' => 'teachers', 'all' => 'all']"
+                                />
+                            </div>
 
-                            @foreach($answerFeedback as $comment)
+                            @foreach($answerFeedback->filter->visible as $comment)
 
                                 <x-partials.answer-feedback-card :comment="$comment" :viewOnly="true"/>
 
