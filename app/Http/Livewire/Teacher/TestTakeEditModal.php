@@ -286,8 +286,8 @@ class TestTakeEditModal extends TCModalComponent
     private function prepareTestTakeForValidation(): void
     {
         /* TODO: Need to add 2 hours because of casting issues, u ugly */
-        $this->testTake->time_start = Carbon::parse($this->timeStart)->addHours(2);
-        $this->testTake->time_end = Carbon::parse($this->timeEnd)->addHours(2);
+//        $this->testTake->time_start = Carbon::parse($this->timeStart)->addHours(2);
+//        $this->testTake->time_end = Carbon::parse($this->timeEnd)->addHours(2);
     }
 
     private function handleInvigilators(): void
