@@ -251,6 +251,7 @@ export class Entry extends sidebarComponent {
         const shapeId = element.id.substring(6);
         element.classList.remove('selected');
         element.closest('#canvas-sidebar-container').querySelector(`#${shapeId}`).classList.remove('selected');
+        document.activeElement.blur();
     }
     toggleSelect() {
         this.entryContainer.classList.toggle('selected');
