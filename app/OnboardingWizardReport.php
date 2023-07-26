@@ -28,7 +28,7 @@ class OnboardingWizardReport extends Model
 
         $helper = new ReportHelper($user);
 
-        $wizardData = self::getStepsCollection($user);
+//        $wizardData = self::getStepsCollection($user);
 
         $updated_data_array = [
             'user_email'                                  => $user->username,
