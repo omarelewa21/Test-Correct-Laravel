@@ -2658,7 +2658,7 @@ document.addEventListener("alpine:init", () => {
         activeComment: null,
         hoveringComment: null,
         dropdownOpened: null,
-        commentTagsEventListener: null, /*todo implement or remove, replace eventlistener on every element with one that handles all*/
+        commentTagsEventListeners: null,  /*todo implement or remove, replace eventlistener on every element with one that handles all*/
         userId,
         questionType,
         viewOnly,
@@ -2858,39 +2858,78 @@ document.addEventListener("alpine:init", () => {
             console.error('failed to delete answer feedback');
         },
         initCommentIcons(commentThreads, answerFeedbackFilter = 'all') {
-            //create icon wrapper and append icon inside it
-            commentThreads.forEach((thread) => {
-                if(
-                    (answerFeedbackFilter === 'current_user' && !thread.currentUser)
-                    || (answerFeedbackFilter === 'students' && thread.role !== 'student')
-                    || (answerFeedbackFilter === 'teachers' && thread.role !== 'teacher')
-                ) {
+            //todo complete new implementation
+            let filteredCommentThreads = commentThreads.filter((thread) => {
+                return (
+                    (answerFeedbackFilter === 'current_user' && thread.currentUser)
+                    || (answerFeedbackFilter === 'students' && thread.role === 'student')
+                    || (answerFeedbackFilter === 'teachers' && thread.role === 'teacher')
+                    || answerFeedbackFilter === 'all'
+                )
+            });
+            filteredCommentThreads.forEach((thread) => {
+                this.createCommentIcon(thread);
+            });
+
+            //create global event listener for comment icon click and hover
+            this.createCommentTagsEventListener(filteredCommentThreads);
+        },
+        createCommentTagsEventListener( enabledCommentThreads) {
+            const commentEditorContainer = document.querySelector('.answer-feedback-comment-icons').parentElement;
+            let hoveringCommentThread = null;
+
+            //remove previous event listeners, if any
+            if(this.commentTagsEventListeners) {
+                commentEditorContainer.removeEventListener('click', this.commentTagsEventListeners['click']);
+                commentEditorContainer.removeEventListener('mouseover', this.commentTagsEventListeners['mouseover']);
+            }
+            this.commentTagsEventListeners = [];
+
+            this.commentTagsEventListeners['click'] = (event) => {
+                let targetCommentElement = event.target.closest('[data-comment], [data-threadid]');
+                if (!targetCommentElement) return;
+
+                let clickedEnabledCommentThread = enabledCommentThreads.filter((thread) => {
+                    return thread.threadId === (targetCommentElement.dataset.comment || targetCommentElement.dataset.threadid);
+                }).pop();
+
+                if (!clickedEnabledCommentThread) return;
+
+                this.setActiveComment(clickedEnabledCommentThread.threadId, clickedEnabledCommentThread.uuid);
+            }
+
+            this.commentTagsEventListeners['mouseover'] = (event) => {
+                let targetCommentElement = event.target.closest('[data-comment], [data-threadid]');
+                let targetCommentThreadId = targetCommentElement?.dataset.comment || targetCommentElement?.dataset.threadid || false;
+
+                let previousHoveringCommentThread = hoveringCommentThread;
+                hoveringCommentThread = enabledCommentThreads.filter((thread) => {
+                    return thread.threadId === targetCommentThreadId;
+                }).pop();
+
+                if(!hoveringCommentThread) {
+                    //only clear hovering comment if leaving an enabled/valid comment thread element
+                    previousHoveringCommentThread ? this.clearHoveringComment() : null;
                     return;
                 }
-                this.createCommentIcon(thread);
-            })
+                if(hoveringCommentThread.threadId === previousHoveringCommentThread?.threadId) {
+                    return;
+                }
+                this.setHoveringComment(hoveringCommentThread.threadId, hoveringCommentThread.uuid);
+            }
 
-            //create global event listener for comment icon click
-            this.createCommentTagsEventListener();
-        },
-        createCommentTagsEventListener() {
-            //todo create a event listener and remove previous using data from the component
-            this.commentTagsEventListener;
-
-            //add click event listener to comment editor container element
-            // check for each click if the target is one of the visible comment uuids
-            // register hover event, register click event
-
+            commentEditorContainer.addEventListener('click', this.commentTagsEventListeners['click']);
+            commentEditorContainer.addEventListener('mouseover', this.commentTagsEventListeners['mouseover']);
         },
         repositionAnswerFeedbackIcons() {
             let answerFeedbackCommentIcons = document.querySelectorAll('.answer-feedback-comment-icon');
             answerFeedbackCommentIcons.forEach((iconWrapper) => {
                 let threadId = iconWrapper.dataset.threadid;
                 let threadUuid = iconWrapper.dataset.uuid;
-                this.setIconPositionAndEventListenersForThread(iconWrapper, threadId, threadUuid);
+                this.setIconPositionForThread(iconWrapper, threadId, threadUuid);
             });
         },
-        setIconPositionAndEventListenersForThread(iconWrapper, threadId, answerFeedbackUuid) {
+        setIconPositionForThread(iconWrapper, threadId, answerFeedbackUuid) {
             const commentMarkers = document.querySelectorAll(`[data-comment='` + threadId + `']`);
             const lastCommentMarker = commentMarkers[commentMarkers.length-1];
 
@@ -2905,35 +2944,10 @@ document.addEventListener("alpine:init", () => {
             let lastCommentMarkerLineOffsetLeft = lastCommentMarkerLineClientRight - lastCommentMarkerLineParentClientLeft;
 
             iconWrapper.style.left = (lastCommentMarkerLineOffsetLeft - 5) + 'px';
-
-            //(re)set comment marker and icon eventListeners
-            let commentThreadElements = null;
-            commentThreadElements = [...commentMarkers, iconWrapper];
-
-            let clickEventHandler = (event) => {
-                this.setActiveComment(threadId, answerFeedbackUuid);
-            }
-            let mouseEnterEventHandler = (event) => {
-                this.setHoveringComment(threadId, answerFeedbackUuid);
-            }
-            let mouseLeaveEventHandler = (event) => {
-                this.clearHoveringComment();
-            }
-
-            //set click event listener on all comment markers and the icon.
-            commentThreadElements.forEach((threadElement) => {
-                threadElement.removeEventListener('click', clickEventHandler);
-                threadElement.removeEventListener('mouseenter', mouseEnterEventHandler);
-                threadElement.removeEventListener('mouseleave', mouseLeaveEventHandler);
-                threadElement.addEventListener('click', clickEventHandler);
-                threadElement.addEventListener('mouseenter', mouseEnterEventHandler);
-                threadElement.addEventListener('mouseleave', mouseLeaveEventHandler);
-            });
-
         },
         initCommentIcon(iconWrapper, thread) {
             setTimeout(() => {
-                this.setIconPositionAndEventListenersForThread(iconWrapper, thread.threadId, thread.uuid);
+                this.setIconPositionForThread(iconWrapper, thread.threadId, thread.uuid);
 
                 iconWrapper.setAttribute('data-uuid', thread.uuid);
                 iconWrapper.setAttribute('data-threadId', thread.threadId);

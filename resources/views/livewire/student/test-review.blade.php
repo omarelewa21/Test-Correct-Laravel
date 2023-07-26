@@ -203,7 +203,7 @@
                             >
                                 <x-button.slider initial-status="all"
                                                  buttonWidth="auto"
-                                    :options="['students' => 'students', 'teachers' => 'teachers', 'all' => 'all']"
+                                                 :options="[ 'all' => __('assessment.all'), 'teachers' => __('auth.Docent'),'students' => __('auth.Student')]"
                                 />
                             </div>
 
