@@ -281,6 +281,8 @@ class TestTakeEditModal extends TCModalComponent
         $this->createParticipants($participantsToCreate);
         $this->deleteParticipants($participantsToDelete);
         $this->updateParticipants($participantsToUpdate, $participantProposals);
+
+        $this->testTake->dispatchNewTestTakePlannedEvent();
     }
 
     private function prepareTestTakeForValidation(): void
