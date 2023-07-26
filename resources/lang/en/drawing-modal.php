@@ -29,6 +29,7 @@ return [
     'Zoom uit'                           => 'Zoom out',
     'Zoom in'                            => 'Zoom in',
     'Verwijderen'                        => 'Delete',
+    'edit'                               => 'Edit',
     'Ontgrendelen'                       => 'Unlock',
     'Vergrendelen'                       => 'Lock',
     'Tonen'                              => 'Show',
