@@ -130,8 +130,10 @@ class OnboardingWizardReport extends Model
         if ($last_updated_wizard_id === null) {
             return 'no wizard was attached to this user';
         }
-        $expression = DB::raw(
-            sprintf("SELECT
+
+        $result = DB::select(
+
+                sprintf("SELECT
   (SELECT count(distinct(onboarding_wizard_user_steps.`onboarding_wizard_step_id`))
    FROM onboarding_wizard_user_steps
    INNER JOIN onboarding_wizard_steps ON (onboarding_wizard_user_steps.`onboarding_wizard_step_id` = onboarding_wizard_steps.id)
@@ -142,13 +144,10 @@ class OnboardingWizardReport extends Model
    FROM onboarding_wizard_steps
    WHERE parent_id IS NOT NULL
      AND onboarding_wizard_id = '%s') * 100 AS percentage",
-                $user->getKey(),
-                $last_updated_wizard_id,
-                $last_updated_wizard_id
-            ));
-
-        $result = DB::select($expression->getValue(DB::connection()->getQueryGrammar()));;
-
+                    $user->getKey(),
+                    $last_updated_wizard_id,
+                    $last_updated_wizard_id
+                ));
         return $result[0]->percentage;
     }
 
@@ -158,8 +157,10 @@ class OnboardingWizardReport extends Model
         if ($last_updated_wizard_id === null) {
             return 'no wizard was attached to this user';
         }
-        $expression =  DB::raw(
-            sprintf("SELECT
+
+        $expression = DB::select(
+
+                sprintf("SELECT
   (SELECT count(*)
    FROM onboarding_wizard_user_steps
    INNER JOIN onboarding_wizard_steps ON (onboarding_wizard_user_steps.`onboarding_wizard_step_id` = onboarding_wizard_steps.id)
@@ -170,10 +171,11 @@ class OnboardingWizardReport extends Model
    FROM onboarding_wizard_steps
    WHERE parent_id IS NULL
      AND onboarding_wizard_id = '%s') * 100 AS percentage",
-                $user->getKey(),
-                $last_updated_wizard_id,
-                $last_updated_wizard_id
-            )
+                    $user->getKey(),
+                    $last_updated_wizard_id,
+                    $last_updated_wizard_id
+                )
+
         );
         $result = DB::select($expression->getValue(DB::connection()->getQueryGrammar()));;
 
@@ -187,7 +189,8 @@ class OnboardingWizardReport extends Model
             return 'no wizard was attached to this user';
         }
 
-            $expression = DB::raw(
+        $expression = DB::select(
+
                 sprintf("
                    SELECT t2.title AS title
 FROM onboarding_wizard_steps AS t1
@@ -213,7 +216,9 @@ ORDER BY t2.displayorder,
                     $last_updated_wizard_id,
                     $last_updated_wizard_id
                 )
-            );
+
+        );
+
         $result = DB::select($expression->getValue(DB::connection()->getQueryGrammar()));;
 
         if (isset($result) && isset($result[0])) {
