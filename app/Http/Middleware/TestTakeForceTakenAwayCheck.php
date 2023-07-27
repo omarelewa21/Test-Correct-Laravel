@@ -26,6 +26,7 @@ class TestTakeForceTakenAwayCheck
         '/livewire/message/question',
         '/livewire/message/overview',
         '/livewire/message/student.fraud-detection',
+        '/livewire/message/student-player',
     ];
 
     public function handle($request, Closure $next)
