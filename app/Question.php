@@ -1383,7 +1383,7 @@ class Question extends MtiBaseModel
     {
         $withMath = strip_tags(html_entity_decode($this->getQuestionHtml()), ['math']);//,'msqrt','msub','msup','mo','mfrac','mrow','mi','mfenced','mroot','mover','munderover','mn','mtd','mtr','mtable','msrow','msline','mstack','mlongdiv','msgroup','mstyle','mmultiscripts','mprescripts','none','msubsup','munder','menclose','mtext','mspace']);
 
-        return preg_replace('/<math(.*)<\/math>/i', '', $withMath);
+        return preg_replace('#(<math.*?>).*?(</math>)#', '', $withMath);
     }
 
     public function getTypeNameAttribute()
