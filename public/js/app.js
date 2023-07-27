@@ -7942,7 +7942,6 @@ document.addEventListener("alpine:init", function () {
           this.value = (0,lodash__WEBPACK_IMPORTED_MODULE_6__.isString)(initialStatus) ? this.sources[initialStatus] ? initialStatus : this.sources.indexOf(initialStatus) : +initialStatus;
         }
         this.bootComponent();
-        this.preventFractionalPixels();
       },
       rerender: function rerender() {
         this.bootComponent();
@@ -7958,6 +7957,7 @@ document.addEventListener("alpine:init", function () {
         } else {
           this.value = this.$el.querySelector(".group").firstElementChild.dataset.id;
         }
+        this.preventFractionalPixels();
       },
       clickButton: function clickButton(target) {
         this.activateButton(target);
@@ -8027,11 +8027,11 @@ document.addEventListener("alpine:init", function () {
         }
       },
       preventFractionalPixels: function preventFractionalPixels() {
-        if (this.buttonWidth === "auto") {
-          var containerWidth = this.$root.offsetWidth;
-          var sourceCount = Object.entries(sources).length;
-          var dividableWidth = Math.round(containerWidth / sourceCount) * sourceCount;
-          this.$root.style.width = dividableWidth + 'px';
+        var containerWidth = this.$root.offsetWidth;
+        var sourceCount = Object.entries(sources).length;
+        var widthDividableBySourceCount = Math.round(containerWidth / sourceCount) * sourceCount;
+        if (!isNaN(widthDividableBySourceCount) && widthDividableBySourceCount > 0) {
+          this.$root.style.width = widthDividableBySourceCount + 'px';
         }
       }
     };

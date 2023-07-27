@@ -1563,8 +1563,6 @@ document.addEventListener("alpine:init", () => {
             }
 
             this.bootComponent();
-
-            this.preventFractionalPixels();
         },
         rerender() {
             this.bootComponent();
@@ -1581,6 +1579,7 @@ document.addEventListener("alpine:init", () => {
             } else {
                 this.value = this.$el.querySelector(".group").firstElementChild.dataset.id;
             }
+            this.preventFractionalPixels();
         },
         clickButton(target) {
             this.activateButton(target);
@@ -1646,12 +1645,12 @@ document.addEventListener("alpine:init", () => {
             }
         },
         preventFractionalPixels() {
-            if(this.buttonWidth === "auto") {
-                let containerWidth = this.$root.offsetWidth;
-                let sourceCount = Object.entries(sources).length;
-                let dividableWidth = Math.round(containerWidth / sourceCount) * sourceCount;
+            const containerWidth = this.$root.offsetWidth;
+            const sourceCount = Object.entries(sources).length;
+            const widthDividableBySourceCount = Math.round(containerWidth / sourceCount) * sourceCount;
 
-                this.$root.style.width = dividableWidth + 'px';
+            if(!isNaN(widthDividableBySourceCount) && widthDividableBySourceCount > 0) {
+                this.$root.style.width = widthDividableBySourceCount + 'px';
             }
         }
     }));

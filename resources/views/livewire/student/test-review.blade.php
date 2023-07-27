@@ -176,8 +176,8 @@
                     <div class="answer-feedback-given-comments relative">
                         <button class="flex bold border-t border-blue-grey py-2 justify-between items-center w-full group"
                                 :class="{'text-midgrey': !hasFeedback}"
-                                x-init="dropdownOpened = @js($this->hasFeedback) ? dropdownOpened : ''"
-                                @click="toggleFeedbackAccordion('given-feedback')"
+                                x-init="dropdownOpened = hasFeedback ? dropdownOpened : ''"
+                                @click="hasFeedback ? toggleFeedbackAccordion('given-feedback') : ''"
                         >
                             <span>@lang('assessment.Gegeven feedback')</span>
                             <span class="w-6 h-6 rounded-full flex justify-center items-center transition -mr-0.5
@@ -203,7 +203,7 @@
                             >
                                 <x-button.slider initial-status="all"
                                                  buttonWidth="auto"
-                                                 :options="[ 'all' => __('assessment.all'), 'teachers' => __('auth.Docent'),'students' => __('auth.Student')]"
+                                                 :options="[ 'all' => __('assessment.all'), 'teacher' => __('auth.Docent'),'students' => __('test-take.Studenten')]"
                                 />
                             </div>
 

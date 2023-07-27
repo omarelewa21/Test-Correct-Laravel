@@ -40,4 +40,9 @@ abstract class TestParticipantEvent implements ShouldBroadcastNow
 
         return "echo-private:TestParticipant.$testParticipantUuid,.$eventName";
     }
+
+    public function broadcastAs()
+    {
+        return class_basename(get_called_class());
+    }
 }

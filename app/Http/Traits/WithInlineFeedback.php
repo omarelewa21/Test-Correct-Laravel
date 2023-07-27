@@ -6,11 +6,13 @@ use Illuminate\Support\Facades\DB;
 use Ramsey\Uuid\Uuid;
 use tcCore\Answer;
 use tcCore\AnswerFeedback;
+use tcCore\Events\TestTakeOpenForInteraction;
 use tcCore\Http\Enums\AnswerFeedbackFilter;
 use tcCore\Http\Enums\CommentEmoji;
 use tcCore\Http\Enums\CommentMarkerColor;
 use tcCore\Http\Livewire\Student\CoLearning;
 use tcCore\Http\Livewire\Student\TestReview;
+use tcCore\Http\Middleware\AfterResponse;
 
 trait WithInlineFeedback {
     //TODO complete CKeditor comments Feedback implementation:
@@ -107,6 +109,14 @@ trait WithInlineFeedback {
 
         $purifiedAnswerText = str_replace('commentstart', 'comment-start', $purifiedAnswerText);
         $purifiedAnswerText = str_replace('commentend', 'comment-end', $purifiedAnswerText);
+
+        //todo: dispatch Pusher event to update answer text for other users
+        //foreach ($testTake->testParticipants as $testParticipant) {
+        //                    AfterResponse::$performAction[] = fn() => TestTakeOpenForInteraction::dispatch($testParticipant->uuid);
+        // }
+        //find other users who are currently viewing the same test and dispatch event to update answer text
+
+
 
         Answer::whereId($this->getCurrentAnswer()->getKey())->update(['commented_answer' => $purifiedAnswerText]);
     }
