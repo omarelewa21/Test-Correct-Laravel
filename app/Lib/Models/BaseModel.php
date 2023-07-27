@@ -99,7 +99,7 @@ abstract class BaseModel extends Model
 
         //Get the enum column from the DB with the type;
         $type = DB::select(
-            DB::raw(sprintf('SHOW COLUMNS FROM %s WHERE Field = "%s"', $instance->getTable(), $column))
+            sprintf('SHOW COLUMNS FROM %s WHERE Field = "%s"', $instance->getTable(), $column)
         )[0]->Type;
 
         //Strip the enum word + ()'s

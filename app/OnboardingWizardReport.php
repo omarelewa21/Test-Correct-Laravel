@@ -28,7 +28,7 @@ class OnboardingWizardReport extends Model
 
         $helper = new ReportHelper($user);
 
-        $wizardData = self::getStepsCollection($user);
+//        $wizardData = self::getStepsCollection($user);
 
         $updated_data_array = [
             'user_email'                                  => $user->username,
@@ -59,13 +59,13 @@ class OnboardingWizardReport extends Model
             'first_test_rated_date'                       => self::getFirstTestRatedDate($user),
             'last_test_rated_date'                        => self::getLastTestRatedDate($user),
             'tests_rated_amount'                          => $user->testTakes()->where('demo', 0)->where('test_take_status_id', 9)->count(),
-            'finished_demo_tour'                          => $wizardData->progress == 100 ? 'Ja' : 'Nee',
-            'finished_demo_steps_percentage'              => self::stepsPercentage($user),
-            'finished_demo_substeps_percentage'           => self::subStepsPercentage($user),
-            'current_demo_tour_step'                      => self::getActiveStep($user),
-            'current_demo_tour_step_since_date'           => optional($user->onboardingWizardUserSteps()->orderByDesc('created_at')->first())->created_at,
-            'current_demo_tour_step_since_hours'          => optional(optional($user->onboardingWizardUserSteps()->orderByDesc('created_at')->first())->created_at)->diffForHumans(),
-            'average_time_finished_demo_tour_steps_hours' => self::getOnboardingWizardMeanTimeCompletingStep($user),
+//            'finished_demo_tour'                          => $wizardData->progress == 100 ? 'Ja' : 'Nee',
+//            'finished_demo_steps_percentage'              => self::stepsPercentage($user),
+//            'finished_demo_substeps_percentage'           => self::subStepsPercentage($user),
+//            'current_demo_tour_step'                      => self::getActiveStep($user),
+//            'current_demo_tour_step_since_date'           => optional($user->onboardingWizardUserSteps()->orderByDesc('created_at')->first())->created_at,
+//            'current_demo_tour_step_since_hours'          => optional(optional($user->onboardingWizardUserSteps()->orderByDesc('created_at')->first())->created_at)->diffForHumans(),
+//            'average_time_finished_demo_tour_steps_hours' => self::getOnboardingWizardMeanTimeCompletingStep($user),
             'user_sections'                               => self::getUserSections($user),
             'user_login_amount'                           => $user->loginLogs()->count(),
             'last_updated_from_TC'                        => Carbon::now(),
@@ -132,7 +132,7 @@ class OnboardingWizardReport extends Model
         }
 
         $result = DB::select(
-            DB::raw(
+
                 sprintf("SELECT
   (SELECT count(distinct(onboarding_wizard_user_steps.`onboarding_wizard_step_id`))
    FROM onboarding_wizard_user_steps
@@ -147,7 +147,7 @@ class OnboardingWizardReport extends Model
                     $user->getKey(),
                     $last_updated_wizard_id,
                     $last_updated_wizard_id
-                )));
+                ));
         return $result[0]->percentage;
     }
 
@@ -158,8 +158,8 @@ class OnboardingWizardReport extends Model
             return 'no wizard was attached to this user';
         }
 
-        $result = DB::select(
-            DB::raw(
+        $expression = DB::select(
+
                 sprintf("SELECT
   (SELECT count(*)
    FROM onboarding_wizard_user_steps
@@ -175,8 +175,10 @@ class OnboardingWizardReport extends Model
                     $last_updated_wizard_id,
                     $last_updated_wizard_id
                 )
-            )
+
         );
+        $result = DB::select($expression->getValue(DB::connection()->getQueryGrammar()));;
+
         return $result[0]->percentage;
     }
 
@@ -187,8 +189,8 @@ class OnboardingWizardReport extends Model
             return 'no wizard was attached to this user';
         }
 
-        $result = DB::select(
-            DB::raw(
+        $expression = DB::select(
+
                 sprintf("
                    SELECT t2.title AS title
 FROM onboarding_wizard_steps AS t1
@@ -214,8 +216,11 @@ ORDER BY t2.displayorder,
                     $last_updated_wizard_id,
                     $last_updated_wizard_id
                 )
-            )
+
         );
+
+        $result = DB::select($expression->getValue(DB::connection()->getQueryGrammar()));;
+
         if (isset($result) && isset($result[0])) {
             $str = $result[0]->title;
             return substr($str, 0, strpos($str, '<'));
