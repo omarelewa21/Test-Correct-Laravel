@@ -4,10 +4,9 @@ namespace tcCore\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\App;
 use tcCore\Http\Helpers\BaseHelper;
 
-class DevelopmentOnly
+class LocalOrTesting
 {
     /**
      * Handle an incoming request.
@@ -18,11 +17,11 @@ class DevelopmentOnly
      */
     public function handle(Request $request, Closure $next)
     {
-        // Only allow access in local and testing environments
-        if(App::isProduction()) {
-            return abort(404);
+        if(BaseHelper::notProduction()) {
+            //BaseHelper::notProduction() is not the same as the inverse of BaseHelper::onProduction() !!!
+            return $next($request);
         }
 
-        return $next($request);
+        abort(404);
     }
 }

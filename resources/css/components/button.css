@@ -2,7 +2,7 @@
     border-radius: 10px;
     font-size: 18px;
     font-weight: bold;
-    padding: 0 20px 0 20px;
+    padding: 0 22px; /* 22px + border of 2px = 24px*/
     align-items: center;
     display: inline-flex;
     min-height: 40px;
@@ -25,6 +25,7 @@ button.button {
 .button-sm {
     min-height: 40px;
     min-width: 40px;
+    padding: 0 14px; /* 14px + border 2px = 16px */
 }
 
 .button-md {
@@ -37,12 +38,17 @@ button.button {
     min-width: 60px;
 }
 
+:is(.button-sm, .button-md, .button-lg).text-button {
+    min-width: unset;
+}
+
 .icon-button {
     @apply h-10 w-10 p-0 justify-center;
 }
 
-.text-button:is(.button-sm, .button-md, .button-lg) {
-    min-width: unset;
+/* Text button */
+.text-button.button-sm {
+    font-size: 16px;
 }
 
 .text-button {
@@ -52,34 +58,50 @@ button.button {
     padding: 0;
 }
 
-.text-button:hover {
+.text-button span {
+    height: 24px;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    line-height: 22px;
+}
+.text-button.button-sm span {
+    height: 22px;
+}
+
+.text-button:is(:hover, :active, :focus, :focus-visible) {
     color: var(--primary);
-}
-
-.text-button.text-button-hover-bg:enabled:hover {
-    background: var(--primary-opacity-05);
-}
-
-.text-button:active {
-    color: var(--primary);
-}
-
-.text-button.text-button-hover-bg:enabled:active {
-    background: var(--primary-opacity-10);
 }
 
 .text-button:focus {
     outline: none;
 }
 
-.text-button > span {
-    vertical-align: middle;
+.text-button:focus span {
+    border: 1px solid rgba(var(--primary-rgb), 0.5);
+}
+
+.text-button:disabled span {
+    background-color: transparent !important;
+    border: 1px solid transparent !important;
+}
+
+.text-button:is(:focus, :active) span {
+    background-color: rgba(var(--primary-rgb), 0.1);
 }
 
 .text-button:disabled {
     color: var(--mid-grey) !important;
     cursor: default !important;
 }
+
+.text-button.text-button-hover-bg:enabled:hover {
+    background: var(--primary-opacity-05);
+}
+
+.text-button.text-button-hover-bg:enabled:active {
+    background: var(--primary-opacity-10);
+}
+/* end text button */
 
 .button-gradient.primary-button {
     --button-text-color: white;
@@ -185,11 +207,6 @@ button.button {
 }
 
 /* <start> left over old specific styling of the primary button after refactoring */
-.primary-button:is(:hover, :active, :focus) {
-    background-color: rgba(0, 77, 245, 0);
-    outline: none;
-}
-
 .primary-button.btn-disabled:hover {
     background: var(--light-grey);
     color: var(--mid-grey);

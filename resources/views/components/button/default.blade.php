@@ -20,7 +20,7 @@ $size = 'button-' . $size;
             {{ $attributes->except('class') }}
             @class([
                 $attributes->get('class'),
-                'button space-x-2.5',
+                'button space-x-2',
                 $rotateClass,
                 $size,
                 $componentName,

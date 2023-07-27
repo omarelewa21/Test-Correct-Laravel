@@ -2,22 +2,16 @@
 
 namespace tcCore\Http\Livewire;
 
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Response;
+use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Livewire\TCComponent;
 
 class ComponentStyleguide extends TCComponent
 {
     public int $counter = 0;
 
-    public function mount()
-    {
-        // Only allow access to styleguide in local and testing environments
-        if(App::isProduction()) {
-            abort(404);
-        }
-
-    }
+    protected $listeners = [
+        'count' => 'count'
+    ];
 
     public function render()
     {
