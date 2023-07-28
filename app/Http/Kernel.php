@@ -51,6 +51,7 @@ class Kernel extends HttpKernel
         RequestLogger::class,
         Logging::class,
         BugsnagRequestId::class,
+        AfterResponse::class,
     ];
 
     /**
@@ -95,7 +96,6 @@ class Kernel extends HttpKernel
             CheckForDeploymentMaintenance::class,
             AppDetection::class,
             SetHeaders::class,
-            AfterResponse::class,
         ],
         'teacher' => [
             AuthenticatedAsTeacher::class,
