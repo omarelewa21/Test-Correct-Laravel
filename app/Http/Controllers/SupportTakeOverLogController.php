@@ -46,24 +46,28 @@ class SupportTakeOverLogController extends Controller
         foreach ($logs->items() as $log) {
             if(!$log->user){
                 $log->user = User::withTrashed()->find($logs->user_id);
+                if($log->user) {
+                    $log->user->name .= '(deleted)';
+                } else {
+                    $log->user = User::make([
+                        'username' => 'deleted user',
+                        'fullname' => 'deleted user',
+                    ]);
+                }
             }
-            if(!$log->user){
-                $log->user = User::make([
-                    'username' => 'deleted user',
-                    'fullname' => 'deleted user',
-                ]);
-            } else {
-                $log->user->setAttribute('fullname', $log->user->getNameFullAttribute());
-            }
+            $log->user->setAttribute('fullname', $log->user->getNameFullAttribute());
+
             if(!$log->supportUser){
                 $log->supportUser = User::withTrashed()->find($logs->support_user_id);
+                if($log->supportUser){
+                    $log->supportUser->name .= '(deleted)';
+                } else {
+                    $log->supportUser = User::make([
+                        'username' => 'deleted support user',
+                        'fullname' => 'deleted support user',
+                    ]);
+                }
             }
-            if(!$log->supportUser){
-                $log->supportUser = User::make([
-                    'username' => 'deleted support user',
-                    'fullname' => 'deleted support user',
-                ]);
-            } else {
             $log->supportUser->setAttribute('fullname', $log->supportUser->getNameFullAttribute());
         }
 
