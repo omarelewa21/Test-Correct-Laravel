@@ -51,7 +51,8 @@ class SupportTakeOverLogController extends Controller
                 } else {
                     $log->user = User::make([
                         'username' => 'deleted user',
-                        'fullname' => 'deleted user',
+                        'name' => 'user',
+                        'name_first' => 'deleted',
                     ]);
                 }
             }
@@ -64,7 +65,9 @@ class SupportTakeOverLogController extends Controller
                 } else {
                     $log->supportUser = User::make([
                         'username' => 'deleted support user',
-                        'fullname' => 'deleted support user',
+                        'name' => 'support user',
+                        'name_first' => 'deleted',
+
                     ]);
                 }
             }
