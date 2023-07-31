@@ -23,10 +23,9 @@ class TestTakeForceTakenAwayCheck
      */
 
     private $urisToValidate = [
-        '/livewire/message/question',
-        '/livewire/message/overview',
+        '/livewire/message/student-player.question',
+        '/livewire/message/student-player.overview',
         '/livewire/message/student.fraud-detection',
-        '/livewire/message/student-player',
     ];
 
     public function handle($request, Closure $next)
