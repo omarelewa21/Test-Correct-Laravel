@@ -3229,17 +3229,14 @@ document.addEventListener("alpine:init", () => {
     Alpine.data("openQuestionStudentPlayer", (editorId) => ({
         editorId,
         init() {
+            this.editor = ClassicEditors[this.editorId];
             this.$watch("showMe", value => {
                 if (!value) return;
-
                 this.$nextTick(() => {
-                    var editor = ClassicEditors[editorId];
-                    if (!editor) {
-                        return;
-                    }
-                    if (!editor.ui.focusTracker.isFocused) {
+                    if (!this.getEditor()) return;
+                    if (!this.getEditor().ui.focusTracker.isFocused) {
                         setTimeout(() => {
-                            this.setFocus(editor);
+                            this.setFocus(this.getEditor());
                         }, 300);
                     }
                 });
@@ -3250,6 +3247,13 @@ document.addEventListener("alpine:init", () => {
             editor.model.change(writer => {
                 writer.setSelection(editor.model.document.getRoot(), "end");
             });
+        },
+        getEditor() {
+            return ClassicEditors[this.editorId];
+        },
+        syncEditorData() {
+            if (!this.getEditor()) return;
+            this.$wire.sync("answer", this.getEditor().getData());
         }
     }));
 
@@ -3771,6 +3775,34 @@ document.addEventListener("alpine:init", () => {
             this.navigationMethod = null;
             window.dispatchEvent(new CustomEvent('assessment-drawer-tab-update', {detail: {tab: 2, uuid: this.editingComment}}));
             Livewire.emit('closeModal');
+        }
+    });
+    Alpine.store("studentPlayer", {
+        playerComponent: null,
+        getPlayer() {
+            if (!this.playerComponent) {
+                this.playerComponent = Livewire.components
+                    .findComponent(
+                        document.querySelector("[test-take-player]").getAttribute("wire:id")
+                    );
+            }
+            return this.playerComponent;
+        },
+        to(newQuestion, current) {
+            this.navigate("goToQuestion", current, newQuestion);
+        },
+        next(current) {
+            this.navigate("nextQuestion", current);
+        },
+        previous(current) {
+            this.navigate("previousQuestion", current);
+        },
+        toOverview(current) {
+            this.navigate("toOverview", current, current);
+        },
+        navigate(method, current, methodParameter = null) {
+            window.dispatchEvent(new CustomEvent("sync-editor-data-" + current));
+            this.getPlayer().call(method, methodParameter);
         }
     });
 });
