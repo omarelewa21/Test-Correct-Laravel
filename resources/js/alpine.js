@@ -2657,7 +2657,7 @@ document.addEventListener("alpine:init", () => {
         activeComment: null,
         hoveringComment: null,
         dropdownOpened: null,
-        commentTagsEventListeners: null,  /*todo implement or remove, replace eventlistener on every element with one that handles all*/
+        commentTagsEventListeners: null,
         userId,
         questionType,
         viewOnly,
@@ -2669,7 +2669,7 @@ document.addEventListener("alpine:init", () => {
                 return;
             }
             this.setFocusTracking();
-            this.createFocusableButtons();
+            // this.createFocusableButtons();
 
             document.addEventListener('comment-color-updated', async (event) => {
                 let styleTagElement = document.querySelector('#temporaryCommentMarkerStyles');
@@ -2707,6 +2707,7 @@ document.addEventListener("alpine:init", () => {
                     return;
                 }
                 //check for click outside 1. comment markers, 2. comment marker icons, 3. comment cards.
+                //todo also selects inactive comment markers now
                 if( event.srcElement.closest(':is(.ck-comment-marker, .answer-feedback-comment-icons, .given-feedback-container)') ) {
                     return;
                 }
@@ -2799,8 +2800,6 @@ document.addEventListener("alpine:init", () => {
 
                     document.querySelector('#commentMarkerStyles').innerHTML = commentStyles;
 
-                    this.resetAddNewAnswerFeedback();
-
                     this.hasFeedback = true;
 
                     this.$dispatch('answer-feedback-show-comments');
@@ -2816,8 +2815,6 @@ document.addEventListener("alpine:init", () => {
                 }, false);
 
                 this.hasFeedback = true;
-
-                this.resetAddNewAnswerFeedback();
 
                 this.$dispatch('answer-feedback-show-comments');
 
@@ -2857,7 +2854,6 @@ document.addEventListener("alpine:init", () => {
             console.error('failed to delete answer feedback');
         },
         initCommentIcons(commentThreads, answerFeedbackFilter = 'all') {
-            //todo complete new implementation
             let filteredCommentThreads = commentThreads.filter((thread) => {
                 return (
                     (answerFeedbackFilter === 'current_user' && thread.currentUser)
@@ -3034,7 +3030,7 @@ document.addEventListener("alpine:init", () => {
                 '            --active-comment-color: '+ colorCode +'; /* default color, overwrite when color picker is used */\n' +
                 '            --ck-color-comment-marker-active: var(--active-comment-color);\n' +
                 '        }\n' +
-                '    .ck-comment-marker[data-comment="new-comment-thread"]{\n' +
+                '    span.ck-comment-marker[data-comment="new-comment-thread"]{\n' +
                 '            --active-comment-color: '+ colorCode +'; /* default color, overwrite when color picker is used */\n' +
                 '            --ck-color-comment-marker: var(--active-comment-color);\n' +
                 '            --ck-color-comment-marker-active: var(--active-comment-color);\n' +
@@ -3053,7 +3049,7 @@ document.addEventListener("alpine:init", () => {
             }
 
             styleTag.innerHTML = '' +
-                '.ck-comment-marker[data-comment="'+ this.hoveringComment.threadId +'"] { color: var(--teacher-primary); }' +
+                'span.ck-comment-marker[data-comment="'+ this.hoveringComment.threadId +'"] { color: var(--teacher-primary); }' +
                 'div[data-threadid="'+this.hoveringComment.threadId+'"] svg { color: var(--teacher-primary); }';
 
         },
@@ -3069,7 +3065,7 @@ document.addEventListener("alpine:init", () => {
             }
 
             styleTag.innerHTML = '' +
-                '.ck-comment-marker[data-comment="'+ this.activeComment?.threadId +'"] { ' +
+                'span.ck-comment-marker[data-comment="'+ this.activeComment?.threadId +'"] { ' +
                 '   border: 1px solid var(--ck-color-comment-marker-border) !important; ' +
                 '} ';
 
@@ -3166,7 +3162,7 @@ document.addEventListener("alpine:init", () => {
                 } catch (exception) {
                     //
                 }
-            }, 1000);
+            }, 0);
         },
         createCommentColorRadioButton(el, rgb, colorName, checked) {
             const answerEditor = ClassicEditors[this.answerEditorId];

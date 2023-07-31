@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
 use tcCore\AnswerRating;
+use tcCore\Events\CommentedAnswerUpdated;
 use tcCore\Events\TestTakeChangeDiscussingQuestion;
 use tcCore\Events\CoLearningForceTakenAway;
 use tcCore\Events\TestTakeCoLearningPresenceEvent;

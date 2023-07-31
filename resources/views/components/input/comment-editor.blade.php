@@ -8,7 +8,7 @@
             --active-comment-color: rgba(71,129,255, 0.4); /* default color, overwrite when color picker is used */
             --ck-color-comment-marker-active: var(--active-comment-color);
         }
-        .ck-comment-marker[data-comment="new-comment-thread"]{
+        span.ck-comment-marker[data-comment="new-comment-thread"]{
             --active-comment-color: rgba(71,129,255, 0.4); /* default color, overwrite when color picker is used */
             --ck-color-comment-marker: var(--active-comment-color);
             --ck-color-comment-marker-active: var(--active-comment-color);
@@ -78,7 +78,7 @@
 
     <div wire:ignore  @class(['ckeditor-disabled' => $disabled, 'relative'])>
         <textarea
-                wire:key="comment-editor-{{$answerFeedbackFilter}}"
+                wire:key="{{ sprintf('comment-editor-%s-%s', $answerFeedbackFilter?->value, $answerUpdatedAtHash) }} "
                 {{ $attributes->merge(['class' => 'form-input resize-none']) }}
                 x-init="{{ $initFunctionCall }}"
                 id="{{ $editorId }}"

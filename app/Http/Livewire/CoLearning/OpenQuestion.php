@@ -7,6 +7,7 @@ use Livewire\Component;
 use tcCore\Answer;
 use tcCore\AnswerFeedback;
 use tcCore\AnswerRating;
+use tcCore\Events\CommentedAnswerUpdated;
 use tcCore\Http\Enums\AnswerFeedbackFilter;
 use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithGroups;
@@ -19,6 +20,22 @@ class OpenQuestion extends CoLearningQuestion
     public string $commentMarkerStyles = '';
     public string $answerId;
     public AnswerFeedbackFilter $answerFeedbackFilter = AnswerFeedbackFilter::ALL;
+    public string $updatedAtHash;
+    public string $testParticipantUuid;
+
+    protected function getListeners()
+    {
+        return [
+            CommentedAnswerUpdated::channelSignature(testParticipantUuid: $this->testParticipantUuid) => 'getUpdatedAnswerText',
+        ];
+    }
+
+    public function getUpdatedAnswerText()
+    {
+        $this->answerRating = AnswerRating::find($this->answerRatingId);
+
+        $this->handleGetAnswerData();
+    }
 
     public function render()
     {
@@ -33,6 +50,7 @@ class OpenQuestion extends CoLearningQuestion
     protected function handleGetAnswerData()
     {
         $this->answer = $this->answerRating->answer->commented_answer ?? json_decode($this->answerRating->answer->json)->value ?? '';
+        $this->updatedAtHash = md5($this->answerRating->answer->updated_at->format('His'));
 
         $this->answer = Str::replace(
             chr(194).chr(160),

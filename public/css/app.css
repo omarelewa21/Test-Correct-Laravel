@@ -8907,7 +8907,6 @@ span.completion-response-object-container{
 
 .comment-editor .ck.ck-editor__main p .ck-comment-marker {
     border: 1px solid transparent;
-    cursor: pointer;
 }
 .comment-editor  .ck.ck-editor__main .ck-content > * {
     line-height: 2;
@@ -10465,9 +10464,6 @@ video {
 }
 .h-screen{
   height: 100vh;
-}
-.h-0{
-  height: 0px;
 }
 .max-h-0{
   max-height: 0px;

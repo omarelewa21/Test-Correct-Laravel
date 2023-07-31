@@ -9332,7 +9332,6 @@ document.addEventListener("alpine:init", function () {
       hoveringComment: null,
       dropdownOpened: null,
       commentTagsEventListeners: null,
-      /*todo implement or remove, replace eventlistener on every element with one that handles all*/
       userId: userId,
       questionType: questionType,
       viewOnly: viewOnly,
@@ -9351,7 +9350,8 @@ document.addEventListener("alpine:init", function () {
                 return _context23.abrupt("return");
               case 3:
                 _this61.setFocusTracking();
-                _this61.createFocusableButtons();
+                // this.createFocusableButtons();
+
                 document.addEventListener('comment-color-updated', /*#__PURE__*/function () {
                   var _ref4 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee21(event) {
                     var styleTagElement, colorWithOpacity, color;
@@ -9406,13 +9406,14 @@ document.addEventListener("alpine:init", function () {
                     return;
                   }
                   //check for click outside 1. comment markers, 2. comment marker icons, 3. comment cards.
+                  //todo also selects inactive comment markers now
                   if (event.srcElement.closest(':is(.ck-comment-marker, .answer-feedback-comment-icons, .given-feedback-container)')) {
                     return;
                   }
                   _this61.clearActiveComment();
                 });
                 _this61.preventOpeningModalFromBreakingDrawer();
-              case 10:
+              case 9:
               case "end":
                 return _context23.stop();
             }
@@ -9490,7 +9491,7 @@ document.addEventListener("alpine:init", function () {
                     while (1) switch (_context25.prev = _context25.next) {
                       case 0:
                         if (!answerEditor.plugins.get('CommentsRepository').activeCommentThread) {
-                          _context25.next = 20;
+                          _context25.next = 19;
                           break;
                         }
                         _context25.next = 3;
@@ -9529,26 +9530,24 @@ document.addEventListener("alpine:init", function () {
                         });
                       case 14:
                         document.querySelector('#commentMarkerStyles').innerHTML = commentStyles;
-                        _this63.resetAddNewAnswerFeedback();
                         _this63.hasFeedback = true;
                         _this63.$dispatch('answer-feedback-show-comments');
                         _this63.scrollToCommentCard(feedback.uuid);
                         return _context25.abrupt("return");
-                      case 20:
-                        _context25.next = 22;
+                      case 19:
+                        _context25.next = 21;
                         return _this63.$wire.createNewComment({
                           message: comment,
                           comment_color: null,
                           //no comment color when its a general ticket.
                           comment_emoji: comment_emoji
                         }, false);
-                      case 22:
+                      case 21:
                         feedback = _context25.sent;
                         _this63.hasFeedback = true;
-                        _this63.resetAddNewAnswerFeedback();
                         _this63.$dispatch('answer-feedback-show-comments');
                         _this63.scrollToCommentCard(feedback.uuid);
-                      case 27:
+                      case 25:
                       case "end":
                         return _context25.stop();
                     }
@@ -9613,7 +9612,6 @@ document.addEventListener("alpine:init", function () {
       initCommentIcons: function initCommentIcons(commentThreads) {
         var _this65 = this;
         var answerFeedbackFilter = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'all';
-        //todo complete new implementation
         var filteredCommentThreads = commentThreads.filter(function (thread) {
           return answerFeedbackFilter === 'current_user' && thread.currentUser || answerFeedbackFilter === 'students' && thread.role === 'student' || answerFeedbackFilter === 'teachers' && thread.role === 'teacher' || answerFeedbackFilter === 'all';
         });
@@ -9765,7 +9763,7 @@ document.addEventListener("alpine:init", function () {
         if (color) {
           colorCode = color;
         }
-        styleTag.innerHTML = '\n' + '        :root {\n' + '            --active-comment-color: ' + colorCode + '; /* default color, overwrite when color picker is used */\n' + '            --ck-color-comment-marker-active: var(--active-comment-color);\n' + '        }\n' + '    .ck-comment-marker[data-comment="new-comment-thread"]{\n' + '            --active-comment-color: ' + colorCode + '; /* default color, overwrite when color picker is used */\n' + '            --ck-color-comment-marker: var(--active-comment-color);\n' + '            --ck-color-comment-marker-active: var(--active-comment-color);\n' + '            cursor: pointer !important;\n' + '        }';
+        styleTag.innerHTML = '\n' + '        :root {\n' + '            --active-comment-color: ' + colorCode + '; /* default color, overwrite when color picker is used */\n' + '            --ck-color-comment-marker-active: var(--active-comment-color);\n' + '        }\n' + '    span.ck-comment-marker[data-comment="new-comment-thread"]{\n' + '            --active-comment-color: ' + colorCode + '; /* default color, overwrite when color picker is used */\n' + '            --ck-color-comment-marker: var(--active-comment-color);\n' + '            --ck-color-comment-marker-active: var(--active-comment-color);\n' + '            cursor: pointer !important;\n' + '        }';
       },
       setHoveringCommentMarkerStyle: function setHoveringCommentMarkerStyle() {
         var removeStyling = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
@@ -9777,7 +9775,7 @@ document.addEventListener("alpine:init", function () {
           styleTag.innerHTML = '';
           return;
         }
-        styleTag.innerHTML = '' + '.ck-comment-marker[data-comment="' + this.hoveringComment.threadId + '"] { color: var(--teacher-primary); }' + 'div[data-threadid="' + this.hoveringComment.threadId + '"] svg { color: var(--teacher-primary); }';
+        styleTag.innerHTML = '' + 'span.ck-comment-marker[data-comment="' + this.hoveringComment.threadId + '"] { color: var(--teacher-primary); }' + 'div[data-threadid="' + this.hoveringComment.threadId + '"] svg { color: var(--teacher-primary); }';
       },
       setActiveCommentMarkerStyle: function setActiveCommentMarkerStyle() {
         var _this$activeComment, _this$activeComment2;
@@ -9790,7 +9788,7 @@ document.addEventListener("alpine:init", function () {
           styleTag.innerHTML = '';
           return;
         }
-        styleTag.innerHTML = '' + '.ck-comment-marker[data-comment="' + ((_this$activeComment2 = this.activeComment) === null || _this$activeComment2 === void 0 ? void 0 : _this$activeComment2.threadId) + '"] { ' + '   border: 1px solid var(--ck-color-comment-marker-border) !important; ' + '} ';
+        styleTag.innerHTML = '' + 'span.ck-comment-marker[data-comment="' + ((_this$activeComment2 = this.activeComment) === null || _this$activeComment2 === void 0 ? void 0 : _this$activeComment2.threadId) + '"] { ' + '   border: 1px solid var(--ck-color-comment-marker-border) !important; ' + '} ';
       },
       setActiveComment: function setActiveComment(threadId, answerFeedbackUuid) {
         var _this69 = this;
@@ -9885,7 +9883,7 @@ document.addEventListener("alpine:init", function () {
           } catch (exception) {
             //
           }
-        }, 1000);
+        }, 0);
       },
       createCommentColorRadioButton: function createCommentColorRadioButton(el, rgb, colorName, checked) {
         var answerEditor = ClassicEditors[this.answerEditorId];

@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\DB;
 use Ramsey\Uuid\Uuid;
 use tcCore\Answer;
 use tcCore\AnswerFeedback;
+use tcCore\AnswerRating;
+use tcCore\Events\CommentedAnswerUpdated;
 use tcCore\Events\TestTakeOpenForInteraction;
 use tcCore\Http\Enums\AnswerFeedbackFilter;
 use tcCore\Http\Enums\CommentEmoji;
@@ -110,13 +112,17 @@ trait WithInlineFeedback {
         $purifiedAnswerText = str_replace('commentstart', 'comment-start', $purifiedAnswerText);
         $purifiedAnswerText = str_replace('commentend', 'comment-end', $purifiedAnswerText);
 
-        //todo: dispatch Pusher event to update answer text for other users
-        //foreach ($testTake->testParticipants as $testParticipant) {
-        //                    AfterResponse::$performAction[] = fn() => TestTakeOpenForInteraction::dispatch($testParticipant->uuid);
-        // }
-        //find other users who are currently viewing the same test and dispatch event to update answer text
+        $testParticipants = $this->testTake->testParticipants()
+                                           ->whereIn('user_id', AnswerRating::where('answer_id', $this->getCurrentAnswer()->getKey())
+                                                                                  ->whereType('STUDENT')
+                                                                                  ->whereNot('user_id', auth()->id())
+                                                                                  ->select('user_id')
+                                           )
+                                           ->get();
 
-
+        foreach ($testParticipants as $testParticipant) {
+            AfterResponse::$performAction[] = fn() => CommentedAnswerUpdated::dispatch($testParticipant->uuid);
+        }
 
         Answer::whereId($this->getCurrentAnswer()->getKey())->update(['commented_answer' => $purifiedAnswerText]);
     }
@@ -195,28 +201,29 @@ trait WithInlineFeedback {
             return '';
         }
 
-        return  $this->answerFeedback->reduce(function ($carry, $feedback) {
-            if($feedback->visible) {
-                return $carry = $carry . <<<STYLE
-                .ck-comment-marker[data-comment="{$feedback->thread_id}"]{
-                            --ck-color-comment-marker: {$feedback->getColor(0.4)} !important;
-                            --ck-color-comment-marker-border: {$feedback->getColor()} !important;
-                            --ck-color-comment-marker-active: {$feedback->getColor(0.4)} !important;
-                        }
-            STYLE;
-            }
-            return $carry = $carry . <<<STYLE
-                 .ck-comment-marker[data-comment="{$feedback->thread_id}"]{
-                            --ck-color-comment-marker: transparent !important;
-                            --ck-color-comment-marker-border: transparent !important;
-                            --ck-color-comment-marker-active: transparent !important;
-                            background: none !important;
-                            border: none !important;
-                            cursor: text !important;
-                        } 
+        $defaultHiddenCommentMarkerStyle = <<<STYLE
+                    .ck-comment-marker[data-comment]{
+                        --ck-color-comment-marker: transparent;
+                        --ck-color-comment-marker-border: transparent;
+                        --ck-color-comment-marker-active: transparent;
+                        cursor: text;
+                    } 
             STYLE;
 
-        }, '');
+        return  $this->answerFeedback->reduce(function ($carry, $feedback) {
+            if(! $feedback->visible) {
+                return $carry;
+            }
+            return $carry = $carry . <<<STYLE
+                span.ck-comment-marker[data-comment="{$feedback->thread_id}"]{
+                    --ck-color-comment-marker: {$feedback->getColor(0.4)} !important;
+                    --ck-color-comment-marker-border: {$feedback->getColor()} !important;
+                    --ck-color-comment-marker-active: {$feedback->getColor(0.4)} !important;
+                    cursor: pointer;
+                }
+            STYLE;
+
+        }, $defaultHiddenCommentMarkerStyle);
     }
 
     /**

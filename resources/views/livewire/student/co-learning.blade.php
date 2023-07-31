@@ -57,6 +57,7 @@
                                      :commentMarkerStyles="$this->commentMarkerStyles"
                                      :answerId="$this->answerRating->answer->getKey()"
                                      :answerFeedbackFilter="$this->answerFeedbackFilter"
+                                     :testParticipantUuid="$this->testParticipant->uuid"
                         />
                     </div>
                 @endif
@@ -159,6 +160,7 @@
                          x-collapse
                          wire:ignore
                          wire:key="new-{{$testTake->discussingQuestion->uuid}}-{{ $this->answerFollowUpNumber }}-{{$answerFeedback->count()}}"
+                         x-init="createFocusableButtons()"
                     >
                         <x-input.comment-color-picker
                                 commentThreadId="new-comment"
@@ -183,6 +185,7 @@
                                 @lang('assessment.Feedback schrijven')
                             </label>
                             <x-input.rich-textarea type="create-answer-feedback"
+                                                   wire:key="new-{{$testTake->discussingQuestion->uuid}}-{{ $this->answerFollowUpNumber }}-{{$answerFeedback->count()}}"
                                                    :editorId="'feedback-editor-'. $this->questionFollowUpNumber .'-'. $this->answerFollowUpNumber"
                             />
                         </div>
@@ -190,7 +193,6 @@
                         <div class="flex justify-end space-x-4 h-fit mt-2 mb-6"
                              x-on:button-cancel-clicked="resetAddNewAnswerFeedback(true)"
                              x-on:button-save-clicked="createCommentThread()"
-                             wire:key="add-comment-buttons-{{$testTake->discussingQuestion->uuid}}"
                              id="saveNewFeedbackButtonWrapper"
                              data-save-translation="@lang('general.save')"
                              data-cancel-translation="@lang('modal.annuleren')"

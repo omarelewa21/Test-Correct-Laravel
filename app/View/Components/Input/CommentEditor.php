@@ -16,20 +16,21 @@ class CommentEditor extends RichTextarea
     public $userId;
 
     public function __construct(
-        string|int                  $editorId,
-        ?string                     $type = null,
-        ?bool                       $disabled = false,
-        null|string|int             $questionId = null,
-        null|string|WscLanguage     $lang = 'nl_NL',
-        ?bool                       $allowWsc = false,
-        null|string|int             $maxWords = null,
-        ?bool                       $maxWordOverride = false,
-        ?bool                       $restrictWords = false,
-        ?bool                       $textFormatting = true,
-        ?bool                       $mathmlFunctions = true,
-        null|string|int             $answerId = null,
-        public string               $commentMarkerStyles = '',
+        string|int                   $editorId,
+        ?string                      $type = null,
+        ?bool                        $disabled = false,
+        null|string|int              $questionId = null,
+        null|string|WscLanguage      $lang = 'nl_NL',
+        ?bool                        $allowWsc = false,
+        null|string|int              $maxWords = null,
+        ?bool                        $maxWordOverride = false,
+        ?bool                        $restrictWords = false,
+        ?bool                        $textFormatting = true,
+        ?bool                        $mathmlFunctions = true,
+        null|string|int              $answerId = null,
+        public string                $commentMarkerStyles = '',
         public ?AnswerFeedbackFilter $answerFeedbackFilter = null,
+        public string                $answerUpdatedAtHash = '',
     )
     {
         $this->userId = auth()->user()->uuid;
