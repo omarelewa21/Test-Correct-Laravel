@@ -1739,6 +1739,35 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 case 'name_first':
                     $query->where('name_first', 'LIKE', '%' . $value . '%');
                     break;
+                case 'has_package':
+                    if ($value==1) {      $query->where('has_package', '=', 1);
+                    } elseif($value==2) {
+                        $query->where('has_package', '=', 0);
+                    }
+                    break;
+                case 'trial_status':
+                    $usersStatus = TrialPeriod::get();
+                    $usersWithMoreThan14Days = []; // Array to store user IDs with more than 14 days remaining
+                    $usersWithMoreThan0Days = []; // Array to store user IDs with more than 0 days remaining
+                    foreach ($usersStatus as $userStatus) {
+                        $daysRemaining = $userStatus->created_at->diffInDays($userStatus->trial_until);
+        
+                        if ($daysRemaining >= 1 && $daysRemaining <= 15) {
+                            // If days remaining is greater than 14, store the user ID in the array
+                            $usersWithMoreThan14Days[] = $userStatus->user_id;
+                        } else {
+                            $usersWithMoreThan0Days[] = $userStatus->user_id;
+                        }
+                    }
+                    if ($value==1) {
+                        $query->whereNotIn('id', $usersWithMoreThan14Days)->whereNotIn('id', $usersWithMoreThan0Days);
+                    } elseif($value==2) {
+                        $query->whereIn('id', $usersWithMoreThan0Days);
+                    }
+                    elseif($value==3) {
+                        $query->whereIn('id', $usersWithMoreThan14Days);
+                    }
+                    break;
                 case 'send_welcome_email':
                     $query->where('send_welcome_email', '=', $value);
                     break;

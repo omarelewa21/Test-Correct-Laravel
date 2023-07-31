@@ -53,38 +53,8 @@ class UsersController extends Controller
      */
     public function index(Request $request)
     {
-        if (isset($request->get('filter')['has_package'])) {
-            if ($request->get('filter')['has_package'] == 0)
-                $users = User::filtered($request->get('filter', []), $request->get('order', []))->with('salesOrganization');
-            elseif ($request->get('filter')['has_package'] == 1)
-                $users = User::filtered($request->get('filter', []), $request->get('order', []))->with('salesOrganization')->where('has_package', 1);
-            elseif ($request->get('filter')['has_package'] == 2)
-                $users = User::filtered($request->get('filter', []), $request->get('order', []))->with('salesOrganization')->where('has_package', 0);
-        } elseif (isset($request->get('filter')['trial_status'])) {
-            $usersStatus = TrialPeriod::get();
-            $usersWithMoreThan14Days = []; // Array to store user IDs with more than 14 days remaining
-            $usersWithMoreThan0Days = []; // Array to store user IDs with more than 0 days remaining
-            foreach ($usersStatus as $userStatus) {
-                $daysRemaining = $userStatus->updated_at->diffInDays($userStatus->trial_until);
-
-                if ($daysRemaining >= 1 && $daysRemaining <= 15) {
-                    // If days remaining is greater than 14, store the user ID in the array
-                    $usersWithMoreThan14Days[] = $userStatus->user_id;
-                } else {
-                    $usersWithMoreThan0Days[] = $userStatus->user_id;
-                }
-            }
-            if ($request->get('filter')['trial_status'] == 0)
-                $users = User::filtered($request->get('filter', []), $request->get('order', []))->with('salesOrganization');
-            elseif ($request->get('filter')['trial_status'] == 1)
-                $users = User::whereNotIn('id', $usersWithMoreThan14Days)->whereNotIn('id', $usersWithMoreThan0Days)->filtered($request->get('filter', []), $request->get('order', []))->with('salesOrganization');
-            elseif ($request->get('filter')['trial_status'] == 2)
-                $users = User::whereIn('id', $usersWithMoreThan14Days)->filtered($request->get('filter', []), $request->get('order', []))->with('salesOrganization');
-            elseif ($request->get('filter')['trial_status'] == 3)
-                $users = User::whereIn('id', $usersWithMoreThan0Days)->filtered($request->get('filter', []), $request->get('order', []))->with('salesOrganization');
-        } else {
-            $users = User::filtered($request->get('filter', []), $request->get('order', []))->with('salesOrganization');
-        }
+        
+        $users = User::filtered($request->get('filter', []), $request->get('order', []))->with('salesOrganization');
         
         if (is_array($request->get('with')) && in_array('school_location', $request->get('with'))) {
             $users->with('school.schoolLocations', 'schoolLocation');
