@@ -2,12 +2,12 @@
      x-data="{
          makePDF: () => $wire.emit('openModal', 'teacher.pdf-download-modal', {uuid: @js($this->uuid) })
         }"
+     title="{{ __('teacher.Exporteren naar PDF') }}"
 >
     @if($variant == 'icon-button')
         @if($disabled)
             <x-button.primary
                     class="w-10 p-0 items-center justify-center opacity-20 cursor-not-allowed off-white"
-                    title="{{ __('teacher.PDF maken') }}"
             >
                 <x-icon.pdf-file/>
             </x-button.primary>
@@ -15,7 +15,6 @@
             <x-button.primary
                     class="w-10 p-0 items-center justify-center off-white"
                     x-on:click="makePDF()"
-                    title="{{ __('teacher.PDF maken') }}"
             >
                 <x-icon.pdf-file/>
             </x-button.primary>
@@ -26,7 +25,7 @@
                 @click="makePDF()"
         >
             <span class="w-5 flex justify-center"><x-icon.pdf-file/></span>
-            <span class="text-base bold inherit">{{ __('cms.PDF maken') }}</span>
+            <span class="text-base bold inherit">{{ __('cms.Exporteren naar PDF') }}</span>
         </button>
     @endif
 </div>

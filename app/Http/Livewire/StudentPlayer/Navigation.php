@@ -58,7 +58,6 @@ abstract class Navigation extends TCComponent
             $details = $this->getDetailsFirstQuestion();
         }
         $this->dispatchBrowserEvent('update-footer-navigation', $details);
-
     }
 
     public function nextQuestion()
@@ -113,6 +112,8 @@ abstract class Navigation extends TCComponent
 
     public function goToQuestion($nextQuestion)
     {
+        $this->closeOpenAttachmentsIfAny();
+
         $this->q = $nextQuestion;
 
         $details = $this->getDetailsQuestion();
@@ -126,7 +127,6 @@ abstract class Navigation extends TCComponent
         $this->dispatchBrowserEvent('update-footer-navigation', $details);
 
         $this->dispatchBrowserEvent('current-updated', ['current' => $this->q]);
-
     }
 
     public function redirectFromClosedQuestion($navInfo)
@@ -184,5 +184,10 @@ abstract class Navigation extends TCComponent
                 $this->lastQuestionInGroup[$q['group']['id']] = $key + 1;
             }
         }
+    }
+
+    protected function closeOpenAttachmentsIfAny()
+    {
+        $this->emit('close-attachment-' . $this->q);
     }
 }

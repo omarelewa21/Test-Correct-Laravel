@@ -1,5 +1,13 @@
 <main id="student-test-review"
       class="min-h-full w-full review"
+      x-data="AnswerFeedback(
+                @js('editor-'.$this->currentQuestion->uuid.$this->currentAnswer->uuid),
+                @js(null),
+                @js(auth()->user()->uuid),
+                @js($this->currentQuestion->type),
+                @js(true),
+                @js($this->hasFeedback)
+             )"
 >
     <header id="header" @class(['flex items-center py-2.5 px-6'])>
         <x-button.back-round wire:click="redirectBack()"
@@ -29,39 +37,17 @@
         >
             <x-slot:subHeader>
                 {{-- Question necklace navigation  --}}
-                <div class="nav-container | fixed-sub-header-container h-20 bg-lightGrey border-bluegrey border-b top-[var(--header-height)]"
-                >
-                    <div class="flex w-full h-full px-15 items-center invisible overflow-hidden"
-                         x-data="reviewNavigation(@js($this->questionPosition))"
-                         x-bind:class="{'invisible': !initialized }"
-                         x-on:resize.window.throttle="resize()"
-                         wire:ignore.self
-                    >
-                        <div class="slider-buttons left | flex relative pt-4 -top-px h-full z-10" x-show="showSlider">
-                            <button class="inline-flex base rotate-svg-180 w-8 h-8 rounded-full transition items-center justify-center transform focus:outline-none"
-                                    x-on:click="start()">
-                                <x-icon.arrow-last />
-                            </button>
-                            <button class="inline-flex base rotate-svg-180 w-8 h-8 rounded-full transition items-center justify-center transform focus:outline-none"
-                                    x-on:click="left()">
-                                <x-icon.chevron />
-                            </button>
-                        </div>
-                        <div id="navscrollbar"
-                             class="question-indicator gap-2 pt-4 h-full"
-                             x-bind:class="{'overflow-x-auto px-3' : showSlider}"
-                        >
+                <div class="nav-container | fixed-sub-header-container h-20 bg-lightGrey border-bluegrey border-b top-[var(--header-height)]">
+                    <x-partials.necklace-navigation :position="$this->questionPosition">
+                        <x-slot:loopSlot>
                             @foreach($this->answers as $answer)
-                                <div @class([
-                                    'flex flex-col gap-1 items-center',
-                                ])>
+                                <div @class(['flex flex-col gap-1 items-center'])>
                                     <div @class([
-                                    'question-number | relative mt-px inline-flex rounded-full text-center justify-center items-center cursor-pointer hover:shadow-lg',
-                                    'active' => (int)$this->questionPosition === $loop->iteration,
-                                    'done' => $answer->done,
-                                ])
-                                         wire:click="loadQuestion(@js($loop->iteration))"
-                                         x-on:click="$dispatch('assessment-drawer-tab-update', {tab: 1})"
+                                            'question-number | relative mt-px inline-flex rounded-full text-center justify-center items-center cursor-pointer hover:shadow-lg',
+                                            'active' => (int)$this->questionPosition === $loop->iteration,
+                                            'done'   => $answer->done,
+                                        ])
+                                         x-on:click="loadQuestion(@js($loop->iteration))"
                                     >
                                         <span class="align-middle px-1.5">@js($loop->iteration)</span>
                                         @if($answer->connector)
@@ -73,19 +59,8 @@
                                     @endif
                                 </div>
                             @endforeach
-                        </div>
-                        <div class="slider-buttons right | flex relative pt-4 -top-px h-full z-10"
-                             x-show="showSlider">
-                            <button class="inline-flex base w-8 h-8 rounded-full transition items-center justify-center transform focus:outline-none"
-                                    x-on:click="right()">
-                                <x-icon.chevron />
-                            </button>
-                            <button class="inline-flex base w-8 h-8 rounded-full transition items-center justify-center transform focus:outline-none"
-                                    x-on:click="end()">
-                                <x-icon.arrow-last />
-                            </button>
-                        </div>
-                    </div>
+                        </x-slot:loopSlot>
+                    </x-partials.necklace-navigation>
                 </div>
             </x-slot:subHeader>
 
@@ -127,6 +102,8 @@
                                         :answer="$this->currentAnswer"
                                         :disabledToggle="true"
                                         :editorId="'editor-'.$this->currentQuestion->uuid.$this->currentAnswer->uuid"
+                                        :webSpellChecker="$this->currentQuestion->spell_check_available"
+                                        :commentMarkerStyles="$this->commentMarkerStyles"
                                 />
                             </div>
                         </x-slot:body>
@@ -176,20 +153,57 @@
                 @endif
             </x-slot:slideOneContent>
             <x-slot:slideTwoContent>
-                <span class="flex bold">@lang('review.Gegeven feedback')</span>
+                @unless($this->inlineFeedbackEnabled)
+                    <span class="flex bold">@lang('review.Gegeven feedback')</span>
 
-                <div class="flex w-full flex-col gap-2"
-                     wire:key="feedback-editor-{{  $this->questionPosition }}"
-                >
-                    @if($this->hasFeedback)
-                        <x-button.primary class="!p-0 justify-center"
-                                          wire:click="$emit('openModal', 'teacher.inline-feedback-modal', {answer: '{{  $this->currentAnswer->uuid }}', disabled: true });"
+                    <div class="flex w-full flex-col gap-2"
+                         wire:key="feedback-editor-{{  $this->questionPosition }}"
+                    >
+                        {{-- all non-inline-comments are shown in a full ckeditor modal --}}
+                        @if($this->hasFeedback)
+                            <x-button.primary class="!p-0 justify-center"
+                                              wire:click="$emit('openModal', 'teacher.inline-feedback-modal', {answer: '{{  $this->currentAnswer->uuid }}', disabled: true });"
+                            >
+                                <span>@lang('review.Bekijk feedback')</span>
+                                <x-icon.chevron/>
+                            </x-button.primary>
+                        @endif
+                    </div>
+                @else
+                    {{-- only for 'open_question' / 'write down' question --}}
+                    <div class="space-y-4 relative">
+                            <span @class([
+                                    "flex bold border-t border-blue-grey pt-2 justify-between items-center",
+                                    'text-midgrey' => !$this->hasFeedback,
+                                  ])
+                                  x-init="dropdownOpened = @js($this->hasFeedback) ? dropdownOpened : 'add-feedback'"
+                            >
+                                <span>@lang('assessment.Gegeven feedback')</span>
+                                <span class="w-4 h-4 flex justify-center items-center"
+                                      :class="dropdownOpened === 'given-feedback' ? 'rotate-svg-90' : ''"
+                                      @click="toggleFeedbackAccordion('given-feedback')"
+                                >
+                                    <x-icon.chevron></x-icon.chevron>
+                                </span>
+                            </span>
+
+                        <div class="flex w-auto flex-col gap-2 given-feedback-container -m-4"
+                             x-show="dropdownOpened === 'given-feedback'"
+                             x-collapse
+                             wire:key="feedback-editor-{{  $this->questionPosition }}"
+                             x-data="{}"
+                             x-init=""
                         >
-                            <span>@lang('review.Bekijk feedback')</span>
-                            <x-icon.chevron />
-                        </x-button.primary>
-                    @endif
-                </div>
+
+                            @foreach($answerFeedback as $comment)
+
+                                <x-partials.answer-feedback-card :comment="$comment" :viewOnly="true"/>
+
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
             </x-slot:slideTwoContent>
 
             <x-slot:slideThreeContent>

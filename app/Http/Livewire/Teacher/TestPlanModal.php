@@ -31,6 +31,8 @@ class TestPlanModal extends TCModalComponent
     public $selectedClassesContainerId;
     public $selectedInvigilatorsContrainerId;
 
+    public $clickDisabled = false;
+
     public function mount($testUuid)
     {
         $this->test = Test::whereUuid($testUuid)->first();
@@ -47,7 +49,6 @@ class TestPlanModal extends TCModalComponent
         $rules = [
             'request.date'                  => 'required',
             'request.time_end'              => 'sometimes',
-            'request.allow_wsc'             => 'sometimes|boolean',
             'request.weight'                => 'required',
             'request.period_id'             => 'required',
             'request.school_classes'        => 'required',
@@ -72,10 +73,6 @@ class TestPlanModal extends TCModalComponent
             $rules['request.owner_id'] = 'required';
         }
 
-        if($this->rttiExportAllowed) {
-            $rules['request.is_rtti_test_take'] = 'required';
-        }
-
         return $rules;
     }
 
@@ -85,6 +82,11 @@ class TestPlanModal extends TCModalComponent
             'request.invigilators.required' => __('validation.invigilator_required'),
             'request.school_classes.required' => __('validation.school_class_or_guest_accounts_required')
         ];
+    }
+
+    public function updatingRequestDate($value)
+    {
+
     }
 
     public function plan()
@@ -119,6 +121,8 @@ class TestPlanModal extends TCModalComponent
                 }
             });
         })->validate();
+
+        $this->clickDisabled = true;
 
         if ($this->isAssignmentType() && array_key_exists('time_end', $this->request) && $this->request['time_end']) {
             $this->request['time_end'] = Carbon::parse($this->request['time_end'])->endOfDay();
@@ -188,8 +192,6 @@ class TestPlanModal extends TCModalComponent
 
         $this->request['school_classes'] = [];
 
-        $this->request['allow_wsc'] = false;
-
         $this->request['invigilators'] = [$this->defaultInvigilator()];
         $this->request['owner_id'] = $this->defaultOwner();
         $this->setFeatureSettingDefaults($this->request);
@@ -218,24 +220,5 @@ class TestPlanModal extends TCModalComponent
     private function authorOfTestIsAnAllowedInvigilator(): bool
     {
         return $this->allowedInvigilators->contains(fn($user) => $user['value'] === $this->test->author_id);
-    }
-
-    private function getAllowedTeachers()
-    {
-//        /*TODO: Fix this check for published items */
-        if (filled($this->test->scope)) {
-            $query = Teacher::getTeacherUsersForSchoolLocationByBaseSubjectInCurrentYear(Auth::user()->schoolLocation, $this->test->subject()->value('base_subject_id'));
-        } else {
-            $query = Teacher::getTeacherUsersForSchoolLocationBySubjectInCurrentYear(Auth::user()->schoolLocation, $this->test->subject_id);
-        }
-
-        return $query->get()->map(fn($teacher) => ['value' => $teacher->id, 'label' => $teacher->name_full]);
-    }
-
-    private function getAllowedInvigilators()
-    {
-        // invigilators shouldn't be restricted to subject, those users could get to the test anyway
-        $query = Teacher::getTeacherUsersForSchoolLocationInCurrentYear(Auth::user()->schoolLocation);
-        return $query->get()->map(fn($teacher) => ['value' => $teacher->id, 'label' => $teacher->name_full]);
     }
 }

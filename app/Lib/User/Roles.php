@@ -1,27 +1,22 @@
 <?php namespace tcCore\Lib\User;
 
-use Illuminate\Support\Facades\Auth;
 use tcCore\Http\Helpers\ActingAsHelper;
+use tcCore\Http\Helpers\RequestCacheHelper;
 use tcCore\User;
 
-class Roles {
-    public static function getUserRoles(User $user = null) {
+class Roles
+{
+    public static function getUserRoles(User|null $user = null)
+    {
+        $user ??= ActingAsHelper::getInstance()->getUser();
+
         if ($user === null) {
-            $user = ActingAsHelper::getInstance()->getUser();
-            if ($user !== null) {
-                $userRoles = $user->roles;
-            } else {
-                return [];
-            }
-        } else {
-            $userRoles = $user->roles;
+            return [];
         }
-
-        $roles = [];
-        foreach ($userRoles as $userRole) {
-            $roles[] = $userRole['name'];
-        }
-
-        return $roles;
+        return RequestCacheHelper::get($user->getKey(), function () use ($user) {
+            return $user->roles
+                ->map(fn($role) => $role->name)
+                ->toArray();
+        });
     }
 }

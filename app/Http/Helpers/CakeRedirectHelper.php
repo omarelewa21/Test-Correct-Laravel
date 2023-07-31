@@ -219,6 +219,7 @@ class CakeRedirectHelper
             'qtiimport_batch_cito' => '/qtiimport_batch_cito',
 
             'infos.index' => '/infos/index',
+            'messages' => '/messages'
         ];
     }
 

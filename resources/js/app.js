@@ -292,6 +292,10 @@ clearFilterPillsFromElement = (rootElement) => {
     pills.forEach(pill => pill.remove());
 }
 
+isFloat = (value) => {
+    const splitValues = (value + "").split(".")
+    return splitValues[1] !== undefined;
+};
 /**
  * Detects fast successive events
  * @param event event to detect
@@ -319,4 +323,46 @@ selectTextContent = function (event) {
     const selection = window.getSelection();
     selection.removeAllRanges();
     selection.addRange(range);
+}
+
+Array.prototype.contains = function (key)
+{
+    return this.includes(key);
+}
+
+debug = function (seconds = 2) {
+    setTimeout(() => {
+        debugger;
+    }, seconds * 1000);
+}
+_smoothscroll_timeout = null;
+smoothScroll = function smoothScroll(scrollContainer, offsetTop = 0, offsetLeft = 0) {
+    scrollContainer.scroll({
+        top: offsetTop,
+        left: offsetLeft,
+        behavior: 'smooth'
+    });
+
+    return new Promise((resolve, reject) => {
+        const failed = setTimeout(() => {
+            if( (scrollContainer.offsetHeight + scrollContainer.scrollTop) === scrollContainer.scrollHeight) {
+                return resolve();
+            }
+            reject();
+        }, 2000);
+
+        const scrollHandler = () => {
+            if (scrollContainer.scrollTop === offsetTop) {
+                scrollContainer.removeEventListener("scroll", scrollHandler);
+                clearTimeout(failed);
+                resolve();
+            }
+        };
+        if (scrollContainer.scrollTop === offsetTop) {
+            clearTimeout(failed);
+            resolve();
+        } else {
+            scrollContainer.addEventListener("scroll", scrollHandler);
+        }
+    });
 }

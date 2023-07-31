@@ -1,4 +1,4 @@
-<div class="ckeditor-error"
+<div class="ckeditor-error "
      @error($attributes->wire('model')->value)
         style="--ck-color-toolbar-border: var(--all-red);--ck-color-base-border: var(--all-red);"
      @enderror

@@ -1,4 +1,5 @@
 <div cms-drawer
+     x-ref="main-container"
      id="cms-drawer"
      class="drawer flex z-[20] overflow-auto"
      selid="question-drawer"
@@ -229,4 +230,5 @@
         </div>
         <span class="invisible"></span>
     </div>
+    @livewire('session-component')
 </div>

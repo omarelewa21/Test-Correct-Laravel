@@ -41,7 +41,7 @@
                                 />
                             @endforeach
                         </div>
-                        <div class="flex">
+                        <div class="">
                             {!! $group->converted_question_html !!}
                         </div>
                     </div>

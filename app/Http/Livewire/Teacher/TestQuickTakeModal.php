@@ -25,6 +25,8 @@ class TestQuickTakeModal extends TCModalComponent
     public $testTake;
     public $selectedClasses = [];
 
+    public $clickDisabled = false;
+
 
     protected function messages(): array
     {
@@ -50,7 +52,6 @@ class TestQuickTakeModal extends TCModalComponent
                 'testTake.allow_inbrowser_testing' => 'required|boolean',
                 'testTake.guest_accounts'          => 'required|boolean',
                 'testTake.notify_students'         => 'required|boolean',
-                'testTake.allow_wsc'               => 'sometimes|required|boolean',
                 'testTake.show_grades'             => 'sometimes|boolean',
                 'testTake.show_correction_model'   => 'sometimes|boolean',
             ];
@@ -61,9 +62,6 @@ class TestQuickTakeModal extends TCModalComponent
         $conditionalRules = [];
         if (!$this->testTake->guest_accounts) {
             $conditionalRules['selectedClasses'] = 'required';
-        }
-        if ($this->rttiExportAllowed) {
-            $conditionalRules['testTake.is_rtti_test_take'] = 'required';
         }
         return $conditionalRules;
     }
@@ -77,7 +75,6 @@ class TestQuickTakeModal extends TCModalComponent
         $this->testTake = new TestTake();
         $this->setFeatureSettingDefaults($this->testTake);
         $this->testTake->is_rtti_test_take = false;
-        $this->testTake->allow_wsc = false;
     }
 
     public function hydrate()
@@ -92,9 +89,9 @@ class TestQuickTakeModal extends TCModalComponent
 
     public function plan()
     {
-        $this->validate();
-
         $this->setDefaultTestTakeSettings();
+        $this->validate();
+        $this->clickDisabled = true;
         $this->testTake->save();
 
         $this->dispatchBrowserEvent('notify', ['message' => __('teacher.testtake planned')]);

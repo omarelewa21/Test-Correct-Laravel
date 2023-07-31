@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Livewire\Livewire;
+use Ramsey\Uuid\Uuid;
 use tcCore\Http\Helpers\BaseHelper;
 
 class MacrosServiceProvider extends ServiceProvider
@@ -39,6 +40,18 @@ class MacrosServiceProvider extends ServiceProvider
                 ];
             });
         });
+        EloquentBuilder::macro('whereUuidIn', function (array|Collection $uuids) {
+            $uuidSearchString = collect($uuids)
+                ->map(function ($uuid) {
+                    if (!Uuid::isValid($uuid)) {
+                        throw new \Exception('Trying to search with a non-uuid.');
+                    }
+                    return sprintf("unhex('%s')", str($uuid)->replace('-', ''));
+                })
+                ->join(', ');
+            $whereClause = sprintf("%s.uuid in (%s)", $this->getModel()->getTable(), $uuidSearchString);
+            return $this->whereRaw($whereClause);
+        });
 
         Str::macro('dotToPascal', function ($string) {
             return Str::of($string)->replace('.', '_')->camel()->ucfirst();
@@ -57,8 +70,8 @@ class MacrosServiceProvider extends ServiceProvider
         Collection::macro('discussionTypeFiltered', function (bool $openOnly) {
             return $this->when($openOnly, fn($questions) => $questions->where('isDiscussionTypeOpen', true));
         });
-        Collection::macro('discrepancyFiltered', function (bool $hideNonDescrepancy) {
-            return $this->when($hideNonDescrepancy, fn($answers) => $answers->whereNot('hasDiscrepancy', false, true));
+        Collection::macro('discrepancyFiltered', function (bool $hideNonDiscrepancy) {
+            return $this->when($hideNonDiscrepancy, fn($answers) => $answers->whereNot('hasDiscrepancy', false, true));
         });
 
         //implements Eloquent Builder methods into

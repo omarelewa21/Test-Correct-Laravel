@@ -14,7 +14,7 @@ class Factory {
     }
 
 
-    public function generateMany($testTakeId, $data)
+    public function generateMany($testTake, $data)
     {
         $schoolClassIds = $data['school_class_ids'] ?? null;
         $testParticipantIds = $data['test_participant_ids'] ?? null;
@@ -22,6 +22,8 @@ class Factory {
         $userIds = Arr::wrap($data['user_id'] ?? []);
 
         unset($data['school_class_ids'], $data['test_participant_ids'], $data['user_id']);
+
+        $data['allow_inbrowser_testing'] ??= $testTake->allow_inbrowser_testing;
 
         $schoolClassUserIds = $schoolClassIds ? $this->getUserIdsFromSchoolClass($schoolClassIds) : [];
         $testParticipantUserIds = $testParticipantIds ? $this->getUserIdsFromTestParticipantIds($testParticipantIds) : [];
@@ -39,7 +41,7 @@ class Factory {
 
         $testParticipants = [];
 
-        $existingTestParticipants = TestParticipant::withTrashed()->whereIn('user_id', $userIds)->where('test_take_id', $testTakeId)->get();
+        $existingTestParticipants = TestParticipant::withTrashed()->whereIn('user_id', $userIds)->where('test_take_id', $testTake->getKey())->get();
         foreach ($existingTestParticipants as $existingTestParticipant) {
             if ($existingTestParticipant->trashed()) {
                 $existingTestParticipant->restore();

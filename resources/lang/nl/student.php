@@ -172,6 +172,7 @@ return [
     'description'                                              => 'Omschrijving',
     'eindterm'                                                 => 'eindterm',
     'subject total'                                            => 'Vak totaal',
+    'attainment total'                                         => 'Eindterm totaal',
     'percentage per subsubeindterm'                            => 'Percentage per subsubeindterm',
     'percentage per subsubleerdoel'                            => 'Percentage per subsubleerdoel',
     'ontwikkeling percentage over tijd'                        => 'Ontwikkeling percentage over tijd',
@@ -191,4 +192,19 @@ return [
     'tooltip_taxonomy_graph'                                   => '{0} geen data beschikbaar |{1} P :p_value op basis van :count_questions vraag|[2,*] P :p_value op basis van :count_questions vragen',
     'discussing_test'                                          => 'Te bespreken toets',
     'review_test'                                              => 'Toets inzien',
+    'icons-tooltip'                                            => [
+        'before-test-take'                                     => [
+            'app'                                               => 'Maken in app',
+            'web'                                               => 'Maken in browser toegestaan',
+            'test-direct'                                       => 'Maken via Test-Direct toegestaan',
+            'redo'                                              => 'Inhaaltoets',
+        ],
+        'after-test-take'                                      => [
+            'app'                                               => 'Gemaakt in app',
+            'web'                                               => 'Gemaakt in browser',
+            'test-direct'                                       => 'Afgenomen via gastaccount',
+            'redo'                                              => 'Inhaaltoets',
+        ],
+    ],
+    'info'                                                     => 'Info',
 ];

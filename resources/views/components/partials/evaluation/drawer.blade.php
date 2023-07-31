@@ -2,7 +2,8 @@
      x-data="assessmentDrawer(@js($inReview))"
      x-cloak
      x-bind:class="{'collapsed': collapse}"
-     x-on:assessment-drawer-tab-update.window="tab($event.detail.tab)"
+     x-on:assessment-drawer-tab-update.window="tab($event.detail.tab, $event.detail?.uuid)"
+     x-on:continue-navigation="navigate($event.detail.method);"
      x-on:resize.window.throttle="handleResize"
      wire:key="evaluation-drawer-{{ $uniqueKey }}"
 >
@@ -19,19 +20,19 @@
     <div class="flex flex-1 flex-col sticky top-[var(--header-height)]">
         <div class="flex w-full justify-center gap-2 z-1"
              style="box-shadow: 0 3px 8px 0 rgba(4, 31, 116, 0.2);">
-            <buttons
-                    class="flex h-[60px] px-2 cursor-pointer items-center border-b-3 border-transparent hover:text-primary hover:bg-primary/5 transition-colors"
+            <button
+                    class="flex h-[60px] px-2 cursor-pointer items-center border-b-3 border-transparent hover:text-primary hover:bg-primary/5 active:text-primary active:bg-primary/10 transition-colors"
                     x-on:click="tab(1)"
                     x-bind:class="{'primary border-primary': activeTab === 1}"
                     title="@lang('assessment.scoren')"
             >
                 <x-icon.review />
-            </buttons>
-            <buttons
+            </button>
+            <button
                     @class([
                             'flex h-[60px] px-2 items-center border-b-3 border-transparent transition-colors',
                             'text-midgrey cursor-default' => $feedbackTabDisabled,
-                            'hover:text-primary hover:bg-primary/5 cursor-pointer' => !$feedbackTabDisabled,
+                            'hover:text-primary hover:bg-primary/5 active:text-primary active:bg-primary/10 cursor-pointer' => !$feedbackTabDisabled,
                                 ])
                     @if(!$feedbackTabDisabled)
                         x-on:click="openFeedbackTab()"
@@ -41,12 +42,12 @@
                     @disabled($feedbackTabDisabled)
             >
                 <x-icon.feedback-text />
-            </buttons>
-            <buttons
+            </button>
+            <button
                     @class([
                             'flex h-[60px] px-2 items-center border-b-3 border-transparent transition-colors',
                             'text-midgrey cursor-default' => !$coLearningEnabled,
-                            'hover:text-primary hover:bg-primary/5 cursor-pointer' => $coLearningEnabled
+                            'hover:text-primary hover:bg-primary/5 active:text-primary active:bg-primary/10 cursor-pointer' => $coLearningEnabled
                         ])
                     @if($coLearningEnabled)
                         x-on:click="tab(3)"
@@ -56,7 +57,7 @@
                     @disabled(!$coLearningEnabled)
             >
                 <x-icon.co-learning />
-            </buttons>
+            </button>
         </div>
         <div id="slide-container"
              class="slide-container | flex h-full max-w-[var(--sidebar-width)] overflow-x-hidden overflow-y-auto hide-scrollbar"

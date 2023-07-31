@@ -30,19 +30,19 @@
                                                 id="classes"
                                                 hasErrors="{{ $errors->has('selectedClasses') ? 'true': '' }}"
                                                                                                 class="short-list"
-                                                                        />
-                                                                    </x-input.group>
-                                                                    <div id="selected_classes" wire:ignore class="flex flex-wrap gap-2 self-end relative -top-0.5 mt-6" style=""></div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="toggles | flex flex-col lg:flex-row lg:gap-x-4 flex-wrap">
-                                                                <x-input.toggle-row-with-title wire:model="testTake.allow_inbrowser_testing"
-                                                                                               :toolTip="__('teacher.inbrowser_testing_tooltip')"
-                                                                                               :disabled="$this->isAssignmentType()"
-                                                                                               containerClass="border-t w-full lg:w-[calc(50%-0.5rem)]"
-                                                                >
-                                                                    <x-icon.web/>
-                                                                    <span class="bold">{{ __('teacher.Browsertoetsen toestaan') }} </span>
+                        />
+                    </x-input.group>
+                    <div id="selected_classes" wire:ignore class="flex flex-wrap gap-2 self-end relative -top-0.5 mt-6" style=""></div>
+                </div>
+            </div>
+            <div class="toggles | flex flex-col lg:flex-row lg:gap-x-4 flex-wrap">
+                <x-input.toggle-row-with-title wire:model="testTake.allow_inbrowser_testing"
+                                               :toolTip="__('teacher.inbrowser_testing_tooltip')"
+                                               :disabled="$this->isAssignmentType()"
+                                               containerClass="border-t w-full lg:w-[calc(50%-0.5rem)]"
+                >
+                    <x-icon.web/>
+                    <span class="bold">{{ __('teacher.Browsertoetsen toestaan') }} </span>
                 </x-input.toggle-row-with-title>
                 <x-input.toggle-row-with-title wire:model="testTake.guest_accounts"
                                                :toolTip="__('teacher.guest_accounts_tooltip')"
@@ -60,18 +60,10 @@
                     <x-icon.send-mail />
                     <span class="bold">{{ __('teacher.notify_students') }} </span>
                 </x-input.toggle-row-with-title>
-                @if ($this->showSpellCheckerToggle())
-                        <x-input.toggle-row-with-title wire:model="testTake.allow_wsc"
-                                                    containerClass="border-t-0 w-full lg:w-[calc(50%-0.5rem)]"
-                        >
-                            <x-icon.autocheck />
-                            <span class="bold">{{ __('teacher.allow_wsc') }} </span>
-                        </x-input.toggle-row-with-title>
-                    @endif
                 @if($rttiExportAllowed)
                     <x-input.toggle-row-with-title wire:model="testTake.is_rtti_test_take"
                                                    :toolTip="__('teacher.exporteer_naar_rtti_online_tooltip')"
-                                                   containerClass="border-t w-full lg:w-[calc(50%-0.5rem)]"
+                                                   containerClass="w-full lg:w-[calc(50%-0.5rem)]"
                     >
                         <x-icon.export />
                         <span class="bold">{{ __('teacher.Exporteer naar RTTI Online') }} </span>
@@ -97,7 +89,7 @@
                 <span>{{ __("teacher.Annuleer") }}</span>
             </x-button.text-button>
 
-            <x-button.cta wire:click="plan" size="sm" wire:loading.attr="disabled" wire:target="plan" onClick='this.disabled = true;'>
+            <x-button.cta wire:click="plan" size="sm" wire:loading.attr="disabled" wire:target="plan" onClick="this.disabled = true;" :disabled="$clickDisabled">
                 <x-icon.checkmark  wire:loading.remove wire:target="plan"/>
                 <span wire:loading.remove wire:target="plan">{{ __("regular-staff.Toets afnemen") }}</span>
                 <span wire:loading wire:target="plan">{{ __('cms.one_moment_please') }}</span>

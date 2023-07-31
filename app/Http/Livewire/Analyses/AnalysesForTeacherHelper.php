@@ -37,12 +37,12 @@ class AnalysesForTeacherHelper
         ]);
     }
 
-    public function getRouteForSubjectShow(Subject $subject)
+    public function getRouteForSubjectShow($subjectUuid)
     {
         return route('teacher.analyses.subject.show', [
             'student_uuid' => $this->studentUuid,
             'class_uuid'   => $this->classUuid,
-            'subject'      => $subject->uuid,
+            'subject'      => $subjectUuid,
         ]);
     }
 

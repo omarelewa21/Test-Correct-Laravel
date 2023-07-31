@@ -32,8 +32,13 @@
         <div class="flex gap-2 items-center w-full slider-input-wrapper">
             @endif
             <div @class(['flex relative','min-w-[calc(10.375rem+12px)] max-w-[calc(16.75rem+30px)] h-12 score-slider-track-container' => $mode === 'default', 'w-full' => $mode === 'small'])>
-                <div x-show="score === null" class="score-slider-initial-handle"
-                    @click="score = 0; syncInput()"
+                <div x-show="score === null"
+                     @class([
+                        "score-slider-initial-handle",
+                        "score-slider-initial-handle-offset" => !$continuousScoreSlider,
+                     ])
+                     @click="score = 0; syncInput()"
+                     @mousedown="score = 0; syncInput(); document.querySelector('#slide-container input[type=range]').focus()"
                 ></div>
                 @if($continuousScoreSlider)
                     <div class="flex w-full h-full justify-between items-center pl-[12px] pr-[15px]"
@@ -47,34 +52,24 @@
                                x-on:input="setSliderBackgroundSize($el)"
                                x-on:change="syncInput()"
                                @if(!$hideThumb)
-                               :class="{'hide-thumb': score === null}"
+                                   :class="{'hide-thumb': score === null}"
                                 @endif
                                 @disabled($disabled)
                         >
                     </div>
                 @else
-                    <div class="flex w-full h-full justify-between items-center  space-x-[0.125rem] score-slider-pill-container"
+                    <div @class(["flex w-full h-full justify-between items-center score-slider-pill-container", 'gap-0.5' => !$halfPoints])
                          wire:ignore>
 
                         @if($halfPoints)
-                            <template x-for="scoreOption in maxScore">
-                                <div class="flex relative rounded-10 h-3 min-w-6 flex-grow border score-slider-pill"
-                                     :class="scoreOption <= score ? 'bg-primary border-primary' : 'border-bluegrey bg-offwhite'">
-                                    <div class="rounded-10 h-3 min-w-[1rem] flex-grow -mt-[1px] -ml-[1px]"
-                                         :class="scoreOption-0.75 <= score ? 'border bg-primary border-primary' : 'opacity-100'"
-                                    ></div>
-                                    <div class="h-[0.375rem] w-[0.375rem] rounded-full absolute bottom-1/2 translate-y-1/2 right-1/2 translate-x-1/2 "
-                                         :class="scoreOption <= score ? 'bg-teacherPrimaryLight' : 'bg-system-secondary'"
-                                    ></div>
-                                    <div class="rounded-10 h-3 min-w-[1rem] flex-grow -mt-[1px]"
-                                         :class="scoreOption <= score ? 'border bg-primary border-primary' : 'opacity-100'"
-                                    ></div>
-                                </div>
-
+                            <template x-for="scoreOption in bars">
+                                <div class="score-slider-pill | rounded-10 h-3 min-w-[1rem] flex-grow -mt-[1px] -ml-[1px] border"
+                                     :class="sliderPillClasses(scoreOption)"
+                                ></div>
                             </template>
                         @else
-                            <template x-for="scoreOption in maxScore">
-                                <div class="rounded-10 h-3 min-w-[1rem] flex-grow border score-slider-pill"
+                            <template x-for="scoreOption in bars">
+                                <div class="score-slider-pill | rounded-10 h-3 min-w-[1rem] flex-grow border"
                                      :class="scoreOption <= score ? 'bg-primary border-primary' : 'bg-offwhite border-bluegrey'"
                                 ></div>
                             </template>
@@ -88,7 +83,7 @@
                                class="score-slider-input w-full hide-thumb"
                                x-model="score"
                                @if(!$hideThumb)
-                               :class="{'hide-thumb': score === null}"
+                                   :class="{'hide-thumb': score === null}"
                                x-on:click="noChangeEventFallback; $nextTick(() => { setThumbOffset(); }) "
                                x-on:input="setThumbOffset();"
                                x-on:change="syncInput(); "
@@ -117,7 +112,7 @@
                    x-on:focusout="syncInput($el.value)"
                    x-on:input="setThumbOffset(document.querySelector('.score-slider-input'), score, maxScore)"
                    autofocus
-                   @disabled($disabled)
+                    @disabled($disabled)
             >
             @if($mode === 'small')
         </div>

@@ -213,7 +213,7 @@ class TestParticipantsController extends Controller
     public function store(TestTake $testTake, CreateTestParticipantRequest $request)
     {
         $testTakeParticipantFactory = new Factory(new TestParticipant());
-        $testParticipants = $testTakeParticipantFactory->generateMany($testTake->getKey(), $request->all());
+        $testParticipants = $testTakeParticipantFactory->generateMany($testTake, $request->all());
 
         if ($testTake->testParticipants()->saveMany($testParticipants) !== false) {
             return Response::make($testParticipants, 200);

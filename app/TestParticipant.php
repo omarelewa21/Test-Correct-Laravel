@@ -338,6 +338,7 @@ class TestParticipant extends BaseModel
                 $testTakeEvent = new TestTakeEvent();
                 $testTakeEvent->setAttribute('test_take_event_type_id', $testTakeTypeStatus);
                 $testTakeEvent->setAttribute('test_participant_id', $this->getKey());
+                $testTakeEvent->setAttribute('metadata', session('isInBrowser', false) ? ['device' => 'browser'] : ['device' => 'app']);
                 $this->testTake->testTakeEvents()->save($testTakeEvent);
 
                 $testTakeStartDate = $this->testTake->testTakeEvents()->where('test_take_event_type_id', '=', $testTakeTypeStatus)->whereNull('test_participant_id')->max('created_at');
