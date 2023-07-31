@@ -48,11 +48,8 @@ class SchoolLocationUsersController extends Controller {
     public function indexfeatureTeacher(Request $request)
     {
         $userId= $request['user_id'];
-        $user =User::find($userId);
-        $userSchoolId=$user->school_location_id; 
-        $result = DB::table('feature_settings')
-        ->where('settingable_id', $userSchoolId)
-        ->where('settingable_id_user', $userId)
+        $result = DB::table('user_feature_settings')
+        ->where('user_id', $userId)
         ->orderByRaw("CASE WHEN value = 'allow_new_assessment' THEN 0 ELSE 1 END, title")
         ->get();
         return $result;
