@@ -9968,16 +9968,14 @@ document.addEventListener("alpine:init", function () {
       editorId: editorId,
       init: function init() {
         var _this74 = this;
+        this.editor = ClassicEditors[this.editorId];
         this.$watch("showMe", function (value) {
           if (!value) return;
           _this74.$nextTick(function () {
-            var editor = ClassicEditors[editorId];
-            if (!editor) {
-              return;
-            }
-            if (!editor.ui.focusTracker.isFocused) {
+            if (!_this74.getEditor()) return;
+            if (!_this74.getEditor().ui.focusTracker.isFocused) {
               setTimeout(function () {
-                _this74.setFocus(editor);
+                _this74.setFocus(_this74.getEditor());
               }, 300);
             }
           });
@@ -9988,6 +9986,13 @@ document.addEventListener("alpine:init", function () {
         editor.model.change(function (writer) {
           writer.setSelection(editor.model.document.getRoot(), "end");
         });
+      },
+      getEditor: function getEditor() {
+        return ClassicEditors[this.editorId];
+      },
+      syncEditorData: function syncEditorData() {
+        if (!this.getEditor()) return;
+        this.$wire.sync("answer", this.getEditor().getData());
       }
     };
   });
@@ -10592,6 +10597,32 @@ document.addEventListener("alpine:init", function () {
         }
       }));
       Livewire.emit('closeModal');
+    }
+  });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].store("studentPlayer", {
+    playerComponent: null,
+    getPlayer: function getPlayer() {
+      if (!this.playerComponent) {
+        this.playerComponent = Livewire.components.findComponent(document.querySelector("[test-take-player]").getAttribute("wire:id"));
+      }
+      return this.playerComponent;
+    },
+    to: function to(newQuestion, current) {
+      this.navigate("goToQuestion", current, newQuestion);
+    },
+    next: function next(current) {
+      this.navigate("nextQuestion", current);
+    },
+    previous: function previous(current) {
+      this.navigate("previousQuestion", current);
+    },
+    toOverview: function toOverview(current) {
+      this.navigate("toOverview", current, current);
+    },
+    navigate: function navigate(method, current) {
+      var methodParameter = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+      window.dispatchEvent(new CustomEvent("sync-editor-data-" + current));
+      this.getPlayer().call(method, methodParameter);
     }
   });
 });

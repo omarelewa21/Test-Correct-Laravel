@@ -1,6 +1,7 @@
 <x-partials.question-container :number="$number" :question="$question">
     <div class="w-full"
          x-data="openQuestionStudentPlayer(@js($this->editorId))"
+         x-on:sync-editor-data-{{ $this->number }}.window="syncEditorData"
     >
         <div>
             <div questionHtml wire:ignore style="width: 100%; display: inline-block">{!!   $question->converted_question_html !!}</div>
