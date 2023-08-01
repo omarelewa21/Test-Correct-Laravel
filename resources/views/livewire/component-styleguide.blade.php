@@ -247,10 +247,6 @@
             <h5>Icon &lt;button&gt; disabled</h5>
         </x-partials.styleguide-card>
 
-        <x-icon.copy/>
-        <x-icon.square/>
-        <x-icon.smiley-happy-trafficlight/>
-
         <x-partials.styleguide-card title="buttons sm (small) icon left/right" items-per-row="6">
             <x-button.primary wire:click="count"><x-icon.copy/><span>Primary</span></x-button.primary>
             <x-button.secondary wire:click="count"><x-icon.copy/><span>Secondary</span></x-button.secondary>
@@ -384,97 +380,82 @@
 
         </x-partials.styleguide-card>
 
-        <x-partials.styleguide-card title="Hardcoded color icon buttons" items-per-row="9">
+        <x-partials.styleguide-card title="text buttons (default)" items-per-row="5">
+            <x-button.text-button wire:click="count" size="sm"><span>Txt btn</span></x-button.text-button>
+            <x-button.text-button wire:click="count" size="sm"><x-icon.attachment/><span>Txt btn</span></x-button.text-button>
+            <x-button.text-button wire:click="count" size="sm"><span>Txt btn</span><x-icon.attachment/></x-button.text-button>
+            <x-button.text-button wire:click="count" size="sm"><x-icon.attachment/></x-button.text-button>
+            <h5>sm text &lt;button&gt;</h5>
+            <x-button.text-button size="sm" type="link" href="javascript: window.Livewire.emit('count');"><span>Txt btn</span></x-button.text-button>
+            <x-button.text-button size="sm" type="link" href="javascript: window.Livewire.emit('count');"><x-icon.attachment/><span>Txt btn</span></x-button.text-button>
+            <x-button.text-button size="sm" type="link" href="javascript: window.Livewire.emit('count');"><span>Txt btn</span><x-icon.attachment/></x-button.text-button>
+            <x-button.text-button size="sm" type="link" href="javascript: window.Livewire.emit('count');"><x-icon.attachment/></x-button.text-button>
+            <h5>sm text &lt;a&gt;</h5>
+            <x-button.text-button wire:click="count" size="sm" disabled><span>Txt btn</span></x-button.text-button>
+            <x-button.text-button wire:click="count" size="sm" disabled><x-icon.attachment/><span>Txt btn</span></x-button.text-button>
+            <x-button.text-button wire:click="count" size="sm" disabled><span>Txt btn</span><x-icon.attachment/></x-button.text-button>
+            <x-button.text-button wire:click="count" size="sm" disabled><x-icon.attachment/></x-button.text-button>
+            <h5>sm text &lt;button&gt; disabled</h5>
 
-            <x-button.icon click="count">
-                <x-icon.smiley-happy-trafficlight></x-icon.smiley-happy-trafficlight>
-            </x-button.icon>
-            <x-button.icon click="count">
-                <x-icon.smiley-happy-trafficlight></x-icon.smiley-happy-trafficlight>
-            </x-button.icon>
-            <x-button.icon click="count">
-                <x-icon.smiley-happy-trafficlight></x-icon.smiley-happy-trafficlight>
-            </x-button.icon>
-            <x-button.icon click="count">
-                <x-icon.smiley-happy-trafficlight></x-icon.smiley-happy-trafficlight>
-            </x-button.icon>
-            <x-button.icon click="count">
-                <x-icon.smiley-happy-trafficlight></x-icon.smiley-happy-trafficlight>
-            </x-button.icon>
-            <x-button.icon click="count">
-                <x-icon.smiley-happy-trafficlight></x-icon.smiley-happy-trafficlight>
-            </x-button.icon>
-            <x-button.icon click="count">
-                <x-icon.smiley-happy-trafficlight></x-icon.smiley-happy-trafficlight>
-            </x-button.icon>
-            <x-button.icon click="count">
-                <x-icon.smiley-happy-trafficlight></x-icon.smiley-happy-trafficlight>
-            </x-button.icon>
-            <h5>Hardcoded color icon &lt;button&gt;</h5>
+            <x-button.text-button wire:click="count" size="md"><span>Txt btn</span></x-button.text-button>
+            <x-button.text-button wire:click="count" size="md"><x-icon.attachment/><span>Txt btn</span></x-button.text-button>
+            <x-button.text-button wire:click="count" size="md"><span>Txt btn</span><x-icon.attachment/></x-button.text-button>
+            <x-button.text-button wire:click="count" size="md"><x-icon.attachment/></x-button.text-button>
+            <h5>md text &lt;button&gt;</h5>
+            <x-button.text-button size="md" type="link" href="javascript: window.Livewire.emit('count');"><span>Txt btn</span></x-button.text-button>
+            <x-button.text-button size="md" type="link" href="javascript: window.Livewire.emit('count');"><x-icon.attachment/><span>Txt btn</span></x-button.text-button>
+            <x-button.text-button size="md" type="link" href="javascript: window.Livewire.emit('count');"><span>Txt btn</span><x-icon.attachment/></x-button.text-button>
+            <x-button.text-button size="md" type="link" href="javascript: window.Livewire.emit('count');"><x-icon.attachment/></x-button.text-button>
+            <h5>md text &lt;a&gt;</h5>
+            <x-button.text-button wire:click="count" size="md" disabled><span>Txt btn</span></x-button.text-button>
+            <x-button.text-button wire:click="count" size="md" disabled><x-icon.attachment/><span>Txt btn</span></x-button.text-button>
+            <x-button.text-button wire:click="count" size="md" disabled><span>Txt btn</span><x-icon.attachment/></x-button.text-button>
+            <x-button.text-button wire:click="count" size="md" disabled><x-icon.attachment/></x-button.text-button>
+            <h5>md text &lt;button&gt; disabled</h5>
 
-            {{-- link/anchor buttons don't have a working focus-state without a valid href attribute --}}
-            <x-button.icon  type="link" href="javascript: window.Livewire.emit('count');">
-                <x-icon.smiley-happy-trafficlight></x-icon.smiley-happy-trafficlight>
-            </x-button.icon>
-            <x-button.icon  type="link" href="javascript: window.Livewire.emit('count');">
-                <x-icon.smiley-happy-trafficlight></x-icon.smiley-happy-trafficlight>
-            </x-button.icon>
-            <x-button.icon  type="link" href="javascript: window.Livewire.emit('count');">
-                <x-icon.smiley-happy-trafficlight></x-icon.smiley-happy-trafficlight>
-            </x-button.icon>
-            <x-button.icon  type="link" href="javascript: window.Livewire.emit('count');">
-                <x-icon.smiley-happy-trafficlight></x-icon.smiley-happy-trafficlight>
-            </x-button.icon>
-            <x-button.icon  type="link" href="javascript: window.Livewire.emit('count');">
-                <x-icon.smiley-happy-trafficlight></x-icon.smiley-happy-trafficlight>
-            </x-button.icon>
-            <x-button.icon  type="link" href="javascript: window.Livewire.emit('count');">
-                <x-icon.smiley-happy-trafficlight></x-icon.smiley-happy-trafficlight>
-            </x-button.icon>
-            <x-button.icon  type="link" href="javascript: window.Livewire.emit('count');">
-                <x-icon.smiley-happy-trafficlight></x-icon.smiley-happy-trafficlight>
-            </x-button.icon>
-            <x-button.icon  type="link" href="javascript: window.Livewire.emit('count');">
-                <x-icon.smiley-happy-trafficlight></x-icon.smiley-happy-trafficlight>
-            </x-button.icon>
-            <h5>Hardcoded color icon &lt;a&gt;</h5>
+        </x-partials.styleguide-card>
 
-            <x-button.icon  disabled wire:click="count">
-                <x-icon.smiley-happy-trafficlight></x-icon.smiley-happy-trafficlight>
-            </x-button.icon>
-            <x-button.icon  disabled wire:click="count">
-                <x-icon.smiley-happy-trafficlight></x-icon.smiley-happy-trafficlight>
-            </x-button.icon>
-            <x-button.icon  disabled wire:click="count">
-                <x-icon.smiley-happy-trafficlight></x-icon.smiley-happy-trafficlight>
-            </x-button.icon>
-            <x-button.icon  disabled wire:click="count">
-                <x-icon.smiley-happy-trafficlight></x-icon.smiley-happy-trafficlight>
-            </x-button.icon>
-            <x-button.icon  disabled wire:click="count">
-                <x-icon.smiley-happy-trafficlight></x-icon.smiley-happy-trafficlight>
-            </x-button.icon>
-            <x-button.icon  disabled wire:click="count">
-                <x-icon.smiley-happy-trafficlight></x-icon.smiley-happy-trafficlight>
-            </x-button.icon>
-            <x-button.icon  disabled wire:click="count">
-                <x-icon.smiley-happy-trafficlight></x-icon.smiley-happy-trafficlight>
-            </x-button.icon>
-            <x-button.icon  disabled wire:click="count">
-                <x-icon.smiley-happy-trafficlight></x-icon.smiley-happy-trafficlight>
-            </x-button.icon>
-            <h5>HardCoded color icon disabled </h5>
+        <x-partials.styleguide-card title="text buttons (white variant)" items-per-row="5" accordionClass="!bg-primary">
+            <x-button.text-white size="sm" wire:click="count"><span>Txt btn</span></x-button.text-white>
+            <x-button.text-white size="sm" wire:click="count"><x-icon.attachment/><span>Txt btn</span></x-button.text-white>
+            <x-button.text-white size="sm" wire:click="count"><span>Txt btn</span><x-icon.attachment/></x-button.text-white>
+            <x-button.text-white size="sm" wire:click="count"><x-icon.attachment/></x-button.text-white>
+            <h5 class="text-white">sm text &lt;button&gt;</h5>
+            <x-button.text-white size="sm" type="link" href="javascript: window.Livewire.emit('count');"><span>Txt btn</span></x-button.text-white>
+            <x-button.text-white size="sm" type="link" href="javascript: window.Livewire.emit('count');"><x-icon.attachment/><span>Txt btn</span></x-button.text-white>
+            <x-button.text-white size="sm" type="link" href="javascript: window.Livewire.emit('count');"><span>Txt btn</span><x-icon.attachment/></x-button.text-white>
+            <x-button.text-white size="sm" type="link" href="javascript: window.Livewire.emit('count');"><x-icon.attachment/></x-button.text-white>
+            <h5 class="text-white">sm text &lt;a&gt;</h5>
 
+            <x-button.text-white size="sm" wire:click="count" disabled><span>Txt btn</span></x-button.text-white>
+            <x-button.text-white size="sm" wire:click="count" disabled><x-icon.attachment/><span>Txt btn</span></x-button.text-white>
+            <x-button.text-white size="sm" wire:click="count" disabled><span>Txt btn</span><x-icon.attachment/></x-button.text-white>
+            <x-button.text-white size="sm" wire:click="count" disabled><x-icon.attachment/></x-button.text-white>
+            <h5 class="text-white">sm text &lt;button&gt; disabled</h5>
 
+            <x-button.text-white size="md" wire:click="count"><span>Txt btn</span></x-button.text-white>
+            <x-button.text-white size="md" wire:click="count"><x-icon.attachment/><span>Txt btn</span></x-button.text-white>
+            <x-button.text-white size="md" wire:click="count"><span>Txt btn</span><x-icon.attachment/></x-button.text-white>
+            <x-button.text-white size="md" wire:click="count"><x-icon.attachment/></x-button.text-white>
+            <h5 class="text-white">md text &lt;button&gt;</h5>
+
+            <x-button.text-white size="md" type="link" href="javascript: window.Livewire.emit('count');"><span>Txt btn</span></x-button.text-white>
+            <x-button.text-white size="md" type="link" href="javascript: window.Livewire.emit('count');"><x-icon.attachment/><span>Txt btn</span></x-button.text-white>
+            <x-button.text-white size="md" type="link" href="javascript: window.Livewire.emit('count');"><span>Txt btn</span><x-icon.attachment/></x-button.text-white>
+            <x-button.text-white size="md" type="link" href="javascript: window.Livewire.emit('count');"><x-icon.attachment/></x-button.text-white>
+            <h5 class="text-white">md text &lt;a&gt;</h5>
+            <x-button.text-white size="md" wire:click="count" disabled><span>Txt btn</span></x-button.text-white>
+            <x-button.text-white size="md" wire:click="count" disabled><x-icon.attachment/><span>Txt btn</span></x-button.text-white>
+            <x-button.text-white size="md" wire:click="count" disabled><span>Txt btn</span><x-icon.attachment/></x-button.text-white>
+            <x-button.text-white size="md" wire:click="count" disabled><x-icon.attachment/></x-button.text-white>
+            <h5 class="text-white">md text &lt;button&gt; disabled</h5>
         </x-partials.styleguide-card>
 
         <x-partials.styleguide-card title="text button unique hover state" items-per-row="3">
-            <x-button.text-button :with-hover="true" size="sm">Text button</x-button.text-button>
-            <x-button.text-button :with-hover="true" size="sm" disabled>Text button</x-button.text-button>
+            <x-button.text-button :with-hover="true" size="sm"><span>Text button</span></x-button.text-button>
+            <x-button.text-button :with-hover="true" size="sm" disabled><span>Text button</span></x-button.text-button>
             <h5>unique hover implementation for text button</h5>
         </x-partials.styleguide-card>
-
-
 
     </div>
 

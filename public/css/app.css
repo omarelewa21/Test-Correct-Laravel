@@ -86,10 +86,6 @@ button.button {
     min-width: 60px;
 }
 
-:is(.button-sm, .button-md, .button-lg).text-button {
-    min-width: unset;
-}
-
 .icon-button {
     height: 2.5rem;
     width: 2.5rem;
@@ -98,46 +94,101 @@ button.button {
 }
 
 /* Text button */
-.text-button.button-sm {
+:is(.text-button, .text-button-white) {
+    isolation: isolate;
+    position: relative;
+    color: var(--system-base);
+    font-weight: bold;
+    width: -moz-fit-content;
+    width: fit-content;
+    padding: 0;
+    border: 0;
+    background: none;
+    line-height: 22px;
+}
+
+.text-button-white:enabled span {
+    text-shadow: 0 1px 2px rgba(var(--system-base-rgb), 0.3);
+}
+
+.text-button-white:enabled:is(:hover, :active, :focus, :focus-visible) span {
+    text-shadow: 0 1px 4px rgba(var(--system-base-rgb), 0.5);
+}
+
+.text-button-white:enabled svg {
+    filter: drop-shadow( 0 1px 2px rgba(var(--system-base-rgb), 0.3));
+}
+.text-button-white:enabled:is(:hover, :active, :focus, :focus-visible) svg {
+    filter: drop-shadow( 0 1px 4px rgba(var(--system-base-rgb), 0.5));
+}
+
+:is(.text-button, .text-button-white) > * {
+    z-index: 3;
+    position: relative;
+}
+
+:is(.text-button, .text-button-white)::after {
+    content: "";
+    position: absolute;
+    border-radius: 12px;
+    border: 1px solid transparent;
+    background-color: transparent;
+    transition: all 0.3s cubic-bezier(.215, .61, .355, 1);
+}
+
+:is(.button-sm, .button-md, .button-lg):is(.text-button, .text-button-white) {
+    min-width: unset;
+}
+
+:is(.text-button, .text-button-white).button-sm::after {
+    inset: 0 -6px;
+}
+
+:is(.text-button, .text-button-white).button-sm {
+    min-height: 22px;
+    height: 22px;
     font-size: 16px;
 }
 
-.text-button {
-    border-radius: 0;
-    color: var(--system-base);
-    font-weight: bold;
-    padding: 0;
+:is(.text-button, .text-button-white):is(.button-md, .button-lg)::after {
+    inset: 0 -8px;
 }
 
-.text-button span {
+:is(.text-button, .text-button-white):is(.button-md, .button-lg) {
+    min-height: 24px;
     height: 24px;
-    border: 1px solid transparent;
-    border-radius: 12px;
-    line-height: 22px;
-}
-.text-button.button-sm span {
-    height: 22px;
 }
 
+.text-button-white:is(:hover, :active, :focus, :focus-visible)  {
+    color: var(--all-White);
+    outline: none;
+}
 .text-button:is(:hover, :active, :focus, :focus-visible) {
     color: var(--primary);
-}
-
-.text-button:focus {
     outline: none;
 }
 
-.text-button:focus span {
+.text-button-white:focus::after {
+    border: 1px solid rgba(255,255,255, 0.5);
+}
+.text-button:focus::after {
     border: 1px solid rgba(var(--primary-rgb), 0.5);
 }
 
-.text-button:disabled span {
-    background-color: transparent !important;
-    border: 1px solid transparent !important;
+.text-button-white:is(:focus, :hover)::after {
+    background-color: rgba(255,255,255, 0.2);
+}
+.text-button-white:is(:active)::after {
+    background-color: rgba(255,255,255, 0.3);
 }
 
-.text-button:is(:focus, :active) span {
+.text-button:is(:focus, :active)::after {
     background-color: rgba(var(--primary-rgb), 0.1);
+}
+
+.text-button-white:disabled {
+    opacity: 0.3;
+    cursor: default !important;
 }
 
 .text-button:disabled {
@@ -145,14 +196,36 @@ button.button {
     cursor: default !important;
 }
 
-.text-button.text-button-hover-bg:enabled:hover {
+:is(.text-button, .text-button-white):disabled::after {
+    content: none;
+}
+
+:is(.text-button, .text-button-white).text-button-hover-bg::after {
+    content: none;
+}
+
+:is(.text-button, .text-button-white).text-button-hover-bg.button-sm {
+    min-height: 40px;
+}
+:is(.text-button, .text-button-white).text-button-hover-bg {
+    min-height: 50px;
+    border-radius: 0px;
+}
+
+:is(.text-button, .text-button-white).text-button-hover-bg:enabled:hover {
     background: var(--primary-opacity-05);
 }
 
-.text-button.text-button-hover-bg:enabled:active {
+:is(.text-button, .text-button-white).text-button-hover-bg:enabled:active {
     background: var(--primary-opacity-10);
 }
 /* end text button */
+/* start white text button */
+.text-button-white {
+    color: var(--all-White);
+    text-shadow: 0 1px 2px rgba(var(--system-base-rgb), 0.3);;
+}
+/* end white text button */
 
 .button-gradient.primary-button {
     --button-text-color: white;
@@ -243,13 +316,7 @@ button.button {
 
 .button-gradient:disabled {
     background: var(--light-grey);
-    /*
-     * text color was: var(--mid-grey), but the new color is visually the same with 0.5 opacity
-     * but Full-color icons need an opacity of 0.5 to match the disabled text color
-    */
-    color: rgb(37, 59, 95);
-    opacity: 0.5;
-
+    color: var(--mid-grey);
     box-shadow: 0 1px 4px 0 rgba(4, 31, 116, 0.06);
 }
 
@@ -11797,6 +11864,22 @@ video {
 }
 .bg-white\/95{
   background-color: rgb(255 255 255 / 0.95);
+}
+.\!bg-midgrey{
+  --tw-bg-opacity: 1 !important;
+  background-color: rgb(146 157 175 / var(--tw-bg-opacity)) !important;
+}
+.\!bg-gray-200{
+  --tw-bg-opacity: 1 !important;
+  background-color: rgb(229 231 235 / var(--tw-bg-opacity)) !important;
+}
+.\!bg-black{
+  --tw-bg-opacity: 1 !important;
+  background-color: rgb(0 0 0 / var(--tw-bg-opacity)) !important;
+}
+.\!bg-red-400{
+  --tw-bg-opacity: 1 !important;
+  background-color: rgb(248 113 113 / var(--tw-bg-opacity)) !important;
 }
 .bg-opacity-0{
   --tw-bg-opacity: 0;

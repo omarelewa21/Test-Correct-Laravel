@@ -154,7 +154,7 @@
                                 @endif
                                 <x-button.text-button size="sm"
                                     wire:click="viewSchool('{{$school->uuid}}')">
-                                    Open
+                                    <span>Open</span>
                                 </x-button.text-button>
                             </x-table.cell>
                         </x-table.row>

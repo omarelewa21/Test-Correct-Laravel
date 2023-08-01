@@ -71,7 +71,7 @@
                             style="color:inherit"
                             @click="openTab = 1"
                     >
-                        {{ __('cms.Opstellen') }}
+                        <span>{{ __('cms.Opstellen') }}</span>
                     </x-button.text-button>
                 </div>
                 <div class="" :class="{'border-b-2 border-primary -mb-px primary' : openTab === 2}"
@@ -80,7 +80,7 @@
                             style="color:inherit"
                             @click="openTab = 2;"
                     >
-                        {{ __('cms.Instellingen') }}
+                        <span>{{ __('cms.Instellingen') }}</span>
                     </x-button.text-button>
                 </div>
                 @if($this->showStatistics())
@@ -90,7 +90,7 @@
                                 style="color:inherit"
                                 @click="openTab = 3;"
                         >
-                            {{ __('cms.Statistiek') }}
+                            <span>{{ __('cms.Statistiek') }}</span>
                         </x-button.text-button>
                     </div>
                 @endif

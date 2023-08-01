@@ -102,8 +102,8 @@ $struct = [
                             </x-table.cell>
                             <x-table.cell>
                                 @if($set->status !== 'PROCESSING')
-                                    <x-button.text-button wire:click="activateResult({{ $set->getKey() }})">Bekijk
-                                        details
+                                    <x-button.text-button wire:click="activateResult({{ $set->getKey() }})"><span>Bekijk
+                                            details</span>
                                     </x-button.text-button>
                                 @elseif($set->status === 'PROCESSING' || $set->status === 'READYTOPROCESS')
                                     <div class="lds-hourglass" wire:poll></div>
@@ -112,7 +112,8 @@ $struct = [
                             </x-table.cell>
                             <x-table.cell>
                                 @if($set->status !== 'PROCESSING' && $set->status !== 'READYTOPROCESS')
-                                    <x-button.text-button wire:click="processResult({{ $set->getKey() }})">Verwerken
+                                    <x-button.text-button wire:click="processResult({{ $set->getKey() }})">
+                                        <span>Verwerken</span>
                                     </x-button.text-button>
                                 @endif
                             </x-table.cell>
@@ -135,7 +136,7 @@ $struct = [
                                 @if($set->status !== 'PROCESSING' && $set->status !== 'READYTOPROCESS')
                                     @if ($set->error_messages)
                                         <x-button.text-button wire:click="triggerErrorModal( {{ $set->getKey() }} )">
-                                            Warnings
+                                            <span>Warnings</span>
                                         </x-button.text-button>
                                     @endif
                                 @endif
@@ -144,7 +145,8 @@ $struct = [
                                 @if($set->status !== 'PROCESSING' && $set->status !== 'READYTOPROCESS')
                                     @if ($set->failure_messages)
                                         <x-button.text-button
-                                            wire:click="triggerFailureModal( {{ $set->getKey() }} )">Error
+                                            wire:click="triggerFailureModal( {{ $set->getKey() }} )">
+                                            <span>Error</span>
                                         </x-button.text-button>
                                     @endif
                                 @endif
@@ -245,7 +247,8 @@ $struct = [
                         {{ $this->processingResult }}
                         @if ($this->displayGoToErrorsButton)
                             <BR>
-                            <x-button.text-button wire:click="triggerErrorModal()">Toon errors
+                            <x-button.text-button wire:click="triggerErrorModal()">
+                                <span>Toon errors</span>
                             </x-button.text-button>
                         @endif
 
