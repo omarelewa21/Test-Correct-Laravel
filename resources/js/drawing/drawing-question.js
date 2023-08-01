@@ -638,7 +638,10 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             element: UI.fillColor,
             events: {
                 "input": {
-                    callback: updateOpacitySliderColor,
+                    callback: () => {
+                        updateOpacitySliderColor();
+                        updateSelectedShapeFill();
+                    }
                 }
             }
         },
@@ -646,14 +649,22 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             element: UI.fillOpacityNumber,
             events: {
                 "input": {
-                    callback: updateFillOpacityRangeInput,
+                    callback: () => {
+                        updateFillOpacityRangeInput();
+                        updateSelectedShapeOpacity();
+                    },
                 }
             }
         },
         {
             element: UI.fillOpacityRange,
             events: {
-                "input": {callback: updateFillOpacityNumberInput},
+                "input": {
+                    callback: () => {
+                        updateFillOpacityNumberInput()
+                        updateSelectedShapeOpacity();
+                    }
+                },
                 "focus": {
                     callback: () => {
                         UI.fillOpacityNumber.classList.add("active");
@@ -2166,7 +2177,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
      * @param {HTMLElement} slider The slider to update.
      * @param {?string} leftColorHexValue The hexadecimal value for the color left of the knob.
      */
-    window.setSliderColor = function (
+    function setSliderColor (
         slider,
         leftColorHexValue = getRootCSSProperty("--all-Base")
     ) {
@@ -2232,6 +2243,15 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         if (!valueWithinBounds(UI.fillOpacityNumber)) return;
         UI.fillOpacityRange.value = UI.fillOpacityNumber.value;
         updateOpacitySliderColor();
+    }
+
+    function updateSelectedShapeOpacity() {
+        if (!valueWithinBounds(UI.fillOpacityNumber)) return;
+
+        const selectedEl = rootElement.querySelector('.editing');
+        if(!checkIfShouldUpdateShape(selectedEl)) return;
+
+        selectedEl.firstElementChild.style.fillOpacity = parseFloat(UI.fillOpacityNumber.value / 100);
     }
 
     function valueWithinBounds(inputElem) {
@@ -2408,9 +2428,27 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         UI.incrStroke.disabled = currentValue === max;
     }
 
+    function updateSelectedShapeFill() {
+        const selectedEl = rootElement.querySelector('.editing');
+        if(!checkIfShouldUpdateShape(selectedEl)) return;
+
+        selectedEl.firstElementChild.style.fill = UI.fillColor.value;
+    }
+
+    function checkIfShouldUpdateShape(selectedEl) {
+        return selectedEl && checkIfFocusedDataButtonIsSameAsSelectedElement(selectedEl)
+    }
+
+    function checkIfFocusedDataButtonIsSameAsSelectedElement(selectedEl) {
+        const currentDataButton = rootElement.querySelector('[data-button-group=tool].active');
+        if(!currentDataButton) return false;
+
+        const shapeType = selectedEl.id.split('-')[0];
+        return shapeType === currentDataButton.id.split('-')[1];
+    }
+
+
     return {UI, Canvas, drawingApp}
-
-
 }
 
 function clearPreviewGrid(rootElement) {
@@ -2462,4 +2500,3 @@ window.calculatePreviewBounds = function (parent) {
         cy: -matrix.f + (height / 2),
     };
 }
-
