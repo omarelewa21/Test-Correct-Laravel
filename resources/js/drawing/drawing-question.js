@@ -526,6 +526,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
                 "input": {
                     callback: () => {
                         valueWithinBounds(UI.strokeWidth);
+                        updateSelectedShapeStrokeWidth();
                     }
                 },
                 "blur": {
@@ -541,7 +542,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
                 "click": {
                     callback: () => {
                         UI.strokeWidth.stepDown();
-                        handleStrokeButtonStates()
+                        handleStrokeButtonStates();
+                        updateSelectedShapeStrokeWidth();
                     },
                 },
                 "focus": {
@@ -562,7 +564,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
                 "click": {
                     callback: () => {
                         UI.strokeWidth.stepUp();
-                        handleStrokeButtonStates()
+                        handleStrokeButtonStates();
+                        updateSelectedShapeStrokeWidth();
                     },
                 },
                 "focus": {
@@ -675,6 +678,26 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
                         UI.fillOpacityNumber.classList.remove("active");
                     },
                 },
+            }
+        },
+        {
+            element: UI.strokeColor,
+            events: {
+                "input": {
+                    callback: () => {
+                        updateSelectedShapeStrokeColor();
+                    }
+                }
+            }
+        },
+        {
+            element: UI.lineColor,
+            events: {
+                "input": {
+                    callback: () => {
+                        updateSelectedShapeStrokeColor();
+                    }
+                }
             }
         },
         {
@@ -2245,15 +2268,6 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         updateOpacitySliderColor();
     }
 
-    function updateSelectedShapeOpacity() {
-        if (!valueWithinBounds(UI.fillOpacityNumber)) return;
-
-        const selectedEl = rootElement.querySelector('.editing');
-        if(!checkIfShouldUpdateShape(selectedEl)) return;
-
-        selectedEl.firstElementChild.style.fillOpacity = parseFloat(UI.fillOpacityNumber.value / 100);
-    }
-
     function valueWithinBounds(inputElem) {
         let value = parseFloat(inputElem.value),
             max = parseFloat(inputElem.max),
@@ -2445,6 +2459,38 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
 
         const shapeType = selectedEl.id.split('-')[0];
         return shapeType === currentDataButton.id.split('-')[1];
+    }
+
+    function updateSelectedShapeOpacity() {
+        if (!valueWithinBounds(UI.fillOpacityNumber)) return;
+
+        const selectedEl = rootElement.querySelector('.editing');
+        if(!checkIfShouldUpdateShape(selectedEl)) return;
+
+        selectedEl.firstElementChild.style.fillOpacity = parseFloat(UI.fillOpacityNumber.value / 100);
+    }
+
+    function updateSelectedShapeStrokeColor() {
+        const selectedEl = rootElement.querySelector('.editing');
+        if(!checkIfShouldUpdateShape(selectedEl)) return;
+        const shapeType = selectedEl.id.split('-')[0];
+
+        switch (shapeType) {
+            case 'line':
+            case 'freehand':
+                selectedEl.firstElementChild.style.stroke = UI.lineColor.value;
+                break;
+            default:
+                selectedEl.firstElementChild.style.stroke = UI.strokeColor.value;
+        }
+    }
+
+    function updateSelectedShapeStrokeWidth()
+    {
+        const selectedEl = rootElement.querySelector('.editing');
+        if(!checkIfShouldUpdateShape(selectedEl)) return;
+
+        selectedEl.firstElementChild.style.strokeWidth = UI.strokeWidth.value;
     }
 
 

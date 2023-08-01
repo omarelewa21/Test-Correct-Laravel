@@ -316,7 +316,7 @@ export class Entry extends sidebarComponent {
     }
 
     showRelevantShapeMenu() {
-        const shapeType = this.svgShape.type;
+        let shapeType = this.svgShape.type;
 
         if(shapeType === 'image') return;
 
