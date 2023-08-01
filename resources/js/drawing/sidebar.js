@@ -31,6 +31,7 @@ export class Entry extends sidebarComponent {
 
         this.btns = {
             delete: templateCopy.querySelector(".remove-btn"),
+            edit: templateCopy.querySelector(".edit-btn"),
             lock: templateCopy.querySelector(".lock-btn"),
             hide: templateCopy.querySelector(".hide-btn"),
             drag: templateCopy.querySelector(".drag-btn"),
@@ -110,6 +111,16 @@ export class Entry extends sidebarComponent {
                         },
                     },
                 },
+            },
+            {
+                element: this.btns.edit,
+                events: {
+                    "click": {
+                        callback: () => {
+                            this.handleEditShape();
+                        }
+                    }
+                }
             },
             {
                 element: this.btns.lock,
@@ -237,10 +248,14 @@ export class Entry extends sidebarComponent {
     }
 
     handleClick(evt) {
-        const selectedEl = this.entryContainer.parentElement.querySelector('.selected');
+        const selectedEl = this.getSelectedElement();
         if (selectedEl) this.unselect(selectedEl);
         if (selectedEl === this.entryContainer) return;
         this.select();
+    }
+
+    getSelectedElement() {
+        return this.entryContainer.parentElement.querySelector('.selected');
     }
 
     select() {
@@ -251,6 +266,7 @@ export class Entry extends sidebarComponent {
         const shapeId = element.id.substring(6);
         element.classList.remove('selected');
         element.closest('#canvas-sidebar-container').querySelector(`#${shapeId}`).classList.remove('selected');
+        this.stopEditingShape(element);
         document.activeElement.blur();
     }
     toggleSelect() {
@@ -280,6 +296,34 @@ export class Entry extends sidebarComponent {
             this.btns.hide.title = this.btns.hide.getAttribute("data-title-unhidden");
             this.entryContainer.classList.remove('hide');
         }
+    }
+
+    handleEditShape() {
+        if(this.getSelectedElement()) return;
+
+        this.showRelevantShapeMenu();
+        this.startEditingShape();
+    }
+
+    startEditingShape() {
+        this.entryContainer.classList.add('editing');
+        this.svgShape.shapeGroup.element.classList.add('editing');
+    }
+
+    stopEditingShape() {
+        this.entryContainer.classList.remove('editing');
+        this.svgShape.shapeGroup.element.classList.remove('editing');
+    }
+
+    showRelevantShapeMenu() {
+        const shapeType = this.svgShape.type;
+
+        if(shapeType === 'image') return;
+
+        if(shapeType === 'path') {
+            shapeType = 'freehand';
+        }
+        document.querySelector(`#add-${shapeType}-btn`).click();
     }
 
     remove() {
