@@ -179,7 +179,7 @@ trait WithInlineFeedback {
                 case AnswerFeedbackFilter::STUDENTS:
                     $feedback->visible = $feedback->user->isA('student');
                     break;
-                case AnswerFeedbackFilter::TEACHERS:
+                case AnswerFeedbackFilter::TEACHER:
                     $feedback->visible = $feedback->user->isA('teacher');
                     break;
                 case AnswerFeedbackFilter::CURRENT_USER:

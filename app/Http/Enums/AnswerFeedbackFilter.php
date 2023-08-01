@@ -6,6 +6,6 @@ enum AnswerFeedbackFilter: string
 {
     case ALL = 'all';
     case STUDENTS = 'students';
-    case TEACHERS = 'teachers';
+    case TEACHER = 'teacher';
     case CURRENT_USER = 'current_user';
 }

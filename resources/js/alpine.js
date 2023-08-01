@@ -2707,7 +2707,7 @@ document.addEventListener("alpine:init", () => {
                     return;
                 }
                 //check for click outside 1. comment markers, 2. comment marker icons, 3. comment cards.
-                //todo also selects inactive comment markers now
+                //todo also selects/ignores inactive comment markers now
                 if( event.srcElement.closest(':is(.ck-comment-marker, .answer-feedback-comment-icons, .given-feedback-container)') ) {
                     return;
                 }
@@ -2858,7 +2858,7 @@ document.addEventListener("alpine:init", () => {
                 return (
                     (answerFeedbackFilter === 'current_user' && thread.currentUser)
                     || (answerFeedbackFilter === 'students' && thread.role === 'student')
-                    || (answerFeedbackFilter === 'teachers' && thread.role === 'teacher')
+                    || (answerFeedbackFilter === 'teacher' && thread.role === 'teacher')
                     || answerFeedbackFilter === 'all'
                 )
             });
