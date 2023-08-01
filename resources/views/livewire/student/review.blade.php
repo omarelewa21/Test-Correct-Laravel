@@ -28,6 +28,7 @@
                         </x-table.heading>
                         <x-table.heading width="200px"
                                          textAlign="right">{{ __('student.review_until') }}</x-table.heading>
+                        <x-table.heading width="120px">{{ __('student.info') }}</x-table.heading>
                         <x-table.heading width="125px"></x-table.heading>
                     </x-slot>
                     <x-slot name="body">
@@ -48,6 +49,9 @@
 
                                 <x-table.cell class="text-right text-sm">
                                     <span>{{ \Carbon\Carbon::parse($testTake->show_results)->format('d-m-Y H:i') }}</span>
+                                </x-table.cell>
+                                <x-table.cell>
+                                    <x-partials.after-take-info-labels :$testTake />
                                 </x-table.cell>
                                 <x-table.cell buttonCell class="text-right">
                                     <x-button.cta selid="dashboard-start-take-button">
