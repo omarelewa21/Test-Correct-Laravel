@@ -3,6 +3,11 @@
         style="--ck-color-toolbar-border: var(--all-red);--ck-color-base-border: var(--all-red);"
      @enderror
      selid="ckeditor">
+    <style >
+        .ck.ck-balloon-panel {
+            display: none !important;
+        }
+    </style>
     <style id="addFeedbackMarkerStyles">
         :root {
             --active-comment-color: rgba(var(--primary-rgb), 0.4); /* default color, overwrite when color picker is used */
