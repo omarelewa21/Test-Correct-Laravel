@@ -17,9 +17,7 @@ use tcCore\Http\Livewire\Student\TestReview;
 use tcCore\Http\Middleware\AfterResponse;
 
 trait WithInlineFeedback {
-    //TODO complete CKeditor comments Feedback implementation:
 
-    /* Inline Feedback comments */
     public $answerFeedback;
     public AnswerFeedbackFilter $answerFeedbackFilter;
 
@@ -37,9 +35,13 @@ trait WithInlineFeedback {
 
     public function bootedWithInlineFeedback()
     {
-        if ((property_exists($this, 'headerCollapsed') && $this->headerCollapsed) || !property_exists($this, 'headerCollapsed')) {
-            $this->getSortedAnswerFeedback();
+        if(!$this->getCurrentAnswer()) {
+            return;
         }
+        if ((property_exists($this, 'headerCollapsed') && !$this->headerCollapsed)) {
+            return;
+        }
+        $this->getSortedAnswerFeedback();
     }
 
     public function createNewComment($commentData, $createCommentIds = true)
@@ -282,7 +284,7 @@ SQL;
 
     public function getCurrentAnswer()
     {
-        return $this->currentAnswer ?? $this->answerRating->answer;
+        return $this->currentAnswer ?? $this->answerRating?->answer;
     }
 
     public function getCurrentQuestion()

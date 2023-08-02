@@ -2174,13 +2174,13 @@ document.addEventListener("alpine:init", () => {
             return element.offsetTop + (element.offsetHeight / 2);
         }
     }));
-    Alpine.data("assessmentDrawer", (inReview = false, tabs = [1,2,3]) => ({
+    Alpine.data("assessmentDrawer", (inReview = false, tabs = [1,2,3], collapse = false) => ({
         activeTab: 1,
         tabs: tabs,
-        collapse: false,
         container: null,
         clickedNext: false,
         tooltipTimeout: null,
+        collapse,
         inReview,
         init() {
             this.container = this.$root.querySelector("#slide-container");
@@ -2669,7 +2669,6 @@ document.addEventListener("alpine:init", () => {
                 return;
             }
             this.setFocusTracking();
-            // this.createFocusableButtons();
 
             document.addEventListener('comment-color-updated', async (event) => {
                 let styleTagElement = document.querySelector('#temporaryCommentMarkerStyles');
@@ -2707,8 +2706,12 @@ document.addEventListener("alpine:init", () => {
                     return;
                 }
                 //check for click outside 1. comment markers, 2. comment marker icons, 3. comment cards.
-                //todo also selects/ignores inactive comment markers now
-                if( event.srcElement.closest(':is(.ck-comment-marker, .answer-feedback-comment-icons, .given-feedback-container)') ) {
+                if(event.srcElement.closest(':is(.ck-comment-marker, .answer-feedback-comment-icon, .given-feedback-container)') ) {
+                    let element = event.srcElement.closest('.ck-comment-marker');
+                    if(element instanceof Element && window.getComputedStyle(element).backgroundColor === 'rgba(0, 0, 0, 0)' ) {
+                        //ignore click on inactive comment marker
+                        this.clearActiveComment();
+                    }
                     return;
                 }
                 this.clearActiveComment()
@@ -3259,6 +3262,25 @@ document.addEventListener("alpine:init", () => {
                 document.querySelector('body'),
                 {attributes: true}
             );
+        },
+        async goToPreviousAnswerRating() {
+            if(this.$store.answerFeedback.feedbackBeingEdited()) {
+                return this.$store.answerFeedback.openConfirmationModal(this.$root, 'goToPreviousAnswerRating');
+            }
+            this.$wire.goToPreviousAnswerRating();
+        },
+        async goToNextAnswerRating() {
+            if(this.$store.answerFeedback.feedbackBeingEdited()) {
+                return this.$store.answerFeedback.openConfirmationModal(this.$root, 'goToNextAnswerRating');
+            }
+            this.$wire.goToNextAnswerRating();
+        },
+        async goToFinishedCoLearningPage() {
+            if(this.$store.answerFeedback.feedbackBeingEdited()) {
+                return this.$store.answerFeedback.openConfirmationModal(this.$root, 'goToFinishedCoLearningPage');
+            }
+
+            this.$wire.goToFinishedCoLearningPage();
         },
     }));
 
@@ -3882,6 +3904,7 @@ document.addEventListener("alpine:init", () => {
         },
         continueAction() {
             this.editingComment = null;
+            console.log(this.navigationRoot, this.navigationMethod, this.navigationArgs)
             this.navigationRoot.dispatchEvent(new CustomEvent('continue-navigation', {detail: {method: this.navigationMethod, args: [this.navigationArgs]}}))
             Livewire.emit('closeModal');
         },

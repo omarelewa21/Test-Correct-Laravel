@@ -1,5 +1,5 @@
-<div class="flex "
-     @if($testTake->enable_comments_colearning)
+<div class="flex w-full"
+     @if($testTake->enable_comments_colearning && !$this->coLearningFinished)
      x-data="AnswerFeedback(
                 @js('ar-'. $this->answerRating->getKey()),
                 @js('feedback-editor-'. $this->questionFollowUpNumber .'-'. $this->answerFollowUpNumber),
@@ -26,6 +26,7 @@
             $wire.set('pollingFallbackActive', true);
          },
      }"
+         x-on:continue-navigation="Alpine.$data($el)[$event.detail.method]()"
     >
 
         @if($this->coLearningFinished)
@@ -89,7 +90,7 @@
                         </div>
                     @endif
                     <div class="flex content-center justify-between">
-                        <x-button.secondary x-on:click.stop="$dispatch('answer-feedback-drawer-tab-update', {tab: 2} ); $dispatch('answer-feedback-focus-feedback-editor');">
+                        <x-button.secondary x-on:click.stop="$dispatch('answer-feedback-drawer-tab-update', {tab: 2} )">
                             <x-icon.feedback-text/>
                             <span>@lang('assessment.Feedback')</span>
                         </x-button.secondary>
@@ -101,14 +102,14 @@
 
                     @if($previousAnswerAvailable)
                         <x-button.primary class="rotate-svg-180"
-                                          wire:click="goToPreviousAnswerRating()"
+                                          x-on:click="await goToPreviousAnswerRating()"
                                           wire:loading.attr="disabled"
                         >
                             <x-icon.chevron/>
                             <span>{{ __('co-learning.previous_answer') }}</span>
                         </x-button.primary>
                     @elseif($nextAnswerAvailable)
-                        <x-button.primary wire:click="goToNextAnswerRating()"
+                        <x-button.primary x-on:click="await goToNextAnswerRating()"
                                           wire:loading.attr="disabled"
                                           :disabled="!$this->enableNextQuestionButton"
                         >
@@ -118,7 +119,7 @@
                     @endif
 
                     @if($this->atLastQuestion)
-                        <x-button.cta wire:click="goToFinishedCoLearningPage"
+                        <x-button.cta x-on:click="await goToFinishedCoLearningPage"
                                       wire:loading.attr="disabled"
                                       :disabled="!$finishCoLearningButtonEnabled"
                         >
@@ -130,7 +131,7 @@
             @endif
         </footer>
     </div>
-    @if($testTake->enable_comments_colearning)
+    @if($testTake->enable_comments_colearning && !$coLearningFinished)
     <x-partials.co-learning-drawer
             uniqueKey="question-{{$testTake->discussingQuestion->uuid}}-{{ $this->answerFollowUpNumber }}-{{$answerFeedback->count()}}">
         <x-slot name="slideContent">

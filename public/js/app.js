@@ -8700,13 +8700,14 @@ document.addEventListener("alpine:init", function () {
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("assessmentDrawer", function () {
     var inReview = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
     var tabs = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [1, 2, 3];
+    var collapse = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
     return {
       activeTab: 1,
       tabs: tabs,
-      collapse: false,
       container: null,
       clickedNext: false,
       tooltipTimeout: null,
+      collapse: collapse,
       inReview: inReview,
       init: function init() {
         this.container = this.$root.querySelector("#slide-container");
@@ -9350,8 +9351,6 @@ document.addEventListener("alpine:init", function () {
                 return _context23.abrupt("return");
               case 3:
                 _this61.setFocusTracking();
-                // this.createFocusableButtons();
-
                 document.addEventListener('comment-color-updated', /*#__PURE__*/function () {
                   var _ref4 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee21(event) {
                     var styleTagElement, colorWithOpacity, color;
@@ -9406,8 +9405,12 @@ document.addEventListener("alpine:init", function () {
                     return;
                   }
                   //check for click outside 1. comment markers, 2. comment marker icons, 3. comment cards.
-                  //todo also selects/ignores inactive comment markers now
-                  if (event.srcElement.closest(':is(.ck-comment-marker, .answer-feedback-comment-icons, .given-feedback-container)')) {
+                  if (event.srcElement.closest(':is(.ck-comment-marker, .answer-feedback-comment-icon, .given-feedback-container)')) {
+                    var element = event.srcElement.closest('.ck-comment-marker');
+                    if (element instanceof Element && window.getComputedStyle(element).backgroundColor === 'rgba(0, 0, 0, 0)') {
+                      //ignore click on inactive comment marker
+                      _this61.clearActiveComment();
+                    }
                     return;
                   }
                   _this61.clearActiveComment();
@@ -9992,6 +9995,66 @@ document.addEventListener("alpine:init", function () {
         observer.observe(document.querySelector('body'), {
           attributes: true
         });
+      },
+      goToPreviousAnswerRating: function goToPreviousAnswerRating() {
+        var _this74 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee29() {
+          return _regeneratorRuntime().wrap(function _callee29$(_context29) {
+            while (1) switch (_context29.prev = _context29.next) {
+              case 0:
+                if (!_this74.$store.answerFeedback.feedbackBeingEdited()) {
+                  _context29.next = 2;
+                  break;
+                }
+                return _context29.abrupt("return", _this74.$store.answerFeedback.openConfirmationModal(_this74.$root, 'goToPreviousAnswerRating'));
+              case 2:
+                _this74.$wire.goToPreviousAnswerRating();
+              case 3:
+              case "end":
+                return _context29.stop();
+            }
+          }, _callee29);
+        }))();
+      },
+      goToNextAnswerRating: function goToNextAnswerRating() {
+        var _this75 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee30() {
+          return _regeneratorRuntime().wrap(function _callee30$(_context30) {
+            while (1) switch (_context30.prev = _context30.next) {
+              case 0:
+                if (!_this75.$store.answerFeedback.feedbackBeingEdited()) {
+                  _context30.next = 2;
+                  break;
+                }
+                return _context30.abrupt("return", _this75.$store.answerFeedback.openConfirmationModal(_this75.$root, 'goToNextAnswerRating'));
+              case 2:
+                _this75.$wire.goToNextAnswerRating();
+              case 3:
+              case "end":
+                return _context30.stop();
+            }
+          }, _callee30);
+        }))();
+      },
+      goToFinishedCoLearningPage: function goToFinishedCoLearningPage() {
+        var _this76 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee31() {
+          return _regeneratorRuntime().wrap(function _callee31$(_context31) {
+            while (1) switch (_context31.prev = _context31.next) {
+              case 0:
+                if (!_this76.$store.answerFeedback.feedbackBeingEdited()) {
+                  _context31.next = 2;
+                  break;
+                }
+                return _context31.abrupt("return", _this76.$store.answerFeedback.openConfirmationModal(_this76.$root, 'goToFinishedCoLearningPage'));
+              case 2:
+                _this76.$wire.goToFinishedCoLearningPage();
+              case 3:
+              case "end":
+                return _context31.stop();
+            }
+          }, _callee31);
+        }))();
       }
     };
   });
@@ -10003,7 +10066,7 @@ document.addEventListener("alpine:init", function () {
         this.setHeightToAspectRatio(this.$el);
       },
       setHeightToAspectRatio: function setHeightToAspectRatio(element) {
-        var _this74 = this;
+        var _this77 = this;
         var aspectRatioWidth = 940;
         var aspectRatioHeight = 500;
         var aspectRatio = aspectRatioHeight / aspectRatioWidth;
@@ -10016,7 +10079,7 @@ document.addEventListener("alpine:init", function () {
         if (newHeight <= 0) {
           if (this.currentTry <= this.maxTries) {
             setTimeout(function () {
-              return _this74.setHeightToAspectRatio(element);
+              return _this77.setHeightToAspectRatio(element);
             }, 50);
             this.currentTry++;
           }
@@ -10049,16 +10112,16 @@ document.addEventListener("alpine:init", function () {
       maxWords: maxWords,
       wordContainer: null,
       init: function init() {
-        var _this75 = this;
+        var _this78 = this;
         this.$nextTick(function () {
-          _this75.editor = ClassicEditors[editorId];
-          _this75.wordContainer = _this75.$root.querySelector(".ck-word-count__words");
-          _this75.wordContainer.style.display = "flex";
-          _this75.wordContainer.parentElement.style.display = "flex";
-          _this75.addMaxWordsToWordCounter(_this75.maxWords);
+          _this78.editor = ClassicEditors[editorId];
+          _this78.wordContainer = _this78.$root.querySelector(".ck-word-count__words");
+          _this78.wordContainer.style.display = "flex";
+          _this78.wordContainer.parentElement.style.display = "flex";
+          _this78.addMaxWordsToWordCounter(_this78.maxWords);
         });
         this.$watch("maxWords", function (value) {
-          _this75.addMaxWordsToWordCounter(value);
+          _this78.addMaxWordsToWordCounter(value);
         });
       },
       addMaxWordsToWordCounter: function addMaxWordsToWordCounter(value) {
@@ -10077,17 +10140,17 @@ document.addEventListener("alpine:init", function () {
     return {
       editorId: editorId,
       init: function init() {
-        var _this76 = this;
+        var _this79 = this;
         this.$watch("showMe", function (value) {
           if (!value) return;
-          _this76.$nextTick(function () {
+          _this79.$nextTick(function () {
             var editor = ClassicEditors[editorId];
             if (!editor) {
               return;
             }
             if (!editor.ui.focusTracker.isFocused) {
               setTimeout(function () {
-                _this76.setFocus(editor);
+                _this79.setFocus(editor);
               }, 300);
             }
           });
@@ -10115,14 +10178,14 @@ document.addEventListener("alpine:init", function () {
       pillContainer: null,
       searchFocussed: false,
       init: function init() {
-        var _this77 = this;
+        var _this80 = this;
         this.pillContainer = document.querySelector("#".concat(containerId));
         this.$watch("query", function (value) {
-          return _this77.search(value);
+          return _this80.search(value);
         });
         this.$watch("multiSelectOpen", function (value) {
-          if (value) _this77.handleDropdownLocation();
-          if (!value) _this77.query = "";
+          if (value) _this80.handleDropdownLocation();
+          if (!value) _this80.query = "";
         });
         this.registerSelectedItemsOnComponent();
       },
@@ -10130,15 +10193,15 @@ document.addEventListener("alpine:init", function () {
         this.openSubs = this.toggle(this.openSubs, uuid);
       },
       parentClick: function parentClick(element, parent) {
-        var _this78 = this;
+        var _this81 = this;
         var checked = !this.checkedParents.includes(parent.value);
         element.querySelector("input[type=\"checkbox\"]").checked = checked;
         this.checkedParents = this.toggle(this.checkedParents, parent.value);
         parent.children.filter(function (child) {
           return child.disabled !== true;
         }).forEach(function (child) {
-          _this78[checked ? "childAdd" : "childRemove"](child);
-          checked ? _this78.checkAndDisableBrothersFromOtherMothers(child) : _this78.uncheckAndEnableBrothersFromOtherMothers(child);
+          _this81[checked ? "childAdd" : "childRemove"](child);
+          checked ? _this81.checkAndDisableBrothersFromOtherMothers(child) : _this81.uncheckAndEnableBrothersFromOtherMothers(child);
         });
         this.$root.querySelectorAll("[data-parent-id=\"".concat(parent.value, "\"][data-disabled=\"false\"] input[type=\"checkbox\"]")).forEach(function (child) {
           return child.checked = checked;
@@ -10205,13 +10268,13 @@ document.addEventListener("alpine:init", function () {
         // return result < parent.children.length;
       },
       checkedChildrenCount: function checkedChildrenCount(parent) {
-        var _this79 = this;
+        var _this82 = this;
         return parent.children.filter(function (child) {
-          return _this79.checkedChildrenContains(child);
+          return _this82.checkedChildrenContains(child);
         }).length;
       },
       search: function search(value) {
-        var _this80 = this;
+        var _this83 = this;
         if (value.length === 0) {
           this.searchEmpty = false;
           this.showAllOptions();
@@ -10221,7 +10284,7 @@ document.addEventListener("alpine:init", function () {
         var results = this.searchParentsAndChildsLabels(value);
         this.searchEmpty = results.length === 0;
         results.forEach(function (item) {
-          return _this80.showOption(item);
+          return _this83.showOption(item);
         });
       },
       showOption: function showOption(identifier) {
@@ -10291,9 +10354,9 @@ document.addEventListener("alpine:init", function () {
         this[toggleFunction](this.$root.querySelector("[data-id=\"".concat(event.item.value, "\"][data-parent-id=\"").concat(event.item.customProperties.parentId, "\"]")), event.item);
       },
       handleActiveFilters: function handleActiveFilters() {
-        var _this81 = this;
+        var _this84 = this;
         var currentPillIds = Array.from(this.pillContainer.childNodes).map(function (pill) {
-          if (!_this81.isParent(pill.item)) {
+          if (!_this84.isParent(pill.item)) {
             return pill.item.value + pill.item.customProperties.parentId;
           }
           return pill.item.value;
@@ -10307,13 +10370,13 @@ document.addEventListener("alpine:init", function () {
         this.options.flatMap(function (parent) {
           return [parent].concat(_toConsumableArray(parent.children));
         }).filter(function (item) {
-          if (_this81.isParent(item)) return _this81.checkedParents.includes(item.value);
-          if (_this81.checkedParents.includes(item.customProperties.parentId)) {
+          if (_this84.isParent(item)) return _this84.checkedParents.includes(item.value);
+          if (_this84.checkedParents.includes(item.customProperties.parentId)) {
             pillIdsToRemove.push(item.value + item.customProperties.parentId);
           }
-          return !_this81.checkedParents.includes(item.customProperties.parentId) && _this81.checkedChildrenContains(item);
+          return !_this84.checkedParents.includes(item.customProperties.parentId) && _this84.checkedChildrenContains(item);
         }).forEach(function (item) {
-          return _this81.createFilterPill(item);
+          return _this84.createFilterPill(item);
         });
         var that = this;
         pillIdsToRemove.forEach(function (uuid) {
@@ -10340,7 +10403,7 @@ document.addEventListener("alpine:init", function () {
         }
       },
       registerSelectedItemsOnComponent: function registerSelectedItemsOnComponent() {
-        var _this82 = this;
+        var _this85 = this;
         var checkedChildValues = this.options.flatMap(function (parent) {
           return _toConsumableArray(parent.children);
         }).filter(function (item) {
@@ -10349,10 +10412,10 @@ document.addEventListener("alpine:init", function () {
         });
         this.$nextTick(function () {
           checkedChildValues.forEach(function (item) {
-            _this82.childClick(_this82.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.customProperties.parentId, "\"]")), item);
+            _this85.childClick(_this85.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.customProperties.parentId, "\"]")), item);
           });
-          _this82.registerParentsBasedOnDisabledChildren();
-          _this82.handleActiveFilters();
+          _this85.registerParentsBasedOnDisabledChildren();
+          _this85.handleActiveFilters();
         });
       },
       syncInput: function syncInput() {
@@ -10369,24 +10432,24 @@ document.addEventListener("alpine:init", function () {
         });
       },
       checkAndDisableBrothersFromOtherMothers: function checkAndDisableBrothersFromOtherMothers(child) {
-        var _this83 = this;
+        var _this86 = this;
         this.options.flatMap(function (parents) {
           return _toConsumableArray(parents.children);
         }).filter(function (item) {
           return item.value === child.value && item.customProperties.parentId !== child.customProperties.parentId;
         }).forEach(function (item) {
-          _this83.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.customProperties.parentId, "\"] input[type=\"checkbox\"]")).checked = true;
+          _this86.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.customProperties.parentId, "\"] input[type=\"checkbox\"]")).checked = true;
           item.disabled = true;
         });
       },
       uncheckAndEnableBrothersFromOtherMothers: function uncheckAndEnableBrothersFromOtherMothers(child) {
-        var _this84 = this;
+        var _this87 = this;
         this.options.flatMap(function (parents) {
           return _toConsumableArray(parents.children);
         }).filter(function (item) {
           return item.value === child.value && item.customProperties.parentId !== child.customProperties.parentId;
         }).forEach(function (item) {
-          _this84.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.customProperties.parentId, "\"] input[type=\"checkbox\"]")).checked = false;
+          _this87.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.customProperties.parentId, "\"] input[type=\"checkbox\"]")).checked = false;
           item.disabled = false;
         });
       },
@@ -10395,15 +10458,15 @@ document.addEventListener("alpine:init", function () {
         return !((_item$customPropertie3 = item.customProperties) !== null && _item$customPropertie3 !== void 0 && _item$customPropertie3.parent) === false;
       },
       registerParentsBasedOnDisabledChildren: function registerParentsBasedOnDisabledChildren() {
-        var _this85 = this;
+        var _this88 = this;
         this.options.forEach(function (item) {
           var enabledChildren = item.children.filter(function (child) {
             return child.disabled !== true;
           }).length;
           if (enabledChildren === 0) return;
-          var enabled = _this85.checkedChildrenCount(item) === enabledChildren;
-          _this85.checkedParents = _this85[enabled ? "add" : "remove"](_this85.checkedParents, item.value);
-          _this85.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.value, "\"] input[type=\"checkbox\"]")).checked = enabled;
+          var enabled = _this88.checkedChildrenCount(item) === enabledChildren;
+          _this88.checkedParents = _this88[enabled ? "add" : "remove"](_this88.checkedParents, item.value);
+          _this88.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.value, "\"] input[type=\"checkbox\"]")).checked = enabled;
         });
       },
       parentDisabled: function parentDisabled(parent) {
@@ -10434,11 +10497,11 @@ document.addEventListener("alpine:init", function () {
       selectedText: null
     }, selectFunctions), {}, {
       init: function init() {
-        var _this86 = this;
+        var _this89 = this;
         this.selectedText = this.$root.querySelector("span.selected").dataset.selectText;
         this.setActiveStartingValue();
         this.$watch("singleSelectOpen", function (value) {
-          if (value) _this86.handleDropdownLocation();
+          if (value) _this89.handleDropdownLocation();
         });
       },
       get value() {
@@ -10503,123 +10566,123 @@ document.addEventListener("alpine:init", function () {
       inTestBankContext: inTestBankContext,
       maxHeight: 'calc(100vh - var(--header-height))',
       init: function init() {
-        var _this87 = this;
+        var _this90 = this;
         this.groupDetail = this.$el.querySelector('#groupdetail');
         this.$watch('showBank', function (value) {
           if (value === 'questions') {
-            _this87.$wire.loadSharedFilters();
+            _this90.$wire.loadSharedFilters();
           }
         });
         this.$watch('$store.questionBank.inGroup', function (value) {
-          _this87.inGroup = value;
+          _this90.inGroup = value;
         });
         this.$watch('$store.questionBank.active', function (value) {
           if (value) {
-            _this87.$wire.setAddedQuestionIdsArray();
+            _this90.$wire.setAddedQuestionIdsArray();
           } else {
-            _this87.closeGroupDetailQb();
+            _this90.closeGroupDetailQb();
           }
         });
         this.showGroupDetailsQb = /*#__PURE__*/function () {
-          var _ref7 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee29(groupQuestionUuid) {
+          var _ref7 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee32(groupQuestionUuid) {
             var inTest,
               readyForSlide,
-              _args29 = arguments;
-            return _regeneratorRuntime().wrap(function _callee29$(_context29) {
-              while (1) switch (_context29.prev = _context29.next) {
+              _args32 = arguments;
+            return _regeneratorRuntime().wrap(function _callee32$(_context32) {
+              while (1) switch (_context32.prev = _context32.next) {
                 case 0:
-                  inTest = _args29.length > 1 && _args29[1] !== undefined ? _args29[1] : false;
-                  _context29.next = 3;
-                  return _this87.$wire.showGroupDetails(groupQuestionUuid, inTest);
+                  inTest = _args32.length > 1 && _args32[1] !== undefined ? _args32[1] : false;
+                  _context32.next = 3;
+                  return _this90.$wire.showGroupDetails(groupQuestionUuid, inTest);
                 case 3:
-                  readyForSlide = _context29.sent;
+                  readyForSlide = _context32.sent;
                   if (readyForSlide) {
-                    if (_this87.inTestBankContext) {
-                      _this87.$refs['tab-container'].style.display = 'none';
-                      _this87.$refs['main-container'].style.height = '100vh';
+                    if (_this90.inTestBankContext) {
+                      _this90.$refs['tab-container'].style.display = 'none';
+                      _this90.$refs['main-container'].style.height = '100vh';
                     } else {
-                      _this87.maxHeight = _this87.groupDetail.offsetHeight + 'px';
+                      _this90.maxHeight = _this90.groupDetail.offsetHeight + 'px';
                     }
-                    _this87.groupDetail.style.left = 0;
-                    _this87.$refs['main-container'].scrollTo({
+                    _this90.groupDetail.style.left = 0;
+                    _this90.$refs['main-container'].scrollTo({
                       top: 0,
                       behavior: 'smooth'
                     });
-                    _this87.$el.scrollTo({
+                    _this90.$el.scrollTo({
                       top: 0,
                       behavior: 'smooth'
                     });
-                    _this87.$nextTick(function () {
+                    _this90.$nextTick(function () {
                       setTimeout(function () {
-                        _this87.bodyVisibility = false;
-                        if (_this87.inTestBankContext) {
-                          _this87.groupDetail.style.position = 'relative';
+                        _this90.bodyVisibility = false;
+                        if (_this90.inTestBankContext) {
+                          _this90.groupDetail.style.position = 'relative';
                         } else {
-                          handleVerticalScroll(_this87.$el.closest('.slide-container'));
+                          handleVerticalScroll(_this90.$el.closest('.slide-container'));
                         }
                       }, 500);
                     });
                   }
                 case 5:
                 case "end":
-                  return _context29.stop();
+                  return _context32.stop();
               }
-            }, _callee29);
+            }, _callee32);
           }));
           return function (_x4) {
             return _ref7.apply(this, arguments);
           };
         }();
         this.closeGroupDetailQb = function () {
-          if (!_this87.bodyVisibility) {
-            _this87.bodyVisibility = true;
-            _this87.maxHeight = 'calc(100vh - var(--header-height))';
-            _this87.groupDetail.style.left = '100%';
-            if (_this87.inTestBankContext) {
-              _this87.groupDetail.style.position = 'absolute';
-              _this87.$refs['tab-container'].style.display = 'block';
+          if (!_this90.bodyVisibility) {
+            _this90.bodyVisibility = true;
+            _this90.maxHeight = 'calc(100vh - var(--header-height))';
+            _this90.groupDetail.style.left = '100%';
+            if (_this90.inTestBankContext) {
+              _this90.groupDetail.style.position = 'absolute';
+              _this90.$refs['tab-container'].style.display = 'block';
             }
-            _this87.$nextTick(function () {
-              _this87.$wire.clearGroupDetails();
+            _this90.$nextTick(function () {
+              _this90.$wire.clearGroupDetails();
               setTimeout(function () {
-                if (!_this87.inTestBankContext) {
-                  handleVerticalScroll(_this87.$el.closest('.slide-container'));
+                if (!_this90.inTestBankContext) {
+                  handleVerticalScroll(_this90.$el.closest('.slide-container'));
                 }
               }, 250);
             });
           }
         };
         this.addQuestionToTest = /*#__PURE__*/function () {
-          var _ref8 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee30(button, questionUuid) {
+          var _ref8 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee33(button, questionUuid) {
             var showQuestionBankAddConfirmation,
               enableButton,
-              _args30 = arguments;
-            return _regeneratorRuntime().wrap(function _callee30$(_context30) {
-              while (1) switch (_context30.prev = _context30.next) {
+              _args33 = arguments;
+            return _regeneratorRuntime().wrap(function _callee33$(_context33) {
+              while (1) switch (_context33.prev = _context33.next) {
                 case 0:
-                  showQuestionBankAddConfirmation = _args30.length > 2 && _args30[2] !== undefined ? _args30[2] : false;
+                  showQuestionBankAddConfirmation = _args33.length > 2 && _args33[2] !== undefined ? _args33[2] : false;
                   if (!showQuestionBankAddConfirmation) {
-                    _context30.next = 3;
+                    _context33.next = 3;
                     break;
                   }
-                  return _context30.abrupt("return", _this87.$wire.emit('openModal', 'teacher.add-sub-question-confirmation-modal', {
+                  return _context33.abrupt("return", _this90.$wire.emit('openModal', 'teacher.add-sub-question-confirmation-modal', {
                     questionUuid: questionUuid
                   }));
                 case 3:
                   button.disabled = true;
-                  _context30.next = 6;
-                  return _this87.$wire.handleCheckboxClick(questionUuid);
+                  _context33.next = 6;
+                  return _this90.$wire.handleCheckboxClick(questionUuid);
                 case 6:
-                  enableButton = _context30.sent;
+                  enableButton = _context33.sent;
                   if (enableButton) {
                     button.disabled = false;
                   }
-                  return _context30.abrupt("return", true);
+                  return _context33.abrupt("return", true);
                 case 9:
                 case "end":
-                  return _context30.stop();
+                  return _context33.stop();
               }
-            }, _callee30);
+            }, _callee33);
           }));
           return function (_x5, _x6) {
             return _ref8.apply(this, arguments);
@@ -10688,6 +10751,7 @@ document.addEventListener("alpine:init", function () {
     },
     continueAction: function continueAction() {
       this.editingComment = null;
+      console.log(this.navigationRoot, this.navigationMethod, this.navigationArgs);
       this.navigationRoot.dispatchEvent(new CustomEvent('continue-navigation', {
         detail: {
           method: this.navigationMethod,

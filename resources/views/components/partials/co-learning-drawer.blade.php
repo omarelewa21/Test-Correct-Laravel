@@ -1,9 +1,8 @@
 <div class="drawer short-drawer | right flex isolate overflow-hidden flex-shrink-0"
-     x-data="assessmentDrawer(@js(false), @js([2]))"
+     x-data="assessmentDrawer(@js(false), @js([2]), @js(true))"
      x-cloak
      x-bind:class="{'collapsed': collapse}"
      x-on:answer-feedback-drawer-tab-update.window="tab($event.detail.tab, true, $event.detail?.uuid)"
-     x-on:continue-navigation="Alpine.$data($el)[$event.detail.method]()" {{-- todo: not yet used listener, add confirmation pop-up when navigating when comment is being edited --}}
      x-on:resize.window.throttle="handleResize"
      wire:key="colearning-drawer-{{ $uniqueKey }}"
      wire:ignore
