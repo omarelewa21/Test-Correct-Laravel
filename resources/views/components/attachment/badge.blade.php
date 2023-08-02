@@ -23,13 +23,13 @@
     }
 @endphp
 
-<div class="flex border rounded-lg bg-white border-blue-grey items-center mr-4 mb-2 {{ $mode === 'view' ? 'badge-view cursor-pointer' : ''  }} relative "
+<div class="flex border rounded-lg bg-white border-blue-grey items-center mr-4 mb-2 group {{ $mode === 'view' ? 'badge-view cursor-pointer' : ''  }} relative "
      x-data="badge('{{ $type == 'video' ? $attachment->link : null }}', '{{ $mode }}')"
      wire:key="{{ $attributes['wire:key'] }}"
      @attachments-updated.window="setIndex()"
      @if($mode === 'view')
-        wire:click="$emit('openModal', 'modal.preview-attachment', {{ json_encode(['attachmentUuid' => $attachment->uuid, 'questionUuid' => $questionUuid ]) }})"
-     @endif
+         wire:click="$emit('openModal', 'modal.preview-attachment', {{ json_encode(['attachmentUuid' => $attachment->uuid, 'questionUuid' => $questionUuid ]) }})"
+        @endif
 >
     <div class="flex p-2 border-r border-blue-grey h-full items-center">
         @if($type == 'image')
@@ -50,19 +50,19 @@
             <x-icon.attachment/>
         @endif
     </div>
-    <div class="flex base items-center relative">
+    <div class="flex group-hover:text-primary group-active:text-primary  items-center relative badge-title">
         @if($withNumber)
-            <span class="pl-2" x-text="index + ':'"></span>
+            <span class="pl-2 select-none" x-text="index + ':'"></span>
         @endif
         @if($type == 'video')
-            <span class="p-2 text-base max-w-[200px] truncate"
+            <span class="p-2 max-w-[200px] truncate select-none"
                   :class="{'text-midgrey': resolvingTitle}"
                   :title="videoTitle"
                   x-text="videoTitle"
             >
         </span>
         @else
-            <span class="p-2 text-base max-w-[200px] truncate" title="{{ $title }}">
+            <span class="p-2 max-w-[200px] truncate select-none" title="{{ $title }}">
             {{ $title }}
         </span>
         @endif

@@ -6,8 +6,12 @@
     align-items: center;
     display: inline-flex;
     min-height: 40px;
-    border: solid 1px transparent;
+    border: solid 2px transparent;
     transition: 100ms ease-in-out;
+}
+
+button.button {
+    user-select: none;
 }
 
 .button:focus {
@@ -17,6 +21,7 @@
 .button-xs {
     min-height: auto;
 }
+
 .button-sm {
     min-height: 40px;
 }
@@ -66,36 +71,33 @@
 }
 
 button.cta-button, a.cta-button {
+    position: relative;
     color: white;
-    background-color: rgba(58, 183, 83, 1);
-    background-image: radial-gradient(ellipse farthest-side at 10% 10%, rgba(58, 183, 83, .5) 0, rgba(58, 183, 83, 0) 100%);
-    background-size: 0px 0px;
-    background-repeat: no-repeat;
-    box-shadow: 0 1px 2px 1px rgba(0, 0, 0, .15);
-    transition: color 0.3s cubic-bezier(.215, .61, .355, 1);
+    background-color: rgba(var(--cta-primary-rgb), 1);
+    transition: all 0.3s cubic-bezier(.215, .61, .355, 1);
+    background-size: calc(100% + 4px) calc(100% + 4px); /*compensate for transparent border*/
+    background-position-x: center;
 }
 
-button.cta-button:hover, a.cta-button:hover {
-    background-color: rgb(60, 202, 86);
-    background-size: 100% 100%;
-    box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.1);
+button.cta-button:hover::after, a.cta-button:hover::after {
+    box-shadow: 0 3px 6px 0 rgba(4, 31, 116, 0.3);
     transition: all 0.3s cubic-bezier(.215, .61, .355, 1);
 }
 
-button.cta-button:active, a.cta-button:active {
-    background: linear-gradient(90deg, rgba(57, 180, 81, 1) 0%, rgba(61, 187, 86, 1) 100%);
-    box-shadow: 0 1px 6px 0 rgba(77, 87, 143, 0.5);
+button.cta-button:active::after, a.cta-button:active::after {
+    box-shadow: 0 1px 3px 0 rgba(4, 31, 116, 0.4);
 }
 
-button.cta-button:focus, a.cta-button:focus {
-    background: var(--cta-primary);
-    border: 1px solid var(--cta-primary-dark);
+button.cta-button:focus-visible::after, a.cta-button:focus-visible::after,
+button.cta-button:focus::after, a.cta-button:focus::after {
+    box-shadow: 0 3px 6px 0 rgba(4, 31, 116, 0.3);
+    border: 2px solid var(--cta-primary-dark);
 }
 
 button.cta-button:disabled, a.cta-button:disabled {
     background: var(--light-grey);
     color: var(--mid-grey);
-    box-shadow: none;
+    box-shadow: 0 1px 4px 0 rgba(4, 31, 116, 0.06), 0 1px 4px 0 rgba(4, 31, 116, 0.1);;
 }
 
 .primary-button.btn-disabled {
@@ -114,35 +116,107 @@ button.cta-button:disabled, a.cta-button:disabled {
     border: none;
 }
 
+.cta-button:disabled.cta-button::after,
+.student-button:disabled.student-button::after,
+.primary-button:disabled.primary-button::after {
+    content: none;
+}
+
+
 .primary-button {
+    position: relative;
     color: white;
     background-color: rgba(0, 77, 245, 1);
-    background-image: radial-gradient(ellipse farthest-side at 10% 10%, rgba(0, 77, 245, .5) 0, rgba(0, 77, 245, 0) 100%);
-    background-size: 0px 0px;
-    background-repeat: no-repeat;
-    box-shadow: 0 1px 2px 1px rgba(0, 0, 0, .15);
-    transition: color 0.3s cubic-bezier(.215, .61, .355, 1);
-}
-
-.primary-button:hover {
-    background-color: rgba(71, 129, 255, 1);
-    background-size: 100% 100%;
-    box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.1);
     transition: all 0.3s cubic-bezier(.215, .61, .355, 1);
+    justify-content: center;
+    background-size: 115% 110%; /*compensate for transparent border*/
+    background-position-x: center;
 }
 
+.cta-button::after,
+.student-button::after,
+.primary-button::after {
+    content: '';
+    background-size: 115% 110%;
+    background-position-x: center;
+    opacity: 0;
+    z-index: 2;
+    position: absolute;
+    inset: -2px;
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
+    border: 2px solid transparent;
+    transition: all 0.3s cubic-bezier(.215, .61, .355, 1);
+    box-sizing: content-box;
+}
+
+.primary-button::after {
+    background-image: linear-gradient(to right, #002096 0%, var(--teacher-primary-light) 100%), linear-gradient(to bottom, var(--teacher-primary), var(--teacher-primary));
+}
+
+.cta-button::after {
+    background-image: linear-gradient(to left, #4ad866 0%, var(--cta-primary-dark) 100%), linear-gradient(to bottom, var(--cta-primary), var(--cta-primary));
+}
+
+.student-button::after {
+    background-image: linear-gradient(to right, var(--highlight-primary-mid-dark) 1%, #f4f1d2), linear-gradient(to bottom, var(--teacher-highlight-primary), var(--teacher-highlight-primary));
+}
+
+.cta-button:hover::after,
+.cta-button:active::after,
+.cta-button:focus::after,
+.cta-button:focus-visible::after,
+.student-button:hover::after,
+.student-button:active::after,
+.student-button:focus::after,
+.student-button:focus-visible::after,
+.primary-button:hover::after,
+.primary-button:active::after,
+.primary-button:focus::after,
+.primary-button:focus-visible::after {
+    opacity: 1;
+}
+
+.cta-button,
+.student-button,
+.primary-button {
+    isolation: isolate;
+}
+
+.cta-button > *,
+.student-button > *,
+.primary-button > * {
+    z-index: 3;
+    position: relative;
+}
+
+.primary-button:hover,
+.primary-button:active,
 .primary-button:focus {
+    background-color: rgba(0, 77, 245, 0);
     outline: none;
 }
 
-.primary-button:active {
-    outline: none;
+.primary-button:hover::after {
+    box-shadow: 0 3px 6px 0 rgba(var(--system-base-rgb), 0.3);
 }
+
+.primary-button:focus::after,
+.primary-button:focus-visible::after {
+    border: solid 2px #002096;
+    box-shadow: 0 3px 6px 0 rgba(var(--system-base-rgb), 0.3);
+}
+
+.primary-button:active::after {
+    box-shadow: 0 1px 3px 0 rgba(var(--system-base-rgb), 0.4);
+}
+
 
 .primary-button:disabled {
     background: var(--light-grey);
     color: var(--mid-grey);
-    box-shadow: none;
+    box-shadow: 0 1px 4px 0 rgba(4, 31, 116, 0.06);
 }
 
 .secondary-button {
@@ -179,36 +253,28 @@ button.cta-button:disabled, a.cta-button:disabled {
 }
 
 .student-button {
+    position: relative;
     color: var(--system-base);
-    background-color: var(--secondary);
-    background-image: radial-gradient(ellipse farthest-side at 10% 10%, rgba(195, 208, 237, .5) 0, rgba(195, 208, 237, 0) 100%);
-    background-size: 0px 0px;
-    background-repeat: no-repeat;
-    box-shadow: 0 1px 2px 1px rgba(0, 0, 0, .15);
-    transition: color 0.3s cubic-bezier(.215, .61, .355, 1);
-}
-
-.student-button:hover {
-    background-color: rgb(203, 219, 253);
-    background-size: 100% 100%;
-    box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.1);
+    background-color: var(--teacher-highlight-primary);
     transition: all 0.3s cubic-bezier(.215, .61, .355, 1);
-}
-
-.student-button:active {
-    background: linear-gradient(90deg, rgba(239, 244, 254, 1) 0%, rgba(233, 239, 250, 1) 100%);
-    box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.1);
-}
-
-.student-button:focus {
-    background: var(--system-student);
-    border: 1px solid #99AACE;
+    justify-content: center;
+    background-size: 115% 110%; /*compensate for transparent border*/
+    background-position-x: center;
 }
 
 .student-button:disabled {
     background: var(--light-grey);
     color: var(--mid-grey);
     box-shadow: none;
+}
+
+.student-button:focus::after,
+.student-button:focus-visible::after {
+    border: solid 2px #c1ae00;
+}
+
+.student-button:active::after {
+    box-shadow: 0 1px 3px 0 rgba(var(--system-base-rgb), 0.4);
 }
 
 .select-button {
@@ -350,7 +416,7 @@ button.cta-button:disabled, a.cta-button:disabled {
 }
 
 .group-type {
-    display:flex;
+    display: flex;
     position: relative;
     padding: 20px 16px 10px 16px;
     border-radius: 10px;
@@ -362,6 +428,7 @@ button.cta-button:disabled, a.cta-button:disabled {
     box-shadow .2s ease-in-out,
     border-color .2s ease-in-out;
 }
+
 .group-type.active {
     padding: 19px 15px 9px 15px;
     border-width: 2px;
@@ -387,6 +454,7 @@ button.cta-button:disabled, a.cta-button:disabled {
     color: var(--primary);
     background-color: var(--off-white);
 }
+
 .test-change-option.active p {
     color: var(--primary);
 }
@@ -403,4 +471,56 @@ button.cta-button:disabled, a.cta-button:disabled {
 
 .shadow-icon-cirle {
     box-shadow: 0 0 8px 0 rgba(4, 31, 116, 0.3);
+}
+
+.icon-circle-button {
+    min-width: 40px;
+    width: 40px;
+    min-height: 40px;
+    height: 40px;
+    box-shadow: 0 3px 16px 0 rgba(4, 31, 116, 0.2);
+    background-color: var(--all-White);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    position: relative;
+    color: var(--system-base);
+}
+
+.icon-circle-button:hover::after,
+.icon-circle-button:active::after {
+    content: '';
+    inset: -2px;
+    background-color: #004df580;
+    position: absolute;
+    border: inherit;
+    border-radius: inherit;
+}
+.icon-circle-button:disabled::after {
+    content: none; /*disable hover overlay for disabled button*/
+}
+
+.icon-circle-button:hover {
+    box-shadow: 0 3px 8px 0 rgba(4, 31, 116, 0.2);
+    color: var(--teacher-primary);
+}
+
+.icon-circle-button:active {
+    box-shadow: 0 3px 8px 0 rgba(4, 31, 116, 0.3);
+    color: var(--teacher-primary);
+}
+
+.icon-circle-button:focus-visible,
+.icon-circle-button:focus {
+    box-shadow: 0 3px 8px 0 rgba(4, 31, 116, 0.2);
+    border: solid 2px #4781ff80;
+    color: var(--teacher-primary);
+    outline: none;
+}
+
+.icon-circle-button:disabled {
+    box-shadow: 0 3px 8px 0 rgba(4, 31, 116, 0.2);
+    color: var(--mid-grey);
 }

@@ -2,13 +2,13 @@
 
 namespace tcCore\Http\Livewire\TestTakeOverviewPreview;
 
-use Livewire\Component;
+use tcCore\Http\Livewire\TCComponent;
 use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithGroups;
 use tcCore\MultipleChoiceQuestionAnswer;
 use tcCore\Question;
 
-class ArqQuestion extends Component
+class ArqQuestion extends TCComponent
 {
     use WithCloseable, WithGroups;
 

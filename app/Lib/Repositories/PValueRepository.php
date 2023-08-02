@@ -208,8 +208,8 @@ class PValueRepository
                 $attainment->setAttribute('total_p_value', $value);
                 $attainment->setAttribute('total_p_value_count', $attainmentStats[$attainmentId]['total']['count']);
 
-                $value = $attainmentStats[$attainmentId]['current']['maxScore'] ? $attainmentStats[$attainmentId]['current']['score'] / $attainmentStats[$attainmentId]['current']['maxScore'] : 0;
                 if (array_key_exists('current', $attainmentStats[$attainmentId])) {
+                    $value = $attainmentStats[$attainmentId]['current']['maxScore'] ? $attainmentStats[$attainmentId]['current']['score'] / $attainmentStats[$attainmentId]['current']['maxScore'] : 0;
                     $attainment->setAttribute('current_p_value', ($value));
                     $attainment->setAttribute('current_p_value_count', $attainmentStats[$attainmentId]['current']['count']);
                 }
@@ -388,7 +388,7 @@ class PValueRepository
             ->groupBy('subject_id');
 
         return Subject::filterForStudentCurrentSchoolYear($user)
-            ->selectRaw('t2.*, subjects.id, subjects.name')
+            ->selectRaw('t2.*, subjects.id, subjects.uuid, subjects.name')
             ->leftJoinSub($pValueQuery, 't2', function ($join) {
                 $join->on('subjects.id', '=', 't2.subject_id');
             })

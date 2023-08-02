@@ -1,22 +1,26 @@
 <?php namespace tcCore;
 
 use Carbon\Carbon;
+use Dyrynda\Database\Casts\EfficientUuid;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Ramsey\Uuid\Uuid;
-use tcCore\Events\CoLearningNextQuestion;
 use tcCore\Events\InbrowserTestingUpdatedForTestParticipant;
 use tcCore\Events\NewTestTakeGraded;
+use tcCore\Events\NewTestTakePlanned;
 use tcCore\Events\NewTestTakeReviewable;
+use tcCore\Events\TestTakeChangeDiscussingQuestion;
 use tcCore\Events\TestTakeOpenForInteraction;
 use tcCore\Events\TestTakeShowResultsChanged;
 use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Helpers\GlobalStateHelper;
+use tcCore\Http\Middleware\AfterResponse;
 use tcCore\Jobs\CountTeacherLastTestTaken;
 use tcCore\Jobs\CountTeacherTestDiscussed;
 use tcCore\Jobs\CountTeacherTestTaken;
@@ -24,12 +28,8 @@ use tcCore\Jobs\SendTestPlannedMail;
 use tcCore\Jobs\SendTestRatedMail;
 use tcCore\Lib\Answer\AnswerChecker;
 use tcCore\Lib\Models\BaseModel;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use tcCore\Jobs\SendExceptionMail;
 use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\Lib\TestParticipant\Factory;
-use Dyrynda\Database\Casts\EfficientUuid;
-use tcCore\Events\NewTestTakePlanned;
 use tcCore\Scopes\ArchivedScope;
 use tcCore\Traits\Archivable;
 use tcCore\Traits\UuidTrait;
@@ -72,7 +72,7 @@ class TestTake extends BaseModel
      *
      * @var array
      */
-    protected $fillable = ['test_id', 'test_take_status_id', 'period_id', 'retake', 'retake_test_take_id', 'time_start', 'time_end', 'location', 'weight', 'note', 'invigilator_note', 'show_results', 'discussion_type', 'is_rtti_test_take', 'exported_to_rtti', 'allow_inbrowser_testing', 'guest_accounts', 'skipped_discussion', 'notify_students', 'user_id', 'scheduled_by', 'show_grades', 'returned_to_taken', 'discussing_question_id', 'assessed_at', 'assessment_type', 'assessing_question_id', 'allow_wsc', 'max_assessed_answer_index'];
+    protected $fillable = ['test_id', 'test_take_status_id', 'period_id', 'retake', 'retake_test_take_id', 'time_start', 'time_end', 'location', 'weight', 'note', 'invigilator_note', 'show_results', 'discussion_type', 'is_rtti_test_take', 'exported_to_rtti', 'allow_inbrowser_testing', 'guest_accounts', 'skipped_discussion', 'notify_students', 'user_id', 'scheduled_by', 'show_grades', 'returned_to_taken', 'discussing_question_id', 'assessed_at', 'assessment_type', 'assessing_question_id', 'allow_wsc', 'max_assessed_answer_index', 'show_correction_model', 'enable_spellcheck_colearning', 'assessing_answer_index'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -116,7 +116,7 @@ class TestTake extends BaseModel
                 $testTake->setAttribute('test_id', $systemTestId);
             }
 
-            if ($testTake->testTakeStatus->name === 'Discussing' && $testTake->getAttribute('discussing_question_id') !== null) {
+            if ($testTake->test_take_status_id === TestTakeStatus::STATUS_DISCUSSING && $testTake->getAttribute('discussing_question_id') !== null) {
                 $testTake->setAttribute('is_discussed', true);
             }
 
@@ -168,35 +168,14 @@ class TestTake extends BaseModel
             if ($testTake->testTakeStatus->name === 'Taking test' && $testTake->getAttribute('test_take_status_id') != $testTake->getOriginal('test_take_status_id')) {
                 $testTakeEvent = new TestTakeEvent();
                 $testTakeEvent->setAttribute('test_take_event_type_id', TestTakeEventType::where('name', '=', 'Start')->value('id'));
-
                 $testTake->testTakeEvents()->save($testTakeEvent);
 
-                $heartbeatDate = Carbon::now();
-                $heartbeatDate->subSeconds(30);
+                $testTake->testParticipants()->update([
+                    'test_take_status_id' => TestTakeStatus::STATUS_TEST_NOT_TAKEN
+                ]);
 
-                //test_take_status_id is the ID of 'Taking test'
-                $testParticipantTestTakeStatus = $testTake->getAttribute('test_take_status_id');
-
-                $testNotTakenId = TestTakeStatus::where('name', 'Test not taken')->value('id');
-
-                $testTake->load('testParticipants', 'testParticipants.schoolClass', 'testParticipants.schoolClass.schoolLocation');
                 foreach ($testTake->testParticipants as $testParticipant) {
-                    // If school location of the test participant is not activated, do not allow switching to state Taking test of Discussing.
-                    $activated = $testParticipant->schoolClass->schoolLocation->getAttribute('activated');
-
-                    //Disabled setting TestParticipant status to 3 if there is an recent heartbeat.
-                    // As this is done by the testparticipant actively the moment the student chooses a player
-                    //-Roan 20211008
-//                    if ($activated == true && $testParticipant->getAttribute('heartbeat_at') !== null && $testParticipant->getAttribute('heartbeat_at') >= $heartbeatDate) {
-//                        $testParticipant->setAttribute('test_take_status_id', $testParticipantTestTakeStatus);
-//                    } else {
-//                        $testParticipant->setAttribute('test_take_status_id', $testNotTakenId);
-//                    }
-                    $testParticipant->setAttribute('test_take_status_id', $testNotTakenId);
-
-                    $testParticipant->save();
-
-                    TestTakeOpenForInteraction::dispatch($testParticipant->uuid);
+                    AfterResponse::$performAction[] = fn() => TestTakeOpenForInteraction::dispatch($testParticipant->uuid);
                 }
             }
 
@@ -226,9 +205,7 @@ class TestTake extends BaseModel
 
             if ($testTake->test_take_status_id === TestTakeStatus::STATUS_DISCUSSING) {
                 if ($testTake->studentsAreInNewCoLearningAndDiscussingTypeIsOpenOnly()) {
-                    foreach ($testTake->testParticipants as $testParticipant) {
-                        CoLearningNextQuestion::dispatch($testParticipant->uuid);
-                    }
+                    AfterResponse::$performAction[] = fn() => TestTakeChangeDiscussingQuestion::dispatch($testTake->uuid);
                 }
             }
 
@@ -258,10 +235,8 @@ class TestTake extends BaseModel
                         $testParticipant->save();
                     }
                     AnswerChecker::checkAnswerOfParticipant($testParticipant);
-                    TestTakeOpenForInteraction::dispatch($testParticipant->uuid);
                 }
             }
-
             if (($testTake->testTakeStatus->name === 'Discussing' && $testTake->getAttribute('discussing_question_id') != $testTake->getOriginal('discussing_question_id'))
                 || ($testTake->testTakeStatus->name === 'Discussed' && $testTake->getAttribute('test_take_status_id') != $testTake->getOriginal('test_take_status_id'))) {
                 $inactiveTestParticipant = [];
@@ -271,6 +246,7 @@ class TestTake extends BaseModel
                         $inactiveTestParticipant[] = $testParticipant->getAttribute('user_id');
                     }
 
+                    AfterResponse::$performAction[] = fn() => TestTakeOpenForInteraction::dispatch($testParticipant->uuid);
                 }
                 AnswerRating::where('test_take_id', $testTake->getKey())->whereIn('answer_id', function ($query) use ($testTake) {
                     $answer = new Answer();
@@ -351,13 +327,13 @@ class TestTake extends BaseModel
         });
 
         static::created(function (TestTake $testTake) {
-            if ($testTake->schoolClasses !== null) {
-                $testTake->saveSchoolClassTestTakeParticipants();
-                $testTake->dispatchNewTestTakePlannedEvent();
-            }
-            if ($testTake->notify_students && GlobalStateHelper::getInstance()->isQueueAllowed()) {
-                Queue::later(300, new SendTestPlannedMail($testTake->getKey()));
-            }
+                if ($testTake->schoolClasses !== null) {
+                    $testTake->saveSchoolClassTestTakeParticipants();
+                    $testTake->dispatchNewTestTakePlannedEvent();
+                }
+                if ($testTake->notify_students && GlobalStateHelper::getInstance()->isQueueAllowed()) {
+                    Queue::later(300, new SendTestPlannedMail($testTake->getKey()));
+                }
         });
 
         static::deleted(function (TestTake $testTake) {
@@ -390,6 +366,11 @@ class TestTake extends BaseModel
     public function user()
     {
         return $this->belongsTo('tcCore\User')->withTrashed();
+    }
+
+    public function scheduledByUser()
+    {
+        return $this->belongsTo(User::class, 'scheduled_by')->withTrashed();
     }
 
     public function retakeTestTake()
@@ -488,11 +469,12 @@ class TestTake extends BaseModel
         return $this;
     }
 
-    private function saveInvigilators()
+    public function saveInvigilators($newInvigilators = null)
     {
+        $newInvigilators ??= $this->invigilators;
         $invigilators = $this->invigilators()->withTrashed()->get();
 
-        $this->syncTcRelation($invigilators, $this->invigilators, 'user_id', function ($takeTake, $invigilator) {
+        $this->syncTcRelation($invigilators, $newInvigilators, 'user_id', function ($takeTake, $invigilator) {
             Invigilator::create(['user_id' => $invigilator, 'test_take_id' => $takeTake->getKey()]);
         });
 
@@ -502,7 +484,7 @@ class TestTake extends BaseModel
     public function saveSchoolClassTestTakeParticipants()
     {
         $testTakeParticipantFactory = new Factory(new TestParticipant());
-        $testParticipants = $testTakeParticipantFactory->generateMany($this->getKey(), ['school_class_ids' => $this->schoolClasses, 'test_take_status_id' => with(TestTakeStatus::where('name', 'Planned')->first())->getKey()]);
+        $testParticipants = $testTakeParticipantFactory->generateMany($this, ['school_class_ids' => $this->schoolClasses, 'test_take_status_id' => with(TestTakeStatus::where('name', 'Planned')->first())->getKey()]);
         $this->testParticipants()->saveMany($testParticipants);
         $this->schoolClasses = null;
     }
@@ -512,7 +494,7 @@ class TestTake extends BaseModel
         $this->testParticipants()->join('users', 'users.id', '=', 'test_participants.user_id')
             ->select('users.uuid')->distinct()->get()->pluck('uuid')
             ->each(function ($userUuid) {
-                NewTestTakePlanned::dispatch($userUuid);
+                AfterResponse::$performAction[] =  fn() => NewTestTakePlanned::dispatch($userUuid);
             });
     }
 
@@ -914,7 +896,7 @@ class TestTake extends BaseModel
         if ($this->isDirty('allow_inbrowser_testing')) {
             $this->testParticipants()->update(['allow_inbrowser_testing' => $this->allow_inbrowser_testing]);
             $this->testParticipants->each(function ($participant) {
-                InbrowserTestingUpdatedForTestParticipant::dispatch($participant->uuid);
+                AfterResponse::$performAction[] = fn() => InbrowserTestingUpdatedForTestParticipant::dispatch($participant->uuid);
             });
         }
     }
@@ -1295,17 +1277,6 @@ class TestTake extends BaseModel
             ->exists();
     }
 
-    /**
-     * Check if test take has non-active participants for co-learning
-     */
-    public function hasNonActiveParticipant(): bool
-    {
-        return !is_null(
-            $this->testParticipants->first(function ($participant) {
-                return is_null($participant->heartbeat_at) || strtotime($participant->heartbeat_at) < (time() - 10);
-            })
-        );
-    }
 
     /**
      * Check if test take is still allowed to review by students
@@ -1400,4 +1371,9 @@ class TestTake extends BaseModel
         );
     }
 
+    public function startTake(): void
+    {
+        $this->test_take_status_id = TestTakeStatus::STATUS_TAKING_TEST;
+        $this->save();
+    }
 }

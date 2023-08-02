@@ -16,9 +16,10 @@ trait WithCloseable
     protected function getListeners()
     {
         return array_merge($this->listeners, [
-            'close-question' => 'closeQuestion',
-            'close-group'    => 'closeGroup',
-            'refresh'        => 'render'
+            'close-question'                    => 'closeQuestion',
+            'close-group'                       => 'closeGroup',
+            'refresh'                           => 'render',
+            'close-attachment-' . $this->number => 'closeAttachmentModal',
         ]);
     }
 
@@ -42,9 +43,13 @@ trait WithCloseable
                 'closed_question' => $this->question->getKey(),
                 'next_question'   => $nextQuestion
             ];
-            $this->emitTo('question.navigation', 'redirect-from-closing-a-question', $navInfo);
+            $this->emitTo('student-player.question.navigation', 'redirect-from-closing-a-question', $navInfo);
         } else {
-            $this->emitTo('question.navigation', 'update-nav-with-closed-question', $this->question->getKey());
+            $this->emitTo(
+                'student-player.question.navigation',
+                'update-nav-with-closed-question',
+                $this->question->getKey()
+            );
         }
     }
 
@@ -58,7 +63,7 @@ trait WithCloseable
 
         $listOfQToRefresh = [];
         $q = 0;
-        $newAnswers = collect($this->answers)->map(function ($answer) use ($groupId,&$listOfQToRefresh, &$q) {
+        $newAnswers = collect($this->answers)->map(function ($answer) use ($groupId, &$listOfQToRefresh, &$q) {
             $q++;
             if ($answer['group_id'] === $groupId) {
                 Answer::whereId($answer['id'])->update(['closed_group' => 1]);
@@ -75,13 +80,13 @@ trait WithCloseable
 
         if ($nextQuestion) {
             $navInfo = [
-                'closed_group' => $this->group->id,
-                'next_question'   => $nextQuestion
+                'closed_group'  => $this->group->id,
+                'next_question' => $nextQuestion
             ];
 
-            $this->emitTo('question.navigation', 'redirect-from-closing-a-group', $navInfo);
+            $this->emitTo('student-player.question.navigation', 'redirect-from-closing-a-group', $navInfo);
         } else {
-            $this->emitTo('question.navigation', 'update-nav-with-closed-group', $this->group->id);
+            $this->emitTo('student-player.question.navigation', 'update-nav-with-closed-group', $this->group->id);
         }
     }
 }

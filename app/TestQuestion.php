@@ -107,7 +107,10 @@ class TestQuestion extends BaseModel {
         $qHelper = new QuestionHelper();
         $questionData = [];
         if ($questionAttributes['type'] == 'CompletionQuestion') {
-            $questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($questionAttributes['question']);
+            $questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion(
+                question: $questionAttributes['question'],
+                markAllAnswersAsCorrect: $questionAttributes['subtype'] === 'completion'
+            );
         }
 
         $totalData = array_merge($questionAttributes, $questionData);
@@ -180,8 +183,7 @@ class TestQuestion extends BaseModel {
 
     public function duplicate($parent, array $attributes = [], $reorder = true) {
         $testQuestion = $this->replicate();
-        $testQuestion->fill($attributes);
-
+        $testQuestion->fill(array_merge($attributes, ['test_id' => $parent->getKey()]));
         $testQuestion->setAttribute('uuid', Uuid::uuid4());
 
         $this->duplicateQuestionsIfPublishedContent($testQuestion);
@@ -248,9 +250,9 @@ class TestQuestion extends BaseModel {
 
     public function duplicateQuestionsIfPublishedContent($testQuestion): void
     {
-        if (ContentSourceHelper::getPublishableScopes()->contains($testQuestion->question->scope)) {
+        if (ContentSourceHelper::getPublishableScopes()->contains($testQuestion->test->scope)) {
             $request = new Request();
-            $request->merge(['scope' => null]);
+            $request->merge(['scope' => null, 'draft' => 1]);
 
             (new TestQuestionsController)->updateFromWithin($testQuestion, $request);
         }

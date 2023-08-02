@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use tcCore\FactoryScenarios\FactoryScenarioSchoolSimple;
 use tcCore\FeatureSetting;
 use tcCore\Http\Enums\TestPackages;
 use tcCore\SchoolLocation;
@@ -12,6 +13,7 @@ use Tests\TestCase;
 class SchoolLocationFeatureSettingsTest extends TestCase
 {
     use DatabaseTransactions;
+    protected $loadScenario = FactoryScenarioSchoolSimple::class;
 
     /**
      * @test
@@ -144,10 +146,10 @@ class SchoolLocationFeatureSettingsTest extends TestCase
     private function getSchoolLocationAndClearFeatureSetting()
     {
         $schoolLocation = SchoolLocation::first();
-        if ($schoolLocation->testPackage !== TestPackages::None) {
-            $schoolLocation->testPackage = false;
-        }
-        $schoolLocation->featureSettings()->delete();
+//        if ($schoolLocation->testPackage !== TestPackages::None) {
+//            $schoolLocation->testPackage = false;
+//        }
+//        $schoolLocation->featureSettings()->delete();
         return $schoolLocation;
     }
 }

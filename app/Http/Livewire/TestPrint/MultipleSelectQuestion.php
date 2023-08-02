@@ -2,13 +2,12 @@
 
 namespace tcCore\Http\Livewire\TestPrint;
 
-use Livewire\Component;
-use tcCore\Answer;
+use tcCore\Http\Livewire\TCComponent;
 use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithGroups;
 use tcCore\Question;
 
-class MultipleSelectQuestion extends Component
+class MultipleSelectQuestion extends TCComponent
 {
     use WithCloseable, WithGroups;
 

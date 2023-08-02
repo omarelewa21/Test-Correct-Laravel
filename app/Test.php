@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
 use tcCore\Http\Controllers\GroupQuestionQuestionsController;
 use tcCore\Http\Controllers\TestQuestionsController;
+use tcCore\Http\Enums\WscLanguage;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Helpers\ContentSourceHelper;
 use tcCore\Jobs\CountTeacherTests;
@@ -18,6 +19,7 @@ use tcCore\Lib\Question\QuestionGatherer;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Ramsey\Uuid\Uuid;
 use tcCore\Lib\Repositories\TaxonomyRepository;
+use tcCore\Traits\ModelAttributePurifyTrait;
 use tcCore\Traits\PublishesTestsTrait;
 use tcCore\Traits\UserPublishing;
 use tcCore\Traits\UuidTrait;
@@ -32,12 +34,14 @@ class Test extends BaseModel
     use PublishesTestsTrait;
     use UserContentAccessTrait;
     use UserPublishing;
+    use ModelAttributePurifyTrait;
 
     const NATIONAL_ITEMBANK_SCOPES = ['cito', 'exam', 'ldt'];
 
     protected $casts = [
         'uuid'  => EfficientUuid::class,
         'draft' => 'boolean',
+        'lang'  => WscLanguage::class,
     ];
 
     /**
@@ -69,8 +73,10 @@ class Test extends BaseModel
      */
     protected $hidden = [];
 
-    protected $sortableColumns = ['id', 'name', 'abbreviation', 'subject', 'education_level', 'education_level_year', 'period_id', 'test_kind_id', 'status', 'author', 'question_count', 'kind'];
+    protected $fieldsToDecodeOnRetrieval = ['name', 'abbreviation', 'introduction'];
 
+    protected $sortableColumns = ['id', 'name', 'abbreviation', 'subject', 'education_level', 'education_level_year', 'period_id', 'test_kind_id', 'status', 'author', 'question_count', 'kind'];
+    
     public static function boot()
     {
         parent::boot();
@@ -89,10 +95,6 @@ class Test extends BaseModel
             if ((count($dirty) > 1 && array_key_exists('system_test_id', $dirty)) || (count($dirty) > 0 && !array_key_exists('system_test_id', $dirty)) && !$test->getAttribute('is_system_test')) {
                 $test->setAttribute('system_test_id', null);
             }
-            if($test->isDirty('draft') && $test->isDraft() ) {
-
-            }
-
         });
 
         static::saved(function (Test $test) {
@@ -501,6 +503,8 @@ class Test extends BaseModel
 
         $test->setAttribute('uuid', Uuid::uuid4());
 
+        $test->unsetRelation('testQuestions');
+
         if ($test->save() === false) {
             return false;
         }
@@ -527,6 +531,7 @@ class Test extends BaseModel
         if ($isSystemTest) {
             $test->setAttribute('is_system_test', 1);
             $test->setAttribute('system_test_id', $this->getKey());
+            $test->setAttribute('draft', $this->draft);
             $test->save();
         }
 
@@ -921,11 +926,11 @@ class Test extends BaseModel
 
         return $this->testQuestions->sortBy('order')->flatMap(function ($testQuestion) {
             if ($testQuestion->question->type === 'GroupQuestion') {
-                return $testQuestion->question->groupQuestionQuestions()->get()->map(function ($item)  {
+                return $testQuestion->question->groupQuestionQuestions()->get()->map(function ($item) use ($testQuestion) {
                     return [
                         'id' => $item->question->getKey(),
                         'question_type' => $item->question->canCheckAnswer() ? Question::TYPE_CLOSED : Question::TYPE_OPEN,
-                        'discuss' => $item->discuss,
+                        'discuss'       => (!$testQuestion->question->isCarouselQuestion()) && $item->discuss,
                     ];
                 });
             }
@@ -1284,5 +1289,37 @@ class Test extends BaseModel
     public function isStillInTheOven(): bool
     {
         return $this->owner_id === SchoolLocation::where('customer_code', config('custom.TB_customer_code'))->value('id');
+    }
+
+    /**
+     * General method to get all the questions of a test, including flattened groups.
+     * A callback can be provided to add properties to a question without having to
+     * copy the whole thing and make the changes required.
+     * @param $addPropertyCallback
+     */
+    public function getFlatQuestionList($addPropertyCallback = null)
+    {
+        return $this->testQuestions
+            ->sortBy('order')
+            ->flatMap(function ($testQuestion) use ($addPropertyCallback) {
+                $testQuestion->question->loadRelated();
+                if ($testQuestion->question->type === 'GroupQuestion') {
+                    $groupQuestion = $testQuestion->question;
+                    return $testQuestion->question->groupQuestionQuestions->map(
+                        function ($item) use ($addPropertyCallback, $groupQuestion) {
+                            $item->question->belongs_to_groupquestion_id = $groupQuestion->getKey();
+                            if (is_callable($addPropertyCallback)) {
+                                $addPropertyCallback($item);
+                            }
+                            return $item->question;
+                        }
+                    );
+                }
+                if (is_callable($addPropertyCallback)) {
+                    $addPropertyCallback($testQuestion);
+                }
+                return collect([$testQuestion->question]);
+            })
+            ->values();
     }
 }

@@ -4,7 +4,7 @@
     </x-slot>
 
     <x-slot name="content">
-        <div @password-changed-success.window="Notify.notify($event.detail, 'info')">
+        <div>
             <span>{{__('password-reset.Uitleg vervallen wachtwoord')}}</span>
             <div>
                 @if($errors->isNotEmpty())
@@ -76,11 +76,11 @@
         <div class="inline self-end">
             <x-button.text-button class="mr-2"
                                   wire:click="$emit('closeModal')">
-                {{__("auth.back_to_login")}}
+                <span>{{__("auth.back_to_login")}}</span>
             </x-button.text-button>
             <x-button.cta
                     wire:click="requestPasswordChange">
-                {{__("password-reset.Wachtwoord resetten")}}
+                <span>{{__("password-reset.Wachtwoord resetten")}}</span>
             </x-button.cta>
         </div>
     </x-slot>

@@ -6,32 +6,10 @@
                 <img class="" src="/svg/logos/Logo-Test-Correct-2.svg"
                      alt="Test-Correct">
             </a>
-            <div class="hidden flex items-center">
-                <x-dropdown label="Oplossingen">
-                    <x-dropdown.item @click="alert('Oplossingen')">
-                        {{__('auth.Oplossingen')}}
-                    </x-dropdown.item>
-                </x-dropdown>
-
-                <x-dropdown label="Diensten">
-                    <x-dropdown.item @click="alert('Oplossingen')">
-                        {{__('auth.Oplossingen')}}
-                    </x-dropdown.item>
-                </x-dropdown>
-
-                <x-dropdown label="Support">
-                    <x-dropdown.item @click="alert('Oplossingen')">
-                        {{__('auth.Oplossingen')}}
-                    </x-dropdown.item>
-                </x-dropdown>
-
-                <x-button.text-button class="ml-4">{{__('auth.Over Ons')}}</x-button.text-button>
-
-            </div>
             <div class="flex sm:ml-auto items-center space-x-3" x-data="{}">
             @guest
-                <x-button.cta size="sm" type="link" href="https://www.test-correct.nl/welcome" browser>{{ __('auth.Maak account') }}</x-button.cta>
-                <x-button.primary size="sm" type="link" href="{{ route('auth.login') }}" browser>{{  __('auth.login') }}</x-button.primary>
+                <x-button.cta size="sm" type="link" href="https://www.test-correct.nl/welcome" browser><span>{{ __('auth.Maak account') }}</span></x-button.cta>
+                <x-button.primary size="sm" type="link" href="{{ route('auth.login') }}" browser><span>{{  __('auth.login') }}</span></x-button.primary>
             @endguest
                 <x-button.primary @click="Core.closeElectronApp()" size="sm" electron>
                     <span class="capitalize">{{__('general.close')}}</span>

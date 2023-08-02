@@ -42,10 +42,14 @@
                 </x-slot>
 
                 <x-slot name="body">
+                    @php 
+                        $validateTestName = $this->checkValidTestName()
+                    @endphp
+
                     <div class="grid grid-cols-10 grid-flow-row w-full gap-4">
                         <x-input.group class="col-span-10 lg:col-span-7" :label="__('upload.Naam toets')">
                             <x-input.text wire:model.debounce.300ms="testInfo.name"
-                                          :error="in_array($this->testInfo['name'], $this->previousUploadedTestNames)"
+                                          :error="!$validateTestName['success']"
                             />
                         </x-input.group>
 
@@ -108,10 +112,10 @@
                                                  wire:key="form-{{ $this->formUuid }}"
                                 />
                             </div>
-                            @if(in_array($this->testInfo['name'], $this->previousUploadedTestNames))
-                            <div class="notification error stretched">
-                                <div class="title">@lang('upload.duplicate_test_name')</div>
-                            </div>
+                            @if(!$validateTestName['success'])
+                                <div class="notification error stretched">
+                                    <div class="title">{{ $validateTestName['message'] }}</div>
+                                </div>
                             @endif
                             @if($showDateWarning)
                                 <div class="notification warning stretched">
@@ -367,6 +371,4 @@
             </x-accordion.block>
         </x-accordion.container>
     </div>
-    <x-notification/>
-    @livewire('livewire-ui-modal');
 </div>

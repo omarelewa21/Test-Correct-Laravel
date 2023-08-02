@@ -79,7 +79,7 @@ document.addEventListener('alpine:init', () => {
             this.$refs.support_button.addEventListener('click', event => {
                 this.supportMenuShow();
             });
-            this.$refs.chat_button.addEventListener('click', event => {
+            this.$refs.chat_button?.addEventListener('click', event => {
                 this.openHubspotWidget();
             });
         },
@@ -123,7 +123,6 @@ document.addEventListener('alpine:init', () => {
                     }
                 }
             }, timeout);
-            // alert(this.$wire.activeRoute.main == '');
         },
         resetActiveState() {
             if (this.$wire.activeRoute.sub !== '') {

@@ -16,6 +16,7 @@ use tcCore\CompletionQuestionAnswer;
 use tcCore\CompletionQuestionAnswerLink;
 use tcCore\Exceptions\QuestionException;
 use tcCore\Lib\Question\QuestionInterface;
+use tcCore\Question;
 use tcCore\QuestionAuthor;
 use tcCore\TestQuestion;
 
@@ -58,7 +59,7 @@ class QuestionHelper extends BaseHelper
         return 0;
     }
     
-    public function getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($question, $isNewQuestion = false)
+    public function getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($question, $isNewQuestion = false, $markAllAnswersAsCorrect=false)
     {
         $obj = (object) [
             'answers'   => [],
@@ -68,6 +69,8 @@ class QuestionHelper extends BaseHelper
             'status'    => false,
             'message'   => ""
         ];
+
+
         $question = preg_replace_callback(
             '/\[(.*?)\]/i',
             function ($matches) use ($isNewQuestion, $obj, $error) {
@@ -107,6 +110,12 @@ class QuestionHelper extends BaseHelper
             },
             $question
         );
+
+        if ($markAllAnswersAsCorrect) {
+            foreach ($obj->answers as $key => $answer) {
+                $obj->answers[$key]['correct'] = 1;
+            }
+        }
 
         return [
             "error"     => $error->status ? $error->message : false,
@@ -197,5 +206,24 @@ class QuestionHelper extends BaseHelper
         }
 
         return true;
+    }
+
+    public static function belongsOnlyToDraftTests($questionId, $excludeTestId)
+    {
+        return Question::select('tests.draft')
+            ->join('test_questions', 'questions.id', '=', 'test_questions.question_id')
+            ->join('tests', 'tests.id', '=', 'test_questions.test_id')
+            ->where('questions.id', '=', $questionId)
+            ->when(isset($excludeTestId), function ($query) use ($excludeTestId) {
+                $query->where('tests.id', '<>', $excludeTestId);
+            })
+            ->where('tests.draft', '=', 0)
+            ->doesntExist();
+    }
+
+    public static function setToDraft($questionId)
+    {
+        return Question::where('questions.id', '=', $questionId)
+            ->update(['questions.draft' => 1]);
     }
 }

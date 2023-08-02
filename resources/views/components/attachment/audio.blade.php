@@ -9,7 +9,7 @@
 
     <div class="w-3/4">
         <div class="mt-4" wire:ignore>
-            <audio id="player-{{ $attachment->uuid }}" src="{{ route('student.question-attachment-show', ['attachment' => $attachment, 'answer' => $this->answerId], false) }}"
+            <audio id="player-{{ $attachment->uuid }}" src="{{ route('student.answer-attachment-show', ['attachment' => $attachment, 'answer' => $this->answerId], false) }}"
                 x-ref="player"
             ></audio>
         </div>

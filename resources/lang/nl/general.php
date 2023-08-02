@@ -79,4 +79,9 @@ return [
     'inklappen'                       => 'Inklappen',
     'uitklappen'                      => 'Uitklappen',
     'cancel'                          => 'Annuleren',
+    'loading'                         => 'Laden',
+    'image unavailable'               => 'Geen afbeelding beschikbaar',
+    'number-of-questions'             => '{0} Geen vragen|{1} :count vraag|[2,*] :count vragen',
+    'tests'                           => 'Toetsen',
+    'questions'                       => 'Vragen',
 ];

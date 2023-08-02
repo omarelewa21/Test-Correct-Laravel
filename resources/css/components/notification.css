@@ -5,19 +5,21 @@
     padding: 16px;
     max-width: 475px;
 }
+
 .stretched {
     max-width: none;
 }
+
 .notification-shadow {
-    box-shadow: 0px 2px 4px 0px rgba(77,87,143,0.5);
+    box-shadow: 0px 2px 4px 0px rgba(77, 87, 143, 0.5);
 }
 
-.notification  .title {
+.notification .title {
     font-weight: bold;
     font-size: 1rem;
 }
 
-.notification  .body {
+.notification .body {
     font-family: Nunito;
     font-size: 0.875rem;
     line-height: normal;
@@ -25,19 +27,19 @@
 }
 
 .informational, .info {
-    background: #E6EDFA;
+    background: var(--primary-light);
     border-color: var(--blue-grey);
     color: var(--primary);
 }
 
 .warning {
-    background-color: #FFFCD7;
-    border-color: #ECDB00;
-    color: #857B01;
+    background-color: var(--highlight-primary-light);
+    border-color: var(--secondary);
+    color: var(--teacher-highlight-dark);
 }
 
 .error {
-    background: #FFEDEB;
-    border-color: #EBCCC8;
-    color: #CF1B04
+    background: var(--red-light);
+    border-color: var(--red-notification-border);
+    color: var(--all-red);
 }

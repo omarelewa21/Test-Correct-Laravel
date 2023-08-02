@@ -2,13 +2,12 @@
 
 namespace tcCore\Http\Livewire\AnswerModel;
 
-use Livewire\Component;
+use tcCore\Http\Livewire\TCComponent;
 use tcCore\Http\Traits\WithGroups;
 use tcCore\Question;
-use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Traits\WithCloseable;
 
-class CompletionQuestion extends Component
+class CompletionQuestion extends TCComponent
 {
     use WithCloseable, WithGroups;
 
@@ -28,11 +27,11 @@ class CompletionQuestion extends Component
     {
         $this->question->completionQuestionAnswers->each(function ($answer) {
             if ($answer->correct) {
-                $this->answerStruct[$answer->tag] = $answer->answer;
-                return true;
+                $this->answerStruct[$answer->tag][] = $answer->answer;
+//                return true;
             }
             if (!array_key_exists($answer->tag, $this->answerStruct)) {
-                $this->answerStruct[$answer->tag] = '';
+                $this->answerStruct[$answer->tag] = [];
             }
         });
 
@@ -47,10 +46,11 @@ class CompletionQuestion extends Component
         $question->getQuestionHtml();
 
         $question_text = $question->converted_question_html;
-
         $replacementFunction = function ($matches) use ($question) {
             $tag_id = $matches[1]; // the completion_question_answers list is 1 based but the inputs need to be 0 based
-            return sprintf('<span class="form-input resize-none overflow-ellipsis rounded-10 pdf-answer-model-input" >%s </span>', $this->answerStruct[$tag_id]);
+            return collect($this->answerStruct[$tag_id])->map(function ($answerText) {
+                return sprintf('<span class="form-input resize-none overflow-ellipsis rounded-10 pdf-answer-model-input" >%s </span>', $answerText);
+            })->join('');
         };
 
         return preg_replace_callback($this->searchPattern, $replacementFunction, $question_text);
@@ -71,7 +71,7 @@ class CompletionQuestion extends Component
             $this->searchPattern,
             function ($matches) use ($tags) {
                 $answers = $tags[$matches[1]];
-                return $this->getOption($answers, $this->answerStruct[$matches[1]]);
+                return $this->getOption($answers, $this->answerStruct[$matches[1]][0]);
             },
             $question_text
         );
@@ -81,13 +81,19 @@ class CompletionQuestion extends Component
 
     private function getOption($answers, $correct)
     {
-        return collect($answers)->map(function ($option, $key) use ($correct) {
-            if (trim($option) == trim($correct)) {
-                $check = sprintf('<img class="icon_checkmark_pdf no-margin" src="data:image/svg+xml;charset=utf8,%s" >', $this->getEncodedCheckmarkSvg());
-                return sprintf('<span class="overflow-ellipsis rounded-10 pdf-answer-model-select" >%s %s</span>', $option, $check);
-            }
-            return '';
-        })->join('');
+        return collect($answers)
+            ->filter(function ($option) use ($correct) {
+                return trim($option) == trim($correct);
+            })->map(function ($option) {
+                return sprintf(
+                    '<span class="overflow-ellipsis rounded-10 pdf-answer-model-select" >%s %s</span>',
+                    $option,
+                    sprintf(
+                        '<img class="icon_checkmark_pdf no-margin" src="data:image/svg+xml;charset=utf8,%s" >',
+                        $this->getEncodedCheckmarkSvg()
+                    )
+                );
+            })->join('');
     }
 
 

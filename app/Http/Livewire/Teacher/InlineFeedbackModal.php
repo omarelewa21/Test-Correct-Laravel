@@ -2,18 +2,20 @@
 
 namespace tcCore\Http\Livewire\Teacher;
 
-use LivewireUI\Modal\ModalComponent;
 use tcCore\Answer;
+use tcCore\Http\Livewire\TCModalComponent;
 
-class InlineFeedbackModal extends ModalComponent
+class InlineFeedbackModal extends TCModalComponent
 {
     public $answer;
-    public $feedback = '';
-    public $editorId;
+    public bool $disabled = false;
+    public string $feedback = '';
+    public string $editorId = 'feedback-';
 
-    public function mount(Answer $answer)
+    public function mount(Answer $answer, bool $disabled = false)
     {
         $this->answer = $answer;
+        $this->disabled = $disabled;
         $this->editorId = 'feedback-' . $this->answer->uuid;
 
         $this->setFeedbackProperty($answer);
@@ -29,6 +31,10 @@ class InlineFeedbackModal extends ModalComponent
         return 'modal-full-screen';
     }
 
+    public static function destroyOnClose(): bool
+    {
+        return true;
+    }
     public function updatedFeedback(): void
     {
         $this->answer
@@ -46,7 +52,7 @@ class InlineFeedbackModal extends ModalComponent
      */
     private function setFeedbackProperty(Answer $answer): void
     {
-        $feedbackRecord = $answer->feedback()->where('user_id', auth()->id())->first();
+        $feedbackRecord = $answer->feedback()->first();
 
         if ($feedbackRecord) {
             $this->feedback = $feedbackRecord->message ?? '';

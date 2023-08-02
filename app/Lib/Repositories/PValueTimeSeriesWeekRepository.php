@@ -34,6 +34,10 @@ class PValueTimeSeriesWeekRepository
 
     public static function getForStudentBySubject(User $user, $periods, $educationLevelYears, $teachers)
     {
+        return static::getForStudentBySubjectQueryBuilder($user, $periods, $educationLevelYears, $teachers)->get();
+    }
+    private static function getForStudentBySubjectQueryBuilder(User $user, $periods, $educationLevelYears, $teachers)
+    {
         $dates = PValueRepository::convertPeriodsToStartAndEndDate($periods, $user);
 
         return Subject::filterForStudentCurrentSchoolYear($user)
@@ -42,7 +46,11 @@ class PValueTimeSeriesWeekRepository
                 $join->on('gen_date', '=', 'p_value_created_at')
                     ->on('subjects.id', '=', 'p_value_query.subject_id');
             })->orderByRaw('name, gen_date')
-            ->selectRaw("name, STR_TO_DATE(CONCAT(gen_date,' Monday'), '%X%V %W') as week_date, score")->get();
+            ->selectRaw("name, STR_TO_DATE(CONCAT(gen_date,' Monday'), '%X%V %W') as week_date, score");
+    }
+
+    public static function getForStudentBySubjectForSubject(User $user, $periods, $educationLevelYears, $teachers, Subject $forSubject) {
+        return self::getForStudentBySubjectQueryBuilder($user, $periods, $educationLevelYears, $teachers)->where('subjects.id', $forSubject->id)->get();
     }
 
     private static function getScoresWithSubjectId(User $user, $periods, $educationLevelYears, $teachers)
@@ -63,21 +71,32 @@ class PValueTimeSeriesWeekRepository
             ]);
     }
 
+    public static function getForStudentBySubjectForAttainment(User $user, Subject $subject, $periods, $educationLevelYears, $teachers, Attainment $forAttainment)
+    {
+
+         return self::getForStudentBySubjectForAttainmentQueryBuilder($user, $subject, $periods, $educationLevelYears, $teachers)->where('attainments.id', $forAttainment->id)->get();
+
+    }
+
     public static function getForStudentForSubjectByAttainment(User $user, Subject $subject, $periods, $educationLevelYears, $teachers, $isLearningGoal)
     {
+        return self::getForStudentBySubjectForAttainmentQueryBuilder( $user, $subject, $periods, $educationLevelYears, $teachers)->where('is_learning_goal', $isLearningGoal)->get();
+    }
+
+    private static function getForStudentBySubjectForAttainmentQueryBuilder(User $user, Subject $subject, $periods, $educationLevelYears, $teachers){
         $dates = PValueRepository::convertPeriodsToStartAndEndDate($periods, $user);
 
         return Attainment::withoutGlobalScope(AttainmentScope::class)
             ->whereIn('base_subject_id', Subject::select('base_subject_id')->where('id', $subject->id))
             ->whereNull('attainments.attainment_id')
-            ->where('is_learning_goal', $isLearningGoal)
+
             ->where('attainments.education_level_id', EducationLevel::getLatestForStudentWithSubject($user, $subject)->id)
             ->crossJoinSub(self::getTimeSeries($dates->start_date, $dates->end_date), 'dates')
             ->leftJoinSub(self::getScoresWithAttainmentId($user, $periods, $educationLevelYears, $teachers), 'p_value_query', function ($join) {
                 $join->on('gen_date', '=', 'p_value_created_at')
                     ->on('attainments.id', '=', 'p_value_query.attainment_id');
-            })->orderByRaw('attainments.id , gen_date')
-            ->selectRaw("attainments.id, STR_TO_DATE(CONCAT(gen_date,' Monday'), '%X%V %W') as week_date, score")->get();
+            })->orderByRaw('attainments.code , gen_date')
+            ->selectRaw("attainments.id, STR_TO_DATE(CONCAT(gen_date,' Monday'), '%X%V %W') as week_date, score");
     }
 
     private static function getScoresWithAttainmentId(User $user, $periods, $educationLevelYears, $teachers)

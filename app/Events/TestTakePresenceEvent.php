@@ -11,9 +11,13 @@ use Illuminate\Support\Facades\Auth;
 
 abstract class TestTakePresenceEvent implements ShouldBroadcastNow
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels;
+    use Dispatchable;
+    use InteractsWithSockets;
+    use SerializesModels;
 
-    private $testTakeUuid;
+    protected static string $channelSuffix = '';
+
+    protected string $testTakeUuid;
 
     /**
      * Create a new event instance.
@@ -30,14 +34,34 @@ abstract class TestTakePresenceEvent implements ShouldBroadcastNow
      *
      * @return PresenceChannel
      */
-    public function broadcastOn()
+    public function broadcastOn(): PresenceChannel
     {
-        return new PresenceChannel('presence-TestTake.'.$this->testTakeUuid);
+        return new PresenceChannel(sprintf('presence-TestTake%s.%s', static::$channelSuffix, $this->testTakeUuid));
     }
 
-    public static function channelSignature($testTakeUuid)
+    private static function channelBase($uuid): string
+    {
+        return sprintf("echo-presence:presence-TestTake%s.%s,", static::$channelSuffix, $uuid);
+    }
+
+    public static function channelSignature($testTakeUuid): string
     {
         $eventName = class_basename(get_called_class());
-        return "echo-presence:presence-TestTake.$testTakeUuid,.$eventName";
+        return self::channelBase($testTakeUuid) . ".$eventName";
+    }
+
+    public static function channelHereSignature($testTakeUuid): string
+    {
+        return self::channelBase($testTakeUuid) . "here";
+    }
+
+    public static function channelJoiningSignature($testTakeUuid): string
+    {
+        return self::channelBase($testTakeUuid) . "joining";
+    }
+
+    public static function channelLeavingSignature($testTakeUuid): string
+    {
+        return self::channelBase($testTakeUuid) . "leaving";
     }
 }

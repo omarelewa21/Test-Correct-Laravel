@@ -23,7 +23,7 @@
 }
 
 .form-input.border-red {
-    border-color: red!important;
+    border-color: red !important;
 }
 
 .form-input.rounded-b-none {
@@ -39,8 +39,8 @@
 }
 
 label {
-    font-family: Nunito;
     font-weight: normal;
+    transition: color 150ms ease-in-out, font-weight 150ms ease-in-out;
 }
 
 input {
@@ -48,15 +48,18 @@ input {
     font-weight: normal;
 }
 
-.input-group:hover input {
+.input-group:hover input,
+.input-group label {
     transition: ease-in-out 150ms;
 }
 
-input:focus + label, textarea:focus + label, select:focus + label {
-    font-family: Nunito;
+input:not(:disabled, .disabled):hover + label, textarea:not(:disabled, .disabled):hover + label, .single-select:not(:disabled, .disabled):hover + label {
+    color: var(--primary);
+}
+
+input:focus + label, textarea:focus + label, .single-select[aria-expanded="true"] + label {
     font-weight: bold;
     color: var(--primary);
-    transition: 150ms ease-in-out;
 }
 
 .other-input {
@@ -99,8 +102,9 @@ textarea {
     background-color: var(--off-white);
     background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAAJBAMAAAAbVLtZAAAABGdBTUEAALGPC/xhBQAAACBjSFJN%20AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAALVBMVEV7ibYPKXpvf6/+/v7/%20//8MJngEH3Rqeq1wgLD9/f5kdan7+/0nP4hjdKmhq8sFhwJhAAAAAWJLR0QEj2jZUQAAAAlwSFlz%20AAAAYAAAAGAA8GtCzwAAAAd0SU1FB+UBGQoCDds8it0AAABLSURBVAjXY2BUdnFxVmRgCEs3cTFP%20C2BoS6v0LEtrYJiVlrUrLWsCg+eytGNpKx0YXOampeVOAdKe19JuugBpl1lZU8C050sXFwcAN68Y%20ZfYz1FUAAAAldEVYdGRhdGU6Y3JlYXRlADIwMjEtMDEtMjVUMTA6MDI6MTIrMDA6MDCg/O9HAAAA%20JXRFWHRkYXRlOm1vZGlmeQAyMDIxLTAxLTI1VDEwOjAyOjEyKzAwOjAw0aFX+wAAAABJRU5ErkJg%20gg==), linear-gradient(to bottom, var(--off-white) 0%, var(--off-white) 100%);
     background-repeat: no-repeat, repeat;
-    background-position: right 1.5rem top 50%, 0 0;
+    background-position: right 1rem top 50%, 0 0;
     background-size: .75em auto, 100%;
+    transition: border-color 150ms ease-in-out;
 }
 
 .input-group select.disabled {
@@ -174,17 +178,21 @@ textarea {
     border: 2px solid var(--primary);
     color: var(--primary);
 }
+
 .overview .trueFalse, .overview .trueFalse:hover {
     border: 1px solid transparent;
     margin: 0;
     color: var(--mid-grey);
 }
+
 .overview .false, .overview .true {
     padding: 9px 16px;
 }
+
 .overview .true.active {
     margin: -1px 0 -1px -1px;
 }
+
 .overview .false.active {
     margin: -1px -1px -1px;
 }
@@ -206,6 +214,7 @@ textarea {
 .overview .multiple-choice-question:hover, .overview .multiple-choice-question:active {
     box-shadow: none;
 }
+
 .multiple-choice-question.disabled, .multiple-choice-question.disabled:hover {
     background: white;
     border: solid 2px var(--blue-grey);
@@ -222,6 +231,7 @@ textarea {
         color: var(--primary);
         background: var(--off-white);
     }
+
     .multiple-choice-question.active:hover {
         border-color: var(--primary);
     }
@@ -279,6 +289,7 @@ textarea {
     transition: .4s;
     border: 1px solid transparentw
 }
+
 .switch.small .slider:before {
     --slider-width: 18px;
     --slider-height: 18px;
@@ -294,11 +305,13 @@ input:checked + .slider, .slider.checked {
 input:focus + .slider {
     box-shadow: 0 0 1px #3dbb56;
 }
+
 input:disabled + .slider,
 .switch.disabled .slider {
     background: var(--off-white);
     border-color: var(--blue-grey);
 }
+
 input:checked:disabled + .slider {
     background: rgba(var(--cta-primary-rgb), .3);
 }
@@ -309,6 +322,7 @@ input:checked + .slider:before, .slider.checked:before {
     -ms-transform: translateX(var(--slider-translate));
     transform: translateX(var(--slider-translate));
 }
+
 .switch.small input:checked + .slider:before,
 .switch.small .slider.checked:before {
     --slider-translate: 16px;
@@ -349,10 +363,11 @@ input[type=number] {
 .taxonomie input[type=radio] {
     display: none;
 }
+
 .taxonomie label:before {
     content: '';
     width: 20px;
-    height:20px;
+    height: 20px;
 }
 
 .text-toggle .active-border {
@@ -405,6 +420,7 @@ input[type=number] {
 .checkbox-custom:hover + .checkbox-custom-label:before {
     border-color: var(--primary);
 }
+
 .checkbox-custom:checked:hover + .checkbox-custom-label.checkbox-green:before, .checkbox-custom:checked:hover + .checkbox-custom-label:before {
     border-color: var(--primary);
     opacity: .6;
@@ -421,6 +437,7 @@ input[type=number] {
     background-color: var(--cta-primary);
     border-color: var(--cta-primary);
 }
+
 .checkbox-custom:checked:disabled + .checkbox-custom-label.green:before {
     background-color: var(--cta-primary);
     border-color: var(--cta-primary);
@@ -460,18 +477,22 @@ input[type=number] {
     place-content: center;
     cursor: pointer;
 }
+
 .radio-custom input:hover {
     --radio-border-color: var(--teacher-primary-light)
 }
+
 .radio-custom input:checked:hover {
     --radio-checked-color: var(--teacher-primary-light);
 }
+
 .radio-custom input:checked:disabled,
 .radio-custom input:checked:disabled:hover,
 .radio-custom input:checked:disabled:active {
     --radio-border-color: var(--blue-grey);
     --radio-checked-color: var(--teacher-primary-light);
 }
+
 .radio-custom input:disabled,
 .radio-custom input:disabled:hover,
 .radio-custom input:disabled:active {
@@ -501,6 +522,7 @@ input[type=number] {
     font-size: 1rem;
     color: var(--system-base);
 }
+
 .form-input.search::placeholder {
     color: var(--mid-grey);
 }
@@ -508,6 +530,7 @@ input[type=number] {
 .slider-button-container .slider-option span {
     transition: color 150ms ease-in-out;
 }
+
 .slider-button-container .slider-option {
     position: relative;
 }
@@ -523,6 +546,7 @@ input[type=number] {
     border-radius: 8px;
     transition: border-color 150ms ease-in-out;
 }
+
 .slider-button-container .slider-option:hover:after {
     border-color: var(--blue-grey);
 }
@@ -533,6 +557,7 @@ input[type=number] {
     width: 100%;
     height: 100%;
 }
+
 .inline-feedback-modal .ck-editor,
 .inline-feedback-modal .ck-editor .ck-editor__main,
 .inline-feedback-modal .ck-editor .ck-editor__main .ck-content {
@@ -540,13 +565,13 @@ input[type=number] {
 }
 
 
-
 .inline-feedback-modal .ck.ck-sticky-panel__placeholder {
-    height: 0!important;
+    height: 0 !important;
 }
+
 .inline-feedback-modal .ck.ck-sticky-panel .ck-sticky-panel__content_sticky {
-    position: static!important;
-    top: 0!important;
+    position: static !important;
+    top: 0 !important;
     box-shadow: none;
     border-radius: var(--ck-border-radius);
 }
@@ -554,4 +579,91 @@ input[type=number] {
 .inline-feedback-modal .ck.ck-sticky-panel .ck-sticky-panel__content_sticky .ck-toolbar {
     border-top-left-radius: var(--ck-border-radius) !important;
     border-top-right-radius: var(--ck-border-radius) !important;
+}
+
+/* Customize the label (the container) */
+.checkbox-container {
+    display: block;
+    position: relative;
+    width: 24px;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* Hide the browser's default checkbox */
+.checkbox-container input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+/* Create a custom checkbox */
+.checkbox-container .checkmark {
+    position: relative;
+    display: flex;
+    top: 0;
+    left: 0;
+    height: 24px;
+    width: 24px;
+    background-color: rgba(var(--system-secondary-rgb), 0.5);
+    border: 1px solid var(--blue-grey);
+    border-radius: 8px;
+    transition: background-color 100ms ease-in-out, border-color 100ms ease-in-out;
+    color: white;
+    justify-content: center;
+    align-items: center;
+}
+
+.checkbox-disabled .checkbox-container:is(:active, :hover, :focus) input:not(:checked) ~ .checkmark {
+    background-color: rgba(var(--system-secondary-rgb), 0.5);
+    border: 1px solid var(--blue-grey);
+}
+
+.group\/parent:hover :not(.checkbox-disabled) .checkbox-container input ~ .checkmark,
+.group\/child:hover:not(.checkbox-disabled) .checkbox-container input ~ .checkmark,
+.checkbox-container:hover input ~ .checkmark {
+    border-color: var(--primary);
+}
+
+.checkbox-container:active input ~ .checkmark {
+    background-color: rgba(var(--system-secondary-rgb), 0.8);
+}
+
+.checkbox-container input:checked ~ .checkmark {
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+
+
+.checkmark > svg {
+    position: absolute;
+    display: none;
+}
+
+.checkbox-container input:checked ~ .checkmark > svg {
+    display: block;
+}
+
+.multi-dropdown-select:hover {
+    transition: color 150ms ease-in-out;
+}
+
+.multi-dropdown-select:hover .dropdown-label {
+    color: var(--primary);
+}
+
+.flatpickr:hover + label {
+    color: var(--primary);
+}
+
+.single-select .dropdown {
+    -ms-overflow-style: none;
+}
+.single-select .dropdown::-webkit-scrollbar {
+    display: none;
 }

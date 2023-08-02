@@ -1,4 +1,5 @@
 import Plyr from 'plyr';
+import Alpine from "alpinejs";
 
 
 window.plyrPlayer = {
@@ -32,7 +33,7 @@ window.plyrPlayer = {
             player.on('playing', () => {
                 wire.registerPlayStart();
             });
-    
+
             player.on('pause', () => {
                 wire.audioStoreCurrentTime(attachmentUuid, player.currentTime);
             });
@@ -40,7 +41,7 @@ window.plyrPlayer = {
             player.on('playing', () => {
                 wire.set('pressedPlay', true);
             });
-    
+
             player.on('pause', () => {
                 wire.audioStoreCurrentTime(attachmentUuid, player.currentTime);
             });
@@ -125,13 +126,18 @@ window.plyrPlayer = {
 
 /**
  * Takes a dom div element and makes it resizable from all corners
- * 
+ *
  * @param {object} element
  * @param {string} attachmentType
  */
-window.makeResizableDiv = function(element, attachmentType='') {
+window.makeAttachmentResizable = function(element, attachmentType='') {
+    if (attachmentType === 'audio') return;
     const resizers = element.querySelectorAll('.resizer')
-    const minimum_size = 20;
+    const iframe = element.querySelector('.resizers iframe');
+    const minimum_size = 167;
+    let maximum_x = 1000;
+    let maximum_y = 1000;
+    let iframeTimeout = 0;
     let original_width = 0;
     let original_height = 0;
     let original_x = 0;
@@ -139,9 +145,10 @@ window.makeResizableDiv = function(element, attachmentType='') {
     let original_mouse_x = 0;
     let original_mouse_y = 0;
     let width, height;
+    let img;             // Specific for image attachments
+
     for (let i = 0;i < resizers.length; i++) {
         const currentResizer = resizers[i];
-
         currentResizer.addEventListener('mousedown', resizeMouseDown);
         currentResizer.addEventListener('ontouchstart', resizeMouseDown);
 
@@ -153,65 +160,108 @@ window.makeResizableDiv = function(element, attachmentType='') {
             original_y = element.getBoundingClientRect().top;
             original_mouse_x = e.pageX;
             original_mouse_y = e.pageY;
+            maximum_x = document.body.offsetWidth;
+            maximum_y = document.body.offsetHeight;
+
+            if(attachmentType === 'image') {
+                setImageProperties(element);
+            }
+
             window.addEventListener('mousemove', resize)
             window.addEventListener('ontouchmove', resize)
             window.addEventListener('mouseup', stopResize)
             window.addEventListener('ontouchend', stopResize)
 
+
+            /*************************** Main *****************************/
             function resize(e) {
-                if (currentResizer.classList.contains('bottom-right')) {
-                    width = original_width + (e.pageX - original_mouse_x);
-                    height = original_height + (e.pageY - original_mouse_y)
-                    if (width > minimum_size) {
-                        element.style.width = width + 'px'
-                    }
-                    if (height > minimum_size) {
-                        element.style.height = height + 'px'
-                    }
+                if(attachmentType === 'pdf' || attachmentType === 'video') {
+                    iframeTimeout = temporarilyDisablePointerEvents(iframe, iframeTimeout);
                 }
-                else if (currentResizer.classList.contains('bottom-left')) {
-                    height = original_height + (e.pageY - original_mouse_y)
-                    width = original_width - (e.pageX - original_mouse_x)
-                    if (height > minimum_size) {
-                        element.style.height = height + 'px'
-                    }
-                    if (width > minimum_size) {
-                        element.style.width = width + 'px'
-                        element.style.left = original_x + (e.pageX - original_mouse_x) + 'px'
-                    }
-                }
-                else if (currentResizer.classList.contains('top-right')) {
-                    width = original_width + (e.pageX - original_mouse_x)
-                    height = original_height - (e.pageY - original_mouse_y)
-                    if (width > minimum_size) {
-                        element.style.width = width + 'px'
-                    }
-                    if (height > minimum_size) {
-                        element.style.height = height + 'px'
-                        element.style.top = original_y + (e.pageY - original_mouse_y) + 'px'
-                    }
-                }
-                else {
-                    width = original_width - (e.pageX - original_mouse_x)
-                    height = original_height - (e.pageY - original_mouse_y)
-                    if (width > minimum_size) {
-                        element.style.width = width + 'px'
-                        element.style.left =  original_x + (e.pageX - original_mouse_x) + 'px'
-                    }
-                    if (height > minimum_size) {
-                        element.style.height = height + 'px'
-                        element.style.top = original_y + (e.pageY - original_mouse_y) + 'px'
-                    }
-                }
+
+                if (currentResizer.classList.contains('bottom-right')) resizeBottomRight(e);
+                else if (currentResizer.classList.contains('bottom-left')) resizeBottomLeft(e);
+                else if (currentResizer.classList.contains('top-right')) resizeTopRight(e);
+                else resizeTopLeft(e);
             }
-    
             function stopResize() {
-                if(attachmentType === 'image'){
-                    let ratio = original_height/original_width;
-                    element.style.height = (ratio * width) + 'px';
+                if(attachmentType === 'pdf' || attachmentType === 'video'){
+                    resetTemporarilyDisabledPointerEvents(iframe, iframeTimeout);
+                }
+                if(attachmentType === 'image') {
+                    scaleModalAndImageToRatio();
                 }
                 window.removeEventListener('mousemove', resize);
                 window.removeEventListener('touchmove', resize);
+                window.removeEventListener('mouseup', stopResize)
+                window.removeEventListener('ontouchend', stopResize)
+            }
+
+
+            /*************************** Helpers *****************************/
+            function resizeBottomRight(e) {
+                width = original_width + (e.pageX - original_mouse_x);
+                height = original_height + (e.pageY - original_mouse_y)
+
+                if (width > minimum_size && e.pageX <= maximum_x) {
+                    element.style.width = width + 'px'
+                }
+                if (height > minimum_size && e.pageY <= maximum_y) {
+                    element.style.height = height + 'px'
+                }
+            }
+            function resizeBottomLeft(e) {
+                width = original_width - (e.pageX - original_mouse_x)
+                height = original_height + (e.pageY - original_mouse_y)
+                if (width > minimum_size && e.pageX > 0) {
+                    element.style.width = width + 'px'
+                    element.style.left = original_x + (e.pageX - original_mouse_x) + 'px'
+                }
+                if (height > minimum_size && e.pageY <= maximum_y) {
+                    element.style.height = height + 'px'
+                }
+            }
+            function resizeTopRight(e) {
+                width = original_width + (e.pageX - original_mouse_x)
+                height = original_height - (e.pageY - original_mouse_y)
+                if (width > minimum_size && e.pageX <= maximum_x) {
+                    element.style.width = width + 'px'
+                }
+                if (height > minimum_size && e.clientY > 0) {
+                    element.style.height = height + 'px'
+                    element.style.top = original_y + (e.pageY - original_mouse_y) + 'px'
+                }
+            }
+            function resizeTopLeft(e) {
+                width = original_width - (e.pageX - original_mouse_x)
+                height = original_height - (e.pageY - original_mouse_y)
+                if (width > minimum_size && e.pageX > 0) {
+                    element.style.width = width + 'px'
+                    element.style.left = original_x + (e.pageX - original_mouse_x) + 'px'
+                }
+                if (height > minimum_size && e.clientY > 0) {
+                    element.style.height = height + 'px'
+                    element.style.top = original_y + (e.pageY - original_mouse_y) + 'px'
+                }
+            }
+            function setImageProperties(){
+                if(typeof img === 'undefined'){
+                    img = element.querySelector('img');
+                    img.closest('.image-max-height').style.maxHeight = 'initial';   // Remove max height from parent dev to allow img expands if bigger than the parent when resized
+                }
+                img.style.opacity = '0';
+            }
+            function scaleModalAndImageToRatio() {
+                /*  Rule of thumb: The image cannot become larger than the 'pulled' size of the parent. */
+                const current = element.getBoundingClientRect();
+                const [newWidth, newHeight] = calculateMaxAspectRatioFit(current.width , current.height, img.naturalWidth , img.naturalHeight);
+
+                img.style.width = newWidth + 'px';
+                img.style.height = newHeight + 'px';
+
+                element.style.width = 'auto';
+                element.style.height = 'auto';
+                img.style.opacity = '1';
             }
         }
     }
@@ -219,7 +269,7 @@ window.makeResizableDiv = function(element, attachmentType='') {
 
 /**
  * Drag of attachment
- * 
+ *
  * @param {object} element
  */
 window.dragElement = function (element) {
@@ -228,6 +278,9 @@ window.dragElement = function (element) {
 
     const windowHeight = window.innerHeight
     const windowWidth  = window.innerWidth
+
+    const iframe = element.querySelector('.resizers iframe');
+    let iframeTimeout = 0;
 
     if (document.getElementById(element.id + "drag")) {
         // if present, the header is where you move the DIV from:
@@ -256,8 +309,10 @@ window.dragElement = function (element) {
     }
 
     function elementDrag(e) {
+        iframeTimeout = temporarilyDisablePointerEvents(iframe, iframeTimeout);
+
         e = e || window.event;
-        
+
         // calculate the new cursor position:
         if (e.type === 'touchmove') {
             pos1 = pos3 - e.touches[0].clientX;
@@ -290,10 +345,89 @@ window.dragElement = function (element) {
 
         element.style.top = newTop + 'px';
         element.style.left = newLeft + 'px';
-        
+
         document.onmouseup = null;
         document.ontouchend = null;
         document.onmousemove = null;
         document.ontouchmove = null;
+
+        resetTemporarilyDisabledPointerEvents(iframe, iframeTimeout);
     }
 }
+
+let temporarilyDisablePointerEvents = (element, timeout, milliseconds = 500) => {
+    if(!element) {
+        return false;
+    }
+
+    element.style.pointerEvents = 'none';
+    if(timeout){
+        clearTimeout(timeout);
+    }
+    return setTimeout(() => {
+        resetTemporarilyDisabledPointerEvents(element, timeout);
+    }, milliseconds);
+}
+
+let resetTemporarilyDisabledPointerEvents = (element, timeout) => {
+    if(!element) {
+        return false;
+    }
+
+    if(timeout){
+        clearTimeout(timeout);
+    }
+    element.style.pointerEvents = 'auto';
+}
+
+document.addEventListener("alpine:init", () => {
+    Alpine.data("attachmentModal", (attachmentType) => ({
+        maxHeight: 0,
+        maxWidth: 0,
+        image: null,
+        imageWidth: 0,
+        imageHeight: 0,
+        attachmentType,
+        init() {
+            if (attachmentType === "image") {
+                this.maxHeight = window.innerHeight * 0.8;
+                this.maxWidth = window.innerWidth * 0.9;
+                this.image = this.$root.querySelector("img");
+                this.imageLoaded();
+            }
+            dragElement(this.$el);
+            makeAttachmentResizable(this.$el, attachmentType);
+        },
+        imageLoaded() {
+            if (attachmentType !== "image" || !(this.image.naturalWidth > 0)) return;
+
+            this.$root.style.width = "auto";
+            this.$root.style.height = "auto";
+
+            const [maxWidth, maxHeight] = calculateMaxAspectRatioFit(
+                this.maxWidth,
+                this.maxHeight,
+                this.image.naturalWidth,
+                this.image.naturalHeight
+            );
+            this.imageWidth = this.getImageWidth(maxWidth);
+            this.imageHeight = this.getImageHeight(maxHeight);
+        },
+        getImageWidth(maxWidth) {
+            return (this.image.naturalWidth > maxWidth ? maxWidth : this.image.naturalWidth) + 'px'
+        },
+        getImageHeight(maxHeight) {
+            return (this.image.naturalHeight > maxHeight ? maxHeight : this.image.naturalHeight) + "px";
+        },
+
+    }));
+});
+
+let calculateMaxAspectRatioFit = (maxWidth, maxHeight, imageWidth, imageHeight) => {
+    const scale = Math.min(maxWidth / imageWidth, maxHeight / imageHeight);
+
+    let newMaxWidth = Math.floor(imageWidth * scale),
+        newMaxHeight = Math.floor(imageHeight * scale);
+
+    return [newMaxWidth, newMaxHeight];
+};

@@ -4,12 +4,14 @@ namespace tcCore\Http\Livewire\Teacher;
 
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Carbon\Carbon;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
-use Livewire\Component;
+use Illuminate\Validation\ValidationException;
 use Livewire\TemporaryUploadedFile;
 use Livewire\WithFileUploads;
 use Ramsey\Uuid\Uuid;
@@ -17,15 +19,19 @@ use tcCore\EducationLevel;
 use tcCore\Exceptions\UploadTestException;
 use tcCore\FileManagement;
 use tcCore\FileManagementStatus;
-use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Http\Helpers\SchoolHelper;
+use tcCore\Http\Traits\WithReturnHandling;
+use tcCore\Http\Livewire\TCComponent;
+use tcCore\Http\Traits\Modal\TestActions;
 use tcCore\Subject;
 use tcCore\TestKind;
 
-class UploadTest extends Component
+class UploadTest extends TCComponent
 {
     use WithFileUploads;
+    use WithReturnHandling;
+    use TestActions;
 
     const CAKE_RETURN_ROUTE_SESSION_KEY = 'upload_test_cake_return_route';
     const LARAVEL_RETURN_ROUTE_SESSION_KEY = 'upload_test_laravel_return_route';
@@ -57,10 +63,6 @@ class UploadTest extends Component
     public bool $canUseTestUploader = true;
     public array $previousUploadedTestNames = [];
     public int $uploadedTests = 0;
-
-    public $referrer;
-
-    protected $queryString = ['referrer'];
 
     public function mount()
     {
@@ -105,22 +107,7 @@ class UploadTest extends Component
 
     public function back()
     {
-        if (blank($this->referrer) || blank($this->referrer['page'])) {
-            return CakeRedirectHelper::redirectToCake();
-        }
-
-        if ($this->referrer['type'] === 'cake') {
-            $routeName = CakeRedirectHelper::getRouteNameByUrl($this->referrer['page']);
-            if ($routeName) {
-                return CakeRedirectHelper::redirectToCake($routeName);
-            }
-            Bugsnag::notifyException(new \Exception(sprintf('No route name found for referrer page `%s` in file %s line %d', $this->referrer['page'], __FILE__, __LINE__)));
-        }
-
-        if ($this->referrer['type'] === 'laravel') {
-            return redirect($this->referrer['page']);
-        }
-        return CakeRedirectHelper::redirectToCake();
+        return $this->redirectUsingReferrer();
     }
 
     /**
@@ -241,7 +228,7 @@ class UploadTest extends Component
 
     public function finishProcess(bool $openSuccessModal = true)
     {
-        $this->validateTestName();
+        $this->validateTestName()->validate();
 
         $typedetails = $this->getTypeDetailsForFileManagementModel();
 
@@ -422,13 +409,26 @@ class UploadTest extends Component
 
     private function validateTestName()
     {
-        Validator::make($this->testInfo, [
-            'name' => [
-                'required',
-                Rule::notIn($this->previousUploadedTestNames),
-            ]
-        ])->validate();
+        $rules = $this->getNameRulesDependingOnAction();
+        if(!auth()->user()->isToetsenbakker()){
+            $rules[] = Rule::notIn($this->previousUploadedTestNames);
+            $rules[] = Rule::unique('file_managements', 'name')
+                ->where(function(Builder $query){
+                    $query->where('user_id', auth()->id())
+                        ->whereExists(fn(Builder $query) => $query->select(DB::raw(1))
+                            ->from('file_management_statuses as fms')
+                            ->whereColumn('fms.id', 'file_managements.file_management_status_id')
+                            ->where('fms.id', '<>', FileManagementStatus::STATUS_CANCELLED));
+                });
+        }
 
+        return Validator::make($this->testInfo, [
+            'name' => $rules
+        ], [
+            'name.not_in' => __('upload.validation.name.not_in'),
+            'name.unique' => __('upload.validation.name.unique'),
+            'name.min:3'  => __('upload.validation.name.min'),
+        ]);
     }
 
     /**
@@ -438,6 +438,22 @@ class UploadTest extends Component
     {
         return collect($this->testInfo)
                 ->reject(fn($item) => filled($item))
-                ->isEmpty() && !in_array($this->testInfo['name'], $this->previousUploadedTestNames);
+                ->isEmpty() && $this->validateTestName()->passes();
+    }
+
+    public function checkValidTestName(): array
+    {
+        try {
+            if(!empty($this->testInfo['name']))
+                $this->validateTestName()->validate();
+
+            return ['success' => true];
+
+        } catch (ValidationException $e) {
+            return [
+                'success' => false,
+                'message'  => $e->getMessage()
+            ];
+        }
     }
 }

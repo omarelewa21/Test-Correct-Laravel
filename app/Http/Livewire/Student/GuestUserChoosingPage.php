@@ -3,15 +3,15 @@
 namespace tcCore\Http\Livewire\Student;
 
 use Illuminate\Support\Facades\Auth;
-use Livewire\Component;
 use Ramsey\Uuid\Uuid;
 use tcCore\Http\Helpers\BaseHelper;
+use tcCore\Http\Livewire\TCComponent;
 use tcCore\Http\Traits\WithStudentTestTakes;
 use tcCore\TestParticipant;
 use tcCore\TestTake;
 use tcCore\User;
 
-class GuestUserChoosingPage extends Component
+class GuestUserChoosingPage extends TCComponent
 {
     use WithStudentTestTakes;
 
@@ -33,7 +33,7 @@ class GuestUserChoosingPage extends Component
 
     public function mount()
     {
-        if (!Uuid::isValid($this->take)) {
+        if (!$this->take || !Uuid::isValid($this->take)) {
             return redirect(route('auth.login'));
         }
         $this->handleKnownGuests();

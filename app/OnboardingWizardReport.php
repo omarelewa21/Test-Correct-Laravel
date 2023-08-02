@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use tcCore\Http\Helpers\ReportHelper;
 use tcCore\Jobs\UpdateOnboardingWizardReportRecord;
+use tcCore\Scopes\ArchivedScope;
 
 set_time_limit(300);
 
@@ -28,7 +29,7 @@ class OnboardingWizardReport extends Model
         $helper = new ReportHelper($user);
 
         $wizardData = self::getStepsCollection($user);
-        
+
         $updated_data_array = [
             'user_email'                                  => $user->username,
             'user_name_first'                             => $user->name_first,
@@ -289,7 +290,7 @@ ORDER BY t2.displayorder,
      */
     private static function getFirstTestDiscussedDate(User $user)
     {
-        if (($testTakeIdsForUser = $user->testTakes()->where('demo', 0)->pluck('id')) === []) {
+        if (($testTakeIdsForUser = $user->testTakes()->withoutGlobalScope(ArchivedScope::class)->where('demo', 0)->pluck('id')) === []) {
             return 'no results';
         }
 
@@ -306,7 +307,7 @@ ORDER BY t2.displayorder,
      */
     private static function getLastTestDiscussedDate(User $user)
     {
-        if (($testTakeIdsForUser = $user->testTakes()->where('demo', 0)->pluck('id')) === []) {
+        if (($testTakeIdsForUser = $user->testTakes()->withoutGlobalScope(ArchivedScope::class)->where('demo', 0)->pluck('id')) === []) {
             return 'no results';
         }
 
@@ -324,7 +325,7 @@ ORDER BY t2.displayorder,
      */
     private static function getFirstTestCheckedDate(User $user)
     {
-        if (($testTakeIdsForUser = $user->testTakes->where('demo', 0)->pluck('id')) === []) {
+        if (($testTakeIdsForUser = $user->testTakes()->withoutGlobalScope(ArchivedScope::class)->where('demo', 0)->pluck('id')) === []) {
             return 'no results';
         }
 
@@ -344,7 +345,7 @@ ORDER BY t2.displayorder,
     {
         return optional(
             AnswerRating::where('type', 'teacher')
-                ->whereIn('test_take_id', $user->testTakes()->where('demo', 0)->select('id')
+                ->whereIn('test_take_id', $user->testTakes()->withoutGlobalScope(ArchivedScope::class)->where('demo', 0)->select('id')
                 )->orderBy('created_at', 'desc')
                 ->first()
         )->created_at;
@@ -356,7 +357,7 @@ ORDER BY t2.displayorder,
      */
     private static function getTestsCheckedAmount(User $user)
     {
-        if (($testTakeIdsForUser = $user->testTakes()->where('demo', 0)->groupBy('id')->pluck('id')) === []) {
+        if (($testTakeIdsForUser = $user->testTakes()->withoutGlobalScope(ArchivedScope::class)->where('demo', 0)->groupBy('id')->pluck('id')) === []) {
             return 0;
         }
 

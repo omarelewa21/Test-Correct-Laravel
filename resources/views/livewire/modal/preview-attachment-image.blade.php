@@ -22,9 +22,9 @@
                  previewImage.style.width = percentage.toString() + '%';
          ">
         <div class="w-full h-full overflow-auto flex flex-col items-center align-center justify-center">
-            <img src="{{ route('teacher.preview.question-attachment-show', ['attachment' => $attachment->uuid, 'question' => $questionUuid]) }}"
+            <img src="{{ $this->source }}"
                  style="max-width: 300%"
-                 class="w-full bg-white" alt="Preview image"
+                 class="w-full bg-white" alt="Preview image" onload="window.dispatchEvent(new CustomEvent('attachment-preview-loaded'))"
                  x-ref="imagePreview">
         </div>
         <div style="position: absolute;  bottom: 19px; right: 67px;"

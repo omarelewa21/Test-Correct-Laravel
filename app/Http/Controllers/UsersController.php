@@ -638,4 +638,13 @@ class UsersController extends Controller
 
         return Response::make($toetsenbakkers, 200);
     }
+
+    public function account(Request $request)
+    {
+        if (!Auth::user()->isA('Teacher')) {
+            return redirect()->to(url()->previous());
+        }
+
+        return view('account-settings', ['role' => 'teacher','user' => Auth::user()]);
+    }
 }

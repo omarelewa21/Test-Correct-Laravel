@@ -1,6 +1,7 @@
 import Alpine from "alpinejs";
 import Choices from "choices.js";
 import Intersect from "@alpinejs/intersect";
+import focus from "@alpinejs/focus";
 import Clipboard from "@ryangjchandler/alpine-clipboard";
 import collapse from "@alpinejs/collapse";
 import { isString } from "lodash";
@@ -9,6 +10,7 @@ window.Alpine = Alpine;
 Alpine.plugin(Clipboard);
 Alpine.plugin(Intersect);
 Alpine.plugin(collapse);
+Alpine.plugin(focus);
 
 document.addEventListener("alpine:init", () => {
     Alpine.data("questionIndicator", () => ({
@@ -126,6 +128,130 @@ document.addEventListener("alpine:init", () => {
             // })
         }
     }));
+    Alpine.data("completionOptions", (entangle) => ({
+        showPopup: entangle.value,
+        editorId: entangle.editorId,
+        hasError: { empty: [] },
+        data: {
+            elements: []
+        },
+        maxOptions: 10,
+        minOptions: 1,
+
+        init() {
+            for (let i = 0; i < this.minOptions; i++) {
+                this.addRow();
+            }
+        },
+
+        initWithCompletion() {
+            let editor = window.editor;
+            // let selection = editor.data.stringify(editor.model.getSelectedContent(editor.model.document.selection));
+
+            let selection = "";
+            let range = editor.model.document.selection.getFirstRange();
+            for (const value of range.getItems()) {
+                selection = selection + value.data;
+            }
+            let text = selection
+                .trim()
+                .replace("[", "")
+                .replace("]", "");
+
+
+            let content = text;
+            if (text.contains("|")) {
+                content = text.split("|");
+            }
+
+            let currentDataRows = this.data.elements.length;
+
+            if (!Array.isArray(content)) {
+                this.data.elements[0].value = content;
+                return;
+            }
+
+            content.forEach((word, key) => {
+                if (key === currentDataRows) {
+                    this.addRow();
+                    currentDataRows++;
+                }
+                this.data.elements[key].value = word.trim();
+            });
+        },
+
+        addRow(value = "") {
+            let component = {
+                id: this.data.elements.length,
+                value: value,
+                correct: true
+            };
+            this.data.elements.push(component);
+        },
+
+        trash(event, element) {
+            event.stopPropagation();
+            this.data.elements = this.data.elements.filter(el => el.id != element.id);
+            this.data.elements.forEach((el, key) => el.id = key);
+        },
+
+        insertDataInEditor: function() {
+
+            let result = "[" + this.data.elements.map((item) => item.value).join("|") + "]";
+
+            let lw = livewire.find(document.getElementById("cms").getAttribute("wire:id"));
+            lw.set("showSelectionOptionsModal", true);
+
+            window.editor.model.change(writer => {
+                window.editor.model.insertContent(
+                    writer.createText(result)
+                );
+            });
+
+            setTimeout(() => {
+                this.$wire.setQuestionProperty("question", window.editor.getData());
+            }, 300);
+        },
+        validateInput: function() {
+            const emptyFields = this.data.elements.filter(element => element.value === "");
+
+            if (emptyFields.length !== 0) {
+                this.hasError.empty = emptyFields.map(item => item.id);
+
+                Notify.notify("Niet alle velden zijn (correct) ingevuld", "error");
+                return false;
+            }
+
+            return true;
+        },
+        save() {
+            if (!this.validateInput()) {
+                return;
+            }
+
+            this.insertDataInEditor();
+
+            this.closePopup();
+        },
+        disabled() {
+            if (this.data.elements.length >= this.maxOptions) {
+                return true;
+            }
+            return !!this.data.elements.find(element => element.value === "");
+        },
+        closePopup() {
+            this.showPopup = false;
+            this.data.elements = [];
+            this.init();
+        },
+        canDelete() {
+            return this.data.elements.length <= 1;
+        },
+        resetHasError() {
+            this.hasError.empty = [];
+        }
+    }));
+
     Alpine.data("selectionOptions", (entangle) => ({
         showPopup: entangle.value,
         editorId: entangle.editorId,
@@ -275,6 +401,7 @@ document.addEventListener("alpine:init", () => {
         resolvingTitle: true,
         index: 1,
         mode: mode,
+        attachmentLoading: false,
         async init() {
             this.setIndex();
 
@@ -300,6 +427,9 @@ document.addEventListener("alpine:init", () => {
             const parent = this.$root.parentElement;
             if (parent === null) return;
             this.index = Array.prototype.indexOf.call(parent.children, this.$el) + 1;
+        },
+        dispatchAttachmentLoading() {
+            window.dispatchEvent(new CustomEvent("attachment-preview-loading"));
         }
     }));
 
@@ -521,7 +651,9 @@ document.addEventListener("alpine:init", () => {
                     this.$store.questionBank.inGroup = false;
                 }
                 this.next(this.$refs.home);
-                this.$dispatch("backdrop");
+                if (!this.$store.cms.emptyState) {
+                    this.$dispatch("backdrop");
+                }
             }
         },
         addSubQuestionToNewGroup(shouldCheckDirty = true) {
@@ -530,7 +662,7 @@ document.addEventListener("alpine:init", () => {
         emitAddToOpenShortIfNecessary(shouldCheckDirty = true, group, newSubQuestion) {
             this.$dispatch("store-current-question");
             if (shouldCheckDirty && this.$store.cms.dirty) {
-                this.$wire.emitTo("teacher.questions.open-short", "addQuestionFromDirty", {
+                this.$wire.emitTo("teacher.cms.constructor", "addQuestionFromDirty", {
                     group,
                     newSubQuestion,
                     groupUuid: this.$store.questionBank.inGroup
@@ -615,7 +747,12 @@ document.addEventListener("alpine:init", () => {
 
             this.activeFiltersContainer = document.getElementById(filterContainer);
             this.multiple = multiple === 1;
+            const label = document.querySelector(`[for="${this.$root.querySelector("select").id}"]`);
             this.$nextTick(() => {
+                let helper = this.$root.querySelector("#text-length-helper");
+                let minWidth = helper.offsetWidth;
+                helper.style.display = "none";
+
                 let choices = new Choices(
                     this.$root.querySelector("select"),
                     this.getChoicesConfig()
@@ -637,6 +774,7 @@ document.addEventListener("alpine:init", () => {
                     choices.setChoices(options);
 
                     this.handleActiveFilters(choices.getValue());
+                    this.handleContainerWidth(minWidth);
                 };
 
                 refreshChoices();
@@ -696,11 +834,21 @@ document.addEventListener("alpine:init", () => {
                     if (this.$root.querySelector(".is-active") && this.$root.classList.contains("super")) {
                         this.$refs.chevron.style.left = (this.$root.querySelector(".is-active").offsetWidth - 25) + "px";
                     }
+                    label?.classList.add("text-primary", "bold");
                 });
                 this.$refs.select.addEventListener("hideDropdown", () => {
                     this.$refs.chevron.style.left = "auto";
+                    label?.classList.remove("text-primary", "bold");
                 });
 
+                this.$root.addEventListener("mouseover", () => {
+                    label?.classList.add("text-primary");
+                });
+                this.$root.addEventListener("mouseout", () => {
+                    if (!this.$root.querySelector(".choices__list.choices__list--dropdown.is-active")) {
+                        label?.classList.remove("text-primary");
+                    }
+                });
             });
         },
         setActiveGroupsOnInit() {
@@ -798,7 +946,7 @@ document.addEventListener("alpine:init", () => {
             return innerHtml;
         },
         createFilterPill(item) {
-            const element = document.getElementById("filter-pill-template").content.firstElementChild.cloneNode(true);
+            const element = this.$root.parentElement.querySelector("#filter-pill-template").content.firstElementChild.cloneNode(true);
 
             element.id = `filter-${this.$root.dataset.modelName}-${item.value}`;
             element.classList.add("filter-pill");
@@ -852,6 +1000,11 @@ document.addEventListener("alpine:init", () => {
         },
         getRemoveEventName: function() {
             return "removeFrom" + this.$root.getAttribute("wire:key");
+        },
+        handleContainerWidth(minWidth) {
+            if (this.$root.classList.contains("super")) return;
+            this.$root.querySelector("input.choices__input[type=\"search\"]").style.width = minWidth + 16 + "px";
+            this.$root.querySelector("input.choices__input[type=\"search\"]").style.minWidth = "auto";
         }
     }));
 
@@ -1132,8 +1285,20 @@ document.addEventListener("alpine:init", () => {
                 chart.interactivity().hoverMode("single");
 
                 this.subjects.forEach((el, index) => {
+                    const totalDefinitions = [
+                        "Vak totaal",
+                        "Subject total",
+                        "Attainement total",
+                        "Eindterm totaal"
+                    ];
+                    let strokeWidth = 2;
+                    let strokeColor = this.colors[index];
                     let cnt = index + 1;
                     let mapping = table.mapAs();
+                    if (totalDefinitions.includes(el)) {
+                        strokeWidth = 3;
+                        strokeColor = "var(--system-base)";
+                    }
                     mapping.addField("value", cnt);
 
                     let series = chart.plot(0).line(mapping);
@@ -1149,7 +1314,7 @@ document.addEventListener("alpine:init", () => {
                     marker1.size(4);
                     marker1.type("circle");
 
-                    series.normal().stroke(this.colors[index], 2);
+                    series.normal().stroke(strokeColor, strokeWidth);
                     series.connectMissingPoints(true);
                 });
 
@@ -1407,15 +1572,13 @@ document.addEventListener("alpine:init", () => {
 
             if (this.value !== "" && Object.keys(this.sources).includes(String(this.value))) {
                 this.activateButton(this.$el.querySelector("[data-id='" + this.value + "']").parentElement);
-                if (!this.disabled) {
-                    this.$dispatch("initial-toggle-tick");
-                }
             } else {
                 this.value = this.$el.querySelector(".group").firstElementChild.dataset.id;
             }
         },
         clickButton(target) {
             this.activateButton(target);
+            this.markInputElementsClean();
 
             const oldValue = this.value;
             this.value = target.firstElementChild.dataset.id;
@@ -1441,6 +1604,7 @@ document.addEventListener("alpine:init", () => {
                 target.dataset.active = true;
                 target.firstElementChild.classList.add("text-primary");
                 this.handle.classList.remove("hidden");
+                this.handle.classList.add("block");
             });
         },
         resetButtons(target) {
@@ -1556,20 +1720,22 @@ document.addEventListener("alpine:init", () => {
     ));
 
 
-    Alpine.data("contextMenuButton", (context, uuid, contextData) => ({
+    Alpine.data("contextMenuButton", (context, uuid, contextData, preventLivewireCall = false) => ({
         menuOpen: false,
         uuid,
         contextData,
         context,
+        preventLivewireCall,
         gridCard: null,
         showEvent: context + "-context-menu-show",
         closeEvent: context + "-context-menu-close",
         init() {
-            this.gridCard = this.$root.closest(".grid-card");
+            this.gridCard = this.$root.closest(".context-menu-container");
         },
         handle() {
             this.menuOpen = !this.menuOpen;
             if (this.menuOpen) {
+                this.gridCard = this.$root.closest(".context-menu-container");
                 this.$dispatch(this.showEvent, {
                     uuid: this.uuid,
                     button: this.$root,
@@ -1578,7 +1744,8 @@ document.addEventListener("alpine:init", () => {
                         top: this.gridCard.offsetTop,
                         left: this.gridCard.offsetLeft + this.gridCard.offsetWidth
                     },
-                    contextData: this.contextData
+                    contextData: this.contextData,
+                    preventLivewireCall: this.preventLivewireCall
                 });
             } else {
                 this.$dispatch(this.closeEvent);
@@ -1604,9 +1771,14 @@ document.addEventListener("alpine:init", () => {
         init() {
             this.menuCard = this.$root.closest("#context-menu-base");
             this.bodyPage = this.$root.closest(".divide-secondary");
+            if(!this.bodyPage) {
+                this.bodyPage = this.$root.closest("body");
+                this.menuOffsetMarginTop -= 10;
+                this.menuOffsetMarginLeft -= 24;
+            }
         },
         preventMenuFallOffScreen() {
-            if (this.menuCard.offsetTop + this.menuCard.offsetHeight >= this.bodyPage.offsetHeight + this.bodyPage.offsetTop) {
+            if (this.menuCard?.offsetTop + this.menuCard?.offsetHeight >= this.bodyPage?.offsetHeight + this.bodyPage?.offsetTop) {
                 this.$root.style.top = (this.detailCoordsTop + this.menuOffsetMarginTop - (this.menuCard.offsetHeight - this.gridCardOffsetHeight) - 25) + "px";
                 this.$root.style.left = (this.detailCoordsLeft - this.menuCard.offsetWidth - 50) + "px";
             }
@@ -1629,9 +1801,10 @@ document.addEventListener("alpine:init", () => {
 
             this.$root.style.top = (this.detailCoordsTop + this.menuOffsetMarginTop) + "px";
             this.$root.style.left = (this.detailCoordsLeft - this.menuOffsetMarginLeft) + "px";
-
-            let readyForShow = await this.$wire.setContextValues(this.uuid, this.contextData);
-            if (readyForShow) this.contextMenuOpen = true;
+            if(! detail?.preventLivewireCall) {
+                let readyForShow = await this.$wire.setContextValues(this.uuid, this.contextData);
+                if (readyForShow) this.contextMenuOpen = true;
+            }
             this.contextMenuOpen = true;
         },
         closeMenu() {
@@ -1646,6 +1819,11 @@ document.addEventListener("alpine:init", () => {
         droppingFile: false,
         init() {
             this.id = this.containerId + "-" + key;
+            this.$watch('expanded', (value) => {
+                setTimeout(() => {
+                    this.$el.querySelector('[block-body]').style.overflow = value ? 'visible' : 'hidden';
+                }, 100);
+            });
         },
         get expanded() {
             return this.active === this.id;
@@ -1653,8 +1831,9 @@ document.addEventListener("alpine:init", () => {
         set expanded(value) {
             this.active = value ? this.id : null;
             if (value) {
+                this.$dispatch("block-expanded", { id: this.id });
                 this.$root.querySelectorAll(".slider-button-container").forEach(toggle => toggle.dispatchEvent(new CustomEvent("slider-toggle-rerender")));
-                this.$el.classList.remove("hover:shadow-hover");
+                // this.$el.classList.remove("hover:shadow-hover");
             }
             if (this.emitWhenSet) {
                 Livewire.emit("accordion-update", { key, value });
@@ -1759,7 +1938,7 @@ document.addEventListener("alpine:init", () => {
             Notify.notify(message, "error");
         }
     }));
-    Alpine.data("loginScreen", (openTab, activeOverlay,device, hasErrors) => ({
+    Alpine.data("loginScreen", (openTab, activeOverlay, device, hasErrors) => ({
         openTab,
         showPassword: false,
         hoverPassword: false,
@@ -1771,7 +1950,7 @@ document.addEventListener("alpine:init", () => {
         init() {
             // this.setInitialFocusInput();
 
-            this.$watch('hasErrors', value => {
+            this.$watch("hasErrors", value => {
                 this.setCurrentFocusInput();
             });
             this.$watch("activeOverlay", value => {
@@ -1788,19 +1967,10 @@ document.addEventListener("alpine:init", () => {
                 this.$root.querySelector(finder)?.focus()
             }, 250);
         },
-        setCurrentFocusInput (){
-            this.getErrors();
-
-            if('' == hasErrors) {
-                return;
-            }
-            let firstError = hasErrors[0] == 'invalid_user' ? 'password' : hasErrors[0];
-            let name = ('' != this.activeOverlay) ? this.activeOverlay : this.openTab;
-            var finder = `[data-focus-tab-error = '${name}-${firstError}']`
-
-            setTimeout(() => {
-                this.$root.querySelector(finder)?.focus()
-            }, 250);
+        setCurrentFocusInput() {
+            let name = ("" != this.activeOverlay) ? this.activeOverlay : this.openTab;
+            var finder = ("" != hasErrors) ? `[data-focus-tab-error = '${name}-${hasErrors[0]}']` : `[data-focus-tab = '${name}']`;
+            setTimeout(() => this.$root.querySelector(finder)?.focus(), 250);
         },
         changeActiveOverlay(activeOverlay = "") {
             this.activeOverlay = activeOverlay;
@@ -1810,35 +1980,36 @@ document.addEventListener("alpine:init", () => {
             console.log(hasErrors);
         }
     }));
-    Alpine.data("assessment", (score, maxScore, halfPoints, drawerScoringDisabled, pageUpdated) => ({
-        score,
-        shadowScore: score,
-        maxScore,
-        halfPoints,
-        drawerScoringDisabled,
+    Alpine.data("assessment", (array) => ({
+        score: array.initialScore,
+        shadowScore: array.initialScore,
+        maxScore: array.maxScore,
+        halfPoints: array.halfPoints,
+        drawerScoringDisabled: array.drawerScoringDisabled,
+        pageUpdated: array.pageUpdated,
+        isCoLearningScore: array.isCoLearningScore,
         init() {
-            if (pageUpdated) {
-                this.$store.assessment.resetData(this.score, this.toggleCount());
+            if (this.pageUpdated) {
+                this.resetStoredData();
             }
             if (isString(this.shadowScore)) {
-                this.shadowScore = this.isFloat(score) ? parseFloat(score) : parseInt(score);
+                this.shadowScore = isFloat(initialScore) ? parseFloat(initialScore) : parseInt(initialScore);
             }
+            this.$nextTick(() => this.$dispatch("slider-score-updated", { score: this.score }));
         },
         toggleCount() {
-            return this.$root.querySelectorAll(".student-answer .slider-button-container:not(.disabled)").length;
-        },
-        initialToggleTicked() {
-            this.$store.assessment.togglesTicked++;
+            return document.querySelectorAll(".student-answer .slider-button-container:not(.disabled)").length;
         },
         dispatchUpdateToNavigator(navigator, updates) {
-            let navigatorElement = this.$root.querySelector(`#${navigator}-navigator`);
+            this.resetStoredData();
+            let navigatorElement = document.querySelector(`#${navigator}-navigator`);
             if (navigatorElement) {
                 return navigatorElement.dispatchEvent(new CustomEvent("update-navigator", { detail: { ...updates } }));
             }
             console.warn("No navigation component found for the specified name.");
         },
         toggleTicked(event) {
-            const parsedValue = this.isFloat(event.value) ? parseFloat(event.value) : parseInt(event.value);
+            const parsedValue = isFloat(event.value) ? parseFloat(event.value) : parseInt(event.value);
             this.setNewScore(parsedValue, event.state, event.firstTick);
 
             this.updateAssessmentStore();
@@ -1847,21 +2018,22 @@ document.addEventListener("alpine:init", () => {
 
             this.updateLivewireComponent(event);
         },
-        isFloat(value) {
-            return parseFloat(value.match(/^-?\d*(\.\d+)?$/)) > 0;
-        },
         getCurrentScore() {
             return this.halfPoints
                 ? Math.round(this.shadowScore * 2) / 2
                 : Math.round(this.shadowScore);
         },
-        setNewScore(score, state, firstTick) {
+        setNewScore(newScore, state, firstTick) {
+            if (firstTick && this.isCoLearningScore) {
+                this.isCoLearningScore = false;
+                this.shadowScore = 0;
+            }
             if (firstTick && state === "off") {
                 this.shadowScore ??= 0;
             } else {
                 this.shadowScore = state === "on"
-                    ? this.shadowScore + score
-                    : this.shadowScore - score;
+                    ? this.shadowScore + newScore
+                    : this.shadowScore - newScore;
             }
 
             if (this.shadowScore < 0) this.shadowScore = 0;
@@ -1870,10 +2042,9 @@ document.addEventListener("alpine:init", () => {
         },
         updateAssessmentStore() {
             this.$store.assessment.currentScore = this.score;
-            this.$store.assessment.togglesTicked++;
         },
         dispatchNewScoreToSlider() {
-            this.$root.querySelector(".score-slider-container")
+            document.querySelector(".score-slider-container")
                 .dispatchEvent(new CustomEvent(
                     "new-score",
                     { detail: { score: this.score } }
@@ -1886,6 +2057,17 @@ document.addEventListener("alpine:init", () => {
             if (event.hasOwnProperty("identifier")) {
                 this.$wire.toggleValueUpdated(event.identifier, event.state);
             }
+        },
+        resetStoredData() {
+            this.$store.assessment.resetData(this.score, this.toggleCount());
+            this.$nextTick(() => {
+                this.$store.assessment.toggleCount = this.toggleCount();
+            });
+        },
+        updateScoringData(data) {
+            Object.assign(this, data);
+            this.score = this.shadowScore = data.initialScore;
+            this.$nextTick(() => this.$dispatch("slider-score-updated", { score: this.score }));
         }
     }));
     Alpine.data("assessmentNavigator", (current, total, methodCall, lastValue, firstValue) => ({
@@ -1896,18 +2078,33 @@ document.addEventListener("alpine:init", () => {
         firstValue,
         skipWatch: false,
         async first() {
+            if(this.$store.answerFeedback.feedbackBeingEdited()) {
+                return this.$store.answerFeedback.openConfirmationModal(this.$root, 'first');
+            }
             await this.updateCurrent(this.firstValue, "first");
         },
         async last() {
+            if(this.$store.answerFeedback.feedbackBeingEdited()) {
+                return this.$store.answerFeedback.openConfirmationModal(this.$root, 'last');
+            }
             await this.updateCurrent(this.lastValue, "last");
         },
         async next() {
             if (this.current >= this.lastValue) return;
+            if(this.$store.answerFeedback.feedbackBeingEdited()) {
+                return this.$store.answerFeedback.openConfirmationModal(this.$root, 'next');
+            }
             await this.updateCurrent(this.current + 1, "incr");
         },
         async previous() {
             if (this.current <= this.firstValue) return;
+            if(this.$store.answerFeedback.feedbackBeingEdited()) {
+                return this.$store.answerFeedback.openConfirmationModal(this.$root, 'previous');
+            }
             await this.updateCurrent(this.current - 1, "decr");
+        },
+        async navigate(methodName) {
+            await this[methodName]();
         },
         async updateCurrent(value, action) {
             this.$dispatch("assessment-drawer-tab-update", { tab: 1 });
@@ -1969,13 +2166,14 @@ document.addEventListener("alpine:init", () => {
             return element.offsetTop + (element.offsetHeight / 2);
         }
     }));
-    Alpine.data("assessmentDrawer", () => ({
+    Alpine.data("assessmentDrawer", (inReview = false) => ({
         activeTab: 1,
         tabs: [1, 2, 3],
         collapse: false,
         container: null,
         clickedNext: false,
         tooltipTimeout: null,
+        inReview,
         init() {
             this.container = this.$root.querySelector("#slide-container");
             this.tab(1);
@@ -1983,39 +2181,74 @@ document.addEventListener("alpine:init", () => {
                 document.documentElement.style.setProperty("--active-sidebar-width", value ? "var(--collapsed-sidebar-width)" : "var(--sidebar-width)");
             });
         },
-        tab(index) {
+        getSlideElementByIndex: function (index) {
+            return this.$root.closest('.drawer').querySelector(".slide-" + index);
+        },
+        async tab(index, answerFeedbackCommentUuid = null) {
             if (!this.tabs.includes(index)) return;
             this.activeTab = index;
-            const slide = this.$root.querySelector(".slide-" + index);
+            this.closeTooltips();
+            const slide = this.getSlideElementByIndex(index);
             this.handleSlideHeight(slide);
-            this.$nextTick(() => {
-                this.container.scroll({ top: 0, left: slide.offsetLeft, behavior: "smooth" });
-            });
+            await this.$nextTick();
+
+            if (answerFeedbackCommentUuid) {
+                await this.scrollToCommentCard(answerFeedbackCommentUuid);
+            } else {
+                await smoothScroll(this.container, 0, slide.offsetLeft)
+            }
+
+            setTimeout(() => {
+                const position = (this.container.scrollLeft / 300) + 1;
+                if (!this.tabs.includes(position)) {
+                    this.container.scrollTo({left: slide.offsetLeft});
+                }
+            }, 500);
+        },
+        async scrollToCommentCard (answerFeedbackUuid) {
+            const commentCard = document.querySelector('[data-uuid="'+answerFeedbackUuid+'"].answer-feedback-card')
+            const slide = this.getSlideElementByIndex(2);
+            let cardTop = commentCard.offsetTop;
+
+            let count = 0;
+            await smoothScroll(this.container, cardTop, slide.offsetLeft);
         },
         async next() {
-            if (!this.$store.assessment.clearToProceed() && !this.clickedNext) {
+            if(this.$store.answerFeedback.feedbackBeingEdited()) {
+                return this.$store.answerFeedback.openConfirmationModal(this.$root, 'next');
+            }
+            if (this.needsToPerformActionsStill()) {
                 this.$dispatch("scoring-elements-error");
                 this.clickedNext = true;
                 return;
             }
 
             this.tab(1);
-            this.$store.assessment.resetData();
             await this.$nextTick(async () => {
-                const done = await this.$wire.next();
-                if (done) {
-                    this.clickedNext = false;
-                }
+                this.$store.assessment.resetData();
+                await this.$wire.next();
+                this.clickedNext = false;
             });
         },
         async previous() {
+            if(this.$store.answerFeedback.feedbackBeingEdited()) {
+                return this.$store.answerFeedback.openConfirmationModal(this.$root, 'previous');
+            }
             this.tab(1);
             await this.$nextTick(async () => {
-                const done = await this.$wire.previous();
-                if (done) {
-                    this.clickedNext = false;
-                }
+                this.$store.assessment.resetData();
+                await this.$wire.previous();
+                this.clickedNext = false;
             });
+        },
+        async navigate(methodName) {
+            await this[methodName]();
+        },
+        fixSlideHeightByIndex(index, AnswerFeedbackUuid) {
+            let slide = document.querySelector(".slide-" + index);
+            this.handleSlideHeight(slide);
+
+            if(AnswerFeedbackUuid) this.scrollToCommentCard(AnswerFeedbackUuid);
         },
         handleSlideHeight(slide) {
             if (slide.offsetHeight > this.container.offsetHeight) {
@@ -2040,9 +2273,24 @@ document.addEventListener("alpine:init", () => {
             this.$root.querySelectorAll(".tooltip-container").forEach((el) => {
                 el.dispatchEvent(new CustomEvent("close"));
             });
+        },
+        needsToPerformActionsStill() {
+            return !this.inReview && !this.$store.assessment.clearToProceed() && !this.clickedNext;
+        },
+        openFeedbackTab() {
+            this.tab(2)
+                .then((response) => {
+                    let editorDiv = this.$root.querySelector(".feedback textarea");
+                    if (editorDiv) {
+                        let editor = ClassicEditors[editorDiv.getAttribute("name")];
+                        if (editor) {
+                            setTimeout(() => editor.focus(), 320); // Await slide animation, otherwise it breaks;
+                        }
+                    }
+                });
         }
     }));
-    Alpine.data("scoreSlider", (score, model, maxScore, halfPoints, disabled, coLearning) => ({
+    Alpine.data("scoreSlider", (score, model, maxScore, halfPoints, disabled, coLearning, focusInput, continuousSlider) => ({
         score,
         model,
         maxScore,
@@ -2052,24 +2300,49 @@ document.addEventListener("alpine:init", () => {
         skipSync: false,
         persistantScore: null,
         inputBox: null,
+        focusInput,
+        continuousSlider,
+        bars: [],
+        halfTotal: false,
         getSliderBackgroundSize(el) {
             if (this.score === null) return 0;
 
             const min = el.min || 0;
             const max = el.max || 100;
             const value = el.value;
-
             return (value - min) / (max - min) * 100;
         },
+        setThumbOffset() {
+            if (continuousSlider) {
+                return;
+            }
+            if (this.score > this.maxScore) {
+                this.score = this.maxScore;
+            }
+            if (this.score < 0) {
+                this.score = 0;
+            }
+
+
+            let el = document.querySelector(".score-slider-input");
+
+            var offsetFromCenter = -40;
+            offsetFromCenter += (this.score / this.maxScore) * 80;
+
+            el.style.setProperty("--slider-thumb-offset", `calc(${offsetFromCenter}% + 1px)`);
+        },
         setSliderBackgroundSize(el) {
-            el.style.setProperty("--slider-thumb-offset", `${25 / 100 * this.getSliderBackgroundSize(el) - 12.5}px`);
-            el.style.setProperty("--slider-background-size", `${this.getSliderBackgroundSize(el)}%`);
+            this.$nextTick(() => {
+                el.style.setProperty("--slider-thumb-offset", `${25 / 100 * this.getSliderBackgroundSize(el) - 12.5}px`);
+                el.style.setProperty("--slider-background-size", `${this.getSliderBackgroundSize(el)}%`);
+            });
         },
         syncInput() {
             // Don't update if the value is the same;
             if (this.$wire[this.model] === this.score) return;
             this.$wire.sync(this.model, this.score);
             this.$store.assessment.currentScore = this.score;
+            this.$dispatch("slider-score-updated", { score: this.score });
         },
         noChangeEventFallback() {
             if (this.score === null) {
@@ -2078,7 +2351,6 @@ document.addEventListener("alpine:init", () => {
             }
         },
         init() {
-            // This echos custom JS from the template and for some reason it actually works;
             if (coLearning) {
                 Livewire.hook("message.received", (message, component) => {
                     if (component.name === "student.co-learning" && message.updateQueue[0]?.method === "updateHeartbeat") {
@@ -2111,26 +2383,46 @@ document.addEventListener("alpine:init", () => {
 
                 this.score = value = this.halfPoints ? Math.round(value * 2) / 2 : Math.round(value);
 
-                const numberInput = this.$root.querySelector("[x-ref='score_slider_continuous_input']");
-                if (numberInput !== null) {
-                    this.setSliderBackgroundSize(numberInput);
-                }
+                this.updateContinuousSlider();
             });
-            if (!this.disabled) {
+            if (focusInput) {
                 this.$nextTick(() => {
                     this.inputBox.focus();
                 });
             }
+
+            this.bars = this.maxScore;
+            if (this.halfPoints) {
+                this.halfTotal = this.hasMaxDecimalScoreWithHalfPoint();
+                this.bars = this.maxScore / 0.5;
+            }
         },
         markInputElementsWithError() {
             if (this.disabled) return;
-            this.inputBox.classList.add("border-allred");
-            this.inputBox.classList.remove("border-blue-grey");
+            this.inputBox.style.border = "1px solid var(--all-red)";
         },
         markInputElementsClean() {
             if (this.disabled) return;
-            this.inputBox.classList.add("border-blue-grey");
-            this.inputBox.classList.remove("border-allred");
+            this.inputBox.style.border = null;
+        },
+        getContinuousInput() {
+            return this.$root.querySelector("[x-ref='score_slider_continuous_input']");
+        },
+        updateContinuousSlider() {
+            const numberInput = this.getContinuousInput();
+            if (numberInput !== null) {
+                this.setSliderBackgroundSize(numberInput);
+            }
+        },
+        sliderPillClasses(value) {
+            const score = this.halfTotal || this.halfPoints ? this.score * 2 : this.score;
+            const first = ((value / 2) + "").split(".")[1] === "5";
+            return value <= score
+                ? `bg-primary border-primary highlight ${first ? "first" : "second"}`
+                : `border-bluegrey opacity-100 ${first ? "first" : "second"}`;
+        },
+        hasMaxDecimalScoreWithHalfPoint() {
+            return isFloat(this.maxScore);
         }
     }));
 
@@ -2179,12 +2471,19 @@ document.addEventListener("alpine:init", () => {
         setOption(key) {
             this.fastOption = key;
             this.$dispatch("updated-score", { score: scoreOptions[key] });
+            this.$store.assessment.currentScore = scoreOptions[key];
         },
         updatedScore(score) {
-            this.fastOption = score ? this.scoreOptions.indexOf(score) : null;
+            this.fastOption = this.scoreOptions.indexOf(score);
         },
         init() {
-            this.fastOption = currentScore !== null ? this.scoreOptions.indexOf(currentScore) : null;
+            if (currentScore === null) {
+                return;
+            }
+            if (currentScore.toString().indexOf(".0") !== -1) {
+                const parsedScore = parseInt(currentScore);
+                this.fastOption = this.scoreOptions.indexOf(parsedScore);
+            }
         }
     }));
     Alpine.data("tooltip", (alwaysLeft) => ({
@@ -2193,9 +2492,10 @@ document.addEventListener("alpine:init", () => {
         maxToolTipWidth: 384,
         height: 0,
         inModal: false,
+        show: false,
         init() {
             this.setHeightProperty();
-            this.inModal = this.$root.closest('#modal-container') !== null;
+            this.inModal = this.$root.closest("#modal-container") !== null;
             this.$watch("tooltip", value => {
                 if (value) {
                     let ignoreLeft = false;
@@ -2208,6 +2508,7 @@ document.addEventListener("alpine:init", () => {
                     this.$refs.tooltipdiv.style.left = this.getLeft(ignoreLeft);
                 }
             });
+            this.$nextTick(() => this.show = true);
         },
         getTop() {
             let top = ((this.$root.getBoundingClientRect().y + this.$root.offsetHeight + 8));
@@ -2223,7 +2524,7 @@ document.addEventListener("alpine:init", () => {
             return top + "px";
         },
         getLeft(ignoreLeft = false) {
-            if (ignoreLeft) return 'auto';
+            if (ignoreLeft) return "auto";
             let left = this.$root.getBoundingClientRect().x + (this.$root.offsetWidth / 2);
             if (this.inModal) {
                 left -= this.getModalDimensions().left;
@@ -2249,10 +2550,1172 @@ document.addEventListener("alpine:init", () => {
             return ((this.$el.getBoundingClientRect().left + (this.maxToolTipWidth / 2)) > window.innerWidth);
         },
         getModalDimensions() {
-            const modal = document.querySelector('#modal-container');
+            const modal = document.querySelector("#modal-container");
             return modal.getBoundingClientRect();
         }
     }));
+    Alpine.data("reviewNavigation", (current) => ({
+        showSlider: true,
+        scrollStep: 100,
+        totalScrollWidth: 0,
+        activeQuestion: current,
+        intersectionCountdown: null,
+        navScrollBar: null,
+        initialized: false,
+        init() {
+            this.navScrollBar = this.$root.querySelector("#navscrollbar");
+            this.$nextTick(() => {
+                this.$root.querySelector(".active").scrollIntoView({ behavior: "smooth" });
+                this.totalScrollWidth = this.$root.offsetWidth;
+                this.resize();
+                this.initialized = true;
+                this.slideToActiveQuestionBubble();
+            });
+        },
+        resize() {
+            this.scrollStep = window.innerWidth / 10;
+            const sliderButtons = this.$root.querySelector(".slider-buttons").offsetWidth * 2;
+            this.showSlider = (this.$root.querySelector(".question-indicator").offsetWidth + sliderButtons) >= (this.$root.offsetWidth - 120);
+            if (this.showSlider) {
+                this.slideToActiveQuestionBubble();
+            }
+        },
+        scroll(position) {
+            this.navScrollBar.scrollTo({ left: position, behavior: "smooth" });
+            this.startIntersectionCountdown();
+        },
+        start() {
+            this.scroll(0);
+        },
+        end() {
+            this.scroll(this.totalScrollWidth);
+        },
+        left() {
+            this.scroll(this.navScrollBar.scrollLeft - this.scrollStep);
+        },
+        right() {
+            this.scroll(this.navScrollBar.scrollLeft + this.scrollStep);
+        },
+        slideToActiveQuestionBubble() {
+            let left = this.$root.querySelector(".active").offsetLeft;
+            this.navScrollBar.scrollTo({
+                left: left - (this.$root.getBoundingClientRect().left + 16),
+                behavior: "smooth"
+            });
+        },
+        startIntersectionCountdown() {
+            clearTimeout(this.intersectionCountdown);
+            this.intersectionCountdown = setTimeout(() => {
+                clearTimeout(this.intersectionCountdown);
+                this.slideToActiveQuestionBubble();
+            }, 5000);
+        },
+        async loadQuestion(number) {
+            this.$dispatch("assessment-drawer-tab-update", { tab: 1 });
+            await this.$wire.loadQuestionFromNav(number);
+        }
+    }));
+    Alpine.data("accountSettings", (openTab, language) => ({
+        openTab,
+        changing: false,
+        language,
+        async startLanguageChange(event, wireModelName) {
+            this.$dispatch("language-loading-start");
+            this.changing = true;
+            this.language = event.target.dataset.value;
+            await this.$wire.call("$set", wireModelName, event.target.dataset.value);
+            this.$nextTick(() => {
+                setTimeout(() => {
+                    this.changing = false;
+                    this.$dispatch("language-loading-end");
+                }, 1500);
+            });
+
+        }
+    }));
+    Alpine.data("AnswerFeedback", (answerEditorId, feedbackEditorId, userId, questionType, viewOnly, hasFeedback = false) => ({
+        answerEditorId: answerEditorId,
+        feedbackEditorId: feedbackEditorId,
+        commentRepository: null,
+        activeThread: null,
+        activeComment: null,
+        hoveringComment: null,
+        dropdownOpened: null,
+        userId,
+        questionType,
+        viewOnly,
+        hasFeedback,
+        async init() {
+            this.dropdownOpened = questionType === 'OpenQuestion' ? 'given-feedback' : 'add-feedback';
+
+            if(questionType !== 'OpenQuestion') {
+                return;
+            }
+            this.setFocusTracking();
+            this.createFocusableButtons();
+
+            document.addEventListener('comment-color-updated', async (event) => {
+                let styleTagElement = document.querySelector('#temporaryCommentMarkerStyles');
+
+                let colorWithOpacity = event.detail.color;
+                let color = colorWithOpacity.replace('0.4', '1');
+
+                styleTagElement.innerHTML = `p .ck-comment-marker[data-comment="${event.detail.threadId}"]{\n` +
+                    `                            --ck-color-comment-marker: ${colorWithOpacity} !important;\n` + /* opacity .4 */
+                    `                            --ck-color-comment-marker-border: ${color} !important;\n` + /* opacity 1.0 */
+                    `                            --ck-color-comment-marker-active: ${colorWithOpacity} !important;\n` + /* opacity .4 */
+                    `                        }`
+            });
+
+            document.addEventListener('comment-emoji-updated', async (event) => {
+                let ckeditorIconWrapper = document.querySelector('#icon-' + event.detail.threadId)
+                let cardIconWrapper = document.querySelector('[data-uuid="'+event.detail.uuid+'"].answer-feedback-card-icon')
+
+                if(ckeditorIconWrapper) this.addOrReplaceIconByName(ckeditorIconWrapper, event.detail.iconName);
+                if(cardIconWrapper) {
+                    this.addOrReplaceIconByName(cardIconWrapper, event.detail.iconName);
+                    cardIconWrapper.querySelector('span').style = '';
+                }
+            });
+
+            window.addEventListener('new-comment-color-updated',
+                (event) => this.updateNewCommentMarkerStyles(event?.detail?.color)
+            );
+
+            document.addEventListener('mousedown', (e) => {
+                if(this.activeComment === null) {
+                    return;
+                }
+                //check for click outside 1. comment markers, 2. comment marker icons, 3. comment cards.
+                if( e.srcElement.closest('.ck-comment-marker') ||
+                    e.srcElement.closest('.answer-feedback-comment-icons') ||
+                    e.srcElement.closest('.given-feedback-container')
+                ) {
+                    return;
+                }
+                this.clearActiveComment()
+            })
+
+            this.preventOpeningModalFromBreakingDrawer();
+        },
+        async updateCommentThread(element) {
+            let answerFeedbackCardElement = element.closest('.answer-feedback-card');
+
+            let answerFeedbackUuid = answerFeedbackCardElement.dataset.uuid;
+
+            let comment_color = answerFeedbackCardElement.querySelector('.comment-color-picker input:checked')?.dataset?.color;
+            let comment_emoji = answerFeedbackCardElement.querySelector('.comment-emoji-picker input:checked')?.dataset?.emoji;
+
+            const answerFeedbackEditor = ClassicEditors['update-'+answerFeedbackUuid];
+
+            let commentStyles = await this.$wire.call('updateExistingComment', {
+                uuid: answerFeedbackUuid,
+                message: answerFeedbackEditor.getData(),
+                comment_emoji: comment_emoji,
+                comment_color: comment_color,
+            });
+            document.querySelector('#commentMarkerStyles').innerHTML = commentStyles;
+
+            this.cancelEditingComment(answerFeedbackCardElement.dataset.threadId)
+        },
+        async createCommentThread() {
+
+            let addCommentElement = this.$el.closest('.answer-feedback-add-comment')
+
+            let comment_color = addCommentElement.querySelector('.comment-color-picker input:checked')?.dataset?.color;
+
+            let comment_emoji = addCommentElement.querySelector('.comment-emoji-picker input:checked')?.dataset?.emoji;
+            let comment_iconName = addCommentElement.querySelector('.comment-emoji-picker input:checked')?.dataset?.iconname;
+
+            const answerEditor = ClassicEditors[this.answerEditorId];
+            const feedbackEditor = ClassicEditors[this.feedbackEditorId];
+
+            var comment = feedbackEditor.getData() || '<p></p>';
+
+            answerEditor.focus();
+
+            this.$nextTick(async () => {
+
+                if(answerEditor.plugins.get( 'CommentsRepository' ).activeCommentThread) {
+
+                    //created feedback record data
+                    var feedback = await this.$wire.createNewComment([]);
+
+                    await answerEditor.execute( 'addCommentThread', { threadId: feedback.threadId } );
+
+                    var newCommentThread = answerEditor.plugins.get( 'CommentsRepository' ).getCommentThreads().filter((thread) => { return thread.id == feedback.threadId})[0];
+
+                    newCommentThread.addComment({threadId: feedback.threadId, commentId: feedback.commentId, content: comment, authorId: this.userId});
+
+                    var updatedAnswerText = answerEditor.getData();
+
+                    let commentStyles = await this.$wire.saveNewComment({
+                        uuid: feedback.uuid,
+                        message: comment,
+                        comment_color: comment_color,
+                        comment_emoji: comment_emoji,
+                    }, updatedAnswerText);
+
+                    await this.createCommentIcon({
+                        uuid: feedback.uuid,
+                        threadId: feedback.threadId,
+                        iconName: comment_iconName,
+                    })
+
+                    document.querySelector('#commentMarkerStyles').innerHTML = commentStyles;
+
+                    this.resetAddNewAnswerFeedback();
+
+                    this.hasFeedback = true;
+
+                    this.$dispatch('answer-feedback-show-comments');
+
+                    this.scrollToCommentCard(feedback.uuid);
+                    return;
+                }
+
+                var feedback = await this.$wire.createNewComment({
+                    message: comment,
+                    comment_color: null, //no comment color when its a general ticket.
+                    comment_emoji: comment_emoji,
+                }, false);
+
+                this.hasFeedback = true;
+
+                this.resetAddNewAnswerFeedback();
+
+                this.$dispatch('answer-feedback-show-comments');
+
+                this.scrollToCommentCard(feedback.uuid);
+            });
+
+        },
+        async deleteCommentThread(threadId, feedbackId) {
+
+
+            if(threadId === null) {
+                await this.$wire.deleteCommentThread(null, feedbackId);
+                this.$wire.render();
+                return;
+            }
+            const answerEditor = ClassicEditors[this.answerEditorId];
+
+            let commentsRepository = answerEditor.plugins.get( 'CommentsRepository' );
+
+            let thread = commentsRepository.getCommentThread(threadId);
+
+            const result = await this.$wire.deleteCommentThread(threadId, feedbackId);
+            if(result) {
+                //delete icon positioned over the ckeditor
+                let deletedThreadIcon = document.querySelector('.answer-feedback-comment-icons #icon-'+threadId);
+                if(deletedThreadIcon) {
+                    deletedThreadIcon.remove();
+                }
+
+                commentsRepository.getCommentThread(threadId).remove();
+                const answerText = answerEditor.getData();
+                await this.$wire.updateAnswer(answerText);
+
+                this.setEditingComment(null);
+
+                return;
+            }
+            console.error('failed to delete answer feedback');
+        },
+        initCommentIcons(commentThreads) {
+            //create icon wrapper and append icon inside it
+            commentThreads.forEach((thread) => {
+                this.createCommentIcon(thread);
+            })
+        },
+        initCommentIcon(el, thread) {
+            let commentThreadElements = null;
+            setTimeout(() => {
+                const commentMarkers = document.querySelectorAll(`[data-comment='` + thread.threadId+ `']`);
+                const lastCommentMarker = commentMarkers[commentMarkers.length-1];
+
+                el.style.top = (lastCommentMarker.offsetTop - 15) + 'px';
+                el.style.left = (lastCommentMarker.offsetWidth + lastCommentMarker.offsetLeft - 5) + 'px';
+
+                el.setAttribute('data-uuid', thread.uuid);
+                el.setAttribute('data-threadId', thread.threadId);
+
+                this.addOrReplaceIconByName(el, thread.iconName);
+
+                commentThreadElements = [...commentMarkers, el];
+
+                //set click event listener on all comment markers and the icon.
+                commentThreadElements.forEach((threadElement) => {
+                    threadElement.addEventListener('click', () => {
+                        this.setActiveComment(thread.threadId, thread.uuid);
+                    });
+                    threadElement.addEventListener('mouseenter', (e) => {
+                        this.setHoveringComment(thread.threadId, thread.uuid);
+                    });
+                    threadElement.addEventListener('mouseleave', (e) => {
+                        this.clearHoveringComment();
+                    });
+                });
+
+            }, 200)
+        },
+        createCommentIcon (thread) {
+            let el = document.querySelector('.answer-feedback-comment-icons');
+            let iconId = "icon-"+thread.threadId;
+            let iconWrapper = document.createElement('div');
+            iconWrapper.classList.add('absolute');
+            iconWrapper.classList.add('z-10');
+            iconWrapper.classList.add('cursor-pointer');
+            iconWrapper.id = iconId;
+            el.appendChild(iconWrapper)
+
+            this.initCommentIcon(iconWrapper, thread);
+        },
+        addOrReplaceIconByName (el, iconName) {
+            el.innerHTML = '';
+
+            let iconTemplate = null;
+            if(iconName === null || iconName === '' || iconName === undefined) {
+                iconTemplate = document.querySelector('#default-icon')
+            } else {
+                iconTemplate = document.querySelector('#'+iconName.replace('icon.', ''))
+            }
+            el.appendChild(document.importNode(iconTemplate.content, true));
+        },
+        setHoveringComment(threadId, answerFeedbackUuid) {
+            this.hoveringComment = {threadId: threadId, uuid: answerFeedbackUuid };
+            this.setHoveringCommentMarkerStyle();
+        },
+        clearHoveringComment() {
+            this.hoveringComment = null;
+            this.setHoveringCommentMarkerStyle(true);
+        },
+        cancelEditingComment(threadId, AnswerFeedbackUuid, originalIconName = false, originalColor = false) {
+            //reset temporary styling
+            document.querySelector('#temporaryCommentMarkerStyles').innerHTML = '';
+
+            this.setEditingComment(null);
+
+            //reset radio buttons
+            if(originalColor) {
+                document.querySelector('[data-uuid="'+AnswerFeedbackUuid+`"].answer-feedback-card .comment-color-picker [data-color="${originalColor}"]`).checked = true;
+            }
+
+            if(originalIconName === false) return; /* false is unset, but null is a valid value */
+
+            if(originalIconName === null || originalIconName === '') {
+                let emojiPicker = document.querySelector('[data-uuid="'+AnswerFeedbackUuid+`"].answer-feedback-card .comment-emoji-picker input:checked`)
+                if(emojiPicker) emojiPicker.checked = false;
+            } else {
+                document.querySelector('[data-uuid="'+AnswerFeedbackUuid+`"].answer-feedback-card .comment-emoji-picker [data-iconName="${originalIconName}"]`).checked = true;
+            }
+
+            //reset icon to the original if originalIconName is given (null is also valid)
+            let ckeditorIconWrapper = document.querySelector('#icon-' + threadId)
+            let cardIconWrapper = document.querySelector('[data-uuid="'+AnswerFeedbackUuid+'"].answer-feedback-card-icon')
+
+            if(ckeditorIconWrapper) this.addOrReplaceIconByName(ckeditorIconWrapper, originalIconName);
+            if(cardIconWrapper) {
+                if(originalIconName === null || originalIconName === '') {
+                    cardIconWrapper.innerHTML = '';
+                    return;
+                }
+
+                this.addOrReplaceIconByName(cardIconWrapper, originalIconName);
+                cardIconWrapper.querySelector('span').style = '';
+            }
+
+        },
+        updateNewCommentMarkerStyles(color) {
+            const styleTag = document.querySelector('#addFeedbackMarkerStyles');
+
+            let colorCode = 'rgba(var(--primary-rgb), 0.4)';
+            if(color) {
+                colorCode = color;
+            }
+            styleTag.innerHTML = '\n' +
+                '        :root {\n' +
+                '            --active-comment-color: '+ colorCode +'; /* default color, overwrite when color picker is used */\n' +
+                '            --ck-color-comment-marker-active: var(--active-comment-color);\n' +
+                '        }\n' +
+                '    ';
+        },
+        setHoveringCommentMarkerStyle(removeStyling = false) {
+            const styleTag = document.querySelector('#hoveringCommentMarkerStyle');
+
+            if(removeStyling || this.hoveringComment.threadId === null) {
+                styleTag.innerHTML = '';
+                return;
+            }
+
+            styleTag.innerHTML = '' +
+                '.ck-comment-marker[data-comment="'+ this.hoveringComment.threadId +'"] { color: var(--teacher-primary); }' +
+                'div[data-threadid="'+this.hoveringComment.threadId+'"] svg { color: var(--teacher-primary); }';
+
+        },
+        setActiveCommentMarkerStyle(removeStyling = false) {
+            const styleTag = document.querySelector('#activeCommentMarkerStyle');
+
+            if(removeStyling || this.activeComment?.threadId === null) {
+                styleTag.innerHTML = '';
+                return;
+            }
+
+            styleTag.innerHTML = '' +
+                '.ck-comment-marker[data-comment="'+ this.activeComment?.threadId +'"] { ' +
+                '   border: 1px solid var(--ck-color-comment-marker-border) !important; ' +
+                '} ';
+
+        },
+        setActiveComment (threadId, answerFeedbackUuid) {
+            this.$dispatch('answer-feedback-show-comments');
+            this.$dispatch("assessment-drawer-tab-update", { tab: 2, uuid: answerFeedbackUuid });
+            if(this.$store.answerFeedback.feedbackBeingEdited()) {
+                /* when editing, no other comment can be activated */
+                return;
+            }
+            this.activeComment = {threadId: threadId, uuid: answerFeedbackUuid };
+            this.setActiveCommentMarkerStyle();
+        },
+        clearActiveComment() {
+            this.activeComment = null;
+            this.setActiveCommentMarkerStyle(true);
+        },
+        setFocusTracking() {
+            if(viewOnly) {
+                return;
+            }
+            setTimeout(()=> {
+                try {
+                    const answerEditor = ClassicEditors[this.answerEditorId];
+                    const feedbackEditor = ClassicEditors[this.feedbackEditorId];
+
+                    answerEditor.ui.focusTracker.add( feedbackEditor.sourceElement.parentElement.querySelector('.ck.ck-content') );
+
+                    //keep focus when clicking on the emoji and color pickers
+                    document.querySelectorAll('.answer-feedback-add-comment .emoji-picker-radio, .answer-feedback-add-comment .color-picker-radio input').forEach((element) => {
+                        answerEditor.ui.focusTracker.add( element );
+                        feedbackEditor.ui.focusTracker.add( element );
+                    })
+                    document.querySelectorAll('.answer-feedback-add-comment .emoji-picker-radio, .answer-feedback-add-comment .emoji-picker-radio input').forEach((element) => {
+                        answerEditor.ui.focusTracker.add( element );
+                        feedbackEditor.ui.focusTracker.add( element );
+                    })
+
+                    feedbackEditor.ui.focusTracker.add( answerEditor.sourceElement.parentElement.querySelector('.ck.ck-content') );
+
+                } catch (exception) {
+                    // ignore focusTracker error when trying to add element that is already registered
+                    // there is no way to preventively check if the element is already registered
+                    if(!exception.message.contains('focustracker-add-element-already-exist')) {
+                        throw exception;
+                    }
+                }
+
+            },1000)
+        },
+        get answerEditor() {
+            return ClassicEditors[this.answerEditorId];
+        },
+        get feedbackEditor() {
+            return ClassicEditors[this.feedbackEditorId];
+        },
+        createFocusableButtons() {
+            setTimeout(() => {
+                try {
+                    const answerEditor = ClassicEditors[this.answerEditorId];
+                    const buttonWrapper = document.querySelector('#saveNewFeedbackButtonWrapper');
+
+                    if(buttonWrapper.children.length > 0) {
+                        return;
+                    }
+
+                    //text cancel button:
+                    const textCancelButton = new window.CkEditorButtonView(new window.CkEditorLocale('nl'));
+                    textCancelButton.set({
+                        label: buttonWrapper.dataset.cancelTranslation,
+                        classList: 'text-button button-sm',
+                        eventName: 'cancel',
+                    });
+                    textCancelButton.render();
+
+                    answerEditor.ui.focusTracker.add(textCancelButton.element);
+                    buttonWrapper.appendChild(textCancelButton.element);
+
+                    //CTA save button:
+                    const saveButtonCta = new window.CkEditorButtonView(new window.CkEditorLocale('nl'));
+                    saveButtonCta.set({
+                        label: buttonWrapper.dataset.saveTranslation,
+                        classList: 'cta-button button-sm',
+                        eventName: 'save',
+                    });
+                    saveButtonCta.render();
+
+                    answerEditor.ui.focusTracker.add(saveButtonCta.element);
+                    buttonWrapper.appendChild(saveButtonCta.element);
+
+                } catch (exception) {
+                    //
+                }
+            }, 1000);
+        },
+        createCommentColorRadioButton(el, rgb, colorName, checked) {
+            const answerEditor = ClassicEditors[this.answerEditorId];
+
+            const radiobutton = new window.CkEditorRadioWithColorView(new window.CkEditorLocale('nl'));
+            radiobutton.set({
+                rgb: rgb.replace('rgba(', '').replace(',0.4)',''),
+                colorName: colorName,
+            });
+            radiobutton.render();
+
+            answerEditor.ui.focusTracker.add(radiobutton.element);
+
+            el.appendChild(radiobutton.element)
+
+            radiobutton.element.querySelector('input').checked = checked;
+
+        },
+        createCommentIconRadioButton(el, iconName, emojiValue, checked) {
+            const answerEditor = ClassicEditors[this.answerEditorId];
+
+            const radiobuttonIcon = new window.CkEditorRadioWithIconView(new window.CkEditorLocale('nl'));
+            radiobuttonIcon.set({
+                iconName: iconName,
+                emojiValue: emojiValue,
+            });
+            radiobuttonIcon.render();
+            el.appendChild(radiobuttonIcon.element)
+
+            radiobuttonIcon.element.querySelector('span').appendChild(
+                document.importNode(el.querySelector('template').content, true)
+            );
+        },
+        setEditingComment (AnswerFeedbackUuid) {
+            this.activeComment = null;
+            this.$store.answerFeedback.editingComment = AnswerFeedbackUuid ?? null;
+            setTimeout(() => {
+                this.fixSlideHeightByIndex(2, AnswerFeedbackUuid);
+            },100)
+        },
+        toggleFeedbackAccordion (name, forceOpenAccordion = false) {
+            if(this.$store.answerFeedback.feedbackBeingEdited()) {
+                this.dropdownOpened ='given-feedback';
+                return;
+            };
+
+            if(this.dropdownOpened === name && !forceOpenAccordion) {
+                this.dropdownOpened = null;
+                return;
+            }
+            if(questionType === 'OpenQuestion' && name === 'add-feedback') {
+                try {
+                    this.setFocusTracking();
+                } catch (e) {
+                    //
+                }
+            }
+            this.dropdownOpened = name;
+        },
+        resetAddNewAnswerFeedback(cancelAddingNewComment = false) {
+            //find default/blue color picker and enable it.
+            let defaultColorPicker = document.querySelector('.answer-feedback-add-comment .comment-color-picker [data-color="blue"]');
+            defaultColorPicker.checked = true;
+
+            //find checked emoji picker, uncheck
+            let checkedEmojiPicker = document.querySelector('.answer-feedback-add-comment .comment-emoji-picker input:checked');
+            if (checkedEmojiPicker !== null) {
+                checkedEmojiPicker.checked = false;
+            }
+
+            //answerFeedbackeditor reset text
+            const answerEditor = ClassicEditors[this.feedbackEditorId];
+            answerEditor.setData('<p></p>');
+
+            this.updateNewCommentMarkerStyles(null);
+
+            if(cancelAddingNewComment) {
+                window.dispatchEvent(new CustomEvent('answer-feedback-show-comments'));
+            }
+        },
+        preventOpeningModalFromBreakingDrawer () {
+            var observer = new MutationObserver(function (mutations) {
+                mutations.forEach(function (mutation) {
+                    if (mutation.attributeName == "class" && mutation.target.classList.contains('overflow-y-hidden')) {
+                        mutation.target.classList.remove('overflow-y-hidden');
+                    }
+                });
+            });
+            observer.observe(
+                document.querySelector('body'),
+                {attributes: true}
+            );
+        },
+    }));
+
+    Alpine.data("drawingQuestionImagePreview", () => ({
+        maxTries: 10,
+        currentTry: 0,
+        init() {
+            this.setHeightToAspectRatio(this.$el);
+        },
+        setHeightToAspectRatio(element) {
+            const aspectRatioWidth = 940;
+            const aspectRatioHeight = 500;
+            const aspectRatio = (aspectRatioHeight / aspectRatioWidth);
+            const container = element.closest("#accordion-block, #answer-container");
+            if (!container) {
+                console.error("Trying to set drawing image preview aspect ratio on without valid container.");
+                return;
+            }
+
+            const newHeight = (container.clientWidth - 82) * aspectRatio;
+
+            if (newHeight <= 0) {
+                if (this.currentTry <= this.maxTries) {
+                    setTimeout(() => this.setHeightToAspectRatio(element), 50);
+                    this.currentTry++;
+                }
+                return;
+            }
+
+            element.style.height = newHeight + "px";
+        }
+    }));
+    Alpine.data("CompletionInput", () => ({
+        previousValue: "",
+        minWidth: 120,
+        getInputWidth(el) {
+            let maxWidth = el.parentNode.closest("div").offsetWidth;
+            maxWidth = maxWidth > 1000 ? 1000 : maxWidth;
+
+            if (el.scrollWidth > maxWidth) return maxWidth + "px";
+            if (el.value.length === 0 || el.value.length <= 10) return this.minWidth + "px";
+
+            const safari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+            let newWidth = (el.value.length >= this.previousValue.length)
+                ? el.scrollWidth + (safari ? 25 : 2)
+                : el.scrollWidth - 5;
+
+            this.previousValue = el.value;
+            return (newWidth < this.minWidth ? this.minWidth : newWidth) + "px";
+        }
+    }));
+
+    Alpine.data("writeDownCms", (editorId, restrict_word_amount, maxWords) => ({
+        editor: null,
+        wordCounter: restrict_word_amount,
+        maxWords: maxWords,
+        wordContainer: null,
+        init() {
+            this.$nextTick(() => {
+                this.editor = ClassicEditors[editorId];
+                this.wordContainer = this.$root.querySelector(".ck-word-count__words");
+                this.wordContainer.style.display = "flex";
+                this.wordContainer.parentElement.style.display = "flex";
+
+                this.addMaxWordsToWordCounter(this.maxWords);
+            });
+
+            this.$watch("maxWords", (value) => {
+                this.addMaxWordsToWordCounter(value);
+            });
+        },
+        addMaxWordsToWordCounter(value) {
+            const spanId = "max-word-span";
+            this.$root.querySelector(`#${spanId}`)?.remove();
+
+            let element = document.createElement("span");
+            element.id = spanId;
+            element.innerHTML = `/${value ?? 0}`;
+
+            this.wordContainer.parentNode.append(element);
+
+            this.editor.maxWords = value;
+        }
+    }));
+    Alpine.data("openQuestionStudentPlayer", (editorId) => ({
+        editorId,
+        init() {
+            this.$watch("showMe", value => {
+                if (!value) return;
+
+                this.$nextTick(() => {
+                    var editor = ClassicEditors[editorId];
+                    if (!editor) {
+                        return;
+                    }
+                    if (!editor.ui.focusTracker.isFocused) {
+                        setTimeout(() => {
+                            this.setFocus(editor);
+                        }, 300);
+                    }
+                });
+            });
+        },
+        setFocus(editor) {
+            editor.focus();
+            editor.model.change(writer => {
+                writer.setSelection(editor.model.document.getRoot(), "end");
+            });
+        }
+    }));
+
+    Alpine.data("multiDropdownSelect", (options, containerId, wireModel, labels) => ({
+        options,
+        wireModel,
+        labels,
+        multiSelectOpen: false,
+        openSubs: [],
+        checkedParents: [],
+        checkedChildren: [],
+        query: "",
+        searchEmpty: false,
+        pillContainer: null,
+        searchFocussed: false,
+        init() {
+            this.pillContainer = document.querySelector(`#${containerId}`);
+            this.$watch("query", value => this.search(value));
+            this.$watch("multiSelectOpen", value => {
+                if (value) this.handleDropdownLocation();
+                if (!value) this.query = "";
+            });
+
+            this.registerSelectedItemsOnComponent();
+        },
+        subClick(uuid) {
+            this.openSubs = this.toggle(this.openSubs, uuid);
+        },
+        parentClick(element, parent) {
+            const checked = !this.checkedParents.includes(parent.value);
+            element.querySelector("input[type=\"checkbox\"]").checked = checked;
+
+            this.checkedParents = this.toggle(this.checkedParents, parent.value);
+
+            parent.children.filter(child => child.disabled !== true).forEach((child) => {
+                this[checked ? "childAdd" : "childRemove"](child);
+                checked ? this.checkAndDisableBrothersFromOtherMothers(child) : this.uncheckAndEnableBrothersFromOtherMothers(child);
+            });
+
+            this.$root.querySelectorAll(`[data-parent-id="${parent.value}"][data-disabled="false"] input[type="checkbox"]`)
+                .forEach(child => child.checked = checked);
+
+            this.registerParentsBasedOnDisabledChildren();
+            this.handleActiveFilters();
+            this.syncInput();
+        },
+        childClick(element, child) {
+            const checked = !this.checkedChildrenContains(child);
+            element.querySelector("input[type=\"checkbox\"]").checked = checked;
+            this.childToggle(child);
+
+            checked ? this.checkAndDisableBrothersFromOtherMothers(child) : this.uncheckAndEnableBrothersFromOtherMothers(child);
+
+            const parent = this.options.find(parent => parent.value === child.customProperties.parentId);
+            this.handleParentStateWhenChildsChange(parent, checked);
+            this.registerParentsBasedOnDisabledChildren();
+
+            this.handleActiveFilters();
+            this.syncInput();
+        },
+        toggle(list, value) {
+            if (!list.includes(value)) {
+                return this.add(list, value);
+            }
+            return this.remove(list, value);
+        },
+        add(list, value) {
+            if (list.includes(value)) return list;
+            list.push(value);
+            return list;
+        },
+        remove(list, value) {
+            return list.filter((item) => item !== value);
+        },
+        childToggle(child) {
+            if (this.checkedChildrenContains(child)) {
+                return this.childRemove(child);
+            }
+            return this.childAdd(child);
+        },
+        childAdd(child) {
+            if (this.checkedChildrenContains(child)) return;
+            this.checkedChildren.push({ value: child.value, parent: child.customProperties.parentId });
+        },
+        childRemove(child) {
+            this.checkedChildren = _.reject(this.checkedChildren, item => item.value === child.value && item.parent === child.customProperties.parentId);
+        },
+        parentPartiallyToggled(parent) {
+            const result = this.checkedChildrenCount(parent);
+            if (this.checkedParents.includes(parent.value) || result === 0) {
+                return false;
+            }
+            return result < parent.children.filter(child => child.disabled !== true).length;
+            // return result < parent.children.length;
+        },
+        checkedChildrenCount(parent) {
+            return parent.children.filter((child) => this.checkedChildrenContains(child)).length;
+        },
+        search(value) {
+            if (value.length === 0) {
+                this.searchEmpty = false;
+                this.showAllOptions();
+                return;
+            }
+
+            this.hideAllOptions();
+
+            const results = this.searchParentsAndChildsLabels(value);
+            this.searchEmpty = results.length === 0;
+            results.forEach(item => this.showOption(item));
+        },
+        showOption(identifier) {
+            this.$root.querySelectorAll(`.option[data-id="${identifier}"]`).forEach(element => {
+                element.style.display = "flex";
+            });
+        },
+        showAllOptions() {
+            this.$root.querySelectorAll(".option").forEach(el => el.style.display = "flex");
+        },
+        hideAllOptions() {
+            this.$root.querySelectorAll(".option").forEach(el => el.style.display = "none");
+        },
+        searchParentsAndChildsLabels: function(value) {
+            let parentResults = this.getParentSearchMatches(value);
+            let childResults = this.getChildSearchMatches(value, parentResults);
+            return parentResults.concat(childResults);
+        },
+        getParentSearchMatches(value) {
+            return this.options
+                .filter(parent => {
+                    if (parent.label.toLowerCase().includes(value)) {
+                        return true;
+                    }
+                    let childMatch = parent.children.find(child => {
+                        return child.label.toLowerCase().includes(value);
+                    });
+                    return childMatch !== undefined;
+                }).map(item => item.value);
+        },
+        getChildSearchMatches(value, parentUuids) {
+            return this.options.flatMap(parent => {
+                if (!parentUuids.includes(parent.value)) {
+                    return null;
+                }
+                let matchingChildren = parent.children.filter(child => {
+                    return child.label.toLowerCase().includes(value);
+                });
+                /* If no search result for individual students, but a parent is found, return all children */
+                return matchingChildren.length > 0 ? matchingChildren : parent.children;
+            })
+                .filter(Boolean)
+                .map(item => item.value);
+        },
+        createFilterPill(item) {
+            if (this.pillContainer === null) return;
+            const identifier = item.customProperties?.parent === false ? item.value + item.customProperties.parentId : item.value;
+
+            if (this.pillContainer.querySelector(`#pill-${identifier}`)) return;
+
+            const element = this.$root.querySelector("#filter-pill-template").content.firstElementChild.cloneNode(true);
+
+            element.id = `pill-${identifier}`;
+            element.selectComponent = this.$root;
+            element.item = item;
+            element.classList.add("filter-pill", "self-end", "h-10");
+            element.firstElementChild.innerHTML = item.label;
+
+            return this.pillContainer.appendChild(element);
+        },
+        removeFilterPill(event) {
+            event.element.remove();
+            const toggleFunction = event.item.customProperties?.parent === false
+                ? "childClick"
+                : "parentClick";
+
+            this[toggleFunction](
+                this.$root.querySelector(`[data-id="${event.item.value}"][data-parent-id="${event.item.customProperties.parentId}"]`),
+                event.item
+            );
+        },
+        handleActiveFilters() {
+            let currentPillIds = Array.from(this.pillContainer.childNodes).map(pill => {
+                if (!this.isParent(pill.item)) {
+                    return pill.item.value + pill.item.customProperties.parentId;
+                }
+                return pill.item.value;
+            });
+
+            let currentlyChecked = this.checkedParents.concat(this.checkedChildren.map(child => child.value + child.parent));
+
+            let pillIdsToRemove = currentPillIds.filter(uuid => !currentlyChecked.contains(uuid));
+
+            this.options.flatMap(parent => [parent, ...parent.children])
+                .filter(item => {
+                    if (this.isParent(item)) return this.checkedParents.includes(item.value);
+
+                    if (this.checkedParents.includes(item.customProperties.parentId)) {
+                        pillIdsToRemove.push(item.value + item.customProperties.parentId);
+                    }
+                    return (!this.checkedParents.includes(item.customProperties.parentId) && this.checkedChildrenContains(item));
+                })
+                .forEach((item) => this.createFilterPill(item));
+
+            let that = this;
+            pillIdsToRemove.forEach((uuid) => {
+                that.pillContainer.querySelector(`#pill-${uuid}`)?.remove();
+            });
+        },
+        handleDropdownLocation() {
+            const dropdown = this.$root.querySelector(".dropdown");
+            const top = this.$root.getBoundingClientRect().top
+                + this.$root.offsetHeight
+                + 16
+                + parseInt(dropdown.style.maxHeight);
+            const property = top >= screen.availHeight ? "bottom" : "top";
+            dropdown.style[property] = this.$root.offsetHeight + 8 + "px";
+        },
+        handleParentStateWhenChildsChange(parent, checked) {
+            if (checked && this.checkedChildrenCount(parent) === parent.children.filter(child => child.disabled !== true).length) {
+                this.checkedParents = this.add(this.checkedParents, parent.value);
+                this.$root.querySelector(`[data-id="${parent.value}"][data-parent-id="${parent.value}"] input[type="checkbox"]`).checked = checked;
+            }
+
+            if (!checked && this.checkedParents.includes(parent.value)) {
+                this.checkedParents = this.remove(this.checkedParents, parent.value);
+                this.$root.querySelector(`[data-id="${parent.value}"] input[type="checkbox"]`).checked = checked;
+            }
+        },
+        registerSelectedItemsOnComponent() {
+            const checkedChildValues = this.options.flatMap(parent => [...parent.children])
+                .filter(item => item.customProperties?.selected === true);
+
+            this.$nextTick(() => {
+                checkedChildValues.forEach(item => {
+                    this.childClick(
+                        this.$root.querySelector(`[data-id="${item.value}"][data-parent-id="${item.customProperties.parentId}"]`),
+                        item
+                    );
+                });
+                this.registerParentsBasedOnDisabledChildren();
+                this.handleActiveFilters();
+            });
+        },
+        syncInput() {
+            if (!this.wireModel.value) return;
+            this.$wire.sync(this.wireModel.value, {
+                parents: this.checkedParents,
+                children: this.checkedChildren
+            });
+        },
+        checkedChildrenContains(child) {
+            return this.checkedChildren.some(item => {
+                return item.value === child.value && item.parent === child.customProperties?.parentId;
+            });
+        },
+        checkAndDisableBrothersFromOtherMothers(child) {
+            this.options.flatMap(parents => [...parents.children])
+                .filter(item => item.value === child.value && item.customProperties.parentId !== child.customProperties.parentId)
+                .forEach(item => {
+                    this.$root.querySelector(
+                        `[data-id="${item.value}"][data-parent-id="${item.customProperties.parentId}"] input[type="checkbox"]`
+                    ).checked = true;
+                    item.disabled = true;
+                });
+        },
+        uncheckAndEnableBrothersFromOtherMothers(child) {
+            this.options.flatMap(parents => [...parents.children])
+                .filter(item => item.value === child.value && item.customProperties.parentId !== child.customProperties.parentId)
+                .forEach(item => {
+                    this.$root.querySelector(
+                        `[data-id="${item.value}"][data-parent-id="${item.customProperties.parentId}"] input[type="checkbox"]`
+                    ).checked = false;
+                    item.disabled = false;
+                });
+        },
+        isParent(item) {
+            return !item.customProperties?.parent === false;
+        },
+        registerParentsBasedOnDisabledChildren() {
+            this.options.forEach(item => {
+                const enabledChildren = item.children.filter(child => child.disabled !== true).length;
+                if (enabledChildren === 0) return;
+
+                const enabled = this.checkedChildrenCount(item) === enabledChildren;
+                this.checkedParents = this[enabled ? "add" : "remove"](this.checkedParents, item.value);
+                this.$root.querySelector(`[data-id="${item.value}"][data-parent-id="${item.value}"] input[type="checkbox"]`).checked = enabled;
+
+            });
+        },
+        parentDisabled(parent) {
+            return parent.children.filter(child => child.disabled !== true).length === 0;
+        },
+        ...selectFunctions,
+        toggleDropdown() {
+            if (this.multiSelectOpen) return this.closeDropdown();
+            this.openDropdown();
+        },
+        openDropdown() {
+            this.multiSelectOpen = true;
+        },
+        closeDropdown() {
+            this.multiSelectOpen = false;
+        }
+    }));
+    Alpine.data("singleSelect", (containerId, entangleValue = null) => ({
+        containerId,
+        entangleValue: entangleValue ?? null,
+        baseValue: null,
+        singleSelectOpen: false,
+        selectedText: null,
+        ...selectFunctions,
+        init() {
+            this.selectedText = this.$root.querySelector("span.selected").dataset.selectText;
+            this.setActiveStartingValue();
+
+            this.$watch("singleSelectOpen", value => {
+                if (value) this.handleDropdownLocation();
+            });
+        },
+        get value() {
+            return this.entangleValue ?? this.baseValue;
+        },
+        set value(newValue) {
+            if (this.entangleValue !== undefined) {
+                this.entangleValue = newValue;
+            } else {
+                this.baseValue = newValue;
+            }
+        },
+        active(value) {
+            return value === this.value?.toString();
+        },
+        activateSelect(element) {
+            const value = element.dataset.value,
+                label = element.dataset.label;
+            this.closeDropdown();
+            if (this.value === value) return;
+            this.value = value;
+            element.dispatchEvent(new Event("change", { bubbles: true }));
+            this.selectedText = label;
+        },
+        setActiveStartingValue() {
+            if (this.value === null) {
+                if (this.$root.getAttribute("x-model")) {
+                    this.value = this[this.$root.getAttribute("x-model")];
+                }
+            }
+
+            if (this.value !== null) {
+                const option = this.$root.querySelector(`[data-value="${this.value}"]`);
+                if (!option) {
+                    console.warn("Incorrect value specified in selectbox.");
+                    return;
+                }
+                this.selectedText = option.dataset.label;
+            }
+        },
+        toggleDropdown() {
+            if (this.singleSelectOpen) return this.closeDropdown();
+            this.openDropdown();
+        },
+        openDropdown() {
+            this.singleSelectOpen = true;
+        },
+        closeDropdown() {
+            this.singleSelectOpen = false;
+        }
+
+    }));
+    Alpine.data('questionBank', (openTab, inGroup, inTestBankContext) => ({
+        questionBankOpenTab: openTab,
+        inGroup: inGroup,
+        groupDetail: null,
+        bodyVisibility: true,
+        inTestBankContext: inTestBankContext,
+        maxHeight: 'calc(100vh - var(--header-height))',
+        init() {
+            this.groupDetail = this.$el.querySelector('#groupdetail');
+
+            this.$watch('showBank', value => {
+                if (value === 'questions') {
+                    this.$wire.loadSharedFilters();
+                }
+            });
+
+            this.$watch('$store.questionBank.inGroup', value => {
+                this.inGroup = value;
+            });
+
+            this.$watch('$store.questionBank.active', value => {
+                if (value) {
+                    this.$wire.setAddedQuestionIdsArray();
+                } else {
+                    this.closeGroupDetailQb();
+                }
+            });
+
+            this.showGroupDetailsQb = async (groupQuestionUuid, inTest = false) => {
+                let readyForSlide = await this.$wire.showGroupDetails(groupQuestionUuid, inTest);
+
+                if (readyForSlide) {
+                    if (this.inTestBankContext) {
+                        this.$refs['tab-container'].style.display = 'none';
+                        this.$refs['main-container'].style.height = '100vh';
+                    } else {
+                        this.maxHeight = this.groupDetail.offsetHeight + 'px';
+                    }
+                    this.groupDetail.style.left = 0;
+                    this.$refs['main-container'].scrollTo({top: 0, behavior: 'smooth'});
+                    this.$el.scrollTo({top: 0, behavior: 'smooth'});
+                    this.$nextTick(() => {
+                        setTimeout(() => {
+                            this.bodyVisibility = false;
+                            if (this.inTestBankContext) {
+                                this.groupDetail.style.position = 'relative';
+                            } else {
+                                handleVerticalScroll(this.$el.closest('.slide-container'));
+                            }
+                        }, 500);
+                    })
+                }
+            };
+
+            this.closeGroupDetailQb = () => {
+                if (!this.bodyVisibility) {
+                    this.bodyVisibility = true;
+                    this.maxHeight = 'calc(100vh - var(--header-height))';
+                    this.groupDetail.style.left = '100%';
+                    if (this.inTestBankContext) {
+                        this.groupDetail.style.position = 'absolute';
+                        this.$refs['tab-container'].style.display = 'block';
+                    }
+                    this.$nextTick(() => {
+                        this.$wire.clearGroupDetails();
+                        setTimeout(() => {
+                            if (!this.inTestBankContext) {
+                                handleVerticalScroll(this.$el.closest('.slide-container'));
+                            }
+                        }, 250);
+                    })
+                }
+            };
+
+            this.addQuestionToTest = async (button, questionUuid, showQuestionBankAddConfirmation = false) => {
+                if (showQuestionBankAddConfirmation) {
+                    return this.$wire.emit('openModal', 'teacher.add-sub-question-confirmation-modal', {questionUuid: questionUuid});
+                }
+                button.disabled = true;
+                var enableButton = await this.$wire.handleCheckboxClick(questionUuid);
+                if (enableButton) {
+                    button.disabled = false;
+                }
+                return true;
+            };
+        }
+    }));
+
+
     Alpine.directive("global", function(el, { expression }) {
         let f = new Function("_", "$data", "_." + expression + " = $data;return;");
         f(window, el._x_dataStack[0]);
@@ -2276,14 +3739,46 @@ document.addEventListener("alpine:init", () => {
     Alpine.store("assessment", {
         currentScore: null,
         toggleCount: 0,
-        togglesTicked: 0,
         clearToProceed() {
-            return this.currentScore !== null && this.togglesTicked === this.toggleCount;
+            const valuedToggles = document.querySelectorAll(".student-answer .slider-button-container:not(disabled)[data-has-value=\"true\"]").length;
+            return this.currentScore !== null && valuedToggles >= this.toggleCount;
         },
-        resetData(score = null, toggleCount = 0, togglesTicked = 0) {
+        resetData(score = null, toggleCount = 0) {
             this.currentScore = score;
             this.toggleCount = toggleCount;
-            this.togglesTicked = togglesTicked;
+        }
+    });
+    Alpine.store("editorMaxWords", {});
+    Alpine.store("answerFeedback", {
+        editingComment: null,
+        navigationRoot: null,
+        navigationMethod: null,
+        feedbackBeingEdited() {
+            if(this.navigationRoot) {
+                this.navigationRoot = null;
+                this.navigationMethod = null;
+                return false;
+            }
+            if(this.editingComment === null) {
+                return false;
+            }
+            return this.editingComment;
+        },
+        openConfirmationModal(navigatorRootElement, methodName) {
+            this.navigationRoot = navigatorRootElement;
+            this.navigationMethod = methodName;
+            Livewire.emit('openModal', 'modal.confirm-still-editing-comment-modal');
+        },
+        continueAction() {
+            this.editingComment = null;
+            this.navigationRoot.dispatchEvent(new CustomEvent('continue-navigation', {detail: {method: this.navigationMethod}}))
+            Livewire.emit('closeModal');
+        },
+        cancelAction() {
+            this.navigationRoot = null;
+            this.navigationMethod = null;
+            window.dispatchEvent(new CustomEvent('assessment-drawer-tab-update', {detail: {tab: 2, uuid: this.editingComment}}));
+            Livewire.emit('closeModal');
         }
     });
 });
@@ -2298,3 +3793,15 @@ function getTitleForVideoUrl(videoUrl) {
             return null;
         });
 }
+
+const selectFunctions = {
+    handleDropdownLocation() {
+        const dropdown = this.$root.querySelector(".dropdown");
+        const top = this.$root.getBoundingClientRect().top
+            + this.$root.offsetHeight
+            + 16
+            + parseInt(dropdown.style.maxHeight);
+        const property = top >= screen.availHeight ? "bottom" : "top";
+        dropdown.style[property] = this.$root.offsetHeight + 8 + "px";
+    },
+};

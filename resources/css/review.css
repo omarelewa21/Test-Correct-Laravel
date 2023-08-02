@@ -1,0 +1,74 @@
+#student-test-review #header {
+    position: sticky;
+    width: 100%;
+    height: var(--header-height);
+    top: 0;
+    left: 0;
+    background-image: linear-gradient(to right, var(--highlight-primary-mid-dark) 0%, var(--teacher-highlight-primary) 99%);
+    box-shadow: var(--main-shadow);
+    color: var(--system-base);
+    z-index: 2;
+}
+
+.fixed-sub-header-container {
+    width: calc(100% - var(--active-sidebar-width));
+    transition: width var(--sidebar-transition);
+    position: fixed;
+    left: 0;
+    z-index: 1;
+}
+
+#necklace-navigation .question-indicator .question-number {
+    color: white;
+    background-color: var(--system-base);
+}
+
+#necklace-navigation .question-indicator .question-number {
+    --rqn-number-color: var(--system-base);
+    --rqn-border-color: var(--system-base);
+    --rqn-background-color: transparent;
+    min-width: 30px;
+    width: fit-content;
+    transition: box-shadow ease-in-out 150ms;
+    margin-right: auto;
+    color: var(--rqn-number-color);
+    border-color: var(--rqn-border-color);
+    background-color: var(--rqn-background-color);
+}
+
+#necklace-navigation .question-indicator .question-number.done {
+    --rqn-number-color: white;
+    --rqn-background-color: var(--system-base);
+}
+
+#necklace-navigation .question-indicator .question-number.active {
+    --rqn-border-color: var(--primary);
+    --rqn-number-color: var(--primary);
+}
+
+#necklace-navigation .question-indicator .question-number.done.active {
+    --rqn-number-color: white;
+    --rqn-background-color: var(--primary);
+    --rqn-border-color: var(--primary);
+}
+
+#necklace-navigation .question-indicator .question-number .connector {
+    position: absolute;
+    width: 8px;
+    height: 3px;
+    right: -11px;
+    background: var(--system-base);
+}
+
+#necklace-navigation .question-indicator {
+    display: flex;
+    align-items: flex-start;
+}
+#student-test-review .slider-input-wrapper {
+    pointer-events: none;
+}
+
+#student-test-review .slider-buttons > button {
+
+}
+

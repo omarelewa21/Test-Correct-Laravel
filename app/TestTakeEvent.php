@@ -249,8 +249,7 @@ class TestTakeEvent extends BaseModel {
                     } elseif (array_key_exists('wine', $metadata) &&
                         (
                             $metadata['wine']['unixFileName'] === true || 
-                            $metadata['wine']['systemBios'] === true ||
-                            $metadata['wine']['cpuBrand'] === true
+                            $metadata['wine']['registry'] === true
                         )
                     ) {
                         $metadata['software'] = VirtualMachineSoftwares::wine->value;
@@ -267,7 +266,7 @@ class TestTakeEvent extends BaseModel {
                         )
                     ) {
                         $metadata['software'] = VirtualMachineSoftwares::unknown->value . ', vendor: '
-                            . $metadata['vendor'] . ' & Hypervisor: ' . $metadata['hypervisorVendor'];
+                            . $metadata['cpuInfo']['vendor'] . ' & Hypervisor: ' . $metadata['cpuInfo']['hypervisorVendor'];
                     }
                 } elseif (array_key_exists('type', $metadata) && $metadata['type'] === VirtualMachineDetectionTypes::macos->value) {
                   $metadata['software'] = VirtualMachineSoftwares::macosvm->value;

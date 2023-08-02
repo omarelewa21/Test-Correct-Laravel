@@ -21,6 +21,9 @@ class AddFeatureSettingToSchoolLocationCommand extends Command
         'allow_new_co_learning',
         'allow_new_co_learning_teacher',
         'allow_new_assessment',
+        'allow_new_reviewing',
+        'allow_cms_write_down_wsc_toggle',
+        'allow_new_test_take_detail_page'
     ];
 
     public function handle()

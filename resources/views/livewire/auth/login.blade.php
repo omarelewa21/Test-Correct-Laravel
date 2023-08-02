@@ -397,9 +397,9 @@
 
                         <div class="flex flex-col flex-1 space-y-2 items-center">
                             <div>
-                        <span>
-                            {{__('auth.do_you_have_an_entree_account')}}
-                        </span>
+                                <span>
+                                    {{__('auth.do_you_have_an_entree_account')}}
+                                </span>
                             </div>
                             <x-button.primary type="link" class="" size="md" selid="entree-login-btn"
                                               href="{{ route('saml2_login', ['entree','directlink' => $take]) }}">
@@ -781,7 +781,6 @@
         <x-modal.auth-create-account maxWidth="lg" wire:model="showAuthModal"/>
     </div>
     <x-login-notification />
-    @livewire('livewire-ui-modal')
 </div>
 
 @push('scripts')

@@ -3,7 +3,9 @@
 namespace tcCore\View\Components\Answer\Student;
 
 use Illuminate\Support\Str;
+use tcCore\Answer;
 use tcCore\Http\Traits\Questions\WithCompletionConversion;
+use tcCore\Question;
 
 class CompletionQuestion extends QuestionComponent
 {
@@ -12,6 +14,16 @@ class CompletionQuestion extends QuestionComponent
     public mixed $questionTextPartials = [];
     public mixed $questionTextPartialFinal = [];
     public $answerStruct;
+
+    public function __construct(
+        public Question $question,
+        public Answer   $answer,
+        public bool     $disabledToggle = false,
+        public bool     $showToggles = true,
+        public bool     $inAssessment = false,
+    ) {
+        parent::__construct($question, $answer);
+    }
 
     protected function setAnswerStruct($question, $answer): void
     {
@@ -36,6 +48,10 @@ class CompletionQuestion extends QuestionComponent
      */
     private function isToggleActiveForAnswer($givenAnswer, $correctAnswer): ?bool
     {
+        if ($this->question->isSubType('multi')) {
+            return $givenAnswer === $correctAnswer->answer;
+        }
+
         if (!$this->answer->answerRatings) {
             return null;
         }
@@ -60,7 +76,7 @@ class CompletionQuestion extends QuestionComponent
     private function createCompletionAnswerStruct(mixed $answers, $correctAnswers, $answer)
     {
         return $correctAnswers->map(function ($link, $key) use ($answer, $answers, $correctAnswers) {
-            $score = $this->question->score / $correctAnswers->where('correct', 1)->count();
+            $score = $this->question->score / $correctAnswers->where('correct', 1)->unique('tag')->count();
             return $this->setAnswerPropertiesOnObject($link, $key, $link, $answers, $score);
         });
     }
@@ -108,4 +124,12 @@ class CompletionQuestion extends QuestionComponent
         return $answers;
     }
 
+    public function render()
+    {
+        if (!$this->inAssessment) {
+            return view("components.answer.student.completion-question");
+        }
+
+        return parent::render();
+    }
 }

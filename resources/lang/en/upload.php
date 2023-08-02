@@ -40,5 +40,11 @@ return [
     'Overnemen'                            => 'Copy',
     'Niet overnemen'                       => 'Don\'t copy',
     'multiple_tests_uploaded'              => '{0} Tests uploaded|{1} Test uploaded|[2,*] Tests uploaded',
-    'duplicate_test_name'                  => 'This test can’t have the same title as the previous one',
+    'validation'                           => [
+        'name'  => [
+            'min'      => 'The test name must be at least 3 characters long.',
+            'not_in'   => 'You cannot upload a test with the same name as another test you uploaded before. Please change the name of the test and try again.',
+            'unique'   => 'You cannot upload a test with the same name as another test you created before. Please change the name of the test and try again.',
+        ],
+    ],
 ];

@@ -4,8 +4,6 @@
         {{ $slot  }}
     </main>
 
-    <x-notification/>
-    @livewire('livewire-ui-modal')
     @push('scripts')
         @if(Auth::user()->schoolLocation->allow_wsc)
             <script>

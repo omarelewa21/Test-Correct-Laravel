@@ -1,6 +1,18 @@
 <div id="co-learning-page"
-     class="flex flex-col w-full pt-12"
-     wire:poll.keep-alive.5000ms="updateHeartbeat()"
+     class="flex flex-col w-full pt-12 pb-12"
+     @if($pollingFallbackActive) wire:poll.keep-alive.5000ms="updateHeartbeat()" @endif
+     x-init="
+         pusher = Echo.connector.pusher
+         pusher.connection.bind('error', () => failureTest());
+         pusher.connection.bind('connected', () => PusherConnectionSuccesful = true);
+     "
+     x-data="{
+         PusherConnectionSuccesful: null,
+         failureTest: (e) => {
+            PusherConnectionSuccesful = false;
+            $wire.set('pollingFallbackActive', true);
+         },
+     }"
 >
 
     @if($this->coLearningFinished)
@@ -27,6 +39,7 @@
                                  :questionNumber="$questionOrderNumber"
                                  :answerNumber="$answerFollowUpNumber"
                                  :wire:key="'ar-'. $this->answerRating->getKey()"
+                                 :webSpellChecker="$this->testTake->enable_spellcheck_colearning"
                     />
                 </div>
             @endif
@@ -58,7 +71,7 @@
                     </div>
                 @endif
             </div>
-            <div class="flex items-center space-x-2">
+            <div class="flex items-center space-x-4">
                 <span><b class="bold">{{ __('co-learning.answer') }} {{ $this->answerFollowUpNumber }}</b>/{{ $this->numberOfAnswers }}</span>
                 <span><b class="bold">{{ __('co-learning.question') }} {{$this->questionFollowUpNumber}}</b>/{{$this->numberOfQuestions}}</span>
 
@@ -67,7 +80,7 @@
                                       wire:click="goToPreviousAnswerRating()"
                                       wire:loading.attr="disabled"
                     >
-                        <x-icon.arrow class=""/>
+                        <x-icon.chevron />
                         <span>{{ __('co-learning.previous_answer') }}</span>
                     </x-button.primary>
                 @elseif($nextAnswerAvailable)
@@ -76,21 +89,21 @@
                                           :disabled="!$this->enableNextQuestionButton"
                         >
                             <span>{{ __('co-learning.next_answer') }}</span>
-                            <x-icon.arrow/>
+                            <x-icon.chevron/>
                         </x-button.primary>
                 @endif
 
-                @if($finishCoLearningButtonEnabled)
+                @if($this->atLastQuestion)
                     <x-button.cta wire:click="goToFinishedCoLearningPage"
                                   wire:loading.attr="disabled"
+                                  :disabled="!$finishCoLearningButtonEnabled"
                     >
-                        {{ __('co-learning.finish') }}
+                        <span>{{ __('co-learning.finish') }}</span>
                     </x-button.cta>
                 @endif
 
             </div>
         @endif
     </footer>
-
 
 </div>

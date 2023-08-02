@@ -34,7 +34,7 @@
     <div x-show="showQuestion" x-collapse.duration.500ms x-cloak>
         <div class="w-full flex question-bottom-line mb-2"></div>
 
-        <div class="flex flex-wrap">
+        <div class="flex flex-wrap mb-2">
             @foreach($question->attachments as $attachment)
                 <x-attachment.badge-view :upload="false"
                                          :attachment="$attachment"
@@ -46,7 +46,7 @@
             @endforeach
         </div>
 
-        <div class="mt-2 pb-[33px]">
+        <div class="mt-2 pb-[33px] questionContainer">
             @if($question->type !== 'CompletionQuestion')
                 {!! $question->getQuestionInstance()->question !!}
             @else

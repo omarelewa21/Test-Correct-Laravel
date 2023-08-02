@@ -1,30 +1,56 @@
 <div class="flex flex-col w-full">
-    @if(in_array($question->subtype, ['medium', 'long', 'writing']))
-        <div class="w-full" wire:ignore>
-            <x-input.group class="w-full ckeditor-disabled" label="" style="position: relative;">
-                <textarea id="{{ $editorId }}" name="{{ $editorId }}"
-                          x-init="
-                            editor = ClassicEditors['{{ $editorId }}'];
-                            if (editor) {
-                                editor.destroy(true);
-                            }
-                            RichTextEditor.initClassicEditorForStudentplayer('{{  $editorId }}', '{{ $question->getKey() }}');
-                            setTimeout(() => {
-                                RichTextEditor.setReadOnly(ClassicEditors['{{  $editorId }}']);
-                            }, 100)
-                          "
-                >
-                    {!! $answerValue !!}
-                </textarea>
-                <div class="absolute w-full h-full top-0 left-0 pointer-events-auto"></div>
-            </x-input.group>
-        </div>
-        <div id="word-count-{{ $editorId }}" wire:ignore class="word-count note text-sm mt-2"></div>
-    @else
-        <x-input.group for="me" class="w-full disabled mt-2">
-            <div class="border border-bluegrey p-4 rounded-10 h-fit">
-                {!! $answerValue !!}
-            </div>
+    <div class="w-full"
+         wire:ignore
+         x-data="{
+            editorId: @js($editorId),
+            handleExpand(event) {
+                if(this.$el.closest('[data-block-id]').dataset.blockId === event.detail.id) {
+                    this.$nextTick(() => this.$dispatch('reinitialize-editor-'+this.editorId))
+                }
+            }
+         }"
+         x-on:block-expanded.window="handleExpand($event)"
+    >
+
+        <x-input.group for="me" class="w-full disabled mt-4">
+            @if($studentAnswer)
+            <x-input.comment-editor
+                    :allowWsc="$webSpellChecker"
+                    :editor-id="$editorId"
+                    :restrictWords="$question->restrict_word_amount"
+                    :maxWords="$question->max_words"
+                    :textFormatting="$question->text_formatting"
+                    :mathmlFunctions="$question->mathml_functions"
+                    :lang="$question->lang"
+                    :answerId="$answer->getKey()"
+                    :commentMarkerStyles="$commentMarkerStyles"
+            >{!! $answerValue !!}</x-input.comment-editor>
+            @else
+            <x-input.rich-textarea
+                    type="student-co-learning"
+                    :allowWsc="$webSpellChecker"
+                    :editor-id="$editorId"
+                    :restrictWords="$question->restrict_word_amount"
+                    :maxWords="$question->max_words"
+                    :textFormatting="$question->text_formatting"
+                    :mathmlFunctions="$question->mathml_functions"
+                    :lang="$question->lang"
+                    :disabled="true"
+            >{!! $answerValue !!}</x-input.rich-textarea>
+            @endif
         </x-input.group>
-    @endif
+        <div class="flex justify-between" wire:ignore>
+            <div class="flex space-x-2 text-midgrey">
+                <div id="word-count-{{ $editorId }}" class="word-count">
+                </div>
+
+            </div>
+            @if($webSpellChecker)
+                <div class="text-midgrey">
+                    <span id="problem-count-{{ $editorId }}"></span>
+                    <span>@lang('co-learning.Taalfouten')</span>
+                </div>
+            @endif
+        </div>
+    </div>
 </div>

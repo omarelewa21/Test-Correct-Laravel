@@ -59,25 +59,28 @@ Route::middleware('auth')->group(function () {
     Route::get('/drawing-question/{drawingQuestion}/correction-model', [tcCore\Http\Controllers\QuestionsController::class, 'drawingQuestionCorrectionModelPng'])->name('drawing-question.correction-model');
     Route::get('/drawing-question/{drawingQuestion}/svg', [tcCore\Http\Controllers\QuestionsController::class, 'drawingQuestionSvg'])->name('drawing-question.svg');
     Route::get('/infos/inline-image/{image}', [tcCore\Http\Controllers\InfoController::class, 'getInlineImage']);
+    Route::get('/account', [\tcCore\Http\Controllers\UsersController::class, 'account'])->name('users.account');
     Route::middleware(['dll', 'student'])->prefix('student')->name('student.')->group(function () {
         Route::get('/test-take-overview/{test_take}', [tcCore\Http\Controllers\TestTakeLaravelController::class, 'overview'])->name('test-take-overview');
         Route::get('/test-take-laravel/{test_take}', [tcCore\Http\Controllers\TestTakeLaravelController::class, 'show'])->name('test-take-laravel');
-        Route::get('/attachment/{attachment}/{answer}', [tcCore\Http\Controllers\AttachmentsLaravelController::class, 'show'])->name('question-attachment-show');
-        Route::get('/attachment/pdf/{attachment}/{answer}', [tcCore\Http\Controllers\PdfAttachmentsLaravelController::class, 'show'])->name('question-pdf-attachment-show');
+        Route::get('/attachment/preview/{attachment}/{question}', [tcCore\Http\Controllers\AttachmentsLaravelController::class, 'showPreview'])->name('question-attachment-show');
+        Route::get('/attachment/{attachment}/{answer}', [tcCore\Http\Controllers\AttachmentsLaravelController::class, 'show'])->name('answer-attachment-show');
+        Route::get('/attachment/pdf/preview/{attachment}/{question}', [tcCore\Http\Controllers\PdfAttachmentsLaravelController::class, 'showPreview'])->name('question-pdf-attachment-show');
+        Route::get('/attachment/pdf/{attachment}/{answer}', [tcCore\Http\Controllers\PdfAttachmentsLaravelController::class, 'show'])->name('answer-pdf-attachment-show');
         Route::get('/drawing_question_answers/{answer}', [tcCore\Http\Controllers\DrawingQuestionLaravelController::class, 'show'])->name('drawing-question-answer');
+        Route::get('/drawing_question_answer_model/{question}', [tcCore\Http\Controllers\DrawingQuestionLaravelController::class, 'showAnswerModel'])->name('drawing-question-answer-model');
         Route::get('/dashboard', tcCore\Http\Livewire\Student\Dashboard::class)->name('dashboard');
         Route::get('/splash', \tcCore\Http\Livewire\Student\Splash::class)->name('splash');
         Route::get('/dashboard/logout', [tcCore\Http\Livewire\Student\Dashboard::class, 'logout'])->name('dashboard.logout');
         Route::get('/test-takes', tcCore\Http\Livewire\Student\TestTakes::class)->name('test-takes');
         Route::get('/waiting-room', tcCore\Http\Livewire\Student\WaitingRoom::class)->name('waiting-room');
-
         Route::get('/analyses', tcCore\Http\Livewire\Analyses\AnalysesOverviewDashboard::class)->name('analyses.show');
         Route::get('/analyses/subject/{subject}', tcCore\Http\Livewire\Analyses\AnalysesSubjectDashboard::class)->name('analyses.subject.show');
         Route::get('/analyses/attainment/{baseAttainment}', tcCore\Http\Livewire\Analyses\AnalysesAttainmentDashboard::class)->name('analyses.attainment.show');
         Route::get('/analyses/sub-attainment/{baseAttainment}', tcCore\Http\Livewire\Analyses\AnalysesSubAttainmentDashboard::class)->name('analyses.subattainment.show');
         Route::get('/analyses/sub-sub-attainment/{baseAttainment}', tcCore\Http\Livewire\Analyses\AnalysesSubSubAttainmentDashboard::class)->name('analyses.subsubattainment.show');
-
         Route::get('/co-learning/{test_take}', \tcCore\Http\Livewire\Student\CoLearning::class)->name('co-learning');
+        Route::get('/review/{testTakeUuid}', \tcCore\Http\Livewire\Student\TestReview::class)->name('test-review');
     });
 
     Route::middleware(['dll', 'teacher'])->prefix('teacher')->name('teacher.')->group(function () {
@@ -90,7 +93,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/preview/{test}', [tcCore\Http\Controllers\PreviewLaravelController::class, 'show'])->name('test-preview');
         Route::get('/preview/attachment/{attachment}/{question}', [tcCore\Http\Controllers\AttachmentsLaravelController::class, 'showPreview'])->name('preview.question-attachment-show');
         Route::get('/preview/attachment/pdf/{attachment}/{question}', [tcCore\Http\Controllers\PdfAttachmentsLaravelController::class, 'showPreview'])->name('preview.question-pdf-attachment-show');
-        Route::get('/question-editor', tcCore\Http\Livewire\Teacher\Questions\OpenShort::class)->name('question-editor');
+        Route::get('/question-editor', tcCore\Http\Livewire\Teacher\Cms\Constructor::class)->name('question-editor');
         Route::get('/tests', tcCore\Http\Livewire\Teacher\TestsOverview::class)->name('tests');
         Route::get('/test-detail/{uuid}', tcCore\Http\Livewire\Teacher\TestDetail::class)->name('test-detail');
         Route::get('/preview/answer_model/{test}', [tcCore\Http\Controllers\PreviewAnswerModelController::class, 'show'])->name('test-answer-model');
@@ -109,6 +112,8 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/co-learning/{test_take}', \tcCore\Http\Livewire\Teacher\CoLearning::class)->name('co-learning');
         Route::get('/assessment/{testTake}', \tcCore\Http\Livewire\Teacher\Assessment::class)->name('assessment');
+        Route::get('/test-take/{testTake}', [\tcCore\Http\Controllers\TestTakesController::class, 'openDetail'])->name('test-take.open-detail');
+        Route::get('/test-take/planned/{testTake}', \tcCore\Http\Livewire\Teacher\TestTake\Planned::class)->name('test-take.planned');
     });
 
     Route::middleware(['dll', 'student'])->prefix('appapi')->name('appapi')->group(function () {

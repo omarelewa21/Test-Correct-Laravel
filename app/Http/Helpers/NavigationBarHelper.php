@@ -21,10 +21,9 @@ class NavigationBarHelper
             'teacher.tests'                       => ['main' => 'tests', 'sub' => 'test-bank'],
             'tests.question-bank'                 => ['main' => 'tests', 'sub' => 'question-bank'],
             'teacher.file-management.testuploads' => ['main' => 'tests', 'sub' => 'my-uploads'],
-
-            'planned.planned-tests'       => ['main' => 'planned', 'sub' => 'planned-tests'],
-            'planned.invigilating'        => ['main' => 'planned', 'sub' => 'invigilating'],
-            'planned.ongoing-assignments' => ['main' => 'planned', 'sub' => 'ongoing-assignments'],
+            'teacher.test-take.planned'           => ['main' => 'planned', 'sub' => 'planned-tests'],
+            'planned.invigilating'                => ['main' => 'planned', 'sub' => 'invigilating'],
+            'planned.ongoing-assignments'         => ['main' => 'planned', 'sub' => 'ongoing-assignments'],
 
             'results' => ['main' => 'results', 'sub' => ''],
 
@@ -52,7 +51,6 @@ class NavigationBarHelper
             return $lookUpTable[\Route::currentRouteName()];
         }
         return ['main' => '', 'sub' => ''];
-
     }
 
 

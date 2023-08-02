@@ -345,6 +345,7 @@ class FileManagementController extends Controller
                 'education_level_id'       => $duplicateTest->education_level_id,
                 'education_level_year'     => $duplicateTest->education_level_year,
                 'add_to_database_disabled' => true,
+                'draft'                    => $duplicateTest->draft,
             ];
             $request = $request->merge($params);
 

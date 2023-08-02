@@ -3,19 +3,19 @@
 namespace tcCore\Http\Livewire\Drawer;
 
 use Illuminate\Support\Facades\DB;
-use Livewire\Component;
 use tcCore\GroupQuestion;
 use tcCore\GroupQuestionQuestion;
 use tcCore\Http\Controllers\GroupQuestionQuestionsController;
 use tcCore\Http\Controllers\TestQuestionsController;
-use tcCore\Http\Livewire\Teacher\Questions\CmsFactory;
+use tcCore\Http\Livewire\TCComponent;
+use tcCore\Http\Livewire\Teacher\Cms\TypeFactory;
 use tcCore\Http\Traits\WithQueryStringSyncing;
 use tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager;
 use tcCore\Question;
 use tcCore\Test;
 use tcCore\TestQuestion;
 
-class Cms extends Component
+class Cms extends TCComponent
 {
     use WithQueryStringSyncing;
     protected $queryString = [
@@ -141,7 +141,7 @@ class Cms extends Component
     public function showQuestion($testQuestionUuid, $questionUuid, $subQuestion, $shouldSave = true)
     {
         $this->emitTo(
-            'teacher.questions.open-short',
+            'teacher.cms.constructor',
             'showQuestion',
             [
                 'testQuestionUuid' => $testQuestionUuid,
@@ -155,7 +155,7 @@ class Cms extends Component
     public function addQuestion($type, $subtype)
     {
         $this->emitTo(
-            'teacher.questions.open-short',
+            'teacher.cms.constructor',
             'addQuestion',
             [
                 'type'       => $type,
@@ -330,7 +330,7 @@ class Cms extends Component
         $this->subtype = '';
         $this->action = 'add';
         $this->emptyStateActive = true;
-        $this->emitTo('teacher.questions.open-short', 'showEmpty');
+        $this->emitTo('teacher.cms.constructor', 'showEmpty');
     }
 
     public function handleCmsInit()
@@ -381,7 +381,7 @@ class Cms extends Component
 
     private function setQuestionNameString($type, $subtype)
     {
-        $this->newQuestionTypeName = $subtype === 'group' ? __('cms.group-question') : CmsFactory::findQuestionNameByTypes($type, $subtype);
+        $this->newQuestionTypeName = $subtype === 'group' ? __('cms.group-question') : TypeFactory::findQuestionNameByTypes($type, $subtype);
     }
 
     public function newGroupId($uuid)

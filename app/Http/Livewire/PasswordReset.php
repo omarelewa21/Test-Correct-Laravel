@@ -4,13 +4,12 @@ namespace tcCore\Http\Livewire;
 
 use Illuminate\Auth\Passwords\PasswordBroker;
 use Illuminate\Support\Facades\Password;
-use Livewire\Component;
 use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Livewire\Auth\Login;
 use tcCore\Http\Traits\UserNotificationForController;
 use tcCore\User;
 
-class PasswordReset extends Component
+class PasswordReset extends TCComponent
 {
     use UserNotificationForController;
 
@@ -25,14 +24,9 @@ class PasswordReset extends Component
 
     protected $queryString = ['token'];
 
-    private function get_browser_language(){
-        if(array_key_exists('HTTP_ACCEPT_LANGUAGE', $_SERVER)){
-            $language = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
-            if($language ==	 'nl'){
-                return 'nl';
-            }
-        }
-        return 'en';
+    private function get_browser_language()
+    {
+        return BaseHelper::browserLanguage();
     }
 
     protected function messages(){

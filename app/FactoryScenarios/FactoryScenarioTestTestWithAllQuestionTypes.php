@@ -15,6 +15,7 @@ use tcCore\Factories\Questions\FactoryQuestionMultipleChoiceARQ;
 use tcCore\Factories\Questions\FactoryQuestionMultipleChoiceTrueFalse;
 use tcCore\Factories\Questions\FactoryQuestionOpenLong;
 use tcCore\Factories\Questions\FactoryQuestionOpenShort;
+use tcCore\Factories\Questions\FactoryQuestionOpenWriting;
 use tcCore\Factories\Questions\FactoryQuestionRanking;
 
 /**
@@ -36,6 +37,7 @@ class FactoryScenarioTestTestWithAllQuestionTypes extends FactoryScenarioTest
                     ->addImageAttachment()
                     ->addAudioAttachment()
                     ->addAudioAttachment(true, true, 250)
+                    ->addVideoAttachment()
                     ->addPdfAttachment(),
                 FactoryQuestionOpenLong::create(),
                 FactoryQuestionMultipleChoiceTrueFalse::create(),
@@ -49,7 +51,10 @@ class FactoryScenarioTestTestWithAllQuestionTypes extends FactoryScenarioTest
                     ->addQuestions([
                         FactoryQuestionOpenLong::create()
                             ->setProperties(['question' => '<p>I am part of a group!</p>']),
+                        FactoryQuestionMultipleChoice::create()
+                            ->setProperties(['question' => '<p>Multiple choice sub question!</p>'])
                     ]),
+                FactoryQuestionOpenWriting::create(),
             ]);
     }
 }

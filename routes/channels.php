@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Broadcast;
+use tcCore\Scopes\ArchivedScope;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,6 +23,23 @@ Broadcast::channel('presence-TestTake.{testTakeUuid}', function ($user) {
         'student' => $user->isA('Student')
     ];
 });
+
+Broadcast::channel('presence-TestTake-CoLearning.{testTakeUuid}', function ($user, $testTakeUuid) {
+
+    $testParticipantUuid = \tcCore\TestParticipant::where('user_id', '=', $user->getKey())
+        ->whereIn('test_take_id', \tcCore\TestTake::withoutGlobalScope(ArchivedScope::class)
+            ->whereUuid($testTakeUuid)
+            ->select('id')
+        )->first()
+        ?->uuid;
+
+    return [
+        'user_uuid'            => $user->uuid,
+        'testparticipant_uuid' => $testParticipantUuid,
+        'student'              => $user->isA('Student')
+    ];
+});
+
 Broadcast::channel('TestTake.{testTakeUuid}', function () {
     return true;
 });

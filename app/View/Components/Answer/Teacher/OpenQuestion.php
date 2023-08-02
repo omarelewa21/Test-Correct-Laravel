@@ -9,6 +9,7 @@ use tcCore\Question;
 class OpenQuestion extends QuestionComponent
 {
     public string $answerValue;
+    public bool $webSpellChecker = false;
 
     public function __construct(
         public Question $question,

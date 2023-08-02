@@ -2,16 +2,16 @@
     <div class="flex flex-1 justify-between">
         <div><h1>UWLR Fetcher</h1></div>
         <div class="flex-shrink-0">
-            <x-button.primary class="mb-8" wire:click="showGrid">Overzicht</x-button.primary>
+            <x-button.primary class="mb-8" wire:click="showGrid"><span>Overzicht</span></x-button.primary>
         </div>
     </div>
 
     <div class="content-section p-8">
         <div class="flex space-x-4 mt-4">
             <x-input.group label="DataSource" class="w-1/2">
-                <x-input.select wire:model.lazy="currentSource">
+                <x-input.select wire:model="currentSource">
                     @foreach($this->uwlrDatasource as $key => $source)
-                        <option value="{{ $key }}" wire:key="{{ $source['brin_code'].$key }}">{{ $source['name']  }}</option>
+                        <x-input.option :value="$key" :label="$source['name']"/>
                     @endforeach
                 </x-input.select>
             </x-input.group>
@@ -32,7 +32,9 @@
                 @enderror
                 <x-input.select wire:model="schoolYear">
                     @foreach($this->schoolYears as $schoolYear)
-                        <option value="{{ $schoolYear }}" @if($loop->first) checked="true" @endif wire:key="{{ $schoolYear.$loop->index }}">{{ $schoolYear }}</option>
+                        <x-input.option :value="$schoolYear"
+                                        :label="$schoolYear"
+                                        />
                     @endforeach
                 </x-input.select>
             </x-input.group>
@@ -60,7 +62,7 @@
         <div class="flex flex-1 justify-between mt-8">
             <div><h1>Report for Identifier {{ $this->resultIdendifier }}</h1></div>
             <div class="flex-shrink-0">
-                <x-button.primary class="mb-8" wire:click="showGridWithModal">Details</x-button.primary>
+                <x-button.primary class="mb-8" wire:click="showGridWithModal"><span>Details</span></x-button.primary>
             </div>
         </div>
         <div class="content-section flex-1 p-8">

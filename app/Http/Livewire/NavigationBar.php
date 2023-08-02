@@ -4,12 +4,10 @@ namespace tcCore\Http\Livewire;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Gate;
-use Livewire\Component;
 use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Http\Helpers\NavigationBarHelper;
 
-abstract class NavigationBar extends Component
+abstract class NavigationBar extends TCComponent
 {
     public $activeRoute;
 

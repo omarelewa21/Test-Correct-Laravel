@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use tcCore\Http\Enums\SystemLanguage;
 use tcCore\Http\Enums\UserFeatureSetting as UserFeatureSettingEnum;
 use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\Http\Helpers\BaseHelper;
@@ -25,6 +26,7 @@ use tcCore\Http\Helpers\ImportHelper;
 use tcCore\Http\Helpers\GlobalStateHelper;
 use tcCore\Http\Helpers\SchoolHelper;
 use tcCore\Http\Helpers\UserHelper;
+use tcCore\Http\Livewire\Account\UserData;
 use tcCore\Jobs\CountSchoolActiveTeachers;
 use tcCore\Jobs\CountSchoolLocationActiveTeachers;
 use tcCore\Jobs\CountSchoolLocationQuestions;
@@ -2605,9 +2607,17 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         });
     }
 
-    public function getActiveLanguage()
+    public function getActiveLanguage($sessionOverride = false): string
     {
-        return session()->has('locale') ? session()->get('locale') : optional($this->schoolLocation)->school_language ?? config('app.locale');
+        if (!$sessionOverride && $language = session()->get('locale')) {
+            return $language instanceof SystemLanguage ? $language->value : $language;
+        }
+
+        if ($language = UserFeatureSetting::getSetting($this, UserFeatureSettingEnum::SYSTEM_LANGUAGE)) {
+            return $language->value;
+        }
+
+        return $this->schoolLocation?->school_language?->value ?? BaseHelper::browserLanguage();
     }
 
     public function hasSingleSchoolLocation()
@@ -2688,7 +2698,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function getFormalNameAttribute()
     {
-        return sprintf('%s.%s', substr($this->name_first, 0, 1), $this->name,);
+        return sprintf('%s. %s %s', mb_substr($this->name_first, 0, 1, 'utf-8'), $this->name_suffix, mb_convert_encoding($this->name, 'utf-8'));
     }
 
     public function getFormalNameWithCurrentSchoolLocationShortAttribute()
@@ -2810,5 +2820,38 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             return;
         }
         $this->password_expiration_date = null;
+    }
+
+    public function getSessionLengthAttribute():int
+    {
+        $minutes = (int)UserFeatureSetting::getSetting(
+            user   : $this,
+            title  : UserFeatureSettingEnum::AUTO_LOGOUT_MINUTES,
+            default: UserFeatureSettingEnum::AUTO_LOGOUT_MINUTES->initialValue(),
+        );
+        return session('extensionTime', $minutes * 60);
+    }
+
+    public function getNormalizationSettings()
+    {
+        return collect([
+            UserFeatureSettingEnum::GRADE_DEFAULT_STANDARD,
+            UserFeatureSettingEnum::GRADE_STANDARD_VALUE,
+            UserFeatureSettingEnum::GRADE_CESUUR_PERCENTAGE,
+        ])->mapWithKeys(function ($enum) {
+                return [$enum->value => UserFeatureSetting::getSetting($this, $enum, default: $enum->initialValue())];
+            });
+    }
+
+    public function getUserDataObject(): UserData
+    {
+        return new UserData([
+            'username'    => $this->username,
+            'uuid'        => $this->uuid,
+            'name_first'  => $this->name_first,
+            'name_suffix' => $this->name_suffix,
+            'name'        => $this->name,
+            'gender'      => $this->gender,
+        ]);
     }
 }

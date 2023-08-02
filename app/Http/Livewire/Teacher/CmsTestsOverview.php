@@ -20,6 +20,8 @@ class CmsTestsOverview extends TestsOverview
 
     protected string $filterIdentifyingAttribute = 'cmsTestUuid';
 
+    public $inTestBankContext = false;
+
     protected function getListeners()
     {
         return $this->listeners + [

@@ -1,6 +1,7 @@
 <?php
 namespace tcCore\Http\Helpers;
 
+use Browser;
 use Carbon\Carbon;
 use DateTime;
 use DateTimeZone;
@@ -112,10 +113,8 @@ class AppVersionDetector
                 "3.5.50",
             ],
             "needsUpdate" => [
-                '3.0.0',
             ],
             "needsUpdateDeadline" => [
-                '3.0.0' => '1 juni 2023',
             ],
         ],
         "windowsElectron" => [
@@ -182,12 +181,9 @@ class AppVersionDetector
                 "3.5.0-beta.5",
             ],
             "needsUpdate" => [
-                '3.3.0',
-                '3.3.1',
             ],
             "needsUpdateDeadline" => [
-                '3.3.0' => '28 april 2023',
-                '3.3.1' => '6 juni 2023',
+
             ],
         ],
         "macosElectron" => [
@@ -254,12 +250,8 @@ class AppVersionDetector
                 "3.5.0-beta.5",
             ],
             "needsUpdate" => [
-                '3.3.0',
-                '3.3.1',
             ],
             "needsUpdateDeadline" => [
-                '3.3.0' => '28 april 2023',
-                '3.3.1' => '6 juni 2023',
             ],
         ]
     ];
@@ -537,97 +529,52 @@ class AppVersionDetector
         session([
             'headers' => 'unset headers',
             'TLCVersion' => 'unset version',
-            'TLCOs' => 'unset os'
+            'TLCPlatform' => 'unset platform',
+            'TLCPlatformType' => 'unset platform type',
+            'TLCPlatformVersion' => 'unset platform version',
+            'TLCBrowserType' => 'unset browser type',
+            'TLCBrowserVersion' => 'unset browser version'
         ]);
-//        $this->Session->write('headers', 'unset headers');
-//        $this->Session->write('TLCVersion', 'unset version');
-//        $this->Session->write('TLCOs', 'unset os');
 
         if (isset($headers['tlc'])) {
             session(['TLCHeader' => $headers['tlc']]);
-//            $this->Session->write('TLCHeader', $headers['tlc']);
         } else {
             session(['TLCHeader' => 'not secure...']);
-//            $this->Session->write('TLCHeader', 'not secure...');
         }
 
         $version = AppVersionDetector::detect($headers);
 
+        $platform = "";
+        if ($version['os'] != "unknown-") {
+            $platform = $version['os'];
+        } else {
+            $platform = Browser::platformFamily();
+
+            // prevent spoofing platform os by modifying user-agent
+            if (array_key_exists($platform, self::$osConversion)) {
+                $platform = "platform-conflict";
+            }
+        }
+
         session([
             'headers' => $headers,
-            'UserOsVersion' => self::getUserOSVersion(),
-            'UserOsPlatform' => self::getUserOSPlatform(),
-            'TLCVersion' => $version['app_version'],
-            'TLCOs' => $version['os'],
+            'TLCVersion' => $version['app_version'], // don't specify an alternative value since this value is used in the code for app checking
+            'TLCPlatform' => $platform,
+            'TLCPlatformVersion' => $version['os_release'], // as reported by Electron
+            'TLCPlatformVersionMajor' => Browser::platformVersionMajor(),
+            'TLCPlatformVersionMinor' => Browser::platformVersionMinor(),
+            'TLCPlatformVersionPatch' => Browser::platformVersionPatch(),
+            'TLCPlatformType' => $version['app_type'],
+            'TLCBrowserType' => Browser::browserFamily(),
+            'TLCBrowserVersionMajor' => Browser::browserVersionMajor(),
+            'TLCBrowserVersionMinor' => Browser::browserVersionMinor(),
+            'TLCBrowserVersionPatch' => Browser::browserVersionPatch(),
             'TLCIsIos12' => (Str::lower($version['os']) === 'ios') ? AppVersionDetector::isIos12($headers) : false,
         ]);
-
-//        $this->Session->write('headers', $headers);
-//        $this->Session->write('TLCVersion', $version['app_version']);
-//        $this->Session->write('TLCOs', $version['os']);
 
         $versionCheckResult = AppVersionDetector::isVersionAllowed($headers);
 
         session(['TLCVersioncheckResult' => $versionCheckResult]);
-//        $this->Session->write('TLCVersionCheckResult', $versionCheckResult);
-    }
-
-    public static function getUserOSPlatform()
-    {
-        $headers = self::getAllHeaders();
-        $user_agent = $headers['user-agent'];
-        $os_platform  = "Unknown OS Platform";
-        $os_array     = array(
-                              '/windows nt 10/i'      =>  'Windows 10',
-                              '/windows nt 6.3/i'     =>  'Windows 8.1',
-                              '/windows nt 6.2/i'     =>  'Windows 8',
-                              '/windows nt 6.1/i'     =>  'Windows 7',
-                              '/windows nt 6.0/i'     =>  'Windows Vista',
-                              '/windows nt 5.2/i'     =>  'Windows Server 2003/XP x64',
-                              '/windows nt 5.1/i'     =>  'Windows XP',
-                              '/windows xp/i'         =>  'Windows XP',
-                              '/windows nt 5.0/i'     =>  'Windows 2000',
-                              '/windows me/i'         =>  'Windows ME',
-                              '/win98/i'              =>  'Windows 98',
-                              '/win95/i'              =>  'Windows 95',
-                              '/win16/i'              =>  'Windows 3.11',
-                              '/macintosh|mac os x/i' =>  'Mac OS X',
-                              '/mac_powerpc/i'        =>  'Mac OS 9',
-                              '/linux/i'              =>  'Linux',
-                              '/ubuntu/i'             =>  'Ubuntu',
-                              '/iphone/i'             =>  'iPhone',
-                              '/ipod/i'               =>  'iPod',
-                              '/ipad/i'               =>  'iPad',
-                              '/android/i'            =>  'Android',
-                              '/blackberry/i'         =>  'BlackBerry',
-                              '/webos/i'              =>  'Mobile'
-                        );
-
-        foreach ($os_array as $regex => $value)
-            if (preg_match($regex, $user_agent))
-                $os_platform = $value;
-
-        return $os_platform;
-    }
-
-    public static function getUserOSVersion()
-    {
-        $headers = self::getAllHeaders();
-        $version = null;
-        $iosRegularExpression = '/ip(?:hone|[ao]d) os \K[\d_]+/i';
-        $androidRegularExpression = '/Android ((\d+|\.)+[^,;]+)/';
-        $widowsRegularExpression = '/windows nt \K[\d_]+/i';
-        $user_agent = $headers['user-agent'];
-
-        if(preg_match($iosRegularExpression, $user_agent, $matches, PREG_OFFSET_CAPTURE, 0)) {
-            $version = $matches[0][0];
-        } elseif(preg_match($androidRegularExpression, $user_agent, $matches)) {
-            $version = $matches[1];
-        } elseif(preg_match($widowsRegularExpression, $user_agent, $matches, PREG_OFFSET_CAPTURE, 0)) {
-            $version = $matches[0][0];
-        }
-
-        return $version;
     }
 
     public function getAppVersion(){

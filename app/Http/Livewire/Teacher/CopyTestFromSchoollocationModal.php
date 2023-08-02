@@ -4,11 +4,11 @@ namespace tcCore\Http\Livewire\Teacher;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
-use LivewireUI\Modal\ModalComponent;
+use tcCore\Http\Livewire\TCModalComponent;
 use tcCore\Subject;
 use tcCore\Test;
 
-class CopyTestFromSchoollocationModal extends ModalComponent
+class CopyTestFromSchoollocationModal extends TCModalComponent
 {
     private $test;
     public $testUuid;

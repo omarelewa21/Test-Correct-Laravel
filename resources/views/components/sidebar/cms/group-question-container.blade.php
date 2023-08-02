@@ -22,7 +22,7 @@
                   $store.cms.processing = true;
                   $dispatch('store-current-question');
                   $store.cms.scrollPos = document.querySelector('.drawer').scrollTop;
-                  $wire.emitTo('teacher.questions.open-short','showQuestion',
+                  $wire.emitTo('teacher.cms.constructor','showQuestion',
                     {
                         'testQuestionUuid':'{{ $testQuestion ? $testQuestion->uuid : null }}',
                         'questionUuid': '{{ $question->uuid }}',

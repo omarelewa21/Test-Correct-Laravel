@@ -2,13 +2,12 @@
 
 namespace tcCore\Http\Livewire\TestTakePreview;
 
-use Illuminate\Support\Facades\Auth;
-use Livewire\Component;
+use tcCore\Http\Livewire\TCComponent;
 use tcCore\Http\Traits\TestTakeNavigationForController;
 use tcCore\Http\Traits\WithStudentTestTakes;
 use tcCore\TestTake;
 
-class TestParticipant extends Component
+class TestParticipant extends TCComponent
 {
     use WithStudentTestTakes;
     use TestTakeNavigationForController;

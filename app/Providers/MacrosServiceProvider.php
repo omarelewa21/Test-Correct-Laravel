@@ -6,8 +6,12 @@ use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
+use Livewire\Livewire;
+use Ramsey\Uuid\Uuid;
+use tcCore\Http\Helpers\BaseHelper;
 
 class MacrosServiceProvider extends ServiceProvider
 {
@@ -21,14 +25,32 @@ class MacrosServiceProvider extends ServiceProvider
 
         EloquentBuilder::macro('optionList', function ($cols = ['id', 'name'], $labelCallback = null) {
             return $this->get($cols)->map(function ($value) use ($labelCallback) {
-                return (object)['value' => $value->id, 'label' => ($labelCallback) ? $labelCallback($value) : $value->name];
+                return (object)[
+                    'value' => $value->id,
+                    'label' => ($labelCallback) ? $labelCallback($value) : $value->name
+                ];
             });
         });
 
         EloquentBuilder::macro('uuidOptionList', function ($cols = ['uuid', 'name'], $labelCallback = null) {
             return $this->get($cols)->map(function ($value) use ($labelCallback) {
-                return (object)['value' => $value->uuid, 'label' => ($labelCallback) ? $labelCallback($value) : $value->name];
+                return (object)[
+                    'value' => $value->uuid,
+                    'label' => ($labelCallback) ? $labelCallback($value) : $value->name
+                ];
             });
+        });
+        EloquentBuilder::macro('whereUuidIn', function (array|Collection $uuids) {
+            $uuidSearchString = collect($uuids)
+                ->map(function ($uuid) {
+                    if (!Uuid::isValid($uuid)) {
+                        throw new \Exception('Trying to search with a non-uuid.');
+                    }
+                    return sprintf("unhex('%s')", str($uuid)->replace('-', ''));
+                })
+                ->join(', ');
+            $whereClause = sprintf("%s.uuid in (%s)", $this->getModel()->getTable(), $uuidSearchString);
+            return $this->whereRaw($whereClause);
         });
 
         Str::macro('dotToPascal', function ($string) {
@@ -48,8 +70,28 @@ class MacrosServiceProvider extends ServiceProvider
         Collection::macro('discussionTypeFiltered', function (bool $openOnly) {
             return $this->when($openOnly, fn($questions) => $questions->where('isDiscussionTypeOpen', true));
         });
-        Collection::macro('discrepancyFiltered', function (bool $hideNonDescrepancy) {
-            return $this->when($hideNonDescrepancy, fn($answers) => $answers->whereNot('hasDiscrepancy', false, true));
+        Collection::macro('discrepancyFiltered', function (bool $hideNonDiscrepancy) {
+            return $this->when($hideNonDiscrepancy, fn($answers) => $answers->whereNot('hasDiscrepancy', false, true));
+        });
+
+        //implements Eloquent Builder methods into
+        Collection::macro('onlyTrashed', function () {
+            return $this->whereNotNull('deleted_at');
+        });
+        Collection::macro('withoutTrashed', function () {
+            return $this->whereNull('deleted_at');
+        });
+
+        URL::macro('referrer', function () {
+            $path = Livewire::isLivewireRequest()
+                ? BaseHelper::getLivewireOriginalPath(request())
+                : request()->getRequestUri();
+            return [
+                'referrer' => [
+                    'type' => 'laravel',
+                    'page' => $path
+                ]
+            ];
         });
     }
 }

@@ -2,12 +2,11 @@
 
 namespace tcCore\Http\Livewire\Student;
 
-use Illuminate\Support\Facades\Auth;
-use Livewire\Component;
 use Livewire\WithPagination;
+use tcCore\Http\Livewire\TCComponent;
 use tcCore\Http\Traits\WithStudentTestTakes;
 
-class TestTakes extends Component
+class TestTakes extends TCComponent
 {
     use WithPagination, WithStudentTestTakes;
 

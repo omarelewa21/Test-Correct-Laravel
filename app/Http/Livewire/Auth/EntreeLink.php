@@ -3,10 +3,10 @@
 namespace tcCore\Http\Livewire\Auth;
 
 use Illuminate\Support\Facades\Auth;
-use Livewire\Component;
 use Ramsey\Uuid\Uuid;
+use tcCore\Http\Livewire\TCComponent;
 
-class EntreeLink extends Component
+class EntreeLink extends TCComponent
 {
     protected $queryString = ['linked', 'with_account'];
 

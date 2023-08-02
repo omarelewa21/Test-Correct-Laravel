@@ -1,7 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" {{ $attributes }}>
-    <g fill="none" fill-rule="evenodd" stroke-linecap="round">
-        <g stroke="currentColor" stroke-width="2">
-            <path d="M1 8L15 8"/>
-        </g>
+<svg {{ $attributes }} width="13px" height="15px" viewBox="0 0 13 15" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round">
+        <line x1="1.5" y1="7.5" x2="11.5" y2="7.5" stroke="currentColor" stroke-width="3"></line>
     </g>
 </svg>

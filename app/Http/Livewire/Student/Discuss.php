@@ -3,9 +3,9 @@
 namespace tcCore\Http\Livewire\Student;
 
 use Illuminate\Support\Facades\Auth;
-use Livewire\Component;
 use Livewire\WithPagination;
 use tcCore\Events\NewTestTakeDiscussable;
+use tcCore\Http\Livewire\TCComponent;
 use tcCore\Http\Traits\WithSorting;
 use tcCore\Http\Traits\WithStudentTestTakes;
 use tcCore\TestTake;
@@ -13,7 +13,7 @@ use tcCore\TestTakeStatus;
 use tcCore\Scopes\ArchivedScope;
 use Illuminate\Support\Facades\DB;
 
-class Discuss extends Component
+class Discuss extends TCComponent
 {
     use WithPagination, WithStudentTestTakes, WithSorting;
 

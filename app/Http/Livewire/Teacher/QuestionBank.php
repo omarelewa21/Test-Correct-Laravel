@@ -3,13 +3,12 @@
 namespace tcCore\Http\Livewire\Teacher;
 
 use Illuminate\Support\Facades\Auth;
-use Livewire\Component;
 use tcCore\BaseSubject;
-use tcCore\EducationLevel;
 use tcCore\GroupQuestion;
 use tcCore\Http\Controllers\AuthorsController;
 use tcCore\Http\Controllers\GroupQuestionQuestionsController;
 use tcCore\Http\Controllers\TestQuestionsController;
+use tcCore\Http\Livewire\TCComponent;
 use tcCore\Http\Requests\CreateGroupQuestionQuestionRequest;
 use tcCore\Http\Requests\CreateTestQuestionRequest;
 use tcCore\Http\Traits\WithAddExistingQuestionFilterSync;
@@ -24,7 +23,7 @@ use tcCore\TestQuestion;
 use tcCore\Traits\ContentSourceTabsTrait;
 use tcCore\UserSystemSetting;
 
-class QuestionBank extends Component
+class QuestionBank extends TCComponent
 {
     use ContentSourceTabsTrait, WithQueryStringSyncing, WithTestAwarenessProperties, WithAddExistingQuestionFilterSync;
 
@@ -42,6 +41,8 @@ class QuestionBank extends Component
     public $inGroup = false;
     public $active;
     public $groupQuestionDetail;
+    public $inTestBankContext = false;
+    public $showQuestionBank = true;
 
     protected string $filterIdentifyingAttribute = 'testId';
     protected array $filterableAttributes = [
@@ -70,8 +71,11 @@ class QuestionBank extends Component
         $this->initialiseContentSourceTabs();
 
         $this->itemsPerPage = QuestionBank::ITEM_INCREMENT;
-        $this->setTestProperty();
-        $this->setAddedQuestionIdsArray();
+        if(!$this->inTestBankContext){
+            $this->setTestProperty();
+            $this->setAddedQuestionIdsArray();
+        }
+
         $this->setFilters();
     }
 
@@ -138,7 +142,7 @@ class QuestionBank extends Component
 
     public function booted()
     {
-        $this->setTestProperty();
+        if(!$this->inTestBankContext) $this->setTestProperty();
     }
 
     private function setTestProperty()
@@ -282,6 +286,10 @@ class QuestionBank extends Component
             return;
         }
 
+        if($this->inTestBankContext) {
+            $this->filters = $this->filterableAttributes;
+            return;
+        }
         $this->filters = $this->defaultFilters();
     }
 
@@ -406,5 +414,10 @@ class QuestionBank extends Component
     public function getTaxonomiesProperty()
     {
         return TaxonomyRepository::choicesOptions();
+    }
+
+    public function updatingShowQuestionBank($value)
+    {
+        if(!$value) $this->emitUp('showTestBank');
     }
 }

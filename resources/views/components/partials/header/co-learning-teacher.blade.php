@@ -1,9 +1,9 @@
 @extends('components.partials.header.collapsable')
 
 @section('title')
-    <h6 class="text-white">@lang($this->headerCollapsed ? 'co-learning.co_learning' : 'start_co_learning_session')
+    <h6 class="text-white">@lang($this->headerCollapsed ? 'co-learning.co_learning' : 'co-learning.start_co_learning_session')
         : </h6>
-    <h4 class="text-white">{!!  clean($testName) !!}</h4>
+    <h4 class="text-white truncate" title="{!!  clean($testName) !!}">{!!  clean($testName) !!}</h4>
 @endsection
 
 @section('subtitle')
@@ -19,7 +19,7 @@
                       @class(['opacity-40' => !$atLastQuestion])
                       wire:click.prevent="finishCoLearning"
         >
-            {{ __('co-learning.complete') }}
+            <span>{{ __('co-learning.complete') }}</span>
             <x-icon.checkmark class="ml-2" />
         </x-button.cta>
     </div>
@@ -106,3 +106,26 @@
         </x-slot:additionalInfo>
     </x-partials.header.panel>
 @endsection
+
+@if(auth()->user()->schoolLocation->allow_wsc)
+    @section('additionalInfo')
+
+        <div @class(['flex justify-center items-center uppercase text-[14px] margin-[0_0_5px] mt-6'])>
+            @lang('co-learning.open-question-options')
+        </div>
+        <div @class(["flex flex-col w-3/4 self-center divide-white divide-y border-t border-b border-white ", 'border-b-white/25' => false])>
+            <div class="flex py-2 px-4 items-center justify-between">
+                <span>@lang('co-learning.spellchecker-for-students')</span>
+                @if($this->testTake->enable_spellcheck_colearning)
+                    <x-input.toggle wire:click="toggleStudentSpellcheck($event.target.checked)" checked />
+                @else
+                    <x-input.toggle wire:click="toggleStudentSpellcheck($event.target.checked)"/>
+                @endif
+
+                <x-tooltip idle-classes="bg-transparent text-white border-white border">
+                    <span class="text-left">@lang('co-learning.spellchecker-for-students-tt')</span>
+                </x-tooltip>
+            </div>
+        </div>
+    @endsection
+@endif

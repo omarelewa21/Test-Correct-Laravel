@@ -99,7 +99,7 @@
                                                 if (editor) {
                                                     editor.destroy(true);
                                                 }
-                                                RichTextEditor.initClassicEditorForStudentplayer('{{  $editorId }}', '{{ $this->testTake->discussingQuestion->getKey() }}');
+                                                RichTextEditor.initClassicEditorForStudentPlayer('{{  $editorId }}', '{{ $this->testTake->discussingQuestion->getKey() }}');
                                                 setTimeout(() => {
                                                     RichTextEditor.setReadOnly(ClassicEditors.{{  $editorId }});
                                                 }, 100)

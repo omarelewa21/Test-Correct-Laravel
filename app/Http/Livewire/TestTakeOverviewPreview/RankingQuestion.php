@@ -2,8 +2,7 @@
 
 namespace tcCore\Http\Livewire\TestTakeOverviewPreview;
 
-use Livewire\Component;
-use tcCore\Answer;
+use tcCore\Http\Livewire\TCComponent;
 use tcCore\Http\Traits\WithGroups;
 use tcCore\Question;
 use tcCore\Http\Traits\WithAttachments;
@@ -11,7 +10,7 @@ use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithNotepad;
 use tcCore\RankingQuestionAnswer;
 
-class RankingQuestion extends Component
+class RankingQuestion extends TCComponent
 {
     use WithAttachments, WithNotepad, WithCloseable, WithGroups;
 

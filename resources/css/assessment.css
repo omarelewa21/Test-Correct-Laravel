@@ -40,52 +40,42 @@
 }
 
 .drawer .feedback .ck.ck-editor__main {
-    padding-top: 76px;
-}
-
-.drawer .feedback .ck.ck-icon.ck-button__icon,
-.inline-feedback-modal .ck.ck-icon.ck-button__icon {
-    color: var(--system-base);
-}
-
-.drawer .feedback .ck.ck-editor__top,
-.inline-feedback-modal .ck.ck-editor__top {
-    --ck-color-button-on-background: var(--primary-opacity-05);
-    --ck-color-button-on-hover-background: var(--primary-opacity-10);
-    --ck-color-button-default-hover-background: var(--primary-opacity-05);
-    --ck-color-toolbar-background: white;
-}
-
-.drawer .feedback .ck-on .ck.ck-icon.ck-button__icon,
-.inline-feedback-modal .ck-on .ck.ck-icon.ck-button__icon {
-    color: var(--primary);
-}
-
-.drawer .feedback .ck.ck-editor__main > .ck-editor__editable,
-.inline-feedback-modal .ck.ck-editor__main > .ck-editor__editable {
-    --ck-color-base-background: var(--off-white);
+    padding-top: 39px;
 }
 
 .drawer .feedback .ck-dropdown {
     --ck-dropdown-max-width: 200px;
 }
 
-.drawer .feedback .ck-dropdown__panel .ck.ck-form__header.ck-special-characters-navigation{
+.drawer .feedback .ck-dropdown__panel .ck.ck-form__header.ck-special-characters-navigation {
     height: auto;
     flex-wrap: wrap;
     justify-content: end;
 }
-.drawer .feedback .ckeditor-disabled .ck.ck-editor__main > .ck-editor__editable,
-.inline-feedback-modal .ckeditor-disabled .ck.ck-editor__main > .ck-editor__editable {
-    --ck-color-base-background: white;
-}
-.drawer .feedback .ckeditor-disabled,
-.inline-feedback-modal .ckeditor-disabled {
-    position: relative;
-    pointer-events: none;
+.drawer .ck.ck-editor .ck-editor__top {
+    top: 0;
 }
 
-.drawer .feedback .ckeditor-disabled,
-.inline-feedback-modal .ckeditor-disabled {
+#assessment-page {
+    --ck-z-default: 0;
+}
 
+.progress-bar-background {
+    width: calc(100% - var(--active-sidebar-width));
+    transition: width var(--sidebar-transition)
+}
+.progress-bar-background .progress-bar {
+    transition: width 150ms ease-in
+}
+
+#necklace-navigation .question-indicator .question-number.done.system-rated,
+#necklace-navigation .question-indicator .question-number.system-rated {
+    --rqn-border-color: transparent;
+    --rqn-background-color: rgba(var(--cta-primary-rgb), 0.5);
+}
+
+#necklace-navigation .question-indicator .question-number.done.fully-rated,
+#necklace-navigation .question-indicator .question-number.fully-rated {
+    --rqn-border-color: transparent;
+    --rqn-background-color: var(--cta-primary);
 }

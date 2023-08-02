@@ -3,17 +3,18 @@
 namespace tcCore\Http\Livewire\Teacher;
 
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
-use LivewireUI\Modal\ModalComponent;
 use Ramsey\Uuid\Uuid;
+use tcCore\Http\Enums\UserFeatureSetting as UserFeatureSettingEnum;
+use tcCore\Http\Livewire\TCModalComponent;
 use tcCore\Http\Traits\Modal\WithPlanningFeatures;
 use tcCore\Lib\Repositories\PeriodRepository;
 use tcCore\TemporaryLogin;
 use tcCore\Test;
 use tcCore\TestTake;
 use tcCore\TestTakeStatus;
+use tcCore\UserFeatureSetting;
 
-class TestQuickTakeModal extends ModalComponent
+class TestQuickTakeModal extends TCModalComponent
 {
     use WithPlanningFeatures;
 
@@ -23,6 +24,8 @@ class TestQuickTakeModal extends ModalComponent
 
     public $testTake;
     public $selectedClasses = [];
+
+    public $clickDisabled = false;
 
 
     protected function messages(): array
@@ -49,7 +52,8 @@ class TestQuickTakeModal extends ModalComponent
                 'testTake.allow_inbrowser_testing' => 'required|boolean',
                 'testTake.guest_accounts'          => 'required|boolean',
                 'testTake.notify_students'         => 'required|boolean',
-
+                'testTake.show_grades'             => 'sometimes|boolean',
+                'testTake.show_correction_model'   => 'sometimes|boolean',
             ];
     }
 
@@ -58,9 +62,6 @@ class TestQuickTakeModal extends ModalComponent
         $conditionalRules = [];
         if (!$this->testTake->guest_accounts) {
             $conditionalRules['selectedClasses'] = 'required';
-        }
-        if($this->rttiExportAllowed) {
-            $conditionalRules['testTake.is_rtti_test_take'] = 'required';
         }
         return $conditionalRules;
     }
@@ -72,12 +73,7 @@ class TestQuickTakeModal extends ModalComponent
         $this->testName = $this->test->name;
 
         $this->testTake = new TestTake();
-        /* The only editable settings */
-        $this->testTake->weight = 5;
-        $this->testTake->allow_inbrowser_testing = $this->isAssignmentType();
-        $this->testTake->guest_accounts = false;
-        $this->testTake->notify_students = false;
-        $this->rttiExportAllowed = $this->isRttiExportAllowed();
+        $this->setFeatureSettingDefaults($this->testTake);
         $this->testTake->is_rtti_test_take = false;
     }
 
@@ -93,9 +89,9 @@ class TestQuickTakeModal extends ModalComponent
 
     public function plan()
     {
-        $this->validate();
-
         $this->setDefaultTestTakeSettings();
+        $this->validate();
+        $this->clickDisabled = true;
         $this->testTake->save();
 
         $this->dispatchBrowserEvent('notify', ['message' => __('teacher.testtake planned')]);

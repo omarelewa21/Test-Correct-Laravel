@@ -2,21 +2,20 @@
 
 namespace tcCore\Http\Livewire\Student;
 
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
-use Livewire\Component;
 use Livewire\WithPagination;
 use tcCore\Events\NewTestTakeGraded;
 use tcCore\Events\NewTestTakePlanned;
 use tcCore\Http\Helpers\AppVersionDetector;
 use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Helpers\UserHelper;
+use tcCore\Http\Livewire\TCComponent;
 use tcCore\Http\Traits\WithStudentTestTakes;
 use tcCore\Info;
 use tcCore\Message;
 use tcCore\TemporaryLogin;
 
-class Dashboard extends Component
+class Dashboard extends TCComponent
 {
     use WithPagination, WithStudentTestTakes;
 
@@ -50,7 +49,6 @@ class Dashboard extends Component
 
     public function logout()
     {
-        $device = session()->get('TLCOs') == 'iOS' ? 'ipad' : '';
         UserHelper::logout();
         return redirect(
             BaseHelper::getLogoutUrl()

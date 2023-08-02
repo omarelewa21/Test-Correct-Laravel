@@ -21,6 +21,8 @@
 @import url("co-learning.css");
 @import url("rs_tlc.css");
 @import url("assessment.css");
+@import url("review.css");
+@import url("answer_feedback.css");
 
 
 @tailwind base;
@@ -28,7 +30,7 @@
 @tailwind utilities;
 
 :root {
-    --cta-primary: #3ab753;
+    --cta-primary: #3dbb56;
     --cta-primary-mid-dark: #27973D;
     --cta-primary-mid-dark-rgb: 39, 151, 61;
     --cta-primary-rgb: 58, 183, 83;
@@ -38,9 +40,11 @@
     --primary-rgb: 0, 77, 245;
     --primary-opacity-10: rgba(0, 77, 245, 0.1);
     --primary-opacity-05: rgba(0, 77, 245, 0.05);
-    --primary-light: #F5F7FF;
+    --primary-light: #E6EDFA;
     --teacher-primary: #004df5;
     --teacher-primary-light: #4781ff;
+    --student: #ECDB00;
+    --student-rgb: 236, 219, 0;
     --secondary: #ECDB00;
     --highlight-primary: #ECDB00;
     --highlight-primary-mid-dark: #dec802;
@@ -48,20 +52,25 @@
     --system-base: #041f74;
     --system-base-rgb: 4, 31, 116;
     --system-secondary: #CEDAF3;
+    --system-secondary-rgb: 206, 218, 243;
     --mid-grey: #929DAF;
     --mid-grey-rgb: 146, 157, 175;
     --light-grey: #F0F2F5;
+    --light-grey-rgb: 240, 242, 245;
     --blue-grey: #c3d0ed;
     --shadow-blue: #4D578F;
     --off-white: #f9faff;
     --all-red: #cf1b04;
     --red-light: #ffedeb;
+    --red-notification-border: #ebccc8;
     --note: #6b7789;
     --orange: #ff9d23;
-    --main-shadow: 0 3px 8px 0 rgba(4, 31, 116, 0.3);
-    --card-shadow: 0 3px 16px 0 rgba(4, 31, 116, 0.1);
-    --small-shadow: 0 1px 4px 0 rgba(4, 31, 116, 0.06);
-    --hover-shadow: 0 8px 16px 0 rgba(4, 31, 116, 0.2);
+    --main-shadow: 0 3px 8px 0 rgba(var(--system-base-rgb), 0.3);
+    --card-shadow: 0 3px 16px 0 rgba(var(--system-base-rgb), 0.1);
+    --small-shadow: 0 1px 4px 0 rgba(var(--system-base-rgb), 0.06);
+    --hover-shadow: 0 8px 16px 0 rgba(var(--system-base-rgb), 0.2);
+    --content-box-shadow: 0 3px 6px 0 rgba(var(--system-base-rgb), 0.1);
+    --popover-shadow: 0 1px 13px 2px rgba(var(--system-base-rgb), 0.2);
     --white: #ffffff;
     --maintenance-header-bg: #ff6666;
     --deployment-testing-color: darkorange;
@@ -96,6 +105,11 @@
 @font-face {
     font-family: Zilla Slab Bold;
     src: url("../fonts/Zilla_Slab/ZillaSlab-Bold.ttf");
+}
+
+@font-face {
+    font-family: Zilla Slab SemiBold;
+    src: url("../fonts/Zilla_Slab/ZillaSlab-SemiBold.ttf");
 }
 
 @font-face {
@@ -388,6 +402,9 @@ h3 {
 h3.bold {
     font-family: Zilla Slab Bold, serif;
 }
+h3.semi-bold {
+    font-family: Zilla Slab SemiBold, serif;
+}
 
 h4 {
     font-size: 1.5rem;
@@ -504,7 +521,7 @@ h7 {
 .content-section {
     background: white;
     border-radius: 10px;
-    box-shadow: 0 3px 18px 0 rgba(77, 87, 143, 0.1);
+    box-shadow: var(--content-box-shadow)
 }
 
 .divider {
@@ -689,11 +706,13 @@ ul ul ul {
     unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
+.context-menu-container .option-menu-active,
 .grid-card .option-menu-active {
     background-color: var(--primary);
     color: white;
 }
 
+.context-menu-container .option-menu-active:hover,
 .grid-card .option-menu-active:hover {
     background-color: var(--primary-opacity-05);
     color: var(--system-base);
@@ -791,6 +810,26 @@ ul ul ul {
     display: none;
 }
 
+.accordion-block:not(.transparent) {
+    box-shadow: 0 3px 18px 0 rgba(var(--system-base-rgb), 0.1);
+}
+
 .accordion-block img {
     width: auto;
+}
+
+.left-3 {
+    left: 3rem;
+}
+
+.hide-scrollbar {
+    scrollbar-width: none;
+}
+
+.max-width-90 {
+    max-width: 90%;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
 }

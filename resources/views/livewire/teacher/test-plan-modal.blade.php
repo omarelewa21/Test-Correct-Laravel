@@ -37,7 +37,7 @@
                         <x-input.group class="flex flex-1" label="{{ __('teacher.Periode') }}">
                             <x-input.select class="w-full" wire:model="request.period_id">
                                 @foreach($allowedPeriods as $period)
-                                    <option value="{{ $period->uuid }}">{{ $period->name }}</option>
+                                    <x-input.option :value="$period->id" :label="$period->name"/>
                                 @endforeach
                             </x-input.select>
                         </x-input.group>
@@ -75,13 +75,13 @@
             @endif
             <div class="input-section" x-data>
                 <div class="name flex">
-                    <label for="teachers_and_classes">{{ __('Klassen') }}</label>
+                    <label for="teachers_and_classes">{{ __('teacher.Klassen') }}</label>
                 </div>
                 <div class="name flex mb-4">
                     <x-input.choices-select :multiple="true"
                                             :options="$this->schoolClasses"
                                             :withSearch="true"
-                                            placeholderText="{!!  __('teacher.Klassen') !!}"
+                                            placeholderText="{{ __('teacher.Klassen') }}"
                                             wire:model="request.school_classes"
                                             filterContainer="selected_classes"
                                             id="teachers_and_classes"
@@ -107,21 +107,20 @@
                                             id="choices_invigilators"
                                             wire:key='allowed-invigilators'
                                             hasErrors="{{ $this->getErrorBag()->has('request.invigilators') ? 'true': '' }}"
-                                                                />
-
-                                                                <div id="selected_invigilators" wire:ignore class="space-x-4 ml-4"></div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="input-section">
-                                                            <div class="toggles | flex flex-col lg:flex-row lg:gap-x-4 flex-wrap mb-4">
-                                                                <x-input.toggle-row-with-title wire:model="request.allow_inbrowser_testing"
-                                                                                               :toolTip="__('teacher.inbrowser_testing_tooltip')"
-                                                                                               :disabled="$this->isAssignmentType() || !auth()->user()->schoolLocation->allow_inbrowser_testing"
-                                                                                               containerClass="border-t w-full lg:w-[calc(50%-0.5rem)]"
-                                                                                               selid="plan-modal-allow-browser"
-                                                                >
-                                                                    <x-icon.web/>
-                                                                    <span class="bold">{{ __('teacher.Browsertoetsen toestaan') }} </span>
+                    />
+                    <div id="selected_invigilators" wire:ignore class="space-x-4 ml-4"></div>
+                </div>
+            </div>
+            <div class="input-section">
+                <div class="toggles | flex flex-col lg:flex-row lg:gap-x-4 flex-wrap mb-4">
+                    <x-input.toggle-row-with-title wire:model="request.allow_inbrowser_testing"
+                                                   :toolTip="__('teacher.inbrowser_testing_tooltip')"
+                                                   :disabled="$this->isAssignmentType() || !auth()->user()->schoolLocation->allow_inbrowser_testing"
+                                                   containerClass="border-t w-full lg:w-[calc(50%-0.5rem)]"
+                                                   selid="plan-modal-allow-browser"
+                    >
+                        <x-icon.web/>
+                        <span class="bold">{{ __('teacher.Browsertoetsen toestaan') }} </span>
                     </x-input.toggle-row-with-title>
                     <x-input.toggle-row-with-title wire:model="request.guest_accounts"
                                                    :toolTip="__('teacher.guest_accounts_tooltip')"
@@ -140,20 +139,10 @@
                         <x-icon.send-mail />
                         <span class="bold">{{ __('teacher.notify_students') }} </span>
                     </x-input.toggle-row-with-title>
-
-                    @if ($this->isAssignmentType())
-                        <x-input.toggle-row-with-title wire:model="request.allow_wsc"
-                                                    containerClass="border-t-0 w-full lg:w-[calc(50%-0.5rem)]"
-                        >
-                            <x-icon.autocheck />
-                            <span class="bold">{{ __('teacher.allow_wsc') }} </span>
-                        </x-input.toggle-row-with-title>
-                    @endif
-
                     @if($rttiExportAllowed)
                         <x-input.toggle-row-with-title wire:model="request.is_rtti_test_take"
                                                        :toolTip="__('teacher.exporteer_naar_rtti_online_tooltip')"
-                                                       containerClass="border-t w-full lg:w-[calc(50%-0.5rem)]"
+                                                       containerClass="w-full lg:w-[calc(50%-0.5rem)]"
                         >
                             <x-icon.export />
                             <span class="bold">{{ __('teacher.Exporteer naar RTTI Online') }} </span>
@@ -181,7 +170,7 @@
                 {{--                    <span>{{__('teacher.Volgende Inplannen')}}</span>--}}
                 {{--                    <x-icon.chevron/>--}}
                 {{--                </x-button.primary>--}}
-                <x-button.cta size="sm" wire:click="planNext" selid="plan-modal-plan-btn"  wire:loading.attr="disabled" wire:target="planNext">
+                <x-button.cta size="sm" wire:click="planNext" selid="plan-modal-plan-btn"  wire:loading.attr="disabled" onClick="this.disabled = true;" wire:target="planNext" :disabled="$clickDisabled">
                     <x-icon.checkmark wire:loading.remove wire:target="planNext"/>
                     <span wire:loading.remove wire:target="planNext">{{__('teacher.Inplannen')}}</span>
                     <span wire:loading wire:target="planNext">{{ __('cms.one_moment_please') }}</span>

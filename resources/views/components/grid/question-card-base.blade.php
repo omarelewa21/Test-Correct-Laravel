@@ -1,4 +1,4 @@
-<div {{ $attributes->merge(['class' => 'grid-card bg-white p-6 rounded-10 card-shadow hover:text-primary cursor-pointer relative isolate', 'selid' => 'existing-question']) }}
+<div {{ $attributes->merge(['class' => 'grid-card context-menu-container bg-white p-6 rounded-10 card-shadow hover:text-primary cursor-pointer relative isolate', 'selid' => 'existing-question']) }}
      wire:key="questioncard-{{ $question->getQuestionInstance()->uuid }}-{{ $context }}"
      @if($question->isType('GroupQuestion'))
         x-on:click.stop="questionCardOpenGroup($el, @js($question->uuid), @js($inTest) )"
@@ -81,7 +81,7 @@
                         class="new-button button-primary w-10 items-center justify-center flex"
                         x-on:click.stop="addQuestionToTestFromTestCard($el, @js($question->uuid), @js($showQuestionBankAddConfirmation) )"
                 >
-                    <x-icon.plus-2/>
+                    <x-icon.plus/>
                 </button>
             </div>
         </div>

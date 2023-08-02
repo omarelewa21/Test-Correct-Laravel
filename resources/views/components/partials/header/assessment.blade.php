@@ -45,13 +45,7 @@
             <x-button.cta size="md"
                           x-on:click.prevent="handleHeaderCollapse(['ALL', {{ ($this->assessmentContext['assessmentType'] && $this->openOnly) ? 'true' : 'false' }} ])"
             >
-                <span>
-                    @if($this->assessmentContext['assessmentType'] && !$this->openOnly)
-                        @lang('auth.continue')
-                    @else
-                        @lang('co-learning.start')
-                    @endif
-                </span>
+                <span>@lang($this->assessmentContext['assessmentType'] && !$this->openOnly ? 'auth.continue' : 'co-learning.start')</span>
                 <x-icon.arrow />
             </x-button.cta>
         </x-slot:button>
@@ -73,23 +67,24 @@
     <x-partials.header.panel @class([
                 "co-learning-restart" => $this->assessmentContext['assessmentType'],
                 "co-learning-previous-discussion-type" => $this->openOnly,
+                'disabled' => $this->hasNoOpenQuestion,
                 ])>
         <x-slot:sticker>
             <x-stickers.questions-open-only />
         </x-slot:sticker>
         <x-slot:title>{{ str(__('co-learning.open_questions_only'))->ucfirst() }}</x-slot:title>
-        <x-slot:subtitle>{{ __('assessment.open_questions_text') }}</x-slot:subtitle>
+        <x-slot:subtitle>
+            <span>@lang('assessment.open_questions_text')</span>
+            @if($this->hasNoOpenQuestion)
+                <span class="text-sm text-white/90">@lang('assessment.Er zitten geen open vragen in deze toets.')</span>
+            @endif
+        </x-slot:subtitle>
         <x-slot:button>
             <x-button.cta size="md"
                           x-on:click.prevent="handleHeaderCollapse(['OPEN_ONLY', {{ ($this->assessmentContext['assessmentType'] && !$this->openOnly) ? 'true' : 'false' }}])"
+                          :disabled="$this->hasNoOpenQuestion"
             >
-                <span>
-                @if($this->assessmentContext['assessmentType'] && $this->openOnly)
-                        @lang('auth.continue')
-                    @else
-                        @lang('co-learning.start')
-                    @endif
-                </span>
+                <span>@lang($this->assessmentContext['assessmentType'] && $this->openOnly ? 'auth.continue' : 'co-learning.start')</span>
                 <x-icon.arrow />
             </x-button.cta>
         </x-slot:button>
@@ -110,7 +105,7 @@
 @endsection()
 
 @section('additionalInfo')
-    <div @class(["flex flex-col w-3/4 self-center divide-white divide-y border-t border-b border-white mt-6", 'border-b-white/25' => $this->assessmentContext['skippedCoLearning']])>
+    <div @class(["flex flex-col w-3/4 self-center divide-white divide-y border-t border-b border-white mt-6"])>
         <div class="flex py-2 px-4 items-center justify-between">
             <span>@lang('assessment.Alles wordt tussentijds opgeslagen')</span>
             <x-tooltip idle-classes="bg-transparent text-white border-white border">
@@ -125,24 +120,26 @@
         </div>
         <div class="flex py-2 px-4 items-center justify-between">
             <span @class(['opacity-25 pointer-events-none' => $this->assessmentContext['skippedCoLearning']])>@lang('assessment.Score wordt overgenomen uit CO-Learning')</span>
-            <x-tooltip @class(['opacity-25 pointer-events-none' => $this->assessmentContext['skippedCoLearning']])
-                       idle-classes="bg-transparent text-white border-white border">
+            <x-tooltip idle-classes="bg-transparent text-white border-white border">
                 <span class="text-left">@lang('assessment.colearning_score_tooltip')</span>
             </x-tooltip>
         </div>
-        <div @class(['flex py-1.5 px-4 items-center justify-between', 'opacity-25 pointer-events-none' => $this->assessmentContext['skippedCoLearning']])>
-            <span>@lang('assessment.Antwoorden zonder discrepanties overslaan')</span>
+        <div @class(['flex py-1.5 px-4 items-center justify-between', '!border-white/25' => $this->assessmentContext['skippedCoLearning']])>
+            <span @class(['opacity-25 pointer-events-none' => $this->assessmentContext['skippedCoLearning']])>@lang('assessment.Antwoorden zonder discrepanties overslaan')</span>
             <div class="flex items-center gap-4">
-                <x-input.toggle wire:model="assessmentContext.skipCoLearningNoDiscrepancies" />
+                <x-input.toggle wire:model="assessmentContext.assessment_skip_no_discrepancy_answer"
+                                :disabled="!$this->canUseDiscrepancyToggle() || $this->assessmentContext['skippedCoLearning']"
+                                @class(['opacity-25' => !$this->canUseDiscrepancyToggle() || $this->assessmentContext['skippedCoLearning']])
+                />
                 <x-tooltip idle-classes="bg-transparent text-white border-white border">
                     <span class="text-left">@lang('assessment.discrepancies_toggle_tooltip')</span>
                 </x-tooltip>
             </div>
         </div>
-        <div @class(['flex py-1.5 px-4 items-center justify-between', 'opacity-25 pointer-events-none' => $this->assessmentContext['skippedCoLearning']])>
-            <span>@lang('assessment.Toon de naam van studenten')</span>
+        <div @class(['flex py-1.5 px-4 items-center justify-between'])>
+            <span>@lang('assessment.Studentnamen tonen')</span>
             <div class="flex items-center gap-4">
-                <x-input.toggle wire:model="assessmentContext.showStudentNames" />
+                <x-input.toggle wire:model="assessmentContext.assessment_show_student_names" />
                 <x-tooltip idle-classes="bg-transparent text-white border-white border">
                     <span class="text-left">@lang('assessment.show_student_tooltip_text')</span>
                 </x-tooltip>

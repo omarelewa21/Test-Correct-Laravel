@@ -52,13 +52,13 @@
 
     @error('question.answers.*.*')
     <div class="notification error stretched mt-4">
-        <span class="title">{{ __('cms.De gemarkeerde velden zijn verplicht') }}</span>
+        <span class="title">{{ $message }}</span>
     </div>
     @enderror
 
     @error('question.score')
     <div class="notification error stretched mt-4">
-        <span class="title">{{ __('cms.Er dient minimaal 1 punt toegekend te worden') }}</span>
+        <span class="title">{{ $message }}</span>
     </div>
     @enderror
 

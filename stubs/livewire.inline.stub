@@ -1,0 +1,17 @@
+<?php
+
+namespace [namespace];
+
+use tcCore\Http\Livewire\TCComponent;
+
+class [class] extends TCComponent
+{
+    public function render()
+    {
+        return <<<'blade'
+            <div>
+                {{-- [quote] --}}
+            </div>
+        blade;
+    }
+}

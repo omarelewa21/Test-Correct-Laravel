@@ -1,10 +1,7 @@
 <?php namespace tcCore\Http\Requests;
 
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Contracts\Validation\Validator;
-use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Support\MessageBag;
-use Illuminate\Http\Request as RequestObj;
+use Illuminate\Validation\Rule;
 use Ramsey\Uuid\Uuid;
 use tcCore\Rules\EmailDns;
 use tcCore\SchoolLocation;
@@ -42,10 +39,10 @@ class SchoolClassesStudentImportRequest extends Request
     {
 
         $this->filterInput(); // doesn't work here
-       
+
         $extra_rule = [];
         $school_class_name_rule = 'sometimes';
-        if(is_null($this->schoolClass)){
+        if (is_null($this->schoolClass)) {
             $school_class_name_rule = 'required';
         }
 
@@ -53,45 +50,51 @@ class SchoolClassesStudentImportRequest extends Request
         foreach ($this->data as $key => $value) {
 
             if (array_key_exists('username', $value)) {
-                $extra_rule[sprintf('data.%d.external_id', $key)] = ['required',sprintf('unique:users,external_id,%s,username,school_location_id,%d', $value['username'], $this->schoolLocation->getKey())];
+                $extra_rule[sprintf('data.%d.external_id', $key)] = [
+                    Rule::unique('users', 'external_id')
+                        ->where('school_location_id', $this->schoolLocation->getKey())
+                        ->ignore($value['username'], 'username')
+                ];
             }
         }
 
         $rules = collect([
-            //'data' => 'array',
-            'data.*.username' => ['required', 'email:rfc,filter', new EmailDns , function ($attribute, $value, $fail) {
+            'data.*.username'          => [
+                'required',
+                'email:rfc,filter',
+                new EmailDns,
+                function ($attribute, $value, $fail) {
+                    $requestItem = $this->getRequestItem($attribute);
+                    $student = User::whereUsername($value)->first();
 
-                if(strpos($value,'&') > NULL) 
-                {
-                     return $fail(sprintf('The email address contains an ampersand symbol  (%s).', $value));
-                }
-            
-                if (!filter_var($value, FILTER_VALIDATE_EMAIL)) 
-                {
+                    if (!$student) {
+                        return true;
+                    }
+                    if ($this->externalIdDoesNotMatch($student, $requestItem)) {
+                        return $fail(sprintf('The %s has already been taken.', 'external id'));
+                    }
 
-                        return $fail(sprintf('The email address contains invalid or international characters  (%s).', $value));
-                }
-                $requestItem = $this->getRequestItem( $attribute);
-                $student = User::whereUsername($value)->first();
-                
-                if ($student) {
-                    if ($this->alreadyInDatabaseAndInThisClass($student,$requestItem)) {
+                    if ($this->alreadyInDatabaseAndInThisClass($student, $requestItem)) {
                         return $fail(sprintf('The %s has already been taken.', $attribute));
                     }
                     if ($this->alreadyInDatabaseButNotInThisSchoolLocation($student)) {
                         return $fail(sprintf('The %s has already been taken.', $attribute));
                     }
                 }
-            }],
-            'data.*.name_first' => 'required',
-            'data.*.name' => 'required',
-            'data.*.name_suffix' => '',
-            'data.*.gender' => 'sometimes',
-            'data.*.school_class_name' => [$school_class_name_rule, function ($attribute, $value, $fail) {
-                if ($this->classDoesNotExist($value)) {
-                    return $fail(sprintf('school_class_name %s not found.', $attribute));
+
+            ],
+            'data.*.name_first'        => 'required',
+            'data.*.name'              => 'required',
+            'data.*.name_suffix'       => '',
+            'data.*.gender'            => 'sometimes',
+            'data.*.school_class_name' => [
+                $school_class_name_rule,
+                function ($attribute, $value, $fail) {
+                    if ($this->classDoesNotExist($value)) {
+                        return $fail(sprintf('school_class_name %s not found.', $attribute));
+                    }
                 }
-            }]
+            ]
         ]);
 
         if ($extra_rule === []) {
@@ -124,9 +127,6 @@ class SchoolClassesStudentImportRequest extends Request
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
-            // if ($this->schoolClass == null) {
-            //     $validator->errors()->add('class', 'Er dient een klas opgegeven te worden');
-            // }
 
             $data = $this->addDuplicateExternalIdErrors($validator);
             $data = $this->addDuplicateUsernameErrors($validator);
@@ -144,84 +144,43 @@ class SchoolClassesStudentImportRequest extends Request
         });
     }
 
-//    public function messages()
-//    {
-//        return [
-//            'data.*.username.email' => 'lorem',
-//            'data.*.username.required' => 'sit',
-//        ];
-//    }
-
     private function addDuplicateExternalIdErrors($validator)
     {
-        $data = collect(request()->input('data'));
-        $uniqueFields = ['external_id'];
-        $groupedByDuplicates = $data->groupBy(function ($row, $key) {
-            if (array_key_exists('external_id', $row)&&$row['external_id']!='') {
-                return $row['external_id'];
-            }
-        })->map(function ($item) {
-            return collect($item)->count();
-        })->filter(function ($item, $key) {
-            return $item > 1;
-        });
-        if ($groupedByDuplicates->count() < $data->count()) {
-            collect($this->data)->each(function ($item, $key) use ($groupedByDuplicates, $validator) {
-                if (array_key_exists('external_id', $item)&& ($item['external_id']!='') && array_key_exists($item['external_id'], $groupedByDuplicates->toArray())) {
-                    $validator->errors()->add(
-                        sprintf('data.%d.external_id', $key),
-                        'Deze import bevat dubbele studentennummers'
-                    );
-                }
-            });
-        }
-
-        return $data->toArray();
+        return $this->addDuplicateErrors($validator, 'external_id', 'Deze import bevat dubbele studentennummers voor dezelfde klas.');
     }
 
     private function addDuplicateUsernameErrors($validator)
     {
+        return $this->addDuplicateErrors($validator, 'username', 'Deze import bevat dubbele emailadressen voor dezelfde klas.');
+    }
+
+    private function addDuplicateErrors($validator, $field, $message)
+    {
         $data = collect(request()->input('data'));
-        $groupedByDuplicates = $data->groupBy(function ($row, $key) {
-            if (array_key_exists('username', $row)) {
-                return $row['username'];
-            }
-        })->map(function ($item) {
-            return collect($item)->count();
-        })->filter(function ($item, $key) {
-            return $item > 1;
-        });
+        $groupedByDuplicates = $data->countBy($field)->filter(fn($count) => $count > 1);
 
         if ($groupedByDuplicates->count() < $data->count()) {
-            collect($this->data)->each(function ($item, $key) use ($groupedByDuplicates, $validator) {
-                if (array_key_exists('username', $item) && array_key_exists($item['username'], $groupedByDuplicates->toArray())) {
-                    $validator->errors()->add(
-                        sprintf('data.%d.username', $key),
-                        'Deze import bevat dubbele emailadressen'
-                    );
-                }
-            });
+            $this->addErrorMessagesToValidatorWhenNecessary($message, $field, $groupedByDuplicates, $validator);
         }
 
         return $data->toArray();
     }
 
-    private function alreadyInDatabaseAndInThisClass($student,$requestItem)
+    private function alreadyInDatabaseAndInThisClass($student, $requestItem)
     {
-        if(array_key_exists('school_class_name', $requestItem)){
+        if (array_key_exists('school_class_name', $requestItem)) {
             $school_class_name = $requestItem['school_class_name'];
             $manager = Auth::user();
-            $schoolClass = SchoolClass::where('name', trim($school_class_name))->where('school_location_id',$manager->school_location_id)->first();
-            if(!is_null($schoolClass)){
-                return $this->alreadyInDatabaseAndInThisClassGeneric($student,$schoolClass->id);
-            }else{
-                return $this->failSilent();
+            $schoolClass = SchoolClass::where('name', trim($school_class_name))->where('school_location_id', $manager->school_location_id)->first();
+            if (!is_null($schoolClass)) {
+                return $this->alreadyInDatabaseAndInThisClassGeneric($student, $schoolClass->id);
             }
-        }
-        if(is_null($this->schoolClass)){
             return $this->failSilent();
         }
-        return $this->alreadyInDatabaseAndInThisClassGeneric($student,$this->schoolClass->id);
+        if (is_null($this->schoolClass)) {
+            return $this->failSilent();
+        }
+        return $this->alreadyInDatabaseAndInThisClassGeneric($student, $this->schoolClass->id);
     }
 
     private function failSilent()
@@ -229,7 +188,7 @@ class SchoolClassesStudentImportRequest extends Request
         return false;
     }
 
-    private function alreadyInDatabaseAndInThisClassGeneric($student,$schoolClassId)
+    private function alreadyInDatabaseAndInThisClassGeneric($student, $schoolClassId)
     {
         return (collect($student->studentSchoolClasses)->map(function ($item) {
             return $item->id;
@@ -245,35 +204,86 @@ class SchoolClassesStudentImportRequest extends Request
     {
         $manager = Auth::user();
         $currentSchoolYear = (new SchoolYearsController())->activeSchoolYearInternal();
-        if(!$currentSchoolYear){
+        if (!$currentSchoolYear) {
             return true;
         }
-        $schoolClass = SchoolClass::where('name', trim($school_class_name))
-                                    ->where('school_location_id',$manager->school_location_id)
-                                    ->where('school_year_id',$currentSchoolYear->id)
-                                    ->whereNull('deleted_at')
-                                    ->first();
-        if(is_null($schoolClass)){
-            return true;
-        }
-        return false;
+        return SchoolClass::where('name', trim($school_class_name))
+            ->where('school_location_id', $manager->school_location_id)
+            ->where('school_year_id', $currentSchoolYear->id)
+            ->whereNull('deleted_at')
+            ->doesntExist();
     }
 
-    
 
-    private function getRequestItem( $attribute)
+    private function getRequestItem($attribute)
     {
         $attributeArray = explode('.', $attribute);
-        if(!array_key_exists(1, $attributeArray)){
+        if (!array_key_exists(1, $attributeArray)) {
             return [];
         }
         $requestIndex = $attributeArray[1];
-        if(!array_key_exists('data', request()->all())){
+        if (!array_key_exists('data', request()->all())) {
             return [];
         }
-        if(!array_key_exists($requestIndex, request()->all()['data'])){
+        if (!array_key_exists($requestIndex, request()->all()['data'])) {
             return [];
         }
         return request()->all()['data'][$requestIndex];
+    }
+
+    /**
+     * @param $field
+     * @param $value
+     * @return array
+     */
+    function getDuplicateData($field, $value): array
+    {
+        return collect($this->data)->filter(fn($item) => ($item[$field] ?? '') === $value)->toArray();
+    }
+
+    /**
+     * @param array $duplicateData
+     * @return bool
+     */
+    function hasDuplicateDataForTheSameSchoolClass(array $duplicateData): bool
+    {
+        return collect($duplicateData)->pluck('school_class_name')->unique()->count() !== count($duplicateData);
+    }
+
+    /**
+     * @param $message
+     * @param $field
+     * @param $groupedByDuplicates
+     * @param $validator
+     * @return void
+     */
+    private function addErrorMessagesToValidatorWhenNecessary($message, $field, $groupedByDuplicates, $validator): void
+    {
+        collect($this->data)->each(function ($item, $key) use ($message, $field, $groupedByDuplicates, $validator) {
+            if ($this->itemHasNoDuplicateField($item[$field] ?? null, $groupedByDuplicates)) {
+                return true;
+            }
+
+            $duplicateData = $this->getDuplicateData($field, $item[$field] ?? null);
+            if ($this->hasDuplicateDataForTheSameSchoolClass($duplicateData)) {
+                $validator->errors()->add(sprintf('data.%d.%s', $key, $field), $message);
+            }
+        });
+    }
+
+    function itemHasNoDuplicateField($item, $groupedByDuplicates): bool
+    {
+        return !array_key_exists($item, $groupedByDuplicates->toArray());
+    }
+
+    private function externalIdDoesNotMatch(User $student, array $requestItem): bool
+    {
+        if (!$student->external_id) {
+            return false;
+        }
+        if ($student->school_location_id !== $this->schoolLocation->getKey()) {
+            return false;
+        }
+        return $student->external_id !== ($requestItem['external_id'] ?? null);
     }
 }

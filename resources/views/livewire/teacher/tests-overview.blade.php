@@ -2,13 +2,12 @@
 
 @section('container')
     <div id="testbank"
-         selid="tests-overview-page"
-         x-data="{
-            openTab: $wire.entangle('openTab')
-         }"
-         wire:init="handleReferrerActions()"
-         class="flex flex-col w-full min-h-full bg-lightGrey border-t border-secondary top-0"
+        selid="tests-overview-page"
+        wire:init="handleReferrerActions()"
+        class="flex flex-col w-full min-h-full bg-lightGrey border-t border-secondary top-0"
     >
+        <div x-data="{openTab: @entangle('openTab')}">
+
 @endsection
 
 @section('create-test-button')
@@ -18,7 +17,7 @@
                           wire:click="$emit('openModal', 'teacher.test-start-create-modal')"
                           selid="create-new-test-button"
             >
-                <x-icon.plus-2/>
+                <x-icon.plus/>
                 <span>{{ __('general.create test') }}</span>
             </x-button.cta>
         </div>

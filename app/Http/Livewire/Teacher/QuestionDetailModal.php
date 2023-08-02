@@ -3,12 +3,12 @@
 namespace tcCore\Http\Livewire\Teacher;
 
 use Carbon\Carbon;
-use LivewireUI\Modal\ModalComponent;
 use tcCore\GroupQuestionQuestion;
 use tcCore\Http\Helpers\QuestionHelper;
+use tcCore\Http\Livewire\TCModalComponent;
 use tcCore\Question;
 
-class QuestionDetailModal extends ModalComponent
+class QuestionDetailModal extends TCModalComponent
 {
     public $question;
     public $authors;
