@@ -217,14 +217,16 @@
                                 @if($participant->testNotTaken)
                                     <span>-/--</span>
                                 @else
-                                    <span>{{ $participant->rated }}</span>/<span>{{ $this->takenTestData['questionCount'] }}</span>
+                                    <span>{{ $participant->rated }}</span>/
+                                    <span>{{ $this->takenTestData['questionCount'] }}</span>
                                 @endif
                             </div>
                             <div class="grid-item flex items-center group-hover/row:bg-offwhite px-1.5 justify-end">
                                 @if($participant->testNotTaken)
                                     <span>-/--</span>
                                 @else
-                                    <span>{{ $participant->score }}</span>/<span>{{ $this->takenTestData['maxScore'] }}</span>
+                                    <span>{{ $participant->score }}</span>/
+                                    <span>{{ $this->takenTestData['maxScore'] }}</span>
                                 @endif
                             </div>
                             <div class="grid-item flex items-center group-hover/row:bg-offwhite px-1.5 justify-end">
@@ -245,7 +247,26 @@
                                                         <x-icon.i-letter />
                                                     </span>
                                                 </x-slot:idleIcon>
-                                                <span></span>
+                                                <div class="grid grid-cols-[auto_auto] gap-2">
+                                                    <div class="bold">@lang('test-take.Cijfer voor deze toets'):</div>
+                                                    <div>{{ $participant->rating ?? '-' }}</div>
+
+                                                    <div class="bold">@lang('test-take.Cijfer voor dit vak'):</div>
+                                                    <div>{{ $participant->user->averageRatings->first()?->rating ?? '-'}}</div>
+
+                                                    <div class="bold">@lang('test-take.Tijd totaal'):</div>
+                                                    <div>{{ \Carbon\CarbonInterval::second($participant->total_time)->cascade()->forHumans() }}</div>
+
+                                                    <div class="bold">@lang('test-take.Tijd per vraag'):</div>
+                                                    <div>{{ \Carbon\CarbonInterval::second($participant->total_time / $participant->questions)->cascade()->forHumans() }}</div>
+
+                                                    <div class="bold">@lang('test-take.Duurde het langst'):</div>
+                                                    <div title="{{ $participant->longest_answer?->question?->title }}"
+                                                         class="overflow-hidden text-ellipsis"
+                                                    >
+                                                        {{ $participant->longest_answer?->question?->title ?? __('general.unavailable') }}
+                                                    </div>
+                                                </div>
                                             </x-tooltip>
                                             @if($participant->testNotTaken)
 
@@ -262,8 +283,9 @@
                                     </div>
                                     <div class="flex items-center gap-4">
                                         <div class="flex items-center gap-2">
-                                            <x-button.icon wire:click="$emit('openModal', 'message-create-modal', {receiver: '{{ $participant->user->uuid }}'})"
-                                                           :title="__('message.Stuur bericht')"
+                                            <x-button.icon
+                                                    wire:click="$emit('openModal', 'message-create-modal', {receiver: '{{ $participant->user->uuid }}'})"
+                                                    :title="__('message.Stuur bericht')"
                                             >
                                                 <x-icon.envelope class="w-4 h-4" />
                                             </x-button.icon>

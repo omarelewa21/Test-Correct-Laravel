@@ -11204,8 +11204,14 @@ video {
 .grid-cols-4{
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
+.grid-cols-\[200px_minmax\(900px\2c _1fr\)_100px\]{
+  grid-template-columns: 200px minmax(900px, 1fr) 100px;
+}
 .grid-cols-\[min-content\2c auto\]{
   grid-template-columns: min-content auto;
+}
+.grid-cols-\[auto_auto\]{
+  grid-template-columns: auto auto;
 }
 .flex-row{
   flex-direction: row;
@@ -11499,6 +11505,9 @@ video {
   white-space: nowrap;
 }
 .overflow-ellipsis{
+  text-overflow: ellipsis;
+}
+.text-ellipsis{
   text-overflow: ellipsis;
 }
 .whitespace-nowrap{

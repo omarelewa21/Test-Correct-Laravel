@@ -80,4 +80,9 @@ return [
     'Resultaten overzicht'                                                                                                                             => 'Results overview',
     'CO-Learning starten'                                                                                                                              => 'Start CO-Learning',
     'Nakijken'                                                                                                                                         => 'Assess',
+    "Cijfer voor deze toets"                                                                                                                           => "Mark for this test",
+    "Cijfer voor dit vak"                                                                                                                              => "Mark for this subject",
+    "Tijd totaal"                                                                                                                                      => "Total time",
+    "Tijd per vraag"                                                                                                                                   => "Time per question",
+    "Duurde het langst"                                                                                                                                => "Took the longest",
 ];

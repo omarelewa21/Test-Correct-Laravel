@@ -552,7 +552,7 @@ class TestParticipant extends BaseModel
         return (bool)$this->getAttributes()['active'];
     }
 
-    public function calculateStatistics(?TestTake $testTake, ?Test $test): void
+    public function calculateStatistics(?TestTake $testTake = null, ?Test $test = null): void
     {
         $testTake ??= $this->testTake;
         $test ??= $testTake->test;

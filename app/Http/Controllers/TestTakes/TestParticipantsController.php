@@ -235,7 +235,7 @@ class TestParticipantsController extends Controller
         }
 
         $test = $testTake->test;
-//        $testParticipant->load('user', 'testTakeStatus', 'schoolClass', 'answers', 'testTakeEvents');
+        $testParticipant->load('user', 'testTakeStatus', 'schoolClass', 'answers', 'testTakeEvents');
 
         if ($testTake->isInvigilator(Auth::user()) && collect($request->get('with'))->contains('participantStatus')) {
             $testParticipant->calculateStatistics($testTake, $test);

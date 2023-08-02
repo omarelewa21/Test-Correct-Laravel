@@ -79,4 +79,10 @@ return [
     'Resultaten overzicht'                                                                                                                             => 'Resultaten overzicht',
     'CO-Learning starten'                                                                                                                              => 'CO-Learning starten',
     'Nakijken'                                                                                                                                         => 'Nakijken',
+    "Cijfer voor deze toets"                                                                                                                           => "Cijfer voor deze toets",
+    "Cijfer voor dit vak"                                                                                                                              => "Cijfer voor dit vak",
+    "Tijd totaal"                                                                                                                                      => "Tijd totaal",
+    "Tijd per vraag"                                                                                                                                   => "Tijd per vraag",
+    "Duurde het langst"                                                                                                                                => "Duurde het langst",
+
 ];
