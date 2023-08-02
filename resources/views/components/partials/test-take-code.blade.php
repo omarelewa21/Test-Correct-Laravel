@@ -47,7 +47,6 @@
         <x-input.text class="w-10 text-center test-code" type="number"
                       max="9" maxlength="1" wire:model="testTakeCode.5"
                       x-ref="testCode_6"
-                      data-focus-tab-error="{{$tab}}-no_test_found_with_code"
                       x-on:input="testCodeInput($el)"
                       x-on:keydown.backspace.prevent="testCodeBackspace($el);"
                       x-on:focus="$el.select()"

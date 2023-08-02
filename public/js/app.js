@@ -8368,27 +8368,48 @@ document.addEventListener("alpine:init", function () {
       hasErrors: hasErrors,
       init: function init() {
         var _this34 = this;
-        setTimeout(function () {
-          _this34.$wire.checkLoginFieldsForInput();
-        }, 250);
-        this.setCurrentFocusInput();
+        this.setInitialFocusInput();
         this.$watch("hasErrors", function (value) {
           _this34.setCurrentFocusInput();
         });
         this.$watch("activeOverlay", function (value) {
-          _this34.setCurrentFocusInput();
+          _this34.setInitialFocusInput();
         });
         this.$watch("openTab", function (value) {
-          _this34.setCurrentFocusInput();
+          _this34.setInitialFocusInput();
         });
       },
-      setCurrentFocusInput: function setCurrentFocusInput() {
+      setInitialFocusInput: function setInitialFocusInput() {
         var _this35 = this;
-        var name = "" != this.activeOverlay ? this.activeOverlay : this.openTab;
-        var finder = "" != hasErrors ? "[data-focus-tab-error = '".concat(name, "-").concat(hasErrors[0], "']") : "[data-focus-tab = '".concat(name, "']");
+        var name = '' != this.activeOverlay ? this.activeOverlay : this.openTab;
+        var finder = "[data-focus-tab = '".concat(name, "']");
         setTimeout(function () {
           var _this35$$root$querySe;
-          return (_this35$$root$querySe = _this35.$root.querySelector(finder)) === null || _this35$$root$querySe === void 0 ? void 0 : _this35$$root$querySe.focus();
+          (_this35$$root$querySe = _this35.$root.querySelector(finder)) === null || _this35$$root$querySe === void 0 ? void 0 : _this35$$root$querySe.focus();
+        }, 250);
+      },
+      setCurrentFocusInput: function setCurrentFocusInput() {
+        var _this36 = this;
+        var name = "" != this.activeOverlay ? this.activeOverlay : this.openTab;
+        var finder = "[data-focus-tab = '".concat(name, "']");
+        if ("" != this.hasErrors) {
+          var errorCode = this.hasErrors[0];
+          switch (errorCode) {
+            case 'invalid_test_code':
+            case 'no_test_found_with_code':
+              errorCode = 'invalid_test_code';
+              break;
+          }
+          if (document.activeElement.type === 'password') {
+            //Do not focus on other fields when password is focused to prevent users typing password in the wrong field
+            //only works when the form is submitted by enter key, else focus is on the login button
+            errorCode = 'password';
+          }
+          finder = "[data-focus-tab-error = '".concat(name, "-").concat(errorCode, "']");
+        }
+        setTimeout(function () {
+          var _this36$$root$querySe;
+          return (_this36$$root$querySe = _this36.$root.querySelector(finder)) === null || _this36$$root$querySe === void 0 ? void 0 : _this36$$root$querySe.focus();
         }, 250);
       },
       changeActiveOverlay: function changeActiveOverlay() {
@@ -8407,7 +8428,7 @@ document.addEventListener("alpine:init", function () {
       pageUpdated: array.pageUpdated,
       isCoLearningScore: array.isCoLearningScore,
       init: function init() {
-        var _this36 = this;
+        var _this37 = this;
         if (this.pageUpdated) {
           this.resetStoredData();
         }
@@ -8415,8 +8436,8 @@ document.addEventListener("alpine:init", function () {
           this.shadowScore = isFloat(initialScore) ? parseFloat(initialScore) : parseInt(initialScore);
         }
         this.$nextTick(function () {
-          return _this36.$dispatch("slider-score-updated", {
-            score: _this36.score
+          return _this37.$dispatch("slider-score-updated", {
+            score: _this37.score
           });
         });
       },
@@ -8477,19 +8498,19 @@ document.addEventListener("alpine:init", function () {
         }
       },
       resetStoredData: function resetStoredData() {
-        var _this37 = this;
+        var _this38 = this;
         this.$store.assessment.resetData(this.score, this.toggleCount());
         this.$nextTick(function () {
-          _this37.$store.assessment.toggleCount = _this37.toggleCount();
+          _this38.$store.assessment.toggleCount = _this38.toggleCount();
         });
       },
       updateScoringData: function updateScoringData(data) {
-        var _this38 = this;
+        var _this39 = this;
         Object.assign(this, data);
         this.score = this.shadowScore = data.initialScore;
         this.$nextTick(function () {
-          return _this38.$dispatch("slider-score-updated", {
-            score: _this38.score
+          return _this39.$dispatch("slider-score-updated", {
+            score: _this39.score
           });
         });
       }
@@ -8504,19 +8525,19 @@ document.addEventListener("alpine:init", function () {
       firstValue: firstValue,
       skipWatch: false,
       first: function first() {
-        var _this39 = this;
+        var _this40 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee8() {
           return _regeneratorRuntime().wrap(function _callee8$(_context8) {
             while (1) switch (_context8.prev = _context8.next) {
               case 0:
-                if (!_this39.$store.answerFeedback.feedbackBeingEdited()) {
+                if (!_this40.$store.answerFeedback.feedbackBeingEdited()) {
                   _context8.next = 2;
                   break;
                 }
-                return _context8.abrupt("return", _this39.$store.answerFeedback.openConfirmationModal(_this39.$root, 'first'));
+                return _context8.abrupt("return", _this40.$store.answerFeedback.openConfirmationModal(_this40.$root, 'first'));
               case 2:
                 _context8.next = 4;
-                return _this39.updateCurrent(_this39.firstValue, "first");
+                return _this40.updateCurrent(_this40.firstValue, "first");
               case 4:
               case "end":
                 return _context8.stop();
@@ -8525,19 +8546,19 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       last: function last() {
-        var _this40 = this;
+        var _this41 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee9() {
           return _regeneratorRuntime().wrap(function _callee9$(_context9) {
             while (1) switch (_context9.prev = _context9.next) {
               case 0:
-                if (!_this40.$store.answerFeedback.feedbackBeingEdited()) {
+                if (!_this41.$store.answerFeedback.feedbackBeingEdited()) {
                   _context9.next = 2;
                   break;
                 }
-                return _context9.abrupt("return", _this40.$store.answerFeedback.openConfirmationModal(_this40.$root, 'last'));
+                return _context9.abrupt("return", _this41.$store.answerFeedback.openConfirmationModal(_this41.$root, 'last'));
               case 2:
                 _context9.next = 4;
-                return _this40.updateCurrent(_this40.lastValue, "last");
+                return _this41.updateCurrent(_this41.lastValue, "last");
               case 4:
               case "end":
                 return _context9.stop();
@@ -8546,25 +8567,25 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       next: function next() {
-        var _this41 = this;
+        var _this42 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee10() {
           return _regeneratorRuntime().wrap(function _callee10$(_context10) {
             while (1) switch (_context10.prev = _context10.next) {
               case 0:
-                if (!(_this41.current >= _this41.lastValue)) {
+                if (!(_this42.current >= _this42.lastValue)) {
                   _context10.next = 2;
                   break;
                 }
                 return _context10.abrupt("return");
               case 2:
-                if (!_this41.$store.answerFeedback.feedbackBeingEdited()) {
+                if (!_this42.$store.answerFeedback.feedbackBeingEdited()) {
                   _context10.next = 4;
                   break;
                 }
-                return _context10.abrupt("return", _this41.$store.answerFeedback.openConfirmationModal(_this41.$root, 'next'));
+                return _context10.abrupt("return", _this42.$store.answerFeedback.openConfirmationModal(_this42.$root, 'next'));
               case 4:
                 _context10.next = 6;
-                return _this41.updateCurrent(_this41.current + 1, "incr");
+                return _this42.updateCurrent(_this42.current + 1, "incr");
               case 6:
               case "end":
                 return _context10.stop();
@@ -8573,25 +8594,25 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       previous: function previous() {
-        var _this42 = this;
+        var _this43 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee11() {
           return _regeneratorRuntime().wrap(function _callee11$(_context11) {
             while (1) switch (_context11.prev = _context11.next) {
               case 0:
-                if (!(_this42.current <= _this42.firstValue)) {
+                if (!(_this43.current <= _this43.firstValue)) {
                   _context11.next = 2;
                   break;
                 }
                 return _context11.abrupt("return");
               case 2:
-                if (!_this42.$store.answerFeedback.feedbackBeingEdited()) {
+                if (!_this43.$store.answerFeedback.feedbackBeingEdited()) {
                   _context11.next = 4;
                   break;
                 }
-                return _context11.abrupt("return", _this42.$store.answerFeedback.openConfirmationModal(_this42.$root, 'previous'));
+                return _context11.abrupt("return", _this43.$store.answerFeedback.openConfirmationModal(_this43.$root, 'previous'));
               case 4:
                 _context11.next = 6;
-                return _this42.updateCurrent(_this42.current - 1, "decr");
+                return _this43.updateCurrent(_this43.current - 1, "decr");
               case 6:
               case "end":
                 return _context11.stop();
@@ -8600,13 +8621,13 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       navigate: function navigate(methodName) {
-        var _this43 = this;
+        var _this44 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee12() {
           return _regeneratorRuntime().wrap(function _callee12$(_context12) {
             while (1) switch (_context12.prev = _context12.next) {
               case 0:
                 _context12.next = 2;
-                return _this43[methodName]();
+                return _this44[methodName]();
               case 2:
               case "end":
                 return _context12.stop();
@@ -8615,21 +8636,21 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       updateCurrent: function updateCurrent(value, action) {
-        var _this44 = this;
+        var _this45 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee13() {
           var response;
           return _regeneratorRuntime().wrap(function _callee13$(_context13) {
             while (1) switch (_context13.prev = _context13.next) {
               case 0:
-                _this44.$dispatch("assessment-drawer-tab-update", {
+                _this45.$dispatch("assessment-drawer-tab-update", {
                   tab: 1
                 });
                 _context13.next = 3;
-                return _this44.$wire[_this44.methodCall](value, action);
+                return _this45.$wire[_this45.methodCall](value, action);
               case 3:
                 response = _context13.sent;
                 if (response) {
-                  _this44.updateProperties(response);
+                  _this45.updateProperties(response);
                 }
               case 5:
               case "end":
@@ -8652,42 +8673,42 @@ document.addEventListener("alpine:init", function () {
       fixLineHeightCount: 0,
       fixInterval: null,
       init: function init() {
-        var _this45 = this;
+        var _this46 = this;
         this.placeAllOrNothingLines();
         this.fixLineHeight();
         this.$watch("expanded", function (value) {
-          return _this45.placeAllOrNothingLines();
+          return _this46.placeAllOrNothingLines();
         });
       },
       fixLineHeight: function fixLineHeight() {
-        var _this46 = this;
+        var _this47 = this;
         this.fixInterval = setInterval(function () {
-          _this46.placeAllOrNothingLines();
-          _this46.fixLineHeightCount++;
-          if (_this46.fixLineHeightCount >= 5) {
-            clearInterval(_this46.fixInterval);
+          _this47.placeAllOrNothingLines();
+          _this47.fixLineHeightCount++;
+          if (_this47.fixLineHeightCount >= 5) {
+            clearInterval(_this47.fixInterval);
           }
         }, 200);
       },
       placeAllOrNothingLines: function placeAllOrNothingLines() {
-        var _this47 = this;
+        var _this48 = this;
         this.$nextTick(function () {
-          var parent = _this47.$root.parentElement;
-          _this47.activeItems.map(function (item) {
+          var parent = _this48.$root.parentElement;
+          _this48.activeItems.map(function (item) {
             var el = parent.querySelector("[data-active-item='".concat(item, "']"));
-            var height = el.offsetTop + el.offsetHeight / 2 - _this47.$root.offsetHeight / 2;
-            if (_this47.$root !== parent.firstElementChild) {
-              height -= _this47.$root.offsetTop;
+            var height = el.offsetTop + el.offsetHeight / 2 - _this48.$root.offsetHeight / 2;
+            if (_this48.$root !== parent.firstElementChild) {
+              height -= _this48.$root.offsetTop;
             }
-            _this47.$root.querySelector("[data-line='".concat(item, "']")).style.height = height + "px";
+            _this48.$root.querySelector("[data-line='".concat(item, "']")).style.height = height + "px";
           });
-          if (_this47.withToggle) {
+          if (_this48.withToggle) {
             var toggleEl = parent.parentElement.querySelector(".all-or-nothing-toggle");
-            var firstEl = _this47.$root;
-            var lastEl = parent.querySelector("[data-active-item=\"".concat(_this47.activeItems.slice(-1), "\"]"));
-            var middle = _this47.middleOfElement(firstEl);
+            var firstEl = _this48.$root;
+            var lastEl = parent.querySelector("[data-active-item=\"".concat(_this48.activeItems.slice(-1), "\"]"));
+            var middle = _this48.middleOfElement(firstEl);
             if (lastEl) {
-              middle = (_this47.middleOfElement(firstEl) + _this47.middleOfElement(lastEl)) / 2;
+              middle = (_this48.middleOfElement(firstEl) + _this48.middleOfElement(lastEl)) / 2;
             }
             toggleEl.style.top = middle + "px";
           }
@@ -8720,43 +8741,43 @@ document.addEventListener("alpine:init", function () {
       },
       tab: function tab(index) {
         var _arguments2 = arguments,
-          _this48 = this;
+          _this49 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee14() {
           var answerFeedbackCommentUuid, slide;
           return _regeneratorRuntime().wrap(function _callee14$(_context14) {
             while (1) switch (_context14.prev = _context14.next) {
               case 0:
                 answerFeedbackCommentUuid = _arguments2.length > 1 && _arguments2[1] !== undefined ? _arguments2[1] : null;
-                if (_this48.tabs.includes(index)) {
+                if (_this49.tabs.includes(index)) {
                   _context14.next = 3;
                   break;
                 }
                 return _context14.abrupt("return");
               case 3:
-                _this48.activeTab = index;
-                _this48.closeTooltips();
-                slide = _this48.getSlideElementByIndex(index);
-                _this48.handleSlideHeight(slide);
+                _this49.activeTab = index;
+                _this49.closeTooltips();
+                slide = _this49.getSlideElementByIndex(index);
+                _this49.handleSlideHeight(slide);
                 _context14.next = 9;
-                return _this48.$nextTick();
+                return _this49.$nextTick();
               case 9:
                 if (!answerFeedbackCommentUuid) {
                   _context14.next = 14;
                   break;
                 }
                 _context14.next = 12;
-                return _this48.scrollToCommentCard(answerFeedbackCommentUuid);
+                return _this49.scrollToCommentCard(answerFeedbackCommentUuid);
               case 12:
                 _context14.next = 16;
                 break;
               case 14:
                 _context14.next = 16;
-                return smoothScroll(_this48.container, 0, slide.offsetLeft);
+                return smoothScroll(_this49.container, 0, slide.offsetLeft);
               case 16:
                 setTimeout(function () {
-                  var position = _this48.container.scrollLeft / 300 + 1;
-                  if (!_this48.tabs.includes(position)) {
-                    _this48.container.scrollTo({
+                  var position = _this49.container.scrollLeft / 300 + 1;
+                  if (!_this49.tabs.includes(position)) {
+                    _this49.container.scrollTo({
                       left: slide.offsetLeft
                     });
                   }
@@ -8769,18 +8790,18 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       scrollToCommentCard: function scrollToCommentCard(answerFeedbackUuid) {
-        var _this49 = this;
+        var _this50 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee15() {
           var commentCard, slide, cardTop, count;
           return _regeneratorRuntime().wrap(function _callee15$(_context15) {
             while (1) switch (_context15.prev = _context15.next) {
               case 0:
                 commentCard = document.querySelector('[data-uuid="' + answerFeedbackUuid + '"].answer-feedback-card');
-                slide = _this49.getSlideElementByIndex(2);
+                slide = _this50.getSlideElementByIndex(2);
                 cardTop = commentCard.offsetTop;
                 count = 0;
                 _context15.next = 6;
-                return smoothScroll(_this49.container, cardTop, slide.offsetLeft);
+                return smoothScroll(_this50.container, cardTop, slide.offsetLeft);
               case 6:
               case "end":
                 return _context15.stop();
@@ -8789,36 +8810,36 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       next: function next() {
-        var _this50 = this;
+        var _this51 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee17() {
           return _regeneratorRuntime().wrap(function _callee17$(_context17) {
             while (1) switch (_context17.prev = _context17.next) {
               case 0:
-                if (!_this50.$store.answerFeedback.feedbackBeingEdited()) {
+                if (!_this51.$store.answerFeedback.feedbackBeingEdited()) {
                   _context17.next = 2;
                   break;
                 }
-                return _context17.abrupt("return", _this50.$store.answerFeedback.openConfirmationModal(_this50.$root, 'next'));
+                return _context17.abrupt("return", _this51.$store.answerFeedback.openConfirmationModal(_this51.$root, 'next'));
               case 2:
-                if (!_this50.needsToPerformActionsStill()) {
+                if (!_this51.needsToPerformActionsStill()) {
                   _context17.next = 6;
                   break;
                 }
-                _this50.$dispatch("scoring-elements-error");
-                _this50.clickedNext = true;
+                _this51.$dispatch("scoring-elements-error");
+                _this51.clickedNext = true;
                 return _context17.abrupt("return");
               case 6:
-                _this50.tab(1);
+                _this51.tab(1);
                 _context17.next = 9;
-                return _this50.$nextTick( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee16() {
+                return _this51.$nextTick( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee16() {
                   return _regeneratorRuntime().wrap(function _callee16$(_context16) {
                     while (1) switch (_context16.prev = _context16.next) {
                       case 0:
-                        _this50.$store.assessment.resetData();
+                        _this51.$store.assessment.resetData();
                         _context16.next = 3;
-                        return _this50.$wire.next();
+                        return _this51.$wire.next();
                       case 3:
-                        _this50.clickedNext = false;
+                        _this51.clickedNext = false;
                       case 4:
                       case "end":
                         return _context16.stop();
@@ -8833,28 +8854,28 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       previous: function previous() {
-        var _this51 = this;
+        var _this52 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee19() {
           return _regeneratorRuntime().wrap(function _callee19$(_context19) {
             while (1) switch (_context19.prev = _context19.next) {
               case 0:
-                if (!_this51.$store.answerFeedback.feedbackBeingEdited()) {
+                if (!_this52.$store.answerFeedback.feedbackBeingEdited()) {
                   _context19.next = 2;
                   break;
                 }
-                return _context19.abrupt("return", _this51.$store.answerFeedback.openConfirmationModal(_this51.$root, 'previous'));
+                return _context19.abrupt("return", _this52.$store.answerFeedback.openConfirmationModal(_this52.$root, 'previous'));
               case 2:
-                _this51.tab(1);
+                _this52.tab(1);
                 _context19.next = 5;
-                return _this51.$nextTick( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee18() {
+                return _this52.$nextTick( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee18() {
                   return _regeneratorRuntime().wrap(function _callee18$(_context18) {
                     while (1) switch (_context18.prev = _context18.next) {
                       case 0:
-                        _this51.$store.assessment.resetData();
+                        _this52.$store.assessment.resetData();
                         _context18.next = 3;
-                        return _this51.$wire.previous();
+                        return _this52.$wire.previous();
                       case 3:
-                        _this51.clickedNext = false;
+                        _this52.clickedNext = false;
                       case 4:
                       case "end":
                         return _context18.stop();
@@ -8869,13 +8890,13 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       navigate: function navigate(methodName) {
-        var _this52 = this;
+        var _this53 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee20() {
           return _regeneratorRuntime().wrap(function _callee20$(_context20) {
             while (1) switch (_context20.prev = _context20.next) {
               case 0:
                 _context20.next = 2;
-                return _this52[methodName]();
+                return _this53[methodName]();
               case 2:
               case "end":
                 return _context20.stop();
@@ -8916,9 +8937,9 @@ document.addEventListener("alpine:init", function () {
         return !this.inReview && !this.$store.assessment.clearToProceed() && !this.clickedNext;
       },
       openFeedbackTab: function openFeedbackTab() {
-        var _this53 = this;
+        var _this54 = this;
         this.tab(2).then(function (response) {
-          var editorDiv = _this53.$root.querySelector(".feedback textarea");
+          var editorDiv = _this54.$root.querySelector(".feedback textarea");
           if (editorDiv) {
             var editor = ClassicEditors[editorDiv.getAttribute("name")];
             if (editor) {
@@ -8970,10 +8991,10 @@ document.addEventListener("alpine:init", function () {
         el.style.setProperty("--slider-thumb-offset", "calc(".concat(offsetFromCenter, "% + 1px)"));
       },
       setSliderBackgroundSize: function setSliderBackgroundSize(el) {
-        var _this54 = this;
+        var _this55 = this;
         this.$nextTick(function () {
-          el.style.setProperty("--slider-thumb-offset", "".concat(25 / 100 * _this54.getSliderBackgroundSize(el) - 12.5, "px"));
-          el.style.setProperty("--slider-background-size", "".concat(_this54.getSliderBackgroundSize(el), "%"));
+          el.style.setProperty("--slider-thumb-offset", "".concat(25 / 100 * _this55.getSliderBackgroundSize(el) - 12.5, "px"));
+          el.style.setProperty("--slider-background-size", "".concat(_this55.getSliderBackgroundSize(el), "%"));
         });
       },
       syncInput: function syncInput() {
@@ -8992,42 +9013,42 @@ document.addEventListener("alpine:init", function () {
         }
       },
       init: function init() {
-        var _this55 = this;
+        var _this56 = this;
         if (coLearning) {
           Livewire.hook("message.received", function (message, component) {
             var _message$updateQueue$;
             if (component.name === "student.co-learning" && ((_message$updateQueue$ = message.updateQueue[0]) === null || _message$updateQueue$ === void 0 ? void 0 : _message$updateQueue$.method) === "updateHeartbeat") {
-              var scoreInputElement = _this55.$root.querySelector("[x-ref='scoreInput']");
-              _this55.persistentScore = scoreInputElement !== null && scoreInputElement.value !== "" ? scoreInputElement.value : null;
+              var scoreInputElement = _this56.$root.querySelector("[x-ref='scoreInput']");
+              _this56.persistentScore = scoreInputElement !== null && scoreInputElement.value !== "" ? scoreInputElement.value : null;
             }
           });
           Livewire.hook("message.processed", function (message, component) {
             var _message$updateQueue$2;
             if (component.name === "student.co-learning" && ((_message$updateQueue$2 = message.updateQueue[0]) === null || _message$updateQueue$2 === void 0 ? void 0 : _message$updateQueue$2.method) === "updateHeartbeat") {
-              _this55.skipSync = true;
-              _this55.score = _this55.persistentScore;
+              _this56.skipSync = true;
+              _this56.score = _this56.persistentScore;
             }
           });
         }
         this.inputBox = this.$root.querySelector("[x-ref='scoreInput']");
         this.$watch("score", function (value, oldValue) {
-          _this55.markInputElementsClean();
-          if (_this55.disabled || value === oldValue || _this55.skipSync) {
-            _this55.skipSync = false;
+          _this56.markInputElementsClean();
+          if (_this56.disabled || value === oldValue || _this56.skipSync) {
+            _this56.skipSync = false;
             return;
           }
-          if (value >= _this55.maxScore) {
-            _this55.score = value = _this55.maxScore;
+          if (value >= _this56.maxScore) {
+            _this56.score = value = _this56.maxScore;
           }
           if (value <= 0) {
-            _this55.score = value = 0;
+            _this56.score = value = 0;
           }
-          _this55.score = value = _this55.halfPoints ? Math.round(value * 2) / 2 : Math.round(value);
-          _this55.updateContinuousSlider();
+          _this56.score = value = _this56.halfPoints ? Math.round(value * 2) / 2 : Math.round(value);
+          _this56.updateContinuousSlider();
         });
         if (focusInput) {
           this.$nextTick(function () {
-            _this55.inputBox.focus();
+            _this56.inputBox.focus();
           });
         }
         this.bars = this.maxScore;
@@ -9068,7 +9089,7 @@ document.addEventListener("alpine:init", function () {
       minWidth: 120,
       maxWidth: 1000,
       setInputWidth: function setInputWidth(input) {
-        var _this56 = this;
+        var _this57 = this;
         var init = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
         var preview = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
         if (!init || preview) {
@@ -9079,8 +9100,8 @@ document.addEventListener("alpine:init", function () {
           if (!value) {
             return;
           }
-          _this56.$nextTick(function () {
-            _this56.calculateInputWidth(input);
+          _this57.$nextTick(function () {
+            _this57.calculateInputWidth(input);
           });
         });
       },
@@ -9135,23 +9156,23 @@ document.addEventListener("alpine:init", function () {
       inModal: false,
       show: false,
       init: function init() {
-        var _this57 = this;
+        var _this58 = this;
         this.setHeightProperty();
         this.inModal = this.$root.closest("#modal-container") !== null;
         this.$watch("tooltip", function (value) {
           if (value) {
             var ignoreLeft = false;
-            if (alwaysLeft || _this57.tooltipTooWideForPosition()) {
-              _this57.$refs.tooltipdiv.classList.remove("left-1/2", "-translate-x-1/2");
-              _this57.$refs.tooltipdiv.classList.add("right-0");
+            if (alwaysLeft || _this58.tooltipTooWideForPosition()) {
+              _this58.$refs.tooltipdiv.classList.remove("left-1/2", "-translate-x-1/2");
+              _this58.$refs.tooltipdiv.classList.add("right-0");
               ignoreLeft = true;
             }
-            _this57.$refs.tooltipdiv.style.top = _this57.getTop();
-            _this57.$refs.tooltipdiv.style.left = _this57.getLeft(ignoreLeft);
+            _this58.$refs.tooltipdiv.style.top = _this58.getTop();
+            _this58.$refs.tooltipdiv.style.left = _this58.getLeft(ignoreLeft);
           }
         });
         this.$nextTick(function () {
-          return _this57.show = true;
+          return _this58.show = true;
         });
       },
       getTop: function getTop() {
@@ -9182,12 +9203,12 @@ document.addEventListener("alpine:init", function () {
         this.$refs.tooltipdiv.style.left = this.getLeft();
       },
       setHeightProperty: function setHeightProperty() {
-        var _this58 = this;
+        var _this59 = this;
         this.tooltip = true;
         this.$nextTick(function () {
-          _this58.height = _this58.$refs.tooltipdiv.offsetHeight;
-          _this58.tooltip = false;
-          _this58.$refs.tooltipdiv.classList.remove("invisible");
+          _this59.height = _this59.$refs.tooltipdiv.offsetHeight;
+          _this59.tooltip = false;
+          _this59.$refs.tooltipdiv.classList.remove("invisible");
         });
       },
       tooltipTooWideForPosition: function tooltipTooWideForPosition() {
@@ -9209,16 +9230,16 @@ document.addEventListener("alpine:init", function () {
       navScrollBar: null,
       initialized: false,
       init: function init() {
-        var _this59 = this;
+        var _this60 = this;
         this.navScrollBar = this.$root.querySelector("#navscrollbar");
         this.$nextTick(function () {
-          _this59.$root.querySelector(".active").scrollIntoView({
+          _this60.$root.querySelector(".active").scrollIntoView({
             behavior: "smooth"
           });
-          _this59.totalScrollWidth = _this59.$root.offsetWidth;
-          _this59.resize();
-          _this59.initialized = true;
-          _this59.slideToActiveQuestionBubble();
+          _this60.totalScrollWidth = _this60.$root.offsetWidth;
+          _this60.resize();
+          _this60.initialized = true;
+          _this60.slideToActiveQuestionBubble();
         });
       },
       resize: function resize() {
@@ -9256,24 +9277,24 @@ document.addEventListener("alpine:init", function () {
         });
       },
       startIntersectionCountdown: function startIntersectionCountdown() {
-        var _this60 = this;
+        var _this61 = this;
         clearTimeout(this.intersectionCountdown);
         this.intersectionCountdown = setTimeout(function () {
-          clearTimeout(_this60.intersectionCountdown);
-          _this60.slideToActiveQuestionBubble();
+          clearTimeout(_this61.intersectionCountdown);
+          _this61.slideToActiveQuestionBubble();
         }, 5000);
       },
       loadQuestion: function loadQuestion(number) {
-        var _this61 = this;
+        var _this62 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee21() {
           return _regeneratorRuntime().wrap(function _callee21$(_context21) {
             while (1) switch (_context21.prev = _context21.next) {
               case 0:
-                _this61.$dispatch("assessment-drawer-tab-update", {
+                _this62.$dispatch("assessment-drawer-tab-update", {
                   tab: 1
                 });
                 _context21.next = 3;
-                return _this61.$wire.loadQuestionFromNav(number);
+                return _this62.$wire.loadQuestionFromNav(number);
               case 3:
               case "end":
                 return _context21.stop();
@@ -9289,21 +9310,21 @@ document.addEventListener("alpine:init", function () {
       changing: false,
       language: language,
       startLanguageChange: function startLanguageChange(event, wireModelName) {
-        var _this62 = this;
+        var _this63 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee22() {
           return _regeneratorRuntime().wrap(function _callee22$(_context22) {
             while (1) switch (_context22.prev = _context22.next) {
               case 0:
-                _this62.$dispatch("language-loading-start");
-                _this62.changing = true;
-                _this62.language = event.target.dataset.value;
+                _this63.$dispatch("language-loading-start");
+                _this63.changing = true;
+                _this63.language = event.target.dataset.value;
                 _context22.next = 5;
-                return _this62.$wire.call("$set", wireModelName, event.target.dataset.value);
+                return _this63.$wire.call("$set", wireModelName, event.target.dataset.value);
               case 5:
-                _this62.$nextTick(function () {
+                _this63.$nextTick(function () {
                   setTimeout(function () {
-                    _this62.changing = false;
-                    _this62.$dispatch("language-loading-end");
+                    _this63.changing = false;
+                    _this63.$dispatch("language-loading-end");
                   }, 1500);
                 });
               case 6:
@@ -9330,20 +9351,20 @@ document.addEventListener("alpine:init", function () {
       viewOnly: viewOnly,
       hasFeedback: hasFeedback,
       init: function init() {
-        var _this63 = this;
+        var _this64 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee25() {
           return _regeneratorRuntime().wrap(function _callee25$(_context25) {
             while (1) switch (_context25.prev = _context25.next) {
               case 0:
-                _this63.dropdownOpened = questionType === 'OpenQuestion' ? 'given-feedback' : 'add-feedback';
+                _this64.dropdownOpened = questionType === 'OpenQuestion' ? 'given-feedback' : 'add-feedback';
                 if (!(questionType !== 'OpenQuestion')) {
                   _context25.next = 3;
                   break;
                 }
                 return _context25.abrupt("return");
               case 3:
-                _this63.setFocusTracking();
-                _this63.createFocusableButtons();
+                _this64.setFocusTracking();
+                _this64.createFocusableButtons();
                 document.addEventListener('comment-color-updated', /*#__PURE__*/function () {
                   var _ref4 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee23(event) {
                     var styleTagElement, colorWithOpacity, color;
@@ -9372,9 +9393,9 @@ document.addEventListener("alpine:init", function () {
                         case 0:
                           ckeditorIconWrapper = document.querySelector('#icon-' + event.detail.threadId);
                           cardIconWrapper = document.querySelector('[data-uuid="' + event.detail.uuid + '"].answer-feedback-card-icon');
-                          if (ckeditorIconWrapper) _this63.addOrReplaceIconByName(ckeditorIconWrapper, event.detail.iconName);
+                          if (ckeditorIconWrapper) _this64.addOrReplaceIconByName(ckeditorIconWrapper, event.detail.iconName);
                           if (cardIconWrapper) {
-                            _this63.addOrReplaceIconByName(cardIconWrapper, event.detail.iconName);
+                            _this64.addOrReplaceIconByName(cardIconWrapper, event.detail.iconName);
                             cardIconWrapper.querySelector('span').style = '';
                           }
                         case 4:
@@ -9389,19 +9410,19 @@ document.addEventListener("alpine:init", function () {
                 }());
                 window.addEventListener('new-comment-color-updated', function (event) {
                   var _event$detail;
-                  return _this63.updateNewCommentMarkerStyles(event === null || event === void 0 ? void 0 : (_event$detail = event.detail) === null || _event$detail === void 0 ? void 0 : _event$detail.color);
+                  return _this64.updateNewCommentMarkerStyles(event === null || event === void 0 ? void 0 : (_event$detail = event.detail) === null || _event$detail === void 0 ? void 0 : _event$detail.color);
                 });
                 document.addEventListener('mousedown', function (e) {
-                  if (_this63.activeComment === null) {
+                  if (_this64.activeComment === null) {
                     return;
                   }
                   //check for click outside 1. comment markers, 2. comment marker icons, 3. comment cards.
                   if (e.srcElement.closest('.ck-comment-marker') || e.srcElement.closest('.answer-feedback-comment-icons') || e.srcElement.closest('.given-feedback-container')) {
                     return;
                   }
-                  _this63.clearActiveComment();
+                  _this64.clearActiveComment();
                 });
-                _this63.preventOpeningModalFromBreakingDrawer();
+                _this64.preventOpeningModalFromBreakingDrawer();
               case 10:
               case "end":
                 return _context25.stop();
@@ -9410,7 +9431,7 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       updateCommentThread: function updateCommentThread(element) {
-        var _this64 = this;
+        var _this65 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee26() {
           var _answerFeedbackCardEl, _answerFeedbackCardEl2, _answerFeedbackCardEl3, _answerFeedbackCardEl4;
           var answerFeedbackCardElement, answerFeedbackUuid, comment_color, comment_emoji, answerFeedbackEditor, commentStyles;
@@ -9423,7 +9444,7 @@ document.addEventListener("alpine:init", function () {
                 comment_emoji = (_answerFeedbackCardEl3 = answerFeedbackCardElement.querySelector('.comment-emoji-picker input:checked')) === null || _answerFeedbackCardEl3 === void 0 ? void 0 : (_answerFeedbackCardEl4 = _answerFeedbackCardEl3.dataset) === null || _answerFeedbackCardEl4 === void 0 ? void 0 : _answerFeedbackCardEl4.emoji;
                 answerFeedbackEditor = ClassicEditors['update-' + answerFeedbackUuid];
                 _context26.next = 7;
-                return _this64.$wire.call('updateExistingComment', {
+                return _this65.$wire.call('updateExistingComment', {
                   uuid: answerFeedbackUuid,
                   message: answerFeedbackEditor.getData(),
                   comment_emoji: comment_emoji,
@@ -9432,7 +9453,7 @@ document.addEventListener("alpine:init", function () {
               case 7:
                 commentStyles = _context26.sent;
                 document.querySelector('#commentMarkerStyles').innerHTML = commentStyles;
-                _this64.cancelEditingComment(answerFeedbackCardElement.dataset.threadId);
+                _this65.cancelEditingComment(answerFeedbackCardElement.dataset.threadId);
               case 10:
               case "end":
                 return _context26.stop();
@@ -9441,22 +9462,22 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       createCommentThread: function createCommentThread() {
-        var _this65 = this;
+        var _this66 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee28() {
           var _addCommentElement$qu, _addCommentElement$qu2, _addCommentElement$qu3, _addCommentElement$qu4, _addCommentElement$qu5, _addCommentElement$qu6;
           var addCommentElement, comment_color, comment_emoji, comment_iconName, answerEditor, feedbackEditor, comment;
           return _regeneratorRuntime().wrap(function _callee28$(_context28) {
             while (1) switch (_context28.prev = _context28.next) {
               case 0:
-                addCommentElement = _this65.$el.closest('.answer-feedback-add-comment');
+                addCommentElement = _this66.$el.closest('.answer-feedback-add-comment');
                 comment_color = (_addCommentElement$qu = addCommentElement.querySelector('.comment-color-picker input:checked')) === null || _addCommentElement$qu === void 0 ? void 0 : (_addCommentElement$qu2 = _addCommentElement$qu.dataset) === null || _addCommentElement$qu2 === void 0 ? void 0 : _addCommentElement$qu2.color;
                 comment_emoji = (_addCommentElement$qu3 = addCommentElement.querySelector('.comment-emoji-picker input:checked')) === null || _addCommentElement$qu3 === void 0 ? void 0 : (_addCommentElement$qu4 = _addCommentElement$qu3.dataset) === null || _addCommentElement$qu4 === void 0 ? void 0 : _addCommentElement$qu4.emoji;
                 comment_iconName = (_addCommentElement$qu5 = addCommentElement.querySelector('.comment-emoji-picker input:checked')) === null || _addCommentElement$qu5 === void 0 ? void 0 : (_addCommentElement$qu6 = _addCommentElement$qu5.dataset) === null || _addCommentElement$qu6 === void 0 ? void 0 : _addCommentElement$qu6.iconname;
-                answerEditor = ClassicEditors[_this65.answerEditorId];
-                feedbackEditor = ClassicEditors[_this65.feedbackEditorId];
+                answerEditor = ClassicEditors[_this66.answerEditorId];
+                feedbackEditor = ClassicEditors[_this66.feedbackEditorId];
                 comment = feedbackEditor.getData() || '<p></p>';
                 answerEditor.focus();
-                _this65.$nextTick( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee27() {
+                _this66.$nextTick( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee27() {
                   var feedback, newCommentThread, updatedAnswerText, commentStyles;
                   return _regeneratorRuntime().wrap(function _callee27$(_context27) {
                     while (1) switch (_context27.prev = _context27.next) {
@@ -9466,7 +9487,7 @@ document.addEventListener("alpine:init", function () {
                           break;
                         }
                         _context27.next = 3;
-                        return _this65.$wire.createNewComment([]);
+                        return _this66.$wire.createNewComment([]);
                       case 3:
                         feedback = _context27.sent;
                         _context27.next = 6;
@@ -9481,11 +9502,11 @@ document.addEventListener("alpine:init", function () {
                           threadId: feedback.threadId,
                           commentId: feedback.commentId,
                           content: comment,
-                          authorId: _this65.userId
+                          authorId: _this66.userId
                         });
                         updatedAnswerText = answerEditor.getData();
                         _context27.next = 11;
-                        return _this65.$wire.saveNewComment({
+                        return _this66.$wire.saveNewComment({
                           uuid: feedback.uuid,
                           message: comment,
                           comment_color: comment_color,
@@ -9494,21 +9515,21 @@ document.addEventListener("alpine:init", function () {
                       case 11:
                         commentStyles = _context27.sent;
                         _context27.next = 14;
-                        return _this65.createCommentIcon({
+                        return _this66.createCommentIcon({
                           uuid: feedback.uuid,
                           threadId: feedback.threadId,
                           iconName: comment_iconName
                         });
                       case 14:
                         document.querySelector('#commentMarkerStyles').innerHTML = commentStyles;
-                        _this65.resetAddNewAnswerFeedback();
-                        _this65.hasFeedback = true;
-                        _this65.$dispatch('answer-feedback-show-comments');
-                        _this65.scrollToCommentCard(feedback.uuid);
+                        _this66.resetAddNewAnswerFeedback();
+                        _this66.hasFeedback = true;
+                        _this66.$dispatch('answer-feedback-show-comments');
+                        _this66.scrollToCommentCard(feedback.uuid);
                         return _context27.abrupt("return");
                       case 20:
                         _context27.next = 22;
-                        return _this65.$wire.createNewComment({
+                        return _this66.$wire.createNewComment({
                           message: comment,
                           comment_color: null,
                           //no comment color when its a general ticket.
@@ -9516,10 +9537,10 @@ document.addEventListener("alpine:init", function () {
                         }, false);
                       case 22:
                         feedback = _context27.sent;
-                        _this65.hasFeedback = true;
-                        _this65.resetAddNewAnswerFeedback();
-                        _this65.$dispatch('answer-feedback-show-comments');
-                        _this65.scrollToCommentCard(feedback.uuid);
+                        _this66.hasFeedback = true;
+                        _this66.resetAddNewAnswerFeedback();
+                        _this66.$dispatch('answer-feedback-show-comments');
+                        _this66.scrollToCommentCard(feedback.uuid);
                       case 27:
                       case "end":
                         return _context27.stop();
@@ -9534,7 +9555,7 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       deleteCommentThread: function deleteCommentThread(threadId, feedbackId) {
-        var _this66 = this;
+        var _this67 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee29() {
           var answerEditor, commentsRepository, thread, result, deletedThreadIcon, answerText;
           return _regeneratorRuntime().wrap(function _callee29$(_context29) {
@@ -9545,16 +9566,16 @@ document.addEventListener("alpine:init", function () {
                   break;
                 }
                 _context29.next = 3;
-                return _this66.$wire.deleteCommentThread(null, feedbackId);
+                return _this67.$wire.deleteCommentThread(null, feedbackId);
               case 3:
-                _this66.$wire.render();
+                _this67.$wire.render();
                 return _context29.abrupt("return");
               case 5:
-                answerEditor = ClassicEditors[_this66.answerEditorId];
+                answerEditor = ClassicEditors[_this67.answerEditorId];
                 commentsRepository = answerEditor.plugins.get('CommentsRepository');
                 thread = commentsRepository.getCommentThread(threadId);
                 _context29.next = 10;
-                return _this66.$wire.deleteCommentThread(threadId, feedbackId);
+                return _this67.$wire.deleteCommentThread(threadId, feedbackId);
               case 10:
                 result = _context29.sent;
                 if (!result) {
@@ -9569,9 +9590,9 @@ document.addEventListener("alpine:init", function () {
                 commentsRepository.getCommentThread(threadId).remove();
                 answerText = answerEditor.getData();
                 _context29.next = 18;
-                return _this66.$wire.updateAnswer(answerText);
+                return _this67.$wire.updateAnswer(answerText);
               case 18:
-                _this66.setEditingComment(null);
+                _this67.setEditingComment(null);
                 return _context29.abrupt("return");
               case 20:
                 console.error('failed to delete answer feedback');
@@ -9583,14 +9604,14 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       initCommentIcons: function initCommentIcons(commentThreads) {
-        var _this67 = this;
+        var _this68 = this;
         //create icon wrapper and append icon inside it
         commentThreads.forEach(function (thread) {
-          _this67.createCommentIcon(thread);
+          _this68.createCommentIcon(thread);
         });
       },
       initCommentIcon: function initCommentIcon(el, thread) {
-        var _this68 = this;
+        var _this69 = this;
         var commentThreadElements = null;
         setTimeout(function () {
           var commentMarkers = document.querySelectorAll("[data-comment='" + thread.threadId + "']");
@@ -9599,19 +9620,19 @@ document.addEventListener("alpine:init", function () {
           el.style.left = lastCommentMarker.offsetWidth + lastCommentMarker.offsetLeft - 5 + 'px';
           el.setAttribute('data-uuid', thread.uuid);
           el.setAttribute('data-threadId', thread.threadId);
-          _this68.addOrReplaceIconByName(el, thread.iconName);
+          _this69.addOrReplaceIconByName(el, thread.iconName);
           commentThreadElements = [].concat(_toConsumableArray(commentMarkers), [el]);
 
           //set click event listener on all comment markers and the icon.
           commentThreadElements.forEach(function (threadElement) {
             threadElement.addEventListener('click', function () {
-              _this68.setActiveComment(thread.threadId, thread.uuid);
+              _this69.setActiveComment(thread.threadId, thread.uuid);
             });
             threadElement.addEventListener('mouseenter', function (e) {
-              _this68.setHoveringComment(thread.threadId, thread.uuid);
+              _this69.setHoveringComment(thread.threadId, thread.uuid);
             });
             threadElement.addEventListener('mouseleave', function (e) {
-              _this68.clearHoveringComment();
+              _this69.clearHoveringComment();
             });
           });
         }, 200);
@@ -9729,14 +9750,14 @@ document.addEventListener("alpine:init", function () {
         this.setActiveCommentMarkerStyle(true);
       },
       setFocusTracking: function setFocusTracking() {
-        var _this69 = this;
+        var _this70 = this;
         if (viewOnly) {
           return;
         }
         setTimeout(function () {
           try {
-            var answerEditor = ClassicEditors[_this69.answerEditorId];
-            var feedbackEditor = ClassicEditors[_this69.feedbackEditorId];
+            var answerEditor = ClassicEditors[_this70.answerEditorId];
+            var feedbackEditor = ClassicEditors[_this70.feedbackEditorId];
             answerEditor.ui.focusTracker.add(feedbackEditor.sourceElement.parentElement.querySelector('.ck.ck-content'));
 
             //keep focus when clicking on the emoji and color pickers
@@ -9765,10 +9786,10 @@ document.addEventListener("alpine:init", function () {
         return ClassicEditors[this.feedbackEditorId];
       },
       createFocusableButtons: function createFocusableButtons() {
-        var _this70 = this;
+        var _this71 = this;
         setTimeout(function () {
           try {
-            var answerEditor = ClassicEditors[_this70.answerEditorId];
+            var answerEditor = ClassicEditors[_this71.answerEditorId];
             var buttonWrapper = document.querySelector('#saveNewFeedbackButtonWrapper');
             if (buttonWrapper.children.length > 0) {
               return;
@@ -9824,11 +9845,11 @@ document.addEventListener("alpine:init", function () {
         radiobuttonIcon.element.querySelector('span').appendChild(document.importNode(el.querySelector('template').content, true));
       },
       setEditingComment: function setEditingComment(AnswerFeedbackUuid) {
-        var _this71 = this;
+        var _this72 = this;
         this.activeComment = null;
         this.$store.answerFeedback.editingComment = AnswerFeedbackUuid !== null && AnswerFeedbackUuid !== void 0 ? AnswerFeedbackUuid : null;
         setTimeout(function () {
-          _this71.fixSlideHeightByIndex(2, AnswerFeedbackUuid);
+          _this72.fixSlideHeightByIndex(2, AnswerFeedbackUuid);
         }, 100);
       },
       toggleFeedbackAccordion: function toggleFeedbackAccordion(name) {
@@ -9893,7 +9914,7 @@ document.addEventListener("alpine:init", function () {
         this.setHeightToAspectRatio(this.$el);
       },
       setHeightToAspectRatio: function setHeightToAspectRatio(element) {
-        var _this72 = this;
+        var _this73 = this;
         var aspectRatioWidth = 940;
         var aspectRatioHeight = 500;
         var aspectRatio = aspectRatioHeight / aspectRatioWidth;
@@ -9906,7 +9927,7 @@ document.addEventListener("alpine:init", function () {
         if (newHeight <= 0) {
           if (this.currentTry <= this.maxTries) {
             setTimeout(function () {
-              return _this72.setHeightToAspectRatio(element);
+              return _this73.setHeightToAspectRatio(element);
             }, 50);
             this.currentTry++;
           }
@@ -9939,16 +9960,16 @@ document.addEventListener("alpine:init", function () {
       maxWords: maxWords,
       wordContainer: null,
       init: function init() {
-        var _this73 = this;
+        var _this74 = this;
         this.$nextTick(function () {
-          _this73.editor = ClassicEditors[editorId];
-          _this73.wordContainer = _this73.$root.querySelector(".ck-word-count__words");
-          _this73.wordContainer.style.display = "flex";
-          _this73.wordContainer.parentElement.style.display = "flex";
-          _this73.addMaxWordsToWordCounter(_this73.maxWords);
+          _this74.editor = ClassicEditors[editorId];
+          _this74.wordContainer = _this74.$root.querySelector(".ck-word-count__words");
+          _this74.wordContainer.style.display = "flex";
+          _this74.wordContainer.parentElement.style.display = "flex";
+          _this74.addMaxWordsToWordCounter(_this74.maxWords);
         });
         this.$watch("maxWords", function (value) {
-          _this73.addMaxWordsToWordCounter(value);
+          _this74.addMaxWordsToWordCounter(value);
         });
       },
       addMaxWordsToWordCounter: function addMaxWordsToWordCounter(value) {
@@ -9967,17 +9988,17 @@ document.addEventListener("alpine:init", function () {
     return {
       editorId: editorId,
       init: function init() {
-        var _this74 = this;
+        var _this75 = this;
         this.$watch("showMe", function (value) {
           if (!value) return;
-          _this74.$nextTick(function () {
+          _this75.$nextTick(function () {
             var editor = ClassicEditors[editorId];
             if (!editor) {
               return;
             }
             if (!editor.ui.focusTracker.isFocused) {
               setTimeout(function () {
-                _this74.setFocus(editor);
+                _this75.setFocus(editor);
               }, 300);
             }
           });
@@ -10005,14 +10026,14 @@ document.addEventListener("alpine:init", function () {
       pillContainer: null,
       searchFocussed: false,
       init: function init() {
-        var _this75 = this;
+        var _this76 = this;
         this.pillContainer = document.querySelector("#".concat(containerId));
         this.$watch("query", function (value) {
-          return _this75.search(value);
+          return _this76.search(value);
         });
         this.$watch("multiSelectOpen", function (value) {
-          if (value) _this75.handleDropdownLocation();
-          if (!value) _this75.query = "";
+          if (value) _this76.handleDropdownLocation();
+          if (!value) _this76.query = "";
         });
         this.registerSelectedItemsOnComponent();
       },
@@ -10020,15 +10041,15 @@ document.addEventListener("alpine:init", function () {
         this.openSubs = this.toggle(this.openSubs, uuid);
       },
       parentClick: function parentClick(element, parent) {
-        var _this76 = this;
+        var _this77 = this;
         var checked = !this.checkedParents.includes(parent.value);
         element.querySelector("input[type=\"checkbox\"]").checked = checked;
         this.checkedParents = this.toggle(this.checkedParents, parent.value);
         parent.children.filter(function (child) {
           return child.disabled !== true;
         }).forEach(function (child) {
-          _this76[checked ? "childAdd" : "childRemove"](child);
-          checked ? _this76.checkAndDisableBrothersFromOtherMothers(child) : _this76.uncheckAndEnableBrothersFromOtherMothers(child);
+          _this77[checked ? "childAdd" : "childRemove"](child);
+          checked ? _this77.checkAndDisableBrothersFromOtherMothers(child) : _this77.uncheckAndEnableBrothersFromOtherMothers(child);
         });
         this.$root.querySelectorAll("[data-parent-id=\"".concat(parent.value, "\"][data-disabled=\"false\"] input[type=\"checkbox\"]")).forEach(function (child) {
           return child.checked = checked;
@@ -10095,13 +10116,13 @@ document.addEventListener("alpine:init", function () {
         // return result < parent.children.length;
       },
       checkedChildrenCount: function checkedChildrenCount(parent) {
-        var _this77 = this;
+        var _this78 = this;
         return parent.children.filter(function (child) {
-          return _this77.checkedChildrenContains(child);
+          return _this78.checkedChildrenContains(child);
         }).length;
       },
       search: function search(value) {
-        var _this78 = this;
+        var _this79 = this;
         if (value.length === 0) {
           this.searchEmpty = false;
           this.showAllOptions();
@@ -10111,7 +10132,7 @@ document.addEventListener("alpine:init", function () {
         var results = this.searchParentsAndChildsLabels(value);
         this.searchEmpty = results.length === 0;
         results.forEach(function (item) {
-          return _this78.showOption(item);
+          return _this79.showOption(item);
         });
       },
       showOption: function showOption(identifier) {
@@ -10181,9 +10202,9 @@ document.addEventListener("alpine:init", function () {
         this[toggleFunction](this.$root.querySelector("[data-id=\"".concat(event.item.value, "\"][data-parent-id=\"").concat(event.item.customProperties.parentId, "\"]")), event.item);
       },
       handleActiveFilters: function handleActiveFilters() {
-        var _this79 = this;
+        var _this80 = this;
         var currentPillIds = Array.from(this.pillContainer.childNodes).map(function (pill) {
-          if (!_this79.isParent(pill.item)) {
+          if (!_this80.isParent(pill.item)) {
             return pill.item.value + pill.item.customProperties.parentId;
           }
           return pill.item.value;
@@ -10197,13 +10218,13 @@ document.addEventListener("alpine:init", function () {
         this.options.flatMap(function (parent) {
           return [parent].concat(_toConsumableArray(parent.children));
         }).filter(function (item) {
-          if (_this79.isParent(item)) return _this79.checkedParents.includes(item.value);
-          if (_this79.checkedParents.includes(item.customProperties.parentId)) {
+          if (_this80.isParent(item)) return _this80.checkedParents.includes(item.value);
+          if (_this80.checkedParents.includes(item.customProperties.parentId)) {
             pillIdsToRemove.push(item.value + item.customProperties.parentId);
           }
-          return !_this79.checkedParents.includes(item.customProperties.parentId) && _this79.checkedChildrenContains(item);
+          return !_this80.checkedParents.includes(item.customProperties.parentId) && _this80.checkedChildrenContains(item);
         }).forEach(function (item) {
-          return _this79.createFilterPill(item);
+          return _this80.createFilterPill(item);
         });
         var that = this;
         pillIdsToRemove.forEach(function (uuid) {
@@ -10230,7 +10251,7 @@ document.addEventListener("alpine:init", function () {
         }
       },
       registerSelectedItemsOnComponent: function registerSelectedItemsOnComponent() {
-        var _this80 = this;
+        var _this81 = this;
         var checkedChildValues = this.options.flatMap(function (parent) {
           return _toConsumableArray(parent.children);
         }).filter(function (item) {
@@ -10239,10 +10260,10 @@ document.addEventListener("alpine:init", function () {
         });
         this.$nextTick(function () {
           checkedChildValues.forEach(function (item) {
-            _this80.childClick(_this80.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.customProperties.parentId, "\"]")), item);
+            _this81.childClick(_this81.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.customProperties.parentId, "\"]")), item);
           });
-          _this80.registerParentsBasedOnDisabledChildren();
-          _this80.handleActiveFilters();
+          _this81.registerParentsBasedOnDisabledChildren();
+          _this81.handleActiveFilters();
         });
       },
       syncInput: function syncInput() {
@@ -10259,24 +10280,24 @@ document.addEventListener("alpine:init", function () {
         });
       },
       checkAndDisableBrothersFromOtherMothers: function checkAndDisableBrothersFromOtherMothers(child) {
-        var _this81 = this;
-        this.options.flatMap(function (parents) {
-          return _toConsumableArray(parents.children);
-        }).filter(function (item) {
-          return item.value === child.value && item.customProperties.parentId !== child.customProperties.parentId;
-        }).forEach(function (item) {
-          _this81.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.customProperties.parentId, "\"] input[type=\"checkbox\"]")).checked = true;
-          item.disabled = true;
-        });
-      },
-      uncheckAndEnableBrothersFromOtherMothers: function uncheckAndEnableBrothersFromOtherMothers(child) {
         var _this82 = this;
         this.options.flatMap(function (parents) {
           return _toConsumableArray(parents.children);
         }).filter(function (item) {
           return item.value === child.value && item.customProperties.parentId !== child.customProperties.parentId;
         }).forEach(function (item) {
-          _this82.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.customProperties.parentId, "\"] input[type=\"checkbox\"]")).checked = false;
+          _this82.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.customProperties.parentId, "\"] input[type=\"checkbox\"]")).checked = true;
+          item.disabled = true;
+        });
+      },
+      uncheckAndEnableBrothersFromOtherMothers: function uncheckAndEnableBrothersFromOtherMothers(child) {
+        var _this83 = this;
+        this.options.flatMap(function (parents) {
+          return _toConsumableArray(parents.children);
+        }).filter(function (item) {
+          return item.value === child.value && item.customProperties.parentId !== child.customProperties.parentId;
+        }).forEach(function (item) {
+          _this83.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.customProperties.parentId, "\"] input[type=\"checkbox\"]")).checked = false;
           item.disabled = false;
         });
       },
@@ -10285,15 +10306,15 @@ document.addEventListener("alpine:init", function () {
         return !((_item$customPropertie3 = item.customProperties) !== null && _item$customPropertie3 !== void 0 && _item$customPropertie3.parent) === false;
       },
       registerParentsBasedOnDisabledChildren: function registerParentsBasedOnDisabledChildren() {
-        var _this83 = this;
+        var _this84 = this;
         this.options.forEach(function (item) {
           var enabledChildren = item.children.filter(function (child) {
             return child.disabled !== true;
           }).length;
           if (enabledChildren === 0) return;
-          var enabled = _this83.checkedChildrenCount(item) === enabledChildren;
-          _this83.checkedParents = _this83[enabled ? "add" : "remove"](_this83.checkedParents, item.value);
-          _this83.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.value, "\"] input[type=\"checkbox\"]")).checked = enabled;
+          var enabled = _this84.checkedChildrenCount(item) === enabledChildren;
+          _this84.checkedParents = _this84[enabled ? "add" : "remove"](_this84.checkedParents, item.value);
+          _this84.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.value, "\"] input[type=\"checkbox\"]")).checked = enabled;
         });
       },
       parentDisabled: function parentDisabled(parent) {
@@ -10324,11 +10345,11 @@ document.addEventListener("alpine:init", function () {
       selectedText: null
     }, selectFunctions), {}, {
       init: function init() {
-        var _this84 = this;
+        var _this85 = this;
         this.selectedText = this.$root.querySelector("span.selected").dataset.selectText;
         this.setActiveStartingValue();
         this.$watch("singleSelectOpen", function (value) {
-          if (value) _this84.handleDropdownLocation();
+          if (value) _this85.handleDropdownLocation();
         });
       },
       get value() {
@@ -10393,21 +10414,21 @@ document.addEventListener("alpine:init", function () {
       inTestBankContext: inTestBankContext,
       maxHeight: 'calc(100vh - var(--header-height))',
       init: function init() {
-        var _this85 = this;
+        var _this86 = this;
         this.groupDetail = this.$el.querySelector('#groupdetail');
         this.$watch('showBank', function (value) {
           if (value === 'questions') {
-            _this85.$wire.loadSharedFilters();
+            _this86.$wire.loadSharedFilters();
           }
         });
         this.$watch('$store.questionBank.inGroup', function (value) {
-          _this85.inGroup = value;
+          _this86.inGroup = value;
         });
         this.$watch('$store.questionBank.active', function (value) {
           if (value) {
-            _this85.$wire.setAddedQuestionIdsArray();
+            _this86.$wire.setAddedQuestionIdsArray();
           } else {
-            _this85.closeGroupDetailQb();
+            _this86.closeGroupDetailQb();
           }
         });
         this.showGroupDetailsQb = /*#__PURE__*/function () {
@@ -10420,32 +10441,32 @@ document.addEventListener("alpine:init", function () {
                 case 0:
                   inTest = _args30.length > 1 && _args30[1] !== undefined ? _args30[1] : false;
                   _context30.next = 3;
-                  return _this85.$wire.showGroupDetails(groupQuestionUuid, inTest);
+                  return _this86.$wire.showGroupDetails(groupQuestionUuid, inTest);
                 case 3:
                   readyForSlide = _context30.sent;
                   if (readyForSlide) {
-                    if (_this85.inTestBankContext) {
-                      _this85.$refs['tab-container'].style.display = 'none';
-                      _this85.$refs['main-container'].style.height = '100vh';
+                    if (_this86.inTestBankContext) {
+                      _this86.$refs['tab-container'].style.display = 'none';
+                      _this86.$refs['main-container'].style.height = '100vh';
                     } else {
-                      _this85.maxHeight = _this85.groupDetail.offsetHeight + 'px';
+                      _this86.maxHeight = _this86.groupDetail.offsetHeight + 'px';
                     }
-                    _this85.groupDetail.style.left = 0;
-                    _this85.$refs['main-container'].scrollTo({
+                    _this86.groupDetail.style.left = 0;
+                    _this86.$refs['main-container'].scrollTo({
                       top: 0,
                       behavior: 'smooth'
                     });
-                    _this85.$el.scrollTo({
+                    _this86.$el.scrollTo({
                       top: 0,
                       behavior: 'smooth'
                     });
-                    _this85.$nextTick(function () {
+                    _this86.$nextTick(function () {
                       setTimeout(function () {
-                        _this85.bodyVisibility = false;
-                        if (_this85.inTestBankContext) {
-                          _this85.groupDetail.style.position = 'relative';
+                        _this86.bodyVisibility = false;
+                        if (_this86.inTestBankContext) {
+                          _this86.groupDetail.style.position = 'relative';
                         } else {
-                          handleVerticalScroll(_this85.$el.closest('.slide-container'));
+                          handleVerticalScroll(_this86.$el.closest('.slide-container'));
                         }
                       }, 500);
                     });
@@ -10461,19 +10482,19 @@ document.addEventListener("alpine:init", function () {
           };
         }();
         this.closeGroupDetailQb = function () {
-          if (!_this85.bodyVisibility) {
-            _this85.bodyVisibility = true;
-            _this85.maxHeight = 'calc(100vh - var(--header-height))';
-            _this85.groupDetail.style.left = '100%';
-            if (_this85.inTestBankContext) {
-              _this85.groupDetail.style.position = 'absolute';
-              _this85.$refs['tab-container'].style.display = 'block';
+          if (!_this86.bodyVisibility) {
+            _this86.bodyVisibility = true;
+            _this86.maxHeight = 'calc(100vh - var(--header-height))';
+            _this86.groupDetail.style.left = '100%';
+            if (_this86.inTestBankContext) {
+              _this86.groupDetail.style.position = 'absolute';
+              _this86.$refs['tab-container'].style.display = 'block';
             }
-            _this85.$nextTick(function () {
-              _this85.$wire.clearGroupDetails();
+            _this86.$nextTick(function () {
+              _this86.$wire.clearGroupDetails();
               setTimeout(function () {
-                if (!_this85.inTestBankContext) {
-                  handleVerticalScroll(_this85.$el.closest('.slide-container'));
+                if (!_this86.inTestBankContext) {
+                  handleVerticalScroll(_this86.$el.closest('.slide-container'));
                 }
               }, 250);
             });
@@ -10492,13 +10513,13 @@ document.addEventListener("alpine:init", function () {
                     _context31.next = 3;
                     break;
                   }
-                  return _context31.abrupt("return", _this85.$wire.emit('openModal', 'teacher.add-sub-question-confirmation-modal', {
+                  return _context31.abrupt("return", _this86.$wire.emit('openModal', 'teacher.add-sub-question-confirmation-modal', {
                     questionUuid: questionUuid
                   }));
                 case 3:
                   button.disabled = true;
                   _context31.next = 6;
-                  return _this85.$wire.handleCheckboxClick(questionUuid);
+                  return _this86.$wire.handleCheckboxClick(questionUuid);
                 case 6:
                   enableButton = _context31.sent;
                   if (enableButton) {
@@ -11408,7 +11429,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "fc18ed69b446aeb8c8a5",
+  key: "662d128370816e2bbb66",
   cluster: "eu",
   forceTLS: true
 });
@@ -70084,6 +70105,32 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./resources/css/app_pdf.css":
+/*!***********************************!*\
+  !*** ./resources/css/app_pdf.css ***!
+  \***********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+// extracted by mini-css-extract-plugin
+
+
+/***/ }),
+
+/***/ "./resources/css/print-test-pdf.css":
+/*!******************************************!*\
+  !*** ./resources/css/print-test-pdf.css ***!
+  \******************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+// extracted by mini-css-extract-plugin
+
+
+/***/ }),
+
 /***/ "./node_modules/plyr/dist/plyr.min.js":
 /*!********************************************!*\
   !*** ./node_modules/plyr/dist/plyr.min.js ***!
@@ -79443,7 +79490,9 @@ module.exports = JSON.parse('{"name":"axios","version":"0.21.4","description":"P
 /******/ 		// [resolve, reject, Promise] = chunk loading, 0 = chunk loaded
 /******/ 		var installedChunks = {
 /******/ 			"/js/app": 0,
-/******/ 			"css/app": 0
+/******/ 			"css/app": 0,
+/******/ 			"css/app_pdf": 0,
+/******/ 			"css/print-test-pdf": 0
 /******/ 		};
 /******/ 		
 /******/ 		// no chunk on demand loading
@@ -79493,8 +79542,10 @@ module.exports = JSON.parse('{"name":"axios","version":"0.21.4","description":"P
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module depends on other loaded chunks and execution need to be delayed
-/******/ 	__webpack_require__.O(undefined, ["css/app"], () => (__webpack_require__("./resources/js/app.js")))
-/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["css/app"], () => (__webpack_require__("./resources/css/app.css")))
+/******/ 	__webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/js/app.js")))
+/******/ 	__webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/css/app.css")))
+/******/ 	__webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/css/app_pdf.css")))
+/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/css/print-test-pdf.css")))
 /******/ 	__webpack_exports__ = __webpack_require__.O(__webpack_exports__);
 /******/ 	
 /******/ })()

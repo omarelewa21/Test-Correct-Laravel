@@ -1948,7 +1948,7 @@ document.addEventListener("alpine:init", () => {
         device,
         hasErrors,
         init() {
-            // this.setInitialFocusInput();
+            this.setInitialFocusInput();
 
             this.$watch("hasErrors", value => {
                 this.setCurrentFocusInput();
@@ -1969,16 +1969,30 @@ document.addEventListener("alpine:init", () => {
         },
         setCurrentFocusInput() {
             let name = ("" != this.activeOverlay) ? this.activeOverlay : this.openTab;
-            var finder = ("" != hasErrors) ? `[data-focus-tab-error = '${name}-${hasErrors[0]}']` : `[data-focus-tab = '${name}']`;
+            var finder = `[data-focus-tab = '${name}']`;
+
+            if("" != this.hasErrors) {
+                let errorCode = this.hasErrors[0];
+                switch (errorCode) {
+                    case 'invalid_test_code':
+                    case 'no_test_found_with_code':
+                        errorCode = 'invalid_test_code';
+                        break;
+                }
+
+                if(document.activeElement.type === 'password') {
+                    //Do not focus on other fields when password is focused to prevent users typing password in the wrong field
+                    //only works when the form is submitted by enter key, else focus is on the login button
+                    errorCode = 'password';
+                }
+
+                finder =  `[data-focus-tab-error = '${name}-${errorCode}']`;
+            }
             setTimeout(() => this.$root.querySelector(finder)?.focus(), 250);
         },
         changeActiveOverlay(activeOverlay = "") {
             this.activeOverlay = activeOverlay;
         },
-        getErrors() {
-            hasErrors = this.$wire.get('errorKeys');
-            console.log(hasErrors);
-        }
     }));
     Alpine.data("assessment", (array) => ({
         score: array.initialScore,

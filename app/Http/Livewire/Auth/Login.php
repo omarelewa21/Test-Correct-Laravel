@@ -19,6 +19,9 @@ use tcCore\Http\Helpers\TestTakeCodeHelper;
 use tcCore\Http\Livewire\TCComponent;
 use tcCore\Http\Requests\Request;
 use tcCore\Jobs\SendForgotPasswordMail;
+use tcCore\Rules\EmailDns;
+use tcCore\Rules\EmailImproved;
+use tcCore\Rules\TrueFalseRule;
 use tcCore\SamlMessage;
 use tcCore\Services\EmailValidatorService;
 use tcCore\User;
@@ -104,10 +107,13 @@ class Login extends TCComponent
 
     protected $listeners = ['open-auth-modal' => 'openAuthModal', 'password_reset' => 'passwordReset'];
 
-    protected $rules = [
-        'username' => 'required|email',
-        'password' => 'required',
-    ];
+    protected function getRules()
+    {
+        return [
+            'username' => ['required', new EmailImproved],
+            'password' => 'required',
+        ];
+    }
 
     public function getCustomValidator(): Login|m
     {
@@ -124,6 +130,7 @@ class Login extends TCComponent
             'password.required' => __('auth.password_required'),
             'username.required' => __('auth.email_required'),
             'username.email'    => __('auth.email_incorrect'),
+            'username.EmailImproved'    => __('auth.email_incorrect') . 2,
         ];
     }
 
@@ -316,7 +323,10 @@ class Login extends TCComponent
 
     private function couldBeEmail($email): bool
     {
-        return Str::of($email)->containsAll(['@', '.']);
+        return validator(
+            ['email' => $email],
+            ['email' => ['required', new EmailImproved]]
+        )->passes();
     }
 
     public function sendForgotPasswordEmail()
