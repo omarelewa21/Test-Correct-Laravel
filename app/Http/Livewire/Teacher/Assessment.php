@@ -6,12 +6,9 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
-use Ramsey\Uuid\Uuid;
 use tcCore\Answer;
-use tcCore\AnswerFeedback;
 use tcCore\AnswerRating;
 use tcCore\Exceptions\AssessmentException;
-use tcCore\Http\Enums\CommentEmoji;
 use tcCore\Http\Enums\UserFeatureSetting as UserFeatureSettingEnum;
 use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Http\Interfaces\CollapsableHeader;
@@ -74,7 +71,8 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     public $answerFeedback;
 
     public bool $singleParticipantState = false;
-    protected ?TestParticipant $testParticipant = null;
+    protected ?TestParticipant $testParticipant;
+    public ?int $participantPosition;
 
     /* Lifecycle methods */
     protected function getListeners(): array
@@ -87,13 +85,16 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     public function mount(TestTake $testTake): void
     {
         $this->testTakeUuid = $testTake->uuid;
+        $this->headerCollapsed = Session::has("assessment-started-$this->testTakeUuid");
 
         if ($this->participant) {
             $this->singleParticipantState = true;
             $this->testParticipant = TestParticipant::whereUuid($this->participant)->firstOrFail();
+            $this->participantPosition = $testTake->testParticipants()
+                    ->where('id', '<=', $this->testParticipant->id)
+                    ->count();
         }
 
-        $this->headerCollapsed = Session::has("assessment-started-$this->testTakeUuid");
         $this->setData();
 
         $this->verifyTestTakeData();
@@ -101,6 +102,14 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         if ($this->headerCollapsed) {
             $this->skipBootedMethod();
             $this->start();
+        }
+        if (!$this->headerCollapsed) {
+            if ($this->participant) {
+                $this->headerCollapsed = true;
+                $this->skipBootedMethod();
+                $this->start();
+                $this->storeAssessmentSessionContext(['assessment_type' => 'ALL']);
+            }
         }
 
         $this->setTemplateVariables();
@@ -118,6 +127,10 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
         if ($this->skipBooted) {
             return;
+        }
+
+        if ($this->participant) {
+            $this->testParticipant = TestParticipant::whereUuid($this->participant)->firstOrFail();
         }
 
         $this->setData();
@@ -705,7 +718,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             return;
         }
 
-        if (!$this->openOnly) {
+        if (!$this->openOnly && !$this->singleParticipantState) {
             $previousId = $this->testTakeData->fresh()->assessing_question_id;
 
             if (!$previousId) {
@@ -734,8 +747,8 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             return;
         }
 
-        $firstAnswer = $this->getFirstAnswerWhichDoesntHaveATeacherOrSystemRating(
-        ) ?? $this->answersWithDiscrepancyFilter()->last();
+        $firstAnswer = $this->getFirstAnswerWhichDoesntHaveATeacherOrSystemRating()
+            ?? $this->answersWithDiscrepancyFilter()->last();
         $this->setNavigationDataWithFirstUnscoredAnswer($firstAnswer);
     }
 
@@ -1051,10 +1064,6 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     {
         $this->setUserOnAnswer($this->currentAnswer);
         $this->currentQuestion = $this->questions->get((int)$this->questionNavigationValue - 1);
-
-        if ($this->participant) {
-            $this->testParticipant = TestParticipant::whereUuid($this->participant)->firstOrFail();
-        }
     }
 
     private function setUserOnAnswer(Answer $answer): void
@@ -1078,10 +1087,21 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
     protected function getTestTakeData(): TestTake
     {
-        return cache()->remember("assessment-data-$this->testTakeUuid", now()->addDays(3), function () {
+        $cacheKey = "assessment-data-$this->testTakeUuid";
+        if ($this->singleParticipantState) {
+            $cacheKey = sprintf("assessment-data-%s-%s", $this->testTakeUuid, $this->testParticipant->uuid);
+        }
+        return cache()->remember($cacheKey, now()->addDays(3), function () {
             return TestTake::whereUuid($this->testTakeUuid)
                 ->with([
-                    'testParticipants:id,uuid,test_take_id,user_id,test_take_status_id',
+                    'testParticipants' => function ($query) {
+                        return $query->when(
+                            $this->singleParticipantState,
+                            fn($query) => $query->where('id', $this->testParticipant->getKey())
+                        )
+                            ->select('id', 'uuid', 'test_take_id', 'user_id', 'test_take_status_id');
+                    }
+                    ,
                     'testParticipants.answers:id,uuid,test_participant_id,question_id,json,order,final_rating,done',
                     'testParticipants.answers.answerRatings:id,answer_id,type,rating,advise,user_id',
                     'testParticipants.answers.answerRatings.user:id,name,name_first,name_suffix',

@@ -187,6 +187,7 @@ class Taken extends TestTakeComponent
                 $participant->score = $this->getScoreForParticipant($participant);
                 $participant->discrepancies = $this->getDiscrepanciesForParticipant($participant);
                 $participant->rated = $this->getRatedQuestionsForParticipant($participant);
+                $participant->testNotTaken = $participant->test_take_status_id < TestTakeStatus::STATUS_TAKEN;
             });
     }
 

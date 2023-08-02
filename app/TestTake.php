@@ -760,7 +760,7 @@ class TestTake extends BaseModel
      * @param User $userToCheck
      * @return bool
      */
-    public function isInvigilator(User $userToCheck)
+    public function isInvigilator(User $userToCheck): bool
     {
         $allowed = false;
         foreach ($this->invigilatorUsers as $user) {

@@ -95,7 +95,5 @@ module.exports = {
             "spin": "spin 2s linear infinite"
         }
     },
-    plugins: [
-        require("@tailwindcss/line-clamp")
-    ]
+    plugins: [],
 };

@@ -203,20 +203,36 @@
                     <div class="col-span-5 h-[3px] bg-sysbase my-2 mx-5"></div>
 
                     @foreach($this->participantResults as $participant)
-                        <div class="grid-row contents group/row hover:text-primary hover:shadow-lg"
+                        <div @class([
+                                "grid-row contents group/row",
+                                "hover:text-primary hover:shadow-lg" => !$participant->testNotTaken,
+                                "disabled note" => $participant->testNotTaken,
+                                ])
                              x-on:mouseover="rowHover = $el.dataset.row"
                              x-on:mouseout="rowHover = null"
                              data-row="{{ $loop->iteration }}"
                         >
-                            <div class="grid-item flex items-center group-hover/row:bg-offwhite pr-1.5 pl-5 col-start-1 h-15 rounded-l-10">{{ $participant->name }}</div>
+                            <div class="grid-item flex items-center group-hover/row:bg-offwhite pr-1.5 pl-5 col-start-1 h-15 rounded-l-10">{{ $participant->name }} {{ $participant->test_take_status_id }}</div>
                             <div class="grid-item flex items-center group-hover/row:bg-offwhite px-1.5 justify-end">
-                                <span>{{ $participant->rated }}</span>/<span>{{ $this->takenTestData['questionCount'] }}</span>
+                                @if($participant->testNotTaken)
+                                    <span>-/--</span>
+                                @else
+                                    <span>{{ $participant->rated }}</span>/<span>{{ $this->takenTestData['questionCount'] }}</span>
+                                @endif
                             </div>
                             <div class="grid-item flex items-center group-hover/row:bg-offwhite px-1.5 justify-end">
-                                <span>{{ $participant->score }}</span>/<span>{{ $this->takenTestData['maxScore'] }}</span>
+                                @if($participant->testNotTaken)
+                                    <span>-/--</span>
+                                @else
+                                    <span>{{ $participant->score }}</span>/<span>{{ $this->takenTestData['maxScore'] }}</span>
+                                @endif
                             </div>
                             <div class="grid-item flex items-center group-hover/row:bg-offwhite px-1.5 justify-end">
-                                <span>{{ $participant->discrepancies }}</span>
+                                @if($participant->testNotTaken)
+                                    <span>--</span>
+                                @else
+                                    <span>{{ $participant->discrepancies }}</span>
+                                @endif
                             </div>
                             <div class="grid-item flex items-center group-hover/row:bg-offwhite pl-1.5 pr-5 rounded-r-10 truncate">
                                 <div class="flex items-center justify-between w-full ">
@@ -229,14 +245,20 @@
                                                         <x-icon.i-letter />
                                                     </span>
                                                 </x-slot:idleIcon>
-                                                <span>Tooltip Text</span>
+                                                <span></span>
                                             </x-tooltip>
-                                            <x-icon.web />
-                                            <x-icon.time-dispensation />
-                                            <x-icon.speech-bubble />
-                                            <x-icon.notepad />
+                                            @if($participant->testNotTaken)
+
+                                            @else
+                                                <x-icon.web />
+                                                <x-icon.time-dispensation />
+                                                <x-icon.speech-bubble />
+                                                <x-icon.notepad />
+                                            @endif
+
                                         </div>
-                                        <span class="truncate ">Text van de surveillant</span>
+
+                                        <span class="truncate ">{{ $participant->invigilator_note }}</span>
                                     </div>
                                     <div class="flex items-center gap-4">
                                         <div class="flex items-center gap-2">
@@ -245,8 +267,11 @@
                                             >
                                                 <x-icon.envelope class="w-4 h-4" />
                                             </x-button.icon>
+
                                             <x-button.icon wire:click="assessParticipant('{{ $participant->uuid }}')"
                                                            :title="__('test-take.Nakijken')"
+                                                           :disabled="$participant->testNotTaken"
+                                                           :color="$participant->rated === $this->takenTestData['questionCount'] ? 'primary' : 'cta'"
                                             >
                                                 <x-icon.review />
                                             </x-button.icon>

@@ -19,6 +19,8 @@ use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Dyrynda\Database\Support\GeneratesUuid;
+use tcCore\Lib\Question\QuestionGatherer;
+use tcCore\Lib\Question\QuestionInterface;
 use tcCore\Traits\UuidTrait;
 
 class TestParticipant extends BaseModel
@@ -539,7 +541,7 @@ class TestParticipant extends BaseModel
     /**
      * This property is being set arbitrarily in a query in CoLearningHelper, it doesn't exist on TestParticipant by default
      */
-    public function getActiveAttribute($value)
+    public function getActiveAttribute($value): bool
     {
         if (!$this->hasAttribute('active')) {
             throw new \Exception("The 'active' property doesn't exist on this model");
@@ -547,6 +549,82 @@ class TestParticipant extends BaseModel
         if (!isset($this->getAttributes()['active'])) {
             return false;
         }
-        return $this->getAttributes()['active'] ? true : false;
+        return (bool)$this->getAttributes()['active'];
+    }
+
+    public function calculateStatistics(?TestTake $testTake, ?Test $test): void
+    {
+        $testTake ??= $this->testTake;
+        $test ??= $testTake->test;
+
+        $this->loadMissing([
+            'answers',
+            'answers.answerRatings',
+            'user:id',
+            'user.averageRatings' => fn($query) => $query->where('school_class_id', $this->school_class_id)
+                ->where('subject_id', $test->subject_id)
+        ]);
+
+        $questions = $test
+            ->loadMissing('testQuestions', 'testQuestions.question')
+            ->getFlatQuestionList()
+            ->mapWithKeys(fn($question) => [$question->getKey() => $question->score]);
+
+        $score = 0;
+        $madeScore = 0;
+        $maxScore = 0;
+        $questionsCount = 0;
+        $totalTime = 0;
+        $longestAnswer = null;
+
+        foreach ($this->answers as $answer) {
+            $answerQuestionId = $answer->question_id;
+            if ($questions->has($answerQuestionId)) {
+                $answerScore = $answer->final_rating ?? $answer->calculateFinalRating();
+
+                if ($answerScore !== null && $answer->final_rating !== $answerScore) {
+                    $answer->setAttribute('final_rating', $answerScore);
+                    $answer->save();
+                }
+                if (!$answer->ignore_for_rating) {
+                    $maxScore += $questions[$answerQuestionId];
+                    if ($answerScore !== null) {
+                        $score += $answerScore;
+                    }
+                }
+            }
+
+            if ($answer->done) {
+                $questionsCount++;
+                $totalTime += $answer->time;
+                if ($questions->has($answerQuestionId)) {
+                    $madeScore += $questions[$answerQuestionId];
+                }
+            }
+
+            if ($answer->time > 0 && (!$longestAnswer || $longestAnswer->time > $answer->time)) {
+                $longestAnswer = $answer;
+            }
+        }
+
+        if ($longestAnswer?->question instanceof QuestionInterface) {
+            $longestAnswer->question->loadRelated();
+        }
+
+        unset($this->answers);
+//        unset($longestAnswer->question);
+
+        $this->setAttribute('score', $score);
+        $this->setAttribute('made_score', $madeScore);
+//        if (!$this->validateForMaxScore($this)) {
+//            $this->setAttribute('max_score', '');
+//        }
+        $this->setAttribute('max_score', $maxScore);
+        $this->setAttribute('questions', $questionsCount);
+        $this->setAttribute('total_time', $totalTime);
+
+        $relations = $this->getRelations();
+        $relations['longest_answer'] = $longestAnswer;
+        $this->setRelations($relations);
     }
 }
