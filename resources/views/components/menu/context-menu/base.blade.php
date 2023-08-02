@@ -1,6 +1,6 @@
-@props(['context','class'=>'w-50'])
+@props(['context','class' => 'w-50'])
 <div id="context-menu-base"
-     class="absolute bg-white py-2 main-shadow rounded-10 z-1 {{ $class }}"
+     @class(['absolute bg-white py-2 main-shadow rounded-10 z-1', $class])
      x-data="contextMenuHandler()"
      x-show="contextMenuOpen"
      x-effect="setTimeout(() => {

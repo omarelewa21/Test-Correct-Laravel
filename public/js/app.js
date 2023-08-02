@@ -10536,6 +10536,70 @@ document.addEventListener("alpine:init", function () {
       }
     };
   });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("participantDetailPopup", function () {
+    return {
+      participantPopupOpen: false,
+      button: null,
+      openPopup: function openPopup(event) {
+        var _this87 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee32() {
+          return _regeneratorRuntime().wrap(function _callee32$(_context32) {
+            while (1) switch (_context32.prev = _context32.next) {
+              case 0:
+                if (!_this87.participantPopupOpen) {
+                  _context32.next = 3;
+                  break;
+                }
+                _context32.next = 3;
+                return _this87.closePopup(event);
+              case 3:
+                _this87.button = event.element;
+                _this87.button.dataset.open = "true";
+                _context32.next = 7;
+                return _this87.$wire.openPopup(event.participant);
+              case 7:
+                _this87.participantPopupOpen = true;
+                _this87.$nextTick(function () {
+                  _this87.$root.style.left = _this87.getLeft();
+                  _this87.$root.style.top = _this87.getTop();
+                });
+              case 9:
+              case "end":
+                return _context32.stop();
+            }
+          }, _callee32);
+        }))();
+      },
+      closePopup: function closePopup() {
+        var _this88 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee33() {
+          return _regeneratorRuntime().wrap(function _callee33$(_context33) {
+            while (1) switch (_context33.prev = _context33.next) {
+              case 0:
+                _this88.participantPopupOpen = false;
+                _context33.next = 3;
+                return _this88.$wire.closePopup();
+              case 3:
+                _this88.button.dataset.open = "false";
+              case 4:
+              case "end":
+                return _context33.stop();
+            }
+          }, _callee33);
+        }))();
+      },
+      handleScroll: function handleScroll() {
+        if (!this.participantPopupOpen) return;
+        this.$root.style.top = this.getTop();
+      },
+      getTop: function getTop() {
+        return this.button.getBoundingClientRect().top - this.$root.offsetHeight - 8 + 'px';
+      },
+      getLeft: function getLeft() {
+        return this.button.getBoundingClientRect().left + this.button.getBoundingClientRect().width / 2 - this.$root.offsetWidth / 2 + 'px';
+      }
+    };
+  });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].directive("global", function (el, _ref9) {
     var expression = _ref9.expression;
     var f = new Function("_", "$data", "_." + expression + " = $data;return;");

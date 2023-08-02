@@ -7,6 +7,8 @@ use Illuminate\Support\Collection;
 use Livewire\Redirector;
 use tcCore\Answer;
 use tcCore\AnswerRating;
+use tcCore\Attainment;
+use tcCore\Http\Controllers\TestTakes\TestTakeAttainmentAnalysisController;
 use tcCore\Http\Livewire\Teacher\TestTake\TestTake as TestTakeComponent;
 use tcCore\Lib\Answer\AnswerChecker;
 use tcCore\TestParticipant;
@@ -24,6 +26,8 @@ class Taken extends TestTakeComponent
 
     public Collection $participantResults;
 
+    protected ?Collection $attainments;
+
     /* Lifecycle methods */
     public function mount(TestTakeModel $testTake): void
     {
@@ -39,6 +43,8 @@ class Taken extends TestTakeComponent
         );
         $this->reviewActive = $this->testTake->review_active;
         $this->setParticipantResults();
+
+        $this->attainments = Attainment::getAnalysisDataForTestTake($testTake);
     }
 
     public function updatedReviewActive(bool $value): void

@@ -176,7 +176,7 @@
     @section('results')
         <div class="flex flex-col gap-4">
             <h2>@lang('header.Resultaten')</h2>
-            <div class="flex flex-col pt-4 pb-10 px-10 bg-white rounded-10 content-section" x-cloak>
+            <div class="flex flex-col pt-5 pb-10 px-10 bg-white rounded-10 content-section" x-cloak>
                 <h4>@lang('test-take.Resultaten overzicht')</h4>
 
                 <div class="divider mt-3 mb-2.5"></div>
@@ -192,19 +192,20 @@
                      })"
                      wire:ignore
                 >
-                    <div x-ref="shadowBox" x-show="rowHover !== null" class="shadow-box "></div>
+                    <div x-ref="shadowBox" x-show="rowHover !== null" class="shadow-box "><span></span></div>
 
-                    <div class="bold pr-1.5 pl-5">Student</div>
-                    <div class="bold px-1.5">Nagekeken</div>
-                    <div class="bold px-1.5">Score/Max</div>
-                    <div class="bold px-1.5">Discr.</div>
-                    <div class="bold pl-1.5 pr-5">Extra informatie</div>
+                    <div class="bold pr-1.5 pl-5">@lang('test-take.Student')</div>
+                    <div class="bold px-1.5">@lang('test-take.Extra informatie')</div>
+                    <div class="bold px-1.5">@lang('test-take.Nagekeken')</div>
+                    <div class="bold px-1.5">@lang('test-take.Score/Max')</div>
+                    <div class="bold px-1.5">@lang('test-take.Discr.')</div>
+                    <div class="bold pl-1.5 pr-5"></div>
 
-                    <div class="col-span-5 h-[3px] bg-sysbase my-2 mx-5"></div>
+                    <div class="col-span-6 h-[3px] bg-sysbase mt-2 mx-5"></div>
 
                     @foreach($this->participantResults as $participant)
                         <div @class([
-                                "grid-row contents group/row",
+                                "grid-row contents group/row cursor-default",
                                 "hover:text-primary hover:shadow-lg" => !$participant->testNotTaken,
                                 "disabled note" => $participant->testNotTaken,
                                 ])
@@ -213,6 +214,33 @@
                              data-row="{{ $loop->iteration }}"
                         >
                             <div class="grid-item flex items-center group-hover/row:bg-offwhite pr-1.5 pl-5 col-start-1 h-15 rounded-l-10">{{ $participant->name }} {{ $participant->test_take_status_id }}</div>
+                            <div class="grid-item flex items-center group-hover/row:bg-offwhite pr-1.5 ">
+                                <div class="flex items-center gap-2 truncate">
+                                    <div class="flex items-center gap-2 text-sysbase">
+                                        <span class="flex items-center participant-popup-button"
+                                              x-on:click.prevent="if($el.dataset.open === 'false') $dispatch('open-participant-popup', {participant: @js($participant->uuid), element: $el})"
+                                              data-open="false"
+                                        >
+                                            <span data-closed>
+                                                <x-icon.profile />
+                                                <x-icon.i-letter />
+                                            </span>
+                                            <span data-open>
+                                                <x-icon.close-small />
+                                            </span>
+                                        </span>
+
+                                        <x-icon.web />
+                                        <x-icon.time-dispensation />
+                                        <x-icon.speech-bubble />
+                                        <x-icon.notepad />
+
+                                    </div>
+
+                                    <span class="truncate note text-sm group-hover/row:text-primary"
+                                          title="{{ $participant->invigilator_note }}">{{ $participant->invigilator_note }}</span>
+                                </div>
+                            </div>
                             <div class="grid-item flex items-center group-hover/row:bg-offwhite px-1.5 justify-end">
                                 @if($participant->testNotTaken)
                                     <span>-/--</span>
@@ -236,78 +264,92 @@
                                     <span>{{ $participant->discrepancies }}</span>
                                 @endif
                             </div>
-                            <div class="grid-item flex items-center group-hover/row:bg-offwhite pl-1.5 pr-5 rounded-r-10 truncate">
-                                <div class="flex items-center justify-between w-full ">
-                                    <div class="flex items-center gap-2 truncate">
-                                        <div class="flex items-center gap-2 text-sysbase">
-                                            <x-tooltip class="w-[40px] h-[30px]" :icon-height="true" :icon-width="true">
-                                                <x-slot:idleIcon>
-                                                    <span class="flex items-center" x-show="!tooltip" x-cloak>
-                                                        <x-icon.profile />
-                                                        <x-icon.i-letter />
-                                                    </span>
-                                                </x-slot:idleIcon>
-                                                <div class="grid grid-cols-[auto_auto] gap-2">
-                                                    <div class="bold">@lang('test-take.Cijfer voor deze toets'):</div>
-                                                    <div>{{ $participant->rating ?? '-' }}</div>
+                            <div class="grid-item flex items-center group-hover/row:bg-offwhite pl-1.5 pr-5 rounded-r-10">
+                                <div class="flex items-center gap-2">
+                                    <x-button.icon
+                                            wire:click="$emit('openModal', 'message-create-modal', {receiver: '{{ $participant->user->uuid }}'})"
+                                            :title="__('message.Stuur bericht')"
+                                    >
+                                        <x-icon.envelope class="w-4 h-4" />
+                                    </x-button.icon>
 
-                                                    <div class="bold">@lang('test-take.Cijfer voor dit vak'):</div>
-                                                    <div>{{ $participant->user->averageRatings->first()?->rating ?? '-'}}</div>
-
-                                                    <div class="bold">@lang('test-take.Tijd totaal'):</div>
-                                                    <div>{{ \Carbon\CarbonInterval::second($participant->total_time)->cascade()->forHumans() }}</div>
-
-                                                    <div class="bold">@lang('test-take.Tijd per vraag'):</div>
-                                                    <div>{{ \Carbon\CarbonInterval::second($participant->total_time / $participant->questions)->cascade()->forHumans() }}</div>
-
-                                                    <div class="bold">@lang('test-take.Duurde het langst'):</div>
-                                                    <div title="{{ $participant->longest_answer?->question?->title }}"
-                                                         class="overflow-hidden text-ellipsis"
-                                                    >
-                                                        {{ $participant->longest_answer?->question?->title ?? __('general.unavailable') }}
-                                                    </div>
-                                                </div>
-                                            </x-tooltip>
-                                            @if($participant->testNotTaken)
-
-                                            @else
-                                                <x-icon.web />
-                                                <x-icon.time-dispensation />
-                                                <x-icon.speech-bubble />
-                                                <x-icon.notepad />
-                                            @endif
-
-                                        </div>
-
-                                        <span class="truncate ">{{ $participant->invigilator_note }}</span>
-                                    </div>
-                                    <div class="flex items-center gap-4">
-                                        <div class="flex items-center gap-2">
-                                            <x-button.icon
-                                                    wire:click="$emit('openModal', 'message-create-modal', {receiver: '{{ $participant->user->uuid }}'})"
-                                                    :title="__('message.Stuur bericht')"
-                                            >
-                                                <x-icon.envelope class="w-4 h-4" />
-                                            </x-button.icon>
-
-                                            <x-button.icon wire:click="assessParticipant('{{ $participant->uuid }}')"
-                                                           :title="__('test-take.Nakijken')"
-                                                           :disabled="$participant->testNotTaken"
-                                                           :color="$participant->rated === $this->takenTestData['questionCount'] ? 'primary' : 'cta'"
-                                            >
-                                                <x-icon.review />
-                                            </x-button.icon>
-                                        </div>
-                                        <div>
-                                            <x-mark-badge rating="10" />
-                                        </div>
-                                    </div>
+                                    <x-button.icon wire:click="assessParticipant('{{ $participant->uuid }}')"
+                                                   :title="__('test-take.Nakijken')"
+                                                   :disabled="$participant->testNotTaken"
+                                                   :color="$participant->rated === $this->takenTestData['questionCount'] ? 'primary' : 'cta'"
+                                    >
+                                        <x-icon.review />
+                                    </x-button.icon>
+                                    <x-mark-badge rating="10" />
                                 </div>
                             </div>
+                        </div>
+                        <div class="h-px bg-bluegrey mx-5 col-span-6 col-start-1"></div>
+                    @endforeach
+                </div>
+            </div>
+
+            <div class="flex flex-col pt-5 pb-10 px-10 bg-white rounded-10 content-section" x-cloak>
+                <h4>@lang('test-take.Leerdoel analyse')</h4>
+
+                <div class="divider mt-3 mb-2.5"></div>
+
+                <div class="flex w-full items-center justify-center gap-4 bold">
+                    <div>@lang('test-take.Legenda P-waarde'):</div>
+                    <div class="flex gap-6">
+                        <div class="flex items-center gap-1"><span
+                                    class="flex w-4 h-4 rounded-[4px] bg-allred"></span><span>&lt; 55</span></div>
+                        <div class="flex items-center gap-1"><span class="flex w-4 h-4 rounded-[4px] bg-student"></span><span>55 - 65</span>
+                        </div>
+                        <div class="flex items-center gap-1"><span
+                                    class="flex w-4 h-4 rounded-[4px] bg-cta"></span><span>&gt; 65</span></div>
+                    </div>
+                </div>
+
+                <div class="h-px bg-bluegrey mt-3"></div>
+                <div class="flex flex-col w-full">
+                    {{-- HEADER --}}
+                    <div class="flex bold">
+                        <div class="py-2 px-1.5 flex-1 flex justify-between">
+                            <span class="capitalize">@lang('student.leerdoel')</span><span class="lowercase"># @lang('plan-test-take.Vragen'):</span>
+                        </div>
+                        <div class="flex gap-6">
+                            <div class="bold py-2 px-1.5 w-[50px]">0</div>
+                            <div class="bold py-2 px-1.5 w-[50px]">10</div>
+                            <div class="bold py-2 px-1.5 w-[50px]">20</div>
+                            <div class="bold py-2 px-1.5 w-[50px]">40</div>
+                            <div class="bold py-2 px-1.5 w-[50px]">60</div>
+                            <div class="bold py-2 px-1.5 w-[50px]">80</div>
+                        </div>
+                    </div>
+
+                    <div class=" h-[2px] bg-sysbase"></div>
+
+                    @foreach($this->attainments as $attainment)
+                        <div class="flex w-full h-[60px] items-center"
+                             x-data="{attainmentOpen: false}"
+                        >
+                            <div class="flex flex-1 flex-col items-center"
+                                 x-on:click="attainmentOpen = !attainmentOpen"
+                            >
+                                <div class="flex w-full items-center gap-3 bold">
+                                    <x-icon.chevron class="transform rotate-90"/>
+                                    <span>{{ collect([$attainment->code,$attainment->subcode,$attainment->subsubcode])->filter()->join('.') }} {{ $attainment->description }}</span>
+                                </div>
+
+                                <div x-collapse
+                                     x-show="attainmentOpen"
+                                >
+                                    kaasjes
+
+                                </div>
+                            </div>
+                            <div style="width: 420px">hoi hoi</div>
                         </div>
                     @endforeach
                 </div>
             </div>
+            <livewire:teacher.test-take.test-participant-details-popup />
         </div>
     @endsection
 @endif

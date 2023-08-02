@@ -84,5 +84,12 @@ return [
     "Tijd totaal"                                                                                                                                      => "Tijd totaal",
     "Tijd per vraag"                                                                                                                                   => "Tijd per vraag",
     "Duurde het langst"                                                                                                                                => "Duurde het langst",
-
+    'Notitie van surveillant'                                                                                                                          => 'Notitie van surveillant',
+    'Leerdoel analyse'                                                                                                                                 => 'Leerdoel analyse',
+    'Student'                                                                                                                                          => 'Student',
+    'Extra informatie'                                                                                                                                 => 'Extra informatie',
+    'Nagekeken'                                                                                                                                        => 'Nagekeken',
+    'Score/Max'                                                                                                                                        => 'Score/Max',
+    'Discr.'                                                                                                                                           => 'Discr.',
+    'Legenda P-waarde'                                                                                                                                 => 'Legenda P-waarde',
 ];

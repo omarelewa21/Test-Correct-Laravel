@@ -3727,7 +3727,40 @@ document.addEventListener("alpine:init", () => {
                 }
             })
         }
+    }));
+    Alpine.data("participantDetailPopup", () => ({
+        participantPopupOpen: false,
+        button: null,
+        async openPopup(event) {
+            if (this.participantPopupOpen) {
+                await this.closePopup(event);
+            }
+            this.button = event.element;
+            this.button.dataset.open = "true";
 
+            await this.$wire.openPopup(event.participant);
+            this.participantPopupOpen = true;
+
+            this.$nextTick(() => {
+                this.$root.style.left = this.getLeft();
+                this.$root.style.top = this.getTop();
+            })
+        },
+        async closePopup() {
+            this.participantPopupOpen = false;
+            await this.$wire.closePopup();
+            this.button.dataset.open = "false";
+        },
+        handleScroll() {
+            if (!this.participantPopupOpen) return;
+            this.$root.style.top = this.getTop();
+        },
+        getTop() {
+            return (this.button.getBoundingClientRect().top - this.$root.offsetHeight - 8) + 'px';
+        },
+        getLeft() {
+            return ((this.button.getBoundingClientRect().left + (this.button.getBoundingClientRect().width/2)) - (this.$root.offsetWidth/2)) + 'px'
+        }
     }));
 
     Alpine.directive("global", function(el, { expression }) {
