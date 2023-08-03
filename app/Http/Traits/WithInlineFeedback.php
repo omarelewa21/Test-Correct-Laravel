@@ -35,7 +35,7 @@ trait WithInlineFeedback {
 
     public function bootedWithInlineFeedback()
     {
-        if(!$this->getCurrentAnswer()) {
+        if(!$this->currentAnwerIsAvailable()) {
             return;
         }
         if ((property_exists($this, 'headerCollapsed') && !$this->headerCollapsed)) {
@@ -285,6 +285,17 @@ SQL;
     public function getCurrentAnswer()
     {
         return $this->currentAnswer ?? $this->answerRating?->answer;
+    }
+
+    public function currentAnwerIsAvailable() : bool
+    {
+        if (property_exists($this, 'currentAnswer')) {
+            return $this->currentAnswer !== null;
+        }
+        if (property_exists($this, 'answerRating')) {
+            return $this->answerRating?->answer !== null;
+        }
+        return false;
     }
 
     public function getCurrentQuestion()
