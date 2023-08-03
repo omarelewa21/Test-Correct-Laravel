@@ -492,6 +492,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
                 "change": {
                     callback: (evt) => {
                         drawingApp.params.boldText = evt.target.checked;
+                        updateSelectedShapeBoldText();
                     }
                 }
             }
@@ -500,14 +501,22 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             element: UI.elemOpacityNumber,
             events: {
                 "input": {
-                    callback: updateElemOpacityRangeInput,
+                    callback: () => {
+                        updateElemOpacityRangeInput();
+                        updateSelectedShapeOpacity();
+                    },
                 }
             }
         },
         {
             element: UI.elemOpacityRange,
             events: {
-                "input": {callback: updateElemOpacityNumberInput},
+                "input": {
+                    callback: () => {
+                        updateElemOpacityNumberInput();
+                        updateSelectedShapeOpacity();
+                    }
+                },
                 "focus": {
                     callback: () => {
                         UI.elemOpacityNumber.classList.add("active");
@@ -518,6 +527,16 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
                         UI.elemOpacityNumber.classList.remove("active");
                     },
                 },
+            }
+        },
+        {
+            element: UI.textColor,
+            events: {
+                "input": {
+                    callback: () => {
+                        updateSelectedShapeFill();
+                    }
+                }
             }
         },
         {
@@ -586,6 +605,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
                 "input": {
                     callback: () => {
                         valueWithinBounds(UI.textSize);
+                        updateSelectedShapeTextSize();
                     }
                 },
                 "blur": {
@@ -601,7 +621,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
                 "click": {
                     callback: () => {
                         UI.textSize.stepDown();
-                        handleTextSizeButtonStates()
+                        handleTextSizeButtonStates();
+                        updateSelectedShapeTextSize();
                     },
                 },
                 "focus": {
@@ -622,7 +643,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
                 "click": {
                     callback: () => {
                         UI.textSize.stepUp();
-                        handleTextSizeButtonStates()
+                        handleTextSizeButtonStates();
+                        updateSelectedShapeTextSize();
                     },
                 },
                 "focus": {
@@ -2442,13 +2464,6 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         UI.incrStroke.disabled = currentValue === max;
     }
 
-    function updateSelectedShapeFill() {
-        const selectedEl = rootElement.querySelector('.editing');
-        if(!checkIfShouldUpdateShape(selectedEl)) return;
-
-        selectedEl.firstElementChild.style.fill = UI.fillColor.value;
-    }
-
     function checkIfShouldUpdateShape(selectedEl) {
         return selectedEl && checkIfFocusedDataButtonIsSameAsSelectedElement(selectedEl)
     }
@@ -2461,20 +2476,41 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         return shapeType === currentDataButton.id.split('-')[1];
     }
 
+    function updateSelectedShapeFill() {
+        const selectedEl = rootElement.querySelector('.editing');
+        if(!checkIfShouldUpdateShape(selectedEl)) return;
+
+        const shapeType = selectedEl.id.split('-')[0];
+        switch (shapeType) {
+            case 'text':
+                selectedEl.firstElementChild.style.fill = UI.textColor.value;
+                break;
+            default:
+                selectedEl.firstElementChild.style.fill = UI.fillColor.value;
+        }
+    }
+
     function updateSelectedShapeOpacity() {
         if (!valueWithinBounds(UI.fillOpacityNumber)) return;
 
         const selectedEl = rootElement.querySelector('.editing');
         if(!checkIfShouldUpdateShape(selectedEl)) return;
 
-        selectedEl.firstElementChild.style.fillOpacity = parseFloat(UI.fillOpacityNumber.value / 100);
+        const shapeType = selectedEl.id.split('-')[0];
+        switch (shapeType) {
+            case 'text':
+                selectedEl.firstElementChild.style.opacity = parseFloat(UI.elemOpacityNumber.value / 100);
+                break;
+            default:
+                selectedEl.firstElementChild.style.fillOpacity = parseFloat(UI.fillOpacityNumber.value / 100);
+        }
     }
 
     function updateSelectedShapeStrokeColor() {
         const selectedEl = rootElement.querySelector('.editing');
         if(!checkIfShouldUpdateShape(selectedEl)) return;
-        const shapeType = selectedEl.id.split('-')[0];
 
+        const shapeType = selectedEl.id.split('-')[0];
         switch (shapeType) {
             case 'line':
             case 'freehand':
@@ -2493,6 +2529,24 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         selectedEl.firstElementChild.style.strokeWidth = UI.strokeWidth.value;
     }
 
+    function updateSelectedShapeBoldText() {
+        const selectedEl = rootElement.querySelector('.editing');
+        if(!checkIfShouldUpdateShape(selectedEl)) return;
+
+        selectedEl.firstElementChild.style.fontWeight = drawingApp.params.boldText ? 'bold' : 'normal';
+    }
+
+    function updateSelectedShapeTextSize() {
+        const selectedEl = rootElement.querySelector('.editing');
+        if(!checkIfShouldUpdateShape(selectedEl)) return;
+
+        const layerID = selectedEl.parentElement.id;
+        const layerObject = Canvas.layers[Canvas.layerID2Key(layerID)];
+        const selectedSvgShape = layerObject.shapes[selectedEl.id].svg;
+
+        selectedEl.firstElementChild.style.fontSize = UI.textSize.value;
+        selectedSvgShape.updateHelperElements();
+    }
 
     return {UI, Canvas, drawingApp}
 }
