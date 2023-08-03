@@ -26,9 +26,11 @@ class Taken extends TestTakeComponent
 
     public Collection $participantResults;
 
-    protected ?Collection $attainments;
+    public ?Collection $attainments;
+    public int $maxQuestionsForAttainmentAnalysis = 20;
+    public array $analysisQuestionValues = [0, 5, 10, 20, 40, 80, 160];
+    private Collection $attainmentValueRatios;
 
-    /* Lifecycle methods */
     public function mount(TestTakeModel $testTake): void
     {
         parent::mount($testTake);
@@ -44,7 +46,7 @@ class Taken extends TestTakeComponent
         $this->reviewActive = $this->testTake->review_active;
         $this->setParticipantResults();
 
-        $this->attainments = Attainment::getAnalysisDataForTestTake($testTake);
+        $this->attainments = $this->getAttainments();
     }
 
     public function updatedReviewActive(bool $value): void
@@ -118,6 +120,11 @@ class Taken extends TestTakeComponent
             'teacher.assessment',
             ['testTake' => $this->testTakeUuid, 'participant' => $participantUuid]
         );
+    }
+
+    public function attainmentStudents(Attainment $attainment): array
+    {
+        return $attainment->getStudentAnalysisDataForTestTake($this->testTake)->toArray();
     }
 
     /* Protected methods */
@@ -236,5 +243,69 @@ class Taken extends TestTakeComponent
                 ->whereIn('type', [AnswerRating::TYPE_TEACHER, AnswerRating::TYPE_SYSTEM])
                 ->isNotEmpty();
         });
+    }
+
+    private function getAttainments(): Collection
+    {
+        $attainments = Attainment::getAnalysisDataForTestTake($this->testTake);
+        $this->setAttainmentAnalysisProperties($attainments);
+        $attainments->each(function ($attainment) {
+            $attainment->multiplier = $this->getLengthMultiplierForAttainment($attainment);
+        });
+
+        return $attainments;
+    }
+
+    private function setAttainmentAnalysisProperties(Collection $attainments): void
+    {
+        $this->maxQuestionsForAttainmentAnalysis = $this->getMaxQuestionsForAttainmentAnalysis($attainments);
+        $maxAmountIndex = array_search(
+            $this->maxQuestionsForAttainmentAnalysis,
+            $this->analysisQuestionValues
+        );
+        $this->analysisQuestionValues = array_slice(
+            $this->analysisQuestionValues,
+            0,
+            $maxAmountIndex + 1
+        );
+
+        $this->attainmentValueRatios = collect($this->analysisQuestionValues)->map(function ($section, $key) {
+            return [
+                'start'          => $section,
+                'end'            => $section === 0 ? 5 : $section + $section,
+                'multiplierBase' => $key,
+            ];
+        });
+    }
+
+    private function getMaxQuestionsForAttainmentAnalysis(Collection $attainments): int
+    {
+        $max = max($attainments->max('questions_per_attainment'), 20);
+        if ($max > 20 && $max <= 40) {
+            $max = 40;
+        }
+        if ($max > 40 && $max <= 80) {
+            $max = 80;
+        }
+        if ($max > 80 && $max <= 160) {
+            $max = 160;
+        }
+        return $max;
+    }
+
+
+    private function getValueSectionForAttainment(Attainment $attainment)
+    {
+        return $this->attainmentValueRatios->where('start', '<', $attainment->questions_per_attainment)
+            ->where('end', '>=', $attainment->questions_per_attainment)
+            ->first();
+    }
+
+    private function getLengthMultiplierForAttainment(Attainment $attainment): mixed
+    {
+        $section = $this->getValueSectionForAttainment($attainment);
+        return $section['multiplierBase'] + (
+                ($attainment->questions_per_attainment - $section['start']) / ($section['end'] - $section['start'])
+            );
     }
 }

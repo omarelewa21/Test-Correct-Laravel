@@ -3762,6 +3762,58 @@ document.addEventListener("alpine:init", () => {
             return ((this.button.getBoundingClientRect().left + (this.button.getBoundingClientRect().width/2)) - (this.$root.offsetWidth/2)) + 'px'
         }
     }));
+    Alpine.data("testTakeAttainmentAnalysis", (columns) => ({
+        attainmentOpen: [],
+        studentData: [],
+        columns,
+        totalWidth: null,
+        init() {
+            this.fixPvalueContainerWidth();
+        },
+        fixPvalueContainerWidth() {
+            this.totalWidth = document.querySelector('.pvalue-questions')?.getBoundingClientRect().width;
+            this.$root.querySelectorAll('.pvalue-container').forEach((el) => {
+                el.style.width = this.totalWidth + 'px';
+            });
+        },
+        async openRow(attainment) {
+            if(!this.studentData[attainment]) {
+                this.studentData[attainment] = await this.$wire.attainmentStudents(attainment);
+            }
+
+            this.attainmentOpen.push(attainment);
+            this.$nextTick(() => this.fixPvalueContainerWidth());
+        },
+        closeRow(attainment) {
+            this.attainmentOpen = this.attainmentOpen.filter(key => key !== attainment);
+        },
+        async toggleRow(attainment) {
+            if(this.attainmentOpen.includes(attainment)) {
+                this.closeRow(attainment);
+                return;
+            }
+            await this.openRow(attainment);
+        },
+        styles(pValue, multiplier){
+            return {
+                'width': this.barWidth(multiplier),
+                'color': this.textColor(pValue),
+                'backgroundColor': this.backgroundColor(pValue),
+            }
+        },
+        barWidth(multiplier) {
+            return (this.totalWidth / this.columns.length) * multiplier + 'px';
+        },
+        textColor(pValue) {
+            if((pValue * 100) >= 55 && (pValue * 100) < 65) return 'var(--system-base)';
+            return 'white';
+        },
+        backgroundColor(pValue) {
+            if((pValue * 100) < 55) return 'var(--all-red)';
+            if((pValue * 100) < 65) return 'var(--student)';
+            return 'var(--cta-primary)';
+        },
+    }));
 
     Alpine.directive("global", function(el, { expression }) {
         let f = new Function("_", "$data", "_." + expression + " = $data;return;");

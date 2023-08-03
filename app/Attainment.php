@@ -273,6 +273,6 @@ class Attainment extends BaseModel
             ->groupBy('test_participant_id')
             ->get();
 
-        return User::hydrate($data->toArray());
+        return User::hydrate($data->toArray())->each(fn($user) => $user->fullName = $user->name_full);
     }
 }

@@ -10600,6 +10600,97 @@ document.addEventListener("alpine:init", function () {
       }
     };
   });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("testTakeAttainmentAnalysis", function (columns) {
+    return {
+      attainmentOpen: [],
+      studentData: [],
+      columns: columns,
+      totalWidth: null,
+      init: function init() {
+        this.fixPvalueContainerWidth();
+      },
+      fixPvalueContainerWidth: function fixPvalueContainerWidth() {
+        var _document$querySelect,
+          _this89 = this;
+        this.totalWidth = (_document$querySelect = document.querySelector('.pvalue-questions')) === null || _document$querySelect === void 0 ? void 0 : _document$querySelect.getBoundingClientRect().width;
+        this.$root.querySelectorAll('.pvalue-container').forEach(function (el) {
+          el.style.width = _this89.totalWidth + 'px';
+        });
+      },
+      openRow: function openRow(attainment) {
+        var _this90 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee34() {
+          return _regeneratorRuntime().wrap(function _callee34$(_context34) {
+            while (1) switch (_context34.prev = _context34.next) {
+              case 0:
+                if (_this90.studentData[attainment]) {
+                  _context34.next = 4;
+                  break;
+                }
+                _context34.next = 3;
+                return _this90.$wire.attainmentStudents(attainment);
+              case 3:
+                _this90.studentData[attainment] = _context34.sent;
+              case 4:
+                _this90.attainmentOpen.push(attainment);
+                _this90.$nextTick(function () {
+                  return _this90.fixPvalueContainerWidth();
+                });
+              case 6:
+              case "end":
+                return _context34.stop();
+            }
+          }, _callee34);
+        }))();
+      },
+      closeRow: function closeRow(attainment) {
+        this.attainmentOpen = this.attainmentOpen.filter(function (key) {
+          return key !== attainment;
+        });
+      },
+      toggleRow: function toggleRow(attainment) {
+        var _this91 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee35() {
+          return _regeneratorRuntime().wrap(function _callee35$(_context35) {
+            while (1) switch (_context35.prev = _context35.next) {
+              case 0:
+                if (!_this91.attainmentOpen.includes(attainment)) {
+                  _context35.next = 3;
+                  break;
+                }
+                _this91.closeRow(attainment);
+                return _context35.abrupt("return");
+              case 3:
+                _context35.next = 5;
+                return _this91.openRow(attainment);
+              case 5:
+              case "end":
+                return _context35.stop();
+            }
+          }, _callee35);
+        }))();
+      },
+      styles: function styles(pValue, multiplier) {
+        return {
+          'width': this.barWidth(multiplier),
+          'color': this.textColor(pValue),
+          'backgroundColor': this.backgroundColor(pValue)
+        };
+      },
+      barWidth: function barWidth(multiplier) {
+        return this.totalWidth / this.columns.length * multiplier + 'px';
+      },
+      textColor: function textColor(pValue) {
+        if (pValue * 100 >= 55 && pValue * 100 < 65) return 'var(--system-base)';
+        return 'white';
+      },
+      backgroundColor: function backgroundColor(pValue) {
+        if (pValue * 100 < 55) return 'var(--all-red)';
+        if (pValue * 100 < 65) return 'var(--student)';
+        return 'var(--cta-primary)';
+      }
+    };
+  });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].directive("global", function (el, _ref9) {
     var expression = _ref9.expression;
     var f = new Function("_", "$data", "_." + expression + " = $data;return;");

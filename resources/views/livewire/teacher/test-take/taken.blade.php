@@ -294,6 +294,7 @@
 
                 <div class="divider mt-3 mb-2.5"></div>
 
+                {{--Legend--}}
                 <div class="flex w-full items-center justify-center gap-4 bold">
                     <div>@lang('test-take.Legenda P-waarde'):</div>
                     <div class="flex gap-6">
@@ -306,45 +307,65 @@
                     </div>
                 </div>
 
+                {{--Table--}}
                 <div class="h-px bg-bluegrey mt-3"></div>
-                <div class="flex flex-col w-full">
+                <div class="flex flex-col w-full"
+                     x-data="testTakeAttainmentAnalysis(@js($this->analysisQuestionValues))"
+                     x-on:resize.window.throttle="fixPvalueContainerWidth"
+                     wire:ignore
+                >
                     {{-- HEADER --}}
                     <div class="flex bold">
                         <div class="py-2 px-1.5 flex-1 flex justify-between">
                             <span class="capitalize">@lang('student.leerdoel')</span><span class="lowercase"># @lang('plan-test-take.Vragen'):</span>
                         </div>
-                        <div class="flex gap-6">
-                            <div class="bold py-2 px-1.5 w-[50px]">0</div>
-                            <div class="bold py-2 px-1.5 w-[50px]">10</div>
-                            <div class="bold py-2 px-1.5 w-[50px]">20</div>
-                            <div class="bold py-2 px-1.5 w-[50px]">40</div>
-                            <div class="bold py-2 px-1.5 w-[50px]">60</div>
-                            <div class="bold py-2 px-1.5 w-[50px]">80</div>
+                        <div class="pvalue-questions flex relative w-64 lg:w-96 xl:w-[600px]">
+                            @foreach($this->analysisQuestionValues as $value)
+                                <div class="py-2 px-1.5"
+                                     style="width: {{ 100 / count($this->analysisQuestionValues) }}%"
+                                     data-questions="{{ $value }}">{{ $value }}</div>
+                            @endforeach
                         </div>
                     </div>
-
                     <div class=" h-[2px] bg-sysbase"></div>
-
+                    {{--Rows --}}
                     @foreach($this->attainments as $attainment)
-                        <div class="flex w-full h-[60px] items-center"
-                             x-data="{attainmentOpen: false}"
-                        >
-                            <div class="flex flex-1 flex-col items-center"
-                                 x-on:click="attainmentOpen = !attainmentOpen"
-                            >
-                                <div class="flex w-full items-center gap-3 bold">
-                                    <x-icon.chevron class="transform rotate-90"/>
-                                    <span>{{ collect([$attainment->code,$attainment->subcode,$attainment->subsubcode])->filter()->join('.') }} {{ $attainment->description }}</span>
-                                </div>
-
-                                <div x-collapse
-                                     x-show="attainmentOpen"
+                        <div class="flex w-full flex-col">
+                            <div class="flex w-full border-b border-bluegrey">
+                                <div class="flex flex-1 flex-col truncate"
+                                     x-on:click="toggleRow(@js($attainment->uuid));"
                                 >
-                                    kaasjes
-
+                                    <div class="flex w-full items-center gap-3 py-4 bold">
+                                        <x-icon.chevron class="transform rotate-90" />
+                                        <span class="truncate">{{ collect([$attainment->code,$attainment->subcode,$attainment->subsubcode])->filter()->join('.') }} {{ $attainment->description }} {{ $attainment->questions_per_attainment }}</span>
+                                    </div>
+                                </div>
+                                <div class="pvalue-container flex items-center">
+                                    <span class="flex h-[26px] bg-student text-base ml-2 rounded bold items-center px-1"
+                                          x-bind:style="styles(@js($attainment->p_value), @js($attainment->multiplier))"
+                                    ><span style="text-shadow: 0 1px 2px rgba(4, 31, 116, 0.6);">P {{ round($attainment->p_value * 100) }}</span></span>
                                 </div>
                             </div>
-                            <div style="width: 420px">hoi hoi</div>
+
+                            <div x-collapse
+                                 x-show="attainmentOpen.includes(@js($attainment->uuid))"
+                                 class="flex w-full flex-col"
+                            >
+                                <template x-for="student in studentData[@js($attainment->uuid)]">
+                                    <div class="flex w-full pl-5">
+                                        <div class="flex flex-1 py-2 border-b border-bluegrey">
+                                            <span x-text="student.fullName"></span>
+                                        </div>
+                                        <div class="pvalue-container flex items-center border-b border-bluegrey">
+                                            <span class="flex h-[26px] bg-student text-sm ml-2 rounded"
+                                                  x-bind:style="{'width': barWidth(student.questions_per_attainment)}"
+                                                  x-text="Math.round(student.p_value * 100)"
+                                            ></span>
+                                        </div>
+                                    </div>
+
+                                </template>
+                            </div>
                         </div>
                     @endforeach
                 </div>
