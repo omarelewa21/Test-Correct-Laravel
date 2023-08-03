@@ -37,14 +37,14 @@
                                 <x-button.text-button class="text-inherit hover:primary"
                                                       @click="openTab = 1"
                                 >
-                                    {{ __('auth.log_in_verb') }}
+                                    <span>{{ __('auth.log_in_verb') }}</span>
                                 </x-button.text-button>
                             </div>
                             <div class="" :class="{'border-b-2 border-primary -mb-px primary' : openTab === 2}">
                                 <x-button.text-button class="text-inherit hover:primary"
                                                       @click="openTab = 2;"
                                 >
-                                    {{ __('auth.log_in_with_temporary_student_login') }}
+                                    <span>{{ __('auth.log_in_with_temporary_student_login') }}</span>
                                 </x-button.text-button>
                             </div>
                         </div>

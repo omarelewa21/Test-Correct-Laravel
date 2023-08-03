@@ -4,14 +4,20 @@
 ])
 
 @php
-    $buttonColor = "button-$color";
+    $buttonColor = "button.$color";
 @endphp
 @if($type === 'link')
-    <a {{ $attributes->merge(['class' => 'new-button w-10 '.$buttonColor]) }}>
+    <x-dynamic-component type="link" :component="$buttonColor" {{ $attributes->except('class') }} @class([
+        $attributes->get('class'),
+        'icon-button',
+    ])>
         {{ $slot }}
-    </a>
+    </x-dynamic-component>
 @else
-    <button {{ $attributes->merge(['class' => 'new-button w-10 '.$buttonColor]) }}>
+    <x-dynamic-component :component="$buttonColor" {{ $attributes->except('class') }} @class([
+        $attributes->get('class'),
+        'icon-button',
+    ])>
         {{ $slot }}
-    </button>
+    </x-dynamic-component>
 @endif

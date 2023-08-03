@@ -15,21 +15,20 @@
      wire:ignore
 >
     <div class="flex gap-2">
-        <button class="first | flex w-[22px] h-[22px] items-center justify-center rounded-full transition-colors"
-                x-on:click="first()"
-                x-bind:disabled="current === firstValue"
-                x-bind:class="current === firstValue ? 'text-white/20' : 'hover:bg-white/20' "
-
+        <x-button.text-white class="first |"
+                             size="sm"
+                             x-on:click="first()"
+                             x-bind:disabled="current === firstValue"
         >
-            <x-icon.arrow-last class="inline-flex rotate-180 -top-px relative" />
-        </button>
-        <button class="previous | flex w-[22px] h-[22px] items-center justify-center rounded-full transition-colors"
-                x-on:click="previous()"
-                x-bind:disabled="current === firstValue"
-                x-bind:class="current === firstValue ? 'text-white/20' : 'hover:bg-white/20' "
+            <x-icon.arrow-last class="inline-flex rotate-180 -top-0 relative" />
+        </x-button.text-white>
+        <x-button.text-white class="previous |"
+                             size="sm"
+                             x-on:click="previous()"
+                             x-bind:disabled="current === firstValue"
         >
-            <x-icon.chevron class="inline-flex rotate-180 -top-px relative" />
-        </button>
+            <x-icon.chevron class="inline-flex rotate-180 -top-0 relative" />
+        </x-button.text-white>
     </div>
     <div class="flex gap-1 items-center">
         <span class="inline-flex items-center justify-center gap-0.5 py-[3px] pr-2 min-w-[30px] bold rounded-full bg-white text-sysbase text-center"
@@ -44,19 +43,19 @@
         <span class="inline-flex" x-text="total"></span>
     </div>
     <div class="flex gap-2">
-        <button class="next | flex w-[22px] h-[22px] items-center justify-center rounded-full transition-colors"
-                x-on:click="next()"
-                x-bind:disabled="current === lastValue"
-                x-bind:class="current === lastValue ? 'text-white/20' : 'hover:bg-white/20' "
+        <x-button.text-white class="next |"
+                             size="sm"
+                             x-on:click="next()"
+                             x-bind:disabled="current === lastValue"
         >
-            <x-icon.chevron class="inline-flex" />
-        </button>
-        <button class="last |  w-[22px] h-[22px] items-center justify-center rounded-full transition-colors"
-                x-on:click="last()"
-                x-bind:disabled="current === lastValue"
-                x-bind:class="current === lastValue ? 'text-white/20' : 'hover:bg-white/20' "
+            <x-icon.chevron class="inline-flex top-0 relative" />
+        </x-button.text-white>
+        <x-button.text-white class="last |"
+                             size="sm"
+                             x-on:click="last()"
+                             x-bind:disabled="current === lastValue"
         >
-            <x-icon.arrow-last class="inline-flex" />
-        </button>
+            <x-icon.arrow-last class="inline-flex top-0 relative" />
+        </x-button.text-white>
     </div>
 </div>

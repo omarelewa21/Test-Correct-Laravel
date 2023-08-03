@@ -1,6 +1,6 @@
 @extends('components.button.default')
 @props([
-    'componentName' => 'text-button',
+    'componentName' => 'text-button-white',
     'size' => 'md',
     'withHover' => false,
     'withBackgroundGradient' => false,

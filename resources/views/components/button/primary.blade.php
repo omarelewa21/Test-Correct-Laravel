@@ -1,24 +1,4 @@
+@extends('components.button.default')
 @props([
-'size' => 'sm',
-'rotateIcon' => false,
-'type',
-'disabled' => false
+    'componentName' => 'primary-button'
 ])
-<?php
-$rotateClass = $rotateIcon ? ('rotate-svg-' . $rotateIcon) : '';
-$size = 'button-' . $size;
-?>
-
-@if(isset($type) && $type == 'link')
-    <a {{ $attributes->merge(['class' => 'button primary-button space-x-2 focus:outline-none ' . $rotateClass . ' ' .$size]) }}
-            @disabled($disabled)
-    >
-
-        {{ $slot }}
-    </a>
-@else
-    <button {{ $attributes->merge(['class' => 'button primary-button space-x-2 focus:outline-none ' . $rotateClass . ' ' .$size]) }} @disabled($disabled)>
-        {{ $slot }}
-    </button>
-@endif
-
