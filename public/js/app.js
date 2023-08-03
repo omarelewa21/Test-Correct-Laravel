@@ -9991,7 +9991,7 @@ document.addEventListener("alpine:init", function () {
         return ClassicEditors[this.editorId];
       },
       syncEditorData: function syncEditorData() {
-        if (!this.getEditor()) return;
+        if (!this.getEditor() || this.getEditor().getData() === '') return;
         this.$wire.sync("answer", this.getEditor().getData());
       }
     };

@@ -3252,7 +3252,7 @@ document.addEventListener("alpine:init", () => {
             return ClassicEditors[this.editorId];
         },
         syncEditorData() {
-            if (!this.getEditor()) return;
+            if (!this.getEditor() || this.getEditor().getData() === '') return;
             this.$wire.sync("answer", this.getEditor().getData());
         }
     }));
