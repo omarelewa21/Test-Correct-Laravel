@@ -103,7 +103,7 @@
                             </x-slot:titleLeft>
                             <x-slot:body>
                                 <div class="student-answer | w-full | questionContainer"
-                                     wire:key="student-answer-{{$this->currentQuestion->uuid.'-'.$this->currentAnswer->uuid}}"
+                                     wire:key="student-answer-{{$this->currentQuestion->uuid.'-'.$this->currentAnswer->uuid}}-{{$this->answerFeedbackFilter}}"
                                 >
                                     <x-dynamic-component
                                             :component="'answer.student.'. str($this->currentQuestion->type)->kebab()"
@@ -115,6 +115,7 @@
                                             :webSpellChecker="$this->webSpellCheckerEnabled"
                                             :commentMarkerStyles="$this->commentMarkerStyles"
                                             :enableComments="true"
+                                            :answerFeedbackFilter="$this->answerFeedbackFilter"
                                     />
                                 </div>
                             </x-slot:body>
@@ -238,7 +239,8 @@
 
                             <div class="flex w-full flex-col" x-show="dropdownOpened === 'add-feedback'"
                                  x-collapse
-                                 wire:key="feedback-editor-{{  $this->questionNavigationValue.'-'.$this->answerNavigationValue }}"
+                                 wire:key="add-comment-container-{{  $this->questionNavigationValue.'-'.$this->answerNavigationValue }}"
+                                 wire:ignore
                             >
                                     <x-input.comment-color-picker
                                             commentThreadId="new-comment"
@@ -269,8 +271,8 @@
 
                                     <div class="flex justify-end space-x-4 h-fit mt-2 mb-6"
                                          x-on:button-cancel-clicked="resetAddNewAnswerFeedback(true)"
-                                         x-on:button-save-clicked="createCommentThread"
-                                         wire:ignore
+                                         x-on:button-save-clicked="createCommentThread()"
+                                         wire:key="add-comment-buttons-{{$this->questionNavigationValue.'-'.$this->answerNavigationValue}}"
                                          id="saveNewFeedbackButtonWrapper"
                                          data-save-translation="@lang('general.save')"
                                          data-cancel-translation="@lang('modal.annuleren')"
@@ -305,7 +307,8 @@
                                 <button class="flex bold border-t border-blue-grey py-2 justify-between items-center w-full group"
                                         :class="{'text-midgrey': !hasFeedback}"
                                         x-init="dropdownOpened = hasFeedback ? dropdownOpened : 'add-feedback'"
-                                        @click="toggleFeedbackAccordion('given-feedback')"
+                                        @click="hasFeedback ? toggleFeedbackAccordion('given-feedback') : ''"
+                                        :disabled="!hasFeedback"
                                 >
                                     <span>@lang('assessment.Gegeven feedback')</span>
                                     <span class="w-6 h-6 rounded-full flex justify-center items-center transition -mr-0.5
@@ -345,9 +348,20 @@
                                         </x-menu.context-menu.button>
 
                                     </x-menu.context-menu.base>
-                                    @foreach($answerFeedback as $comment)
 
-                                        <x-partials.answer-feedback-card :comment="$comment"/>
+                                    <div class="flex mx-auto "
+                                         x-on:multi-slider-toggle-value-updated.window="$wire.setAnswerFeedbackFilter($event.detail.value)"
+                                    >
+                                        <x-button.slider initial-status="all"
+                                                         buttonWidth="auto"
+                                                         :options="[ 'all' => __('assessment.all'), 'teacher' => __('auth.Docent'),'students' => __('test-take.Studenten')]"
+                                        />
+                                    </div>
+
+
+                                    @foreach($answerFeedback->filter->visible as $comment)
+
+                                        <x-partials.answer-feedback-card :comment="$comment"></x-partials.answer-feedback-card>
 
                                     @endforeach
                                 </div>
@@ -358,7 +372,7 @@
                                 <x-input.rich-textarea type="assessment-feedback"
                                                        :editorId="'feedback-editor-'. $this->questionNavigationValue.'-'.$this->answerNavigationValue"
                                                        wire:model.debounce.300ms="feedback"
-                                                       :disabled="$this->currentQuestion->isSubType('writing')" {{-- todo find out what to do with writing assignment exceptions --}}
+                                        {{-- :disabled="$this->currentQuestion->isSubType('writing')"  todo find out what to do with writing assignment exceptions --}}
                                 />
                             </div>
                         @endif

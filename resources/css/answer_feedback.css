@@ -158,7 +158,6 @@
 
 .comment-editor .ck.ck-editor__main p .ck-comment-marker {
     border: 1px solid transparent;
-    cursor: pointer;
 }
 .comment-editor  .ck.ck-editor__main .ck-content > * {
     line-height: 2;
@@ -269,4 +268,12 @@
 .color-picker-radio svg,
 .color-picker-radio span {
     pointer-events: none;
+}
+
+#co-learning-page ~ .drawer {
+    height: calc(100vh - var(--header-height) - 70px);
+}
+
+.with-inline-feedback .ck-fake-panel {
+    display: none;
 }

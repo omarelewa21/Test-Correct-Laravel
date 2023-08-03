@@ -100,6 +100,12 @@ class CoLearning extends TCComponent implements CollapsableHeader
         $this->testTake->save();
     }
 
+    public function toggleStudentEnableComments(bool $boolean)
+    {
+        $this->testTake->enable_comments_colearning = $boolean;
+        $this->testTake->save();
+    }
+
     public function joiningPresenceChannel($data)
     {
         $this->testParticipantsPresence = collect($this->testParticipantsPresence)->merge([$data['testparticipant_uuid'] => $data]);

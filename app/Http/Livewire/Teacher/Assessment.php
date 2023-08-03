@@ -102,10 +102,6 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
     public function booted(): void
     {
-        if ($this->headerCollapsed) {
-            $this->getSortedAnswerFeedback();
-        }
-
         if ($this->skipBooted) {
             return;
         }

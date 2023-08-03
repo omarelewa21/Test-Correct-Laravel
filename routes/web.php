@@ -42,6 +42,8 @@ Route::get('/get_app_version', [\tcCore\Http\Helpers\AppVersionDetector::class, 
 Route::get('/appapi/version_info', [\tcCore\Http\Controllers\AppApi::class, 'versionInfo']);
 Route::get('/directlink/{testTakeUuid}', [\tcCore\Http\Controllers\TestTakeLaravelController::class, 'directLink'])->name('take.directLink');
 
+Route::get('styleguide', \tcCore\Http\Livewire\ComponentStyleguide::class)->name('styleguide');
+
 if (\tcCore\Http\Helpers\BaseHelper::notProduction()) {
     Route::get('entree/testSession', \tcCore\Http\Controllers\EntreeTestSession::class);
 }

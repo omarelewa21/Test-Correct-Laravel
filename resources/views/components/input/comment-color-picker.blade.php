@@ -1,5 +1,5 @@
 <div class="comment-color-picker" @if($useCkEditorView) x-on:click="$el.classList.add('picker-focussed')" ckEditorElement @endif>
-    <div class="w-full flex justify-between gap-4" @if($useCkEditorView) wire:ignore @endif>
+    <div class="w-full flex justify-between gap-4">
         <span @class(['text-midgrey' => $disabled])>
             <x-icon.marker></x-icon.marker>
         </span>

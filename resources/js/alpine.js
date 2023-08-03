@@ -1555,7 +1555,11 @@ document.addEventListener("alpine:init", () => {
         init() {
             this.setHandle();
             if (initialStatus !== null) {
-                this.value = isString(initialStatus) ? this.sources.indexOf(initialStatus) : +initialStatus;
+                this.value = isString(initialStatus)
+                    ? (this.sources[initialStatus]
+                        ? initialStatus
+                        : this.sources.indexOf(initialStatus))
+                    : +initialStatus;
             }
 
             this.bootComponent();
@@ -1575,6 +1579,7 @@ document.addEventListener("alpine:init", () => {
             } else {
                 this.value = this.$el.querySelector(".group").firstElementChild.dataset.id;
             }
+            this.preventFractionalPixels();
         },
         clickButton(target) {
             this.activateButton(target);
@@ -1585,11 +1590,16 @@ document.addEventListener("alpine:init", () => {
 
             this.$root.dataset.hasValue = this.value !== null;
             if (oldValue !== this.value) {
+                /* dispatch with a static (question score) value, not value/key of button-option, only works with true/false  */
                 this.$dispatch("slider-toggle-value-updated", {
                     value: this.$root.dataset.toggleValue,
                     state: parseInt(this.value) === 1 ? "on" : "off",
                     firstTick: oldValue === null,
                     identifier: this.identifier
+                });
+                this.$dispatch("multi-slider-toggle-value-updated", {
+                    value: target.firstElementChild.dataset.id,
+                    firstTick: oldValue === null,
                 });
             }
         },
@@ -1632,6 +1642,15 @@ document.addEventListener("alpine:init", () => {
             const falseOptions = this.$root.querySelectorAll(".slider-option[data-active=\"false\"]");
             if (falseOptions.length === 2) {
                 falseOptions.forEach(el => el.classList.remove("!border-allred"));
+            }
+        },
+        preventFractionalPixels() {
+            const containerWidth = this.$root.offsetWidth;
+            const sourceCount = Object.entries(sources).length;
+            const widthDividableBySourceCount = Math.round(containerWidth / sourceCount) * sourceCount;
+
+            if(!isNaN(widthDividableBySourceCount) && widthDividableBySourceCount > 0) {
+                this.$root.style.width = widthDividableBySourceCount + 'px';
             }
         }
     }));
@@ -2118,7 +2137,7 @@ document.addEventListener("alpine:init", () => {
             await this.updateCurrent(this.current - 1, "decr");
         },
         async updateCurrent(value, action) {
-            this.$dispatch("assessment-drawer-tab-update", { tab: 1 });
+            this.$dispatch("answer-feedback-drawer-tab-update", { tab: 1 });
             let response = await this.$wire[this.methodCall](value, action);
             if (response) {
                 this.updateProperties(response);
@@ -2177,25 +2196,26 @@ document.addEventListener("alpine:init", () => {
             return element.offsetTop + (element.offsetHeight / 2);
         }
     }));
-    Alpine.data("assessmentDrawer", (inReview = false) => ({
+    Alpine.data("assessmentDrawer", (inReview = false, tabs = [1,2,3], collapse = false) => ({
         activeTab: 1,
-        tabs: [1, 2, 3],
-        collapse: false,
+        tabs: tabs,
         container: null,
         clickedNext: false,
         tooltipTimeout: null,
+        collapse,
         inReview,
         init() {
             this.container = this.$root.querySelector("#slide-container");
-            this.tab(1);
+            this.tab(this.tabs[0]);
             this.$watch("collapse", (value) => {
+                window.dispatchEvent(new CustomEvent('drawer-collapse', { detail: value }));
                 document.documentElement.style.setProperty("--active-sidebar-width", value ? "var(--collapsed-sidebar-width)" : "var(--sidebar-width)");
             });
         },
         getSlideElementByIndex: function (index) {
             return this.$root.closest('.drawer').querySelector(".slide-" + index);
         },
-        async tab(index, answerFeedbackCommentUuid = null) {
+        async tab(index, openDrawer = false, answerFeedbackCommentUuid = null) {
             if (!this.tabs.includes(index)) return;
             this.activeTab = index;
             this.closeTooltips();
@@ -2207,6 +2227,9 @@ document.addEventListener("alpine:init", () => {
                 await this.scrollToCommentCard(answerFeedbackCommentUuid);
             } else {
                 await smoothScroll(this.container, 0, slide.offsetLeft)
+            }
+            if(openDrawer) {
+                this.collapse = false;
             }
 
             setTimeout(() => {
@@ -2221,7 +2244,10 @@ document.addEventListener("alpine:init", () => {
             const slide = this.getSlideElementByIndex(2);
             let cardTop = commentCard.offsetTop;
 
-            let count = 0;
+            if(slide.offsetHeight <= this.container.offsetHeight) {
+                return await smoothScroll(this.container, 0, slide.offsetLeft);
+            }
+
             await smoothScroll(this.container, cardTop, slide.offsetLeft);
         },
         async next() {
@@ -2268,7 +2294,7 @@ document.addEventListener("alpine:init", () => {
             }
         },
         handleResize() {
-            const slide = this.$root.querySelector(".slide-" + this.activeTab);
+            const slide = this.$root.querySelector(".slide-" + this.activeTab) || this.$root.querySelector(".slide-2");
             this.handleSlideHeight(slide);
         },
         closeTooltips() {
@@ -2623,7 +2649,7 @@ document.addEventListener("alpine:init", () => {
                 return this.$store.answerFeedback.openConfirmationModal(this.$root, 'loadQuestion', number);
             }
 
-            this.$dispatch("assessment-drawer-tab-update", { tab: 1 });
+            this.$dispatch("answer-feedback-drawer-tab-update", { tab: 1 });
             await this.$wire.loadQuestionFromNav(number);
         },
     }));
@@ -2653,6 +2679,7 @@ document.addEventListener("alpine:init", () => {
         activeComment: null,
         hoveringComment: null,
         dropdownOpened: null,
+        commentTagsEventListeners: null,
         userId,
         questionType,
         viewOnly,
@@ -2664,7 +2691,6 @@ document.addEventListener("alpine:init", () => {
                 return;
             }
             this.setFocusTracking();
-            this.createFocusableButtons();
 
             document.addEventListener('comment-color-updated', async (event) => {
                 let styleTagElement = document.querySelector('#temporaryCommentMarkerStyles');
@@ -2702,7 +2728,12 @@ document.addEventListener("alpine:init", () => {
                     return;
                 }
                 //check for click outside 1. comment markers, 2. comment marker icons, 3. comment cards.
-                if( event.srcElement.closest(':is(.ck-comment-marker, .answer-feedback-comment-icons, .given-feedback-container)') ) {
+                if(event.srcElement.closest(':is(.ck-comment-marker, .answer-feedback-comment-icon, .given-feedback-container)') ) {
+                    let element = event.srcElement.closest('.ck-comment-marker');
+                    if(element instanceof Element && window.getComputedStyle(element).backgroundColor === 'rgba(0, 0, 0, 0)' ) {
+                        //ignore click on inactive comment marker
+                        this.clearActiveComment();
+                    }
                     return;
                 }
                 this.clearActiveComment()
@@ -2794,8 +2825,6 @@ document.addEventListener("alpine:init", () => {
 
                     document.querySelector('#commentMarkerStyles').innerHTML = commentStyles;
 
-                    this.resetAddNewAnswerFeedback();
-
                     this.hasFeedback = true;
 
                     this.$dispatch('answer-feedback-show-comments');
@@ -2811,8 +2840,6 @@ document.addEventListener("alpine:init", () => {
                 }, false);
 
                 this.hasFeedback = true;
-
-                this.resetAddNewAnswerFeedback();
 
                 this.$dispatch('answer-feedback-show-comments');
 
@@ -2851,21 +2878,78 @@ document.addEventListener("alpine:init", () => {
             }
             console.error('failed to delete answer feedback');
         },
-        initCommentIcons(commentThreads) {
-            //create icon wrapper and append icon inside it
-            commentThreads.forEach((thread) => {
+        initCommentIcons(commentThreads, answerFeedbackFilter = 'all') {
+            let filteredCommentThreads = commentThreads.filter((thread) => {
+                return (
+                    (answerFeedbackFilter === 'current_user' && thread.currentUser)
+                    || (answerFeedbackFilter === 'students' && thread.role === 'student')
+                    || (answerFeedbackFilter === 'teacher' && thread.role === 'teacher')
+                    || answerFeedbackFilter === 'all'
+                )
+            });
+            filteredCommentThreads.forEach((thread) => {
                 this.createCommentIcon(thread);
-            })
+            });
+
+            //create global event listener for comment icon click and hover
+            this.createCommentTagsEventListener(filteredCommentThreads);
+        },
+        createCommentTagsEventListener( enabledCommentThreads) {
+            const commentEditorContainer = document.querySelector('.answer-feedback-comment-icons').parentElement;
+            let hoveringCommentThread = null;
+
+            //remove previous event listeners, if any
+            if(this.commentTagsEventListeners) {
+                commentEditorContainer.removeEventListener('click', this.commentTagsEventListeners['click']);
+                commentEditorContainer.removeEventListener('mouseover', this.commentTagsEventListeners['mouseover']);
+            }
+            this.commentTagsEventListeners = [];
+
+            this.commentTagsEventListeners['click'] = (event) => {
+                let targetCommentElement = event.target.closest('[data-comment], [data-threadid]');
+                if (!targetCommentElement) return;
+
+                let clickedEnabledCommentThread = enabledCommentThreads.filter((thread) => {
+                    return thread.threadId === (targetCommentElement.dataset.comment || targetCommentElement.dataset.threadid);
+                }).pop();
+
+                if (!clickedEnabledCommentThread) return;
+
+                this.setActiveComment(clickedEnabledCommentThread.threadId, clickedEnabledCommentThread.uuid);
+            }
+
+            this.commentTagsEventListeners['mouseover'] = (event) => {
+                let targetCommentElement = event.target.closest('[data-comment], [data-threadid]');
+                let targetCommentThreadId = targetCommentElement?.dataset.comment || targetCommentElement?.dataset.threadid || false;
+
+                let previousHoveringCommentThread = hoveringCommentThread;
+                hoveringCommentThread = enabledCommentThreads.filter((thread) => {
+                    return thread.threadId === targetCommentThreadId;
+                }).pop();
+
+                if(!hoveringCommentThread) {
+                    //only clear hovering comment if leaving an enabled/valid comment thread element
+                    previousHoveringCommentThread ? this.clearHoveringComment() : null;
+                    return;
+                }
+                if(hoveringCommentThread.threadId === previousHoveringCommentThread?.threadId) {
+                    return;
+                }
+                this.setHoveringComment(hoveringCommentThread.threadId, hoveringCommentThread.uuid);
+            }
+
+            commentEditorContainer.addEventListener('click', this.commentTagsEventListeners['click']);
+            commentEditorContainer.addEventListener('mouseover', this.commentTagsEventListeners['mouseover']);
         },
         repositionAnswerFeedbackIcons() {
             let answerFeedbackCommentIcons = document.querySelectorAll('.answer-feedback-comment-icon');
             answerFeedbackCommentIcons.forEach((iconWrapper) => {
                 let threadId = iconWrapper.dataset.threadid;
                 let threadUuid = iconWrapper.dataset.uuid;
-                this.setIconPositionAndEventListenersForThread(iconWrapper, threadId, threadUuid);
+                this.setIconPositionForThread(iconWrapper, threadId, threadUuid);
             });
         },
-        setIconPositionAndEventListenersForThread(iconWrapper, threadId, answerFeedbackUuid) {
+        setIconPositionForThread(iconWrapper, threadId, answerFeedbackUuid) {
             const commentMarkers = document.querySelectorAll(`[data-comment='` + threadId + `']`);
             const lastCommentMarker = commentMarkers[commentMarkers.length-1];
 
@@ -2880,35 +2964,10 @@ document.addEventListener("alpine:init", () => {
             let lastCommentMarkerLineOffsetLeft = lastCommentMarkerLineClientRight - lastCommentMarkerLineParentClientLeft;
 
             iconWrapper.style.left = (lastCommentMarkerLineOffsetLeft - 5) + 'px';
-
-            //(re)set comment marker and icon eventListeners
-            let commentThreadElements = null;
-            commentThreadElements = [...commentMarkers, iconWrapper];
-
-            let clickEventHandler = (event) => {
-                this.setActiveComment(threadId, answerFeedbackUuid);
-            }
-            let mouseEnterEventHandler = (event) => {
-                this.setHoveringComment(threadId, answerFeedbackUuid);
-            }
-            let mouseLeaveEventHandler = (event) => {
-                this.clearHoveringComment();
-            }
-
-            //set click event listener on all comment markers and the icon.
-            commentThreadElements.forEach((threadElement) => {
-                threadElement.removeEventListener('click', clickEventHandler);
-                threadElement.removeEventListener('mouseenter', mouseEnterEventHandler);
-                threadElement.removeEventListener('mouseleave', mouseLeaveEventHandler);
-                threadElement.addEventListener('click', clickEventHandler);
-                threadElement.addEventListener('mouseenter', mouseEnterEventHandler);
-                threadElement.addEventListener('mouseleave', mouseLeaveEventHandler);
-            });
-
         },
         initCommentIcon(iconWrapper, thread) {
             setTimeout(() => {
-                this.setIconPositionAndEventListenersForThread(iconWrapper, thread.threadId, thread.uuid);
+                this.setIconPositionForThread(iconWrapper, thread.threadId, thread.uuid);
 
                 iconWrapper.setAttribute('data-uuid', thread.uuid);
                 iconWrapper.setAttribute('data-threadId', thread.threadId);
@@ -2996,7 +3055,12 @@ document.addEventListener("alpine:init", () => {
                 '            --active-comment-color: '+ colorCode +'; /* default color, overwrite when color picker is used */\n' +
                 '            --ck-color-comment-marker-active: var(--active-comment-color);\n' +
                 '        }\n' +
-                '    ';
+                '    span.ck-comment-marker[data-comment="new-comment-thread"]{\n' +
+                '            --active-comment-color: '+ colorCode +'; /* default color, overwrite when color picker is used */\n' +
+                '            --ck-color-comment-marker: var(--active-comment-color);\n' +
+                '            --ck-color-comment-marker-active: var(--active-comment-color);\n' +
+                '            cursor: pointer !important;\n' +
+                '        }';
         },
         setHoveringCommentMarkerStyle(removeStyling = false) {
             const styleTag = document.querySelector('#hoveringCommentMarkerStyle');
@@ -3010,7 +3074,7 @@ document.addEventListener("alpine:init", () => {
             }
 
             styleTag.innerHTML = '' +
-                '.ck-comment-marker[data-comment="'+ this.hoveringComment.threadId +'"] { color: var(--teacher-primary); }' +
+                'span.ck-comment-marker[data-comment="'+ this.hoveringComment.threadId +'"] { color: var(--teacher-primary); }' +
                 'div[data-threadid="'+this.hoveringComment.threadId+'"] svg { color: var(--teacher-primary); }';
 
         },
@@ -3026,7 +3090,7 @@ document.addEventListener("alpine:init", () => {
             }
 
             styleTag.innerHTML = '' +
-                '.ck-comment-marker[data-comment="'+ this.activeComment?.threadId +'"] { ' +
+                'span.ck-comment-marker[data-comment="'+ this.activeComment?.threadId +'"] { ' +
                 '   border: 1px solid var(--ck-color-comment-marker-border) !important; ' +
                 '} ';
 
@@ -3034,7 +3098,7 @@ document.addEventListener("alpine:init", () => {
         setActiveComment (threadId, answerFeedbackUuid) {
             this.$dispatch('answer-feedback-show-comments');
             setTimeout(() => {
-                this.$dispatch("assessment-drawer-tab-update", { tab: 2, uuid: answerFeedbackUuid });
+                this.$dispatch("answer-feedback-drawer-tab-update", { tab: 2, uuid: answerFeedbackUuid });
                 if(this.$store.answerFeedback.feedbackBeingEdited()) {
                     /* when editing, no other comment can be activated */
                     return;
@@ -3123,7 +3187,7 @@ document.addEventListener("alpine:init", () => {
                 } catch (exception) {
                     //
                 }
-            }, 1000);
+            }, 0);
         },
         createCommentColorRadioButton(el, rgb, colorName, checked) {
             const answerEditor = ClassicEditors[this.answerEditorId];
@@ -3220,6 +3284,25 @@ document.addEventListener("alpine:init", () => {
                 document.querySelector('body'),
                 {attributes: true}
             );
+        },
+        async goToPreviousAnswerRating() {
+            if(this.$store.answerFeedback.feedbackBeingEdited()) {
+                return this.$store.answerFeedback.openConfirmationModal(this.$root, 'goToPreviousAnswerRating');
+            }
+            this.$wire.goToPreviousAnswerRating();
+        },
+        async goToNextAnswerRating() {
+            if(this.$store.answerFeedback.feedbackBeingEdited()) {
+                return this.$store.answerFeedback.openConfirmationModal(this.$root, 'goToNextAnswerRating');
+            }
+            this.$wire.goToNextAnswerRating();
+        },
+        async goToFinishedCoLearningPage() {
+            if(this.$store.answerFeedback.feedbackBeingEdited()) {
+                return this.$store.answerFeedback.openConfirmationModal(this.$root, 'goToFinishedCoLearningPage');
+            }
+
+            this.$wire.goToFinishedCoLearningPage();
         },
     }));
 
@@ -3928,13 +4011,14 @@ document.addEventListener("alpine:init", () => {
         },
         continueAction() {
             this.editingComment = null;
+            console.log(this.navigationRoot, this.navigationMethod, this.navigationArgs)
             this.navigationRoot.dispatchEvent(new CustomEvent('continue-navigation', {detail: {method: this.navigationMethod, args: [this.navigationArgs]}}))
             Livewire.emit('closeModal');
         },
         cancelAction() {
             this.navigationRoot = null;
             this.navigationMethod = null;
-            window.dispatchEvent(new CustomEvent('assessment-drawer-tab-update', {detail: {tab: 2, uuid: this.editingComment}}));
+            window.dispatchEvent(new CustomEvent('answer-feedback-drawer-tab-update', {detail: {tab: 2, uuid: this.editingComment}}));
             Livewire.emit('closeModal');
         }
     });

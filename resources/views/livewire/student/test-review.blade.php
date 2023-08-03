@@ -94,7 +94,7 @@
                         </x-slot:titleLeft>
                         <x-slot:body>
                             <div class="student-answer | w-full | questionContainer"
-                                 wire:key="student-answer-{{$this->currentQuestion->uuid.$this->currentAnswer->uuid}}"
+                                 wire:key="student-answer-{{$this->currentQuestion->uuid.$this->currentAnswer->uuid}}-{{$this->answerFeedbackFilter}}"
                             >
                                 <x-dynamic-component
                                         :component="'answer.student.'. str($this->currentQuestion->type)->kebab()"
@@ -105,6 +105,7 @@
                                         :webSpellChecker="$this->currentQuestion->spell_check_available"
                                         :commentMarkerStyles="$this->commentMarkerStyles"
                                         :enableComments="true"
+                                        :answerFeedbackFilter="$this->answerFeedbackFilter"
                                 />
                             </div>
                         </x-slot:body>
@@ -146,7 +147,7 @@
                 @endif
                 @if($this->hasFeedback)
                     <div>
-                        <x-button.text-button x-on:click="tab(2)" size="sm" class="text-base">
+                        <x-button.text-button x-on:click="tab(2, true)" size="sm" class="text-base">
                             <x-icon.feedback-text />
                             <span>@lang('review.Bekijk feedback')</span>
                         </x-button.text-button>
@@ -175,8 +176,8 @@
                     <div class="answer-feedback-given-comments relative">
                         <button class="flex bold border-t border-blue-grey py-2 justify-between items-center w-full group"
                                 :class="{'text-midgrey': !hasFeedback}"
-                                x-init="dropdownOpened = @js($this->hasFeedback) ? dropdownOpened : ''"
-                                @click="toggleFeedbackAccordion('given-feedback')"
+                                x-init="dropdownOpened = hasFeedback ? dropdownOpened : ''"
+                                @click="hasFeedback ? toggleFeedbackAccordion('given-feedback') : ''"
                         >
                             <span>@lang('assessment.Gegeven feedback')</span>
                             <span class="w-6 h-6 rounded-full flex justify-center items-center transition -mr-0.5
@@ -197,8 +198,16 @@
                              x-data="{}"
                              x-init=""
                         >
+                            <div class="flex mx-auto "
+                                x-on:multi-slider-toggle-value-updated.window="$wire.setAnswerFeedbackFilter($event.detail.value)"
+                            >
+                                <x-button.slider initial-status="all"
+                                                 buttonWidth="auto"
+                                                 :options="[ 'all' => __('assessment.all'), 'teacher' => __('auth.Docent'),'students' => __('test-take.Studenten')]"
+                                />
+                            </div>
 
-                            @foreach($answerFeedback as $comment)
+                            @foreach($answerFeedback->filter->visible as $comment)
 
                                 <x-partials.answer-feedback-card :comment="$comment" :viewOnly="true"/>
 

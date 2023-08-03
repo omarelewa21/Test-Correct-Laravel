@@ -45,10 +45,10 @@ return [
     'Inline feedback schrijven in antwoord'        => 'Inline feedback schrijven in antwoord',
     'Inline feedback bekijken'                     => 'Inline feedback bekijken',
     'Gegeven feedback'                             => 'Gegeven feedback',
-    'Feedback schrijven'                           => 'Feedback schrijven',
     'scored_by_one_student'                        => 'Let op: gescoord door één student.',
     'disabled_nav_closed_question'                 => 'Dit is een gesloten vraag die automatisch wordt nagekeken.',
     'disabled_nav_no_answer'                       => 'Er zijn geen antwoorden beschikbaar voor deze vraag.',
     'emoji invoegen'                               => 'Emoji invoegen',
     'tekst markeren'                               => 'Tekst markeren',
+    'all'                                          => 'Alles'
 ];

@@ -4,6 +4,7 @@ namespace tcCore\Http\Livewire\Student;
 
 use Illuminate\Support\Collection;
 use tcCore\Http\Livewire\EvaluationComponent;
+use tcCore\Http\Traits\WithInlineFeedback;
 
 class TestReview extends EvaluationComponent
 {
@@ -29,8 +30,6 @@ class TestReview extends EvaluationComponent
 
     public function booted(): void
     {
-        $this->getSortedAnswerFeedback();
-
         if ($this->skipBooted) {
             return;
         }
