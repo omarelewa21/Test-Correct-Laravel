@@ -45,35 +45,43 @@ class SupportTakeOverLogController extends Controller
 
         foreach ($logs->items() as $log) {
             if(!$log->user){
-                $log->user = User::withTrashed()->find($logs->user_id);
-                if($log->user) {
-                    $log->user->name .= '(deleted)';
-                } else {
-                    $log->user = User::make([
-                        'username' => 'deleted user',
-                        'name' => 'user',
-                        'name_first' => 'deleted',
-                    ]);
-                }
+                $log->user = $this->getDeletedOrDummyUser($log);
             }
             $log->user->setAttribute('fullname', $log->user->getNameFullAttribute());
 
             if(!$log->supportUser){
-                $log->supportUser = User::withTrashed()->find($logs->support_user_id);
-                if($log->supportUser){
-                    $log->supportUser->name .= '(deleted)';
-                } else {
-                    $log->supportUser = User::make([
+                $log->supportUser = $this->getDeletedOrDummyUser(
+                    $log->support_user_id, [
                         'username' => 'deleted support user',
                         'name' => 'support user',
                         'name_first' => 'deleted',
-
-                    ]);
-                }
+                    ]
+                );
             }
             $log->supportUser->setAttribute('fullname', $log->supportUser->getNameFullAttribute());
         }
 
         return Response::make($logs, 200);
+    }
+
+    /**
+     * @param mixed $log
+     * @return void
+     */
+    private function getDeletedOrDummyUser($user_id, $attr = []):User
+    {
+        $user = User::withTrashed()->find($user_id);
+        if ($user) {
+            $user->name .= '(deleted)';
+        } else {
+            $user = User::make(
+                array_merge([
+                'username'   => 'deleted user',
+                'name'       => 'user',
+                'name_first' => 'deleted',
+            ], $attr)
+            );
+        }
+        return $user;
     }
 }
