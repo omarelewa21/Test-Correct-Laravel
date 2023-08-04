@@ -1094,7 +1094,10 @@ button.cta-button:disabled, a.cta-button:disabled {
     margin-left: 50%;
 }
 
-.results-grid {
+.results-grid.setup {
+    grid-template-columns: minmax(150px, auto) minmax(200px, auto) min-content 450px min-content;
+}
+.results-grid.overview {
     grid-template-columns: minmax(150px, auto) minmax(200px, auto) repeat(4, min-content);
 }
 
@@ -1132,6 +1135,11 @@ button.cta-button:disabled, a.cta-button:disabled {
     align-items: center;
     justify-content: center;
     transition: background-color 150ms ease;
+}
+.results-grid .participant-popup-button.disabled {
+    color: var(--mid-grey);
+    background-color: var(--light-grey);
+    pointer-events: none;
 }
 
 .results-grid .participant-popup-button[data-open="true"] {
@@ -11092,6 +11100,12 @@ video {
 }
 .border-collapse{
   border-collapse: collapse;
+}
+.origin-bottom{
+  transform-origin: bottom;
+}
+.origin-top{
+  transform-origin: top;
 }
 .origin-top-right{
   transform-origin: top right;

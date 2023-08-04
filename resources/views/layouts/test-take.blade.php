@@ -84,6 +84,10 @@
             @yield('waitingRoom')
         @endif
 
+        @hasSection('norming')
+            @yield('norming')
+        @endif
+
         @hasSection('results')
             @yield('results')
         @endif
@@ -113,6 +117,8 @@
             <span>@lang('test-take.toets URL gekopieerd')</span>
         </div>
     </div>
+
+        <livewire:teacher.test-take.test-participant-details-popup />
     @endif
 </div>
 

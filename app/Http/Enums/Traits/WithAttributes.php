@@ -30,7 +30,7 @@ trait WithAttributes
         if (!$instance) {
             return null;
         }
-        return __($instance->translationKey);
+        return __($instance->description);
     }
 
     public static function casesWithDescription(): Collection

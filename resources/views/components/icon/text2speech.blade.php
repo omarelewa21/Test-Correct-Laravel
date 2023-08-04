@@ -1,0 +1,1 @@
+@extends('components.icon.speech-bubble')

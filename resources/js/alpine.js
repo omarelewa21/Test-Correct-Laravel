@@ -3767,6 +3767,7 @@ document.addEventListener("alpine:init", () => {
         studentData: [],
         columns,
         totalWidth: null,
+        loadingData: [],
         init() {
             this.fixPvalueContainerWidth();
         },
@@ -3777,8 +3778,11 @@ document.addEventListener("alpine:init", () => {
             });
         },
         async openRow(attainment) {
+            if (this.loadingData.includes(attainment)) return;
             if(!this.studentData[attainment]) {
+                this.loadingData.push(attainment)
                 this.studentData[attainment] = await this.$wire.attainmentStudents(attainment);
+                this.loadingData = this.loadingData.filter(key => key !== attainment);
             }
 
             this.attainmentOpen.push(attainment);
@@ -3797,22 +3801,21 @@ document.addEventListener("alpine:init", () => {
         styles(pValue, multiplier){
             return {
                 'width': this.barWidth(multiplier),
-                'color': this.textColor(pValue),
                 'backgroundColor': this.backgroundColor(pValue),
             }
         },
         barWidth(multiplier) {
             return (this.totalWidth / this.columns.length) * multiplier + 'px';
         },
-        textColor(pValue) {
-            if((pValue * 100) >= 55 && (pValue * 100) < 65) return 'var(--system-base)';
-            return 'white';
-        },
         backgroundColor(pValue) {
             if((pValue * 100) < 55) return 'var(--all-red)';
             if((pValue * 100) < 65) return 'var(--student)';
             return 'var(--cta-primary)';
         },
+        isLastStudentInRow(student, attainment) {
+            const index = this.studentData[attainment].findIndex(s => s.uuid === student.uuid)
+            return this.studentData[attainment].length === index+1;
+        }
     }));
 
     Alpine.directive("global", function(el, { expression }) {

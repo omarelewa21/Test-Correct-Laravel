@@ -10606,6 +10606,7 @@ document.addEventListener("alpine:init", function () {
       studentData: [],
       columns: columns,
       totalWidth: null,
+      loadingData: [],
       init: function init() {
         this.fixPvalueContainerWidth();
       },
@@ -10623,20 +10624,30 @@ document.addEventListener("alpine:init", function () {
           return _regeneratorRuntime().wrap(function _callee34$(_context34) {
             while (1) switch (_context34.prev = _context34.next) {
               case 0:
-                if (_this90.studentData[attainment]) {
-                  _context34.next = 4;
+                if (!_this90.loadingData.includes(attainment)) {
+                  _context34.next = 2;
                   break;
                 }
-                _context34.next = 3;
+                return _context34.abrupt("return");
+              case 2:
+                if (_this90.studentData[attainment]) {
+                  _context34.next = 8;
+                  break;
+                }
+                _this90.loadingData.push(attainment);
+                _context34.next = 6;
                 return _this90.$wire.attainmentStudents(attainment);
-              case 3:
+              case 6:
                 _this90.studentData[attainment] = _context34.sent;
-              case 4:
+                _this90.loadingData = _this90.loadingData.filter(function (key) {
+                  return key !== attainment;
+                });
+              case 8:
                 _this90.attainmentOpen.push(attainment);
                 _this90.$nextTick(function () {
                   return _this90.fixPvalueContainerWidth();
                 });
-              case 6:
+              case 10:
               case "end":
                 return _context34.stop();
             }
@@ -10673,21 +10684,22 @@ document.addEventListener("alpine:init", function () {
       styles: function styles(pValue, multiplier) {
         return {
           'width': this.barWidth(multiplier),
-          'color': this.textColor(pValue),
           'backgroundColor': this.backgroundColor(pValue)
         };
       },
       barWidth: function barWidth(multiplier) {
         return this.totalWidth / this.columns.length * multiplier + 'px';
       },
-      textColor: function textColor(pValue) {
-        if (pValue * 100 >= 55 && pValue * 100 < 65) return 'var(--system-base)';
-        return 'white';
-      },
       backgroundColor: function backgroundColor(pValue) {
         if (pValue * 100 < 55) return 'var(--all-red)';
         if (pValue * 100 < 65) return 'var(--student)';
         return 'var(--cta-primary)';
+      },
+      isLastStudentInRow: function isLastStudentInRow(student, attainment) {
+        var index = this.studentData[attainment].findIndex(function (s) {
+          return s.uuid === student.uuid;
+        });
+        return this.studentData[attainment].length === index + 1;
       }
     };
   });

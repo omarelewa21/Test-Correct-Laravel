@@ -255,7 +255,7 @@ class Attainment extends BaseModel
             ->leftJoin('test_participants', 'p_values.test_participant_id', '=', 'test_participants.id')
             ->leftJoin('users', 'test_participants.user_id', '=', 'users.id')
             ->selectRaw(
-                'users.name_first,users.name_suffix,users.name,
+                'users.name_first,users.name_suffix,users.name,users.uuid,
                     sum(p_values.score) as total_score, 
                     sum(p_values.max_score) as total_max_score,count(question_attainments.question_id) as questions_per_attainment,
                     count(distinct p_values.test_participant_id) as count_testparticipants,

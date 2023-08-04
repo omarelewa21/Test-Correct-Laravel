@@ -3,17 +3,19 @@
 namespace tcCore\Http\Livewire\Teacher\TestTake;
 
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Livewire\Redirector;
 use tcCore\Answer;
 use tcCore\AnswerRating;
 use tcCore\Attainment;
-use tcCore\Http\Controllers\TestTakes\TestTakeAttainmentAnalysisController;
+use tcCore\Http\Enums\TestTakeEventTypes;
 use tcCore\Http\Livewire\Teacher\TestTake\TestTake as TestTakeComponent;
 use tcCore\Lib\Answer\AnswerChecker;
 use tcCore\TestParticipant;
 use tcCore\TestTake as TestTakeModel;
 use tcCore\TestTakeStatus;
+use tcCore\User;
 
 class Taken extends TestTakeComponent
 {
@@ -21,15 +23,16 @@ class Taken extends TestTakeComponent
     public int $testTakeStatusId;
 
     public bool $showWaitingRoom = false;
-    public bool $showStudentNames = true;
+    public bool $showStudentNames = false;
     public bool $reviewActive = false;
+    public bool $assessmentDone = false;
 
     public Collection $participantResults;
 
     public ?Collection $attainments;
     public int $maxQuestionsForAttainmentAnalysis = 20;
     public array $analysisQuestionValues = [0, 5, 10, 20, 40, 80, 160];
-    private Collection $attainmentValueRatios;
+    public Collection $attainmentValueRatios;
 
     public function mount(TestTakeModel $testTake): void
     {
@@ -47,11 +50,25 @@ class Taken extends TestTakeComponent
         $this->setParticipantResults();
 
         $this->attainments = $this->getAttainments();
+        $this->assessmentDone = $this->takenTestData['assessedQuestions'] === $this->takenTestData['questionsToAssess'];
     }
 
     public function updatedReviewActive(bool $value): void
     {
         TestTakeModel::whereUuid($this->testTakeUuid)->update(['review_active' => $value]);
+    }
+
+    public function updatedShowStudentNames(): void
+    {
+        $this->participantResults->each(function ($participant, $key) {
+            $participant->name = $this->getDisplayNameForParticipant($participant, $key);
+        });
+    }
+
+    public function hydrate()
+    {
+        parent::hydrate();
+        $this->setParticipantResults();
     }
 
     /* Public methods */
@@ -124,7 +141,9 @@ class Taken extends TestTakeComponent
 
     public function attainmentStudents(Attainment $attainment): array
     {
-        return $attainment->getStudentAnalysisDataForTestTake($this->testTake)->toArray();
+        return $this->addAdditionalPropertiesForRendering(
+            $attainment->getStudentAnalysisDataForTestTake($this->testTake)
+        )->toArray();
     }
 
     /* Protected methods */
@@ -187,21 +206,22 @@ class Taken extends TestTakeComponent
     {
         $this->testTake->loadMissing([
             'testParticipants',
-            'testParticipants.user:id,name,name_first,name_suffix,uuid',
+            'testParticipants.user:id,name,name_first,name_suffix,uuid,time_dispensation,text2speech',
             'testParticipants.answers',
             'testParticipants.answers.answerRatings',
+            'testParticipants.testTakeEvents'
         ]);
 
         $this->participantResults = $this->testTake
             ->testParticipants
-            ->each(function ($participant) {
+            ->each(function ($participant, $key) {
                 $participant->user->setAppends([]);
-                $participant->name = html_entity_decode($participant->user->name_full);
+                $participant->name = $this->getDisplayNameForParticipant($participant, $key);
                 $participant->score = $this->getScoreForParticipant($participant);
                 $participant->discrepancies = $this->getDiscrepanciesForParticipant($participant);
                 $participant->rated = $this->getRatedQuestionsForParticipant($participant);
                 $participant->testNotTaken = $participant->test_take_status_id < TestTakeStatus::STATUS_TAKEN;
-                $participant->calculateStatistics($this->testTake);
+                $participant->contextIcons = $this->getContextIconsForParticipant($participant);
             });
     }
 
@@ -216,15 +236,16 @@ class Taken extends TestTakeComponent
     private function getScoreForParticipant(TestParticipant $participant): mixed
     {
         return $participant->answers->sum(function ($answer) {
-            $rating = $answer->answerRatings->first(function ($rating) {
-                if ($rating->type === AnswerRating::TYPE_TEACHER) {
-                    return $rating;
-                };
-                if ($rating->type === AnswerRating::TYPE_SYSTEM) {
-                    return $rating;
-                }
-                return $rating;
-            });
+            $rating = $answer->answerRatings
+                ->sortBy(function ($rating) {
+                    if ($rating->type === AnswerRating::TYPE_TEACHER) {
+                        return 1;
+                    }
+                    if ($rating->type === AnswerRating::TYPE_SYSTEM) {
+                        return 2;
+                    }
+                    return 3;
+                })->first();
             return $rating->rating;
         });
     }
@@ -249,11 +270,7 @@ class Taken extends TestTakeComponent
     {
         $attainments = Attainment::getAnalysisDataForTestTake($this->testTake);
         $this->setAttainmentAnalysisProperties($attainments);
-        $attainments->each(function ($attainment) {
-            $attainment->multiplier = $this->getLengthMultiplierForAttainment($attainment);
-        });
-
-        return $attainments;
+        return $this->addAdditionalPropertiesForRendering($attainments);
     }
 
     private function setAttainmentAnalysisProperties(Collection $attainments): void
@@ -293,19 +310,66 @@ class Taken extends TestTakeComponent
         return $max;
     }
 
-
-    private function getValueSectionForAttainment(Attainment $attainment)
+    private function addAdditionalPropertiesForRendering(Collection $models): Collection
     {
-        return $this->attainmentValueRatios->where('start', '<', $attainment->questions_per_attainment)
-            ->where('end', '>=', $attainment->questions_per_attainment)
+        $models->each(function ($model) {
+            $model->multiplier = $this->getLengthMultiplier($model);
+            $model->display_pvalue = round($model->p_value * 100);
+            $model->title = sprintf(
+                '%s %s',
+                trans_choice('test-take.pvalue_title_1', $model->display_pvalue),
+                trans_choice('test-take.pvalue_title_2', $model->questions_per_attainment)
+            );
+        });
+        return $models;
+    }
+
+    private function getLengthMultiplier(Attainment|User $model): mixed
+    {
+        $section = $this->getValueSection($model);
+        return $section['multiplierBase'] + (
+                ($model->questions_per_attainment - $section['start']) / ($section['end'] - $section['start'])
+            );
+    }
+
+    private function getValueSection(Attainment|User $model)
+    {
+        return $this->attainmentValueRatios->where('start', '<', $model->questions_per_attainment)
+            ->where('end', '>=', $model->questions_per_attainment)
             ->first();
     }
 
-    private function getLengthMultiplierForAttainment(Attainment $attainment): mixed
+    private function getContextIconsForParticipant(TestParticipant $participant): Collection
     {
-        $section = $this->getValueSectionForAttainment($attainment);
-        return $section['multiplierBase'] + (
-                ($attainment->questions_per_attainment - $section['start']) / ($section['end'] - $section['start'])
-            );
+        $icons = $participant->testTakeEvents
+            ->where('test_take_event_type_id', TestTakeEventTypes::StartTest->value)
+            ->mapWithKeys(function ($event) {
+                if (Arr::get($event, 'metadata.device') === 'app') {
+                    return ['app-logo' => __('test-take.Gemaakt in app')];
+                }
+                return ['web' => __('test-take.Gemaakt in browser')];
+            })
+            ->unique();
+
+        if ($participant->user->time_dispensation) {
+            $icons['time-dispensation'] = __('test-take.Tijd dispensatie van toepassing');
+        }
+
+        if ($participant->user->active_text2speech) {
+            $icons['text2speech'] = __('test-take.Lees voor functies aan');
+        }
+
+        if ($participant->invigilator_note) {
+            $icons['notepad'] = __('test-take.Notities aanwezig');
+        }
+
+        return $icons;
+    }
+
+    private function getDisplayNameForParticipant($participant, $key): string
+    {
+        return $this->showStudentNames
+            ? html_entity_decode($participant->user->name_full)
+            : sprintf('Student %s', $key + 1);
     }
 }

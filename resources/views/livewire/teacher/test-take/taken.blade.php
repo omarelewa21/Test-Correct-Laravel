@@ -172,6 +172,102 @@
     </div>
 @endsection
 
+@if($this->assessmentDone)
+    @section('norming')
+        <div class="flex flex-col gap-4">
+            <h2>@lang('test-take.Resultaten instellen')</h2>
+            <div class="flex flex-col pt-5 pb-10 px-10 bg-white rounded-10 content-section" x-cloak>
+                <h4>@lang('account.Becijferen en normeren')</h4>
+
+                <div class="divider mt-3 mb-2.5"></div>
+
+                <div class="results-grid setup grid -mx-5 relative"
+                     x-data="{rowHover: null, shadow: null}"
+                     x-init="
+                     shadow = $refs.shadowBox
+                     $watch('rowHover', value => {
+                        if(value !== null) {
+                            shadow.style.top = $root.querySelector(`[data-row='${value}'] .grid-item`)?.offsetTop + 'px'
+                        }
+                     })"
+                     wire:ignore.self
+                >
+                    <div x-ref="shadowBox" x-show="rowHover !== null" class="shadow-box "><span></span></div>
+
+                    <div class="bold pr-1.5 pl-5">@lang('test-take.Student')</div>
+                    <div class="bold px-1.5">@lang('student.info')</div>
+                    <div class="bold px-1.5">@lang('test-take.Beoordeling')</div>
+                    <div class="bold px-1.5 text-right">@lang('test-take.Definitieve beoordeling')</div>
+                    <div class="bold px-1.5 pr-5">@lang('general.grade')</div>
+
+                    <div class="col-span-5 h-[3px] bg-sysbase mt-2 mx-5"></div>
+
+                    @foreach($this->participantResults as $key => $participant)
+                        <div @class([
+                                "grid-row contents group/row cursor-default",
+                                "hover:text-primary hover:shadow-lg" => !$participant->testNotTaken,
+                                "disabled note" => $participant->testNotTaken,
+                                ])
+                             x-on:mouseover="rowHover = $el.dataset.row"
+                             x-on:mouseout="rowHover = null"
+                             data-row="{{ $loop->iteration }}"
+                        >
+                            <div class="grid-item flex items-center group-hover/row:bg-offwhite pr-1.5 pl-5 col-start-1 h-15 rounded-l-10">{{ $participant->name }}</div>
+                            <div class="grid-item flex items-center group-hover/row:bg-offwhite pr-1.5 ">
+                                <div class="flex items-center gap-2 truncate">
+                                    <div class="flex items-center gap-2 text-sysbase">
+                                        <span @class([
+                                                'flex items-center participant-popup-button',
+                                                'disabled' => $participant->testNotTaken
+                                            ])
+                                              x-on:click.prevent="if($el.dataset.open === 'false') $dispatch('open-participant-popup', {participant: @js($participant->uuid), element: $el})"
+                                              data-open="false"
+                                        >
+                                            <span data-closed>
+                                                <x-icon.profile />
+                                                <x-icon.i-letter />
+                                            </span>
+                                            <span data-open>
+                                                <x-icon.close-small />
+                                            </span>
+                                        </span>
+
+                                        @foreach($participant->contextIcons as $icon => $title)
+                                            <x-dynamic-component :component="'icon.'.$icon"
+                                                                 :title="$title"
+                                            />
+                                        @endforeach
+                                    </div>
+
+                                    <span class="truncate note text-sm group-hover/row:text-primary"
+                                          title="{{ $participant->invigilator_note }}">{{ $participant->invigilator_note }}</span>
+                                </div>
+                            </div>
+                            <div class="grid-item flex items-center group-hover/row:bg-offwhite px-1.5 justify-end">
+                                3
+                            </div>
+                            <div class="grid-item flex items-center group-hover/row:bg-offwhite px-1.5 justify-end">
+                                <x-input.score-slider modelName="participantResults.{{ $key }}.score"
+                                                      mode=""
+                                                      :maxScore="10"
+                                                      :score="0"
+                                                      :halfPoints="false"
+                                                      :disabled="$participant->testNotTaken"
+                                                      title=""
+                                />
+                            </div>
+                            <div class="grid-item flex items-center group-hover/row:bg-offwhite pl-1.5 pr-5 rounded-r-10">
+                                <x-mark-badge rating="10" />
+                            </div>
+                        </div>
+                        <div class="h-px bg-bluegrey mx-5 col-span-5 col-start-1"></div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    @endsection
+@endif
+
 @if($this->testTakeStatusId >= \tcCore\TestTakeStatus::STATUS_DISCUSSED)
     @section('results')
         <div class="flex flex-col gap-4">
@@ -181,7 +277,7 @@
 
                 <div class="divider mt-3 mb-2.5"></div>
 
-                <div class="results-grid grid -mx-5 relative"
+                <div class="results-grid overview grid -mx-5 relative"
                      x-data="{rowHover: null, shadow: null}"
                      x-init="
                      shadow = $refs.shadowBox
@@ -190,12 +286,12 @@
                             shadow.style.top = $root.querySelector(`[data-row='${value}'] .grid-item`)?.offsetTop + 'px'
                         }
                      })"
-                     wire:ignore
+                     wire:ignore.self
                 >
                     <div x-ref="shadowBox" x-show="rowHover !== null" class="shadow-box "><span></span></div>
 
                     <div class="bold pr-1.5 pl-5">@lang('test-take.Student')</div>
-                    <div class="bold px-1.5">@lang('test-take.Extra informatie')</div>
+                    <div class="bold px-1.5">@lang('student.info')</div>
                     <div class="bold px-1.5">@lang('test-take.Nagekeken')</div>
                     <div class="bold px-1.5">@lang('test-take.Score/Max')</div>
                     <div class="bold px-1.5">@lang('test-take.Discr.')</div>
@@ -213,11 +309,14 @@
                              x-on:mouseout="rowHover = null"
                              data-row="{{ $loop->iteration }}"
                         >
-                            <div class="grid-item flex items-center group-hover/row:bg-offwhite pr-1.5 pl-5 col-start-1 h-15 rounded-l-10">{{ $participant->name }} {{ $participant->test_take_status_id }}</div>
+                            <div class="grid-item flex items-center group-hover/row:bg-offwhite pr-1.5 pl-5 col-start-1 h-15 rounded-l-10">{{ $participant->name }}</div>
                             <div class="grid-item flex items-center group-hover/row:bg-offwhite pr-1.5 ">
                                 <div class="flex items-center gap-2 truncate">
                                     <div class="flex items-center gap-2 text-sysbase">
-                                        <span class="flex items-center participant-popup-button"
+                                        <span @class([
+                                                'flex items-center participant-popup-button',
+                                                'disabled' => $participant->testNotTaken
+                                            ])
                                               x-on:click.prevent="if($el.dataset.open === 'false') $dispatch('open-participant-popup', {participant: @js($participant->uuid), element: $el})"
                                               data-open="false"
                                         >
@@ -230,11 +329,11 @@
                                             </span>
                                         </span>
 
-                                        <x-icon.web />
-                                        <x-icon.time-dispensation />
-                                        <x-icon.speech-bubble />
-                                        <x-icon.notepad />
-
+                                        @foreach($participant->contextIcons as $icon => $title)
+                                            <x-dynamic-component :component="'icon.'.$icon"
+                                                                 :title="$title"
+                                            />
+                                        @endforeach
                                     </div>
 
                                     <span class="truncate note text-sm group-hover/row:text-primary"
@@ -265,21 +364,23 @@
                                 @endif
                             </div>
                             <div class="grid-item flex items-center group-hover/row:bg-offwhite pl-1.5 pr-5 rounded-r-10">
-                                <div class="flex items-center gap-2">
-                                    <x-button.icon
-                                            wire:click="$emit('openModal', 'message-create-modal', {receiver: '{{ $participant->user->uuid }}'})"
-                                            :title="__('message.Stuur bericht')"
-                                    >
-                                        <x-icon.envelope class="w-4 h-4" />
-                                    </x-button.icon>
+                                <div class="flex items-center gap-5">
+                                    <div class="flex items-center gap-2">
+                                        <x-button.icon
+                                                wire:click="$emit('openModal', 'message-create-modal', {receiver: '{{ $participant->user->uuid }}'})"
+                                                :title="__('message.Stuur bericht')"
+                                        >
+                                            <x-icon.envelope class="w-4 h-4" />
+                                        </x-button.icon>
 
-                                    <x-button.icon wire:click="assessParticipant('{{ $participant->uuid }}')"
-                                                   :title="__('test-take.Nakijken')"
-                                                   :disabled="$participant->testNotTaken"
-                                                   :color="$participant->rated === $this->takenTestData['questionCount'] ? 'primary' : 'cta'"
-                                    >
-                                        <x-icon.review />
-                                    </x-button.icon>
+                                        <x-button.icon wire:click="assessParticipant('{{ $participant->uuid }}')"
+                                                       :title="__('test-take.Nakijken')"
+                                                       :disabled="$participant->testNotTaken"
+                                                       :color="$participant->rated === $this->takenTestData['questionCount'] ? 'primary' : 'cta'"
+                                        >
+                                            <x-icon.review />
+                                        </x-button.icon>
+                                    </div>
                                     <x-mark-badge rating="10" />
                                 </div>
                             </div>
@@ -330,37 +431,67 @@
                     <div class=" h-[2px] bg-sysbase"></div>
                     {{--Rows --}}
                     @foreach($this->attainments as $attainment)
-                        <div class="flex w-full flex-col">
-                            <div class="flex w-full border-b border-bluegrey">
-                                <div class="flex flex-1 flex-col truncate"
-                                     x-on:click="toggleRow(@js($attainment->uuid));"
-                                >
-                                    <div class="flex w-full items-center gap-3 py-4 bold">
-                                        <x-icon.chevron class="transform rotate-90" />
-                                        <span class="truncate">{{ collect([$attainment->code,$attainment->subcode,$attainment->subsubcode])->filter()->join('.') }} {{ $attainment->description }} {{ $attainment->questions_per_attainment }}</span>
+                        <div class="flex w-full flex-col cursor-default">
+                            <div class="flex w-full border-b border-bluegrey cursor-pointer group"
+                                 x-on:click="toggleRow(@js($attainment->uuid));"
+                            >
+                                <div class="flex flex-1 flex-col truncate">
+                                    <div class="flex w-full items-center gap-3 py-2.5 bold">
+                                        <span x-bind:class="{'rotate-svg-90': attainmentOpen.includes(@js($attainment->uuid))}"
+                                              x-bind:title="attainmentOpen.includes(@js($attainment->uuid)) ? $el.dataset.transCollapse : $el.dataset.transExpand"
+                                              @class(['flex items-center justify-center rounded-full min-w-[40px] w-10 h-10 transition group-hover:bg-primary/5 group-active:bg-primary/10 group-focus:bg-primary/5 group-focus:text-primary group-focus:border group-focus:border-[color:rgba(0,77,245,0.15)]'])
+                                              data-trans-collapse="@lang('general.inklappen')"
+                                              data-trans-expand="@lang('general.uitklappen')"
+                                        >
+                                            <svg @class(['transition group-hover:text-primary'])
+                                                 width="9"
+                                                 height="13"
+                                                 xmlns="http://www.w3.org/2000/svg">
+                                                <path class="stroke-current" stroke-width="3" d="M1.5 1.5l5 5-5 5"
+                                                      fill="none"
+                                                      fill-rule="evenodd"
+                                                      stroke-linecap="round" />
+                                            </svg>
+                                        </span>
+                                        <span class="truncate">{{ collect([$attainment->code,$attainment->subcode,$attainment->subsubcode])->filter()->join('.') }} {{ $attainment->description }}</span>
                                     </div>
                                 </div>
                                 <div class="pvalue-container flex items-center">
-                                    <span class="flex h-[26px] bg-student text-base ml-2 rounded bold items-center px-1"
+                                    <span class="flex h-[26px] ml-2 rounded bold items-center px-2 text-white min-w-max"
                                           x-bind:style="styles(@js($attainment->p_value), @js($attainment->multiplier))"
-                                    ><span style="text-shadow: 0 1px 2px rgba(4, 31, 116, 0.6);">P {{ round($attainment->p_value * 100) }}</span></span>
+                                          title="{{ $attainment->title }}"
+                                    >
+                                        <span style="text-shadow: 0 1px 2px rgba(4, 31, 116, 0.6);">P {{ $attainment->display_pvalue }}</span>
+                                    </span>
                                 </div>
                             </div>
 
                             <div x-collapse
                                  x-show="attainmentOpen.includes(@js($attainment->uuid))"
-                                 class="flex w-full flex-col"
+                                 class="flex w-full flex-col "
                             >
                                 <template x-for="student in studentData[@js($attainment->uuid)]">
-                                    <div class="flex w-full pl-5">
-                                        <div class="flex flex-1 py-2 border-b border-bluegrey">
-                                            <span x-text="student.fullName"></span>
+                                    <div class="flex w-full pl-5 "
+                                         x-bind:class="{'border-b border-bluegrey': isLastStudentInRow(student, $el.dataset.attainment)}"
+                                         data-attainment="{{ $attainment->uuid }}"
+                                    >
+                                        <div class="flex flex-1 py-2 truncate"
+                                             x-bind:class="{'border-b border-bluegrey': !isLastStudentInRow(student, $el.parentElement.dataset.attainment)}"
+                                        >
+                                            <span class="truncate"
+                                                  x-text="student.fullName"
+                                                  x-bind:title="student.fullName"></span>
                                         </div>
-                                        <div class="pvalue-container flex items-center border-b border-bluegrey">
-                                            <span class="flex h-[26px] bg-student text-sm ml-2 rounded"
-                                                  x-bind:style="{'width': barWidth(student.questions_per_attainment)}"
-                                                  x-text="Math.round(student.p_value * 100)"
-                                            ></span>
+                                        <div class="pvalue-container flex items-center"
+                                             x-bind:class="{'border-b border-bluegrey': !isLastStudentInRow(student, $el.parentElement.dataset.attainment)}"
+                                        >
+                                            <span class="flex h-[26px] text-sm text-white ml-2 rounded bold items-center px-1 min-w-max"
+                                                  x-bind:style="styles(student.p_value, student.multiplier)"
+                                                  x-bind:title="student.title"
+                                            >
+                                                <span style="text-shadow: 0 1px 2px rgba(4, 31, 116, 0.6);"
+                                                      x-text="'P ' + student.display_pvalue"></span>
+                                            </span>
                                         </div>
                                     </div>
 
@@ -370,7 +501,6 @@
                     @endforeach
                 </div>
             </div>
-            <livewire:teacher.test-take.test-participant-details-popup />
         </div>
     @endsection
 @endif

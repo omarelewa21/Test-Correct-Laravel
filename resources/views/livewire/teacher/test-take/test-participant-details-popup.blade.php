@@ -6,10 +6,10 @@
      x-on:click.outside="closePopup"
      x-on:keydown.escape.window="closePopup"
      x-on:scroll.window="handleScroll()"
-     x-transition:enter="transition ease-out origin-top-right duration-200"
+     x-transition:enter="transition ease-out origin-bottom duration-200"
      x-transition:enter-start="opacity-0 transform scale-90"
      x-transition:enter-end="opacity-100 transform scale-100"
-     x-transition:leave="transition origin-top-right ease-in duration-100"
+     x-transition:leave="transition origin-bottom ease-in duration-100"
      x-transition:leave-start="opacity-100 transform scale-100"
      x-transition:leave-end="opacity-0 transform scale-90"
      wire:ignore.self
