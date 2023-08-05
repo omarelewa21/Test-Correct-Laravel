@@ -81,20 +81,20 @@
                                     <div>
                                         <template x-if="colorSelected === color">
                                             <div
-                                            class="inline-flex rounded colorPickButton-selected"
-                                            :style="`background: ${color}; outline: 3px solid blue;`"
-                                        />
+                                                class="inline-flex rounded colorPickButton-selected"
+                                                :style="`background: ${color}; outline: 3px solid blue;`"
+                                            />
                                         </template>
 
                                         <template x-if="colorSelected != color">
                                             <div
-                                            @click="colorSelected = color; triggerInputEvent()"
-                                            @keydown.enter="colorSelected = color; triggerInputEvent()"
-                                            role="checkbox" tabindex="0"
-                                            :aria-checked="colorSelected"
-                                            class="inline-flex rounded colorPickButton"
-                                            :style="`background: ${color};`"
-                                        />
+                                                @click="colorSelected = color; triggerInputEvent()"
+                                                @keydown.enter="colorSelected = color; triggerInputEvent()"
+                                                role="checkbox" tabindex="0"
+                                                :aria-checked="colorSelected"
+                                                class="inline-flex rounded colorPickButton"
+                                                :style="`background: ${color};`"
+                                            />
                                         </template>
                                     </div>
                                 </template>
