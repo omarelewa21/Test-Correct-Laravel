@@ -184,6 +184,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
                 currentLayer: "question",
                 focusedShape: null,
                 bounds: {},
+                editingTextInZone: false,
                 draw: {
                     newShape: null,
                     shapeCountForEachType: {
@@ -1516,8 +1517,9 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
      */
     function cursorStart(evt) {
         evt.preventDefault();
-        updateCursorPosition(evt);
+        if(ShouldEditTextOnClick()) return;
 
+        updateCursorPosition(evt);
         setMousedownPosition(evt)
 
         if (Canvas.params.focusedShape)
@@ -2483,10 +2485,10 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         const shapeType = selectedEl.id.split('-')[0];
         switch (shapeType) {
             case 'text':
-                selectedEl.firstElementChild.style.fill = UI.textColor.value;
+                selectedEl.firstElementChild.setAttribute('fill', UI.textColor.value);
                 break;
             default:
-                selectedEl.firstElementChild.style.fill = UI.fillColor.value;
+                selectedEl.firstElementChild.setAttribute('fill', UI.fillColor.value);
         }
     }
 
@@ -2534,18 +2536,32 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         if(!checkIfShouldUpdateShape(selectedEl)) return;
 
         selectedEl.firstElementChild.style.fontWeight = drawingApp.params.boldText ? 'bold' : 'normal';
+        updateTextHelperElements(selectedEl);
     }
 
     function updateSelectedShapeTextSize() {
         const selectedEl = rootElement.querySelector('.editing');
         if(!checkIfShouldUpdateShape(selectedEl)) return;
 
+        selectedEl.firstElementChild.style.fontSize = (UI.textSize.value / 16) + 'rem';
+        updateTextHelperElements(selectedEl);
+    }
+
+    function updateTextHelperElements(selectedEl) {
         const layerID = selectedEl.parentElement.id;
         const layerObject = Canvas.layers[Canvas.layerID2Key(layerID)];
         const selectedSvgShape = layerObject.shapes[selectedEl.id].svg;
 
-        selectedEl.firstElementChild.style.fontSize = UI.textSize.value;
         selectedSvgShape.updateHelperElements();
+    }
+
+    function ShouldEditTextOnClick() {
+        const selectedEl = rootElement.querySelector('.editing');
+        if(!checkIfShouldUpdateShape(selectedEl)) return;
+
+        const shapeType = selectedEl.id.split('-')[0];
+
+        return shapeType === 'text' && Canvas.params.editingTextInZone;
     }
 
     return {UI, Canvas, drawingApp}
