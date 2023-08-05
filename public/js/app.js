@@ -12026,6 +12026,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         currentLayer: "question",
         focusedShape: null,
         bounds: {},
+        editingTextInZone: false,
         draw: {
           newShape: null,
           shapeCountForEachType: {
@@ -13372,6 +13373,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
   function cursorStart(evt) {
     var _evt$touches3;
     evt.preventDefault();
+    if (ShouldEditTextOnClick()) return;
     updateCursorPosition(evt);
     setMousedownPosition(evt);
     if (Canvas.params.focusedShape) Canvas.params.focusedShape = null;
@@ -14270,10 +14272,10 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     var shapeType = selectedEl.id.split('-')[0];
     switch (shapeType) {
       case 'text':
-        selectedEl.firstElementChild.style.fill = UI.textColor.value;
+        selectedEl.firstElementChild.setAttribute('fill', UI.textColor.value);
         break;
       default:
-        selectedEl.firstElementChild.style.fill = UI.fillColor.value;
+        selectedEl.firstElementChild.setAttribute('fill', UI.fillColor.value);
     }
   }
   function updateSelectedShapeOpacity() {
@@ -14311,15 +14313,25 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     var selectedEl = rootElement.querySelector('.editing');
     if (!checkIfShouldUpdateShape(selectedEl)) return;
     selectedEl.firstElementChild.style.fontWeight = drawingApp.params.boldText ? 'bold' : 'normal';
+    updateTextHelperElements(selectedEl);
   }
   function updateSelectedShapeTextSize() {
     var selectedEl = rootElement.querySelector('.editing');
     if (!checkIfShouldUpdateShape(selectedEl)) return;
+    selectedEl.firstElementChild.style.fontSize = UI.textSize.value / 16 + 'rem';
+    updateTextHelperElements(selectedEl);
+  }
+  function updateTextHelperElements(selectedEl) {
     var layerID = selectedEl.parentElement.id;
     var layerObject = Canvas.layers[Canvas.layerID2Key(layerID)];
     var selectedSvgShape = layerObject.shapes[selectedEl.id].svg;
-    selectedEl.firstElementChild.style.fontSize = UI.textSize.value;
     selectedSvgShape.updateHelperElements();
+  }
+  function ShouldEditTextOnClick() {
+    var selectedEl = rootElement.querySelector('.editing');
+    if (!checkIfShouldUpdateShape(selectedEl)) return;
+    var shapeType = selectedEl.id.split('-')[0];
+    return shapeType === 'text' && Canvas.params.editingTextInZone;
   }
   return {
     UI: UI,
@@ -16457,9 +16469,24 @@ function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input ==
 
 
 
-/** * @typedef propObj * @type {Object.<string, string|number>} * */
+/**
+ * @typedef propObj
+ * @type {Object.<string, string|number>}
+ *
+ */
 var svgShape = /*#__PURE__*/function () {
-  /**     * @param {number} shapeId The unique identifier the shape gets.     * @param {string} type The type of shape to be made.     * @param {?propObj} props     * All properties (attributes) to be assigned to the shape,     * when omitted the properties of the shape are loaded.     * @param {?SVGElement} parent The parent the shape should be appended to.     * @param drawingApp     * @param Canvas     * @param withHelperElements     * @param withHighlightEvents     */
+  /**
+   * @param {number} shapeId The unique identifier the shape gets.
+   * @param {string} type The type of shape to be made.
+   * @param {?propObj} props
+   * All properties (attributes) to be assigned to the shape,
+   * when omitted the properties of the shape are loaded.
+   * @param {?SVGElement} parent The parent the shape should be appended to.
+   * @param drawingApp
+   * @param Canvas
+   * @param withHelperElements
+   * @param withHighlightEvents
+   */
   function svgShape(shapeId, type, props, parent, drawingApp, Canvas) {
     var _this = this;
     var withHelperElements = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : true;
@@ -16822,7 +16849,17 @@ var svgShape = /*#__PURE__*/function () {
 var Rectangle = /*#__PURE__*/function (_svgShape) {
   _inherits(Rectangle, _svgShape);
   var _super = _createSuper(Rectangle);
-  /**     * @param {number} shapeId The unique identifier the shape gets.     * @param {?propObj} props     * All properties (attributes) to be assigned to the shape,     * when omitted the properties of the shape are loaded.     * @param {?SVGElement} parent The parent the shape should be appended to.     * @param drawingApp     * @param Canvas     * @param withHelperElements     * @param withHighlightEvents     */
+  /**
+   * @param {number} shapeId The unique identifier the shape gets.
+   * @param {?propObj} props
+   * All properties (attributes) to be assigned to the shape,
+   * when omitted the properties of the shape are loaded.
+   * @param {?SVGElement} parent The parent the shape should be appended to.
+   * @param drawingApp
+   * @param Canvas
+   * @param withHelperElements
+   * @param withHighlightEvents
+   */
   function Rectangle(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
     _classCallCheck(this, Rectangle);
     return _super.call(this, shapeId, "rect", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
@@ -16832,7 +16869,17 @@ var Rectangle = /*#__PURE__*/function (_svgShape) {
 var Circle = /*#__PURE__*/function (_svgShape2) {
   _inherits(Circle, _svgShape2);
   var _super2 = _createSuper(Circle);
-  /**     * @param {number} shapeId The unique identifier the shape gets.     * @param {?propObj} props     * All properties (attributes) to be assigned to the shape,     * when omitted the properties of the shape are loaded.     * @param {?SVGElement} parent The parent the shape should be appended to.     * @param drawingApp     * @param Canvas     * @param withHelperElements     * @param withHighlightEvents     */
+  /**
+   * @param {number} shapeId The unique identifier the shape gets.
+   * @param {?propObj} props
+   * All properties (attributes) to be assigned to the shape,
+   * when omitted the properties of the shape are loaded.
+   * @param {?SVGElement} parent The parent the shape should be appended to.
+   * @param drawingApp
+   * @param Canvas
+   * @param withHelperElements
+   * @param withHighlightEvents
+   */
   function Circle(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
     _classCallCheck(this, Circle);
     return _super2.call(this, shapeId, "circle", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
@@ -16842,7 +16889,17 @@ var Circle = /*#__PURE__*/function (_svgShape2) {
 var Line = /*#__PURE__*/function (_svgShape3) {
   _inherits(Line, _svgShape3);
   var _super3 = _createSuper(Line);
-  /**     * @param {number} shapeId The unique identifier the shape gets.     * @param {?propObj} props     * All properties (attributes) to be assigned to the shape,     * when omitted the properties of the shape are loaded.     * @param {?SVGElement} parent The parent the shape should be appended to.     * @param drawingApp     * @param Canvas     * @param withHelperElements     * @param withHighlightEvents     */
+  /**
+   * @param {number} shapeId The unique identifier the shape gets.
+   * @param {?propObj} props
+   * All properties (attributes) to be assigned to the shape,
+   * when omitted the properties of the shape are loaded.
+   * @param {?SVGElement} parent The parent the shape should be appended to.
+   * @param drawingApp
+   * @param Canvas
+   * @param withHelperElements
+   * @param withHighlightEvents
+   */
   function Line(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
     var _this3;
     _classCallCheck(this, Line);
@@ -16896,7 +16953,17 @@ var Line = /*#__PURE__*/function (_svgShape3) {
 var Text = /*#__PURE__*/function (_svgShape4) {
   _inherits(Text, _svgShape4);
   var _super4 = _createSuper(Text);
-  /**     * @param {number} shapeId The unique identifier the shape gets.     * @param {?propObj} props     * All properties (attributes) to be assigned to the shape,     * when omitted the properties of the shape are loaded.     * @param {?SVGElement} parent The parent the shape should be appended to.     * @param drawingApp     * @param Canvas     * @param withHelperElements     * @param withHighlightEvents     */
+  /**
+   * @param {number} shapeId The unique identifier the shape gets.
+   * @param {?propObj} props
+   * All properties (attributes) to be assigned to the shape,
+   * when omitted the properties of the shape are loaded.
+   * @param {?SVGElement} parent The parent the shape should be appended to.
+   * @param drawingApp
+   * @param Canvas
+   * @param withHelperElements
+   * @param withHighlightEvents
+   */
   function Text(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
     var _this4;
     _classCallCheck(this, Text);
@@ -16925,6 +16992,7 @@ var Text = /*#__PURE__*/function (_svgShape4) {
       textInput.addEventListener("focusout", function () {
         var text = textInput.element.value;
         textInput.deleteElement();
+        textInput.element.style.display = 'none';
         if (text.length === 0) {
           _this5.cancelConstruction();
           return;
@@ -16934,6 +17002,84 @@ var Text = /*#__PURE__*/function (_svgShape4) {
         _this5.updateBorderElement();
         _this5.updateCornerElements();
       });
+      this.registerEditingEvents();
+    }
+  }, {
+    key: "registerEditingEvents",
+    value: function registerEditingEvents() {
+      var _this6 = this;
+      var element = this.shapeGroup.element;
+      ['touchenter', 'mouseenter'].forEach(function (evt) {
+        return element.addEventListener(evt, function () {
+          var activeTool = _this6.root.querySelector('[data-button-group=tool].active');
+          var dragIsActive = activeTool.id.split('-')[0] === 'drag';
+          if (element.classList.contains('editing') && !dragIsActive) {
+            activateTextEditing(_this6);
+          } else {
+            returnTextToNormal(_this6, dragIsActive);
+          }
+        }, false);
+      });
+      ['touchleave', 'mouseleave'].forEach(function (evt) {
+        return element.addEventListener(evt, function () {
+          _this6.Canvas.params.editingTextInZone = false;
+        }, false);
+      });
+      ['touchstart', 'mousedown'].forEach(function (evt) {
+        return element.addEventListener(evt, function () {
+          if (!element.classList.contains('editing') || !_this6.Canvas.params.editingTextInZone) return;
+          handleEditTextClick(_this6);
+        }, false);
+      });
+      function returnTextToNormal(thisClass, dragIsActive) {
+        if (dragIsActive) {
+          element.style.cursor = 'move';
+        } else {
+          element.style.cursor = 'crosshair';
+        }
+        thisClass.Canvas.params.editingTextInZone = false;
+      }
+      function activateTextEditing(thisClass) {
+        element.style.cursor = 'text';
+        thisClass.Canvas.params.editingTextInZone = true;
+      }
+      function handleEditTextClick(thisClass) {
+        var textElement = thisClass.mainElement.element;
+        var coordinates = thisClass.drawingApp.convertCanvas2DomCoordinates({
+          x: textElement.getAttribute('x'),
+          y: textElement.getAttribute('y')
+        });
+        var canvasContainer = thisClass.root.querySelector("#svg-canvas").parentElement;
+        var fontSize = parseFloat(textElement.style.fontSize);
+        var topOffset = fontSize * parseFloat(getComputedStyle(document.documentElement).fontSize);
+        var textInput = new _htmlElement_js__WEBPACK_IMPORTED_MODULE_2__.htmlElement("input", canvasContainer, {
+          id: "edit-text-input",
+          type: "text",
+          style: "width: ".concat(textElement.getBoundingClientRect().width, "px;                    position: absolute;                    top: ").concat(coordinates.y - topOffset, "px;                    left: ").concat(coordinates.x, "px;                    font-size: ").concat(fontSize, "rem;                    color: ").concat(textElement.getAttribute("fill"), ";                    font-weight: ").concat(textElement.style.fontWeight || "normal", ";                    transform-origin: bottom left;                    transform: scale(").concat(thisClass.Canvas.params.zoomFactor, ")"),
+          autocomplete: "off",
+          spellcheck: "false"
+        });
+        textInput.element.value = textElement.textContent;
+        textElement.textContent = '';
+        textElement.parentElement.style.display = 'none';
+        textInput.focus();
+        textInput.addEventListener('keyup', function () {
+          textInput.element.style.width = "".concat(textInput.element.value.length + 1, "ch");
+        }, false);
+        textInput.addEventListener("focusout", function () {
+          var text = textInput.element.value;
+          textInput.deleteElement();
+          textInput.element.style.display = 'none';
+          if (text.length === 0) {
+            thisClass.cancelConstruction();
+            return;
+          }
+          textElement.textContent = text;
+          thisClass.updateBorderElement();
+          thisClass.updateCornerElements();
+          textElement.parentElement.style = '';
+        });
+      }
     }
   }]);
   return Text;
@@ -16941,7 +17087,17 @@ var Text = /*#__PURE__*/function (_svgShape4) {
 var Image = /*#__PURE__*/function (_svgShape5) {
   _inherits(Image, _svgShape5);
   var _super5 = _createSuper(Image);
-  /**     * @param {number} shapeId The unique identifier the shape gets.     * @param {?propObj} props     * All properties (attributes) to be assigned to the shape,     * when omitted the properties of the shape are loaded.     * @param {?SVGElement} parent The parent the shape should be appended to.     * @param drawingApp     * @param Canvas     * @param withHelperElements     * @param withHighlightEvents     */
+  /**
+   * @param {number} shapeId The unique identifier the shape gets.
+   * @param {?propObj} props
+   * All properties (attributes) to be assigned to the shape,
+   * when omitted the properties of the shape are loaded.
+   * @param {?SVGElement} parent The parent the shape should be appended to.
+   * @param drawingApp
+   * @param Canvas
+   * @param withHelperElements
+   * @param withHighlightEvents
+   */
   function Image(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
     _classCallCheck(this, Image);
     return _super5.call(this, shapeId, "image", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
@@ -16959,7 +17115,17 @@ var Image = /*#__PURE__*/function (_svgShape5) {
 var Path = /*#__PURE__*/function (_svgShape6) {
   _inherits(Path, _svgShape6);
   var _super6 = _createSuper(Path);
-  /**     * @param {number} shapeId The unique identifier the shape gets.     * @param {?propObj} props     * All properties (attributes) to be assigned to the shape,     * when omitted the properties of the shape are loaded.     * @param {?SVGElement} parent The parent the shape should be appended to.     * @param drawingApp     * @param Canvas     * @param withHelperElements     * @param withHighlightEvents     */
+  /**
+   * @param {number} shapeId The unique identifier the shape gets.
+   * @param {?propObj} props
+   * All properties (attributes) to be assigned to the shape,
+   * when omitted the properties of the shape are loaded.
+   * @param {?SVGElement} parent The parent the shape should be appended to.
+   * @param drawingApp
+   * @param Canvas
+   * @param withHelperElements
+   * @param withHighlightEvents
+   */
   function Path(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
     _classCallCheck(this, Path);
     return _super6.call(this, shapeId, "path", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
@@ -16969,17 +17135,25 @@ var Path = /*#__PURE__*/function (_svgShape6) {
 var Grid = /*#__PURE__*/function (_Path) {
   _inherits(Grid, _Path);
   var _super7 = _createSuper(Grid);
-  /**     * @param {number} shapeId The unique identifier the shape gets.     * @param {?propObj} props     * All properties (attributes) to be assigned to the shape,     * when omitted the properties of the shape are loaded.     * @param {HTMLElement} parent The parent the shape should be appended to.     * @param drawingApp     * @param Canvas     */
+  /**
+   * @param {number} shapeId The unique identifier the shape gets.
+   * @param {?propObj} props
+   * All properties (attributes) to be assigned to the shape,
+   * when omitted the properties of the shape are loaded.
+   * @param {HTMLElement} parent The parent the shape should be appended to.
+   * @param drawingApp
+   * @param Canvas
+   */
   function Grid(shapeId, props, parent, drawingApp, Canvas) {
-    var _this6;
+    var _this7;
     _classCallCheck(this, Grid);
-    _this6 = _super7.call(this, shapeId, props, parent, drawingApp, Canvas, false);
-    _this6.origin = new _svgElement_js__WEBPACK_IMPORTED_MODULE_1__.Path(_this6.props.origin);
-    _this6.setDAttributes(_this6.calculateDAttributeForGrid(_this6.props.size), _this6.calculateDAttributeForOrigin(_this6.props.size));
-    _this6.shapeGroup.element.appendChild(_this6.origin.element);
-    _this6.shapeGroup.element.classList.remove("draggable");
-    _this6.shapeGroup.setAttribute("id", "grid");
-    return _this6;
+    _this7 = _super7.call(this, shapeId, props, parent, drawingApp, Canvas, false);
+    _this7.origin = new _svgElement_js__WEBPACK_IMPORTED_MODULE_1__.Path(_this7.props.origin);
+    _this7.setDAttributes(_this7.calculateDAttributeForGrid(_this7.props.size), _this7.calculateDAttributeForOrigin(_this7.props.size));
+    _this7.shapeGroup.element.appendChild(_this7.origin.element);
+    _this7.shapeGroup.element.classList.remove("draggable");
+    _this7.shapeGroup.setAttribute("id", "grid");
+    return _this7;
   }
   _createClass(Grid, [{
     key: "show",
@@ -17048,13 +17222,23 @@ var Grid = /*#__PURE__*/function (_Path) {
 var Freehand = /*#__PURE__*/function (_Path2) {
   _inherits(Freehand, _Path2);
   var _super8 = _createSuper(Freehand);
-  /**     * @param {number} shapeId The unique identifier the shape gets.     * @param {?propObj} props     * All properties (attributes) to be assigned to the shape,     * when omitted the properties of the shape are loaded.     * @param {?SVGElement} parent The parent the shape should be appended to.     * @param drawingApp     * @param Canvas     * @param withHelperElements     * @param withHighlightEvents     */
+  /**
+   * @param {number} shapeId The unique identifier the shape gets.
+   * @param {?propObj} props
+   * All properties (attributes) to be assigned to the shape,
+   * when omitted the properties of the shape are loaded.
+   * @param {?SVGElement} parent The parent the shape should be appended to.
+   * @param drawingApp
+   * @param Canvas
+   * @param withHelperElements
+   * @param withHighlightEvents
+   */
   function Freehand(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
-    var _this7;
+    var _this8;
     _classCallCheck(this, Freehand);
-    _this7 = _super8.call(this, shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
-    _this7.shapeGroup.setAttribute("id", "freehand-".concat(shapeId));
-    return _this7;
+    _this8 = _super8.call(this, shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
+    _this8.shapeGroup.setAttribute("id", "freehand-".concat(shapeId));
+    return _this8;
   }
   return _createClass(Freehand);
 }(Path);
