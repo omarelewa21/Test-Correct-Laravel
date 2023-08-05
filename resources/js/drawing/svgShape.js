@@ -57,6 +57,7 @@ class svgShape {
             this.hideHelperElements();
         }
         this.withHighlightEvents = withHighlightEvents;
+        this.UI = Canvas.UI;
     }
 
     makeMainElementOfRightType() {
@@ -346,6 +347,26 @@ class svgShape {
     showExplainerForLayer() {
         this.sidebarEntry.entryContainer.parentElement.querySelector('.explainer').style.display = 'inline-block';
     }
+
+    updateFillColor() {
+        this.mainElement.setAttribute("fill", this.UI.fillColor.value);
+    }
+
+    updateOpacity() {
+        this.mainElement.setAttribute("opacity", parseFloat(this.UI.fillOpacityNumber.value / 100));
+    }
+
+    updateStrokeColor() {
+        this.mainElement.setAttribute("stroke", this.UI.strokeColor.value);
+    }
+
+    updateLineColor() {
+        this.mainElement.setAttribute("stroke", this.UI.lineColor.value);
+    }
+
+    updateStrokeWidth() {
+        this.mainElement.setAttribute("stroke-width", this.UI.strokeWidth.value);
+    }
 }
 
 export class Rectangle extends svgShape {
@@ -380,8 +401,6 @@ export class Circle extends svgShape {
     constructor(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
         super(shapeId, "circle", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
     }
-
-
 }
 
 export class Line extends svgShape {
@@ -461,6 +480,24 @@ export class Text extends svgShape {
         super(shapeId, "text", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
         this.mainElement.setTextContent(this.props.main["data-textcontent"]);
         this.mainElement.setFontFamily('Nunito');
+    }
+
+    updateTextColor() {
+        this.mainElement.setAttribute("fill", this.UI.textColor.value);
+    }
+
+    updateBoldText() {
+        this.mainElement.element.style.fontWeight = this.drawingApp.params.boldText ? 'bold' : 'normal';
+        this.updateHelperElements();
+    }
+
+    updateTextSize() {
+        this.mainElement.element.style.fontSize = `${this.UI.textSize.value / 16}rem`;
+        this.updateHelperElements();
+    }
+
+    updateOpacity() {
+        this.mainElement.setAttribute("opacity", parseFloat(this.UI.elemOpacityNumber.value / 100));
     }
 
     onDrawEndShapeSpecific(evt, cursor) {
@@ -599,8 +636,6 @@ export class Text extends svgShape {
                 thisClass.updateCornerElements();
                 textElement.parentElement.style = '';
             });
-
-
         }
     }
 }

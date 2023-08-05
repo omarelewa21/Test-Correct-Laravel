@@ -12058,6 +12058,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         zoomFactor: 1,
         initialZoomLevel: 1
       },
+      UI: UI,
       element: UI.svgCanvas,
       layers: {},
       dragging: function dragging() {
@@ -12350,7 +12351,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
       "change": {
         callback: function callback(evt) {
           drawingApp.params.boldText = evt.target.checked;
-          updateSelectedShapeBoldText();
+          updateShape('updateBoldText');
         }
       }
     }
@@ -12359,8 +12360,10 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     events: {
       "input": {
         callback: function callback() {
-          updateElemOpacityRangeInput();
-          updateSelectedShapeOpacity();
+          if (valueWithinBounds(UI.elemOpacityNumber)) {
+            updateElemOpacityRangeInput();
+            updateShape('updateOpacity');
+          }
         }
       }
     }
@@ -12369,8 +12372,10 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     events: {
       "input": {
         callback: function callback() {
-          updateElemOpacityNumberInput();
-          updateSelectedShapeOpacity();
+          if (valueWithinBounds(UI.elemOpacityRange)) {
+            updateElemOpacityNumberInput();
+            updateShape('updateOpacity');
+          }
         }
       },
       "focus": {
@@ -12389,7 +12394,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     events: {
       "input": {
         callback: function callback() {
-          updateSelectedShapeFill();
+          updateShape('updateTextColor');
         }
       }
     }
@@ -12398,8 +12403,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     events: {
       "input": {
         callback: function callback() {
-          valueWithinBounds(UI.strokeWidth);
-          updateSelectedShapeStrokeWidth();
+          return valueWithinBounds(UI.strokeWidth) && updateShape('updateStrokeWidth');
         }
       },
       "blur": {
@@ -12415,7 +12419,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         callback: function callback() {
           UI.strokeWidth.stepDown();
           handleStrokeButtonStates();
-          updateSelectedShapeStrokeWidth();
+          updateShape('updateStrokeWidth');
         }
       },
       "focus": {
@@ -12436,7 +12440,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         callback: function callback() {
           UI.strokeWidth.stepUp();
           handleStrokeButtonStates();
-          updateSelectedShapeStrokeWidth();
+          updateShape('updateStrokeWidth');
         }
       },
       "focus": {
@@ -12455,8 +12459,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     events: {
       "input": {
         callback: function callback() {
-          valueWithinBounds(UI.textSize);
-          updateSelectedShapeTextSize();
+          return valueWithinBounds(UI.textSize) && updateShape('updateTextSize');
         }
       },
       "blur": {
@@ -12472,7 +12475,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         callback: function callback() {
           UI.textSize.stepDown();
           handleTextSizeButtonStates();
-          updateSelectedShapeTextSize();
+          updateShape('updateTextSize');
         }
       },
       "focus": {
@@ -12493,7 +12496,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         callback: function callback() {
           UI.textSize.stepUp();
           handleTextSizeButtonStates();
-          updateSelectedShapeTextSize();
+          updateShape('updateTextSize');
         }
       },
       "focus": {
@@ -12513,7 +12516,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
       "input": {
         callback: function callback() {
           updateOpacitySliderColor();
-          updateSelectedShapeFill();
+          updateShape('updateFillColor');
         }
       }
     }
@@ -12522,8 +12525,10 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     events: {
       "input": {
         callback: function callback() {
-          updateFillOpacityRangeInput();
-          updateSelectedShapeOpacity();
+          if (valueWithinBounds(UI.elemOpacityNumber)) {
+            updateFillOpacityRangeInput();
+            updateShape('updateOpacity');
+          }
         }
       }
     }
@@ -12532,8 +12537,10 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     events: {
       "input": {
         callback: function callback() {
-          updateFillOpacityNumberInput();
-          updateSelectedShapeOpacity();
+          if (valueWithinBounds(UI.fillOpacityRange)) {
+            updateFillOpacityNumberInput();
+            updateShape('updateOpacity');
+          }
         }
       },
       "focus": {
@@ -12552,7 +12559,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     events: {
       "input": {
         callback: function callback() {
-          updateSelectedShapeStrokeColor();
+          return updateShape('updateStrokeColor');
         }
       }
     }
@@ -12561,7 +12568,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     events: {
       "input": {
         callback: function callback() {
-          updateSelectedShapeStrokeColor();
+          return updateShape('updateLineColor');
         }
       }
     }
@@ -14014,12 +14021,10 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     }
   }
   function updateElemOpacityNumberInput() {
-    valueWithinBounds(UI.elemOpacityRange);
     UI.elemOpacityNumber.value = UI.elemOpacityRange.value;
     updateOpacitySliderColor();
   }
   function updateElemOpacityRangeInput() {
-    if (!valueWithinBounds(UI.elemOpacityNumber)) return;
     UI.elemOpacityRange.value = UI.elemOpacityNumber.value;
     updateOpacitySliderColor();
   }
@@ -14076,12 +14081,10 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     return "rgba(".concat(R, ", ").concat(G, ", ").concat(B, ", ").concat(parseFloat(A) / 100, ")");
   }
   function updateFillOpacityNumberInput() {
-    valueWithinBounds(UI.fillOpacityRange);
     UI.fillOpacityNumber.value = UI.fillOpacityRange.value;
     updateOpacitySliderColor();
   }
   function updateFillOpacityRangeInput() {
-    if (!valueWithinBounds(UI.fillOpacityNumber)) return;
     UI.fillOpacityRange.value = UI.fillOpacityNumber.value;
     updateOpacitySliderColor();
   }
@@ -14266,66 +14269,12 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     var shapeType = selectedEl.id.split('-')[0];
     return shapeType === currentDataButton.id.split('-')[1];
   }
-  function updateSelectedShapeFill() {
+  function updateShape(functionName) {
     var selectedEl = rootElement.querySelector('.editing');
     if (!checkIfShouldUpdateShape(selectedEl)) return;
-    var shapeType = selectedEl.id.split('-')[0];
-    switch (shapeType) {
-      case 'text':
-        selectedEl.firstElementChild.setAttribute('fill', UI.textColor.value);
-        break;
-      default:
-        selectedEl.firstElementChild.setAttribute('fill', UI.fillColor.value);
-    }
-  }
-  function updateSelectedShapeOpacity() {
-    if (!valueWithinBounds(UI.fillOpacityNumber)) return;
-    var selectedEl = rootElement.querySelector('.editing');
-    if (!checkIfShouldUpdateShape(selectedEl)) return;
-    var shapeType = selectedEl.id.split('-')[0];
-    switch (shapeType) {
-      case 'text':
-        selectedEl.firstElementChild.style.opacity = parseFloat(UI.elemOpacityNumber.value / 100);
-        break;
-      default:
-        selectedEl.firstElementChild.style.fillOpacity = parseFloat(UI.fillOpacityNumber.value / 100);
-    }
-  }
-  function updateSelectedShapeStrokeColor() {
-    var selectedEl = rootElement.querySelector('.editing');
-    if (!checkIfShouldUpdateShape(selectedEl)) return;
-    var shapeType = selectedEl.id.split('-')[0];
-    switch (shapeType) {
-      case 'line':
-      case 'freehand':
-        selectedEl.firstElementChild.style.stroke = UI.lineColor.value;
-        break;
-      default:
-        selectedEl.firstElementChild.style.stroke = UI.strokeColor.value;
-    }
-  }
-  function updateSelectedShapeStrokeWidth() {
-    var selectedEl = rootElement.querySelector('.editing');
-    if (!checkIfShouldUpdateShape(selectedEl)) return;
-    selectedEl.firstElementChild.style.strokeWidth = UI.strokeWidth.value;
-  }
-  function updateSelectedShapeBoldText() {
-    var selectedEl = rootElement.querySelector('.editing');
-    if (!checkIfShouldUpdateShape(selectedEl)) return;
-    selectedEl.firstElementChild.style.fontWeight = drawingApp.params.boldText ? 'bold' : 'normal';
-    updateTextHelperElements(selectedEl);
-  }
-  function updateSelectedShapeTextSize() {
-    var selectedEl = rootElement.querySelector('.editing');
-    if (!checkIfShouldUpdateShape(selectedEl)) return;
-    selectedEl.firstElementChild.style.fontSize = UI.textSize.value / 16 + 'rem';
-    updateTextHelperElements(selectedEl);
-  }
-  function updateTextHelperElements(selectedEl) {
-    var layerID = selectedEl.parentElement.id;
-    var layerObject = Canvas.layers[Canvas.layerID2Key(layerID)];
-    var selectedSvgShape = layerObject.shapes[selectedEl.id].svg;
-    selectedSvgShape.updateHelperElements();
+    var layerObject = Canvas.layers[Canvas.layerID2Key(selectedEl.parentElement.id)];
+    var selectedSvgShapeClass = layerObject.shapes[selectedEl.id].svg;
+    functionName in selectedSvgShapeClass && selectedSvgShapeClass[functionName]();
   }
   function ShouldEditTextOnClick() {
     var selectedEl = rootElement.querySelector('.editing');
@@ -16532,6 +16481,7 @@ var svgShape = /*#__PURE__*/function () {
       this.hideHelperElements();
     }
     this.withHighlightEvents = withHighlightEvents;
+    this.UI = Canvas.UI;
   }
   _createClass(svgShape, [{
     key: "makeMainElementOfRightType",
@@ -16843,6 +16793,31 @@ var svgShape = /*#__PURE__*/function () {
     value: function showExplainerForLayer() {
       this.sidebarEntry.entryContainer.parentElement.querySelector('.explainer').style.display = 'inline-block';
     }
+  }, {
+    key: "updateFillColor",
+    value: function updateFillColor() {
+      this.mainElement.setAttribute("fill", this.UI.fillColor.value);
+    }
+  }, {
+    key: "updateOpacity",
+    value: function updateOpacity() {
+      this.mainElement.setAttribute("opacity", parseFloat(this.UI.fillOpacityNumber.value / 100));
+    }
+  }, {
+    key: "updateStrokeColor",
+    value: function updateStrokeColor() {
+      this.mainElement.setAttribute("stroke", this.UI.strokeColor.value);
+    }
+  }, {
+    key: "updateLineColor",
+    value: function updateLineColor() {
+      this.mainElement.setAttribute("stroke", this.UI.lineColor.value);
+    }
+  }, {
+    key: "updateStrokeWidth",
+    value: function updateStrokeWidth() {
+      this.mainElement.setAttribute("stroke-width", this.UI.strokeWidth.value);
+    }
   }]);
   return svgShape;
 }();
@@ -16973,6 +16948,28 @@ var Text = /*#__PURE__*/function (_svgShape4) {
     return _this4;
   }
   _createClass(Text, [{
+    key: "updateTextColor",
+    value: function updateTextColor() {
+      this.mainElement.setAttribute("fill", this.UI.textColor.value);
+    }
+  }, {
+    key: "updateBoldText",
+    value: function updateBoldText() {
+      this.mainElement.element.style.fontWeight = this.drawingApp.params.boldText ? 'bold' : 'normal';
+      this.updateHelperElements();
+    }
+  }, {
+    key: "updateTextSize",
+    value: function updateTextSize() {
+      this.mainElement.element.style.fontSize = "".concat(this.UI.textSize.value / 16, "rem");
+      this.updateHelperElements();
+    }
+  }, {
+    key: "updateOpacity",
+    value: function updateOpacity() {
+      this.mainElement.setAttribute("opacity", parseFloat(this.UI.elemOpacityNumber.value / 100));
+    }
+  }, {
     key: "onDrawEndShapeSpecific",
     value: function onDrawEndShapeSpecific(evt, cursor) {
       var _this5 = this;
