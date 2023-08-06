@@ -482,6 +482,7 @@ export class Text extends svgShape {
         super(shapeId, "text", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
         this.mainElement.setTextContent(this.props.main["data-textcontent"]);
         this.mainElement.setFontFamily('Nunito');
+        this.registerEditingEvents();
     }
 
     updateTextColor() {
@@ -540,8 +541,6 @@ export class Text extends svgShape {
             this.updateBorderElement();
             this.updateCornerElements();
         });
-
-        this.registerEditingEvents();
     }
 
     registerEditingEvents() {

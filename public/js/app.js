@@ -16947,6 +16947,7 @@ var Text = /*#__PURE__*/function (_svgShape4) {
     _this4 = _super4.call(this, shapeId, "text", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
     _this4.mainElement.setTextContent(_this4.props.main["data-textcontent"]);
     _this4.mainElement.setFontFamily('Nunito');
+    _this4.registerEditingEvents();
     return _this4;
   }
   _createClass(Text, [{
@@ -17001,7 +17002,6 @@ var Text = /*#__PURE__*/function (_svgShape4) {
         _this5.updateBorderElement();
         _this5.updateCornerElements();
       });
-      this.registerEditingEvents();
     }
   }, {
     key: "registerEditingEvents",
