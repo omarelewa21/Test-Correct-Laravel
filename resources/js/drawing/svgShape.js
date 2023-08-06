@@ -353,7 +353,9 @@ class svgShape {
     }
 
     updateOpacity() {
-        this.mainElement.setAttribute("opacity", parseFloat(this.UI.fillOpacityNumber.value / 100));
+        const opacity = parseFloat(this.UI.fillOpacityNumber.value / 100);
+        this.mainElement.setAttribute("opacity", opacity);
+        this.mainElement.setAttribute("fill-opacity", opacity);
     }
 
     updateStrokeColor() {
