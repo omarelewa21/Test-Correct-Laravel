@@ -597,6 +597,18 @@ export class Text extends svgShape {
                 y: textElement.getAttribute('y'),
             });
 
+            let textInput = makeTextInput(thisClass, textElement, coordinates);
+
+            textInput.element.value = textElement.textContent;
+            textElement.textContent = '';
+            textElement.parentElement.style.display = 'none';
+
+            textInput.focus();
+
+            addInputEventListeners(thisClass, textInput, textElement);
+        }
+
+        function makeTextInput(thisClass, textElement, coordinates) {
             let canvasContainer = thisClass.root.querySelector("#svg-canvas").parentElement;
             const fontSize = parseFloat(textElement.style.fontSize);
             const topOffset = fontSize * parseFloat(getComputedStyle(document.documentElement).fontSize)
@@ -610,18 +622,18 @@ export class Text extends svgShape {
                     left: ${coordinates.x}px;\
                     font-size: ${fontSize}rem;\
                     color: ${textElement.getAttribute("fill")};\
+                    opacity: ${textElement.getAttribute("opacity")};\
                     font-weight: ${textElement.style.fontWeight || "normal"};\
                     transform-origin: bottom left;\
                     transform: scale(${thisClass.Canvas.params.zoomFactor})`,
                 autocomplete: "off",
                 spellcheck: "false",
             });
-            textInput.element.value = textElement.textContent;
-            textElement.textContent = '';
-            textElement.parentElement.style.display = 'none';
-            textInput.focus();
+            return textInput;
+        }
 
-            textInput.addEventListener('keyup', () => {
+        function addInputEventListeners(thisClass, textInput, textElement) {
+            textInput.addEventListener('input', () => {
                 textInput.element.style.width = `${textInput.element.value.length + 1}ch`;
             }, false)
 

@@ -17048,21 +17048,28 @@ var Text = /*#__PURE__*/function (_svgShape4) {
           x: textElement.getAttribute('x'),
           y: textElement.getAttribute('y')
         });
+        var textInput = makeTextInput(thisClass, textElement, coordinates);
+        textInput.element.value = textElement.textContent;
+        textElement.textContent = '';
+        textElement.parentElement.style.display = 'none';
+        textInput.focus();
+        addInputEventListeners(thisClass, textInput, textElement);
+      }
+      function makeTextInput(thisClass, textElement, coordinates) {
         var canvasContainer = thisClass.root.querySelector("#svg-canvas").parentElement;
         var fontSize = parseFloat(textElement.style.fontSize);
         var topOffset = fontSize * parseFloat(getComputedStyle(document.documentElement).fontSize);
         var textInput = new _htmlElement_js__WEBPACK_IMPORTED_MODULE_2__.htmlElement("input", canvasContainer, {
           id: "edit-text-input",
           type: "text",
-          style: "width: ".concat(textElement.getBoundingClientRect().width, "px;                    position: absolute;                    top: ").concat(coordinates.y - topOffset, "px;                    left: ").concat(coordinates.x, "px;                    font-size: ").concat(fontSize, "rem;                    color: ").concat(textElement.getAttribute("fill"), ";                    font-weight: ").concat(textElement.style.fontWeight || "normal", ";                    transform-origin: bottom left;                    transform: scale(").concat(thisClass.Canvas.params.zoomFactor, ")"),
+          style: "width: ".concat(textElement.getBoundingClientRect().width, "px;                    position: absolute;                    top: ").concat(coordinates.y - topOffset, "px;                    left: ").concat(coordinates.x, "px;                    font-size: ").concat(fontSize, "rem;                    color: ").concat(textElement.getAttribute("fill"), ";                    opacity: ").concat(textElement.getAttribute("opacity"), ";                    font-weight: ").concat(textElement.style.fontWeight || "normal", ";                    transform-origin: bottom left;                    transform: scale(").concat(thisClass.Canvas.params.zoomFactor, ")"),
           autocomplete: "off",
           spellcheck: "false"
         });
-        textInput.element.value = textElement.textContent;
-        textElement.textContent = '';
-        textElement.parentElement.style.display = 'none';
-        textInput.focus();
-        textInput.addEventListener('keyup', function () {
+        return textInput;
+      }
+      function addInputEventListeners(thisClass, textInput, textElement) {
+        textInput.addEventListener('input', function () {
           textInput.element.style.width = "".concat(textInput.element.value.length + 1, "ch");
         }, false);
         textInput.addEventListener("focusout", function () {
