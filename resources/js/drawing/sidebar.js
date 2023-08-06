@@ -51,6 +51,7 @@ export class Entry extends sidebarComponent {
         this.updateHideState();
 
         this.deleteModal = this.root.querySelector('#delete-confirm');
+        this.skipEntryContainerClick = false;
     }
 
     get eventListenerSettings() {
@@ -248,6 +249,10 @@ export class Entry extends sidebarComponent {
     }
 
     handleClick(evt) {
+        if(this.skipEntryContainerClick) {
+            this.skipEntryContainerClick = false;
+            return;
+        }
         const selectedEl = this.getSelectedElement();
         if (selectedEl) this.unselect(selectedEl);
         if (selectedEl === this.entryContainer) return;
@@ -266,7 +271,7 @@ export class Entry extends sidebarComponent {
         const shapeId = element.id.substring(6);
         element.classList.remove('selected');
         element.closest('#canvas-sidebar-container').querySelector(`#${shapeId}`).classList.remove('selected');
-        this.stopEditingShape(element);
+        this.removeEditingShape();
         document.activeElement.blur();
     }
     toggleSelect() {
@@ -299,20 +304,34 @@ export class Entry extends sidebarComponent {
     }
 
     handleEditShape() {
-        if(this.getSelectedElement()) return;
+        const selectedEl = this.getSelectedElement();
 
-        this.showRelevantShapeMenu();
+        if(!selectedEl) return this.startEditingShape();
+
+        if(selectedEl.classList.contains('editing')) {
+            this.removeEditingShape();
+
+            if(selectedEl === this.entryContainer) return;
+
+            this.unselect(selectedEl);
+            this.select();
+        }
+
+        this.skipEntryContainerClick = true;
         this.startEditingShape();
     }
 
     startEditingShape() {
+        this.removeEditingShape();
         this.entryContainer.classList.add('editing');
         this.svgShape.shapeGroup.element.classList.add('editing');
+        this.showRelevantShapeMenu();
     }
 
-    stopEditingShape() {
-        this.entryContainer.classList.remove('editing');
-        this.svgShape.shapeGroup.element.classList.remove('editing');
+    removeEditingShape() {
+        this.root.querySelectorAll('.editing').forEach((element) => {
+            element.classList.remove('editing');
+        });
     }
 
     showRelevantShapeMenu() {

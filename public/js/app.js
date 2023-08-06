@@ -14510,6 +14510,7 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
     _this.updateLockState();
     _this.updateHideState();
     _this.deleteModal = _this.root.querySelector('#delete-confirm');
+    _this.skipEntryContainerClick = false;
     return _this;
   }
   _createClass(Entry, [{
@@ -14705,6 +14706,10 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
   }, {
     key: "handleClick",
     value: function handleClick(evt) {
+      if (this.skipEntryContainerClick) {
+        this.skipEntryContainerClick = false;
+        return;
+      }
       var selectedEl = this.getSelectedElement();
       if (selectedEl) this.unselect(selectedEl);
       if (selectedEl === this.entryContainer) return;
@@ -14727,7 +14732,7 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
       var shapeId = element.id.substring(6);
       element.classList.remove('selected');
       element.closest('#canvas-sidebar-container').querySelector("#".concat(shapeId)).classList.remove('selected');
-      this.stopEditingShape(element);
+      this.removeEditingShape();
       document.activeElement.blur();
     }
   }, {
@@ -14765,21 +14770,31 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
   }, {
     key: "handleEditShape",
     value: function handleEditShape() {
-      if (this.getSelectedElement()) return;
-      this.showRelevantShapeMenu();
+      var selectedEl = this.getSelectedElement();
+      if (!selectedEl) return this.startEditingShape();
+      if (selectedEl.classList.contains('editing')) {
+        this.removeEditingShape();
+        if (selectedEl === this.entryContainer) return;
+        this.unselect(selectedEl);
+        this.select();
+      }
+      this.skipEntryContainerClick = true;
       this.startEditingShape();
     }
   }, {
     key: "startEditingShape",
     value: function startEditingShape() {
+      this.removeEditingShape();
       this.entryContainer.classList.add('editing');
       this.svgShape.shapeGroup.element.classList.add('editing');
+      this.showRelevantShapeMenu();
     }
   }, {
-    key: "stopEditingShape",
-    value: function stopEditingShape() {
-      this.entryContainer.classList.remove('editing');
-      this.svgShape.shapeGroup.element.classList.remove('editing');
+    key: "removeEditingShape",
+    value: function removeEditingShape() {
+      this.root.querySelectorAll('.editing').forEach(function (element) {
+        element.classList.remove('editing');
+      });
     }
   }, {
     key: "showRelevantShapeMenu",
