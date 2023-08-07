@@ -45,7 +45,7 @@ class SupportTakeOverLogController extends Controller
 
         foreach ($logs->items() as $log) {
             if(!$log->user){
-                $log->user = $this->getDeletedOrDummyUser($log);
+                $log->user = $this->getDeletedOrDummyUser($log->user_id);
             }
             $log->user->setAttribute('fullname', $log->user->getNameFullAttribute());
 
