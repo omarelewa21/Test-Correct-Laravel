@@ -2174,18 +2174,21 @@ document.addEventListener("alpine:init", () => {
             return element.offsetTop + (element.offsetHeight / 2);
         }
     }));
-    Alpine.data("assessmentDrawer", (inReview = false, tabs = [1,2,3], collapse = false) => ({
+    Alpine.data("assessmentDrawer", (inReview = false, tabs = [1,2,3], startCollapsed = false) => ({
         activeTab: 1,
         tabs: tabs,
         container: null,
         clickedNext: false,
         tooltipTimeout: null,
-        collapse,
+        collapse: false,
         inReview,
         init() {
+            this.collapse = this.$store.coLearningStudent.getDrawerCollapsed(startCollapsed);
+
             this.container = this.$root.querySelector("#slide-container");
             this.tab(this.tabs[0]);
             this.$watch("collapse", (value) => {
+                this.$store.coLearningStudent.drawerCollapsed = value;
                 window.dispatchEvent(new CustomEvent('drawer-collapse', { detail: value }));
                 document.documentElement.style.setProperty("--active-sidebar-width", value ? "var(--collapsed-sidebar-width)" : "var(--sidebar-width)");
             });
@@ -2747,15 +2750,18 @@ document.addEventListener("alpine:init", () => {
 
             const answerFeedbackEditor = ClassicEditors['update-'+answerFeedbackUuid];
 
+            const answerFeedbackData = answerFeedbackEditor.getData();
+
+            await answerFeedbackEditor.destroy();
+            this.cancelEditingComment(answerFeedbackCardElement.dataset.threadId)
+
             let commentStyles = await this.$wire.call('updateExistingComment', {
                 uuid: answerFeedbackUuid,
-                message: answerFeedbackEditor.getData(),
+                message: answerFeedbackData,
                 comment_emoji: comment_emoji,
                 comment_color: comment_color,
             });
             document.querySelector('#commentMarkerStyles').innerHTML = commentStyles;
-
-            this.cancelEditingComment(answerFeedbackCardElement.dataset.threadId)
         },
         async createCommentThread() {
 
@@ -2808,6 +2814,8 @@ document.addEventListener("alpine:init", () => {
                     this.$dispatch('answer-feedback-show-comments');
 
                     this.scrollToCommentCard(feedback.uuid);
+
+                    this.resetAddNewAnswerFeedback()
                     return;
                 }
 
@@ -2822,6 +2830,8 @@ document.addEventListener("alpine:init", () => {
                 this.$dispatch('answer-feedback-show-comments');
 
                 this.scrollToCommentCard(feedback.uuid);
+
+                this.resetAddNewAnswerFeedback();
             });
 
         },
@@ -3100,16 +3110,6 @@ document.addEventListener("alpine:init", () => {
 
                     answerEditor.ui.focusTracker.add( feedbackEditor.sourceElement.parentElement.querySelector('.ck.ck-content') );
 
-                    //keep focus when clicking on the emoji and color pickers
-                    document.querySelectorAll('.answer-feedback-add-comment .emoji-picker-radio, .answer-feedback-add-comment .color-picker-radio input').forEach((element) => {
-                        answerEditor.ui.focusTracker.add( element );
-                        feedbackEditor.ui.focusTracker.add( element );
-                    })
-                    document.querySelectorAll('.answer-feedback-add-comment .emoji-picker-radio, .answer-feedback-add-comment .emoji-picker-radio input').forEach((element) => {
-                        answerEditor.ui.focusTracker.add( element );
-                        feedbackEditor.ui.focusTracker.add( element );
-                    })
-
                     feedbackEditor.ui.focusTracker.add( answerEditor.sourceElement.parentElement.querySelector('.ck.ck-content') );
 
                 } catch (exception) {
@@ -3187,15 +3187,18 @@ document.addEventListener("alpine:init", () => {
         createCommentIconRadioButton(el, iconName, emojiValue, checked) {
             const answerEditor = ClassicEditors[this.answerEditorId];
 
-            const radiobuttonIcon = new window.CkEditorRadioWithIconView(new window.CkEditorLocale('nl'));
-            radiobuttonIcon.set({
+            const radiobutton = new window.CkEditorRadioWithIconView(new window.CkEditorLocale('nl'));
+            radiobutton.set({
                 iconName: iconName,
                 emojiValue: emojiValue,
             });
-            radiobuttonIcon.render();
-            el.appendChild(radiobuttonIcon.element)
+            radiobutton.render();
 
-            radiobuttonIcon.element.querySelector('span').appendChild(
+            answerEditor.ui.focusTracker.add(radiobutton.element);
+
+            el.appendChild(radiobutton.element)
+
+            radiobutton.element.querySelector('span').appendChild(
                 document.importNode(el.querySelector('template').content, true)
             );
         },
@@ -3263,6 +3266,9 @@ document.addEventListener("alpine:init", () => {
                 {attributes: true}
             );
         },
+
+    }));
+    Alpine.data("coLearningStudent", () => ({
         async goToPreviousAnswerRating() {
             if(this.$store.answerFeedback.feedbackBeingEdited()) {
                 return this.$store.answerFeedback.openConfirmationModal(this.$root, 'goToPreviousAnswerRating');
@@ -3283,7 +3289,6 @@ document.addEventListener("alpine:init", () => {
             this.$wire.goToFinishedCoLearningPage();
         },
     }));
-
     Alpine.data("drawingQuestionImagePreview", () => ({
         maxTries: 10,
         currentTry: 0,
@@ -3880,6 +3885,15 @@ document.addEventListener("alpine:init", () => {
         }
     });
     Alpine.store("editorMaxWords", {});
+    Alpine.store("coLearningStudent", {
+        drawerCollapsed: null,
+        getDrawerCollapsed(startCollapsed = null) {
+            if (this.drawerCollapsed === null && startCollapsed !== null) {
+                this.drawerCollapsed = startCollapsed;
+            }
+            return this.drawerCollapsed;
+        }
+    }),
     Alpine.store("answerFeedback", {
         editingComment: null,
         navigationRoot: null,

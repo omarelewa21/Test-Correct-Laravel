@@ -3,7 +3,7 @@
 
     <livewire:co-learning.header testName="{{ $testName ?? '' }}"/>
 
-    <main  class="flex flex-1 m-foot-head ">
+    <main  class="flex flex-1 m-foot-head " x-data="coLearningStudent()">
         {{ $slot  }}
     </main>
 

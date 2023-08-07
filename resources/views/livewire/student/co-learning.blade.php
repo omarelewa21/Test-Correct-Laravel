@@ -133,7 +133,7 @@
     </div>
     @if($testTake->enable_comments_colearning && !$coLearningFinished)
     <x-partials.co-learning-drawer
-            uniqueKey="question-{{$testTake->discussingQuestion->uuid}}-{{ $this->answerFollowUpNumber }}-{{$answerFeedback->count()}}">
+            uniqueKey="question-{{$testTake->discussingQuestion->uuid}}-{{ $this->answerFollowUpNumber }}-{{$this->getAnswerFeedbackUpdatedStateHash()}}">
         <x-slot name="slideContent">
             <div x-data="{}"
                  x-on:answer-feedback-focus-feedback-editor.window="toggleFeedbackAccordion('add-feedback', true)"
@@ -160,7 +160,6 @@
                     <div class="flex w-full flex-col" x-show="dropdownOpened === 'add-feedback'"
                          x-collapse
                          wire:ignore
-                         wire:key="new-{{$testTake->discussingQuestion->uuid}}-{{ $this->answerFollowUpNumber }}-{{$answerFeedback->count()}}"
                          x-init="createFocusableButtons()"
                     >
                         <x-input.comment-color-picker
@@ -186,7 +185,6 @@
                                 @lang('assessment.Feedback schrijven')
                             </label>
                             <x-input.rich-textarea type="create-answer-feedback"
-                                                   wire:key="new-{{$testTake->discussingQuestion->uuid}}-{{ $this->answerFollowUpNumber }}-{{$answerFeedback->count()}}"
                                                    :editorId="'feedback-editor-'. $this->questionFollowUpNumber .'-'. $this->answerFollowUpNumber"
                             />
                         </div>
@@ -223,7 +221,6 @@
                     <div class="flex w-auto flex-col gap-2 given-feedback-container -mx-4"
                          x-show="dropdownOpened === 'given-feedback'"
                          x-collapse
-                         wire:key="feedback-editor-{{$testTake->discussingQuestion->uuid}}-{{ $this->answerFollowUpNumber }}-{{$answerFeedback->count()}}"
                          x-data="{}"
                          x-init=""
                     >
@@ -247,7 +244,7 @@
                             </x-menu.context-menu.button>
 
                         </x-menu.context-menu.base>
-                        @foreach($answerFeedback->filter->visible as $comment)
+                        @foreach($this->getVisibleAnswerFeedback() as $comment)
 
                             <x-partials.answer-feedback-card :comment="$comment"/>
 

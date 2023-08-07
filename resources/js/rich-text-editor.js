@@ -95,11 +95,11 @@ window.RichTextEditor = {
             parameterBag,
         );
     },
-    initUpdateAnswerFeedbackEditor: function(parameterBag) {
+    initUpdateAnswerFeedbackEditor: async function(parameterBag) {
         this.setAnswerFeedbackItemsToRemove(parameterBag);
         parameterBag.shouldNotGroupWhenFull = true;
 
-        return this.createTeacherEditor(
+        return await this.createTeacherEditor(
             parameterBag,
             (editor) => {
 

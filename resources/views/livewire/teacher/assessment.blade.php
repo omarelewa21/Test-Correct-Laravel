@@ -241,6 +241,7 @@
                                  x-collapse
                                  wire:key="add-comment-container-{{  $this->questionNavigationValue.'-'.$this->answerNavigationValue }}"
                                  wire:ignore
+                                 x-init="createFocusableButtons()"
                             >
                                     <x-input.comment-color-picker
                                             commentThreadId="new-comment"
@@ -359,7 +360,7 @@
                                     </div>
 
 
-                                    @foreach($answerFeedback->filter->visible as $comment)
+                                    @foreach($this->getVisibleAnswerFeedback() as $comment)
 
                                         <x-partials.answer-feedback-card :comment="$comment"></x-partials.answer-feedback-card>
 
