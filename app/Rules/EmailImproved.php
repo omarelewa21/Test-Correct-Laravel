@@ -33,8 +33,9 @@ class EmailImproved implements Rule
      */
     public function passes($attribute, $value)
     {
-        return validator([$attribute => $value], [$attribute => 'email'])->passes()
-            && preg_match($this->regexp, $value);
+        $trimmedValue = trim($value);
+        return validator([$attribute => $trimmedValue], [$attribute => 'email'])->passes()
+            && preg_match($this->regexp, $trimmedValue);
     }
 
     /**
