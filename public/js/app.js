@@ -8964,7 +8964,7 @@ document.addEventListener("alpine:init", function () {
         if (this.score < 0) {
           this.score = 0;
         }
-        var el = document.querySelector(".score-slider-input");
+        var el = this.$root.querySelector(".score-slider-input");
         var offsetFromCenter = -40;
         offsetFromCenter += this.score / this.maxScore * 80;
         el.style.setProperty("--slider-thumb-offset", "calc(".concat(offsetFromCenter, "% + 1px)"));
@@ -10696,10 +10696,16 @@ document.addEventListener("alpine:init", function () {
         return 'var(--cta-primary)';
       },
       isLastStudentInRow: function isLastStudentInRow(student, attainment) {
-        var index = this.studentData[attainment].findIndex(function (s) {
+        var _this$studentData$att, _this$studentData$att2;
+        var index = (_this$studentData$att = this.studentData[attainment]) === null || _this$studentData$att === void 0 ? void 0 : _this$studentData$att.findIndex(function (s) {
           return s.uuid === student.uuid;
         });
-        return this.studentData[attainment].length === index + 1;
+        return ((_this$studentData$att2 = this.studentData[attainment]) === null || _this$studentData$att2 === void 0 ? void 0 : _this$studentData$att2.length) === index + 1;
+      },
+      resetAnalysis: function resetAnalysis() {
+        this.attainmentOpen = [];
+        this.studentData = [];
+        this.loadingData = [];
       }
     };
   });

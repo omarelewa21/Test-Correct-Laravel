@@ -7,12 +7,13 @@ use Illuminate\View\View;
 
 class ScoreSlider extends Component
 {
+    public bool $continuousScoreSlider = false;
+
     public function __construct(
         public int|float      $maxScore,
         public null|int|float $score,
         public string         $modelName,
         public bool           $halfPoints = true,
-        public bool           $continuousScoreSlider = false,
         public bool           $disabled = false,
         public string         $mode = 'default',
         public bool           $coLearning = false,
@@ -23,7 +24,7 @@ class ScoreSlider extends Component
     ) {
         $this->setContinuousSliderValue();
 
-        if (!$this->title) {
+        if ($this->title === null) {
             $this->title = __('Score');
         }
     }
@@ -35,6 +36,10 @@ class ScoreSlider extends Component
 
     private function setContinuousSliderValue(): void
     {
+        if ($this->mode === 'large') {
+            $this->continuousScoreSlider = false;
+            return;
+        }
         if ($this->mode === 'small') {
             $this->continuousScoreSlider = $this->halfPoints ? $this->maxScore > 5 : $this->maxScore > 10;
             return;

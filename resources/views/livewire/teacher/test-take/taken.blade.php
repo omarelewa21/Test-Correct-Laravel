@@ -55,6 +55,7 @@
         <div class="flex">
             <x-input.toggle-row-with-title wire:model="showStudentNames"
                                            container-class="!border-0"
+                                           x-on:click="$dispatch('student-names-toggled', $el.checked)"
             >
                 <x-icon.preview class="min-w-[20px]" />
                 <span class="min-w-max">@lang('assessment.Studentnamen tonen')</span>
@@ -97,6 +98,53 @@
 @endsection
 
 @section('waitingRoom')
+    <div class="flex flex-col bg-white w-full">
+        <div>
+            <x-input.score-slider class=""
+                                  model-name="rating"
+                                  :max-score="7"
+                                  :score="5"
+                                  :half-points="true"
+                                  :disabled="false"
+                                  :co-learning="false"
+                                  mode="small"
+            />
+        </div>
+        <div>
+            <x-input.score-slider class=""
+                                  model-name="rating"
+                                  :max-score="7"
+                                  :score="5"
+                                  :half-points="true"
+                                  :disabled="false"
+                                  :co-learning="false"
+                                  mode="default"
+            />
+        </div>
+        <div>
+            <x-input.score-slider class=""
+                                  model-name="rating"
+                                  :max-score="10"
+                                  :score="5"
+                                  :half-points="true"
+                                  :disabled="false"
+                                  :co-learning="false"
+                                  mode="default"
+            />
+        </div>
+        <div>
+            <x-input.score-slider class=""
+                                  model-name="rating"
+                                  :max-score="10"
+                                  :score="5"
+                                  :half-points="true"
+                                  :disabled="false"
+                                  :co-learning="false"
+                                  mode="large"
+                                  :title="false"
+            />
+        </div>
+    </div>
     <div @class(['flex flex-col gap-4', 'hidden' => !$this->showWaitingRoom])>
         <div class="flex flex-col gap-4">
             @if($this->showWaitingRoom)
@@ -179,7 +227,27 @@
             <div class="flex flex-col pt-5 pb-10 px-10 bg-white rounded-10 content-section" x-cloak>
                 <h4>@lang('account.Becijferen en normeren')</h4>
 
-                <div class="divider mt-3 mb-2.5"></div>
+                <div class="divider mt-3 "></div>
+                <div class="grid grid-cols-2 w-full gap-6 mb-4 mt-px">
+                    <div class="flex items-center gap-2 border-b border-bluegrey">
+                        <span class="bold">@lang('test-take.Normering'):</span>
+                        <x-input.select class="">
+                            @foreach($this->gradingStandards as $key => $language)
+                                <x-input.option :value="$key" :label="$language" />
+                            @endforeach
+                        </x-input.select>
+                        <x-input.text value="1" class="min-w-[60px] w-[60px] text-center"/>
+                        <x-input.text value="100%" class="min-w-[80px] w-[80px] text-center"/>
+                        <x-tooltip class="min-w-[22px]">Lekker tooltippen</x-tooltip>
+                    </div>
+
+                    <div class="flex items-center">
+                        <x-input.toggle-row-with-title tool-tip="kaas is lekker">
+                            <x-icon.no-grade/>
+                            <span>@lang('test-take.Cijfer tonen aan student')</span>
+                        </x-input.toggle-row-with-title>
+                    </div>
+                </div>
 
                 <div class="results-grid setup grid -mx-5 relative"
                      x-data="{rowHover: null, shadow: null}"
@@ -247,14 +315,14 @@
                                 3
                             </div>
                             <div class="grid-item flex items-center group-hover/row:bg-offwhite px-1.5 justify-end">
-                                <x-input.score-slider modelName="participantResults.{{ $key }}.score"
-                                                      mode=""
-                                                      :maxScore="10"
-                                                      :score="0"
-                                                      :halfPoints="false"
-                                                      :disabled="$participant->testNotTaken"
-                                                      title=""
-                                />
+{{--                                <x-input.score-slider modelName="participantResults.{{ $key }}.score"--}}
+{{--                                                      mode=""--}}
+{{--                                                      :maxScore="10"--}}
+{{--                                                      :score="0"--}}
+{{--                                                      :halfPoints="true"--}}
+{{--                                                      :disabled="$participant->testNotTaken"--}}
+{{--                                                      title=""--}}
+{{--                                />--}}
                             </div>
                             <div class="grid-item flex items-center group-hover/row:bg-offwhite pl-1.5 pr-5 rounded-r-10">
                                 <x-mark-badge rating="10" />
@@ -413,6 +481,7 @@
                 <div class="flex flex-col w-full"
                      x-data="testTakeAttainmentAnalysis(@js($this->analysisQuestionValues))"
                      x-on:resize.window.throttle="fixPvalueContainerWidth"
+                     x-on:student-names-toggled.window="resetAnalysis()"
                      wire:ignore
                 >
                     {{-- HEADER --}}
@@ -479,8 +548,8 @@
                                              x-bind:class="{'border-b border-bluegrey': !isLastStudentInRow(student, $el.parentElement.dataset.attainment)}"
                                         >
                                             <span class="truncate"
-                                                  x-text="student.fullName"
-                                                  x-bind:title="student.fullName"></span>
+                                                  x-text="student.name"
+                                                  x-bind:title="student.name"></span>
                                         </div>
                                         <div class="pvalue-container flex items-center"
                                              x-bind:class="{'border-b border-bluegrey': !isLastStudentInRow(student, $el.parentElement.dataset.attainment)}"

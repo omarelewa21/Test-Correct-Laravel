@@ -5,10 +5,12 @@ namespace tcCore\Http\Livewire\Teacher\TestTake;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Session;
 use Livewire\Redirector;
 use tcCore\Answer;
 use tcCore\AnswerRating;
 use tcCore\Attainment;
+use tcCore\Http\Enums\GradingStandard;
 use tcCore\Http\Enums\TestTakeEventTypes;
 use tcCore\Http\Livewire\Teacher\TestTake\TestTake as TestTakeComponent;
 use tcCore\Lib\Answer\AnswerChecker;
@@ -34,6 +36,14 @@ class Taken extends TestTakeComponent
     public array $analysisQuestionValues = [0, 5, 10, 20, 40, 80, 160];
     public Collection $attainmentValueRatios;
 
+    protected Collection $gradingStandards;
+
+    public $rating;
+    protected function getRules(): array
+    {
+        return ['rating' => 'sometimes'];
+    }
+
     public function mount(TestTakeModel $testTake): void
     {
         parent::mount($testTake);
@@ -51,6 +61,7 @@ class Taken extends TestTakeComponent
 
         $this->attainments = $this->getAttainments();
         $this->assessmentDone = $this->takenTestData['assessedQuestions'] === $this->takenTestData['questionsToAssess'];
+        $this->gradingStandards = GradingStandard::casesWithDescription();
     }
 
     public function updatedReviewActive(bool $value): void
@@ -61,7 +72,7 @@ class Taken extends TestTakeComponent
     public function updatedShowStudentNames(): void
     {
         $this->participantResults->each(function ($participant, $key) {
-            $participant->name = $this->getDisplayNameForParticipant($participant, $key);
+            $participant->name = $this->getDisplayNameForParticipant($participant->user, $key);
         });
     }
 
@@ -69,6 +80,7 @@ class Taken extends TestTakeComponent
     {
         parent::hydrate();
         $this->setParticipantResults();
+        $this->gradingStandards = GradingStandard::casesWithDescription();
     }
 
     /* Public methods */
@@ -204,6 +216,11 @@ class Taken extends TestTakeComponent
 
     private function setParticipantResults(): void
     {
+        if ($sessionResults = Session::get($this->resultSessionKey(), false)) {
+            $this->participantResults = $sessionResults;
+            return;
+        }
+
         $this->testTake->loadMissing([
             'testParticipants',
             'testParticipants.user:id,name,name_first,name_suffix,uuid,time_dispensation,text2speech',
@@ -216,13 +233,15 @@ class Taken extends TestTakeComponent
             ->testParticipants
             ->each(function ($participant, $key) {
                 $participant->user->setAppends([]);
-                $participant->name = $this->getDisplayNameForParticipant($participant, $key);
+                $participant->name = $this->getDisplayNameForParticipant($participant->user, $key);
                 $participant->score = $this->getScoreForParticipant($participant);
                 $participant->discrepancies = $this->getDiscrepanciesForParticipant($participant);
                 $participant->rated = $this->getRatedQuestionsForParticipant($participant);
                 $participant->testNotTaken = $participant->test_take_status_id < TestTakeStatus::STATUS_TAKEN;
                 $participant->contextIcons = $this->getContextIconsForParticipant($participant);
             });
+
+        Session::put($this->resultSessionKey(), $this->participantResults);
     }
 
     protected function getPusherListeners(): array
@@ -312,7 +331,7 @@ class Taken extends TestTakeComponent
 
     private function addAdditionalPropertiesForRendering(Collection $models): Collection
     {
-        $models->each(function ($model) {
+        $models->each(function ($model, $key) {
             $model->multiplier = $this->getLengthMultiplier($model);
             $model->display_pvalue = round($model->p_value * 100);
             $model->title = sprintf(
@@ -320,6 +339,9 @@ class Taken extends TestTakeComponent
                 trans_choice('test-take.pvalue_title_1', $model->display_pvalue),
                 trans_choice('test-take.pvalue_title_2', $model->questions_per_attainment)
             );
+            if ($model instanceof User) {
+                $model->name = $this->getDisplayNameForParticipant($model, $key);
+            }
         });
         return $models;
     }
@@ -366,10 +388,16 @@ class Taken extends TestTakeComponent
         return $icons;
     }
 
-    private function getDisplayNameForParticipant($participant, $key): string
+    private function getDisplayNameForParticipant($user, $key): string
     {
         return $this->showStudentNames
-            ? html_entity_decode($participant->user->name_full)
+            ? html_entity_decode($user->name_full)
             : sprintf('Student %s', $key + 1);
     }
+
+    private function resultSessionKey(): string
+    {
+        return '_participant_results_' . $this->testTakeUuid;
+    }
+
 }

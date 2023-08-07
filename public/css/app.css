@@ -5811,10 +5811,8 @@ input.datepicker {
 
 .score-slider-pill {
     position: relative;
-    /*overflow: hidden;*/
 }
 .score-slider-pill.first:not(:last-child) {
-    /*background-color: red;*/
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
 }
@@ -5830,6 +5828,7 @@ input.datepicker {
     transform: translateY(-50%);
     z-index: 2;
     border-radius: 100%;
+    pointer-events: none;
 }
 .score-slider-pill.first:not(.highlight):not(:last-child)::after {
     background-color: var(--system-secondary);
@@ -5850,7 +5849,7 @@ input.datepicker {
 
 .score-slider-container .score-slider-track-container:focus .score-slider-pill,
 .score-slider-container .score-slider-track-container:hover .score-slider-pill {
-    border: 1px solid var(--teacher-primary);
+    /*border: 1px solid var(--teacher-primary);*/
 }
 
 .score-slider-container .score-slider-continuous-input::-webkit-slider-runnable-track:hover {
@@ -5891,7 +5890,7 @@ input.datepicker {
     height: 2rem;
     border: 2px solid var(--teacher-Primary);
     background: rgba(0, 77, 245, 0.5);
-    transform: translate(-12, -0.7rem);
+    transform: translate(12px, -0.7rem);
     top: calc(50% - 1rem);
 }
 
@@ -10884,8 +10883,14 @@ video {
 .w-\[600px\]{
   width: 600px;
 }
+.w-\[60px\]{
+  width: 60px;
+}
 .w-\[70px\]{
   width: 70px;
+}
+.w-\[80px\]{
+  width: 80px;
 }
 .w-\[80vw\]{
   width: 80vw;
@@ -10950,6 +10955,9 @@ video {
 .min-w-\[20px\]{
   min-width: 20px;
 }
+.min-w-\[22px\]{
+  min-width: 22px;
+}
 .min-w-\[250px\]{
   min-width: 250px;
 }
@@ -10967,6 +10975,9 @@ video {
 }
 .min-w-\[46px\]{
   min-width: 46px;
+}
+.min-w-\[60px\]{
+  min-width: 60px;
 }
 .min-w-\[70px\]{
   min-width: 70px;
@@ -11103,9 +11114,6 @@ video {
 }
 .origin-bottom{
   transform-origin: bottom;
-}
-.origin-top{
-  transform-origin: top;
 }
 .origin-top-right{
   transform-origin: top right;

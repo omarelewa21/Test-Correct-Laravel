@@ -2316,9 +2316,9 @@ document.addEventListener("alpine:init", () => {
             }
 
 
-            let el = document.querySelector(".score-slider-input");
+            let el = this.$root.querySelector(".score-slider-input");
 
-            var offsetFromCenter = -40;
+            let offsetFromCenter = -40;
             offsetFromCenter += (this.score / this.maxScore) * 80;
 
             el.style.setProperty("--slider-thumb-offset", `calc(${offsetFromCenter}% + 1px)`);
@@ -3813,8 +3813,13 @@ document.addEventListener("alpine:init", () => {
             return 'var(--cta-primary)';
         },
         isLastStudentInRow(student, attainment) {
-            const index = this.studentData[attainment].findIndex(s => s.uuid === student.uuid)
-            return this.studentData[attainment].length === index+1;
+            const index = this.studentData[attainment]?.findIndex(s => s.uuid === student.uuid);
+            return this.studentData[attainment]?.length === index + 1;
+        },
+        resetAnalysis() {
+            this.attainmentOpen = [];
+            this.studentData = [];
+            this.loadingData = [];
         }
     }));
 
