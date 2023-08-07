@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('redirect-to-dashboard', [\tcCore\Http\Controllers\DashboardController::class, 'index'])->name('redirect-to-dashboard');
 
-Route::get('appapi/feature_flags',[tccore\Http\Controllers\AppApiController::class,'featureFlags'])->name('appapi.feature_flags');
+Route::get('appapi/feature_flags',[tcCore\Http\Controllers\AppApiController::class,'featureFlags'])->name('appapi.feature_flags');
 
 Route::get('/onboarding', tcCore\Http\Livewire\Onboarding::class)->name('onboarding.welcome');
 Route::get('/entree/onboarding', tcCore\Http\Livewire\EntreeOnboarding::class)->name('onboarding.welcome.entree');

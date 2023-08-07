@@ -6,6 +6,7 @@ use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 use tcCore\AppFeatureSetting;
+use tcCore\Http\Helpers\AppVersionDetector;
 use tcCore\Http\Requests\AppApiFeatureFlagRequest;
 use tcCore\Http\Requests\AppApiFraudEventRequest;
 use tcCore\Http\Requests\AppApiHandInRequest;
@@ -19,6 +20,7 @@ class AppApiController extends Controller
 
     public function featureFlags(AppApiFeatureFlagRequest $request)
     {
+        dd(AppVersionDetector::verifyKeyHeader());
         $response = AppFeatureSetting::all()->mapWithKeys(function($item,$nr){
                 return [$item['title'] => $item['value']];
             });

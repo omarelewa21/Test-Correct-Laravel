@@ -29,8 +29,6 @@ class AppApiFeatureFlagRequest extends Request
         $this->filterInput();
 
         return [
-            'reason' => 'required',
-            'metdata' => 'json'
         ];
     }
 }
