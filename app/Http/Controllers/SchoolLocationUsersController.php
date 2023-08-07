@@ -45,16 +45,6 @@ class SchoolLocationUsersController extends Controller {
         return $user->allowedSchoolLocations;
     }
 
-    public function indexfeatureTeacher(Request $request)
-    {
-        $userId= $request['user_id'];
-        $result = DB::table('user_feature_settings')
-        ->where('user_id', $userId)
-        ->orderByRaw("CASE WHEN value = 'allow_new_assessment' THEN 0 ELSE 1 END, title")
-        ->get();
-        return $result;
-    }
-
     public function update(Request $request)
     {
         $schoolLocation = SchoolLocation::whereUuid($request->school_location)->first();

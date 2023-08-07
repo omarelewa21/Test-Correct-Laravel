@@ -403,6 +403,44 @@ class UsersController extends Controller
      * @param UpdateUserRequest $request
      * @return Response
      */
+
+    public function updateUserFeature($user_id, Request $request)
+    {
+        if(isset($request->info))
+        {
+            $title=$request->info ;
+            $UserSystemSettingsInfo = UserSystemSetting::where('user_id', $user_id)->where('title', $title)->first();
+            if(isset($UserSystemSettingsInfo))
+            {
+                // Delete Record
+                $UserSystemSettingsInfo->delete();
+                  
+            }
+            elseif($request->info != null){
+                // Create new Record
+                $UserSystemSettingsInfo= UserSystemSetting::create([
+                    'user_id' => $user_id,
+                    'title' => $title,
+                    'value' => 1,
+                ]);  
+            }
+        }
+        return response()->json(['success'=>'Feature updated successfully.']);
+    }
+
+    public function indexfeatureTeacher(Request $request)
+    {
+        $userId= $request['user_id'];
+        $result = UserSystemSetting::where('user_id',$userId)->get();
+        $dataArray = [];
+        // Loop through each record and add it to the array
+            foreach ($result as $setting) {
+                $dataArray[$setting->title] = $setting->value;
+            }
+        // $result = $user->systemSettings;
+        return $dataArray;
+    }
+ 
     public function update(User $user, UpdateUserRequest $request)
     {
 

@@ -110,59 +110,7 @@ class SchoolLocationsController extends Controller {
                 SchoolLocationSharedSection::where('section_id', $sharedSection->section_id)->delete();
             });
         }
-        if(isset($request->userId))
-        {
-            if(isset($request->allow_new_assessment))
-            {
-                    $checkExistNewAssessment=DB::table('user_feature_settings')->where('user_id', $request->userId)->where('value', 1)
-                    ->where('title',$request->allow_new_assessment)->latest()->first();
-
-                    if(isset($checkExistNewAssessment) )
-                    {   
-                        DB::table('user_feature_settings')
-                            ->where('value', 1)
-                            ->where('title','=','allow_new_assessment')
-                            ->where('user_id', $request->userId)
-                            ->delete();
-                    }elseif( $request->allow_new_assessment != null )
-                    {
-                        DB::table('user_feature_settings')->insertOrIgnore(
-                                    [
-                                        'title'=>'allow_new_assessment',
-                                        'value' => 1,
-                                        'user_id' => $request->userId,
-                                        'created_at' => now(),
-                                        'updated_at' => now()
-                                    ]
-                                    );
-                    }
-            }
-            if(isset($request->allow_new_co_learning_teacher))
-            {
-                $checkExistCoLearning=DB::table('user_feature_settings')->where('user_id', $request->userId)->where('value', 1)
-                ->where('title',$request->allow_new_co_learning_teacher)->latest()->first();
-
-                if(isset($checkExistCoLearning) )
-                {
-                    DB::table('user_feature_settings')
-                        ->where('value', 1)
-                        ->where('title','=','allow_new_co_learning_teacher')
-                        ->where('user_id', $request->userId)
-                        ->delete();
-                }elseif($request->allow_new_co_learning_teacher != null){
-                    DB::table('user_feature_settings')->insertOrIgnore(
-                        [
-                            'title'=>'allow_new_co_learning_teacher',
-                            'value' => 1,
-                            'user_id' => $request->userId,
-                            'created_at' => now(),
-                            'updated_at' => now()
-                        ]
-                        );
-                }
-            }
-            
-        }
+   
         if ($schoolLocation->save() !== false) {
             return Response::make($schoolLocation, 200);
             
