@@ -3487,7 +3487,7 @@ document.addEventListener("alpine:init", () => {
                 this.$wire.registerExpirationTime(eventData.attachment);
                 this.progress = this.startTime;
             }
-            let timer = setInterval(function() {
+            let timer = setInterval(() => {
                 this.progress -= 1;
 
                 if (this.progress === 0) {
