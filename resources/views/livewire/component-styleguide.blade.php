@@ -1,4 +1,4 @@
-<div class="flex w-full h-full min-h-full relative mb-16">
+<div class="flex w-full h-full min-h-full relative my-16">
     <div class="flex flex-col min-h-full h-full mx-8 space-y-8 w-full relative">
 
         <x-partials.styleguide-card title="Standard buttons sm (small)" items-per-row="6">

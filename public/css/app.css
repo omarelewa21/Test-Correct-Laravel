@@ -10121,6 +10121,10 @@ video {
   margin-top: 2rem;
   margin-bottom: 2rem;
 }
+.my-16{
+  margin-top: 4rem;
+  margin-bottom: 4rem;
+}
 .-mb-2{
   margin-bottom: -0.5rem;
 }
@@ -11865,22 +11869,6 @@ video {
 .bg-white\/95{
   background-color: rgb(255 255 255 / 0.95);
 }
-.\!bg-midgrey{
-  --tw-bg-opacity: 1 !important;
-  background-color: rgb(146 157 175 / var(--tw-bg-opacity)) !important;
-}
-.\!bg-gray-200{
-  --tw-bg-opacity: 1 !important;
-  background-color: rgb(229 231 235 / var(--tw-bg-opacity)) !important;
-}
-.\!bg-black{
-  --tw-bg-opacity: 1 !important;
-  background-color: rgb(0 0 0 / var(--tw-bg-opacity)) !important;
-}
-.\!bg-red-400{
-  --tw-bg-opacity: 1 !important;
-  background-color: rgb(248 113 113 / var(--tw-bg-opacity)) !important;
-}
 .bg-opacity-0{
   --tw-bg-opacity: 0;
 }
@@ -12536,9 +12524,6 @@ video {
 .text-white{
   --tw-text-opacity: 1;
   color: rgb(255 255 255 / var(--tw-text-opacity));
-}
-.text-white\/20{
-  color: rgb(255 255 255 / 0.2);
 }
 .text-white\/90{
   color: rgb(255 255 255 / 0.9);
@@ -13635,10 +13620,6 @@ ul ul ul {
 .hover\:bg-white:hover{
   --tw-bg-opacity: 1;
   background-color: rgb(255 255 255 / var(--tw-bg-opacity));
-}
-
-.hover\:bg-white\/20:hover{
-  background-color: rgb(255 255 255 / 0.2);
 }
 
 .hover\:font-bold:hover{
