@@ -77,7 +77,7 @@ class TestReview extends EvaluationComponent
         $this->openClosedPanels();
         $this->score = $this->handleAnswerScore();
 
-        $this->getSortedAnswerFeedback(); //todo it is duplicated now, also in booted. but in booted is too early
+        $this->getSortedAnswerFeedback();
 
         return true;
     }

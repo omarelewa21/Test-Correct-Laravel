@@ -357,7 +357,7 @@ class CoLearning extends TCComponent
         if ($this->answerRatings->isNotEmpty()) {
             $this->getQuestionAndAnswerNavigationData();
         }
-        logger(__METHOD__);
+
         $this->getSortedAnswerFeedback();
     }
 

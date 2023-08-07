@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Traits;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Ramsey\Uuid\Uuid;
 use tcCore\Answer;
@@ -24,6 +25,8 @@ trait WithInlineFeedback {
     public function mountWithInlineFeedback()
     {
         $this->initAnswerFeedbackFilter();
+
+        $this->answerFeedback ??= new Collection();
     }
 
     public function bootWithInlineFeedback()
@@ -114,13 +117,7 @@ trait WithInlineFeedback {
         $purifiedAnswerText = str_replace('commentstart', 'comment-start', $purifiedAnswerText);
         $purifiedAnswerText = str_replace('commentend', 'comment-end', $purifiedAnswerText);
 
-        $testParticipants = $this->testTake->testParticipants()
-                                           ->whereIn('user_id', AnswerRating::where('answer_id', $this->getCurrentAnswer()->getKey())
-                                                                                  ->whereType('STUDENT')
-                                                                                  ->whereNot('user_id', auth()->id())
-                                                                                  ->select('user_id')
-                                           )
-                                           ->get();
+        $testParticipants = $this->getTestParticipantsRatingTheCurrentAnswer();
 
         foreach ($testParticipants as $testParticipant) {
             AfterResponse::$performAction[] = fn() => CommentedAnswerUpdated::dispatch($testParticipant->uuid);
@@ -298,9 +295,20 @@ SQL;
         return false;
     }
 
+    /**
+     * Get the current question safely from either component. Both components contain the current question in a different property.
+     */
     public function getCurrentQuestion()
     {
         return $this->currentQuestion ?? $this->testTake->discussingQuestion;
+    }
+
+    /**
+     * Get the test take safely from either component. Both components contain the test take in a different property.
+     */
+    public function getTestTake()
+    {
+        return $this->testTake ?? $this->testTakeData;
     }
 
     public function initAnswerFeedbackFilter() : void
@@ -316,5 +324,26 @@ SQL;
     {
         $this->answerFeedbackFilter = AnswerFeedbackFilter::tryFrom($filter);
         $this->getSortedAnswerFeedback();
+    }
+
+    public function getTestParticipantsRatingTheCurrentAnswer(): mixed
+    {
+        return $this->getTestTake()->testParticipants()
+                        ->whereIn('user_id', AnswerRating::where('answer_id', $this->getCurrentAnswer()->getKey())
+                                                         ->whereType('STUDENT')
+                                                         ->whereNot('user_id', auth()->id())
+                                                         ->select('user_id')
+                        )
+                        ->get();
+    }
+
+    public function getVisibleAnswerFeedback()
+    {
+        return $this->answerFeedback->filter->visible;
+    }
+
+    public function getAnswerFeedbackUpdatedStateHash()
+    {
+        return md5($this->getVisibleAnswerFeedback()->reduce(fn($carry, $answerFeedback) => $carry .= $answerFeedback->updated_at->timestamp, ''));
     }
 }
