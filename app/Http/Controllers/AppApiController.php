@@ -5,6 +5,8 @@ namespace tcCore\Http\Controllers;
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
+use tcCore\AppFeatureSetting;
+use tcCore\Http\Requests\AppApiFeatureFlagRequest;
 use tcCore\Http\Requests\AppApiFraudEventRequest;
 use tcCore\Http\Requests\AppApiHandInRequest;
 use tcCore\TestParticipant;
@@ -12,8 +14,17 @@ use tcCore\TestTakeEvent;
 use tcCore\TestTakeEventType;
 use tcCore\TestTakeStatus;
 
-class AppApi extends Controller
+class AppApiController extends Controller
 {
+
+    public function featureFlags(AppApiFeatureFlagRequest $request)
+    {
+        $response = AppFeatureSetting::all()->mapWithKeys(function($item,$nr){
+                return [$item['title'] => $item['value']];
+            });
+        return Response::json($response);
+    }
+
     public function handIn(AppApiHandInRequest $request, TestParticipant $testParticipant)
     {
         if (!$testParticipant->testTake->test->isAssignment()) {

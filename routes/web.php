@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('redirect-to-dashboard', [\tcCore\Http\Controllers\DashboardController::class, 'index'])->name('redirect-to-dashboard');
 
+Route::get('appapi/feature_flags',[tccore\Http\Controllers\AppApiController::class,'featureFlags'])->name('appapi.feature_flags');
+
 Route::get('/onboarding', tcCore\Http\Livewire\Onboarding::class)->name('onboarding.welcome');
 Route::get('/entree/onboarding', tcCore\Http\Livewire\EntreeOnboarding::class)->name('onboarding.welcome.entree');
 Route::get('/user/confirm_email/{EmailConfirmation}', [tcCore\Http\Controllers\UsersController::class, 'confirmEmail']);
@@ -117,8 +119,8 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::middleware(['dll', 'student'])->prefix('appapi')->name('appapi')->group(function () {
-        Route::put('/test_participant/{test_participant}/hand_in', [tcCore\Http\Controllers\AppApi::class, 'handIn'])->name('appapi-hand-in');
-        Route::put('/test_participant/{test_participant}/fraud_event', [tcCore\Http\Controllers\AppApi::class, 'fraudEvent'])->name('appapi-fraud-event');
+        Route::put('/test_participant/{test_participant}/hand_in', [tcCore\Http\Controllers\AppApiController::class, 'handIn'])->name('appapi-hand-in');
+        Route::put('/test_participant/{test_participant}/fraud_event', [tcCore\Http\Controllers\AppApiController::class, 'fraudEvent'])->name('appapi-fraud-event');
     });
 
     Route::middleware(['dll', 'teacher'])->prefix('cms')->name('cms.')->group(function () {

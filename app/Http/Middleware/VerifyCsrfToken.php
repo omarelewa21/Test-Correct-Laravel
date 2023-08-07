@@ -22,6 +22,7 @@ class VerifyCsrfToken extends Middleware
         'cms/ckeditor_upload/images*',
         'appapi/test_participant/*/hand_in',
         'appapi/test_participant/*/fraud_event',
+        'appapi/feature_flag',
         'saml2/*',
         'wiris/createimage',
         'wiris/showimage',
