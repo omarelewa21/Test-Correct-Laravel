@@ -2,7 +2,7 @@
     border-radius: 10px;
     font-size: 18px;
     font-weight: bold;
-    padding: 0 20px 0 20px;
+    padding: 0 22px; /* 22px + border of 2px = 24px*/
     align-items: center;
     display: inline-flex;
     min-height: 40px;
@@ -27,6 +27,7 @@ button.button {
 .button-sm {
     min-height: 40px;
     min-width: 40px;
+    padding: 0 14px; /* 14px + border 2px = 16px */
 }
 
 .button-md {
@@ -46,45 +47,139 @@ button.button {
     padding: 0px;
 }
 
-.text-button:is(.button-sm, .button-md, .button-lg) {
+/* Text button */
+:is(.text-button, .text-button-white) {
+    isolation: isolate;
+    position: relative;
+    color: var(--system-base);
+    font-weight: bold;
+    width: -moz-fit-content;
+    width: fit-content;
+    padding: 0;
+    border: 0;
+    background: none;
+    line-height: 22px;
+}
+
+.text-button-white:enabled span {
+    text-shadow: 0 1px 2px rgba(var(--system-base-rgb), 0.3);
+}
+
+.text-button-white:enabled:is(:hover, :active, :focus, :focus-visible) span {
+    text-shadow: 0 1px 4px rgba(var(--system-base-rgb), 0.5);
+}
+
+.text-button-white:enabled svg {
+    filter: drop-shadow( 0 1px 2px rgba(var(--system-base-rgb), 0.3));
+}
+.text-button-white:enabled:is(:hover, :active, :focus, :focus-visible) svg {
+    filter: drop-shadow( 0 1px 4px rgba(var(--system-base-rgb), 0.5));
+}
+
+:is(.text-button, .text-button-white) > * {
+    z-index: 3;
+    position: relative;
+}
+
+:is(.text-button, .text-button-white)::after {
+    content: "";
+    position: absolute;
+    border-radius: 12px;
+    border: 1px solid transparent;
+    background-color: transparent;
+    transition: all 0.3s cubic-bezier(.215, .61, .355, 1);
+}
+
+:is(.button-sm, .button-md, .button-lg):is(.text-button, .text-button-white) {
     min-width: unset;
 }
 
-.text-button {
-    border-radius: 0;
-    color: var(--system-base);
-    font-weight: bold;
-    padding: 0;
+:is(.text-button, .text-button-white).button-sm::after {
+    inset: 0 -6px;
 }
 
-.text-button:hover {
+:is(.text-button, .text-button-white).button-sm {
+    min-height: 22px;
+    height: 22px;
+    font-size: 16px;
+}
+
+:is(.text-button, .text-button-white):is(.button-md, .button-lg)::after {
+    inset: 0 -8px;
+}
+
+:is(.text-button, .text-button-white):is(.button-md, .button-lg) {
+    min-height: 24px;
+    height: 24px;
+}
+
+.text-button-white:is(:hover, :active, :focus, :focus-visible)  {
+    color: var(--all-White);
+    outline: none;
+}
+.text-button:is(:hover, :active, :focus, :focus-visible) {
     color: var(--primary);
-}
-
-.text-button.text-button-hover-bg:enabled:hover {
-    background: var(--primary-opacity-05);
-}
-
-.text-button:active {
-    color: var(--primary);
-}
-
-.text-button.text-button-hover-bg:enabled:active {
-    background: var(--primary-opacity-10);
-}
-
-.text-button:focus {
     outline: none;
 }
 
-.text-button > span {
-    vertical-align: middle;
+.text-button-white:focus::after {
+    border: 1px solid rgba(255,255,255, 0.5);
+}
+.text-button:focus::after {
+    border: 1px solid rgba(var(--primary-rgb), 0.5);
+}
+
+.text-button-white:is(:focus, :hover)::after {
+    background-color: rgba(255,255,255, 0.2);
+}
+.text-button-white:is(:active)::after {
+    background-color: rgba(255,255,255, 0.3);
+}
+
+.text-button:is(:focus, :active)::after {
+    background-color: rgba(var(--primary-rgb), 0.1);
+}
+
+.text-button-white:disabled {
+    opacity: 0.3;
+    cursor: default !important;
 }
 
 .text-button:disabled {
     color: var(--mid-grey) !important;
     cursor: default !important;
 }
+
+:is(.text-button, .text-button-white):disabled::after {
+    content: none;
+}
+
+:is(.text-button, .text-button-white).text-button-hover-bg::after {
+    content: none;
+}
+
+:is(.text-button, .text-button-white).text-button-hover-bg.button-sm {
+    min-height: 40px;
+}
+:is(.text-button, .text-button-white).text-button-hover-bg {
+    min-height: 50px;
+    border-radius: 0px;
+}
+
+:is(.text-button, .text-button-white).text-button-hover-bg:enabled:hover {
+    background: var(--primary-opacity-05);
+}
+
+:is(.text-button, .text-button-white).text-button-hover-bg:enabled:active {
+    background: var(--primary-opacity-10);
+}
+/* end text button */
+/* start white text button */
+.text-button-white {
+    color: var(--all-White);
+    text-shadow: 0 1px 2px rgba(var(--system-base-rgb), 0.3);;
+}
+/* end white text button */
 
 .button-gradient.primary-button {
     --button-text-color: white;
@@ -175,13 +270,7 @@ button.button {
 
 .button-gradient:disabled {
     background: var(--light-grey);
-    /*
-     * text color was: var(--mid-grey), but the new color is visually the same with 0.5 opacity
-     * but Full-color icons need an opacity of 0.5 to match the disabled text color
-    */
-    color: rgb(37, 59, 95);
-    opacity: 0.5;
-
+    color: var(--mid-grey);
     box-shadow: 0 1px 4px 0 rgba(4, 31, 116, 0.06);
 }
 
@@ -190,11 +279,6 @@ button.button {
 }
 
 /* <start> left over old specific styling of the primary button after refactoring */
-.primary-button:is(:hover, :active, :focus) {
-    background-color: rgba(0, 77, 245, 0);
-    outline: none;
-}
-
 .primary-button.btn-disabled:hover {
     background: var(--light-grey);
     color: var(--mid-grey);
@@ -4317,7 +4401,6 @@ input[type=number] {
     --primary-opacity-10: rgba(0, 77, 245, 0.1);
     --primary-opacity-05: rgba(0, 77, 245, 0.05);
     --primary-light: #e6edfa;
-    --primary-light-rgb: 230, 237, 250;
     --teacher-primary: #004df5;
     --teacher-primary-light: #4781ff;
     --secondary: #ECDB00;
@@ -5825,6 +5908,9 @@ video {
 .-m-1{
   margin: -0.25rem;
 }
+.-m-4{
+  margin: -1rem;
+}
 .m-1{
   margin: 0.25rem;
 }
@@ -5833,10 +5919,6 @@ video {
 }
 .m-auto{
   margin: auto;
-}
-.-mx-4{
-  margin-left: -1rem;
-  margin-right: -1rem;
 }
 .mx-1{
   margin-left: 0.25rem;
@@ -5861,10 +5943,6 @@ video {
 .mx-5{
   margin-left: 1.25rem;
   margin-right: 1.25rem;
-}
-.mx-6{
-  margin-left: 1.5rem;
-  margin-right: 1.5rem;
 }
 .mx-8{
   margin-left: 2rem;
@@ -5902,6 +5980,10 @@ video {
   margin-top: 2rem;
   margin-bottom: 2rem;
 }
+.my-16{
+  margin-top: 4rem;
+  margin-bottom: 4rem;
+}
 .-mb-2{
   margin-bottom: -0.5rem;
 }
@@ -5922,12 +6004,6 @@ video {
 }
 .-ml-px{
   margin-left: -1px;
-}
-.-mr-0{
-  margin-right: -0px;
-}
-.-mr-0\.5{
-  margin-right: -0.125rem;
 }
 .-mr-4{
   margin-right: -1rem;
@@ -5958,6 +6034,9 @@ video {
 }
 .mb-1\.5{
   margin-bottom: 0.375rem;
+}
+.mb-16{
+  margin-bottom: 4rem;
 }
 .mb-2{
   margin-bottom: 0.5rem;
@@ -6961,12 +7040,6 @@ video {
 .grid-cols-4{
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
-.grid-cols-6{
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-}
-.grid-cols-8{
-  grid-template-columns: repeat(8, minmax(0, 1fr));
-}
 .grid-cols-\[min-content\2c auto\]{
   grid-template-columns: min-content auto;
 }
@@ -7598,6 +7671,10 @@ video {
   --tw-bg-opacity: 1;
   background-color: rgb(254 202 202 / var(--tw-bg-opacity));
 }
+.bg-red-400{
+  --tw-bg-opacity: 1;
+  background-color: rgb(248 113 113 / var(--tw-bg-opacity));
+}
 .bg-secondary{
   --tw-bg-opacity: 1;
   background-color: rgb(206 218 243 / var(--tw-bg-opacity));
@@ -8053,9 +8130,6 @@ video {
 .pt-20{
   padding-top: 5rem;
 }
-.pt-3{
-  padding-top: 0.75rem;
-}
 .pt-4{
   padding-top: 1rem;
 }
@@ -8239,6 +8313,10 @@ video {
   --tw-text-opacity: 1;
   color: rgb(58 183 83 / var(--tw-text-opacity));
 }
+.text-fuchsia-500{
+  --tw-text-opacity: 1;
+  color: rgb(217 70 239 / var(--tw-text-opacity));
+}
 .text-gray-400{
   --tw-text-opacity: 1;
   color: rgb(156 163 175 / var(--tw-text-opacity));
@@ -8305,9 +8383,6 @@ video {
 .text-white{
   --tw-text-opacity: 1;
   color: rgb(255 255 255 / var(--tw-text-opacity));
-}
-.text-white\/20{
-  color: rgb(255 255 255 / 0.2);
 }
 .text-white\/90{
   color: rgb(255 255 255 / 0.9);
@@ -9052,10 +9127,6 @@ h2.student-testtake-answers-separator span {
 .hover\:bg-white:hover{
   --tw-bg-opacity: 1;
   background-color: rgb(255 255 255 / var(--tw-bg-opacity));
-}
-
-.hover\:bg-white\/20:hover{
-  background-color: rgb(255 255 255 / 0.2);
 }
 
 .hover\:font-bold:hover{

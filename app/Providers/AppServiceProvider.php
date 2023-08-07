@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Livewire\Livewire;
+use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Middleware\AuthenticatedAsStudent;
 use tcCore\Http\Middleware\AuthenticatedAsTeacher;
 use tcCore\Http\Middleware\DuplicateLogin;
@@ -77,6 +78,13 @@ class AppServiceProvider extends ServiceProvider {
                 return $user->schoolLocation->allowNewTakenTestsPage;
             }
             return true;
+        });
+
+        Gate::define('canEnterDevelopmentPage', function (User $user) {
+            if(auth()->check() && BaseHelper::notProduction()) {
+                return true;
+            }
+            return false;
         });
     }
 
