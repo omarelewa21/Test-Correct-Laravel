@@ -65,7 +65,7 @@
                 @endif
             </div>
         @endif
-        <x-slot name="testName">{{ $testTake->test->name }}</x-slot>
+        <x-slot name="testName">{{  $testTake->test->name }}</x-slot>
 
         @if(!$finishCoLearningButtonEnabled && $waitForTeacherNotificationEnabled)
             <div class="fixed min-w-max right-1/2 translate-x-1/2 top-[93px] px-2 shadow border informational rounded leading-7 bold flex items-center">

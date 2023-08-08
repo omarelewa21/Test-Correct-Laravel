@@ -1375,4 +1375,12 @@ class TestTake extends BaseModel
         $this->test_take_status_id = TestTakeStatus::STATUS_TAKING_TEST;
         $this->save();
     }
+
+    public function getTestNameAttribute()
+    {
+        $testName = Arr::has($this->attributes, 'test_name')
+            ? $this->attributes['test_name']
+            : $this->test->name;
+        return html_entity_decode(clean($testName));
+    }
 }

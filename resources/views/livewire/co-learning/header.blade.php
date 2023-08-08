@@ -14,7 +14,7 @@
         >
             <x-button.back-round x-on:click="await back()"></x-button.back-round>
             <h4>{{ __('co-learning.co_learning') }}: </h4>
-            <h1>{{ $testName }}</h1>
+            <h1>{{ html_entity_decode($testName) }}</h1>
         </div>
         <div class="flex">
 
