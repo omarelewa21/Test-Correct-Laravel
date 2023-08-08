@@ -3496,7 +3496,7 @@ document.addEventListener("alpine:init", () => {
 
                     if (this.progress === 0) {
                         this.showMe ? this.$wire.closeQuestion(this.number + 1) : this.$wire.closeQuestion();
-                        clearInterval(timer);
+                        clearInterval(this.timer);
                         this.progressBar = false;
                     }
                 }, 1000);

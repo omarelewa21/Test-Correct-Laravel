@@ -10269,7 +10269,7 @@ document.addEventListener("alpine:init", function () {
             _this83.progress -= 1;
             if (_this83.progress === 0) {
               _this83.showMe ? _this83.$wire.closeQuestion(_this83.number + 1) : _this83.$wire.closeQuestion();
-              clearInterval(timer);
+              clearInterval(_this83.timer);
               _this83.progressBar = false;
             }
           }, 1000);
