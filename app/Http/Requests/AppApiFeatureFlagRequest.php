@@ -16,7 +16,7 @@ class AppApiFeatureFlagRequest extends Request
      */
     public function authorize()
     {
-        return AppVersionDetector::verifyKeyHeader();
+        return AppVersionDetector::isInApp();
     }
 
     /**
