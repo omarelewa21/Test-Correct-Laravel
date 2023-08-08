@@ -23,7 +23,7 @@ class VerifyCsrfToken extends Middleware
         'appapi/test_participant/*/hand_in',
         'appapi/test_participant/*/fraud_event',
         'appapi/version_info',
-        'appapi/feature_flag',
+        'appapi/feature_flags',
         'saml2/*',
         'wiris/createimage',
         'wiris/showimage',
