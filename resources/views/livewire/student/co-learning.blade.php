@@ -136,7 +136,7 @@
     </div>
     @if($testTake->enable_comments_colearning && !$coLearningFinished && $testTake?->discussingQuestion->isType('OpenQuestion'))
     <x-partials.co-learning-drawer
-            uniqueKey="question-{{$testTake->discussingQuestion->uuid}}-{{ $this->answerFollowUpNumber }}-{{$this->getAnswerFeedbackUpdatedStateHash()}}">
+            uniqueKey="ar-{{ $this->answerRating->getKey() }}-question-{{$testTake->discussingQuestion->uuid}}-{{ $this->answerFollowUpNumber }}-{{$this->getAnswerFeedbackUpdatedStateHash()}}">
         <x-slot name="slideContent">
             <div x-on:answer-feedback-focus-feedback-editor.window="toggleFeedbackAccordion('add-feedback', true)"
                  x-on:answer-feedback-show-comments.window="toggleFeedbackAccordion('given-feedback', true)"
@@ -162,7 +162,7 @@
                     <div class="flex w-full flex-col" x-show="dropdownOpened === 'add-feedback'"
                          x-collapse
                          wire:ignore
-                         x-init="createFocusableButtons()"
+                         x-init="createFocusableButtons(); $dispatch('reinitialize-editor-{{ 'feedback-editor-'. $this->questionFollowUpNumber .'-'. $this->answerFollowUpNumber }}')"
                     >
                         <x-input.comment-color-picker
                                 commentThreadId="new-comment"
