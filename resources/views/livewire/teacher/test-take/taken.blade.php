@@ -174,10 +174,10 @@
                             @if($this->initialized)
                                 @forelse($this->participants as $participant)
                                     <div @class([
-                            'filter-pill px-4 gap-2 h-10 transition-opacity',
-                            'disabled' => !$participant->present,
-                            'enabled' => $participant->present
-                            ])
+                                            'filter-pill px-4 gap-2 h-10 transition-opacity',
+                                            'disabled' => !$participant->present,
+                                            'enabled' => $participant->present
+                                        ])
                                          wire:key="participant-{{ $participant->uuid }}-@js($participant->present)"
                                     >
                                         <span>{{ $participant->name }}</span>
@@ -236,14 +236,14 @@
                                 <x-input.option :value="$key" :label="$language" />
                             @endforeach
                         </x-input.select>
-                        <x-input.text value="1" class="min-w-[60px] w-[60px] text-center"/>
-                        <x-input.text value="100%" class="min-w-[80px] w-[80px] text-center"/>
+                        <x-input.text value="1" class="min-w-[60px] w-[60px] text-center" />
+                        <x-input.text value="100%" class="min-w-[80px] w-[80px] text-center" />
                         <x-tooltip class="min-w-[22px]">Lekker tooltippen</x-tooltip>
                     </div>
 
                     <div class="flex items-center">
                         <x-input.toggle-row-with-title tool-tip="kaas is lekker">
-                            <x-icon.no-grade/>
+                            <x-icon.no-grade />
                             <span>@lang('test-take.Cijfer tonen aan student')</span>
                         </x-input.toggle-row-with-title>
                     </div>
@@ -314,15 +314,17 @@
                             <div class="grid-item flex items-center group-hover/row:bg-offwhite px-1.5 justify-end">
                                 3
                             </div>
-                            <div class="grid-item flex items-center group-hover/row:bg-offwhite px-1.5 justify-end">
-{{--                                <x-input.score-slider modelName="participantResults.{{ $key }}.score"--}}
-{{--                                                      mode=""--}}
-{{--                                                      :maxScore="10"--}}
-{{--                                                      :score="0"--}}
-{{--                                                      :halfPoints="true"--}}
-{{--                                                      :disabled="$participant->testNotTaken"--}}
-{{--                                                      title=""--}}
-{{--                                />--}}
+                            <div class="grid-item flex items-center group-hover/row:bg-offwhite px-1.5 justify-end justify-self-end">
+                                <x-input.score-slider class=""
+                                                      model-name="rating"
+                                                      :max-score="10"
+                                                      :score="5"
+                                                      :half-points="true"
+                                                      :disabled="false"
+                                                      :co-learning="false"
+                                                      mode="large"
+                                                      :title="false"
+                                />
                             </div>
                             <div class="grid-item flex items-center group-hover/row:bg-offwhite pl-1.5 pr-5 rounded-r-10">
                                 <x-mark-badge rating="10" />

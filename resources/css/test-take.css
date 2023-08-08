@@ -315,7 +315,7 @@
 }
 
 .results-grid.setup {
-    grid-template-columns: minmax(150px, auto) minmax(200px, auto) min-content 450px min-content;
+    grid-template-columns: minmax(150px, auto) minmax(200px, auto) min-content 400px min-content;
 }
 .results-grid.overview {
     grid-template-columns: minmax(150px, auto) minmax(200px, auto) repeat(4, min-content);

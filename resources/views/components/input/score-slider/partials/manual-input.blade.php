@@ -1,4 +1,4 @@
-<input @class(['h-10 score-slider-number-input w-16 items-center justify-center', $classes])
+<input @class(['h-10 score-slider-number-input items-center justify-center', $classes])
        x-model.number="score"
        type="number"
        max="{{$maxScore}}"

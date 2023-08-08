@@ -17,7 +17,8 @@
             $attributes->get('class'),
             'flex flex-1 score-slider-container w-fit relative',
             'opacity-50' => $disabled,
-            'justify-between items-center space-x-2' => $mode === 'default',
+            'items-center space-x-2' => in_array($mode, ['default','large']),
+            'justify-between' => $mode === 'default',
             'flex-col gap-0.5' => $mode === 'small',
         ])
 >

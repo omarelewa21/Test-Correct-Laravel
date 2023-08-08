@@ -14,4 +14,4 @@
     @endif
 </div>
 
-@include('components.input.score-slider.partials.manual-input', ['classes' => 'w-16 items-center justify-center'])
+@include('components.input.score-slider.partials.manual-input', ['classes' => 'w-14 items-center justify-center'])
