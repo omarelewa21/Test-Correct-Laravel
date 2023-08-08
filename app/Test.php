@@ -933,7 +933,7 @@ class Test extends BaseModel
         })->mapWithKeys(function ($item, $key) use (&$orderOpenOnly) {
             return [$item['id'] => [
                 'order' => $key+1,
-                'order_open_only' => $item['question_type'] === Question::TYPE_OPEN && $item['discuss'] === 1 ? ++$orderOpenOnly : null,
+                'order_open_only' => $item['question_type'] === Question::TYPE_OPEN && (bool)$item['discuss'] ? ++$orderOpenOnly : null,
                 ...$item,
             ]];
         })->toArray();
