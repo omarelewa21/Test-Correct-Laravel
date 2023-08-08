@@ -51,6 +51,7 @@
                                                   :participatingClasses="$participatingClasses"/>
                 </div>
                 <div class="flex w-full items-center h-10">
+                    {{ \tcCore\Http\Helpers\AppVersionDetector::detect()['os'] }}
                     @if(!$needsApp)
                         <x-partials.waiting-room-action-button
                            :testTakeStatusStage="$this->testTakeStatusStage"
