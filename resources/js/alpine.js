@@ -2786,6 +2786,9 @@ document.addEventListener("alpine:init", () => {
             document.querySelector('#commentMarkerStyles').innerHTML = commentStyles;
         },
         async createCommentThread() {
+            //somehow the editor id sometimes shows an old cached value, so we set it again here
+            this.answerEditorId = this.$el.dataset.answerEditorId;
+            this.feedbackEditorId = this.$el.dataset.feedbackEditorId;
 
             let addCommentElement = this.$el.closest('.answer-feedback-add-comment')
 
@@ -2836,8 +2839,6 @@ document.addEventListener("alpine:init", () => {
                     this.$dispatch('answer-feedback-show-comments');
 
                     this.scrollToCommentCard(feedback.uuid);
-
-                    this.resetAddNewAnswerFeedback()
                     return;
                 }
 
@@ -2852,8 +2853,6 @@ document.addEventListener("alpine:init", () => {
                 this.$dispatch('answer-feedback-show-comments');
 
                 this.scrollToCommentCard(feedback.uuid);
-
-                this.resetAddNewAnswerFeedback();
             });
 
         },

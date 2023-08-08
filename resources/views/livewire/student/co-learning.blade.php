@@ -9,6 +9,7 @@
                 @js($this->hasFeedback)
              )"
      x-on:resize.window.debounce.50ms="repositionAnswerFeedbackIcons()"
+     wire:key="ar-{{ $this->answerRating->getKey() }}-fe-{{$this->questionFollowUpNumber .'-'. $this->answerFollowUpNumber}}"
      @endif
 >
     <div id="co-learning-page"
@@ -131,12 +132,11 @@
             @endif
         </footer>
     </div>
-    @if($testTake->enable_comments_colearning && !$coLearningFinished)
+    @if($testTake->enable_comments_colearning && !$coLearningFinished && $testTake?->discussingQuestion->isType('OpenQuestion'))
     <x-partials.co-learning-drawer
             uniqueKey="question-{{$testTake->discussingQuestion->uuid}}-{{ $this->answerFollowUpNumber }}-{{$this->getAnswerFeedbackUpdatedStateHash()}}">
         <x-slot name="slideContent">
-            <div x-data="{}"
-                 x-on:answer-feedback-focus-feedback-editor.window="toggleFeedbackAccordion('add-feedback', true)"
+            <div x-on:answer-feedback-focus-feedback-editor.window="toggleFeedbackAccordion('add-feedback', true)"
                  x-on:answer-feedback-show-comments.window="toggleFeedbackAccordion('given-feedback', true)"
             >
                 <div class="answer-feedback-add-comment">
@@ -195,6 +195,8 @@
                              id="saveNewFeedbackButtonWrapper"
                              data-save-translation="@lang('general.save')"
                              data-cancel-translation="@lang('modal.annuleren')"
+                             data-answer-editor-id="{{ 'ar-'. $this->answerRating->getKey() }}"
+                             data-feedback-editor-id="{{ 'feedback-editor-'. $this->questionFollowUpNumber .'-'. $this->answerFollowUpNumber }}"
                         > {{-- filled by javascript with Ckeditor view components, cancel and save button --}}
                         </div>
                     </div>
@@ -221,8 +223,6 @@
                     <div class="flex w-auto flex-col gap-2 given-feedback-container -mx-4"
                          x-show="dropdownOpened === 'given-feedback'"
                          x-collapse
-                         x-data="{}"
-                         x-init=""
                     >
 
                         <x-menu.context-menu.base context="answer-feedback">

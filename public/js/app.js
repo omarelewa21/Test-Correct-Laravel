@@ -9508,6 +9508,9 @@ document.addEventListener("alpine:init", function () {
           return _regeneratorRuntime().wrap(function _callee26$(_context26) {
             while (1) switch (_context26.prev = _context26.next) {
               case 0:
+                //somehow the editor id sometimes shows an old cached value, so we set it again here
+                _this65.answerEditorId = _this65.$el.dataset.answerEditorId;
+                _this65.feedbackEditorId = _this65.$el.dataset.feedbackEditorId;
                 addCommentElement = _this65.$el.closest('.answer-feedback-add-comment');
                 comment_color = (_addCommentElement$qu = addCommentElement.querySelector('.comment-color-picker input:checked')) === null || _addCommentElement$qu === void 0 ? void 0 : (_addCommentElement$qu2 = _addCommentElement$qu.dataset) === null || _addCommentElement$qu2 === void 0 ? void 0 : _addCommentElement$qu2.color;
                 comment_emoji = (_addCommentElement$qu3 = addCommentElement.querySelector('.comment-emoji-picker input:checked')) === null || _addCommentElement$qu3 === void 0 ? void 0 : (_addCommentElement$qu4 = _addCommentElement$qu3.dataset) === null || _addCommentElement$qu4 === void 0 ? void 0 : _addCommentElement$qu4.emoji;
@@ -9522,7 +9525,7 @@ document.addEventListener("alpine:init", function () {
                     while (1) switch (_context25.prev = _context25.next) {
                       case 0:
                         if (!answerEditor.plugins.get('CommentsRepository').activeCommentThread) {
-                          _context25.next = 20;
+                          _context25.next = 19;
                           break;
                         }
                         _context25.next = 3;
@@ -9564,29 +9567,27 @@ document.addEventListener("alpine:init", function () {
                         _this65.hasFeedback = true;
                         _this65.$dispatch('answer-feedback-show-comments');
                         _this65.scrollToCommentCard(feedback.uuid);
-                        _this65.resetAddNewAnswerFeedback();
                         return _context25.abrupt("return");
-                      case 20:
-                        _context25.next = 22;
+                      case 19:
+                        _context25.next = 21;
                         return _this65.$wire.createNewComment({
                           message: comment,
                           comment_color: null,
                           //no comment color when its a general ticket.
                           comment_emoji: comment_emoji
                         }, false);
-                      case 22:
+                      case 21:
                         feedback = _context25.sent;
                         _this65.hasFeedback = true;
                         _this65.$dispatch('answer-feedback-show-comments');
                         _this65.scrollToCommentCard(feedback.uuid);
-                        _this65.resetAddNewAnswerFeedback();
-                      case 27:
+                      case 25:
                       case "end":
                         return _context25.stop();
                     }
                   }, _callee25);
                 })));
-              case 9:
+              case 11:
               case "end":
                 return _context26.stop();
             }
@@ -10217,7 +10218,6 @@ document.addEventListener("alpine:init", function () {
       number: number,
       questionId: questionId,
       reinitializedTimeoutData: reinitializedTimeoutData,
-      timer: null,
       init: function init() {
         var _this82 = this;
         this.$watch("showMe", function (value) {
@@ -10228,7 +10228,7 @@ document.addEventListener("alpine:init", function () {
             _this82.$dispatch("reinitialize-editor-editor-" + _this82.questionId);
           }
         });
-        if (this.reinitializedTimeoutData && this.reinitializedTimeoutData.hasOwnProperty('timeLeft')) {
+        if (this.reinitializedTimeoutData && this.reinitializedTimeoutData.length) {
           this.$nextTick(function () {
             _this82.startTimeout(_this82.reinitializedTimeoutData);
           });
@@ -10254,26 +10254,22 @@ document.addEventListener("alpine:init", function () {
         this.$wire.set('nextQuestion', eventData);
       },
       startTimeout: function startTimeout(eventData) {
-        var _this83 = this;
         this.progressBar = true;
         this.startTime = eventData.timeout;
-        console.log(eventData);
         if (eventData.timeLeft) {
           this.progress = eventData.timeLeft;
         } else {
           this.$wire.registerExpirationTime(eventData.attachment);
           this.progress = this.startTime;
         }
-        if (!this.timer) {
-          this.timer = setInterval(function () {
-            _this83.progress -= 1;
-            if (_this83.progress === 0) {
-              _this83.showMe ? _this83.$wire.closeQuestion(_this83.number + 1) : _this83.$wire.closeQuestion();
-              clearInterval(_this83.timer);
-              _this83.progressBar = false;
-            }
-          }, 1000);
-        }
+        var timer = setInterval(function () {
+          this.progress -= 1;
+          if (this.progress === 0) {
+            this.showMe ? this.$wire.closeQuestion(this.number + 1) : this.$wire.closeQuestion();
+            clearInterval(timer);
+            this.progressBar = false;
+          }
+        }, 1000);
       },
       markInfoscreenAsSeen: function markInfoscreenAsSeen(eventData, questionUuid) {
         if (questionUuid !== eventData) return;
@@ -10295,14 +10291,14 @@ document.addEventListener("alpine:init", function () {
       pillContainer: null,
       searchFocussed: false,
       init: function init() {
-        var _this84 = this;
+        var _this83 = this;
         this.pillContainer = document.querySelector("#".concat(containerId));
         this.$watch("query", function (value) {
-          return _this84.search(value);
+          return _this83.search(value);
         });
         this.$watch("multiSelectOpen", function (value) {
-          if (value) _this84.handleDropdownLocation();
-          if (!value) _this84.query = "";
+          if (value) _this83.handleDropdownLocation();
+          if (!value) _this83.query = "";
         });
         this.registerSelectedItemsOnComponent();
       },
@@ -10310,15 +10306,15 @@ document.addEventListener("alpine:init", function () {
         this.openSubs = this.toggle(this.openSubs, uuid);
       },
       parentClick: function parentClick(element, parent) {
-        var _this85 = this;
+        var _this84 = this;
         var checked = !this.checkedParents.includes(parent.value);
         element.querySelector("input[type=\"checkbox\"]").checked = checked;
         this.checkedParents = this.toggle(this.checkedParents, parent.value);
         parent.children.filter(function (child) {
           return child.disabled !== true;
         }).forEach(function (child) {
-          _this85[checked ? "childAdd" : "childRemove"](child);
-          checked ? _this85.checkAndDisableBrothersFromOtherMothers(child) : _this85.uncheckAndEnableBrothersFromOtherMothers(child);
+          _this84[checked ? "childAdd" : "childRemove"](child);
+          checked ? _this84.checkAndDisableBrothersFromOtherMothers(child) : _this84.uncheckAndEnableBrothersFromOtherMothers(child);
         });
         this.$root.querySelectorAll("[data-parent-id=\"".concat(parent.value, "\"][data-disabled=\"false\"] input[type=\"checkbox\"]")).forEach(function (child) {
           return child.checked = checked;
@@ -10385,13 +10381,13 @@ document.addEventListener("alpine:init", function () {
         // return result < parent.children.length;
       },
       checkedChildrenCount: function checkedChildrenCount(parent) {
-        var _this86 = this;
+        var _this85 = this;
         return parent.children.filter(function (child) {
-          return _this86.checkedChildrenContains(child);
+          return _this85.checkedChildrenContains(child);
         }).length;
       },
       search: function search(value) {
-        var _this87 = this;
+        var _this86 = this;
         if (value.length === 0) {
           this.searchEmpty = false;
           this.showAllOptions();
@@ -10401,7 +10397,7 @@ document.addEventListener("alpine:init", function () {
         var results = this.searchParentsAndChildsLabels(value);
         this.searchEmpty = results.length === 0;
         results.forEach(function (item) {
-          return _this87.showOption(item);
+          return _this86.showOption(item);
         });
       },
       showOption: function showOption(identifier) {
@@ -10471,9 +10467,9 @@ document.addEventListener("alpine:init", function () {
         this[toggleFunction](this.$root.querySelector("[data-id=\"".concat(event.item.value, "\"][data-parent-id=\"").concat(event.item.customProperties.parentId, "\"]")), event.item);
       },
       handleActiveFilters: function handleActiveFilters() {
-        var _this88 = this;
+        var _this87 = this;
         var currentPillIds = Array.from(this.pillContainer.childNodes).map(function (pill) {
-          if (!_this88.isParent(pill.item)) {
+          if (!_this87.isParent(pill.item)) {
             return pill.item.value + pill.item.customProperties.parentId;
           }
           return pill.item.value;
@@ -10487,13 +10483,13 @@ document.addEventListener("alpine:init", function () {
         this.options.flatMap(function (parent) {
           return [parent].concat(_toConsumableArray(parent.children));
         }).filter(function (item) {
-          if (_this88.isParent(item)) return _this88.checkedParents.includes(item.value);
-          if (_this88.checkedParents.includes(item.customProperties.parentId)) {
+          if (_this87.isParent(item)) return _this87.checkedParents.includes(item.value);
+          if (_this87.checkedParents.includes(item.customProperties.parentId)) {
             pillIdsToRemove.push(item.value + item.customProperties.parentId);
           }
-          return !_this88.checkedParents.includes(item.customProperties.parentId) && _this88.checkedChildrenContains(item);
+          return !_this87.checkedParents.includes(item.customProperties.parentId) && _this87.checkedChildrenContains(item);
         }).forEach(function (item) {
-          return _this88.createFilterPill(item);
+          return _this87.createFilterPill(item);
         });
         var that = this;
         pillIdsToRemove.forEach(function (uuid) {
@@ -10520,7 +10516,7 @@ document.addEventListener("alpine:init", function () {
         }
       },
       registerSelectedItemsOnComponent: function registerSelectedItemsOnComponent() {
-        var _this89 = this;
+        var _this88 = this;
         var checkedChildValues = this.options.flatMap(function (parent) {
           return _toConsumableArray(parent.children);
         }).filter(function (item) {
@@ -10529,10 +10525,10 @@ document.addEventListener("alpine:init", function () {
         });
         this.$nextTick(function () {
           checkedChildValues.forEach(function (item) {
-            _this89.childClick(_this89.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.customProperties.parentId, "\"]")), item);
+            _this88.childClick(_this88.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.customProperties.parentId, "\"]")), item);
           });
-          _this89.registerParentsBasedOnDisabledChildren();
-          _this89.handleActiveFilters();
+          _this88.registerParentsBasedOnDisabledChildren();
+          _this88.handleActiveFilters();
         });
       },
       syncInput: function syncInput() {
@@ -10549,24 +10545,24 @@ document.addEventListener("alpine:init", function () {
         });
       },
       checkAndDisableBrothersFromOtherMothers: function checkAndDisableBrothersFromOtherMothers(child) {
+        var _this89 = this;
+        this.options.flatMap(function (parents) {
+          return _toConsumableArray(parents.children);
+        }).filter(function (item) {
+          return item.value === child.value && item.customProperties.parentId !== child.customProperties.parentId;
+        }).forEach(function (item) {
+          _this89.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.customProperties.parentId, "\"] input[type=\"checkbox\"]")).checked = true;
+          item.disabled = true;
+        });
+      },
+      uncheckAndEnableBrothersFromOtherMothers: function uncheckAndEnableBrothersFromOtherMothers(child) {
         var _this90 = this;
         this.options.flatMap(function (parents) {
           return _toConsumableArray(parents.children);
         }).filter(function (item) {
           return item.value === child.value && item.customProperties.parentId !== child.customProperties.parentId;
         }).forEach(function (item) {
-          _this90.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.customProperties.parentId, "\"] input[type=\"checkbox\"]")).checked = true;
-          item.disabled = true;
-        });
-      },
-      uncheckAndEnableBrothersFromOtherMothers: function uncheckAndEnableBrothersFromOtherMothers(child) {
-        var _this91 = this;
-        this.options.flatMap(function (parents) {
-          return _toConsumableArray(parents.children);
-        }).filter(function (item) {
-          return item.value === child.value && item.customProperties.parentId !== child.customProperties.parentId;
-        }).forEach(function (item) {
-          _this91.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.customProperties.parentId, "\"] input[type=\"checkbox\"]")).checked = false;
+          _this90.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.customProperties.parentId, "\"] input[type=\"checkbox\"]")).checked = false;
           item.disabled = false;
         });
       },
@@ -10575,15 +10571,15 @@ document.addEventListener("alpine:init", function () {
         return !((_item$customPropertie3 = item.customProperties) !== null && _item$customPropertie3 !== void 0 && _item$customPropertie3.parent) === false;
       },
       registerParentsBasedOnDisabledChildren: function registerParentsBasedOnDisabledChildren() {
-        var _this92 = this;
+        var _this91 = this;
         this.options.forEach(function (item) {
           var enabledChildren = item.children.filter(function (child) {
             return child.disabled !== true;
           }).length;
           if (enabledChildren === 0) return;
-          var enabled = _this92.checkedChildrenCount(item) === enabledChildren;
-          _this92.checkedParents = _this92[enabled ? "add" : "remove"](_this92.checkedParents, item.value);
-          _this92.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.value, "\"] input[type=\"checkbox\"]")).checked = enabled;
+          var enabled = _this91.checkedChildrenCount(item) === enabledChildren;
+          _this91.checkedParents = _this91[enabled ? "add" : "remove"](_this91.checkedParents, item.value);
+          _this91.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.value, "\"] input[type=\"checkbox\"]")).checked = enabled;
         });
       },
       parentDisabled: function parentDisabled(parent) {
@@ -10614,11 +10610,11 @@ document.addEventListener("alpine:init", function () {
       selectedText: null
     }, selectFunctions), {}, {
       init: function init() {
-        var _this93 = this;
+        var _this92 = this;
         this.selectedText = this.$root.querySelector("span.selected").dataset.selectText;
         this.setActiveStartingValue();
         this.$watch("singleSelectOpen", function (value) {
-          if (value) _this93.handleDropdownLocation();
+          if (value) _this92.handleDropdownLocation();
         });
       },
       get value() {
@@ -10683,21 +10679,21 @@ document.addEventListener("alpine:init", function () {
       inTestBankContext: inTestBankContext,
       maxHeight: 'calc(100vh - var(--header-height))',
       init: function init() {
-        var _this94 = this;
+        var _this93 = this;
         this.groupDetail = this.$el.querySelector('#groupdetail');
         this.$watch('showBank', function (value) {
           if (value === 'questions') {
-            _this94.$wire.loadSharedFilters();
+            _this93.$wire.loadSharedFilters();
           }
         });
         this.$watch('$store.questionBank.inGroup', function (value) {
-          _this94.inGroup = value;
+          _this93.inGroup = value;
         });
         this.$watch('$store.questionBank.active', function (value) {
           if (value) {
-            _this94.$wire.setAddedQuestionIdsArray();
+            _this93.$wire.setAddedQuestionIdsArray();
           } else {
-            _this94.closeGroupDetailQb();
+            _this93.closeGroupDetailQb();
           }
         });
         this.showGroupDetailsQb = /*#__PURE__*/function () {
@@ -10710,32 +10706,32 @@ document.addEventListener("alpine:init", function () {
                 case 0:
                   inTest = _args32.length > 1 && _args32[1] !== undefined ? _args32[1] : false;
                   _context32.next = 3;
-                  return _this94.$wire.showGroupDetails(groupQuestionUuid, inTest);
+                  return _this93.$wire.showGroupDetails(groupQuestionUuid, inTest);
                 case 3:
                   readyForSlide = _context32.sent;
                   if (readyForSlide) {
-                    if (_this94.inTestBankContext) {
-                      _this94.$refs['tab-container'].style.display = 'none';
-                      _this94.$refs['main-container'].style.height = '100vh';
+                    if (_this93.inTestBankContext) {
+                      _this93.$refs['tab-container'].style.display = 'none';
+                      _this93.$refs['main-container'].style.height = '100vh';
                     } else {
-                      _this94.maxHeight = _this94.groupDetail.offsetHeight + 'px';
+                      _this93.maxHeight = _this93.groupDetail.offsetHeight + 'px';
                     }
-                    _this94.groupDetail.style.left = 0;
-                    _this94.$refs['main-container'].scrollTo({
+                    _this93.groupDetail.style.left = 0;
+                    _this93.$refs['main-container'].scrollTo({
                       top: 0,
                       behavior: 'smooth'
                     });
-                    _this94.$el.scrollTo({
+                    _this93.$el.scrollTo({
                       top: 0,
                       behavior: 'smooth'
                     });
-                    _this94.$nextTick(function () {
+                    _this93.$nextTick(function () {
                       setTimeout(function () {
-                        _this94.bodyVisibility = false;
-                        if (_this94.inTestBankContext) {
-                          _this94.groupDetail.style.position = 'relative';
+                        _this93.bodyVisibility = false;
+                        if (_this93.inTestBankContext) {
+                          _this93.groupDetail.style.position = 'relative';
                         } else {
-                          handleVerticalScroll(_this94.$el.closest('.slide-container'));
+                          handleVerticalScroll(_this93.$el.closest('.slide-container'));
                         }
                       }, 500);
                     });
@@ -10751,19 +10747,19 @@ document.addEventListener("alpine:init", function () {
           };
         }();
         this.closeGroupDetailQb = function () {
-          if (!_this94.bodyVisibility) {
-            _this94.bodyVisibility = true;
-            _this94.maxHeight = 'calc(100vh - var(--header-height))';
-            _this94.groupDetail.style.left = '100%';
-            if (_this94.inTestBankContext) {
-              _this94.groupDetail.style.position = 'absolute';
-              _this94.$refs['tab-container'].style.display = 'block';
+          if (!_this93.bodyVisibility) {
+            _this93.bodyVisibility = true;
+            _this93.maxHeight = 'calc(100vh - var(--header-height))';
+            _this93.groupDetail.style.left = '100%';
+            if (_this93.inTestBankContext) {
+              _this93.groupDetail.style.position = 'absolute';
+              _this93.$refs['tab-container'].style.display = 'block';
             }
-            _this94.$nextTick(function () {
-              _this94.$wire.clearGroupDetails();
+            _this93.$nextTick(function () {
+              _this93.$wire.clearGroupDetails();
               setTimeout(function () {
-                if (!_this94.inTestBankContext) {
-                  handleVerticalScroll(_this94.$el.closest('.slide-container'));
+                if (!_this93.inTestBankContext) {
+                  handleVerticalScroll(_this93.$el.closest('.slide-container'));
                 }
               }, 250);
             });
@@ -10782,13 +10778,13 @@ document.addEventListener("alpine:init", function () {
                     _context33.next = 3;
                     break;
                   }
-                  return _context33.abrupt("return", _this94.$wire.emit('openModal', 'teacher.add-sub-question-confirmation-modal', {
+                  return _context33.abrupt("return", _this93.$wire.emit('openModal', 'teacher.add-sub-question-confirmation-modal', {
                     questionUuid: questionUuid
                   }));
                 case 3:
                   button.disabled = true;
                   _context33.next = 6;
-                  return _this94.$wire.handleCheckboxClick(questionUuid);
+                  return _this93.$wire.handleCheckboxClick(questionUuid);
                 case 6:
                   enableButton = _context33.sent;
                   if (enableButton) {
@@ -11759,7 +11755,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "fc18ed69b446aeb8c8a5",
+  key: "662d128370816e2bbb66",
   cluster: "eu",
   forceTLS: true
 });
@@ -70463,6 +70459,32 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./resources/css/app_pdf.css":
+/*!***********************************!*\
+  !*** ./resources/css/app_pdf.css ***!
+  \***********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+// extracted by mini-css-extract-plugin
+
+
+/***/ }),
+
+/***/ "./resources/css/print-test-pdf.css":
+/*!******************************************!*\
+  !*** ./resources/css/print-test-pdf.css ***!
+  \******************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+// extracted by mini-css-extract-plugin
+
+
+/***/ }),
+
 /***/ "./node_modules/plyr/dist/plyr.min.js":
 /*!********************************************!*\
   !*** ./node_modules/plyr/dist/plyr.min.js ***!
@@ -79822,7 +79844,9 @@ module.exports = JSON.parse('{"name":"axios","version":"0.21.4","description":"P
 /******/ 		// [resolve, reject, Promise] = chunk loading, 0 = chunk loaded
 /******/ 		var installedChunks = {
 /******/ 			"/js/app": 0,
-/******/ 			"css/app": 0
+/******/ 			"css/app": 0,
+/******/ 			"css/app_pdf": 0,
+/******/ 			"css/print-test-pdf": 0
 /******/ 		};
 /******/ 		
 /******/ 		// no chunk on demand loading
@@ -79872,8 +79896,10 @@ module.exports = JSON.parse('{"name":"axios","version":"0.21.4","description":"P
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module depends on other loaded chunks and execution need to be delayed
-/******/ 	__webpack_require__.O(undefined, ["css/app"], () => (__webpack_require__("./resources/js/app.js")))
-/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["css/app"], () => (__webpack_require__("./resources/css/app.css")))
+/******/ 	__webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/js/app.js")))
+/******/ 	__webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/css/app.css")))
+/******/ 	__webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/css/app_pdf.css")))
+/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/css/print-test-pdf.css")))
 /******/ 	__webpack_exports__ = __webpack_require__.O(__webpack_exports__);
 /******/ 	
 /******/ })()
