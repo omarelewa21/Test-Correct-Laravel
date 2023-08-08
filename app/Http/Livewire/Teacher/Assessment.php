@@ -887,6 +887,10 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
     private function getFeedbackForCurrentAnswer(): string
     {
+        if($this->currentQuestion->isType('OpenQuestion')) {
+            return $this->hasFeedback = $this->currentAnswer->feedback()->exists();
+        }
+
         $feedback = $this->currentAnswer
             ->feedback()
             ->where('user_id', auth()->id())
