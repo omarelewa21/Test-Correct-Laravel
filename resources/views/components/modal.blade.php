@@ -84,10 +84,10 @@
             <div class="flex justify-end px-2.5">
                 <div class="space-x-3">
                     @if ($showCancelButton)
-                        <x-button.text-button @click="show = false" class="rotate-svg-180">
+                        <x-button.text @click="show = false" class="rotate-svg-180">
                             <x-icon.chevron/>
                             <span>{{ __("modal.Terug") }}</span>
-                        </x-button.text-button>
+                        </x-button.text>
                     @endif
                     {{ $actionButton }}
                 </div>

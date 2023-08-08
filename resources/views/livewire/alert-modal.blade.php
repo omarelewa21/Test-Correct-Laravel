@@ -14,10 +14,10 @@
     </x-slot>
     <x-slot name="footer">
         @if ($this->primaryAction)
-            <div class="flex justify-end w-full gap-4">
-                <x-button.text-button wire:click="$emit('closeModal')">
+            <div class="flex justify-end w-full gap-4 items-center">
+                <x-button.text wire:click="$emit('closeModal')">
                     <span>{{ __('modal.annuleren') }}</span>
-                </x-button.text-button>
+                </x-button.text>
                 <x-button.cta type="link" href="{{ $this->primaryAction }}">
                     <span>{{ $this->primaryActionBtnLabel }} </span>
                 </x-button.cta>

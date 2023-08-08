@@ -102,9 +102,9 @@ $struct = [
                             </x-table.cell>
                             <x-table.cell>
                                 @if($set->status !== 'PROCESSING')
-                                    <x-button.text-button wire:click="activateResult({{ $set->getKey() }})"><span>Bekijk
+                                    <x-button.text wire:click="activateResult({{ $set->getKey() }})"><span>Bekijk
                                             details</span>
-                                    </x-button.text-button>
+                                    </x-button.text>
                                 @elseif($set->status === 'PROCESSING' || $set->status === 'READYTOPROCESS')
                                     <div class="lds-hourglass" wire:poll></div>
                                 @endif
@@ -112,15 +112,15 @@ $struct = [
                             </x-table.cell>
                             <x-table.cell>
                                 @if($set->status !== 'PROCESSING' && $set->status !== 'READYTOPROCESS')
-                                    <x-button.text-button wire:click="processResult({{ $set->getKey() }})">
+                                    <x-button.text wire:click="processResult({{ $set->getKey() }})">
                                         <span>Verwerken</span>
-                                    </x-button.text-button>
+                                    </x-button.text>
                                 @endif
                             </x-table.cell>
                             <x-table.cell>
                                 @if($set->status !== 'PROCESSING')
                                     @if(\Illuminate\Support\Str::contains(url()->current(),'testwelcome'))
-                                        <x-button.text-button class=""
+                                        <x-button.text class=""
                                                               @click="if(confirm('Weet je zeker dat je hier alles van wilt verijderen?\nLet op: Dit kan even duren het scherm ververst zichzelf!')){ livewire.find(document.querySelector('#uwlr-grid').getAttribute('wire:id')).call('deleteImportDataForResultSet','{{ $set->getKey() }}')}">
                                             <div wire:loading wire:target="deleteImportDataForResultSet">
                                                 <div class="lds-hourglass"></div>
@@ -128,26 +128,26 @@ $struct = [
                                             <div wire:loading.remove wire:target="deleteImportDataForResultSet">
                                                 <span class="error"><x-icon.trash></x-icon.trash></span>
                                             </div>
-                                        </x-button.text-button>
+                                        </x-button.text>
                                     @endif
                                 @endif
                             </x-table.cell>
                             <x-table.cell>
                                 @if($set->status !== 'PROCESSING' && $set->status !== 'READYTOPROCESS')
                                     @if ($set->error_messages)
-                                        <x-button.text-button wire:click="triggerErrorModal( {{ $set->getKey() }} )">
+                                        <x-button.text wire:click="triggerErrorModal( {{ $set->getKey() }} )">
                                             <span>Warnings</span>
-                                        </x-button.text-button>
+                                        </x-button.text>
                                     @endif
                                 @endif
                             </x-table.cell>
                             <x-table.cell>
                                 @if($set->status !== 'PROCESSING' && $set->status !== 'READYTOPROCESS')
                                     @if ($set->failure_messages)
-                                        <x-button.text-button
+                                        <x-button.text
                                             wire:click="triggerFailureModal( {{ $set->getKey() }} )">
                                             <span>Error</span>
-                                        </x-button.text-button>
+                                        </x-button.text>
                                     @endif
                                 @endif
                             </x-table.cell>
@@ -247,9 +247,9 @@ $struct = [
                         {{ $this->processingResult }}
                         @if ($this->displayGoToErrorsButton)
                             <BR>
-                            <x-button.text-button wire:click="triggerErrorModal()">
+                            <x-button.text wire:click="triggerErrorModal()">
                                 <span>Toon errors</span>
-                            </x-button.text-button>
+                            </x-button.text>
                         @endif
 
                     </div>

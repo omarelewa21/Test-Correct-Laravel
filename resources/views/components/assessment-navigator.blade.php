@@ -14,21 +14,23 @@
      x-on:continue-navigation="Alpine.$data($el)[$event.detail.method]()"
      wire:ignore
 >
-    <div class="flex gap-2">
-        <x-button.text-white class="first |"
-                             size="sm"
-                             x-on:click="first()"
-                             x-bind:disabled="current === firstValue"
+    <div class="flex gap-3">
+        <x-button.text :white="true"
+                       class="first |"
+                       size="sm"
+                       x-on:click="first()"
+                       x-bind:disabled="current === firstValue"
         >
             <x-icon.arrow-last class="inline-flex rotate-180 -top-0 relative" />
-        </x-button.text-white>
-        <x-button.text-white class="previous |"
-                             size="sm"
-                             x-on:click="previous()"
-                             x-bind:disabled="current === firstValue"
+        </x-button.text>
+        <x-button.text :white="true"
+                       class="previous |"
+                       size="sm"
+                       x-on:click="previous()"
+                       x-bind:disabled="current === firstValue"
         >
             <x-icon.chevron class="inline-flex rotate-180 -top-0 relative" />
-        </x-button.text-white>
+        </x-button.text>
     </div>
     <div class="flex gap-1 items-center">
         <span class="inline-flex items-center justify-center gap-0.5 py-[3px] pr-2 min-w-[30px] bold rounded-full bg-white text-sysbase text-center"
@@ -42,20 +44,22 @@
         <span class="inline-flex">/</span>
         <span class="inline-flex" x-text="total"></span>
     </div>
-    <div class="flex gap-2">
-        <x-button.text-white class="next |"
-                             size="sm"
-                             x-on:click="next()"
-                             x-bind:disabled="current === lastValue"
+    <div class="flex gap-3">
+        <x-button.text :white="true"
+                       class="next |"
+                       size="sm"
+                       x-on:click="next()"
+                       x-bind:disabled="current === lastValue"
         >
             <x-icon.chevron class="inline-flex top-0 relative" />
-        </x-button.text-white>
-        <x-button.text-white class="last |"
-                             size="sm"
-                             x-on:click="last()"
-                             x-bind:disabled="current === lastValue"
+        </x-button.text>
+        <x-button.text :white="true"
+                       class="last |"
+                       size="sm"
+                       x-on:click="last()"
+                       x-bind:disabled="current === lastValue"
         >
             <x-icon.arrow-last class="inline-flex top-0 relative" />
-        </x-button.text-white>
+        </x-button.text>
     </div>
 </div>

@@ -123,14 +123,14 @@
         <div class="flex space-x-6 ml-auto min-w-max justify-end items-center">
 
             @if(!$isOverview)
-                <x-button.text-button
+                <x-button.text
                         id="previewBtn"
                         wire:loading.attr="disabled"
                         x-on:click="$store.studentPlayer.toOverview({{ (int)$this->q }})"
                     >
                     <x-icon.preview/>
                     <span>{{ __('test_take.overview') }}</span>
-                </x-button.text-button>
+                </x-button.text>
             @endif
         </div>
     </div>

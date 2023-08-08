@@ -30,17 +30,17 @@
                     </div>
                 </div>
                 <div class="flex flex-wrap w-full gap-2 mt-2">
-                    <div class="pl-1 border-transparent">
+                    <div class="">
                         <x-input.toggle-row-with-title wire:click="$toggle('filters.{{ $this->openTab }}.archived')"
                                                        :checked="$this->filters[$this->openTab]['archived']"
                                                        :small="true"
                                                        class="pr-2"
+                                                       container-class="!border-transparent"
                                                        title="{{ __('test-take.Inclusief gearchiveerde toetsen') }}"
                         >
                             <x-icon.archive class="scale-[1.375]"/>
                         </x-input.toggle-row-with-title>
                     </div>
-
 
                     <x-input.choices-select
                             wire:key="SchoolClasses_{{ $this->openTab }}"
@@ -78,7 +78,7 @@
                     </x-input.group>
 
                     @if($this->hasActiveFilters())
-                        <x-button.text-button class="ml-auto text-base"
+                        <x-button.text class="ml-auto text-base"
                                               size="sm"
                                               @click="$dispatch('enable-loading-grid');document.getElementById('test-take-overview-{{ $this->openTab }}-active-filters').innerHTML = '';"
                                               wire:click="clearFilters('{{ $this->openTab }}')"
@@ -86,16 +86,16 @@
                         >
                             <span class="min-w-max">{{ __('teacher.Filters wissen') }}</span>
                             <x-icon.close-small/>
-                        </x-button.text-button>
+                        </x-button.text>
                     @else
-                        <x-button.text-button class="ml-auto text-base disabled"
+                        <x-button.text class="ml-auto text-base disabled"
                                               size="sm"
                                               disabled
                                               wire:key="clearfilters-disabled-{{ $this->openTab }}"
                         >
                             <span class="min-w-max">{{ __('teacher.Filters wissen') }}</span>
                             <x-icon.close-small/>
-                        </x-button.text-button>
+                        </x-button.text>
                     @endif
                 </div>
                 <div id="test-take-overview-{{ $this->openTab }}-active-filters" class="flex flex-wrap gap-2 mt-2" wire:ignore>

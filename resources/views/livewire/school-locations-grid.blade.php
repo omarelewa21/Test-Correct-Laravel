@@ -52,7 +52,7 @@
                     filterContainer="school-locations-grid-active-filters"
             />
             @if($this->hasActiveFilters())
-                <x-button.text-button class="ml-auto text-base"
+                <x-button.text class="ml-auto text-base"
                                       size="sm"
                                       @click="document.getElementById('school-locations-grid-active-filters').innerHTML = '';"
                                       wire:click="clearFilters()"
@@ -60,16 +60,16 @@
                 >
                     <span class="min-w-max">{{ __('teacher.Filters wissen') }}</span>
                     <x-icon.close-small/>
-                </x-button.text-button>
+                </x-button.text>
             @else
-                <x-button.text-button class="ml-auto text-base disabled"
+                <x-button.text class="ml-auto text-base disabled"
                                       size="sm"
                                       disabled
                                       wire:key="clearfilters-disabled"
                 >
                     <span class="min-w-max">{{ __('teacher.Filters wissen') }}</span>
                     <x-icon.close-small/>
-                </x-button.text-button>
+                </x-button.text>
             @endif
         </div>
         <div id="school-locations-grid-active-filters"
@@ -96,7 +96,9 @@
                     <x-table.heading
                             :sortable="true"
                             :direction="$this->orderByColumnName == 'customer_code' ? $this->orderByDirection : null"
-                            wire:click="setOrderByColumnAndDirection('customer_code')">
+                            wire:click="setOrderByColumnAndDirection('customer_code')"
+                            class="min-w-[160px]"
+                    >
                         {{ __('school_location.customer_code') }}
                     </x-table.heading>
                     <x-table.heading
@@ -108,7 +110,9 @@
                     <x-table.heading
                             :sortable="true"
                             :direction="$this->orderByColumnName == 'school_name' ? $this->orderByDirection : null"
-                            wire:click="setOrderByColumnAndDirection('school_name')">
+                            wire:click="setOrderByColumnAndDirection('school_name')"
+                            class="min-w-[170px]"
+                    >
                         {{ __('school_location.umbrella_school') }}
                     </x-table.heading>
                     <x-table.heading
@@ -139,7 +143,7 @@
                             :sortable="true"
                             :direction="$this->orderByColumnName == 'count_questions' ? $this->orderByDirection : null"
                             wire:click="setOrderByColumnAndDirection('count_questions')"
-                            width="155px">
+                            width="170px">
                         {{ __('school_location.question_items') }}
                     </x-table.heading>
                     <x-table.heading
@@ -197,10 +201,10 @@
                                         </x-dropdown.item>
                                     </x-dropdown>
                                 @endif
-                                <x-button.text-button size="sm"
+                                <x-button.text size="sm"
                                     wire:click="viewSchoolLocation('{{$schoolLocation->uuid}}')">
                                     <span>Open</span>
-                                </x-button.text-button>
+                                </x-button.text>
                             </x-table.cell>
                         </x-table.row>
                     @endforeach

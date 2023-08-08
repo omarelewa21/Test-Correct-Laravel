@@ -137,10 +137,10 @@
     </x-slot>
 
     <x-slot name="footer">
-        <div class="flex gap-4 w-full">
-            <x-button.text-button wire:click="$emit('closeModal')" class="ml-auto">
+        <div class="flex gap-4 w-full items-center">
+            <x-button.text wire:click="$emit('closeModal')" class="ml-auto">
                 <span>{{ __("teacher.Annuleer") }}</span>
-            </x-button.text-button>
+            </x-button.text>
 
             <x-button.cta wire:click="submit">
                 <x-icon.checkmark/>

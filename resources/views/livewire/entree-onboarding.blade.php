@@ -537,10 +537,10 @@
                                             </div>
                                         @endforeach
 
-                                        <x-button.text-button class="mx-auto" @click="showSchools = true">
+                                        <x-button.text class="mx-auto" @click="showSchools = true">
                                             <x-icon.edit/>
                                             <span>{{ __('onboarding.Wijzig locaties') }}</span>
-                                        </x-button.text-button>
+                                        </x-button.text>
                                     @endif
                                 @endif
                                 @if(!$this->hasValidTUser)
@@ -554,11 +554,11 @@
                                 </p>
                                 @endif
                                 <div class="mt-10 flex justify-between items-center">
-                                    <x-button.text-button wire:click="backToStepOne">
+                                    <x-button.text wire:click="backToStepOne" class="p-0">
                                         <x-icon.chevron class="z-0 rotate-180" />
                                         <span>{{ __('modal.Terug') }}</span>
-                                    </x-button.text-button>
-                                    @if ($btnDisabled)
+                                    </x-button.text>
+                                    @if($btnDisabled)
                                         <x-button.cta size="md" class="btn-disabled" disabled>
                                             <span>{{ __('auth.Maak account') }}</span>
                                             <x-icon.chevron/>
@@ -642,10 +642,10 @@
                                 </div>
                             @endif
                             <div class="flex mt-auto w-full">
-                                <x-button.text-button class="disabled rotate-svg-180" disabled>
+                                <x-button.text class="disabled rotate-svg-180" disabled>
                                     <x-icon.chevron/>
                                     <span>{{ __('modal.Terug') }}</span>
-                                </x-button.text-button>
+                                </x-button.text>
                                 <x-button.cta size="md" class="ml-auto" wire:click="loginUser">
                                     <span class="">{{ __('auth.log_in_verb') }}</span>
                                     <x-icon.arrow></x-icon.arrow>

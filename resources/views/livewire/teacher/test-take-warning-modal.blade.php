@@ -15,10 +15,10 @@
     </x-slot:content>
 
     <x-slot:footer>
-        <div class="flex justify-end w-full gap-4">
-            <x-button.text-button size="sm" wire:click="closeModal">
+        <div class="flex justify-end w-full gap-4 items-center">
+            <x-button.text wire:click="closeModal">
                 <span>{{__('general.cancel')}}</span>
-            </x-button.text-button>
+            </x-button.text>
 
             <x-button.cta size="md" wire:click="continue">
                 <span>@lang('test-take.Afnemen')</span>

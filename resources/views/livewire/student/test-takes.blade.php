@@ -8,28 +8,35 @@
     <div class="flex w-full justify-center border-b border-system-secondary px-4 lg:px-8 xl:px-24">
         <div class="flex w-full menu">
             <div wire:click="changeActiveTab('{{ $this->plannedTab }}')">
-                <x-button.text-button class="px-2 border-0 {{ $this->plannedTab === $tab ? 'active' : '' }}" withHover="true">
-                    <span>{{ __('student.planned') }}
-                    </span>
-                </x-button.text-button>
+                <x-button.default @class([
+                                    "px-2 border-0 hover:text-primary hover:bg-primary/5 active:bg-primary/10 border-b-2 border-transparent",
+                                    "text-primary border-primary" =>  $this->plannedTab === $tab
+                                  ])
+                                  size="md"
+                >
+                    <span>{{ __('student.planned') }}</span>
+                </x-button.default>
             </div>
             <div wire:click="changeActiveTab('{{ $this->discussTab }}')">
-                <x-button.text-button class="px-2 border-0 {{ $this->discussTab === $tab ? 'active' : '' }}" withHover="true">
-                    <span>{{ __('student.discuss') }}
-                    </span>
-                </x-button.text-button>
+                <x-button.default @class(["px-2 border-0 hover:text-primary hover:bg-primary/5 active:bg-primary/10 border-b-2 border-transparent", "text-primary border-primary" =>  $this->discussTab === $tab ])
+                                  size="md"
+                >
+                    <span>{{ __('student.discuss') }}</span>
+                </x-button.default>
             </div>
             <div wire:click="changeActiveTab('{{ $this->reviewTab }}')">
-                <x-button.text-button class="px-2 border-0 {{ $this->reviewTab === $tab ? 'active' : '' }}" withHover="true">
-                    <span>{{ __('student.review') }}
-                    </span>
-                </x-button.text-button>
+                <x-button.default @class(["px-2 border-0 hover:text-primary hover:bg-primary/5 active:bg-primary/10 border-b-2 border-transparent", "text-primary border-primary" =>  $this->reviewTab === $tab ])
+                                  size="md"
+                >
+                    <span>{{ __('student.review') }}</span>
+                </x-button.default>
             </div>
             <div wire:click="changeActiveTab('{{ $this->gradedTab }}')">
-                <x-button.text-button class="px-2 border-0 {{ $this->gradedTab === $tab ? 'active' : '' }}" withHover="true">
-                    <span>{{ __('student.results') }}
-                    </span>
-                </x-button.text-button>
+                <x-button.default @class(["px-2 border-0 hover:text-primary hover:bg-primary/5 active:bg-primary/10 border-b-2 border-transparent", "text-primary border-primary" =>  $this->gradedTab === $tab ])
+                                  size="md"
+                >
+                    <span>{{ __('student.results') }}</span>
+                </x-button.default>
             </div>
         </div>
     </div>
@@ -40,28 +47,28 @@
                  x-transition:enter-start="opacity-0 delay-200"
                  x-transition:enter-end="opacity-100"
                  class="flex flex-col space-y-4">
-                <livewire:student.planned/>
+                <livewire:student.planned />
             </div>
             <div x-show="activeTab === '{{ $this->discussTab }}'"
                  x-transition:enter="transition duration-200"
                  x-transition:enter-start="opacity-0 delay-200"
                  x-transition:enter-end="opacity-100"
                  class="flex flex-col space-y-4">
-                <livewire:student.discuss/>
+                <livewire:student.discuss />
             </div>
             <div x-show="activeTab === '{{ $this->reviewTab }}'"
                  x-transition:enter="transition duration-200"
                  x-transition:enter-start="opacity-0 delay-200"
                  x-transition:enter-end="opacity-100"
                  class="flex flex-col space-y-4">
-                <livewire:student.review/>
+                <livewire:student.review />
             </div>
             <div x-show="activeTab === '{{ $this->gradedTab }}'"
                  x-transition:enter="transition duration-200"
                  x-transition:enter-start="opacity-0 delay-200"
                  x-transition:enter-end="opacity-100"
                  class="flex flex-col space-y-4">
-                <livewire:student.graded/>
+                <livewire:student.graded />
             </div>
         </div>
     </div>

@@ -42,6 +42,17 @@ button.button {
     @apply h-10 w-10 p-0 justify-center;
 }
 
+.button:where(:disabled) {
+    color: var(--mid-grey);
+}
+.default-button {
+    border-radius: 0;
+    padding: 0;
+}
+.default-button:hover:where(:enabled, :not(:disabled)) {
+    color: var(--primary);
+}
+
 /* Text button */
 :is(.text-button, .text-button-white) {
     isolation: isolate;
@@ -55,19 +66,19 @@ button.button {
     line-height: 22px;
 }
 
-.text-button-white:enabled span {
+.text-button-white:where(:enabled, :not(:disabled)) span {
     text-shadow: 0 1px 2px rgba(var(--system-base-rgb), 0.3);
 }
 
-.text-button-white:enabled:is(:hover, :active, :focus, :focus-visible) span {
+.text-button-white:where(:enabled, :not(:disabled)):is(:hover, :active, :focus, :focus-visible) span {
     text-shadow: 0 1px 4px rgba(var(--system-base-rgb), 0.5);
 }
 
-.text-button-white:enabled svg {
+.text-button-white:where(:enabled, :not(:disabled)) svg {
     -webkit-filter: drop-shadow( 0 1px 2px rgba(var(--system-base-rgb), 0.3));
     filter: drop-shadow( 0 1px 2px rgba(var(--system-base-rgb), 0.3));
 }
-.text-button-white:enabled:is(:hover, :active, :focus, :focus-visible) svg {
+.text-button-white:where(:enabled, :not(:disabled)):is(:hover, :active, :focus, :focus-visible) svg {
     -webkit-filter: drop-shadow( 0 1px 4px rgba(var(--system-base-rgb), 0.5));
     filter: drop-shadow( 0 1px 4px rgba(var(--system-base-rgb), 0.5));
 }

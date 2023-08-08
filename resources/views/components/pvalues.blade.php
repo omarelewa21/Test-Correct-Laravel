@@ -47,10 +47,10 @@
                     <template x-if="tooHard">
                         <span class="text-base">{{ __('cms.pvalue_too_hard') }}</span>
                     </template>
-                    <x-button.text-button type="link" href="{{ __('cms.pvalue_support_link') }}" target="_blank">
+                    <x-button.text type="link" href="{{ __('cms.pvalue_support_link') }}" target="_blank">
                         <span class="text-base">{{ __('cms.Lees meer hierover op de Kennisbank') }}</span>
                         <x-icon.arrow/>
-                    </x-button.text-button>
+                    </x-button.text>
                 </div>
             </div>
             <div class="flex relative">

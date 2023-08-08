@@ -1,4 +1,5 @@
 @extends('components.button.default')
 @props([
-    'componentName' => 'secondary-button'
+    'componentName' => 'secondary-button',
+    'withBackgroundGradient' => true,
 ])

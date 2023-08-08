@@ -25,7 +25,7 @@
         <div class="flex flex-wrap w-full gap-2 mt-2">
 
             @if($this->hasActiveFilters())
-                <x-button.text-button class="ml-auto text-base"
+                <x-button.text class="ml-auto text-base"
                                       size="sm"
                                       @click="document.getElementById('schools-grid-active-filters').innerHTML = '';"
                                       wire:click="clearFilters()"
@@ -33,16 +33,16 @@
                 >
                     <span class="min-w-max">{{ __('teacher.Filters wissen') }}</span>
                     <x-icon.close-small/>
-                </x-button.text-button>
+                </x-button.text>
             @else
-                <x-button.text-button class="ml-auto text-base disabled"
+                <x-button.text class="ml-auto text-base disabled"
                                       size="sm"
                                       disabled
                                       wire:key="clearfilters-disabled"
                 >
                     <span class="min-w-max">{{ __('teacher.Filters wissen') }}</span>
                     <x-icon.close-small/>
-                </x-button.text-button>
+                </x-button.text>
             @endif
         </div>
         <div id="schools-grid-active-filters"
@@ -152,10 +152,10 @@
                                         </x-dropdown.item>
                                     </x-dropdown>
                                 @endif
-                                <x-button.text-button size="sm"
+                                <x-button.text size="sm"
                                     wire:click="viewSchool('{{$school->uuid}}')">
                                     <span>Open</span>
-                                </x-button.text-button>
+                                </x-button.text>
                             </x-table.cell>
                         </x-table.row>
                     @endforeach
