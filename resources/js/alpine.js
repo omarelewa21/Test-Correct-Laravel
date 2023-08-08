@@ -3446,6 +3446,7 @@ document.addEventListener("alpine:init", () => {
         number,
         questionId,
         reinitializedTimeoutData,
+        timer: null,
         init() {
             this.$watch("showMe", (value) => {
                 if (value) {
@@ -3453,7 +3454,8 @@ document.addEventListener("alpine:init", () => {
                     this.$dispatch("reinitialize-editor-editor-" + this.questionId);
                 }
             });
-            if (this.reinitializedTimeoutData && this.reinitializedTimeoutData.length) {
+
+            if (this.reinitializedTimeoutData && this.reinitializedTimeoutData.hasOwnProperty('timeLeft')) {
                 this.$nextTick(() => {
                     this.startTimeout(this.reinitializedTimeoutData)
                 });
@@ -3481,22 +3483,24 @@ document.addEventListener("alpine:init", () => {
         startTimeout(eventData) {
             this.progressBar = true;
             this.startTime = eventData.timeout;
+            console.log(eventData);
             if (eventData.timeLeft) {
                 this.progress = eventData.timeLeft;
             } else {
                 this.$wire.registerExpirationTime(eventData.attachment);
                 this.progress = this.startTime;
             }
-            let timer = setInterval(() => {
-                this.progress -= 1;
+            if (!this.timer) {
+                this.timer = setInterval(() => {
+                    this.progress -= 1;
 
-                if (this.progress === 0) {
-                    this.showMe ? this.$wire.closeQuestion(this.number + 1) : this.$wire.closeQuestion();
-                    clearInterval(timer);
-                    this.progressBar = false;
-                }
-            }, 1000);
-
+                    if (this.progress === 0) {
+                        this.showMe ? this.$wire.closeQuestion(this.number + 1) : this.$wire.closeQuestion();
+                        clearInterval(timer);
+                        this.progressBar = false;
+                    }
+                }, 1000);
+            }
         },
         markInfoscreenAsSeen(eventData, questionUuid) {
             if(questionUuid !== eventData) return;
