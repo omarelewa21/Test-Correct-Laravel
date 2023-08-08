@@ -1,12 +1,13 @@
 <div class="flex w-full h-full min-h-full relative my-16">
     <div class="flex flex-col min-h-full h-full mx-8 space-y-8 w-full relative">
 
-        <x-partials.styleguide-card title="Standard buttons sm (small)" items-per-row="6">
+        <x-partials.styleguide-card title="Standard buttons sm (small)" items-per-row="7">
             <x-button.primary wire:click="count"><span>Primary</span></x-button.primary>
             <x-button.secondary wire:click="count"><span>Secondary</span></x-button.secondary>
             <x-button.cta wire:click="count"><span>Cta</span></x-button.cta>
             <x-button.student wire:click="count"><span>Student</span></x-button.student>
-            <x-button.text-button size="sm" wire:click="count"><span>Text-button</span></x-button.text-button>
+            <x-button.text size="sm" wire:click="count"><span>Text-button</span></x-button.text>
+            <x-button.default size="sm" wire:click="count"><span>Default</span></x-button.default>
             <h5>default &lt;button&gt;</h5>
 
             <x-button.primary type="link" href="javascript: window.Livewire.emit('count');"><span>Primary</span></x-button.primary>
@@ -14,25 +15,28 @@
             </x-button.secondary>
             <x-button.cta type="link" href="javascript: window.Livewire.emit('count');"><span>Cta</span></x-button.cta>
             <x-button.student type="link" href="javascript: window.Livewire.emit('count');"><span>Student</span></x-button.student>
-            <x-button.text-button size="sm" type="link" href="javascript: window.Livewire.emit('count');"><span>Text-button</span>
-            </x-button.text-button>
+            <x-button.text size="sm" type="link" href="javascript: window.Livewire.emit('count');"><span>Text-button</span></x-button.text>
+            <x-button.default size="sm" type="link" href="javascript: window.Livewire.emit('count');"><span>Default</span></x-button.default>
+
             <h5>link &lt;a&gt;</h5>
 
             <x-button.primary disabled wire:click="count"><span>Primary</span></x-button.primary>
             <x-button.secondary disabled wire:click="count"><span>Secondary</span></x-button.secondary>
             <x-button.cta disabled wire:click="count"><span>Cta</span></x-button.cta>
             <x-button.student disabled wire:click="count"><span>Student</span></x-button.student>
-            <x-button.text-button size="sm" disabled wire:click="count"><span>Text-button</span></x-button.text-button>
+            <x-button.text size="sm" disabled wire:click="count"><span>Text-button</span></x-button.text>
+            <x-button.default size="sm" disabled wire:click="count"><span>Default</span></x-button.default>
+
             <h5>disabled buttons</h5>
         </x-partials.styleguide-card>
 
-        <x-partials.styleguide-card title="Standard buttons md (medium)" items-per-row="6">
+        <x-partials.styleguide-card title="Standard buttons md (medium)" items-per-row="7">
             <x-button.primary size="md" wire:click="count"><span>Primary</span></x-button.primary>
             <x-button.secondary size="md" wire:click="count"><span>Secondary</span></x-button.secondary>
             <x-button.cta size="md" wire:click="count"><span>Cta</span></x-button.cta>
             <x-button.student size="md" wire:click="count"><span>Student</span></x-button.student>
-            <x-button.text-button size="md" wire:click="count"><span>Text-button</span>
-            </x-button.text-button> {{-- text-button is medium by default --}}
+            <x-button.text size="md" wire:click="count"><span>Text-button</span></x-button.text> {{-- text-button is medium by default --}}
+            <x-button.default size="md" wire:click="count"><span>Default</span></x-button.default>
             <h5>default &lt;button&gt;</h5>
 
             <x-button.primary size="md" type="link" href="javascript: window.Livewire.emit('count');"><span>Primary</span>
@@ -42,27 +46,28 @@
             <x-button.cta size="md" type="link" href="javascript: window.Livewire.emit('count');"><span>Cta</span></x-button.cta>
             <x-button.student size="md" type="link" href="javascript: window.Livewire.emit('count');"><span>Student</span>
             </x-button.student>
-            <x-button.text-button size="md" type="link" href="javascript: window.Livewire.emit('count');"><span>Text-button</span>
-            </x-button.text-button> {{-- text-button is medium by default --}}
+            <x-button.text size="md" type="link" href="javascript: window.Livewire.emit('count');"><span>Text-button</span></x-button.text> {{-- text-button is medium by default --}}
+            <x-button.default size="md" type="link" href="javascript: window.Livewire.emit('count');"><span>Default</span></x-button.default> {{-- text-button is medium by default --}}
             <h5>link &lt;a&gt;</h5>
 
             <x-button.primary size="md" disabled wire:click="count"><span>Primary</span></x-button.primary>
             <x-button.secondary size="md" disabled wire:click="count"><span>Secondary</span></x-button.secondary>
             <x-button.cta size="md" disabled wire:click="count"><span>Cta</span></x-button.cta>
             <x-button.student size="md" disabled wire:click="count"><span>Student</span></x-button.student>
-            <x-button.text-button size="md" disabled wire:click="count"><span>Text-button</span>
-            </x-button.text-button> {{-- text-button is medium by default --}}
+            <x-button.text size="md" disabled wire:click="count"><span>Text-button</span></x-button.text> {{-- text-button is medium by default --}}
+            <x-button.default size="md" disabled wire:click="count"><span>Default</span></x-button.default> {{-- text-button is medium by default --}}
             <h5>disabled buttons</h5>
         </x-partials.styleguide-card>
 
-        <x-partials.styleguide-card title="Standard buttons lg (large)" items-per-row="6">
+        <x-partials.styleguide-card title="Standard buttons lg (large)" items-per-row="7">
 
 
             <x-button.primary size="lg" wire:click="count"><span>Primary</span></x-button.primary>
             <x-button.secondary size="lg" wire:click="count"><span>Secondary</span></x-button.secondary>
             <x-button.cta size="lg" wire:click="count"><span>Cta</span></x-button.cta>
             <x-button.student size="lg" wire:click="count"><span>Student</span></x-button.student>
-            <x-button.text-button size="lg" wire:click="count"><span>Text-button</span></x-button.text-button>
+            <x-button.text size="lg" wire:click="count"><span>Text-button</span></x-button.text>
+            <x-button.default size="lg" wire:click="count"><span>Default</span></x-button.default>
             <h5>default &lt;button&gt;</h5>
 
             <x-button.primary size="lg" type="link" href="javascript: window.Livewire.emit('count');"><span>Primary</span>
@@ -72,15 +77,16 @@
             <x-button.cta size="lg" type="link" href="javascript: window.Livewire.emit('count');"><span>Cta</span></x-button.cta>
             <x-button.student size="lg" type="link" href="javascript: window.Livewire.emit('count');"><span>Student</span>
             </x-button.student>
-            <x-button.text-button size="lg" type="link" href="javascript: window.Livewire.emit('count');"><span>Text-button</span>
-            </x-button.text-button>
+            <x-button.text size="lg" type="link" href="javascript: window.Livewire.emit('count');"><span>Text-button</span></x-button.text>
+            <x-button.default size="lg" type="link" href="javascript: window.Livewire.emit('count');"><span>Default</span></x-button.default>
             <h5>link &lt;a&gt;</h5>
 
             <x-button.primary size="lg" disabled wire:click="count"><span>Primary</span></x-button.primary>
             <x-button.secondary size="lg" disabled wire:click="count"><span>Secondary</span></x-button.secondary>
             <x-button.cta size="lg" disabled wire:click="count"><span>Cta</span></x-button.cta>
             <x-button.student size="lg" disabled wire:click="count"><span>Student</span></x-button.student>
-            <x-button.text-button size="lg" disabled wire:click="count"><span>Text-button</span></x-button.text-button>
+            <x-button.text size="lg" disabled wire:click="count"><span>Text-button</span></x-button.text>
+            <x-button.default size="lg" disabled wire:click="count"><span>Default</span></x-button.default>
             <h5>disabled buttons</h5>
 
         </x-partials.styleguide-card>
@@ -99,7 +105,7 @@
             <x-button.icon color="student" wire:click="count">
                 <x-icon.checkmark></x-icon.checkmark>
             </x-button.icon>
-            <x-button.icon color="text-button" wire:click="count" size="sm">
+            <x-button.icon color="text" wire:click="count" size="sm">
                 <x-icon.checkmark></x-icon.checkmark>
             </x-button.icon> {{-- text-button is medium by default --}}
             <h5>Icon &lt;button&gt;</h5>
@@ -116,7 +122,7 @@
             <x-button.icon type="link" color="student" href="javascript: window.Livewire.emit('count');">
                 <x-icon.checkmark></x-icon.checkmark>
             </x-button.icon>
-            <x-button.icon type="link" color="text-button" href="javascript: window.Livewire.emit('count');" size="sm">
+            <x-button.icon type="link" color="text" href="javascript: window.Livewire.emit('count');" size="sm">
                 <x-icon.checkmark></x-icon.checkmark>
             </x-button.icon> {{-- text-button is medium by default --}}
             <h5>Icon &lt;a&gt;</h5>
@@ -133,7 +139,7 @@
             <x-button.icon disabled color="student" wire:click="count">
                 <x-icon.checkmark></x-icon.checkmark>
             </x-button.icon>
-            <x-button.icon disabled color="text-button" wire:click="count" size="sm">
+            <x-button.icon disabled color="text" wire:click="count" size="sm">
                 <x-icon.checkmark></x-icon.checkmark>
             </x-button.icon> {{-- text-button is medium by default --}}
             <h5>Icon &lt;button&gt; disabled</h5>
@@ -153,7 +159,7 @@
             <x-button.icon color="student" wire:click="count" size="md">
                 <x-icon.checkmark></x-icon.checkmark>
             </x-button.icon>
-            <x-button.icon color="text-button" wire:click="count" size="md">
+            <x-button.icon color="text" wire:click="count" size="md">
                 <x-icon.checkmark></x-icon.checkmark>
             </x-button.icon>
             <h5>Icon &lt;button&gt;</h5>
@@ -170,7 +176,7 @@
             <x-button.icon type="link" color="student" href="javascript: window.Livewire.emit('count');" size="md">
                 <x-icon.checkmark></x-icon.checkmark>
             </x-button.icon>
-            <x-button.icon type="link" color="text-button" href="javascript: window.Livewire.emit('count');" size="md">
+            <x-button.icon type="link" color="text" href="javascript: window.Livewire.emit('count');" size="md">
                 <x-icon.checkmark></x-icon.checkmark>
             </x-button.icon>
             <h5>Icon &lt;a&gt;</h5>
@@ -187,7 +193,7 @@
             <x-button.icon disabled color="student" wire:click="count" size="md">
                 <x-icon.checkmark></x-icon.checkmark>
             </x-button.icon>
-            <x-button.icon disabled color="text-button" wire:click="count" size="md">
+            <x-button.icon disabled color="text" wire:click="count" size="md">
                 <x-icon.checkmark></x-icon.checkmark>
             </x-button.icon>
             <h5>Icon &lt;button&gt; disabled</h5>
@@ -207,7 +213,7 @@
             <x-button.icon color="student" wire:click="count" size="lg">
                 <x-icon.checkmark></x-icon.checkmark>
             </x-button.icon>
-            <x-button.icon color="text-button" wire:click="count" size="lg">
+            <x-button.icon color="text" wire:click="count" size="lg">
                 <x-icon.checkmark></x-icon.checkmark>
             </x-button.icon>
             <h5>Icon buttons default</h5>
@@ -224,7 +230,7 @@
             <x-button.icon type="link" color="student" href="javascript: window.Livewire.emit('count');" size="lg">
                 <x-icon.checkmark></x-icon.checkmark>
             </x-button.icon>
-            <x-button.icon type="link" color="text-button" href="javascript: window.Livewire.emit('count');" size="lg">
+            <x-button.icon type="link" color="text" href="javascript: window.Livewire.emit('count');" size="lg">
                 <x-icon.checkmark></x-icon.checkmark>
             </x-button.icon>
             <h5>Icon &lt;a&gt;</h5>
@@ -241,7 +247,7 @@
             <x-button.icon disabled color="student" wire:click="count" size="lg">
                 <x-icon.checkmark></x-icon.checkmark>
             </x-button.icon>
-            <x-button.icon disabled color="text-button" wire:click="count" size="lg">
+            <x-button.icon disabled color="text" wire:click="count" size="lg">
                 <x-icon.checkmark></x-icon.checkmark>
             </x-button.icon>
             <h5>Icon &lt;button&gt; disabled</h5>
@@ -252,7 +258,7 @@
             <x-button.secondary wire:click="count"><x-icon.copy/><span>Secondary</span></x-button.secondary>
             <x-button.cta wire:click="count"><x-icon.copy/><span>Cta</span></x-button.cta>
             <x-button.student wire:click="count"><x-icon.copy/><span>Student</span></x-button.student>
-            <x-button.text-button size="sm" wire:click="count"><x-icon.copy/><span>Text-button</span></x-button.text-button>
+            <x-button.text size="sm" wire:click="count"><x-icon.copy/><span>Text-button</span></x-button.text>
             <h5>default &lt;button&gt;</h5>
 
             <x-button.primary type="link" href="javascript: window.Livewire.emit('count');"><x-icon.copy/><span>Primary</span></x-button.primary>
@@ -260,15 +266,15 @@
             </x-button.secondary>
             <x-button.cta type="link" href="javascript: window.Livewire.emit('count');"><x-icon.copy/><span>Cta</span></x-button.cta>
             <x-button.student type="link" href="javascript: window.Livewire.emit('count');"><x-icon.copy/><span>Student</span></x-button.student>
-            <x-button.text-button size="sm" type="link" href="javascript: window.Livewire.emit('count');"><x-icon.copy/><span>Text-button</span>
-            </x-button.text-button>
+            <x-button.text size="sm" type="link" href="javascript: window.Livewire.emit('count');"><x-icon.copy/><span>Text-button</span>
+            </x-button.text>
             <h5>link &lt;a&gt;</h5>
 
             <x-button.primary disabled wire:click="count"><x-icon.copy/><span>Primary</span></x-button.primary>
             <x-button.secondary disabled wire:click="count"><x-icon.copy/><span>Secondary</span></x-button.secondary>
             <x-button.cta disabled wire:click="count"><x-icon.copy/><span>Cta</span></x-button.cta>
             <x-button.student disabled wire:click="count"><x-icon.copy/><span>Student</span></x-button.student>
-            <x-button.text-button size="sm" disabled wire:click="count"><x-icon.copy/><span>Text-button</span></x-button.text-button>
+            <x-button.text size="sm" disabled wire:click="count"><x-icon.copy/><span>Text-button</span></x-button.text>
             <h5>disabled &lt;button&gt;</h5>
 
 
@@ -276,7 +282,7 @@
             <x-button.secondary wire:click="count"><span>Secondary</span><x-icon.copy/></x-button.secondary>
             <x-button.cta wire:click="count"><span>Cta</span><x-icon.copy/></x-button.cta>
             <x-button.student wire:click="count"><span>Student</span><x-icon.copy/></x-button.student>
-            <x-button.text-button size="sm" wire:click="count"><span>Text-button</span><x-icon.copy/></x-button.text-button>
+            <x-button.text size="sm" wire:click="count"><span>Text-button</span><x-icon.copy/></x-button.text>
             <h5>default &lt;button&gt;</h5>
 
             <x-button.primary type="link" href="javascript: window.Livewire.emit('count');"><span>Primary</span><x-icon.copy/></x-button.primary>
@@ -284,15 +290,15 @@
             </x-button.secondary>
             <x-button.cta type="link" href="javascript: window.Livewire.emit('count');"><span>Cta</span><x-icon.copy/></x-button.cta>
             <x-button.student type="link" href="javascript: window.Livewire.emit('count');"><span>Student</span><x-icon.copy/></x-button.student>
-            <x-button.text-button size="sm" type="link" href="javascript: window.Livewire.emit('count');"><span>Text-button</span><x-icon.copy/>
-            </x-button.text-button>
+            <x-button.text size="sm" type="link" href="javascript: window.Livewire.emit('count');"><span>Text-button</span><x-icon.copy/>
+            </x-button.text>
             <h5>link &lt;a&gt;</h5>
 
             <x-button.primary disabled wire:click="count"><span>Primary</span><x-icon.copy/></x-button.primary>
             <x-button.secondary disabled wire:click="count"><span>Secondary</span><x-icon.copy/></x-button.secondary>
             <x-button.cta disabled wire:click="count"><span>Cta</span><x-icon.copy/></x-button.cta>
             <x-button.student disabled wire:click="count"><span>Student</span><x-icon.copy/></x-button.student>
-            <x-button.text-button size="sm" disabled wire:click="count"><span>Text-button</span><x-icon.copy/></x-button.text-button>
+            <x-button.text size="sm" disabled wire:click="count"><span>Text-button</span><x-icon.copy/></x-button.text>
             <h5>disabled buttons</h5>
         </x-partials.styleguide-card>
 
@@ -381,79 +387,79 @@
         </x-partials.styleguide-card>
 
         <x-partials.styleguide-card title="text buttons (default)" items-per-row="5">
-            <x-button.text-button wire:click="count" size="sm"><span>Txt btn</span></x-button.text-button>
-            <x-button.text-button wire:click="count" size="sm"><x-icon.attachment/><span>Txt btn</span></x-button.text-button>
-            <x-button.text-button wire:click="count" size="sm"><span>Txt btn</span><x-icon.attachment/></x-button.text-button>
-            <x-button.text-button wire:click="count" size="sm"><x-icon.attachment/></x-button.text-button>
+            <x-button.text wire:click="count" size="sm"><span>Txt btn</span></x-button.text>
+            <x-button.text wire:click="count" size="sm"><x-icon.attachment/><span>Txt btn</span></x-button.text>
+            <x-button.text wire:click="count" size="sm"><span>Txt btn</span><x-icon.attachment/></x-button.text>
+            <x-button.text wire:click="count" size="sm"><x-icon.attachment/></x-button.text>
             <h5>sm text &lt;button&gt;</h5>
-            <x-button.text-button size="sm" type="link" href="javascript: window.Livewire.emit('count');"><span>Txt btn</span></x-button.text-button>
-            <x-button.text-button size="sm" type="link" href="javascript: window.Livewire.emit('count');"><x-icon.attachment/><span>Txt btn</span></x-button.text-button>
-            <x-button.text-button size="sm" type="link" href="javascript: window.Livewire.emit('count');"><span>Txt btn</span><x-icon.attachment/></x-button.text-button>
-            <x-button.text-button size="sm" type="link" href="javascript: window.Livewire.emit('count');"><x-icon.attachment/></x-button.text-button>
+            <x-button.text size="sm" type="link" href="javascript: window.Livewire.emit('count');"><span>Txt btn</span></x-button.text>
+            <x-button.text size="sm" type="link" href="javascript: window.Livewire.emit('count');"><x-icon.attachment/><span>Txt btn</span></x-button.text>
+            <x-button.text size="sm" type="link" href="javascript: window.Livewire.emit('count');"><span>Txt btn</span><x-icon.attachment/></x-button.text>
+            <x-button.text size="sm" type="link" href="javascript: window.Livewire.emit('count');"><x-icon.attachment/></x-button.text>
             <h5>sm text &lt;a&gt;</h5>
-            <x-button.text-button wire:click="count" size="sm" disabled><span>Txt btn</span></x-button.text-button>
-            <x-button.text-button wire:click="count" size="sm" disabled><x-icon.attachment/><span>Txt btn</span></x-button.text-button>
-            <x-button.text-button wire:click="count" size="sm" disabled><span>Txt btn</span><x-icon.attachment/></x-button.text-button>
-            <x-button.text-button wire:click="count" size="sm" disabled><x-icon.attachment/></x-button.text-button>
+            <x-button.text wire:click="count" size="sm" disabled><span>Txt btn</span></x-button.text>
+            <x-button.text wire:click="count" size="sm" disabled><x-icon.attachment/><span>Txt btn</span></x-button.text>
+            <x-button.text wire:click="count" size="sm" disabled><span>Txt btn</span><x-icon.attachment/></x-button.text>
+            <x-button.text wire:click="count" size="sm" disabled><x-icon.attachment/></x-button.text>
             <h5>sm text &lt;button&gt; disabled</h5>
 
-            <x-button.text-button wire:click="count" size="md"><span>Txt btn</span></x-button.text-button>
-            <x-button.text-button wire:click="count" size="md"><x-icon.attachment/><span>Txt btn</span></x-button.text-button>
-            <x-button.text-button wire:click="count" size="md"><span>Txt btn</span><x-icon.attachment/></x-button.text-button>
-            <x-button.text-button wire:click="count" size="md"><x-icon.attachment/></x-button.text-button>
+            <x-button.text wire:click="count" size="md"><span>Txt btn</span></x-button.text>
+            <x-button.text wire:click="count" size="md"><x-icon.attachment/><span>Txt btn</span></x-button.text>
+            <x-button.text wire:click="count" size="md"><span>Txt btn</span><x-icon.attachment/></x-button.text>
+            <x-button.text wire:click="count" size="md"><x-icon.attachment/></x-button.text>
             <h5>md text &lt;button&gt;</h5>
-            <x-button.text-button size="md" type="link" href="javascript: window.Livewire.emit('count');"><span>Txt btn</span></x-button.text-button>
-            <x-button.text-button size="md" type="link" href="javascript: window.Livewire.emit('count');"><x-icon.attachment/><span>Txt btn</span></x-button.text-button>
-            <x-button.text-button size="md" type="link" href="javascript: window.Livewire.emit('count');"><span>Txt btn</span><x-icon.attachment/></x-button.text-button>
-            <x-button.text-button size="md" type="link" href="javascript: window.Livewire.emit('count');"><x-icon.attachment/></x-button.text-button>
+            <x-button.text size="md" type="link" href="javascript: window.Livewire.emit('count');"><span>Txt btn</span></x-button.text>
+            <x-button.text size="md" type="link" href="javascript: window.Livewire.emit('count');"><x-icon.attachment/><span>Txt btn</span></x-button.text>
+            <x-button.text size="md" type="link" href="javascript: window.Livewire.emit('count');"><span>Txt btn</span><x-icon.attachment/></x-button.text>
+            <x-button.text size="md" type="link" href="javascript: window.Livewire.emit('count');"><x-icon.attachment/></x-button.text>
             <h5>md text &lt;a&gt;</h5>
-            <x-button.text-button wire:click="count" size="md" disabled><span>Txt btn</span></x-button.text-button>
-            <x-button.text-button wire:click="count" size="md" disabled><x-icon.attachment/><span>Txt btn</span></x-button.text-button>
-            <x-button.text-button wire:click="count" size="md" disabled><span>Txt btn</span><x-icon.attachment/></x-button.text-button>
-            <x-button.text-button wire:click="count" size="md" disabled><x-icon.attachment/></x-button.text-button>
+            <x-button.text wire:click="count" size="md" disabled><span>Txt btn</span></x-button.text>
+            <x-button.text wire:click="count" size="md" disabled><x-icon.attachment/><span>Txt btn</span></x-button.text>
+            <x-button.text wire:click="count" size="md" disabled><span>Txt btn</span><x-icon.attachment/></x-button.text>
+            <x-button.text wire:click="count" size="md" disabled><x-icon.attachment/></x-button.text>
             <h5>md text &lt;button&gt; disabled</h5>
 
         </x-partials.styleguide-card>
 
         <x-partials.styleguide-card title="text buttons (white variant)" items-per-row="5" accordionClass="!bg-primary">
-            <x-button.text-white size="sm" wire:click="count"><span>Txt btn</span></x-button.text-white>
-            <x-button.text-white size="sm" wire:click="count"><x-icon.attachment/><span>Txt btn</span></x-button.text-white>
-            <x-button.text-white size="sm" wire:click="count"><span>Txt btn</span><x-icon.attachment/></x-button.text-white>
-            <x-button.text-white size="sm" wire:click="count"><x-icon.attachment/></x-button.text-white>
+            <x-button.text :white="true" size="sm" wire:click="count"><span>Txt btn</span></x-button.text>
+            <x-button.text :white="true" size="sm" wire:click="count"><x-icon.attachment/><span>Txt btn</span></x-button.text>
+            <x-button.text :white="true" size="sm" wire:click="count"><span>Txt btn</span><x-icon.attachment/></x-button.text>
+            <x-button.text :white="true" size="sm" wire:click="count"><x-icon.attachment/></x-button.text>
             <h5 class="text-white">sm text &lt;button&gt;</h5>
-            <x-button.text-white size="sm" type="link" href="javascript: window.Livewire.emit('count');"><span>Txt btn</span></x-button.text-white>
-            <x-button.text-white size="sm" type="link" href="javascript: window.Livewire.emit('count');"><x-icon.attachment/><span>Txt btn</span></x-button.text-white>
-            <x-button.text-white size="sm" type="link" href="javascript: window.Livewire.emit('count');"><span>Txt btn</span><x-icon.attachment/></x-button.text-white>
-            <x-button.text-white size="sm" type="link" href="javascript: window.Livewire.emit('count');"><x-icon.attachment/></x-button.text-white>
+            <x-button.text :white="true" size="sm" type="link" href="javascript: window.Livewire.emit('count');"><span>Txt btn</span></x-button.text>
+            <x-button.text :white="true" size="sm" type="link" href="javascript: window.Livewire.emit('count');"><x-icon.attachment/><span>Txt btn</span></x-button.text>
+            <x-button.text :white="true" size="sm" type="link" href="javascript: window.Livewire.emit('count');"><span>Txt btn</span><x-icon.attachment/></x-button.text>
+            <x-button.text :white="true" size="sm" type="link" href="javascript: window.Livewire.emit('count');"><x-icon.attachment/></x-button.text>
             <h5 class="text-white">sm text &lt;a&gt;</h5>
 
-            <x-button.text-white size="sm" wire:click="count" disabled><span>Txt btn</span></x-button.text-white>
-            <x-button.text-white size="sm" wire:click="count" disabled><x-icon.attachment/><span>Txt btn</span></x-button.text-white>
-            <x-button.text-white size="sm" wire:click="count" disabled><span>Txt btn</span><x-icon.attachment/></x-button.text-white>
-            <x-button.text-white size="sm" wire:click="count" disabled><x-icon.attachment/></x-button.text-white>
+            <x-button.text :white="true" size="sm" wire:click="count" disabled><span>Txt btn</span></x-button.text>
+            <x-button.text :white="true" size="sm" wire:click="count" disabled><x-icon.attachment/><span>Txt btn</span></x-button.text>
+            <x-button.text :white="true" size="sm" wire:click="count" disabled><span>Txt btn</span><x-icon.attachment/></x-button.text>
+            <x-button.text :white="true" size="sm" wire:click="count" disabled><x-icon.attachment/></x-button.text>
             <h5 class="text-white">sm text &lt;button&gt; disabled</h5>
 
-            <x-button.text-white size="md" wire:click="count"><span>Txt btn</span></x-button.text-white>
-            <x-button.text-white size="md" wire:click="count"><x-icon.attachment/><span>Txt btn</span></x-button.text-white>
-            <x-button.text-white size="md" wire:click="count"><span>Txt btn</span><x-icon.attachment/></x-button.text-white>
-            <x-button.text-white size="md" wire:click="count"><x-icon.attachment/></x-button.text-white>
+            <x-button.text :white="true" size="md" wire:click="count"><span>Txt btn</span></x-button.text>
+            <x-button.text :white="true" size="md" wire:click="count"><x-icon.attachment/><span>Txt btn</span></x-button.text>
+            <x-button.text :white="true" size="md" wire:click="count"><span>Txt btn</span><x-icon.attachment/></x-button.text>
+            <x-button.text :white="true" size="md" wire:click="count"><x-icon.attachment/></x-button.text>
             <h5 class="text-white">md text &lt;button&gt;</h5>
 
-            <x-button.text-white size="md" type="link" href="javascript: window.Livewire.emit('count');"><span>Txt btn</span></x-button.text-white>
-            <x-button.text-white size="md" type="link" href="javascript: window.Livewire.emit('count');"><x-icon.attachment/><span>Txt btn</span></x-button.text-white>
-            <x-button.text-white size="md" type="link" href="javascript: window.Livewire.emit('count');"><span>Txt btn</span><x-icon.attachment/></x-button.text-white>
-            <x-button.text-white size="md" type="link" href="javascript: window.Livewire.emit('count');"><x-icon.attachment/></x-button.text-white>
+            <x-button.text :white="true" size="md" type="link" href="javascript: window.Livewire.emit('count');"><span>Txt btn</span></x-button.text>
+            <x-button.text :white="true" size="md" type="link" href="javascript: window.Livewire.emit('count');"><x-icon.attachment/><span>Txt btn</span></x-button.text>
+            <x-button.text :white="true" size="md" type="link" href="javascript: window.Livewire.emit('count');"><span>Txt btn</span><x-icon.attachment/></x-button.text>
+            <x-button.text :white="true" size="md" type="link" href="javascript: window.Livewire.emit('count');"><x-icon.attachment/></x-button.text>
             <h5 class="text-white">md text &lt;a&gt;</h5>
-            <x-button.text-white size="md" wire:click="count" disabled><span>Txt btn</span></x-button.text-white>
-            <x-button.text-white size="md" wire:click="count" disabled><x-icon.attachment/><span>Txt btn</span></x-button.text-white>
-            <x-button.text-white size="md" wire:click="count" disabled><span>Txt btn</span><x-icon.attachment/></x-button.text-white>
-            <x-button.text-white size="md" wire:click="count" disabled><x-icon.attachment/></x-button.text-white>
+            <x-button.text :white="true" size="md" wire:click="count" disabled><span>Txt btn</span></x-button.text>
+            <x-button.text :white="true" size="md" wire:click="count" disabled><x-icon.attachment/><span>Txt btn</span></x-button.text>
+            <x-button.text :white="true" size="md" wire:click="count" disabled><span>Txt btn</span><x-icon.attachment/></x-button.text>
+            <x-button.text :white="true" size="md" wire:click="count" disabled><x-icon.attachment/></x-button.text>
             <h5 class="text-white">md text &lt;button&gt; disabled</h5>
         </x-partials.styleguide-card>
 
         <x-partials.styleguide-card title="text button unique hover state" items-per-row="3">
-            <x-button.text-button :with-hover="true" size="sm"><span>Text button</span></x-button.text-button>
-            <x-button.text-button :with-hover="true" size="sm" disabled><span>Text button</span></x-button.text-button>
+            <x-button.text :with-hover="true" size="sm"><span>Text button</span></x-button.text>
+            <x-button.text :with-hover="true" size="sm" disabled><span>Text button</span></x-button.text>
             <h5>unique hover implementation for text button</h5>
         </x-partials.styleguide-card>
 

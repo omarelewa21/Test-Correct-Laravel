@@ -49,12 +49,12 @@
         <h6>{{ $waitingTestTake->weight }}</h6>
     </div>
     <div class="flex flex-col space-y-2">
-        <span>{{ __('student.info') }}</span>
-        @if($waitingTestTake->test_take_status_id < \tcCore\TestTakeStatus::STATUS_TAKEN)
-            <x-partials.before-take-info-labels :testTake="$waitingTestTake"/>
-        @else
-            <x-partials.after-take-info-labels :testTake="$waitingTestTake"/>
-        @endif
+            <span>{{ __('student.info') }}</span>
+            @if($waitingTestTake->test_take_status_id > \tcCore\TestTakeStatus::STATUS_TAKEN && auth()->check())
+                <x-partials.after-take-info-labels :testTake="$waitingTestTake"/>
+            @else
+                <x-partials.before-take-info-labels :testTake="$waitingTestTake"/>
+            @endif
     </div>
 
 </div>

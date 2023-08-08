@@ -323,7 +323,7 @@ class AppVersionDetector
     }
 
     public static function osIsWindows() {
-        return self::detect()['os'] == 'windows';
+        return in_array(self::detect()['os'], ['windows10OS', 'windowsOS']);
     }
 
     public static function osIsMac() {

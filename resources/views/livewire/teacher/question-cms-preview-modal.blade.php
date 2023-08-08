@@ -67,31 +67,31 @@
         >
             <div class="flex w-full space-x-6 mb-5 border-b border-secondary max-h-[50px]" selid="tabs">
                 <div :class="{'border-b-2 border-primary -mb-px primary' : openTab === 1}" selid="tab-question">
-                    <x-button.text-button
+                    <x-button.default
                             style="color:inherit"
-                            @click="openTab = 1"
+                            x-on:click="openTab = 1"
                     >
                         <span>{{ __('cms.Opstellen') }}</span>
-                    </x-button.text-button>
+                    </x-button.default>
                 </div>
                 <div class="" :class="{'border-b-2 border-primary -mb-px primary' : openTab === 2}"
                      selid="tab-settings">
-                    <x-button.text-button
+                    <x-button.default
                             style="color:inherit"
-                            @click="openTab = 2;"
+                            x-on:click="openTab = 2;"
                     >
                         <span>{{ __('cms.Instellingen') }}</span>
-                    </x-button.text-button>
+                    </x-button.default>
                 </div>
                 @if($this->showStatistics())
                     <div class="" :class="{'border-b-2 border-primary -mb-px primary' : openTab === 3}"
                          selid="tab-statistics">
-                        <x-button.text-button
+                        <x-button.default
                                 style="color:inherit"
-                                @click="openTab = 3;"
+                                x-on:click="openTab = 3;"
                         >
                             <span>{{ __('cms.Statistiek') }}</span>
-                        </x-button.text-button>
+                        </x-button.default>
                     </div>
                 @endif
             </div>

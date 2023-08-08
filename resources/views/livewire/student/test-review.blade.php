@@ -147,10 +147,10 @@
                 @endif
                 @if($this->hasFeedback)
                     <div>
-                        <x-button.text-button x-on:click="tab(2, true)" size="sm" class="text-base">
+                        <x-button.text x-on:click="tab(2, true)" size="sm" class="text-base">
                             <x-icon.feedback-text />
                             <span>@lang('review.Bekijk feedback')</span>
-                        </x-button.text-button>
+                        </x-button.text>
                     </div>
                 @endif
             </x-slot:slideOneContent>
@@ -246,7 +246,7 @@
             </x-slot:slideThreeContent>
 
             <x-slot:buttons>
-                <x-button.text-button size="sm"
+                <x-button.text size="sm"
                                       x-on:click="previous"
                                       wire:target="previous,next"
                                       wire:loading.attr="disabled"
@@ -255,7 +255,7 @@
                 >
                     <x-icon.chevron class="rotate-180" />
                     <span>@lang('pagination.previous')</span>
-                </x-button.text-button>
+                </x-button.text>
                 @if($this->finalAnswerReached())
                     <x-button.cta size="sm"
                                   wire:click="redirectBack"

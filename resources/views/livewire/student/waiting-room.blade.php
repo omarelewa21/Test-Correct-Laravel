@@ -33,15 +33,15 @@
             <div class="flex flex-col space-y-4 transition-all duration-500">
                 <div>
                     @if(!Auth::user()->guest)
-                        <x-button.text-button class="rotate-svg-180"  wire:click="returnToTestTake" >
+                        <x-button.default class="rotate-svg-180"  wire:click="returnToTestTake" >
                             <x-icon.arrow/>
                             <span class="text-[32px]" selid="waiting-screen-title">{{ $waitingTestTake->test_name }}</span>
-                        </x-button.text-button>
+                        </x-button.default>
                     @elseif(Auth::user()->guest && $this->testTakeStatusStage != 'planned')
-                        <x-button.text-button class="rotate-svg-180" wire:click="returnToGuestChoicePage">
+                        <x-button.default class="rotate-svg-180" wire:click="returnToGuestChoicePage">
                             <x-icon.arrow/>
                             <span class="text-[32px]" selid="waiting-screen-title">{{ $waitingTestTake->test_name }}</span>
-                        </x-button.text-button>
+                        </x-button.default>
                     @else
                         <span class="bold text-[32px]" selid="waiting-screen-title">{{ $waitingTestTake->test_name }}</span>
                     @endif
@@ -187,11 +187,11 @@
                     @else
                         <span class="-mb-2">{{ __('student.planned_test') }}</span>
                     @endif
-                    <x-button.text-button class="rotate-svg-180"
+                    <x-button.default class="rotate-svg-180"
                                           x-on:click="startCountdown = false; stopCountdownTimer($refs.root._x_dataStack[0])">
                         <x-icon.arrow/>
                         <span class="text-[32px]" selid="waiting-screen-title">{{ $waitingTestTake->test->name }}</span>
-                    </x-button.text-button>
+                    </x-button.default>
                 </div>
                 <div class="flex flex-col flex-1 w-full items-center mt-16 space-y-3">
                     @if($this->testTakeStatusStage === 'discuss')

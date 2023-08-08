@@ -295,12 +295,12 @@
                                     <x-icon.chevron/>
                                 </x-button.primary>
                                 @if($this->hasFeedback)
-                                    <x-button.text-button class="!p-0 justify-center"
+                                    <x-button.text class="!p-0 justify-center"
                                                           wire:click="deleteFeedback"
                                     >
                                         <span>@lang('assessment.Inline feedback verwijderen')</span>
                                         <x-icon.chevron/>
-                                    </x-button.text-button>
+                                    </x-button.text>
                                 @endif
                             </div>
                         @endif--}}
@@ -406,7 +406,7 @@
                     </div>
                 </x-slot:slideThreeContent>
                 <x-slot:buttons>
-                    <x-button.text-button size="sm"
+                    <x-button.text size="sm"
                                           x-on:click="previous"
                                           wire:target="previous,next"
                                           wire:loading.attr="disabled"
@@ -416,7 +416,7 @@
                     >
                         <x-icon.chevron class="rotate-180"/>
                         <span>@lang('pagination.previous')</span>
-                    </x-button.text-button>
+                    </x-button.text>
 
                     @if($this->finalAnswerReached() && $this->assessedAllAnswers())
                         <x-button.cta size="sm"

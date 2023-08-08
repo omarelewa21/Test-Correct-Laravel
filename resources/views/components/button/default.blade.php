@@ -4,8 +4,8 @@
 'selid' => '',
 'type' => 'button',
 'disabled' => false,
-'componentName' => 'primary-button',
-'withBackgroundGradient' => true,
+'componentName' => 'default-button',
+'withBackgroundGradient' => false,
 ])
 
 <?php
