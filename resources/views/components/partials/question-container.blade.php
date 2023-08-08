@@ -14,7 +14,7 @@
      x-on:close-this-question.window="closeThisQuestion($event.detail)"
      x-on:close-this-group.window="closeThisGroup($event.detail)"
      x-on:start-timeout="startTimeout($event.detail)"
-     x-on:mark-infoscreen-as-seen.window="markInforscreenAsSeen($event.detail, @js($this->question->uuid))"
+     x-on:mark-infoscreen-as-seen.window="markInfoscreenAsSeen($event.detail, @js($this->question->uuid))"
      x-on:force-taken-away-blur.window="$el.style.opacity = $event.detail.shouldBlur ? 0 : 1 ;"
      questionComponent
      :class="{ 'rs_readable': showMe }"
