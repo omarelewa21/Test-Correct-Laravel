@@ -20,7 +20,7 @@ return new class extends Migration
         });
         $afs = new AppFeatureSetting();
            $afs->title = 'newAlwaysOnTop';
-           $afs->value = 0;
+           $afs->value = 1;
         $afs->save();
     }
 
