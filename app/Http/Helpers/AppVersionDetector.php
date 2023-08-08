@@ -323,7 +323,9 @@ class AppVersionDetector
     }
 
     public static function osIsWindows() {
-        return in_array(self::detect()['os'], ['windows10OS', 'windowsOS']);
+        /* This is a stupid implementation, but I cannot see if I'm on windows if they're using a different browser than Edge */
+        return !self::isInApp() && !self::osIsMac() && !self::osIsChromebook();
+//        return in_array(self::detect()['os'], ['windows10OS', 'windowsOS']);
     }
 
     public static function osIsMac() {
