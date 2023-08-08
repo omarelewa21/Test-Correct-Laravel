@@ -5966,6 +5966,10 @@ video {
   margin-top: 2.5rem;
   margin-bottom: 2.5rem;
 }
+.my-16{
+  margin-top: 4rem;
+  margin-bottom: 4rem;
+}
 .my-2{
   margin-top: 0.5rem;
   margin-bottom: 0.5rem;
@@ -5985,10 +5989,6 @@ video {
 .my-8{
   margin-top: 2rem;
   margin-bottom: 2rem;
-}
-.my-16{
-  margin-top: 4rem;
-  margin-bottom: 4rem;
 }
 .-mb-2{
   margin-bottom: -0.5rem;
@@ -6688,6 +6688,9 @@ video {
 .min-w-\[1rem\]{
   min-width: 1rem;
 }
+.min-w-\[2\.5rem\]{
+  min-width: 2.5rem;
+}
 .min-w-\[200px\]{
   min-width: 200px;
 }
@@ -6738,9 +6741,6 @@ video {
 .min-w-min{
   min-width: -moz-min-content;
   min-width: min-content;
-}
-.min-w-\[2\.5rem\]{
-  min-width: 2.5rem;
 }
 .max-w-0{
   max-width: 0rem;
@@ -7051,12 +7051,6 @@ video {
 }
 .grid-cols-4{
   grid-template-columns: repeat(4, minmax(0, 1fr));
-}
-.grid-cols-6{
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-}
-.grid-cols-8{
-  grid-template-columns: repeat(8, minmax(0, 1fr));
 }
 .grid-cols-\[min-content\2c auto\]{
   grid-template-columns: min-content auto;
@@ -8330,6 +8324,10 @@ video {
   --tw-text-opacity: 1;
   color: rgb(58 183 83 / var(--tw-text-opacity));
 }
+.text-fuchsia-500{
+  --tw-text-opacity: 1;
+  color: rgb(217 70 239 / var(--tw-text-opacity));
+}
 .text-gray-400{
   --tw-text-opacity: 1;
   color: rgb(156 163 175 / var(--tw-text-opacity));
@@ -8397,15 +8395,8 @@ video {
   --tw-text-opacity: 1;
   color: rgb(255 255 255 / var(--tw-text-opacity));
 }
-.text-white\/20{
-  color: rgb(255 255 255 / 0.2);
-}
 .text-white\/90{
   color: rgb(255 255 255 / 0.9);
-}
-.text-fuchsia-500{
-  --tw-text-opacity: 1;
-  color: rgb(217 70 239 / var(--tw-text-opacity));
 }
 .underline{
   text-decoration-line: underline;
@@ -9147,10 +9138,6 @@ h2.student-testtake-answers-separator span {
 .hover\:bg-white:hover{
   --tw-bg-opacity: 1;
   background-color: rgb(255 255 255 / var(--tw-bg-opacity));
-}
-
-.hover\:bg-white\/20:hover{
-  background-color: rgb(255 255 255 / 0.2);
 }
 
 .hover\:font-bold:hover{
