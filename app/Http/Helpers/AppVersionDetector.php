@@ -270,7 +270,6 @@ class AppVersionDetector
         if(is_object($headers)){
             $headers = (array) $headers;
         }
-//        dd($headers);
 
 
         /**
@@ -333,6 +332,11 @@ class AppVersionDetector
 
     public static function osIsChromebook() {
         return self::detect()['os'] == 'ChromeOS';
+    }
+
+    public static function isInApp($headers = false)
+    {
+        return !self::isInBrowser($headers);
     }
 
     public static function isInBrowser($headers = false)
@@ -586,7 +590,7 @@ class AppVersionDetector
         return ['TLCVersion' => session('TLCVersion', null)];
     }
 
-    public static function checkVersionDeadline() 
+    public static function checkVersionDeadline()
     {
         if (!self::verifyKeyHeader()) {
             return [
