@@ -21,7 +21,6 @@ class AppApiController extends Controller
 
     public function featureFlags(AppApiFeatureFlagRequest $request)
     {
-        dd(AppVersionDetector::verifyKeyHeader());
         $response = AppFeatureSetting::all()->mapWithKeys(function($item,$nr){
                 return [$item['title'] => $item['value']];
             });
