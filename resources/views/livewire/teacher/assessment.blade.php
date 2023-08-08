@@ -277,6 +277,8 @@
                                          id="saveNewFeedbackButtonWrapper"
                                          data-save-translation="@lang('general.save')"
                                          data-cancel-translation="@lang('modal.annuleren')"
+                                         data-answer-editor-id="{{ 'editor-'.$this->questionNavigationValue.'-'.$this->answerNavigationValue }}"
+                                         data-feedback-editor-id="{{ 'feedback-editor-'.$this->questionNavigationValue.'-'.$this->answerNavigationValue }}"
                                     > {{-- filled by javascript with Ckeditor view components, cancel and save button --}}
                                     </div>
                             </div>
