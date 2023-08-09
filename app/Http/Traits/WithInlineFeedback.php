@@ -252,16 +252,24 @@ trait WithInlineFeedback {
     {
         $answerFeedback = $this->answerFeedback->whereNotNull('thread_id')->pluck('thread_id');
 
-        preg_match_all('/(?:comment\-start name="{1})(\S+):|(?:comment\-start name="{1})(\S+)"/m', $answer, $matches);
+        $commentMarkerUuids = collect(explode("comment-start name=\"", $answer));
+        $commentMarkerUuids->shift();
+        $commentMarkerUuids = $commentMarkerUuids->map(function ($uuidContainingString) {
+            return explode(':',$uuidContainingString)[0];
+        })->unique()->values();
 
-        $result = collect($matches[1])->mapWithKeys(fn($item, $key) => [$key => $item === '' ? $matches[2][$key] : $item]);
+        $subCollectionNew = $commentMarkerUuids->filter(fn($item) => $answerFeedback->contains($item));
 
-        $sequel = $result->filter(fn($item) => $answerFeedback->contains($item))->reduce(function ($carry, $item, $key) {
+        if($subCollectionNew->isEmpty()) {
+            return;
+        }
+
+        $sequel = $subCollectionNew->reduce(function ($carry, $item, $key) {
                 $carry .= <<<SQL
-        WHEN `thread_id` = "$item" THEN $key \n
+        WHEN `thread_id` = "$item" THEN $key 
 SQL;
                 return $carry;
-            }, "UPDATE `answers_feedback` SET `order` = CASE \n") . ' ELSE `order` END';
+            }, "UPDATE `answers_feedback` SET `order` = CASE ") . ' ELSE `order` END';
 
         DB::statement($sequel);
     }

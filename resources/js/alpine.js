@@ -3183,7 +3183,7 @@ document.addEventListener("alpine:init", () => {
                     const saveButtonCta = new window.CkEditorButtonView(new window.CkEditorLocale('nl'));
                     saveButtonCta.set({
                         label: buttonWrapper.dataset.saveTranslation,
-                        classList: 'cta-button gradient-button button-sm',
+                        classList: 'cta-button button-gradient button-sm',
                         eventName: 'save',
                     });
                     saveButtonCta.render();
