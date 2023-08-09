@@ -112,6 +112,7 @@ window.RichTextEditor = {
         this.setAnswerFeedbackItemsToRemove(parameterBag);
         parameterBag.shouldNotGroupWhenFull = true;
 
+
         return this.createTeacherEditor(
             parameterBag,
             (editor) => {
@@ -119,6 +120,9 @@ window.RichTextEditor = {
                     setTimeout(() => {
                         editor.focus();
                     }, 100)
+                });
+                editor.editing.view.change(writer=>{
+                    writer.setStyle('height', '150px', editor.editing.view.document.getRoot());
                 });
                 // this.hideWProofreaderChevron(parameterBag.allowWsc, editor);
             }
@@ -160,6 +164,15 @@ window.RichTextEditor = {
             }, 200);
 
         })
+
+        editor.plugins.get('CommentsRepository').on('addCommentThread', (evt, data) => {
+            if(data.threadId === 'new-comment-thread') {
+                return;
+            }
+            setTimeout(() => {
+                window.clearSelection();
+            },100);
+        });
     },
     //only needed when webspellchecker has to be re-added to the inline-feedback comment editors
     // hideWProofreaderChevron: function (allowWsc, editor) {

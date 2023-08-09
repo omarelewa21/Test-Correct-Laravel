@@ -2742,6 +2742,7 @@ document.addEventListener("alpine:init", () => {
                 this.clearActiveComment()
             })
 
+
             this.preventOpeningModalFromBreakingDrawer();
         },
         resetCommentColorPickerFocusState(event) {
@@ -2839,6 +2840,11 @@ document.addEventListener("alpine:init", () => {
                     this.$dispatch('answer-feedback-show-comments');
 
                     this.scrollToCommentCard(feedback.uuid);
+
+                    setTimeout(() => {
+                        feedbackEditor.setData('<p></p>');
+                    }, 100);
+
                     return;
                 }
 
@@ -2853,6 +2859,8 @@ document.addEventListener("alpine:init", () => {
                 this.$dispatch('answer-feedback-show-comments');
 
                 this.scrollToCommentCard(feedback.uuid);
+
+                feedbackEditor.setData('<p></p>');
             });
 
         },
@@ -3175,7 +3183,7 @@ document.addEventListener("alpine:init", () => {
                     const saveButtonCta = new window.CkEditorButtonView(new window.CkEditorLocale('nl'));
                     saveButtonCta.set({
                         label: buttonWrapper.dataset.saveTranslation,
-                        classList: 'cta-button button-sm',
+                        classList: 'cta-button gradient-button button-sm',
                         eventName: 'save',
                     });
                     saveButtonCta.render();
@@ -3256,7 +3264,9 @@ document.addEventListener("alpine:init", () => {
         resetAddNewAnswerFeedback(cancelAddingNewComment = false) {
             //find default/blue color picker and enable it.
             let defaultColorPicker = document.querySelector('.answer-feedback-add-comment .comment-color-picker [data-color="blue"]');
-            defaultColorPicker.checked = true;
+            if (defaultColorPicker !== null) {
+                defaultColorPicker.checked = true;
+            }
 
             //find checked emoji picker, uncheck
             let checkedEmojiPicker = document.querySelector('.answer-feedback-add-comment .comment-emoji-picker input:checked');
