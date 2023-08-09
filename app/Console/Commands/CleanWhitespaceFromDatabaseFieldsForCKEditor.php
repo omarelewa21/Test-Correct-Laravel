@@ -3,6 +3,7 @@
 namespace tcCore\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
@@ -129,8 +130,9 @@ class CleanWhitespaceFromDatabaseFieldsForCKEditor extends Command
             $table = $tableAndField['table'];
             $field = $tableAndField['field'];
             $backupField = $this->createBackupFieldString($field,$timeValue);
+            $carbonInst = Carbon::createFromFormat('YmdHis',$timeValue);
             $this->info("restoring backup for table $table and field $field from $timeValue");
-            DB::statement("UPDATE $table SET $field = $backupField  where $backupField is not null AND $backupField != ''");
+            DB::statement("UPDATE $table SET $field = $backupField  where $backupField is not null AND $backupField != '' AND updated_at <= '".$carbonInst->format('Y-m-d H:i:s')."'");
         }
 
         $this->info('restoring backups done, do not forget to remove the backup fields if they are no longer needed');
