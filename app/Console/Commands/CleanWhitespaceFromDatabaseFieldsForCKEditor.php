@@ -171,7 +171,7 @@ class CleanWhitespaceFromDatabaseFieldsForCKEditor extends Command
             $field = $tableAndField['field'];
             $backupField = $this->createBackupFieldString($field,$timeValue);
             $this->info("creating backup for table $table and field $field with timevalue $timeValue");
-            DB::statement("ALTER TABLE $table ADD COLUMN $backupField LONGTEXT");
+            DB::statement("ALTER TABLE $table ADD COLUMN $backupField TEXT");
             DB::statement("UPDATE $table SET $backupField = $field");
             $this->info(sprintf('done in %d ms',$this->getDuration($start)));
         }
