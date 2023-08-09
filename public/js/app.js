@@ -9525,7 +9525,7 @@ document.addEventListener("alpine:init", function () {
                     while (1) switch (_context25.prev = _context25.next) {
                       case 0:
                         if (!answerEditor.plugins.get('CommentsRepository').activeCommentThread) {
-                          _context25.next = 19;
+                          _context25.next = 20;
                           break;
                         }
                         _context25.next = 3;
@@ -9567,21 +9567,25 @@ document.addEventListener("alpine:init", function () {
                         _this65.hasFeedback = true;
                         _this65.$dispatch('answer-feedback-show-comments');
                         _this65.scrollToCommentCard(feedback.uuid);
+                        setTimeout(function () {
+                          feedbackEditor.setData('<p></p>');
+                        }, 100);
                         return _context25.abrupt("return");
-                      case 19:
-                        _context25.next = 21;
+                      case 20:
+                        _context25.next = 22;
                         return _this65.$wire.createNewComment({
                           message: comment,
                           comment_color: null,
                           //no comment color when its a general ticket.
                           comment_emoji: comment_emoji
                         }, false);
-                      case 21:
+                      case 22:
                         feedback = _context25.sent;
                         _this65.hasFeedback = true;
                         _this65.$dispatch('answer-feedback-show-comments');
                         _this65.scrollToCommentCard(feedback.uuid);
-                      case 25:
+                        feedbackEditor.setData('<p></p>');
+                      case 27:
                       case "end":
                         return _context25.stop();
                     }
@@ -9887,7 +9891,7 @@ document.addEventListener("alpine:init", function () {
             var textCancelButton = new window.CkEditorButtonView(new window.CkEditorLocale('nl'));
             textCancelButton.set({
               label: buttonWrapper.dataset.cancelTranslation,
-              classList: 'text-button button-sm',
+              classList: 'text-button button-md',
               eventName: 'cancel'
             });
             textCancelButton.render();
@@ -9898,7 +9902,7 @@ document.addEventListener("alpine:init", function () {
             var saveButtonCta = new window.CkEditorButtonView(new window.CkEditorLocale('nl'));
             saveButtonCta.set({
               label: buttonWrapper.dataset.saveTranslation,
-              classList: 'cta-button button-sm',
+              classList: 'cta-button button-gradient button-sm',
               eventName: 'save'
             });
             saveButtonCta.render();
@@ -9990,7 +9994,9 @@ document.addEventListener("alpine:init", function () {
         var cancelAddingNewComment = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
         //find default/blue color picker and enable it.
         var defaultColorPicker = document.querySelector('.answer-feedback-add-comment .comment-color-picker [data-color="blue"]');
-        defaultColorPicker.checked = true;
+        if (defaultColorPicker !== null) {
+          defaultColorPicker.checked = true;
+        }
 
         //find checked emoji picker, uncheck
         var checkedEmojiPicker = document.querySelector('.answer-feedback-add-comment .comment-emoji-picker input:checked');
@@ -10218,6 +10224,7 @@ document.addEventListener("alpine:init", function () {
       number: number,
       questionId: questionId,
       reinitializedTimeoutData: reinitializedTimeoutData,
+      timer: null,
       init: function init() {
         var _this82 = this;
         this.$watch("showMe", function (value) {
@@ -10228,7 +10235,7 @@ document.addEventListener("alpine:init", function () {
             _this82.$dispatch("reinitialize-editor-editor-" + _this82.questionId);
           }
         });
-        if (this.reinitializedTimeoutData && this.reinitializedTimeoutData.length) {
+        if (this.reinitializedTimeoutData && this.reinitializedTimeoutData.hasOwnProperty('timeLeft')) {
           this.$nextTick(function () {
             _this82.startTimeout(_this82.reinitializedTimeoutData);
           });
@@ -10254,22 +10261,26 @@ document.addEventListener("alpine:init", function () {
         this.$wire.set('nextQuestion', eventData);
       },
       startTimeout: function startTimeout(eventData) {
+        var _this83 = this;
         this.progressBar = true;
         this.startTime = eventData.timeout;
+        console.log(eventData);
         if (eventData.timeLeft) {
           this.progress = eventData.timeLeft;
         } else {
           this.$wire.registerExpirationTime(eventData.attachment);
           this.progress = this.startTime;
         }
-        var timer = setInterval(function () {
-          this.progress -= 1;
-          if (this.progress === 0) {
-            this.showMe ? this.$wire.closeQuestion(this.number + 1) : this.$wire.closeQuestion();
-            clearInterval(timer);
-            this.progressBar = false;
-          }
-        }, 1000);
+        if (!this.timer) {
+          this.timer = setInterval(function () {
+            _this83.progress -= 1;
+            if (_this83.progress === 0) {
+              _this83.showMe ? _this83.$wire.closeQuestion(_this83.number + 1) : _this83.$wire.closeQuestion();
+              clearInterval(_this83.timer);
+              _this83.progressBar = false;
+            }
+          }, 1000);
+        }
       },
       markInfoscreenAsSeen: function markInfoscreenAsSeen(eventData, questionUuid) {
         if (questionUuid !== eventData) return;
@@ -10291,14 +10302,14 @@ document.addEventListener("alpine:init", function () {
       pillContainer: null,
       searchFocussed: false,
       init: function init() {
-        var _this83 = this;
+        var _this84 = this;
         this.pillContainer = document.querySelector("#".concat(containerId));
         this.$watch("query", function (value) {
-          return _this83.search(value);
+          return _this84.search(value);
         });
         this.$watch("multiSelectOpen", function (value) {
-          if (value) _this83.handleDropdownLocation();
-          if (!value) _this83.query = "";
+          if (value) _this84.handleDropdownLocation();
+          if (!value) _this84.query = "";
         });
         this.registerSelectedItemsOnComponent();
       },
@@ -10306,15 +10317,15 @@ document.addEventListener("alpine:init", function () {
         this.openSubs = this.toggle(this.openSubs, uuid);
       },
       parentClick: function parentClick(element, parent) {
-        var _this84 = this;
+        var _this85 = this;
         var checked = !this.checkedParents.includes(parent.value);
         element.querySelector("input[type=\"checkbox\"]").checked = checked;
         this.checkedParents = this.toggle(this.checkedParents, parent.value);
         parent.children.filter(function (child) {
           return child.disabled !== true;
         }).forEach(function (child) {
-          _this84[checked ? "childAdd" : "childRemove"](child);
-          checked ? _this84.checkAndDisableBrothersFromOtherMothers(child) : _this84.uncheckAndEnableBrothersFromOtherMothers(child);
+          _this85[checked ? "childAdd" : "childRemove"](child);
+          checked ? _this85.checkAndDisableBrothersFromOtherMothers(child) : _this85.uncheckAndEnableBrothersFromOtherMothers(child);
         });
         this.$root.querySelectorAll("[data-parent-id=\"".concat(parent.value, "\"][data-disabled=\"false\"] input[type=\"checkbox\"]")).forEach(function (child) {
           return child.checked = checked;
@@ -10381,13 +10392,13 @@ document.addEventListener("alpine:init", function () {
         // return result < parent.children.length;
       },
       checkedChildrenCount: function checkedChildrenCount(parent) {
-        var _this85 = this;
+        var _this86 = this;
         return parent.children.filter(function (child) {
-          return _this85.checkedChildrenContains(child);
+          return _this86.checkedChildrenContains(child);
         }).length;
       },
       search: function search(value) {
-        var _this86 = this;
+        var _this87 = this;
         if (value.length === 0) {
           this.searchEmpty = false;
           this.showAllOptions();
@@ -10397,7 +10408,7 @@ document.addEventListener("alpine:init", function () {
         var results = this.searchParentsAndChildsLabels(value);
         this.searchEmpty = results.length === 0;
         results.forEach(function (item) {
-          return _this86.showOption(item);
+          return _this87.showOption(item);
         });
       },
       showOption: function showOption(identifier) {
@@ -10467,9 +10478,9 @@ document.addEventListener("alpine:init", function () {
         this[toggleFunction](this.$root.querySelector("[data-id=\"".concat(event.item.value, "\"][data-parent-id=\"").concat(event.item.customProperties.parentId, "\"]")), event.item);
       },
       handleActiveFilters: function handleActiveFilters() {
-        var _this87 = this;
+        var _this88 = this;
         var currentPillIds = Array.from(this.pillContainer.childNodes).map(function (pill) {
-          if (!_this87.isParent(pill.item)) {
+          if (!_this88.isParent(pill.item)) {
             return pill.item.value + pill.item.customProperties.parentId;
           }
           return pill.item.value;
@@ -10483,13 +10494,13 @@ document.addEventListener("alpine:init", function () {
         this.options.flatMap(function (parent) {
           return [parent].concat(_toConsumableArray(parent.children));
         }).filter(function (item) {
-          if (_this87.isParent(item)) return _this87.checkedParents.includes(item.value);
-          if (_this87.checkedParents.includes(item.customProperties.parentId)) {
+          if (_this88.isParent(item)) return _this88.checkedParents.includes(item.value);
+          if (_this88.checkedParents.includes(item.customProperties.parentId)) {
             pillIdsToRemove.push(item.value + item.customProperties.parentId);
           }
-          return !_this87.checkedParents.includes(item.customProperties.parentId) && _this87.checkedChildrenContains(item);
+          return !_this88.checkedParents.includes(item.customProperties.parentId) && _this88.checkedChildrenContains(item);
         }).forEach(function (item) {
-          return _this87.createFilterPill(item);
+          return _this88.createFilterPill(item);
         });
         var that = this;
         pillIdsToRemove.forEach(function (uuid) {
@@ -10516,7 +10527,7 @@ document.addEventListener("alpine:init", function () {
         }
       },
       registerSelectedItemsOnComponent: function registerSelectedItemsOnComponent() {
-        var _this88 = this;
+        var _this89 = this;
         var checkedChildValues = this.options.flatMap(function (parent) {
           return _toConsumableArray(parent.children);
         }).filter(function (item) {
@@ -10525,10 +10536,10 @@ document.addEventListener("alpine:init", function () {
         });
         this.$nextTick(function () {
           checkedChildValues.forEach(function (item) {
-            _this88.childClick(_this88.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.customProperties.parentId, "\"]")), item);
+            _this89.childClick(_this89.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.customProperties.parentId, "\"]")), item);
           });
-          _this88.registerParentsBasedOnDisabledChildren();
-          _this88.handleActiveFilters();
+          _this89.registerParentsBasedOnDisabledChildren();
+          _this89.handleActiveFilters();
         });
       },
       syncInput: function syncInput() {
@@ -10545,24 +10556,24 @@ document.addEventListener("alpine:init", function () {
         });
       },
       checkAndDisableBrothersFromOtherMothers: function checkAndDisableBrothersFromOtherMothers(child) {
-        var _this89 = this;
-        this.options.flatMap(function (parents) {
-          return _toConsumableArray(parents.children);
-        }).filter(function (item) {
-          return item.value === child.value && item.customProperties.parentId !== child.customProperties.parentId;
-        }).forEach(function (item) {
-          _this89.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.customProperties.parentId, "\"] input[type=\"checkbox\"]")).checked = true;
-          item.disabled = true;
-        });
-      },
-      uncheckAndEnableBrothersFromOtherMothers: function uncheckAndEnableBrothersFromOtherMothers(child) {
         var _this90 = this;
         this.options.flatMap(function (parents) {
           return _toConsumableArray(parents.children);
         }).filter(function (item) {
           return item.value === child.value && item.customProperties.parentId !== child.customProperties.parentId;
         }).forEach(function (item) {
-          _this90.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.customProperties.parentId, "\"] input[type=\"checkbox\"]")).checked = false;
+          _this90.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.customProperties.parentId, "\"] input[type=\"checkbox\"]")).checked = true;
+          item.disabled = true;
+        });
+      },
+      uncheckAndEnableBrothersFromOtherMothers: function uncheckAndEnableBrothersFromOtherMothers(child) {
+        var _this91 = this;
+        this.options.flatMap(function (parents) {
+          return _toConsumableArray(parents.children);
+        }).filter(function (item) {
+          return item.value === child.value && item.customProperties.parentId !== child.customProperties.parentId;
+        }).forEach(function (item) {
+          _this91.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.customProperties.parentId, "\"] input[type=\"checkbox\"]")).checked = false;
           item.disabled = false;
         });
       },
@@ -10571,15 +10582,15 @@ document.addEventListener("alpine:init", function () {
         return !((_item$customPropertie3 = item.customProperties) !== null && _item$customPropertie3 !== void 0 && _item$customPropertie3.parent) === false;
       },
       registerParentsBasedOnDisabledChildren: function registerParentsBasedOnDisabledChildren() {
-        var _this91 = this;
+        var _this92 = this;
         this.options.forEach(function (item) {
           var enabledChildren = item.children.filter(function (child) {
             return child.disabled !== true;
           }).length;
           if (enabledChildren === 0) return;
-          var enabled = _this91.checkedChildrenCount(item) === enabledChildren;
-          _this91.checkedParents = _this91[enabled ? "add" : "remove"](_this91.checkedParents, item.value);
-          _this91.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.value, "\"] input[type=\"checkbox\"]")).checked = enabled;
+          var enabled = _this92.checkedChildrenCount(item) === enabledChildren;
+          _this92.checkedParents = _this92[enabled ? "add" : "remove"](_this92.checkedParents, item.value);
+          _this92.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.value, "\"] input[type=\"checkbox\"]")).checked = enabled;
         });
       },
       parentDisabled: function parentDisabled(parent) {
@@ -10610,11 +10621,11 @@ document.addEventListener("alpine:init", function () {
       selectedText: null
     }, selectFunctions), {}, {
       init: function init() {
-        var _this92 = this;
+        var _this93 = this;
         this.selectedText = this.$root.querySelector("span.selected").dataset.selectText;
         this.setActiveStartingValue();
         this.$watch("singleSelectOpen", function (value) {
-          if (value) _this92.handleDropdownLocation();
+          if (value) _this93.handleDropdownLocation();
         });
       },
       get value() {
@@ -10679,21 +10690,21 @@ document.addEventListener("alpine:init", function () {
       inTestBankContext: inTestBankContext,
       maxHeight: 'calc(100vh - var(--header-height))',
       init: function init() {
-        var _this93 = this;
+        var _this94 = this;
         this.groupDetail = this.$el.querySelector('#groupdetail');
         this.$watch('showBank', function (value) {
           if (value === 'questions') {
-            _this93.$wire.loadSharedFilters();
+            _this94.$wire.loadSharedFilters();
           }
         });
         this.$watch('$store.questionBank.inGroup', function (value) {
-          _this93.inGroup = value;
+          _this94.inGroup = value;
         });
         this.$watch('$store.questionBank.active', function (value) {
           if (value) {
-            _this93.$wire.setAddedQuestionIdsArray();
+            _this94.$wire.setAddedQuestionIdsArray();
           } else {
-            _this93.closeGroupDetailQb();
+            _this94.closeGroupDetailQb();
           }
         });
         this.showGroupDetailsQb = /*#__PURE__*/function () {
@@ -10706,32 +10717,32 @@ document.addEventListener("alpine:init", function () {
                 case 0:
                   inTest = _args32.length > 1 && _args32[1] !== undefined ? _args32[1] : false;
                   _context32.next = 3;
-                  return _this93.$wire.showGroupDetails(groupQuestionUuid, inTest);
+                  return _this94.$wire.showGroupDetails(groupQuestionUuid, inTest);
                 case 3:
                   readyForSlide = _context32.sent;
                   if (readyForSlide) {
-                    if (_this93.inTestBankContext) {
-                      _this93.$refs['tab-container'].style.display = 'none';
-                      _this93.$refs['main-container'].style.height = '100vh';
+                    if (_this94.inTestBankContext) {
+                      _this94.$refs['tab-container'].style.display = 'none';
+                      _this94.$refs['main-container'].style.height = '100vh';
                     } else {
-                      _this93.maxHeight = _this93.groupDetail.offsetHeight + 'px';
+                      _this94.maxHeight = _this94.groupDetail.offsetHeight + 'px';
                     }
-                    _this93.groupDetail.style.left = 0;
-                    _this93.$refs['main-container'].scrollTo({
+                    _this94.groupDetail.style.left = 0;
+                    _this94.$refs['main-container'].scrollTo({
                       top: 0,
                       behavior: 'smooth'
                     });
-                    _this93.$el.scrollTo({
+                    _this94.$el.scrollTo({
                       top: 0,
                       behavior: 'smooth'
                     });
-                    _this93.$nextTick(function () {
+                    _this94.$nextTick(function () {
                       setTimeout(function () {
-                        _this93.bodyVisibility = false;
-                        if (_this93.inTestBankContext) {
-                          _this93.groupDetail.style.position = 'relative';
+                        _this94.bodyVisibility = false;
+                        if (_this94.inTestBankContext) {
+                          _this94.groupDetail.style.position = 'relative';
                         } else {
-                          handleVerticalScroll(_this93.$el.closest('.slide-container'));
+                          handleVerticalScroll(_this94.$el.closest('.slide-container'));
                         }
                       }, 500);
                     });
@@ -10747,19 +10758,19 @@ document.addEventListener("alpine:init", function () {
           };
         }();
         this.closeGroupDetailQb = function () {
-          if (!_this93.bodyVisibility) {
-            _this93.bodyVisibility = true;
-            _this93.maxHeight = 'calc(100vh - var(--header-height))';
-            _this93.groupDetail.style.left = '100%';
-            if (_this93.inTestBankContext) {
-              _this93.groupDetail.style.position = 'absolute';
-              _this93.$refs['tab-container'].style.display = 'block';
+          if (!_this94.bodyVisibility) {
+            _this94.bodyVisibility = true;
+            _this94.maxHeight = 'calc(100vh - var(--header-height))';
+            _this94.groupDetail.style.left = '100%';
+            if (_this94.inTestBankContext) {
+              _this94.groupDetail.style.position = 'absolute';
+              _this94.$refs['tab-container'].style.display = 'block';
             }
-            _this93.$nextTick(function () {
-              _this93.$wire.clearGroupDetails();
+            _this94.$nextTick(function () {
+              _this94.$wire.clearGroupDetails();
               setTimeout(function () {
-                if (!_this93.inTestBankContext) {
-                  handleVerticalScroll(_this93.$el.closest('.slide-container'));
+                if (!_this94.inTestBankContext) {
+                  handleVerticalScroll(_this94.$el.closest('.slide-container'));
                 }
               }, 250);
             });
@@ -10778,13 +10789,13 @@ document.addEventListener("alpine:init", function () {
                     _context33.next = 3;
                     break;
                   }
-                  return _context33.abrupt("return", _this93.$wire.emit('openModal', 'teacher.add-sub-question-confirmation-modal', {
+                  return _context33.abrupt("return", _this94.$wire.emit('openModal', 'teacher.add-sub-question-confirmation-modal', {
                     questionUuid: questionUuid
                   }));
                 case 3:
                   button.disabled = true;
                   _context33.next = 6;
-                  return _this93.$wire.handleCheckboxClick(questionUuid);
+                  return _this94.$wire.handleCheckboxClick(questionUuid);
                 case 6:
                   enableButton = _context33.sent;
                   if (enableButton) {
@@ -11292,6 +11303,20 @@ debounce = function debounce(func) {
       window.debounceTimeout = setTimeout(func, time, event);
     };
   }(time);
+};
+clearSelection = function clearSelection() {
+  if (window.getSelection) {
+    if (window.getSelection().empty) {
+      // Chrome
+      window.getSelection().empty();
+    } else if (window.getSelection().removeAllRanges) {
+      // Firefox
+      window.getSelection().removeAllRanges();
+    }
+  } else if (document.selection) {
+    // IE?
+    document.selection.empty();
+  }
 };
 
 /***/ }),
@@ -16669,9 +16694,24 @@ function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input ==
 
 
 
-/** * @typedef propObj * @type {Object.<string, string|number>} * */
+/**
+ * @typedef propObj
+ * @type {Object.<string, string|number>}
+ *
+ */
 var svgShape = /*#__PURE__*/function () {
-  /**     * @param {number} shapeId The unique identifier the shape gets.     * @param {string} type The type of shape to be made.     * @param {?propObj} props     * All properties (attributes) to be assigned to the shape,     * when omitted the properties of the shape are loaded.     * @param {?SVGElement} parent The parent the shape should be appended to.     * @param drawingApp     * @param Canvas     * @param withHelperElements     * @param withHighlightEvents     */
+  /**
+     * @param {number} shapeId The unique identifier the shape gets.
+     * @param {string} type The type of shape to be made.
+     * @param {?propObj} props
+     * All properties (attributes) to be assigned to the shape,
+     * when omitted the properties of the shape are loaded.
+     * @param {?SVGElement} parent The parent the shape should be appended to.
+     * @param drawingApp
+     * @param Canvas
+     * @param withHelperElements
+     * @param withHighlightEvents
+     */
   function svgShape(shapeId, type, props, parent, drawingApp, Canvas) {
     var _this = this;
     var withHelperElements = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : true;
@@ -17034,7 +17074,17 @@ var svgShape = /*#__PURE__*/function () {
 var Rectangle = /*#__PURE__*/function (_svgShape) {
   _inherits(Rectangle, _svgShape);
   var _super = _createSuper(Rectangle);
-  /**     * @param {number} shapeId The unique identifier the shape gets.     * @param {?propObj} props     * All properties (attributes) to be assigned to the shape,     * when omitted the properties of the shape are loaded.     * @param {?SVGElement} parent The parent the shape should be appended to.     * @param drawingApp     * @param Canvas     * @param withHelperElements     * @param withHighlightEvents     */
+  /**
+     * @param {number} shapeId The unique identifier the shape gets.
+     * @param {?propObj} props
+     * All properties (attributes) to be assigned to the shape,
+     * when omitted the properties of the shape are loaded.
+     * @param {?SVGElement} parent The parent the shape should be appended to.
+     * @param drawingApp
+     * @param Canvas
+     * @param withHelperElements
+     * @param withHighlightEvents
+     */
   function Rectangle(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
     _classCallCheck(this, Rectangle);
     return _super.call(this, shapeId, "rect", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
@@ -17044,7 +17094,17 @@ var Rectangle = /*#__PURE__*/function (_svgShape) {
 var Circle = /*#__PURE__*/function (_svgShape2) {
   _inherits(Circle, _svgShape2);
   var _super2 = _createSuper(Circle);
-  /**     * @param {number} shapeId The unique identifier the shape gets.     * @param {?propObj} props     * All properties (attributes) to be assigned to the shape,     * when omitted the properties of the shape are loaded.     * @param {?SVGElement} parent The parent the shape should be appended to.     * @param drawingApp     * @param Canvas     * @param withHelperElements     * @param withHighlightEvents     */
+  /**
+     * @param {number} shapeId The unique identifier the shape gets.
+     * @param {?propObj} props
+     * All properties (attributes) to be assigned to the shape,
+     * when omitted the properties of the shape are loaded.
+     * @param {?SVGElement} parent The parent the shape should be appended to.
+     * @param drawingApp
+     * @param Canvas
+     * @param withHelperElements
+     * @param withHighlightEvents
+     */
   function Circle(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
     _classCallCheck(this, Circle);
     return _super2.call(this, shapeId, "circle", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
@@ -17054,7 +17114,17 @@ var Circle = /*#__PURE__*/function (_svgShape2) {
 var Line = /*#__PURE__*/function (_svgShape3) {
   _inherits(Line, _svgShape3);
   var _super3 = _createSuper(Line);
-  /**     * @param {number} shapeId The unique identifier the shape gets.     * @param {?propObj} props     * All properties (attributes) to be assigned to the shape,     * when omitted the properties of the shape are loaded.     * @param {?SVGElement} parent The parent the shape should be appended to.     * @param drawingApp     * @param Canvas     * @param withHelperElements     * @param withHighlightEvents     */
+  /**
+     * @param {number} shapeId The unique identifier the shape gets.
+     * @param {?propObj} props
+     * All properties (attributes) to be assigned to the shape,
+     * when omitted the properties of the shape are loaded.
+     * @param {?SVGElement} parent The parent the shape should be appended to.
+     * @param drawingApp
+     * @param Canvas
+     * @param withHelperElements
+     * @param withHighlightEvents
+     */
   function Line(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
     var _this3;
     _classCallCheck(this, Line);
@@ -17108,7 +17178,17 @@ var Line = /*#__PURE__*/function (_svgShape3) {
 var Text = /*#__PURE__*/function (_svgShape4) {
   _inherits(Text, _svgShape4);
   var _super4 = _createSuper(Text);
-  /**     * @param {number} shapeId The unique identifier the shape gets.     * @param {?propObj} props     * All properties (attributes) to be assigned to the shape,     * when omitted the properties of the shape are loaded.     * @param {?SVGElement} parent The parent the shape should be appended to.     * @param drawingApp     * @param Canvas     * @param withHelperElements     * @param withHighlightEvents     */
+  /**
+     * @param {number} shapeId The unique identifier the shape gets.
+     * @param {?propObj} props
+     * All properties (attributes) to be assigned to the shape,
+     * when omitted the properties of the shape are loaded.
+     * @param {?SVGElement} parent The parent the shape should be appended to.
+     * @param drawingApp
+     * @param Canvas
+     * @param withHelperElements
+     * @param withHighlightEvents
+     */
   function Text(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
     var _this4;
     _classCallCheck(this, Text);
@@ -17153,7 +17233,17 @@ var Text = /*#__PURE__*/function (_svgShape4) {
 var Image = /*#__PURE__*/function (_svgShape5) {
   _inherits(Image, _svgShape5);
   var _super5 = _createSuper(Image);
-  /**     * @param {number} shapeId The unique identifier the shape gets.     * @param {?propObj} props     * All properties (attributes) to be assigned to the shape,     * when omitted the properties of the shape are loaded.     * @param {?SVGElement} parent The parent the shape should be appended to.     * @param drawingApp     * @param Canvas     * @param withHelperElements     * @param withHighlightEvents     */
+  /**
+     * @param {number} shapeId The unique identifier the shape gets.
+     * @param {?propObj} props
+     * All properties (attributes) to be assigned to the shape,
+     * when omitted the properties of the shape are loaded.
+     * @param {?SVGElement} parent The parent the shape should be appended to.
+     * @param drawingApp
+     * @param Canvas
+     * @param withHelperElements
+     * @param withHighlightEvents
+     */
   function Image(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
     _classCallCheck(this, Image);
     return _super5.call(this, shapeId, "image", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
@@ -17171,7 +17261,17 @@ var Image = /*#__PURE__*/function (_svgShape5) {
 var Path = /*#__PURE__*/function (_svgShape6) {
   _inherits(Path, _svgShape6);
   var _super6 = _createSuper(Path);
-  /**     * @param {number} shapeId The unique identifier the shape gets.     * @param {?propObj} props     * All properties (attributes) to be assigned to the shape,     * when omitted the properties of the shape are loaded.     * @param {?SVGElement} parent The parent the shape should be appended to.     * @param drawingApp     * @param Canvas     * @param withHelperElements     * @param withHighlightEvents     */
+  /**
+     * @param {number} shapeId The unique identifier the shape gets.
+     * @param {?propObj} props
+     * All properties (attributes) to be assigned to the shape,
+     * when omitted the properties of the shape are loaded.
+     * @param {?SVGElement} parent The parent the shape should be appended to.
+     * @param drawingApp
+     * @param Canvas
+     * @param withHelperElements
+     * @param withHighlightEvents
+     */
   function Path(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
     _classCallCheck(this, Path);
     return _super6.call(this, shapeId, "path", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
@@ -17181,7 +17281,15 @@ var Path = /*#__PURE__*/function (_svgShape6) {
 var Grid = /*#__PURE__*/function (_Path) {
   _inherits(Grid, _Path);
   var _super7 = _createSuper(Grid);
-  /**     * @param {number} shapeId The unique identifier the shape gets.     * @param {?propObj} props     * All properties (attributes) to be assigned to the shape,     * when omitted the properties of the shape are loaded.     * @param {HTMLElement} parent The parent the shape should be appended to.     * @param drawingApp     * @param Canvas     */
+  /**
+     * @param {number} shapeId The unique identifier the shape gets.
+     * @param {?propObj} props
+     * All properties (attributes) to be assigned to the shape,
+     * when omitted the properties of the shape are loaded.
+     * @param {HTMLElement} parent The parent the shape should be appended to.
+     * @param drawingApp
+     * @param Canvas
+     */
   function Grid(shapeId, props, parent, drawingApp, Canvas) {
     var _this6;
     _classCallCheck(this, Grid);
@@ -17260,7 +17368,17 @@ var Grid = /*#__PURE__*/function (_Path) {
 var Freehand = /*#__PURE__*/function (_Path2) {
   _inherits(Freehand, _Path2);
   var _super8 = _createSuper(Freehand);
-  /**     * @param {number} shapeId The unique identifier the shape gets.     * @param {?propObj} props     * All properties (attributes) to be assigned to the shape,     * when omitted the properties of the shape are loaded.     * @param {?SVGElement} parent The parent the shape should be appended to.     * @param drawingApp     * @param Canvas     * @param withHelperElements     * @param withHighlightEvents     */
+  /**
+     * @param {number} shapeId The unique identifier the shape gets.
+     * @param {?propObj} props
+     * All properties (attributes) to be assigned to the shape,
+     * when omitted the properties of the shape are loaded.
+     * @param {?SVGElement} parent The parent the shape should be appended to.
+     * @param drawingApp
+     * @param Canvas
+     * @param withHelperElements
+     * @param withHighlightEvents
+     */
   function Freehand(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
     var _this7;
     _classCallCheck(this, Freehand);
@@ -18232,6 +18350,9 @@ window.RichTextEditor = {
           editor.focus();
         }, 100);
       });
+      editor.editing.view.change(function (writer) {
+        writer.setStyle('height', '150px', editor.editing.view.document.getRoot());
+      });
       // this.hideWProofreaderChevron(parameterBag.allowWsc, editor);
     });
   },
@@ -18276,6 +18397,14 @@ window.RichTextEditor = {
           threadId: 'new-comment-thread'
         });
       }, 200);
+    });
+    editor.plugins.get('CommentsRepository').on('addCommentThread', function (evt, data) {
+      if (data.threadId === 'new-comment-thread') {
+        return;
+      }
+      setTimeout(function () {
+        window.clearSelection();
+      }, 100);
     });
   },
   //only needed when webspellchecker has to be re-added to the inline-feedback comment editors

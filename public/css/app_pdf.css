@@ -47,6 +47,17 @@ button.button {
     padding: 0px;
 }
 
+.button:where(:disabled) {
+    color: var(--mid-grey);
+}
+.default-button {
+    border-radius: 0;
+    padding: 0;
+}
+.default-button:hover:where(:enabled, :not(:disabled)) {
+    color: var(--primary);
+}
+
 /* Text button */
 :is(.text-button, .text-button-white) {
     isolation: isolate;
@@ -61,18 +72,18 @@ button.button {
     line-height: 22px;
 }
 
-.text-button-white:enabled span {
+.text-button-white:where(:enabled, :not(:disabled)) span {
     text-shadow: 0 1px 2px rgba(var(--system-base-rgb), 0.3);
 }
 
-.text-button-white:enabled:is(:hover, :active, :focus, :focus-visible) span {
+.text-button-white:where(:enabled, :not(:disabled)):is(:hover, :active, :focus, :focus-visible) span {
     text-shadow: 0 1px 4px rgba(var(--system-base-rgb), 0.5);
 }
 
-.text-button-white:enabled svg {
+.text-button-white:where(:enabled, :not(:disabled)) svg {
     filter: drop-shadow( 0 1px 2px rgba(var(--system-base-rgb), 0.3));
 }
-.text-button-white:enabled:is(:hover, :active, :focus, :focus-visible) svg {
+.text-button-white:where(:enabled, :not(:disabled)):is(:hover, :active, :focus, :focus-visible) svg {
     filter: drop-shadow( 0 1px 4px rgba(var(--system-base-rgb), 0.5));
 }
 
@@ -6676,11 +6687,17 @@ video {
 .min-w-\[15rem\]{
   min-width: 15rem;
 }
+.min-w-\[160px\]{
+  min-width: 160px;
+}
 .min-w-\[163px\]{
   min-width: 163px;
 }
 .min-w-\[16rem\]{
   min-width: 16rem;
+}
+.min-w-\[170px\]{
+  min-width: 170px;
 }
 .min-w-\[190px\]{
   min-width: 190px;
@@ -7118,6 +7135,9 @@ video {
 .gap-2\.5{
   gap: 0.625rem;
 }
+.gap-3{
+  gap: 0.75rem;
+}
 .gap-4{
   gap: 1rem;
 }
@@ -7317,9 +7337,6 @@ video {
 .self-center{
   align-self: center;
 }
-.justify-self-end{
-  justify-self: end;
-}
 .overflow-auto{
   overflow: auto;
 }
@@ -7496,6 +7513,9 @@ video {
 .\!border-primary{
   --tw-border-opacity: 1 !important;
   border-color: rgb(0 77 245 / var(--tw-border-opacity)) !important;
+}
+.\!border-transparent{
+  border-color: transparent !important;
 }
 .\!border-white{
   --tw-border-opacity: 1 !important;
