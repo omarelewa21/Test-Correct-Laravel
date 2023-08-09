@@ -155,9 +155,10 @@ class CleanWhitespaceFromDatabaseFieldsForCKEditor extends Command
 
     private function createBackupsAndClean()
     {
+        $start =  $this->getStartTime();
         $this->createBackups();
         $this->clean();
-        $this->info('cleaning is done, please check the result');
+        $this->info(sprintf('creating backups and do the cleaning is done in %d ms, please check the result',$this->getDuration($start)));
         return true;
     }
 
@@ -165,15 +166,27 @@ class CleanWhitespaceFromDatabaseFieldsForCKEditor extends Command
     {
         $timeValue = date('YmdHis');
         foreach ($this->cleaningTablesAndFields as $tableAndField) {
+            $start =  $this->getStartTime();
             $table = $tableAndField['table'];
             $field = $tableAndField['field'];
             $backupField = $this->createBackupFieldString($field,$timeValue);
             $this->info("creating backup for table $table and field $field with timevalue $timeValue");
             DB::statement("ALTER TABLE $table ADD COLUMN $backupField LONGTEXT");
             DB::statement("UPDATE $table SET $backupField = $field");
+            $this->info(sprintf('done in %d ms',$this->getDuration($start)));
         }
 
         return true;
+    }
+
+    protected function getStartTime()
+    {
+        return microtime(true);
+    }
+
+    protected function getDuration($start)
+    {
+        return microtime(true) * 1000 - ($start * 1000);
     }
 
     private function createBackupFieldString($field,$timeValue)
@@ -184,10 +197,12 @@ class CleanWhitespaceFromDatabaseFieldsForCKEditor extends Command
     private function clean()
     {
         foreach ($this->cleaningTablesAndFields as $tableAndField) {
+            $start = $this->getStartTime();
             $table = $tableAndField['table'];
             $field = $tableAndField['field'];
             $this->info("cleaning table $table and field $field");
             $this->cleanTableAndField($table, $field);
+            $this->info(sprintf('cleaning done in %d ms',$this->getDuration($start)));
         }
     }
 
