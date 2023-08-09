@@ -4,6 +4,8 @@ namespace tcCore\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 
 
 /**
@@ -64,23 +66,113 @@ class CleanWhitespaceFromDatabaseFieldsForCKEditor extends Command
      */
     public function handle()
     {
-        $this->createBackups();
 
-        $this->clean();
+        $actions = collect([
+            ['label' => 'createBackups', 'name' => 'create backup and clean'],
+            ['label' => 'restoreBackups', 'name' => 'restore backup'],
+        ]);
 
-        return Command::SUCCESS;
+        $choice = $this->choice(
+            'what do you want to do?',
+            $this->getChoiceOptions($actions),
+            0
+        );
+
+        $action = $this->getChoice($actions,$choice);
+
+        if(method_exists($this,$action)) {
+            return $this->{$action}() ? Command::SUCCESS : Command::FAILURE;
+        }
+        $this->error('no such action '.$action);
+        return Command::FAILURE;
+
+    }
+
+    protected function getChoiceOptions($collection)
+    {
+        return $collection->map(function ($env) {
+            return $env['name'];
+        })->toArray();
+    }
+
+    protected function getChoice($collection,$name)
+    {
+        return ($collection->firstWhere('name',$name))['label'];
+    }
+
+    private function restoreBackups()
+    {
+        $timeValues = $this->getAvailableTimeValuesForRestore();
+        if(count($timeValues) === 0) {
+            $this->error('No backups to restore, sorry');
+            return false;
+        }
+        else if(count($timeValues) === 1){
+            $timeValue = $timeValues[0];
+        }
+        else {
+            $timeValue = $this->choice('Which time value to use', $timeValues);
+        }
+
+        // are the fields available
+        foreach ($this->cleaningTablesAndFields as $tableAndField) {
+            $table = $tableAndField['table'];
+            $field = $tableAndField['field'];
+            $backupField = $this->createBackupFieldString($field,$timeValue);
+            if(!Schema::hasColumn($table,$backupField)){
+                $this->error(sprintf('Sorry we can not continue, the table %s does not have the field %s',$table,$backupField));
+                return false;
+            }
+        }
+
+        foreach($this->cleaningTablesAndFields as $tableAndField) {
+            $table = $tableAndField['table'];
+            $field = $tableAndField['field'];
+            $backupField = $this->createBackupFieldString($field,$timeValue);
+            $this->info("restoring backup for table $table and field $field from $timeValue");
+            DB::statement("UPDATE $table SET $field = $backupField  where $backupField is not null AND $backupField != ''");
+        }
+
+        $this->info('restoring backups done, do not forget to remove the backup fields if they are no longer needed');
+        return true;
+    }
+
+    protected function getAvailableTimeValuesForRestore()
+    {
+        $table = $this->cleaningTablesAndFields[0]['table'];
+        $field = $this->cleaningTablesAndFields[0]['field'];
+        $likeField = $this->createBackupFieldString($field,'');
+        $columns = Schema::getColumnListing($table);
+
+        return collect($columns)->filter(
+            function($attr) use ($likeField) {
+                    return Str::contains($attr,$likeField);
+            }
+        )->map(function($attr) use ($likeField) {
+            return Str::replace($likeField,'',$attr);
+        })->values()->toArray();
     }
 
     private function createBackups()
     {
+        $timeValue = date('YmdHis');
         foreach ($this->cleaningTablesAndFields as $tableAndField) {
             $table = $tableAndField['table'];
             $field = $tableAndField['field'];
-            $backupField = sprintf('%s_backup_%s', $field, date('YmdHis'));
-            $this->info("creating backup for table $table and field $field");
+            $backupField = $this->createBackupFieldString($field,$timeValue);
+            $this->info("creating backup for table $table and field $field with timevalue $timeValue");
             DB::statement("ALTER TABLE $table ADD COLUMN $backupField LONGTEXT");
             DB::statement("UPDATE $table SET $backupField = $field");
         }
+
+        $this->clean();
+
+        return true;
+    }
+
+    private function createBackupFieldString($field,$timeValue)
+    {
+        return sprintf('%s_backup_%s', $field, $timeValue);
     }
 
     private function clean()
