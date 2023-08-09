@@ -126,7 +126,7 @@
                 </x-input.rich-textarea>
             </div>
 
-            <div class="flex justify-end space-x-4 h-fit mt-2 mb-4">
+            <div class="flex justify-end space-x-4 h-fit mt-2 mb-4 items-center">
                 <x-button.text size="sm"
                                       @click.stop="cancelEditingComment('{{$comment->thread_id}}','{{$comment->uuid}}', '{{$iconName}}', '{{$comment->comment_color}}')"
                 >

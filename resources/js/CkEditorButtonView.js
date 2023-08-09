@@ -28,7 +28,7 @@ class CkEditor5Button extends View {
             ],
             attributes: {
                 class: [
-                    'button button-gradient space-x-2.5 focus:outline-none',
+                    'button space-x-2.5 focus:outline-none',
                     bind.if( 'isEnabled', 'button-disabled', value => !value ),
 
                     // Observable attributes control the state of the view in DOM.

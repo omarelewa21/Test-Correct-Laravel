@@ -191,7 +191,7 @@
                             />
                         </div>
 
-                        <div class="flex justify-end space-x-4 h-fit mt-2 mb-6"
+                        <div class="flex justify-end space-x-4 h-fit mt-2 mb-6 items-center"
                              x-on:button-cancel-clicked="resetAddNewAnswerFeedback(true)"
                              x-on:button-save-clicked="createCommentThread()"
                              id="saveNewFeedbackButtonWrapper"
