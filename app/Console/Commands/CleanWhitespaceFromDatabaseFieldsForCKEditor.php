@@ -68,7 +68,7 @@ class CleanWhitespaceFromDatabaseFieldsForCKEditor extends Command
     {
 
         $actions = collect([
-            ['label' => 'createBackups', 'name' => 'create backup and clean'],
+            ['label' => 'createBackupsAndClean', 'name' => 'create backup and clean'],
             ['label' => 'restoreBackups', 'name' => 'restore backup'],
         ]);
 
@@ -153,6 +153,14 @@ class CleanWhitespaceFromDatabaseFieldsForCKEditor extends Command
         })->values()->toArray();
     }
 
+    private function createBackupsAndClean()
+    {
+        $this->createBackups();
+        $this->clean();
+        $this->info('cleaning is done, please check the result');
+        return true;
+    }
+
     private function createBackups()
     {
         $timeValue = date('YmdHis');
@@ -164,8 +172,6 @@ class CleanWhitespaceFromDatabaseFieldsForCKEditor extends Command
             DB::statement("ALTER TABLE $table ADD COLUMN $backupField LONGTEXT");
             DB::statement("UPDATE $table SET $backupField = $field");
         }
-
-        $this->clean();
 
         return true;
     }
