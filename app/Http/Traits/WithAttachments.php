@@ -123,7 +123,7 @@ trait WithAttachments
 
     public function registerEndOfAudio($length,$currentTime)
     {
-        if($length==$currentTime){
+        if($length==$currentTime && $this->attachment){
             $this->playedTotalAudio[] = $this->attachment->uuid;
         }
 
