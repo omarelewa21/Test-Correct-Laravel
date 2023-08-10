@@ -465,9 +465,14 @@ document.addEventListener("alpine:init", () => {
                     this.handleGrid(toolName);
 
                     toolName.drawingApp.init();
+
+                    this.$dispatch("set-instant-upload", false);
+
                 } else {
                     const component = getClosestLivewireComponentByAttribute(this.$root, "questionComponent");
                     component.call("render");
+
+                    this.$dispatch("set-instant-upload", true);
                 }
             });
 

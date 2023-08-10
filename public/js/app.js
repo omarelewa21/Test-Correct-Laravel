@@ -6840,9 +6840,11 @@ document.addEventListener("alpine:init", function () {
             toolName.Canvas.data.question = _this9.questionSvg;
             _this9.handleGrid(toolName);
             toolName.drawingApp.init();
+            _this9.$dispatch("set-instant-upload", false);
           } else {
             var component = getClosestLivewireComponentByAttribute(_this9.$root, "questionComponent");
             component.call("render");
+            _this9.$dispatch("set-instant-upload", true);
           }
         });
         toolName.Canvas.layers.answer.enable();
@@ -12255,9 +12257,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
       },
       "paste": {
         callback: function callback(evt) {
-          if (isTeacher && UI.canvas.matches(':hover')) {
-            handleImagePaste(evt);
-          }
+          isTeacher && UI.canvas.matches(':hover') && handleImagePaste(evt);
         }
       }
     }
@@ -13917,11 +13917,11 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
   }
   function imageTypeIsAllowed(file) {
     if (file.size / (1024 * 1024) > 4) {
-      Notify.notify('U kunt afbeeldingen van maximaal 4 mb uploaden');
+      Notify.notify('U kunt afbeeldingen van maximaal 4 mb uploaden', 'error');
       return false;
     }
     if (!['png', 'jpeg', 'jpg'].includes(file.type.toLowerCase().split('/')[1])) {
-      Notify.notify('U kunt alleen png, jpeg en jpg afbeeldingen uploaden');
+      Notify.notify('U kunt alleen png, jpeg en jpg afbeeldingen uploaden', 'error');
       return false;
     }
     return true;
