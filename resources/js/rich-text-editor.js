@@ -104,7 +104,9 @@ window.RichTextEditor = {
             (editor) => {
 
                 // this.hideWProofreaderChevron(parameterBag.allowWsc, editor);
-
+                editor.editing.view.change(writer=>{
+                    writer.setStyle('height', '150px', editor.editing.view.document.getRoot());
+                });
             },
         );
     },
