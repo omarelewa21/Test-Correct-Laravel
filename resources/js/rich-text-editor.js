@@ -138,8 +138,12 @@ window.RichTextEditor = {
                 this.setupWordCounter(editor, parameterBag);
                 this.setCommentsOnly(editor); //replaces read-only
                 this.setAnswerFeedbackEventListeners(editor);
+                this.setMathChemTypeReadOnly(editor);
             }
         )
+    },
+    setMathChemTypeReadOnly: function(editor) {
+        editor.plugins.get('MathType').stopListening();
     },
     setAnswerFeedbackEventListeners: function (editor) {
         let focusIsInCommentEditor = () => window.getSelection().focusNode?.parentElement?.closest('.comment-editor') !== null;
