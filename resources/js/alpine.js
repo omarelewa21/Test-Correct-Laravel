@@ -466,14 +466,12 @@ document.addEventListener("alpine:init", () => {
 
                     toolName.drawingApp.init();
 
-                    this.$dispatch("set-allow-paste", false);
-
                 } else {
                     const component = getClosestLivewireComponentByAttribute(this.$root, "questionComponent");
                     component.call("render");
-
-                    this.$dispatch("set-allow-paste", true);
                 }
+
+                this.$dispatch("set-allow-paste", !show);
             });
 
             toolName.Canvas.layers.answer.enable();
