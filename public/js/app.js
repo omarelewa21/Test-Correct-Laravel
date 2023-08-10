@@ -9816,7 +9816,7 @@ document.addEventListener("alpine:init", function () {
         styleTag.innerHTML = '' + 'span.ck-comment-marker[data-comment="' + this.hoveringComment.threadId + '"] { color: var(--teacher-primary); }' + 'div[data-threadid="' + this.hoveringComment.threadId + '"] svg { color: var(--teacher-primary); }';
       },
       setActiveCommentMarkerStyle: function setActiveCommentMarkerStyle() {
-        var _this$activeComment, _this$activeComment2;
+        var _this$activeComment, _this$activeComment2, _this$activeComment3, _this$activeComment4;
         var removeStyling = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
         var styleTag = document.querySelector('#activeCommentMarkerStyle');
         if (!styleTag) {
@@ -9826,7 +9826,7 @@ document.addEventListener("alpine:init", function () {
           styleTag.innerHTML = '';
           return;
         }
-        styleTag.innerHTML = '' + 'span.ck-comment-marker[data-comment="' + ((_this$activeComment2 = this.activeComment) === null || _this$activeComment2 === void 0 ? void 0 : _this$activeComment2.threadId) + '"] { ' + '   border: 1px solid var(--ck-color-comment-marker-border) !important; ' + '} ';
+        styleTag.innerHTML = '' + 'span.ck-comment-marker[data-comment="' + ((_this$activeComment2 = this.activeComment) === null || _this$activeComment2 === void 0 ? void 0 : _this$activeComment2.threadId) + '"] { ' + '   border: 1px solid var(--ck-color-comment-marker-border) !important; ' + '} ' + 'span.ck-comment-marker[data-comment="' + ((_this$activeComment3 = this.activeComment) === null || _this$activeComment3 === void 0 ? void 0 : _this$activeComment3.threadId) + '"].ck-math-widget { ' + '   border: 1px solid transparent !important; ' + '} ' + 'span.ck-comment-marker[data-comment="' + ((_this$activeComment4 = this.activeComment) === null || _this$activeComment4 === void 0 ? void 0 : _this$activeComment4.threadId) + '"] img { ' + '   border: 1px solid var(--ck-color-comment-marker-border) !important; ' + '} ';
       },
       setActiveComment: function setActiveComment(threadId, answerFeedbackUuid) {
         var _this71 = this;
@@ -18272,7 +18272,11 @@ window.RichTextEditor = {
       _this7.setupWordCounter(editor, parameterBag);
       _this7.setCommentsOnly(editor); //replaces read-only
       _this7.setAnswerFeedbackEventListeners(editor);
+      _this7.setMathChemTypeReadOnly(editor);
     });
+  },
+  setMathChemTypeReadOnly: function setMathChemTypeReadOnly(editor) {
+    editor.plugins.get('MathType').stopListening();
   },
   setAnswerFeedbackEventListeners: function setAnswerFeedbackEventListeners(editor) {
     var focusIsInCommentEditor = function focusIsInCommentEditor() {

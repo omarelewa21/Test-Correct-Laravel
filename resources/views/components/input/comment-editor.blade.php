@@ -7,6 +7,17 @@
         .ck.ck-balloon-panel {
             display: none !important;
         }
+        .ck .ck-widget,
+        .ck .ck-widget:hover {
+            outline: none !important
+        }
+        .ck .ck-widget.ck-widget_selected, .ck .ck-widget.ck-widget_selected:hover {
+            outline: none !important
+        }
+        .ck-math-widget img.Wirisformula {
+            background-color: var(--ck-color-comment-marker)
+        }
+
     </style>
     <style id="addFeedbackMarkerStyles">
         :root {

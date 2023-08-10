@@ -3109,6 +3109,12 @@ document.addEventListener("alpine:init", () => {
             styleTag.innerHTML = '' +
                 'span.ck-comment-marker[data-comment="'+ this.activeComment?.threadId +'"] { ' +
                 '   border: 1px solid var(--ck-color-comment-marker-border) !important; ' +
+                '} ' +
+                'span.ck-comment-marker[data-comment="'+ this.activeComment?.threadId +'"].ck-math-widget { ' +
+                '   border: 1px solid transparent !important; ' +
+                '} ' +
+                'span.ck-comment-marker[data-comment="'+ this.activeComment?.threadId +'"] img { ' +
+                '   border: 1px solid var(--ck-color-comment-marker-border) !important; ' +
                 '} ';
 
         },
