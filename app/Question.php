@@ -367,7 +367,7 @@ class Question extends MtiBaseModel
 
     public function pValue()
     {
-        return $this->hasMany('tcCore\PValue');
+        return $this->hasMany('tcCore\PValue', 'question_id');
     }
 
     public function owner()

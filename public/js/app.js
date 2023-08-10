@@ -8985,6 +8985,9 @@ document.addEventListener("alpine:init", function () {
         this.$dispatch("slider-score-updated", {
           score: this.score
         });
+        if (this.$root.classList.contains('untouched')) {
+          this.$root.classList.remove('untouched');
+        }
       },
       noChangeEventFallback: function noChangeEventFallback() {
         if (this.score === null) {
@@ -8993,7 +8996,8 @@ document.addEventListener("alpine:init", function () {
         }
       },
       init: function init() {
-        var _this55 = this;
+        var _this55 = this,
+          _this$$root$dataset;
         if (coLearning) {
           Livewire.hook("message.received", function (message, component) {
             var _message$updateQueue$;
@@ -9036,6 +9040,12 @@ document.addEventListener("alpine:init", function () {
           this.halfTotal = this.hasMaxDecimalScoreWithHalfPoint();
           this.bars = this.maxScore / 0.5;
         }
+        if (this.usedSliders && (_this$$root$dataset = this.$root.dataset) !== null && _this$$root$dataset !== void 0 && _this$$root$dataset.sliderKey) {
+          var _this$$root$dataset2;
+          if (this.usedSliders.contains((_this$$root$dataset2 = this.$root.dataset) === null || _this$$root$dataset2 === void 0 ? void 0 : _this$$root$dataset2.sliderKey) && this.$root.classList.contains('untouched')) {
+            this.$root.classList.remove('untouched');
+          }
+        }
         this.$nextTick(function () {
           var rangeInput = _this55.$root.querySelector('input[type="range"]');
           var left = (rangeInput === null || rangeInput === void 0 ? void 0 : rangeInput.offsetWidth) / 2;
@@ -9065,7 +9075,8 @@ document.addEventListener("alpine:init", function () {
       sliderPillClasses: function sliderPillClasses(value) {
         var score = this.halfTotal || this.halfPoints ? this.score * 2 : this.score;
         var first = (value / 2 + "").split(".")[1] === "5";
-        return value <= score ? "bg-primary border-primary highlight ".concat(first ? "first" : "second") : "border-bluegrey opacity-100 ".concat(first ? "first" : "second");
+        var classes = first ? "first" : "second";
+        return value <= score ? classes += " highlight" : classes;
       },
       hasMaxDecimalScoreWithHalfPoint: function hasMaxDecimalScoreWithHalfPoint() {
         return isFloat(this.maxScore);

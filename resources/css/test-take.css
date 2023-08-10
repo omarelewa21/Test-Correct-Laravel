@@ -315,7 +315,10 @@
 }
 
 .results-grid.setup {
-    grid-template-columns: minmax(150px, auto) minmax(200px, auto) min-content 400px min-content;
+    grid-template-columns: minmax(150px, auto) minmax(200px, auto) min-content 430px min-content;
+}
+.results-grid.questions {
+    grid-template-columns: 40px max-content minmax(200px, auto)  repeat(4, max-content);
 }
 .results-grid.overview {
     grid-template-columns: minmax(150px, auto) minmax(200px, auto) repeat(4, min-content);

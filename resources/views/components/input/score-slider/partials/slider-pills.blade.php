@@ -3,7 +3,7 @@
 
     @if($halfPoints)
         <template x-for="scoreOption in bars">
-            <div class="score-slider-pill | rounded-10 h-3 min-w-[1rem] flex-grow -mt-[1px] -ml-[1px] border"
+            <div class="score-slider-pill | rounded-10 h-3 min-w-[1rem] flex-grow -mt-[1px] border"
                  :class="sliderPillClasses(scoreOption)"
             ></div>
         </template>
@@ -15,9 +15,9 @@
         </template>
     @endif
 </div>
-<div class="w-full absolute top-0 left-0  flex items-center h-full">
+<div class="w-full absolute top-0 left-0  flex items-center h-full z-[2]">
     <input type="range"
-           min="{{ $minScore }}"
+           min="0"
            max="{{$maxScore}}"
            :step="halfPoints ? 0.5 : 1"
            class="score-slider-input w-full hide-thumb"

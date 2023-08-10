@@ -109,4 +109,10 @@ return [
     'Laagste cijfer'                                                                                                                                   => 'Laagste cijfer',
     'Gemiddeld cijfer'                                                                                                                                 => 'Gemiddeld cijfer',
     'Resultaten publiceren'                                                                                                                            => 'Resultaten publiceren',
+    'standardize_tooltip'                                                                                                                              => 'Kies je normering en pas deze eventueel aan. Onderstaande cijfers worden direct aangepast op de normering.',
+    'show_grade_tooltip'                                                                                                                               => '',
+    'Gem score'                                                                                                                                        => 'Gem. score',
+    'Max score'                                                                                                                                        => 'Max. score',
+    'Overslaan'                                                                                                                                        => 'Overslaan',
+    'Gecombineerd gemiddelde'                                                                                                                          => 'Gecombineerd gemiddelde',
 ];

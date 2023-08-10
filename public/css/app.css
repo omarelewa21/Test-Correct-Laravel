@@ -1095,7 +1095,10 @@ button.cta-button:disabled, a.cta-button:disabled {
 }
 
 .results-grid.setup {
-    grid-template-columns: minmax(150px, auto) minmax(200px, auto) min-content 400px min-content;
+    grid-template-columns: minmax(150px, auto) minmax(200px, auto) min-content 430px min-content;
+}
+.results-grid.questions {
+    grid-template-columns: 40px max-content minmax(200px, auto)  repeat(4, max-content);
 }
 .results-grid.overview {
     grid-template-columns: minmax(150px, auto) minmax(200px, auto) repeat(4, min-content);
@@ -1784,6 +1787,10 @@ input[type=number] {
     color: white;
     justify-content: center;
     align-items: center;
+}
+
+.checkbox-container.disabled {
+    opacity: .6;
 }
 
 .checkbox-disabled .checkbox-container:is(:active, :hover, :focus) input:not(:checked) ~ .checkmark {
@@ -5778,6 +5785,7 @@ input.datepicker {
 .score-slider-container .score-slider-continuous-input.hide-thumb::-moz-range-progress {
     background-color: #D7D7D7;
 }
+
 .score-slider-container .score-slider-continuous-input::-moz-range-progress {
     background-color: var(--primary);
     border-radius: 10px;
@@ -5814,8 +5822,23 @@ input.datepicker {
     border: 1px solid transparent;
 }
 
+/* Slider pills*/
 .score-slider-pill {
     position: relative;
+    border-color: var(--blue-grey);
+    opacity: 1;
+    /*margin-left: -1px;*/
+    left: -1px;
+}
+
+.score-slider-pill.highlight {
+    --score-slider-pill-background-color: var(--primary);
+    --score-slider-pill-border-color: var(--primary);
+    background-color: var(--score-slider-pill-background-color);
+    border-color: var(--score-slider-pill-border-color);
+}
+.untouched .score-slider-pill.highlight {
+    --score-slider-pill-background-color: rgba(0, 77, 245, 0.5);
 }
 
 .score-slider-pill.first:not(:last-child) {
@@ -5841,26 +5864,22 @@ input.datepicker {
     background-color: var(--system-secondary);
 }
 
+.untouched .score-slider-pill.highlight.first:not(:last-child),
 .score-slider-pill.first:not(.highlight):not(:last-child) {
     border-right-color: transparent;
 }
-
+.untouched .score-slider-pill.highlight.second,
 .score-slider-pill.second:not(.highlight) {
     border-left-color: transparent;
 }
 
 .score-slider-pill.second {
-    /*background-color: greenyellow;*/
     margin-right: 0.125rem;
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
 }
 
-.score-slider-container .score-slider-track-container:focus .score-slider-pill,
-.score-slider-container .score-slider-track-container:hover .score-slider-pill {
-    /*border: 1px solid var(--teacher-primary);*/
-}
-
+/* end Slider pills*/
 .score-slider-container .score-slider-continuous-input::-webkit-slider-runnable-track:hover {
     border: 1px solid var(--teacher-primary);
 }
@@ -5905,6 +5924,7 @@ input.datepicker {
 .score-slider-container .score-slider-input {
     --slider-thumb-offset: 12px;
 }
+
 .score-slider-container .score-slider-input::-webkit-slider-thumb {
     transform: translate(var(--slider-thumb-offset));
 }
@@ -6084,6 +6104,7 @@ input.datepicker {
     --thumb-top: 12px;
     --moz-left-zero: -100px;
 }
+
 .score-slider-container :is(.score-slider-continuous-input, .score-slider-input).hide-thumb::-ms-thumb {
     appearance: var(--thumb-appearance);
     width: var(--thumb-width);
@@ -6098,19 +6119,24 @@ input.datepicker {
     left: var(--thumb-left);
     top: var(--thumb-top);
 }
+
 .score-slider-container .score-slider-continuous-input.hide-thumb::-ms-thumb {
     transform: translateY(-7px);
 }
+
 .score-slider-container .score-slider-continuous-input.hide-thumb::-ms-thumb:hover {
     transform: translateY(-7px) scale(1.25);
     transform-origin: center;
 }
+
 .score-slider-container .score-slider-input.hide-thumb::-ms-thumb {
     transform: translateY(-12px) translateX(-10px);
 }
+
 .score-slider-container .score-slider-input.hide-thumb::-ms-thumb:hover {
     transform: translateY(-12px) translateX(-10px) scale(1.25);
 }
+
 .score-slider-container :is(.score-slider-continuous-input, .score-slider-input).hide-thumb::-moz-range-thumb {
     --thumb-width: 1.25rem;
     --thumb-height: 1.25rem;
@@ -6129,13 +6155,16 @@ input.datepicker {
     top: var(--thumb-top);
     transform: translateX(var(--moz-left-zero));
 }
+
 .score-slider-container :is(.score-slider-continuous-input, .score-slider-input).hide-thumb:not(.moving)::-moz-range-thumb:hover {
     transform: translateX(var(--moz-left-zero)) scale(1.25);
 }
+
 .score-slider-container :is(.score-slider-continuous-input, .score-slider-input).hide-thumb::-moz-range-thumb:hover {
     transform: scale(1.25);
 }
-.score-slider-container :is(.score-slider-continuous-input, .score-slider-input).hide-thumb::-webkit-slider-thumb{
+
+.score-slider-container :is(.score-slider-continuous-input, .score-slider-input).hide-thumb::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: var(--thumb-appearance);
     width: var(--thumb-width);
@@ -6149,16 +6178,20 @@ input.datepicker {
     position: var(--thumb-position);
     left: var(--thumb-left);
 }
+
 .score-slider-container .score-slider-continuous-input.hide-thumb::-webkit-slider-thumb {
     transform: translateY(-7px);
 }
+
 .score-slider-container .score-slider-continuous-input.hide-thumb::-webkit-slider-thumb:hover {
     transform: translateY(-7px) scale(1.25);
     transform-origin: center;
 }
+
 .score-slider-container .score-slider-input.hide-thumb::-webkit-slider-thumb {
     transform: translateY(-12px) translateX(-10px);
 }
+
 .score-slider-container .score-slider-input.hide-thumb::-webkit-slider-thumb:hover {
     transform: translateY(-12px) translateX(-10px) scale(1.25);
 }
@@ -10156,6 +10189,9 @@ video {
 .top-px{
   top: 1px;
 }
+.-right-5{
+  right: -1.25rem;
+}
 .isolate{
   isolation: isolate;
 }
@@ -10233,6 +10269,9 @@ video {
 }
 .col-span-6{
   grid-column: span 6 / span 6;
+}
+.col-span-7{
+  grid-column: span 7 / span 7;
 }
 .col-start-1{
   grid-column-start: 1;
@@ -11858,6 +11897,9 @@ video {
 }
 .border-t-3{
   border-top-width: 3px;
+}
+.border-t-2{
+  border-top-width: 2px;
 }
 .border-dashed{
   border-style: dashed;
@@ -13818,6 +13860,10 @@ ul ul ul {
   --tw-scale-x: 1.1;
   --tw-scale-y: 1.1;
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
+.hover\:cursor-pointer:hover{
+  cursor: pointer;
 }
 
 .hover\:border-gray-300:hover{

@@ -619,6 +619,10 @@ input[type=number] {
     align-items: center;
 }
 
+.checkbox-container.disabled {
+    opacity: .6;
+}
+
 .checkbox-disabled .checkbox-container:is(:active, :hover, :focus) input:not(:checked) ~ .checkmark {
     background-color: rgba(var(--system-secondary-rgb), 0.5);
     border: 1px solid var(--blue-grey);

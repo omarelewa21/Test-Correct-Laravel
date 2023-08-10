@@ -18,9 +18,11 @@
             $attributes->get('class'),
             'flex flex-1 score-slider-container w-fit relative',
             'opacity-50' => $disabled,
-            'items-center space-x-2' => in_array($mode, ['default','large']),
-            'justify-between' => $mode === 'default',
+            'items-center' => in_array($mode, ['default','large']),
             'flex-col gap-0.5' => $mode === 'small',
+            'justify-between gap-2' => $mode === 'default',
+            'gap-3' => $mode === 'large',
+            'untouched' => $useIndicator,
         ])
 >
     <x-dynamic-component :component="'input.score-slider.'.$mode"

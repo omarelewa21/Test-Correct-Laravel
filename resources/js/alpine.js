@@ -2336,6 +2336,10 @@ document.addEventListener("alpine:init", () => {
             this.$wire.sync(this.model, this.score);
             this.$store.assessment.currentScore = this.score;
             this.$dispatch("slider-score-updated", { score: this.score });
+
+            if (this.$root.classList.contains('untouched')) {
+                this.$root.classList.remove('untouched')
+            }
         },
         noChangeEventFallback() {
             if (this.score === null) {
@@ -2390,6 +2394,11 @@ document.addEventListener("alpine:init", () => {
                 this.bars = this.maxScore / 0.5;
             }
 
+            if (this.usedSliders && this.$root.dataset?.sliderKey) {
+                if (this.usedSliders.contains(this.$root.dataset?.sliderKey) && this.$root.classList.contains('untouched')) {
+                    this.$root.classList.remove('untouched');
+                }
+            }
             this.$nextTick(() => {
                 let rangeInput = this.$root.querySelector('input[type="range"]');
                 let left = rangeInput?.offsetWidth / 2
@@ -2419,9 +2428,9 @@ document.addEventListener("alpine:init", () => {
         sliderPillClasses(value) {
             const score = this.halfTotal || this.halfPoints ? this.score * 2 : this.score;
             const first = ((value / 2) + "").split(".")[1] === "5";
-            return value <= score
-                ? `bg-primary border-primary highlight ${first ? "first" : "second"}`
-                : `border-bluegrey opacity-100 ${first ? "first" : "second"}`;
+            let classes = first ? "first" : "second";
+
+            return value <= score ? classes += " highlight" : classes;
         },
         hasMaxDecimalScoreWithHalfPoint() {
             return isFloat(this.maxScore);

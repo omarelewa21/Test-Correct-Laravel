@@ -69,22 +69,22 @@ abstract class TestTake extends TCComponent
         $this->testTake = $testTake ?? TestTakeModel::whereUuid($this->testTakeUuid)->first();
     }
 
-    public function initializingPresenceChannel($event)
+    public function initializingPresenceChannel($event): void
     {
         $this->handlePresenceEventUpdate(collect($event)->where('student', true)->pluck('uuid'));
     }
 
-    public function joiningPresenceChannel($event)
+    public function joiningPresenceChannel($event): void
     {
         $this->handlePresenceEventUpdate($this->activeParticipantUuids->push($event['uuid']));
     }
 
-    public function leavingPresenceChannel($event)
+    public function leavingPresenceChannel($event): void
     {
         $this->handlePresenceEventUpdate(collect($event)->where('student', true)->pluck('uuid'));
     }
 
-    private function handlePresenceEventUpdate(Collection $presentUserUuids)
+    private function handlePresenceEventUpdate(Collection $presentUserUuids): void
     {
         $this->initialized = true;
         $this->activeParticipantUuids = $presentUserUuids;

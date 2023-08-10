@@ -65,6 +65,7 @@
 .score-slider-container .score-slider-continuous-input.hide-thumb::-moz-range-progress {
     background-color: #D7D7D7;
 }
+
 .score-slider-container .score-slider-continuous-input::-moz-range-progress {
     background-color: var(--primary);
     border-radius: 10px;
@@ -101,8 +102,23 @@
     border: 1px solid transparent;
 }
 
+/* Slider pills*/
 .score-slider-pill {
     position: relative;
+    border-color: var(--blue-grey);
+    opacity: 1;
+    /*margin-left: -1px;*/
+    left: -1px;
+}
+
+.score-slider-pill.highlight {
+    --score-slider-pill-background-color: var(--primary);
+    --score-slider-pill-border-color: var(--primary);
+    background-color: var(--score-slider-pill-background-color);
+    border-color: var(--score-slider-pill-border-color);
+}
+.untouched .score-slider-pill.highlight {
+    --score-slider-pill-background-color: rgba(0, 77, 245, 0.5);
 }
 
 .score-slider-pill.first:not(:last-child) {
@@ -128,26 +144,22 @@
     background-color: var(--system-secondary);
 }
 
+.untouched .score-slider-pill.highlight.first:not(:last-child),
 .score-slider-pill.first:not(.highlight):not(:last-child) {
     border-right-color: transparent;
 }
-
+.untouched .score-slider-pill.highlight.second,
 .score-slider-pill.second:not(.highlight) {
     border-left-color: transparent;
 }
 
 .score-slider-pill.second {
-    /*background-color: greenyellow;*/
     margin-right: 0.125rem;
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
 }
 
-.score-slider-container .score-slider-track-container:focus .score-slider-pill,
-.score-slider-container .score-slider-track-container:hover .score-slider-pill {
-    /*border: 1px solid var(--teacher-primary);*/
-}
-
+/* end Slider pills*/
 .score-slider-container .score-slider-continuous-input::-webkit-slider-runnable-track:hover {
     border: 1px solid var(--teacher-primary);
 }
@@ -192,6 +204,7 @@
 .score-slider-container .score-slider-input {
     --slider-thumb-offset: 12px;
 }
+
 .score-slider-container .score-slider-input::-webkit-slider-thumb {
     transform: translate(var(--slider-thumb-offset));
 }
@@ -371,6 +384,7 @@
     --thumb-top: 12px;
     --moz-left-zero: -100px;
 }
+
 .score-slider-container :is(.score-slider-continuous-input, .score-slider-input).hide-thumb::-ms-thumb {
     -ms-appearance: none;
     appearance: var(--thumb-appearance);
@@ -386,19 +400,24 @@
     left: var(--thumb-left);
     top: var(--thumb-top);
 }
+
 .score-slider-container .score-slider-continuous-input.hide-thumb::-ms-thumb {
     transform: translateY(-7px);
 }
+
 .score-slider-container .score-slider-continuous-input.hide-thumb::-ms-thumb:hover {
     transform: translateY(-7px) scale(1.25);
     transform-origin: center;
 }
+
 .score-slider-container .score-slider-input.hide-thumb::-ms-thumb {
     transform: translateY(-12px) translateX(-10px);
 }
+
 .score-slider-container .score-slider-input.hide-thumb::-ms-thumb:hover {
     transform: translateY(-12px) translateX(-10px) scale(1.25);
 }
+
 .score-slider-container :is(.score-slider-continuous-input, .score-slider-input).hide-thumb::-moz-range-thumb {
     --thumb-width: 1.25rem;
     --thumb-height: 1.25rem;
@@ -417,13 +436,16 @@
     top: var(--thumb-top);
     transform: translateX(var(--moz-left-zero));
 }
+
 .score-slider-container :is(.score-slider-continuous-input, .score-slider-input).hide-thumb:not(.moving)::-moz-range-thumb:hover {
     transform: translateX(var(--moz-left-zero)) scale(1.25);
 }
+
 .score-slider-container :is(.score-slider-continuous-input, .score-slider-input).hide-thumb::-moz-range-thumb:hover {
     transform: scale(1.25);
 }
-.score-slider-container :is(.score-slider-continuous-input, .score-slider-input).hide-thumb::-webkit-slider-thumb{
+
+.score-slider-container :is(.score-slider-continuous-input, .score-slider-input).hide-thumb::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: var(--thumb-appearance);
     width: var(--thumb-width);
@@ -437,16 +459,20 @@
     position: var(--thumb-position);
     left: var(--thumb-left);
 }
+
 .score-slider-container .score-slider-continuous-input.hide-thumb::-webkit-slider-thumb {
     transform: translateY(-7px);
 }
+
 .score-slider-container .score-slider-continuous-input.hide-thumb::-webkit-slider-thumb:hover {
     transform: translateY(-7px) scale(1.25);
     transform-origin: center;
 }
+
 .score-slider-container .score-slider-input.hide-thumb::-webkit-slider-thumb {
     transform: translateY(-12px) translateX(-10px);
 }
+
 .score-slider-container .score-slider-input.hide-thumb::-webkit-slider-thumb:hover {
     transform: translateY(-12px) translateX(-10px) scale(1.25);
 }

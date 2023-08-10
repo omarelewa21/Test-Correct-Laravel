@@ -55,7 +55,7 @@
         </div>
     </div>
 
-    <div class="page-content | flex flex-col w-full mx-auto px-[90px] py-10 gap-6">
+    <div class="page-content | flex flex-col w-full mx-auto px-[90px] py-10 gap-8">
         <div class="flex  flex-wrap">
             @hasSection('studentNames')
                 @yield('studentNames')

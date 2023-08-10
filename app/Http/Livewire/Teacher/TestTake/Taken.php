@@ -12,6 +12,7 @@ use tcCore\AnswerRating;
 use tcCore\Attainment;
 use tcCore\Http\Enums\GradingStandard;
 use tcCore\Http\Enums\TestTakeEventTypes;
+use tcCore\Http\Enums\UserFeatureSetting as UserFeatureSettingEnum;
 use tcCore\Http\Helpers\Normalize;
 use tcCore\Http\Livewire\Teacher\TestTake\TestTake as TestTakeComponent;
 use tcCore\Lib\Answer\AnswerChecker;
@@ -19,6 +20,7 @@ use tcCore\TestParticipant;
 use tcCore\TestTake as TestTakeModel;
 use tcCore\TestTakeStatus;
 use tcCore\User;
+use tcCore\UserFeatureSetting;
 
 class Taken extends TestTakeComponent
 {
@@ -40,11 +42,12 @@ class Taken extends TestTakeComponent
     protected Collection $gradingStandards;
     public $gradingStandard;
     public int|float $gradingValue = 1;
-    public null|int|float $cesuurPercentage = null;
+    public $cesuurPercentage = null;
+    public bool $showGradeToStudent;
+
+    private Collection $questionsOfTest;
     public array $questionsToIgnore = [];
 
-
-    public $rating;
 
     protected function getRules(): array
     {
@@ -67,9 +70,9 @@ class Taken extends TestTakeComponent
         $this->attainments = $this->getAttainments();
         $this->assessmentDone = $this->takenTestData['assessedQuestions'] === $this->takenTestData['questionsToAssess'];
         $this->reviewActive = $this->testTake->review_active;
-        $this->gradingStandards = GradingStandard::casesWithDescription();
-        $this->gradingStandard = $this->gradingStandards->flip()->first();
-        $this->standardizeResults(GradingStandard::tryFrom($this->gradingStandard));
+        $this->showGradeToStudent = $this->testTake->show_grades;
+
+        $this->setStandardizationProperties();
     }
 
     public function updatedReviewActive(bool $value): void
@@ -91,7 +94,10 @@ class Taken extends TestTakeComponent
 
     public function updatedGradingValue($value): void
     {
-        $this->standardizeResults(GradingStandard::tryFrom($this->gradingStandard));
+        $this->standardizeResults(
+            GradingStandard::tryFrom($this->gradingStandard),
+            $value
+        );
     }
 
     public function updatedGradingStandard($value): void
@@ -101,7 +107,17 @@ class Taken extends TestTakeComponent
 
     public function updatedCesuurPercentage($value): void
     {
-        $this->standardizeResults(GradingStandard::tryFrom($value));
+        $this->validate(['cesuurPercentage' => 'filled|numeric|min:1|max:100']);
+
+        $this->standardizeResults(
+            GradingStandard::tryFrom($this->gradingStandard),
+            $this->gradingValue
+        );
+    }
+
+    public function updatedShowGradeToStudent($value): void
+    {
+        $this->testTake->update(['show_grades' => $value]);
     }
 
     public function hydrate()
@@ -109,6 +125,10 @@ class Taken extends TestTakeComponent
         parent::hydrate();
         $this->setParticipantResults();
         $this->gradingStandards = GradingStandard::casesWithDescription();
+        $this->questionsOfTest = Session::get(
+            $this->questionsSessionKey(),
+            $this->getQuestionList()
+        );
     }
 
     /* Public methods */
@@ -152,6 +172,14 @@ class Taken extends TestTakeComponent
         return __('header.Afgenomen');
     }
 
+    public function initializingPresenceChannel($event): void
+    {
+        parent::initializingPresenceChannel($event);
+        if (!$this->showWaitingRoom) {
+            $this->skipRender();
+        }
+    }
+
     /* Button actions */
     public function startCoLearning(): Redirector|RedirectResponse|bool
     {
@@ -187,17 +215,38 @@ class Taken extends TestTakeComponent
         Session::forget($this->resultSessionKey());
     }
 
+    public function toggleQuestionToIgnore($questionUuid): void
+    {
+        $this->questionsToIgnore[] = $questionUuid;
+        if ($this->hasIgnoredAllQuestions()) {
+            $this->addError('all_questions_ignored', 'Alle vragen zijn overgeslagen.');
+            return;
+        }
+        $this->standardizeResults(
+            GradingStandard::tryFrom($this->gradingStandard),
+            $this->gradingValue
+        );
+    }
+
+    public function publishResults(): void
+    {
+        $this->participantResults->each(function ($participant) {
+            $participant->save();
+        });
+    }
+
     /* Protected methods */
     protected function setTakenTestData(): void
     {
-        $questionsOfTest = $this->testTake->test->getFlatQuestionList();
+        $this->questionsOfTest = $this->getQuestionList();
+        Session::put($this->questionsSessionKey(), $this->questionsOfTest);
 
         $this->takenTestData = [
-            'questionCount'      => $questionsOfTest->count(),
-            'discussedQuestions' => $this->discussedQuestions($questionsOfTest),
+            'questionCount'      => $this->questionsOfTest->count(),
+            'discussedQuestions' => $this->discussedQuestions($this->questionsOfTest),
             'assessedQuestions'  => $this->assessedQuestions(),
-            'questionsToAssess'  => $questionsOfTest->count(),
-            'maxScore'           => $questionsOfTest->sum('score')
+            'questionsToAssess'  => $this->questionsOfTest->count(),
+            'maxScore'           => $this->questionsOfTest->sum('score')
         ];
     }
 
@@ -283,14 +332,6 @@ class Taken extends TestTakeComponent
             });
 
         Session::put($this->resultSessionKey(), $this->participantResults);
-    }
-
-    protected function getPusherListeners(): array
-    {
-        return parent::getPusherListeners();
-        if ($this->showWaitingRoom) {
-        }
-        return [];
     }
 
     private function getScoreForParticipant(TestParticipant $participant): mixed
@@ -441,10 +482,19 @@ class Taken extends TestTakeComponent
         return '_participant_results_' . $this->testTakeUuid;
     }
 
+    private function questionsSessionKey(): string
+    {
+        return '_questions_' . $this->testTakeUuid;
+    }
+
     private function buildNormalizeRequest(GradingStandard $standard): Collection
     {
+        $questionsToIgnore = $this->questionsOfTest->map(function ($question) {
+            return in_array($question->uuid, $this->questionsToIgnore) ? $question->id : null;
+        })->filter()->toArray();
+
         $request = collect([
-            'ignore_questions' => $this->questionsToIgnore,
+            'ignore_questions' => $questionsToIgnore,
             'preview'          => true,
         ]);
         return match ($standard) {
@@ -462,12 +512,14 @@ class Taken extends TestTakeComponent
             ->put('pass_mark', $this->cesuurPercentage);
     }
 
-    private function standardizeResults(?GradingStandard $standard): void
+    private function standardizeResults(GradingStandard $standard, $gradingValue = null): void
     {
-        $this->gradingValue = $this->gradingValue ?? $standard->initialValue();
-        if ($standard === GradingStandard::CESUUR) {
-            $this->gradingValue = $this->gradingValue ?? GradingStandard::N_TERM->initialValue();
-            $this->cesuurPercentage = $this->cesuurPercentage ?? GradingStandard::CESUUR->initialValue();
+        if (!$gradingValue) {
+            $this->gradingValue = $standard->initialValue();
+            if ($standard === GradingStandard::CESUUR) {
+                $this->gradingValue = GradingStandard::N_TERM->initialValue();
+                $this->cesuurPercentage = $this->cesuurPercentage ?? GradingStandard::CESUUR->initialValue();
+            }
         }
 
         $normalize = new Normalize($this->testTake, $this->buildNormalizeRequest($standard));
@@ -481,5 +533,75 @@ class Taken extends TestTakeComponent
         };
 
         $this->participantResults->each(fn($participant) => $participant->rating = $data[$participant->id] ?? 0);
+
+        $this->dispatchBrowserEvent('clear-used-sliders');
     }
+
+    private function getQuestionList(): Collection
+    {
+        return $this->testTake
+            ->loadMissing([
+                'test',
+                'test.testQuestions',
+                'test.testQuestions.question',
+                'test.testQuestions.question.pValue',
+            ])
+            ->test
+            ->getFlatQuestionList(function ($connection) {
+                $connection->question->pValues = $connection->question
+                    ->pValue
+                    ->filter(
+                        fn($pValue) => $this->participantResults->pluck('id')->contains($pValue->test_participant_id)
+                    );
+            })
+            ->each(function ($question, $key) {
+                $question->order = $key + 1;
+                $question->pValuePercentage = null;
+                $question->pValueAverage = null;
+                $question->pValueMaxScore = null;
+                if (!$question->isType('Infoscreen')) {
+                    $question->pValuePercentage = (
+                            $question->pValues->sum('score') / $question->pValues->sum('max_score')
+                        ) * 100;
+                    $question->pValueAverage = $question->pValues->avg('score');
+                    $question->pValueMaxScore = $question->pValues->avg('max_score');
+                }
+            });
+    }
+
+    private function hasIgnoredAllQuestions(): bool
+    {
+        return count($this->questionsToIgnore) === ($this->takenTestData['questionCount'] - 1);
+    }
+
+    private function setStandardizationProperties(): void
+    {
+        $this->gradingStandards = GradingStandard::casesWithDescription();
+        $standard = UserFeatureSetting::getSetting(
+            user   : auth()->user(),
+            title  : UserFeatureSettingEnum::GRADE_DEFAULT_STANDARD,
+            default: GradingStandard::N_TERM
+        );
+        $this->gradingStandard = str($standard->name)->lower()->value();
+
+        $this->gradingValue = UserFeatureSetting::getSetting(
+            user   : auth()->user(),
+            title  : UserFeatureSettingEnum::GRADE_STANDARD_VALUE,
+            default: $standard->initialValue()
+        );
+
+        if ($standard === GradingStandard::CESUUR) {
+            $this->cesuurPercentage = UserFeatureSetting::getSetting(
+                user   : auth()->user(),
+                title  : UserFeatureSettingEnum::GRADE_CESUUR_PERCENTAGE,
+                default: GradingStandard::CESUUR->initialValue()
+            );
+        }
+
+        $this->standardizeResults(
+            $standard,
+            $this->gradingValue
+        );
+    }
+
 }
