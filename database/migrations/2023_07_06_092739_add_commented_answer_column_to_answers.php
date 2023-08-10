@@ -13,9 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('answers', function (Blueprint $table) {
-            $table->text('commented_answer')->nullable();
-        });
+        if(!Schema::hasColumn('answers','commented_answer')) {
+            Schema::table('answers', function (Blueprint $table) {
+                $table->text('commented_answer')->nullable();
+            });
+        }
     }
 
     /**
