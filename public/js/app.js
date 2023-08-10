@@ -6840,11 +6840,11 @@ document.addEventListener("alpine:init", function () {
             toolName.Canvas.data.question = _this9.questionSvg;
             _this9.handleGrid(toolName);
             toolName.drawingApp.init();
-            _this9.$dispatch("set-instant-upload", false);
+            _this9.$dispatch("set-allow-paste", false);
           } else {
             var component = getClosestLivewireComponentByAttribute(_this9.$root, "questionComponent");
             component.call("render");
-            _this9.$dispatch("set-instant-upload", true);
+            _this9.$dispatch("set-allow-paste", true);
           }
         });
         toolName.Canvas.layers.answer.enable();
