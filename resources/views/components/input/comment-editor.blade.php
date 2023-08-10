@@ -14,7 +14,7 @@
         .ck .ck-widget.ck-widget_selected, .ck .ck-widget.ck-widget_selected:hover {
             outline: none !important
         }
-        .ck-math-widget img.Wirisformula {
+        .ck-math-widget.ck-comment-marker img.Wirisformula {
             background-color: var(--ck-color-comment-marker)
         }
 
