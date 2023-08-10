@@ -9568,8 +9568,8 @@ document.addEventListener("alpine:init", function () {
                         _this65.$dispatch('answer-feedback-show-comments');
                         _this65.scrollToCommentCard(feedback.uuid);
                         setTimeout(function () {
-                          feedbackEditor.setData('<p></p>');
-                        }, 100);
+                          ClassicEditors[_this65.feedbackEditorId].setData('<p></p>');
+                        }, 300);
                         return _context25.abrupt("return");
                       case 20:
                         _context25.next = 22;
@@ -9711,6 +9711,10 @@ document.addEventListener("alpine:init", function () {
       },
       setIconPositionForThread: function setIconPositionForThread(iconWrapper, threadId, answerFeedbackUuid) {
         var commentMarkers = document.querySelectorAll("[data-comment='" + threadId + "']");
+        if (commentMarkers.length === 0) {
+          iconWrapper.style.display = 'none';
+          return;
+        }
         var lastCommentMarker = commentMarkers[commentMarkers.length - 1];
         iconWrapper.style.top = lastCommentMarker.offsetTop - 15 /* adjust icon alignment */ + lastCommentMarker.offsetHeight - 24 /* adjust to last line of marker */ + 'px';
         var lastCommentMarkerClientRects = lastCommentMarker.getClientRects();

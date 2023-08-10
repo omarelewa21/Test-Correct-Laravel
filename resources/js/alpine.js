@@ -2842,9 +2842,8 @@ document.addEventListener("alpine:init", () => {
                     this.scrollToCommentCard(feedback.uuid);
 
                     setTimeout(() => {
-                        feedbackEditor.setData('<p></p>');
-                    }, 100);
-
+                        ClassicEditors[this.feedbackEditorId].setData('<p></p>');
+                    }, 300);
                     return;
                 }
 
@@ -2968,6 +2967,10 @@ document.addEventListener("alpine:init", () => {
         },
         setIconPositionForThread(iconWrapper, threadId, answerFeedbackUuid) {
             const commentMarkers = document.querySelectorAll(`[data-comment='` + threadId + `']`);
+            if(commentMarkers.length === 0) {
+                iconWrapper.style.display = 'none';
+                return;
+            }
             const lastCommentMarker = commentMarkers[commentMarkers.length-1];
 
             iconWrapper.style.top = (lastCommentMarker.offsetTop - 15 /* adjust icon alignment */ + lastCommentMarker.offsetHeight - 24 /* adjust to last line of marker */) + 'px';
