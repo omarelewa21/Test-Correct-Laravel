@@ -406,9 +406,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
                 },
                 "paste": {
                     callback: (evt) => {
-                        if (isTeacher && UI.canvas.matches(':hover')) {
-                            handleImagePaste(evt);
-                        }
+                        isTeacher && UI.canvas.matches(':hover') && handleImagePaste(evt);
                     }
                 }
             }
@@ -2105,12 +2103,12 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
 
     function imageTypeIsAllowed(file) {
         if(file.size / (1024 * 1024) > 4) {
-            Notify.notify('U kunt afbeeldingen van maximaal 4 mb uploaden');
+            Notify.notify('U kunt afbeeldingen van maximaal 4 mb uploaden', 'error');
             return false;
         }
 
         if(!['png', 'jpeg', 'jpg'].includes(file.type.toLowerCase().split('/')[1])) {
-            Notify.notify('U kunt alleen png, jpeg en jpg afbeeldingen uploaden');
+            Notify.notify('U kunt alleen png, jpeg en jpg afbeeldingen uploaden', 'error');
             return false;
         }
 
