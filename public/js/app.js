@@ -8011,7 +8011,7 @@ document.addEventListener("alpine:init", function () {
         });
       },
       markInputElementsWithError: function markInputElementsWithError() {
-        var falseOptions = this.$root.querySelectorAll(".slider-option[data-active=\"false\"]");
+        var falseOptions = this.$root.querySelectorAll(".accordion-block .slider-option[data-active=\"false\"]");
         if (falseOptions.length === 2) {
           falseOptions.forEach(function (el) {
             return el.classList.add("!border-allred");
@@ -8019,7 +8019,7 @@ document.addEventListener("alpine:init", function () {
         }
       },
       markInputElementsClean: function markInputElementsClean() {
-        var falseOptions = this.$root.querySelectorAll(".slider-option[data-active=\"false\"]");
+        var falseOptions = this.$root.querySelectorAll(".accordion-block .slider-option[data-active=\"false\"]");
         if (falseOptions.length === 2) {
           falseOptions.forEach(function (el) {
             return el.classList.remove("!border-allred");
