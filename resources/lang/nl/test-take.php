@@ -104,8 +104,9 @@ return [
     'Normering'                                                                                                                                        => 'Normering',
     'Cijfer tonen aan student'                                                                                                                         => 'Cijfer tonen aan student',
     'Beoordeling'                                                                                                                                      => 'Beoordeling',
-    'Definitieve beoordeling'                                                                                                                           => 'Definitieve beoordeling',
+    'Definitieve beoordeling'                                                                                                                          => 'Definitieve beoordeling',
     'Hoogste cijfer'                                                                                                                                   => 'Hoogste cijfer',
     'Laagste cijfer'                                                                                                                                   => 'Laagste cijfer',
     'Gemiddeld cijfer'                                                                                                                                 => 'Gemiddeld cijfer',
+    'Resultaten publiceren'                                                                                                                            => 'Resultaten publiceren',
 ];

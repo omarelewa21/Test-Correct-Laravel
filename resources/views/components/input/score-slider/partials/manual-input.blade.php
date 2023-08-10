@@ -2,7 +2,7 @@
        x-model.number="score"
        type="number"
        max="{{$maxScore}}"
-       min="0"
+       min="{{ $minScore }}"
        onclick="this.select()"
        :step="halfPoints ? 0.5 : 1"
        x-ref="scoreInput"

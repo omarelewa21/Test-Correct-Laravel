@@ -2282,10 +2282,11 @@ document.addEventListener("alpine:init", () => {
                 });
         }
     }));
-    Alpine.data("scoreSlider", (score, model, maxScore, halfPoints, disabled, coLearning, focusInput, continuousSlider) => ({
+    Alpine.data("scoreSlider", (score, model, maxScore, halfPoints, disabled, coLearning, focusInput, continuousSlider, minScore) => ({
         score,
         model,
         maxScore,
+        minScore,
         timeOut: null,
         halfPoints,
         disabled,
@@ -2311,8 +2312,8 @@ document.addEventListener("alpine:init", () => {
             if (this.score > this.maxScore) {
                 this.score = this.maxScore;
             }
-            if (this.score < 0) {
-                this.score = 0;
+            if (this.score < this.minScore) {
+                this.score = this.minScore;
             }
 
 
@@ -2369,8 +2370,8 @@ document.addEventListener("alpine:init", () => {
                 if (value >= this.maxScore) {
                     this.score = value = this.maxScore;
                 }
-                if (value <= 0) {
-                    this.score = value = 0;
+                if (value <= this.minScore) {
+                    this.score = value = this.minScore;
                 }
 
                 this.score = value = this.halfPoints ? Math.round(value * 2) / 2 : Math.round(value);
@@ -2388,6 +2389,15 @@ document.addEventListener("alpine:init", () => {
                 this.halfTotal = this.hasMaxDecimalScoreWithHalfPoint();
                 this.bars = this.maxScore / 0.5;
             }
+
+            this.$nextTick(() => {
+                let rangeInput = this.$root.querySelector('input[type="range"]');
+                let left = rangeInput?.offsetWidth / 2
+                if (this.continuousSlider) {
+                    left = left - 2
+                }
+                rangeInput?.style.setProperty('--moz-left-zero', `-${left}px`);
+            })
         },
         markInputElementsWithError() {
             if (this.disabled) return;
@@ -2415,7 +2425,7 @@ document.addEventListener("alpine:init", () => {
         },
         hasMaxDecimalScoreWithHalfPoint() {
             return isFloat(this.maxScore);
-        }
+        },
     }));
 
     Alpine.data("completionQuestion", () => ({

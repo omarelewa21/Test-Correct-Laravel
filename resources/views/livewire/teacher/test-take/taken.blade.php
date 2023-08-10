@@ -37,6 +37,7 @@
 
 @section('cta')
     <div class="flex gap-2 justify-center">
+        @if($this->testTakeStatusId < \tcCore\TestTakeStatus::STATUS_DISCUSSED)
         <x-dynamic-component :component="'button.'. $this->getButtonType('CO-Learning')"
                              wire:click="startCoLearning" class="px-4">
             <x-icon.co-learning />
@@ -47,6 +48,12 @@
             <x-icon.review />
             <span>@lang('assessment.Nakijken')</span>
         </x-dynamic-component>
+        @else
+            <x-button.cta>
+                <x-icon.grade/>
+                <span>@lang('test-take.Resultaten publiceren')</span>
+            </x-button.cta>
+        @endif
     </div>
 @endsection
 
@@ -85,7 +92,7 @@
             <x-icon.co-learning />
             <span>@lang('co-learning.co_learning')</span>
         </x-button.cta>
-    @else
+    @elseif($this->testTakeStatusId === \tcCore\TestTakeStatus::STATUS_DISCUSSED && !$this->assessmentDone)
         <x-button.icon wire:click="startCoLearning" class="order-5">
             <x-icon.co-learning />
         </x-button.icon>
@@ -94,16 +101,30 @@
             <x-icon.review />
             <span>@lang('assessment.Nakijken')</span>
         </x-button.cta>
+    @else
+        <x-button.icon wire:click="startCoLearning" class="order-5">
+            <x-icon.co-learning />
+        </x-button.icon>
+        <x-button.icon wire:click="startAssessment" class="order-5">
+            <x-icon.review />
+        </x-button.icon>
+        <x-button.cta class="order-1">
+            <x-icon.grade/>
+            <span>@lang('test-take.Resultaten publiceren')</span>
+        </x-button.cta>
     @endif
+    <x-button.secondary wire:click="clearSession">
+        <span>Session reset</span>
+    </x-button.secondary>
 @endsection
 
 @section('waitingRoom')
-    <div class="flex flex-col bg-white w-full">
+    {{--<div class="flex flex-col bg-white w-full">
         <div>
             <x-input.score-slider class=""
                                   model-name="rating"
                                   :max-score="7"
-                                  :score="5"
+                                  :score="null"
                                   :half-points="true"
                                   :disabled="false"
                                   :co-learning="false"
@@ -114,7 +135,7 @@
             <x-input.score-slider class=""
                                   model-name="rating"
                                   :max-score="7"
-                                  :score="5"
+                                  :score="null"
                                   :half-points="true"
                                   :disabled="false"
                                   :co-learning="false"
@@ -125,7 +146,7 @@
             <x-input.score-slider class=""
                                   model-name="rating"
                                   :max-score="10"
-                                  :score="5"
+                                  :score="null"
                                   :half-points="true"
                                   :disabled="false"
                                   :co-learning="false"
@@ -136,7 +157,7 @@
             <x-input.score-slider class=""
                                   model-name="rating"
                                   :max-score="10"
-                                  :score="5"
+                                  :score="null"
                                   :half-points="true"
                                   :disabled="false"
                                   :co-learning="false"
@@ -144,7 +165,7 @@
                                   :title="false"
             />
         </div>
-    </div>
+    </div>--}}
     <div @class(['flex flex-col gap-4', 'hidden' => !$this->showWaitingRoom])>
         <div class="flex flex-col gap-4">
             @if($this->showWaitingRoom)
@@ -231,13 +252,20 @@
                 <div class="grid grid-cols-2 w-full gap-6 mb-4 mt-px">
                     <div class="flex items-center gap-2 border-b border-bluegrey">
                         <span class="bold">@lang('test-take.Normering'):</span>
-                        <x-input.select class="">
+                        <x-input.select class="" wire:model="gradingStandard">
                             @foreach($this->gradingStandards as $key => $language)
                                 <x-input.option :value="$key" :label="$language" />
                             @endforeach
                         </x-input.select>
-                        <x-input.text value="1" class="min-w-[60px] w-[60px] text-center" />
-                        <x-input.text value="100%" class="min-w-[80px] w-[80px] text-center" />
+                        <x-input.text value="1"
+                                      class="min-w-[60px] w-[60px] text-center"
+                                      wire:model="gradingValue"
+                        />
+                        <x-input.text value="100%"
+                                      class="min-w-[80px] w-[80px] text-center"
+                                      :disabled="$this->gradingStandard !== 'cesuur'"
+                                      wire:model="cesuurPercentage"
+                        />
                         <x-tooltip class="min-w-[22px]">Lekker tooltippen</x-tooltip>
                     </div>
 
@@ -312,22 +340,22 @@
                                 </div>
                             </div>
                             <div class="grid-item flex items-center group-hover/row:bg-offwhite px-1.5 justify-end">
-                                3
+                                {{ $participant->definitiveRating ?? '-' }}
                             </div>
-                            <div class="grid-item flex items-center group-hover/row:bg-offwhite px-1.5 justify-end justify-self-end">
+                            <div class="grid-item flex items-center group-hover/row:bg-offwhite px-1.5 justify-end justify-self-end"
+                                 wire:key="rating-@js($participant->rating)"
+                            >
                                 <x-input.score-slider class=""
-                                                      model-name="rating"
-                                                      :max-score="10"
-                                                      :score="5"
-                                                      :half-points="true"
-                                                      :disabled="false"
-                                                      :co-learning="false"
+                                                      model-name="participantResults.{{ $key }}.rating"
                                                       mode="large"
+                                                      :max-score="10"
+                                                      :score="$participant->rating"
+                                                      :half-points="true"
                                                       :title="false"
                                 />
                             </div>
                             <div class="grid-item flex items-center group-hover/row:bg-offwhite pl-1.5 pr-5 rounded-r-10">
-                                <x-mark-badge rating="10" />
+                                <x-mark-badge :rating="$participant->rating" />
                             </div>
                         </div>
                         <div class="h-px bg-bluegrey mx-5 col-span-5 col-start-1"></div>
@@ -415,7 +443,7 @@
                                     <span>-/--</span>
                                 @else
                                     <span>{{ $participant->rated }}</span>/
-                                    <span>{{ $this->takenTestData['questionCount'] }}</span>
+                                    <span>{{ $participant->answers->count() }}</span>
                                 @endif
                             </div>
                             <div class="grid-item flex items-center group-hover/row:bg-offwhite px-1.5 justify-end">

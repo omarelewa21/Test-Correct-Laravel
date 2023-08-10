@@ -17,7 +17,7 @@
 </div>
 <div class="w-full absolute top-0 left-0  flex items-center h-full">
     <input type="range"
-           min="0"
+           min="{{ $minScore }}"
            max="{{$maxScore}}"
            :step="halfPoints ? 0.5 : 1"
            class="score-slider-input w-full hide-thumb"
@@ -32,5 +32,7 @@
            x-on:click="noChangeEventFallback"
            x-on:change="syncInput()"
             @disabled($disabled)
+           x-bind:value="score ?? 0"
+           x-on:mousedown="if(score === null) {$el.classList.add('moving')}"
     >
 </div>

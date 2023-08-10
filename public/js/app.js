@@ -8932,11 +8932,12 @@ document.addEventListener("alpine:init", function () {
     };
   });
 
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("scoreSlider", function (score, model, maxScore, halfPoints, disabled, coLearning, focusInput, continuousSlider) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("scoreSlider", function (score, model, maxScore, halfPoints, disabled, coLearning, focusInput, continuousSlider, minScore) {
     return {
       score: score,
       model: model,
       maxScore: maxScore,
+      minScore: minScore,
       timeOut: null,
       halfPoints: halfPoints,
       disabled: disabled,
@@ -8961,8 +8962,8 @@ document.addEventListener("alpine:init", function () {
         if (this.score > this.maxScore) {
           this.score = this.maxScore;
         }
-        if (this.score < 0) {
-          this.score = 0;
+        if (this.score < this.minScore) {
+          this.score = this.minScore;
         }
         var el = this.$root.querySelector(".score-slider-input");
         var offsetFromCenter = -40;
@@ -9019,8 +9020,8 @@ document.addEventListener("alpine:init", function () {
           if (value >= _this55.maxScore) {
             _this55.score = value = _this55.maxScore;
           }
-          if (value <= 0) {
-            _this55.score = value = 0;
+          if (value <= _this55.minScore) {
+            _this55.score = value = _this55.minScore;
           }
           _this55.score = value = _this55.halfPoints ? Math.round(value * 2) / 2 : Math.round(value);
           _this55.updateContinuousSlider();
@@ -9035,6 +9036,14 @@ document.addEventListener("alpine:init", function () {
           this.halfTotal = this.hasMaxDecimalScoreWithHalfPoint();
           this.bars = this.maxScore / 0.5;
         }
+        this.$nextTick(function () {
+          var rangeInput = _this55.$root.querySelector('input[type="range"]');
+          var left = (rangeInput === null || rangeInput === void 0 ? void 0 : rangeInput.offsetWidth) / 2;
+          if (_this55.continuousSlider) {
+            left = left - 2;
+          }
+          rangeInput === null || rangeInput === void 0 ? void 0 : rangeInput.style.setProperty('--moz-left-zero', "-".concat(left, "px"));
+        });
       },
       markInputElementsWithError: function markInputElementsWithError() {
         if (this.disabled) return;

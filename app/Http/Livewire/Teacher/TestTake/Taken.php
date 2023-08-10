@@ -12,6 +12,7 @@ use tcCore\AnswerRating;
 use tcCore\Attainment;
 use tcCore\Http\Enums\GradingStandard;
 use tcCore\Http\Enums\TestTakeEventTypes;
+use tcCore\Http\Helpers\Normalize;
 use tcCore\Http\Livewire\Teacher\TestTake\TestTake as TestTakeComponent;
 use tcCore\Lib\Answer\AnswerChecker;
 use tcCore\TestParticipant;
@@ -37,11 +38,17 @@ class Taken extends TestTakeComponent
     public Collection $attainmentValueRatios;
 
     protected Collection $gradingStandards;
+    public $gradingStandard;
+    public int|float $gradingValue = 1;
+    public null|int|float $cesuurPercentage = null;
+    public array $questionsToIgnore = [];
+
 
     public $rating;
+
     protected function getRules(): array
     {
-        return ['rating' => 'sometimes'];
+        return ['participantResults.*.rating' => 'int'];
     }
 
     public function mount(TestTakeModel $testTake): void
@@ -49,19 +56,20 @@ class Taken extends TestTakeComponent
         parent::mount($testTake);
         $this->createSystemRatingsWhenNecessary();
         $this->testTakeStatusId = $this->testTake->test_take_status_id;
-        $this->setTakenTestData();
-        $this->setStudentData();
 
+        $this->setParticipantResults();
+        $this->setTakenTestData();
         $this->showWaitingRoom = in_array(
             $this->testTakeStatusId,
             [TestTakeStatus::STATUS_TAKEN, TestTakeStatus::STATUS_DISCUSSING]
         );
-        $this->reviewActive = $this->testTake->review_active;
-        $this->setParticipantResults();
 
         $this->attainments = $this->getAttainments();
         $this->assessmentDone = $this->takenTestData['assessedQuestions'] === $this->takenTestData['questionsToAssess'];
+        $this->reviewActive = $this->testTake->review_active;
         $this->gradingStandards = GradingStandard::casesWithDescription();
+        $this->gradingStandard = $this->gradingStandards->flip()->first();
+        $this->standardizeResults(GradingStandard::tryFrom($this->gradingStandard));
     }
 
     public function updatedReviewActive(bool $value): void
@@ -74,6 +82,26 @@ class Taken extends TestTakeComponent
         $this->participantResults->each(function ($participant, $key) {
             $participant->name = $this->getDisplayNameForParticipant($participant->user, $key);
         });
+    }
+
+    public function updatedParticipantResults(): void
+    {
+        Session::put($this->resultSessionKey(), $this->participantResults);
+    }
+
+    public function updatedGradingValue($value): void
+    {
+        $this->standardizeResults(GradingStandard::tryFrom($this->gradingStandard));
+    }
+
+    public function updatedGradingStandard($value): void
+    {
+        $this->standardizeResults(GradingStandard::tryFrom($value));
+    }
+
+    public function updatedCesuurPercentage($value): void
+    {
+        $this->standardizeResults(GradingStandard::tryFrom($value));
     }
 
     public function hydrate()
@@ -108,10 +136,6 @@ class Taken extends TestTakeComponent
                 'CO-Learning' => 'cta',
                 'Assessment'  => 'primary'
             ],
-            TestTakeStatus::STATUS_DISCUSSED  => [
-                'CO-Learning' => 'primary',
-                'Assessment'  => 'cta'
-            ]
         ];
         return $contexts[$this->testTakeStatusId][$context];
     }
@@ -158,6 +182,11 @@ class Taken extends TestTakeComponent
         )->toArray();
     }
 
+    public function clearSession(): void
+    {
+        Session::forget($this->resultSessionKey());
+    }
+
     /* Protected methods */
     protected function setTakenTestData(): void
     {
@@ -191,13 +220,24 @@ class Taken extends TestTakeComponent
 
     private function assessedQuestions(): int
     {
-        return AnswerRating::join('answers', 'answers.id', '=', 'answer_ratings.answer_id')
-            ->where('answer_ratings.test_take_id', $this->testTake->id)
-            ->where('answer_ratings.type', '!=', AnswerRating::TYPE_STUDENT)
-            ->selectRaw('answers.question_id, count(answer_ratings.id) as timesRated')
+        return Answer::select('answers.question_id')
+            ->leftJoin(
+                'test_participants',
+                'test_participants.id',
+                '=',
+                'answers.test_participant_id'
+            )
+            ->where('test_participants.test_take_id', $this->testTake->getKey())
+            ->whereNull('test_participants.deleted_at')
+            ->whereExists(function ($query) {
+                $query->select('answer_ratings.id')
+                    ->from('answer_ratings')
+                    ->whereRaw('answer_ratings.answer_id = answers.id')
+                    ->where('answer_ratings.type', '!=', AnswerRating::TYPE_STUDENT)
+                    ->whereNull('answer_ratings.deleted_at');
+            })
             ->groupBy('answers.question_id')
             ->get()
-            ->where('timesRated', $this->testTake->testParticipants->count())
             ->count();
     }
 
@@ -239,6 +279,7 @@ class Taken extends TestTakeComponent
                 $participant->rated = $this->getRatedQuestionsForParticipant($participant);
                 $participant->testNotTaken = $participant->test_take_status_id < TestTakeStatus::STATUS_TAKEN;
                 $participant->contextIcons = $this->getContextIconsForParticipant($participant);
+                $participant->definitiveRating = $participant->rating;
             });
 
         Session::put($this->resultSessionKey(), $this->participantResults);
@@ -246,8 +287,8 @@ class Taken extends TestTakeComponent
 
     protected function getPusherListeners(): array
     {
+        return parent::getPusherListeners();
         if ($this->showWaitingRoom) {
-            return parent::getPusherListeners();
         }
         return [];
     }
@@ -265,7 +306,7 @@ class Taken extends TestTakeComponent
                     }
                     return 3;
                 })->first();
-            return $rating->rating;
+            return $rating?->rating;
         });
     }
 
@@ -400,4 +441,45 @@ class Taken extends TestTakeComponent
         return '_participant_results_' . $this->testTakeUuid;
     }
 
+    private function buildNormalizeRequest(GradingStandard $standard): Collection
+    {
+        $request = collect([
+            'ignore_questions' => $this->questionsToIgnore,
+            'preview'          => true,
+        ]);
+        return match ($standard) {
+            GradingStandard::GOOD_PER_POINT => $request->put('ppp', $this->gradingValue),
+            GradingStandard::ERRORS_PER_POINT => $request->put('epp', $this->gradingValue),
+            GradingStandard::MEAN => $request->put('wanted_average', $this->gradingValue),
+            GradingStandard::N_TERM => $request->put('n_term', $this->gradingValue),
+            GradingStandard::CESUUR => $this->fillCesuurRequest($request),
+        };
+    }
+
+    private function fillCesuurRequest(Collection $request): Collection
+    {
+        return $request->put('n_term', $this->gradingValue)
+            ->put('pass_mark', $this->cesuurPercentage);
+    }
+
+    private function standardizeResults(?GradingStandard $standard): void
+    {
+        $this->gradingValue = $this->gradingValue ?? $standard->initialValue();
+        if ($standard === GradingStandard::CESUUR) {
+            $this->gradingValue = $this->gradingValue ?? GradingStandard::N_TERM->initialValue();
+            $this->cesuurPercentage = $this->cesuurPercentage ?? GradingStandard::CESUUR->initialValue();
+        }
+
+        $normalize = new Normalize($this->testTake, $this->buildNormalizeRequest($standard));
+
+        $data = match ($standard) {
+            GradingStandard::GOOD_PER_POINT => $normalize->normBasedOnGoodPerPoint(),
+            GradingStandard::ERRORS_PER_POINT => $normalize->normBasedOnErrorsPerPoint(),
+            GradingStandard::MEAN => $normalize->normBasedOnAverageMark(),
+            GradingStandard::N_TERM => $normalize->normBasedOnNTerm(),
+            GradingStandard::CESUUR => $normalize->normBasedOnNTermAndPassMark(),
+        };
+
+        $this->participantResults->each(fn($participant) => $participant->rating = $data[$participant->id] ?? 0);
+    }
 }

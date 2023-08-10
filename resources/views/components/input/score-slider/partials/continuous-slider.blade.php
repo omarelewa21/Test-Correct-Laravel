@@ -11,5 +11,6 @@
                :class="{'hide-thumb': score === null}"
             @endif
             @disabled($disabled)
+           x-on:mousedown="if(score === null) {$el.classList.add('moving')}"
     >
 </div>

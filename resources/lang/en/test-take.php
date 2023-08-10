@@ -105,8 +105,9 @@ return [
     'Normering'                                                                                                                                        => 'Standardization',
     'Cijfer tonen aan student'                                                                                                                         => 'Show grade to student',
     'Beoordeling'                                                                                                                                      => 'Score',
-    'Aangepaste beoordeling'                                                                                                                           => 'Final score',
+    'Definitieve beoordeling'                                                                                                                           => 'Final score',
     'Hoogste cijfer'                                                                                                                                   => 'Highest grade',
     'Laagste cijfer'                                                                                                                                   => 'Lowest grade',
     'Gemiddeld cijfer'                                                                                                                                 => 'Average grade',
+    'Resultaten publiceren'                                                                                                                            => 'Publish results',
 ];

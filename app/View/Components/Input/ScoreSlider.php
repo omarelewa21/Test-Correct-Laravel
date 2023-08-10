@@ -8,6 +8,7 @@ use Illuminate\View\View;
 class ScoreSlider extends Component
 {
     public bool $continuousScoreSlider = false;
+    public string $inputTemplate;
 
     public function __construct(
         public int|float      $maxScore,
@@ -21,12 +22,15 @@ class ScoreSlider extends Component
         public                $tooltip = null,
         public bool           $focusInput = false,
         public bool           $hideThumb = false,
+        public int            $minScore = 0,
     ) {
         $this->setContinuousSliderValue();
 
         if ($this->title === null) {
             $this->title = __('Score');
         }
+
+        $this->inputTemplate = 'components.input.score-slider.partials.' . ($this->continuousScoreSlider ? 'continuous-slider' : 'slider-pills');
     }
 
     public function render(): View
