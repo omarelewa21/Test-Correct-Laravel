@@ -1,6 +1,7 @@
 @props([
     'comment',
     'viewOnly' => false,
+    'userNamefull' => null,
 ])
 @php
     $iconName = \tcCore\Http\Enums\CommentEmoji::tryFrom($comment->comment_emoji)?->getIconComponentName() ?? '';
@@ -47,7 +48,7 @@
         <div class="flex space-x-2">
             <x-icon.profile-circle class="text-base flex-shrink-0"/>
             <div class="flex flex-col">
-                <span class="leading-none bold feedback-card-name truncate w-[125px]">{{ $comment->user->nameFull }}</span>
+                <span class="leading-none bold feedback-card-name truncate w-[125px]">{{ $userNamefull ?? $comment->user->nameFull }}</span>
                 <span class="text-[12px] feedback-card-datetime">{{ $comment->updated_at->format('j M. \'y') }}</span>
             </div>
         </div>

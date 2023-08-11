@@ -1633,13 +1633,13 @@ document.addEventListener("alpine:init", () => {
             });
         },
         markInputElementsWithError() {
-            const falseOptions = this.$root.querySelectorAll(".slider-option[data-active=\"false\"]");
+            const falseOptions = this.$root.querySelectorAll(".accordion-block .slider-option[data-active=\"false\"]");
             if (falseOptions.length === 2) {
                 falseOptions.forEach(el => el.classList.add("!border-allred"));
             }
         },
         markInputElementsClean() {
-            const falseOptions = this.$root.querySelectorAll(".slider-option[data-active=\"false\"]");
+            const falseOptions = this.$root.querySelectorAll(".accordion-block .slider-option[data-active=\"false\"]");
             if (falseOptions.length === 2) {
                 falseOptions.forEach(el => el.classList.remove("!border-allred"));
             }
