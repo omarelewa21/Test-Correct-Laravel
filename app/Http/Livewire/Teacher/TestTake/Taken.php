@@ -40,9 +40,9 @@ class Taken extends TestTakeComponent
     public Collection $attainmentValueRatios;
 
     protected Collection $gradingStandards;
-    public $gradingStandard;
+    public string|GradingStandard $gradingStandard;
     public int|float $gradingValue = 1;
-    public $cesuurPercentage = null;
+    public null|string|int|float $cesuurPercentage = null;
     public bool $showGradeToStudent;
 
     private Collection $questionsOfTest;
