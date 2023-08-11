@@ -348,31 +348,11 @@
                                                 <span class="title">{{ __("onboarding.Zijn alle velden correct ingevuld") }}?</span>
                                             </div>
                                         @endif
-                                        @error('registration.username')
-                                        <div class="notification stretched error mt-4">
-                                            <span class="title">{{ $message }}</span>
-                                        </div>
-                                        @enderror
-                                        @error('registration.gender')
-                                        <div class="notification stretched error mt-4">
-                                            <span class="title">{{ $message }}</span>
-                                        </div>
-                                        @enderror
-                                        @error('registration.name_first')
-                                        <div class="notification stretched error mt-4">
-                                            <span class="title">{{ $message }}</span>
-                                        </div>
-                                        @enderror
-                                        @error('registration.name')
-                                        <div class="notification stretched error mt-4">
-                                            <span class="title">{{ $message }}</span>
-                                        </div>
-                                        @enderror
-                                        @error('password')
-                                        <div class="notification stretched error mt-4">
-                                            <span class="title">{{ $message }}</span>
-                                        </div>
-                                        @enderror
+                                        @foreach($errors->all() as $error)
+                                            <div class="notification stretched error mt-4">
+                                                <span class="title">{{ $error }}</span>
+                                            </div>
+                                        @endforeach
                                     </div>
                                     <div class="flex w-full mt-4">
                                         @if ($btnDisabled)
