@@ -108,14 +108,14 @@
                 <div class="property-group" id="line">
                     <x-input.color-picker  :name="'line-color'" :id="'line-color'" :title="__('drawing-modal.lineColor')"/>
                     <div class="input-with-button-group">
-                        <button id="decr-line-width" class="Secondary" title="{{ __('drawing-modal.Vergroot randdikte') }}" disabled>
+                        <button id="decr-line-width" class="Secondary" title="{{ __('drawing-modal.reduce-line-width') }}" disabled>
                             <div>
                                 <x-icon.min/>
                             </div>
                         </button>
                         <input type="number" name="line-width" id="line-width" min="1" max="100" value="1"
-                               autocomplete="off" title="Randdikte">
-                        <button id="incr-line-width" class="Secondary" title="{{ __('drawing-modal.Verklein randdikte') }}">
+                               autocomplete="off" title="@lang('drawing-modal.lijndikte')">
+                        <button id="incr-line-width" class="Secondary" title="{{ __('drawing-modal.enlarge-line-width') }}">
                             <div>
                                 <x-icon.plus/>
                             </div>
@@ -132,7 +132,7 @@
                             </div>
                         </button>
                         <input type="number" name="stroke-width" id="stroke-width" min="0" max="100" value="1"
-                               autocomplete="off" title="Randdikte">
+                               autocomplete="off" title="@lang('drawing-modal.Randdikte')">
                         <button id="incr-stroke" class="Secondary" title="{{ __('drawing-modal.Verklein randdikte') }}">
                             <div>
                                 <x-icon.plus/>
