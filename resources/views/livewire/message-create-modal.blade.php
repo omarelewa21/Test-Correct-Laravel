@@ -28,9 +28,9 @@
 
     <x-slot:footer>
         <div class="inline self-end">
-            <x-button.text-button class="mr-2" wire:click="$emit('closeModal')">
+            <x-button.text class="mr-2" wire:click="$emit('closeModal')">
                 <span>@lang("modal.cancel")</span>
-            </x-button.text-button>
+            </x-button.text>
 
             <x-button.cta wire:click="send" size="md">
                 <span>@lang("auth.send")</span>

@@ -12,13 +12,13 @@
     <div class="flex flex-col gap-1">
         <span>@lang('review.in te zien tot')</span>
         <span class="flex items-center gap-2">
-            <x-button.text-button size="sm"
-                                  class="min-h-0 -mt-1"
-                                  wire:click="$emit('openModal', 'teacher.test-take.set-student-review-modal', {testTake: '{{ $this->testTakeUuid }}' });"
+            <x-button.text size="sm"
+                           class="min-h-0 -mt-1"
+                           wire:click="$emit('openModal', 'teacher.test-take.set-student-review-modal', {testTake: '{{ $this->testTakeUuid }}' });"
             >
                 <x-icon.edit />
                 <span>{{ $this->showResultsButtonText() }}</span>
-            </x-button.text-button>
+            </x-button.text>
             <x-input.toggle :disabled="!$this->testTake->show_results"
                             wire:click="$toggle('reviewActive')"
                             :checked="$this->reviewActive"
@@ -421,11 +421,14 @@
                                                 <span>{{ $question->typeName }}</span>
                                             </div>
                                             <div class="grid-item flex items-center group-hover/row:bg-offwhite px-3 truncate justify-between gap-1.5">
-                                                <span class="truncate" title="{{ $question->title }}">{{ $question->title }}</span>
-                                                {{--TODO change to button.icon when merged with master --}}
-                                                <x-icon.preview class="min-w-[20px] w-5 text-sysbase cursor-pointer hover:text-primary"
-                                                                wire:click="$emit('openModal', 'teacher.question-cms-preview-modal', {uuid: '{{ $question->uuid }}' } );"
-                                                />
+                                                <span class="truncate"
+                                                      title="{{ $question->title }}">{{ $question->title }}</span>
+                                                <x-button.text
+                                                        wire:click="$emit('openModal', 'teacher.question-cms-preview-modal', {uuid: '{{ $question->uuid }}' } );"
+                                                        size="md"
+                                                >
+                                                    <x-icon.preview />
+                                                </x-button.text>
                                             </div>
                                             <div class="grid-item flex items-center group-hover/row:bg-offwhite px-3 justify-end">
                                                 <span>{{ $question->pValuePercentage ? $question->pValuePercentage . '%' : '-' }}</span>
@@ -458,14 +461,18 @@
                                     <div class="contents cursor-default bold">
                                         <div class="grid-item flex items-center pt-6 pr-3 pl-5 col-start-1 "></div>
                                         <div class="grid-item flex items-center pt-6 px-3 "></div>
-                                        <div class="grid-item flex items-center pt-6 px-3 justify-end">Gecombineerd
-                                            gemiddelde:
+                                        <div class="grid-item flex items-center pt-6 px-3 justify-end">
+                                            <span>@lang('test-take.Gecombineerd gemiddelde'):</span>
                                         </div>
-                                        <div class="grid-item flex items-center pt-6 px-3 justify-end">{{ round($this->questionsOfTest->map(fn($q) => $q->pValuePercentage)->avg(), 1) }}
-                                            %
+                                        <div class="grid-item flex items-center pt-6 px-3 justify-end">
+                                            <span>{{ round($this->questionsOfTest->map(fn($q) => $q->pValuePercentage)->avg(), 1) }}%</span>
                                         </div>
-                                        <div class="grid-item flex items-center pt-6 px-3 justify-end">{{ round($this->questionsOfTest->map(fn($q) => $q->pValueAverage)->avg(), 1) }}</div>
-                                        <div class="grid-item flex items-center pt-6 px-3 justify-end">{{ round($this->questionsOfTest->map(fn($q) => $q->pValueMaxScore)->avg(), 1) }}</div>
+                                        <div class="grid-item flex items-center pt-6 px-3 justify-end">
+                                            <span>{{ round($this->questionsOfTest->map(fn($q) => $q->pValueAverage)->avg(), 1) }}</span>
+                                        </div>
+                                        <div class="grid-item flex items-center pt-6 px-3 justify-end">
+                                            <span>{{ round($this->questionsOfTest->map(fn($q) => $q->pValueMaxScore)->avg(), 1) }}</span>
+                                        </div>
                                         <div class="grid-item flex items-center pt-6 pl-3 pr-5"></div>
                                     </div>
                                 </div>
