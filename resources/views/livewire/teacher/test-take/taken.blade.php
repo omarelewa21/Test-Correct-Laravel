@@ -73,49 +73,54 @@
 @endif
 
 @section('action-buttons')
-    @if($this->testTake->is_rtti_test_take)
-        <x-button.icon class="order-5">
-            <x-icon.upload />
+    @if($this->testTake->is_rtti_test_take || true)
+        <x-button.icon class="order-3" :title="__('teacher.Exporteer naar RTTI Online')">
+            <x-icon.export />
         </x-button.icon>
     @endif
     <x-button.icon class="order-5"
-                   wire:click="$emit('openModal', 'teacher.test-plan-redo-modal', {testUuid: '{{ $this->testTake->test->uuid }}', testTakeUuid: '{{ $this->testTakeUuid }}' })">
+                   wire:click="$emit('openModal', 'teacher.test-plan-redo-modal', {testUuid: '{{ $this->testTake->test->uuid }}', testTakeUuid: '{{ $this->testTakeUuid }}' })"
+                   :title="__('test-take.Inhaaltoets inplannen')"
+    >
         <x-icon.redo-test />
     </x-button.icon>
 
     @if(in_array($this->testTakeStatusId,[\tcCore\TestTakeStatus::STATUS_TAKEN,\tcCore\TestTakeStatus::STATUS_DISCUSSING]))
-        <x-button.icon wire:click="startAssessment" class="order-5">
+        <x-button.icon wire:click="startAssessment" class="order-5" :title="__('assessment.Start nakijken')">
             <x-icon.review />
         </x-button.icon>
 
-        <x-button.cta wire:click="startCoLearning" class="px-4 order-1">
+        <x-button.cta wire:click="startCoLearning" class="px-4 order-1" :title="__('co-learning.start_co_learning_session')">
             <x-icon.co-learning />
             <span>@lang('co-learning.co_learning')</span>
         </x-button.cta>
     @elseif($this->testTakeStatusId === \tcCore\TestTakeStatus::STATUS_DISCUSSED && !$this->assessmentDone)
-        <x-button.icon wire:click="startCoLearning" class="order-5">
+        <x-button.icon wire:click="startCoLearning" class="order-5" :title="__('co-learning.start_co_learning_session')">
             <x-icon.co-learning />
         </x-button.icon>
 
-        <x-button.cta wire:click="startAssessment" class="px-4 order-1">
+        <x-button.cta wire:click="startAssessment" class="px-4 order-1" :title="__('assessment.Start nakijken')">
             <x-icon.review />
             <span>@lang('assessment.Nakijken')</span>
         </x-button.cta>
     @else
-        <x-button.icon wire:click="startCoLearning" class="order-5">
-            <x-icon.co-learning />
-        </x-button.icon>
-        <x-button.icon wire:click="startAssessment" class="order-5">
+
+        <x-button.icon wire:click="startAssessment" class="order-5" :title="__('co-learning.start_co_learning_session')">
             <x-icon.review />
         </x-button.icon>
-        <x-button.cta class="order-1">
+        <x-button.icon wire:click="startCoLearning" class="order-5" :title="__('assessment.Start nakijken')">
+            <x-icon.co-learning />
+        </x-button.icon>
+
+        <x-button.icon class="order-3" :title="__('test-take.Exporteer cijferlijst')">
+            <x-icon.grades-list />
+        </x-button.icon>
+
+        <x-button.cta class="order-1" :title="__('test-take.Resultaten publiceren')">
             <x-icon.grade />
             <span>@lang('test-take.Resultaten publiceren')</span>
         </x-button.cta>
     @endif
-    <x-button.secondary wire:click="clearSession">
-        <span>Session reset</span>
-    </x-button.secondary>
 @endsection
 
 @section('waitingRoom')
@@ -200,11 +205,17 @@
             <h2>@lang('test-take.Resultaten instellen')</h2>
 
             <div class="flex flex-col gap-8">
-                <x-accordion.container :activeContainerKey="1">
-                    <x-accordion.block :key="1" :emitWhenSet="true">
+                <x-accordion.container>
+                    <x-accordion.block key="standardize" :emitWhenSet="true">
                         <x-slot:title>
                             <h4>@lang('account.Becijferen en normeren')</h4>
                         </x-slot:title>
+
+                        <x-slot:titleLeft>
+                            <div class="ml-auto mr-2" x-on:click.stop.prevent="">
+                                <x-tooltip>@lang('test-take.standardize_and_grading_tooltip')</x-tooltip>
+                            </div>
+                        </x-slot:titleLeft>
 
                         <x-slot:body>
                             <div class="flex flex-col w-full">
@@ -367,8 +378,8 @@
                     </x-accordion.block>
                 </x-accordion.container>
 
-                <x-accordion.container :activeContainerKey="1">
-                    <x-accordion.block :key="1" :emitWhenSet="true">
+                <x-accordion.container>
+                    <x-accordion.block key="test-questions" :emitWhenSet="true">
                         <x-slot:title>
                             <h4>@lang('test-take.Toetsvragen beheren')</h4>
                         </x-slot:title>

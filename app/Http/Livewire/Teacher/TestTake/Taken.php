@@ -500,7 +500,7 @@ class Taken extends TestTakeComponent
         return match ($standard) {
             GradingStandard::GOOD_PER_POINT => $request->put('ppp', $this->gradingValue),
             GradingStandard::ERRORS_PER_POINT => $request->put('epp', $this->gradingValue),
-            GradingStandard::MEAN => $request->put('wanted_average', $this->gradingValue),
+            GradingStandard::AVERAGE => $request->put('wanted_average', $this->gradingValue),
             GradingStandard::N_TERM => $request->put('n_term', $this->gradingValue),
             GradingStandard::CESUUR => $this->fillCesuurRequest($request),
         };
@@ -527,7 +527,7 @@ class Taken extends TestTakeComponent
         $data = match ($standard) {
             GradingStandard::GOOD_PER_POINT => $normalize->normBasedOnGoodPerPoint(),
             GradingStandard::ERRORS_PER_POINT => $normalize->normBasedOnErrorsPerPoint(),
-            GradingStandard::MEAN => $normalize->normBasedOnAverageMark(),
+            GradingStandard::AVERAGE => $normalize->normBasedOnAverageMark(),
             GradingStandard::N_TERM => $normalize->normBasedOnNTerm(),
             GradingStandard::CESUUR => $normalize->normBasedOnNTermAndPassMark(),
         };

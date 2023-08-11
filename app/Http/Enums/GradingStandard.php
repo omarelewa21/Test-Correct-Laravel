@@ -20,8 +20,8 @@ enum GradingStandard: string implements FeatureSettingKey
     #[Description('grading.errors_per_point')]
     case ERRORS_PER_POINT = 'errors_per_point';
     #[Initial(7.5)]
-    #[Description('grading.mean')]
-    case MEAN = 'mean';
+    #[Description('grading.average')]
+    case AVERAGE = 'average';
     #[Initial(1)]
     #[Description('grading.n_term')]
     case N_TERM = 'n_term';
