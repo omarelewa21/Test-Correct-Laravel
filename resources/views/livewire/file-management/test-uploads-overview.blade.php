@@ -72,7 +72,7 @@
                     </div>
                 </div>
 
-                <x-button.text-button class="ml-auto text-base"
+                <x-button.text class="ml-auto text-base"
                                       size="sm"
                                       wire:click="clearFilters()"
                                       x-on:click="document.getElementById('testuploads-active-filters').innerHTML = '';"
@@ -80,7 +80,7 @@
                 >
                     <span class="min-w-max">{{ __('teacher.Filters wissen') }}</span>
                     <x-icon.close-small/>
-                </x-button.text-button>
+                </x-button.text>
             </div>
 
             <div id="testuploads-active-filters"

@@ -13,21 +13,21 @@
         <div id="menu" class="menu hidden flex-wrap content-center lg:flex lg:ml-4">
             @if(!Auth::user()->guest)
                 <div class="menu-item">
-                    <x-button.text-button class="px-2" id="student-header-dashboard" wire:click="dashboard()"
+                    <x-button.text class="px-2" id="student-header-dashboard" wire:click="dashboard()"
                                           withHover="true">
                         <span class="">{{ __('student.dashboard') }}</span>
-                    </x-button.text-button>
+                    </x-button.text>
                 </div>
                 <div class="menu-item">
-                    <x-button.text-button class="px-2" id="student-header-tests" wire:click="tests()" withHover="true">
+                    <x-button.text class="px-2" id="student-header-tests" wire:click="tests()" withHover="true">
                         <span class="">{{ __('student.tests') }}</span>
-                    </x-button.text-button>
+                    </x-button.text>
                 </div>
                 <div class="menu-item">
-                    <x-button.text-button class="px-2" id="student-header-analysis" wire:click="analyses()"
+                    <x-button.text class="px-2" id="student-header-analysis" wire:click="analyses()"
                                           withHover="true">
                         <span class="">{{ __('student.analysis') }}</span>
-                    </x-button.text-button>
+                    </x-button.text>
                 </div>
             @endif
         </div>
@@ -78,10 +78,10 @@
                  @keydown.window.escape="activeIcon = false" @click.outside="activeIcon = false"
             >
                 <div class="flex flex-col bg-white main-shadow w-56 py-2.5 rounded-10">
-                    <x-button.text-button size="sm" class="px-2.5 w-full" @click="showKnowledgebankModal = true"
+                    <x-button.text size="sm" class="px-2.5 w-full" @click="showKnowledgebankModal = true"
                                           withHover="true">
                         <span>{{ __('header.Kennisbank') }}</span>
-                    </x-button.text-button>
+                    </x-button.text>
                 </div>
             </div>
         </div>

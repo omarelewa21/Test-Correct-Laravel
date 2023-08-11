@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use tcCore\FactoryScenarios\FactoryScenarioSchoolSimple;
+use tcCore\Http\Livewire\Auth\Login;
 use tcCore\User;
 use Tests\ScenarioLoader;
 use Tests\TestCase;
@@ -80,5 +81,31 @@ class LoginTest extends TestCase
             ->assertHasErrors('invalid_user');
 
         $this->assertNull(auth()->user());
+    }
+
+    /**
+     * @test
+     * @dataProvider loginTestDirectCodeDataProvider
+     */
+    public function login_can_check_for_correct_test_code($testTakeCode, $expectedResult)
+    {
+        $obj = new Login();
+        $obj->testTakeCode = $testTakeCode;
+
+        $res = $this->callPrivateMethod($obj, 'isTestTakeCodeCorrectFormat', []);
+
+        $this->assertEquals($expectedResult, $res);
+    }
+
+    public function loginTestDirectCodeDataProvider()
+    {
+        return [
+            'valid code #1' => [['1', '2', '3', '4', '5', '6'], true],
+            'valid code #2' => [[1, 2, 3, 4, 5, 6], true], //input values are always strings, but no harm allowing integers
+            'invalid code #1' => [['1', '2', 'a', '4', '5', '6'], false],
+            'invalid code #2' => [['1', '2', '', '4', '5', '6'], false],
+            'invalid code #3' => [[' ', '', '', '4', '5', '6'], false],
+            'invalid code #4' => [['1', '2', '3', '4', '5', ''], false],
+        ];
     }
 }

@@ -49,10 +49,10 @@
                 <span>{{ __('drawing-modal.old-drawing-override-body') }}</span>
 
                 <div class="flex w-full justify-end mt-4 space-x-4">
-                    <x-button.text-button class="rotate-svg-180" @click="showWarning = false">
+                    <x-button.text class="rotate-svg-180" @click="showWarning = false">
                         <x-icon.chevron/>
                         <span>{{ __('auth.cancel') }}</span>
-                    </x-button.text-button>
+                    </x-button.text>
                     <x-button.primary @click="openEditor($el)">
                         <span>{{ __('auth.continue') }}</span>
                     </x-button.primary>

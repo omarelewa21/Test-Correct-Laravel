@@ -44,10 +44,44 @@ class SupportTakeOverLogController extends Controller
             ->paginate(15);
 
         foreach ($logs->items() as $log) {
+            if(!$log->user){
+                $log->user = $this->getDeletedOrDummyUser($log->user_id);
+            }
             $log->user->setAttribute('fullname', $log->user->getNameFullAttribute());
+
+            if(!$log->supportUser){
+                $log->supportUser = $this->getDeletedOrDummyUser(
+                    $log->support_user_id, [
+                        'username' => 'deleted support user',
+                        'name' => 'support user',
+                        'name_first' => 'deleted',
+                    ]
+                );
+            }
             $log->supportUser->setAttribute('fullname', $log->supportUser->getNameFullAttribute());
-        };
+        }
 
         return Response::make($logs, 200);
+    }
+
+    /**
+     * @param mixed $log
+     * @return void
+     */
+    private function getDeletedOrDummyUser($user_id, $attr = []):User
+    {
+        $user = User::withTrashed()->find($user_id);
+        if ($user) {
+            $user->name .= '(deleted)';
+        } else {
+            $user = User::make(
+                array_merge([
+                'username'   => 'deleted user',
+                'name'       => 'user',
+                'name_first' => 'deleted',
+            ], $attr)
+            );
+        }
+        return $user;
     }
 }

@@ -19,14 +19,8 @@ class CompletionQuestion extends Question implements QuestionInterface
         'uuid'                             => EfficientUuid::class,
         'auto_check_answer'                => 'boolean',
         'auto_check_answer_case_sensitive' => 'boolean',
+        'deleted_at'                       => 'datetime',
     ];
-
-    /**
-     * The attributes that should be mutated to dates.
-     *
-     * @var array
-     */
-    protected $dates = ['deleted_at'];
 
     /**
      * The database table used by the model.

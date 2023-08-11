@@ -33,7 +33,7 @@ class SendWelcomeMailTest extends TestCase
     /** @test */
     public function it_should_send_a_email_for_a_student()
     {
-        dispatch_now($mailable = new SendWelcomeMail($this->studentOne->getKey(), ''));
+        dispatch_sync($mailable = new SendWelcomeMail($this->studentOne->getKey(), ''));
 
         $this->assertStringContainsString('Beste Student,', $mailable->testBody->getBody());
         $this->assertStringNotContainsString('Wachtwoord', $mailable->testBody->getBody());
@@ -42,7 +42,7 @@ class SendWelcomeMailTest extends TestCase
     /** @test */
     public function it_should_send_a_email_for_a_teacher()
     {
-        dispatch_now($mailable = new SendWelcomeMail($this->teacherOne->getKey(), ''));
+        dispatch_sync($mailable = new SendWelcomeMail($this->teacherOne->getKey(), ''));
 
         $this->assertStringContainsString(
             sprintf('Hallo %s!', $this->teacherOne->name_first),

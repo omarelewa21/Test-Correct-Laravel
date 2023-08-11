@@ -69,10 +69,11 @@
             </span>
             @unless($viewOnly)
                 <x-button.options id="comment-options-button-{{$comment->uuid}}"
-                                                     context="answer-feedback"
-                                                     :uuid="$comment->uuid"
-                                                     size="sm"
-                                                     context-data-json="{!! json_encode(['threadId' => $comment->thread_id, 'preventLivewireCall' => true]) !!}"
+                                  context="answer-feedback"
+                                  :uuid="$comment->uuid"
+                                  size="sm"
+                                  context-data-json="{!! json_encode(['threadId' => $comment->thread_id]) !!}"
+                                  :prevent-livewire-call="true"
                 >
                 </x-button.options>
             @endif
@@ -125,12 +126,12 @@
                 </x-input.rich-textarea>
             </div>
 
-            <div class="flex justify-end space-x-4 h-fit mt-2 mb-4">
-                <x-button.text-button size="sm"
+            <div class="flex justify-end space-x-4 h-fit mt-2 mb-4 items-center">
+                <x-button.text size="sm"
                                       @click.stop="cancelEditingComment('{{$comment->thread_id}}','{{$comment->uuid}}', '{{$iconName}}', '{{$comment->comment_color}}')"
                 >
                     <span>@lang('modal.annuleren')</span>
-                </x-button.text-button>
+                </x-button.text>
                 <x-button.cta class="block"
                               @click.stop="await updateCommentThread($el); $nextTick(()=>setTextOverflow())">
                     <span>@lang('general.save')</span>

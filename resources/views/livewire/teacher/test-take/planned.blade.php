@@ -80,11 +80,11 @@
                 </div>
 
                 @if($this->initialized)
-                    <x-button.text-button
+                    <x-button.text
                             wire:click="$emit('openModal','teacher.test-take-edit-modal', {testTake: '{{ $this->testTake->uuid }}' })">
                         <x-icon.plus />
                         <span>@lang('test-take.Studenten toevoegen')</span>
-                    </x-button.text-button>
+                    </x-button.text>
                 @endif
             </div>
             <div x-show="plannedTab === 'invigilators'"
@@ -106,11 +106,11 @@
                     @endforelse
                 </div>
 
-                <x-button.text-button
+                <x-button.text
                         wire:click="$emit('openModal','teacher.test-take-edit-modal', {testTake: '{{ $this->testTake->uuid }}' })">
                     <x-icon.plus />
                     <span>@lang('test-take.Surveillanten toevoegen')</span>
-                </x-button.text-button>
+                </x-button.text>
 
             </div>
         </div>

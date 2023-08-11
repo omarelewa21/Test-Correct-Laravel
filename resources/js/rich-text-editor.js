@@ -7,6 +7,7 @@ window.RichTextEditor = {
             (editor) => {
                 this.setupWordCounter(editor, parameterBag);
                 WebspellcheckerTlc.subscribeToProblemCounter(editor);
+                WebspellcheckerTlc.lang(editor, parameterBag.lang);
                 window.addEventListener("wsc-problems-count-updated-" + parameterBag.editorId, (e) => {
                     let problemCountSpan = document.getElementById("problem-count-" + parameterBag.editorId);
                     if (problemCountSpan) {
@@ -94,11 +95,11 @@ window.RichTextEditor = {
             parameterBag,
         );
     },
-    initUpdateAnswerFeedbackEditor: function(parameterBag) {
+    initUpdateAnswerFeedbackEditor: async function(parameterBag) {
         this.setAnswerFeedbackItemsToRemove(parameterBag);
         parameterBag.shouldNotGroupWhenFull = true;
 
-        return this.createTeacherEditor(
+        return await this.createTeacherEditor(
             parameterBag,
             (editor) => {
 
@@ -111,6 +112,7 @@ window.RichTextEditor = {
         this.setAnswerFeedbackItemsToRemove(parameterBag);
         parameterBag.shouldNotGroupWhenFull = true;
 
+
         return this.createTeacherEditor(
             parameterBag,
             (editor) => {
@@ -118,6 +120,9 @@ window.RichTextEditor = {
                     setTimeout(() => {
                         editor.focus();
                     }, 100)
+                });
+                editor.editing.view.change(writer=>{
+                    writer.setStyle('height', '150px', editor.editing.view.document.getRoot());
                 });
                 // this.hideWProofreaderChevron(parameterBag.allowWsc, editor);
             }
@@ -133,36 +138,45 @@ window.RichTextEditor = {
                 this.setupWordCounter(editor, parameterBag);
                 this.setCommentsOnly(editor); //replaces read-only
                 this.setAnswerFeedbackEventListeners(editor);
+                this.setMathChemTypeReadOnly(editor);
             }
         )
     },
+    setMathChemTypeReadOnly: function(editor) {
+        editor.plugins.get('MathType').stopListening();
+    },
     setAnswerFeedbackEventListeners: function (editor) {
-        editor.ui.view.editable.element.onblur = (e) => {
-            //create a temporary commentThread to mark the selection while creating a new comment
-            // editor.execute( 'addCommentThread', { threadId: window.uuidv4() } );
+        let focusIsInCommentEditor = () => window.getSelection().focusNode?.parentElement?.closest('.comment-editor') !== null;
+        let selectionIsNotEmpty = () => window.getSelection().toString() !== '';
 
-        }
         document.addEventListener('mouseup', (e) => {
-            /*
-             * selection is in the answer comment editor
-             * selection is not empty
-             * selection is on the assessment screen
-             * */
-            if (window.getSelection().focusNode?.parentElement?.closest('.comment-editor') !== null
-                && document.querySelector('#assessment-page') !== null
-                && window.getSelection().toString() !== ''
-            ) {
-                dispatchEvent(new CustomEvent('assessment-drawer-tab-update', {detail: {tab: 2}}));
-
-                //focus the create a comment editor
-                dispatchEvent(new CustomEvent('answer-feedback-focus-feedback-editor'));
-
-                setTimeout(() => {
-                    editor.execute('addCommentThread', {threadId: window.uuidv4()});
-
-                }, 200);
+            if(!(focusIsInCommentEditor() && selectionIsNotEmpty())) {
+                return;
             }
+
+            dispatchEvent(new CustomEvent('answer-feedback-drawer-tab-update', {detail: {tab: 2}}));
+
+            //focus the create a comment editor
+            dispatchEvent(new CustomEvent('answer-feedback-focus-feedback-editor'));
+
+            //remove the previous temporary thread if it exists
+            editor.plugins.get('CommentsRepository').getCommentThread('new-comment-thread')?.remove();
+
+            setTimeout(() => {
+                //add a temporary thread with a specific name that can be found by JS
+                editor.execute('addCommentThread', {threadId: 'new-comment-thread'});
+            }, 200);
+
         })
+
+        editor.plugins.get('CommentsRepository').on('addCommentThread', (evt, data) => {
+            if(data.threadId === 'new-comment-thread') {
+                return;
+            }
+            setTimeout(() => {
+                window.clearSelection();
+            },100);
+        });
     },
     //only needed when webspellchecker has to be re-added to the inline-feedback comment editors
     // hideWProofreaderChevron: function (allowWsc, editor) {
@@ -421,6 +435,8 @@ window.RichTextEditor = {
             window.dispatchEvent(new CustomEvent("updated-word-count-plugin-container"));
         }
 
+        this.addSelectedWordCounter(editor);
+
         if(!parameterBag.restrictWords || [null, 0].includes(parameterBag.maxWords)) {
             return;
         }
@@ -518,6 +534,30 @@ window.RichTextEditor = {
     },
     hasNoWordLimit(editor) {
         return editor.maxWords === null || editor.maxWordOverride;
+    },
+    addSelectedWordCounter(editor) {
+        const selection = editor.model.document.selection;
+        let selectedWordCount = 0;
+        let fireEventIfWordCountChanged = (wordCount=0) => {
+            if(selectedWordCount !== wordCount){
+                selectedWordCount = wordCount;
+                dispatchEvent(new CustomEvent('selected-word-count', {detail: {wordCount: selectedWordCount, editorId: editor.sourceElement.id}}));
+            }
+        }
+
+        selection.on('change:range', () => {
+            if (selection.isCollapsed) return fireEventIfWordCountChanged();    // No selection.
+
+            const range = selection.getFirstRange();
+            let wordCount = 0;
+            for (const item of range.getItems()) {
+                if (!item.is('textProxy')) continue;
+
+                wordCount += item.data.split(' ').filter(word => word !== '').length;
+            }
+
+            fireEventIfWordCountChanged(wordCount);
+        } );
     },
     getWproofreaderConfig: function(enableGrammar = true) {
         return {

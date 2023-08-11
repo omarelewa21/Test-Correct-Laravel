@@ -36,10 +36,10 @@
             <div class="flex gap-4 items-center">
                 <x-mark-badge :rating="$generalStats[$kind.'_rating_average']"></x-mark-badge>
                 @if (!$this->viewingAsTeacher())
-                    <x-button.text-button wire:click="showGrades">
+                    <x-button.text wire:click="showGrades">
                         <span class="bold">{{ __('student.Bekijk cijferlijst') }}</span>
                         <x-icon.arrow/>
-                    </x-button.text-button>
+                    </x-button.text>
                 @endif
             </div>
         </div>

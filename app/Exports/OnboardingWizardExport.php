@@ -21,15 +21,26 @@ use tcCore\OnboardingWizardReport;
 class OnboardingWizardExport implements WithEvents, FromCollection, WithHeadings
 {
 
+    // for as long as the fields are in the database, remove them from the export by hand
+    protected $hiddenFields = [
+        'finished_demo_tour',
+        'finished_demo_steps_percentage',
+        'finished_demo_substeps_percentage',
+        'current_demo_tour_step',
+        'current_demo_tour_step_since_date',
+        'current_demo_tour_step_since_hours',
+        'average_time_finished_demo_tour_steps_hours',
+    ];
+
     public function headings(): array
     {
-        return array_keys(OnboardingWizardReport::first()->toArray());
+        return array_keys(OnboardingWizardReport::first()->makeHidden($this->hiddenFields)->toArray());
     }
 
  
     public function collection()
     {
-        return OnboardingWizardReport::all();
+        return OnboardingWizardReport::all()->makeHidden($this->hiddenFields);
     }
 
     /**

@@ -17,7 +17,7 @@
                 </style>
             @endpush
             @foreach($data as  $key => $testQuestion)
-                <div selid="testtake-question">
+                <div selid="testtake-question" class="test-take-question-{{ $key + 1 }}">
                     @if($testQuestion->type === 'MultipleChoiceQuestion' && $testQuestion->selectable_answers > 1 && $testQuestion->subtype != 'ARQ')
                         <livewire:student-player.question.multiple-select-question
                             :question="$testQuestion"
@@ -112,24 +112,26 @@
             @endif
         </x-slot>
         <x-slot name="footerbuttons">
-            <div x-cloak x-data="{display :footerButtonData({{ $current }}, {{$nav->count()}})}" @update-footer-navigation.window="display= $event.detail.data" class="space-x-3">
-                <x-button.text-button x-show="display.prev"
-                        onclick="livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).call('previousQuestion')"
-                        href="#" rotateIcon="180">
+            <div x-cloak
+                 x-data="{
+                    display: footerButtonData({{ $current }}, {{$nav->count()}}),
+                    current: {{ $current }}
+                 }"
+                 @update-footer-navigation.window="display = $event.detail.buttons.data; current = $event.detail.number"
+                 class="space-x-3"
+            >
+                <x-button.text x-show="display.prev" x-on:click="$store.studentPlayer.previous(current)" href="#" rotateIcon="180">
                     <x-icon.chevron/>
                     <span>{{ __('test_take.previous_question') }}</span>
-                </x-button.text-button>
+                </x-button.text>
                 <x-button.cta x-show="display.turnin"
-                        id="overviewBtnFooter"
-                        size="sm"
-                        onclick="toOverview({{ $nav->count() }})"
-                        {{-- @click="$dispatch('show-loader')" --}}
+                              id="overviewBtnFooter"
+                              size="sm"
+                              x-on:click="$store.studentPlayer.toOverview({{ $nav->count() }})"
                 >
                     <span>{{ __('test_take.overview') }}</span>
                 </x-button.cta>
-                <x-button.primary x-show="display.next"
-                        onclick="livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).call('nextQuestion')"
-                        size="sm">
+                <x-button.primary x-show="display.next" x-on:click="$store.studentPlayer.next(current)" size="sm">
                     <span>{{ __('test_take.next_question') }}</span>
                     <x-icon.chevron/>
                 </x-button.primary>
@@ -174,16 +176,6 @@
             }
             return data;
         }
-        function toOverview(q){
-                $question = @js($data)[q-1];
-                if($question['type'].toLowerCase() == 'openquestion' && $question['subtype'].toLowerCase() != 'short'){
-                    setTimeout(function(){
-                            livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).call('toOverview', q)
-                        }, 500)
-                }else{
-                    livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).call('toOverview', q)
-                }
-            }
     </script>
         <script>
             document.addEventListener("DOMContentLoaded", () => {

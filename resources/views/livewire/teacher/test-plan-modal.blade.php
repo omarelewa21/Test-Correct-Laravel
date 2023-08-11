@@ -167,10 +167,10 @@
         </div>
     </x-slot>
     <x-slot name="footer">
-        <div class="flex justify-between w-full px-2">
-            <x-button.text-button size="sm" wire:click="closeModal">
+        <div class="flex justify-between w-full px-2 items-center">
+            <x-button.text wire:click="closeModal">
                 <span>{{__('general.cancel')}}</span>
-            </x-button.text-button>
+            </x-button.text>
             <div class="flex space-x-2.5">
                 <x-button.cta size="md" wire:click="planNext" selid="plan-modal-plan-btn" wire:loading.attr="disabled"
                               onClick="this.disabled = true;" wire:target="planNext" :disabled="$clickDisabled">

@@ -52,6 +52,10 @@ class Onboarding extends TCComponent
 
 
     protected $queryString = ['step', 'email', 'confirmed', 'ref','entree_message', 'level'];
+    /**
+     * @var true
+     */
+    public bool $setFocusOnError = false;
 
     protected function messages(){
         return [
@@ -88,8 +92,8 @@ class Onboarding extends TCComponent
             'registration.city'                         => 'sometimes',
             'registration.gender'                       => 'sometimes',
             'registration.gender_different'             => 'sometimes',
-            'registration.name_first'                   => 'sometimes',
             'registration.username'                     => 'required|email:rfc,dns|unique:users,username',
+            'registration.name_first'                   => 'sometimes',
             'registration.name'                         => 'sometimes',
             'registration.name_suffix'                  => 'sometimes',
             'registration.registration_email_confirmed' => 'sometimes',
@@ -219,6 +223,7 @@ class Onboarding extends TCComponent
 
     public function step1()
     {
+        $this->setFocusOnError = true;
         $this->validate();
         if (!$this->checkInputForLength() && !$this->warningStepOneConfirmed) {
             $this->warningStepOneConfirmed = true;
@@ -238,6 +243,7 @@ class Onboarding extends TCComponent
 
     public function step2()
     {
+        $this->setFocusOnError = true;
         $this->validate();
         if (!$this->checkInputForLength() && !$this->warningStepTwoConfirmed) {
             $this->warningStepTwoConfirmed = true;
@@ -385,6 +391,7 @@ class Onboarding extends TCComponent
     public function updated($propertyName)
     {
         $this->btnDisabled = false;
+        $this->setFocusOnError = false;
 //
 //        $this->btnStepOneDisabledCheck();
 //        $this->btnStepTwoDisabledCheck();

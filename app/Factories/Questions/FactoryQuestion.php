@@ -192,6 +192,7 @@ abstract class FactoryQuestion implements FactoryQuestionInterface
                     $request = new  CreateAttachmentRequest([
                         "type" => "video",
                         "link" => $video['link'],
+                        'title' => 'Rickyboiii'
                     ]);
                     (new AttachmentsController)
                         ->store(

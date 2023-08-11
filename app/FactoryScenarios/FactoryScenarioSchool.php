@@ -3,6 +3,7 @@
 namespace tcCore\FactoryScenarios;
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use tcCore\Factories\FactoryBaseSubject;
 use tcCore\Factories\FactorySchool;
@@ -11,6 +12,7 @@ use tcCore\Factories\FactorySchoolYear;
 use tcCore\Factories\FactorySection;
 use tcCore\Factories\FactoryTest;
 use tcCore\School;
+use tcCore\SchoolLocation;
 use tcCore\User;
 
 abstract class FactoryScenarioSchool
@@ -105,5 +107,50 @@ abstract class FactoryScenarioSchool
             'school'           => $this->school,
             'school_locations' => $this->school->schoolLocations,
         ];
+    }
+
+    public function getMinimalData()
+    {
+        return collect($this->getData())->map(function ($item, $key) {
+            if ($item instanceof Collection) {
+                //transform each
+                $array = [];
+                $item->each(function ($subItem) use (&$array) {
+                    $array[] = $this->transformModelToArray($subItem);
+                });
+                return $array;
+            }
+            return $this->transformModelToArray($item);
+        });
+    }
+
+    public function toJson()
+    {
+        return $this->getMinimalData()->toJson();
+    }
+
+    public function toArray()
+    {
+        return $this->getMinimalData()->toArray();
+    }
+
+    protected function transformModelToArray($model)
+    {
+        if ($model instanceof User) {
+            return [
+                'id'       => $model->getKey(),
+                'uuid'     => $model->uuid,
+                'username' => $model->username,
+                'role'     => $model->roles->first()->name,
+            ];
+        }
+        if ($model instanceof SchoolLocation || $model instanceof School) {
+            return [
+                'id'            => $model->getKey(),
+                'uuid'          => $model->uuid,
+                'name'          => $model->name,
+                'customer_code' => $model->customer_code,
+            ];
+        }
     }
 }

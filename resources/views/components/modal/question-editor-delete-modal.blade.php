@@ -41,10 +41,10 @@
                 <span x-show="item === 'test'">{{ __('cms.delete_test_confirm_text') }}</span>
 
                 <div class="flex w-full justify-end mt-4 space-x-4">
-                    <x-button.text-button class="rotate-svg-180" @click="show = false">
+                    <x-button.text class="rotate-svg-180" @click="show = false">
                         <x-icon.chevron/>
                         <span>{{ __('test-take.Terug') }}</span>
-                    </x-button.text-button>
+                    </x-button.text>
                     <x-button.primary @click="$wire.removeItem(item, identifier); show = false;">
                         <x-icon.remove/>
                         <span>{{ __('cms.delete') }}</span>

@@ -11,9 +11,9 @@
 
                     <div class="flex text-lg bold w-[calc(100%-50px)]">
                         <span class="truncate gap-2" selid="test-detail-title">
-                            <x-button.text-button size="sm"
+                            <x-button.default
                                                   wire:click="redirectToOverview()"
-                            >{{ $this->breadcrumbTitle() }}</x-button.text-button>
+                            >{{ $this->breadcrumbTitle() }}</x-button.default>
                             <x-icon.chevron-small opacity="1" />
                             <span>{!! $this->testTake->test->name !!}</span>
                         </span>

@@ -3,75 +3,24 @@
 'number',
 ])
 <div x-cloak
-     x-data="{ showMe: false, progressBar: false, startTime: 0, endTime: 1, progress: 0 }"
-     x-init="
-        $watch('showMe', (value) => {
-            if(value) {
-                $dispatch('visible-component', {el: $el});
-                $dispatch('reinitialize-editor-editor-{{$question->id}}')
-            }
-         })
-         @if(isset($this->reinitializedTimeoutData) && !empty($this->reinitializedTimeoutData))
-             $nextTick(() => {
-                $el.dispatchEvent(new CustomEvent('start-timeout', {detail: @js($this->reinitializedTimeoutData)} ));
-             });
-         @endif
-     "
+     x-data="studentPlayerQuestionContainer(@js($number),@js($question->id), @js($this->reinitializedTimeoutData ?? null))"
      x-show="showMe"
-     x-on:current-updated.window="
-        showMe = ({{ $number }} == $event.detail.current);
-        if(showMe) {$wire.updateAnswerIdForTestParticipant();}
-        "
      x-transition:enter="transition duration-200"
      x-transition:enter-start="opacity-0 delay-200"
      x-transition:enter-end="opacity-100"
-     x-on:change="Livewire.emit('current-question-answered', {{ $number }})"
-     x-on:refresh-question.window="
-        if ($event.detail.indexOf({{ $number }}) !== -1) {
-                $wire.set('closed', true);
-        }"
-
-     x-on:close-this-question.window="
-        if(showMe) {
-            $wire.set('showCloseQuestionModal', true);
-            $wire.set('nextQuestion', $event.detail);
-        }
-
-    "
-     x-on:close-this-group.window="
-        if(showMe) {
-            $wire.set('showCloseGroupModal', true);
-            $wire.set('nextQuestion', $event.detail);
-        }
-    "
-     x-on:start-timeout="
-                progressBar = true;
-                startTime = $event.detail.timeout;
-                if ($event.detail.timeLeft) {
-                    progress = $event.detail.timeLeft;
-                }else{
-                    $wire.registerExpirationTime($event.detail.attachment);
-                    progress = startTime;
-                }
-
-             var timer = setInterval(function () {
-                progress -= 1;
-
-                if(progress === 0) {
-                    showMe ? $wire.closeQuestion({{ $number+1 }}) : $wire.closeQuestion();
-                    clearInterval(timer);
-                    progressBar = false;
-                }
-             }, 1000);
-         "
-     x-on:mark-infoscreen-as-seen.window="if('{{ $this->question->uuid }}' == $event.detail){ $wire.markAsSeen($event.detail) }"
+     x-on:current-updated.window="currentUpdated($event.detail.current)"
+     x-on:change="Livewire.emit('current-question-answered', @js($number))"
+     x-on:refresh-question.window="refreshQuestion($event.detail)"
+     x-on:close-this-question.window="closeThisQuestion($event.detail)"
+     x-on:close-this-group.window="closeThisGroup($event.detail)"
+     x-on:start-timeout="startTimeout($event.detail)"
+     x-on:mark-infoscreen-as-seen.window="markInfoscreenAsSeen($event.detail, @js($this->question->uuid))"
      x-on:force-taken-away-blur.window="$el.style.opacity = $event.detail.shouldBlur ? 0 : 1 ;"
      questionComponent
      :class="{ 'rs_readable': showMe }"
 >
     <div class="flex justify-end space-x-4 mt-6">
         @if(!$this->closed )
-            <x-attachment.attachments-button :question="$question" :blockAttachments="$this->blockAttachments"></x-attachment.attachments-button>
             <x-question.notepad-button :question="$question" ></x-question.notepad-button>
         @endif
     </div>
@@ -101,6 +50,9 @@
         </div>
         <div class="flex flex-1 flex-col">
             @if(!$this->closed)
+                <div class="flex flex-wrap">
+                    <x-attachment.student-buttons-container :question="$question" :group="$this->group" :blockAttachments="$this->blockAttachments"/>
+                </div>
                 @if($this->group)
                     <div class="mb-5 questionContainer" questionHtml wire:ignore>{!! $this->group->question->converted_question_html !!}</div>
                 @endif

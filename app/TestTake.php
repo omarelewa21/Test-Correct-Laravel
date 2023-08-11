@@ -51,16 +51,16 @@ class TestTake extends BaseModel
         'notify_students'   => 'boolean',
         'show_grades'       => 'boolean',
         'returned_to_taken' => 'boolean',
+        'deleted_at'        => 'datetime',
+        'time_start'        => 'datetime',
+        'time_end'          => 'datetime',
+        'show_results'      => 'datetime',
+        'exported_to_rtti'  => 'datetime',
+        'assessed_at'       => 'datetime',
+        'returned_to_taken' => 'boolean',
         'review_active'     => 'boolean',
         'results_published' => 'datetime',
     ];
-
-    /**
-     * The attributes that should be mutated to dates.
-     *
-     * @var array
-     */
-    protected $dates = ['deleted_at', 'time_start', 'time_end', 'show_results', 'exported_to_rtti', 'assessed_at'];
 
     /**
      * The database table used by the model.
@@ -297,7 +297,7 @@ class TestTake extends BaseModel
                 }
 
                 $testTake->testParticipants->each(function ($participant) {
-                    NewTestTakeGraded::dispatch($participant->user()->value('uuid'));
+                    AfterResponse::$performAction[] = fn() => NewTestTakeGraded::dispatch($participant->user()->value('uuid'));
                 });
             }
 
@@ -910,10 +910,10 @@ class TestTake extends BaseModel
     private function handleShowResultChanges()
     {
         if ($this->wasChanged('show_results')) {
-            TestTakeShowResultsChanged::dispatch($this->uuid);
+            AfterResponse::$performAction[] = fn() => TestTakeShowResultsChanged::dispatch($this->uuid);
 
             $this->testParticipants->each(function($participant) {
-                NewTestTakeReviewable::dispatch($participant->user()->value('uuid'));
+                AfterResponse::$performAction[] = fn() => NewTestTakeReviewable::dispatch($participant->user()->value('uuid'));
             });
         }
     }
@@ -1381,5 +1381,13 @@ class TestTake extends BaseModel
     {
         $this->test_take_status_id = TestTakeStatus::STATUS_TAKING_TEST;
         $this->save();
+    }
+
+    public function getTestNameAttribute()
+    {
+        $testName = Arr::has($this->attributes, 'test_name')
+            ? $this->attributes['test_name']
+            : $this->test->name;
+        return html_entity_decode(clean($testName));
     }
 }

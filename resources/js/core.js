@@ -123,6 +123,10 @@ Core = {
         if(urlParams.get('device') !== null && urlParams.get('device') === 'ipad') {
             return true;
         }
+
+        if (window.webview != null) return true;
+
+        return false;
     },
     disableDeviceSpecificFeature(){
         Core.devices.forEach((device) => {
@@ -273,7 +277,7 @@ function checkPageFocus() {
     if (!parent.skip) {
         if (!document.hasFocus()) {
             if (!notifsent) {  // checks for the notifcation if it is already sent to the teacher
-                if (Core.appType != 'electron') {
+                if (Core.appType != 'electron' && Core.appType != 'ios') {
                     Core.lostFocus('lost-focus');
                 }
                 notifsent = true;

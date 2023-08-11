@@ -15,10 +15,10 @@ class TestTakeCode extends Model
     const PREFIX = 'AA';
 
     protected $casts = [
-        'uuid' => EfficientUuid::class
+        'uuid'                      => EfficientUuid::class,
+        'deleted_at'                => 'datetime',
+        'rating_visible_expiration' => 'datetime',
     ];
-
-    protected $dates = ['deleted_at', 'rating_visible_expiration'];
 
     protected $fillable = ['test_take_id', 'rating_visible_expiration'];
 

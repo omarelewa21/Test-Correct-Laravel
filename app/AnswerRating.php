@@ -17,13 +17,6 @@ class AnswerRating extends BaseModel
     public const TYPE_SYSTEM = 'SYSTEM';
 
     /**
-     * The attributes that should be mutated to dates.
-     *
-     * @var array
-     */
-    protected $dates = ['deleted_at'];
-
-    /**
      * The database table used by the model.
      *
      * @var string
@@ -45,7 +38,8 @@ class AnswerRating extends BaseModel
     protected $hidden = [];
 
     protected $casts = [
-        'json' => 'array'
+        'json' => 'array',
+        'deleted_at' => 'datetime',
     ];
 
     public static function boot()

@@ -41,14 +41,14 @@ return [
     'Inline feedback wijzigen'                     => 'Inline feedback wijzigen',
     'Inline feedback verwijderen'                  => 'Inline feedback verwijderen',
     'show_student_tooltip_text'                    => 'Zet dit aan om voor alle antwoorden standaard de student naam te tonen.',
-    'Er zitten geen open vragen in deze toets.'    => 'Er zitten geen open vragen in deze toets.',
+    'Er zitten geen open vragen in deze toets.'    => 'Er zijn geen open vragen om na te kijken.',
     'Inline feedback schrijven in antwoord'        => 'Inline feedback schrijven in antwoord',
     'Inline feedback bekijken'                     => 'Inline feedback bekijken',
     'Gegeven feedback'                             => 'Gegeven feedback',
-    'Feedback schrijven'                           => 'Feedback schrijven',
     'scored_by_one_student'                        => 'Let op: gescoord door één student.',
     'disabled_nav_closed_question'                 => 'Dit is een gesloten vraag die automatisch wordt nagekeken.',
     'disabled_nav_no_answer'                       => 'Er zijn geen antwoorden beschikbaar voor deze vraag.',
     'emoji invoegen'                               => 'Emoji invoegen',
     'tekst markeren'                               => 'Tekst markeren',
+    'all'                                          => 'Alles'
 ];

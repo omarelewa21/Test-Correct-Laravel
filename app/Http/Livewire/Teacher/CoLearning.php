@@ -100,6 +100,12 @@ class CoLearning extends TCComponent implements CollapsableHeader
         $this->testTake->save();
     }
 
+    public function toggleStudentEnableComments(bool $boolean)
+    {
+        $this->testTake->enable_comments_colearning = $boolean;
+        $this->testTake->save();
+    }
+
     public function joiningPresenceChannel($data)
     {
         $this->testParticipantsPresence = collect($this->testParticipantsPresence)->merge([$data['testparticipant_uuid'] => $data]);
@@ -532,7 +538,7 @@ class CoLearning extends TCComponent implements CollapsableHeader
         $this->questionCount = $this->questionsOrderList->count('id');
 
         //filter questions that have 'discuss in class' on false
-        $this->questionsOrderList = $this->questionsOrderList->filter(fn($item) => $item['discuss'] === 1);
+        $this->questionsOrderList = $this->questionsOrderList->filter(fn($item) => (bool)$item['discuss'] );
 
         if ($this->testTake->discussion_type === self::DISCUSSION_TYPE_OPEN_ONLY) {
             $this->questionsOrderList = $this->questionsOrderList->filter(fn($item) => $item['question_type'] === 'OPEN'

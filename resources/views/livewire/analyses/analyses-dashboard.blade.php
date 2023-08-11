@@ -45,21 +45,21 @@
                 </div>
 
                 @if($this->hasActiveFilters())
-                    <x-button.text-button class="ml-auto text-base"
+                    <x-button.text class="ml-auto text-base"
                                           size="sm"
                                           @click="document.getElementById('analyses-active-filters').innerHTML = '';$wire.clearFilters()"
                     >
                         <span class="min-w-max">{{ __('teacher.Filters wissen') }}</span>
                         <x-icon.close-small/>
-                    </x-button.text-button>
+                    </x-button.text>
                 @else
-                    <x-button.text-button class="ml-auto text-base disabled"
+                    <x-button.text class="ml-auto text-base disabled"
                                           size="sm"
                                           disabled
                     >
                         <span class="min-w-max">{{ __('teacher.Filters wissen') }}</span>
                         <x-icon.close-small/>
-                    </x-button.text-button>
+                    </x-button.text>
                 @endif
             </div>
 

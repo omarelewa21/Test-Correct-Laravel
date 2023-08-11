@@ -5,15 +5,15 @@
         <span>{{ __('teacher.question_bank_add_confirmation_sub_text') }}?</span>
     </x-slot>
     <x-slot name="footer">
-        <div class="flex justify-end w-full gap-4"
+        <div class="flex justify-end w-full gap-4 items-center"
             x-data="{
                 addToTest: async (button, questionUuid) => {
                     let close = await addQuestionToTest(button, questionUuid);
                     if(close) $wire.emit('closeModal', {force: true, skipPreviousModals: true});
                 }
             }">
-            <x-button.text-button wire:click="$emit('closeModal')"><span>{{ __('teacher.Annuleer') }}</span>
-            </x-button.text-button>
+            <x-button.text wire:click="$emit('closeModal')"><span>{{ __('teacher.Annuleer') }}</span>
+            </x-button.text>
 
             <x-button.cta {{--@click="addToTest($el, '{{$questionUuid}}')"--}}
                           x-on:click.stop="addQuestionToTestFromTestCard($el, '{{ $questionUuid }}', false )"

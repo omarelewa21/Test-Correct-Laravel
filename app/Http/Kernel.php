@@ -24,6 +24,7 @@ use tcCore\Http\Middleware\AuthorizeBinds;
 use tcCore\Http\Middleware\BugsnagRequestId;
 use tcCore\Http\Middleware\CakeLaravelFilter;
 use tcCore\Http\Middleware\CheckForDeploymentMaintenance;
+use tcCore\Http\Middleware\LocalOrTesting;
 use tcCore\Http\Middleware\DuplicateLogin;
 use tcCore\Http\Middleware\DuplicateLoginLivewire;
 use tcCore\Http\Middleware\EncryptCookies;
@@ -53,6 +54,7 @@ class Kernel extends HttpKernel
         RequestLogger::class,
         Logging::class,
         BugsnagRequestId::class,
+        AfterResponse::class,
     ];
 
     /**
@@ -60,7 +62,7 @@ class Kernel extends HttpKernel
      *
      * @var array
      */
-    protected $routeMiddleware = [
+    protected $middlewareAliases = [
         'auth'                  => Authenticate::class,
         'guest'                 => RedirectIfAuthenticated::class,
         'bindings'              => SubstituteBindings::class,
@@ -79,6 +81,7 @@ class Kernel extends HttpKernel
         'accountManager'        => AuthenticatedAsAccountManager::class,
         'administrator'         => AuthenticatedAsAdministrator::class,
         'testTakeStatus'        => TestTakeValidStatus::class,
+        'development'           => LocalOrTesting::class,
     ];
 
     /**
@@ -98,7 +101,6 @@ class Kernel extends HttpKernel
             CheckForDeploymentMaintenance::class,
             AppDetection::class,
             SetHeaders::class,
-            AfterResponse::class,
         ],
         'teacher' => [
             AuthenticatedAsTeacher::class,

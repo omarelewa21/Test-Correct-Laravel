@@ -1,3 +1,4 @@
+@import url("onboarding.css");
 @import url("components/header.css");
 @import url("components/button.css");
 @import url("components/footer.css");
@@ -40,6 +41,7 @@
     --primary-opacity-10: rgba(0, 77, 245, 0.1);
     --primary-opacity-05: rgba(0, 77, 245, 0.05);
     --primary-light: #E6EDFA;
+    --primary-light-rgb: 230, 237, 250;
     --teacher-primary: #004df5;
     --teacher-primary-light: #4781ff;
     --student: #ECDB00;
@@ -488,21 +490,35 @@ h7 {
 
 /*NOG VERWERKEN IN CSS FILES*/
 
+.rotate-svg-45 > svg {
+    transform: rotate(45deg);
+}
+
 .rotate-svg-90 > svg {
     transform: rotate(90deg);
+}
+
+.rotate-svg-135 > svg {
+    transform: rotate(135deg);
 }
 
 .rotate-svg-180 > svg {
     transform: rotate(180deg);
 }
 
+.rotate-svg-225 > svg {
+    transform: rotate(225deg);
+}
+
 .rotate-svg-270 > svg {
     transform: rotate(270deg);
 }
 
-.rotate-svg-45 > svg {
-    transform: rotate(45deg);
+.rotate-svg-315 > svg {
+    transform: rotate(315deg);
 }
+
+
 
 /*.dropdown-items-container {*/
 /*    border: solid 1px var(--light-grey);*/

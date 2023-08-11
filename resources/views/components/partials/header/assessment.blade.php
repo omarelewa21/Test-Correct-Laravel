@@ -53,6 +53,7 @@
         <x-slot:button>
             <x-button.cta size="md"
                           x-on:click.prevent="handleHeaderCollapse(['ALL', {{ ($this->assessmentContext['assessmentType'] && $this->openOnly) ? 'true' : 'false' }} ])"
+                          selid="assessment-start-ALL"
             >
                 <span>@lang($this->assessmentContext['assessmentType'] && !$this->openOnly ? 'auth.continue' : 'co-learning.start')</span>
                 <x-icon.arrow />
@@ -92,6 +93,7 @@
             <x-button.cta size="md"
                           x-on:click.prevent="handleHeaderCollapse(['OPEN_ONLY', {{ ($this->assessmentContext['assessmentType'] && !$this->openOnly) ? 'true' : 'false' }}])"
                           :disabled="$this->hasNoOpenQuestion"
+                          selid="assessment-start-OPEN_ONLY"
             >
                 <span>@lang($this->assessmentContext['assessmentType'] && $this->openOnly ? 'auth.continue' : 'co-learning.start')</span>
                 <x-icon.arrow />

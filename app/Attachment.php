@@ -17,15 +17,9 @@ class Attachment extends BaseModel
     use SoftDeletes, UuidTrait;
 
     protected $casts = [
-        'uuid' => EfficientUuid::class,
+        'uuid'       => EfficientUuid::class,
+        'deleted_at' => 'datetime',
     ];
-
-    /**
-     * The attributes that should be mutated to dates.
-     *
-     * @var array
-     */
-    protected $dates = ['deleted_at'];
 
     /**
      * The attributes that are mass assignable.
@@ -328,7 +322,7 @@ class Attachment extends BaseModel
     public static function convertYoutubeShortsLink($link)
     {
         $pattern = '/(?:https?:\/\/)?(?:www\.)?youtu(?:\.be|be\.com)\/shorts\/([a-zA-Z0-9_-]+)/i';
-        preg_match($pattern, $link, $matches);
+        preg_match($pattern, $link ?? '', $matches);
 
         return empty($matches) ? $link : sprintf("https://www.youtube.com/watch?v=%s", $matches[1]);
     }

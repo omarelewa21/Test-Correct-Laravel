@@ -95,9 +95,9 @@
         </div>
         <div class="flex justify-end px-2.5">
             <div class="space-x-3">
-                <x-button.text-button @click="show = false" class="rotate-svg-180">
+                <x-button.text @click="show = false" class="rotate-svg-180">
                     <span class="text-base">{{ __('auth.cancel') }}</span>
-                </x-button.text-button>
+                </x-button.text>
                 @if(filled($this->authModalRoleType))
                     <x-button.primary size="md" wire:click="createAccountRedirect">
                         <span>{{ __('auth.continue') }}</span>

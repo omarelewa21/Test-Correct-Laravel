@@ -88,10 +88,10 @@
     </x-slot>
 
     <x-slot name="footer">
-        <div class="flex mt-4 gap-4 w-full">
-            <x-button.text-button wire:click="$emit('closeModal')" size="sm" class="ml-auto">
+        <div class="flex mt-4 gap-4 w-full items-center">
+            <x-button.text wire:click="$emit('closeModal')" size="sm" class="ml-auto">
                 <span>{{ __("teacher.Annuleer") }}</span>
-            </x-button.text-button>
+            </x-button.text>
 
             <x-button.cta wire:click="plan" size="sm" wire:loading.attr="disabled" wire:target="plan" onClick="this.disabled = true;" :disabled="$clickDisabled">
                 <x-icon.checkmark  wire:loading.remove wire:target="plan"/>
