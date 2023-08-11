@@ -7220,6 +7220,19 @@ input.datepicker {
     border-radius: 10px;
 }
 
+.badge-view.lead-divider {
+    margin-right: 2rem;
+}
+.badge-view.lead-divider:before {
+    content: '';
+    height: 36px;
+    width: 2px;
+    background-color: var(--system-base);
+    position: absolute;
+    right: -1.125rem;
+    top: 2px;
+    pointer-events: none;
+}
 
 #co-learning-teacher-page #header,
 #assessment-page #header {
@@ -11274,6 +11287,9 @@ video {
 }
 .mt-\[-1rem\]{
   margin-top: -1rem;
+}
+.mt-\[5px\]{
+  margin-top: 5px;
 }
 .mt-auto{
   margin-top: auto;

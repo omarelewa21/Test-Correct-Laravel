@@ -1,8 +1,6 @@
 {
     "/js/app.js": "/js/app.js",
     "/css/app.css": "/css/app.css",
-    "/css/app_pdf.css": "/css/app_pdf.css",
-    "/css/print-test-pdf.css": "/css/print-test-pdf.css",
     "/js/ckeditor.js": "/js/ckeditor.js",
     "/js/ckeditor.js.map": "/js/ckeditor.js.map",
     "/js/readspeaker_tlc.js": "/js/readspeaker_tlc.js",
