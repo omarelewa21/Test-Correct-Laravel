@@ -11784,12 +11784,12 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "662d128370816e2bbb66",
+  key: "346b9b2cf30ab766e6a6",
   cluster: "eu",
   forceTLS: true
 });
 window.$ = window.jQuery = __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js");
-window.MIX_CKEDITOR_LICENSE_KEY = "q11N5LxlUjUp2pDthuTmPmy/+cmatL0lY7nh6aX+nhhODyekK1g8YW5CKA==";
+window.MIX_CKEDITOR_LICENSE_KEY = process.env.MIX_CKEDITOR_LICENSE_KEY;
 window.FilePond = __webpack_require__(/*! filepond */ "./node_modules/filepond/dist/filepond.js");
 
 FilePond.registerPlugin((filepond_plugin_file_validate_size__WEBPACK_IMPORTED_MODULE_1___default()));
@@ -12178,10 +12178,10 @@ var validSvgElementKeys = {
 };
 var shapePropertiesAvailableToUser = {
   drag: [],
-  freehand: ["edge"],
+  freehand: ["line"],
   rect: ["edge", "fill"],
   circle: ["edge", "fill"],
-  line: ["edge", "endmarker-type"],
+  line: ["line", "endmarker-type"],
   text: ["opacity", "text-style"]
 };
 var validHtmlElementKeys = {
@@ -12788,7 +12788,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
       },
       "blur": {
         callback: function callback() {
-          handleStrokeButtonStates();
+          toggleDisableButtonStates(UI.strokeWidth, UI.decrStroke, UI.incrStroke);
         }
       }
     }
@@ -12798,7 +12798,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
       "click": {
         callback: function callback() {
           UI.strokeWidth.stepDown();
-          handleStrokeButtonStates();
+          toggleDisableButtonStates(UI.strokeWidth, UI.decrStroke, UI.incrStroke);
         }
       },
       "focus": {
@@ -12818,7 +12818,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
       "click": {
         callback: function callback() {
           UI.strokeWidth.stepUp();
-          handleStrokeButtonStates();
+          toggleDisableButtonStates(UI.strokeWidth, UI.decrStroke, UI.incrStroke);
         }
       },
       "focus": {
@@ -12829,6 +12829,60 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
       "blur": {
         callback: function callback() {
           UI.strokeWidth.classList.remove("active");
+        }
+      }
+    }
+  }, {
+    element: UI.lineWidth,
+    events: {
+      "input": {
+        callback: function callback() {
+          valueWithinBounds(UI.lineWidth);
+        }
+      },
+      "blur": {
+        callback: function callback() {
+          toggleDisableButtonStates(UI.lineWidth, UI.decrLineWidth, UI.incrLineWidth);
+        }
+      }
+    }
+  }, {
+    element: UI.decrLineWidth,
+    events: {
+      "click": {
+        callback: function callback() {
+          UI.lineWidth.stepDown();
+          toggleDisableButtonStates(UI.lineWidth, UI.decrLineWidth, UI.incrLineWidth);
+        }
+      },
+      "focus": {
+        callback: function callback() {
+          UI.lineWidth.classList.add("active");
+        }
+      },
+      "blur": {
+        callback: function callback() {
+          UI.lineWidth.classList.remove("active");
+        }
+      }
+    }
+  }, {
+    element: UI.incrLineWidth,
+    events: {
+      "click": {
+        callback: function callback() {
+          UI.lineWidth.stepUp();
+          toggleDisableButtonStates(UI.lineWidth, UI.decrLineWidth, UI.incrLineWidth);
+        }
+      },
+      "focus": {
+        callback: function callback() {
+          UI.lineWidth.classList.add("active");
+        }
+      },
+      "blur": {
+        callback: function callback() {
+          UI.lineWidth.classList.remove("active");
         }
       }
     }
@@ -13832,7 +13886,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
           "y2": cursorPosition.y,
           "marker-end": "url(#svg-".concat(drawingApp.params.endmarkerType, "-line)"),
           "stroke": UI.lineColor.value,
-          "stroke-width": UI.strokeWidth.value,
+          "stroke-width": UI.lineWidth.value,
           "opacity": parseFloat(UI.elemOpacityNumber.value / 100)
         };
       case "freehand":
@@ -13840,7 +13894,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
           "d": "M ".concat(cursorPosition.x, ",").concat(cursorPosition.y),
           "fill": "none",
           "stroke": UI.lineColor.value,
-          "stroke-width": UI.strokeWidth.value,
+          "stroke-width": UI.lineWidth.value,
           "opacity": parseFloat(UI.elemOpacityNumber.value / 100)
         };
       case "text":
@@ -14440,7 +14494,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     var value = parseFloat(inputElem.value),
       max = parseFloat(inputElem.max),
       min = parseFloat(inputElem.min);
-    if (Number.isNaN(value) || value === 0) {
+    if (Number.isNaN(value)) {
       return false;
     }
     if (value > max) {
@@ -14600,13 +14654,13 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
   function handleGridSizeButtonStates() {
     disableButtonsWhenNecessary('gridSize');
   }
-  function handleStrokeButtonStates() {
-    var _getBoundsForInputEle2 = getBoundsForInputElement(UI.strokeWidth),
+  function toggleDisableButtonStates(input, decrButton, incrButton) {
+    var _getBoundsForInputEle2 = getBoundsForInputElement(input),
       currentValue = _getBoundsForInputEle2.currentValue,
       min = _getBoundsForInputEle2.min,
       max = _getBoundsForInputEle2.max;
-    UI.decrStroke.disabled = currentValue === min;
-    UI.incrStroke.disabled = currentValue === max;
+    decrButton.disabled = currentValue === min;
+    incrButton.disabled = currentValue === max;
   }
   return {
     UI: UI,
@@ -18137,6 +18191,7 @@ readspeakerLoadCore = function (_readspeakerLoadCore) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ckeditor5_node_modules_ckeditor_ckeditor5_word_count_src_utils_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../ckeditor5/node_modules/@ckeditor/ckeditor5-word-count/src/utils.js */ "./resources/ckeditor5/node_modules/@ckeditor/ckeditor5-word-count/src/utils.js");
+/* provided dependency */ var process = __webpack_require__(/*! process/browser.js */ "./node_modules/process/browser.js");
 function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
@@ -18377,7 +18432,7 @@ window.RichTextEditor = {
     if (!parameterBag.enableCommentsPlugin) {
       config.removePlugins.push("Comments");
     } else {
-      config.licenseKey = "q11N5LxlUjUp2pDthuTmPmy/+cmatL0lY7nh6aX+nhhODyekK1g8YW5CKA==";
+      config.licenseKey = process.env.MIX_CKEDITOR_LICENSE_KEY;
     }
     if (parameterBag.commentThreads != undefined) {
       config.extraPlugins = [CommentsIntegration];
@@ -18451,7 +18506,7 @@ window.RichTextEditor = {
     if (!parameterBag.enableCommentsPlugin) {
       config.removePlugins.push("Comments");
     } else {
-      config.licenseKey = "q11N5LxlUjUp2pDthuTmPmy/+cmatL0lY7nh6aX+nhhODyekK1g8YW5CKA==";
+      config.licenseKey = process.env.MIX_CKEDITOR_LICENSE_KEY;
     }
     if (parameterBag.commentThreads != undefined) {
       config.extraPlugins = [CommentsIntegration];
