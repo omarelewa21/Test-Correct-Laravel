@@ -255,12 +255,12 @@ class TestReview extends EvaluationComponent
     public function studentNumbers()
     {
         $studentRatingUserIds = $this->studentRatings()
-            ->map->user_id
-            ->unique();
+            ?->map->user_id
+            ->unique() ?? collect();
 
         $answerFeedbackUserIds = $this->answerFeedback
-            ->map->user_id
-            ->unique();
+            ?->map->user_id
+            ->unique() ?? collect();
 
         $answerFeedbackUserIds->each(fn($userId) => $studentRatingUserIds->doesntContain($userId) ? $studentRatingUserIds->push($userId) : null);
 
