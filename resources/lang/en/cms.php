@@ -40,7 +40,7 @@ return [
     'delete_question_confirm_text'                                                           => 'Are you sure you want to delete this question? You can not undo this action.',
     'delete_test_confirm_text'                                                               => 'Are you sure you want to delete this test? You can not undo this action.',
     'Vraag verwijderen'                                                                      => 'Delete question',
-    'bijlage'                                                                                => 'attachment|attachments',
+    'bijlage'                                                                                => ':count attachment|:count attachments',
     'all_or_nothing_tooltip_text'                                                            => 'Only give points when all the correct answers are given.',
     'Alles of niets correct'                                                                 => 'All or none correct',
     'Item toevoegen'                                                                         => 'Add item',

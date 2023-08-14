@@ -24,7 +24,7 @@
     @unless ($sortable)
         <span class="text-{{$textAlign}} body2 bold">{{ $slot }}</span>
     @else
-        <x-button.text-button class="flex space-x-1 {{ $textAlign == 'right' ? 'ml-auto' : ''}}  body2 bold group focus:outline-none">
+        <x-button.text class="flex space-x-1 {{ $textAlign == 'right' ? 'ml-auto' : ''}}  body2 bold group focus:outline-none">
             <span>{{ $slot }}</span>
 
             <span class="relative flex items-center">
@@ -74,6 +74,6 @@
                     @endif
                 @endif
             </span>
-        </x-button.text-button>
+        </x-button.text>
     @endif
 </th>

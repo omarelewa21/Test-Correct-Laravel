@@ -19,7 +19,7 @@
         @endif
     @elseif($variant == 'icon-button')
         @if($disabled)
-            <x-button.icon color="cta opacity-20 cursor-not-allowed" title="{{ __('test.publish') }}">
+            <x-button.icon color="cta" class="opacity-20 cursor-not-allowed" title="{{ __('test.publish') }}">
                 <x-icon.publish/>
             </x-button.icon>
         @else

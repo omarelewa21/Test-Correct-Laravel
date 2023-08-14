@@ -5,6 +5,7 @@ namespace tcCore\Http\Controllers;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
 use Maatwebsite\Excel\Facades\Excel;
 use tcCore\AnswerRating;
@@ -1194,7 +1195,8 @@ class TestTakesController extends Controller
         // we now alwas change the setting to make it faster and don't reverse it anymore
         // as on a new server we might forget to update this setting and it doesn't do any harm to do this extra query
         try { // added for compatibility with mariadb
-            \DB::select(\DB::raw("set session optimizer_switch='condition_fanout_filter=off';"));
+            $expression = DB::raw("set session optimizer_switch='condition_fanout_filter=off';");
+            DB::statement($expression->getValue(DB::connection()->getQueryGrammar()));
         } catch (\Exception $e) {
         }
 
@@ -1212,7 +1214,6 @@ class TestTakesController extends Controller
                 $data = ($paginate === true) ? $data->setCollection($list) : $list;
             }
         }
-//        \DB::select(\DB::raw("set session optimizer_switch='condition_fanout_filter=on';"));
 
         return $data;
     }

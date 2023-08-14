@@ -43,7 +43,7 @@ class FixMultipleChoiceSelectableAnswers extends Command
      */
     public function handle()
     {
-        $list = collect(DB::select( DB::raw("SELECT
+        $list = collect(DB::select( "SELECT
                     *
                     FROM
                     multiple_choice_questions MCQ
@@ -62,7 +62,7 @@ class FixMultipleChoiceSelectableAnswers extends Command
                     selectable_answers <= 1
                       AND subtype = 'MultipleChoice'
                     AND deleted_at IS NULL")
-        ));
+        );
         if(app()->runningInConsole()) {
             $bar = $this->output->createProgressBar(count($list));
             $bar->start();

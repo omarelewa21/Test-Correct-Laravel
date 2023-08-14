@@ -73,11 +73,11 @@
     </x-slot>
 
     <x-slot name="footer">
-        <div class="inline self-end">
-            <x-button.text-button class="mr-2"
+        <div class="inline self-end items-center">
+            <x-button.text class="mr-2"
                                   wire:click="$emit('closeModal')">
                 <span>{{__("auth.back_to_login")}}</span>
-            </x-button.text-button>
+            </x-button.text>
             <x-button.cta
                     wire:click="requestPasswordChange">
                 <span>{{__("password-reset.Wachtwoord resetten")}}</span>

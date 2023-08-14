@@ -70,7 +70,7 @@ class UwlrSoapResult extends Model
     public function addQueueDataToLog($key, $save = false)
     {
         $jobs = (object) [];
-        collect(DB::select(DB::raw('Select queue, count(*) as amount from jobs group by queue')))->each(function($q) use ($jobs){
+        collect(DB::select('Select queue, count(*) as amount from jobs group by queue'))->each(function($q) use ($jobs){
             $jobs->{$q->queue} = $q->amount;
         });
         $this->addToLog($key,$jobs, $save);

@@ -14,10 +14,10 @@
             @endif
         </a>
 {{--        <div class="flex items-center">--}}
-{{--            <x-button.text-button type="link" href="{{ config('app.url_login') }}" class="rotate-svg-180">--}}
+{{--            <x-button.text type="link" href="{{ config('app.url_login') }}" class="rotate-svg-180">--}}
 {{--                <x-icon.arrow/>--}}
 {{--                <span>Terugknop (Naar portal, opnieuw inloggen?)</span>--}}
-{{--            </x-button.text-button>--}}
+{{--            </x-button.text>--}}
 {{--        </div>--}}
         <div class="user flex flex-wrap items-center ml-auto space-x-6">
             @if(Auth::user()->isA('Teacher'))

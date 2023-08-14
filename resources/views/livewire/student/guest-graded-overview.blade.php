@@ -24,22 +24,19 @@
                             @endif
                         </div>
                         <div class="mt-3 px-3 flex w-full justify-between base">
-                            <button
-                                    class="button text-button space-x-2.5 focus:outline-none transition text-base"
-{{--                                    class="{{ ($this->sortField == 'users.name' && $this->sortDirection == 'asc') ? 'rotate-svg-270' : 'rotate-svg-90' }} text-base"--}}
-                                    :class="(sortField == 'users.name' && sortDirection == 'asc') ? 'rotate-svg-270' : 'rotate-svg-90' "
+                            <x-button.text
+                                    x-bind:class="(sortField == 'users.name' && sortDirection == 'asc') ? 'rotate-svg-270' : 'rotate-svg-90' "
                                     wire:click="sortGuestNames"
-                                    wire:loading.class="underline"
                             >
                                 <span>{{ __('general.name') }}</span>
-                                <x-icon.chevron-small opacity="1"/>
-                            </button>
-                            <x-button.text-button
+                                <x-icon.chevron-small opacity="1" />
+                            </x-button.text>
+                            <x-button.text
                                     class="{{ ($this->sortField == 'test_participants.rating' && $this->sortDirection == 'asc') ? 'rotate-svg-270' : 'rotate-svg-90' }} text-base"
                                     size="sm" wire:click="sortGuestGrades">
                                 <span>{{ __('general.grade') }}</span>
-                                <x-icon.chevron-small opacity="1"/>
-                            </x-button.text-button>
+                                <x-icon.chevron-small opacity="1" />
+                            </x-button.text>
                         </div>
                         <div class="divider"></div>
                         <div class="flex flex-col">
@@ -80,10 +77,10 @@
                         <span>{{__('auth.download_student_app')}}</span>
                     </x-button.primary>
                     <h5 class="hidden inline-flex mt-2 md:mt-0">&amp;</h5>
-                    <x-button.text-button class="hidden">
+                    <x-button.text class="hidden">
                         <span>{{__('auth.request_account_from_teacher')}}</span>
                         <x-icon.arrow/>
-                    </x-button.text-button>
+                    </x-button.text>
                 </div>
             </div>
         </div>

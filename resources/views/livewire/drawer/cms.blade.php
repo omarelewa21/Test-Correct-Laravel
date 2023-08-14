@@ -218,7 +218,7 @@
             <x-sidebar.slide-container x-ref="newquestion" @mouseenter="handleVerticalScroll($el);">
                 <div class="py-2 px-5">
                     <div class="flex items-center space-x-2.5">
-                        <x-button.back-round @click="home(); $store.questionBank.inGroup = false;"
+                        <x-button.back-round @click="prev($refs.newquestion); $store.questionBank.inGroup = false;"
                                              wire:click="$set('groupId', null)"
                         />
                         <span class="bold text-lg">{{ __('cms.choose-question-type') }}</span>

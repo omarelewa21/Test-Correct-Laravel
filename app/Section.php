@@ -17,13 +17,6 @@ class Section extends BaseModel implements AccessCheckable {
     use UuidTrait;
 
     /**
-     * The attributes that should be mutated to dates.
-     *
-     * @var array
-     */
-    protected $dates = ['deleted_at'];
-
-    /**
      * The database table used by the model.
      *
      * @var string
@@ -45,8 +38,9 @@ class Section extends BaseModel implements AccessCheckable {
     protected $hidden = [];
 
     protected $casts = [
-        'demo' => 'boolean',
-        'uuid' => EfficientUuid::class,
+        'demo'       => 'boolean',
+        'uuid'       => EfficientUuid::class,
+        'deleted_at' => 'datetime',
     ];
 
     protected $schoolLocations;

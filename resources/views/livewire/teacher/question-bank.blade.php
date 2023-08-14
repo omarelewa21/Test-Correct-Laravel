@@ -117,7 +117,7 @@
                             @endif
                         </div>
 
-                        <x-button.text-button class="ml-auto text-base"
+                        <x-button.text class="ml-auto text-base"
                                               size="sm"
                                               wire:click="clearFilters()"
                                               x-on:click="$dispatch('enable-loading-grid');clearFilterPillsFromElement($refs.questionbank);"
@@ -125,7 +125,7 @@
                         >
                             <span class="min-w-max">{{ __('teacher.Filters wissen') }}</span>
                             <x-icon.close-small/>
-                        </x-button.text-button>
+                        </x-button.text>
                     </div>
 
                     <div id="questionbank-{{ $this->openTab }}-active-filters"

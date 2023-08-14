@@ -11,6 +11,7 @@ use tcCore\Question;
 abstract class QuestionComponent extends Component
 {
     public bool $studentAnswer = true;
+    public bool $enableComments = false;
 
     public function __construct(
         public Question $question,

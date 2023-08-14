@@ -36,6 +36,7 @@ class Question extends MtiBaseModel
         'add_to_database_disabled' => 'boolean',
         'draft'                    => 'boolean',
         'lang'                     => WscLanguage::class,
+        'deleted_at'               => 'datetime',
     ];
 
     public $mtiBaseClass = 'tcCore\Question';
@@ -46,13 +47,6 @@ class Question extends MtiBaseModel
     const TYPE_CLOSED = 'CLOSED';
 
     const INLINE_IMAGE_PATTERN = '/custom/imageload.php?filename=';
-
-    /**
-     * The attributes that should be mutated to dates.
-     *
-     * @var array
-     */
-    protected $dates = ['deleted_at'];
 
     /**
      * The database table used by the model.
@@ -1389,7 +1383,7 @@ class Question extends MtiBaseModel
     {
         $withMath = strip_tags(html_entity_decode($this->getQuestionHtml()), ['math']);//,'msqrt','msub','msup','mo','mfrac','mrow','mi','mfenced','mroot','mover','munderover','mn','mtd','mtr','mtable','msrow','msline','mstack','mlongdiv','msgroup','mstyle','mmultiscripts','mprescripts','none','msubsup','munder','menclose','mtext','mspace']);
 
-        return preg_replace('/<math(.*)<\/math>/i', '', $withMath);
+        return preg_replace('#(<math.*?>).*?(</math>)#', '', $withMath);
     }
 
     public function getTypeNameAttribute()

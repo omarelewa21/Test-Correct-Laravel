@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
 use tcCore\AnswerRating;
+use tcCore\Events\CommentedAnswerUpdated;
 use tcCore\Events\TestTakeChangeDiscussingQuestion;
 use tcCore\Events\CoLearningForceTakenAway;
 use tcCore\Events\TestTakeCoLearningPresenceEvent;
@@ -15,13 +16,17 @@ use tcCore\Events\TestTakePresenceEvent;
 use tcCore\Events\TestTakeStop;
 use tcCore\Http\Controllers\AnswerRatingsController;
 use tcCore\Http\Controllers\TestTakeLaravelController;
+use tcCore\Http\Enums\AnswerFeedbackFilter;
 use tcCore\Http\Livewire\CoLearning\CompletionQuestion;
 use tcCore\Http\Livewire\TCComponent;
+use tcCore\Http\Traits\WithInlineFeedback;
 use tcCore\TestTake;
 use tcCore\TestTakeStatus;
 
 class CoLearning extends TCComponent
 {
+    use WithInlineFeedback;
+
     const SESSION_KEY = 'co-learning-answer-options';
 
     public ?TestTake $testTake;
@@ -128,6 +133,8 @@ class CoLearning extends TCComponent
         if($this->redirectIfTestTakeInIncorrectState() instanceof Redirector) {
             return false;
         };
+
+        $this->answerFeedbackFilter = AnswerFeedbackFilter::CURRENT_USER;
     }
 
     public function redirectToTestTakesInReview()
@@ -350,6 +357,8 @@ class CoLearning extends TCComponent
         if ($this->answerRatings->isNotEmpty()) {
             $this->getQuestionAndAnswerNavigationData();
         }
+
+        $this->getSortedAnswerFeedback();
     }
 
     private function checkIfStudentCanFinishCoLearning(): void
@@ -459,6 +468,12 @@ class CoLearning extends TCComponent
         if (session()->has(CompletionQuestion::SESSION_KEY)) {
             session()->forget(CompletionQuestion::SESSION_KEY);
         }
+    }
+
+    //alias property name for inline feedback
+    public function getCurrentQuestionProperty()
+    {
+        return $this->testTake->discussingQuestion;
     }
 
 }

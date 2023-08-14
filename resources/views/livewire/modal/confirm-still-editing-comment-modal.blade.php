@@ -6,10 +6,10 @@
         @lang('modal.Feedback_in_bewerking_text')
     </x-slot>
     <x-slot name="footer">
-        <div class="flex justify-end w-full gap-4">
-            <x-button.text-button x-on:click="$store.answerFeedback.cancelAction()">
+        <div class="flex justify-end w-full gap-4 items-center">
+            <x-button.text x-on:click="$store.answerFeedback.cancelAction()">
                 <span>{{__('modal.Terug')}}</span>
-            </x-button.text-button>
+            </x-button.text>
             <x-button.cta x-on:click="$store.answerFeedback.continueAction()">
                 <x-icon.checkmark/>
                 <span>{{__('test-take.Doorgaan')}}</span>

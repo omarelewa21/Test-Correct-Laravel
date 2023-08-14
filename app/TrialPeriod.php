@@ -12,9 +12,14 @@ class TrialPeriod extends Model
 {
     use SoftDeletes, UuidTrait;
 
-    protected $casts = ['uuid' => EfficientUuid::class];
+    protected $casts = [
+        'uuid'        => EfficientUuid::class,
+        'deleted_at'  => 'datetime',
+        'created_at'  => 'datetime',
+        'updated_at'  => 'datetime',
+        'trial_until' => 'datetime',
+    ];
 
-    protected $dates = ['created_at','updated_at', 'deleted_at', 'trial_until'];
     protected $fillable = ['user_id', 'trial_until','school_location_id'];
 
     protected static function boot()

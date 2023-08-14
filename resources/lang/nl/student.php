@@ -1,4 +1,5 @@
 <?php
+
 return [
     'Beste' => 'Beste',
 
@@ -147,7 +148,7 @@ return [
     'your_grade'                                               => 'Jouw cijfer',
     'teacher_introduction_not_available'                       => 'Introductie niet beschikbaar',
     'teacher_introduction_not_available_long'                  => 'De introductietekst voor de toets is alleen beschikbaar bij aanvang van de toets.',
-    'percentage per vak'                                        => 'Percentage per vak',
+    'percentage per vak'                                       => 'Percentage per vak',
     'percentage per leerdoel'                                  => 'Percentage per leerdoel',
     'percentage per eindterm'                                  => 'Percentage per eindterm',
     'percentage per subeindterm'                               => 'Percentage per subeindterm',
@@ -193,18 +194,19 @@ return [
     'discussing_test'                                          => 'Te bespreken toets',
     'review_test'                                              => 'Toets inzien',
     'icons-tooltip'                                            => [
-        'before-test-take'                                     => [
-            'app'                                               => 'Maken in app',
-            'web'                                               => 'Maken in browser toegestaan',
-            'test-direct'                                       => 'Maken via Test-Direct toegestaan',
-            'redo'                                              => 'Inhaaltoets',
+        'before-test-take' => [
+            'app'         => 'Maken in app',
+            'web'         => 'Maken in browser toegestaan',
+            'test-direct' => 'Maken via Test-Direct toegestaan',
+            'redo'        => 'Inhaaltoets',
         ],
-        'after-test-take'                                      => [
-            'app'                                               => 'Gemaakt in app',
-            'web'                                               => 'Gemaakt in browser',
-            'test-direct'                                       => 'Afgenomen via gastaccount',
-            'redo'                                              => 'Inhaaltoets',
+        'after-test-take'  => [
+            'app'         => 'Gemaakt in app',
+            'web'         => 'Gemaakt in browser',
+            'test-direct' => 'Afgenomen via gastaccount',
+            'redo'        => 'Inhaaltoets',
         ],
     ],
     'info'                                                     => 'Info',
+    'Verder in Test-Correct app'                               => 'Verder in Test-Correct app',
 ];

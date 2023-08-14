@@ -67,9 +67,9 @@
          x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
         <div class="px-2.5 flex justify-between items-center">
             <h2>{{ __('header.change_password') }}</h2>
-            <x-button.text-button @click="show = false" size="sm">
+            <x-button.text @click="show = false" size="sm">
                 <x-icon.close/>
-            </x-button.text-button>
+            </x-button.text>
         </div>
         <div class="divider mb-5 mt-2.5"></div>
         <div class="flex flex-1 h-full w-full px-2.5 body1 space-x-2.5 text-center">

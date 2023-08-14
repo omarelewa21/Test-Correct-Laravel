@@ -22,7 +22,7 @@ class User
     {
         $user = auth()->user();
 
-        $temp = AnswerFeedback::where('answer_id', '=', $answerId)
+        return AnswerFeedback::where('answer_id', '=', $answerId)
             ->select('user_id')->distinct()
             ->with(['user', 'user.roles'])
             ->get()
@@ -32,9 +32,9 @@ class User
                     'name' => $feedback->user->nameFull,
                     'role' => $feedback->user->isA('teacher') ? 'teacher' : 'student'
                 ];
-            })->when(function ($collection) {
+            })->when(function ($collection) use ($user) {
                 //the authenticated user has to be always available in the users data
-                return $collection->collect()->where('id', '=', auth()->user()->uuid)->isEmpty();
+                return $collection->collect()->where('id', '=', $user->uuid)->isEmpty();
             }, function ($collection) use ($user) {
                 $collection->add([
                     "id"   => $user->uuid,
@@ -42,8 +42,6 @@ class User
                     'role' => $user->isA('teacher') ? 'teacher' : 'student'
                 ]);
             });
-
-        return $temp;
     }
 
 }
