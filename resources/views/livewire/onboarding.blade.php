@@ -344,13 +344,13 @@
                                     </div>
                                     <div class="error-section md:mb-20">
                                         @if($this->warningStepOne)
-                                            <div class="notification stretched warning mt-4">
+                                            <div class="notification stretched warning mt-4" selid="warningStepOne">
                                                 <span class="title">{{ __("onboarding.Zijn alle velden correct ingevuld") }}?</span>
                                             </div>
                                         @endif
-                                        @foreach($errors->all() as $error)
-                                            <div class="notification stretched error mt-4">
-                                                <span class="title">{{ $error }}</span>
+                                        @foreach($errors->getMessageBag()->toArray() as $key => $error)
+                                            <div class="notification stretched error mt-4" selid="error.{{str_replace('registration.', '', $key)}}">
+                                                <span class="title">{{ $error[0] }}</span>
                                             </div>
                                         @endforeach
                                     </div>
@@ -457,40 +457,16 @@
                                 </div>
                                 <div class="">
                                     @if($this->warningStepTwo)
-                                        <div class="notification stretched warning mt-4">
+                                        <div class="notification stretched warning mt-4" selid="warningStepTwo">
                                             <span class="title">{{ __("onboarding.Zijn alle velden correct ingevuld") }}?</span>
                                         </div>
                                     @endif
-                                    @error('registration.school_location')
-                                    <div class="notification stretched error mt-4">
-                                        <span class="title">{{ $message }}</span>
-                                    </div>
-                                    @enderror
-                                    @error('registration.website_url')
-                                    <div class="notification stretched error mt-4">
-                                        <span class="title">{{ $message }}</span>
-                                    </div>
-                                    @enderror
-                                    @error('registration.address')
-                                    <div class="notification stretched error mt-4">
-                                        <span class="title">{{ $message }}</span>
-                                    </div>
-                                    @enderror
-                                    @error('registration.house_number')
-                                    <div class="notification stretched error mt-4">
-                                        <span class="title">{{ $message }}</span>
-                                    </div>
-                                    @enderror
-                                    @error('registration.postcode')
-                                    <div class="notification stretched error mt-4">
-                                        <span class="title">{{ $message }}</span>
-                                    </div>
-                                    @enderror
-                                    @error('registration.city')
-                                    <div class="notification stretched error mt-4">
-                                        <span class="title">{{ $message }}</span>
-                                    </div>
-                                    @enderror
+                                    @foreach($errors->getMessageBag()->toArray() as $key => $error)
+                                        <div class="notification stretched error mt-4" selid="error.{{str_replace('registration.', '', $key)}}">
+                                            <span class="title">{{ $error[0] }}</span>
+                                        </div>
+                                    @endforeach
+
                                 </div>
                                 <div class="mt-4 flex justify-between items-center">
                                     <x-button.text wire:click="backToStepOne">
