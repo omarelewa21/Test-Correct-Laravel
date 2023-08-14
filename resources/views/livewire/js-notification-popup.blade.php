@@ -2,9 +2,9 @@
     x-data="{
         notify: async (event) => {
             let message = await $wire.getLocalizedMessage(event.detail.translation_key)
-            let type = event.detail.type
+            let type = event.detail.message_type
             Notify.notify(message, type)
         }
     }"
-    @js-notify-popup.window="notify($event)"
+    x-on:js-notify-popup.window="notify($event)"
 ></div>

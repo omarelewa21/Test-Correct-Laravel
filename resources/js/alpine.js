@@ -471,7 +471,7 @@ document.addEventListener("alpine:init", () => {
                     component.call("render");
                 }
 
-                this.$dispatch("set-allow-paste", !show);
+                isTeacher && this.$dispatch("set-allow-paste", !show);  // disable filepond paste when drawing tool is open
             });
 
             toolName.Canvas.layers.answer.enable();

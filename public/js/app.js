@@ -6868,8 +6868,9 @@ document.addEventListener("alpine:init", function () {
             var component = getClosestLivewireComponentByAttribute(_this9.$root, "questionComponent");
             component.call("render");
           }
-          _this9.$dispatch("set-allow-paste", !show);
+          isTeacher && _this9.$dispatch("set-allow-paste", !show); // disable filepond paste when drawing tool is open
         });
+
         toolName.Canvas.layers.answer.enable();
         if (this.isTeacher) {
           toolName.Canvas.setCurrentLayer("question");
