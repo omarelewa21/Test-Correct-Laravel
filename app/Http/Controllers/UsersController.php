@@ -408,8 +408,10 @@ class UsersController extends Controller
     {
         if(isset($request->info))
         {
+            $getUser=User::find($user_id);
             $title=$request->info ;
             $UserSystemSettingsInfo = UserSystemSetting::where('user_id', $user_id)->where('title', $title)->first();
+            // $UserSystemSettingsInfo=UserSystemSetting::hasSetting($getUser, $title); 
             if(isset($UserSystemSettingsInfo))
             {
                 // Delete Record
@@ -418,17 +420,13 @@ class UsersController extends Controller
             }
             elseif($request->info != null){
                 // Create new Record
-                $UserSystemSettingsInfo= UserSystemSetting::create([
-                    'user_id' => $user_id,
-                    'title' => $title,
-                    'value' => 1,
-                ]);  
+                $UserSystemSettingsInfo= UserSystemSetting::setSetting($getUser, $title, 1);
             }
         }
         return response()->json(['success'=>'Feature updated successfully.']);
     }
 
-    public function indexfeatureTeacher(Request $request)
+    public function getUserSystemSetting(Request $request)
     {
         $userId= $request['user_id'];
         $result = UserSystemSetting::where('user_id',$userId)->get();
@@ -437,7 +435,6 @@ class UsersController extends Controller
             foreach ($result as $setting) {
                 $dataArray[$setting->title] = $setting->value;
             }
-        // $result = $user->systemSettings;
         return $dataArray;
     }
  
