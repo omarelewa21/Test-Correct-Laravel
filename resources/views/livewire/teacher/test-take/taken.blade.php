@@ -27,11 +27,7 @@
     </div>
     <div class="flex flex-col gap-1">
         <span>@lang('test-take.Resultaten gepubliceerd op')</span>
-        @if($this->testTake->results_published)
-            <h6>{{ $this->testTake->results_published->format('d-m-Y') }}</h6>
-        @else
-            <h6>@lang('test-take.Nog niet gepubliceerd')</h6>
-        @endif
+        <h6>{{ $this->testTake->results_published?->format('d-m-Y') ?? __('test-take.Nog niet gepubliceerd') }}</h6>
     </div>
 @endsection
 
@@ -90,12 +86,14 @@
             <x-icon.review />
         </x-button.icon>
 
-        <x-button.cta wire:click="startCoLearning" class="px-4 order-1" :title="__('co-learning.start_co_learning_session')">
+        <x-button.cta wire:click="startCoLearning" class="px-4 order-1"
+                      :title="__('co-learning.start_co_learning_session')">
             <x-icon.co-learning />
             <span>@lang('co-learning.co_learning')</span>
         </x-button.cta>
     @elseif($this->testTakeStatusId === \tcCore\TestTakeStatus::STATUS_DISCUSSED && !$this->assessmentDone)
-        <x-button.icon wire:click="startCoLearning" class="order-5" :title="__('co-learning.start_co_learning_session')">
+        <x-button.icon wire:click="startCoLearning" class="order-5"
+                       :title="__('co-learning.start_co_learning_session')">
             <x-icon.co-learning />
         </x-button.icon>
 
@@ -105,7 +103,8 @@
         </x-button.cta>
     @else
 
-        <x-button.icon wire:click="startAssessment" class="order-5" :title="__('co-learning.start_co_learning_session')">
+        <x-button.icon wire:click="startAssessment" class="order-5"
+                       :title="__('co-learning.start_co_learning_session')">
             <x-icon.review />
         </x-button.icon>
         <x-button.icon wire:click="startCoLearning" class="order-5" :title="__('assessment.Start nakijken')">
