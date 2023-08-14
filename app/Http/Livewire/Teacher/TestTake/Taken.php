@@ -47,6 +47,7 @@ class Taken extends TestTakeComponent
 
     private Collection $questionsOfTest;
     public array $questionsToIgnore = [];
+    public bool $participantGradesChanged = false;
 
 
     protected function getRules(): array
@@ -90,6 +91,7 @@ class Taken extends TestTakeComponent
     public function updatedParticipantResults(): void
     {
         Session::put($this->resultSessionKey(), $this->participantResults);
+        $this->participantGradesChanged = true;
     }
 
     public function updatedGradingValue($value): void
@@ -98,11 +100,13 @@ class Taken extends TestTakeComponent
             GradingStandard::tryFrom($this->gradingStandard),
             $value
         );
+        $this->participantGradesChanged = true;
     }
 
     public function updatedGradingStandard($value): void
     {
         $this->standardizeResults(GradingStandard::tryFrom($value));
+        $this->participantGradesChanged = true;
     }
 
     public function updatedCesuurPercentage($value): void
@@ -113,6 +117,8 @@ class Taken extends TestTakeComponent
             GradingStandard::tryFrom($this->gradingStandard),
             $this->gradingValue
         );
+
+        $this->participantGradesChanged = true;
     }
 
     public function updatedShowGradeToStudent($value): void
@@ -178,6 +184,21 @@ class Taken extends TestTakeComponent
         if (!$this->showWaitingRoom) {
             $this->skipRender();
         }
+    }
+
+    public function canPublishResults(): bool
+    {
+        if (!$this->testTake->results_published) {
+            return true;
+        }
+        return $this->participantGradesChanged;
+    }
+
+    public function publishButtonLabel(): string
+    {
+        return $this->testTake->results_published
+            ? __('test-take.Resultaten opnieuw publiceren')
+            : __('test-take.Resultaten publiceren');
     }
 
     /* Button actions */
@@ -576,6 +597,10 @@ class Taken extends TestTakeComponent
 
     private function setStandardizationProperties(): void
     {
+        if ($this->testTake->results_published) {
+            $standard = GradingStandard::methodConverter($this->testTake);
+        }
+
         $this->gradingStandards = GradingStandard::casesWithDescription();
         $standard = UserFeatureSetting::getSetting(
             user   : auth()->user(),
@@ -603,5 +628,4 @@ class Taken extends TestTakeComponent
             $this->gradingValue
         );
     }
-
 }

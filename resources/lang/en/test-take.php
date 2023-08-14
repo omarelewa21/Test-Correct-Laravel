@@ -119,4 +119,5 @@ return [
     'Gecombineerd gemiddelde'                                                                                                                          => 'Combined average',
     'standardize_and_grading_tooltip'                                                                                                                  => 'Here you can set the standardization on which the grades will be based. After you can choose to adjust the score.',
     'Exporteer cijferlijst'                                                                                                                            => 'Export grades list',
+    'Resultaten opnieuw publiceren'                                                                                                                    => 'Publish results again',
 ];

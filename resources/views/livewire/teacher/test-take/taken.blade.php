@@ -45,9 +45,11 @@
                 <span>@lang('assessment.Nakijken')</span>
             </x-dynamic-component>
         @else
-            <x-button.cta>
+            <x-button.cta :title="$this->publishButtonLabel()"
+                          :disabled="!$this->canPublishResults()"
+            >
                 <x-icon.grade />
-                <span>@lang('test-take.Resultaten publiceren')</span>
+                <span>{{ $this->publishButtonLabel() }}</span>
             </x-button.cta>
         @endif
     </div>
@@ -115,9 +117,12 @@
             <x-icon.grades-list />
         </x-button.icon>
 
-        <x-button.cta class="order-1" :title="__('test-take.Resultaten publiceren')">
+        <x-button.cta class="order-1"
+                      :title="$this->publishButtonLabel()"
+                      :disabled="!$this->canPublishResults()"
+        >
             <x-icon.grade />
-            <span>@lang('test-take.Resultaten publiceren')</span>
+            <span>{{ $this->publishButtonLabel() }}</span>
         </x-button.cta>
     @endif
 @endsection
@@ -500,12 +505,14 @@
                     </x-accordion.block>
                 </x-accordion.container>
 
-                <x-button.cta wire:click="publishResults"
-                              class="justify-center"
+                <x-button.cta class="justify-center"
+                              :title="$this->publishButtonLabel()"
+                              :disabled="!$this->canPublishResults()"
                               size="md"
+                              wire:click="publishResults"
                 >
                     <x-icon.grade />
-                    <span>@lang('test-take.Resultaten publiceren')</span>
+                    <span>{{ $this->publishButtonLabel() }}</span>
                 </x-button.cta>
             </div>
         </div>

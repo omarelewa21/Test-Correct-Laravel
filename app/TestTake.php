@@ -57,7 +57,6 @@ class TestTake extends BaseModel
         'show_results'      => 'datetime',
         'exported_to_rtti'  => 'datetime',
         'assessed_at'       => 'datetime',
-        'returned_to_taken' => 'boolean',
         'review_active'     => 'boolean',
         'results_published' => 'datetime',
     ];
