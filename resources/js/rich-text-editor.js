@@ -131,6 +131,8 @@ window.RichTextEditor = {
     initAnswerEditorWithComments: function(parameterBag) {
         parameterBag.enableCommentsPlugin = true;
 
+        parameterBag.wproofreaderActionItems = ['toggle'];
+
         return this.createStudentEditor(
             parameterBag,
             (editor) => {
@@ -211,7 +213,7 @@ window.RichTextEditor = {
             wordCount: {
                 displayCharacters: false
             },
-            wproofreader: this.getWproofreaderConfig(parameterBag.enableGrammar)
+            wproofreader: this.getWproofreaderConfig(parameterBag.enableGrammar, parameterBag.wproofreaderActionItems)
         };
 
         config.removePlugins = ["Selection", "Completion", "ImageUpload", "Image", "ImageToolbar"];
@@ -417,7 +419,14 @@ window.RichTextEditor = {
         }
     },
     setCommentsOnly: function(editor) {
-        editor.plugins.get( 'CommentsOnly' ).isEnabled = true;
+        //disable all commands except for comments and webspellchecker
+        const input = editor.commands._commands.forEach((command, name) => {
+            if(!['addCommentThread', 'undo', 'redo', 'WProofreaderToggle', 'WProofreaderSettings'].includes(name)) {
+                command.forceDisabled('commentsOnly');
+            }
+        });
+
+        // editor.plugins.get( 'CommentsOnly' ).isEnabled = true;
     },
     writeContentToTextarea: function(editorId) {
         const editor = ClassicEditors[editorId];
@@ -559,13 +568,13 @@ window.RichTextEditor = {
             fireEventIfWordCountChanged(wordCount);
         } );
     },
-    getWproofreaderConfig: function(enableGrammar = true) {
+    getWproofreaderConfig: function(enableGrammar = true, actionItems = ["addWord", "ignoreAll", "ignore", "settings", "toggle", "proofreadDialog"]) {
         return {
             autoSearch: false,
             autoDestroy: true,
             autocorrect: false,
             autocomplete: false,
-            actionItems: ["addWord", "ignoreAll", "ignore", "settings", "toggle", "proofreadDialog"],
+            actionItems: actionItems,
             enableBadgeButton: true,
             serviceProtocol: "https",
             servicePort: "80",
