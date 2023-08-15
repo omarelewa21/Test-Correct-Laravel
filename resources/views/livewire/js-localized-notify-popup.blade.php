@@ -6,5 +6,5 @@
             Notify.notify(message, type)
         }
     }"
-    x-on:js-notify-popup.window="notify($event)"
+    x-on:js-localized-notify-popup.window="notify($event)"
 ></div>

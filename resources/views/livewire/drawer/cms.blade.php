@@ -231,5 +231,5 @@
         <span class="invisible"></span>
     </div>
     @livewire('session-component')
-    @livewire('js-notification-popup')
+    @livewire('js-localized-notify-popup')
 </div>

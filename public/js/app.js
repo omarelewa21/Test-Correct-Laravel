@@ -14319,7 +14319,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
   }
   function imageTypeIsAllowed(file) {
     if (file.size / (1024 * 1024) > 4) {
-      dispatchEvent(new CustomEvent('js-notify-popup', {
+      dispatchEvent(new CustomEvent('js-localized-notify-popup', {
         detail: {
           translation_key: 'image-size-error',
           message_type: 'error'
@@ -14328,7 +14328,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
       return false;
     }
     if (!['png', 'jpeg', 'jpg'].includes(file.type.toLowerCase().split('/')[1])) {
-      dispatchEvent(new CustomEvent('js-notify-popup', {
+      dispatchEvent(new CustomEvent('js-localized-notify-popup', {
         detail: {
           translation_key: 'image-type-error',
           message_type: 'error'
