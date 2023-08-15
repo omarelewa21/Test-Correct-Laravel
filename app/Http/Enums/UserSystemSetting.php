@@ -10,7 +10,7 @@ use tcCore\Http\Enums\Traits\WithAttributes;
 use tcCore\Http\Enums\Traits\WithCasting;
 use tcCore\Http\Enums\Traits\WithValidation;
 
-enum UserSystemSetting: string 
+enum UserSystemSetting: string
 {
     use WithAttributes;
     use WithValidation;
@@ -28,53 +28,22 @@ enum UserSystemSetting: string
         return collect(self::cases())->mapWithKeys(fn ($enum) => [$enum->value => self::getInitialValue($enum)]);
     }
 
-    private function validateAutoLogoutMinutes($value): bool
+    private function validateAllowNewCoLearningTeacher($value): bool
     {
-        if ($value >= 15 && $value <= 120) {
-            return true;
-        }
-        throw new AccountSettingException(sprintf('%s heeft geen correcte waarde', $this->value));
-    }
-
-    private function validateSystemLanguage($value): bool
-    {
-        if (!SystemLanguage::tryFrom($value)) {
+        if (!is_bool($value)) {
             throw new AccountSettingException(sprintf('%s heeft geen correcte waarde', $this->value));
         }
 
         return true;
     }
 
-    private function validateWscLanguage($value): bool
+    private function validateAllowNewAssessment($value): bool
     {
-        if (!WscLanguage::tryFrom($value)) {
+        if (!is_bool($value)) {
             throw new AccountSettingException(sprintf('%s heeft geen correcte waarde', $this->value));
         }
 
         return true;
     }
 
-    private function validateGradeDefaultStandard($value): bool
-    {
-        if (!GradingStandard::tryFrom($value)) {
-            throw new AccountSettingException(sprintf('%s heeft geen correcte waarde', $this->value));
-        }
-
-        return true;
-    }
-
-    private function castSystemLanguage($value): SystemLanguage
-    {
-        return SystemLanguage::tryFrom($value) ?? SystemLanguage::DUTCH;
-    }
-
-    private function castWscLanguage($value): WscLanguage
-    {
-        return WscLanguage::tryFrom($value) ?? WscLanguage::DUTCH;
-    }
-
-    private function castGradeDefaultStandard($value): GradingStandard
-    {
-        return GradingStandard::tryFrom($value) ?? GradingStandard::N_TERM;
-    }
 }

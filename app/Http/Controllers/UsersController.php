@@ -39,6 +39,7 @@ use tcCore\Http\Requests\UpdateUserRequest;
 use tcCore\Http\Helpers\SchoolHelper;
 use tcCore\UserRole;
 use tcCore\UserSystemSetting;
+use tcCore\Http\Enums\UserSystemSetting as UserSystemSettingEnum;
 
 class UsersController extends Controller
 {
@@ -405,25 +406,19 @@ class UsersController extends Controller
      */
 
     public function updateUserFeature($user_id, Request $request)
-    {
-        if(isset($request->info))
-        {
-            $getUser=User::find($user_id);
-            $title=$request->info ;
-            $UserSystemSettingsInfo = UserSystemSetting::where('user_id', $user_id)->where('title', $title)->first();
-            // $UserSystemSettingsInfo=UserSystemSetting::hasSetting($getUser, $title); 
-            if(isset($UserSystemSettingsInfo))
-            {
-                // Delete Record
-                $UserSystemSettingsInfo->delete();
-                  
-            }
-            elseif($request->info != null){
-                // Create new Record
-                $UserSystemSettingsInfo= UserSystemSetting::setSetting($getUser, $title, 1);
-            }
+    {    
+        if (!Auth::user()->isA(['Administrator', 'Account manager'])) {
+            return Response::make('You are not authorized to update this feature', 403);
         }
-        return response()->json(['success'=>'Feature updated successfully.']);
+        $getUser=User::find($user_id);
+        $setting = UserSystemSettingEnum::tryFrom($request->info ?? '');  
+        $title=$request->info;  
+        if(!$setting) {
+            return Response::make('No valid feature key found', 404);    
+        }
+        UserSystemSetting::setSetting(
+            user: $getUser, title: $title, value: !UserSystemSetting::getSetting($getUser, $title));
+        return Response::json(['success' => 'Feature updated successfully.']);
     }
 
     public function getUserSystemSetting(Request $request)
