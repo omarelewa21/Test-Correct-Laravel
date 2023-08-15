@@ -23,27 +23,33 @@ enum UserSystemSetting: string
     #[Type('bool')]
     case ALLOW_NEW_ASSESSMENT = 'allow_new_assessment';
 
-    public static function initialValues(): Collection
+    public static function getInitialValues(): Collection
     {
-        return collect(self::cases())->mapWithKeys(fn ($enum) => [$enum->value => self::getInitialValue($enum)]);
+        return collect([
+            self::ALLOW_NEW_CO_LEARNING_TEACHER => true,
+            self::ALLOW_NEW_ASSESSMENT => true,
+        ]);
     }
 
-    private function validateAllowNewCoLearningTeacher($value): bool
+    public static function getValidationRules(): Collection
     {
-        if (!is_bool($value)) {
-            throw new AccountSettingException(sprintf('%s heeft geen correcte waarde', $this->value));
-        }
-
-        return true;
+        return collect([
+            self::ALLOW_NEW_CO_LEARNING_TEACHER => 'required|boolean',
+            self::ALLOW_NEW_ASSESSMENT => 'required|boolean',
+        ]);
     }
 
-    private function validateAllowNewAssessment($value): bool
+    public static function getValidationMessages(): Collection
     {
-        if (!is_bool($value)) {
-            throw new AccountSettingException(sprintf('%s heeft geen correcte waarde', $this->value));
-        }
-
-        return true;
+        return collect([
+            self::ALLOW_NEW_CO_LEARNING_TEACHER => [
+                'required' => 'The allow new co-learning teacher field is required.',
+                'boolean' => 'The allow new co-learning teacher field must be true or false.',
+            ],
+            self::ALLOW_NEW_ASSESSMENT => [
+                'required' => 'The allow new assessment field is required.',
+                'boolean' => 'The allow new assessment field must be true or false.',
+            ],
+        ]);
     }
-
 }

@@ -405,32 +405,28 @@ class UsersController extends Controller
      * @return Response
      */
 
-    public function updateUserFeature($user_id, Request $request)
+    public function updateUserFeature($userUuid, Request $request)
     {    
         if (!Auth::user()->isA(['Administrator', 'Account manager'])) {
             return Response::make('You are not authorized to update this feature', 403);
         }
-        $getUser=User::find($user_id);
-        $setting = UserSystemSettingEnum::tryFrom($request->info ?? '');  
+        $user=user::whereUuid($request['userUuid'])->first();
+        $setting = UserSystemSettingEnum::tryFrom($request->info);  
         $title=$request->info;  
         if(!$setting) {
             return Response::make('No valid feature key found', 404);    
         }
         UserSystemSetting::setSetting(
-            user: $getUser, title: $title, value: !UserSystemSetting::getSetting($getUser, $title));
+            user: $user, title: $title, value: !UserSystemSetting::getSetting($user, $title));
         return Response::json(['success' => 'Feature updated successfully.']);
     }
 
     public function getUserSystemSetting(Request $request)
     {
-        $userId= $request['user_id'];
-        $result = UserSystemSetting::where('user_id',$userId)->get();
-        $dataArray = [];
-        // Loop through each record and add it to the array
-            foreach ($result as $setting) {
-                $dataArray[$setting->title] = $setting->value;
-            }
-        return $dataArray;
+        $user= user::whereUuid($request['userUuid'])->first();
+        $userId=$user->id;
+        return collect(UserSystemSetting::where('user_id',$userId)->get())
+        ->mapWithKeys(fn($setting) => [$setting->title => $setting->value]);
     }
  
     public function update(User $user, UpdateUserRequest $request)
