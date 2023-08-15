@@ -211,7 +211,7 @@
 
                                 <x-partials.answer-feedback-card :comment="$comment"
                                                                  :viewOnly="true"
-                                                                 :user-namefull="$anonymousStudentNames[$comment->user_id]"
+                                                                 :user-namefull="$anonymousStudentNames[$comment->user_id] ?? null"
                                 />
 
                             @endforeach

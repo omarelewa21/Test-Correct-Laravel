@@ -259,6 +259,7 @@ class TestReview extends EvaluationComponent
             ->unique() ?? collect();
 
         $answerFeedbackUserIds = $this->answerFeedback
+            ?->filter(fn($feedback) => $feedback->user->isA('student'))
             ?->map->user_id
             ->unique() ?? collect();
 
