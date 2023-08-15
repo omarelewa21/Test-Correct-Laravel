@@ -9525,7 +9525,7 @@ document.addEventListener("alpine:init", function () {
                     while (1) switch (_context25.prev = _context25.next) {
                       case 0:
                         if (!answerEditor.plugins.get('CommentsRepository').activeCommentThread) {
-                          _context25.next = 20;
+                          _context25.next = 22;
                           break;
                         }
                         _context25.next = 3;
@@ -9547,22 +9547,24 @@ document.addEventListener("alpine:init", function () {
                           authorId: _this65.userId
                         });
                         updatedAnswerText = answerEditor.getData();
-                        _context25.next = 11;
+                        updatedAnswerText = updatedAnswerText.replaceAll('&nbsp;', '');
+                        console.log(updatedAnswerText);
+                        _context25.next = 13;
                         return _this65.$wire.saveNewComment({
                           uuid: feedback.uuid,
                           message: comment,
                           comment_color: comment_color,
                           comment_emoji: comment_emoji
                         }, updatedAnswerText);
-                      case 11:
+                      case 13:
                         commentStyles = _context25.sent;
-                        _context25.next = 14;
+                        _context25.next = 16;
                         return _this65.createCommentIcon({
                           uuid: feedback.uuid,
                           threadId: feedback.threadId,
                           iconName: comment_iconName
                         });
-                      case 14:
+                      case 16:
                         document.querySelector('#commentMarkerStyles').innerHTML = commentStyles;
                         _this65.hasFeedback = true;
                         _this65.$dispatch('answer-feedback-show-comments');
@@ -9571,21 +9573,21 @@ document.addEventListener("alpine:init", function () {
                           ClassicEditors[_this65.feedbackEditorId].setData('<p></p>');
                         }, 300);
                         return _context25.abrupt("return");
-                      case 20:
-                        _context25.next = 22;
+                      case 22:
+                        _context25.next = 24;
                         return _this65.$wire.createNewComment({
                           message: comment,
                           comment_color: null,
                           //no comment color when its a general ticket.
                           comment_emoji: comment_emoji
                         }, false);
-                      case 22:
+                      case 24:
                         feedback = _context25.sent;
                         _this65.hasFeedback = true;
                         _this65.$dispatch('answer-feedback-show-comments');
                         _this65.scrollToCommentCard(feedback.uuid);
                         feedbackEditor.setData('<p></p>');
-                      case 27:
+                      case 29:
                       case "end":
                         return _context25.stop();
                     }
@@ -11784,7 +11786,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "fc18ed69b446aeb8c8a5",
+  key: "662d128370816e2bbb66",
   cluster: "eu",
   forceTLS: true
 });
@@ -18273,6 +18275,7 @@ window.RichTextEditor = {
   initAnswerEditorWithComments: function initAnswerEditorWithComments(parameterBag) {
     var _this7 = this;
     parameterBag.enableCommentsPlugin = true;
+    parameterBag.wproofreaderActionItems = ['toggle'];
     return this.createStudentEditor(parameterBag, function (editor) {
       WebspellcheckerTlc.lang(editor, parameterBag.lang);
       _this7.setupWordCounter(editor, parameterBag);
@@ -18357,7 +18360,7 @@ window.RichTextEditor = {
       wordCount: {
         displayCharacters: false
       },
-      wproofreader: this.getWproofreaderConfig(parameterBag.enableGrammar)
+      wproofreader: this.getWproofreaderConfig(parameterBag.enableGrammar, parameterBag.wproofreaderActionItems)
     };
     config.removePlugins = ["Selection", "Completion", "ImageUpload", "Image", "ImageToolbar"];
     config.toolbar = {
@@ -18498,8 +18501,16 @@ window.RichTextEditor = {
     }
   },
   setCommentsOnly: function setCommentsOnly(editor) {
-    editor.plugins.get('CommentsOnly').isEnabled = true;
+    //disable all commands except for comments and webspellchecker
+    var input = editor.commands._commands.forEach(function (command, name) {
+      if (!['addCommentThread', 'undo', 'redo', 'WProofreaderToggle', 'WProofreaderSettings'].includes(name)) {
+        command.forceDisabled('commentsOnly');
+      }
+    });
+
+    // editor.plugins.get( 'CommentsOnly' ).isEnabled = true;
   },
+
   writeContentToTextarea: function writeContentToTextarea(editorId) {
     var editor = ClassicEditors[editorId];
     if (editor) {
@@ -18643,12 +18654,13 @@ window.RichTextEditor = {
   },
   getWproofreaderConfig: function getWproofreaderConfig() {
     var enableGrammar = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+    var actionItems = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : ["addWord", "ignoreAll", "ignore", "settings", "toggle", "proofreadDialog"];
     return {
       autoSearch: false,
       autoDestroy: true,
       autocorrect: false,
       autocomplete: false,
-      actionItems: ["addWord", "ignoreAll", "ignore", "settings", "toggle", "proofreadDialog"],
+      actionItems: actionItems,
       enableBadgeButton: true,
       serviceProtocol: "https",
       servicePort: "80",
@@ -70505,6 +70517,32 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./resources/css/app_pdf.css":
+/*!***********************************!*\
+  !*** ./resources/css/app_pdf.css ***!
+  \***********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+// extracted by mini-css-extract-plugin
+
+
+/***/ }),
+
+/***/ "./resources/css/print-test-pdf.css":
+/*!******************************************!*\
+  !*** ./resources/css/print-test-pdf.css ***!
+  \******************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+// extracted by mini-css-extract-plugin
+
+
+/***/ }),
+
 /***/ "./node_modules/plyr/dist/plyr.min.js":
 /*!********************************************!*\
   !*** ./node_modules/plyr/dist/plyr.min.js ***!
@@ -79864,7 +79902,9 @@ module.exports = JSON.parse('{"name":"axios","version":"0.21.4","description":"P
 /******/ 		// [resolve, reject, Promise] = chunk loading, 0 = chunk loaded
 /******/ 		var installedChunks = {
 /******/ 			"/js/app": 0,
-/******/ 			"css/app": 0
+/******/ 			"css/app": 0,
+/******/ 			"css/app_pdf": 0,
+/******/ 			"css/print-test-pdf": 0
 /******/ 		};
 /******/ 		
 /******/ 		// no chunk on demand loading
@@ -79914,8 +79954,10 @@ module.exports = JSON.parse('{"name":"axios","version":"0.21.4","description":"P
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module depends on other loaded chunks and execution need to be delayed
-/******/ 	__webpack_require__.O(undefined, ["css/app"], () => (__webpack_require__("./resources/js/app.js")))
-/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["css/app"], () => (__webpack_require__("./resources/css/app.css")))
+/******/ 	__webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/js/app.js")))
+/******/ 	__webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/css/app.css")))
+/******/ 	__webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/css/app_pdf.css")))
+/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/css/print-test-pdf.css")))
 /******/ 	__webpack_exports__ = __webpack_require__.O(__webpack_exports__);
 /******/ 	
 /******/ })()
