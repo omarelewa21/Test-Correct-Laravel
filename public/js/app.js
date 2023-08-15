@@ -9525,7 +9525,7 @@ document.addEventListener("alpine:init", function () {
                     while (1) switch (_context25.prev = _context25.next) {
                       case 0:
                         if (!answerEditor.plugins.get('CommentsRepository').activeCommentThread) {
-                          _context25.next = 22;
+                          _context25.next = 20;
                           break;
                         }
                         _context25.next = 3;
@@ -9547,24 +9547,22 @@ document.addEventListener("alpine:init", function () {
                           authorId: _this65.userId
                         });
                         updatedAnswerText = answerEditor.getData();
-                        updatedAnswerText = updatedAnswerText.replaceAll('&nbsp;', '');
-                        console.log(updatedAnswerText);
-                        _context25.next = 13;
+                        _context25.next = 11;
                         return _this65.$wire.saveNewComment({
                           uuid: feedback.uuid,
                           message: comment,
                           comment_color: comment_color,
                           comment_emoji: comment_emoji
                         }, updatedAnswerText);
-                      case 13:
+                      case 11:
                         commentStyles = _context25.sent;
-                        _context25.next = 16;
+                        _context25.next = 14;
                         return _this65.createCommentIcon({
                           uuid: feedback.uuid,
                           threadId: feedback.threadId,
                           iconName: comment_iconName
                         });
-                      case 16:
+                      case 14:
                         document.querySelector('#commentMarkerStyles').innerHTML = commentStyles;
                         _this65.hasFeedback = true;
                         _this65.$dispatch('answer-feedback-show-comments');
@@ -9573,21 +9571,21 @@ document.addEventListener("alpine:init", function () {
                           ClassicEditors[_this65.feedbackEditorId].setData('<p></p>');
                         }, 300);
                         return _context25.abrupt("return");
-                      case 22:
-                        _context25.next = 24;
+                      case 20:
+                        _context25.next = 22;
                         return _this65.$wire.createNewComment({
                           message: comment,
                           comment_color: null,
                           //no comment color when its a general ticket.
                           comment_emoji: comment_emoji
                         }, false);
-                      case 24:
+                      case 22:
                         feedback = _context25.sent;
                         _this65.hasFeedback = true;
                         _this65.$dispatch('answer-feedback-show-comments');
                         _this65.scrollToCommentCard(feedback.uuid);
                         feedbackEditor.setData('<p></p>');
-                      case 29:
+                      case 27:
                       case "end":
                         return _context25.stop();
                     }
@@ -12180,10 +12178,10 @@ var validSvgElementKeys = {
 };
 var shapePropertiesAvailableToUser = {
   drag: [],
-  freehand: ["edge"],
+  freehand: ["line"],
   rect: ["edge", "fill"],
   circle: ["edge", "fill"],
-  line: ["edge", "endmarker-type"],
+  line: ["line", "endmarker-type"],
   text: ["opacity", "text-style"]
 };
 var validHtmlElementKeys = {
@@ -12430,6 +12428,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         currentLayer: "question",
         focusedShape: null,
         bounds: {},
+        editingTextInZone: false,
         draw: {
           newShape: null,
           shapeCountForEachType: {
@@ -12461,6 +12460,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         zoomFactor: 1,
         initialZoomLevel: 1
       },
+      UI: UI,
       element: UI.svgCanvas,
       layers: {},
       dragging: function dragging() {
@@ -12753,6 +12753,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
       "change": {
         callback: function callback(evt) {
           drawingApp.params.boldText = evt.target.checked;
+          editShape('updateBoldText');
         }
       }
     }
@@ -12760,14 +12761,24 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     element: UI.elemOpacityNumber,
     events: {
       "input": {
-        callback: updateElemOpacityRangeInput
+        callback: function callback() {
+          if (valueWithinBounds(UI.elemOpacityNumber)) {
+            updateElemOpacityRangeInput();
+            editShape('updateOpacity');
+          }
+        }
       }
     }
   }, {
     element: UI.elemOpacityRange,
     events: {
       "input": {
-        callback: updateElemOpacityNumberInput
+        callback: function callback() {
+          if (valueWithinBounds(UI.elemOpacityRange)) {
+            updateElemOpacityNumberInput();
+            editShape('updateOpacity');
+          }
+        }
       },
       "focus": {
         callback: function callback() {
@@ -12781,16 +12792,25 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
       }
     }
   }, {
+    element: UI.textColor,
+    events: {
+      "input": {
+        callback: function callback() {
+          editShape('updateTextColor');
+        }
+      }
+    }
+  }, {
     element: UI.strokeWidth,
     events: {
       "input": {
         callback: function callback() {
-          valueWithinBounds(UI.strokeWidth);
+          return valueWithinBounds(UI.strokeWidth) && editShape('updateStrokeWidth');
         }
       },
       "blur": {
         callback: function callback() {
-          handleStrokeButtonStates();
+          toggleDisableButtonStates(UI.strokeWidth, UI.decrStroke, UI.incrStroke);
         }
       }
     }
@@ -12800,7 +12820,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
       "click": {
         callback: function callback() {
           UI.strokeWidth.stepDown();
-          handleStrokeButtonStates();
+          toggleDisableButtonStates(UI.strokeWidth, UI.decrStroke, UI.incrStroke);
+          editShape('updateStrokeWidth');
         }
       },
       "focus": {
@@ -12820,7 +12841,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
       "click": {
         callback: function callback() {
           UI.strokeWidth.stepUp();
-          handleStrokeButtonStates();
+          toggleDisableButtonStates(UI.strokeWidth, UI.decrStroke, UI.incrStroke);
+          editShape('updateStrokeWidth');
         }
       },
       "focus": {
@@ -12835,11 +12857,65 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
       }
     }
   }, {
+    element: UI.lineWidth,
+    events: {
+      "input": {
+        callback: function callback() {
+          valueWithinBounds(UI.lineWidth);
+        }
+      },
+      "blur": {
+        callback: function callback() {
+          toggleDisableButtonStates(UI.lineWidth, UI.decrLineWidth, UI.incrLineWidth);
+        }
+      }
+    }
+  }, {
+    element: UI.decrLineWidth,
+    events: {
+      "click": {
+        callback: function callback() {
+          UI.lineWidth.stepDown();
+          toggleDisableButtonStates(UI.lineWidth, UI.decrLineWidth, UI.incrLineWidth);
+        }
+      },
+      "focus": {
+        callback: function callback() {
+          UI.lineWidth.classList.add("active");
+        }
+      },
+      "blur": {
+        callback: function callback() {
+          UI.lineWidth.classList.remove("active");
+        }
+      }
+    }
+  }, {
+    element: UI.incrLineWidth,
+    events: {
+      "click": {
+        callback: function callback() {
+          UI.lineWidth.stepUp();
+          toggleDisableButtonStates(UI.lineWidth, UI.decrLineWidth, UI.incrLineWidth);
+        }
+      },
+      "focus": {
+        callback: function callback() {
+          UI.lineWidth.classList.add("active");
+        }
+      },
+      "blur": {
+        callback: function callback() {
+          UI.lineWidth.classList.remove("active");
+        }
+      }
+    }
+  }, {
     element: UI.textSize,
     events: {
       "input": {
         callback: function callback() {
-          valueWithinBounds(UI.textSize);
+          return valueWithinBounds(UI.textSize) && editShape('updateTextSize');
         }
       },
       "blur": {
@@ -12855,6 +12931,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         callback: function callback() {
           UI.textSize.stepDown();
           handleTextSizeButtonStates();
+          editShape('updateTextSize');
         }
       },
       "focus": {
@@ -12875,6 +12952,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         callback: function callback() {
           UI.textSize.stepUp();
           handleTextSizeButtonStates();
+          editShape('updateTextSize');
         }
       },
       "focus": {
@@ -12892,21 +12970,34 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     element: UI.fillColor,
     events: {
       "input": {
-        callback: updateOpacitySliderColor
+        callback: function callback() {
+          updateOpacitySliderColor();
+          editShape('updateFillColor');
+        }
       }
     }
   }, {
     element: UI.fillOpacityNumber,
     events: {
       "input": {
-        callback: updateFillOpacityRangeInput
+        callback: function callback() {
+          if (valueWithinBounds(UI.elemOpacityNumber)) {
+            updateFillOpacityRangeInput();
+            editShape('updateOpacity');
+          }
+        }
       }
     }
   }, {
     element: UI.fillOpacityRange,
     events: {
       "input": {
-        callback: updateFillOpacityNumberInput
+        callback: function callback() {
+          if (valueWithinBounds(UI.fillOpacityRange)) {
+            updateFillOpacityNumberInput();
+            editShape('updateOpacity');
+          }
+        }
       },
       "focus": {
         callback: function callback() {
@@ -12916,6 +13007,24 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
       "blur": {
         callback: function callback() {
           UI.fillOpacityNumber.classList.remove("active");
+        }
+      }
+    }
+  }, {
+    element: UI.strokeColor,
+    events: {
+      "input": {
+        callback: function callback() {
+          return editShape('updateStrokeColor');
+        }
+      }
+    }
+  }, {
+    element: UI.lineColor,
+    events: {
+      "input": {
+        callback: function callback() {
+          return editShape('updateLineColor');
         }
       }
     }
@@ -13727,6 +13836,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
   function cursorStart(evt) {
     var _evt$touches3;
     evt.preventDefault();
+    if (ShouldEditTextOnClick()) return;
     updateCursorPosition(evt);
     setMousedownPosition(evt);
     if (Canvas.params.focusedShape) Canvas.params.focusedShape = null;
@@ -13834,7 +13944,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
           "y2": cursorPosition.y,
           "marker-end": "url(#svg-".concat(drawingApp.params.endmarkerType, "-line)"),
           "stroke": UI.lineColor.value,
-          "stroke-width": UI.strokeWidth.value,
+          "stroke-width": UI.lineWidth.value,
           "opacity": parseFloat(UI.elemOpacityNumber.value / 100)
         };
       case "freehand":
@@ -13842,7 +13952,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
           "d": "M ".concat(cursorPosition.x, ",").concat(cursorPosition.y),
           "fill": "none",
           "stroke": UI.lineColor.value,
-          "stroke-width": UI.strokeWidth.value,
+          "stroke-width": UI.lineWidth.value,
           "opacity": parseFloat(UI.elemOpacityNumber.value / 100)
         };
       case "text":
@@ -14367,12 +14477,10 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     }
   }
   function updateElemOpacityNumberInput() {
-    valueWithinBounds(UI.elemOpacityRange);
     UI.elemOpacityNumber.value = UI.elemOpacityRange.value;
     updateOpacitySliderColor();
   }
   function updateElemOpacityRangeInput() {
-    if (!valueWithinBounds(UI.elemOpacityNumber)) return;
     UI.elemOpacityRange.value = UI.elemOpacityNumber.value;
     updateOpacitySliderColor();
   }
@@ -14387,12 +14495,12 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
    * @param {HTMLElement} slider The slider to update.
    * @param {?string} leftColorHexValue The hexadecimal value for the color left of the knob.
    */
-  window.setSliderColor = function (slider) {
+  function setSliderColor(slider) {
     var leftColorHexValue = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : getRootCSSProperty("--all-Base");
     var ratio = calculateRatioOfValueToMax(slider);
     var leftColorRgbaValue = convertHexToRgbaColor(leftColorHexValue, slider.value);
     slider.style.setProperty("--slider-color", "linear-gradient(to right, ".concat(leftColorRgbaValue, " 0%, ").concat(leftColorRgbaValue, " ").concat(ratio, "%, var(--all-White) ").concat(ratio, "%, var(--all-White) 100%)"));
-  };
+  }
 
   /**
    * Gets the value of the property from the CSS :root selector element
@@ -14429,12 +14537,10 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     return "rgba(".concat(R, ", ").concat(G, ", ").concat(B, ", ").concat(parseFloat(A) / 100, ")");
   }
   function updateFillOpacityNumberInput() {
-    valueWithinBounds(UI.fillOpacityRange);
     UI.fillOpacityNumber.value = UI.fillOpacityRange.value;
     updateOpacitySliderColor();
   }
   function updateFillOpacityRangeInput() {
-    if (!valueWithinBounds(UI.fillOpacityNumber)) return;
     UI.fillOpacityRange.value = UI.fillOpacityNumber.value;
     updateOpacitySliderColor();
   }
@@ -14442,7 +14548,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     var value = parseFloat(inputElem.value),
       max = parseFloat(inputElem.max),
       min = parseFloat(inputElem.min);
-    if (Number.isNaN(value) || value === 0) {
+    if (Number.isNaN(value)) {
       return false;
     }
     if (value > max) {
@@ -14602,13 +14708,35 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
   function handleGridSizeButtonStates() {
     disableButtonsWhenNecessary('gridSize');
   }
-  function handleStrokeButtonStates() {
-    var _getBoundsForInputEle2 = getBoundsForInputElement(UI.strokeWidth),
+  function toggleDisableButtonStates(input, decrButton, incrButton) {
+    var _getBoundsForInputEle2 = getBoundsForInputElement(input),
       currentValue = _getBoundsForInputEle2.currentValue,
       min = _getBoundsForInputEle2.min,
       max = _getBoundsForInputEle2.max;
-    UI.decrStroke.disabled = currentValue === min;
-    UI.incrStroke.disabled = currentValue === max;
+    decrButton.disabled = currentValue === min;
+    incrButton.disabled = currentValue === max;
+  }
+  function checkIfShouldeditShape(selectedEl) {
+    return selectedEl && checkIfFocusedDataButtonIsSameAsSelectedElement(selectedEl);
+  }
+  function checkIfFocusedDataButtonIsSameAsSelectedElement(selectedEl) {
+    var currentDataButton = rootElement.querySelector('[data-button-group=tool].active');
+    if (!currentDataButton) return false;
+    var shapeType = selectedEl.id.split('-')[0];
+    return shapeType === currentDataButton.id.split('-')[1];
+  }
+  function editShape(functionName) {
+    var selectedEl = rootElement.querySelector('.editing');
+    if (!checkIfShouldeditShape(selectedEl)) return;
+    var layerObject = Canvas.layers[Canvas.layerID2Key(selectedEl.parentElement.id)];
+    var selectedSvgShapeClass = layerObject.shapes[selectedEl.id].svg;
+    functionName in selectedSvgShapeClass && selectedSvgShapeClass[functionName]();
+  }
+  function ShouldEditTextOnClick() {
+    var selectedEl = rootElement.querySelector('.editing');
+    if (!checkIfShouldeditShape(selectedEl)) return;
+    var shapeType = selectedEl.id.split('-')[0];
+    return shapeType === 'text' && Canvas.params.editingTextInZone;
   }
   return {
     UI: UI,
@@ -14823,6 +14951,7 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
     _this.entryTitle = templateCopy.querySelector(".shape-title");
     _this.btns = {
       "delete": templateCopy.querySelector(".remove-btn"),
+      edit: templateCopy.querySelector(".edit-btn"),
       lock: templateCopy.querySelector(".lock-btn"),
       hide: templateCopy.querySelector(".hide-btn"),
       drag: templateCopy.querySelector(".drag-btn"),
@@ -14837,6 +14966,7 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
     _this.updateLockState();
     _this.updateHideState();
     _this.deleteModal = _this.root.querySelector('#delete-confirm');
+    _this.skipEntryContainerClick = false;
     return _this;
   }
   _createClass(Entry, [{
@@ -14895,6 +15025,15 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
           "click": {
             callback: function callback() {
               _this2.showConfirmDelete();
+            }
+          }
+        }
+      }, {
+        element: this.btns.edit,
+        events: {
+          "click": {
+            callback: function callback() {
+              _this2.handleEditShape();
             }
           }
         }
@@ -15023,10 +15162,19 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
   }, {
     key: "handleClick",
     value: function handleClick(evt) {
-      var selectedEl = this.entryContainer.parentElement.querySelector('.selected');
+      if (this.skipEntryContainerClick) {
+        this.skipEntryContainerClick = false;
+        return;
+      }
+      var selectedEl = this.getSelectedElement();
       if (selectedEl) this.unselect(selectedEl);
       if (selectedEl === this.entryContainer) return;
       this.select();
+    }
+  }, {
+    key: "getSelectedElement",
+    value: function getSelectedElement() {
+      return this.entryContainer.parentElement.querySelector('.selected');
     }
   }, {
     key: "select",
@@ -15040,6 +15188,8 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
       var shapeId = element.id.substring(6);
       element.classList.remove('selected');
       element.closest('#canvas-sidebar-container').querySelector("#".concat(shapeId)).classList.remove('selected');
+      this.removeEditingShape();
+      document.activeElement.blur();
     }
   }, {
     key: "toggleSelect",
@@ -15072,6 +15222,45 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
         this.btns.hide.title = this.btns.hide.getAttribute("data-title-unhidden");
         this.entryContainer.classList.remove('hide');
       }
+    }
+  }, {
+    key: "handleEditShape",
+    value: function handleEditShape() {
+      var selectedEl = this.getSelectedElement();
+      if (!selectedEl) return this.startEditingShape();
+      if (selectedEl.classList.contains('editing')) {
+        this.removeEditingShape();
+        if (selectedEl === this.entryContainer) return;
+        this.unselect(selectedEl);
+        this.select();
+      }
+      this.skipEntryContainerClick = true;
+      this.startEditingShape();
+    }
+  }, {
+    key: "startEditingShape",
+    value: function startEditingShape() {
+      this.removeEditingShape();
+      this.entryContainer.classList.add('editing');
+      this.svgShape.shapeGroup.element.classList.add('editing');
+      this.showRelevantShapeMenu();
+    }
+  }, {
+    key: "removeEditingShape",
+    value: function removeEditingShape() {
+      this.root.querySelectorAll('.editing').forEach(function (element) {
+        element.classList.remove('editing');
+      });
+    }
+  }, {
+    key: "showRelevantShapeMenu",
+    value: function showRelevantShapeMenu() {
+      var shapeType = this.svgShape.type;
+      if (shapeType === 'image') return;
+      if (shapeType === 'path') {
+        shapeType = 'freehand';
+      }
+      document.querySelector("#add-".concat(shapeType, "-btn")).click();
     }
   }, {
     key: "remove",
@@ -16700,9 +16889,24 @@ function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input ==
 
 
 
-/** * @typedef propObj * @type {Object.<string, string|number>} * */
+/**
+ * @typedef propObj
+ * @type {Object.<string, string|number>}
+ *
+ */
 var svgShape = /*#__PURE__*/function () {
-  /**     * @param {number} shapeId The unique identifier the shape gets.     * @param {string} type The type of shape to be made.     * @param {?propObj} props     * All properties (attributes) to be assigned to the shape,     * when omitted the properties of the shape are loaded.     * @param {?SVGElement} parent The parent the shape should be appended to.     * @param drawingApp     * @param Canvas     * @param withHelperElements     * @param withHighlightEvents     */
+  /**
+   * @param {number} shapeId The unique identifier the shape gets.
+   * @param {string} type The type of shape to be made.
+   * @param {?propObj} props
+   * All properties (attributes) to be assigned to the shape,
+   * when omitted the properties of the shape are loaded.
+   * @param {?SVGElement} parent The parent the shape should be appended to.
+   * @param drawingApp
+   * @param Canvas
+   * @param withHelperElements
+   * @param withHighlightEvents
+   */
   function svgShape(shapeId, type, props, parent, drawingApp, Canvas) {
     var _this = this;
     var withHelperElements = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : true;
@@ -16748,6 +16952,7 @@ var svgShape = /*#__PURE__*/function () {
       this.hideHelperElements();
     }
     this.withHighlightEvents = withHighlightEvents;
+    this.UI = Canvas.UI;
   }
   _createClass(svgShape, [{
     key: "makeMainElementOfRightType",
@@ -17059,13 +17264,50 @@ var svgShape = /*#__PURE__*/function () {
     value: function showExplainerForLayer() {
       this.sidebarEntry.entryContainer.parentElement.querySelector('.explainer').style.display = 'inline-block';
     }
+  }, {
+    key: "updateFillColor",
+    value: function updateFillColor() {
+      this.mainElement.setAttribute("fill", this.UI.fillColor.value);
+    }
+  }, {
+    key: "updateOpacity",
+    value: function updateOpacity() {
+      var opacity = parseFloat(this.UI.fillOpacityNumber.value / 100);
+      this.mainElement.setAttribute("opacity", opacity);
+      this.mainElement.setAttribute("fill-opacity", opacity);
+    }
+  }, {
+    key: "updateStrokeColor",
+    value: function updateStrokeColor() {
+      this.mainElement.setAttribute("stroke", this.UI.strokeColor.value);
+    }
+  }, {
+    key: "updateLineColor",
+    value: function updateLineColor() {
+      this.mainElement.setAttribute("stroke", this.UI.lineColor.value);
+    }
+  }, {
+    key: "updateStrokeWidth",
+    value: function updateStrokeWidth() {
+      this.mainElement.setAttribute("stroke-width", this.UI.strokeWidth.value);
+    }
   }]);
   return svgShape;
 }();
 var Rectangle = /*#__PURE__*/function (_svgShape) {
   _inherits(Rectangle, _svgShape);
   var _super = _createSuper(Rectangle);
-  /**     * @param {number} shapeId The unique identifier the shape gets.     * @param {?propObj} props     * All properties (attributes) to be assigned to the shape,     * when omitted the properties of the shape are loaded.     * @param {?SVGElement} parent The parent the shape should be appended to.     * @param drawingApp     * @param Canvas     * @param withHelperElements     * @param withHighlightEvents     */
+  /**
+   * @param {number} shapeId The unique identifier the shape gets.
+   * @param {?propObj} props
+   * All properties (attributes) to be assigned to the shape,
+   * when omitted the properties of the shape are loaded.
+   * @param {?SVGElement} parent The parent the shape should be appended to.
+   * @param drawingApp
+   * @param Canvas
+   * @param withHelperElements
+   * @param withHighlightEvents
+   */
   function Rectangle(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
     _classCallCheck(this, Rectangle);
     return _super.call(this, shapeId, "rect", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
@@ -17075,7 +17317,17 @@ var Rectangle = /*#__PURE__*/function (_svgShape) {
 var Circle = /*#__PURE__*/function (_svgShape2) {
   _inherits(Circle, _svgShape2);
   var _super2 = _createSuper(Circle);
-  /**     * @param {number} shapeId The unique identifier the shape gets.     * @param {?propObj} props     * All properties (attributes) to be assigned to the shape,     * when omitted the properties of the shape are loaded.     * @param {?SVGElement} parent The parent the shape should be appended to.     * @param drawingApp     * @param Canvas     * @param withHelperElements     * @param withHighlightEvents     */
+  /**
+   * @param {number} shapeId The unique identifier the shape gets.
+   * @param {?propObj} props
+   * All properties (attributes) to be assigned to the shape,
+   * when omitted the properties of the shape are loaded.
+   * @param {?SVGElement} parent The parent the shape should be appended to.
+   * @param drawingApp
+   * @param Canvas
+   * @param withHelperElements
+   * @param withHighlightEvents
+   */
   function Circle(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
     _classCallCheck(this, Circle);
     return _super2.call(this, shapeId, "circle", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
@@ -17085,7 +17337,17 @@ var Circle = /*#__PURE__*/function (_svgShape2) {
 var Line = /*#__PURE__*/function (_svgShape3) {
   _inherits(Line, _svgShape3);
   var _super3 = _createSuper(Line);
-  /**     * @param {number} shapeId The unique identifier the shape gets.     * @param {?propObj} props     * All properties (attributes) to be assigned to the shape,     * when omitted the properties of the shape are loaded.     * @param {?SVGElement} parent The parent the shape should be appended to.     * @param drawingApp     * @param Canvas     * @param withHelperElements     * @param withHighlightEvents     */
+  /**
+   * @param {number} shapeId The unique identifier the shape gets.
+   * @param {?propObj} props
+   * All properties (attributes) to be assigned to the shape,
+   * when omitted the properties of the shape are loaded.
+   * @param {?SVGElement} parent The parent the shape should be appended to.
+   * @param drawingApp
+   * @param Canvas
+   * @param withHelperElements
+   * @param withHighlightEvents
+   */
   function Line(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
     var _this3;
     _classCallCheck(this, Line);
@@ -17139,16 +17401,49 @@ var Line = /*#__PURE__*/function (_svgShape3) {
 var Text = /*#__PURE__*/function (_svgShape4) {
   _inherits(Text, _svgShape4);
   var _super4 = _createSuper(Text);
-  /**     * @param {number} shapeId The unique identifier the shape gets.     * @param {?propObj} props     * All properties (attributes) to be assigned to the shape,     * when omitted the properties of the shape are loaded.     * @param {?SVGElement} parent The parent the shape should be appended to.     * @param drawingApp     * @param Canvas     * @param withHelperElements     * @param withHighlightEvents     */
+  /**
+   * @param {number} shapeId The unique identifier the shape gets.
+   * @param {?propObj} props
+   * All properties (attributes) to be assigned to the shape,
+   * when omitted the properties of the shape are loaded.
+   * @param {?SVGElement} parent The parent the shape should be appended to.
+   * @param drawingApp
+   * @param Canvas
+   * @param withHelperElements
+   * @param withHighlightEvents
+   */
   function Text(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
     var _this4;
     _classCallCheck(this, Text);
     _this4 = _super4.call(this, shapeId, "text", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
     _this4.mainElement.setTextContent(_this4.props.main["data-textcontent"]);
     _this4.mainElement.setFontFamily('Nunito');
+    _this4.registerEditingEvents();
     return _this4;
   }
   _createClass(Text, [{
+    key: "updateTextColor",
+    value: function updateTextColor() {
+      this.mainElement.setAttribute("fill", this.UI.textColor.value);
+    }
+  }, {
+    key: "updateBoldText",
+    value: function updateBoldText() {
+      this.mainElement.element.style.fontWeight = this.drawingApp.params.boldText ? 'bold' : 'normal';
+      this.updateHelperElements();
+    }
+  }, {
+    key: "updateTextSize",
+    value: function updateTextSize() {
+      this.mainElement.element.style.fontSize = "".concat(this.UI.textSize.value / 16, "rem");
+      this.updateHelperElements();
+    }
+  }, {
+    key: "updateOpacity",
+    value: function updateOpacity() {
+      this.mainElement.setAttribute("opacity", parseFloat(this.UI.elemOpacityNumber.value / 100));
+    }
+  }, {
     key: "onDrawEndShapeSpecific",
     value: function onDrawEndShapeSpecific(evt, cursor) {
       var _this5 = this;
@@ -17168,6 +17463,7 @@ var Text = /*#__PURE__*/function (_svgShape4) {
       textInput.addEventListener("focusout", function () {
         var text = textInput.element.value;
         textInput.deleteElement();
+        textInput.element.style.display = 'none';
         if (text.length === 0) {
           _this5.cancelConstruction();
           return;
@@ -17178,13 +17474,107 @@ var Text = /*#__PURE__*/function (_svgShape4) {
         _this5.updateCornerElements();
       });
     }
+  }, {
+    key: "registerEditingEvents",
+    value: function registerEditingEvents() {
+      var _this6 = this;
+      var element = this.shapeGroup.element;
+      ['touchenter', 'mouseenter'].forEach(function (evt) {
+        return element.addEventListener(evt, function () {
+          var activeTool = _this6.root.querySelector('[data-button-group=tool].active');
+          var dragIsActive = activeTool.id.split('-')[0] === 'drag';
+          if (element.classList.contains('editing') && !dragIsActive) {
+            activateTextEditing(_this6);
+          } else {
+            returnTextToNormal(_this6, dragIsActive);
+          }
+        }, false);
+      });
+      ['touchleave', 'mouseleave'].forEach(function (evt) {
+        return element.addEventListener(evt, function () {
+          _this6.Canvas.params.editingTextInZone = false;
+        }, false);
+      });
+      ['touchstart', 'mousedown'].forEach(function (evt) {
+        return element.addEventListener(evt, function () {
+          if (!element.classList.contains('editing') || !_this6.Canvas.params.editingTextInZone) return;
+          handleEditTextClick(_this6);
+        }, false);
+      });
+      function returnTextToNormal(thisClass, dragIsActive) {
+        if (dragIsActive) {
+          element.style.cursor = 'move';
+        } else {
+          element.style.cursor = 'crosshair';
+        }
+        thisClass.Canvas.params.editingTextInZone = false;
+      }
+      function activateTextEditing(thisClass) {
+        element.style.cursor = 'text';
+        thisClass.Canvas.params.editingTextInZone = true;
+      }
+      function handleEditTextClick(thisClass) {
+        var textElement = thisClass.mainElement.element;
+        var coordinates = thisClass.drawingApp.convertCanvas2DomCoordinates({
+          x: textElement.getAttribute('x'),
+          y: textElement.getAttribute('y')
+        });
+        var textInput = makeTextInput(thisClass, textElement, coordinates);
+        textInput.element.value = textElement.textContent;
+        textElement.textContent = '';
+        textElement.parentElement.style.display = 'none';
+        textInput.focus();
+        addInputEventListeners(thisClass, textInput, textElement);
+      }
+      function makeTextInput(thisClass, textElement, coordinates) {
+        var canvasContainer = thisClass.root.querySelector("#svg-canvas").parentElement;
+        var fontSize = parseFloat(textElement.style.fontSize);
+        var topOffset = fontSize * parseFloat(getComputedStyle(document.documentElement).fontSize);
+        var textInput = new _htmlElement_js__WEBPACK_IMPORTED_MODULE_2__.htmlElement("input", canvasContainer, {
+          id: "edit-text-input",
+          type: "text",
+          style: "width: ".concat(textElement.getBoundingClientRect().width, "px;                    position: absolute;                    top: ").concat(coordinates.y - topOffset, "px;                    left: ").concat(coordinates.x, "px;                    font-size: ").concat(fontSize, "rem;                    color: ").concat(textElement.getAttribute("fill"), ";                    opacity: ").concat(textElement.getAttribute("opacity"), ";                    font-weight: ").concat(textElement.style.fontWeight || "normal", ";                    transform-origin: bottom left;                    transform: scale(").concat(thisClass.Canvas.params.zoomFactor, ")"),
+          autocomplete: "off",
+          spellcheck: "false"
+        });
+        return textInput;
+      }
+      function addInputEventListeners(thisClass, textInput, textElement) {
+        textInput.addEventListener('input', function () {
+          textInput.element.style.width = "".concat(textInput.element.value.length + 1, "ch");
+        }, false);
+        textInput.addEventListener("focusout", function () {
+          var text = textInput.element.value;
+          textInput.deleteElement();
+          textInput.element.style.display = 'none';
+          if (text.length === 0) {
+            thisClass.cancelConstruction();
+            return;
+          }
+          textElement.textContent = text;
+          thisClass.updateBorderElement();
+          thisClass.updateCornerElements();
+          textElement.parentElement.style = '';
+        });
+      }
+    }
   }]);
   return Text;
 }(svgShape);
 var Image = /*#__PURE__*/function (_svgShape5) {
   _inherits(Image, _svgShape5);
   var _super5 = _createSuper(Image);
-  /**     * @param {number} shapeId The unique identifier the shape gets.     * @param {?propObj} props     * All properties (attributes) to be assigned to the shape,     * when omitted the properties of the shape are loaded.     * @param {?SVGElement} parent The parent the shape should be appended to.     * @param drawingApp     * @param Canvas     * @param withHelperElements     * @param withHighlightEvents     */
+  /**
+   * @param {number} shapeId The unique identifier the shape gets.
+   * @param {?propObj} props
+   * All properties (attributes) to be assigned to the shape,
+   * when omitted the properties of the shape are loaded.
+   * @param {?SVGElement} parent The parent the shape should be appended to.
+   * @param drawingApp
+   * @param Canvas
+   * @param withHelperElements
+   * @param withHighlightEvents
+   */
   function Image(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
     _classCallCheck(this, Image);
     return _super5.call(this, shapeId, "image", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
@@ -17202,7 +17592,17 @@ var Image = /*#__PURE__*/function (_svgShape5) {
 var Path = /*#__PURE__*/function (_svgShape6) {
   _inherits(Path, _svgShape6);
   var _super6 = _createSuper(Path);
-  /**     * @param {number} shapeId The unique identifier the shape gets.     * @param {?propObj} props     * All properties (attributes) to be assigned to the shape,     * when omitted the properties of the shape are loaded.     * @param {?SVGElement} parent The parent the shape should be appended to.     * @param drawingApp     * @param Canvas     * @param withHelperElements     * @param withHighlightEvents     */
+  /**
+   * @param {number} shapeId The unique identifier the shape gets.
+   * @param {?propObj} props
+   * All properties (attributes) to be assigned to the shape,
+   * when omitted the properties of the shape are loaded.
+   * @param {?SVGElement} parent The parent the shape should be appended to.
+   * @param drawingApp
+   * @param Canvas
+   * @param withHelperElements
+   * @param withHighlightEvents
+   */
   function Path(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
     _classCallCheck(this, Path);
     return _super6.call(this, shapeId, "path", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
@@ -17212,17 +17612,25 @@ var Path = /*#__PURE__*/function (_svgShape6) {
 var Grid = /*#__PURE__*/function (_Path) {
   _inherits(Grid, _Path);
   var _super7 = _createSuper(Grid);
-  /**     * @param {number} shapeId The unique identifier the shape gets.     * @param {?propObj} props     * All properties (attributes) to be assigned to the shape,     * when omitted the properties of the shape are loaded.     * @param {HTMLElement} parent The parent the shape should be appended to.     * @param drawingApp     * @param Canvas     */
+  /**
+   * @param {number} shapeId The unique identifier the shape gets.
+   * @param {?propObj} props
+   * All properties (attributes) to be assigned to the shape,
+   * when omitted the properties of the shape are loaded.
+   * @param {HTMLElement} parent The parent the shape should be appended to.
+   * @param drawingApp
+   * @param Canvas
+   */
   function Grid(shapeId, props, parent, drawingApp, Canvas) {
-    var _this6;
+    var _this7;
     _classCallCheck(this, Grid);
-    _this6 = _super7.call(this, shapeId, props, parent, drawingApp, Canvas, false);
-    _this6.origin = new _svgElement_js__WEBPACK_IMPORTED_MODULE_1__.Path(_this6.props.origin);
-    _this6.setDAttributes(_this6.calculateDAttributeForGrid(_this6.props.size), _this6.calculateDAttributeForOrigin(_this6.props.size));
-    _this6.shapeGroup.element.appendChild(_this6.origin.element);
-    _this6.shapeGroup.element.classList.remove("draggable");
-    _this6.shapeGroup.setAttribute("id", "grid");
-    return _this6;
+    _this7 = _super7.call(this, shapeId, props, parent, drawingApp, Canvas, false);
+    _this7.origin = new _svgElement_js__WEBPACK_IMPORTED_MODULE_1__.Path(_this7.props.origin);
+    _this7.setDAttributes(_this7.calculateDAttributeForGrid(_this7.props.size), _this7.calculateDAttributeForOrigin(_this7.props.size));
+    _this7.shapeGroup.element.appendChild(_this7.origin.element);
+    _this7.shapeGroup.element.classList.remove("draggable");
+    _this7.shapeGroup.setAttribute("id", "grid");
+    return _this7;
   }
   _createClass(Grid, [{
     key: "show",
@@ -17291,13 +17699,23 @@ var Grid = /*#__PURE__*/function (_Path) {
 var Freehand = /*#__PURE__*/function (_Path2) {
   _inherits(Freehand, _Path2);
   var _super8 = _createSuper(Freehand);
-  /**     * @param {number} shapeId The unique identifier the shape gets.     * @param {?propObj} props     * All properties (attributes) to be assigned to the shape,     * when omitted the properties of the shape are loaded.     * @param {?SVGElement} parent The parent the shape should be appended to.     * @param drawingApp     * @param Canvas     * @param withHelperElements     * @param withHighlightEvents     */
+  /**
+   * @param {number} shapeId The unique identifier the shape gets.
+   * @param {?propObj} props
+   * All properties (attributes) to be assigned to the shape,
+   * when omitted the properties of the shape are loaded.
+   * @param {?SVGElement} parent The parent the shape should be appended to.
+   * @param drawingApp
+   * @param Canvas
+   * @param withHelperElements
+   * @param withHighlightEvents
+   */
   function Freehand(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
-    var _this7;
+    var _this8;
     _classCallCheck(this, Freehand);
-    _this7 = _super8.call(this, shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
-    _this7.shapeGroup.setAttribute("id", "freehand-".concat(shapeId));
-    return _this7;
+    _this8 = _super8.call(this, shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
+    _this8.shapeGroup.setAttribute("id", "freehand-".concat(shapeId));
+    return _this8;
   }
   return _createClass(Freehand);
 }(Path);

@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 use Ramsey\Uuid\Uuid;
-use tcCore\Events\BrowserTestingDisabledForParticipant;
+use tcCore\Events\InbrowserTestingUpdatedForTestParticipant;
 use tcCore\Events\NewTestTakePlanned;
 use tcCore\Events\RemoveParticipantFromWaitingRoom;
 use tcCore\Events\TestParticipantGuestAvailabilityChanged;
@@ -470,7 +470,7 @@ class TestParticipant extends BaseModel
     private function isBrowserTestingActive()
     {
         if ($this->allow_inbrowser_testing == false && $this->getOriginal('allow_inbrowser_testing') == true) {
-            AfterResponse::$performAction[] = fn() => BrowserTestingDisabledForParticipant::dispatch($this->uuid);
+            AfterResponse::$performAction[] = fn() => InbrowserTestingUpdatedForTestParticipant::dispatch($this->uuid);
         }
     }
 
