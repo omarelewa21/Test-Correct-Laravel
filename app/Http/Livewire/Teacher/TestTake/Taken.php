@@ -16,6 +16,8 @@ use tcCore\Http\Enums\UserFeatureSetting as UserFeatureSettingEnum;
 use tcCore\Http\Helpers\Normalize;
 use tcCore\Http\Livewire\Teacher\TestTake\TestTake as TestTakeComponent;
 use tcCore\Lib\Answer\AnswerChecker;
+use tcCore\RttiExportLog;
+use tcCore\Services\RttiExportService;
 use tcCore\TestParticipant;
 use tcCore\TestTake as TestTakeModel;
 use tcCore\TestTakeStatus;
@@ -41,12 +43,13 @@ class Taken extends TestTakeComponent
 
     protected Collection $gradingStandards;
     public string|GradingStandard $gradingStandard;
-    public int|float $gradingValue = 1;
+    public string|int|float $gradingValue = 1;
     public null|string|int|float $cesuurPercentage = null;
     public bool $showGradeToStudent;
 
     private Collection $questionsOfTest;
     public array $questionsToIgnore = [];
+    public Collection $participantScoreOverrides;
     public bool $participantGradesChanged = false;
 
 
@@ -55,12 +58,13 @@ class Taken extends TestTakeComponent
         return ['participantResults.*.rating' => 'int'];
     }
 
+    /* Lifecycle methods */
     public function mount(TestTakeModel $testTake): void
     {
         parent::mount($testTake);
         $this->createSystemRatingsWhenNecessary();
         $this->testTakeStatusId = $this->testTake->test_take_status_id;
-
+        $this->clearSession();
         $this->setParticipantResults();
         $this->setTakenTestData();
         $this->showWaitingRoom = in_array(
@@ -72,8 +76,11 @@ class Taken extends TestTakeComponent
         $this->assessmentDone = $this->takenTestData['assessedQuestions'] === $this->takenTestData['questionsToAssess'];
         $this->reviewActive = $this->testTake->review_active;
         $this->showGradeToStudent = $this->testTake->show_grades;
+        $this->participantScoreOverrides = collect();
 
-        $this->setStandardizationProperties();
+        if ($this->showStandardization()) {
+            $this->setStandardizationProperties();
+        }
     }
 
     public function updatedReviewActive(bool $value): void
@@ -88,8 +95,16 @@ class Taken extends TestTakeComponent
         });
     }
 
-    public function updatedParticipantResults(): void
+    public function updatedParticipantResults($value, $name): void
     {
+        if (!str($name)->contains('rating')) {
+            return;
+        }
+        $key = str($name)->explode('.')->first();
+        if ($participantUuid = $this->participantResults->get($key)?->uuid) {
+            $this->participantScoreOverrides->put($participantUuid, $value);
+        }
+
         Session::put($this->resultSessionKey(), $this->participantResults);
         $this->participantGradesChanged = true;
     }
@@ -201,6 +216,16 @@ class Taken extends TestTakeComponent
             : __('test-take.Resultaten publiceren');
     }
 
+    public function showStandardization(): bool
+    {
+        return $this->assessmentDone && $this->showResults();
+    }
+
+    public function showResults(): bool
+    {
+        return $this->testTakeStatusId >= TestTakeStatus::STATUS_DISCUSSED;
+    }
+
     /* Button actions */
     public function startCoLearning(): Redirector|RedirectResponse|bool
     {
@@ -251,9 +276,31 @@ class Taken extends TestTakeComponent
 
     public function publishResults(): void
     {
+        $this->standardizeResults(
+            standard    : GradingStandard::tryFrom($this->gradingStandard),
+            gradingValue: $this->gradingValue,
+            save        : true,
+        );
+
         $this->participantResults->each(function ($participant) {
-            $participant->save();
+            if ($scoreOverride = $this->participantScoreOverrides->get($participant->uuid)) {
+                $participant->rating = $scoreOverride;
+                TestParticipant::whereId($participant->id)->update(['rating' => $scoreOverride]);
+            }
+            $participant->definitiveRating = $participant->rating;
         });
+        Session::put($this->resultSessionKey(), $this->participantResults);
+
+        $this->participantGradesChanged = false;
+    }
+
+    public function exportToRtti(): void
+    {
+//        $exportLog = (new RttiExportService($this->testTake))->createExport();
+         $exportLog = RttiExportLog::first();
+            $this->emit('openModal', 'teacher.test-take.rtti-export-response-modal', ['rttiExportLog' => $exportLog->id]);
+//        if ($exportLog->has_errors) {
+//        }
     }
 
     /* Protected methods */
@@ -508,7 +555,7 @@ class Taken extends TestTakeComponent
         return '_questions_' . $this->testTakeUuid;
     }
 
-    private function buildNormalizeRequest(GradingStandard $standard): Collection
+    private function buildNormalizeRequest(GradingStandard $standard, bool $save = false): Collection
     {
         $questionsToIgnore = $this->questionsOfTest->map(function ($question) {
             return in_array($question->uuid, $this->questionsToIgnore) ? $question->id : null;
@@ -516,14 +563,14 @@ class Taken extends TestTakeComponent
 
         $request = collect([
             'ignore_questions' => $questionsToIgnore,
-            'preview'          => true,
+            'preview'          => !$save,
         ]);
         return match ($standard) {
-            GradingStandard::GOOD_PER_POINT => $request->put('ppp', $this->gradingValue),
+            GradingStandard::GOOD_PER_POINT   => $request->put('ppp', $this->gradingValue),
             GradingStandard::ERRORS_PER_POINT => $request->put('epp', $this->gradingValue),
-            GradingStandard::AVERAGE => $request->put('wanted_average', $this->gradingValue),
-            GradingStandard::N_TERM => $request->put('n_term', $this->gradingValue),
-            GradingStandard::CESUUR => $this->fillCesuurRequest($request),
+            GradingStandard::AVERAGE          => $request->put('wanted_average', $this->gradingValue),
+            GradingStandard::N_TERM           => $request->put('n_term', $this->gradingValue),
+            GradingStandard::CESUUR           => $this->fillCesuurRequest($request),
         };
     }
 
@@ -533,7 +580,7 @@ class Taken extends TestTakeComponent
             ->put('pass_mark', $this->cesuurPercentage);
     }
 
-    private function standardizeResults(GradingStandard $standard, $gradingValue = null): void
+    private function standardizeResults(GradingStandard $standard, $gradingValue = null, bool $save = false): void
     {
         if (!$gradingValue) {
             $this->gradingValue = $standard->initialValue();
@@ -543,14 +590,14 @@ class Taken extends TestTakeComponent
             }
         }
 
-        $normalize = new Normalize($this->testTake, $this->buildNormalizeRequest($standard));
+        $normalize = new Normalize($this->testTake, $this->buildNormalizeRequest($standard, $save));
 
         $data = match ($standard) {
-            GradingStandard::GOOD_PER_POINT => $normalize->normBasedOnGoodPerPoint(),
+            GradingStandard::GOOD_PER_POINT   => $normalize->normBasedOnGoodPerPoint(),
             GradingStandard::ERRORS_PER_POINT => $normalize->normBasedOnErrorsPerPoint(),
-            GradingStandard::AVERAGE => $normalize->normBasedOnAverageMark(),
-            GradingStandard::N_TERM => $normalize->normBasedOnNTerm(),
-            GradingStandard::CESUUR => $normalize->normBasedOnNTermAndPassMark(),
+            GradingStandard::AVERAGE          => $normalize->normBasedOnAverageMark(),
+            GradingStandard::N_TERM           => $normalize->normBasedOnNTerm(),
+            GradingStandard::CESUUR           => $normalize->normBasedOnNTermAndPassMark(),
         };
 
         $this->participantResults->each(fn($participant) => $participant->rating = $data[$participant->id] ?? 0);
@@ -597,35 +644,48 @@ class Taken extends TestTakeComponent
 
     private function setStandardizationProperties(): void
     {
+        $this->gradingStandards = GradingStandard::casesWithDescription();
+
         if ($this->testTake->results_published) {
-            $standard = GradingStandard::methodConverter($this->testTake);
+            [$value, $standard, $cesuurPercentage] = GradingStandard::getEnumFromTestTake($this->testTake);
+        } else {
+            [$standard, $value, $cesuurPercentage] = $this->getDefaultStandardizationProperties();
         }
 
-        $this->gradingStandards = GradingStandard::casesWithDescription();
+        $this->gradingValue = (float)$value;
+        $this->gradingStandard = str($standard->name)->lower()->value();
+        $this->cesuurPercentage = $cesuurPercentage ? (float)$cesuurPercentage : null;
+
+        if (!$this->testTake->results_published) {
+            $this->standardizeResults(
+                $standard,
+                $this->gradingValue
+            );
+        }
+    }
+
+    /**
+     * @return array
+     */
+    private function getDefaultStandardizationProperties(): array
+    {
         $standard = UserFeatureSetting::getSetting(
             user   : auth()->user(),
             title  : UserFeatureSettingEnum::GRADE_DEFAULT_STANDARD,
             default: GradingStandard::N_TERM
         );
-        $this->gradingStandard = str($standard->name)->lower()->value();
-
-        $this->gradingValue = UserFeatureSetting::getSetting(
+        $value = UserFeatureSetting::getSetting(
             user   : auth()->user(),
             title  : UserFeatureSettingEnum::GRADE_STANDARD_VALUE,
             default: $standard->initialValue()
         );
-
         if ($standard === GradingStandard::CESUUR) {
-            $this->cesuurPercentage = UserFeatureSetting::getSetting(
+            $cesuurPercentage = UserFeatureSetting::getSetting(
                 user   : auth()->user(),
                 title  : UserFeatureSettingEnum::GRADE_CESUUR_PERCENTAGE,
                 default: GradingStandard::CESUUR->initialValue()
             );
         }
-
-        $this->standardizeResults(
-            $standard,
-            $this->gradingValue
-        );
+        return [$standard, $value, $cesuurPercentage ?? null];
     }
 }

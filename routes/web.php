@@ -108,6 +108,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/preview/pdf/test_opgaven/{test}', [tcCore\Http\Controllers\PrintTestController::class, 'showTestOpgaven'])->name('preview.test_opgaven_pdf');
         Route::get('/preview/pdf/test_take/{test_take}', [tcCore\Http\Controllers\PrintTestController::class, 'showTestTake'])->name('preview.test_take_pdf');
         Route::get('/preview/pdf/test_attachments/{test}', [tcCore\Http\Controllers\PrintTestController::class, 'downloadTestAttachments'])->name('preview.test_attachments');
+        Route::get('/preview/pdf/grade_list/{test_take}', [tcCore\Http\Controllers\PrintTestController::class, 'showGradeList'])->name('pdf.grade-list');
         Route::get('/test_takes/{stage}', \tcCore\Http\Livewire\Teacher\TestTakeOverview::class)->name('test-takes');
         Route::get('/upload_test', \tcCore\Http\Livewire\Teacher\UploadTest::class)->name('upload-tests');
         Route::get('/file-management/testuploads', \tcCore\Http\Livewire\FileManagement\ToetsenbakkerUploadsOverview::class)->name('file-management.testuploads');
@@ -121,6 +122,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/test-take/planned/{testTake}', \tcCore\Http\Livewire\Teacher\TestTake\Planned::class)->name('test-take.planned')->middleware('testTakeStatus:1');
         Route::get('/test-take/taking/{testTake}', \tcCore\Http\Livewire\Teacher\TestTake\Taking::class)->name('test-take.taking')->middleware('testTakeStatus:3');
         Route::get('/test-take/taken/{testTake}', \tcCore\Http\Livewire\Teacher\TestTake\Taken::class)->name('test-take.taken')->middleware('testTakeStatus:6,7,8,9');
+        Route::get('/test-take/{test_take}/rtti-export-file', [\tcCore\Http\Controllers\TestTakesController::class, 'export'])->name('test-take.rtti-export-file');
     });
 
     Route::middleware(['dll', 'student'])->prefix('appapi')->name('appapi')->group(function () {

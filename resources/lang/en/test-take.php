@@ -65,7 +65,7 @@ return [
     'Wachtkamer'                                                                                                                                       => 'Waiting room',
     'CO-Learning besproken vragen'                                                                                                                     => 'CO-Learning discussed questions',
     'Nagekeken vragen'                                                                                                                                 => 'Assessed questions',
-    'Resultaten gepubliceerd op vragen'                                                                                                                => 'Results published on',
+    'Resultaten gepubliceerd op'                                                                                                                       => 'Results published on',
     'Instellen'                                                                                                                                        => 'Set up',
     'Inzien instellen'                                                                                                                                 => 'Set up review',
     'Inzien openzetten'                                                                                                                                => 'Open review',
@@ -120,4 +120,7 @@ return [
     'standardize_and_grading_tooltip'                                                                                                                  => 'Here you can set the standardization on which the grades will be based. After you can choose to adjust the score.',
     'Exporteer cijferlijst'                                                                                                                            => 'Export grades list',
     'Resultaten opnieuw publiceren'                                                                                                                    => 'Publish results again',
+    'Resultaten gepubliceerd'                                                                                                                          => 'Results published',
+    'Cijferlijst voor'                                                                                                                                 => 'Grade list for',
+    'RTTI Online export maken'                                                                                                                         => 'Create RTTI Online export',
 ];

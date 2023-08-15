@@ -12911,6 +12911,10 @@ video {
 .border-bluegrey\/50{
   border-color: rgb(195 208 237 / 0.5);
 }
+.border-cta{
+  --tw-border-opacity: 1;
+  border-color: rgb(58 183 83 / var(--tw-border-opacity));
+}
 .border-current{
   border-color: currentColor;
 }
@@ -12999,6 +13003,9 @@ video {
 .bg-cta{
   --tw-bg-opacity: 1;
   background-color: rgb(58 183 83 / var(--tw-bg-opacity));
+}
+.bg-cta\/20{
+  background-color: rgb(58 183 83 / 0.2);
 }
 .bg-ctadark{
   --tw-bg-opacity: 1;
@@ -13717,6 +13724,10 @@ video {
 .text-cta{
   --tw-text-opacity: 1;
   color: rgb(58 183 83 / var(--tw-text-opacity));
+}
+.text-ctamiddark{
+  --tw-text-opacity: 1;
+  color: rgb(39 151 61 / var(--tw-text-opacity));
 }
 .text-fuchsia-500{
   --tw-text-opacity: 1;

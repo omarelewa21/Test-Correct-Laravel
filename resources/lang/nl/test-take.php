@@ -118,4 +118,7 @@ return [
     'standardize_and_grading_tooltip'                                                                                                                  => 'Hier kun je de normering kiezen waarmee de cijfers worden berekend. Daarna kun je eventueel de beoordeling aanpassen.',
     'Exporteer cijferlijst'                                                                                                                            => 'Exporteer cijferlijst',
     'Resultaten opnieuw publiceren'                                                                                                                    => 'Resultaten opnieuw publiceren',
+    'Resultaten gepubliceerd'                                                                                                                          => 'Resultaten gepubliceerd',
+    'Cijferlijst voor'                                                                                                                                 => 'Cijferlijst voor',
+    'RTTI Online export maken'                                                                                                                         => 'RTTI Online export maken',
 ];

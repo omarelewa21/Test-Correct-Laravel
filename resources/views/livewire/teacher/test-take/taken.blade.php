@@ -45,8 +45,16 @@
                 <span>@lang('assessment.Nakijken')</span>
             </x-dynamic-component>
         @else
+            @if($this->testTake->results_published)
+                <div class="flex bg-cta/20 border-2 border-cta rounded-10 h-10 items-center px-4 text-ctamiddark gap-2 bold text-lg cursor-default">
+                    <x-icon.checkmark/>
+                    <x-icon.grade/>
+                    <span>@lang('test-take.Resultaten gepubliceerd')</span>
+                </div>
+            @endif
             <x-button.cta :title="$this->publishButtonLabel()"
                           :disabled="!$this->canPublishResults()"
+                          wire:click="publishResults"
             >
                 <x-icon.grade />
                 <span>{{ $this->publishButtonLabel() }}</span>
@@ -55,7 +63,7 @@
     </div>
 @endsection
 
-@if($this->testTakeStatusId >= \tcCore\TestTakeStatus::STATUS_DISCUSSED)
+@if($this->showResults())
     @section('studentNames')
         <div class="flex">
             <x-input.toggle-row-with-title wire:model="showStudentNames"
@@ -72,7 +80,19 @@
 
 @section('action-buttons')
     @if($this->testTake->is_rtti_test_take || true)
-        <x-button.icon class="order-3" :title="__('teacher.Exporteer naar RTTI Online')">
+        <x-button.icon class="order-3"
+                       :title="__('teacher.Exporteer naar RTTI Online')"
+                       wire:click="exportToRtti"
+        >
+            <x-icon.export />
+        </x-button.icon>
+    @else
+        <x-button.icon class="order-3"
+                       :title="__('teacher.RTTI Online export maken')"
+                       type="link"
+                       target="_blank"
+                       :href="route('teacher.test-take.rtti-export-file', ['test_take' => $this->testTake->uuid])"
+        >
             <x-icon.export />
         </x-button.icon>
     @endif
@@ -113,13 +133,25 @@
             <x-icon.co-learning />
         </x-button.icon>
 
-        <x-button.icon class="order-3" :title="__('test-take.Exporteer cijferlijst')">
+        <x-button.icon class="order-3"
+                       :title="__('test-take.Exporteer cijferlijst')"
+                       x-on:click="
+
+                        let windowReference = window.open();
+                        windowReference.document.write(
+                            PdfDownload.waitingScreenHtml('{{  __('test-pdf.pdf_download_wait_text') }}')
+                        );
+
+                        windowReference.location = '{{ route('teacher.pdf.grade-list', ['test_take' => $this->testTake->uuid]) }}'
+                       "
+        >
             <x-icon.grades-list />
         </x-button.icon>
 
         <x-button.cta class="order-1"
                       :title="$this->publishButtonLabel()"
                       :disabled="!$this->canPublishResults()"
+                      wire:click="publishResults"
         >
             <x-icon.grade />
             <span>{{ $this->publishButtonLabel() }}</span>
@@ -203,13 +235,13 @@
     </div>
 @endsection
 
-@if($this->assessmentDone)
+@if($this->showStandardization())
     @section('norming')
         <div class="flex flex-col gap-4">
             <h2>@lang('test-take.Resultaten instellen')</h2>
 
             <div class="flex flex-col gap-8">
-                <x-accordion.container>
+                <x-accordion.container :active-container-key="$this->testTake->results_published ? '' : 'standardize'">
                     <x-accordion.block key="standardize" :emitWhenSet="true">
                         <x-slot:title>
                             <h4>@lang('account.Becijferen en normeren')</h4>
@@ -261,7 +293,16 @@
                                 </div>
 
                                 <div class="results-grid setup grid -mx-5 relative"
-                                     x-data="{rowHover: null, shadow: null, usedSliders: []}"
+                                     x-data="{
+                                        rowHover: null,
+                                        shadow: null,
+                                        usedSliders: [],
+                                        clearUsedSliders() {
+                                          this.usedSliders = [];
+
+                                          this.$root.querySelectorAll('.score-slider-container').forEach(el => el.classList.add('untouched'))
+                                        },
+                                        }"
                                      x-init="
                                      shadow = $refs.shadowBox
                                      $watch('rowHover', value => {
@@ -270,7 +311,7 @@
                                         }
                                      })"
                                      wire:ignore.self
-                                     x-on:clear-used-sliders.window="usedSliders = [];"
+                                     x-on:clear-used-sliders.window="clearUsedSliders()"
                                 >
                                     <div x-ref="shadowBox"
                                          x-bind:class="{'hidden': rowHover === null}"
@@ -331,7 +372,7 @@
                                                 </div>
                                             </div>
                                             <div class="grid-item flex items-center group-hover/row:bg-offwhite px-3 justify-end">
-                                                {{ $participant->definitiveRating ?? '-' }}
+                                                {{ $participant->definitiveRating ? str(round($participant->definitiveRating, 1))->replace('.', ',') : '-' }}
                                             </div>
                                             <div @class(["grid-item flex items-center group-hover/row:bg-offwhite px-3 w-full"])
                                                  x-on:change="usedSliders.push(@js($participant->uuid))"
@@ -519,7 +560,7 @@
     @endsection
 @endif
 
-@if($this->testTakeStatusId >= \tcCore\TestTakeStatus::STATUS_DISCUSSED)
+@if($this->showResults())
     @section('results')
         <div class="flex flex-col gap-4">
             <h2>@lang('header.Resultaten')</h2>

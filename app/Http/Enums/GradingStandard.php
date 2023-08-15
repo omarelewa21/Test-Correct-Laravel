@@ -31,24 +31,41 @@ enum GradingStandard: string implements FeatureSettingKey
     #[Description('grading.cesuur')]
     case CESUUR = 'cesuur';
 
-    public static function methodConverter(TestTake $testTake): ?GradingStandard
+    private const conversionArray = [
+        'ppp'            => self::GOOD_PER_POINT,
+        'epp'            => self::ERRORS_PER_POINT,
+        'wanted_average' => self::AVERAGE,
+        'n_term'         => self::N_TERM,
+        'pass_mark'      => self::CESUUR,
+    ];
+
+    public static function getEnumFromTestTake(TestTake $testTake): array
     {
-        $method = collect(
-            TestTake::whereId($testTake->getKey())
-                ->get(['ppp', 'epp', 'wanted_average', 'n_term', 'pass_mark'])
-                ->first()
-                ->toArray()
-        )
-            ->filter()
+        $standardizationAttributes = ['ppp', 'epp', 'wanted_average', 'n_term', 'pass_mark'];
+        $standardizationValues = collect($testTake->toArray())
+            ->filter(fn($attr, $key) => in_array($key, $standardizationAttributes) && $attr !== null);
+
+        $value = $standardizationValues->first();
+
+        if ($standardizationValues->keys()->first() === 'n_term' && $standardizationValues->has('pass_mark')) {
+            $passMark = $standardizationValues->get('pass_mark');
+            return [$value, self::CESUUR, $passMark];
+        }
+
+        $method = $standardizationValues->keys()->first();
+        return [$value, self::fromDatabaseToEnum($method), null];
+    }
+
+    public static function fromDatabaseToEnum($value): GradingStandard
+    {
+        return self::conversionArray[$value];
+    }
+
+    public function toDatabaseAttribute(): string
+    {
+        return collect(self::conversionArray)
+            ->filter(fn($value) => $value === $this)
             ->keys()
             ->first();
-        return match ($method) {
-            'ppp'            => self::GOOD_PER_POINT,
-            'epp'            => self::ERRORS_PER_POINT,
-            'wanted_average' => self::AVERAGE,
-            'n_term'         => self::N_TERM,
-            'pass_mark'      => self::CESUUR,
-            default          => null,
-        };
     }
 }

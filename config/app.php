@@ -6,6 +6,8 @@ return [
 
     'base_url' => env('BASE_URL', ''),
 
+    'knowlegde_bank_url' => env('KNOWLEDGE_BANK_URL', 'https://support.test-correct.nl/knowledge'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Name

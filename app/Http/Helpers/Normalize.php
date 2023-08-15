@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Helpers;
 
+use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use tcCore\TestTake;
 
@@ -95,7 +96,7 @@ class Normalize
 
         $this->testTake->setAttribute('ppp', $ppp);
         if (!$this->isPreview) {
-            $this->testTake->save();
+            $this->saveTestTake();
         }
 
         foreach ($this->testTake->testParticipants as $testParticipant) {
@@ -126,7 +127,7 @@ class Normalize
 
         $this->testTake->setAttribute('epp', $epp);
         if (!$this->isPreview) {
-            $this->testTake->save();
+            $this->saveTestTake();
         }
 
         foreach ($this->testTake->testParticipants as $testParticipant) {
@@ -157,14 +158,14 @@ class Normalize
         ) : $this->testTake->getAttribute('wanted_average');
         $this->testTake->setAttribute('wanted_average', $average);
         if (!$this->isPreview) {
-            $this->testTake->save();
+            $this->saveTestTake();
         }
         if ($this->scores) {
             $ppp = ((array_sum($this->scores) / count($this->scores)) / ($average - 1));
             foreach ($this->testTake->testParticipants as $testParticipant) {
                 if (array_key_exists($testParticipant->getKey(), $this->scores)) {
                     $score = $this->scores[$testParticipant->getKey()];
-                    $rate = 1 + ($score / $ppp);
+                    $rate = 1 + ($score / ($ppp));
                     if ($rate < 1) {
                         $rate = 1;
                     } elseif ($rate > 10) {
@@ -195,7 +196,7 @@ class Normalize
         $this->testTake->setAttribute('pass_mark', $passMark);
 
         if (!$this->isPreview) {
-            $this->testTake->save();
+            $this->saveTestTake();
         }
 
         foreach ($this->testTake->testParticipants as $testParticipant) {
@@ -240,7 +241,7 @@ class Normalize
         $this->testTake->setAttribute('n_term', $nTerm);
 
         if (!$this->isPreview) {
-            $this->testTake->save();
+            $this->saveTestTake();
         }
 
         foreach ($this->testTake->testParticipants as $testParticipant) {
@@ -286,5 +287,12 @@ class Normalize
             }
         }
         return $this->testTake->testParticipants->mapWithKeys(fn($participant) => [$participant->getKey() => $participant->rating]);
+    }
+
+
+    private function saveTestTake(): void
+    {
+        $this->testTake->setAttribute('results_published', Carbon::now());
+        $this->testTake->save();
     }
 }
