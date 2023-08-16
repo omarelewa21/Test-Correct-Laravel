@@ -2819,6 +2819,8 @@ document.addEventListener("alpine:init", () => {
                     newCommentThread.addComment({threadId: feedback.threadId, commentId: feedback.commentId, content: comment, authorId: this.userId});
 
                     var updatedAnswerText = answerEditor.getData();
+                    // updatedAnswerText = updatedAnswerText.replaceAll('&nbsp;', '');
+                    // console.log(updatedAnswerText)
 
                     let commentStyles = await this.$wire.saveNewComment({
                         uuid: feedback.uuid,

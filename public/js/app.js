@@ -8011,7 +8011,7 @@ document.addEventListener("alpine:init", function () {
         });
       },
       markInputElementsWithError: function markInputElementsWithError() {
-        var falseOptions = this.$root.querySelectorAll(".accordion-block .slider-option[data-active=\"false\"]");
+        var falseOptions = this.$root.querySelectorAll(".slider-option[data-active=\"false\"]");
         if (falseOptions.length === 2) {
           falseOptions.forEach(function (el) {
             return el.classList.add("!border-allred");
@@ -8019,7 +8019,7 @@ document.addEventListener("alpine:init", function () {
         }
       },
       markInputElementsClean: function markInputElementsClean() {
-        var falseOptions = this.$root.querySelectorAll(".accordion-block .slider-option[data-active=\"false\"]");
+        var falseOptions = this.$root.querySelectorAll(".slider-option[data-active=\"false\"]");
         if (falseOptions.length === 2) {
           falseOptions.forEach(function (el) {
             return el.classList.remove("!border-allred");
@@ -9525,7 +9525,7 @@ document.addEventListener("alpine:init", function () {
                     while (1) switch (_context25.prev = _context25.next) {
                       case 0:
                         if (!answerEditor.plugins.get('CommentsRepository').activeCommentThread) {
-                          _context25.next = 22;
+                          _context25.next = 20;
                           break;
                         }
                         _context25.next = 3;
@@ -9546,25 +9546,24 @@ document.addEventListener("alpine:init", function () {
                           content: comment,
                           authorId: _this65.userId
                         });
-                        updatedAnswerText = answerEditor.getData();
-                        updatedAnswerText = updatedAnswerText.replaceAll('&nbsp;', '');
-                        console.log(updatedAnswerText);
-                        _context25.next = 13;
+                        updatedAnswerText = answerEditor.getData(); // updatedAnswerText = updatedAnswerText.replaceAll('&nbsp;', '');
+                        // console.log(updatedAnswerText)
+                        _context25.next = 11;
                         return _this65.$wire.saveNewComment({
                           uuid: feedback.uuid,
                           message: comment,
                           comment_color: comment_color,
                           comment_emoji: comment_emoji
                         }, updatedAnswerText);
-                      case 13:
+                      case 11:
                         commentStyles = _context25.sent;
-                        _context25.next = 16;
+                        _context25.next = 14;
                         return _this65.createCommentIcon({
                           uuid: feedback.uuid,
                           threadId: feedback.threadId,
                           iconName: comment_iconName
                         });
-                      case 16:
+                      case 14:
                         document.querySelector('#commentMarkerStyles').innerHTML = commentStyles;
                         _this65.hasFeedback = true;
                         _this65.$dispatch('answer-feedback-show-comments');
@@ -9573,21 +9572,21 @@ document.addEventListener("alpine:init", function () {
                           ClassicEditors[_this65.feedbackEditorId].setData('<p></p>');
                         }, 300);
                         return _context25.abrupt("return");
-                      case 22:
-                        _context25.next = 24;
+                      case 20:
+                        _context25.next = 22;
                         return _this65.$wire.createNewComment({
                           message: comment,
                           comment_color: null,
                           //no comment color when its a general ticket.
                           comment_emoji: comment_emoji
                         }, false);
-                      case 24:
+                      case 22:
                         feedback = _context25.sent;
                         _this65.hasFeedback = true;
                         _this65.$dispatch('answer-feedback-show-comments');
                         _this65.scrollToCommentCard(feedback.uuid);
                         feedbackEditor.setData('<p></p>');
-                      case 29:
+                      case 27:
                       case "end":
                         return _context25.stop();
                     }
@@ -9949,7 +9948,7 @@ document.addEventListener("alpine:init", function () {
         this.$store.answerFeedback.editingComment = AnswerFeedbackUuid !== null && AnswerFeedbackUuid !== void 0 ? AnswerFeedbackUuid : null;
         setTimeout(function () {
           _this74.fixSlideHeightByIndex(2, AnswerFeedbackUuid);
-        }, 300);
+        }, 100);
       },
       toggleFeedbackAccordion: function toggleFeedbackAccordion(name) {
         var _arguments3 = arguments,
@@ -18238,10 +18237,8 @@ window.RichTextEditor = {
             parameterBag.shouldNotGroupWhenFull = true;
             _context.next = 4;
             return this.createTeacherEditor(parameterBag, function (editor) {
+
               // this.hideWProofreaderChevron(parameterBag.allowWsc, editor);
-              editor.editing.view.change(function (writer) {
-                writer.setStyle('height', '150px', editor.editing.view.document.getRoot());
-              });
             });
           case 4:
             return _context.abrupt("return", _context.sent);
@@ -18275,7 +18272,6 @@ window.RichTextEditor = {
   initAnswerEditorWithComments: function initAnswerEditorWithComments(parameterBag) {
     var _this7 = this;
     parameterBag.enableCommentsPlugin = true;
-    parameterBag.wproofreaderActionItems = ['toggle'];
     return this.createStudentEditor(parameterBag, function (editor) {
       WebspellcheckerTlc.lang(editor, parameterBag.lang);
       _this7.setupWordCounter(editor, parameterBag);
@@ -18360,7 +18356,7 @@ window.RichTextEditor = {
       wordCount: {
         displayCharacters: false
       },
-      wproofreader: this.getWproofreaderConfig(parameterBag.enableGrammar, parameterBag.wproofreaderActionItems)
+      wproofreader: this.getWproofreaderConfig(parameterBag.enableGrammar)
     };
     config.removePlugins = ["Selection", "Completion", "ImageUpload", "Image", "ImageToolbar"];
     config.toolbar = {
@@ -18501,16 +18497,8 @@ window.RichTextEditor = {
     }
   },
   setCommentsOnly: function setCommentsOnly(editor) {
-    //disable all commands except for comments and webspellchecker
-    var input = editor.commands._commands.forEach(function (command, name) {
-      if (!['addCommentThread', 'undo', 'redo', 'WProofreaderToggle', 'WProofreaderSettings'].includes(name)) {
-        command.forceDisabled('commentsOnly');
-      }
-    });
-
-    // editor.plugins.get( 'CommentsOnly' ).isEnabled = true;
+    editor.plugins.get('CommentsOnly').isEnabled = true;
   },
-
   writeContentToTextarea: function writeContentToTextarea(editorId) {
     var editor = ClassicEditors[editorId];
     if (editor) {
@@ -18654,13 +18642,12 @@ window.RichTextEditor = {
   },
   getWproofreaderConfig: function getWproofreaderConfig() {
     var enableGrammar = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
-    var actionItems = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : ["addWord", "ignoreAll", "ignore", "settings", "toggle", "proofreadDialog"];
     return {
       autoSearch: false,
       autoDestroy: true,
       autocorrect: false,
       autocomplete: false,
-      actionItems: actionItems,
+      actionItems: ["addWord", "ignoreAll", "ignore", "settings", "toggle", "proofreadDialog"],
       enableBadgeButton: true,
       serviceProtocol: "https",
       servicePort: "80",
