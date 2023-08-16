@@ -9367,13 +9367,15 @@ document.addEventListener("alpine:init", function () {
           return _regeneratorRuntime().wrap(function _callee23$(_context23) {
             while (1) switch (_context23.prev = _context23.next) {
               case 0:
+                _this63.$store.answerFeedback.resetEditingComment();
+                console.log('init answer feedback');
                 _this63.dropdownOpened = questionType === 'OpenQuestion' ? 'given-feedback' : 'add-feedback';
                 if (!(questionType !== 'OpenQuestion')) {
-                  _context23.next = 3;
+                  _context23.next = 5;
                   break;
                 }
                 return _context23.abrupt("return");
-              case 3:
+              case 5:
                 _this63.setFocusTracking();
                 document.addEventListener('comment-color-updated', /*#__PURE__*/function () {
                   var _ref4 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee21(event) {
@@ -9440,7 +9442,7 @@ document.addEventListener("alpine:init", function () {
                   _this63.clearActiveComment();
                 });
                 _this63.preventOpeningModalFromBreakingDrawer();
-              case 9:
+              case 11:
               case "end":
                 return _context23.stop();
             }
@@ -9546,8 +9548,7 @@ document.addEventListener("alpine:init", function () {
                           content: comment,
                           authorId: _this65.userId
                         });
-                        updatedAnswerText = answerEditor.getData(); // updatedAnswerText = updatedAnswerText.replaceAll('&nbsp;', '');
-                        // console.log(updatedAnswerText)
+                        updatedAnswerText = answerEditor.getData();
                         _context25.next = 11;
                         return _this65.$wire.saveNewComment({
                           uuid: feedback.uuid,
@@ -10909,6 +10910,9 @@ document.addEventListener("alpine:init", function () {
         }
       }));
       Livewire.emit('closeModal');
+    },
+    resetEditingComment: function resetEditingComment() {
+      this.editingComment = null;
     }
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].store("studentPlayer", {
@@ -18272,6 +18276,7 @@ window.RichTextEditor = {
   initAnswerEditorWithComments: function initAnswerEditorWithComments(parameterBag) {
     var _this7 = this;
     parameterBag.enableCommentsPlugin = true;
+    parameterBag.wproofreaderActionItems = ['toggle'];
     return this.createStudentEditor(parameterBag, function (editor) {
       WebspellcheckerTlc.lang(editor, parameterBag.lang);
       _this7.setupWordCounter(editor, parameterBag);
@@ -18281,7 +18286,14 @@ window.RichTextEditor = {
     });
   },
   setMathChemTypeReadOnly: function setMathChemTypeReadOnly(editor) {
-    editor.plugins.get('MathType').stopListening();
+    try {
+      editor.plugins.get('MathType').stopListening();
+    } catch (e) {
+      if (String(e.name).includes('CKEditorError')) {
+        return;
+      }
+      throw e;
+    }
   },
   setAnswerFeedbackEventListeners: function setAnswerFeedbackEventListeners(editor) {
     var focusIsInCommentEditor = function focusIsInCommentEditor() {
@@ -18356,7 +18368,7 @@ window.RichTextEditor = {
       wordCount: {
         displayCharacters: false
       },
-      wproofreader: this.getWproofreaderConfig(parameterBag.enableGrammar)
+      wproofreader: this.getWproofreaderConfig(parameterBag.enableGrammar, parameterBag.wproofreaderActionItems)
     };
     config.removePlugins = ["Selection", "Completion", "ImageUpload", "Image", "ImageToolbar"];
     config.toolbar = {
@@ -18497,8 +18509,16 @@ window.RichTextEditor = {
     }
   },
   setCommentsOnly: function setCommentsOnly(editor) {
-    editor.plugins.get('CommentsOnly').isEnabled = true;
+    //disable all commands except for comments and webspellchecker
+    var input = editor.commands._commands.forEach(function (command, name) {
+      if (!['addCommentThread', 'undo', 'redo', 'WProofreaderToggle', 'WProofreaderSettings'].includes(name)) {
+        command.forceDisabled('commentsOnly');
+      }
+    });
+
+    // editor.plugins.get( 'CommentsOnly' ).isEnabled = true;
   },
+
   writeContentToTextarea: function writeContentToTextarea(editorId) {
     var editor = ClassicEditors[editorId];
     if (editor) {
@@ -18642,12 +18662,13 @@ window.RichTextEditor = {
   },
   getWproofreaderConfig: function getWproofreaderConfig() {
     var enableGrammar = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+    var actionItems = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : ["addWord", "ignoreAll", "ignore", "settings", "toggle", "proofreadDialog"];
     return {
       autoSearch: false,
       autoDestroy: true,
       autocorrect: false,
       autocomplete: false,
-      actionItems: ["addWord", "ignoreAll", "ignore", "settings", "toggle", "proofreadDialog"],
+      actionItems: actionItems,
       enableBadgeButton: true,
       serviceProtocol: "https",
       servicePort: "80",

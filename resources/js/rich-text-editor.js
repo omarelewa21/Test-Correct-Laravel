@@ -147,7 +147,14 @@ window.RichTextEditor = {
         )
     },
     setMathChemTypeReadOnly: function(editor) {
-        editor.plugins.get('MathType').stopListening();
+        try {
+            editor.plugins.get('MathType').stopListening();
+        } catch (e) {
+            if(String(e.name).includes('CKEditorError')) {
+                return;
+            }
+            throw e;
+        }
     },
     setAnswerFeedbackEventListeners: function (editor) {
         let focusIsInCommentEditor = () => window.getSelection().focusNode?.parentElement?.closest('.comment-editor') !== null;

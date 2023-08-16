@@ -2688,6 +2688,8 @@ document.addEventListener("alpine:init", () => {
         viewOnly,
         hasFeedback,
         async init() {
+            this.$store.answerFeedback.resetEditingComment();
+            console.log('init answer feedback');
             this.dropdownOpened = questionType === 'OpenQuestion' ? 'given-feedback' : 'add-feedback';
 
             if(questionType !== 'OpenQuestion') {
@@ -4058,6 +4060,9 @@ document.addEventListener("alpine:init", () => {
             this.navigationMethod = null;
             window.dispatchEvent(new CustomEvent('answer-feedback-drawer-tab-update', {detail: {tab: 2, uuid: this.editingComment}}));
             Livewire.emit('closeModal');
+        },
+        resetEditingComment() {
+            this.editingComment = null;
         }
     });
     Alpine.store("studentPlayer", {
