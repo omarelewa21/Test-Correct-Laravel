@@ -51,11 +51,5 @@ class OpenQuestion extends CoLearningQuestion
     {
         $this->answer = $this->answerRating->answer->commented_answer ?? json_decode($this->answerRating->answer->json)->value ?? '';
         $this->updatedAtHash = md5($this->answerRating->answer->updated_at->format('His'));
-
-        $this->answer = Str::replace(
-            chr(194).chr(160),
-            " ".chr(194).chr(160),
-            $this->answer
-        );
     }
 }
