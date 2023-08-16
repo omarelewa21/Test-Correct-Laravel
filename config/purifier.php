@@ -101,6 +101,8 @@ return [
             ['mfrac', 'bevelled', 'CDATA'],
             ['mfenced', 'open', 'CDATA'],
             ['mfenced', 'close', 'CDATA'],
+            ['math', 'data-comment-end-after', 'Text'],
+            ['math', 'data-comment-start-before', 'Text'],
 
         ],
         'custom_elements'   => [
