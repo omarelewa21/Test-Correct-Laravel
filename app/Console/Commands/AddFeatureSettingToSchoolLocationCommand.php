@@ -16,6 +16,12 @@ class AddFeatureSettingToSchoolLocationCommand extends Command
     private $settingTitles = [
         'allow_creathlon',
         'allow_olympiade',
+        'allow_thieme_meulenhoff',
+        'allow_tm_biology',
+        'allow_tm_geography',
+        'allow_tm_dutch',
+        'allow_tm_english',
+        'allow_tm_french',
         'allow_new_taken_tests_page',
         'allow_analyses',
         'allow_new_co_learning',

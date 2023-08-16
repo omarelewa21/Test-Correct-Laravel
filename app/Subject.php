@@ -264,6 +264,12 @@ class Subject extends BaseModel implements AccessCheckable
         return $this->filterByUserAndSchoolLocation($query, Auth::user(), $nationalItemBankSchools);
     }
 
+    public function scopeThiemeMeulenhoffFiltered($query, $filters = [], $sorting = [])
+    {
+        $schoolLocation = SchoolLocation::where('customer_code', config('custom.thieme_meulenhoff_school_customercode'))->first();
+
+        return $this->filterByUserAndSchoolLocation($query, Auth::user(), $schoolLocation);
+    }
     public function scopeCreathlonFiltered($query, $filters = [], $sorting = [])
     {
         $creathlonSchoolLocation = SchoolLocation::where('customer_code', config('custom.creathlon_school_customercode'))->first();
@@ -354,21 +360,6 @@ class Subject extends BaseModel implements AccessCheckable
             ->whereIn('subjects.base_subject_id', $userBaseSubjectIds)
             ->distinct()
             ->pluck('subjects.id')->toArray();
-
-        $schoolLocations = SchoolLocation::whereIn('customer_code', Arr::wrap($customerCodes))->get();
-
-        $baseSubjectIds = $user->subjects()->pluck('base_subject_id')->unique();
-
-        $subjectIds = collect([]);
-
-        foreach ($schoolLocations as $school_location) {
-            $subjects = collect([]);
-            foreach ($school_location->schoolLocationSections as $schoolLocationSection) {
-                $subjects = $subjects->merge($schoolLocationSection->subjects);
-            }
-            $subjectIds = $subjectIds->merge($subjects->whereIn('base_subject_id', $baseSubjectIds)->pluck('id')->unique()->toArray());
-        }
-        return $subjectIds->toArray();
     }
 
     public static function boot()

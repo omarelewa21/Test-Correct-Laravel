@@ -1096,8 +1096,11 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         $periodLocation = (new Period());
         $periodLocation->fill([
             'school_year_id'     => $schoolYear->getKey(),
-            'name'               => sprintf('%d-%d', \Carbon\Carbon::parse($startDate)->year,
-                \Carbon\Carbon::parse($endDate)->year),
+            'name'               => sprintf(
+                '%d-%d',
+                \Carbon\Carbon::parse($startDate)->year,
+                \Carbon\Carbon::parse($endDate)->year
+            ),
             'school_location_id' => $this->getKey(),
             'start_date'         => Carbon::parse($startDate),
             'end_date'           => Carbon::parse($endDate),

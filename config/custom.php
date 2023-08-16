@@ -19,6 +19,8 @@ return [
     ],
     'national_item_bank_school_customercode' => env('NATIONALITEMBANK_SCHOOL_CUSTOMERCODE', 'TBNI'),
     'national_item_bank_school_author'       => env('NATIONALITEMBANK_SCHOOL_AUTHOR', 'info+ontwikkelaar@test-correct.nl'),
+    'thieme_meulenhoff_school_customercode'  => env('THIEMEMEULENHOFFITEMBANK_SCHOOL_CUSTOMERCODE', 'THIEMEMEULENHOFF'),
+    'thieme_meulenhoff_school_author'        => env('THIEMEMEULENHOFFITEMBANK_SCHOOL_AUTHOR', 'info+thiememeulenhoffontwikkelaar@test-correct.nl'),
     'creathlon_school_customercode'          => env('CREATHLONITEMBANK_SCHOOL_CUSTOMERCODE', 'CREATHLON'),
     'creathlon_school_author'                => env('CREATHLONITEMBANK_SCHOOL_AUTHOR', 'info+creathlonontwikkelaar@test-correct.nl'),
     'olympiade_school_customercode'          => env('OLYMPIADEITEMBANK_SCHOOL_CUSTOMERCODE', 'SBON'),

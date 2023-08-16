@@ -3,19 +3,12 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Auth;
-use tcCore\BaseSubject;
 use tcCore\Factories\Questions\FactoryQuestionOpenShort;
-use tcCore\FactoryScenarios\FactoryScenarioSchoolCreathlon;
-use tcCore\Lib\User\Factory;
-use tcCore\Period;
-use tcCore\SchoolYear;
-use tcCore\Subject;
-use tcCore\Teacher;
-use tcCore\Test;
+use tcCore\FactoryScenarios\FactoryScenarioSchoolThiemeMeulenhoff;
+use tcCore\Services\ContentSource\ThiemeMeulenhoffService;
 use tcCore\User;
 
-class CreathlonItemBankSeeder extends Seeder
+class ThiemeMeulenhoffItemBankSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -26,29 +19,28 @@ class CreathlonItemBankSeeder extends Seeder
     {
         \tcCore\Http\Helpers\ActingAsHelper::getInstance()->reset();
 
-        if (User::where('username', 'info+creathlonontwikkelaar@test-correct.nl')->exists()) {
+        if (User::where('username', 'info+tmontwikkelaar@test-correct.nl')->exists()) {
             return;
         }
 
-        $this->generateCreathlonSchoolWithTests();
+        $this->generateSchoolWithTests();
 
-        $this->allowFirstSchoolLocationToViewCreathlon();
-
-
+        $this->allowAllForSchoolLocationToView();
     }
 
-    protected function generateCreathlonSchoolWithTests()
+    protected function generateSchoolWithTests()
     {
-        $factoryScenarioSchool = FactoryScenarioSchoolCreathlon::create();
+        $factoryScenarioSchool = FactoryScenarioSchoolThiemeMeulenhoff::create();
         $school = $factoryScenarioSchool->schools->first();
 
-        $primaryTestAuthor = $school->schoolLocations->first()->users()->where('username', 'info+creathlonontwikkelaar@test-correct.nl')->first();
-        $secondaryTestAuthor = $school->schoolLocations->first()->users()->where('username', 'info+creathlonontwikkelaarB@test-correct.nl')->first();
+        $primaryTestAuthor = $school->schoolLocations->first()->users()->where('username', 'info+tmontwikkelaar@test-correct.nl')->first();
+        $secondaryTestAuthor = $school->schoolLocations->first()->users()->where('username', 'info+tmontwikkelaar@test-correct.nl')->first();
 
         $collection = $school->schoolLocations->first()->schoolLocationSections->where('demo', false)->first()->section->subjects->split(2);
 
         $firstHalf = $collection[0];
         $secondHalf = $collection[1] ?? collect();
+
 
         $firstHalf->each(function ($subject) use ($primaryTestAuthor) {
             \tcCore\Factories\FactoryTest::create($primaryTestAuthor)
@@ -56,13 +48,13 @@ class CreathlonItemBankSeeder extends Seeder
                     'name'               => 'test-' . $subject->name,
                     'subject_id'         => $subject->id,
                     'abbreviation'       => 'PUBLS',
-                    'scope'              => 'published_creathlon',
+                    'scope'              => 'published_thieme_meulenhoff',
                     'education_level_id' => '1',
                     'draft'              => false,
                 ])
                 ->addQuestions([
                     FactoryQuestionOpenShort::create()->setProperties([
-                        "question" => '<p>voorbeeld vraag creathlon:</p> <p>wat is de waarde van pi</p> ',
+                        "question" => '<p>voorbeeld vraag thieme meulenhoff:</p> <p>wat is de waarde van pi</p> ',
                     ]),
                 ]);
         });
@@ -72,21 +64,25 @@ class CreathlonItemBankSeeder extends Seeder
                     'name'               => 'test-' . $subject->name,
                     'subject_id'         => $subject->id,
                     'abbreviation'       => 'UNF',
-                    'scope'              => 'not_published_creathlon',
+                    'scope'              => 'not_published_thieme_meulenhoff',
                     'education_level_id' => '1',
                     'draft'              => false,
                 ])
                 ->addQuestions([
                     FactoryQuestionOpenShort::create()->setProperties([
-                        "question" => '<p>voorbeeld vraag creathlon:</p> <p>wat is de waarde van pi</p> ',
+                        "question" => '<p>voorbeeld vraag thieme meulenhoff:</p> <p>wat is de waarde van pi</p> ',
                     ]),
                 ]);
         });
     }
 
-    protected function allowFirstSchoolLocationToViewCreathlon()
+    protected function allowAllForSchoolLocationToView()
     {
-        \tcCore\SchoolLocation::find(1)->allow_creathlon = true;
+        $school_location = \tcCore\SchoolLocation::find(1);
+        ThiemeMeulenhoffService::getAllFeatureSettings()->each(function ($setting) use ($school_location) {
+            $school_location->$setting = true;
+        });
+        $school_location->save();
     }
 
 }

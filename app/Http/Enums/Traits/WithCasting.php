@@ -15,6 +15,7 @@ trait WithCasting
         if (!is_null($value) && $this->needsTypeCasting()) {
             return $this->castToType($value);
         }
+
         return $value;
     }
 
@@ -25,12 +26,10 @@ trait WithCasting
 
     private function castToType($value)
     {
-        if ($this->getType() === 'bool') {
-            return (bool)$value;
-        }
-        if ($this->getType() === 'int') {
-            return (int)$value;
-        }
-        return $value;
+        return match($this->getType()) {
+            'bool' => (bool)$value,
+            'int' => (int)$value,
+            default => $value,
+        };
     }
 }
