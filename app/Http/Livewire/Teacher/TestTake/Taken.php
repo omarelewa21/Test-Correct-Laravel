@@ -13,6 +13,7 @@ use tcCore\Attainment;
 use tcCore\Http\Enums\GradingStandard;
 use tcCore\Http\Enums\TestTakeEventTypes;
 use tcCore\Http\Enums\UserFeatureSetting as UserFeatureSettingEnum;
+use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Http\Helpers\Normalize;
 use tcCore\Http\Livewire\Teacher\TestTake\TestTake as TestTakeComponent;
 use tcCore\Lib\Answer\AnswerChecker;
@@ -163,7 +164,9 @@ class Taken extends TestTakeComponent
 
     public function redirectToOverview(): Redirector|RedirectResponse
     {
-        return redirect()->route('teacher.test-takes', 'taken');
+        return $this->testTakeStatusId === TestTakeStatus::STATUS_RATED
+            ? CakeRedirectHelper::redirectToCake('results.rated')
+            : redirect()->route('teacher.test-takes', 'taken');
     }
 
     public function getButtonType(string $context): string
@@ -190,7 +193,9 @@ class Taken extends TestTakeComponent
 
     public function breadcrumbTitle(): string
     {
-        return __('header.Afgenomen');
+        return $this->testTakeStatusId === TestTakeStatus::STATUS_RATED
+            ? __('navigation.results')
+            : __('header.Afgenomen');
     }
 
     public function initializingPresenceChannel($event): void
@@ -230,15 +235,34 @@ class Taken extends TestTakeComponent
     public function startCoLearning(): Redirector|RedirectResponse|bool
     {
         if ($this->showWaitingRoom) {
-            return redirect()->route('teacher.co-learning', ['test_take' => $this->testTakeUuid, 'started' => 'false']);
+            $coLearningRoute = route('teacher.co-learning', ['test_take' => $this->testTakeUuid, 'started' => 'false']);
+            if ($this->assessmentDone) {
+                $this->emit(
+                    'openModal',
+                    'teacher.test-take.start-co-learning-after-assessment-modal',
+                    ['continue' => $coLearningRoute]
+                );
+                return false;
+            }
+
+            return redirect($coLearningRoute);
         }
 
         return $this->showWaitingRoom = true;
     }
 
-    public function startAssessment(): Redirector|RedirectResponse
+    public function startAssessment(): Redirector|RedirectResponse|bool
     {
-        return redirect()->route('teacher.assessment', $this->testTakeUuid);
+        if (!$this->testTake->results_published) {
+            return redirect()->route('teacher.assessment', $this->testTakeUuid);
+        }
+
+        $this->emit(
+            'openModal',
+            'teacher.test-take.start-assessment-after-grading-modal',
+            ['continue' => route('teacher.assessment', $this->testTakeUuid)]
+        );
+        return false;
     }
 
     public function assessParticipant(string $participantUuid): Redirector|RedirectResponse
@@ -268,10 +292,12 @@ class Taken extends TestTakeComponent
             $this->addError('all_questions_ignored', 'Alle vragen zijn overgeslagen.');
             return;
         }
+
         $this->standardizeResults(
             GradingStandard::tryFrom($this->gradingStandard),
             $this->gradingValue
         );
+        $this->participantGradesChanged = true;
     }
 
     public function publishResults(): void
@@ -289,18 +315,9 @@ class Taken extends TestTakeComponent
             }
             $participant->definitiveRating = $participant->rating;
         });
+
         Session::put($this->resultSessionKey(), $this->participantResults);
-
         $this->participantGradesChanged = false;
-    }
-
-    public function exportToRtti(): void
-    {
-//        $exportLog = (new RttiExportService($this->testTake))->createExport();
-         $exportLog = RttiExportLog::first();
-            $this->emit('openModal', 'teacher.test-take.rtti-export-response-modal', ['rttiExportLog' => $exportLog->id]);
-//        if ($exportLog->has_errors) {
-//        }
     }
 
     /* Protected methods */
@@ -622,18 +639,20 @@ class Taken extends TestTakeComponent
                         fn($pValue) => $this->participantResults->pluck('id')->contains($pValue->test_participant_id)
                     );
             })
-            ->each(function ($question, $key) {
-                $question->order = $key + 1;
-                $question->pValuePercentage = null;
-                $question->pValueAverage = null;
-                $question->pValueMaxScore = null;
-                if (!$question->isType('Infoscreen')) {
-                    $question->pValuePercentage = (
-                            $question->pValues->sum('score') / $question->pValues->sum('max_score')
-                        ) * 100;
-                    $question->pValueAverage = $question->pValues->avg('score');
-                    $question->pValueMaxScore = $question->pValues->avg('max_score');
-                }
+            ->when($this->testTakeStatusId >= TestTakeStatus::STATUS_DISCUSSED, function ($collection) {
+                $collection->each(function ($question, $key) {
+                    $question->order = $key + 1;
+                    $question->pValuePercentage = null;
+                    $question->pValueAverage = null;
+                    $question->pValueMaxScore = null;
+                    if (!$question->isType('Infoscreen') || $question->pValues->isEmpty()) {
+                        $question->pValuePercentage = (
+                                $question->pValues->sum('score') / $question->pValues->sum('max_score')
+                            ) * 100;
+                        $question->pValueAverage = $question->pValues->avg('score');
+                        $question->pValueMaxScore = $question->pValues->avg('max_score');
+                    }
+                });
             });
     }
 
@@ -688,4 +707,5 @@ class Taken extends TestTakeComponent
         }
         return [$standard, $value, $cesuurPercentage ?? null];
     }
+
 }

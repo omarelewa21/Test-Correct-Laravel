@@ -14,7 +14,7 @@ class PublishTestModal extends TCModalComponent
 {
     public $testUuid;
     public $showInfo;
-    public $knowledgebankUrl = 'https://support.test-correct.nl/knowledge/publiceren';
+    public $knowledgebankUrl;
     public $testErrors = [];
 
     public function mount($testUuid)
@@ -22,6 +22,7 @@ class PublishTestModal extends TCModalComponent
         $this->testUuid = $testUuid;
         $this->showInfo = !Auth::user()->has_published_test;
         $this->handleErrorsInTest();
+        $this->knowledgebankUrl = sprintf('%s/publiceren', config('app.knowledge_bank_url'));
     }
 
     public function render()

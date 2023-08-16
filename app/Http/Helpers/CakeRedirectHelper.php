@@ -151,7 +151,7 @@ class CakeRedirectHelper
             ],
             'knowledge_base'              => [
                 'page'        => '/',
-                'page_action' => "Popup.showExternalPage('https://support.test-correct.nl/knowledge')",
+                'page_action' => sprintf("Popup.showExternalPage('%s')", config('app.knowlegde_bank_url')),
             ],
             'webinar'                     => [
                 'page'        => '/',
@@ -159,7 +159,7 @@ class CakeRedirectHelper
             ],
             'support_updates'             => [
                 'page'        => '/',
-                'page_action' => "Popup.showExternalPage('https://support.test-correct.nl/knowledge/wat-zijn-de-laatste-updates', 1000)",
+                'page_action' => sprintf("Popup.showExternalPage('%s/wat-zijn-de-laatste-updates', 1000)", config('app.knowlegde_bank_url')),
             ],
 
             'school_location.new'    => [

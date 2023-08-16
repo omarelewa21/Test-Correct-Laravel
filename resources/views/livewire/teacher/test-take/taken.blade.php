@@ -47,8 +47,8 @@
         @else
             @if($this->testTake->results_published)
                 <div class="flex bg-cta/20 border-2 border-cta rounded-10 h-10 items-center px-4 text-ctamiddark gap-2 bold text-lg cursor-default">
-                    <x-icon.checkmark/>
-                    <x-icon.grade/>
+                    <x-icon.checkmark />
+                    <x-icon.grade />
                     <span>@lang('test-take.Resultaten gepubliceerd')</span>
                 </div>
             @endif
@@ -79,10 +79,10 @@
 @endif
 
 @section('action-buttons')
-    @if($this->testTake->is_rtti_test_take || true)
+    @if($this->testTake->is_rtti_test_take)
         <x-button.icon class="order-3"
                        :title="__('teacher.Exporteer naar RTTI Online')"
-                       wire:click="exportToRtti"
+                       wire:click="$emit('openModal', 'teacher.test-take.rtti-export-response-modal', {testTake: '{{ $this->testTake->uuid }}'})"
         >
             <x-icon.export />
         </x-button.icon>
@@ -546,15 +546,28 @@
                     </x-accordion.block>
                 </x-accordion.container>
 
-                <x-button.cta class="justify-center"
-                              :title="$this->publishButtonLabel()"
-                              :disabled="!$this->canPublishResults()"
-                              size="md"
-                              wire:click="publishResults"
-                >
-                    <x-icon.grade />
-                    <span>{{ $this->publishButtonLabel() }}</span>
-                </x-button.cta>
+                <x-partials.test-take-student-grades-changed-notification :show="$this->participantGradesChanged" />
+
+                <div class="flex flex-col justify-center gap-4">
+
+                    <x-button.cta class="w-full"
+                                  :title="$this->publishButtonLabel()"
+                                  :disabled="!$this->canPublishResults()"
+                                  size="md"
+                                  wire:click="publishResults"
+                    >
+                        <x-icon.grade />
+                        <span>{{ $this->publishButtonLabel() }}</span>
+                    </x-button.cta>
+
+                    @if($this->testTake->results_published)
+                        <div class="flex self-center bg-cta/20 border-2 border-cta rounded-10 h-10 items-center px-4 text-ctamiddark gap-2 bold text-lg cursor-default">
+                            <x-icon.checkmark />
+                            <x-icon.grade />
+                            <span>@lang('test-take.Resultaten gepubliceerd')</span>
+                        </div>
+                    @endif
+                </div>
             </div>
         </div>
     @endsection
@@ -663,7 +676,7 @@
                                     @endif
                                 </div>
                                 <div class="grid-item flex items-center group-hover/row:bg-offwhite pl-3 pr-5 rounded-r-10">
-                                    <div class="flex items-center gap-5">
+                                    <div class="flex items-center gap-5 bold">
                                         <div class="flex items-center gap-2">
                                             <x-button.icon
                                                     wire:click="$emit('openModal', 'message-create-modal', {receiver: '{{ $participant->user->uuid }}'})"
@@ -675,14 +688,14 @@
                                             <x-button.icon wire:click="assessParticipant('{{ $participant->uuid }}')"
                                                            :title="__('test-take.Nakijken')"
                                                            :disabled="$participant->testNotTaken"
-                                                           :color="$participant->rated === $this->takenTestData['questionCount'] ? 'primary' : 'cta'"
+                                                           :color="$this->assessmentDone ? 'primary' : 'cta'"
                                             >
                                                 <x-icon.review />
                                             </x-button.icon>
                                         </div>
 
                                         @if($participant->definitiveRating)
-                                            <x-mark-badge :rating="$participant->definitiveRating" />
+                                            <x-mark-badge :rating="$participant->definitiveRating"/>
                                         @endif
                                     </div>
                                 </div>
@@ -809,3 +822,7 @@
         </div>
     @endsection
 @endif
+
+@section('grade-change-notification')
+    <x-partials.test-take-student-grades-changed-notification :show="$this->participantGradesChanged" />
+@endsection
