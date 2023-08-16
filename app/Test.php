@@ -19,6 +19,7 @@ use tcCore\Lib\Question\QuestionGatherer;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Ramsey\Uuid\Uuid;
 use tcCore\Lib\Repositories\TaxonomyRepository;
+use tcCore\Services\ContentSource\ThiemeMeulenhoffService;
 use tcCore\Traits\ModelAttributePurifyTrait;
 use tcCore\Traits\PublishesTestsTrait;
 use tcCore\Traits\UserPublishing;
@@ -323,6 +324,18 @@ class Test extends BaseModel
             $query, $filters, $sorting);
     }
 
+    public function scopeThiemeMeulenHoffItemBankFiltered($query, $filters = [], $sorting = [])
+    {
+        $this->contentSourceFiltered(
+            'published_thieme_meulenhoff',
+            config('custom.thieme_meulenhoff_school_customercode'),
+            $query, $filters, $sorting)
+            ->whereIn(
+                'subject_id',
+                ThiemeMeulenhoffService::getBuilderWithAllowedSubjectIds(Auth::user())
+            );
+        return $query;
+    }
     public function scopeCreathlonItemBankFiltered($query, $filters = [], $sorting = [])
     {
         return $this->contentSourceFiltered(

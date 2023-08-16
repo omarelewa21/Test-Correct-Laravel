@@ -11,9 +11,9 @@ class SchoolYearRepository
         $period = PeriodRepository::getCurrentPeriod();
         if ($period) {
             return $period->schoolYear;
-        } else {
-            return null;
         }
+
+        return null;
     }
 
     public static function getCurrentSchoolYears()
@@ -22,6 +22,7 @@ class SchoolYearRepository
         if ($periods) {
             return $periods->map->schoolYear->unique();
         }
+
         return null;
     }
 

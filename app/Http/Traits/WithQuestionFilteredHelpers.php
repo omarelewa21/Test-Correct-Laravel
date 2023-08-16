@@ -23,11 +23,11 @@ trait WithQuestionFilteredHelpers
     private function handleFilterParams(&$query, $user, $filters = [])
     {
         $joins = [];
-        foreach($filters as $key => $value) {
-            switch($key) {
+        foreach ($filters as $key => $value) {
+            switch ($key) {
                 case 'base_subject_id':
-                    if(isset($filters['source'])){
-                        switch($filters['source']){
+                    if (isset($filters['source'])) {
+                        switch ($filters['source']) {
                             case 'schoolLocation': // only my colleages and me
                                 $subjectIdsBuilder = $user->subjects();
                                 break;
@@ -42,10 +42,10 @@ trait WithQuestionFilteredHelpers
                         $subjectIdsBuilder = $user->subjectsIncludingShared();
                     }
                     $subjectIdsBuilder->whereIn('base_subject_id', Arr::wrap($value))->select('subjects.id');
-                    $query->whereIn('subject_id',$subjectIdsBuilder->get());
+                    $query->whereIn('subject_id', $subjectIdsBuilder->get());
                     break;
                 case 'source':
-                    if(isset($filters['base_subject_id'])){
+                    if (isset($filters['base_subject_id'])) {
                         // we don't have to do anything, cause here above already caught;
                     } else {
                         switch ($filters['source']) {
@@ -68,9 +68,9 @@ trait WithQuestionFilteredHelpers
                     break;
                 case 'id':
                     if (is_array($value)) {
-                        $query->whereIn($this->table.'.id', $value);
+                        $query->whereIn($this->table . '.id', $value);
                     } else {
-                        $query->where($this->table.'.id', '=', $value);
+                        $query->where($this->table . '.id', '=', $value);
                     }
                     break;
                 case 'subject_id':
@@ -109,7 +109,7 @@ trait WithQuestionFilteredHelpers
                         break;
                     }
 
-                    switch(strtolower($filters['type'])) {
+                    switch (strtolower($filters['type'])) {
                         case 'matchingquestion':
                         case 'multiplechoicequestion':
                         case 'completionquestion':
@@ -126,14 +126,14 @@ trait WithQuestionFilteredHelpers
 
                     if (is_array($value)) {
                         $query->whereIn('subtype', $value);
-                    }elseif(strtolower($value) == 'long'){
+                    } elseif (strtolower($value) == 'long') {
                         $query->where('subtype', '=', 'long')->orWhere('subtype', '=', 'medium');
                     } else {
                         $query->where('subtype', '=', $value);
                     }
                     break;
                 case 'question':
-                    $query->where('question', 'LIKE', '%'.$value.'%');
+                    $query->where('question', 'LIKE', '%' . $value . '%');
                     break;
                 case 'add_to_database':
                     $query->where('add_to_database', '=', $value);
@@ -146,11 +146,11 @@ trait WithQuestionFilteredHelpers
                     break;
                 case 'author_id':
                     if (is_array($value)) {
-                        $query->join('question_authors','questions.id','=','question_authors.question_id')
-                            ->whereIn('question_authors.user_id',$value);
+                        $query->join('question_authors', 'questions.id', '=', 'question_authors.question_id')
+                            ->whereIn('question_authors.user_id', $value);
                     } else {
-                        $query->join('question_authors','questions.id','=','question_authors.question_id')
-                            ->where('question_authors.user_id','=',$value);
+                        $query->join('question_authors', 'questions.id', '=', 'question_authors.question_id')
+                            ->where('question_authors.user_id', '=', $value);
                     }
                     break;
                 case 'draft':
@@ -383,37 +383,23 @@ trait WithQuestionFilteredHelpers
 
     private function addSourceFilterToPublishedQuery(&$query, $source, $baseSubjectIds = [])
     {
-        $subjectsQuery = null;
+        $subjectsQuery = match ($source) {
+            'national'          => Subject::nationalItemBankFiltered(),
+            'creathlon'         => Subject::creathlonFiltered(),
+            'thieme_meulenhoff' => Subject::thiemeMeulenhoffFiltered(),
+            'olympiade'         => Subject::olympiadeFiltered(),
+            default             => null,
+        };
 
-        switch($source){
-            case 'national':
-                $subjectsQuery = Subject::nationalItemBankFiltered();
-
-                $baseSubjectsToGetSubjectsFor = $this->getBaseSubjectsToFilterWith($baseSubjectIds);
-                $subjectsQuery->whereIn('base_subject_id', $baseSubjectsToGetSubjectsFor);
-                break;
-            case 'creathlon':
-                $subjectsQuery = Subject::creathlonFiltered();
-
-                $baseSubjectsToGetSubjectsFor = $this->getBaseSubjectsToFilterWith($baseSubjectIds);
-                $subjectsQuery->whereIn('base_subject_id', $baseSubjectsToGetSubjectsFor);
-                break;
-            case 'olympiade':
-                $subjectsQuery = Subject::olympiadeFiltered();
-
-                $baseSubjectsToGetSubjectsFor = $this->getBaseSubjectsToFilterWith($baseSubjectIds);
-                $subjectsQuery->whereIn('base_subject_id', $baseSubjectsToGetSubjectsFor);
-                break;
-            default:
-                break;
-        }
-
-
-        if (isset($subjectsQuery) && $subjectsIds = $subjectsQuery->pluck('id')) {
-            return $query->whereIn('subject_id', $subjectsIds);
-        }
-
-        return $query;
+        return $query->when($subjectsQuery, function ($query) use ($subjectsQuery, $baseSubjectIds) {
+            $query->whereIn(
+                'subject_id',
+                $subjectsQuery->whereIn(
+                    'base_subject_id',
+                    $this->getBaseSubjectsToFilterWith($baseSubjectIds)
+                )->select('id')
+            );
+        });
     }
 
     private function getBaseSubjectsToFilterWith($baseSubjectIds = []): array
@@ -426,7 +412,7 @@ trait WithQuestionFilteredHelpers
             $baseSubjectsToGetSubjectsWith = collect($baseSubjectIds)->filter(function ($baseSubjectId) use ($allowedBaseSubjectsForUser) {
                 return $allowedBaseSubjectsForUser->contains($baseSubjectId);
             });
-            if($baseSubjectsToGetSubjectsWith->isEmpty()) {
+            if ($baseSubjectsToGetSubjectsWith->isEmpty()) {
                 throw new QuestionException('Cannot filter on base subjects not being given in the current period.');
             }
         }

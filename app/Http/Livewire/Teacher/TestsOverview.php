@@ -69,7 +69,7 @@ class TestsOverview extends OverviewComponent
 
     public function render()
     {
-        if($this->showQuestionBank)
+        if ($this->showQuestionBank)
             return view('livewire.teacher.question-bank-overview')->layout('layouts.app-teacher');
 
         $results = $this->getDatasource();
@@ -99,6 +99,9 @@ class TestsOverview extends OverviewComponent
                 break;
             case 'olympiade':
                 $datasource = $this->getOlympiadeDatasource();
+                break;
+            case 'thieme_meulenhoff':
+                $datasource = $this->getThiemeMeulenhoffDatasource();
                 break;
             case 'personal':
             default :
@@ -175,6 +178,15 @@ class TestsOverview extends OverviewComponent
         );
     }
 
+    private function getThiemeMeulenhoffDatasource()
+    {
+        return Test::thiemeMeulenhoffItemBankFiltered(
+            $this->getContentSourceFilters(),
+            $this->sorting
+        );
+    }
+
+
     protected function setFilters(array $filters = null): void
     {
         parent::setFilters($filters);
@@ -183,7 +195,6 @@ class TestsOverview extends OverviewComponent
             $this->mergeFiltersWithDefaults();
         }
     }
-
 
     public function getEducationLevelProperty()
     {
