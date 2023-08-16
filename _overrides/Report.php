@@ -1,5 +1,11 @@
 <?php
 
+/*
+ * Overloaded Bugsnag/Report class to filter out sensitive data that is structured differently from what the default filter can handle
+ * made changes to the following method:
+ *  cleanupObj():852 - :857
+ * */
+
 namespace Bugsnag;
 
 use BackedEnum;
@@ -842,8 +848,14 @@ class Report implements FeatureDataStore
         if (is_array($obj)) {
             $clean = [];
 
+            if(isset($obj['name']) && $obj['name'] == 'username') {
+                $obj['value'] = '[FILTERED]';
+            }
+            if(isset($obj['name']) && $obj['name'] == 'password') {
+                $obj['value'] = '[FILTERED]';
+            }
+
             foreach ($obj as $key => $value) {
-                logger(__METHOD__, [$obj]);
                 $clean[$key] = $this->shouldFilter($key, $isMetaData) ? '[FILTERED]' : $this->cleanupObj($value, $isMetaData);
             }
 
