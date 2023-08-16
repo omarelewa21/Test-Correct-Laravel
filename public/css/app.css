@@ -11276,14 +11276,14 @@ video {
 .mt-\[-1rem\]{
   margin-top: -1rem;
 }
-.mt-\[5px\]{
-  margin-top: 5px;
-}
 .mt-auto{
   margin-top: auto;
 }
 .mt-px{
   margin-top: 1px;
+}
+.mt-7{
+  margin-top: 1.75rem;
 }
 .box-border{
   box-sizing: border-box;

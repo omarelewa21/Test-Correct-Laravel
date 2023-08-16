@@ -52,6 +52,8 @@ class CoLearning extends TCComponent
 
     public $pollingFallbackActive = false;
 
+    public $answered = false;
+
     protected $queryString = [
         'answerRatingId'     => ['as' => 'e'],
         'coLearningFinished' => ['except' => false, 'as' => 'b']
@@ -329,6 +331,7 @@ class CoLearning extends TCComponent
             $this->noAnswerRatingAvailableForCurrentScreen = false;
 
             $this->setActiveAnswerRating($navigateDirection);
+            $this->answered = $this->answerRating->answer->isAnswered;
 
             $this->writeDiscussingAnswerRatingToDatabase();
 
@@ -476,4 +479,14 @@ class CoLearning extends TCComponent
         return $this->testTake->discussingQuestion;
     }
 
+
+
+    /* TODO colearning refactor */
+
+    public function isQuestionFullyAnswered()
+    {
+        //todo implement exceptions for different question types
+
+        return $this->answerRating->answer->isAnswered;
+    }
 }

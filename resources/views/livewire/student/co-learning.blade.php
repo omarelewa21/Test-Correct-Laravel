@@ -62,6 +62,82 @@
                                      :testParticipantUuid="$this->testParticipant->uuid"
                         />
                     </div>
+
+                    {{-- TODO START REFACTORING COLEARNING TO BLADE COMPONENT --}}
+                    {{-- add openQuestion Answer --}}
+
+                    <x-accordion.container
+                            :active-container-key="true ? 'answer' : ''"
+                            {{--:active-container-key="$this->answerPanel ? 'answer' : ''"--}}
+                                           :wire:key="'answer-section-'.$this->questionOrderNumber.'-'.$this->answerFollowUpNumber"
+                    >
+                        <x-accordion.block key="answer"
+                                           :coloredBorderClass="'student'"
+                                           :emitWhenSet="true"
+                                           :wire:key="'answer-section-block-'.$this->questionOrderNumber.'-'.$this->answerFollowUpNumber"
+                        >
+                            <x-slot:title>
+
+                {{-- START TITLE --}}
+                    <div class="question-title flex w-full items-center question-indicator mt-2 border-0 pb-0 mr-4">
+                        <div class="inline-flex question-number rounded-full text-center justify-center items-center {!! $this->answered ? 'complete': 'incomplete' !!}">
+                            <span class="align-middle cursor-default">{{ $this->questionOrderNumber }}</span>
+                        </div>
+                        @if($this->answerRating->answer->question->type !== 'InfoscreenQuestion')
+                            <h4 class="inline-block ml-2">  {{__('co-learning.answer')}} {{ $this->answerFollowUpNumber }}:</h4>
+                        @endif
+
+                        <h1 class="inline-block ml-2 mr-6"
+                            selid="questiontitle">{{ $this->answerRating->answer->question->type_name }}</h1>
+                        @if($this->answerRating->answer->question->type !== 'InfoscreenQuestion')
+                            <h4 class="inline-block">max. {{ $this->answerRating->answer->question->score }} pt</h4>
+                        @endif
+                        @if ($this->answered)
+                            @if($this->isQuestionFullyAnswered())
+                                <x-answered />
+                            @else
+                                <x-partly-answered />
+                            @endif
+                        @else
+                            <x-not-answered />
+                        @endif
+                    </div>
+                    {{-- END TITLE --}}
+                            </x-slot:title>
+                            <x-slot:body>
+
+
+
+                    <div class="student-answer | w-full | questionContainer"
+                         wire:key="student-answer-{{$this->testTake->discussingQuestion->uuid.'-'.$this->answerRating->answer->uuid}}-{{$this->answerFeedbackFilter}}"
+                    >
+                        {{-- TODO: Old component created an hash from updated at for the wire key for the comments plugin to stay in sync
+                                wire:key="editor-ar-{{$answerRatingId}}-{{$this->updatedAtHash}}"
+                        --}}
+                        <x-dynamic-component
+{{--                                :component="'answer.student.'. str($this->currentQuestion->type)->kebab()" --}}
+                                :component="'answer.student.'. str($this->answerRating->answer->question->type)->kebab()"
+                                :question="$this->testTake->discussingQuestion"
+{{--                                :answer="$this->currentAnswer"--}}
+                                :answer="$this->answerRating->answer"
+
+{{--                                :editorId="'editor-'.$this->questionNavigationValue.'-'.$this->answerNavigationValue"--}}
+                                :editorId="'editor-'.$this->answerRating->getKey()"
+
+                                :inAssessment="true" {{-- completion question has two blade views and this toggles them --}}
+                                :disabled-toggle="true" {{-- todo: disables some toggles in closed questions, find out what to do in colearning  --}}
+                                {{-- webspellchecker plugin --}}  {{--:webSpellChecker="$this->webSpellCheckerEnabled"--}}
+                                :webSpellChecker="$this->testTake->enable_spellcheck_colearning"
+                                {{-- comments plugin --}}
+                                :enableComments="$this->testTake->enable_comments_colearning"
+                                :commentMarkerStyles="$this->commentMarkerStyles"
+                                :answerFeedbackFilter="$this->answerFeedbackFilter"
+                        />
+                    </div>
+                            </x-slot:body>
+                        </x-accordion.block>
+                    </x-accordion.container>
+                    {{-- TODO END REFACTORING COLEARNING TO BLADE COMPONENT --}}
                 @endif
             </div>
         @endif

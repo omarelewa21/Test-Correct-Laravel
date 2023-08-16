@@ -6208,6 +6208,9 @@ video {
 .mt-px{
   margin-top: 1px;
 }
+.mt-7{
+  margin-top: 1.75rem;
+}
 .box-border{
   box-sizing: border-box;
 }
