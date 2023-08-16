@@ -9367,13 +9367,15 @@ document.addEventListener("alpine:init", function () {
           return _regeneratorRuntime().wrap(function _callee23$(_context23) {
             while (1) switch (_context23.prev = _context23.next) {
               case 0:
+                _this63.$store.answerFeedback.resetEditingComment();
+                console.log('init answer feedback');
                 _this63.dropdownOpened = questionType === 'OpenQuestion' ? 'given-feedback' : 'add-feedback';
                 if (!(questionType !== 'OpenQuestion')) {
-                  _context23.next = 3;
+                  _context23.next = 5;
                   break;
                 }
                 return _context23.abrupt("return");
-              case 3:
+              case 5:
                 _this63.setFocusTracking();
                 document.addEventListener('comment-color-updated', /*#__PURE__*/function () {
                   var _ref4 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee21(event) {
@@ -9440,7 +9442,7 @@ document.addEventListener("alpine:init", function () {
                   _this63.clearActiveComment();
                 });
                 _this63.preventOpeningModalFromBreakingDrawer();
-              case 9:
+              case 11:
               case "end":
                 return _context23.stop();
             }
@@ -9525,7 +9527,7 @@ document.addEventListener("alpine:init", function () {
                     while (1) switch (_context25.prev = _context25.next) {
                       case 0:
                         if (!answerEditor.plugins.get('CommentsRepository').activeCommentThread) {
-                          _context25.next = 22;
+                          _context25.next = 20;
                           break;
                         }
                         _context25.next = 3;
@@ -9547,24 +9549,22 @@ document.addEventListener("alpine:init", function () {
                           authorId: _this65.userId
                         });
                         updatedAnswerText = answerEditor.getData();
-                        updatedAnswerText = updatedAnswerText.replaceAll('&nbsp;', '');
-                        console.log(updatedAnswerText);
-                        _context25.next = 13;
+                        _context25.next = 11;
                         return _this65.$wire.saveNewComment({
                           uuid: feedback.uuid,
                           message: comment,
                           comment_color: comment_color,
                           comment_emoji: comment_emoji
                         }, updatedAnswerText);
-                      case 13:
+                      case 11:
                         commentStyles = _context25.sent;
-                        _context25.next = 16;
+                        _context25.next = 14;
                         return _this65.createCommentIcon({
                           uuid: feedback.uuid,
                           threadId: feedback.threadId,
                           iconName: comment_iconName
                         });
-                      case 16:
+                      case 14:
                         document.querySelector('#commentMarkerStyles').innerHTML = commentStyles;
                         _this65.hasFeedback = true;
                         _this65.$dispatch('answer-feedback-show-comments');
@@ -9573,21 +9573,21 @@ document.addEventListener("alpine:init", function () {
                           ClassicEditors[_this65.feedbackEditorId].setData('<p></p>');
                         }, 300);
                         return _context25.abrupt("return");
-                      case 22:
-                        _context25.next = 24;
+                      case 20:
+                        _context25.next = 22;
                         return _this65.$wire.createNewComment({
                           message: comment,
                           comment_color: null,
                           //no comment color when its a general ticket.
                           comment_emoji: comment_emoji
                         }, false);
-                      case 24:
+                      case 22:
                         feedback = _context25.sent;
                         _this65.hasFeedback = true;
                         _this65.$dispatch('answer-feedback-show-comments');
                         _this65.scrollToCommentCard(feedback.uuid);
                         feedbackEditor.setData('<p></p>');
-                      case 29:
+                      case 27:
                       case "end":
                         return _context25.stop();
                     }
@@ -10910,6 +10910,9 @@ document.addEventListener("alpine:init", function () {
         }
       }));
       Livewire.emit('closeModal');
+    },
+    resetEditingComment: function resetEditingComment() {
+      this.editingComment = null;
     }
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].store("studentPlayer", {
@@ -18283,7 +18286,14 @@ window.RichTextEditor = {
     });
   },
   setMathChemTypeReadOnly: function setMathChemTypeReadOnly(editor) {
-    editor.plugins.get('MathType').stopListening();
+    try {
+      editor.plugins.get('MathType').stopListening();
+    } catch (e) {
+      if (String(e.name).includes('CKEditorError')) {
+        return;
+      }
+      throw e;
+    }
   },
   setAnswerFeedbackEventListeners: function setAnswerFeedbackEventListeners(editor) {
     var focusIsInCommentEditor = function focusIsInCommentEditor() {
