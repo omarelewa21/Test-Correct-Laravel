@@ -719,8 +719,10 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             return;
         }
 
-        $firstAnswer = $this->getFirstAnswerWhichDoesntHaveATeacherOrSystemRating(
-        ) ?? $this->answersWithDiscrepancyFilter()->last();
+        $firstAnswer = $this->getFirstAnswerWhichDoesntHaveATeacherOrSystemRating()
+            ?? $this->answersWithDiscrepancyFilter()
+                ->whereIn('question_id', $this->getQuestionIdsForCurrentAssessmentType())
+                ->last();
         $this->setNavigationDataWithFirstUnscoredAnswer($firstAnswer);
     }
 
