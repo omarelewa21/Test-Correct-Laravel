@@ -406,19 +406,31 @@ class UsersController extends Controller
      */
 
     public function updateUserFeature($userUuid, Request $request)
-    {    
-        if (!Auth::user()->isA(['Administrator', 'Account manager'])) {
-            return Response::make('You are not authorized to update this feature', 403);
+    {
+        $user = User::whereUuid($userUuid)->first();
+        
+        if (!$user) {
+            return Response::json(['error' => 'User not found'], 404);
         }
-        $user=user::whereUuid($request['userUuid'])->first();
-        $setting = UserSystemSettingEnum::tryFrom($request->info);  
-        $title=$request->info;  
-        if(!$setting) {
-            return Response::make('No valid feature key found', 404);    
+
+        $settingKey = $request->input('info');
+
+        if (!$settingKey) {
+            return Response::json(['error' => 'No valid feature key found'], 400);
         }
-        UserSystemSetting::setSetting(
-            user: $user, title: $title, value: !UserSystemSetting::getSetting($user, $title));
-        return Response::json(['success' => 'Feature updated successfully.']);
+
+        $settingEnum = UserSystemSettingEnum::fromValue($settingKey);
+
+        if (!$settingEnum) {
+            return Response::json(['error' => 'Invalid setting key'], 400);
+        }
+
+        $currentValue = UserSystemSetting::getSetting($user, $settingKey);
+        $newValue = !$currentValue;
+
+        UserSystemSetting::setSetting($user, $settingKey, $newValue);
+
+        return Response::json(['success' => 'Feature updated successfully']);
     }
 
     public function getUserSystemSetting(Request $request)
