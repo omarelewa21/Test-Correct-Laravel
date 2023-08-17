@@ -10,29 +10,29 @@ use tcCore\Http\Enums\Traits\WithAttributes;
 use tcCore\Http\Enums\Traits\WithCasting;
 use tcCore\Http\Enums\Traits\WithValidation;
 
-enum UserSystemSetting: string
+enum UserSystemSetting: string 
 {
     use WithAttributes;
     use WithValidation;
     use WithCasting;
 
-    #[Initial(true)]
-    #[Type('bool')]
+    #[Initial(1)]
+    #[Type('int')]
     case ALLOW_NEW_CO_LEARNING_TEACHER = 'allow_new_co_learning_teacher';
-    #[Initial(true)]
-    #[Type('bool')]
+    #[Initial(1)]
+    #[Type('int')]
     case ALLOW_NEW_ASSESSMENT = 'allow_new_assessment';
 
-    public static function getInitialValues(): Collection
+    public static function initialValues(): Collection
     {
-        return collect(self::cases())->mapWithKeys(fn($enum) => [$enum->value => true]);
+        return collect(self::cases())->mapWithKeys(fn($enum) => [$enum->value => self::getInitialValue($enum)]);
     }
-
+    
     public static function getValidationRules(): Collection
     {
         return collect([
-            self::ALLOW_NEW_CO_LEARNING_TEACHER => 'required|boolean',
-            self::ALLOW_NEW_ASSESSMENT => 'required|boolean',
+            self::ALLOW_NEW_CO_LEARNING_TEACHER => 'required|in:0,1',
+            self::ALLOW_NEW_ASSESSMENT => 'required|in:0,1',
         ]);
     }
 
@@ -41,11 +41,11 @@ enum UserSystemSetting: string
         return collect([
             self::ALLOW_NEW_CO_LEARNING_TEACHER => [
                 'required' => 'The allow new co-learning teacher field is required.',
-                'boolean' => 'The allow new co-learning teacher field must be true or false.',
+                'in' => 'The allow new co-learning teacher field must be 0 or 1.',
             ],
             self::ALLOW_NEW_ASSESSMENT => [
                 'required' => 'The allow new assessment field is required.',
-                'boolean' => 'The allow new assessment field must be true or false.',
+                'in' => 'The allow new assessment field must be 0 or 1.',
             ],
         ]);
     }
