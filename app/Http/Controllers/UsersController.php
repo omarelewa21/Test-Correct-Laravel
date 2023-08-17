@@ -419,7 +419,7 @@ class UsersController extends Controller
             return Response::json(['error' => 'No valid feature key found'], 400);
         }
 
-        $settingEnum = UserSystemSettingEnum::fromValue($settingKey);
+        $settingEnum = UserSystemSettingEnum::tryFrom($settingKey);
 
         if (!$settingEnum) {
             return Response::json(['error' => 'Invalid setting key'], 400);
