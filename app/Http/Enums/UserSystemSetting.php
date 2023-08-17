@@ -25,11 +25,11 @@ enum UserSystemSetting: string
 
     public static function getInitialValues(): Collection
     {
-        return collect([
-            self::ALLOW_NEW_CO_LEARNING_TEACHER => true,
-            self::ALLOW_NEW_ASSESSMENT => true,
-        ]);
-    }
+        $initialValues = collect(self::cases())
+            ->mapWithKeys(fn ($enum) => [$enum->value => true]);
+    
+        return $initialValues;
+    }    
 
     public static function getValidationRules(): Collection
     {
