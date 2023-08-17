@@ -9,6 +9,7 @@
 namespace Bugsnag;
 
 use BackedEnum;
+use Bugsnag;
 use Bugsnag\Breadcrumbs\Breadcrumb;
 use Bugsnag\DateTime\Date;
 use Bugsnag\Internal\FeatureFlagDelegate;
@@ -829,6 +830,7 @@ class Report implements FeatureDataStore
         ];
     }
 
+
     /**
      * Cleanup the given object.
      *
@@ -848,10 +850,7 @@ class Report implements FeatureDataStore
         if (is_array($obj)) {
             $clean = [];
 
-            if(isset($obj['name']) && $obj['name'] == 'username') {
-                $obj['value'] = '[FILTERED]';
-            }
-            if(isset($obj['name']) && $obj['name'] == 'password') {
+            if(isset($obj['name'])&& in_array($obj['name'], $this->config->getRedactedKeys())) {
                 $obj['value'] = '[FILTERED]';
             }
 
