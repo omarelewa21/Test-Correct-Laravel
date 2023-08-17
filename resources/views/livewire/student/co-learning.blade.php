@@ -84,13 +84,13 @@
                             <span class="align-middle cursor-default">{{ $this->questionOrderNumber }}</span>
                         </div>
                         @if($this->answerRating->answer->question->type !== 'InfoscreenQuestion')
-                            <h4 class="inline-block ml-2">  {{__('co-learning.answer')}} {{ $this->answerFollowUpNumber }}:</h4>
+                            <h5 class="inline-block ml-2">  {{__('co-learning.answer')}} {{ $this->answerFollowUpNumber }}:</h5>
                         @endif
 
-                        <h1 class="inline-block ml-2 mr-6"
-                            selid="questiontitle">{{ $this->answerRating->answer->question->type_name }}</h1>
+                        <h2 class="inline-block ml-2 mr-6"
+                            selid="questiontitle">{{ $this->answerRating->answer->question->type_name }}</h2>
                         @if($this->answerRating->answer->question->type !== 'InfoscreenQuestion')
-                            <h4 class="inline-block">max. {{ $this->answerRating->answer->question->score }} pt</h4>
+                            <h7 class="inline-block">max. {{ $this->answerRating->answer->question->score }} pt</h7>
                         @endif
                         @if ($this->answered)
                             @if($this->isQuestionFullyAnswered())
