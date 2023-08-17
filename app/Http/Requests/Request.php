@@ -78,7 +78,6 @@ abstract class Request extends FormRequest {
 
     public static function filter(&$input)
     {
-        Bugsnag::notifyException(new \Exception('Testing exception for TCP-3323, not a real exception, ignore this event'));
         //sanitize input to prevent XSS
         //value is passed as reference
         if (is_array($input)) {
