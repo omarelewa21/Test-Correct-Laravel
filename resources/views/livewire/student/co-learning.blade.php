@@ -9,6 +9,8 @@
                 @js($this->hasFeedback)
              )"
      x-on:resize.window.debounce.50ms="repositionAnswerFeedbackIcons()"
+     {{-- TODO: use toggle value updated event --}}
+     {{--x-on:slider-toggle-value-updated.window="toggleTicked($event.detail)"--}}
      wire:key="ar-{{ $this->answerRating->getKey() }}-fe-{{$this->questionFollowUpNumber .'-'. $this->answerFollowUpNumber}}"
      @endif
 >
@@ -38,30 +40,30 @@
             </div>
         @else
             <div class="flex flex-col w-full" wire:key="q-{{$testTake->discussingQuestion->uuid}}">
-                @if($this->noAnswerRatingAvailableForCurrentScreen)
-                    <div class="w-full">
-                        <livewire:co-learning.info-screen-question
-                                :question="$this->testTake->discussingQuestion"
-                                :questionNumber="$questionOrderNumber"
-                                :answerNumber="$answerFollowUpNumber"
-                                wire:key="q-{{$testTake->discussingQuestion->uuid}}"
-                        />
-                    </div>
-                @else
-                    <div class="w-full">
-                        <livewire:is :component="$this->questionComponentName"
-                                     :answerRatingId="$this->answerRating->getKey()"
-                                     :questionNumber="$questionOrderNumber"
-                                     :answerNumber="$answerFollowUpNumber"
-                                     :wire:key="'ar-'. $this->answerRating->getKey()"
-                                     :webSpellChecker="$this->testTake->enable_spellcheck_colearning"
-                                     :inlineFeedbackEnabled="$this->testTake->enable_comments_colearning"
-                                     :commentMarkerStyles="$this->commentMarkerStyles"
-                                     :answerId="$this->answerRating->answer->getKey()"
-                                     :answerFeedbackFilter="$this->answerFeedbackFilter"
-                                     :testParticipantUuid="$this->testParticipant->uuid"
-                        />
-                    </div>
+{{--                @if(false && $this->noAnswerRatingAvailableForCurrentScreen)--}}
+{{--                    <div class="w-full">--}}
+{{--                        <livewire:co-learning.info-screen-question--}}
+{{--                                :question="$this->testTake->discussingQuestion"--}}
+{{--                                :questionNumber="$questionOrderNumber"--}}
+{{--                                :answerNumber="$answerFollowUpNumber"--}}
+{{--                                wire:key="q-{{$testTake->discussingQuestion->uuid}}"--}}
+{{--                        />--}}
+{{--                    </div>--}}
+{{--                @else--}}
+{{--                    <div class="w-full">--}}
+{{--                        <livewire:is :component="$this->questionComponentName"--}}
+{{--                                     :answerRatingId="$this->answerRating->getKey()"--}}
+{{--                                     :questionNumber="$questionOrderNumber"--}}
+{{--                                     :answerNumber="$answerFollowUpNumber"--}}
+{{--                                     :wire:key="'ar-'. $this->answerRating->getKey()"--}}
+{{--                                     :webSpellChecker="$this->testTake->enable_spellcheck_colearning"--}}
+{{--                                     :inlineFeedbackEnabled="$this->testTake->enable_comments_colearning"--}}
+{{--                                     :commentMarkerStyles="$this->commentMarkerStyles"--}}
+{{--                                     :answerId="$this->answerRating->answer->getKey()"--}}
+{{--                                     :answerFeedbackFilter="$this->answerFeedbackFilter"--}}
+{{--                                     :testParticipantUuid="$this->testParticipant->uuid"--}}
+{{--                        />--}}
+{{--                    </div>--}}
 
                     {{-- TODO START REFACTORING COLEARNING TO BLADE COMPONENT --}}
                     {{-- add openQuestion Answer --}}
@@ -124,21 +126,23 @@
 {{--                                :editorId="'editor-'.$this->questionNavigationValue.'-'.$this->answerNavigationValue"--}}
                                 :editorId="'editor-'.$this->answerRating->getKey()"
 
-                                :inAssessment="true" {{-- completion question has two blade views and this toggles them --}}
-                                :disabled-toggle="true" {{-- todo: disables some toggles in closed questions, find out what to do in colearning  --}}
+                                :inCoLearning="true"
+                                :inAssessment="false" {{-- completion question has two blade views and this toggles them --}}
+                                :disabled-toggle="false" {{-- todo: disables some toggles in closed questions, find out what to do in colearning  --}}
                                 {{-- webspellchecker plugin --}}  {{--:webSpellChecker="$this->webSpellCheckerEnabled"--}}
                                 :webSpellChecker="$this->testTake->enable_spellcheck_colearning"
                                 {{-- comments plugin --}}
                                 :enableComments="$this->testTake->enable_comments_colearning"
                                 :commentMarkerStyles="$this->commentMarkerStyles"
                                 :answerFeedbackFilter="$this->answerFeedbackFilter"
+
                         />
                     </div>
                             </x-slot:body>
                         </x-accordion.block>
                     </x-accordion.container>
                     {{-- TODO END REFACTORING COLEARNING TO BLADE COMPONENT --}}
-                @endif
+{{--                @endif--}}
             </div>
         @endif
         <x-slot name="testName">{{  $testTake->test->name }}</x-slot>

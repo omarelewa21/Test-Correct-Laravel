@@ -21,6 +21,7 @@ class CompletionQuestion extends QuestionComponent
         public bool     $disabledToggle = false,
         public bool     $showToggles = true,
         public bool     $inAssessment = false,
+        public bool     $inCoLearning = false,
     ) {
         parent::__construct($question, $answer);
     }
@@ -126,7 +127,7 @@ class CompletionQuestion extends QuestionComponent
 
     public function render()
     {
-        if (!$this->inAssessment) {
+        if (!($this->inAssessment || $this->inCoLearning)) {
             return view("components.answer.student.completion-question");
         }
 

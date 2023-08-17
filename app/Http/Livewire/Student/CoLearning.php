@@ -423,9 +423,9 @@ class CoLearning extends TCComponent
         if ($this->testTake->discussing_question_id === null) {
             return $this->redirectToWaitingRoom();
         }
-        if ($this->testTake->discussion_type !== 'OPEN_ONLY') {
-            return $this->redirectToTestTakesToBeDiscussed();
-        }
+//        if ($this->testTake->discussion_type !== 'OPEN_ONLY') {
+//            return $this->redirectToTestTakesToBeDiscussed();
+//        }
         if ($this->testTake->test_take_status_id < TestTakeStatus::STATUS_DISCUSSING) {
             return $this->redirectToTestTakesToBeDiscussed();
         }

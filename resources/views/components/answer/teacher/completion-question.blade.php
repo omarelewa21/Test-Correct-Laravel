@@ -23,8 +23,9 @@
             </span>
             @if($studentAnswer && $showToggles)
                 <x-button.true-false-toggle
-                        :disabled="$question->isSubType('multi') || !$answerStruct->get($answerIndex)->answered"
+                        :disabled="($disabledToggle && $question->isSubType('multi')) || !$answerStruct->get($answerIndex)->answered"
                         :initialStatus="$answerStruct->get($answerIndex)->activeToggle"
+                        {{-- TODO COLearning: set initial status to json value on answerRating, but first set values in that json field --}}
                         :toggleValue="$answerStruct->get($answerIndex)->score"
                         :identifier="$answerStruct->get($answerIndex)->tag"
                 />
