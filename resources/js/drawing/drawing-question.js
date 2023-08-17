@@ -608,7 +608,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             events: {
                 "input": {
                     callback: () => {
-                        valueWithinBounds(UI.lineWidth);
+                        valueWithinBounds(UI.lineWidth) && editShape('updateLineWidth');
                     }
                 },
                 "blur": {
@@ -625,6 +625,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
                     callback: () => {
                         UI.lineWidth.stepDown();
                         toggleDisableButtonStates(UI.lineWidth, UI.decrLineWidth, UI.incrLineWidth);
+                        editShape('updateLineWidth');
                     },
                 },
                 "focus": {
@@ -646,6 +647,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
                     callback: () => {
                         UI.lineWidth.stepUp();
                         toggleDisableButtonStates(UI.lineWidth, UI.decrLineWidth, UI.incrLineWidth);
+                        editShape('updateLineWidth');
                     },
                 },
                 "focus": {
