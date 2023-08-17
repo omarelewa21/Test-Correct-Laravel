@@ -850,7 +850,7 @@ class Report implements FeatureDataStore
         if (is_array($obj)) {
             $clean = [];
 
-            if(isset($obj['name'])&& in_array($obj['name'], $this->config->getRedactedKeys())) {
+            if(isset($obj['name']) && $this->shouldFilter($obj['name'], $isMetaData)) {
                 $obj['value'] = '[FILTERED]';
             }
 
