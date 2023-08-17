@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Http\Helpers;
+namespace Tests\Unit\Http\Helpers;
 
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use tcCore\FactoryScenarios\FactoryScenarioSchoolSimple;
