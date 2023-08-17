@@ -1416,6 +1416,6 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
     public function setWebspellcheckerEnabled(): void
     {
-        $this->webSpellCheckerEnabled = auth()->user()->schoolLocation()->value('allow_wsc');
+        $this->webSpellCheckerEnabled = auth()->user()->schoolLocation()->value('allow_wsc') ?? false;
     }
 }

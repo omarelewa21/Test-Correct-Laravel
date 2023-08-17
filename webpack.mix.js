@@ -1,6 +1,6 @@
-const mix = require('laravel-mix');
-const fs = require('fs');
-const { execSync } = require('child_process');
+const mix = require("laravel-mix");
+const fs = require("fs");
+const { execSync } = require("child_process");
 
 /*
  |--------------------------------------------------------------------------
@@ -13,27 +13,33 @@ const { execSync } = require('child_process');
  |
  */
 
-const autoprefixer = require('autoprefixer');
+/* Whenever a --stats-children warning occurs, enable this to track down the issue in the file (usually CSS) */
+// mix.webpackConfig({
+//     stats: {
+//         children: true,
+//     },
+// });
+const autoprefixer = require("autoprefixer");
 
 mix.postCss("resources/css/app.css", "public/css/", [
-    require("tailwindcss"),
-]).js('resources/js/app.js', 'public/js/');
+    require("tailwindcss")
+]).js("resources/js/app.js", "public/js/");
 
-if(typeof process.env.MIX_DEVELOPMENT_BUILD !== 'undefined' && process.env.MIX_DEVELOPMENT_BUILD === 'true') {
-    console.info('Asset building in development mode.');
+if (typeof process.env.MIX_DEVELOPMENT_BUILD !== "undefined" && process.env.MIX_DEVELOPMENT_BUILD === "true") {
+    console.info("Asset building in development mode.");
 }
 
-if(typeof process.env.MIX_DEVELOPMENT_BUILD === 'undefined' || process.env.MIX_DEVELOPMENT_BUILD === 'false') {
-    console.info('Asset building in production mode.');
+if (typeof process.env.MIX_DEVELOPMENT_BUILD === "undefined" || process.env.MIX_DEVELOPMENT_BUILD === "false") {
+    console.info("Asset building in production mode.");
     mix.postCss("resources/css/app_pdf.css", "public/css/", [
-        require("tailwindcss"),
+        require("tailwindcss")
     ]).postCss("resources/css/print-test-pdf.css", "public/css/", [
         autoprefixer({
             overrideBrowserslist: [
                 "chrome 6", "safari 5.1"
             ]
         })
-    ])
+    ]);
 }
 
 

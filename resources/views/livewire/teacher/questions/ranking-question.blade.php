@@ -17,7 +17,7 @@
     </div>
     <div class="flex flex-col space-y-2 w-full mt-4"
          @if(!isset($preview)) wire:sortable="__call('updateRankingOrder')" @endif>
-        <div class="flex px-0 py-0 border-0 bg-system-white">
+        <div class="flex px-0 py-0 border-0 bg-white">
             <div class="w-full mr-2">{{ __('cms.Stel je te rangschikken items op') }}</div>
             <div class="w-20"></div>
         </div>
@@ -38,7 +38,7 @@
             @endphp
             @enderror
             <x-drag-item id="mc-{{$answer->id}}"
-                         class="flex px-0 py-0 border-0 bg-system-white relative"
+                         class="flex px-0 py-0 border-0 bg-white relative"
                          sortId="{{ $answer->order }}"
                          wireKey="option-{{ $answer->id }}"
                          selid="drag-box"

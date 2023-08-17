@@ -129,8 +129,8 @@ class AssessmentTest extends TestCase
     public function can_see_student_names_when_toggle_enabled()
     {
         Livewire::test(Assessment::class, ['testTake' => $this->testTake])
-            ->assertSet('assessmentContext.showStudentNames', false)
-            ->set('assessmentContext.showStudentNames', true)
+            ->assertSet('assessmentContext.assessment_show_student_names', false)
+            ->set('assessmentContext.assessment_show_student_names', true)
             ->call('handleHeaderCollapse', ['ALL', false])
             ->call('loadQuestion', 2, 'incr') //Load second question because first is infoscreen;
             ->assertSeeHtml(

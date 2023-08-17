@@ -13,7 +13,7 @@
 @section('question-cms-answer')
     <div class="flex flex-col space-y-2 w-full mt-4"
     >
-        <div class="flex px-0 py-0 border-0 bg-system-white justify-between relative flex-col">
+        <div class="flex px-0 py-0 border-0 bg-white justify-between relative flex-col">
 
             <div class="flex flex-col w-full space-y-2">
                 <div class="flex w-full border-b border-system-base pb-2 bold">

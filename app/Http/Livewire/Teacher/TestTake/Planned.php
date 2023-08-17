@@ -59,11 +59,12 @@ class Planned extends TestTakeComponent
 
     public function startTake(): void
     {
-        $warnings = collect([
-            'browser_testing' => $this->testTake->allow_inbrowser_testing,
-            'guest_accounts' => $this->testTake->guest_accounts,
-            'participants_incomplete' => $this->participants->count() !== $this->activeParticipantUuids->count(),
-        ])->filter();
+        if (!$this->canStartTestTake()) {
+            $this->addError('cannot_start_take_before_start_date', [__('auth.something_went_wrong')]);
+            return;
+        }
+
+        $warnings = $this->getWarningsAboutStartingTake();
 
         if ($warnings->isNotEmpty()) {
             $this->emit(
@@ -81,5 +82,14 @@ class Planned extends TestTakeComponent
     public function breadcrumbTitle(): string
     {
         return __('header.Mijn ingeplande toetsen');
+    }
+
+    public function getWarningsAboutStartingTake(): Collection
+    {
+        return collect([
+            'browser_testing'         => $this->testTake->allow_inbrowser_testing,
+            'guest_accounts'          => $this->testTake->guest_accounts,
+            'participants_incomplete' => $this->participants->count() !== $this->activeParticipantUuids->count(),
+        ])->filter();
     }
 }

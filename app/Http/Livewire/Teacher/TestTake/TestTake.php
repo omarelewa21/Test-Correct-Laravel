@@ -4,6 +4,7 @@ namespace tcCore\Http\Livewire\Teacher\TestTake;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\View\AnonymousComponent;
 use tcCore\Events\TestTakePresenceEvent;
 use tcCore\Http\Livewire\TCComponent;
@@ -31,6 +32,9 @@ abstract class TestTake extends TCComponent
 
     public function mount(TestTakeModel $testTake): void
     {
+        if (Gate::denies('canUseTestTakeDetailPage')) {
+            TestTakeModel::redirectToDetail($testTake->uuid);
+        }
         $this->testTakeUuid = $testTake->uuid;
         $this->setTestTake($testTake);
         $this->fillGridData();

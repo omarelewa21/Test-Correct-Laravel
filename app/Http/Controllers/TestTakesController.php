@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Response;
 use Maatwebsite\Excel\Facades\Excel;
 use tcCore\AnswerRating;
@@ -1328,6 +1329,10 @@ class TestTakesController extends Controller
 
     public function openDetail(TestTake $testTake, Request $request)
     {
+        if (Gate::denies('canUseTestTakeDetailPage')) {
+            return TestTake::redirectToDetail($testTake->uuid);
+        }
+
         if ($testTake->test_take_status_id === TestTakeStatus::STATUS_PLANNED) {
             return redirect(route('teacher.test-take.planned', $testTake->uuid). '?' . $request->getQueryString());
         }
@@ -1338,6 +1343,6 @@ class TestTakesController extends Controller
             return redirect(route('teacher.test-take.taken', $testTake->uuid). '?' . $request->getQueryString());
         }
 
-        return TestTake::redirectToDetail($testTake->uuid, url()->referrer());
+        return TestTake::redirectToDetail($testTake->uuid);
     }
 }
