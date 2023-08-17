@@ -33,6 +33,7 @@ return [
     'Zoom uit'                           => 'Zoom uit',
     'Zoom in'                            => 'Zoom in',
     'Verwijderen'                        => 'Verwijderen',
+    'edit'                               => 'Opstellen',
     'Ontgrendelen'                       => 'Ontgrendelen',
     'Vergrendelen'                       => 'Vergrendelen',
     'Tonen'                              => 'Tonen',
