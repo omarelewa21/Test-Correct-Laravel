@@ -25,11 +25,8 @@ enum UserSystemSetting: string
 
     public static function getInitialValues(): Collection
     {
-        $initialValues = collect(self::cases())
-            ->mapWithKeys(fn ($enum) => [$enum->value => true]);
-    
-        return $initialValues;
-    }    
+        return collect(self::cases())->mapWithKeys(fn($enum) => [$enum->value => true]);
+    }
 
     public static function getValidationRules(): Collection
     {
