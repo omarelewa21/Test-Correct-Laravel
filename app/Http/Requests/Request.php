@@ -1,6 +1,5 @@
 <?php namespace tcCore\Http\Requests;
 
-use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\UploadedFile;
@@ -78,7 +77,6 @@ abstract class Request extends FormRequest {
 
     public static function filter(&$input)
     {
-        Bugsnag::notifyException(new \Exception('Exception testing for TCP-3323: ignore this event, not a real exception'));
         //sanitize input to prevent XSS
         //value is passed as reference
         if (is_array($input)) {
