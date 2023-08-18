@@ -49,6 +49,7 @@ export class Entry extends sidebarComponent {
         this.drawingApp.bindEventListeners(this.eventListenerSettings, this);
         this.updateLockState();
         this.updateHideState();
+        this.customizeButtonsAccordingToType();
 
         this.deleteModal = this.root.querySelector('#delete-confirm');
         this.skipEntryContainerClick = false;
@@ -268,6 +269,7 @@ export class Entry extends sidebarComponent {
         this.svgShape.shapeGroup.element.classList.add('selected');
     }
     unselect(element) {
+        element = element ?? this.getSelectedElement();
         const shapeId = element.id.substring(6);
         element.classList.remove('selected');
         element.closest('#canvas-sidebar-container').querySelector(`#${shapeId}`).classList.remove('selected');
@@ -308,15 +310,16 @@ export class Entry extends sidebarComponent {
 
         if(!selectedEl) return this.startEditingShape();
 
-        if(selectedEl.classList.contains('editing')) {
-            this.removeEditingShape();
+        if(selectedEl === this.entryContainer) {
+            if(selectedEl.classList.contains('editing')) return;
 
-            if(selectedEl === this.entryContainer) return;
-
-            this.unselect(selectedEl);
-            this.select();
+            this.skipEntryContainerClick = true;
+            this.startEditingShape();
+            return;
         }
 
+        this.unselect(selectedEl);
+        this.select();
         this.skipEntryContainerClick = true;
         this.startEditingShape();
     }
@@ -370,6 +373,14 @@ export class Entry extends sidebarComponent {
     showConfirmDelete() {
         this.drawingApp.params.deleteSubject = this;
         this.deleteModal.classList.toggle('open');
+    }
+
+    customizeButtonsAccordingToType() {
+        if (this.type === "image"){
+            const editButton = this.btns.edit;
+            editButton.style.color = "grey";
+            editButton.disabled = true;
+        }
     }
 }
 
