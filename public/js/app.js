@@ -12404,6 +12404,12 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     currentToolIs: function currentToolIs(toolname) {
       return this.params.currentTool === toolname;
     },
+    toolAndShapeOfSameType: function toolAndShapeOfSameType(element) {
+      return this.getElementShapeType(element) === this.params.currentTool;
+    },
+    getElementShapeType: function getElementShapeType(element) {
+      return element.id.split("-")[0];
+    },
     isTeacher: function isTeacher() {
       return this.params.isTeacher;
     }
@@ -12861,7 +12867,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     events: {
       "input": {
         callback: function callback() {
-          valueWithinBounds(UI.lineWidth);
+          valueWithinBounds(UI.lineWidth) && editShape('updateLineWidth');
         }
       },
       "blur": {
@@ -12877,6 +12883,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         callback: function callback() {
           UI.lineWidth.stepDown();
           toggleDisableButtonStates(UI.lineWidth, UI.decrLineWidth, UI.incrLineWidth);
+          editShape('updateLineWidth');
         }
       },
       "focus": {
@@ -12897,6 +12904,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         callback: function callback() {
           UI.lineWidth.stepUp();
           toggleDisableButtonStates(UI.lineWidth, UI.decrLineWidth, UI.incrLineWidth);
+          editShape('updateLineWidth');
         }
       },
       "focus": {
@@ -14253,6 +14261,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     makeSelectedBtnActive(evt.currentTarget);
     enableSpecificPropSelectInputs();
     setCursorTypeAccordingToCurrentType();
+    unselectShapeIfNecessary();
     if (!drawingApp.currentToolIs("drag")) {
       drawingApp.warnings.whenAnyToolButDragSelected.show();
     }
@@ -14279,6 +14288,17 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
       startOfSlice = 0;
     }
     return id.slice(startOfSlice, endOfSlice);
+  }
+  function unselectShapeIfNecessary() {
+    var selectedEl = rootElement.querySelector('.selected');
+    if (shouldUnselectShape(selectedEl)) {
+      var layerObject = Canvas.layers[Canvas.layerID2Key(selectedEl.parentElement.id)];
+      var elementLayerClass = layerObject.shapes[selectedEl.id];
+      elementLayerClass.sidebar.unselect();
+    }
+  }
+  function shouldUnselectShape(selectedEl) {
+    return selectedEl && !drawingApp.currentToolIs("drag") && !drawingApp.toolAndShapeOfSameType(selectedEl);
   }
   function processEndmarkerTypeChange(evt) {
     drawingApp.params.endmarkerType = determineNewEndmarkerType(evt);
@@ -14717,13 +14737,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     incrButton.disabled = currentValue === max;
   }
   function checkIfShouldeditShape(selectedEl) {
-    return selectedEl && checkIfFocusedDataButtonIsSameAsSelectedElement(selectedEl);
-  }
-  function checkIfFocusedDataButtonIsSameAsSelectedElement(selectedEl) {
-    var currentDataButton = rootElement.querySelector('[data-button-group=tool].active');
-    if (!currentDataButton) return false;
-    var shapeType = selectedEl.id.split('-')[0];
-    return shapeType === currentDataButton.id.split('-')[1];
+    return selectedEl && drawingApp.toolAndShapeOfSameType(selectedEl);
   }
   function editShape(functionName) {
     var selectedEl = rootElement.querySelector('.editing');
@@ -14735,8 +14749,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
   function ShouldEditTextOnClick() {
     var selectedEl = rootElement.querySelector('.editing');
     if (!checkIfShouldeditShape(selectedEl)) return;
-    var shapeType = selectedEl.id.split('-')[0];
-    return shapeType === 'text' && Canvas.params.editingTextInZone;
+    return drawingApp.currentToolIs('text') && Canvas.params.editingTextInZone;
   }
   return {
     UI: UI,
@@ -15184,7 +15197,10 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
     }
   }, {
     key: "unselect",
-    value: function unselect(element) {
+    value: function unselect() {
+      var _element;
+      var element = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+      element = (_element = element) !== null && _element !== void 0 ? _element : this.getSelectedElement();
       var shapeId = element.id.substring(6);
       element.classList.remove('selected');
       element.closest('#canvas-sidebar-container').querySelector("#".concat(shapeId)).classList.remove('selected');
@@ -17291,6 +17307,11 @@ var svgShape = /*#__PURE__*/function () {
     value: function updateStrokeWidth() {
       this.mainElement.setAttribute("stroke-width", this.UI.strokeWidth.value);
     }
+  }, {
+    key: "updateLineWidth",
+    value: function updateLineWidth() {
+      this.mainElement.setAttribute("stroke-width", this.UI.lineWidth.value);
+    }
   }]);
   return svgShape;
 }();
@@ -17863,6 +17884,7 @@ function encode(input) {
 
 // public method for decoding
 function decode(input) {
+  if (!input) return "";
   var output = "";
   var chr1, chr2, chr3;
   var enc1, enc2, enc3, enc4;
