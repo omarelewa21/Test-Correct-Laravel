@@ -15,10 +15,10 @@ export const validSvgElementKeys = {
 
 export const shapePropertiesAvailableToUser = {
     drag: [],
-    freehand: ["edge"],
+    freehand: ["line"],
     rect: ["edge", "fill"],
     circle: ["edge", "fill"],
-    line: ["edge", "endmarker-type"],
+    line: ["line", "endmarker-type"],
     text: ["opacity", "text-style"],
 };
 
