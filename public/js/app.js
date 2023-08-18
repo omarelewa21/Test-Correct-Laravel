@@ -16898,7 +16898,7 @@ var svgShape = /*#__PURE__*/function () {
       this.hideHelperElements();
     }
     this.withHighlightEvents = withHighlightEvents;
-    this.UI = Canvas.UI;
+    this.UI = Canvas === null || Canvas === void 0 ? void 0 : Canvas.UI;
   }
   _createClass(svgShape, [{
     key: "makeMainElementOfRightType",
