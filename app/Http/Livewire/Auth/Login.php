@@ -19,6 +19,9 @@ use tcCore\Http\Helpers\TestTakeCodeHelper;
 use tcCore\Http\Livewire\TCComponent;
 use tcCore\Http\Requests\Request;
 use tcCore\Jobs\SendForgotPasswordMail;
+use tcCore\Rules\EmailDns;
+use tcCore\Rules\EmailImproved;
+use tcCore\Rules\TrueFalseRule;
 use tcCore\SamlMessage;
 use tcCore\Services\EmailValidatorService;
 use tcCore\User;
@@ -81,8 +84,6 @@ class Login extends TCComponent
 //    public $entreeTab = false;
 
     public $showTestCode = false;
-    public $loginButtonDisabled = true;
-    public $guestLoginButtonDisabled = true;
     public $forgotPasswordButtonDisabled = true;
     public $connectEntreeButtonDisabled = true;
 
@@ -102,12 +103,26 @@ class Login extends TCComponent
 
     public $studentDownloadUrl = 'https://www.test-correct.nl/student/';
 
+    public $errorKeys = [];
+
     protected $listeners = ['open-auth-modal' => 'openAuthModal', 'password_reset' => 'passwordReset'];
 
-    protected $rules = [
-        'username' => 'required|email',
-        'password' => 'required',
-    ];
+    protected function getRules()
+    {
+        return [
+            'username' => ['required', new EmailImproved],
+            'password' => 'required',
+        ];
+    }
+
+    public function getCustomValidator(): Login|m
+    {
+        return $this->withValidator(function (\Illuminate\Validation\Validator $validator) {
+            $validator->after(function ($validator) {
+                $this->errorKeys = array_keys($validator->failed());
+            });
+        });
+    }
 
     protected function messages(): array
     {
@@ -115,6 +130,7 @@ class Login extends TCComponent
             'password.required' => __('auth.password_required'),
             'username.required' => __('auth.email_required'),
             'username.email'    => __('auth.email_incorrect'),
+            'username.EmailImproved'    => __('auth.email_incorrect') . 2,
         ];
     }
 
@@ -145,21 +161,24 @@ class Login extends TCComponent
         }
 
         $this->username = trim($this->username);
-        $credentials = $this->validate();
+
+        $credentials = $this->getCustomValidator()->validate();
 
         if (!auth()->attempt($credentials)) {
             if ($this->requireCaptcha) {
                 $this->reset('captcha');
-                $this->dispatchBrowserEvent('refresh-captcha');
+                $this->dispatchBrowserEvent('refresh-captcha', ['src' => captcha_src()]);
                 return;
             }
             $this->createFailedLogin();
             $this->addError('invalid_user', __('auth.failed'));
+            $this->errorKeys = ['invalid_user'];
             return;
         }
 
         if ((Auth()->user()->isA('teacher') || Auth()->user()->isA('student')) && EntreeHelper::shouldPromptForEntree(auth()->user())) {
             auth()->logout();
+            $this->errorKeys = ['should_first_go_to_entree'];
             return $this->addError('should_first_go_to_entree', __('auth.should_first_login_using_entree'));
         }
 
@@ -181,7 +200,7 @@ class Login extends TCComponent
 //        }
 
         $expiration_date = $user->password_expiration_date;
-        if($expiration_date && $expiration_date->lessThan(Carbon::now())) {
+        if ($expiration_date && $expiration_date->lessThan(Carbon::now())) {
             return $this->emit('openModal', 'force-password-change-modal');
         }
         return $this->redirect($route);
@@ -194,6 +213,7 @@ class Login extends TCComponent
         }
 
         if (!$this->isTestTakeCodeCorrectFormat()) {
+            $this->errorKeys = ['invalid_test_code'];
             return $this->addError('invalid_test_code', __('auth.test_code_invalid'));
         }
 
@@ -201,10 +221,12 @@ class Login extends TCComponent
 
         $testTakeCode = $testCodeHelper->getTestTakeCodeIfExists($this->testTakeCode);
         if (!$testTakeCode || !$testTakeCode->testTake) {
+            $this->errorKeys[] = 'no_test_found_with_code';
             return $this->addError('no_test_found_with_code', __('auth.no_test_found_with_code'));
         }
 
         if (!$testTakeCode->testTake->guest_accounts) {
+            $this->errorKeys[] = 'guest_account_not_allowed';
             return $this->addError('guest_account_not_allowed', __('auth.guest_account_not_allowed'));
         }
 
@@ -212,6 +234,7 @@ class Login extends TCComponent
 
         $error = $testCodeHelper->handleGuestLogin($this->gatherGuestData(), $testTakeCode);
         if (!empty($error)) {
+            $this->errorKeys[] = $error[0];
             return $this->addError($error[0], $error[0]);
         }
     }
@@ -243,27 +266,37 @@ class Login extends TCComponent
 
     private function validateCaptcha()
     {
-        $validateCaptcha = Validator::make(['captcha' => $this->captcha], ['captcha' => 'required|captcha']);
 
-        if ($validateCaptcha->fails()) {
+        if (!captcha_check($this->captcha)) {
             $this->reset('captcha');
             $this->addError('captcha', __('auth.incorrect_captcha'));
-            $this->dispatchBrowserEvent('refresh-captcha');
+            $this->dispatchBrowserEvent('refresh-captcha', ['src' => captcha_src()]);
             return false;
         }
 
-        $rulesWithCaptcha = array_merge($this->rules, ['captcha' => 'required|captcha']);
-        $this->validate($rulesWithCaptcha);
+//        $rulesWithCaptcha = array_merge($this->rules, ['captcha' => 'required|captcha']);
+        $this->validate();
         return true;
     }
 
     public function updated($name, $value)
     {
-        $this->checkLoginFieldsForInput();
+        switch ($name) {
+            case 'firstName':
+                $this->resetErrorBag();
+                $this->validateGuestFirstName();
+                break;
+            case 'lastName':
+                $this->validateGuestLastName();
+                break;
+            case 'username':
+                $this->resetErrorBag();
+            default:
+                $this->validateOnly($name);
+        }
+
 
         $this->couldBeEmail($this->forgotPasswordEmail) ? $this->forgotPasswordButtonDisabled = false : $this->forgotPasswordButtonDisabled = true;
-
-        $this->guestLoginButtonDisabled = !(filled($this->firstName) && filled($this->lastName) && count($this->testTakeCode) == 6);
 
         if ($this->couldBeEmail($this->entreeEmail) && filled($this->entreePassword)) {
             $this->connectEntreeButtonDisabled = false;
@@ -289,7 +322,10 @@ class Login extends TCComponent
 
     private function couldBeEmail($email): bool
     {
-        return Str::of($email)->containsAll(['@', '.']);
+        return validator(
+            ['email' => $email],
+            ['email' => ['required', new EmailImproved]]
+        )->passes();
     }
 
     public function sendForgotPasswordEmail()
@@ -318,10 +354,10 @@ class Login extends TCComponent
         if (count($this->testTakeCode) != 6) {
             return false;
         }
+        $validValues = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
         foreach ($this->testTakeCode as $key => $value) {
-            $value = (int)$value;
-            if ($value === null || !is_int($value) || Str::length($value) != 1) {
+            if(! in_array($value, $validValues)) {
                 return false;
             }
         }
@@ -348,22 +384,6 @@ class Login extends TCComponent
             return redirect($this->studentDownloadUrl);
         }
         return redirect(route('onboarding.welcome'));
-    }
-
-    public function checkLoginFieldsForInput()
-    {
-        if ($this->couldBeEmail($this->username) && filled($this->password)) {
-            $this->loginButtonDisabled = false;
-
-            if ($this->showTestCode) {
-                $this->loginButtonDisabled = true;
-                if (count($this->testTakeCode) == 6) {
-                    $this->loginButtonDisabled = false;
-                }
-            }
-        } else {
-            $this->loginButtonDisabled = true;
-        }
     }
 
     public function samlMessageValid()
@@ -440,7 +460,7 @@ class Login extends TCComponent
         if (!auth()->attempt($credentials)) {
             if ($this->requireCaptcha) {
                 $this->reset('captcha');
-                $this->dispatchBrowserEvent('refresh-captcha');
+                $this->dispatchBrowserEvent('refresh-captcha', ['src' => captcha_src()]);
                 return;
             }
             $this->createFailedLogin();
@@ -503,7 +523,9 @@ class Login extends TCComponent
         $this->resetErrorBag();
     }
 
-    public function returnToLogin() {}
+    public function returnToLogin()
+    {
+    }
 
     private function getSchoolLocationAcceptedEmailDomainRule()
     {
@@ -544,16 +566,34 @@ class Login extends TCComponent
     private function filledInNecessaryGuestInformation()
     {
         $hasNoError = true;
+        $this->errorKeys = [];
+        $this->validateGuestFirstName($hasNoError, true);
+        $this->validateGuestLastName($hasNoError, true);
+
+        return $hasNoError;
+    }
+
+    private function validateGuestFirstName(&$hasNoError = true, $focusOnInputWithError = false)
+    {
         if (blank($this->firstName)) {
+            if ($focusOnInputWithError) {
+                array_unshift($this->errorKeys, 'empty_guest_first_name');
+            }
             $this->addError('empty_guest_first_name', __('auth.empty_guest_first_name'));
             $hasNoError = false;
         }
+    }
+
+    private function validateGuestLastName(&$hasNoError = true, $focusOnInputWithError = false)
+    {
         if (blank($this->lastName)) {
+            if ($focusOnInputWithError) {
+                $this->errorKeys[] = 'empty_guest_last_name';
+            }
             $this->addError('empty_guest_last_name', __('auth.empty_guest_last_name'));
+
             $hasNoError = false;
         }
-
-        return $hasNoError;
     }
 
     public function updating(&$name, &$value)

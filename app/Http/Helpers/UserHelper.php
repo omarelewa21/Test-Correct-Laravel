@@ -80,7 +80,7 @@ class UserHelper
 
         if ($user->save() !== false) {
             if (isset($data['send_welcome_mail']) && $data['send_welcome_mail'] == true) {
-                dispatch_now(new SendWelcomeMail($user->getKey(), isset($data['url']) ? $data['url'] : false));
+                dispatch_sync(new SendWelcomeMail($user->getKey(), isset($data['url']) ? $data['url'] : false));
             }
             return $user;
         } else {

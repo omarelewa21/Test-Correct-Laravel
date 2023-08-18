@@ -129,10 +129,10 @@
     </x-slot:content>
 
     <x-slot:footer>
-        <div class="flex justify-between w-full">
-            <x-button.text-button size="sm" wire:click="closeModal">
+        <div class="flex justify-between w-full items-center">
+            <x-button.text wire:click="closeModal">
                 <span>{{__('general.cancel')}}</span>
-            </x-button.text-button>
+            </x-button.text>
 
             <x-button.cta size="md"
                           selid="plan-modal-plan-btn"

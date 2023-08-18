@@ -1555,7 +1555,11 @@ document.addEventListener("alpine:init", () => {
         init() {
             this.setHandle();
             if (initialStatus !== null) {
-                this.value = isString(initialStatus) ? this.sources.indexOf(initialStatus) : +initialStatus;
+                this.value = isString(initialStatus)
+                    ? (this.sources[initialStatus]
+                        ? initialStatus
+                        : this.sources.indexOf(initialStatus))
+                    : +initialStatus;
             }
 
             this.bootComponent();
@@ -1575,6 +1579,7 @@ document.addEventListener("alpine:init", () => {
             } else {
                 this.value = this.$el.querySelector(".group").firstElementChild.dataset.id;
             }
+            this.preventFractionalPixels();
         },
         clickButton(target) {
             this.activateButton(target);
@@ -1585,11 +1590,16 @@ document.addEventListener("alpine:init", () => {
 
             this.$root.dataset.hasValue = this.value !== null;
             if (oldValue !== this.value) {
+                /* dispatch with a static (question score) value, not value/key of button-option, only works with true/false  */
                 this.$dispatch("slider-toggle-value-updated", {
                     value: this.$root.dataset.toggleValue,
                     state: parseInt(this.value) === 1 ? "on" : "off",
                     firstTick: oldValue === null,
                     identifier: this.identifier
+                });
+                this.$dispatch("multi-slider-toggle-value-updated", {
+                    value: target.firstElementChild.dataset.id,
+                    firstTick: oldValue === null,
                 });
             }
         },
@@ -1632,6 +1642,15 @@ document.addEventListener("alpine:init", () => {
             const falseOptions = this.$root.querySelectorAll(".slider-option[data-active=\"false\"]");
             if (falseOptions.length === 2) {
                 falseOptions.forEach(el => el.classList.remove("!border-allred"));
+            }
+        },
+        preventFractionalPixels() {
+            const containerWidth = this.$root.offsetWidth;
+            const sourceCount = Object.entries(sources).length;
+            const widthDividableBySourceCount = Math.round(containerWidth / sourceCount) * sourceCount;
+
+            if(!isNaN(widthDividableBySourceCount) && widthDividableBySourceCount > 0) {
+                this.$root.style.width = widthDividableBySourceCount + 'px';
             }
         }
     }));
@@ -1948,29 +1967,51 @@ document.addEventListener("alpine:init", () => {
         device,
         hasErrors,
         init() {
-            setTimeout(() => {
-                this.$wire.checkLoginFieldsForInput();
-            }, 250);
-            this.setCurrentFocusInput();
+            this.setInitialFocusInput();
 
             this.$watch("hasErrors", value => {
                 this.setCurrentFocusInput();
             });
             this.$watch("activeOverlay", value => {
-                this.setCurrentFocusInput();
+                this.setInitialFocusInput();
             });
             this.$watch("openTab", value => {
-                this.setCurrentFocusInput();
+                this.setInitialFocusInput();
             });
+        },
+        setInitialFocusInput (){
+            let name = ('' != this.activeOverlay) ? this.activeOverlay : this.openTab;
+            var finder = `[data-focus-tab = '${name}']`
+            setTimeout(() => {
+                this.$root.querySelector(finder)?.focus()
+            }, 250);
         },
         setCurrentFocusInput() {
             let name = ("" != this.activeOverlay) ? this.activeOverlay : this.openTab;
-            var finder = ("" != hasErrors) ? `[data-focus-tab-error = '${name}-${hasErrors[0]}']` : `[data-focus-tab = '${name}']`;
+            var finder = `[data-focus-tab = '${name}']`;
+
+            if("" != this.hasErrors) {
+                let errorCode = this.hasErrors[0];
+                switch (errorCode) {
+                    case 'invalid_test_code':
+                    case 'no_test_found_with_code':
+                        errorCode = 'invalid_test_code';
+                        break;
+                }
+
+                if(document.activeElement.type === 'password') {
+                    //Do not focus on other fields when password is focused to prevent users typing password in the wrong field
+                    //only works when the form is submitted by enter key, else focus is on the login button
+                    errorCode = 'password';
+                }
+
+                finder =  `[data-focus-tab-error = '${name}-${errorCode}']`;
+            }
             setTimeout(() => this.$root.querySelector(finder)?.focus(), 250);
         },
         changeActiveOverlay(activeOverlay = "") {
             this.activeOverlay = activeOverlay;
-        }
+        },
     }));
     Alpine.data("assessment", (array) => ({
         score: array.initialScore,
@@ -2095,11 +2136,8 @@ document.addEventListener("alpine:init", () => {
             }
             await this.updateCurrent(this.current - 1, "decr");
         },
-        async navigate(methodName) {
-            await this[methodName]();
-        },
         async updateCurrent(value, action) {
-            this.$dispatch("assessment-drawer-tab-update", { tab: 1 });
+            this.$dispatch("answer-feedback-drawer-tab-update", { tab: 1 });
             let response = await this.$wire[this.methodCall](value, action);
             if (response) {
                 this.updateProperties(response);
@@ -2158,36 +2196,43 @@ document.addEventListener("alpine:init", () => {
             return element.offsetTop + (element.offsetHeight / 2);
         }
     }));
-    Alpine.data("assessmentDrawer", (inReview = false) => ({
+    Alpine.data("assessmentDrawer", (inReview = false, tabs = [1,2,3], startCollapsed = false) => ({
         activeTab: 1,
-        tabs: [1, 2, 3],
-        collapse: false,
+        tabs: tabs,
         container: null,
         clickedNext: false,
         tooltipTimeout: null,
+        collapse: false,
         inReview,
         init() {
+            this.collapse = this.$store.coLearningStudent.getDrawerCollapsed(startCollapsed);
+
             this.container = this.$root.querySelector("#slide-container");
-            this.tab(1);
+            this.tab(this.tabs[0]);
             this.$watch("collapse", (value) => {
+                this.$store.coLearningStudent.drawerCollapsed = value;
+                window.dispatchEvent(new CustomEvent('drawer-collapse', { detail: value }));
                 document.documentElement.style.setProperty("--active-sidebar-width", value ? "var(--collapsed-sidebar-width)" : "var(--sidebar-width)");
             });
         },
         getSlideElementByIndex: function (index) {
             return this.$root.closest('.drawer').querySelector(".slide-" + index);
         },
-        async tab(index, answerFeedbackCommentUuid = null) {
+        async tab(index, openDrawer = false, answerFeedbackCommentUuid = null) {
             if (!this.tabs.includes(index)) return;
             this.activeTab = index;
             this.closeTooltips();
             const slide = this.getSlideElementByIndex(index);
-            this.handleSlideHeight(slide);
             await this.$nextTick();
+            this.handleSlideHeight(slide);
 
             if (answerFeedbackCommentUuid) {
                 await this.scrollToCommentCard(answerFeedbackCommentUuid);
             } else {
                 await smoothScroll(this.container, 0, slide.offsetLeft)
+            }
+            if(openDrawer) {
+                this.collapse = false;
             }
 
             setTimeout(() => {
@@ -2202,7 +2247,10 @@ document.addEventListener("alpine:init", () => {
             const slide = this.getSlideElementByIndex(2);
             let cardTop = commentCard.offsetTop;
 
-            let count = 0;
+            if(slide.offsetHeight <= this.container.offsetHeight) {
+                return await smoothScroll(this.container, 0, slide.offsetLeft);
+            }
+
             await smoothScroll(this.container, cardTop, slide.offsetLeft);
         },
         async next() {
@@ -2211,7 +2259,7 @@ document.addEventListener("alpine:init", () => {
             }
             if (this.needsToPerformActionsStill()) {
                 this.$dispatch("scoring-elements-error");
-                this.clickedNext = true;
+                this.$store.assessment.errorState = this.clickedNext = true;
                 return;
             }
 
@@ -2219,7 +2267,7 @@ document.addEventListener("alpine:init", () => {
             await this.$nextTick(async () => {
                 this.$store.assessment.resetData();
                 await this.$wire.next();
-                this.clickedNext = false;
+                this.$store.assessment.errorState = this.clickedNext = false;
             });
         },
         async previous() {
@@ -2232,9 +2280,6 @@ document.addEventListener("alpine:init", () => {
                 await this.$wire.previous();
                 this.clickedNext = false;
             });
-        },
-        async navigate(methodName) {
-            await this[methodName]();
         },
         fixSlideHeightByIndex(index, AnswerFeedbackUuid) {
             let slide = document.querySelector(".slide-" + index);
@@ -2252,7 +2297,7 @@ document.addEventListener("alpine:init", () => {
             }
         },
         handleResize() {
-            const slide = this.$root.querySelector(".slide-" + this.activeTab);
+            const slide = this.$root.querySelector(".slide-" + this.activeTab) || this.$root.querySelector(".slide-2");
             this.handleSlideHeight(slide);
         },
         closeTooltips() {
@@ -2603,9 +2648,13 @@ document.addEventListener("alpine:init", () => {
             }, 5000);
         },
         async loadQuestion(number) {
-            this.$dispatch("assessment-drawer-tab-update", { tab: 1 });
+            if(this.$store.answerFeedback.feedbackBeingEdited()) {
+                return this.$store.answerFeedback.openConfirmationModal(this.$root, 'loadQuestion', number);
+            }
+
+            this.$dispatch("answer-feedback-drawer-tab-update", { tab: 1 });
             await this.$wire.loadQuestionFromNav(number);
-        }
+        },
     }));
     Alpine.data("accountSettings", (openTab, language) => ({
         openTab,
@@ -2633,6 +2682,7 @@ document.addEventListener("alpine:init", () => {
         activeComment: null,
         hoveringComment: null,
         dropdownOpened: null,
+        commentTagsEventListeners: null,
         userId,
         questionType,
         viewOnly,
@@ -2644,7 +2694,6 @@ document.addEventListener("alpine:init", () => {
                 return;
             }
             this.setFocusTracking();
-            this.createFocusableButtons();
 
             document.addEventListener('comment-color-updated', async (event) => {
                 let styleTagElement = document.querySelector('#temporaryCommentMarkerStyles');
@@ -2674,21 +2723,45 @@ document.addEventListener("alpine:init", () => {
                 (event) => this.updateNewCommentMarkerStyles(event?.detail?.color)
             );
 
-            document.addEventListener('mousedown', (e) => {
+            document.addEventListener('mousedown', (event) => {
+                this.resetCommentColorPickerFocusState(event);
+                this.resetCommentEmojiPickerFocusState(event);
+
                 if(this.activeComment === null) {
                     return;
                 }
                 //check for click outside 1. comment markers, 2. comment marker icons, 3. comment cards.
-                if( e.srcElement.closest('.ck-comment-marker') ||
-                    e.srcElement.closest('.answer-feedback-comment-icons') ||
-                    e.srcElement.closest('.given-feedback-container')
-                ) {
+                if(event.srcElement.closest(':is(.ck-comment-marker, .answer-feedback-comment-icon, .given-feedback-container)') ) {
+                    let element = event.srcElement.closest('.ck-comment-marker');
+                    if(element instanceof Element && window.getComputedStyle(element).backgroundColor === 'rgba(0, 0, 0, 0)' ) {
+                        //ignore click on inactive comment marker
+                        this.clearActiveComment();
+                    }
                     return;
                 }
                 this.clearActiveComment()
             })
 
+
             this.preventOpeningModalFromBreakingDrawer();
+        },
+        resetCommentColorPickerFocusState(event) {
+            if (event.srcElement.closest('.comment-color-picker')) {
+                return;
+            }
+            let commentColorPickerCKEditorElement = document.querySelector('.comment-color-picker[ckEditorElement].picker-focussed');
+            if (commentColorPickerCKEditorElement) {
+                commentColorPickerCKEditorElement.classList.remove('picker-focussed');
+            }
+        },
+        resetCommentEmojiPickerFocusState(event) {
+            if (event.srcElement.closest('.comment-emoji-picker')) {
+                return;
+            }
+            let commentEmojiPickerCKEditorElement = document.querySelector('.comment-emoji-picker[ckEditorElement].picker-focussed');
+            if (commentEmojiPickerCKEditorElement) {
+                commentEmojiPickerCKEditorElement.classList.remove('picker-focussed');
+            }
         },
         async updateCommentThread(element) {
             let answerFeedbackCardElement = element.closest('.answer-feedback-card');
@@ -2700,17 +2773,23 @@ document.addEventListener("alpine:init", () => {
 
             const answerFeedbackEditor = ClassicEditors['update-'+answerFeedbackUuid];
 
+            const answerFeedbackData = answerFeedbackEditor.getData();
+
+            await answerFeedbackEditor.destroy();
+            this.cancelEditingComment(answerFeedbackCardElement.dataset.threadId)
+
             let commentStyles = await this.$wire.call('updateExistingComment', {
                 uuid: answerFeedbackUuid,
-                message: answerFeedbackEditor.getData(),
+                message: answerFeedbackData,
                 comment_emoji: comment_emoji,
                 comment_color: comment_color,
             });
             document.querySelector('#commentMarkerStyles').innerHTML = commentStyles;
-
-            this.cancelEditingComment(answerFeedbackCardElement.dataset.threadId)
         },
         async createCommentThread() {
+            //somehow the editor id sometimes shows an old cached value, so we set it again here
+            this.answerEditorId = this.$el.dataset.answerEditorId;
+            this.feedbackEditorId = this.$el.dataset.feedbackEditorId;
 
             let addCommentElement = this.$el.closest('.answer-feedback-add-comment')
 
@@ -2756,13 +2835,15 @@ document.addEventListener("alpine:init", () => {
 
                     document.querySelector('#commentMarkerStyles').innerHTML = commentStyles;
 
-                    this.resetAddNewAnswerFeedback();
-
                     this.hasFeedback = true;
 
                     this.$dispatch('answer-feedback-show-comments');
 
                     this.scrollToCommentCard(feedback.uuid);
+
+                    setTimeout(() => {
+                        ClassicEditors[this.feedbackEditorId].setData('<p></p>');
+                    }, 300);
                     return;
                 }
 
@@ -2774,11 +2855,11 @@ document.addEventListener("alpine:init", () => {
 
                 this.hasFeedback = true;
 
-                this.resetAddNewAnswerFeedback();
-
                 this.$dispatch('answer-feedback-show-comments');
 
                 this.scrollToCommentCard(feedback.uuid);
+
+                feedbackEditor.setData('<p></p>');
             });
 
         },
@@ -2803,8 +2884,7 @@ document.addEventListener("alpine:init", () => {
                 if(deletedThreadIcon) {
                     deletedThreadIcon.remove();
                 }
-
-                commentsRepository.getCommentThread(threadId).remove();
+                thread.remove();
                 const answerText = answerEditor.getData();
                 await this.$wire.updateAnswer(answerText);
 
@@ -2814,52 +2894,117 @@ document.addEventListener("alpine:init", () => {
             }
             console.error('failed to delete answer feedback');
         },
-        initCommentIcons(commentThreads) {
-            //create icon wrapper and append icon inside it
-            commentThreads.forEach((thread) => {
+        initCommentIcons(commentThreads, answerFeedbackFilter = 'all') {
+            let filteredCommentThreads = commentThreads.filter((thread) => {
+                return (
+                    (answerFeedbackFilter === 'current_user' && thread.currentUser)
+                    || (answerFeedbackFilter === 'students' && thread.role === 'student')
+                    || (answerFeedbackFilter === 'teacher' && thread.role === 'teacher')
+                    || answerFeedbackFilter === 'all'
+                )
+            });
+            filteredCommentThreads.forEach((thread) => {
                 this.createCommentIcon(thread);
-            })
+            });
+
+            //create global event listener for comment icon click and hover
+            this.createCommentTagsEventListener(filteredCommentThreads);
         },
-        initCommentIcon(el, thread) {
-            let commentThreadElements = null;
+        createCommentTagsEventListener( enabledCommentThreads) {
+            const commentEditorContainer = document.querySelector('.answer-feedback-comment-icons').parentElement;
+            let hoveringCommentThread = null;
+
+            //remove previous event listeners, if any
+            if(this.commentTagsEventListeners) {
+                commentEditorContainer.removeEventListener('click', this.commentTagsEventListeners['click']);
+                commentEditorContainer.removeEventListener('mouseover', this.commentTagsEventListeners['mouseover']);
+            }
+            this.commentTagsEventListeners = [];
+
+            this.commentTagsEventListeners['click'] = (event) => {
+                let targetCommentElement = event.target.closest('[data-comment], [data-threadid]');
+                if (!targetCommentElement) return;
+
+                let clickedEnabledCommentThread = enabledCommentThreads.filter((thread) => {
+                    return thread.threadId === (targetCommentElement.dataset.comment || targetCommentElement.dataset.threadid);
+                }).pop();
+
+                if (!clickedEnabledCommentThread) return;
+
+                this.setActiveComment(clickedEnabledCommentThread.threadId, clickedEnabledCommentThread.uuid);
+            }
+
+            this.commentTagsEventListeners['mouseover'] = (event) => {
+                let targetCommentElement = event.target.closest('[data-comment], [data-threadid]');
+                let targetCommentThreadId = targetCommentElement?.dataset.comment || targetCommentElement?.dataset.threadid || false;
+
+                let previousHoveringCommentThread = hoveringCommentThread;
+                hoveringCommentThread = enabledCommentThreads.filter((thread) => {
+                    return thread.threadId === targetCommentThreadId;
+                }).pop();
+
+                if(!hoveringCommentThread) {
+                    //only clear hovering comment if leaving an enabled/valid comment thread element
+                    previousHoveringCommentThread ? this.clearHoveringComment() : null;
+                    return;
+                }
+                if(hoveringCommentThread.threadId === previousHoveringCommentThread?.threadId) {
+                    return;
+                }
+                this.setHoveringComment(hoveringCommentThread.threadId, hoveringCommentThread.uuid);
+            }
+
+            commentEditorContainer.addEventListener('click', this.commentTagsEventListeners['click']);
+            commentEditorContainer.addEventListener('mouseover', this.commentTagsEventListeners['mouseover']);
+        },
+        repositionAnswerFeedbackIcons() {
+            let answerFeedbackCommentIcons = document.querySelectorAll('.answer-feedback-comment-icon');
+            answerFeedbackCommentIcons.forEach((iconWrapper) => {
+                let threadId = iconWrapper.dataset.threadid;
+                let threadUuid = iconWrapper.dataset.uuid;
+                this.setIconPositionForThread(iconWrapper, threadId, threadUuid);
+            });
+        },
+        setIconPositionForThread(iconWrapper, threadId, answerFeedbackUuid) {
+            const commentMarkers = document.querySelectorAll(`[data-comment='` + threadId + `']`);
+            if(commentMarkers.length === 0) {
+                iconWrapper.style.display = 'none';
+                return;
+            }
+            const lastCommentMarker = commentMarkers[commentMarkers.length-1];
+
+            iconWrapper.style.top = (lastCommentMarker.offsetTop - 15 /* adjust icon alignment */ + lastCommentMarker.offsetHeight - 24 /* adjust to last line of marker */) + 'px';
+
+            let lastCommentMarkerClientRects = lastCommentMarker.getClientRects();
+            let lastCommentMarkerParentClientRects = lastCommentMarker.offsetParent.getClientRects();
+
+            let lastCommentMarkerLineClientRight = lastCommentMarkerClientRects[lastCommentMarkerClientRects.length-1].right;
+            let lastCommentMarkerLineParentClientLeft = lastCommentMarkerParentClientRects[lastCommentMarkerParentClientRects.length-1].left;
+
+            let lastCommentMarkerLineOffsetLeft = lastCommentMarkerLineClientRight - lastCommentMarkerLineParentClientLeft;
+
+            iconWrapper.style.left = (lastCommentMarkerLineOffsetLeft - 5) + 'px';
+        },
+        initCommentIcon(iconWrapper, thread) {
             setTimeout(() => {
-                const commentMarkers = document.querySelectorAll(`[data-comment='` + thread.threadId+ `']`);
-                const lastCommentMarker = commentMarkers[commentMarkers.length-1];
+                this.setIconPositionForThread(iconWrapper, thread.threadId, thread.uuid);
 
-                el.style.top = (lastCommentMarker.offsetTop - 15) + 'px';
-                el.style.left = (lastCommentMarker.offsetWidth + lastCommentMarker.offsetLeft - 5) + 'px';
+                iconWrapper.setAttribute('data-uuid', thread.uuid);
+                iconWrapper.setAttribute('data-threadId', thread.threadId);
 
-                el.setAttribute('data-uuid', thread.uuid);
-                el.setAttribute('data-threadId', thread.threadId);
-
-                this.addOrReplaceIconByName(el, thread.iconName);
-
-                commentThreadElements = [...commentMarkers, el];
-
-                //set click event listener on all comment markers and the icon.
-                commentThreadElements.forEach((threadElement) => {
-                    threadElement.addEventListener('click', () => {
-                        this.setActiveComment(thread.threadId, thread.uuid);
-                    });
-                    threadElement.addEventListener('mouseenter', (e) => {
-                        this.setHoveringComment(thread.threadId, thread.uuid);
-                    });
-                    threadElement.addEventListener('mouseleave', (e) => {
-                        this.clearHoveringComment();
-                    });
-                });
-
+                this.addOrReplaceIconByName(iconWrapper, thread.iconName);
             }, 200)
         },
         createCommentIcon (thread) {
-            let el = document.querySelector('.answer-feedback-comment-icons');
+            let commentIconsContainer = document.querySelector('.answer-feedback-comment-icons');
             let iconId = "icon-"+thread.threadId;
             let iconWrapper = document.createElement('div');
             iconWrapper.classList.add('absolute');
             iconWrapper.classList.add('z-10');
             iconWrapper.classList.add('cursor-pointer');
+            iconWrapper.classList.add('answer-feedback-comment-icon');
             iconWrapper.id = iconId;
-            el.appendChild(iconWrapper)
+            commentIconsContainer.appendChild(iconWrapper)
 
             this.initCommentIcon(iconWrapper, thread);
         },
@@ -2930,10 +3075,18 @@ document.addEventListener("alpine:init", () => {
                 '            --active-comment-color: '+ colorCode +'; /* default color, overwrite when color picker is used */\n' +
                 '            --ck-color-comment-marker-active: var(--active-comment-color);\n' +
                 '        }\n' +
-                '    ';
+                '    span.ck-comment-marker[data-comment="new-comment-thread"]{\n' +
+                '            --active-comment-color: '+ colorCode +'; /* default color, overwrite when color picker is used */\n' +
+                '            --ck-color-comment-marker: var(--active-comment-color);\n' +
+                '            --ck-color-comment-marker-active: var(--active-comment-color);\n' +
+                '            cursor: pointer !important;\n' +
+                '        }';
         },
         setHoveringCommentMarkerStyle(removeStyling = false) {
             const styleTag = document.querySelector('#hoveringCommentMarkerStyle');
+            if(!styleTag) {
+                return;
+            }
 
             if(removeStyling || this.hoveringComment.threadId === null) {
                 styleTag.innerHTML = '';
@@ -2941,12 +3094,15 @@ document.addEventListener("alpine:init", () => {
             }
 
             styleTag.innerHTML = '' +
-                '.ck-comment-marker[data-comment="'+ this.hoveringComment.threadId +'"] { color: var(--teacher-primary); }' +
+                'span.ck-comment-marker[data-comment="'+ this.hoveringComment.threadId +'"] { color: var(--teacher-primary); }' +
                 'div[data-threadid="'+this.hoveringComment.threadId+'"] svg { color: var(--teacher-primary); }';
 
         },
         setActiveCommentMarkerStyle(removeStyling = false) {
             const styleTag = document.querySelector('#activeCommentMarkerStyle');
+            if(!styleTag) {
+                return;
+            }
 
             if(removeStyling || this.activeComment?.threadId === null) {
                 styleTag.innerHTML = '';
@@ -2954,20 +3110,28 @@ document.addEventListener("alpine:init", () => {
             }
 
             styleTag.innerHTML = '' +
-                '.ck-comment-marker[data-comment="'+ this.activeComment?.threadId +'"] { ' +
+                'span.ck-comment-marker[data-comment="'+ this.activeComment?.threadId +'"] { ' +
+                '   border: 1px solid var(--ck-color-comment-marker-border) !important; ' +
+                '} ' +
+                'span.ck-comment-marker[data-comment="'+ this.activeComment?.threadId +'"].ck-math-widget { ' +
+                '   border: 1px solid transparent !important; ' +
+                '} ' +
+                'span.ck-comment-marker[data-comment="'+ this.activeComment?.threadId +'"] img { ' +
                 '   border: 1px solid var(--ck-color-comment-marker-border) !important; ' +
                 '} ';
 
         },
         setActiveComment (threadId, answerFeedbackUuid) {
             this.$dispatch('answer-feedback-show-comments');
-            this.$dispatch("assessment-drawer-tab-update", { tab: 2, uuid: answerFeedbackUuid });
-            if(this.$store.answerFeedback.feedbackBeingEdited()) {
-                /* when editing, no other comment can be activated */
-                return;
-            }
-            this.activeComment = {threadId: threadId, uuid: answerFeedbackUuid };
-            this.setActiveCommentMarkerStyle();
+            setTimeout(() => {
+                this.$dispatch("answer-feedback-drawer-tab-update", { tab: 2, uuid: answerFeedbackUuid });
+                if(this.$store.answerFeedback.feedbackBeingEdited()) {
+                    /* when editing, no other comment can be activated */
+                    return;
+                }
+                this.activeComment = {threadId: threadId, uuid: answerFeedbackUuid };
+                this.setActiveCommentMarkerStyle();
+            }, 300);
         },
         clearActiveComment() {
             this.activeComment = null;
@@ -2983,16 +3147,6 @@ document.addEventListener("alpine:init", () => {
                     const feedbackEditor = ClassicEditors[this.feedbackEditorId];
 
                     answerEditor.ui.focusTracker.add( feedbackEditor.sourceElement.parentElement.querySelector('.ck.ck-content') );
-
-                    //keep focus when clicking on the emoji and color pickers
-                    document.querySelectorAll('.answer-feedback-add-comment .emoji-picker-radio, .answer-feedback-add-comment .color-picker-radio input').forEach((element) => {
-                        answerEditor.ui.focusTracker.add( element );
-                        feedbackEditor.ui.focusTracker.add( element );
-                    })
-                    document.querySelectorAll('.answer-feedback-add-comment .emoji-picker-radio, .answer-feedback-add-comment .emoji-picker-radio input').forEach((element) => {
-                        answerEditor.ui.focusTracker.add( element );
-                        feedbackEditor.ui.focusTracker.add( element );
-                    })
 
                     feedbackEditor.ui.focusTracker.add( answerEditor.sourceElement.parentElement.querySelector('.ck.ck-content') );
 
@@ -3038,7 +3192,7 @@ document.addEventListener("alpine:init", () => {
                     const saveButtonCta = new window.CkEditorButtonView(new window.CkEditorLocale('nl'));
                     saveButtonCta.set({
                         label: buttonWrapper.dataset.saveTranslation,
-                        classList: 'cta-button button-sm',
+                        classList: 'cta-button button-gradient button-sm',
                         eventName: 'save',
                     });
                     saveButtonCta.render();
@@ -3049,7 +3203,7 @@ document.addEventListener("alpine:init", () => {
                 } catch (exception) {
                     //
                 }
-            }, 1000);
+            }, 0);
         },
         createCommentColorRadioButton(el, rgb, colorName, checked) {
             const answerEditor = ClassicEditors[this.answerEditorId];
@@ -3071,15 +3225,18 @@ document.addEventListener("alpine:init", () => {
         createCommentIconRadioButton(el, iconName, emojiValue, checked) {
             const answerEditor = ClassicEditors[this.answerEditorId];
 
-            const radiobuttonIcon = new window.CkEditorRadioWithIconView(new window.CkEditorLocale('nl'));
-            radiobuttonIcon.set({
+            const radiobutton = new window.CkEditorRadioWithIconView(new window.CkEditorLocale('nl'));
+            radiobutton.set({
                 iconName: iconName,
                 emojiValue: emojiValue,
             });
-            radiobuttonIcon.render();
-            el.appendChild(radiobuttonIcon.element)
+            radiobutton.render();
 
-            radiobuttonIcon.element.querySelector('span').appendChild(
+            answerEditor.ui.focusTracker.add(radiobutton.element);
+
+            el.appendChild(radiobutton.element)
+
+            radiobutton.element.querySelector('span').appendChild(
                 document.importNode(el.querySelector('template').content, true)
             );
         },
@@ -3090,7 +3247,7 @@ document.addEventListener("alpine:init", () => {
                 this.fixSlideHeightByIndex(2, AnswerFeedbackUuid);
             },100)
         },
-        toggleFeedbackAccordion (name, forceOpenAccordion = false) {
+        async toggleFeedbackAccordion (name, forceOpenAccordion = false) {
             if(this.$store.answerFeedback.feedbackBeingEdited()) {
                 this.dropdownOpened ='given-feedback';
                 return;
@@ -3108,11 +3265,17 @@ document.addEventListener("alpine:init", () => {
                 }
             }
             this.dropdownOpened = name;
+            await this.$nextTick();
+            setTimeout(() => {
+                this.fixSlideHeightByIndex(2);
+            }, 293);
         },
         resetAddNewAnswerFeedback(cancelAddingNewComment = false) {
             //find default/blue color picker and enable it.
             let defaultColorPicker = document.querySelector('.answer-feedback-add-comment .comment-color-picker [data-color="blue"]');
-            defaultColorPicker.checked = true;
+            if (defaultColorPicker !== null) {
+                defaultColorPicker.checked = true;
+            }
 
             //find checked emoji picker, uncheck
             let checkedEmojiPicker = document.querySelector('.answer-feedback-add-comment .comment-emoji-picker input:checked');
@@ -3143,8 +3306,29 @@ document.addEventListener("alpine:init", () => {
                 {attributes: true}
             );
         },
-    }));
 
+    }));
+    Alpine.data("coLearningStudent", () => ({
+        async goToPreviousAnswerRating() {
+            if(this.$store.answerFeedback.feedbackBeingEdited()) {
+                return this.$store.answerFeedback.openConfirmationModal(this.$root, 'goToPreviousAnswerRating');
+            }
+            this.$wire.goToPreviousAnswerRating();
+        },
+        async goToNextAnswerRating() {
+            if(this.$store.answerFeedback.feedbackBeingEdited()) {
+                return this.$store.answerFeedback.openConfirmationModal(this.$root, 'goToNextAnswerRating');
+            }
+            this.$wire.goToNextAnswerRating();
+        },
+        async goToFinishedCoLearningPage() {
+            if(this.$store.answerFeedback.feedbackBeingEdited()) {
+                return this.$store.answerFeedback.openConfirmationModal(this.$root, 'goToFinishedCoLearningPage');
+            }
+
+            this.$wire.goToFinishedCoLearningPage();
+        },
+    }));
     Alpine.data("drawingQuestionImagePreview", () => ({
         maxTries: 10,
         currentTry: 0,
@@ -3224,22 +3408,34 @@ document.addEventListener("alpine:init", () => {
             this.wordContainer.parentNode.append(element);
 
             this.editor.maxWords = value;
+        },
+        addSelectedWordCounter(eventDetails, text='Geselecteerde woorden') {
+            if(eventDetails.editorId !== this.editor.sourceElement.id) return;
+
+            const spanId = "selected-word-span";
+            this.$root.querySelector(`#${spanId}`)?.remove();
+
+            if(eventDetails.wordCount === 0) return;
+
+            let element = document.createElement("strong");
+            element.id = spanId;
+            element.classList.add("ml-4");
+            element.innerHTML = `${text}: ${eventDetails.wordCount}`;
+
+            this.wordContainer.parentNode.append(element);
         }
     }));
     Alpine.data("openQuestionStudentPlayer", (editorId) => ({
         editorId,
         init() {
+            this.editor = ClassicEditors[this.editorId];
             this.$watch("showMe", value => {
                 if (!value) return;
-
                 this.$nextTick(() => {
-                    var editor = ClassicEditors[editorId];
-                    if (!editor) {
-                        return;
-                    }
-                    if (!editor.ui.focusTracker.isFocused) {
+                    if (!this.getEditor()) return;
+                    if (!this.getEditor().ui.focusTracker.isFocused) {
                         setTimeout(() => {
-                            this.setFocus(editor);
+                            this.setFocus(this.getEditor());
                         }, 300);
                     }
                 });
@@ -3250,6 +3446,83 @@ document.addEventListener("alpine:init", () => {
             editor.model.change(writer => {
                 writer.setSelection(editor.model.document.getRoot(), "end");
             });
+        },
+        getEditor() {
+            return ClassicEditors[this.editorId];
+        },
+        syncEditorData() {
+            if (!this.getEditor() || this.getEditor().getData() === '') return;
+            this.$wire.sync("answer", this.getEditor().getData());
+        }
+    }));
+    Alpine.data("studentPlayerQuestionContainer", (number, questionId, reinitializedTimeoutData) => ({
+        showMe: false,
+        progressBar: false,
+        startTime: 0,
+        endTime: 1,
+        progress: 0,
+        number,
+        questionId,
+        reinitializedTimeoutData,
+        timer: null,
+        init() {
+            this.$watch("showMe", (value) => {
+                if (value) {
+                    this.$dispatch("visible-component", { el: this.$el });
+                    this.$dispatch("reinitialize-editor-editor-" + this.questionId);
+                }
+            });
+
+            if (this.reinitializedTimeoutData && this.reinitializedTimeoutData.hasOwnProperty('timeLeft')) {
+                this.$nextTick(() => {
+                    this.startTimeout(this.reinitializedTimeoutData)
+                });
+            }
+        },
+        currentUpdated(current) {
+            this.showMe = (this.number == current);
+            if(this.showMe) this.$wire.updateAnswerIdForTestParticipant();
+        },
+        refreshQuestion(eventData) {
+            if (eventData.indexOf(this.number) !== -1) {
+                this.$wire.set('closed', true);
+            }
+        },
+        closeThisQuestion(eventData) {
+            if(!this.showMe) return;
+            this.$wire.set('showCloseQuestionModal', true);
+            this.$wire.set('nextQuestion', eventData);
+        },
+        closeThisGroup(eventData) {
+            if(!this.showMe) return;
+            this.$wire.set('showCloseGroupModal', true);
+            this.$wire.set('nextQuestion', eventData);
+        },
+        startTimeout(eventData) {
+            this.progressBar = true;
+            this.startTime = eventData.timeout;
+            console.log(eventData);
+            if (eventData.timeLeft) {
+                this.progress = eventData.timeLeft;
+            } else {
+                this.$wire.registerExpirationTime(eventData.attachment);
+                this.progress = this.startTime;
+            }
+            if (!this.timer) {
+                this.timer = setInterval(() => {
+                    this.progress -= 1;
+
+                    if (this.progress === 0) {
+                        this.showMe ? this.$wire.closeQuestion(this.number + 1) : this.$wire.closeQuestion();
+                        clearInterval(this.timer);
+                        this.progressBar = false;
+                    }
+                }, 1000);
+            }
+        },
+        markInfoscreenAsSeen(eventData, questionUuid) {
+            if(questionUuid !== eventData) return;
+            this.$wire.markAsSeen(eventData)
         }
     }));
 
@@ -3712,7 +3985,6 @@ document.addEventListener("alpine:init", () => {
         let f = new Function("_", "$data", "_." + expression + " = $data;return;");
         f(window, el._x_dataStack[0]);
     });
-
     Alpine.store("cms", {
         loading: false,
         processing: false,
@@ -3729,6 +4001,7 @@ document.addEventListener("alpine:init", () => {
         inGroup: false
     });
     Alpine.store("assessment", {
+        errorState: false,
         currentScore: null,
         toggleCount: 0,
         clearToProceed() {
@@ -3741,10 +4014,20 @@ document.addEventListener("alpine:init", () => {
         }
     });
     Alpine.store("editorMaxWords", {});
+    Alpine.store("coLearningStudent", {
+        drawerCollapsed: null,
+        getDrawerCollapsed(startCollapsed = null) {
+            if (this.drawerCollapsed === null && startCollapsed !== null) {
+                this.drawerCollapsed = startCollapsed;
+            }
+            return this.drawerCollapsed;
+        }
+    }),
     Alpine.store("answerFeedback", {
         editingComment: null,
         navigationRoot: null,
         navigationMethod: null,
+        navigationArgs: null,
         feedbackBeingEdited() {
             if(this.navigationRoot) {
                 this.navigationRoot = null;
@@ -3756,21 +4039,51 @@ document.addEventListener("alpine:init", () => {
             }
             return this.editingComment;
         },
-        openConfirmationModal(navigatorRootElement, methodName) {
+        openConfirmationModal(navigatorRootElement, methodName, methodArgs = null) {
             this.navigationRoot = navigatorRootElement;
             this.navigationMethod = methodName;
+            this.navigationArgs = methodArgs;
             Livewire.emit('openModal', 'modal.confirm-still-editing-comment-modal');
         },
         continueAction() {
             this.editingComment = null;
-            this.navigationRoot.dispatchEvent(new CustomEvent('continue-navigation', {detail: {method: this.navigationMethod}}))
+            console.log(this.navigationRoot, this.navigationMethod, this.navigationArgs)
+            this.navigationRoot.dispatchEvent(new CustomEvent('continue-navigation', {detail: {method: this.navigationMethod, args: [this.navigationArgs]}}))
             Livewire.emit('closeModal');
         },
         cancelAction() {
             this.navigationRoot = null;
             this.navigationMethod = null;
-            window.dispatchEvent(new CustomEvent('assessment-drawer-tab-update', {detail: {tab: 2, uuid: this.editingComment}}));
+            window.dispatchEvent(new CustomEvent('answer-feedback-drawer-tab-update', {detail: {tab: 2, uuid: this.editingComment}}));
             Livewire.emit('closeModal');
+        }
+    });
+    Alpine.store("studentPlayer", {
+        playerComponent: null,
+        getPlayer() {
+            if (!this.playerComponent) {
+                this.playerComponent = Livewire.components
+                    .findComponent(
+                        document.querySelector("[test-take-player]").getAttribute("wire:id")
+                    );
+            }
+            return this.playerComponent;
+        },
+        to(newQuestion, current) {
+            this.navigate("goToQuestion", current, newQuestion);
+        },
+        next(current) {
+            this.navigate("nextQuestion", current);
+        },
+        previous(current) {
+            this.navigate("previousQuestion", current);
+        },
+        toOverview(current) {
+            this.navigate("toOverview", current, current);
+        },
+        navigate(method, current, methodParameter = null) {
+            window.dispatchEvent(new CustomEvent("sync-editor-data-" + current));
+            this.getPlayer().call(method, methodParameter);
         }
     });
 });

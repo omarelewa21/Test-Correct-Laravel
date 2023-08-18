@@ -32,7 +32,8 @@ class TestsController extends Controller {
         // we now alwas change the setting to make it faster and don't reverse it anymore
         // as on a new server we might forget to update this setting and it doesn't do any harm to do this extra query
         try { // added for compatibility with mariadb
-            \DB::select(\DB::raw("set session optimizer_switch='condition_fanout_filter=off';"));
+            $expression = DB::raw("set session optimizer_switch='condition_fanout_filter=off';");
+            DB::statement($expression->getValue(DB::connection()->getQueryGrammar()));
         } catch (\Exception $e){}
 
         $tests = Test::filtered($request->get('filter', []), $request->get('order', []))->with('educationLevel', 'testKind', 'subject', 'author', 'author.school', 'author.schoolLocation')->paginate(15);
@@ -54,12 +55,12 @@ class TestsController extends Controller {
         // we now alwas change the setting to make it faster and don't reverse it anymore
         // as on a new server we might forget to update this setting and it doesn't do any harm to do this extra query
         try { // added for compatibility with mariadb
-            \DB::select(\DB::raw("set session optimizer_switch='condition_fanout_filter=off';"));
+            $expression = DB::raw("set session optimizer_switch='condition_fanout_filter=off';");
+            DB::statement($expression->getValue(DB::connection()->getQueryGrammar()));
         } catch (\Exception $e){}
         $tests = Test::filtered2($request->get('filter', []), $request->get('order'))
             ->with('educationLevel', 'testKind', 'subject', 'author', 'author.school', 'author.schoolLocation')
             ->paginate(15);
-//		\DB::select(\DB::raw("set session optimizer_switch='condition_fanout_filter=on';"));
 
         $tests->each(function ($test) {
             $test->append('has_duplicates');

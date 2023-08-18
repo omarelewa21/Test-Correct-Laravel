@@ -195,6 +195,9 @@ class FactoryUser
             'user_roles'         => [1],
             'created_at'         => \Carbon\Carbon::now(),
             'gender'             => 'Male',
+            'password_expiration_date' => \Carbon\Carbon::now()->addDays(30),
+            'account_verified' =>\Carbon\Carbon::now()->subDay(),
+
         ];
         //roles:
         //  1 Teacher

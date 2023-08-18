@@ -59,4 +59,18 @@ enum SchoolLocationFeatureSetting: string
     {
         return TestPackages::tryFrom($testPackage) ?? TestPackages::None;
     }
+
+    public static function settingToDefaultSchool()
+    {
+        return collect([
+//            self::TEST_PACKAGE => TestPackages::None,
+            self::ALLOW_ANALYSES,
+            self::ALLOW_NEW_TAKEN_TESTS_PAGE,
+            self::ALLOW_NEW_CO_LEARNING,
+            self::ALLOW_NEW_CO_LEARNING_TEACHER,
+//            self::ALLOW_CREATHLON => false,
+//            self::ALLOW_OLYMPIADE => false,
+            self::ALLOW_NEW_ASSESSMENT,
+        ]);
+    }
 }

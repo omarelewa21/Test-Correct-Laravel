@@ -15,8 +15,15 @@
                     this.isCollapsed = true;
                     setTimeout(() => this.doneCollapsing = true, 1500)
                 }
-            }
+            },
+            redirectBack: function() {
+                if(this.$store.answerFeedback.feedbackBeingEdited()) {
+                    return this.$store.answerFeedback.openConfirmationModal(this.$root, 'redirectBack');
+                }
+                $wire.redirectBack();
+            },
         }"
+        x-on:continue-navigation="Alpine.$data($el)[$event.detail.method]()"
 
         @unless($this->headerCollapsed)
             x-show="!isCollapsed"
@@ -25,7 +32,7 @@
 >
     <div class="py-2.5 px-6 flex h-[var(--header-height)] items-center justify-between">
         <div class="flex items-center space-x-4 truncate">
-            <x-button.back-round wire:click="redirectBack()"
+            <x-button.back-round x-on:click="redirectBack()"
                                  background-class="bg-white/20"
                                  class="hover:text-white"
                                  title="{{ $backButtonTitle }}"

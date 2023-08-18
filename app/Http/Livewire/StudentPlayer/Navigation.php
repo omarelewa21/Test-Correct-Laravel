@@ -57,7 +57,7 @@ abstract class Navigation extends TCComponent
         if ($this->q == 1) {
             $details = $this->getDetailsFirstQuestion();
         }
-        $this->dispatchBrowserEvent('update-footer-navigation', $details);
+        $this->dispatchBrowserEvent('update-footer-navigation', ['buttons' => $details, 'number' => $this->q]);
     }
 
     public function nextQuestion()
@@ -70,7 +70,7 @@ abstract class Navigation extends TCComponent
         if ($this->q == $this->nav->count()) {
             $details = $this->getDetailsLastQuestion();
         }
-        $this->dispatchBrowserEvent('update-footer-navigation', $details);
+        $this->dispatchBrowserEvent('update-footer-navigation', ['buttons' => $details, 'number' => $this->q]);
     }
 
     public function toOverview($currentQuestion)
@@ -124,7 +124,7 @@ abstract class Navigation extends TCComponent
             $details = $this->getDetailsLastQuestion();
         }
 
-        $this->dispatchBrowserEvent('update-footer-navigation', $details);
+        $this->dispatchBrowserEvent('update-footer-navigation', ['buttons' => $details, 'number' => $this->q]);
 
         $this->dispatchBrowserEvent('current-updated', ['current' => $this->q]);
     }

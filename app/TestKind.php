@@ -12,14 +12,10 @@ class TestKind extends BaseModel
 
     const ASSIGNMENT_TYPE = 4;
 
-    protected $casts = ['uuid' => EfficientUuid::class];
-
-    /**
-     * The attributes that should be mutated to dates.
-     *
-     * @var array
-     */
-    protected $dates = ['deleted_at'];
+    protected $casts = [
+        'uuid'       => EfficientUuid::class,
+        'deleted_at' => 'datetime',
+    ];
 
     /**
      * The database table used by the model.

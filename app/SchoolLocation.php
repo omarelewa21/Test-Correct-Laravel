@@ -67,14 +67,9 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         'school_language'            => 'string',
         'auto_uwlr_import'           => 'boolean',
         'auto_uwlr_last_import'      => 'timestamp',
+        'deleted_at'                 => 'datetime',
+        'no_mail_request_detected'   => 'datetime',
     ];
-
-    /**
-     * The attributes that should be mutated to dates.
-     *
-     * @var array
-     */
-    protected $dates = ['deleted_at', 'no_mail_request_detected'];
 
     protected $appends = ['school_language_cake', 'feature_settings'];
 
@@ -1325,6 +1320,11 @@ class SchoolLocation extends BaseModel implements AccessCheckable
     public function canDelete(User $user)
     {
         return $user->isA('Administrator');
+    }
+
+    public function addDefaultSettings()
+    {
+        SchoolLocationFeatureSetting::settingToDefaultSchool()->each(fn($setting) => $this->{$setting->value} = true);
     }
 
 }

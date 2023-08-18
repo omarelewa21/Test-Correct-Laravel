@@ -39,17 +39,11 @@ class Test extends BaseModel
     const NATIONAL_ITEMBANK_SCOPES = ['cito', 'exam', 'ldt'];
 
     protected $casts = [
-        'uuid'  => EfficientUuid::class,
-        'draft' => 'boolean',
-        'lang'  => WscLanguage::class,
+        'uuid'       => EfficientUuid::class,
+        'draft'      => 'boolean',
+        'lang'       => WscLanguage::class,
+        'deleted_at' => 'datetime',
     ];
-
-    /**
-     * The attributes that should be mutated to dates.
-     *
-     * @var array
-     */
-    protected $dates = ['deleted_at'];
 
     /**
      * The database table used by the model.
@@ -939,7 +933,7 @@ class Test extends BaseModel
         })->mapWithKeys(function ($item, $key) use (&$orderOpenOnly) {
             return [$item['id'] => [
                 'order' => $key+1,
-                'order_open_only' => $item['question_type'] === Question::TYPE_OPEN && $item['discuss'] === 1 ? ++$orderOpenOnly : null,
+                'order_open_only' => $item['question_type'] === Question::TYPE_OPEN && (bool)$item['discuss'] ? ++$orderOpenOnly : null,
                 ...$item,
             ]];
         })->toArray();

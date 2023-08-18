@@ -123,12 +123,12 @@
             @endif
         </x-slot>
         <x-slot name="footerbuttons">
-            <x-button.text-button type="link"
+            <x-button.text type="link"
                                   href="{{ $playerUrl }}?q=1"
                                   rotateIcon="180"
             >
                 <x-icon.chevron/>
-                <span>{{ __('test_take.back_to_questions') }}</span></x-button.text-button>
+                <span>{{ __('test_take.back_to_questions') }}</span></x-button.text>
             <x-button.cta size="sm"
                           onclick="livewire.find(document.querySelector('[testtakemanager]').getAttribute('wire:id')).call('turnInModal')">
                 <span>{{ __('test_take.turn_in') }}</span>

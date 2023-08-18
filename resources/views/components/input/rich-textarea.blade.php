@@ -7,11 +7,11 @@
         <textarea
                 {{ $attributes->merge(['class' => 'form-input resize-none']) }}
                 x-data=""
-                x-init="{{ $initFunctionCall }}"
+                x-init="await {{ $initFunctionCall }}"
                 id="{{ $editorId }}"
                 name="{{ $editorId }}"
                 @disabled($disabled)
-                x-on:reinitialize-editor-{{ $editorId }}.window="{{ $initFunctionCall }}"
+                x-on:reinitialize-editor-{{ $editorId }}.window="await {{ $initFunctionCall }}"
         > {{ $slot ?? '' }} </textarea>
     </div>
 </div>

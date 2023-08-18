@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use tcCore\SchoolYear;
 use Ramsey\Uuid\Uuid;
@@ -131,7 +132,8 @@ FUNC;
             });
 
             $collectionWithoutQuestionTables->unique()->each(function ($tableName) use ($uuidSelectFunction) {
-                $count = DB::select(DB::raw('select count(*) as aantal from ' . $tableName . ' where uuid is null'))[0]->aantal;
+                $expression = DB::raw('select count(*) as aantal from ' . $tableName . ' where uuid is null');
+                $count = DB::select($expression->getValue(DB::connection()->getQueryGrammar()))[0]->aantal;
                 $numberPerRound = 100000;
                 $rounds = ceil($count / $numberPerRound);
                 echo sprintf('[%s] records: %d', strtoupper($tableName), $count) . PHP_EOL;

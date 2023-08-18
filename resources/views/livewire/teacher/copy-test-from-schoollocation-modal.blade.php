@@ -27,10 +27,10 @@
 
     </x-slot>
     <x-slot name="footer">
-        <div class="flex justify-end w-full gap-4">
-            <x-button.text-button wire:click="closeModal">
+        <div class="flex justify-end w-full gap-4 items-center">
+            <x-button.text wire:click="closeModal">
                 <span>{{__('modal.annuleren')}}</span>
-            </x-button.text-button>
+            </x-button.text>
             <x-button.cta wire:click="copy('{{ $this->testUuid }}')">
                 <x-icon.checkmark/>
                 <span>{{__('teacher.make copy')}}</span>

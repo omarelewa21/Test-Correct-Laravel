@@ -11,11 +11,6 @@ class Logging
     static $URL_PATH_LOGGING = [
         # method = ALL will log every type of method
         # Every role can have either a blacklist or whitelist, but not both
-        'School manager' => [
-            'blacklist' => [
-                ["path" => "api-c/message", "method" => "GET"],
-            ]
-        ],
         'Administrator' => [
             'blacklist' => [
                 ["path" => "api-c/message", "method" => "GET"],

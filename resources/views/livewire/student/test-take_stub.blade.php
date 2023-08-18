@@ -158,12 +158,12 @@
     </div>
 
     <x-slot name="footerbuttons">
-        <x-button.text-button
+        <x-button.text
                 onclick="livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).call('previousQuestion')"
                 href="#" rotateIcon="180">
             <x-icon.chevron/>
             <span>{{ __("test-take_stub.Vorige vraag") }}</span>
-        </x-button.text-button>
+        </x-button.text>
 
         <x-button.cta
                 onclick="livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).call('showModal')"
@@ -189,9 +189,9 @@
             </x-slot>
 
             <x-slot name="footer">
-                <x-button.text-button @click="open = false">
+                <x-button.text @click="open = false">
                     <x-icon.chevron/>
-                    <span>{{ __("test-take_stub.Terug") }}</span></x-button.text-button>
+                    <span>{{ __("test-take_stub.Terug") }}</span></x-button.text>
                 <x-button.primary><span>{{ __("test-take_stub.Doorgaan") }}</span>
                     <x-icon.arrow/>
                 </x-button.primary>

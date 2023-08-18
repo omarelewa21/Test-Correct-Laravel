@@ -4,6 +4,7 @@ namespace tcCore\Http\Livewire\Teacher;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Ramsey\Uuid\Uuid;
 use tcCore\BaseSubject;
 use tcCore\EducationLevel;
@@ -78,7 +79,8 @@ class TestsOverview extends OverviewComponent
     protected function getDatasource()
     {
         try { // added for compatibility with mariadb
-            \DB::select(\DB::raw("set session optimizer_switch='condition_fanout_filter=off';"));
+            $expression = DB::raw("set session optimizer_switch='condition_fanout_filter=off';");
+            DB::statement($expression->getValue(DB::connection()->getQueryGrammar()));
         } catch (\Exception $e) {
         }
 

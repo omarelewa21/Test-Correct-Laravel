@@ -57,10 +57,10 @@
                         <span>{{__('auth.download_student_app')}}</span>
                     </x-button.primary>
                     <h5 class="hidden inline-flex mt-2 md:mt-0">&amp;</h5>
-                    <x-button.text-button class="hidden">
+                    <x-button.text class="hidden">
                         <span>{{__('auth.request_account_from_teacher')}}</span>
                         <x-icon.arrow/>
-                    </x-button.text-button>
+                    </x-button.text>
                 </div>
             </div>
         </div>

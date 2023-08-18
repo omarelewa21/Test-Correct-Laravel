@@ -1,8 +1,5 @@
 
 /* ckeditor comments */
-.ck.ck-balloon-panel {
-    display: none !important;
-}
 .ck-thread.ck-thread--active {
     display: none;
 }
@@ -134,24 +131,24 @@
 /* label color primary when hovering... */
 .comment-emoji-picker,
 .comment-color-picker {
-    @apply w-full mb-6;
+    @apply w-full mb-6 flex flex-col-reverse;
 }
 
-.comment-emoji-picker:is(:hover, :active, :focus, :focus-within) .comment-emoji-picker-label,
-.comment-color-picker:is(:hover, :active, :focus, :focus-within) .comment-color-picker-label,
+.comment-emoji-picker:is(:hover, :active, :focus, :focus-within, .picker-focussed) .comment-emoji-picker-label,
+.comment-color-picker:is(:hover, :active, :focus, :focus-within, .picker-focussed) .comment-color-picker-label,
 .comment-feedback-editor:is(:hover, :active, :focus, :focus-within) .comment-feedback-editor-label {
     color: var(--teacher-Primary);
 }
 
-.comment-emoji-picker:is(:active, :focus, :focus-within) .comment-emoji-picker-label,
-.comment-color-picker:is(:active, :focus, :focus-within) .comment-color-picker-label,
+.comment-emoji-picker:is(:active, :focus, :focus-within, .picker-focussed) .comment-emoji-picker-label,
+.comment-color-picker:is(:active, :focus, :focus-within, .picker-focussed) .comment-color-picker-label,
 .comment-feedback-editor:is(:active, :focus, :focus-within) .comment-feedback-editor-label {
     font-weight: bold;
 }
 
 .comment-emoji-picker-label,
 .comment-color-picker-label {
-    @apply w-full mb-[5px] mt-2;
+    @apply w-full mb-[5px];
 }
 
 .comment-color-picker-label.disabled {
@@ -159,9 +156,8 @@
 }
 
 
-.comment-editor .ck.ck-editor__main p > .ck-comment-marker {
+.comment-editor .ck.ck-editor__main p .ck-comment-marker {
     border: 1px solid transparent;
-    cursor: pointer;
 }
 .comment-editor  .ck.ck-editor__main .ck-content > * {
     line-height: 2;
@@ -272,4 +268,12 @@
 .color-picker-radio svg,
 .color-picker-radio span {
     pointer-events: none;
+}
+
+#co-learning-page ~ .drawer {
+    height: calc(100vh - var(--header-height) - 70px);
+}
+
+.with-inline-feedback .ck-fake-panel {
+    display: none;
 }

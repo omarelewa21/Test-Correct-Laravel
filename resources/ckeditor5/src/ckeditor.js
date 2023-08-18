@@ -223,7 +223,7 @@ Editor.defaultConfig = {
             'fontColor',
             'heading',
             'removeFormat',
-            // 'wproofreader',
+            'wproofreader',
         ]
     },
     language: 'nl',

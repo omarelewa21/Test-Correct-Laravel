@@ -146,11 +146,11 @@
             </div>
     </x-slot>
     <x-slot name="footer">
-        <div class="flex justify-between w-full">
-            <x-button.text-button wire:click="$emit('closeModal')">
+        <div class="flex justify-between w-full items-center">
+            <x-button.text wire:click="$emit('closeModal')">
                 <x-icon.arrow-left/>
                 <span>{{ __("modal.Terug") }}</span>
-            </x-button.text-button>
+            </x-button.text>
 
             <div class="absolute bottom-8 left-1/2 -translate-x-1/2 h-4 flex items-center justify-center space-x-2">
                 <div class="border-0 rounded-xl bg-bluegrey h-[14px] w-[14px]"></div>

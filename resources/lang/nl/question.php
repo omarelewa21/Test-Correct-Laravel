@@ -55,4 +55,5 @@ return [
     'matrixquestionsinglechoice'           => 'Matrix',
     'groupquestion'                        => 'Groep',
     'Vraaggroep'                           => 'Vraaggroep',
+    'selected_words'                       => 'Geselecteerde woorden',
 ];

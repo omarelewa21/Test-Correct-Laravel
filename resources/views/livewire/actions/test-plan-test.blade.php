@@ -22,7 +22,7 @@
         @endif
     @elseif($variant == 'icon-button')
         @if($disabled)
-            <x-button.icon wire:key='test-plan-test-{{ $uuid }}' color="cta opacity-20 cursor-not-allowed" title="{{ __('teacher.Inplannen') }}" selid="test-plan-btn">
+            <x-button.icon wire:key='test-plan-test-{{ $uuid }}' color="cta" class="opacity-20 cursor-not-allowed" title="{{ __('teacher.Inplannen') }}" selid="test-plan-btn">
                 <x-icon.schedule/>
             </x-button.icon>
         @else
