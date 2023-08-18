@@ -310,13 +310,7 @@ export class Entry extends sidebarComponent {
 
         if(!selectedEl) return this.startEditingShape();
 
-        if(selectedEl === this.entryContainer) {
-            if(selectedEl.classList.contains('editing')) return;
-
-            this.skipEntryContainerClick = true;
-            this.startEditingShape();
-            return;
-        }
+        if(selectedEl === this.entryContainer && selectedEl.classList.contains('editing')) return;
 
         this.unselect(selectedEl);
         this.select();
