@@ -166,6 +166,12 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         currentToolIs(toolname) {
             return this.params.currentTool === toolname;
         },
+        toolAndShapeOfSameType(shape) {
+            return this.getElementShapeType(shape) === this.params.currentTool;
+        },
+        getElementShapeType(shape) {
+            return shape.id.split("-")[0];
+        },
         isTeacher() {
             return this.params.isTeacher;
         }
@@ -323,6 +329,13 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
                     Canvas.params.highlightedShape.svg.unhighlight();
                     Canvas.params.highlightedShape = null;
                 }
+            },
+            /**
+             * @param {*} g element 
+             * @returns object containing element svg (svgShape class) and its sidebar (Entry class)
+             */
+            getShapeDataObject(shape) {
+                return Canvas.layers[Canvas.layerID2Key(shape.parentElement.id)].shapes[shape.id];
             }
         }
 
@@ -1345,6 +1358,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
 
     async function submitDrawingData() {
         if (drawingApp.params.isPreview) return;
+        prepareShapesForSubmission();
 
         const b64Strings = encodeSvgLayersAsBase64Strings();
         const grid = (Canvas.layers.grid.params.hidden) ? "0.00" : drawingApp.params.gridSize.toString();
@@ -1419,6 +1433,12 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         addNunitoFontToSVG(svg);
         adjustViewboxProperties(svg, panGroupSize);
         return svg;
+    }
+
+    function prepareShapesForSubmission() {
+        rootElement.querySelectorAll(".selected,.editing").forEach((element) => {
+            element.classList.remove("selected", "editing");
+        });
     }
 
     function addNunitoFontToSVG(svg) {
@@ -1518,11 +1538,11 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         const layerObject = Canvas.layers[Canvas.layerID2Key(layerID)];
         if (!layerObject.props.id.includes(layerObject.Canvas.params.currentLayer)) return;
 
-        const selectedEl = rootElement.querySelector('.selected');
+        const selectedShape = rootElement.querySelector('.selected');
         const selectedSvgShape = evt.target.closest("g.shape");
 
-        if (selectedEl) removeSelectState(selectedEl);
-        if (selectedEl === selectedSvgShape) return;
+        if (selectedShape) removeSelectState(selectedShape);
+        if (selectedShape === selectedSvgShape) return;
 
         addSelectState(selectedSvgShape);
     }
@@ -2034,6 +2054,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         makeSelectedBtnActive(evt.currentTarget);
         enableSpecificPropSelectInputs();
         setCursorTypeAccordingToCurrentType();
+        unselectShapeIfNecessary();
         if (!drawingApp.currentToolIs("drag")) {
             drawingApp.warnings.whenAnyToolButDragSelected.show();
         }
@@ -2064,6 +2085,20 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             startOfSlice = 0;
         }
         return id.slice(startOfSlice, endOfSlice);
+    }
+
+    function unselectShapeIfNecessary() {
+        const selectedShape = rootElement.querySelector('.selected');
+        if(shouldUnselectShape(selectedShape)) {
+            const shapeDataObject = Canvas.getShapeDataObject(selectedShape);
+            shapeDataObject.sidebar.unselect();
+        }
+    }
+
+    function shouldUnselectShape(selectedShape) {
+        return selectedShape
+            && !drawingApp.currentToolIs("drag")
+            && !drawingApp.toolAndShapeOfSameType(selectedShape);
     }
 
     function processEndmarkerTypeChange(evt) {
@@ -2521,35 +2556,23 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         incrButton.disabled = currentValue === max;
     }
 
-    function checkIfShouldeditShape(selectedEl) {
-        return selectedEl && checkIfFocusedDataButtonIsSameAsSelectedElement(selectedEl)
-    }
-
-    function checkIfFocusedDataButtonIsSameAsSelectedElement(selectedEl) {
-        const currentDataButton = rootElement.querySelector('[data-button-group=tool].active');
-        if(!currentDataButton) return false;
-
-        const shapeType = selectedEl.id.split('-')[0];
-        return shapeType === currentDataButton.id.split('-')[1];
+    function checkIfShouldeditShape(selectedShape) {
+        return selectedShape && drawingApp.toolAndShapeOfSameType(selectedShape)
     }
 
     function editShape(functionName) {
-        const selectedEl = rootElement.querySelector('.editing');
-        if(!checkIfShouldeditShape(selectedEl)) return;
+        const selectedShape = rootElement.querySelector('.editing');
+        if(!checkIfShouldeditShape(selectedShape)) return;
 
-        const layerObject = Canvas.layers[Canvas.layerID2Key(selectedEl.parentElement.id)];
-        const selectedSvgShapeClass = layerObject.shapes[selectedEl.id].svg;
-
+        const selectedSvgShapeClass = Canvas.getShapeDataObject(selectedShape).svg;
         functionName in selectedSvgShapeClass && selectedSvgShapeClass[functionName]();        
     }
 
     function ShouldEditTextOnClick() {
-        const selectedEl = rootElement.querySelector('.editing');
-        if(!checkIfShouldeditShape(selectedEl)) return;
+        const selectedShape = rootElement.querySelector('.editing');
+        if(!checkIfShouldeditShape(selectedShape)) return;
 
-        const shapeType = selectedEl.id.split('-')[0];
-
-        return shapeType === 'text' && Canvas.params.editingTextInZone;
+        return drawingApp.currentToolIs('text') && Canvas.params.editingTextInZone;
     }
 
     return {UI, Canvas, drawingApp}
