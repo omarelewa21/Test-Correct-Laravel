@@ -13572,6 +13572,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             }
             return _context.abrupt("return");
           case 2:
+            prepareShapesForSubmission();
             b64Strings = encodeSvgLayersAsBase64Strings();
             grid = Canvas.layers.grid.params.hidden ? "0.00" : drawingApp.params.gridSize.toString();
             panGroupSize = getPanGroupSize();
@@ -13584,13 +13585,13 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             _context.t3 = b64Strings.grid;
             _context.t4 = grid;
             _context.t5 = panGroupSize;
-            _context.next = 16;
+            _context.next = 17;
             return getPNGQuestionPreviewStringFromSVG(panGroupSize);
-          case 16:
+          case 17:
             _context.t6 = _context.sent;
-            _context.next = 19;
+            _context.next = 20;
             return getPNGCorrectionModelStringFromSVG(panGroupSize);
-          case 19:
+          case 20:
             _context.t7 = _context.sent;
             _context.t8 = cleanedSvg.question;
             _context.t9 = cleanedSvg.answer;
@@ -13606,7 +13607,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
               cleaned_answer_svg: _context.t9
             };
             _context.t0.handleUpdateDrawingData.call(_context.t0, _context.t10);
-          case 24:
+          case 25:
           case "end":
             return _context.stop();
         }
@@ -13719,6 +13720,11 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     addNunitoFontToSVG(svg);
     adjustViewboxProperties(svg, panGroupSize);
     return svg;
+  }
+  function prepareShapesForSubmission() {
+    rootElement.querySelectorAll(".selected,.editing").forEach(function (element) {
+      element.classList.remove("selected", "editing");
+    });
   }
   function addNunitoFontToSVG(svg) {
     var defsNode = svg.querySelector('defs', '');
@@ -14748,7 +14754,6 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
   function editShape(functionName) {
     var selectedShape = rootElement.querySelector('.editing');
     if (!checkIfShouldeditShape(selectedShape)) return;
-    console.log(Canvas.getShapeDataObject(selectedShape));
     var selectedSvgShapeClass = Canvas.getShapeDataObject(selectedShape).svg;
     functionName in selectedSvgShapeClass && selectedSvgShapeClass[functionName]();
   }
@@ -14986,7 +14991,6 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
     _this.updateHideState();
     _this.customizeButtonsAccordingToType();
     _this.deleteModal = _this.root.querySelector('#delete-confirm');
-    _this.skipEntryContainerClick = false;
     return _this;
   }
   _createClass(Entry, [{
@@ -15052,8 +15056,8 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
         element: this.btns.edit,
         events: {
           "click": {
-            callback: function callback() {
-              _this2.handleEditShape();
+            callback: function callback(evt) {
+              _this2.handleEditShape(evt);
             }
           }
         }
@@ -15182,10 +15186,6 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
   }, {
     key: "handleClick",
     value: function handleClick(evt) {
-      if (this.skipEntryContainerClick) {
-        this.skipEntryContainerClick = false;
-        return;
-      }
       var selectedEl = this.getSelectedElement();
       if (selectedEl) this.unselect(selectedEl);
       if (selectedEl === this.entryContainer) return;
@@ -15210,7 +15210,7 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
       var shapeId = element.id.substring(6);
       element.classList.remove('selected');
       element.closest('#canvas-sidebar-container').querySelector("#".concat(shapeId)).classList.remove('selected');
-      this.removeEditingShape();
+      this.removeAnyEditingShapes();
       document.activeElement.blur();
     }
   }, {
@@ -15247,31 +15247,26 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
     }
   }, {
     key: "handleEditShape",
-    value: function handleEditShape() {
+    value: function handleEditShape(evt) {
       var selectedEl = this.getSelectedElement();
       if (!selectedEl) return this.startEditingShape();
-      if (selectedEl === this.entryContainer) {
-        if (selectedEl.classList.contains('editing')) return;
-        this.skipEntryContainerClick = true;
-        this.startEditingShape();
-        return;
-      }
+      if (selectedEl === this.entryContainer && selectedEl.classList.contains('editing')) return;
       this.unselect(selectedEl);
       this.select();
-      this.skipEntryContainerClick = true;
       this.startEditingShape();
+      evt.stopPropagation();
     }
   }, {
     key: "startEditingShape",
     value: function startEditingShape() {
-      this.removeEditingShape();
+      this.removeAnyEditingShapes();
       this.entryContainer.classList.add('editing');
       this.svgShape.shapeGroup.element.classList.add('editing');
       this.showRelevantShapeMenu();
     }
   }, {
-    key: "removeEditingShape",
-    value: function removeEditingShape() {
+    key: "removeAnyEditingShapes",
+    value: function removeAnyEditingShapes() {
       this.root.querySelectorAll('.editing').forEach(function (element) {
         element.classList.remove('editing');
       });

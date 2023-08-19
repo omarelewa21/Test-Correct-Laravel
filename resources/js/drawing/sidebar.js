@@ -52,7 +52,6 @@ export class Entry extends sidebarComponent {
         this.customizeButtonsAccordingToType();
 
         this.deleteModal = this.root.querySelector('#delete-confirm');
-        this.skipEntryContainerClick = false;
     }
 
     get eventListenerSettings() {
@@ -118,8 +117,8 @@ export class Entry extends sidebarComponent {
                 element: this.btns.edit,
                 events: {
                     "click": {
-                        callback: () => {
-                            this.handleEditShape();
+                        callback: (evt) => {
+                            this.handleEditShape(evt);
                         }
                     }
                 }
@@ -250,10 +249,6 @@ export class Entry extends sidebarComponent {
     }
 
     handleClick(evt) {
-        if(this.skipEntryContainerClick) {
-            this.skipEntryContainerClick = false;
-            return;
-        }
         const selectedEl = this.getSelectedElement();
         if (selectedEl) this.unselect(selectedEl);
         if (selectedEl === this.entryContainer) return;
@@ -273,7 +268,7 @@ export class Entry extends sidebarComponent {
         const shapeId = element.id.substring(6);
         element.classList.remove('selected');
         element.closest('#canvas-sidebar-container').querySelector(`#${shapeId}`).classList.remove('selected');
-        this.removeEditingShape();
+        this.removeAnyEditingShapes();
         document.activeElement.blur();
     }
     toggleSelect() {
@@ -305,7 +300,7 @@ export class Entry extends sidebarComponent {
         }
     }
 
-    handleEditShape() {
+    handleEditShape(evt) {
         const selectedEl = this.getSelectedElement();
 
         if(!selectedEl) return this.startEditingShape();
@@ -314,18 +309,18 @@ export class Entry extends sidebarComponent {
 
         this.unselect(selectedEl);
         this.select();
-        this.skipEntryContainerClick = true;
         this.startEditingShape();
+        evt.stopPropagation();
     }
 
     startEditingShape() {
-        this.removeEditingShape();
+        this.removeAnyEditingShapes();
         this.entryContainer.classList.add('editing');
         this.svgShape.shapeGroup.element.classList.add('editing');
         this.showRelevantShapeMenu();
     }
 
-    removeEditingShape() {
+    removeAnyEditingShapes() {
         this.root.querySelectorAll('.editing').forEach((element) => {
             element.classList.remove('editing');
         });
