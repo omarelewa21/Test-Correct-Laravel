@@ -465,10 +465,13 @@ document.addEventListener("alpine:init", () => {
                     this.handleGrid(toolName);
 
                     toolName.drawingApp.init();
+
                 } else {
                     const component = getClosestLivewireComponentByAttribute(this.$root, "questionComponent");
                     component.call("render");
                 }
+
+                isTeacher && this.$dispatch("set-allow-paste", !show);  // disable filepond paste when drawing tool is open
             });
 
             toolName.Canvas.layers.answer.enable();
