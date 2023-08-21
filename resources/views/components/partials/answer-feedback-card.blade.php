@@ -82,6 +82,7 @@
     </div>
 
     <div x-init="
+            await $nextTick();
             setTextOverflow();
          "
          class="feedback-card-message"
