@@ -19,6 +19,7 @@ use tcCore\Http\Controllers\TestTakeLaravelController;
 use tcCore\Http\Enums\AnswerFeedbackFilter;
 use tcCore\Http\Livewire\CoLearning\CompletionQuestion;
 use tcCore\Http\Livewire\TCComponent;
+use tcCore\Http\Traits\Questions\WithCompletionConversion;
 use tcCore\Http\Traits\WithInlineFeedback;
 use tcCore\TestTake;
 use tcCore\TestTakeStatus;
@@ -26,6 +27,7 @@ use tcCore\TestTakeStatus;
 class CoLearning extends TCComponent
 {
     use WithInlineFeedback;
+    use WithCompletionConversion;
 
     const SESSION_KEY = 'co-learning-answer-options';
 
@@ -200,29 +202,21 @@ class CoLearning extends TCComponent
      */
     public function updatedRating(): void
     {
-        $this->handleUpdatingRating();
+        $this->handleUpdatingRatingAndJson();
     }
 
     /**
      * Rating update coming from ColearningQuestion Component
      * Update Rating from emit of child livewire Question component
      */
-    public function updateAnswerRating($answerOptions): void
+    public function updateAnswerRating(array $json, bool $fullyRated): void
     {
-        $questionIsFullyRated = $answerOptions['amountChecked'] === $answerOptions['amountCheckable'];
-
-        if ($this->allowRatingWithHalfPoints) {
-            $this->rating = round($this->maxRating / $answerOptions['maxScore'] * $answerOptions['score'] * 2) / 2;
-        } else {
-            $this->rating = round($this->maxRating / $answerOptions['maxScore'] * $answerOptions['score']);
-        }
-
-        $this->handleUpdatingRating($questionIsFullyRated);
+        $this->handleUpdatingRatingAndJson($fullyRated, $json);
 
         $this->dispatchBrowserEvent('updated-score', ['score' => $this->rating]);
     }
 
-    private function handleUpdatingRating($updateAnswerRatingRating = true)
+    private function handleUpdatingRatingAndJson($updateAnswerRatingRating = true, $json = null)
     {
         if ((int)$this->rating < 0) {
             $this->rating = 0;
@@ -231,8 +225,14 @@ class CoLearning extends TCComponent
             $this->rating = $this->maxRating;
         }
 
+        if($json) {
+            $this->answerRating->json = $json;
+        }
         if ($updateAnswerRatingRating) {
             $this->answerRating->rating = $this->rating;
+        }
+
+        if($updateAnswerRatingRating || $json) {
             $this->answerRating->save();
         }
 
@@ -489,4 +489,74 @@ class CoLearning extends TCComponent
 
         return $this->answerRating->answer->isAnswered;
     }
+
+    public function toggleValueUpdated(int $id, string $state, int|float $value): void
+    {
+        $json = $this->answerRating?->fresh()?->json ?? [];
+
+        $json[$id] = $state === 'on';
+
+        $correctAnswerStructure = $this->getCurrentQuestion()->getCorrectAnswerStructure();
+
+        switch ($this->getCurrentQuestion()->type . '-' . $this->getCurrentQuestion()->subtype) {
+            case 'MatchingQuestion-classify':
+            case 'MatchingQuestion-matching':
+                $correctAnswerStructure = $correctAnswerStructure->filter(fn($answer) => $answer->type === 'RIGHT');
+
+                $scorePerTag = round($this->maxRating / $correctAnswerStructure->count(),2);
+                $ratingPerAnswerOption = $correctAnswerStructure->mapWithKeys(fn ($answerData) => [$answerData->id => $scorePerTag]);
+                break;
+            case 'CompletionQuestion-multi':
+            case 'CompletionQuestion-completion':
+                $correctAnswerStructure = $correctAnswerStructure->filter(fn($answer) => $answer->correct);
+
+                $scorePerTag =  round($this->maxRating / $correctAnswerStructure->count(), 2);
+                $ratingPerAnswerOption = $correctAnswerStructure->mapWithKeys(fn ($answerData) => [$answerData->tag => $scorePerTag]);
+                break;
+//            case 'MultipleChoiceQuestion-ARQ': // no toggles
+            case 'MultipleChoiceQuestion-MultipleChoice':
+                //TODO DO WE WANT TO GIVE THE POINTS THE TEACHER SET AT THE ANSWER MODEL, OR EVEN DIVIDE SCORE PER TAG
+                $scorePerTag =  round($this->maxRating / $correctAnswerStructure->count(), 2);
+
+                //TODO DO WE WANT TO GIVE THE POINTS THE TEACHER SET AT THE ANSWER MODEL:
+                $ratingPerAnswerOption = $correctAnswerStructure->mapWithKeys(function ($answerData) {
+                    return [$answerData->order => $answerData->score];
+                });
+                break;
+            case 'MultipleChoiceQuestion-TrueFalse':
+                $this->rating = array_values($json)[0] ? $correctAnswerStructure->max->score : 0;
+                $this->updateAnswerRating($json, true);
+
+                return;
+            default:
+                dd($this->getCurrentQuestion()->subtype);
+                $ratingPerAnswerOption = [];
+        }
+        $fullyAnswered = collect($json)->count() === $ratingPerAnswerOption->count() ;
+
+        $rating = collect($json)->filter(fn($value) => $value)->reduce(fn ($carry, $value, $key) => $carry + ($ratingPerAnswerOption[$key] ?? 0), 0);
+        $this->rating = $this->allowRatingWithHalfPoints ? $rating : round($rating);
+
+        $this->updateAnswerRating($json, $fullyAnswered);
+    }
+
+//    private function currentAnswerRatingFullyRated(?Array $json) : bool
+//    {
+//        switch (sprintf("%s-%s",$this->getCurrentQuestion()->type, $this->getCurrentQuestion()->subtype)) {
+//            case 'CompletionQuestion-completion':
+//                //get amount checkable, amount of answer options that can be toggled
+//                // compare with amount of records in $json array
+//
+//                $amountOfCompletionQuestionOptions = $this->countCompletionQuestionOptions($this->getCurrentQuestion()->parentInstance->question);
+//
+//                return $amountOfCompletionQuestionOptions === count($json);
+//            default:
+////                dd("not implemented", sprintf(sprintf("%s-%s",$this->getCurrentQuestion()->type, $this->getCurrentQuestion()->subtype)));
+//                return true;
+//        }
+//
+//        //todo make implementation for different question types
+//        // completion question, all question options have to be toggled.
+//    }
+
 }

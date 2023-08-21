@@ -678,7 +678,7 @@ class TestTakesController extends Controller
                 $testTake->getAttribute('test_id'),
                 $testTake->getDottedDiscussingQuestionIdWithOptionalGroupQuestionId(),
                 $testTake->isDiscussionTypeOpenOnly(),
-                skipDoNotDiscuss: $testTake->studentsAreInNewCoLearningAndDiscussingTypeIsOpenOnly()
+                skipDoNotDiscuss: $testTake->studentsAreInNewCoLearning()
             );
 
             $testTake->discussingParentQuestions()->delete();
@@ -721,7 +721,7 @@ class TestTakesController extends Controller
                         $testTake->getAttribute('test_id'),
                         $newQuestionIdParents,
                         $testTake->isDiscussionTypeOpenOnly(),
-                        skipDoNotDiscuss: $testTake->studentsAreInNewCoLearningAndDiscussingTypeIsOpenOnly()
+                        skipDoNotDiscuss: $testTake->studentsAreInNewCoLearning()
                     ) !== false),
 
                 );

@@ -10091,6 +10091,14 @@ document.addEventListener("alpine:init", function () {
             }
           }, _callee31);
         }))();
+      },
+      toggleTicked: function toggleTicked(event) {
+        this.updateLivewireComponent(event);
+      },
+      updateLivewireComponent: function updateLivewireComponent(event) {
+        if (event.hasOwnProperty("identifier")) {
+          this.$wire.toggleValueUpdated(event.identifier, event.state, event.value);
+        }
       }
     };
   });
@@ -18236,8 +18244,11 @@ window.RichTextEditor = {
             parameterBag.shouldNotGroupWhenFull = true;
             _context.next = 4;
             return this.createTeacherEditor(parameterBag, function (editor) {
-
               // this.hideWProofreaderChevron(parameterBag.allowWsc, editor);
+
+              editor.editing.view.change(function (writer) {
+                writer.setStyle('height', '150px', editor.editing.view.document.getRoot());
+              });
             });
           case 4:
             return _context.abrupt("return", _context.sent);

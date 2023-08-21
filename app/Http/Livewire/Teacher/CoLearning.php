@@ -168,7 +168,7 @@ class CoLearning extends TCComponent implements CollapsableHeader
 
     public function startCoLearningSession($discussionType)
     {
-        if (!in_array($discussionType, ['OPEN_ONLY', 'ALL'])) {
+        if (!in_array($discussionType, [self::DISCUSSION_TYPE_OPEN_ONLY, self::DISCUSSION_TYPE_ALL])) {
             throw new \Exception('Wrong discussion type');
         }
 
@@ -197,9 +197,9 @@ class CoLearning extends TCComponent implements CollapsableHeader
             $this->discussingQuestion = $this->testTake->discussingQuestion()->first();
         }
 
-//        if ($discussionType === 'ALL') {
-//            return CakeRedirectHelper::redirectToCake('test_takes.discussion', $this->testTake->uuid);
-//        }
+        if(!settings()->allowNewCoLearningTeacher()) {
+            return CakeRedirectHelper::redirectToCake('test_takes.discussion', $this->testTake->uuid);
+        }
 
         //finally set bool to true
         $this->coLearningHasBeenStarted = true;

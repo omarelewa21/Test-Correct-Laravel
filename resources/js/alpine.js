@@ -3328,6 +3328,14 @@ document.addEventListener("alpine:init", () => {
 
             this.$wire.goToFinishedCoLearningPage();
         },
+        toggleTicked(event) {
+            this.updateLivewireComponent(event);
+        },
+        updateLivewireComponent(event) {
+            if (event.hasOwnProperty("identifier")) {
+                this.$wire.toggleValueUpdated(event.identifier, event.state, event.value);
+            }
+        },
     }));
     Alpine.data("drawingQuestionImagePreview", () => ({
         maxTries: 10,

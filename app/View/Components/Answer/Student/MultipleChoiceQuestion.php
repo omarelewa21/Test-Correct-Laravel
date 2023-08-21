@@ -16,6 +16,7 @@ class MultipleChoiceQuestion extends QuestionComponent
         public Question $question,
         public Answer   $answer,
         public bool     $disabledToggle = false,
+        public bool     $inCoLearning = false,
     ) {
         parent::__construct($question, $answer);
     }

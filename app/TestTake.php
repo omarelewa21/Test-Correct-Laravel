@@ -203,7 +203,7 @@ class TestTake extends BaseModel
             }
 
             if ($testTake->test_take_status_id === TestTakeStatus::STATUS_DISCUSSING) {
-                if ($testTake->studentsAreInNewCoLearningAndDiscussingTypeIsOpenOnly()) {
+                if ($testTake->studentsAreInNewCoLearning()) {
                     AfterResponse::$performAction[] = fn() => TestTakeChangeDiscussingQuestion::dispatch($testTake->uuid);
                 }
             }
@@ -1325,10 +1325,9 @@ class TestTake extends BaseModel
         return !static::$withAppends;
     }
 
-    public function studentsAreInNewCoLearningAndDiscussingTypeIsOpenOnly()
+    public function studentsAreInNewCoLearning()
     {
-        return ($this->schoolLocation->allow_new_co_learning || $this->schoolLocation->allow_new_co_learning_teacher)
-            && $this->isDiscussionTypeOpenOnly();
+        return ($this->schoolLocation->allow_new_co_learning || $this->schoolLocation->allow_new_co_learning_teacher);
     }
 
     public function isDiscussionTypeOpenOnly()

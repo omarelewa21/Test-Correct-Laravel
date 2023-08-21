@@ -4,6 +4,7 @@ namespace tcCore\View\Components\Answer\Student;
 
 use Illuminate\Support\Str;
 use tcCore\Answer;
+use tcCore\AnswerRating;
 use tcCore\Http\Traits\Questions\WithCompletionConversion;
 use tcCore\Question;
 
@@ -16,12 +17,13 @@ class CompletionQuestion extends QuestionComponent
     public $answerStruct;
 
     public function __construct(
-        public Question $question,
-        public Answer   $answer,
-        public bool     $disabledToggle = false,
-        public bool     $showToggles = true,
-        public bool     $inAssessment = false,
-        public bool     $inCoLearning = false,
+        public Question      $question,
+        public Answer        $answer,
+        public bool          $disabledToggle = false,
+        public bool          $showToggles = true,
+        public bool          $inAssessment = false,
+        public bool          $inCoLearning = false,
+        public ?AnswerRating $answerRating = null,
     ) {
         parent::__construct($question, $answer);
     }
@@ -49,6 +51,15 @@ class CompletionQuestion extends QuestionComponent
      */
     private function isToggleActiveForAnswer($givenAnswer, $correctAnswer): ?bool
     {
+        if( $this->inCoLearning ) {
+            if ($studentAnswerRating = $this->answerRating) {
+                if ($this->ratingHasBoolValueForKey($studentAnswerRating, $correctAnswer->tag)) {
+                    return $studentAnswerRating->json[$correctAnswer->tag];
+                }
+            }
+            return null;
+        }
+
         if ($this->question->isSubType('multi')) {
             return $givenAnswer === $correctAnswer->answer;
         }

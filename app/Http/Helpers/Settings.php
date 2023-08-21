@@ -15,4 +15,9 @@ class Settings
     {
         return ($user ?? auth()->user())->schoolLocation->allow_new_co_learning ?? false;
     }
+
+    public function allowNewCoLearningTeacher(?User $user = null) : bool
+    {
+        return ($user ?? auth()->user())->schoolLocation->allow_new_co_learning_teacher ?? false;
+    }
 }

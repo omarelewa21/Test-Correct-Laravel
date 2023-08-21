@@ -9,8 +9,7 @@
                 @js($this->hasFeedback)
              )"
      x-on:resize.window.debounce.50ms="repositionAnswerFeedbackIcons()"
-     {{-- TODO: use toggle value updated event --}}
-     {{--x-on:slider-toggle-value-updated.window="toggleTicked($event.detail)"--}}
+     x-on:slider-toggle-value-updated.window="toggleTicked($event.detail)"
      wire:key="ar-{{ $this->answerRating->getKey() }}-fe-{{$this->questionFollowUpNumber .'-'. $this->answerFollowUpNumber}}"
      @endif
 >
@@ -122,9 +121,10 @@
                                 :question="$this->testTake->discussingQuestion"
 {{--                                :answer="$this->currentAnswer"--}}
                                 :answer="$this->answerRating->answer"
+                                :answerRating="$this->answerRating"
 
 {{--                                :editorId="'editor-'.$this->questionNavigationValue.'-'.$this->answerNavigationValue"--}}
-                                :editorId="'editor-'.$this->answerRating->getKey()"
+                                :editorId="'ar-'.$this->answerRating->getKey()"
 
                                 :inCoLearning="true"
                                 :inAssessment="false" {{-- completion question has two blade views and this toggles them --}}
