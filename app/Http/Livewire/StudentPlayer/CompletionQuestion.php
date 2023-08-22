@@ -46,6 +46,11 @@ abstract class CompletionQuestion extends TCComponent
             $tags[$option->tag][$option->id] = $option->answer;
         }
 
+        // Shuffle the options within each tag in original array
+        foreach ($tags as &$tagOptions) {
+            shuffle($tagOptions);
+        }
+
         $this->options = $tags;
 
         $this->questionTextPartials = $this->explodeAndModifyQuestionText($question_text);
