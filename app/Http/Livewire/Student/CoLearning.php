@@ -169,8 +169,6 @@ class CoLearning extends TCComponent
     {
         $this->coLearningFinished = true;
 
-        $this->destroyCompletionQuestionSession();
-
         $this->waitForTeacherNotificationEnabled = false;
         $this->answerRatingId = null;
         $this->answerRating = null;
@@ -461,15 +459,6 @@ class CoLearning extends TCComponent
     {
         if ($this->testParticipant->discussing_answer_rating_id !== $this->answerRatingId) {
             $this->testParticipant->update(['discussing_answer_rating_id' => $this->answerRatingId]);
-        }
-    }
-
-    /* completion question specific */
-
-    private function destroyCompletionQuestionSession()
-    {
-        if (session()->has(CompletionQuestion::SESSION_KEY)) {
-            session()->forget(CompletionQuestion::SESSION_KEY);
         }
     }
 
