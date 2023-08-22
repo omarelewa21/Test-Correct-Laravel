@@ -40,7 +40,7 @@
         </x-slot:subtitle>
         <x-slot:button>
             <x-button.cta size="md"
-                          wire:click.prevent="handleHeaderCollapse({discussionType:'ALL'})">
+                          x-on:click.prevent="handleHeaderCollapse({discussionType:'ALL'})">
                 <span>
                     @lang($this->coLearningRestart && !$this->openOnly ? 'auth.continue' : 'co-learning.start')
                 </span>
@@ -80,7 +80,7 @@
         </x-slot:subtitle>
         <x-slot:button>
             <x-button.cta size="md"
-                          @click.prevent="handleHeaderCollapse({discussionType:'OPEN_ONLY'})">
+                          x-on:click.prevent="handleHeaderCollapse({discussionType:'OPEN_ONLY'})">
                 <span>
                     @lang($this->coLearningRestart && $this->openOnly ? 'auth.continue' : 'co-learning.start')
                 </span>

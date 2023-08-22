@@ -18291,7 +18291,14 @@ window.RichTextEditor = {
     });
   },
   setMathChemTypeReadOnly: function setMathChemTypeReadOnly(editor) {
-    editor.plugins.get('MathType').stopListening();
+    try {
+      editor.plugins.get('MathType').stopListening();
+    } catch (e) {
+      if (String(e.name).includes('CKEditorError')) {
+        return;
+      }
+      throw e;
+    }
   },
   setAnswerFeedbackEventListeners: function setAnswerFeedbackEventListeners(editor) {
     var focusIsInCommentEditor = function focusIsInCommentEditor() {
@@ -18507,8 +18514,16 @@ window.RichTextEditor = {
     }
   },
   setCommentsOnly: function setCommentsOnly(editor) {
-    editor.plugins.get('CommentsOnly').isEnabled = true;
+    //disable all commands except for comments and webspellchecker
+    var input = editor.commands._commands.forEach(function (command, name) {
+      if (!['addCommentThread', 'undo', 'redo', 'WProofreaderToggle', 'WProofreaderSettings'].includes(name)) {
+        command.forceDisabled('commentsOnly');
+      }
+    });
+
+    // editor.plugins.get( 'CommentsOnly' ).isEnabled = true;
   },
+
   writeContentToTextarea: function writeContentToTextarea(editorId) {
     var editor = ClassicEditors[editorId];
     if (editor) {

@@ -479,17 +479,6 @@ class CoLearning extends TCComponent
         return $this->testTake->discussingQuestion;
     }
 
-
-
-    /* TODO colearning refactor */
-
-    public function isQuestionFullyAnswered()
-    {
-        //todo implement exceptions for different question types
-
-        return $this->answerRating->answer->isAnswered;
-    }
-
     public function toggleValueUpdated(int $id, string $state, int|float $value): void
     {
         $json = $this->answerRating?->fresh()?->json ?? [];
@@ -529,7 +518,6 @@ class CoLearning extends TCComponent
 
                 return;
             default:
-                dd($this->getCurrentQuestion()->subtype);
                 $ratingPerAnswerOption = [];
         }
         $fullyAnswered = collect($json)->count() === $ratingPerAnswerOption->count() ;
@@ -539,24 +527,5 @@ class CoLearning extends TCComponent
 
         $this->updateAnswerRating($json, $fullyAnswered);
     }
-
-//    private function currentAnswerRatingFullyRated(?Array $json) : bool
-//    {
-//        switch (sprintf("%s-%s",$this->getCurrentQuestion()->type, $this->getCurrentQuestion()->subtype)) {
-//            case 'CompletionQuestion-completion':
-//                //get amount checkable, amount of answer options that can be toggled
-//                // compare with amount of records in $json array
-//
-//                $amountOfCompletionQuestionOptions = $this->countCompletionQuestionOptions($this->getCurrentQuestion()->parentInstance->question);
-//
-//                return $amountOfCompletionQuestionOptions === count($json);
-//            default:
-////                dd("not implemented", sprintf(sprintf("%s-%s",$this->getCurrentQuestion()->type, $this->getCurrentQuestion()->subtype)));
-//                return true;
-//        }
-//
-//        //todo make implementation for different question types
-//        // completion question, all question options have to be toggled.
-//    }
 
 }

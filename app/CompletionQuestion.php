@@ -523,8 +523,8 @@ class CompletionQuestion extends Question implements QuestionInterface
 
     public function isFullyAnswered(Answer $answer): bool
     {
-        $givenAnswersCount = collect(json_decode($answer->json, true))->count();
-        return $givenAnswersCount === $this->completionQuestionAnswers()->where('correct', true)->get()->unique('tag')->count();
+        $givenAnswersCount = collect(json_decode($answer->json, true))->filter()->count();
+        return $givenAnswersCount === $this->completionQuestionAnswers()->distinct('tag')->count();
     }
 
     public function getCorrectAnswerStructure()

@@ -390,14 +390,12 @@
 /*}*/
 
 
-#student-test-review .multiple-choice .all-or-nothing-toggle,
-#assessment-page .multiple-choice .all-or-nothing-toggle {
+.multiple-choice .all-or-nothing-toggle {
     position: absolute;
     left: calc(50% + 2rem);
     transform: translateY(-50%);
 }
-#student-test-review .multiple-choice .first-active .all-or-nothing-line,
-#assessment-page .multiple-choice .first-active .all-or-nothing-line {
+.multiple-choice .first-active .all-or-nothing-line {
     right: -1rem;
     position: absolute;
     width: 10px;

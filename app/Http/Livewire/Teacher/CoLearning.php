@@ -24,6 +24,8 @@ use tcCore\Http\Helpers\CoLearningHelper;
 use tcCore\Http\Interfaces\CollapsableHeader;
 use tcCore\Http\Livewire\TCComponent;
 use tcCore\Http\Middleware\AfterResponse;
+use tcCore\MatchingQuestion;
+use tcCore\MultipleChoiceQuestion;
 use tcCore\TestTake;
 use tcCore\TestTakeStatus;
 use tcCore\View\Components\CompletionQuestionConvertedHtml;
@@ -166,7 +168,7 @@ class CoLearning extends TCComponent implements CollapsableHeader
             ->layout('layouts.co-learning-teacher');
     }
 
-    public function startCoLearningSession($discussionType)
+    public function startCoLearningSession($discussionType) : bool|Redirector
     {
         if (!in_array($discussionType, [self::DISCUSSION_TYPE_OPEN_ONLY, self::DISCUSSION_TYPE_ALL])) {
             throw new \Exception('Wrong discussion type');
@@ -206,6 +208,8 @@ class CoLearning extends TCComponent implements CollapsableHeader
         $this->headerCollapsed = true;
         $this->getStaticNavigationData();
         $this->refreshComponentData();
+
+        return $this->coLearningHasBeenStarted;
     }
 
     public function nextDiscussionQuestion()
@@ -627,18 +631,8 @@ class CoLearning extends TCComponent implements CollapsableHeader
      */
     protected function setActiveAnswerAnsweredStatus()
     {
-        if (!$this->activeAnswerRating->answer->isAnswered) {
-            $this->activeAnswerAnsweredStatus = 'not-answered';
-            return;
-        }
-        if ($this->discussingQuestion instanceof CompletionQuestion) {
-            $givenAnswersCount = collect(json_decode($this->activeAnswerRating->answer->json, true))->count();
-            $this->activeAnswerAnsweredStatus = $givenAnswersCount === $this->discussingQuestion->completionQuestionAnswers()->count()
-                ? 'answered'
-                : 'partly-answered';
-            return;
-        }
-        $this->activeAnswerAnsweredStatus = 'answered';
+        $this->activeAnswerAnsweredStatus = $this->activeAnswerRating->answer->answeredStatus;
+        return;
     }
 
     protected function setActiveAnswerText(): void
@@ -731,7 +725,7 @@ class CoLearning extends TCComponent implements CollapsableHeader
             ->delete();
     }
 
-    public function handleHeaderCollapse($args)
+    public function handleHeaderCollapse($args) : bool
     {
         return $this->startCoLearningSession($args['discussionType']);
     }

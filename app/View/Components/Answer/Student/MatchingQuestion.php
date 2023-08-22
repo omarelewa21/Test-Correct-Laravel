@@ -4,6 +4,7 @@ namespace tcCore\View\Components\Answer\Student;
 
 use Illuminate\Support\Collection;
 use tcCore\Answer;
+use tcCore\AnswerRating;
 use tcCore\Question;
 
 class MatchingQuestion extends QuestionComponent
@@ -15,6 +16,8 @@ class MatchingQuestion extends QuestionComponent
         public Question $question,
         public Answer   $answer,
         public bool     $disabledToggle = false,
+        public bool          $inCoLearning = false,
+        public ?AnswerRating $answerRating = null,
     ) {
         parent::__construct($question, $answer);
     }
@@ -74,7 +77,7 @@ class MatchingQuestion extends QuestionComponent
 
     private function addToggleStatusToAnswerOptions($pairs)
     {
-        $rating = $this->getTeacherRatingWithToggleData();
+        $rating = $this->inCoLearning ? $this->answerRating : $this->getTeacherRatingWithToggleData();
 
         $pairs->where(fn($items, $key) => $key !== 'unused')
             ->each(function ($pair) use ($rating) {

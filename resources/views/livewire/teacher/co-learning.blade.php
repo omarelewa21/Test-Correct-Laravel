@@ -160,6 +160,9 @@
                                                 :editorId="'editor-'.$this->discussingQuestion->uuid.$this->activeAnswerRating->id"
                                                 :show-toggles="false"
                                                 :webSpellChecker="$this->testTake->enable_spellcheck_colearning"
+                                                :answerRating="$this->activeAnswerRating"
+                                                :inCoLearning="true"
+                                                :disabled-toggle="true"
                                         />
                                     </div>
                                 </x-slot:body>

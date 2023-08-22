@@ -92,15 +92,7 @@
                             selid="questiontitle">{{ $this->answerRating->answer->question->type_name }}</h2>
                         @if($this->answerRating->answer->question->type !== 'InfoscreenQuestion')
                             <h7 class="inline-block">max. {{ $this->answerRating->answer->question->score }} pt</h7>
-                        @endif
-                        @if ($this->answered)
-                            @if($this->isQuestionFullyAnswered())
-                                <x-answered />
-                            @else
-                                <x-partly-answered />
-                            @endif
-                        @else
-                            <x-not-answered />
+                            <x-dynamic-component :component="$this->answerRating->answer->answeredStatus"/>
                         @endif
                     </div>
                     {{-- END TITLE --}}
