@@ -8,6 +8,6 @@
        x-ref="scoreInput"
        x-on:focusout="syncInput($el.value)"
        x-on:input="setThumbOffset(document.querySelector('.score-slider-input'), score, maxScore)"
-       autofocus
-        @disabled($disabled)
+       @if($focusInput) autofocus @endif
+       @disabled($disabled)
 >

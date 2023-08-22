@@ -14835,6 +14835,10 @@ ul ul ul {
   outline-offset: 2px;
 }
 
+.hover\:visible:hover{
+  visibility: visible;
+}
+
 .hover\:-mb-px:hover{
   margin-bottom: -1px;
 }
@@ -15081,6 +15085,14 @@ ul ul ul {
   border-right-width: 0px;
 }
 
+.group\/button-hover:hover .group-hover\/button-hover\:visible{
+  visibility: visible;
+}
+
+.group\/button:hover .group-hover\/button\:visible{
+  visibility: visible;
+}
+
 .group:hover .group-hover\:border-primary{
   --tw-border-opacity: 1;
   border-color: rgb(0 77 245 / var(--tw-border-opacity));
@@ -15129,6 +15141,10 @@ ul ul ul {
 
 .group:hover .group-hover\:opacity-\[0\.05\]{
   opacity: 0.05;
+}
+
+.group\/button:hover .group-hover\/button\:opacity-100{
+  opacity: 1;
 }
 
 .group\/row:hover .group-hover\/row\:hover\:text-primary:hover{

@@ -321,7 +321,18 @@
                                         <span></span>
                                     </div>
 
-                                    <div class="bold pr-3 pl-5">@lang('test-take.Student')</div>
+                                    <div class="bold pr-3 pl-5">
+                                        <x-button.text
+                                                class="group/button {{ $this->standardizeTabDirection === 'asc' ? 'rotate-svg-90' : 'rotate-svg-270' }}"
+                                                wire:click.stop="changeStandardizeParticipantOrder"
+                                                size="sm"
+                                        >
+                                            <span>@lang('test-take.Student')</span>
+                                            <x-icon.chevron-small opacity="1"
+                                                                  class="transform transition-all duration-100 group-hover/button:opacity-100 {{ is_null($this->standardizeTabDirection) ? 'opacity-0' : '' }}"
+                                            />
+                                        </x-button.text>
+                                    </div>
                                     <div class="bold px-3">@lang('student.info')</div>
                                     <div class="bold px-3">@lang('test-take.Beoordeling')</div>
                                     <div class="bold px-3 text-right">@lang('test-take.Definitieve beoordeling')</div>
@@ -329,7 +340,7 @@
 
                                     <div class="col-span-5 h-[3px] bg-sysbase mt-2 mx-5"></div>
 
-                                    @foreach($this->participantResults as $key => $participant)
+                                    @foreach($this->sortParticipantResults($this->standardizeTabDirection) as $key => $participant)
                                         <div @class([
                                             "grid-row contents group/row cursor-default",
                                             "hover:text-primary hover:shadow-lg" => !$participant->testNotTaken,
@@ -338,7 +349,7 @@
                                              x-on:mouseover="rowHover = $el.dataset.row"
                                              x-on:mouseout="rowHover = null"
                                              data-row="{{ $loop->iteration }}"
-                                             wire:key="participant-grading-row-{{ $participant->uuid }}"
+                                             wire:key="participant-grading-row-{{ $participant->uuid }}-{{ $this->standardizeTabDirection }}"
                                         >
                                             <div class="grid-item flex items-center group-hover/row:bg-offwhite pr-3 pl-5 col-start-1 h-15 rounded-l-10">{{ $participant->name }}</div>
                                             <div class="grid-item flex items-center group-hover/row:bg-offwhite pr-3 ">
@@ -384,6 +395,7 @@
                                                                       :score="$participant->rating"
                                                                       :half-points="true"
                                                                       :title="false"
+                                                                      :focus-input="false"
                                                                       wire:key="rating-{{ $participant->uuid.$participant->rating }}"
                                                                       class="justify-end"
                                                                       :use-indicator="true"
@@ -602,7 +614,18 @@
                             <span></span>
                         </div>
 
-                        <div class="bold pr-3 pl-5">@lang('test-take.Student')</div>
+                        <div class="bold pr-3 pl-5">
+                            <x-button.text
+                                    class="group/button {{ $this->resultsTabDirection === 'asc' ? 'rotate-svg-90' : 'rotate-svg-270' }}"
+                                    wire:click.stop="changeResultsParticipantOrder"
+                                    size="sm"
+                            >
+                                <span>@lang('test-take.Student')</span>
+                                <x-icon.chevron-small opacity="1"
+                                                      class="transform transition-all ease-in-out duration-100 group-hover/button:opacity-100  {{ is_null($this->resultsTabDirection) ? 'opacity-0' : '' }}"
+                                />
+                            </x-button.text>
+                        </div>
                         <div class="bold px-3">@lang('student.info')</div>
                         <div class="bold px-3">@lang('test-take.Nagekeken')</div>
                         <div class="bold px-3">@lang('test-take.Score/Max')</div>
@@ -611,7 +634,7 @@
 
                         <div class="col-span-6 h-[3px] bg-sysbase mt-2 mx-5"></div>
 
-                        @foreach($this->participantResults as $participant)
+                        @foreach($this->sortParticipantResults($this->resultsTabDirection) as $participant)
                             <div @class([
                                     "grid-row contents group/row cursor-default",
                                     "hover:text-primary hover:shadow-lg" => !$participant->testNotTaken,
@@ -620,6 +643,7 @@
                                  x-on:mouseover="rowHover = $el.dataset.row"
                                  x-on:mouseout="rowHover = null"
                                  data-row="{{ $loop->iteration }}"
+                                 wire:key="participant-results-row-{{ $participant->uuid }}-{{ $this->resultsTabDirection }}"
                             >
                                 <div class="grid-item flex items-center group-hover/row:bg-offwhite pr-3 pl-5 col-start-1 h-15 rounded-l-10">{{ $participant->name }}</div>
                                 <div class="grid-item flex items-center group-hover/row:bg-offwhite pr-3 ">
@@ -695,7 +719,7 @@
                                         </div>
 
                                         @if($participant->definitiveRating)
-                                            <x-mark-badge :rating="$participant->definitiveRating"/>
+                                            <x-mark-badge :rating="$participant->definitiveRating" />
                                         @endif
                                     </div>
                                 </div>

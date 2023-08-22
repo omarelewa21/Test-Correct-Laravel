@@ -36,6 +36,7 @@
                          :$hideThumb
                          :$minScore
                          :$inputTemplate
+                         :$focusInput
     />
 
     @if($disabled)

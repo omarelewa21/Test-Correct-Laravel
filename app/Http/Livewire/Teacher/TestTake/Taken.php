@@ -31,7 +31,7 @@ class Taken extends TestTakeComponent
     public int $testTakeStatusId;
 
     public bool $showWaitingRoom = false;
-    public bool $showStudentNames = false;
+    public bool $showStudentNames = true;
     public bool $reviewActive = false;
     public bool $assessmentDone = false;
 
@@ -52,6 +52,9 @@ class Taken extends TestTakeComponent
     public array $questionsToIgnore = [];
     public Collection $participantScoreOverrides;
     public bool $participantGradesChanged = false;
+
+    public ?string $standardizeTabDirection = null;
+    public ?string $resultsTabDirection = null;
 
 
     protected function getRules(): array
@@ -229,6 +232,16 @@ class Taken extends TestTakeComponent
     public function showResults(): bool
     {
         return $this->testTakeStatusId >= TestTakeStatus::STATUS_DISCUSSED;
+    }
+
+    public function changeStandardizeParticipantOrder(): void
+    {
+        $this->standardizeTabDirection = $this->standardizeTabDirection === 'asc' ? 'desc' : 'asc';
+    }
+
+    public function changeResultsParticipantOrder(): void
+    {
+        $this->resultsTabDirection = $this->resultsTabDirection === 'asc' ? 'desc' : 'asc';
     }
 
     /* Button actions */
@@ -706,5 +719,18 @@ class Taken extends TestTakeComponent
         }
         return [$standard, $value, $cesuurPercentage ?? null];
     }
+
+    private function sortParticipantResults(?string $direction = null): Collection
+    {
+        if (!$direction) {
+            return $this->participantResults;
+        }
+        return $this->participantResults->when(
+            $direction === 'asc',
+            fn($collection) => $collection->sortBy('name'),
+            fn($collection) => $collection->sortByDesc('name'),
+        );
+    }
+
 
 }

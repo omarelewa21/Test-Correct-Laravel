@@ -9314,6 +9314,10 @@ h2.student-testtake-answers-separator span {
   outline-offset: 2px;
 }
 
+.hover\:visible:hover{
+  visibility: visible;
+}
+
 .hover\:-mb-px:hover{
   margin-bottom: -1px;
 }
@@ -9560,6 +9564,14 @@ h2.student-testtake-answers-separator span {
   border-right-width: 0px;
 }
 
+.group\/button-hover:hover .group-hover\/button-hover\:visible{
+  visibility: visible;
+}
+
+.group\/button:hover .group-hover\/button\:visible{
+  visibility: visible;
+}
+
 .group:hover .group-hover\:border-primary{
   --tw-border-opacity: 1;
   border-color: rgb(0 77 245 / var(--tw-border-opacity));
@@ -9608,6 +9620,10 @@ h2.student-testtake-answers-separator span {
 
 .group:hover .group-hover\:opacity-\[0\.05\]{
   opacity: 0.05;
+}
+
+.group\/button:hover .group-hover\/button\:opacity-100{
+  opacity: 1;
 }
 
 .group\/row:hover .group-hover\/row\:hover\:text-primary:hover{
