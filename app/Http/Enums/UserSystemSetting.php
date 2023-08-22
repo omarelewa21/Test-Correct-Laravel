@@ -10,43 +10,25 @@ use tcCore\Http\Enums\Traits\WithAttributes;
 use tcCore\Http\Enums\Traits\WithCasting;
 use tcCore\Http\Enums\Traits\WithValidation;
 
-enum UserSystemSetting: string 
+/* Implement the correct interface so they enum is a valid title key */
+enum UserSystemSetting: string implements FeatureSettingKey
 {
     use WithAttributes;
     use WithValidation;
     use WithCasting;
 
-    #[Initial(1)]
-    #[Type('int')]
+    /* Why did you change this to 'int' values? */
+    #[Initial(false)]
+    #[Type('bool')]
     case ALLOW_NEW_CO_LEARNING_TEACHER = 'allow_new_co_learning_teacher';
-    #[Initial(1)]
-    #[Type('int')]
+    #[Initial(false)]
+    #[Type('bool')]
     case ALLOW_NEW_ASSESSMENT = 'allow_new_assessment';
 
+    /* This can be abstracted because it is duplicate code */
     public static function initialValues(): Collection
     {
         return collect(self::cases())->mapWithKeys(fn($enum) => [$enum->value => self::getInitialValue($enum)]);
     }
-    
-    public static function getValidationRules(): Collection
-    {
-        return collect([
-            self::ALLOW_NEW_CO_LEARNING_TEACHER => 'required|in:0,1',
-            self::ALLOW_NEW_ASSESSMENT => 'required|in:0,1',
-        ]);
-    }
 
-    public static function getValidationMessages(): Collection
-    {
-        return collect([
-            self::ALLOW_NEW_CO_LEARNING_TEACHER => [
-                'required' => 'The allow new co-learning teacher field is required.',
-                'in' => 'The allow new co-learning teacher field must be 0 or 1.',
-            ],
-            self::ALLOW_NEW_ASSESSMENT => [
-                'required' => 'The allow new assessment field is required.',
-                'in' => 'The allow new assessment field must be 0 or 1.',
-            ],
-        ]);
-    }
 }

@@ -421,6 +421,9 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::get('support/index','SupportTakeOverLogController@index')->name('support_take_over_log.index');
     Route::post('/user/{user}/update_trial_date','UsersController@updateTrialDate')->name('user.update_trial_date');
     // UPDAETE USER FEATURE IN USER SYSTEM SETTING TABLE
-    Route::put('/user/{userUuid}/update_user_feature', 'UsersController@updateUserFeature');
-    Route::get('/get_user_system_setting', 'UsersController@getUserSystemSetting')->name('get_user_system_setting.getUserSystemSetting');
+
+    /* Change $userUuid to $user to have route model binding */
+    Route::put('/user/{user}/update_user_feature', 'UsersController@updateUserFeature');
+    /* Inject user uuid to have route model binding*/
+    Route::get('/user/{user}/get_user_system_setting', 'UsersController@getUserSystemSetting')->name('get_user_system_setting.getUserSystemSetting');
 });
