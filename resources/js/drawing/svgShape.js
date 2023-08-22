@@ -57,7 +57,7 @@ class svgShape {
             this.hideHelperElements();
         }
         this.withHighlightEvents = withHighlightEvents;
-        this.UI = Canvas.UI;
+        this.UI = Canvas?.UI;
     }
 
     makeMainElementOfRightType() {
