@@ -4,6 +4,7 @@ namespace tcCore\Http\Helpers;
 
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
+use tcCore\Exceptions\NormalizeException;
 use tcCore\TestTake;
 
 class Normalize
@@ -242,6 +243,9 @@ class Normalize
 
         if (!$this->isPreview) {
             $this->saveTestTake();
+        }
+        if (!$totalScore) {
+            throw new NormalizeException('Total score of the test 0. Did you exclude all questions?');
         }
 
         foreach ($this->testTake->testParticipants as $testParticipant) {

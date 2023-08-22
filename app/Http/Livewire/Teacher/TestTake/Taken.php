@@ -234,21 +234,20 @@ class Taken extends TestTakeComponent
     /* Button actions */
     public function startCoLearning(): Redirector|RedirectResponse|bool
     {
-        if ($this->showWaitingRoom) {
-            $coLearningRoute = route('teacher.co-learning', ['test_take' => $this->testTakeUuid, 'started' => 'false']);
-            if ($this->assessmentDone) {
-                $this->emit(
-                    'openModal',
-                    'teacher.test-take.start-co-learning-after-assessment-modal',
-                    ['continue' => $coLearningRoute]
-                );
-                return false;
-            }
-
-            return redirect($coLearningRoute);
+        if (!$this->showWaitingRoom) {
+            return $this->showWaitingRoom = true;
         }
 
-        return $this->showWaitingRoom = true;
+        $coLearningRoute = route('teacher.co-learning', ['test_take' => $this->testTakeUuid, 'started' => 'false']);
+        if ($this->testTake->assessed_at && $this->assessmentDone) {
+            $this->emit(
+                'openModal',
+                'teacher.test-take.start-co-learning-after-assessment-modal',
+                ['continue' => $coLearningRoute]
+            );
+            return false;
+        }
+        return redirect($coLearningRoute);
     }
 
     public function startAssessment(): Redirector|RedirectResponse|bool
@@ -645,7 +644,7 @@ class Taken extends TestTakeComponent
                     $question->pValuePercentage = null;
                     $question->pValueAverage = null;
                     $question->pValueMaxScore = null;
-                    if (!$question->isType('Infoscreen') || $question->pValues->isEmpty()) {
+                    if (!$question->isType('Infoscreen') && $question->pValues->isNotEmpty()) {
                         $question->pValuePercentage = (
                                 $question->pValues->sum('score') / $question->pValues->sum('max_score')
                             ) * 100;

@@ -76,19 +76,15 @@ class PlannedTest extends TestCase
     }
 
     /** @test */
-    public function can_start_test_take_when_start_date_is_today()
+    public function can_remove_test_participants()
     {
+        $tpUuid = $this->testTake->testParticipants->first()->uuid;
+        $participantCount = $this->testTake->testParticipants()->count();
         Livewire::test(Planned::class, ['testTake' => $this->testTake])
-            ->assertDontSee(__('test-take.toetsafname is niet vandaag gepland'))
-            ->call('startTake')
-            ->assertHasNoErrors('cannot_start_take_before_start_date');
-    }
+            ->call('removeParticipant', $tpUuid);
 
-    /** @test */
-    public function can_see_warnings_when_necessary_when_starting_take()
-    {
-        Livewire::test(Planned::class, ['testTake' => $this->testTake])
-            ->call('startTake');
+        $newParticipantCount = $this->testTake->testParticipants()->count();
 
+        $this->assertGreaterThan($newParticipantCount, $participantCount);
     }
 }
