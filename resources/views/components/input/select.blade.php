@@ -32,7 +32,7 @@
          x-on:click.outside="closeDropdown()"
          x-on:keydown.escape.window="closeDropdown()"
          class="dropdown | absolute overflow-scroll bg-white rounded-10 z-10 py-2 flex flex-col left-0 text-sysbase"
-         style="height:max-content; max-height: 315px; box-shadow: var(--popover-shadow)"
+         style="height:max-content; max-height: 315px; box-shadow: var(--popover-shadow); z-index: 100;"
     >
         {{ $slot }}
     </span>
