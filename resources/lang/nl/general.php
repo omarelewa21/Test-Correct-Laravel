@@ -84,4 +84,5 @@ return [
     'number-of-questions'             => '{0} Geen vragen|{1} :count vraag|[2,*] :count vragen',
     'tests'                           => 'Toetsen',
     'questions'                       => 'Vragen',
+    'Formidable'                      => 'Formidable',
 ];
