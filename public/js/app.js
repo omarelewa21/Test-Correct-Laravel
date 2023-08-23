@@ -9947,7 +9947,7 @@ document.addEventListener("alpine:init", function () {
         this.$store.answerFeedback.editingComment = AnswerFeedbackUuid !== null && AnswerFeedbackUuid !== void 0 ? AnswerFeedbackUuid : null;
         setTimeout(function () {
           _this74.fixSlideHeightByIndex(2, AnswerFeedbackUuid);
-        }, 100);
+        }, 500);
       },
       toggleFeedbackAccordion: function toggleFeedbackAccordion(name) {
         var _arguments3 = arguments,
@@ -18236,8 +18236,10 @@ window.RichTextEditor = {
             parameterBag.shouldNotGroupWhenFull = true;
             _context.next = 4;
             return this.createTeacherEditor(parameterBag, function (editor) {
-
               // this.hideWProofreaderChevron(parameterBag.allowWsc, editor);
+              editor.editing.view.change(function (writer) {
+                writer.setStyle('height', '150px', editor.editing.view.document.getRoot());
+              });
             });
           case 4:
             return _context.abrupt("return", _context.sent);
