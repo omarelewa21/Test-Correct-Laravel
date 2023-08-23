@@ -110,6 +110,9 @@
                 });
                 // Livewire.hook('message.received', (message, component) => {})
                 // Livewire.hook('message.processed', (message, component) => {})
+                Livewire.hook("beforePushState", (stateObject, url, component) => {
+                    fixHistoryApiStateForQueryStringUpdates(stateObject, url)
+                });
                 const OnlineListener = function() {
                     Notify.notify('{{ __('test-take.your connection is back online') }}', "success");
                     window.removeEventListener("online", OnlineListener);

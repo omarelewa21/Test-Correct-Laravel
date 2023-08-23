@@ -11322,6 +11322,23 @@ clearSelection = function clearSelection() {
     document.selection.empty();
   }
 };
+fixHistoryApiStateForQueryStringUpdates = function fixHistoryApiStateForQueryStringUpdates(stateObject, url) {
+  var signatures = stateObject.livewire.map(function (entry) {
+    if (entry.signature.endsWith("-1")) {
+      return entry.signature;
+    }
+  }).filter(Boolean);
+  var newStateObject = {
+    livewire: stateObject.livewire.filter(function (item) {
+      return !signatures.includes(item.signature);
+    })
+  };
+  try {
+    history.pushState(newStateObject, "", url);
+  } catch (error) {
+    console.warn("Something went wrong with pushing the state to the history API");
+  }
+};
 
 /***/ }),
 
@@ -11784,7 +11801,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "662d128370816e2bbb66",
+  key: "fc18ed69b446aeb8c8a5",
   cluster: "eu",
   forceTLS: true
 });
