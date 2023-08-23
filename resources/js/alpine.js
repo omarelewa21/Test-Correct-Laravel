@@ -2714,7 +2714,10 @@ document.addEventListener("alpine:init", () => {
 
                 if(ckeditorIconWrapper) this.addOrReplaceIconByName(ckeditorIconWrapper, event.detail.iconName);
                 if(cardIconWrapper) {
-                    this.addOrReplaceIconByName(cardIconWrapper, event.detail.iconName);
+                    this.addOrReplaceIconByName(cardIconWrapper, event.detail.iconName, true);
+                    if (event.detail.iconName === null || event.detail.iconName === '' || event.detail.iconName === undefined){
+                        return;
+                    }
                     cardIconWrapper.querySelector('span').style = '';
                 }
             });
@@ -3008,11 +3011,14 @@ document.addEventListener("alpine:init", () => {
 
             this.initCommentIcon(iconWrapper, thread);
         },
-        addOrReplaceIconByName (el, iconName) {
+        addOrReplaceIconByName (el, iconName, isFeedbackCardIcon = false) {
             el.innerHTML = '';
 
             let iconTemplate = null;
             if(iconName === null || iconName === '' || iconName === undefined) {
+                if(isFeedbackCardIcon)  {
+                    return;
+                }
                 iconTemplate = document.querySelector('#default-icon')
             } else {
                 iconTemplate = document.querySelector('#'+iconName.replace('icon.', ''))
