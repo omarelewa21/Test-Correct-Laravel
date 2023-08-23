@@ -29,6 +29,7 @@ class CkEditorRadioWithIcon extends View {
                         ],
                         class: [
                             bind.to( 'inputClass' ),
+                            'pointer-events-none'
                         ],
                         'data-emoji': [
                             bind.to('emojiValue')
@@ -58,13 +59,25 @@ class CkEditorRadioWithIcon extends View {
             on: {
                 mousedown: bind.to( evt => {
                     evt.preventDefault();
+                    evt.stopImmediatePropagation();
                 } ),
 
                 click: bind.to(evt => {
-                    window.dispatchEvent(
-                        new CustomEvent( this.inputName + '-updated', {detail: {color: 'rgba(' + this.rgb + ', 0.4)'}})
-                    );
-                    this.element.querySelector('input').checked = true;
+                    evt.preventDefault();
+                    evt.stopImmediatePropagation();
+                    // window.dispatchEvent(
+                    //     new CustomEvent( this.inputName + '-updated', {detail: {color: 'rgba(' + this.rgb + ', 0.4)'}})
+                    // );
+                    let emoji = this.element.querySelector('input').dataset.emoji;
+
+                    let checkedEmoji = this.element.parentElement.parentElement.dataset.checkedEmoji;
+                    if(checkedEmoji === emoji) {
+                        this.element.querySelector('input').checked = false;
+                        this.element.parentElement.parentElement.dataset.checkedEmoji = '';
+                    } else {
+                        this.element.querySelector('input').checked = true;
+                        this.element.parentElement.parentElement.dataset.checkedEmoji = emoji;
+                    }
                 }),
             }
         } );

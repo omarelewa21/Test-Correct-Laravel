@@ -9406,11 +9406,19 @@ document.addEventListener("alpine:init", function () {
                           ckeditorIconWrapper = document.querySelector('#icon-' + event.detail.threadId);
                           cardIconWrapper = document.querySelector('[data-uuid="' + event.detail.uuid + '"].answer-feedback-card-icon');
                           if (ckeditorIconWrapper) _this63.addOrReplaceIconByName(ckeditorIconWrapper, event.detail.iconName);
-                          if (cardIconWrapper) {
-                            _this63.addOrReplaceIconByName(cardIconWrapper, event.detail.iconName);
-                            cardIconWrapper.querySelector('span').style = '';
+                          if (!cardIconWrapper) {
+                            _context22.next = 8;
+                            break;
                           }
-                        case 4:
+                          _this63.addOrReplaceIconByName(cardIconWrapper, event.detail.iconName, true);
+                          if (!(event.detail.iconName === null || event.detail.iconName === '' || event.detail.iconName === undefined)) {
+                            _context22.next = 7;
+                            break;
+                          }
+                          return _context22.abrupt("return");
+                        case 7:
+                          cardIconWrapper.querySelector('span').style = '';
+                        case 8:
                         case "end":
                           return _context22.stop();
                       }
@@ -9748,9 +9756,13 @@ document.addEventListener("alpine:init", function () {
         this.initCommentIcon(iconWrapper, thread);
       },
       addOrReplaceIconByName: function addOrReplaceIconByName(el, iconName) {
+        var isFeedbackCardIcon = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
         el.innerHTML = '';
         var iconTemplate = null;
         if (iconName === null || iconName === '' || iconName === undefined) {
+          if (isFeedbackCardIcon) {
+            return;
+          }
           iconTemplate = document.querySelector('#default-icon');
         } else {
           iconTemplate = document.querySelector('#' + iconName.replace('icon.', ''));
