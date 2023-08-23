@@ -3252,7 +3252,7 @@ document.addEventListener("alpine:init", () => {
             this.$store.answerFeedback.editingComment = AnswerFeedbackUuid ?? null;
             setTimeout(() => {
                 this.fixSlideHeightByIndex(2, AnswerFeedbackUuid);
-            },300)
+            },500)
         },
         async toggleFeedbackAccordion (name, forceOpenAccordion = false) {
             if(this.$store.answerFeedback.feedbackBeingEdited()) {
