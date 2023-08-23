@@ -63,4 +63,8 @@ return [
     'feedback geven'                => 'Give feedback',
     'comments-for-students'         => 'Enable inline comments for students',
     'comments-for-students-tt'      => 'This allows students to leave inline comments while reviewing student answers',
+    'question-text-for-students'    => 'Enable question text for students',
+    'question-text-for-students-tt' => 'This enables students to see the question text on their own screen while reviewing student answers',
+    'answer-model-for-students'     => 'Enable correction model for students',
+    'answer-model-for-students-tt'  => 'This allows students to see the correction model on their own screen while reviewing student answers',
 ];

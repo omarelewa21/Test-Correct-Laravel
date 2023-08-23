@@ -73,6 +73,9 @@ class CoLearning extends TCComponent
     public $answerOptions;
 
     public $necessaryAmountOfAnswerRatings;
+    public $group;
+    public ?string $answeredStatus;
+    public string $uniqueKey;
 
     /**
      * @return bool
@@ -127,6 +130,8 @@ class CoLearning extends TCComponent
             $this->writeDiscussingAnswerRatingToDatabase();
         }
         $this->waitForTeacherNotificationEnabled = $this->shouldShowWaitForTeacherNotification();
+
+        $this->uniqueKey = $this->answerRating->getKey() .'-'. $this->questionFollowUpNumber .'-'. $this->answerFollowUpNumber;
 
         return view('livewire.student.co-learning')
             ->layout('layouts.co-learning-student');
@@ -330,12 +335,14 @@ class CoLearning extends TCComponent
 
             $this->setActiveAnswerRating($navigateDirection);
             $this->answered = $this->answerRating->answer->isAnswered;
+            $this->answeredStatus = $this->answerRating->answer->answeredStatus;
 
             $this->writeDiscussingAnswerRatingToDatabase();
 
             $this->setQuestionRatingProperties();
 
             $this->discussingQuestionId = $this->answerRating->answer->question_id;
+            $this->group = $this->answerRating->answer->question->getGroupQuestion($this->testTake);
 
             if ($this->answerRating->rating === null) {
                 $this->rating = null;

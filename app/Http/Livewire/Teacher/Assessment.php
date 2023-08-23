@@ -1100,13 +1100,6 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             );
     }
 
-    protected function getGroups(): Collection
-    {
-        return $this->testTakeData->test->testQuestions
-            ->map(fn($testQuestion) => $testQuestion->question->isType('Group') ? $testQuestion->question : null)
-            ->filter();
-    }
-
     public function getHasNoOpenQuestionProperty(): bool
     {
         return !$this->testTakeData->test->hasOpenQuestion()

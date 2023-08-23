@@ -45,6 +45,8 @@ class CoLearning extends TCComponent implements CollapsableHeader
     public $testTakeUuid;
     private $discussingQuestion;
 
+    public $group;
+
     public bool $openOnly;
 
     //TestParticipant properties
@@ -73,8 +75,6 @@ class CoLearning extends TCComponent implements CollapsableHeader
     public int $questionIndex;
     public int $questionIndexOpenOnly;
 
-    //CompletionQuestion specific properties
-    public int $completionQuestionTagCount = 0;
     public ?Collection $activeDrawingAnswerDimensions;
 
     protected $queryString = [
@@ -105,6 +105,20 @@ class CoLearning extends TCComponent implements CollapsableHeader
     public function toggleStudentEnableComments(bool $boolean)
     {
         $this->testTake->enable_comments_colearning = $boolean;
+        $this->testTake->save();
+    }
+
+
+    public function toggleStudentEnableQuestionText(bool $boolean)
+    {
+        $this->testTake->enable_question_text_colearning = $boolean;
+        $this->testTake->save();
+    }
+
+
+    public function toggleStudentEnableAnswerModel(bool $boolean)
+    {
+        $this->testTake->enable_answer_model_colearning = $boolean;
         $this->testTake->save();
     }
 
@@ -755,12 +769,14 @@ class CoLearning extends TCComponent implements CollapsableHeader
         $this->testTake = $this->testTake->refresh();
         $this->testTake->testParticipants->load(['answers.answerRatings' => fn($query) => $query->where('type', 'STUDENT')]);
         $this->discussingQuestion = $this->testTake->discussingQuestion()->first();
+        $this->group = $this->discussingQuestion->getGroupQuestion($this->testTake);
     }
 
     private function refreshComponentData(): void
     {
         $this->resetActiveAnswer();
         $this->discussingQuestion = $this->testTake->discussingQuestion()->first();
+        $this->group = $this->discussingQuestion->getGroupQuestion($this->testTake);
         $this->getTestParticipantsData();
         $this->testParticipants->map(fn($participant) => $participant->syncedWithCurrentQuestion = false);
     }

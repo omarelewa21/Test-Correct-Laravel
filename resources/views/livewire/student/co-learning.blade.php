@@ -38,38 +38,109 @@
                 </div>
             </div>
         @else
-            <div class="flex flex-col w-full" wire:key="q-{{$testTake->discussingQuestion->uuid}}">
-{{--                @if(false && $this->noAnswerRatingAvailableForCurrentScreen)--}}
-{{--                    <div class="w-full">--}}
-{{--                        <livewire:co-learning.info-screen-question--}}
-{{--                                :question="$this->testTake->discussingQuestion"--}}
-{{--                                :questionNumber="$questionOrderNumber"--}}
-{{--                                :answerNumber="$answerFollowUpNumber"--}}
-{{--                                wire:key="q-{{$testTake->discussingQuestion->uuid}}"--}}
-{{--                        />--}}
-{{--                    </div>--}}
-{{--                @else--}}
-{{--                    <div class="w-full">--}}
-{{--                        <livewire:is :component="$this->questionComponentName"--}}
-{{--                                     :answerRatingId="$this->answerRating->getKey()"--}}
-{{--                                     :questionNumber="$questionOrderNumber"--}}
-{{--                                     :answerNumber="$answerFollowUpNumber"--}}
-{{--                                     :wire:key="'ar-'. $this->answerRating->getKey()"--}}
-{{--                                     :webSpellChecker="$this->testTake->enable_spellcheck_colearning"--}}
-{{--                                     :inlineFeedbackEnabled="$this->testTake->enable_comments_colearning"--}}
-{{--                                     :commentMarkerStyles="$this->commentMarkerStyles"--}}
-{{--                                     :answerId="$this->answerRating->answer->getKey()"--}}
-{{--                                     :answerFeedbackFilter="$this->answerFeedbackFilter"--}}
-{{--                                     :testParticipantUuid="$this->testParticipant->uuid"--}}
-{{--                        />--}}
-{{--                    </div>--}}
+            <div class="flex flex-col w-full gap-6" wire:key="q-{{$testTake->discussingQuestion->uuid}}">
 
-                    {{-- TODO START REFACTORING COLEARNING TO BLADE COMPONENT --}}
-                    {{-- add openQuestion Answer --}}
+                @if($this->testTake->enable_question_text_colearning) {{-- start question text --}}
 
+                    @if($group) {{-- start group question container --}}
+                        <x-accordion.container :active-container-key="true ? 'group' : ''"
+                                               :wire:key="'group-section-'. $uniqueKey"
+                        >
+                            <x-accordion.block key="group"
+                                               :emitWhenSet="true"
+                                               :wire:key="'group-section-block-'. $uniqueKey"
+                                               mode="transparent"
+                            >
+                                <x-slot:title>
+                                    <h4 class="flex items-center pr-4"
+                                        selid="questiontitle"
+                                    >
+                                        <span>@lang('question.Vraaggroep')</span>
+                                        <span>:</span>
+                                        <span x-cloak class="ml-2 text-left flex line-clamp-1"
+                                              title="{!! $group->name !!}">
+                                            {!! $group->name !!}
+                                        </span>
+                                        @if($group->isCarouselQuestion())
+                                            <span class="ml-2 lowercase text-base"
+                                                  title="@lang('assessment.carousel_explainer')"
+                                            >@lang('cms.carrousel')</span>
+                                        @endif
+                                    </h4>
+                                </x-slot:title>
+                                <x-slot:body>
+                                    <div class="flex flex-col gap-2"
+                                         wire:key="group-block-{{  $group->uuid }}">
+                                        <div class="flex flex-wrap">
+                                            @foreach($group->attachments as $attachment)
+                                                <x-attachment.badge-view :attachment="$attachment"
+                                                                         :title="$attachment->title"
+                                                                         :wire:key="'badge-'.$group->uuid"
+                                                                         :question-id="$group->getKey()"
+                                                                         :question-uuid="$group->uuid"
+                                                />
+                                            @endforeach
+                                        </div>
+                                        <div class="">
+                                            {!! $group->converted_question_html !!}
+                                        </div>
+                                    </div>
+                                </x-slot:body>
+                            </x-accordion.block>
+                        </x-accordion.container>
+                        {{-- end group question container --}}
+                    @endif
+                    {{-- start question container --}}
+                    <x-accordion.container :active-container-key="true ? 'question' : ''"
+                                           :wire:key="'question-section-'. $uniqueKey"
+                    >
+                        <x-accordion.block key="question"
+                                           :emitWhenSet="true"
+                                           :wire:key="'question-section-block-'. $uniqueKey"
+                        >
+                            <x-slot:title>
+                                <div class="question-indicator items-center flex">
+                                    <div class="inline-flex question-number rounded-full text-center justify-center items-center {!! $this->answeredStatus === 'answered' ? 'complete': 'incomplete' !!}">
+                                        <span class="align-middle cursor-default">{{ $this->questionOrderNumber }}</span>
+                                    </div>
+                                    <div class="flex gap-4 items-center relative top-0.5">
+                                        <h4 class="inline-flex"
+                                            selid="questiontitle">
+                                            <span>@lang('co-learning.question')</span>
+                                            <span>:</span>
+                                            <span class="ml-2">{{ $this->testTake->discussingQuestion->type_name }}</span>
+                                        </h4>
+                                        <h7 class="inline-block">{{ $this->testTake->discussingQuestion->score }} pt</h7>
+                                    </div>
+                                </div>
+                            </x-slot:title>
+                            <x-slot:body>
+                                <div class="flex flex-col gap-2 questionContainer w-full"
+                                     wire:key="question-block-{{  $this->testTake->discussingQuestion->uuid }}">
+                                    <div class="flex flex-wrap" wire:key="attachment-container-{{ $uniqueKey }}">
+                                        @foreach($this->testTake->discussingQuestion->attachments as $attachment)
+                                            <x-attachment.badge-view :attachment="$attachment"
+                                                                     :title="$attachment->title"
+                                                                     :wire:key="'badge-'.$this->testTake->discussingQuestion->uuid. $uniqueKey"
+                                                                     :question-id="$this->testTake->discussingQuestion->getKey()"
+                                                                     :question-uuid="$this->testTake->discussingQuestion->uuid"
+                                            />
+                                        @endforeach
+                                    </div>
+
+                                    <div class="max-w-full">
+                                        {!! $this->testTake->discussingQuestion->converted_question_html !!}
+                                    </div>
+                                </div>
+                            </x-slot:body>
+                        </x-accordion.block>
+                    </x-accordion.container>
+
+                @endif {{-- end question and group container --}}
+
+                    {{-- start answer container--}}
                     <x-accordion.container
                             :active-container-key="true ? 'answer' : ''"
-                            {{--:active-container-key="$this->answerPanel ? 'answer' : ''"--}}
                                            :wire:key="'answer-section-'.$this->questionOrderNumber.'-'.$this->answerFollowUpNumber"
                     >
                         <x-accordion.block key="answer"
@@ -78,65 +149,82 @@
                                            :wire:key="'answer-section-block-'.$this->questionOrderNumber.'-'.$this->answerFollowUpNumber"
                         >
                             <x-slot:title>
-
-                {{-- START TITLE --}}
-                    <div class="question-title flex w-full items-center question-indicator mt-2 border-0 pb-0 mr-4">
-                        <div class="inline-flex question-number rounded-full text-center justify-center items-center {!! $this->answered ? 'complete': 'incomplete' !!}">
-                            <span class="align-middle cursor-default">{{ $this->questionOrderNumber }}</span>
-                        </div>
-                        @if($this->answerRating->answer->question->type !== 'InfoscreenQuestion')
-                            <h5 class="inline-block ml-2">  {{__('co-learning.answer')}} {{ $this->answerFollowUpNumber }}:</h5>
-                        @endif
-
-                        <h2 class="inline-block ml-2 mr-6"
-                            selid="questiontitle">{{ $this->answerRating->answer->question->type_name }}</h2>
-                        @if($this->answerRating->answer->question->type !== 'InfoscreenQuestion')
-                            <h7 class="inline-block">max. {{ $this->answerRating->answer->question->score }} pt</h7>
-                            <x-dynamic-component :component="$this->answerRating->answer->answeredStatus"/>
-                        @endif
-                    </div>
-                    {{-- END TITLE --}}
+                                {{-- START TITLE --}}
+                                <div class="question-title flex w-full items-center question-indicator mt-2 border-0 pb-0 mr-4">
+                                    @unless($this->testTake->enable_question_text_colearning)
+                                    <div class="inline-flex question-number rounded-full text-center justify-center items-center mr-2 {!! $this->answeredStatus === 'answered' ? 'complete': 'incomplete' !!}">
+                                        <span class="align-middle cursor-default">{{ $this->questionOrderNumber }}</span>
+                                    </div>
+                                    @endif
+                                    @if($this->answerRating->answer->question->type !== 'InfoscreenQuestion')
+                                        <h4 class="inline-block">  {{__('co-learning.answer')}} {{ $this->answerFollowUpNumber }}:</h4>
+                                    @endif
+                                    <h4 class="inline-block ml-2 mr-6"
+                                        selid="questiontitle">{{ $this->answerRating->answer->question->type_name }}</h4>
+                                    @if($this->answerRating->answer->question->type !== 'InfoscreenQuestion')
+                                        <h7 class="inline-block">max. {{ $this->answerRating->answer->question->score }} pt</h7>
+                                        <x-dynamic-component :component="$this->answeredStatus"/>
+                                    @endif
+                                </div>
+                                {{-- END TITLE --}}
                             </x-slot:title>
                             <x-slot:body>
+                                <div class="student-answer | w-full | questionContainer"
+                                     wire:key="student-answer-{{$this->testTake->discussingQuestion->uuid.'-'.$this->answerRating->answer->uuid}}-{{$this->answerFeedbackFilter}}"
+                                >
+                                    <x-dynamic-component
+                                            :component="'answer.student.'. str($this->answerRating->answer->question->type)->kebab()"
+                                            :question="$this->testTake->discussingQuestion"
+                                            :answer="$this->answerRating->answer"
+                                            :answerRating="$this->answerRating"
+                                            :editorId="'ar-'.$this->answerRating->getKey()"
+                                            :inCoLearning="true"
+                                            :inAssessment="false"
+                                            :disabled-toggle="false"
+                                            {{-- webspellchecker plugin --}}
+                                            :webSpellChecker="$this->testTake->enable_spellcheck_colearning"
+                                            {{-- comments plugin --}}
+                                            :enableComments="$this->testTake->enable_comments_colearning"
+                                            :commentMarkerStyles="$this->commentMarkerStyles"
+                                            :answerFeedbackFilter="$this->answerFeedbackFilter"
 
-
-
-                    <div class="student-answer | w-full | questionContainer"
-                         wire:key="student-answer-{{$this->testTake->discussingQuestion->uuid.'-'.$this->answerRating->answer->uuid}}-{{$this->answerFeedbackFilter}}"
-                    >
-                        {{-- TODO: Old component created an hash from updated at for the wire key for the comments plugin to stay in sync
-                                wire:key="editor-ar-{{$answerRatingId}}-{{$this->updatedAtHash}}"
-                        --}}
-                        <x-dynamic-component
-{{--                                :component="'answer.student.'. str($this->currentQuestion->type)->kebab()" --}}
-                                :component="'answer.student.'. str($this->answerRating->answer->question->type)->kebab()"
-                                :question="$this->testTake->discussingQuestion"
-{{--                                :answer="$this->currentAnswer"--}}
-                                :answer="$this->answerRating->answer"
-                                :answerRating="$this->answerRating"
-
-{{--                                :editorId="'editor-'.$this->questionNavigationValue.'-'.$this->answerNavigationValue"--}}
-                                :editorId="'ar-'.$this->answerRating->getKey()"
-
-                                :inCoLearning="true"
-                                :inAssessment="false" {{-- completion question has two blade views and this toggles them --}}
-                                :disabled-toggle="false" {{-- todo: disables some toggles in closed questions, find out what to do in colearning  --}}
-                                {{-- webspellchecker plugin --}}  {{--:webSpellChecker="$this->webSpellCheckerEnabled"--}}
-                                :webSpellChecker="$this->testTake->enable_spellcheck_colearning"
-                                {{-- comments plugin --}}
-                                :enableComments="$this->testTake->enable_comments_colearning"
-                                :commentMarkerStyles="$this->commentMarkerStyles"
-                                :answerFeedbackFilter="$this->answerFeedbackFilter"
-
-                        />
-                    </div>
+                                    />
+                                </div>
                             </x-slot:body>
                         </x-accordion.block>
-                    </x-accordion.container>
-                    {{-- TODO END REFACTORING COLEARNING TO BLADE COMPONENT --}}
-{{--                @endif--}}
+                    </x-accordion.container> {{-- end answer container--}}
+
+                @if($this->testTake->enable_answer_model_colearning) {{-- start answer model --}}
+                <x-accordion.container :active-container-key="true ? 'answer-model' : ''"
+                                       :wire:key="'answer-model-section-'. $uniqueKey"
+                >
+                    <x-accordion.block key="answer-model"
+                                       :coloredBorderClass="'primary'"
+                                       :emitWhenSet="true"
+                                       :wire:key="'answer-model-section-block'. $uniqueKey"
+                    >
+                        <x-slot:title>
+                            <div class="question-indicator items-center flex">
+                                <h4 class="inline-block"
+                                    selid="questiontitle">@lang('co-learning.answer_model')</h4>
+                            </div>
+                        </x-slot:title>
+                        <x-slot:body>
+                            <div class="w-full questionContainer" wire:key="answer-model-{{$this->testTake->discussingQuestion->uuid}}">
+                                <x-dynamic-component
+                                        :component="'answer.teacher.'. str($this->testTake->discussingQuestion->type)->kebab()"
+                                        :question="$this->testTake->discussingQuestion"
+                                        :editorId="'editor-'.$this->testTake->discussingQuestion->uuid"
+                                />
+                            </div>
+                        </x-slot:body>
+                    </x-accordion.block>
+                </x-accordion.container>
+                @endif {{-- end answer model --}}
             </div>
         @endif
+
+
         <x-slot name="testName">{{  $testTake->test->name }}</x-slot>
 
         @if(!$finishCoLearningButtonEnabled && $waitForTeacherNotificationEnabled)

@@ -1635,4 +1635,16 @@ class Question extends MtiBaseModel
     {
         return (bool)$answer->done;
     }
+
+    public function getGroupQuestion(TestTake $testTake) : false|GroupQuestion
+    {
+        return GroupQuestion::select('group_questions.*')
+                             ->join('group_question_questions', 'group_questions.id', '=', 'group_question_questions.group_question_id')
+                             ->join('test_questions', 'test_questions.question_id', '=', 'group_questions.id')
+                             ->join('tests', 'tests.id', '=', 'test_questions.test_id')
+                             ->join('test_takes', 'test_takes.test_id', '=', 'tests.id')
+                             ->where('test_takes.id', $testTake->getKey())
+                             ->where('group_question_questions.question_id', $this->getKey())
+                             ->first() ?? false;
+    }
 }
