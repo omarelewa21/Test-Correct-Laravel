@@ -3,7 +3,6 @@
         @foreach($textPartialArray as $textPartial)
             {!!$textPartial!!}
         @endforeach
-
         <span class="inline-flex flex-col mx-1 mb-1">
             <span class="bold w-full flex justify-center mb-1 ">
                 @if ($studentAnswer)
@@ -25,7 +24,6 @@
                 <x-button.true-false-toggle
                         :disabled="($disabledToggle && $question->isSubType('multi')) || !$answerStruct->get($answerIndex)->answered"
                         :initialStatus="$answerStruct->get($answerIndex)->activeToggle"
-                        {{-- TODO COLearning: set initial status to json value on answerRating, but first set values in that json field --}}
                         :toggleValue="$answerStruct->get($answerIndex)->score"
                         :identifier="$answerStruct->get($answerIndex)->tag"
                 />

@@ -769,7 +769,9 @@ class CoLearning extends TCComponent implements CollapsableHeader
         $this->testTake = $this->testTake->refresh();
         $this->testTake->testParticipants->load(['answers.answerRatings' => fn($query) => $query->where('type', 'STUDENT')]);
         $this->discussingQuestion = $this->testTake->discussingQuestion()->first();
-        $this->group = $this->discussingQuestion->getGroupQuestion($this->testTake);
+        if($this->discussingQuestion) {
+            $this->group = $this->discussingQuestion->getGroupQuestion($this->testTake);
+        }
     }
 
     private function refreshComponentData(): void

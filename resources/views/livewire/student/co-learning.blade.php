@@ -100,7 +100,7 @@
                         >
                             <x-slot:title>
                                 <div class="question-indicator items-center flex">
-                                    <div class="inline-flex question-number rounded-full text-center justify-center items-center {!! $this->answeredStatus === 'answered' ? 'complete': 'incomplete' !!}">
+                                    <div class="inline-flex question-number rounded-full text-center justify-center items-center">
                                         <span class="align-middle cursor-default">{{ $this->questionOrderNumber }}</span>
                                     </div>
                                     <div class="flex gap-4 items-center relative top-0.5">

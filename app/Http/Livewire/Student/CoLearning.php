@@ -212,8 +212,10 @@ class CoLearning extends TCComponent
      * Rating update coming from ColearningQuestion Component
      * Update Rating from emit of child livewire Question component
      */
-    public function updateAnswerRating(array $json, bool $fullyRated): void
+    public function updateAnswerRating(array $json, bool $fullyRated, int|float $rating): void
     {
+        $this->setRating($rating);
+
         $this->handleUpdatingRatingAndJson($fullyRated, $json);
 
         $this->dispatchBrowserEvent('updated-score', ['score' => $this->rating]);
@@ -483,45 +485,68 @@ class CoLearning extends TCComponent
 
         $correctAnswerStructure = $this->getCurrentQuestion()->getCorrectAnswerStructure();
 
-        switch ($this->getCurrentQuestion()->type . '-' . $this->getCurrentQuestion()->subtype) {
-            case 'MatchingQuestion-classify':
-            case 'MatchingQuestion-matching':
+        switch (strtolower($this->getCurrentQuestion()->type . '-' . $this->getCurrentQuestion()->subtype)) {
+            case 'matchingquestion-classify':
+            case 'matchingquestion-matching':
                 $correctAnswerStructure = $correctAnswerStructure->filter(fn($answer) => $answer->type === 'RIGHT');
 
-                $scorePerTag = round($this->maxRating / $correctAnswerStructure->count(),2);
-                $ratingPerAnswerOption = $correctAnswerStructure->mapWithKeys(fn ($answerData) => [$answerData->id => $scorePerTag]);
-                break;
-            case 'CompletionQuestion-multi':
-            case 'CompletionQuestion-completion':
-                $correctAnswerStructure = $correctAnswerStructure->filter(fn($answer) => $answer->correct);
+                $scorePerToggle = round($this->maxRating / $correctAnswerStructure->count(),2);
+                $ratingPerAnswerOption = $correctAnswerStructure->mapWithKeys(fn ($answerData) => [$answerData->id => $scorePerToggle]);
 
-                $scorePerTag =  round($this->maxRating / $correctAnswerStructure->count(), 2);
-                $ratingPerAnswerOption = $correctAnswerStructure->mapWithKeys(fn ($answerData) => [$answerData->tag => $scorePerTag]);
+                $amountOfToggles = collect(json_decode($this->answerRating->answer->json, true))
+                    ->filter(fn ($value, $key) => $key === 'order' ? false : $value )->count();
                 break;
-//            case 'MultipleChoiceQuestion-ARQ': // no toggles
-            case 'MultipleChoiceQuestion-MultipleChoice':
-                //TODO DO WE WANT TO GIVE THE POINTS THE TEACHER SET AT THE ANSWER MODEL, OR EVEN DIVIDE SCORE PER TAG
-                $scorePerTag =  round($this->maxRating / $correctAnswerStructure->count(), 2);
+            case 'completionquestion-multi':
+            case 'completionquestion-completion':
+                $correctAnswerStructure = $correctAnswerStructure->filter(fn($answer) => $answer->correct)->unique('tag');
 
-                //TODO DO WE WANT TO GIVE THE POINTS THE TEACHER SET AT THE ANSWER MODEL:
-                $ratingPerAnswerOption = $correctAnswerStructure->mapWithKeys(function ($answerData) {
-                    return [$answerData->order => $answerData->score];
-                });
+                $scorePerToggle =  round($this->maxRating / $correctAnswerStructure->count(), 2);
+                $ratingPerAnswerOption = $correctAnswerStructure->mapWithKeys(fn ($answerData) => [$answerData->tag => $scorePerToggle]);
+
+                $amountOfToggles = collect(json_decode($this->answerRating->answer->json, true))
+                    ->filter(fn ($value, $key) => $value )->count();
                 break;
-            case 'MultipleChoiceQuestion-TrueFalse':
-                $this->rating = array_values($json)[0] ? $correctAnswerStructure->max->score : 0;
-                $this->updateAnswerRating($json, true);
+            case 'multiplechoicequestion-multiplechoice':
+                if($this->getCurrentQuestion()->all_or_nothing) {
+                    $this->updateAnswerRating(
+                        json      : $json,
+                        fullyRated: true,
+                        rating    : array_values($json)[0] ? $this->maxRating : 0
+                    );
+                    return;
+                }
 
+                $scorePerToggle =  round($this->maxRating / $this->getCurrentQuestion()->selectable_answers, 2);
+                $ratingPerAnswerOption = $correctAnswerStructure->mapWithKeys(fn ($answerData) => [$answerData->order => $scorePerToggle] );
+
+                $amountOfToggles = collect(json_decode($this->answerRating->answer->json, true))->filter(fn($value) => $value)->count();
+                break;
+            case 'multiplechoicequestion-truefalse':
+                $this->updateAnswerRating(
+                    json      : $json,
+                    fullyRated: true,
+                    rating    : array_values($json)[0] ? $this->maxRating : 0
+                );
                 return;
             default:
                 $ratingPerAnswerOption = [];
         }
-        $fullyAnswered = collect($json)->count() === $ratingPerAnswerOption->count() ;
+        $amountOfTogglesUsed = collect($json)->count();
 
-        $rating = collect($json)->filter(fn($value) => $value)->reduce(fn ($carry, $value, $key) => $carry + ($ratingPerAnswerOption[$key] ?? 0), 0);
-        $this->rating = $this->allowRatingWithHalfPoints ? $rating : round($rating);
-
-        $this->updateAnswerRating($json, $fullyAnswered);
+        $this->updateAnswerRating(
+            json: $json,
+            fullyRated: $amountOfTogglesUsed === $amountOfToggles,
+            rating: collect($json)
+                      ->filter(fn($value) => $value)
+                      ->reduce(fn ($carry, $value, $key) => $carry + ($ratingPerAnswerOption[$key] ?? 0), 0)
+                      //first filter out all false values (toggle == off), then reduce the remaining values to a single value
+        );
     }
 
+    private function setRating(int|float $rating)
+    {
+        $this->rating = $this->allowRatingWithHalfPoints
+            ? round($rating * 2) / 2
+            : round($rating);
+    }
 }
