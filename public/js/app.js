@@ -7246,7 +7246,7 @@ document.addEventListener("alpine:init", function () {
             window.addEventListener(eventName, function (event) {
               /* If this yields no result, make sure the remove eventnames are unique on the page :) */
               var choice = choices.getValue().filter(function (choice) {
-                return choice.value === event.detail.value;
+                return choice.value.toString() === event.detail.value.toString();
               })[0];
               if (_this19.isAParentChoice(choice)) {
                 _this19.handleGroupItemChoice(choice);
@@ -11784,7 +11784,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "662d128370816e2bbb66",
+  key: "fc18ed69b446aeb8c8a5",
   cluster: "eu",
   forceTLS: true
 });
