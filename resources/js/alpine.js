@@ -3512,9 +3512,10 @@ document.addEventListener("alpine:init", () => {
             this.$wire.set('nextQuestion', eventData);
         },
         startTimeout(eventData) {
+            if(this.progressBar) return;
             this.progressBar = true;
             this.startTime = eventData.timeout;
-            console.log(eventData);
+
             if (eventData.timeLeft) {
                 this.progress = eventData.timeLeft;
             } else {

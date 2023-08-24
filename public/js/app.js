@@ -10266,9 +10266,9 @@ document.addEventListener("alpine:init", function () {
       },
       startTimeout: function startTimeout(eventData) {
         var _this83 = this;
+        if (this.progressBar) return;
         this.progressBar = true;
         this.startTime = eventData.timeout;
-        console.log(eventData);
         if (eventData.timeLeft) {
           this.progress = eventData.timeLeft;
         } else {
