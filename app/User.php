@@ -2646,7 +2646,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             return $language->value;
         }
 
-        return $this->schoolLocation?->school_language?->value ?? BaseHelper::browserLanguage();
+        return $this->schoolLocation?->school_language ?? BaseHelper::browserLanguage();
     }
 
     public function hasSingleSchoolLocation()
