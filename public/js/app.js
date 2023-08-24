@@ -18264,6 +18264,15 @@ window.RichTextEditor = {
       editor.editing.view.change(function (writer) {
         writer.setStyle('height', '150px', editor.editing.view.document.getRoot());
       });
+      editor.model.document.on('change:data', function (event, data, test) {
+        if (editor.getData() === '' || editor.getData() === '<p></p>') {
+          console.log('empty');
+          //todo set new comment to empty / not being edited
+          return;
+        }
+        //todo set new comment to being edited in the store method
+        console.log('not empty');
+      });
       // this.hideWProofreaderChevron(parameterBag.allowWsc, editor);
     });
   },
