@@ -142,7 +142,7 @@ class Factory
         $factory->testTake = $testTake;
 
         $participantProposals = $factory->getParticipantProposals($classesAndStudents);
-        $existingParticipants = $factory->testTake->testParticipants;
+        $existingParticipants = $factory->testTake->testParticipants->loadMissing('user:id,guest');
 
         $participantsToCreate = $factory->getParticipantsToCreate($participantProposals, $existingParticipants);
         $participantsToDelete = $factory->getParticipantsToDelete($participantProposals, $existingParticipants);
@@ -211,7 +211,9 @@ class Factory
      */
     private function getParticipantsToDelete(Collection $participantProposals, Collection $existingParticipants): Collection
     {
-        return $existingParticipants->filter(function ($participant) use ($participantProposals) {
+        return $existingParticipants
+            ->where(fn($participant) => !$participant->user->guest)
+            ->filter(function ($participant) use ($participantProposals) {
             return $participantProposals->doesntContain(function ($proposal) use ($participant) {
                 return $participant->user_id === $proposal['userId']
                     && $participant->school_class_id === $proposal['classId'];
