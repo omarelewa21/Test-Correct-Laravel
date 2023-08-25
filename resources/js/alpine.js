@@ -2246,6 +2246,8 @@ document.addEventListener("alpine:init", () => {
             }, 500);
         },
         async scrollToCommentCard (answerFeedbackUuid) {
+            this.container = this.$root.querySelector("#slide-container");
+
             const commentCard = document.querySelector('[data-uuid="'+answerFeedbackUuid+'"].answer-feedback-card')
             const slide = this.getSlideElementByIndex(2);
             let cardTop = commentCard.offsetTop;
@@ -2847,6 +2849,7 @@ document.addEventListener("alpine:init", () => {
 
                     this.hasFeedback = true;
 
+
                     this.$dispatch('answer-feedback-show-comments');
 
                     this.scrollToCommentCard(feedback.uuid);
@@ -2867,7 +2870,18 @@ document.addEventListener("alpine:init", () => {
 
                 this.$dispatch('answer-feedback-show-comments');
 
-                this.scrollToCommentCard(feedback.uuid);
+                let intervalCount = 0;
+                let interval = setInterval(() => {
+                    intervalCount++;
+                    this.$dispatch('answer-feedback-show-comments');
+                    if(intervalCount > 2) {
+                        this.scrollToCommentCard(feedback.uuid);
+                    }
+                    if(intervalCount === 5) {
+                        clearInterval(interval);
+                        return;
+                    }
+                }, 400);
 
                 feedbackEditor.setData('<p></p>');
             });
