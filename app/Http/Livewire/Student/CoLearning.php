@@ -56,6 +56,9 @@ class CoLearning extends TCComponent
 
     public $answered = false;
 
+    //Student navigation on their own pace
+    public $enableStudentNavigation = false;
+
     protected $queryString = [
         'answerRatingId'     => ['as' => 'e'],
         'coLearningFinished' => ['except' => false, 'as' => 'b']
@@ -92,7 +95,7 @@ class CoLearning extends TCComponent
             TestTakeStop::channelSignature(testTakeUuid: $this->testTake->uuid)                     => 'redirectToTestTakesInReview',
             TestTakeLeave::channelSignature(testTakeUuid: $this->testTake->uuid)                    => 'redirectToTestTakesToBeDiscussed',
             TestTakeChangeDiscussingQuestion::channelSignature(testTakeUuid: $this->testTake->uuid) => 'goToActiveQuestion',
-            'UpdateAnswerRating'                                                                    => 'updateAnswerRating',
+            'UpdateAnswerRating'                                                                    => 'updateAnswerRating', //old code?
             'goToActiveQuestion',
         ];
     }
@@ -102,6 +105,7 @@ class CoLearning extends TCComponent
         $this->testTake = $test_take->load('discussingQuestion');
         $this->discussingQuestionId = $this->testTake->discussing_question_id;
         $this->questionOrderList = $this->testTake->test->getQuestionOrderList();
+        $this->enableStudentNavigation = $this->testTake->enable_student_navigation_colearning;
 
         if (!$this->testTake->schoolLocation->allow_new_co_learning_teacher) {
             //if teacher is in old co-learning, polling needs to start, because the Pusher presence channel is not working in the old CO-Learning
@@ -144,6 +148,7 @@ class CoLearning extends TCComponent
         };
 
         $this->answerFeedbackFilter = AnswerFeedbackFilter::CURRENT_USER;
+        $this->enableStudentNavigation = $this->testTake->enable_student_navigation_colearning;
     }
 
     public function redirectToTestTakesInReview()
@@ -307,6 +312,8 @@ class CoLearning extends TCComponent
 
     private function getAnswerRatings($navigateDirection = null): void
     {
+        //todo when the student can navigate on their own pace, the correct answerRatings should be loaded
+        // $this->enableStudentNavigation === true
         $params = [
             'mode'   => 'all',
             'with'   => ['questions'],

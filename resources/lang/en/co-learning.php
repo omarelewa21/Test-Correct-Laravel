@@ -67,4 +67,6 @@ return [
     'question-text-for-students-tt' => 'This enables students to see the question text on their own screen while reviewing student answers',
     'answer-model-for-students'     => 'Enable correction model for students',
     'answer-model-for-students-tt'  => 'This allows students to see the correction model on their own screen while reviewing student answers',
+    'navigation-for-students'       => 'Students can work at own pace',
+    'navigation-for-students-tt'    => 'You can choose to keep CO-Learning open after starting so that students can continue on their own. CO-Learning is always set to closed when you start assessment of the test.',
 ];

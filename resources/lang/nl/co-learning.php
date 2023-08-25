@@ -67,4 +67,6 @@ return [
     'question-text-for-students-tt' => 'Hiermee kunnen studenten de vraagtekst bekijken tijdens het beoordelen van de antwoorden van andere studenten',
     'answer-model-for-students'     => 'Antwoordmodel aanzetten voor studenten',
     'answer-model-for-students-tt'  => 'Hiermee kunnen studenten het antwoordmodel bekijken tijdens het beoordelen van de antwoorden van andere studenten',
+    'navigation-for-students'       => 'Studenten werken op hun eigen tempo',
+    'navigation-for-students-tt'    => 'Je kunt ervoor kiezen om CO-Learning open te laten na het starten, zodat studenten zelf door kunnen werken. CO-Learning wordt altijd gesloten, zodra jij met nakijken begint.',
 ];

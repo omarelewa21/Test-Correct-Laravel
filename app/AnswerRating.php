@@ -114,7 +114,7 @@ class AnswerRating extends BaseModel
                         $query->where('test_take_id', '=', $value);
                     }
                     break;
-                case 'discussing_at_test_take_id':
+                case 'discussing_at_test_take_id': //todo create filter for student discussing question id
                     $value = TestTake::whereUuid($value)->first()->getKey();
 
                     $query->where('test_take_id', '=', $value);
