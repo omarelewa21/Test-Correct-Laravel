@@ -2111,27 +2111,27 @@ document.addEventListener("alpine:init", () => {
         firstValue,
         skipWatch: false,
         async first() {
-            if(this.$store.answerFeedback.feedbackBeingEdited()) {
+            if(this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
                 return this.$store.answerFeedback.openConfirmationModal(this.$root, 'first');
             }
             await this.updateCurrent(this.firstValue, "first");
         },
         async last() {
-            if(this.$store.answerFeedback.feedbackBeingEdited()) {
+            if(this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
                 return this.$store.answerFeedback.openConfirmationModal(this.$root, 'last');
             }
             await this.updateCurrent(this.lastValue, "last");
         },
         async next() {
             if (this.current >= this.lastValue) return;
-            if(this.$store.answerFeedback.feedbackBeingEdited()) {
+            if(this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
                 return this.$store.answerFeedback.openConfirmationModal(this.$root, 'next');
             }
             await this.updateCurrent(this.current + 1, "incr");
         },
         async previous() {
             if (this.current <= this.firstValue) return;
-            if(this.$store.answerFeedback.feedbackBeingEdited()) {
+            if(this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
                 return this.$store.answerFeedback.openConfirmationModal(this.$root, 'previous');
             }
             await this.updateCurrent(this.current - 1, "decr");
@@ -2254,7 +2254,7 @@ document.addEventListener("alpine:init", () => {
             await smoothScroll(this.container, cardTop, slide.offsetLeft);
         },
         async next() {
-            if(this.$store.answerFeedback.feedbackBeingEdited()) {
+            if(this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
                 return this.$store.answerFeedback.openConfirmationModal(this.$root, 'next');
             }
             if (this.needsToPerformActionsStill()) {
@@ -2271,7 +2271,7 @@ document.addEventListener("alpine:init", () => {
             });
         },
         async previous() {
-            if(this.$store.answerFeedback.feedbackBeingEdited()) {
+            if(this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
                 return this.$store.answerFeedback.openConfirmationModal(this.$root, 'previous');
             }
             this.tab(1);
@@ -2648,7 +2648,7 @@ document.addEventListener("alpine:init", () => {
             }, 5000);
         },
         async loadQuestion(number) {
-            if(this.$store.answerFeedback.feedbackBeingEdited()) {
+            if(this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
                 return this.$store.answerFeedback.openConfirmationModal(this.$root, 'loadQuestion', number);
             }
 
@@ -3124,11 +3124,11 @@ document.addEventListener("alpine:init", () => {
         setActiveComment (threadId, answerFeedbackUuid) {
             this.$dispatch('answer-feedback-show-comments');
             setTimeout(() => {
-                this.$dispatch("answer-feedback-drawer-tab-update", { tab: 2, uuid: answerFeedbackUuid });
                 if(this.$store.answerFeedback.feedbackBeingEdited()) {
                     /* when editing, no other comment can be activated */
                     return;
                 }
+                this.$dispatch("answer-feedback-drawer-tab-update", { tab: 2, uuid: answerFeedbackUuid });
                 this.activeComment = {threadId: threadId, uuid: answerFeedbackUuid };
                 this.setActiveCommentMarkerStyle();
             }, 300);
@@ -3242,12 +3242,16 @@ document.addEventListener("alpine:init", () => {
         },
         setEditingComment (AnswerFeedbackUuid) {
             this.activeComment = null;
-            this.$store.answerFeedback.editingComment = AnswerFeedbackUuid ?? null;
+            this.$store.answerFeedback.setEditingComment(AnswerFeedbackUuid ?? null);
             setTimeout(() => {
                 this.fixSlideHeightByIndex(2, AnswerFeedbackUuid);
             },100)
         },
         async toggleFeedbackAccordion (name, forceOpenAccordion = false) {
+            if(this.$store.answerFeedback.newFeedbackBeingCreated()) {
+                this.dropdownOpened ='add-feedback';
+                return;
+            };
             if(this.$store.answerFeedback.feedbackBeingEdited()) {
                 this.dropdownOpened ='given-feedback';
                 return;
@@ -3310,19 +3314,19 @@ document.addEventListener("alpine:init", () => {
     }));
     Alpine.data("coLearningStudent", () => ({
         async goToPreviousAnswerRating() {
-            if(this.$store.answerFeedback.feedbackBeingEdited()) {
+            if(this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
                 return this.$store.answerFeedback.openConfirmationModal(this.$root, 'goToPreviousAnswerRating');
             }
             this.$wire.goToPreviousAnswerRating();
         },
         async goToNextAnswerRating() {
-            if(this.$store.answerFeedback.feedbackBeingEdited()) {
+            if(this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
                 return this.$store.answerFeedback.openConfirmationModal(this.$root, 'goToNextAnswerRating');
             }
             this.$wire.goToNextAnswerRating();
         },
         async goToFinishedCoLearningPage() {
-            if(this.$store.answerFeedback.feedbackBeingEdited()) {
+            if(this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
                 return this.$store.answerFeedback.openConfirmationModal(this.$root, 'goToFinishedCoLearningPage');
             }
 
@@ -4025,11 +4029,18 @@ document.addEventListener("alpine:init", () => {
     }),
     Alpine.store("answerFeedback", {
         editingComment: null,
+        creatingNewComment: false,
         navigationRoot: null,
         navigationMethod: null,
         navigationArgs: null,
+        popupIsOpen: false,
+        feedbackBeingEditedOrCreated() {
+            return this.feedbackBeingEdited() || this.newFeedbackBeingCreated();
+        },
         feedbackBeingEdited() {
-            if(this.navigationRoot) {
+            if(this.popupIsOpen) {
+                console.log('popup is open')
+
                 this.navigationRoot = null;
                 this.navigationMethod = null;
                 return false;
@@ -4039,23 +4050,38 @@ document.addEventListener("alpine:init", () => {
             }
             return this.editingComment;
         },
+        newFeedbackBeingCreated() {
+            if(this.popupIsOpen) {
+                console.log('popup is open')
+                this.navigationRoot = null;
+                this.navigationMethod = null;
+                return false;
+            }
+            return this.creatingNewComment;
+        },
         openConfirmationModal(navigatorRootElement, methodName, methodArgs = null) {
             this.navigationRoot = navigatorRootElement;
             this.navigationMethod = methodName;
             this.navigationArgs = methodArgs;
-            Livewire.emit('openModal', 'modal.confirm-still-editing-comment-modal');
+            this.popupIsOpen = true;
+            Livewire.emit('openModal', 'modal.confirm-still-editing-comment-modal', {'creatingNewComment': this.creatingNewComment});
         },
         continueAction() {
             this.editingComment = null;
-            console.log(this.navigationRoot, this.navigationMethod, this.navigationArgs)
             this.navigationRoot.dispatchEvent(new CustomEvent('continue-navigation', {detail: {method: this.navigationMethod, args: [this.navigationArgs]}}))
+            this.popupIsOpen = false;
             Livewire.emit('closeModal');
         },
         cancelAction() {
             this.navigationRoot = null;
             this.navigationMethod = null;
             window.dispatchEvent(new CustomEvent('answer-feedback-drawer-tab-update', {detail: {tab: 2, uuid: this.editingComment}}));
+            this.popupIsOpen = false;
             Livewire.emit('closeModal');
+        },
+        setEditingComment(AnswerFeedbackUuid) {
+            this.popupIsOpen = false;
+            this.editingComment = AnswerFeedbackUuid;
         }
     });
     Alpine.store("studentPlayer", {

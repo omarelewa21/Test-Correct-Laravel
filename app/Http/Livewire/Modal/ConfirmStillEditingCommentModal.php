@@ -6,7 +6,7 @@ use tcCore\Http\Livewire\TCModalComponent;
 
 class ConfirmStillEditingCommentModal extends TCModalComponent
 {
-    public $editingComment = '';
+    public $creatingNewComment = false;
 
     public function render()
     {

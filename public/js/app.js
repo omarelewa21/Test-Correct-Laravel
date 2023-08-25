@@ -8544,7 +8544,7 @@ document.addEventListener("alpine:init", function () {
           return _regeneratorRuntime().wrap(function _callee8$(_context8) {
             while (1) switch (_context8.prev = _context8.next) {
               case 0:
-                if (!_this40.$store.answerFeedback.feedbackBeingEdited()) {
+                if (!_this40.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
                   _context8.next = 2;
                   break;
                 }
@@ -8565,7 +8565,7 @@ document.addEventListener("alpine:init", function () {
           return _regeneratorRuntime().wrap(function _callee9$(_context9) {
             while (1) switch (_context9.prev = _context9.next) {
               case 0:
-                if (!_this41.$store.answerFeedback.feedbackBeingEdited()) {
+                if (!_this41.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
                   _context9.next = 2;
                   break;
                 }
@@ -8592,7 +8592,7 @@ document.addEventListener("alpine:init", function () {
                 }
                 return _context10.abrupt("return");
               case 2:
-                if (!_this42.$store.answerFeedback.feedbackBeingEdited()) {
+                if (!_this42.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
                   _context10.next = 4;
                   break;
                 }
@@ -8619,7 +8619,7 @@ document.addEventListener("alpine:init", function () {
                 }
                 return _context11.abrupt("return");
               case 2:
-                if (!_this43.$store.answerFeedback.feedbackBeingEdited()) {
+                if (!_this43.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
                   _context11.next = 4;
                   break;
                 }
@@ -8834,7 +8834,7 @@ document.addEventListener("alpine:init", function () {
           return _regeneratorRuntime().wrap(function _callee16$(_context16) {
             while (1) switch (_context16.prev = _context16.next) {
               case 0:
-                if (!_this51.$store.answerFeedback.feedbackBeingEdited()) {
+                if (!_this51.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
                   _context16.next = 2;
                   break;
                 }
@@ -8878,7 +8878,7 @@ document.addEventListener("alpine:init", function () {
           return _regeneratorRuntime().wrap(function _callee18$(_context18) {
             while (1) switch (_context18.prev = _context18.next) {
               case 0:
-                if (!_this52.$store.answerFeedback.feedbackBeingEdited()) {
+                if (!_this52.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
                   _context18.next = 2;
                   break;
                 }
@@ -9294,7 +9294,7 @@ document.addEventListener("alpine:init", function () {
           return _regeneratorRuntime().wrap(function _callee19$(_context19) {
             while (1) switch (_context19.prev = _context19.next) {
               case 0:
-                if (!_this61.$store.answerFeedback.feedbackBeingEdited()) {
+                if (!_this61.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
                   _context19.next = 2;
                   break;
                 }
@@ -9836,14 +9836,14 @@ document.addEventListener("alpine:init", function () {
         var _this71 = this;
         this.$dispatch('answer-feedback-show-comments');
         setTimeout(function () {
-          _this71.$dispatch("answer-feedback-drawer-tab-update", {
-            tab: 2,
-            uuid: answerFeedbackUuid
-          });
           if (_this71.$store.answerFeedback.feedbackBeingEdited()) {
             /* when editing, no other comment can be activated */
             return;
           }
+          _this71.$dispatch("answer-feedback-drawer-tab-update", {
+            tab: 2,
+            uuid: answerFeedbackUuid
+          });
           _this71.activeComment = {
             threadId: threadId,
             uuid: answerFeedbackUuid
@@ -9944,7 +9944,7 @@ document.addEventListener("alpine:init", function () {
       setEditingComment: function setEditingComment(AnswerFeedbackUuid) {
         var _this74 = this;
         this.activeComment = null;
-        this.$store.answerFeedback.editingComment = AnswerFeedbackUuid !== null && AnswerFeedbackUuid !== void 0 ? AnswerFeedbackUuid : null;
+        this.$store.answerFeedback.setEditingComment(AnswerFeedbackUuid !== null && AnswerFeedbackUuid !== void 0 ? AnswerFeedbackUuid : null);
         setTimeout(function () {
           _this74.fixSlideHeightByIndex(2, AnswerFeedbackUuid);
         }, 100);
@@ -9958,21 +9958,29 @@ document.addEventListener("alpine:init", function () {
             while (1) switch (_context28.prev = _context28.next) {
               case 0:
                 forceOpenAccordion = _arguments3.length > 1 && _arguments3[1] !== undefined ? _arguments3[1] : false;
-                if (!_this75.$store.answerFeedback.feedbackBeingEdited()) {
+                if (!_this75.$store.answerFeedback.newFeedbackBeingCreated()) {
                   _context28.next = 4;
+                  break;
+                }
+                _this75.dropdownOpened = 'add-feedback';
+                return _context28.abrupt("return");
+              case 4:
+                ;
+                if (!_this75.$store.answerFeedback.feedbackBeingEdited()) {
+                  _context28.next = 8;
                   break;
                 }
                 _this75.dropdownOpened = 'given-feedback';
                 return _context28.abrupt("return");
-              case 4:
+              case 8:
                 ;
                 if (!(_this75.dropdownOpened === name && !forceOpenAccordion)) {
-                  _context28.next = 8;
+                  _context28.next = 12;
                   break;
                 }
                 _this75.dropdownOpened = null;
                 return _context28.abrupt("return");
-              case 8:
+              case 12:
                 if (questionType === 'OpenQuestion' && name === 'add-feedback') {
                   try {
                     _this75.setFocusTracking();
@@ -9981,13 +9989,13 @@ document.addEventListener("alpine:init", function () {
                   }
                 }
                 _this75.dropdownOpened = name;
-                _context28.next = 12;
+                _context28.next = 16;
                 return _this75.$nextTick();
-              case 12:
+              case 16:
                 setTimeout(function () {
                   _this75.fixSlideHeightByIndex(2);
                 }, 293);
-              case 13:
+              case 17:
               case "end":
                 return _context28.stop();
             }
@@ -10038,7 +10046,7 @@ document.addEventListener("alpine:init", function () {
           return _regeneratorRuntime().wrap(function _callee29$(_context29) {
             while (1) switch (_context29.prev = _context29.next) {
               case 0:
-                if (!_this76.$store.answerFeedback.feedbackBeingEdited()) {
+                if (!_this76.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
                   _context29.next = 2;
                   break;
                 }
@@ -10058,7 +10066,7 @@ document.addEventListener("alpine:init", function () {
           return _regeneratorRuntime().wrap(function _callee30$(_context30) {
             while (1) switch (_context30.prev = _context30.next) {
               case 0:
-                if (!_this77.$store.answerFeedback.feedbackBeingEdited()) {
+                if (!_this77.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
                   _context30.next = 2;
                   break;
                 }
@@ -10078,7 +10086,7 @@ document.addEventListener("alpine:init", function () {
           return _regeneratorRuntime().wrap(function _callee31$(_context31) {
             while (1) switch (_context31.prev = _context31.next) {
               case 0:
-                if (!_this78.$store.answerFeedback.feedbackBeingEdited()) {
+                if (!_this78.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
                   _context31.next = 2;
                   break;
                 }
@@ -10866,11 +10874,17 @@ document.addEventListener("alpine:init", function () {
     }
   }), alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].store("answerFeedback", {
     editingComment: null,
+    creatingNewComment: false,
     navigationRoot: null,
     navigationMethod: null,
     navigationArgs: null,
+    popupIsOpen: false,
+    feedbackBeingEditedOrCreated: function feedbackBeingEditedOrCreated() {
+      return this.feedbackBeingEdited() || this.newFeedbackBeingCreated();
+    },
     feedbackBeingEdited: function feedbackBeingEdited() {
-      if (this.navigationRoot) {
+      if (this.popupIsOpen) {
+        console.log('popup is open');
         this.navigationRoot = null;
         this.navigationMethod = null;
         return false;
@@ -10880,22 +10894,34 @@ document.addEventListener("alpine:init", function () {
       }
       return this.editingComment;
     },
+    newFeedbackBeingCreated: function newFeedbackBeingCreated() {
+      if (this.popupIsOpen) {
+        console.log('popup is open');
+        this.navigationRoot = null;
+        this.navigationMethod = null;
+        return false;
+      }
+      return this.creatingNewComment;
+    },
     openConfirmationModal: function openConfirmationModal(navigatorRootElement, methodName) {
       var methodArgs = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
       this.navigationRoot = navigatorRootElement;
       this.navigationMethod = methodName;
       this.navigationArgs = methodArgs;
-      Livewire.emit('openModal', 'modal.confirm-still-editing-comment-modal');
+      this.popupIsOpen = true;
+      Livewire.emit('openModal', 'modal.confirm-still-editing-comment-modal', {
+        'creatingNewComment': this.creatingNewComment
+      });
     },
     continueAction: function continueAction() {
       this.editingComment = null;
-      console.log(this.navigationRoot, this.navigationMethod, this.navigationArgs);
       this.navigationRoot.dispatchEvent(new CustomEvent('continue-navigation', {
         detail: {
           method: this.navigationMethod,
           args: [this.navigationArgs]
         }
       }));
+      this.popupIsOpen = false;
       Livewire.emit('closeModal');
     },
     cancelAction: function cancelAction() {
@@ -10907,7 +10933,12 @@ document.addEventListener("alpine:init", function () {
           uuid: this.editingComment
         }
       }));
+      this.popupIsOpen = false;
       Livewire.emit('closeModal');
+    },
+    setEditingComment: function setEditingComment(AnswerFeedbackUuid) {
+      this.popupIsOpen = false;
+      this.editingComment = AnswerFeedbackUuid;
     }
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].store("studentPlayer", {
@@ -18266,12 +18297,10 @@ window.RichTextEditor = {
       });
       editor.model.document.on('change:data', function (event, data, test) {
         if (editor.getData() === '' || editor.getData() === '<p></p>') {
-          console.log('empty');
-          //todo set new comment to empty / not being edited
+          Alpine.store('answerFeedback').creatingNewComment = false;
           return;
         }
-        //todo set new comment to being edited in the store method
-        console.log('not empty');
+        Alpine.store('answerFeedback').creatingNewComment = true;
       });
       // this.hideWProofreaderChevron(parameterBag.allowWsc, editor);
     });

@@ -126,12 +126,10 @@ window.RichTextEditor = {
                 });
                 editor.model.document.on( 'change:data', (event, data, test) => {
                     if(editor.getData() === '' || editor.getData() === '<p></p>') {
-                        console.log('empty');
-                        //todo set new comment to empty / not being edited
+                        Alpine.store('answerFeedback').creatingNewComment = false;
                         return;
                     }
-                    //todo set new comment to being edited in the store method
-                    console.log('not empty');
+                    Alpine.store('answerFeedback').creatingNewComment = true;
                 });
                 // this.hideWProofreaderChevron(parameterBag.allowWsc, editor);
             }

@@ -1,9 +1,17 @@
 <x-modal.base-modal force-close="true">
     <x-slot name="title">
-        <h2>{{ __('modal.Feedback_in_bewerking_title') }}</h2>
+        @unless($creatingNewComment)
+            <h2>{{ __('modal.Feedback_in_bewerking_title') }}</h2>
+        @else
+            <h2>{{ __('modal.New_Feedback_in_bewerking_title') }}</h2>
+        @endif
     </x-slot>
     <x-slot name="content">
-        @lang('modal.Feedback_in_bewerking_text')
+        @unless($creatingNewComment)
+            @lang('modal.Feedback_in_bewerking_text')
+        @else
+            @lang('modal.New_Feedback_in_bewerking_text')
+        @endif
     </x-slot>
     <x-slot name="footer">
         <div class="flex justify-end w-full gap-4 items-center">
