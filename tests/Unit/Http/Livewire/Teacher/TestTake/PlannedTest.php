@@ -8,10 +8,7 @@ use Livewire\Livewire;
 use tcCore\FactoryScenarios\FactoryScenarioSchoolSimpleWithTest;
 use tcCore\FactoryScenarios\FactoryScenarioTestTakePlanned;
 use tcCore\Http\Helpers\ActingAsHelper;
-use tcCore\Http\Helpers\CakeRedirectHelper;
-use tcCore\Http\Livewire\TCModalComponent;
 use tcCore\Http\Livewire\Teacher\TestTake\Planned;
-use tcCore\Http\Livewire\Teacher\TestTakeWarningModal;
 use Tests\ScenarioLoader;
 use Tests\TestCase;
 

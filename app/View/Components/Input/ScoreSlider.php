@@ -41,15 +41,10 @@ class ScoreSlider extends Component
 
     private function setContinuousSliderValue(): void
     {
-        if ($this->mode === 'large') {
-            $this->continuousScoreSlider = false;
-            return;
-        }
-        if ($this->mode === 'small') {
-            $this->continuousScoreSlider = $this->halfPoints ? $this->maxScore > 5 : $this->maxScore > 10;
-            return;
-        }
-
-        $this->continuousScoreSlider = $this->halfPoints ? $this->maxScore > 7 : $this->maxScore > 15;
+        $this->continuousScoreSlider = match ($this->mode) {
+            'large' => false,
+            'small' => $this->halfPoints ? ($this->maxScore > 5) : ($this->maxScore > 10),
+            default => $this->halfPoints ? ($this->maxScore > 7) : ($this->maxScore > 15),
+        };
     }
 }

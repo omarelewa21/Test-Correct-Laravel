@@ -19,8 +19,6 @@ use tcCore\Jobs\Rating\CalculateRatingForTestParticipant;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Dyrynda\Database\Casts\EfficientUuid;
-use Dyrynda\Database\Support\GeneratesUuid;
-use tcCore\Lib\Question\QuestionGatherer;
 use tcCore\Lib\Question\QuestionInterface;
 use tcCore\Traits\UuidTrait;
 
@@ -539,13 +537,11 @@ class TestParticipant extends BaseModel
      */
     public function getActiveAttribute($value): bool
     {
-        if (!$this->hasAttribute('active')) {
-            throw new \Exception("The 'active' property doesn't exist on this model");
+        if (isset($this->attributes['active'])) {
+            return (bool)$this->attributes['active'];
         }
-        if (!isset($this->getAttributes()['active'])) {
-            return false;
-        }
-        return (bool)$this->getAttributes()['active'];
+
+        throw new \Exception("The 'active' property doesn't exist on this model");
     }
 
     public function calculateStatistics(?TestTake $testTake = null, ?Test $test = null): void
@@ -608,13 +604,9 @@ class TestParticipant extends BaseModel
         }
 
         unset($this->answers);
-//        unset($longestAnswer->question);
 
         $this->setAttribute('score', $score);
         $this->setAttribute('made_score', $madeScore);
-//        if (!$this->validateForMaxScore($this)) {
-//            $this->setAttribute('max_score', '');
-//        }
         $this->setAttribute('max_score', $maxScore);
         $this->setAttribute('questions', $questionsCount);
         $this->setAttribute('total_time', $totalTime);

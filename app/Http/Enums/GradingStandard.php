@@ -31,7 +31,7 @@ enum GradingStandard: string implements FeatureSettingKey
     #[Description('grading.cesuur')]
     case CESUUR = 'cesuur';
 
-    private const conversionArray = [
+    public const conversionArray = [
         'ppp'            => self::GOOD_PER_POINT,
         'epp'            => self::ERRORS_PER_POINT,
         'wanted_average' => self::AVERAGE,
@@ -41,9 +41,9 @@ enum GradingStandard: string implements FeatureSettingKey
 
     public static function getEnumFromTestTake(TestTake $testTake): array
     {
-        $standardizationAttributes = ['ppp', 'epp', 'wanted_average', 'n_term', 'pass_mark'];
         $standardizationValues = collect($testTake->toArray())
-            ->filter(fn($attr, $key) => in_array($key, $standardizationAttributes) && $attr !== null);
+            ->only(array_keys(self::conversionArray))
+            ->filter();
 
         $value = $standardizationValues->first();
 

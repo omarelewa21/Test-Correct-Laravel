@@ -3278,7 +3278,6 @@ document.addEventListener("alpine:init", () => {
                 this.dropdownOpened ='given-feedback';
                 return;
             }
-            ;
 
             if (this.dropdownOpened === name && !forceOpenAccordion) {
                 this.dropdownOpened = null;

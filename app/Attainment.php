@@ -5,7 +5,6 @@ use Illuminate\Support\Facades\DB;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Dyrynda\Database\Casts\EfficientUuid;
-use Dyrynda\Database\Support\GeneratesUuid;
 use tcCore\Scopes\AttainmentScope;
 use tcCore\Traits\UuidTrait;
 

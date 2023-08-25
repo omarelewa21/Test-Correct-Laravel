@@ -653,19 +653,13 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     {
         $answers = $this->answersWithDiscrepancyFilter($answers)
             ->whereIn('question_id', $this->getQuestionIdsForCurrentAssessmentType());
-        if ($action === 'last') {
-            return $answers->last();
-        }
-        if ($action === 'first') {
-            return $answers->first();
-        }
-        if ($action === 'decr') {
-            return $answers->filter(fn($answer, $key) => $key < $currentIndex)->last();
-        }
-        if ($action === 'incr') {
-            return $answers->filter(fn($answer, $key) => $key > $currentIndex)->first();
-        }
-        return null;
+        return match ($action) {
+            'last' => $answers->last(),
+            'first' => $answers->first(),
+            'decr' => $answers->filter(fn($answer, $key) => $key < $currentIndex)->last(),
+            'incr' => $answers->filter(fn($answer, $key) => $key > $currentIndex)->first(),
+            default => null,
+        };
     }
 
     private function dispatchUpdateNavigatorEvent(string $navigator, array $updates): void

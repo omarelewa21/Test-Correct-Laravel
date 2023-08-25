@@ -2,18 +2,15 @@
 
 namespace tcCore\Http\Livewire\Teacher;
 
-use Auth;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Validator;
 use tcCore\Http\Controllers\TemporaryLoginController;
 use tcCore\Http\Livewire\TCModalComponent;
 use tcCore\Http\Traits\Modal\WithPlanningFeatures;
-use tcCore\Lib\TestParticipant\Factory as ParticipantFactory;
 use tcCore\Period;
-use tcCore\Teacher;
 use tcCore\Test;
-use tcCore\TestParticipant;
 use tcCore\TestTake;
 use tcCore\TestTakeStatus;
 

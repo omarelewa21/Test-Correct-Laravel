@@ -14,16 +14,17 @@ class TestTakeValidStatus
     {
         $hasValidStatus = TestTake::whereUuid($request->route('testTake'))
             ->whereIn('test_take_status_id', $status)
-            ->first();
-        if ($hasValidStatus) {
-            return $next($request);
+            ->exists();
+        if (!$hasValidStatus) {
+            return redirect(
+                sprintf(
+                    "%s?%s",
+                    route('teacher.test-take.open-detail', $request->route('testTake')),
+                    $request->getQueryString()
+                )
+            );
         }
-        return redirect(
-            sprintf(
-                "%s?%s",
-                route('teacher.test-take.open-detail', $request->route('testTake')),
-                $request->getQueryString()
-            )
-        );
+
+        return $next($request);
     }
 }

@@ -1333,14 +1333,16 @@ class TestTakesController extends Controller
             return TestTake::redirectToDetail($testTake->uuid);
         }
 
-        if ($testTake->test_take_status_id === TestTakeStatus::STATUS_PLANNED) {
-            return redirect(route('teacher.test-take.planned', $testTake->uuid). '?' . $request->getQueryString());
-        }
-        if ($testTake->test_take_status_id === TestTakeStatus::STATUS_TAKING_TEST) {
-            return redirect(route('teacher.test-take.taking', $testTake->uuid). '?' . $request->getQueryString());
-        }
-        if ($testTake->test_take_status_id >= TestTakeStatus::STATUS_TAKEN) {
-            return redirect(route('teacher.test-take.taken', $testTake->uuid). '?' . $request->getQueryString());
+        $routeName = match ($testTake->test_take_status_id) {
+            TestTakeStatus::STATUS_PLANNED => 'teacher.test-take.planned',
+            TestTakeStatus::STATUS_TAKING_TEST => 'teacher.test-take.taking',
+            default => $testTake->test_take_status_id >= TestTakeStatus::STATUS_TAKEN
+                ? 'teacher.test-take.taken'
+                : null,
+        };
+
+        if ($routeName) {
+            return redirect(route($routeName, $testTake->uuid) . '?' . $request->getQueryString());
         }
 
         return TestTake::redirectToDetail($testTake->uuid);

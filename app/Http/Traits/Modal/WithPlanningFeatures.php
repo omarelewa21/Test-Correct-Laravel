@@ -42,14 +42,10 @@ trait WithPlanningFeatures
 
     private function getConditionalRules(): array
     {
-        $conditionalRules = [];
-        if (!$this->testTake->guest_accounts) {
-//            $conditionalRules['selectedClasses'] = 'required';
-        }
         if ($this->rttiExportAllowed) {
-            $conditionalRules['testTake.is_rtti_test_take'] = 'required';
+            return ['testTake.is_rtti_test_take' => 'required'];
         }
-        return $conditionalRules;
+        return [];
     }
 
     public function isRttiExportAllowed(): bool
