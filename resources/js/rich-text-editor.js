@@ -126,6 +126,13 @@ window.RichTextEditor = {
                 editor.editing.view.change(writer=>{
                     writer.setStyle('height', '150px', editor.editing.view.document.getRoot());
                 });
+                editor.model.document.on( 'change:data', (event, data, test) => {
+                    if(editor.getData() === '' || editor.getData() === '<p></p>') {
+                        Alpine.store('answerFeedback').creatingNewComment = false;
+                        return;
+                    }
+                    Alpine.store('answerFeedback').creatingNewComment = true;
+                });
                 // this.hideWProofreaderChevron(parameterBag.allowWsc, editor);
             }
         );
