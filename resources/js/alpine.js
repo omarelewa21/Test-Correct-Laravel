@@ -3145,7 +3145,11 @@ document.addEventListener("alpine:init", () => {
                 '} ' +
                 'span.ck-comment-marker[data-comment="'+ this.activeComment?.threadId +'"] img { ' +
                 '   border: 1px solid var(--ck-color-comment-marker-border) !important; ' +
-                '} ';
+                '} '  +
+                'div.answer-feedback-comment-icon[data-threadid="'+ this.activeComment?.threadId +'"] { ' +
+                '   z-index: 11 ' +
+                '} '
+            ;
 
         },
         setActiveComment (threadId, answerFeedbackUuid) {
