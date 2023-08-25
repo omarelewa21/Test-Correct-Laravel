@@ -4033,16 +4033,22 @@ document.addEventListener("alpine:init", () => {
         navigationRoot: null,
         navigationMethod: null,
         navigationArgs: null,
-        popupIsOpen: false,
         feedbackBeingEditedOrCreated() {
+            if(this.navigationRoot) {
+                this.navigationRoot = null;
+                this.navigationMethod = null;
+                this.creatingNewComment = false;
+                this.editingComment = null;
+                return false;
+            }
             return this.feedbackBeingEdited() || this.newFeedbackBeingCreated();
         },
         feedbackBeingEdited() {
-            if(this.popupIsOpen) {
-                console.log('popup is open')
-
+            if(this.navigationRoot) {
                 this.navigationRoot = null;
                 this.navigationMethod = null;
+                this.creatingNewComment = false;
+                this.editingComment = null;
                 return false;
             }
             if(this.editingComment === null) {
@@ -4051,10 +4057,11 @@ document.addEventListener("alpine:init", () => {
             return this.editingComment;
         },
         newFeedbackBeingCreated() {
-            if(this.popupIsOpen) {
-                console.log('popup is open')
+            if(this.navigationRoot) {
                 this.navigationRoot = null;
                 this.navigationMethod = null;
+                this.creatingNewComment = false;
+                this.editingComment = null;
                 return false;
             }
             return this.creatingNewComment;
@@ -4063,24 +4070,20 @@ document.addEventListener("alpine:init", () => {
             this.navigationRoot = navigatorRootElement;
             this.navigationMethod = methodName;
             this.navigationArgs = methodArgs;
-            this.popupIsOpen = true;
             Livewire.emit('openModal', 'modal.confirm-still-editing-comment-modal', {'creatingNewComment': this.creatingNewComment});
         },
         continueAction() {
             this.editingComment = null;
             this.navigationRoot.dispatchEvent(new CustomEvent('continue-navigation', {detail: {method: this.navigationMethod, args: [this.navigationArgs]}}))
-            this.popupIsOpen = false;
             Livewire.emit('closeModal');
         },
         cancelAction() {
             this.navigationRoot = null;
             this.navigationMethod = null;
             window.dispatchEvent(new CustomEvent('answer-feedback-drawer-tab-update', {detail: {tab: 2, uuid: this.editingComment}}));
-            this.popupIsOpen = false;
             Livewire.emit('closeModal');
         },
         setEditingComment(AnswerFeedbackUuid) {
-            this.popupIsOpen = false;
             this.editingComment = AnswerFeedbackUuid;
         }
     });

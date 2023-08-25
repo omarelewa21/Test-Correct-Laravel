@@ -10878,15 +10878,22 @@ document.addEventListener("alpine:init", function () {
     navigationRoot: null,
     navigationMethod: null,
     navigationArgs: null,
-    popupIsOpen: false,
     feedbackBeingEditedOrCreated: function feedbackBeingEditedOrCreated() {
+      if (this.navigationRoot) {
+        this.navigationRoot = null;
+        this.navigationMethod = null;
+        this.creatingNewComment = false;
+        this.editingComment = null;
+        return false;
+      }
       return this.feedbackBeingEdited() || this.newFeedbackBeingCreated();
     },
     feedbackBeingEdited: function feedbackBeingEdited() {
-      if (this.popupIsOpen) {
-        console.log('popup is open');
+      if (this.navigationRoot) {
         this.navigationRoot = null;
         this.navigationMethod = null;
+        this.creatingNewComment = false;
+        this.editingComment = null;
         return false;
       }
       if (this.editingComment === null) {
@@ -10895,10 +10902,11 @@ document.addEventListener("alpine:init", function () {
       return this.editingComment;
     },
     newFeedbackBeingCreated: function newFeedbackBeingCreated() {
-      if (this.popupIsOpen) {
-        console.log('popup is open');
+      if (this.navigationRoot) {
         this.navigationRoot = null;
         this.navigationMethod = null;
+        this.creatingNewComment = false;
+        this.editingComment = null;
         return false;
       }
       return this.creatingNewComment;
@@ -10908,7 +10916,6 @@ document.addEventListener("alpine:init", function () {
       this.navigationRoot = navigatorRootElement;
       this.navigationMethod = methodName;
       this.navigationArgs = methodArgs;
-      this.popupIsOpen = true;
       Livewire.emit('openModal', 'modal.confirm-still-editing-comment-modal', {
         'creatingNewComment': this.creatingNewComment
       });
@@ -10921,7 +10928,6 @@ document.addEventListener("alpine:init", function () {
           args: [this.navigationArgs]
         }
       }));
-      this.popupIsOpen = false;
       Livewire.emit('closeModal');
     },
     cancelAction: function cancelAction() {
@@ -10933,11 +10939,9 @@ document.addEventListener("alpine:init", function () {
           uuid: this.editingComment
         }
       }));
-      this.popupIsOpen = false;
       Livewire.emit('closeModal');
     },
     setEditingComment: function setEditingComment(AnswerFeedbackUuid) {
-      this.popupIsOpen = false;
       this.editingComment = AnswerFeedbackUuid;
     }
   });
