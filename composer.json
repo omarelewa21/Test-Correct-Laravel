@@ -46,11 +46,13 @@
 	},
 	"autoload": {
 		"exclude-from-classmap":[
-			"Aacotroneo\\Saml2\\Saml2Auth"
+			"Aacotroneo\\Saml2\\Saml2Auth",
+			"Bugsnag\\Report"
 		],
 		"files": [
 			"_overrides/Saml2Auth.php",
-			"app/Http/helpers.php"
+			"app/Http/helpers.php",
+			"_overrides/Report.php"
 		],
 		"psr-4": {
 			"tcCore\\": "app/",

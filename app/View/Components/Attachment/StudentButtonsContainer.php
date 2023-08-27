@@ -24,7 +24,7 @@ class StudentButtonsContainer extends Component
         /* Mon Aug 07 2023 00:00:00 GMT+0200 (Central European Summer Time) */
         $this->transitionDate = Carbon::parse(1691359200);
 
-        $this->attachments = $this->group ? $this->group->attachments : $question->attachments;
+        $this->attachments = collect($this->getGroupAttachments())->merge($question->attachments);
         $this->attachments->map(fn($attachment) => $this->setAttachmentTitle($attachment));
     }
 
@@ -47,4 +47,19 @@ class StudentButtonsContainer extends Component
         return str($attachment->file_extension)
             ->whenNotEmpty(fn(Stringable $string) => $string->prepend('.'));
     }
+
+    private function getGroupAttachments(): Collection
+    {
+        if (!$this->group) {
+            return collect();
+        }
+        $this->group->attachments->each(function ($attachment) {
+            if ($attachment === $this->group->attachments->last()) {
+                $attachment->groupDivider = true;
+            }
+        });
+
+        return $this->group->attachments ?? collect();
+    }
+
 }

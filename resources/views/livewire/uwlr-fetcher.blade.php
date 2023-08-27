@@ -9,11 +9,13 @@
     <div class="content-section p-8">
         <div class="flex space-x-4 mt-4">
             <x-input.group label="DataSource" class="w-1/2">
-                <x-input.select wire:model="currentSource">
-                    @foreach($this->uwlrDatasource as $key => $source)
-                        <x-input.option :value="$key" :label="$source['name']"/>
-                    @endforeach
-                </x-input.select>
+                <x-input.choices-select
+                        class="super"
+                        :multiple="false"
+                        :options="collect($this->uwlrDatasource)->map(fn($source, $key) => ['value' => $key, 'label' => $source['name']])"
+                        :withSearch="true"
+                        wire:model="currentSource"
+                />
             </x-input.group>
             <div class="w-1/2"></div>
         </div>

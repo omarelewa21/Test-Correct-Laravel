@@ -52,8 +52,6 @@ class PeriodRepository
     public static function getPreviousPeriod()
     {
         if (static::$previousPeriod === null) {
-            static::setPreviousPeriod();
-
             $current = self::getCurrentPeriod();
             $maxDate = Period::filtered()->max('end_date');
             static::$previousPeriod = Period::filtered()
