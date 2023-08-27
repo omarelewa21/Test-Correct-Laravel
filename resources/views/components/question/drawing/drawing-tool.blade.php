@@ -1,7 +1,6 @@
 <div id="drawing-tool"
      class="rounded-10 @student student @else teacher @endstudent"
      wire:ignore
-    x-data="{lineBtn:false}"
 >
     <div class="section-container">
         <section>
@@ -12,22 +11,22 @@
                             <x-icon.drag/>
                         </div>
                     </button>
-                    <button id="add-rect-btn" title="{{ __('drawing-modal.Rechthoek') }}" data-button-group="tool" @click="lineBtn=false">
+                    <button id="add-rect-btn" title="{{ __('drawing-modal.Rechthoek') }}" data-button-group="tool">
                         <div>
                             <x-icon.square/>
                         </div>
                     </button>
-                    <button id="add-circle-btn" title="{{ __('drawing-modal.Cirkel') }}" data-button-group="tool" @click="lineBtn=false">
+                    <button id="add-circle-btn" title="{{ __('drawing-modal.Cirkel') }}" data-button-group="tool">
                         <div>
                             <x-icon.circle/>
                         </div>
                     </button>
-                    <button id="add-line-btn" title="{{ __('drawing-modal.Rechte lijn') }}" data-button-group="tool" @click="lineBtn=true">
+                    <button id="add-line-btn" title="{{ __('drawing-modal.Rechte lijn') }}" data-button-group="tool">
                         <div>
                             <x-icon.line/>
                         </div>
                     </button>
-                    <button id="add-freehand-btn" title="{{ __('drawing-modal.Penlijn') }}" data-button-group="tool" @click="lineBtn=true">
+                    <button id="add-freehand-btn" title="{{ __('drawing-modal.Penlijn') }}" data-button-group="tool">
                         <div>
                             <x-icon.freehand/>
                         </div>
@@ -106,13 +105,26 @@
                            max="100" value="100" step="1" autocomplete="off" style="cursor: grab">
                 </div>
 
+                <div class="property-group" id="line">
+                    <x-input.color-picker  :name="'line-color'" :id="'line-color'" :title="__('drawing-modal.lineColor')"/>
+                    <div class="input-with-button-group">
+                        <button id="decr-line-width" class="Secondary" title="{{ __('drawing-modal.reduce-line-width') }}" disabled>
+                            <div>
+                                <x-icon.min/>
+                            </div>
+                        </button>
+                        <input type="number" name="line-width" id="line-width" min="1" max="100" value="1"
+                               autocomplete="off" title="@lang('drawing-modal.lijndikte')">
+                        <button id="incr-line-width" class="Secondary" title="{{ __('drawing-modal.enlarge-line-width') }}">
+                            <div>
+                                <x-icon.plus/>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
                 <div class="property-group" id="edge">
-                    <div x-show="lineBtn">
-                        <x-input.color-picker  :name="'line-color'" :id="'line-color'" :title="__('drawing-modal.lineColor')"/>
-                    </div>
-                    <div x-show="!lineBtn">
-                        <x-input.color-picker  :name="'stroke-color'" :id="'stroke-color'" :title="__('drawing-modal.Randkleur')"/>
-                    </div>
+                    <x-input.color-picker  :name="'stroke-color'" :id="'stroke-color'" :title="__('drawing-modal.Randkleur')"/>
                     <div class="input-with-button-group">
                         <button id="decr-stroke" class="Secondary" title="{{ __('drawing-modal.Vergroot randdikte') }}">
                             <div>
@@ -120,7 +132,7 @@
                             </div>
                         </button>
                         <input type="number" name="stroke-width" id="stroke-width" min="0" max="100" value="1"
-                               autocomplete="off" title="Randdikte">
+                               autocomplete="off" title="@lang('drawing-modal.Randdikte')">
                         <button id="incr-stroke" class="Secondary" title="{{ __('drawing-modal.Verklein randdikte') }}">
                             <div>
                                 <x-icon.plus/>

@@ -369,6 +369,10 @@ class svgShape {
     updateStrokeWidth() {
         this.mainElement.setAttribute("stroke-width", this.UI.strokeWidth.value);
     }
+
+    updateLineWidth() {
+        this.mainElement.setAttribute("stroke-width", this.UI.lineWidth.value);
+    }
 }
 
 export class Rectangle extends svgShape {

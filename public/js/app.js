@@ -12178,10 +12178,10 @@ var validSvgElementKeys = {
 };
 var shapePropertiesAvailableToUser = {
   drag: [],
-  freehand: ["edge"],
+  freehand: ["line"],
   rect: ["edge", "fill"],
   circle: ["edge", "fill"],
-  line: ["edge", "endmarker-type"],
+  line: ["line", "endmarker-type"],
   text: ["opacity", "text-style"]
 };
 var validHtmlElementKeys = {
@@ -12810,7 +12810,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
       },
       "blur": {
         callback: function callback() {
-          handleStrokeButtonStates();
+          toggleDisableButtonStates(UI.strokeWidth, UI.decrStroke, UI.incrStroke);
         }
       }
     }
@@ -12820,7 +12820,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
       "click": {
         callback: function callback() {
           UI.strokeWidth.stepDown();
-          handleStrokeButtonStates();
+          toggleDisableButtonStates(UI.strokeWidth, UI.decrStroke, UI.incrStroke);
           editShape('updateStrokeWidth');
         }
       },
@@ -12841,7 +12841,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
       "click": {
         callback: function callback() {
           UI.strokeWidth.stepUp();
-          handleStrokeButtonStates();
+          toggleDisableButtonStates(UI.strokeWidth, UI.decrStroke, UI.incrStroke);
           editShape('updateStrokeWidth');
         }
       },
@@ -12853,6 +12853,60 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
       "blur": {
         callback: function callback() {
           UI.strokeWidth.classList.remove("active");
+        }
+      }
+    }
+  }, {
+    element: UI.lineWidth,
+    events: {
+      "input": {
+        callback: function callback() {
+          valueWithinBounds(UI.lineWidth);
+        }
+      },
+      "blur": {
+        callback: function callback() {
+          toggleDisableButtonStates(UI.lineWidth, UI.decrLineWidth, UI.incrLineWidth);
+        }
+      }
+    }
+  }, {
+    element: UI.decrLineWidth,
+    events: {
+      "click": {
+        callback: function callback() {
+          UI.lineWidth.stepDown();
+          toggleDisableButtonStates(UI.lineWidth, UI.decrLineWidth, UI.incrLineWidth);
+        }
+      },
+      "focus": {
+        callback: function callback() {
+          UI.lineWidth.classList.add("active");
+        }
+      },
+      "blur": {
+        callback: function callback() {
+          UI.lineWidth.classList.remove("active");
+        }
+      }
+    }
+  }, {
+    element: UI.incrLineWidth,
+    events: {
+      "click": {
+        callback: function callback() {
+          UI.lineWidth.stepUp();
+          toggleDisableButtonStates(UI.lineWidth, UI.decrLineWidth, UI.incrLineWidth);
+        }
+      },
+      "focus": {
+        callback: function callback() {
+          UI.lineWidth.classList.add("active");
+        }
+      },
+      "blur": {
+        callback: function callback() {
+          UI.lineWidth.classList.remove("active");
         }
       }
     }
@@ -13890,7 +13944,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
           "y2": cursorPosition.y,
           "marker-end": "url(#svg-".concat(drawingApp.params.endmarkerType, "-line)"),
           "stroke": UI.lineColor.value,
-          "stroke-width": UI.strokeWidth.value,
+          "stroke-width": UI.lineWidth.value,
           "opacity": parseFloat(UI.elemOpacityNumber.value / 100)
         };
       case "freehand":
@@ -13898,7 +13952,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
           "d": "M ".concat(cursorPosition.x, ",").concat(cursorPosition.y),
           "fill": "none",
           "stroke": UI.lineColor.value,
-          "stroke-width": UI.strokeWidth.value,
+          "stroke-width": UI.lineWidth.value,
           "opacity": parseFloat(UI.elemOpacityNumber.value / 100)
         };
       case "text":
@@ -14494,7 +14548,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     var value = parseFloat(inputElem.value),
       max = parseFloat(inputElem.max),
       min = parseFloat(inputElem.min);
-    if (Number.isNaN(value) || value === 0) {
+    if (Number.isNaN(value)) {
       return false;
     }
     if (value > max) {
@@ -14654,13 +14708,13 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
   function handleGridSizeButtonStates() {
     disableButtonsWhenNecessary('gridSize');
   }
-  function handleStrokeButtonStates() {
-    var _getBoundsForInputEle2 = getBoundsForInputElement(UI.strokeWidth),
+  function toggleDisableButtonStates(input, decrButton, incrButton) {
+    var _getBoundsForInputEle2 = getBoundsForInputElement(input),
       currentValue = _getBoundsForInputEle2.currentValue,
       min = _getBoundsForInputEle2.min,
       max = _getBoundsForInputEle2.max;
-    UI.decrStroke.disabled = currentValue === min;
-    UI.incrStroke.disabled = currentValue === max;
+    decrButton.disabled = currentValue === min;
+    incrButton.disabled = currentValue === max;
   }
   function checkIfShouldeditShape(selectedEl) {
     return selectedEl && checkIfFocusedDataButtonIsSameAsSelectedElement(selectedEl);
