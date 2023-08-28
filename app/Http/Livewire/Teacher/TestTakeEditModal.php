@@ -235,7 +235,9 @@ class TestTakeEditModal extends TCModalComponent
      */
     private function getParticipantsToDelete(mixed $existingParticipants, Collection $participantProposals): mixed
     {
-        return $existingParticipants->filter(function ($participant) use ($participantProposals) {
+        return $existingParticipants
+            ->where(fn($participant) => !$participant->user->guest)
+            ->filter(function ($participant) use ($participantProposals) {
             return $participantProposals->doesntContain(function ($proposal) use ($participant) {
                 return $participant->user_id === $proposal['userId']
                     && $participant->school_class_id === $proposal['classId'];
@@ -272,7 +274,7 @@ class TestTakeEditModal extends TCModalComponent
     private function handleParticipants(): void
     {
         $participantProposals = $this->getParticipantProposals();
-        $existingParticipants = $this->testTake->testParticipants;
+        $existingParticipants = $this->testTake->testParticipants->loadMissing('user:id,guest');
 
         $participantsToCreate = $this->getParticipantsToCreate($participantProposals, $existingParticipants);
         $participantsToDelete = $this->getParticipantsToDelete($existingParticipants, $participantProposals);
