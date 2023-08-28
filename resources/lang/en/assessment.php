@@ -51,5 +51,8 @@ return [
     'emoji invoegen'                               => 'Insert emoji',
     'tekst markeren'                               => 'Mark text',
     'all'                                          => 'All',
-    'override_system_score_notification'           => 'Note: Re-scoring closed questions will cause a discrepancy between the score and correction model.'
+    'override_system_score_notification'           => 'Note: Re-scoring closed questions will cause a discrepancy between the score and correction model.',
+    'Het nieuwe nakijken'                          => 'New assessment',
+    'new_assessment_notification'                  => 'Assessment has been updated. We have new functions in a different lay-out, which means things work a little different.',
+    'new_assessment_knowledge_bank'                => 'Learn more in this Knowledge base article.',
 ];

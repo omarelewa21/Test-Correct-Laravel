@@ -5,13 +5,9 @@ namespace tcCore\Http\Livewire\Teacher;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Str;
-use Ramsey\Uuid\Uuid;
 use tcCore\Answer;
-use tcCore\AnswerFeedback;
 use tcCore\AnswerRating;
 use tcCore\Exceptions\AssessmentException;
-use tcCore\Http\Enums\CommentEmoji;
 use tcCore\Http\Enums\UserFeatureSetting as UserFeatureSettingEnum;
 use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Http\Interfaces\CollapsableHeader;
@@ -71,6 +67,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
     public $answerFeedback;
     public bool $scoreWarningDispatchedForQuestion;
+    public bool $showNewAssessmentNotification = false;
 
     /* Lifecycle methods */
     protected function getListeners(): array
@@ -406,6 +403,16 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         $this->getFeedbackForCurrentAnswer();
     }
 
+    public function removeNotification(): void
+    {
+        UserFeatureSetting::setSetting(
+            auth()->user(),
+            UserFeatureSettingEnum::SEEN_ASSESSMENT_NOTIFICATION,
+            true
+        );
+        $this->showNewAssessmentNotification = false;
+    }
+
 
     /* Private methods */
     protected function setTemplateVariables(): void
@@ -429,6 +436,11 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         $this->questionCount = $this->questions->count();
         $this->studentCount = $this->students->count();
         $this->updatePage = true;
+        $this->showNewAssessmentNotification = !UserFeatureSetting::getSetting(
+            user : auth()->user(),
+            title: UserFeatureSettingEnum::SEEN_ASSESSMENT_NOTIFICATION,
+            default: false,
+        );
     }
 
     /**
@@ -957,8 +969,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     {
         return $this->answersWithDiscrepancyFilter()
             ->filter(function ($answer) {
-                $needsAnswerRating = $this->questions->first(fn($q) => $q->id === $answer->question_id
-                )->isDiscussionTypeOpen;
+                $needsAnswerRating = $this->questions->first(fn($q) => $q->id === $answer->question_id)?->isDiscussionTypeOpen;
                 $hasNoAnswerRating = $answer->answerRatings->doesntContain(function ($rating) {
                     return $rating->type === AnswerRating::TYPE_TEACHER || $rating->type === AnswerRating::TYPE_SYSTEM;
                 });

@@ -149,3 +149,20 @@
         </div>
     </div>
 @endsection
+
+@section('notification-box')
+    <div class="notification info cursor-default max-w-[634px]">
+        <div class="title">@lang('assessment.Het nieuwe nakijken')</div>
+        <div class="body">
+            <span class="">@lang('assessment.new_assessment_notification')</span>
+            <x-button.text type="link"
+               :href="config('app.knowledge_bank_url')"
+               target="_blank"
+               size="sm"
+               class="cursor-pointer !text-sm primary font-normal underline"
+            >
+                @lang('assessment.new_assessment_knowledge_bank')
+            </x-button.text>
+        </div>
+    </div>
+@endsection
