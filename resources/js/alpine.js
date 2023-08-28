@@ -820,7 +820,7 @@ document.addEventListener("alpine:init", () => {
                     window.registeredEventHandlers.push(eventName);
                     window.addEventListener(eventName, (event) => {
                         /* If this yields no result, make sure the remove eventnames are unique on the page :) */
-                        let choice = choices.getValue().filter(choice => choice.value === event.detail.value)[0];
+                        let choice = choices.getValue().filter(choice => choice.value.toString() === event.detail.value.toString())[0];
                         if (this.isAParentChoice(choice)) {
                             this.handleGroupItemChoice(choice);
                         } else {
