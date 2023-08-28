@@ -50,5 +50,7 @@ return [
     'disabled_nav_no_answer'                       => 'Er zijn geen antwoorden beschikbaar voor deze vraag.',
     'emoji invoegen'                               => 'Emoji invoegen',
     'tekst markeren'                               => 'Tekst markeren',
-    'all'                                          => 'Alles'
+    'all'                                          => 'Alles',
+    'override_system_score_notification'           => 'Let op: Het veranderen van de score in gesloten vragen leidt tot verschillen in de score en het antwoordmodel.'
+
 ];

@@ -70,6 +70,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     public bool $webSpellCheckerEnabled;
 
     public $answerFeedback;
+    public bool $scoreWarningDispatchedForQuestion;
 
     /* Lifecycle methods */
     protected function getListeners(): array
@@ -118,9 +119,10 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         return view('livewire.teacher.assessment')->layout('layouts.assessment');
     }
 
-    public function updatedScore($value)
+    public function updatedScore($value): void
     {
         $this->updateOrCreateAnswerRating(['rating' => $value]);
+        $this->dispatchScoreNotificationForQuestion();
     }
 
     public function updatedFeedback($value)
@@ -217,30 +219,6 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     {
         if (!$this->headerCollapsed) {
             return true;
-        }
-
-        $types = collect([
-            'completionquestion',
-            'multiplechoicequestion',
-            'matchingquestion',
-            'rankingquestion',
-        ]);
-        $subTypes = collect([
-            'multi',
-            'completion',
-            'truefalse',
-            'multiplechoice',
-            'arq',
-            'classify',
-            'matching',
-        ]);
-
-        if ($types->contains(Str::lower($this->currentQuestion->type))) {
-            if ($this->currentQuestion->subtype === null) {
-                return true;
-            }
-
-            return $subTypes->contains(Str::lower($this->currentQuestion->subtype));
         }
 
         return !$this->currentAnswer->isAnswered;
@@ -531,6 +509,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         $this->currentQuestion = $newQuestion;
         $this->questionNavigationValue = $index + 1;
         $this->handleGroupQuestion();
+        $this->scoreWarningDispatchedForQuestion = false;
     }
 
     private function setComponentAnswerProperties(Answer $answer, int $index): void
@@ -1388,4 +1367,21 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     {
         $this->webSpellCheckerEnabled = auth()->user()->schoolLocation()->value('allow_wsc');
     }
+
+    private function dispatchScoreNotificationForQuestion(): void
+    {
+        if ($this->currentQuestion->isDiscussionTypeOpen) {
+            return;
+        }
+        if ($this->scoreWarningDispatchedForQuestion) {
+            return;
+        }
+
+        $this->scoreWarningDispatchedForQuestion = true;
+        $this->dispatchBrowserEvent(
+            'notify',
+            ['message' => __('assessment.override_system_score_notification'), 'type' => 'error']
+        );
+    }
+
 }
