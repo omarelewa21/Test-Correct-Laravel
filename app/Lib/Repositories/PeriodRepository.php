@@ -114,9 +114,4 @@ class PeriodRepository
         return $periods->first();
     }
 
-    public static function reset()
-    {
-        static::$currentPeriod = null;
-        static::$currentPeriods = null;
-    }
 }

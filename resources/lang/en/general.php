@@ -86,4 +86,5 @@ return [
     'number-of-questions'               => '{0} No questions found|{1} :count question found|[2,*] :count questions found',
     'tests'                             => 'Tests',
     'questions'                         => 'Questions',
+    'Formidable'                      => 'Formidable',
 ];
