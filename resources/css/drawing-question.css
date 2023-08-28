@@ -1139,3 +1139,8 @@
     width: 20px;
     height: 22px;
 }
+
+#bold-toggle-button.checked {
+    color: var(--teacher-Primary);
+    border: 1px solid var(--teacher-Primary);
+}

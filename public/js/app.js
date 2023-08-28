@@ -12753,6 +12753,11 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
       "change": {
         callback: function callback(evt) {
           drawingApp.params.boldText = evt.target.checked;
+          if (evt.target.checked) {
+            UI.boldToggleButton.classList.add('active');
+          } else {
+            UI.boldToggleButton.classList.remove('active');
+          }
           editShape('updateBoldText');
         }
       }
@@ -12861,7 +12866,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     events: {
       "input": {
         callback: function callback() {
-          valueWithinBounds(UI.lineWidth);
+          valueWithinBounds(UI.lineWidth) && editShape('updateLineWidth');
         }
       },
       "blur": {
@@ -12877,6 +12882,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         callback: function callback() {
           UI.lineWidth.stepDown();
           toggleDisableButtonStates(UI.lineWidth, UI.decrLineWidth, UI.incrLineWidth);
+          editShape('updateLineWidth');
         }
       },
       "focus": {
@@ -12897,6 +12903,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         callback: function callback() {
           UI.lineWidth.stepUp();
           toggleDisableButtonStates(UI.lineWidth, UI.decrLineWidth, UI.incrLineWidth);
+          editShape('updateLineWidth');
         }
       },
       "focus": {
@@ -13025,6 +13032,15 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
       "input": {
         callback: function callback() {
           return editShape('updateLineColor');
+        }
+      }
+    }
+  }, {
+    element: UI.endmarkerTypeWrapper,
+    events: {
+      "click": {
+        callback: function callback() {
+          return editShape('editOwnMarkerForThisShape');
         }
       }
     }
@@ -15244,6 +15260,12 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
       this.entryContainer.classList.add('editing');
       this.svgShape.shapeGroup.element.classList.add('editing');
       this.showRelevantShapeMenu();
+      this.setInputValuesWhenShapeInEditMode();
+    }
+  }, {
+    key: "setInputValuesWhenShapeInEditMode",
+    value: function setInputValuesWhenShapeInEditMode() {
+      this.svgShape.setInputValuesOnEdit();
     }
   }, {
     key: "removeEditingShape",
@@ -17273,7 +17295,6 @@ var svgShape = /*#__PURE__*/function () {
     key: "updateOpacity",
     value: function updateOpacity() {
       var opacity = parseFloat(this.UI.fillOpacityNumber.value / 100);
-      this.mainElement.setAttribute("opacity", opacity);
       this.mainElement.setAttribute("fill-opacity", opacity);
     }
   }, {
@@ -17285,11 +17306,17 @@ var svgShape = /*#__PURE__*/function () {
     key: "updateLineColor",
     value: function updateLineColor() {
       this.mainElement.setAttribute("stroke", this.UI.lineColor.value);
+      if (this.type === 'line') this.updateMarkerColor();
     }
   }, {
     key: "updateStrokeWidth",
     value: function updateStrokeWidth() {
       this.mainElement.setAttribute("stroke-width", this.UI.strokeWidth.value);
+    }
+  }, {
+    key: "updateLineWidth",
+    value: function updateLineWidth() {
+      this.mainElement.setAttribute("stroke-width", this.UI.lineWidth.value);
     }
   }]);
   return svgShape;
@@ -17312,7 +17339,44 @@ var Rectangle = /*#__PURE__*/function (_svgShape) {
     _classCallCheck(this, Rectangle);
     return _super.call(this, shapeId, "rect", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
   }
-  return _createClass(Rectangle);
+  _createClass(Rectangle, [{
+    key: "setInputValuesOnEdit",
+    value: function setInputValuesOnEdit() {
+      this.setFillColorOnEdit();
+      this.setOpacityInputValueOnEdit();
+      this.setStrokeColorOnEdit();
+      this.setStrokeWidthOnEdit();
+    }
+  }, {
+    key: "setFillColorOnEdit",
+    value: function setFillColorOnEdit() {
+      var fillColor = this.mainElement.getAttribute("fill");
+      var input = this.UI.fillColor;
+      input.value = fillColor;
+      input.style.cssText = "background-color: ".concat(fillColor, "; color: ").concat(fillColor, ";");
+    }
+  }, {
+    key: "setStrokeColorOnEdit",
+    value: function setStrokeColorOnEdit() {
+      var strokeColor = this.mainElement.getAttribute("stroke");
+      var input = this.UI.strokeColor;
+      input.value = strokeColor;
+      input.style.cssText = "border-color: ".concat(strokeColor);
+    }
+  }, {
+    key: "setOpacityInputValueOnEdit",
+    value: function setOpacityInputValueOnEdit() {
+      var input = this.UI.fillOpacityNumber;
+      input.value = this.mainElement.getAttribute("fill-opacity") * 100;
+      input.dispatchEvent(new Event('input'));
+    }
+  }, {
+    key: "setStrokeWidthOnEdit",
+    value: function setStrokeWidthOnEdit() {
+      this.UI.strokeWidth.value = this.mainElement.getAttribute("stroke-width");
+    }
+  }]);
+  return Rectangle;
 }(svgShape);
 var Circle = /*#__PURE__*/function (_svgShape2) {
   _inherits(Circle, _svgShape2);
@@ -17332,7 +17396,44 @@ var Circle = /*#__PURE__*/function (_svgShape2) {
     _classCallCheck(this, Circle);
     return _super2.call(this, shapeId, "circle", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
   }
-  return _createClass(Circle);
+  _createClass(Circle, [{
+    key: "setInputValuesOnEdit",
+    value: function setInputValuesOnEdit() {
+      this.setFillColorOnEdit();
+      this.setOpacityInputValueOnEdit();
+      this.setStrokeColorOnEdit();
+      this.setStrokeWidthOnEdit();
+    }
+  }, {
+    key: "setFillColorOnEdit",
+    value: function setFillColorOnEdit() {
+      var fillColor = this.mainElement.getAttribute("fill");
+      var input = this.UI.fillColor;
+      input.value = fillColor;
+      input.style.cssText = "background-color: ".concat(fillColor, "; color: ").concat(fillColor, ";");
+    }
+  }, {
+    key: "setStrokeColorOnEdit",
+    value: function setStrokeColorOnEdit() {
+      var strokeColor = this.mainElement.getAttribute("stroke");
+      var input = this.UI.strokeColor;
+      input.value = strokeColor;
+      input.style.cssText = "border-color: ".concat(strokeColor);
+    }
+  }, {
+    key: "setOpacityInputValueOnEdit",
+    value: function setOpacityInputValueOnEdit() {
+      var input = this.UI.fillOpacityNumber;
+      input.value = this.mainElement.getAttribute("fill-opacity") * 100;
+      input.dispatchEvent(new Event('input'));
+    }
+  }, {
+    key: "setStrokeWidthOnEdit",
+    value: function setStrokeWidthOnEdit() {
+      this.UI.strokeWidth.value = this.mainElement.getAttribute("stroke-width");
+    }
+  }]);
+  return Circle;
 }(svgShape);
 var Line = /*#__PURE__*/function (_svgShape3) {
   _inherits(Line, _svgShape3);
@@ -17359,11 +17460,20 @@ var Line = /*#__PURE__*/function (_svgShape3) {
   _createClass(Line, [{
     key: "makeOwnMarkerForThisShape",
     value: function makeOwnMarkerForThisShape() {
-      var markerType = this.getMarkerType();
-      if (markerType === "no-endmarker") return;
+      var editing = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+      var markerType = editing ? this.getCurrentActiveMarkerType() : this.getMarkerType();
+      if (markerType === "no-endmarker") {
+        var _this$marker2;
+        (_this$marker2 = this.marker) === null || _this$marker2 === void 0 ? void 0 : _this$marker2.remove();
+        this.marker = null;
+        this.props.main["marker-end"] = "url(#svg-no-endmarker-line)";
+        this.mainElement.setAttributeOnElementWithValidation("marker-end", "url(#svg-no-endmarker-line)");
+        return;
+      }
       var newMarker = this.cloneGenericMarker(markerType);
       this.svgCanvas.firstElementChild.appendChild(newMarker);
       var newMarkerId = "".concat(newMarker.id, "-line-").concat(this.shapeId);
+      this.deletePreviousMarker(newMarkerId);
       newMarker.id = newMarkerId;
       this.props.main["marker-end"] = "url(#".concat(newMarkerId, ")");
       this.mainElement.setAttributeOnElementWithValidation("marker-end", "url(#".concat(newMarkerId, ")"));
@@ -17379,10 +17489,23 @@ var Line = /*#__PURE__*/function (_svgShape3) {
       return type.substring(type.indexOf("svg-") + 4, type.lastIndexOf("-line"));
     }
   }, {
+    key: "getCurrentActiveMarkerType",
+    value: function getCurrentActiveMarkerType() {
+      return this.drawingApp.params.endmarkerType;
+    }
+  }, {
     key: "cloneGenericMarker",
     value: function cloneGenericMarker(type) {
       var markerToClone = this.root.querySelector("marker#svg-".concat(type));
       return markerToClone.cloneNode(true);
+    }
+  }, {
+    key: "deletePreviousMarker",
+    value: function deletePreviousMarker(newMarkerId) {
+      var previousMarker = this.root.querySelectorAll("marker#".concat(newMarkerId));
+      previousMarker.forEach(function (marker) {
+        marker.remove();
+      });
     }
   }, {
     key: "getPropertyToChange",
@@ -17394,6 +17517,46 @@ var Line = /*#__PURE__*/function (_svgShape3) {
         case "two-lines-arrow":
           return "stroke";
       }
+    }
+  }, {
+    key: "updateMarkerColor",
+    value: function updateMarkerColor() {
+      if (!this.marker) return;
+      var propertyToChange = this.getPropertyToChange(this.getMarkerType());
+      this.marker.style[propertyToChange] = this.UI.lineColor.value;
+    }
+  }, {
+    key: "editOwnMarkerForThisShape",
+    value: function editOwnMarkerForThisShape() {
+      this.makeOwnMarkerForThisShape(true);
+    }
+  }, {
+    key: "setInputValuesOnEdit",
+    value: function setInputValuesOnEdit() {
+      this.setLineColorOnEdit();
+      this.setLineWidthOnEdit();
+      this.setEndMarkerOnEdit();
+    }
+  }, {
+    key: "setLineColorOnEdit",
+    value: function setLineColorOnEdit() {
+      var lineColor = this.mainElement.getAttribute("stroke");
+      var input = this.UI.lineColor;
+      input.value = lineColor;
+      input.style.cssText = "background-color: ".concat(lineColor, "; color: ").concat(lineColor, ";");
+    }
+  }, {
+    key: "setLineWidthOnEdit",
+    value: function setLineWidthOnEdit() {
+      this.UI.lineWidth.value = this.mainElement.getAttribute("stroke-width");
+    }
+  }, {
+    key: "setEndMarkerOnEdit",
+    value: function setEndMarkerOnEdit() {
+      var _this$root$querySelec, _this$root$querySelec2;
+      var markerType = this.getMarkerType();
+      (_this$root$querySelec = this.root.querySelector('.endmarker-type.active')) === null || _this$root$querySelec === void 0 ? void 0 : _this$root$querySelec.classList.remove('active');
+      (_this$root$querySelec2 = this.root.querySelector(".endmarker-type#".concat(markerType))) === null || _this$root$querySelec2 === void 0 ? void 0 : _this$root$querySelec2.classList.add('active');
     }
   }]);
   return Line;
@@ -17558,6 +17721,45 @@ var Text = /*#__PURE__*/function (_svgShape4) {
         });
       }
     }
+  }, {
+    key: "setInputValuesOnEdit",
+    value: function setInputValuesOnEdit() {
+      this.setTextColorOnEdit();
+      this.setTextSizeOnEdit();
+      this.setBoldTextOnEdit();
+      this.setOpacityInputValueOnEdit();
+    }
+  }, {
+    key: "setTextColorOnEdit",
+    value: function setTextColorOnEdit() {
+      var textColor = this.mainElement.getAttribute("fill");
+      var input = this.UI.textColor;
+      input.value = textColor;
+      input.style.cssText = "background-color: ".concat(textColor, "; color: ").concat(textColor, ";");
+    }
+  }, {
+    key: "setTextSizeOnEdit",
+    value: function setTextSizeOnEdit() {
+      this.UI.textSize.value = parseFloat(this.mainElement.element.style.fontSize) * 16;
+    }
+  }, {
+    key: "setBoldTextOnEdit",
+    value: function setBoldTextOnEdit() {
+      var isBold = this.mainElement.element.style.fontWeight === 'bold';
+      this.drawingApp.params.boldText = this.UI.boldText.checked = isBold;
+      if (isBold) {
+        this.UI.boldToggleButton.classList.add('active');
+      } else {
+        this.UI.boldToggleButton.classList.remove('active');
+      }
+    }
+  }, {
+    key: "setOpacityInputValueOnEdit",
+    value: function setOpacityInputValueOnEdit() {
+      var input = this.UI.elemOpacityNumber;
+      input.value = this.mainElement.getAttribute("opacity") * 100;
+      input.dispatchEvent(new Event('input'));
+    }
   }]);
   return Text;
 }(svgShape);
@@ -17717,7 +17919,27 @@ var Freehand = /*#__PURE__*/function (_Path2) {
     _this8.shapeGroup.setAttribute("id", "freehand-".concat(shapeId));
     return _this8;
   }
-  return _createClass(Freehand);
+  _createClass(Freehand, [{
+    key: "setInputValuesOnEdit",
+    value: function setInputValuesOnEdit() {
+      this.setLineColorOnEdit();
+      this.setLineWidthOnEdit();
+    }
+  }, {
+    key: "setLineColorOnEdit",
+    value: function setLineColorOnEdit() {
+      var lineColor = this.mainElement.getAttribute("stroke");
+      var input = this.UI.lineColor;
+      input.value = lineColor;
+      input.style.cssText = "background-color: ".concat(lineColor, "; color: ").concat(lineColor, ";");
+    }
+  }, {
+    key: "setLineWidthOnEdit",
+    value: function setLineWidthOnEdit() {
+      this.UI.lineWidth.value = this.mainElement.getAttribute("stroke-width");
+    }
+  }]);
+  return Freehand;
 }(Path);
 
 /***/ }),
