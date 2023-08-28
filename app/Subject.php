@@ -276,6 +276,12 @@ class Subject extends BaseModel implements AccessCheckable
 
         return $this->filterByUserAndSchoolLocation($query, Auth::user(), $creathlonSchoolLocation);
     }
+    public function scopeFormidableFiltered($query, $filters = [], $sorting = [])
+    {
+        $formidableSchoolLocation = SchoolLocation::where('customer_code', config('custom.formidable_school_customercode'))->first();
+
+        return $this->filterByUserAndSchoolLocation($query, Auth::user(), $formidableSchoolLocation);
+    }
 
     public function scopeOlympiadeFiltered($query, $filters = [], $sorting = [])
     {

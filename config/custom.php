@@ -23,6 +23,8 @@ return [
     'thieme_meulenhoff_school_author'        => env('THIEMEMEULENHOFFITEMBANK_SCHOOL_AUTHOR', 'info+thiememeulenhoffontwikkelaar@test-correct.nl'),
     'creathlon_school_customercode'          => env('CREATHLONITEMBANK_SCHOOL_CUSTOMERCODE', 'CREATHLON'),
     'creathlon_school_author'                => env('CREATHLONITEMBANK_SCHOOL_AUTHOR', 'info+creathlonontwikkelaar@test-correct.nl'),
+    'formidable_school_customercode'          => env('FORMIDABLEONITEMBANK_SCHOOL_CUSTOMERCODE', 'FORMIDABLE'),
+    'formidable_school_author'                => env('FORMIDABLEITEMBANK_SCHOOL_AUTHOR', 'info+fdontwikkelaar@test-correct.nl'),
     'olympiade_school_customercode'          => env('OLYMPIADEITEMBANK_SCHOOL_CUSTOMERCODE', 'SBON'),
     'olympiade_school_author'                => env('OLYMPIADEITEMBANK_SCHOOL_AUTHOR', 'info+olympiadeontwikkelaar@test-correct.nl'),
     'examschool_customercode'                => env('EXAMSCHOOL_CUSTOMERCODE', 'OPENSOURCE1'),

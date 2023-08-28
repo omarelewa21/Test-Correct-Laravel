@@ -94,6 +94,9 @@ class TestsOverview extends OverviewComponent
             case 'umbrella':
                 $datasource = $this->getUmbrellaDatasource();
                 break;
+            case 'formidable':
+                $datasource = $this->getFormidableDatasource();
+                break;
             case 'creathlon':
                 $datasource = $this->getCreathlonDatasource();
                 break;
@@ -169,6 +172,15 @@ class TestsOverview extends OverviewComponent
             $this->sorting
         );
     }
+
+    private function getFormidableDatasource()
+    {
+        return Test::formidableItemBankFiltered(
+            $this->getContentSourceFilters(),
+            $this->sorting
+        );
+    }
+
 
     private function getOlympiadeDatasource()
     {

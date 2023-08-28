@@ -71,7 +71,7 @@ class Test extends BaseModel
     protected $fieldsToDecodeOnRetrieval = ['name', 'abbreviation', 'introduction'];
 
     protected $sortableColumns = ['id', 'name', 'abbreviation', 'subject', 'education_level', 'education_level_year', 'period_id', 'test_kind_id', 'status', 'author', 'question_count', 'kind'];
-    
+
     public static function boot()
     {
         parent::boot();
@@ -344,6 +344,14 @@ class Test extends BaseModel
             $query, $filters, $sorting);
     }
 
+    public function scopeFormidableItemBankFiltered($query, $filters = [], $sorting = [])
+    {
+        return $this->contentSourceFiltered(
+            'published_formidable',
+            config('custom.formidable_school_customercode'),
+            $query, $filters, $sorting);
+    }
+
     public function scopeOlympiadeItemBankFiltered($query, $filters = [], $sorting = [])
     {
         return $this->contentSourceFiltered(
@@ -574,7 +582,7 @@ class Test extends BaseModel
     {
         return $this->getDuplicateQuestionIds()->isNotEmpty();
     }
-    
+
     public function getTotalScore()
     {
         $this->load(['testQuestions', 'testQuestions.question']);

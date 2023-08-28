@@ -24,6 +24,8 @@ enum SchoolLocationFeatureSetting: string
     #[Type('bool')]
     case ALLOW_NEW_CO_LEARNING_TEACHER = 'allow_new_co_learning_teacher';
     #[Type('bool')]
+    case ALLOW_FORMIDABLE = 'allow_formidable';
+    #[Type('bool')]
     case ALLOW_CREATHLON = 'allow_creathlon';
     #[Type('bool')]
     case ALLOW_TM_BIOLOGY = 'allow_tm_biology';
