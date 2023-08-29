@@ -43,6 +43,10 @@ trait PublishesTestsTrait
                 'abbreviation' => 'SBON',
                 'scope'        => 'published_olympiade',
             ],
+            config('custom.thieme_meulenhoff_school_customercode')          => [
+                'abbreviation' => 'TM',
+                'scope'        => 'published_thiememeulenhoff',
+            ],
         ]);
     }
 

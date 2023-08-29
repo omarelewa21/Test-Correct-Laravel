@@ -45,6 +45,7 @@ return [
     'Nationaal'                         => 'Nationaal',
     'Creathlon'                         => 'Creathlon',
     'ThiemeMeulenhoff'                  => 'Thieme Meulenhoff',
+    'ThiemeMeulenhoff'                  => 'Thieme Meulenhoff',
     'Olympiade'                         => 'Olympiade',
     'Examens'                           => 'Examens',
     'searching'                         => 'Zoeken ...',
