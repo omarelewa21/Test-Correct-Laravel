@@ -82,7 +82,7 @@ class FactoryScenarioSchoolFormidable extends FactoryScenarioSchool
             'abbreviation' => 'TC',
         ])->user;
         $formidableAuthorB = FactoryUser::createTeacher($schoolLocation, false, [
-            'username'     => 'info+fdontwikkelaarB@test-correct.nl',
+            'username'     => 'info+bak-FD@test-correct.nl',
             'name_first'   => 'Teacher',
             'name_suffix'  => '',
             'name'         => 'Teacher FormidableB',

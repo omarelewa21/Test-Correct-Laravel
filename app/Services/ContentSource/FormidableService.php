@@ -31,7 +31,7 @@ class FormidableService extends ContentSourceService
 
     public static function getPublishAbbreviation(): string|array|null
     {
-        return 'PUBLS';
+        return 'FD';
     }
 
     protected static function testsAvailableForUser(User $user): bool

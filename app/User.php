@@ -1430,6 +1430,15 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return false;
     }
 
+    public function isInFormidableSchool(): bool
+    {
+        if (optional($this->schoolLocation)->customer_code == config('custom.formidable_school_customercode')) {
+            return true;
+        }
+        return false;
+    }
+
+
     public static function getDeletedNewUser()
     {
         $user = new static();

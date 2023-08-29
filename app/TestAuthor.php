@@ -98,6 +98,21 @@ class TestAuthor extends CompositePrimaryKeyModel
         return self::addOrRestoreAuthor($test, $nationalItemBankAuthorUser->getKey());
     }
 
+    public static function addFormidableAuthorToTest(Test $test)
+    {
+        if (!optional(Auth::user())->isInFormidableSchool()) {
+            return false;
+        }
+        if ($test->scope != 'published_formidable') {
+            return false;
+        }
+        $test->testAuthors->each(function ($testAuthor) {
+            $testAuthor->delete();
+        });
+        $authorUser = AuthorsController::getFormidableAuthor();
+        return self::addOrRestoreAuthor($test, $authorUser->getKey());
+    }
+
     public static function addThiemeMeulenhoffItemBankAuthorToTest(Test $test)
     {
 

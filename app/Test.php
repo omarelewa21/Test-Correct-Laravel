@@ -98,6 +98,7 @@ class Test extends BaseModel
             $test->handlePublishingQuestionsOfTest();
             TestAuthor::addExamAuthorToTest($test);
             TestAuthor::addNationalItemBankAuthorToTest($test);
+            TestAuthor::addFormidableAuthorToTest($test);
             TestAuthor::addThiemeMeulenhoffItemBankAuthorToTest($test);
         });
 
@@ -337,6 +338,7 @@ class Test extends BaseModel
             );
         return $query;
     }
+
     public function scopeCreathlonItemBankFiltered($query, $filters = [], $sorting = [])
     {
         return $this->contentSourceFiltered(

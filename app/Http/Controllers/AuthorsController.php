@@ -35,11 +35,16 @@ class AuthorsController extends Controller
         return User::where('username', config('custom.national_item_bank_school_author'))->first();
     }
 
+    public static function getFormidableAuthor()
+    {
+        return User::where('username', config('custom.formidable_school_author'))->first();
+    }
+
+
     public static function getThiemeMeulenhoffAuthor()
     {
         return User::where('username', config('custom.thieme_meulenhoff_school_author'))->first();
     }
-
 
     public static function getPublishableAuthorByCustomerCode($customerCode)
     {
@@ -60,6 +65,7 @@ class AuthorsController extends Controller
             config('custom.national_item_bank_school_customercode') => config('custom.national_item_bank_school_author'),
             config('custom.creathlon_school_customercode')          => config('custom.creathlon_school_author'),
             config('custom.olympiade_school_customercode')          => config('custom.olympiade_school_author'),
+            config('custom.formidable_school_customercode')          => config('custom.formidable_school_author'),
             config('custom.thieme_meulenhoff_school_customercode')  => config('custom.thieme_meulenhoff_school_author'),
         ];
     }
