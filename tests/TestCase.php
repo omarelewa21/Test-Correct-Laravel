@@ -26,6 +26,8 @@ abstract class TestCase extends BaseTestCase
 
     protected static $loadedScenario = false;
 
+    public static $skipRefresh = false;
+
 
     protected $loadScenario = false;
 
@@ -53,21 +55,29 @@ abstract class TestCase extends BaseTestCase
 
     protected function refreshTestDatabase()
     {
-        if (!RefreshDatabaseState::$migrated) {
-            $this->artisan('migrate:fresh',
-                ["--path" => "database/migrations/sqlite/2023_01_11_100000_create_table.php"]
-            );
-            logger('migrate:fresh');
-            $this->app[Kernel::class]->setArtisan(null);
+        if (static::$skipRefresh) {
+            if (!ScenarioLoader::isLoadedScenario($this->loadScenario)) {
+                ScenarioLoader::load($this->loadScenario);
+            }
+        } else {
+            if (!RefreshDatabaseState::$migrated) {
+                $this->artisan('migrate:fresh',
+                    ["--path" => "database/migrations/sqlite/2023_01_11_100000_create_table.php"]
+                );
+                logger('migrate:fresh');
+                $this->app[Kernel::class]->setArtisan(null);
 
-            RefreshDatabaseState::$migrated = true;
+                RefreshDatabaseState::$migrated = true;
 
-            ScenarioLoader::load($this->loadScenario);
-        }
+                ScenarioLoader::load($this->loadScenario);
+                logger('we initialized the database with the correct scenario');
+            }
 
-        if (!ScenarioLoader::isLoadedScenario($this->loadScenario)&& !is_bool($this->loadScenario)) {
-            RefreshDatabaseState::$migrated = false;
-            $this->refreshTestDatabase();
+            if (!ScenarioLoader::isLoadedScenario($this->loadScenario) && !is_bool($this->loadScenario)) {
+                RefreshDatabaseState::$migrated = false;
+                $this->refreshTestDatabase();
+                logger('scenario changed so we have refreshed the database;');
+            }
         }
 
         $this->beginDatabaseTransaction();
