@@ -47,6 +47,10 @@ trait PublishesTestsTrait
                 'abbreviation' => 'TM',
                 'scope'        => 'published_thiememeulenhoff',
             ],
+            config('custom.formidable_school_customercode')          => [
+                'abbreviation' => 'FD',
+                'scope'        => 'published_formidable',
+            ],
         ]);
     }
 
