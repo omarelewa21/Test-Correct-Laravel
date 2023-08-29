@@ -156,7 +156,7 @@
         <div class="body">
             <span class="">@lang('assessment.new_assessment_notification')</span>
             <x-button.text type="link"
-               :href="config('app.knowledge_bank_url')"
+               :href="config('app.knowledge_bank_url') .'/toets-nakijken'"
                target="_blank"
                size="sm"
                class="cursor-pointer !text-sm primary font-normal underline"
