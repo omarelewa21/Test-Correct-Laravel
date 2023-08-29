@@ -384,7 +384,13 @@ class ContentSourceHelperTest extends TestCase
         $user->schoolLocation->allow_creathlon = $allowEverything;
         $user->schoolLocation->allow_olympiade = $allowEverything;
         $user->schoolLocation->show_national_item_bank = $allowEverything;
-        $user->schoolLocation->allow_thieme_meulenhoff = $allowEverything;
+
+        $user->schoolLocation->allow_tm_biology = $allowEverything;
+        $user->schoolLocation->allow_tm_geography = $allowEverything;
+        $user->schoolLocation->allow_tm_dutch = $allowEverything;
+        $user->schoolLocation->allow_tm_english = $allowEverything;
+        $user->schoolLocation->allow_tm_french = $allowEverything;
+
         $user->schoolLocation->allow_formidable = $allowEverything;
 
         $user->schoolLocation->save();
