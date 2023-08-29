@@ -211,7 +211,8 @@ window.RichTextEditor = {
             wordCount: {
                 displayCharacters: false
             },
-            wproofreader: this.getWproofreaderConfig(parameterBag.enableGrammar)
+            wproofreader: this.getWproofreaderConfig(parameterBag.enableGrammar),
+            ui: {viewportOffset: {top: 70}},
         };
 
         config.removePlugins = ["Selection", "Completion", "ImageUpload", "Image", "ImageToolbar"];
