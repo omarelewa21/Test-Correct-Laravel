@@ -36,7 +36,7 @@ class ThiemeMeulenhoffService extends ContentSourceService
 
     public static function getPublishAbbreviation(): string|array|null
     {
-        return 'PUBLS';
+        return 'TM';
     }
 
     public static function getAllFeatureSettings()

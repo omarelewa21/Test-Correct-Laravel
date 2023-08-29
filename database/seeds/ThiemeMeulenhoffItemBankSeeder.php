@@ -34,7 +34,7 @@ class ThiemeMeulenhoffItemBankSeeder extends Seeder
         $school = $factoryScenarioSchool->schools->first();
 
         $primaryTestAuthor = $school->schoolLocations->first()->users()->where('username', 'info+tmontwikkelaar@test-correct.nl')->first();
-        $secondaryTestAuthor = $school->schoolLocations->first()->users()->where('username', 'info+tmontwikkelaar@test-correct.nl')->first();
+        $secondaryTestAuthor = $school->schoolLocations->first()->users()->where('username', ' info+bak-TM@test-correct.nl')->first();
 
         $collection = $school->schoolLocations->first()->schoolLocationSections->where('demo', false)->first()->section->subjects->split(2);
 
@@ -47,7 +47,7 @@ class ThiemeMeulenhoffItemBankSeeder extends Seeder
                 ->setProperties([
                     'name'               => 'test-' . $subject->name,
                     'subject_id'         => $subject->id,
-                    'abbreviation'       => 'PUBLS',
+                    'abbreviation'       => 'TM',
                     'scope'              => 'published_thieme_meulenhoff',
                     'education_level_id' => '1',
                     'draft'              => false,

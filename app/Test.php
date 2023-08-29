@@ -98,6 +98,7 @@ class Test extends BaseModel
             $test->handlePublishingQuestionsOfTest();
             TestAuthor::addExamAuthorToTest($test);
             TestAuthor::addNationalItemBankAuthorToTest($test);
+            TestAuthor::addThiemeMeulenhoffItemBankAuthorToTest($test);
         });
 
         static::deleted(function (Test $test) {

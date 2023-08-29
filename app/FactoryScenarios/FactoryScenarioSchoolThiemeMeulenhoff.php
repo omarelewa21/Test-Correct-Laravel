@@ -81,7 +81,7 @@ class FactoryScenarioSchoolThiemeMeulenhoff extends FactoryScenarioSchool
             'abbreviation'       => 'TC',
         ])->user;
         $thiemeMeulenhoffB = FactoryUser::createTeacher($schoolLocation, false, [
-            'username' => 'info+tmontwikkelaarB@test-correct.nl',
+            'username' => 'info+bak-TM@test-correct.nl',
             'name_first'         => 'Teacher',
             'name_suffix'        => '',
             'name'               => 'Teacher Thieme Meulenhoff B',

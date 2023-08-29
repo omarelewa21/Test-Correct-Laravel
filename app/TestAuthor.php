@@ -98,6 +98,22 @@ class TestAuthor extends CompositePrimaryKeyModel
         return self::addOrRestoreAuthor($test, $nationalItemBankAuthorUser->getKey());
     }
 
+    public static function addThiemeMeulenhoffItemBankAuthorToTest(Test $test)
+    {
+
+        if (!optional(Auth::user())->isInThiemeMeulenhoffSchool()) {
+            return false;
+        }
+        if ($test->scope != 'published_thieme_meulenhoff') {
+            return false;
+        }
+        $test->testAuthors->each(function ($testAuthor) {
+            $testAuthor->delete();
+        });
+        $authorUser = AuthorsController::getThiemeMeulenhoffAuthor();
+        return self::addOrRestoreAuthor($test, $authorUser->getKey());
+    }
+
     private static function addOrRestoreAuthor($test, $userId)
     {
         $testAuthor = static::withTrashed()->where('user_id', $userId)->where('test_id', $test->getKey())->first();
