@@ -91,7 +91,7 @@
                         </button>
                     </div>
                     <input type="checkbox" id="bold-toggle" style="display: none;" autocomplete="off">
-                    <button title="{{ __('drawing-modal.Zet dikgedrukt aan/uit') }}">
+                    <button id="bold-toggle-button" title="{{ __('drawing-modal.Zet dikgedrukt aan/uit') }}">
                         <label for="bold-toggle" id="bold-text">
                             <x-icon.bold/>
                         </label>

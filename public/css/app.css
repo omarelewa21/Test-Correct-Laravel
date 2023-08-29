@@ -4215,6 +4215,11 @@ input[type=number] {
     width: 20px;
     height: 22px;
 }
+
+#bold-toggle-button.checked {
+    color: var(--teacher-Primary);
+    border: 1px solid var(--teacher-Primary);
+}
 .ck-editor__editable_inline {
     min-height: 300px;
     font-size: 1.000em;

@@ -502,6 +502,11 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
                 "change": {
                     callback: (evt) => {
                         drawingApp.params.boldText = evt.target.checked;
+                        if(evt.target.checked){
+                            UI.boldToggleButton.classList.add('active');
+                        } else {
+                            UI.boldToggleButton.classList.remove('active');
+                        }
                         editShape('updateBoldText');
                     }
                 }
@@ -787,6 +792,14 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             events: {
                 "input": {
                     callback: () => editShape('updateLineColor')
+                }
+            }
+        },
+        {
+            element: UI.endmarkerTypeWrapper,
+            events: {
+                "click": {
+                    callback: () => editShape('editOwnMarkerForThisShape')
                 }
             }
         },
