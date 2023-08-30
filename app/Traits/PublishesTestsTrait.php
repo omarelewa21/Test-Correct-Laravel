@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use tcCore\GroupQuestion;
 use tcCore\Http\Controllers\AuthorsController;
 use tcCore\QuestionAuthor;
+use tcCore\Services\ContentSource\ThiemeMeulenhoffService;
 use tcCore\TestAuthor;
 
 
@@ -45,7 +46,11 @@ trait PublishesTestsTrait
             ],
             config('custom.thieme_meulenhoff_school_customercode')          => [
                 'abbreviation' => 'TM',
-                'scope'        => 'published_thiememeulenhoff',
+                'scope'        => ThiemeMeulenhoffService::getPublishScope(),
+            ],
+            config('custom.formidable_school_customercode')          => [
+                'abbreviation' => 'FD',
+                'scope'        => 'published_formidable',
             ],
         ]);
     }

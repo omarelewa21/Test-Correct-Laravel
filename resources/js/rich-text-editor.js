@@ -49,7 +49,10 @@ window.RichTextEditor = {
         return this.createStudentEditor(
             parameterBag,
             (editor) => {
-                WebspellcheckerTlc.lang(editor, parameterBag.lang)
+                WebspellcheckerTlc.lang(editor, parameterBag.lang);
+
+                editor.ui.view.element.setAttribute('spellcheck', false);
+
                 this.setupWordCounter(editor, parameterBag);
                 if (typeof ReadspeakerTlc != "undefined") {
                     editor.editing.view.document.on( 'change:isFocused', ( evt, data, isFocused ) => {
@@ -229,7 +232,8 @@ window.RichTextEditor = {
             wordCount: {
                 displayCharacters: false
             },
-            wproofreader: this.getWproofreaderConfig(parameterBag.enableGrammar, parameterBag.wproofreaderActionItems)
+            wproofreader: this.getWproofreaderConfig(parameterBag.enableGrammar, parameterBag.wproofreaderActionItems),
+            ui: {viewportOffset: {top: 70}},
         };
 
         config.removePlugins = ["Selection", "Completion", "ImageUpload", "Image", "ImageToolbar"];

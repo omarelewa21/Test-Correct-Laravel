@@ -27,6 +27,7 @@ class FormidableItemBankSeeder extends Seeder
     {
         \tcCore\Http\Helpers\ActingAsHelper::getInstance()->reset();
 
+
         if (User::where('username', 'info+fdontwikkelaar@test-correct.nl')->exists()) {
             return;
         }
@@ -44,7 +45,7 @@ class FormidableItemBankSeeder extends Seeder
         $school = $factoryScenarioSchool->schools->first();
 
         $primaryTestAuthor = $school->schoolLocations->first()->users()->where('username', 'info+fdontwikkelaar@test-correct.nl')->first();
-        $secondaryTestAuthor = $school->schoolLocations->first()->users()->where('username', 'info+fdontwikkelaarB@test-correct.nl')->first();
+        $secondaryTestAuthor = $school->schoolLocations->first()->users()->where('username', 'info+bak-FD@test-correct.nl')->first();
 
         $collection = $school->schoolLocations->first()->schoolLocationSections->where('demo', false)->first()->section->subjects->split(2);
 
