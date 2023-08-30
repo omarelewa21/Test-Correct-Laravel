@@ -327,8 +327,8 @@ class Test extends BaseModel
 
     public function scopeThiemeMeulenHoffItemBankFiltered($query, $filters = [], $sorting = [])
     {
-        $this->contentSourceFiltered(
-            'published_thieme_meulenhoff',
+        return $this->contentSourceFiltered(
+           ThiemeMeulenhoffService::getPublishScope(),
             config('custom.thieme_meulenhoff_school_customercode'),
             $query, $filters, $sorting)
             ->whereIn(

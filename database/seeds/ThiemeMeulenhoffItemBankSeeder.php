@@ -48,7 +48,7 @@ class ThiemeMeulenhoffItemBankSeeder extends Seeder
                     'name'               => 'test-' . $subject->name,
                     'subject_id'         => $subject->id,
                     'abbreviation'       => 'TM',
-                    'scope'              => 'published_thieme_meulenhoff',
+                    'scope'              => ThiemeMeulenhoffService::getPublishScope(),
                     'education_level_id' => '1',
                     'draft'              => false,
                 ])
@@ -64,7 +64,7 @@ class ThiemeMeulenhoffItemBankSeeder extends Seeder
                     'name'               => 'test-' . $subject->name,
                     'subject_id'         => $subject->id,
                     'abbreviation'       => 'UNF',
-                    'scope'              => 'not_published_thieme_meulenhoff',
+                    'scope'              => 'not_'.ThiemeMeulenhoffService::getPublishScope(),
                     'education_level_id' => '1',
                     'draft'              => false,
                 ])

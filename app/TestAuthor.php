@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Auth;
 use tcCore\Http\Controllers\AuthorsController;
 use tcCore\Lib\Models\CompositePrimaryKeyModel;
 use tcCore\Lib\Models\CompositePrimaryKeyModelSoftDeletes;
+use tcCore\Services\ContentSource\ThiemeMeulenhoffService;
 
 class TestAuthor extends CompositePrimaryKeyModel
 {
@@ -104,7 +105,7 @@ class TestAuthor extends CompositePrimaryKeyModel
         if (!optional(Auth::user())->isInThiemeMeulenhoffSchool()) {
             return false;
         }
-        if ($test->scope != 'published_thieme_meulenhoff') {
+        if ($test->scope != ThiemeMeulenhoffService::getPublishScope()) {
             return false;
         }
         $test->testAuthors->each(function ($testAuthor) {
