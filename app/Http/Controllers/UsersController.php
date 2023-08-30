@@ -407,46 +407,19 @@ class UsersController extends Controller
 
     public function updateUserFeature(User $user, Request $request)
     {
-        /* Inject with Route Model Binding*/
-//        $user = User::whereUuid($userUuid)->first();
-//
-//        if (!$user) {
-//            return Response::json(['error' => 'User not found'], 404);
-//        }
-//
-
-        /* One line the setting validation*/
-//        $settingKey = $request->input('info');
-//
-//        if (!$settingKey) {
-//            return Response::json(['error' => 'No valid feature key found'], 400);
-//        }
-
         $settingEnum = UserSystemSettingEnum::tryFrom($request->input('info') ?? '');
         if (!$settingEnum) {
-            /* Change return type to match docblock */
             return Response::make(['error' => 'Invalid setting key'], 400);
         }
-
-        /* Pass Enum as key => Give Enum the correct interface, so it is type safe */
         $currentValue = UserSystemSetting::getSetting($user, $settingEnum);
         $newValue = !$currentValue;
-
         UserSystemSetting::setSetting($user, $settingEnum, $newValue);
-
         return Response::make(['success' => 'Feature updated successfully']);
     }
 
     public function getUserSystemSetting(User $user)
     {
-        /* Inject user with route model binding */
-//        $user = user::whereUuid($request['userUuid'])->first();
-//        $userId = $user->id;
-
-        /* Remove arbitrary QueryBuilder with build in get call */
-//        return collect(UserSystemSetting::where('user_id', $userId)->get())
-        return collect(UserSystemSetting::getAll($user))
-            ->mapWithKeys(fn($setting) => [$setting->title => $setting->value]);
+        return Response::make(UserSystemSetting::getAll($user),200);
     }
  
     public function update(User $user, UpdateUserRequest $request)
