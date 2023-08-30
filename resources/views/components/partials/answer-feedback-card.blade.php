@@ -87,6 +87,7 @@
          class="feedback-card-message"
          :class="{ 'expanded-card': expanded, 'text-overflow-card': textOverflow }"
          x-show="$store.answerFeedback.editingComment !== '{{$comment->uuid}}'"
+         x-on:answer-feedback-show-comments.window="setTextOverflow();"
     >
         <div class="feedback-card-message-text"
              :class="{
