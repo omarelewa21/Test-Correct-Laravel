@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 
+use tcCore\FactoryScenarios\FactoryScenarioContentSourceHelper;
 use tcCore\FactoryScenarios\FactoryScenarioSchoolRandomComplexWithCreathlon;
 use tcCore\Http\Helpers\ActingAsHelper;
 use Illuminate\Support\Collection;
@@ -23,14 +24,13 @@ use Tests\TestCase;
 
 class ContentSourceHelperTest extends TestCase
 {
-    protected $loadScenario = FactoryScenarioSchoolRandomComplexWithCreathlon::class;
-
+    protected $loadScenario = FactoryScenarioContentSourceHelper::class;
 
 
 
     protected function setUp(): void
     {
-        static::$skipRefresh = true;
+//        static::$skipRefresh = true;
 
         parent::setUp();
         ActingAsHelper::getInstance()->setUser(ScenarioLoader::get('teacher1'));

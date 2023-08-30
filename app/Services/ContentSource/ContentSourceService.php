@@ -67,4 +67,8 @@ abstract class ContentSourceService
      * @return bool
      */
     abstract protected static function allowedForUser(User $user): bool;
+
+    public static function getNotPublishScope(): string|null{
+        return 'not_'. static::getPublishScope();
+    }
 }

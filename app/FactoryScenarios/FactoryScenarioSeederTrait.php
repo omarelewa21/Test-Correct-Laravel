@@ -2,6 +2,7 @@
 
 namespace tcCore\FactoryScenarios;
 
+use Database\Seeders\CreathlonDutchOnlyItemBankSeeder;
 use Database\Seeders\CreathlonItemBankSeeder;
 use Database\Seeders\NationalItemBankShortSeeder;
 use tcCore\Factories\FactoryTest;
@@ -38,6 +39,14 @@ trait FactoryScenarioSeederTrait
     private function seedCreathlonItemBank()
     {
         (new CreathlonItemBankSeeder)->run($this->getData()['user']);
+        ActingAsHelper::getInstance()->reset();
+        $this->getData()['user']->schoolLocation->allow_creathlon = true;
+        return $this;
+    }
+
+    private function seedCreathlonDutchOnlyItemBank()
+    {
+        (new CreathlonDutchOnlyItemBankSeeder)->run($this->getData()['user']);
         ActingAsHelper::getInstance()->reset();
         $this->getData()['user']->schoolLocation->allow_creathlon = true;
         return $this;

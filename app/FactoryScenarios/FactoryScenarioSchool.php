@@ -27,6 +27,8 @@ abstract class FactoryScenarioSchool
     public function __construct()
     {
         $this->schools = collect([]);
+        $this->teachers = collect([]);
+        $this->students = collect([]);
     }
 
     public abstract static function create();

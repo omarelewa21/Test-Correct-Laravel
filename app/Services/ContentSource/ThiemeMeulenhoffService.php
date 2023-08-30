@@ -5,14 +5,13 @@ namespace tcCore\Services\ContentSource;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use tcCore\BaseSubject;
-use tcCore\Http\Enums\Attributes\Type;
 use tcCore\Subject;
 use tcCore\Test;
 use tcCore\User;
 
 class ThiemeMeulenhoffService extends ContentSourceService
 {
-    public static int $order = 500;
+    public static int $order = 700;
 
     public static function getTranslation(): string
     {
@@ -55,16 +54,18 @@ class ThiemeMeulenhoffService extends ContentSourceService
         return Test::thiemeMeulenhoffItemBankFiltered()->exists();
     }
 
+
+
     protected static function allowedForUser(User $user): bool
     {
-       return self::featureSettingForUser($user)->isNotEmpty();
+        return self::featureSettingForUser($user)->isNotEmpty();
     }
 
     protected static function featureSettingForUser(User $user): Collection
     {
-      return self::getAllFeatureSettings()->filter(function ($setting) use ($user) {
-        return $user->schoolLocation->$setting;
-    });
+        return self::getAllFeatureSettings()->filter(function ($setting) use ($user) {
+            return $user->schoolLocation->$setting;
+        });
     }
 
     private static function getAllowedBaseSubjectIds(User $user): Collection
@@ -84,6 +85,6 @@ class ThiemeMeulenhoffService extends ContentSourceService
     public static function getBuilderWithAllowedSubjectIds($user): Builder
     {
         $allowedBaseSubjects = self::getAllowedBaseSubjectIds($user);
-        return Subject::select('id')->whereIn('base_subject_id',  $allowedBaseSubjects);
+        return Subject::select('id')->whereIn('base_subject_id', $allowedBaseSubjects);
     }
 }

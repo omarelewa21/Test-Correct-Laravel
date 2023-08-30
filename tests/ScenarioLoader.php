@@ -8,7 +8,7 @@ final class ScenarioLoader
 {
     public static $loadedScenario = false;
 
-    private static $data;
+    public static $data;
 
     public static function load($scenarioName)
     {

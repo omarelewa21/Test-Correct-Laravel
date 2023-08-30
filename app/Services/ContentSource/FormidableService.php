@@ -7,7 +7,7 @@ use tcCore\User;
 
 class FormidableService extends ContentSourceService
 {
-    public static int $order = 500;
+    public static int $order = 600;
 
     public static function getTranslation(): string
     {
