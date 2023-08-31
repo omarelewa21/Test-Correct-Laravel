@@ -2246,12 +2246,13 @@ document.addEventListener("alpine:init", () => {
             }, 500);
         },
         async scrollToCommentCard (answerFeedbackUuid) {
-            this.container = this.$root.querySelector("#slide-container");
+            this.container = this.$root.closest("#slide-container");
 
             const commentCard = document.querySelector('[data-uuid="'+answerFeedbackUuid+'"].answer-feedback-card')
             const slide = this.getSlideElementByIndex(2);
             let cardTop = commentCard.offsetTop;
 
+            debugger;
             if(slide.offsetHeight <= this.container.offsetHeight) {
                 return await smoothScroll(this.container, 0, slide.offsetLeft);
             }
