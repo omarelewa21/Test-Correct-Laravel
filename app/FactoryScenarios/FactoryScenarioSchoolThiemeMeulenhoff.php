@@ -10,9 +10,12 @@ use tcCore\Factories\FactorySchoolClass;
 use tcCore\Factories\FactorySchoolLocation;
 use tcCore\Factories\FactorySchoolYear;
 use tcCore\Factories\FactorySection;
+use tcCore\Factories\FactoryTest;
 use tcCore\Factories\FactoryUser;
+use tcCore\Factories\Questions\FactoryQuestionOpenShort;
 use tcCore\School;
 use tcCore\SchoolLocation;
+use tcCore\Services\ContentSource\ThiemeMeulenhoffService;
 use tcCore\User;
 
 class FactoryScenarioSchoolThiemeMeulenhoff extends FactoryScenarioSchool
@@ -65,7 +68,7 @@ class FactoryScenarioSchoolThiemeMeulenhoff extends FactoryScenarioSchool
     }
 
     /**
-     * @param FactoryScenarioSchoolThiemeMeulenhoff $factory
+     * @param  FactoryScenarioSchoolThiemeMeulenhoff  $factory
      * @return void
      * @throws \Exception
      */
@@ -80,12 +83,13 @@ class FactoryScenarioSchoolThiemeMeulenhoff extends FactoryScenarioSchool
             ->school;
 
         //create school location, add educationLevels VWO, Gymnasium, Havo
-        $schoolLocation = FactorySchoolLocation::create($school, $factory->schoolLocationName, ['customer_code' => 'THIEMEMEULENHOFF', 'user_id' => '520'])
+        $schoolLocation = FactorySchoolLocation::create($school, $factory->schoolLocationName,
+            ['customer_code' => 'THIEMEMEULENHOFF', 'user_id' => '520'])
             ->addEducationlevels([1, 2, 3])
             ->schoolLocation;
 
         //create school year and full year period for the current year
-        $schoolYearLocation = FactorySchoolYear::create($schoolLocation, (int)Carbon::today()->format('Y'), true)
+        $schoolYearLocation = FactorySchoolYear::create($schoolLocation, (int) Carbon::today()->format('Y'), true)
             ->addPeriodFullYear()
             ->schoolYear;
 
@@ -93,10 +97,11 @@ class FactoryScenarioSchoolThiemeMeulenhoff extends FactoryScenarioSchool
         $sectionFactory = FactorySection::create($schoolLocation, $factory->sectionName);
 
         BaseSubject::where('name', 'NOT LIKE', '%CITO%')->each(function ($baseSubject) use ($sectionFactory) {
-            $sectionFactory->addSubject($baseSubject, 'ThiemeMeulenhoff-' . $baseSubject->name);
+            $sectionFactory->addSubject($baseSubject, 'ThiemeMeulenhoff-'.$baseSubject->name);
         });
 
         $section = $sectionFactory->section;
+        $subjectDutch = $section->subjects()->where('base_subject_id', BaseSubject::DUTCH)->first();
 
         //create Thieme Meulenhoff official author user and a secondary teacher in the correct school
         $thiemeMeulenhoff = FactoryUser::createTeacher($schoolLocation, false, [
@@ -116,7 +121,12 @@ class FactoryScenarioSchoolThiemeMeulenhoff extends FactoryScenarioSchool
 
         //create school class with teacher and students records, add the teacher-user, create student-users
 
-        collect([$thiemeMeulenhoff, $thiemeMeulenhoffB])->each(function ($author) use ($section, $schoolLocation, $factory, $schoolYearLocation) {
+        collect([$thiemeMeulenhoff, $thiemeMeulenhoffB])->each(function ($author) use (
+            $section,
+            $schoolLocation,
+            $factory,
+            $schoolYearLocation
+        ) {
             $schoolClassLocation = FactorySchoolClass::create($schoolYearLocation, 1, $factory->schoolClassName)
                 ->addTeacher($author, $section->subjects()->first())
                 ->addStudent(FactoryUser::createStudent($schoolLocation)->user)
@@ -126,6 +136,22 @@ class FactoryScenarioSchoolThiemeMeulenhoff extends FactoryScenarioSchool
 
         $factory->school = $school->refresh();
         $factory->schools->add($school);
+
+        FactoryTest::create($thiemeMeulenhoff)
+            ->setProperties([
+                'name'               => 'test-'.$subjectDutch->name,
+                'subject_id'         => $subjectDutch->id,
+                'abbreviation'       => ThiemeMeulenhoffService::getPublishAbbreviation(),
+                'scope'              => ThiemeMeulenhoffService::getPublishScope(),
+                'education_level_id' => '1',
+                'draft'              => false,
+            ])
+            ->addQuestions([
+                FactoryQuestionOpenShort::create()->setProperties([
+                    "question" => '<p>voorbeeld vraag Nederlands gepubliceerd:</p> <p>wat is de waarde van pi</p> ',
+                ]),
+            ]);
+
     }
 
     private static function createSimpleSchoolWithOneTeacher(FactoryScenarioSchoolThiemeMeulenhoff $factory)
@@ -134,12 +160,16 @@ class FactoryScenarioSchoolThiemeMeulenhoff extends FactoryScenarioSchool
             ->school;
 
         //create school location, add educationLevels VWO, Gymnasium, Havo
-        $schoolLocation = FactorySchoolLocation::create($school, $factory->schoolLocationName, ['customer_code' => 'THIEMEMEULENHOFF', 'user_id' => '520'])
+        $schoolLocation = FactorySchoolLocation::create(
+            $school,
+            'Client School Location',
+            ['customer_code' => 'THIEMEMEULENHOFF', 'user_id' => '520']
+        )
             ->addEducationlevels([1, 2, 3])
             ->schoolLocation;
 
         //create school year and full year period for the current year
-        $schoolYearLocation = FactorySchoolYear::create($schoolLocation, (int)Carbon::today()->format('Y'), true)
+        $schoolYearLocation = FactorySchoolYear::create($schoolLocation, (int) Carbon::today()->format('Y'), true)
             ->addPeriodFullYear()
             ->schoolYear;
 
@@ -164,11 +194,11 @@ class FactoryScenarioSchoolThiemeMeulenhoff extends FactoryScenarioSchool
             'abbreviation' => 'One',
         ])->user;
 
-             FactorySchoolClass::create($schoolYearLocation, 1, $factory->schoolClassName)
-                ->addTeacher($factory->teacher_one, $section->subjects()->first())
-                ->addStudent(FactoryUser::createStudent($schoolLocation)->user)
-                ->addStudent(FactoryUser::createStudent($schoolLocation)->user)
-                ->addStudent(FactoryUser::createStudent($schoolLocation)->user);
+        FactorySchoolClass::create($schoolYearLocation, 1, $factory->schoolClassName)
+            ->addTeacher($factory->teacher_one, $section->subjects()->first())
+            ->addStudent(FactoryUser::createStudent($schoolLocation)->user)
+            ->addStudent(FactoryUser::createStudent($schoolLocation)->user)
+            ->addStudent(FactoryUser::createStudent($schoolLocation)->user);
 
 
         $factory->teachers->add($factory->teacher_one);

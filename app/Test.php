@@ -328,7 +328,7 @@ class Test extends BaseModel
 
     public function scopeThiemeMeulenHoffItemBankFiltered($query, $filters = [], $sorting = [])
     {
-        return $this->contentSourceFiltered(
+        $this->contentSourceFiltered(
            ThiemeMeulenhoffService::getPublishScope(),
             config('custom.thieme_meulenhoff_school_customercode'),
             $query, $filters, $sorting)
@@ -336,6 +336,8 @@ class Test extends BaseModel
                 'subject_id',
                 ThiemeMeulenhoffService::getBuilderWithAllowedSubjectIds(Auth::user())
             );
+
+
         return $query;
     }
 
