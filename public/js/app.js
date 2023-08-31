@@ -8805,27 +8805,27 @@ document.addEventListener("alpine:init", function () {
       scrollToCommentCard: function scrollToCommentCard(answerFeedbackUuid) {
         var _this50 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee14() {
+          var _this50$$root$querySe;
           var commentCard, slide, cardTop;
           return _regeneratorRuntime().wrap(function _callee14$(_context14) {
             while (1) switch (_context14.prev = _context14.next) {
               case 0:
-                _this50.container = _this50.$root.closest("#slide-container");
+                _this50.container = (_this50$$root$querySe = _this50.$root.querySelector("#slide-container")) !== null && _this50$$root$querySe !== void 0 ? _this50$$root$querySe : _this50.$root.closest("#slide-container");
                 commentCard = document.querySelector('[data-uuid="' + answerFeedbackUuid + '"].answer-feedback-card');
                 slide = _this50.getSlideElementByIndex(2);
                 cardTop = commentCard.offsetTop;
-                debugger;
                 if (!(slide.offsetHeight <= _this50.container.offsetHeight)) {
-                  _context14.next = 9;
+                  _context14.next = 8;
                   break;
                 }
-                _context14.next = 8;
+                _context14.next = 7;
                 return smoothScroll(_this50.container, 0, slide.offsetLeft);
-              case 8:
+              case 7:
                 return _context14.abrupt("return", _context14.sent);
-              case 9:
-                _context14.next = 11;
+              case 8:
+                _context14.next = 10;
                 return smoothScroll(_this50.container, cardTop, slide.offsetLeft);
-              case 11:
+              case 10:
               case "end":
                 return _context14.stop();
             }
