@@ -8805,11 +8805,12 @@ document.addEventListener("alpine:init", function () {
       scrollToCommentCard: function scrollToCommentCard(answerFeedbackUuid) {
         var _this50 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee14() {
+          var _this50$$root$querySe;
           var commentCard, slide, cardTop;
           return _regeneratorRuntime().wrap(function _callee14$(_context14) {
             while (1) switch (_context14.prev = _context14.next) {
               case 0:
-                _this50.container = _this50.$root.querySelector("#slide-container");
+                _this50.container = (_this50$$root$querySe = _this50.$root.querySelector("#slide-container")) !== null && _this50$$root$querySe !== void 0 ? _this50$$root$querySe : _this50.$root.closest("#slide-container");
                 commentCard = document.querySelector('[data-uuid="' + answerFeedbackUuid + '"].answer-feedback-card');
                 slide = _this50.getSlideElementByIndex(2);
                 cardTop = commentCard.offsetTop;
@@ -9849,7 +9850,7 @@ document.addEventListener("alpine:init", function () {
         styleTag.innerHTML = '' + 'span.ck-comment-marker[data-comment="' + this.hoveringComment.threadId + '"] { color: var(--teacher-primary); }' + 'div[data-threadid="' + this.hoveringComment.threadId + '"] svg { color: var(--teacher-primary); }';
       },
       setActiveCommentMarkerStyle: function setActiveCommentMarkerStyle() {
-        var _this$activeComment, _this$activeComment2, _this$activeComment3, _this$activeComment4;
+        var _this$activeComment, _this$activeComment2, _this$activeComment3, _this$activeComment4, _this$activeComment5;
         var removeStyling = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
         var styleTag = document.querySelector('#activeCommentMarkerStyle');
         if (!styleTag) {
@@ -9859,7 +9860,7 @@ document.addEventListener("alpine:init", function () {
           styleTag.innerHTML = '';
           return;
         }
-        styleTag.innerHTML = '' + 'span.ck-comment-marker[data-comment="' + ((_this$activeComment2 = this.activeComment) === null || _this$activeComment2 === void 0 ? void 0 : _this$activeComment2.threadId) + '"] { ' + '   border: 1px solid var(--ck-color-comment-marker-border) !important; ' + '} ' + 'span.ck-comment-marker[data-comment="' + ((_this$activeComment3 = this.activeComment) === null || _this$activeComment3 === void 0 ? void 0 : _this$activeComment3.threadId) + '"].ck-math-widget { ' + '   border: 1px solid transparent !important; ' + '} ' + 'span.ck-comment-marker[data-comment="' + ((_this$activeComment4 = this.activeComment) === null || _this$activeComment4 === void 0 ? void 0 : _this$activeComment4.threadId) + '"] img { ' + '   border: 1px solid var(--ck-color-comment-marker-border) !important; ' + '} ';
+        styleTag.innerHTML = '' + 'span.ck-comment-marker[data-comment="' + ((_this$activeComment2 = this.activeComment) === null || _this$activeComment2 === void 0 ? void 0 : _this$activeComment2.threadId) + '"] { ' + '   border: 1px solid var(--ck-color-comment-marker-border) !important; ' + '} ' + 'span.ck-comment-marker[data-comment="' + ((_this$activeComment3 = this.activeComment) === null || _this$activeComment3 === void 0 ? void 0 : _this$activeComment3.threadId) + '"].ck-math-widget { ' + '   border: 1px solid transparent !important; ' + '} ' + 'span.ck-comment-marker[data-comment="' + ((_this$activeComment4 = this.activeComment) === null || _this$activeComment4 === void 0 ? void 0 : _this$activeComment4.threadId) + '"] img { ' + '   border: 1px solid var(--ck-color-comment-marker-border) !important; ' + '} ' + 'div.answer-feedback-comment-icon[data-threadid="' + ((_this$activeComment5 = this.activeComment) === null || _this$activeComment5 === void 0 ? void 0 : _this$activeComment5.threadId) + '"] { ' + '   z-index: 11 ' + '} ';
       },
       setActiveComment: function setActiveComment(threadId, answerFeedbackUuid) {
         var _this71 = this;
@@ -18953,6 +18954,7 @@ window.RichTextEditor = {
     var _this4 = this;
     return this.createStudentEditor(parameterBag, function (editor) {
       WebspellcheckerTlc.lang(editor, parameterBag.lang);
+      editor.ui.view.element.setAttribute('spellcheck', false);
       _this4.setupWordCounter(editor, parameterBag);
       if (typeof ReadspeakerTlc != "undefined") {
         editor.editing.view.document.on('change:isFocused', function (evt, data, isFocused) {
@@ -19133,7 +19135,12 @@ window.RichTextEditor = {
       wordCount: {
         displayCharacters: false
       },
-      wproofreader: this.getWproofreaderConfig(parameterBag.enableGrammar, parameterBag.wproofreaderActionItems)
+      wproofreader: this.getWproofreaderConfig(parameterBag.enableGrammar, parameterBag.wproofreaderActionItems),
+      ui: {
+        viewportOffset: {
+          top: 70
+        }
+      }
     };
     config.removePlugins = ["Selection", "Completion", "ImageUpload", "Image", "ImageToolbar"];
     config.toolbar = {

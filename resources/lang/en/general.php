@@ -39,6 +39,7 @@ return [
     'number-of-tests-creathlon'         => '{0} No tests found|{1} :count test found|[2,*] :count tests found',
     'number-of-tests-thieme_meulenhoff' => '{0} No tests found|{1} :count test found|[2,*] :count tests found',
     'number-of-tests-olympiade'         => '{0} No tests found|{1} :count test found|[2,*] :count tests found',
+    'number-of-tests-formidable'         => '{0} No tests found|{1} :count test found|[2,*] :count tests found',
     'cito-snelstart'                    => 'Cito Fast start',
     'Persoonlijk'                       => 'Personal',
     'School'                            => 'School',

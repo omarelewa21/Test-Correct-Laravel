@@ -2246,7 +2246,7 @@ document.addEventListener("alpine:init", () => {
             }, 500);
         },
         async scrollToCommentCard (answerFeedbackUuid) {
-            this.container = this.$root.querySelector("#slide-container");
+            this.container = this.$root.querySelector("#slide-container") ?? this.$root.closest("#slide-container");
 
             const commentCard = document.querySelector('[data-uuid="'+answerFeedbackUuid+'"].answer-feedback-card')
             const slide = this.getSlideElementByIndex(2);
