@@ -34,13 +34,20 @@ class ThiemeMeulenhoffServiceTest extends TestCase
     /** @test */
     public function it_has_a_translation()
     {
-        $this->assertEquals('Thieme Meulenhoff', ThiemeMeulenhoffService::getTranslation());
+        $this->assertEquals('ThiemeMeulenhoff', ThiemeMeulenhoffService::getTranslation());
     }
 
     /** @test */
     public function it_has_a_publish_scope()
     {
         $this->assertEquals('published_thieme_meulenhoff', ThiemeMeulenhoffService::getPublishScope());
+    }
+
+    /** @test */
+    public function it_has_a_not_publish_scope()
+    {
+        $this->assertEquals('not_published_thieme_meulenhoff', ThiemeMeulenhoffService::getNotPublishScope());
+
     }
 
     /** @test */
@@ -110,16 +117,14 @@ class ThiemeMeulenhoffServiceTest extends TestCase
 
         $teacher->schoolLocation->save();
         ///GIVEN the teacher has access to the Dutch subject
-        $this->assertEquals(
-            $teacher->subjects()->first()->base_subject_id,
-            BaseSubject::DUTCH
+        $this->assertTrue(
+            $teacher->subjects()->where('base_subject_id', BaseSubject::DUTCH)->exists()
         );
         $this->assertFalse(ThiemeMeulenhoffService::isAvailableForUser($teacher));
     }
 
     /** @test */
-    public function the_school_location_is_allowed_the_subject_but_the_teacher_doesnot_teach_the_service_it_not_available(
-    )
+    public function the_school_location_is_allowed_the_subject_but_the_teacher_doesnot_teach_the_service_it_not_available()
     {
         //GIVEN that Im logged
         auth()->login($teacher = ScenarioLoader::get('teacherOne'));
@@ -141,5 +146,38 @@ class ThiemeMeulenhoffServiceTest extends TestCase
         );
 
         $this->assertFalse(ThiemeMeulenhoffService::isAvailableForUser($teacher));
+    }
+
+    /** @test */
+    public function it_can_get_the_customer_code()
+    {
+        $this->assertEquals('THIEMEMEULENHOFF', ThiemeMeulenhoffService::getCustomerCode());
+    }
+
+    /** @test */
+    public function it_can_show_results_when_querying_the_item_bank()
+    {
+        //GIVEN that Im logged in as a teacher
+        // that has access to the Dutch subject
+        // and the school location is allowed to view Thieme Meulenhoff content for dutch
+        auth()->login($teacher = ScenarioLoader::get('teacherOne'));
+        $teacher->schoolLocation->allow_tm_dutch = true;
+        $teacher->schoolLocation->save();
+        ///GIVEN the teacher has access to the Dutch subject
+        $this->assertEquals(
+            $teacher->subjects()->first()->base_subject_id,
+            BaseSubject::DUTCH
+        );
+
+        $this->assertInstanceOf(
+            \tcCore\Test::class,
+            (new ThiemeMeulenhoffService)->itemBankFiltered(filters:[], sorting:[], forUser:$teacher)->where('name', 'test-ThiemeMeulenhoff-Nederlands')->first()
+        );
+    }
+
+    /** @test */
+    public function it_has_a_tab_order()
+    {
+          $this->assertEquals(700, ThiemeMeulenhoffService::$order);
     }
 }

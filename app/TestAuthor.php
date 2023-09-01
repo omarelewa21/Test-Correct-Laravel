@@ -4,7 +4,10 @@ use Illuminate\Support\Facades\Auth;
 use tcCore\Http\Controllers\AuthorsController;
 use tcCore\Lib\Models\CompositePrimaryKeyModel;
 use tcCore\Lib\Models\CompositePrimaryKeyModelSoftDeletes;
+use tcCore\Services\ContentSource\FormidableService;
+use tcCore\Services\ContentSource\NationalItemBankService;
 use tcCore\Services\ContentSource\ThiemeMeulenhoffService;
+use tcCore\Services\ContentSourceFactory;
 
 class TestAuthor extends CompositePrimaryKeyModel
 {
@@ -49,7 +52,17 @@ class TestAuthor extends CompositePrimaryKeyModel
     public static function boot()
     {
         parent::boot();
+    }
 
+    public static function addPublishAuthorToTest(Test $test)
+    {
+        self::addExamAuthorToTest($test);
+        // this line is here to avoid: [Warning: method_exists() expects parameter 1 to be object|string, null given]
+        if ($contentService = ContentSourceFactory::makeWithTestBasedOnScope($test)) {
+            if (method_exists($contentService, 'addAuthorToTest')) {
+                $contentService::addAuthorToTest($test);
+            }
+        }
     }
 
     public function test()
@@ -67,13 +80,12 @@ class TestAuthor extends CompositePrimaryKeyModel
         return self::addOrRestoreAuthor($test, $userId);
     }
 
-    public static function addExamAuthorToTest(Test $test)
+    public static function addExamAuthorToTest(Test $test): bool
     {
-
-        if (!optional(Auth::user())->isInExamSchool()) {
+        if ($test->scope != 'exam') {
             return false;
         }
-        if ($test->scope != 'exam') {
+        if (!optional(Auth::user())->isInExamSchool()) {
             return false;
         }
         $test->testAuthors->each(function ($testAuthor) {
@@ -83,67 +95,15 @@ class TestAuthor extends CompositePrimaryKeyModel
         return self::addOrRestoreAuthor($test, $examAuthorUser->getKey());
     }
 
-    public static function addNationalItemBankAuthorToTest(Test $test)
-    {
-
-        if (!optional(Auth::user())->isInNationalItemBankSchool()) {
-            return false;
-        }
-        if ($test->scope != 'ldt') {
-            return false;
-        }
-        $test->testAuthors->each(function ($testAuthor) {
-            $testAuthor->delete();
-        });
-        $nationalItemBankAuthorUser = AuthorsController::getNationalItemBankAuthor();
-        return self::addOrRestoreAuthor($test, $nationalItemBankAuthorUser->getKey());
-    }
-
-    public static function addFormidableAuthorToTest(Test $test)
-    {
-        if (!optional(Auth::user())->isInFormidableSchool()) {
-            return false;
-        }
-        if ($test->scope != 'published_formidable') {
-            return false;
-        }
-        $test->testAuthors->each(function ($testAuthor) {
-            $testAuthor->delete();
-        });
-        $authorUser = AuthorsController::getFormidableAuthor();
-        return self::addOrRestoreAuthor($test, $authorUser->getKey());
-    }
-
-    public static function addThiemeMeulenhoffItemBankAuthorToTest(Test $test)
-    {
-
-        if (!optional(Auth::user())->isInThiemeMeulenhoffSchool()) {
-            return false;
-        }
-        if ($test->scope != ThiemeMeulenhoffService::getPublishScope()) {
-            return false;
-        }
-        $test->testAuthors->each(function ($testAuthor) {
-            $testAuthor->delete();
-        });
-        $authorUser = AuthorsController::getThiemeMeulenhoffAuthor();
-        return self::addOrRestoreAuthor($test, $authorUser->getKey());
-    }
-
-    private static function addOrRestoreAuthor($test, $userId)
+    public static function addOrRestoreAuthor($test, $userId): bool
     {
         $testAuthor = static::withTrashed()->where('user_id', $userId)->where('test_id', $test->getKey())->first();
         if ($testAuthor === null) {
             $testAuthor = new TestAuthor(['user_id' => $userId, 'test_id' => $test->getKey()]);
-            if (!$testAuthor->save()) {
-                return false;
-            }
-        } else {
-            if (!$testAuthor->restore()) {
-                return false;
-            }
+            return $testAuthor->save();
+
         }
-        return true;
+        return $testAuthor->restore();
     }
 
     public function scopeSchoolLocationAuthorUsers($query, $user)

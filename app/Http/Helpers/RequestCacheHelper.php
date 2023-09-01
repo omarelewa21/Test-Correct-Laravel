@@ -11,6 +11,11 @@ class RequestCacheHelper
 
     public static function get($identifier, $callback, $clear = false)
     {
+        // always run callback in unit tests because user id are not always pointing to the same user / user roles
+        if (app()->runningUnitTests()) {
+            return $callback();
+        }
+
         if (self::notIn($identifier) || $clear) {
             self::put($identifier, $callback());
         }

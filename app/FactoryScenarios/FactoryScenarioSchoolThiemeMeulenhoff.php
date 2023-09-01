@@ -4,7 +4,6 @@ namespace tcCore\FactoryScenarios;
 
 use Carbon\Carbon;
 use tcCore\BaseSubject;
-use tcCore\Factories\FactoryBaseSubject;
 use tcCore\Factories\FactorySchool;
 use tcCore\Factories\FactorySchoolClass;
 use tcCore\Factories\FactorySchoolLocation;
@@ -13,7 +12,6 @@ use tcCore\Factories\FactorySection;
 use tcCore\Factories\FactoryTest;
 use tcCore\Factories\FactoryUser;
 use tcCore\Factories\Questions\FactoryQuestionOpenShort;
-use tcCore\School;
 use tcCore\SchoolLocation;
 use tcCore\Services\ContentSource\ThiemeMeulenhoffService;
 use tcCore\User;
