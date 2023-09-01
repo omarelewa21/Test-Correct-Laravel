@@ -5,7 +5,6 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Log;
 use tcCore\Lib\User\Roles;
 
 abstract class Request extends FormRequest {

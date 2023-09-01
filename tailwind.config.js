@@ -54,7 +54,8 @@ module.exports = {
                 "auto": "auto",
             },
             height: {
-                "12.5": "3.125rem"
+                "12.5": "3.125rem",
+                "15": "3.75rem",
             },
             zIndex: {
                 "1": 1
@@ -67,6 +68,9 @@ module.exports = {
             },
             padding: {
                 "15": "3.75rem"
+            },
+            borderRadius: {
+                "10": "10px",
             }
         },
         keyframes: {
@@ -91,7 +95,5 @@ module.exports = {
             "spin": "spin 2s linear infinite"
         }
     },
-    plugins: [
-        require("@tailwindcss/line-clamp")
-    ]
+    plugins: [],
 };

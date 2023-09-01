@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Response;
 use Maatwebsite\Excel\Facades\Excel;
 use tcCore\AnswerRating;
@@ -1326,10 +1327,22 @@ class TestTakesController extends Controller
 
     public function openDetail(TestTake $testTake, Request $request)
     {
-        $stage = $testTake->determineTestTakeStage();
-        if ($stage === 'planned') {
-            return redirect(route('teacher.test-take.planned', $testTake->uuid). '?' . $request->getQueryString());
+        if (Gate::none(['canUsePlannedTestPage', 'canUseTakenTestPage'])) {
+            return TestTake::redirectToDetail($testTake->uuid);
         }
-        return TestTake::redirectToDetail($testTake->uuid, url()->referrer());
+
+        $routeName = match ($testTake->test_take_status_id) {
+            TestTakeStatus::STATUS_PLANNED => 'teacher.test-take.planned',
+            TestTakeStatus::STATUS_TAKING_TEST => 'teacher.test-take.taking',
+            default => $testTake->test_take_status_id >= TestTakeStatus::STATUS_TAKEN
+                ? 'teacher.test-take.taken'
+                : null,
+        };
+
+        if ($routeName) {
+            return redirect(route($routeName, $testTake->uuid) . '?' . $request->getQueryString());
+        }
+
+        return TestTake::redirectToDetail($testTake->uuid);
     }
 }

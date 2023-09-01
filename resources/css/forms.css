@@ -619,6 +619,10 @@ input[type=number] {
     align-items: center;
 }
 
+.checkbox-container.disabled {
+    opacity: .6;
+}
+
 .checkbox-disabled .checkbox-container:is(:active, :hover, :focus) input:not(:checked) ~ .checkmark {
     background-color: rgba(var(--system-secondary-rgb), 0.5);
     border: 1px solid var(--blue-grey);
@@ -666,4 +670,8 @@ input[type=number] {
 }
 .single-select .dropdown::-webkit-scrollbar {
     display: none;
+}
+
+.select-error > .multi-dropdown-select .select-input {
+    border-color: var(--all-red);
 }

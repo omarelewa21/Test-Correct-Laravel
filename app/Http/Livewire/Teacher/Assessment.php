@@ -5,6 +5,7 @@ namespace tcCore\Http\Livewire\Teacher;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Str;
 use tcCore\Answer;
 use tcCore\AnswerRating;
 use tcCore\Exceptions\AssessmentException;
@@ -13,6 +14,7 @@ use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Http\Interfaces\CollapsableHeader;
 use tcCore\Http\Livewire\EvaluationComponent;
 use tcCore\Question;
+use tcCore\TestParticipant;
 use tcCore\TestTake;
 use tcCore\TestTakeStatus;
 use tcCore\User;
@@ -40,10 +42,12 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         'referrer'                => ['except' => '', 'as' => 'r'],
         'questionNavigationValue' => ['except' => '', 'as' => 'qi'],
         'answerNavigationValue'   => ['except' => '', 'as' => 'ai'],
+        'participant'             => ['except' => ''],
     ];
     public string $referrer = '';
     public string $questionNavigationValue = '';
     public string $answerNavigationValue = '';
+    public string $participant = '';
 
     /* Navigation properties */
     public $questionCount;
@@ -62,12 +66,14 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     public bool $openOnly;
     public bool $isCoLearningScore = false;
     public bool $skipNoDiscrepancies = false;
-
     public bool $webSpellCheckerEnabled;
-
     public $answerFeedback;
     public bool $scoreWarningDispatchedForQuestion;
     public bool $showNewAssessmentNotification = false;
+
+    public bool $singleParticipantState = false;
+    protected ?TestParticipant $testParticipant;
+    public ?int $participantPosition;
 
     /* Lifecycle methods */
     protected function getListeners(): array
@@ -80,8 +86,16 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     public function mount(TestTake $testTake): void
     {
         $this->testTakeUuid = $testTake->uuid;
-
         $this->headerCollapsed = Session::has("assessment-started-$this->testTakeUuid");
+
+        if ($this->participant) {
+            $this->singleParticipantState = true;
+            $this->testParticipant = TestParticipant::whereUuid($this->participant)->firstOrFail();
+            $this->participantPosition = $testTake->testParticipants()
+                    ->where('id', '<=', $this->testParticipant->id)
+                    ->count();
+        }
+
         $this->setData();
 
         $this->verifyTestTakeData();
@@ -89,6 +103,14 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         if ($this->headerCollapsed) {
             $this->skipBootedMethod();
             $this->start();
+        }
+        if (!$this->headerCollapsed) {
+            if ($this->participant) {
+                $this->headerCollapsed = true;
+                $this->skipBootedMethod();
+                $this->start();
+                $this->storeAssessmentSessionContext(['assessment_type' => 'ALL']);
+            }
         }
 
         $this->setTemplateVariables();
@@ -102,6 +124,10 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     {
         if ($this->skipBooted) {
             return;
+        }
+
+        if ($this->participant) {
+            $this->testParticipant = TestParticipant::whereUuid($this->participant)->firstOrFail();
         }
 
         $this->setData();
@@ -622,19 +648,13 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     {
         $answers = $this->answersWithDiscrepancyFilter($answers)
             ->whereIn('question_id', $this->getQuestionIdsForCurrentAssessmentType());
-        if ($action === 'last') {
-            return $answers->last();
-        }
-        if ($action === 'first') {
-            return $answers->first();
-        }
-        if ($action === 'decr') {
-            return $answers->filter(fn($answer, $key) => $key < $currentIndex)->last();
-        }
-        if ($action === 'incr') {
-            return $answers->filter(fn($answer, $key) => $key > $currentIndex)->first();
-        }
-        return null;
+        return match ($action) {
+            'last' => $answers->last(),
+            'first' => $answers->first(),
+            'decr' => $answers->filter(fn($answer, $key) => $key < $currentIndex)->last(),
+            'incr' => $answers->filter(fn($answer, $key) => $key > $currentIndex)->first(),
+            default => null,
+        };
     }
 
     private function dispatchUpdateNavigatorEvent(string $navigator, array $updates): void
@@ -681,7 +701,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             return;
         }
 
-        if (!$this->openOnly) {
+        if (!$this->openOnly && !$this->singleParticipantState) {
             $previousId = $this->testTakeData->fresh()->assessing_question_id;
 
             if (!$previousId) {
@@ -853,10 +873,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     protected function currentAnswerCoLearningRatingsHasNoDiscrepancy(?Answer $answer = null): bool
     {
         $answer ??= $this->currentAnswer;
-        return $answer->answerRatings
-                ->where('type', AnswerRating::TYPE_STUDENT)
-                ->keyBy('rating')
-                ->count() === 1;
+        return !$answer->hasCoLearningDiscrepancy();
     }
 
     public function coLearningRatings(): Collection
@@ -1031,10 +1048,21 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
     protected function getTestTakeData(): TestTake
     {
-        return cache()->remember("assessment-data-$this->testTakeUuid", now()->addDays(3), function () {
+        $cacheKey = "assessment-data-$this->testTakeUuid";
+        if ($this->singleParticipantState) {
+            $cacheKey = sprintf("assessment-data-%s-%s", $this->testTakeUuid, $this->testParticipant->uuid);
+        }
+        return cache()->remember($cacheKey, now()->addDays(3), function () {
             return TestTake::whereUuid($this->testTakeUuid)
                 ->with([
-                    'testParticipants:id,uuid,test_take_id,user_id,test_take_status_id',
+                    'testParticipants' => function ($query) {
+                        return $query->when(
+                            $this->singleParticipantState,
+                            fn($query) => $query->where('id', $this->testParticipant->getKey())
+                        )
+                            ->select('id', 'uuid', 'test_take_id', 'user_id', 'test_take_status_id');
+                    }
+                    ,
                     'testParticipants.answers:id,uuid,test_participant_id,question_id,json,order,final_rating,done',
                     'testParticipants.answers.answerRatings:id,answer_id,type,rating,advise,user_id',
                     'testParticipants.answers.answerRatings.user:id,name,name_first,name_suffix',
@@ -1371,7 +1399,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
     public function setWebspellcheckerEnabled(): void
     {
-        $this->webSpellCheckerEnabled = auth()->user()->schoolLocation()->value('allow_wsc');
+        $this->webSpellCheckerEnabled = auth()->user()->schoolLocation()->value('allow_wsc') ?? false;
     }
 
     private function dispatchScoreNotificationForQuestion(): void

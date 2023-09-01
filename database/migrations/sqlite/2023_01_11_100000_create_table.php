@@ -35,6 +35,7 @@ class CreateTable extends Migration
         $this->createAnswerRatings();
         $this->createAnswersFeedback();
         $this->createAppVersionInfos();
+        $this->createAppFeatureSettings();
         $this->createArchivedModels();
         $this->createAttachements();
         $this->createAttainments();
@@ -345,6 +346,7 @@ class CreateTable extends Migration
             $table->efficientUuid('uuid')->index()->unique()->nullable();
             $table->boolean('closed')->boolean()->default(false);
             $table->boolean('closed_group')->default(false);
+            $table->text('commented_answer')->nullable();
         });
     }
 
@@ -375,6 +377,11 @@ class CreateTable extends Migration
             $table->efficientUuid('uuid')->index()->unique()->nullable();
             $table->softDeletes();
             $table->timestamps();
+            $table->integer('order')->nullable();
+            $table->string('thread_id')->nullable();
+            $table->string('comment_id')->nullable();
+            $table->string('comment_color')->nullable();
+            $table->string('comment_emoji')->nullable();
         });
     }
 //
@@ -407,6 +414,8 @@ class CreateTable extends Migration
             $table->string('version_check_result')->nullable();
             $table->string('user_os')->nullable();
             $table->string('user_os_version')->nullable();
+            $table->string('platform')->nullable();
+            $table->string('platform_version')->nullable();
         });
     }
 //
@@ -2272,7 +2281,7 @@ class CreateTable extends Migration
             $table->timestamps();
             $table->softDeletes();;
             $table->text('answer');
-            $table->integer('score')->nullable();
+            $table->float('score')->nullable();
         });
     }
 
@@ -2956,7 +2965,7 @@ class CreateTable extends Migration
             $table->string('type', 45)->nullable();
             $table->longText('question');
             $table->integer('education_level_year')->unsigned();
-            $table->integer('score')->unsigned()->nullable();
+            $table->float('score')->nullable();
             $table->integer('owner_id')->unsigned()->nullable();
             $table->tinyInteger('decimal_score')->nullable();
             $table->enum('note_type', ['NONE', 'TEXT', 'DRAWING'])->default('NONE');
@@ -3867,6 +3876,7 @@ class CreateTable extends Migration
             $table->tinyInteger('allow_new_question_editor')->default('0');
             $table->tinyInteger('allow_new_drawing_question')->default('0');
             $table->boolean('allow_new_test_bank')->default(true);
+            $table->boolean('allow_wsc')->default(true);
             $table->tinyInteger('keep_out_of_school_location_report')->default('0');
             $table->boolean('show_national_item_bank')->default(false);
             $table->boolean('allow_writing_assignment')->default(0);
@@ -4750,6 +4760,7 @@ class CreateTable extends Migration
             $table->integer('test_take_event_type_id')->unsigned();
             $table->tinyInteger('confirmed')->default('0');
             $table->efficientUuid('uuid')->index()->unique()->nullable();
+            $table->json('metadata')->nullable();
 //            $table->foreign('test_participant_id')->references('id')->on('test_participants');
 //            $table->foreign('test_take_event_type_id')->references('id')->on('test_take_event_types');
 //            $table->foreign('test_take_id')->references('id')->on('test_takes');
@@ -4901,11 +4912,17 @@ class CreateTable extends Migration
             $table->boolean('returned_to_taken')->default(false);
             $table->tinyText('assessment_type')->nullable();
             $table->integer('assessing_question_id')->nullable();
+            $table->integer('assessing_answer_index')->nullable();
             $table->dateTime('assessed_at')->nullable();
             $table->integer('max_assessed_answer_index')->nullable();
             $table->boolean('allow_wsc')->default(false);
             $table->boolean('show_grades')->default(1);
             $table->boolean('show_correction_model')->default(true)->nullable();
+            $table->boolean('enable_spellcheck_colearning')->default(false);
+            $table->boolean('enable_comments_colearning')->default(false);
+            $table->boolean('review_active')->default(false);
+            $table->dateTime('results_published')->nullable();
+
 //            $table->foreign('period_id')->references('id')->on('periods');
 //            $table->foreign('discussing_question_id')->references('id')->on('questions');
 //            $table->foreign('test_take_status_id')->references('id')->on('test_take_statuses');
@@ -5306,6 +5323,8 @@ class CreateTable extends Migration
             $table->boolean('is_examcoordinator')->default(false);
             $table->enum('is_examcoordinator_for', ['NONE', 'SCHOOL_LOCATION', 'SCHOOL'])->nullable();
             $table->timestamp('password_expiration_date')->nullable();
+            $table->boolean('has_package')->default(0);
+
 //            $table->foreign('sales_organization_id')->references('id')->on('sales_organizations')->nullable();
 //            $table->foreign('school_location_id')->references('id')->on('school_locations')->nullable();
 //            $table->foreign('school_id')->references('id')->on('schools')->nullable();
@@ -5580,7 +5599,7 @@ class CreateTable extends Migration
                 $table->integer('test_take_id');
                 $table->integer('user_id');
                 $table->string('url');
-                $table->text('export');
+                $table->longText('export');
                 $table->text('result')->nullable();
                 $table->text('error')->nullable();
                 $table->boolean('has_errors')->default(false);
@@ -5589,5 +5608,15 @@ class CreateTable extends Migration
             });
 
         }
+    }
+
+    public function createAppFeatureSettings(): void
+    {
+        Schema::create('app_feature_settings', function (Blueprint $table) {
+            $table->id();
+            $table->timestamps();
+            $table->string('title');
+            $table->text('value');
+        });
     }
 }

@@ -7,12 +7,14 @@ use Illuminate\View\View;
 
 class ScoreSlider extends Component
 {
+    public bool $continuousScoreSlider = false;
+    public string $inputTemplate;
+
     public function __construct(
         public int|float      $maxScore,
         public null|int|float $score,
         public string         $modelName,
         public bool           $halfPoints = true,
-        public bool           $continuousScoreSlider = false,
         public bool           $disabled = false,
         public string         $mode = 'default',
         public bool           $coLearning = false,
@@ -20,12 +22,16 @@ class ScoreSlider extends Component
         public                $tooltip = null,
         public bool           $focusInput = false,
         public bool           $hideThumb = false,
+        public int            $minScore = 0,
+        public bool           $useIndicator = false,
     ) {
         $this->setContinuousSliderValue();
 
-        if (!$this->title) {
+        if ($this->title === null) {
             $this->title = __('Score');
         }
+
+        $this->inputTemplate = 'components.input.score-slider.partials.' . ($this->continuousScoreSlider ? 'continuous-slider' : 'slider-pills');
     }
 
     public function render(): View
@@ -35,11 +41,10 @@ class ScoreSlider extends Component
 
     private function setContinuousSliderValue(): void
     {
-        if ($this->mode === 'small') {
-            $this->continuousScoreSlider = $this->halfPoints ? $this->maxScore > 5 : $this->maxScore > 10;
-            return;
-        }
-
-        $this->continuousScoreSlider = $this->halfPoints ? $this->maxScore > 7 : $this->maxScore > 15;
+        $this->continuousScoreSlider = match ($this->mode) {
+            'large' => false,
+            'small' => $this->halfPoints ? ($this->maxScore > 5) : ($this->maxScore > 10),
+            default => $this->halfPoints ? ($this->maxScore > 7) : ($this->maxScore > 15),
+        };
     }
 }

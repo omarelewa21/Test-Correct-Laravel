@@ -1,9 +1,9 @@
 <x-modal-new>
     <x-slot name="title">
-        <span>{{ __('teacher.Toets inplannen') }}</span>
+        <span>{{ $this->labels['title'] }}</span>
     </x-slot>
     <x-slot name="body">
-        <div class="email-section mb-4 w-full">
+        <div class="email-section mb-4 w-full text-base">
             @if($errors->isNotEmpty())
                 <div class="flex flex-col gap-2.5 w-full">
                     @foreach($errors->all() as $error)
@@ -13,15 +13,17 @@
                     @endforeach
                 </div>
             @endif
-            <div class="mb-4">
-                <label>{{ __('teacher.Naam toets of opdracht') }}</label>
-                <div class="border-blue-100 form-input w-full p-2 transition ease-in-out duration-150">{{ $test->name }}</div>
+            <div class="mb-4 flex gap-4">
+                <x-input.group :label="__('teacher.Naam toets of opdracht')" class="w-full flex-1">
+                    <x-input.text class="w-full !text-sysbase" :disabled="true" value="{{ $test->name }}" />
+                </x-input.group>
 
+                @yield('retake-original-date')
             </div>
             <div class="input-section">
                 <div class="name flex mb-4 flex-wrap gap-4">
                     <div class="flex flex-1 space-x-4">
-                        <x-input.group class="flex flex-1" label="{{ __('teacher.Datum') }}">
+                        <x-input.group class="flex flex-1" :label="$this->labels['date']">
                             <x-input.datepicker wire:model="request.date" locale="nl" minDate="today" />
                         </x-input.group>
 
@@ -33,23 +35,30 @@
                         @endif
                     </div>
                     <div class="flex flex-1 space-x-4">
-
                         <x-input.group class="flex flex-1" label="{{ __('teacher.Periode') }}">
-                            <x-input.select class="w-full" wire:model="request.period_id">
-                                @foreach($allowedPeriods as $period)
-                                    <x-input.option :value="$period->id" :label="$period->name"/>
-                                @endforeach
-                            </x-input.select>
+                            @hasSection('retake-period')
+                                @yield('retake-period')
+                            @else
+                                <x-input.select class="w-full" wire:model="request.period_id">
+                                    @foreach($allowedPeriods as $period)
+                                        <x-input.option :value="$period->id" :label="$period->name" />
+                                    @endforeach
+                                </x-input.select>
+                            @endif
                         </x-input.group>
 
                         <x-input.group class="flex" label="{{ __('teacher.Weging') }}">
-                            <input
-                                    type="text"
-                                    style="max-width: 100px"
-                                    class=" form-input @error('request.weight') border-red @enderror"
-                                    wire:model="request.weight"
-                                    autocomplete="off"
-                            ></x-input.group>
+                            @hasSection('retake-weight')
+                                @yield('retake-weight')
+                            @else
+                                <input type="text"
+                                       style="max-width: 100px"
+                                       class=" form-input @error('request.weight') border-red @enderror"
+                                       wire:model="request.weight"
+                                       autocomplete="off"
+                                />
+                            @endif
+                        </x-input.group>
                     </div>
                 </div>
             </div>
@@ -73,25 +82,22 @@
                     </div>
                 </div>
             @endif
-            <div class="input-section" x-data>
-                <div class="name flex">
-                    <label for="teachers_and_classes">{{ __('teacher.Klassen') }}</label>
-                </div>
-                <div class="name flex mb-4">
-                    <x-input.choices-select :multiple="true"
-                                            :options="$this->schoolClasses"
-                                            :withSearch="true"
-                                            placeholderText="{{ __('teacher.Klassen') }}"
-                                            wire:model="request.school_classes"
-                                            filterContainer="selected_classes"
-                                            id="teachers_and_classes"
-                                            wire:key='school-classes'
-                                            hasErrors="{{ $this->getErrorBag()->has('request.school_classes') ? 'true': '' }}"
-                                            selid="plan-modal-classes-select"
-                    />
-                    <div id="selected_classes" wire:ignore class="space-x-4 ml-4"></div>
-
-                </div>
+            <div @class([
+                    "students-classes | input-section flex gap-2 mb-4",
+                    "select-error" => $this->getErrorBag()->has('request.school_classes')
+                    ])
+            >
+                <x-input.multi-dropdown-select :options="$this->schoolClasses"
+                                               :title="__('teacher.Klassen en studenten')"
+                                               containerId="c_and_s_create-container"
+                                               :label="__('teacher.Klassen en studenten')"
+                                               wire:model.defer="classesAndStudents"
+                                               :item-labels="['child_disabled' => __('test-take.Already selected')]"
+                />
+                <div id="c_and_s_create-container"
+                     class="flex gap-2 flex-wrap"
+                     wire:ignore
+                ></div>
             </div>
             <div class="input-section" x-data>
                 <div class="name flex">
@@ -119,7 +125,7 @@
                                                    containerClass="border-t w-full lg:w-[calc(50%-0.5rem)]"
                                                    selid="plan-modal-allow-browser"
                     >
-                        <x-icon.web/>
+                        <x-icon.web />
                         <span class="bold">{{ __('teacher.Browsertoetsen toestaan') }} </span>
                     </x-input.toggle-row-with-title>
                     <x-input.toggle-row-with-title wire:model="request.guest_accounts"
@@ -166,13 +172,10 @@
                 <span>{{__('general.cancel')}}</span>
             </x-button.text>
             <div class="flex space-x-2.5">
-                {{--                <x-button.primary size="sm" wire:click="planNext">--}}
-                {{--                    <span>{{__('teacher.Volgende Inplannen')}}</span>--}}
-                {{--                    <x-icon.chevron/>--}}
-                {{--                </x-button.primary>--}}
-                <x-button.cta size="sm" wire:click="planNext" selid="plan-modal-plan-btn"  wire:loading.attr="disabled" onClick="this.disabled = true;" wire:target="planNext" :disabled="$clickDisabled">
-                    <x-icon.checkmark wire:loading.remove wire:target="planNext"/>
-                    <span wire:loading.remove wire:target="planNext">{{__('teacher.Inplannen')}}</span>
+                <x-button.cta size="md" wire:click="planNext" selid="plan-modal-plan-btn" wire:loading.attr="disabled"
+                              onClick="this.disabled = true;" wire:target="planNext" :disabled="$clickDisabled">
+                    <x-icon.checkmark wire:loading.remove wire:target="planNext" />
+                    <span wire:loading.remove wire:target="planNext">{{ $this->labels['cta'] }}</span>
                     <span wire:loading wire:target="planNext">{{ __('cms.one_moment_please') }}</span>
                 </x-button.cta>
             </div>

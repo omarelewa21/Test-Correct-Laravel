@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
@@ -1313,9 +1314,10 @@ class Test extends BaseModel
      * General method to get all the questions of a test, including flattened groups.
      * A callback can be provided to add properties to a question without having to
      * copy the whole thing and make the changes required.
-     * @param $addPropertyCallback
+     * @param null $addPropertyCallback
+     * @return Collection
      */
-    public function getFlatQuestionList($addPropertyCallback = null)
+    public function getFlatQuestionList($addPropertyCallback = null): Collection
     {
         return $this->testQuestions
             ->sortBy('order')

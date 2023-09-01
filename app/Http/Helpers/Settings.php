@@ -16,8 +16,13 @@ class Settings
         return ($user ?? auth()->user())->schoolLocation->allow_new_co_learning ?? false;
     }
 
-    public function allowNewCoLearningTeacher(?User $user = null) : bool
+    public function canUsePlannedTestPage(?User $user = null): bool
     {
-        return ($user ?? auth()->user())->schoolLocation->allow_new_co_learning_teacher ?? false;
+        return ($user ?? auth()->user())->schoolLocation?->allow_new_test_take_detail_page;
+    }
+
+    public function canUseTakenTestPage(?User $user = null): bool
+    {
+        return ($user ?? auth()->user())->schoolLocation?->allow_new_test_taken_pages;
     }
 }

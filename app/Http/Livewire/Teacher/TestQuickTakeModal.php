@@ -23,7 +23,6 @@ class TestQuickTakeModal extends TCModalComponent
     public string $testName;
 
     public $testTake;
-    public $selectedClasses = [];
 
     public $clickDisabled = false;
 
@@ -31,7 +30,7 @@ class TestQuickTakeModal extends TCModalComponent
     protected function messages(): array
     {
         return [
-            'selectedClasses.required' => __('validation.school_class_or_guest_accounts_required'),
+            'classesAndStudents.children.filled' => __('validation.school_class_or_guest_accounts_required'),
         ];
     }
 
@@ -41,7 +40,6 @@ class TestQuickTakeModal extends TCModalComponent
             'testTake.weight'                  => __('teacher.Weging'),
             'testTake.allow_inbrowser_testing' => __('teacher.Browsertoetsen toestaan'),
             'testTake.guest_accounts'          => __('teacher.Test-Direct toestaan'),
-            'selectedClasses'                  => __('header.Klassen'),
         ];
     }
 
@@ -61,7 +59,7 @@ class TestQuickTakeModal extends TCModalComponent
     {
         $conditionalRules = [];
         if (!$this->testTake->guest_accounts) {
-            $conditionalRules['selectedClasses'] = 'required';
+            $conditionalRules['classesAndStudents.children'] = 'filled';
         }
         return $conditionalRules;
     }
@@ -94,6 +92,8 @@ class TestQuickTakeModal extends TCModalComponent
         $this->clickDisabled = true;
         $this->testTake->save();
 
+        $this->handleParticipants($this->testTake);
+
         $this->dispatchBrowserEvent('notify', ['message' => __('teacher.testtake planned')]);
         $this->closeModal();
 
@@ -112,8 +112,13 @@ class TestQuickTakeModal extends TCModalComponent
         $this->testTake->uuid = Uuid::uuid4();
 
         $this->testTake->fill([
-            'invigilators'   => [auth()->id()],
-            'school_classes' => $this->selectedClasses
+            'invigilators' => [auth()->id()],
+//            'school_classes' => $this->selectedClasses
         ]);
+    }
+
+    public function validate($rules = null, $messages = [], $attributes = []): array
+    {
+        return parent::validate();
     }
 }

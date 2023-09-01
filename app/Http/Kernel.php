@@ -1,4 +1,5 @@
 <?php
+
 namespace tcCore\Http;
 
 
@@ -34,6 +35,7 @@ use tcCore\Http\Middleware\RedirectIfAuthenticated;
 use tcCore\Http\Middleware\RequestLogger;
 use tcCore\Http\Middleware\SetHeaders;
 use tcCore\Http\Middleware\TestTakeForceTakenAwayCheck;
+use tcCore\Http\Middleware\TestTakeValidStatus;
 use tcCore\Http\Middleware\ValidGeneralTerms;
 use tcCore\Http\Middleware\ValidTrialPeriod;
 use tcCore\Http\Middleware\TrustProxies;
@@ -78,6 +80,7 @@ class Kernel extends HttpKernel
         'throttle'              => ThrottleRequests::class,
         'accountManager'        => AuthenticatedAsAccountManager::class,
         'administrator'         => AuthenticatedAsAdministrator::class,
+        'testTakeStatus'        => TestTakeValidStatus::class,
         'development'           => LocalOrTesting::class,
     ];
 

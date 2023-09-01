@@ -12,9 +12,9 @@ class AnswerRating extends BaseModel
 
     use SoftDeletes;
 
-    const TYPE_STUDENT = 'STUDENT';
-    const TYPE_TEACHER = 'TEACHER';
-    const TYPE_SYSTEM = 'SYSTEM';
+    public const TYPE_STUDENT = 'STUDENT';
+    public const TYPE_TEACHER = 'TEACHER';
+    public const TYPE_SYSTEM = 'SYSTEM';
 
     /**
      * The database table used by the model.

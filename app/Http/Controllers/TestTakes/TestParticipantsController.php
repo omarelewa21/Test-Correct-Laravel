@@ -233,114 +233,16 @@ class TestParticipantsController extends Controller
     {
         if ($testParticipant->test_take_id !== $testTake->getKey()) {
             return Response::make('Test participant not found', 404);
-        } else {
-            $test = $testTake->test;
-            if (is_array($request->get('with')) && in_array('participantStatus', $request->get('with'))) {
-                $testParticipant->load([
-                    'user',
-                    'testTakeStatus',
-                    'schoolClass',
-                    'answers',
-                    'testTakeEvents',
-                    'user.averageRatings' => function ($query) use ($testParticipant, $test) {
-                        $query->where('school_class_id', $testParticipant->getAttribute('school_class_id'))->where('subject_id', $test->getAttribute('subject_id'));
-                    }
-                ]);
-
-                $isInvigilator = false;
-                $roles = $this->getUserRoles();
-
-                if (in_array('Teacher', $roles) || in_array('Invigilator', $roles)) {
-                    $isInvigilator = $testTake->isInvigilator(Auth::user());
-                }
-
-                if ($isInvigilator) {
-                    $questions = QuestionGatherer::getQuestionsOfTest($testTake->getAttribute('test_id'), true);
-
-                    foreach ($questions as $questionId => $question) {
-                        $questions[$questionId] = $question['score'];
-                    }
-
-                    $score = 0;
-                    $madeScore = 0;
-                    $maxScore = 0;
-                    $questionsCount = 0;
-                    $totalTime = 0;
-                    $longestAnswer = null;
-
-                    foreach ($testParticipant->answers as $answer) {
-                        $answerQuestionId = null;
-                        foreach ($answer->answerParentQuestions as $answerParentQuestion) {
-                            if ($answerQuestionId !== null) {
-                                $answerQuestionId .= '.';
-                            }
-                            $answerQuestionId .= $answerParentQuestion->getAttribute('group_question_id');
-                        }
-
-                        if ($answerQuestionId !== null) {
-                            $answerQuestionId .= '.';
-                        }
-
-                        $answerQuestionId .= $answer->getAttribute('question_id');
-
-                        if (array_key_exists($answerQuestionId, $questions)) {
-                            $answerScore = $answer->getAttribute('final_rating');
-
-                            if ($answerScore === null) {
-                                $answerScore = $answer->calculateFinalRating();
-                                if ($answerScore !== null) {
-                                    $answer->setAttribute('final_rating', $answerScore);
-                                    $answer->save();
-                                }
-                            }
-
-                            if ($answerScore !== null && $answer->getAttribute('ignore_for_rating') == 0) {
-                                $score += $answerScore;
-                            }
-
-                            if ($answer->getAttribute('ignore_for_rating') == 0) {
-                                $maxScore += $questions[$answerQuestionId];
-                            }
-                        }
-
-                        if ($answer->getAttribute('done') != 0) {
-                            $questionsCount++;
-                            $totalTime += $answer->getAttribute('time');
-                            if (array_key_exists($answerQuestionId, $questions)) {
-                                $madeScore += $questions[$answerQuestionId];
-                            }
-                        }
-
-                        if ($answer->getAttribute('time') > 0 && ($longestAnswer === null || $longestAnswer->getAttribute('time') > $answer->getAttribute('time'))) {
-                            $longestAnswer = $answer;
-                        }
-                    }
-
-                    if ($longestAnswer !== null) {
-                        $longestAnswer->load('question');
-                        if ($longestAnswer->question instanceof QuestionInterface) {
-                            $longestAnswer->question->loadRelated();
-                        }
-                    }
-
-                    $testParticipant->setAttribute('score', $score);
-                    $testParticipant->setAttribute('made_score', $madeScore);
-                    if(!$this->validateForMaxScore($testParticipant)){
-                        $testParticipant->setAttribute('max_score','');
-                    }
-                    $testParticipant->setAttribute('max_score', $maxScore);
-                    $testParticipant->setAttribute('questions', $questionsCount);
-                    $testParticipant->setAttribute('total_time', $totalTime);
-
-                    $relations = $testParticipant->getRelations();
-                    $relations['longest_answer'] = $longestAnswer;
-                    $testParticipant->setRelations($relations);
-                }
-            } else {
-                $testParticipant->load('user', 'testTakeStatus', 'schoolClass', 'answers', 'testTakeEvents');
-            }
-            return Response::make($testParticipant, 200);
         }
+
+        $test = $testTake->test;
+        $testParticipant->load('user', 'testTakeStatus', 'schoolClass', 'answers', 'testTakeEvents');
+
+        if ($testTake->isInvigilator(Auth::user()) && collect($request->get('with'))->contains('participantStatus')) {
+            $testParticipant->calculateStatistics($testTake, $test);
+        }
+
+        return Response::make($testParticipant);
     }
 
     /**
