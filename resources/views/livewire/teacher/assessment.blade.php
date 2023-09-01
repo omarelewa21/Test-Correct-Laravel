@@ -61,6 +61,27 @@
                             </x-slot:loopSlot>
                         </x-partials.necklace-navigation>
                     </div>
+                    @if($this->showNewAssessmentNotification)
+                        <div class="notification info cursor-default stretched relative">
+                            <div class="title flex w-full ">
+                                <span>@lang('assessment.Het nieuwe nakijken')</span>
+                                <x-button.close class="absolute right-0.5 top-0.5"
+                                                wire:click="removeNotification"
+                                />
+                            </div>
+                            <div class="body">
+                                <span class="">@lang('assessment.new_assessment_notification')</span>
+                                <x-button.text type="link"
+                                               :href="config('app.knowledge_bank_url').'/toets-nakijken'"
+                                               target="_blank"
+                                               size="sm"
+                                               class="cursor-pointer !text-sm primary font-normal underline"
+                                >
+                                    @lang('assessment.new_assessment_knowledge_bank')
+                                </x-button.text>
+                            </div>
+                        </div>
+                    @endif
                 </x-slot:subHeader>
                 <x-slot:answerBlock>
                     <x-accordion.container :active-container-key="$this->answerPanel ? 'answer' : ''"
@@ -284,34 +305,12 @@
                             </div>
                         </div>
 
-                        {{-- TODO: make exception for existing writing assignments? --}}
-                        {{--@if($this->currentQuestion->isSubType('writing'))
-                            <div class="border-2 border-dashed border-red-500">
-                                @js('TODO: find out what to do with writing assignments')
-                                <x-button.primary class="!p-0 justify-center"
-                                                  wire:click="$emit('openModal', 'teacher.inline-feedback-modal', {answer: '{{  $this->currentAnswer->uuid }}' } );"
-                                >
-                                    <span>@lang($this->hasFeedback ? 'assessment.Inline feedback wijzigen' : 'assessment.Inline feedback toevoegen')</span>
-                                    <x-icon.chevron/>
-                                </x-button.primary>
-                                @if($this->hasFeedback)
-                                    <x-button.text class="!p-0 justify-center"
-                                                          wire:click="deleteFeedback"
-                                    >
-                                        <span>@lang('assessment.Inline feedback verwijderen')</span>
-                                        <x-icon.chevron/>
-                                    </x-button.text>
-                                @endif
-                            </div>
-                        @endif--}}
-                        {{-- TODO: make exception for existing writing assignments? --}}
-
                             <div class="answer-feedback-given-comments | relative">
                                 <button class="flex bold border-t border-blue-grey py-2 justify-between items-center w-full group"
-                                        :class="{'text-midgrey': !hasFeedback}"
+                                        :class="{'text-midgrey': !hasFeedback || $store.answerFeedback.creatingNewComment !== false}"
                                         x-init="dropdownOpened = hasFeedback ? dropdownOpened : 'add-feedback'"
                                         @click="hasFeedback ? toggleFeedbackAccordion('given-feedback') : ''"
-                                        :disabled="!hasFeedback"
+                                        :disabled="!hasFeedback || $store.answerFeedback.creatingNewComment !== false"
                                 >
                                     <span>@lang('assessment.Gegeven feedback')</span>
                                     <span class="w-6 h-6 rounded-full flex justify-center items-center transition -mr-0.5

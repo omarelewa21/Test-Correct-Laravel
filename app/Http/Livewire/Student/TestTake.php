@@ -32,12 +32,12 @@ class TestTake extends TCComponent
     protected function getListeners()
     {
         return [
-            'set-force-taken-away'                                                                                  => 'setForceTakenAway',
-            'checkConfirmedEvents'                                                                                  => 'checkConfirmedEvents',
-            'echo-private:TestParticipant.' . $this->testParticipantUuid . ',.TestTakeForceTakenAway'               => 'setForceTakenAway',
-            'echo-private:TestParticipant.' . $this->testParticipantUuid . ',.TestTakeReopened'                     => 'testTakeReopened',
-            'echo-private:TestParticipant.' . $this->testParticipantUuid . ',.BrowserTestingDisabledForParticipant' => 'checkIfParticipantCanContinueWithoutApp',
-            'studentInactive'                                                                                       => 'handleInactiveStudent'
+            'set-force-taken-away'                                                                                       => 'setForceTakenAway',
+            'checkConfirmedEvents'                                                                                       => 'checkConfirmedEvents',
+            'echo-private:TestParticipant.' . $this->testParticipantUuid . ',.TestTakeForceTakenAway'                    => 'setForceTakenAway',
+            'echo-private:TestParticipant.' . $this->testParticipantUuid . ',.TestTakeReopened'                          => 'testTakeReopened',
+            'echo-private:TestParticipant.' . $this->testParticipantUuid . ',.InbrowserTestingUpdatedForTestParticipant' => 'checkIfParticipantCanContinueWithoutApp',
+            'studentInactive'                                                                                            => 'handleInactiveStudent'
         ];
     }
 

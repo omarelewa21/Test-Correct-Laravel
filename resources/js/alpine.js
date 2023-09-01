@@ -465,10 +465,13 @@ document.addEventListener("alpine:init", () => {
                     this.handleGrid(toolName);
 
                     toolName.drawingApp.init();
+
                 } else {
                     const component = getClosestLivewireComponentByAttribute(this.$root, "questionComponent");
                     component.call("render");
                 }
+
+                isTeacher && this.$dispatch("set-allow-paste", !show);  // disable filepond paste when drawing tool is open
             });
 
             toolName.Canvas.layers.answer.enable();
@@ -817,7 +820,7 @@ document.addEventListener("alpine:init", () => {
                     window.registeredEventHandlers.push(eventName);
                     window.addEventListener(eventName, (event) => {
                         /* If this yields no result, make sure the remove eventnames are unique on the page :) */
-                        let choice = choices.getValue().filter(choice => choice.value === event.detail.value)[0];
+                        let choice = choices.getValue().filter(choice => choice.value.toString() === event.detail.value.toString())[0];
                         if (this.isAParentChoice(choice)) {
                             this.handleGroupItemChoice(choice);
                         } else {
@@ -1599,7 +1602,7 @@ document.addEventListener("alpine:init", () => {
                 });
                 this.$dispatch("multi-slider-toggle-value-updated", {
                     value: target.firstElementChild.dataset.id,
-                    firstTick: oldValue === null,
+                    firstTick: oldValue === null
                 });
             }
         },
@@ -1633,13 +1636,13 @@ document.addEventListener("alpine:init", () => {
             });
         },
         markInputElementsWithError() {
-            const falseOptions = this.$root.querySelectorAll(".slider-option[data-active=\"false\"]");
+            const falseOptions = this.$root.querySelectorAll(".accordion-block .slider-option[data-active=\"false\"]");
             if (falseOptions.length === 2) {
                 falseOptions.forEach(el => el.classList.add("!border-allred"));
             }
         },
         markInputElementsClean() {
-            const falseOptions = this.$root.querySelectorAll(".slider-option[data-active=\"false\"]");
+            const falseOptions = this.$root.querySelectorAll(".accordion-block .slider-option[data-active=\"false\"]");
             if (falseOptions.length === 2) {
                 falseOptions.forEach(el => el.classList.remove("!border-allred"));
             }
@@ -1649,8 +1652,8 @@ document.addEventListener("alpine:init", () => {
             const sourceCount = Object.entries(sources).length;
             const widthDividableBySourceCount = Math.round(containerWidth / sourceCount) * sourceCount;
 
-            if(!isNaN(widthDividableBySourceCount) && widthDividableBySourceCount > 0) {
-                this.$root.style.width = widthDividableBySourceCount + 'px';
+            if (!isNaN(widthDividableBySourceCount) && widthDividableBySourceCount > 0) {
+                this.$root.style.width = widthDividableBySourceCount + "px";
             }
         }
     }));
@@ -1979,39 +1982,39 @@ document.addEventListener("alpine:init", () => {
                 this.setInitialFocusInput();
             });
         },
-        setInitialFocusInput (){
-            let name = ('' != this.activeOverlay) ? this.activeOverlay : this.openTab;
-            var finder = `[data-focus-tab = '${name}']`
+        setInitialFocusInput() {
+            let name = ("" != this.activeOverlay) ? this.activeOverlay : this.openTab;
+            var finder = `[data-focus-tab = '${name}']`;
             setTimeout(() => {
-                this.$root.querySelector(finder)?.focus()
+                this.$root.querySelector(finder)?.focus();
             }, 250);
         },
         setCurrentFocusInput() {
             let name = ("" != this.activeOverlay) ? this.activeOverlay : this.openTab;
             var finder = `[data-focus-tab = '${name}']`;
 
-            if("" != this.hasErrors) {
+            if ("" != this.hasErrors) {
                 let errorCode = this.hasErrors[0];
                 switch (errorCode) {
-                    case 'invalid_test_code':
-                    case 'no_test_found_with_code':
-                        errorCode = 'invalid_test_code';
+                    case "invalid_test_code":
+                    case "no_test_found_with_code":
+                        errorCode = "invalid_test_code";
                         break;
                 }
 
-                if(document.activeElement.type === 'password') {
+                if (document.activeElement.type === "password") {
                     //Do not focus on other fields when password is focused to prevent users typing password in the wrong field
                     //only works when the form is submitted by enter key, else focus is on the login button
-                    errorCode = 'password';
+                    errorCode = "password";
                 }
 
-                finder =  `[data-focus-tab-error = '${name}-${errorCode}']`;
+                finder = `[data-focus-tab-error = '${name}-${errorCode}']`;
             }
             setTimeout(() => this.$root.querySelector(finder)?.focus(), 250);
         },
         changeActiveOverlay(activeOverlay = "") {
             this.activeOverlay = activeOverlay;
-        },
+        }
     }));
     Alpine.data("assessment", (array) => ({
         score: array.initialScore,
@@ -2111,27 +2114,27 @@ document.addEventListener("alpine:init", () => {
         firstValue,
         skipWatch: false,
         async first() {
-            if (this.$store.answerFeedback.feedbackBeingEdited()) {
+            if (this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
                 return this.$store.answerFeedback.openConfirmationModal(this.$root, "first");
             }
             await this.updateCurrent(this.firstValue, "first");
         },
         async last() {
-            if (this.$store.answerFeedback.feedbackBeingEdited()) {
+            if (this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
                 return this.$store.answerFeedback.openConfirmationModal(this.$root, "last");
             }
             await this.updateCurrent(this.lastValue, "last");
         },
         async next() {
             if (this.current >= this.lastValue) return;
-            if (this.$store.answerFeedback.feedbackBeingEdited()) {
+            if (this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
                 return this.$store.answerFeedback.openConfirmationModal(this.$root, "next");
             }
             await this.updateCurrent(this.current + 1, "incr");
         },
         async previous() {
             if (this.current <= this.firstValue) return;
-            if (this.$store.answerFeedback.feedbackBeingEdited()) {
+            if (this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
                 return this.$store.answerFeedback.openConfirmationModal(this.$root, "previous");
             }
             await this.updateCurrent(this.current - 1, "decr");
@@ -2196,7 +2199,7 @@ document.addEventListener("alpine:init", () => {
             return element.offsetTop + (element.offsetHeight / 2);
         }
     }));
-    Alpine.data("assessmentDrawer", (inReview = false, tabs = [1,2,3], startCollapsed = false) => ({
+    Alpine.data("assessmentDrawer", (inReview = false, tabs = [1, 2, 3], startCollapsed = false) => ({
         activeTab: 1,
         tabs: tabs,
         container: null,
@@ -2211,7 +2214,7 @@ document.addEventListener("alpine:init", () => {
             this.tab(this.tabs[0]);
             this.$watch("collapse", (value) => {
                 this.$store.coLearningStudent.drawerCollapsed = value;
-                window.dispatchEvent(new CustomEvent('drawer-collapse', { detail: value }));
+                window.dispatchEvent(new CustomEvent("drawer-collapse", { detail: value }));
                 document.documentElement.style.setProperty("--active-sidebar-width", value ? "var(--collapsed-sidebar-width)" : "var(--sidebar-width)");
             });
         },
@@ -2231,7 +2234,7 @@ document.addEventListener("alpine:init", () => {
             } else {
                 await smoothScroll(this.container, 0, slide.offsetLeft);
             }
-            if(openDrawer) {
+            if (openDrawer) {
                 this.collapse = false;
             }
 
@@ -2243,18 +2246,20 @@ document.addEventListener("alpine:init", () => {
             }, 500);
         },
         async scrollToCommentCard(answerFeedbackUuid) {
+            this.container = this.$root.querySelector("#slide-container") ?? this.$root.closest("#slide-container");
+
             const commentCard = document.querySelector("[data-uuid=\"" + answerFeedbackUuid + "\"].answer-feedback-card");
             const slide = this.getSlideElementByIndex(2);
             let cardTop = commentCard.offsetTop;
 
-            if(slide.offsetHeight <= this.container.offsetHeight) {
+            if (slide.offsetHeight <= this.container.offsetHeight) {
                 return await smoothScroll(this.container, 0, slide.offsetLeft);
             }
 
             await smoothScroll(this.container, cardTop, slide.offsetLeft);
         },
         async next() {
-            if (this.$store.answerFeedback.feedbackBeingEdited()) {
+            if (this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
                 return this.$store.answerFeedback.openConfirmationModal(this.$root, "next");
             }
             if (this.needsToPerformActionsStill()) {
@@ -2271,7 +2276,7 @@ document.addEventListener("alpine:init", () => {
             });
         },
         async previous() {
-            if (this.$store.answerFeedback.feedbackBeingEdited()) {
+            if (this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
                 return this.$store.answerFeedback.openConfirmationModal(this.$root, "previous");
             }
             this.tab(1);
@@ -2382,8 +2387,8 @@ document.addEventListener("alpine:init", () => {
             this.$store.assessment.currentScore = this.score;
             this.$dispatch("slider-score-updated", { score: this.score });
 
-            if (this.$root.classList.contains('untouched')) {
-                this.$root.classList.remove('untouched')
+            if (this.$root.classList.contains("untouched")) {
+                this.$root.classList.remove("untouched");
             }
         },
         noChangeEventFallback() {
@@ -2440,18 +2445,18 @@ document.addEventListener("alpine:init", () => {
             }
 
             if (this.usedSliders && this.$root.dataset?.sliderKey) {
-                if (this.usedSliders.contains(this.$root.dataset?.sliderKey) && this.$root.classList.contains('untouched')) {
-                    this.$root.classList.remove('untouched');
+                if (this.usedSliders.contains(this.$root.dataset?.sliderKey) && this.$root.classList.contains("untouched")) {
+                    this.$root.classList.remove("untouched");
                 }
             }
             this.$nextTick(() => {
-                let rangeInput = this.$root.querySelector('input[type="range"]');
-                let left = rangeInput?.offsetWidth / 2
+                let rangeInput = this.$root.querySelector("input[type=\"range\"]");
+                let left = rangeInput?.offsetWidth / 2;
                 if (this.continuousSlider) {
-                    left = left - 2
+                    left = left - 2;
                 }
-                rangeInput?.style.setProperty('--moz-left-zero', `-${left}px`);
-            })
+                rangeInput?.style.setProperty("--moz-left-zero", `-${left}px`);
+            });
         },
         markInputElementsWithError() {
             if (this.disabled) return;
@@ -2479,7 +2484,7 @@ document.addEventListener("alpine:init", () => {
         },
         hasMaxDecimalScoreWithHalfPoint() {
             return isFloat(this.maxScore);
-        },
+        }
     }));
 
     Alpine.data("completionQuestion", () => ({
@@ -2667,13 +2672,13 @@ document.addEventListener("alpine:init", () => {
             }, 5000);
         },
         async loadQuestion(number) {
-            if(this.$store.answerFeedback.feedbackBeingEdited()) {
-                return this.$store.answerFeedback.openConfirmationModal(this.$root, 'loadQuestion', number);
+            if (this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
+                return this.$store.answerFeedback.openConfirmationModal(this.$root, "loadQuestion", number);
             }
 
             this.$dispatch("answer-feedback-drawer-tab-update", { tab: 1 });
             await this.$wire.loadQuestionFromNav(number);
-        },
+        }
     }));
     Alpine.data("accountSettings", (openTab, language) => ({
         openTab,
@@ -2707,6 +2712,8 @@ document.addEventListener("alpine:init", () => {
         viewOnly,
         hasFeedback,
         async init() {
+            this.$store.answerFeedback.resetEditingComment();
+            console.log("init answer feedback");
             this.dropdownOpened = questionType === "OpenQuestion" ? "given-feedback" : "add-feedback";
 
             if (questionType !== "OpenQuestion") {
@@ -2733,7 +2740,10 @@ document.addEventListener("alpine:init", () => {
 
                 if (ckeditorIconWrapper) this.addOrReplaceIconByName(ckeditorIconWrapper, event.detail.iconName);
                 if (cardIconWrapper) {
-                    this.addOrReplaceIconByName(cardIconWrapper, event.detail.iconName);
+                    this.addOrReplaceIconByName(cardIconWrapper, event.detail.iconName, true);
+                    if (event.detail.iconName === null || event.detail.iconName === "" || event.detail.iconName === undefined) {
+                        return;
+                    }
                     cardIconWrapper.querySelector("span").style = "";
                 }
             });
@@ -2742,17 +2752,17 @@ document.addEventListener("alpine:init", () => {
                 (event) => this.updateNewCommentMarkerStyles(event?.detail?.color)
             );
 
-            document.addEventListener('mousedown', (event) => {
+            document.addEventListener("mousedown", (event) => {
                 this.resetCommentColorPickerFocusState(event);
                 this.resetCommentEmojiPickerFocusState(event);
 
-                if(this.activeComment === null) {
+                if (this.activeComment === null) {
                     return;
                 }
                 //check for click outside 1. comment markers, 2. comment marker icons, 3. comment cards.
-                if(event.srcElement.closest(':is(.ck-comment-marker, .answer-feedback-comment-icon, .given-feedback-container)') ) {
-                    let element = event.srcElement.closest('.ck-comment-marker');
-                    if(element instanceof Element && window.getComputedStyle(element).backgroundColor === 'rgba(0, 0, 0, 0)' ) {
+                if (event.srcElement.closest(":is(.ck-comment-marker, .answer-feedback-comment-icon, .given-feedback-container)")) {
+                    let element = event.srcElement.closest(".ck-comment-marker");
+                    if (element instanceof Element && window.getComputedStyle(element).backgroundColor === "rgba(0, 0, 0, 0)") {
                         //ignore click on inactive comment marker
                         this.clearActiveComment();
                     }
@@ -2765,21 +2775,21 @@ document.addEventListener("alpine:init", () => {
             this.preventOpeningModalFromBreakingDrawer();
         },
         resetCommentColorPickerFocusState(event) {
-            if (event.srcElement.closest('.comment-color-picker')) {
+            if (event.srcElement.closest(".comment-color-picker")) {
                 return;
             }
-            let commentColorPickerCKEditorElement = document.querySelector('.comment-color-picker[ckEditorElement].picker-focussed');
+            let commentColorPickerCKEditorElement = document.querySelector(".comment-color-picker[ckEditorElement].picker-focussed");
             if (commentColorPickerCKEditorElement) {
-                commentColorPickerCKEditorElement.classList.remove('picker-focussed');
+                commentColorPickerCKEditorElement.classList.remove("picker-focussed");
             }
         },
         resetCommentEmojiPickerFocusState(event) {
-            if (event.srcElement.closest('.comment-emoji-picker')) {
+            if (event.srcElement.closest(".comment-emoji-picker")) {
                 return;
             }
-            let commentEmojiPickerCKEditorElement = document.querySelector('.comment-emoji-picker[ckEditorElement].picker-focussed');
+            let commentEmojiPickerCKEditorElement = document.querySelector(".comment-emoji-picker[ckEditorElement].picker-focussed");
             if (commentEmojiPickerCKEditorElement) {
-                commentEmojiPickerCKEditorElement.classList.remove('picker-focussed');
+                commentEmojiPickerCKEditorElement.classList.remove("picker-focussed");
             }
         },
         async updateCommentThread(element) {
@@ -2795,15 +2805,15 @@ document.addEventListener("alpine:init", () => {
             const answerFeedbackData = answerFeedbackEditor.getData();
 
             await answerFeedbackEditor.destroy();
-            this.cancelEditingComment(answerFeedbackCardElement.dataset.threadId)
+            this.cancelEditingComment(answerFeedbackCardElement.dataset.threadId);
 
-            let commentStyles = await this.$wire.call('updateExistingComment', {
+            let commentStyles = await this.$wire.call("updateExistingComment", {
                 uuid: answerFeedbackUuid,
                 message: answerFeedbackData,
                 comment_emoji: comment_emoji,
                 comment_color: comment_color
             });
-            document.querySelector('#commentMarkerStyles').innerHTML = commentStyles;
+            document.querySelector("#commentMarkerStyles").innerHTML = commentStyles;
         },
         async createCommentThread() {
             //somehow the editor id sometimes shows an old cached value, so we set it again here
@@ -2845,6 +2855,8 @@ document.addEventListener("alpine:init", () => {
                     });
 
                     var updatedAnswerText = answerEditor.getData();
+                    // updatedAnswerText = updatedAnswerText.replaceAll('&nbsp;', '');
+                    // console.log(updatedAnswerText)
 
                     let commentStyles = await this.$wire.saveNewComment({
                         uuid: feedback.uuid,
@@ -2863,12 +2875,13 @@ document.addEventListener("alpine:init", () => {
 
                     this.hasFeedback = true;
 
+
                     this.$dispatch("answer-feedback-show-comments");
 
                     this.scrollToCommentCard(feedback.uuid);
 
                     setTimeout(() => {
-                        ClassicEditors[this.feedbackEditorId].setData('<p></p>');
+                        ClassicEditors[this.feedbackEditorId].setData("<p></p>");
                     }, 300);
                     return;
                 }
@@ -2881,11 +2894,22 @@ document.addEventListener("alpine:init", () => {
 
                 this.hasFeedback = true;
 
-                this.$dispatch('answer-feedback-show-comments');
+                this.$dispatch("answer-feedback-show-comments");
 
-                this.scrollToCommentCard(feedback.uuid);
+                let intervalCount = 0;
+                let interval = setInterval(() => {
+                    intervalCount++;
+                    this.$dispatch("answer-feedback-show-comments");
+                    if (intervalCount > 2) {
+                        this.scrollToCommentCard(feedback.uuid);
+                    }
+                    if (intervalCount === 5) {
+                        clearInterval(interval);
+                        return;
+                    }
+                }, 400);
 
-                feedbackEditor.setData('<p></p>');
+                feedbackEditor.setData("<p></p>");
             });
 
         },
@@ -2920,14 +2944,14 @@ document.addEventListener("alpine:init", () => {
             }
             console.error("failed to delete answer feedback");
         },
-        initCommentIcons(commentThreads, answerFeedbackFilter = 'all') {
+        initCommentIcons(commentThreads, answerFeedbackFilter = "all") {
             let filteredCommentThreads = commentThreads.filter((thread) => {
                 return (
-                    (answerFeedbackFilter === 'current_user' && thread.currentUser)
-                    || (answerFeedbackFilter === 'students' && thread.role === 'student')
-                    || (answerFeedbackFilter === 'teacher' && thread.role === 'teacher')
-                    || answerFeedbackFilter === 'all'
-                )
+                    (answerFeedbackFilter === "current_user" && thread.currentUser)
+                    || (answerFeedbackFilter === "students" && thread.role === "student")
+                    || (answerFeedbackFilter === "teacher" && thread.role === "teacher")
+                    || answerFeedbackFilter === "all"
+                );
             });
             filteredCommentThreads.forEach((thread) => {
                 this.createCommentIcon(thread);
@@ -2936,19 +2960,19 @@ document.addEventListener("alpine:init", () => {
             //create global event listener for comment icon click and hover
             this.createCommentTagsEventListener(filteredCommentThreads);
         },
-        createCommentTagsEventListener( enabledCommentThreads) {
-            const commentEditorContainer = document.querySelector('.answer-feedback-comment-icons').parentElement;
+        createCommentTagsEventListener(enabledCommentThreads) {
+            const commentEditorContainer = document.querySelector(".answer-feedback-comment-icons").parentElement;
             let hoveringCommentThread = null;
 
             //remove previous event listeners, if any
-            if(this.commentTagsEventListeners) {
-                commentEditorContainer.removeEventListener('click', this.commentTagsEventListeners['click']);
-                commentEditorContainer.removeEventListener('mouseover', this.commentTagsEventListeners['mouseover']);
+            if (this.commentTagsEventListeners) {
+                commentEditorContainer.removeEventListener("click", this.commentTagsEventListeners["click"]);
+                commentEditorContainer.removeEventListener("mouseover", this.commentTagsEventListeners["mouseover"]);
             }
             this.commentTagsEventListeners = [];
 
-            this.commentTagsEventListeners['click'] = (event) => {
-                let targetCommentElement = event.target.closest('[data-comment], [data-threadid]');
+            this.commentTagsEventListeners["click"] = (event) => {
+                let targetCommentElement = event.target.closest("[data-comment], [data-threadid]");
                 if (!targetCommentElement) return;
 
                 let clickedEnabledCommentThread = enabledCommentThreads.filter((thread) => {
@@ -2958,10 +2982,10 @@ document.addEventListener("alpine:init", () => {
                 if (!clickedEnabledCommentThread) return;
 
                 this.setActiveComment(clickedEnabledCommentThread.threadId, clickedEnabledCommentThread.uuid);
-            }
+            };
 
-            this.commentTagsEventListeners['mouseover'] = (event) => {
-                let targetCommentElement = event.target.closest('[data-comment], [data-threadid]');
+            this.commentTagsEventListeners["mouseover"] = (event) => {
+                let targetCommentElement = event.target.closest("[data-comment], [data-threadid]");
                 let targetCommentThreadId = targetCommentElement?.dataset.comment || targetCommentElement?.dataset.threadid || false;
 
                 let previousHoveringCommentThread = hoveringCommentThread;
@@ -2969,22 +2993,22 @@ document.addEventListener("alpine:init", () => {
                     return thread.threadId === targetCommentThreadId;
                 }).pop();
 
-                if(!hoveringCommentThread) {
+                if (!hoveringCommentThread) {
                     //only clear hovering comment if leaving an enabled/valid comment thread element
                     previousHoveringCommentThread ? this.clearHoveringComment() : null;
                     return;
                 }
-                if(hoveringCommentThread.threadId === previousHoveringCommentThread?.threadId) {
+                if (hoveringCommentThread.threadId === previousHoveringCommentThread?.threadId) {
                     return;
                 }
                 this.setHoveringComment(hoveringCommentThread.threadId, hoveringCommentThread.uuid);
-            }
+            };
 
-            commentEditorContainer.addEventListener('click', this.commentTagsEventListeners['click']);
-            commentEditorContainer.addEventListener('mouseover', this.commentTagsEventListeners['mouseover']);
+            commentEditorContainer.addEventListener("click", this.commentTagsEventListeners["click"]);
+            commentEditorContainer.addEventListener("mouseover", this.commentTagsEventListeners["mouseover"]);
         },
         repositionAnswerFeedbackIcons() {
-            let answerFeedbackCommentIcons = document.querySelectorAll('.answer-feedback-comment-icon');
+            let answerFeedbackCommentIcons = document.querySelectorAll(".answer-feedback-comment-icon");
             answerFeedbackCommentIcons.forEach((iconWrapper) => {
                 let threadId = iconWrapper.dataset.threadid;
                 let threadUuid = iconWrapper.dataset.uuid;
@@ -2993,52 +3017,55 @@ document.addEventListener("alpine:init", () => {
         },
         setIconPositionForThread(iconWrapper, threadId, answerFeedbackUuid) {
             const commentMarkers = document.querySelectorAll(`[data-comment='` + threadId + `']`);
-            if(commentMarkers.length === 0) {
-                iconWrapper.style.display = 'none';
+            if (commentMarkers.length === 0) {
+                iconWrapper.style.display = "none";
                 return;
             }
-            const lastCommentMarker = commentMarkers[commentMarkers.length-1];
+            const lastCommentMarker = commentMarkers[commentMarkers.length - 1];
 
-            iconWrapper.style.top = (lastCommentMarker.offsetTop - 15 /* adjust icon alignment */ + lastCommentMarker.offsetHeight - 24 /* adjust to last line of marker */) + 'px';
+            iconWrapper.style.top = (lastCommentMarker.offsetTop - 15 /* adjust icon alignment */ + lastCommentMarker.offsetHeight - 24 /* adjust to last line of marker */) + "px";
 
             let lastCommentMarkerClientRects = lastCommentMarker.getClientRects();
             let lastCommentMarkerParentClientRects = lastCommentMarker.offsetParent.getClientRects();
 
-            let lastCommentMarkerLineClientRight = lastCommentMarkerClientRects[lastCommentMarkerClientRects.length-1].right;
-            let lastCommentMarkerLineParentClientLeft = lastCommentMarkerParentClientRects[lastCommentMarkerParentClientRects.length-1].left;
+            let lastCommentMarkerLineClientRight = lastCommentMarkerClientRects[lastCommentMarkerClientRects.length - 1].right;
+            let lastCommentMarkerLineParentClientLeft = lastCommentMarkerParentClientRects[lastCommentMarkerParentClientRects.length - 1].left;
 
             let lastCommentMarkerLineOffsetLeft = lastCommentMarkerLineClientRight - lastCommentMarkerLineParentClientLeft;
 
-            iconWrapper.style.left = (lastCommentMarkerLineOffsetLeft - 5) + 'px';
+            iconWrapper.style.left = (lastCommentMarkerLineOffsetLeft - 5) + "px";
         },
         initCommentIcon(iconWrapper, thread) {
             setTimeout(() => {
                 this.setIconPositionForThread(iconWrapper, thread.threadId, thread.uuid);
 
-                iconWrapper.setAttribute('data-uuid', thread.uuid);
-                iconWrapper.setAttribute('data-threadId', thread.threadId);
+                iconWrapper.setAttribute("data-uuid", thread.uuid);
+                iconWrapper.setAttribute("data-threadId", thread.threadId);
 
                 this.addOrReplaceIconByName(iconWrapper, thread.iconName);
-            }, 200)
+            }, 200);
         },
-        createCommentIcon (thread) {
-            let commentIconsContainer = document.querySelector('.answer-feedback-comment-icons');
-            let iconId = "icon-"+thread.threadId;
-            let iconWrapper = document.createElement('div');
-            iconWrapper.classList.add('absolute');
-            iconWrapper.classList.add('z-10');
-            iconWrapper.classList.add('cursor-pointer');
-            iconWrapper.classList.add('answer-feedback-comment-icon');
+        createCommentIcon(thread) {
+            let commentIconsContainer = document.querySelector(".answer-feedback-comment-icons");
+            let iconId = "icon-" + thread.threadId;
+            let iconWrapper = document.createElement("div");
+            iconWrapper.classList.add("absolute");
+            iconWrapper.classList.add("z-10");
+            iconWrapper.classList.add("cursor-pointer");
+            iconWrapper.classList.add("answer-feedback-comment-icon");
             iconWrapper.id = iconId;
-            commentIconsContainer.appendChild(iconWrapper)
+            commentIconsContainer.appendChild(iconWrapper);
 
             this.initCommentIcon(iconWrapper, thread);
         },
-        addOrReplaceIconByName(el, iconName) {
+        addOrReplaceIconByName(el, iconName, isFeedbackCardIcon = false) {
             el.innerHTML = "";
 
             let iconTemplate = null;
             if (iconName === null || iconName === "" || iconName === undefined) {
+                if (isFeedbackCardIcon) {
+                    return;
+                }
                 iconTemplate = document.querySelector("#default-icon");
             } else {
                 iconTemplate = document.querySelector("#" + iconName.replace("icon.", ""));
@@ -3096,21 +3123,21 @@ document.addEventListener("alpine:init", () => {
             if (color) {
                 colorCode = color;
             }
-            styleTag.innerHTML = '\n' +
-                '        :root {\n' +
-                '            --active-comment-color: '+ colorCode +'; /* default color, overwrite when color picker is used */\n' +
-                '            --ck-color-comment-marker-active: var(--active-comment-color);\n' +
-                '        }\n' +
-                '    span.ck-comment-marker[data-comment="new-comment-thread"]{\n' +
-                '            --active-comment-color: '+ colorCode +'; /* default color, overwrite when color picker is used */\n' +
-                '            --ck-color-comment-marker: var(--active-comment-color);\n' +
-                '            --ck-color-comment-marker-active: var(--active-comment-color);\n' +
-                '            cursor: pointer !important;\n' +
-                '        }';
+            styleTag.innerHTML = "\n" +
+                "        :root {\n" +
+                "            --active-comment-color: " + colorCode + "; /* default color, overwrite when color picker is used */\n" +
+                "            --ck-color-comment-marker-active: var(--active-comment-color);\n" +
+                "        }\n" +
+                "    span.ck-comment-marker[data-comment=\"new-comment-thread\"]{\n" +
+                "            --active-comment-color: " + colorCode + "; /* default color, overwrite when color picker is used */\n" +
+                "            --ck-color-comment-marker: var(--active-comment-color);\n" +
+                "            --ck-color-comment-marker-active: var(--active-comment-color);\n" +
+                "            cursor: pointer !important;\n" +
+                "        }";
         },
         setHoveringCommentMarkerStyle(removeStyling = false) {
-            const styleTag = document.querySelector('#hoveringCommentMarkerStyle');
-            if(!styleTag) {
+            const styleTag = document.querySelector("#hoveringCommentMarkerStyle");
+            if (!styleTag) {
                 return;
             }
 
@@ -3119,14 +3146,14 @@ document.addEventListener("alpine:init", () => {
                 return;
             }
 
-            styleTag.innerHTML = '' +
-                'span.ck-comment-marker[data-comment="'+ this.hoveringComment.threadId +'"] { color: var(--teacher-primary); }' +
-                'div[data-threadid="'+this.hoveringComment.threadId+'"] svg { color: var(--teacher-primary); }';
+            styleTag.innerHTML = "" +
+                "span.ck-comment-marker[data-comment=\"" + this.hoveringComment.threadId + "\"] { color: var(--teacher-primary); }" +
+                "div[data-threadid=\"" + this.hoveringComment.threadId + "\"] svg { color: var(--teacher-primary); }";
 
         },
         setActiveCommentMarkerStyle(removeStyling = false) {
-            const styleTag = document.querySelector('#activeCommentMarkerStyle');
-            if(!styleTag) {
+            const styleTag = document.querySelector("#activeCommentMarkerStyle");
+            if (!styleTag) {
                 return;
             }
 
@@ -3135,27 +3162,31 @@ document.addEventListener("alpine:init", () => {
                 return;
             }
 
-            styleTag.innerHTML = '' +
-                'span.ck-comment-marker[data-comment="'+ this.activeComment?.threadId +'"] { ' +
-                '   border: 1px solid var(--ck-color-comment-marker-border) !important; ' +
-                '} ' +
-                'span.ck-comment-marker[data-comment="'+ this.activeComment?.threadId +'"].ck-math-widget { ' +
-                '   border: 1px solid transparent !important; ' +
-                '} ' +
-                'span.ck-comment-marker[data-comment="'+ this.activeComment?.threadId +'"] img { ' +
-                '   border: 1px solid var(--ck-color-comment-marker-border) !important; ' +
-                '} ';
+            styleTag.innerHTML = "" +
+                "span.ck-comment-marker[data-comment=\"" + this.activeComment?.threadId + "\"] { " +
+                "   border: 1px solid var(--ck-color-comment-marker-border) !important; " +
+                "} " +
+                "span.ck-comment-marker[data-comment=\"" + this.activeComment?.threadId + "\"].ck-math-widget { " +
+                "   border: 1px solid transparent !important; " +
+                "} " +
+                "span.ck-comment-marker[data-comment=\"" + this.activeComment?.threadId + "\"] img { " +
+                "   border: 1px solid var(--ck-color-comment-marker-border) !important; " +
+                "} " +
+                "div.answer-feedback-comment-icon[data-threadid=\"" + this.activeComment?.threadId + "\"] { " +
+                "   z-index: 11 " +
+                "} "
+            ;
 
         },
-        setActiveComment (threadId, answerFeedbackUuid) {
-            this.$dispatch('answer-feedback-show-comments');
+        setActiveComment(threadId, answerFeedbackUuid) {
+            this.$dispatch("answer-feedback-show-comments");
             setTimeout(() => {
-                this.$dispatch("answer-feedback-drawer-tab-update", { tab: 2, uuid: answerFeedbackUuid });
-                if(this.$store.answerFeedback.feedbackBeingEdited()) {
+                if (this.$store.answerFeedback.feedbackBeingEdited()) {
                     /* when editing, no other comment can be activated */
                     return;
                 }
-                this.activeComment = {threadId: threadId, uuid: answerFeedbackUuid };
+                this.$dispatch("answer-feedback-drawer-tab-update", { tab: 2, uuid: answerFeedbackUuid });
+                this.activeComment = { threadId: threadId, uuid: answerFeedbackUuid };
                 this.setActiveCommentMarkerStyle();
             }, 300);
         },
@@ -3174,7 +3205,7 @@ document.addEventListener("alpine:init", () => {
 
                     answerEditor.ui.focusTracker.add(feedbackEditor.sourceElement.parentElement.querySelector(".ck.ck-content"));
 
-                    feedbackEditor.ui.focusTracker.add( answerEditor.sourceElement.parentElement.querySelector('.ck.ck-content') );
+                    feedbackEditor.ui.focusTracker.add(answerEditor.sourceElement.parentElement.querySelector(".ck.ck-content"));
 
                 } catch (exception) {
                     // ignore focusTracker error when trying to add element that is already registered
@@ -3218,8 +3249,8 @@ document.addEventListener("alpine:init", () => {
                     const saveButtonCta = new window.CkEditorButtonView(new window.CkEditorLocale("nl"));
                     saveButtonCta.set({
                         label: buttonWrapper.dataset.saveTranslation,
-                        classList: 'cta-button button-gradient button-sm',
-                        eventName: 'save',
+                        classList: "cta-button button-gradient button-sm",
+                        eventName: "save"
                     });
                     saveButtonCta.render();
 
@@ -3251,7 +3282,7 @@ document.addEventListener("alpine:init", () => {
         createCommentIconRadioButton(el, iconName, emojiValue, checked) {
             const answerEditor = ClassicEditors[this.answerEditorId];
 
-            const radiobutton = new window.CkEditorRadioWithIconView(new window.CkEditorLocale('nl'));
+            const radiobutton = new window.CkEditorRadioWithIconView(new window.CkEditorLocale("nl"));
             radiobutton.set({
                 iconName: iconName,
                 emojiValue: emojiValue
@@ -3260,22 +3291,27 @@ document.addEventListener("alpine:init", () => {
 
             answerEditor.ui.focusTracker.add(radiobutton.element);
 
-            el.appendChild(radiobutton.element)
+            el.appendChild(radiobutton.element);
 
-            radiobutton.element.querySelector('span').appendChild(
-                document.importNode(el.querySelector('template').content, true)
+            radiobutton.element.querySelector("span").appendChild(
+                document.importNode(el.querySelector("template").content, true)
             );
         },
         setEditingComment(AnswerFeedbackUuid) {
             this.activeComment = null;
-            this.$store.answerFeedback.editingComment = AnswerFeedbackUuid ?? null;
+            this.$store.answerFeedback.setEditingComment(AnswerFeedbackUuid ?? null);
             setTimeout(() => {
                 this.fixSlideHeightByIndex(2, AnswerFeedbackUuid);
-            }, 100);
+            }, 500);
         },
-        async toggleFeedbackAccordion (name, forceOpenAccordion = false) {
-            if(this.$store.answerFeedback.feedbackBeingEdited()) {
-                this.dropdownOpened ='given-feedback';
+        async toggleFeedbackAccordion(name, forceOpenAccordion = false) {
+            if (this.$store.answerFeedback.newFeedbackBeingCreated()) {
+                this.dropdownOpened = "add-feedback";
+                return;
+            }
+            ;
+            if (this.$store.answerFeedback.feedbackBeingEdited()) {
+                this.dropdownOpened = "given-feedback";
                 return;
             }
 
@@ -3298,7 +3334,7 @@ document.addEventListener("alpine:init", () => {
         },
         resetAddNewAnswerFeedback(cancelAddingNewComment = false) {
             //find default/blue color picker and enable it.
-            let defaultColorPicker = document.querySelector('.answer-feedback-add-comment .comment-color-picker [data-color="blue"]');
+            let defaultColorPicker = document.querySelector(".answer-feedback-add-comment .comment-color-picker [data-color=\"blue\"]");
             if (defaultColorPicker !== null) {
                 defaultColorPicker.checked = true;
             }
@@ -3331,29 +3367,29 @@ document.addEventListener("alpine:init", () => {
                 document.querySelector("body"),
                 { attributes: true }
             );
-        },
+        }
 
     }));
     Alpine.data("coLearningStudent", () => ({
         async goToPreviousAnswerRating() {
-            if(this.$store.answerFeedback.feedbackBeingEdited()) {
-                return this.$store.answerFeedback.openConfirmationModal(this.$root, 'goToPreviousAnswerRating');
+            if (this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
+                return this.$store.answerFeedback.openConfirmationModal(this.$root, "goToPreviousAnswerRating");
             }
             this.$wire.goToPreviousAnswerRating();
         },
         async goToNextAnswerRating() {
-            if(this.$store.answerFeedback.feedbackBeingEdited()) {
-                return this.$store.answerFeedback.openConfirmationModal(this.$root, 'goToNextAnswerRating');
+            if (this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
+                return this.$store.answerFeedback.openConfirmationModal(this.$root, "goToNextAnswerRating");
             }
             this.$wire.goToNextAnswerRating();
         },
         async goToFinishedCoLearningPage() {
-            if(this.$store.answerFeedback.feedbackBeingEdited()) {
-                return this.$store.answerFeedback.openConfirmationModal(this.$root, 'goToFinishedCoLearningPage');
+            if (this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
+                return this.$store.answerFeedback.openConfirmationModal(this.$root, "goToFinishedCoLearningPage");
             }
 
             this.$wire.goToFinishedCoLearningPage();
-        },
+        }
     }));
     Alpine.data("drawingQuestionImagePreview", () => ({
         maxTries: 10,
@@ -3435,13 +3471,13 @@ document.addEventListener("alpine:init", () => {
 
             this.editor.maxWords = value;
         },
-        addSelectedWordCounter(eventDetails, text='Geselecteerde woorden') {
-            if(eventDetails.editorId !== this.editor.sourceElement.id) return;
+        addSelectedWordCounter(eventDetails, text = "Geselecteerde woorden") {
+            if (eventDetails.editorId !== this.editor.sourceElement.id) return;
 
             const spanId = "selected-word-span";
             this.$root.querySelector(`#${spanId}`)?.remove();
 
-            if(eventDetails.wordCount === 0) return;
+            if (eventDetails.wordCount === 0) return;
 
             let element = document.createElement("strong");
             element.id = spanId;
@@ -3477,7 +3513,7 @@ document.addEventListener("alpine:init", () => {
             return ClassicEditors[this.editorId];
         },
         syncEditorData() {
-            if (!this.getEditor() || this.getEditor().getData() === '') return;
+            if (!this.getEditor() || this.getEditor().getData() === "") return;
             this.$wire.sync("answer", this.getEditor().getData());
         }
     }));
@@ -3499,35 +3535,36 @@ document.addEventListener("alpine:init", () => {
                 }
             });
 
-            if (this.reinitializedTimeoutData && this.reinitializedTimeoutData.hasOwnProperty('timeLeft')) {
+            if (this.reinitializedTimeoutData && this.reinitializedTimeoutData.hasOwnProperty("timeLeft")) {
                 this.$nextTick(() => {
-                    this.startTimeout(this.reinitializedTimeoutData)
+                    this.startTimeout(this.reinitializedTimeoutData);
                 });
             }
         },
         currentUpdated(current) {
             this.showMe = (this.number == current);
-            if(this.showMe) this.$wire.updateAnswerIdForTestParticipant();
+            if (this.showMe) this.$wire.updateAnswerIdForTestParticipant();
         },
         refreshQuestion(eventData) {
             if (eventData.indexOf(this.number) !== -1) {
-                this.$wire.set('closed', true);
+                this.$wire.set("closed", true);
             }
         },
         closeThisQuestion(eventData) {
-            if(!this.showMe) return;
-            this.$wire.set('showCloseQuestionModal', true);
-            this.$wire.set('nextQuestion', eventData);
+            if (!this.showMe) return;
+            this.$wire.set("showCloseQuestionModal", true);
+            this.$wire.set("nextQuestion", eventData);
         },
         closeThisGroup(eventData) {
-            if(!this.showMe) return;
-            this.$wire.set('showCloseGroupModal', true);
-            this.$wire.set('nextQuestion', eventData);
+            if (!this.showMe) return;
+            this.$wire.set("showCloseGroupModal", true);
+            this.$wire.set("nextQuestion", eventData);
         },
         startTimeout(eventData) {
+            if (this.progressBar) return;
             this.progressBar = true;
             this.startTime = eventData.timeout;
-            console.log(eventData);
+
             if (eventData.timeLeft) {
                 this.progress = eventData.timeLeft;
             } else {
@@ -3547,8 +3584,8 @@ document.addEventListener("alpine:init", () => {
             }
         },
         markInfoscreenAsSeen(eventData, questionUuid) {
-            if(questionUuid !== eventData) return;
-            this.$wire.markAsSeen(eventData)
+            if (questionUuid !== eventData) return;
+            this.$wire.markAsSeen(eventData);
         }
     }));
 
@@ -4011,12 +4048,12 @@ document.addEventListener("alpine:init", () => {
         urlCopied: false,
         urlCopiedTimeout: null,
         init() {
-            this.$watch('urlCopied', value => {
-                if(value) {
+            this.$watch("urlCopied", value => {
+                if (value) {
                     clearTimeout(this.urlCopiedTimeout);
-                    setTimeout(() => this.urlCopied = false, 2000)
+                    setTimeout(() => this.urlCopied = false, 2000);
                 }
-            })
+            });
         }
     }));
     Alpine.data("participantDetailPopup", () => ({
@@ -4035,7 +4072,7 @@ document.addEventListener("alpine:init", () => {
             this.$nextTick(() => {
                 this.$root.style.left = this.getLeft();
                 this.$root.style.top = this.getTop();
-            })
+            });
         },
         async closePopup() {
             this.participantPopupOpen = false;
@@ -4047,10 +4084,10 @@ document.addEventListener("alpine:init", () => {
             this.$root.style.top = this.getTop();
         },
         getTop() {
-            return (this.button.getBoundingClientRect().top - this.$root.offsetHeight - 8) + 'px';
+            return (this.button.getBoundingClientRect().top - this.$root.offsetHeight - 8) + "px";
         },
         getLeft() {
-            return ((this.button.getBoundingClientRect().left + (this.button.getBoundingClientRect().width/2)) - (this.$root.offsetWidth/2)) + 'px'
+            return ((this.button.getBoundingClientRect().left + (this.button.getBoundingClientRect().width / 2)) - (this.$root.offsetWidth / 2)) + "px";
         }
     }));
     Alpine.data("testTakeAttainmentAnalysis", (columns) => ({
@@ -4063,15 +4100,15 @@ document.addEventListener("alpine:init", () => {
             this.fixPvalueContainerWidth();
         },
         fixPvalueContainerWidth() {
-            this.totalWidth = document.querySelector('.pvalue-questions')?.getBoundingClientRect().width;
-            this.$root.querySelectorAll('.pvalue-container').forEach((el) => {
-                el.style.width = this.totalWidth + 'px';
+            this.totalWidth = document.querySelector(".pvalue-questions")?.getBoundingClientRect().width;
+            this.$root.querySelectorAll(".pvalue-container").forEach((el) => {
+                el.style.width = this.totalWidth + "px";
             });
         },
         async openRow(attainment) {
             if (this.loadingData.includes(attainment)) return;
-            if(!this.studentData[attainment]) {
-                this.loadingData.push(attainment)
+            if (!this.studentData[attainment]) {
+                this.loadingData.push(attainment);
                 this.studentData[attainment] = await this.$wire.attainmentStudents(attainment);
                 this.loadingData = this.loadingData.filter(key => key !== attainment);
             }
@@ -4083,25 +4120,25 @@ document.addEventListener("alpine:init", () => {
             this.attainmentOpen = this.attainmentOpen.filter(key => key !== attainment);
         },
         async toggleRow(attainment) {
-            if(this.attainmentOpen.includes(attainment)) {
+            if (this.attainmentOpen.includes(attainment)) {
                 this.closeRow(attainment);
                 return;
             }
             await this.openRow(attainment);
         },
-        styles(pValue, multiplier){
+        styles(pValue, multiplier) {
             return {
-                'width': this.barWidth(multiplier),
-                'backgroundColor': this.backgroundColor(pValue),
-            }
+                "width": this.barWidth(multiplier),
+                "backgroundColor": this.backgroundColor(pValue)
+            };
         },
         barWidth(multiplier) {
-            return (this.totalWidth / this.columns.length) * multiplier + 'px';
+            return (this.totalWidth / this.columns.length) * multiplier + "px";
         },
         backgroundColor(pValue) {
-            if((pValue * 100) < 55) return 'var(--all-red)';
-            if((pValue * 100) < 65) return 'var(--student)';
-            return 'var(--cta-primary)';
+            if ((pValue * 100) < 55) return "var(--all-red)";
+            if ((pValue * 100) < 65) return "var(--student)";
+            return "var(--cta-primary)";
         },
         isLastStudentInRow(student, attainment) {
             const index = this.studentData[attainment]?.findIndex(s => s.uuid === student.uuid);
@@ -4156,41 +4193,79 @@ document.addEventListener("alpine:init", () => {
             return this.drawerCollapsed;
         }
     }),
-    Alpine.store("answerFeedback", {
-        editingComment: null,
-        navigationRoot: null,
-        navigationMethod: null,
-        navigationArgs: null,
-        feedbackBeingEdited() {
-            if (this.navigationRoot) {
+        Alpine.store("answerFeedback", {
+            editingComment: null,
+            creatingNewComment: false,
+            navigationRoot: null,
+            navigationMethod: null,
+            navigationArgs: null,
+            feedbackBeingEditedOrCreated() {
+                if (this.navigationRoot) {
+                    this.navigationRoot = null;
+                    this.navigationMethod = null;
+                    this.creatingNewComment = false;
+                    this.editingComment = null;
+                    return false;
+                }
+                return this.feedbackBeingEdited() || this.newFeedbackBeingCreated();
+            },
+            feedbackBeingEdited() {
+                if (this.navigationRoot) {
+                    this.navigationRoot = null;
+                    this.navigationMethod = null;
+                    this.creatingNewComment = false;
+                    this.editingComment = null;
+                    return false;
+                }
+                if (this.editingComment === null) {
+                    return false;
+                }
+                return this.editingComment;
+            },
+            newFeedbackBeingCreated() {
+                if (this.navigationRoot) {
+                    this.navigationRoot = null;
+                    this.navigationMethod = null;
+                    this.creatingNewComment = false;
+                    this.editingComment = null;
+                    return false;
+                }
+                return this.creatingNewComment;
+            },
+            openConfirmationModal(navigatorRootElement, methodName, methodArgs = null) {
+                this.navigationRoot = navigatorRootElement;
+                this.navigationMethod = methodName;
+                this.navigationArgs = methodArgs;
+                Livewire.emit("openModal", "modal.confirm-still-editing-comment-modal", { "creatingNewComment": this.creatingNewComment });
+            },
+            continueAction() {
+                this.editingComment = null;
+                this.navigationRoot.dispatchEvent(new CustomEvent("continue-navigation", {
+                    detail: {
+                        method: this.navigationMethod,
+                        args: [this.navigationArgs]
+                    }
+                }));
+                Livewire.emit("closeModal");
+            },
+            cancelAction() {
                 this.navigationRoot = null;
                 this.navigationMethod = null;
-                return false;
+                window.dispatchEvent(new CustomEvent("answer-feedback-drawer-tab-update", {
+                    detail: {
+                        tab: 2,
+                        uuid: this.editingComment
+                    }
+                }));
+                Livewire.emit("closeModal");
+            },
+            resetEditingComment() {
+                this.setEditingComment(null);
+            },
+            setEditingComment(AnswerFeedbackUuid) {
+                this.editingComment = AnswerFeedbackUuid;
             }
-            if (this.editingComment === null) {
-                return false;
-            }
-            return this.editingComment;
-        },
-        openConfirmationModal(navigatorRootElement, methodName, methodArgs = null) {
-            this.navigationRoot = navigatorRootElement;
-            this.navigationMethod = methodName;
-            this.navigationArgs = methodArgs;
-            Livewire.emit('openModal', 'modal.confirm-still-editing-comment-modal');
-        },
-        continueAction() {
-            this.editingComment = null;
-            console.log(this.navigationRoot, this.navigationMethod, this.navigationArgs)
-            this.navigationRoot.dispatchEvent(new CustomEvent('continue-navigation', {detail: {method: this.navigationMethod, args: [this.navigationArgs]}}))
-            Livewire.emit('closeModal');
-        },
-        cancelAction() {
-            this.navigationRoot = null;
-            this.navigationMethod = null;
-            window.dispatchEvent(new CustomEvent('answer-feedback-drawer-tab-update', {detail: {tab: 2, uuid: this.editingComment}}));
-            Livewire.emit('closeModal');
-        }
-    });
+        });
     Alpine.store("studentPlayer", {
         playerComponent: null,
         getPlayer() {

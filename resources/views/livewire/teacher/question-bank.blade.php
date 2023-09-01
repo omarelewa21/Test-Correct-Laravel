@@ -194,7 +194,7 @@
                                 </div>
                             @endforeach
                         @else
-                            <span class="col-span-1 lg:col-span-2 text-center">
+                            <span class="col-span-1 lg:col-span-2 xl:col-span-3 text-center">
                                 @if(!$this->questions->count())
                                     @if($this->openTab === 'personal')
                                         {{ __('cms.no_personal_content_search_filters') }}

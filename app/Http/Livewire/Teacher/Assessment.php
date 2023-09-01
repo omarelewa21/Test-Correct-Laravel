@@ -68,6 +68,8 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     public bool $skipNoDiscrepancies = false;
     public bool $webSpellCheckerEnabled;
     public $answerFeedback;
+    public bool $scoreWarningDispatchedForQuestion;
+    public bool $showNewAssessmentNotification = false;
 
     public bool $singleParticipantState = false;
     protected ?TestParticipant $testParticipant;
@@ -140,9 +142,10 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         return view('livewire.teacher.assessment')->layout('layouts.assessment');
     }
 
-    public function updatedScore($value)
+    public function updatedScore($value): void
     {
         $this->updateOrCreateAnswerRating(['rating' => $value]);
+        $this->dispatchScoreNotificationForQuestion();
     }
 
     public function updatedFeedback($value)
@@ -239,30 +242,6 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     {
         if (!$this->headerCollapsed) {
             return true;
-        }
-
-        $types = collect([
-            'completionquestion',
-            'multiplechoicequestion',
-            'matchingquestion',
-            'rankingquestion',
-        ]);
-        $subTypes = collect([
-            'multi',
-            'completion',
-            'truefalse',
-            'multiplechoice',
-            'arq',
-            'classify',
-            'matching',
-        ]);
-
-        if ($types->contains(Str::lower($this->currentQuestion->type))) {
-            if ($this->currentQuestion->subtype === null) {
-                return true;
-            }
-
-            return $subTypes->contains(Str::lower($this->currentQuestion->subtype));
         }
 
         return !$this->currentAnswer->isAnswered;
@@ -450,6 +429,16 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         $this->getFeedbackForCurrentAnswer();
     }
 
+    public function removeNotification(): void
+    {
+        UserFeatureSetting::setSetting(
+            auth()->user(),
+            UserFeatureSettingEnum::SEEN_ASSESSMENT_NOTIFICATION,
+            true
+        );
+        $this->showNewAssessmentNotification = false;
+    }
+
 
     /* Private methods */
     protected function setTemplateVariables(): void
@@ -473,6 +462,11 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         $this->questionCount = $this->questions->count();
         $this->studentCount = $this->students->count();
         $this->updatePage = true;
+        $this->showNewAssessmentNotification = !UserFeatureSetting::getSetting(
+            user : auth()->user(),
+            title: UserFeatureSettingEnum::SEEN_ASSESSMENT_NOTIFICATION,
+            default: false,
+        );
     }
 
     /**
@@ -553,6 +547,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         $this->currentQuestion = $newQuestion;
         $this->questionNavigationValue = $index + 1;
         $this->handleGroupQuestion();
+        $this->scoreWarningDispatchedForQuestion = false;
     }
 
     private function setComponentAnswerProperties(Answer $answer, int $index): void
@@ -736,7 +731,9 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         }
 
         $firstAnswer = $this->getFirstAnswerWhichDoesntHaveATeacherOrSystemRating()
-            ?? $this->answersWithDiscrepancyFilter()->last();
+            ?? $this->answersWithDiscrepancyFilter()
+                ->whereIn('question_id', $this->getQuestionIdsForCurrentAssessmentType())
+                ->last();
         $this->setNavigationDataWithFirstUnscoredAnswer($firstAnswer);
     }
 
@@ -991,8 +988,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     {
         return $this->answersWithDiscrepancyFilter()
             ->filter(function ($answer) {
-                $needsAnswerRating = $this->questions->first(fn($q) => $q->id === $answer->question_id
-                )->isDiscussionTypeOpen;
+                $needsAnswerRating = $this->questions->first(fn($q) => $q->id === $answer->question_id)?->isDiscussionTypeOpen;
                 $hasNoAnswerRating = $answer->answerRatings->doesntContain(function ($rating) {
                     return $rating->type === AnswerRating::TYPE_TEACHER || $rating->type === AnswerRating::TYPE_SYSTEM;
                 });
@@ -1412,4 +1408,21 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     {
         $this->webSpellCheckerEnabled = auth()->user()->schoolLocation()->value('allow_wsc') ?? false;
     }
+
+    private function dispatchScoreNotificationForQuestion(): void
+    {
+        if ($this->currentQuestion->isDiscussionTypeOpen) {
+            return;
+        }
+        if ($this->scoreWarningDispatchedForQuestion) {
+            return;
+        }
+
+        $this->scoreWarningDispatchedForQuestion = true;
+        $this->dispatchBrowserEvent(
+            'notify',
+            ['message' => __('assessment.override_system_score_notification'), 'type' => 'error']
+        );
+    }
+
 }
