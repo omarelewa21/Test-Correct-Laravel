@@ -171,4 +171,5 @@ return [
     ],
     'info'                                                     => 'Info',
     'Verder in Test-Correct app'                               => 'Continue in Test-Correct app',
+    'Deleted student'                                          => 'Deleted student',
 ];

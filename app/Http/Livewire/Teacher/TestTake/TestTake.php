@@ -96,7 +96,17 @@ abstract class TestTake extends TCComponent
     {
         $this->testTake->loadMissing([
             'testParticipants',
-            'testParticipants.user:id,name,name_first,name_suffix,uuid,time_dispensation,text2speech'
+            'testParticipants.user' => function ($query) {
+                $query->select(
+                    'id',
+                    'name',
+                    'name_first',
+                    'name_suffix',
+                    'uuid',
+                    'time_dispensation',
+                    'text2speech'
+                )->withTrashed();
+            }
         ]);
 
         $this->participants = $this->testTake

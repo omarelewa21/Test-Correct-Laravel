@@ -414,7 +414,17 @@ class Taken extends TestTakeComponent
 
         $this->testTake->loadMissing([
             'testParticipants',
-            'testParticipants.user:id,name,name_first,name_suffix,uuid,time_dispensation,text2speech',
+            'testParticipants.user' => function ($query) {
+                $query->select(
+                    'id',
+                    'name',
+                    'name_first',
+                    'name_suffix',
+                    'uuid',
+                    'time_dispensation',
+                    'text2speech'
+                )->withTrashed();
+            },
             'testParticipants.answers',
             'testParticipants.answers.answerRatings',
             'testParticipants.testTakeEvents'
@@ -574,8 +584,9 @@ class Taken extends TestTakeComponent
 
     private function getDisplayNameForParticipant($user, $key): string
     {
+        $studentName = $user->trashed() ? __('student.Deleted student') : html_entity_decode($user->name_full);
         return $this->showStudentNames
-            ? html_entity_decode($user->name_full)
+            ? $studentName
             : sprintf('Student %s', $key + 1);
     }
 

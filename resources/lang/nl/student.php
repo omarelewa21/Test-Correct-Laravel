@@ -209,4 +209,5 @@ return [
     ],
     'info'                                                     => 'Info',
     'Verder in Test-Correct app'                               => 'Verder in Test-Correct app',
+    'Deleted student'                                          => 'Verwijderde student',
 ];
