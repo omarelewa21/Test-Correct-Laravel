@@ -135,7 +135,6 @@ class ThiemeMeulenhoffServiceTest extends TestCase
         $this->assertTrue(
             $teacher->subjects()->where('base_subject_id', BaseSubject::FRENCH)->exists()
         );
-
         //GIVEN the teacher does not teach the Dutch subject
         $this->assertFalse(
             $teacher->subjects()->where('base_subject_id', BaseSubject::DUTCH)->exists()
