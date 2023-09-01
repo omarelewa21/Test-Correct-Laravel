@@ -188,6 +188,10 @@ class Taken extends TestTakeComponent
                 'CO-Learning' => 'cta',
                 'Assessment'  => 'primary'
             ],
+            TestTakeStatus::STATUS_DISCUSSED => [
+                'CO-Learning' => 'cta',
+                'Assessment'  => 'primary'
+            ],
         ];
         return $contexts[$this->testTakeStatusId][$context];
     }
