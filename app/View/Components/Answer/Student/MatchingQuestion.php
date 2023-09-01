@@ -4,6 +4,8 @@ namespace tcCore\View\Components\Answer\Student;
 
 use Illuminate\Support\Collection;
 use tcCore\Answer;
+use tcCore\AnswerRating;
+use tcCore\MatchingQuestionAnswer;
 use tcCore\Question;
 
 class MatchingQuestion extends QuestionComponent
@@ -15,6 +17,8 @@ class MatchingQuestion extends QuestionComponent
         public Question $question,
         public Answer   $answer,
         public bool     $disabledToggle = false,
+        public bool          $inCoLearning = false,
+        public ?AnswerRating $answerRating = null,
     ) {
         parent::__construct($question, $answer);
     }
@@ -59,14 +63,14 @@ class MatchingQuestion extends QuestionComponent
         );
     }
 
-    private function getToggleStatus($answer, $correctAnswer, $rating)
+    private function getToggleStatus(MatchingQuestionAnswer $answer, MatchingQuestionAnswer $correctAnswer, $rating, bool $inCoLearning): ?bool
     {
-        if (!isset($rating->json[$answer->id])) {
-            return $answer->correct_answer_id === $correctAnswer->id;
+        if (isset($rating->json[$answer->id]) && is_bool($rating->json[$answer->id])) {
+            return $rating->json[$answer->id];
         }
 
-        if (is_bool($rating->json[$answer->id])) {
-            return $rating->json[$answer->id];
+        if (!isset($rating->json[$answer->id]) && !$inCoLearning) {
+            return $answer->correct_answer_id === $correctAnswer->id;
         }
 
         return null;
@@ -74,14 +78,14 @@ class MatchingQuestion extends QuestionComponent
 
     private function addToggleStatusToAnswerOptions($pairs)
     {
-        $rating = $this->getTeacherRatingWithToggleData();
+        $answerRating = $this->inCoLearning ? $this->answerRating : $this->getTeacherRatingWithToggleData();
 
         $pairs->where(fn($items, $key) => $key !== 'unused')
-            ->each(function ($pair) use ($rating) {
+            ->each(function ($pair) use ($answerRating) {
                 $correctAnswer = $pair->whereNull('correct_answer_id')->first();
                 $pair->whereNotNull('correct_answer_id')
-                    ->each(function ($answerOption) use ($correctAnswer, $rating) {
-                        $answerOption->activeToggle = $this->getToggleStatus($answerOption, $correctAnswer, $rating);
+                    ->each(function ($answerOption) use ($correctAnswer, $answerRating) {
+                        $answerOption->activeToggle = $this->getToggleStatus($answerOption, $correctAnswer, $answerRating, $this->inCoLearning);
                     });
             });
 

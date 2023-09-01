@@ -7132,7 +7132,19 @@ input.datepicker {
     overflow: auto;
 }
 
+#co-learning-page.flex .question-indicator .question-number.complete {
+    border-color: var(--cta-primary);
+    background: var(--cta-primary);
+    color: white;
+}
+#co-learning-page.flex .question-indicator .question-number.incomplete {
+    border-color: var(--mid-grey);
+    background: transparent;
+    color: var(--mid-grey);
+}
+
 #co-learning-teacher-page .question-indicator .question-number,
+#co-learning-page .question-indicator .question-number,
 #assessment-page .question-indicator .question-number,
 #student-test-review .question-indicator .question-number {
     border-color: var(--system-base);
@@ -7140,6 +7152,7 @@ input.datepicker {
     color: white;
 }
 
+#co-learning-page .container-border-left.primary,
 #co-learning-teacher-page .container-border-left.primary,
 #assessment-page .container-border-left.primary,
 #student-test-review .container-border-left.primary {
@@ -7327,14 +7340,12 @@ input.datepicker {
 /*}*/
 
 
-#student-test-review .multiple-choice .all-or-nothing-toggle,
-#assessment-page .multiple-choice .all-or-nothing-toggle {
+.multiple-choice .all-or-nothing-toggle {
     position: absolute;
     left: calc(50% + 2rem);
     transform: translateY(-50%);
 }
-#student-test-review .multiple-choice .first-active .all-or-nothing-line,
-#assessment-page .multiple-choice .first-active .all-or-nothing-line {
+.multiple-choice .first-active .all-or-nothing-line {
     right: -1rem;
     position: absolute;
     width: 10px;
@@ -10860,9 +10871,6 @@ video {
 .right-6{
   right: 1.5rem;
 }
-.right-\[-14px\]{
-  right: -14px;
-}
 .top-0{
   top: 0px;
 }
@@ -10901,9 +10909,6 @@ video {
 }
 .top-\[-100px\]{
   top: -100px;
-}
-.top-\[14px\]{
-  top: 14px;
 }
 .top-\[150px\]{
   top: 150px;
@@ -11093,9 +11098,6 @@ video {
 }
 .-mb-px{
   margin-bottom: -1px;
-}
-.-ml-1{
-  margin-left: -0.25rem;
 }
 .-ml-2{
   margin-left: -0.5rem;
@@ -13128,12 +13130,6 @@ video {
 .pb-9{
   padding-bottom: 2.25rem;
 }
-.pb-\[13px\]{
-  padding-bottom: 13px;
-}
-.pb-\[33px\]{
-  padding-bottom: 33px;
-}
 .pb-\[5px\]{
   padding-bottom: 5px;
 }
@@ -13265,9 +13261,6 @@ video {
 }
 .pt-8{
   padding-top: 2rem;
-}
-.pt-\[14px\]{
-  padding-top: 14px;
 }
 .pt-\[180px\]{
   padding-top: 180px;
@@ -14826,10 +14819,6 @@ ul ul ul {
 
 .group:hover .group-hover\:opacity-100{
   opacity: 1;
-}
-
-.group:hover .group-hover\:opacity-\[0\.05\]{
-  opacity: 0.05;
 }
 
 .group\/row:hover .group-hover\/row\:hover\:text-primary:hover{

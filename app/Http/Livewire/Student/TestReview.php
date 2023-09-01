@@ -233,13 +233,6 @@ class TestReview extends EvaluationComponent
             ->values();
     }
 
-    protected function getGroups(): Collection
-    {
-        return $this->testTakeData->test->testQuestions
-            ->map(fn($testQuestion) => $testQuestion->question->isType('Group') ? $testQuestion->question : null)
-            ->filter();
-    }
-
     private function openClosedPanels(): void
     {
         $this->questionPanel = true;

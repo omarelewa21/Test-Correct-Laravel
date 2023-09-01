@@ -678,7 +678,7 @@ class TestTakesController extends Controller
                 $testTake->getAttribute('test_id'),
                 $testTake->getDottedDiscussingQuestionIdWithOptionalGroupQuestionId(),
                 $testTake->isDiscussionTypeOpenOnly(),
-                skipDoNotDiscuss: $testTake->studentsAreInNewCoLearningAndDiscussingTypeIsOpenOnly()
+                skipDoNotDiscuss: $testTake->studentsAreInNewCoLearning()
             );
 
             $testTake->discussingParentQuestions()->delete();
@@ -721,7 +721,7 @@ class TestTakesController extends Controller
                         $testTake->getAttribute('test_id'),
                         $newQuestionIdParents,
                         $testTake->isDiscussionTypeOpenOnly(),
-                        skipDoNotDiscuss: $testTake->studentsAreInNewCoLearningAndDiscussingTypeIsOpenOnly()
+                        skipDoNotDiscuss: $testTake->studentsAreInNewCoLearning()
                     ) !== false),
 
                 );
@@ -834,9 +834,7 @@ class TestTakesController extends Controller
 
     private function shouldSkipCreatingAnswerRatingForEmptyAnswer($answer, $discussionType): bool
     {
-        $allowNewCoLearning = auth()->user()->schoolLocation->allow_new_co_learning;
-
-        if ($allowNewCoLearning && $discussionType === 'OPEN_ONLY') {
+        if (settings()->allowNewCoLearning() && $discussionType === 'OPEN_ONLY') {
             return false;
         }
 
