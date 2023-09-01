@@ -15,6 +15,8 @@ class TestReview extends EvaluationComponent
     protected $queryString = ['questionPosition' => ['except' => '', 'as' => 'q']];
     public string $questionPosition = '';
 
+    public Collection $anonymousStudentNames;
+
     public function mount($testTakeUuid): void
     {
         $this->testTakeUuid = $testTakeUuid;
@@ -78,6 +80,7 @@ class TestReview extends EvaluationComponent
         $this->score = $this->handleAnswerScore();
 
         $this->getSortedAnswerFeedback();
+        $this->studentNumbers();
 
         return true;
     }
@@ -247,5 +250,25 @@ class TestReview extends EvaluationComponent
     {
         $this->loadQuestion($position);
         return true;
+    }
+
+    public function studentNumbers()
+    {
+        $studentRatingUserIds = $this->studentRatings()
+            ?->map->user_id
+            ->unique() ?? collect();
+
+        $answerFeedbackUserIds = $this->answerFeedback
+            ?->filter(fn($feedback) => $feedback->user->isA('student'))
+            ?->map->user_id
+            ->unique() ?? collect();
+
+        $answerFeedbackUserIds->each(fn($userId) => $studentRatingUserIds->doesntContain($userId) ? $studentRatingUserIds->push($userId) : null);
+
+        $this->anonymousStudentNames = $studentRatingUserIds->mapWithKeys(function ($userId, $key) {
+            return [
+                $userId => sprintf('%s %s', __('auth.Student'), $key + 1)
+            ];
+        });
     }
 }

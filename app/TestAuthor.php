@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Auth;
 use tcCore\Http\Controllers\AuthorsController;
 use tcCore\Lib\Models\CompositePrimaryKeyModel;
 use tcCore\Lib\Models\CompositePrimaryKeyModelSoftDeletes;
+use tcCore\Services\ContentSource\ThiemeMeulenhoffService;
 
 class TestAuthor extends CompositePrimaryKeyModel
 {
@@ -96,6 +97,37 @@ class TestAuthor extends CompositePrimaryKeyModel
         });
         $nationalItemBankAuthorUser = AuthorsController::getNationalItemBankAuthor();
         return self::addOrRestoreAuthor($test, $nationalItemBankAuthorUser->getKey());
+    }
+
+    public static function addFormidableAuthorToTest(Test $test)
+    {
+        if (!optional(Auth::user())->isInFormidableSchool()) {
+            return false;
+        }
+        if ($test->scope != 'published_formidable') {
+            return false;
+        }
+        $test->testAuthors->each(function ($testAuthor) {
+            $testAuthor->delete();
+        });
+        $authorUser = AuthorsController::getFormidableAuthor();
+        return self::addOrRestoreAuthor($test, $authorUser->getKey());
+    }
+
+    public static function addThiemeMeulenhoffItemBankAuthorToTest(Test $test)
+    {
+
+        if (!optional(Auth::user())->isInThiemeMeulenhoffSchool()) {
+            return false;
+        }
+        if ($test->scope != ThiemeMeulenhoffService::getPublishScope()) {
+            return false;
+        }
+        $test->testAuthors->each(function ($testAuthor) {
+            $testAuthor->delete();
+        });
+        $authorUser = AuthorsController::getThiemeMeulenhoffAuthor();
+        return self::addOrRestoreAuthor($test, $authorUser->getKey());
     }
 
     private static function addOrRestoreAuthor($test, $userId)

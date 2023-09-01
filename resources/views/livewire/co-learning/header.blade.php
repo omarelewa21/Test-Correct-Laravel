@@ -4,7 +4,7 @@
         <div class="flex items-center space-x-4"
         x-data="{
         async back() {
-            if(this.$store.answerFeedback.feedbackBeingEdited()) {
+            if(this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
                 return this.$store.answerFeedback.openConfirmationModal(this.$root, 'back');
             }
 

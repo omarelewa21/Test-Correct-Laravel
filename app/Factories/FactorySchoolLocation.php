@@ -22,19 +22,11 @@ class FactorySchoolLocation
         $factory = new static;
         $factory->school = $school;
 
-        if ($schoolLocationName === null) {
-            $factory->schoolLocationName = 'SL-' . $factory->randomCharacters(5);
-        } else {
-            $factory->schoolLocationName = $schoolLocationName;
-        }
+        $factory->schoolLocationName = $schoolLocationName ?? ('SL-' . $factory->randomCharacters(5));
 
         $schoolLocationProperties = array_merge($factory->definition(), $properties);
-
         $factory->schoolLocation = SchoolLocation::create($schoolLocationProperties);
-
         $factory->schoolLocation->addDefaultSettings();
-
-
         $factory->schoolManager = FactoryUser::createSchoolManager($factory->schoolLocation)->user;
 
         return $factory;

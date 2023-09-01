@@ -209,7 +209,10 @@
 
                             @foreach($answerFeedback->filter->visible as $comment)
 
-                                <x-partials.answer-feedback-card :comment="$comment" :viewOnly="true"/>
+                                <x-partials.answer-feedback-card :comment="$comment"
+                                                                 :viewOnly="true"
+                                                                 :user-namefull="$anonymousStudentNames[$comment->user_id] ?? null"
+                                />
 
                             @endforeach
                         </div>

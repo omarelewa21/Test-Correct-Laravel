@@ -34,6 +34,12 @@ class PeriodRepository
         return static::$currentPeriods;
     }
 
+    public static function reset()
+    {
+        static::$currentPeriod = null;
+        static::$currentPeriods = null;
+    }
+
     public static function getCurrentOrPreviousPeriod()
     {
         $now = Carbon::now();
@@ -52,6 +58,7 @@ class PeriodRepository
     public static function getPreviousPeriod()
     {
         if (static::$previousPeriod === null) {
+
             $current = self::getCurrentPeriod();
             $maxDate = Period::filtered()->max('end_date');
             static::$previousPeriod = Period::filtered()
@@ -106,4 +113,5 @@ class PeriodRepository
         }
         return $periods->first();
     }
+
 }

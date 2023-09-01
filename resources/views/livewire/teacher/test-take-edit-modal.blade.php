@@ -58,7 +58,7 @@
                                                containerId="c_and_s_edit-container-{{ $this->testTake->uuid }}"
                                                :label="__('teacher.Klassen en studenten')"
                                                wire:model.defer="classesAndStudents"
-                                               :item-labels="['child_disabled' => __('test-take.Already selected')]"
+                                               :item-labels="['child_disabled' => __('test-take.Al geselecteerd')]"
                 />
                 <div id="c_and_s_edit-container-{{ $this->testTake->uuid }}"
                      class="flex gap-2 flex-wrap"

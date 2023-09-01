@@ -90,7 +90,8 @@ trait ContentSourceTabsTrait
                     Test::when($this->openTab === 'umbrella', fn($query) => $query->sharedSectionsFiltered([], []))
                         ->when($this->openTab === 'national', fn($query) => $query->nationalItemBankFiltered([], []))
                         ->when($this->openTab === 'creathlon', fn($query) => $query->creathlonItemBankFiltered([], []))
-                        ->when($this->openTab === 'olympiade', fn($query) => $query->olympiadeItemBankFiltered([], [])),
+                        ->when($this->openTab === 'olympiade', fn($query) => $query->olympiadeItemBankFiltered([], []))
+                        ->when($this->openTab === 'formidable', fn($query) => $query->formidableItemBankFiltered([], [])),
                     'tests2'
                 )->select('education_level_id')
             )->optionList();

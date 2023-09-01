@@ -3,15 +3,13 @@
 namespace Tests\Unit;
 
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use tcCore\FactoryScenarios\FactoryScenarioSchoolRandomComplexWithCreathlon;
 use tcCore\Http\Helpers\ActingAsHelper;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Gate;
 use tcCore\Factories\FactoryTest;
-use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\Http\Helpers\ContentSourceHelper;
 use tcCore\SchoolLocation;
+use tcCore\Services\ContentSource\FormidableService;
 use Tests\ScenarioLoader;
 use tcCore\Services\ContentSource\CreathlonService;
 use tcCore\Services\ContentSource\NationalItemBankService;
@@ -19,8 +17,6 @@ use tcCore\Services\ContentSource\OlympiadeService;
 use tcCore\Services\ContentSource\PersonalService;
 use tcCore\Services\ContentSource\SchoolLocationService;
 use tcCore\Services\ContentSource\UmbrellaOrganizationService;
-use tcCore\Test;
-use tcCore\User;
 use Tests\TestCase;
 
 class ContentSourceHelperTest extends TestCase
@@ -40,6 +36,7 @@ class ContentSourceHelperTest extends TestCase
         'national'        => NationalItemBankService::class,
         'creathlon'       => CreathlonService::class,
         'olympiade'       => OlympiadeService::class,
+        'formidable'      => FormidableService::class,
     ];
 
     /*TODO
@@ -53,6 +50,7 @@ class ContentSourceHelperTest extends TestCase
             'exam',
             'ldt',
             'published_creathlon',
+            'published_formidable',
             'published_olympiade',
         ];
 
@@ -70,6 +68,7 @@ class ContentSourceHelperTest extends TestCase
         $expectedAbbreviations = [
             'EXAM',
             'LDT',
+            'PUBLS',
             'PUBLS',
             'SBON',
         ];
@@ -321,13 +320,19 @@ class ContentSourceHelperTest extends TestCase
                 'available'   => true,
                 'tabName'     => 'olympiade',
             ],
+            'formidable'       => [
+                'class'       => FormidableService::class,
+                'translation' => 'Formidable',
+                'highlight'   => true,
+                'available'   => true,
+                'tabName'     => 'formidable',
+            ],
         ];
     }
 
     private function setupUserPermissions($allowEverything = true)
     {
         $user = ScenarioLoader::get('teacher1');
-
 
         if ($allowEverything) {
             $school_location = SchoolLocation::where('id', '<>', $user->schoolLocation->id)->first();
@@ -359,6 +364,8 @@ class ContentSourceHelperTest extends TestCase
         $user->schoolLocation->allow_creathlon = $allowEverything;
         $user->schoolLocation->allow_olympiade = $allowEverything;
         $user->schoolLocation->show_national_item_bank = $allowEverything;
+        $user->schoolLocation->allow_formidable = $allowEverything;
+
         $user->schoolLocation->save();
         return $user;
     }

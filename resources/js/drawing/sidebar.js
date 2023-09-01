@@ -31,6 +31,7 @@ export class Entry extends sidebarComponent {
 
         this.btns = {
             delete: templateCopy.querySelector(".remove-btn"),
+            edit: templateCopy.querySelector(".edit-btn"),
             lock: templateCopy.querySelector(".lock-btn"),
             hide: templateCopy.querySelector(".hide-btn"),
             drag: templateCopy.querySelector(".drag-btn"),
@@ -50,6 +51,7 @@ export class Entry extends sidebarComponent {
         this.updateHideState();
 
         this.deleteModal = this.root.querySelector('#delete-confirm');
+        this.skipEntryContainerClick = false;
     }
 
     get eventListenerSettings() {
@@ -110,6 +112,16 @@ export class Entry extends sidebarComponent {
                         },
                     },
                 },
+            },
+            {
+                element: this.btns.edit,
+                events: {
+                    "click": {
+                        callback: () => {
+                            this.handleEditShape();
+                        }
+                    }
+                }
             },
             {
                 element: this.btns.lock,
@@ -237,10 +249,18 @@ export class Entry extends sidebarComponent {
     }
 
     handleClick(evt) {
-        const selectedEl = this.entryContainer.parentElement.querySelector('.selected');
+        if(this.skipEntryContainerClick) {
+            this.skipEntryContainerClick = false;
+            return;
+        }
+        const selectedEl = this.getSelectedElement();
         if (selectedEl) this.unselect(selectedEl);
         if (selectedEl === this.entryContainer) return;
         this.select();
+    }
+
+    getSelectedElement() {
+        return this.entryContainer.parentElement.querySelector('.selected');
     }
 
     select() {
@@ -251,6 +271,8 @@ export class Entry extends sidebarComponent {
         const shapeId = element.id.substring(6);
         element.classList.remove('selected');
         element.closest('#canvas-sidebar-container').querySelector(`#${shapeId}`).classList.remove('selected');
+        this.removeEditingShape();
+        document.activeElement.blur();
     }
     toggleSelect() {
         this.entryContainer.classList.toggle('selected');
@@ -279,6 +301,53 @@ export class Entry extends sidebarComponent {
             this.btns.hide.title = this.btns.hide.getAttribute("data-title-unhidden");
             this.entryContainer.classList.remove('hide');
         }
+    }
+
+    handleEditShape() {
+        const selectedEl = this.getSelectedElement();
+
+        if(!selectedEl) return this.startEditingShape();
+
+        if(selectedEl.classList.contains('editing')) {
+            this.removeEditingShape();
+
+            if(selectedEl === this.entryContainer) return;
+
+            this.unselect(selectedEl);
+            this.select();
+        }
+
+        this.skipEntryContainerClick = true;
+        this.startEditingShape();
+    }
+
+    startEditingShape() {
+        this.removeEditingShape();
+        this.entryContainer.classList.add('editing');
+        this.svgShape.shapeGroup.element.classList.add('editing');
+        this.showRelevantShapeMenu();
+        this.setInputValuesWhenShapeInEditMode();
+    }
+
+    setInputValuesWhenShapeInEditMode() {
+        this.svgShape.setInputValuesOnEdit();
+    }
+
+    removeEditingShape() {
+        this.root.querySelectorAll('.editing').forEach((element) => {
+            element.classList.remove('editing');
+        });
+    }
+
+    showRelevantShapeMenu() {
+        let shapeType = this.svgShape.type;
+
+        if(shapeType === 'image') return;
+
+        if(shapeType === 'path') {
+            shapeType = 'freehand';
+        }
+        document.querySelector(`#add-${shapeType}-btn`).click();
     }
 
     remove() {
