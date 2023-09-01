@@ -1329,7 +1329,7 @@ class TestTakesController extends Controller
 
     public function openDetail(TestTake $testTake, Request $request)
     {
-        if (Gate::denies('canUseTestTakeDetailPage')) {
+        if (Gate::none(['canUsePlannedTestPage', 'canUseTakenTestPage'])) {
             return TestTake::redirectToDetail($testTake->uuid);
         }
 

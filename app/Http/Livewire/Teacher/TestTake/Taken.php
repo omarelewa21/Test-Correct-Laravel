@@ -5,6 +5,7 @@ namespace tcCore\Http\Livewire\Teacher\TestTake;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Session;
 use Livewire\Redirector;
 use tcCore\Answer;
@@ -65,6 +66,10 @@ class Taken extends TestTakeComponent
     /* Lifecycle methods */
     public function mount(TestTakeModel $testTake): void
     {
+        if (Gate::denies('canUseTakenTestPage')) {
+            TestTakeModel::redirectToDetail($testTake->uuid);
+        }
+
         parent::mount($testTake);
         $this->createSystemRatingsWhenNecessary();
         $this->testTakeStatusId = $this->testTake->test_take_status_id;

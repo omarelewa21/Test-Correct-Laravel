@@ -78,7 +78,8 @@ class AppServiceProvider extends ServiceProvider
 
         Gate::define('canEnterDevelopmentPage', fn(User $user) => auth()->check() && BaseHelper::notProduction());
 
-        Gate::define('canUseTestTakeDetailPage', fn (User $user) => settings()->canUseTestTakeDetailPage($user));
+        Gate::define('canUsePlannedTestPage', fn (User $user) => settings()->canUsePlannedTestPage($user));
+        Gate::define('canUseTakenTestPage', fn (User $user) => settings()->canUseTakenTestPage($user));
     }
 
 }

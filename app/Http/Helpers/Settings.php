@@ -11,9 +11,15 @@ class Settings
         return (bool) auth()->user()->schoolLocation?->allow_cms_write_down_wsc_toggle;
     }
 
-    public function canUseTestTakeDetailPage(?User $user = null): bool
+    public function canUsePlannedTestPage(?User $user = null): bool
     {
         $user ??= auth()->user();
         return (bool) $user->schoolLocation?->allow_new_test_take_detail_page;
+    }
+
+    public function canUseTakenTestPage(?User $user = null): bool
+    {
+        $user ??= auth()->user();
+        return (bool) $user->schoolLocation?->allow_new_test_taken_pages;
     }
 }

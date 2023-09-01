@@ -3,6 +3,7 @@
 namespace tcCore\Http\Livewire\Teacher\TestTake;
 
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Gate;
 use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Http\Livewire\Teacher\TestTake\TestTake as TestTakeComponent;
 use tcCore\TestTake as TestTakeModel;
@@ -14,6 +15,9 @@ class Taking extends TestTakeComponent
 
     public function mount(TestTakeModel $testTake): void
     {
+        if (Gate::denies('canUsePlannedTestPage')) {
+            TestTakeModel::redirectToDetail($testTake->uuid);
+        }
         parent::mount($testTake);
     }
 

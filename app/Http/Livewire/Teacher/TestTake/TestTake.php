@@ -32,9 +32,6 @@ abstract class TestTake extends TCComponent
 
     public function mount(TestTakeModel $testTake): void
     {
-        if (Gate::denies('canUseTestTakeDetailPage')) {
-            TestTakeModel::redirectToDetail($testTake->uuid);
-        }
         $this->testTakeUuid = $testTake->uuid;
         $this->setTestTake($testTake);
         $this->fillGridData();
