@@ -56,18 +56,16 @@ class MultipleChoiceQuestion extends QuestionComponent
      */
     private function getToggleStatus($link, $rating): ?bool
     {
-        if (!$this->question->isSubType('TrueFalse')) {
-            if (isset($rating->json[$link->order]) && is_bool($rating->json[$link->order])) {
-                return $rating->json[$link->order];
-            }
-            if($this->inCoLearning) {
-                return null;
-            }
-            return $link->active && $link->score > 0;
+        if ($this->question->isSubType('TrueFalse')) {
+            return $this->setTrueFalseToggleStatus($rating);
         }
 
-        if ($this->ratingHasBoolValueForKey($rating, $this->question->id)) {
-            $this->trueFalseToggleActive = $rating->json[$this->question->id];
+        if (isset($rating->json[$link->order]) && is_bool($rating->json[$link->order])) {
+            return $rating->json[$link->order];
+        }
+
+        if($this->inCoLearning) {
+            return null;
         }
 
         return $link->active && $link->score > 0;
@@ -85,5 +83,16 @@ class MultipleChoiceQuestion extends QuestionComponent
             return null;
         }
         return $correctIds->diff($givenAnswerIds)->isEmpty();
+    }
+
+    private function setTrueFalseToggleStatus(?AnswerRating $teacherRating): bool
+    {
+        $rating = $teacherRating ?? $this->answer->answerRatings()->where('type', AnswerRating::TYPE_SYSTEM)->first();
+
+        $this->trueFalseToggleActive = $this->ratingHasBoolValueForKey($rating, $this->question->id)
+            ? $rating->json[$this->question->id]
+            : (float)$rating?->rating === (float)$this->question->score;
+
+        return $this->trueFalseToggleActive;
     }
 }
