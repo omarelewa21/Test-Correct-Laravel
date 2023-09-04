@@ -1,5 +1,3 @@
-@props(['id', 'name', 'title'])
-
 <div x-data="{
         isOpen: false,
         colorSelected: '#000000',
@@ -31,7 +29,7 @@
                 <div class="relative ml-3 mt-8">
                 <!-- Selector Input -->
                     <div
-                        title="{{$title}}"
+                        title="{{$attributes->get('title')}}"
                         class="color-pallete cursor-pointer bg-white @if($name === 'line-color') add-border @endif"
                         @click="isOpen = !isOpen"
                         @mouseover="showX = true"
@@ -39,13 +37,13 @@
                         :class="isOpen && 'outline'"
                     >
                         <input
-                            id="{{$id}}"
+                            id="{{$name}}"
                             name="{{$name}}"
                             autocomplete="off"
                             class="cursor-pointer"
                             type="button"
                             :value="`${colorSelected}`"
-                            @if($name === "stroke-color")
+                            @if($isStrokeColorInput())
                                 :style="`border-color: ${colorSelected}`"
                             @else
                                 :style="`background: ${colorSelected}; color: ${colorSelected};`"

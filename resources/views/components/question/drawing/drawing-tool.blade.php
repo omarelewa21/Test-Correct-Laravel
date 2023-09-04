@@ -11,31 +11,13 @@
                             <x-icon.drag/>
                         </div>
                     </button>
-                    <button id="add-rect-btn" title="{{ __('drawing-modal.Rechthoek') }}" data-button-group="tool">
-                        <div>
-                            <x-icon.square/>
-                        </div>
-                    </button>
-                    <button id="add-circle-btn" title="{{ __('drawing-modal.Cirkel') }}" data-button-group="tool">
-                        <div>
-                            <x-icon.circle/>
-                        </div>
-                    </button>
-                    <button id="add-line-btn" title="{{ __('drawing-modal.Rechte lijn') }}" data-button-group="tool">
-                        <div>
-                            <x-icon.line/>
-                        </div>
-                    </button>
-                    <button id="add-freehand-btn" title="{{ __('drawing-modal.Penlijn') }}" data-button-group="tool">
-                        <div>
-                            <x-icon.freehand/>
-                        </div>
-                    </button>
-                    <button id="add-text-btn" title="{{ __('drawing-modal.Tekst') }}" data-button-group="tool">
-                        <div>
-                            <x-icon.text/>
-                        </div>
-                    </button>
+                    @foreach ($shapes as $shape)
+                        <button id="add-{{$shape->id}}-btn" title={{$shape->title}} data-button-group="tool">
+                            <div>
+                                <x-dynamic-component :component="'icon.'.$shape->icon" />
+                            </div>
+                        </button>
+                    @endforeach
                     @if(Auth::user()->isA('teacher'))
                         <button id="img-upload-btn" title="{{ __('drawing-modal.Afbeelding') }}">
                             <label for="img-upload" id="img-upload-label">
@@ -74,6 +56,9 @@
                 </div>
             </div>
             <div id="properties">
+                @foreach ($shapes as $shape)
+                    {{$shape->render()}}
+                @endforeach
                 <div class="property-group" id="text-style">
                     <x-input.color-picker  :name="'text-color'" :id="'text-color'" :title="__('drawing-modal.Tekstkleur')"/>
                     <div class="input-with-button-group" style="margin-right: .5rem">

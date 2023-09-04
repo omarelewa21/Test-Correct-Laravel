@@ -9,7 +9,7 @@ use Illuminate\View\Component;
 
 class DrawingTool extends Component
 {
-    const SHAPES = ['Rectangle', 'Circle', 'Line', 'Freehand', 'Text'];
+    const SHAPES = ['Rectangle'];
 
     public Collection $shapes;
 
