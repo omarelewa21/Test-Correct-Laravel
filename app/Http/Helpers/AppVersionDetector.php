@@ -510,14 +510,18 @@ class AppVersionDetector
         }
     }
 
+    public static function getHashDate() {
+        $datetime = new DateTime('now', new DateTimeZone('UTC'));
+        return $datetime->format("Y-m-d");
+    }
+
     private static function computeKeyDigest(string $presharedKey, bool $hmac): string
     {
         if ($presharedKey == null) {
             throw new Error("Preshared key is undefined. Key verification failed");
         }
         //get current date
-        $datetime = new DateTime('now', new DateTimeZone('UTC'));
-        $hashDate = $datetime->format("Y-m-d");
+        $hashDate = self::getHashDate();
         $hashUrl = strtok($_SERVER["REQUEST_URI"], '?');
 
         //electron uses hmac, native JS implementation doesn't
