@@ -131,7 +131,7 @@ class CoLearning extends TCComponent
         }
         $this->waitForTeacherNotificationEnabled = $this->shouldShowWaitForTeacherNotification();
 
-        $this->uniqueKey = $this->answerRating->getKey() .'-'. $this->questionFollowUpNumber .'-'. $this->answerFollowUpNumber;
+        $this->uniqueKey = $this->answerRating?->getKey() ?? '' .'-'. $this->questionFollowUpNumber .'-'. $this->answerFollowUpNumber;
 
         return view('livewire.student.co-learning')
             ->layout('layouts.co-learning-student');
