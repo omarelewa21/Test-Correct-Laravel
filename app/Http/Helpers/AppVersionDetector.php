@@ -511,8 +511,7 @@ class AppVersionDetector
     }
 
     public static function getHashDate() {
-        $datetime = new DateTime('now', new DateTimeZone('UTC'));
-        return $datetime->format("Y-m-d");
+        return Carbon::now('UTC')->format('Y-m-d');
     }
 
     private static function computeKeyDigest(string $presharedKey, bool $hmac): string
