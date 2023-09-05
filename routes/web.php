@@ -42,6 +42,7 @@ Route::post('/wiris/showimage', [\tcCore\Http\Controllers\WirisIntegrationContro
 Route::get('/wiris/showimage', [\tcCore\Http\Controllers\WirisIntegrationController::class, 'showimage']);
 Route::get('/get_app_version', [\tcCore\Http\Helpers\AppVersionDetector::class, 'getAppVersion']);
 Route::get('/appapi/version_info', [\tcCore\Http\Controllers\AppApiController::class, 'versionInfo']);
+Route::get('/appapi/get_current_date', [\tcCore\Http\Controllers\AppApiController::class, 'getCurrentDate']);
 Route::get('/directlink/{testTakeUuid}', [\tcCore\Http\Controllers\TestTakeLaravelController::class, 'directLink'])->name('take.directLink');
 
 Route::get('styleguide', \tcCore\Http\Livewire\ComponentStyleguide::class)->name('styleguide');
