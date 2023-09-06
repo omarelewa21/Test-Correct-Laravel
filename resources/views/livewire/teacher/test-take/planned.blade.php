@@ -55,7 +55,9 @@
                             'disabled' => !$participant->present,
                             'enabled' => $participant->present
                             ])
-                             wire:key="participant-{{ $participant->uuid }}-@js($participant->present)"
+                            {{-- Add Background When Present  --}}
+                            style="background-color: {{ $participant->present ? '#00ff00' : '#cedaf3' }}"    
+                            wire:key="participant-{{ $participant->uuid }}-@js($participant->present)"
                         >
                             <span>{{ $participant->name }}</span>
                             <x-icon.close-small class="!text-sysbase"
