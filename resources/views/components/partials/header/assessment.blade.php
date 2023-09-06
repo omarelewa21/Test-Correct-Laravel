@@ -44,6 +44,7 @@
         <x-slot:button>
             <x-button.cta size="md"
                           x-on:click.prevent="handleHeaderCollapse(['ALL', {{ ($this->assessmentContext['assessmentType'] && $this->openOnly) ? 'true' : 'false' }} ])"
+                          selid="assessment-start-ALL"
             >
                 <span>@lang($this->assessmentContext['assessmentType'] && !$this->openOnly ? 'auth.continue' : 'co-learning.start')</span>
                 <x-icon.arrow />
@@ -83,6 +84,7 @@
             <x-button.cta size="md"
                           x-on:click.prevent="handleHeaderCollapse(['OPEN_ONLY', {{ ($this->assessmentContext['assessmentType'] && !$this->openOnly) ? 'true' : 'false' }}])"
                           :disabled="$this->hasNoOpenQuestion"
+                          selid="assessment-start-OPEN_ONLY"
             >
                 <span>@lang($this->assessmentContext['assessmentType'] && $this->openOnly ? 'auth.continue' : 'co-learning.start')</span>
                 <x-icon.arrow />
@@ -144,6 +146,23 @@
                     <span class="text-left">@lang('assessment.show_student_tooltip_text')</span>
                 </x-tooltip>
             </div>
+        </div>
+    </div>
+@endsection
+
+@section('notification-box')
+    <div class="notification info cursor-default max-w-[634px]">
+        <div class="title">@lang('assessment.Het nieuwe nakijken')</div>
+        <div class="body">
+            <span class="">@lang('assessment.new_assessment_notification')</span>
+            <x-button.text type="link"
+               :href="config('app.knowledge_bank_url') .'/toets-nakijken'"
+               target="_blank"
+               size="sm"
+               class="cursor-pointer !text-sm primary font-normal underline"
+            >
+                @lang('assessment.new_assessment_knowledge_bank')
+            </x-button.text>
         </div>
     </div>
 @endsection

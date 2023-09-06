@@ -13,17 +13,19 @@ class BaseSubject extends BaseModel {
     use SoftDeletes;
     use UuidTrait;
 
-    protected $casts = [
-        'uuid'     => EfficientUuid::class,
-        'wsc_lang' => WscLanguage::class,
-    ];
+    const DUTCH = 1;
+    const BIOLOGY = 11;
+    const GEOGRAPHY = 16;
+    const ENGLISH = 22;
+    const FRENCH = 23;
 
-    /**
-     * The attributes that should be mutated to dates.
-     *
-     * @var array
-     */
-    protected $dates = ['deleted_at'];
+
+
+    protected $casts = [
+        'uuid'       => EfficientUuid::class,
+        'wsc_lang'   => WscLanguage::class,
+        'deleted_at' => 'datetime',
+    ];
 
     /**
      * The database table used by the model.

@@ -29,10 +29,10 @@
                     <div class="flex">
                         {{ __('test-take.Weet je zeker dat je de toets wilt inleveren?') }}
                     </div>
-                    <div class="flex self-end gap-4">
-                        <x-button.text-button size="sm" @click="show = false" class="rotate-svg-180">
+                    <div class="flex self-end gap-4 items-center">
+                        <x-button.text size="md" @click="show = false" class="rotate-svg-180">
                             <span>{{ __('modal.cancel') }}</span>
-                        </x-button.text-button>
+                        </x-button.text>
                         <x-button.cta size="sm" onclick="endTest()">
                             <span>{{ __('test-take.Inleveren') }}</span>
                             <x-icon.checkmark-small />
@@ -110,6 +110,9 @@
                 });
                 // Livewire.hook('message.received', (message, component) => {})
                 // Livewire.hook('message.processed', (message, component) => {})
+                Livewire.hook("beforePushState", (stateObject, url, component) => {
+                    fixHistoryApiStateForQueryStringUpdates(stateObject, url)
+                });
                 const OnlineListener = function() {
                     Notify.notify('{{ __('test-take.your connection is back online') }}', "success");
                     window.removeEventListener("online", OnlineListener);

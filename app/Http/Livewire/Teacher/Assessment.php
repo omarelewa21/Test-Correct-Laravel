@@ -5,13 +5,9 @@ namespace tcCore\Http\Livewire\Teacher;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Str;
-use Ramsey\Uuid\Uuid;
 use tcCore\Answer;
-use tcCore\AnswerFeedback;
 use tcCore\AnswerRating;
 use tcCore\Exceptions\AssessmentException;
-use tcCore\Http\Enums\CommentEmoji;
 use tcCore\Http\Enums\UserFeatureSetting as UserFeatureSettingEnum;
 use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Http\Interfaces\CollapsableHeader;
@@ -62,7 +58,6 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     protected $students;
 
     /* Context properties */
-    public int $progress = 0;
     public int $maxAssessedValue = 1;
     public bool $openOnly;
     public bool $isCoLearningScore = false;
@@ -71,6 +66,8 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     public bool $webSpellCheckerEnabled;
 
     public $answerFeedback;
+    public bool $scoreWarningDispatchedForQuestion;
+    public bool $showNewAssessmentNotification = false;
 
     /* Lifecycle methods */
     protected function getListeners(): array
@@ -103,10 +100,6 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
     public function booted(): void
     {
-        if ($this->headerCollapsed) {
-            $this->getSortedAnswerFeedback();
-        }
-
         if ($this->skipBooted) {
             return;
         }
@@ -123,9 +116,10 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         return view('livewire.teacher.assessment')->layout('layouts.assessment');
     }
 
-    public function updatedScore($value)
+    public function updatedScore($value): void
     {
         $this->updateOrCreateAnswerRating(['rating' => $value]);
+        $this->dispatchScoreNotificationForQuestion();
     }
 
     public function updatedFeedback($value)
@@ -224,30 +218,6 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             return true;
         }
 
-        $types = collect([
-            'completionquestion',
-            'multiplechoicequestion',
-            'matchingquestion',
-            'rankingquestion',
-        ]);
-        $subTypes = collect([
-            'multi',
-            'completion',
-            'truefalse',
-            'multiplechoice',
-            'arq',
-            'classify',
-            'matching',
-        ]);
-
-        if ($types->contains(Str::lower($this->currentQuestion->type))) {
-            if ($this->currentQuestion->subtype === null) {
-                return true;
-            }
-
-            return $subTypes->contains(Str::lower($this->currentQuestion->subtype));
-        }
-
         return !$this->currentAnswer->isAnswered;
     }
 
@@ -323,7 +293,6 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         $this->feedback = $this->getFeedbackForCurrentAnswer();
         $this->answerPanel = true;
         $this->setUserOnAnswer($this->currentAnswer);
-        $this->setProgress();
 
         $this->dispatchUpdateQuestionNavigatorEvent();
 
@@ -434,6 +403,16 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         $this->getFeedbackForCurrentAnswer();
     }
 
+    public function removeNotification(): void
+    {
+        UserFeatureSetting::setSetting(
+            auth()->user(),
+            UserFeatureSettingEnum::SEEN_ASSESSMENT_NOTIFICATION,
+            true
+        );
+        $this->showNewAssessmentNotification = false;
+    }
+
 
     /* Private methods */
     protected function setTemplateVariables(): void
@@ -457,6 +436,11 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         $this->questionCount = $this->questions->count();
         $this->studentCount = $this->students->count();
         $this->updatePage = true;
+        $this->showNewAssessmentNotification = !UserFeatureSetting::getSetting(
+            user : auth()->user(),
+            title: UserFeatureSettingEnum::SEEN_ASSESSMENT_NOTIFICATION,
+            default: false,
+        );
     }
 
     /**
@@ -537,6 +521,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         $this->currentQuestion = $newQuestion;
         $this->questionNavigationValue = $index + 1;
         $this->handleGroupQuestion();
+        $this->scoreWarningDispatchedForQuestion = false;
     }
 
     private function setComponentAnswerProperties(Answer $answer, int $index): void
@@ -725,8 +710,10 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             return;
         }
 
-        $firstAnswer = $this->getFirstAnswerWhichDoesntHaveATeacherOrSystemRating(
-        ) ?? $this->answersWithDiscrepancyFilter()->last();
+        $firstAnswer = $this->getFirstAnswerWhichDoesntHaveATeacherOrSystemRating()
+            ?? $this->answersWithDiscrepancyFilter()
+                ->whereIn('question_id', $this->getQuestionIdsForCurrentAssessmentType())
+                ->last();
         $this->setNavigationDataWithFirstUnscoredAnswer($firstAnswer);
     }
 
@@ -893,6 +880,10 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
     private function getFeedbackForCurrentAnswer(): string
     {
+        if($this->currentQuestion->isType('OpenQuestion')) {
+            return $this->hasFeedback = $this->currentAnswer->feedback()->exists();
+        }
+
         $feedback = $this->currentAnswer
             ->feedback()
             ->where('user_id', auth()->id())
@@ -903,29 +894,21 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         return $this->currentQuestion->isSubType('writing') ? '' : $feedback;
     }
 
-    private function setProgress(): void
+    public function assessedAllAnswers(): bool
     {
-        return;
-        [$percentagePerAnswer, $assessedAnswers] = $this->getProgressPropertiesForCalculation();
-
-        $currentAnswerIndexOfAllAnswers = $this->answers->search(function ($answer) {
-            return $answer->id === $this->currentAnswer->id;
-        });
-
-        $maxAssessedValue = max($currentAnswerIndexOfAllAnswers, $this->maxAssessedValue);
-
-        if ($maxAssessedValue > $this->maxAssessedValue) {
-            $this->updateMaxAssessedValue($maxAssessedValue);
+        if (!$this->finalAnswerReached()) {
+            return false;
         }
+        $filteredAnswers = $this->answersWithDiscrepancyFilter();
+        $assessedAnswerCount = $filteredAnswers->where(function ($answer) {
+            $answer->load('answerRatings');
+            if ($answer->answerRatings->fresh()->where('type', '!=', AnswerRating::TYPE_STUDENT)->isNotEmpty()) {
+                return true;
+            }
+            return $answer->hasDiscrepancy === false;
+        })->count();
 
-        $multiplier = $assessedAnswers->filter(fn($item, $key) => $key <= $maxAssessedValue)->count();
-
-        $floatPercentage = $percentagePerAnswer * $multiplier;
-        $newPercentage = $floatPercentage > 99.99 ? 100 : floor($floatPercentage);
-
-        if ($newPercentage > $this->progress) {
-            $this->progress = $newPercentage;
-        }
+        return $filteredAnswers->count() === $assessedAnswerCount;
     }
 
     private function getCoLearningScoreForCurrentAnswer(): float|int
@@ -936,25 +919,6 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             ->avg('rating');
 
         return $this->currentQuestion->decimal_score ? floor(($rating * 2) / 2) : (int)round($rating);
-    }
-
-    /**
-     * @return array
-     */
-    private function getProgressPropertiesForCalculation(): array
-    {
-        $filteredAnswers = $this->answersWithDiscrepancyFilter();
-
-        $percentagePerAnswer = 1 / $filteredAnswers->count() * 100;
-
-        $assessedAnswers = $filteredAnswers->where(function ($answer) {
-            if ($answer->answerRatings->where('type', '!=', AnswerRating::TYPE_STUDENT)->isNotEmpty()) {
-                return true;
-            }
-            return $answer->hasDiscrepancy === false;
-        });
-
-        return [$percentagePerAnswer, $assessedAnswers];
     }
 
     private function getNavigationValueForQuestion(Question $question): int
@@ -1007,8 +971,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     {
         return $this->answersWithDiscrepancyFilter()
             ->filter(function ($answer) {
-                $needsAnswerRating = $this->questions->first(fn($q) => $q->id === $answer->question_id
-                )->isDiscussionTypeOpen;
+                $needsAnswerRating = $this->questions->first(fn($q) => $q->id === $answer->question_id)?->isDiscussionTypeOpen;
                 $hasNoAnswerRating = $answer->answerRatings->doesntContain(function ($rating) {
                     return $rating->type === AnswerRating::TYPE_TEACHER || $rating->type === AnswerRating::TYPE_SYSTEM;
                 });
@@ -1138,7 +1101,13 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
     public function getHasNoOpenQuestionProperty(): bool
     {
-        return !$this->testTakeData->test->hasOpenQuestion();
+        return !$this->testTakeData->test->hasOpenQuestion()
+            || $this->answersWithDiscrepancyFilter(
+                $this->answers->whereIn(
+                    'question_id',
+                    $this->questions->discussionTypeFiltered(true)->pluck('id')
+                )->reject(fn($answer) => !$answer->isAnswered)
+            )->isEmpty();
     }
 
     public function canUseDiscrepancyToggle()
@@ -1411,4 +1380,21 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     {
         $this->webSpellCheckerEnabled = auth()->user()->schoolLocation()->value('allow_wsc');
     }
+
+    private function dispatchScoreNotificationForQuestion(): void
+    {
+        if ($this->currentQuestion->isDiscussionTypeOpen) {
+            return;
+        }
+        if ($this->scoreWarningDispatchedForQuestion) {
+            return;
+        }
+
+        $this->scoreWarningDispatchedForQuestion = true;
+        $this->dispatchBrowserEvent(
+            'notify',
+            ['message' => __('assessment.override_system_score_notification'), 'type' => 'error']
+        );
+    }
+
 }

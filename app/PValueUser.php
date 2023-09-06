@@ -14,7 +14,7 @@ class PValueUser extends CompositePrimaryKeyModel {
      *
      * @var array
      */
-    protected $dates = ['deleted_at'];
+    protected $casts = ['deleted_at' => 'datetime',];
 
     /**
      * The database table used by the model.

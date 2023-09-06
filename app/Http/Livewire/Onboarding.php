@@ -3,12 +3,16 @@
 namespace tcCore\Http\Livewire;
 
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Str;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Ramsey\Uuid\Uuid;
 use tcCore\BaseSubject;
 use tcCore\DemoTeacherRegistration;
 use tcCore\Http\Helpers\BaseHelper;
+use tcCore\Http\Helpers\Choices\Choice;
 use tcCore\Http\Requests\Request;
 use tcCore\SamlMessage;
 use tcCore\SchoolLocation;
@@ -16,6 +20,7 @@ use tcCore\Shortcode;
 use tcCore\ShortcodeClick;
 use tcCore\TemporaryLogin;
 use tcCore\User;
+use Throwable;
 
 class Onboarding extends TCComponent
 {
@@ -41,19 +46,23 @@ class Onboarding extends TCComponent
 
     public $warningStepOneConfirmed = false;
     public $warningStepTwoConfirmed = false;
-    public $subjectOptions = '';
     public $selectedSubjects = [];
-    public $selectedSubjectsString = '';
     public $domain = '';
 
     public $entree_message = '';
 
     public $showSubjects = true;
+    public Collection $subjects;
 
 
     protected $queryString = ['step', 'email', 'confirmed', 'ref','entree_message', 'level'];
+    /**
+     * @var true
+     */
+    public bool $setFocusOnError = false;
 
-    protected function messages(){
+    protected function messages(): array
+    {
         return [
             'registration.name_first.required'      => __('registration.name_first_required'),
             'registration.name.required'            => __('registration.name_last_required'),
@@ -77,7 +86,7 @@ class Onboarding extends TCComponent
         ];
     }
 
-    public function rules()
+    public function rules(): array
     {
         $default = [
             'registration.school_location'              => 'sometimes',
@@ -88,8 +97,8 @@ class Onboarding extends TCComponent
             'registration.city'                         => 'sometimes',
             'registration.gender'                       => 'sometimes',
             'registration.gender_different'             => 'sometimes',
-            'registration.name_first'                   => 'sometimes',
             'registration.username'                     => 'required|email:rfc,dns|unique:users,username',
+            'registration.name_first'                   => 'sometimes',
             'registration.name'                         => 'sometimes',
             'registration.name_suffix'                  => 'sometimes',
             'registration.registration_email_confirmed' => 'sometimes',
@@ -117,7 +126,7 @@ class Onboarding extends TCComponent
         return $default;
     }
 
-    public function rulesStep2()
+    public function rulesStep2(): array
     {
         return [
             'registration.school_location' => 'required',
@@ -129,19 +138,23 @@ class Onboarding extends TCComponent
         ];
     }
 
-    public function hasNoSubjects()
+    public function hasNoSubjects(): bool
     {
         return $this->level === "PO";
     }
 
-    public function useDomainInsteadOfSubjects()
+    public function useDomainInsteadOfSubjects(): bool
     {
         return $this->level === "MBO" || $this->level === "HO";
     }
 
-    public function mount()
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    public function mount(): void
     {
-        $this->registration = new DemoTeacherRegistration;
+        $this->registration = new DemoTeacherRegistration();
         $this->registration->username = $this->email;
         $this->registration->gender = 'male';
 
@@ -188,37 +201,29 @@ class Onboarding extends TCComponent
         $this->setSubjectOptions();
     }
 
-    private function isUserConfirmedWithEmail()
+    private function isUserConfirmedWithEmail(): bool
     {
         return (!$this->confirmed) || ($this->confirmed === 1 && !$this->email);
     }
 
-    public function backToStepOne()
+    public function backToStepOne(): void
     {
         $this->step = 1;
-//        $this->btnStepOneDisabledCheck();
     }
 
     public function render()
     {
-        if(!$this->useDomainInsteadOfSubjects()) {
-            $this->setSelectedSubjectsString();
-            $this->setSubjectOptions();
-        }
         return view('livewire.onboarding')->layout('layouts.onboarding');
     }
 
-    public function getMinCharRuleProperty()
+    public function getMinCharRuleProperty(): bool
     {
-        if (empty($this->password)) {
-            return 0;
-        } else {
-            return mb_strlen($this->password) < 8 ? false : true;
-        }
+        return mb_strlen($this->password ?? 0) >= 8;
     }
 
-    public function step1()
+    public function step1(): void
     {
+        $this->setFocusOnError = true;
         $this->validate();
         if (!$this->checkInputForLength() && !$this->warningStepOneConfirmed) {
             $this->warningStepOneConfirmed = true;
@@ -232,12 +237,13 @@ class Onboarding extends TCComponent
             $this->clearSchoolData();
         }
         $this->step = 2;
-//        $this->btnStepTwoDisabledCheck();
         $this->warningStepOneConfirmed = false;
+        $this->syncSelectedSubjects();
     }
 
-    public function step2()
+    public function step2(): void
     {
+        $this->setFocusOnError = true;
         $this->validate();
         if (!$this->checkInputForLength() && !$this->warningStepTwoConfirmed) {
             $this->warningStepTwoConfirmed = true;
@@ -246,8 +252,7 @@ class Onboarding extends TCComponent
         $this->validate($this->rulesStep2());
         if($this->hasNoSubjects()){
             $this->registration->subjects = sprintf("%s: so no subjects",$this->level);
-        }
-        else if($this->useDomainInsteadOfSubjects()){
+        } elseif($this->useDomainInsteadOfSubjects()){
             $this->registration->subjects = sprintf("%s:%s",$this->level,$this->domain);
         }
 
@@ -255,18 +260,18 @@ class Onboarding extends TCComponent
         try {
             $this->newRegistration = $this->registration->addUserToRegistration($this->password, $this->registration->invitee, $this->ref);
             $this->step = 3;
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->step = 'error';
             Bugsnag::notifyException($e);
         }
     }
 
-    protected function setCorrectLevelToRegistration()
+    protected function setCorrectLevelToRegistration(): void
     {
         $this->registration->level = ($this->level && in_array($this->level,$this->allowedLevels)) ? $this->level : "VO";
     }
 
-    public function loginUser()
+    public function loginUser(): void
     {
         $redirectUrl = BaseHelper::getLoginUrl();
         if ($this->newRegistration) {
@@ -281,50 +286,18 @@ class Onboarding extends TCComponent
         Redirect::to($redirectUrl);
     }
 
-    public function resendEmailVerificationMail()
+    public function resendEmailVerificationMail(): void
     {
         $user = User::where('username', $this->registration->username)->first();
-        if ($user) {
-            if ($user->account_verified === null) {
-                $user->resendEmailVerificationMail();
-                $this->resendVerificationMail = true;
-            }
-        }
-    }
-
-    private function btnStepOneDisabledCheck()
-    {
-        if ($this->step == 1) {
-            $this->btnDisabled = (
-                empty($this->registration->name_first)
-                || empty($this->registration->gender)
-                || empty($this->registration->name)
-                || empty($this->password_confirmation)
-                || empty($this->password)
-                || empty($this->registration->username)
-            );
-            if ($this->confirmed != 1 && !$this->btnDisabled) {
-                $this->btnDisabled = empty($this->registration->username);
-            }
+        if (!$user || $user->account_verified) {
+            return;
         }
 
+        $user->resendEmailVerificationMail();
+        $this->resendVerificationMail = true;
     }
 
-    private function btnStepTwoDisabledCheck()
-    {
-        if ($this->step == 2) {
-            $this->btnDisabled = (
-                empty($this->registration->city)
-                || empty($this->registration->school_location)
-                || empty($this->registration->website_url)
-                || empty($this->registration->address)
-                || empty($this->registration->postcode)
-                || empty($this->registration->house_number)
-            );
-        }
-    }
-
-    public function checkInputForLength()
+    public function checkInputForLength(): bool
     {
         if ($this->step == 1) {
             if (strlen($this->registration->name_first) <= 1
@@ -348,9 +321,10 @@ class Onboarding extends TCComponent
             $this->warningStepTwo = false;
             return true;
         }
+        return true;
     }
 
-    public function isInvitedBySameDomain($username)
+    public function isInvitedBySameDomain($username): bool
     {
         $inviter = User::find($this->registration->invitee);
         $inviterDomain = explode('@', $inviter->username)[1];
@@ -358,9 +332,8 @@ class Onboarding extends TCComponent
         return $inviterDomain === explode('@', $username)[1];
     }
 
-    public function fillSchoolData(SchoolLocation $schoolInfo)
+    public function fillSchoolData(SchoolLocation $schoolInfo): void
     {
-
         $this->registration->school_location = $schoolInfo->name;
         $this->registration->address = $schoolInfo->visit_address;
         $this->registration->postcode = $schoolInfo->visit_postal;
@@ -368,7 +341,7 @@ class Onboarding extends TCComponent
         $this->registration->city = $schoolInfo->visit_city;
     }
 
-    public function clearSchoolData()
+    public function clearSchoolData(): void
     {
         $this->registration->school_location = null;
         $this->registration->address = null;
@@ -377,17 +350,15 @@ class Onboarding extends TCComponent
         $this->registration->city = null;
     }
 
-    public function updating(&$name, &$value)
+    public function updating(&$name, &$value): void
     {
         Request::filter($value);
     }
 
-    public function updated($propertyName)
+    public function updated($propertyName): void
     {
         $this->btnDisabled = false;
-//
-//        $this->btnStepOneDisabledCheck();
-//        $this->btnStepTwoDisabledCheck();
+        $this->setFocusOnError = false;
 
         if ($propertyName === 'password_confirmation') {
             $propertyName = 'password';
@@ -402,35 +373,23 @@ class Onboarding extends TCComponent
         }
     }
 
-    public function syncSelectedSubjects($subjects)
+    public function syncSelectedSubjects(): void
     {
-        $this->registration->subjects = implode(';',$subjects);
-        $this->selectedSubjects = $subjects;
+        $this->registration->subjects = $this->subjects
+            ->whereIn('value', $this->selectedSubjects)
+            ->implode('label', ';');
     }
 
-    protected function setSubjectOptions()
+    protected function setSubjectOptions(): void
     {
-        $subjects = BaseSubject::where('show_in_onboarding',true)->forLevel($this->registration->level)->get()->pluck('name')->toArray();
-        $subjects = array_unique($subjects);
-        sort($subjects);
-//        $subjects = $this->translateSubjects($subjects);
-        $subjects = array_diff($subjects,$this->selectedSubjects);
-        $this->subjectOptions = json_encode($subjects,JSON_HEX_APOS);
+        $this->subjects = BaseSubject::where('show_in_onboarding',true)
+            ->forLevel($this->registration->level)
+            ->orderBy('name')
+            ->get(['name', 'uuid'])
+            ->map(fn($subject) => Choice::build($subject->uuid, $subject->name));
     }
 
-    protected function setSelectedSubjectsString()
-    {
-        $this->selectedSubjectsString =  json_encode($this->selectedSubjects,JSON_HEX_APOS);
-    }
-
-    private function translateSubjects($subjects)
-    {
-        return collect($subjects)->map(function($subject) {
-            return __('subject.'.$subject);
-        })->toArray();
-    }
-
-    public function finish()
+    public function finish(): void
     {
         $this->step = 4;
     }

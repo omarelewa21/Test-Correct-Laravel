@@ -4,6 +4,7 @@ namespace tcCore\Http\Livewire\Teacher;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Ramsey\Uuid\Uuid;
 use tcCore\BaseSubject;
 use tcCore\EducationLevel;
@@ -68,7 +69,7 @@ class TestsOverview extends OverviewComponent
 
     public function render()
     {
-        if($this->showQuestionBank)
+        if ($this->showQuestionBank)
             return view('livewire.teacher.question-bank-overview')->layout('layouts.app-teacher');
 
         $results = $this->getDatasource();
@@ -78,7 +79,8 @@ class TestsOverview extends OverviewComponent
     protected function getDatasource()
     {
         try { // added for compatibility with mariadb
-            \DB::select(\DB::raw("set session optimizer_switch='condition_fanout_filter=off';"));
+            $expression = DB::raw("set session optimizer_switch='condition_fanout_filter=off';");
+            DB::statement($expression->getValue(DB::connection()->getQueryGrammar()));
         } catch (\Exception $e) {
         }
 
@@ -92,11 +94,17 @@ class TestsOverview extends OverviewComponent
             case 'umbrella':
                 $datasource = $this->getUmbrellaDatasource();
                 break;
+            case 'formidable':
+                $datasource = $this->getFormidableDatasource();
+                break;
             case 'creathlon':
                 $datasource = $this->getCreathlonDatasource();
                 break;
             case 'olympiade':
                 $datasource = $this->getOlympiadeDatasource();
+                break;
+            case 'thieme_meulenhoff':
+                $datasource = $this->getThiemeMeulenhoffDatasource();
                 break;
             case 'personal':
             default :
@@ -165,6 +173,15 @@ class TestsOverview extends OverviewComponent
         );
     }
 
+    private function getFormidableDatasource()
+    {
+        return Test::formidableItemBankFiltered(
+            $this->getContentSourceFilters(),
+            $this->sorting
+        );
+    }
+
+
     private function getOlympiadeDatasource()
     {
         return Test::olympiadeItemBankFiltered(
@@ -172,6 +189,15 @@ class TestsOverview extends OverviewComponent
             $this->sorting
         );
     }
+
+    private function getThiemeMeulenhoffDatasource()
+    {
+        return Test::thiemeMeulenhoffItemBankFiltered(
+            $this->getContentSourceFilters(),
+            $this->sorting
+        );
+    }
+
 
     protected function setFilters(array $filters = null): void
     {
@@ -181,7 +207,6 @@ class TestsOverview extends OverviewComponent
             $this->mergeFiltersWithDefaults();
         }
     }
-
 
     public function getEducationLevelProperty()
     {

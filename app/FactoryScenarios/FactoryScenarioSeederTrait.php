@@ -42,4 +42,12 @@ trait FactoryScenarioSeederTrait
         $this->getData()['user']->schoolLocation->allow_creathlon = true;
         return $this;
     }
+
+    private function seedFormidableItemBank()
+    {
+        (new FormidableItemBankSeeder)->run($this->getData()['user']);
+        ActingAsHelper::getInstance()->reset();
+        $this->getData()['user']->schoolLocation->allow_formidable = true;
+        return $this;
+    }
 }

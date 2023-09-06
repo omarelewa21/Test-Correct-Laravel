@@ -24,7 +24,19 @@ enum SchoolLocationFeatureSetting: string
     #[Type('bool')]
     case ALLOW_NEW_CO_LEARNING_TEACHER = 'allow_new_co_learning_teacher';
     #[Type('bool')]
+    case ALLOW_FORMIDABLE = 'allow_formidable';
+    #[Type('bool')]
     case ALLOW_CREATHLON = 'allow_creathlon';
+    #[Type('bool')]
+    case ALLOW_TM_BIOLOGY = 'allow_tm_biology';
+    #[Type('bool')]
+    case ALLOW_TM_GEOGRAPHY = 'allow_tm_geography';
+    #[Type('bool')]
+    case ALLOW_TM_DUTCH= 'allow_tm_dutch';
+    #[Type('bool')]
+    case ALLOW_TM_ENGLISH = 'allow_tm_english';
+    #[Type('bool')]
+    case ALLOW_TM_FRENCH = 'allow_tm_french';
     #[Type('bool')]
     case ALLOW_OLYMPIADE = 'allow_olympiade';
     #[Type('bool')]
@@ -58,5 +70,19 @@ enum SchoolLocationFeatureSetting: string
     public static function castTestPackage($testPackage)
     {
         return TestPackages::tryFrom($testPackage) ?? TestPackages::None;
+    }
+
+    public static function settingToDefaultSchool()
+    {
+        return collect([
+//            self::TEST_PACKAGE => TestPackages::None,
+            self::ALLOW_ANALYSES,
+            self::ALLOW_NEW_TAKEN_TESTS_PAGE,
+            self::ALLOW_NEW_CO_LEARNING,
+            self::ALLOW_NEW_CO_LEARNING_TEACHER,
+//            self::ALLOW_CREATHLON => false,
+//            self::ALLOW_OLYMPIADE => false,
+            self::ALLOW_NEW_ASSESSMENT,
+        ]);
     }
 }

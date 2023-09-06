@@ -50,7 +50,6 @@ class CreathlonItemBankSeeder extends Seeder
         $firstHalf = $collection[0];
         $secondHalf = $collection[1] ?? collect();
 
-
         $firstHalf->each(function ($subject) use ($primaryTestAuthor) {
             \tcCore\Factories\FactoryTest::create($primaryTestAuthor)
                 ->setProperties([

@@ -14,12 +14,10 @@
                  @entangle('login_tab'),
                  @entangle('active_overlay'),
                  @entangle('device'),
-                 @js(array_keys($errors->getMessages()))
+                 @entangle('errorKeys'),
                  )"
          wire:ignore.self
-         wire:key="has-errors-@js(implode(array_keys($errors->getMessages())))"
     >
-
         <div class="w-full max-w-[540px] mx-4 py-4">
             @if($tab == 'login')
                 {{-- top content block height:120px --}}
@@ -34,18 +32,18 @@
                     <div class="flex flex-col flex-1">
                         <div class="flex w-full space-x-6 ">
                             <div :class="{'border-b-2 border-primary -mb-px primary' : openTab === 1}">
-                                <x-button.text-button class="text-inherit hover:primary"
+                                <x-button.default class="text-inherit hover:primary"
                                                       @click="openTab = 1"
                                 >
-                                    {{ __('auth.log_in_verb') }}
-                                </x-button.text-button>
+                                    <span>{{ __('auth.log_in_verb') }}</span>
+                                </x-button.default>
                             </div>
                             <div class="" :class="{'border-b-2 border-primary -mb-px primary' : openTab === 2}">
-                                <x-button.text-button class="text-inherit hover:primary"
+                                <x-button.default class="text-inherit hover:primary"
                                                       @click="openTab = 2;"
                                 >
-                                    {{ __('auth.log_in_with_temporary_student_login') }}
-                                </x-button.text-button>
+                                    <span>{{ __('auth.log_in_with_temporary_student_login') }}</span>
+                                </x-button.default>
                             </div>
                         </div>
 
@@ -71,19 +69,18 @@
                                         <x-input.text data-focus-tab="send_reset_password" id="forgot-password-email" selid="forgot-password-email" wire:model.debounce.300ms="forgotPasswordEmail"/>
                                     </x-input.group>
 
-                                    <div class="flex w-full justify-self-end mt-auto">
-                                        <x-button.text-button size="md"
-                                                              class="flex w-1/2 mr-2 justify-end"
+                                    <div class="flex justify-end w-full mt-auto items-center gap-4">
+                                        <x-button.text size="md"
                                                               @click.prevent="activeOverlay = ''"
                                                               selid="forgot-password-cancel-btn">
                                             <span>{{__('auth.cancel')}}</span>
-                                        </x-button.text-button>
+                                        </x-button.text>
                                         @if($forgotPasswordButtonDisabled)
-                                            <x-button.cta selid="forgot-password-request-btn" class="flex justify-center w-1/2" size="sm" disabled>
+                                            <x-button.cta selid="forgot-password-request-btn" size="sm" disabled>
                                                 <span>{{ __('auth.request_password_reset') }}</span>
                                             </x-button.cta>
                                         @else
-                                            <x-button.cta selid="forgot-password-request-btn" class="flex justify-center w-1/2" size="sm">
+                                            <x-button.cta selid="forgot-password-request-btn" size="sm">
                                                 <span>{{ __('auth.request_password_reset') }}</span>
                                             </x-button.cta>
                                         @endif
@@ -106,7 +103,12 @@
                                 <form wire:submit.prevent="login" action="#" method="POST" class="flex-col flex flex-1">
                                     <div class="flex flex-col space-y-4">
                                         <x-input.group label="{{ __('auth.emailaddress')}}" class="flex-1">
-                                            <x-input.text data-focus-tab="1" id="login-username" selid="login-username" wire:model.lazy="username" autofocus></x-input.text>
+                                            <x-input.text data-focus-tab-error="1-username"
+                                                          data-focus-tab="1"
+                                                          id="login-username"
+                                                          selid="login-username"
+                                                          wire:model.lazy="username"
+                                            ></x-input.text>
                                         </x-input.group>
                                         <x-input.group label="{{ __('auth.password')}}" class="flex-1 relative">
                                             <div @mouseenter="hoverPassword = true"
@@ -130,7 +132,7 @@
                                             >
                                             </x-input.text>
                                         </x-input.group>
-                                        <x-partials.test-take-code :label="__('auth.test_code_quick_access')"/>
+                                        <x-partials.test-take-code tab="1" :label="__('auth.test_code_quick_access')"/>
                                     </div>
 
                                     <div class="hidden">
@@ -167,12 +169,13 @@
                                                  x-ref="container1"
                                                  :style="showCode ? 'max-height: ' + $refs.container1.scrollHeight + 'px' : ''"
                                             >
-                                                <x-partials.test-take-code/>
+                                                <x-partials.test-take-code tab="1"/>
                                             </div>
                                         </div>
 
                                     </div>
-                                    <div class="error-section">
+
+                                    <div class="error-section" wire:key="has-errors-@js(implode(array_keys($errors->getMessages())))">
                                         @error('username')
                                         <div class="notification error stretched mt-4">
                                             <span class="title">{{ $message }}</span>
@@ -211,8 +214,7 @@
                                         @enderror
 
                                         @if($requireCaptcha)
-                                            <div
-                                                    x-on:refresh-captcha.window="$refs.captcha.firstElementChild.setAttribute('src','/captcha/image?_=1333294957&_='+Math.random());">
+                                            <div x-on:refresh-captcha.window="$refs.captcha.firstElementChild.setAttribute('src', $event.detail.src );">
                                                 <div class="notification error stretched mt-4">
                                                     <div class="flex items-center space-x-3">
                                                         <x-icon.exclamation/>
@@ -222,7 +224,7 @@
                                                 </div>
                                                 <div class="mt-2 inline-flex flex-col items-center space-y-1">
                                                     <div x-ref="captcha" wire:ignore>
-                                                        @captcha
+                                                        <img src="{{ captcha_src() }}" alt="captcha">
                                                     </div>
                                                     <input type="text" id="captcha"
                                                            class="form-input @error('captcha') border-all-red @enderror"
@@ -249,18 +251,18 @@
                                             <div class="body space-y-0.5">
                                                 <span>{{ __('auth.forgot_password_email_send_text') }}</span>
                                                 <div class="flex flex-col">
-                                                    <x-button.text-button class="text-sm primary space-x-1 !min-h-0"
+                                                    <x-button.text class="text-sm primary space-x-1 !min-h-0"
                                                                           wire:click.prevent="sendForgotPasswordEmail()">
                                                         <span>{{ __('auth.send_mail_again') }}</span>
                                                         <x-icon.arrow-small/>
-                                                    </x-button.text-button>
-                                                    <x-button.text-button class="text-sm primary space-x-1 !min-h-0"
+                                                    </x-button.text>
+                                                    <x-button.text class="text-sm primary space-x-1 !min-h-0"
                                                                           type="link"
                                                                           href="https://test-correct.nl/support"
                                                                           target="_blank">
                                                         <span>{{ __('auth.find_support') }}</span>
                                                         <x-icon.arrow-small/>
-                                                    </x-button.text-button>
+                                                    </x-button.text>
                                                 </div>
                                             </div>
                                         </div>
@@ -279,18 +281,18 @@
                                       class="flex-col flex flex-1 justify-start">
                                     <div class="flex flex-col md:flex-row space-y-4 md:space-x-4 md:space-y-0">
                                         <x-input.group label="{{ __('auth.first_name')}}" class="w-full">
-                                            <x-input.text data-focus-tab="2" selid="test-direct-firstname" wire:model.lazy="firstName" autofocus></x-input.text>
+                                            <x-input.text data-focus-tab-error="2-empty_guest_first_name" data-focus-tab="2" selid="test-direct-firstname" wire:model.lazy="firstName"></x-input.text>
                                         </x-input.group>
                                         <x-input.group label="{{ __('auth.suffix')}}" class="w-28">
-                                            <x-input.text selid="test-direct-suffix" wire:model.lazy="suffix" autofocus></x-input.text>
+                                            <x-input.text selid="test-direct-suffix" wire:model.lazy="suffix"></x-input.text>
                                         </x-input.group>
                                     </div>
                                     <x-input.group label="{{ __('auth.last_name')}}" class="mt-4">
-                                        <x-input.text data-focus-tab-error="2-empty_guest_last_name" selid="test-direct-lastname" wire:model.lazy="lastName" autofocus></x-input.text>
+                                        <x-input.text data-focus-tab-error="2-empty_guest_last_name" selid="test-direct-lastname" wire:model.lazy="lastName"></x-input.text>
                                     </x-input.group>
                                     <div class="flex-1 ">
                                         <div class="mx-auto flex flex-col">
-                                            <x-partials.test-take-code/>
+                                            <x-partials.test-take-code tab="2"/>
                                         </div>
                                     </div>
 
@@ -409,23 +411,23 @@
 
             <div class="w-full flex flex-col md:flex-row items-center justify-center space-x-2">
                 <div>
-                    <x-button.text-button selid="login-forgot-password-btn" class="order-1" size="sm"
+                    <x-button.text selid="login-forgot-password-btn" class="order-1" size="sm"
                                           @click.prevent="activeOverlay ='send_reset_password'">                        <span class="text-base">{{__('auth.forgot_password')}}</span>
                         <x-icon.arrow/>
-                    </x-button.text-button>
+                    </x-button.text>
                 </div>
                 <div x-show="Core.appType == ''" wire:ignore>
-                        <x-button.text-button selid="login-create-account-btn" class="order-1" size="sm"
+                        <x-button.text selid="login-create-account-btn" class="order-1" size="sm"
                                               type="link" href="https://www.test-correct.nl/welcome">
                             <span class="text-base">{{__('auth.Maak account')}}</span>
                             <x-icon.arrow/>
-                        </x-button.text-button>
+                        </x-button.text>
                 </div>
                 <div x-show="Core.appType == ''" wire:ignore x-show="Core.appType == ''">
-                    <x-button.text-button selid="login-download-app-btn" size="sm" type="link" href="{{ $this->studentDownloadUrl }}">
+                    <x-button.text selid="login-download-app-btn" size="sm" type="link" href="{{ $this->studentDownloadUrl }}">
                         <span class="text-base">{{__('auth.download')}}</span>
                         <x-icon.arrow/>
-                    </x-button.text-button>
+                    </x-button.text>
                 </div>
             </div>
 
@@ -502,11 +504,11 @@
                                     </div>
                                 </div>
                                 <div class="flex w-full justify-between mt-auto">
-                                    <x-button.text-button type="link" href="{{ route('auth.login') }}"
+                                    <x-button.text type="link" href="{{ route('auth.login') }}"
                                                           class="rotate-svg-180">
                                         <x-icon.arrow/>
                                         <span>{{ __('auth.back_to_login') }}</span>
-                                    </x-button.text-button>
+                                    </x-button.text>
                                     <x-button.primary wire:click="noEntreeEmailNextStep"
                                                       x-bind:disabled="hasAccount == null" size="md">
                                         <span>{{ __('auth.next_step') }}</span>
@@ -612,11 +614,11 @@
                                                     <span>{{ __('auth.make_link') }}</span>
                                                 </x-button.cta>
                                             </div>
-                                            <x-button.text-button class="order-1 rotate-svg-180"
+                                            <x-button.text class="order-1 rotate-svg-180"
                                                                   wire:click.prevent="backToNoEmailChoice">
                                                 <x-icon.arrow/>
                                                 <span class="">{{__('auth.back_to_make_choice')}}</span>
-                                            </x-button.text-button>
+                                            </x-button.text>
                                         </div>
                                     </form>
                                 </div>
@@ -655,11 +657,11 @@
                                                     <span>{{ __('auth.make_link') }}</span>
                                                 </x-button.cta>
                                             </div>
-                                            <x-button.text-button class="order-1 rotate-svg-180"
+                                            <x-button.text class="order-1 rotate-svg-180"
                                                                   wire:click.prevent="backToNoEmailChoice">
                                                 <x-icon.arrow/>
                                                 <span class="">{{__('auth.back_to_make_choice')}}</span>
-                                            </x-button.text-button>
+                                            </x-button.text>
                                         </div>
                                     </form>
                                 </div>
@@ -692,11 +694,11 @@
                             @endif
                             <div class="mt-auto flex w-full">
 
-                                <x-button.text-button class="rotate-svg-180" type="link"
+                                <x-button.text class="rotate-svg-180" type="link"
                                                       href="{{ route('saml2_login', 'entree') }}">
                                     <x-icon.arrow/>
                                     <span class="text-base">{{ __('auth.back_to_login') }}</span>
-                                </x-button.text-button>
+                                </x-button.text>
 
                             </div>
                         </div>
@@ -732,10 +734,10 @@
                                 </x-input.group>
                             </div>
                             <div class="flex">
-                                <x-button.text-button wire:click.prevent="$set('tab', 'forgotPassword')">
+                                <x-button.text wire:click.prevent="$set('tab', 'forgotPassword')">
                                     <span class="text-base">{{__('auth.forgot_password_long')}}</span>
                                     <x-icon.arrow/>
-                                </x-button.text-button>
+                                </x-button.text>
                             </div>
                             <div class="flex">
                                 @if(!Ramsey\Uuid\Uuid::isValid($this->uuid))
@@ -752,10 +754,10 @@
                             </div>
 
                             <div class="mt-auto flex w-full">
-                                <x-button.text-button class="rotate-svg-180" wire:click.prevent="returnToLogin">
+                                <x-button.text class="rotate-svg-180" wire:click.prevent="returnToLogin">
                                     <x-icon.arrow/>
                                     <span class="text-base">{{ __('auth.back_to_login') }}</span>
-                                </x-button.text-button>
+                                </x-button.text>
                                 @if($connectEntreeButtonDisabled)
                                     <x-button.primary class="ml-auto" size="md" disabled>
                                         <x-icon.entreefederatie/>

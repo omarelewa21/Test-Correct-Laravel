@@ -13,9 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('answers', function (Blueprint $table) {
-            $table->text('commented_answer')->nullable();
-        });
+        if(!Schema::hasColumn('answers','commented_answer')) {
+            DB::statement('ALTER TABLE `answers` 
+                        MODIFY COlUMN `created_at` timestamp NULL,
+                        MODIFY COLUMN `updated_at` timestamp NULL,
+                        ADD COLUMN `commented_answer` TEXT NULL');
+        }
     }
 
     /**

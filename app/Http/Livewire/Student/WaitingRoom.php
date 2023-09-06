@@ -252,7 +252,10 @@ class WaitingRoom extends TCComponent
         }
 
         if ($this->appNeedsUpdate) {
-            $this->appNeedsUpdateDeadline = AppVersionDetector::needsUpdateDeadline();
+            $res = AppVersionDetector::needsUpdateDeadline();
+            if ($res !== false) {
+                $this->appNeedsUpdateDeadline = $res->isoFormat('LL');
+            }
         }
     }
 

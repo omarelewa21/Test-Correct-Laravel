@@ -235,7 +235,9 @@ class TestTakeEditModal extends TCModalComponent
      */
     private function getParticipantsToDelete(mixed $existingParticipants, Collection $participantProposals): mixed
     {
-        return $existingParticipants->filter(function ($participant) use ($participantProposals) {
+        return $existingParticipants
+            ->where(fn($participant) => !$participant->user->guest)
+            ->filter(function ($participant) use ($participantProposals) {
             return $participantProposals->doesntContain(function ($proposal) use ($participant) {
                 return $participant->user_id === $proposal['userId']
                     && $participant->school_class_id === $proposal['classId'];
@@ -272,7 +274,7 @@ class TestTakeEditModal extends TCModalComponent
     private function handleParticipants(): void
     {
         $participantProposals = $this->getParticipantProposals();
-        $existingParticipants = $this->testTake->testParticipants;
+        $existingParticipants = $this->testTake->testParticipants->loadMissing('user:id,guest');
 
         $participantsToCreate = $this->getParticipantsToCreate($participantProposals, $existingParticipants);
         $participantsToDelete = $this->getParticipantsToDelete($existingParticipants, $participantProposals);
@@ -281,13 +283,18 @@ class TestTakeEditModal extends TCModalComponent
         $this->createParticipants($participantsToCreate);
         $this->deleteParticipants($participantsToDelete);
         $this->updateParticipants($participantsToUpdate, $participantProposals);
+
+        $this->testTake->dispatchNewTestTakePlannedEvent();
     }
 
     private function prepareTestTakeForValidation(): void
     {
         /* TODO: Need to add 2 hours because of casting issues, u ugly */
-        $this->testTake->time_start = Carbon::parse($this->timeStart)->addHours(2);
-        $this->testTake->time_end = Carbon::parse($this->timeEnd)->addHours(2);
+        /* No need to add the extra hours, as long as the time start is parsed again with the current timezone */
+        $this->testTake->time_start = Carbon::parse($this->timeStart);
+        if($this->timeEnd) {
+            $this->testTake->time_end = Carbon::parse($this->timeEnd);
+        }
     }
 
     private function handleInvigilators(): void

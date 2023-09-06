@@ -1,5 +1,6 @@
 <?php namespace tcCore\Http\Requests;
 
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\UploadedFile;

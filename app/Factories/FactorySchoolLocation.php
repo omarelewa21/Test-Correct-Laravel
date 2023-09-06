@@ -3,6 +3,7 @@
 namespace tcCore\Factories;
 
 use tcCore\Factories\Traits\RandomCharactersGeneratable;
+use tcCore\Http\Enums\SchoolLocationFeatureSetting;
 use tcCore\School;
 use tcCore\SchoolLocation;
 use tcCore\User;
@@ -21,16 +22,11 @@ class FactorySchoolLocation
         $factory = new static;
         $factory->school = $school;
 
-        if ($schoolLocationName === null) {
-            $factory->schoolLocationName = 'SL-' . $factory->randomCharacters(5);
-        } else {
-            $factory->schoolLocationName = $schoolLocationName;
-        }
+        $factory->schoolLocationName = $schoolLocationName ?? ('SL-' . $factory->randomCharacters(5));
 
         $schoolLocationProperties = array_merge($factory->definition(), $properties);
-
         $factory->schoolLocation = SchoolLocation::create($schoolLocationProperties);
-
+        $factory->schoolLocation->addDefaultSettings();
         $factory->schoolManager = FactoryUser::createSchoolManager($factory->schoolLocation)->user;
 
         return $factory;
@@ -81,6 +77,7 @@ class FactorySchoolLocation
             "main_country"                           => "Netherlands",
             "invoice_country"                        => "Netherlands",
             "visit_country"                          => "Netherlands",
+            "license_type"                           => "CLIENT",
         ];
     }
 }

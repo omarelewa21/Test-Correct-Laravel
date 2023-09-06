@@ -5,7 +5,7 @@
             $this->getAttachmentModalSize()
         ])
         x-data="attachmentModal(@js($this->attachmentType))"
-        wire:ignore
+        wire:ignore.self
     >
         <div @class(['box-border w-full h-full', 'resizers' => $this->attachmentType != 'audio'])>
             <div class='resizer top-left'></div>

@@ -70,8 +70,12 @@ class Dashboard extends TCComponent
     public function showAppVersionMessage()
     {
         if (session()->get('TLCVersion', 'x') != 'x' && session()->get('TLCVersioncheckResult') != 'OK') {
-            $this->needsUpdateDeadline = AppVersionDetector::needsUpdateDeadline(session()->get('headers'));
-            return true;
+            $res = AppVersionDetector::needsUpdateDeadline(session()->get('headers'));
+            if ($res !== false) {
+                $this->needsUpdateDeadline = $res->isoFormat('LL');
+                return true;
+            }
+            return false;
         }
 
         return false;

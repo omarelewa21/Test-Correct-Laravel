@@ -1,6 +1,5 @@
 <div class="question-indicator w-full" id="navigation-container">
     <div class="flex-col"
-{{--         x-data="{ showSlider: false, scrollStep: 100, totalScrollWidth: 0, activeQuestion: @entangle('q') }"--}}
          x-data="questionIndicator"
          x-ref="questionindicator"
          x-global="indicatorData"
@@ -51,7 +50,7 @@
                                  @endif
                                          "
                                  id="nav_item_{{ 1+$key}}"
-                                 wire:click="goToQuestion({{ 1+$key}})"
+                                 x-on:click="$store.studentPlayer.to({{ $key + 1 }}, activeQuestion)"
                                  @if($this->isOverview)
                                  @click="$dispatch('show-loader')"
                                 @endif
@@ -124,17 +123,14 @@
         <div class="flex space-x-6 ml-auto min-w-max justify-end items-center">
 
             @if(!$isOverview)
-                <x-button.text-button
+                <x-button.text
                         id="previewBtn"
                         wire:loading.attr="disabled"
-                    onclick="typeof toOverview === 'function' ? toOverview({{$this->q}}) :
-                        livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).call('toOverview', {{$this->q}})
-                        "
-                    {{-- @click="$dispatch('show-loader')" --}}
+                        x-on:click="$store.studentPlayer.toOverview({{ (int)$this->q }})"
                     >
                     <x-icon.preview/>
                     <span>{{ __('test_take.overview') }}</span>
-                </x-button.text-button>
+                </x-button.text>
             @endif
         </div>
     </div>
@@ -150,12 +146,12 @@
 
         @push('scripts')
             <script>
-                window.addEventListener('update-footer-navigation', event => {
-                    if (typeof rspkr != 'undefined' && rspkr.ui.getActivePlayer()) {
-                            rspkr.ui.getActivePlayer().close();
+                window.addEventListener("update-footer-navigation", event => {
+                    if (typeof rspkr != "undefined" && rspkr.ui.getActivePlayer()) {
+                        rspkr.ui.getActivePlayer().close();
                     }
                 });
-                if (typeof rspkr != 'undefined' && typeof rspkr.ui != 'undefined') {
+                if (typeof rspkr != "undefined" && typeof rspkr.ui != "undefined") {
                     rspkr.ui.Tools.ClickListen.activate();
                 }
             </script>

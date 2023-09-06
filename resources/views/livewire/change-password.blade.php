@@ -51,7 +51,7 @@
         </div>
     </x-slot:content>
     <x-slot:footer>
-        <div class="flex flex-1 mt-4">
+        <div class="flex flex-1 mt-4 items-center">
             <x-button.primary class="ml-auto" wire:click="requestPasswordChange">
                 <span>{{ __('auth.send') }}</span>
             </x-button.primary>

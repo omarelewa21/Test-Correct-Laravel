@@ -5,6 +5,7 @@ namespace tcCore\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use tcCore\Http\Controllers\TestQuestionsController;
 use tcCore\QuestionAuthor;
 use tcCore\Test;
@@ -44,7 +45,7 @@ class FixIsSubquestionTrueForNonGroupQuestionMembers extends Command
      */
     public function handle()
     {
-        $results = \DB::select(\DB::raw($this->getSQL()));
+        $results = DB::select($this->getSQL());
         try {
             foreach ($results as $resultObject) {
                 $this->updateOrCopyTestQuestion($resultObject->question_id, $resultObject->test_id, $resultObject->test_question_id);

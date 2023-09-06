@@ -17,9 +17,9 @@
 
                     <div class="flex text-lg bold w-[calc(100%-50px)]">
                         <span class="truncate gap-2" selid="test-detail-title">
-                            <x-button.text-button size="sm"
+                            <x-button.default
                                                   wire:click="redirectToOverview()"
-                            >@lang('header.Mijn ingeplande toetsen')</x-button.text-button>
+                            >@lang('header.Mijn ingeplande toetsen')</x-button.default>
                             <x-icon.chevron-small opacity="1" />
                             <span>{!! $this->testTake->test->name !!}</span>
                         </span>

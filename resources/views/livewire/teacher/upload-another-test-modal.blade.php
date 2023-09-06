@@ -13,10 +13,10 @@
     </x-slot>
 
     <x-slot name="footer">
-        <div class="ml-auto flex gap-4" wire:click="$emit('closeModal')">
-            <x-button.text-button size="md" x-on:click="$dispatch('upload-another-test', false)">
+        <div class="ml-auto flex gap-4 items-center" wire:click="$emit('closeModal')">
+            <x-button.text size="md" x-on:click="$dispatch('upload-another-test', false)">
                 <span>@lang('upload.Niet overnemen')</span>
-            </x-button.text-button>
+            </x-button.text>
             <x-button.cta size="md" x-on:click="$dispatch('upload-another-test', true)">
                 <span>@lang('upload.Overnemen')</span>
             </x-button.cta>

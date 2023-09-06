@@ -19,6 +19,7 @@ use tcCore\Lib\Question\QuestionGatherer;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Ramsey\Uuid\Uuid;
 use tcCore\Lib\Repositories\TaxonomyRepository;
+use tcCore\Services\ContentSource\ThiemeMeulenhoffService;
 use tcCore\Traits\ModelAttributePurifyTrait;
 use tcCore\Traits\PublishesTestsTrait;
 use tcCore\Traits\UserPublishing;
@@ -39,17 +40,11 @@ class Test extends BaseModel
     const NATIONAL_ITEMBANK_SCOPES = ['cito', 'exam', 'ldt'];
 
     protected $casts = [
-        'uuid'  => EfficientUuid::class,
-        'draft' => 'boolean',
-        'lang'  => WscLanguage::class,
+        'uuid'       => EfficientUuid::class,
+        'draft'      => 'boolean',
+        'lang'       => WscLanguage::class,
+        'deleted_at' => 'datetime',
     ];
-
-    /**
-     * The attributes that should be mutated to dates.
-     *
-     * @var array
-     */
-    protected $dates = ['deleted_at'];
 
     /**
      * The database table used by the model.
@@ -76,7 +71,7 @@ class Test extends BaseModel
     protected $fieldsToDecodeOnRetrieval = ['name', 'abbreviation', 'introduction'];
 
     protected $sortableColumns = ['id', 'name', 'abbreviation', 'subject', 'education_level', 'education_level_year', 'period_id', 'test_kind_id', 'status', 'author', 'question_count', 'kind'];
-    
+
     public static function boot()
     {
         parent::boot();
@@ -103,6 +98,8 @@ class Test extends BaseModel
             $test->handlePublishingQuestionsOfTest();
             TestAuthor::addExamAuthorToTest($test);
             TestAuthor::addNationalItemBankAuthorToTest($test);
+            TestAuthor::addFormidableAuthorToTest($test);
+            TestAuthor::addThiemeMeulenhoffItemBankAuthorToTest($test);
         });
 
         static::deleted(function (Test $test) {
@@ -329,11 +326,32 @@ class Test extends BaseModel
             $query, $filters, $sorting);
     }
 
+    public function scopeThiemeMeulenHoffItemBankFiltered($query, $filters = [], $sorting = [])
+    {
+        return $this->contentSourceFiltered(
+           ThiemeMeulenhoffService::getPublishScope(),
+            config('custom.thieme_meulenhoff_school_customercode'),
+            $query, $filters, $sorting)
+            ->whereIn(
+                'subject_id',
+                ThiemeMeulenhoffService::getBuilderWithAllowedSubjectIds(Auth::user())
+            );
+        return $query;
+    }
+
     public function scopeCreathlonItemBankFiltered($query, $filters = [], $sorting = [])
     {
         return $this->contentSourceFiltered(
             'published_creathlon',
             config('custom.creathlon_school_customercode'),
+            $query, $filters, $sorting);
+    }
+
+    public function scopeFormidableItemBankFiltered($query, $filters = [], $sorting = [])
+    {
+        return $this->contentSourceFiltered(
+            'published_formidable',
+            config('custom.formidable_school_customercode'),
             $query, $filters, $sorting);
     }
 
@@ -567,7 +585,7 @@ class Test extends BaseModel
     {
         return $this->getDuplicateQuestionIds()->isNotEmpty();
     }
-    
+
     public function getTotalScore()
     {
         $this->load(['testQuestions', 'testQuestions.question']);
@@ -939,7 +957,7 @@ class Test extends BaseModel
         })->mapWithKeys(function ($item, $key) use (&$orderOpenOnly) {
             return [$item['id'] => [
                 'order' => $key+1,
-                'order_open_only' => $item['question_type'] === Question::TYPE_OPEN && $item['discuss'] === 1 ? ++$orderOpenOnly : null,
+                'order_open_only' => $item['question_type'] === Question::TYPE_OPEN && (bool)$item['discuss'] ? ++$orderOpenOnly : null,
                 ...$item,
             ]];
         })->toArray();

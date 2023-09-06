@@ -6,7 +6,10 @@ use tcCore\Lib\Models\BaseModel;
 
 class SchoolLocationUser extends BaseModel
 {
-    protected $dates = ['created_at', 'deleted_at'];
+    protected $casts = [
+        'created_at' => 'datetime',
+        'deleted_at' => 'datetime',
+    ];
 
     protected $fillable = ['school_location_id', 'user_id', 'external_id'];
 

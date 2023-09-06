@@ -17,14 +17,8 @@ class GroupQuestion extends Question implements QuestionInterface
     protected $casts = [
         'uuid'                   => EfficientUuid::class,
         'number_of_subquestions' => 'integer',
+        'deleted_at'             => 'datetime',
     ];
-
-    /**
-     * The attributes that should be mutated to dates.
-     *
-     * @var array
-     */
-    protected $dates = ['deleted_at'];
 
     /**
      * The database table used by the model.

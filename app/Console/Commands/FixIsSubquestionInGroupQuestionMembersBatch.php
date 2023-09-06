@@ -38,7 +38,7 @@ class FixIsSubquestionInGroupQuestionMembersBatch extends Command
      */
     public function handle()
     {
-        $results = DB::select(DB::raw($this->getSQL()));
+        $results = DB::select($this->getSQL());
         foreach($results as $resultObject){
             $this->call('fix:subquestionGroup', [
                 'questionId' => $resultObject->question_id,
@@ -47,7 +47,7 @@ class FixIsSubquestionInGroupQuestionMembersBatch extends Command
         }
     }
 
-    public function getSQL()
+    public function getSQL(): string
     {
         return 'select distinct t.id as question_id, group_question_questions.group_question_id from
                 ((select * from questions where is_subquestion = 0) as t 

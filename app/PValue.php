@@ -19,7 +19,7 @@ class PValue extends BaseModel
      *
      * @var array
      */
-    protected $dates = ['deleted_at'];
+    protected $casts = ['deleted_at' => 'datetime',];
 
     /**
      * The database table used by the model.
@@ -138,7 +138,7 @@ class PValue extends BaseModel
                 if (null !== $error) {
                     Bugsnag::notifyException(new \LogicException($error));
 
-                    dispatch_now(new SendExceptionMail($error, __FILE__, $line, [], 'PValueUser error'));
+                    dispatch_sync(new SendExceptionMail($error, __FILE__, $line, [], 'PValueUser error'));
                 }
             }
         });

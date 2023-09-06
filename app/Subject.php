@@ -22,15 +22,9 @@ class Subject extends BaseModel implements AccessCheckable
 
     const NOT_ALLOWED_FOR_TEACHER_EXCEPTION_MSG = 'Not allowed For teacher';
     protected $casts = [
-        'uuid' => EfficientUuid::class,
+        'uuid'       => EfficientUuid::class,
+        'deleted_at' => 'datetime',
     ];
-
-    /**
-     * The attributes that should be mutated to dates.
-     *
-     * @var array
-     */
-    protected $dates = ['deleted_at'];
 
     /**
      * The database table used by the model.
@@ -270,11 +264,23 @@ class Subject extends BaseModel implements AccessCheckable
         return $this->filterByUserAndSchoolLocation($query, Auth::user(), $nationalItemBankSchools);
     }
 
+    public function scopeThiemeMeulenhoffFiltered($query, $filters = [], $sorting = [])
+    {
+        $schoolLocation = SchoolLocation::where('customer_code', config('custom.thieme_meulenhoff_school_customercode'))->first();
+
+        return $this->filterByUserAndSchoolLocation($query, Auth::user(), $schoolLocation);
+    }
     public function scopeCreathlonFiltered($query, $filters = [], $sorting = [])
     {
         $creathlonSchoolLocation = SchoolLocation::where('customer_code', config('custom.creathlon_school_customercode'))->first();
 
         return $this->filterByUserAndSchoolLocation($query, Auth::user(), $creathlonSchoolLocation);
+    }
+    public function scopeFormidableFiltered($query, $filters = [], $sorting = [])
+    {
+        $formidableSchoolLocation = SchoolLocation::where('customer_code', config('custom.formidable_school_customercode'))->first();
+
+        return $this->filterByUserAndSchoolLocation($query, Auth::user(), $formidableSchoolLocation);
     }
 
     public function scopeOlympiadeFiltered($query, $filters = [], $sorting = [])
@@ -360,21 +366,6 @@ class Subject extends BaseModel implements AccessCheckable
             ->whereIn('subjects.base_subject_id', $userBaseSubjectIds)
             ->distinct()
             ->pluck('subjects.id')->toArray();
-
-        $schoolLocations = SchoolLocation::whereIn('customer_code', Arr::wrap($customerCodes))->get();
-
-        $baseSubjectIds = $user->subjects()->pluck('base_subject_id')->unique();
-
-        $subjectIds = collect([]);
-
-        foreach ($schoolLocations as $school_location) {
-            $subjects = collect([]);
-            foreach ($school_location->schoolLocationSections as $schoolLocationSection) {
-                $subjects = $subjects->merge($schoolLocationSection->subjects);
-            }
-            $subjectIds = $subjectIds->merge($subjects->whereIn('base_subject_id', $baseSubjectIds)->pluck('id')->unique()->toArray());
-        }
-        return $subjectIds->toArray();
     }
 
     public static function boot()

@@ -7,7 +7,7 @@
                 <x-tooltip :always-left="true">
                     <div class="block text-left">
                         <span>{{ __('test.publish_test_explanation') }}</span>
-                        <x-button.text-button class="text-base"
+                        <x-button.text class="text-base"
                                               size="xs"
                                               type="link"
                                               href="{{ $knowledgebankUrl }}"
@@ -15,7 +15,7 @@
                         >
                             <span>{{ __('general.Lees meer') }}</span>
                             <x-icon.arrow-small/>
-                        </x-button.text-button>
+                        </x-button.text>
                     </div>
                 </x-tooltip>
             </span>
@@ -28,7 +28,7 @@
                 <div class="title">{{ __('test.publish_test_explanation_title') }}</div>
                 <div class="body">
                     <span>{{ __('test.publish_test_explanation') }}</span>
-                    <x-button.text-button class="text-sm primary hover:underline"
+                    <x-button.text class="text-sm primary hover:underline"
                                           size="xs"
                                           type="link"
                                           href="{{ $knowledgebankUrl }}"
@@ -36,7 +36,7 @@
                     >
                         <span>{{ __('general.Lees meer') }}</span>
                         <x-icon.arrow-small/>
-                    </x-button.text-button>
+                    </x-button.text>
                 </div>
             </div>
         @endif
@@ -52,10 +52,10 @@
     </x-slot>
 
     <x-slot name="footer">
-        <div class="flex w-full justify-end gap-4">
-            <x-button.text-button wire:click="closeModal()">
+        <div class="flex w-full justify-end gap-4 items-center">
+            <x-button.text wire:click="closeModal()">
                 <span>{{ __('modal.cancel') }}</span>
-            </x-button.text-button>
+            </x-button.text>
 
             <x-button.cta selid="publish-test-modal-btn" wire:click="handle()" :disabled="!empty($testErrors)">
                 <x-icon.publish/>

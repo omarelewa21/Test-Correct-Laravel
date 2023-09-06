@@ -58,7 +58,7 @@
                                                containerId="c_and_s_edit-container-{{ $this->testTake->uuid }}"
                                                :label="__('teacher.Klassen en studenten')"
                                                wire:model.defer="classesAndStudents"
-                                               :item-labels="['child_disabled' => __('test-take.Already selected')]"
+                                               :item-labels="['child_disabled' => __('test-take.Al geselecteerd')]"
                 />
                 <div id="c_and_s_edit-container-{{ $this->testTake->uuid }}"
                      class="flex gap-2 flex-wrap"
@@ -129,10 +129,10 @@
     </x-slot:content>
 
     <x-slot:footer>
-        <div class="flex justify-between w-full">
-            <x-button.text-button size="sm" wire:click="closeModal">
+        <div class="flex justify-between w-full items-center">
+            <x-button.text wire:click="closeModal">
                 <span>{{__('general.cancel')}}</span>
-            </x-button.text-button>
+            </x-button.text>
 
             <x-button.cta size="md"
                           selid="plan-modal-plan-btn"

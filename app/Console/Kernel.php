@@ -65,10 +65,15 @@ class Kernel extends ConsoleKernel
          *          ->yearlyOn(8, 1, '06:00'); // only available in laravel 8 and up
          */
         $schedule->command('school_locations:add_new_period')
-            ->monthlyOn(1,'06:00')
-            ->when(function(){
-               return ((int) date('m') === 8); // only on the first of august
-            });
+            ->timezone('Europe/Amsterdam')
+            ->onOneServer()
+            ->runInBackground()
+            ->emailOutputTo('erik.dohmen@test-correct.nl')
+            ->yearlyOn(8, 1, '06:00'); // only available in laravel 8 and up
+//            ->monthlyOn(1,'06:00')
+//            ->when(function(){
+//               return ((int) date('m') === 8); // only on the first of august
+//            });
 
 //        $schedule->command('school_locations:add_new_period')
 //            ->yearlyOn(8, 1, '06:00'); // only available in laravel 8 and up

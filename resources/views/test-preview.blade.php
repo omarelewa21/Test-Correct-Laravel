@@ -79,13 +79,13 @@
         </div>
         <x-slot name="footerbuttons">
             <div x-cloak x-data="{display :footerButtonData({{ $current }}, {{count($nav)}})}"
-                 @update-footer-navigation.window="display= $event.detail.data" class="space-x-3">
-                <x-button.text-button x-show="display.prev"
+                 @update-footer-navigation.window="display= $event.detail.buttons.data" class="space-x-3">
+                <x-button.text x-show="display.prev"
                                       onclick="livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).call('previousQuestion')"
                                       href="#" rotateIcon="180">
                     <x-icon.chevron/>
                     <span>{{ __('test_take.previous_question') }}</span>
-                </x-button.text-button>
+                </x-button.text>
                 <x-button.primary x-show="display.next"
                                   onclick="livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).call('nextQuestion')"
                                   size="sm">

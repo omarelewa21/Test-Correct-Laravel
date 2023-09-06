@@ -1,8 +1,12 @@
-<div class="comment-emoji-picker">
-    <div class="comment-emoji-picker-label ">
-        @lang('assessment.emoji invoegen')
-    </div>
-    <div class="w-full flex justify-between items-center h-[28px]" @if($useCkEditorView) wire:ignore @endif>
+<div class="comment-emoji-picker"
+     @if($useCkEditorView)
+         x-on:click="$el.classList.add('picker-focussed')"
+         ckEditorElement
+         data-checked-emoji="{{$value?->value}}"
+     @endif
+     x-data="{ checkedEmoji: '{{$value?->value}}' }"
+>
+    <div class="w-full flex justify-between items-center h-[28px]">
         @foreach(\tcCore\Http\Enums\CommentEmoji::cases() as $case)
             <x-input.emoji-picker-radio :emoji="$case"
                                         :threadId="$commentThreadId"
@@ -16,4 +20,7 @@
             {{--  if $value === null, checked none --}}
         @endforeach
     </div>
+    <label class="comment-emoji-picker-label ">
+        @lang('assessment.emoji invoegen')
+    </label>
 </div>

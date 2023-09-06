@@ -6,15 +6,25 @@
     </div>
 
     <div class="pt-12"
-         x-data="{step: @entangle('step')}"
+         x-data="{step: @entangle('step'), validationErrors: '', setFocusOnError: @entangle('setFocusOnError')}"
          x-init="
-                setCurrentFocusInput();
+                setTimeout(() => document.querySelector('#username')?.focus(), 250);
 
-                $watch('step', value => {
-                    setCurrentFocusInput()
-                });
+                Livewire.hook('message.processed', (message, component) => {
+                    validationErrors = Object.keys(component.serverMemo.errors);
+                    if(setFocusOnError) {
+                        setCurrentFocusInput();
+                    }
+                })
+
                 function setCurrentFocusInput (){
-                    setTimeout(() => document.querySelector(`[data-focus-tab='${step}']`)?.focus(), 250);
+                    if(validationErrors == '') {
+                        return;
+                    }
+
+                    selector = (validationErrors != '') ? `[data-validation-error='${step}-${validationErrors[0]}']` : '#username';
+
+                    setTimeout(() => document.querySelector(selector)?.focus(), 250);
                 }
             "
          x-cloak>
@@ -92,7 +102,7 @@
                                         <div class="mb-4">
                                             <div class="input-group">
                                                 <input id="username" wire:model.lazy="registration.username" data-focus-tab="1"
-
+                                                       data-validation-error='1-registration.username'
                                                        class="form-input @error('registration.username') border-red @enderror"
                                                        >
                                                 <label for="username"
@@ -125,7 +135,7 @@
                                             <span class="flex">Mevr.</span>
                                         </div>
                                         <div class="flex space-x-2 items-center flex-1 mb-2.5 hover:text-primary transition cursor-pointer"
-                                             @click="gender = 'different'; $nextTick(() => $el.querySelector('input').focus())"
+                                             @click="gender = 'different'; $nextTick(() => $root.querySelector('input').focus())"
                                              :class="gender === 'different' ? 'primary bold' : 'text-midgrey'"
                                         >
                                             <div class="flex">
@@ -138,6 +148,7 @@
                                             </label>
                                             <input id="gender_different"
                                                    wire:model.lazy="registration.gender_different"
+                                                   data-validation-error='1-registration.gender_different'
                                                    class="form-input other-input flex flex-1 w-full"
                                                    style="min-width: 130px;"
                                                    :disabled="gender !== 'different'"
@@ -151,18 +162,21 @@
                                         <div class="name mb-4 space-y-4 md:space-y-0">
                                             <div class="input-group flex w-full md:w-auto mr-0 md:mr-4">
                                                 <input id="name_first" wire:model.lazy="registration.name_first"
+                                                       data-validation-error='1-registration.name_first'
                                                        class="form-input @error('registration.name_first') border-red @enderror">
                                                 <label for="name_first"
                                                        class="transition ease-in-out duration-150">{{ __("onboarding.Voornaam") }}</label>
                                             </div>
                                             <div class="input-group flex mr-4">
                                                 <input id="name_suffix" wire:model.lazy="registration.name_suffix"
+                                                       data-validation-error='1-registration.name_suffix'
                                                        class="form-input @error('registration.name_suffix') border-red @enderror">
                                                 <label for="name_suffix"
                                                        class="transition ease-in-out duration-150">{{ __("onboarding.Tussenv.") }}</label>
                                             </div>
                                             <div class="input-group flex flex-1">
                                                 <input id="name" wire:model.lazy="registration.name"
+                                                       data-validation-error='1-registration.name'
                                                        class="form-input md:w-full inline-block @error('registration.name') border-red @enderror">
                                                 <label for="name"
                                                        class="transition ease-in-out duration-150">{{ __("onboarding.Achternaam") }}</label>
@@ -178,9 +192,10 @@
                                                     <span class="text-sm mt-1">Min. 8 {{ __("onboarding.tekens") }}</span>
                                                 </div>
                                                 <input id="password"
-                                                       wire:model="password"
+                                                       wire:model.lazy="password"
                                                        class="form-input @error('password') border-red @enderror"
                                                        :type="showPassword ? 'text' : 'password'"
+                                                       data-validation-error='1-password'
                                                        x-model="password">
                                                 <label for="password"
                                                        class="transition ease-in-out duration-150">{{ __("onboarding.Creeër wachtwoord") }}</label>
@@ -192,7 +207,7 @@
                                             <div class="input-group relative md:flex-1 w-full mb-4 md:mb-0"
                                                  x-data="{showPassword: false}">
                                                 <input id="password_confirm"
-                                                       wire:model="password_confirmation"
+                                                       wire:model.lazy="password_confirmation"
                                                        :type="showPassword ? 'type' : 'password'"
                                                        class="form-input @error('password') border-red @enderror"
                                                 >
@@ -210,121 +225,33 @@
                                         @elseif($this->useDomainInsteadOfSubjects())
                                             <div class="mt-4">
                                                 <div class="input-group ">
-                                                    <input id="domain" wire:model="domain" type="text"
+                                                    <input id="domain" wire:model.lazy="domain" type="text"
+                                                           data-validation-error='1-domain'
                                                            class="form-input @error('domain') border-red @enderror">
                                                     <label for="domain"
                                                            class="transition ease-in-out duration-150">{{ __("onboarding.Jouw domein(en)") }}</label>
                                                 </div>
                                             </div>
                                         @else
-                                            <div x-data data-subjects='{!! $selectedSubjectsString !!}'
-                                                 class="subjects mt-4 ">
-                                                <div x-data="subjectSelect()" x-init="init('parentEl')"
-                                                     @click.away="clearSearch()" @keydown.escape="clearSearch()"
-                                                     @keydown="navigate" class="mr-4 mb-4 sm:mb-0 ">
-                                                    <div>
-                                                        <label for="subjects" id="subjects_label"
-                                                               class="transition ease-in-out duration-150">{{__('onboarding.Jouw vak(ken)')}}</label>
-                                                    </div>
-                                                    <template x-for="(subject, index) in subjects">
-
-                                                        <button class="secondary-button selected-subject align-top text-sm mt-2 mr-1 tooltip"
-                                                                data-text="{{__('onboarding.Verwijder')}}"
-                                                                @click.prevent="removeSubject(index)">
-                                                            <span class="ml-2 mr-1 leading-relaxed truncate max-w-xs"
-                                                                  x-text="subject"></span>
-                                                            <span class=" inline-block align-middle"
-                                                                  style="margin:auto">
-                                                                <img class="icon-close-small"
-                                                                     src="img/icons/icons-close-small.svg">
-                                                            </span>
-                                                        </button>
-                                                    </template>
-
-                                                    <button x-show="!showInput"
-                                                            class="secondary-button add-button-div align-top text-sm mt-2 mr-1 tooltip"
-                                                            data-text="{{__('onboarding.Voeg toe')}}"
-                                                            @click.prevent="showSubjectInput()">
-                                                        <span class=" inline-block align-middle" style="margin:auto">
-                                                            <img class="icon-close-small"
-                                                                 src="img/icons/icons-plus.svg">
-                                                        </span>
-                                                    </button>
-
-                                                    <div x-show="showInput" style="
-                                                                width: 12em;
-                                                                height: 40px;
-                                                                border-radius: 8px;
-                                                                overflow: hidden;
-                                                                "
-                                                         class="responsive subject_select_div"
-                                                         @keydown.enter.prevent="addSubject(textInput)"
-                                                    >
-
-                                                        <div class="select-search-header"
-                                                             x-on:click="toggleSubjects()">{{ __('onboarding.Selecteer vak....') }}
-                                                            <img x-show="!show"
-                                                                 src="img/icons/icons-chevron-down-small.svg"
-                                                                 class="iconschevron-down-small icons-chevron float-right"
-                                                                 x-on:click="displaySubjects()"
-                                                            >
-                                                            <img x-show="show"
-                                                                 src="img/icons/icons-chevron-up-small-blue.svg"
-                                                                 class="iconschevron-down-small icons-chevron float-right"
-                                                                 x-on:click="hideSubjects()"
-                                                            >
-                                                        </div>
-                                                        <div class="search-wrapper">
-                                                            <input id="input-text-select" x-show="show"
-                                                                   x-model="textInput" x-ref="textInput"
-                                                                   @input="search($event.target.value)"
-                                                                   x-on:keyup="filter()" x-on:focus="focusSearch()"
-                                                                   x-on:focusout="loseFocusSearch()"
-                                                                   class="form-input input-text-select">
-                                                            <img x-show="show"
-                                                                 src="img/icons/icons-search-blue.svg"
-                                                                 class="icons-search-small icons-search-active float-right hide-search"
-                                                            >
-                                                            <img x-show="show"
-                                                                 src="img/icons/icons-search-blue-inactive.svg"
-                                                                 class="icons-search-small icons-search-inactive float-right"
-                                                            >
-                                                        </div>
-                                                        <hr x-show="show">
-                                                        <div class="subject_select_div_padding">
-                                                            <div class="subject_select_div_inner">
-                                                                <div x-show="show_new_item"
-                                                                     x-on:click="addSubject(new_subject_item)"
-                                                                     id="new_subject_item"
-                                                                     class="subject_item new_subject_item">
-                                                                    <span x-text="new_subject_item"></span>
-                                                                    <img class="icon-close-small-subjects "
-                                                                         src="img/icons/icons-plus-blue.svg">
-                                                                    <hr class="subject_hr">
-                                                                </div>
-                                                                <template
-                                                                        x-for="(subject_option, index) in available_subject_options">
-                                                                    <div x-show="show"
-                                                                         :class="{subject_item_active: subject_option==active_subject_option}"
-                                                                         x-on:click="addSubject(subject_option)"
-                                                                         class="subject_item existing_subject_item">
-                                                                        <span x-text="subject_option"></span>
-                                                                        <img class="icon-close-small-subjects "
-                                                                             src="img/icons/icons-plus-blue.svg">
-                                                                        <hr class="subject_hr">
-                                                                    </div>
-                                                                </template>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-
+                                            <div class="flex flex-col mt-4">
+                                                <div class="flex">
+                                                    <x-input.choices-select
+                                                            :multiple="true"
+                                                            :options="$this->subjects"
+                                                            :withSearch="true"
+                                                            placeholderText="{{ __('onboarding.Selecteer vak....') }}"
+                                                            wire:model="selectedSubjects"
+                                                            filterContainer="onboarding-subjects"
+                                                            wire:key="onboarding-subjects"
+                                                    />
                                                 </div>
-
+                                                <div id="onboarding-subjects"
+                                                     wire:ignore
+                                                     class="flex flex-wrap gap-2 mt-2 relative"
+                                                >
+                                                </div>
                                             </div>
                                         @endif
-
-
                                     </div>
                                     <div class="error-section md:mb-20">
                                         @if($this->warningStepOne)
@@ -367,7 +294,7 @@
                                                 <x-icon.chevron></x-icon.chevron>
                                             </button>
                                         @else
-                                            <button wire:click="step1"
+                                            <button
                                                     class="flex ml-auto items-center button button-md primary-button">
                                                 <span class="mr-2">{{ __("cms.Volgende") }}</span>
                                                 <x-icon.chevron></x-icon.chevron>
@@ -378,28 +305,36 @@
                             </div>
                         </div>
                     @elseif($this->step === 2)
-                        <div class="content-form relative p-5 md:p-10" wire:key="step2">
+                        <div class="content-form relative p-5 md:p-10"
+                             wire:key="step2"
+                             x-data="{}"
+                             x-init="
+                             document.querySelector('#school_location').focus();
+                             "
+                        >
                             {{--content header--}}
                             <div class="input-section">
                                 <div class="school-info">
                                     <div class="input-group w-full">
                                         <input id="school_location"
                                                data-focus-tab="2"
-                                               wire:model="registration.school_location"
+                                               wire:model.lazy="registration.school_location"
+                                               data-validation-error='2-registration.school_location'
                                                class="form-input @error('registration.school_location') border-red @enderror">
                                         <label for="school_location"
                                                class="">{{ __("onboarding.Schoolnaam") }}</label>
                                     </div>
 {{--                                    <div class="input-group flex-0 w-full sm:w-auto sm:flex-1 sm:mr-4">--}}
 {{--                                        <input id="location_name"--}}
-{{--                                               wire:model="registration.location_name"--}}
+{{--                                               wire:model.lazy="registration.location_name"--}}
 {{--                                               class="form-input @error('registration.location_name') border-red @enderror">--}}
 {{--                                        <label for="location_name"--}}
 {{--                                               class="">{{ __("onboarding.Locatie") }}</label>--}}
 {{--                                    </div>--}}
                                     <div class="input-group flex-1">
                                         <input id="website_url"
-                                               wire:model="registration.website_url"
+                                               wire:model.lazy="registration.website_url"
+                                               data-validation-error='2-registration.website_url'
                                                class="form-input @error('registration.website_url') border-red @enderror">
                                         <label for="website_url"
                                                class="">{{ __("onboarding.Website") }}</label>
@@ -407,14 +342,16 @@
                                     <div class="flex w-full">
                                         <div class="input-group flex-1 mr-4">
                                             <input id="address"
-                                                   wire:model="registration.address"
+                                                   wire:model.lazy="registration.address"
+                                                   data-validation-error='2-registration.address'
                                                    class="form-input @error('registration.address') border-red @enderror">
                                             <label for="address"
                                                    class="">{{ __("onboarding.Bezoekadres") }}</label>
                                         </div>
                                         <div class="input-group w-28">
                                             <input id="house_number"
-                                                   wire:model="registration.house_number"
+                                                   wire:model.lazy="registration.house_number"
+                                                   data-validation-error='2-registration.house_number'
                                                    class="form-input  @error('registration.house_number') border-red @enderror">
                                             <label for="house_number"
                                                    class="">{{ __("onboarding.Huisnummer") }}</label>
@@ -424,14 +361,16 @@
                                     <div class="flex w-full">
                                         <div class="input-group w-28 mr-4">
                                             <input id="postcode"
-                                                   wire:model="registration.postcode"
+                                                   wire:model.lazy="registration.postcode"
+                                                   data-validation-error='2-registration.postcode'
                                                    class="form-input  @error('registration.postcode') border-red @enderror">
                                             <label for="postcode"
                                                    class="">{{ __("onboarding.Postcode") }}</label>
                                         </div>
                                         <div class="input-group flex-1">
                                             <input id="city"
-                                                   wire:model="registration.city"
+                                                   wire:model.lazy="registration.city"
+                                                   data-validation-error='2-registration.city'
                                                    class="form-input @error('registration.city') border-red @enderror">
                                             <label for="city"
                                                    class="">{{ __("onboarding.Plaatsnaam") }}</label>
@@ -485,10 +424,10 @@
                                     @enderror
                                 </div>
                                 <div class="mt-4 flex justify-between items-center">
-                                    <x-button.text-button wire:click="backToStepOne">
+                                    <x-button.text wire:click="backToStepOne">
                                         <x-icon.chevron class="z-0 rotate-180"/>
                                         <span>{{ __('modal.Terug') }}</span>
-                                    </x-button.text-button>
+                                    </x-button.text>
                                     @if ($btnDisabled)
                                         <x-button.primary size="md" class="btn-disabled" disabled>
                                             <span>{{ __('cms.Volgende') }}</span>
@@ -573,10 +512,10 @@
                                 </div>
 
                             <div class="flex mt-auto w-full">
-                                <x-button.text-button class="disabled rotate-svg-180" disabled>
+                                <x-button.text class="disabled rotate-svg-180" disabled>
                                     <x-icon.chevron/>
                                     <span>{{ __('modal.Terug') }}</span>
-                                </x-button.text-button>
+                                </x-button.text>
                                 <x-button.cta size="md" class="ml-auto" wire:click="loginUser">
                                     <span class="">{{ __('auth.log_in_verb') }}</span>
                                     <x-icon.arrow></x-icon.arrow>
@@ -624,237 +563,3 @@
         </div>
     </div>
 </div>
-@push('page_styles')
-    <style>
-        input[list="languages"] {
-            width: 12em;
-        }
-
-        select {
-            width: 12em;
-            margin: 0;
-            margin-left: -12.75em;
-        }
-
-    </style>
-@endpush
-
-@push('page_scripts')
-    <script>
-        function subjectSelect() {
-            return {
-                open: false,
-                show: false,
-                textInput: '',
-                subjects: [],
-                subject_list_init: {!! $subjectOptions !!},
-                available_subject_options: [],
-                active_subject_option: null,
-                showInput: true,
-                show_new_item: false,
-                new_subject_item: '',
-                init() {
-                    this.subjects = JSON.parse(this.$el.parentNode.getAttribute('data-subjects'));
-                    this.available_subject_options = this.subject_list_init;
-                    this.filterAvailableSubjectOptions();
-                    if (this.subjects.length > 0) {
-                        this.showInput = false;
-                    }
-                },
-                addSubject(subject) {
-                    subject = subject.trim();
-                    subject = subject.replace(/'/g, "\x27");
-                    subject = subject.replace(/"/g, "\x22");
-                    if (this.active_subject_option != null && this.active_subject_option != "" && !this.hasSubject(this.active_subject_option)) {
-                        this.subjects.push(this.active_subject_option);
-                    } else if (subject != "" && !this.hasSubject(subject)) {
-                        this.subjects.push(subject)
-                    }
-                    this.clearSearch();
-                    this.$refs.textInput.focus();
-                    if (this.subjects.length > 0) {
-                        this.showInput = false;
-                    }
-                    this.syncSubjects();
-                },
-                syncSubjects() {
-                    @this.
-                    call('syncSelectedSubjects', this.subjects);
-                },
-                toggleSubjects() {
-                    var div = this.$el.getElementsByClassName('subject_select_div')[0];
-                    if (div.classList.contains('show_subjects')) {
-                        this.hideSubjects();
-                        return;
-                    }
-                    this.displaySubjects();
-                },
-                displaySubjects() {
-                    this.show_new_item = false;
-                    this.new_subject_item = '';
-                    this.active_subject_option = '';
-                    this.filterAvailableSubjectOptions();
-                    var label = document.getElementById('subjects_label');
-                    var div = this.$el.getElementsByClassName('subject_select_div')[0];
-                    var inner_div = this.$el.getElementsByClassName('subject_select_div_inner')[0];
-                    inner_div.classList.add('subject_select_div_inner_open');
-                    div.style.height = '190px';
-                    div.classList.add('show_subjects');
-                    label.classList.add('label_bold');
-                    this.show = true;
-                    setTimeout(function () {
-                        document.getElementById('input-text-select').focus();
-                    }, 1000);
-                },
-                hideSubjects() {
-                    var label = document.getElementById('subjects_label');
-                    var div = this.$el.getElementsByClassName('subject_select_div')[0];
-                    var inner_div = this.$el.getElementsByClassName('subject_select_div_inner')[0];
-                    div.style.height = '40px';
-                    inner_div.classList.remove('subject_select_div_inner_open');
-                    div.classList.remove('show_subjects');
-                    label.classList.remove('label_bold');
-                    this.show = false;
-                },
-                hasSubject(subject) {
-                    var subject = this.subjects.find(e => {
-                        return e.toLowerCase() === subject.toLowerCase()
-                    })
-                    return subject != undefined
-                },
-                removeSubject(index) {
-                    this.subjects.splice(index, 1);
-                    this.syncSubjects();
-                    this.filter();
-                    if (this.subjects.length == 0) {
-                        this.showInput = true;
-                    }
-                },
-                search(q) {
-                    // if ( q.includes(",") ) {
-                    //     q.split(",").forEach(function(val) {
-                    //         this.addSubject(val)
-                    //     }, this)
-                    // }
-                    this.toggleSearch()
-                },
-                clearSearch() {
-                    this.textInput = '';
-                    this.available_subject_options = this.subject_list_init;
-                    this.show_new_item = false;
-                    this.new_subject_item = '';
-                    this.hideSubjects();
-                    this.toggleSearch();
-                },
-                toggleSearch() {
-                    this.open = this.textInput != ''
-                },
-                filter() {
-                    if (this.textInput == '') {
-                        this.available_subject_options = this.subject_list_init;
-                        this.filterAvailableSubjectOptions();
-                        return;
-                    }
-                    this.new_subject_item = this.textInput;
-                    var arr = this.subject_list_init.map((x) => x);
-                    var i = 0;
-                    while (i < arr.length) {
-                        if (this.subjects.includes(arr[i])) {
-                            arr.splice(i, 1);
-                        } else if (!arr[i].toLowerCase().includes(this.textInput.toLowerCase())) {
-                            arr.splice(i, 1);
-                        } else {
-                            ++i;
-                        }
-                    }
-                    this.available_subject_options = arr;
-                    if (!this.available_subject_options.includes(this.active_subject_option)) {
-                        this.active_subject_option = null;
-                    }
-                    if (this.available_subject_options.length == 0) {
-                        this.show_new_item = true;
-                        return;
-                    }
-                    this.show_new_item = false;
-                },
-                navigate(e) {
-                    this.filterAvailableSubjectOptions();
-                    if (e.keyCode != 40 && e.keyCode != 38) {
-                        return;
-                    }
-                    e = e || window.event;
-                    document.getElementById('new_subject_item').classList.remove('subject_item_active');
-                    if (this.available_subject_options.length == 0) {
-                        this.active_subject_option = this.textInput;
-                        document.getElementById('new_subject_item').classList.add('subject_item_active');
-                        return;
-                    }
-                    if (this.active_subject_option == null) {
-                        this.active_subject_option = this.available_subject_options[0];
-                        return this.scroll();
-                    }
-                    var temp = 0;
-                    var active = this.active_subject_option;
-                    this.available_subject_options.forEach((element, key) => {
-                        if (element == active) {
-                            temp = key;
-                        }
-                    });
-                    if (e.keyCode == 40) {
-                        if (this.available_subject_options.length > temp) {
-                            var next_key = temp + 1;
-                            this.active_subject_option = this.available_subject_options[next_key];
-                        }
-                        return this.scroll();
-                    }
-                    if (temp == 0) {
-                        this.active_subject_option = this.available_subject_options[0];
-                        return this.scroll();
-                    }
-                    var previous_key = temp - 1;
-                    this.active_subject_option = this.available_subject_options[previous_key];
-                    this.scroll();
-                },
-                scroll() {
-                    var div = this.$el.getElementsByClassName('subject_item_active')[0];
-                    if (div == undefined) {
-                        return;
-                    }
-                    div.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
-                },
-                showSubjectInput() {
-                    this.showInput = true;
-                },
-                focusSearch() {
-                    var icon = this.$el.getElementsByClassName('icons-search-active')[0];
-                    icon.classList.remove('hide-search');
-                    var icon = this.$el.getElementsByClassName('icons-search-inactive')[0];
-                    icon.classList.add('hide-search');
-                },
-                loseFocusSearch() {
-                    var icon = this.$el.getElementsByClassName('icons-search-inactive')[0];
-                    icon.classList.remove('hide-search');
-                    var icon = this.$el.getElementsByClassName('icons-search-active')[0];
-                    icon.classList.add('hide-search');
-                },
-                filterAvailableSubjectOptions() {
-                    var arr = this.subject_list_init.map((x) => x);
-                    var i = 0;
-                    while (i < arr.length) {
-                        if (this.subjects.includes(arr[i])) {
-                            arr.splice(i, 1);
-                        } else if (!arr[i].toLowerCase().includes(this.textInput.toLowerCase())) {
-                            arr.splice(i, 1);
-                        } else {
-                            ++i;
-                        }
-                    }
-                    this.available_subject_options = arr;
-                }
-            }
-
-        }
-
-    </script>
-
-@endpush

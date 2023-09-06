@@ -15,8 +15,15 @@
                     this.isCollapsed = true;
                     setTimeout(() => this.doneCollapsing = true, 1500)
                 }
-            }
+            },
+            redirectBack: function() {
+                if(this.$store.answerFeedback.feedbackBeingEdited()) {
+                    return this.$store.answerFeedback.openConfirmationModal(this.$root, 'redirectBack');
+                }
+                $wire.redirectBack();
+            },
         }"
+        x-on:continue-navigation="Alpine.$data($el)[$event.detail.method]()"
 
         @unless($this->headerCollapsed)
             x-show="!isCollapsed"
@@ -25,7 +32,7 @@
 >
     <div class="py-2.5 px-6 flex h-[var(--header-height)] items-center justify-between">
         <div class="flex items-center space-x-4 truncate">
-            <x-button.back-round wire:click="redirectBack()"
+            <x-button.back-round x-on:click="redirectBack()"
                                  background-class="bg-white/20"
                                  class="hover:text-white"
                                  title="{{ $backButtonTitle }}"
@@ -43,12 +50,13 @@
     @unless($this->headerCollapsed)
         <div id="start-screen-content" class="h-full flex justify-center items-center">
             <div class="flex flex-col mb-[110px]">
-                <div class="flex items-center justify-center h-8 mb-4">
+                <div class="flex flex-col gap-2 items-center justify-center mb-4">
                     <h3 class="text-center text-white">
                         @hasSection('subtitle')
                             @yield('subtitle')
                         @endif
                     </h3>
+                    @yield('notification-box')
                 </div>
                 <div class="grid grid-cols-2 gap-5">
                     @yield('panels')

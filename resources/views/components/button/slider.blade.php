@@ -21,6 +21,7 @@
          )"
      x-on:slider-toggle-rerender="rerender()"
      x-on:scoring-elements-error.window="markInputElementsWithError()"
+     x-intersect.once=" bootComponent()"
      data-toggle-value="@js($toggleValue)"
         @class([
            $attributes->get('class'),

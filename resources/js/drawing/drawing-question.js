@@ -64,6 +64,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         firstInit: true,
         warnings: {},
         explainer: null,
+        livewireComponent: null,
         init() {
             if (this.firstInit) {
                 this.bindEventListeners(eventListenerSettings);
@@ -120,6 +121,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
                 const templateCopy = layerTemplate.content.cloneNode(true);
                 this.explainer = templateCopy.querySelector(".explainer");
             }
+
+            this.livewireComponent = getClosestLivewireComponentByAttribute(rootElement, 'questionComponent')
         },
         convertCanvas2DomCoordinates(coordinates) {
             const matrix = Canvas.params.domMatrix;
@@ -184,6 +187,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
                 currentLayer: "question",
                 focusedShape: null,
                 bounds: {},
+                editingTextInZone: false,
                 draw: {
                     newShape: null,
                     shapeCountForEachType: {
@@ -212,6 +216,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
                 zoomFactor: 1,
                 initialZoomLevel: 1,
             },
+            UI: UI,
             element: UI.svgCanvas,
             layers: {},
             dragging() {
@@ -401,6 +406,11 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
                         }
                     }
                 },
+                "paste": {
+                    callback: (evt) => {
+                        isTeacher && UI.canvas.matches(':hover') && handleImagePaste(evt);
+                    }
+                }
             }
         },
         {
@@ -492,6 +502,12 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
                 "change": {
                     callback: (evt) => {
                         drawingApp.params.boldText = evt.target.checked;
+                        if(evt.target.checked){
+                            UI.boldToggleButton.classList.add('active');
+                        } else {
+                            UI.boldToggleButton.classList.remove('active');
+                        }
+                        editShape('updateBoldText');
                     }
                 }
             }
@@ -500,14 +516,26 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             element: UI.elemOpacityNumber,
             events: {
                 "input": {
-                    callback: updateElemOpacityRangeInput,
+                    callback: () => {
+                        if(valueWithinBounds(UI.elemOpacityNumber)) {
+                            updateElemOpacityRangeInput();
+                            editShape('updateOpacity');
+                        }
+                    },
                 }
             }
         },
         {
             element: UI.elemOpacityRange,
             events: {
-                "input": {callback: updateElemOpacityNumberInput},
+                "input": {
+                    callback: () => {
+                        if(valueWithinBounds(UI.elemOpacityRange)) {
+                            updateElemOpacityNumberInput();
+                            editShape('updateOpacity');
+                        }
+                    }
+                },
                 "focus": {
                     callback: () => {
                         UI.elemOpacityNumber.classList.add("active");
@@ -521,16 +549,25 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             }
         },
         {
-            element: UI.strokeWidth,
+            element: UI.textColor,
             events: {
                 "input": {
                     callback: () => {
-                        valueWithinBounds(UI.strokeWidth);
+                        editShape('updateTextColor');
                     }
+                }
+            }
+        },
+        {
+            element: UI.strokeWidth,
+            events: {
+                "input": {
+                    callback: () => valueWithinBounds(UI.strokeWidth) && editShape('updateStrokeWidth')
+
                 },
                 "blur": {
                     callback: () => {
-                        handleStrokeButtonStates()
+                        toggleDisableButtonStates(UI.strokeWidth, UI.decrStroke, UI.incrStroke);
                     }
                 }
             }
@@ -541,7 +578,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
                 "click": {
                     callback: () => {
                         UI.strokeWidth.stepDown();
-                        handleStrokeButtonStates()
+                        toggleDisableButtonStates(UI.strokeWidth, UI.decrStroke, UI.incrStroke);
+                        editShape('updateStrokeWidth');
                     },
                 },
                 "focus": {
@@ -562,7 +600,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
                 "click": {
                     callback: () => {
                         UI.strokeWidth.stepUp();
-                        handleStrokeButtonStates()
+                        toggleDisableButtonStates(UI.strokeWidth, UI.decrStroke, UI.incrStroke);
+                        editShape('updateStrokeWidth');
                     },
                 },
                 "focus": {
@@ -578,12 +617,69 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             }
         },
         {
-            element: UI.textSize,
+            element: UI.lineWidth,
             events: {
                 "input": {
                     callback: () => {
-                        valueWithinBounds(UI.textSize);
+                        valueWithinBounds(UI.lineWidth) && editShape('updateLineWidth');
                     }
+                },
+                "blur": {
+                    callback: () => {
+                        toggleDisableButtonStates(UI.lineWidth, UI.decrLineWidth, UI.incrLineWidth);
+                    }
+                }
+            }
+        },
+        {
+            element: UI.decrLineWidth,
+            events: {
+                "click": {
+                    callback: () => {
+                        UI.lineWidth.stepDown();
+                        toggleDisableButtonStates(UI.lineWidth, UI.decrLineWidth, UI.incrLineWidth);
+                        editShape('updateLineWidth');
+                    },
+                },
+                "focus": {
+                    callback: () => {
+                        UI.lineWidth.classList.add("active");
+                    },
+                },
+                "blur": {
+                    callback: () => {
+                        UI.lineWidth.classList.remove("active");
+                    },
+                },
+            }
+        },
+        {
+            element: UI.incrLineWidth,
+            events: {
+                "click": {
+                    callback: () => {
+                        UI.lineWidth.stepUp();
+                        toggleDisableButtonStates(UI.lineWidth, UI.decrLineWidth, UI.incrLineWidth);
+                        editShape('updateLineWidth');
+                    },
+                },
+                "focus": {
+                    callback: () => {
+                        UI.lineWidth.classList.add("active");
+                    },
+                },
+                "blur": {
+                    callback: () => {
+                        UI.lineWidth.classList.remove("active");
+                    },
+                },
+            }
+        },
+        {
+            element: UI.textSize,
+            events: {
+                "input": {
+                    callback: () => valueWithinBounds(UI.textSize) && editShape('updateTextSize')
                 },
                 "blur": {
                     callback: () => {
@@ -598,7 +694,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
                 "click": {
                     callback: () => {
                         UI.textSize.stepDown();
-                        handleTextSizeButtonStates()
+                        handleTextSizeButtonStates();
+                        editShape('updateTextSize');
                     },
                 },
                 "focus": {
@@ -619,7 +716,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
                 "click": {
                     callback: () => {
                         UI.textSize.stepUp();
-                        handleTextSizeButtonStates()
+                        handleTextSizeButtonStates();
+                        editShape('updateTextSize');
                     },
                 },
                 "focus": {
@@ -638,7 +736,10 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             element: UI.fillColor,
             events: {
                 "input": {
-                    callback: updateOpacitySliderColor,
+                    callback: () => {
+                        updateOpacitySliderColor();
+                        editShape('updateFillColor');
+                    }
                 }
             }
         },
@@ -646,14 +747,26 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             element: UI.fillOpacityNumber,
             events: {
                 "input": {
-                    callback: updateFillOpacityRangeInput,
+                    callback: () => {
+                        if(valueWithinBounds(UI.elemOpacityNumber)) {
+                            updateFillOpacityRangeInput();
+                            editShape('updateOpacity');
+                        }
+                    },
                 }
             }
         },
         {
             element: UI.fillOpacityRange,
             events: {
-                "input": {callback: updateFillOpacityNumberInput},
+                "input": {
+                    callback: () => {
+                        if(valueWithinBounds(UI.fillOpacityRange)) {
+                            updateFillOpacityNumberInput();
+                            editShape('updateOpacity');
+                        }
+                    }
+                },
                 "focus": {
                     callback: () => {
                         UI.fillOpacityNumber.classList.add("active");
@@ -664,6 +777,30 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
                         UI.fillOpacityNumber.classList.remove("active");
                     },
                 },
+            }
+        },
+        {
+            element: UI.strokeColor,
+            events: {
+                "input": {
+                    callback: () => editShape('updateStrokeColor')
+                }
+            }
+        },
+        {
+            element: UI.lineColor,
+            events: {
+                "input": {
+                    callback: () => editShape('updateLineColor')
+                }
+            }
+        },
+        {
+            element: UI.endmarkerTypeWrapper,
+            events: {
+                "click": {
+                    callback: () => editShape('editOwnMarkerForThisShape')
+                }
             }
         },
         {
@@ -1460,8 +1597,9 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
      */
     function cursorStart(evt) {
         evt.preventDefault();
-        updateCursorPosition(evt);
+        if(ShouldEditTextOnClick()) return;
 
+        updateCursorPosition(evt);
         setMousedownPosition(evt)
 
         if (Canvas.params.focusedShape)
@@ -1595,7 +1733,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
                     "y2": cursorPosition.y,
                     "marker-end": `url(#svg-${drawingApp.params.endmarkerType}-line)`,
                     "stroke": UI.lineColor.value,
-                    "stroke-width": UI.strokeWidth.value,
+                    "stroke-width": UI.lineWidth.value,
                     "opacity": parseFloat(UI.elemOpacityNumber.value / 100),
                 };
             case "freehand":
@@ -1603,7 +1741,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
                     "d": `M ${cursorPosition.x},${cursorPosition.y}`,
                     "fill": "none",
                     "stroke": UI.lineColor.value,
-                    "stroke-width": UI.strokeWidth.value,
+                    "stroke-width": UI.lineWidth.value,
                     "opacity": parseFloat(UI.elemOpacityNumber.value / 100),
                 };
             case "text":
@@ -1960,49 +2098,10 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
 
 
     function processUploadedImages(evt) {
-        const livewireComponent = getClosestLivewireComponentByAttribute(drawingApp.params.root, 'questionComponent')
-
-        for (const fileURL of evt.target.files) {
-            if (fileURL.size / (1024 * 1024) > 4) {
-                Notify.notify('U kunt afbeeldingen van maximaal 4 mb uploaden');
-                return false;
-            }
-            const reader = new FileReader();
-
-            const identifier = uuidv4();
-            UI.submitBtn.disabled = true
-            livewireComponent.upload(`cmsPropertyBag.images.${Canvas.params.currentLayer}.${identifier}`, fileURL, () => {
-                // Success callback.
-                UI.submitBtn.disabled = false
-            }, () => {
-                // Error callback.
-                UI.submitBtn.disabled = false
-            }, () => {
-                // Progress callback.
-            })
-
-            reader.readAsDataURL(fileURL);
-
-            drawingApp.bindEventListeners([
-                {
-                    element: reader,
-                    events: {
-                        loadend: {
-                            callback: (evt) => {
-                                fileLoadedIntoReader(evt, identifier);
-                            },
-                        },
-                        error: {
-                            callback: () => {
-                                console.error(
-                                    "Something went wrong while loading this image."
-                                );
-                            },
-                        },
-                    }
-                }
-            ]);
+        for (const file of evt.target.files) {
+            createImageInsideCanvas(file);
         }
+
         manualToolChange('drag');
         UI.imgUpload.value = null;
     }
@@ -2072,6 +2171,79 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         return scaleFactor * 0.99;
     }
 
+    function handleImagePaste(evt) {
+        let items = evt.clipboardData.items;
+
+        for (let i = 0; i < items.length; i++) {
+            if (items[i].type.indexOf("image") !== -1) {
+                let file = items[i].getAsFile();
+
+                createImageInsideCanvas(file);
+            }
+        }
+
+        manualToolChange('drag');
+        UI.imgUpload.value = null;
+    }
+
+    function createImageInsideCanvas(file) {
+        if(!imageTypeIsAllowed(file)) return;
+
+        UI.submitBtn.disabled = true
+
+        let identifier = uuidv4();
+        let reader = new FileReader();
+
+        uploadImageToLivewireComponent(file, identifier);
+
+        reader.readAsDataURL(file);
+
+        drawingApp.bindEventListeners([
+            {
+                element: reader,
+                events: {
+                    loadend: {
+                        callback: (evt) => {
+                            fileLoadedIntoReader(evt, identifier);
+                        },
+                    },
+                    error: {
+                        callback: () => {
+                            console.error(
+                                "Something went wrong while loading this image."
+                            );
+                        },
+                    },
+                }
+            }
+        ]);
+    }
+
+    function uploadImageToLivewireComponent(file, identifier) {
+        drawingApp.livewireComponent.upload(`cmsPropertyBag.images.${Canvas.params.currentLayer}.${identifier}`, file, () => {
+            // Success callback.
+            UI.submitBtn.disabled = false
+        }, () => {
+            // Error callback.
+            UI.submitBtn.disabled = false
+        }, () => {
+            // Progress callback.
+        })
+    }
+
+    function imageTypeIsAllowed(file) {
+        if(file.size / (1024 * 1024) > 4) {
+            dispatchEvent(new CustomEvent('js-localized-notify-popup', {detail: {translation_key: 'image-size-error', message_type: 'error'}}));
+            return false;
+        }
+
+        if(!['png', 'jpeg', 'jpg'].includes(file.type.toLowerCase().split('/')[1])) {
+            dispatchEvent(new CustomEvent('js-localized-notify-popup', {detail: {translation_key: 'image-type-error', message_type: 'error'}}));
+            return false;
+        }
+
+        return true;
+    }
 
     function updateGridButtonStates(disabled) {
         UI.gridSize.disabled = disabled;
@@ -2144,13 +2316,11 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     }
 
     function updateElemOpacityNumberInput() {
-        valueWithinBounds(UI.elemOpacityRange);
         UI.elemOpacityNumber.value = UI.elemOpacityRange.value;
         updateOpacitySliderColor();
     }
 
     function updateElemOpacityRangeInput() {
-        if (!valueWithinBounds(UI.elemOpacityNumber)) return;
         UI.elemOpacityRange.value = UI.elemOpacityNumber.value;
         updateOpacitySliderColor();
     }
@@ -2166,7 +2336,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
      * @param {HTMLElement} slider The slider to update.
      * @param {?string} leftColorHexValue The hexadecimal value for the color left of the knob.
      */
-    window.setSliderColor = function (
+    function setSliderColor (
         slider,
         leftColorHexValue = getRootCSSProperty("--all-Base")
     ) {
@@ -2223,13 +2393,11 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     }
 
     function updateFillOpacityNumberInput() {
-        valueWithinBounds(UI.fillOpacityRange);
         UI.fillOpacityNumber.value = UI.fillOpacityRange.value;
         updateOpacitySliderColor();
     }
 
     function updateFillOpacityRangeInput() {
-        if (!valueWithinBounds(UI.fillOpacityNumber)) return;
         UI.fillOpacityRange.value = UI.fillOpacityNumber.value;
         updateOpacitySliderColor();
     }
@@ -2238,7 +2406,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         let value = parseFloat(inputElem.value),
             max = parseFloat(inputElem.max),
             min = parseFloat(inputElem.min);
-        if (Number.isNaN(value) || value === 0) {
+        if (Number.isNaN(value)) {
             return false;
         }
         if (value > max) {
@@ -2401,16 +2569,45 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         disableButtonsWhenNecessary('gridSize');
     }
 
-    function handleStrokeButtonStates() {
-        const {currentValue, min, max} = getBoundsForInputElement(UI.strokeWidth);
+    function toggleDisableButtonStates(input, decrButton, incrButton) {
+        const {currentValue, min, max} = getBoundsForInputElement(input);
 
-        UI.decrStroke.disabled = currentValue === min;
-        UI.incrStroke.disabled = currentValue === max;
+        decrButton.disabled = currentValue === min;
+        incrButton.disabled = currentValue === max;
+    }
+
+    function checkIfShouldeditShape(selectedEl) {
+        return selectedEl && checkIfFocusedDataButtonIsSameAsSelectedElement(selectedEl)
+    }
+
+    function checkIfFocusedDataButtonIsSameAsSelectedElement(selectedEl) {
+        const currentDataButton = rootElement.querySelector('[data-button-group=tool].active');
+        if(!currentDataButton) return false;
+
+        const shapeType = selectedEl.id.split('-')[0];
+        return shapeType === currentDataButton.id.split('-')[1];
+    }
+
+    function editShape(functionName) {
+        const selectedEl = rootElement.querySelector('.editing');
+        if(!checkIfShouldeditShape(selectedEl)) return;
+
+        const layerObject = Canvas.layers[Canvas.layerID2Key(selectedEl.parentElement.id)];
+        const selectedSvgShapeClass = layerObject.shapes[selectedEl.id].svg;
+
+        functionName in selectedSvgShapeClass && selectedSvgShapeClass[functionName]();
+    }
+
+    function ShouldEditTextOnClick() {
+        const selectedEl = rootElement.querySelector('.editing');
+        if(!checkIfShouldeditShape(selectedEl)) return;
+
+        const shapeType = selectedEl.id.split('-')[0];
+
+        return shapeType === 'text' && Canvas.params.editingTextInZone;
     }
 
     return {UI, Canvas, drawingApp}
-
-
 }
 
 function clearPreviewGrid(rootElement) {
@@ -2462,4 +2659,3 @@ window.calculatePreviewBounds = function (parent) {
         cy: -matrix.f + (height / 2),
     };
 }
-

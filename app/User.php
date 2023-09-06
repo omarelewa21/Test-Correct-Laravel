@@ -103,7 +103,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     protected $fillable = [
         'sales_organization_id', 'school_id', 'school_location_id', 'username', 'name_first', 'name_suffix', 'name',
         'password', 'external_id', 'gender', 'time_dispensation', 'text2speech', 'abbreviation', 'note', 'demo',
-        'invited_by', 'account_verified', 'test_take_code_id', 'guest', 'send_welcome_email', 'is_examcoordinator', 'is_examcoordinator_for', 'password_expiration_date'
+        'invited_by', 'account_verified', 'test_take_code_id', 'guest', 'send_welcome_email', 'is_examcoordinator', 'is_examcoordinator_for', 'password_expiration_date','has_package'
     ];
 
 
@@ -1415,7 +1415,13 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         }
         return false;
     }
-
+    public function isInThiemeMeulenhoffSchool(): bool
+    {
+        if (optional($this->schoolLocation)->customer_code == config('custom.thieme_meulenhoff_school_customercode')) {
+            return true;
+        }
+        return false;
+    }
     public function isInNationalItemBankSchool(): bool
     {
         if (optional($this->schoolLocation)->customer_code == config('custom.national_item_bank_school_customercode')) {
@@ -1423,6 +1429,15 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         }
         return false;
     }
+
+    public function isInFormidableSchool(): bool
+    {
+        if (optional($this->schoolLocation)->customer_code == config('custom.formidable_school_customercode')) {
+            return true;
+        }
+        return false;
+    }
+
 
     public static function getDeletedNewUser()
     {
@@ -1738,6 +1753,35 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                     break;
                 case 'name_first':
                     $query->where('name_first', 'LIKE', '%' . $value . '%');
+                    break;
+                case 'has_package':
+                    if ($value==1) {      $query->where('has_package', '=', 1);
+                    } elseif($value==2) {
+                        $query->where('has_package', '=', 0);
+                    }
+                    break;
+                case 'trial_status':
+                    $usersStatus = TrialPeriod::get();
+                    $usersWithMoreThan14Days = []; // Array to store user IDs with more than 14 days remaining
+                    $usersWithMoreThan0Days = []; // Array to store user IDs with more than 0 days remaining
+                    foreach ($usersStatus as $userStatus) {
+                        $daysRemaining = $userStatus->created_at->diffInDays($userStatus->trial_until);
+        
+                        if ($daysRemaining >= 1 && $daysRemaining <= 15) {
+                            // If days remaining is greater than 14, store the user ID in the array
+                            $usersWithMoreThan14Days[] = $userStatus->user_id;
+                        } else {
+                            $usersWithMoreThan0Days[] = $userStatus->user_id;
+                        }
+                    }
+                    if ($value==1) {
+                        $query->whereNotIn('id', $usersWithMoreThan14Days)->whereNotIn('id', $usersWithMoreThan0Days);
+                    } elseif($value==2) {
+                        $query->whereIn('id', $usersWithMoreThan0Days);
+                    }
+                    elseif($value==3) {
+                        $query->whereIn('id', $usersWithMoreThan14Days);
+                    }
                     break;
                 case 'send_welcome_email':
                     $query->where('send_welcome_email', '=', $value);
@@ -2613,11 +2657,11 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             return $language instanceof SystemLanguage ? $language->value : $language;
         }
 
-        if ($language = UserFeatureSetting::getSetting($this, UserFeatureSettingEnum::SYSTEM_LANGUAGE)) {
+        if ($language = UserFeatureSetting::getSetting($this, UserFeatureSettingEnum::SYSTEM_LANGUAGE, default: null)) {
             return $language->value;
         }
 
-        return $this->schoolLocation?->school_language?->value ?? BaseHelper::browserLanguage();
+        return $this->schoolLocation?->school_language ?? BaseHelper::browserLanguage();
     }
 
     public function hasSingleSchoolLocation()
@@ -2811,7 +2855,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     private function setForcePasswordChangeIfRequired(): void
     {
         if (app()->runningInConsole()) return;
-        if (!$this->isDirty(['password'])) {
+        if (!$this->isDirty(['password']) || $this->isDirty('password_expiration_date')) {
             return;
         }
 

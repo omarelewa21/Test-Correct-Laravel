@@ -23,7 +23,7 @@
                                                      wire:sortable-group.item="{{ $option->id }}"
                                                      selid="drag-block"
                                                      @touchend="detectFastSuccessiveEvents($event, selectTextContent)"
-                                                     class="{{ empty($option->answer) || $option->answer == ' ' ? 'hidden' : '' }}"
+                                                     class="{{ is_null($option->answer) || $option->answer == ' ' ? 'hidden' : '' }}"
                                         >
                                             {{ html_entity_decode($option->answer) }}
                                         </x-drag-item>

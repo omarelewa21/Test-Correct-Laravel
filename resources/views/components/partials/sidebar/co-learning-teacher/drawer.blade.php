@@ -77,7 +77,7 @@
         <div class="bottom-0 drawer-footer flex justify-between items-center footer-shadow flex-shrink-0"
              x-init="$nextTick(() => {fillSpaceBetweenElementsHorizontal('footerElement1', 'footerElement2');})"
         >
-            <x-button.text-button wire:click.prevent="goToPreviousQuestion"
+            <x-button.text wire:click.prevent="goToPreviousQuestion"
                                   @click="resetToggles"
                                   wire:key="previousQuestion.{{$this->testTake->discussing_question_id}}"
                                   :disabled="$this->atFirstQuestion"
@@ -87,7 +87,7 @@
             >
                 <x-icon.arrow-left/>
                 <span>{{ __('co-learning.previous') }}</span>
-            </x-button.text-button>
+            </x-button.text>
             <x-button.primary wire:click.prevent="goToNextQuestion"
                               @click="resetToggles"
                               wire:key="lastQuestion.{{$this->testTake->discussing_question_id}}"

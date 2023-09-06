@@ -6,6 +6,8 @@ return [
 
     'base_url' => env('BASE_URL', ''),
 
+    'knowledge_bank_url' => env('KNOWLEDGE_BANK_URL', 'https://support.test-correct.nl/knowledge'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Name
@@ -174,6 +176,7 @@ return [
         //Pdf renderer
         Barryvdh\Snappy\ServiceProvider::class,
         tcCore\Providers\MacrosServiceProvider::class,
+        Mews\Captcha\CaptchaServiceProvider::class,
     ],
 
     /*
@@ -227,7 +230,7 @@ return [
         'Bugsnag' => Bugsnag\BugsnagLaravel\Facades\Bugsnag::class,
         'PDF' => Barryvdh\Snappy\Facades\SnappyPdf::class,
         'SnappyImage' => Barryvdh\Snappy\Facades\SnappyImage::class,
-
+        'Captcha' => Mews\Captcha\Facades\Captcha::class,
     ],
     'debug_blacklist' => [
         '_ENV' => [

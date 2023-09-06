@@ -1,4 +1,4 @@
-@props(['label' => __('student.fill_in_test_code_from_teacher') ])
+@props(['label' => __('student.fill_in_test_code_from_teacher'), 'tab'])
 
 <div class="flex flex-col space-y-2 pt-4 test-take-code-component">
     <span x-ref="textCodeLabel">{{ $label }}</span>
@@ -10,21 +10,24 @@
         <x-input.text class="w-10 text-center test-code" type="number"
                       max="9" maxlength="1" wire:model.defer="testTakeCode.0"
                       x-ref="testCode_1"
-                      data-focus-tab-error="2-invalid_test_code"
+                      data-focus-tab-error="{{$tab}}-invalid_test_code"
                       x-on:input="testCodeInput($el)"
                       x-on:paste.prevent="handlePaste($event, $el)"
+                      x-on:focus="$el.select()"
         />
         <x-input.text class="w-10 text-center test-code" type="number"
                       max="9" maxlength="1" wire:model.defer="testTakeCode.1"
                       x-ref="testCode_2"
                       x-on:input="testCodeInput($el)"
                       x-on:keydown.backspace.prevent="testCodeBackspace($el)"
+                      x-on:focus="$el.select()"
         />
         <x-input.text class="w-10 text-center test-code" type="number"
                       max="9" maxlength="1" wire:model.defer="testTakeCode.2"
                       x-ref="testCode_3"
                       x-on:input="testCodeInput($el)"
                       x-on:keydown.backspace.prevent="testCodeBackspace($el)"
+                      x-on:focus="$el.select()"
         />
         <div class="h-5 w-px bg-blue-grey"></div>
         <x-input.text class="w-10 text-center test-code" type="number"
@@ -32,18 +35,21 @@
                       x-ref="testCode_4"
                       x-on:input="testCodeInput($el)"
                       x-on:keydown.backspace.prevent="testCodeBackspace($el)"
+                      x-on:focus="$el.select()"
         />
         <x-input.text class="w-10 text-center test-code" type="number"
                       max="9" maxlength="1" wire:model.defer="testTakeCode.4"
                       x-ref="testCode_5"
                       x-on:input="testCodeInput($el)"
                       x-on:keydown.backspace.prevent="testCodeBackspace($el)"
+                      x-on:focus="$el.select()"
         />
         <x-input.text class="w-10 text-center test-code" type="number"
                       max="9" maxlength="1" wire:model="testTakeCode.5"
                       x-ref="testCode_6"
                       x-on:input="testCodeInput($el)"
                       x-on:keydown.backspace.prevent="testCodeBackspace($el);"
+                      x-on:focus="$el.select()"
         />
     </div>
     @push('scripts')

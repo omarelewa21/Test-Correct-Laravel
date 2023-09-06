@@ -28,7 +28,7 @@ return [
     'forgot_password'                                         => 'Forgot password?',
     'forgot_password_explain_text'                            => 'Please enter the e-mail address by which you have an account at Test-Correct. We will send you an email to reset your password.',
     'forgot_password_email_send'                              => 'Password reset requested',
-    'forgot_password_email_send_text'                         => 'Within serveral minutes you will receive an e-mail with instructions about how to reset your password. Do\'t forget to check your spam folder if you have not received the e-mail yet',
+    'forgot_password_email_send_text'                         => 'Within serveral minutes you will receive an e-mail with instructions about how to reset your password. Don\'t forget to check your spam folder if you have not received the e-mail yet',
     'download_student_app'                                    => 'Download the student app',
     'download_app'                                            => 'Download the app',
     'download'                                                => 'Download app',

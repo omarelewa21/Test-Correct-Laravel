@@ -387,7 +387,7 @@ class Constructor extends TCComponent implements QuestionCms
         }
 
         if ($this->obj && method_exists($this->obj, $method)) {
-            if ($arguments) {
+            if (!is_null($arguments)) {
                 return $this->obj->$method($arguments);
             }
             return $this->obj->$method();
