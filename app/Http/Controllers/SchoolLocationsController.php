@@ -110,7 +110,9 @@ class SchoolLocationsController extends Controller {
                 SchoolLocationSharedSection::where('section_id', $sharedSection->section_id)->delete();
             });
         }
-   
+
+        $schoolLocation->fill($request->all());
+        
         if ($schoolLocation->save() !== false) {
             return Response::make($schoolLocation, 200);
             
