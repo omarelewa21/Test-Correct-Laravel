@@ -358,11 +358,13 @@ class Taken extends TestTakeComponent
 
     private function discussedQuestions(Collection $questions): int
     {
-        $index = $questions->search(function ($question) use ($questions) {
-            return $question->id === $questions->where('id', $this->testTake->discussing_question_id)
-                    ->first()?->id;
-        });
-        return $index !== false ? $index + 1 : 0;
+        $answerRatingQueryBuilder = AnswerRating::where('test_take_id',$this->testTake->getKey())->where('type',AnswerRating::TYPE_STUDENT)->whereNotNull('rating')->select('answer_id');
+        return Answer::whereIn('id',$answerRatingQueryBuilder)->groupBy('question_id')->get(['id'])->count();
+//        $index = $questions->search(function ($question) use ($questions) {
+//            return $question->id === $questions->where('id', $this->testTake->discussing_question_id)
+//                    ->first()?->id;
+//        });
+//        return $index !== false ? $index + 1 : 0;
     }
 
     private function questionsToAssess(): int
@@ -375,25 +377,29 @@ class Taken extends TestTakeComponent
 
     private function assessedQuestions(): int
     {
-        return Answer::select('answers.question_id')
-            ->leftJoin(
-                'test_participants',
-                'test_participants.id',
-                '=',
-                'answers.test_participant_id'
-            )
-            ->where('test_participants.test_take_id', $this->testTake->getKey())
-            ->whereNull('test_participants.deleted_at')
-            ->whereExists(function ($query) {
-                $query->select('answer_ratings.id')
-                    ->from('answer_ratings')
-                    ->whereRaw('answer_ratings.answer_id = answers.id')
-                    ->where('answer_ratings.type', '!=', AnswerRating::TYPE_STUDENT)
-                    ->whereNull('answer_ratings.deleted_at');
-            })
-            ->groupBy('answers.question_id')
-            ->get()
-            ->count();
+        $answerRatingQueryBuilder = AnswerRating::where('test_take_id',$this->testTake->getKey())->where('type','!=',AnswerRating::TYPE_STUDENT)->whereNotNull('rating')->select('answer_id');
+        return Answer::whereIn('id',$answerRatingQueryBuilder)->groupBy('question_id')->get(['id'])->count();
+
+
+//        return Answer::select('answers.question_id')
+//            ->leftJoin(
+//                'test_participants',
+//                'test_participants.id',
+//                '=',
+//                'answers.test_participant_id'
+//            )
+//            ->where('test_participants.test_take_id', $this->testTake->getKey())
+//            ->whereNull('test_participants.deleted_at')
+//            ->whereExists(function ($query) {
+//                $query->select('answer_ratings.id')
+//                    ->from('answer_ratings')
+//                    ->whereRaw('answer_ratings.answer_id = answers.id')
+//                    ->where('answer_ratings.type', '!=', AnswerRating::TYPE_STUDENT)
+//                    ->whereNull('answer_ratings.deleted_at');
+//            })
+//            ->groupBy('answers.question_id')
+//            ->get()
+//            ->count();
     }
 
     private function createSystemRatingsWhenNecessary(): void
