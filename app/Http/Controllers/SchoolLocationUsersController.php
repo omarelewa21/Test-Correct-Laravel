@@ -41,7 +41,9 @@ class SchoolLocationUsersController extends Controller {
     public function indexSchoolsTeacherUuid(Request $request)
     {
         $userId= $request['user_id'];
-        $user =User::find($userId);
+        // Get User By Uuid Not By Id
+        $user =User::whereUuid($userId)->first();
+        // $user =User::find($userId);
         return $user->allowedSchoolLocations;
     }
 
