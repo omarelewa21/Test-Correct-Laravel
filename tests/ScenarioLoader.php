@@ -6,14 +6,16 @@ use tcCore\FactoryScenarios\FactoryScenarioSchoolSimple;
 
 final class ScenarioLoader
 {
-    private static $loadedScenario = false;
+    public static $loadedScenario = false;
 
-    private static $data;
+    public static $data;
 
     public static function load($scenarioName)
     {
-        var_dump($scenarioName);
+        $microTime = microtime(true);
+
         if (!self::isLoadedScenario($scenarioName) && !is_bool($scenarioName)) {
+            logger('start running scenario for '.$scenarioName);
             if (!method_exists($scenarioName, 'getData')) {
                     throw new \Exception(
                         sprintf(
@@ -27,6 +29,7 @@ final class ScenarioLoader
             $factory = $scenarioName::create();
             self::$data = $factory->getData();
             static::$loadedScenario = $scenarioName;
+            logger('done running scenario for '. $scenarioName . ' taking ' .microtime(true)-$microTime). 'milliseconds';
         }
     }
 

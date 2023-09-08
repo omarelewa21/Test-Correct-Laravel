@@ -38,4 +38,12 @@ class PersonalService extends ContentSourceService
     {
         return !$user->isValidExamCoordinator();
     }
+
+    public  function itemBankFiltered($filters = [], $sorting = [], User $forUser): \Illuminate\Database\Eloquent\Builder
+    {
+        return Test::filtered(
+            $filters, $sorting
+        )
+            ->where('tests.author_id', $forUser->getKey());
+    }
 }

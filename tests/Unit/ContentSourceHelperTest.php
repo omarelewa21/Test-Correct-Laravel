@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 
+use tcCore\FactoryScenarios\FactoryScenarioContentSourceHelper;
 use tcCore\FactoryScenarios\FactoryScenarioSchoolRandomComplexWithCreathlon;
 use tcCore\Http\Helpers\ActingAsHelper;
 use Illuminate\Support\Collection;
@@ -10,6 +11,8 @@ use tcCore\Factories\FactoryTest;
 use tcCore\Http\Helpers\ContentSourceHelper;
 use tcCore\SchoolLocation;
 use tcCore\Services\ContentSource\FormidableService;
+use tcCore\Services\ContentSource\ThiemeMeulenhoffService;
+use tcCore\User;
 use Tests\ScenarioLoader;
 use tcCore\Services\ContentSource\CreathlonService;
 use tcCore\Services\ContentSource\NationalItemBankService;
@@ -21,10 +24,14 @@ use Tests\TestCase;
 
 class ContentSourceHelperTest extends TestCase
 {
-    protected $loadScenario = FactoryScenarioSchoolRandomComplexWithCreathlon::class;
+    protected $loadScenario = FactoryScenarioContentSourceHelper::class;
+
+
 
     protected function setUp(): void
     {
+//        static::$skipRefresh = true;
+
         parent::setUp();
         ActingAsHelper::getInstance()->setUser(ScenarioLoader::get('teacher1'));
     }
@@ -51,6 +58,7 @@ class ContentSourceHelperTest extends TestCase
             'ldt',
             'published_creathlon',
             'published_formidable',
+            'published_thieme_meulenhoff',
             'published_olympiade',
         ];
 
@@ -69,7 +77,8 @@ class ContentSourceHelperTest extends TestCase
             'EXAM',
             'LDT',
             'PUBLS',
-            'PUBLS',
+            'FD',
+            'TM',
             'SBON',
         ];
 
@@ -124,7 +133,7 @@ class ContentSourceHelperTest extends TestCase
 
         //check if the Helper methods work
         $this->assertTrue(
-            ContentSourceHelper::canViewContent($user,$publisherName)
+            ContentSourceHelper::canViewContent($user, $publisherName)
         );
     }
 
@@ -182,6 +191,8 @@ class ContentSourceHelperTest extends TestCase
             "LDT",
             "PUBLS",
             "SBON",
+            "TM",
+            'FM',
         ];
 
         $this->assertTrue(ContentSourceHelper::getPublishableAbbreviations() instanceof Collection);
@@ -226,7 +237,7 @@ class ContentSourceHelperTest extends TestCase
         $this->assertFalse($user->hasSharedSections());
 
 
-        if(in_array($publisherName, ['personal', 'school_location'])) {
+        if (in_array($publisherName, ['personal', 'school_location'])) {
             //public and school_location are always allowed
             return $this->assertTrue(ContentSourceHelper::canViewContent($user, $publisherName));
         }
@@ -266,61 +277,70 @@ class ContentSourceHelperTest extends TestCase
     public function publisherNamesDataSet(): array
     {
         return [
-            'personal'        => ['personal'],
-            'school_location' => ['school_location'],
-            'umbrella'        => ['umbrella'],
-            'national'        => ['national'],
-            'creathlon'       => ['creathlon'],
-            'olympiade'       => ['olympiade'],
+            'personal'          => ['personal'],
+            'school_location'   => ['school_location'],
+            'umbrella'          => ['umbrella'],
+            'national'          => ['national'],
+            'creathlon'         => ['creathlon'],
+            'olympiade'         => ['olympiade'],
+            'thieme_meulenhoff' => ['thieme_meulenhoff'],
+            'formidable'        => ['formidable'],
         ];
     }
 
     public function contentSourceDataset()
     {
         return [
-            'Personal'        => [
+            'Personal'          => [
                 'class'       => PersonalService::class, //todo check it is not available for a valid examCoordinator
                 'translation' => 'Persoonlijk',
                 'highlight'   => false,
                 'available'   => true,
                 'tabName'     => 'personal',
             ],
-            'school_location' => [
+            'school_location'   => [
                 'class'       => SchoolLocationService::class,
                 'translation' => 'School',
                 'highlight'   => false,
                 'available'   => true,
                 'tabName'     => 'school_location',
             ],
-            'umbrella'        => [
+            'umbrella'          => [
                 'class'       => UmbrellaOrganizationService::class,
                 'translation' => 'Scholengemeenschap',
                 'highlight'   => false,
                 'available'   => true,
                 'tabName'     => 'umbrella',
             ],
-            'national'        => [
+            'national'          => [
                 'class'       => NationalItemBankService::class,
                 'translation' => 'Nationaal',
                 'highlight'   => true,
                 'available'   => true,
                 'tabName'     => 'national',
             ],
-            'creathlon'       => [
+            'creathlon'         => [
                 'class'       => CreathlonService::class,
                 'translation' => 'Creathlon',
                 'highlight'   => true,
                 'available'   => true,
                 'tabName'     => 'creathlon',
             ],
-            'olympiade'       => [
+            'olympiade'         => [
                 'class'       => OlympiadeService::class,
                 'translation' => 'Olympiade',
                 'highlight'   => true,
                 'available'   => true,
                 'tabName'     => 'olympiade',
             ],
-            'formidable'       => [
+            'thieme_meulenhoff' => [
+                'class'       => ThiemeMeulenhoffService::class,
+                'translation' => 'Thieme Meulenhoff',
+                'highlight'   => true,
+                'available'   => true,
+                'tabName'     => 'thieme_meulenhoff',
+            ],
+            'formidable'        => [
                 'class'       => FormidableService::class,
                 'translation' => 'Formidable',
                 'highlight'   => true,
@@ -345,7 +365,7 @@ class ContentSourceHelperTest extends TestCase
             FactoryTest::create($teacherUser)->setProperties(['subject_id' => $subject->id]);
 
             //content source tests
-            $this->createTestsForContentSources($subject->getKey());
+            $this->createTestsForContentSources($subject->getKey(), $teacherUser);
 
             $this->actingAs($user);
             ActingAsHelper::getInstance()->setUser($user);
@@ -364,19 +384,26 @@ class ContentSourceHelperTest extends TestCase
         $user->schoolLocation->allow_creathlon = $allowEverything;
         $user->schoolLocation->allow_olympiade = $allowEverything;
         $user->schoolLocation->show_national_item_bank = $allowEverything;
+
+        $user->schoolLocation->allow_tm_biology = $allowEverything;
+        $user->schoolLocation->allow_tm_geography = $allowEverything;
+        $user->schoolLocation->allow_tm_dutch = $allowEverything;
+        $user->schoolLocation->allow_tm_english = $allowEverything;
+        $user->schoolLocation->allow_tm_french = $allowEverything;
+
         $user->schoolLocation->allow_formidable = $allowEverything;
 
         $user->schoolLocation->save();
         return $user;
     }
 
-    private function createTestsForContentSources($subjectId)
+    private function createTestsForContentSources($subjectId, User $user)
     {
-        FactoryTest::create()->setProperties(['subject_id' => $subjectId, 'scope' => 'cito']);
-        FactoryTest::create()->setProperties(['subject_id' => $subjectId, 'scope' => 'exam']);
-        FactoryTest::create()->setProperties(['subject_id' => $subjectId, 'scope' => 'ldt']);
-        FactoryTest::create()->setProperties(['subject_id' => $subjectId, 'scope' => 'published_creathlon']);
-        FactoryTest::create()->setProperties(['subject_id' => $subjectId, 'scope' => 'published_olympiade']);
+        FactoryTest::create($user)->setProperties(['subject_id' => $subjectId, 'scope' => 'cito']);
+        FactoryTest::create($user)->setProperties(['subject_id' => $subjectId, 'scope' => 'exam']);
+        FactoryTest::create($user)->setProperties(['subject_id' => $subjectId, 'scope' => 'ldt']);
+        FactoryTest::create($user)->setProperties(['subject_id' => $subjectId, 'scope' => 'published_creathlon']);
+        FactoryTest::create($user)->setProperties(['subject_id' => $subjectId, 'scope' => 'published_olympiade']);
     }
 
 }

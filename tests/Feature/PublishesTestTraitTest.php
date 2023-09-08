@@ -16,6 +16,7 @@ use tcCore\Http\Controllers\TestQuestionsController;
 use tcCore\Http\Livewire\Teacher\Cms\CmsRequest;
 use tcCore\Question;
 use tcCore\SchoolLocation;
+use tcCore\Services\ContentSourceFactory;
 use tcCore\Subject;
 use tcCore\Test;
 use tcCore\TestQuestion;
@@ -219,7 +220,7 @@ class PublishesTestTraitTest extends TestCase
         $this->skipUnavailableCustomerCode($valid_customerCode);
 
         Auth::login(User::whereUsername($toetsen_bakker_username)->first());
-        $publishedTestsAuthorUsername = AuthorsController::getPublishableAuthorByCustomerCode($valid_customerCode);
+        $publishedTestsAuthorUsername = ContentSourceFactory::getPublishableAuthorByCustomerCode($valid_customerCode);
 
         $test = $this->createTest($valid_customerCode, false);
         $this->assertNotEquals($valid_abbreviation, $test->abbreviation);
@@ -244,7 +245,7 @@ class PublishesTestTraitTest extends TestCase
     {
         $this->skipUnavailableCustomerCode($valid_customerCode);
 
-        Auth::login(AuthorsController::getPublishableAuthorByCustomerCode($valid_customerCode));
+        Auth::login(ContentSourceFactory::getPublishableAuthorByCustomerCode($valid_customerCode));
 
         $test = $this->createTest($valid_customerCode, true);
         $this->assertEquals($this->publish[$valid_customerCode]['abbreviation'], $test->abbreviation);
@@ -265,7 +266,7 @@ class PublishesTestTraitTest extends TestCase
     {
         $this->skipUnavailableCustomerCode($valid_customerCode);
 
-        Auth::login(AuthorsController::getPublishableAuthorByCustomerCode($valid_customerCode));
+        Auth::login(ContentSourceFactory::getPublishableAuthorByCustomerCode($valid_customerCode));
 
         $test = $this->createTest($valid_customerCode, false);
         $this->assertNotEquals($valid_abbreviation, $test->abbreviation);
@@ -287,7 +288,7 @@ class PublishesTestTraitTest extends TestCase
     {
         $this->skipUnavailableCustomerCode($valid_customerCode);
 
-        Auth::login(AuthorsController::getPublishableAuthorByCustomerCode($valid_customerCode));
+        Auth::login(ContentSourceFactory::getPublishableAuthorByCustomerCode($valid_customerCode));
 
         $test = $this->createTest($valid_customerCode, true);
         $this->assertNotEquals($invalid_abbreviation, $test->abbreviation);
@@ -314,7 +315,7 @@ class PublishesTestTraitTest extends TestCase
             ->reject(fn($i, $customerCode) => $customerCode == $valid_customerCode)
             ->keys()
             ->random(); //wrong customer code, but it is a publishable school_location
-        $wrongAuthTeacher = AuthorsController::getPublishableAuthorByCustomerCode($wrongCustomerCode);
+        $wrongAuthTeacher = ContentSourceFactory::getPublishableAuthorByCustomerCode($wrongCustomerCode);
         Auth::login($wrongAuthTeacher);
 
         $test = $this->createTest($valid_customerCode, false);
@@ -362,7 +363,7 @@ class PublishesTestTraitTest extends TestCase
             ->reject(fn($i, $customerCode) => $customerCode == $valid_customerCode)
             ->keys()
             ->random(); //wrong customer code, but it is a publishable school_location
-        $wrongAuthTeacher = AuthorsController::getPublishableAuthorByCustomerCode($wrongCustomerCode);
+        $wrongAuthTeacher = ContentSourceFactory::getPublishableAuthorByCustomerCode($wrongCustomerCode);
 
         Auth::login($wrongAuthTeacher);
 
@@ -384,7 +385,7 @@ class PublishesTestTraitTest extends TestCase
     {
 
         $teacher = $published
-            ? AuthorsController::getPublishableAuthorByCustomerCode($customerCode)
+            ? ContentSourceFactory::getPublishableAuthorByCustomerCode($customerCode)
             : User::whereUsername($this->publish[$customerCode]['toetsen_bakker'])->first();
 
         $abbreviation = $published ? $this->publish[$customerCode]['abbreviation'] : $this->unpublish[$customerCode]['abbreviation'];
@@ -428,22 +429,22 @@ class PublishesTestTraitTest extends TestCase
 
     protected function skipUnavailableCustomerCode($customerCode)
     {
-        if (AuthorsController::getPublishableAuthorByCustomerCode($customerCode) == null) {
+        if (ContentSourceFactory::getPublishableAuthorByCustomerCode($customerCode) == null) {
             $this->markTestSkipped('no author available for customer code: ' . $customerCode);
         }
-        if (isset($this->publish['CREATHLON']) && AuthorsController::getPublishableAuthorByCustomerCode('CREATHLON') == null) {
+        if (isset($this->publish['CREATHLON']) && ContentSourceFactory::getPublishableAuthorByCustomerCode('CREATHLON') == null) {
             unset($this->publish['CREATHLON']);
             unset($this->unpublish['CREATHLON']);
         }
-        if (isset($this->publish['OPENSOURCE1']) && AuthorsController::getPublishableAuthorByCustomerCode('OPENSOURCE1') == null) {
+        if (isset($this->publish['OPENSOURCE1']) && ContentSourceFactory::getPublishableAuthorByCustomerCode('OPENSOURCE1') == null) {
             unset($this->publish['OPENSOURCE1']);
             unset($this->unpublish['OPENSOURCE1']);
         }
-        if (isset($this->publish['TBNI']) && AuthorsController::getPublishableAuthorByCustomerCode('TBNI') == null) {
+        if (isset($this->publish['TBNI']) && ContentSourceFactory::getPublishableAuthorByCustomerCode('TBNI') == null) {
             unset($this->publish['TBNI']);
             unset($this->unpublish['TBNI']);
         }
-        if (isset($this->publish['SBON']) && AuthorsController::getPublishableAuthorByCustomerCode('SBON') == null) {
+        if (isset($this->publish['SBON']) && ContentSourceFactory::getPublishableAuthorByCustomerCode('SBON') == null) {
             unset($this->publish['SBON']);
             unset($this->unpublish['SBON']);
         }

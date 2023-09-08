@@ -2,6 +2,7 @@
 
 namespace tcCore\Services\ContentSource;
 
+use tcCore\Test;
 use tcCore\User;
 
 abstract class ContentSourceService
@@ -67,4 +68,48 @@ abstract class ContentSourceService
      * @return bool
      */
     abstract protected static function allowedForUser(User $user): bool;
+
+    public static function getNotPublishScope(): string|null|array
+    {
+        if (static::getPublishScope() === null) return null;
+        return 'not_' . static::getPublishScope();
+    }
+
+    public  function itemBankFiltered($filters = [], $sorting = [], User $forUser): \Illuminate\Database\Eloquent\Builder
+    {
+        return (new Test)->contentSourceFiltered(
+            static::getPublishScope(),
+            static::getCustomerCode(),
+            Test::query(),
+            $filters,
+            $sorting,
+            $forUser
+        );
+    }
+
+    public static function getPrimaryScope(): string|null
+    {
+         if (is_array(static::getPublishScope())) {
+            throw new \Exception('getPrimaryScope() MUST be implemented for content sources with multiple scopes');
+         }
+         return static::getPublishScope();
+    }
+
+    public static function getPublishPrimaryAbbreviation(): string|null
+    {
+        if (is_array(static::getPublishAbbreviation())) {
+            throw new \Exception('getPrimaryAbbrivation() MUST be implemented for content sources with multiple scopes');
+        }
+        return static::getPublishAbbreviation();
+    }
+
+    public static function getCustomerCode(): array|string|null
+    {
+        return null;
+    }
+
+    public static function getSchoolAuthor(): User|null
+    {
+        return null;
+    }
 }

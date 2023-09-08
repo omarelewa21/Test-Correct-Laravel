@@ -11,7 +11,7 @@ use tcCore\Factories\FactorySchoolYear;
 use tcCore\Factories\FactorySection;
 use tcCore\Factories\FactoryUser;
 
-class FactoryScenarioSchoolRandomComplexWithCreathlon extends FactoryScenarioSchoolRandomComplex
+class FactoryScenarioContentSourceHelper extends FactoryScenarioSchoolRandomComplex
 {
     /**
      * create complex school with creathlon
@@ -27,7 +27,7 @@ class FactoryScenarioSchoolRandomComplexWithCreathlon extends FactoryScenarioSch
     {
         return
             parent::create()
-                ->seedCreathlonItemBank();
+                ->seedCreathlonDutchOnlyItemBank();
 
     }
 
