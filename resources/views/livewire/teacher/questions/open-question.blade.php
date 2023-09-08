@@ -74,11 +74,17 @@
                 :maxWords="$this->question['max_words']"
                 :maxWordOverride="true"
         />
-        <div id="word-count-{{ $answerEditorId }}"
-             wire:ignore
-             class="word-count note text-sm mt-2"
-             x-show="wordCounter"
-        >
+        <div class="flex">
+            <div id="word-count-{{ $answerEditorId }}"
+                wire:ignore
+                class="word-count note text-sm mt-2 mr-2"
+                x-show="wordCounter"
+            ></div>
+            <div id="selected-word-count-{{ $answerEditorId }}"
+                wire:ignore
+                class="word-count note text-sm mt-2"
+            ></div>
         </div>
+        
     </div>
 @endsection
