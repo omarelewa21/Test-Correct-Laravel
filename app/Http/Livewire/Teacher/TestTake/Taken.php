@@ -378,7 +378,9 @@ class Taken extends TestTakeComponent
     private function assessedQuestions(): int
     {
         $answerRatingQueryBuilder = AnswerRating::where('test_take_id',$this->testTake->getKey())->where('type','!=',AnswerRating::TYPE_STUDENT)->whereNotNull('rating')->select('answer_id');
-        return Answer::whereIn('id',$answerRatingQueryBuilder)->groupBy('question_id')->get(['id'])->count();
+        $testParticipantQueryBuilder = TestParticipant::where('test_take_id',$this->testTake->getKey())->where('test_take_status_id','>=',6)->select('id');
+        $nonAssessedQuestionCount = Answer::whereIn('test_participant_id',$testParticipantQueryBuilder)->whereNotIn('id',$answerRatingQueryBuilder)->groupBy('question_id')->get(['question_id'])->count();
+        return $this->questionsOfTest->count() - $nonAssessedQuestionCount;
 
 
 //        return Answer::select('answers.question_id')
