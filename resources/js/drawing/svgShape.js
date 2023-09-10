@@ -390,6 +390,21 @@ export class Rectangle extends svgShape {
     constructor(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
         super(shapeId, "rect", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
     }
+
+    static getMainElementAttributes(cursorPosition, UI) {
+        return {
+            "x": cursorPosition.x,
+            "y": cursorPosition.y,
+            "width": 0,
+            "height": 0,
+            "fill":
+                UI.fillOpacityNumberRect.value === 0 ? "none" : UI.fillColorRect.value,
+            "fill-opacity": parseFloat(UI.fillOpacityNumberRect.value / 100),
+            "stroke": UI.strokeColorRect.value,
+            "stroke-width": UI.strokeWidthRect.value,
+            "opacity": parseFloat(UI.fillOpacityNumberRect.value / 100),
+        };
+    }
 }
 
 export class Circle extends svgShape {
