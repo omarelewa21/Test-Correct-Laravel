@@ -348,26 +348,8 @@ class svgShape {
         this.sidebarEntry.entryContainer.parentElement.querySelector('.explainer').style.display = 'inline-block';
     }
 
-    updateFillColor() {
-        this.mainElement.setAttribute("fill", this.UI.fillColor.value);
-    }
-
-    updateOpacity() {
-        const opacity = parseFloat(this.UI.fillOpacityNumber.value / 100);
-        this.mainElement.setAttribute("opacity", opacity);
-        this.mainElement.setAttribute("fill-opacity", opacity);
-    }
-
-    updateStrokeColor() {
-        this.mainElement.setAttribute("stroke", this.UI.strokeColor.value);
-    }
-
     updateLineColor() {
         this.mainElement.setAttribute("stroke", this.UI.lineColor.value);
-    }
-
-    updateStrokeWidth() {
-        this.mainElement.setAttribute("stroke-width", this.UI.strokeWidth.value);
     }
 
     updateLineWidth() {
@@ -404,6 +386,24 @@ export class Rectangle extends svgShape {
             "stroke-width": UI.strokeWidthRect.value,
             "opacity": parseFloat(UI.fillOpacityNumberRect.value / 100),
         };
+    }
+
+    updateFillColor() {
+        this.mainElement.setAttribute("fill", this.UI.fillColorRect.value);
+    }
+
+    updateStrokeWidth() {
+        this.mainElement.setAttribute("stroke-width", this.UI.strokeWidthRect.value);
+    }
+
+    updateOpacity() {
+        const opacity = parseFloat(this.UI.fillOpacityNumberRect.value / 100);
+        this.mainElement.setAttribute("opacity", opacity);
+        this.mainElement.setAttribute("fill-opacity", opacity);
+    }
+
+    updateStrokeColor() {
+        this.mainElement.setAttribute("stroke", this.UI.strokeColorRect.value);
     }
 }
 

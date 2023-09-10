@@ -17322,31 +17322,9 @@ var svgShape = /*#__PURE__*/function () {
       this.sidebarEntry.entryContainer.parentElement.querySelector('.explainer').style.display = 'inline-block';
     }
   }, {
-    key: "updateFillColor",
-    value: function updateFillColor() {
-      this.mainElement.setAttribute("fill", this.UI.fillColor.value);
-    }
-  }, {
-    key: "updateOpacity",
-    value: function updateOpacity() {
-      var opacity = parseFloat(this.UI.fillOpacityNumber.value / 100);
-      this.mainElement.setAttribute("opacity", opacity);
-      this.mainElement.setAttribute("fill-opacity", opacity);
-    }
-  }, {
-    key: "updateStrokeColor",
-    value: function updateStrokeColor() {
-      this.mainElement.setAttribute("stroke", this.UI.strokeColor.value);
-    }
-  }, {
     key: "updateLineColor",
     value: function updateLineColor() {
       this.mainElement.setAttribute("stroke", this.UI.lineColor.value);
-    }
-  }, {
-    key: "updateStrokeWidth",
-    value: function updateStrokeWidth() {
-      this.mainElement.setAttribute("stroke-width", this.UI.strokeWidth.value);
     }
   }, {
     key: "updateLineWidth",
@@ -17374,7 +17352,29 @@ var Rectangle = /*#__PURE__*/function (_svgShape) {
     _classCallCheck(this, Rectangle);
     return _super.call(this, shapeId, "rect", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
   }
-  _createClass(Rectangle, null, [{
+  _createClass(Rectangle, [{
+    key: "updateFillColor",
+    value: function updateFillColor() {
+      this.mainElement.setAttribute("fill", this.UI.fillColorRect.value);
+    }
+  }, {
+    key: "updateStrokeWidth",
+    value: function updateStrokeWidth() {
+      this.mainElement.setAttribute("stroke-width", this.UI.strokeWidthRect.value);
+    }
+  }, {
+    key: "updateOpacity",
+    value: function updateOpacity() {
+      var opacity = parseFloat(this.UI.fillOpacityNumberRect.value / 100);
+      this.mainElement.setAttribute("opacity", opacity);
+      this.mainElement.setAttribute("fill-opacity", opacity);
+    }
+  }, {
+    key: "updateStrokeColor",
+    value: function updateStrokeColor() {
+      this.mainElement.setAttribute("stroke", this.UI.strokeColorRect.value);
+    }
+  }], [{
     key: "getMainElementAttributes",
     value: function getMainElementAttributes(cursorPosition, UI) {
       return {
