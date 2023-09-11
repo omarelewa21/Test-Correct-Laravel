@@ -27,7 +27,7 @@ export const shapePropertiesAvailableToUser = {
     freehand: ["line"],
     rect: ["stroke-rect", "fill-rect"],
     circle: ["stroke-circle", "fill-circle"],
-    line: ["line", "endmarker-type"],
+    line: ["pen-line", "endmarker-type"],
     text: ["opacity", "text-style"],
 };
 
