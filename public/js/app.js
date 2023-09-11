@@ -12173,7 +12173,7 @@ var shapeTypeWithRespectiveSvgClass = {
   line: "Line",
   text: "Text",
   image: "Image",
-  path: "Path"
+  freehand: "Path"
 };
 var validSvgElementKeys = {
   global: ["style", "class", "id", "stroke", "stroke-width", "stroke-dasharray", "fill", "fill-opacity", "opacity", "marker-start", "marker-mid", "marker-end"],
@@ -12187,7 +12187,7 @@ var validSvgElementKeys = {
 };
 var shapePropertiesAvailableToUser = {
   drag: [],
-  freehand: ["line"],
+  freehand: ["pen-freehand"],
   rect: ["stroke-rect", "fill-rect"],
   circle: ["stroke-circle", "fill-circle"],
   line: ["pen-line", "endmarker-type"],
@@ -13948,17 +13948,6 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     var cursorPosition = Canvas.params.cursorPosition;
     return _svgShape_js__WEBPACK_IMPORTED_MODULE_1__[_constants_js__WEBPACK_IMPORTED_MODULE_0__.shapeTypeWithRespectiveSvgClass[type]].getMainElementAttributes(cursorPosition, UI, drawingApp.params);
     switch (type) {
-      case "line":
-        return {
-          "x1": cursorPosition.x,
-          "y1": cursorPosition.y,
-          "x2": cursorPosition.x,
-          "y2": cursorPosition.y,
-          "marker-end": "url(#svg-".concat(drawingApp.params.endmarkerType, "-line)"),
-          "stroke": UI.lineColor.value,
-          "stroke-width": UI.lineWidth.value,
-          "opacity": parseFloat(UI.elemOpacityNumber.value / 100)
-        };
       case "freehand":
         return {
           "d": "M ".concat(cursorPosition.x, ",").concat(cursorPosition.y),
@@ -17726,7 +17715,28 @@ var Path = /*#__PURE__*/function (_svgShape6) {
     _classCallCheck(this, Path);
     return _super6.call(this, shapeId, "path", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
   }
-  return _createClass(Path);
+  _createClass(Path, [{
+    key: "updatePenWidth",
+    value: function updatePenWidth() {
+      this.mainElement.setAttribute("stroke-width", this.UI.penWidthFreehand.value);
+    }
+  }, {
+    key: "updatePenColor",
+    value: function updatePenColor() {
+      this.mainElement.setAttribute("stroke", this.UI.penColorFreehand.value);
+    }
+  }], [{
+    key: "getMainElementAttributes",
+    value: function getMainElementAttributes(cursorPosition, UI) {
+      return {
+        "d": "M ".concat(cursorPosition.x, ",").concat(cursorPosition.y),
+        "fill": "none",
+        "stroke": UI.penColorFreehand.value,
+        "stroke-width": UI.penWidthFreehand.value
+      };
+    }
+  }]);
+  return Path;
 }(svgShape);
 var Grid = /*#__PURE__*/function (_Path) {
   _inherits(Grid, _Path);

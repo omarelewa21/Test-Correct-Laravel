@@ -1695,17 +1695,6 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             .getMainElementAttributes(cursorPosition, UI, drawingApp.params);
 
         switch (type) {
-            case "line":
-                return {
-                    "x1": cursorPosition.x,
-                    "y1": cursorPosition.y,
-                    "x2": cursorPosition.x,
-                    "y2": cursorPosition.y,
-                    "marker-end": `url(#svg-${drawingApp.params.endmarkerType}-line)`,
-                    "stroke": UI.lineColor.value,
-                    "stroke-width": UI.lineWidth.value,
-                    "opacity": parseFloat(UI.elemOpacityNumber.value / 100),
-                };
             case "freehand":
                 return {
                     "d": `M ${cursorPosition.x},${cursorPosition.y}`,

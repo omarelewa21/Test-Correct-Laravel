@@ -754,6 +754,23 @@ export class Path extends svgShape {
     constructor(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
         super(shapeId, "path", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
     }
+
+    static getMainElementAttributes(cursorPosition, UI) {
+        return {
+            "d": `M ${cursorPosition.x},${cursorPosition.y}`,
+            "fill": "none",
+            "stroke": UI.penColorFreehand.value,
+            "stroke-width": UI.penWidthFreehand.value,
+        };
+    }
+
+    updatePenWidth() {
+        this.mainElement.setAttribute("stroke-width", this.UI.penWidthFreehand.value);
+    }
+
+    updatePenColor() {
+        this.mainElement.setAttribute("stroke", this.UI.penColorFreehand.value);
+    }
 }
 
 export class Grid extends Path {
