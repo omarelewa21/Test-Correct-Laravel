@@ -299,3 +299,10 @@
     width: 50%;
     margin-left: 50%;
 }
+
+.student-present{
+    background-color: var(--cta-primary) !important; 
+}
+.student-absent{
+    background-color: rgba(var(--system-secondary-rgb), .5) !important;
+}
