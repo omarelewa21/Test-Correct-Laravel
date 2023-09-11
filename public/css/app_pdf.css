@@ -2201,7 +2201,6 @@ input[type=number] {
     outline: none;
     color: var(--all-Base);
     font: inherit;
-    width: auto;
 }
 
 
@@ -2241,7 +2240,7 @@ input[type=number] {
     width: 2.5rem;
     height: 2.5rem;
     margin-right: 0.5rem;
-    border-radius: 0.5rem;
+    border-radius: 0.4rem;
 }
 
 #drawing-tool .color-pallete:hover {
@@ -2261,13 +2260,13 @@ input[type=number] {
     outline-offset: 2px;
 }
 
-#drawing-tool input[type=button] {
+[id*="fill-color"], [id*="stroke-color"], #text-color {
     width: 100%;
     height: 100%;
-    border-radius: 0.5rem;
+    border-radius: 0.4rem;
 }
 
-#drawing-tool #stroke-color {
+#drawing-tool [id*="stroke-color"] {
     border: 10px solid black;
     background-color: white;
     color: white;
@@ -2279,12 +2278,10 @@ input[type=number] {
     color: blue;
 }
 
-#drawing-tool #line-color {
+#drawing-tool [id*="pen-color"] {
     width: 2.5rem;
     height: 2.5rem;
     border: var(--default-border);
-    border-radius: 0.5rem;
-    background: var(--all-OffWhite);
     --height: 0.5rem;
     height: var(--height);
     transform: rotate(-45deg);

@@ -12245,12 +12245,21 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   pixelsPerCentimeter: () => (/* binding */ pixelsPerCentimeter),
 /* harmony export */   resizableSvgShapes: () => (/* binding */ resizableSvgShapes),
 /* harmony export */   shapePropertiesAvailableToUser: () => (/* binding */ shapePropertiesAvailableToUser),
+/* harmony export */   shapeTypeWithRespectiveSvgClass: () => (/* binding */ shapeTypeWithRespectiveSvgClass),
 /* harmony export */   svgNS: () => (/* binding */ svgNS),
 /* harmony export */   validHtmlElementKeys: () => (/* binding */ validHtmlElementKeys),
 /* harmony export */   validSvgElementKeys: () => (/* binding */ validSvgElementKeys),
 /* harmony export */   zoomParams: () => (/* binding */ zoomParams)
 /* harmony export */ });
 var svgNS = "http://www.w3.org/2000/svg";
+var shapeTypeWithRespectiveSvgClass = {
+  rect: "Rectangle",
+  circle: "Circle",
+  line: "Line",
+  text: "Text",
+  image: "Image",
+  freehand: "Path"
+};
 var validSvgElementKeys = {
   global: ["style", "class", "id", "stroke", "stroke-width", "stroke-dasharray", "fill", "fill-opacity", "opacity", "marker-start", "marker-mid", "marker-end"],
   rect: ["x", "y", "width", "height", "rx", "ry", "pathLength"],
@@ -12263,10 +12272,10 @@ var validSvgElementKeys = {
 };
 var shapePropertiesAvailableToUser = {
   drag: [],
-  freehand: ["line"],
-  rect: ["edge", "fill"],
-  circle: ["edge", "fill"],
-  line: ["line", "endmarker-type"],
+  freehand: ["pen-freehand"],
+  rect: ["stroke-rect", "fill-rect"],
+  circle: ["stroke-circle", "fill-circle"],
+  line: ["pen-line", "endmarker-type"],
   text: ["opacity", "text-style"]
 };
 var validHtmlElementKeys = {
@@ -12429,7 +12438,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
       });
       setCorrectZIndex();
       setCursorTypeAccordingToCurrentType();
-      updateOpacitySliderColor();
+      updateAllOpacitySliderColor();
       if (!this.isTeacher()) {
         Canvas.layers.question.lock();
         Canvas.layers.question.sidebar.style.display = "none";
@@ -12906,119 +12915,133 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     events: {
       "input": {
         callback: function callback() {
+          setSliderColor(UI.elemOpacityRange, UI.textColor.value);
           editShape('updateTextColor');
         }
       }
     }
   }, {
-    element: UI.strokeWidth,
+    elements: _toConsumableArray(rootElement.querySelectorAll('[id*="stroke-width"]')),
     events: {
       "input": {
-        callback: function callback() {
-          return valueWithinBounds(UI.strokeWidth) && editShape('updateStrokeWidth');
+        callback: function callback(evt) {
+          return valueWithinBounds(evt.currentTarget) && editShape('updateStrokeWidth');
         }
       },
       "blur": {
-        callback: function callback() {
-          toggleDisableButtonStates(UI.strokeWidth, UI.decrStroke, UI.incrStroke);
+        callback: function callback(evt) {
+          return toggleDisableButtonStates(evt.currentTarget, 'stroke-width');
         }
       }
     }
   }, {
-    element: UI.decrStroke,
+    elements: _toConsumableArray(rootElement.querySelectorAll('[id*="decr-stroke-width"]')),
     events: {
       "click": {
-        callback: function callback() {
-          UI.strokeWidth.stepDown();
-          toggleDisableButtonStates(UI.strokeWidth, UI.decrStroke, UI.incrStroke);
+        callback: function callback(evt) {
+          var input = evt.currentTarget.parentElement.querySelector('input[type=number]');
+          input.stepDown();
+          toggleDisableButtonStates(evt.currentTarget, 'stroke-width');
           editShape('updateStrokeWidth');
         }
       },
       "focus": {
-        callback: function callback() {
-          UI.strokeWidth.classList.add("active");
+        callback: function callback(evt) {
+          return evt.currentTarget.classList.add("active");
         }
       },
       "blur": {
-        callback: function callback() {
-          UI.strokeWidth.classList.remove("active");
+        callback: function callback(evt) {
+          return evt.currentTarget.classList.remove("active");
         }
       }
     }
   }, {
-    element: UI.incrStroke,
+    elements: _toConsumableArray(rootElement.querySelectorAll('[id*="incr-stroke-width"]')),
     events: {
       "click": {
-        callback: function callback() {
-          UI.strokeWidth.stepUp();
-          toggleDisableButtonStates(UI.strokeWidth, UI.decrStroke, UI.incrStroke);
+        callback: function callback(evt) {
+          var input = evt.currentTarget.parentElement.querySelector('input[type=number]');
+          input.stepUp();
+          toggleDisableButtonStates(evt.currentTarget, 'stroke-width');
           editShape('updateStrokeWidth');
         }
       },
       "focus": {
-        callback: function callback() {
-          UI.strokeWidth.classList.add("active");
+        callback: function callback(evt) {
+          return evt.currentTarget.classList.add("active");
         }
       },
       "blur": {
-        callback: function callback() {
-          UI.strokeWidth.classList.remove("active");
+        callback: function callback(evt) {
+          return evt.currentTarget.classList.remove("active");
         }
       }
     }
   }, {
-    element: UI.lineWidth,
+    elements: _toConsumableArray(rootElement.querySelectorAll('[id*="stroke-color"]')),
     events: {
       "input": {
         callback: function callback() {
-          valueWithinBounds(UI.lineWidth) && editShape('updateLineWidth');
-        }
-      },
-      "blur": {
-        callback: function callback() {
-          toggleDisableButtonStates(UI.lineWidth, UI.decrLineWidth, UI.incrLineWidth);
+          return editShape('updateStrokeColor');
         }
       }
     }
   }, {
-    element: UI.decrLineWidth,
+    elements: _toConsumableArray(rootElement.querySelectorAll('[id*="pen-width"]')),
     events: {
-      "click": {
-        callback: function callback() {
-          UI.lineWidth.stepDown();
-          toggleDisableButtonStates(UI.lineWidth, UI.decrLineWidth, UI.incrLineWidth);
-          editShape('updateLineWidth');
-        }
-      },
-      "focus": {
-        callback: function callback() {
-          UI.lineWidth.classList.add("active");
+      "input": {
+        callback: function callback(evt) {
+          valueWithinBounds(evt.currentTarget) && editShape('updatePenWidth');
         }
       },
       "blur": {
-        callback: function callback() {
-          UI.lineWidth.classList.remove("active");
+        callback: function callback(evt) {
+          toggleDisableButtonStates(evt.currentTarget, 'pen-width');
         }
       }
     }
   }, {
-    element: UI.incrLineWidth,
+    elements: _toConsumableArray(rootElement.querySelectorAll('[id*="decr-pen-width"]')),
     events: {
       "click": {
-        callback: function callback() {
-          UI.lineWidth.stepUp();
-          toggleDisableButtonStates(UI.lineWidth, UI.decrLineWidth, UI.incrLineWidth);
-          editShape('updateLineWidth');
+        callback: function callback(evt) {
+          var input = evt.currentTarget.parentElement.querySelector('input[type=number]');
+          input.stepDown();
+          toggleDisableButtonStates(evt.currentTarget, 'pen-width');
+          editShape('updatePenWidth');
         }
       },
       "focus": {
-        callback: function callback() {
-          UI.lineWidth.classList.add("active");
+        callback: function callback(evt) {
+          evt.currentTarget.classList.add("active");
         }
       },
       "blur": {
-        callback: function callback() {
-          UI.lineWidth.classList.remove("active");
+        callback: function callback(evt) {
+          evt.currentTarget.classList.remove("active");
+        }
+      }
+    }
+  }, {
+    elements: _toConsumableArray(rootElement.querySelectorAll('[id*="incr-pen-width"]')),
+    events: {
+      "click": {
+        callback: function callback(evt) {
+          var input = evt.currentTarget.parentElement.querySelector('input[type=number]');
+          input.stepUp();
+          toggleDisableButtonStates(evt.currentTarget, 'pen-width');
+          editShape('updatePenWidth');
+        }
+      },
+      "focus": {
+        callback: function callback(evt) {
+          evt.currentTarget.classList.add("active");
+        }
+      },
+      "blur": {
+        callback: function callback(evt) {
+          evt.currentTarget.classList.remove("active");
         }
       }
     }
@@ -13079,64 +13102,55 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
       }
     }
   }, {
-    element: UI.fillColor,
+    elements: _toConsumableArray(rootElement.querySelectorAll('[id*="fill-color"]')),
     events: {
       "input": {
-        callback: function callback() {
-          updateOpacitySliderColor();
+        callback: function callback(evt) {
+          updateOpacitySliderColor(evt.currentTarget, 'fill');
           editShape('updateFillColor');
         }
       }
     }
   }, {
-    element: UI.fillOpacityNumber,
+    elements: _toConsumableArray(rootElement.querySelectorAll('[id*="fill-opacity-number"]')),
     events: {
       "input": {
-        callback: function callback() {
-          if (valueWithinBounds(UI.elemOpacityNumber)) {
-            updateFillOpacityRangeInput();
+        callback: function callback(evt) {
+          if (valueWithinBounds(evt.currentTarget)) {
+            updateFillOpacityRangeInput(evt.currentTarget, 'fill');
             editShape('updateOpacity');
           }
         }
       }
     }
   }, {
-    element: UI.fillOpacityRange,
+    elements: _toConsumableArray(rootElement.querySelectorAll('[id*="fill-opacity-range"]')),
     events: {
       "input": {
-        callback: function callback() {
-          if (valueWithinBounds(UI.fillOpacityRange)) {
-            updateFillOpacityNumberInput();
+        callback: function callback(evt) {
+          if (valueWithinBounds(evt.currentTarget)) {
+            updateFillOpacityNumberInput(evt.currentTarget, 'fill');
             editShape('updateOpacity');
           }
         }
       },
       "focus": {
-        callback: function callback() {
-          UI.fillOpacityNumber.classList.add("active");
+        callback: function callback(evt) {
+          evt.currentTarget.classList.add("active");
         }
       },
       "blur": {
-        callback: function callback() {
-          UI.fillOpacityNumber.classList.remove("active");
+        callback: function callback(evt) {
+          evt.currentTarget.classList.remove("active");
         }
       }
     }
   }, {
-    element: UI.strokeColor,
+    elements: _toConsumableArray(rootElement.querySelectorAll('[id*="pen-color"]')),
     events: {
       "input": {
         callback: function callback() {
-          return editShape('updateStrokeColor');
-        }
-      }
-    }
-  }, {
-    element: UI.lineColor,
-    events: {
-      "input": {
-        callback: function callback() {
-          return editShape('updateLineColor');
+          return editShape('updatePenColor');
         }
       }
     }
@@ -14039,60 +14053,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
   }
   function determineMainElementAttributes(type) {
     var cursorPosition = Canvas.params.cursorPosition;
-    switch (type) {
-      case "rect":
-        return {
-          "x": cursorPosition.x,
-          "y": cursorPosition.y,
-          "width": 0,
-          "height": 0,
-          "fill": UI.fillOpacityNumber.value === 0 ? "none" : UI.fillColor.value,
-          "fill-opacity": parseFloat(UI.fillOpacityNumber.value / 100),
-          "stroke": UI.strokeColor.value,
-          "stroke-width": UI.strokeWidth.value,
-          "opacity": parseFloat(UI.elemOpacityNumber.value / 100)
-        };
-      case "circle":
-        return {
-          "cx": cursorPosition.x,
-          "cy": cursorPosition.y,
-          "r": 0,
-          "fill": UI.fillOpacityNumber.value === 0 ? "none" : UI.fillColor.value,
-          "fill-opacity": parseFloat(UI.fillOpacityNumber.value / 100),
-          "stroke": UI.strokeColor.value,
-          "stroke-width": UI.strokeWidth.value,
-          "opacity": parseFloat(UI.elemOpacityNumber.value / 100)
-        };
-      case "line":
-        return {
-          "x1": cursorPosition.x,
-          "y1": cursorPosition.y,
-          "x2": cursorPosition.x,
-          "y2": cursorPosition.y,
-          "marker-end": "url(#svg-".concat(drawingApp.params.endmarkerType, "-line)"),
-          "stroke": UI.lineColor.value,
-          "stroke-width": UI.lineWidth.value,
-          "opacity": parseFloat(UI.elemOpacityNumber.value / 100)
-        };
-      case "freehand":
-        return {
-          "d": "M ".concat(cursorPosition.x, ",").concat(cursorPosition.y),
-          "fill": "none",
-          "stroke": UI.lineColor.value,
-          "stroke-width": UI.lineWidth.value,
-          "opacity": parseFloat(UI.elemOpacityNumber.value / 100)
-        };
-      case "text":
-        return {
-          "x": cursorPosition.x,
-          "y": cursorPosition.y,
-          "fill": UI.textColor.value,
-          "stroke-width": 0,
-          "opacity": parseFloat(UI.elemOpacityNumber.value / 100),
-          "style": "".concat(drawingApp.params.boldText ? "font-weight: bold;" : "", " font-size: ").concat(UI.textSize.value / 16, "rem")
-        };
-      default:
-    }
+    return _svgShape_js__WEBPACK_IMPORTED_MODULE_1__[_constants_js__WEBPACK_IMPORTED_MODULE_0__.shapeTypeWithRespectiveSvgClass[type]].getMainElementAttributes(cursorPosition, UI, drawingApp.params);
   }
   function makeNewSvgShapeWithSidebarEntry(type, props, parent, withHelperElements, withHighlightEvents) {
     var svgShape = makeNewSvgShape(type, props, Canvas.layers[parent].svg, withHelperElements, withHighlightEvents);
@@ -14644,15 +14605,24 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
   }
   function updateElemOpacityNumberInput() {
     UI.elemOpacityNumber.value = UI.elemOpacityRange.value;
-    updateOpacitySliderColor();
+    setSliderColor(UI.elemOpacityRange, UI.textColor.value);
   }
   function updateElemOpacityRangeInput() {
     UI.elemOpacityRange.value = UI.elemOpacityNumber.value;
-    updateOpacitySliderColor();
+    setSliderColor(UI.elemOpacityRange, UI.textColor.value);
   }
-  function updateOpacitySliderColor() {
-    setSliderColor(UI.fillOpacityRange, UI.fillColor.value);
-    setSliderColor(UI.elemOpacityRange);
+  function updateAllOpacitySliderColor() {
+    rootElement.querySelectorAll('[id*="fill-color"]').forEach(function (elem) {
+      updateOpacitySliderColor(elem, 'fill');
+    });
+    setSliderColor(UI.elemOpacityRange, UI.textColor.value);
+  }
+  function updateOpacitySliderColor(elem, property) {
+    var propertGroup = elem.closest('.property-group');
+    var shape = getShapeFromElemId(propertGroup);
+    var slider = propertGroup.querySelector('input[type="range"]');
+    var sliderColor = propertGroup.querySelector("#".concat(property, "-color-").concat(shape)).value;
+    setSliderColor(slider, sliderColor);
   }
 
   /**
@@ -14702,13 +14672,13 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
       B = parseInt(color.substring(5, 7), 16);
     return "rgba(".concat(R, ", ").concat(G, ", ").concat(B, ", ").concat(parseFloat(A) / 100, ")");
   }
-  function updateFillOpacityNumberInput() {
-    UI.fillOpacityNumber.value = UI.fillOpacityRange.value;
-    updateOpacitySliderColor();
+  function updateFillOpacityNumberInput(elem, property) {
+    elem.previousElementSibling.value = elem.value;
+    updateOpacitySliderColor(elem, property);
   }
-  function updateFillOpacityRangeInput() {
-    UI.fillOpacityRange.value = UI.fillOpacityNumber.value;
-    updateOpacitySliderColor();
+  function updateFillOpacityRangeInput(elem, property) {
+    elem.nextElementSibling.value = elem.value;
+    updateOpacitySliderColor(elem, property);
   }
   function valueWithinBounds(inputElem) {
     var value = parseFloat(inputElem.value),
@@ -14857,6 +14827,20 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
       incrButton: incrButton
     };
   }
+  function getShapeFromElemId(elem) {
+    var parts = elem.id.split("-");
+    return parts[parts.length - 1];
+  }
+  function getInputsAndButtonsForProperty(propertyGroup, property, shape) {
+    var input = propertyGroup.querySelector("#".concat(property, "-").concat(shape));
+    var decrButton = propertyGroup.querySelector("#decr-".concat(property, "-").concat(shape));
+    var incrButton = propertyGroup.querySelector("#incr-".concat(property, "-").concat(shape));
+    return {
+      input: input,
+      decrButton: decrButton,
+      incrButton: incrButton
+    };
+  }
   function disableButtonsWhenNecessary(UIElementString) {
     var _getButtonsForElement = getButtonsForElement(UIElementString),
       decrButton = _getButtonsForElement.decrButton,
@@ -14874,7 +14858,14 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
   function handleGridSizeButtonStates() {
     disableButtonsWhenNecessary('gridSize');
   }
-  function toggleDisableButtonStates(input, decrButton, incrButton) {
+  function toggleDisableButtonStates(elem, property) {
+    var propertGroup = elem.closest('.property-group');
+    if (!propertGroup) return;
+    var shape = getShapeFromElemId(propertGroup);
+    var _getInputsAndButtonsF = getInputsAndButtonsForProperty(propertGroup, property, shape),
+      input = _getInputsAndButtonsF.input,
+      decrButton = _getInputsAndButtonsF.decrButton,
+      incrButton = _getInputsAndButtonsF.incrButton;
     var _getBoundsForInputEle2 = getBoundsForInputElement(input),
       currentValue = _getBoundsForInputEle2.currentValue,
       min = _getBoundsForInputEle2.min,
@@ -17432,38 +17423,6 @@ var svgShape = /*#__PURE__*/function () {
     value: function showExplainerForLayer() {
       this.sidebarEntry.entryContainer.parentElement.querySelector('.explainer').style.display = 'inline-block';
     }
-  }, {
-    key: "updateFillColor",
-    value: function updateFillColor() {
-      this.mainElement.setAttribute("fill", this.UI.fillColor.value);
-    }
-  }, {
-    key: "updateOpacity",
-    value: function updateOpacity() {
-      var opacity = parseFloat(this.UI.fillOpacityNumber.value / 100);
-      this.mainElement.setAttribute("fill-opacity", opacity);
-    }
-  }, {
-    key: "updateStrokeColor",
-    value: function updateStrokeColor() {
-      this.mainElement.setAttribute("stroke", this.UI.strokeColor.value);
-    }
-  }, {
-    key: "updateLineColor",
-    value: function updateLineColor() {
-      this.mainElement.setAttribute("stroke", this.UI.lineColor.value);
-      if (this.type === 'line') this.updateMarkerColor();
-    }
-  }, {
-    key: "updateStrokeWidth",
-    value: function updateStrokeWidth() {
-      this.mainElement.setAttribute("stroke-width", this.UI.strokeWidth.value);
-    }
-  }, {
-    key: "updateLineWidth",
-    value: function updateLineWidth() {
-      this.mainElement.setAttribute("stroke-width", this.UI.lineWidth.value);
-    }
   }]);
   return svgShape;
 }();
@@ -17520,6 +17479,43 @@ var Rectangle = /*#__PURE__*/function (_svgShape) {
     key: "setStrokeWidthOnEdit",
     value: function setStrokeWidthOnEdit() {
       this.UI.strokeWidth.value = this.mainElement.getAttribute("stroke-width");
+    }
+  }, {
+    key: "updateFillColor",
+    value: function updateFillColor() {
+      this.mainElement.setAttribute("fill", this.UI.fillColorRect.value);
+    }
+  }, {
+    key: "updateStrokeWidth",
+    value: function updateStrokeWidth() {
+      this.mainElement.setAttribute("stroke-width", this.UI.strokeWidthRect.value);
+    }
+  }, {
+    key: "updateOpacity",
+    value: function updateOpacity() {
+      var opacity = parseFloat(this.UI.fillOpacityNumberRect.value / 100);
+      this.mainElement.setAttribute("opacity", opacity);
+      this.mainElement.setAttribute("fill-opacity", opacity);
+    }
+  }, {
+    key: "updateStrokeColor",
+    value: function updateStrokeColor() {
+      this.mainElement.setAttribute("stroke", this.UI.strokeColorRect.value);
+    }
+  }], [{
+    key: "getMainElementAttributes",
+    value: function getMainElementAttributes(cursorPosition, UI) {
+      return {
+        "x": cursorPosition.x,
+        "y": cursorPosition.y,
+        "width": 0,
+        "height": 0,
+        "fill": UI.fillOpacityNumberRect.value === 0 ? "none" : UI.fillColorRect.value,
+        "fill-opacity": parseFloat(UI.fillOpacityNumberRect.value / 100),
+        "stroke": UI.strokeColorRect.value,
+        "stroke-width": UI.strokeWidthRect.value,
+        "opacity": parseFloat(UI.fillOpacityNumberRect.value / 100)
+      };
     }
   }]);
   return Rectangle;
@@ -17578,6 +17574,42 @@ var Circle = /*#__PURE__*/function (_svgShape2) {
     value: function setStrokeWidthOnEdit() {
       this.UI.strokeWidth.value = this.mainElement.getAttribute("stroke-width");
     }
+  }, {
+    key: "updateFillColor",
+    value: function updateFillColor() {
+      this.mainElement.setAttribute("fill", this.UI.fillColorCircle.value);
+    }
+  }, {
+    key: "updateStrokeWidth",
+    value: function updateStrokeWidth() {
+      this.mainElement.setAttribute("stroke-width", this.UI.strokeWidthCircle.value);
+    }
+  }, {
+    key: "updateOpacity",
+    value: function updateOpacity() {
+      var opacity = parseFloat(this.UI.fillOpacityNumberCircle.value / 100);
+      this.mainElement.setAttribute("opacity", opacity);
+      this.mainElement.setAttribute("fill-opacity", opacity);
+    }
+  }, {
+    key: "updateStrokeColor",
+    value: function updateStrokeColor() {
+      this.mainElement.setAttribute("stroke", this.UI.strokeColorCircle.value);
+    }
+  }], [{
+    key: "getMainElementAttributes",
+    value: function getMainElementAttributes(cursorPosition, UI) {
+      return {
+        "cx": cursorPosition.x,
+        "cy": cursorPosition.y,
+        "r": 0,
+        "fill": UI.fillOpacityNumberCircle.value === 0 ? "none" : UI.fillColorCircle.value,
+        "fill-opacity": parseFloat(UI.fillOpacityNumberCircle.value / 100),
+        "stroke": UI.strokeColorCircle.value,
+        "stroke-width": UI.strokeWidthCircle.value,
+        "opacity": parseFloat(UI.fillOpacityNumberCircle.value / 100)
+      };
+    }
   }]);
   return Circle;
 }(svgShape);
@@ -17606,16 +17638,8 @@ var Line = /*#__PURE__*/function (_svgShape3) {
   _createClass(Line, [{
     key: "makeOwnMarkerForThisShape",
     value: function makeOwnMarkerForThisShape() {
-      var editing = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-      var markerType = editing ? this.getCurrentActiveMarkerType() : this.getMarkerType();
-      if (markerType === "no-endmarker") {
-        var _this$marker2;
-        (_this$marker2 = this.marker) === null || _this$marker2 === void 0 ? void 0 : _this$marker2.remove();
-        this.marker = null;
-        this.props.main["marker-end"] = "url(#svg-no-endmarker-line)";
-        this.mainElement.setAttributeOnElementWithValidation("marker-end", "url(#svg-no-endmarker-line)");
-        return;
-      }
+      var markerType = this.getMarkerType();
+      if (markerType === "no-endmarker") return;
       var newMarker = this.cloneGenericMarker(markerType);
       this.svgCanvas.firstElementChild.appendChild(newMarker);
       var newMarkerId = "".concat(newMarker.id, "-line-").concat(this.shapeId);
@@ -17703,6 +17727,29 @@ var Line = /*#__PURE__*/function (_svgShape3) {
       var markerType = this.getMarkerType();
       (_this$root$querySelec = this.root.querySelector('.endmarker-type.active')) === null || _this$root$querySelec === void 0 ? void 0 : _this$root$querySelec.classList.remove('active');
       (_this$root$querySelec2 = this.root.querySelector(".endmarker-type#".concat(markerType))) === null || _this$root$querySelec2 === void 0 ? void 0 : _this$root$querySelec2.classList.add('active');
+    }
+  }, {
+    key: "updatePenWidth",
+    value: function updatePenWidth() {
+      this.mainElement.setAttribute("stroke-width", this.UI.penWidthLine.value);
+    }
+  }, {
+    key: "updatePenColor",
+    value: function updatePenColor() {
+      this.mainElement.setAttribute("stroke", this.UI.penColorLine.value);
+    }
+  }], [{
+    key: "getMainElementAttributes",
+    value: function getMainElementAttributes(cursorPosition, UI, params) {
+      return {
+        "x1": cursorPosition.x,
+        "y1": cursorPosition.y,
+        "x2": cursorPosition.x,
+        "y2": cursorPosition.y,
+        "marker-end": "url(#svg-".concat(params.endmarkerType, "-line)"),
+        "stroke": UI.penColorLine.value,
+        "stroke-width": UI.penWidthLine.value
+      };
     }
   }]);
   return Line;
@@ -17906,6 +17953,18 @@ var Text = /*#__PURE__*/function (_svgShape4) {
       input.value = this.mainElement.getAttribute("opacity") * 100;
       input.dispatchEvent(new Event('input'));
     }
+  }], [{
+    key: "getMainElementAttributes",
+    value: function getMainElementAttributes(cursorPosition, UI, params) {
+      return {
+        "x": cursorPosition.x,
+        "y": cursorPosition.y,
+        "fill": UI.textColor.value,
+        "stroke-width": 0,
+        "opacity": parseFloat(UI.elemOpacityNumber.value / 100),
+        "style": "".concat(params.boldText ? "font-weight: bold;" : "", " font-size: ").concat(UI.textSize.value / 16, "rem")
+      };
+    }
   }]);
   return Text;
 }(svgShape);
@@ -17955,7 +18014,28 @@ var Path = /*#__PURE__*/function (_svgShape6) {
     _classCallCheck(this, Path);
     return _super6.call(this, shapeId, "path", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
   }
-  return _createClass(Path);
+  _createClass(Path, [{
+    key: "updatePenWidth",
+    value: function updatePenWidth() {
+      this.mainElement.setAttribute("stroke-width", this.UI.penWidthFreehand.value);
+    }
+  }, {
+    key: "updatePenColor",
+    value: function updatePenColor() {
+      this.mainElement.setAttribute("stroke", this.UI.penColorFreehand.value);
+    }
+  }], [{
+    key: "getMainElementAttributes",
+    value: function getMainElementAttributes(cursorPosition, UI) {
+      return {
+        "d": "M ".concat(cursorPosition.x, ",").concat(cursorPosition.y),
+        "fill": "none",
+        "stroke": UI.penColorFreehand.value,
+        "stroke-width": UI.penWidthFreehand.value
+      };
+    }
+  }]);
+  return Path;
 }(svgShape);
 var Grid = /*#__PURE__*/function (_Path) {
   _inherits(Grid, _Path);

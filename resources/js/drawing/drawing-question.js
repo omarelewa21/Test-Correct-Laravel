@@ -1,4 +1,4 @@
-import {panParams, resizableSvgShapes, shapePropertiesAvailableToUser, zoomParams} from "./constants.js";
+import {panParams, resizableSvgShapes, shapePropertiesAvailableToUser, zoomParams, shapeTypeWithRespectiveSvgClass} from "./constants.js";
 import * as svgShape from "./svgShape.js";
 import {UIElements, warningBox} from "./uiElements.js";
 import * as sidebar from "./sidebar.js";
@@ -102,7 +102,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
 
             setCorrectZIndex();
             setCursorTypeAccordingToCurrentType();
-            updateOpacitySliderColor();
+            updateAllOpacitySliderColor();
 
             if (!this.isTeacher()) {
                 Canvas.layers.question.lock();
@@ -566,124 +566,126 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             events: {
                 "input": {
                     callback: () => {
+                        setSliderColor(UI.elemOpacityRange, UI.textColor.value);
                         editShape('updateTextColor');
                     }
                 }
             }
         },
         {
-            element: UI.strokeWidth,
+            elements: [...rootElement.querySelectorAll('[id*="stroke-width"]')],
             events: {
                 "input": {
-                    callback: () => valueWithinBounds(UI.strokeWidth) && editShape('updateStrokeWidth')
-
+                    callback: (evt) => valueWithinBounds(evt.currentTarget) && editShape('updateStrokeWidth')
                 },
                 "blur": {
-                    callback: () => {
-                        toggleDisableButtonStates(UI.strokeWidth, UI.decrStroke, UI.incrStroke);
+                    callback: (evt) => toggleDisableButtonStates(evt.currentTarget, 'stroke-width')
+                }
+            }
+        },
+        {
+            elements: [...rootElement.querySelectorAll('[id*="decr-stroke-width"]')],
+            events: {
+                "click": {
+                    callback: (evt) => {
+                        const input = evt.currentTarget.parentElement.querySelector('input[type=number]');
+                        input.stepDown();
+                        toggleDisableButtonStates(evt.currentTarget, 'stroke-width');
+                        editShape('updateStrokeWidth');
+                    },
+                },
+                "focus": {
+                    callback: (evt) => evt.currentTarget.classList.add("active")
+                },
+                "blur": {
+                    callback: (evt) => evt.currentTarget.classList.remove("active")
+                },
+            }
+        },
+        {
+            elements: [...rootElement.querySelectorAll('[id*="incr-stroke-width"]')],
+            events: {
+                "click": {
+                    callback: (evt) => {
+                        const input = evt.currentTarget.parentElement.querySelector('input[type=number]');
+                        input.stepUp();
+                        toggleDisableButtonStates(evt.currentTarget, 'stroke-width');
+                        editShape('updateStrokeWidth');
+                    },
+                },
+                "focus": {
+                    callback: (evt) => evt.currentTarget.classList.add("active")
+                },
+                "blur": {
+                    callback: (evt) => evt.currentTarget.classList.remove("active")
+                },
+            }
+        },
+        {
+            elements: [...rootElement.querySelectorAll('[id*="stroke-color"]')],
+            events: {
+                "input": {
+                    callback: () => editShape('updateStrokeColor')
+                }
+            }
+        },
+        {
+            elements: [...rootElement.querySelectorAll('[id*="pen-width"]')],
+            events: {
+                "input": {
+                    callback: (evt) => {
+                        valueWithinBounds(evt.currentTarget) && editShape('updatePenWidth');
+                    }
+                },
+                "blur": {
+                    callback: (evt) => {
+                        toggleDisableButtonStates(evt.currentTarget, 'pen-width');
                     }
                 }
             }
         },
         {
-            element: UI.decrStroke,
+            elements: [...rootElement.querySelectorAll('[id*="decr-pen-width"]')],
             events: {
                 "click": {
-                    callback: () => {
-                        UI.strokeWidth.stepDown();
-                        toggleDisableButtonStates(UI.strokeWidth, UI.decrStroke, UI.incrStroke);
-                        editShape('updateStrokeWidth');
+                    callback: (evt) => {
+                        const input = evt.currentTarget.parentElement.querySelector('input[type=number]');
+                        input.stepDown();
+                        toggleDisableButtonStates(evt.currentTarget, 'pen-width');
+                        editShape('updatePenWidth');
                     },
                 },
                 "focus": {
-                    callback: () => {
-                        UI.strokeWidth.classList.add("active");
+                    callback: (evt) => {
+                        evt.currentTarget.classList.add("active");
                     },
                 },
                 "blur": {
-                    callback: () => {
-                        UI.strokeWidth.classList.remove("active");
+                    callback: (evt) => {
+                        evt.currentTarget.classList.remove("active");
                     },
                 },
             }
         },
         {
-            element: UI.incrStroke,
+            elements: [...rootElement.querySelectorAll('[id*="incr-pen-width"]')],
             events: {
                 "click": {
-                    callback: () => {
-                        UI.strokeWidth.stepUp();
-                        toggleDisableButtonStates(UI.strokeWidth, UI.decrStroke, UI.incrStroke);
-                        editShape('updateStrokeWidth');
+                    callback: (evt) => {
+                        const input = evt.currentTarget.parentElement.querySelector('input[type=number]');
+                        input.stepUp();
+                        toggleDisableButtonStates(evt.currentTarget, 'pen-width');
+                        editShape('updatePenWidth');
                     },
                 },
                 "focus": {
-                    callback: () => {
-                        UI.strokeWidth.classList.add("active");
+                    callback: (evt) => {
+                        evt.currentTarget.classList.add("active");
                     },
                 },
                 "blur": {
-                    callback: () => {
-                        UI.strokeWidth.classList.remove("active");
-                    },
-                },
-            }
-        },
-        {
-            element: UI.lineWidth,
-            events: {
-                "input": {
-                    callback: () => {
-                        valueWithinBounds(UI.lineWidth) && editShape('updateLineWidth');
-                    }
-                },
-                "blur": {
-                    callback: () => {
-                        toggleDisableButtonStates(UI.lineWidth, UI.decrLineWidth, UI.incrLineWidth);
-                    }
-                }
-            }
-        },
-        {
-            element: UI.decrLineWidth,
-            events: {
-                "click": {
-                    callback: () => {
-                        UI.lineWidth.stepDown();
-                        toggleDisableButtonStates(UI.lineWidth, UI.decrLineWidth, UI.incrLineWidth);
-                        editShape('updateLineWidth');
-                    },
-                },
-                "focus": {
-                    callback: () => {
-                        UI.lineWidth.classList.add("active");
-                    },
-                },
-                "blur": {
-                    callback: () => {
-                        UI.lineWidth.classList.remove("active");
-                    },
-                },
-            }
-        },
-        {
-            element: UI.incrLineWidth,
-            events: {
-                "click": {
-                    callback: () => {
-                        UI.lineWidth.stepUp();
-                        toggleDisableButtonStates(UI.lineWidth, UI.decrLineWidth, UI.incrLineWidth);
-                        editShape('updateLineWidth');
-                    },
-                },
-                "focus": {
-                    callback: () => {
-                        UI.lineWidth.classList.add("active");
-                    },
-                },
-                "blur": {
-                    callback: () => {
-                        UI.lineWidth.classList.remove("active");
+                    callback: (evt) => {
+                        evt.currentTarget.classList.remove("active");
                     },
                 },
             }
@@ -746,23 +748,23 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             }
         },
         {
-            element: UI.fillColor,
+            elements: [...rootElement.querySelectorAll('[id*="fill-color"]')],
             events: {
                 "input": {
-                    callback: () => {
-                        updateOpacitySliderColor();
+                    callback: (evt) => {
+                        updateOpacitySliderColor(evt.currentTarget, 'fill');
                         editShape('updateFillColor');
                     }
                 }
             }
         },
         {
-            element: UI.fillOpacityNumber,
+            elements: [...rootElement.querySelectorAll('[id*="fill-opacity-number"]')],
             events: {
                 "input": {
-                    callback: () => {
-                        if(valueWithinBounds(UI.elemOpacityNumber)) {
-                            updateFillOpacityRangeInput();
+                    callback: (evt) => {
+                        if(valueWithinBounds(evt.currentTarget)) {
+                            updateFillOpacityRangeInput(evt.currentTarget, 'fill');
                             editShape('updateOpacity');
                         }
                     },
@@ -770,41 +772,33 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             }
         },
         {
-            element: UI.fillOpacityRange,
+            elements: [...rootElement.querySelectorAll('[id*="fill-opacity-range"]')],
             events: {
                 "input": {
-                    callback: () => {
-                        if(valueWithinBounds(UI.fillOpacityRange)) {
-                            updateFillOpacityNumberInput();
+                    callback: (evt) => {
+                        if(valueWithinBounds(evt.currentTarget)) {
+                            updateFillOpacityNumberInput(evt.currentTarget, 'fill');
                             editShape('updateOpacity');
                         }
                     }
                 },
                 "focus": {
-                    callback: () => {
-                        UI.fillOpacityNumber.classList.add("active");
+                    callback: (evt) => {
+                        evt.currentTarget.classList.add("active");
                     },
                 },
                 "blur": {
-                    callback: () => {
-                        UI.fillOpacityNumber.classList.remove("active");
+                    callback: (evt) => {
+                        evt.currentTarget.classList.remove("active");
                     },
                 },
             }
         },
         {
-            element: UI.strokeColor,
+            elements: [...rootElement.querySelectorAll('[id*="pen-color"]')],
             events: {
                 "input": {
-                    callback: () => editShape('updateStrokeColor')
-                }
-            }
-        },
-        {
-            element: UI.lineColor,
-            events: {
-                "input": {
-                    callback: () => editShape('updateLineColor')
+                    callback: () => editShape('updatePenColor')
                 }
             }
         },
@@ -1719,62 +1713,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
 
     function determineMainElementAttributes(type) {
         const cursorPosition = Canvas.params.cursorPosition;
-        switch (type) {
-            case "rect":
-                return {
-                    "x": cursorPosition.x,
-                    "y": cursorPosition.y,
-                    "width": 0,
-                    "height": 0,
-                    "fill":
-                        UI.fillOpacityNumber.value === 0 ? "none" : UI.fillColor.value,
-                    "fill-opacity": parseFloat(UI.fillOpacityNumber.value / 100),
-                    "stroke": UI.strokeColor.value,
-                    "stroke-width": UI.strokeWidth.value,
-                    "opacity": parseFloat(UI.elemOpacityNumber.value / 100),
-                };
-            case "circle":
-                return {
-                    "cx": cursorPosition.x,
-                    "cy": cursorPosition.y,
-                    "r": 0,
-                    "fill":
-                        UI.fillOpacityNumber.value === 0 ? "none" : UI.fillColor.value,
-                    "fill-opacity": parseFloat(UI.fillOpacityNumber.value / 100),
-                    "stroke": UI.strokeColor.value,
-                    "stroke-width": UI.strokeWidth.value,
-                    "opacity": parseFloat(UI.elemOpacityNumber.value / 100),
-                };
-            case "line":
-                return {
-                    "x1": cursorPosition.x,
-                    "y1": cursorPosition.y,
-                    "x2": cursorPosition.x,
-                    "y2": cursorPosition.y,
-                    "marker-end": `url(#svg-${drawingApp.params.endmarkerType}-line)`,
-                    "stroke": UI.lineColor.value,
-                    "stroke-width": UI.lineWidth.value,
-                    "opacity": parseFloat(UI.elemOpacityNumber.value / 100),
-                };
-            case "freehand":
-                return {
-                    "d": `M ${cursorPosition.x},${cursorPosition.y}`,
-                    "fill": "none",
-                    "stroke": UI.lineColor.value,
-                    "stroke-width": UI.lineWidth.value,
-                    "opacity": parseFloat(UI.elemOpacityNumber.value / 100),
-                };
-            case "text":
-                return {
-                    "x": cursorPosition.x,
-                    "y": cursorPosition.y,
-                    "fill": UI.textColor.value,
-                    "stroke-width": 0,
-                    "opacity": parseFloat(UI.elemOpacityNumber.value / 100),
-                    "style": `${drawingApp.params.boldText ? "font-weight: bold;" : ""} font-size: ${UI.textSize.value / 16}rem`,
-                };
-            default:
-        }
+        return svgShape[shapeTypeWithRespectiveSvgClass[type]]
+            .getMainElementAttributes(cursorPosition, UI, drawingApp.params);
     }
 
     function makeNewSvgShapeWithSidebarEntry(type, props, parent, withHelperElements, withHighlightEvents) {
@@ -2352,17 +2292,28 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
 
     function updateElemOpacityNumberInput() {
         UI.elemOpacityNumber.value = UI.elemOpacityRange.value;
-        updateOpacitySliderColor();
+        setSliderColor(UI.elemOpacityRange, UI.textColor.value);
     }
 
     function updateElemOpacityRangeInput() {
         UI.elemOpacityRange.value = UI.elemOpacityNumber.value;
-        updateOpacitySliderColor();
+        setSliderColor(UI.elemOpacityRange, UI.textColor.value);
     }
 
-    function updateOpacitySliderColor() {
-        setSliderColor(UI.fillOpacityRange, UI.fillColor.value);
-        setSliderColor(UI.elemOpacityRange);
+    function updateAllOpacitySliderColor() {
+        rootElement.querySelectorAll('[id*="fill-color"]').forEach(elem => {
+            updateOpacitySliderColor(elem, 'fill');
+        });
+        setSliderColor(UI.elemOpacityRange, UI.textColor.value);
+    }
+
+    function updateOpacitySliderColor(elem, property) {
+        const propertGroup = elem.closest('.property-group');
+        const shape = getShapeFromElemId(propertGroup);
+        const slider = propertGroup.querySelector('input[type="range"]');
+        const sliderColor = propertGroup.querySelector(`#${property}-color-${shape}`).value;
+
+        setSliderColor(slider, sliderColor);
     }
 
     /**
@@ -2427,14 +2378,14 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         return `rgba(${R}, ${G}, ${B}, ${parseFloat(A) / 100})`;
     }
 
-    function updateFillOpacityNumberInput() {
-        UI.fillOpacityNumber.value = UI.fillOpacityRange.value;
-        updateOpacitySliderColor();
+    function updateFillOpacityNumberInput(elem, property) {
+        elem.previousElementSibling.value = elem.value;
+        updateOpacitySliderColor(elem, property);
     }
 
-    function updateFillOpacityRangeInput() {
-        UI.fillOpacityRange.value = UI.fillOpacityNumber.value;
-        updateOpacitySliderColor();
+    function updateFillOpacityRangeInput(elem, property) {
+        elem.nextElementSibling.value =  elem.value;
+        updateOpacitySliderColor(elem, property);
     }
 
     function valueWithinBounds(inputElem) {
@@ -2588,6 +2539,19 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         return {decrButton, incrButton};
     }
 
+    function getShapeFromElemId(elem) {
+        const parts = elem.id.split("-");
+        return parts[parts.length - 1];
+    }
+
+    function getInputsAndButtonsForProperty(propertyGroup, property, shape) {
+        const input = propertyGroup.querySelector(`#${property}-${shape}`);
+        const decrButton = propertyGroup.querySelector(`#decr-${property}-${shape}`);
+        const incrButton = propertyGroup.querySelector(`#incr-${property}-${shape}`);
+
+        return {input, decrButton, incrButton};
+    }
+
     function disableButtonsWhenNecessary(UIElementString) {
         const {decrButton, incrButton} = getButtonsForElement(UIElementString);
         const {currentValue, min, max} = getBoundsForInputElement(UI[UIElementString]);
@@ -2604,7 +2568,12 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         disableButtonsWhenNecessary('gridSize');
     }
 
-    function toggleDisableButtonStates(input, decrButton, incrButton) {
+    function toggleDisableButtonStates(elem, property) {
+        const propertGroup = elem.closest('.property-group');
+        if(!propertGroup) return;
+
+        const shape = getShapeFromElemId(propertGroup);
+        const {input, decrButton, incrButton} = getInputsAndButtonsForProperty(propertGroup, property, shape);
         const {currentValue, min, max} = getBoundsForInputElement(input);
 
         decrButton.disabled = currentValue === min;

@@ -1,5 +1,14 @@
 export const svgNS = "http://www.w3.org/2000/svg";
 
+export const shapeTypeWithRespectiveSvgClass = {
+    rect: "Rectangle",
+    circle: "Circle",
+    line: "Line",
+    text: "Text",
+    image: "Image",
+    freehand: "Path",
+};
+
 export const validSvgElementKeys = {
     global: ["style", "class", "id",
         "stroke", "stroke-width", "stroke-dasharray", "fill", "fill-opacity", "opacity",
@@ -15,10 +24,10 @@ export const validSvgElementKeys = {
 
 export const shapePropertiesAvailableToUser = {
     drag: [],
-    freehand: ["line"],
-    rect: ["edge", "fill"],
-    circle: ["edge", "fill"],
-    line: ["line", "endmarker-type"],
+    freehand: ["pen-freehand"],
+    rect: ["stroke-rect", "fill-rect"],
+    circle: ["stroke-circle", "fill-circle"],
+    line: ["pen-line", "endmarker-type"],
     text: ["opacity", "text-style"],
 };
 
