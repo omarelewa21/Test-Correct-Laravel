@@ -422,6 +422,38 @@ export class Circle extends svgShape {
     constructor(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
         super(shapeId, "circle", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
     }
+
+    static getMainElementAttributes(cursorPosition, UI) {
+        return {
+            "cx": cursorPosition.x,
+            "cy": cursorPosition.y,
+            "r": 0,
+            "fill":
+                UI.fillOpacityNumberCircle.value === 0 ? "none" : UI.fillColorCircle.value,
+            "fill-opacity": parseFloat(UI.fillOpacityNumberCircle.value / 100),
+            "stroke": UI.strokeColorCircle.value,
+            "stroke-width": UI.strokeWidthCircle.value,
+            "opacity": parseFloat(UI.fillOpacityNumberCircle.value / 100),
+        };
+    }
+
+    updateFillColor() {
+        this.mainElement.setAttribute("fill", this.UI.fillColorCircle.value);
+    }
+
+    updateStrokeWidth() {
+        this.mainElement.setAttribute("stroke-width", this.UI.strokeWidthCircle.value);
+    }
+
+    updateOpacity() {
+        const opacity = parseFloat(this.UI.fillOpacityNumberCircle.value / 100);
+        this.mainElement.setAttribute("opacity", opacity);
+        this.mainElement.setAttribute("fill-opacity", opacity);
+    }
+
+    updateStrokeColor() {
+        this.mainElement.setAttribute("stroke", this.UI.strokeColorCircle.value);
+    }
 }
 
 export class Line extends svgShape {
@@ -443,6 +475,7 @@ export class Line extends svgShape {
     }
 
     makeOwnMarkerForThisShape() {
+        console.log('asdasd');
         const markerType = this.getMarkerType();
         if (markerType === "no-endmarker") return;
 

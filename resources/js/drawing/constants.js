@@ -26,7 +26,7 @@ export const shapePropertiesAvailableToUser = {
     drag: [],
     freehand: ["line"],
     rect: ["stroke-rect", "fill-rect"],
-    circle: ["edge", "fill"],
+    circle: ["stroke-circle", "fill-circle"],
     line: ["line", "endmarker-type"],
     text: ["opacity", "text-style"],
 };

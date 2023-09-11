@@ -12189,7 +12189,7 @@ var shapePropertiesAvailableToUser = {
   drag: [],
   freehand: ["line"],
   rect: ["stroke-rect", "fill-rect"],
-  circle: ["edge", "fill"],
+  circle: ["stroke-circle", "fill-circle"],
   line: ["line", "endmarker-type"],
   text: ["opacity", "text-style"]
 };
@@ -17410,7 +17410,44 @@ var Circle = /*#__PURE__*/function (_svgShape2) {
     _classCallCheck(this, Circle);
     return _super2.call(this, shapeId, "circle", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
   }
-  return _createClass(Circle);
+  _createClass(Circle, [{
+    key: "updateFillColor",
+    value: function updateFillColor() {
+      this.mainElement.setAttribute("fill", this.UI.fillColorCircle.value);
+    }
+  }, {
+    key: "updateStrokeWidth",
+    value: function updateStrokeWidth() {
+      this.mainElement.setAttribute("stroke-width", this.UI.strokeWidthCircle.value);
+    }
+  }, {
+    key: "updateOpacity",
+    value: function updateOpacity() {
+      var opacity = parseFloat(this.UI.fillOpacityNumberCircle.value / 100);
+      this.mainElement.setAttribute("opacity", opacity);
+      this.mainElement.setAttribute("fill-opacity", opacity);
+    }
+  }, {
+    key: "updateStrokeColor",
+    value: function updateStrokeColor() {
+      this.mainElement.setAttribute("stroke", this.UI.strokeColorCircle.value);
+    }
+  }], [{
+    key: "getMainElementAttributes",
+    value: function getMainElementAttributes(cursorPosition, UI) {
+      return {
+        "cx": cursorPosition.x,
+        "cy": cursorPosition.y,
+        "r": 0,
+        "fill": UI.fillOpacityNumberCircle.value === 0 ? "none" : UI.fillColorCircle.value,
+        "fill-opacity": parseFloat(UI.fillOpacityNumberCircle.value / 100),
+        "stroke": UI.strokeColorCircle.value,
+        "stroke-width": UI.strokeWidthCircle.value,
+        "opacity": parseFloat(UI.fillOpacityNumberCircle.value / 100)
+      };
+    }
+  }]);
+  return Circle;
 }(svgShape);
 var Line = /*#__PURE__*/function (_svgShape3) {
   _inherits(Line, _svgShape3);
@@ -17437,6 +17474,7 @@ var Line = /*#__PURE__*/function (_svgShape3) {
   _createClass(Line, [{
     key: "makeOwnMarkerForThisShape",
     value: function makeOwnMarkerForThisShape() {
+      console.log('asdasd');
       var markerType = this.getMarkerType();
       if (markerType === "no-endmarker") return;
       var newMarker = this.cloneGenericMarker(markerType);
