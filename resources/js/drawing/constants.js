@@ -6,7 +6,7 @@ export const shapeTypeWithRespectiveSvgClass = {
     line: "Line",
     text: "Text",
     image: "Image",
-    path: "Path",
+    freehand: "Path",
 };
 
 export const validSvgElementKeys = {
@@ -24,7 +24,7 @@ export const validSvgElementKeys = {
 
 export const shapePropertiesAvailableToUser = {
     drag: [],
-    freehand: ["line"],
+    freehand: ["pen-freehand"],
     rect: ["stroke-rect", "fill-rect"],
     circle: ["stroke-circle", "fill-circle"],
     line: ["pen-line", "endmarker-type"],
