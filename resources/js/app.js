@@ -395,3 +395,20 @@ clearSelection = function clearSelection() {
         document.selection.empty();
     }
 }
+
+fixHistoryApiStateForQueryStringUpdates = function(stateObject, url) {
+    let signatures = stateObject.livewire.map((entry) => {
+        if (entry.signature.endsWith("-1")) {
+            return entry.signature;
+        }
+    }).filter(Boolean);
+
+    const newStateObject = {
+        livewire: stateObject.livewire.filter(item => !signatures.includes(item.signature))
+    };
+    try {
+        history.pushState(newStateObject, "", url);
+    } catch (error) {
+        console.warn("Something went wrong with pushing the state to the history API");
+    }
+};

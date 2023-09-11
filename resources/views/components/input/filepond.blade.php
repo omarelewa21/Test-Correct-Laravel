@@ -69,6 +69,7 @@
 "
 
      x-on:newfile.window="newFilesReceived($event)"
+     @set-allow-paste.window="this.post.allowPaste = event.detail"
 >
     {{ $slot }}
     <input {{ $attributes->wire('model') }} type="file" x-ref="input" class="hidden" name="filepond"/>

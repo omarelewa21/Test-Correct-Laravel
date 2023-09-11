@@ -6,7 +6,7 @@ if(!class_exists('AppVersionGetter')) {
     class AppVersionGetter
     {
 
-        public static $defaultFilters = [
+        public static $defaultRedactedKeys = [
             'api_key', 'session_hash', 'main_address', 'main_city', 'main_country', 'main_postal',
             'invoice_address', 'visit_address', 'visit_postal', 'visit_city', 'visit_country',
             'username', 'name_first', 'name_suffix', 'abbreviation', 'password', 'wachtwoord',
@@ -34,7 +34,7 @@ if(!class_exists('AppVersionGetter')) {
 
 $appVersion = AppVersionGetter::configureAppversion();
 
-$filters = empty(env('BUGSNAG_FILTERS')) ? AppVersionGetter::$defaultFilters : array_merge(explode(',', str_replace(' ', '', env('BUGSNAG_FILTERS'))), AppVersionGetter::$defaultFilters);
+$redactedKeys = empty(env('BUGSNAG_FILTERS')) ? AppVersionGetter::$defaultRedactedKeys : array_merge(explode(',', str_replace(' ', '', env('BUGSNAG_FILTERS'))), AppVersionGetter::$defaultRedactedKeys);
 
 return [
 
@@ -105,16 +105,29 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Filters
+    | Filters (deprecated) and Redacted Keys
     |--------------------------------------------------------------------------
     |
+    | Filters: @deprecated
     | Use this if you want to ensure you don't send sensitive data such as
     | passwords, and credit card numbers to our servers. Any keys which
     | contain these strings will be filtered.
     |
+    | Redacted Keys:
+    | Sets which values should be removed from any metadata before sending them to BugSnag.
+    | Use this if you want to ensure you don’t transmit sensitive data such as passwords and credit card numbers.
+    |
+    | Any property whose key matches a redacted key will be filtered and replaced with [FILTERED].
+    |
+    | Accepts both strings and regexes, and string comparisons are case insensitive.
+    |
+    | 'access_token', // case-insensitive: "access_token", "ACCESS_TOKEN", "AcCeSs_ToKeN"
+    | '/^cc_/'        // prefix match: "cc_number" "cc_cvv" "cc_expiry"
+    |
     */
 
-    'filters' => $filters,
+    'filters' => $redactedKeys,
+    'redacted_keys' => $redactedKeys,
 
     /*
     |--------------------------------------------------------------------------

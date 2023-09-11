@@ -22,6 +22,9 @@ class OnboardingWizardReport extends Model
 
     public static function updateForUser(User $user)
     {
+
+        ArchivedScope::$skipScope = true;
+
         if(!$user->schoolLocation || $user->schoolLocation->keep_out_of_school_location_report){
             return;
         }
@@ -387,7 +390,7 @@ ORDER BY t2.displayorder,
 
         return optional(
             TestParticipant::whereIn('test_take_id',
-                ($user->testTakes()->where('demo', 0)->where('test_take_status_id', 9)->select('id'))
+                ($user->testTakes()->where('demo', 0)->withoutGlobalScope(ArchivedScope::class)->where('test_take_status_id', 9)->select('id'))
             )->where(function ($query) {
                 return $query->orWhereNotNull('rating')->orWhereNotNull('retake_rating');
             })->orderBy('updated_at', 'asc')->first()

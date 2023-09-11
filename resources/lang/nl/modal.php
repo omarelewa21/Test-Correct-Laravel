@@ -16,5 +16,7 @@ return [
     'extend_session'                       => 'Sessie verlengen',
     'Feedback_in_bewerking_title'          => 'Feedback nog in bewerking',
     'Feedback_in_bewerking_text'           => 'Er is nog feedback in bewerking, weet je zeker dat je door wilt gaan zonder de aanpassingen op te slaan?',
+    'New_Feedback_in_bewerking_title'      => 'Nieuwe feedback nog in bewerking',
+    'New_Feedback_in_bewerking_text'       => 'Er is nog nieuwe feedback in bewerking, weet je zeker dat je door wilt gaan zonder de feedback op te slaan?',
 ];
 

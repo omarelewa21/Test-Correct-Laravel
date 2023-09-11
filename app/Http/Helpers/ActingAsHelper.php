@@ -10,6 +10,7 @@ namespace tcCore\Http\Helpers;
 
 
 use Illuminate\Support\Facades\Auth;
+use tcCore\Lib\Repositories\PeriodRepository;
 use tcCore\User;
 
 class ActingAsHelper
@@ -32,6 +33,7 @@ class ActingAsHelper
 
     public function setUser(User $user)
     {
+        PeriodRepository::reset();
         $this->user = $user;
         return $this;
     }
@@ -42,6 +44,7 @@ class ActingAsHelper
     }
 
     public function reset() {
+        PeriodRepository::reset();
         $this->user = null;
     }
 }

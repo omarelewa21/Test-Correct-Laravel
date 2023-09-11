@@ -75,6 +75,9 @@ enum UserFeatureSetting: string implements FeatureSettingKey
     #[Initial(50)]
     #[Type('int')]
     case GRADE_CESUUR_PERCENTAGE = 'grade_cesuur_percentage';
+    #[Initial(false)]
+    #[Type('bool')]
+    case SEEN_ASSESSMENT_NOTIFICATION = 'seen_assessment_notification';
 
     public static function initialValues(): Collection
     {
