@@ -64,6 +64,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         firstInit: true,
         warnings: {},
         explainer: null,
+        livewireComponent: null,
         init() {
             if (this.firstInit) {
                 this.bindEventListeners(eventListenerSettings);
@@ -120,6 +121,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
                 const templateCopy = layerTemplate.content.cloneNode(true);
                 this.explainer = templateCopy.querySelector(".explainer");
             }
+
+            this.livewireComponent = getClosestLivewireComponentByAttribute(rootElement, 'questionComponent')
         },
         convertCanvas2DomCoordinates(coordinates) {
             const matrix = Canvas.params.domMatrix;
@@ -416,6 +419,11 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
                         }
                     }
                 },
+                "paste": {
+                    callback: (evt) => {
+                        isTeacher && UI.canvas.matches(':hover') && handleImagePaste(evt);
+                    }
+                }
             }
         },
         {
@@ -507,6 +515,11 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
                 "change": {
                     callback: (evt) => {
                         drawingApp.params.boldText = evt.target.checked;
+                        if(evt.target.checked){
+                            UI.boldToggleButton.classList.add('active');
+                        } else {
+                            UI.boldToggleButton.classList.remove('active');
+                        }
                         editShape('updateBoldText');
                     }
                 }
@@ -563,7 +576,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             events: {
                 "input": {
                     callback: () => valueWithinBounds(UI.strokeWidth) && editShape('updateStrokeWidth')
-                    
+
                 },
                 "blur": {
                     callback: () => {
@@ -679,7 +692,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             element: UI.textSize,
             events: {
                 "input": {
-                    callback: () => valueWithinBounds(UI.textSize) && editShape('updateTextSize')                    
+                    callback: () => valueWithinBounds(UI.textSize) && editShape('updateTextSize')
                 },
                 "blur": {
                     callback: () => {
@@ -792,6 +805,14 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             events: {
                 "input": {
                     callback: () => editShape('updateLineColor')
+                }
+            }
+        },
+        {
+            element: UI.endmarkerTypeWrapper,
+            events: {
+                "click": {
+                    callback: () => editShape('editOwnMarkerForThisShape')
                 }
             }
         },
@@ -2112,49 +2133,10 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
 
 
     function processUploadedImages(evt) {
-        const livewireComponent = getClosestLivewireComponentByAttribute(drawingApp.params.root, 'questionComponent')
-
-        for (const fileURL of evt.target.files) {
-            if (fileURL.size / (1024 * 1024) > 4) {
-                Notify.notify('U kunt afbeeldingen van maximaal 4 mb uploaden');
-                return false;
-            }
-            const reader = new FileReader();
-
-            const identifier = uuidv4();
-            UI.submitBtn.disabled = true
-            livewireComponent.upload(`cmsPropertyBag.images.${Canvas.params.currentLayer}.${identifier}`, fileURL, () => {
-                // Success callback.
-                UI.submitBtn.disabled = false
-            }, () => {
-                // Error callback.
-                UI.submitBtn.disabled = false
-            }, () => {
-                // Progress callback.
-            })
-
-            reader.readAsDataURL(fileURL);
-
-            drawingApp.bindEventListeners([
-                {
-                    element: reader,
-                    events: {
-                        loadend: {
-                            callback: (evt) => {
-                                fileLoadedIntoReader(evt, identifier);
-                            },
-                        },
-                        error: {
-                            callback: () => {
-                                console.error(
-                                    "Something went wrong while loading this image."
-                                );
-                            },
-                        },
-                    }
-                }
-            ]);
+        for (const file of evt.target.files) {
+            createImageInsideCanvas(file);
         }
+
         manualToolChange('drag');
         UI.imgUpload.value = null;
     }
@@ -2224,6 +2206,79 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         return scaleFactor * 0.99;
     }
 
+    function handleImagePaste(evt) {
+        let items = evt.clipboardData.items;
+
+        for (let i = 0; i < items.length; i++) {
+            if (items[i].type.indexOf("image") !== -1) {
+                let file = items[i].getAsFile();
+
+                createImageInsideCanvas(file);
+            }
+        }
+
+        manualToolChange('drag');
+        UI.imgUpload.value = null;
+    }
+
+    function createImageInsideCanvas(file) {
+        if(!imageTypeIsAllowed(file)) return;
+
+        UI.submitBtn.disabled = true
+
+        let identifier = uuidv4();
+        let reader = new FileReader();
+
+        uploadImageToLivewireComponent(file, identifier);
+
+        reader.readAsDataURL(file);
+
+        drawingApp.bindEventListeners([
+            {
+                element: reader,
+                events: {
+                    loadend: {
+                        callback: (evt) => {
+                            fileLoadedIntoReader(evt, identifier);
+                        },
+                    },
+                    error: {
+                        callback: () => {
+                            console.error(
+                                "Something went wrong while loading this image."
+                            );
+                        },
+                    },
+                }
+            }
+        ]);
+    }
+
+    function uploadImageToLivewireComponent(file, identifier) {
+        drawingApp.livewireComponent.upload(`cmsPropertyBag.images.${Canvas.params.currentLayer}.${identifier}`, file, () => {
+            // Success callback.
+            UI.submitBtn.disabled = false
+        }, () => {
+            // Error callback.
+            UI.submitBtn.disabled = false
+        }, () => {
+            // Progress callback.
+        })
+    }
+
+    function imageTypeIsAllowed(file) {
+        if(file.size / (1024 * 1024) > 4) {
+            dispatchEvent(new CustomEvent('js-localized-notify-popup', {detail: {translation_key: 'image-size-error', message_type: 'error'}}));
+            return false;
+        }
+
+        if(!['png', 'jpeg', 'jpg'].includes(file.type.toLowerCase().split('/')[1])) {
+            dispatchEvent(new CustomEvent('js-localized-notify-popup', {detail: {translation_key: 'image-type-error', message_type: 'error'}}));
+            return false;
+        }
+
+        return true;
+    }
 
     function updateGridButtonStates(disabled) {
         UI.gridSize.disabled = disabled;
@@ -2565,7 +2620,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         if(!checkIfShouldeditShape(selectedShape)) return;
 
         const selectedSvgShapeClass = Canvas.getShapeDataObject(selectedShape).svg;
-        functionName in selectedSvgShapeClass && selectedSvgShapeClass[functionName]();        
+        functionName in selectedSvgShapeClass && selectedSvgShapeClass[functionName]();
     }
 
     function ShouldEditTextOnClick() {

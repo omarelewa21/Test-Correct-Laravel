@@ -48,10 +48,7 @@
     </div>
     <template id="filter-pill-template" class="hidden">
         <button class="space-x-2"
-                @click="$dispatch($el.dataset.removeEventName, {
-                            value: isNaN(parseInt($el.dataset.filterValue)) ? $el.dataset.filterValue : parseInt($el.dataset.filterValue)
-                        }); $el.remove();
-                        "
+                @click="$dispatch( $el.dataset.removeEventName, { value: $el.dataset.filterValue } ); $el.remove(); "
                 data-trans-any="{{ __('cms.Alle') }}"
         >
             <span class="flex"></span>

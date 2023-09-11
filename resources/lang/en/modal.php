@@ -16,4 +16,6 @@ return [
     'extend_session'                       => 'Extend session',
     'Feedback_in_bewerking_title'          => 'Feedback still being edited',
     'Feedback_in_bewerking_text'           => 'There is feedback still being edited. Are you sure you want to continue without saving the changes?',
+    'New_Feedback_in_bewerking_title'      => 'New feedback still being created',
+    'New_Feedback_in_bewerking_text'       => 'There is new feedback still being created. Are you sure you want to continue without saving the changes?',
 ];

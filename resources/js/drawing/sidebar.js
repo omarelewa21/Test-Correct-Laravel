@@ -318,6 +318,11 @@ export class Entry extends sidebarComponent {
         this.entryContainer.classList.add('editing');
         this.svgShape.shapeGroup.element.classList.add('editing');
         this.showRelevantShapeMenu();
+        this.setInputValuesWhenShapeInEditMode();
+    }
+
+    setInputValuesWhenShapeInEditMode() {
+        this.svgShape.setInputValuesOnEdit();
     }
 
     removeAnyEditingShapes() {

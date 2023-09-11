@@ -354,7 +354,6 @@ class svgShape {
 
     updateOpacity() {
         const opacity = parseFloat(this.UI.fillOpacityNumber.value / 100);
-        this.mainElement.setAttribute("opacity", opacity);
         this.mainElement.setAttribute("fill-opacity", opacity);
     }
 
@@ -364,6 +363,7 @@ class svgShape {
 
     updateLineColor() {
         this.mainElement.setAttribute("stroke", this.UI.lineColor.value);
+        if(this.type === 'line') this.updateMarkerColor();
     }
 
     updateStrokeWidth() {
@@ -390,6 +390,37 @@ export class Rectangle extends svgShape {
     constructor(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
         super(shapeId, "rect", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
     }
+
+    setInputValuesOnEdit() {
+        this.setFillColorOnEdit();
+        this.setOpacityInputValueOnEdit();
+        this.setStrokeColorOnEdit();
+        this.setStrokeWidthOnEdit();
+    }
+
+    setFillColorOnEdit() {
+        const fillColor = this.mainElement.getAttribute("fill");
+        const input = this.UI.fillColor;
+        input.value = fillColor;
+        input.style.cssText = `background-color: ${fillColor}; color: ${fillColor};`;
+    }
+
+    setStrokeColorOnEdit() {
+        const strokeColor = this.mainElement.getAttribute("stroke");
+        const input = this.UI.strokeColor;
+        input.value = strokeColor;
+        input.style.cssText = `border-color: ${strokeColor}`;
+    }
+
+    setOpacityInputValueOnEdit() {
+        const input = this.UI.fillOpacityNumber;
+        input.value = this.mainElement.getAttribute("fill-opacity") * 100;
+        input.dispatchEvent(new Event('input'));
+    }
+
+    setStrokeWidthOnEdit() {
+        this.UI.strokeWidth.value = this.mainElement.getAttribute("stroke-width");
+    }
 }
 
 export class Circle extends svgShape {
@@ -406,6 +437,37 @@ export class Circle extends svgShape {
      */
     constructor(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
         super(shapeId, "circle", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
+    }
+
+    setInputValuesOnEdit() {
+        this.setFillColorOnEdit();
+        this.setOpacityInputValueOnEdit();
+        this.setStrokeColorOnEdit();
+        this.setStrokeWidthOnEdit();
+    }
+
+    setFillColorOnEdit() {
+        const fillColor = this.mainElement.getAttribute("fill");
+        const input = this.UI.fillColor;
+        input.value = fillColor;
+        input.style.cssText = `background-color: ${fillColor}; color: ${fillColor};`;
+    }
+
+    setStrokeColorOnEdit() {
+        const strokeColor = this.mainElement.getAttribute("stroke");
+        const input = this.UI.strokeColor;
+        input.value = strokeColor;
+        input.style.cssText = `border-color: ${strokeColor}`;
+    }
+
+    setOpacityInputValueOnEdit() {
+        const input = this.UI.fillOpacityNumber;
+        input.value = this.mainElement.getAttribute("fill-opacity") * 100;
+        input.dispatchEvent(new Event('input'));
+    }
+
+    setStrokeWidthOnEdit() {
+        this.UI.strokeWidth.value = this.mainElement.getAttribute("stroke-width");
     }
 }
 
@@ -427,15 +489,26 @@ export class Line extends svgShape {
         this.makeOwnMarkerForThisShape();
     }
 
-    makeOwnMarkerForThisShape() {
-        const markerType = this.getMarkerType();
-        if (markerType === "no-endmarker") return;
+    makeOwnMarkerForThisShape(editing = false) {
+        const markerType = editing ? this.getCurrentActiveMarkerType() : this.getMarkerType();
+        if(markerType === "no-endmarker"){
+            this.marker?.remove();
+            this.marker = null;
+            this.props.main["marker-end"] = "url(#svg-no-endmarker-line)";
+            this.mainElement.setAttributeOnElementWithValidation(
+                "marker-end",
+                "url(#svg-no-endmarker-line)"
+            );
+            return;
+        }
 
         const newMarker = this.cloneGenericMarker(markerType);
 
         this.svgCanvas.firstElementChild.appendChild(newMarker);
 
         const newMarkerId = `${newMarker.id}-line-${this.shapeId}`;
+        this.deletePreviousMarker(newMarkerId);
+
         newMarker.id = newMarkerId;
         this.props.main["marker-end"] = `url(#${newMarkerId})`;
         this.mainElement.setAttributeOnElementWithValidation(
@@ -454,9 +527,20 @@ export class Line extends svgShape {
         return type.substring(type.indexOf("svg-") + 4, type.lastIndexOf("-line"));
     }
 
+    getCurrentActiveMarkerType() {
+        return this.drawingApp.params.endmarkerType;
+    }
+
     cloneGenericMarker(type) {
         const markerToClone = this.root.querySelector(`marker#svg-${type}`);
         return markerToClone.cloneNode(true);
+    }
+
+    deletePreviousMarker(newMarkerId) {
+        const previousMarker = this.root.querySelectorAll(`marker#${newMarkerId}`);
+        previousMarker.forEach((marker) => {
+            marker.remove();
+        });
     }
 
     getPropertyToChange(type) {
@@ -467,6 +551,39 @@ export class Line extends svgShape {
             case "two-lines-arrow":
                 return "stroke";
         }
+    }
+
+    updateMarkerColor() {
+        if (!this.marker) return;
+        const propertyToChange = this.getPropertyToChange(this.getMarkerType());
+        this.marker.style[propertyToChange] = this.UI.lineColor.value;
+    }
+
+    editOwnMarkerForThisShape() {
+        this.makeOwnMarkerForThisShape(true);
+    }
+
+    setInputValuesOnEdit() {
+        this.setLineColorOnEdit();
+        this.setLineWidthOnEdit();
+        this.setEndMarkerOnEdit();
+    }
+
+    setLineColorOnEdit() {
+        const lineColor = this.mainElement.getAttribute("stroke");
+        const input = this.UI.lineColor;
+        input.value = lineColor;
+        input.style.cssText = `background-color: ${lineColor}; color: ${lineColor};`;
+    }
+
+    setLineWidthOnEdit() {
+        this.UI.lineWidth.value = this.mainElement.getAttribute("stroke-width");
+    }
+
+    setEndMarkerOnEdit() {
+        const markerType = this.getMarkerType();
+        this.root.querySelector('.endmarker-type.active')?.classList.remove('active');
+        this.root.querySelector(`.endmarker-type#${markerType}`)?.classList.add('active');
     }
 }
 
@@ -655,6 +772,41 @@ export class Text extends svgShape {
             });
         }
     }
+
+    setInputValuesOnEdit() {
+        this.setTextColorOnEdit();
+        this.setTextSizeOnEdit();
+        this.setBoldTextOnEdit();
+        this.setOpacityInputValueOnEdit();
+    }
+
+    setTextColorOnEdit() {
+        const textColor = this.mainElement.getAttribute("fill");
+        const input = this.UI.textColor;
+        input.value = textColor;
+        input.style.cssText = `background-color: ${textColor}; color: ${textColor};`;
+    }
+
+    setTextSizeOnEdit() {
+        this.UI.textSize.value = parseFloat(this.mainElement.element.style.fontSize) * 16;
+    }
+
+    setBoldTextOnEdit() {
+        const isBold = this.mainElement.element.style.fontWeight === 'bold';
+        this.drawingApp.params.boldText = this.UI.boldText.checked = isBold;
+
+        if(isBold){
+            this.UI.boldToggleButton.classList.add('active');
+        } else {
+            this.UI.boldToggleButton.classList.remove('active');
+        }
+    }
+
+    setOpacityInputValueOnEdit() {
+        const input = this.UI.elemOpacityNumber;
+        input.value = this.mainElement.getAttribute("opacity") * 100;
+        input.dispatchEvent(new Event('input'));
+    }
 }
 
 export class Image extends svgShape {
@@ -794,5 +946,21 @@ export class Freehand extends Path {
     constructor(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
         super(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
         this.shapeGroup.setAttribute("id", `freehand-${shapeId}`);
+    }
+
+    setInputValuesOnEdit() {
+        this.setLineColorOnEdit();
+        this.setLineWidthOnEdit();
+    }
+
+    setLineColorOnEdit() {
+        const lineColor = this.mainElement.getAttribute("stroke");
+        const input = this.UI.lineColor;
+        input.value = lineColor;
+        input.style.cssText = `background-color: ${lineColor}; color: ${lineColor};`;
+    }
+
+    setLineWidthOnEdit() {
+        this.UI.lineWidth.value = this.mainElement.getAttribute("stroke-width");
     }
 }

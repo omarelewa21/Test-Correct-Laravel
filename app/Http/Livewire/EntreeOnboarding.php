@@ -4,36 +4,27 @@ namespace tcCore\Http\Livewire;
 
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Session;
-use Livewire\Component;
-use Ramsey\Uuid\Uuid;
 use tcCore\BaseSubject;
 use tcCore\DemoTeacherRegistration;
 use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\Http\Helpers\BaseHelper;
-use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Helpers\EntreeHelper;
 use tcCore\Http\Helpers\UserHelper;
-use tcCore\Http\Requests\Request;
 use tcCore\Jobs\SendOnboardingWelcomeMail;
 use tcCore\Lib\Repositories\SchoolYearRepository;
-use tcCore\Lib\User\Factory;
 use tcCore\Mail\TeacherRegisteredEntree;
 use tcCore\SamlMessage;
 use tcCore\School;
 use tcCore\SchoolClass;
 use tcCore\SchoolLocation;
 use tcCore\SchoolLocationEducationLevel;
-use tcCore\Shortcode;
-use tcCore\ShortcodeClick;
 use tcCore\Subject;
 use tcCore\Teacher;
-use tcCore\TemporaryLogin;
 use tcCore\User;
 
 class EntreeOnboarding extends Onboarding
@@ -54,9 +45,8 @@ class EntreeOnboarding extends Onboarding
 
     public $warningStepOneConfirmed = false;
     public $warningStepTwoConfirmed = false;
-    public $subjectOptions = '';
     public $selectedSubjects = [];
-    public $selectedSubjectsString = '';
+    public Collection $subjects;
 
     public $showSubjects = true;
     public $hasValidTUser = false;
@@ -72,7 +62,7 @@ class EntreeOnboarding extends Onboarding
 
     protected $queryString = ['step', 'samlId'];
 
-    protected function messages()
+    protected function messages(): array
     {
         return [
             'registration.name_first.required' => __('registration.name_first_required'),
@@ -88,7 +78,7 @@ class EntreeOnboarding extends Onboarding
         ];
     }
 
-    public function rules()
+    public function rules(): array
     {
         $default = [
             'registration.username'                     => 'required|email:rfc,dns|unique:users,username',
@@ -117,10 +107,6 @@ class EntreeOnboarding extends Onboarding
                 'registration.name_suffix'      => 'sometimes',
             ]);
 
-            if (!$this->hasFixedEmail) {
-
-            }
-
             if ($this->needsPassword) {
                 $rules = array_merge($rules, [
                     'password' => 'required|same:password_confirmation|' . User::getPasswordLengthRule(),
@@ -133,23 +119,17 @@ class EntreeOnboarding extends Onboarding
         return $default;
     }
 
-    public function rulesStep2()
+    public function rulesStep2(): array
     {
-        if (!$this->hasValidTUser) {
-            return [
-                'selectedLocationsString' => 'required',
-            ];
-        } else {
-            return [];
-        }
+        return !$this->hasValidTUser ? ['selectedLocationsString' => 'required',] : [];
     }
 
-    public function mount()
+    public function mount(): void
     {
-        $this->registration = new DemoTeacherRegistration;
+        $this->registration = new DemoTeacherRegistration();
 
         if (!$this->setEntreeDataFromRequestIfAvailable()) {
-            return true;
+            return;
         }
 
         $this->saml_id = $this->entreeData->uuid;
@@ -175,15 +155,14 @@ class EntreeOnboarding extends Onboarding
         if (!$this->hasValidTUser) {
             $this->setSubjectOptions();
         }
-
     }
 
-    public function getEntreeDataProperty()
+    public function getEntreeDataProperty(): ?SamlMessage
     {
         return SamlMessage::find($this->saml_id);
     }
 
-    protected function setEntreeDataFromRequestIfAvailable()
+    protected function setEntreeDataFromRequestIfAvailable(): bool
     {
         $message = SamlMessage::getSamlMessageIfValid($this->samlId);
         if (!$message) {
@@ -231,21 +210,10 @@ class EntreeOnboarding extends Onboarding
 
     public function render()
     {
-        switch ($this->step) {
-            case 1:
-                $this->setSelectedSubjectsString();
-                $this->setSubjectOptions();
-                break;
-            case 2:
-
-
-                break;
-        }
-
         return view('livewire.entree-onboarding')->layout('layouts.onboarding');
     }
 
-    public function step1()
+    public function step1(): void
     {
         $this->validate();
         if (!$this->checkInputForLength() && !$this->warningStepOneConfirmed) {
@@ -253,137 +221,150 @@ class EntreeOnboarding extends Onboarding
             return;
         }
         $this->step = 2;
-//        $this->btnStepTwoDisabledCheck();
         $this->warningStepOneConfirmed = false;
     }
 
-    public function finish()
+    public function finish(): void
     {
         $this->step = 4;
     }
 
-    public function getMinCharRuleProperty()
-    {
-        if (empty($this->password)) {
-            return 0;
-        } else {
-            return mb_strlen($this->password) < 8 ? false : true;
-        }
-    }
-
-    public function step2()
+    public function step2(): void
     {
         $this->validate();
-//        if (!$this->checkInputForLength() && !$this->warningStepTwoConfirmed) {
-//            $this->warningStepTwoConfirmed = true;
-//            return;
-//        }
-
         if ($this->hasValidTUser) {
             // we need to merge the data with the t user account
             $attr = [
                 'mail'  => [$this->registration->username],
                 'eckId' => [Crypt::decryptString($this->entreeData->data->encryptedEckId)]
             ];
-            return EntreeHelper::initAndHandleFromRegisterWithEntreeAndTUser(User::find($this->entreeData->data->userId), $attr);
-        } else {
-            $this->validate($this->rulesStep2());
-            $schoolLocationsUuids = $this->getSelectedSchoolLocationCollection();
-            if ($schoolLocationsUuids->count() < 1) {
-                $url = BaseHelper::getLoginUrlWithOptionalMessage(__('onboarding-welcome.De gekozen school locatie kon niet gevonden worden. Neem contact op met support.'), true);
-                return $this->redirectToUrlAndExit($url);
+            EntreeHelper::initAndHandleFromRegisterWithEntreeAndTUser(
+                User::find($this->entreeData->data->userId),
+                $attr
+            );
+            return;
+        }
+
+        $this->validate($this->rulesStep2());
+        $schoolLocationsUuids = $this->getSelectedSchoolLocationCollection();
+        if ($schoolLocationsUuids->count() < 1) {
+            $url = BaseHelper::getLoginUrlWithOptionalMessage(
+                __(
+                    'onboarding-welcome.De gekozen school locatie kon niet gevonden worden. Neem contact op met support.'
+                ),
+                true
+            );
+            $this->redirect($url);
+            return;
+        }
+
+        $schoolLocations = SchoolLocation::whereUuid($schoolLocationsUuids->toArray())->get();
+        if ($schoolLocations->count() < 1) {
+            $url = BaseHelper::getLoginUrlWithOptionalMessage(
+                __(
+                    'onboarding-welcome.De gekozen school locatie kon niet gevonden worden. Neem contact op met support.'
+                ),
+                true
+            );
+            $this->redirect($url);
+            return;
+        }
+
+        DB::beginTransaction();
+        try {
+            $actingAsUser = $schoolLocations->first()->users()->first();
+            ActingAsHelper::getInstance()->setUser($actingAsUser);
+
+            $user = (new UserHelper())->createUserFromData([
+                    'school_id'          => null,
+                    'school_location_id' => $schoolLocations->first()->getKey(),
+                    'username'           => $this->registration->username,
+                    'password'           => $this->password,
+                    'gender'             => $this->registration->gender,
+                    'name_first'         => $this->registration->name_first,
+                    'name_suffix'        => $this->registration->name_suffix,
+                    'name'               => $this->registration->name,
+                    'send_welcome_email' => false,
+                    'user_roles'         => [1],
+                ]
+            );
+            $this->userUuid = $user->uuid;
+            $user->eckid = Crypt::decryptString($this->entreeData->data->encryptedEckId);
+            if ($this->hasFixedEmail) {
+                $user->account_verified = Carbon::now();
             }
-            $schoolLocations = SchoolLocation::whereUuid($schoolLocationsUuids->toArray())->get();
+            $user->save();
+            $user->generalTermsLog()->create(['accepted_at' => Carbon::now()]);
 
-            if ($schoolLocations->count() < 1) {
-                $url = BaseHelper::getLoginUrlWithOptionalMessage(__('onboarding-welcome.De gekozen school locatie kon niet gevonden worden. Neem contact op met support.'), true);
-                return $this->redirectToUrlAndExit($url);
-            }
+            $locationsAdded = collect([$user->school_location_id]);
 
-            DB::beginTransaction();
-            try {
-
-                $actingAsUser = $schoolLocations->first()->users()->first();
-                ActingAsHelper::getInstance()->setUser($actingAsUser);
-
-                $user = (new UserHelper())->createUserFromData([
-                        'school_id'          => null,
-                        'school_location_id' => $schoolLocations->first()->getKey(),
-                        'username'           => $this->registration->username,
-                        'password'           => $this->password,
-                        'gender'             => $this->registration->gender,
-                        'name_first'         => $this->registration->name_first,
-                        'name_suffix'        => $this->registration->name_suffix,
-                        'name'               => $this->registration->name,
-                        'send_welcome_email' => false,
-                        'user_roles'         => [1],
-                    ]
-                );
-                $this->userUuid = $user->uuid;
-                $user->eckid = Crypt::decryptString($this->entreeData->data->encryptedEckId);
-                if ($this->hasFixedEmail) {
-                    $user->account_verified = Carbon::now();
+            $schoolLocations->each(function (SchoolLocation $schoolLocation) use ($user, $locationsAdded) {
+                // do not add first school location as it is set at registration
+                if (!$locationsAdded->contains($schoolLocation->getKey())) {
+                    $user->school_location_id = $schoolLocation->getKey();
+                    $user->save();
+                    $user->addSchoolLocationAndCreateDemoEnvironment($schoolLocation);
+                    $user->refresh();
+                    $locationsAdded->push($schoolLocation->getKey());
                 }
-                $user->save();
-                $user->generalTermsLog()->create(['accepted_at' => Carbon::now()]);
+                ActingAsHelper::getInstance()->setUser($user);
+                DemoTeacherRegistration::registerIfApplicable($user);
 
-                $locationsAdded = collect([$user->school_location_id]);
-                if ($schoolLocations->count() > 0) {
-                    $schoolLocations->each(function (SchoolLocation $schoolLocation) use ($user, $locationsAdded) {
-                        // do not add first school location as it is set at registration
-                        if (!$locationsAdded->contains($schoolLocation->getKey())) {
-                            $user->school_location_id = $schoolLocation->getKey();
-                            $user->save();
-                            $user->addSchoolLocationAndCreateDemoEnvironment($schoolLocation);
-                            $user->refresh();
-                            $locationsAdded->push($schoolLocation->getKey());
-                        }
-                        ActingAsHelper::getInstance()->setUser($user);
-                        DemoTeacherRegistration::registerIfApplicable($user);
+                $currentSchoolYearId = SchoolYearRepository::getCurrentSchoolYear()->getKey();
+                $schoolLocation->schoolLocationEducationLevels->each(
+                    function (SchoolLocationEducationLevel $slEl) use (
+                        $schoolLocation,
+                        $user,
+                        $currentSchoolYearId
+                    ) {
+                        $class = new SchoolClass();
+                        $class->fill([
+                            'visible'                         => false,
+                            'school_location_id'              => $schoolLocation->getKey(),
+                            'education_level_id'              => $slEl->education_level_id,
+                            'school_year_id'                  => $currentSchoolYearId,
+                            'name'                            => sprintf(
+                                'entree_registration_class_locationid_%s_userid_%s_elid_%s',
+                                $schoolLocation->getKey(),
+                                $user->getKey(),
+                                $slEl->education_level_id
+                            ),
+                            'education_level_year'            => 1,
+                            'is_main_school_class'            => 0,
+                            'do_not_overwrite_from_interface' => 0,
+                            'demo'                            => 0,
+                        ]);
+                        $class->save();
 
-                        $currentSchoolYearId = SchoolYearRepository::getCurrentSchoolYear()->getKey();
-                        $schoolLocation->schoolLocationEducationLevels->each(function (SchoolLocationEducationLevel $slEl) use ($schoolLocation, $user, $currentSchoolYearId) {
-
-                            $class = new SchoolClass();
-                            $class->fill([
-                                'visible'                         => false,
-                                'school_location_id'              => $schoolLocation->getKey(),
-                                'education_level_id'              => $slEl->education_level_id,
-                                'school_year_id'                  => $currentSchoolYearId,
-                                'name'                            => sprintf('entree_registration_class_locationid_%s_userid_%s_elid_%s', $schoolLocation->getKey(), $user->getKey(), $slEl->education_level_id),
-                                'education_level_year'            => 1,
-                                'is_main_school_class'            => 0,
-                                'do_not_overwrite_from_interface' => 0,
-                                'demo'                            => 0,
-                            ]);
-                            $class->save();
-
-                            $this->getSubjectIdsForSchoolLocationAsCollection($schoolLocation)->each(function ($subjectId) use ($user, $class) {
+                        $this->getSubjectIdsForSchoolLocationAsCollection($schoolLocation)->each(
+                            function ($subjectId) use ($user, $class) {
                                 Teacher::create([
                                     'subject_id' => $subjectId,
                                     'user_id'    => $user->getKey(),
                                     'class_id'   => $class->getKey(),
                                 ]);
-                            });
-                        });
-                    });
-                }
+                            }
+                        );
+                    }
+                );
+            });
 
-                try {
-                    Mail::to($this->registration->username)->queue(new SendOnboardingWelcomeMail($user, '', $this->hasFixedEmail));
-                    Mail::to(config('mail.from.address'))->queue(new TeacherRegisteredEntree($user->getKey()));
-                } catch (\Throwable $th) {
-                    Bugsnag::notifyException($th);
-                }
-
-                $this->step = 3;
-            } catch (\Throwable $e) {
-                DB::rollBack();
-                $this->step = 'error';
-                Bugsnag::notifyException($e);
+            try {
+                Mail::to($this->registration->username)->queue(
+                    new SendOnboardingWelcomeMail($user, '', $this->hasFixedEmail)
+                );
+                Mail::to(config('mail.from.address'))->queue(new TeacherRegisteredEntree($user->getKey()));
+            } catch (\Throwable $th) {
+                Bugsnag::notifyException($th);
             }
-            DB::commit();;
+
+            $this->step = 3;
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            $this->step = 'error';
+            Bugsnag::notifyException($e);
         }
+        DB::commit();
     }
 
     protected function getSubjectIdsForSchoolLocationAsCollection(SchoolLocation $schoolLocation)
@@ -410,7 +391,7 @@ class EntreeOnboarding extends Onboarding
     }
 
 
-    public function fillSchoolData(SchoolLocation $schoolInfo)
+    public function fillSchoolData(SchoolLocation $schoolInfo): void
     {
         $this->registration->school_location = $schoolInfo->name;
         $this->registration->address = $schoolInfo->visit_address;
@@ -419,18 +400,13 @@ class EntreeOnboarding extends Onboarding
         $this->registration->city = $schoolInfo->visit_city;
     }
 
-    public function updated($propertyName)
+    public function updated($propertyName): void
     {
         $this->btnDisabled = false;
-//
-//        $this->btnStepOneDisabledCheck();
-//        $this->btnStepTwoDisabledCheck();
 
         if ($this->registration->gender != 'different') {
             $this->registration->gender_different = '';
         }
-
-//        $this->validateOnly($propertyName);
     }
 
     protected function getSelectedSchoolLocationCollection()
@@ -441,14 +417,15 @@ class EntreeOnboarding extends Onboarding
         return collect([]);
     }
 
-    public function toggleSchoolLocation($uuid, $add = true)
+    public function toggleSchoolLocation($uuid, $add = true): void
     {
         $coll = $this->getSelectedSchoolLocationCollection();
         if ($add) {
             $newColl = $coll->push($uuid)->unique();
-            return $this->saveSelectedSchoolLocationsToString($newColl->all());
+            $this->saveSelectedSchoolLocationsToString($newColl->all());
+            return;
         }
-        return $this->deleteSchoolLocation($uuid);
+        $this->deleteSchoolLocation($uuid);
     }
 
     protected function saveSelectedSchoolLocationsToString($coll = null)
@@ -457,9 +434,7 @@ class EntreeOnboarding extends Onboarding
             $this->selectedLocationsString = null;
             return;
         }
-//        if(!is_array($coll)){
-//            $coll = $coll->toArray();
-//        }
+
         $this->selectedLocationsString = json_encode(array_values($coll), JSON_HEX_APOS);
     }
 
@@ -478,15 +453,14 @@ class EntreeOnboarding extends Onboarding
         $this->saveSelectedSchoolLocationsToString($newColl->isEmpty() ? null : $newColl->all());
     }
 
-    protected function getSelectedBaseSubjectIds()
+    protected function getSelectedBaseSubjectIds(): Collection
     {
-        $names = json_decode($this->selectedSubjectsString);
+        $names = $this->subjects->whereIn('value', $this->selectedSubjects)->pluck('label');
         return BaseSubject::whereIn('name', $names)->where('show_in_onboarding', 1)->pluck('id');
     }
 
     public function selectedSchoolLocationList()
     {
-
         return $this->school->schoolLocations->filter(function ($location) {
             return $this->isSelectedSchoolLocation($location->uuid);
         });
