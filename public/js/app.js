@@ -12190,7 +12190,7 @@ var shapePropertiesAvailableToUser = {
   freehand: ["line"],
   rect: ["stroke-rect", "fill-rect"],
   circle: ["stroke-circle", "fill-circle"],
-  line: ["line", "endmarker-type"],
+  line: ["pen-line", "endmarker-type"],
   text: ["opacity", "text-style"]
 };
 var validHtmlElementKeys = {
@@ -12841,7 +12841,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     events: {
       "click": {
         callback: function callback(evt) {
-          var input = evt.currentTarget.parentElement.querySelector('input');
+          var input = evt.currentTarget.parentElement.querySelector('input[type=number]');
           input.stepDown();
           toggleDisableButtonStates(evt.currentTarget, 'stroke-width');
           editShape('updateStrokeWidth');
@@ -12863,7 +12863,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     events: {
       "click": {
         callback: function callback(evt) {
-          var input = evt.currentTarget.parentElement.querySelector('input');
+          var input = evt.currentTarget.parentElement.querySelector('input[type=number]');
           input.stepUp();
           toggleDisableButtonStates(evt.currentTarget, 'stroke-width');
           editShape('updateStrokeWidth');
@@ -12890,58 +12890,60 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
       }
     }
   }, {
-    element: UI.lineWidth,
+    elements: _toConsumableArray(rootElement.querySelectorAll('[id*="pen-width"]')),
     events: {
       "input": {
-        callback: function callback() {
-          valueWithinBounds(UI.lineWidth) && editShape('updateLineWidth');
+        callback: function callback(evt) {
+          valueWithinBounds(evt.currentTarget) && editShape('updatePenWidth');
         }
       },
       "blur": {
-        callback: function callback() {
-          toggleDisableButtonStates(UI.lineWidth, UI.decrLineWidth, UI.incrLineWidth);
+        callback: function callback(evt) {
+          toggleDisableButtonStates(evt.currentTarget, 'pen-width');
         }
       }
     }
   }, {
-    element: UI.decrLineWidth,
+    elements: _toConsumableArray(rootElement.querySelectorAll('[id*="decr-pen-width"]')),
     events: {
       "click": {
-        callback: function callback() {
-          UI.lineWidth.stepDown();
-          toggleDisableButtonStates(UI.lineWidth, UI.decrLineWidth, UI.incrLineWidth);
-          editShape('updateLineWidth');
+        callback: function callback(evt) {
+          var input = evt.currentTarget.parentElement.querySelector('input[type=number]');
+          input.stepDown();
+          toggleDisableButtonStates(evt.currentTarget, 'pen-width');
+          editShape('updatePenWidth');
         }
       },
       "focus": {
-        callback: function callback() {
-          UI.lineWidth.classList.add("active");
+        callback: function callback(evt) {
+          evt.currentTarget.classList.add("active");
         }
       },
       "blur": {
-        callback: function callback() {
-          UI.lineWidth.classList.remove("active");
+        callback: function callback(evt) {
+          evt.currentTarget.classList.remove("active");
         }
       }
     }
   }, {
-    element: UI.incrLineWidth,
+    elements: _toConsumableArray(rootElement.querySelectorAll('[id*="incr-pen-width"]')),
     events: {
       "click": {
-        callback: function callback() {
-          UI.lineWidth.stepUp();
-          toggleDisableButtonStates(UI.lineWidth, UI.decrLineWidth, UI.incrLineWidth);
-          editShape('updateLineWidth');
+        callback: function callback(evt) {
+          var input = evt.currentTarget.parentElement.querySelector('input[type=number]');
+          input.stepUp();
+          toggleDisableButtonStates(evt.currentTarget, 'pen-width');
+          editShape('updatePenWidth');
         }
       },
       "focus": {
-        callback: function callback() {
-          UI.lineWidth.classList.add("active");
+        callback: function callback(evt) {
+          evt.currentTarget.classList.add("active");
         }
       },
       "blur": {
-        callback: function callback() {
-          UI.lineWidth.classList.remove("active");
+        callback: function callback(evt) {
+          evt.currentTarget.classList.remove("active");
         }
       }
     }
@@ -13046,11 +13048,11 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
       }
     }
   }, {
-    element: UI.lineColor,
+    elements: _toConsumableArray(rootElement.querySelectorAll('[id*="pen-color"]')),
     events: {
       "input": {
         callback: function callback() {
-          return editShape('updateLineColor');
+          return editShape('updatePenColor');
         }
       }
     }
@@ -13944,7 +13946,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
   }
   function determineMainElementAttributes(type) {
     var cursorPosition = Canvas.params.cursorPosition;
-    return _svgShape_js__WEBPACK_IMPORTED_MODULE_1__[_constants_js__WEBPACK_IMPORTED_MODULE_0__.shapeTypeWithRespectiveSvgClass[type]].getMainElementAttributes(cursorPosition, UI);
+    return _svgShape_js__WEBPACK_IMPORTED_MODULE_1__[_constants_js__WEBPACK_IMPORTED_MODULE_0__.shapeTypeWithRespectiveSvgClass[type]].getMainElementAttributes(cursorPosition, UI, drawingApp.params);
     switch (type) {
       case "line":
         return {
@@ -17310,16 +17312,6 @@ var svgShape = /*#__PURE__*/function () {
     value: function showExplainerForLayer() {
       this.sidebarEntry.entryContainer.parentElement.querySelector('.explainer').style.display = 'inline-block';
     }
-  }, {
-    key: "updateLineColor",
-    value: function updateLineColor() {
-      this.mainElement.setAttribute("stroke", this.UI.lineColor.value);
-    }
-  }, {
-    key: "updateLineWidth",
-    value: function updateLineWidth() {
-      this.mainElement.setAttribute("stroke-width", this.UI.lineWidth.value);
-    }
   }]);
   return svgShape;
 }();
@@ -17463,7 +17455,6 @@ var Line = /*#__PURE__*/function (_svgShape3) {
   _createClass(Line, [{
     key: "makeOwnMarkerForThisShape",
     value: function makeOwnMarkerForThisShape() {
-      console.log('asdasd');
       var markerType = this.getMarkerType();
       if (markerType === "no-endmarker") return;
       var newMarker = this.cloneGenericMarker(markerType);
@@ -17499,6 +17490,29 @@ var Line = /*#__PURE__*/function (_svgShape3) {
         case "two-lines-arrow":
           return "stroke";
       }
+    }
+  }, {
+    key: "updatePenWidth",
+    value: function updatePenWidth() {
+      this.mainElement.setAttribute("stroke-width", this.UI.penWidthLine.value);
+    }
+  }, {
+    key: "updatePenColor",
+    value: function updatePenColor() {
+      this.mainElement.setAttribute("stroke", this.UI.penColorLine.value);
+    }
+  }], [{
+    key: "getMainElementAttributes",
+    value: function getMainElementAttributes(cursorPosition, UI, params) {
+      return {
+        "x1": cursorPosition.x,
+        "y1": cursorPosition.y,
+        "x2": cursorPosition.x,
+        "y2": cursorPosition.y,
+        "marker-end": "url(#svg-".concat(params.endmarkerType, "-line)"),
+        "stroke": UI.penColorLine.value,
+        "stroke-width": UI.penWidthLine.value
+      };
     }
   }]);
   return Line;

@@ -574,7 +574,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             events: {
                 "click": {
                     callback: (evt) => {
-                        const input = evt.currentTarget.parentElement.querySelector('input');
+                        const input = evt.currentTarget.parentElement.querySelector('input[type=number]');
                         input.stepDown();
                         toggleDisableButtonStates(evt.currentTarget, 'stroke-width');
                         editShape('updateStrokeWidth');
@@ -593,7 +593,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             events: {
                 "click": {
                     callback: (evt) => {
-                        const input = evt.currentTarget.parentElement.querySelector('input');
+                        const input = evt.currentTarget.parentElement.querySelector('input[type=number]');
                         input.stepUp();
                         toggleDisableButtonStates(evt.currentTarget, 'stroke-width');
                         editShape('updateStrokeWidth');
@@ -616,60 +616,62 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             }
         },
         {
-            element: UI.lineWidth,
+            elements: [...rootElement.querySelectorAll('[id*="pen-width"]')],
             events: {
                 "input": {
-                    callback: () => {
-                        valueWithinBounds(UI.lineWidth) && editShape('updateLineWidth');
+                    callback: (evt) => {
+                        valueWithinBounds(evt.currentTarget) && editShape('updatePenWidth');
                     }
                 },
                 "blur": {
-                    callback: () => {
-                        toggleDisableButtonStates(UI.lineWidth, UI.decrLineWidth, UI.incrLineWidth);
+                    callback: (evt) => {
+                        toggleDisableButtonStates(evt.currentTarget, 'pen-width');
                     }
                 }
             }
         },
         {
-            element: UI.decrLineWidth,
+            elements: [...rootElement.querySelectorAll('[id*="decr-pen-width"]')],
             events: {
                 "click": {
-                    callback: () => {
-                        UI.lineWidth.stepDown();
-                        toggleDisableButtonStates(UI.lineWidth, UI.decrLineWidth, UI.incrLineWidth);
-                        editShape('updateLineWidth');
+                    callback: (evt) => {
+                        const input = evt.currentTarget.parentElement.querySelector('input[type=number]');
+                        input.stepDown();
+                        toggleDisableButtonStates(evt.currentTarget, 'pen-width');
+                        editShape('updatePenWidth');
                     },
                 },
                 "focus": {
-                    callback: () => {
-                        UI.lineWidth.classList.add("active");
+                    callback: (evt) => {
+                        evt.currentTarget.classList.add("active");
                     },
                 },
                 "blur": {
-                    callback: () => {
-                        UI.lineWidth.classList.remove("active");
+                    callback: (evt) => {
+                        evt.currentTarget.classList.remove("active");
                     },
                 },
             }
         },
         {
-            element: UI.incrLineWidth,
+            elements: [...rootElement.querySelectorAll('[id*="incr-pen-width"]')],
             events: {
                 "click": {
-                    callback: () => {
-                        UI.lineWidth.stepUp();
-                        toggleDisableButtonStates(UI.lineWidth, UI.decrLineWidth, UI.incrLineWidth);
-                        editShape('updateLineWidth');
+                    callback: (evt) => {
+                        const input = evt.currentTarget.parentElement.querySelector('input[type=number]');
+                        input.stepUp();
+                        toggleDisableButtonStates(evt.currentTarget, 'pen-width');
+                        editShape('updatePenWidth');
                     },
                 },
                 "focus": {
-                    callback: () => {
-                        UI.lineWidth.classList.add("active");
+                    callback: (evt) => {
+                        evt.currentTarget.classList.add("active");
                     },
                 },
                 "blur": {
-                    callback: () => {
-                        UI.lineWidth.classList.remove("active");
+                    callback: (evt) => {
+                        evt.currentTarget.classList.remove("active");
                     },
                 },
             }
@@ -779,10 +781,10 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             }
         },
         {
-            element: UI.lineColor,
+            elements: [...rootElement.querySelectorAll('[id*="pen-color"]')],
             events: {
                 "input": {
-                    callback: () => editShape('updateLineColor')
+                    callback: () => editShape('updatePenColor')
                 }
             }
         },
@@ -1689,7 +1691,9 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
 
     function determineMainElementAttributes(type) {
         const cursorPosition = Canvas.params.cursorPosition;
-        return svgShape[shapeTypeWithRespectiveSvgClass[type]].getMainElementAttributes(cursorPosition, UI);
+        return svgShape[shapeTypeWithRespectiveSvgClass[type]]
+            .getMainElementAttributes(cursorPosition, UI, drawingApp.params);
+
         switch (type) {
             case "line":
                 return {
