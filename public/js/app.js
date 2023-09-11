@@ -12818,6 +12818,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     events: {
       "input": {
         callback: function callback() {
+          setSliderColor(UI.elemOpacityRange, UI.textColor.value);
           editShape('updateTextColor');
         }
       }
@@ -13947,26 +13948,6 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
   function determineMainElementAttributes(type) {
     var cursorPosition = Canvas.params.cursorPosition;
     return _svgShape_js__WEBPACK_IMPORTED_MODULE_1__[_constants_js__WEBPACK_IMPORTED_MODULE_0__.shapeTypeWithRespectiveSvgClass[type]].getMainElementAttributes(cursorPosition, UI, drawingApp.params);
-    switch (type) {
-      case "freehand":
-        return {
-          "d": "M ".concat(cursorPosition.x, ",").concat(cursorPosition.y),
-          "fill": "none",
-          "stroke": UI.lineColor.value,
-          "stroke-width": UI.lineWidth.value,
-          "opacity": parseFloat(UI.elemOpacityNumber.value / 100)
-        };
-      case "text":
-        return {
-          "x": cursorPosition.x,
-          "y": cursorPosition.y,
-          "fill": UI.textColor.value,
-          "stroke-width": 0,
-          "opacity": parseFloat(UI.elemOpacityNumber.value / 100),
-          "style": "".concat(drawingApp.params.boldText ? "font-weight: bold;" : "", " font-size: ").concat(UI.textSize.value / 16, "rem")
-        };
-      default:
-    }
   }
   function makeNewSvgShapeWithSidebarEntry(type, props, parent, withHelperElements, withHighlightEvents) {
     var svgShape = makeNewSvgShape(type, props, Canvas.layers[parent].svg, withHelperElements, withHighlightEvents);
@@ -14490,16 +14471,17 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
   }
   function updateElemOpacityNumberInput() {
     UI.elemOpacityNumber.value = UI.elemOpacityRange.value;
-    updateOpacitySliderColor();
+    setSliderColor(UI.elemOpacityRange, UI.textColor.value);
   }
   function updateElemOpacityRangeInput() {
     UI.elemOpacityRange.value = UI.elemOpacityNumber.value;
-    updateOpacitySliderColor();
+    setSliderColor(UI.elemOpacityRange, UI.textColor.value);
   }
   function updateAllOpacitySliderColor() {
     rootElement.querySelectorAll('[id*="fill-color"]').forEach(function (elem) {
       updateOpacitySliderColor(elem, 'fill');
     });
+    setSliderColor(UI.elemOpacityRange, UI.textColor.value);
   }
   function updateOpacitySliderColor(elem, property) {
     var propertGroup = elem.closest('.property-group');
@@ -17665,6 +17647,18 @@ var Text = /*#__PURE__*/function (_svgShape4) {
           textElement.parentElement.style = '';
         });
       }
+    }
+  }], [{
+    key: "getMainElementAttributes",
+    value: function getMainElementAttributes(cursorPosition, UI, params) {
+      return {
+        "x": cursorPosition.x,
+        "y": cursorPosition.y,
+        "fill": UI.textColor.value,
+        "stroke-width": 0,
+        "opacity": parseFloat(UI.elemOpacityNumber.value / 100),
+        "style": "".concat(params.boldText ? "font-weight: bold;" : "", " font-size: ").concat(UI.textSize.value / 16, "rem")
+      };
     }
   }]);
   return Text;

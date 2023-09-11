@@ -553,6 +553,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             events: {
                 "input": {
                     callback: () => {
+                        setSliderColor(UI.elemOpacityRange, UI.textColor.value);
                         editShape('updateTextColor');
                     }
                 }
@@ -1693,27 +1694,6 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         const cursorPosition = Canvas.params.cursorPosition;
         return svgShape[shapeTypeWithRespectiveSvgClass[type]]
             .getMainElementAttributes(cursorPosition, UI, drawingApp.params);
-
-        switch (type) {
-            case "freehand":
-                return {
-                    "d": `M ${cursorPosition.x},${cursorPosition.y}`,
-                    "fill": "none",
-                    "stroke": UI.lineColor.value,
-                    "stroke-width": UI.lineWidth.value,
-                    "opacity": parseFloat(UI.elemOpacityNumber.value / 100),
-                };
-            case "text":
-                return {
-                    "x": cursorPosition.x,
-                    "y": cursorPosition.y,
-                    "fill": UI.textColor.value,
-                    "stroke-width": 0,
-                    "opacity": parseFloat(UI.elemOpacityNumber.value / 100),
-                    "style": `${drawingApp.params.boldText ? "font-weight: bold;" : ""} font-size: ${UI.textSize.value / 16}rem`,
-                };
-            default:
-        }
     }
 
     function makeNewSvgShapeWithSidebarEntry(type, props, parent, withHelperElements, withHighlightEvents) {
@@ -2257,18 +2237,19 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
 
     function updateElemOpacityNumberInput() {
         UI.elemOpacityNumber.value = UI.elemOpacityRange.value;
-        updateOpacitySliderColor();
+        setSliderColor(UI.elemOpacityRange, UI.textColor.value);
     }
 
     function updateElemOpacityRangeInput() {
         UI.elemOpacityRange.value = UI.elemOpacityNumber.value;
-        updateOpacitySliderColor();
+        setSliderColor(UI.elemOpacityRange, UI.textColor.value);
     }
 
     function updateAllOpacitySliderColor() {
         rootElement.querySelectorAll('[id*="fill-color"]').forEach(elem => {
             updateOpacitySliderColor(elem, 'fill');
         });
+        setSliderColor(UI.elemOpacityRange, UI.textColor.value);
     }
 
     function updateOpacitySliderColor(elem, property) {

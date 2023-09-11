@@ -548,6 +548,17 @@ export class Text extends svgShape {
         this.registerEditingEvents();
     }
 
+    static getMainElementAttributes(cursorPosition, UI, params) {
+        return {
+            "x": cursorPosition.x,
+            "y": cursorPosition.y,
+            "fill": UI.textColor.value,
+            "stroke-width": 0,
+            "opacity": parseFloat(UI.elemOpacityNumber.value / 100),
+            "style": `${params.boldText ? "font-weight: bold;" : ""} font-size: ${UI.textSize.value / 16}rem`,
+        };
+    }
+
     updateTextColor() {
         this.mainElement.setAttribute("fill", this.UI.textColor.value);
     }
