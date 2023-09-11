@@ -231,7 +231,7 @@
     outline-offset: 2px;
 }
 
-#drawing-tool input[type=button] {
+#drawing-tool [id*="fill-color"], #drawing-tool [id*="stroke-color"] {
     width: 100%;
     height: 100%;
     border-radius: 0.4rem;
@@ -249,18 +249,16 @@
     color: blue;
 }
 
-#drawing-tool #line-color {
+#drawing-tool [id*="pen-color"] {
     width: 2.5rem;
     height: 2.5rem;
     border: var(--default-border);
-    border-radius: 0.5rem;
-    background: var(--all-OffWhite);
 }
 
-#drawing-tool #line-color {
+#drawing-tool [id*="pen-color"] {
     --height: 0.5rem;
 }
-#drawing-tool #line-color {
+#drawing-tool [id*="pen-color"] {
     height: var(--height);
     transform: rotate(-45deg);
     margin: calc(50% - (var(--height) / 2)) 0;
