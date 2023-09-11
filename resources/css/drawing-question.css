@@ -171,7 +171,6 @@
     outline: none;
     color: var(--all-Base);
     font: inherit;
-    width: auto;
 }
 
 
@@ -231,7 +230,7 @@
     outline-offset: 2px;
 }
 
-#drawing-tool [id*="fill-color"], #drawing-tool [id*="stroke-color"] {
+[id*="fill-color"], [id*="stroke-color"], #text-color {
     width: 100%;
     height: 100%;
     border-radius: 0.4rem;
