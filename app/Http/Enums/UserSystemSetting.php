@@ -22,6 +22,9 @@ enum UserSystemSetting: string implements FeatureSettingKey
     #[Initial(false)]
     #[Type('bool')]
     case ALLOW_NEW_ASSESSMENT = 'allow_new_assessment';
+    #[Initial(false)]
+    #[Type('bool')]
+    case ALLOW_NEW_TAKEN_TESTS_PAGE = 'allow_new_taken_tests_page';
 
     public static function initialValues(): Collection
     {
