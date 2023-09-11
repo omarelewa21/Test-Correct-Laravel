@@ -13946,17 +13946,6 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     var cursorPosition = Canvas.params.cursorPosition;
     return _svgShape_js__WEBPACK_IMPORTED_MODULE_1__[_constants_js__WEBPACK_IMPORTED_MODULE_0__.shapeTypeWithRespectiveSvgClass[type]].getMainElementAttributes(cursorPosition, UI);
     switch (type) {
-      case "circle":
-        return {
-          "cx": cursorPosition.x,
-          "cy": cursorPosition.y,
-          "r": 0,
-          "fill": UI.fillOpacityNumber.value === 0 ? "none" : UI.fillColor.value,
-          "fill-opacity": parseFloat(UI.fillOpacityNumber.value / 100),
-          "stroke": UI.strokeColor.value,
-          "stroke-width": UI.strokeWidth.value,
-          "opacity": parseFloat(UI.elemOpacityNumber.value / 100)
-        };
       case "line":
         return {
           "x1": cursorPosition.x,
