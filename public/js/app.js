@@ -17456,7 +17456,7 @@ var Rectangle = /*#__PURE__*/function (_svgShape) {
     key: "setFillColorOnEdit",
     value: function setFillColorOnEdit() {
       var fillColor = this.mainElement.getAttribute("fill");
-      var input = this.UI.fillColor;
+      var input = this.UI.fillColorRect;
       input.value = fillColor;
       input.style.cssText = "background-color: ".concat(fillColor, "; color: ").concat(fillColor, ";");
     }
@@ -17464,21 +17464,21 @@ var Rectangle = /*#__PURE__*/function (_svgShape) {
     key: "setStrokeColorOnEdit",
     value: function setStrokeColorOnEdit() {
       var strokeColor = this.mainElement.getAttribute("stroke");
-      var input = this.UI.strokeColor;
+      var input = this.UI.strokeColorRect;
       input.value = strokeColor;
       input.style.cssText = "border-color: ".concat(strokeColor);
     }
   }, {
     key: "setOpacityInputValueOnEdit",
     value: function setOpacityInputValueOnEdit() {
-      var input = this.UI.fillOpacityNumber;
+      var input = this.UI.fillOpacityNumberRect;
       input.value = this.mainElement.getAttribute("fill-opacity") * 100;
       input.dispatchEvent(new Event('input'));
     }
   }, {
     key: "setStrokeWidthOnEdit",
     value: function setStrokeWidthOnEdit() {
-      this.UI.strokeWidth.value = this.mainElement.getAttribute("stroke-width");
+      this.UI.strokeWidthRect.value = this.mainElement.getAttribute("stroke-width");
     }
   }, {
     key: "updateFillColor",
@@ -17550,7 +17550,7 @@ var Circle = /*#__PURE__*/function (_svgShape2) {
     key: "setFillColorOnEdit",
     value: function setFillColorOnEdit() {
       var fillColor = this.mainElement.getAttribute("fill");
-      var input = this.UI.fillColor;
+      var input = this.UI.fillColorCircle;
       input.value = fillColor;
       input.style.cssText = "background-color: ".concat(fillColor, "; color: ").concat(fillColor, ";");
     }
@@ -17558,21 +17558,21 @@ var Circle = /*#__PURE__*/function (_svgShape2) {
     key: "setStrokeColorOnEdit",
     value: function setStrokeColorOnEdit() {
       var strokeColor = this.mainElement.getAttribute("stroke");
-      var input = this.UI.strokeColor;
+      var input = this.UI.strokeColorCircle;
       input.value = strokeColor;
       input.style.cssText = "border-color: ".concat(strokeColor);
     }
   }, {
     key: "setOpacityInputValueOnEdit",
     value: function setOpacityInputValueOnEdit() {
-      var input = this.UI.fillOpacityNumber;
+      var input = this.UI.fillOpacityNumberCircle;
       input.value = this.mainElement.getAttribute("fill-opacity") * 100;
       input.dispatchEvent(new Event('input'));
     }
   }, {
     key: "setStrokeWidthOnEdit",
     value: function setStrokeWidthOnEdit() {
-      this.UI.strokeWidth.value = this.mainElement.getAttribute("stroke-width");
+      this.UI.strokeWidthCircle.value = this.mainElement.getAttribute("stroke-width");
     }
   }, {
     key: "updateFillColor",
@@ -17711,14 +17711,14 @@ var Line = /*#__PURE__*/function (_svgShape3) {
     key: "setLineColorOnEdit",
     value: function setLineColorOnEdit() {
       var lineColor = this.mainElement.getAttribute("stroke");
-      var input = this.UI.lineColor;
+      var input = this.UI.penColorLine;
       input.value = lineColor;
       input.style.cssText = "background-color: ".concat(lineColor, "; color: ").concat(lineColor, ";");
     }
   }, {
     key: "setLineWidthOnEdit",
     value: function setLineWidthOnEdit() {
-      this.UI.lineWidth.value = this.mainElement.getAttribute("stroke-width");
+      this.UI.penWidthLine.value = this.mainElement.getAttribute("stroke-width");
     }
   }, {
     key: "setEndMarkerOnEdit",
@@ -18148,21 +18148,21 @@ var Freehand = /*#__PURE__*/function (_Path2) {
   _createClass(Freehand, [{
     key: "setInputValuesOnEdit",
     value: function setInputValuesOnEdit() {
-      this.setLineColorOnEdit();
-      this.setLineWidthOnEdit();
+      this.setPathColorOnEdit();
+      this.setPathWidthOnEdit();
     }
   }, {
-    key: "setLineColorOnEdit",
-    value: function setLineColorOnEdit() {
-      var lineColor = this.mainElement.getAttribute("stroke");
-      var input = this.UI.lineColor;
-      input.value = lineColor;
-      input.style.cssText = "background-color: ".concat(lineColor, "; color: ").concat(lineColor, ";");
+    key: "setPathColorOnEdit",
+    value: function setPathColorOnEdit() {
+      var pathColor = this.mainElement.getAttribute("stroke");
+      var input = this.UI.penColorFreehand;
+      input.value = pathColor;
+      input.style.cssText = "background-color: ".concat(pathColor, "; color: ").concat(pathColor, ";");
     }
   }, {
-    key: "setLineWidthOnEdit",
-    value: function setLineWidthOnEdit() {
-      this.UI.lineWidth.value = this.mainElement.getAttribute("stroke-width");
+    key: "setPathWidthOnEdit",
+    value: function setPathWidthOnEdit() {
+      this.UI.penWidthFreehand.value = this.mainElement.getAttribute("stroke-width");
     }
   }]);
   return Freehand;
