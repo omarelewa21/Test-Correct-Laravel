@@ -20,4 +20,9 @@ class ColorPicker extends Component
     {
         return str_contains($this->name, 'stroke-color');
     }
+
+    public function isPenColorInput(): bool
+    {
+        return str_contains($this->name, 'pen-color');
+    }
 }

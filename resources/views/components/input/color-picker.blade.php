@@ -30,7 +30,7 @@
                 <!-- Selector Input -->
                     <div
                         title="{{$attributes->get('title')}}"
-                        class="color-pallete cursor-pointer bg-white @if($name === 'line-color') add-border @endif"
+                        class="color-pallete cursor-pointer bg-white @if($isPenColorInput()) add-border @endif"
                         @click="isOpen = !isOpen"
                         @mouseover="showX = true"
                         @mouseleave="showX = false"
