@@ -347,14 +347,6 @@ class svgShape {
     showExplainerForLayer() {
         this.sidebarEntry.entryContainer.parentElement.querySelector('.explainer').style.display = 'inline-block';
     }
-
-    updateLineColor() {
-        this.mainElement.setAttribute("stroke", this.UI.lineColor.value);
-    }
-
-    updateLineWidth() {
-        this.mainElement.setAttribute("stroke-width", this.UI.lineWidth.value);
-    }
 }
 
 export class Rectangle extends svgShape {
@@ -474,8 +466,19 @@ export class Line extends svgShape {
         this.makeOwnMarkerForThisShape();
     }
 
+    static getMainElementAttributes(cursorPosition, UI, params) {
+        return {
+            "x1": cursorPosition.x,
+            "y1": cursorPosition.y,
+            "x2": cursorPosition.x,
+            "y2": cursorPosition.y,
+            "marker-end": `url(#svg-${params.endmarkerType}-line)`,
+            "stroke": UI.penColorLine.value,
+            "stroke-width": UI.penWidthLine.value,
+        };
+    }
+
     makeOwnMarkerForThisShape() {
-        console.log('asdasd');
         const markerType = this.getMarkerType();
         if (markerType === "no-endmarker") return;
 
@@ -515,6 +518,14 @@ export class Line extends svgShape {
             case "two-lines-arrow":
                 return "stroke";
         }
+    }
+
+    updatePenWidth() {
+        this.mainElement.setAttribute("stroke-width", this.UI.penWidthLine.value);
+    }
+
+    updatePenColor() {
+        this.mainElement.setAttribute("stroke", this.UI.penColorLine.value);
     }
 }
 
