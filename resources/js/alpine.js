@@ -2032,6 +2032,8 @@ document.addEventListener("alpine:init", () => {
                 this.shadowScore = isFloat(initialScore) ? parseFloat(initialScore) : parseInt(initialScore);
             }
             this.$nextTick(() => this.$dispatch("slider-score-updated", { score: this.score }));
+
+            this.bindKeyboardShortCuts();
         },
         toggleCount() {
             return document.querySelectorAll(".student-answer .slider-button-container:not(.disabled)").length;
@@ -2104,6 +2106,52 @@ document.addEventListener("alpine:init", () => {
             Object.assign(this, data);
             this.score = this.shadowScore = data.initialScore;
             this.$nextTick(() => this.$dispatch("slider-score-updated", { score: this.score }));
+        },
+        bindKeyboardShortCuts() {
+
+
+            // During assessment, clicking:
+            // - A will go to previous answer
+            // - D will go to next answer
+            // - S will go to previous question
+            // - W will go to next question
+
+            document.addEventListener('DOMContentLoaded', (event) => {
+                // disable tab key for all elements when in assessment mode because this corrupts the right tab drawer;
+                document.querySelectorAll('textarea').forEach(element => element.tabIndex = -1);
+                document.querySelectorAll('input').forEach(element => element.tabIndex = -1);
+                console.dir(ClassicEditors);
+
+
+                // Map each key to the corresponding button's selid
+                const keyToSelIdMap = {
+                    'a': 'btn_loadAnswer_previous',
+                    'd': 'btn_loadAnswer_next',
+                    's': 'btn_loadQuestion_previous',
+                    'w': 'btn_loadQuestion_next',
+                };
+
+                // Add a keyup event listener to the document
+                document.addEventListener('keyup', (event) => {
+                    // If the target is an input or textarea, do nothing
+                    if (event.target.tagName.toLowerCase() === 'input' || event.target.tagName.toLowerCase() === 'textarea') {
+                        return;
+                    }
+                    // Check if the event.target is a ckEditor
+                    if (event.target.classList.contains('ck')) {
+                        return;
+                    }
+                    const id = keyToSelIdMap[event.key.toLowerCase()];
+
+                    // If a mapping exists, "click" the corresponding button
+                    if (id) {
+                        const button = document.getElementById(id);
+                        if (button) {
+                            button.click();
+                        }
+                    }
+                });
+            });
         }
     }));
     Alpine.data("assessmentNavigator", (current, total, methodCall, lastValue, firstValue) => ({
@@ -2694,7 +2742,6 @@ document.addEventListener("alpine:init", () => {
         hasFeedback,
         async init() {
             this.$store.answerFeedback.resetEditingComment();
-            console.log('init answer feedback');
             this.dropdownOpened = questionType === 'OpenQuestion' ? 'given-feedback' : 'add-feedback';
 
             if(questionType !== 'OpenQuestion') {

@@ -8456,6 +8456,7 @@ document.addEventListener("alpine:init", function () {
             score: _this37.score
           });
         });
+        this.bindKeyboardShortCuts();
       },
       toggleCount: function toggleCount() {
         return document.querySelectorAll(".student-answer .slider-button-container:not(.disabled)").length;
@@ -8527,6 +8528,53 @@ document.addEventListener("alpine:init", function () {
         this.$nextTick(function () {
           return _this39.$dispatch("slider-score-updated", {
             score: _this39.score
+          });
+        });
+      },
+      bindKeyboardShortCuts: function bindKeyboardShortCuts() {
+        // During assessment, clicking:
+        // - A will go to previous answer
+        // - D will go to next answer
+        // - S will go to previous question
+        // - W will go to next question
+
+        document.addEventListener('DOMContentLoaded', function (event) {
+          // disable tab key for all elements when in assessment mode because this corrupts the right tab drawer;
+          document.querySelectorAll('textarea').forEach(function (element) {
+            return element.tabIndex = -1;
+          });
+          document.querySelectorAll('input').forEach(function (element) {
+            return element.tabIndex = -1;
+          });
+          console.dir(ClassicEditors);
+
+          // Map each key to the corresponding button's selid
+          var keyToSelIdMap = {
+            'a': 'btn_loadAnswer_previous',
+            'd': 'btn_loadAnswer_next',
+            's': 'btn_loadQuestion_previous',
+            'w': 'btn_loadQuestion_next'
+          };
+
+          // Add a keyup event listener to the document
+          document.addEventListener('keyup', function (event) {
+            // If the target is an input or textarea, do nothing
+            if (event.target.tagName.toLowerCase() === 'input' || event.target.tagName.toLowerCase() === 'textarea') {
+              return;
+            }
+            // Check if the event.target is a ckEditor
+            if (event.target.classList.contains('ck')) {
+              return;
+            }
+            var id = keyToSelIdMap[event.key.toLowerCase()];
+
+            // If a mapping exists, "click" the corresponding button
+            if (id) {
+              var button = document.getElementById(id);
+              if (button) {
+                button.click();
+              }
+            }
           });
         });
       }
@@ -9372,14 +9420,13 @@ document.addEventListener("alpine:init", function () {
             while (1) switch (_context23.prev = _context23.next) {
               case 0:
                 _this63.$store.answerFeedback.resetEditingComment();
-                console.log('init answer feedback');
                 _this63.dropdownOpened = questionType === 'OpenQuestion' ? 'given-feedback' : 'add-feedback';
                 if (!(questionType !== 'OpenQuestion')) {
-                  _context23.next = 5;
+                  _context23.next = 4;
                   break;
                 }
                 return _context23.abrupt("return");
-              case 5:
+              case 4:
                 _this63.setFocusTracking();
                 document.addEventListener('comment-color-updated', /*#__PURE__*/function () {
                   var _ref4 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee21(event) {
@@ -9454,7 +9501,7 @@ document.addEventListener("alpine:init", function () {
                   _this63.clearActiveComment();
                 });
                 _this63.preventOpeningModalFromBreakingDrawer();
-              case 11:
+              case 10:
               case "end":
                 return _context23.stop();
             }
@@ -11847,7 +11894,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _AnyChart_anychart_base_min__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_AnyChart_anychart_base_min__WEBPACK_IMPORTED_MODULE_3__);
 /* harmony import */ var uuid__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/v4.js");
 /* harmony import */ var _CkEditor5CommentsIntegration__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./CkEditor5CommentsIntegration */ "./resources/js/CkEditor5CommentsIntegration.js");
-/* provided dependency */ var process = __webpack_require__(/*! process/browser.js */ "./node_modules/process/browser.js");
 window._ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
 
 /**
@@ -11869,7 +11915,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "fc18ed69b446aeb8c8a5",
+  key: "51d7221bf733999d7138",
   cluster: "eu",
   forceTLS: true
 });
@@ -11883,7 +11929,7 @@ FilePond.registerPlugin((filepond_plugin_file_validate_size__WEBPACK_IMPORTED_MO
 
 _smoothscroll_polyfill__WEBPACK_IMPORTED_MODULE_2___default().polyfill();
 
-_AnyChart_anychart_base_min__WEBPACK_IMPORTED_MODULE_3___default().licenseKey(process.env.MIX_ANYCHART_LICENSE_KEY);
+_AnyChart_anychart_base_min__WEBPACK_IMPORTED_MODULE_3___default().licenseKey("test-correct.nl-fd20379b-1da7f4b1");
 
 window.uuidv4 = uuid__WEBPACK_IMPORTED_MODULE_4__["default"];
 
@@ -19479,6 +19525,7 @@ window.RichTextEditor = {
               if (typeof resolveCallback === "function") {
                 resolveCallback(editor);
               }
+              editor.ui.view.editableElement.tabIndex = -1;
             })["catch"](function (error) {
               console.error(error);
             }));
