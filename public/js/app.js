@@ -17636,10 +17636,23 @@ var Line = /*#__PURE__*/function (_svgShape3) {
     return _this3;
   }
   _createClass(Line, [{
+    key: "editOwnMarkerForThisShape",
+    value: function editOwnMarkerForThisShape() {
+      this.makeOwnMarkerForThisShape(true);
+    }
+  }, {
     key: "makeOwnMarkerForThisShape",
     value: function makeOwnMarkerForThisShape() {
-      var markerType = this.getMarkerType();
-      if (markerType === "no-endmarker") return;
+      var editing = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+      var markerType = editing ? this.getCurrentActiveMarkerType() : this.getMarkerType();
+      if (markerType === "no-endmarker") {
+        var _this$marker2;
+        (_this$marker2 = this.marker) === null || _this$marker2 === void 0 ? void 0 : _this$marker2.remove();
+        this.marker = null;
+        this.props.main["marker-end"] = "url(#svg-no-endmarker-line)";
+        this.mainElement.setAttributeOnElementWithValidation("marker-end", "url(#svg-no-endmarker-line)");
+        return;
+      }
       var newMarker = this.cloneGenericMarker(markerType);
       this.svgCanvas.firstElementChild.appendChild(newMarker);
       var newMarkerId = "".concat(newMarker.id, "-line-").concat(this.shapeId);
@@ -17693,12 +17706,7 @@ var Line = /*#__PURE__*/function (_svgShape3) {
     value: function updateMarkerColor() {
       if (!this.marker) return;
       var propertyToChange = this.getPropertyToChange(this.getMarkerType());
-      this.marker.style[propertyToChange] = this.UI.lineColor.value;
-    }
-  }, {
-    key: "editOwnMarkerForThisShape",
-    value: function editOwnMarkerForThisShape() {
-      this.makeOwnMarkerForThisShape(true);
+      this.marker.style[propertyToChange] = this.UI.penColorLine.value;
     }
   }, {
     key: "setInputValuesOnEdit",
@@ -17737,6 +17745,7 @@ var Line = /*#__PURE__*/function (_svgShape3) {
     key: "updatePenColor",
     value: function updatePenColor() {
       this.mainElement.setAttribute("stroke", this.UI.penColorLine.value);
+      this.updateMarkerColor();
     }
   }], [{
     key: "getMainElementAttributes",

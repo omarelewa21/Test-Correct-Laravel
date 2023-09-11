@@ -528,6 +528,10 @@ export class Line extends svgShape {
         this.makeOwnMarkerForThisShape();
     }
 
+    editOwnMarkerForThisShape() {
+        this.makeOwnMarkerForThisShape(true);
+    }
+
     makeOwnMarkerForThisShape(editing = false) {
         const markerType = editing ? this.getCurrentActiveMarkerType() : this.getMarkerType();
         if(markerType === "no-endmarker"){
@@ -540,23 +544,6 @@ export class Line extends svgShape {
             );
             return;
         }
-    }
-
-    static getMainElementAttributes(cursorPosition, UI, params) {
-        return {
-            "x1": cursorPosition.x,
-            "y1": cursorPosition.y,
-            "x2": cursorPosition.x,
-            "y2": cursorPosition.y,
-            "marker-end": `url(#svg-${params.endmarkerType}-line)`,
-            "stroke": UI.penColorLine.value,
-            "stroke-width": UI.penWidthLine.value,
-        };
-    }
-
-    makeOwnMarkerForThisShape() {
-        const markerType = this.getMarkerType();
-        if (markerType === "no-endmarker") return;
 
         const newMarker = this.cloneGenericMarker(markerType);
 
@@ -576,6 +563,18 @@ export class Line extends svgShape {
         newMarker.style[propertyToChange] = this.props.main.stroke;
         this.parent.appendChild(newMarker);
         this.marker = newMarker;
+    }
+
+    static getMainElementAttributes(cursorPosition, UI, params) {
+        return {
+            "x1": cursorPosition.x,
+            "y1": cursorPosition.y,
+            "x2": cursorPosition.x,
+            "y2": cursorPosition.y,
+            "marker-end": `url(#svg-${params.endmarkerType}-line)`,
+            "stroke": UI.penColorLine.value,
+            "stroke-width": UI.penWidthLine.value,
+        };
     }
 
     getMarkerType() {
@@ -612,11 +611,7 @@ export class Line extends svgShape {
     updateMarkerColor() {
         if (!this.marker) return;
         const propertyToChange = this.getPropertyToChange(this.getMarkerType());
-        this.marker.style[propertyToChange] = this.UI.lineColor.value;
-    }
-
-    editOwnMarkerForThisShape() {
-        this.makeOwnMarkerForThisShape(true);
+        this.marker.style[propertyToChange] = this.UI.penColorLine.value;
     }
 
     setInputValuesOnEdit() {
@@ -648,6 +643,7 @@ export class Line extends svgShape {
 
     updatePenColor() {
         this.mainElement.setAttribute("stroke", this.UI.penColorLine.value);
+        this.updateMarkerColor();
     }
 }
 
