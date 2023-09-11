@@ -2,7 +2,7 @@
 
 namespace tcCore\View\Components\Question\Drawing\Shapes;
 
-class Circle extends shape
+class Circle extends Shape
 {
     public function setProperties()
     {

@@ -89,42 +89,6 @@
                     <input class="drawing-toolbar-slider" type="range" name="opacity" id="elem-opacity-range" min="0"
                            max="100" value="100" step="1" autocomplete="off" style="cursor: grab">
                 </div>
-
-                <div class="property-group" id="line">
-                    <x-input.color-picker  :name="'line-color'" :id="'line-color'" :title="__('drawing-modal.lineColor')"/>
-                    <div class="input-with-button-group">
-                        <button id="decr-line-width" class="Secondary" title="{{ __('drawing-modal.reduce-line-width') }}" disabled>
-                            <div>
-                                <x-icon.min/>
-                            </div>
-                        </button>
-                        <input type="number" name="line-width" id="line-width" min="1" max="100" value="1"
-                               autocomplete="off" title="@lang('drawing-modal.lijndikte')">
-                        <button id="incr-line-width" class="Secondary" title="{{ __('drawing-modal.enlarge-line-width') }}">
-                            <div>
-                                <x-icon.plus/>
-                            </div>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="property-group" id="edge">
-                    <x-input.color-picker  :name="'stroke-color'" :id="'stroke-color'" :title="__('drawing-modal.Randkleur')"/>
-                    <div class="input-with-button-group">
-                        <button id="decr-stroke" class="Secondary" title="{{ __('drawing-modal.Vergroot randdikte') }}">
-                            <div>
-                                <x-icon.min/>
-                            </div>
-                        </button>
-                        <input type="number" name="stroke-width" id="stroke-width" min="0" max="100" value="1"
-                               autocomplete="off" title="@lang('drawing-modal.Randdikte')">
-                        <button id="incr-stroke" class="Secondary" title="{{ __('drawing-modal.Verklein randdikte') }}">
-                            <div>
-                                <x-icon.plus/>
-                            </div>
-                        </button>
-                    </div>
-                </div>
             </div>
         </section>
         <button id="exit-btn" title="{{ __('drawing-modal.Sluiten') }}">

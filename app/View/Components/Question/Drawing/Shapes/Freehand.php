@@ -2,7 +2,7 @@
 
 namespace tcCore\View\Components\Question\Drawing\Shapes;
 
-class Freehand extends shape
+class Freehand extends Shape
 {
     public function setProperties()
     {
