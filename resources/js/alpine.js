@@ -3485,10 +3485,9 @@ document.addEventListener("alpine:init", () => {
 
             let element = document.createElement("strong");
             element.id = spanId;
-            element.classList.add("ml-4");
             element.innerHTML = `${text}: ${eventDetails.wordCount}`;
 
-            this.wordContainer.parentNode.append(element);
+            this.$root.querySelector(`#selected-word-count-${eventDetails.editorId}`).append(element);
         }
     }));
     Alpine.data("openQuestionStudentPlayer", (editorId) => ({

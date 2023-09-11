@@ -19,15 +19,21 @@
                             :mathmlFunctions="$this->question->mathml_functions"
                             :enableGrammar="false"
                     />
-
-                    <div id="word-count-{{ $editorId }}"
-                         x-data="writeDownCms(@js($editorId), @js($this->question->restrict_word_amount), @js($this->question->max_words))"
-                         x-on:updated-word-count-plugin-container.window="init()"
-                         wire:ignore
-                         class="word-count note text-sm mt-2"
-                         x-show="wordCounter"
-                         x-on:selected-word-count.window="addSelectedWordCounter($event.detail, '@lang('question.selected_words')')"
-                    ></div>
+                    <div class="flex"
+                        x-data="writeDownCms(@js($editorId), @js($this->question->restrict_word_amount), @js($this->question->max_words))"
+                        x-on:updated-word-count-plugin-container.window="init()"
+                        x-on:selected-word-count.window="addSelectedWordCounter($event.detail, '@lang('question.selected_words')')"
+                    >
+                        <div id="word-count-{{ $editorId }}"
+                            wire:ignore
+                            class="word-count note text-sm mt-2 mr-2"
+                            x-show="wordCounter"
+                        ></div>
+                        <div id="selected-word-count-{{ $editorId }}"
+                            wire:ignore
+                            class="word-count note text-sm mt-2"
+                        ></div>
+                    </div>
                 </x-input.group>
             </div>
         </div>

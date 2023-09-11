@@ -588,6 +588,10 @@ window.RichTextEditor = {
 
             fireEventIfWordCountChanged(wordCount);
         } );
+
+        editor.editing.view.document.on('blur', () => {
+            fireEventIfWordCountChanged();
+        });
     },
     getWproofreaderConfig: function(enableGrammar = true, actionItems = ["addWord", "ignoreAll", "ignore", "settings", "toggle", "proofreadDialog"]) {
         return {
