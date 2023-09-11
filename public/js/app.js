@@ -8456,6 +8456,7 @@ document.addEventListener("alpine:init", function () {
             score: _this37.score
           });
         });
+        this.bindKeyboardShortCuts();
       },
       toggleCount: function toggleCount() {
         return document.querySelectorAll(".student-answer .slider-button-container:not(.disabled)").length;
@@ -8527,6 +8528,36 @@ document.addEventListener("alpine:init", function () {
         this.$nextTick(function () {
           return _this39.$dispatch("slider-score-updated", {
             score: _this39.score
+          });
+        });
+      },
+      bindKeyboardShortCuts: function bindKeyboardShortCuts() {
+        // During assessment, clicking:
+        // - A will go to previous answer
+        // - D will go to next answer
+        // - S will go to previous question
+        // - W will go to next question
+        document.addEventListener('DOMContentLoaded', function (event) {
+          // Map each key to the corresponding button's selid
+          var keyToSelIdMap = {
+            'a': 'btn_loadAnswer_previous',
+            'd': 'btn_loadAnswer_next',
+            's': 'btn_loadQuestion_previous',
+            'w': 'btn_loadQuestion_next'
+          };
+
+          // Add a keyup event listener to the document
+          document.addEventListener('keyup', function (event) {
+            var id = keyToSelIdMap[event.key.toLowerCase()];
+
+            // If a mapping exists, "click" the corresponding button
+            if (id) {
+              console.log('cicked ' + id);
+              var button = document.getElementById(id);
+              if (button) {
+                button.click();
+              }
+            }
           });
         });
       }
@@ -11847,7 +11878,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _AnyChart_anychart_base_min__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_AnyChart_anychart_base_min__WEBPACK_IMPORTED_MODULE_3__);
 /* harmony import */ var uuid__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/v4.js");
 /* harmony import */ var _CkEditor5CommentsIntegration__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./CkEditor5CommentsIntegration */ "./resources/js/CkEditor5CommentsIntegration.js");
-/* provided dependency */ var process = __webpack_require__(/*! process/browser.js */ "./node_modules/process/browser.js");
 window._ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
 
 /**
@@ -11869,7 +11899,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "fc18ed69b446aeb8c8a5",
+  key: "51d7221bf733999d7138",
   cluster: "eu",
   forceTLS: true
 });
@@ -11883,7 +11913,7 @@ FilePond.registerPlugin((filepond_plugin_file_validate_size__WEBPACK_IMPORTED_MO
 
 _smoothscroll_polyfill__WEBPACK_IMPORTED_MODULE_2___default().polyfill();
 
-_AnyChart_anychart_base_min__WEBPACK_IMPORTED_MODULE_3___default().licenseKey(process.env.MIX_ANYCHART_LICENSE_KEY);
+_AnyChart_anychart_base_min__WEBPACK_IMPORTED_MODULE_3___default().licenseKey("test-correct.nl-fd20379b-1da7f4b1");
 
 window.uuidv4 = uuid__WEBPACK_IMPORTED_MODULE_4__["default"];
 
