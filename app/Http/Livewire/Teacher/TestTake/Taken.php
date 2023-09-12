@@ -16,6 +16,7 @@ use tcCore\Http\Enums\TestTakeEventTypes;
 use tcCore\Http\Enums\UserFeatureSetting as UserFeatureSettingEnum;
 use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Http\Helpers\Normalize;
+use tcCore\Http\Helpers\TestTakeHelper;
 use tcCore\Http\Livewire\Teacher\TestTake\TestTake as TestTakeComponent;
 use tcCore\Lib\Answer\AnswerChecker;
 use tcCore\RttiExportLog;
@@ -358,8 +359,11 @@ class Taken extends TestTakeComponent
 
     private function discussedQuestions(Collection $questions): int
     {
-        $answerRatingQueryBuilder = AnswerRating::where('test_take_id',$this->testTake->getKey())->where('type',AnswerRating::TYPE_STUDENT)->whereNotNull('rating')->select('answer_id');
-        return Answer::whereIn('id',$answerRatingQueryBuilder)->groupBy('question_id')->get(['id'])->count();
+        $nonDiscussedQuestionCount = TestTakeHelper::nonAssessedDiscussedQuestionIdQueryBuilder($this->testTake,'discuss')->get(['question_id'])->count();
+        return $this->questionsOfTest->count() - $nonDiscussedQuestionCount;
+//        $answerRatingQueryBuilder = AnswerRating::where('test_take_id',$this->testTake->getKey())->where('type',AnswerRating::TYPE_STUDENT)->whereNotNull('rating')->select('answer_id');
+//        return Answer::whereIn('id',$answerRatingQueryBuilder)->groupBy('question_id')->get(['id'])->count();
+
 //        $index = $questions->search(function ($question) use ($questions) {
 //            return $question->id === $questions->where('id', $this->testTake->discussing_question_id)
 //                    ->first()?->id;
@@ -377,10 +381,13 @@ class Taken extends TestTakeComponent
 
     private function assessedQuestions(): int
     {
-        $answerRatingQueryBuilder = AnswerRating::where('test_take_id',$this->testTake->getKey())->where('type','!=',AnswerRating::TYPE_STUDENT)->whereNotNull('rating')->select('answer_id');
-        $testParticipantQueryBuilder = TestParticipant::where('test_take_id',$this->testTake->getKey())->where('test_take_status_id','>=',6)->select('id');
-        $nonAssessedQuestionCount = Answer::whereIn('test_participant_id',$testParticipantQueryBuilder)->whereNotIn('id',$answerRatingQueryBuilder)->groupBy('question_id')->get(['question_id'])->count();
+        $nonAssessedQuestionCount = TestTakeHelper::nonAssessedDiscussedQuestionIdQueryBuilder($this->testTake,'assess')->get(['question_id'])->count();
         return $this->questionsOfTest->count() - $nonAssessedQuestionCount;
+
+//        $answerRatingQueryBuilder = AnswerRating::where('test_take_id',$this->testTake->getKey())->where('type','!=',AnswerRating::TYPE_STUDENT)->whereNotNull('rating')->select('answer_id');
+//        $testParticipantQueryBuilder = TestParticipant::where('test_take_id',$this->testTake->getKey())->where('test_take_status_id','>=',6)->select('id');
+//        $nonAssessedQuestionCount = Answer::whereIn('test_participant_id',$testParticipantQueryBuilder)->whereNotIn('id',$answerRatingQueryBuilder)->groupBy('question_id')->get(['question_id'])->count();
+//        return $this->questionsOfTest->count() - $nonAssessedQuestionCount;
 
 
 //        return Answer::select('answers.question_id')
