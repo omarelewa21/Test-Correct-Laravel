@@ -48,7 +48,7 @@ class GroupQuestion extends Question implements QuestionInterface
         $question = $this->replicate();
 
 
-        $question->parentInstance = $this->parentInstance->duplicate($attributes);
+        $question->parentInstance = $this->parentInstance->duplicate($attributes, $ignore);
         if ($question->parentInstance === false) {
             return false;
         }
