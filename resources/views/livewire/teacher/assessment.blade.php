@@ -287,6 +287,7 @@
                                             @lang('assessment.Feedback schrijven')
                                         </label>
                                         <x-input.rich-textarea type="create-answer-feedback"
+
                                                                :editorId="'feedback-editor-'. $this->questionNavigationValue.'-'.$this->answerNavigationValue"
                                         />
                                     </div>

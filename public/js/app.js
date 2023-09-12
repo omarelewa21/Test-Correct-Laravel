@@ -8033,7 +8033,7 @@ document.addEventListener("alpine:init", function () {
         var sourceCount = Object.entries(sources).length;
         var widthDividableBySourceCount = Math.round(containerWidth / sourceCount) * sourceCount;
         if (!isNaN(widthDividableBySourceCount) && widthDividableBySourceCount > 0) {
-          this.$root.style.width = widthDividableBySourceCount + "px";
+          this.$root.style.width = widthDividableBySourceCount + 'px';
         }
       }
     };
@@ -8252,9 +8252,9 @@ document.addEventListener("alpine:init", function () {
       init: function init() {
         var _this32 = this;
         this.id = this.containerId + "-" + key;
-        this.$watch("expanded", function (value) {
+        this.$watch('expanded', function (value) {
           setTimeout(function () {
-            _this32.$el.querySelector("[block-body]").style.overflow = value ? "visible" : "hidden";
+            _this32.$el.querySelector('[block-body]').style.overflow = value ? 'visible' : 'hidden';
           }, 100);
         });
       },
@@ -8397,7 +8397,7 @@ document.addEventListener("alpine:init", function () {
       },
       setInitialFocusInput: function setInitialFocusInput() {
         var _this35 = this;
-        var name = "" != this.activeOverlay ? this.activeOverlay : this.openTab;
+        var name = '' != this.activeOverlay ? this.activeOverlay : this.openTab;
         var finder = "[data-focus-tab = '".concat(name, "']");
         setTimeout(function () {
           var _this35$$root$querySe;
@@ -8411,15 +8411,15 @@ document.addEventListener("alpine:init", function () {
         if ("" != this.hasErrors) {
           var errorCode = this.hasErrors[0];
           switch (errorCode) {
-            case "invalid_test_code":
-            case "no_test_found_with_code":
-              errorCode = "invalid_test_code";
+            case 'invalid_test_code':
+            case 'no_test_found_with_code':
+              errorCode = 'invalid_test_code';
               break;
           }
-          if (document.activeElement.type === "password") {
+          if (document.activeElement.type === 'password') {
             //Do not focus on other fields when password is focused to prevent users typing password in the wrong field
             //only works when the form is submitted by enter key, else focus is on the login button
-            errorCode = "password";
+            errorCode = 'password';
           }
           finder = "[data-focus-tab-error = '".concat(name, "-").concat(errorCode, "']");
         }
@@ -8456,6 +8456,7 @@ document.addEventListener("alpine:init", function () {
             score: _this37.score
           });
         });
+        this.bindKeyboardShortCuts();
       },
       toggleCount: function toggleCount() {
         return document.querySelectorAll(".student-answer .slider-button-container:not(.disabled)").length;
@@ -8529,6 +8530,53 @@ document.addEventListener("alpine:init", function () {
             score: _this39.score
           });
         });
+      },
+      bindKeyboardShortCuts: function bindKeyboardShortCuts() {
+        // During assessment, clicking:
+        // - A will go to previous answer
+        // - D will go to next answer
+        // - S will go to previous question
+        // - W will go to next question
+
+        document.addEventListener('DOMContentLoaded', function (event) {
+          // disable tab key for all elements when in assessment mode because this corrupts the right tab drawer;
+          document.querySelectorAll('textarea').forEach(function (element) {
+            return element.tabIndex = -1;
+          });
+          document.querySelectorAll('input').forEach(function (element) {
+            return element.tabIndex = -1;
+          });
+          console.dir(ClassicEditors);
+
+          // Map each key to the corresponding button's selid
+          var keyToSelIdMap = {
+            'a': 'btn_loadAnswer_previous',
+            'd': 'btn_loadAnswer_next',
+            's': 'btn_loadQuestion_previous',
+            'w': 'btn_loadQuestion_next'
+          };
+
+          // Add a keyup event listener to the document
+          document.addEventListener('keyup', function (event) {
+            // If the target is an input or textarea, do nothing
+            if (event.target.tagName.toLowerCase() === 'input' || event.target.tagName.toLowerCase() === 'textarea') {
+              return;
+            }
+            // Check if the event.target is a ckEditor
+            if (event.target.classList.contains('ck')) {
+              return;
+            }
+            var id = keyToSelIdMap[event.key.toLowerCase()];
+
+            // If a mapping exists, "click" the corresponding button
+            if (id) {
+              var button = document.getElementById(id);
+              if (button) {
+                button.click();
+              }
+            }
+          });
+        });
       }
     };
   });
@@ -8550,7 +8598,7 @@ document.addEventListener("alpine:init", function () {
                   _context8.next = 2;
                   break;
                 }
-                return _context8.abrupt("return", _this40.$store.answerFeedback.openConfirmationModal(_this40.$root, "first"));
+                return _context8.abrupt("return", _this40.$store.answerFeedback.openConfirmationModal(_this40.$root, 'first'));
               case 2:
                 _context8.next = 4;
                 return _this40.updateCurrent(_this40.firstValue, "first");
@@ -8571,7 +8619,7 @@ document.addEventListener("alpine:init", function () {
                   _context9.next = 2;
                   break;
                 }
-                return _context9.abrupt("return", _this41.$store.answerFeedback.openConfirmationModal(_this41.$root, "last"));
+                return _context9.abrupt("return", _this41.$store.answerFeedback.openConfirmationModal(_this41.$root, 'last'));
               case 2:
                 _context9.next = 4;
                 return _this41.updateCurrent(_this41.lastValue, "last");
@@ -8598,7 +8646,7 @@ document.addEventListener("alpine:init", function () {
                   _context10.next = 4;
                   break;
                 }
-                return _context10.abrupt("return", _this42.$store.answerFeedback.openConfirmationModal(_this42.$root, "next"));
+                return _context10.abrupt("return", _this42.$store.answerFeedback.openConfirmationModal(_this42.$root, 'next'));
               case 4:
                 _context10.next = 6;
                 return _this42.updateCurrent(_this42.current + 1, "incr");
@@ -8625,7 +8673,7 @@ document.addEventListener("alpine:init", function () {
                   _context11.next = 4;
                   break;
                 }
-                return _context11.abrupt("return", _this43.$store.answerFeedback.openConfirmationModal(_this43.$root, "previous"));
+                return _context11.abrupt("return", _this43.$store.answerFeedback.openConfirmationModal(_this43.$root, 'previous'));
               case 4:
                 _context11.next = 6;
                 return _this43.updateCurrent(_this43.current - 1, "decr");
@@ -8739,14 +8787,14 @@ document.addEventListener("alpine:init", function () {
         this.tab(this.tabs[0]);
         this.$watch("collapse", function (value) {
           _this48.$store.coLearningStudent.drawerCollapsed = value;
-          window.dispatchEvent(new CustomEvent("drawer-collapse", {
+          window.dispatchEvent(new CustomEvent('drawer-collapse', {
             detail: value
           }));
           document.documentElement.style.setProperty("--active-sidebar-width", value ? "var(--collapsed-sidebar-width)" : "var(--sidebar-width)");
         });
       },
       getSlideElementByIndex: function getSlideElementByIndex(index) {
-        return this.$root.closest(".drawer").querySelector(".slide-" + index);
+        return this.$root.closest('.drawer').querySelector(".slide-" + index);
       },
       tab: function tab(index) {
         var _arguments2 = arguments,
@@ -8811,7 +8859,7 @@ document.addEventListener("alpine:init", function () {
             while (1) switch (_context14.prev = _context14.next) {
               case 0:
                 _this50.container = (_this50$$root$querySe = _this50.$root.querySelector("#slide-container")) !== null && _this50$$root$querySe !== void 0 ? _this50$$root$querySe : _this50.$root.closest("#slide-container");
-                commentCard = document.querySelector("[data-uuid=\"" + answerFeedbackUuid + "\"].answer-feedback-card");
+                commentCard = document.querySelector('[data-uuid="' + answerFeedbackUuid + '"].answer-feedback-card');
                 slide = _this50.getSlideElementByIndex(2);
                 cardTop = commentCard.offsetTop;
                 if (!(slide.offsetHeight <= _this50.container.offsetHeight)) {
@@ -8842,7 +8890,7 @@ document.addEventListener("alpine:init", function () {
                   _context16.next = 2;
                   break;
                 }
-                return _context16.abrupt("return", _this51.$store.answerFeedback.openConfirmationModal(_this51.$root, "next"));
+                return _context16.abrupt("return", _this51.$store.answerFeedback.openConfirmationModal(_this51.$root, 'next'));
               case 2:
                 if (!_this51.needsToPerformActionsStill()) {
                   _context16.next = 6;
@@ -8886,7 +8934,7 @@ document.addEventListener("alpine:init", function () {
                   _context18.next = 2;
                   break;
                 }
-                return _context18.abrupt("return", _this52.$store.answerFeedback.openConfirmationModal(_this52.$root, "previous"));
+                return _context18.abrupt("return", _this52.$store.answerFeedback.openConfirmationModal(_this52.$root, 'previous'));
               case 2:
                 _this52.tab(1);
                 _context18.next = 5;
@@ -8961,12 +9009,11 @@ document.addEventListener("alpine:init", function () {
     };
   });
 
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("scoreSlider", function (score, model, maxScore, halfPoints, disabled, coLearning, focusInput, continuousSlider, minScore) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("scoreSlider", function (score, model, maxScore, halfPoints, disabled, coLearning, focusInput, continuousSlider) {
     return {
       score: score,
       model: model,
       maxScore: maxScore,
-      minScore: minScore,
       timeOut: null,
       halfPoints: halfPoints,
       disabled: disabled,
@@ -8991,10 +9038,10 @@ document.addEventListener("alpine:init", function () {
         if (this.score > this.maxScore) {
           this.score = this.maxScore;
         }
-        if (this.score < this.minScore) {
-          this.score = this.minScore;
+        if (this.score < 0) {
+          this.score = 0;
         }
-        var el = this.$root.querySelector(".score-slider-input");
+        var el = document.querySelector(".score-slider-input");
         var offsetFromCenter = -40;
         offsetFromCenter += this.score / this.maxScore * 80;
         el.style.setProperty("--slider-thumb-offset", "calc(".concat(offsetFromCenter, "% + 1px)"));
@@ -9014,9 +9061,6 @@ document.addEventListener("alpine:init", function () {
         this.$dispatch("slider-score-updated", {
           score: this.score
         });
-        if (this.$root.classList.contains("untouched")) {
-          this.$root.classList.remove("untouched");
-        }
       },
       noChangeEventFallback: function noChangeEventFallback() {
         if (this.score === null) {
@@ -9025,8 +9069,7 @@ document.addEventListener("alpine:init", function () {
         }
       },
       init: function init() {
-        var _this55 = this,
-          _this$$root$dataset;
+        var _this55 = this;
         if (coLearning) {
           Livewire.hook("message.received", function (message, component) {
             var _message$updateQueue$;
@@ -9053,8 +9096,8 @@ document.addEventListener("alpine:init", function () {
           if (value >= _this55.maxScore) {
             _this55.score = value = _this55.maxScore;
           }
-          if (value <= _this55.minScore) {
-            _this55.score = value = _this55.minScore;
+          if (value <= 0) {
+            _this55.score = value = 0;
           }
           _this55.score = value = _this55.halfPoints ? Math.round(value * 2) / 2 : Math.round(value);
           _this55.updateContinuousSlider();
@@ -9069,20 +9112,6 @@ document.addEventListener("alpine:init", function () {
           this.halfTotal = this.hasMaxDecimalScoreWithHalfPoint();
           this.bars = this.maxScore / 0.5;
         }
-        if (this.usedSliders && (_this$$root$dataset = this.$root.dataset) !== null && _this$$root$dataset !== void 0 && _this$$root$dataset.sliderKey) {
-          var _this$$root$dataset2;
-          if (this.usedSliders.contains((_this$$root$dataset2 = this.$root.dataset) === null || _this$$root$dataset2 === void 0 ? void 0 : _this$$root$dataset2.sliderKey) && this.$root.classList.contains("untouched")) {
-            this.$root.classList.remove("untouched");
-          }
-        }
-        this.$nextTick(function () {
-          var rangeInput = _this55.$root.querySelector("input[type=\"range\"]");
-          var left = (rangeInput === null || rangeInput === void 0 ? void 0 : rangeInput.offsetWidth) / 2;
-          if (_this55.continuousSlider) {
-            left = left - 2;
-          }
-          rangeInput === null || rangeInput === void 0 ? void 0 : rangeInput.style.setProperty("--moz-left-zero", "-".concat(left, "px"));
-        });
       },
       markInputElementsWithError: function markInputElementsWithError() {
         if (this.disabled) return;
@@ -9104,8 +9133,7 @@ document.addEventListener("alpine:init", function () {
       sliderPillClasses: function sliderPillClasses(value) {
         var score = this.halfTotal || this.halfPoints ? this.score * 2 : this.score;
         var first = (value / 2 + "").split(".")[1] === "5";
-        var classes = first ? "first" : "second";
-        return value <= score ? classes += " highlight" : classes;
+        return value <= score ? "bg-primary border-primary highlight ".concat(first ? "first" : "second") : "border-bluegrey opacity-100 ".concat(first ? "first" : "second");
       },
       hasMaxDecimalScoreWithHalfPoint: function hasMaxDecimalScoreWithHalfPoint() {
         return isFloat(this.maxScore);
@@ -9322,7 +9350,7 @@ document.addEventListener("alpine:init", function () {
                   _context19.next = 2;
                   break;
                 }
-                return _context19.abrupt("return", _this61.$store.answerFeedback.openConfirmationModal(_this61.$root, "loadQuestion", number));
+                return _context19.abrupt("return", _this61.$store.answerFeedback.openConfirmationModal(_this61.$root, 'loadQuestion', number));
               case 2:
                 _this61.$dispatch("answer-feedback-drawer-tab-update", {
                   tab: 1
@@ -9392,24 +9420,23 @@ document.addEventListener("alpine:init", function () {
             while (1) switch (_context23.prev = _context23.next) {
               case 0:
                 _this63.$store.answerFeedback.resetEditingComment();
-                console.log("init answer feedback");
-                _this63.dropdownOpened = questionType === "OpenQuestion" ? "given-feedback" : "add-feedback";
-                if (!(questionType !== "OpenQuestion")) {
-                  _context23.next = 5;
+                _this63.dropdownOpened = questionType === 'OpenQuestion' ? 'given-feedback' : 'add-feedback';
+                if (!(questionType !== 'OpenQuestion')) {
+                  _context23.next = 4;
                   break;
                 }
                 return _context23.abrupt("return");
-              case 5:
+              case 4:
                 _this63.setFocusTracking();
-                document.addEventListener("comment-color-updated", /*#__PURE__*/function () {
+                document.addEventListener('comment-color-updated', /*#__PURE__*/function () {
                   var _ref4 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee21(event) {
                     var styleTagElement, colorWithOpacity, color;
                     return _regeneratorRuntime().wrap(function _callee21$(_context21) {
                       while (1) switch (_context21.prev = _context21.next) {
                         case 0:
-                          styleTagElement = document.querySelector("#temporaryCommentMarkerStyles");
+                          styleTagElement = document.querySelector('#temporaryCommentMarkerStyles');
                           colorWithOpacity = event.detail.color;
-                          color = colorWithOpacity.replace("0.4", "1");
+                          color = colorWithOpacity.replace('0.4', '1');
                           styleTagElement.innerHTML = "p .ck-comment-marker[data-comment=\"".concat(event.detail.threadId, "\"]{\n") + "                            --ck-color-comment-marker: ".concat(colorWithOpacity, " !important;\n") + /* opacity .4 */"                            --ck-color-comment-marker-border: ".concat(color, " !important;\n") + /* opacity 1.0 */"                            --ck-color-comment-marker-active: ".concat(colorWithOpacity, " !important;\n") + /* opacity .4 */"                        }";
                         case 4:
                         case "end":
@@ -9421,27 +9448,27 @@ document.addEventListener("alpine:init", function () {
                     return _ref4.apply(this, arguments);
                   };
                 }());
-                document.addEventListener("comment-emoji-updated", /*#__PURE__*/function () {
+                document.addEventListener('comment-emoji-updated', /*#__PURE__*/function () {
                   var _ref5 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee22(event) {
                     var ckeditorIconWrapper, cardIconWrapper;
                     return _regeneratorRuntime().wrap(function _callee22$(_context22) {
                       while (1) switch (_context22.prev = _context22.next) {
                         case 0:
-                          ckeditorIconWrapper = document.querySelector("#icon-" + event.detail.threadId);
-                          cardIconWrapper = document.querySelector("[data-uuid=\"" + event.detail.uuid + "\"].answer-feedback-card-icon");
+                          ckeditorIconWrapper = document.querySelector('#icon-' + event.detail.threadId);
+                          cardIconWrapper = document.querySelector('[data-uuid="' + event.detail.uuid + '"].answer-feedback-card-icon');
                           if (ckeditorIconWrapper) _this63.addOrReplaceIconByName(ckeditorIconWrapper, event.detail.iconName);
                           if (!cardIconWrapper) {
                             _context22.next = 8;
                             break;
                           }
                           _this63.addOrReplaceIconByName(cardIconWrapper, event.detail.iconName, true);
-                          if (!(event.detail.iconName === null || event.detail.iconName === "" || event.detail.iconName === undefined)) {
+                          if (!(event.detail.iconName === null || event.detail.iconName === '' || event.detail.iconName === undefined)) {
                             _context22.next = 7;
                             break;
                           }
                           return _context22.abrupt("return");
                         case 7:
-                          cardIconWrapper.querySelector("span").style = "";
+                          cardIconWrapper.querySelector('span').style = '';
                         case 8:
                         case "end":
                           return _context22.stop();
@@ -9452,20 +9479,20 @@ document.addEventListener("alpine:init", function () {
                     return _ref5.apply(this, arguments);
                   };
                 }());
-                window.addEventListener("new-comment-color-updated", function (event) {
+                window.addEventListener('new-comment-color-updated', function (event) {
                   var _event$detail;
                   return _this63.updateNewCommentMarkerStyles(event === null || event === void 0 ? void 0 : (_event$detail = event.detail) === null || _event$detail === void 0 ? void 0 : _event$detail.color);
                 });
-                document.addEventListener("mousedown", function (event) {
+                document.addEventListener('mousedown', function (event) {
                   _this63.resetCommentColorPickerFocusState(event);
                   _this63.resetCommentEmojiPickerFocusState(event);
                   if (_this63.activeComment === null) {
                     return;
                   }
                   //check for click outside 1. comment markers, 2. comment marker icons, 3. comment cards.
-                  if (event.srcElement.closest(":is(.ck-comment-marker, .answer-feedback-comment-icon, .given-feedback-container)")) {
-                    var element = event.srcElement.closest(".ck-comment-marker");
-                    if (element instanceof Element && window.getComputedStyle(element).backgroundColor === "rgba(0, 0, 0, 0)") {
+                  if (event.srcElement.closest(':is(.ck-comment-marker, .answer-feedback-comment-icon, .given-feedback-container)')) {
+                    var element = event.srcElement.closest('.ck-comment-marker');
+                    if (element instanceof Element && window.getComputedStyle(element).backgroundColor === 'rgba(0, 0, 0, 0)') {
                       //ignore click on inactive comment marker
                       _this63.clearActiveComment();
                     }
@@ -9474,7 +9501,7 @@ document.addEventListener("alpine:init", function () {
                   _this63.clearActiveComment();
                 });
                 _this63.preventOpeningModalFromBreakingDrawer();
-              case 11:
+              case 10:
               case "end":
                 return _context23.stop();
             }
@@ -9482,21 +9509,21 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       resetCommentColorPickerFocusState: function resetCommentColorPickerFocusState(event) {
-        if (event.srcElement.closest(".comment-color-picker")) {
+        if (event.srcElement.closest('.comment-color-picker')) {
           return;
         }
-        var commentColorPickerCKEditorElement = document.querySelector(".comment-color-picker[ckEditorElement].picker-focussed");
+        var commentColorPickerCKEditorElement = document.querySelector('.comment-color-picker[ckEditorElement].picker-focussed');
         if (commentColorPickerCKEditorElement) {
-          commentColorPickerCKEditorElement.classList.remove("picker-focussed");
+          commentColorPickerCKEditorElement.classList.remove('picker-focussed');
         }
       },
       resetCommentEmojiPickerFocusState: function resetCommentEmojiPickerFocusState(event) {
-        if (event.srcElement.closest(".comment-emoji-picker")) {
+        if (event.srcElement.closest('.comment-emoji-picker')) {
           return;
         }
-        var commentEmojiPickerCKEditorElement = document.querySelector(".comment-emoji-picker[ckEditorElement].picker-focussed");
+        var commentEmojiPickerCKEditorElement = document.querySelector('.comment-emoji-picker[ckEditorElement].picker-focussed');
         if (commentEmojiPickerCKEditorElement) {
-          commentEmojiPickerCKEditorElement.classList.remove("picker-focussed");
+          commentEmojiPickerCKEditorElement.classList.remove('picker-focussed');
         }
       },
       updateCommentThread: function updateCommentThread(element) {
@@ -9507,18 +9534,18 @@ document.addEventListener("alpine:init", function () {
           return _regeneratorRuntime().wrap(function _callee24$(_context24) {
             while (1) switch (_context24.prev = _context24.next) {
               case 0:
-                answerFeedbackCardElement = element.closest(".answer-feedback-card");
+                answerFeedbackCardElement = element.closest('.answer-feedback-card');
                 answerFeedbackUuid = answerFeedbackCardElement.dataset.uuid;
-                comment_color = (_answerFeedbackCardEl = answerFeedbackCardElement.querySelector(".comment-color-picker input:checked")) === null || _answerFeedbackCardEl === void 0 ? void 0 : (_answerFeedbackCardEl2 = _answerFeedbackCardEl.dataset) === null || _answerFeedbackCardEl2 === void 0 ? void 0 : _answerFeedbackCardEl2.color;
-                comment_emoji = (_answerFeedbackCardEl3 = answerFeedbackCardElement.querySelector(".comment-emoji-picker input:checked")) === null || _answerFeedbackCardEl3 === void 0 ? void 0 : (_answerFeedbackCardEl4 = _answerFeedbackCardEl3.dataset) === null || _answerFeedbackCardEl4 === void 0 ? void 0 : _answerFeedbackCardEl4.emoji;
-                answerFeedbackEditor = ClassicEditors["update-" + answerFeedbackUuid];
+                comment_color = (_answerFeedbackCardEl = answerFeedbackCardElement.querySelector('.comment-color-picker input:checked')) === null || _answerFeedbackCardEl === void 0 ? void 0 : (_answerFeedbackCardEl2 = _answerFeedbackCardEl.dataset) === null || _answerFeedbackCardEl2 === void 0 ? void 0 : _answerFeedbackCardEl2.color;
+                comment_emoji = (_answerFeedbackCardEl3 = answerFeedbackCardElement.querySelector('.comment-emoji-picker input:checked')) === null || _answerFeedbackCardEl3 === void 0 ? void 0 : (_answerFeedbackCardEl4 = _answerFeedbackCardEl3.dataset) === null || _answerFeedbackCardEl4 === void 0 ? void 0 : _answerFeedbackCardEl4.emoji;
+                answerFeedbackEditor = ClassicEditors['update-' + answerFeedbackUuid];
                 answerFeedbackData = answerFeedbackEditor.getData();
                 _context24.next = 8;
                 return answerFeedbackEditor.destroy();
               case 8:
                 _this64.cancelEditingComment(answerFeedbackCardElement.dataset.threadId);
                 _context24.next = 11;
-                return _this64.$wire.call("updateExistingComment", {
+                return _this64.$wire.call('updateExistingComment', {
                   uuid: answerFeedbackUuid,
                   message: answerFeedbackData,
                   comment_emoji: comment_emoji,
@@ -9526,7 +9553,7 @@ document.addEventListener("alpine:init", function () {
                 });
               case 11:
                 commentStyles = _context24.sent;
-                document.querySelector("#commentMarkerStyles").innerHTML = commentStyles;
+                document.querySelector('#commentMarkerStyles').innerHTML = commentStyles;
               case 13:
               case "end":
                 return _context24.stop();
@@ -9545,20 +9572,20 @@ document.addEventListener("alpine:init", function () {
                 //somehow the editor id sometimes shows an old cached value, so we set it again here
                 _this65.answerEditorId = _this65.$el.dataset.answerEditorId;
                 _this65.feedbackEditorId = _this65.$el.dataset.feedbackEditorId;
-                addCommentElement = _this65.$el.closest(".answer-feedback-add-comment");
-                comment_color = (_addCommentElement$qu = addCommentElement.querySelector(".comment-color-picker input:checked")) === null || _addCommentElement$qu === void 0 ? void 0 : (_addCommentElement$qu2 = _addCommentElement$qu.dataset) === null || _addCommentElement$qu2 === void 0 ? void 0 : _addCommentElement$qu2.color;
-                comment_emoji = (_addCommentElement$qu3 = addCommentElement.querySelector(".comment-emoji-picker input:checked")) === null || _addCommentElement$qu3 === void 0 ? void 0 : (_addCommentElement$qu4 = _addCommentElement$qu3.dataset) === null || _addCommentElement$qu4 === void 0 ? void 0 : _addCommentElement$qu4.emoji;
-                comment_iconName = (_addCommentElement$qu5 = addCommentElement.querySelector(".comment-emoji-picker input:checked")) === null || _addCommentElement$qu5 === void 0 ? void 0 : (_addCommentElement$qu6 = _addCommentElement$qu5.dataset) === null || _addCommentElement$qu6 === void 0 ? void 0 : _addCommentElement$qu6.iconname;
+                addCommentElement = _this65.$el.closest('.answer-feedback-add-comment');
+                comment_color = (_addCommentElement$qu = addCommentElement.querySelector('.comment-color-picker input:checked')) === null || _addCommentElement$qu === void 0 ? void 0 : (_addCommentElement$qu2 = _addCommentElement$qu.dataset) === null || _addCommentElement$qu2 === void 0 ? void 0 : _addCommentElement$qu2.color;
+                comment_emoji = (_addCommentElement$qu3 = addCommentElement.querySelector('.comment-emoji-picker input:checked')) === null || _addCommentElement$qu3 === void 0 ? void 0 : (_addCommentElement$qu4 = _addCommentElement$qu3.dataset) === null || _addCommentElement$qu4 === void 0 ? void 0 : _addCommentElement$qu4.emoji;
+                comment_iconName = (_addCommentElement$qu5 = addCommentElement.querySelector('.comment-emoji-picker input:checked')) === null || _addCommentElement$qu5 === void 0 ? void 0 : (_addCommentElement$qu6 = _addCommentElement$qu5.dataset) === null || _addCommentElement$qu6 === void 0 ? void 0 : _addCommentElement$qu6.iconname;
                 answerEditor = ClassicEditors[_this65.answerEditorId];
                 feedbackEditor = ClassicEditors[_this65.feedbackEditorId];
-                comment = feedbackEditor.getData() || "<p></p>";
+                comment = feedbackEditor.getData() || '<p></p>';
                 answerEditor.focus();
                 _this65.$nextTick( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee25() {
                   var feedback, newCommentThread, updatedAnswerText, commentStyles, intervalCount, interval;
                   return _regeneratorRuntime().wrap(function _callee25$(_context25) {
                     while (1) switch (_context25.prev = _context25.next) {
                       case 0:
-                        if (!answerEditor.plugins.get("CommentsRepository").activeCommentThread) {
+                        if (!answerEditor.plugins.get('CommentsRepository').activeCommentThread) {
                           _context25.next = 20;
                           break;
                         }
@@ -9567,11 +9594,11 @@ document.addEventListener("alpine:init", function () {
                       case 3:
                         feedback = _context25.sent;
                         _context25.next = 6;
-                        return answerEditor.execute("addCommentThread", {
+                        return answerEditor.execute('addCommentThread', {
                           threadId: feedback.threadId
                         });
                       case 6:
-                        newCommentThread = answerEditor.plugins.get("CommentsRepository").getCommentThreads().filter(function (thread) {
+                        newCommentThread = answerEditor.plugins.get('CommentsRepository').getCommentThreads().filter(function (thread) {
                           return thread.id == feedback.threadId;
                         })[0];
                         newCommentThread.addComment({
@@ -9598,12 +9625,12 @@ document.addEventListener("alpine:init", function () {
                           iconName: comment_iconName
                         });
                       case 14:
-                        document.querySelector("#commentMarkerStyles").innerHTML = commentStyles;
+                        document.querySelector('#commentMarkerStyles').innerHTML = commentStyles;
                         _this65.hasFeedback = true;
-                        _this65.$dispatch("answer-feedback-show-comments");
+                        _this65.$dispatch('answer-feedback-show-comments');
                         _this65.scrollToCommentCard(feedback.uuid);
                         setTimeout(function () {
-                          ClassicEditors[_this65.feedbackEditorId].setData("<p></p>");
+                          ClassicEditors[_this65.feedbackEditorId].setData('<p></p>');
                         }, 300);
                         return _context25.abrupt("return");
                       case 20:
@@ -9617,11 +9644,11 @@ document.addEventListener("alpine:init", function () {
                       case 22:
                         feedback = _context25.sent;
                         _this65.hasFeedback = true;
-                        _this65.$dispatch("answer-feedback-show-comments");
+                        _this65.$dispatch('answer-feedback-show-comments');
                         intervalCount = 0;
                         interval = setInterval(function () {
                           intervalCount++;
-                          _this65.$dispatch("answer-feedback-show-comments");
+                          _this65.$dispatch('answer-feedback-show-comments');
                           if (intervalCount > 2) {
                             _this65.scrollToCommentCard(feedback.uuid);
                           }
@@ -9630,7 +9657,7 @@ document.addEventListener("alpine:init", function () {
                             return;
                           }
                         }, 400);
-                        feedbackEditor.setData("<p></p>");
+                        feedbackEditor.setData('<p></p>');
                       case 28:
                       case "end":
                         return _context25.stop();
@@ -9662,7 +9689,7 @@ document.addEventListener("alpine:init", function () {
                 return _context27.abrupt("return");
               case 5:
                 answerEditor = ClassicEditors[_this66.answerEditorId];
-                commentsRepository = answerEditor.plugins.get("CommentsRepository");
+                commentsRepository = answerEditor.plugins.get('CommentsRepository');
                 thread = commentsRepository.getCommentThread(threadId);
                 _context27.next = 10;
                 return _this66.$wire.deleteCommentThread(threadId, feedbackId);
@@ -9673,7 +9700,7 @@ document.addEventListener("alpine:init", function () {
                   break;
                 }
                 //delete icon positioned over the ckeditor
-                deletedThreadIcon = document.querySelector(".answer-feedback-comment-icons #icon-" + threadId);
+                deletedThreadIcon = document.querySelector('.answer-feedback-comment-icons #icon-' + threadId);
                 if (deletedThreadIcon) {
                   deletedThreadIcon.remove();
                 }
@@ -9685,7 +9712,7 @@ document.addEventListener("alpine:init", function () {
                 _this66.setEditingComment(null);
                 return _context27.abrupt("return");
               case 20:
-                console.error("failed to delete answer feedback");
+                console.error('failed to delete answer feedback');
               case 21:
               case "end":
                 return _context27.stop();
@@ -9695,9 +9722,9 @@ document.addEventListener("alpine:init", function () {
       },
       initCommentIcons: function initCommentIcons(commentThreads) {
         var _this67 = this;
-        var answerFeedbackFilter = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "all";
+        var answerFeedbackFilter = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'all';
         var filteredCommentThreads = commentThreads.filter(function (thread) {
-          return answerFeedbackFilter === "current_user" && thread.currentUser || answerFeedbackFilter === "students" && thread.role === "student" || answerFeedbackFilter === "teacher" && thread.role === "teacher" || answerFeedbackFilter === "all";
+          return answerFeedbackFilter === 'current_user' && thread.currentUser || answerFeedbackFilter === 'students' && thread.role === 'student' || answerFeedbackFilter === 'teacher' && thread.role === 'teacher' || answerFeedbackFilter === 'all';
         });
         filteredCommentThreads.forEach(function (thread) {
           _this67.createCommentIcon(thread);
@@ -9708,17 +9735,17 @@ document.addEventListener("alpine:init", function () {
       },
       createCommentTagsEventListener: function createCommentTagsEventListener(enabledCommentThreads) {
         var _this68 = this;
-        var commentEditorContainer = document.querySelector(".answer-feedback-comment-icons").parentElement;
+        var commentEditorContainer = document.querySelector('.answer-feedback-comment-icons').parentElement;
         var hoveringCommentThread = null;
 
         //remove previous event listeners, if any
         if (this.commentTagsEventListeners) {
-          commentEditorContainer.removeEventListener("click", this.commentTagsEventListeners["click"]);
-          commentEditorContainer.removeEventListener("mouseover", this.commentTagsEventListeners["mouseover"]);
+          commentEditorContainer.removeEventListener('click', this.commentTagsEventListeners['click']);
+          commentEditorContainer.removeEventListener('mouseover', this.commentTagsEventListeners['mouseover']);
         }
         this.commentTagsEventListeners = [];
-        this.commentTagsEventListeners["click"] = function (event) {
-          var targetCommentElement = event.target.closest("[data-comment], [data-threadid]");
+        this.commentTagsEventListeners['click'] = function (event) {
+          var targetCommentElement = event.target.closest('[data-comment], [data-threadid]');
           if (!targetCommentElement) return;
           var clickedEnabledCommentThread = enabledCommentThreads.filter(function (thread) {
             return thread.threadId === (targetCommentElement.dataset.comment || targetCommentElement.dataset.threadid);
@@ -9726,8 +9753,8 @@ document.addEventListener("alpine:init", function () {
           if (!clickedEnabledCommentThread) return;
           _this68.setActiveComment(clickedEnabledCommentThread.threadId, clickedEnabledCommentThread.uuid);
         };
-        this.commentTagsEventListeners["mouseover"] = function (event) {
-          var targetCommentElement = event.target.closest("[data-comment], [data-threadid]");
+        this.commentTagsEventListeners['mouseover'] = function (event) {
+          var targetCommentElement = event.target.closest('[data-comment], [data-threadid]');
           var targetCommentThreadId = (targetCommentElement === null || targetCommentElement === void 0 ? void 0 : targetCommentElement.dataset.comment) || (targetCommentElement === null || targetCommentElement === void 0 ? void 0 : targetCommentElement.dataset.threadid) || false;
           var previousHoveringCommentThread = hoveringCommentThread;
           hoveringCommentThread = enabledCommentThreads.filter(function (thread) {
@@ -9743,12 +9770,12 @@ document.addEventListener("alpine:init", function () {
           }
           _this68.setHoveringComment(hoveringCommentThread.threadId, hoveringCommentThread.uuid);
         };
-        commentEditorContainer.addEventListener("click", this.commentTagsEventListeners["click"]);
-        commentEditorContainer.addEventListener("mouseover", this.commentTagsEventListeners["mouseover"]);
+        commentEditorContainer.addEventListener('click', this.commentTagsEventListeners['click']);
+        commentEditorContainer.addEventListener('mouseover', this.commentTagsEventListeners['mouseover']);
       },
       repositionAnswerFeedbackIcons: function repositionAnswerFeedbackIcons() {
         var _this69 = this;
-        var answerFeedbackCommentIcons = document.querySelectorAll(".answer-feedback-comment-icon");
+        var answerFeedbackCommentIcons = document.querySelectorAll('.answer-feedback-comment-icon');
         answerFeedbackCommentIcons.forEach(function (iconWrapper) {
           var threadId = iconWrapper.dataset.threadid;
           var threadUuid = iconWrapper.dataset.uuid;
@@ -9758,50 +9785,50 @@ document.addEventListener("alpine:init", function () {
       setIconPositionForThread: function setIconPositionForThread(iconWrapper, threadId, answerFeedbackUuid) {
         var commentMarkers = document.querySelectorAll("[data-comment='" + threadId + "']");
         if (commentMarkers.length === 0) {
-          iconWrapper.style.display = "none";
+          iconWrapper.style.display = 'none';
           return;
         }
         var lastCommentMarker = commentMarkers[commentMarkers.length - 1];
-        iconWrapper.style.top = lastCommentMarker.offsetTop - 15 /* adjust icon alignment */ + lastCommentMarker.offsetHeight - 24 /* adjust to last line of marker */ + "px";
+        iconWrapper.style.top = lastCommentMarker.offsetTop - 15 /* adjust icon alignment */ + lastCommentMarker.offsetHeight - 24 /* adjust to last line of marker */ + 'px';
         var lastCommentMarkerClientRects = lastCommentMarker.getClientRects();
         var lastCommentMarkerParentClientRects = lastCommentMarker.offsetParent.getClientRects();
         var lastCommentMarkerLineClientRight = lastCommentMarkerClientRects[lastCommentMarkerClientRects.length - 1].right;
         var lastCommentMarkerLineParentClientLeft = lastCommentMarkerParentClientRects[lastCommentMarkerParentClientRects.length - 1].left;
         var lastCommentMarkerLineOffsetLeft = lastCommentMarkerLineClientRight - lastCommentMarkerLineParentClientLeft;
-        iconWrapper.style.left = lastCommentMarkerLineOffsetLeft - 5 + "px";
+        iconWrapper.style.left = lastCommentMarkerLineOffsetLeft - 5 + 'px';
       },
       initCommentIcon: function initCommentIcon(iconWrapper, thread) {
         var _this70 = this;
         setTimeout(function () {
           _this70.setIconPositionForThread(iconWrapper, thread.threadId, thread.uuid);
-          iconWrapper.setAttribute("data-uuid", thread.uuid);
-          iconWrapper.setAttribute("data-threadId", thread.threadId);
+          iconWrapper.setAttribute('data-uuid', thread.uuid);
+          iconWrapper.setAttribute('data-threadId', thread.threadId);
           _this70.addOrReplaceIconByName(iconWrapper, thread.iconName);
         }, 200);
       },
       createCommentIcon: function createCommentIcon(thread) {
-        var commentIconsContainer = document.querySelector(".answer-feedback-comment-icons");
+        var commentIconsContainer = document.querySelector('.answer-feedback-comment-icons');
         var iconId = "icon-" + thread.threadId;
-        var iconWrapper = document.createElement("div");
-        iconWrapper.classList.add("absolute");
-        iconWrapper.classList.add("z-10");
-        iconWrapper.classList.add("cursor-pointer");
-        iconWrapper.classList.add("answer-feedback-comment-icon");
+        var iconWrapper = document.createElement('div');
+        iconWrapper.classList.add('absolute');
+        iconWrapper.classList.add('z-10');
+        iconWrapper.classList.add('cursor-pointer');
+        iconWrapper.classList.add('answer-feedback-comment-icon');
         iconWrapper.id = iconId;
         commentIconsContainer.appendChild(iconWrapper);
         this.initCommentIcon(iconWrapper, thread);
       },
       addOrReplaceIconByName: function addOrReplaceIconByName(el, iconName) {
         var isFeedbackCardIcon = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-        el.innerHTML = "";
+        el.innerHTML = '';
         var iconTemplate = null;
-        if (iconName === null || iconName === "" || iconName === undefined) {
+        if (iconName === null || iconName === '' || iconName === undefined) {
           if (isFeedbackCardIcon) {
             return;
           }
-          iconTemplate = document.querySelector("#default-icon");
+          iconTemplate = document.querySelector('#default-icon');
         } else {
-          iconTemplate = document.querySelector("#" + iconName.replace("icon.", ""));
+          iconTemplate = document.querySelector('#' + iconName.replace('icon.', ''));
         }
         el.appendChild(document.importNode(iconTemplate.content, true));
       },
@@ -9820,71 +9847,71 @@ document.addEventListener("alpine:init", function () {
         var originalIconName = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
         var originalColor = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
         //reset temporary styling
-        document.querySelector("#temporaryCommentMarkerStyles").innerHTML = "";
+        document.querySelector('#temporaryCommentMarkerStyles').innerHTML = '';
         this.setEditingComment(null);
 
         //reset radio buttons
         if (originalColor) {
-          document.querySelector("[data-uuid=\"" + AnswerFeedbackUuid + "\"].answer-feedback-card .comment-color-picker [data-color=\"".concat(originalColor, "\"]")).checked = true;
+          document.querySelector('[data-uuid="' + AnswerFeedbackUuid + "\"].answer-feedback-card .comment-color-picker [data-color=\"".concat(originalColor, "\"]")).checked = true;
         }
         if (originalIconName === false) return; /* false is unset, but null is a valid value */
 
-        if (originalIconName === null || originalIconName === "") {
-          var emojiPicker = document.querySelector("[data-uuid=\"" + AnswerFeedbackUuid + "\"].answer-feedback-card .comment-emoji-picker input:checked");
+        if (originalIconName === null || originalIconName === '') {
+          var emojiPicker = document.querySelector('[data-uuid="' + AnswerFeedbackUuid + "\"].answer-feedback-card .comment-emoji-picker input:checked");
           if (emojiPicker) emojiPicker.checked = false;
         } else {
-          document.querySelector("[data-uuid=\"" + AnswerFeedbackUuid + "\"].answer-feedback-card .comment-emoji-picker [data-iconName=\"".concat(originalIconName, "\"]")).checked = true;
+          document.querySelector('[data-uuid="' + AnswerFeedbackUuid + "\"].answer-feedback-card .comment-emoji-picker [data-iconName=\"".concat(originalIconName, "\"]")).checked = true;
         }
 
         //reset icon to the original if originalIconName is given (null is also valid)
-        var ckeditorIconWrapper = document.querySelector("#icon-" + threadId);
-        var cardIconWrapper = document.querySelector("[data-uuid=\"" + AnswerFeedbackUuid + "\"].answer-feedback-card-icon");
+        var ckeditorIconWrapper = document.querySelector('#icon-' + threadId);
+        var cardIconWrapper = document.querySelector('[data-uuid="' + AnswerFeedbackUuid + '"].answer-feedback-card-icon');
         if (ckeditorIconWrapper) this.addOrReplaceIconByName(ckeditorIconWrapper, originalIconName);
         if (cardIconWrapper) {
-          if (originalIconName === null || originalIconName === "") {
-            cardIconWrapper.innerHTML = "";
+          if (originalIconName === null || originalIconName === '') {
+            cardIconWrapper.innerHTML = '';
             return;
           }
           this.addOrReplaceIconByName(cardIconWrapper, originalIconName);
-          cardIconWrapper.querySelector("span").style = "";
+          cardIconWrapper.querySelector('span').style = '';
         }
       },
       updateNewCommentMarkerStyles: function updateNewCommentMarkerStyles(color) {
-        var styleTag = document.querySelector("#addFeedbackMarkerStyles");
-        var colorCode = "rgba(var(--primary-rgb), 0.4)";
+        var styleTag = document.querySelector('#addFeedbackMarkerStyles');
+        var colorCode = 'rgba(var(--primary-rgb), 0.4)';
         if (color) {
           colorCode = color;
         }
-        styleTag.innerHTML = "\n" + "        :root {\n" + "            --active-comment-color: " + colorCode + "; /* default color, overwrite when color picker is used */\n" + "            --ck-color-comment-marker-active: var(--active-comment-color);\n" + "        }\n" + "    span.ck-comment-marker[data-comment=\"new-comment-thread\"]{\n" + "            --active-comment-color: " + colorCode + "; /* default color, overwrite when color picker is used */\n" + "            --ck-color-comment-marker: var(--active-comment-color);\n" + "            --ck-color-comment-marker-active: var(--active-comment-color);\n" + "            cursor: pointer !important;\n" + "        }";
+        styleTag.innerHTML = '\n' + '        :root {\n' + '            --active-comment-color: ' + colorCode + '; /* default color, overwrite when color picker is used */\n' + '            --ck-color-comment-marker-active: var(--active-comment-color);\n' + '        }\n' + '    span.ck-comment-marker[data-comment="new-comment-thread"]{\n' + '            --active-comment-color: ' + colorCode + '; /* default color, overwrite when color picker is used */\n' + '            --ck-color-comment-marker: var(--active-comment-color);\n' + '            --ck-color-comment-marker-active: var(--active-comment-color);\n' + '            cursor: pointer !important;\n' + '        }';
       },
       setHoveringCommentMarkerStyle: function setHoveringCommentMarkerStyle() {
         var removeStyling = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-        var styleTag = document.querySelector("#hoveringCommentMarkerStyle");
+        var styleTag = document.querySelector('#hoveringCommentMarkerStyle');
         if (!styleTag) {
           return;
         }
         if (removeStyling || this.hoveringComment.threadId === null) {
-          styleTag.innerHTML = "";
+          styleTag.innerHTML = '';
           return;
         }
-        styleTag.innerHTML = "" + "span.ck-comment-marker[data-comment=\"" + this.hoveringComment.threadId + "\"] { color: var(--teacher-primary); }" + "div[data-threadid=\"" + this.hoveringComment.threadId + "\"] svg { color: var(--teacher-primary); }";
+        styleTag.innerHTML = '' + 'span.ck-comment-marker[data-comment="' + this.hoveringComment.threadId + '"] { color: var(--teacher-primary); }' + 'div[data-threadid="' + this.hoveringComment.threadId + '"] svg { color: var(--teacher-primary); }';
       },
       setActiveCommentMarkerStyle: function setActiveCommentMarkerStyle() {
         var _this$activeComment, _this$activeComment2, _this$activeComment3, _this$activeComment4, _this$activeComment5;
         var removeStyling = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-        var styleTag = document.querySelector("#activeCommentMarkerStyle");
+        var styleTag = document.querySelector('#activeCommentMarkerStyle');
         if (!styleTag) {
           return;
         }
         if (removeStyling || ((_this$activeComment = this.activeComment) === null || _this$activeComment === void 0 ? void 0 : _this$activeComment.threadId) === null) {
-          styleTag.innerHTML = "";
+          styleTag.innerHTML = '';
           return;
         }
-        styleTag.innerHTML = "" + "span.ck-comment-marker[data-comment=\"" + ((_this$activeComment2 = this.activeComment) === null || _this$activeComment2 === void 0 ? void 0 : _this$activeComment2.threadId) + "\"] { " + "   border: 1px solid var(--ck-color-comment-marker-border) !important; " + "} " + "span.ck-comment-marker[data-comment=\"" + ((_this$activeComment3 = this.activeComment) === null || _this$activeComment3 === void 0 ? void 0 : _this$activeComment3.threadId) + "\"].ck-math-widget { " + "   border: 1px solid transparent !important; " + "} " + "span.ck-comment-marker[data-comment=\"" + ((_this$activeComment4 = this.activeComment) === null || _this$activeComment4 === void 0 ? void 0 : _this$activeComment4.threadId) + "\"] img { " + "   border: 1px solid var(--ck-color-comment-marker-border) !important; " + "} " + "div.answer-feedback-comment-icon[data-threadid=\"" + ((_this$activeComment5 = this.activeComment) === null || _this$activeComment5 === void 0 ? void 0 : _this$activeComment5.threadId) + "\"] { " + "   z-index: 11 " + "} ";
+        styleTag.innerHTML = '' + 'span.ck-comment-marker[data-comment="' + ((_this$activeComment2 = this.activeComment) === null || _this$activeComment2 === void 0 ? void 0 : _this$activeComment2.threadId) + '"] { ' + '   border: 1px solid var(--ck-color-comment-marker-border) !important; ' + '} ' + 'span.ck-comment-marker[data-comment="' + ((_this$activeComment3 = this.activeComment) === null || _this$activeComment3 === void 0 ? void 0 : _this$activeComment3.threadId) + '"].ck-math-widget { ' + '   border: 1px solid transparent !important; ' + '} ' + 'span.ck-comment-marker[data-comment="' + ((_this$activeComment4 = this.activeComment) === null || _this$activeComment4 === void 0 ? void 0 : _this$activeComment4.threadId) + '"] img { ' + '   border: 1px solid var(--ck-color-comment-marker-border) !important; ' + '} ' + 'div.answer-feedback-comment-icon[data-threadid="' + ((_this$activeComment5 = this.activeComment) === null || _this$activeComment5 === void 0 ? void 0 : _this$activeComment5.threadId) + '"] { ' + '   z-index: 11 ' + '} ';
       },
       setActiveComment: function setActiveComment(threadId, answerFeedbackUuid) {
         var _this71 = this;
-        this.$dispatch("answer-feedback-show-comments");
+        this.$dispatch('answer-feedback-show-comments');
         setTimeout(function () {
           if (_this71.$store.answerFeedback.feedbackBeingEdited()) {
             /* when editing, no other comment can be activated */
@@ -9914,12 +9941,12 @@ document.addEventListener("alpine:init", function () {
           try {
             var answerEditor = ClassicEditors[_this72.answerEditorId];
             var feedbackEditor = ClassicEditors[_this72.feedbackEditorId];
-            answerEditor.ui.focusTracker.add(feedbackEditor.sourceElement.parentElement.querySelector(".ck.ck-content"));
-            feedbackEditor.ui.focusTracker.add(answerEditor.sourceElement.parentElement.querySelector(".ck.ck-content"));
+            answerEditor.ui.focusTracker.add(feedbackEditor.sourceElement.parentElement.querySelector('.ck.ck-content'));
+            feedbackEditor.ui.focusTracker.add(answerEditor.sourceElement.parentElement.querySelector('.ck.ck-content'));
           } catch (exception) {
             // ignore focusTracker error when trying to add element that is already registered
             // there is no way to preventively check if the element is already registered
-            if (!exception.message.contains("focustracker-add-element-already-exist")) {
+            if (!exception.message.contains('focustracker-add-element-already-exist')) {
               throw exception;
             }
           }
@@ -9936,28 +9963,28 @@ document.addEventListener("alpine:init", function () {
         setTimeout(function () {
           try {
             var answerEditor = ClassicEditors[_this73.answerEditorId];
-            var buttonWrapper = document.querySelector("#saveNewFeedbackButtonWrapper");
+            var buttonWrapper = document.querySelector('#saveNewFeedbackButtonWrapper');
             if (buttonWrapper.children.length > 0) {
               return;
             }
 
             //text cancel button:
-            var textCancelButton = new window.CkEditorButtonView(new window.CkEditorLocale("nl"));
+            var textCancelButton = new window.CkEditorButtonView(new window.CkEditorLocale('nl'));
             textCancelButton.set({
               label: buttonWrapper.dataset.cancelTranslation,
-              classList: "text-button button-sm",
-              eventName: "cancel"
+              classList: 'text-button button-sm',
+              eventName: 'cancel'
             });
             textCancelButton.render();
             answerEditor.ui.focusTracker.add(textCancelButton.element);
             buttonWrapper.appendChild(textCancelButton.element);
 
             //CTA save button:
-            var saveButtonCta = new window.CkEditorButtonView(new window.CkEditorLocale("nl"));
+            var saveButtonCta = new window.CkEditorButtonView(new window.CkEditorLocale('nl'));
             saveButtonCta.set({
               label: buttonWrapper.dataset.saveTranslation,
-              classList: "cta-button button-gradient button-sm",
-              eventName: "save"
+              classList: 'cta-button button-gradient button-sm',
+              eventName: 'save'
             });
             saveButtonCta.render();
             answerEditor.ui.focusTracker.add(saveButtonCta.element);
@@ -9969,19 +9996,19 @@ document.addEventListener("alpine:init", function () {
       },
       createCommentColorRadioButton: function createCommentColorRadioButton(el, rgb, colorName, checked) {
         var answerEditor = ClassicEditors[this.answerEditorId];
-        var radiobutton = new window.CkEditorRadioWithColorView(new window.CkEditorLocale("nl"));
+        var radiobutton = new window.CkEditorRadioWithColorView(new window.CkEditorLocale('nl'));
         radiobutton.set({
-          rgb: rgb.replace("rgba(", "").replace(",0.4)", ""),
+          rgb: rgb.replace('rgba(', '').replace(',0.4)', ''),
           colorName: colorName
         });
         radiobutton.render();
         answerEditor.ui.focusTracker.add(radiobutton.element);
         el.appendChild(radiobutton.element);
-        radiobutton.element.querySelector("input").checked = checked;
+        radiobutton.element.querySelector('input').checked = checked;
       },
       createCommentIconRadioButton: function createCommentIconRadioButton(el, iconName, emojiValue, checked) {
         var answerEditor = ClassicEditors[this.answerEditorId];
-        var radiobutton = new window.CkEditorRadioWithIconView(new window.CkEditorLocale("nl"));
+        var radiobutton = new window.CkEditorRadioWithIconView(new window.CkEditorLocale('nl'));
         radiobutton.set({
           iconName: iconName,
           emojiValue: emojiValue
@@ -9989,7 +10016,7 @@ document.addEventListener("alpine:init", function () {
         radiobutton.render();
         answerEditor.ui.focusTracker.add(radiobutton.element);
         el.appendChild(radiobutton.element);
-        radiobutton.element.querySelector("span").appendChild(document.importNode(el.querySelector("template").content, true));
+        radiobutton.element.querySelector('span').appendChild(document.importNode(el.querySelector('template').content, true));
       },
       setEditingComment: function setEditingComment(AnswerFeedbackUuid) {
         var _this74 = this;
@@ -10012,7 +10039,7 @@ document.addEventListener("alpine:init", function () {
                   _context28.next = 4;
                   break;
                 }
-                _this75.dropdownOpened = "add-feedback";
+                _this75.dropdownOpened = 'add-feedback';
                 return _context28.abrupt("return");
               case 4:
                 ;
@@ -10020,17 +10047,18 @@ document.addEventListener("alpine:init", function () {
                   _context28.next = 8;
                   break;
                 }
-                _this75.dropdownOpened = "given-feedback";
+                _this75.dropdownOpened = 'given-feedback';
                 return _context28.abrupt("return");
               case 8:
+                ;
                 if (!(_this75.dropdownOpened === name && !forceOpenAccordion)) {
-                  _context28.next = 11;
+                  _context28.next = 12;
                   break;
                 }
                 _this75.dropdownOpened = null;
                 return _context28.abrupt("return");
-              case 11:
-                if (questionType === "OpenQuestion" && name === "add-feedback") {
+              case 12:
+                if (questionType === 'OpenQuestion' && name === 'add-feedback') {
                   try {
                     _this75.setFocusTracking();
                   } catch (e) {
@@ -10038,13 +10066,13 @@ document.addEventListener("alpine:init", function () {
                   }
                 }
                 _this75.dropdownOpened = name;
-                _context28.next = 15;
+                _context28.next = 16;
                 return _this75.$nextTick();
-              case 15:
+              case 16:
                 setTimeout(function () {
                   _this75.fixSlideHeightByIndex(2);
                 }, 293);
-              case 16:
+              case 17:
               case "end":
                 return _context28.stop();
             }
@@ -10054,34 +10082,34 @@ document.addEventListener("alpine:init", function () {
       resetAddNewAnswerFeedback: function resetAddNewAnswerFeedback() {
         var cancelAddingNewComment = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
         //find default/blue color picker and enable it.
-        var defaultColorPicker = document.querySelector(".answer-feedback-add-comment .comment-color-picker [data-color=\"blue\"]");
+        var defaultColorPicker = document.querySelector('.answer-feedback-add-comment .comment-color-picker [data-color="blue"]');
         if (defaultColorPicker !== null) {
           defaultColorPicker.checked = true;
         }
 
         //find checked emoji picker, uncheck
-        var checkedEmojiPicker = document.querySelector(".answer-feedback-add-comment .comment-emoji-picker input:checked");
+        var checkedEmojiPicker = document.querySelector('.answer-feedback-add-comment .comment-emoji-picker input:checked');
         if (checkedEmojiPicker !== null) {
           checkedEmojiPicker.checked = false;
         }
 
         //answerFeedbackeditor reset text
         var answerEditor = ClassicEditors[this.feedbackEditorId];
-        answerEditor.setData("<p></p>");
+        answerEditor.setData('<p></p>');
         this.updateNewCommentMarkerStyles(null);
         if (cancelAddingNewComment) {
-          window.dispatchEvent(new CustomEvent("answer-feedback-show-comments"));
+          window.dispatchEvent(new CustomEvent('answer-feedback-show-comments'));
         }
       },
       preventOpeningModalFromBreakingDrawer: function preventOpeningModalFromBreakingDrawer() {
         var observer = new MutationObserver(function (mutations) {
           mutations.forEach(function (mutation) {
-            if (mutation.attributeName == "class" && mutation.target.classList.contains("overflow-y-hidden")) {
-              mutation.target.classList.remove("overflow-y-hidden");
+            if (mutation.attributeName == "class" && mutation.target.classList.contains('overflow-y-hidden')) {
+              mutation.target.classList.remove('overflow-y-hidden');
             }
           });
         });
-        observer.observe(document.querySelector("body"), {
+        observer.observe(document.querySelector('body'), {
           attributes: true
         });
       }
@@ -10099,7 +10127,7 @@ document.addEventListener("alpine:init", function () {
                   _context29.next = 2;
                   break;
                 }
-                return _context29.abrupt("return", _this76.$store.answerFeedback.openConfirmationModal(_this76.$root, "goToPreviousAnswerRating"));
+                return _context29.abrupt("return", _this76.$store.answerFeedback.openConfirmationModal(_this76.$root, 'goToPreviousAnswerRating'));
               case 2:
                 _this76.$wire.goToPreviousAnswerRating();
               case 3:
@@ -10119,7 +10147,7 @@ document.addEventListener("alpine:init", function () {
                   _context30.next = 2;
                   break;
                 }
-                return _context30.abrupt("return", _this77.$store.answerFeedback.openConfirmationModal(_this77.$root, "goToNextAnswerRating"));
+                return _context30.abrupt("return", _this77.$store.answerFeedback.openConfirmationModal(_this77.$root, 'goToNextAnswerRating'));
               case 2:
                 _this77.$wire.goToNextAnswerRating();
               case 3:
@@ -10139,7 +10167,7 @@ document.addEventListener("alpine:init", function () {
                   _context31.next = 2;
                   break;
                 }
-                return _context31.abrupt("return", _this78.$store.answerFeedback.openConfirmationModal(_this78.$root, "goToFinishedCoLearningPage"));
+                return _context31.abrupt("return", _this78.$store.answerFeedback.openConfirmationModal(_this78.$root, 'goToFinishedCoLearningPage'));
               case 2:
                 _this78.$wire.goToFinishedCoLearningPage();
               case 3:
@@ -10229,15 +10257,16 @@ document.addEventListener("alpine:init", function () {
       },
       addSelectedWordCounter: function addSelectedWordCounter(eventDetails) {
         var _this$$root$querySele3;
-        var text = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "Geselecteerde woorden";
+        var text = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'Geselecteerde woorden';
         if (eventDetails.editorId !== this.editor.sourceElement.id) return;
         var spanId = "selected-word-span";
         (_this$$root$querySele3 = this.$root.querySelector("#".concat(spanId))) === null || _this$$root$querySele3 === void 0 ? void 0 : _this$$root$querySele3.remove();
         if (eventDetails.wordCount === 0) return;
         var element = document.createElement("strong");
         element.id = spanId;
+        element.classList.add("ml-4");
         element.innerHTML = "".concat(text, ": ").concat(eventDetails.wordCount);
-        this.$root.querySelector("#selected-word-count-".concat(eventDetails.editorId)).append(element);
+        this.wordContainer.parentNode.append(element);
       }
     };
   });
@@ -10269,7 +10298,7 @@ document.addEventListener("alpine:init", function () {
         return ClassicEditors[this.editorId];
       },
       syncEditorData: function syncEditorData() {
-        if (!this.getEditor() || this.getEditor().getData() === "") return;
+        if (!this.getEditor() || this.getEditor().getData() === '') return;
         this.$wire.sync("answer", this.getEditor().getData());
       }
     };
@@ -10295,7 +10324,7 @@ document.addEventListener("alpine:init", function () {
             _this82.$dispatch("reinitialize-editor-editor-" + _this82.questionId);
           }
         });
-        if (this.reinitializedTimeoutData && this.reinitializedTimeoutData.hasOwnProperty("timeLeft")) {
+        if (this.reinitializedTimeoutData && this.reinitializedTimeoutData.hasOwnProperty('timeLeft')) {
           this.$nextTick(function () {
             _this82.startTimeout(_this82.reinitializedTimeoutData);
           });
@@ -10307,18 +10336,18 @@ document.addEventListener("alpine:init", function () {
       },
       refreshQuestion: function refreshQuestion(eventData) {
         if (eventData.indexOf(this.number) !== -1) {
-          this.$wire.set("closed", true);
+          this.$wire.set('closed', true);
         }
       },
       closeThisQuestion: function closeThisQuestion(eventData) {
         if (!this.showMe) return;
-        this.$wire.set("showCloseQuestionModal", true);
-        this.$wire.set("nextQuestion", eventData);
+        this.$wire.set('showCloseQuestionModal', true);
+        this.$wire.set('nextQuestion', eventData);
       },
       closeThisGroup: function closeThisGroup(eventData) {
         if (!this.showMe) return;
-        this.$wire.set("showCloseGroupModal", true);
-        this.$wire.set("nextQuestion", eventData);
+        this.$wire.set('showCloseGroupModal', true);
+        this.$wire.set('nextQuestion', eventData);
       },
       startTimeout: function startTimeout(eventData) {
         var _this83 = this;
@@ -10741,26 +10770,26 @@ document.addEventListener("alpine:init", function () {
       }
     });
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("questionBank", function (openTab, inGroup, inTestBankContext) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('questionBank', function (openTab, inGroup, inTestBankContext) {
     return {
       questionBankOpenTab: openTab,
       inGroup: inGroup,
       groupDetail: null,
       bodyVisibility: true,
       inTestBankContext: inTestBankContext,
-      maxHeight: "calc(100vh - var(--header-height))",
+      maxHeight: 'calc(100vh - var(--header-height))',
       init: function init() {
         var _this94 = this;
-        this.groupDetail = this.$el.querySelector("#groupdetail");
-        this.$watch("showBank", function (value) {
-          if (value === "questions") {
+        this.groupDetail = this.$el.querySelector('#groupdetail');
+        this.$watch('showBank', function (value) {
+          if (value === 'questions') {
             _this94.$wire.loadSharedFilters();
           }
         });
-        this.$watch("$store.questionBank.inGroup", function (value) {
+        this.$watch('$store.questionBank.inGroup', function (value) {
           _this94.inGroup = value;
         });
-        this.$watch("$store.questionBank.active", function (value) {
+        this.$watch('$store.questionBank.active', function (value) {
           if (value) {
             _this94.$wire.setAddedQuestionIdsArray();
           } else {
@@ -10782,27 +10811,27 @@ document.addEventListener("alpine:init", function () {
                   readyForSlide = _context32.sent;
                   if (readyForSlide) {
                     if (_this94.inTestBankContext) {
-                      _this94.$refs["tab-container"].style.display = "none";
-                      _this94.$refs["main-container"].style.height = "100vh";
+                      _this94.$refs['tab-container'].style.display = 'none';
+                      _this94.$refs['main-container'].style.height = '100vh';
                     } else {
-                      _this94.maxHeight = _this94.groupDetail.offsetHeight + "px";
+                      _this94.maxHeight = _this94.groupDetail.offsetHeight + 'px';
                     }
                     _this94.groupDetail.style.left = 0;
-                    _this94.$refs["main-container"].scrollTo({
+                    _this94.$refs['main-container'].scrollTo({
                       top: 0,
-                      behavior: "smooth"
+                      behavior: 'smooth'
                     });
                     _this94.$el.scrollTo({
                       top: 0,
-                      behavior: "smooth"
+                      behavior: 'smooth'
                     });
                     _this94.$nextTick(function () {
                       setTimeout(function () {
                         _this94.bodyVisibility = false;
                         if (_this94.inTestBankContext) {
-                          _this94.groupDetail.style.position = "relative";
+                          _this94.groupDetail.style.position = 'relative';
                         } else {
-                          handleVerticalScroll(_this94.$el.closest(".slide-container"));
+                          handleVerticalScroll(_this94.$el.closest('.slide-container'));
                         }
                       }, 500);
                     });
@@ -10820,17 +10849,17 @@ document.addEventListener("alpine:init", function () {
         this.closeGroupDetailQb = function () {
           if (!_this94.bodyVisibility) {
             _this94.bodyVisibility = true;
-            _this94.maxHeight = "calc(100vh - var(--header-height))";
-            _this94.groupDetail.style.left = "100%";
+            _this94.maxHeight = 'calc(100vh - var(--header-height))';
+            _this94.groupDetail.style.left = '100%';
             if (_this94.inTestBankContext) {
-              _this94.groupDetail.style.position = "absolute";
-              _this94.$refs["tab-container"].style.display = "block";
+              _this94.groupDetail.style.position = 'absolute';
+              _this94.$refs['tab-container'].style.display = 'block';
             }
             _this94.$nextTick(function () {
               _this94.$wire.clearGroupDetails();
               setTimeout(function () {
                 if (!_this94.inTestBankContext) {
-                  handleVerticalScroll(_this94.$el.closest(".slide-container"));
+                  handleVerticalScroll(_this94.$el.closest('.slide-container'));
                 }
               }, 250);
             });
@@ -10849,7 +10878,7 @@ document.addEventListener("alpine:init", function () {
                     _context33.next = 3;
                     break;
                   }
-                  return _context33.abrupt("return", _this94.$wire.emit("openModal", "teacher.add-sub-question-confirmation-modal", {
+                  return _context33.abrupt("return", _this94.$wire.emit('openModal', 'teacher.add-sub-question-confirmation-modal', {
                     questionUuid: questionUuid
                   }));
                 case 3:
@@ -10872,197 +10901,6 @@ document.addEventListener("alpine:init", function () {
             return _ref8.apply(this, arguments);
           };
         }();
-      }
-    };
-  });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("testTakePage", function (openTab, inGroup, inTestBankContext) {
-    return {
-      testCodePopup: false,
-      urlCopied: false,
-      urlCopiedTimeout: null,
-      init: function init() {
-        var _this95 = this;
-        this.$watch("urlCopied", function (value) {
-          if (value) {
-            clearTimeout(_this95.urlCopiedTimeout);
-            setTimeout(function () {
-              return _this95.urlCopied = false;
-            }, 2000);
-          }
-        });
-      }
-    };
-  });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("participantDetailPopup", function () {
-    return {
-      participantPopupOpen: false,
-      button: null,
-      openPopup: function openPopup(event) {
-        var _this96 = this;
-        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee34() {
-          return _regeneratorRuntime().wrap(function _callee34$(_context34) {
-            while (1) switch (_context34.prev = _context34.next) {
-              case 0:
-                if (!_this96.participantPopupOpen) {
-                  _context34.next = 3;
-                  break;
-                }
-                _context34.next = 3;
-                return _this96.closePopup(event);
-              case 3:
-                _this96.button = event.element;
-                _this96.button.dataset.open = "true";
-                _context34.next = 7;
-                return _this96.$wire.openPopup(event.participant);
-              case 7:
-                _this96.participantPopupOpen = true;
-                _this96.$nextTick(function () {
-                  _this96.$root.style.left = _this96.getLeft();
-                  _this96.$root.style.top = _this96.getTop();
-                });
-              case 9:
-              case "end":
-                return _context34.stop();
-            }
-          }, _callee34);
-        }))();
-      },
-      closePopup: function closePopup() {
-        var _this97 = this;
-        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee35() {
-          return _regeneratorRuntime().wrap(function _callee35$(_context35) {
-            while (1) switch (_context35.prev = _context35.next) {
-              case 0:
-                _this97.participantPopupOpen = false;
-                _context35.next = 3;
-                return _this97.$wire.closePopup();
-              case 3:
-                _this97.button.dataset.open = "false";
-              case 4:
-              case "end":
-                return _context35.stop();
-            }
-          }, _callee35);
-        }))();
-      },
-      handleScroll: function handleScroll() {
-        if (!this.participantPopupOpen) return;
-        this.$root.style.top = this.getTop();
-      },
-      getTop: function getTop() {
-        return this.button.getBoundingClientRect().top - this.$root.offsetHeight - 8 + "px";
-      },
-      getLeft: function getLeft() {
-        return this.button.getBoundingClientRect().left + this.button.getBoundingClientRect().width / 2 - this.$root.offsetWidth / 2 + "px";
-      }
-    };
-  });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("testTakeAttainmentAnalysis", function (columns) {
-    return {
-      attainmentOpen: [],
-      studentData: [],
-      columns: columns,
-      totalWidth: null,
-      loadingData: [],
-      init: function init() {
-        this.fixPvalueContainerWidth();
-      },
-      fixPvalueContainerWidth: function fixPvalueContainerWidth() {
-        var _document$querySelect,
-          _this98 = this;
-        this.totalWidth = (_document$querySelect = document.querySelector(".pvalue-questions")) === null || _document$querySelect === void 0 ? void 0 : _document$querySelect.getBoundingClientRect().width;
-        this.$root.querySelectorAll(".pvalue-container").forEach(function (el) {
-          el.style.width = _this98.totalWidth + "px";
-        });
-      },
-      openRow: function openRow(attainment) {
-        var _this99 = this;
-        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee36() {
-          return _regeneratorRuntime().wrap(function _callee36$(_context36) {
-            while (1) switch (_context36.prev = _context36.next) {
-              case 0:
-                if (!_this99.loadingData.includes(attainment)) {
-                  _context36.next = 2;
-                  break;
-                }
-                return _context36.abrupt("return");
-              case 2:
-                if (_this99.studentData[attainment]) {
-                  _context36.next = 8;
-                  break;
-                }
-                _this99.loadingData.push(attainment);
-                _context36.next = 6;
-                return _this99.$wire.attainmentStudents(attainment);
-              case 6:
-                _this99.studentData[attainment] = _context36.sent;
-                _this99.loadingData = _this99.loadingData.filter(function (key) {
-                  return key !== attainment;
-                });
-              case 8:
-                _this99.attainmentOpen.push(attainment);
-                _this99.$nextTick(function () {
-                  return _this99.fixPvalueContainerWidth();
-                });
-              case 10:
-              case "end":
-                return _context36.stop();
-            }
-          }, _callee36);
-        }))();
-      },
-      closeRow: function closeRow(attainment) {
-        this.attainmentOpen = this.attainmentOpen.filter(function (key) {
-          return key !== attainment;
-        });
-      },
-      toggleRow: function toggleRow(attainment) {
-        var _this100 = this;
-        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee37() {
-          return _regeneratorRuntime().wrap(function _callee37$(_context37) {
-            while (1) switch (_context37.prev = _context37.next) {
-              case 0:
-                if (!_this100.attainmentOpen.includes(attainment)) {
-                  _context37.next = 3;
-                  break;
-                }
-                _this100.closeRow(attainment);
-                return _context37.abrupt("return");
-              case 3:
-                _context37.next = 5;
-                return _this100.openRow(attainment);
-              case 5:
-              case "end":
-                return _context37.stop();
-            }
-          }, _callee37);
-        }))();
-      },
-      styles: function styles(pValue, multiplier) {
-        return {
-          "width": this.barWidth(multiplier),
-          "backgroundColor": this.backgroundColor(pValue)
-        };
-      },
-      barWidth: function barWidth(multiplier) {
-        return this.totalWidth / this.columns.length * multiplier + "px";
-      },
-      backgroundColor: function backgroundColor(pValue) {
-        if (pValue * 100 < 55) return "var(--all-red)";
-        if (pValue * 100 < 65) return "var(--student)";
-        return "var(--cta-primary)";
-      },
-      isLastStudentInRow: function isLastStudentInRow(student, attainment) {
-        var _this$studentData$att, _this$studentData$att2;
-        var index = (_this$studentData$att = this.studentData[attainment]) === null || _this$studentData$att === void 0 ? void 0 : _this$studentData$att.findIndex(function (s) {
-          return s.uuid === student.uuid;
-        });
-        return ((_this$studentData$att2 = this.studentData[attainment]) === null || _this$studentData$att2 === void 0 ? void 0 : _this$studentData$att2.length) === index + 1;
-      },
-      resetAnalysis: function resetAnalysis() {
-        this.attainmentOpen = [];
-        this.studentData = [];
-        this.loadingData = [];
       }
     };
   });
@@ -11155,30 +10993,30 @@ document.addEventListener("alpine:init", function () {
       this.navigationRoot = navigatorRootElement;
       this.navigationMethod = methodName;
       this.navigationArgs = methodArgs;
-      Livewire.emit("openModal", "modal.confirm-still-editing-comment-modal", {
-        "creatingNewComment": this.creatingNewComment
+      Livewire.emit('openModal', 'modal.confirm-still-editing-comment-modal', {
+        'creatingNewComment': this.creatingNewComment
       });
     },
     continueAction: function continueAction() {
       this.editingComment = null;
-      this.navigationRoot.dispatchEvent(new CustomEvent("continue-navigation", {
+      this.navigationRoot.dispatchEvent(new CustomEvent('continue-navigation', {
         detail: {
           method: this.navigationMethod,
           args: [this.navigationArgs]
         }
       }));
-      Livewire.emit("closeModal");
+      Livewire.emit('closeModal');
     },
     cancelAction: function cancelAction() {
       this.navigationRoot = null;
       this.navigationMethod = null;
-      window.dispatchEvent(new CustomEvent("answer-feedback-drawer-tab-update", {
+      window.dispatchEvent(new CustomEvent('answer-feedback-drawer-tab-update', {
         detail: {
           tab: 2,
           uuid: this.editingComment
         }
       }));
-      Livewire.emit("closeModal");
+      Livewire.emit('closeModal');
     },
     resetEditingComment: function resetEditingComment() {
       this.setEditingComment(null);
@@ -12056,7 +11894,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _AnyChart_anychart_base_min__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_AnyChart_anychart_base_min__WEBPACK_IMPORTED_MODULE_3__);
 /* harmony import */ var uuid__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/v4.js");
 /* harmony import */ var _CkEditor5CommentsIntegration__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./CkEditor5CommentsIntegration */ "./resources/js/CkEditor5CommentsIntegration.js");
-/* provided dependency */ var process = __webpack_require__(/*! process/browser.js */ "./node_modules/process/browser.js");
 window._ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
 
 /**
@@ -12078,12 +11915,12 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "346b9b2cf30ab766e6a6",
+  key: "51d7221bf733999d7138",
   cluster: "eu",
   forceTLS: true
 });
 window.$ = window.jQuery = __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js");
-window.MIX_CKEDITOR_LICENSE_KEY = process.env.MIX_CKEDITOR_LICENSE_KEY;
+window.MIX_CKEDITOR_LICENSE_KEY = "q11N5LxlUjUp2pDthuTmPmy/+cmatL0lY7nh6aX+nhhODyekK1g8YW5CKA==";
 window.FilePond = __webpack_require__(/*! filepond */ "./node_modules/filepond/dist/filepond.js");
 
 FilePond.registerPlugin((filepond_plugin_file_validate_size__WEBPACK_IMPORTED_MODULE_1___default()));
@@ -12092,7 +11929,7 @@ FilePond.registerPlugin((filepond_plugin_file_validate_size__WEBPACK_IMPORTED_MO
 
 _smoothscroll_polyfill__WEBPACK_IMPORTED_MODULE_2___default().polyfill();
 
-_AnyChart_anychart_base_min__WEBPACK_IMPORTED_MODULE_3___default().licenseKey(process.env.MIX_ANYCHART_LICENSE_KEY);
+_AnyChart_anychart_base_min__WEBPACK_IMPORTED_MODULE_3___default().licenseKey("test-correct.nl-fd20379b-1da7f4b1");
 
 window.uuidv4 = uuid__WEBPACK_IMPORTED_MODULE_4__["default"];
 
@@ -18498,8 +18335,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var flatpickr_dist_l10n_nl_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(flatpickr_dist_l10n_nl_js__WEBPACK_IMPORTED_MODULE_1__);
 
 
-document.addEventListener("alpine:init", function () {
-  Alpine.data("flatpickr", function (wireModel, mode, locale, minDate, dateFormat, altFormat, enableTime) {
+document.addEventListener('alpine:init', function () {
+  Alpine.data('flatpickr', function (wireModel, mode, locale, minDate) {
     return {
       wireModel: wireModel,
       mode: mode,
@@ -18515,25 +18352,24 @@ document.addEventListener("alpine:init", function () {
           defaultDate: this.wireModel,
           // The displayed format is humanreadable, the used date is Y-m-d formatted;
           altInput: true,
-          altFormat: altFormat,
-          dateFormat: dateFormat,
-          enableTime: enableTime,
+          altFormat: "d-m-Y",
+          dateFormat: "Y-m-d",
           onChange: function onChange(date, dateString) {
-            _this.wireModel = _this.value = _this.mode == "range" ? dateString.split(" t/m ") : dateString; //split t/m or to
+            _this.wireModel = _this.value = _this.mode == 'range' ? dateString.split(' t/m ') : dateString; //split t/m or to
           },
 
           onOpen: function onOpen() {
             var _this$$root$parentEle;
-            (_this$$root$parentEle = _this.$root.parentElement.querySelector("label")) === null || _this$$root$parentEle === void 0 ? void 0 : _this$$root$parentEle.classList.add("text-primary", "bold");
+            (_this$$root$parentEle = _this.$root.parentElement.querySelector('label')) === null || _this$$root$parentEle === void 0 ? void 0 : _this$$root$parentEle.classList.add('text-primary', 'bold');
           },
           onClose: function onClose() {
             var _this$$root$parentEle2;
-            (_this$$root$parentEle2 = _this.$root.parentElement.querySelector("label")) === null || _this$$root$parentEle2 === void 0 ? void 0 : _this$$root$parentEle2.classList.remove("text-primary", "bold");
+            (_this$$root$parentEle2 = _this.$root.parentElement.querySelector('label')) === null || _this$$root$parentEle2 === void 0 ? void 0 : _this$$root$parentEle2.classList.remove('text-primary', 'bold');
           }
         });
       },
       clearPicker: function clearPicker() {
-        this.picker.setDate("", false);
+        this.picker.setDate('', false);
       }
     };
   });
@@ -19109,7 +18945,6 @@ readspeakerLoadCore = function (_readspeakerLoadCore) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ckeditor5_node_modules_ckeditor_ckeditor5_word_count_src_utils_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../ckeditor5/node_modules/@ckeditor/ckeditor5-word-count/src/utils.js */ "./resources/ckeditor5/node_modules/@ckeditor/ckeditor5-word-count/src/utils.js");
-/* provided dependency */ var process = __webpack_require__(/*! process/browser.js */ "./node_modules/process/browser.js");
 function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
@@ -19373,7 +19208,7 @@ window.RichTextEditor = {
     if (!parameterBag.enableCommentsPlugin) {
       config.removePlugins.push("Comments");
     } else {
-      config.licenseKey = process.env.MIX_CKEDITOR_LICENSE_KEY;
+      config.licenseKey = "q11N5LxlUjUp2pDthuTmPmy/+cmatL0lY7nh6aX+nhhODyekK1g8YW5CKA==";
     }
     if (parameterBag.commentThreads != undefined) {
       config.extraPlugins = [CommentsIntegration];
@@ -19447,7 +19282,7 @@ window.RichTextEditor = {
     if (!parameterBag.enableCommentsPlugin) {
       config.removePlugins.push("Comments");
     } else {
-      config.licenseKey = process.env.MIX_CKEDITOR_LICENSE_KEY;
+      config.licenseKey = "q11N5LxlUjUp2pDthuTmPmy/+cmatL0lY7nh6aX+nhhODyekK1g8YW5CKA==";
     }
     if (parameterBag.commentThreads != undefined) {
       config.extraPlugins = [CommentsIntegration];
@@ -19642,9 +19477,6 @@ window.RichTextEditor = {
       }
       fireEventIfWordCountChanged(wordCount);
     });
-    editor.editing.view.document.on('blur', function () {
-      fireEventIfWordCountChanged();
-    });
   },
   getWproofreaderConfig: function getWproofreaderConfig() {
     var enableGrammar = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
@@ -19693,6 +19525,7 @@ window.RichTextEditor = {
               if (typeof resolveCallback === "function") {
                 resolveCallback(editor);
               }
+              editor.ui.view.editableElement.tabIndex = -1;
             })["catch"](function (error) {
               console.error(error);
             }));
