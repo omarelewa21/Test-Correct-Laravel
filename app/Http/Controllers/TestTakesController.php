@@ -665,6 +665,7 @@ class TestTakesController extends Controller
 
     public function nextQuestion(TestTake $testTake, $returnAsResponseObject = true)
     {
+        // this method is no longer used in the new CO-Learning implementation in Laravel! Only used by cake.
         if ($testTake->testTakeStatus->name == 'Discussing') {
             $testTake->load(['discussingParentQuestions'                                                => function ($query) {
                 $query->orderBy('level');

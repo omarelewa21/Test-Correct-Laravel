@@ -26,8 +26,6 @@ class CoLearningHelper extends BaseHelper
     public static function nextQuestion(TestTake $testTake)
     {
         return self::nextQuestionRefactor($testTake);
-        return (new TestTakesController)
-            ->nextQuestion($testTake, false);
     }
 
 
@@ -167,6 +165,7 @@ class CoLearningHelper extends BaseHelper
 
     private static function disussionTypeOpenOnly(): bool
     {
+        //?
         return true; // Only open type should be here with current co learning implementation;
     }
 

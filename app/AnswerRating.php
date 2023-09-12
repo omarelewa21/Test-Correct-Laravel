@@ -114,6 +114,18 @@ class AnswerRating extends BaseModel
                         $query->where('test_take_id', '=', $value);
                     }
                     break;
+                case 'discussing_at_test_participant_id':
+                    $testParticipant = TestParticipant::whereUuid($value)->first();
+                    $value = $testTakeId = $testParticipant->testTake->getKey();
+
+                    //get testtakeid from test_participant
+                    $query->where('test_take_id', '=', $testTakeId);
+
+                    $questionId = $testParticipant->value('discussing_question_id');
+
+                    //$query->whereIn('answer_id', $answerIds);
+//                    dd($query->toSql(), $query->getBindings(), DiscussingParentQuestion::where('test_take_id', $value)->orderBy('level')->get());
+                    break;
                 case 'discussing_at_test_take_id': //todo create filter for student discussing question id
                     $value = TestTake::whereUuid($value)->first()->getKey();
 
@@ -149,7 +161,6 @@ class AnswerRating extends BaseModel
                             $answerIds[] = $answer->getKey();
                         }
                     }
-
                     $query->whereIn('answer_id', $answerIds);
                     break;
                 case 'type':

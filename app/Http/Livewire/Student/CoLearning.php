@@ -17,6 +17,7 @@ use tcCore\Events\TestTakeStop;
 use tcCore\Http\Controllers\AnswerRatingsController;
 use tcCore\Http\Controllers\TestTakeLaravelController;
 use tcCore\Http\Enums\AnswerFeedbackFilter;
+use tcCore\Http\Helpers\CoLearningHelper;
 use tcCore\Http\Livewire\CoLearning\CompletionQuestion;
 use tcCore\Http\Livewire\TCComponent;
 use tcCore\Http\Traits\Questions\WithCompletionConversion;
@@ -57,7 +58,7 @@ class CoLearning extends TCComponent
     public $answered = false;
 
     //Student navigation on their own pace
-    public $enableStudentNavigation = false;
+    public $selfPacedNavigation = false;
 
     protected $queryString = [
         'answerRatingId'     => ['as' => 'e'],
@@ -105,7 +106,7 @@ class CoLearning extends TCComponent
         $this->testTake = $test_take->load('discussingQuestion');
         $this->discussingQuestionId = $this->testTake->discussing_question_id;
         $this->questionOrderList = $this->testTake->test->getQuestionOrderList();
-        $this->enableStudentNavigation = $this->testTake->enable_student_navigation_colearning;
+        $this->selfPacedNavigation = $this->testTake->enable_student_navigation_colearning;
 
         if (!$this->testTake->schoolLocation->allow_new_co_learning_teacher) {
             //if teacher is in old co-learning, polling needs to start, because the Pusher presence channel is not working in the old CO-Learning
@@ -148,7 +149,7 @@ class CoLearning extends TCComponent
         };
 
         $this->answerFeedbackFilter = AnswerFeedbackFilter::CURRENT_USER;
-        $this->enableStudentNavigation = $this->testTake->enable_student_navigation_colearning;
+        $this->selfPacedNavigation = $this->testTake->enable_student_navigation_colearning;
     }
 
     public function redirectToTestTakesInReview()
@@ -195,6 +196,22 @@ class CoLearning extends TCComponent
     public function goToNextAnswerRating(): void
     {
         $this->getAnswerRatings('next');
+    }
+
+    public function goToNextQuestion()
+    {
+        // use Controller to navigate to next question
+        CoLearningHelper::nextQuestion(testTake: $this->testTake);
+
+        $this->getAnswerRatings();
+    }
+
+    public function goToPreviousQuestion()
+    {
+        // first get the available questions in the testtake,
+        // then get the previous question in the list
+
+        $this->getAnswerRatings();
     }
 
     public function goToActiveQuestion(): void
@@ -312,13 +329,17 @@ class CoLearning extends TCComponent
 
     private function getAnswerRatings($navigateDirection = null): void
     {
-        //todo when the student can navigate on their own pace, the correct answerRatings should be loaded
-        // $this->enableStudentNavigation === true
+        //On test_participant -> discussing_question_id
+
+        // todo when the student can navigate on their own pace, the correct answerRatings should be loaded
+        //  $this->enableStudentNavigation === true
         $params = [
             'mode'   => 'all',
             'with'   => ['questions'],
             'filter' => [
-                "discussing_at_test_take_id" => $this->testTake->uuid,
+//                "discussing_at_test_take_id" => $this->testTake->uuid,
+                "discussing_at_test_participant_id" => $this->testParticipant->uuid,
+
             ],
             'order'  => ['id' => 'asc']
         ];
