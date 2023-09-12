@@ -1786,33 +1786,20 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 case 'beta_status':
                     $usersSystemSetting = UserSystemSetting::get();
                     $usersWithBetaStatus = []; // Array to store user IDs with beta status
-                    $usersWithBetaStatusNewAssesment = []; // Array to store user IDs with beta status
-                    $usersWithBetaStatusNewCoLearningTeacher = []; // Array to store user IDs with beta status
-                    $usersWithBetaStatusNewTakenTestsPage = []; // Array to store user IDs with beta status
+                    $usersWithBetaStatusNewTestTakeDetailPage = []; // Array to store user IDs with beta status
                     foreach ($usersSystemSetting as $userSystemSetting) {
                         if ($userSystemSetting->value == 1) {
                             $usersWithBetaStatus[] = $userSystemSetting->user_id;
-                            // allow_new_assessment
-                            if ($userSystemSetting->title == 'allow_new_assessment') {
-                                $usersWithBetaStatusNewAssesment[] = $userSystemSetting->user_id;
-                            }
-                            // allow_new_co_learning_teacher
-                            elseif ($userSystemSetting->title == 'allow_new_co_learning_teacher') {
-                                $usersWithBetaStatusNewCoLearningTeacher[] = $userSystemSetting->user_id;
-                            }
-                            // allow_new_taken_tests_page
-                            elseif ($userSystemSetting->title == 'allow_new_taken_tests_page') {
-                                $usersWithBetaStatusNewTakenTestsPage[] = $userSystemSetting->user_id;
+                            if ($userSystemSetting->title == 'allow_new_test_take_detail_page') {
+                                $usersWithBetaStatusNewTestTakeDetailPage[] = $userSystemSetting->user_id;
                             }
                         }
                     }
                     if($value==1) {
-                        $query->whereIn('id', $usersWithBetaStatusNewAssesment);
+                        $query->whereIn('id', $usersWithBetaStatus);
                     } elseif($value==2) {
-                        $query->whereIn('id', $usersWithBetaStatusNewCoLearningTeacher);
+                        $query->whereIn('id', $usersWithBetaStatusNewTestTakeDetailPage);
                     } elseif($value==3) {
-                        $query->whereIn('id', $usersWithBetaStatusNewTakenTestsPage);
-                    } elseif ($value==4) {
                         $query->whereNotIn('id', $usersWithBetaStatus);
                     }
                     break;

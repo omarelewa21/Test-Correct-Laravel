@@ -18,13 +18,7 @@ enum UserSystemSetting: string implements FeatureSettingKey
 
     #[Initial(false)]
     #[Type('bool')]
-    case ALLOW_NEW_CO_LEARNING_TEACHER = 'allow_new_co_learning_teacher';
-    #[Initial(false)]
-    #[Type('bool')]
-    case ALLOW_NEW_ASSESSMENT = 'allow_new_assessment';
-    #[Initial(false)]
-    #[Type('bool')]
-    case ALLOW_NEW_TAKEN_TESTS_PAGE = 'allow_new_taken_tests_page';
+    case ALLOW_NEW_TEST_TAKE_DETAIL_PAGE = 'allow_new_test_take_detail_page';
 
     public static function initialValues(): Collection
     {
