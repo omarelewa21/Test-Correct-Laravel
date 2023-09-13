@@ -1984,6 +1984,9 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             evt,
             Canvas.params.cursorPosition
         );
+        if(!newShape.svg.meetsMinRequirements()) {
+            Canvas.deleteObject(newShape.sidebar);
+        }
         Canvas.params.highlightedShape = newShape;
         Canvas.params.draw.newShape = null;
     }
