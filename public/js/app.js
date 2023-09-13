@@ -14314,11 +14314,12 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
   function stopDraw(evt) {
     var newShape = Canvas.params.draw.newShape;
     newShape.svg.onDrawEnd(evt, Canvas.params.cursorPosition);
+    Canvas.params.draw.newShape = null;
     if (!newShape.svg.meetsMinRequirements()) {
       Canvas.deleteObject(newShape.sidebar);
+      return;
     }
     Canvas.params.highlightedShape = newShape;
-    Canvas.params.draw.newShape = null;
   }
   function stopDrag() {
     Canvas.params.drag.selectedSvgShape.onDragEnd();
