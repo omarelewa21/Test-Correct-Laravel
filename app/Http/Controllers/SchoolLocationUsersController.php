@@ -30,13 +30,6 @@ class SchoolLocationUsersController extends Controller {
         });
     }
 
-    public function indexSchoolsTeacherUuid(Request $request)
-    {
-        $userId= $request['user_id'];
-        $user =User::whereUuid($userId)->first();
-        return $user->allowedSchoolLocations;
-    }
-
     public function update(Request $request)
     {
         $schoolLocation = SchoolLocation::whereUuid($request->school_location)->first();

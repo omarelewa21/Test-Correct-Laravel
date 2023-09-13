@@ -418,7 +418,7 @@ class UsersController extends Controller
         return Response::make(['success' => 'Feature updated successfully']);
     }
 
-    public function getUserSystemSetting(User $user)
+    public function getUserSystemSettings(User $user)
     {
         return Response::make(UserSystemSetting::getAll($user),200);
     }
