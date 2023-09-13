@@ -11372,20 +11372,33 @@ debug = function debug() {
     debugger;
   }, seconds * 1000);
 };
-window.smoothScrollFailedTimeout = null;
 smoothScroll = function smoothScroll(scrollContainer) {
   var offsetTop = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
   var offsetLeft = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
   var retry = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
-  scrollContainer.scroll({
+  var previousScrollPosition = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
+  clearTimeout(window.smoothScrollFailedTimeout);
+  var options = {
     top: offsetTop,
     left: offsetLeft,
     behavior: 'smooth'
-  });
-  if (window.smoothScrollFailedTimeout) {
-    clearTimeout(window.smoothScrollFailedTimeout);
-    window.smoothScrollFailedTimeout = null;
+  };
+  // if scroll animation is not supported or is not moving (any more) set position hard.
+  // minimum delay is 1000ms is the promise delay below;
+  if (previousScrollPosition) {
+    if (previousScrollPosition.top === scrollContainer.scrollTop && previousScrollPosition.left === scrollContainer.scrollLeft) {
+      scrollContainer.scroll({
+        top: options.top,
+        left: options.left
+      });
+      return;
+    }
   }
+  scrollContainer.scroll(options);
+  previousScrollPosition = {
+    top: scrollContainer.scrollTop,
+    left: scrollContainer.scrollLeft
+  };
   return new Promise(function (resolve, reject) {
     window.smoothScrollFailedTimeout = setTimeout(function () {
       if (scrollContainer.offsetHeight + scrollContainer.scrollTop === scrollContainer.scrollHeight) {
@@ -11394,17 +11407,17 @@ smoothScroll = function smoothScroll(scrollContainer) {
       if (retry) {
         return reject();
       }
-      smoothScroll(scrollContainer, offsetTop, offsetLeft, true);
+      smoothScroll(scrollContainer, offsetTop, offsetLeft, true, previousScrollPosition);
       resolve();
     }, 1000);
     var scrollHandler = function scrollHandler() {
-      if (scrollContainer.scrollTop === offsetTop) {
+      if (scrollContainer.scrollTop === offsetTop && scrollContainer.scrollLeft === offsetLeft) {
         scrollContainer.removeEventListener("scroll", scrollHandler);
         clearTimeout(window.smoothScrollFailedTimeout);
         resolve();
       }
     };
-    if (scrollContainer.scrollTop === offsetTop) {
+    if (scrollContainer.scrollTop === offsetTop && scrollContainer.scrollLeft === offsetLeft) {
       clearTimeout(window.smoothScrollFailedTimeout);
       resolve();
     } else {
