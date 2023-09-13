@@ -11325,20 +11325,33 @@ debug = function debug() {
     debugger;
   }, seconds * 1000);
 };
-window.smoothScrollFailedTimeout = null;
 smoothScroll = function smoothScroll(scrollContainer) {
   var offsetTop = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
   var offsetLeft = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
   var retry = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
-  scrollContainer.scroll({
+  var previousScrollPosition = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
+  clearTimeout(window.smoothScrollFailedTimeout);
+  var options = {
     top: offsetTop,
     left: offsetLeft,
     behavior: 'smooth'
-  });
-  if (window.smoothScrollFailedTimeout) {
-    clearTimeout(window.smoothScrollFailedTimeout);
-    window.smoothScrollFailedTimeout = null;
+  };
+  // if scroll animation is not supported or is not moving (any more) set position hard.
+  // minimum delay is 1000ms is the promise delay below;
+  if (previousScrollPosition) {
+    if (previousScrollPosition.top === scrollContainer.scrollTop && previousScrollPosition.left === scrollContainer.scrollLeft) {
+      scrollContainer.scroll({
+        top: options.top,
+        left: options.left
+      });
+      return;
+    }
   }
+  scrollContainer.scroll(options);
+  previousScrollPosition = {
+    top: scrollContainer.scrollTop,
+    left: scrollContainer.scrollLeft
+  };
   return new Promise(function (resolve, reject) {
     window.smoothScrollFailedTimeout = setTimeout(function () {
       if (scrollContainer.offsetHeight + scrollContainer.scrollTop === scrollContainer.scrollHeight) {
@@ -11347,17 +11360,17 @@ smoothScroll = function smoothScroll(scrollContainer) {
       if (retry) {
         return reject();
       }
-      smoothScroll(scrollContainer, offsetTop, offsetLeft, true);
+      smoothScroll(scrollContainer, offsetTop, offsetLeft, true, previousScrollPosition);
       resolve();
     }, 1000);
     var scrollHandler = function scrollHandler() {
-      if (scrollContainer.scrollTop === offsetTop) {
+      if (scrollContainer.scrollTop === offsetTop && scrollContainer.scrollLeft === offsetLeft) {
         scrollContainer.removeEventListener("scroll", scrollHandler);
         clearTimeout(window.smoothScrollFailedTimeout);
         resolve();
       }
     };
-    if (scrollContainer.scrollTop === offsetTop) {
+    if (scrollContainer.scrollTop === offsetTop && scrollContainer.scrollLeft === offsetLeft) {
       clearTimeout(window.smoothScrollFailedTimeout);
       resolve();
     } else {
@@ -11847,7 +11860,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _AnyChart_anychart_base_min__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_AnyChart_anychart_base_min__WEBPACK_IMPORTED_MODULE_3__);
 /* harmony import */ var uuid__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/v4.js");
 /* harmony import */ var _CkEditor5CommentsIntegration__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./CkEditor5CommentsIntegration */ "./resources/js/CkEditor5CommentsIntegration.js");
-/* provided dependency */ var process = __webpack_require__(/*! process/browser.js */ "./node_modules/process/browser.js");
 window._ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
 
 /**
@@ -11869,7 +11881,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "fc18ed69b446aeb8c8a5",
+  key: "51d7221bf733999d7138",
   cluster: "eu",
   forceTLS: true
 });
@@ -11883,7 +11895,7 @@ FilePond.registerPlugin((filepond_plugin_file_validate_size__WEBPACK_IMPORTED_MO
 
 _smoothscroll_polyfill__WEBPACK_IMPORTED_MODULE_2___default().polyfill();
 
-_AnyChart_anychart_base_min__WEBPACK_IMPORTED_MODULE_3___default().licenseKey(process.env.MIX_ANYCHART_LICENSE_KEY);
+_AnyChart_anychart_base_min__WEBPACK_IMPORTED_MODULE_3___default().licenseKey("test-correct.nl-fd20379b-1da7f4b1");
 
 window.uuidv4 = uuid__WEBPACK_IMPORTED_MODULE_4__["default"];
 

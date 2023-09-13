@@ -22,41 +22,41 @@ makeHeaderMenuActive = function (elementId) {
 }
 
 addCSRFTokenToEcho = function (token) {
- if(typeof Echo.connector.pusher.config.auth !== 'undefined') {
-     Echo.connector.pusher.config.auth.headers['X-CSRF-TOKEN'] = token;
- }
+    if (typeof Echo.connector.pusher.config.auth !== 'undefined') {
+        Echo.connector.pusher.config.auth.headers['X-CSRF-TOKEN'] = token;
+    }
 }
 
-isInputElement = function(target) {
-    if(/^(?:input|textarea|select|button)$/i.test(target.tagName.toLowerCase())){
+isInputElement = function (target) {
+    if (/^(?:input|textarea|select|button)$/i.test(target.tagName.toLowerCase())) {
         return true;
     }
-    if(typeof target.ckeditorInstance != "undefined"){
+    if (typeof target.ckeditorInstance != "undefined") {
         return true;
     }
-    if((typeof ReadspeakerTlc != 'undefined')&&rsPageContainsCkeditor()){
+    if ((typeof ReadspeakerTlc != 'undefined') && rsPageContainsCkeditor()) {
         return true;
     }
     return false;
 }
 
-rsPageContainsCkeditor = function() {
-    if(typeof ReadspeakerTlc == 'undefined'){
+rsPageContainsCkeditor = function () {
+    if (typeof ReadspeakerTlc == 'undefined') {
         return false;
     }
     var questionContainer = document.querySelector('.rs_readable');
-    if(questionContainer == null){
+    if (questionContainer == null) {
         return false;
     }
     var ckeditorNode = questionContainer.querySelector('.ck-editor__editable');
-    if(ckeditorNode != null){
+    if (ckeditorNode != null) {
         return true;
     }
     return false;
 }
 
 handleScrollNavigation = function (evt) {
-    if(evt.target.closest('#navigation-container') !== null) {
+    if (evt.target.closest('#navigation-container') !== null) {
         return false;
     }
     return evt.shiftKey;
@@ -100,8 +100,8 @@ setTitlesOnLoad = function (el) {
 initializeIntenseWrapper = function (app_key, debug, deviceId, sessionId, code) {
     addScript('https://education.intense.solutions/collector/latest.uncompressed.js');
 
-    var initializeInterval = setInterval(function() {
-        if (typeof IntenseWrapper !== 'undefined' ) {
+    var initializeInterval = setInterval(function () {
+        if (typeof IntenseWrapper !== 'undefined') {
             Intense = new IntenseWrapper({
                 api_key: app_key, // This is a public key which will be provided by Intense.
                 app: 'name of the app that implements Intense. example: TC@1.0.0',
@@ -161,8 +161,7 @@ initializeIntenseWrapper = function (app_key, debug, deviceId, sessionId, code) 
     }
 }
 
-countPresentStudents = function (members)
-{
+countPresentStudents = function (members) {
     var activeStudents = 0;
     members.each((member) => {
         if (member.info.student) {
@@ -173,21 +172,19 @@ countPresentStudents = function (members)
     return activeStudents;
 }
 
-addTitleToImages = function(selector,title)
-{
+addTitleToImages = function (selector, title) {
     var container = document.querySelector(selector);
-    if(container != null){
+    if (container != null) {
         var images = container.querySelectorAll('img');
-        images.forEach(function(image) {
-            if(image.title==null||image.title==''){
+        images.forEach(function (image) {
+            if (image.title == null || image.title == '') {
                 image.title = title;
             }
         });
     }
 }
 
-String.prototype.contains = function (text)
-{
+String.prototype.contains = function (text) {
     if (text === '') return false;
     return this.includes(text);
 }
@@ -196,8 +193,7 @@ getClosestLivewireComponentByAttribute = function (element, attributeName) {
     return livewire.find(element.closest(`[${attributeName}]`).getAttribute('wire:id'));
 }
 
-String.prototype.capitalize = function ()
-{
+String.prototype.capitalize = function () {
     return this.charAt(0).toUpperCase() + this.slice(1);
 }
 
@@ -224,6 +220,7 @@ clearClipboard = function () {
 
         document.body.removeChild(textArea);
     }
+
     function copyTextToClipboard(text) {
         return new Promise((resolve, reject) => {
             if (!navigator.clipboard) {
@@ -232,22 +229,24 @@ clearClipboard = function () {
             }
             navigator.clipboard.writeText(text).then(() => {
                 resolve();
-            }).catch(() => { fallbackCopyTextToClipboard(text); resolve(); });
+            }).catch(() => {
+                fallbackCopyTextToClipboard(text);
+                resolve();
+            });
         });
     }
 
     return copyTextToClipboard(' ');
 }
 
-preventNavigationByKeydown = function(event)
-{
+preventNavigationByKeydown = function (event) {
     return event.stopPropagation();
 }
 
 livewireMessageContainsModelName = (message, modelName) => {
     return message.updateQueue.map(queue => {
 
-        if(typeof queue.payload?.name !== 'undefined') {
+        if (typeof queue.payload?.name !== 'undefined') {
             return queue.payload.name?.includes(modelName)
         }
         return String(queue.payload?.params[0])?.includes(modelName)
@@ -266,7 +265,7 @@ questionCardOpenGroup = (element, questionUuid, inTest) => {
         .dispatchEvent(
             new CustomEvent(
                 'show-group-details',
-                {detail: {questionUuid, inTest } }
+                {detail: {questionUuid, inTest}}
             )
         );
 }
@@ -325,8 +324,7 @@ selectTextContent = function (event) {
     selection.addRange(range);
 }
 
-Array.prototype.contains = function (key)
-{
+Array.prototype.contains = function (key) {
     return this.includes(key);
 }
 
@@ -335,40 +333,47 @@ debug = function (seconds = 2) {
         debugger;
     }, seconds * 1000);
 }
-window.smoothScrollFailedTimeout = null;
 
-smoothScroll = function smoothScroll(scrollContainer, offsetTop = 0, offsetLeft = 0, retry = false) {
-    scrollContainer.scroll({
+smoothScroll = function smoothScroll(scrollContainer, offsetTop = 0, offsetLeft = 0, retry = false, previousScrollPosition = null) {
+    clearTimeout(window.smoothScrollFailedTimeout);
+
+    let options = {
         top: offsetTop,
         left: offsetLeft,
         behavior: 'smooth'
-    });
-
-    if(window.smoothScrollFailedTimeout) {
-        clearTimeout(window.smoothScrollFailedTimeout);
-        window.smoothScrollFailedTimeout = null;
     }
+    // if scroll animation is not supported or is not moving (any more) set position hard.
+    // minimum delay is 1000ms is the promise delay below;
+    if (previousScrollPosition) {
+        if (previousScrollPosition.top === scrollContainer.scrollTop && previousScrollPosition.left === scrollContainer.scrollLeft) {
+            scrollContainer.scroll({top: options.top, left: options.left});
+            return;
+        }
+    }
+
+    scrollContainer.scroll(options);
+    previousScrollPosition = {top: scrollContainer.scrollTop, left: scrollContainer.scrollLeft};
 
     return new Promise((resolve, reject) => {
         window.smoothScrollFailedTimeout = setTimeout(() => {
-            if( (scrollContainer.offsetHeight + scrollContainer.scrollTop) === scrollContainer.scrollHeight) {
+            if ((scrollContainer.offsetHeight + scrollContainer.scrollTop) === scrollContainer.scrollHeight) {
                 return resolve();
             }
-            if(retry) {
+            if (retry) {
                 return reject();
             }
-            smoothScroll(scrollContainer, offsetTop, offsetLeft, true);
+            smoothScroll(scrollContainer, offsetTop, offsetLeft, true, previousScrollPosition);
             resolve();
         }, 1000);
 
         const scrollHandler = () => {
-            if (scrollContainer.scrollTop === offsetTop) {
+            if (scrollContainer.scrollTop === offsetTop && scrollContainer.scrollLeft === offsetLeft) {
                 scrollContainer.removeEventListener("scroll", scrollHandler);
                 clearTimeout(window.smoothScrollFailedTimeout);
                 resolve();
             }
         };
-        if (scrollContainer.scrollTop === offsetTop) {
+        if (scrollContainer.scrollTop === offsetTop && scrollContainer.scrollLeft === offsetLeft) {
             clearTimeout(window.smoothScrollFailedTimeout);
             resolve();
         } else {
@@ -376,11 +381,12 @@ smoothScroll = function smoothScroll(scrollContainer, offsetTop = 0, offsetLeft 
         }
     });
 }
-debounce = function debounce(func, time = 100){
+
+debounce = function debounce(func, time = 100) {
     var time = time;
     window.debounceTimeout;
-    return function(event){
-        if(window.debounceTimeout) clearTimeout(window.debounceTimeout);
+    return function (event) {
+        if (window.debounceTimeout) clearTimeout(window.debounceTimeout);
         window.debounceTimeout = setTimeout(func, time, event);
     };
 }
@@ -396,7 +402,7 @@ clearSelection = function clearSelection() {
     }
 }
 
-fixHistoryApiStateForQueryStringUpdates = function(stateObject, url) {
+fixHistoryApiStateForQueryStringUpdates = function (stateObject, url) {
     let signatures = stateObject.livewire.map((entry) => {
         if (entry.signature.endsWith("-1")) {
             return entry.signature;
