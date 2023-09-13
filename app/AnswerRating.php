@@ -115,23 +115,19 @@ class AnswerRating extends BaseModel
                     }
                     break;
                 case 'discussing_at_test_participant_id':
+                    //this case continues with the code in the next case
                     $testParticipant = TestParticipant::whereUuid($value)->first();
-                    $value = $testTakeId = $testParticipant->testTake->getKey();
 
-                    //get testtakeid from test_participant
+                    $testTakeId = $testParticipant->testTake->getKey();
+                    $questionId = $testParticipant->getAttribute('discussing_question_id');
+                case 'discussing_at_test_take_id':
+                    //if the case above is executed, the variables $testTakeId and $questionId are already set, else set them here
+                    $testTakeId ??= TestTake::whereUuid($value)->first()->getKey();
+                    $questionId ??= TestTake::where('id', $testTakeId)->value('discussing_question_id');
+
                     $query->where('test_take_id', '=', $testTakeId);
 
-                    $questionId = $testParticipant->value('discussing_question_id');
-
-                    //$query->whereIn('answer_id', $answerIds);
-//                    dd($query->toSql(), $query->getBindings(), DiscussingParentQuestion::where('test_take_id', $value)->orderBy('level')->get());
-                    break;
-                case 'discussing_at_test_take_id': //todo create filter for student discussing question id
-                    $value = TestTake::whereUuid($value)->first()->getKey();
-
-                    $query->where('test_take_id', '=', $value);
-
-                    $parentRows = DiscussingParentQuestion::where('test_take_id', $value)->orderBy('level')->get();
+                    $parentRows = DiscussingParentQuestion::where('test_take_id', $testTakeId)->orderBy('level')->get();
                     $parents = null;
                     foreach ($parentRows as $answerParentQuestion) {
                         if ($parents !== null) {
@@ -140,10 +136,9 @@ class AnswerRating extends BaseModel
                         $parents .= $answerParentQuestion->getAttribute('group_question_id');
                     }
 
-                    $questionId = TestTake::where('id', $value)->value('discussing_question_id');
-                    $answers = Answer::whereIn('test_participant_id', function ($query) use ($value) {
+                    $answers = Answer::whereIn('test_participant_id', function ($query) use ($testTakeId) {
                         $testParticipant = new TestParticipant();
-                        $query->select($testParticipant->getKeyName())->from($testParticipant->getTable())->where('test_take_id', $value);
+                        $query->select($testParticipant->getKeyName())->from($testParticipant->getTable())->where('test_take_id', $testTakeId);
                     })->where('question_id', $questionId)->with('answerParentQuestions')->get();
 
                     $answerIds = array();

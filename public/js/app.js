@@ -10106,7 +10106,7 @@ document.addEventListener("alpine:init", function () {
           }, _callee30);
         }))();
       },
-      goToFinishedCoLearningPage: function goToFinishedCoLearningPage() {
+      goToPreviousQuestion: function goToPreviousQuestion() {
         var _this78 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee31() {
           return _regeneratorRuntime().wrap(function _callee31$(_context31) {
@@ -10116,14 +10116,54 @@ document.addEventListener("alpine:init", function () {
                   _context31.next = 2;
                   break;
                 }
-                return _context31.abrupt("return", _this78.$store.answerFeedback.openConfirmationModal(_this78.$root, 'goToFinishedCoLearningPage'));
+                return _context31.abrupt("return", _this78.$store.answerFeedback.openConfirmationModal(_this78.$root, 'goToPreviousQuestion'));
               case 2:
-                _this78.$wire.goToFinishedCoLearningPage();
+                _this78.$wire.goToPreviousQuestion();
               case 3:
               case "end":
                 return _context31.stop();
             }
           }, _callee31);
+        }))();
+      },
+      goToNextQuestion: function goToNextQuestion() {
+        var _this79 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee32() {
+          return _regeneratorRuntime().wrap(function _callee32$(_context32) {
+            while (1) switch (_context32.prev = _context32.next) {
+              case 0:
+                if (!_this79.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
+                  _context32.next = 2;
+                  break;
+                }
+                return _context32.abrupt("return", _this79.$store.answerFeedback.openConfirmationModal(_this79.$root, 'goToNextQuestion'));
+              case 2:
+                _this79.$wire.goToNextQuestion();
+              case 3:
+              case "end":
+                return _context32.stop();
+            }
+          }, _callee32);
+        }))();
+      },
+      goToFinishedCoLearningPage: function goToFinishedCoLearningPage() {
+        var _this80 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee33() {
+          return _regeneratorRuntime().wrap(function _callee33$(_context33) {
+            while (1) switch (_context33.prev = _context33.next) {
+              case 0:
+                if (!_this80.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
+                  _context33.next = 2;
+                  break;
+                }
+                return _context33.abrupt("return", _this80.$store.answerFeedback.openConfirmationModal(_this80.$root, 'goToFinishedCoLearningPage'));
+              case 2:
+                _this80.$wire.goToFinishedCoLearningPage();
+              case 3:
+              case "end":
+                return _context33.stop();
+            }
+          }, _callee33);
         }))();
       },
       toggleTicked: function toggleTicked(event) {
@@ -10144,7 +10184,7 @@ document.addEventListener("alpine:init", function () {
         this.setHeightToAspectRatio(this.$el);
       },
       setHeightToAspectRatio: function setHeightToAspectRatio(element) {
-        var _this79 = this;
+        var _this81 = this;
         var aspectRatioWidth = 940;
         var aspectRatioHeight = 500;
         var aspectRatio = aspectRatioHeight / aspectRatioWidth;
@@ -10157,7 +10197,7 @@ document.addEventListener("alpine:init", function () {
         if (newHeight <= 0) {
           if (this.currentTry <= this.maxTries) {
             setTimeout(function () {
-              return _this79.setHeightToAspectRatio(element);
+              return _this81.setHeightToAspectRatio(element);
             }, 50);
             this.currentTry++;
           }
@@ -10190,16 +10230,16 @@ document.addEventListener("alpine:init", function () {
       maxWords: maxWords,
       wordContainer: null,
       init: function init() {
-        var _this80 = this;
+        var _this82 = this;
         this.$nextTick(function () {
-          _this80.editor = ClassicEditors[editorId];
-          _this80.wordContainer = _this80.$root.querySelector(".ck-word-count__words");
-          _this80.wordContainer.style.display = "flex";
-          _this80.wordContainer.parentElement.style.display = "flex";
-          _this80.addMaxWordsToWordCounter(_this80.maxWords);
+          _this82.editor = ClassicEditors[editorId];
+          _this82.wordContainer = _this82.$root.querySelector(".ck-word-count__words");
+          _this82.wordContainer.style.display = "flex";
+          _this82.wordContainer.parentElement.style.display = "flex";
+          _this82.addMaxWordsToWordCounter(_this82.maxWords);
         });
         this.$watch("maxWords", function (value) {
-          _this80.addMaxWordsToWordCounter(value);
+          _this82.addMaxWordsToWordCounter(value);
         });
       },
       addMaxWordsToWordCounter: function addMaxWordsToWordCounter(value) {
@@ -10231,15 +10271,15 @@ document.addEventListener("alpine:init", function () {
     return {
       editorId: editorId,
       init: function init() {
-        var _this81 = this;
+        var _this83 = this;
         this.editor = ClassicEditors[this.editorId];
         this.$watch("showMe", function (value) {
           if (!value) return;
-          _this81.$nextTick(function () {
-            if (!_this81.getEditor()) return;
-            if (!_this81.getEditor().ui.focusTracker.isFocused) {
+          _this83.$nextTick(function () {
+            if (!_this83.getEditor()) return;
+            if (!_this83.getEditor().ui.focusTracker.isFocused) {
               setTimeout(function () {
-                _this81.setFocus(_this81.getEditor());
+                _this83.setFocus(_this83.getEditor());
               }, 300);
             }
           });
@@ -10272,18 +10312,18 @@ document.addEventListener("alpine:init", function () {
       reinitializedTimeoutData: reinitializedTimeoutData,
       timer: null,
       init: function init() {
-        var _this82 = this;
+        var _this84 = this;
         this.$watch("showMe", function (value) {
           if (value) {
-            _this82.$dispatch("visible-component", {
-              el: _this82.$el
+            _this84.$dispatch("visible-component", {
+              el: _this84.$el
             });
-            _this82.$dispatch("reinitialize-editor-editor-" + _this82.questionId);
+            _this84.$dispatch("reinitialize-editor-editor-" + _this84.questionId);
           }
         });
         if (this.reinitializedTimeoutData && this.reinitializedTimeoutData.hasOwnProperty('timeLeft')) {
           this.$nextTick(function () {
-            _this82.startTimeout(_this82.reinitializedTimeoutData);
+            _this84.startTimeout(_this84.reinitializedTimeoutData);
           });
         }
       },
@@ -10307,7 +10347,7 @@ document.addEventListener("alpine:init", function () {
         this.$wire.set('nextQuestion', eventData);
       },
       startTimeout: function startTimeout(eventData) {
-        var _this83 = this;
+        var _this85 = this;
         if (this.progressBar) return;
         this.progressBar = true;
         this.startTime = eventData.timeout;
@@ -10319,11 +10359,11 @@ document.addEventListener("alpine:init", function () {
         }
         if (!this.timer) {
           this.timer = setInterval(function () {
-            _this83.progress -= 1;
-            if (_this83.progress === 0) {
-              _this83.showMe ? _this83.$wire.closeQuestion(_this83.number + 1) : _this83.$wire.closeQuestion();
-              clearInterval(_this83.timer);
-              _this83.progressBar = false;
+            _this85.progress -= 1;
+            if (_this85.progress === 0) {
+              _this85.showMe ? _this85.$wire.closeQuestion(_this85.number + 1) : _this85.$wire.closeQuestion();
+              clearInterval(_this85.timer);
+              _this85.progressBar = false;
             }
           }, 1000);
         }
@@ -10348,14 +10388,14 @@ document.addEventListener("alpine:init", function () {
       pillContainer: null,
       searchFocussed: false,
       init: function init() {
-        var _this84 = this;
+        var _this86 = this;
         this.pillContainer = document.querySelector("#".concat(containerId));
         this.$watch("query", function (value) {
-          return _this84.search(value);
+          return _this86.search(value);
         });
         this.$watch("multiSelectOpen", function (value) {
-          if (value) _this84.handleDropdownLocation();
-          if (!value) _this84.query = "";
+          if (value) _this86.handleDropdownLocation();
+          if (!value) _this86.query = "";
         });
         this.registerSelectedItemsOnComponent();
       },
@@ -10363,15 +10403,15 @@ document.addEventListener("alpine:init", function () {
         this.openSubs = this.toggle(this.openSubs, uuid);
       },
       parentClick: function parentClick(element, parent) {
-        var _this85 = this;
+        var _this87 = this;
         var checked = !this.checkedParents.includes(parent.value);
         element.querySelector("input[type=\"checkbox\"]").checked = checked;
         this.checkedParents = this.toggle(this.checkedParents, parent.value);
         parent.children.filter(function (child) {
           return child.disabled !== true;
         }).forEach(function (child) {
-          _this85[checked ? "childAdd" : "childRemove"](child);
-          checked ? _this85.checkAndDisableBrothersFromOtherMothers(child) : _this85.uncheckAndEnableBrothersFromOtherMothers(child);
+          _this87[checked ? "childAdd" : "childRemove"](child);
+          checked ? _this87.checkAndDisableBrothersFromOtherMothers(child) : _this87.uncheckAndEnableBrothersFromOtherMothers(child);
         });
         this.$root.querySelectorAll("[data-parent-id=\"".concat(parent.value, "\"][data-disabled=\"false\"] input[type=\"checkbox\"]")).forEach(function (child) {
           return child.checked = checked;
@@ -10438,13 +10478,13 @@ document.addEventListener("alpine:init", function () {
         // return result < parent.children.length;
       },
       checkedChildrenCount: function checkedChildrenCount(parent) {
-        var _this86 = this;
+        var _this88 = this;
         return parent.children.filter(function (child) {
-          return _this86.checkedChildrenContains(child);
+          return _this88.checkedChildrenContains(child);
         }).length;
       },
       search: function search(value) {
-        var _this87 = this;
+        var _this89 = this;
         if (value.length === 0) {
           this.searchEmpty = false;
           this.showAllOptions();
@@ -10454,7 +10494,7 @@ document.addEventListener("alpine:init", function () {
         var results = this.searchParentsAndChildsLabels(value);
         this.searchEmpty = results.length === 0;
         results.forEach(function (item) {
-          return _this87.showOption(item);
+          return _this89.showOption(item);
         });
       },
       showOption: function showOption(identifier) {
@@ -10524,9 +10564,9 @@ document.addEventListener("alpine:init", function () {
         this[toggleFunction](this.$root.querySelector("[data-id=\"".concat(event.item.value, "\"][data-parent-id=\"").concat(event.item.customProperties.parentId, "\"]")), event.item);
       },
       handleActiveFilters: function handleActiveFilters() {
-        var _this88 = this;
+        var _this90 = this;
         var currentPillIds = Array.from(this.pillContainer.childNodes).map(function (pill) {
-          if (!_this88.isParent(pill.item)) {
+          if (!_this90.isParent(pill.item)) {
             return pill.item.value + pill.item.customProperties.parentId;
           }
           return pill.item.value;
@@ -10540,13 +10580,13 @@ document.addEventListener("alpine:init", function () {
         this.options.flatMap(function (parent) {
           return [parent].concat(_toConsumableArray(parent.children));
         }).filter(function (item) {
-          if (_this88.isParent(item)) return _this88.checkedParents.includes(item.value);
-          if (_this88.checkedParents.includes(item.customProperties.parentId)) {
+          if (_this90.isParent(item)) return _this90.checkedParents.includes(item.value);
+          if (_this90.checkedParents.includes(item.customProperties.parentId)) {
             pillIdsToRemove.push(item.value + item.customProperties.parentId);
           }
-          return !_this88.checkedParents.includes(item.customProperties.parentId) && _this88.checkedChildrenContains(item);
+          return !_this90.checkedParents.includes(item.customProperties.parentId) && _this90.checkedChildrenContains(item);
         }).forEach(function (item) {
-          return _this88.createFilterPill(item);
+          return _this90.createFilterPill(item);
         });
         var that = this;
         pillIdsToRemove.forEach(function (uuid) {
@@ -10573,7 +10613,7 @@ document.addEventListener("alpine:init", function () {
         }
       },
       registerSelectedItemsOnComponent: function registerSelectedItemsOnComponent() {
-        var _this89 = this;
+        var _this91 = this;
         var checkedChildValues = this.options.flatMap(function (parent) {
           return _toConsumableArray(parent.children);
         }).filter(function (item) {
@@ -10582,10 +10622,10 @@ document.addEventListener("alpine:init", function () {
         });
         this.$nextTick(function () {
           checkedChildValues.forEach(function (item) {
-            _this89.childClick(_this89.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.customProperties.parentId, "\"]")), item);
+            _this91.childClick(_this91.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.customProperties.parentId, "\"]")), item);
           });
-          _this89.registerParentsBasedOnDisabledChildren();
-          _this89.handleActiveFilters();
+          _this91.registerParentsBasedOnDisabledChildren();
+          _this91.handleActiveFilters();
         });
       },
       syncInput: function syncInput() {
@@ -10602,24 +10642,24 @@ document.addEventListener("alpine:init", function () {
         });
       },
       checkAndDisableBrothersFromOtherMothers: function checkAndDisableBrothersFromOtherMothers(child) {
-        var _this90 = this;
+        var _this92 = this;
         this.options.flatMap(function (parents) {
           return _toConsumableArray(parents.children);
         }).filter(function (item) {
           return item.value === child.value && item.customProperties.parentId !== child.customProperties.parentId;
         }).forEach(function (item) {
-          _this90.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.customProperties.parentId, "\"] input[type=\"checkbox\"]")).checked = true;
+          _this92.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.customProperties.parentId, "\"] input[type=\"checkbox\"]")).checked = true;
           item.disabled = true;
         });
       },
       uncheckAndEnableBrothersFromOtherMothers: function uncheckAndEnableBrothersFromOtherMothers(child) {
-        var _this91 = this;
+        var _this93 = this;
         this.options.flatMap(function (parents) {
           return _toConsumableArray(parents.children);
         }).filter(function (item) {
           return item.value === child.value && item.customProperties.parentId !== child.customProperties.parentId;
         }).forEach(function (item) {
-          _this91.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.customProperties.parentId, "\"] input[type=\"checkbox\"]")).checked = false;
+          _this93.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.customProperties.parentId, "\"] input[type=\"checkbox\"]")).checked = false;
           item.disabled = false;
         });
       },
@@ -10628,15 +10668,15 @@ document.addEventListener("alpine:init", function () {
         return !((_item$customPropertie3 = item.customProperties) !== null && _item$customPropertie3 !== void 0 && _item$customPropertie3.parent) === false;
       },
       registerParentsBasedOnDisabledChildren: function registerParentsBasedOnDisabledChildren() {
-        var _this92 = this;
+        var _this94 = this;
         this.options.forEach(function (item) {
           var enabledChildren = item.children.filter(function (child) {
             return child.disabled !== true;
           }).length;
           if (enabledChildren === 0) return;
-          var enabled = _this92.checkedChildrenCount(item) === enabledChildren;
-          _this92.checkedParents = _this92[enabled ? "add" : "remove"](_this92.checkedParents, item.value);
-          _this92.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.value, "\"] input[type=\"checkbox\"]")).checked = enabled;
+          var enabled = _this94.checkedChildrenCount(item) === enabledChildren;
+          _this94.checkedParents = _this94[enabled ? "add" : "remove"](_this94.checkedParents, item.value);
+          _this94.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.value, "\"] input[type=\"checkbox\"]")).checked = enabled;
         });
       },
       parentDisabled: function parentDisabled(parent) {
@@ -10667,11 +10707,11 @@ document.addEventListener("alpine:init", function () {
       selectedText: null
     }, selectFunctions), {}, {
       init: function init() {
-        var _this93 = this;
+        var _this95 = this;
         this.selectedText = this.$root.querySelector("span.selected").dataset.selectText;
         this.setActiveStartingValue();
         this.$watch("singleSelectOpen", function (value) {
-          if (value) _this93.handleDropdownLocation();
+          if (value) _this95.handleDropdownLocation();
         });
       },
       get value() {
@@ -10736,123 +10776,123 @@ document.addEventListener("alpine:init", function () {
       inTestBankContext: inTestBankContext,
       maxHeight: 'calc(100vh - var(--header-height))',
       init: function init() {
-        var _this94 = this;
+        var _this96 = this;
         this.groupDetail = this.$el.querySelector('#groupdetail');
         this.$watch('showBank', function (value) {
           if (value === 'questions') {
-            _this94.$wire.loadSharedFilters();
+            _this96.$wire.loadSharedFilters();
           }
         });
         this.$watch('$store.questionBank.inGroup', function (value) {
-          _this94.inGroup = value;
+          _this96.inGroup = value;
         });
         this.$watch('$store.questionBank.active', function (value) {
           if (value) {
-            _this94.$wire.setAddedQuestionIdsArray();
+            _this96.$wire.setAddedQuestionIdsArray();
           } else {
-            _this94.closeGroupDetailQb();
+            _this96.closeGroupDetailQb();
           }
         });
         this.showGroupDetailsQb = /*#__PURE__*/function () {
-          var _ref7 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee32(groupQuestionUuid) {
+          var _ref7 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee34(groupQuestionUuid) {
             var inTest,
               readyForSlide,
-              _args32 = arguments;
-            return _regeneratorRuntime().wrap(function _callee32$(_context32) {
-              while (1) switch (_context32.prev = _context32.next) {
+              _args34 = arguments;
+            return _regeneratorRuntime().wrap(function _callee34$(_context34) {
+              while (1) switch (_context34.prev = _context34.next) {
                 case 0:
-                  inTest = _args32.length > 1 && _args32[1] !== undefined ? _args32[1] : false;
-                  _context32.next = 3;
-                  return _this94.$wire.showGroupDetails(groupQuestionUuid, inTest);
+                  inTest = _args34.length > 1 && _args34[1] !== undefined ? _args34[1] : false;
+                  _context34.next = 3;
+                  return _this96.$wire.showGroupDetails(groupQuestionUuid, inTest);
                 case 3:
-                  readyForSlide = _context32.sent;
+                  readyForSlide = _context34.sent;
                   if (readyForSlide) {
-                    if (_this94.inTestBankContext) {
-                      _this94.$refs['tab-container'].style.display = 'none';
-                      _this94.$refs['main-container'].style.height = '100vh';
+                    if (_this96.inTestBankContext) {
+                      _this96.$refs['tab-container'].style.display = 'none';
+                      _this96.$refs['main-container'].style.height = '100vh';
                     } else {
-                      _this94.maxHeight = _this94.groupDetail.offsetHeight + 'px';
+                      _this96.maxHeight = _this96.groupDetail.offsetHeight + 'px';
                     }
-                    _this94.groupDetail.style.left = 0;
-                    _this94.$refs['main-container'].scrollTo({
+                    _this96.groupDetail.style.left = 0;
+                    _this96.$refs['main-container'].scrollTo({
                       top: 0,
                       behavior: 'smooth'
                     });
-                    _this94.$el.scrollTo({
+                    _this96.$el.scrollTo({
                       top: 0,
                       behavior: 'smooth'
                     });
-                    _this94.$nextTick(function () {
+                    _this96.$nextTick(function () {
                       setTimeout(function () {
-                        _this94.bodyVisibility = false;
-                        if (_this94.inTestBankContext) {
-                          _this94.groupDetail.style.position = 'relative';
+                        _this96.bodyVisibility = false;
+                        if (_this96.inTestBankContext) {
+                          _this96.groupDetail.style.position = 'relative';
                         } else {
-                          handleVerticalScroll(_this94.$el.closest('.slide-container'));
+                          handleVerticalScroll(_this96.$el.closest('.slide-container'));
                         }
                       }, 500);
                     });
                   }
                 case 5:
                 case "end":
-                  return _context32.stop();
+                  return _context34.stop();
               }
-            }, _callee32);
+            }, _callee34);
           }));
           return function (_x4) {
             return _ref7.apply(this, arguments);
           };
         }();
         this.closeGroupDetailQb = function () {
-          if (!_this94.bodyVisibility) {
-            _this94.bodyVisibility = true;
-            _this94.maxHeight = 'calc(100vh - var(--header-height))';
-            _this94.groupDetail.style.left = '100%';
-            if (_this94.inTestBankContext) {
-              _this94.groupDetail.style.position = 'absolute';
-              _this94.$refs['tab-container'].style.display = 'block';
+          if (!_this96.bodyVisibility) {
+            _this96.bodyVisibility = true;
+            _this96.maxHeight = 'calc(100vh - var(--header-height))';
+            _this96.groupDetail.style.left = '100%';
+            if (_this96.inTestBankContext) {
+              _this96.groupDetail.style.position = 'absolute';
+              _this96.$refs['tab-container'].style.display = 'block';
             }
-            _this94.$nextTick(function () {
-              _this94.$wire.clearGroupDetails();
+            _this96.$nextTick(function () {
+              _this96.$wire.clearGroupDetails();
               setTimeout(function () {
-                if (!_this94.inTestBankContext) {
-                  handleVerticalScroll(_this94.$el.closest('.slide-container'));
+                if (!_this96.inTestBankContext) {
+                  handleVerticalScroll(_this96.$el.closest('.slide-container'));
                 }
               }, 250);
             });
           }
         };
         this.addQuestionToTest = /*#__PURE__*/function () {
-          var _ref8 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee33(button, questionUuid) {
+          var _ref8 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee35(button, questionUuid) {
             var showQuestionBankAddConfirmation,
               enableButton,
-              _args33 = arguments;
-            return _regeneratorRuntime().wrap(function _callee33$(_context33) {
-              while (1) switch (_context33.prev = _context33.next) {
+              _args35 = arguments;
+            return _regeneratorRuntime().wrap(function _callee35$(_context35) {
+              while (1) switch (_context35.prev = _context35.next) {
                 case 0:
-                  showQuestionBankAddConfirmation = _args33.length > 2 && _args33[2] !== undefined ? _args33[2] : false;
+                  showQuestionBankAddConfirmation = _args35.length > 2 && _args35[2] !== undefined ? _args35[2] : false;
                   if (!showQuestionBankAddConfirmation) {
-                    _context33.next = 3;
+                    _context35.next = 3;
                     break;
                   }
-                  return _context33.abrupt("return", _this94.$wire.emit('openModal', 'teacher.add-sub-question-confirmation-modal', {
+                  return _context35.abrupt("return", _this96.$wire.emit('openModal', 'teacher.add-sub-question-confirmation-modal', {
                     questionUuid: questionUuid
                   }));
                 case 3:
                   button.disabled = true;
-                  _context33.next = 6;
-                  return _this94.$wire.handleCheckboxClick(questionUuid);
+                  _context35.next = 6;
+                  return _this96.$wire.handleCheckboxClick(questionUuid);
                 case 6:
-                  enableButton = _context33.sent;
+                  enableButton = _context35.sent;
                   if (enableButton) {
                     button.disabled = false;
                   }
-                  return _context33.abrupt("return", true);
+                  return _context35.abrupt("return", true);
                 case 9:
                 case "end":
-                  return _context33.stop();
+                  return _context35.stop();
               }
-            }, _callee33);
+            }, _callee35);
           }));
           return function (_x5, _x6) {
             return _ref8.apply(this, arguments);

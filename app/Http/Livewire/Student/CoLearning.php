@@ -89,6 +89,20 @@ class CoLearning extends TCComponent
         return $this->numberOfQuestions === $this->questionFollowUpNumber;
     }
 
+    public function allAnswerRatingsFullyRated(): bool
+    {
+        if (isset($this->answerRatings)) {
+            return $this->answerRatings->reduce(function ($carry, $answerRating) {
+                if ($answerRating->rating === null && $answerRating->answer->isAnswered) {
+                    $carry = false;
+                }
+                return $carry;
+            }, true);
+        }
+
+        return (!$this->nextAnswerAvailable && isset($this->answerRating->rating));
+    }
+
     protected function getListeners()
     {
         return [
@@ -104,8 +118,13 @@ class CoLearning extends TCComponent
     public function mount(TestTake $test_take)
     {
         $this->testTake = $test_take->load('discussingQuestion');
-        $this->discussingQuestionId = $this->testTake->discussing_question_id;
-        $this->questionOrderList = $this->testTake->test->getQuestionOrderList();
+        $this->testParticipant = $this->testTake->testParticipants()
+                                                ->where('user_id', auth()->id())
+                                                ->first();
+
+        $this->discussingQuestionId = $this->getDiscussingQuestion()->getKey();
+//        $this->discussingQuestionId = $this->testTake->discussing_question_id;
+        $this->questionOrderList = $this->testTake->test->getQuestionOrderListWithDiscussionType();
         $this->selfPacedNavigation = $this->testTake->enable_student_navigation_colearning;
 
         if (!$this->testTake->schoolLocation->allow_new_co_learning_teacher) {
@@ -113,13 +132,11 @@ class CoLearning extends TCComponent
             $this->pollingFallbackActive = true;
         }
 
-        if($this->redirectIfTestTakeInIncorrectState() instanceof Redirector) {
+        if ($this->redirectIfTestTakeInIncorrectState() instanceof Redirector) {
             return false;
         };
 
-        $this->testParticipant = $this->testTake->testParticipants()
-            ->where('user_id', auth()->id())
-            ->first();
+
         $this->discussOpenQuestionsOnly = $this->testTake->discussion_type === 'OPEN_ONLY';
 
         if (!$this->coLearningFinished) {
@@ -136,7 +153,7 @@ class CoLearning extends TCComponent
         }
         $this->waitForTeacherNotificationEnabled = $this->shouldShowWaitForTeacherNotification();
 
-        $this->uniqueKey = $this->answerRating->getKey() .'-'. $this->questionFollowUpNumber .'-'. $this->answerFollowUpNumber;
+        $this->uniqueKey = $this->answerRating->getKey() . '-' . $this->questionFollowUpNumber . '-' . $this->answerFollowUpNumber;
 
         return view('livewire.student.co-learning')
             ->layout('layouts.co-learning-student');
@@ -144,7 +161,7 @@ class CoLearning extends TCComponent
 
     public function booted()
     {
-        if($this->redirectIfTestTakeInIncorrectState() instanceof Redirector) {
+        if ($this->redirectIfTestTakeInIncorrectState() instanceof Redirector) {
             return false;
         };
 
@@ -159,6 +176,10 @@ class CoLearning extends TCComponent
 
     public function redirectToTestTakesToBeDiscussed()
     {
+        if ($this->selfPacedNavigation) {
+            return;
+        }
+
         return redirect()->route('student.test-takes', ['tab' => 'discuss']);
     }
 
@@ -167,13 +188,42 @@ class CoLearning extends TCComponent
         return redirect()->route('student.waiting-room', ['take' => $this->testTake->uuid]);
     }
 
-    public function getEnableNextQuestionButtonProperty(): bool
+    public function getEnableNextAnswerRatingButtonProperty(): bool
     {
         if (!$this->answerRating->answer->isAnswered) {
             return true;
         }
 
         return isset($this->answerRating->rating);
+    }
+
+    public function getEnableNextQuestionButtonProperty(): bool
+    {
+        if($this->getNextQuestionData() === null) {
+            return false;
+        }
+        return $this->getEnableNextAnswerRatingButtonProperty();
+    }
+
+    public function getEnablePreviousQuestionButtonProperty(): bool
+    {
+        return $this->getPreviousQuestionData() !== null;
+    }
+
+    protected function getPreviousQuestionData(): ?array
+    {
+        return collect($this->questionOrderList)
+            ->filter(fn($item) => $item['order'] < $this->questionOrderList[$this->getDiscussingQuestion()->getKey()]['order'])
+            ->sortByDesc('order')
+            ->first();
+    }
+
+    protected function getNextQuestionData(): ?array
+    {
+        return collect($this->questionOrderList)
+            ->filter(fn($item) => $item['order'] > $this->questionOrderList[$this->getDiscussingQuestion()->getKey()]['order'])
+            ->sortBy('order')
+            ->first();
     }
 
     public function goToFinishedCoLearningPage(): void
@@ -200,22 +250,41 @@ class CoLearning extends TCComponent
 
     public function goToNextQuestion()
     {
-        // use Controller to navigate to next question
-        CoLearningHelper::nextQuestion(testTake: $this->testTake);
+        //todo
+        // step 1. use Controller to navigate to next question,
+        //  create new answer_ratings if the student is the first to continue to the next question
+        // step 2. change test_participant.discussing_question_id   !!!
+        CoLearningHelper::nextQuestion(
+            testTake: $this->testTake,
+            testParticipant: $this->testParticipant,
+        );
+        $this->testParticipant->refresh();
 
         $this->getAnswerRatings();
     }
 
     public function goToPreviousQuestion()
     {
-        // first get the available questions in the testtake,
-        // then get the previous question in the list
+        //todo
+        // first get the available questions in the testtake, 'questionOrderList'
+        // then get the previous question in the list, using the current discussingQuestion
 
+        if ($previousQuestionId = $this->getPreviousQuestionData()['id']) {
+            //set the previous question as the new discussing question
+            $this->selfPacedNavigation
+                ? $this->testParticipant->update(['discussing_question_id' => $previousQuestionId])
+                : $this->testTake->update(['discussing_question_id' => $previousQuestionId]);
+        }
+        $this->testParticipant->refresh();
         $this->getAnswerRatings();
     }
 
     public function goToActiveQuestion(): void
     {
+        if ($this->selfPacedNavigation) {
+            return;
+        }
+
         $this->waitForTeacherNotificationEnabled = false;
 
         $this->getAnswerRatings();
@@ -252,14 +321,14 @@ class CoLearning extends TCComponent
             $this->rating = $this->maxRating;
         }
 
-        if($json) {
+        if ($json) {
             $this->answerRating->json = $json;
         }
         if ($updateAnswerRatingRating) {
             $this->answerRating->rating = $this->rating;
         }
 
-        if($updateAnswerRatingRating || $json) {
+        if ($updateAnswerRatingRating || $json) {
             $this->answerRating->save();
         }
 
@@ -282,11 +351,11 @@ class CoLearning extends TCComponent
     {
 
         $testTakeQuestionsCollection = TestTakeLaravelController::getData(null, $this->testTake);
-        $currentQuestionId = $this->testTake->discussingQuestion->getKey();
+        $currentQuestionId = $this->getDiscussingQuestion()->getKey();
 
-        $this->questionOrderNumber = $this->questionOrderList[$currentQuestionId];
+        $this->questionOrderNumber = $this->questionOrderList[$currentQuestionId]['order'];
         $this->numberOfQuestions = $testTakeQuestionsCollection->reduce(function ($carry, $question) use ($currentQuestionId) {
-            if($question->belongs_to_carousel) {
+            if ($question->belongs_to_carousel) {
                 //carousel questions are not discussed during co-learning
                 return $carry;
             }
@@ -329,20 +398,17 @@ class CoLearning extends TCComponent
 
     private function getAnswerRatings($navigateDirection = null): void
     {
-        //On test_participant -> discussing_question_id
-
-        // todo when the student can navigate on their own pace, the correct answerRatings should be loaded
-        //  $this->enableStudentNavigation === true
+        //todo when the student can navigate on their own pace, the correct answerRatings should be loaded
+        // todo check if group_questions are working properly with the new solution
         $params = [
             'mode'   => 'all',
             'with'   => ['questions'],
-            'filter' => [
-//                "discussing_at_test_take_id" => $this->testTake->uuid,
-                "discussing_at_test_participant_id" => $this->testParticipant->uuid,
-
-            ],
+            'filter' => [],
             'order'  => ['id' => 'asc']
         ];
+        $this->selfPacedNavigation
+            ? $params['filter']['discussing_at_test_participant_id'] = $this->testParticipant->uuid
+            : $params['filter']['discussing_at_test_take_id'] = $this->testTake->uuid;
 
         $request = new Request();
         $request->merge($params);
@@ -388,7 +454,8 @@ class CoLearning extends TCComponent
             $this->answerRating->refresh();
 
         }
-        if ($this->testTake->discussingQuestion->type === 'InfoscreenQuestion') {
+        if ($this->getDiscussingQuestion()->type === 'InfoscreenQuestion') {
+//        if ($this->testTake->discussingQuestion->type === 'InfoscreenQuestion') {
             $this->noAnswerRatingAvailableForCurrentScreen = true;
             $this->waitForTeacherNotificationEnabled = true;
         }
@@ -437,30 +504,22 @@ class CoLearning extends TCComponent
 
     private function shouldShowWaitForTeacherNotification(): bool
     {
+        if($this->finishCoLearningButtonEnabled) {
+            return false;
+        }
+
         if ($this->waitForTeacherNotificationEnabled) {
             return true;
         }
 
-        if (isset($this->answerRatings)) {
-            return $this->answerRatings->reduce(function ($carry, $answerRating) {
-                if ($answerRating->rating === null && $answerRating->answer->isAnswered) {
-                    $carry = false;
-                }
-                return $carry;
-            }, true);
-        }
-
-        return (!$this->nextAnswerAvailable && isset($this->answerRating->rating));
+        return $this->allAnswerRatingsFullyRated();
     }
 
-    private function redirectIfTestTakeInIncorrectState() : Redirector|false
+    private function redirectIfTestTakeInIncorrectState(): Redirector|false
     {
-        if ($this->testTake->discussing_question_id === null) {
+        if ($this->getDiscussingQuestion()->getKey() === null) {
             return $this->redirectToWaitingRoom();
         }
-//        if ($this->testTake->discussion_type !== 'OPEN_ONLY') {
-//            return $this->redirectToTestTakesToBeDiscussed();
-//        }
         if ($this->testTake->test_take_status_id < TestTakeStatus::STATUS_DISCUSSING) {
             return $this->redirectToTestTakesToBeDiscussed();
         }
@@ -472,11 +531,11 @@ class CoLearning extends TCComponent
 
     public function updateHeartbeat($skipRender = true)
     {
-        if($this->redirectIfTestTakeInIncorrectState() instanceof Redirector) {
+        if ($this->redirectIfTestTakeInIncorrectState() instanceof Redirector) {
             return false;
         };
 
-        if ($this->testTake->discussing_question_id !== $this->discussingQuestionId) {
+        if (!$this->selfPacedNavigation && $this->getDiscussingQuestion()->getKey() !== $this->discussingQuestionId) {
             return $this->goToActiveQuestion();
         }
 
@@ -502,7 +561,14 @@ class CoLearning extends TCComponent
     //alias property name for inline feedback
     public function getCurrentQuestionProperty()
     {
-        return $this->testTake->discussingQuestion;
+        return $this->getDiscussingQuestion();
+    }
+
+    public function getDiscussingQuestion()
+    {
+        return $this->selfPacedNavigation
+            ? ($this->testParticipant->discussingQuestion ?? $this->testTake->discussingQuestion)
+            : $this->testTake->discussingQuestion;
     }
 
     public function toggleValueUpdated(int $id, string $state, int|float $value): void
@@ -518,24 +584,24 @@ class CoLearning extends TCComponent
             case 'matchingquestion-matching':
                 $correctAnswerStructure = $correctAnswerStructure->filter(fn($answer) => $answer->type === 'RIGHT');
 
-                $scorePerToggle = round($this->maxRating / $correctAnswerStructure->count(),2);
-                $ratingPerAnswerOption = $correctAnswerStructure->mapWithKeys(fn ($answerData) => [$answerData->id => $scorePerToggle]);
+                $scorePerToggle = round($this->maxRating / $correctAnswerStructure->count(), 2);
+                $ratingPerAnswerOption = $correctAnswerStructure->mapWithKeys(fn($answerData) => [$answerData->id => $scorePerToggle]);
 
                 $amountOfToggles = collect(json_decode($this->answerRating->answer->json, true))
-                    ->filter(fn ($value, $key) => $key === 'order' ? false : $value )->count();
+                    ->filter(fn($value, $key) => $key === 'order' ? false : $value)->count();
                 break;
             case 'completionquestion-multi':
             case 'completionquestion-completion':
                 $correctAnswerStructure = $correctAnswerStructure->filter(fn($answer) => $answer->correct)->unique('tag');
 
-                $scorePerToggle =  round($this->maxRating / $correctAnswerStructure->count(), 2);
-                $ratingPerAnswerOption = $correctAnswerStructure->mapWithKeys(fn ($answerData) => [$answerData->tag => $scorePerToggle]);
+                $scorePerToggle = round($this->maxRating / $correctAnswerStructure->count(), 2);
+                $ratingPerAnswerOption = $correctAnswerStructure->mapWithKeys(fn($answerData) => [$answerData->tag => $scorePerToggle]);
 
                 $amountOfToggles = collect(json_decode($this->answerRating->answer->json, true))
-                    ->filter(fn ($value, $key) => $value )->count();
+                    ->filter(fn($value, $key) => $value)->count();
                 break;
             case 'multiplechoicequestion-multiplechoice':
-                if($this->getCurrentQuestion()->all_or_nothing) {
+                if ($this->getCurrentQuestion()->all_or_nothing) {
                     $this->updateAnswerRating(
                         json      : $json,
                         fullyRated: true,
@@ -544,8 +610,8 @@ class CoLearning extends TCComponent
                     return;
                 }
 
-                $scorePerToggle =  round($this->maxRating / $this->getCurrentQuestion()->selectable_answers, 2);
-                $ratingPerAnswerOption = $correctAnswerStructure->mapWithKeys(fn ($answerData) => [$answerData->order => $scorePerToggle] );
+                $scorePerToggle = round($this->maxRating / $this->getCurrentQuestion()->selectable_answers, 2);
+                $ratingPerAnswerOption = $correctAnswerStructure->mapWithKeys(fn($answerData) => [$answerData->order => $scorePerToggle]);
 
                 $amountOfToggles = collect(json_decode($this->answerRating->answer->json, true))->filter(fn($value) => $value)->count();
                 break;
@@ -562,12 +628,12 @@ class CoLearning extends TCComponent
         $amountOfTogglesUsed = collect($json)->count();
 
         $this->updateAnswerRating(
-            json: $json,
+            json      : $json,
             fullyRated: $amountOfTogglesUsed === $amountOfToggles,
-            rating: collect($json)
-                      ->filter(fn($value) => $value)
-                      ->reduce(fn ($carry, $value, $key) => $carry + ($ratingPerAnswerOption[$key] ?? 0), 0)
-                      //first filter out all false values (toggle == off), then reduce the remaining values to a single value
+            rating    : collect($json)
+                            ->filter(fn($value) => $value)
+                            ->reduce(fn($carry, $value, $key) => $carry + ($ratingPerAnswerOption[$key] ?? 0), 0)
+        //first filter out all false values (toggle == off), then reduce the remaining values to a single value
         );
     }
 
