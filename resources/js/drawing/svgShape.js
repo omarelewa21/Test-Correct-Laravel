@@ -347,6 +347,10 @@ class svgShape {
     showExplainerForLayer() {
         this.sidebarEntry.entryContainer.parentElement.querySelector('.explainer').style.display = 'inline-block';
     }
+
+    meetsMinRequirements() {
+        return true;
+    }
 }
 
 export class Rectangle extends svgShape {
@@ -428,6 +432,11 @@ export class Rectangle extends svgShape {
     updateStrokeColor() {
         this.mainElement.setAttribute("stroke", this.UI.strokeColorRect.value);
     }
+
+    meetsMinRequirements() {
+        const bbox = this.mainElement.getBoundingBox();
+        return bbox.width >= 8 && bbox.height >= 8;
+    }
 }
 
 export class Circle extends svgShape {
@@ -507,6 +516,10 @@ export class Circle extends svgShape {
 
     updateStrokeColor() {
         this.mainElement.setAttribute("stroke", this.UI.strokeColorCircle.value);
+    }
+
+    meetsMinRequirements() {
+        return this.mainElement.getAttribute("r") >= 4;
     }
 }
 
@@ -644,6 +657,10 @@ export class Line extends svgShape {
     updatePenColor() {
         this.mainElement.setAttribute("stroke", this.UI.penColorLine.value);
         this.updateMarkerColor();
+    }
+
+    meetsMinRequirements() {
+        return this.mainElement.element.getTotalLength() >= 10;
     }
 }
 
@@ -934,6 +951,10 @@ export class Path extends svgShape {
 
     updatePenColor() {
         this.mainElement.setAttribute("stroke", this.UI.penColorFreehand.value);
+    }
+
+    meetsMinRequirements() {
+        return this.mainElement.element.getTotalLength() >= 10;
     }
 }
 

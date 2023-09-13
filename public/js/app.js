@@ -14314,6 +14314,9 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
   function stopDraw(evt) {
     var newShape = Canvas.params.draw.newShape;
     newShape.svg.onDrawEnd(evt, Canvas.params.cursorPosition);
+    if (!newShape.svg.meetsMinRequirements()) {
+      Canvas.deleteObject(newShape.sidebar);
+    }
     Canvas.params.highlightedShape = newShape;
     Canvas.params.draw.newShape = null;
   }
@@ -17423,6 +17426,11 @@ var svgShape = /*#__PURE__*/function () {
     value: function showExplainerForLayer() {
       this.sidebarEntry.entryContainer.parentElement.querySelector('.explainer').style.display = 'inline-block';
     }
+  }, {
+    key: "meetsMinRequirements",
+    value: function meetsMinRequirements() {
+      return true;
+    }
   }]);
   return svgShape;
 }();
@@ -17501,6 +17509,12 @@ var Rectangle = /*#__PURE__*/function (_svgShape) {
     key: "updateStrokeColor",
     value: function updateStrokeColor() {
       this.mainElement.setAttribute("stroke", this.UI.strokeColorRect.value);
+    }
+  }, {
+    key: "meetsMinRequirements",
+    value: function meetsMinRequirements() {
+      var bbox = this.mainElement.getBoundingBox();
+      return bbox.width >= 8 && bbox.height >= 8;
     }
   }], [{
     key: "getMainElementAttributes",
@@ -17595,6 +17609,11 @@ var Circle = /*#__PURE__*/function (_svgShape2) {
     key: "updateStrokeColor",
     value: function updateStrokeColor() {
       this.mainElement.setAttribute("stroke", this.UI.strokeColorCircle.value);
+    }
+  }, {
+    key: "meetsMinRequirements",
+    value: function meetsMinRequirements() {
+      return this.mainElement.getAttribute("r") >= 4;
     }
   }], [{
     key: "getMainElementAttributes",
@@ -17746,6 +17765,11 @@ var Line = /*#__PURE__*/function (_svgShape3) {
     value: function updatePenColor() {
       this.mainElement.setAttribute("stroke", this.UI.penColorLine.value);
       this.updateMarkerColor();
+    }
+  }, {
+    key: "meetsMinRequirements",
+    value: function meetsMinRequirements() {
+      return this.mainElement.element.getTotalLength() >= 10;
     }
   }], [{
     key: "getMainElementAttributes",
@@ -18032,6 +18056,11 @@ var Path = /*#__PURE__*/function (_svgShape6) {
     key: "updatePenColor",
     value: function updatePenColor() {
       this.mainElement.setAttribute("stroke", this.UI.penColorFreehand.value);
+    }
+  }, {
+    key: "meetsMinRequirements",
+    value: function meetsMinRequirements() {
+      return this.mainElement.element.getTotalLength() >= 10;
     }
   }], [{
     key: "getMainElementAttributes",
