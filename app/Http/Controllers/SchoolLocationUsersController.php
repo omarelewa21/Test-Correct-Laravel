@@ -29,21 +29,11 @@ class SchoolLocationUsersController extends Controller {
             ];
         });
     }
-    public function indexSchoolsTeacher(Request $request)
-    {
-        $userId= $request['user_id'];
-        $user =User::find($userId);
-        return $user->allowedSchoolLocations->map(function($location) {
-            return $location->name;
-        });
-    }
 
     public function indexSchoolsTeacherUuid(Request $request)
     {
         $userId= $request['user_id'];
-        // Get User By Uuid Not By Id
         $user =User::whereUuid($userId)->first();
-        // $user =User::find($userId);
         return $user->allowedSchoolLocations;
     }
 
