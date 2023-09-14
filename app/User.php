@@ -1759,6 +1759,26 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                         $query->whereIn('id', $usersWithMoreThan14Days);
                     }
                     break;
+                case 'beta_status':
+                    $usersSystemSetting = UserSystemSetting::get();
+                    $usersWithBetaStatus = []; // Array to store user IDs with beta status
+                    $usersWithBetaStatusNewTestTakeDetailPage = []; // Array to store user IDs with beta status
+                    foreach ($usersSystemSetting as $userSystemSetting) {
+                        if ($userSystemSetting->value == 1) {
+                            $usersWithBetaStatus[] = $userSystemSetting->user_id;
+                            if ($userSystemSetting->title == 'allow_new_test_take_detail_page') {
+                                $usersWithBetaStatusNewTestTakeDetailPage[] = $userSystemSetting->user_id;
+                            }
+                        }
+                    }
+                    if($value==1) {
+                        $query->whereIn('id', $usersWithBetaStatus);
+                    } elseif($value==2) {
+                        $query->whereIn('id', $usersWithBetaStatusNewTestTakeDetailPage);
+                    } elseif($value==3) {
+                        $query->whereNotIn('id', $usersWithBetaStatus);
+                    }
+                    break;
                 case 'send_welcome_email':
                     $query->where('send_welcome_email', '=', $value);
                     break;

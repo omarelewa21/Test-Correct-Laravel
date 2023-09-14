@@ -41,6 +41,7 @@ use tcCore\Http\Requests\UpdateUserRequest;
 use tcCore\Http\Helpers\SchoolHelper;
 use tcCore\UserRole;
 use tcCore\UserSystemSetting;
+use tcCore\Http\Enums\UserSystemSetting as UserSystemSettingEnum;
 
 class UsersController extends Controller
 {
@@ -404,6 +405,24 @@ class UsersController extends Controller
      * @param UpdateUserRequest $request
      * @return Response
      */
+
+    public function updateUserFeature(User $user, Request $request)
+    {
+        $settingEnum = UserSystemSettingEnum::tryFrom($request->input('info') ?? '');
+        if (!$settingEnum) {
+            return Response::make(['error' => 'Invalid setting key'], 400);
+        }
+        $currentValue = UserSystemSetting::getSetting($user, $settingEnum);
+        $newValue = !$currentValue;
+        UserSystemSetting::setSetting($user, $settingEnum, $newValue);
+        return Response::make(['success' => 'Feature updated successfully']);
+    }
+
+    public function getUserSystemSettings(User $user)
+    {
+        return Response::make(UserSystemSetting::getAll($user),200);
+    }
+ 
     public function update(User $user, UpdateUserRequest $request)
     {
 
