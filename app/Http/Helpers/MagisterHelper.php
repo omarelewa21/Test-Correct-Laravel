@@ -17,7 +17,7 @@ class MagisterHelper
 {
     const WSDL = '';
     const SOURCE = 'Magister';
-    const XSD_VERSION = '2.2';
+    const XSD_VERSION = '2.3';
 
     private $isTestSet = false;
 
@@ -73,20 +73,23 @@ class MagisterHelper
 
     public static function guzzle($schoolYear = '2019-2020', $brinCode = '99DE', $dependanceCode = '00', $autoImport = null)
     {
-        $isTestSet = $brinCode === '99DE';
+        $isTestSet = $brinCode === '00SS';
+        if($isTestSet){
+            $schoolYear = '2022-2023';
+        }
 
         $url = (new self($isTestSet))->getOption([
-            'https://acc.idhub.nl/uwlr-l-alles-in-een/v2.3', 'https://hub.iddinkgroup.com/uwlr-l-alles-in-een/V2.3'
+            'https://services.zenacc.nl/uwlr-l/leerlinggegevens-smalle-set.svc', ''
         ]); // 'https://acc.idhub.nl/uwlr-l-alles-in-een/v2.3'; // test is acc.ihub // live is https://hub.iddinkgroup.com/uwlr-l-alles-in-een/V2.3
 
         $authKey = (new self($isTestSet))->getOption([
-            'HubUwlrLDemoAuthKey', 'AC76D8FD11A644108A50E062CC685BBF'
+            '', 'AC76D8FD11A644108A50E062CC685BBF'
         ]); // 'HubUwlrLDemoAuthKey'; //test is HubUwlrLDemoAuthKey // live is 'AC76D8FD11A644108A50E062CC685BBF';
         $klantCode = (new self($isTestSet))->getOption([
-            'HubUwlrLDemo', 'Test-correct-uwlr'
+            '', 'Test-correct-uwlr'
         ]); // 'HubUwlrLDemo'; // test is HubUwlrLDemo // live is 'Test-correct-uwlr';
         $klantNaam = (new self($isTestSet))->getOption([
-            'HubUwlrLDemoClient', 'Test-correct-uwlr'
+            '', 'Test-correct-uwlr'
         ]); // 'HubUwlrLDemoClient'; // test is HubUwlrLDemoClient // live is 'Test-correct-uwlr';
 
         $xml = trim('
@@ -104,6 +107,7 @@ class MagisterHelper
        <leer:brincode>'.$brinCode.'</leer:brincode>
        <leer:dependancecode>'.$dependanceCode.'</leer:dependancecode>
         <leer:xsdversie>2.3</leer:xsdversie>
+        <leer:gegevenssetid>Smalle-set-VO</leer:gegevenssetid>
 
     </leer:leerlinggegevens_verzoek>
  </soapenv:Body>
@@ -114,13 +118,9 @@ class MagisterHelper
         $client = new Client([
             'headers' => [
                 'SOAPAction'                 => 'HaalLeerlinggegevens',
-                'IddinkHub-Subscription-Key' => (new self($isTestSet))->getOption([
-                    'a52478c70c6a43df83f3bcd4f7a77327', 'b412ddd6a5fd4134a6505a46c01baf36'
-                ]),// 'a52478c70c6a43df83f3bcd4f7a77327', // test is a524 // live is b412ddd6a5fd4134a6505a46c01baf36
                 'Content-Type'               => 'text/xml',
             ]
         ]);
-
 
 
         try {
@@ -128,11 +128,12 @@ class MagisterHelper
                 ['body' => $xml]
             );
         } catch (\Exception $e) {
+            dd($e->getResponse()->getBody()->getContents());
             Bugsnag::notifyException($e);
             if(app()->runningInConsole()){
                 throw $e;
             }
-            echo($e->getMessage());
+            echo($e->getResponse()->getBody()->getContents());
             dd($e);
         }
 
@@ -141,7 +142,7 @@ class MagisterHelper
         $instance = new self($isTestSet);
         $instance->setBrin($brinCode,$dependanceCode);
         $instance->string = $stream->getContents();
-
+dd($instance);
         $instance->searchParams = [
             'type'                  => 'Import from webClient',
             'client_code'           => 'Magister',
