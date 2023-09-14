@@ -126,7 +126,7 @@ class TestTakeCard extends ContextMenuComponent
 
         $pageAction = sprintf('TestTake.checkStartDiscussionFromLaravel("%s", %s, %s)', $this->uuid,
             $testTake->test->hasOpenQuestion() ? 'false' : 'true',
-            settings()->allowNewCoLearning() ? 'true' : 'false'
+            settings()->allowNewCoLearning(auth()->user()) ? 'true' : 'false'
         );
 
         return $this->openTestTakeDetail($this->uuid, $pageAction);

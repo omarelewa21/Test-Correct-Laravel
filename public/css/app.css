@@ -7336,17 +7336,6 @@ input.datepicker {
     overflow: auto;
 }
 
-#co-learning-page.flex .question-indicator .question-number.complete {
-    border-color: var(--cta-primary);
-    background: var(--cta-primary);
-    color: white;
-}
-#co-learning-page.flex .question-indicator .question-number.incomplete {
-    border-color: var(--mid-grey);
-    background: transparent;
-    color: var(--mid-grey);
-}
-
 #co-learning-teacher-page .question-indicator .question-number,
 #co-learning-page .question-indicator .question-number,
 #assessment-page .question-indicator .question-number,

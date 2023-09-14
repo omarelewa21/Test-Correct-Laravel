@@ -51,7 +51,7 @@ class TestParticipant extends BaseModel
      *
      * @var array
      */
-    protected $fillable = ['test_take_id', 'user_id', 'school_class_id', 'test_take_status_id', 'invigilator_note', 'rating', 'allow_inbrowser_testing', 'started_in_new_player', 'answers_provisioned', 'available_for_guests', 'discussing_answer_rating_id'];
+    protected $fillable = ['test_take_id', 'user_id', 'school_class_id', 'test_take_status_id', 'invigilator_note', 'rating', 'allow_inbrowser_testing', 'started_in_new_player', 'answers_provisioned', 'available_for_guests', 'discussing_answer_rating_id', 'discussing_question_id'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -238,6 +238,11 @@ class TestParticipant extends BaseModel
     public function testTakeEvents()
     {
         return $this->hasMany('tcCore\TestTakeEvent');
+    }
+
+    public function discussingQuestion()
+    {
+        return $this->belongsTo('tcCore\Question', 'discussing_question_id');
     }
 
     public function getIpAddressAttribute($value)

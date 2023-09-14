@@ -238,7 +238,7 @@ class TestTake extends BaseModel
                     AnswerChecker::checkAnswerOfParticipant($testParticipant);
                 }
             }
-            if (($testTake->testTakeStatus->name === 'Discussing' && $testTake->getAttribute('discussing_question_id') != $testTake->getOriginal('discussing_question_id'))
+            if (($testTake->testTakeStatus->name === 'Discussing' && ($testTake->getAttribute('discussing_question_id') != $testTake->getOriginal('discussing_question_id') || $testTake->getAttribute('test_take_status_id') != $testTake->getOriginal('test_take_status_id')))
                 || ($testTake->testTakeStatus->name === 'Discussed' && $testTake->getAttribute('test_take_status_id') != $testTake->getOriginal('test_take_status_id'))) {
                 $inactiveTestParticipant = [];
                 $testTakeDiscussedStatus = TestTakeStatus::where('name', 'Discussing')->value('id');
@@ -1345,7 +1345,7 @@ class TestTake extends BaseModel
      * @param TestTake $testTake
      * @return array
      */
-    public function getDottedDiscussingQuestionIdWithOptionalGroupQuestionId()
+    public function getDottedDiscussingQuestionIdWithOptionalGroupQuestionId(?TestParticipant $testParticipant = null): ?string
     {
         $questionId = null;
         foreach ($this->discussingParentQuestions as $discussingParentQuestions) {
@@ -1358,7 +1358,11 @@ class TestTake extends BaseModel
         if ($questionId !== null) {
             $questionId .= '.';
         }
-        $discussingQuestionId = $this->getAttribute('discussing_question_id');
+        if($testParticipant) {
+            $discussingQuestionId = $testParticipant->getAttribute('discussing_question_id');
+        }
+        $discussingQuestionId ??= $this->getAttribute('discussing_question_id');
+
         if ($discussingQuestionId === null) {
             return null;
         }

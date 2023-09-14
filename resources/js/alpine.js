@@ -3426,6 +3426,18 @@ document.addEventListener("alpine:init", () => {
             }
             this.$wire.goToNextAnswerRating();
         },
+        async goToPreviousQuestion() {
+            if(this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
+                return this.$store.answerFeedback.openConfirmationModal(this.$root, 'goToPreviousQuestion');
+            }
+            this.$wire.goToPreviousQuestion();
+        },
+        async goToNextQuestion() {
+            if(this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
+                return this.$store.answerFeedback.openConfirmationModal(this.$root, 'goToNextQuestion');
+            }
+            this.$wire.goToNextQuestion();
+        },
         async goToFinishedCoLearningPage() {
             if (this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
                 return this.$store.answerFeedback.openConfirmationModal(this.$root, "goToFinishedCoLearningPage");

@@ -23,11 +23,9 @@ class CoLearningHelper extends BaseHelper
         return CoLearningHelper::buildTestParticipantsQuery($testTakeId, $discussingQuestionId)->get();
     }
 
-    public static function nextQuestion(TestTake $testTake)
+    public static function nextQuestion(TestTake $testTake, ?TestParticipant $testParticipant = null)
     {
-        return self::nextQuestionRefactor($testTake);
-        return (new TestTakesController)
-            ->nextQuestion($testTake, false);
+        return self::nextQuestionRefactor($testTake, $testParticipant);
     }
 
 
@@ -165,17 +163,11 @@ class CoLearningHelper extends BaseHelper
             ->where('answer_ratings.deleted_at', '=', null);
     }
 
-    private static function disussionTypeOpenOnly(): bool
-    {
-        return true; // Only open type should be here with current co learning implementation;
-    }
-
-    protected static function nextQuestionRefactor(TestTake $testTake): bool|TestTake
+    protected static function nextQuestionRefactor(TestTake $testTake, ?TestParticipant $selfPacingTestParticipant = null): bool|TestTake
     {
         if ($testTake->testTakeStatus->name !== 'Discussing') {
             return false;
         }
-
         $testTake->load([
             'discussingParentQuestions'              => fn($query) => $query->orderBy('level'),
             'testParticipants',
@@ -187,9 +179,9 @@ class CoLearningHelper extends BaseHelper
         // Set next question
         $newQuestionIdParents = QuestionGatherer::getNextQuestionId(
             $testTake->getAttribute('test_id'),
-            $testTake->getDottedDiscussingQuestionIdWithOptionalGroupQuestionId(),
+            $testTake->getDottedDiscussingQuestionIdWithOptionalGroupQuestionId($selfPacingTestParticipant),
             $testTake->isDiscussionTypeOpenOnly(),
-            skipDoNotDiscuss: self::disussionTypeOpenOnly(),
+            skipDoNotDiscuss: true,
         );
 
         // If no next question present => quit;
@@ -210,7 +202,10 @@ class CoLearningHelper extends BaseHelper
             true
         );
         $discuss = $nextQuestionToDiscuss instanceof Question && $nextQuestionToDiscuss->getAttribute('discuss');
-        $testTake->setAttribute('discussing_question_id', (int)$newQuestionId);
+
+        $selfPacingTestParticipant
+            ? $selfPacingTestParticipant->update(['discussing_question_id' => $newQuestionId])
+            : $testTake->setAttribute('discussing_question_id', (int)$newQuestionId);
 
         $level = 1;
 
@@ -234,7 +229,7 @@ class CoLearningHelper extends BaseHelper
                     $testTake->getAttribute('test_id'),
                     $newQuestionIdParents,
                     $testTake->isDiscussionTypeOpenOnly(),
-                    skipDoNotDiscuss: self::disussionTypeOpenOnly()
+                    skipDoNotDiscuss: true
                 ) !== false),
 
         );

@@ -83,9 +83,7 @@ class CompletionQuestion extends QuestionComponent
             return in_array($givenAnswer, Arr::wrap($correctAnswer->answer)) ?: null;
         }
 
-        $lowercaseAnswers = collect(Arr::wrap($correctAnswer->answer))
-            ->map(fn($answer) => Str::lower($answer))
-            ->toArray();
+        $lowercaseAnswers = array_map('strtolower', Arr::wrap($correctAnswer->answer));
 
         return in_array(Str::lower($givenAnswer), $lowercaseAnswers) ?: null;
     }

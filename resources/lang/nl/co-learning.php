@@ -67,4 +67,7 @@ return [
     'question-text-for-students-tt' => 'Hiermee kunnen studenten de vraagtekst bekijken tijdens het beoordelen van de antwoorden van andere studenten',
     'answer-model-for-students'     => 'Antwoordmodel aanzetten voor studenten',
     'answer-model-for-students-tt'  => 'Hiermee kunnen studenten het antwoordmodel bekijken tijdens het beoordelen van de antwoorden van andere studenten',
+    'navigation-for-students'       => 'Studenten werken op hun eigen tempo',
+    'navigation-for-students-tt'    => 'Nadat CO-Learning is gestart, kunnen studenten op eigen snelheid de vragen navigeren en is de docent navigatie niet meer leidend.',
+    'student-at-different-question' => 'Student beoordeelt een andere vraag',
 ];

@@ -108,28 +108,28 @@
                                             selid="questiontitle">
                                             <span>@lang('co-learning.question')</span>
                                             <span>:</span>
-                                            <span class="ml-2">{{ $this->testTake->discussingQuestion->type_name }}</span>
+                                            <span class="ml-2">{{ $this->getDiscussingQuestion()->type_name }}</span>
                                         </h4>
-                                        <h7 class="inline-block">{{ $this->testTake->discussingQuestion->score }} pt</h7>
+                                        <h7 class="inline-block">{{ $this->getDiscussingQuestion()->score }} pt</h7>
                                     </div>
                                 </div>
                             </x-slot:title>
                             <x-slot:body>
                                 <div class="flex flex-col gap-2 questionContainer w-full"
-                                     wire:key="question-block-{{  $this->testTake->discussingQuestion->uuid }}">
+                                     wire:key="question-block-{{  $this->getDiscussingQuestion()->uuid }}">
                                     <div class="flex flex-wrap" wire:key="attachment-container-{{ $uniqueKey }}">
-                                        @foreach($this->testTake->discussingQuestion->attachments as $attachment)
+                                        @foreach($this->getDiscussingQuestion()->attachments as $attachment)
                                             <x-attachment.badge-view :attachment="$attachment"
                                                                      :title="$attachment->title"
-                                                                     :wire:key="'badge-'.$this->testTake->discussingQuestion->uuid. $uniqueKey"
-                                                                     :question-id="$this->testTake->discussingQuestion->getKey()"
-                                                                     :question-uuid="$this->testTake->discussingQuestion->uuid"
+                                                                     :wire:key="'badge-'.$this->getDiscussingQuestion()->uuid. $uniqueKey"
+                                                                     :question-id="$this->getDiscussingQuestion()->getKey()"
+                                                                     :question-uuid="$this->getDiscussingQuestion()->uuid"
                                             />
                                         @endforeach
                                     </div>
 
                                     <div class="max-w-full">
-                                        {!! $this->testTake->discussingQuestion->converted_question_html !!}
+                                        {!! $this->getDiscussingQuestion()->converted_question_html !!}
                                     </div>
                                 </div>
                             </x-slot:body>
@@ -170,11 +170,11 @@
                             </x-slot:title>
                             <x-slot:body>
                                 <div class="student-answer | w-full | questionContainer"
-                                     wire:key="student-answer-{{$this->testTake->discussingQuestion->uuid.'-'.$this->answerRating->answer->uuid}}-{{$this->answerFeedbackFilter}}"
+                                     wire:key="student-answer-{{$this->getDiscussingQuestion()->uuid.'-'.$this->answerRating->answer->uuid}}-{{$this->answerFeedbackFilter}}"
                                 >
                                     <x-dynamic-component
                                             :component="'answer.student.'. str($this->answerRating->answer->question->type)->kebab()"
-                                            :question="$this->testTake->discussingQuestion"
+                                            :question="$this->getDiscussingQuestion()"
                                             :answer="$this->answerRating->answer"
                                             :answerRating="$this->answerRating"
                                             :editorId="'ar-'.$this->answerRating->getKey()"
@@ -210,11 +210,11 @@
                             </div>
                         </x-slot:title>
                         <x-slot:body>
-                            <div class="w-full questionContainer" wire:key="answer-model-{{$this->testTake->discussingQuestion->uuid}}">
+                            <div class="w-full questionContainer" wire:key="answer-model-{{$this->getDiscussingQuestion()->uuid}}">
                                 <x-dynamic-component
-                                        :component="'answer.teacher.'. str($this->testTake->discussingQuestion->type)->kebab()"
-                                        :question="$this->testTake->discussingQuestion"
-                                        :editorId="'editor-'.$this->testTake->discussingQuestion->uuid"
+                                        :component="'answer.teacher.'. str($this->getDiscussingQuestion()->type)->kebab()"
+                                        :question="$this->getDiscussingQuestion()"
+                                        :editorId="'editor-'.$this->getDiscussingQuestion()->uuid"
                                 />
                             </div>
                         </x-slot:body>
@@ -227,7 +227,7 @@
 
         <x-slot name="testName">{{  $testTake->test->name }}</x-slot>
 
-        @if(!$finishCoLearningButtonEnabled && $waitForTeacherNotificationEnabled)
+        @if($waitForTeacherNotificationEnabled && !$this->selfPacedNavigation)
             <div class="fixed min-w-max right-1/2 translate-x-1/2 top-[93px] px-2 shadow border informational rounded leading-7 bold flex items-center">
                 <x-icon.time-dispensation/>
                 <span class="ml-2">{{ __('co-learning.wait_for_teacher') }}</span>
@@ -263,22 +263,47 @@
                     <span><b class="bold">{{ __('co-learning.answer') }} {{ $this->answerFollowUpNumber }}</b>/{{ $this->numberOfAnswers }}</span>
                     <span><b class="bold">{{ __('co-learning.question') }} {{$this->questionFollowUpNumber}}</b>/{{$this->numberOfQuestions}}</span>
 
+                    {{--
+                        - previous answer/question becomes a text button
+                        - next answer/question is a primary button
+                        - previous/next answers have a chevron icon
+                        - previous/next questions have an arrow icon
+                    --}}
+
                     @if($previousAnswerAvailable)
-                        <x-button.primary class="rotate-svg-180"
+                        <x-button.text class="rotate-svg-180"
                                           x-on:click="await goToPreviousAnswerRating()"
                                           wire:loading.attr="disabled"
                         >
                             <x-icon.chevron/>
                             <span>{{ __('co-learning.previous_answer') }}</span>
-                        </x-button.primary>
-                    @elseif($nextAnswerAvailable)
-                        <x-button.primary x-on:click="await goToNextAnswerRating()"
+                        </x-button.text>
+
+                        <x-button.primary x-on:click="await goToNextQuestion()"
                                           wire:loading.attr="disabled"
                                           :disabled="!$this->enableNextQuestionButton"
+                        >
+                            <span>{{ __('test_take.next_question') }}</span> {{-- - previous/next questions have an arrow icon --}}
+                            <x-icon.arrow/>
+                        </x-button.primary>
+                    @elseif($nextAnswerAvailable)
+                        <x-button.text class="rotate-svg-180"
+                                       x-on:click="await goToPreviousQuestion()"
+                                       wire:loading.attr="disabled"
+                                       :disabled="!$this->enablePreviousQuestionButton" {{-- disabled when there is not a previous question --}}
+                        >
+                            <x-icon.arrow/>
+                            <span>{{ __('test_take.previous_question') }}</span>
+                        </x-button.text>
+
+                        <x-button.primary x-on:click="await goToNextAnswerRating()"
+                                          wire:loading.attr="disabled"
+                                          :disabled="!$this->enableNextAnswerRatingButton"
                         >
                             <span>{{ __('co-learning.next_answer') }}</span>
                             <x-icon.chevron/>
                         </x-button.primary>
+
                     @endif
 
                     @if($this->atLastQuestion)

@@ -666,6 +666,7 @@ class TestTakesController extends Controller
 
     public function nextQuestion(TestTake $testTake, $returnAsResponseObject = true)
     {
+        // this method is no longer used in the new CO-Learning implementation in Laravel! Only used by cake.
         if ($testTake->testTakeStatus->name == 'Discussing') {
             $testTake->load(['discussingParentQuestions'                                                => function ($query) {
                 $query->orderBy('level');
@@ -835,7 +836,7 @@ class TestTakesController extends Controller
 
     private function shouldSkipCreatingAnswerRatingForEmptyAnswer($answer, $discussionType): bool
     {
-        if (settings()->allowNewCoLearning() && $discussionType === 'OPEN_ONLY') {
+        if (settings()->allowNewCoLearning(auth()->user()) && $discussionType === 'OPEN_ONLY') {
             return false;
         }
 
