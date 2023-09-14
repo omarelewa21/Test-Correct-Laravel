@@ -348,30 +348,8 @@ class svgShape {
         this.sidebarEntry.entryContainer.parentElement.querySelector('.explainer').style.display = 'inline-block';
     }
 
-    updateFillColor() {
-        this.mainElement.setAttribute("fill", this.UI.fillColor.value);
-    }
-
-    updateOpacity() {
-        const opacity = parseFloat(this.UI.fillOpacityNumber.value / 100);
-        this.mainElement.setAttribute("fill-opacity", opacity);
-    }
-
-    updateStrokeColor() {
-        this.mainElement.setAttribute("stroke", this.UI.strokeColor.value);
-    }
-
-    updateLineColor() {
-        this.mainElement.setAttribute("stroke", this.UI.lineColor.value);
-        if(this.type === 'line') this.updateMarkerColor();
-    }
-
-    updateStrokeWidth() {
-        this.mainElement.setAttribute("stroke-width", this.UI.strokeWidth.value);
-    }
-
-    updateLineWidth() {
-        this.mainElement.setAttribute("stroke-width", this.UI.lineWidth.value);
+    meetsMinRequirements() {
+        return true;
     }
 }
 
@@ -400,26 +378,64 @@ export class Rectangle extends svgShape {
 
     setFillColorOnEdit() {
         const fillColor = this.mainElement.getAttribute("fill");
-        const input = this.UI.fillColor;
+        const input = this.UI.fillColorRect;
         input.value = fillColor;
         input.style.cssText = `background-color: ${fillColor}; color: ${fillColor};`;
     }
 
     setStrokeColorOnEdit() {
         const strokeColor = this.mainElement.getAttribute("stroke");
-        const input = this.UI.strokeColor;
+        const input = this.UI.strokeColorRect;
         input.value = strokeColor;
         input.style.cssText = `border-color: ${strokeColor}`;
     }
 
     setOpacityInputValueOnEdit() {
-        const input = this.UI.fillOpacityNumber;
+        const input = this.UI.fillOpacityNumberRect;
         input.value = this.mainElement.getAttribute("fill-opacity") * 100;
         input.dispatchEvent(new Event('input'));
     }
 
     setStrokeWidthOnEdit() {
-        this.UI.strokeWidth.value = this.mainElement.getAttribute("stroke-width");
+        this.UI.strokeWidthRect.value = this.mainElement.getAttribute("stroke-width");
+    }
+
+    static getMainElementAttributes(cursorPosition, UI) {
+        return {
+            "x": cursorPosition.x,
+            "y": cursorPosition.y,
+            "width": 0,
+            "height": 0,
+            "fill":
+                UI.fillOpacityNumberRect.value === 0 ? "none" : UI.fillColorRect.value,
+            "fill-opacity": parseFloat(UI.fillOpacityNumberRect.value / 100),
+            "stroke": UI.strokeColorRect.value,
+            "stroke-width": UI.strokeWidthRect.value,
+            "opacity": parseFloat(UI.fillOpacityNumberRect.value / 100),
+        };
+    }
+
+    updateFillColor() {
+        this.mainElement.setAttribute("fill", this.UI.fillColorRect.value);
+    }
+
+    updateStrokeWidth() {
+        this.mainElement.setAttribute("stroke-width", this.UI.strokeWidthRect.value);
+    }
+
+    updateOpacity() {
+        const opacity = parseFloat(this.UI.fillOpacityNumberRect.value / 100);
+        this.mainElement.setAttribute("opacity", opacity);
+        this.mainElement.setAttribute("fill-opacity", opacity);
+    }
+
+    updateStrokeColor() {
+        this.mainElement.setAttribute("stroke", this.UI.strokeColorRect.value);
+    }
+
+    meetsMinRequirements() {
+        const bbox = this.mainElement.getBoundingBox();
+        return bbox.width >= 8 && bbox.height >= 8;
     }
 }
 
@@ -448,26 +464,62 @@ export class Circle extends svgShape {
 
     setFillColorOnEdit() {
         const fillColor = this.mainElement.getAttribute("fill");
-        const input = this.UI.fillColor;
+        const input = this.UI.fillColorCircle;
         input.value = fillColor;
         input.style.cssText = `background-color: ${fillColor}; color: ${fillColor};`;
     }
 
     setStrokeColorOnEdit() {
         const strokeColor = this.mainElement.getAttribute("stroke");
-        const input = this.UI.strokeColor;
+        const input = this.UI.strokeColorCircle;
         input.value = strokeColor;
         input.style.cssText = `border-color: ${strokeColor}`;
     }
 
     setOpacityInputValueOnEdit() {
-        const input = this.UI.fillOpacityNumber;
+        const input = this.UI.fillOpacityNumberCircle;
         input.value = this.mainElement.getAttribute("fill-opacity") * 100;
         input.dispatchEvent(new Event('input'));
     }
 
     setStrokeWidthOnEdit() {
-        this.UI.strokeWidth.value = this.mainElement.getAttribute("stroke-width");
+        this.UI.strokeWidthCircle.value = this.mainElement.getAttribute("stroke-width");
+    }
+
+    static getMainElementAttributes(cursorPosition, UI) {
+        return {
+            "cx": cursorPosition.x,
+            "cy": cursorPosition.y,
+            "r": 0,
+            "fill":
+                UI.fillOpacityNumberCircle.value === 0 ? "none" : UI.fillColorCircle.value,
+            "fill-opacity": parseFloat(UI.fillOpacityNumberCircle.value / 100),
+            "stroke": UI.strokeColorCircle.value,
+            "stroke-width": UI.strokeWidthCircle.value,
+            "opacity": parseFloat(UI.fillOpacityNumberCircle.value / 100),
+        };
+    }
+
+    updateFillColor() {
+        this.mainElement.setAttribute("fill", this.UI.fillColorCircle.value);
+    }
+
+    updateStrokeWidth() {
+        this.mainElement.setAttribute("stroke-width", this.UI.strokeWidthCircle.value);
+    }
+
+    updateOpacity() {
+        const opacity = parseFloat(this.UI.fillOpacityNumberCircle.value / 100);
+        this.mainElement.setAttribute("opacity", opacity);
+        this.mainElement.setAttribute("fill-opacity", opacity);
+    }
+
+    updateStrokeColor() {
+        this.mainElement.setAttribute("stroke", this.UI.strokeColorCircle.value);
+    }
+
+    meetsMinRequirements() {
+        return this.mainElement.getAttribute("r") >= 4;
     }
 }
 
@@ -487,6 +539,10 @@ export class Line extends svgShape {
         super(shapeId, "line", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
         this.svgCanvas = drawingApp.params.root.querySelector('#svg-canvas');
         this.makeOwnMarkerForThisShape();
+    }
+
+    editOwnMarkerForThisShape() {
+        this.makeOwnMarkerForThisShape(true);
     }
 
     makeOwnMarkerForThisShape(editing = false) {
@@ -520,6 +576,18 @@ export class Line extends svgShape {
         newMarker.style[propertyToChange] = this.props.main.stroke;
         this.parent.appendChild(newMarker);
         this.marker = newMarker;
+    }
+
+    static getMainElementAttributes(cursorPosition, UI, params) {
+        return {
+            "x1": cursorPosition.x,
+            "y1": cursorPosition.y,
+            "x2": cursorPosition.x,
+            "y2": cursorPosition.y,
+            "marker-end": `url(#svg-${params.endmarkerType}-line)`,
+            "stroke": UI.penColorLine.value,
+            "stroke-width": UI.penWidthLine.value,
+        };
     }
 
     getMarkerType() {
@@ -556,11 +624,7 @@ export class Line extends svgShape {
     updateMarkerColor() {
         if (!this.marker) return;
         const propertyToChange = this.getPropertyToChange(this.getMarkerType());
-        this.marker.style[propertyToChange] = this.UI.lineColor.value;
-    }
-
-    editOwnMarkerForThisShape() {
-        this.makeOwnMarkerForThisShape(true);
+        this.marker.style[propertyToChange] = this.UI.penColorLine.value;
     }
 
     setInputValuesOnEdit() {
@@ -571,19 +635,32 @@ export class Line extends svgShape {
 
     setLineColorOnEdit() {
         const lineColor = this.mainElement.getAttribute("stroke");
-        const input = this.UI.lineColor;
+        const input = this.UI.penColorLine;
         input.value = lineColor;
         input.style.cssText = `background-color: ${lineColor}; color: ${lineColor};`;
     }
 
     setLineWidthOnEdit() {
-        this.UI.lineWidth.value = this.mainElement.getAttribute("stroke-width");
+        this.UI.penWidthLine.value = this.mainElement.getAttribute("stroke-width");
     }
 
     setEndMarkerOnEdit() {
         const markerType = this.getMarkerType();
         this.root.querySelector('.endmarker-type.active')?.classList.remove('active');
         this.root.querySelector(`.endmarker-type#${markerType}`)?.classList.add('active');
+    }
+
+    updatePenWidth() {
+        this.mainElement.setAttribute("stroke-width", this.UI.penWidthLine.value);
+    }
+
+    updatePenColor() {
+        this.mainElement.setAttribute("stroke", this.UI.penColorLine.value);
+        this.updateMarkerColor();
+    }
+
+    meetsMinRequirements() {
+        return this.mainElement.element.getTotalLength() >= 10;
     }
 }
 
@@ -604,6 +681,17 @@ export class Text extends svgShape {
         this.mainElement.setTextContent(this.props.main["data-textcontent"]);
         this.mainElement.setFontFamily('Nunito');
         this.registerEditingEvents();
+    }
+
+    static getMainElementAttributes(cursorPosition, UI, params) {
+        return {
+            "x": cursorPosition.x,
+            "y": cursorPosition.y,
+            "fill": UI.textColor.value,
+            "stroke-width": 0,
+            "opacity": parseFloat(UI.elemOpacityNumber.value / 100),
+            "style": `${params.boldText ? "font-weight: bold;" : ""} font-size: ${UI.textSize.value / 16}rem`,
+        };
     }
 
     updateTextColor() {
@@ -847,6 +935,27 @@ export class Path extends svgShape {
     constructor(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
         super(shapeId, "path", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
     }
+
+    static getMainElementAttributes(cursorPosition, UI) {
+        return {
+            "d": `M ${cursorPosition.x},${cursorPosition.y}`,
+            "fill": "none",
+            "stroke": UI.penColorFreehand.value,
+            "stroke-width": UI.penWidthFreehand.value,
+        };
+    }
+
+    updatePenWidth() {
+        this.mainElement.setAttribute("stroke-width", this.UI.penWidthFreehand.value);
+    }
+
+    updatePenColor() {
+        this.mainElement.setAttribute("stroke", this.UI.penColorFreehand.value);
+    }
+
+    meetsMinRequirements() {
+        return this.mainElement.element.getTotalLength() >= 10;
+    }
 }
 
 export class Grid extends Path {
@@ -949,18 +1058,18 @@ export class Freehand extends Path {
     }
 
     setInputValuesOnEdit() {
-        this.setLineColorOnEdit();
-        this.setLineWidthOnEdit();
+        this.setPathColorOnEdit();
+        this.setPathWidthOnEdit();
     }
 
-    setLineColorOnEdit() {
-        const lineColor = this.mainElement.getAttribute("stroke");
-        const input = this.UI.lineColor;
-        input.value = lineColor;
-        input.style.cssText = `background-color: ${lineColor}; color: ${lineColor};`;
+    setPathColorOnEdit() {
+        const pathColor = this.mainElement.getAttribute("stroke");
+        const input = this.UI.penColorFreehand;
+        input.value = pathColor;
+        input.style.cssText = `background-color: ${pathColor}; color: ${pathColor};`;
     }
 
-    setLineWidthOnEdit() {
-        this.UI.lineWidth.value = this.mainElement.getAttribute("stroke-width");
+    setPathWidthOnEdit() {
+        this.UI.penWidthFreehand.value = this.mainElement.getAttribute("stroke-width");
     }
 }
