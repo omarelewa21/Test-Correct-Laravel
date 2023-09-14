@@ -1,5 +1,5 @@
 <header id="navigation-bar"
-     class="navigation-bar"
+     class="navigation-bar  @if(\tcCore\Http\Helpers\GlobalStateHelper::getInstance()->isOnDeploymentTesting()) deployment-testing-marker @endif"
      x-data="navigationBar({{ $enableHubSpotChat }})"
      x-ref="nav_bar"
 >

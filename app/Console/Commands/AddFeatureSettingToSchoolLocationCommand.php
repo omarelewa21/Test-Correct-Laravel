@@ -7,15 +7,22 @@ use tcCore\SchoolLocation;
 
 class AddFeatureSettingToSchoolLocationCommand extends Command
 {
-    protected $signature = 'sl:add-feature-settings 
+    protected $signature = 'sl:add-feature-settings
                             {schooLocationId=1 : The school location to add the settings to}
                             {setting=all : Specify a setting, or leave blank to add all currently available}';
 
     protected $description = 'Add feature settings the given schoolLocation in the local database';
 
     private $settingTitles = [
+        'allow_formidable',
         'allow_creathlon',
         'allow_olympiade',
+        'allow_thieme_meulenhoff',
+        'allow_tm_biology',
+        'allow_tm_geography',
+        'allow_tm_dutch',
+        'allow_tm_english',
+        'allow_tm_french',
         'allow_new_taken_tests_page',
         'allow_analyses',
         'allow_new_co_learning',

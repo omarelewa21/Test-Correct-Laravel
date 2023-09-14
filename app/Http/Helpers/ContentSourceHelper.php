@@ -5,12 +5,6 @@ namespace tcCore\Http\Helpers;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 use tcCore\Services\ContentSource\ContentSourceService;
-use tcCore\Services\ContentSource\CreathlonService;
-use tcCore\Services\ContentSource\NationalItemBankService;
-use tcCore\Services\ContentSource\OlympiadeService;
-use tcCore\Services\ContentSource\PersonalService;
-use tcCore\Services\ContentSource\SchoolLocationService;
-use tcCore\Services\ContentSource\UmbrellaOrganizationService;
 use tcCore\User;
 
 class ContentSourceHelper

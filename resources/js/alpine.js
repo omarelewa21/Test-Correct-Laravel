@@ -465,10 +465,13 @@ document.addEventListener("alpine:init", () => {
                     this.handleGrid(toolName);
 
                     toolName.drawingApp.init();
+
                 } else {
                     const component = getClosestLivewireComponentByAttribute(this.$root, "questionComponent");
                     component.call("render");
                 }
+
+                isTeacher && this.$dispatch("set-allow-paste", !show);  // disable filepond paste when drawing tool is open
             });
 
             toolName.Canvas.layers.answer.enable();
@@ -817,7 +820,7 @@ document.addEventListener("alpine:init", () => {
                     window.registeredEventHandlers.push(eventName);
                     window.addEventListener(eventName, (event) => {
                         /* If this yields no result, make sure the remove eventnames are unique on the page :) */
-                        let choice = choices.getValue().filter(choice => choice.value === event.detail.value)[0];
+                        let choice = choices.getValue().filter(choice => choice.value.toString() === event.detail.value.toString())[0];
                         if (this.isAParentChoice(choice)) {
                             this.handleGroupItemChoice(choice);
                         } else {
@@ -1633,13 +1636,13 @@ document.addEventListener("alpine:init", () => {
             });
         },
         markInputElementsWithError() {
-            const falseOptions = this.$root.querySelectorAll(".slider-option[data-active=\"false\"]");
+            const falseOptions = this.$root.querySelectorAll(".accordion-block .slider-option[data-active=\"false\"]");
             if (falseOptions.length === 2) {
                 falseOptions.forEach(el => el.classList.add("!border-allred"));
             }
         },
         markInputElementsClean() {
-            const falseOptions = this.$root.querySelectorAll(".slider-option[data-active=\"false\"]");
+            const falseOptions = this.$root.querySelectorAll(".accordion-block .slider-option[data-active=\"false\"]");
             if (falseOptions.length === 2) {
                 falseOptions.forEach(el => el.classList.remove("!border-allred"));
             }
@@ -2111,27 +2114,27 @@ document.addEventListener("alpine:init", () => {
         firstValue,
         skipWatch: false,
         async first() {
-            if(this.$store.answerFeedback.feedbackBeingEdited()) {
+            if(this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
                 return this.$store.answerFeedback.openConfirmationModal(this.$root, 'first');
             }
             await this.updateCurrent(this.firstValue, "first");
         },
         async last() {
-            if(this.$store.answerFeedback.feedbackBeingEdited()) {
+            if(this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
                 return this.$store.answerFeedback.openConfirmationModal(this.$root, 'last');
             }
             await this.updateCurrent(this.lastValue, "last");
         },
         async next() {
             if (this.current >= this.lastValue) return;
-            if(this.$store.answerFeedback.feedbackBeingEdited()) {
+            if(this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
                 return this.$store.answerFeedback.openConfirmationModal(this.$root, 'next');
             }
             await this.updateCurrent(this.current + 1, "incr");
         },
         async previous() {
             if (this.current <= this.firstValue) return;
-            if(this.$store.answerFeedback.feedbackBeingEdited()) {
+            if(this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
                 return this.$store.answerFeedback.openConfirmationModal(this.$root, 'previous');
             }
             await this.updateCurrent(this.current - 1, "decr");
@@ -2243,6 +2246,8 @@ document.addEventListener("alpine:init", () => {
             }, 500);
         },
         async scrollToCommentCard (answerFeedbackUuid) {
+            this.container = this.$root.querySelector("#slide-container") ?? this.$root.closest("#slide-container");
+
             const commentCard = document.querySelector('[data-uuid="'+answerFeedbackUuid+'"].answer-feedback-card')
             const slide = this.getSlideElementByIndex(2);
             let cardTop = commentCard.offsetTop;
@@ -2254,7 +2259,7 @@ document.addEventListener("alpine:init", () => {
             await smoothScroll(this.container, cardTop, slide.offsetLeft);
         },
         async next() {
-            if(this.$store.answerFeedback.feedbackBeingEdited()) {
+            if(this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
                 return this.$store.answerFeedback.openConfirmationModal(this.$root, 'next');
             }
             if (this.needsToPerformActionsStill()) {
@@ -2271,7 +2276,7 @@ document.addEventListener("alpine:init", () => {
             });
         },
         async previous() {
-            if(this.$store.answerFeedback.feedbackBeingEdited()) {
+            if(this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
                 return this.$store.answerFeedback.openConfirmationModal(this.$root, 'previous');
             }
             this.tab(1);
@@ -2648,7 +2653,7 @@ document.addEventListener("alpine:init", () => {
             }, 5000);
         },
         async loadQuestion(number) {
-            if(this.$store.answerFeedback.feedbackBeingEdited()) {
+            if(this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
                 return this.$store.answerFeedback.openConfirmationModal(this.$root, 'loadQuestion', number);
             }
 
@@ -2688,6 +2693,8 @@ document.addEventListener("alpine:init", () => {
         viewOnly,
         hasFeedback,
         async init() {
+            this.$store.answerFeedback.resetEditingComment();
+            console.log('init answer feedback');
             this.dropdownOpened = questionType === 'OpenQuestion' ? 'given-feedback' : 'add-feedback';
 
             if(questionType !== 'OpenQuestion') {
@@ -2714,7 +2721,10 @@ document.addEventListener("alpine:init", () => {
 
                 if(ckeditorIconWrapper) this.addOrReplaceIconByName(ckeditorIconWrapper, event.detail.iconName);
                 if(cardIconWrapper) {
-                    this.addOrReplaceIconByName(cardIconWrapper, event.detail.iconName);
+                    this.addOrReplaceIconByName(cardIconWrapper, event.detail.iconName, true);
+                    if (event.detail.iconName === null || event.detail.iconName === '' || event.detail.iconName === undefined){
+                        return;
+                    }
                     cardIconWrapper.querySelector('span').style = '';
                 }
             });
@@ -2819,6 +2829,8 @@ document.addEventListener("alpine:init", () => {
                     newCommentThread.addComment({threadId: feedback.threadId, commentId: feedback.commentId, content: comment, authorId: this.userId});
 
                     var updatedAnswerText = answerEditor.getData();
+                    // updatedAnswerText = updatedAnswerText.replaceAll('&nbsp;', '');
+                    // console.log(updatedAnswerText)
 
                     let commentStyles = await this.$wire.saveNewComment({
                         uuid: feedback.uuid,
@@ -2836,6 +2848,7 @@ document.addEventListener("alpine:init", () => {
                     document.querySelector('#commentMarkerStyles').innerHTML = commentStyles;
 
                     this.hasFeedback = true;
+
 
                     this.$dispatch('answer-feedback-show-comments');
 
@@ -2857,7 +2870,18 @@ document.addEventListener("alpine:init", () => {
 
                 this.$dispatch('answer-feedback-show-comments');
 
-                this.scrollToCommentCard(feedback.uuid);
+                let intervalCount = 0;
+                let interval = setInterval(() => {
+                    intervalCount++;
+                    this.$dispatch('answer-feedback-show-comments');
+                    if(intervalCount > 2) {
+                        this.scrollToCommentCard(feedback.uuid);
+                    }
+                    if(intervalCount === 5) {
+                        clearInterval(interval);
+                        return;
+                    }
+                }, 400);
 
                 feedbackEditor.setData('<p></p>');
             });
@@ -3008,11 +3032,14 @@ document.addEventListener("alpine:init", () => {
 
             this.initCommentIcon(iconWrapper, thread);
         },
-        addOrReplaceIconByName (el, iconName) {
+        addOrReplaceIconByName (el, iconName, isFeedbackCardIcon = false) {
             el.innerHTML = '';
 
             let iconTemplate = null;
             if(iconName === null || iconName === '' || iconName === undefined) {
+                if(isFeedbackCardIcon)  {
+                    return;
+                }
                 iconTemplate = document.querySelector('#default-icon')
             } else {
                 iconTemplate = document.querySelector('#'+iconName.replace('icon.', ''))
@@ -3118,17 +3145,21 @@ document.addEventListener("alpine:init", () => {
                 '} ' +
                 'span.ck-comment-marker[data-comment="'+ this.activeComment?.threadId +'"] img { ' +
                 '   border: 1px solid var(--ck-color-comment-marker-border) !important; ' +
-                '} ';
+                '} '  +
+                'div.answer-feedback-comment-icon[data-threadid="'+ this.activeComment?.threadId +'"] { ' +
+                '   z-index: 11 ' +
+                '} '
+            ;
 
         },
         setActiveComment (threadId, answerFeedbackUuid) {
             this.$dispatch('answer-feedback-show-comments');
             setTimeout(() => {
-                this.$dispatch("answer-feedback-drawer-tab-update", { tab: 2, uuid: answerFeedbackUuid });
                 if(this.$store.answerFeedback.feedbackBeingEdited()) {
                     /* when editing, no other comment can be activated */
                     return;
                 }
+                this.$dispatch("answer-feedback-drawer-tab-update", { tab: 2, uuid: answerFeedbackUuid });
                 this.activeComment = {threadId: threadId, uuid: answerFeedbackUuid };
                 this.setActiveCommentMarkerStyle();
             }, 300);
@@ -3242,12 +3273,16 @@ document.addEventListener("alpine:init", () => {
         },
         setEditingComment (AnswerFeedbackUuid) {
             this.activeComment = null;
-            this.$store.answerFeedback.editingComment = AnswerFeedbackUuid ?? null;
+            this.$store.answerFeedback.setEditingComment(AnswerFeedbackUuid ?? null);
             setTimeout(() => {
                 this.fixSlideHeightByIndex(2, AnswerFeedbackUuid);
-            },100)
+            },500)
         },
         async toggleFeedbackAccordion (name, forceOpenAccordion = false) {
+            if(this.$store.answerFeedback.newFeedbackBeingCreated()) {
+                this.dropdownOpened ='add-feedback';
+                return;
+            };
             if(this.$store.answerFeedback.feedbackBeingEdited()) {
                 this.dropdownOpened ='given-feedback';
                 return;
@@ -3310,19 +3345,19 @@ document.addEventListener("alpine:init", () => {
     }));
     Alpine.data("coLearningStudent", () => ({
         async goToPreviousAnswerRating() {
-            if(this.$store.answerFeedback.feedbackBeingEdited()) {
+            if(this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
                 return this.$store.answerFeedback.openConfirmationModal(this.$root, 'goToPreviousAnswerRating');
             }
             this.$wire.goToPreviousAnswerRating();
         },
         async goToNextAnswerRating() {
-            if(this.$store.answerFeedback.feedbackBeingEdited()) {
+            if(this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
                 return this.$store.answerFeedback.openConfirmationModal(this.$root, 'goToNextAnswerRating');
             }
             this.$wire.goToNextAnswerRating();
         },
         async goToFinishedCoLearningPage() {
-            if(this.$store.answerFeedback.feedbackBeingEdited()) {
+            if(this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
                 return this.$store.answerFeedback.openConfirmationModal(this.$root, 'goToFinishedCoLearningPage');
             }
 
@@ -3499,9 +3534,10 @@ document.addEventListener("alpine:init", () => {
             this.$wire.set('nextQuestion', eventData);
         },
         startTimeout(eventData) {
+            if(this.progressBar) return;
             this.progressBar = true;
             this.startTime = eventData.timeout;
-            console.log(eventData);
+
             if (eventData.timeLeft) {
                 this.progress = eventData.timeLeft;
             } else {
@@ -4025,13 +4061,26 @@ document.addEventListener("alpine:init", () => {
     }),
     Alpine.store("answerFeedback", {
         editingComment: null,
+        creatingNewComment: false,
         navigationRoot: null,
         navigationMethod: null,
         navigationArgs: null,
+        feedbackBeingEditedOrCreated() {
+            if(this.navigationRoot) {
+                this.navigationRoot = null;
+                this.navigationMethod = null;
+                this.creatingNewComment = false;
+                this.editingComment = null;
+                return false;
+            }
+            return this.feedbackBeingEdited() || this.newFeedbackBeingCreated();
+        },
         feedbackBeingEdited() {
             if(this.navigationRoot) {
                 this.navigationRoot = null;
                 this.navigationMethod = null;
+                this.creatingNewComment = false;
+                this.editingComment = null;
                 return false;
             }
             if(this.editingComment === null) {
@@ -4039,15 +4088,24 @@ document.addEventListener("alpine:init", () => {
             }
             return this.editingComment;
         },
+        newFeedbackBeingCreated() {
+            if(this.navigationRoot) {
+                this.navigationRoot = null;
+                this.navigationMethod = null;
+                this.creatingNewComment = false;
+                this.editingComment = null;
+                return false;
+            }
+            return this.creatingNewComment;
+        },
         openConfirmationModal(navigatorRootElement, methodName, methodArgs = null) {
             this.navigationRoot = navigatorRootElement;
             this.navigationMethod = methodName;
             this.navigationArgs = methodArgs;
-            Livewire.emit('openModal', 'modal.confirm-still-editing-comment-modal');
+            Livewire.emit('openModal', 'modal.confirm-still-editing-comment-modal', {'creatingNewComment': this.creatingNewComment});
         },
         continueAction() {
             this.editingComment = null;
-            console.log(this.navigationRoot, this.navigationMethod, this.navigationArgs)
             this.navigationRoot.dispatchEvent(new CustomEvent('continue-navigation', {detail: {method: this.navigationMethod, args: [this.navigationArgs]}}))
             Livewire.emit('closeModal');
         },
@@ -4056,6 +4114,12 @@ document.addEventListener("alpine:init", () => {
             this.navigationMethod = null;
             window.dispatchEvent(new CustomEvent('answer-feedback-drawer-tab-update', {detail: {tab: 2, uuid: this.editingComment}}));
             Livewire.emit('closeModal');
+        },
+        resetEditingComment() {
+            this.setEditingComment(null);
+        },
+        setEditingComment(AnswerFeedbackUuid) {
+            this.editingComment = AnswerFeedbackUuid;
         }
     });
     Alpine.store("studentPlayer", {

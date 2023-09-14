@@ -108,14 +108,7 @@ trait WithInlineFeedback {
 
     public function updateAnswer($answer)
     {
-        //purifier cannot handle comment-start and comment-end tags and breaks the answer text.
-        $answer = str_replace('comment-start', 'commentstart', $answer);
-        $answer = str_replace('comment-end', 'commentend', $answer);
-
         $purifiedAnswerText = clean($answer);
-
-        $purifiedAnswerText = str_replace('commentstart', 'comment-start', $purifiedAnswerText);
-        $purifiedAnswerText = str_replace('commentend', 'comment-end', $purifiedAnswerText);
 
         $testParticipants = $this->getTestParticipantsRatingTheCurrentAnswer();
 

@@ -45,11 +45,14 @@ return [
     'Inline feedback schrijven in antwoord'        => 'Write inline feedback in answer',
     'Inline feedback bekijken'                     => 'View inline feedback',
     'Gegeven feedback'                             => 'Attached feedback',
-    'Feedback schrijven'                           => 'Write feedback',
     'scored_by_one_student'                        => 'Notice: scored by one student.',
     'disabled_nav_closed_question'                 => 'This is a closed question and scored automatically.',
     'disabled_nav_no_answer'                       => 'There are no answers available for this question.',
     'emoji invoegen'                               => 'Insert emoji',
     'tekst markeren'                               => 'Mark text',
-    'all'                                          => 'All'
+    'all'                                          => 'All',
+    'override_system_score_notification'           => 'Note: Re-scoring closed questions will cause a discrepancy between the score and correction model.',
+    'Het nieuwe nakijken'                          => 'New assessment',
+    'new_assessment_notification'                  => 'Assessment has been updated. We have new functions in a different lay-out, which means things work a little different.',
+    'new_assessment_knowledge_bank'                => 'Learn more in this Knowledge base article.',
 ];
