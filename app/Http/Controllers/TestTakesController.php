@@ -835,7 +835,7 @@ class TestTakesController extends Controller
 
     private function shouldSkipCreatingAnswerRatingForEmptyAnswer($answer, $discussionType): bool
     {
-        if (settings()->allowNewCoLearning() && $discussionType === 'OPEN_ONLY') {
+        if (settings()->allowNewCoLearning(auth()->user()) && $discussionType === 'OPEN_ONLY') {
             return false;
         }
 

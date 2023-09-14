@@ -218,7 +218,7 @@ class CoLearning extends TCComponent implements CollapsableHeader
             $this->discussingQuestion = $this->testTake->discussingQuestion()->first();
         }
 
-        if(!settings()->allowNewCoLearningTeacher()) {
+        if(!settings()->allowNewCoLearningTeacher(auth()->user())) {
             return CakeRedirectHelper::redirectToCake('test_takes.discussion', $this->testTake->uuid);
         }
 
