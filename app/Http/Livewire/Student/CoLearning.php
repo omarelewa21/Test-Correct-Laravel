@@ -22,6 +22,9 @@ use tcCore\Http\Livewire\CoLearning\CompletionQuestion;
 use tcCore\Http\Livewire\TCComponent;
 use tcCore\Http\Traits\Questions\WithCompletionConversion;
 use tcCore\Http\Traits\WithInlineFeedback;
+use tcCore\InfoscreenQuestion;
+use tcCore\MatchingQuestion;
+use tcCore\Question;
 use tcCore\TestTake;
 use tcCore\TestTakeStatus;
 
@@ -57,7 +60,7 @@ class CoLearning extends TCComponent
 
     public $answered = false;
 
-    //Student navigation on their own pace
+    //Student navigation on their own pace, but not without teacher present
     public $selfPacedNavigation = false;
 
     protected $queryString = [
@@ -123,7 +126,6 @@ class CoLearning extends TCComponent
                                                 ->first();
 
         $this->discussingQuestionId = $this->getDiscussingQuestion()->getKey();
-//        $this->discussingQuestionId = $this->testTake->discussing_question_id;
         $this->questionOrderList = $this->testTake->test->getQuestionOrderListWithDiscussionType();
         $this->selfPacedNavigation = $this->testTake->enable_student_navigation_colearning;
 
@@ -153,7 +155,7 @@ class CoLearning extends TCComponent
         }
         $this->waitForTeacherNotificationEnabled = $this->shouldShowWaitForTeacherNotification();
 
-        $this->uniqueKey = $this->answerRating->getKey() . '-' . $this->questionFollowUpNumber . '-' . $this->answerFollowUpNumber;
+        $this->uniqueKey = $this->answerRating?->getKey() . '-' . $this->questionFollowUpNumber . '-' . $this->answerFollowUpNumber;
 
         return view('livewire.student.co-learning')
             ->layout('layouts.co-learning-student');
@@ -176,10 +178,6 @@ class CoLearning extends TCComponent
 
     public function redirectToTestTakesToBeDiscussed()
     {
-        if ($this->selfPacedNavigation) {
-            return;
-        }
-
         return redirect()->route('student.test-takes', ['tab' => 'discuss']);
     }
 
@@ -250,10 +248,6 @@ class CoLearning extends TCComponent
 
     public function goToNextQuestion()
     {
-        //todo
-        // step 1. use Controller to navigate to next question,
-        //  create new answer_ratings if the student is the first to continue to the next question
-        // step 2. change test_participant.discussing_question_id   !!!
         CoLearningHelper::nextQuestion(
             testTake: $this->testTake,
             testParticipant: $this->testParticipant,
@@ -265,10 +259,6 @@ class CoLearning extends TCComponent
 
     public function goToPreviousQuestion()
     {
-        //todo
-        // first get the available questions in the testtake, 'questionOrderList'
-        // then get the previous question in the list, using the current discussingQuestion
-
         if ($previousQuestionId = $this->getPreviousQuestionData()['id']) {
             //set the previous question as the new discussing question
             $this->selfPacedNavigation
@@ -398,8 +388,6 @@ class CoLearning extends TCComponent
 
     private function getAnswerRatings($navigateDirection = null): void
     {
-        //todo when the student can navigate on their own pace, the correct answerRatings should be loaded
-        // todo check if group_questions are working properly with the new solution
         $params = [
             'mode'   => 'all',
             'with'   => ['questions'],
@@ -454,8 +442,7 @@ class CoLearning extends TCComponent
             $this->answerRating->refresh();
 
         }
-        if ($this->getDiscussingQuestion()->type === 'InfoscreenQuestion') {
-//        if ($this->testTake->discussingQuestion->type === 'InfoscreenQuestion') {
+        if ($this->getDiscussingQuestion() instanceof InfoscreenQuestion) {
             $this->noAnswerRatingAvailableForCurrentScreen = true;
             $this->waitForTeacherNotificationEnabled = true;
         }

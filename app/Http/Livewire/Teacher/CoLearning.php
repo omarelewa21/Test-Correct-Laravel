@@ -240,6 +240,7 @@ class CoLearning extends TCComponent implements CollapsableHeader
     /* start header methods */
     public function redirectBack()
     {
+        $this->testTake->update(['test_take_status_id' => 6]);
         AfterResponse::$performAction[] = fn() => TestTakeLeave::dispatch($this->testTake->uuid);
 
         return TestTake::redirectToDetail(
@@ -717,7 +718,7 @@ class CoLearning extends TCComponent implements CollapsableHeader
         return $this->coLearningHasBeenStarted === false
             && $this->testTake->discussing_question_id !== null
             && $this->testTake->discussion_type !== null
-            && $this->testTake->test_take_status_id >= TestTakeStatus::STATUS_DISCUSSING;
+            && $this->testTake->test_take_status_id >= TestTakeStatus::STATUS_TAKEN;
     }
 
     private function testTakeHasNotYetBeenStartedBefore(): bool

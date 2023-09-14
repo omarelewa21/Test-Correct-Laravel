@@ -236,7 +236,7 @@ class TestTake extends BaseModel
                     AnswerChecker::checkAnswerOfParticipant($testParticipant);
                 }
             }
-            if (($testTake->testTakeStatus->name === 'Discussing' && $testTake->getAttribute('discussing_question_id') != $testTake->getOriginal('discussing_question_id'))
+            if (($testTake->testTakeStatus->name === 'Discussing' && ($testTake->getAttribute('discussing_question_id') != $testTake->getOriginal('discussing_question_id') || $testTake->getAttribute('test_take_status_id') != $testTake->getOriginal('test_take_status_id')))
                 || ($testTake->testTakeStatus->name === 'Discussed' && $testTake->getAttribute('test_take_status_id') != $testTake->getOriginal('test_take_status_id'))) {
                 $inactiveTestParticipant = [];
                 $testTakeDiscussedStatus = TestTakeStatus::where('name', 'Discussing')->value('id');
