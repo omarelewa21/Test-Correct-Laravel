@@ -234,7 +234,10 @@
                                             </div>
                                         @else
                                             <div class="flex flex-col mt-4">
+                                                <label for="subjects" id="subjects_label"
+                                                       class="transition ease-in-out duration-150">{{__('onboarding.Jouw vak(ken)')}}</label>
                                                 <div class="flex">
+
                                                     <x-input.choices-select
                                                             :multiple="true"
                                                             :options="$this->subjects"
