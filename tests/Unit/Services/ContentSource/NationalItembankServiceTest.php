@@ -61,7 +61,7 @@ class NationalItembankServiceTest extends TestCase
         ///GIVEN the teacher has access to the French subject
         $this->assertEquals(
             $teacher->subjects()->first()->base_subject_id,
-            BaseSubject::FRENCH
+            BaseSubject::DUTCH
         );
         $this->assertTrue(NationalItemBankService::isAvailableForUser($teacher));
     }
@@ -77,7 +77,7 @@ class NationalItembankServiceTest extends TestCase
         ///GIVEN the teacher has access to the French subject
         $this->assertEquals(
             $teacher->subjects()->first()->base_subject_id,
-            BaseSubject::FRENCH
+            BaseSubject::DUTCH
         );
         $this->assertFalse(NationalItemBankService::isAvailableForUser($teacher));
     }
@@ -128,13 +128,13 @@ class NationalItembankServiceTest extends TestCase
         ///GIVEN the teacher has access to the French subject
         $this->assertEquals(
             $teacher->subjects()->first()->base_subject_id,
-            BaseSubject::FRENCH
+            BaseSubject::DUTCH
         );
 
         $this->assertInstanceOf(
             \tcCore\Test::class,
             (new NationalItemBankService )->itemBankFiltered(filters:[], sorting:[], forUser: $teacher)
-                ->where('name', 'test-TBNI-Frans')
+                ->where('name', 'test-TBNI-Nederlands')
                 ->first()
         );
     }
