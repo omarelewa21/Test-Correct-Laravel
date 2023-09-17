@@ -39,6 +39,7 @@ use tcCore\Http\Requests\CreateGroupQuestionQuestionRequest;
 use tcCore\Http\Requests\CreateTestQuestionRequest;
 use tcCore\Http\Requests\Request;
 use tcCore\Http\Traits\WithQueryStringSyncing;
+use tcCore\Lib\CkEditorComments\User;
 use tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager;
 use tcCore\Question;
 use tcCore\TemporaryLogin;
@@ -1525,12 +1526,16 @@ class Constructor extends TCComponent implements QuestionCms
     private function featureSettingDefaults(): array
     {
         $featureSettings = UserFeatureSettingEnum::initialValues()->merge(UserFeatureSetting::getAll(Auth::user()));
-
         return [
             'add_to_database'   => $featureSettings[UserFeatureSettingEnum::QUESTION_PUBLICLY_AVAILABLE->value],
             'score'             => $featureSettings[UserFeatureSettingEnum::QUESTION_DEFAULT_POINTS->value],
             'decimal_score'     => $featureSettings[UserFeatureSettingEnum::QUESTION_HALF_POINTS_POSSIBLE->value],
             'auto_check_answer' => $featureSettings[UserFeatureSettingEnum::QUESTION_AUTO_SCORE_COMPLETION->value],
+            'spell_check_available_default' => $featureSettings['spell_check_available_default'],
+            'mathml_functions_default'       => $featureSettings['mathml_functions_default'],
+            'restrict_word_amount_default'  => $featureSettings['restrict_word_amount_default'],
+            'max_words_default'            => $featureSettings['max_words_default'],
+            'text_formatting_default'        => $featureSettings['text_formatting_default'],
         ];
     }
 }

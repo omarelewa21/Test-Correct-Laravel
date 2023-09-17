@@ -78,6 +78,21 @@ enum UserFeatureSetting: string implements FeatureSettingKey
     #[Initial(false)]
     #[Type('bool')]
     case SEEN_ASSESSMENT_NOTIFICATION = 'seen_assessment_notification';
+    #[Initial(false)]
+    #[Type('bool')]
+    case SPELL_CHECK_AVAILABLE_DEFAULT = 'spell_check_available_default';
+    #[Initial(false)]
+    #[Type('bool')]
+    case MATHML_FUNCTIONS_DEFAULT = 'mathml_functions_default';
+    #[Initial(false)]
+    #[Type('bool')]
+    case RESTRICT_WORD_AMOUNT_DEFAULT = 'restrict_word_amount_default';
+    #[Initial(0)]
+    #[Type('int')]
+    case MAX_WORDS_DEFAULT = 'max_words_default';
+    #[Initial(false)]
+    #[Type('bool')]
+    case TEXT_FORMATTING_DEFAULT = 'text_formatting_default';
 
     public static function initialValues(): Collection
     {
