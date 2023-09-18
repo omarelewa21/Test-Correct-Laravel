@@ -84,5 +84,7 @@ return [
     'Exporteer naar RTTI Online'                                                               => 'Exporteer naar RTTI Online',
     'exporteer_naar_rtti_online_tooltip'                                                       => 'Let op, normeren en becijferen gebeurt in RTTI-Online als dit aanstaat.',
     'allow_wsc'                                                                                => 'Spellingscontrole toestaan voor studenten',
+    'enable_mr_chadd'                                                                          => 'Mr. Chadd toestaan voor studenten',
+    'enable_mr_chadd_tt'                                                                       => 'Sta studenten toe om Mr. Chadd te gebruiken tijdens het maken van de opdracht',
     'RTTI Online export maken'                                                                 => 'RTTI Online export maken',
 ];

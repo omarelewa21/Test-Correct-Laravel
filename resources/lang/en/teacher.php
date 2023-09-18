@@ -86,4 +86,7 @@ return [
     'exporteer_naar_rtti_online_tooltip'                                                       => 'Be aware that norming and grading takes place in RTTI-Online when this is on',
     'allow_wsc'                                                                                => 'Allow spellchecker for students',
     'RTTI Online export maken'                                                                 => 'Create RTTI Online export',
+    'enable_mr_chadd'                                                                          => 'Enable Mr. Chadd for students',
+    'enable_mr_chadd_tt'                                                                       => 'Enable students to use Mr. Chadd when doing the assignment',
+
 ];

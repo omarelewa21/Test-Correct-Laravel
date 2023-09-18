@@ -12,6 +12,7 @@ use tcCore\Lib\TestParticipant\Factory as ParticipantFactory;
 use tcCore\Period;
 use tcCore\SchoolClass;
 use tcCore\Test;
+use tcCore\TestKind;
 use tcCore\TestParticipant;
 use tcCore\TestTake;
 
@@ -29,6 +30,7 @@ class TestTakeEditModal extends TCModalComponent
     public $allowedTeachers = [];
     public $selectedInvigilators = [];
 
+    public bool $allowedToEnableMrChadd;
 
     protected function validationAttributes(): array
     {
@@ -36,6 +38,7 @@ class TestTakeEditModal extends TCModalComponent
             'testTake.weight'                  => str(__('teacher.Weging'))->lower(),
             'testTake.allow_inbrowser_testing' => __('teacher.Browsertoetsen toestaan'),
             'testTake.guest_accounts'          => __('teacher.Test-Direct toestaan'),
+            'testTake.enable_mr_chadd'         => __('teacher.enable_mr_chadd'),
         ];
     }
 
@@ -51,6 +54,8 @@ class TestTakeEditModal extends TCModalComponent
         $this->allowedInvigilators = $this->getAllowedInvigilators();
         $this->allowedTeachers = $this->getAllowedTeachers();
         $this->selectedInvigilators = $this->testTake->invigilatorUsers()->pluck('id');
+
+        $this->allowedToEnableMrChadd = ($this->testTake->schoolLocation->allow_mr_chadd && $this->test->isAssignment());
     }
 
     public function booted()
@@ -74,6 +79,9 @@ class TestTakeEditModal extends TCModalComponent
         }
         $conditionalRules['testTake.invigilator_note'] = 'sometimes';
         $conditionalRules['testTake.period_id'] = 'sometimes';
+        if($this->testTake->test->test_kind_id === TestKind::ASSIGNMENT_TYPE) {
+            $conditionalRules['testTake.enable_mr_chadd'] = 'required';
+        }
         return $conditionalRules;
     }
 

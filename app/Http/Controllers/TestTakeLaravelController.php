@@ -9,6 +9,7 @@ use tcCore\GroupQuestionQuestion;
 use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Traits\TestTakeNavigationForController;
 use tcCore\Http\Traits\WithStudentTestTakes;
+use tcCore\TestKind;
 use tcCore\TestParticipant;
 use tcCore\TestTake;
 use tcCore\TemporaryLogin;
@@ -68,7 +69,13 @@ class TestTakeLaravelController extends Controller
         // todo add check or failure when $current out of bounds $data;
         $styling = $this->getCustomStylingFromQuestions($data);
 
-        return view('test-take', compact(['data', 'current', 'answers', 'nav', 'uuid', 'testParticipant', 'styling']));
+        $schoolLocationAllowsMrChadd = $testTake->schoolLocation->allow_mr_chadd;
+        $testTakeAllowsMrChadd = $testTake->enable_mr_chadd;
+        $testIsOfKindAssignment = $testTake->test->test_kind_id === TestKind::ASSIGNMENT_TYPE;
+
+        $allowMrChadd = ($schoolLocationAllowsMrChadd && $testTakeAllowsMrChadd && $testIsOfKindAssignment);
+
+        return view('test-take', compact(['data', 'current', 'answers', 'nav', 'uuid', 'testParticipant', 'styling', 'allowMrChadd']));
     }
 
     public function getAnswers($testTake, $testQuestions, $testParticipant): array

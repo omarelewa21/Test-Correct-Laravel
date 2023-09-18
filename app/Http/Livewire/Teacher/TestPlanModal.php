@@ -34,6 +34,8 @@ class TestPlanModal extends TCModalComponent
 
     public array $labels;
 
+    public bool $allowedToEnableMrChadd;
+
     public function mount($testUuid)
     {
         $this->test = Test::whereUuid($testUuid)->first();
@@ -43,6 +45,8 @@ class TestPlanModal extends TCModalComponent
         $this->allowedTeachers = $this->getAllowedTeachers();
         $this->resetModalRequest();
         $this->setLabels();
+
+        $this->allowedToEnableMrChadd = (auth()->user()->schoolLocation->allow_mr_chadd && $this->test->isAssignment());
     }
 
     protected function rules()

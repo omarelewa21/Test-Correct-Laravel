@@ -11,6 +11,7 @@ use tcCore\Lib\TestParticipant\Factory as ParticipantFactory;
 use tcCore\SchoolClass;
 use tcCore\Teacher;
 use tcCore\TestTake;
+use tcCore\TestKind;
 use tcCore\UserFeatureSetting;
 
 trait WithPlanningFeatures
@@ -43,9 +44,12 @@ trait WithPlanningFeatures
     private function getConditionalRules(): array
     {
         if ($this->rttiExportAllowed) {
-            return ['testTake.is_rtti_test_take' => 'required'];
+            $conditionalRules['testTake.is_rtti_test_take'] = 'required';
         }
-        return [];
+        if($this->testTake->test->test_kind_id === TestKind::ASSIGNMENT_TYPE) {
+            $conditionalRules['testTake.enable_mr_chadd'] = 'required';
+        }
+        return $conditionalRules;
     }
 
     public function isRttiExportAllowed(): bool

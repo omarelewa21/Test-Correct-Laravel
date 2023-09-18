@@ -182,6 +182,25 @@
                 addTitleToImages('.test-take-questions',"{{__('Beschrijving afbeelding niet beschikbaar')}}");
             });
         </script>
+
     @endpush
+    @if($allowMrChadd)
+        @pushonce('scripts')
+            <script type="text/javascript">
+                window.addEventListener("mrchadd.loaded", function (e) {
+                    window.setTimeout(function () {
+                        window.mrchadd.showMessage("Heb je een vraag over pythagoras?", "Vraag het een van onze coaches")
+                    }, 1000)
+                })
+                window.addEventListener("mrchadd.closed", function (e) {
+                    window.mrchadd.showMessage("Meer hulp nodig?", "Via <a href='https://mrchadd.nl'>de website</a van Mr. Chadd kun je veel oefenmateriaal vinden")
+                    // setTimeout(function () {
+                    //     window.mrchadd.hideMessage();
+                    // }, 3000);
+                })
+            </script>
+            <script defer src="https://c.mrchadd.nl/embed.js"></script>
+        @endpushonce
+    @endif
 </x-layouts.app>
 

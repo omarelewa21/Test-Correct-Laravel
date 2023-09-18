@@ -30,7 +30,7 @@
 
                         @if ($this->isAssignmentType())
                             <x-input.group class="flex flex-1" label="{{ __('teacher.Datum tot') }}">
-                                <x-input.datepicker wire:model="request.time_end" locale="nl" minDate="today" />
+                                <x-input.datepicker wire:model="request.time_end" locale="nl" minDate="today"/>
                             </x-input.group>
                         @endif
                     </div>
@@ -135,14 +135,14 @@
                                                    containerClass="lg:border-t w-full lg:w-[calc(50%-0.5rem)]"
                                                    :error="$this->getErrorBag()->has('request.school_classes')"
                     >
-                        <x-icon.test-direct />
+                        <x-icon.test-direct/>
                         <span class="bold">{{ __('teacher.Test-Direct toestaan') }} </span>
                     </x-input.toggle-row-with-title>
                     <x-input.toggle-row-with-title wire:model="request.notify_students"
                                                    :toolTip="__('teacher.notify_students_tooltip')"
                                                    containerClass="border-t-0 w-full lg:w-[calc(50%-0.5rem)]"
                     >
-                        <x-icon.send-mail />
+                        <x-icon.send-mail/>
                         <span class="bold">{{ __('teacher.notify_students') }} </span>
                     </x-input.toggle-row-with-title>
                     @if($rttiExportAllowed)
@@ -150,8 +150,17 @@
                                                        :toolTip="__('teacher.exporteer_naar_rtti_online_tooltip')"
                                                        containerClass="w-full lg:w-[calc(50%-0.5rem)]"
                         >
-                            <x-icon.export />
+                            <x-icon.export/>
                             <span class="bold">{{ __('teacher.Exporteer naar RTTI Online') }} </span>
+                        </x-input.toggle-row-with-title>
+                    @endif
+                    @if($this->allowedToEnableMrChadd)
+                        <x-input.toggle-row-with-title wire:model="request.enable_mr_chadd"
+                                                       :toolTip="__('teacher.enable_mr_chadd_tt')"
+                                                       containerClass="border-t-0 w-full lg:w-[calc(50%-0.5rem)]"
+                        >
+                            <x-icon.questionmark class="flex-shrink-0"/>
+                            <span class="bold">{{ __('teacher.enable_mr_chadd') }} </span>
                         </x-input.toggle-row-with-title>
                     @endif
                 </div>
