@@ -52,10 +52,9 @@
                     @forelse($this->participants as $participant)
                         <div @class([
                             'filter-pill px-4 gap-2 h-10 transition-opacity',
-                            'disabled student-absent' => !$participant->present,
-                            'enabled student-present' => $participant->present
+                            'student-absent' => !$participant->present,
+                            'student-present' => $participant->present
                             ])
-                            {{-- Add Background When Present  --}}
                             wire:key="participant-{{ $participant->uuid }}-@js($participant->present)"
                         >
                             <span>{{ $participant->name }}</span>

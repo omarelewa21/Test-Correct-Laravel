@@ -302,7 +302,9 @@
 
 .student-present{
     background-color: var(--cta-primary) !important; 
+    color: white !important;
 }
 .student-absent{
-    background-color: rgba(var(--system-secondary-rgb), .5) !important;
+    background-color: var(--system-secondary) !important;
+    color: var(--system-base) !important;
 }
