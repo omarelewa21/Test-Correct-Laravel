@@ -58,8 +58,8 @@
                         @forelse($this->participants as $participant)
                             <div @class([
                             'filter-pill px-4 gap-2 h-10 transition-opacity',
-                            'disabled' => !$participant->present,
-                            'enabled' => $participant->present
+                            'student-absent' => !$participant->present,
+                            'student-present' => $participant->present
                             ])
                                  wire:key="participant-{{ $participant->uuid }}-@js($participant->present)"
                             >

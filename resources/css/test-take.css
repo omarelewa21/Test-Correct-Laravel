@@ -385,3 +385,13 @@
 .results-grid .participant-popup-button[data-open="true"] span[data-closed] {
     display: none;
 }
+
+
+.student-present{
+    background-color: var(--cta-primary) !important;
+    color: white !important;
+}
+.student-absent{
+    background-color: var(--system-secondary) !important;
+    color: var(--system-base) !important;
+}
