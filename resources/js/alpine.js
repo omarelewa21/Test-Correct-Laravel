@@ -2080,7 +2080,11 @@ document.addEventListener("alpine:init", () => {
             this.$store.assessment.currentScore = this.score;
         },
         dispatchNewScoreToSlider() {
-            document.querySelector(".score-slider-container")
+            const scoreSliderContainer = document.querySelector(".score-slider-container");
+
+            if(!scoreSliderContainer) return;
+
+            scoreSliderContainer
                 .dispatchEvent(new CustomEvent(
                     "new-score",
                     { detail: { score: this.score } }
@@ -2694,7 +2698,7 @@ document.addEventListener("alpine:init", () => {
         hasFeedback,
         async init() {
             this.$store.answerFeedback.resetEditingComment();
-            console.log('init answer feedback');
+
             this.dropdownOpened = questionType === 'OpenQuestion' ? 'given-feedback' : 'add-feedback';
 
             if(questionType !== 'OpenQuestion') {
@@ -2813,11 +2817,11 @@ document.addEventListener("alpine:init", () => {
 
             var comment = feedbackEditor.getData() || '<p></p>';
 
-            answerEditor.focus();
+            answerEditor?.focus();
 
             this.$nextTick(async () => {
 
-                if(answerEditor.plugins.get( 'CommentsRepository' ).activeCommentThread) {
+                if(answerEditor && answerEditor.plugins.get( 'CommentsRepository' ).activeCommentThread) {
 
                     //created feedback record data
                     var feedback = await this.$wire.createNewComment([]);
@@ -2830,7 +2834,6 @@ document.addEventListener("alpine:init", () => {
 
                     var updatedAnswerText = answerEditor.getData();
                     // updatedAnswerText = updatedAnswerText.replaceAll('&nbsp;', '');
-                    // console.log(updatedAnswerText)
 
                     let commentStyles = await this.$wire.saveNewComment({
                         uuid: feedback.uuid,
@@ -2884,6 +2887,11 @@ document.addEventListener("alpine:init", () => {
                 }, 400);
 
                 feedbackEditor.setData('<p></p>');
+
+                const checkedRadioInput = document.querySelector('.answer-feedback-add-comment .emoji-picker-radio input:checked');
+                if(checkedRadioInput) {
+                    checkedRadioInput.checked = false;
+                }
             });
 
         },
@@ -3092,6 +3100,9 @@ document.addEventListener("alpine:init", () => {
         },
         updateNewCommentMarkerStyles(color) {
             const styleTag = document.querySelector('#addFeedbackMarkerStyles');
+            if(!styleTag) {
+                return;
+            }
 
             let colorCode = 'rgba(var(--primary-rgb), 0.4)';
             if(color) {
@@ -3200,7 +3211,6 @@ document.addEventListener("alpine:init", () => {
         createFocusableButtons() {
             setTimeout(() => {
                 try {
-                    const answerEditor = ClassicEditors[this.answerEditorId];
                     const buttonWrapper = document.querySelector('#saveNewFeedbackButtonWrapper');
 
                     if(buttonWrapper.children.length > 0) {
@@ -3216,7 +3226,6 @@ document.addEventListener("alpine:init", () => {
                     });
                     textCancelButton.render();
 
-                    answerEditor.ui.focusTracker.add(textCancelButton.element);
                     buttonWrapper.appendChild(textCancelButton.element);
 
                     //CTA save button:
@@ -3228,8 +3237,13 @@ document.addEventListener("alpine:init", () => {
                     });
                     saveButtonCta.render();
 
-                    answerEditor.ui.focusTracker.add(saveButtonCta.element);
                     buttonWrapper.appendChild(saveButtonCta.element);
+
+                    const answerEditor = ClassicEditors[this.answerEditorId];
+                    if(answerEditor) {
+                        answerEditor.ui.focusTracker.add(textCancelButton.element);
+                        answerEditor.ui.focusTracker.add(saveButtonCta.element);
+                    }
 
                 } catch (exception) {
                     //
@@ -3254,8 +3268,6 @@ document.addEventListener("alpine:init", () => {
 
         },
         createCommentIconRadioButton(el, iconName, emojiValue, checked) {
-            const answerEditor = ClassicEditors[this.answerEditorId];
-
             const radiobutton = new window.CkEditorRadioWithIconView(new window.CkEditorLocale('nl'));
             radiobutton.set({
                 iconName: iconName,
@@ -3263,7 +3275,10 @@ document.addEventListener("alpine:init", () => {
             });
             radiobutton.render();
 
-            answerEditor.ui.focusTracker.add(radiobutton.element);
+            const answerEditor = ClassicEditors[this.answerEditorId];
+            if(answerEditor) {
+                answerEditor.ui.focusTracker.add(radiobutton.element);
+            }
 
             el.appendChild(radiobutton.element)
 
@@ -3279,6 +3294,9 @@ document.addEventListener("alpine:init", () => {
             },500)
         },
         async toggleFeedbackAccordion (name, forceOpenAccordion = false) {
+            const addFeedbackAccordion = document.querySelector('.answer-feedback-add-comment button');
+            const givenFeedbackAccordion = document.querySelector('.answer-feedback-given-comments button');
+
             if(this.$store.answerFeedback.newFeedbackBeingCreated()) {
                 this.dropdownOpened ='add-feedback';
                 return;
@@ -3287,6 +3305,11 @@ document.addEventListener("alpine:init", () => {
                 this.dropdownOpened ='given-feedback';
                 return;
             };
+
+            if(givenFeedbackAccordion.disabled && name === 'given-feedback') {
+                this.dropdownOpened = null;
+                return;
+            }
 
             if(this.dropdownOpened === name && !forceOpenAccordion) {
                 this.dropdownOpened = null;

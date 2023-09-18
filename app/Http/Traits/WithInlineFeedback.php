@@ -158,10 +158,6 @@ trait WithInlineFeedback {
 
     public function getSortedAnswerFeedback()
     {
-        if($this->getCurrentQuestion()->type !== 'OpenQuestion') {
-            return;
-        }
-
         $this->answerFeedback = $this->getCurrentAnswer()->feedback()->with('user')->get()->sortBy(function ($feedback) {
             return $feedback->comment_id !== null;
         })->sortBy(function ($feedback) {
