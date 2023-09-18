@@ -30,17 +30,19 @@ class ProcessUwlrSoapResultJob extends Job implements ShouldQueue
     public $tries = 1;
     public $queue = 'import';
     public $autoNext = false;
+    public $forceSave = false;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($uwlrSoapResultId, $autoNext = false)
+    public function __construct($uwlrSoapResultId, $autoNext = false, $forceSave = false)
     {
         //
         $this->uwlrSoapResultId = $uwlrSoapResultId;
         $this->autoNext = $autoNext;
+        $this->forceSave = $forceSave;
     }
 
 
@@ -120,7 +122,7 @@ class ProcessUwlrSoapResultJob extends Job implements ShouldQueue
             'sobit.nl'
         );
 
-        if(!BaseHelper::notProduction()) {
+        if(!BaseHelper::notProduction() || $this->forceSave) {
             // only save data into the corresponding records if on production
             $result = $helper->process();
         }
