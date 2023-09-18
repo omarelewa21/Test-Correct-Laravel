@@ -401,7 +401,6 @@ document.addEventListener("alpine:init", () => {
         resolvingTitle: true,
         index: 1,
         mode: mode,
-        attachmentLoading: false,
         async init() {
             this.setIndex();
 
@@ -427,9 +426,6 @@ document.addEventListener("alpine:init", () => {
             const parent = this.$root.parentElement;
             if (parent === null) return;
             this.index = Array.prototype.indexOf.call(parent.children, this.$el) + 1;
-        },
-        dispatchAttachmentLoading() {
-            window.dispatchEvent(new CustomEvent("attachment-preview-loading"));
         }
     }));
 
@@ -3385,6 +3381,14 @@ document.addEventListener("alpine:init", () => {
             }
 
             this.$wire.goToFinishedCoLearningPage();
+        },
+        toggleTicked(event) {
+            this.updateLivewireComponent(event);
+        },
+        updateLivewireComponent(event) {
+            if (event.hasOwnProperty("identifier")) {
+                this.$wire.toggleValueUpdated(event.identifier, event.state, event.value);
+            }
         },
     }));
     Alpine.data("drawingQuestionImagePreview", () => ({

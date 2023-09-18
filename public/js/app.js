@@ -6785,7 +6785,6 @@ document.addEventListener("alpine:init", function () {
       resolvingTitle: true,
       index: 1,
       mode: mode,
-      attachmentLoading: false,
       init: function init() {
         var _this8 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
@@ -6827,9 +6826,6 @@ document.addEventListener("alpine:init", function () {
         var parent = this.$root.parentElement;
         if (parent === null) return;
         this.index = Array.prototype.indexOf.call(parent.children, this.$el) + 1;
-      },
-      dispatchAttachmentLoading: function dispatchAttachmentLoading() {
-        window.dispatchEvent(new CustomEvent("attachment-preview-loading"));
       }
     };
   });
@@ -6868,9 +6864,7 @@ document.addEventListener("alpine:init", function () {
             var component = getClosestLivewireComponentByAttribute(_this9.$root, "questionComponent");
             component.call("render");
           }
-          isTeacher && _this9.$dispatch("set-allow-paste", !show); // disable filepond paste when drawing tool is open
         });
-
         toolName.Canvas.layers.answer.enable();
         if (this.isTeacher) {
           toolName.Canvas.setCurrentLayer("question");
@@ -7248,7 +7242,7 @@ document.addEventListener("alpine:init", function () {
             window.addEventListener(eventName, function (event) {
               /* If this yields no result, make sure the remove eventnames are unique on the page :) */
               var choice = choices.getValue().filter(function (choice) {
-                return choice.value.toString() === event.detail.value.toString();
+                return choice.value === event.detail.value;
               })[0];
               if (_this19.isAParentChoice(choice)) {
                 _this19.handleGroupItemChoice(choice);
@@ -8013,7 +8007,7 @@ document.addEventListener("alpine:init", function () {
         });
       },
       markInputElementsWithError: function markInputElementsWithError() {
-        var falseOptions = this.$root.querySelectorAll(".accordion-block .slider-option[data-active=\"false\"]");
+        var falseOptions = this.$root.querySelectorAll(".slider-option[data-active=\"false\"]");
         if (falseOptions.length === 2) {
           falseOptions.forEach(function (el) {
             return el.classList.add("!border-allred");
@@ -8021,7 +8015,7 @@ document.addEventListener("alpine:init", function () {
         }
       },
       markInputElementsClean: function markInputElementsClean() {
-        var falseOptions = this.$root.querySelectorAll(".accordion-block .slider-option[data-active=\"false\"]");
+        var falseOptions = this.$root.querySelectorAll(".slider-option[data-active=\"false\"]");
         if (falseOptions.length === 2) {
           falseOptions.forEach(function (el) {
             return el.classList.remove("!border-allred");
@@ -8499,9 +8493,7 @@ document.addEventListener("alpine:init", function () {
         this.$store.assessment.currentScore = this.score;
       },
       dispatchNewScoreToSlider: function dispatchNewScoreToSlider() {
-        var scoreSliderContainer = document.querySelector(".score-slider-container");
-        if (!scoreSliderContainer) return;
-        scoreSliderContainer.dispatchEvent(new CustomEvent("new-score", {
+        document.querySelector(".score-slider-container").dispatchEvent(new CustomEvent("new-score", {
           detail: {
             score: this.score
           }
@@ -8548,7 +8540,7 @@ document.addEventListener("alpine:init", function () {
           return _regeneratorRuntime().wrap(function _callee8$(_context8) {
             while (1) switch (_context8.prev = _context8.next) {
               case 0:
-                if (!_this40.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
+                if (!_this40.$store.answerFeedback.feedbackBeingEdited()) {
                   _context8.next = 2;
                   break;
                 }
@@ -8569,7 +8561,7 @@ document.addEventListener("alpine:init", function () {
           return _regeneratorRuntime().wrap(function _callee9$(_context9) {
             while (1) switch (_context9.prev = _context9.next) {
               case 0:
-                if (!_this41.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
+                if (!_this41.$store.answerFeedback.feedbackBeingEdited()) {
                   _context9.next = 2;
                   break;
                 }
@@ -8596,7 +8588,7 @@ document.addEventListener("alpine:init", function () {
                 }
                 return _context10.abrupt("return");
               case 2:
-                if (!_this42.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
+                if (!_this42.$store.answerFeedback.feedbackBeingEdited()) {
                   _context10.next = 4;
                   break;
                 }
@@ -8623,7 +8615,7 @@ document.addEventListener("alpine:init", function () {
                 }
                 return _context11.abrupt("return");
               case 2:
-                if (!_this43.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
+                if (!_this43.$store.answerFeedback.feedbackBeingEdited()) {
                   _context11.next = 4;
                   break;
                 }
@@ -8807,27 +8799,25 @@ document.addEventListener("alpine:init", function () {
       scrollToCommentCard: function scrollToCommentCard(answerFeedbackUuid) {
         var _this50 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee14() {
-          var _this50$$root$querySe;
           var commentCard, slide, cardTop;
           return _regeneratorRuntime().wrap(function _callee14$(_context14) {
             while (1) switch (_context14.prev = _context14.next) {
               case 0:
-                _this50.container = (_this50$$root$querySe = _this50.$root.querySelector("#slide-container")) !== null && _this50$$root$querySe !== void 0 ? _this50$$root$querySe : _this50.$root.closest("#slide-container");
                 commentCard = document.querySelector('[data-uuid="' + answerFeedbackUuid + '"].answer-feedback-card');
                 slide = _this50.getSlideElementByIndex(2);
                 cardTop = commentCard.offsetTop;
                 if (!(slide.offsetHeight <= _this50.container.offsetHeight)) {
-                  _context14.next = 8;
+                  _context14.next = 7;
                   break;
                 }
-                _context14.next = 7;
+                _context14.next = 6;
                 return smoothScroll(_this50.container, 0, slide.offsetLeft);
-              case 7:
+              case 6:
                 return _context14.abrupt("return", _context14.sent);
-              case 8:
-                _context14.next = 10;
+              case 7:
+                _context14.next = 9;
                 return smoothScroll(_this50.container, cardTop, slide.offsetLeft);
-              case 10:
+              case 9:
               case "end":
                 return _context14.stop();
             }
@@ -8840,7 +8830,7 @@ document.addEventListener("alpine:init", function () {
           return _regeneratorRuntime().wrap(function _callee16$(_context16) {
             while (1) switch (_context16.prev = _context16.next) {
               case 0:
-                if (!_this51.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
+                if (!_this51.$store.answerFeedback.feedbackBeingEdited()) {
                   _context16.next = 2;
                   break;
                 }
@@ -8884,7 +8874,7 @@ document.addEventListener("alpine:init", function () {
           return _regeneratorRuntime().wrap(function _callee18$(_context18) {
             while (1) switch (_context18.prev = _context18.next) {
               case 0:
-                if (!_this52.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
+                if (!_this52.$store.answerFeedback.feedbackBeingEdited()) {
                   _context18.next = 2;
                   break;
                 }
@@ -9300,7 +9290,7 @@ document.addEventListener("alpine:init", function () {
           return _regeneratorRuntime().wrap(function _callee19$(_context19) {
             while (1) switch (_context19.prev = _context19.next) {
               case 0:
-                if (!_this61.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
+                if (!_this61.$store.answerFeedback.feedbackBeingEdited()) {
                   _context19.next = 2;
                   break;
                 }
@@ -9373,14 +9363,13 @@ document.addEventListener("alpine:init", function () {
           return _regeneratorRuntime().wrap(function _callee23$(_context23) {
             while (1) switch (_context23.prev = _context23.next) {
               case 0:
-                _this63.$store.answerFeedback.resetEditingComment();
                 _this63.dropdownOpened = questionType === 'OpenQuestion' ? 'given-feedback' : 'add-feedback';
                 if (!(questionType !== 'OpenQuestion')) {
-                  _context23.next = 4;
+                  _context23.next = 3;
                   break;
                 }
                 return _context23.abrupt("return");
-              case 4:
+              case 3:
                 _this63.setFocusTracking();
                 document.addEventListener('comment-color-updated', /*#__PURE__*/function () {
                   var _ref4 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee21(event) {
@@ -9411,19 +9400,11 @@ document.addEventListener("alpine:init", function () {
                           ckeditorIconWrapper = document.querySelector('#icon-' + event.detail.threadId);
                           cardIconWrapper = document.querySelector('[data-uuid="' + event.detail.uuid + '"].answer-feedback-card-icon');
                           if (ckeditorIconWrapper) _this63.addOrReplaceIconByName(ckeditorIconWrapper, event.detail.iconName);
-                          if (!cardIconWrapper) {
-                            _context22.next = 8;
-                            break;
+                          if (cardIconWrapper) {
+                            _this63.addOrReplaceIconByName(cardIconWrapper, event.detail.iconName);
+                            cardIconWrapper.querySelector('span').style = '';
                           }
-                          _this63.addOrReplaceIconByName(cardIconWrapper, event.detail.iconName, true);
-                          if (!(event.detail.iconName === null || event.detail.iconName === '' || event.detail.iconName === undefined)) {
-                            _context22.next = 7;
-                            break;
-                          }
-                          return _context22.abrupt("return");
-                        case 7:
-                          cardIconWrapper.querySelector('span').style = '';
-                        case 8:
+                        case 4:
                         case "end":
                           return _context22.stop();
                       }
@@ -9455,7 +9436,7 @@ document.addEventListener("alpine:init", function () {
                   _this63.clearActiveComment();
                 });
                 _this63.preventOpeningModalFromBreakingDrawer();
-              case 10:
+              case 9:
               case "end":
                 return _context23.stop();
             }
@@ -9533,13 +9514,13 @@ document.addEventListener("alpine:init", function () {
                 answerEditor = ClassicEditors[_this65.answerEditorId];
                 feedbackEditor = ClassicEditors[_this65.feedbackEditorId];
                 comment = feedbackEditor.getData() || '<p></p>';
-                answerEditor === null || answerEditor === void 0 ? void 0 : answerEditor.focus();
+                answerEditor.focus();
                 _this65.$nextTick( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee25() {
-                  var feedback, newCommentThread, updatedAnswerText, commentStyles, intervalCount, interval, checkedRadioInput;
+                  var feedback, newCommentThread, updatedAnswerText, commentStyles;
                   return _regeneratorRuntime().wrap(function _callee25$(_context25) {
                     while (1) switch (_context25.prev = _context25.next) {
                       case 0:
-                        if (!(answerEditor && answerEditor.plugins.get('CommentsRepository').activeCommentThread)) {
+                        if (!answerEditor.plugins.get('CommentsRepository').activeCommentThread) {
                           _context25.next = 20;
                           break;
                         }
@@ -9561,7 +9542,7 @@ document.addEventListener("alpine:init", function () {
                           content: comment,
                           authorId: _this65.userId
                         });
-                        updatedAnswerText = answerEditor.getData(); // updatedAnswerText = updatedAnswerText.replaceAll('&nbsp;', '');
+                        updatedAnswerText = answerEditor.getData();
                         _context25.next = 11;
                         return _this65.$wire.saveNewComment({
                           uuid: feedback.uuid,
@@ -9598,24 +9579,9 @@ document.addEventListener("alpine:init", function () {
                         feedback = _context25.sent;
                         _this65.hasFeedback = true;
                         _this65.$dispatch('answer-feedback-show-comments');
-                        intervalCount = 0;
-                        interval = setInterval(function () {
-                          intervalCount++;
-                          _this65.$dispatch('answer-feedback-show-comments');
-                          if (intervalCount > 2) {
-                            _this65.scrollToCommentCard(feedback.uuid);
-                          }
-                          if (intervalCount === 5) {
-                            clearInterval(interval);
-                            return;
-                          }
-                        }, 400);
+                        _this65.scrollToCommentCard(feedback.uuid);
                         feedbackEditor.setData('<p></p>');
-                        checkedRadioInput = document.querySelector('.answer-feedback-add-comment .emoji-picker-radio input:checked');
-                        if (checkedRadioInput) {
-                          checkedRadioInput.checked = false;
-                        }
-                      case 30:
+                      case 27:
                       case "end":
                         return _context25.stop();
                     }
@@ -9776,13 +9742,9 @@ document.addEventListener("alpine:init", function () {
         this.initCommentIcon(iconWrapper, thread);
       },
       addOrReplaceIconByName: function addOrReplaceIconByName(el, iconName) {
-        var isFeedbackCardIcon = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
         el.innerHTML = '';
         var iconTemplate = null;
         if (iconName === null || iconName === '' || iconName === undefined) {
-          if (isFeedbackCardIcon) {
-            return;
-          }
           iconTemplate = document.querySelector('#default-icon');
         } else {
           iconTemplate = document.querySelector('#' + iconName.replace('icon.', ''));
@@ -9835,9 +9797,6 @@ document.addEventListener("alpine:init", function () {
       },
       updateNewCommentMarkerStyles: function updateNewCommentMarkerStyles(color) {
         var styleTag = document.querySelector('#addFeedbackMarkerStyles');
-        if (!styleTag) {
-          return;
-        }
         var colorCode = 'rgba(var(--primary-rgb), 0.4)';
         if (color) {
           colorCode = color;
@@ -9857,7 +9816,7 @@ document.addEventListener("alpine:init", function () {
         styleTag.innerHTML = '' + 'span.ck-comment-marker[data-comment="' + this.hoveringComment.threadId + '"] { color: var(--teacher-primary); }' + 'div[data-threadid="' + this.hoveringComment.threadId + '"] svg { color: var(--teacher-primary); }';
       },
       setActiveCommentMarkerStyle: function setActiveCommentMarkerStyle() {
-        var _this$activeComment, _this$activeComment2, _this$activeComment3, _this$activeComment4, _this$activeComment5;
+        var _this$activeComment, _this$activeComment2, _this$activeComment3, _this$activeComment4;
         var removeStyling = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
         var styleTag = document.querySelector('#activeCommentMarkerStyle');
         if (!styleTag) {
@@ -9867,20 +9826,20 @@ document.addEventListener("alpine:init", function () {
           styleTag.innerHTML = '';
           return;
         }
-        styleTag.innerHTML = '' + 'span.ck-comment-marker[data-comment="' + ((_this$activeComment2 = this.activeComment) === null || _this$activeComment2 === void 0 ? void 0 : _this$activeComment2.threadId) + '"] { ' + '   border: 1px solid var(--ck-color-comment-marker-border) !important; ' + '} ' + 'span.ck-comment-marker[data-comment="' + ((_this$activeComment3 = this.activeComment) === null || _this$activeComment3 === void 0 ? void 0 : _this$activeComment3.threadId) + '"].ck-math-widget { ' + '   border: 1px solid transparent !important; ' + '} ' + 'span.ck-comment-marker[data-comment="' + ((_this$activeComment4 = this.activeComment) === null || _this$activeComment4 === void 0 ? void 0 : _this$activeComment4.threadId) + '"] img { ' + '   border: 1px solid var(--ck-color-comment-marker-border) !important; ' + '} ' + 'div.answer-feedback-comment-icon[data-threadid="' + ((_this$activeComment5 = this.activeComment) === null || _this$activeComment5 === void 0 ? void 0 : _this$activeComment5.threadId) + '"] { ' + '   z-index: 11 ' + '} ';
+        styleTag.innerHTML = '' + 'span.ck-comment-marker[data-comment="' + ((_this$activeComment2 = this.activeComment) === null || _this$activeComment2 === void 0 ? void 0 : _this$activeComment2.threadId) + '"] { ' + '   border: 1px solid var(--ck-color-comment-marker-border) !important; ' + '} ' + 'span.ck-comment-marker[data-comment="' + ((_this$activeComment3 = this.activeComment) === null || _this$activeComment3 === void 0 ? void 0 : _this$activeComment3.threadId) + '"].ck-math-widget { ' + '   border: 1px solid transparent !important; ' + '} ' + 'span.ck-comment-marker[data-comment="' + ((_this$activeComment4 = this.activeComment) === null || _this$activeComment4 === void 0 ? void 0 : _this$activeComment4.threadId) + '"] img { ' + '   border: 1px solid var(--ck-color-comment-marker-border) !important; ' + '} ';
       },
       setActiveComment: function setActiveComment(threadId, answerFeedbackUuid) {
         var _this71 = this;
         this.$dispatch('answer-feedback-show-comments');
         setTimeout(function () {
-          if (_this71.$store.answerFeedback.feedbackBeingEdited()) {
-            /* when editing, no other comment can be activated */
-            return;
-          }
           _this71.$dispatch("answer-feedback-drawer-tab-update", {
             tab: 2,
             uuid: answerFeedbackUuid
           });
+          if (_this71.$store.answerFeedback.feedbackBeingEdited()) {
+            /* when editing, no other comment can be activated */
+            return;
+          }
           _this71.activeComment = {
             threadId: threadId,
             uuid: answerFeedbackUuid
@@ -9922,6 +9881,7 @@ document.addEventListener("alpine:init", function () {
         var _this73 = this;
         setTimeout(function () {
           try {
+            var answerEditor = ClassicEditors[_this73.answerEditorId];
             var buttonWrapper = document.querySelector('#saveNewFeedbackButtonWrapper');
             if (buttonWrapper.children.length > 0) {
               return;
@@ -9935,6 +9895,7 @@ document.addEventListener("alpine:init", function () {
               eventName: 'cancel'
             });
             textCancelButton.render();
+            answerEditor.ui.focusTracker.add(textCancelButton.element);
             buttonWrapper.appendChild(textCancelButton.element);
 
             //CTA save button:
@@ -9945,12 +9906,8 @@ document.addEventListener("alpine:init", function () {
               eventName: 'save'
             });
             saveButtonCta.render();
+            answerEditor.ui.focusTracker.add(saveButtonCta.element);
             buttonWrapper.appendChild(saveButtonCta.element);
-            var answerEditor = ClassicEditors[_this73.answerEditorId];
-            if (answerEditor) {
-              answerEditor.ui.focusTracker.add(textCancelButton.element);
-              answerEditor.ui.focusTracker.add(saveButtonCta.element);
-            }
           } catch (exception) {
             //
           }
@@ -9969,68 +9926,49 @@ document.addEventListener("alpine:init", function () {
         radiobutton.element.querySelector('input').checked = checked;
       },
       createCommentIconRadioButton: function createCommentIconRadioButton(el, iconName, emojiValue, checked) {
+        var answerEditor = ClassicEditors[this.answerEditorId];
         var radiobutton = new window.CkEditorRadioWithIconView(new window.CkEditorLocale('nl'));
         radiobutton.set({
           iconName: iconName,
           emojiValue: emojiValue
         });
         radiobutton.render();
-        var answerEditor = ClassicEditors[this.answerEditorId];
-        if (answerEditor) {
-          answerEditor.ui.focusTracker.add(radiobutton.element);
-        }
+        answerEditor.ui.focusTracker.add(radiobutton.element);
         el.appendChild(radiobutton.element);
         radiobutton.element.querySelector('span').appendChild(document.importNode(el.querySelector('template').content, true));
       },
       setEditingComment: function setEditingComment(AnswerFeedbackUuid) {
         var _this74 = this;
         this.activeComment = null;
-        this.$store.answerFeedback.setEditingComment(AnswerFeedbackUuid !== null && AnswerFeedbackUuid !== void 0 ? AnswerFeedbackUuid : null);
+        this.$store.answerFeedback.editingComment = AnswerFeedbackUuid !== null && AnswerFeedbackUuid !== void 0 ? AnswerFeedbackUuid : null;
         setTimeout(function () {
           _this74.fixSlideHeightByIndex(2, AnswerFeedbackUuid);
-        }, 500);
+        }, 100);
       },
       toggleFeedbackAccordion: function toggleFeedbackAccordion(name) {
         var _arguments3 = arguments,
           _this75 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee28() {
-          var forceOpenAccordion, addFeedbackAccordion, givenFeedbackAccordion;
+          var forceOpenAccordion;
           return _regeneratorRuntime().wrap(function _callee28$(_context28) {
             while (1) switch (_context28.prev = _context28.next) {
               case 0:
                 forceOpenAccordion = _arguments3.length > 1 && _arguments3[1] !== undefined ? _arguments3[1] : false;
-                addFeedbackAccordion = document.querySelector('.answer-feedback-add-comment button');
-                givenFeedbackAccordion = document.querySelector('.answer-feedback-given-comments button');
-                if (!_this75.$store.answerFeedback.newFeedbackBeingCreated()) {
-                  _context28.next = 6;
-                  break;
-                }
-                _this75.dropdownOpened = 'add-feedback';
-                return _context28.abrupt("return");
-              case 6:
-                ;
                 if (!_this75.$store.answerFeedback.feedbackBeingEdited()) {
-                  _context28.next = 10;
+                  _context28.next = 4;
                   break;
                 }
                 _this75.dropdownOpened = 'given-feedback';
                 return _context28.abrupt("return");
-              case 10:
+              case 4:
                 ;
-                if (!(givenFeedbackAccordion.disabled && name === 'given-feedback')) {
-                  _context28.next = 14;
-                  break;
-                }
-                _this75.dropdownOpened = null;
-                return _context28.abrupt("return");
-              case 14:
                 if (!(_this75.dropdownOpened === name && !forceOpenAccordion)) {
-                  _context28.next = 17;
+                  _context28.next = 8;
                   break;
                 }
                 _this75.dropdownOpened = null;
                 return _context28.abrupt("return");
-              case 17:
+              case 8:
                 if (questionType === 'OpenQuestion' && name === 'add-feedback') {
                   try {
                     _this75.setFocusTracking();
@@ -10039,13 +9977,13 @@ document.addEventListener("alpine:init", function () {
                   }
                 }
                 _this75.dropdownOpened = name;
-                _context28.next = 21;
+                _context28.next = 12;
                 return _this75.$nextTick();
-              case 21:
+              case 12:
                 setTimeout(function () {
                   _this75.fixSlideHeightByIndex(2);
                 }, 293);
-              case 22:
+              case 13:
               case "end":
                 return _context28.stop();
             }
@@ -10096,7 +10034,7 @@ document.addEventListener("alpine:init", function () {
           return _regeneratorRuntime().wrap(function _callee29$(_context29) {
             while (1) switch (_context29.prev = _context29.next) {
               case 0:
-                if (!_this76.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
+                if (!_this76.$store.answerFeedback.feedbackBeingEdited()) {
                   _context29.next = 2;
                   break;
                 }
@@ -10116,7 +10054,7 @@ document.addEventListener("alpine:init", function () {
           return _regeneratorRuntime().wrap(function _callee30$(_context30) {
             while (1) switch (_context30.prev = _context30.next) {
               case 0:
-                if (!_this77.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
+                if (!_this77.$store.answerFeedback.feedbackBeingEdited()) {
                   _context30.next = 2;
                   break;
                 }
@@ -10136,7 +10074,7 @@ document.addEventListener("alpine:init", function () {
           return _regeneratorRuntime().wrap(function _callee31$(_context31) {
             while (1) switch (_context31.prev = _context31.next) {
               case 0:
-                if (!_this78.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
+                if (!_this78.$store.answerFeedback.feedbackBeingEdited()) {
                   _context31.next = 2;
                   break;
                 }
@@ -10149,6 +10087,14 @@ document.addEventListener("alpine:init", function () {
             }
           }, _callee31);
         }))();
+      },
+      toggleTicked: function toggleTicked(event) {
+        this.updateLivewireComponent(event);
+      },
+      updateLivewireComponent: function updateLivewireComponent(event) {
+        if (event.hasOwnProperty("identifier")) {
+          this.$wire.toggleValueUpdated(event.identifier, event.state, event.value);
+        }
       }
     };
   });
@@ -10324,9 +10270,9 @@ document.addEventListener("alpine:init", function () {
       },
       startTimeout: function startTimeout(eventData) {
         var _this83 = this;
-        if (this.progressBar) return;
         this.progressBar = true;
         this.startTime = eventData.timeout;
+        console.log(eventData);
         if (eventData.timeLeft) {
           this.progress = eventData.timeLeft;
         } else {
@@ -10924,26 +10870,13 @@ document.addEventListener("alpine:init", function () {
     }
   }), alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].store("answerFeedback", {
     editingComment: null,
-    creatingNewComment: false,
     navigationRoot: null,
     navigationMethod: null,
     navigationArgs: null,
-    feedbackBeingEditedOrCreated: function feedbackBeingEditedOrCreated() {
-      if (this.navigationRoot) {
-        this.navigationRoot = null;
-        this.navigationMethod = null;
-        this.creatingNewComment = false;
-        this.editingComment = null;
-        return false;
-      }
-      return this.feedbackBeingEdited() || this.newFeedbackBeingCreated();
-    },
     feedbackBeingEdited: function feedbackBeingEdited() {
       if (this.navigationRoot) {
         this.navigationRoot = null;
         this.navigationMethod = null;
-        this.creatingNewComment = false;
-        this.editingComment = null;
         return false;
       }
       if (this.editingComment === null) {
@@ -10951,27 +10884,16 @@ document.addEventListener("alpine:init", function () {
       }
       return this.editingComment;
     },
-    newFeedbackBeingCreated: function newFeedbackBeingCreated() {
-      if (this.navigationRoot) {
-        this.navigationRoot = null;
-        this.navigationMethod = null;
-        this.creatingNewComment = false;
-        this.editingComment = null;
-        return false;
-      }
-      return this.creatingNewComment;
-    },
     openConfirmationModal: function openConfirmationModal(navigatorRootElement, methodName) {
       var methodArgs = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
       this.navigationRoot = navigatorRootElement;
       this.navigationMethod = methodName;
       this.navigationArgs = methodArgs;
-      Livewire.emit('openModal', 'modal.confirm-still-editing-comment-modal', {
-        'creatingNewComment': this.creatingNewComment
-      });
+      Livewire.emit('openModal', 'modal.confirm-still-editing-comment-modal');
     },
     continueAction: function continueAction() {
       this.editingComment = null;
+      console.log(this.navigationRoot, this.navigationMethod, this.navigationArgs);
       this.navigationRoot.dispatchEvent(new CustomEvent('continue-navigation', {
         detail: {
           method: this.navigationMethod,
@@ -10990,12 +10912,6 @@ document.addEventListener("alpine:init", function () {
         }
       }));
       Livewire.emit('closeModal');
-    },
-    resetEditingComment: function resetEditingComment() {
-      this.setEditingComment(null);
-    },
-    setEditingComment: function setEditingComment(AnswerFeedbackUuid) {
-      this.editingComment = AnswerFeedbackUuid;
     }
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].store("studentPlayer", {
@@ -11408,23 +11324,6 @@ clearSelection = function clearSelection() {
   } else if (document.selection) {
     // IE?
     document.selection.empty();
-  }
-};
-fixHistoryApiStateForQueryStringUpdates = function fixHistoryApiStateForQueryStringUpdates(stateObject, url) {
-  var signatures = stateObject.livewire.map(function (entry) {
-    if (entry.signature.endsWith("-1")) {
-      return entry.signature;
-    }
-  }).filter(Boolean);
-  var newStateObject = {
-    livewire: stateObject.livewire.filter(function (item) {
-      return !signatures.includes(item.signature);
-    })
-  };
-  try {
-    history.pushState(newStateObject, "", url);
-  } catch (error) {
-    console.warn("Something went wrong with pushing the state to the history API");
   }
 };
 
@@ -12283,10 +12182,10 @@ var validSvgElementKeys = {
 };
 var shapePropertiesAvailableToUser = {
   drag: [],
-  freehand: ["line"],
+  freehand: ["edge"],
   rect: ["edge", "fill"],
   circle: ["edge", "fill"],
-  line: ["line", "endmarker-type"],
+  line: ["edge", "endmarker-type"],
   text: ["opacity", "text-style"]
 };
 var validHtmlElementKeys = {
@@ -12337,8 +12236,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _sidebar_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./sidebar.js */ "./resources/js/drawing/sidebar.js");
 /* harmony import */ var uuid__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/v4.js");
 /* harmony import */ var _unicodeBase64Polyfill_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./unicodeBase64Polyfill.js */ "./resources/js/drawing/unicodeBase64Polyfill.js");
-function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return exports; }; var exports = {}, Op = Object.prototype, hasOwn = Op.hasOwnProperty, defineProperty = Object.defineProperty || function (obj, key, desc) { obj[key] = desc.value; }, $Symbol = "function" == typeof Symbol ? Symbol : {}, iteratorSymbol = $Symbol.iterator || "@@iterator", asyncIteratorSymbol = $Symbol.asyncIterator || "@@asyncIterator", toStringTagSymbol = $Symbol.toStringTag || "@@toStringTag"; function define(obj, key, value) { return Object.defineProperty(obj, key, { value: value, enumerable: !0, configurable: !0, writable: !0 }), obj[key]; } try { define({}, ""); } catch (err) { define = function define(obj, key, value) { return obj[key] = value; }; } function wrap(innerFn, outerFn, self, tryLocsList) { var protoGenerator = outerFn && outerFn.prototype instanceof Generator ? outerFn : Generator, generator = Object.create(protoGenerator.prototype), context = new Context(tryLocsList || []); return defineProperty(generator, "_invoke", { value: makeInvokeMethod(innerFn, self, context) }), generator; } function tryCatch(fn, obj, arg) { try { return { type: "normal", arg: fn.call(obj, arg) }; } catch (err) { return { type: "throw", arg: err }; } } exports.wrap = wrap; var ContinueSentinel = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var IteratorPrototype = {}; define(IteratorPrototype, iteratorSymbol, function () { return this; }); var getProto = Object.getPrototypeOf, NativeIteratorPrototype = getProto && getProto(getProto(values([]))); NativeIteratorPrototype && NativeIteratorPrototype !== Op && hasOwn.call(NativeIteratorPrototype, iteratorSymbol) && (IteratorPrototype = NativeIteratorPrototype); var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(IteratorPrototype); function defineIteratorMethods(prototype) { ["next", "throw", "return"].forEach(function (method) { define(prototype, method, function (arg) { return this._invoke(method, arg); }); }); } function AsyncIterator(generator, PromiseImpl) { function invoke(method, arg, resolve, reject) { var record = tryCatch(generator[method], generator, arg); if ("throw" !== record.type) { var result = record.arg, value = result.value; return value && "object" == _typeof(value) && hasOwn.call(value, "__await") ? PromiseImpl.resolve(value.__await).then(function (value) { invoke("next", value, resolve, reject); }, function (err) { invoke("throw", err, resolve, reject); }) : PromiseImpl.resolve(value).then(function (unwrapped) { result.value = unwrapped, resolve(result); }, function (error) { return invoke("throw", error, resolve, reject); }); } reject(record.arg); } var previousPromise; defineProperty(this, "_invoke", { value: function value(method, arg) { function callInvokeWithMethodAndArg() { return new PromiseImpl(function (resolve, reject) { invoke(method, arg, resolve, reject); }); } return previousPromise = previousPromise ? previousPromise.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(innerFn, self, context) { var state = "suspendedStart"; return function (method, arg) { if ("executing" === state) throw new Error("Generator is already running"); if ("completed" === state) { if ("throw" === method) throw arg; return doneResult(); } for (context.method = method, context.arg = arg;;) { var delegate = context.delegate; if (delegate) { var delegateResult = maybeInvokeDelegate(delegate, context); if (delegateResult) { if (delegateResult === ContinueSentinel) continue; return delegateResult; } } if ("next" === context.method) context.sent = context._sent = context.arg;else if ("throw" === context.method) { if ("suspendedStart" === state) throw state = "completed", context.arg; context.dispatchException(context.arg); } else "return" === context.method && context.abrupt("return", context.arg); state = "executing"; var record = tryCatch(innerFn, self, context); if ("normal" === record.type) { if (state = context.done ? "completed" : "suspendedYield", record.arg === ContinueSentinel) continue; return { value: record.arg, done: context.done }; } "throw" === record.type && (state = "completed", context.method = "throw", context.arg = record.arg); } }; } function maybeInvokeDelegate(delegate, context) { var methodName = context.method, method = delegate.iterator[methodName]; if (undefined === method) return context.delegate = null, "throw" === methodName && delegate.iterator["return"] && (context.method = "return", context.arg = undefined, maybeInvokeDelegate(delegate, context), "throw" === context.method) || "return" !== methodName && (context.method = "throw", context.arg = new TypeError("The iterator does not provide a '" + methodName + "' method")), ContinueSentinel; var record = tryCatch(method, delegate.iterator, context.arg); if ("throw" === record.type) return context.method = "throw", context.arg = record.arg, context.delegate = null, ContinueSentinel; var info = record.arg; return info ? info.done ? (context[delegate.resultName] = info.value, context.next = delegate.nextLoc, "return" !== context.method && (context.method = "next", context.arg = undefined), context.delegate = null, ContinueSentinel) : info : (context.method = "throw", context.arg = new TypeError("iterator result is not an object"), context.delegate = null, ContinueSentinel); } function pushTryEntry(locs) { var entry = { tryLoc: locs[0] }; 1 in locs && (entry.catchLoc = locs[1]), 2 in locs && (entry.finallyLoc = locs[2], entry.afterLoc = locs[3]), this.tryEntries.push(entry); } function resetTryEntry(entry) { var record = entry.completion || {}; record.type = "normal", delete record.arg, entry.completion = record; } function Context(tryLocsList) { this.tryEntries = [{ tryLoc: "root" }], tryLocsList.forEach(pushTryEntry, this), this.reset(!0); } function values(iterable) { if (iterable) { var iteratorMethod = iterable[iteratorSymbol]; if (iteratorMethod) return iteratorMethod.call(iterable); if ("function" == typeof iterable.next) return iterable; if (!isNaN(iterable.length)) { var i = -1, next = function next() { for (; ++i < iterable.length;) if (hasOwn.call(iterable, i)) return next.value = iterable[i], next.done = !1, next; return next.value = undefined, next.done = !0, next; }; return next.next = next; } } return { next: doneResult }; } function doneResult() { return { value: undefined, done: !0 }; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, defineProperty(Gp, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), defineProperty(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, toStringTagSymbol, "GeneratorFunction"), exports.isGeneratorFunction = function (genFun) { var ctor = "function" == typeof genFun && genFun.constructor; return !!ctor && (ctor === GeneratorFunction || "GeneratorFunction" === (ctor.displayName || ctor.name)); }, exports.mark = function (genFun) { return Object.setPrototypeOf ? Object.setPrototypeOf(genFun, GeneratorFunctionPrototype) : (genFun.__proto__ = GeneratorFunctionPrototype, define(genFun, toStringTagSymbol, "GeneratorFunction")), genFun.prototype = Object.create(Gp), genFun; }, exports.awrap = function (arg) { return { __await: arg }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, asyncIteratorSymbol, function () { return this; }), exports.AsyncIterator = AsyncIterator, exports.async = function (innerFn, outerFn, self, tryLocsList, PromiseImpl) { void 0 === PromiseImpl && (PromiseImpl = Promise); var iter = new AsyncIterator(wrap(innerFn, outerFn, self, tryLocsList), PromiseImpl); return exports.isGeneratorFunction(outerFn) ? iter : iter.next().then(function (result) { return result.done ? result.value : iter.next(); }); }, defineIteratorMethods(Gp), define(Gp, toStringTagSymbol, "Generator"), define(Gp, iteratorSymbol, function () { return this; }), define(Gp, "toString", function () { return "[object Generator]"; }), exports.keys = function (val) { var object = Object(val), keys = []; for (var key in object) keys.push(key); return keys.reverse(), function next() { for (; keys.length;) { var key = keys.pop(); if (key in object) return next.value = key, next.done = !1, next; } return next.done = !0, next; }; }, exports.values = values, Context.prototype = { constructor: Context, reset: function reset(skipTempReset) { if (this.prev = 0, this.next = 0, this.sent = this._sent = undefined, this.done = !1, this.delegate = null, this.method = "next", this.arg = undefined, this.tryEntries.forEach(resetTryEntry), !skipTempReset) for (var name in this) "t" === name.charAt(0) && hasOwn.call(this, name) && !isNaN(+name.slice(1)) && (this[name] = undefined); }, stop: function stop() { this.done = !0; var rootRecord = this.tryEntries[0].completion; if ("throw" === rootRecord.type) throw rootRecord.arg; return this.rval; }, dispatchException: function dispatchException(exception) { if (this.done) throw exception; var context = this; function handle(loc, caught) { return record.type = "throw", record.arg = exception, context.next = loc, caught && (context.method = "next", context.arg = undefined), !!caught; } for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i], record = entry.completion; if ("root" === entry.tryLoc) return handle("end"); if (entry.tryLoc <= this.prev) { var hasCatch = hasOwn.call(entry, "catchLoc"), hasFinally = hasOwn.call(entry, "finallyLoc"); if (hasCatch && hasFinally) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } else if (hasCatch) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); } else { if (!hasFinally) throw new Error("try statement without catch or finally"); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } } } }, abrupt: function abrupt(type, arg) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc <= this.prev && hasOwn.call(entry, "finallyLoc") && this.prev < entry.finallyLoc) { var finallyEntry = entry; break; } } finallyEntry && ("break" === type || "continue" === type) && finallyEntry.tryLoc <= arg && arg <= finallyEntry.finallyLoc && (finallyEntry = null); var record = finallyEntry ? finallyEntry.completion : {}; return record.type = type, record.arg = arg, finallyEntry ? (this.method = "next", this.next = finallyEntry.finallyLoc, ContinueSentinel) : this.complete(record); }, complete: function complete(record, afterLoc) { if ("throw" === record.type) throw record.arg; return "break" === record.type || "continue" === record.type ? this.next = record.arg : "return" === record.type ? (this.rval = this.arg = record.arg, this.method = "return", this.next = "end") : "normal" === record.type && afterLoc && (this.next = afterLoc), ContinueSentinel; }, finish: function finish(finallyLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.finallyLoc === finallyLoc) return this.complete(entry.completion, entry.afterLoc), resetTryEntry(entry), ContinueSentinel; } }, "catch": function _catch(tryLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc === tryLoc) { var record = entry.completion; if ("throw" === record.type) { var thrown = record.arg; resetTryEntry(entry); } return thrown; } } throw new Error("illegal catch attempt"); }, delegateYield: function delegateYield(iterable, resultName, nextLoc) { return this.delegate = { iterator: values(iterable), resultName: resultName, nextLoc: nextLoc }, "next" === this.method && (this.arg = undefined), ContinueSentinel; } }, exports; }
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e2) { throw _e2; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e3) { didErr = true; err = _e3; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
@@ -12416,7 +12315,6 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     firstInit: true,
     warnings: {},
     explainer: null,
-    livewireComponent: null,
     init: function init() {
       if (this.firstInit) {
         this.bindEventListeners(eventListenerSettings);
@@ -12462,7 +12360,6 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         var templateCopy = layerTemplate.content.cloneNode(true);
         this.explainer = templateCopy.querySelector(".explainer");
       }
-      this.livewireComponent = getClosestLivewireComponentByAttribute(rootElement, 'questionComponent');
     },
     convertCanvas2DomCoordinates: function convertCanvas2DomCoordinates(coordinates) {
       var matrix = Canvas.params.domMatrix;
@@ -12535,7 +12432,6 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         currentLayer: "question",
         focusedShape: null,
         bounds: {},
-        editingTextInZone: false,
         draw: {
           newShape: null,
           shapeCountForEachType: {
@@ -12567,7 +12463,6 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         zoomFactor: 1,
         initialZoomLevel: 1
       },
-      UI: UI,
       element: UI.svgCanvas,
       layers: {},
       dragging: function dragging() {
@@ -12761,11 +12656,6 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             stopPan();
           }
         }
-      },
-      "paste": {
-        callback: function callback(evt) {
-          isTeacher && UI.canvas.matches(':hover') && handleImagePaste(evt);
-        }
       }
     }
   }, {
@@ -12865,12 +12755,6 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
       "change": {
         callback: function callback(evt) {
           drawingApp.params.boldText = evt.target.checked;
-          if (evt.target.checked) {
-            UI.boldToggleButton.classList.add('active');
-          } else {
-            UI.boldToggleButton.classList.remove('active');
-          }
-          editShape('updateBoldText');
         }
       }
     }
@@ -12878,24 +12762,14 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     element: UI.elemOpacityNumber,
     events: {
       "input": {
-        callback: function callback() {
-          if (valueWithinBounds(UI.elemOpacityNumber)) {
-            updateElemOpacityRangeInput();
-            editShape('updateOpacity');
-          }
-        }
+        callback: updateElemOpacityRangeInput
       }
     }
   }, {
     element: UI.elemOpacityRange,
     events: {
       "input": {
-        callback: function callback() {
-          if (valueWithinBounds(UI.elemOpacityRange)) {
-            updateElemOpacityNumberInput();
-            editShape('updateOpacity');
-          }
-        }
+        callback: updateElemOpacityNumberInput
       },
       "focus": {
         callback: function callback() {
@@ -12909,25 +12783,16 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
       }
     }
   }, {
-    element: UI.textColor,
-    events: {
-      "input": {
-        callback: function callback() {
-          editShape('updateTextColor');
-        }
-      }
-    }
-  }, {
     element: UI.strokeWidth,
     events: {
       "input": {
         callback: function callback() {
-          return valueWithinBounds(UI.strokeWidth) && editShape('updateStrokeWidth');
+          valueWithinBounds(UI.strokeWidth);
         }
       },
       "blur": {
         callback: function callback() {
-          toggleDisableButtonStates(UI.strokeWidth, UI.decrStroke, UI.incrStroke);
+          handleStrokeButtonStates();
         }
       }
     }
@@ -12937,8 +12802,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
       "click": {
         callback: function callback() {
           UI.strokeWidth.stepDown();
-          toggleDisableButtonStates(UI.strokeWidth, UI.decrStroke, UI.incrStroke);
-          editShape('updateStrokeWidth');
+          handleStrokeButtonStates();
         }
       },
       "focus": {
@@ -12958,8 +12822,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
       "click": {
         callback: function callback() {
           UI.strokeWidth.stepUp();
-          toggleDisableButtonStates(UI.strokeWidth, UI.decrStroke, UI.incrStroke);
-          editShape('updateStrokeWidth');
+          handleStrokeButtonStates();
         }
       },
       "focus": {
@@ -12974,67 +12837,11 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
       }
     }
   }, {
-    element: UI.lineWidth,
-    events: {
-      "input": {
-        callback: function callback() {
-          valueWithinBounds(UI.lineWidth) && editShape('updateLineWidth');
-        }
-      },
-      "blur": {
-        callback: function callback() {
-          toggleDisableButtonStates(UI.lineWidth, UI.decrLineWidth, UI.incrLineWidth);
-        }
-      }
-    }
-  }, {
-    element: UI.decrLineWidth,
-    events: {
-      "click": {
-        callback: function callback() {
-          UI.lineWidth.stepDown();
-          toggleDisableButtonStates(UI.lineWidth, UI.decrLineWidth, UI.incrLineWidth);
-          editShape('updateLineWidth');
-        }
-      },
-      "focus": {
-        callback: function callback() {
-          UI.lineWidth.classList.add("active");
-        }
-      },
-      "blur": {
-        callback: function callback() {
-          UI.lineWidth.classList.remove("active");
-        }
-      }
-    }
-  }, {
-    element: UI.incrLineWidth,
-    events: {
-      "click": {
-        callback: function callback() {
-          UI.lineWidth.stepUp();
-          toggleDisableButtonStates(UI.lineWidth, UI.decrLineWidth, UI.incrLineWidth);
-          editShape('updateLineWidth');
-        }
-      },
-      "focus": {
-        callback: function callback() {
-          UI.lineWidth.classList.add("active");
-        }
-      },
-      "blur": {
-        callback: function callback() {
-          UI.lineWidth.classList.remove("active");
-        }
-      }
-    }
-  }, {
     element: UI.textSize,
     events: {
       "input": {
         callback: function callback() {
-          return valueWithinBounds(UI.textSize) && editShape('updateTextSize');
+          valueWithinBounds(UI.textSize);
         }
       },
       "blur": {
@@ -13050,7 +12857,6 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         callback: function callback() {
           UI.textSize.stepDown();
           handleTextSizeButtonStates();
-          editShape('updateTextSize');
         }
       },
       "focus": {
@@ -13071,7 +12877,6 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         callback: function callback() {
           UI.textSize.stepUp();
           handleTextSizeButtonStates();
-          editShape('updateTextSize');
         }
       },
       "focus": {
@@ -13089,34 +12894,21 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     element: UI.fillColor,
     events: {
       "input": {
-        callback: function callback() {
-          updateOpacitySliderColor();
-          editShape('updateFillColor');
-        }
+        callback: updateOpacitySliderColor
       }
     }
   }, {
     element: UI.fillOpacityNumber,
     events: {
       "input": {
-        callback: function callback() {
-          if (valueWithinBounds(UI.elemOpacityNumber)) {
-            updateFillOpacityRangeInput();
-            editShape('updateOpacity');
-          }
-        }
+        callback: updateFillOpacityRangeInput
       }
     }
   }, {
     element: UI.fillOpacityRange,
     events: {
       "input": {
-        callback: function callback() {
-          if (valueWithinBounds(UI.fillOpacityRange)) {
-            updateFillOpacityNumberInput();
-            editShape('updateOpacity');
-          }
-        }
+        callback: updateFillOpacityNumberInput
       },
       "focus": {
         callback: function callback() {
@@ -13126,33 +12918,6 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
       "blur": {
         callback: function callback() {
           UI.fillOpacityNumber.classList.remove("active");
-        }
-      }
-    }
-  }, {
-    element: UI.strokeColor,
-    events: {
-      "input": {
-        callback: function callback() {
-          return editShape('updateStrokeColor');
-        }
-      }
-    }
-  }, {
-    element: UI.lineColor,
-    events: {
-      "input": {
-        callback: function callback() {
-          return editShape('updateLineColor');
-        }
-      }
-    }
-  }, {
-    element: UI.endmarkerTypeWrapper,
-    events: {
-      "click": {
-        callback: function callback() {
-          return editShape('editOwnMarkerForThisShape');
         }
       }
     }
@@ -13964,7 +13729,6 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
   function cursorStart(evt) {
     var _evt$touches3;
     evt.preventDefault();
-    if (ShouldEditTextOnClick()) return;
     updateCursorPosition(evt);
     setMousedownPosition(evt);
     if (Canvas.params.focusedShape) Canvas.params.focusedShape = null;
@@ -14072,7 +13836,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
           "y2": cursorPosition.y,
           "marker-end": "url(#svg-".concat(drawingApp.params.endmarkerType, "-line)"),
           "stroke": UI.lineColor.value,
-          "stroke-width": UI.lineWidth.value,
+          "stroke-width": UI.strokeWidth.value,
           "opacity": parseFloat(UI.elemOpacityNumber.value / 100)
         };
       case "freehand":
@@ -14080,7 +13844,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
           "d": "M ".concat(cursorPosition.x, ",").concat(cursorPosition.y),
           "fill": "none",
           "stroke": UI.lineColor.value,
-          "stroke-width": UI.lineWidth.value,
+          "stroke-width": UI.strokeWidth.value,
           "opacity": parseFloat(UI.elemOpacityNumber.value / 100)
         };
       case "text":
@@ -14416,12 +14180,50 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     return evt.currentTarget.id;
   }
   function processUploadedImages(evt) {
+    var livewireComponent = getClosestLivewireComponentByAttribute(drawingApp.params.root, 'questionComponent');
     var _iterator3 = _createForOfIteratorHelper(evt.target.files),
       _step3;
     try {
+      var _loop2 = function _loop2() {
+        var fileURL = _step3.value;
+        if (fileURL.size / (1024 * 1024) > 4) {
+          Notify.notify('U kunt afbeeldingen van maximaal 4 mb uploaden');
+          return {
+            v: false
+          };
+        }
+        var reader = new FileReader();
+        var identifier = (0,uuid__WEBPACK_IMPORTED_MODULE_5__["default"])();
+        UI.submitBtn.disabled = true;
+        livewireComponent.upload("cmsPropertyBag.images.".concat(Canvas.params.currentLayer, ".").concat(identifier), fileURL, function () {
+          // Success callback.
+          UI.submitBtn.disabled = false;
+        }, function () {
+          // Error callback.
+          UI.submitBtn.disabled = false;
+        }, function () {
+          // Progress callback.
+        });
+        reader.readAsDataURL(fileURL);
+        drawingApp.bindEventListeners([{
+          element: reader,
+          events: {
+            loadend: {
+              callback: function callback(evt) {
+                fileLoadedIntoReader(evt, identifier);
+              }
+            },
+            error: {
+              callback: function callback() {
+                console.error("Something went wrong while loading this image.");
+              }
+            }
+          }
+        }]);
+      };
       for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
-        var file = _step3.value;
-        createImageInsideCanvas(file);
+        var _ret = _loop2();
+        if (_typeof(_ret) === "object") return _ret.v;
       }
     } catch (err) {
       _iterator3.e(err);
@@ -14503,72 +14305,6 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     }
     return scaleFactor * 0.99;
   }
-  function handleImagePaste(evt) {
-    var items = evt.clipboardData.items;
-    for (var i = 0; i < items.length; i++) {
-      if (items[i].type.indexOf("image") !== -1) {
-        var file = items[i].getAsFile();
-        createImageInsideCanvas(file);
-      }
-    }
-    manualToolChange('drag');
-    UI.imgUpload.value = null;
-  }
-  function createImageInsideCanvas(file) {
-    if (!imageTypeIsAllowed(file)) return;
-    UI.submitBtn.disabled = true;
-    var identifier = (0,uuid__WEBPACK_IMPORTED_MODULE_5__["default"])();
-    var reader = new FileReader();
-    uploadImageToLivewireComponent(file, identifier);
-    reader.readAsDataURL(file);
-    drawingApp.bindEventListeners([{
-      element: reader,
-      events: {
-        loadend: {
-          callback: function callback(evt) {
-            fileLoadedIntoReader(evt, identifier);
-          }
-        },
-        error: {
-          callback: function callback() {
-            console.error("Something went wrong while loading this image.");
-          }
-        }
-      }
-    }]);
-  }
-  function uploadImageToLivewireComponent(file, identifier) {
-    drawingApp.livewireComponent.upload("cmsPropertyBag.images.".concat(Canvas.params.currentLayer, ".").concat(identifier), file, function () {
-      // Success callback.
-      UI.submitBtn.disabled = false;
-    }, function () {
-      // Error callback.
-      UI.submitBtn.disabled = false;
-    }, function () {
-      // Progress callback.
-    });
-  }
-  function imageTypeIsAllowed(file) {
-    if (file.size / (1024 * 1024) > 4) {
-      dispatchEvent(new CustomEvent('js-localized-notify-popup', {
-        detail: {
-          translation_key: 'image-size-error',
-          message_type: 'error'
-        }
-      }));
-      return false;
-    }
-    if (!['png', 'jpeg', 'jpg'].includes(file.type.toLowerCase().split('/')[1])) {
-      dispatchEvent(new CustomEvent('js-localized-notify-popup', {
-        detail: {
-          translation_key: 'image-type-error',
-          message_type: 'error'
-        }
-      }));
-      return false;
-    }
-    return true;
-  }
   function updateGridButtonStates(disabled) {
     UI.gridSize.disabled = disabled;
     UI.decrGridSize.disabled = UI.gridSize.value <= UI.gridSize.min ? true : disabled;
@@ -14633,10 +14369,12 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     }
   }
   function updateElemOpacityNumberInput() {
+    valueWithinBounds(UI.elemOpacityRange);
     UI.elemOpacityNumber.value = UI.elemOpacityRange.value;
     updateOpacitySliderColor();
   }
   function updateElemOpacityRangeInput() {
+    if (!valueWithinBounds(UI.elemOpacityNumber)) return;
     UI.elemOpacityRange.value = UI.elemOpacityNumber.value;
     updateOpacitySliderColor();
   }
@@ -14651,12 +14389,12 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
    * @param {HTMLElement} slider The slider to update.
    * @param {?string} leftColorHexValue The hexadecimal value for the color left of the knob.
    */
-  function setSliderColor(slider) {
+  window.setSliderColor = function (slider) {
     var leftColorHexValue = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : getRootCSSProperty("--all-Base");
     var ratio = calculateRatioOfValueToMax(slider);
     var leftColorRgbaValue = convertHexToRgbaColor(leftColorHexValue, slider.value);
     slider.style.setProperty("--slider-color", "linear-gradient(to right, ".concat(leftColorRgbaValue, " 0%, ").concat(leftColorRgbaValue, " ").concat(ratio, "%, var(--all-White) ").concat(ratio, "%, var(--all-White) 100%)"));
-  }
+  };
 
   /**
    * Gets the value of the property from the CSS :root selector element
@@ -14693,10 +14431,12 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     return "rgba(".concat(R, ", ").concat(G, ", ").concat(B, ", ").concat(parseFloat(A) / 100, ")");
   }
   function updateFillOpacityNumberInput() {
+    valueWithinBounds(UI.fillOpacityRange);
     UI.fillOpacityNumber.value = UI.fillOpacityRange.value;
     updateOpacitySliderColor();
   }
   function updateFillOpacityRangeInput() {
+    if (!valueWithinBounds(UI.fillOpacityNumber)) return;
     UI.fillOpacityRange.value = UI.fillOpacityNumber.value;
     updateOpacitySliderColor();
   }
@@ -14704,7 +14444,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     var value = parseFloat(inputElem.value),
       max = parseFloat(inputElem.max),
       min = parseFloat(inputElem.min);
-    if (Number.isNaN(value)) {
+    if (Number.isNaN(value) || value === 0) {
       return false;
     }
     if (value > max) {
@@ -14864,35 +14604,13 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
   function handleGridSizeButtonStates() {
     disableButtonsWhenNecessary('gridSize');
   }
-  function toggleDisableButtonStates(input, decrButton, incrButton) {
-    var _getBoundsForInputEle2 = getBoundsForInputElement(input),
+  function handleStrokeButtonStates() {
+    var _getBoundsForInputEle2 = getBoundsForInputElement(UI.strokeWidth),
       currentValue = _getBoundsForInputEle2.currentValue,
       min = _getBoundsForInputEle2.min,
       max = _getBoundsForInputEle2.max;
-    decrButton.disabled = currentValue === min;
-    incrButton.disabled = currentValue === max;
-  }
-  function checkIfShouldeditShape(selectedEl) {
-    return selectedEl && checkIfFocusedDataButtonIsSameAsSelectedElement(selectedEl);
-  }
-  function checkIfFocusedDataButtonIsSameAsSelectedElement(selectedEl) {
-    var currentDataButton = rootElement.querySelector('[data-button-group=tool].active');
-    if (!currentDataButton) return false;
-    var shapeType = selectedEl.id.split('-')[0];
-    return shapeType === currentDataButton.id.split('-')[1];
-  }
-  function editShape(functionName) {
-    var selectedEl = rootElement.querySelector('.editing');
-    if (!checkIfShouldeditShape(selectedEl)) return;
-    var layerObject = Canvas.layers[Canvas.layerID2Key(selectedEl.parentElement.id)];
-    var selectedSvgShapeClass = layerObject.shapes[selectedEl.id].svg;
-    functionName in selectedSvgShapeClass && selectedSvgShapeClass[functionName]();
-  }
-  function ShouldEditTextOnClick() {
-    var selectedEl = rootElement.querySelector('.editing');
-    if (!checkIfShouldeditShape(selectedEl)) return;
-    var shapeType = selectedEl.id.split('-')[0];
-    return shapeType === 'text' && Canvas.params.editingTextInZone;
+    UI.decrStroke.disabled = currentValue === min;
+    UI.incrStroke.disabled = currentValue === max;
   }
   return {
     UI: UI,
@@ -15107,7 +14825,6 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
     _this.entryTitle = templateCopy.querySelector(".shape-title");
     _this.btns = {
       "delete": templateCopy.querySelector(".remove-btn"),
-      edit: templateCopy.querySelector(".edit-btn"),
       lock: templateCopy.querySelector(".lock-btn"),
       hide: templateCopy.querySelector(".hide-btn"),
       drag: templateCopy.querySelector(".drag-btn"),
@@ -15122,7 +14839,6 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
     _this.updateLockState();
     _this.updateHideState();
     _this.deleteModal = _this.root.querySelector('#delete-confirm');
-    _this.skipEntryContainerClick = false;
     return _this;
   }
   _createClass(Entry, [{
@@ -15181,15 +14897,6 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
           "click": {
             callback: function callback() {
               _this2.showConfirmDelete();
-            }
-          }
-        }
-      }, {
-        element: this.btns.edit,
-        events: {
-          "click": {
-            callback: function callback() {
-              _this2.handleEditShape();
             }
           }
         }
@@ -15318,19 +15025,10 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
   }, {
     key: "handleClick",
     value: function handleClick(evt) {
-      if (this.skipEntryContainerClick) {
-        this.skipEntryContainerClick = false;
-        return;
-      }
-      var selectedEl = this.getSelectedElement();
+      var selectedEl = this.entryContainer.parentElement.querySelector('.selected');
       if (selectedEl) this.unselect(selectedEl);
       if (selectedEl === this.entryContainer) return;
       this.select();
-    }
-  }, {
-    key: "getSelectedElement",
-    value: function getSelectedElement() {
-      return this.entryContainer.parentElement.querySelector('.selected');
     }
   }, {
     key: "select",
@@ -15344,8 +15042,6 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
       var shapeId = element.id.substring(6);
       element.classList.remove('selected');
       element.closest('#canvas-sidebar-container').querySelector("#".concat(shapeId)).classList.remove('selected');
-      this.removeEditingShape();
-      document.activeElement.blur();
     }
   }, {
     key: "toggleSelect",
@@ -15378,51 +15074,6 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
         this.btns.hide.title = this.btns.hide.getAttribute("data-title-unhidden");
         this.entryContainer.classList.remove('hide');
       }
-    }
-  }, {
-    key: "handleEditShape",
-    value: function handleEditShape() {
-      var selectedEl = this.getSelectedElement();
-      if (!selectedEl) return this.startEditingShape();
-      if (selectedEl.classList.contains('editing')) {
-        this.removeEditingShape();
-        if (selectedEl === this.entryContainer) return;
-        this.unselect(selectedEl);
-        this.select();
-      }
-      this.skipEntryContainerClick = true;
-      this.startEditingShape();
-    }
-  }, {
-    key: "startEditingShape",
-    value: function startEditingShape() {
-      this.removeEditingShape();
-      this.entryContainer.classList.add('editing');
-      this.svgShape.shapeGroup.element.classList.add('editing');
-      this.showRelevantShapeMenu();
-      this.setInputValuesWhenShapeInEditMode();
-    }
-  }, {
-    key: "setInputValuesWhenShapeInEditMode",
-    value: function setInputValuesWhenShapeInEditMode() {
-      this.svgShape.setInputValuesOnEdit();
-    }
-  }, {
-    key: "removeEditingShape",
-    value: function removeEditingShape() {
-      this.root.querySelectorAll('.editing').forEach(function (element) {
-        element.classList.remove('editing');
-      });
-    }
-  }, {
-    key: "showRelevantShapeMenu",
-    value: function showRelevantShapeMenu() {
-      var shapeType = this.svgShape.type;
-      if (shapeType === 'image') return;
-      if (shapeType === 'path') {
-        shapeType = 'freehand';
-      }
-      document.querySelector("#add-".concat(shapeType, "-btn")).click();
     }
   }, {
     key: "remove",
@@ -17051,24 +16702,9 @@ function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input ==
 
 
 
-/**
- * @typedef propObj
- * @type {Object.<string, string|number>}
- *
- */
+/** * @typedef propObj * @type {Object.<string, string|number>} * */
 var svgShape = /*#__PURE__*/function () {
-  /**
-   * @param {number} shapeId The unique identifier the shape gets.
-   * @param {string} type The type of shape to be made.
-   * @param {?propObj} props
-   * All properties (attributes) to be assigned to the shape,
-   * when omitted the properties of the shape are loaded.
-   * @param {?SVGElement} parent The parent the shape should be appended to.
-   * @param drawingApp
-   * @param Canvas
-   * @param withHelperElements
-   * @param withHighlightEvents
-   */
+  /**     * @param {number} shapeId The unique identifier the shape gets.     * @param {string} type The type of shape to be made.     * @param {?propObj} props     * All properties (attributes) to be assigned to the shape,     * when omitted the properties of the shape are loaded.     * @param {?SVGElement} parent The parent the shape should be appended to.     * @param drawingApp     * @param Canvas     * @param withHelperElements     * @param withHighlightEvents     */
   function svgShape(shapeId, type, props, parent, drawingApp, Canvas) {
     var _this = this;
     var withHelperElements = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : true;
@@ -17114,7 +16750,6 @@ var svgShape = /*#__PURE__*/function () {
       this.hideHelperElements();
     }
     this.withHighlightEvents = withHighlightEvents;
-    this.UI = Canvas === null || Canvas === void 0 ? void 0 : Canvas.UI;
   }
   _createClass(svgShape, [{
     key: "makeMainElementOfRightType",
@@ -17426,169 +17061,33 @@ var svgShape = /*#__PURE__*/function () {
     value: function showExplainerForLayer() {
       this.sidebarEntry.entryContainer.parentElement.querySelector('.explainer').style.display = 'inline-block';
     }
-  }, {
-    key: "updateFillColor",
-    value: function updateFillColor() {
-      this.mainElement.setAttribute("fill", this.UI.fillColor.value);
-    }
-  }, {
-    key: "updateOpacity",
-    value: function updateOpacity() {
-      var opacity = parseFloat(this.UI.fillOpacityNumber.value / 100);
-      this.mainElement.setAttribute("fill-opacity", opacity);
-    }
-  }, {
-    key: "updateStrokeColor",
-    value: function updateStrokeColor() {
-      this.mainElement.setAttribute("stroke", this.UI.strokeColor.value);
-    }
-  }, {
-    key: "updateLineColor",
-    value: function updateLineColor() {
-      this.mainElement.setAttribute("stroke", this.UI.lineColor.value);
-      if (this.type === 'line') this.updateMarkerColor();
-    }
-  }, {
-    key: "updateStrokeWidth",
-    value: function updateStrokeWidth() {
-      this.mainElement.setAttribute("stroke-width", this.UI.strokeWidth.value);
-    }
-  }, {
-    key: "updateLineWidth",
-    value: function updateLineWidth() {
-      this.mainElement.setAttribute("stroke-width", this.UI.lineWidth.value);
-    }
   }]);
   return svgShape;
 }();
 var Rectangle = /*#__PURE__*/function (_svgShape) {
   _inherits(Rectangle, _svgShape);
   var _super = _createSuper(Rectangle);
-  /**
-   * @param {number} shapeId The unique identifier the shape gets.
-   * @param {?propObj} props
-   * All properties (attributes) to be assigned to the shape,
-   * when omitted the properties of the shape are loaded.
-   * @param {?SVGElement} parent The parent the shape should be appended to.
-   * @param drawingApp
-   * @param Canvas
-   * @param withHelperElements
-   * @param withHighlightEvents
-   */
+  /**     * @param {number} shapeId The unique identifier the shape gets.     * @param {?propObj} props     * All properties (attributes) to be assigned to the shape,     * when omitted the properties of the shape are loaded.     * @param {?SVGElement} parent The parent the shape should be appended to.     * @param drawingApp     * @param Canvas     * @param withHelperElements     * @param withHighlightEvents     */
   function Rectangle(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
     _classCallCheck(this, Rectangle);
     return _super.call(this, shapeId, "rect", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
   }
-  _createClass(Rectangle, [{
-    key: "setInputValuesOnEdit",
-    value: function setInputValuesOnEdit() {
-      this.setFillColorOnEdit();
-      this.setOpacityInputValueOnEdit();
-      this.setStrokeColorOnEdit();
-      this.setStrokeWidthOnEdit();
-    }
-  }, {
-    key: "setFillColorOnEdit",
-    value: function setFillColorOnEdit() {
-      var fillColor = this.mainElement.getAttribute("fill");
-      var input = this.UI.fillColor;
-      input.value = fillColor;
-      input.style.cssText = "background-color: ".concat(fillColor, "; color: ").concat(fillColor, ";");
-    }
-  }, {
-    key: "setStrokeColorOnEdit",
-    value: function setStrokeColorOnEdit() {
-      var strokeColor = this.mainElement.getAttribute("stroke");
-      var input = this.UI.strokeColor;
-      input.value = strokeColor;
-      input.style.cssText = "border-color: ".concat(strokeColor);
-    }
-  }, {
-    key: "setOpacityInputValueOnEdit",
-    value: function setOpacityInputValueOnEdit() {
-      var input = this.UI.fillOpacityNumber;
-      input.value = this.mainElement.getAttribute("fill-opacity") * 100;
-      input.dispatchEvent(new Event('input'));
-    }
-  }, {
-    key: "setStrokeWidthOnEdit",
-    value: function setStrokeWidthOnEdit() {
-      this.UI.strokeWidth.value = this.mainElement.getAttribute("stroke-width");
-    }
-  }]);
-  return Rectangle;
+  return _createClass(Rectangle);
 }(svgShape);
 var Circle = /*#__PURE__*/function (_svgShape2) {
   _inherits(Circle, _svgShape2);
   var _super2 = _createSuper(Circle);
-  /**
-   * @param {number} shapeId The unique identifier the shape gets.
-   * @param {?propObj} props
-   * All properties (attributes) to be assigned to the shape,
-   * when omitted the properties of the shape are loaded.
-   * @param {?SVGElement} parent The parent the shape should be appended to.
-   * @param drawingApp
-   * @param Canvas
-   * @param withHelperElements
-   * @param withHighlightEvents
-   */
+  /**     * @param {number} shapeId The unique identifier the shape gets.     * @param {?propObj} props     * All properties (attributes) to be assigned to the shape,     * when omitted the properties of the shape are loaded.     * @param {?SVGElement} parent The parent the shape should be appended to.     * @param drawingApp     * @param Canvas     * @param withHelperElements     * @param withHighlightEvents     */
   function Circle(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
     _classCallCheck(this, Circle);
     return _super2.call(this, shapeId, "circle", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
   }
-  _createClass(Circle, [{
-    key: "setInputValuesOnEdit",
-    value: function setInputValuesOnEdit() {
-      this.setFillColorOnEdit();
-      this.setOpacityInputValueOnEdit();
-      this.setStrokeColorOnEdit();
-      this.setStrokeWidthOnEdit();
-    }
-  }, {
-    key: "setFillColorOnEdit",
-    value: function setFillColorOnEdit() {
-      var fillColor = this.mainElement.getAttribute("fill");
-      var input = this.UI.fillColor;
-      input.value = fillColor;
-      input.style.cssText = "background-color: ".concat(fillColor, "; color: ").concat(fillColor, ";");
-    }
-  }, {
-    key: "setStrokeColorOnEdit",
-    value: function setStrokeColorOnEdit() {
-      var strokeColor = this.mainElement.getAttribute("stroke");
-      var input = this.UI.strokeColor;
-      input.value = strokeColor;
-      input.style.cssText = "border-color: ".concat(strokeColor);
-    }
-  }, {
-    key: "setOpacityInputValueOnEdit",
-    value: function setOpacityInputValueOnEdit() {
-      var input = this.UI.fillOpacityNumber;
-      input.value = this.mainElement.getAttribute("fill-opacity") * 100;
-      input.dispatchEvent(new Event('input'));
-    }
-  }, {
-    key: "setStrokeWidthOnEdit",
-    value: function setStrokeWidthOnEdit() {
-      this.UI.strokeWidth.value = this.mainElement.getAttribute("stroke-width");
-    }
-  }]);
-  return Circle;
+  return _createClass(Circle);
 }(svgShape);
 var Line = /*#__PURE__*/function (_svgShape3) {
   _inherits(Line, _svgShape3);
   var _super3 = _createSuper(Line);
-  /**
-   * @param {number} shapeId The unique identifier the shape gets.
-   * @param {?propObj} props
-   * All properties (attributes) to be assigned to the shape,
-   * when omitted the properties of the shape are loaded.
-   * @param {?SVGElement} parent The parent the shape should be appended to.
-   * @param drawingApp
-   * @param Canvas
-   * @param withHelperElements
-   * @param withHighlightEvents
-   */
+  /**     * @param {number} shapeId The unique identifier the shape gets.     * @param {?propObj} props     * All properties (attributes) to be assigned to the shape,     * when omitted the properties of the shape are loaded.     * @param {?SVGElement} parent The parent the shape should be appended to.     * @param drawingApp     * @param Canvas     * @param withHelperElements     * @param withHighlightEvents     */
   function Line(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
     var _this3;
     _classCallCheck(this, Line);
@@ -17600,20 +17099,11 @@ var Line = /*#__PURE__*/function (_svgShape3) {
   _createClass(Line, [{
     key: "makeOwnMarkerForThisShape",
     value: function makeOwnMarkerForThisShape() {
-      var editing = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-      var markerType = editing ? this.getCurrentActiveMarkerType() : this.getMarkerType();
-      if (markerType === "no-endmarker") {
-        var _this$marker2;
-        (_this$marker2 = this.marker) === null || _this$marker2 === void 0 ? void 0 : _this$marker2.remove();
-        this.marker = null;
-        this.props.main["marker-end"] = "url(#svg-no-endmarker-line)";
-        this.mainElement.setAttributeOnElementWithValidation("marker-end", "url(#svg-no-endmarker-line)");
-        return;
-      }
+      var markerType = this.getMarkerType();
+      if (markerType === "no-endmarker") return;
       var newMarker = this.cloneGenericMarker(markerType);
       this.svgCanvas.firstElementChild.appendChild(newMarker);
       var newMarkerId = "".concat(newMarker.id, "-line-").concat(this.shapeId);
-      this.deletePreviousMarker(newMarkerId);
       newMarker.id = newMarkerId;
       this.props.main["marker-end"] = "url(#".concat(newMarkerId, ")");
       this.mainElement.setAttributeOnElementWithValidation("marker-end", "url(#".concat(newMarkerId, ")"));
@@ -17629,23 +17119,10 @@ var Line = /*#__PURE__*/function (_svgShape3) {
       return type.substring(type.indexOf("svg-") + 4, type.lastIndexOf("-line"));
     }
   }, {
-    key: "getCurrentActiveMarkerType",
-    value: function getCurrentActiveMarkerType() {
-      return this.drawingApp.params.endmarkerType;
-    }
-  }, {
     key: "cloneGenericMarker",
     value: function cloneGenericMarker(type) {
       var markerToClone = this.root.querySelector("marker#svg-".concat(type));
       return markerToClone.cloneNode(true);
-    }
-  }, {
-    key: "deletePreviousMarker",
-    value: function deletePreviousMarker(newMarkerId) {
-      var previousMarker = this.root.querySelectorAll("marker#".concat(newMarkerId));
-      previousMarker.forEach(function (marker) {
-        marker.remove();
-      });
     }
   }, {
     key: "getPropertyToChange",
@@ -17658,95 +17135,22 @@ var Line = /*#__PURE__*/function (_svgShape3) {
           return "stroke";
       }
     }
-  }, {
-    key: "updateMarkerColor",
-    value: function updateMarkerColor() {
-      if (!this.marker) return;
-      var propertyToChange = this.getPropertyToChange(this.getMarkerType());
-      this.marker.style[propertyToChange] = this.UI.lineColor.value;
-    }
-  }, {
-    key: "editOwnMarkerForThisShape",
-    value: function editOwnMarkerForThisShape() {
-      this.makeOwnMarkerForThisShape(true);
-    }
-  }, {
-    key: "setInputValuesOnEdit",
-    value: function setInputValuesOnEdit() {
-      this.setLineColorOnEdit();
-      this.setLineWidthOnEdit();
-      this.setEndMarkerOnEdit();
-    }
-  }, {
-    key: "setLineColorOnEdit",
-    value: function setLineColorOnEdit() {
-      var lineColor = this.mainElement.getAttribute("stroke");
-      var input = this.UI.lineColor;
-      input.value = lineColor;
-      input.style.cssText = "background-color: ".concat(lineColor, "; color: ").concat(lineColor, ";");
-    }
-  }, {
-    key: "setLineWidthOnEdit",
-    value: function setLineWidthOnEdit() {
-      this.UI.lineWidth.value = this.mainElement.getAttribute("stroke-width");
-    }
-  }, {
-    key: "setEndMarkerOnEdit",
-    value: function setEndMarkerOnEdit() {
-      var _this$root$querySelec, _this$root$querySelec2;
-      var markerType = this.getMarkerType();
-      (_this$root$querySelec = this.root.querySelector('.endmarker-type.active')) === null || _this$root$querySelec === void 0 ? void 0 : _this$root$querySelec.classList.remove('active');
-      (_this$root$querySelec2 = this.root.querySelector(".endmarker-type#".concat(markerType))) === null || _this$root$querySelec2 === void 0 ? void 0 : _this$root$querySelec2.classList.add('active');
-    }
   }]);
   return Line;
 }(svgShape);
 var Text = /*#__PURE__*/function (_svgShape4) {
   _inherits(Text, _svgShape4);
   var _super4 = _createSuper(Text);
-  /**
-   * @param {number} shapeId The unique identifier the shape gets.
-   * @param {?propObj} props
-   * All properties (attributes) to be assigned to the shape,
-   * when omitted the properties of the shape are loaded.
-   * @param {?SVGElement} parent The parent the shape should be appended to.
-   * @param drawingApp
-   * @param Canvas
-   * @param withHelperElements
-   * @param withHighlightEvents
-   */
+  /**     * @param {number} shapeId The unique identifier the shape gets.     * @param {?propObj} props     * All properties (attributes) to be assigned to the shape,     * when omitted the properties of the shape are loaded.     * @param {?SVGElement} parent The parent the shape should be appended to.     * @param drawingApp     * @param Canvas     * @param withHelperElements     * @param withHighlightEvents     */
   function Text(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
     var _this4;
     _classCallCheck(this, Text);
     _this4 = _super4.call(this, shapeId, "text", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
     _this4.mainElement.setTextContent(_this4.props.main["data-textcontent"]);
     _this4.mainElement.setFontFamily('Nunito');
-    _this4.registerEditingEvents();
     return _this4;
   }
   _createClass(Text, [{
-    key: "updateTextColor",
-    value: function updateTextColor() {
-      this.mainElement.setAttribute("fill", this.UI.textColor.value);
-    }
-  }, {
-    key: "updateBoldText",
-    value: function updateBoldText() {
-      this.mainElement.element.style.fontWeight = this.drawingApp.params.boldText ? 'bold' : 'normal';
-      this.updateHelperElements();
-    }
-  }, {
-    key: "updateTextSize",
-    value: function updateTextSize() {
-      this.mainElement.element.style.fontSize = "".concat(this.UI.textSize.value / 16, "rem");
-      this.updateHelperElements();
-    }
-  }, {
-    key: "updateOpacity",
-    value: function updateOpacity() {
-      this.mainElement.setAttribute("opacity", parseFloat(this.UI.elemOpacityNumber.value / 100));
-    }
-  }, {
     key: "onDrawEndShapeSpecific",
     value: function onDrawEndShapeSpecific(evt, cursor) {
       var _this5 = this;
@@ -17766,7 +17170,6 @@ var Text = /*#__PURE__*/function (_svgShape4) {
       textInput.addEventListener("focusout", function () {
         var text = textInput.element.value;
         textInput.deleteElement();
-        textInput.element.style.display = 'none';
         if (text.length === 0) {
           _this5.cancelConstruction();
           return;
@@ -17777,146 +17180,13 @@ var Text = /*#__PURE__*/function (_svgShape4) {
         _this5.updateCornerElements();
       });
     }
-  }, {
-    key: "registerEditingEvents",
-    value: function registerEditingEvents() {
-      var _this6 = this;
-      var element = this.shapeGroup.element;
-      ['touchenter', 'mouseenter'].forEach(function (evt) {
-        return element.addEventListener(evt, function () {
-          var activeTool = _this6.root.querySelector('[data-button-group=tool].active');
-          var dragIsActive = activeTool.id.split('-')[0] === 'drag';
-          if (element.classList.contains('editing') && !dragIsActive) {
-            activateTextEditing(_this6);
-          } else {
-            returnTextToNormal(_this6, dragIsActive);
-          }
-        }, false);
-      });
-      ['touchleave', 'mouseleave'].forEach(function (evt) {
-        return element.addEventListener(evt, function () {
-          _this6.Canvas.params.editingTextInZone = false;
-        }, false);
-      });
-      ['touchstart', 'mousedown'].forEach(function (evt) {
-        return element.addEventListener(evt, function () {
-          if (!element.classList.contains('editing') || !_this6.Canvas.params.editingTextInZone) return;
-          handleEditTextClick(_this6);
-        }, false);
-      });
-      function returnTextToNormal(thisClass, dragIsActive) {
-        if (dragIsActive) {
-          element.style.cursor = 'move';
-        } else {
-          element.style.cursor = 'crosshair';
-        }
-        thisClass.Canvas.params.editingTextInZone = false;
-      }
-      function activateTextEditing(thisClass) {
-        element.style.cursor = 'text';
-        thisClass.Canvas.params.editingTextInZone = true;
-      }
-      function handleEditTextClick(thisClass) {
-        var textElement = thisClass.mainElement.element;
-        var coordinates = thisClass.drawingApp.convertCanvas2DomCoordinates({
-          x: textElement.getAttribute('x'),
-          y: textElement.getAttribute('y')
-        });
-        var textInput = makeTextInput(thisClass, textElement, coordinates);
-        textInput.element.value = textElement.textContent;
-        textElement.textContent = '';
-        textElement.parentElement.style.display = 'none';
-        textInput.focus();
-        addInputEventListeners(thisClass, textInput, textElement);
-      }
-      function makeTextInput(thisClass, textElement, coordinates) {
-        var canvasContainer = thisClass.root.querySelector("#svg-canvas").parentElement;
-        var fontSize = parseFloat(textElement.style.fontSize);
-        var topOffset = fontSize * parseFloat(getComputedStyle(document.documentElement).fontSize);
-        var textInput = new _htmlElement_js__WEBPACK_IMPORTED_MODULE_2__.htmlElement("input", canvasContainer, {
-          id: "edit-text-input",
-          type: "text",
-          style: "width: ".concat(textElement.getBoundingClientRect().width, "px;                    position: absolute;                    top: ").concat(coordinates.y - topOffset, "px;                    left: ").concat(coordinates.x, "px;                    font-size: ").concat(fontSize, "rem;                    color: ").concat(textElement.getAttribute("fill"), ";                    opacity: ").concat(textElement.getAttribute("opacity"), ";                    font-weight: ").concat(textElement.style.fontWeight || "normal", ";                    transform-origin: bottom left;                    transform: scale(").concat(thisClass.Canvas.params.zoomFactor, ")"),
-          autocomplete: "off",
-          spellcheck: "false"
-        });
-        return textInput;
-      }
-      function addInputEventListeners(thisClass, textInput, textElement) {
-        textInput.addEventListener('input', function () {
-          textInput.element.style.width = "".concat(textInput.element.value.length + 1, "ch");
-        }, false);
-        textInput.addEventListener("focusout", function () {
-          var text = textInput.element.value;
-          textInput.deleteElement();
-          textInput.element.style.display = 'none';
-          if (text.length === 0) {
-            thisClass.cancelConstruction();
-            return;
-          }
-          textElement.textContent = text;
-          thisClass.updateBorderElement();
-          thisClass.updateCornerElements();
-          textElement.parentElement.style = '';
-        });
-      }
-    }
-  }, {
-    key: "setInputValuesOnEdit",
-    value: function setInputValuesOnEdit() {
-      this.setTextColorOnEdit();
-      this.setTextSizeOnEdit();
-      this.setBoldTextOnEdit();
-      this.setOpacityInputValueOnEdit();
-    }
-  }, {
-    key: "setTextColorOnEdit",
-    value: function setTextColorOnEdit() {
-      var textColor = this.mainElement.getAttribute("fill");
-      var input = this.UI.textColor;
-      input.value = textColor;
-      input.style.cssText = "background-color: ".concat(textColor, "; color: ").concat(textColor, ";");
-    }
-  }, {
-    key: "setTextSizeOnEdit",
-    value: function setTextSizeOnEdit() {
-      this.UI.textSize.value = parseFloat(this.mainElement.element.style.fontSize) * 16;
-    }
-  }, {
-    key: "setBoldTextOnEdit",
-    value: function setBoldTextOnEdit() {
-      var isBold = this.mainElement.element.style.fontWeight === 'bold';
-      this.drawingApp.params.boldText = this.UI.boldText.checked = isBold;
-      if (isBold) {
-        this.UI.boldToggleButton.classList.add('active');
-      } else {
-        this.UI.boldToggleButton.classList.remove('active');
-      }
-    }
-  }, {
-    key: "setOpacityInputValueOnEdit",
-    value: function setOpacityInputValueOnEdit() {
-      var input = this.UI.elemOpacityNumber;
-      input.value = this.mainElement.getAttribute("opacity") * 100;
-      input.dispatchEvent(new Event('input'));
-    }
   }]);
   return Text;
 }(svgShape);
 var Image = /*#__PURE__*/function (_svgShape5) {
   _inherits(Image, _svgShape5);
   var _super5 = _createSuper(Image);
-  /**
-   * @param {number} shapeId The unique identifier the shape gets.
-   * @param {?propObj} props
-   * All properties (attributes) to be assigned to the shape,
-   * when omitted the properties of the shape are loaded.
-   * @param {?SVGElement} parent The parent the shape should be appended to.
-   * @param drawingApp
-   * @param Canvas
-   * @param withHelperElements
-   * @param withHighlightEvents
-   */
+  /**     * @param {number} shapeId The unique identifier the shape gets.     * @param {?propObj} props     * All properties (attributes) to be assigned to the shape,     * when omitted the properties of the shape are loaded.     * @param {?SVGElement} parent The parent the shape should be appended to.     * @param drawingApp     * @param Canvas     * @param withHelperElements     * @param withHighlightEvents     */
   function Image(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
     _classCallCheck(this, Image);
     return _super5.call(this, shapeId, "image", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
@@ -17934,17 +17204,7 @@ var Image = /*#__PURE__*/function (_svgShape5) {
 var Path = /*#__PURE__*/function (_svgShape6) {
   _inherits(Path, _svgShape6);
   var _super6 = _createSuper(Path);
-  /**
-   * @param {number} shapeId The unique identifier the shape gets.
-   * @param {?propObj} props
-   * All properties (attributes) to be assigned to the shape,
-   * when omitted the properties of the shape are loaded.
-   * @param {?SVGElement} parent The parent the shape should be appended to.
-   * @param drawingApp
-   * @param Canvas
-   * @param withHelperElements
-   * @param withHighlightEvents
-   */
+  /**     * @param {number} shapeId The unique identifier the shape gets.     * @param {?propObj} props     * All properties (attributes) to be assigned to the shape,     * when omitted the properties of the shape are loaded.     * @param {?SVGElement} parent The parent the shape should be appended to.     * @param drawingApp     * @param Canvas     * @param withHelperElements     * @param withHighlightEvents     */
   function Path(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
     _classCallCheck(this, Path);
     return _super6.call(this, shapeId, "path", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
@@ -17954,25 +17214,17 @@ var Path = /*#__PURE__*/function (_svgShape6) {
 var Grid = /*#__PURE__*/function (_Path) {
   _inherits(Grid, _Path);
   var _super7 = _createSuper(Grid);
-  /**
-   * @param {number} shapeId The unique identifier the shape gets.
-   * @param {?propObj} props
-   * All properties (attributes) to be assigned to the shape,
-   * when omitted the properties of the shape are loaded.
-   * @param {HTMLElement} parent The parent the shape should be appended to.
-   * @param drawingApp
-   * @param Canvas
-   */
+  /**     * @param {number} shapeId The unique identifier the shape gets.     * @param {?propObj} props     * All properties (attributes) to be assigned to the shape,     * when omitted the properties of the shape are loaded.     * @param {HTMLElement} parent The parent the shape should be appended to.     * @param drawingApp     * @param Canvas     */
   function Grid(shapeId, props, parent, drawingApp, Canvas) {
-    var _this7;
+    var _this6;
     _classCallCheck(this, Grid);
-    _this7 = _super7.call(this, shapeId, props, parent, drawingApp, Canvas, false);
-    _this7.origin = new _svgElement_js__WEBPACK_IMPORTED_MODULE_1__.Path(_this7.props.origin);
-    _this7.setDAttributes(_this7.calculateDAttributeForGrid(_this7.props.size), _this7.calculateDAttributeForOrigin(_this7.props.size));
-    _this7.shapeGroup.element.appendChild(_this7.origin.element);
-    _this7.shapeGroup.element.classList.remove("draggable");
-    _this7.shapeGroup.setAttribute("id", "grid");
-    return _this7;
+    _this6 = _super7.call(this, shapeId, props, parent, drawingApp, Canvas, false);
+    _this6.origin = new _svgElement_js__WEBPACK_IMPORTED_MODULE_1__.Path(_this6.props.origin);
+    _this6.setDAttributes(_this6.calculateDAttributeForGrid(_this6.props.size), _this6.calculateDAttributeForOrigin(_this6.props.size));
+    _this6.shapeGroup.element.appendChild(_this6.origin.element);
+    _this6.shapeGroup.element.classList.remove("draggable");
+    _this6.shapeGroup.setAttribute("id", "grid");
+    return _this6;
   }
   _createClass(Grid, [{
     key: "show",
@@ -18041,45 +17293,15 @@ var Grid = /*#__PURE__*/function (_Path) {
 var Freehand = /*#__PURE__*/function (_Path2) {
   _inherits(Freehand, _Path2);
   var _super8 = _createSuper(Freehand);
-  /**
-   * @param {number} shapeId The unique identifier the shape gets.
-   * @param {?propObj} props
-   * All properties (attributes) to be assigned to the shape,
-   * when omitted the properties of the shape are loaded.
-   * @param {?SVGElement} parent The parent the shape should be appended to.
-   * @param drawingApp
-   * @param Canvas
-   * @param withHelperElements
-   * @param withHighlightEvents
-   */
+  /**     * @param {number} shapeId The unique identifier the shape gets.     * @param {?propObj} props     * All properties (attributes) to be assigned to the shape,     * when omitted the properties of the shape are loaded.     * @param {?SVGElement} parent The parent the shape should be appended to.     * @param drawingApp     * @param Canvas     * @param withHelperElements     * @param withHighlightEvents     */
   function Freehand(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
-    var _this8;
+    var _this7;
     _classCallCheck(this, Freehand);
-    _this8 = _super8.call(this, shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
-    _this8.shapeGroup.setAttribute("id", "freehand-".concat(shapeId));
-    return _this8;
+    _this7 = _super8.call(this, shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
+    _this7.shapeGroup.setAttribute("id", "freehand-".concat(shapeId));
+    return _this7;
   }
-  _createClass(Freehand, [{
-    key: "setInputValuesOnEdit",
-    value: function setInputValuesOnEdit() {
-      this.setLineColorOnEdit();
-      this.setLineWidthOnEdit();
-    }
-  }, {
-    key: "setLineColorOnEdit",
-    value: function setLineColorOnEdit() {
-      var lineColor = this.mainElement.getAttribute("stroke");
-      var input = this.UI.lineColor;
-      input.value = lineColor;
-      input.style.cssText = "background-color: ".concat(lineColor, "; color: ").concat(lineColor, ";");
-    }
-  }, {
-    key: "setLineWidthOnEdit",
-    value: function setLineWidthOnEdit() {
-      this.UI.lineWidth.value = this.mainElement.getAttribute("stroke-width");
-    }
-  }]);
-  return Freehand;
+  return _createClass(Freehand);
 }(Path);
 
 /***/ }),
@@ -18974,7 +18196,6 @@ window.RichTextEditor = {
     var _this4 = this;
     return this.createStudentEditor(parameterBag, function (editor) {
       WebspellcheckerTlc.lang(editor, parameterBag.lang);
-      editor.ui.view.element.setAttribute('spellcheck', false);
       _this4.setupWordCounter(editor, parameterBag);
       if (typeof ReadspeakerTlc != "undefined") {
         editor.editing.view.document.on('change:isFocused', function (evt, data, isFocused) {
@@ -19020,6 +18241,7 @@ window.RichTextEditor = {
             _context.next = 4;
             return this.createTeacherEditor(parameterBag, function (editor) {
               // this.hideWProofreaderChevron(parameterBag.allowWsc, editor);
+
               editor.editing.view.change(function (writer) {
                 writer.setStyle('height', '150px', editor.editing.view.document.getRoot());
               });
@@ -19049,13 +18271,6 @@ window.RichTextEditor = {
       editor.editing.view.change(function (writer) {
         writer.setStyle('height', '150px', editor.editing.view.document.getRoot());
       });
-      editor.model.document.on('change:data', function (event, data, test) {
-        if (editor.getData() === '' || editor.getData() === '<p></p>') {
-          Alpine.store('answerFeedback').creatingNewComment = false;
-          return;
-        }
-        Alpine.store('answerFeedback').creatingNewComment = true;
-      });
       // this.hideWProofreaderChevron(parameterBag.allowWsc, editor);
     });
   },
@@ -19063,7 +18278,6 @@ window.RichTextEditor = {
   initAnswerEditorWithComments: function initAnswerEditorWithComments(parameterBag) {
     var _this7 = this;
     parameterBag.enableCommentsPlugin = true;
-    parameterBag.wproofreaderActionItems = ['toggle'];
     return this.createStudentEditor(parameterBag, function (editor) {
       WebspellcheckerTlc.lang(editor, parameterBag.lang);
       _this7.setupWordCounter(editor, parameterBag);
@@ -19155,12 +18369,7 @@ window.RichTextEditor = {
       wordCount: {
         displayCharacters: false
       },
-      wproofreader: this.getWproofreaderConfig(parameterBag.enableGrammar, parameterBag.wproofreaderActionItems),
-      ui: {
-        viewportOffset: {
-          top: 70
-        }
-      }
+      wproofreader: this.getWproofreaderConfig(parameterBag.enableGrammar)
     };
     config.removePlugins = ["Selection", "Completion", "ImageUpload", "Image", "ImageToolbar"];
     config.toolbar = {
@@ -19454,13 +18663,12 @@ window.RichTextEditor = {
   },
   getWproofreaderConfig: function getWproofreaderConfig() {
     var enableGrammar = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
-    var actionItems = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : ["addWord", "ignoreAll", "ignore", "settings", "toggle", "proofreadDialog"];
     return {
       autoSearch: false,
       autoDestroy: true,
       autocorrect: false,
       autocomplete: false,
-      actionItems: actionItems,
+      actionItems: ["addWord", "ignoreAll", "ignore", "settings", "toggle", "proofreadDialog"],
       enableBadgeButton: true,
       serviceProtocol: "https",
       servicePort: "80",

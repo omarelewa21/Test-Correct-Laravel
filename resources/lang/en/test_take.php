@@ -81,4 +81,5 @@ return [
     'nvt'                                          => 'N/A',
     'hide_grade_tooltip'                           => "Formative assessment furthers insight and progression. There is no grade applicable for this test.",
     'waiting_grade'                                => "Currently checking & grading. Grade not yet available",
+    'infoscreen_answer_text'                       => 'This is an information screen, no answer is required.',
 ];

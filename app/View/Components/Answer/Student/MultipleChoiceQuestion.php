@@ -3,19 +3,22 @@
 namespace tcCore\View\Components\Answer\Student;
 
 use tcCore\Answer;
+use tcCore\AnswerRating;
 use tcCore\Question;
 
 class MultipleChoiceQuestion extends QuestionComponent
 {
     public mixed $answerStruct;
     public array $arqStructure = [];
-    public bool $allOrNothingToggleActive = false;
+    public ?bool $allOrNothingToggleActive = false;
     public bool $trueFalseToggleActive = false;
 
     public function __construct(
         public Question $question,
         public Answer   $answer,
         public bool     $disabledToggle = false,
+        public bool     $inCoLearning = false,
+        public ?AnswerRating $answerRating = null,
     ) {
         parent::__construct($question, $answer);
     }
@@ -29,8 +32,7 @@ class MultipleChoiceQuestion extends QuestionComponent
         if ($question->isSubType('ARQ')) {
             $this->arqStructure = \tcCore\MultipleChoiceQuestion::getArqStructure();
         }
-
-        $rating = $this->getTeacherRatingWithToggleData();
+        $rating = $this->inCoLearning ? $this->answerRating : $this->getTeacherRatingWithToggleData();
 
         $this->answerStruct = $question->getCorrectAnswerStructure()
             ->map(function ($link) use ($givenAnswerIds, $rating) {
@@ -52,11 +54,14 @@ class MultipleChoiceQuestion extends QuestionComponent
      * @param $link
      * @return mixed
      */
-    private function getToggleStatus($link, $rating): bool
+    private function getToggleStatus($link, $rating): ?bool
     {
         if (!$this->question->isSubType('TrueFalse')) {
             if (isset($rating->json[$link->order]) && is_bool($rating->json[$link->order])) {
                 return $rating->json[$link->order];
+            }
+            if($this->inCoLearning) {
+                return null;
             }
             return $link->active && $link->score > 0;
         }
@@ -70,11 +75,14 @@ class MultipleChoiceQuestion extends QuestionComponent
 
     private function getAllOrNothingToggleActive($correctIds, $givenAnswerIds, $rating)
     {
-        if ($correctIds->count() !== $givenAnswerIds->count()) {
+        if ($correctIds->count() !== $givenAnswerIds->count() && !$this->inCoLearning) {
             return false;
         }
         if ($this->ratingHasBoolValueForKey($rating, $this->question->id)) {
             return $rating->json[$this->question->id];
+        }
+        if($this->inCoLearning) {
+            return null;
         }
         return $correctIds->diff($givenAnswerIds)->isEmpty();
     }

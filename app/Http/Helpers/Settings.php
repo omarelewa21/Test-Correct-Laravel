@@ -2,10 +2,22 @@
 
 namespace tcCore\Http\Helpers;
 
+use tcCore\User;
+
 class Settings
 {
-    public function canUseCmsWscWriteDownToggle(): bool
+    public function canUseCmsWscWriteDownToggle(?User $user = null): bool
     {
-        return auth()->user()->schoolLocation->allow_cms_write_down_wsc_toggle;
+        return ($user ?? auth()->user())->schoolLocation->allow_cms_write_down_wsc_toggle;
+    }
+
+    public function allowNewCoLearning(?User $user = null) : bool
+    {
+        return ($user ?? auth()->user())->schoolLocation->allow_new_co_learning ?? false;
+    }
+
+    public function allowNewCoLearningTeacher(?User $user = null) : bool
+    {
+        return ($user ?? auth()->user())->schoolLocation->allow_new_co_learning_teacher ?? false;
     }
 }

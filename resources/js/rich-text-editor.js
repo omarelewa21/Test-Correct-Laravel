@@ -110,6 +110,7 @@ window.RichTextEditor = {
                 editor.editing.view.change(writer=>{
                     writer.setStyle('height', '150px', editor.editing.view.document.getRoot());
                 });
+
             },
         );
     },

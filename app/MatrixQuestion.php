@@ -265,5 +265,9 @@ class MatrixQuestion extends Question implements QuestionInterface {
         return true;
     }
 
-
+    public function isFullyAnswered(Answer $answer): bool
+    {
+        $givenAnswersCount = collect(json_decode($answer->json, true))->filter()->count();
+        return $givenAnswersCount === $this->subQuestions->count();
+    }
 }

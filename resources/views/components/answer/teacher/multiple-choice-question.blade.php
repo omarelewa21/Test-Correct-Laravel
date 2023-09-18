@@ -1,11 +1,13 @@
 <div class="flex multiple-choice relative">
     @if($question->isSubType('TrueFalse'))
-        <div class="flex gap-4 items-center">
-            <div class="bold">
-                {!! $answerStruct->first(fn($link) => $link->active)?->answer ?? '......' !!}
-            </div>
-            <div>
-                {!! $question->converted_question_html  !!}
+        <div @class(["flex gap-4 items-center", "justify-between w-full" => isset($inCoLearning) && $inCoLearning])>
+            <div class="flex gap-4 items-center">
+                <div class="bold">
+                    {!! $answerStruct->first(fn($link) => $link->active)?->answer ?? '......' !!}
+                </div>
+                <div>
+                    {!! $question->converted_question_html  !!}
+                </div>
             </div>
             @if($studentAnswer)
                 <div>

@@ -19,6 +19,7 @@ use tcCore\Http\Controllers\TestTakeLaravelController;
 use tcCore\Http\Enums\AnswerFeedbackFilter;
 use tcCore\Http\Livewire\CoLearning\CompletionQuestion;
 use tcCore\Http\Livewire\TCComponent;
+use tcCore\Http\Traits\Questions\WithCompletionConversion;
 use tcCore\Http\Traits\WithInlineFeedback;
 use tcCore\TestTake;
 use tcCore\TestTakeStatus;
@@ -26,6 +27,7 @@ use tcCore\TestTakeStatus;
 class CoLearning extends TCComponent
 {
     use WithInlineFeedback;
+    use WithCompletionConversion;
 
     const SESSION_KEY = 'co-learning-answer-options';
 
@@ -52,6 +54,8 @@ class CoLearning extends TCComponent
 
     public $pollingFallbackActive = false;
 
+    public $answered = false;
+
     protected $queryString = [
         'answerRatingId'     => ['as' => 'e'],
         'coLearningFinished' => ['except' => false, 'as' => 'b']
@@ -69,6 +73,9 @@ class CoLearning extends TCComponent
     public $answerOptions;
 
     public $necessaryAmountOfAnswerRatings;
+    public $group;
+    public ?string $answeredStatus;
+    public string $uniqueKey;
 
     /**
      * @return bool
@@ -124,6 +131,8 @@ class CoLearning extends TCComponent
         }
         $this->waitForTeacherNotificationEnabled = $this->shouldShowWaitForTeacherNotification();
 
+        $this->uniqueKey = $this->answerRating?->getKey() ?? '' .'-'. $this->questionFollowUpNumber .'-'. $this->answerFollowUpNumber;
+
         return view('livewire.student.co-learning')
             ->layout('layouts.co-learning-student');
     }
@@ -165,8 +174,6 @@ class CoLearning extends TCComponent
     {
         $this->coLearningFinished = true;
 
-        $this->destroyCompletionQuestionSession();
-
         $this->waitForTeacherNotificationEnabled = false;
         $this->answerRatingId = null;
         $this->answerRating = null;
@@ -198,29 +205,23 @@ class CoLearning extends TCComponent
      */
     public function updatedRating(): void
     {
-        $this->handleUpdatingRating();
+        $this->handleUpdatingRatingAndJson();
     }
 
     /**
      * Rating update coming from ColearningQuestion Component
      * Update Rating from emit of child livewire Question component
      */
-    public function updateAnswerRating($answerOptions): void
+    public function updateAnswerRating(array $json, bool $fullyRated, int|float $rating): void
     {
-        $questionIsFullyRated = $answerOptions['amountChecked'] === $answerOptions['amountCheckable'];
+        $this->setRating($rating);
 
-        if ($this->allowRatingWithHalfPoints) {
-            $this->rating = round($this->maxRating / $answerOptions['maxScore'] * $answerOptions['score'] * 2) / 2;
-        } else {
-            $this->rating = round($this->maxRating / $answerOptions['maxScore'] * $answerOptions['score']);
-        }
-
-        $this->handleUpdatingRating($questionIsFullyRated);
+        $this->handleUpdatingRatingAndJson($fullyRated, $json);
 
         $this->dispatchBrowserEvent('updated-score', ['score' => $this->rating]);
     }
 
-    private function handleUpdatingRating($updateAnswerRatingRating = true)
+    private function handleUpdatingRatingAndJson($updateAnswerRatingRating = true, $json = null)
     {
         if ((int)$this->rating < 0) {
             $this->rating = 0;
@@ -229,8 +230,14 @@ class CoLearning extends TCComponent
             $this->rating = $this->maxRating;
         }
 
+        if($json) {
+            $this->answerRating->json = $json;
+        }
         if ($updateAnswerRatingRating) {
             $this->answerRating->rating = $this->rating;
+        }
+
+        if($updateAnswerRatingRating || $json) {
             $this->answerRating->save();
         }
 
@@ -329,12 +336,15 @@ class CoLearning extends TCComponent
             $this->noAnswerRatingAvailableForCurrentScreen = false;
 
             $this->setActiveAnswerRating($navigateDirection);
+            $this->answered = $this->answerRating->answer->isAnswered;
+            $this->answeredStatus = $this->answerRating->answer->answeredStatus;
 
             $this->writeDiscussingAnswerRatingToDatabase();
 
             $this->setQuestionRatingProperties();
 
             $this->discussingQuestionId = $this->answerRating->answer->question_id;
+            $this->group = $this->answerRating->answer->question->getGroupQuestion($this->testTake);
 
             if ($this->answerRating->rating === null) {
                 $this->rating = null;
@@ -420,9 +430,9 @@ class CoLearning extends TCComponent
         if ($this->testTake->discussing_question_id === null) {
             return $this->redirectToWaitingRoom();
         }
-        if ($this->testTake->discussion_type !== 'OPEN_ONLY') {
-            return $this->redirectToTestTakesToBeDiscussed();
-        }
+//        if ($this->testTake->discussion_type !== 'OPEN_ONLY') {
+//            return $this->redirectToTestTakesToBeDiscussed();
+//        }
         if ($this->testTake->test_take_status_id < TestTakeStatus::STATUS_DISCUSSING) {
             return $this->redirectToTestTakesToBeDiscussed();
         }
@@ -461,19 +471,82 @@ class CoLearning extends TCComponent
         }
     }
 
-    /* completion question specific */
-
-    private function destroyCompletionQuestionSession()
-    {
-        if (session()->has(CompletionQuestion::SESSION_KEY)) {
-            session()->forget(CompletionQuestion::SESSION_KEY);
-        }
-    }
-
     //alias property name for inline feedback
     public function getCurrentQuestionProperty()
     {
         return $this->testTake->discussingQuestion;
     }
 
+    public function toggleValueUpdated(int $id, string $state, int|float $value): void
+    {
+        $json = $this->answerRating?->fresh()?->json ?? [];
+
+        $json[$id] = $state === 'on';
+
+        $correctAnswerStructure = $this->getCurrentQuestion()->getCorrectAnswerStructure();
+
+        switch (strtolower($this->getCurrentQuestion()->type . '-' . $this->getCurrentQuestion()->subtype)) {
+            case 'matchingquestion-classify':
+            case 'matchingquestion-matching':
+                $correctAnswerStructure = $correctAnswerStructure->filter(fn($answer) => $answer->type === 'RIGHT');
+
+                $scorePerToggle = round($this->maxRating / $correctAnswerStructure->count(),2);
+                $ratingPerAnswerOption = $correctAnswerStructure->mapWithKeys(fn ($answerData) => [$answerData->id => $scorePerToggle]);
+
+                $amountOfToggles = collect(json_decode($this->answerRating->answer->json, true))
+                    ->filter(fn ($value, $key) => $key === 'order' ? false : $value )->count();
+                break;
+            case 'completionquestion-multi':
+            case 'completionquestion-completion':
+                $correctAnswerStructure = $correctAnswerStructure->filter(fn($answer) => $answer->correct)->unique('tag');
+
+                $scorePerToggle =  round($this->maxRating / $correctAnswerStructure->count(), 2);
+                $ratingPerAnswerOption = $correctAnswerStructure->mapWithKeys(fn ($answerData) => [$answerData->tag => $scorePerToggle]);
+
+                $amountOfToggles = collect(json_decode($this->answerRating->answer->json, true))
+                    ->filter(fn ($value, $key) => $value )->count();
+                break;
+            case 'multiplechoicequestion-multiplechoice':
+                if($this->getCurrentQuestion()->all_or_nothing) {
+                    $this->updateAnswerRating(
+                        json      : $json,
+                        fullyRated: true,
+                        rating    : array_values($json)[0] ? $this->maxRating : 0
+                    );
+                    return;
+                }
+
+                $scorePerToggle =  round($this->maxRating / $this->getCurrentQuestion()->selectable_answers, 2);
+                $ratingPerAnswerOption = $correctAnswerStructure->mapWithKeys(fn ($answerData) => [$answerData->order => $scorePerToggle] );
+
+                $amountOfToggles = collect(json_decode($this->answerRating->answer->json, true))->filter(fn($value) => $value)->count();
+                break;
+            case 'multiplechoicequestion-truefalse':
+                $this->updateAnswerRating(
+                    json      : $json,
+                    fullyRated: true,
+                    rating    : array_values($json)[0] ? $this->maxRating : 0
+                );
+                return;
+            default:
+                $ratingPerAnswerOption = [];
+        }
+        $amountOfTogglesUsed = collect($json)->count();
+
+        $this->updateAnswerRating(
+            json: $json,
+            fullyRated: $amountOfTogglesUsed === $amountOfToggles,
+            rating: collect($json)
+                      ->filter(fn($value) => $value)
+                      ->reduce(fn ($carry, $value, $key) => $carry + ($ratingPerAnswerOption[$key] ?? 0), 0)
+                      //first filter out all false values (toggle == off), then reduce the remaining values to a single value
+        );
+    }
+
+    private function setRating(int|float $rating)
+    {
+        $this->rating = $this->allowRatingWithHalfPoints
+            ? round($rating * 2) / 2
+            : round($rating);
+    }
 }
