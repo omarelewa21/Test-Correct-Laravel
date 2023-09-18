@@ -51,10 +51,16 @@ trait Archivable
 
     public function scopeFilterByArchived($query, $filter)
     {
-        if ($filter != null && array_key_exists('archived', $filter) && $filter['archived'] == '0') {
+        if ($this->hasArchivedScope() && $filter != null && array_key_exists('archived', $filter) && $filter['archived'] == '0') {
             $query->whereNull('archivable_model_id');
         }
         return $query;
+    }
+
+    protected function hasArchivedScope()
+    {
+        $scopes = collect($this->getGlobalScopes());
+        return $scopes->contains(new ArchivedScope);
     }
 
     public static function bootArchivable()
