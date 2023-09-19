@@ -294,7 +294,7 @@
             @endif
         </footer>
     </div>
-    @if($testTake->enable_comments_colearning && !$coLearningFinished && $testTake?->discussingQuestion->isType('OpenQuestion'))
+    @if($testTake->enable_comments_colearning && !$coLearningFinished)
     <x-partials.co-learning-drawer
             uniqueKey="ar-{{ $this->answerRating->getKey() }}-question-{{$testTake->discussingQuestion->uuid}}-{{ $this->answerFollowUpNumber }}-{{$this->getAnswerFeedbackUpdatedStateHash()}}">
         <x-slot name="slideContent">
@@ -324,11 +324,15 @@
                          wire:ignore
                          x-init="createFocusableButtons(); $dispatch('reinitialize-editor-{{ 'feedback-editor-'. $this->questionFollowUpNumber .'-'. $this->answerFollowUpNumber }}')"
                     >
+                        @if($testTake->discussingQuestion->isType('OpenQuestion'))
                         <x-input.comment-color-picker
                                 commentThreadId="new-comment"
                                 uuid="new-comment"
                                 :useCkEditorView="true"
                         ></x-input.comment-color-picker>
+                        @else
+                            <x-partials.comment-emoji-templates/>
+                        @endif
 
 
                         <x-input.comment-emoji-picker

@@ -221,7 +221,7 @@
                                     <x-icon.profile class="scale-150 text-sysbase relative top-1" />
                                 </div>
                                 <span class="ml-2 truncate pr-2">Student {{ $loop->iteration }}</span>
-                                <span class="ml-auto">@js($rating->displayRating)</span>
+                                <span class="ml-auto">{{ $rating->displayRating }}</span>
                             </div>
                         @endforeach
                     @endif

@@ -165,10 +165,7 @@ class TestReview extends EvaluationComponent
 
     private function handleAnswerFeedback(): void
     {
-        $this->reset('feedback');
-        if ($this->hasFeedback = $this->currentAnswer->feedback->isNotEmpty()) {
-            $this->feedback = $this->currentAnswer->feedback->first()?->message;
-        }
+        $this->hasFeedback = $this->currentAnswer->feedback->isNotEmpty();
     }
 
     protected function handleAnswerScore(): null|int|float

@@ -1,4 +1,5 @@
 <x-partials.modal.preview>
+    {{-- THIS FILE IS PROBABLY NO LONGER USED --}}
     <x-slot:icon>
         <x-icon.feedback-text />
     </x-slot:icon>

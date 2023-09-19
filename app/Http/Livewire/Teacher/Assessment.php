@@ -290,7 +290,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         $this->firstAnswerForQuestion = $this->getAnswerIndex($answersForQuestion->first());
 
         $this->score = $this->handleAnswerScore();
-        $this->feedback = $this->getFeedbackForCurrentAnswer();
+        $this->getFeedbackForCurrentAnswer();
         $this->answerPanel = true;
         $this->setUserOnAnswer($this->currentAnswer);
 
@@ -878,20 +878,11 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             );
     }
 
-    private function getFeedbackForCurrentAnswer(): string
+    private function getFeedbackForCurrentAnswer(): void
     {
-        if($this->currentQuestion->isType('OpenQuestion')) {
-            return $this->hasFeedback = $this->currentAnswer->feedback()->exists();
-        }
-
-        $feedback = $this->currentAnswer
+        $this->hasFeedback = $this->currentAnswer
             ->feedback()
-            ->where('user_id', auth()->id())
-            ->first()
-            ?->message ?? '';
-
-        $this->hasFeedback = filled($feedback);
-        return $this->currentQuestion->isSubType('writing') ? '' : $feedback;
+            ->exists();
     }
 
     public function assessedAllAnswers(): bool

@@ -2697,9 +2697,6 @@ document.addEventListener("alpine:init", () => {
 
             this.dropdownOpened = questionType === 'OpenQuestion' ? 'given-feedback' : 'add-feedback';
 
-            if(questionType !== 'OpenQuestion') {
-                return;
-            }
             this.setFocusTracking();
 
             document.addEventListener('comment-color-updated', async (event) => {
@@ -2794,7 +2791,8 @@ document.addEventListener("alpine:init", () => {
                 comment_emoji: comment_emoji,
                 comment_color: comment_color,
             });
-            document.querySelector('#commentMarkerStyles').innerHTML = commentStyles;
+            const commentMarkerStyles = document.querySelector('#commentMarkerStyles');
+            if(commentMarkerStyles) commentMarkerStyles.innerHTML = commentStyles;
         },
         async createCommentThread() {
             //somehow the editor id sometimes shows an old cached value, so we set it again here
@@ -2844,7 +2842,8 @@ document.addEventListener("alpine:init", () => {
                         iconName: comment_iconName,
                     })
 
-                    document.querySelector('#commentMarkerStyles').innerHTML = commentStyles;
+                    const commentMarkerStyles = document.querySelector('#commentMarkerStyles');
+                    if(commentMarkerStyles) commentMarkerStyles.innerHTML = commentStyles;
 
                     this.hasFeedback = true;
 
@@ -3060,7 +3059,8 @@ document.addEventListener("alpine:init", () => {
         },
         cancelEditingComment(threadId, AnswerFeedbackUuid, originalIconName = false, originalColor = false) {
             //reset temporary styling
-            document.querySelector('#temporaryCommentMarkerStyles').innerHTML = '';
+            const temporaryStyleTag = document.querySelector('#temporaryCommentMarkerStyles');
+            if(temporaryStyleTag) temporaryStyleTag.innerHTML = '';
 
             this.setEditingComment(null);
 
@@ -3179,11 +3179,14 @@ document.addEventListener("alpine:init", () => {
             if(viewOnly) {
                 return;
             }
+            const answerEditor = ClassicEditors[this.answerEditorId];
+            const feedbackEditor = ClassicEditors[this.feedbackEditorId];
+            if(!answerEditor || !feedbackEditor) {
+                return;
+            }
+
             setTimeout(()=> {
                 try {
-                    const answerEditor = ClassicEditors[this.answerEditorId];
-                    const feedbackEditor = ClassicEditors[this.feedbackEditorId];
-
                     answerEditor.ui.focusTracker.add( feedbackEditor.sourceElement.parentElement.querySelector('.ck.ck-content') );
 
                     feedbackEditor.ui.focusTracker.add( answerEditor.sourceElement.parentElement.querySelector('.ck.ck-content') );

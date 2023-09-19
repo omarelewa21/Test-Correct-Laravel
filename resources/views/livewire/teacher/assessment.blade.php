@@ -263,12 +263,14 @@
                                  wire:ignore
                                  x-init="createFocusableButtons()"
                             >
-                                @if($question->isType('OpenQuestion'))
+                                @if($this->currentQuestion->isType('OpenQuestion'))
                                     <x-input.comment-color-picker
                                             commentThreadId="new-comment"
                                             uuid="new-comment"
                                             :useCkEditorView="true"
                                     ></x-input.comment-color-picker>
+                                @else
+                                    <x-partials.comment-emoji-templates/>
                                 @endif
 
                                 <x-input.comment-emoji-picker
