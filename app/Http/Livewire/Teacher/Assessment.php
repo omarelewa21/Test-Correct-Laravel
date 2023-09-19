@@ -290,7 +290,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         $this->firstAnswerForQuestion = $this->getAnswerIndex($answersForQuestion->first());
 
         $this->score = $this->handleAnswerScore();
-        $this->getFeedbackForCurrentAnswer();
+        $this->determineHasFeedbackForCurrentAnswer();
         $this->answerPanel = true;
         $this->setUserOnAnswer($this->currentAnswer);
 
@@ -394,13 +394,13 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
     public function handleFeedbackChange()
     {
-        $this->getFeedbackForCurrentAnswer();
+        $this->determineHasFeedbackForCurrentAnswer();
     }
 
     public function deleteFeedback(): void
     {
         $this->currentAnswer->feedback()->where('user_id', auth()->id())->delete();
-        $this->getFeedbackForCurrentAnswer();
+        $this->determineHasFeedbackForCurrentAnswer(false);
     }
 
     public function removeNotification(): void
@@ -878,8 +878,12 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             );
     }
 
-    private function getFeedbackForCurrentAnswer(): void
+    private function determineHasFeedbackForCurrentAnswer($value = null): void
     {
+        if(is_bool($value)){
+            $this->hasFeedback = $value;
+            return;
+        }
         $this->hasFeedback = $this->currentAnswer
             ->feedback()
             ->exists();
