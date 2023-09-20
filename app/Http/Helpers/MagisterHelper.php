@@ -79,7 +79,7 @@ class MagisterHelper
         }
 
         $url = (new self($isTestSet))->getOption([
-            'https://services.zenacc.nl/uwlr-l/leerlinggegevens-smalle-set.svc', ''
+            'https://services.zenacc.nl/uwlr-l/leerlinggegevens-smalle-set.svc', 'https://services.magister.net/uwlr-l/leerlinggegevens-smalle-set.svc'
         ]); // 'https://acc.idhub.nl/uwlr-l-alles-in-een/v2.3'; // test is acc.ihub // live is https://hub.iddinkgroup.com/uwlr-l-alles-in-een/V2.3
 
         $authKey = (new self($isTestSet))->getOption([
@@ -89,7 +89,7 @@ class MagisterHelper
             'Test-correct-uwlr', 'Test-correct-uwlr'
         ]); // 'HubUwlrLDemo'; // test is HubUwlrLDemo // live is 'Test-correct-uwlr';
         $klantNaam = (new self($isTestSet))->getOption([
-            '', 'Test-correct-uwlr'
+            'Test-correct-uwlr', 'Test-correct-uwlr'
         ]); // 'HubUwlrLDemoClient'; // test is HubUwlrLDemoClient // live is 'Test-correct-uwlr';
 
         $xml = trim('
