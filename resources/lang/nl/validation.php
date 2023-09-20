@@ -183,4 +183,12 @@ return [
     'test name'                               => 'Naam toets',
     'unique_test_name'                        => 'De gekozen naam is al in gebruik. Gebruik een unieke naam',
     'invigilator_required'                    => 'Het is verplicht om een surveillant te kiezen',
+
+    // NIST Password Rules
+    'can-not-contain-word'              => 'Het wachtwoord mag het woord \':word\' niet bevatten.',
+    'can-not-be-similar-to-word'        => 'Het wachtwoord mag niet vergelijkbaar zijn met het woord \':word\'.',
+    'found-in-data-breach'              => 'Het wachtwoord is gevonden in een datalek van een derde partij en mag niet worden gebruikt.',
+    'can-not-be-dictionary-word'        => 'Het wachtwoord mag geen woord uit het woordenboek zijn.',
+    'can-not-be-repetitive-characters'  => 'Het wachtwoord mag geen herhalende tekens bevatten.',
+    'can-not-be-sequential-characters'  => 'Het wachtwoord mag geen opeenvolgende tekens bevatten.',
 ];
