@@ -381,7 +381,12 @@ class Taken extends TestTakeComponent
 
     private function assessedQuestions(): int
     {
-        $nonAssessedQuestionCount = TestTakeHelper::nonAssessedDiscussedQuestionIdQueryBuilder($this->testTake,'assess')->get(['question_id'])->count();
+        $takeNonDiscrepancyIntoAccount = UserFeatureSetting::getSetting(
+            user   : auth()->user(),
+            title  : UserFeatureSettingEnum::tryFrom('assessment_skip_no_discrepancy_answer'),
+            default: false
+        );
+        $nonAssessedQuestionCount = TestTakeHelper::nonAssessedDiscussedQuestionIdQueryBuilder($this->testTake,'assess',$takeNonDiscrepancyIntoAccount)->get(['question_id'])->count();
         return $this->questionsOfTest->count() - $nonAssessedQuestionCount;
 
 //        $answerRatingQueryBuilder = AnswerRating::where('test_take_id',$this->testTake->getKey())->where('type','!=',AnswerRating::TYPE_STUDENT)->whereNotNull('rating')->select('answer_id');
