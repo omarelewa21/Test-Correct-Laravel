@@ -1531,11 +1531,6 @@ class Constructor extends TCComponent implements QuestionCms
             'score'             => $featureSettings[UserFeatureSettingEnum::QUESTION_DEFAULT_POINTS->value],
             'decimal_score'     => $featureSettings[UserFeatureSettingEnum::QUESTION_HALF_POINTS_POSSIBLE->value],
             'auto_check_answer' => $featureSettings[UserFeatureSettingEnum::QUESTION_AUTO_SCORE_COMPLETION->value],
-            'spell_check_available_default' => $featureSettings['spell_check_available_default'],
-            'mathml_functions_default'       => $featureSettings['mathml_functions_default'],
-            'restrict_word_amount_default'  => $featureSettings['restrict_word_amount_default'],
-            'max_words_default'            => $featureSettings['max_words_default'],
-            'text_formatting_default'        => $featureSettings['text_formatting_default'],
         ];
     }
 }

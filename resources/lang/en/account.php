@@ -37,4 +37,5 @@ return [
     'Jouw klassen'                                            => '[0,1]Your class|[2,*]Your classes',
     'Standaard normering'                                     => 'Default grading standard',
     'Antwoorden met CO-Learning score overslaan' => 'Skip answers that were rated with CO-Learning',
+    'Schrijf op'                                              => 'Write down',
 ];
