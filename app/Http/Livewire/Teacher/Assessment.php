@@ -316,7 +316,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         $this->firstAnswerForQuestion = $this->getAnswerIndex($answersForQuestion->first());
 
         $this->score = $this->handleAnswerScore();
-        $this->feedback = $this->getFeedbackForCurrentAnswer();
+        $this->determineHasFeedbackForCurrentAnswer();
         $this->answerPanel = true;
         $this->setUserOnAnswer($this->currentAnswer);
 
@@ -420,13 +420,13 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
     public function handleFeedbackChange()
     {
-        $this->getFeedbackForCurrentAnswer();
+        $this->determineHasFeedbackForCurrentAnswer();
     }
 
     public function deleteFeedback(): void
     {
         $this->currentAnswer->feedback()->where('user_id', auth()->id())->delete();
-        $this->getFeedbackForCurrentAnswer();
+        $this->determineHasFeedbackForCurrentAnswer(false);
     }
 
     public function removeNotification(): void
@@ -895,20 +895,15 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             );
     }
 
-    private function getFeedbackForCurrentAnswer(): string
+    private function determineHasFeedbackForCurrentAnswer($value = null): void
     {
-        if($this->currentQuestion->isType('OpenQuestion')) {
-            return $this->hasFeedback = $this->currentAnswer->feedback()->exists();
+        if(is_bool($value)){
+            $this->hasFeedback = $value;
+            return;
         }
-
-        $feedback = $this->currentAnswer
+        $this->hasFeedback = $this->currentAnswer
             ->feedback()
-            ->where('user_id', auth()->id())
-            ->first()
-            ?->message ?? '';
-
-        $this->hasFeedback = filled($feedback);
-        return $this->currentQuestion->isSubType('writing') ? '' : $feedback;
+            ->exists();
     }
 
     public function assessedAllAnswers(): bool
