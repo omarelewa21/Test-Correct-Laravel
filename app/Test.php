@@ -922,6 +922,8 @@ class Test extends BaseModel
 
     public function getQuestionOrderListWithDiscussionType()
     {
+        $orderAllQuestion = 0;
+        $orderInTest = 0;
         $orderOpenOnly = 0;
 
         return $this->testQuestions->sortBy('order')->flatMap(function ($testQuestion) {
@@ -936,9 +938,10 @@ class Test extends BaseModel
             }
             $questionType = $testQuestion->question->canCheckAnswer() ? Question::TYPE_CLOSED : Question::TYPE_OPEN;
             return [['id' => $testQuestion->question->getKey(), 'question_type' => $questionType, 'discuss' => $testQuestion->discuss,]];
-        })->mapWithKeys(function ($item, $key) use (&$orderOpenOnly) {
+        })->mapWithKeys(function ($item, $key) use (&$orderOpenOnly, &$orderAllQuestion, &$orderInTest) {
             return [$item['id'] => [
-                'order' => $key+1,
+                'order' => (bool)$item['discuss'] ? ++$orderAllQuestion : null,
+                'order_in_test' => ++$orderInTest,
                 'order_open_only' => $item['question_type'] === Question::TYPE_OPEN && (bool)$item['discuss'] ? ++$orderOpenOnly : null,
                 ...$item,
             ]];

@@ -72,8 +72,9 @@ class CoLearning extends TCComponent implements CollapsableHeader
     public int $questionCount;
 
     public int $questionCountFiltered;
-    public int $questionIndex;
-    public int $questionIndexOpenOnly;
+    public int $questionIndex; //order all question types but excluding not discussed questions
+    public int $questionIndexAsInTest; //order including not discussed questions
+    public int $questionIndexOpenOnly; //order exclusing not discussed questions and non-open questions
 
     public ?Collection $activeDrawingAnswerDimensions;
 
@@ -547,6 +548,7 @@ class CoLearning extends TCComponent implements CollapsableHeader
 
         if ($this->questionsOrderList->get($this->testTake->discussing_question_id)) {
             $this->questionIndex = $this->questionsOrderList->get($this->testTake->discussing_question_id)['order'];
+            $this->questionIndexAsInTest = $this->questionsOrderList->get($this->testTake->discussing_question_id)['order_in_test'];
             $this->questionIndexOpenOnly = $this->questionsOrderList->get(
                 $this->testTake->discussing_question_id
             )['order_open_only'] ?: $this->questionIndexOpenOnly;

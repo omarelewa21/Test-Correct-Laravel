@@ -38,7 +38,7 @@
                 </div>
             </div>
         @else
-            <div class="flex flex-col w-full gap-6" wire:key="q-{{$testTake->discussingQuestion->uuid}}">
+            <div class="flex flex-col w-full gap-6" wire:key="q-{{$this->getDiscussingQuestion()->uuid}}">
 
                 @if($this->testTake->enable_question_text_colearning) {{-- start question text --}}
 
@@ -101,7 +101,7 @@
                             <x-slot:title>
                                 <div class="question-indicator items-center flex">
                                     <div class="inline-flex question-number rounded-full text-center justify-center items-center">
-                                        <span class="align-middle cursor-default">{{ $this->questionOrderNumber }}</span>
+                                        <span class="align-middle cursor-default">{{ $this->questionOrderAsInTestNumber }}</span>
                                     </div>
                                     <div class="flex gap-4 items-center relative top-0.5">
                                         <h4 class="inline-flex"
@@ -270,42 +270,46 @@
                         - previous/next questions have an arrow icon
                     --}}
 
-                    @if($previousAnswerAvailable)
-                        <x-button.text class="rotate-svg-180"
-                                          x-on:click="await goToPreviousAnswerRating()"
-                                          wire:loading.attr="disabled"
-                        >
-                            <x-icon.chevron/>
-                            <span>{{ __('co-learning.previous_answer') }}</span>
-                        </x-button.text>
-
-                        <x-button.primary x-on:click="await goToNextQuestion()"
-                                          wire:loading.attr="disabled"
-                                          :disabled="!$this->enableNextQuestionButton"
-                        >
-                            <span>{{ __('test_take.next_question') }}</span> {{-- - previous/next questions have an arrow icon --}}
-                            <x-icon.arrow/>
-                        </x-button.primary>
-                    @elseif($nextAnswerAvailable)
+                    {{-- Question Navigation buttons--}}
+                    @if($selfPacedNavigation)
                         <x-button.text class="rotate-svg-180"
                                        x-on:click="await goToPreviousQuestion()"
                                        wire:loading.attr="disabled"
-                                       :disabled="!$this->enablePreviousQuestionButton" {{-- disabled when there is not a previous question --}}
+                                       :disabled="$this->isPreviousQuestionButtonDisabled()"
                         >
                             <x-icon.arrow/>
                             <span>{{ __('test_take.previous_question') }}</span>
                         </x-button.text>
-
-                        <x-button.primary x-on:click="await goToNextAnswerRating()"
+                    @endif
+                    @if($selfPacedNavigation)
+                        <x-button.primary x-on:click="await goToNextQuestion()"
                                           wire:loading.attr="disabled"
-                                          :disabled="!$this->enableNextAnswerRatingButton"
+                                          :disabled="$this->isNextQuestionButtonDisabled()"
                         >
-                            <span>{{ __('co-learning.next_answer') }}</span>
-                            <x-icon.chevron/>
+                            <span>{{ __('test_take.next_question') }}</span>
+                            <x-icon.arrow/>
                         </x-button.primary>
-
                     @endif
 
+                    {{-- AnswerRating Navigation buttons--}}
+                    <x-dynamic-component :component="$selfPacedNavigation ? 'button.text' : 'button.primary' "
+                                         class="rotate-svg-180"
+                                         x-on:click="await goToPreviousAnswerRating()"
+                                         wire:loading.attr="disabled"
+                                         :disabled="$this->isPreviousAnswerRatingButtonDisabled()"
+                    >
+                        <x-icon.chevron/>
+                        <span>{{ __('co-learning.previous_answer') }}</span>
+                    </x-dynamic-component>
+                    <x-button.primary x-on:click="await goToNextAnswerRating()"
+                                      wire:loading.attr="disabled"
+                                      :disabled="$this->isNextAnswerRatingButtonDisabled()"
+                    >
+                        <span>{{ __('co-learning.next_answer') }}</span>
+                        <x-icon.chevron/>
+                    </x-button.primary>
+
+                    {{-- Finish CO-Learning button --}}
                     @if($this->atLastQuestion)
                         <x-button.cta x-on:click="await goToFinishedCoLearningPage"
                                       wire:loading.attr="disabled"
@@ -319,9 +323,9 @@
             @endif
         </footer>
     </div>
-    @if($testTake->enable_comments_colearning && !$coLearningFinished && $testTake?->discussingQuestion->isType('OpenQuestion'))
+    @if($testTake->enable_comments_colearning && !$coLearningFinished && $this->getDiscussingQuestion()->isType('OpenQuestion'))
     <x-partials.co-learning-drawer
-            uniqueKey="ar-{{ $this->answerRating->getKey() }}-question-{{$testTake->discussingQuestion->uuid}}-{{ $this->answerFollowUpNumber }}-{{$this->getAnswerFeedbackUpdatedStateHash()}}">
+            uniqueKey="ar-{{ $this->answerRating->getKey() }}-question-{{$this->getDiscussingQuestion()->uuid}}-{{ $this->answerFollowUpNumber }}-{{$this->getAnswerFeedbackUpdatedStateHash()}}">
         <x-slot name="slideContent">
             <div x-on:answer-feedback-focus-feedback-editor.window="toggleFeedbackAccordion('add-feedback', true)"
                  x-on:answer-feedback-show-comments.window="toggleFeedbackAccordion('given-feedback', true)"

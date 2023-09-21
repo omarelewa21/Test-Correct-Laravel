@@ -5,7 +5,9 @@ namespace tcCore\Http\Livewire\Student;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
+use Illuminate\Support\Facades\DB;
 use tcCore\AnswerRating;
+use tcCore\DiscussingParentQuestion;
 use tcCore\Events\CommentedAnswerUpdated;
 use tcCore\Events\TestTakeChangeDiscussingQuestion;
 use tcCore\Events\CoLearningForceTakenAway;
@@ -42,6 +44,9 @@ class CoLearning extends TCComponent
     public $rating = null; //float or int depending on $questionAllowsDecimalScore
     public int $maxRating;
 
+    public bool $nextQuestionAvailable = false;
+    public bool $previousQuestionAvailable = false;
+
     public $allowRatingWithHalfPoints = false;
 
     public bool $noAnswerRatingAvailableForCurrentScreen = false;
@@ -59,6 +64,8 @@ class CoLearning extends TCComponent
     public $pollingFallbackActive = false;
 
     public $answered = false;
+    public int $answerRatingsCount = 0;
+    public array $answerRatingsRated = [];
 
     //Student navigation on their own pace, but not without teacher present
     public $selfPacedNavigation = false;
@@ -72,7 +79,8 @@ class CoLearning extends TCComponent
 
     public int $numberOfQuestions;
     public int $questionFollowUpNumber = 0; //with or without Closed questions
-    public int $questionOrderNumber; //with all questions
+    public int $questionOrderNumber; //with all questions (without not discussed questions)
+    public int $questionOrderAsInTestNumber; //with all questions types and also not discussed questions (like in test)
     public int $numberOfAnswers;
     public int $answerFollowUpNumber = 0;
 
@@ -108,14 +116,21 @@ class CoLearning extends TCComponent
 
     protected function getListeners()
     {
-        return [
+        $listeners = [
             TestTakeCoLearningPresenceEvent::channelSignature(testTakeUuid: $this->testTake->uuid)  => 'render',
             TestTakeStop::channelSignature(testTakeUuid: $this->testTake->uuid)                     => 'redirectToTestTakesInReview',
             TestTakeLeave::channelSignature(testTakeUuid: $this->testTake->uuid)                    => 'redirectToTestTakesToBeDiscussed',
-            TestTakeChangeDiscussingQuestion::channelSignature(testTakeUuid: $this->testTake->uuid) => 'goToActiveQuestion',
             'UpdateAnswerRating'                                                                    => 'updateAnswerRating', //old code?
             'goToActiveQuestion',
         ];
+
+        if(!$this->selfPacedNavigation) {
+            $listeners = array_merge($listeners, [
+                TestTakeChangeDiscussingQuestion::channelSignature(testTakeUuid: $this->testTake->uuid) => 'goToActiveQuestion',
+            ]);
+        }
+
+        return $listeners;
     }
 
     public function mount(TestTake $test_take)
@@ -125,9 +140,11 @@ class CoLearning extends TCComponent
                                                 ->where('user_id', auth()->id())
                                                 ->first();
 
+        $this->selfPacedNavigation = $this->testTake->enable_student_navigation_colearning;
         $this->discussingQuestionId = $this->getDiscussingQuestion()->getKey();
         $this->questionOrderList = $this->testTake->test->getQuestionOrderListWithDiscussionType();
-        $this->selfPacedNavigation = $this->testTake->enable_student_navigation_colearning;
+        $this->questionOrderNumber = $this->questionOrderList[$this->discussingQuestionId]['order'];
+        $this->questionOrderAsInTestNumber = $this->questionOrderList[$this->discussingQuestionId]['order_in_test'];
 
         if (!$this->testTake->schoolLocation->allow_new_co_learning_teacher) {
             //if teacher is in old co-learning, polling needs to start, because the Pusher presence channel is not working in the old CO-Learning
@@ -186,26 +203,31 @@ class CoLearning extends TCComponent
         return redirect()->route('student.waiting-room', ['take' => $this->testTake->uuid]);
     }
 
-    public function getEnableNextAnswerRatingButtonProperty(): bool
+    public function isNextAnswerRatingButtonDisabled(): bool
     {
-        if (!$this->answerRating->answer->isAnswered) {
-            return true;
-        }
-
-        return isset($this->answerRating->rating);
+        return !$this->nextAnswerAvailable
+            || (!isset($this->answerRating->rating) && $this->answerRating->answer->isAnswered);
     }
 
-    public function getEnableNextQuestionButtonProperty(): bool
+    public function isPreviousAnswerRatingButtonDisabled(): bool
     {
-        if($this->getNextQuestionData() === null) {
-            return false;
-        }
-        return $this->getEnableNextAnswerRatingButtonProperty();
+        return !$this->previousAnswerAvailable;
     }
 
-    public function getEnablePreviousQuestionButtonProperty(): bool
+    public function isNextQuestionButtonDisabled(): bool
     {
-        return $this->getPreviousQuestionData() !== null;
+//        if($this->getNextQuestionData() === null) {
+//            return false;
+//        }
+
+        return !$this->nextQuestionAvailable
+            || (collect($this->answerRatingsRated)->count() !== $this->answerRatingsCount);
+    }
+
+    public function isPreviousQuestionButtonDisabled(): bool
+    {
+        return !$this->previousQuestionAvailable;
+//        return $this->getPreviousQuestionData() !== null;
     }
 
     protected function getPreviousQuestionData(): ?array
@@ -254,6 +276,9 @@ class CoLearning extends TCComponent
         );
         $this->testParticipant->refresh();
 
+        //Create discussingParentQuestions for getAsnwerRatings to work with group questions
+        $this->testTake->discussingParentQuestions()->delete();
+        $this->generateDiscussingQuestionParent();
         $this->getAnswerRatings();
     }
 
@@ -266,7 +291,48 @@ class CoLearning extends TCComponent
                 : $this->testTake->update(['discussing_question_id' => $previousQuestionId]);
         }
         $this->testParticipant->refresh();
+
+        $this->testTake->discussingParentQuestions()->delete();
+        $this->generateDiscussingQuestionParent();
+
         $this->getAnswerRatings();
+    }
+
+    private function generateDiscussingQuestionParent()
+    {
+        $discussingQuestion = $this->getDiscussingQuestion();
+
+        if ($discussingQuestion?->is_subquestion) {
+            $discussingQuestionId = $discussingQuestion->getKey();
+
+            $groupQuestionId = $this->getGroupQuestionIdForSubQuestion($discussingQuestionId);
+
+            $discussingParentQuestion = new DiscussingParentQuestion();
+            $discussingParentQuestion->group_question_id = $groupQuestionId;
+            $discussingParentQuestion->level = 1;
+
+            $this->testTake->discussingParentQuestions()->save($discussingParentQuestion);
+        }
+    }
+    /**
+     * @param mixed $discussingQuestionId
+     * @return mixed|null
+     */
+    protected function getGroupQuestionIdForSubQuestion(mixed $questionId): null|int
+    {
+        return DB::query()
+                 ->select('group_question_questions.group_question_id')
+                 ->from('test_takes')
+                 ->join('tests', 'tests.id', '=', 'test_takes.test_id')
+                 ->join('test_questions', 'test_questions.test_id', '=', 'tests.id')
+                 ->join(
+                     'group_question_questions',
+                     'group_question_questions.group_question_id',
+                     '=',
+                     'test_questions.question_id'
+                 )
+                 ->where('test_takes.id', '=', $this->testTake->getKey())
+                 ->where('group_question_questions.question_id', '=', $questionId)->first()?->group_question_id;
     }
 
     public function goToActiveQuestion(): void
@@ -287,6 +353,10 @@ class CoLearning extends TCComponent
     public function updatedRating(): void
     {
         $this->handleUpdatingRatingAndJson();
+
+        if($this->rating !== null && $this->rating !== "") {
+            $this->answerRatingsRated = array_merge($this->answerRatingsRated, [$this->answerRating->getKey()]);
+        }
     }
 
     /**
@@ -341,10 +411,11 @@ class CoLearning extends TCComponent
     {
 
         $testTakeQuestionsCollection = TestTakeLaravelController::getData(null, $this->testTake);
-        $currentQuestionId = $this->getDiscussingQuestion()->getKey();
+        $this->discussingQuestionId = $this->getDiscussingQuestion()->getKey();
 
-        $this->questionOrderNumber = $this->questionOrderList[$currentQuestionId]['order'];
-        $this->numberOfQuestions = $testTakeQuestionsCollection->reduce(function ($carry, $question) use ($currentQuestionId) {
+        $this->questionOrderNumber = $this->questionOrderList[$this->discussingQuestionId]['order'];
+        $this->questionOrderAsInTestNumber = $this->questionOrderList[$this->discussingQuestionId]['order_in_test'];
+        $this->numberOfQuestions = $testTakeQuestionsCollection->reduce(function ($carry, $question) {
             if ($question->belongs_to_carousel) {
                 //carousel questions are not discussed during co-learning
                 return $carry;
@@ -357,7 +428,7 @@ class CoLearning extends TCComponent
                 return $carry;
             }
             $carry++;
-            if ($question->id == $currentQuestionId) {
+            if ($question->id == $this->discussingQuestionId) {
                 $this->questionFollowUpNumber = $carry;
             }
             return $carry;
@@ -388,6 +459,9 @@ class CoLearning extends TCComponent
 
     private function getAnswerRatings($navigateDirection = null): void
     {
+        $this->testTake->discussingParentQuestions()->delete();
+        $this->generateDiscussingQuestionParent();
+
         $params = [
             'mode'   => 'all',
             'with'   => ['questions'],
@@ -420,6 +494,10 @@ class CoLearning extends TCComponent
             $this->setActiveAnswerRating($navigateDirection);
             $this->answered = $this->answerRating->answer->isAnswered;
             $this->answeredStatus = $this->answerRating->answer->answeredStatus;
+            $this->answerRatingsRated = $this->answerRatings->filter(function ($ar) {
+                return $ar->rating !== null || !$ar->answer->isAnswered;
+            })->map->getKey()->values()->toArray();
+            $this->answerRatingsCount = $this->answerRatings->count();
 
             $this->writeDiscussingAnswerRatingToDatabase();
 
@@ -437,6 +515,8 @@ class CoLearning extends TCComponent
             $this->previousAnswerAvailable = $this->answerRatings->filter(fn($ar) => $ar->getKey() < $this->answerRatingId)->count() > 0;
             $this->nextAnswerAvailable = $this->answerRatings->filter(fn($ar) => $ar->getKey() > $this->answerRatingId)->count() > 0;
 
+
+
             $this->waitForTeacherNotificationEnabled = $this->shouldShowWaitForTeacherNotification();
 
             $this->answerRating->refresh();
@@ -448,6 +528,15 @@ class CoLearning extends TCComponent
         }
         if ($this->answerRatings->isNotEmpty()) {
             $this->getQuestionAndAnswerNavigationData();
+
+            $this->previousQuestionAvailable = $this->discussOpenQuestionsOnly
+                ? collect($this->questionOrderList)->get($this->getDiscussingQuestion()->getKey())['order_open_only'] > 1
+                : collect($this->questionOrderList)->get($this->getDiscussingQuestion()->getKey())['order'] > 1;
+
+
+            $this->nextQuestionAvailable = $this->discussOpenQuestionsOnly
+                ? collect($this->questionOrderList)->get($this->getDiscussingQuestion()->getKey())['order_open_only'] < $this->numberOfQuestions
+                : collect($this->questionOrderList)->get($this->getDiscussingQuestion()->getKey())['order'] < $this->numberOfQuestions;
         }
 
         $this->getSortedAnswerFeedback();
