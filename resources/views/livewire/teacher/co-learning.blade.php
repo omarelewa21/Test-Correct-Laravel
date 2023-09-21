@@ -94,7 +94,7 @@
                         <x-slot:title>
                             <div class="question-indicator items-center flex">
                                 <div class="inline-flex question-number rounded-full text-center justify-center items-center">
-                                    <span class="align-middle cursor-default">{{ $this->questionIndex }}</span>
+                                    <span class="align-middle cursor-default">{{ $this->questionIndexAsInTest }}</span>
                                 </div>
                                 <div class="flex gap-4 items-center relative top-0.5">
                                     <h4 class="inline-flex"
