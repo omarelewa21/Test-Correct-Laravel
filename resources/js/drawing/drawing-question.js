@@ -1987,6 +1987,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         Canvas.params.draw.newShape = null;
         if(!newShape.svg.meetsMinRequirements()) {
             Canvas.deleteObject(newShape.sidebar);
+            --Canvas.params.draw.shapeCountForEachType[newShape.sidebar.type];
             return;
         } 
         Canvas.params.highlightedShape = newShape;
