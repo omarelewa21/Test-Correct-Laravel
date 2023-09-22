@@ -1,6 +1,6 @@
 <x-partials.overview-question-container :number="$number" :question="$question" :answer="$answer">
-    <div class="w-full">
-        {!! $question->converted_question_html  !!}
+    <div class="w-full flex flex-col">
+        <div> {!! $question->converted_question_html  !!}</div>
         <div class="mt-4 space-y-2 w-1/2">
             @foreach( $this->shuffledKeys as $value)
                 <div class="flex items-center flex-col">
