@@ -359,7 +359,10 @@ class Taken extends TestTakeComponent
 
     private function discussedQuestions(Collection $questions): int
     {
-        $nonDiscussedQuestionCount = TestTakeHelper::nonAssessedDiscussedQuestionIdQueryBuilder($this->testTake,'discuss')->get(['question_id'])->count();
+        $nonDiscussedQuestionCount = $this->questionsOfTest->count();
+        if($this->testTake->test_take_status_id < 7) {
+            return 0;
+        }
         return $this->questionsOfTest->count() - $nonDiscussedQuestionCount;
 //        $answerRatingQueryBuilder = AnswerRating::where('test_take_id',$this->testTake->getKey())->where('type',AnswerRating::TYPE_STUDENT)->whereNotNull('rating')->select('answer_id');
 //        return Answer::whereIn('id',$answerRatingQueryBuilder)->groupBy('question_id')->get(['id'])->count();
@@ -381,12 +384,18 @@ class Taken extends TestTakeComponent
 
     private function assessedQuestions(): int
     {
+
+        if($this->testTake->test_take_status_id < 7){
+            return 0;
+        }
         $takeNonDiscrepancyIntoAccount = UserFeatureSetting::getSetting(
             user   : auth()->user(),
             title  : UserFeatureSettingEnum::tryFrom('assessment_skip_no_discrepancy_answer'),
             default: false
         );
+
         $nonAssessedQuestionCount = TestTakeHelper::nonAssessedDiscussedQuestionIdQueryBuilder($this->testTake,'assess',$takeNonDiscrepancyIntoAccount)->get(['question_id'])->count();
+
         return $this->questionsOfTest->count() - $nonAssessedQuestionCount;
 
 //        $answerRatingQueryBuilder = AnswerRating::where('test_take_id',$this->testTake->getKey())->where('type','!=',AnswerRating::TYPE_STUDENT)->whereNotNull('rating')->select('answer_id');

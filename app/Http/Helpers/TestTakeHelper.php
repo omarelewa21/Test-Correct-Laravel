@@ -31,14 +31,16 @@ class TestTakeHelper
         $testParticipantQueryBuilder = TestParticipant::where('test_take_id', $testTake->getKey())->where('test_take_status_id', '>=', 6)->select('id');
         $qIdsBuilder = Answer::whereIn('test_participant_id', $testParticipantQueryBuilder)
             ->leftJoin('questions','answers.question_id','=','questions.id')
-            ->whereNotIn('answers.id', $answerRatingQueryBuilder)
-            ->where('questions.type','!=','infoScreen') // for students and teachers there is no infoscreen to rate
+            ->when($testTake->test_take_status_id >= 7,function($query) use ($answerRatingQueryBuilder){
+                $query->whereNotIn('answers.id', $answerRatingQueryBuilder)
+                    ->where('questions.type','!=','infoScreen'); // for students and teachers there is no infoscreen to rate
+            })
             ->groupBy('question_id')
             ->select('question_id');
 
         if($type === 'assess' && $qIdsBuilder->get()->count() !== 0){
             // we could have non discrepency questions which we don't necessarily have to show
-            if($takeNonDiscrepancyIntoAccount){
+            if($takeNonDiscrepancyIntoAccount && $testTake->test_take_status_id >= 8 && !$testTake->skipped_discussion){
                 // it is allowed to skip questions without discrepancies
                 $answers = Answer::whereIn('test_participant_id',$testParticipantQueryBuilder)
                     ->whereNotIn('id',$answerRatingQueryBuilder)
@@ -48,6 +50,7 @@ class TestTakeHelper
                 })->map(function(Answer $answer){
                    return $answer->id;
                 });
+                dd($nonDiscrepancyAnswerIds);
                 return $qIdsBuilder->whereNotIn('answers.id',$nonDiscrepancyAnswerIds);
             }
 
