@@ -4,6 +4,7 @@ use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use tcCore\Rules\NistPasswordRules;
 use tcCore\User;
 
 class UpdatePasswordForUserRequest extends Request {
@@ -67,7 +68,7 @@ class UpdatePasswordForUserRequest extends Request {
 	public function rules()
 	{
 		return [
-			'password' => 'required|confirmed|'. User::getPasswordLengthRule(),
+			'password' => NistPasswordRules::changePassword($this?->user->username)
 		];
 	}
 
