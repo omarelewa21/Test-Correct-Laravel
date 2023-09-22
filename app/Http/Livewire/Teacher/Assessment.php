@@ -842,6 +842,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             ], $updates);
     }
 
+    /** @TODO @roan should this be moved towards the TestTakeHelper and merged with the method there? */
     private function getAssessedQuestionsCount(): int
     {
         $unansweredQuestionCount = $this->answers
