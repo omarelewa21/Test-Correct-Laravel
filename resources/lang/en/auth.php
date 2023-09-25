@@ -122,6 +122,7 @@ return [
     'newPasswordRepeat.same'                                  => 'New passwords do not match',
     'newPassword.required'                                    => 'New password is required',
     'newPassword.min'                                         => 'New password does not meet required length',
+    'password_min'                                            => 'Password must contain at least 8 characters',
     'newPassword.regex'                                       => 'New password does not meet required pattern',
     'passwords_dont_match'                                    => 'The current password entered is incorrect',
     'old_and_new_passwords_match'                             => 'The current and new password match. Please enter a different password.',

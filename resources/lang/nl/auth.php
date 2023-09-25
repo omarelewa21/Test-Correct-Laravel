@@ -143,6 +143,7 @@ return [
     'newPasswordRepeat.same'                                                                         => 'Je nieuwe wachtwoord komt niet overeen',
     'newPassword.required'                                                                           => 'Nieuw wachtwoord is verplicht',
     'newPassword.min'                                                                                => 'Je nieuwe wachtwoord is niet lang genoeg',
+    'password_min'                                                                                   => 'Wachtwoord moet langer zijn dan 8 karakters',
     'newPassword.regex'                                                                              => 'Je nieuwe wachtwoord voldoet niet aan het verplichte patroon',
     'passwords_dont_match'                                                                           => 'Het opgegeven huidige wachtwoord is incorrect',
     'old_and_new_passwords_match'                                                                    => 'Het huidige en nieuwe wachtwoord komen overeen. Voer een ander wachtwoord in.',

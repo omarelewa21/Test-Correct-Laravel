@@ -21,6 +21,7 @@ use tcCore\Http\Requests\Request;
 use tcCore\Jobs\SendForgotPasswordMail;
 use tcCore\Rules\EmailDns;
 use tcCore\Rules\EmailImproved;
+use tcCore\Rules\NistPasswordRules;
 use tcCore\Rules\TrueFalseRule;
 use tcCore\SamlMessage;
 use tcCore\Services\EmailValidatorService;

@@ -14,6 +14,7 @@ use tcCore\DemoTeacherRegistration;
 use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Helpers\Choices\Choice;
 use tcCore\Http\Requests\Request;
+use tcCore\Rules\NistPasswordRules;
 use tcCore\SamlMessage;
 use tcCore\SchoolLocation;
 use tcCore\Shortcode;
@@ -119,7 +120,7 @@ class Onboarding extends TCComponent
                 'registration.name_first'       => 'required|string',
                 'registration.name'             => 'required|string',
                 'registration.name_suffix'      => 'sometimes',
-                'password'                      => 'required|same:password_confirmation|'. User::getPasswordLengthRule(),
+                'password'                      => NistPasswordRules::register($this->registration['username']),
             ], $extra1);
         }
 
