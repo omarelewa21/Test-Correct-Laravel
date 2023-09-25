@@ -50,7 +50,6 @@ class TestTakeHelper
                 })->map(function(Answer $answer){
                    return $answer->id;
                 });
-                dd($nonDiscrepancyAnswerIds);
                 return $qIdsBuilder->whereNotIn('answers.id',$nonDiscrepancyAnswerIds);
             }
 
