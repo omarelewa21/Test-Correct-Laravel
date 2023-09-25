@@ -1589,6 +1589,13 @@ document.addEventListener("alpine:init", () => {
 
             this.$root.dataset.hasValue = this.value !== null;
             if (oldValue !== this.value) {
+                if([null, 'null'].includes(this.$root.dataset.toggleValue)) {
+                    this.$dispatch("multi-slider-toggle-value-updated", {
+                        value: target.firstElementChild.dataset.id,
+                        firstTick: oldValue === null
+                    });
+                    return;
+                };
                 /* dispatch with a static (question score) value, not value/key of button-option, only works with true/false  */
                 this.$dispatch("slider-toggle-value-updated", {
                     value: this.$root.dataset.toggleValue,
@@ -1596,10 +1603,7 @@ document.addEventListener("alpine:init", () => {
                     firstTick: oldValue === null,
                     identifier: this.identifier
                 });
-                this.$dispatch("multi-slider-toggle-value-updated", {
-                    value: target.firstElementChild.dataset.id,
-                    firstTick: oldValue === null
-                });
+
             }
         },
         hoverButton(target) {
