@@ -159,7 +159,7 @@
                                                        :toolTip="__('teacher.enable_mr_chadd_tt')"
                                                        containerClass="border-t-0 w-full lg:w-[calc(50%-0.5rem)]"
                         >
-                            <x-icon.questionmark class="flex-shrink-0"/>
+                            <x-icon.mr-chadd class="flex-shrink-0"/>
                             <span class="bold">{{ __('teacher.enable_mr_chadd') }} </span>
                         </x-input.toggle-row-with-title>
                     @endif

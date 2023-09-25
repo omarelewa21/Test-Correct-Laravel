@@ -395,3 +395,12 @@
     background-color: var(--system-secondary) !important;
     color: var(--system-base) !important;
 }
+
+/* placing the MrChadd widget above the footer */
+#chadd-frame {
+    bottom: 164px;
+}
+
+#chadd-toggle {
+    bottom: 86px;
+}
