@@ -52,7 +52,7 @@ class SendMessageMail extends Job implements ShouldQueue
             }
 
             try {
-                $mailer->send($template, ['receiver' => $messageReceiver->user, 'sentMessage' => $message, 'urlLogin' => $urlLogin], function ($m) use ($email, $name, $message) {
+                $mailer->send($template, ['receiver_name' => $name, 'receiver' => $messageReceiver->user, 'sentMessage' => $message, 'urlLogin' => $urlLogin], function ($m) use ($email, $name, $message) {
                     $m->to($email, $name);
                     $m->subject($message->getAttribute('subject'));
                 });

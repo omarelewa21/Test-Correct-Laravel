@@ -3,7 +3,7 @@
 @section('content')
 <tr>
 <td colspan="999" style="padding:20px;">
-    {{ __("student.Beste") }} {{ $receiver->getNameFullAttribute() }},<br/>
+    {{ __("student.Beste") }} {{ $receiver_name }},<br/>
 <br/>
 {{ $sentMessage->user->getNameFullAttribute() }} {{ __("student.heeft via Test-Correct het volgende bericht naar je gestuurd") }}:<br/>
 <br/>
