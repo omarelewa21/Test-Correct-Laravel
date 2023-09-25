@@ -46,7 +46,7 @@ class ContentSourceFactory
     public static function makeExternalWithCustomerCode($customer_code): ContentSourceService|null
     {
         return match ($customer_code) {
-            config('custom.examschool_customercode')                => new NationalItemBankService(),
+//            config('custom.examschool_customercode')                => new NationalItemBankService(),
             config('custom.national_item_bank_school_customercode') => new NationalItemBankService(),
             config('custom.creathlon_school_customercode')          => new CreathlonService(),
             config('custom.olympiade_school_customercode')          => new OlympiadeService(),
