@@ -56,6 +56,13 @@ return [
     ],
     "not_in"               => "The selected :attribute is invalid.",
     "numeric"              => "The :attribute must be a number.",
+    'password'             => [
+        'letters'       => 'The password field must contain at least one letter.',
+        'mixed'         => 'The password field must contain at least one uppercase and one lowercase letter.',
+        'numbers'       => 'The password field must contain at least one number.',
+        'symbols'       => 'The password field must contain at least one symbol.',
+        'uncompromised' => 'The given password has appeared in a data leak. Please choose a different password.',
+    ],
     "regex"                => "The :attribute format is invalid.",
     "required"             => "The :attribute field is required.",
     "required_if"          => "The :attribute field is required when :other is :value.",
