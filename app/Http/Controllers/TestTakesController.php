@@ -878,6 +878,9 @@ class TestTakesController extends Controller
         $questionsNotIgnored = [];
 
         foreach ($testTake->testParticipants as $testParticipant) {
+            if (!$testParticipant->user) {
+                continue;
+            }
             foreach ($testParticipant->answers as $answer) {
                 if ($answer->getAttribute('ignore_for_rating')) {
                     continue;
@@ -946,6 +949,9 @@ class TestTakesController extends Controller
         $sheet[] = $header;
 
         foreach ($testTake->testParticipants as $testParticipant) {
+            if (!$testParticipant->user) {
+                continue;
+            }
             $score = 0;
             $rScore = 0;
             $t1Score = 0;

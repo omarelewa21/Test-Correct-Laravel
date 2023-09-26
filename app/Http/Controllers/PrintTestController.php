@@ -73,7 +73,12 @@ class PrintTestController extends Controller
         $this->testTake = $testTake->load([
             'test:id,name',
             'testParticipants:id,user_id,test_take_id,rating',
-            'testParticipants.user:id,name,name_first,name_suffix',
+            'testParticipants.user' => fn($query) => $query->select(
+                'id',
+                'name',
+                'name_first',
+                'name_suffix'
+            )->withTrashed(),
         ]);
         $this->testTake->testParticipants
             ->each(fn($participant) => $participant->user->fullName = $participant->user->name_full);
@@ -84,7 +89,7 @@ class PrintTestController extends Controller
             'grade-list',
             [
                 'testParticipants' => $testTake->testParticipants,
-                'titleForPdfPage'            => $titleForPdf,
+                'titleForPdfPage'  => $titleForPdf,
             ]
         )
             ->render();

@@ -58,7 +58,7 @@ class Planned extends TestTakeComponent
 
     public function canStartTestTake(): bool
     {
-        return $this->testTake->time_start->isToday();
+        return $this->testTake->time_start->isToday() && $this->hasStudentStartRequirement();
     }
 
     public function startTake(): void
@@ -91,9 +91,14 @@ class Planned extends TestTakeComponent
     public function getWarningsAboutStartingTake(): Collection
     {
         return collect([
-            'browser_testing'         => $this->testTake->allow_inbrowser_testing,
-            'guest_accounts'          => $this->testTake->guest_accounts,
+            'browser_testing' => $this->testTake->allow_inbrowser_testing,
+            'guest_accounts' => $this->testTake->guest_accounts,
             'participants_incomplete' => $this->participants->count() !== $this->activeParticipantUuids->count(),
         ])->filter();
+    }
+
+    private function hasStudentStartRequirement(): bool
+    {
+        return $this->testTake->guest_accounts || $this->participants->isNotEmpty();
     }
 }

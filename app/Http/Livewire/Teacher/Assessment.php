@@ -1327,7 +1327,11 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
                 return;
             }
             $question->doneAssessing = $answers
-                ->where(fn($answer) => $answer->hasDiscrepancy === false ? false : $answer->teacherRatings()->isEmpty())
+                ->where(function ($answer) {
+                    return $answer->hasDiscrepancy === false
+                        ? false
+                        : $answer->teacherRatings()->whereNotNull('rating')->isEmpty();
+                })
                 ->isEmpty();
         });
 

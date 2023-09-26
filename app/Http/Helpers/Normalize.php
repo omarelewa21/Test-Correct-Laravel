@@ -17,7 +17,7 @@ class Normalize
 
     public function __construct(TestTake $testTake, $request)
     {
-        $this->testTake = $testTake->load(['testParticipants', 'testParticipants.user']);
+        $this->testTake = $testTake->load(['testParticipants', 'testParticipants.user' => fn($query) => $query->withTrashed()]);
         $this->request = $request;
         $this->ignoreQuestions = $request->get('ignore_questions', []);
         $this->isPreview = $this->inPreviewMode();

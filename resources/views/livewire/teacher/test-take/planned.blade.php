@@ -8,7 +8,13 @@
                 <x-icon.arrow />
             </x-button.cta>
         @else
-            <span class="bold text-lg">@lang('test-take.toetsafname is niet vandaag gepland')</span>
+            @if(!$this->testTake->time_start->isToday())
+                <span class="bold text-lg">@lang('test-take.toetsafname is niet vandaag gepland')</span>
+            @elseif(!$this->hasStudentStartRequirement())
+                <span class="bold text-lg">@lang('test-take.Geen studenten beschikbaar')</span>
+            @else
+                <span class="bold text-lg">@lang('test-take.Afname is niet mogelijk')</span>
+            @endif
         @endif
     </div>
 @endsection
