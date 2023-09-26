@@ -11,7 +11,7 @@
         @js($minScore)
      )"
      x-on:updated-score.window="skipSync = true; score = $event.detail.score; updateContinuousSlider(); setThumbOffset();"
-     x-on:new-score="score = $event.detail.score; setThumbOffset();"
+     x-on:new-score="score = $event.detail.score; setThumbOffset();syncInput()"
      x-on:scoring-elements-error.window="markInputElementsWithError()"
         {{ $attributes->except(['wire:model', 'class']) }}
         @class([
