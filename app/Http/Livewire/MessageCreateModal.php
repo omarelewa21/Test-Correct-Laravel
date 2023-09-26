@@ -40,8 +40,8 @@ class MessageCreateModal extends TCModalComponent
             'subject' => $this->subject,
             'message' => $this->message,
             'to'      => [$this->receiver->id],
-            'user_id' => auth()->id(),
         ]);
+        $message->user_id = auth()->id();
         $message->save();
 
         $this->dispatchBrowserEvent('notify', ['message' => __('message.Bericht verzonden')]);
