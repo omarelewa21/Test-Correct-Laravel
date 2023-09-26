@@ -37,7 +37,7 @@ class Settings
 //        return ($user ?? auth()->user())->schoolLocation?->allow_new_test_taken_pages;
     }
 
-    public function canUseFeature(String $feature, ?User $user = null): bool
+        public function canUseFeature(String $feature, ?User $user = null): bool
     {
         $user ??= auth()->user();
         return (
