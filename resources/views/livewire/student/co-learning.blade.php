@@ -9,9 +9,9 @@
                 @js($this->hasFeedback)
              )"
      x-on:resize.window.debounce.50ms="repositionAnswerFeedbackIcons()"
-     x-on:slider-toggle-value-updated.window="toggleTicked($event.detail)"
      wire:key="ar-{{ $this->answerRating->getKey() }}-fe-{{$this->questionFollowUpNumber .'-'. $this->answerFollowUpNumber}}"
      @endif
+     x-on:slider-toggle-value-updated.window="toggleTicked($event.detail)"
 >
     <div id="co-learning-page"
          class="flex flex-col w-full pt-12 pb-12 items-stretch mx-8 xl:mx-28"

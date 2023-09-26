@@ -11,7 +11,7 @@ class MultipleChoiceQuestion extends QuestionComponent
     public mixed $answerStruct;
     public array $arqStructure = [];
     public ?bool $allOrNothingToggleActive = false;
-    public bool $trueFalseToggleActive = false;
+    public ?bool $trueFalseToggleActive = null;
 
     public function __construct(
         public Question $question,
@@ -85,14 +85,16 @@ class MultipleChoiceQuestion extends QuestionComponent
         return $correctIds->diff($givenAnswerIds)->isEmpty();
     }
 
-    private function setTrueFalseToggleStatus(?AnswerRating $teacherRating): bool
+    private function setTrueFalseToggleStatus(?AnswerRating $teacherOrStudentRating): ?bool
     {
-        $rating = $teacherRating ?? $this->answer->answerRatings()->where('type', AnswerRating::TYPE_SYSTEM)->first();
-
+        //colearning needs to default to null, assessment defaults to 'rating === score'
+        $rating = $teacherOrStudentRating ?? null;
+        if(!$this->inCoLearning) {
+            $rating ??= $this->answer->answerRatings()->where('type', AnswerRating::TYPE_SYSTEM)->first();
+        }
         $this->trueFalseToggleActive = $this->ratingHasBoolValueForKey($rating, $this->question->id)
             ? $rating->json[$this->question->id]
-            : (float)$rating?->rating === (float)$this->question->score;
-
+            : ($this->inCoLearning ? null : (float)$rating?->rating === (float)$this->question->score);
         return $this->trueFalseToggleActive;
     }
 }
