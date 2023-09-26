@@ -4,6 +4,7 @@ namespace tcCore\Traits;
 
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Support\Facades\Auth;
+use RuntimeException;
 use tcCore\GroupQuestion;
 use tcCore\Http\Controllers\AuthorsController;
 use tcCore\QuestionAuthor;

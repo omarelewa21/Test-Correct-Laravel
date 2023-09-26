@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
+use RuntimeException;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Requests;
 use tcCore\Test;
