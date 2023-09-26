@@ -42,7 +42,7 @@ class CoLearning extends TCComponent
     public bool $nextAnswerAvailable = false;
     public bool $previousAnswerAvailable = false;
     public $rating = null; //float or int depending on $questionAllowsDecimalScore
-    public int $maxRating;
+    public float $maxRating;
 
     public bool $nextQuestionAvailable = false;
     public bool $previousQuestionAvailable = false;
