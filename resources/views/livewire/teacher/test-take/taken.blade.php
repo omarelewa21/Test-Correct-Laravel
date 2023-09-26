@@ -126,10 +126,10 @@
     @else
 
         <x-button.icon wire:click="startAssessment" class="order-5"
-                       :title="__('co-learning.start_co_learning_session')">
+                       :title="__('assessment.Start nakijken')">
             <x-icon.review />
         </x-button.icon>
-        <x-button.icon wire:click="startCoLearning" class="order-5" :title="__('assessment.Start nakijken')">
+        <x-button.icon wire:click="startCoLearning" class="order-5" :title="__('co-learning.start_co_learning_session')">
             <x-icon.co-learning />
         </x-button.icon>
 
