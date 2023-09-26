@@ -216,9 +216,6 @@ class CoLearning extends TCComponent
 
     public function isNextQuestionButtonDisabled(): bool
     {
-//        if($this->getNextQuestionData() === null) {
-//            return false;
-//        }
 
         return !$this->nextQuestionAvailable
             || (collect($this->answerRatingsRated)->count() !== $this->answerRatingsCount);
@@ -227,7 +224,6 @@ class CoLearning extends TCComponent
     public function isPreviousQuestionButtonDisabled(): bool
     {
         return !$this->previousQuestionAvailable;
-//        return $this->getPreviousQuestionData() !== null;
     }
 
     protected function getPreviousQuestionData(): ?array
@@ -546,7 +542,7 @@ class CoLearning extends TCComponent
     {
         if (
             $this->atLastQuestion &&
-            $this->shouldShowWaitForTeacherNotification()
+            ($this->selfPacedNavigation ? $this->allAnswerRatingsFullyRated() : $this->shouldShowWaitForTeacherNotification() )
         ) {
             $this->finishCoLearningButtonEnabled = true;
             return;
@@ -711,6 +707,9 @@ class CoLearning extends TCComponent
                             ->reduce(fn($carry, $value, $key) => $carry + ($ratingPerAnswerOption[$key] ?? 0), 0)
         //first filter out all false values (toggle == off), then reduce the remaining values to a single value
         );
+        if($amountOfTogglesUsed === $amountOfToggles) {
+            $this->answerRatingsRated = array_unique(array_merge($this->answerRatingsRated, [$this->answerRating->getKey()]));
+        }
     }
 
     private function setRating(int|float $rating)
