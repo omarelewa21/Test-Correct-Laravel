@@ -323,8 +323,10 @@ SQL;
 
     public function setAnswerFeedbackFilter(string $filter) : void
     {
-        $this->answerFeedbackFilter = AnswerFeedbackFilter::tryFrom($filter);
-        $this->getSortedAnswerFeedback();
+        if(AnswerFeedbackFilter::tryFrom($filter)) {
+            $this->answerFeedbackFilter = AnswerFeedbackFilter::tryFrom($filter);
+            $this->getSortedAnswerFeedback();
+        }
     }
 
     public function getTestParticipantsRatingTheCurrentAnswer(): mixed
