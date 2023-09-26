@@ -48,7 +48,7 @@
         </div>
     </div>
     @unless($this->headerCollapsed)
-        <div id="start-screen-content" class="h-full flex justify-center overflow-y-auto" style="height: 90vh">
+        <div id="start-screen-content" class="h-[90vh] flex justify-center overflow-y-auto">
             <div class="flex flex-col mb-[110px]">
                 <div class="flex flex-col gap-2 items-center justify-center mb-4">
                     <h3 class="text-center text-white">
