@@ -348,7 +348,10 @@ class MatchingQuestion extends Question implements QuestionInterface
 
     public function isFullyAnswered(Answer $answer): bool
     {
-        $givenAnswersCount = collect(json_decode($answer->json, true))->filter()->count();
+        $givenAnswersOnlyInjson = collect(json_decode($answer->json, true))
+            ->reject(fn($value, $key) => $key === 'order');
+
+        $givenAnswersCount = $givenAnswersOnlyInjson->filter()->count();
         return $givenAnswersCount === $this->matchingQuestionAnswers()->where('type', 'RIGHT')->count();
     }
 }
