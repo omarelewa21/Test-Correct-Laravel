@@ -54,5 +54,5 @@ return [
     'override_system_score_notification'           => 'Let op: Het veranderen van de score in gesloten vragen leidt tot verschillen in de score en het antwoordmodel.',
     'Het nieuwe nakijken'                          => 'Het nieuwe nakijken',
     'new_assessment_notification'                  => 'Nakijken is geüpdatet. Er zijn nieuwe functionaliteiten in een andere indeling, waardoor het net anders werkt.',
-    'new_assessment_knowledge_bank'                => 'Learn more in this Knowledge base article.',
+    'new_assessment_knowledge_bank'                => 'Leer hier meer over in dit Kennisbank artikel.',
 ];
