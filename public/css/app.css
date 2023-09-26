@@ -2076,6 +2076,15 @@ button.button {
     background-color: var(--system-secondary) !important;
     color: var(--system-base) !important;
 }
+
+/* placing the MrChadd widget above the footer */
+#chadd-frame {
+    bottom: 164px;
+}
+
+#chadd-toggle {
+    bottom: 86px;
+}
 .form-input {
     padding: 0 10px 0 10px;
     height: 40px;
