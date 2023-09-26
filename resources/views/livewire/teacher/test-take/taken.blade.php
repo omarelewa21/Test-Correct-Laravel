@@ -241,7 +241,7 @@
             <h2>@lang('test-take.Resultaten instellen')</h2>
 
             <div class="flex flex-col gap-8">
-                <x-accordion.container :active-container-key="$this->testTake->results_published ? '' : 'standardize'">
+                <x-accordion.container :active-container-key="$this->needsToPublishResults() ? 'standardize' : ''">
                     <x-accordion.block key="standardize" :emitWhenSet="true">
                         <x-slot:title>
                             <h4>@lang('account.Becijferen en normeren')</h4>

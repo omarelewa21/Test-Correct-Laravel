@@ -19,8 +19,6 @@ use tcCore\Http\Helpers\Normalize;
 use tcCore\Http\Helpers\TestTakeHelper;
 use tcCore\Http\Livewire\Teacher\TestTake\TestTake as TestTakeComponent;
 use tcCore\Lib\Answer\AnswerChecker;
-use tcCore\RttiExportLog;
-use tcCore\Services\RttiExportService;
 use tcCore\TestParticipant;
 use tcCore\TestTake as TestTakeModel;
 use tcCore\TestTakeStatus;
@@ -221,7 +219,7 @@ class Taken extends TestTakeComponent
 
     public function canPublishResults(): bool
     {
-        if (!$this->testTake->results_published) {
+        if ($this->needsToPublishResults()) {
             return true;
         }
         return $this->participantGradesChanged;
@@ -252,6 +250,20 @@ class Taken extends TestTakeComponent
     public function changeResultsParticipantOrder(): void
     {
         $this->resultsTabDirection = $this->resultsTabDirection === 'asc' ? 'desc' : 'asc';
+    }
+
+    public function needsToPublishResults(): bool
+    {
+        if (!$this->testTake->results_published) {
+            return true;
+        }
+        if ($this->testTake->results_published->gt($this->testTake->assessed_at)) {
+            return false;
+        }
+
+        return $this->participantResults->contains(function ($participant) {
+            return ((float)$participant->rating !== (float)$participant->definitiveRating);
+        });
     }
 
     /* Button actions */
@@ -736,7 +748,7 @@ class Taken extends TestTakeComponent
         $this->gradingStandard = str($standard->name)->lower()->value();
         $this->cesuurPercentage = $cesuurPercentage ? (float)$cesuurPercentage : null;
 
-        if (!$this->testTake->results_published) {
+        if (!$this->testTake->results_published || $this->testTake->results_published->lt($this->testTake->assessed_at)) {
             $this->standardizeResults(
                 $standard,
                 $this->gradingValue
