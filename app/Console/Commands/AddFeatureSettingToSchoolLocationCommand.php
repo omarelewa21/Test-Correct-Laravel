@@ -31,7 +31,8 @@ class AddFeatureSettingToSchoolLocationCommand extends Command
         'allow_new_reviewing',
         'allow_cms_write_down_wsc_toggle',
         'allow_new_test_take_detail_page',
-        'allow_mr_chadd'
+        'allow_mr_chadd',
+        'allow_new_test_taken_pages',
     ];
 
     public function handle()
