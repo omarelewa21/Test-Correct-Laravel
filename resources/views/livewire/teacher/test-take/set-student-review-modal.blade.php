@@ -31,8 +31,8 @@
     </x-slot:content>
 
     <x-slot:footer>
-        <div class="flex justify-end w-full gap-4">
-            <x-button.text size="sm" wire:click="closeModal">
+        <div class="flex justify-end items-center w-full gap-4">
+            <x-button.text size="md" wire:click="closeModal">
                 <span>{{__('general.cancel')}}</span>
             </x-button.text>
 
