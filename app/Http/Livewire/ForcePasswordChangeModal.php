@@ -4,6 +4,7 @@ namespace tcCore\Http\Livewire;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use tcCore\Rules\NistPasswordRules;
 use tcCore\User;
 
 class ForcePasswordChangeModal extends TCModalComponent
@@ -11,10 +12,12 @@ class ForcePasswordChangeModal extends TCModalComponent
     public $newPassword;
     public $newPassword_confirmation;
 
+    protected $preventFieldTransformation = ['newPassword', 'newPassword_confirmation'];
+
     public function rules()
     {
         return [
-            'newPassword' => 'required|confirmed|' . User::getPasswordLengthRule(),
+            'newPassword' => NistPasswordRules::changePassword(Auth::user()?->username),
         ];
     }
 

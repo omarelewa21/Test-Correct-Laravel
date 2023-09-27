@@ -59,6 +59,7 @@ class EntreeOnboarding extends Onboarding
     public $samlId;
 
     public $needsPassword = true;
+    protected $preventFieldTransformation = ['password', 'password_confirmation'];
 
     protected $queryString = ['step', 'samlId'];
 
