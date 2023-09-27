@@ -629,7 +629,7 @@ window.RichTextEditor = {
                 if (typeof resolveCallback === "function") {
                     resolveCallback(editor);
                 }
-                editor.ui.view.editableElement.tabIndex = -1;
+                // editor.ui.view.editableElement.tabIndex = -1;
             })
             .catch(error => {
                 console.error(error);

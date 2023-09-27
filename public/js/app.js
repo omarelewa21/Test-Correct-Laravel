@@ -8542,13 +8542,8 @@ document.addEventListener("alpine:init", function () {
 
         document.addEventListener('DOMContentLoaded', function (event) {
           // disable tab key for all elements when in assessment mode because this corrupts the right tab drawer;
-          document.querySelectorAll('textarea').forEach(function (element) {
-            return element.tabIndex = -1;
-          });
-          document.querySelectorAll('input').forEach(function (element) {
-            return element.tabIndex = -1;
-          });
-          console.dir(ClassicEditors);
+          // document.querySelectorAll('textarea').forEach(element => element.tabIndex = -1);
+          // document.querySelectorAll('input').forEach(element => element.tabIndex = -1);
 
           // Map each key to the corresponding button's selid
           var keyToSelIdMap = {
@@ -8561,9 +8556,9 @@ document.addEventListener("alpine:init", function () {
           // Add a keyup event listener to the document
           document.addEventListener('keyup', function (event) {
             // If the target is an input or textarea, do nothing
-            if (event.target.tagName.toLowerCase() === 'input' || event.target.tagName.toLowerCase() === 'textarea') {
-              return;
-            }
+            // if (event.target.tagName.toLowerCase() === 'input' || event.target.tagName.toLowerCase() === 'textarea') {
+            //     return;
+            // }
             // Check if the event.target is a ckEditor
             if (event.target.classList.contains('ck')) {
               return;
@@ -9037,6 +9032,26 @@ document.addEventListener("alpine:init", function () {
       setThumbOffset: function setThumbOffset() {
         if (continuousSlider) {
           return;
+        }
+        if (event) {
+          var keyToSelIdMap = {
+            'a': 'btn_loadAnswer_previous',
+            'd': 'btn_loadAnswer_next',
+            's': 'btn_loadQuestion_previous',
+            'w': 'btn_loadQuestion_next'
+          };
+
+          // Add a keyup event listener to the document
+
+          var id = keyToSelIdMap[event.data.toLowerCase()];
+          // If a mapping exists, "click" the corresponding button
+          if (id) {
+            var button = document.getElementById(id);
+            if (button) {
+              button.click();
+              return;
+            }
+          }
         }
         if (this.score > this.maxScore) {
           this.score = this.maxScore;
@@ -12185,7 +12200,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _AnyChart_anychart_base_min__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_AnyChart_anychart_base_min__WEBPACK_IMPORTED_MODULE_3__);
 /* harmony import */ var uuid__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/v4.js");
 /* harmony import */ var _CkEditor5CommentsIntegration__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./CkEditor5CommentsIntegration */ "./resources/js/CkEditor5CommentsIntegration.js");
-/* provided dependency */ var process = __webpack_require__(/*! process/browser.js */ "./node_modules/process/browser.js");
 window._ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
 
 /**
@@ -12207,7 +12221,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "662d128370816e2bbb66",
+  key: "51d7221bf733999d7138",
   cluster: "eu",
   forceTLS: true
 });
@@ -12221,7 +12235,7 @@ FilePond.registerPlugin((filepond_plugin_file_validate_size__WEBPACK_IMPORTED_MO
 
 _smoothscroll_polyfill__WEBPACK_IMPORTED_MODULE_2___default().polyfill();
 
-_AnyChart_anychart_base_min__WEBPACK_IMPORTED_MODULE_3___default().licenseKey(process.env.MIX_ANYCHART_LICENSE_KEY);
+_AnyChart_anychart_base_min__WEBPACK_IMPORTED_MODULE_3___default().licenseKey("test-correct.nl-fd20379b-1da7f4b1");
 
 window.uuidv4 = uuid__WEBPACK_IMPORTED_MODULE_4__["default"];
 
@@ -19969,7 +19983,7 @@ window.RichTextEditor = {
               if (typeof resolveCallback === "function") {
                 resolveCallback(editor);
               }
-              editor.ui.view.editableElement.tabIndex = -1;
+              // editor.ui.view.editableElement.tabIndex = -1;
             })["catch"](function (error) {
               console.error(error);
             }));

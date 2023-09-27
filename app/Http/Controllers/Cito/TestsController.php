@@ -23,7 +23,7 @@ class TestsController extends Controller {
 	 */
 	public function index(Request $request)
 	{
-        Bugsnag::notify(new RuntimeException('Dead code marker detected please delete the marker the code is not dead.'), function ($report) {
+        Bugsnag::notifyException(new RuntimeException('Dead code marker detected please delete the marker the code is not dead.'), function ($report) {
             $report->setMetaData([
                 'code_context' => [
                     'file' => __FILE__,
@@ -54,7 +54,7 @@ class TestsController extends Controller {
 	 */
 	public function show(Test $test)
 	{
-        Bugsnag::notify(new RuntimeException('Dead code marker detected please delete the marker the code is not dead.'), function ($report) {
+        Bugsnag::notifyException(new RuntimeException('Dead code marker detected please delete the marker the code is not dead.'), function ($report) {
             $report->setMetaData([
                 'code_context' => [
                     'file' => __FILE__,

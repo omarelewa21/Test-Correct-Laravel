@@ -2122,10 +2122,8 @@ document.addEventListener("alpine:init", () => {
 
             document.addEventListener('DOMContentLoaded', (event) => {
                 // disable tab key for all elements when in assessment mode because this corrupts the right tab drawer;
-                document.querySelectorAll('textarea').forEach(element => element.tabIndex = -1);
-                document.querySelectorAll('input').forEach(element => element.tabIndex = -1);
-                console.dir(ClassicEditors);
-
+                // document.querySelectorAll('textarea').forEach(element => element.tabIndex = -1);
+                // document.querySelectorAll('input').forEach(element => element.tabIndex = -1);
 
                 // Map each key to the corresponding button's selid
                 const keyToSelIdMap = {
@@ -2138,9 +2136,9 @@ document.addEventListener("alpine:init", () => {
                 // Add a keyup event listener to the document
                 document.addEventListener('keyup', (event) => {
                     // If the target is an input or textarea, do nothing
-                    if (event.target.tagName.toLowerCase() === 'input' || event.target.tagName.toLowerCase() === 'textarea') {
-                        return;
-                    }
+                    // if (event.target.tagName.toLowerCase() === 'input' || event.target.tagName.toLowerCase() === 'textarea') {
+                    //     return;
+                    // }
                     // Check if the event.target is a ckEditor
                     if (event.target.classList.contains('ck')) {
                         return;
@@ -2408,9 +2406,34 @@ document.addEventListener("alpine:init", () => {
             return (value - min) / (max - min) * 100;
         },
         setThumbOffset() {
+
             if (continuousSlider) {
                 return;
             }
+            if (event) {
+                const keyToSelIdMap = {
+                    'a': 'btn_loadAnswer_previous',
+                    'd': 'btn_loadAnswer_next',
+                    's': 'btn_loadQuestion_previous',
+                    'w': 'btn_loadQuestion_next',
+                };
+
+                // Add a keyup event listener to the document
+
+
+                const id = keyToSelIdMap[event.data.toLowerCase()];
+                // If a mapping exists, "click" the corresponding button
+                if (id) {
+                    const button = document.getElementById(id);
+                    if (button) {
+                        button.click();
+                        return;
+                    }
+                }
+            }
+
+
+
             if (this.score > this.maxScore) {
                 this.score = this.maxScore;
             }
