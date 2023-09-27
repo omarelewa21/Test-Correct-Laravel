@@ -1,4 +1,4 @@
-<div class="fixed max-w-md w-max bg-off-white rounded-10 p-6 main-shadow z-50 flex text-sysbase cursor-default"
+<div class="fixed max-w-md w-max bg-off-white rounded-10 p-6 main-shadow z-[5] flex text-sysbase cursor-default"
      x-data="participantDetailPopup()"
      x-show="participantPopupOpen"
      x-cloak
