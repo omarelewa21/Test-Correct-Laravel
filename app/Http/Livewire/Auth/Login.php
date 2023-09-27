@@ -105,7 +105,7 @@ class Login extends TCComponent
     public $studentDownloadUrl = 'https://www.test-correct.nl/student/';
 
     public $errorKeys = [];
-
+    protected $preventFieldTransformation = ['password'];
     protected $listeners = ['open-auth-modal' => 'openAuthModal', 'password_reset' => 'passwordReset'];
 
     protected function getRules()

@@ -14,8 +14,8 @@ class ChangePassword extends TCModalComponent
 
     public $currentPassword;
     public $newPassword;
-    public $newPasswordRepeat;
     public $newPassword_confirmation;
+    protected $preventFieldTransformation = ['newPassword', 'newPassword_confirmation', 'currentPassword'];
 
     public function rules()
     {

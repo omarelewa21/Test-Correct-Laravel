@@ -54,7 +54,7 @@ class Onboarding extends TCComponent
 
     public $showSubjects = true;
     public Collection $subjects;
-
+    protected $preventFieldTransformation = ['password', 'password_confirmation'];
 
     protected $queryString = ['step', 'email', 'confirmed', 'ref','entree_message', 'level'];
     /**

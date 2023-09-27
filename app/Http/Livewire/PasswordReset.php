@@ -25,6 +25,8 @@ class PasswordReset extends TCComponent
     public $btnDisabled = false;
 
     protected $queryString = ['token'];
+    protected $preventFieldTransformation = ['password', 'password_confirmation'];
+
 
     private function get_browser_language()
     {
