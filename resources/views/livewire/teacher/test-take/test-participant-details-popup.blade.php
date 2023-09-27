@@ -17,10 +17,10 @@
     @if($this->testParticipant)
         <div class="grid grid-cols-[auto_auto] gap-2">
             <div class="bold">@lang('test-take.Cijfer voor deze toets'):</div>
-            <div>{{ $testParticipant->rating ?? '-' }}</div>
+            <div>{{ str(round($testParticipant->rating, 1))->replace('.', ',') ?? '-' }}</div>
 
             <div class="bold">@lang('test-take.Cijfer voor dit vak'):</div>
-            <div>{{ $testParticipant->user->averageRatings->first()?->rating ?? '-'}}</div>
+            <div>{{ str(round($testParticipant->user->averageRatings->first()?->rating, 1))->replace('.', ',') ?? '-'}}</div>
 
             <div class="bold">@lang('test-take.Tijd totaal'):</div>
             <div>{{ \Carbon\CarbonInterval::second($testParticipant->total_time)->cascade()->forHumans() }}</div>
