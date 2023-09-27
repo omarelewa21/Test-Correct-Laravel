@@ -2,7 +2,8 @@
     'tab',
     'menu',
     'highlight' => false,
-    'when' => true
+    'when' => true,
+    'selid' => false,
 ])
 
 @if($when)
@@ -17,11 +18,15 @@
         @if($highlight)
             <span class="bold text-white bg-sysbase px-2 py-1 rounded-lg group-hover:bg-primary transition"
                   x-bind:class="{'bg-primary' : {{ $menu }} === '{{ $tab }}' }"
+                  {{ $selid ? 'selid=tab_'.$tab : '' }}
             >
             {{ $slot }}
         </span>
         @else
-            <span class="bold" x-bind:class="{{ $menu }} === '{{ $tab }}' ? 'primary' : '' ">
+            <span
+                class="bold" x-bind:class="{{ $menu }} === '{{ $tab }}' ? 'primary' : '' "
+                {{ $selid ? 'selid=tab_'.$tab : '' }}
+            >
             {{ $slot }}
         </span>
         @endif

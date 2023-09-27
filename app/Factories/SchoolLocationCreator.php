@@ -47,7 +47,11 @@ class SchoolLocationCreator
         $sectionFactory = FactorySection::create($schoolLocation, $factory->sectionName);
 
         BaseSubject::where('id', 23)->get()->each(function ($baseSubject) use ($sectionFactory) {
-            $sectionFactory->addSubject($baseSubject, 'Formidable-'.$baseSubject->name);
+            $sectionFactory->addSubject(
+                $baseSubject,
+                'Formidable-'.$baseSubject->name,
+                strtoupper(substr($baseSubject->name, 0,2))
+            );
         });
 
         $section = $sectionFactory->section;
@@ -96,8 +100,6 @@ class SchoolLocationCreator
                     "question" => '<p>voorbeeld vraag FORMIDABLE! gepubliceerd:</p> <p>wat is de waarde van pi</p> ',
                 ]),
             ]);
-
-
     }
 
     public static function createSimpleSchoolWithOneTeacher(FactoryScenarioSchool $factory)
@@ -121,7 +123,8 @@ class SchoolLocationCreator
 
         $sectionFactory->addSubject(
             $baseSubject = BaseSubject::find($factory->baseSubjectId),
-            $schoolLocation->name.'-'.$baseSubject->name
+            $baseSubject->name,
+            strtoupper(substr($baseSubject->name, 0,2)),
         );
 
 

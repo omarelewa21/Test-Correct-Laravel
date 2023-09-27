@@ -40,7 +40,7 @@ return [
 
     'default_trial_days'                     => env('DEFAULT_TRIAL_DAYS', 14),
     'default_general_terms_days'             => env('DEFAULT_GENERAL_TERMS_DAYS', 14),
-    'enable_additional_seeders'              => env('ENABLE_ADDITIONAL_SEEDERS', true),
+    'enable_additional_seeders'              => filter_var(env('ENABLE_ADDITIONAL_SEEDERS', true), FILTER_VALIDATE_BOOLEAN),
     'TB_customer_code'                       => env('TB_CUSTOMER_CODE', 'TBSC'),
 
     'enable_hsts'                            => env('ENABLE_HSTS', true),

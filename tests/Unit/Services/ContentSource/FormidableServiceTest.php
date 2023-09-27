@@ -47,6 +47,10 @@ class FormidableServiceTest extends TestCase
     /** @test */
     public function it_can_tell_if_it_is_available_for_a_user()
     {
+        $teacher = ScenarioLoader::get('teacherOne');
+        $teacher->schoolLocation->allow_formidable = false;
+        $teacher->schoolLocation->save();
+
         $this->assertFalse(FormidableService::isAvailableForUser(ScenarioLoader::get('teacherOne')));
     }
 
