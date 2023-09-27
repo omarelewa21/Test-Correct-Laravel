@@ -205,12 +205,13 @@ abstract class TestTake extends TCComponent
         if ($this->testTake->test->test_kind_id === TestKind::ASSIGNMENT_TYPE) {
             array_splice(
                 $this->gridData,
-                1,
+                2,
                 0,
-
                 [
-                    'title' => __('test-take.Beschikbaar tot'),
-                    'data'  => $this->testTake->time_end->format('d-m-Y'),
+                    [
+                        'title' => __('test-take.Beschikbaar tot'),
+                        'data'  => $this->testTake->time_end->format('d-m-Y'),
+                    ]
                 ]
 
             );
