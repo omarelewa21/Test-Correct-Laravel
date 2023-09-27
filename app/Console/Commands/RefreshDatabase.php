@@ -5,6 +5,7 @@ namespace tcCore\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Laravel\Telescope\Telescope;
+use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 use tcCore\SchoolLocation;
 
@@ -17,7 +18,7 @@ class RefreshDatabase extends Command
      *
      * @var string
      */
-    protected $signature = 'test:refreshdb {--file=} {--allow-all}';
+    protected $signature = 'test:refreshdb {--file=} {--allow-all}  {{--force}}';
 
     /**
      * The console command description.
@@ -47,11 +48,16 @@ class RefreshDatabase extends Command
      */
     public function handle()
     {
-        if ($this->hasValidDatabaseSnapShot()) {
+        if (!$this->option('force') && $this->hasValidDatabaseSnapShot()) {
             $this->importDatabaseSnapshot();
             $this->info('refresh database complete');
             return 0;
         }
+
+        return $this->handleFullRefresh();
+    }
+
+    private function handleFullRefresh() {
 
         $sqlImports = [
             database_path('seeds/dropAllTablesAndViews.sql'),
@@ -97,7 +103,6 @@ class RefreshDatabase extends Command
         }
         $this->addDefaultFeatureSettingsToSchoolLocations();
 
-
         $this->info('refresh database complete');
 
         $this->createDatabaseSnapshot();
@@ -129,7 +134,8 @@ class RefreshDatabase extends Command
 
     }
 
-    private function createDatabaseSnapshot(){
+    private function createDatabaseSnapshot()
+    {
         $process = Process::fromShellCommandline(sprintf(
             'mysqldump -u%s -p%s -h%s %s > %s',
             config('database.connections.mysql.username'),
@@ -142,15 +148,16 @@ class RefreshDatabase extends Command
         try {
             $process->mustRun();
 
-            $this->info('The backup has been proceed successfully.');
+            $this->info('Snapshot created successfully.');
         } catch (ProcessFailedException $exception) {
-            $this->error('The backup process has been failed.');
+            $this->error('Snapshot creation process has failed.');
         }
 
         return 0;
     }
 
-    private function importDatabaseSnapshot(){
+    private function importDatabaseSnapshot()
+    {
         $process = Process::fromShellCommandline(sprintf(
             'mysql -u%s -p%s -h%s %s < %s',
             config('database.connections.mysql.username'),
@@ -163,10 +170,13 @@ class RefreshDatabase extends Command
         try {
             $process->mustRun();
 
-            $this->info('The database has been restored successfully.');
+            $this->info('The database has been restored from snapshot.');
         } catch (ProcessFailedException $exception) {
-            $this->error('The restoration process has failed.');
+            $this->error(
+                sprintf('The restoration process from snapshot has failed. Please manually remove %s and try again.', $this->snapShotPath)
+            );
         }
+        $this->addMigrations();
 
         return 0;
     }
