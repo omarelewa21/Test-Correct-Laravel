@@ -199,6 +199,9 @@ class UwlrGrid extends TCComponent
 
                         if($this->hasSamengesteldeGroepInGroepen($r[$k])){
                             $groepen = $samengesteldeGroepCollection->filter(function ($groep) use ($groepenKeys) {
+                                if(is_object($groep)){
+                                    $groep = (array) $groep;
+                                }
                                 return in_array($groep['key'], $groepenKeys);
                             })->map(function ($groep) {
                                 return $groep['naam'];
@@ -209,6 +212,9 @@ class UwlrGrid extends TCComponent
 
                         } else {
                             $groepen = $groepCollection->filter(function ($groep) use ($groepenKeys) {
+                                if(is_object($groep)){
+                                    $groep = (array) $groep;
+                                }
                                 return in_array($groep['key'], $groepenKeys);
                             })->map(function ($groep) {
                                 return $groep['naam'];
