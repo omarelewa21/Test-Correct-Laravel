@@ -163,7 +163,7 @@
                 </div>
             </div>
         </div>
-        <div @class(["flex flex-col w-3/4 self-center divide-white divide-y border-b border-white ", 'border-b-white/25' => true, 'border-t' => !auth()->user()->schoolLocation->allow_wsc])>
+        <div @class(["flex flex-col w-3/4 self-center divide-white divide-y border-b border-white ", 'border-b-white/25' => false, 'border-t' => !auth()->user()->schoolLocation->allow_wsc])>
             <div class="flex py-2 px-4 items-center justify-between">
                 <span>@lang('co-learning.answer-model-for-students')</span>
                 <div class="flex items-center gap-4">
@@ -179,20 +179,21 @@
                 </div>
             </div>
         </div>
-        <div @class(["flex flex-col w-3/4 self-center divide-white divide-y border-b border-white ", 'border-b-white/25' => false, 'border-t' => !auth()->user()->schoolLocation->allow_wsc])>
-            <div class="flex py-2 px-4 items-center justify-between">
-                <span>@lang('co-learning.navigation-for-students')</span>
-                <div class="flex items-center gap-4">
-                    @if($this->testTake->enable_student_navigation_colearning)
-                        <x-input.toggle wire:click="toggleStudentEnableNavigation($event.target.checked)" checked />
-                    @else
-                        <x-input.toggle wire:click="toggleStudentEnableNavigation($event.target.checked)"/>
-                    @endif
+        {{-- TODO: Re-enable this after deployment 28-9-23, also swap border-b-white/25 above back to true --}}
+{{--        <div @class(["flex flex-col w-3/4 self-center divide-white divide-y border-b border-white ", 'border-b-white/25' => false, 'border-t' => !auth()->user()->schoolLocation->allow_wsc])>--}}
+{{--            <div class="flex py-2 px-4 items-center justify-between">--}}
+{{--                <span>@lang('co-learning.navigation-for-students')</span>--}}
+{{--                <div class="flex items-center gap-4">--}}
+{{--                    @if($this->testTake->enable_student_navigation_colearning)--}}
+{{--                        <x-input.toggle wire:click="toggleStudentEnableNavigation($event.target.checked)" checked />--}}
+{{--                    @else--}}
+{{--                        <x-input.toggle wire:click="toggleStudentEnableNavigation($event.target.checked)"/>--}}
+{{--                    @endif--}}
 
-                    <x-tooltip idle-classes="bg-transparent text-white border-white border">
-                        <span class="text-left">@lang('co-learning.navigation-for-students-tt')</span>
-                    </x-tooltip>
-                </div>
-            </div>
-        </div>
+{{--                    <x-tooltip idle-classes="bg-transparent text-white border-white border">--}}
+{{--                        <span class="text-left">@lang('co-learning.navigation-for-students-tt')</span>--}}
+{{--                    </x-tooltip>--}}
+{{--                </div>--}}
+{{--            </div>--}}
+{{--        </div>--}}
     @endsection
