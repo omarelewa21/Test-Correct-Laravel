@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
 use Illuminate\Support\Facades\DB;
 use tcCore\AnswerRating;
-use tcCore\DiscussingParentQuestion;
 use tcCore\Events\CommentedAnswerUpdated;
 use tcCore\Events\TestTakeChangeDiscussingQuestion;
 use tcCore\Events\CoLearningForceTakenAway;
@@ -272,9 +271,6 @@ class CoLearning extends TCComponent
         );
         $this->testParticipant->refresh();
 
-        //Create discussingParentQuestions for getAsnwerRatings to work with group questions
-        $this->testTake->discussingParentQuestions()->delete();
-        $this->generateDiscussingQuestionParent();
         $this->getAnswerRatings();
     }
 
@@ -288,28 +284,9 @@ class CoLearning extends TCComponent
         }
         $this->testParticipant->refresh();
 
-        $this->testTake->discussingParentQuestions()->delete();
-        $this->generateDiscussingQuestionParent();
-
         $this->getAnswerRatings();
     }
 
-    private function generateDiscussingQuestionParent()
-    {
-        $discussingQuestion = $this->getDiscussingQuestion();
-
-        if ($discussingQuestion?->is_subquestion) {
-            $discussingQuestionId = $discussingQuestion->getKey();
-
-            $groupQuestionId = $this->getGroupQuestionIdForSubQuestion($discussingQuestionId);
-
-            $discussingParentQuestion = new DiscussingParentQuestion();
-            $discussingParentQuestion->group_question_id = $groupQuestionId;
-            $discussingParentQuestion->level = 1;
-
-            $this->testTake->discussingParentQuestions()->save($discussingParentQuestion);
-        }
-    }
     /**
      * @param mixed $discussingQuestionId
      * @return mixed|null
@@ -455,9 +432,6 @@ class CoLearning extends TCComponent
 
     private function getAnswerRatings($navigateDirection = null): void
     {
-        $this->testTake->discussingParentQuestions()->delete();
-        $this->generateDiscussingQuestionParent();
-
         $params = [
             'mode'   => 'all',
             'with'   => ['questions'],

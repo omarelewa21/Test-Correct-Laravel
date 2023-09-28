@@ -1347,26 +1347,13 @@ class TestTake extends BaseModel
      */
     public function getDottedDiscussingQuestionIdWithOptionalGroupQuestionId(?TestParticipant $testParticipant = null): ?string
     {
-        $questionId = null;
-        foreach ($this->discussingParentQuestions as $discussingParentQuestions) {
-            if ($questionId !== null) {
-                $questionId .= '.';
-            }
-            $questionId .= $discussingParentQuestions->getAttribute('group_question_id');
-        }
+        $discussingQuestion = $testParticipant?->discussingQuestion ?? $this->discussingQuestion;
 
-        if ($questionId !== null) {
-            $questionId .= '.';
-        }
-        if($testParticipant) {
-            $discussingQuestionId = $testParticipant->getAttribute('discussing_question_id');
-        }
-        $discussingQuestionId ??= $this->getAttribute('discussing_question_id');
+        $discussingQuestionGroupQuestionId = $discussingQuestion->getGroupQuestionIdByTest($this->test->getKey());
 
-        if ($discussingQuestionId === null) {
-            return null;
-        }
-        return $questionId . $discussingQuestionId;
+        return collect([$discussingQuestionGroupQuestionId, $discussingQuestion->getKey()])
+            ->filter() // remove null values and if so prevent join() from adding a dot
+            ->join('.');
     }
 
     public function getPlannedTestOptions()
