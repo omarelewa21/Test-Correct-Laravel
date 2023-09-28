@@ -265,6 +265,10 @@ class CoLearning extends TCComponent
 
     public function goToNextQuestion()
     {
+        if(!$this->selfPacedNavigation) {
+            return;
+        }
+
         CoLearningHelper::nextQuestion(
             testTake: $this->testTake,
             testParticipant: $this->testParticipant,
@@ -276,6 +280,10 @@ class CoLearning extends TCComponent
 
     public function goToPreviousQuestion()
     {
+        if(!$this->selfPacedNavigation) {
+            return;
+        }
+
         if ($previousQuestionId = $this->getPreviousQuestionData()['id']) {
             //set the previous question as the new discussing question
             $this->selfPacedNavigation

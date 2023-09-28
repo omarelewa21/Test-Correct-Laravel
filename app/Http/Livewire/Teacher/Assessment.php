@@ -411,6 +411,10 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
     public function toggleValueUpdated($id, $state): void
     {
+        if (in_array(needle: $id, haystack: [null, ""])) {
+            return;
+        }
+
         $json = $this->teacherRating()?->json ?? [];
 
         $json[$id] = $state === 'on';
