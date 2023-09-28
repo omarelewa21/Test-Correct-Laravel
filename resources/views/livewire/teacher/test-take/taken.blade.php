@@ -33,7 +33,7 @@
 
 @section('cta')
     <div class="flex gap-2 justify-center">
-        @if($this->testTakeStatusId <= \tcCore\TestTakeStatus::STATUS_DISCUSSED && !$this->assessmentDone)
+        @if(!$this->showResults())
             <x-dynamic-component :component="'button.'. $this->getButtonType('CO-Learning')"
                                  wire:click="startCoLearning" class="px-4">
                 <x-icon.co-learning />

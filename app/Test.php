@@ -302,7 +302,7 @@ class Test extends BaseModel
      */
     public function scopeCitoFiltered($query, $filters = [], $sorting = [])
     {
-        Bugsnag::notify(new RuntimeException('Dead code marker detected please delete the marker the code is not dead.'), function ($report) {
+        Bugsnag::notifyException(new RuntimeException('Dead code marker detected please delete the marker the code is not dead.'), function ($report) {
             $report->setMetaData([
                 'code_context' => [
                     'file' => __FILE__,
@@ -330,7 +330,7 @@ class Test extends BaseModel
      */
     public function scopeExamFiltered($query, $filters = [], $sorting = [])
     {
-        Bugsnag::notify(new RuntimeException('Dead code marker detected please delete the marker the code is not dead.'), function ($report) {
+        Bugsnag::notifyException(new RuntimeException('Dead code marker detected please delete the marker the code is not dead.'), function ($report) {
             $report->setMetaData([
                 'code_context' => [
                     'file' => __FILE__,
