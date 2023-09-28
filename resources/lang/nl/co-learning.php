@@ -61,7 +61,7 @@ return [
     'open-question-options'         => 'Opties voor open vragen',
     'Taalfouten'                    => 'Taalfouten',
     'feedback geven'                => 'Feedback geven',
-    'comments-for-students'         => 'Inline feedback aanzetten voor studenten',
+    'comments-for-students'         => 'Feedback aanzetten voor studenten',
     'comments-for-students-tt'      => 'Hiermee kunnen studenten feedback achterlaten tijdens het beoordelen van de antwoorden van andere studenten',
     'question-text-for-students'    => 'Vraagtekst aanzetten voor studenten',
     'question-text-for-students-tt' => 'Hiermee kunnen studenten de vraagtekst bekijken tijdens het beoordelen van de antwoorden van andere studenten',

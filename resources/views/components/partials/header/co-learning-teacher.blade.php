@@ -36,7 +36,6 @@
         <x-slot:title>{{  str(__('co-learning.all_questions'))->ucfirst() }}</x-slot:title>
         <x-slot:subtitle>
             <div>{{ __('co-learning.all_questions_text') }}</div>
-            <div class="text-[14px]">{{ __('co-learning.all_questions_note') }}</div>
         </x-slot:subtitle>
         <x-slot:button>
             <x-button.cta size="md"
@@ -76,7 +75,6 @@
         <x-slot:title>{{ str(__('co-learning.open_questions_only'))->ucfirst() }}</x-slot:title>
         <x-slot:subtitle>
             <div>{{ __('co-learning.open_questions_text') }}</div>
-            <div class="text-[14px]">{{ __('co-learning.open_questions_note') }}</div>
         </x-slot:subtitle>
         <x-slot:button>
             <x-button.cta size="md"
