@@ -187,8 +187,14 @@ class UwlrGrid extends TCComponent
                         $samengesteldeGroepenKeys = $this->getSamengesteldeGroepenKeys($r[$k]);
 
                         $samengesteldeGroepen = $samengesteldeGroepCollection->filter(function($groep) use ($samengesteldeGroepenKeys) {
+                            if(is_object($groep)){
+                                $groep = (array) $groep;
+                            }
                             return in_array($groep['key'],  $samengesteldeGroepenKeys);
                         })->map(function($groep){
+                            if(is_object($groep)){
+                                $groep = (array) $groep;
+                            }
                             return $groep['naam'];
                         });
 
@@ -204,6 +210,9 @@ class UwlrGrid extends TCComponent
                                 }
                                 return in_array($groep['key'], $groepenKeys);
                             })->map(function ($groep) {
+                                if(is_object($groep)){
+                                    $groep = (array) $groep;
+                                }
                                 return $groep['naam'];
                             });
 
@@ -217,6 +226,9 @@ class UwlrGrid extends TCComponent
                                 }
                                 return in_array($groep['key'], $groepenKeys);
                             })->map(function ($groep) {
+                                if(is_object($groep)){
+                                    $groep = (array) $groep;
+                                }
                                 return $groep['naam'];
                             });
 
