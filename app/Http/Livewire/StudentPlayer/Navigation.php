@@ -103,10 +103,12 @@ abstract class Navigation extends TCComponent
 
     public function checkIfCurrentQuestionIsInfoscreen($question)
     {
-        $questionUuid = $this->nav[$question - 1]['uuid'];
-        if (Question::whereUuid($questionUuid)->first()->type === 'InfoscreenQuestion') {
-            $this->dispatchBrowserEvent('mark-infoscreen-as-seen', $questionUuid);
-            $this->updateQuestionIndicatorColor($question);
+        if($this->nav->has($question - 1)) {
+            $questionUuid = $this->nav[$question - 1]['uuid'];
+            if (Question::whereUuid($questionUuid)->first()->type === 'InfoscreenQuestion') {
+                $this->dispatchBrowserEvent('mark-infoscreen-as-seen', $questionUuid);
+                $this->updateQuestionIndicatorColor($question);
+            }
         }
     }
 
