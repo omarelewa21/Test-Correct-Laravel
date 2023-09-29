@@ -48,7 +48,7 @@ class TestTakeLaravelController extends Controller
     {
         $testParticipant = TestParticipant::whereUserId(Auth::id())->whereTestTakeId($testTake->id)->first();
 
-        if (!$testParticipant->canTakeTestTakeInPlayer()) {
+        if (!$testParticipant || !$testParticipant->canTakeTestTakeInPlayer()) {
             return redirect(BaseHelper::getLoginUrl());
         }
 
