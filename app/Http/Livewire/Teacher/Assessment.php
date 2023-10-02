@@ -1088,6 +1088,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
                         'type',
                         AnswerRating::TYPE_STUDENT
                     );
+                    //todo ascertain if the toggle values used in CO-Learning match, in conjunction with the score value discrepancy
                     $answer->hasDiscrepancy = $coLearningRatings->count() > 1
                         ? !$this->currentAnswerCoLearningRatingsHasNoDiscrepancy($answer)
                         : null;

@@ -1349,9 +1349,9 @@ class TestTake extends BaseModel
     {
         $discussingQuestion = $testParticipant?->discussingQuestion ?? $this->discussingQuestion;
 
-        $discussingQuestionGroupQuestionId = $discussingQuestion->getGroupQuestionIdByTest($this->test->getKey());
+        $discussingQuestionGroupQuestionId = $discussingQuestion?->getGroupQuestionIdByTest($this->test->getKey());
 
-        return collect([$discussingQuestionGroupQuestionId, $discussingQuestion->getKey()])
+        return collect([$discussingQuestionGroupQuestionId, $discussingQuestion?->getKey()])
             ->filter() // remove null values and if so prevent join() from adding a dot
             ->join('.');
     }

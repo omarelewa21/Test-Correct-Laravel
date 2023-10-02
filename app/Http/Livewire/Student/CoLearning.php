@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
 use Illuminate\Support\Facades\DB;
 use tcCore\AnswerRating;
+use tcCore\CompletionQuestion;
 use tcCore\Events\CommentedAnswerUpdated;
 use tcCore\Events\TestTakeChangeDiscussingQuestion;
 use tcCore\Events\CoLearningForceTakenAway;
@@ -19,12 +20,12 @@ use tcCore\Http\Controllers\AnswerRatingsController;
 use tcCore\Http\Controllers\TestTakeLaravelController;
 use tcCore\Http\Enums\AnswerFeedbackFilter;
 use tcCore\Http\Helpers\CoLearningHelper;
-use tcCore\Http\Livewire\CoLearning\CompletionQuestion;
 use tcCore\Http\Livewire\TCComponent;
 use tcCore\Http\Traits\Questions\WithCompletionConversion;
 use tcCore\Http\Traits\WithInlineFeedback;
 use tcCore\InfoscreenQuestion;
 use tcCore\MatchingQuestion;
+use tcCore\MultipleChoiceQuestion;
 use tcCore\Question;
 use tcCore\TestTake;
 use tcCore\TestTakeStatus;
@@ -90,6 +91,8 @@ class CoLearning extends TCComponent
     public $group;
     public ?string $answeredStatus;
     public string $uniqueKey;
+
+    public bool $scoreSliderDisabled;
 
     /**
      * @return bool
@@ -215,7 +218,6 @@ class CoLearning extends TCComponent
 
     public function isNextQuestionButtonDisabled(): bool
     {
-
         return !$this->nextQuestionAvailable
             || (collect($this->answerRatingsRated)->count() !== $this->answerRatingsCount);
     }
@@ -336,7 +338,7 @@ class CoLearning extends TCComponent
         $this->handleUpdatingRatingAndJson();
 
         if($this->rating !== null && $this->rating !== "") {
-            $this->answerRatingsRated = array_merge($this->answerRatingsRated, [$this->answerRating->getKey()]);
+            $this->answerRatingsRated = array_unique(array_merge($this->answerRatingsRated, [$this->answerRating->getKey()]));
         }
     }
 
@@ -518,6 +520,7 @@ class CoLearning extends TCComponent
         }
 
         $this->getSortedAnswerFeedback();
+        $this->setDisableScoreSlider();
     }
 
     private function checkIfStudentCanFinishCoLearning(): void
@@ -661,6 +664,7 @@ class CoLearning extends TCComponent
                         fullyRated: true,
                         rating    : array_values($json)[0] ? $this->maxRating : 0
                     );
+                    $this->answerRatingsRated = array_unique(array_merge($this->answerRatingsRated, [$this->answerRating->getKey()]));
                     return;
                 }
 
@@ -675,6 +679,7 @@ class CoLearning extends TCComponent
                     fullyRated: true,
                     rating    : array_values($json)[0] ? $this->maxRating : 0
                 );
+                $this->answerRatingsRated = array_unique(array_merge($this->answerRatingsRated, [$this->answerRating->getKey()]));
                 return;
             default:
                 $ratingPerAnswerOption = [];
@@ -699,5 +704,27 @@ class CoLearning extends TCComponent
         $this->rating = $this->allowRatingWithHalfPoints
             ? round($rating * 2) / 2
             : round($rating);
+    }
+
+    private function setDisableScoreSlider() : void
+    {
+        $isQuestionNotAnswered = !$this->answerRating->answer->isAnswered;
+
+        $discussingQuestion = $this->getDiscussingQuestion();
+        $isCompletionOrMatchingQuestion = $this->isCompletionOrMatchingQuestion($discussingQuestion);
+        $isMultipleChoiceOrTrueFalseQuestion = $this->isMultipleChoiceOrTrueFalseQuestion($discussingQuestion);
+
+        $this->scoreSliderDisabled = $isQuestionNotAnswered || $isCompletionOrMatchingQuestion || $isMultipleChoiceOrTrueFalseQuestion;
+    }
+
+    private function isCompletionOrMatchingQuestion($discussingQuestion) : bool
+    {
+        return $discussingQuestion instanceof CompletionQuestion || $discussingQuestion instanceof MatchingQuestion;
+    }
+
+    private function isMultipleChoiceOrTrueFalseQuestion($discussingQuestion) : bool
+    {
+        return $discussingQuestion instanceof MultipleChoiceQuestion
+            && ($discussingQuestion->isSubtype('MultipleChoice') || $discussingQuestion->isSubtype('TrueFalse'));
     }
 }
