@@ -32,7 +32,8 @@ class CompletionQuestion extends QuestionComponent
     protected function setAnswerStruct($question, $answer): void
     {
         $correctAnswers = $question->getCorrectAnswerStructure();
-        $givenAnswers = array_values(json_decode($answer->json ?? '{}', true));
+        $givenAnswers = json_decode($answer->json ?? '{}', true);
+        ksort($givenAnswers);
         $answers = $this->matchGivenAnswersWithRequiredAmount($correctAnswers, $givenAnswers);
 
         $this->answerStruct = $question->isSubType('completion')
