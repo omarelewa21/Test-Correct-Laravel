@@ -78,7 +78,7 @@ class MassPublishTests extends Command
         }
 
         if($abbrTo !== Str::upper($abbrTo)){
-            if($this->confirm('Do you want to use the capitalizes version of your abbreviation ('.Str::upper($abbrTo).')?',true)){
+            if($this->confirm('Do you want to use the capitalized version of your abbreviation ('.Str::upper($abbrTo).')?',true)){
                 $abbrTo = Str::upper($abbrTo);
             }
         }
