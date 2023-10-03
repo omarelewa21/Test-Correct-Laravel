@@ -881,6 +881,12 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         return !$answer->hasCoLearningDiscrepancy();
     }
 
+    protected function currentAnswerHasToggleDiscrepanciesInCoLearningRatings(?Answer $answer = null): bool
+    {
+        $answer ??= $this->currentAnswer;
+        return !!$answer->discrepancyInToggleData;
+    }
+
     public function coLearningRatings(): Collection
     {
         return parent::coLearningRatings()->sortBy('user.name_first');
@@ -1084,14 +1090,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             ])
             ->flatMap(function ($participant) {
                 return $participant->answers->map(function ($answer) {
-                    $coLearningRatings = $answer->answerRatings->whereNotNull('rating')->where(
-                        'type',
-                        AnswerRating::TYPE_STUDENT
-                    );
-                    //todo ascertain if the toggle values used in CO-Learning match, in conjunction with the score value discrepancy
-                    $answer->hasDiscrepancy = $coLearningRatings->count() > 1
-                        ? !$this->currentAnswerCoLearningRatingsHasNoDiscrepancy($answer)
-                        : null;
+                    $answer->hasDiscrepancy = $answer->hasCoLearningDiscrepancy();
 
                     $answer->sortOrder = $this->questions->search(fn($q) => $q->id === $answer->question_id) + 1;
                     return $answer;
@@ -1287,14 +1286,15 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
     public function getDiscrepancyTranslationKey(): string
     {
+        if($this->studentRatings()->whereNotNull('rating')->count() === 1) {
+            return 'assessment.scored_by_one_student';
+        }
+
         if ($this->currentAnswerCoLearningRatingsHasNoDiscrepancy()) {
             return 'assessment.no_discrepancy';
         }
-        if ($this->studentRatings()->whereNotNull('rating')->count() >= 2) {
-            return 'assessment.discrepancy';
-        }
 
-        return 'assessment.scored_by_one_student';
+        return 'assessment.discrepancy';
     }
 
     private function answersWithDiscrepancyFilter(Collection $answers = null): Collection

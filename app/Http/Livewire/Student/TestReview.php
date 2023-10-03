@@ -3,6 +3,7 @@
 namespace tcCore\Http\Livewire\Student;
 
 use Illuminate\Support\Collection;
+use tcCore\Answer;
 use tcCore\Http\Livewire\EvaluationComponent;
 use tcCore\Http\Traits\WithInlineFeedback;
 
@@ -87,9 +88,15 @@ class TestReview extends EvaluationComponent
 
     protected function currentAnswerCoLearningRatingsHasNoDiscrepancy(): bool
     {
-        return $this->studentRatings()
-                ->keyBy('rating')
-                ->count() === 1;
+        return !$this->currentAnswer->hasCoLearningDiscrepancy();
+    }
+
+    protected function currentAnswerHasToggleDiscrepanciesInCoLearningRatings(): bool
+    {
+        if(!$this->currentAnswer->hasCoLearningDiscrepancy()) {
+            return false;
+        }
+        return !!$this->currentAnswer->discrepancyInToggleData;
     }
 
     public function finalAnswerReached(): bool

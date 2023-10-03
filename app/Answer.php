@@ -286,12 +286,31 @@ class Answer extends BaseModel
         return $this->answerRatings->where('type', AnswerRating::TYPE_TEACHER);
     }
 
-    public function hasCoLearningDiscrepancy(): bool
+    public function hasCoLearningDiscrepancy(): ?bool
     {
-        $ratings = $this->answerRatings->where('type', AnswerRating::TYPE_STUDENT);
+        $ratings = $this->answerRatings->where('type', AnswerRating::TYPE_STUDENT)
+                                       ->whereNotNull('rating');
 
         if ($ratings->count() < 2) {
-            return false;
+            return null;
+        }
+
+        $answerToggleData = $ratings->map->json->filter();
+        if ($answerToggleData->count() > 1) {
+            $firstAnswerToggleData = $answerToggleData->shift();
+
+            $discrepancyInToggleData = $answerToggleData->reduce(callback: function ($carry, $subsequentAnwerToggleData) use (&$firstAnswerToggleData) {
+
+                foreach ($subsequentAnwerToggleData as $key => $value) {
+                    $carry = ($firstAnswerToggleData[$key] !== $value) ? true : $carry;
+                }
+
+                return $carry;
+            }, initial : false);
+
+            $this->setAttribute('discrepancyInToggleData', $discrepancyInToggleData);
+
+            return $discrepancyInToggleData;
         }
 
         return $ratings
