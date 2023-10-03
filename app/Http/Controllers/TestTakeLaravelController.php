@@ -2,18 +2,19 @@
 
 namespace tcCore\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
-use tcCore\GroupQuestionQuestion;
-use tcCore\Http\Helpers\BaseHelper;
-use tcCore\Http\Traits\TestTakeNavigationForController;
-use tcCore\Http\Traits\WithStudentTestTakes;
-use tcCore\TestParticipant;
 use tcCore\TestTake;
-use tcCore\TemporaryLogin;
-use tcCore\TestTake as Test;
 use Ramsey\Uuid\Uuid;
+use tcCore\TemporaryLogin;
+use Illuminate\Support\Str;
+use tcCore\TestParticipant;
+use Illuminate\Http\Request;
+use tcCore\TestTake as Test;
+use tcCore\GroupQuestionQuestion;
+use Illuminate\Support\Facades\DB;
+use tcCore\Http\Helpers\BaseHelper;
+use Illuminate\Support\Facades\Auth;
+use tcCore\Http\Traits\WithStudentTestTakes;
+use tcCore\Http\Traits\TestTakeNavigationForController;
 
 class TestTakeLaravelController extends Controller
 {
@@ -30,6 +31,20 @@ class TestTakeLaravelController extends Controller
         $current = $request->get('q') ?: '1';
 
         $data = self::getData($testParticipant, $testTake);
+   
+        $groupedQuestions = GroupQuestionQuestion::whereIn('question_id', $data->pluck('id')->toArray())
+        ->groupBy('group_question_id')
+        ->select('group_question_id', DB::raw('GROUP_CONCAT(question_id) as question_ids'))
+        ->pluck('question_ids', 'group_question_id')
+        ->map(function ($item) {
+            return explode(',', $item); // Convert the comma-separated string to an array
+        })
+        ->toArray();
+    
+    
+        
+        // dd($groupedQuestions);
+        
         $answers = $this->getAnswers($testTake, $data, $testParticipant);
 
         $data = $this->applyAnswerOrderForParticipant($data, $answers);;
@@ -39,7 +54,7 @@ class TestTakeLaravelController extends Controller
         $uuid = $testTake->uuid;
         // todo add check or failure when $current out of bounds $data;
         $styling = $this->getCustomStylingFromQuestions($data);
-        return view('test-take-overview', compact(['data', 'current', 'answers', 'playerUrl', 'nav', 'uuid', 'testParticipant', 'styling']));
+        return view('test-take-overview', compact(['data', 'current', 'answers', 'playerUrl', 'nav', 'uuid', 'testParticipant', 'styling' , 'groupedQuestions']));
     }
 
 

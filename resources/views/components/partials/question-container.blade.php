@@ -20,12 +20,25 @@
      :class="{ 'rs_readable': showMe }"
 >
     <div class="flex justify-end space-x-4 mt-6">
-        @if(!$this->closed )
+        @if(!$this->closed  )
             <x-question.notepad-button :question="$question" ></x-question.notepad-button>
         @endif
     </div>
+    @if($this->group)
+    <div class="question-title flex flex-wrap items-center question-indicator border-bottom mb-6">
+        <x-timeout-progress-bar/>
+        <h6 wire:ignore class="inline-flex"> {{__('cms.group-question')}} : {{ $this->group->name }}</h6>
+    </div>
+    @endif
+    <div class="flex flex-1 flex-col">
+        <div class="flex flex-wrap">
+            <x-attachment.student-buttons-container :question="$question" :group="$this->group" :blockAttachments="$this->blockAttachments"/>
+        </div>
+        @if($this->group)
+        <div class="mb-5 questionContainer" questionHtml wire:ignore>{!! $this->group->question->converted_question_html !!}</div>
+    @endif
 
-    <x-timeout-progress-bar/>
+    </div>
 
     <div class="flex flex-col p-8 sm:p-10 content-section relative">
         <div class="question-title flex flex-wrap items-center question-indicator border-bottom mb-6">
@@ -44,18 +57,13 @@
             @if ($question->score > 0)
                 <h4 wire:ignore class="inline-block">{{ $question->score }} pt</h4>
             @endif
-            @if($this->group)
-                <h6 wire:ignore class="inline-flex ml-auto">{{ $this->group->name }}</h6>
-            @endif
+         
         </div>
         <div class="flex flex-1 flex-col">
             @if(!$this->closed)
                 <div class="flex flex-wrap">
                     <x-attachment.student-buttons-container :question="$question" :group="$this->group" :blockAttachments="$this->blockAttachments"/>
                 </div>
-                @if($this->group)
-                    <div class="mb-5 questionContainer" questionHtml wire:ignore>{!! $this->group->question->converted_question_html !!}</div>
-                @endif
                 <div class="questionContainer">
                     {{ $slot }}
                 </div>
