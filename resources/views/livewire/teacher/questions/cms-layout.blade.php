@@ -1,56 +1,5 @@
 <div cms id="cms" class="flex flex-1"
-     x-data="{
-            loading: @js($loading),
-            empty: @js($this->emptyState),
-            dirty: @entangle('dirty'),
-            loadTimeout: null
-             }"
-     x-init="
-           handleQuestionChange = (evt) => {
-                $store.cms.loading = true;
-                loading = true;
-                $wire.set('loading', true);
-                if(typeof evt !== 'undefined') empty = false;
-                removeDrawingLegacy();
-                window.scrollTo({top: 0, behavior: 'smooth'});
-                $store.cms.dirty = false;
-           }
-
-           loadingTimeout = (value) => {
-                if (value === true) {
-                    loadTimeout = setTimeout(() => {
-                        $store.cms.loading = false;
-                        $store.cms.processing = false;
-                        $wire.set('loading', false);
-                        clearTimeout(loadTimeout);
-                    }, 1000)
-                }
-           }
-
-           $watch('$store.cms.loading', (value) => loadingTimeout(value));
-           $watch('loading', (value) => loadingTimeout(value));
-           $watch('dirty', (value) => $store.cms.dirty = value);
-
-           removeDrawingLegacy = () => {
-                $root.querySelector('#drawing-question-tool-container')?.remove();
-           }
-           changeEditorWscLanguage = (lang) => {
-                if (document.getElementById('{{ $this->questionEditorId }}')) {
-                    WebspellcheckerTlc.lang(ClassicEditors['{{ $this->questionEditorId }}'], lang);
-                }
-                if (document.getElementById('{{ $this->answerEditorId }}')) {
-                    WebspellcheckerTlc.lang(ClassicEditors['{{ $this->answerEditorId }}'], lang);
-                }
-           }
-           forceSyncEditors = () => {
-                if (document.getElementById('{{ $this->questionEditorId }}')) {
-                    $wire.sync('question.question', ClassicEditors['{{ $this->questionEditorId }}'].getData());
-                }
-                if (document.getElementById('{{ $this->answerEditorId }}')) {
-                    $wire.sync('question.answer', ClassicEditors['{{ $this->answerEditorId }}'].getData());
-                }
-           }
-           "
+     x-data="constructionBody(@js($loading), @js($this->emptyState), @entangle('dirty'), @js($this->questionEditorId), @js($this->answerEditorId))"
      x-cloak
      x-on:question-change.window="handleQuestionChange($event.detail)"
      x-on:show-empty.window="empty = !empty"
@@ -62,7 +11,7 @@
     <x-partials.header.cms-editor :testName="$testName" :questionCount="$this->amountOfQuestions"/>
     <div class="question-editor-content w-full relative"
          wire:key="container-{{ $this->uniqueQuestionKey }}"
-         style="opacity: 0; transition: opacity .3s ease-in"
+         style="opacity: 0; transition: opacity 100ms ease-in-out"
          :style="{'opacity': ($store.cms.loading || $store.cms.emptyState) ? 0 : ($store.cms.processing) ? 0 : 1}"
          x-ref="editorcontainer"
          wire:ignore.self
