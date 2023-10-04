@@ -48,7 +48,7 @@ class FixAnswersFromCompletionQuestionsCommand extends Command
                 foreach ($answers as $answer) {
                     $json = collect(json_decode($answer->json))
                         ->sortKeys()
-                        ->reject(fn($value, $key) => $key == $answer->tagAmount)
+                        ->reject(fn($value, $key) => $key <= $answer->tagAmount)
                         ->toJson(JSON_FORCE_OBJECT);
 
                     $teacherRatings = $answer->answerRatings->where('type', AnswerRating::TYPE_TEACHER);
