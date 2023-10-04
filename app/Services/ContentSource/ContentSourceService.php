@@ -75,15 +75,15 @@ abstract class ContentSourceService
         return 'not_' . static::getPublishScope();
     }
 
-    public  function itemBankFiltered($filters = [], $sorting = [], User $forUser): \Illuminate\Database\Eloquent\Builder
+    public  function itemBankFiltered(User $forUser,$filters = [], $sorting = []): \Illuminate\Database\Eloquent\Builder
     {
         return (new Test)->contentSourceFiltered(
             static::getPublishScope(),
             static::getCustomerCode(),
             Test::query(),
+            $forUser,
             $filters,
-            $sorting,
-            $forUser
+            $sorting
         );
     }
 

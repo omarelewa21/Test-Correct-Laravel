@@ -259,7 +259,7 @@ class Test extends BaseModel
         }
     }
 
-    public function contentSourceFiltered($scopes, $customer_codes, $query, $filters = [], $sorting = [], User $forUser)
+    public function contentSourceFiltered($scopes, $customer_codes, $query, User $forUser, $filters = [], $sorting = [])
     {
         $query->select();
         $subjectIds = Subject::getIdsForContentSource($forUser, Arr::wrap($customer_codes));
@@ -318,10 +318,11 @@ class Test extends BaseModel
         return $this->contentSourceFiltered(
             'cito',
             'CITO-TOETSENOPMAAT',
+            auth()->user(),
             $query,
             $filters,
             $sorting,
-            auth()->user()
+
         );
     }
 
@@ -346,18 +347,16 @@ class Test extends BaseModel
         return $this->contentSourceFiltered(
             'exam',
             config('custom.examschool_customercode'),
+            auth()->user(),
             $query,
             $filters,
-            $sorting,
-            auth()->user()
+            $sorting
         );
     }
 
 
-    public function scopeSharedSectionsFiltered($query, $filters = [], $sorting = [], User $forUser)
+    public function scopeSharedSectionsFiltered( $query,User $forUser, $filters = [], $sorting = [])
     {
-
-
         $subjectIds = Subject::getIdsForSharedSections($forUser);
         if (!$subjectIds) {
             $query->where('tests.id', -1);

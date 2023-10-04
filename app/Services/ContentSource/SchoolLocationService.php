@@ -38,7 +38,8 @@ class SchoolLocationService extends ContentSourceService
     {
         return true;
     }
-    public  function itemBankFiltered($filters = [], $sorting = [], User $forUser): \Illuminate\Database\Eloquent\Builder
+
+    public function itemBankFiltered(User $forUser, $filters = [], $sorting = []): \Illuminate\Database\Eloquent\Builder
     {
         return Test::filtered(
             $filters, $sorting

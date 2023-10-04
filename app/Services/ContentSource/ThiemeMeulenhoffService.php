@@ -73,12 +73,12 @@ class ThiemeMeulenhoffService extends ContentSourceService
     {
         return self::featureSettingForUser($user)->map(function ($setting) {
             return match ($setting) {
-                'allow_tm_biology'   => BaseSubject::BIOLOGY,
+                'allow_tm_biology' => BaseSubject::BIOLOGY,
                 'allow_tm_geography' => BaseSubject::GEOGRAPHY,
-                'allow_tm_dutch'     => BaseSubject::DUTCH,
-                'allow_tm_english'   => BaseSubject::ENGLISH,
-                'allow_tm_french'    => BaseSubject::FRENCH,
-                default              => null
+                'allow_tm_dutch' => BaseSubject::DUTCH,
+                'allow_tm_english' => BaseSubject::ENGLISH,
+                'allow_tm_french' => BaseSubject::FRENCH,
+                default => null
             };
         })->filter();
     }
@@ -89,9 +89,9 @@ class ThiemeMeulenhoffService extends ContentSourceService
         return Subject::select('id')->whereIn('base_subject_id', $allowedBaseSubjects);
     }
 
-    public function itemBankFiltered($filters = [], $sorting = [], User $forUser): \Illuminate\Database\Eloquent\Builder
+    public function itemBankFiltered(User $forUser, $filters = [], $sorting = []): \Illuminate\Database\Eloquent\Builder
     {
-        return parent::itemBankFiltered($filters, $sorting, $forUser)
+        return parent::itemBankFiltered($forUser, $filters, $sorting)
             ->whereIn(
                 'subject_id',
                 self::getBuilderWithAllowedSubjectIds($forUser)

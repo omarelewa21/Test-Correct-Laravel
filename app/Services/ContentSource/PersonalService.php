@@ -39,7 +39,7 @@ class PersonalService extends ContentSourceService
         return !$user->isValidExamCoordinator();
     }
 
-    public  function itemBankFiltered($filters = [], $sorting = [], User $forUser): \Illuminate\Database\Eloquent\Builder
+    public function itemBankFiltered(User $forUser, $filters = [], $sorting = []): \Illuminate\Database\Eloquent\Builder
     {
         return Test::filtered(
             $filters, $sorting

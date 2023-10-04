@@ -31,7 +31,7 @@ class TestsController extends Controller {
             $expression = DB::raw("set session optimizer_switch='condition_fanout_filter=off';");
             DB::statement($expression->getValue(DB::connection()->getQueryGrammar()));
         } catch (\Exception $e) {}
-		$tests = Test::sharedSectionsFiltered($request->get('filter', []), $request->get('order', []))->with('educationLevel', 'testKind', 'subject', 'author', 'author.school', 'author.schoolLocation')->paginate(15);
+		$tests = Test::sharedSectionsFiltered(auth()->user(), $request->get('filter', []), $request->get('order', []))->with('educationLevel', 'testKind', 'subject', 'author', 'author.school', 'author.schoolLocation')->paginate(15);
         $tests->each(function($test) {
             $test->append(    'has_duplicates');
         });

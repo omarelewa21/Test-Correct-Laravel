@@ -32,16 +32,16 @@ class UmbrellaOrganizationService extends ContentSourceService
 
     protected static function testsAvailableForUser(User $user): bool
     {
-        return Test::sharedSectionsFiltered(filters:[], sorting:[], forUser:$user)->exists();
+        return Test::sharedSectionsFiltered($user, [], [])->exists();
     }
 
     protected static function allowedForUser(User $user): bool
     {
         return $user->hasSharedSections() && !$user->isValidExamCoordinator();
     }
-    public  function itemBankFiltered($filters = [], $sorting = [], User $forUser): \Illuminate\Database\Eloquent\Builder
+    public  function itemBankFiltered(User $forUser, $filters = [], $sorting = []): \Illuminate\Database\Eloquent\Builder
     {
-        return Test::sharedSectionsFiltered($filters, $sorting, forUser: $forUser)
+        return Test::sharedSectionsFiltered($forUser, $filters,$sorting)
             ->published();
     }
 }

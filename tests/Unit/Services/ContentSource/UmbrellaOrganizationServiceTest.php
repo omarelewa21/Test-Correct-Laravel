@@ -66,7 +66,7 @@ class UmbrellaOrganizationServiceTest extends TestCase
         auth()->login($teacher = ScenarioLoader::get('teacherOne'));
         $this->assertInstanceOf(
             \tcCore\Test::class,
-            $test = (new UmbrellaOrganizationService)->itemBankFiltered(filters:[], sorting:[], forUser:$teacher)->first()
+            $test = (new UmbrellaOrganizationService)->itemBankFiltered(auth()->user(), [], [])->first()
         );
 
         $this->assertTrue(

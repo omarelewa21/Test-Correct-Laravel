@@ -35,7 +35,7 @@ class SharedSectionsTestTest extends TestCase
         $teacherOne = ScenarioLoader::get('teacher1');
         $this->actingAs($teacherOne);
 
-        $this->assertEquals(0, Test::SharedSectionsFiltered()->count());
+        $this->assertEquals(0, Test::SharedSectionsFiltered($teacherOne)->count());
 
         $data = $this->addCustomSectionsAndSubjectsAndCreateTestWithCustomSubjectB();
 
@@ -53,7 +53,7 @@ class SharedSectionsTestTest extends TestCase
 
         $this->shareSectionToSchoollocation($data->customSectionB, $teacherOne->schoolLocation);
 
-        $this->assertEquals(1, Test::sharedSectionsFiltered()->count());
+        $this->assertEquals(1, Test::sharedSectionsFiltered($teacherOne)->count());
     }
 
     /** @test */
@@ -69,7 +69,7 @@ class SharedSectionsTestTest extends TestCase
         $teacherTwo = ScenarioLoader::get('teachers')->last();
         $this->actingAs($teacherTwo);
 
-        $this->assertEquals(0, Test::SharedSectionsFiltered()->count());
+        $this->assertEquals(0, Test::SharedSectionsFiltered($teacherTwo)->count());
 
     }
 

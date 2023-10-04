@@ -592,7 +592,7 @@ class RouteServiceProvider extends ServiceProvider
         Route::middleware([
             'web',
             'auth',
-            'administrator',
+//            'administrator',
         ])
             ->group(base_path('routes/testing.php'));
     }
