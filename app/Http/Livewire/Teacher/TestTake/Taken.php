@@ -373,28 +373,20 @@ class Taken extends TestTakeComponent
 
         $this->takenTestData = [
             'questionCount'      => $this->questionsOfTest->count(),
-            'discussedQuestions' => $this->discussedQuestions($this->questionsOfTest),
+            'discussedQuestions' => $this->discussedQuestions(),
             'assessedQuestions'  => $this->assessedQuestions(),
             'questionsToAssess'  => $this->questionsOfTest->count(),
             'maxScore'           => $this->questionsOfTest->sum('score')
         ];
     }
 
-    private function discussedQuestions(Collection $questions): int
+    private function discussedQuestions(): int
     {
-        $nonDiscussedQuestionCount = $this->questionsOfTest->count();
         if($this->testTake->test_take_status_id < 7) {
             return 0;
         }
-        return $this->questionsOfTest->count() - $nonDiscussedQuestionCount;
-//        $answerRatingQueryBuilder = AnswerRating::where('test_take_id',$this->testTake->getKey())->where('type',AnswerRating::TYPE_STUDENT)->whereNotNull('rating')->select('answer_id');
-//        return Answer::whereIn('id',$answerRatingQueryBuilder)->groupBy('question_id')->get(['id'])->count();
 
-//        $index = $questions->search(function ($question) use ($questions) {
-//            return $question->id === $questions->where('id', $this->testTake->discussing_question_id)
-//                    ->first()?->id;
-//        });
-//        return $index !== false ? $index + 1 : 0;
+        return TestTakeHelper::getDiscussedQuestionCount($this->testTake);
     }
 
     private function questionsToAssess(): int
@@ -407,45 +399,11 @@ class Taken extends TestTakeComponent
 
     private function assessedQuestions(): int
     {
-
         if($this->testTake->test_take_status_id < 7){
             return 0;
         }
-        $takeNonDiscrepancyIntoAccount = UserFeatureSetting::getSetting(
-            user   : auth()->user(),
-            title  : UserFeatureSettingEnum::tryFrom('assessment_skip_no_discrepancy_answer'),
-            default: false
-        );
 
-        $nonAssessedQuestionCount = TestTakeHelper::nonAssessedDiscussedQuestionIdQueryBuilder($this->testTake,'assess',$takeNonDiscrepancyIntoAccount)->get(['question_id'])->count();
-
-        return $this->questionsOfTest->count() - $nonAssessedQuestionCount;
-
-//        $answerRatingQueryBuilder = AnswerRating::where('test_take_id',$this->testTake->getKey())->where('type','!=',AnswerRating::TYPE_STUDENT)->whereNotNull('rating')->select('answer_id');
-//        $testParticipantQueryBuilder = TestParticipant::where('test_take_id',$this->testTake->getKey())->where('test_take_status_id','>=',6)->select('id');
-//        $nonAssessedQuestionCount = Answer::whereIn('test_participant_id',$testParticipantQueryBuilder)->whereNotIn('id',$answerRatingQueryBuilder)->groupBy('question_id')->get(['question_id'])->count();
-//        return $this->questionsOfTest->count() - $nonAssessedQuestionCount;
-
-
-//        return Answer::select('answers.question_id')
-//            ->leftJoin(
-//                'test_participants',
-//                'test_participants.id',
-//                '=',
-//                'answers.test_participant_id'
-//            )
-//            ->where('test_participants.test_take_id', $this->testTake->getKey())
-//            ->whereNull('test_participants.deleted_at')
-//            ->whereExists(function ($query) {
-//                $query->select('answer_ratings.id')
-//                    ->from('answer_ratings')
-//                    ->whereRaw('answer_ratings.answer_id = answers.id')
-//                    ->where('answer_ratings.type', '!=', AnswerRating::TYPE_STUDENT)
-//                    ->whereNull('answer_ratings.deleted_at');
-//            })
-//            ->groupBy('answers.question_id')
-//            ->get()
-//            ->count();
+        return TestTakeHelper::getAssessedQuestionCount($this->testTake);
     }
 
     private function createSystemRatingsWhenNecessary(): void

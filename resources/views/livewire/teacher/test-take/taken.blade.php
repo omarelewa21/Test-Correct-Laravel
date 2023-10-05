@@ -126,7 +126,6 @@
             <span>@lang('assessment.Nakijken')</span>
         </x-button.cta>
     @else
-
         <x-button.icon wire:click="startAssessment" class="order-5"
                        :title="__('assessment.Start nakijken')">
             <x-icon.review />

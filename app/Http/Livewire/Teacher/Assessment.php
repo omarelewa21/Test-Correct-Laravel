@@ -711,8 +711,14 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
             $previouslyAssessedQuestion = $this->questions
                 ->discussionTypeFiltered($this->openOnly)
+                ->whereIn('id', $this->answersWithDiscrepancyFilter()->pluck('question_id'))
                 ->where('id', $previousId)
                 ->first();
+
+            if (!$previouslyAssessedQuestion) {
+                $this->setNavigationDataToStartPosition();
+                return;
+            }
 
             $previousAnswerIndex = $this->getPreviouslyAssessedAnswerIndex($previouslyAssessedQuestion);
 
