@@ -2410,7 +2410,8 @@ document.addEventListener("alpine:init", () => {
             if (continuousSlider) {
                 return;
             }
-            if (event) {
+
+            if (event && event.data) {
                 const keyToSelIdMap = {
                     'a': 'btn_loadAnswer_previous',
                     'd': 'btn_loadAnswer_next',

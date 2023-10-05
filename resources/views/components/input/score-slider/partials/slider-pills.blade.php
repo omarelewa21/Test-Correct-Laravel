@@ -20,7 +20,7 @@
            min="0"
            max="{{$maxScore}}"
            :step="halfPoints ? 0.5 : 1"
-           class="score-slider-input w-full hide-thumb"
+           @class(["score-slider-input w-full hide-thumb", "invisible" => $hideThumb])
            x-model="score"
            @if(!$hideThumb)
                :class="{'hide-thumb': score === null}"

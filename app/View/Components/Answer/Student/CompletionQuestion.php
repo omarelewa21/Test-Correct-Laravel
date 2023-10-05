@@ -34,7 +34,11 @@ class CompletionQuestion extends QuestionComponent
         $correctAnswers = $question->getCorrectAnswerStructure();
         $givenAnswers = json_decode($answer->json ?? '{}', true);
         ksort($givenAnswers);
-        $answers = $this->matchGivenAnswersWithRequiredAmount($correctAnswers, $givenAnswers);
+        $answers = $this->matchGivenAnswersWithRequiredAmount(
+            $correctAnswers,
+            $givenAnswers,
+            $question->isSubType('completion')
+        );
 
         $this->answerStruct = $question->isSubType('completion')
             ? $this->createCompletionAnswerStruct($answers, $correctAnswers, $answer)
@@ -102,8 +106,8 @@ class CompletionQuestion extends QuestionComponent
         });
 
         $score = $this->question->score / $correctAnswers->where('correct', 1)
-                                                         ->unique('tag')
-                                                         ->count();
+                ->unique('tag')
+                ->count();
 
         return $answerStruct->map(function ($link, $key) use ($answer, $answers, $score) {
             return $this->setAnswerPropertiesOnObject($link, $key, $link, $answers, $score);
@@ -139,11 +143,16 @@ class CompletionQuestion extends QuestionComponent
      * @param mixed $answers
      * @return mixed
      */
-    private function matchGivenAnswersWithRequiredAmount($correctAnswers, array $answers): array
+    private function matchGivenAnswersWithRequiredAmount($correctAnswers, array $answers, bool $zeroBased): array
     {
         return $correctAnswers->filter(fn($answer) => $answer->correct)
-                                         ->unique('tag')->map(fn($answer) => isset($answers[$answer->tag - 1]) ? $answers[$answer->tag - 1] : '')
-                                         ->values()->toArray();
+            ->unique('tag')
+            ->map(function ($answer) use ($zeroBased, $answers) {
+                $index = $zeroBased ? $answer->tag - 1 : $answer->tag;
+                return $answers[$index] ?? '';
+            })
+            ->values()
+            ->toArray();
     }
 
     public function render()
