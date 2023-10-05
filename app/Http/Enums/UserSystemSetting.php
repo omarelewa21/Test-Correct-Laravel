@@ -18,7 +18,7 @@ enum UserSystemSetting: string implements FeatureSettingKey
 
     #[Initial(false)]
     #[Type('bool')]
-    case ALLOW_NEW_TEST_TAKE_DETAIL_PAGE = 'allow_new_test_taken_pages';
+    case ALLOW_NEW_TEST_TAKEN_PAGES = 'allow_new_test_taken_pages';
 
     public static function initialValues(): Collection
     {
