@@ -266,6 +266,16 @@ class Taken extends TestTakeComponent
         });
     }
 
+    public function testTakeHasNotFinishedDiscussing(): bool
+    {
+        return in_array($this->testTakeStatusId, [TestTakeStatus::STATUS_TAKEN, TestTakeStatus::STATUS_DISCUSSING]);
+    }
+
+    public function testTakeIsDiscussedButNotCompletelyAssessed(): bool
+    {
+        return $this->testTakeStatusId === TestTakeStatus::STATUS_DISCUSSED && !$this->assessmentDone;
+    }
+
     /* Button actions */
     public function startCoLearning(): Redirector|RedirectResponse|bool
     {
@@ -336,6 +346,7 @@ class Taken extends TestTakeComponent
 
     public function publishResults(): void
     {
+        if(!$this->gradingStandard) return;
         $this->standardizeResults(
             standard    : GradingStandard::tryFrom($this->gradingStandard),
             gradingValue: $this->gradingValue,
