@@ -403,41 +403,7 @@ class Taken extends TestTakeComponent
             return 0;
         }
 
-        $takeNonDiscrepancyIntoAccount = UserFeatureSetting::getSetting(
-            user   : auth()->user(),
-            title  : UserFeatureSettingEnum::ASSESSMENT_SKIP_NO_DISCREPANCY_ANSWER,
-            default: false
-        );
-
-        $nonAssessedQuestionCount = TestTakeHelper::nonAssessedDiscussedQuestionIdQueryBuilder($this->testTake,'assess',$takeNonDiscrepancyIntoAccount)->get(['question_id'])->count();
-
-        return $this->questionsOfTest->count() - $nonAssessedQuestionCount;
-
-//        $answerRatingQueryBuilder = AnswerRating::where('test_take_id',$this->testTake->getKey())->where('type','!=',AnswerRating::TYPE_STUDENT)->whereNotNull('rating')->select('answer_id');
-//        $testParticipantQueryBuilder = TestParticipant::where('test_take_id',$this->testTake->getKey())->where('test_take_status_id','>=',6)->select('id');
-//        $nonAssessedQuestionCount = Answer::whereIn('test_participant_id',$testParticipantQueryBuilder)->whereNotIn('id',$answerRatingQueryBuilder)->groupBy('question_id')->get(['question_id'])->count();
-//        return $this->questionsOfTest->count() - $nonAssessedQuestionCount;
-
-
-//        return Answer::select('answers.question_id')
-//            ->leftJoin(
-//                'test_participants',
-//                'test_participants.id',
-//                '=',
-//                'answers.test_participant_id'
-//            )
-//            ->where('test_participants.test_take_id', $this->testTake->getKey())
-//            ->whereNull('test_participants.deleted_at')
-//            ->whereExists(function ($query) {
-//                $query->select('answer_ratings.id')
-//                    ->from('answer_ratings')
-//                    ->whereRaw('answer_ratings.answer_id = answers.id')
-//                    ->where('answer_ratings.type', '!=', AnswerRating::TYPE_STUDENT)
-//                    ->whereNull('answer_ratings.deleted_at');
-//            })
-//            ->groupBy('answers.question_id')
-//            ->get()
-//            ->count();
+        return TestTakeHelper::getAssessedQuestionCount($this->testTake);
     }
 
     private function createSystemRatingsWhenNecessary(): void
