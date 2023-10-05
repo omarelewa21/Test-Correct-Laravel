@@ -23,7 +23,7 @@ class FactoryScenarioSchoolSimple extends FactoryScenarioSchool
 
     protected $sectionName;
     protected $subjectName;
-    protected $baseSubjectId;
+    public $baseSubjectId;
 
     protected $schoolClassName;
 

@@ -25,6 +25,7 @@ return [
     'save_exit'                                    => 'Opslaan & afsluiten',
     'scoren'                                       => 'Scoren',
     'score_assigned'                               => 'Score toegekend',
+    'no_score_assigned'                            => 'Geen score toegekend',
     'no_discrepancy'                               => 'Geen discrepantie',
     'discrepancy'                                  => 'Let op: discrepantie',
     'toggle_discrepancy'                           => 'De knoppen die de studenten gebruikt hebben om het antwoord te beoordelen komen niet overeen.',

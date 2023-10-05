@@ -25,6 +25,7 @@ return [
     'save_exit'                                    => 'Save & exit',
     'scoren'                                       => 'Scoring',
     'score_assigned'                               => 'Score assigned',
+    'no_score_assigned'                            => 'No score assigned',
     'no_discrepancy'                               => 'No discrepancy',
     'discrepancy'                                  => 'Notice: discrepancy',
     'toggle_discrepancy'                           => 'The toggles used by the students to rate this answer do not match.',

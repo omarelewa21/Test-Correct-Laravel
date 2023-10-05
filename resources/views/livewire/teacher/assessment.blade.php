@@ -169,7 +169,7 @@
                     @if($this->showCoLearningScoreToggle)
                         <div class="space-y-2">
                             <div class="colearning-answers | flex w-full items-center justify-between"
-                                 title="@lang('assessment.score_assigned'): @js($this->coLearningScoredValue)"
+                                 title="{{  $this->coLearningScoredValue ?  __('assessment.score_assigned').': ' . $this->coLearningScoredValue : __('assessment.no_score_assigned') }}"
                                  x-cloak
                             >
                                 <span class="flex items-center text-center gap-2">

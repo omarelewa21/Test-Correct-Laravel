@@ -215,9 +215,12 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         return $this->currentAnswerRatings()->where('type', AnswerRating::TYPE_SYSTEM)->first()->rating;
     }
 
-    public function getCoLearningScoredValueProperty(): float
+    public function getCoLearningScoredValueProperty(): false|float
     {
-        return $this->getCoLearningScoreForCurrentAnswer();
+        if($this->currentAnswer->hasCoLearningDiscrepancy() === false) {
+            return $this->currentAnswer->getStudentAnswerRatings()->first()->rating;
+        }
+        return false;
     }
 
     public function getShowCoLearningScoreToggleProperty(): bool
@@ -769,24 +772,9 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             }
             return 0;
         }
+        $this->isCoLearningScore = $this->getCurrentAnswer()->answerRatings->whereIn('type', [AnswerRating::TYPE_TEACHER, AnswerRating::TYPE_SYSTEM])->isEmpty();
 
-        if ($rating = $ratings->first(fn($rating) => $rating->type === AnswerRating::TYPE_TEACHER)) {
-            return $rating->rating;
-        }
-
-        if ($rating = $ratings->first(fn($rating) => $rating->type === AnswerRating::TYPE_SYSTEM)) {
-            return $rating->rating;
-        }
-
-        if ($ratings->where('type', AnswerRating::TYPE_STUDENT)->isNotEmpty()) {
-            $this->isCoLearningScore = true;
-            if ($this->currentAnswer->hasDiscrepancy === true || $this->currentAnswer->hasDiscrepancy === null) {
-                return null;
-            }
-            return $this->getCoLearningScoreForCurrentAnswer();
-        }
-
-        return null;
+        return $this->getCurrentAnswer()->calculateFinalRating();
     }
 
     private function currentAnswerHasRatingsOfType(string $type): bool
@@ -932,16 +920,6 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         })->count();
 
         return $filteredAnswers->count() === $assessedAnswerCount;
-    }
-
-    private function getCoLearningScoreForCurrentAnswer(): float|int
-    {
-        $rating = $this->currentAnswer
-            ->answerRatings
-            ->filter(fn($rating) => $rating->type === AnswerRating::TYPE_STUDENT)
-            ->avg('rating');
-
-        return $this->currentQuestion->decimal_score ? floor(($rating * 2) / 2) : (int)round($rating);
     }
 
     private function getNavigationValueForQuestion(Question $question): int

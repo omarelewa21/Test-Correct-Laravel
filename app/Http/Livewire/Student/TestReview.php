@@ -177,19 +177,7 @@ class TestReview extends EvaluationComponent
 
     protected function handleAnswerScore(): null|int|float
     {
-        if ($rating = $this->teacherRating()) {
-            return $rating->rating;
-        }
-
-        if ($rating = $this->systemRating()) {
-            return $rating->rating;
-        }
-
-        if ($this->studentRatings()->isNotEmpty()) {
-            return $this->studentRatings()->median('rating');
-        }
-
-        return null;
+        return $this->currentAnswer->calculateFinalRating();
     }
 
     protected function getTestTakeData(): \tcCore\TestTake
