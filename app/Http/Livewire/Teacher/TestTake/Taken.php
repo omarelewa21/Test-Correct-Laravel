@@ -266,6 +266,16 @@ class Taken extends TestTakeComponent
         });
     }
 
+    public function testTakeHasNotFinishedDiscussing(): bool
+    {
+        return in_array($this->testTakeStatusId, [TestTakeStatus::STATUS_TAKEN, TestTakeStatus::STATUS_DISCUSSING]);
+    }
+
+    public function testTakeIsDiscussedButNotCompletelyAssessed(): bool
+    {
+        return $this->testTakeStatusId === TestTakeStatus::STATUS_DISCUSSED && !$this->assessmentDone;
+    }
+
     /* Button actions */
     public function startCoLearning(): Redirector|RedirectResponse|bool
     {
@@ -336,6 +346,7 @@ class Taken extends TestTakeComponent
 
     public function publishResults(): void
     {
+        if(!$this->gradingStandard) return;
         $this->standardizeResults(
             standard    : GradingStandard::tryFrom($this->gradingStandard),
             gradingValue: $this->gradingValue,
@@ -362,28 +373,20 @@ class Taken extends TestTakeComponent
 
         $this->takenTestData = [
             'questionCount'      => $this->questionsOfTest->count(),
-            'discussedQuestions' => $this->discussedQuestions($this->questionsOfTest),
+            'discussedQuestions' => $this->discussedQuestions(),
             'assessedQuestions'  => $this->assessedQuestions(),
             'questionsToAssess'  => $this->questionsOfTest->count(),
             'maxScore'           => $this->questionsOfTest->sum('score')
         ];
     }
 
-    private function discussedQuestions(Collection $questions): int
+    private function discussedQuestions(): int
     {
-        $nonDiscussedQuestionCount = $this->questionsOfTest->count();
         if($this->testTake->test_take_status_id < 7) {
             return 0;
         }
-        return $this->questionsOfTest->count() - $nonDiscussedQuestionCount;
-//        $answerRatingQueryBuilder = AnswerRating::where('test_take_id',$this->testTake->getKey())->where('type',AnswerRating::TYPE_STUDENT)->whereNotNull('rating')->select('answer_id');
-//        return Answer::whereIn('id',$answerRatingQueryBuilder)->groupBy('question_id')->get(['id'])->count();
 
-//        $index = $questions->search(function ($question) use ($questions) {
-//            return $question->id === $questions->where('id', $this->testTake->discussing_question_id)
-//                    ->first()?->id;
-//        });
-//        return $index !== false ? $index + 1 : 0;
+        return TestTakeHelper::getDiscussedQuestionCount($this->testTake);
     }
 
     private function questionsToAssess(): int
@@ -396,13 +399,13 @@ class Taken extends TestTakeComponent
 
     private function assessedQuestions(): int
     {
-
         if($this->testTake->test_take_status_id < 7){
             return 0;
         }
+
         $takeNonDiscrepancyIntoAccount = UserFeatureSetting::getSetting(
             user   : auth()->user(),
-            title  : UserFeatureSettingEnum::tryFrom('assessment_skip_no_discrepancy_answer'),
+            title  : UserFeatureSettingEnum::ASSESSMENT_SKIP_NO_DISCREPANCY_ANSWER,
             default: false
         );
 

@@ -8,6 +8,7 @@ use tcCore\AnswerRating;
 use tcCore\Http\Enums\UserFeatureSetting as UserFeatureSettingEnum;
 use tcCore\TestParticipant;
 use tcCore\TestTake;
+use tcCore\TestTakeStatus;
 use tcCore\UserFeatureSetting;
 
 class TestTakeHelper
@@ -17,42 +18,50 @@ class TestTakeHelper
      * @param $type 'assess' | 'discuss'
      * @return Builder
      */
-    public static function nonAssessedDiscussedQuestionIdQueryBuilder(TestTake $testTake, $type = 'assess', $takeNonDiscrepancyIntoAccount = false) : Builder
-    {
-        $answerRatingQueryBuilder = AnswerRating::where('test_take_id', $testTake->getKey())
-            ->when($type === 'assess', function ($query) {
-                $query->where('type', '!=', AnswerRating::TYPE_STUDENT);
-            }, function ($query){
-                $query->where('type', AnswerRating::TYPE_STUDENT);
-            })
-            ->whereNotNull('rating')
+    public static function nonAssessedDiscussedQuestionIdQueryBuilder(
+        TestTake $testTake,
+                 $type = 'assess',
+                 $takeNonDiscrepancyIntoAccount = false
+    ): Builder {
+        $answerRatingQueryBuilder = self::ratingsQuery($testTake)
+            ->whereNot('answer_ratings.type', AnswerRating::TYPE_STUDENT)
             ->select('answer_id');
 
-        $testParticipantQueryBuilder = TestParticipant::where('test_take_id', $testTake->getKey())->where('test_take_status_id', '>=', 6)->select('id');
+//        $testParticipantQueryBuilder = TestParticipant::where('test_take_id', $testTake->getKey())->where('test_take_status_id', '>=', 6)->select('id');
+        $testParticipantQueryBuilder = $testTake->testParticipants()
+            ->where('test_take_status_id', '>', TestTakeStatus::STATUS_DISCUSSING)
+            ->select('id');
+
         $qIdsBuilder = Answer::whereIn('test_participant_id', $testParticipantQueryBuilder)
-            ->leftJoin('questions','answers.question_id','=','questions.id')
-            ->when($testTake->test_take_status_id >= 7,function($query) use ($answerRatingQueryBuilder){
-                $query->whereNotIn('answers.id', $answerRatingQueryBuilder)
-                    ->where('questions.type','!=','infoScreen'); // for students and teachers there is no infoscreen to rate
-            })
+            ->leftJoin('questions', 'answers.question_id', '=', 'questions.id')
+            ->when(
+                $testTake->test_take_status_id >= TestTakeStatus::STATUS_DISCUSSING,
+                function ($query) use ($answerRatingQueryBuilder) {
+                    $query->whereNotIn('answers.id', $answerRatingQueryBuilder)
+                        ->where(
+                            'questions.type',
+                            '!=',
+                            'infoScreen'
+                        ); // for students and teachers there is no infoscreen to rate
+                }
+            )
             ->groupBy('question_id')
             ->select('question_id');
 
-        if($type === 'assess' && $qIdsBuilder->get()->count() !== 0){
+        if ($type === 'assess' && $qIdsBuilder->get()->count() !== 0) {
             // we could have non discrepency questions which we don't necessarily have to show
-            if($takeNonDiscrepancyIntoAccount && $testTake->test_take_status_id >= 8 && !$testTake->skipped_discussion){
+            if ($takeNonDiscrepancyIntoAccount && $testTake->test_take_status_id >= 8 && !$testTake->skipped_discussion) {
                 // it is allowed to skip questions without discrepancies
-                $answers = Answer::whereIn('test_participant_id',$testParticipantQueryBuilder)
-                    ->whereNotIn('id',$answerRatingQueryBuilder)
+                $answers = Answer::whereIn('test_participant_id', $testParticipantQueryBuilder)
+                    ->whereNotIn('id', $answerRatingQueryBuilder)
                     ->get();
-                $nonDiscrepancyAnswerIds = $answers->filter(function(Answer $answer){
+                $nonDiscrepancyAnswerIds = $answers->filter(function (Answer $answer) {
                     return !$answer->hasCoLearningDiscrepancy();
-                })->map(function(Answer $answer){
-                   return $answer->id;
+                })->map(function (Answer $answer) {
+                    return $answer->id;
                 });
-                return $qIdsBuilder->whereNotIn('answers.id',$nonDiscrepancyAnswerIds);
+                return $qIdsBuilder->whereNotIn('answers.id', $nonDiscrepancyAnswerIds);
             }
-
         }
 
         return $qIdsBuilder;
@@ -70,4 +79,30 @@ class TestTakeHelper
         return false;
     }
 
+    public static function getDiscussedQuestionCount(TestTake $testTake): int
+    {
+        return self::ratingsQuery($testTake)
+            ->where('answer_ratings.type', AnswerRating::TYPE_STUDENT)
+            ->selectRaw("COUNT(DISTINCT a.question_id) as question_count")
+            ->value('question_count');
+    }
+
+    public static function getAssessedQuestionCount(TestTake $testTake, bool $skipNoDiscrepancies = false): int
+    {
+        return self::nonAssessedDiscussedQuestionIdQueryBuilder(
+            testTake: $testTake,
+            takeNonDiscrepancyIntoAccount: !$skipNoDiscrepancies
+        )
+            ->count();
+    }
+
+    protected static function ratingsQuery(TestTake $testTake)
+    {
+        return AnswerRating::leftJoin('answers as a', 'answer_ratings.answer_id', '=', 'a.id')
+            ->leftJoin('questions', 'questions.id', '=', 'a.question_id')
+            ->where('answer_ratings.test_take_id', $testTake->getKey())
+            ->whereNotNull('answer_ratings.rating')
+            ->whereNull('a.deleted_at')
+            ->where('questions.type', '!=', 'InfoscreenQuestion');
+    }
 }

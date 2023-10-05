@@ -33,7 +33,7 @@
 
 @section('cta')
     <div class="flex gap-2 justify-center">
-        @if(!$this->showResults())
+        @if($this->testTakeHasNotFinishedDiscussing() || $this->testTakeIsDiscussedButNotCompletelyAssessed())
             <x-dynamic-component :component="'button.'. $this->getButtonType('CO-Learning')"
                                  wire:click="startCoLearning" class="px-4">
                 <x-icon.co-learning />
@@ -79,22 +79,24 @@
 @endif
 
 @section('action-buttons')
-    @if($this->testTake->is_rtti_test_take)
-        <x-button.icon class="order-3"
-                       :title="__('teacher.Exporteer naar RTTI Online')"
-                       wire:click="$emit('openModal', 'teacher.test-take.rtti-export-response-modal', {testTake: '{{ $this->testTake->uuid }}'})"
-        >
-            <x-icon.export />
-        </x-button.icon>
-    @else
-        <x-button.icon class="order-3"
-                       :title="__('teacher.RTTI Online export maken')"
-                       type="link"
-                       target="_blank"
-                       :href="route('teacher.test-take.rtti-export-file', ['test_take' => $this->testTake->uuid])"
-        >
-            <x-icon.export />
-        </x-button.icon>
+    @if($this->assessmentDone)
+        @if($this->testTake->is_rtti_test_take)
+            <x-button.icon class="order-3"
+                           :title="__('teacher.Exporteer naar RTTI Online')"
+                           wire:click="$emit('openModal', 'teacher.test-take.rtti-export-response-modal', {testTake: '{{ $this->testTake->uuid }}'})"
+            >
+                <x-icon.export />
+            </x-button.icon>
+        @else
+            <x-button.icon class="order-3"
+                           :title="__('teacher.RTTI Online export maken')"
+                           type="link"
+                           target="_blank"
+                           :href="route('teacher.test-take.rtti-export-file', ['test_take' => $this->testTake->uuid])"
+            >
+                <x-icon.export />
+            </x-button.icon>
+        @endif
     @endif
     <x-button.icon class="order-5"
                    wire:click="$emit('openModal', 'teacher.test-plan-redo-modal', {testUuid: '{{ $this->testTake->test->uuid }}', testTakeUuid: '{{ $this->testTakeUuid }}' })"
@@ -103,7 +105,7 @@
         <x-icon.redo-test />
     </x-button.icon>
 
-    @if(in_array($this->testTakeStatusId,[\tcCore\TestTakeStatus::STATUS_TAKEN,\tcCore\TestTakeStatus::STATUS_DISCUSSING]))
+    @if($this->testTakeHasNotFinishedDiscussing())
         <x-button.icon wire:click="startAssessment" class="order-5" :title="__('assessment.Start nakijken')">
             <x-icon.review />
         </x-button.icon>
@@ -113,7 +115,7 @@
             <x-icon.co-learning />
             <span>@lang('co-learning.co_learning')</span>
         </x-button.cta>
-    @elseif($this->testTakeStatusId === \tcCore\TestTakeStatus::STATUS_DISCUSSED && !$this->assessmentDone)
+    @elseif($this->testTakeIsDiscussedButNotCompletelyAssessed())
         <x-button.icon wire:click="startCoLearning" class="order-5"
                        :title="__('co-learning.start_co_learning_session')">
             <x-icon.co-learning />
@@ -124,7 +126,6 @@
             <span>@lang('assessment.Nakijken')</span>
         </x-button.cta>
     @else
-
         <x-button.icon wire:click="startAssessment" class="order-5"
                        :title="__('assessment.Start nakijken')">
             <x-icon.review />
