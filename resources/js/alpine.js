@@ -4108,6 +4108,9 @@ document.addEventListener("alpine:init", () => {
         }
     }));
     Alpine.data("constructionDirector", () => ({
+        init() {
+            this.$store.cms.loading = false;
+        },
         get drawer() {
             return this.getLivewireComponent('cms-drawer');
         },
@@ -4134,7 +4137,7 @@ document.addEventListener("alpine:init", () => {
         f(window, el._x_dataStack[0]);
     });
     Alpine.store("cms", {
-        loading: false,
+        loading: true,
         processing: false,
         dirty: false,
         scrollPos: 0,

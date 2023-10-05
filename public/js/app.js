@@ -10969,6 +10969,9 @@ document.addEventListener("alpine:init", function () {
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("constructionDirector", function () {
     return {
+      init: function init() {
+        this.$store.cms.loading = false;
+      },
       get drawer() {
         return this.getLivewireComponent('cms-drawer');
       },
@@ -10983,10 +10986,12 @@ document.addEventListener("alpine:init", function () {
               case 0:
                 _this99.$dispatch('store-current-question');
                 _this99.$store.cms.scrollPos = document.querySelector('.drawer').scrollTop;
-                // this.$store.cms.loading = true;
-                _context34.next = 4;
+                _this99.$store.cms.loading = true;
+                _context34.next = 5;
                 return _this99.constructor.showQuestion(questionProperties);
-              case 4:
+              case 5:
+                _this99.$store.cms.loading = false;
+              case 6:
               case "end":
                 return _context34.stop();
             }
@@ -11004,7 +11009,7 @@ document.addEventListener("alpine:init", function () {
     f(window, el._x_dataStack[0]);
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].store("cms", {
-    loading: false,
+    loading: true,
     processing: false,
     dirty: false,
     scrollPos: 0,
