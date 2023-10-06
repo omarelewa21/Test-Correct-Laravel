@@ -8556,9 +8556,9 @@ document.addEventListener("alpine:init", function () {
           // Add a keyup event listener to the document
           document.addEventListener('keyup', function (event) {
             // If the target is an input or textarea, do nothing
-            // if (event.target.tagName.toLowerCase() === 'input' || event.target.tagName.toLowerCase() === 'textarea') {
-            //     return;
-            // }
+            if (event.target.tagName.toLowerCase() === 'input' && !event.target.classList.contains('js-allow-for-wasd-navigation') || event.target.tagName.toLowerCase() === 'textarea') {
+              return;
+            }
             // Check if the event.target is a ckEditor
             if (event.target.classList.contains('ck')) {
               return;
@@ -9032,26 +9032,6 @@ document.addEventListener("alpine:init", function () {
       setThumbOffset: function setThumbOffset() {
         if (continuousSlider) {
           return;
-        }
-        if (event && event.data) {
-          var keyToSelIdMap = {
-            'a': 'btn_loadAnswer_previous',
-            'd': 'btn_loadAnswer_next',
-            's': 'btn_loadQuestion_previous',
-            'w': 'btn_loadQuestion_next'
-          };
-
-          // Add a keyup event listener to the document
-
-          var id = keyToSelIdMap[event.data.toLowerCase()];
-          // If a mapping exists, "click" the corresponding button
-          if (id) {
-            var button = document.getElementById(id);
-            if (button) {
-              button.click();
-              return;
-            }
-          }
         }
         if (this.score > this.maxScore) {
           this.score = this.maxScore;
