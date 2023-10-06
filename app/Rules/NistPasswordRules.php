@@ -2,7 +2,7 @@
 
 namespace tcCore\Rules;
 
-//use tcCore\Rules\NistPassword\BreachedPasswords;
+use tcCore\Rules\NistPassword\BreachedPasswords;
 use tcCore\Rules\NistPassword\ContextSpecificWords;
 use tcCore\Rules\NistPassword\DerivativesOfContextSpecificWords;
 use tcCore\Rules\NistPassword\DictionaryWords;
@@ -29,7 +29,7 @@ abstract class NistPasswordRules {
             new DictionaryWords(),
             new ContextSpecificWords($username),
             new DerivativesOfContextSpecificWords($username),
-//            new BreachedPasswords(), //TODO fix problems with dependencies of this rule
+            new BreachedPasswords(),
         ]);
     }
 
