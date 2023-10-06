@@ -590,9 +590,9 @@ class RouteServiceProvider extends ServiceProvider
      */
     protected function mapTestingRoutes() {
         Route::middleware([
-//            'web',
-//            'auth',
-//            'administrator',
+            'web',
+            'auth',
+            'administrator',
         ])
             ->group(base_path('routes/testing.php'));
     }
