@@ -19,6 +19,9 @@ class SetHeaders
         $handle = $next($request);
         if (method_exists($handle, 'withHeaders')) { // don't do this for instance for Binary File Responses
             $handle->headers->set('X-Frame-Options', 'SAMEORIGIN');
+            if (env('ENABLE_HSTS', true)) {
+                $handle->headers->set('Strict-Transport-Security', 'max-age=63072000; includeSubdomains');
+            }
         }
 
 
