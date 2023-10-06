@@ -69,8 +69,13 @@ class TestReview extends EvaluationComponent
 
     public function loadQuestion(int $position): bool
     {
-        $index = $position - 1;
+        if($position > $this->questions->count()){
+            $position = $this->questions->count();
+        } elseif($position < 1){
+            $position = 1;
+        }
 
+        $index = $position - 1;
         $this->currentQuestion = $this->questions->get($index);
         $this->currentAnswer = $this->answers->where('question_id', $this->currentQuestion->id)->first();
         $this->questionPosition = $position;
