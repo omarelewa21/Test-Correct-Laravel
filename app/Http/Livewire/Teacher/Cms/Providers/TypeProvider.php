@@ -2,13 +2,15 @@
 
 namespace tcCore\Http\Livewire\Teacher\Cms\Providers;
 
+use tcCore\Question;
 use tcCore\Attachment;
+use tcCore\TestQuestion;
+use tcCore\UserFeatureSetting;
 use tcCore\GroupQuestionQuestion;
+use Illuminate\Support\Facades\Auth;
 use tcCore\Http\Interfaces\CmsProvider;
 use tcCore\Http\Interfaces\QuestionCms;
 use tcCore\Http\Livewire\Teacher\Cms\Constructor;
-use tcCore\Question;
-use tcCore\TestQuestion;
 
 abstract class TypeProvider implements CmsProvider
 {
@@ -57,8 +59,17 @@ abstract class TypeProvider implements CmsProvider
 
     public function preparePropertyBag()
     {
+        // foreach ($this->questionOptions as $key => $value) {
+        //     $this->instance->question[$key] = $value;
+        // }
+        $featureSettings = UserFeatureSetting::getAll(Auth::user());
         foreach ($this->questionOptions as $key => $value) {
-            $this->instance->question[$key] = $value;
+            if($key == 'max_words')
+            $this->instance->question['max_words'] = $featureSettings['max_words_default']   ? $featureSettings['max_words_default']   : null;
+            // elseif($key == 'spell_check_available' && !settings()->canUseCmsWscWriteDownToggle())
+            // $this->instance->question['spell_check_available'] = false;
+            else
+            $this->instance->question[$key] = $featureSettings[$key . '_default'] ? true : false;
         }
     }
 
