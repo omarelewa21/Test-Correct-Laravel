@@ -274,21 +274,6 @@ class CoLearning extends TCComponent implements CollapsableHeader
             return false;
         }
 
-        $discussingQuestion = $this->testTake->discussingQuestion()->first();
-
-        $this->testTake->discussingParentQuestions()->delete();
-
-        if ($discussingQuestion?->is_subquestion) {
-            $discussingQuestionId = $discussingQuestion->getKey();
-
-            $groupQuestionId = $this->getGroupQuestionIdForSubQuestion($discussingQuestionId);
-
-            $discussingParentQuestion = new DiscussingParentQuestion();
-            $discussingParentQuestion->group_question_id = $groupQuestionId;
-            $discussingParentQuestion->level = 1;
-
-            $this->testTake->discussingParentQuestions()->save($discussingParentQuestion);
-        }
         $this->getNavigationData();
 
         $this->refreshComponentData();
@@ -594,7 +579,9 @@ class CoLearning extends TCComponent implements CollapsableHeader
         $this->removeChangesFromTestTakeModel();
 
         if ($this->previousQuestionId !== null) {
-            return $this->testTake->update(['discussing_question_id' => $this->previousQuestionId]);
+            $this->testTake->update(['discussing_question_id' => $this->previousQuestionId]);
+            $this->testTake->refresh();
+            return true;
         }
 
         return false;

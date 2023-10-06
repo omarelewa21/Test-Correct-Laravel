@@ -245,7 +245,7 @@
                                                   :max-score="$maxRating"
                                                   :score="$rating"
                                                   :half-points="$allowRatingWithHalfPoints"
-                                                  :disabled="!$this->answerRating->answer->isAnswered"
+                                                  :disabled="$scoreSliderDisabled"
                                                   :co-learning="true"
                             />
                         </div>
