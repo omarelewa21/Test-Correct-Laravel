@@ -7039,7 +7039,6 @@ input.datepicker {
 
 /* score slider hidden thumb */
 .score-slider-container :is(.score-slider-continuous-input, .score-slider-input).hide-thumb {
-    /*visibility: hidden ;*/
     --thumb-appearance: none;
     --thumb-width: 1.5rem;
     --thumb-height: 1.5rem;
