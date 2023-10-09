@@ -4266,11 +4266,40 @@ document.addEventListener("alpine:init", () => {
             this.loadingData = [];
         }
     }));
+    Alpine.data("pdfDownload", (translation, links) => ({
+        value : null,
+        waitingScreenHtml: PdfDownload.waitingScreenHtml(translation),
+        links,
+        select: function(option) {
+            this.value = option;
+        },
+        selected: function(option){
+            return option === this.value;
+        },
+        export_pdf: function (){
+            if(!this.value){
+                $wire.set('displayValueRequiredMessage', true);
+                return;
+            }
+            return this.export_now(this.links[this.value]);
+        },
+        export_now: function(url) {
+            var isSafari = navigator.userAgent.indexOf('Safari') > -1 && navigator.userAgent.indexOf('Chrome') <= -1
+            if(isSafari){
+                window.open(url);
+                return;
+            }
+            var windowReference = window.open();
+            windowReference.document.write(this.waitingScreenHtml);
+            windowReference.location = url;
+        },
+    }));
 
     Alpine.directive("global", function(el, { expression }) {
         let f = new Function("_", "$data", "_." + expression + " = $data;return;");
         f(window, el._x_dataStack[0]);
     });
+
     Alpine.store("cms", {
         loading: false,
         processing: false,
@@ -4308,8 +4337,8 @@ document.addEventListener("alpine:init", () => {
             }
             return this.drawerCollapsed;
         }
-    }),
-        Alpine.store("answerFeedback", {
+    });
+    Alpine.store("answerFeedback", {
             editingComment: null,
             creatingNewComment: false,
             navigationRoot: null,

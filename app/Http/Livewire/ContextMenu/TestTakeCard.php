@@ -16,6 +16,7 @@ class TestTakeCard extends ContextMenuComponent
     const TAKEN_TAB = 'taken';
     public $uuid = null;
     public $testTakeStatusId;
+    public $testUuid = null;
     public $isArchived = false;
     public array $normButtonsShow = [
         'allow-access'      => true,
@@ -27,7 +28,11 @@ class TestTakeCard extends ContextMenuComponent
     {
         $this->uuid = $uuid;
 
-        $take = TestTake::whereUuid($uuid)->get(['test_take_status_id'])->first();
+        $take = TestTake::whereUuid($uuid)
+            ->with('test:id,uuid')
+            ->select('test_take_status_id', 'test_takes.id', 'test_takes.test_id', 'test_takes.uuid')
+            ->first();
+        $this->testUuid = $take->test->uuid;
         $this->testTakeStatusId = $take->test_take_status_id;
         if($this->takeInNormPage()){
             $this->setNormButtonsShow();
@@ -75,7 +80,11 @@ class TestTakeCard extends ContextMenuComponent
 
     public function studentAnswersPdf()
     {
-        $this->emit('openModal','teacher.pdf-download-modal', ['uuid' => $this->uuid, 'testTake' => true]);
+        $this->emit(
+            'openModal',
+            'teacher.pdf-download-modal',
+            ['uuid' => $this->testUuid, 'testTake' => $this->uuid]
+        );
     }
 
     private function takeInNormPage(): bool

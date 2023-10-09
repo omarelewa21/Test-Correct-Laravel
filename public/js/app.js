@@ -11197,6 +11197,36 @@ document.addEventListener("alpine:init", function () {
       }
     };
   });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("pdfDownload", function (translation, links) {
+    return {
+      value: null,
+      waitingScreenHtml: PdfDownload.waitingScreenHtml(translation),
+      links: links,
+      select: function select(option) {
+        this.value = option;
+      },
+      selected: function selected(option) {
+        return option === this.value;
+      },
+      export_pdf: function export_pdf() {
+        if (!this.value) {
+          $wire.set('displayValueRequiredMessage', true);
+          return;
+        }
+        return this.export_now(this.links[this.value]);
+      },
+      export_now: function export_now(url) {
+        var isSafari = navigator.userAgent.indexOf('Safari') > -1 && navigator.userAgent.indexOf('Chrome') <= -1;
+        if (isSafari) {
+          window.open(url);
+          return;
+        }
+        var windowReference = window.open();
+        windowReference.document.write(this.waitingScreenHtml);
+        windowReference.location = url;
+      }
+    };
+  });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].directive("global", function (el, _ref9) {
     var expression = _ref9.expression;
     var f = new Function("_", "$data", "_." + expression + " = $data;return;");
@@ -11242,7 +11272,8 @@ document.addEventListener("alpine:init", function () {
       }
       return this.drawerCollapsed;
     }
-  }), alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].store("answerFeedback", {
+  });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].store("answerFeedback", {
     editingComment: null,
     creatingNewComment: false,
     navigationRoot: null,

@@ -6370,6 +6370,11 @@ span.flatpickr-weekday {
     --datepicker-border-color: var(--blue-grey);
     --datepicker-background-color: var(--off-white);
 }
+
+.datepicker-error .datepicker {
+    --datepicker-border-color: var(--all-red);
+}
+
 .flatpickr-month {
     background-color: #FFFFFF !important;
 }
@@ -7019,7 +7024,6 @@ input.datepicker {
 
 /* score slider hidden thumb */
 .score-slider-container :is(.score-slider-continuous-input, .score-slider-input).hide-thumb {
-    /*visibility: hidden ;*/
     --thumb-appearance: none;
     --thumb-width: 1.5rem;
     --thumb-height: 1.5rem;
