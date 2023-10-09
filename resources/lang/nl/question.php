@@ -25,7 +25,7 @@ return [
     'no_question_text'            => 'Geen vraagtekst',
 
     'openquestionmedium'                   => 'Schrijf op',
-    'openquestionwrite'                   => 'Schrijf op',
+    'openquestionwrite'                    => 'Schrijf op',
     'openquestionshort'                    => 'Schrijf op',
     'openquestionlong'                     => 'Schrijf op',
     'openquestionopen'                     => 'Schrijf op',
@@ -56,4 +56,7 @@ return [
     'groupquestion'                        => 'Groep',
     'Vraaggroep'                           => 'Vraaggroep',
     'selected_words'                       => 'Geselecteerde woorden',
+    'relationquestion'                     => 'Relatievraag',
+    'relationquestionrelation'             => 'Relatievraag',
+    'relation_description'                 => 'Geef korte antwoorden in een lange lijst, zoals vocabulaire',
 ];

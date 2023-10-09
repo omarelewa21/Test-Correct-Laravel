@@ -6,13 +6,6 @@ class InfoScreen extends TypeProvider
 {
     public $requiresAnswer = false;
 
-    public $settingsGeneralDisabledProperties = [
-        'allowNotes',
-        'addToDatabase',
-        'discuss',
-        'decimalOption',
-    ];
-
     public function showQuestionScore()
     {
         return false;
@@ -64,4 +57,18 @@ class InfoScreen extends TypeProvider
         return 'infoscreen-question';
     }
 
+    public function questionSectionTitle(): string
+    {
+        return  __('cms.Informatietekst');
+    }
+
+    public function isSettingDisabled($property): bool
+    {
+        return in_array($property, [
+            'allowNotes',
+            'addToDatabase',
+            'discuss',
+            'decimalScore',
+        ]);
+    }
 }

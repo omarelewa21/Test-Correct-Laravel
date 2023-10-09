@@ -29,15 +29,23 @@ class QuestionHelper extends BaseHelper
      * @return mixed
      */
     public function getTotalQuestion($question){
-        $question->getQuestionInstance()->load([    'attachments',
-                                                    'attainments',
-                                                    'authors',
-                                                    'tags',
-                                                    'pValue' => function($query) {
-                                                            $query->select('question_id', 'education_level_id', 'education_level_year', DB::raw('(SUM(score) / SUM(max_score)) as p_value'), DB::raw('count(1) as p_value_count'))->groupBy('education_level_id')->groupBy('education_level_year');
-                                                        },
-                                                    'pValue.educationLevel'
-                                                ]);
+        $question->getQuestionInstance()
+            ->load([
+                'attachments',
+                'attainments',
+                'authors',
+                'tags',
+                'pValue' => function ($query) {
+                    $query->select(
+                        'question_id',
+                        'education_level_id',
+                        'education_level_year',
+                        DB::raw('(SUM(score) / SUM(max_score)) as p_value'),
+                        DB::raw('count(1) as p_value_count')
+                    )->groupBy('education_level_id')->groupBy('education_level_year');
+                },
+                'pValue.educationLevel'
+            ]);
 
         if($question instanceof QuestionInterface) {
             $question->loadRelated();

@@ -151,6 +151,7 @@
                 @if($this->showQuestionScore())
                     <x-input.score wire:model.defer="question.score"
                                    wire:key="score-component-{{ $this->uniqueQuestionKey }}"
+                                   :disabled="$this->hasScoringDisabled()"
                     />
                 @endif
             </div>
@@ -269,7 +270,6 @@
                         @if($this->isSettingsGeneralPropertyVisible('closeable'))
                             <x-input.toggle-row-with-title wire:model="question.closeable"
                                                            :toolTip="__('cms.close_after_answer_tooltip_text')"
-                                                           class="{{ $this->isSettingsGeneralPropertyDisabled('closeable') ? 'text-disabled' : 'kaas' }}"
                                                            :disabled="$this->isSettingsGeneralPropertyDisabled('closeable')"
                             >
                                 <x-icon.locked></x-icon.locked>
@@ -280,7 +280,6 @@
                         @if($this->isSettingsGeneralPropertyVisible('addToDatabase'))
                             <x-input.toggle-row-with-title wire:model="question.add_to_database"
                                                            :toolTip="__('cms.make_public_tooltip_text')"
-                                                           class="{{ $this->isSettingsGeneralPropertyDisabled('addToDatabase') ? 'text-disabled' : '' }}"
                                                            :disabled="($question['add_to_database_disabled'] ?? false) || $this->isSettingsGeneralPropertyDisabled('addToDatabase')"
                                                            selid="open-source-switch"
                             >
@@ -291,7 +290,6 @@
 
                         @if($this->isSettingsGeneralPropertyVisible('maintainPosition'))
                             <x-input.toggle-row-with-title wire:model="question.maintain_position"
-                                                           class="{{ $this->isSettingsGeneralPropertyDisabled('maintainPosition') ? 'text-disabled' : '' }}"
                                                            :disabled="$this->isSettingsGeneralPropertyDisabled('maintainPosition')"
                                                            :toolTip="$this->isGroupQuestion() ? __('cms.dont_shuffle_question_group_tooltip_text') : ''"
 
@@ -303,7 +301,6 @@
 
                         @if($this->isSettingsGeneralPropertyVisible('discuss'))
                             <x-input.toggle-row-with-title wire:model="question.discuss"
-                                                           class="{{ $this->isSettingsGeneralPropertyDisabled('discuss') ? 'text-disabled' : '' }}"
                                                            :disabled="$this->isSettingsGeneralPropertyDisabled('discuss')"
                             >
                                 <x-icon.discuss class="flex "></x-icon.discuss>
@@ -315,41 +312,45 @@
                             <x-input.toggle-radio-row-with-title wire:model="question.note_type"
                                                                  value-on="TEXT"
                                                                  value-off="NONE"
-                                                                 class="{{ $this->isSettingsGeneralPropertyDisabled('allowNotes') ? 'text-disabled' : '' }}"
                                                                  :disabled="$this->isSettingsGeneralPropertyDisabled('allowNotes')"
                             >
                                 <x-icon.notepad/>
-                                <span class="bold"> {{ __('cms.Notities toestaan') }}</span>
+                                <span @class(["bold", "disabled" => $this->isSettingsGeneralPropertyVisible('allowNotes')])>
+                                    {{ __('cms.Notities toestaan') }}
+                                </span>
                             </x-input.toggle-radio-row-with-title>
                         @endif
 
                         @if($this->isSettingsGeneralPropertyVisible('decimalScore'))
                             <x-input.toggle-row-with-title wire:model="question.decimal_score"
-                                                           class="{{ $this->isSettingsGeneralPropertyDisabled('decimalOption') ? 'text-disabled' : '' }}"
-                                                           :disabled="$this->isSettingsGeneralPropertyDisabled('decimalOption')"
+                                                           :disabled="$this->isSettingsGeneralPropertyDisabled('decimalScore')"
                             >
                                 <x-icon.half-points/>
-                                <span class="bold @if($this->isSettingsGeneralPropertyDisabled('decimalOption')) disabled @endif"> {{ __('cms.Halve puntenbeoordeling mogelijk') }}</span>
+                                <span @class(["bold", "disabled" => $this->isSettingsGeneralPropertyDisabled('decimalScore')])>
+                                    {{ __('cms.Halve puntenbeoordeling mogelijk') }}
+                                </span>
                             </x-input.toggle-row-with-title>
                         @endif
 
                         @if($this->isSettingsGeneralPropertyVisible('autoCheckAnswer'))
                             <x-input.toggle-row-with-title wire:model="question.auto_check_answer"
-                                                           class="{{ $this->isSettingsGeneralPropertyDisabled('autoCheckAnswer') ? 'text-disabled' : '' }}"
                                                            :disabled="$this->isSettingsGeneralPropertyDisabled('autoCheckAnswer')"
                             >
                                 <x-icon.autocheck/>
-                                <span class="bold @if($this->isSettingsGeneralPropertyDisabled('autoCheckAnswer')) disabled @endif"> {{ __('cms.Automatisch nakijken') }}</span>
+                                <span @class(["bold", "disabled" => $this->isSettingsGeneralPropertyDisabled('autoCheckAnswer')])>
+                                    {{ __('cms.Automatisch nakijken') }}
+                                </span>
                             </x-input.toggle-row-with-title>
                         @endif
 
                         @if($this->isSettingsGeneralPropertyVisible('autoCheckAnswerCaseSensitive'))
                             <x-input.toggle-row-with-title wire:model="question.auto_check_answer_case_sensitive"
-                                                           class="{{ $this->isSettingsGeneralPropertyDisabled('autoCheckAnswerCaseSensitive') ? 'text-disabled' : '' }}"
                                                            :disabled="$this->isSettingsGeneralPropertyDisabled('autoCheckAnswerCaseSensitive')"
                             >
                                 <x-icon.case-sensitive/>
-                                <span class="bold @if($this->isSettingsGeneralPropertyDisabled('autoCheckAnswerCaseSensitive')) disabled @endif"> {{ __('cms.Hoofdletter gevoelig nakijken') }}</span>
+                                <span @class(["bold", "disabled" => $this->isSettingsGeneralPropertyDisabled('autoCheckAnswerCaseSensitive')])>
+                                    {{ __('cms.Hoofdletter gevoelig nakijken') }}
+                                </span>
                             </x-input.toggle-row-with-title>
                         @endif
 

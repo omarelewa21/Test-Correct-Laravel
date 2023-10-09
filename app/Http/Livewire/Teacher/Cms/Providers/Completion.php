@@ -16,11 +16,6 @@ class Completion extends TypeProvider
         'auto_check_answer_case_sensitive' => false,
     ];
 
-    public $settingsGeneralPropertiesVisibility = [
-        'autoCheckAnswer' => true,
-        'autoCheckAnswerCaseSensitive' => true,
-    ];
-
     public function preparePropertyBag()
     {
         foreach ($this->questionOptions as $key => $value) {
@@ -37,12 +32,10 @@ class Completion extends TypeProvider
         $this->instance->question['question'] = CompletionQuestion::decodeCompletionTags($q);
     }
 
-    public function isSettingsGeneralPropertyDisabled($property, $asText = false)
+    public function isSettingsGeneralPropertyDisabled($property): bool
     {
-        if ($property === 'autoCheckAnswerCaseSensitive') {
-            if (!$this->instance->question['auto_check_answer']) {
-                return true;
-            }
+        if ($property === 'autoCheckAnswerCaseSensitive' && !$this->instance->question['auto_check_answer']) {
+            return true;
         }
 
         return false;
@@ -63,5 +56,10 @@ class Completion extends TypeProvider
     public function getTemplate(): string
     {
         return 'completion-question';
+    }
+
+    public function isSettingVisible(string $property): bool
+    {
+        return true;
     }
 }

@@ -15,18 +15,6 @@ class Group extends TypeProvider
         'uuid'                   => ''
     ];
 
-    public $settingsGeneralPropertiesVisibility = [
-        'autoCheckAnswer'              => false,
-        'autoCheckAnswerCaseSensitive' => false,
-        'closeable'                    => true,
-        'shuffle'                      => true,
-        'addToDatabase'                => true,
-        'maintainPosition'             => true,
-        'discuss'                      => false,
-        'allowNotes'                   => false,
-        'decimalScore'                 => false,
-    ];
-
     public function mergeRules(&$rules)
     {
         $rules = [
@@ -69,12 +57,17 @@ class Group extends TypeProvider
 
     public function hasEqualScoresForSubQuestions()
     {
-        if (!$this->instance->question['uuid']) return true;
+        if (!$this->instance->question['uuid']) {
+            return true;
+        }
         return GroupQuestion::whereUuid($this->instance->question['uuid'])->first()->hasEqualScoresForSubQuestions();
     }
+
     public function hasEnoughSubQuestionsAsCarousel()
     {
-        if (!$this->instance->question['uuid']) return true;
+        if (!$this->instance->question['uuid']) {
+            return true;
+        }
         return GroupQuestion::whereUuid($this->instance->question['uuid'])->first()->hasEnoughSubQuestionsAsCarousel();
     }
 
@@ -87,5 +80,24 @@ class Group extends TypeProvider
     {
         $event = filled($value) ? 'group-question-name-filled' : 'group-question-name-empty';
         $this->instance->dispatchBrowserEvent($event);
+    }
+
+    public function questionSectionTitle(): string
+    {
+        return __('cms.bijlagen');
+    }
+
+    public function isSettingVisible(string $property): bool
+    {
+        return !in_array(
+            $property,
+            [
+                'discuss',
+                'allowNotes',
+                'decimalScore',
+                'autoCheckAnswer',
+                'autoCheckAnswerCaseSensitive',
+            ]
+        );
     }
 }

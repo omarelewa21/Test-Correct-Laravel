@@ -34,6 +34,7 @@ use tcCore\Http\Livewire\Teacher\Cms\Providers\MultipleChoice;
 use tcCore\Http\Livewire\Teacher\Cms\Providers\Open;
 use tcCore\Http\Livewire\Teacher\Cms\Providers\Ranking;
 use tcCore\Http\Livewire\Teacher\Cms\Providers\TrueFalse;
+use tcCore\Http\Livewire\Teacher\Cms\Providers\TypeProvider;
 use tcCore\Http\Requests\CreateAttachmentRequest;
 use tcCore\Http\Requests\CreateGroupQuestionQuestionRequest;
 use tcCore\Http\Requests\CreateTestQuestionRequest;
@@ -128,11 +129,6 @@ class Constructor extends TCComponent implements QuestionCms
     ];
 
     protected $typesNeedIsolate = ['MatchingQuestion'];
-
-    protected $settingsGeneralPropertiesVisibility = [
-        'autoCheckAnswer'                       => false,
-        'autoCheckAnswerCaseSensitive'          => false,
-    ];
 
     public $testName = 'test_name';
 
@@ -683,16 +679,10 @@ class Constructor extends TCComponent implements QuestionCms
         return $response;
     }
 
-    public function isSettingsGeneralPropertyVisible($property)
+    public function isSettingsGeneralPropertyVisible($property): bool
     {
-        if ($this->obj && property_exists($this->obj,
-                'settingsGeneralPropertiesVisibility') && is_array($this->obj->settingsGeneralPropertiesVisibility)) {
-            $this->settingsGeneralPropertiesVisibility = array_merge($this->settingsGeneralPropertiesVisibility,
-                $this->obj->settingsGeneralPropertiesVisibility);
-        }
-
-        if (array_key_exists($property, $this->settingsGeneralPropertiesVisibility)) {
-            return (bool)$this->settingsGeneralPropertiesVisibility[$property];
+        if ($this->obj instanceof TypeProvider) {
+            return $this->obj->isSettingVisible($property);
         }
 
         return true;
@@ -700,21 +690,10 @@ class Constructor extends TCComponent implements QuestionCms
 
     public function isSettingsGeneralPropertyDisabled($property, $asText = false)
     {
-        if ($this->obj && method_exists($this->obj, 'isSettingsGeneralPropertyDisabled')) {
-            return $this->obj->isSettingsGeneralPropertyDisabled($property, $asText);
+        if ($this->obj instanceof TypeProvider) {
+            return $this->obj->isSettingDisabled($property);
         }
 
-        if ($this->obj && property_exists($this->obj,
-                'settingsGeneralDisabledProperties') && is_array($this->obj->settingsGeneralDisabledProperties) && in_array($property,
-                $this->obj->settingsGeneralDisabledProperties)) {
-            if ($asText) {
-                return 'true';
-            }
-            return true;
-        }
-        if ($asText) {
-            return 'false';
-        }
         return false;
     }
 
@@ -957,15 +936,15 @@ class Constructor extends TCComponent implements QuestionCms
             $q = $tq->question;
             $this->attachments = $q->attachments()->with('questionAttachments')->get();
 
-            $q = (new QuestionHelper())->getTotalQuestion($q->question);
+            $q = (new QuestionHelper())->getTotalQuestion($q);
             $this->pValues = $q->getQuestionInstance()->getRelation('pValue');
 
-            $this->questionId = $q->question->getKey();
+            $this->questionId = $q->getKey();
             $this->question['bloom'] = $q->bloom;
             $this->question['rtti'] = $q->rtti;
             $this->question['miller'] = $q->miller;
             $this->question['answer'] = $q->answer;
-            $this->question['question'] = $q->question->getQuestionHTML();
+            $this->question['question'] = $q->getQuestionHTML();
             $this->question['score'] = $q->score;
             $this->question['note_type'] = $q->note_type;
             $this->question['attainments'] = $q->getQuestionAttainmentsAsArray();
@@ -1532,5 +1511,21 @@ class Constructor extends TCComponent implements QuestionCms
             'decimal_score'     => $featureSettings[UserFeatureSettingEnum::QUESTION_HALF_POINTS_POSSIBLE->value],
             'auto_check_answer' => $featureSettings[UserFeatureSettingEnum::QUESTION_AUTO_SCORE_COMPLETION->value],
         ];
+    }
+
+    public function hasScoringDisabled(): bool
+    {
+        if ($this->obj instanceof TypeProvider) {
+            return $this->obj->hasScoringDisabled();
+        }
+        return false;
+    }
+
+    public function questionSectionTitle(): string
+    {
+        if ($this->obj instanceof TypeProvider) {
+            return $this->obj->questionSectionTitle();
+        }
+        return __('cms.Vraagstelling');
     }
 }

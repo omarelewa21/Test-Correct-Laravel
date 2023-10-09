@@ -18,7 +18,7 @@ class RefreshDatabase extends Command
      *
      * @var string
      */
-    protected $signature = 'test:refreshdb {--file=} {--allow-all}  {{--force}}';
+    protected $signature = 'test:refreshdb {--file=} {--allow-all} {--force}';
 
     /**
      * The console command description.

@@ -64,8 +64,31 @@ abstract class TypeProvider implements CmsProvider
 
     public function initializePropertyBag($q)
     {
-        foreach($this->questionOptions as $key => $val){
+        foreach ($this->questionOptions as $key => $val) {
             $this->instance->question[$key] = $q[$key];
         }
+    }
+
+    public function hasScoringDisabled(): bool
+    {
+        return false;
+    }
+
+    public function questionSectionTitle(): string
+    {
+        return __('cms.Vraagstelling');
+    }
+
+    public function isSettingVisible(string $property): bool
+    {
+        return !in_array(
+            $property,
+            ['autoCheckAnswer', 'autoCheckAnswerCaseSensitive']
+        );
+    }
+
+    public function isSettingDisabled(string $property): bool
+    {
+        return false;
     }
 }
