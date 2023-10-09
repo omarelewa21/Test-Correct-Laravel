@@ -67,9 +67,9 @@
                     @hasSection('action-buttons')
                         @yield('action-buttons')
                     @endif
-
                     <livewire:actions.test-make-pdf :uuid="$this->testTake->test->uuid"
-                                                    :wire:key="'make-pdf-'.$this->testTake->test->uuid"
+                                                    :test-take="$this->testTake->uuid"
+                                                    :wire:key="'make-pdf-'.$this->testTake->uuid"
                                                     class="order-4"
                     />
 

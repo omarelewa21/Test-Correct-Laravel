@@ -6390,6 +6390,11 @@ span.flatpickr-weekday {
     --datepicker-border-color: var(--blue-grey);
     --datepicker-background-color: var(--off-white);
 }
+
+.datepicker-error .datepicker {
+    --datepicker-border-color: var(--all-red);
+}
+
 .flatpickr-month {
     background-color: #FFFFFF !important;
 }

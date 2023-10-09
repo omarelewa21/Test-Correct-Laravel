@@ -11,6 +11,18 @@ class SetStudentReviewModal extends TCModalComponent
     public $showResults;
     public $showCorrectionModel;
 
+    protected array $rules = [
+        'showResults'         => 'required',
+        'showCorrectionModel' => 'bool'
+    ];
+
+    protected function validationAttributes()
+    {
+        return [
+            'showResults' => strtolower(__('teacher.Datum'))
+        ];
+    }
+
     public function mount(\tcCore\TestTake $testTake): void
     {
         $this->testTakeUuid = $testTake->uuid;
@@ -30,6 +42,7 @@ class SetStudentReviewModal extends TCModalComponent
 
     public function continue(): void
     {
+        $this->validate();
         $testTake = \tcCore\TestTake::whereUuid($this->testTakeUuid)->first();
 
         if ($testTake->show_results !== $this->showResults) {
