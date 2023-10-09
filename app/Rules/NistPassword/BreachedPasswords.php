@@ -2,6 +2,7 @@
 
 namespace tcCore\Rules\NistPassword;
 
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Contracts\Validation\Rule;
 use Illuminate\Support\Facades\Http;
 use tcCore\Http\Enums\PasswordStatus;
@@ -28,11 +29,17 @@ class BreachedPasswords implements Rule
     protected function queryPasswordStatus(string $password): PasswordStatus
     {
         $hash = $this->getHash($password);
-        $request = Http::withHeaders([
-            'User-Agent' => 'Test-Correct - https://www.test-correct.nl/'
-        ])->timeout(3)->get('https://api.pwnedpasswords.com/range/'.substr($hash, 0, 5));
+        $request = null;
+        try {
+            $request = Http::withHeaders([
+                'User-Agent' => 'Test-Correct - https://www.test-correct.nl/'
+            ])->timeout(3)->get('https://api.pwnedpasswords.com/range/'.substr($hash, 0, 5));
+        } catch(Error $e) {
+            return PasswordStatus::UNKNOWN;
+        }
+        
 
-        if (!$request->ok()) {
+        if (is_null($request) || !$request->ok()) {
             return PasswordStatus::UNKNOWN;
         }
 
