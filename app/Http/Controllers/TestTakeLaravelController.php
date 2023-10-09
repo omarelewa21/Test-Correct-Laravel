@@ -32,7 +32,7 @@ class TestTakeLaravelController extends Controller
 
         $data = self::getData($testParticipant, $testTake);
    
-        $groupedQuestions = GroupQuestionQuestion::whereIn('question_id', $data->pluck('id')->toArray())
+        $groupQuestions = GroupQuestionQuestion::whereIn('question_id', $data->pluck('id')->toArray())
         ->groupBy('group_question_id')
         ->select('group_question_id', DB::raw('GROUP_CONCAT(question_id) as question_ids'))
         ->pluck('question_ids', 'group_question_id')
@@ -40,7 +40,9 @@ class TestTakeLaravelController extends Controller
             return explode(',', $item); // Convert the comma-separated string to an array
         })
         ->toArray();
-    
+        
+        // Get All Questions form data not in group
+        $questionsNotInGroup = $data->where('is_subquestion', 0)->pluck('id')->toArray();
     
         
         // dd($groupedQuestions);
@@ -54,7 +56,7 @@ class TestTakeLaravelController extends Controller
         $uuid = $testTake->uuid;
         // todo add check or failure when $current out of bounds $data;
         $styling = $this->getCustomStylingFromQuestions($data);
-        return view('test-take-overview', compact(['data', 'current', 'answers', 'playerUrl', 'nav', 'uuid', 'testParticipant', 'styling' , 'groupedQuestions']));
+        return view('test-take-overview', compact(['data', 'current', 'answers', 'playerUrl', 'nav', 'uuid', 'testParticipant', 'styling' , 'groupQuestions' , 'questionsNotInGroup']));
     }
 
 

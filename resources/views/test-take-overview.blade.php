@@ -103,18 +103,15 @@
                         </div>
                     @endif
                 </div>
-                {{-- @if(end($groupQuestions) == $testQuestion->id)
-                    <hr style="background:var(--all-Base);">
-                @elseif(!in_array($testQuestion->id, $groupQuestions))
-                    <hr style="background:var(--all-Base);">
-                @endif --}}
-
-                @foreach ($groupedQuestions as $groupedQuestion)
-                {{-- @dd(end($groupedQuestion)); --}}
-                    @if (end($groupedQuestion) == $testQuestion->id)
+                @foreach ($groupQuestions as $groupQuestion)
+                    @if (end($groupQuestion) == $testQuestion->id )
                         <hr style="background: var(--all-Base);">
-                    @elseif (!in_array($testQuestion->id, $groupedQuestion))
-                        <hr style="background: var(--all-Base);">           
+                    @endif
+                @endforeach
+
+                @foreach ($questionsNotInGroup as $questionNotInGroup)
+                    @if ($questionNotInGroup == $testQuestion->id)
+                        <hr style="background: var(--all-Base);">
                     @endif
                 @endforeach
             @endforeach

@@ -19,27 +19,49 @@
      questionComponent
      :class="{ 'rs_readable': showMe }"
 >
-    <div class="flex justify-end space-x-4 mt-6">
-        @if(!$this->closed  )
-            <x-question.notepad-button :question="$question" ></x-question.notepad-button>
-        @endif
-    </div>
-    @if($this->group)
-    <div class="question-title flex flex-wrap items-center question-indicator border-bottom mb-6">
-        <x-timeout-progress-bar/>
+@if($this->group)
+<x-accordion.container :active-container-key="'answer'"   
+>
+<x-accordion.block key="answer"
+    :coloredBorderClass="'student'"
+    :emitWhenSet="false"
+    :disabledBackGround="true"
+>
+<x-slot:title>
         <h6 wire:ignore class="inline-flex"> {{__('cms.group-question')}} : {{ $this->group->name }}</h6>
-    </div>
-    @endif
-    <div class="flex flex-1 flex-col">
-        <div class="flex flex-wrap">
-            <x-attachment.student-buttons-container :question="$question" :group="$this->group" :blockAttachments="$this->blockAttachments"/>
+</x-slot:title>
+<x-slot:body>
+        <div class="flex flex-1 flex-col">
+            <div class="flex flex-wrap">
+                <x-attachment.student-buttons-container :question="$question" :group="$this->group" :blockAttachments="$this->blockAttachments"/>
+            </div>
+            <div class="mb-5 questionContainer" questionHtml wire:ignore>{!! $this->group->question->converted_question_html !!}</div>
         </div>
-        @if($this->group)
-        <div class="mb-5 questionContainer" questionHtml wire:ignore>{!! $this->group->question->converted_question_html !!}</div>
-    @endif
-
-    </div>
-
+</x-slot:body>
+</x-accordion.block>
+</x-accordion.container>
+@endif
+{{-- ORIGINAL  --}}
+    {{-- <div class="flex justify-end space-x-4 mt-6">
+            @if(!$this->closed  )
+                <x-question.notepad-button :question="$question" ></x-question.notepad-button>
+            @endif
+    </div> --}}
+    {{-- @if($this->group)
+        <div class="question-title flex flex-wrap items-center question-indicator border-bottom mb-6">
+            <x-timeout-progress-bar/>
+            <h6 wire:ignore class="inline-flex"> {{__('cms.group-question')}} : {{ $this->group->name }}</h6>
+        </div>
+    @endif --}}
+        {{-- <div class="flex flex-1 flex-col">
+            <div class="flex flex-wrap">
+                <x-attachment.student-buttons-container :question="$question" :group="$this->group" :blockAttachments="$this->blockAttachments"/>
+            </div>
+            @if($this->group)
+            <div class="mb-5 questionContainer" questionHtml wire:ignore>{!! $this->group->question->converted_question_html !!}</div>
+            @endif
+        </div> --}}
+{{-- END ORIGNAL --}}
     <div class="flex flex-col p-8 sm:p-10 content-section relative">
         <div class="question-title flex flex-wrap items-center question-indicator border-bottom mb-6">
             <div class="inline-flex question-number rounded-full text-center justify-center items-center complete">
@@ -62,7 +84,7 @@
         <div class="flex flex-1 flex-col">
             @if(!$this->closed)
                 <div class="flex flex-wrap">
-                    <x-attachment.student-buttons-container :question="$question" :group="$this->group" :blockAttachments="$this->blockAttachments"/>
+                    <x-attachment.student-buttons-container :questionAttachements="true" :question="$question" :group="$this->group" :blockAttachments="$this->blockAttachments"/>
                 </div>
                 <div class="questionContainer">
                     {{ $slot }}

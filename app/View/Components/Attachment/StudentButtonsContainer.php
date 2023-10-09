@@ -14,6 +14,7 @@ use tcCore\Question;
 class StudentButtonsContainer extends Component
 {
     public Collection $attachments;
+    public Collection $questionAttachments;
     public Carbon $transitionDate;
 
     public function __construct(
@@ -23,9 +24,10 @@ class StudentButtonsContainer extends Component
     ) {
         /* Mon Aug 07 2023 00:00:00 GMT+0200 (Central European Summer Time) */
         $this->transitionDate = Carbon::parse(1691359200);
-
-        $this->attachments = collect($this->getGroupAttachments())->merge($question->attachments);
+        $this->attachments = collect($this->getGroupAttachments());
         $this->attachments->map(fn($attachment) => $this->setAttachmentTitle($attachment));
+        $this->questionAttachments = collect($this->question->attachments);
+        $this->questionAttachments->map(fn($questionAttachments) => $this->setAttachmentTitle($questionAttachments));
     }
 
     public function render(): View
