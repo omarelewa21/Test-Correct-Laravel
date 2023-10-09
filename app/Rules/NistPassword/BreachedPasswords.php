@@ -29,23 +29,20 @@ class BreachedPasswords implements Rule
     protected function queryPasswordStatus(string $password): PasswordStatus
     {
         $hash = $this->getHash($password);
-        $request = null;
+
         try {
             $request = Http::withHeaders([
                 'User-Agent' => 'Test-Correct - https://www.test-correct.nl/'
             ])->timeout(3)->get('https://api.pwnedpasswords.com/range/'.substr($hash, 0, 5));
-        } catch(Error $e) {
-            return PasswordStatus::UNKNOWN;
-        }
-        
 
-        if (is_null($request) || !$request->ok()) {
-            return PasswordStatus::UNKNOWN;
-        }
+            if ($request->ok()) {
+                $hashes = $request->body();
+                //FIXME: some caching of the hashes would be good to prevent future duplicate requests
+                return $this->parsePasswordStatus($hash, $hashes);
+            }
+        } catch(\Throwable $e) {}
 
-        $hashes = $request->body();
-        //FIXME: some caching of the hashes would be good to prevent future duplicate requests
-        return $this->parsePasswordStatus($hash, $hashes);
+        return PasswordStatus::UNKNOWN;
     }
 
     /**
