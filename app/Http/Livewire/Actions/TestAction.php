@@ -17,7 +17,7 @@ abstract class TestAction extends TCComponent
 
     protected $listeners = ['test-updated' => 'testUpdated'];
 
-    public function mount($uuid, $variant, $class): void
+    public function mount($uuid, $variant, $class)
     {
         $this->test = Test::findByUuid($uuid);
         $this->uuid = $uuid;
