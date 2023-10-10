@@ -10913,6 +10913,7 @@ document.addEventListener("alpine:init", function () {
       answerEditorId: answerEditorId,
       init: function init() {
         var _this97 = this;
+        this.$store.cms.processing = empty;
         this.$watch("$store.cms.loading", function (value) {
           return _this97.loadingTimeout(value);
         });
@@ -10943,7 +10944,7 @@ document.addEventListener("alpine:init", function () {
           _this98.$store.cms.processing = false;
           _this98.$wire.set("loading", false);
           clearTimeout(_this98.loadTimeout);
-        }, 1000);
+        }, 500);
       },
       removeDrawingLegacy: function removeDrawingLegacy() {
         var _this$$root$querySele4;
@@ -10964,6 +10965,12 @@ document.addEventListener("alpine:init", function () {
         if (document.getElementById(this.answerEditorId)) {
           this.$wire.sync("question.answer", ClassicEditors[this.answerEditorId].getData());
         }
+      },
+      isLoading: function isLoading() {
+        return this.$store.cms.loading || this.$store.cms.emptyState;
+      },
+      isProcessing: function isProcessing() {
+        return this.$store.cms.processing;
       }
     };
   });
