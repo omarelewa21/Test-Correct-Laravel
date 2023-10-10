@@ -4314,6 +4314,7 @@ document.addEventListener("alpine:init", () => {
         questionEditorId,
         answerEditorId,
         init() {
+            this.$store.cms.processing = empty;
             this.$watch("$store.cms.loading", (value) => this.loadingTimeout(value));
             this.$watch("loading", (value) => this.loadingTimeout(value));
             this.$watch("dirty", (value) => this.$store.cms.dirty = value);
@@ -4334,7 +4335,7 @@ document.addEventListener("alpine:init", () => {
                 this.$store.cms.processing = false;
                 this.$wire.set("loading", false);
                 clearTimeout(this.loadTimeout);
-            }, 1000);
+            }, 500);
 
         },
         removeDrawingLegacy() {
@@ -4355,6 +4356,12 @@ document.addEventListener("alpine:init", () => {
             if (document.getElementById(this.answerEditorId)) {
                 this.$wire.sync("question.answer", ClassicEditors[this.answerEditorId].getData());
             }
+        },
+        isLoading() {
+            return (this.$store.cms.loading || this.$store.cms.emptyState);
+        },
+        isProcessing() {
+            return (this.$store.cms.processing);
         }
     }));
     Alpine.data("constructionDirector", () => ({

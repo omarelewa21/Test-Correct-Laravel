@@ -1,5 +1,5 @@
 <div cms id="cms" class="flex flex-1"
-     x-data="constructionBody(@js($loading), @js($this->emptyState), @entangle('dirty'), @js($this->questionEditorId), @js($this->answerEditorId))"
+     x-data="constructionBody(@js($this->loading), @js($this->emptyState), @entangle('dirty'), @js($this->questionEditorId), @js($this->answerEditorId))"
      x-cloak
      x-on:question-change.window="handleQuestionChange($event.detail)"
      x-on:show-empty.window="empty = !empty"
@@ -12,7 +12,7 @@
     <div class="question-editor-content w-full relative"
          wire:key="container-{{ $this->uniqueQuestionKey }}"
          style="opacity: 0; transition: opacity 100ms ease-in-out"
-         :style="{'opacity': ($store.cms.loading || $store.cms.emptyState) ? 0 : ($store.cms.processing) ? 0 : 1}"
+         :style="{'opacity': isLoading() ? 0 : (isProcessing() ? 0 : 1)}"
          x-ref="editorcontainer"
          wire:ignore.self
     >
