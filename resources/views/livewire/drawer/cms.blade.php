@@ -8,7 +8,7 @@
      x-effect="handleLoading();"
      x-bind:class="{'collapsed': collapse}"
      x-on:backdrop="backdrop = !backdrop"
-     x-on:processing-end.window="$store.cms.processing = false;"
+     x-on:processing-end.window="$store.cms.processing = false;$store.cms.loading = false;"
      x-on:filepond-start.window="loadingOverlay = true;"
      x-on:filepond-finished.window="loadingOverlay = false;"
      x-on:first-question-of-test-added.window="$wire.showFirstQuestionOfTest(); emptyStateActive = false; $nextTick(() => backdrop = true)"
