@@ -24,6 +24,20 @@
                 </style>
             @endpush
             @foreach($data as  $key => $testQuestion)
+                @foreach ($questionsInGroup as $groupQuestion)
+                    @if ($groupQuestion[0] == $testQuestion->id )
+                        @foreach ($groupQuestions as $groupQuestionItem)
+                            @if ($groupQuestionItem->id == $testQuestion->belongs_to_groupquestion_id)
+                            <div class="flex flex-1 flex-col">
+                                <div class="flex flex-wrap">
+                                    <x-attachment.student-buttons-container :question="$testQuestion" :group="$groupQuestionItem" :blockAttachments="false"/>
+                                </div>
+                                <div class="mb-5 questionContainer" questionHtml wire:ignore>{!! $groupQuestionItem->question->converted_question_html !!}</div>
+                            </div>
+                            @endif
+                        @endforeach
+                    @endif
+                @endforeach
                 <div class="flex flex-col space-y-4">
                     @if($testQuestion->type === 'MultipleChoiceQuestion' && $testQuestion->selectable_answers > 1 && $testQuestion->subtype != 'ARQ')
                         <livewire:student-player.overview.multiple-select-question
@@ -103,12 +117,11 @@
                         </div>
                     @endif
                 </div>
-                @foreach ($groupQuestions as $groupQuestion)
-                    @if (end($groupQuestion) == $testQuestion->id )
-                        <hr style="background: var(--all-Base);">
-                    @endif
+                @foreach ($questionsInGroup as $groupQuestion)
+                @if (end($groupQuestion) == $testQuestion->id )
+                    <hr style="background: var(--all-Base);">
+                @endif
                 @endforeach
-
                 @foreach ($questionsNotInGroup as $questionNotInGroup)
                     @if ($questionNotInGroup == $testQuestion->id)
                         <hr style="background: var(--all-Base);">

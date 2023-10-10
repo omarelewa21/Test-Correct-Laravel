@@ -4,6 +4,7 @@ namespace tcCore\Http\Controllers;
 
 use tcCore\TestTake;
 use Ramsey\Uuid\Uuid;
+use tcCore\GroupQuestion;
 use tcCore\TemporaryLogin;
 use Illuminate\Support\Str;
 use tcCore\TestParticipant;
@@ -20,6 +21,8 @@ class TestTakeLaravelController extends Controller
 {
     use TestTakeNavigationForController;
     use WithStudentTestTakes;
+    
+    public bool           $blockAttachments;
 
     public function overview(TestTake $testTake, Request $request)
     {
@@ -31,8 +34,8 @@ class TestTakeLaravelController extends Controller
         $current = $request->get('q') ?: '1';
 
         $data = self::getData($testParticipant, $testTake);
-   
-        $groupQuestions = GroupQuestionQuestion::whereIn('question_id', $data->pluck('id')->toArray())
+  
+        $questionsInGroup = GroupQuestionQuestion::whereIn('question_id', $data->pluck('id')->toArray())
         ->groupBy('group_question_id')
         ->select('group_question_id', DB::raw('GROUP_CONCAT(question_id) as question_ids'))
         ->pluck('question_ids', 'group_question_id')
@@ -40,12 +43,13 @@ class TestTakeLaravelController extends Controller
             return explode(',', $item); // Convert the comma-separated string to an array
         })
         ->toArray();
+
+        $groupQuestionIds = array_keys($questionsInGroup); // Get the group_question_ids from the $groupQuestions array
+        $groupQuestions = GroupQuestion::whereIn('id', $groupQuestionIds)->get();
+
         
-        // Get All Questions form data not in group
         $questionsNotInGroup = $data->where('is_subquestion', 0)->pluck('id')->toArray();
     
-        
-        // dd($groupedQuestions);
         
         $answers = $this->getAnswers($testTake, $data, $testParticipant);
 
@@ -56,7 +60,7 @@ class TestTakeLaravelController extends Controller
         $uuid = $testTake->uuid;
         // todo add check or failure when $current out of bounds $data;
         $styling = $this->getCustomStylingFromQuestions($data);
-        return view('test-take-overview', compact(['data', 'current', 'answers', 'playerUrl', 'nav', 'uuid', 'testParticipant', 'styling' , 'groupQuestions' , 'questionsNotInGroup']));
+        return view('test-take-overview', compact(['data', 'current', 'answers', 'playerUrl', 'nav', 'uuid', 'testParticipant', 'styling' , 'questionsInGroup' , 'questionsNotInGroup' , 'groupQuestions']));
     }
 
 
@@ -274,5 +278,11 @@ class TestTakeLaravelController extends Controller
         }else{
             return redirect()->route('auth.login');
         }
+    }
+    // Get Group for Question 
+    public function getGroupQuestion($questionId)
+    {
+        $groupQuestion = GroupQuestionQuestion::where('question_id', $questionId)->first();
+        return $groupQuestion;
     }
 }
