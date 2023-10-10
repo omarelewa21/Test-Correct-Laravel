@@ -8,13 +8,7 @@
              selid="add-{{$question['type']}}-{{$question['subtype']}}-question-btn"
         >
             <div>
-                @if($question['sticker'] === 'question-open')
-                    <x-stickers.question-open/>
-                @elseif($question['sticker'] === 'question-completion')
-                    <x-stickers.question-completion/>
-                @elseif($question['sticker'] === 'question-drawing')
-                    <x-stickers.question-drawing/>
-                @endif
+                <x-dynamic-component :component="'stickers.'.$question['sticker']"/>
             </div>
             <div class="content flex flex-col flex-1 relative">
                 <span class="bold text-base">{{ $question['name'] }}</span>
@@ -34,21 +28,7 @@
              selid="add-{{$question['type']}}-{{$question['subtype']}}-question-btn"
         >
             <div>
-                @if($question['sticker'] === 'question-multiple-choice')
-                    <x-stickers.question-multiple-choice/>
-                @elseif($question['sticker'] === 'question-matching')
-                    <x-stickers.question-matching/>
-                @elseif($question['sticker'] === 'question-classify')
-                    <x-stickers.question-classify/>
-                @elseif($question['sticker'] === 'question-ranking')
-                    <x-stickers.question-ranking/>
-                @elseif($question['sticker'] === 'question-true-false')
-                    <x-stickers.question-true-false/>
-                @elseif($question['sticker'] === 'question-selection')
-                    <x-stickers.question-selection/>
-                @elseif($question['sticker'] === 'question-arq')
-                    <x-stickers.question-arq/>
-                @endif
+                <x-dynamic-component :component="'stickers.'.$question['sticker']"/>
             </div>
             <div class="content flex flex-col flex-1 relative">
                 <span class="bold text-base">{{ $question['name'] }}</span>

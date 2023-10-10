@@ -1678,6 +1678,25 @@ button.button {
     --card-tag-border-color: var(--mid-grey);
     --card-tag-background-color: rgba(var(--mid-grey-rgb), .1);
 }
+
+.relation-question-grid {
+    --total-max-width: 940px;
+    --relation-grid-cols: 4;
+
+    width: var(--total-max-width);
+    display: grid;
+    grid-template-rows: repeat(auto-fit, 1fr);
+    grid-template-columns: repeat(var(--relation-grid-cols), minmax(140px, 240px));
+}
+
+.relation-question-grid .grid-divider {
+    grid-column-start: 0;
+    grid-column: span var(--relation-grid-cols) / span var(--relation-grid-cols);
+}
+.relation-question-grid .grid-head {
+    font-weight: bold;
+}
+
 .question-title {
     padding-bottom: 1rem;
     border-bottom: 3px solid var(--system-base);
@@ -7019,7 +7038,6 @@ input.datepicker {
 
 /* score slider hidden thumb */
 .score-slider-container :is(.score-slider-continuous-input, .score-slider-input).hide-thumb {
-    /*visibility: hidden ;*/
     --thumb-appearance: none;
     --thumb-width: 1.5rem;
     --thumb-height: 1.5rem;
@@ -11395,6 +11413,9 @@ video {
 }
 .mb-\[110px\]{
   margin-bottom: 110px;
+}
+.mb-\[30px\]{
+  margin-bottom: 30px;
 }
 .mb-\[5px\]{
   margin-bottom: 5px;

@@ -98,7 +98,7 @@ class TypeFactory
             ],
             'closed' => [
                 [
-                    'sticker'     => 'question-multiple-choice',
+                    'sticker'     => 'question-relation',
                     'name'        => __('question.relationquestion'),
                     'description' => __('question.relation_description'),
                     'type'        => 'RelationQuestion',

@@ -133,37 +133,18 @@
                     </div>
                 @endif
             </div>
-            <div class="flex w-full space-x-6 mb-5 border-b border-secondary max-h-[50px]" selid="tabs">
-                <div :class="{'border-b-2 border-primary -mb-px primary' : openTab === 1}" selid="tab-question">
-                    <x-button.default
-                            style="color:inherit"
-                            @click="openTab = 1"
-                    >
-                        {{ __('cms.Opstellen') }}
-                    </x-button.default>
-                </div>
-                <div class="" :class="{'border-b-2 border-primary -mb-px primary' : openTab === 2}"
-                     selid="tab-settings">
-                    <x-button.default
-                            style="color:inherit"
-                            @click="openTab = 2;"
-                    >
-                        {{ __('cms.Instellingen') }}
-                    </x-button.default>
-                </div>
-                @if($this->testQuestionId && $this->showStatistics())
-                    <div class="" :class="{'border-b-2 border-primary -mb-px primary' : openTab === 3}"
-                         selid="tab-statistics">
-                        <x-button.default
-                                style="color:inherit"
-                                x-on:click="openTab = 3;"
-                        >
-                            {{ __('cms.Statistiek') }}
-                        </x-button.default>
-                    </div>
-                @endif
-            </div>
 
+            <x-menu.tab.container selid="tabs" max-width-class="" class="mb-[30px]">
+                <x-menu.tab.item :tab="1" menu="openTab" selid="tab-question">
+                    {{ __('cms.Opstellen') }}
+                </x-menu.tab.item>
+                <x-menu.tab.item :tab="2" menu="openTab" selid="tab-settings">
+                    {{ __('cms.Instellingen') }}
+                </x-menu.tab.item>
+                <x-menu.tab.item :tab="3" menu="openTab" selid="tab-statistics" :when="$this->testQuestionId && $this->showStatistics()">
+                    {{ __('cms.Statistiek') }}
+                </x-menu.tab.item>
+            </x-menu.tab.container>
 
             <div class="flex flex-col flex-1 pb-20 space-y-4 relative" x-show="openTab === 1"
                  x-transition:enter="transition duration-200"
@@ -181,7 +162,7 @@
                 @if($this->requiresAnswer())
                     <x-content-section>
                         <x-slot name="title">
-                            {{ __('cms.Antwoordmodel') }}
+                            {{ $this->answerSectionTitle() }}
                         </x-slot>
 
                         @yield('question-cms-answer')

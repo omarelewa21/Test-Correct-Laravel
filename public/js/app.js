@@ -11197,13 +11197,166 @@ document.addEventListener("alpine:init", function () {
       }
     };
   });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("constructionDrawer", function (emptyStateActive, showBank) {
+    return {
+      loadingOverlay: false,
+      collapse: false,
+      backdrop: false,
+      emptyStateActive: emptyStateActive,
+      showBank: showBank,
+      init: function init() {
+        var _this102 = this;
+        this.collapse = window.innerWidth < 1000;
+        if (this.emptyStateActive) {
+          this.$store.cms.emptyState = true;
+          this.backdrop = true;
+        }
+        this.$watch("emptyStateActive", function (value) {
+          _this102.backdrop = value;
+          _this102.$store.cms.emptyState = value;
+        });
+      },
+      handleBackdrop: function handleBackdrop() {
+        if (this.backdrop) {
+          this.$root.dataset.closedWithBackdrop = "true";
+          this.backdrop = !this.backdrop;
+        } else {
+          if (this.$root.dataset.closedWithBackdrop === "true") {
+            this.backdrop = true;
+          }
+        }
+      },
+      handleLoading: function handleLoading() {
+        this.loadingOverlay = this.$store.cms.loading;
+      },
+      handleSliderClick: function handleSliderClick(event) {
+        var _this103 = this;
+        if (!event.target.classList.contains("slider-option")) {
+          return;
+        }
+        document.querySelectorAll(".option-menu-active").forEach(function (el) {
+          return _this103.$dispatch(el.getAttribute("context") + "-context-menu-close");
+        });
+        this.$nextTick(function () {
+          return _this103.showBank = event.target.firstElementChild.dataset.id;
+        });
+      }
+    };
+  });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("constructionBody", function (loading, empty, dirty, questionEditorId, answerEditorId) {
+    return {
+      loading: loading,
+      empty: empty,
+      dirty: dirty,
+      loadTimeout: null,
+      questionEditorId: questionEditorId,
+      answerEditorId: answerEditorId,
+      init: function init() {
+        var _this104 = this;
+        this.$store.cms.processing = empty;
+        this.$watch("$store.cms.loading", function (value) {
+          return _this104.loadingTimeout(value);
+        });
+        this.$watch("loading", function (value) {
+          return _this104.loadingTimeout(value);
+        });
+        this.$watch("dirty", function (value) {
+          return _this104.$store.cms.dirty = value;
+        });
+      },
+      handleQuestionChange: function handleQuestionChange(evt) {
+        // this.$store.cms.loading = true;
+        // this.loading = true;
+        // this.$wire.set("loading", true);
+        if (typeof evt !== "undefined") this.empty = false;
+        this.removeDrawingLegacy();
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth"
+        });
+        this.$store.cms.dirty = false;
+      },
+      loadingTimeout: function loadingTimeout(value) {
+        var _this105 = this;
+        /*if (value !== true)*/return;
+        this.loadTimeout = setTimeout(function () {
+          _this105.$store.cms.loading = false;
+          _this105.$store.cms.processing = false;
+          _this105.$wire.set("loading", false);
+          clearTimeout(_this105.loadTimeout);
+        }, 500);
+      },
+      removeDrawingLegacy: function removeDrawingLegacy() {
+        var _this$$root$querySele4;
+        (_this$$root$querySele4 = this.$root.querySelector("#drawing-question-tool-container")) === null || _this$$root$querySele4 === void 0 ? void 0 : _this$$root$querySele4.remove();
+      },
+      changeEditorWscLanguage: function changeEditorWscLanguage(lang) {
+        if (document.getElementById(this.questionEditorId)) {
+          WebspellcheckerTlc.lang(ClassicEditors[this.questionEditorId], lang);
+        }
+        if (document.getElementById(this.answerEditorId)) {
+          WebspellcheckerTlc.lang(ClassicEditors[this.answerEditorId], lang);
+        }
+      },
+      forceSyncEditors: function forceSyncEditors() {
+        if (document.getElementById(this.questionEditorId)) {
+          this.$wire.sync("question.question", ClassicEditors[this.questionEditorId].getData());
+        }
+        if (document.getElementById(this.answerEditorId)) {
+          this.$wire.sync("question.answer", ClassicEditors[this.answerEditorId].getData());
+        }
+      },
+      isLoading: function isLoading() {
+        return this.$store.cms.loading || this.$store.cms.emptyState;
+      },
+      isProcessing: function isProcessing() {
+        return this.$store.cms.processing;
+      }
+    };
+  });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("constructionDirector", function () {
+    return {
+      init: function init() {
+        this.$store.cms.loading = false;
+      },
+      get drawer() {
+        return this.getLivewireComponent('cms-drawer');
+      },
+      get constructor() {
+        return this.getLivewireComponent('cms');
+      },
+      openQuestion: function openQuestion(questionProperties) {
+        var _this106 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee40() {
+          return _regeneratorRuntime().wrap(function _callee40$(_context40) {
+            while (1) switch (_context40.prev = _context40.next) {
+              case 0:
+                _this106.$dispatch('store-current-question');
+                _this106.$store.cms.scrollPos = document.querySelector('.drawer').scrollTop;
+                _this106.$store.cms.loading = true;
+                _context40.next = 5;
+                return _this106.constructor.showQuestion(questionProperties);
+              case 5:
+                _this106.$store.cms.loading = false;
+              case 6:
+              case "end":
+                return _context40.stop();
+            }
+          }, _callee40);
+        }))();
+      },
+      getLivewireComponent: function getLivewireComponent(attribute) {
+        return Livewire.find(document.querySelector("[".concat(attribute, "]")).getAttribute('wire:id'));
+      }
+    };
+  });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].directive("global", function (el, _ref9) {
     var expression = _ref9.expression;
     var f = new Function("_", "$data", "_." + expression + " = $data;return;");
     f(window, el._x_dataStack[0]);
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].store("cms", {
-    loading: false,
+    loading: true,
     processing: false,
     dirty: false,
     scrollPos: 0,

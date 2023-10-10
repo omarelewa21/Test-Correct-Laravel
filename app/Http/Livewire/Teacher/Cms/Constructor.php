@@ -1528,4 +1528,11 @@ class Constructor extends TCComponent implements QuestionCms
         }
         return __('cms.Vraagstelling');
     }
+    public function answerSectionTitle(): string
+    {
+        if ($this->obj instanceof TypeProvider) {
+            return $this->obj->answerSectionTitle();
+        }
+        return __('cms.Antwoordmodel');
+    }
 }

@@ -241,4 +241,7 @@ return [
     'Antwoord opties voor student'                                                           => 'Answer options for student',
     'resultaten'                                                                             => 'results',
     'Begeleidende tekst'                                                                     => 'Accompanying text',
+    'Vraagstelling met antwoordmodel'                                                        => 'Question with answer model',
+    'Carrousel verdeling per student'                                                        => 'Distribute randomly among students',
+    'relation_carousel_tooltip'                                                              => 'With this option you can give each student a unique test filled from the list below. You can set how many questions will be given to the student.',
 ];

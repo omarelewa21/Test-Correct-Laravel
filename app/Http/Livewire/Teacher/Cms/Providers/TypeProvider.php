@@ -79,6 +79,11 @@ abstract class TypeProvider implements CmsProvider
         return __('cms.Vraagstelling');
     }
 
+    public function answerSectionTitle(): string
+    {
+        return __('cms.Antwoordmodel');
+    }
+
     public function isSettingVisible(string $property): bool
     {
         return !in_array(
