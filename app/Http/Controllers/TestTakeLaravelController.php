@@ -38,11 +38,11 @@ class TestTakeLaravelController extends Controller
         ->select('group_question_id', DB::raw('GROUP_CONCAT(question_id) as question_ids'))
         ->pluck('question_ids', 'group_question_id')
         ->map(function ($item) {
-            return explode(',', $item); // Convert the comma-separated string to an array
+            return explode(',', $item); 
         })
         ->toArray();
 
-        $groupQuestionIds = array_keys($questionsInGroup); // Get the group_question_ids from the $groupQuestions array
+        $groupQuestionIds = array_keys($questionsInGroup); 
         $groupQuestions = GroupQuestion::whereIn('id', $groupQuestionIds)->get();
 
         
