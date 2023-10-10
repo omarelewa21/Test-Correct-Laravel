@@ -28,6 +28,7 @@
                     @if ($groupQuestion[0] == $testQuestion->id )
                         @foreach ($groupQuestions as $groupQuestionItem)
                             @if ($groupQuestionItem->id == $testQuestion->belongs_to_groupquestion_id)
+                            <h6 wire:ignore class="inline-flex"> {{__('cms.group-question')}} : {{ $groupQuestionItem->name }}</h6>
                             <div class="flex flex-1 flex-col">
                                 <div class="flex flex-wrap">
                                     <x-attachment.student-buttons-container :question="$testQuestion" :group="$groupQuestionItem" :blockAttachments="false"/>

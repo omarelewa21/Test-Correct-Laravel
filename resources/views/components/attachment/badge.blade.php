@@ -19,9 +19,9 @@
     if($type == 'video') {
         $host = \tcCore\Attachment::getVideoHost($attachment->link);
     }
-    // if(isset($this->questionId)) {
-    //     $questionId = $this->questionId;
-    // }
+    if(isset($this->questionId)) {
+        $questionId = $this->questionId;
+    }
 @endphp
 
 <div @class([

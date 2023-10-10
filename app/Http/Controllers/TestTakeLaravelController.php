@@ -22,8 +22,6 @@ class TestTakeLaravelController extends Controller
     use TestTakeNavigationForController;
     use WithStudentTestTakes;
     
-    public bool           $blockAttachments;
-
     public function overview(TestTake $testTake, Request $request)
     {
         $testParticipant = TestParticipant::whereUserId(Auth::id())->whereTestTakeId($testTake->id)->first();
