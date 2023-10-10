@@ -42,8 +42,8 @@ class TestTakeLaravelController extends Controller
         })
         ->toArray();
 
-        $groupQuestionIds = array_keys($questionsInGroup); 
-        $groupQuestions = GroupQuestion::whereIn('id', $groupQuestionIds)->get();
+        $groupQuestionsId = array_keys($questionsInGroup); 
+        $groupQuestions = GroupQuestion::whereIn('id', $groupQuestionsId)->get();
 
         
         $questionsNotInGroup = $data->where('is_subquestion', 0)->pluck('id')->toArray();
@@ -276,11 +276,5 @@ class TestTakeLaravelController extends Controller
         }else{
             return redirect()->route('auth.login');
         }
-    }
-    // Get Group for Question 
-    public function getGroupQuestion($questionId)
-    {
-        $groupQuestion = GroupQuestionQuestion::where('question_id', $questionId)->first();
-        return $groupQuestion;
     }
 }
