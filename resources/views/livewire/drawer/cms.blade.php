@@ -3,51 +3,18 @@
      id="cms-drawer"
      class="drawer flex z-[20] overflow-auto"
      selid="question-drawer"
-     x-init="
-        collapse = window.innerWidth < 1000;
-        if (emptyStateActive) {
-            $store.cms.emptyState = true
-            backdrop = true;
-        }
-        handleBackdrop = () => {
-            if(backdrop) {
-                $root.dataset.closedWithBackdrop = 'true';
-                backdrop = !backdrop
-            } else {
-                if ($root.dataset.closedWithBackdrop === 'true') {
-                    backdrop = true;
-                }
-            }
-        }
-        $watch('emptyStateActive', (value) => {
-            backdrop = value
-            $store.cms.emptyState = value
-        })
-        handleLoading = () => {
-            loadingOverlay = $store.cms.loading;
-        }
-        handleSliderClick = (event) => {
-            if (!event.target.classList.contains('slider-option')) {
-                return
-            }
-            document.querySelectorAll('.option-menu-active').forEach((el) => $dispatch(el.getAttribute('context')+'-context-menu-close') );
-            $nextTick(() => showBank = event.target.firstElementChild.dataset.id);
-        }
-
-
-     "
-     x-data="{loadingOverlay: false, collapse: false, backdrop: false, emptyStateActive: @entangle('emptyStateActive'), showBank: @js($sliderButtonSelected)}"
+     x-data="constructionDrawer( @entangle('emptyStateActive'), @js($sliderButtonSelected))"
      x-cloak
      x-effect="handleLoading();"
-     :class="{'collapsed': collapse}"
-     @backdrop="backdrop = !backdrop"
-     @processing-end.window="$store.cms.processing = false;"
-     @filepond-start.window="loadingOverlay = true;"
-     @filepond-finished.window="loadingOverlay = false;"
-     @first-question-of-test-added.window="$wire.showFirstQuestionOfTest(); emptyStateActive = false; $nextTick(() => backdrop = true)"
-     @hide-backdrop-if-active.window="if(backdrop) backdrop = false"
-     @scroll="$store.cms.scrollPos = $el.scrollTop;"
-     @closed-with-backdrop.window="$root.dataset.closedWithBackdrop = $event.detail"
+     x-bind:class="{'collapsed': collapse}"
+     x-on:backdrop="backdrop = !backdrop"
+     x-on:processing-end.window="$store.cms.processing = false;"
+     x-on:filepond-start.window="loadingOverlay = true;"
+     x-on:filepond-finished.window="loadingOverlay = false;"
+     x-on:first-question-of-test-added.window="$wire.showFirstQuestionOfTest(); emptyStateActive = false; $nextTick(() => backdrop = true)"
+     x-on:hide-backdrop-if-active.window="if(backdrop) backdrop = false"
+     x-on:scroll="$store.cms.scrollPos = $el.scrollTop;"
+     x-on:closed-with-backdrop.window="$root.dataset.closedWithBackdrop = $event.detail"
      wire:ignore.self
      wire:init="handleCmsInit()"
 >
@@ -221,7 +188,7 @@
                         <x-button.back-round @click="prev($refs.newquestion); $store.questionBank.inGroup = false;"
                                              wire:click="$set('groupId', null)"
                         />
-                        <span class="bold text-lg">{{ __('cms.choose-question-type') }}</span>
+                        <span class="bold text-lg" selid="choose-question-type">{{ __('cms.choose-question-type') }}</span>
                     </div>
                 </div>
 

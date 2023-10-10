@@ -1,14 +1,11 @@
 <div class="relative drag-item question-button flex items-center cursor-pointer bold py-2 bg-white transition-colors hover:text-primary pl-6 pr-4 {{ $active ? 'question-active' : '' }}"
-     @click="$dispatch('store-current-question');
-             $wire.emitTo('teacher.cms.constructor','showQuestion',
-             {
-                'testQuestionUuid':'{{ $testQuestion ? $testQuestion->uuid : null }}',
-                'questionUuid': '{{ $question->uuid }}',
-                'isSubQuestion': {{ $subQuestion ? 1 : 0 }},
-                'shouldSave': true
-                })
-             $store.cms.scrollPos = document.querySelector('.drawer').scrollTop;
-                "
+     x-on:click="openQuestion({
+                testQuestionUuid: @js($testQuestion ? $testQuestion->uuid : null),
+                questionUuid: @js( $question->uuid ),
+                isSubQuestion: @js($subQuestion),
+                shouldSave: true
+     });
+    "
      title="{{ __('cms.Open vraag') }}"
      style="max-width: 300px"
      data-order-number="{{ $loop }}"
