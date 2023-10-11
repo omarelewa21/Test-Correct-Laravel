@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
@@ -93,5 +94,21 @@ class MacrosServiceProvider extends ServiceProvider
                 ]
             ];
         });
+
+        DB::macro(
+            'unionRaw',
+            function (
+                QueryBuilder|EloquentBuilder $queryA,
+                QueryBuilder|EloquentBuilder $queryB,
+                string                       $unionName = 'unioned'
+            ): QueryBuilder {
+                $queryA = $queryA->toBase();
+                $queryB = $queryB->toBase();
+                return DB::query()
+                    ->from(DB::raw("({$queryA->toSql()} UNION {$queryB->toSql()}) as {$unionName}"))
+                    ->mergeBindings($queryA)
+                    ->mergeBindings($queryB);
+            }
+        );
     }
 }

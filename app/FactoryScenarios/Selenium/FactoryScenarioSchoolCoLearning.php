@@ -29,7 +29,7 @@ class FactoryScenarioSchoolCoLearning extends FactoryScenarioSchool
 
     protected $sectionName;
     protected $subjectName;
-    protected $baseSubjectId;
+    public $baseSubjectId;
 
     protected $schoolClassName;
     protected Test $test;
